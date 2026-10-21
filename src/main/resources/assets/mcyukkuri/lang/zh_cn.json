@@ -848,6 +848,7 @@
   "notebook.mcyukkuri.first_voyage.practising": "正在练习／回父船",
   "notebook.mcyukkuri.first_voyage.ready": "已够大，等待父油帽船的空位与平静水面",
   "notebook.mcyukkuri.first_voyage.growing": "继续成长，先乘亲油帽船",
+  "notebook.mcyukkuri.first_voyage.orphaned": "双亲已亡，临时救助不会替代亲油带航",
   "notebook.mcyukkuri.first_voyage.adult": "成油可正常出航",
   "notebook.mcyukkuri.aquatic_shore": "\n\n岸上负担：%s／%s 秒开始疲劳\n脚脚柔弱，只宜短暂靠岸；干燥帽船中休息可恢复。",
   "settlement.mcyukkuri.role.free": "自由个体",
@@ -6337,5 +6338,7 @@
   "shop.mcyukkuri.consult.stress": "当前压力：%s",
   "shop.mcyukkuri.consult.exam_tasks": "考试根据已学技能和现场任务的实际完成情况判定。",
   "exam.mcyukkuri.profile.traits": "智力 %s · 友善 %s · 自制 %s",
-  "human.mcyukkuri.guide.shopkeeper": "店内售卖无章、银章和金章个体，用品按类别分页。初始受训库存有各自的五属性与已学技能；徽章不提高属性，也不保证识别失饰者。购买保留同一只个体、技能与徽章。稀有种展示位不售货。"
+  "human.mcyukkuri.guide.shopkeeper": "店内售卖无章、银章和金章个体，用品按类别分页。初始受训库存有各自的五属性与已学技能；徽章不提高属性，也不保证识别失饰者。购买保留同一只个体、技能与徽章。稀有种展示位不售货。",
+  "item.mcyukkuri.marisa_aquatic_hat": "水生魔理沙的帽子",
+  "aquatic.mcyukkuri.shore_pending": "已请求上岸，完成后继续。"
 }

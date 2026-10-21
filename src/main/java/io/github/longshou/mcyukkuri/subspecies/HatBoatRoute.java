@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.season.Seasons;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,9 +29,12 @@ public final class HatBoatRoute {
     public static Vec3 surface(Level level, BlockPos pos) {
         return new Vec3(pos.getX()+.5, pos.getY()+level.getFluidState(pos).getHeight(level, pos)+.025, pos.getZ()+.5);
     }
+    public static boolean exposedWeather(Level level, BlockPos pos) {
+        return level.isRainingAt(pos) || level.canSeeSky(pos) && (level.isThundering() || Seasons.snowing(level, pos));
+    }
     public static boolean quietSurface(Level level, BlockPos pos) {
         return calmSurface(level, pos) && level.getFluidState(pos).getFlow(level, pos).lengthSqr() < .01
-                && !level.isRainingAt(pos.above());
+                && !exposedWeather(level, pos.above());
     }
     /** Prefer quiet water near the remembered shore, without making an unreachable shortcut across land. */
     public static BlockPos restingPlace(HatBoatEntity boat, BlockPos bank) {

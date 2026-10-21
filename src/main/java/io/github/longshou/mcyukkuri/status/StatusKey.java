@@ -76,6 +76,8 @@ public enum StatusKey {
     CHORES("species", "chores", 0, y -> y.species().chores(), null),
     SONGS("species", "songs", 0, y -> y.dailyLife().songs(), null),
     NUZZLES("species", "nuzzles", 0, y -> y.dailyLife().nuzzles(), null),
+    DAILY_SESSION("behavior", "daily_session", 0, y -> y.dailyLife().detail(), null),
+    GROUP_SESSION("behavior", "group_session", 0, y -> y.groupInteraction().detail(), null),
     MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
     SPEECH_HOOKS("species", "speech_hooks", 0, y -> y.species().speechHooks(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),

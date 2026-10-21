@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
@@ -58,16 +59,16 @@ public final class LeaderSuccession {
         var member = data.existingMember(group, y.getUUID());
         var known = FamilyData.get(level).person(y.getUUID());
         var human = Custody.view(y);
+        boolean aquatic = y.profile().aquatic();
         return member != null && member.role == SettlementData.Role.MEMBER && member.rejections == 0
                 && y.settlement().group() == group && level.getEntity(y.getUUID()) == y
                 && known != null && known.status == FamilyData.Status.ALIVE
                 && !y.profile().houseBody() && !y.profile().dangerToYukkuri()
-                && !y.profile().aquatic()
                 && human.wild()
-                && (y.life().home() == null || y.life().naturalHome())
+                && (aquatic ? afloatAtAnchor(y) : y.life().home() == null || y.life().naturalHome())
                 && y.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= CENTER_RADIUS * CENTER_RADIUS
                 && y.isAlive() && !y.isRemoved() && !y.isNoAi() && y.family().adult() && y.life().hasAccessory()
-                && !y.isPanicking() && !y.isCommandPlaying() && !y.operations().active() && !y.isPassenger() && !y.isLeashed()
+                && !y.isPanicking() && !y.isCommandPlaying() && !y.operations().active() && (aquatic || !y.isPassenger()) && !y.isLeashed()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.life().hasUrgentNeed()
                 && Behaviors.IDLE.equals(y.life().activity()) && !y.social().active()
                 && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.family().active() && y.family().recovery() == 0
@@ -77,6 +78,13 @@ public final class LeaderSuccession {
                 && y.independence().carrying().isEmpty() && !y.habitat().active() && y.habitat().carrying().isEmpty()
                 && !y.settlement().duties().active() && !y.wintering().active()
                 && !SettlementEvents.reserved(y);
+    }
+    /** A water member can fill a vacant office only while her own calm hull is physically alongside the shared anchor. */
+    private static boolean afloatAtAnchor(YukkuriEntity y) {
+        if (!(y.getVehicle() instanceof HatBoatEntity boat)) return false;
+        return y.getUUID().equals(boat.ownerYukkuri()) && boat.isAfloat() && boat.protects(y)
+                && !boat.unsteadyMotion() && !boat.towed() && boat.flooding() == 0 && !boat.paddling()
+                && !boat.landing() && !boat.confiscating() && !boat.hasIncoming() && !boat.cargo().handling();
     }
     private LeaderSuccession() {}
 }

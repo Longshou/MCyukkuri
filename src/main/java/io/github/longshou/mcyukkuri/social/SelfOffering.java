@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
@@ -72,12 +73,14 @@ public final class SelfOffering extends Goal {
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()
                 && !entity.profile().dangerToYukkuri() && !entity.profile().houseBody() && !entity.life().isSleeping() && !entity.body().dying()
+                && (!entity.isPassenger() || EcologyMovement.captain(entity) && EcologyMovement.supported(entity))
                 && !entity.operations().active() && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
     private boolean mine(YukkuriEntity other) {
         return Bonds.parentOf(entity, other);
     }
     private boolean foodNear(YukkuriEntity around) {
+        if (around.profile().aquatic() && around.aquaticLife().availableFood() > 0) return true;
         return !level().getEntitiesOfClass(ItemEntity.class, around.getBoundingBox().inflate(8, 3, 8),
                 i -> i.isAlive() && around.life().acceptsFood(i.getItem())).isEmpty();
     }
@@ -139,14 +142,17 @@ public final class SelfOffering extends Goal {
         if (child == null) return;
         entity.getLookControl().setLookAt(child, 30, 30);
         if (phase == Phase.GIVE) {
-            entity.getNavigation().stop();
-            child.getNavigation().stop();
+            EcologyMovement.halt(entity);
+            EcologyMovement.halt(child);
             child.getLookControl().setLookAt(entity, 30, 30);
             return;
         }
         if (phase == Phase.APPROACH) {
-            if (entity.distanceToSqr(child) > 6) { if (elapsed % 10 == 1) entity.life().navigate(child.blockPosition(), 1.1, false); return; }
-            entity.getNavigation().stop();
+            if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
+                if (elapsed % 10 == 1) EcologyMovement.approach(entity, child, 1.1);
+                return;
+            }
+            EcologyMovement.halt(entity);
             phase = Phase.ASK; phaseTicks = 0; lastReason = "ask";
             GameplayLog.event(entity, "offering", "phase=ASK recipient={} elapsed={}", recipient, elapsed);
             child.life().interrupt();
@@ -155,7 +161,7 @@ public final class SelfOffering extends Goal {
             child.mind().add(12, "offer_dread");
             return;
         }
-        entity.getNavigation().stop(); child.getNavigation().stop();
+        EcologyMovement.halt(entity); EcologyMovement.halt(child);
         child.getLookControl().setLookAt(entity, 30, 30);
         // The rite can be interrupted: fed in time, the child is no longer starving and the parent lives.
         if (child.life().nutrition() >= 25) {
@@ -165,6 +171,10 @@ public final class SelfOffering extends Goal {
                     child.getUUID(), child.life().nutrition(), phase, elapsed);
             phase = Phase.NONE; recipient = null;
             return;
+        }
+        if ((EcologyMovement.boat(entity) != null || EcologyMovement.boat(child) != null)
+                && (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child))) {
+            phase = Phase.APPROACH; phaseTicks = 0; lastReason = "recipient_moved"; return;
         }
         phaseTicks++;
         if (phase == Phase.ASK && phaseTicks >= ASK_TICKS) {
@@ -202,7 +212,7 @@ public final class SelfOffering extends Goal {
                 phase, recipient, elapsed, entity.body().dying(), entity.isAlive(), child != null && child.isAlive(),
                 child != null && child.body().dying(), entity.isPanicking(), entity.isInWaterOrBubble(), elapsed > 900);
         if (phase != Phase.NONE) lastReason = "interrupted";
-        phase = Phase.NONE; entity.getNavigation().stop();
+        phase = Phase.NONE; EcologyMovement.halt(entity);
         if (entity.isAlive() && !entity.body().dying()) { recipient = null; child = null; }
         scanWait = 200;
     }

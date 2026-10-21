@@ -11,6 +11,12 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -91,6 +97,7 @@ public final class Cannibalism extends Goal {
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()
                 && !entity.profile().dangerToYukkuri() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()
+                && (!entity.isPassenger() || EcologyMovement.supported(entity))
                 && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
 
@@ -127,12 +134,13 @@ public final class Cannibalism extends Goal {
         if (scanWait > 0 || !eligible()) return false;
         scanWait = 40 + entity.getRandom().nextInt(40);
         float nutrition = entity.life().nutrition();
-        if (entity.life().canEat() && foodNearby() == null && nutrition < 40) {
+        boolean foodAvailable = foodNearby() != null || entity.profile().aquatic() && entity.aquaticLife().availableFood() > 0;
+        if (entity.life().canEat() && !foodAvailable && nutrition < 40) {
             var meal = level().getEntitiesOfClass(RemainsEntity.class, entity.getBoundingBox().inflate(12, 4, 12), this::mayEat).stream()
-                    .filter(r -> entity.life().reachable(r.blockPosition(), false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                    .filter(this::reachable).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (meal != null) { body = meal; offeredBody = offeredToMe(meal.data()); return begin(Mode.CARRION, offeredBody ? "offered" : "carrion"); }
         }
-        if (free() && nutrition < 12 && huntCooldown() == 0 && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && entity.family().adult() && foodNearby() == null
+        if (free() && nutrition < 12 && huntCooldown() == 0 && YukkuriConfig.CANNIBAL_UNRECOGNIZED.get() && entity.family().adult() && !foodAvailable
                 && entity.getRandom().nextInt(3) == 0) {
             var target = findPrey();
             if (target != null) { prey = target; return begin(Mode.HUNT, "hunt"); }
@@ -140,7 +148,8 @@ public final class Cannibalism extends Goal {
         if (smellWait == 0 && nutrition >= 8) {
             var source = RemainsRot.source(level(), entity.position());
             if (source != null) {
-                var spot = DefaultRandomPos.getPosAway(entity, 14, 6, source.position());
+                var spot = EcologyMovement.boat(entity) == null ? DefaultRandomPos.getPosAway(entity, 14, 6, source.position()) : waterAway(source.position());
+                if (spot == null && EcologyMovement.boat(entity) != null) { smellWait = 100; return false; }
                 if (spot == null) {
                     // No random spot fitted the navigation: walk straight away from the smell instead.
                     var dir = entity.position().subtract(source.position()).multiply(1, 0, 1);
@@ -154,6 +163,33 @@ public final class Cannibalism extends Goal {
         lastReason = "nothing to do";
         return false;
     }
+    /** Water routes and nearby supported contact replace land navigation only for an actual hat rider. */
+    private boolean reachable(Entity target) {
+        return EcologyMovement.reachable(entity, target.blockPosition())
+                || EcologyMovement.boat(entity) != null && entity.distanceToSqr(target) <= 4 && entity.hasLineOfSight(target);
+    }
+    private Vec3 waterAway(Vec3 source) {
+        var boat = EcologyMovement.boat(entity);
+        if (boat == null || !EcologyMovement.captain(entity)) return null;
+        Vec3 direction = boat.position().subtract(source).multiply(1, 0, 1);
+        direction = direction.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : direction.normalize();
+        for (float angle : new float[]{0, .7854f, -.7854f, 1.5708f, -1.5708f}) {
+            Vec3 point = boat.position().add(direction.yRot(angle).scale(8));
+            if (EcologyMovement.reachable(entity, BlockPos.containing(point))) return point;
+        }
+        return null;
+    }
+    /** The same authored mouth used for held food must meet the target's real body before a water-side bite. */
+    private boolean mouthTouches(Entity target) {
+        Vec3 toward = target.position().subtract(entity.position());
+        SurfaceApproach.face(entity, (float)(Math.toDegrees(Math.atan2(toward.z, toward.x)) - 90));
+        Vec3 mouth = MouthPlacement.position(entity);
+        var box = target.getBoundingBox();
+        Vec3 point = new Vec3(Math.clamp(mouth.x, box.minX, box.maxX), Math.clamp(mouth.y, box.minY, box.maxY),
+                Math.clamp(mouth.z, box.minZ, box.maxZ));
+        return mouth.distanceToSqr(point) <= .04 && entity.level().clip(new ClipContext(mouth, point,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity)).getType() == HitResult.Type.MISS;
+    }
     private boolean begin(Mode next, String reason) {
         mode = next; elapsed = 0; bites = 0; biteClock = 20; lastReason = reason;
         return true;
@@ -166,10 +202,10 @@ public final class Cannibalism extends Goal {
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
                         && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
-                        && Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
+                        && Headwear.fairGame(entity, y) && (!y.isPassenger() || EcologyMovement.boat(y) != null) && !y.body().dying()
                         && !Recognition.grotesque(y)
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
-                        && entity.hasLineOfSight(y) && entity.life().reachable(y.blockPosition(), false)).stream()
+                        && entity.hasLineOfSight(y) && reachable(y)).stream()
                 .min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
@@ -194,7 +230,7 @@ public final class Cannibalism extends Goal {
         elapsed++;
         if (biteClock > 0) biteClock--;
         switch (mode) {
-            case AVOID -> { if (elapsed % 20 == 1) entity.life().navigate(BlockPos.containing(away), 1.1, false); }
+            case AVOID -> { if (elapsed % 20 == 1) EcologyMovement.navigate(entity, away, 1.1); }
             case CARRION -> carrion();
             case HUNT -> hunt();
             default -> { }
@@ -202,11 +238,12 @@ public final class Cannibalism extends Goal {
     }
     private void carrion() {
         entity.getLookControl().setLookAt(body, 30, 30);
-        if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()) {
-            if (elapsed % 10 == 1 && !entity.life().navigate(body.blockPosition(), 1, false)) lastReason = "unreachable";
+        if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()
+                || EcologyMovement.boat(entity) != null && !mouthTouches(body)) {
+            if (elapsed % 10 == 1 && !EcologyMovement.approach(entity, body, 1)) lastReason = "approaching_contact";
             return;
         }
-        entity.getNavigation().stop();
+        EcologyMovement.halt(entity);
         if (biteClock > 0 || entity.life().mealTicks() > 0 || !entity.life().canAcceptBodyFood()) return;
         var data = body.data();
         boolean offered = offeredToMe(data);
@@ -229,12 +266,15 @@ public final class Cannibalism extends Goal {
         entity.getLookControl().setLookAt(prey, 30, 30);
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .6;
         if (entity.life().mealTicks() > 0) return;
-        if (entity.distanceToSqr(prey) > reach * reach) {
+        boolean afloat = EcologyMovement.boat(entity) != null || EcologyMovement.boat(prey) != null;
+        if (entity.distanceToSqr(prey) > reach * reach || afloat && !mouthTouches(prey)) {
+            if (afloat) { EcologyMovement.approach(entity, prey, 1.25); return; }
             // The last blocks are walked straight at the target: path navigation ends beside it, still out of biting range.
             if (entity.distanceToSqr(prey) < 16) entity.getMoveControl().setWantedPosition(prey.getX(), prey.getY(), prey.getZ(), 1.25);
             else if (elapsed % 8 == 1) entity.getNavigation().moveTo(prey, 1.25);
             return;
         }
+        if (afloat) EcologyMovement.halt(entity);
         if (biteClock > 0) return;
         if (!entity.life().canAcceptBodyFood()) return;
         float healthBefore = prey.getHealth();
@@ -259,7 +299,7 @@ public final class Cannibalism extends Goal {
         if (mode == Mode.CARRION && bites > 0 && offeredBody) { entity.mind().add(15, "offered_grief"); entity.showReactionDelayed("blank_cry", "offer_grief", 100, 20); }
         offeredBody = false;
         mode = Mode.NONE; body = null; prey = null; away = null;
-        entity.getNavigation().stop();
+        EcologyMovement.halt(entity);
         scanWait = 60;
     }
 }

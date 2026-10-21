@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
@@ -160,7 +161,8 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean retaliate(YukkuriEntity attacker) {
         // Repeated hits from the same attacker acknowledge the existing defence without restarting its phase or deadline.
         if (retaliation && prey == attacker && retaliationReady()) return true;
-        if (!retaliationReady() || !visibleHuntable(attacker, true) || !canFlyTo(attacker.blockPosition())) {
+        if (!retaliationReady() || !visibleHuntable(attacker, true)
+                || !waterbornePrey(attacker) && !canFlyTo(attacker.blockPosition())) {
             GameplayLog.limited(animal,"predator","retaliation_refused",200,
                     "retaliation refused; attacker={} health={}/{} energy={} order={} ready={}",
                     attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady());
@@ -210,7 +212,7 @@ public final class PredatorLife implements EcologyRoutine {
     /** Whether the target remains legally huntable; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
         if (target == animal || !target.isAlive() || target.body().dying() || target.isInvulnerable() || EcologyRoutines.predator(target)
-                || EcologyRoutines.house(target) || target.isPassenger() || target.operations().active()
+                || EcologyRoutines.house(target) || target.isPassenger() && !waterbornePrey(target) || target.operations().active()
                 || target.getScale() * target.growthScale() > animal.getScale() * animal.growthScale() * 1.35) return false;
         if (target.mind().foulFilling() && animal.life().nutrition() >= 15) return false;
         // Educated animals respect protected pets; uneducated ones retain the wild risk after purchase.
@@ -219,6 +221,14 @@ public final class PredatorLife implements EcologyRoutine {
         var shelter = target.habitat().shelter();
         if (shelter != null && shelter.owns(target.getUUID()) && shelter.sound() && shelter.contains(target.blockPosition())) return false;
         return true;
+    }
+    /** A protected passenger may be hunted only while its actual hat is steady and afloat.
+     * Loading, a service-seat move, or a temporary captain transfer does not make the hull's
+     * visible passenger immune.  Those states govern what the passenger may initiate; the
+     * predator still has to satisfy sight and its later physical attack checks. */
+    private boolean waterbornePrey(YukkuriEntity target) {
+        var hat = target == null ? null : EcologyMovement.boat(target);
+        return hat != null && hat.isAfloat() && !hat.unsteadyMotion() && !hat.towed() && hat.flooding() == 0;
     }
     /** New hunts require sight in the local search radius; an active hunt deliberately does not. */
     private boolean visibleHuntable(YukkuriEntity target, boolean respect) {
@@ -389,6 +399,9 @@ public final class PredatorLife implements EcologyRoutine {
                 land(); return;
             }
             if (ticks % 20 == 1) alertPrey();
+            // A genuine visible predator is the danger that wakes a crew.  The hat's alarm retains
+            // the actual escape route; this merely prevents a sleeping passenger from ignoring it.
+            if (waterbornePrey(prey)) prey.life().wakeInHat();
             if (task == Task.TAKEOFF) {
                 YukkuriEntity target = prey;
                 fly(animal.position().add(0, 1.2, 0), 1);

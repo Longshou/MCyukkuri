@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,8 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 import net.minecraft.core.Direction;
@@ -51,6 +54,9 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private int cooldown, elapsed, launchTicks, gatherTicks, provisionTicks, familyWait, hatCareTicks, restSearchTicks;
     private boolean nightVoyage, hatCareDue, familyDelayed, birthLaunch, courtshipShoreVisit;
     private boolean shoreVisitRequested;
+    public enum ShoreWork { SETTLEMENT, INDEPENDENCE, FORAGE, HUMAN, PLAY, THERMAL }
+    /** Short-lived requests owned and renewed by the existing domain task, never a second task queue. */
+    private final EnumMap<ShoreWork, Long> shoreWork = new EnumMap<>(ShoreWork.class);
     /** Ticks a shore trip or a stranded hull has gone without finishing; not saved, so a reload simply starts the clock again. */
     private int shoreTripTicks, beachedTicks;
     private ItemStack provisions = ItemStack.EMPTY;
@@ -95,10 +101,31 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public HatFamilyPaddle familyPaddle() { return familyPaddle; }
     public AquaticSelfRescue selfRescue(){return selfRescue;}
     public int provisions() { return provisions.getCount(); }
+    public int stockTarget() {
+        return Seasons.on(level(), entity.blockPosition(), Season.AUTUMN)
+                || Seasons.on(level(), entity.blockPosition(), Season.WINTER) ? 8 : 4;
+    }
+    public int availableFood() {
+        var home = entity.habitat().waterHome();
+        return provisions.getCount() + firstVoyage.retainedFoodCount() + (home == null ? 0 : home.cargo().count());
+    }
+    /** Transfer real carried food; the remaining source stays with its current domain owner. */
+    public int receiveProvisions(ItemStack source, int limit) {
+        if (source.isEmpty() || !entity.life().acceptsFood(source)
+                || !provisions.isEmpty() && !ItemStack.isSameItemSameComponents(provisions, source)) return 0;
+        int moved = Math.min(Math.min(limit, source.getCount()), Math.max(0, 8 - provisions.getCount()));
+        if (moved <= 0) return 0;
+        int before = provisions.getCount();
+        if (provisions.isEmpty()) provisions = source.split(moved);
+        else { provisions.grow(moved); source.shrink(moved); }
+        GameplayLog.event(entity, "forage", "provisions received count={} -> {} sourceRemaining={}", before, provisions.getCount(), source.getCount());
+        return moved;
+    }
     /** Server-side cargo/custody readout; it only observes the current physical hull and its existing ledgers. */
     public String cargoDetail(){
         String state="activity="+activity+" firstVoyage="+firstVoyage.status()+" waitingYoung="+expectedYoung.size()+" familyDelayed="+familyDelayed
-                +" boardingBank="+rememberedBank;
+                +" boardingBank="+rememberedBank+" shoreWork="+shoreWork.keySet()+" climate="+(entity.life().temperature().active()?entity.life().temperature().activity():"idle")
+                +" food="+availableFood()+" stockTarget="+stockTarget()+" forage="+entity.forageTrip().phase();
         HatBoatEntity boat=entity.getVehicle() instanceof HatBoatEntity ridden ? ridden : null;
         if(boat==null&&entity.level() instanceof ServerLevel server){
             UUID id=entity.life().custodyBoat();
@@ -121,6 +148,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public void landed() {
         shoreVisitRequested = false; cooldown = courtshipShoreVisit ? 240 : 80; courtshipShoreVisit=false;
         nightVoyage = false; hatCareDue = true; expectedYoung.clear(); restWater = null; yieldAllBut(BoatTask.TRIP_ENDED);
+        long now = level().getGameTime();
+        shoreWork.replaceAll((work, until) -> now + 200);
         GameplayLog.event(entity,"aquatic","voyage landed cooldown={} hatCareDue={}",cooldown,hatCareDue);
     }
     /** Request real shore travel; the normal water route, landing contact and accessory rules still apply. */
@@ -133,6 +162,29 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         shoreVisitRequested=true; courtshipShoreVisit=courtship; entity.life().wakeInHat(); return true;
     }
     public boolean shoreVisitRequested() { return shoreVisitRequested; }
+    public boolean requestShoreWork(ShoreWork work) {
+        if (entity.level().isClientSide || !entity.profile().aquatic()) return false;
+        if (!entity.isPassenger()) {
+            if (!entity.onGround()) return false;
+            holdShoreWork(work); return true;
+        }
+        if (!requestShoreVisit()) return false;
+        holdShoreWork(work); return true;
+    }
+    public void holdShoreWork(ShoreWork work) {
+        if (entity.level().isClientSide || !entity.profile().aquatic()) return;
+        long now = level().getGameTime();
+        if (!shoreWork.containsKey(work) || shoreWork.get(work) <= now)
+            GameplayLog.event(entity, "aquatic", "shore work requested kind={} aboard={}", work, entity.isPassenger());
+        shoreWork.put(work, now + 200);
+    }
+    public void releaseShoreWork(ShoreWork work) {
+        if (shoreWork.remove(work) != null) GameplayLog.event(entity, "aquatic", "shore work released kind={}", work);
+    }
+    public boolean shoreWorkActive() {
+        long now = level().getGameTime();
+        return shoreWork.values().stream().anyMatch(until -> until > now);
+    }
     /** Server-side water-birth/return-visit readout; it never plans, launches, or searches for water. */
     public String waterBirthDetail(){
         long now=level().getGameTime();
@@ -188,6 +240,10 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     // This clock serves ordinary passengers and hat owners as well as aquatic voyagers.
     @Override public boolean supportsPassiveTick() { return true; }
     @Override public void passiveTick() {
+        if (!shoreVisitRequested) shoreWork.values().removeIf(until -> until <= level().getGameTime());
+        // A real carried forage trip survives temporary hunger or sleep interruptions on shore.
+        if (entity.profile().aquatic() && !entity.isPassenger() && entity.forageTrip().outing()
+                && entity.tickCount % 40 == 0) holdShoreWork(ShoreWork.FORAGE);
         UUID ownBoat = entity.getVehicle() instanceof HatBoatEntity hat && entity.getUUID().equals(hat.ownerYukkuri())
                 ? hat.getUUID() : null;
         if (!Objects.equals(ownBoat, observedOwnBoat)) {
@@ -319,7 +375,47 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         }
         return null;
     }
+    /** An ordinary voyage yields the selector to real domain goals; custody and urgent physiology do not. */
+    private boolean priorityAtSea() {
+        if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.protects(entity)) return true;
+        if (!boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() > 0
+                || boat.landing() || boat.confiscating() || boat.transportingInHat(entity)
+                || boat.hasIncoming() || boat.cargo().handling() || !expectedYoung.isEmpty()
+                || shoreVisitRequested || firstVoyage.active() || care.active() || familyPaddle.active()
+                || shoreForage.active() || entity.family().laboring() || entity.family().braidRescueActive()
+                || familyLife.alarm().preventsOuting() || entity.isPanicking()) return true;
+        return entity.life().mealTicks() > 0 || entity.life().nutrition() < 25
+                || entity.life().energy() <= 20 || entity.life().dryness() >= 40
+                || entity.life().bladder() >= 70 && !entity.life().constipated()
+                || entity.life().isSleeping() || entity.life().temperature().active()
+                || entity.life().temperature().unsafeSleep();
+    }
+    private boolean routineAfloat() {
+        return available() && entity.getVehicle() instanceof HatBoatEntity boat && boat.protects(entity);
+    }
+    /** A separate selector identity sharing this state machine, never a second passive clock. */
+    public Goal routineGoal() {
+        return new Goal() {
+            { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }
+            @Override public boolean canUse() {
+                if (!routineAfloat() || priorityAtSea()) return false;
+                // Starting a real lesson/departure promotes this same voyage to the priority-3 goal.
+                return !firstVoyage.tryStart();
+            }
+            @Override public boolean canContinueToUse() { return canUse(); }
+            @Override public boolean requiresUpdateEveryTick() { return true; }
+            @Override public void start() { AquaticLife.this.start(); }
+            @Override public void tick() { AquaticLife.this.tick(); }
+            @Override public void stop() {
+                // A meal/care/boarding started by the routine is handed to priority 3 intact.
+                // Other interruptions cancel through the same original domain teardown.
+                if (routineAfloat() && priorityAtSea() && !entity.isPanicking()) return;
+                AquaticLife.this.stop();
+            }
+        };
+    }
     @Override public boolean canUse() {
+        if (routineAfloat() && !priorityAtSea()) return false;
         if (reactingToBoatMotion()) return true;
         if (respondingToFamilyAlarm()) return true;
         if (familyLife.alarm().shoreResponse()) return true;
@@ -338,6 +434,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (canTendHat()) { hatCareTicks = 0; return true; }
         if (!EcologyRoutines.aquaticVoyage(entity)) return false;
         if (entity.isPassenger()) return refuseLaunch("passenger");
+        if (shoreWorkActive()) return refuseLaunch("shore_work");
         if (entity.isPanicking()) return refuseLaunch("panicking");
         if (!entity.onGround()) return refuseLaunch("not_grounded");
         if (!firstVoyage.mayLaunch()) return refuseLaunch("first_voyage_ineligible");
@@ -382,6 +479,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         return false;
     }
     @Override public boolean canContinueToUse() {
+        if (routineAfloat() && !priorityAtSea()) return false;
         if (reactingToBoatMotion()) return true;
         if (respondingToFamilyAlarm()) return true;
         if (familyLife.alarm().shoreResponse()) return true;
@@ -395,6 +493,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (entity.getVehicle() instanceof HatBoatEntity boat) return boat.protects(entity);
         if (canTendHat()) return hatCareTicks < 48;
         if (bank == null || water == null) return false;
+        if (shoreWorkActive()) return false;
         if (elapsed >= 720) return refuseLaunch("attempt_timeout");
         if (entity.isPanicking()) return refuseLaunch("panicking");
         if (entity.life().mealTicks() != 0) return refuseLaunch("eating");
@@ -501,7 +600,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     }
     private boolean needsBeforeLaunch() {
         return entity.life().bladder()>=70&&!entity.life().constipated()
-                ||entity.life().nutrition()<25&&provisions.isEmpty();
+                ||entity.life().nutrition()<25&&provisions.isEmpty()
+                ||entity.life().temperature().unsafeSleep();
     }
     /** Carry a small real food reserve to the bank; no provisions appear merely because a voyage starts. */
     private boolean prepareFood() {
@@ -617,7 +717,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 || level().isNight() || level().isRainingAt(boat.blockPosition())
                 || boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y && (y.isPanicking()||y.life().hasUrgentNeed())))) yieldAllBut(BoatTask.PADDLE_UNAVAILABLE);
         if (shoreForage.active() && (boat.transportingInHat(entity) || care.active() || !boat.isAfloat()
-                || boat.towed() || boat.flooding()>0 || !boat.cargo().paddle() || boat.cargo().count()>2
+                || boat.towed() || boat.flooding()>0 || !boat.cargo().paddle() || boat.cargo().count()>=stockTarget()
                 || entity.life().mealTicks()>0 || entity.life().isSleeping() || entity.life().dryness()>=40
                 || entity.isPanicking() || entity.family().laboring() || boat.hasIncoming() || !expectedYoung.isEmpty()
                 || boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y && y.isPanicking()))) yieldAllBut(BoatTask.FORAGE_UNAVAILABLE);
@@ -653,7 +753,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             if (familyLife.alarm().tickOnboard(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity=familyLife.alarmActivity(); return; }
             if (familyLife.reactInHat(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); entity.childhood().stopHatPractice(); activity=familyLife.activity(); return; }
             if (captain == null || captain.aquaticLife().resting() || entity.life().isSleeping()
-                    || entity.life().energy() <= (entity.family().needsMash() ? 65 : 35)) entity.life().restInHat(boat);
+                    || entity.life().wantsHatNap() || entity.life().energy() <= (entity.family().needsMash() ? 65 : 35)) entity.life().restInHat(boat);
             else entity.life().wakeInHat();
             if (familyLife.tickPassenger(boat)) { yieldAllBut(BoatTask.PASSENGER_ACTIVITY); activity = familyLife.activity(); return; }
             if (daily.tick(boat)) { entity.childhood().stopHatPractice(); activity = daily.activity(); return; }
@@ -695,6 +795,14 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             yieldAllBut(BoatTask.URGENT_FOOD); entity.life().wakeInHat(); boat.stopPaddling();
             if (boat.cargo().feed(entity)) { activity = Behaviors.BOAT_EAT; return; }
         }
+        var climate = entity.life().temperature();
+        if (!shoreVisitRequested && !boat.landing() && (climate.active() || climate.unsafeSleep() && climate.plan())) {
+            yieldAllBut(BoatTask.DISTRESS); entity.life().wakeInHat();
+            if (climate.tickGoal()) { activity = climate.activity(); return; }
+        }
+        if (!shoreVisitRequested && (climate.needsShoreRefuge()
+                || !climate.unsafeSleep() && boat.youngPassengers().stream().anyMatch(y -> y.life().temperature().unsafeSleep())))
+            requestShoreWork(ShoreWork.THERMAL);
         if ((boat.landing() || shoreVisitRequested) && !familyLife.alarm().preventsOuting() && !entity.family().braidRescueActive()) {
             yieldAllBut(BoatTask.LANDING); land(boat); return;
         }
@@ -792,11 +900,17 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             boat.stopPaddling(); activity = Behaviors.BOAT_EAT; return;
         }
         // Small captains replenish a real reserve while still well fed; parent refuge is the fallback when it runs out.
-        boolean lowStores = boat.cargo().count()<=2 && (familyLife.followsParent() && boat.cargo().count()<2
-                || boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y && y.life().nutrition()<60));
+        boolean lowStores = boat.cargo().count() < Math.min(stockTarget(), boat.cargo().count() + boat.cargo().remainingCapacity())
+                && (Seasons.on(level(), entity.blockPosition(), Season.AUTUMN)
+                    || Seasons.on(level(), entity.blockPosition(), Season.WINTER)
+                    || familyLife.followsParent() || boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y.life().nutrition() < 60));
         if ((shoreForage.active() || lowStores) && shoreForage.tick(boat)) { yieldAllBut(BoatTask.SHORE_FORAGE); activity=shoreForage.activity(); return; }
+        if (lowStores && floatingSource == null && !shoreForage.active() && entity.family().adult()
+                && elapsed % 80 == 1 && !seekFloatingFood(boat) && requestShoreWork(ShoreWork.FORAGE)) {
+            yieldAllBut(BoatTask.LANDING); land(boat); return;
+        }
         if (gatherTicks > 0) { yieldAllBut(BoatTask.GATHERING); gatherTicks--; boat.stopPaddling(); activity = Behaviors.BOAT_GATHER; return; }
-        if ((level().isNight() || level().isRainingAt(boat.blockPosition())) && !entity.life().isSleeping()) {
+        if ((level().isNight() || HatBoatRoute.exposedWeather(level(), boat.blockPosition())) && !entity.life().isSleeping()) {
             yieldAllBut(BoatTask.REST);
             if (restWater != null && (!HatBoatRoute.quietSurface(level(),restWater)
                     || !familyLife.allowsDestination(boat,HatBoatRoute.surface(level(),restWater)))) restWater = null;
@@ -810,7 +924,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                     // Only actual soaking forces an emergency shore visit; a new day never does.
                     if(boat.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&y.life().wetness()>60)){land(boat);return;}
                     boat.stopPaddling();activity=Behaviors.BOAT_STEADY;
-                    if(level().isNight()&&!level().isRainingAt(boat.blockPosition())
+                    if(level().isNight()&&!HatBoatRoute.exposedWeather(level(), boat.blockPosition())
                             &&HatBoatRoute.calmSurface(level(),BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ()))){
                         if(care.tend(boat,true))activity=care.activity();
                         else{entity.life().restInHat(boat);activity=Behaviors.BOAT_SLEEP;}
@@ -825,7 +939,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             // Let the parent finish the lullaby before starting the physiological sleep clock.
             if (care.tend(boat,level().isNight())) { activity = care.active() ? care.activity() : Behaviors.BOAT_DRIFT; return; }
         }
-        if (level().isNight() || entity.life().energy() <= 20 || entity.life().isSleeping()) {
+        if (level().isNight() || entity.life().energy() <= 20 || entity.life().isSleeping() || entity.life().wantsHatNap()) {
             yieldAllBut(BoatTask.REST);
             boat.stopPaddling(); entity.life().restInHat(boat); activity = Behaviors.BOAT_SLEEP; return;
         }
@@ -1036,7 +1150,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         selfRescue.load(tag.getCompound("SelfRescue"));
         shore.load(tag.getCompound("Shore"));
         shoreVisitRequested=tag.getBoolean("ShoreVisitRequested");
-        if (!provisions.isEmpty()) provisions.setCount(Math.min(4,provisions.getCount()));
+        if (!provisions.isEmpty()) provisions.setCount(Math.min(8,provisions.getCount()));
         expectedYoung.clear(); restWater = null; restSearchTicks = 0;
         for (var raw : tag.getList("ExpectedYoung",Tag.TAG_COMPOUND))
             if (raw instanceof CompoundTag entry && entry.hasUUID("Id") && expectedYoung.size() < HatBoatEntity.MAX_YOUNG) expectedYoung.add(entry.getUUID("Id"));

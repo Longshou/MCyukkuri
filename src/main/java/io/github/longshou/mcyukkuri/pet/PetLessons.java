@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 public final class PetLessons {
     public static final String LOCK = "lesson";
     public static final int FEEDBACK_WINDOW = 80, COOLDOWN = 200, DAY = 24000;
-    public enum State { IDLE, RUNNING, AWAITING }
+    public enum State { IDLE, SHORE_PENDING, RUNNING, AWAITING }
 
     private final YukkuriEntity animal;
     private final EnumSet<PetSkill> known = EnumSet.noneOf(PetSkill.class);
@@ -33,6 +34,8 @@ public final class PetLessons {
     private UUID owner, markCard;
     private boolean completed;
     private int feedbackLeft, today, dayClock, routineObserveLeft;
+    /** One submitted lesson may wait for the passenger's real shore landing; no lock, fee or lesson result exists yet. */
+    private long shorePendingUntil;
 
     public PetLessons(YukkuriEntity animal) { this.animal = animal; }
     public State state() { return state; }
@@ -86,20 +89,40 @@ public final class PetLessons {
             case READING, ARITHMETIC -> true;
         };
     }
-    public String refusal(Player player, PetSkill skill) {
+    public String refusal(Player player, PetSkill skill) { return refusal(player,skill,false); }
+    /** Preview stays side-effect free. A committed request may validate everything but its current boat position. */
+    private String refusal(Player player, PetSkill skill,boolean requireDryFeet) {
         if (knows(skill)) return "already_known";
-        if (!animal.pet().readyFor(player)) return "not_ready";
+        if (requireDryFeet && animal.isPassenger()) return "not_ready";
+        if (!(requireDryFeet ? animal.pet().readyFor(player) : animal.pet().readyForShoreRequest(player))) return "not_ready";
         if (animal.pet().cooldown() > 0) return "cooldown";
         return preconditionOk(player, skill) ? null : "need_" + skill.key();
     }
     public boolean start(Player player, PetSkill skill) {
-        if (animal.level().isClientSide || state == State.RUNNING || skill == null) return false;
-        var reason = refusal(player, skill);
+        if (animal.level().isClientSide || state != State.IDLE || skill == null) return false;
+        var reason = refusal(player, skill, false);
         if (reason != null) {
             GameplayLog.limited(animal, "lesson", "start." + reason, 20,
                     "lesson refused owner={} skill={} reason={}", player.getUUID(), skill, reason);
             player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse." + reason), true); return false;
         }
+        // A button press is the actual lesson request. Keep it bounded until the captain completes the
+        // ordinary landing, then validate the same request again before creating any lesson state.
+        if (animal.isPassenger()) {
+            if (!animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) {
+                player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse.not_ready"), true); return false;
+            }
+            state=State.SHORE_PENDING;kind=skill;owner=player.getUUID();shorePendingUntil=level().getGameTime()+600;
+            GameplayLog.event(animal,"lesson","lesson shore pending owner={} skill={} until={}",owner,skill,shorePendingUntil);
+            return true;
+        }
+        return begin(player,skill);
+    }
+    /** The pending callback and the direct player request share this only-after-landing start path. */
+    private boolean begin(Player player,PetSkill skill) {
+        var reason=refusal(player,skill,true);
+        if(reason!=null)return false;
+        animal.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         // Facilities keep their ordinary life state machine. This observation never performs a
         // timed imitation: success arrives only through PetLife.routineCompleted after food,
         // toileting, or a full rest has actually completed.
@@ -110,7 +133,9 @@ public final class PetLessons {
             return true;
         }
         var run = new Run(player, skill);
-        if (!run.prepare() || !animal.pet().lock(LOCK, player.getUUID())) return false;
+        if (!run.prepare() || !animal.pet().lock(LOCK, player.getUUID())) {
+            animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN); return false;
+        }
         state = State.RUNNING; kind = skill; owner = player.getUUID(); completed = false;
         GameplayLog.event(animal, "lesson", "lesson started owner={} skill={} mode=directed", owner, skill);
         animal.pet().direct(run);
@@ -203,7 +228,13 @@ public final class PetLessons {
             animal.playAction("idle"); completed = complete(skill); finishLesson(completed);
         }
         private void interrupt() { if (card != null) Staging.removeCard(level(), card); PetLessons.this.interrupt(player); }
-        @Override public void stop(YukkuriEntity ignored) { if (card != null) Staging.removeCard(level(), card); if (state == State.RUNNING) state = State.IDLE; }
+        @Override public void stop(YukkuriEntity ignored) {
+            if (card != null) Staging.removeCard(level(), card);
+            if (state == State.RUNNING) {
+                state = State.IDLE;
+                animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+            }
+        }
     }
 
     private void finishLesson(boolean learnedNow) {
@@ -214,6 +245,7 @@ public final class PetLessons {
         GameplayLog.event(animal, "lesson", "lesson ended owner={} skill={} learnedNow={} awaitingFeedbackTicks={}",
                 owner, kind, learnedNow, feedbackLeft);
         animal.pet().unlock(LOCK);
+        animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
         markCard = Staging.card(level(), animal.position().add(0, animal.getBbHeight() + .6, 0), Component.translatable("pet.mcyukkuri.card.feedback"), FEEDBACK_WINDOW + 10, 1.6f);
         var player = level().getPlayerByUUID(owner);
         if (player != null) player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson." + (learnedNow ? "success" : "failure"), animal.getDisplayName()), true);
@@ -221,6 +253,7 @@ public final class PetLessons {
     private void interrupt(Player player) {
         if (state != State.RUNNING) return;
         animal.pet().unlock(LOCK); state = State.IDLE;
+        animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
         GameplayLog.event(animal, "lesson", "lesson interrupted owner={} skill={} nutrition={} energy={} panic={} water={} fire={} hurtTime={}",
                 owner, kind, animal.life().nutrition(), animal.life().energy(), animal.isPanicking(),
                 animal.isInWaterOrBubble(), animal.isOnFire(), animal.hurtTime);
@@ -238,9 +271,36 @@ public final class PetLessons {
     public void tick() {
         if (animal.level().isClientSide) return;
         if (dayClock > 0 && ++dayClock >= DAY) { dayClock = 0; today = 0; }
+        if(state==State.SHORE_PENDING){
+            var player=owner==null?null:level().getPlayerByUUID(owner);
+            var skill=kind;
+            if(player==null||!player.isAlive()||player.level()!=animal.level()||skill==null||level().getGameTime()>=shorePendingUntil){
+                GameplayLog.event(animal,"lesson","lesson shore pending cancelled owner={} skill={} reason={}",owner,skill,
+                        player==null?"owner_unavailable":skill==null?"missing_skill":"landing_timeout");
+                state=State.IDLE;kind=null;owner=null;shorePendingUntil=0;animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);return;
+            }
+            if(animal.isPassenger()){
+                if(!animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN)){
+                    state=State.IDLE;kind=null;owner=null;shorePendingUntil=0;animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+                    player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse.not_ready"), true);
+                }
+                return;
+            }
+            if (!animal.onGround() || animal.aquaticLife().shoreVisitRequested()) return;
+            state=State.IDLE;kind=null;owner=null;shorePendingUntil=0;
+            if(!begin(player,skill)){
+                animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+                player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse.not_ready"), true);
+            }
+            return;
+        }
+        if (state == State.RUNNING) animal.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         if (state == State.RUNNING && routineObserveLeft > 0) {
             if (knows(kind)) { completed = true; routineObserveLeft = 0; finishLesson(true); }
-            else if (--routineObserveLeft == 0) { state = State.IDLE; kind = null; owner = null; }
+            else if (--routineObserveLeft == 0) {
+                state = State.IDLE; kind = null; owner = null;
+                animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+            }
             return;
         }
         if (state == State.AWAITING && (!animal.isAlive() || --feedbackLeft <= 0)) end();

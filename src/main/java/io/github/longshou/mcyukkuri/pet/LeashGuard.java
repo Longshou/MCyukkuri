@@ -20,6 +20,14 @@ public final class LeashGuard {
         if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity animal) || !event.getItemStack().is(Items.LEAD) || animal.isLeashed()) return;
         var player = event.getEntity();
         String why = animal.pet().care().leashRefusal(player);
+        if (why == null && animal.isPassenger()) {
+            boolean pending = animal.pet().care().walk().requestLeadOnShore(player, event.getHand());
+            event.setCanceled(true);
+            event.setCancellationResult(pending ? InteractionResult.SUCCESS : InteractionResult.FAIL);
+            if (!pending) GameplayLog.limited(animal, "interaction", "leash.shore_unavailable", 200,
+                    "leash refused player={} reason=shore_unavailable", player.getUUID());
+            return;
+        }
         if (why == null) return; // the owner with a harnessed pet: vanilla ties the lead
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);

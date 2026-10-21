@@ -107,7 +107,8 @@ final class ScenarioBoats {
         var parentPose = ParentPose.capture(parent);
         var scenarioTransaction = ScenarioTransaction.capture(parent, young, !mode.equals("birth"));
         var boat = mode.equals("unattended")
-                ? HatBoatEntity.setDown(parent, Vec3.atBottomCenterOf(water), parent.yBodyRot, HatVessel.Mode.FLOAT, HatVessel.Role.HELPER)
+                ? HatBoatEntity.setDown(parent, Vec3.atBottomCenterOf(water), parent.yBodyRot,
+                        HatVessel.aquatic(parent)?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT, HatVessel.Role.HELPER)
                 : HatBoatEntity.createAfloatAndBoard(parent, water);
         if (boat == null) return abort(null, parent, parentPose, scenarioTransaction, "帽船没能生成（帽主要有自己的帽子与操帽能力，水面平静且船体放得下）。");
         if (mode.equals("unattended") && (!level.getWorldBorder().isWithinBounds(boat.getBoundingBox())

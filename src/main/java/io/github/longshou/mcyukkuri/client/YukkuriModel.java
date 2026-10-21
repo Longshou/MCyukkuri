@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,10 +85,16 @@ public final class YukkuriModel {
     private float pregnancyBelly,pregnancyContraction;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
+    /** The aquatic Marisa owns a separately authored hat prop; it replaces the ordinary mesh for this render only. */
+    private boolean externalAquaticHat;
+    /** Kept through the renderer's post-body badge pass, then consumed there. */
+    private boolean externalAquaticBadge;
+    private static final String AQUATIC_HAT_PROP="accessory_marisa_aquatic";
     private final HatDamageDraw hatDamageDraw=new HatDamageDraw(this);
     /** Per vertex: 1 accessory, 2 Marisa's braid. On a swollen body they ride rigidly instead of stretching (lazy). */
     private byte[] rigidGroups;
     private int hatFollowBone=-2,braidBone=-2;
+    private int aquaticHatBone=-2,aquaticBowBone=-2;
     private final Vector3f crownLift=new Vector3f(),braidLift=new Vector3f();
     private LiveBirthRenderer.Delivery delivery;
     public void setPregnancy(float belly,float contraction){pregnancyBelly=belly;pregnancyContraction=contraction;}
@@ -357,7 +364,9 @@ public final class YukkuriModel {
         return out;
     }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
-    public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
+    public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) {
+        try{badgeDraw.renderBadge(tier,stack,buffers,light,overlay);}finally{externalAquaticBadge=false;}
+    }
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
             BadgeDraw.renderDetachedBadge(name,tier,cut,stack,buffers,light,overlay); }
 
@@ -741,7 +750,7 @@ public final class YukkuriModel {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
             if(drawingWoundedBody&&WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
-            if (!accessory && accessoryPart(part)) continue;
+            if ((!accessory || externalAquaticHat) && accessoryPart(part)) continue;
             boolean hatPart=(hatDamageDraw.level()>0||hatDamageDraw.fit()<.999f)&&accessoryPart(part);
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
@@ -800,6 +809,34 @@ public final class YukkuriModel {
                 if(fourth>=0)first+=3;
             }
         }
+    }
+
+    /**
+     * The water hat is exported in the original Marisa model space.  Keep its actual hat and
+     * bow bones separate so the established remove/return and rescue poses carry it exactly as
+     * they carried the embedded mesh.
+     */
+    private void renderExternalAquaticHat(PoseStack stack,MultiBufferSource buffers,int light,int overlay){
+        int fallback=hatFollowBone();
+        if(fallback<0)return;
+        int hat=aquaticHatBone>=0?aquaticHatBone:fallback;
+        int bow=aquaticBowBone>=0?aquaticBowBone:hat;
+        PropModels.renderAttachedHat(AQUATIC_HAT_PROP,hatDamageDraw.level(),stack,buffers,light,overlay,
+                externalHatTransform(hat),externalHatTransform(bow));
+    }
+    boolean externalAquaticHat(){return externalAquaticHat||externalAquaticBadge;}
+    Matrix4f externalAquaticHatTransform(){
+        int fallback=hatFollowBone();if(fallback<0)return new Matrix4f();
+        return externalHatTransform(aquaticHatBone>=0?aquaticHatBone:fallback);
+    }
+    /** Convert a model-unit bone transform to the block-unit prop renderer without losing the post-skin pregnancy lift. */
+    private Matrix4f externalHatTransform(int bone){
+        var transform=new Matrix4f(world[bone]).translate(0,-1.5f,0);
+        if(pregnancyBelly>.001f){
+            transform.m30(transform.m30()+crownLift.x);transform.m31(transform.m31()+crownLift.y);transform.m32(transform.m32()+crownLift.z);
+        }
+        transform.m30(transform.m30()/16);transform.m31(transform.m31()/16);transform.m32(transform.m32()/16);
+        return transform;
     }
 
     private void composeWorld(){
@@ -861,18 +898,25 @@ public final class YukkuriModel {
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
-            hatScale=HatVessel.hatMultiplier(entity.subspeciesFlags());
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
             boolean pieces=hatDamageDraw.level()==3;
+            boolean shownAccessory=accessory||pieces||hatMotion.equals("HAT_REMOVE");
+            externalAquaticHat=shownAccessory&&entity.subspeciesKind()==SubspeciesLife.Kind.AQUATIC_MARISA
+                    &&PropModels.has(AQUATIC_HAT_PROP);
+            externalAquaticBadge=externalAquaticHat;
+            // Both the fallback mesh and the authored prop use the real hat-follow hierarchy,
+            // including the aquatic scale about its recorded seat.
+            hatScale=HatVessel.hatMultiplier(entity.subspeciesFlags());
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
-            render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
+            render(action,elapsed,stack,buffer,light,overlay,shownAccessory,behavior,behaviorTicks,hairLoss);
+            if(externalAquaticHat)renderExternalAquaticHat(stack,buffers,light,overlay);
             if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
             hatDamageDraw.drawCaps(buffers);
-        }finally{adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+        }finally{adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;externalAquaticHat=false;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
@@ -895,13 +939,17 @@ public final class YukkuriModel {
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=drawingSurfaceMarks&&WoundRenderer.deforms(wounds);
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        externalAquaticHat=SubspeciesLife.Kind.values()[Math.clamp(data.getInt("SubspeciesFlags")&15,0,SubspeciesLife.Kind.values().length-1)]
+                ==SubspeciesLife.Kind.AQUATIC_MARISA&&PropModels.has(AQUATIC_HAT_PROP);
         hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
+        externalAquaticBadge=externalAquaticHat&&accessory;
         try{
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
+            if(externalAquaticHat&&accessory)renderExternalAquaticHat(stack,buffers,light,overlay);
             if(drawingSurfaceMarks)WoundRenderer.render(key,id,"sleep",wounds,signs,0,fullness,house,world,stack,buffer,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;setExpression("");}
+        }finally{drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;externalAquaticHat=false;setExpression("");}
     }
     private void setExpression(String name){
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.
@@ -973,7 +1021,10 @@ public final class YukkuriModel {
         else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
     }
     private int hatFollowBone(){
-        if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
+        if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;aquaticHatBone=-1;aquaticBowBone=-1;for(int i=0;i<bones.length;i++){
+                if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
+                if(bones[i].name().equals("hat"))aquaticHatBone=i;
+                if(bones[i].name().equals("bow"))aquaticBowBone=i;
                 if(bones[i].name().equals("hand_right"))braidBone=i;}}
         return hatFollowBone;
     }

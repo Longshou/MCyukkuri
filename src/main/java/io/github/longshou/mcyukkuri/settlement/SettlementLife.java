@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Locale;
 import net.minecraft.world.damagesource.DamageSource;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
+import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 
 /** Membership is independent of kinship, personality and accessory recognition. */
 public final class SettlementLife {
@@ -36,6 +39,8 @@ public final class SettlementLife {
     private GlobalPos settlingAt;
     private boolean pendingNatural;
     private BlockPos target;
+    /** The real calm-water berth currently held by a settlement migration or regroup route. */
+    private BlockPos afloatTarget;
     private int wait, elapsed, navigationRetry;
     private BlockPos searchDestination;
     private long navigationGeneration;
@@ -48,9 +53,13 @@ public final class SettlementLife {
     private GlobalPos migrationDeparture;
     /** The move (its start time) this member has already heard out at the gathering, and packed its mouthful for. */
     private long discussedFor = -1, packedFor = -1;
+    /** A committed water-ration errand retains its verified afloat-hat identity through one ordinary landing. */
+    private Rations.WaterFetch waterRationFetch;
+    private final PileContact waterRationContact;
 
     public SettlementLife(YukkuriEntity entity) {
         this.entity = entity;
+        waterRationContact = new PileContact(entity);
         wait = entity.getRandom().nextInt(80);
         society = new SettlementSociety(entity);
         duties = new SettlementDuties(entity);
@@ -124,10 +133,17 @@ public final class SettlementLife {
         return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
                 + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
                 + " retry=" + retry + " phase=" + phase + " caregiving=" + (baby == null ? "none" : baby)
-                + " migration_blocked=" + (group != null && Migration.leaderBabyBlocker(entity,group) != null);
+                + " migration_blocked=" + (group != null && Migration.leaderBabyBlocker(entity,group) != null)
+                + " water_ration=" + waterRationDetail();
     }
     private static String position(GlobalPos value) {
         return value == null ? "none" : value.dimension().location() + "@" + value.pos().toShortString();
+    }
+    /** Read-only water-ration diagnostic: a pending task still names the original verified hat after it has landed. */
+    private String waterRationDetail() {
+        if (waterRationFetch == null) return "none";
+        return "pending,hat=" + waterRationFetch.boatId + ",store=" + waterRationFetch.pile().getBlockPos().toShortString()
+                + ",left=" + waterRationFetch.ration.left + ",target=" + (target == null ? "landing" : target.toShortString());
     }
     /** The community has selected a destination, including members still at the old settlement. */
     public boolean migrating() { return Migration.moving(group()); }
@@ -215,10 +231,20 @@ public final class SettlementLife {
         wait = 80;
         var group = group();
         clearCompletedDeparture(group);
-        if (Migration.moving(group) && !SettlementSeasons.confined(entity)) return migrate(group);
+        if (Migration.moving(group) && !SettlementSeasons.confined(entity)) {
+            if (waterRationFetch != null) abortWaterRation();
+            return migrate(group);
+        }
         if (group == null || !level().hasChunkAt(group.center)) return false;
+        // A water household reserves its actual hat allocation first, then asks the boat's normal landing route for dry ground.
+        // It never turns the bank pile into a virtual boat store or skips the pile-contact rule.
+        if (waterRationStartOrContinue()) return true;
+        // The active boat landing owns the movement flags. Do not fall through into a generic gathering or regroup route,
+        // which would cancel the verified fetch before the captain reaches dry ground.
+        if (waterRationFetch != null) return false;
         double distance = entity.distanceToSqr(Vec3.atBottomCenterOf(group.center));
-        if (straggler(group) && !SettlementSeasons.confined(entity)) return regroup(group, distance);
+        if (straggler(group) && !SettlementSeasons.confined(entity))
+            return Migration.afloat(group) ? regroupAfloat(group) : regroup(group, distance);
         // Transporting a member never causes cross-world or long-distance forced navigation.
         if (distance > 48 * 48 || SettlementSeasons.confined(entity)) return false;
         if (SettlementSeasons.assembling(level(), group)) {
@@ -256,6 +282,73 @@ public final class SettlementLife {
         return true;
     }
 
+    /** Begin while aboard, then continue only once the boat's own landing left the captain on a dry bank. */
+    private boolean waterRationStartOrContinue() {
+        if (waterRationFetch == null) waterRationFetch = Rations.waterFetchStart(entity);
+        if (waterRationFetch == null) return false;
+        if (!Rations.waterFetchActive(waterRationFetch)) { abortWaterRation(); return false; }
+        if (entity.isPassenger()) {
+            if (!entity.aquaticLife().requestShoreWork(ShoreWork.SETTLEMENT)) abortWaterRation();
+            return false;
+        }
+        var pile = waterRationFetch.pile();
+        // A passenger can be dismounted one tick before its bank contact is complete.  Keep the same leased hat
+        // identity through that transition; ground work starts only after the shore request has cleared.
+        if (!entity.onGround() || entity.aquaticLife().shoreVisitRequested()) {
+            entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
+            return false;
+        }
+        if (pile == null || !level().hasChunkAt(pile.getBlockPos())
+                || level().getBlockEntity(pile.getBlockPos()) != pile
+                || entity.distanceToSqr(Vec3.atBottomCenterOf(pile.standCell())) > 48 * 48) {
+            abortWaterRation();
+            return false;
+        }
+        target = pile.standCell();
+        elapsed = 0;
+        waterRationContact.reset();
+        entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
+        return true;
+    }
+
+    private boolean waterRationCanContinue() {
+        if (waterRationFetch == null || target == null || entity.isPassenger() || !entity.onGround()
+                || entity.aquaticLife().shoreVisitRequested() || !Rations.waterFetchActive(waterRationFetch)
+                || entity.independence().householdOuting() || entity.wintering().active()
+                || society.role() == SettlementData.Role.OUTCAST || entity.isPanicking() || entity.isCommandPlaying()
+                || entity.life().hasUrgentNeed() || entity.life().mealTicks() != 0 || elapsed >= 400) return false;
+        var pile = waterRationFetch.pile();
+        return pile != null && level().hasChunkAt(pile.getBlockPos()) && level().getBlockEntity(pile.getBlockPos()) == pile
+                && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48;
+    }
+
+    private void tickWaterRation() {
+        if (!waterRationCanContinue()) { stop(); return; }
+        entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
+        var fetch = waterRationFetch;
+        var pile = fetch.pile();
+        if (!waterRationContact.tick(pile)) return;
+        int moved = Rations.waterFetchTake(entity, pile, fetch);
+        // The take path releases on success. Repeat release is harmless, and closes a claim if the source vanished
+        // between the contact ticks and validation.
+        Rations.waterFetchAbort(fetch);
+        waterRationFetch = null;
+        waterRationContact.reset();
+        target = null;
+        afloatTarget = null;
+        entity.aquaticLife().releaseShoreWork(ShoreWork.SETTLEMENT);
+        GameplayLog.event(entity, "settlement", "water ration fetched hat={} store={} moved={} provisions={}",
+                fetch.boatId, pile.getBlockPos(), moved, entity.aquaticLife().provisions());
+        wait = 100;
+    }
+
+    private void abortWaterRation() {
+        if (waterRationFetch != null) Rations.waterFetchAbort(waterRationFetch);
+        waterRationFetch = null;
+        waterRationContact.reset();
+        entity.aquaticLife().releaseShoreWork(ShoreWork.SETTLEMENT);
+    }
+
     /**
      * Migration: everyone gathers at the old centre to hear the leader, packs a mouthful from its own store, then the
      * leader walks ahead, adult members follow, and arrivals give up the old burrow.
@@ -263,6 +356,7 @@ public final class SettlementLife {
     private boolean migrate(SettlementData.Group group) {
         BlockPos site = group.migrateTo;
         if (!Migration.joins(entity, group) || !level().hasChunkAt(site)) return false;
+        if (Migration.afloat(group)) return migrateAfloat(group);
         long now = level().getGameTime();
         var phase = Migration.phase(group, now);
         if (phase == Migration.Phase.DISCUSS) {
@@ -337,6 +431,95 @@ public final class SettlementLife {
         return true;
     }
 
+    /**
+     * An afloat group never treats the dry bank marker as a path goal or proof of arrival. The settlement Goal keeps its
+     * movement flags while the actual captain's hull follows water legs, and commits this member only after that hull
+     * reaches the selected berth.
+     */
+    private boolean migrateAfloat(SettlementData.Group group) {
+        long now = level().getGameTime();
+        var phase = Migration.phase(group, now);
+        if (phase == Migration.Phase.DISCUSS) {
+            if (discussedFor != group.migrateSince && entity.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 14 * 14) {
+                discussedFor = group.migrateSince;
+                Migration.discuss(entity, group);
+            }
+            return false;
+        }
+        if (phase == Migration.Phase.PREPARE) {
+            // The only household store is the hat cargo. It is already aboard the family and is never copied into a land pile.
+            packedFor = group.migrateSince;
+            return false;
+        }
+        if (group.migrateWater == null || !level().hasChunkAt(group.migrateWater)) return false;
+        if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.isAfloat()
+                || !entity.getUUID().equals(boat.ownerYukkuri()) || !boat.protects(entity)) return false;
+        // The leader commits the public shore anchor. Every other real hull uses a distinct berth beside that anchor,
+        // so a full family flotilla cannot all claim one water cell and prevent its own arrival.
+        BlockPos berth = entity.getUUID().equals(group.leader) ? group.migrateWater
+                : Migration.waterMemberBerth(level(), group.migrateTo, group.migrateWater, boat);
+        if (berth == null) return false;
+        return beginAfloatRoute(group, boat, group.migrateTo, berth, true);
+    }
+
+    /** Start or retain one verified water route. Returning true keeps this Goal in charge of MOVE/LOOK through the voyage. */
+    private boolean beginAfloatRoute(SettlementData.Group group, HatBoatEntity boat, BlockPos bank, BlockPos water, boolean moving) {
+        if (Migration.waterArrived(boat, level(), water)) {
+            settleAfloat(bank, water);
+            return false;
+        }
+        if (!boat.paddling()) {
+            BlockPos leg = waterLeg(boat, water);
+            if (leg == null || !boat.paddleFor(entity, HatBoatRoute.surface(level(), leg))) {
+                GameplayLog.limited(entity, "settlement", moving ? "water_march.wait" : "water_regroup.wait", 200,
+                        "water route waiting group={} boat={} destination={} reason=no_verified_water_leg",
+                        groupId, boat.getUUID(), water);
+                return false;
+            }
+            GameplayLog.limited(entity, "settlement", moving ? "water_march" : "water_regroup", 200,
+                    "water route accepted group={} boat={} origin={} leg={} destination={}",
+                    groupId, boat.getUUID(), boat.blockPosition(), leg, water);
+        }
+        boolean newRoute = afloatTarget == null || !afloatTarget.equals(water);
+        target = water;
+        afloatTarget = water;
+        if (newRoute) elapsed = 0;
+        marching = moving;
+        if (moving) migrationDeparture = GlobalPos.of(entity.level().dimension(), group.center);
+        return true;
+    }
+
+    /** Pick a nearer calm surface only after the boat router has proved a path to it; this never draws a straight line over land. */
+    private BlockPos waterLeg(HatBoatEntity boat, BlockPos destination) {
+        BlockPos current = BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ());
+        if (HatBoatRoute.calmSurface(level(), destination)) {
+            var surface = HatBoatRoute.surface(level(), destination);
+            if (!HatBoatRoute.find(boat, surface).isEmpty() || boat.position().distanceToSqr(surface) <= 3.25) return destination;
+        }
+        var delta = HatBoatRoute.surface(level(), destination).subtract(boat.position());
+        if (delta.horizontalDistanceSqr() <= 0.01) return null;
+        var ahead = BlockPos.containing(boat.position().add(delta.normalize().scale(8)));
+        var candidates = new ArrayList<BlockPos>();
+        for (BlockPos pos : BlockPos.betweenClosed(ahead.offset(-2, -2, -2), ahead.offset(2, 2, 2)))
+            if (HatBoatRoute.calmSurface(level(), pos) && pos.distSqr(destination) + 1 < current.distSqr(destination)) candidates.add(pos.immutable());
+        candidates.sort(Comparator.comparingDouble(pos -> pos.distSqr(destination)));
+        for (var candidate : candidates.stream().limit(8).toList())
+            if (!HatBoatRoute.find(boat, HatBoatRoute.surface(level(), candidate)).isEmpty()) return candidate;
+        return null;
+    }
+
+    /** Commit a verified physical-hat arrival without claiming or releasing a land shelter. */
+    void settleAfloat(BlockPos bank, BlockPos water) {
+        var arrival = GlobalPos.of(entity.level().dimension(), bank);
+        if (!arrival.equals(origin)) GameplayLog.event(entity, "settlement",
+                "afloat settled group={} origin={} -> {} water={}", groupId, origin, arrival, water);
+        origin = arrival;
+        settlingAt = null;
+        settlementResult = Result.FOUND;
+        target = null;
+        afloatTarget = null;
+    }
+
     /** The centre moved after this member last settled: it still has to follow. */
     boolean straggler(SettlementData.Group group) {
         return group != null && origin != null && (!settledAt(group.center) || departedFrom(group)) && Migration.joins(entity, group);
@@ -372,6 +555,55 @@ public final class SettlementLife {
                 "regroup route accepted group={} origin={} destination={} nutrition={} carried={}",
                 groupId, origin, target, entity.life().nutrition(), entity.habitat().carrying().getCount());
         return true;
+    }
+
+    /** A late hat follows the same verified water-leg rule after the quorum has already moved the group centre. */
+    private boolean regroupAfloat(SettlementData.Group group) {
+        if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.isAfloat()
+                || !entity.getUUID().equals(boat.ownerYukkuri()) || !boat.protects(entity)) return false;
+        BlockPos water = Migration.waterDestination(level(), group.center, boat);
+        if (water == null) return false;
+        return beginAfloatRoute(group, boat, group.center, water, false);
+    }
+
+    private boolean canContinueAfloat() {
+        var group = group();
+        if (group == null || afloatTarget == null || target == null || !target.equals(afloatTarget)
+                || !Migration.afloat(group) || entity.isPanicking() || entity.isCommandPlaying()) return false;
+        if (Migration.moving(group)) {
+            if (group.migrateWater == null) return false;
+            if (entity.getUUID().equals(group.leader)) {
+                if (!afloatTarget.equals(group.migrateWater)) return false;
+            } else if (!Migration.waterMemberBerthValid(level(), group.migrateWater,
+                    entity.getVehicle() instanceof HatBoatEntity boat ? boat : null, afloatTarget)) return false;
+        }
+        if (!Migration.moving(group) && !straggler(group)) return false;
+        return entity.getVehicle() instanceof HatBoatEntity boat && boat.isAfloat()
+                && entity.getUUID().equals(boat.ownerYukkuri()) && boat.protects(entity);
+    }
+
+    private void tickAfloatRoute() {
+        if (!canContinueAfloat()) { stop(); return; }
+        var group = group();
+        var boat = (HatBoatEntity)entity.getVehicle();
+        BlockPos bank = Migration.moving(group) ? group.migrateTo : group.center;
+        BlockPos water = afloatTarget;
+        if (water == null || bank == null) { stop(); return; }
+        if (Migration.waterArrived(boat, level(), water)) { settleAfloat(bank, water); return; }
+        // A different hat can reach this berth first.  Stop and retry a verified neighbouring surface rather than
+        // accepting an overlapping hull or silently treating anchor proximity as arrival.
+        if (Migration.moving(group) && !entity.getUUID().equals(group.leader)
+                && !Migration.waterMemberBerthValid(level(), group.migrateWater, boat, water)) {
+            boat.stopPaddling();
+            BlockPos alternate = Migration.waterMemberBerth(level(), bank, group.migrateWater, boat);
+            if (alternate == null) { stop(); return; }
+            afloatTarget = target = alternate;
+            water = alternate;
+        }
+        if (!boat.paddling() && elapsed % 20 == 1) {
+            BlockPos leg = waterLeg(boat, water);
+            if (leg != null) boat.paddleFor(entity, HatBoatRoute.surface(level(), leg));
+        }
     }
 
     private Result settleAt(BlockPos site) {
@@ -447,6 +679,8 @@ public final class SettlementLife {
         searchDestination=null;navigationRetry=0;
     }
     public boolean canContinue() {
+        if (waterRationFetch != null) return waterRationCanContinue();
+        if (afloatTarget != null) return canContinueAfloat();
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
         var group = group();
         if (marching && !Migration.moving(group) && (group == null || !straggler(group) || target == null || !target.equals(group.center))) return false;
@@ -463,6 +697,8 @@ public final class SettlementLife {
 
     public void tickGoal() {
         elapsed++;
+        if (waterRationFetch != null) { tickWaterRation(); return; }
+        if (afloatTarget != null) { tickAfloatRoute(); return; }
         if(target!=null&&(elapsed%20==1||entity.getNavigation().isDone())) {
             var result=navigateToward(target);
             if(result==Result.NOT_FOUND)stop();
@@ -471,6 +707,7 @@ public final class SettlementLife {
     }
 
     public void stop() {
+        abortWaterRation();
         if (marching && target != null) GameplayLog.limited(entity, "settlement", "march.stop", 1200,
                 "march stopped group={} target={} origin={} elapsed={} distanceSqr={} nutrition={} energy={} panic={} mealTicks={}",
                 groupId, target, origin, elapsed, entity.distanceToSqr(Vec3.atBottomCenterOf(target)),
@@ -478,6 +715,7 @@ public final class SettlementLife {
         cancelNavigation();
         Migration.cancelSearch(entity,group());
         target = null;
+        afloatTarget = null;
         marching = false;
         wait = 100;
         entity.getNavigation().stop();
@@ -502,7 +740,10 @@ public final class SettlementLife {
         migrationDeparture = FamilyData.position(tag, "MigrationDeparture");
         recoverLegacyDeparture();
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
+        waterRationFetch = null;
+        waterRationContact.reset();
         target = null;
+        afloatTarget = null;
         marching = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));

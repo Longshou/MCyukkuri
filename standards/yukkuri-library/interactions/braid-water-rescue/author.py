@@ -56,7 +56,12 @@ def export():
         # The leaning body would sink its low side into the deck: it is raised so its lowest body point stays on the floor.
         lean_lift=float(body[:,1].min()-pose(body)[:,1].min())
         lean_out={'reach_lean_lift':round(lean_lift,5),'reach_lean_root':[round(float(v),5) for v in pose(base)+np.array([0,round(lean_lift,5),0])]}
-    vessel=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+    # Each hat's own height and brim from its own export: the land Marisa hat (hat_vessel.json, also the legacy single
+    # value) and the aquatic Marisa's deeper hat (marisa_aquatic_hat_vessel.json). A rescuer's hat is chosen by her ancestry.
+    presentation=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation'
+    vessel=json.loads((presentation/'hat_vessel.json').read_text(encoding='utf-8'))
+    aquatic=json.loads((presentation/'marisa_aquatic_hat_vessel.json').read_text(encoding='utf-8'))
+    hats={'land':vessel,'aquatic':aquatic}
     output={**recipe,'units_per_block':16,'bone':recipe['braid_bone'],'root_rotation':[recipe['root_pitch_degrees'],0,0],
             'grip_height':recipe['grip_height_ratio'],'mouth_root':mouth_root,'mouth_reach':recipe['mouth_reach_blocks'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
             'braid_length':float(np.linalg.norm(tip-base)),'root_lift':lift,
@@ -65,7 +70,12 @@ def export():
             'body_min':body.min(axis=0).tolist(),'body_max':body.max(axis=0).tolist(),
             'root_support_samples':support,
             'boarding_body_bounds':board_bounds,'boarding_body_pitch_min':-18,'boarding_body_pitch_max':6,'boarding_body_roll_min':-3,'boarding_body_roll_max':3,
-            'hat_height_model_units':vessel['keel'],**lean_out,
+            'hat_height_model_units':vessel['keel'],
+            'hat_heights_model_units':{kind:hat['keel'] for kind,hat in hats.items()},
+            'hat_brim_half_model_units':{kind:hat['brim'] for kind,hat in hats.items()},
+            'hat_sources':{kind:path.relative_to(ROOT).as_posix() for kind,path in (('land',presentation/'hat_vessel.json'),('aquatic',presentation/'marisa_aquatic_hat_vessel.json'))},
+            'hat_sources_sha256':{kind:hashlib.sha256(path.read_bytes()).hexdigest() for kind,path in (('land',presentation/'hat_vessel.json'),('aquatic',presentation/'marisa_aquatic_hat_vessel.json'))},
+            **lean_out,
             'source_model':path.relative_to(ROOT).as_posix(),'source_model_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
             'source_placement':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),'source_placement_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest(),
             'source_recipe':'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json',

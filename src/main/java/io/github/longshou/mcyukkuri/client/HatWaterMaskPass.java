@@ -14,14 +14,15 @@ import org.joml.Matrix4f;
 
 /** Preserve opaque passengers/cargo before the depth-only water screen is submitted, still before world water. */
 public final class HatWaterMaskPass {
-    private record Mask(Matrix4f transform,float unit) {}
+    private record Mask(Matrix4f transform,float unit,HatVessel.Mode mode) {}
     private static final Map<Integer,Mask> PENDING=new LinkedHashMap<>();
     private static ClientLevel frameLevel;
     private static boolean collecting;
 
     static void enqueue(HatBoatView boat,PoseStack pose) {
         if(!collecting||boat.level()!=frameLevel||!(boat.isAfloat()||boat.isMoored()))return;
-        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16));
+        var mode=boat.aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
+        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16,mode));
     }
 
     public static void renderStage(RenderLevelStageEvent event) {
@@ -37,12 +38,15 @@ public final class HatWaterMaskPass {
         var buffers=minecraft.renderBuffers().bufferSource();
         // The normal shared entity/item buffers must reach the framebuffer before any hat's depth-only plane.
         buffers.endBatch();
-        var mask=buffers.getBuffer(RenderType.waterMask());var ring=HatVessel.mask();
+        var mask=buffers.getBuffer(RenderType.waterMask());
         for(var entry:PENDING.values()) {
-            float unit=entry.unit(),y=-HatVessel.FREEBOARD*unit+.03f;
-            for(int face=0;face<2;face++)for(int i=0;i<4;i++) {
-                float[] point=ring[face==0?i:3-i];
-                mask.addVertex(entry.transform(),point[0]*unit,y,point[1]*unit);
+            float unit=entry.unit(),y=-HatVessel.freeboard(entry.mode())*unit+.03f;var ring=HatVessel.mask(entry.mode());
+            // Convex authored opening: triangulate its fan from vertex 0 in both windings for the depth-only pass.
+            for(int face=0;face<2;face++)for(int i=1;i+1<ring.length;i++) {
+                int a=0,b=face==0?i:i+1,c=face==0?i+1:i;
+                // waterMask is emitted as QUADS.  Close this triangle with a duplicate corner rather than letting
+                // adjacent fan triangles be joined into arbitrary quads.
+                for(int index:new int[]{a,b,c,c}) { float[] point=ring[index];mask.addVertex(entry.transform(),point[0]*unit,y,point[1]*unit); }
             }
         }
         buffers.endBatch(RenderType.waterMask());

@@ -143,7 +143,7 @@ final class FamilyFlight {
         if(from==null||to==null||from==to)return false;
         if (flight!=null || o.heldByBraid() || !o.entity().childhood().canJump()||o.stage()==Stage.BABY||from.unsteadyMotion() || to.unsteadyMotion()
                 || o.entity().getVehicle()!=from || !from.protects(o.entity()) || !to.isAfloat()
-                || !o.entity().getUUID().equals(to.ownerYukkuri()) && !to.young(o.entity())) {
+                || !o.entity().getUUID().equals(to.ownerYukkuri()) && !to.admits(o.entity())) {
             AquaDiag.log(o.entity(),"transfer.pre."+o.entity().getId(),40,"flight="+(flight!=null)+" held="+o.heldByBraid()+" canJump="+o.entity().childhood().canJump()
                     +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(o.entity().getVehicle()==from)+" protects="+from.protects(o.entity())
                             +" toAfloat="+to.isAfloat());
@@ -208,7 +208,7 @@ final class FamilyFlight {
         if(o.entity().level().isClientSide||hat==null||hat.level()!=o.entity().level()||flying()||o.heldByBraid()
                 ||!o.entity().childhood().canJump()||o.entity().isPassenger()||!o.entity().onGround()||o.entity().isInWaterOrBubble()
                 ||!o.entity().life().dryStand(o.entity().blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
-                ||hat.towed()||hat.flooding()>0||!hat.young(o.entity())||o.entity().distanceToSqr(hat)>6.25||!o.entity().hasLineOfSight(hat))return false;
+                ||hat.towed()||hat.flooding()>0||!hat.admits(o.entity())||o.entity().distanceToSqr(hat)>6.25||!o.entity().hasLineOfSight(hat))return false;
         if(hat.cargo().count()>0&&!hat.prepareCargoSpace(o.entity(),emergency))return false;
         // Compression is a close-contact seating fallback, separate from permission to discard provisions.
         var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),emergency||!hat.hasSafeRoomFor(o.entity()));if(seat==null)return false;
@@ -220,7 +220,7 @@ final class FamilyFlight {
     boolean scrambleIntoHat(HatBoatEntity hat){
         if(o.entity().level().isClientSide||hat==null||flying()||o.heldByBraid()||o.entity().isPassenger()||!o.entity().isInWaterOrBubble()
                 ||!o.entity().childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
-                ||hat.towed()||!hat.young(o.entity())||!o.entity().hasLineOfSight(hat))return false;
+                ||hat.towed()||!hat.admits(o.entity())||!o.entity().hasLineOfSight(hat))return false;
         var grip=hat.boardingGrip(o.entity());if(grip==null)return false;
         if(hat.cargo().count()>0&&!hat.prepareCargoSpace(o.entity(),true))return false;
         var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),true);if(seat==null)return false;

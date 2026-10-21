@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -21,6 +22,8 @@ public interface HatBoatView {
     float getYRot();
     float previousYaw();
     UUID ownerYukkuri();
+    boolean aquaticHull();
+    FamilyLife.Stage accessoryStage();
     HatBoatEntity.State state();
     boolean isAfloat();
     boolean isMoored();
@@ -88,7 +91,8 @@ public interface HatBoatView {
     }
     default boolean visibleOnBrim(UUID rider) {
         var tag = seat(rider);
-        return isAfloat() && tag != null && Math.abs(tag.getDouble("Y") - HatVessel.FREEBOARD) < 1e-5
+        var mode=aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
+        return isAfloat() && tag != null && Math.abs(tag.getDouble("Y") - HatVessel.freeboard(mode)) < 1e-5
                 && !(tag.contains("At") && level().getGameTime() - tag.getLong("At") < tag.getInt("Ticks"));
     }
     default boolean visibleTransporting(UUID rider) {

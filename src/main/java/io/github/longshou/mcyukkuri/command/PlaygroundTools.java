@@ -75,7 +75,13 @@ public final class PlaygroundTools {
             removed++;
         }
         var settlements = SettlementData.get(level);
-        for (var group : settlements.groups()) if (box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)) settlements.remove(group.id);
+        for (var group : settlements.groups()) if (box.contains(group.center.getX() + .5, group.center.getY() + .5, group.center.getZ() + .5)) {
+            // Unlike an ordinary terrain block, this pile is the group's persisted public-food address.  Leave neither
+            // its food nor the address behind when a repeatable playground field is cleared.
+            if (group.waterCommons != null && box.contains(group.waterCommons.getX() + .5, group.waterCommons.getY() + .5, group.waterCommons.getZ() + .5))
+                level.removeBlock(group.waterCommons, false);
+            settlements.remove(group.id);
+        }
         for (var site : settlements.sites()) if (box.contains(site.origin.getX() + .5, site.origin.getY() + .5, site.origin.getZ() + .5)) settlements.removeSite(site.id);
         if (tag != null) forgetLedgers(level, box, ids);
         return removed;

@@ -26,6 +26,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import java.util.ArrayList;
+import java.util.Comparator;
+import net.minecraft.core.Direction;
 
 /**
  * Moving house (plan 3.4, reworked 2026-10-18 after the user's correction: "migration happens mainly when too many members
@@ -70,10 +76,88 @@ final class Migration {
     private static final Map<SettlementData.Group, LoggedPhase> LOGGED_PHASES = new WeakHashMap<>();
 
     static boolean moving(SettlementData.Group group) { return group != null && group.migrateTo != null; }
+    /** A bank-side public pile marks the community whose members really live aboard physical hats. */
+    static boolean afloat(SettlementData.Group group) { return group != null && group.waterCommons != null; }
     static Phase phase(SettlementData.Group group, long now) {
         if (!moving(group)) return Phase.NONE;
         long t = now - group.migrateSince;
         return t < DISCUSS_TICKS ? Phase.DISCUSS : t < DISCUSS_TICKS + PREPARE_TICKS ? Phase.PREPARE : Phase.MARCH;
+    }
+
+    /** A usable destination has both an actual calm berth for the leader's full hull and a distinct dry cell for the next public pile. */
+    static boolean waterBankReady(ServerLevel level, BlockPos bank, YukkuriEntity captain) {
+        var boat = waterBoat(captain);
+        var water = waterDestination(level, bank, boat);
+        return water != null && waterCommons(level, bank, water) != null;
+    }
+    /** A captain may choose only a berth whose complete existing hull fits at the destination surface. */
+    static BlockPos waterDestination(ServerLevel level, BlockPos bank, HatBoatEntity boat) {
+        if (boat == null) return null;
+        var candidates = new ArrayList<BlockPos>();
+        for (BlockPos pos : BlockPos.betweenClosed(bank.offset(-12, -3, -12), bank.offset(12, 3, 12))) {
+            if (!HatBoatRoute.calmSurface(level, pos)) continue;
+            if (waterHullFits(level, boat, pos)) candidates.add(pos.immutable());
+        }
+        return candidates.stream().min(Comparator.comparingDouble(pos -> pos.distSqr(bank))).orElse(null);
+    }
+
+    /**
+     * A flotilla keeps the leader's chosen arrival surface for the public shore marker.  Other physical hats must take
+     * a distinct, actually unoccupied calm surface nearby; they never all steer into the leader's one grid point.
+     */
+    static BlockPos waterMemberBerth(ServerLevel level, BlockPos bank, BlockPos anchor, HatBoatEntity boat) {
+        if (boat == null || anchor == null) return null;
+        var candidates = new ArrayList<BlockPos>();
+        for (BlockPos pos : BlockPos.betweenClosed(anchor.offset(-ARRIVE_RANGE, -2, -ARRIVE_RANGE),
+                anchor.offset(ARRIVE_RANGE, 2, ARRIVE_RANGE))) {
+            if (pos.equals(anchor) || pos.distSqr(anchor) > ARRIVE_RANGE * ARRIVE_RANGE
+                    || !HatBoatRoute.calmSurface(level, pos) || !waterHullFits(level, boat, pos)) continue;
+            candidates.add(pos.immutable());
+        }
+        return candidates.stream().min(Comparator.comparingDouble(pos -> pos.distSqr(bank))).orElse(null);
+    }
+
+    /** A member berth remains valid only while it stays on the anchor's real water area and no other hull occupies it. */
+    static boolean waterMemberBerthValid(ServerLevel level, BlockPos anchor, HatBoatEntity boat, BlockPos berth) {
+        return anchor != null && berth != null && !berth.equals(anchor) && berth.distSqr(anchor) <= ARRIVE_RANGE * ARRIVE_RANGE
+                && HatBoatRoute.calmSurface(level, berth) && waterHullFits(level, boat, berth);
+    }
+
+    /** Full-hull clearance includes other afloat hats; block-only checks let multiple boats claim the same berth. */
+    private static boolean waterHullFits(ServerLevel level, HatBoatEntity boat, BlockPos pos) {
+        var surface = HatBoatRoute.surface(level, pos);
+        var bounds = boat.getBoundingBox().move(surface.subtract(boat.position()));
+        if (!level.noCollision(boat, bounds)) return false;
+        return level.getEntitiesOfClass(HatBoatEntity.class, bounds.inflate(.01), other -> other != boat && other.isAfloat())
+                .stream().noneMatch(other -> other.getBoundingBox().intersects(bounds));
+    }
+    /** A boat reaches the concrete water destination only after its position, not its passenger's old bank distance, is close to it. */
+    static boolean waterArrived(HatBoatEntity boat, ServerLevel level, BlockPos water) {
+        return boat != null && water != null && boat.isAfloat() && HatBoatRoute.calmSurface(level, water)
+                && boat.position().distanceToSqr(HatBoatRoute.surface(level, water)) <= .16;
+    }
+    private static HatBoatEntity waterBoat(YukkuriEntity captain) {
+        return captain != null && captain.getVehicle() instanceof HatBoatEntity boat && boat.isAfloat()
+                && captain.getUUID().equals(boat.ownerYukkuri()) && boat.protects(captain) ? boat : null;
+    }
+    /** The next public pile sits on a real dry bank beside the selected future afloat address. */
+    private static BlockPos waterCommons(ServerLevel level, BlockPos bank, BlockPos water) {
+        if (water == null) return null;
+        var candidates = new ArrayList<BlockPos>();
+        for (BlockPos pos : BlockPos.betweenClosed(bank.offset(-5, -2, -5), bank.offset(5, 2, 5))) {
+            if (!level.hasChunkAt(pos) || !level.getBlockState(pos).isAir()
+                    || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
+            if (pos.distSqr(water) <= 12 * 12) candidates.add(pos.immutable());
+        }
+        return candidates.stream().min(Comparator.comparingDouble(pos -> pos.distSqr(bank))).orElse(null);
+    }
+    private static Direction dryApproach(ServerLevel level, BlockPos pile) {
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var stand = pile.relative(side);
+            if (level.hasChunkAt(stand) && level.getFluidState(stand).isEmpty()
+                    && level.getBlockState(stand.below()).isFaceSturdy(level, stand.below(), Direction.UP)) return side;
+        }
+        return Direction.SOUTH;
     }
 
     /** The red-eyed visitor of plan 4.2 (a red-eyed Myon seen by a member, see sight): an omen weighs like an attack on a member. */
@@ -132,10 +216,11 @@ final class Migration {
                 LOGGED_PHASES.put(group,new LoggedPhase(group.migrateSince,phase));
             }
             if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
-            if (leader && phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
-            else if (expired(group, now)) {
-                if (phase == Phase.MARCH && arrived(level, group)) complete(data, group, caller, now);
-                else abandon(data, group, caller, now, "deadline");
+            if (leader && phase == Phase.MARCH && arrived(level, group) && complete(data, group, caller, now)) return;
+            if (expired(group, now)) {
+                if (phase == Phase.MARCH && arrived(level, group)) {
+                    if (!complete(data, group, caller, now)) abandon(data, group, caller, now, "arrival_store_unavailable");
+                } else abandon(data, group, caller, now, "deadline");
             }
             return;
         }
@@ -212,7 +297,10 @@ final class Migration {
             if (home != null) homes.add(home.getBlockPos());
             if (!joins(m, group)) continue;
             adults++;
-            if (home == null || !home.usable(m)) homeless++;
+            // An afloat community's residence is its current physical hat.  A boat rider with that
+            // address must not create artificial homeless pressure just because it has no burrow.
+            boolean afloatHome = afloat(group) && m.habitat().waterHome() != null;
+            if (home == null ? !afloatHome : !home.usable(m)) homeless++;
         }
         float weighted = 0;
         int recent = 0;
@@ -339,8 +427,10 @@ final class Migration {
         long now = level.getGameTime();
         var data = SettlementData.get(level);
         if (!reserveTarget(data, group, site)) return Result.NOT_FOUND;
+        BlockPos water = afloat(group) ? waterDestination(level, site, waterBoat(leader)) : null;
+        if (afloat(group) && (water == null || waterCommons(level, site, water) == null)) { releaseTarget(data, group, site); return Result.NOT_FOUND; }
         var c = group.commons;
-        group.migrateTo = site; group.migrateSince = now;
+        group.migrateTo = site; group.migrateWater = water; group.migrateSince = now;
         c.migrateReason = reason;
         c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
         data.setDirty();
@@ -438,17 +528,33 @@ final class Migration {
         return moving(group) ? !e.settlement().settledAt(group.migrateTo) : e.settlement().straggler(group);
     }
 
-    /** The leader and at least half of the loaded settlers have reached the site or taken a home there. */
+    /** The leader and at least half of the loaded settlers have reached the new water berth in real physical hats. */
     private static boolean arrived(ServerLevel level, SettlementData.Group group) {
-        if (!(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
-                || !group.id.equals(chief.settlement().groupId()) || !chief.settlement().settledAt(group.migrateTo)
-                && chief.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
+        BlockPos arrival = afloat(group) ? group.migrateWater : group.migrateTo;
+        if (arrival == null || !(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
+                || !group.id.equals(chief.settlement().groupId())) return false;
+        if (afloat(group)) {
+            var leaderHat = chief.habitat().waterHome();
+            if (!waterArrived(leaderHat, level, arrival)) return false;
+            int total = 0, there = 0;
+            var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
+            for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, travelledArea,
+                    m -> group.id.equals(m.settlement().groupId()) && joins(m, group))) {
+                total++;
+                var hat = e.habitat().waterHome();
+                if (hat != null && hat.isAfloat() && hat.protects(e)
+                        && hat.position().distanceToSqr(HatBoatRoute.surface(level, arrival)) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
+            }
+            return there * 2 >= total;
+        }
+        if (!chief.settlement().settledAt(group.migrateTo)
+                && chief.distanceToSqr(arrival.getX() + .5, arrival.getY(), arrival.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
         int total = 0, there = 0;
         var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
         for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, travelledArea,
                 m -> group.id.equals(m.settlement().groupId()) && joins(m, group))) {
             total++;
-            if (e.settlement().settledAt(group.migrateTo) || e.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5)
+            if (e.settlement().settledAt(group.migrateTo) || e.distanceToSqr(arrival.getX() + .5, arrival.getY(), arrival.getZ() + .5)
                     <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
         }
         return there * 2 >= total;
@@ -466,7 +572,7 @@ final class Migration {
                 + " phase " + phase(group,now) + " elapsed " + (now-group.migrateSince));
         releaseTarget(data, group, group.migrateTo);
         LOGGED_PHASES.remove(group);
-        group.migrateTo = null; group.migrateSince = 0; group.migrateRetry = now + NO_SITE_TICKS;
+        group.migrateTo = null; group.migrateWater = null; group.migrateSince = 0; group.migrateRetry = now + NO_SITE_TICKS;
         data.setDirty();
     }
 
@@ -491,7 +597,21 @@ final class Migration {
     }
 
     /** The new site becomes the centre; stragglers remain members and walk back to it as usual. A new start for the counters. */
-    static void complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+    /**
+     * Commit only after the new public shore has a real pile.  Reaching a water cell is not enough to move the ledger
+     * if the bank changed after the destination scan and can no longer host the shared store.
+     */
+    static boolean complete(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now) {
+        BlockPos newWaterCommons = null;
+        ServerLevel afloatLevel = null;
+        if (afloat(group)) {
+            if (!(caller.level() instanceof ServerLevel level)) return false;
+            afloatLevel = level;
+            newWaterCommons = waterCommons(level, group.migrateTo, group.migrateWater);
+            if (newWaterCommons == null || !level.setBlock(newWaterCommons, ModBlocks.FORAGE_PILE.get().defaultBlockState(), 3)
+                    || !(level.getBlockEntity(newWaterCommons) instanceof ForagePileBlockEntity pile)) return false;
+            pile.setApproach(dryApproach(level, newWaterCommons));
+        }
         var arrived = SiteLife.bySpot(data, group.migrateTo);
         // The old ground is left to the next settlers; the new one is lived in from now on. Moving onto natural ground
         // leaves the planned site behind too: before, the group kept its old siteId and arrivals re-homed into the old burrows.
@@ -502,10 +622,30 @@ final class Migration {
             if(caller.level() instanceof ServerLevel level)SiteLife.orientExistingStores(level,arrived);
         }
         else group.siteId = null;
+        if (afloat(group)) {
+            // The old bank pile remains a real abandoned stock, like food left in old burrows.  The new group address
+            // is a fresh physical pile at the bank reached by its boats.  It was placed before this ledger commit;
+            // no invisible cargo transfer occurs.
+            group.waterCommons = newWaterCommons;
+            // A dependent child shares the parent's physical hat for the arrival census, but cannot drive a second
+            // settlement route itself.  Stamp every loaded group member actually protected by a hat at this berth;
+            // otherwise a child counted toward the quorum keeps the old origin forever and later becomes an
+            // unrouteable "straggler" when it grows up.
+            var arrivedWater = group.migrateWater;
+            for (YukkuriEntity member : LoadedGroupMembers.query(afloatLevel, group.id,
+                    new AABB(arrivedWater).inflate(ARRIVE_RANGE + 2),
+                    e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) {
+                var hat = member.habitat().waterHome();
+                if (hat != null && hat.isAfloat() && hat.protects(member)
+                        && hat.position().distanceToSqr(HatBoatRoute.surface(afloatLevel, arrivedWater))
+                                <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2))
+                    member.settlement().settleAfloat(group.migrateTo, arrivedWater);
+            }
+        }
         var c = group.commons;
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
         LOGGED_PHASES.remove(group);
-        group.center = group.migrateTo; group.migrateTo = null; group.migrateSince = 0;
+        group.center = group.migrateTo; group.migrateTo = null; group.migrateWater = null; group.migrateSince = 0;
         group.threat = 0; group.threatPos = null; group.sighted.clear();
         group.gatherUntil = 0; group.snowing = false; group.migrateRetry = now + REVIEW_TICKS;
         // Settling in: the old griefs and failures belong to the old ground; a hunt may be called at once.
@@ -517,6 +657,7 @@ final class Migration {
         if (caller.level() instanceof ServerLevel level)
             for (YukkuriEntity m : LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(16),
                     e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) m.mind().add(-4, "migrate_settled");
+        return true;
     }
 
     private Migration() {}

@@ -85,10 +85,14 @@ public final class Commons {
     public long rationTime;
     public int rationStock, rationGiven, rationWanted;
     public final Map<Long, Ration> rations = new HashMap<>();
+    /** Afloat households use the UUID of their actual hat, never an invented shore address. */
+    public final Map<UUID, Ration> waterRations = new HashMap<>();
     private final LeaseTable<Long,Rations.Fetch> rationLeases = new LeaseTable<>();
-    /** Reverse membership only; deadlines remain authoritative in rationLeases. */
+    private final LeaseTable<UUID,Rations.WaterFetch> waterRationLeases = new LeaseTable<>();
+    /** Reverse membership only; deadlines remain authoritative in the lease tables. */
     private final Map<UUID,Set<Rations.Fetch>> rationClaims = new HashMap<>();
-    void clearRations() { rations.clear();rationLeases.clear();rationClaims.clear(); }
+    private final Map<UUID,Set<Rations.WaterFetch>> waterRationClaims = new HashMap<>();
+    void clearRations() { rations.clear();waterRations.clear();rationLeases.clear();waterRationLeases.clear();rationClaims.clear();waterRationClaims.clear(); }
     boolean rationFree(long home,long now) { return rationLeases.free(List.of(home),now); }
     boolean claimRation(Rations.Fetch fetch,long now) {
         if(!rationLeases.acquireAll(List.of(fetch.homeKey),fetch,now+Rations.FETCH_HOLD,now))return false;
@@ -107,15 +111,37 @@ public final class Commons {
         if(fetch.ration.fetch==fetch)fetch.ration.fetch=null;
     }
     private boolean claimingRation(UUID id,long now) {
-        var claims=rationClaims.get(id);return claims!=null&&claims.stream().anyMatch(fetch->ownsRation(fetch,now));
+        var land=rationClaims.get(id);
+        var water=waterRationClaims.get(id);
+        return land!=null&&land.stream().anyMatch(fetch->ownsRation(fetch,now))
+                || water!=null&&water.stream().anyMatch(fetch->ownsWaterRation(fetch,now));
+    }
+    boolean waterRationFree(UUID boat,long now) { return waterRationLeases.free(List.of(boat),now); }
+    boolean claimWaterRation(Rations.WaterFetch fetch,long now) {
+        if(!waterRationLeases.acquireAll(List.of(fetch.boatId),fetch,now+Rations.WATER_FETCH_HOLD,now))return false;
+        if(fetch.ration.waterFetch!=null)releaseWaterRation(fetch.ration.waterFetch);
+        fetch.ration.waterFetch=fetch;
+        waterRationClaims.computeIfAbsent(fetch.fetcher,id->new HashSet<>()).add(fetch);retain.accept(fetch.fetcher);
+        return true;
+    }
+    boolean ownsWaterRation(Rations.WaterFetch fetch,long now) {
+        return waterRations.get(fetch.boatId)==fetch.ration&&fetch.ration.waterFetch==fetch
+                &&waterRationLeases.owns(fetch.boatId,fetch,now);
+    }
+    void releaseWaterRation(Rations.WaterFetch fetch) {
+        waterRationLeases.release(fetch.boatId,fetch);
+        var claims=waterRationClaims.get(fetch.fetcher);
+        if(claims!=null){claims.remove(fetch);if(claims.isEmpty())waterRationClaims.remove(fetch.fetcher);}
+        if(fetch.ration.waterFetch==fetch)fetch.ration.waterFetch=null;
     }
 
     /** One household's share of the last distribution. Key: the household's shelter position. */
     public static final class Ration {
         public int mouths, allotted, left, own;
         public float weight;
-        /** Current runtime attempt; neither the claim nor its deadline is saved. */
+        /** Current runtime attempts; neither the claims nor their deadlines are saved. */
         private Rations.Fetch fetch;
+        private Rations.WaterFetch waterFetch;
         public String note = "";
     }
 
@@ -316,6 +342,14 @@ public final class Commons {
             rationList.add(e);
         });
         tag.put("Rations", rationList);
+        var waterRationList = new ListTag();
+        waterRations.forEach((key, r) -> {
+            var e = new CompoundTag();
+            e.putUUID("Hat", key); e.putInt("Mouths", r.mouths); e.putFloat("Weight", r.weight); e.putInt("Allotted", r.allotted);
+            e.putInt("Left", r.left); e.putInt("Own", r.own); e.putString("Note", r.note);
+            waterRationList.add(e);
+        });
+        tag.put("WaterRations", waterRationList);
         var standingList = new ListTag();
         standing.forEach((id, s) -> {
             var e = new CompoundTag();
@@ -377,6 +411,14 @@ public final class Commons {
             r.mouths = e.getInt("Mouths"); r.weight = e.getFloat("Weight"); r.allotted = e.getInt("Allotted");
             r.left = Math.max(0, e.getInt("Left")); r.own = e.getInt("Own"); r.note = e.getString("Note");
             rations.put(e.getLong("Home"), r);
+        }
+        for (Tag raw : tag.getList("WaterRations", Tag.TAG_COMPOUND)) {
+            var e = (CompoundTag)raw;
+            if (!e.hasUUID("Hat")) continue;
+            var r = new Ration();
+            r.mouths = e.getInt("Mouths"); r.weight = e.getFloat("Weight"); r.allotted = e.getInt("Allotted");
+            r.left = Math.max(0, e.getInt("Left")); r.own = e.getInt("Own"); r.note = e.getString("Note");
+            waterRations.put(e.getUUID("Hat"), r);
         }
         standing.clear();cleanupStanding.clear();cleanupCursor=null;
         for (Tag raw : tag.getList("Standing", Tag.TAG_COMPOUND)) {

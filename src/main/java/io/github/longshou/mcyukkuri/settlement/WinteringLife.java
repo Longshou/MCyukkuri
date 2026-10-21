@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -48,7 +50,7 @@ public final class WinteringLife extends Goal {
     private boolean ready() {
         return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
-                && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking() && !entity.isCommandPlaying()
+                && (!entity.isPassenger() || EcologyMovement.captain(entity) && EcologyMovement.supported(entity)) && !entity.isLeashed() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.shellRetraction().active()
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.life().isSleeping()
@@ -78,6 +80,13 @@ public final class WinteringLife extends Goal {
     @Override public boolean canUse() {
         if (level().getGameTime() < nextStay || !stayReady() || RareForms.winterActive(entity)) return false;
         nextStay = level().getGameTime() + 100;
+        if (EcologyMovement.captain(entity)) {
+            var boat = EcologyMovement.boat(entity);
+            var cell = BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ());
+            if (!winter(entity) || boat.cargo().count() == 0 || !HatBoatRoute.quietSurface(level(), cell)
+                    || !entity.life().temperature().comfortableAt(entity.blockPosition())) return false;
+            target = cell.above(); return true;
+        }
         var home = stockedHome();
         if (!warmHome(home)) return false;
         var bed = home.bed(entity.getUUID());
@@ -91,6 +100,12 @@ public final class WinteringLife extends Goal {
     }
     @Override public boolean canContinueToUse() {
         if (!running || elapsed >= 400 || !stayReady()) return false;
+        if (EcologyMovement.captain(entity)) {
+            var boat = EcologyMovement.boat(entity);
+            return winter(entity) && boat.cargo().count() > 0
+                    && HatBoatRoute.quietSurface(level(), target.below())
+                    && boat.position().distanceToSqr(HatBoatRoute.surface(level(), target.below())) < 1;
+        }
         var home = stockedHome();
         return home != null && target.equals(home.bed(entity.getUUID())) && home.insulated()
                 && (elapsed % 20 != 0 || warmHome(home));
@@ -99,6 +114,9 @@ public final class WinteringLife extends Goal {
     @Override public void tick() {
         if (!canContinueToUse()) { stop(); return; }
         elapsed++;
+        if (EcologyMovement.captain(entity)) {
+            staying = true; EcologyMovement.halt(entity); return;
+        }
         staying = reached(target);
         if (staying) entity.getNavigation().stop();
         else if (elapsed % 20 == 1 && !entity.life().navigate(target, 1, false)) stop();

@@ -16,6 +16,12 @@ public final class CommonStore {
     public static List<ForagePileBlockEntity> piles(ServerLevel level, SettlementData.Group group) {
         var out = new ArrayList<ForagePileBlockEntity>();
         if (group == null) return out;
+        // An afloat colony keeps its common food as one actual pile on the bank; it is never inferred from boat cargo.
+        if (group.waterCommons != null) {
+            if (level.hasChunkAt(group.waterCommons) && level.getBlockEntity(group.waterCommons) instanceof ForagePileBlockEntity pile
+                    && !pile.isRemoved()) out.add(pile);
+            return out;
+        }
         var site = SiteLife.of(level, group);
         if (site != null) {
             out.addAll(StorePiles.atSite(level, site));

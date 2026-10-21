@@ -86,7 +86,7 @@ final class CatchHat {
         var forward=Vec3.directionFromRotation(0,mother.yBodyRot);float yaw=mother.yBodyRot+place.hatYawInMother();
         if(aquatic){
             var edge=mother.position().add(forward.scale(mother.getBbWidth()*.5));
-            return new HatPose(edge.add(forward.scale(HatVessel.BRIM[0]*k-HatVessel.UNDER_BANK*body)),yaw,HatVessel.Mode.FLOAT,role);
+            return new HatPose(edge.add(forward.scale(HatVessel.brim(place.mode())[0]*k-HatVessel.underBank(place.mode())*body)),yaw,place.mode(),role);
         }
         if(role==HatVessel.Role.SELF){
             var at=FamilyGeometry.toWorld(mother,place.offset().scale(mother.growthScale()/16));
@@ -98,7 +98,7 @@ final class CatchHat {
             double sx=0,sz=0;int n=brood.children.size();
             for(int i=0;i<n;i++){var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),brood.children.get(i).variant);sx+=c.x;sz+=c.z;}
             var under=FamilyGeometry.toWorld(mother,new Vec3(sx/Math.max(1,n),0,sz/Math.max(1,n)));
-            double ahead=under.subtract(mother.position()).dot(forward),least=mother.getBbWidth()*.5+HatVessel.BRIM[1]*k+.1;
+            double ahead=under.subtract(mother.position()).dot(forward),least=mother.getBbWidth()*.5+HatVessel.brim(place.mode())[1]*k+.1;
             var at=under.add(forward.scale(Math.max(0,least-ahead)));HatPose best=null;double far=-1;
             for(float turn:new float[]{0,180}){
                 var pose=new HatPose(new Vec3(at.x,mother.getY(),at.z),mother.yBodyRot+turn,HatVessel.Mode.NEST,role);
@@ -123,13 +123,13 @@ final class CatchHat {
         return new Stand(new Vec3(at.x,pose.mode()==HatVessel.Mode.NEST?pose.at().y:catcher.getY(),at.z),yaw);
     }
 
-    private static HatPose poseOf(HatBoatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.isMoored()?HatVessel.Mode.FLOAT:HatVessel.Mode.NEST,hat.role());}
+    private static HatPose poseOf(HatBoatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.mode(),hat.role());}
 
     /** The ground or water where the hat would go takes it. */
     private boolean settles(HatPose pose){
         var spot=BlockPos.containing(pose.at());
         if(!o.level().hasChunkAt(spot))return false;
-        if(pose.mode()==HatVessel.Mode.FLOAT){
+        if(pose.mode().afloat()){
             for(int down=0;down<3;down++)if(o.level().getFluidState(spot.below(down)).is(FluidTags.WATER))return true;
             return false;
         }
@@ -175,7 +175,7 @@ final class CatchHat {
         if(!settles(pose)||!SurfaceApproach.supported(o.entity(),helper.at()))return false;
         // Check the whole visible brim, not just the centre block beneath the hat.
         double unit=HatVessel.hatScale(o.entity())*o.entity().getScale()/16;
-        double width=Math.max(HatVessel.BRIM[0],HatVessel.BRIM[1])*unit;
+        var brim=HatVessel.brim(pose.mode());double width=Math.max(brim[0],brim[1])*unit;
         var hatBox=new AABB(pose.at().x-width,pose.at().y+.01,pose.at().z-width,
                 pose.at().x+width,pose.at().y+.3,pose.at().z+width);
         var motherBox=mother.getBoundingBox().move(site.at().subtract(mother.position()));

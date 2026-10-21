@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -51,7 +52,7 @@ final class LifeAccessory {
 
     UUID stowAccessory(UUID retainedToken, UUID boat) {
         if (!accessory) return null;
-        accessory = false; accessoryToken = retainedToken == null ? UUID.randomUUID() : retainedToken;
+        accessory = false; accessoryToken = retainedToken == null ? accessoryToken == null ? UUID.randomUUID() : accessoryToken : retainedToken;
         custodyBoat = boat; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0;
         GameplayLog.event(o.entity(), "headwear", "stowed token={} boat={}", accessoryToken, boat);
         return accessoryToken;
@@ -71,10 +72,53 @@ final class LifeAccessory {
                     "return refused reason=owner_or_token_mismatch owner={} token={} player={}", owner, token, player);
             return false;
         }
-        accessory = true; accessoryToken = custodyBoat = null; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryReturned(player);
+        accessory = true; accessoryToken = token; custodyBoat = null; custodyEnded = provisionalCustody = false; driftingAwayTicks = 0; clearConfiscation(); o.entity().subspecies().boatId(null); o.personality().accessoryReturned(player);
         o.entity().settlement().society().restored();
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); return true;
+    }
+    /** Accept a whole, compatible accessory and retire the old owner's capability before it can be recovered again. */
+    boolean receiveAccessory(UUID sourceOwner,UUID sourceToken,UUID player) {
+        // A truly lost old hat may still leave its retired token in the save.  It is not a second
+        // physical accessory, so a compatible received hat may replace that stale capability.
+        // A boat/provisional custody is a real existing hat and must still refuse a duplicate.
+        if (accessoryReceiptRefusalReason() != null || sourceOwner == null || sourceToken == null
+                || !(o.entity().level() instanceof ServerLevel level)) return false;
+        // A shattered recipient can already be keeping physical pieces of its old hat.  Do not let
+        // Headwear.clock() clear that counter after the new hat is put on: every held piece has to
+        // become a real item first.  A failed spawn leaves the remaining pieces held and refuses
+        // this replacement, so no fragment is silently destroyed.
+        if (!o.entity().headwear().releaseHeldShardsForWholeAccessory()) return false;
+        UUID receivedToken=UUID.randomUUID();
+        accessory=true;accessoryToken=receivedToken;custodyBoat=null;custodyEnded=provisionalCustody=false;driftingAwayTicks=0;
+        clearConfiscation();o.entity().subspecies().boatId(null);o.personality().accessoryReturned(player);
+        o.entity().settlement().society().restored();
+        var data=YukkuriWorldData.get(level);
+        data.accessoryTransferred(sourceOwner,sourceToken,o.entity().getUUID());
+        // Avoid even a one-tick window in which a loaded former owner could auto-recover an already consumed item.
+        if(level.getEntity(sourceOwner) instanceof YukkuriEntity source
+                && source.life().retireTransferredAccessory(sourceToken,o.entity().getUUID()))
+            data.consumeAccessoryTransfer(sourceOwner,sourceToken);
+        GameplayLog.event(o.entity(),"headwear","received sourceOwner={} sourceToken={} token={} player={}",
+                sourceOwner,sourceToken,receivedToken,player);
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED);o.entity().showReaction("happy","returned_accessory",100);
+        return true;
+    }
+
+    /** Why a different intact accessory cannot be put on this entity at the moment. */
+    String accessoryReceiptRefusalReason() {
+        if (accessory) return "already_wearing";
+        if (custodied()) return "still_custodied";
+        return null;
+    }
+
+    /** Drop only the old capability after another individual accepted its whole accessory. */
+    boolean retireTransferredAccessory(UUID token,UUID recipient) {
+        if(accessory||accessoryToken==null||!accessoryToken.equals(token))return false;
+        accessoryToken=custodyBoat=null;custodyEnded=provisionalCustody=false;driftingAwayTicks=0;
+        clearConfiscation();o.entity().subspecies().boatId(null);
+        GameplayLog.event(o.entity(),"headwear","transferred recipient={}",recipient);
+        return true;
     }
 
     void wearAccessory() {
@@ -112,6 +156,11 @@ final class LifeAccessory {
     /** Only positive evidence ends custody: a recorded confiscation or a currently visible boat drifting away. */
     void tick() {
         if (accessory || accessoryToken == null || !(o.entity().level() instanceof ServerLevel level)) return;
+        var recipient=YukkuriWorldData.get(level).consumeAccessoryTransfer(o.entity().getUUID(),accessoryToken);
+        if(recipient!=null){
+            retireTransferredAccessory(accessoryToken,recipient);
+            return;
+        }
         var notice = YukkuriWorldData.get(level).consumeAccessoryLoss(o.entity().getUUID(), accessoryToken);
         if (notice != null) {
             if (!notice.destroyedBy().isEmpty()) o.entity().headwear().deployedDestroyed(o.entity().getUUID(), accessoryToken, notice.destroyedBy());

@@ -51,9 +51,9 @@ final class HatHullMotion {
         if(selfRescueHeld())return Mth.lerp(partial,m.getFloat("PreviousSquash"),m.getFloat("HeldSquash"));
         if(m.contains("LooseAt")){
             float t=(float)Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);t=t*t*(3-2*t);
-            return Mth.lerp(t,m.getFloat("LooseSquash"),HatVessel.SQUASH_FLOAT);
+            return Mth.lerp(t,m.getFloat("LooseSquash"),(float)HatVessel.squash(boat.mode()));
         }
-        return boat.isCradle()?HatVessel.SQUASH_NEST:HatVessel.SQUASH_FLOAT;
+        return (float)HatVessel.squash(boat.mode());
     }
 
     boolean selfRighting(){return boat.state()==State.CAPSIZED&&boat.motionData().contains("RightProgress");}
@@ -95,8 +95,9 @@ final class HatHullMotion {
         float yaw=(float)Math.toDegrees(Math.atan2(-local.x,local.z)),current=dipValue(0);
         if(current>.5f&&Math.abs(Mth.wrapDegrees(yaw-dipYaw()))<=25f)yaw=dipYaw();
         double dx=-local.x/length,dz=local.z/length;
-        double reach=Math.min(Math.abs(dx)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[0]/Math.abs(dx),Math.abs(dz)<1e-6?Double.MAX_VALUE:HatVessel.BRIM[1]/Math.abs(dz));
-        float cap=(float)Math.toDegrees(Math.atan(.6*HatVessel.FREEBOARD/reach));
+        var brim=HatVessel.brim(boat.mode());
+        double reach=Math.min(Math.abs(dx)<1e-6?Double.MAX_VALUE:brim[0]/Math.abs(dx),Math.abs(dz)<1e-6?Double.MAX_VALUE:brim[1]/Math.abs(dz));
+        float cap=(float)Math.toDegrees(Math.atan(.6*HatVessel.freeboard(boat.mode())/reach));
         float degrees=Math.min(Math.min(maxDegrees,MAX_DIP),cap);
         return degrees<=.05f?Dip.NONE:new Dip(degrees,yaw);
     }

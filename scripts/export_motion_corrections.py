@@ -14,6 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
 LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
 VESSEL = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
+# The aquatic hat clips (lore/hat.py) take their placements and carried hat from the aquatic hat's own export.
+AQUATIC_VESSEL = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json'
+AQUATIC_PROP = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_props/accessory_marisa_aquatic.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'
 MANIFEST = ROOT/'art/source/motion-corrections/manifest.json'
@@ -136,7 +139,7 @@ def main():
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
-    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'hat.py', VESSEL, Path(__file__)]
+    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'hat.py', VESSEL, AQUATIC_VESSEL, AQUATIC_PROP, Path(__file__)]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
@@ -191,6 +194,8 @@ def main():
                 'lore_author': rel(LORE/'author.py'), 'lore_author_sha256': sha(LORE/'author.py'),
                 'lore_hat': rel(LORE/'hat.py'), 'lore_hat_sha256': sha(LORE/'hat.py'),
                 'hat_vessel': rel(VESSEL), 'hat_vessel_sha256': sha(VESSEL),
+                'aquatic_hat_vessel': rel(AQUATIC_VESSEL), 'aquatic_hat_vessel_sha256': sha(AQUATIC_VESSEL),
+                'aquatic_hat_prop': rel(AQUATIC_PROP), 'aquatic_hat_prop_sha256': sha(AQUATIC_PROP),
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}

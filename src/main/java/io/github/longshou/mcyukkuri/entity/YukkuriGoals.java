@@ -72,8 +72,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
         goalSelector.addGoal(4, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
-            @Override public boolean canUse() { return owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
-            @Override public boolean canContinueToUse() { return owner.life().canEat() && super.canContinueToUse(); }
+            @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
+            @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }
         });
         goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
@@ -104,10 +104,11 @@ final class YukkuriGoals {
         goalSelector.addGoal(6,presentationGoals.bind(PresentationGoals.PLAY, new PlaygroundGoal()));
         owner.createWintering();
         goalSelector.addGoal(7, presentationGoals.bind(PresentationGoals.WINTERING, owner.wintering()));
+        goalSelector.addGoal(8, presentationGoals.bind(PresentationGoals.AQUATIC, owner.aquaticLife().routineGoal()));
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(owner, 1.0) {
             // House residents with a nest or corner do not roam the room: their patrols are the scouting rounds of the house goal.
-            @Override public boolean canUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canUse(); }
-            @Override public boolean canContinueToUse() { return owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless())
+            @Override public boolean canUse() { return !owner.isPassenger() && owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless()) && super.canUse(); }
+            @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.childhood().canLearn() && (!EcologyRoutines.house(owner) || owner.house().homeless())
                     && owner.family().allowsIdleWalk(new Vec3(wantedX,wantedY,wantedZ)) && super.canContinueToUse(); }
             @Override protected Vec3 getPosition() {
                 var destination=super.getPosition();
@@ -231,7 +232,7 @@ final class YukkuriGoals {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.woundComfort().inContact()); }
         ComfortGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.woundComfort().plan(); }
-        @Override public boolean canContinueToUse() { return owner.woundComfort().licking() && owner.woundComfort().valid(); }
+        @Override public boolean canContinueToUse() { return owner.woundComfort().groundLicking() && owner.woundComfort().valid(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.woundComfort().tickGoal(); }
         @Override public void stop() { owner.woundComfort().stop(); }
@@ -240,8 +241,8 @@ final class YukkuriGoals {
     private final class ComfortReceiverGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.woundComfort().inContact()); }
         ComfortReceiverGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.woundComfort().receiving(); }
-        @Override public boolean canContinueToUse() { return owner.woundComfort().receiving(); }
+        @Override public boolean canUse() { return owner.woundComfort().groundReceiving(); }
+        @Override public boolean canContinueToUse() { return owner.woundComfort().groundReceiving(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.woundComfort().tickReceiver(); }
         @Override public void stop() { owner.woundComfort().stop(); }

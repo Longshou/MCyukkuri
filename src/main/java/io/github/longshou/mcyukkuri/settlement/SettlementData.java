@@ -50,6 +50,8 @@ public final class SettlementData extends SavedData {
         public BlockPos center;
         /** The planned site this community lives on (plaza, granaries, pool...); null for groups on natural caves. */
         public UUID siteId;
+        /** Bank-side real forage pile serving an afloat community; null for land communities and planned granaries. */
+        public BlockPos waterCommons;
         public UUID leader;
         /** A forest group only elects after a real incumbent's death/removal. */
         public boolean hasLeaderOffice, vacancyConfirmed;
@@ -75,6 +77,8 @@ public final class SettlementData extends SavedData {
         public BlockPos threatPos;
         public long threatTime;
         public BlockPos migrateTo;
+        /** Actual calm-water berth selected for an afloat migration; the dry {@link #migrateTo} remains the bank anchor. */
+        public BlockPos migrateWater;
         public long migrateSince;
         public final Map<UUID, Long> sighted = new HashMap<>();
         public long decayAt, migrateRetry, attackedAt;
@@ -432,6 +436,8 @@ public final class SettlementData extends SavedData {
             value.putBoolean("RosterTrusted",group.rosterTrusted);
             value.putLong("Center", group.center.asLong());
             if (group.siteId != null) value.putUUID("Site", group.siteId);
+            if (group.waterCommons != null) value.putLong("WaterCommons", group.waterCommons.asLong());
+            if (group.migrateWater != null) value.putLong("MigrateWater", group.migrateWater.asLong());
             if (group.leader != null) value.putUUID("Leader", group.leader);
             value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
             value.putBoolean("VacancyConfirmed", group.vacancyConfirmed);
@@ -523,6 +529,8 @@ public final class SettlementData extends SavedData {
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
                 group.commons.retainWith(data::retain);data.retain(group.leader);
                 if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
+                if (value.contains("WaterCommons", Tag.TAG_LONG)) group.waterCommons = BlockPos.of(value.getLong("WaterCommons"));
+                if (value.contains("MigrateWater", Tag.TAG_LONG)) group.migrateWater = BlockPos.of(value.getLong("MigrateWater"));
                 loadOffice(value, group);
                 data.loadMembers(value, group);
                 // Keep malformed communities rather than delete the group and strand a noncanonical site backlink.

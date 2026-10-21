@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "status": "pending_user_review",
+  "note": "The aquatic Marisa's own hat: a separate object from the land Marisa hat, with a deeper and rounder crown that reads as a boat hull once turned over. One triangle set serves the worn hat, the removed item, damage and pieces, and (turned over by the same rigid transform as marisa_hat_turned) the hat boat. Lengths are model units (16 per block) at growth 1, before the aquatic 1.5 hat multiplier. Outlines are given in the turned-over vessel frame: x across (the worn front, where the bow sits, is +x), z along the long brim axis (the worn tip bends toward -z), depth measured down from the rim plane that sat on the head.",
+  "lore": "user 2026-10-19: aquatic hat crown deeper and rounder, like a boat hull; a different item from the ordinary Marisa hat. EH22-001/007: a round brim on the water, a deep dark bowl hanging under it with a small point at the bottom.",
+  "sampling": {
+    "directions": 48,
+    "note": "Every outline (brim, opening, cavity tiers, outside of the crown) is a convex polygon sampled on the same rays from the hat axis, plus the two rays through the front tread corners, so neighbouring rings share vertex counts and the server polygons are the drawn edges."
+  },
+  "brim": {
+    "half": [7.9, 10.6],
+    "exponent": 2.8,
+    "thickness": 0.8,
+    "lore": "A rounded brim, a little larger than the land cross-shaped brim so it still holds both braid grips used by the aquatic hat clips."
+  },
+  "opening": {
+    "half": [4.8, 6.6],
+    "exponent": 3.0,
+    "lore": "The well's mouth at the rim. Area is close to the land hat's 8.74 x 12.02 rectangle (no cabin space lost) with rounded corners."
+  },
+  "wall": 0.55,
+  "front_tread": {
+    "depth": 1.1,
+    "z": -5.5,
+    "lore": "Same idea as the land hat's shallow front foothold: the front cap of the opening stays a shallow tread for small young. Every bowl tier lies behind this straight edge so the sections nest."
+  },
+  "ledge": {
+    "depth": 2.2484,
+    "lore": "The owner's stern tread; kept at the land hat's depth so the owner's seat height afloat (bowl.owner_y) is unchanged."
+  },
+  "bowl_tiers": [
+    {"depth": 3.6,  "half": [3.95, 5.2],  "exponent": 2.6},
+    {"depth": 4.95, "half": [3.7, 4.85],  "exponent": 2.6},
+    {"depth": 6.3,  "half": [3.35, 4.55], "exponent": 2.6},
+    {"depth": 7.6,  "half": [2.95, 3.95], "exponent": 2.6},
+    {"depth": 8.8,  "half": [2.55, 3.3],  "exponent": 2.6},
+    {"depth": 9.9,  "half": [2.15, 2.65], "exponent": 2.6}
+  ],
+  "bowl_lore": "Below the ledge the well narrows in short round terraces down to a floor 9.9 deep (land hat 7.03). Treads are flat and risers vertical so the server's stepped cavity is exactly the drawn one; the outside of the crown is a smooth round hull around them.",
+  "crown": {
+    "top": [5.35, 7.15],
+    "top_exponent": 3.0,
+    "bottom_exponent": 2.3,
+    "straight_to": 2.8,
+    "keel": 11.8,
+    "profile_power": 2.0,
+    "rings": [0.8, 1.25, 2.25, 2.8, 3.6, 4.4, 5.2, 6.0, 6.8, 7.6, 8.4, 9.1, 9.75, 10.3, 10.8, 11.2, 11.5, 11.7],
+    "lore": "Outside of the crown: straight under the brim down to the band, then an elliptic hull closing at the keel. Walls are at least wall thick everywhere (check.py)."
+  },
+  "band": {"from": 1.25, "to": 2.25, "out": 0.1, "lore": "The white hat band, where the land hat has it (worn y 11.66-12.65 above a 10.38 brim)."},
+  "bow": {"source_parts": "bow_", "lore": "The land hat's own bow, wrapped onto the rounder band by a shear along z (each vertex moves out by how far this band's front stands beyond the land band's at its z), so boxes that touch on the land hat still touch and each keeps its own relation to the band; parts keep their names so bow_ parts can follow the bow bone."},
+  "tip": {
+    "centre": [[0, -10.6, 0.0], [0, -12.2, -0.3], [0, -13.3, -1.4], [0, -13.7, -3.0], [0, -13.5, -4.6], [0, -12.9, -5.8]],
+    "radius": [1.9, 1.5, 1.1, 0.75, 0.45, 0.08],
+    "sides": 12,
+    "lore": "Marisa's point, rising out of the bottom of the bowl and bent over toward the worn +x as her land hat's tip is, so the hat still reads as hers. Afloat it lies along the keel instead of hanging deep."
+  },
+  "cells": {
+    "cloth": [72, 56, 80, 64],
+    "dark": [104, 56, 112, 64],
+    "band": [120, 56, 128, 64],
+    "note": "Uniform lower-right quarters of Marisa atlas cells (textures/entity/marisa/neutral.png, 256 px; the full cloth cell carries a highlight stroke that would repeat on every facet): cloth = brim_center/hat_taper, dark = brim edge and the land turned-hat lining, band = hat_band and bow. Bow boxes keep their own UVs."
+  },
+  "afloat": {
+    "squash": 0.75,
+    "freeboard": 1.2,
+    "lore": "Unchanged from the land hat boat rules so the braid clips' end pose, owner height and water mask height stay valid: the crown pressed a little and hanging under the water, brim 1.2 over it."
+  },
+  "nest": {"height": 3.2, "lore": "Only for completeness of the shared schema; an aquatic hat is never set down as a land cradle."},
+  "cargo": {
+    "aside_margin": 0.15,
+    "lore": "Hat provisions are care-props/cargo.py's forage pile: inside, centred on this deeper floor and shrunk as a whole until every vertex clears the terraces; the side stow moves out onto the wider brim so each heap clears the rounder opening by this margin."
+  },
+  "aquatic_scale": 1.5,
+  "rim_out": 1.2
+}

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 
 /** Loaded-time thermal exposure and interruptible refuge seeking. All numbers are MC adaptation. */
 public final class TemperatureLife {
@@ -38,6 +39,7 @@ public final class TemperatureLife {
     private int sampleTicks, temperatureSampleTicks, coldExposure, damageTicks, coldTicks, hotTicks, cooldown, taskTicks, restTicks;
     private BlockPos target, temporarySleepSite;
     private boolean seekingWarmth;
+    private boolean waterRefugeMissing;
 
     public TemperatureLife(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
@@ -53,6 +55,7 @@ public final class TemperatureLife {
     public boolean unsafeSleep() { return cold() || hot(); }
     public boolean comfortableAt(BlockPos pos) { return pos != null && level().hasChunkAt(pos) && comfortable(sample(pos).felt()); }
     public boolean active() { return target != null; }
+    public boolean needsShoreRefuge() { return waterRefugeMissing && unsafeSleep(); }
     public String activity() { return restTicks > 0 ? seekingWarmth ? Behaviors.WARM_UP : Behaviors.SHADE_REST : seekingWarmth ? Behaviors.SEEK_WARMTH : Behaviors.SEEK_SHADE; }
 
     public void tick() {
@@ -172,7 +175,8 @@ public final class TemperatureLife {
         var life = entity.life();
         var brood = entity.family().brood();
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
-                && !entity.operations().active() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPassenger()
+                && !entity.operations().active() && !entity.isInWaterOrBubble() && !entity.isOnFire()
+                && (!entity.isPassenger() || EcologyMovement.captain(entity) && EcologyMovement.supported(entity))
                 && !entity.family().active() && !entity.family().awaitingLanding()
                 && (brood == null || brood.cancelled || brood.complete() || brood.progress() < .9f)
                 && life.mealTicks() == 0 && life.drugSleep() == 0 && life.sprayDelay() == 0
@@ -186,6 +190,7 @@ public final class TemperatureLife {
         current = sample(entity.blockPosition());
         if (!cold() && !hot()) return false;
         seekingWarmth = cold();
+        if (EcologyMovement.captain(entity)) return planAfloat();
         var candidates = new ArrayList<Refuge>();
         var center = entity.blockPosition();
         var sources = heatSources(center, 10);
@@ -208,6 +213,34 @@ public final class TemperatureLife {
         }
         return false;
     }
+    /** The same sampled climate, but only real reachable water is a place to park a hat. */
+    private boolean planAfloat() {
+        var boat = EcologyMovement.boat(entity);
+        var center = BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ());
+        var candidates = new ArrayList<Refuge>();
+        var sources = heatSources(center, 10);
+        for (var at : BlockPos.betweenClosed(center.offset(-8, 0, -8), center.offset(8, 0, 8))) {
+            if (!HatBoatRoute.quietSurface(level(), at)) continue;
+            var feet = at.above();
+            if (!refuge(sample(feet, sources))) continue;
+            var point = HatBoatRoute.surface(level(), at);
+            if (!entity.aquaticLife().familyLife().allowsDestination(boat, point)
+                    || !level().noCollision(boat, boat.getBoundingBox().move(point.subtract(boat.position())))) continue;
+            candidates.add(new Refuge(feet.immutable(), feet.distSqr(entity.blockPosition())));
+        }
+        candidates.sort(Comparator.comparingDouble(Refuge::score));
+        for (var candidate : candidates.stream().limit(12).toList()) {
+            if (!EcologyMovement.reachable(entity, candidate.pos())) continue;
+            target = candidate.pos(); taskTicks = restTicks = 0; waterRefugeMissing = false;
+            GameplayLog.event(entity, "temperature", "water refuge selected hat={} warming={} target={} felt={}",
+                    boat.getUUID(), seekingWarmth, target, current.felt());
+            return true;
+        }
+        waterRefugeMissing = true;
+        GameplayLog.limited(entity, "temperature", "water.no_refuge", 400,
+                "no safe water refuge warming={} felt={} coldExposure={}", seekingWarmth, current.felt(), coldExposure);
+        return false;
+    }
     private boolean refuge(Conditions at) {
         return comfortable(at.felt()) && (seekingWarmth || at.shade());
     }
@@ -228,6 +261,7 @@ public final class TemperatureLife {
         return true;
     }
     private boolean safeStand(BlockPos pos) {
+        if (EcologyMovement.captain(entity)) return HatBoatRoute.quietSurface(level(), pos.below());
         if (!entity.life().dryStand(pos)) return false;
         for (var near : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 0, 1))) {
             if (!level().hasChunkAt(near)) return false;
@@ -260,6 +294,16 @@ public final class TemperatureLife {
     public boolean tickGoal() {
         if (!canContinue()) { stop(); return false; }
         taskTicks++;
+        if (EcologyMovement.captain(entity)) {
+            var boat = EcologyMovement.boat(entity);
+            var point = HatBoatRoute.surface(level(), target.below());
+            if (boat.position().distanceToSqr(point) <= .2) {
+                boat.holdPosition(); restTicks++; return true;
+            }
+            restTicks = 0;
+            if (taskTicks % 20 == 1 && !EcologyMovement.navigate(entity, point, 1)) { stop(); return false; }
+            return true;
+        }
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= .2) {
             entity.getNavigation().stop(); restTicks++;
             // A short pause consumes no supplies and grants neither sleep growth nor free hydration.

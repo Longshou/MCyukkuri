@@ -40,8 +40,12 @@ public final class YukkuriStatus {
         // A grown wild individual without a recognised home (HabitatLife.Residence.VAGRANT) is a stray, whatever group record it still has.
         if (residence == HabitatLife.Residence.VAGRANT) return Identity.STRAY;
         if (y.settlement().groupId() != null) return Identity.SETTLER;
-        boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null
-                || residence == HabitatLife.Residence.DEPENDENT;
+        // An aquatic's worn, intact hat remains its household address while it is ashore. Only a real hull is AFLOAT;
+        // the accessory itself does not become a second persisted HomePos.
+        boolean aquaticHome = y.profile().aquatic() && (y.habitat().waterHome() != null
+                || y.life().hasAccessory() && !y.life().accessoryCustodyEnded());
+        boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null || aquaticHome
+                || residence == HabitatLife.Residence.AFLOAT || residence == HabitatLife.Residence.DEPENDENT;
         return homed ? Identity.WILD : Identity.STRAY;
     }
 
@@ -67,7 +71,8 @@ public final class YukkuriStatus {
         if (y.habitat().hasMemory()) return "shelter";
         if (y.profile().houseBody() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";
-        if (y.family().boatHome() != null) return "hat_boat";
+        if (y.habitat().waterHome() != null || y.family().boatHome() != null
+                || y.profile().aquatic() && y.life().hasAccessory() && !y.life().accessoryCustodyEnded()) return "hat_boat";
         if (y.habitat().vagrant() && y.habitat().digProgress() > 0) return "digging";
         return "none";
     }

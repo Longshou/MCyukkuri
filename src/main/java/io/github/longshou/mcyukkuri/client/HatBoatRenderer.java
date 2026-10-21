@@ -33,7 +33,7 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         },ModItems.MARISA_SHELL.get());
     }
     @Override public ResourceLocation getTextureLocation(HatBoatEntity boat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }
-    /** Marisa's own hat turned upside down (marisa_hat_turned), its soft crown pressed along the hat's axis: on the ground
+/** Marisa's own selected hat turned upside down (land or aquatic source), its soft crown pressed along the hat's axis: on the ground
      *  until the brim stands on the squashed crown, afloat a little with the brim a freeboard over the water and the water
      *  hidden over the opening. The braid clips end with the worn hat in this same pose. */
     /** Synced brim dip: the hull tips at most 5 degrees toward the near rim. Riders go through HatBoatMotion.rider, which has
@@ -56,9 +56,12 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         HatBoatMotion.local(pose,boat,partial);
         applyDip(pose,boat,partial);
         float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();
-        pose.translate(0,(ground?HatVessel.NEST_HEIGHT:HatVessel.FREEBOARD)*k,0);
+        var mode=ground?HatVessel.Mode.NEST:boat.aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
+        pose.translate(0,HatVessel.top(mode)*k,0);
         pose.pushPose();pose.scale(scale,scale*boat.hullSquash(partial),scale);
-        PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        String hull=boat.aquaticHull()&&PropModels.has("marisa_aquatic_hat_turned")
+                ?"marisa_aquatic_hat_turned":"marisa_hat_turned";
+        PropModels.render(hull,1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
         // The synchronized provisions remain visible when the loaded hat beaches or is lifted, too.
         HatCargoRenderer.render(boat,partial,pose,buffers,light);

@@ -29,7 +29,7 @@ final class HatDepartureBerth {
         if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || !boat.young(child) || !boat.onBrim(child) || !boat.protects(child) || boat.hasIncoming()
                 || boat.ownerSeatBusy() || voyageYoung != null && !voyageYoung.equals(child.getUUID())) return false;
         var others=boat.takenExcept(child.getUUID());
-        double r=boat.radiusOf(child);var at=HatVessel.brimPlace(r,others,true);if(at==null)return false;
+        double r=boat.radiusOf(child);var at=HatVessel.brimPlace(boat.mode(),r,others,true);if(at==null)return false;
         voyageYoung = child.getUUID(); voyageBerth = new double[]{at.x,at.y,at.z,r};
         var from=boat.toLocal(child.position());
         if(from.distanceToSqr(at)>.01)boat.seatState.setMove(voyageYoung,new SeatMove(from,boat.level().getGameTime(),
@@ -80,8 +80,9 @@ final class HatDepartureBerth {
             int siblingRoutes=0;var directions=new HashSet<Integer>();
             var body=departureBody(sibling);
             var places=new ArrayList<Vec3>();
-            for(double x=-HatVessel.BRIM[0];x<=HatVessel.BRIM[0];x+=.4)
-                for(double z=-HatVessel.BRIM[1];z<=HatVessel.BRIM[1];z+=.4){
+            var brim=HatVessel.brim(boat.mode());
+            for(double x=-brim[0];x<=brim[0];x+=.4)
+                for(double z=-brim[1];z<=brim[1];z+=.4){
                     double y=HatVessel.travelSupport(boat.mode(),x,z,boat.radiusOf(sibling));
                     if(Double.isFinite(y))places.add(new Vec3(x,y,z));
                 }
@@ -141,7 +142,7 @@ final class HatDepartureBerth {
             if(clear&&route.size()>=2){departureDebug="supported axis elbow "+corner;return List.copyOf(route);}
         }
         if(Math.abs(from.y-destination.y)>1e-4)return List.of();
-        var corners=HatVessel.brimRouteCorners();corners.sort(Comparator.comparingDouble(from::distanceToSqr));
+        var corners=HatVessel.brimRouteCorners(boat.mode());corners.sort(Comparator.comparingDouble(from::distanceToSqr));
         for(var corner:corners){
             if((corner.x-from.x)*(destination.x-corner.x)<0||(corner.z-from.z)*(destination.z-corner.z)<0)continue;
             var stops=List.of(new Vec3(from.x,from.y,corner.z),new Vec3(corner.x,from.y,corner.z),
@@ -184,7 +185,7 @@ final class HatDepartureBerth {
     boolean onVoyageBerth(YukkuriEntity child) {
         if (child == null) return false;
         var berth = voyageBerth(child); var seat = child == null ? null : boat.seatOf(child);
-        return berth != null && seat != null && !boat.changingSeat(child) && Math.abs(seat.y-HatVessel.FREEBOARD) < 1e-5
-                && seat.distanceToSqr(berth) < 1e-5 && Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, seat.x, seat.z));
+        return berth != null && seat != null && !boat.changingSeat(child) && Math.abs(seat.y-HatVessel.freeboard(boat.mode())) < 1e-5
+                && seat.distanceToSqr(berth) < 1e-5 && Double.isFinite(HatVessel.surface(boat.mode(), seat.x, seat.z));
     }
 }

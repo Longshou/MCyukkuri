@@ -268,9 +268,8 @@ public final class OperationLife {
         if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putInt("HatDamage",entity.headwear().damage());
-            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());
-                    tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
+        AccessoryItem.markSource(stack,entity,token);
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("HatDamage",entity.headwear().damage()));
         entity.pet().markAccessory(stack);
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
@@ -285,9 +284,8 @@ public final class OperationLife {
         if(!entity.life().hasAccessory())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Owner",entity.getUUID());tag.putUUID("Token",token);tag.putBoolean("Cut",true);
-            tag.putString("Variant",entity.getVariant().assetId());tag.putString("SourceModel",entity.subspecies().assetId());
-                    tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
+        AccessoryItem.markSource(stack,entity,token);
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("Cut",true));
         entity.pet().markAccessory(stack);
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;

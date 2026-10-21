@@ -128,6 +128,7 @@ final class AquaticLanding {
             if(actor.isInWaterOrBubble()){abort("child fell into the water");return;}
             if(actor.onGround()){
                 used.add(actor.getBoundingBox());actor.getNavigation().stop();
+                boat.releaseTemporaryRefuge(actor,"shore_landing");
                 AquaDiag.log(boat,"landing.crew",0,"ashore "+actor.getUUID()+" at "+AquaDiag.at(actor.position()));
                 current=null;return;
             }
@@ -173,7 +174,7 @@ final class AquaticLanding {
         // Both plans are tried in the same tick (a refused lift is waited out once, so a second separate call would never run).
         var pickup=owner.family().cradlePickup();
         // Already set on the brim (the first stage done): only the step over to the bank is left.
-        boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.FREEBOARD-.02;
+        boolean onBrim=boat.toLocal(infant.position()).y>=HatVessel.freeboard(boat.mode())-.02;
         // Brim places lying between the child and its landing first: two short lifts rather than one long one.
         var near=new ArrayList<>(onBrim?List.<Vec3>of():boat.brimSeatsToward(infant,spot,96));
         near.sort(Comparator.comparingDouble(at->{var w=boat.toWorld(at);return w.distanceTo(infant.position())+w.distanceTo(spot);}));

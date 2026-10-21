@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.EnumMap;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -34,6 +36,7 @@ import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -213,8 +216,9 @@ public final class YukkuriLife {
     /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
     public void restInHat(HatBoatEntity boat) {
         if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
-                || boat.flooding() > 0 || level().isRainingAt(entity.blockPosition())) { wakeInHat(); return; }
-        if (!level().isNight() && energy > restThreshold() && task != Task.SLEEP) return;
+                || boat.flooding() > 0 || temperature.unsafeSleep()
+                || HatBoatRoute.exposedWeather(level(), entity.blockPosition())) { wakeInHat(); return; }
+        if (!level().isNight() && energy > restThreshold() && !wantsHatNap() && task != Task.SLEEP) return;
         if (task != Task.SLEEP) { task = Task.SLEEP; sleepTicks = 0; targetBlock = null; targetFood = null; }
         sleepTicks = Math.min(600, sleepTicks+1);
         if (sleepTicks == 20) {
@@ -224,6 +228,13 @@ public final class YukkuriLife {
         if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
         doses.tickDrugSleep();
         if (drugSleep() == 0 && (nutrition < 15 || !level().isNight() && sleepTicks >= 220 && energy >= 95)) wakeInHat();
+    }
+    /** A summer noon rest uses the existing biome season, physiology and sleep cooldown. */
+    public boolean wantsHatNap() {
+        return restWait == 0 && energy < 85 && !temperature.unsafeSleep()
+                && Seasons.noon(level())
+                && Seasons.on(level(), entity.blockPosition(),
+                        Season.SUMMER);
     }
     public void wakeInHat() {
         if (task != Task.SLEEP) return;
@@ -352,6 +363,12 @@ public final class YukkuriLife {
     public UUID stowAccessory(UUID retainedToken,UUID boat){ return accessory.stowAccessory(retainedToken, boat); }
     public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
     public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
+    /** A whole compatible accessory changes its ownership token at the recipient; source recovery is retired by world data. */
+    public boolean receiveAccessory(UUID sourceOwner,UUID sourceToken,UUID player){ return accessory.receiveAccessory(sourceOwner,sourceToken,player); }
+    /** Read-only refusal category for a different intact accessory. */
+    public String accessoryReceiptRefusalReason(){ return accessory.accessoryReceiptRefusalReason(); }
+    /** Retire a loaded former owner's token immediately after an accepted whole-accessory transfer. */
+    public boolean retireTransferredAccessory(UUID token,UUID recipient){ return accessory.retireTransferredAccessory(token,recipient); }
     /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
     public void wearAccessory(){ accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }

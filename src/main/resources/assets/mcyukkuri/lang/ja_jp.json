@@ -919,6 +919,7 @@
   "notebook.mcyukkuri.first_voyage.practising": "練習中／父ゆの船へ戻る途中",
   "notebook.mcyukkuri.first_voyage.ready": "十分に育ちました。父ゆの帽子船の空きと穏やかな水面を待っています",
   "notebook.mcyukkuri.first_voyage.growing": "まだ成長中です。まずは親の帽子船に乗ります",
+  "notebook.mcyukkuri.first_voyage.orphaned": "両親は死亡しており、一時避難は親による航海指導の代わりにはなりません",
   "notebook.mcyukkuri.first_voyage.adult": "成ゆは通常の航海ができます",
   "notebook.mcyukkuri.aquatic_shore": "\n\n陸上での負担：%s／%s 秒で疲れ始めます\n足が弱いため、岸で過ごせるのは短い間です。乾いた帽子船で休むと回復します。",
   "settlement.mcyukkuri.leader": "族長 %s",
@@ -6294,5 +6295,7 @@
   "pet.mcyukkuri.profile.unknown": "不明",
   "shop.mcyukkuri.consult.stress": "現在のストレス：%s",
   "shop.mcyukkuri.consult.exam_tasks": "試験は習得した技能と実際の課題達成で判定します。",
-  "exam.mcyukkuri.profile.traits": "知能 %s・友善 %s・自制 %s"
+  "exam.mcyukkuri.profile.traits": "知能 %s・友善 %s・自制 %s",
+  "item.mcyukkuri.marisa_aquatic_hat": "水上まりさのぼうし",
+  "aquatic.mcyukkuri.shore_pending": "岸に戻っています。上陸後に続けます。"
 }

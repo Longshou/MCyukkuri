@@ -3,8 +3,10 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +49,23 @@ public final class FirstVoyage {
     public boolean active(){return phase!=Phase.NONE||pupil!=null;}
     public boolean readySize(){return child.profile().aquatic()&&child.family().stage()!=FamilyLife.Stage.BABY&&child.family().scale()>=MIN_SCALE&&
             child.childhood().canEatSolid()&&child.childhood().canJump()&&child.childhood().canLearn();}
-    public boolean needsLesson(){return !child.family().adult()&&!child.family().subadult()&&!completed&&!independent&&(child.family().mother()!=null||child.family().father()!=null);}
+    /** A temporary refuge is rescue authority only. It never promotes a non-parent into a first-voyage tutor. */
+    public boolean needsLesson(){return !child.family().adult()&&!child.family().subadult()&&!completed&&!independent
+            &&(child.family().mother()!=null||child.family().father()!=null)&&!parentsKnownDead();}
+    /** Missing lineage remains uncertain; only two recorded dead parents close the parent-taught lesson route. */
+    private boolean parentsKnownDead() {
+        if (!(child.level() instanceof ServerLevel server)) return false;
+        var data = FamilyData.get(server);
+        var record = data.person(child.getUUID());
+        if (record == null) return false;
+        boolean parent = false;
+        for (var id : new UUID[] {record.mother, record.father}) if (id != null) {
+            parent = true;
+            var known = data.person(id);
+            if (known == null || known.status != FamilyData.Status.DEAD) return false;
+        }
+        return parent;
+    }
     public boolean mayLaunch(){return !(child.getVehicle() instanceof HatBoatEntity hat&&hat.unsteadyMotion())
             &&(child.family().adult()||readySize()&&(phase==Phase.LAUNCH||completed));}
     public boolean launchingFrom(HatBoatEntity boat){return !boat.unsteadyMotion()&&phase==Phase.LAUNCH&&boat.getUUID().equals(homeHat);}
@@ -55,6 +73,13 @@ public final class FirstVoyage {
     public boolean routineSailing(){return routineSailing&&phase==Phase.NONE&&!independent;}
     public boolean returningToParent(){return !leavingHome&&(phase==Phase.RETURN||phase==Phase.REBOARD);}
     public UUID retainedHatToken(){return retainedHatToken;}
+    public int retainedFoodCount() {
+        if (retainedCargo == null) return 0;
+        int count = 0;
+        for (var raw : retainedCargo.getList("Food", Tag.TAG_COMPOUND))
+            count += ItemStack.parseOptional(child.registryAccess(), (CompoundTag) raw).getCount();
+        return count;
+    }
     public boolean hasRetainedPaddle(){
         if(retainedCargo==null)return false;
         if(retainedCargo.contains("PaddleItem",Tag.TAG_COMPOUND))
@@ -83,7 +108,7 @@ public final class FirstVoyage {
         }else if(stored.getBoolean("Paddle"))child.spawnAtLocation(new ItemStack(Items.STICK));
     }
     public String status(){return independent?"independent":leavingHome?"leaving":returningToParent()?"returning_family":routineSailing()?"family_sailing"
-            :routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":readySize()?"ready":"growing";}
+            :routineLaunch?"family_launch":phase!=Phase.NONE?"practising":completed?"complete":child.family().adult()?"adult":parentsKnownDead()?"orphaned":readySize()?"ready":"growing";}
     public String activity(){
         if(pupil!=null){var y=person(pupil);return y!=null&&y.aquaticLife().firstVoyage().phase==Phase.CELEBRATE?Behaviors.VOYAGE_PRAISE:Behaviors.VOYAGE_WATCH;}
         return switch(phase){
@@ -162,7 +187,7 @@ public final class FirstVoyage {
                     ||home.getPassengers().stream().anyMatch(p->p instanceof YukkuriEntity y&&!healthy(y)))continue;
             mentor=parent.getUUID();homeHat=home.getUUID();
             harbor=BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());
-            leavingHome=true;routineLaunch=false;emergencyRecall=false;turn=findTurn(boat);
+            leavingHome=true;routineLaunch=false;emergencyRecall=false;turn=findDeparture(boat);
             if(turn==null){mentor=homeHat=null;leavingHome=false;continue;}
             parent.aquaticLife().firstVoyage().pupil=child.getUUID();
             reachedTurn=false;routineSailing=false;ticks=elapsed=0;
@@ -352,15 +377,30 @@ public final class FirstVoyage {
             set(Phase.BALANCE);return;
         }
         if(phase==Phase.BALANCE){
-            boat.holdPosition();if(ticks>=40){turn=findTurn(boat);if(turn==null){interrupt("turn_point_unavailable");return;}set(Phase.OUT);}return;
+            boat.holdPosition();if(ticks>=40){turn=leavingHome?findDeparture(boat):findTurn(boat);if(turn==null){interrupt("turn_point_unavailable");return;}set(Phase.OUT);}return;
         }
         if(phase==Phase.OUT){
+            // Leaving the flotilla starts with an actual exchange while both real hulls are still held together.
+            // Independence is still committed only after the child has subsequently paddled clear of this berth.
+            if(leavingHome&&ticks<=40){
+                if(!safeHome(home,father)){interrupt("farewell_home_unavailable");return;}
+                boat.holdPosition();home.holdPosition();face(child,father.position());face(father,child.position());
+                if(ticks==1){
+                    child.showReaction("happy","hello",90);child.speak("hello");
+                    GameplayLog.event(child,"voyage","afloat farewell started boat={} mentor={} homeHat={}",boat.getUUID(),mentor,homeHat);
+                }
+                if(ticks==20){
+                    father.mind().felt(EmotionEvent.COMFORTED);father.showReactionDelayed("happy","gentle",80,12);
+                    GameplayLog.event(child,"voyage","afloat farewell answered boat={} mentor={} homeHat={}",boat.getUUID(),mentor,homeHat);
+                }
+                return;
+            }
             String reason=boat.flooding()>0?"own_hat_flooded":boat.towed()?"own_hat_towed":!boat.cargo().paddle()?"paddle_missing"
                     :turn==null?"turn_point_missing":!HatBoatRoute.quietSurface(level(),turn)?"turn_water_not_quiet":!boat.protects(child)?"own_hat_not_protecting":null;
             if(reason!=null){interrupt(reason);return;}
             if(boat.position().distanceToSqr(HatBoatRoute.surface(level(),turn))<.36&&ticks>20){
                 reachedTurn=true;
-                if (leavingHome && child.childhood().canLiveIndependently() && boat.protects(child)) {
+                if (leavingHome && child.independence().completeAfloatDeparture(father, boat)) {
                     independent = true; child.setPersistenceRequired();
                     GameplayLog.event(child, "voyage", "independence established boat={} mentor={} homeHat={} elapsed={}",
                             boat.getUUID(), mentor, homeHat, elapsed);
@@ -413,7 +453,7 @@ public final class FirstVoyage {
         var home=home();if(destination==null||home==null)return List.of();
         var path=HatBoatRoute.find(boat,destination);
         if(path.isEmpty()||path.getLast().distanceToSqr(destination)>1)return List.of();
-        return path.stream().allMatch(v->(routineLaunch||v.distanceToSqr(home.position())<=25)
+        return path.stream().allMatch(v->(routineLaunch||leavingHome||v.distanceToSqr(home.position())<=25)
                 &&(phase==Phase.RETURN||phase==Phase.REBOARD?HatBoatRoute.calmSurface(level(),BlockPos.containing(v.x,v.y-.12,v.z))
                         :HatBoatRoute.quietSurface(level(),BlockPos.containing(v.x,v.y-.12,v.z))))?path:List.of();
     }
@@ -423,6 +463,16 @@ public final class FirstVoyage {
         for(var p:BlockPos.betweenClosed(harbor.offset(-3,0,-3),harbor.offset(3,0,3)))
             if(p.distSqr(harbor)>=4&&p.distSqr(harbor)<=9&&HatBoatRoute.quietSurface(level(),p)
                     &&HatBoatRoute.surface(level(),p).distanceToSqr(home.position())>9)choices.add(p.immutable());
+        choices.sort(Comparator.comparingDouble(p->p.distSqr(harbor)));
+        for(var p:choices)if(!practicePath(boat,HatBoatRoute.surface(level(),p)).isEmpty())return p;return null;
+    }
+    /** A departure is not the two-block practice turn: it must sail its own hat clear of the parent flotilla by water. */
+    private BlockPos findDeparture(HatBoatEntity boat){
+        if(harbor==null)return null;var home=home();if(home==null)return null;
+        var choices=new ArrayList<BlockPos>();
+        for(var p:BlockPos.betweenClosed(harbor.offset(-12,0,-12),harbor.offset(12,0,12)))
+            if(p.distSqr(harbor)>=64&&p.distSqr(harbor)<=144&&HatBoatRoute.quietSurface(level(),p)
+                    &&HatBoatRoute.surface(level(),p).subtract(home.position()).horizontalDistanceSqr()>=64)choices.add(p.immutable());
         choices.sort(Comparator.comparingDouble(p->p.distSqr(harbor)));
         for(var p:choices)if(!practicePath(boat,HatBoatRoute.surface(level(),p)).isEmpty())return p;return null;
     }

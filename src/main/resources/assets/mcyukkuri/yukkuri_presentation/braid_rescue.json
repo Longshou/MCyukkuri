@@ -85,7 +85,7 @@
   "braid_length": 9.403782467130387,
   "root_lift": 0.0,
   "braid_first_length": 7.17919355268326,
-  "braid_second_length": 2.396261455455143,
+  "braid_second_length": 2.3962614554551434,
   "posed_body_min": [
     -6.4,
     0.0,
@@ -2330,6 +2330,28 @@
   "boarding_body_roll_min": -3,
   "boarding_body_roll_max": 3,
   "hat_height_model_units": 10.9021,
+  "hat_heights_model_units": {
+    "land": 10.9021,
+    "aquatic": 14.4485
+  },
+  "hat_brim_half_model_units": {
+    "land": [
+      7.2132,
+      10.1333
+    ],
+    "aquatic": [
+      7.9,
+      10.6
+    ]
+  },
+  "hat_sources": {
+    "land": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
+    "aquatic": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json"
+  },
+  "hat_sources_sha256": {
+    "land": "b6cb1444e4d04e5f87f66d73f98498527946056f12b193246eb9243bbf2b617a",
+    "aquatic": "3e1c1fc7c96313b24f06d27cee47df21f66c02277562601e7275f4251e90e1df"
+  },
   "reach_lean_lift": 1.03999,
   "reach_lean_root": [
     9.13333,
@@ -2339,7 +2361,7 @@
   "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
   "source_model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
   "source_placement": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "source_placement_sha256": "745e35b73d0716bebb6bc9d1f4730eb36b0b86596dedab56e9f45e89542a4879",
+  "source_placement_sha256": "0ee511f5f40aa45cdf2ea666a0fa622aadda6a80f8ac83c8a53920072fcd060e",
   "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "source_recipe_sha256": "338aaedb5b3877fb6d8aba8b0cadb3925877c1a35753f32ccd965832ac746915"
 }

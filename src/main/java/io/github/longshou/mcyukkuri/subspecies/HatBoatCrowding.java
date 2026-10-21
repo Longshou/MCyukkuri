@@ -127,7 +127,7 @@ final class HatBoatCrowding {
                     &&boat.crowdMovable(child)&&(emergency(child.getUUID())||child.isPanicking()||boat.onBrim(child))){
                 var from=boat.toLocal(child.position());var target=boat.toLocal(parent.position());
                 double safe=boat.crowdRadius(child)+boat.crowdRadius(parent)+.25;
-                if(from.subtract(target).horizontalDistance()>safe||from.y>=HatVessel.FREEBOARD-.1){
+                if(from.subtract(target).horizontalDistance()>safe||from.y>=HatVessel.freeboard(boat.mode())-.1){
                     if(b.contacts==0)mode(b,4);
                     var direction=target.subtract(from).multiply(1,0,1).normalize();
                     attempt(child,direction.scale(.035),actual,parent,new HashSet<>(),0,null,true);

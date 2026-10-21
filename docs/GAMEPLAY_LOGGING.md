@@ -107,3 +107,19 @@
 ## 试玩场读数按钮移除后的排查
 
 观察台不再放场景读数、主角状态和按钮自检按钮。业务日志仍按上表默认记录；用户只需提供场景和大概时间。`mcylab:read/` 诊断函数及报告通道保留，只有手工调用才生成对应快照和报告日志，不新增自动轮询。移除按钮不会补写此前未查询的状态；缺少瞬时证据时结合现有日志与按需查询判断。
+
+### 水上生态交接
+
+- `[aquatic] shore work requested/released` 记录已提出的靠岸工作与保留释放，不能当作已经上岸或完成课程。`hull grounded/refloated` 只在实际失去／恢复水面支撑时记录；不逐 tick 转储流体采样。
+- `[temperature] water refuge selected` 记录选中的可达水面及体感；`no safe water refuge` 按实体限频 400 tick。冬季原有 `[winter]` 记录实际开始／结束，睡眠由 `[sleep]` 记录。
+- `[forage] shore plant harvested`、`provisions received`、`returned to bank` 分别表示实际植物消耗、随身粮转移和回岸储粮；岸上采集、上缴继续看原有 `[forage]`、`Levy` 记录。`[cargo]` 腐坏事件给出实际库存前后值和间隔，不记录每 tick 计时。
+- 试玩 `water_life`、`water_winter` 对照 `water.cargo` 的 `shoreWork`、库存目标、觅食阶段和温度活动，以及实船 `Cargo.DecayTicks`。空库存不等于附近没有食源；未看到靠岸日志时先看实际 Goal、照料和警报是否占用船只。
+
+- `[daily]`、`[social]` 区分邀请保留、靠岸等待、落岸重查、真实接触与最终完成；读 `behavior.daily_session`、`behavior.group_session` 的 `shorePending/contact/elapsed`。未落岸的邀请不会增加接触奖励。
+- `[headwear] received/transferred` 记录完整饰品真实换主；`foreign shard used` 记录逐片材料增加。物品仅在服务器接受后消耗，拒绝不写成归还成功。
+- `[settlement]` 与公仓账本分别记录水上家庭配额、靠岸取粮和实际搬走数量；一顶帽船的库存按船 UUID 计一次，不能把家庭人数乘到同一库存上。水路迁居的路段获准不等于到达与地址提交。
+- `[aquatic] orphan refuge decision/reserved/boarded/released` 分别表示一次真实意愿抽取、席位保留、实际登船与落岸释放；`[cradle]` 给出跨帽搬运阶段、阻塞与真实落点。意愿未通过或路径不可达不改亲缘、不直接搬移实体。
+
+- `[pet-walk]` 记录牵引靠岸请求、真实挂绳和取消原因；同一 `[pet-walk]` 前缀记录居民靠岸请求与取消，漂流不记散步收益。`[shop]` 的 `shore_pending` 不代表交易，`debited_after_landing` 与原 `committed` 才对应费用或归属变化，取消日志记录零扣款／零付款。
+- 课程与考试沿用原开始、任务、结果日志；靠岸失败不伪造开课或考试结果。工厂只在原真实工序交接时记完成。
+- 献身、遗体与食腐沿用 `[offering]`、`[cannibal]`、`[remains]` 的实际阶段与物资变化；水路寻近和嘴距采样不逐次 INFO。无咬食日志时结合实际嘴距、视线、库存和 Goal 判断，不能把已接近等同于已吃到。

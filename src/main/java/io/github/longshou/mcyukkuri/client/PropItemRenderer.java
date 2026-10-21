@@ -35,6 +35,9 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(stack.getItem() instanceof AccessoryItem){
             String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
             if(PropModels.has(selected))name=selected;
+            // A creative or command-created aquatic hat may not have its source tags yet.  It is
+            // still the same distinct physical form and must not fall through to a missing model.
+            else if(stack.is(ModItems.AQUATIC_MARISA_HAT.get()))name="accessory_marisa_aquatic";
         }
         if(!PropModels.has(name))return;
         pose.pushPose();pose.translate(.5,.5,.5);

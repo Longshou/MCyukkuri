@@ -10,6 +10,7 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +19,8 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 /** Static triangle props use the same eight-float layout as the authoring exports. */
 public final class PropModels {
@@ -106,14 +109,35 @@ public final class PropModels {
     }
     /** Full prop, square-cell damage exactly like the worn hat (client/HatDamageFaces). {@code piece} is unused. */
     public static void renderHat(String name,int level,int piece,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        renderHat(name,level,pose,buffers,light,overlay,part->true);
+    }
+    /**
+     * Renders an authored accessory in the live model's two actual attachment spaces.  The hat
+     * body and bow may have different animated bones, so treating this as one rigid item would
+     * make the bow detach during the existing hat clips.
+     */
+    public static void renderAttachedHat(String name,int level,PoseStack pose,MultiBufferSource buffers,int light,int overlay,
+                                         Matrix4f hatTransform,Matrix4f bowTransform){
+        renderAttachedHatPart(name,level,pose,buffers,light,overlay,hatTransform,part->!part.name.startsWith("bow_"));
+        renderAttachedHatPart(name,level,pose,buffers,light,overlay,bowTransform,part->part.name.startsWith("bow_"));
+    }
+    private static void renderAttachedHatPart(String name,int level,PoseStack pose,MultiBufferSource buffers,int light,int overlay,
+                                              Matrix4f attachment,Predicate<Part> include){
+        pose.pushPose();
+        pose.last().pose().mul(attachment);pose.last().normal().mul(new Matrix3f(attachment));
+        renderHat(name,level,pose,buffers,light,overlay,include);
+        pose.popPose();
+    }
+    private static void renderHat(String name,int level,PoseStack pose,MultiBufferSource buffers,int light,int overlay,Predicate<Part> include){
         Model model=models.get(name);if(model==null)return;
-        if(level<=0){render(name,8,pose,buffers,light,overlay);return;}
+        if(level<=0){renderParts(model,pose,buffers,light,overlay,include);return;}
         var faces=hatFaces(name,model,level);
         // All cloth parts must finish before caps take their own texture's buffer.
         var caps=new HatCapQueue();
         var transform=pose.last();var v=model.vertices;
         for(int partIndex=0;partIndex<model.parts.length;partIndex++){
             var part=model.parts[partIndex];
+            if(!include.test(part))continue;
             var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
             for(var face:faces[partIndex]){
                 if(face.original()){
@@ -176,6 +200,18 @@ public final class PropModels {
             }
         }
         caps.draw(buffers);
+    }
+    private static void renderParts(Model model,PoseStack pose,MultiBufferSource buffers,int light,int overlay,Predicate<Part> include){
+        var transform=pose.last();var v=model.vertices;
+        for(var part:model.parts){
+            if(!include.test(part))continue;
+            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
+            for(int first=part.start;first<part.start+part.count;first+=3)for(int corner=0;corner<4;corner++){
+                int i=(first+Math.min(corner,2))*8;
+                consumer.addVertex(transform.pose(),v[i]/16,v[i+1]/16,v[i+2]/16).setColor(part.red,part.green,part.blue,255)
+                        .setUv(v[i+3],v[i+4]).setOverlay(overlay).setLight(light).setNormal(transform,v[i+5],v[i+6],v[i+7]);
+            }
+        }
     }
     private static HatDamageFaces.Face[][] hatFaces(String name,Model model,int level){
         String key=name+"/"+level;

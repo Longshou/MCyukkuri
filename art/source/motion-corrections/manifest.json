@@ -10,9 +10,9 @@
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
   "lore_recipe_sha256": "286ffa7492bc070a63b3e52aa793d150485c4c8c8a5a75d85c313a4d18d2306d",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "609851e6ea23a2084a01a00765e26cae1469e6a7643f25bb05303449562518b1",
+  "lore_author_sha256": "60e3d4d58e6fe1cbf4cef883d5cb1810f818c141b2698b6c529247893a31b1ef",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
-  "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
+  "lore_hat_sha256": "0a8bc53b7b4fbe5f8945a62b3f9ecfc2ce25dee363cffd00f2132f6057e24eea",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
   "hat_vessel_sha256": "dafa76c2329e5cc03335f9e6fecd8f3487869d472d6611248c51eb6c5a7ae627",
   "exporter": "scripts/export_motion_corrections.py",
@@ -20,7 +20,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "00f942340e2f781342f2557de278b5a8b781d612dedf306ab53772d54d70fa89",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "a6cae104fd1d8e296cf252521cd1bbacea8cd01a7be21e35e3fb50f13525a6d6",
+  "runtime_sha256": "0de727e4eb8657d0e0e53ace2c2460baca1948ddc649d3a7cc5c993176e90cc4",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -324,9 +324,13 @@
   "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "braid_rescue_recipe_sha256": "338aaedb5b3877fb6d8aba8b0cadb3925877c1a35753f32ccd965832ac746915",
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
-  "braid_rescue_author_sha256": "e9af1e63f05bb374acb572b18c3848251354ef10f715c14c1c42354013a54b9f",
+  "braid_rescue_author_sha256": "4e2fe9387690dacd4da4e04927c805214536a806d72e5b49d0a1e889d3de0710",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "6d6db3dac06812839f6b86deb8c19d1ec4bb99bd4d18fb48b1e632edd8d686ea",
+  "braid_rescue_geometry_sha256": "5eacd6f02ac01de4e8792cc385e286ad041f1557fa683a84294b2dce069e1fea",
   "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
-  "birth_pose_sha256": "c40f9403db1a3f6fa6c2be37dcd55a08086df5b34aaa469fd47e8a442ba96799"
+  "birth_pose_sha256": "c40f9403db1a3f6fa6c2be37dcd55a08086df5b34aaa469fd47e8a442ba96799",
+  "aquatic_hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json",
+  "aquatic_hat_vessel_sha256": "3e1c1fc7c96313b24f06d27cee47df21f66c02277562601e7275f4251e90e1df",
+  "aquatic_hat_prop": "src/main/resources/assets/mcyukkuri/yukkuri_props/accessory_marisa_aquatic.json",
+  "aquatic_hat_prop_sha256": "6800ff982226b082ace74238bf7acdfc4a0611db05e4f6d704632ff49f55aab7"
 }

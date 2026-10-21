@@ -40,12 +40,13 @@ final class HatSurfaceRoute {
             HatVessel.BodySpace body,HatVessel.BodySpace carriedBody,Predicate<Vec3> contact){
         if(!clearPair(mode,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody)||!contact.test(to))return List.of();
         if(segment(mode,from,to,radius,occupied,from,carriedOffset,carriedRadius,body,carriedBody,contact))return List.of(from,to);
-        int nx=(int)Math.ceil(HatVessel.BRIM[0]*2/STEP)+1,nz=(int)Math.ceil(HatVessel.BRIM[1]*2/STEP)+1;
+        var brim=HatVessel.brim(mode);
+        int nx=(int)Math.ceil(brim[0]*2/STEP)+1,nz=(int)Math.ceil(brim[1]*2/STEP)+1;
         Vec3[] points=new Vec3[nx*nz+2]; int start=points.length-2,end=start+1;
         points[start]=from;points[end]=to;
 
         for(int x=0;x<nx;x++)for(int z=0;z<nz;z++){
-            double px=-HatVessel.BRIM[0]+x*STEP,pz=-HatVessel.BRIM[1]+z*STEP;
+            double px=-brim[0]+x*STEP,pz=-brim[1]+z*STEP;
             double h=HatVessel.travelSupport(mode,px,pz,radius);
             if(!Double.isFinite(h)||!Double.isFinite(HatVessel.surface(mode,px,pz)))continue;
             Vec3 at=new Vec3(px,h,pz);

@@ -39,7 +39,7 @@ final class HatBoatCapsize {
     Vec3 nearestGrip(YukkuriEntity actor){
         if(actor==null||!(ownsPhysicalHat(actor)||boat.young(actor))||!(boat.isAfloat()||boat.state()==State.CAPSIZED)||boat.capsizing()||boat.deploying())return null;
         Vec3 best=null;double score=Double.POSITIVE_INFINITY;
-        for(var local:GripRim.POINTS){
+        for(var local:GripRim.points(boat.mode())){
             var point=rimPoint(local);double gap=actor.getBoundingBox().getCenter().distanceToSqr(point);
             if(gap<score){score=gap;best=point;}
         }
@@ -48,12 +48,12 @@ final class HatBoatCapsize {
 
     Vec3 selfRescueGripLocal(YukkuriEntity actor){
         var world=selfRescueGrip(actor);if(world==null)return null;
-        for(var local:GripRim.POINTS)if(rimPoint(local).distanceToSqr(world)<1e-8)return local;
+        for(var local:GripRim.points(boat.mode()))if(rimPoint(local).distanceToSqr(world)<1e-8)return local;
         return null;
     }
 
     Vec3 selfRescueGrip(YukkuriEntity actor,Vec3 localGrip){
-        if(localGrip==null||GripRim.POINTS.stream().noneMatch(p->p.distanceToSqr(localGrip)<1e-8)
+        if(localGrip==null||GripRim.points(boat.mode()).stream().noneMatch(p->p.distanceToSqr(localGrip)<1e-8)
                 ||!(ownsPhysicalHat(actor)||boat.young(actor))||boat.capsizing()||boat.deploying())return null;
         return reachableGrip(actor,rimPoint(localGrip));
     }
@@ -62,7 +62,7 @@ final class HatBoatCapsize {
         if(nearestGrip(actor)==null)return null;
         Vec3 best=null;double score=Double.POSITIVE_INFINITY;
         var mouth=BraidRescueGeometry.mouthPoint(actor,actor.position(),actor.yBodyRot);
-        for(var local:GripRim.POINTS){
+        for(var local:GripRim.points(boat.mode())){
             var grip=rimPoint(local);
             if(reachableGrip(actor,grip)==null)continue;
             double distance=mouth.distanceToSqr(grip);if(distance<score){best=grip;score=distance;}
@@ -161,7 +161,7 @@ final class HatBoatCapsize {
         boat.syncHullScale(HatVessel.hatScale(actor)*actor.getScale());boat.launchRole(HatVessel.Role.SELF);
         boat.setPos(plan.position());boat.setYRot(plan.yaw());
         if(!level.noCollision(boat,boat.getBoundingBox()))return null;
-        boat.syncOwner(Optional.of(actor.getUUID()));
+        boat.syncOwner(Optional.of(actor.getUUID()));boat.syncAccessoryIdentity(actor);
         if(!level.addFreshEntity(boat))return null;
         var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.launchToken(actor.life().stowAccessory(retained, boat.getUUID()));
         if(boat.launchToken()==null){boat.discard();return null;}
@@ -177,7 +177,7 @@ final class HatBoatCapsize {
     boolean setSelfRescueCarryPose(YukkuriEntity actor,SelfRescueHatGeometry.Pose pose,float elapsed){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||boat.isVehicle()||boat.hasIncoming()||pose==null)return false;
         double q=Math.clamp((elapsed-SelfRescueHatGeometry.SHAKE)/SelfRescueHatGeometry.TURN,0,1);q=q*q*(3-2*q);
-        var offset=pose.rotation().transform(new Vector3f(0,(float)(HatVessel.FREEBOARD*boat.unit()),0));
+        var offset=pose.rotation().transform(new Vector3f(0,HatVessel.freeboard(boat.mode())*boat.unit(),0));
         var centre=pose.origin().subtract(new Vec3(offset.x,offset.y,offset.z));
         var m=boat.motionData().copy();
         m.putFloat("PreviousPitch",m.getBoolean("SelfHeld")?m.getFloat("HeldPitch"):(float)(-180*(1-q)));
@@ -207,7 +207,7 @@ final class HatBoatCapsize {
 
     void startCapsize(int side){
         if(boat.level().isClientSide||boat.state()==State.CAPSIZED||boat.state()==State.RESCUED||boat.state()==State.REMOVED||boat.catches())return;
-        boolean wasHeld=boat.selfRescueHeld();float heldPitch=wasHeld?boat.motionPitch(1):0,heldSquash=wasHeld?boat.hullSquash(1):HatVessel.SQUASH_FLOAT;
+        boolean wasHeld=boat.selfRescueHeld();float heldPitch=wasHeld?boat.motionPitch(1):0,heldSquash=wasHeld?boat.hullSquash(1):(float)HatVessel.squash(boat.mode());
         boat.freezeSeatsForCapsize();
         var m=new CompoundTag();m.putLong("CapAt",boat.level().getGameTime());m.putInt("Side",side<0?-1:1);
         if(wasHeld){
@@ -261,7 +261,7 @@ final class HatBoatCapsize {
         int paddleDrop=drops.size()-1;
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());
         for(int i=0;i<drops.size();i++){
-            var local=spillZones.isEmpty()?new Vec3(0,HatVessel.OWNER_Y,0):spillZones.get(i%spillZones.size()).position();
+            var local=spillZones.isEmpty()?new Vec3(0,HatVessel.ownerY(boat.mode()),0):spillZones.get(i%spillZones.size()).position();
             var at=tiltedWorld(local).add(downhill.scale(.025));
             var item=new ItemEntity(boat.level(),at.x,at.y,at.z,drops.get(i));
             item.setDeltaMovement(boat.getDeltaMovement().add(downhill.scale(.08+i*.008))

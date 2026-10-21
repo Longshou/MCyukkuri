@@ -23,7 +23,7 @@ import net.minecraft.core.particles.ParticleTypes;
 
 /** A parent stops rowing to tend real children. Interrupted servings return to cargo or the world. */
 public final class HatFamilyCare {
-    private enum Kind { NONE, FEED, FIRST_TOILET, NUZZLE, LULLABY }
+    private enum Kind { NONE, FEED, FIRST_TOILET, COMFORT, NUZZLE, LULLABY }
     private final YukkuriEntity parent;
     private Kind kind = Kind.NONE;
     private UUID child;
@@ -59,7 +59,7 @@ public final class HatFamilyCare {
         return switch (kind) { case FEED -> {
             var young=child();yield young!=null&&young.family().needsMash()&&ticks<40?Behaviors.FAMILY_CHEW:Behaviors.BOAT_FEED_YOUNG;
         } case FIRST_TOILET -> deliveryTicks >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.CARE_FINISH : deliveryTicks > 0 ? Behaviors.FIRST_TOILET_ASSIST : Behaviors.FIRST_TOILET_SEEK;
-            case NUZZLE -> Behaviors.BOAT_NUZZLE;
+            case COMFORT, NUZZLE -> Behaviors.BOAT_NUZZLE;
             case LULLABY -> Behaviors.BOAT_LULLABY; default -> Behaviors.IDLE; };
     }
     public String response(YukkuriEntity young) {
@@ -72,7 +72,7 @@ public final class HatFamilyCare {
             case FEED -> Behaviors.BOAT_BEG;
             case FIRST_TOILET -> toiletTicks > 0 ? Behaviors.BOAT_TOILET : deliveryTicks > 0 &&
                     deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.FIRST_TOILET_STIMULATED : Behaviors.FIRST_TOILET_WAIT;
-            case NUZZLE -> Behaviors.BOAT_RECEIVE_CARE;
+            case COMFORT, NUZZLE -> Behaviors.BOAT_RECEIVE_CARE;
             default -> Behaviors.IDLE;
         };
     }
@@ -88,7 +88,7 @@ public final class HatFamilyCare {
     }
     private List<YukkuriEntity> children(HatBoatEntity boat) {
         return boat.getPassengers().stream().filter(p -> p instanceof YukkuriEntity).map(p -> (YukkuriEntity)p)
-                .filter(y -> boat.young(y) && y.isAlive() && !y.isNoAi() && !y.isCommandPlaying()
+                .filter(y -> boat.careRecipient(y) && y.isAlive() && !y.isNoAi() && !y.isCommandPlaying()
                         && !y.operations().active() && !y.isPanicking() && boat.protects(y)
                         && parent.life().canRecognize(y) && y.life().canRecognize(parent)
                         && parent.hasLineOfSight(y)).toList();
@@ -125,7 +125,7 @@ public final class HatFamilyCare {
             var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping()&&
                     blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
                     .min(Comparator.comparingDouble(y -> y.life().nutrition())).orElse(null);
-            var toilet = children.stream().filter(y -> y.childhood().needsAssistedFirstToilet()&&y.life().nutrition()>=30
+            var toilet = children.stream().filter(y -> boat.young(y) && y.childhood().needsAssistedFirstToilet()&&y.life().nutrition()>=30
                     &&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime()).max(Comparator.comparingDouble(y->y.life().bladder())).orElse(null);
             if (toilet != null && (hungry==null||hungry.life().nutrition()>=30) && acceptsCare(toilet,toilet.life().bladder()>=70)) begin(Kind.FIRST_TOILET, toilet);
             if (!active() && hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
@@ -135,20 +135,26 @@ public final class HatFamilyCare {
                 if (!serving.isEmpty()&&acceptsCare(hungry,hungry.life().nutrition()<30)) begin(Kind.FEED, hungry);
                 else if(!serving.isEmpty()) refund();
             }
+            if (!active()) {
+                var hurt = children.stream().filter(boat::young).filter(y -> parent.woundComfort().whyNotAfloat(y, boat) == null)
+                        .min(Comparator.comparingDouble(y -> y.body().healthRatio())).orElse(null);
+                if (hurt != null && parent.woundComfort().beginAfloat(hurt, boat)) begin(Kind.COMFORT, hurt);
+            }
             if (grateful != null && level().getGameTime() > gratefulUntil) grateful = null;
             if (!active() && grateful != null) {
-                var rescued = children.stream().filter(y -> y.getUUID().equals(grateful) && y.life().mealTicks() == 0 && !y.life().isSleeping()).findFirst().orElse(null);
+                var rescued = children.stream().filter(boat::young).filter(y -> y.getUUID().equals(grateful) && y.life().mealTicks() == 0 && !y.life().isSleeping()).findFirst().orElse(null);
                 if (rescued != null) { grateful = null; if (acceptsCare(rescued,true)) begin(Kind.NUZZLE, rescued); }
             }
-            if (!active() && bedtime && !bedtimeSung && songWait == 0 && !children.isEmpty()
-                    && children.stream().anyMatch(y -> !y.life().isSleeping())
-                    && children.stream().noneMatch(y -> y.life().nutrition() < 30 || y.life().mealTicks() > 0)) {
-                var listener = children.stream().filter(y -> !y.life().isSleeping()).findFirst().orElse(null);
+            var familyChildren=children.stream().filter(boat::young).toList();
+            if (!active() && bedtime && !bedtimeSung && songWait == 0 && !familyChildren.isEmpty()
+                    && familyChildren.stream().anyMatch(y -> !y.life().isSleeping())
+                    && familyChildren.stream().noneMatch(y -> y.life().nutrition() < 30 || y.life().mealTicks() > 0)) {
+                var listener = familyChildren.stream().filter(y -> !y.life().isSleeping()).findFirst().orElse(null);
                 if (listener != null && acceptsCare(listener,false)) begin(Kind.LULLABY, null);
                 else songWait = 1200;
             }
             if (!active() && !bedtime && !level().isNight() && affectionWait == 0 && parent.life().nutrition() >= 35 && parent.life().energy() >= 25) {
-                var lonely = children.stream().filter(y -> y.life().mealTicks() == 0 && !y.life().isSleeping()
+                var lonely = children.stream().filter(boat::young).filter(y -> y.life().mealTicks() == 0 && !y.life().isSleeping()
                         && y.life().nutrition() >= 35 && y.dailyLife().affectionNeed() >= 35 && parent.distanceToSqr(y) <= 4&&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
                         .max(Comparator.comparingInt(y -> y.dailyLife().affectionNeed())).orElse(null);
                 if (lonely != null) {
@@ -238,6 +244,18 @@ public final class HatFamilyCare {
             parent.speak("caregiver");
             finishTicks=1; return true;
         }
+        if (kind == Kind.COMFORT) {
+            boolean working = parent.woundComfort().tickAfloat(boat);
+            deliveryTicks = parent.woundComfort().contactProgress() > 0 ? Math.round(parent.woundComfort().contactProgress() * 20) : 0;
+            if (!working) {
+                if (young.woundComfort().soothed()) {
+                    comforts++; affectionWait = 600;
+                    GameplayLog.event(parent,"aquatic","hat care wound comfort complete child={} comforts={}",young.getUUID(),comforts);
+                }
+                finishTicks = 1;
+            }
+            return true;
+        }
         if(kind==Kind.NUZZLE){
             if(!boat.prepareCareSeat(young,parent)){
                 if(boat.cargo().handling()){deliveryTicks=0;return true;}
@@ -281,13 +299,14 @@ public final class HatFamilyCare {
         if (next == Kind.LULLABY && parent.getVehicle() instanceof HatBoatEntity boat)
             for (var listener : children(boat)) if (!listener.life().isSleeping()) listener.life().wakeInHat();
         parent.setPersistenceRequired();
-        parent.speak(next == Kind.LULLABY ? "song" : next == Kind.NUZZLE ? "nuzzle" : "caregiver");
+        parent.speak(next == Kind.LULLABY ? "song" : next == Kind.NUZZLE || next == Kind.COMFORT ? "nuzzle" : "caregiver");
         GameplayLog.limited(parent,"aquatic","care.begin."+next,200,"hat care started kind={} child={} item={}",kind,child,serving);
     }
     public void cancel() {
         if(active())GameplayLog.limited(parent,"aquatic","care.stop."+kind,200,
                 "hat care stopped kind={} child={} ticks={} contactTicks={} finishTicks={} pendingItem={}",
                 kind,child,ticks,deliveryTicks,finishTicks,serving);
+        if (kind == Kind.COMFORT && parent.woundComfort().licking()) parent.woundComfort().stop();
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
         kind = Kind.NONE; child = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0; refund();
     }

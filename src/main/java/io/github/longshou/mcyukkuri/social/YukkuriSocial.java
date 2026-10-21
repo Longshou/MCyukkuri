@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.headwear.Contempt;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -56,7 +57,7 @@ public final class YukkuriSocial {
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
-        if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
+        if(!entity.childhood().canExercise()||entity.level().isClientSide||EcologyMovement.boat(entity)!=null||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
                 ||entity.distanceToSqr(toy)>36||!entity.hasLineOfSight(toy)||entity.isPanicking()||entity.life().hasUrgentNeed()
                 ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||
                         entity.playLife().active())||entity.life().mealTicks()>0)return false;
@@ -130,13 +131,15 @@ public final class YukkuriSocial {
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
-        if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
+        // A hat passenger has no safe deck route to a dropped item or toy.  Conversation may
+        // still use the actual hull's movement/contact path below.
+        if(EcologyMovement.boat(entity)==null&&!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
                     &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }
-        if (entity.getRandom().nextFloat() < .5f) {
+        if (EcologyMovement.boat(entity)==null&&entity.getRandom().nextFloat() < .5f) {
             target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
@@ -218,7 +221,7 @@ public final class YukkuriSocial {
             return;
         }
         if (task == Task.TEACH || task == Task.WAIT) {
-            entity.getNavigation().stop();
+            EcologyMovement.halt(entity);
             if (entity.distanceToSqr(target) > 16 || personality().fear(target.getUUID()) >= BondLevels.SOCIAL_FEAR_LIMIT) { stop(); return; }
             if (elapsed == duration && task == Task.TEACH) {
                 if (entity.pet().lessons().complete(PetSkill.WAIT)) {
@@ -236,7 +239,7 @@ public final class YukkuriSocial {
                     entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
-                if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
+                if (away != null && EcologyMovement.boat(entity)==null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
             }
             return;
         }
@@ -246,13 +249,14 @@ public final class YukkuriSocial {
             if (distance + 1 < observedDistance && elapsed < watchTicks || personality().fear(target.getUUID()) >= 60 && distance < 1.5) {
                 retreat = true; cautious = false; return;
             }
-            if (elapsed < watchTicks) { entity.getNavigation().stop(); return; }
+            if (elapsed < watchTicks) { EcologyMovement.halt(entity); return; }
         }
         if (entity.distanceToSqr(target) > 2.25) {
-            if (elapsed % 10 == 1 && !entity.life().navigate(target.blockPosition(), 1.0, false)) stop();
+            if (elapsed % 10 == 1 && !EcologyMovement.approach(entity, target, 1.0)
+                    && EcologyMovement.boat(entity)==null) stop();
             return;
         }
-        entity.getNavigation().stop();
+        EcologyMovement.halt(entity);
         if (!greeted) {
             greeted = true;
             if (task == Task.PLAYER) entity.showReaction("happy", personality().trust(target.getUUID()) >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello", 80);

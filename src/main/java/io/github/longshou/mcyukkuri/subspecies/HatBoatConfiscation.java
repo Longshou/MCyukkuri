@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -198,10 +199,12 @@ final class HatBoatConfiscation {
         if(owner!=null&&!owner.life().matchesAccessory(boat.ownerYukkuri(),token))return refuse(player,"custody_transfer_rejected");
         if(owner!=null&&!owner.life().relinquishCustody(boat.getUUID(),boat.ownerYukkuri(),token,player.getUUID()))
             return refuse(player,"custody_transfer_rejected");
-        var hat=new ItemStack(ModItems.HAT.get());
-        CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
+        var hat=new ItemStack(boat.aquaticHull()?ModItems.AQUATIC_MARISA_HAT.get():ModItems.HAT.get());
+        if(owner!=null)AccessoryItem.markSource(hat,owner,token);
+        else CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
             tag.putUUID("Owner",boat.ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
-            tag.putString("SourceModel","marisa");tag.putFloat("SourceScale",boat.hullScale());
+            tag.putString("Stage",boat.accessoryStage().name());tag.putString("SourceModel",boat.aquaticHull()?"marisa_aquatic":"marisa");
+            tag.putFloat("SourceScale",boat.hullScale());
         });
         // The empty main-inventory slot was checked on this same server tick, so this cannot merge, drop, or lose the only physical hat.
         player.getInventory().setItem(slot,hat);

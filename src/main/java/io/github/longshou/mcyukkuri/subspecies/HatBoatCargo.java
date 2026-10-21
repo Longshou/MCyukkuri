@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.season.Season;
+import io.github.longshou.mcyukkuri.season.Seasons;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
@@ -26,6 +28,7 @@ public final class HatBoatCargo {
     // No second item list exists, so feeding, hat recovery and capsize cannot duplicate set-aside food.
     private int asideCount, targetAside = -1;
     private long handlingAt, keepAsideUntil, discardUntil;
+    private int decayTicks;
 
     HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
     public boolean paddle() { return !paddle.isEmpty(); }
@@ -59,6 +62,7 @@ public final class HatBoatCargo {
 
     void tick() {
         if (boat.level().isClientSide) return;
+        decay();
         if (handling()) {
             String reason=!boat.canHandleCargo()?"handling_unavailable":targetAside>count()?"food_count_changed"
                     :!boat.cargoFits(count()-targetAside,targetAside)?"destination_no_longer_fits":null;
@@ -83,6 +87,23 @@ public final class HatBoatCargo {
             moveAside(target); return;
         }
     }
+    /** Loaded-time spoilage follows the existing shelter-store seasonal intervals. */
+    private void decay() {
+        if (food.isEmpty()) { decayTicks = 0; return; }
+        int interval = boat.flooding() > 0 || boat.level().isRainingAt(boat.blockPosition()) ? 1200 : 6000;
+        if (Seasons.enabled()) {
+            var season = Seasons.at(boat.level(), boat.blockPosition());
+            if (season == Season.AUTUMN || season == Season.WINTER) interval = interval * 3 / 2;
+            else if (season == Season.SUMMER) interval /= 2;
+        }
+        if (++decayTicks < interval) return;
+        decayTicks = 0;
+        int before = count();
+        var oldest = food.getFirst(); var item = oldest.getItem();
+        oldest.shrink(1); food.removeIf(ItemStack::isEmpty); changed();
+        GameplayLog.event(boat, "cargo", "stored food spoiled owner={} item={} food={} -> {} interval={} flooding={}",
+                boat.ownerYukkuri(), item, before, count(), interval, boat.flooding());
+    }
 
     /** A chosen rescue outranks stores. Throw real food out past the rim; the paddle stays aboard. */
     void jettison() {
@@ -95,7 +116,7 @@ public final class HatBoatCargo {
         int spawned=0;
         for (int i = 0; i < drops.size(); i++) {
             var at = boat.toWorld(origin).add(0, .12, 0);
-            var outward = boat.toWorld(new Vec3(HatVessel.BRIM[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
+            var outward = boat.toWorld(new Vec3(HatVessel.brim(boat.mode())[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
                     .subtract(at).multiply(1,0,1).normalize();
             var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drops.get(i));
             item.setDeltaMovement(outward.scale(.20+i*.008).add(boat.getDeltaMovement()).add(0,.20,0));
@@ -181,7 +202,8 @@ public final class HatBoatCargo {
     /** Reserve one real serving for a biological parent to prepare for a protected child. */
     public ItemStack takeCareMeal(YukkuriEntity parent, YukkuriEntity child) {
         if (boat.level().isClientSide || parent.getVehicle() != boat || child.getVehicle() != boat
-                || !boat.protects(parent) || !boat.protects(child) || !parent.family().caresFor(child)
+                || !boat.protects(parent) || !boat.protects(child) || !boat.careRecipient(child)
+                || !parent.family().caresFor(child) && !boat.temporaryCaregiver(child)
                 || parent.life().isSleeping() || !child.life().canReceiveCareFood()) return ItemStack.EMPTY;
         for (var stack : food) if (parent.life().acceptsFood(stack) && child.life().canReceiveCareFood(stack)) {
             int before=count();
@@ -259,10 +281,12 @@ public final class HatBoatCargo {
         var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
         tag.put("Food", list); tag.putInt("AsideCount", asideCount());
+        tag.putInt("DecayTicks", decayTicks);
         tag.putInt("HandlingTarget", targetAside); tag.putLong("HandlingAt", handlingAt);
         tag.putLong("KeepAsideUntil", keepAsideUntil); tag.putLong("DiscardUntil", discardUntil); return tag;
     }
     public void load(CompoundTag tag) {
+        decayTicks = Math.clamp(tag.getInt("DecayTicks"), 0, 8999);
         if (tag.contains("PaddleItem", Tag.TAG_COMPOUND)) {
             var stored = ItemStack.parseOptional(boat.registryAccess(), tag.getCompound("PaddleItem"));
             paddle = stored.is(Items.STICK) ? stored.copyWithCount(1) : ItemStack.EMPTY;

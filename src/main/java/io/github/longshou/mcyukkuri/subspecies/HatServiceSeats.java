@@ -44,7 +44,7 @@ final class HatServiceSeats {
 
     boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || child == null || parent == null || parent != boat.owner() || child.getVehicle() != boat
-                || parent.getVehicle() != boat || !boat.young(child) || !boat.protects(parent) || !boat.protects(child)
+                || parent.getVehicle() != boat || !boat.careRecipient(child) || !boat.protects(parent) || !boat.protects(child)
                 || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || ownerToiletSeat || boat.departure.departureYielding!=null ||
                         child.getUUID().equals(boat.departure.voyageYoung)) return false;
         var held = serviceSeats.get(child.getUUID());
@@ -168,7 +168,7 @@ final class HatServiceSeats {
         // A water block hidden under the brim does not make this a valid drop.  The rear point must
         // already be beyond the actual hat outline, then have an unobstructed short fall into water.
         Vec3 rawLocal = boat.toLocal(raw);
-        if (Double.isFinite(HatVessel.surface(HatVessel.Mode.FLOAT, rawLocal.x, rawLocal.z))) return null;
+        if (Double.isFinite(HatVessel.surface(boat.mode(), rawLocal.x, rawLocal.z))) return null;
         BlockPos below = BlockPos.containing(raw.add(0, -.04, 0));
         for (int down = 0; down <= 2; down++) {
             BlockPos atBelow = below.below(down);
@@ -286,7 +286,7 @@ final class HatServiceSeats {
     }
 
     boolean brimSupport(double x, double z) {
-        return Math.abs(HatVessel.surface(HatVessel.Mode.FLOAT, x, z)-HatVessel.FREEBOARD) < 1e-6;
+        return Math.abs(HatVessel.surface(boat.mode(), x, z)-HatVessel.freeboard(boat.mode())) < 1e-6;
     }
 
     ServiceSeat serviceSeatFor(YukkuriEntity child, YukkuriEntity parent, double[] original, boolean rearCare) {
@@ -297,8 +297,9 @@ final class HatServiceSeats {
         var taken=boat.takenExcept(child.getUUID());
         var childPlaces=new ArrayList<Vec3>();
         // Enumerate measured contact patches once. A parent's station is not restricted to a few stern offsets.
-        for(double x=HatVessel.OPENING[0]+r;x<=HatVessel.OPENING[1]-r;x+=.25)
-            for(double z=-HatVessel.BRIM[1]+r+.15;z<=Math.min(.5,HatVessel.OPENING[3]-r);z+=.25){
+        var opening=HatVessel.opening(boat.mode());var brim=HatVessel.brim(boat.mode());
+        for(double x=opening[0]+r;x<=opening[1]-r;x+=.25)
+            for(double z=-brim[1]+r+.15;z<=Math.min(.5,opening[3]-r);z+=.25){
                 double y=HatVessel.footprint(boat.mode(),x,z,r);
                 var at=new Vec3(x,y,z);
                 if(Double.isFinite(y)&&HatVessel.fits(boat.mode(),at,r,taken,childBody))childPlaces.add(at);
@@ -309,9 +310,9 @@ final class HatServiceSeats {
         // The adult fits through the centre of this measured opening, but that strip is narrower
         // than the search grid. Always include the exact centre instead of aliasing it away.
         var ownerXs=new ArrayList<Double>();ownerXs.add(0.0);
-        for(double x=HatVessel.OPENING[0];x<=HatVessel.OPENING[1];x+=.5)ownerXs.add(x);
+        for(double x=opening[0];x<=opening[1];x+=.5)ownerXs.add(x);
         for(double x:ownerXs)
-            for(double z=HatVessel.OPENING[2];z<=HatVessel.OPENING[3];z+=.5){
+            for(double z=opening[2];z<=opening[3];z+=.5){
                 double y=HatVessel.travelSupport(boat.mode(),x,z,boat.radiusOf(parent));
                 if(!Double.isFinite(y)||!Double.isFinite(HatVessel.surface(boat.mode(),x,z)))continue;
                 Vec3 ownerAt=new Vec3(x,y,z);

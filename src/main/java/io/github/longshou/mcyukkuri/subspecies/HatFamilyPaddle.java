@@ -235,7 +235,8 @@ public final class HatFamilyPaddle {
     }
     private boolean onOwnDeck(HatBoatEntity boat,ItemEntity item){
         var local=boat.toLocal(item.position());
-        return Math.abs(local.x)<=HatVessel.BRIM[0]+.15&&Math.abs(local.z)<=HatVessel.BRIM[1]+.15
+        var brim=HatVessel.brim(boat.mode());
+        return Math.abs(local.x)<=brim[0]+.15&&Math.abs(local.z)<=brim[1]+.15
                 &&local.y>=HatVessel.top(boat.mode())-.4&&local.y<=HatVessel.top(boat.mode())+.6;
     }
     private boolean reserveFloating(HatBoatEntity boat,ItemEntity item){

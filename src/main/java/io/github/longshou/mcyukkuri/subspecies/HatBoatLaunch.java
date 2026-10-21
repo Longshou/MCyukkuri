@@ -89,7 +89,7 @@ final class HatBoatLaunch {
         boat.syncHullScale(HatVessel.hatScale(owner));boat.setPos(HatBoatRoute.surface(level,water));boat.setYRot(owner.yBodyRot);
         // The spawn owner can already occupy this water surface; exclude that body but retain every other obstruction.
         if(!hullClear(level,owner,boat,owner,path,water))return refused(owner, path, water, "hull_collision");
-        boat.syncOwner(Optional.of(owner.getUUID()));boat.syncHullScale(HatVessel.hatScale(owner));
+        boat.syncOwner(Optional.of(owner.getUUID()));boat.syncAccessoryIdentity(owner);boat.syncHullScale(HatVessel.hatScale(owner));
         if(!level.addFreshEntity(boat))return refused(owner, path, water, "entity_add_failed");
         boolean boarded=false;
         String failure = "accessory_transfer_failed";
@@ -190,7 +190,7 @@ final class HatBoatLaunch {
             heading+=placement.yaw();
         }
         if (!hullClear(level,owner,boat,boat,path,water)) return refused(owner, path, water, "hull_collision");
-        boat.syncOwner(Optional.of(owner.getUUID())); boat.syncHullScale(HatVessel.hatScale(owner)); boat.setYRot(heading);
+        boat.syncOwner(Optional.of(owner.getUUID())); boat.syncAccessoryIdentity(owner);boat.syncHullScale(HatVessel.hatScale(owner)); boat.setYRot(heading);
         if (!level.addFreshEntity(boat)) return refused(owner, path, water, "entity_add_failed");
         var retainedToken=owner.aquaticLife().firstVoyage().retainedHatToken();
         boat.launchToken(owner.life().stowAccessory(retainedToken, boat.getUUID()));
@@ -270,7 +270,7 @@ final class HatBoatLaunch {
     static Vec3 retrievalGrip(HatBoatEntity boat, YukkuriEntity actor){
         if(actor==null||!boat.ownsPhysicalHat(actor)||boat.isVehicle()||boat.hasIncoming()||boat.capsizing())return null;
         Vec3 nearest=null;double distance=Double.POSITIVE_INFINITY;
-        for(var local:GripRim.POINTS){var at=boat.tiltedWorld(local);double d=actor.getBoundingBox().getCenter().distanceToSqr(at);if(d<distance){distance=d;nearest=at;}}
+        for(var local:GripRim.points(boat.mode())){var at=boat.tiltedWorld(local);double d=actor.getBoundingBox().getCenter().distanceToSqr(at);if(d<distance){distance=d;nearest=at;}}
         return boat.reachableGrip(actor,nearest);
     }
 
@@ -305,7 +305,7 @@ final class HatBoatLaunch {
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot)) return null;
         double y;
-        if (mode == HatVessel.Mode.FLOAT) {
+        if (mode.afloat()) {
             // The water surface below the bank she stands on.
             BlockPos surface = null;
             for (int down = 0; down < 3 && surface == null; down++)
@@ -319,8 +319,8 @@ final class HatBoatLaunch {
         var hat = ModEntities.HAT_BOAT.get().create(level);
         if (hat == null) return null;
         hat.setPos(at.x, y, at.z); hat.setYRot(yaw); hat.launchRole(role); hat.moorAt(hat.position());
-        hat.syncOwner(Optional.of(owner.getUUID())); hat.syncHullScale(HatVessel.hatScale(owner));
-        hat.state(mode == HatVessel.Mode.FLOAT ? State.MOORED : State.CRADLE);
+        hat.syncOwner(Optional.of(owner.getUUID())); hat.syncAccessoryIdentity(owner);hat.syncHullScale(HatVessel.hatScale(owner));
+        hat.state(mode.afloat() ? State.MOORED : State.CRADLE);
         if (!level.addFreshEntity(hat)) return null;
         hat.launchToken(owner.life().stowAccessory(null, hat.getUUID()));
         if (hat.launchToken() == null) { hat.discard(); return null; }

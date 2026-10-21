@@ -26,7 +26,7 @@
 
 玩法见[玩法说明](../../../docs/PET_SHOP.md)。
 
-`mounts.json` 的 `detached` 部分对应七种离身饰物物品。摘取／剪断时保存徽章外观级别，物品渲染沿其自身表面挂接圆牌；该外观数据不会授予资格。剪断物品的牌面随所属半边一起变换。
+`mounts.json` 的 `detached` 部分对应八种离身饰物物品。2026-10-21 新增水生魔理沙帽 `accessory_marisa_aquatic`：位置取自[水生帽](../../../standards/yukkuri-library/interactions/marisa-aquatic-hat/README.md)导出的 `badge_mount`，在帽带正面右端，法线随圆帽带朝外。用 `python scripts/export_badges.py --mounts-only --detached accessory_marisa_aquatic` 只导出这一项，其余挂点原样保留。摘取／剪断时保存徽章外观级别，物品渲染沿其自身表面挂接圆牌；该外观数据不会授予资格。剪断物品的牌面随所属半边一起变换。
 
 新增捕食种的圆牌挂在 `predator_cap_crown` 帽冠侧面；首轮帽带挂点被帽冠遮挡，已修正。角色模型由捕食种任务维护；其后续几何导出后运行 `python scripts/export_badges.py --mounts-only` 更新指纹及挂点，不写入共享语言文件。两种捕食种仍处于首轮造型迭代，不能将本轮徽章检查当作其整体造型通过。
 

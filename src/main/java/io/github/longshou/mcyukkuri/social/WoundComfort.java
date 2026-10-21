@@ -8,7 +8,9 @@ import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -51,9 +53,12 @@ public final class WoundComfort {
 
     private static final class Session {
         final YukkuriEntity licker, victim;
+        final UUID boat;
         int elapsed, contact, apart;
         boolean ended;
-        Session(YukkuriEntity licker, YukkuriEntity victim) { this.licker = licker; this.victim = victim; }
+        Session(YukkuriEntity licker, YukkuriEntity victim) { this(licker, victim, null); }
+        Session(YukkuriEntity licker, YukkuriEntity victim, UUID boat) { this.licker = licker; this.victim = victim; this.boat = boat; }
+        boolean afloat() { return boat != null; }
     }
 
     private final YukkuriEntity entity;
@@ -65,6 +70,9 @@ public final class WoundComfort {
     public boolean active() { return session != null && !session.ended; }
     public boolean licking() { return active() && session.licker == entity; }
     public boolean receiving() { return active() && session.victim == entity; }
+    /** The ordinary goals may only drive a ground session; hat care owns an afloat session. */
+    public boolean groundLicking() { return licking() && !session.afloat(); }
+    public boolean groundReceiving() { return receiving() && !session.afloat(); }
     /** True while a comforting lick is touching the wounded one. */
     public boolean inContact() { return active() && session.contact > 0; }
     /** Recently comforted: the cry gives way to a calmer face and the one is not licked again for a while. */
@@ -80,7 +88,7 @@ public final class WoundComfort {
         if (cooldown > 0) cooldown--;
         if (relief > 0) relief--;
         if (scanWait > 0) scanWait--;
-        if (active() && !valid()) stop();
+        if (active() && !(session.afloat() ? afloatValid(session) : valid())) stop();
     }
 
     /** Why this one cannot take part right now (an emergency or another activity wins); null when calm. */
@@ -175,6 +183,126 @@ public final class WoundComfort {
         if (cooldown > 0) return "cooldown_" + cooldown;
         return null;
     }
+
+    /**
+     * The same kin/condition policy as {@link #whyNot(YukkuriEntity)}, but for a real stable
+     * parent-and-child berth in one floating hat.  It deliberately permits neither a general
+     * passenger exception nor cross-hat contact.
+     */
+    public String whyNotAfloat(YukkuriEntity victim, HatBoatEntity boat) {
+        if (victim == entity) return "self";
+        if (boat == null || entity.getVehicle() != boat || victim.getVehicle() != boat
+                || !boat.protects(entity) || !boat.protects(victim) || !EcologyMovement.captain(entity)
+                || !boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() != 0) return "boat_unavailable";
+        var unable = afloatUnable(entity);
+        if (unable != null) return unable;
+        var victimReason = afloatVictimReason(victim, false);
+        if (victimReason != null) return victimReason;
+        var kin = kinReason(victim);
+        if (kin != null) return kin;
+        if (!entity.hasLineOfSight(victim)) return "no_line_of_sight";
+        if (cooldown > 0) return "cooldown_" + cooldown;
+        return null;
+    }
+
+    /** Start a boat-only comfort session.  Seat movement and mouth contact remain the caller's live proof. */
+    public boolean beginAfloat(YukkuriEntity victim, HatBoatEntity boat) {
+        String why = whyNotAfloat(victim, boat);
+        if (why != null) return false;
+        float chance = entity.life().personality().helpProbability(true, victim.body().healthRatio() < .35f);
+        float roll = entity.getRandom().nextFloat();
+        if (roll >= chance) {
+            cooldown = KIN_COOLDOWN;
+            entity.life().personality().decided("comfort_declined");
+            GameplayLog.event(entity,"comfort","afloat help declined; victim={} boat={} roll={} chance={}",
+                    victim.getUUID(),boat.getUUID(),roll,chance);
+            return false;
+        }
+        return open(new Session(entity, victim, boat.getUUID()));
+    }
+
+    /** Drive only the temporary care berth already owned by the hat; never navigates a passenger over a deck. */
+    public boolean tickAfloat(HatBoatEntity boat) {
+        if (!licking() || session == null || !session.afloat() || !session.boat.equals(boat.getUUID()) || !afloatValid(session)) {
+            stop(); return false;
+        }
+        var s = session;
+        var victim = s.victim;
+        s.elapsed++;
+        entity.getLookControl().setLookAt(victim, 30, 30);
+        victim.getLookControl().setLookAt(entity, 30, 30);
+        if (!boat.prepareCareSeat(victim, entity) || !boat.careSeatReady(victim)) {
+            if (s.elapsed > APPROACH_LIMIT) failed();
+            return active();
+        }
+        FamilyFeedingContact.faceEachOther(entity, victim);
+        if (!FamilyFeedingContact.mouthsMeet(entity, victim)) {
+            // Match the ground session: only uninterrupted mouth contact heals.  A berth
+            // can stay assigned while the hull rocks, but a gap after contact may never be
+            // accumulated into a remote completed lick.
+            if (s.contact == 0) {
+                if (s.elapsed > APPROACH_LIMIT) failed();
+            } else if (++s.apart > LOST_CONTACT) failed();
+            return active();
+        }
+        s.apart = 0;
+        if (s.contact == 0) GameplayLog.event(entity,"comfort","afloat mouth contact started; victim={} boat={} elapsed={}",
+                victim.getUUID(),boat.getUUID(),s.elapsed);
+        s.contact++;
+        if (s.contact % 30 == 1) BirthStaging.tears(entity);
+        if (s.contact % EASE_INTERVAL == 0) ease(victim);
+        if (s.contact >= CONTACT_TICKS) complete();
+        return active();
+    }
+
+    private static String afloatBusyReason(YukkuriEntity e, boolean hurtOne) {
+        if (!e.isAlive() || e.isRemoved()) return "dead";
+        if (e.isNoAi()) return "noai";
+        if (e.isPanicking()) return "panic";
+        if (e.hurtTime != 0 && !hurtOne) return "hurt_flash";
+        if (e.isCommandPlaying()) return "command_action";
+        if (e.isOnFire()) return "fire";
+        if (e.operations().active()) return "operation";
+        if (e.predator().active()) return "predator";
+        if (e.social().holdingStill()) return "social_hold";
+        if (e.woundComfort().active() ? e.life().nutrition() < 15 || e.life().energy() < 15 : e.life().hasUrgentNeed()) return "urgent_need";
+        if (e.life().isSleeping()) return "sleeping";
+        if (e.life().mealTicks() != 0) return "meal";
+        if (!e.life().activity().equals(Behaviors.IDLE)) return "life_" + e.life().activity();
+        if (e.family().active() && !e.family().yieldsToComfort()) return "family_" + e.family().activity();
+        if (e.family().awaitingLanding()) return "awaiting_landing";
+        if (e.childhood().active()) return "childhood";
+        if (e.careApproach().waiting()) return "care_approach";
+        if (e.house().active() || e.habitat().active() || e.independence().active()) return "home";
+        if (e.settlement().active() || e.settlement().duties().active()) return "settlement";
+        if (e.groupInteraction().active() || e.playLife().active() || e.pet().busy() || e.dailyLife().active()) return "activity";
+        if (WildEvents.reserved(e) || SettlementSeasons.confined(e)) return "reserved";
+        return null;
+    }
+    private static String afloatUnable(YukkuriEntity licker) {
+        var busy = afloatBusyReason(licker, false);
+        if (busy != null) return "licker_" + busy;
+        if (licker.life().nutrition() < (licker.woundComfort().active() ? 15 : 40)) return "licker_hungry";
+        if (licker.life().energy() < (licker.woundComfort().active() ? 15 : 35)) return "licker_tired";
+        if (!licker.body().condition().readyToLick()) return "licker_hurt";
+        if (licker.life().spicyTicks() != 0) return "licker_spicy";
+        return !(licker.family().adult() || licker.family().stage() != FamilyLife.Stage.BABY && licker.childhood().canJump()) ? "licker_too_young" : null;
+    }
+    private static String afloatVictimReason(YukkuriEntity victim, boolean sessionOwner) {
+        if (!sessionOwner && victim.woundComfort().session != null) return "being_licked";
+        if (!sessionOwner && victim.woundComfort().relief != 0) return "already_soothed";
+        if (!victim.body().condition().hasSkinOrBurnDamage()) return "no_wound";
+        var busy = afloatBusyReason(victim, true);
+        return busy == null ? null : "victim_" + busy;
+    }
+    private boolean afloatValid(Session s) {
+        if (!s.afloat() || !(s.licker.getVehicle() instanceof HatBoatEntity boat) || !s.boat.equals(boat.getUUID())
+                || s.victim.getVehicle() != boat || !boat.protects(s.licker) || !boat.protects(s.victim)
+                || !EcologyMovement.captain(s.licker) || !boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() != 0
+                || s.elapsed > APPROACH_LIMIT + CONTACT_TICKS + LOST_CONTACT || s.licker.distanceToSqr(s.victim) > 144
+                || !s.licker.hasLineOfSight(s.victim) || s.victim.life().personality().fear(s.licker.getUUID()) >= 60) return false;
+        return afloatUnable(s.licker) == null && afloatVictimReason(s.victim, true) == null;
+    }
     public String describe() {
         var candidates = entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
                         other -> other != entity && Bonds.comfortFamily(entity, other))
@@ -186,7 +314,7 @@ public final class WoundComfort {
     /** Autonomous noticing; scans a few times a second at most. */
     public boolean plan() {
         if (entity.level().isClientSide) return false;
-        if (active()) return licking() && valid();
+        if (active()) return groundLicking() && valid();
         if (scanWait > 0 || cooldown > 0) return false;
         scanWait = SCAN_TICKS + entity.getRandom().nextInt(20);
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NOTICE_RANGE),
@@ -219,7 +347,12 @@ public final class WoundComfort {
             GameplayLog.limited(entity,"comfort","begin_refused",200,"start refused; victim={} self_active={} victim_active={} victim_fear={}",
                     victim.getUUID(),active(),victim.woundComfort().session!=null,victim.life().personality().fear(entity.getUUID()));return false;
         }
-        session = new Session(entity, victim);
+        return open(new Session(entity, victim));
+    }
+    private boolean open(Session next) {
+        var victim = next.victim;
+        if (active() || victim.woundComfort().session != null || victim.life().personality().fear(entity.getUUID()) >= 60) return false;
+        session = next;
         entity.life().personality().protectRelation(victim.getUUID());
         victim.life().personality().protectRelation(entity.getUUID());
         victim.woundComfort().session = session;
@@ -229,12 +362,13 @@ public final class WoundComfort {
         if (victim.family().yieldsToComfort()) victim.family().stop();
         victim.getNavigation().stop();
         entity.setPersistenceRequired();
-        GameplayLog.event(entity,"comfort","approach started; victim=#{} uuid={} wounds={} health={}",
-                victim.getId(),victim.getUUID(),victim.body().wounds().size(),victim.getHealth());
+        GameplayLog.event(entity,"comfort","approach started; victim=#{} uuid={} wounds={} health={} boat={}",
+                victim.getId(),victim.getUUID(),victim.body().wounds().size(),victim.getHealth(),next.boat);
         return true;
     }
 
     public boolean valid() {
+        if (active() && session.afloat()) return afloatValid(session);
         var why = invalidReason();
         if (why != null && DEBUG) MCYukkuri.LOGGER.info("[comfort-debug] session {} end: {}", entity.getId(), why);
         return why == null;
@@ -360,6 +494,7 @@ public final class WoundComfort {
         s.victim.woundComfort().session = null;
         s.licker.woundComfort().cooldown = Math.max(s.licker.woundComfort().cooldown, kinCooldown);
         s.licker.getNavigation().stop(); s.victim.getNavigation().stop();
+        if (s.afloat()) EcologyMovement.releaseContact(s.licker, s.victim);
     }
 
     public CompoundTag save() {

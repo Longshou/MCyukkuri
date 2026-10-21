@@ -3,9 +3,13 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -53,6 +57,10 @@ public final class AquaticFamilyLife {
     private List<YukkuriEntity> cachedChildren;
     private List<YukkuriEntity> cachedRescuableYoung;
     private final Map<UUID,LivingEntity> cachedThreats=new HashMap<>();
+    /** One real observed orphan gets one social decision per nearby captain, never a reroll every water tick. */
+    private record OrphanRefugeDecision(boolean accepted,long until,String relation,float chance,float roll) {}
+    private static final int MAX_ORPHAN_REFUGE_DECISIONS=64;
+    private final Map<UUID,OrphanRefugeDecision> orphanRefugeDecisions=new HashMap<>();
 
     public AquaticFamilyLife(YukkuriEntity entity){this.entity=entity;alarm=new HatFamilyAlarm(entity);}
     public HatFamilyAlarm alarm(){return alarm;}
@@ -106,7 +114,7 @@ public final class AquaticFamilyLife {
     public String activity(){return activity;}
     /** A swimmer must actually grip the near brim and climb; water is not a jump takeoff. */
     public boolean tryWaterBoard(HatBoatEntity home){
-        if(!entity.isInWaterOrBubble()||!entity.childhood().canJump()||!home.young(entity))return false;
+        if(!entity.isInWaterOrBubble()||!entity.childhood().canJump()||!home.admits(entity))return false;
         if(!entity.family().scrambleIntoHat(home))return false;
         entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("teary","afraid",40);return true;
     }
@@ -286,8 +294,152 @@ public final class AquaticFamilyLife {
         if(alarm.responding()&&alarm.tickResponse()){activity=alarm.activity();return true;}
         if(alarm.tickOwner(boat,loadedChildren())){guarding=true;activity=alarm.activity();return true;}
         if(followsParent()&&tickYoungOwner(boat))return true;
+        if(tickOrphanRefuge(boat))return true;
         if(tickParentOwner(boat))return true;
         steeringHat=null;return false;
+    }
+
+    /**
+     * A nearby adult may give an actually parentless swimmer a finite berth and provisions until
+     * the ordinary landing sequence reaches shore.  It never edits FamilyData, crew, or parent
+     * links: the boat's temporary-refuge permit is the entire authority.
+     */
+    private boolean tickOrphanRefuge(HatBoatEntity boat){
+        long now=level().getGameTime();
+        orphanRefugeDecisions.entrySet().removeIf(entry->entry.getValue().until()<=now);
+        if(boat.getPassengers().stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast)
+                .anyMatch(boat::temporaryCaregiver)){
+            // A boarded refuge is intentionally short-lived.  The normal landing chain will
+            // dismount it and release the saved permission only after dry ground is reached.
+            entity.aquaticLife().requestShoreVisit();
+            return false;
+        }
+        var orphans=level().getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(12,3,12),
+                        child->orphanRefugeCandidate(boat,child))
+                .stream().sorted(Comparator.comparingInt((YukkuriEntity child)->orphanRelationRank(orphanRelation(child)))
+                        .thenComparingDouble(entity::distanceToSqr)).toList();
+        for(var child:orphans){
+            var relation=orphanRelation(child);
+            if(nearbyAcceptedBetterRefuge(child,relation))continue;
+            var decision=orphanRefugeDecisions.get(child.getUUID());
+            if(decision==null||decision.until()<=now){
+                if(orphanRefugeDecisions.size()>=MAX_ORPHAN_REFUGE_DECISIONS){
+                    orphanRefugeDecisions.entrySet().stream().min(Comparator.comparingLong(entry->entry.getValue().until()))
+                            .ifPresent(entry->orphanRefugeDecisions.remove(entry.getKey()));
+                }
+                boolean urgent=child.waterDistress().phase()==WaterDistress.Phase.EXHAUSTED
+                        ||child.life().nutrition()<30||child.getHealth()<child.getMaxHealth()*.4f;
+                float chance=entity.life().personality().helpProbability(!relation.equals("stranger"),urgent);
+                float roll=entity.getRandom().nextFloat();
+                decision=new OrphanRefugeDecision(roll<chance,now+(roll<chance?1200:600),relation,chance,roll);
+                orphanRefugeDecisions.put(child.getUUID(),decision);
+                GameplayLog.event(entity,"aquatic",
+                        "orphan refuge decision child={} relation={} parents=dead chance={} roll={} accepted={} boat={}",
+                        child.getUUID(),relation,chance,roll,decision.accepted(),boat.getUUID());
+            }
+            if(!decision.accepted())continue;
+            var source=orphanSourceHat(child);
+            if(source!=null){
+                if(!boat.requestTemporaryRefugeTransfer(child,source))continue;
+                entity.life().wakeInHat();entity.getLookControl().setLookAt(child,35,35);
+                // Keep the child on its still-afloat source hat until the existing checked
+                // inter-hat boarding route has a reachable destination.  There is no rescue
+                // by deliberately dropping it into the water.
+                if(child.family().transferHat(source,boat,true)
+                        ||entity.family().cradlePickup().startRefugeTransfer(source,boat,child)){
+                    hold(boat,Behaviors.BOAT_RESCUE_YOUNG);
+                    GameplayLog.event(entity,"aquatic","orphan refuge transfer started child={} relation={} sourceHat={} boat={}",
+                            child.getUUID(),relation,source.getUUID(),boat.getUUID());
+                    return true;
+                }
+                // The shared cross-hat approach stops at an AABB-safe berth and routes the
+                // final segment with paddleFor.  Do not steer into the source hull's centre.
+                // This reservation is deliberately not an incoming seat; CradlePickup creates
+                // that seat only after this approach has reached its measured berth.
+                EcologyMovement.approach(entity,child,.8);
+                activity=Behaviors.BOAT_RESCUE_APPROACH;
+                return true;
+            }
+            if(!boat.requestTemporaryRefuge(child))continue;
+            child.waterDistress().guideToTemporaryRefuge(entity,boat);
+            entity.life().wakeInHat();entity.getLookControl().setLookAt(child,35,35);
+            // The same finite braid/collision/reserved-brim rescue used for the captain's
+            // children now accepts this explicit permit; an infant is never teleported aboard.
+            if(child.family().rescueIntoHat(boat)){
+                hold(boat,Behaviors.BOAT_RESCUE_YOUNG);
+                GameplayLog.event(entity,"aquatic","orphan refuge lift started child={} relation={} boat={}",
+                        child.getUUID(),relation,boat.getUUID());
+                return true;
+            }
+            var berth=child.family().braidRescueApproach(boat);
+            if(berth!=null){
+                steer(boat,berth,false);activity=Behaviors.BOAT_RESCUE_APPROACH;return true;
+            }
+            if(horizontal(boat.position(),child.position())>.9)steer(boat,child.position(),false);
+            else hold(boat,Behaviors.BOAT_RESCUE_YOUNG);
+            activity=Behaviors.BOAT_RESCUE_APPROACH;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean orphanRefugeCandidate(HatBoatEntity boat,YukkuriEntity child){
+        return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().subadult()
+                &&!child.independence().independent()&&(child.isInWaterOrBubble()||orphanSourceHat(child)!=null)&&entity.distanceToSqr(child)<=144
+                &&entity.hasLineOfSight(child)&&orphaned(child)&&!orphanRelation(child).equals("none");
+    }
+
+    /** A dead captain's still-afloat hull keeps its riders safe until a real adjacent-hat transfer can begin. */
+    private HatBoatEntity orphanSourceHat(YukkuriEntity child){
+        if(!(child.getVehicle() instanceof HatBoatEntity source)||source.owner()!=null&&source.owner().isAlive()
+                ||!source.isAfloat()||source.unsteadyMotion()||source.towed()||source.flooding()>0)return null;
+        return source;
+    }
+
+    /** Missing parent records are not silently called death; each recorded parent must be DEAD. */
+    private boolean orphaned(YukkuriEntity child){
+        var record=FamilyData.get(level()).person(child.getUUID());
+        if(record==null)return false;
+        boolean parent=false;
+        for(var id:new UUID[]{record.mother,record.father})if(id!=null){
+            parent=true;
+            var known=FamilyData.get(level()).person(id);
+            if(known==null||known.status!=FamilyData.Status.DEAD)return false;
+        }
+        return parent;
+    }
+
+    private String orphanRelation(YukkuriEntity child){
+        if(Bonds.biological(entity,child)||Bonds.careKin(entity,child))return "kin";
+        int toward=YukkuriWorldData.get(level()).affinity(entity.getUUID(),child.getUUID());
+        int back=YukkuriWorldData.get(level()).affinity(child.getUUID(),entity.getUUID());
+        return entity.life().canRecognize(child)&&child.life().canRecognize(entity)
+                &&toward>=BondLevels.AFFINITY_FAMILIAR&&back>=BondLevels.AFFINITY_FAMILIAR?"familiar"
+                :entity.life().canRecognize(child)?"stranger":"none";
+    }
+
+    private static int orphanRelationRank(String relation){
+        return relation.equals("kin")?0:relation.equals("familiar")?1:relation.equals("stranger")?2:3;
+    }
+
+    /** A better relation blocks only after it has accepted and reserved an actual berth, never while it is merely nearby. */
+    private boolean nearbyAcceptedBetterRefuge(YukkuriEntity child,String relation){
+        int rank=orphanRelationRank(relation);
+        return level().getEntitiesOfClass(YukkuriEntity.class,child.getBoundingBox().inflate(12,3,12),other->other!=entity
+                        &&other.family().adult()&&other.profile().aquatic()&&other.isAlive()&&other.hasLineOfSight(child))
+                .stream().anyMatch(other->orphanRelationRank(other.aquaticLife().familyLife().orphanRelation(child))<rank
+                        &&other.aquaticLife().familyLife().acceptedOrphanRefuge(child));
+    }
+
+    /** Read-only neighbour coordination: a captain counts only after its one-roll decision reserved a real berth. */
+    private boolean acceptedOrphanRefuge(YukkuriEntity child){
+        var boat=ownHat(entity);var decision=orphanRefugeDecisions.get(child.getUUID());
+        return boat!=null&&decision!=null&&decision.accepted()&&decision.until()>level().getGameTime()&&boat.admits(child);
+    }
+
+    private static int orphanLoad(YukkuriEntity child){
+        int body=child.family().stage()==FamilyLife.Stage.BABY?2:child.childhood().canLiveIndependently()?8:4;
+        return body+(child.aquaticLife().hasPaddleForReturn()?HatBoatCargo.PADDLE_UNITS:0);
     }
 
     private boolean tickYoungOwner(HatBoatEntity boat){

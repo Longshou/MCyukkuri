@@ -30,6 +30,8 @@ public final class WaterDistress {
     private long threatTick=Long.MIN_VALUE;
     private ServerLevel threatLevel;
     private long waterRescueHoldTick=Long.MIN_VALUE;
+    /** A selected non-parent refuge has no braid controller to poll. Its live hat permit is the authority. */
+    private boolean temporaryRefugeGuide;
     private boolean cachedThreat;
     public WaterDistress(YukkuriEntity entity){this.entity=entity;}
     private ServerLevel level(){return (ServerLevel)entity.level();}
@@ -46,7 +48,8 @@ public final class WaterDistress {
     public String statusDetail(){
         return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" fatigue="+fatigue
                 +" burst="+burstTicks+" rest="+restTicks+" target="+(target==null?"none":target)
-                +" source="+(sourceBoat==null?"none":sourceBoat)+" guided="+(rescueHat!=null)+" held="+heldByWaterRescue();
+                +" source="+(sourceBoat==null?"none":sourceBoat)+" guided="+(rescueHat!=null)
+                +" temporaryRefuge="+temporaryRefugeGuide+" held="+heldByWaterRescue();
     }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
             &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
@@ -57,10 +60,24 @@ public final class WaterDistress {
     public void guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
         if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.young(entity)){
             boolean changed = !parent.getUUID().equals(waterRescueParent) || !hat.getUUID().equals(rescueHat);
-            waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+            temporaryRefugeGuide=false;waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
             if (changed) GameplayLog.limited(entity, "water", "rescue.guide", 200,
                     "rescue guidance assigned parent={} hat={} phase={} immersion={}", waterRescueParent, rescueHat, phase, immersionTicks);
         }
+    }
+    /**
+     * A selected adult may provide a finite physical refuge without becoming a parent.
+     * The temporary boarding permit remains the single source of authority and is checked
+     * every tick; this method only points the swimmer at that already-authorized hull.
+     */
+    public void guideToTemporaryRefuge(YukkuriEntity caregiver,HatBoatEntity hat){
+        if(caregiver==null||hat==null||!caregiver.isAlive()||!hat.isAlive()||!hat.isAfloat()
+                ||hat.unsteadyMotion()||hat.towed()||hat.flooding()>0||!caregiver.getUUID().equals(hat.ownerYukkuri())
+                ||caregiver.getVehicle()!=hat||!hat.protects(caregiver)||!hat.admits(entity))return;
+        boolean changed=!temporaryRefugeGuide||!caregiver.getUUID().equals(waterRescueParent)||!hat.getUUID().equals(rescueHat);
+        temporaryRefugeGuide=true;waterRescueParent=caregiver.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+        if(changed)GameplayLog.event(entity,"water","temporary refuge guidance assigned caregiver={} hat={} phase={} immersion={}",
+                waterRescueParent,rescueHat,phase,immersionTicks);
     }
     /** The controller calls this after real contact, and on every later hold/lift tick. */
     public boolean confirmWaterRescueHold(YukkuriEntity parent,HatBoatEntity hat){
@@ -93,7 +110,7 @@ public final class WaterDistress {
         if (rescueHat != null) GameplayLog.limited(entity, "water", "rescue.clear", 200,
                 "rescue guidance cleared parent={} hat={} phase={} immersion={} vehicle={}",
                 waterRescueParent, rescueHat, phase, immersionTicks, entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
-        var released=rescueHat;rescueHat=waterRescueParent=null;waterRescueHoldTick=Long.MIN_VALUE;
+        var released=rescueHat;rescueHat=waterRescueParent=null;temporaryRefugeGuide=false;waterRescueHoldTick=Long.MIN_VALUE;
         if(released!=null&&target!=null&&target.equals(released)){target=null;destination=null;shore=null;searchWait=0;}
     }
     /** Parent controllers are transient: a vanished controller may never leave this child reserved or marked receiving. */
@@ -101,6 +118,13 @@ public final class WaterDistress {
         if(waterRescueParent==null)return;
         if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive()){
             clearWaterRescue();return;
+        }
+        if(temporaryRefugeGuide){
+            var hat=rescueHat!=null&&level().getEntity(rescueHat) instanceof HatBoatEntity candidate?candidate:null;
+            if(hat==null||!hat.isAlive()||!hat.isAfloat()||hat.unsteadyMotion()||hat.towed()||hat.flooding()>0
+                    ||!parent.getUUID().equals(hat.ownerYukkuri())||parent.getVehicle()!=hat||!hat.protects(parent)||!hat.admits(entity))
+                clearWaterRescue();
+            return;
         }
         var state=parent.aquaticLife().selfRescue().parentWaterBraidState();
         if(state.isEmpty()||state.getInt("ChildId")!=entity.getId())clearWaterRescue();
@@ -272,7 +296,7 @@ public final class WaterDistress {
         }
     }
     private boolean safeHat(HatBoatEntity hat){
-        if(!hat.isAlive()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()||!hat.young(entity))return false;
+        if(!hat.isAlive()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()||!hat.admits(entity))return false;
         return level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent&&parent.isAlive()&&hat.protects(parent);
     }
     /** The individual's own loaded, token-matched hat remains a swimming landmark even if it is upside down or beached.
@@ -282,7 +306,7 @@ public final class WaterDistress {
                 &&(hat.isAfloat()||hat.state()==HatBoatEntity.State.CAPSIZED||hat.state()==HatBoatEntity.State.BEACHED);
     }
     private boolean safeRescueHat(HatBoatEntity hat){
-        return hat!=null&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&!hat.deploying()&&hat.young(entity);
+        return hat!=null&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&!hat.deploying()&&hat.admits(entity);
     }
     private void findEscape(){
         target=null;shore=null;destination=null;
@@ -325,6 +349,6 @@ public final class WaterDistress {
         sourceBoat=tag.hasUUID("SourceBoat")?tag.getUUID("SourceBoat"):null;pusher=tag.hasUUID("Pusher")?tag.getUUID("Pusher"):null;
         boardWait=Math.clamp(tag.getInt("BoardWait"),0,80);liftWait=Math.clamp(tag.getInt("LiftWait"),0,60);drySupportTicks=0;
         pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,12);
-        burstTicks=searchWait=callWait=0;target=rescueHat=waterRescueParent=null;waterRescueHoldTick=Long.MIN_VALUE;shore=null;destination=null;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
+        burstTicks=searchWait=callWait=0;target=rescueHat=waterRescueParent=null;temporaryRefugeGuide=false;waterRescueHoldTick=Long.MIN_VALUE;shore=null;destination=null;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
     }
 }

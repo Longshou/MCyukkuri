@@ -49,6 +49,8 @@ public final class ModItems {
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
+    /** The aquatic Marisa's deeper, rounder hat is a separate physical accessory from a normal Marisa hat. */
+    public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = ITEMS.register("marisa_aquatic_hat", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
     /** A piece of a shattered accessory (headwear.Headwear): its owner licks the pieces together; a player may hand them back. */
     public static final DeferredItem<AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new AccessoryShardItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties().stacksTo(1)));
@@ -128,9 +130,14 @@ public final class ModItems {
     public static Item accessoryFor(YukkuriVariant variant) { return ACCESSORIES.get(variant.accessory()).get(); }
     public static Item accessoryFor(YukkuriEntity entity) {
         var kind = entity.subspecies().kind();
-        return kind == SubspeciesLife.Kind.SHELL_MARISA ? MARISA_SHELL.get()
+        return kind == SubspeciesLife.Kind.AQUATIC_MARISA ? AQUATIC_MARISA_HAT.get()
+                : kind == SubspeciesLife.Kind.SHELL_MARISA ? MARISA_SHELL.get()
                 : kind == SubspeciesLife.Kind.KOTATSU_MARISA ? MARISA_KOTATSU.get()
                 : accessoryFor(entity.getVariant());
+    }
+    /** The authored detached model identity; AQUATIC_MARISA deliberately differs from its shared body asset. */
+    public static String accessoryModelFor(YukkuriEntity entity) {
+        return entity.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA ? "marisa_aquatic" : entity.subspecies().assetId();
     }
 
     private ModItems() {}

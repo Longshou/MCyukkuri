@@ -848,6 +848,7 @@
   "notebook.mcyukkuri.first_voyage.practising": "Practising / returning to father",
   "notebook.mcyukkuri.first_voyage.ready": "Large enough; awaiting space on the father's boat and quiet water",
   "notebook.mcyukkuri.first_voyage.growing": "Still growing; rides with a parent",
+  "notebook.mcyukkuri.first_voyage.orphaned": "Both parents are dead; temporary refuge does not replace parental instruction",
   "notebook.mcyukkuri.first_voyage.adult": "Adult; ordinary sailing available",
   "notebook.mcyukkuri.aquatic_shore": "\n\nLand strain: %s / %s seconds until fatigue\nDelicate soles allow only brief shore visits; resting in a dry hat reduces strain.",
   "settlement.mcyukkuri.role.free": "Free individual",
@@ -6339,5 +6340,7 @@
   "shop.mcyukkuri.consult.stress": "Current stress: %s",
   "shop.mcyukkuri.consult.exam_tasks": "Exams assess learned skills and actual task completion.",
   "exam.mcyukkuri.profile.traits": "Intelligence %s · Friendliness %s · Self-control %s",
-  "human.mcyukkuri.guide.shopkeeper": "The shop sells unbadged, silver and gold individuals, with supplies grouped by category. Initial trained stock has its own five traits and learned skills. Badges neither raise traits nor guarantee hatless recognition. Purchases preserve the individual, skills and badge. Rare-species displays are not for sale."
+  "human.mcyukkuri.guide.shopkeeper": "The shop sells unbadged, silver and gold individuals, with supplies grouped by category. Initial trained stock has its own five traits and learned skills. Badges neither raise traits nor guarantee hatless recognition. Purchases preserve the individual, skills and badge. Rare-species displays are not for sale.",
+  "item.mcyukkuri.marisa_aquatic_hat": "Aquatic Marisa's Hat",
+  "aquatic.mcyukkuri.shore_pending": "Returning to shore; the action will continue after landing."
 }

@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.settlement.Grazing;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.server.level.ServerLevel;
 import java.util.ArrayList;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
@@ -37,7 +40,25 @@ public final class HatShoreForage {
     public boolean harvesting() { return contact > 0; }
     public String activity() { return harvesting() ? Behaviors.BOAT_GATHER : Behaviors.BOAT_PADDLE; }
     public void stop() { target = null; elapsed = contact = 0; lastContactTick = Long.MIN_VALUE; }
-    private int fruitCount(BlockState state) { return state.getValue(SweetBerryBushBlock.AGE) == 3 ? 2 : 1; }
+    private ItemStack yieldFor(BlockState state) {
+        ItemStack food = ItemStack.EMPTY;
+        if (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) >= 2)
+            food = new ItemStack(Items.SWEET_BERRIES, state.getValue(SweetBerryBushBlock.AGE) == 3 ? 2 : 1);
+        else if (Grazing.edible(state)) food = Grazing.yield(state);
+        else if (Grazing.ripe(state)) {
+            if (state.is(Blocks.WHEAT)) food = new ItemStack(Items.WHEAT);
+            else if (state.is(Blocks.CARROTS)) food = new ItemStack(Items.CARROT);
+            else if (state.is(Blocks.POTATOES)) food = new ItemStack(Items.POTATO);
+            else if (state.is(Blocks.BEETROOTS)) food = new ItemStack(Items.BEETROOT);
+        }
+        return owner.life().acceptsFood(food) ? food : ItemStack.EMPTY;
+    }
+    private int fruitCount(BlockState state) { return yieldFor(state).getCount(); }
+    private boolean harvest(BlockPos at, BlockState state) {
+        var level = (ServerLevel) owner.level();
+        if (state.is(Blocks.SWEET_BERRY_BUSH)) return level.setBlock(at, state.setValue(SweetBerryBushBlock.AGE, 1), 3);
+        return Grazing.edible(state) ? Grazing.graze(level, at) : Grazing.graze(level, at, state);
+    }
 
     /** Returns true while travelling or picking. Call only after urgent care/transport/physiology have yielded. */
     public boolean tick(HatBoatEntity boat) {
@@ -57,7 +78,7 @@ public final class HatShoreForage {
                 || !owner.aquaticLife().familyLife().allowsDestination(boat,berth(target.plant(),target.water(),boat))
                 || boat.cargo().remainingCapacity() < fruitCount(target.state())
                 || boat.cargoRoom() < fruitCount(target.state())
-                || !boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) { reason = "source_or_capacity_changed"; boat.stopPaddling(); stop(); return false; }
+                || !boat.cargo().canStore(yieldFor(target.state()))) { reason = "source_or_capacity_changed"; boat.stopPaddling(); stop(); return false; }
         Vec3 berth = berth(target.plant(), target.water(),boat);
         if (boat.position().subtract(berth).horizontalDistanceSqr() > .0025) {
             reason = "sailing_to_shore";
@@ -84,12 +105,16 @@ public final class HatShoreForage {
         if (contact < CONTACT_TICKS) return true;
         var level = owner.level(); var before = target.state(); var picked = target.plant(); int amount = fruitCount(before);
         // No reserved item exists before the final valid contact tick. Full capacity leaves the bush untouched.
-        if (!level.setBlock(picked, before.setValue(SweetBerryBushBlock.AGE, 1), 3)) { stop(); return false; }
-        var fruit = new ItemStack(Items.SWEET_BERRIES, amount);
+        if (!harvest(picked, before)) { stop(); return false; }
+        var fruit = yieldFor(before);
         int stored = boat.cargo().store(fruit, amount, false);
         if (stored == 0) level.setBlock(picked, before, 3);
         else if (!fruit.isEmpty()) owner.spawnAtLocation(fruit); // Defend conservation if capacity ever changes mid-operation.
-        if (stored > 0) owner.speak("take_food");
+        if (stored > 0) {
+            owner.speak("take_food");
+            GameplayLog.event(owner, "forage", "shore plant harvested source={} before={} after={} stored={} hat={}",
+                    picked, before, level.getBlockState(picked), stored, boat.getUUID());
+        }
         reason = stored > 0 ? "picked_real_fruit" : "cargo_rejected_rollback";
         stop(); retry = 40; return stored > 0;
     }
@@ -100,13 +125,12 @@ public final class HatShoreForage {
         for (var at : BlockPos.betweenClosed(boat.blockPosition().offset(-10, -1, -10), boat.blockPosition().offset(10, 1, 10))) {
             if (!level.hasChunkAt(at)) continue;
             var state = level.getBlockState(at);
-            if (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) >= 2
-                    && boat.cargo().remainingCapacity() >= fruitCount(state)
-                    && boat.cargoRoom() >= fruitCount(state)
-                    && boat.cargo().canStore(new ItemStack(Items.SWEET_BERRIES))) plants.add(at.immutable());
+            var food = yieldFor(state);
+            if (!food.isEmpty() && boat.cargo().remainingCapacity() >= food.getCount()
+                    && boat.cargoRoom() >= food.getCount() && boat.cargo().canStore(food)) plants.add(at.immutable());
         }
         foundPlants=plants.size();
-        plants.sort(Comparator.comparingDouble(at -> at.distSqr(boat.blockPosition())));
+        plants.sort(Comparator.comparingDouble(at -> at.distSqr(boat.blockPosition()) + (Grazing.edible(level.getBlockState(at)) ? 200 : 0)));
         for (var plant : plants) for (var side : Direction.Plane.HORIZONTAL) {
             var water = plant.relative(side).below();
             if (!HatBoatRoute.calmSurface(level, water)) { rejectedWater++; continue; }

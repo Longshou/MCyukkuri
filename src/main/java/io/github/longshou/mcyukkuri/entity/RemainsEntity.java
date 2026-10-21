@@ -160,9 +160,16 @@ public final class RemainsEntity extends Entity {
         super.tick();
         if(level().isClientSide){if(tickCount%10==0)rotParticles();return;}
         if(++rot%20==0){refreshStage();FactoryProduction.releaseDeadOwner(this);}
-        if(!isNoGravity())setDeltaMovement(getDeltaMovement().add(0,-.04,0));
+        boolean afloat=isInWaterOrBubble();
+        var motion=getDeltaMovement();
+        if(afloat) {
+            // A water death stays recoverable where it happened.  This is physical
+            // buoyancy for the corpse entity, not an inventory transfer or a rescue.
+            if(motion.y<.025)motion=motion.add(0,Math.min(.04,.025-motion.y),0);
+        } else if(!isNoGravity())motion=motion.add(0,-.04,0);
+        setDeltaMovement(motion);
         move(MoverType.SELF,getDeltaMovement());
-        setDeltaMovement(getDeltaMovement().multiply(.8,onGround()?0:.98,.8));
+        setDeltaMovement(getDeltaMovement().multiply(.8,afloat?.72:onGround()?.0:.98,.8));
     }
     /** A thin haze of spores over stale remains, a heavier one over rotten ones (client only). */
     private void rotParticles(){

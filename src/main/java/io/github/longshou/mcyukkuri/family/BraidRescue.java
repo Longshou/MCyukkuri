@@ -88,7 +88,10 @@ public final class BraidRescue {
                 &&parent.life().mealTicks()==0&&!parent.life().isSleeping()&&!parent.family().tiedToLabor()
                 &&!child.isCommandPlaying()&&!child.operations().active()&&!child.isOnFire()
                 &&hat!=null&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.flooding()==0
-                &&hat.young(child)&&hat.protects(parent)&&BraidRescueGeometry.canLift(parent,child);
+                // A temporary water-refuge permit is physical boarding authority only.  It
+                // deliberately does not alter the child's family ledger, but it may use the
+                // same measured braid lift as the captain's own young.
+                &&hat.admits(child)&&hat.protects(parent)&&BraidRescueGeometry.canLift(parent,child);
     }
     private boolean canBite(){return child.childhood().canJump()&&child.family().stage()!=FamilyLife.Stage.BABY;}
     /** Hat-local distance from a local point inward to the first point on the hat; null when no hat lies that way. */

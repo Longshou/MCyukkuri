@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.pet.social;
 
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 
+import io.github.longshou.mcyukkuri.item.AccessoryItem;
+
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -24,14 +26,12 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import java.lang.ref.WeakReference;
 
@@ -531,11 +531,7 @@ public final class BadgeArcs {
         if (!victim.life().hasAccessory() || victim.isVehicle()) return false;
         final UUID token = UUID.randomUUID();
         var stack = new ItemStack(ModItems.accessoryFor(victim));
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            tag.putUUID("Owner", victim.getUUID()); tag.putUUID("Token", token); tag.putString("Variant", victim.getVariant().assetId());
-            tag.putString("SourceModel", victim.subspecies().assetId());
-            tag.putFloat("SourceScale", victim.growthScale() * victim.getScale() * (victim.profile().modelScale()));
-        });
+        AccessoryItem.markSource(stack,victim,token);
         victim.pet().markAccessory(stack);
         var item = new ItemEntity(level, victim.getX(), victim.getY(), victim.getZ(), stack);
         item.setDefaultPickUpDelay(); item.setUnlimitedLifetime();

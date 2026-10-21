@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.settlement.SettlementSpawner;
 import java.util.ArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -171,6 +172,18 @@ public final class ScenarioCommands {
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))
+                .then(Commands.literal("aquatic_colony").then(Commands.argument("seed", EntityArgument.entity())
+                        .then(Commands.argument("bank", BlockPosArgument.blockPos()).executes(c -> {
+                            var founder = yukkuri(c, "seed");
+                            if (founder == null) return 0;
+                            var members = SettlementSpawner.spawnAquaticColony(c.getSource().getLevel(),
+                                    BlockPosArgument.getLoadedBlockPos(c, "bank"), founder);
+                            if (members.isEmpty())
+                                return refused(c.getSource(), founder, "水族聚落", SettlementSpawner.lastFailure());
+                            tell(c.getSource().getLevel(), founder.position(), "[试玩场] 已建立真实水族家庭与岸边公仓；帽船、亲缘和觅食均由普通行为启动。",
+                                    ChatFormatting.GOLD);
+                            return done(c.getSource(), "水族聚落已建立：" + members.size() + " 名成员、真实岸边公仓；之后不强制角色或路线。");
+                        }))))
                 .then(Commands.literal("boat").then(Commands.argument("mode", StringArgumentType.word())
                         .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat", "unattended", "self_far", "self_tired", "return_capsized", "capsize_family",
                                 "cargo_empty", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow"}, b))

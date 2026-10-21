@@ -69,7 +69,8 @@ public final class HatFamilyAlarm {
     public void start(HatBoatEntity boat,Entity danger,Vec3 observed){
         if(!controllable()||!boat.isAfloat()||entity.getVehicle()!=boat||!entity.getUUID().equals(boat.ownerYukkuri()))return;
         // A full boat still follows the existing emergency escape path, but only real loaded children away from it are called.
-        if(!entity.aquaticLife().familyLife().hasDependents())return;
+        // A lone captain still has to wake and steer away from an actual predator; the empty expected
+        // set simply skips the recall part of this same bounded alarm.
         boolean recall=entity.aquaticLife().familyLife().hasUnreturnedDependents(boat);
         if(active()){
             if(danger!=null&&danger.getUUID().equals(source))sourcePosition=danger.position();

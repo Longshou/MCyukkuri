@@ -20,8 +20,8 @@ import java.io.UncheckedIOException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 
-/** One physical hat shaken off the head. All positions are world coordinates; the mesh is the selected
- * marisa_hat_turned prop, before its freeboard translation. No braid takes part: the hat is shaken loose,
+/** One physical aquatic hat shaken off the head. All positions are world coordinates; the mesh is the selected
+ * marisa_aquatic_hat_turned prop, before its freeboard translation. No braid takes part: the hat is shaken loose,
  * slides over the face to the planned water spot and settles there. No client pose interpolation. */
 public final class SelfRescueHatGeometry {
     /** Shaking loose, sliding off over the face while turning over, then settling on the water. */
@@ -29,7 +29,7 @@ public final class SelfRescueHatGeometry {
     private record Mesh(List<Vec3> vertices){}
     private static final Mesh MESH=read();
     private static Mesh read(){
-        try(var stream=SelfRescueHatGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json")){
+        try(var stream=SelfRescueHatGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_props/marisa_aquatic_hat_turned.json")){
             if(stream==null)throw new IllegalStateException("Missing selected physical hat");
             var data=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
             var raw=data.getAsJsonArray("vertices");var vertices=new ArrayList<Vec3>();
@@ -60,10 +60,10 @@ public final class SelfRescueHatGeometry {
     private static Quaternionf facing(float yaw){return new Quaternionf().rotationY((float)Math.toRadians(180-yaw));}
     private static Vec3 anchor(){var a=HatVessel.anchor();return new Vec3(a.x,a.y,a.z);}
     private static Vec3 wornOrigin(YukkuriView actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}
-    private static Vec3 settledOrigin(YukkuriView actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}
+    private static Vec3 settledOrigin(YukkuriView actor,Plan plan){return plan.finalCentre().add(0,HatVessel.freeboard(HatVessel.Mode.AQUATIC_FLOAT)*hatUnit(actor),0);}
     /** The first spot in front of the face, along a small choice of headings, that the caller finds usable and the whole shake keeps clear. */
     public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){
-        double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.BRIM[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
+        double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.brim(HatVessel.Mode.AQUATIC_FLOAT)[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
         int unusable=0,invalid=0;
         for(float turn:new float[]{0,25,-25})for(double gap:new double[]{.05,.12,.22}){
             float yaw=actor.yBodyRot+turn;double radians=Math.toRadians(yaw),distance=half+depth+gap*Math.max(.3,size);
@@ -87,7 +87,7 @@ public final class SelfRescueHatGeometry {
         var worn=wornOrigin(actor,plan);var settled=settledOrigin(actor,plan);
         double lifted=worn.y+9*bodyUnit(actor)*up;
         var origin=new Vec3(worn.x+(settled.x-worn.x)*slide,lifted+(settled.y-lifted)*lower,worn.z+(settled.z-worn.z)*slide);
-        float squash=(float)(1+(HatVessel.SQUASH_FLOAT-1)*lower);
+        float squash=(float)(1+(HatVessel.squash(HatVessel.Mode.AQUATIC_FLOAT)-1)*lower);
         return new Pose(origin,rotation,squash,origin,origin,null);
     }
     private static double smooth(double q){q=Math.clamp(q,0,1);return q*q*(3-2*q);}

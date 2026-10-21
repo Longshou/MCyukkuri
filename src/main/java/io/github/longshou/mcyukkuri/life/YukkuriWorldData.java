@@ -68,8 +68,11 @@ public final class YukkuriWorldData extends SavedData {
     public static final int MAX_RELATIONS_PER_SOURCE = 64;
     /** A one-shot physical-loss notice; the owner's matching token decides whether it still applies. */
     public record AccessoryLoss(UUID token, UUID player, String destroyedBy) {}
+    /** A consumed whole accessory retires this old capability before its former owner can recover a duplicate. */
+    public record AccessoryTransfer(UUID token, UUID recipient) {}
     private final Map<UUID, Captive> captives = new HashMap<>();
     private final Map<UUID, AccessoryLoss> accessoryConfiscations = new HashMap<>();
+    private final Map<UUID, AccessoryTransfer> accessoryTransfers = new HashMap<>();
     private final Map<Edge, Relation> relations = new HashMap<>();
     /** Active sessions cannot be selected for ordinary forgetting; nested uses are reference counted. */
     private final Map<UUID, Map<UUID, Integer>> activeRelationProtections = new HashMap<>();
@@ -283,6 +286,16 @@ public final class YukkuriWorldData extends SavedData {
     public void clearAccessoryConfiscation(UUID owner) {
         if (accessoryConfiscations.remove(owner) != null) setDirty();
     }
+    /** Persist the hand-off for an unloaded source owner; the matching old token is retired on its first server tick. */
+    public void accessoryTransferred(UUID owner,UUID token,UUID recipient) {
+        if(owner==null||token==null||recipient==null||owner.equals(recipient))return;
+        accessoryTransfers.put(owner,new AccessoryTransfer(token,recipient));setDirty();
+    }
+    public UUID consumeAccessoryTransfer(UUID owner,UUID token) {
+        var transfer=accessoryTransfers.get(owner);
+        if(transfer==null||!transfer.token.equals(token))return null;
+        accessoryTransfers.remove(owner);setDirty();return transfer.recipient;
+    }
     /**
      * Playground field clear only (command/PlaygroundTools): acquaintances and pending accessory losses of individuals the clear
      * removed. Custody records are kept: a carrier or freezer may still hold the token.
@@ -294,6 +307,7 @@ public final class YukkuriWorldData extends SavedData {
         clearRelationProtections(ids);
         if (changed || clearedCleanup) relationsIndexDirty = true;
         changed |= accessoryConfiscations.keySet().removeAll(ids);
+        changed |= accessoryTransfers.keySet().removeAll(ids);
         if (changed || clearedCleanup) setDirty();
     }
     /** Playground field clear only: a custody token whose delivery record was dropped with its shop or factory. Freezer leases stay. */
@@ -378,7 +392,7 @@ public final class YukkuriWorldData extends SavedData {
         }
     }
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("Version", 2);
+        tag.putInt("Version", 3);
         ListTag containers = new ListTag();
         captives.forEach((token, held) -> {
             CompoundTag value = new CompoundTag(); value.putUUID("Token", token); value.putUUID("Entity", held.entity);
@@ -393,6 +407,11 @@ public final class YukkuriWorldData extends SavedData {
             confiscations.add(value);
         });
         tag.put("AccessoryConfiscations", confiscations);
+        ListTag transfers = new ListTag();
+        accessoryTransfers.forEach((owner, transfer) -> {
+            CompoundTag value=new CompoundTag();value.putUUID("Owner",owner);value.putUUID("Token",transfer.token);value.putUUID("Recipient",transfer.recipient);transfers.add(value);
+        });
+        tag.put("AccessoryTransfers",transfers);
         tag.put("FreezerVaults", freezer.save());
         ListTag edges = new ListTag();
         relations.forEach((edge, relation) -> {
@@ -414,6 +433,11 @@ public final class YukkuriWorldData extends SavedData {
             if (value.hasUUID("Owner") && value.hasUUID("Token") && (value.hasUUID("Player") || !value.getString("DestroyedBy").isEmpty()))
                 result.accessoryConfiscations.put(value.getUUID("Owner"), new AccessoryLoss(value.getUUID("Token"),
                         value.hasUUID("Player") ? value.getUUID("Player") : null, value.getString("DestroyedBy")));
+        }
+        for (Tag item : tag.getList("AccessoryTransfers",Tag.TAG_COMPOUND)) {
+            CompoundTag value=(CompoundTag)item;
+            if(value.hasUUID("Owner")&&value.hasUUID("Token")&&value.hasUUID("Recipient"))
+                result.accessoryTransfers.put(value.getUUID("Owner"),new AccessoryTransfer(value.getUUID("Token"),value.getUUID("Recipient")));
         }
         result.freezer.load(tag.getList("FreezerVaults", Tag.TAG_COMPOUND));
         for (Tag item : tag.getList("Relations", Tag.TAG_COMPOUND)) {

@@ -6,8 +6,10 @@ braid at one brim point (hat_vessel.json `grip_worn`). The braid (hand_right) ai
 at that point, stretching along its length, and the tuft (hand_right_tip) curls round the brim.
 The hat ends where the game puts the cradle (hat_vessel.json `placements`): beside the helper
 when a Marisa catches for her mate, or before her own outlet when a mother catches alone. The
-aquatic variants carry her larger hat; the game scales the hat bone about `anchor_worn`, so the
-track here places the unscaled hat with its anchor where the larger cradle's anchor lies.
+aquatic variants carry the aquatic Marisa's own hat (interactions/marisa-aquatic-hat): its placements
+come from marisa_aquatic_hat_vessel.json, and the game scales the hat bone about `anchor_worn`. The
+aquatic track seats the hat as it is drawn, the placement-fitted brim scaled about the anchor, so the
+end pose is the hat entity's pose; the land variants keep their original anchor.
 """
 from pathlib import Path
 import json, math
@@ -15,6 +17,30 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[5]
 METRICS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
+AQUATIC_METRICS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json'
+AQUATIC_PROP = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_props/accessory_marisa_aquatic.json'
+
+
+def metrics_for(variant):
+    """The land hat's metrics, or the aquatic hat's own for the aquatic variant."""
+    return json.loads((AQUATIC_METRICS if variant == 'aquatic' else METRICS).read_text(encoding='utf-8'))
+
+
+def seat(rig, variant, anchor, k):
+    """Where the carried hat's brim seat is in rest coordinates, after the game's scale about anchor_worn.
+
+    Land: the anchor itself (the land clips' original convention). Aquatic: the model's placement-fitted
+    brim (lowest hat point, measured from this fitted model) scaled about the anchor by k."""
+    if variant != 'aquatic': return anchor.copy()
+    return anchor+k*np.array([0., rig.hat_points[:, 1].min()-anchor[1], 0.])
+
+
+def hat_points(rig, variant, anchor, k, centre):
+    """The carried hat's own points in rest coordinates, at its drawn size: the model's hat parts for the land hat,
+    the aquatic hat prop for the aquatic one (its raw frame shares anchor_worn)."""
+    if variant != 'aquatic': return anchor+k*(rig.hat_points-anchor)
+    prop = np.array(json.loads(AQUATIC_PROP.read_text(encoding='utf-8'))['vertices']).reshape(-1, 8)[:, :3]
+    return centre+k*(np.unique(np.round(prop, 3), axis=0)-anchor)
 
 
 def smooth(x):
@@ -116,14 +142,14 @@ class Rig:
         return world(self.parent)
 
 
-def target_pose(metrics, variant, role):
+def target_pose(metrics, variant, role, centre=None):
     """Where the game sets the hat down (hat_vessel.json placements), in the catcher's model space.
 
-    Returns the rigid transform that turns the unscaled worn hat over and puts its anchor (the brim's
-    seat on the head) where the set-down hat's brim lies, the crown squash that presses it down as
-    the game draws it, the hat scale, the brim point the braid takes on the head, and the brim point it holds."""
+    Returns the rigid transform that turns the unscaled worn hat over and puts its seat (centre, default the
+    anchor: the brim's seat on the head) where the set-down hat's brim lies, the crown squash that presses it
+    down as the game draws it, the hat scale, the brim point the braid takes on the head, and the brim point it holds."""
     place = metrics['placements'][variant]; k = place['scale']; p = place[role]
-    anchor = np.array(metrics['anchor_worn'])
+    anchor = np.array(metrics['anchor_worn']) if centre is None else np.asarray(centre)
     Mv = np.array([[0, 0, -1], [0, -1, 0], [-1, 0, 0]], float)  # worn -> vessel (build.worn_to_vessel)
     Ry = rot_y(math.radians(-p['yaw']))  # hat frame -> catcher frame
     # afloat the brim is a freeboard over the water line; on land the pressed crown stands the brim at the nest height
@@ -205,17 +231,18 @@ def compile_hat(model, cfg, root, ground, height, name, c):
     turns it over above the place, then presses it down: the soft crown squashes as the game draws the
     set-down hat while the braid slides to the brim point it holds (a helper) or lets go (a mother on
     her own). `reverse` plays the same motion backwards to put the hat back on."""
-    metrics = json.loads(METRICS.read_text(encoding='utf-8'))
     rig = Rig(model, root); spec = c['hat']; variant, role = spec['variant'], spec['role']
-    end, sigma, k, grip_worn, rim = target_pose(metrics, variant, role)
-    anchor = np.array(metrics['anchor_worn'])
-    grip_local = anchor+k*(grip_worn-anchor)  # on the (scaled) hat, in rest coordinates
+    metrics = metrics_for(variant); anchor = np.array(metrics['anchor_worn'])
+    centre = seat(rig, variant, anchor, metrics['placements'][variant]['scale'])
+    end, sigma, k, grip_worn, rim = target_pose(metrics, variant, role, centre)
+    grip_local = centre+k*(grip_worn-anchor)  # on the (scaled) hat as drawn, in rest coordinates
+    points = hat_points(rig, variant, anchor, k, centre)
     pv_hat, pv_braid = rig.pivot(rig.hat), rig.pivot(rig.braid)
     v0 = rig.pivot(rig.tips[0])-pv_braid
     d = c['duration']; reverse = spec.get('reverse', False); P = c['phases']
     n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
     # it comes down onto the place from above and from beyond it (away from the catcher)
-    out = (end@np.r_[anchor, 1])[:3]; out[1] = 0; out = out/(np.linalg.norm(out)+1e-9)
+    out = (end@np.r_[centre, 1])[:3]; out[1] = 0; out = out/(np.linalg.norm(out)+1e-9)
     above = end.copy(); above[:3, 3] += np.array([0, c['hover'], 0])+out*c.get('hover_out', 0.)
 
     def root_motion(t):
@@ -245,7 +272,7 @@ def compile_hat(model, cfg, root, ground, height, name, c):
         return m, 1+(sigma-1)*q  # pressed down, the soft crown gives
 
     def braid_target(t, G, sq):
-        on_hat = (squashed(G, anchor, sq)@np.r_[grip_local, 1])[:3]
+        on_hat = (squashed(G, centre, sq)@np.r_[grip_local, 1])[:3]
         if t < P['settle'][0]: return on_hat, smooth(t/P['reach'][1])
         q = smooth((t-P['settle'][0])/(P['settle'][1]-P['settle'][0]))
         target = on_hat+(rim-on_hat)*q  # from the brim it carried by to the rim it holds
@@ -260,14 +287,14 @@ def compile_hat(model, cfg, root, ground, height, name, c):
         pos = [0., ground(s, r), 0.]
         parent = rig.chain((pos, r, s)); inv = np.linalg.inv(parent)
         G, sq = hat_world(t, parent)
-        Gs = squashed(G, anchor, sq)
+        Gs = squashed(G, centre, sq)
         hp, hr, hs = bone_track(inv, Gs, pv_hat, sq)
         target, w = braid_target(t, G, sq)
         Ra, sy = braid_to(inv, target, pv_braid, v0)
         Rb = slerp(np.eye(3), Ra, w); sb = 1+(sy-1)*w
         worst['stretch'] = [min(worst['stretch'][0], sb), max(worst['stretch'][1], sb)]
         if P['lift'][1] <= t:  # the hat off the head: clear of the catcher's head and of the mother
-            pts = (Gs[:3, :3]@(anchor+k*(rig.hat_points-anchor)).T).T+Gs[:3, 3]
+            pts = (Gs[:3, :3]@points.T).T+Gs[:3, 3]
             local = (inv@np.c_[pts, np.ones(len(pts))].T).T[:, :3]
             lo, hi = rig.body_lo, rig.body_hi
             depth = np.minimum.reduce([local[:, 0]-lo[0], hi[0]-local[:, 0], local[:, 1]-lo[1], hi[1]-local[:, 1], local[:, 2]-lo[2], hi[2]-local[:, 2]])
@@ -281,12 +308,12 @@ def compile_hat(model, cfg, root, ground, height, name, c):
 
 def compile_hold(model, cfg, root, ground, height, c):
     """The helper holds the set-down hat's brim with the braid and cheers with each contraction."""
-    metrics = json.loads(METRICS.read_text(encoding='utf-8'))
-    rig = Rig(model, root); spec = c['hat']; end, sigma, k, _, rim = target_pose(metrics, spec['variant'], 'helper')
-    anchor = np.array(metrics['anchor_worn'])
+    rig = Rig(model, root); spec = c['hat']; metrics = metrics_for(spec['variant']); anchor = np.array(metrics['anchor_worn'])
+    centre = seat(rig, spec['variant'], anchor, metrics['placements'][spec['variant']]['scale'])
+    end, sigma, k, _, rim = target_pose(metrics, spec['variant'], 'helper', centre)
     pv_hat, pv_braid = rig.pivot(rig.hat), rig.pivot(rig.braid); v0 = rig.pivot(rig.tips[0])-pv_braid
     d = c['duration']; n = math.ceil(d/cfg['sample_seconds']); samples = [d*i/n for i in range(n+1)]
-    keys = Keys(); worst = dict(stretch=[9, 0], clear=9., mother=9.); Gs = squashed(end, anchor, sigma)
+    keys = Keys(); worst = dict(stretch=[9, 0], clear=9., mother=9.); Gs = squashed(end, centre, sigma)
     for t in samples:
         k_ = c['crouch']; s = [1+.5*k_, 1-k_, 1+.5*k_]; r = [c['lean'], 0., 0.]
         if .3 <= t < 1.4: r[0] += c['nod']*bump(((t-.3)/.55) % 1)

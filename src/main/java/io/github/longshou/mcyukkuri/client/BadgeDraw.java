@@ -6,6 +6,8 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** Attached and detached badge geometry, using the model's current skin and shared triangle buffer. */
@@ -14,6 +16,10 @@ final class BadgeDraw {
     BadgeDraw(YukkuriModel owner){o=owner;}
 
     void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) {
+        if(o.externalAquaticHat()){
+            renderAttachedBadge("accessory_marisa_aquatic",tier,stack,buffers,light,overlay,o.externalAquaticHatTransform());
+            return;
+        }
         var badgeMount=o.badgeMount();var triangle=o.triangle();var vertices=o.vertices();
         if (tier < 1 || badgeMount == null) return;
         int first = badgeMount.get("triangle").getAsInt();
@@ -46,6 +52,15 @@ final class BadgeDraw {
         stack.pushPose();
         if(cut){int side=center.x<0?-1:1;stack.translate(side*.1,0,side*.035);stack.mulPose(Axis.YP.rotationDegrees(side*12));}
         emitBadge(tier,center,right,up,outward,mount.get("diameter").getAsFloat()*.5f,stack,buffers,light,overlay);
+        stack.popPose();
+    }
+
+    /** The external aquatic prop owns the mount, but follows the same animated hat bone as its cloth. */
+    static void renderAttachedBadge(String name,int tier,PoseStack stack,MultiBufferSource buffers,int light,int overlay,Matrix4f attachment){
+        if(tier<1||YukkuriModel.detachedBadge(name)==null)return;
+        stack.pushPose();
+        stack.last().pose().mul(attachment);stack.last().normal().mul(new Matrix3f(attachment));
+        renderDetachedBadge(name,tier,false,stack,buffers,light,overlay);
         stack.popPose();
     }
 

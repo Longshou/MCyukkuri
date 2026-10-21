@@ -43,7 +43,7 @@ public final class ForageGoal extends Goal {
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS)); }
     @Override public boolean canUse() {
-        if (entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
+        if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity)) return false;
         if (cooldown-- > 0) return false;
         if (!SearchBudget.take(level(),entity,Purpose.FORAGE)) { cooldown = 2 + entity.getRandom().nextInt(8); return false; }

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -22,8 +23,9 @@ import net.minecraft.world.level.Level;
 
 /**
  * A piece of one individual's shattered accessory (headwear.Headwear). It is drawn as that very piece of the owner's hat.
- * Only its owner can use it: the owner licks the pieces together itself, or a player hands one back (right click). Lying
- * on the ground it lasts three days; destroyed in fire or lava, the hat can never be made whole again.
+ * Its owner can lick it back together, and a player may give one physical compatible fragment to another already-shattered
+ * yukkuri as repair material. Lying on the ground it lasts three days; destroyed in fire or lava, the source hat can never
+ * be made whole again.
  */
 public final class AccessoryShardItem extends Item {
     public static final int LIFESPAN = 72000 * 3;
@@ -34,10 +36,14 @@ public final class AccessoryShardItem extends Item {
         if (player.level().isClientSide) {
             var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
             return tag.hasUUID("Owner") && entity.getUUID().equals(tag.getUUID("Owner"))
-                    ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+                    || entity.headwear().canReceiveTransferredShard(stack) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
         }
         if (!player.level().isClientSide) {
-            if (!entity.headwear().takeShard(stack, player)) return InteractionResult.FAIL;
+            if (!entity.headwear().takeShard(stack, player)&&!entity.headwear().receiveTransferredShard(stack,player)) {
+                GameplayLog.limited(entity,"headwear","shard_receive_refused",20,
+                        "shard receive refused reason={} player={}",entity.headwear().transferredShardRefusalReason(stack),player.getUUID());
+                return InteractionResult.FAIL;
+            }
             stack.shrink(1);
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);

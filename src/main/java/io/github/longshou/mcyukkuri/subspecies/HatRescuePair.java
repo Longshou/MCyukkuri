@@ -28,8 +28,9 @@ final class HatRescuePair {
         if(parent!=boat.owner()||parent.getVehicle()!=boat||!boat.isAfloat()||boat.unsteadyMotion())return List.of();
         var result=new ArrayList<Vec3>();
         var body=HatVessel.bodySpace(parent,boat.hullScale(),boat.unit());double radius=boat.radiusOf(parent);
-        for(double x=-HatVessel.BRIM[0];x<=HatVessel.BRIM[0];x+=.4)
-            for(double z=-HatVessel.BRIM[1];z<=HatVessel.BRIM[1];z+=.4){
+        var brim=HatVessel.brim(boat.mode());
+        for(double x=-brim[0];x<=brim[0];x+=.4)
+            for(double z=-brim[1];z<=brim[1];z+=.4){
                 double y=HatVessel.travelSupport(boat.mode(),x,z,radius);if(!Double.isFinite(y))continue;
                 var at=new Vec3(x,y,z);if(HatVessel.fitsSupported(boat.mode(),at,radius,obstacles,body))result.add(at);
             }
@@ -37,7 +38,7 @@ final class HatRescuePair {
     }
 
     List<Vec3> rescueYoungCandidates(YukkuriEntity child){
-        if(child==null||!boat.young(child)||child.isPassenger()||!boat.isAfloat()||boat.unsteadyMotion())return List.of();
+        if(child==null||!boat.admits(child)||child.isPassenger()||!boat.isAfloat()||boat.unsteadyMotion())return List.of();
         var result=new ArrayList<Vec3>();var obstacles=boat.takenExcept(child.getUUID());
         var body=HatVessel.bodySpace(child,boat.hullScale(),boat.unit());double radius=boat.radiusOf(child);
         var preferred=HatVessel.place(boat.mode(),radius,boat.region(),null,obstacles,null,Double.NaN,body);
@@ -49,17 +50,18 @@ final class HatRescuePair {
         }
         // Include the delivery seat lattice as well as the walking lattice; a half-unit side shift
         // can put a finite braid within reach even when the nearest default seat is unreachable.
-        for(double step:new double[]{.5,.4})for(double x=HatVessel.OPENING[0]+radius;x<=HatVessel.OPENING[1]-radius+1e-6;x+=step)
-            for(double z=HatVessel.OPENING[2]+radius;z<=HatVessel.OPENING[3]-radius+1e-6;z+=step){
+        var opening=HatVessel.opening(boat.mode()),brim=HatVessel.brim(boat.mode());
+        for(double step:new double[]{.5,.4})for(double x=opening[0]+radius;x<=opening[1]-radius+1e-6;x+=step)
+            for(double z=opening[2]+radius;z<=opening[3]-radius+1e-6;z+=step){
                 double y=HatVessel.footprint(boat.mode(),x,z,radius);
                 if(!Double.isFinite(y)||Math.abs(HatVessel.surface(boat.mode(),x,z)-y)>1e-4)continue;
                 var at=new Vec3(x,y,z);if(HatVessel.fits(boat.mode(),at,radius,obstacles,body))result.add(at);
             }
         // A braid may use the child's own side before a later supported walk into the cabin.
         // These existing inner-brim patches require the complete footprint and its safety margin.
-        for(double x=-HatVessel.BRIM[0]+radius+.18;x<=HatVessel.BRIM[0]-radius-.18;x+=.25)
-            for(double z=-HatVessel.BRIM[1]+radius+.18;z<=HatVessel.BRIM[1]-radius-.18;z+=.25){
-                if(x>HatVessel.OPENING[0]&&x<HatVessel.OPENING[1]&&z>HatVessel.OPENING[2]&&z<HatVessel.OPENING[3])continue;
+        for(double x=-brim[0]+radius+.18;x<=brim[0]-radius-.18;x+=.25)
+            for(double z=-brim[1]+radius+.18;z<=brim[1]-radius-.18;z+=.25){
+                if(x>opening[0]&&x<opening[1]&&z>opening[2]&&z<opening[3])continue;
                 double y=HatVessel.top(boat.mode());
                 if(!HatVessel.supported(boat.mode(),x,z,radius+.18,y))continue;
                 var at=new Vec3(x,y,z);if(HatVessel.fits(boat.mode(),at,radius,obstacles,body))result.add(at);
@@ -71,7 +73,7 @@ final class HatRescuePair {
     }
 
     boolean canPlaceRescuePair(YukkuriEntity child,YukkuriEntity parent,Vec3 youngSeat,Vec3 parentStand){
-        if(child==null||parent==null||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.young(child)||child.isPassenger()
+        if(child==null||parent==null||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.admits(child)||child.isPassenger()
                 ||youngSeat==null||parentStand==null||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()||boat.flooding>0||boat.cargo().handling())return false;
         if(!boat.cargoSeatClear(child,youngSeat)||Math.abs(HatVessel.surface(boat.mode(),youngSeat.x,youngSeat.z)-youngSeat.y)>1e-4)return false;
         var obstacles=boat.takenExcept(child.getUUID());

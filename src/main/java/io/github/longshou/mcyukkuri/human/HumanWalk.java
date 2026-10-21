@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -23,7 +25,7 @@ final class HumanWalk {
     private final HumanNpc npc;
     private UUID petId;
     private boolean walking, returning;
-    private long walkUntil, nextWalk, walked;
+    private long walkUntil, nextWalk, walked, shoreUntil;
     private BlockPos waypoint;
     private int linger, lostLead;
 
@@ -52,12 +54,22 @@ final class HumanWalk {
         if (petId == null) return;
         long now = npc.level().getGameTime(); var pet = pet();
         if (!walking) {
-            if (pet == null || now < nextWalk || !fair()) return;
             long dayTime = npc.level().getDayTime() % 24000;
+            if (shoreUntil != 0 && (pet == null || !fair() || dayTime < 500 || dayTime > 6500
+                    || now >= shoreUntil || !pet.pet().ownedBy(npc.getUUID()) || pet.pet().busy())) {
+                if (pet != null) {
+                    pet.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+                    GameplayLog.event(pet, "pet-walk", "npc shore request cancelled owner={} reason=outing_unavailable", npc.getUUID());
+                }
+                shoreUntil = 0; nextWalk = now + 400;
+                return;
+            }
+            if (pet == null || now < nextWalk || !fair()) return;
             if (dayTime < 500 || dayTime > 6500) return; // the outing begins in the morning and ends before dusk
             begin();
             return;
         }
+        if (pet != null) pet.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         // after a reload the lead is restored by the pet a few ticks later: give it a moment before calling it dropped
         lostLead = pet != null && pet.getLeashHolder() == npc ? 0 : lostLead + 1;
         if (pet == null || !fair() || lostLead > 60) { end(); return; }
@@ -69,7 +81,21 @@ final class HumanWalk {
     boolean begin() {
         var pet = pet(); long now = npc.level().getGameTime();
         if (pet == null || walking) return false;
-        if (pet.pet().busy() || pet.isPassenger() || !pet.pet().isPet() || !pet.canBeLeashed() || pet.distanceToSqr(npc) > 400) { nextWalk = now + 400; return false; }
+        if (pet.pet().busy() || !pet.pet().ownedBy(npc.getUUID()) || !pet.pet().isPet() || !pet.canBeLeashed() || pet.distanceToSqr(npc) > 400) { nextWalk = now + 400; return false; }
+        if (shoreUntil != 0 && now >= shoreUntil) {
+            pet.aquaticLife().releaseShoreWork(ShoreWork.HUMAN); shoreUntil = 0; nextWalk = now + 400;
+            GameplayLog.event(pet, "pet-walk", "npc shore request cancelled owner={} reason=landing_timeout", npc.getUUID()); return false;
+        }
+        if (pet.isPassenger()) {
+            if (!pet.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) { nextWalk = now + 400; return false; }
+            if (shoreUntil == 0) {
+                shoreUntil = now + 600;
+                GameplayLog.event(pet, "pet-walk", "npc shore pending owner={} until={}", npc.getUUID(), shoreUntil);
+            }
+            return false;
+        }
+        if (!pet.onGround() || pet.aquaticLife().shoreVisitRequested()) return false;
+        shoreUntil = 0; pet.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         if (pet.isLeashed()) pet.dropLeash(true, false);
         pet.setLeashedTo(npc, true);
         walking = true; returning = false; lostLead = 0; walkUntil = now + WALK_TICKS; waypoint = null; linger = 0; walked++;
@@ -78,7 +104,8 @@ final class HumanWalk {
     void end() {
         var pet = pet();
         if (pet != null && pet.getLeashHolder() == npc) pet.dropLeash(true, false);
-        walking = false; returning = false; waypoint = null; npc.getNavigation().stop();
+        if (pet != null) pet.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
+        shoreUntil = 0; walking = false; returning = false; waypoint = null; npc.getNavigation().stop();
         nextWalk = npc.level().getGameTime() + COOLDOWN + npc.getRandom().nextInt(1500);
     }
 

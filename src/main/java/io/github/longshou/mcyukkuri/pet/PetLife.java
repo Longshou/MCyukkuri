@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -336,7 +337,17 @@ public final class PetLife {
     public Director director() { return director; }
     /** Safety gate shared by every owner-side flow. */
     public boolean readyFor(Player p) {
-        return near(p) && owned(p) && !busy() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking()
+        return readyFor(p, false);
+    }
+    /** A submitted course may reserve a real shore visit; ordinary owner interactions still require dry feet. */
+    public boolean readyForShoreRequest(Player p) {
+        return readyFor(p, true);
+    }
+    private boolean readyFor(Player p, boolean shoreRequest) {
+        boolean support = !animal.isPassenger() || shoreRequest
+                && EcologyMovement.captain(animal)
+                && EcologyMovement.supported(animal);
+        return near(p) && owned(p) && !busy() && !animal.isNoAi() && support && !animal.isPanicking()
                 && !animal.isCommandPlaying() && !animal.operations().active() && !animal.life().hasUrgentNeed()
                 && animal.life().mealTicks() == 0 && !animal.life().isSleeping() && animal.hurtTime == 0
                 && animal.life().bladder() < 80 && animal.life().hygiene() >= 30;

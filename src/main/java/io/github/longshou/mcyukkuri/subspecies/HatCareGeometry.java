@@ -114,29 +114,42 @@ public final class HatCareGeometry {
     private static int bits(float value){return Float.floatToIntBits(value==0?0:value);}
     private static int find(int[] roots,int i){while(roots[i]!=i){roots[i]=roots[roots[i]];i=roots[i];}return i;}
 
-    /** Exact rectangular tread solids from the same exported cavity sections as HatVessel. */
+    /**
+     * Solid wall strips from the selected hull's exported cavity sections.  Land data has rectangles;
+     * the aquatic data supplies narrow z strips that follow its rounded cavity, so no care pose can
+     * enter the empty corners of the old rectangular land hat.
+     */
     private static Map<HatVessel.Mode,List<AABB>> readWalls(){
-        try(var raw=HatCareGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json")){
-            if(raw==null)throw new IllegalStateException("Missing hat cavity geometry");
-            JsonObject data=JsonParser.parseReader(new InputStreamReader(raw,StandardCharsets.UTF_8)).getAsJsonObject();
-            var result=new EnumMap<HatVessel.Mode,List<AABB>>(HatVessel.Mode.class);
-            for(var mode:HatVessel.Mode.values()){
-                double top=HatVessel.top(mode),upper=top,squash=mode==HatVessel.Mode.FLOAT?HatVessel.SQUASH_FLOAT:HatVessel.SQUASH_NEST;
-                var walls=new ArrayList<AABB>();
-                for(var item:data.getAsJsonArray("cavity_sections")){
-                    var section=item.getAsJsonObject();var r=section.getAsJsonArray("rect");
-                    double lower=top-section.get("depth").getAsDouble()*squash;
-                    double x0=r.get(0).getAsDouble(),x1=r.get(1).getAsDouble(),z0=r.get(2).getAsDouble(),z1=r.get(3).getAsDouble();
-                    double x=HatVessel.BRIM[0],z=HatVessel.BRIM[1];
-                    walls.add(new AABB(-x,lower,-z,x0,upper,z));walls.add(new AABB(x1,lower,-z,x,upper,z));
-                    walls.add(new AABB(x0,lower,-z,x1,upper,z0));walls.add(new AABB(x0,lower,z1,x1,upper,z));
-                    upper=lower;
+        var result=new EnumMap<HatVessel.Mode,List<AABB>>(HatVessel.Mode.class);
+        for(var mode:HatVessel.Mode.values()){
+            JsonObject data=HatVessel.presentation(mode.aquatic());
+            double top=HatVessel.top(mode),upper=top,squash=HatVessel.squash(mode);
+            var brim=HatVessel.brim(mode);double brimX=brim[0],brimZ=brim[1];
+            var walls=new ArrayList<AABB>();
+            for(var item:data.getAsJsonArray("cavity_sections")){
+                var section=item.getAsJsonObject();var rect=section.getAsJsonArray("rect");
+                double lower=top-section.get("depth").getAsDouble()*squash;
+                var strips=new ArrayList<double[]>();
+                if(section.has("strips"))for(var value:section.getAsJsonArray("strips")){
+                    var strip=value.getAsJsonArray();strips.add(new double[]{strip.get(0).getAsDouble(),strip.get(1).getAsDouble(),strip.get(2).getAsDouble(),strip.get(3).getAsDouble()});
                 }
-                walls.add(new AABB(-HatVessel.BRIM[0],-1e6,-HatVessel.BRIM[1],HatVessel.BRIM[0],upper,HatVessel.BRIM[1]));
-                result.put(mode,List.copyOf(walls));
+                if(strips.isEmpty())strips.add(new double[]{rect.get(0).getAsDouble(),rect.get(1).getAsDouble(),rect.get(2).getAsDouble(),rect.get(3).getAsDouble()});
+                double zMin=Double.POSITIVE_INFINITY,zMax=Double.NEGATIVE_INFINITY;
+                for(var strip:strips){
+                    zMin=Math.min(zMin,strip[2]);zMax=Math.max(zMax,strip[3]);
+                    // Within each exported z band, the two side slabs exactly bound its rounded width.
+                    walls.add(new AABB(-brimX,lower,strip[2],strip[0],upper,strip[3]));
+                    walls.add(new AABB(strip[1],lower,strip[2],brimX,upper,strip[3]));
+                }
+                // The front and rear slabs close the strip union without filling the rounded cavity between bands.
+                walls.add(new AABB(-brimX,lower,-brimZ,brimX,upper,zMin));
+                walls.add(new AABB(-brimX,lower,zMax,brimX,upper,brimZ));
+                upper=lower;
             }
-            return Map.copyOf(result);
-        }catch(IOException error){throw new UncheckedIOException(error);}
+            walls.add(new AABB(-brimX,-1e6,-brimZ,brimX,upper,brimZ));
+            result.put(mode,List.copyOf(walls));
+        }
+        return Map.copyOf(result);
     }
 
     /** Null means the selected model/pose is unsupported; callers retain their existing safe refusal. */

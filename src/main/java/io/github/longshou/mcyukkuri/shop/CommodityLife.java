@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -55,8 +56,12 @@ public final class CommodityLife {
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, shop.getBoundingBox().inflate(48), a -> a.isAlive() && ShopMenu.stockOf(a, shop.getUUID()))) {
             var tag = HumanCommerce.data(y);
             if (!tag.contains("ForSaleSince")) { tag = tag.copy(); tag.putLong("ForSaleSince", now); HumanCommerce.set(y, tag); continue; }
-            if (y.pet().busy() || y.isPassenger()) continue;
+            if (y.pet().busy()) continue;
             int days = (int) Math.max(0, (now - tag.getLong("ForSaleSince")) / ShopStock.DAY);
+            if (days >= recall && y.isPassenger()) {
+                y.aquaticLife().requestShoreWork(ShoreWork.HUMAN); continue;
+            }
+            if (!y.onGround() || y.aquaticLife().shoreVisitRequested()) continue;
             if (days >= recall && days > oldestDays) { oldest = y; oldestDays = days; }
         }
         if (oldest != null) recall(level, shop, oldest);
