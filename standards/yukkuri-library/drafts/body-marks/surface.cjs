@@ -27,7 +27,7 @@ for(const job of jobs){
   if(job.woundMesh){const data=JSON.parse(require('zlib').gunzipSync(fs.readFileSync(job.woundMesh)));for(const key of ['vertices','colors','materials','surfaceEdits','surfacePatches'])cavity[key]=data[key];}
   if(cavity?.surfaceEdits)for(const [index,x,y,z,nx,ny,nz] of cavity.surfaceEdits){const i=index*8;vertices[i]=x;vertices[i+1]=y;vertices[i+2]=z;vertices[i+5]=nx;vertices[i+6]=ny;vertices[i+7]=nz;}
   const decal=job.woundDecal?fs.readFileSync(job.woundDecal):null,decalSize=job.decalSize||512;
-  const thermal=job.thermal?createThermal({...job.thermal,model:job.model},pose.model.parts):null;
+  const thermal=job.thermal?createThermal({...job.thermal,model:job.model},pose.model.parts,vertices):null;
   const thermalPixels=thermal?fs.readFileSync(job.thermalTexture):null;
   const replaced=new Set((cavity?.surfacePatches||[]).map(p=>p.triangle)),patchParts=[];
   if(cavity){
@@ -51,10 +51,13 @@ for(const job of jobs){
     const ab=[0,1,2].map(k=>vertices[i+8+k]-vertices[i+k]),ac=[0,1,2].map(k=>vertices[i+16+k]-vertices[i+k]);
     const geometric=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
     if(!(job.hairWound&&solid)&&geometric.reduce((sum,v,k)=>sum+v*eye[k],0)<=0)continue;
-    const lights=[0,8,16].map(j=>.78+.22*Math.max(0,vertices[i+j+5]*-.35+vertices[i+j+6]*.8+vertices[i+j+7]*-.48));
+    const lights=[0,8,16].map(j=>{
+      const normal=thermal?thermal.normal(Array.from(vertices.slice(i+j,i+j+3)),Array.from(vertices.slice(i+j+5,i+j+8)),part?.name):Array.from(vertices.slice(i+j+5,i+j+8));
+      return .78+.22*Math.max(0,normal[0]*-.35+normal[1]*.8+normal[2]*-.48);
+    });
     const tri=[];
     for(let j=0;j<3;j++){
-      const k=i+j*8,renderPoint=[0,1,2].map(axis=>thermal?thermal.scaleOrigin[axis]+(vertices[k+axis]-thermal.scaleOrigin[axis])*thermal.displayScale:vertices[k+axis]);
+      const k=i+j*8,point=Array.from(vertices.slice(k,k+3)),renderPoint=thermal?thermal.deform(point,part?.name):point;
       const x=renderPoint[0]-(job.cx||0),y=renderPoint[1]-job.cy,z=renderPoint[2]-(job.cz||0);
       tri.push([w/2+(x*right[0]+z*right[2])*scale,h/2-(x*up[0]+y*up[1]+z*up[2])*scale,
         x*eye[0]+y*eye[1]+z*eye[2],vertices[k+3]*ts,vertices[k+4]*ts]);
@@ -94,10 +97,15 @@ for(const job of jobs){
         }
       }
       if(thermal&&!solid){
-        const coverage=thermal.coverage(point,part?.name),uv=thermal.uv(point,norm);
-        const ti=(Math.min(511,Math.floor(uv[1]*512))*512+Math.min(511,Math.floor(uv[0]*512)))*4;
-        const alpha=coverage*thermalPixels[ti+3]/255;
-        for(let k=0;k<3;k++)pixels[p+k]=Math.floor(pixels[p+k]*(1-alpha)+thermalPixels[ti+k]*light*alpha);
+        const coverage=thermal.coverage(point,part?.name),color=[0,0,0];let alpha=0;
+        // Blend projections instead of switching axes at the jaw: a hard
+        // switch leaves a clean horizontal band through a whole-body burn.
+        for(const [weight,tu,tv] of thermal.samples(point,norm)){
+          const ti=(Math.min(511,Math.floor(tv*512))*512+Math.min(511,Math.floor(tu*512)))*4;
+          const a=coverage*weight*thermalPixels[ti+3]/255;alpha+=a;
+          for(let k=0;k<3;k++)color[k]+=thermalPixels[ti+k]*light*a;
+        }
+        for(let k=0;k<3;k++)pixels[p+k]=Math.floor(pixels[p+k]*(1-alpha)+color[k]);
       }
       pixels[p+3]=255;buffer[q+6]=light;
       buffer[q+7]=paintable.some(part=>i/8>=part.start&&i/8<part.start+part.count)?1:0;

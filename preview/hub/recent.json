@@ -44,25 +44,25 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "47 种 MC 来源逐级对应；八种机械形态各三级。伤缘无肤色底，凹陷保留眼部；烧伤参考 Wiki 改为焦黑细点与干枯哑光。制作源尚未接入。",
+      "summary": "全身烧伤保持高度，颊部横向收窄并按既有 UV 派生干枯脸；咬伤采用分离齿痕与犬齿切入，烧伤重画非周期焦枯材质；每轮独立审图。普通伤与完好中枢外露按实际扣血和生命阈值对应，移除破裂中枢与空腔分支。制作源未接入。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
-        "MC 实际伤因决定选图，47 种来源均列三级；荆棘附魔等不虚构机械缺口。",
-        "无底透明伤缘；皮面、头发与五官共同细分凹陷，保留伤口外器官。",
-        "Wiki EH16-008 的焦黑细点与连续表皮；足部／全身各三级，全身轻微缩小。"
+        "真实扣血决定新伤等级，同处旧伤按确定公式加深；普通露核须三级大缺损、生命≤30%与创腔通道。",
+        "全身同高横向干瘦，焦褐到炭化分三级，去掉下巴描线；足部无全身形变。",
+        "一级闭合刀口与咬合痕更清晰，只保留完好中枢外露的素材分支。"
       ],
       "steps": [
         {
-          "title": "眼部叠加",
-          "caption": "透明伤缘与共同凹陷；真实缺损以外的五官保留。",
-          "image": "hair-wounds/eye-overlap.png"
+          "title": "同高干瘦",
+          "caption": "横向形变与干枯表情，不做整体缩放。",
+          "image": "hair-wounds/thermal-size.png"
         },
         {
-          "title": "按实际伤害机制区分",
-          "caption": "二级样例对照；全部等级与来源见素材说明。",
-          "image": "hair-wounds/mechanisms.png"
+          "title": "实际扣血与露核",
+          "caption": "10点最大生命的确定伤害对照；真实伤位仍须可建立通道。",
+          "image": "hair-wounds/damage-thresholds.png"
         }
       ],
       "gallery": [
@@ -87,12 +87,16 @@
           "label": "足部与全身烧伤"
         },
         {
-          "src": "hair-wounds/thermal-size.png",
-          "label": "焦枯与体积对照"
-        },
-        {
           "src": "hair-wounds/transparent-decals.png",
           "label": "无底贴图三级"
+        },
+        {
+          "src": "hair-wounds/dry-face.png",
+          "label": "干枯表情正面对照"
+        },
+        {
+          "src": "hair-wounds/first-grade.png",
+          "label": "一级刀割与咬伤"
         }
       ]
     },

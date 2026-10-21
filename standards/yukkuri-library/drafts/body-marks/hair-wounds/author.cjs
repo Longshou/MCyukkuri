@@ -18,6 +18,10 @@ function createHairWound(vertices,parts,spec){
   const origin=recipe.core_center,cx=spec.x??0,cy=spec.y??0.1;
   const kind=spec.kind||'tear',style=spec.style||kind,severity=spec.severity??1;
   const grade=recipe.grades[style]?.[severity-1],core=!!spec.core;
+  if(!['normal','intact'].includes(spec.state))throw Error('Only ordinary injury or intact exposed central filling is authored');
+  const damage=spec.damage;
+  if(!damage||damage.acceptedLoss<=0||Math.min(3,Math.ceil(damage.acceptedLoss/recipe.grading.divisor))!==severity||Math.abs(damage.healthBefore-damage.acceptedLoss-damage.healthAfter)>1e-6)throw Error('Missing actual-loss grade example');
+  if(core&&(!damage.fittedOpening||damage.healthAfter/damage.maxHealth>recipe.grading.core_health_ratio))throw Error('Core exposure needs real depth and health conditions');
   if(!grade||severity<1||severity>3)throw Error('Unknown injury type/grade');
   if(!provenance.causes[spec.cause]||provenance.causes[spec.cause].kind!==kind||provenance.causes[spec.cause].style!==style)throw Error('Missing or mismatched injury cause');
   if(core&&(severity!==3||!recipe.core_openings[style]))throw Error('Core needs a real grade-three deep injury');
@@ -44,7 +48,13 @@ function createHairWound(vertices,parts,spec){
   function rough(a){
     if(style==='impale')return .80+.18*Math.cos(3*a+.5)+.045*Math.sin(11*a);
     if(style==='puncture')return .96+.06*Math.sin(4*a)+.03*Math.sin(9*a);
-    if(style==='bite')return 1-.10*Math.abs(Math.cos(a))+.035*Math.sin(15*Math.cos(a))*Math.abs(Math.sin(a));
+    if(style==='bite'){
+      const x=Math.cos(a),jaw=Math.sin(a)>0?1:-1;
+      const teeth=[[-.64,.40,.14],[-.16,.19,.16],[.43,.29,.14]];
+      let edge=.80;
+      for(const [center,depth,width] of teeth)edge+=depth*Math.exp(-(((x-center-(jaw<0?.035:0))/width)**2));
+      return .80+(edge-.80)*Math.abs(Math.sin(a));
+    }
     if(style==='blast')return .82+.15*Math.cos(5*a+.2)+.09*Math.sin(9*a+.8);
     if(kind==='dent')return .82+.20*Math.cos(5*a+.3)+.06*Math.sin(11*a);
     return 1+.07*Math.sin(5*a+.4)+.045*Math.sin(13*a+1.1);
@@ -53,7 +63,7 @@ function createHairWound(vertices,parts,spec){
   // hair outside this boundary remains, including overhanging edges above the cavity.
   function hairBoundary(a){
     const vertical=Math.abs(Math.sin(a));
-    if(style==='bite')return rough(a)*(.84-.09*vertical+.055*Math.sin(13*Math.cos(a))*vertical);
+    if(style==='bite')return rough(a)*(.94-.025*vertical);
     if(style==='puncture'||style==='impale'||style==='blast')return rough(a)*(.84+.06*Math.sin(13*a));
     if(kind==='tear')return rough(a)*(.96-.23*vertical+.075*Math.sin(19*Math.cos(a)+.4)*vertical);
     if(kind==='dent')return rough(a)*(.78+.09*Math.sin(11*a+.5));
@@ -135,9 +145,9 @@ function createHairWound(vertices,parts,spec){
       triangle(a,c,b,col,'hair_break');triangle(a,d,c,col,'hair_break');
       // Attached remnants hang over the cavity. They originate at surviving hair,
       // have uneven blunt/frayed ends, and are not particles or detached fragments.
-      if(j%(kind==='dent'?6:4)===0&&(kind!=='tear'||Math.abs(Math.sin(j*2*Math.PI/N))>.45)){
+      if((style==='bite'?[13,27,37,59,72,85].includes(j):j%(kind==='dent'?6:4)===0)&&(kind!=='tear'||Math.abs(Math.sin(j*2*Math.PI/N))>.45)){
         const angle=j*2*Math.PI/N,down=Math.sin(angle)>.1;
-        const length=kind==='dent'?.24:.18+(down?.18:0);
+        const length=style==='bite'?.09+(down?.06:0):kind==='dent'?.24:.18+(down?.18:0);
         const tip=p(j,1-length,hairs[j]-(kind==='dent'?.32:.08));
         const base=p(j,1.055,hairs[j]+.02),side=p(k,1.055,hairs[k]+.02);
         const end=tip.map((q,i)=>q+u[i]*(.06));
@@ -156,7 +166,7 @@ function createHairWound(vertices,parts,spec){
       for(let j=0;j<steps;j++){const t=j/steps;levels.push([a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t,a[2]*(1-t)+b[2]*t,mix(a[3],b[3],t)]);}
     }
     levels.push(controls.at(-1));
-    const corePresent=core&&spec.state!=='empty';
+    const corePresent=core;
     function fillingJoin(x,y){
       // Ordinary filling remains attached around the dense central region.
       // End the inner wall on its flank, instead of a dark moat behind a sphere.
@@ -181,18 +191,14 @@ function createHairWound(vertices,parts,spec){
       const col=mix(levels[r][3],recipe.filling_material.base,blend).map(q=>q*(.98+.035*Math.sin(j*2.13+r*4.1))),mat=r<2?'dough':'filling';
       triangle(a,c,b,col,mat);triangle(a,d,c,col,mat);
     }
-    // Reuse the selected core geometry and its broken material; no new organ design.
-    if(core&&spec.state!=='empty'){
-      const existing=createCavity(vertices,skin,baseRecipe.core_cavity,spec.state==='broken');
+    // Only intact exposed filling. No broken-core or extracted-empty variants.
+    if(core){
+      const existing=createCavity(vertices,skin,baseRecipe.core_cavity,false);
       for(let i=0;i<existing.vertices.length;i+=24){const id=-1-existing.vertices[i+3];if(existing.materials[id]!=='core')continue;
         const points=[0,8,16].map(j=>existing.vertices.slice(i+j,i+j+3));
-        const q=local(points[0].map((_,k)=>(points[0][k]+points[1][k]+points[2][k])/3));
         // Same bean filling as the cavity: no purple hue, painted gleam or shell.
         const colorBase=recipe.filling_material.base;
-        let color=colorBase.map(c=>c*recipe.filling_material.core_density_tint);
-        const cut=Math.abs(q[1]-.18*Math.sin(q[0]*7)-.12*q[0])<.055;
-        const branch=q[0]>.05&&Math.abs(q[1]+.55*q[0]+.12)<.035;
-        if(spec.state==='broken'&&q[2]>0&&(cut||branch))color=colorBase.map(c=>c*.62);
+        const color=colorBase.map(c=>c*recipe.filling_material.core_density_tint);
         triangle(...points,color,'core');
       }
     }

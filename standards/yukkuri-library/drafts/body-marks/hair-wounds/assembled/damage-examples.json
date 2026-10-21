@@ -1,0 +1,101 @@
+{
+  "rules": {
+    "grade_divisor": 2.0,
+    "core_health_ratio": 0.3,
+    "grade_rule": "clamp(ceil(accepted health loss / divisor), 1, 3); zero accepted loss creates no wound",
+    "repeated_hit_rule": "same kind and body part: min(3,max(old grade,hit grade)+(accepted loss>=2 ? 1 : 0))",
+    "capacity_rule": "At eight wounds, current insertWound strengthens the nearest existing wound by one; it does not create a ninth.",
+    "hot_tool_exception": "Current hot heated_awl forces at least grade 2; the removed local-burn art path is not exported.",
+    "core_rule": "A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant.",
+    "live_code_gaps": [
+      "Current BodySigns also allows already damaged core to bypass the health threshold and includes deep SCORCH.",
+      "Current WoundKind.TEAR does not retain the authored mechanism: narrow punctures must not be widened just to show the core.",
+      "Broken-core and extracted-empty-cavity authoring variants are excluded by the current user request; no gameplay removal is implied."
+    ]
+  },
+  "basis": "10-health example with supported blade/blunt/bite/blast contact, no armor assumptions, no terminal destruction or core damage; actual fitted opening required.",
+  "single_hits": [
+    {
+      "acceptedLoss": 0,
+      "healthBefore": 10,
+      "healthAfter": 10,
+      "grade": 0,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 1,
+      "healthBefore": 10,
+      "healthAfter": 9,
+      "grade": 1,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 2,
+      "healthBefore": 10,
+      "healthAfter": 8,
+      "grade": 1,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 3,
+      "healthBefore": 10,
+      "healthAfter": 7,
+      "grade": 2,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 4,
+      "healthBefore": 10,
+      "healthAfter": 6,
+      "grade": 2,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 5,
+      "healthBefore": 10,
+      "healthAfter": 5,
+      "grade": 3,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 6,
+      "healthBefore": 10,
+      "healthAfter": 4,
+      "grade": 3,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 7,
+      "healthBefore": 10,
+      "healthAfter": 3,
+      "grade": 3,
+      "exposed": true
+    }
+  ],
+  "repeated_same_site": [
+    {
+      "acceptedLoss": 2,
+      "healthAfter": 8,
+      "grade": 1,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 2,
+      "healthAfter": 6,
+      "grade": 2,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 2,
+      "healthAfter": 4,
+      "grade": 3,
+      "exposed": false
+    },
+    {
+      "acceptedLoss": 2,
+      "healthAfter": 2,
+      "grade": 3,
+      "exposed": true
+    }
+  ]
+}

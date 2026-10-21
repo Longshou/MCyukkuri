@@ -20,8 +20,8 @@ for(const job of jobs){
   }
   if(job.spec.kind==='dent'&&!wound.surfacePatches.length)throw Error('Missing shared-field receiver patches '+job.id);
   const coreTriangles=wound.materials.filter(m=>m==='core').length;
-  if((job.spec.state==='empty'||!job.spec.core)&&coreTriangles)throw Error('Unexpected core '+job.id);
-  if(job.spec.core&&job.spec.state!=='empty'&&!coreTriangles)throw Error('Missing core '+job.id);
+  if(!job.spec.core&&coreTriangles)throw Error('Unexpected core '+job.id);
+  if(job.spec.core&&!coreTriangles)throw Error('Missing core '+job.id);
   if(!wound.profile.open&&wound.materials.some(m=>m==='filling'))throw Error('Filling in closed injury '+job.id);
   const result={format:'mcyukkuri.authored-hair-wound.v2',model:job.model,spec:job.spec,
     pose:'idle:0',vertexLayout:'xyz, negative material index minus one, zero, normal xyz',

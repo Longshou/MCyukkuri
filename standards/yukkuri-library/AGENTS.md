@@ -22,4 +22,5 @@
 - 当前圆润身体由 `body-standard/recipe.json`、`profile.json` 与 `build.py` 构建。`author_standard_species.py` 是推广前的方块制作逻辑，不得覆盖当前登记。
 - 魔理沙单辫与爱丽丝造型分别由 `body-standard/features/marisa-single-braid/author.py` 和 `body-standard/features/alice-hakkei/author.py` 制作，再用同目录 `sync_inputs.py` 同步专属输入；按对应 README 导出。
 - 标准表情集合以 `expressions/index.json` 的 `standard_set` 与 `provenance/standard-expressions.json` 中的文件指纹为准；标准角色造型以 `provenance/standard-species.json` 为准。变更认可素材时更新对应源登记，不复制或猜测认可状态。
+- 每轮绘制出图后，由专门的 subagent 直接看成图，独立审核正常审美、内容辨识和用户指令符合度；不通过则修改、重新出图并复审。代码检查和作者自评不能代替审图，审图不代替用户认可。
 - 来源参考与采用边界记在相应 `provenance/`、专题 README 或 Wiki；项目设计不得写成原作事实。具体角色与互动规则见对应专题，不在本规则中另建裁决记录。

@@ -5,73 +5,205 @@
       "model": "reimu",
       "scope": "sole",
       "severity": 1,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 2,
+        "healthAfter": 8,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
     },
     "reimu-sole-2": {
       "model": "reimu",
       "scope": "sole",
       "severity": 2,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 4,
+        "healthAfter": 6,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
     },
     "reimu-sole-3": {
       "model": "reimu",
       "scope": "sole",
       "severity": 3,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 5,
+        "healthAfter": 5,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
     },
     "reimu-whole_body-1": {
       "model": "reimu",
       "scope": "whole_body",
       "severity": 1,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 2,
+        "healthAfter": 8,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
     },
     "reimu-whole_body-2": {
       "model": "reimu",
       "scope": "whole_body",
       "severity": 2,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 4,
+        "healthAfter": 6,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
     },
     "reimu-whole_body-3": {
       "model": "reimu",
       "scope": "whole_body",
       "severity": 3,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 5,
+        "healthAfter": 5,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
     },
     "marisa-sole-1": {
       "model": "marisa",
       "scope": "sole",
       "severity": 1,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 2,
+        "healthAfter": 8,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
     },
     "marisa-sole-2": {
       "model": "marisa",
       "scope": "sole",
       "severity": 2,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 4,
+        "healthAfter": 6,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
     },
     "marisa-sole-3": {
       "model": "marisa",
       "scope": "sole",
       "severity": 3,
-      "cause": "hot_floor"
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 5,
+        "healthAfter": 5,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
     },
     "marisa-whole_body-1": {
       "model": "marisa",
       "scope": "whole_body",
       "severity": 1,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 2,
+        "healthAfter": 8,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
     },
     "marisa-whole_body-2": {
       "model": "marisa",
       "scope": "whole_body",
       "severity": 2,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 4,
+        "healthAfter": 6,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
     },
     "marisa-whole_body-3": {
       "model": "marisa",
       "scope": "whole_body",
       "severity": 3,
-      "cause": "body_fire"
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10,
+        "healthBefore": 10,
+        "acceptedLoss": 5,
+        "healthAfter": 5,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
     }
   },
   "mask": {
@@ -88,20 +220,23 @@
       0.4,
       1.3
     ],
-    "texture_world_scale": 4.8,
+    "texture_world_scale": 16,
     "coverage": "Continuous sole or whole-body coverage; never an isolated spot; no thermal-only core hole. Ornaments excluded.",
-    "whole_body_scale": [
-      0.985,
-      0.965,
-      0.94
-    ],
-    "scale_origin": [
-      0,
-      0,
-      0.5
-    ],
-    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1.",
-    "appearance": "Wiki EH16-008 soot stipple, dry matte darkening and fine grain; no Voronoi polygons, connected crack graph or bright fracture rims."
+    "shrink_rule": "User: height unchanged, cheeks and lower face narrow progressively; no uniform scale. Ornaments retain dimensions and follow their attachment region. Sole burn has no drying deformation.",
+    "appearance": "Wiki EH16-008 soot stipple, dry matte darkening and fine grain; no Voronoi polygons, connected crack graph or bright fracture rims.",
+    "dry_shape": {
+      "width_loss": [
+        0.05,
+        0.1,
+        0.16
+      ],
+      "minimum_inset": 0.35,
+      "cheek_height": 3.8,
+      "cheek_falloff": 2.4,
+      "height_scale": 1,
+      "depth_scale": 1
+    },
+    "dry_face": "Use character-local face UV boxes following deibu-mature/author.py: muted cheek folds, narrowed dry lids and chapped lip strokes; preserve each expression, no skin-colored backing."
   },
   "material": "thermal-{severity}.png",
   "no_cutout": true

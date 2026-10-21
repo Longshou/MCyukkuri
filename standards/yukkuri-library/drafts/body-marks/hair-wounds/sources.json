@@ -3,7 +3,7 @@
   "references": {
     "user_thermal": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：烧伤只有可能是脚部或者全身性质，不存在局部；补充：焦枯纹理，全身烧伤略微缩小",
+      "locator": "2026-10-22 当前会话：足部或全身烧伤；焦枯纹理；全身高度不变、宽度收窄成干瘦，参考灵胖脸部绘制方法强化干感；烧伤整体重做，去掉双下巴描线，以焦枯材质表达，咬伤齿间不连线，每轮独立 subagent 审图",
       "supports": "Only sole and whole-body thermal scopes; no isolated scalp burn or thermal core-hole sample."
     },
     "user_hair": {
@@ -74,6 +74,23 @@
       "type": "user_rule",
       "locator": "2026-10-22 当前会话：无底贴图，避免肤色边框误盖眼睛；烧伤不应像即将碎裂",
       "supports": "No opaque skin-colored exterior; preserve organs outside actual injury; soot and desiccation instead of fracture plates."
+    },
+    "deibu_face": {
+      "type": "project_art_source",
+      "path": "standards/yukkuri-library/body-standard/features/deibu-mature/author.py",
+      "locator": "apply_style(atlas, boxes, expression, recipe)",
+      "supports": "在既有面部 UV 框内逐表情画眼睑、脸颊纹与唇纹；采用绘制方法，不照搬灵胖体型或成熟人设。"
+    },
+    "actual_grade": {
+      "type": "project_code",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/body/BodyLife.java",
+      "locator": "onHurt: accepted actual loss -> InjuryModel.severity; repeated-hit deepening; core visibility via BodySigns",
+      "supports": "伤级、合并旧伤与低血量阈值来自真实结算，不随机。"
+    },
+    "user_core_states": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：中枢受损和取出空腔的贴图不需要",
+      "supports": "This authoring package exports ordinary wounds and intact exposed central filling only."
     }
   },
   "causes": {
@@ -140,7 +157,9 @@
         "injury_code",
         "minecraft_1211",
         "wiki_burn_eh16",
-        "user_transparency"
+        "user_transparency",
+        "deibu_face",
+        "actual_grade"
       ],
       "locator": "kind: IS_FIRE -> SCORCH; whole-body extent required by current user rule",
       "visual_boundary": "Whole body and hair share continuous heat damage. Existing runtime anchor still conflicts with this scope."
@@ -212,6 +231,7 @@
     "InjuryModel currently treats heated_awl as local SCORCH; incompatible with the current two-scope rule. No art is exported for that path.",
     "IN_FIRE/LAVA currently use soleSite; fire context and whole-body coverage still need runtime integration.",
     "BodySigns currently allows deep SCORCH to expose core; no corresponding thermal-only cavity is authored.",
-    "Cause-specific selection is not connected. Eight mechanical styles and two thermal scopes have three authored levels and explicit per-source coverage. MC supplies single entity hits rather than individual trident prongs or thorn coordinates; do not invent separate contacts."
+    "Cause-specific selection is not connected. Eight mechanical styles and two thermal scopes have three authored levels and explicit per-source coverage. MC supplies single entity hits rather than individual trident prongs or thorn coordinates; do not invent separate contacts.",
+    "Visual narrowing and dry expression atlases are authored only; current source examples read real grade constants but do not replace runtime source routing."
   ]
 }
