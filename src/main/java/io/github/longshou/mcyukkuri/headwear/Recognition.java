@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.body.BodyPart;
+import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -20,8 +21,8 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 public final class Recognition {
     /** Intellect needed to recognise a yukkuri that has lost its accessory (project number). */
     public static final int THRESHOLD = 80;
-    /** Project threshold: visibly damaged skin on at least two different body regions. */
-    public static final int MONSTER_REGIONS = 2;
+    /** Project threshold: three active facial injuries, or any severe injury. */
+    public static final int MONSTER_FACE_WOUNDS = 3;
 
     private Recognition() {}
 
@@ -64,10 +65,27 @@ public final class Recognition {
         return target.body().wounds().stream().filter(w -> w.severity() >= 2 && mesh.valid(w))
                 .map(w -> BodyPart.of(mesh, w)).distinct().count();
     }
-    /** A living hatless body with multiple visibly damaged regions. */
+    private static boolean injury(BodyWound wound) {
+        return switch (wound.kind()) {
+            case SCRATCH, TEAR, DENT, SCORCH -> true;
+            default -> false;
+        };
+    }
+    /** Count individual active facial wounds, including light wounds; scars and dirt do not count. */
+    public static long faceWounds(YukkuriEntity target) {
+        var mesh = WoundSurface.get(target.subspecies().assetId());
+        return target.body().wounds().stream().filter(w -> injury(w) && mesh.valid(w))
+                .filter(w -> BodyPart.of(mesh, w) == BodyPart.FRONT).count();
+    }
+    /** A grade-three active injury qualifies on any body region. */
+    public static long severeWounds(YukkuriEntity target) {
+        var mesh = WoundSurface.get(target.subspecies().assetId());
+        return target.body().wounds().stream().filter(w -> injury(w) && w.severity() >= 3 && mesh.valid(w)).count();
+    }
+    /** A living hatless body with three facial wounds or at least one severe injury. */
     public static boolean grotesque(YukkuriEntity target) {
         if (!target.isAlive() || target.life().hasAccessory()) return false;
-        return damagedRegions(target) >= MONSTER_REGIONS;
+        return faceWounds(target) >= MONSTER_FACE_WOUNDS || severeWounds(target) > 0;
     }
     /** Not even taken for a yukkuri, and horribly hurt: a monster to this observer (feared and driven off, not eaten). */
     public static boolean seenAsMonster(YukkuriEntity observer, YukkuriEntity target) {

@@ -1,7 +1,9 @@
 {
   "id": "body-marks",
-  "status": "draft_pending_user_review",
-  "runtime_selected": false,
+  "status": "wound_materials_selected_pending_runtime_review",
+  "runtime_selected": ["scratch", "dent", "tear", "scorch", "scar"],
+  "runtime_exporter": "export_wounds.py",
+  "runtime_selection": "2026-10-21 用户要求换用之前制作的伤口版本；只选用既有表面材质，大创腔、脏污、霉斑和足缘状态造型仍为草稿。",
   "date": "2026-10-18",
   "design": "面皮上的局部变化：低饱和、疏密成簇、尖端收细；保留眼口与角色轮廓。",
   "sources": [
@@ -36,5 +38,5 @@
     "principle": "裁掉创口内的面皮和对应五官层，保留面皮断面、凹入的豆沙腔壁与位于身体中央的唯一核心。",
     "dimensions_note": "当前灵梦网格的审美提案参数，开口约为体宽48%和体高53%；不是Wiki尺寸，也不作为游戏数值。"
   },
-  "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "离线材质提案。使用当前角色网格、贴图、位置适配和深度遮挡；尚未接入游戏材质、伤口落点、变形或同步。"}
+  "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "离线材质预览。scratch/dent/tear/scorch/scar 已选入游戏并保留真实伤口落点与既有变形；游戏效果待试玩。其余纹样和大创腔仍为提案。"}
 }

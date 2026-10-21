@@ -12,15 +12,16 @@ import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-/** R3.1 skin depression, scratch paths, tear rings and scorch islands on posed triangles. */
+/** Existing injury deformation with the selected authored materials clipped to posed skin triangles. */
 final class WoundRenderer {
     private static final int MAX_TOPOLOGIES=8;
+    private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar"};
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
     private static final Map<TopologyKey,Topology> TOPOLOGIES=new LinkedHashMap<TopologyKey,Topology>(MAX_TOPOLOGIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<TopologyKey,Topology> eldest){return size()>MAX_TOPOLOGIES;}
     };
     static void clear(){CACHE.clear();SIGNS.clear();TOPOLOGIES.clear();}
-    private record Mark(WoundSurface.Hit a,WoundSurface.Hit b,WoundSurface.Hit c,int material,float offset) {}
+    private record Mark(WoundSurface.Hit a,WoundSurface.Hit b,WoundSurface.Hit c,int material,float offset,float[] uv) {}
     private record Face(int triangle,float[] a,float[] b,float[] c,float minX,float minY,float maxX,float maxY,float det) {
         WoundSurface.Hit hit(float[] p){float x=p[0]-a[0],y=p[1]-a[1];float u=Math.clamp((x*(c[1]-a[1])-y*(c[0]-a[0]))/det,0,1),v=
                 Math.clamp(((b[0]-a[0])*y-(b[1]-a[1])*x)/det,0,1);float sum=Math.max(1,u+v);return new WoundSurface.Hit(triangle,u/sum,v/sum,0);}
@@ -81,7 +82,7 @@ final class WoundRenderer {
         final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
         final Vector3f na=new Vector3f(),nb=new Vector3f(),nc=new Vector3f();
         final Matrix4f relative=new Matrix4f(),parentInverse=new Matrix4f();
-        final boolean woundMarks,toneMarks;
+        final boolean woundMarks,toneMarks,texturedMarks;
         final Vector3f[] rest;
         final Vector3f[] posed;
         final Vector3f[] smoothNormals;
@@ -93,7 +94,8 @@ final class WoundRenderer {
             rest=new Vector3f[count];posed=new Vector3f[count];
             for(var w:wounds)if(mesh.valid(w))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
-            boolean ink=false,tone=false;for(var mark:marks)if(mark.material<16)ink=true;else tone=true;woundMarks=ink;toneMarks=tone;
+            boolean ink=false,tone=false,textured=false;for(var mark:marks)if(mark.material<16)ink=true;else if(mark.material<32)tone=true;else textured=true;
+            woundMarks=ink;toneMarks=tone;texturedMarks=textured;
             var used=new BitSet(count);
             if(drawBody)used.set(0,count);
             else for(var mark:marks)for(var hit:List.of(mark.a,mark.b,mark.c))used.set(hit.triangle(),hit.triangle()+3);
@@ -125,28 +127,16 @@ final class WoundRenderer {
         void author(SkinDecal w){float s=w.size()*(.6f+w.severity()*.16f);patchFaces=faces(w,s*2*(w.kind()==WoundKind.DIRT||w.kind()==WoundKind.SCAR||
                 w.kind()==WoundKind.MOLD||w.kind()==WoundKind.CHAR?3.4f:1));
             switch(w.kind()){
-                case TEAR->{disk(w,0,0,1.13f*s,.79f*s,1,.88f);disk(w,0,0,s,.7f*s,3,.78f);disk(w,0,0,.8f*s,.55f*s,4,0);}
-                case SCRATCH->{if(w.severity()>=2)disk(w,0,0,.75f*s,.44f*s,2,0);for(int i=0;i<2+w.severity();i++){float x=i*.24f*s;line(w,-.65f*s+x,
-                        -.42f*s,-.45f*s+x,-.03f*s,.035f+w.severity()*.015f,3);line(w,-.45f*s+x,-.03f*s,-.40f*s+x,.45f*s,.035f+w.severity()*.015f,3);}}
-                case DENT->{
-                    // A shallow depression alone disappears in flat lighting and under the hurt flash.
-                    // Keep a localized bruise on the same triangles so even a light punch remains visible.
-                    disk(w,0,0,1.04f*s,.78f*s,14,.7f);
-                    disk(w,0,0,.73f*s,.55f*s,2,0);
-                    for(int sign:new int[]{-1,1})for(int i=0;i<11;i++)line(w,sign*s*(1-.12f*(float)Math.sin(i*Math.PI/11)),s*(-.72f+i*.13f),
-                            sign*s*(1-.12f*(float)Math.sin((i+1)*Math.PI/11)),s*(-.72f+(i+1)*.13f),.035f+w.severity()*.018f,14);
-                }
-                case SCORCH->{for(int i=0;i<3+w.severity()*2;i++){float a=i*2.3999f,r=.2f*(float)Math.sqrt(i)*s,cx=(float)Math.cos(a)*r,cy=
-                        (float)Math.sin(a)*r;disk(w,cx,cy,.36f*s,.26f*s,13,.78f);disk(w,cx,cy,.29f*s,.20f*s,11,0);}}
+                case SCRATCH->texture(w,s,32);
+                case DENT->texture(w,s,33);
+                case TEAR->texture(w,s,34);
+                case SCORCH->texture(w,s,35);
                 // Status marks use body_marks.png: material numbers from 16 select its swatches (see art/props/body-marks).
                 case DIRT->{float q=w.size()*(.45f+.2f*w.severity());
                     disk(w,0,0,q,.8f*q,18,0);
                     for(int i=0;i<3;i++){float a=i*2.1f+w.size()*5,r=.55f*q;disk(w,(float)Math.cos(a)*r,(float)Math.sin(a)*r,.42f*q,.34f*q,19,0);}
                     disk(w,-.25f*q,.15f*q,.3f*q,.24f*q,20,0);}
-                case SCAR->{float q=w.size()*(.8f+.15f*w.severity());
-                    line(w,-1.7f*q,-.45f*q,-.35f*q,.1f*q,.5f,17);line(w,-.35f*q,.1f*q,1.6f*q,.5f*q,.5f,17);
-                    line(w,-1.7f*q,-.45f*q,-.35f*q,.1f*q,.26f,16);line(w,-.35f*q,.1f*q,1.6f*q,.5f*q,.26f,16);
-                    for(int i=-1;i<=1;i++){float x=i*.85f*q;line(w,x-.12f,-.75f*q+.18f*i,x+.12f,.9f*q+.1f*i,.2f,17);}}
+                case SCAR->texture(w,s,36);
                 // Lasting body signs (body.BodySigns), swatches 5-14 of body_marks.png.
                 case MOLD->{float q=w.size()*(.5f+.22f*w.severity());int seed=w.id().hashCode();
                     disk(w,0,0,q,.82f*q,21,0);
@@ -176,7 +166,12 @@ final class WoundRenderer {
             var hit=mesh.ray(new Vector3f(anchor).fma(x,u).fma(y,v).fma(4,n),new Vector3f(n).negate(),null,List.of());
             if(hit==null||mesh.normal(hit.triangle()).dot(n)<.5)return null;var p=mesh.anchor(hit);return Math.abs(p.sub(anchor).dot(n))>1.6?null:hit;
         }
-        void mark(SkinDecal w,float[] a,float[] b,float[] c,int material){
+        void texture(SkinDecal w,float scale,int material){
+            float r=2*scale;var a=new float[]{-r,-r};var b=new float[]{r,-r};var c=new float[]{r,r};var d=new float[]{-r,r};
+            mark(w,a,b,c,material,r);mark(w,a,c,d,material,r);
+        }
+        void mark(SkinDecal w,float[] a,float[] b,float[] c,int material){mark(w,a,b,c,material,0);}
+        void mark(SkinDecal w,float[] a,float[] b,float[] c,int material,float textureRadius){
             float minX=Math.min(a[0],Math.min(b[0],c[0])),minY=Math.min(a[1],Math.min(b[1],c[1])),maxX=Math.max(a[0],Math.max(b[0],c[0])),maxY=Math.max(a[1],Math.max(b[1],c[1]));
             for(var face:patchFaces){if(minX>face.maxX||maxX<face.minX||minY>face.maxY||maxY<face.minY)continue;
                 List<float[]> polygon=new ArrayList<>(List.of(a,b,c));float[][] edge={face.a,face.b,face.c};float sign=Math.signum(face.det);
@@ -186,8 +181,13 @@ final class WoundRenderer {
                             clipped.add(new float[]{previous[0]+(current[0]-previous[0])*t,previous[1]+(current[1]-previous[1])*t});}
                             if(next>=0)clipped.add(current);previous=current;prev=next;}polygon=clipped;
                 }
-                for(int j=1;j+1<polygon.size();j++)marks.add(new Mark(face.hit(polygon.getFirst()),face.hit(polygon.get(j)),face.hit(polygon.get(j+
-                        1)),material,material==3||material==14?.035f:material==16?.03f:material==17?.024f:material==18?.018f:material==19?.022f:material==20?.026f:offset(material)));
+                for(int j=1;j+1<polygon.size();j++){
+                    var p=polygon.getFirst();var q=polygon.get(j);var r=polygon.get(j+1);
+                    float[] uv=textureRadius>0?new float[]{.5f+p[0]/(2*textureRadius),.5f-p[1]/(2*textureRadius),
+                            .5f+q[0]/(2*textureRadius),.5f-q[1]/(2*textureRadius),.5f+r[0]/(2*textureRadius),.5f-r[1]/(2*textureRadius)}:null;
+                    marks.add(new Mark(face.hit(p),face.hit(q),face.hit(r),material,
+                            textureRadius>0?.035f:material==3||material==14?.035f:material==16?.03f:material==17?.024f:material==18?.018f:material==19?.022f:material==20?.026f:offset(material),uv));
+                }
             }
         }
         /** Sign layers stack outward: mould base, fuzz, spores; char rim, char; filling, its gloss; core, gloss, crack. Paste sits above the tear rings. */
@@ -263,7 +263,15 @@ final class WoundRenderer {
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material<16)drawMark(geometry,mark,stack,ink,light,overlay,mark.material);}}
         if(geometry.toneMarks){
             var tone=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_marks.png")));
-            for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16);}
+            for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16&&mark.material<32)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16);}
+        }
+        // Authored transparency preserves the subtle bruise and skin lip; geometry and UVs are cached with the injury.
+        if(geometry.texturedMarks)for(int material=0;material<MATERIALS.length;material++){
+            VertexConsumer texture=null;
+            for(var mark:geometry.marks)if(mark.material==32+material){
+                if(texture==null)texture=buffers.getBuffer(RenderType.entityTranslucent(MCYukkuri.id("textures/props/body_wounds/"+MATERIALS[material]+".png")));
+                drawMark(geometry,mark,stack,texture,light,overlay,0);
+            }
         }
         // Wet filling remains at an open outlet; it represents no extra inventory.
         if(healthFraction>0)for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)){
@@ -275,7 +283,9 @@ final class WoundRenderer {
     private static void drawMark(Geometry g,Mark mark,PoseStack stack,VertexConsumer buffer,int light,int overlay,int material){
         pointNormal(g,mark.a,g.na);pointNormal(g,mark.b,g.nb);pointNormal(g,mark.c,g.nc);
         point(g,mark.a,mark.offset,g.na,g.a);point(g,mark.b,mark.offset,g.nb,g.b);point(g,mark.c,mark.offset,g.nc,g.c);
-        float u=(material+.5f)/16;emit(stack,buffer,light,overlay,g.a,g.b,g.c,u,.5f,u,.5f,u,.5f,g.na,g.nb,g.nc);
+        float u=(material+.5f)/16;
+        if(mark.uv!=null)emit(stack,buffer,light,overlay,g.a,g.b,g.c,mark.uv[0],mark.uv[1],mark.uv[2],mark.uv[3],mark.uv[4],mark.uv[5],g.na,g.nb,g.nc);
+        else emit(stack,buffer,light,overlay,g.a,g.b,g.c,u,.5f,u,.5f,u,.5f,g.na,g.nb,g.nc);
     }
     private static void point(Geometry g,WoundSurface.Hit h,float offset,Vector3f normal,Vector3f out){
         out.set(g.posed[h.triangle()]).mul(1-h.u()-h.v()).fma(h.u(),g.posed[h.triangle()+1]).fma(h.v(),g.posed[h.triangle()+2]).fma(offset,normal);

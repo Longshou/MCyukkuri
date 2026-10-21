@@ -285,7 +285,7 @@ def material(rgba, buf, kind, level=2):
     return s.finish()
 
 
-def render_buffers(node):
+def render_buffers(node, only=None):
     WORK.mkdir(parents=True, exist_ok=True)
     views = {
         'reimu': dict(model='reimu', width=720, height=660, az=.36, el=.12, span=11.7, cy=8.5),
@@ -298,6 +298,8 @@ def render_buffers(node):
         'broken_close': dict(model='reimu', width=720, height=580, az=.36, el=.12, span=4.25, cx=1.8, cy=3.8, cz=-2, cavity='broken'),
         'core_side': dict(model='reimu', width=720, height=580, az=.95, el=.12, span=4.25, cx=1.8, cy=3.8, cz=-2, cavity='intact'),
     }
+    if only is not None:
+        views = {key: view for key, view in views.items() if key in only}
     jobs = []
     for key, view in views.items():
         tex = ASSETS / 'textures/entity' / view['model'] / 'neutral.png'
@@ -338,7 +340,7 @@ def sheet(title, subtitle, cards, columns, image_size=(460, 410), footer=''):
         out.paste(panel(img,iw,ih), (x,y))
         d.text((x+20,y+ih+4), name, font=font(24), fill=INK)
         d.text((x+20,y+ih+43), note, font=font(16), fill=MUTED)
-    d.text((margin,height-39), footer or '2026.10.18  /  当前角色网格的离线材质提案  /  待确认，尚未接入游戏', font=font(17), fill=MUTED)
+    d.text((margin,height-39), footer or '离线材质预览 / 伤口表面已选用，游戏效果待试玩 / 其他纹样与大创腔仍为草稿', font=font(17), fill=MUTED)
     return out
 
 
@@ -390,7 +392,7 @@ def main():
     sheet('中枢外露 · 大创口与真实深度', '中枢在身体中央；只有大范围面皮与馅料缺损，才会从外部看见它。',
           cavity_cards,3,(460,410), '离线立体草稿 / 开口、腔壁与核心使用三维几何 / 尺寸为本次美术提案，尚未接入游戏').save(OUT/'core-cavity.png')
     (OUT/'index.html').write_text((HERE/'preview.html').read_text(encoding='utf-8'), encoding='utf-8')
-    report = {'status': RECIPE['status'], 'runtime_selected': False,
+    report = {'status': RECIPE['status'], 'runtime_selected': RECIPE['runtime_selected'],
               'outputs': {p.name: {'size': Image.open(p).size, 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
                           for p in OUT.glob('*.png')},
               'inputs': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()

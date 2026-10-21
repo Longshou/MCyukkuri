@@ -1,6 +1,6 @@
 # 身体纹样美术草稿
 
-2026-10-18：针对当天新增的身体标记与伤病外观，先做材质提案。`recipe.json` 登记为 `draft_pending_user_review`，未选入游戏。
+本目录保存身体标记与伤病外观的材质制作源。用户要求换用既有伤口版本后，擦伤、压伤、裂伤、局部灼伤和旧疤已选入游戏，运行效果待试玩；霉斑、脏污、足缘状态和大创腔仍为草稿。
 
 ## 设计
 
@@ -15,7 +15,7 @@
 
 依据 [身体与馅料](../../../../wiki/hakkei-reference/lore/entities-sources.md)、[照护](../../../../wiki/hakkei-reference/world/health-care.md) 的面皮、馅料与霉变设定；脏污另观察 [EH27-001](../../../../wiki/art-references/ehentai/images/EH27/001.jpg) 的柔和局部污迹，出处与核读范围见 [EH27](../../../../wiki/art-references/ehentai/works/EH27.md)。色板、形状、疏密、覆盖量均为原创美术选择，不是 Wiki 给定数值；没有复制外部图片到贴图。
 
-现有游戏标记由 `art/props/body-marks/` 和 `client/WoundRenderer.java` 维护。本草稿不替换这些文件或运行资源，因此 `art/runtime-sources.json` 保持原选用。
+`export_wounds.py` 直接调用 `preview.py` 既有材质函数，离线烘焙透明贴图到 `art/source/body-wound-materials/` 和运行资源，来源及文件指纹随快照保存。局部灼伤取现有足缘焦化材质并裁成局部伤口范围。`client/WoundRenderer.java` 将贴图裁到真实伤口附近的皮面三角形，沿用伤口锚点、等级范围、变形和骨架权重；不在每帧计算程序材质。选用关系在 `art/runtime-sources.json`。
 
 ## 制作与预览
 
@@ -25,9 +25,12 @@
 
 ```sh
 python standards/yukkuri-library/drafts/body-marks/preview.py --node node
+python standards/yukkuri-library/drafts/body-marks/export_wounds.py
+python standards/yukkuri-library/drafts/body-marks/export_wounds.py --check
+python standards/yukkuri-library/drafts/body-marks/export_wounds.py --preview --node node
 python scripts/build_preview_hub.py
 ```
 
-需要 Python（numpy、Pillow）、Node.js 和微软雅黑。仅离线渲染，不启动浏览器、不启动游戏、不执行 Java 编译。预览写入 `.local/previews/body-marks/`：总览、局部、新旧图形对照、轻重阶段、受伤补充和页面。检查信息写入 `.local/reports/body-marks-preview.json`，中间缓冲写入 `.local/body-marks-work/`，均不提交。
+需要 Python（numpy、Pillow）、Node.js 和微软雅黑。仅离线渲染，不启动浏览器、不启动游戏、不执行 Java 编译。源材质预览写入 `.local/previews/body-marks/`：总览、局部、新旧图形对照、轻重阶段、受伤补充和页面。`export_wounds.py --preview` 直接采样当前导出的五张 PNG，写入 `.local/previews/body-marks-runtime/current.png` 和同目录页面。检查信息写入 `.local/reports/body-marks-preview.json`，中间缓冲写入 `.local/body-marks-work/`，均不提交。
 
-新旧对照的旧栏是旧配色和图形规则的同位置复现，不是游戏截图。新稿先验证材质方向与静态创腔几何，尚未适配游戏的伤口位置、变形、阶段数值和渲染管线。柔和过渡与高频颗粒若选用，需再制作贴图／材质及远距离简化方案；不应把此处逐像素配方直接搬进每帧 Java 逻辑。
+新旧对照的旧栏是旧配色和图形规则的同位置复现，不是游戏截图。当前表面伤口已通过离线贴图接入现有游戏伤口位置与变形；预览不代替游戏中的透明排序、距离与动态表现验收。大创腔与其核心空间位置尚未接入。

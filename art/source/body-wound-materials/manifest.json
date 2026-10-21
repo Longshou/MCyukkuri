@@ -1,0 +1,47 @@
+{
+  "source": "standards/yukkuri-library/drafts/body-marks",
+  "material_source": "preview.py",
+  "recipe": "recipe.json",
+  "selection": "user_requested_2026-10-21",
+  "runtime_status": "pending_gameplay_visual_review",
+  "scope": "scratch, dent, tear, local scorch and healed scar surface materials; existing injury anchors and deformation preserved; core cavity not included",
+  "texture_size": 256,
+  "local_radius": 2.0,
+  "source_sha256": {
+    "preview.py": "d6db7bb2ae93d106b5dfbcd43aba4b60d44b550f2dc08d5bc15f1ce4b2556856",
+    "recipe.json": "4fcb4d8c81a81ec18315581b2739494d78b110d6692bd937a62c25d98ddf1db8",
+    "export_wounds.py": "fe6ff730d8d4c8b00d18e3dbbd33f8f90c7e4aedb75320427cc0bcef3050dd20"
+  },
+  "materials": {
+    "scratch": {
+      "source_function": "scratch",
+      "snapshot": "art/source/body-wound-materials/scratch.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scratch.png",
+      "sha256": "8689ef1cf7a29cc50f7ab27e95084e1fdb628167f6c1b3f2faadd4162135df6c"
+    },
+    "dent": {
+      "source_function": "dent",
+      "snapshot": "art/source/body-wound-materials/dent.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/dent.png",
+      "sha256": "061cc7066321f3da34c52fe2f5cc438ca1fa63a5fe4b5b624f9509549bc124f0"
+    },
+    "tear": {
+      "source_function": "tear",
+      "snapshot": "art/source/body-wound-materials/tear.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/tear.png",
+      "sha256": "da94d5b9f88ebcbb5b2af3967d71f84a010afad8c86b95c5c872f003bf80c6e4"
+    },
+    "scorch": {
+      "source_function": "char",
+      "snapshot": "art/source/body-wound-materials/scorch.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scorch.png",
+      "sha256": "727475108bc30803225423e14dfc7e7e123e57166fa8b5ab7acef2ac390b4118"
+    },
+    "scar": {
+      "source_function": "scar",
+      "snapshot": "art/source/body-wound-materials/scar.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scar.png",
+      "sha256": "3089dac67ac2634188425a251708f68efee57581094d18f2a6b190cbeaa8450b"
+    }
+  }
+}

@@ -3776,16 +3776,26 @@
     "provenance": "art/props/body-wounds/provenance.json",
     "exporter": "scripts/export_wound_surfaces.cjs",
     "runtime_directory": "src/main/resources/assets/mcyukkuri/yukkuri_wounds",
-    "preview": "art/props/body-wounds/previews/current/index.html",
+    "preview": ".local/previews/body-marks-runtime/index.html",
     "standard_status": "pending_user_confirmation",
-    "approval": "standards/yukkuri-library/ecology/body-wounds/approval.json"
+    "approval": "standards/yukkuri-library/ecology/body-wounds/approval.json",
+    "surface_materials": {
+      "source": "standards/yukkuri-library/drafts/body-marks",
+      "exporter": "standards/yukkuri-library/drafts/body-marks/export_wounds.py",
+      "snapshot": "art/source/body-wound-materials",
+      "manifest": "art/source/body-wound-materials/manifest.json",
+      "runtime_directory": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds",
+      "selected": ["scratch", "dent", "tear", "scorch", "scar"],
+      "status": "user_requested_selection_pending_runtime_review",
+      "scope": "Existing 2026-10-18 authored surface materials baked to transparent textures and clipped to real injury triangles; existing deformation and damage rules retained. Large core cavity excluded."
+    }
   },
   "body_marks": {
     "builder": "art/props/body-marks/build.py",
     "preview_script": "art/props/body-marks/preview.py",
     "provenance": "art/props/body-marks/provenance.json",
     "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/body_marks.png",
-    "geometry": "drawn on the body_wounds skin surface by client/WoundRenderer (kinds dirt and scar; body signs mold, char, paste and core from body/BodySigns)",
+    "geometry": "drawn on the body_wounds skin surface by client/WoundRenderer (dirt and body signs mold, char, paste and core from body/BodySigns); scar now uses body_wounds.surface_materials",
     "body_sign_preview": "art/props/body-marks/preview_injury.py",
     "swatches": "0-4 dirt and scar; 5-7 mould; 8-9 filling in a deep wound; 10-12 centre filling (bare, gloss, crack); 13-14 baked sole",
     "standard_status": "pending_user_confirmation"

@@ -2,7 +2,7 @@
 
 四类伤情、多处挂接、局部变形和漏馅表现的标准见[伤口制作源](../../../standards/yukkuri-library/ecology/body-wounds/README.md)。本包只接入伤口表面与运行适配。
 
-`selected/wound-surface.js` 固定保存所选制作源，`selected/palette.png` 保存该批伤口材质色板。`scripts/export_wound_surfaces.cjs` 从当前[实体接入清单](../../runtime-sources.json)选定的运行模型提取外皮、五官、骨架和动作，并生成 `src/main/resources/assets/mcyukkuri/yukkuri_wounds/*.json.gz`。皮面使用原骨骼权重，统一共边切分；家油保留其连续身体网格。角色表情仍使用 `textures/entity/<角色>/<表情>.png`，伤痕使用 `textures/props/body_wounds.png`。
+`selected/wound-surface.js` 固定保存所选变形制作源，`selected/palette.png` 保留原色板。`scripts/export_wound_surfaces.cjs` 从当前[实体接入清单](../../runtime-sources.json)选定的运行模型提取外皮、五官、骨架和动作，并生成 `src/main/resources/assets/mcyukkuri/yukkuri_wounds/*.json.gz`。皮面使用原骨骼权重，统一共边切分；家油保留其连续身体网格。角色表情仍使用 `textures/entity/<角色>/<表情>.png`。四类伤痕和旧疤改用[身体纹样制作源](../../../standards/yukkuri-library/drafts/body-marks/README.md)离线烘焙的 `textures/props/body_wounds/{scratch,dent,tear,scorch,scar}.png`，快照与指纹位于 `art/source/body-wound-materials/`。
 
 [来源清单](provenance.json)逐项记录几何标识、模型来源指纹、骨架数量、动作、贴图和配套输出。标准源与 `art/source/standard-runtime/` 快照没有被伤口变形覆盖。Java 适配器负责运行时命中定位、局部凹陷、逐三角形裁切和动画后的法线；选定 JavaScript 保留美术配方与材质参数的来源。
 

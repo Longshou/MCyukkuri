@@ -345,6 +345,8 @@ public enum StatusKey {
     FAMILY_STATE("home", "family_state", 0, y -> y.family().describe(), null),
     COMFORT_STATE("home", "comfort_state", 0, y -> y.woundComfort().describe(), null),
     DAMAGED_REGIONS("accessory", "damaged_regions", 0, Recognition::damagedRegions, null),
+    FACE_WOUNDS("accessory", "face_wounds", 0, Recognition::faceWounds, null),
+    SEVERE_WOUNDS("accessory", "severe_wounds", 0, Recognition::severeWounds, null),
     GROTESQUE("accessory", "grotesque", 0, Recognition::grotesque, null),
     /** Executor side and open case. Write a reason (hatless, monster, theft, ...) to have this individual sanctioned, i.e. bullied (test door). */
     SANCTION("accessory", "sanction", 0, y -> y.sanction().describe(), (y, raw) -> {
