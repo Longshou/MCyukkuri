@@ -48,6 +48,8 @@ public final class Headwear extends Goal {
     public static final int MEND_FRAYED = 6000, MEND_TORN = 12000, REASSEMBLE = 12000;
     /** Without any found piece for three days the owner gives the hat up for lost. */
     public static final int GIVE_UP_TICKS = 72000;
+    /** Project design: a bare recipient without an existing broken-hat tally needs three real fragments. */
+    private static final int REPLACEMENT_SHARDS = 3;
     /** Smallest size of a worn hat relative to its owner; growth per second per feeling unit (lecture reply: it feeds on self-feeling). */
     public static final float MIN_FIT = .6f, GROWTH_PER_SECOND = .004f;
 
@@ -262,6 +264,19 @@ public final class Headwear extends Goal {
     /** One compatible physical piece, whether found on the ground or handed over. */
     public boolean takeShard(ItemStack stack, Player giver) {
         if (!(entity.level() instanceof ServerLevel) || transferredShardRefusalReason(stack) != null) return false;
+        if (state() != State.SHATTERED) {
+            State previous = state();
+            // Retire a genuinely lost boat's old return capability only after accepting replacement material.
+            // A still-custodied hat is rejected above; scanning never alters ownership or repair state.
+            entity.life().removeAccessory();
+            shattered = true; lost = false;
+            damage = mend = reassembly = 0;
+            if (shardsTotal < 2 || shardsTotal > 3) shardsTotal = REPLACEMENT_SHARDS;
+            if (shardToken == null) shardToken = UUID.randomUUID();
+            cause = "replacement_fragments";
+            GameplayLog.event(entity,"headwear","fragment replacement started previous={} held={} total={} token={}",
+                    previous,shardsHeld,shardsTotal,shardToken);
+        }
         int before=shardsHeld;
         shardsHeld++; lastProgress = entity.level().getGameTime();
         boolean complete = shardsHeld >= shardsTotal;
@@ -282,10 +297,16 @@ public final class Headwear extends Goal {
         if(item==null)return "kind";
         String incompatible=AccessoryItem.recipientProfileMismatchReason(entity,item,tag);
         if(incompatible!=null)return "incompatible_"+incompatible;
-        if(state()!=State.SHATTERED)return "not_shattered";
-        if(shardToken==null)return "missing_recipient_token";
-        if(shardsHeld>=shardsTotal)return "already_full";
-        return null;
+        return shardReceiptRefusalReason();
+    }
+    /** Missing hats can be rebuilt from compatible material; worn, knitting and custodied hats need none. */
+    private String shardReceiptRefusalReason() {
+        String unavailable=entity.life().accessoryReceiptRefusalReason();
+        if(unavailable!=null)return unavailable;
+        if(state()==State.REASSEMBLING)return "already_full";
+        if(state()==State.SHATTERED&&shardToken==null)return "missing_recipient_token";
+        int required=shardsTotal>=2&&shardsTotal<=3?shardsTotal:REPLACEMENT_SHARDS;
+        return shardsHeld>=required?"already_full":null;
     }
     /**
      * A whole compatible accessory is about to replace this shattered one.  The fragments already gathered in this
@@ -408,8 +429,9 @@ public final class Headwear extends Goal {
     private boolean able() { return inabilityReason()==null; }
     @Override public boolean canUse() {
         if (target != null) return true;
-        if (scanWait > 0 || state() != State.SHATTERED) return false;
-        String blocked=inabilityReason();
+        if (scanWait > 0) return false;
+        String blocked=shardReceiptRefusalReason();
+        if(blocked==null)blocked=inabilityReason();
         if(blocked!=null){gatherCheck=blocked;return false;}
         scanWait = 60;
         var candidates = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12, 4, 12),
@@ -432,8 +454,8 @@ public final class Headwear extends Goal {
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { entity.social().stop();
-        if(target!=null)GameplayLog.event(entity,"headwear","shard gathering started drop={} count={} held={} total={}",
-                target.getUUID(),target.getItem().getCount(),shardsHeld,shardsTotal);
+        if(target!=null)GameplayLog.event(entity,"headwear","shard gathering started drop={} count={} state={} held={} total={}",
+                target.getUUID(),target.getItem().getCount(),stateId(),shardsHeld,shardsTotal);
     }
     @Override public void tick() {
         elapsed++;
