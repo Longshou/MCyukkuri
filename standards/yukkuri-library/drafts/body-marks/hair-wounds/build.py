@@ -115,6 +115,7 @@ def main():
     jobs=WORK/'export.json';jobs.write_text(json.dumps(meshes),encoding='utf-8')
     subprocess.run([args.node,str(HERE/'export.cjs'),str(jobs)]+(['--check'] if args.check else []),check=True)
     sources=[HERE/n for n in ['recipe.json','author.cjs','export.cjs','build.py','materials.py','sources.json','mc-damage-map.json','coverage.py','thermal.cjs','dry_face.py','grading.py']]
+    sources += [HERE/n for n in ['species.json','species.cjs','species.py']]
     sources += [HERE.parent/n for n in ['cavity.cjs','recipe.json','preview.py','export_wounds.py','surface.cjs']]
     sources += [ROOT/'src/main/java/io/github/longshou/mcyukkuri/body/InjuryModel.java',ROOT/'src/main/java/io/github/longshou/mcyukkuri/body/BodySigns.java',ROOT/'src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java']
     sources += [ROOT/'src/main/java/io/github/longshou/mcyukkuri/body/BodyLife.java',ROOT/'src/main/java/io/github/longshou/mcyukkuri/body/BodyCavity.java',ROOT/'standards/yukkuri-library/body-standard/features/deibu-mature/author.py']

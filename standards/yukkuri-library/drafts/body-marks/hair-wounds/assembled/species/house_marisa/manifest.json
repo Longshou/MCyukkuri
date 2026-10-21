@@ -1,0 +1,211 @@
+{
+  "model": "house_marisa",
+  "label": "家魔理沙",
+  "runtime_selected": false,
+  "body_part": "house_body_surface",
+  "fit": {
+    "scale": [
+      0.3375,
+      0.39791666666666664,
+      0.2730661696178937
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      -0.16109040074557335
+    ]
+  },
+  "receivers": [],
+  "styles": [],
+  "grades": [
+    3
+  ],
+  "meshes": [],
+  "expressions": [
+    "angry",
+    "cheek_puff",
+    "chewing",
+    "chewing_closed",
+    "closed_smile",
+    "confused",
+    "cry",
+    "drool",
+    "happy",
+    "neutral",
+    "open_smile",
+    "satisfied",
+    "sleep",
+    "sleepy",
+    "surprise",
+    "teary",
+    "yawn"
+  ],
+  "face_boxes": {
+    "face_eye_left": [
+      58,
+      0,
+      73,
+      12
+    ],
+    "face_eye_right": [
+      73,
+      0,
+      88,
+      12
+    ],
+    "face_brow_left": [
+      102,
+      0,
+      119,
+      6
+    ],
+    "face_brow_right": [
+      102,
+      6,
+      119,
+      12
+    ],
+    "face_mouth": [
+      0,
+      0,
+      28,
+      24
+    ],
+    "face_blush_left": [
+      88,
+      11,
+      98,
+      17
+    ],
+    "face_blush_right": [
+      58,
+      12,
+      68,
+      18
+    ],
+    "face_tear_left": [
+      28,
+      0,
+      43,
+      16
+    ],
+    "face_tear_right": [
+      43,
+      0,
+      58,
+      16
+    ],
+    "face_effect_mouth": [
+      88,
+      0,
+      102,
+      11
+    ]
+  },
+  "texture_size": 128,
+  "thermal": [
+    {
+      "model": "house_marisa",
+      "scope": "sole",
+      "severity": 3,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 4.0,
+        "healthBefore": 4.0,
+        "acceptedLoss": 1,
+        "healthAfter": 3.0,
+        "grade": 3,
+        "actualLossGrade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "selection": "house_burn_direct_grade_three",
+        "source": "Explicit user rule: house burns directly use grade three",
+        "runtime_selected": false,
+        "label": "家油受烧直接用三级外观；实际扣血不因此改写，运行选择待接入"
+      }
+    },
+    {
+      "model": "house_marisa",
+      "scope": "whole_body",
+      "severity": 3,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 4.0,
+        "healthBefore": 4.0,
+        "acceptedLoss": 1,
+        "healthAfter": 3.0,
+        "grade": 3,
+        "actualLossGrade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "selection": "house_burn_direct_grade_three",
+        "source": "Explicit user rule: house burns directly use grade three",
+        "runtime_selected": false,
+        "label": "家油受烧直接用三级外观；实际扣血不因此改写，运行选择待接入"
+      }
+    }
+  ],
+  "growth": {
+    "stages": [
+      {
+        "id": "baby",
+        "min_scale": 0.32,
+        "max_scale": 0.5
+      },
+      {
+        "id": "juvenile",
+        "min_scale": 0.5,
+        "max_scale": 0.8
+      },
+      {
+        "id": "adult",
+        "min_scale": 0.8,
+        "max_scale": 1.0
+      }
+    ],
+    "stage_health": {
+      "baby": 1.0,
+      "juvenile": 2.0,
+      "adult": 4.0
+    },
+    "adult_only": false,
+    "form_scale": 1,
+    "rule": "Use the SAME actual body anchor/profile, followed by the same growth transform as the character; never use fixed world-size decals."
+  },
+  "core_example": null,
+  "protected_parts": [
+    "braid_lock_ribbon_band_house_fit_0",
+    "braid_lock_ribbon_band_house_fit_1",
+    "braid_lock_bow_knot_house_fit_0",
+    "braid_lock_bow_knot_house_fit_1",
+    "braid_lock_bow_loop_out_house_fit_0",
+    "braid_lock_bow_loop_out_house_fit_1",
+    "braid_lock_bow_loop_in_house_fit_0",
+    "braid_lock_bow_loop_in_house_fit_1",
+    "braid_lock_bow_tail_out_house_fit_0",
+    "braid_lock_bow_tail_out_house_fit_1",
+    "braid_lock_bow_tail_in_house_fit_0",
+    "braid_lock_bow_tail_in_house_fit_1",
+    "brim_center",
+    "brim_sides",
+    "brim_front",
+    "brim_back",
+    "hat_base",
+    "hat_band",
+    "hat_taper_1",
+    "hat_taper_2",
+    "hat_taper_3",
+    "hat_tip_bend",
+    "hat_tip",
+    "hat_tip_end",
+    "bow_left_outer",
+    "bow_left_inner",
+    "bow_right_inner",
+    "bow_right_outer",
+    "bow_left_fold",
+    "bow_right_fold",
+    "bow_knot",
+    "bow_left_tail",
+    "bow_right_tail"
+  ]
+}

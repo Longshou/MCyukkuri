@@ -5,13 +5,33 @@ const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8
 const {createCavity}=require('../cavity.cjs');
 const provenance=JSON.parse(fs.readFileSync(path.join(__dirname,'sources.json'),'utf8'));
 const baseRecipe=JSON.parse(fs.readFileSync(path.join(__dirname,'../recipe.json'),'utf8'));
+const {modelInfo,fitFor}=require('./species.cjs');
 const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const mix=(a,b,t)=>a.map((v,i)=>v*(1-t)+b[i]*t);
 
 function createHairWound(vertices,parts,spec){
-  const model=recipe.models[spec.model];if(!model)throw Error('Missing hair registration: '+spec.model);
-  const skin=parts.find(p=>p.name==='rounded_body_surface');
+  const fit=fitFor(spec.model),info=modelInfo(spec.model);
+  if(info.house)throw Error('House variants only receive thermal art');
+  if(fit.scale.every(v=>v===1)&&fit.offset.every(v=>v===0)){
+    const result=authorCanonical(vertices,parts,spec);result.profile.canonicalToModel=info.fit;return result;
+  }
+  const canonical=Float64Array.from(vertices);
+  for(let k=0;k<canonical.length;k+=8){canonical.set(fit.toCanonical(Array.from(vertices.slice(k,k+3))),k);canonical.set(fit.normalToCanonical(Array.from(vertices.slice(k+5,k+8))),k+5);}
+  const result=authorCanonical(canonical,parts,spec),inside=result.inside,project=result.project;
+  function mapVertices(values){const out=Array.from(values);for(let k=0;k<out.length;k+=8){out.splice(k,3,...fit.toModel(out.slice(k,k+3)));out.splice(k+5,3,...fit.normalToModel(out.slice(k+5,k+8)));}return out;}
+  result.vertices=mapVertices(result.vertices);
+  result.surfacePatches=result.surfacePatches.map(p=>({...p,vertices:mapVertices(p.vertices)}));
+  result.surfaceEdits=result.surfaceEdits.map(row=>[row[0],...fit.toModel(row.slice(1,4)),...fit.normalToModel(row.slice(4,7))]);
+  result.inside=(x,y,z,part)=>inside(...fit.toCanonical([x,y,z]),part);
+  result.project=p=>project(fit.toCanonical(p));
+  result.profile.coordinateSpace='canonical body; apply canonicalToModel to profile coordinates, exported vertices already in model units';
+  result.profile.canonicalToModel=info.fit;
+  return result;
+}
+function authorCanonical(vertices,parts,spec){
+  const model=modelInfo(spec.model);
+  const skin=parts.find(p=>p.name===model.body_part);
   const hair=parts.filter(p=>model.hair_parts.includes(p.name));
   for(const name of model.hair_parts)if(!parts.some(p=>p.name===name))throw Error('Missing registered part '+name);
   const az=spec.az??Math.PI,u=[Math.cos(az),0,Math.sin(az)],v=[0,1,0],n=[Math.sin(az),0,-Math.cos(az)];

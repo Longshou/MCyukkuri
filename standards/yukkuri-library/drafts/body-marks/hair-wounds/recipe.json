@@ -363,7 +363,7 @@
     }
   },
   "coordinates": "Model units; central core stays at core_center. Local U is tangent, V is up, N points outward. Decal UV: u=(U/radiusU+1)/2, v=(1-V/radiusV)/2. No screen-space placement.",
-  "boundary": "Authored meshes and textures only. Runtime hair clipping, bone binding and wound-state selection are not connected by this package. Independent ornaments and hanging braids are excluded.",
+  "boundary": "Authored meshes and textures only. Runtime hair clipping, bone binding and wound-state selection are not connected. Mechanical receivers and independent thermal accessories are registered per model in species.json. House variants receive only direct-grade-three burns.",
   "thermal": {
     "scopes": [
       "sole",
@@ -379,7 +379,7 @@
       1.3
     ],
     "texture_world_scale": 16,
-    "coverage": "Continuous sole or whole-body coverage; never an isolated spot; no thermal-only core hole. Ornaments excluded.",
+    "coverage": "Continuous sole or whole-body coverage; never an isolated spot or thermal-only core hole. Whole-body heat chars cloth headwear and leaves soot on shell/crystals; sole heat excludes headwear. House variants directly select grade three.",
     "shrink_rule": "User: height unchanged, cheeks and lower face narrow progressively; no uniform scale. Ornaments retain dimensions and follow their attachment region. Sole burn has no drying deformation.",
     "appearance": "Wiki EH16-008 soot stipple, dry matte darkening and fine grain; no Voronoi polygons, connected crack graph or bright fracture rims.",
     "dry_shape": {
@@ -394,7 +394,7 @@
       "height_scale": 1,
       "depth_scale": 1
     },
-    "dry_face": "Use character-local face UV boxes following deibu-mature/author.py: muted cheek folds, narrowed dry lids and chapped lip strokes; preserve each expression, no skin-colored backing."
+    "dry_face": "Character-local UV painting: grade two keeps original round pupils/iris with tired lowered eye height; grade three uses soft closed lids for open resting expressions. Preserve crying, eating and closed-eye intent. Disconnected short dry marks and muted existing lip pixels, no cheek/chin contour or skin-colored backing."
   },
   "filling_material": {
     "base": [

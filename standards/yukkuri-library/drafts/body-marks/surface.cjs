@@ -11,15 +11,21 @@ const {createCavity}=require('./cavity.cjs');
 const {createRuntimeCavity}=require('./preview_cavity.cjs');
 const {createHairWound}=require('./hair-wounds/author.cjs');
 const {createThermal}=require('./hair-wounds/thermal.cjs');
+const {modelInfo}=require('./hair-wounds/species.cjs');
 const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8'));
 const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
 const jobs=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+const models=new Map();
 for(const job of jobs){
-  const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json')));
-  const pose=new RuntimePose(model,1,null,fits[job.model]||null);
-  let vertices=pose.frame('idle',0);
-  const skin=pose.model.parts.find(p=>p.name==='rounded_body_surface');
+  if(!models.has(job.model)){
+    const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json'))),pose=new RuntimePose(model,1,null,fits[job.model]||null);
+    models.set(job.model,{model,pose,vertices:pose.frame('idle',0)});
+  }
+  const {model,pose,vertices:rest}=models.get(job.model);
+  let vertices=Float64Array.from(rest);
+  const info=modelInfo(job.model);
+  const skin=pose.model.parts.find(p=>p.name===info.body_part);
   if(!skin)throw Error('Missing body surface: '+job.model);
   const paintable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_blush_'));
   const cuttable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_'));
@@ -45,6 +51,8 @@ for(const job of jobs){
   for(let i=0;i<vertices.length;i+=24){
     if(replaced.has(i/8))continue;
     const part=pose.model.parts.find(p=>i/8>=p.start&&i/8<p.start+p.count)||patchParts.find(p=>i/8>=p.start&&i/8<p.start+p.count);
+    if(job.hideAccessory&&info.accessory_prefixes.some(p=>part?.name.startsWith(p)))continue;
+    if(job.hideHair&&info.hair_parts.includes(part?.name))continue;
     const solid=vertices[i+3]<0?cavity.colors[-1-vertices[i+3]]:null;
     const cut=cavity&&!solid&&(job.hairWound?cavity.cuttable.has(part?.name):cuttable.some(part=>i/8>=part.start&&i/8<part.start+part.count));
     const norm=[vertices[i+5],vertices[i+6],vertices[i+7]];
@@ -57,7 +65,9 @@ for(const job of jobs){
     });
     const tri=[];
     for(let j=0;j<3;j++){
-      const k=i+j*8,point=Array.from(vertices.slice(k,k+3)),renderPoint=thermal?thermal.deform(point,part?.name):point;
+      const k=i+j*8,point=Array.from(vertices.slice(k,k+3));let renderPoint=thermal?thermal.deform(point,part?.name):point;
+      if(job.accessoryScale&&info.accessory_prefixes.some(p=>part?.name.startsWith(p))){const origin=job.accessoryAnchor;if(!origin)throw Error('Missing actual worn accessory anchor');renderPoint=renderPoint.map((v,c)=>origin[c]+(v-origin[c])*job.accessoryScale);}
+      if(job.displayScale)renderPoint=renderPoint.map(v=>v*job.displayScale);
       const x=renderPoint[0]-(job.cx||0),y=renderPoint[1]-job.cy,z=renderPoint[2]-(job.cz||0);
       tri.push([w/2+(x*right[0]+z*right[2])*scale,h/2-(x*up[0]+y*up[1]+z*up[2])*scale,
         x*eye[0]+y*eye[1]+z*eye[2],vertices[k+3]*ts,vertices[k+4]*ts]);

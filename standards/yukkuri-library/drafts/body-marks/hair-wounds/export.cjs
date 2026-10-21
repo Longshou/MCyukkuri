@@ -7,14 +7,18 @@ const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
 const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
 const jobs=JSON.parse(fs.readFileSync(process.argv[2],'utf8')),check=process.argv.includes('--check');
+const models=new Map();
 for(const job of jobs){
-  const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json')));
-  const pose=new RuntimePose(model,1,null,fits[job.model]||null),vertices=pose.frame('idle',0);
-  const wound=createHairWound(vertices,pose.model.parts,{...job.spec,model:job.model});
+  if(!models.has(job.model)){
+    const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json'))),pose=new RuntimePose(model,1,null,fits[job.model]||null);
+    models.set(job.model,{parts:pose.model.parts,vertices:pose.frame('idle',0)});
+  }
+  const {parts,vertices}=models.get(job.model);
+  const wound=createHairWound(vertices,parts,{...job.spec,model:job.model});
   if(!wound.vertices.every(Number.isFinite))throw Error('Non-finite vertices '+job.id);
   const patched=new Set();
   for(const patch of wound.surfacePatches){
-    const part=pose.model.parts.find(p=>p.name===patch.part);
+    const part=parts.find(p=>p.name===patch.part);
     if(patched.has(patch.triangle)||!part||patch.triangle<part.start||patch.triangle+3>part.start+part.count||patch.vertices.length%24||!patch.vertices.every(Number.isFinite))throw Error('Invalid receiver patch '+job.id);
     patched.add(patch.triangle);
   }

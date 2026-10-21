@@ -1,0 +1,364 @@
+{
+  "model": "chen_roundtail",
+  "label": "圆尾橙",
+  "runtime_selected": false,
+  "body_part": "rounded_body_surface",
+  "fit": {
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "receivers": [
+    "hair",
+    "skin"
+  ],
+  "styles": [
+    "scratch",
+    "tear",
+    "dent",
+    "puncture",
+    "thorn",
+    "impale",
+    "bite",
+    "blast"
+  ],
+  "grades": [
+    1,
+    2,
+    3
+  ],
+  "meshes": [
+    "hair-scratch-1-normal.json.gz",
+    "hair-scratch-2-normal.json.gz",
+    "hair-scratch-3-normal.json.gz",
+    "hair-tear-1-normal.json.gz",
+    "hair-tear-2-normal.json.gz",
+    "hair-tear-3-normal.json.gz",
+    "hair-tear-3-intact.json.gz",
+    "hair-dent-1-normal.json.gz",
+    "hair-dent-2-normal.json.gz",
+    "hair-dent-3-normal.json.gz",
+    "hair-dent-3-intact.json.gz",
+    "hair-puncture-1-normal.json.gz",
+    "hair-puncture-2-normal.json.gz",
+    "hair-puncture-3-normal.json.gz",
+    "hair-thorn-1-normal.json.gz",
+    "hair-thorn-2-normal.json.gz",
+    "hair-thorn-3-normal.json.gz",
+    "hair-impale-1-normal.json.gz",
+    "hair-impale-2-normal.json.gz",
+    "hair-impale-3-normal.json.gz",
+    "hair-bite-1-normal.json.gz",
+    "hair-bite-2-normal.json.gz",
+    "hair-bite-3-normal.json.gz",
+    "hair-bite-3-intact.json.gz",
+    "hair-blast-1-normal.json.gz",
+    "hair-blast-2-normal.json.gz",
+    "hair-blast-3-normal.json.gz",
+    "hair-blast-3-intact.json.gz",
+    "skin-scratch-1-normal.json.gz",
+    "skin-scratch-2-normal.json.gz",
+    "skin-scratch-3-normal.json.gz",
+    "skin-tear-1-normal.json.gz",
+    "skin-tear-2-normal.json.gz",
+    "skin-tear-3-normal.json.gz",
+    "skin-tear-3-intact.json.gz",
+    "skin-dent-1-normal.json.gz",
+    "skin-dent-2-normal.json.gz",
+    "skin-dent-3-normal.json.gz",
+    "skin-dent-3-intact.json.gz",
+    "skin-puncture-1-normal.json.gz",
+    "skin-puncture-2-normal.json.gz",
+    "skin-puncture-3-normal.json.gz",
+    "skin-thorn-1-normal.json.gz",
+    "skin-thorn-2-normal.json.gz",
+    "skin-thorn-3-normal.json.gz",
+    "skin-impale-1-normal.json.gz",
+    "skin-impale-2-normal.json.gz",
+    "skin-impale-3-normal.json.gz",
+    "skin-bite-1-normal.json.gz",
+    "skin-bite-2-normal.json.gz",
+    "skin-bite-3-normal.json.gz",
+    "skin-bite-3-intact.json.gz",
+    "skin-blast-1-normal.json.gz",
+    "skin-blast-2-normal.json.gz",
+    "skin-blast-3-normal.json.gz",
+    "skin-blast-3-intact.json.gz"
+  ],
+  "expressions": [
+    "angry",
+    "blank_cry",
+    "cheek_puff",
+    "chewing",
+    "chewing_closed",
+    "closed_smile",
+    "confused",
+    "cry",
+    "dazed",
+    "drool",
+    "happy",
+    "neutral",
+    "open_smile",
+    "puff",
+    "satisfied",
+    "sleep",
+    "sleepy",
+    "smug",
+    "surprise",
+    "teary",
+    "yawn"
+  ],
+  "face_boxes": {
+    "face_eye_left": [
+      58,
+      0,
+      73,
+      12
+    ],
+    "face_eye_right": [
+      73,
+      0,
+      88,
+      12
+    ],
+    "face_brow_left": [
+      102,
+      0,
+      119,
+      6
+    ],
+    "face_brow_right": [
+      102,
+      6,
+      119,
+      12
+    ],
+    "face_mouth": [
+      0,
+      0,
+      28,
+      24
+    ],
+    "face_blush_left": [
+      88,
+      11,
+      98,
+      17
+    ],
+    "face_blush_right": [
+      58,
+      12,
+      68,
+      18
+    ],
+    "face_tear_left": [
+      28,
+      0,
+      43,
+      16
+    ],
+    "face_tear_right": [
+      43,
+      0,
+      58,
+      16
+    ],
+    "face_effect_mouth": [
+      88,
+      0,
+      102,
+      11
+    ]
+  },
+  "texture_size": 256,
+  "thermal": [
+    {
+      "model": "chen_roundtail",
+      "scope": "sole",
+      "severity": 1,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 2,
+        "healthAfter": 8.0,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
+    },
+    {
+      "model": "chen_roundtail",
+      "scope": "sole",
+      "severity": 2,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 4,
+        "healthAfter": 6.0,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
+    },
+    {
+      "model": "chen_roundtail",
+      "scope": "sole",
+      "severity": 3,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 5,
+        "healthAfter": 5.0,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
+    },
+    {
+      "model": "chen_roundtail",
+      "scope": "whole_body",
+      "severity": 1,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 2,
+        "healthAfter": 8.0,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
+    },
+    {
+      "model": "chen_roundtail",
+      "scope": "whole_body",
+      "severity": 2,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 4,
+        "healthAfter": 6.0,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
+    },
+    {
+      "model": "chen_roundtail",
+      "scope": "whole_body",
+      "severity": 3,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 5,
+        "healthAfter": 5.0,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
+    }
+  ],
+  "growth": {
+    "stages": [
+      {
+        "id": "baby",
+        "label": "赤体 / 茎上实子",
+        "min_scale": 0.1,
+        "max_scale": 0.2,
+        "nourishment": [
+          0.0,
+          0.25
+        ],
+        "note": "胎生新生 0.14 出生，约 10 分钟长到 0.20；茎上实子从 0.10 长到 0.20，在茎上完成赤体期"
+      },
+      {
+        "id": "juvenile",
+        "label": "子体",
+        "min_scale": 0.2,
+        "max_scale": 0.8,
+        "nourishment": [
+          0.25,
+          1.0
+        ],
+        "note": "茎生落地即子体，从 0.20 起；营养和个体差异影响成长速度"
+      },
+      {
+        "id": "adult",
+        "label": "成体",
+        "min_scale": 0.8,
+        "max_scale": 1.2,
+        "nourishment": [
+          1.0,
+          1.5
+        ],
+        "note": "从 0.80 长到个体目标（0.80–1.20）；标准灵梦为 1.00 倍；普通大个体不自动成为 DOS"
+      }
+    ],
+    "stage_health": null,
+    "adult_only": false,
+    "form_scale": 1,
+    "rule": "Use the SAME actual body anchor/profile, followed by the same growth transform as the character; never use fixed world-size decals."
+  },
+  "core_example": {
+    "maxHealth": 10.0,
+    "healthBefore": 10.0,
+    "acceptedLoss": 7,
+    "healthAfter": 3.0,
+    "grade": 3,
+    "previousWoundGrade": 0,
+    "fittedOpening": true,
+    "coreHealthThreshold": 0.3,
+    "label": "实际扣 7 点，生命 10 → 3/10；满足露核条件"
+  },
+  "protected_parts": [
+    "chen_hat_rim",
+    "chen_hat_lower",
+    "chen_hat_upper",
+    "chen_hat_top",
+    "chen_hat_scallop_0",
+    "chen_hat_scallop_1",
+    "chen_hat_scallop_2",
+    "chen_hat_scallop_3",
+    "chen_hat_scallop_4",
+    "chen_hat_scallop_5",
+    "chen_hat_scallop_6",
+    "chen_hat_scallop_7",
+    "chen_hat_scallop_8",
+    "chen_earring_0",
+    "chen_earring_1",
+    "chen_earring_2",
+    "chen_earring_3",
+    "chen_earring_4",
+    "chen_earring_5",
+    "chen_earring_6",
+    "chen_earring_7",
+    "chen_earring_8",
+    "chen_earring_9",
+    "chen_earring_10",
+    "chen_earring_11"
+  ]
+}

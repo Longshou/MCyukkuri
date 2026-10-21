@@ -44,14 +44,14 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "全身烧伤保持高度，颊部横向收窄并按既有 UV 派生干枯脸；咬伤采用分离齿痕与犬齿切入，烧伤重画非周期焦枯材质；每轮独立审图。普通伤与完好中枢外露按实际扣血和生命阈值对应，移除破裂中枢与空腔分支。制作源未接入。",
+      "summary": "24 套现有模型与形态：家油仅足部／全身烧伤且直接三级，其余22套机械伤各三级及条件露核。各自UV、发型、成长比例和虹膜适配；全身烧伤头饰同步焦褐、烟熏，独立饰物不挤扁。制作源未接入游戏。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
-      "demoPage": "hair-wounds/index.html",
+      "demoPage": "hair-wounds/species/index.html",
       "points": [
         "真实扣血决定新伤等级，同处旧伤按确定公式加深；普通露核须三级大缺损、生命≤30%与创腔通道。",
         "全身同高横向干瘦，焦褐到炭化分三级，去掉下巴描线；足部无全身形变。",
-        "一级闭合刀口与咬合痕更清晰，只保留完好中枢外露的素材分支。"
+        "家油受烧直接三级；妖梦按14点最大生命判断露核；水生魔理沙展示实际1.5倍帽饰。"
       ],
       "steps": [
         {
@@ -66,6 +66,22 @@
         }
       ],
       "gallery": [
+        {
+          "src": "hair-wounds/species/house_reimu/thermal.png",
+          "label": "家油仅烧伤与头饰褐变"
+        },
+        {
+          "src": "hair-wounds/species/remilia/overview.png",
+          "label": "带翼品种适配"
+        },
+        {
+          "src": "hair-wounds/species/marisa_tsumuri/thermal.png",
+          "label": "螺壳完整与身体干瘦"
+        },
+        {
+          "src": "hair-wounds/species/reimu_bean/overview.png",
+          "label": "豆形短头部伤位"
+        },
         {
           "src": "hair-wounds/reimu-hair-grades.png",
           "label": "黑发机械伤三级"
@@ -113,12 +129,26 @@
         "表面纹样沿真实状态显示；大创腔裁去皮面和覆盖的五官，中枢取出后只留空腔。动态蒙皮与游戏遮挡仍需试玩。"
       ],
       "steps": [
-        {"title": "中枢外露与空腔", "caption": "当前导出几何的整只、近看、侧视、裂损及取出后空腔；离线静态预览。", "image": "body-core-runtime/current.png"},
-        {"title": "当前身体印记", "caption": "十三张当前选用贴图，包含油霉四阶段、脏污三阶段和连续足缘焦化。", "image": "body-marks-runtime/current.png"}
+        {
+          "title": "中枢外露与空腔",
+          "caption": "当前导出几何的整只、近看、侧视、裂损及取出后空腔；离线静态预览。",
+          "image": "body-core-runtime/current.png"
+        },
+        {
+          "title": "当前身体印记",
+          "caption": "十三张当前选用贴图，包含油霉四阶段、脏污三阶段和连续足缘焦化。",
+          "image": "body-marks-runtime/current.png"
+        }
       ],
       "gallery": [
-        {"src": "body-marks-runtime/current.png", "label": "当前表面材质"},
-        {"src": "body-core-runtime/current.png", "label": "当前三维创腔"}
+        {
+          "src": "body-marks-runtime/current.png",
+          "label": "当前表面材质"
+        },
+        {
+          "src": "body-core-runtime/current.png",
+          "label": "当前三维创腔"
+        }
       ]
     },
     {

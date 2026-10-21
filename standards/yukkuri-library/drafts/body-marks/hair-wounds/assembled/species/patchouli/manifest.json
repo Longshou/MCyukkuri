@@ -1,0 +1,438 @@
+{
+  "model": "patchouli",
+  "label": "帕秋莉",
+  "runtime_selected": false,
+  "body_part": "rounded_body_surface",
+  "fit": {
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "receivers": [
+    "hair",
+    "skin"
+  ],
+  "styles": [
+    "scratch",
+    "tear",
+    "dent",
+    "puncture",
+    "thorn",
+    "impale",
+    "bite",
+    "blast"
+  ],
+  "grades": [
+    1,
+    2,
+    3
+  ],
+  "meshes": [
+    "hair-scratch-1-normal.json.gz",
+    "hair-scratch-2-normal.json.gz",
+    "hair-scratch-3-normal.json.gz",
+    "hair-tear-1-normal.json.gz",
+    "hair-tear-2-normal.json.gz",
+    "hair-tear-3-normal.json.gz",
+    "hair-tear-3-intact.json.gz",
+    "hair-dent-1-normal.json.gz",
+    "hair-dent-2-normal.json.gz",
+    "hair-dent-3-normal.json.gz",
+    "hair-dent-3-intact.json.gz",
+    "hair-puncture-1-normal.json.gz",
+    "hair-puncture-2-normal.json.gz",
+    "hair-puncture-3-normal.json.gz",
+    "hair-thorn-1-normal.json.gz",
+    "hair-thorn-2-normal.json.gz",
+    "hair-thorn-3-normal.json.gz",
+    "hair-impale-1-normal.json.gz",
+    "hair-impale-2-normal.json.gz",
+    "hair-impale-3-normal.json.gz",
+    "hair-bite-1-normal.json.gz",
+    "hair-bite-2-normal.json.gz",
+    "hair-bite-3-normal.json.gz",
+    "hair-bite-3-intact.json.gz",
+    "hair-blast-1-normal.json.gz",
+    "hair-blast-2-normal.json.gz",
+    "hair-blast-3-normal.json.gz",
+    "hair-blast-3-intact.json.gz",
+    "skin-scratch-1-normal.json.gz",
+    "skin-scratch-2-normal.json.gz",
+    "skin-scratch-3-normal.json.gz",
+    "skin-tear-1-normal.json.gz",
+    "skin-tear-2-normal.json.gz",
+    "skin-tear-3-normal.json.gz",
+    "skin-tear-3-intact.json.gz",
+    "skin-dent-1-normal.json.gz",
+    "skin-dent-2-normal.json.gz",
+    "skin-dent-3-normal.json.gz",
+    "skin-dent-3-intact.json.gz",
+    "skin-puncture-1-normal.json.gz",
+    "skin-puncture-2-normal.json.gz",
+    "skin-puncture-3-normal.json.gz",
+    "skin-thorn-1-normal.json.gz",
+    "skin-thorn-2-normal.json.gz",
+    "skin-thorn-3-normal.json.gz",
+    "skin-impale-1-normal.json.gz",
+    "skin-impale-2-normal.json.gz",
+    "skin-impale-3-normal.json.gz",
+    "skin-bite-1-normal.json.gz",
+    "skin-bite-2-normal.json.gz",
+    "skin-bite-3-normal.json.gz",
+    "skin-bite-3-intact.json.gz",
+    "skin-blast-1-normal.json.gz",
+    "skin-blast-2-normal.json.gz",
+    "skin-blast-3-normal.json.gz",
+    "skin-blast-3-intact.json.gz"
+  ],
+  "expressions": [
+    "angry",
+    "blank_cry",
+    "cheek_puff",
+    "chewing",
+    "chewing_closed",
+    "closed_smile",
+    "confused",
+    "cry",
+    "dazed",
+    "drool",
+    "happy",
+    "neutral",
+    "open_smile",
+    "puff",
+    "satisfied",
+    "sleep",
+    "sleepy",
+    "smug",
+    "squeezed_cry_tears",
+    "surprise",
+    "teary",
+    "yawn"
+  ],
+  "face_boxes": {
+    "face_eye_left": [
+      58,
+      0,
+      73,
+      12
+    ],
+    "face_eye_right": [
+      73,
+      0,
+      88,
+      12
+    ],
+    "face_brow_left": [
+      102,
+      0,
+      119,
+      6
+    ],
+    "face_brow_right": [
+      102,
+      6,
+      119,
+      12
+    ],
+    "face_mouth": [
+      0,
+      0,
+      28,
+      24
+    ],
+    "face_blush_left": [
+      88,
+      11,
+      98,
+      17
+    ],
+    "face_blush_right": [
+      58,
+      12,
+      68,
+      18
+    ],
+    "face_tear_left": [
+      28,
+      0,
+      43,
+      16
+    ],
+    "face_tear_right": [
+      43,
+      0,
+      58,
+      16
+    ],
+    "face_effect_mouth": [
+      88,
+      0,
+      102,
+      11
+    ]
+  },
+  "texture_size": 256,
+  "thermal": [
+    {
+      "model": "patchouli",
+      "scope": "sole",
+      "severity": 1,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 2,
+        "healthAfter": 8.0,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
+    },
+    {
+      "model": "patchouli",
+      "scope": "sole",
+      "severity": 2,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 4,
+        "healthAfter": 6.0,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
+    },
+    {
+      "model": "patchouli",
+      "scope": "sole",
+      "severity": 3,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 5,
+        "healthAfter": 5.0,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
+    },
+    {
+      "model": "patchouli",
+      "scope": "whole_body",
+      "severity": 1,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 2,
+        "healthAfter": 8.0,
+        "grade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 2 点，生命 10 → 8/10；不露中枢"
+      }
+    },
+    {
+      "model": "patchouli",
+      "scope": "whole_body",
+      "severity": 2,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 4,
+        "healthAfter": 6.0,
+        "grade": 2,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 4 点，生命 10 → 6/10；不露中枢"
+      }
+    },
+    {
+      "model": "patchouli",
+      "scope": "whole_body",
+      "severity": 3,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 10.0,
+        "healthBefore": 10.0,
+        "acceptedLoss": 5,
+        "healthAfter": 5.0,
+        "grade": 3,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "coreHealthThreshold": 0.3,
+        "label": "实际扣 5 点，生命 10 → 5/10；不露中枢"
+      }
+    }
+  ],
+  "growth": {
+    "stages": [
+      {
+        "id": "baby",
+        "label": "赤体 / 茎上实子",
+        "min_scale": 0.1,
+        "max_scale": 0.2,
+        "nourishment": [
+          0.0,
+          0.25
+        ],
+        "note": "胎生新生 0.14 出生，约 10 分钟长到 0.20；茎上实子从 0.10 长到 0.20，在茎上完成赤体期"
+      },
+      {
+        "id": "juvenile",
+        "label": "子体",
+        "min_scale": 0.2,
+        "max_scale": 0.8,
+        "nourishment": [
+          0.25,
+          1.0
+        ],
+        "note": "茎生落地即子体，从 0.20 起；营养和个体差异影响成长速度"
+      },
+      {
+        "id": "adult",
+        "label": "成体",
+        "min_scale": 0.8,
+        "max_scale": 1.2,
+        "nourishment": [
+          1.0,
+          1.5
+        ],
+        "note": "从 0.80 长到个体目标（0.80–1.20）；标准灵梦为 1.00 倍；普通大个体不自动成为 DOS"
+      }
+    ],
+    "stage_health": null,
+    "adult_only": false,
+    "form_scale": 1,
+    "rule": "Use the SAME actual body anchor/profile, followed by the same growth transform as the character; never use fixed world-size decals."
+  },
+  "core_example": {
+    "maxHealth": 10.0,
+    "healthBefore": 10.0,
+    "acceptedLoss": 7,
+    "healthAfter": 3.0,
+    "grade": 3,
+    "previousWoundGrade": 0,
+    "fittedOpening": true,
+    "coreHealthThreshold": 0.3,
+    "label": "实际扣 7 点，生命 10 → 3/10；满足露核条件"
+  },
+  "protected_parts": [
+    "patchouli_bonnet_rim",
+    "patchouli_bonnet_body",
+    "patchouli_bonnet_top",
+    "patchouli_bonnet_corner_rim-1",
+    "patchouli_bonnet_corner_body-1",
+    "patchouli_bonnet_corner_top-1",
+    "patchouli_bonnet_corner_rim1",
+    "patchouli_bonnet_corner_body1",
+    "patchouli_bonnet_corner_top1",
+    "patchouli_frill_0_-3.78",
+    "patchouli_frill_0_5.72",
+    "patchouli_frill_1_-4.96",
+    "patchouli_frill_1_6.8",
+    "patchouli_frill_2_-4.96",
+    "patchouli_frill_2_6.8",
+    "patchouli_frill_3_-4.96",
+    "patchouli_frill_3_6.8",
+    "patchouli_frill_4_-4.96",
+    "patchouli_frill_4_6.8",
+    "patchouli_frill_5_-4.96",
+    "patchouli_frill_5_6.8",
+    "patchouli_frill_6_-4.96",
+    "patchouli_frill_6_6.8",
+    "patchouli_frill_7_-4.96",
+    "patchouli_frill_7_6.8",
+    "patchouli_frill_8_-4.96",
+    "patchouli_frill_8_6.8",
+    "patchouli_frill_9_-4.96",
+    "patchouli_frill_9_6.8",
+    "patchouli_frill_10_-3.78",
+    "patchouli_frill_10_5.72",
+    "patchouli_side_frill_-1_0",
+    "patchouli_side_frill_-1_1",
+    "patchouli_side_frill_-1_2",
+    "patchouli_side_frill_-1_3",
+    "patchouli_side_frill_-1_4",
+    "patchouli_side_frill_-1_5",
+    "patchouli_hat_ribbon_-1",
+    "patchouli_side_frill_1_0",
+    "patchouli_side_frill_1_1",
+    "patchouli_side_frill_1_2",
+    "patchouli_side_frill_1_3",
+    "patchouli_side_frill_1_4",
+    "patchouli_side_frill_1_5",
+    "patchouli_hat_ribbon_1",
+    "patchouli_crescent_0_3",
+    "patchouli_crescent_0_4",
+    "patchouli_crescent_0_5",
+    "patchouli_crescent_0_6",
+    "patchouli_crescent_1_1",
+    "patchouli_crescent_1_2",
+    "patchouli_crescent_1_3",
+    "patchouli_crescent_1_4",
+    "patchouli_crescent_1_5",
+    "patchouli_crescent_1_6",
+    "patchouli_crescent_1_7",
+    "patchouli_crescent_1_8",
+    "patchouli_crescent_2_0",
+    "patchouli_crescent_2_1",
+    "patchouli_crescent_2_2",
+    "patchouli_crescent_2_3",
+    "patchouli_crescent_2_4",
+    "patchouli_crescent_2_5",
+    "patchouli_crescent_2_6",
+    "patchouli_crescent_2_7",
+    "patchouli_crescent_2_8",
+    "patchouli_crescent_2_9",
+    "patchouli_crescent_3_0",
+    "patchouli_crescent_3_1",
+    "patchouli_crescent_3_2",
+    "patchouli_crescent_3_3",
+    "patchouli_crescent_3_4",
+    "patchouli_crescent_3_9",
+    "patchouli_crescent_4_0",
+    "patchouli_crescent_4_1",
+    "patchouli_crescent_4_2",
+    "patchouli_crescent_4_3",
+    "patchouli_crescent_5_0",
+    "patchouli_crescent_5_1",
+    "patchouli_crescent_5_2",
+    "patchouli_crescent_6_0",
+    "patchouli_crescent_6_1",
+    "patchouli_crescent_6_2",
+    "patchouli_crescent_7_0",
+    "patchouli_crescent_7_1",
+    "patchouli_crescent_7_2",
+    "patchouli_crescent_8_0",
+    "patchouli_crescent_8_1",
+    "patchouli_crescent_8_2",
+    "patchouli_crescent_9_0",
+    "patchouli_crescent_9_1",
+    "patchouli_crescent_9_2",
+    "patchouli_crescent_10_1",
+    "patchouli_crescent_10_2",
+    "patchouli_crescent_10_3",
+    "patchouli_crescent_11_3",
+    "patchouli_crescent_11_4",
+    "patchouli_crescent_11_5"
+  ]
+}

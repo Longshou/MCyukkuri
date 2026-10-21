@@ -7,17 +7,23 @@ from PIL import Image, ImageDraw
 
 
 def face_boxes(model):
-    boxes={};size=model['texture_size'];vertices=model['vertices']
+    boxes={};size=model.get('texture_size',128);vertices=model['vertices']
     for part in model['parts']:
         if not part['name'].startswith('face_'):continue
         values=vertices[part['start']*8:(part['start']+part['count'])*8]
+        # Cuboid faces (house/bean/predator) share an invisible side-UV pixel.
+        # Only front-facing triangles define the expression island.
+        front=[]
+        for k in range(0,len(values),24):
+            tri=values[k:k+24]
+            if sum(tri[j+7] for j in (0,8,16))<-.6:front.extend(tri)
+        if front:values=front
         boxes[part['name']]=tuple(round(v*size) for v in [min(values[3::8]),min(values[4::8]),max(values[3::8]),max(values[4::8])])
     return boxes
 
 
 def apply_style(atlas,boxes,expression,grade):
     atlas=atlas.copy().convert('RGBA')
-    eye=(63,45,32,255);iris=(91,66,43,255);white=(183,164,126,255)
     crease=[(126,81,43,105),(91,61,38,145),(58,44,33,180)][grade-1]
     for name,box in boxes.items():
         w,h=box[2]-box[0],box[3]-box[1]
@@ -32,15 +38,18 @@ def apply_style(atlas,boxes,expression,grade):
         elif name.startswith('face_eye_'):
             part=atlas.crop(box)
             if grade>=2 and expression in ['neutral','mature','smug','confused','angry','puff','surprise']:
-                part=Image.new('RGBA',(w,h));draw=ImageDraw.Draw(part)
-                top=3 if expression=='surprise' else 5
-                bottom=8 if grade==2 else 7
-                draw.polygon([(2,top),(11,top+1),(12,bottom),(3,bottom)],fill=white)
-                draw.rectangle((6,top,8,bottom),fill=iris)
-                draw.line([(7,top),(7,bottom)],fill=eye,width=1)
-                lid=[(1,top-1),(5,top),(12,top+1)] if expression in ['angry','puff'] else [(1,top),(4,top-1),(9,top),(12,top+1)]
-                draw.line(lid,fill=eye,width=1)
-                if name.endswith('right'):part=part.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                if grade==2:
+                    # Keep the round pupil/iris and shorten the original open
+                    # eye vertically; white slit + vertical bar reads as a glare.
+                    short=part.resize((w,8),Image.Resampling.NEAREST)
+                    part=Image.new('RGBA',(w,h));part.paste(short,(0,3))
+                    draw=ImageDraw.Draw(part)
+                    draw.line([(2,4),(4,3),(9,3),(12,4)],fill=(76,62,48,220),width=1)
+                else:
+                    # Exhausted closed lids: no bright sclera or staring pupil.
+                    part=Image.new('RGBA',(w,h));draw=ImageDraw.Draw(part)
+                    draw.line([(2,6),(4,7),(7,7),(10,6),(12,5)],fill=(92,76,58,230),width=1)
+                    if name.endswith('right'):part=part.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             draw=ImageDraw.Draw(part)
             if grade>=2:draw.line([(1,7),(1,8)],fill=crease,width=1)
             atlas.paste(part,box[:2])

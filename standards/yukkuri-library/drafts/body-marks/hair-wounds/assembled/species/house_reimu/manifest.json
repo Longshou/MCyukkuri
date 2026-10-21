@@ -1,0 +1,248 @@
+{
+  "model": "house_reimu",
+  "label": "家灵梦",
+  "runtime_selected": false,
+  "body_part": "house_body_surface",
+  "fit": {
+    "scale": [
+      0.3375,
+      0.39791666666666664,
+      0.2730661696178937
+    ],
+    "offset": [
+      0.0,
+      0.0,
+      -0.16109040074557335
+    ]
+  },
+  "receivers": [],
+  "styles": [],
+  "grades": [
+    3
+  ],
+  "meshes": [],
+  "expressions": [
+    "angry",
+    "cheek_puff",
+    "chewing",
+    "chewing_closed",
+    "closed_smile",
+    "confused",
+    "cry",
+    "drool",
+    "happy",
+    "neutral",
+    "open_smile",
+    "satisfied",
+    "sleep",
+    "sleepy",
+    "surprise",
+    "teary",
+    "yawn"
+  ],
+  "face_boxes": {
+    "face_eye_left": [
+      58,
+      0,
+      73,
+      12
+    ],
+    "face_eye_right": [
+      73,
+      0,
+      88,
+      12
+    ],
+    "face_brow_left": [
+      102,
+      0,
+      119,
+      6
+    ],
+    "face_brow_right": [
+      102,
+      6,
+      119,
+      12
+    ],
+    "face_mouth": [
+      0,
+      0,
+      28,
+      24
+    ],
+    "face_blush_left": [
+      88,
+      11,
+      98,
+      17
+    ],
+    "face_blush_right": [
+      58,
+      12,
+      68,
+      18
+    ],
+    "face_tear_left": [
+      28,
+      0,
+      43,
+      16
+    ],
+    "face_tear_right": [
+      43,
+      0,
+      58,
+      16
+    ],
+    "face_effect_mouth": [
+      88,
+      0,
+      102,
+      11
+    ]
+  },
+  "texture_size": 128,
+  "thermal": [
+    {
+      "model": "house_reimu",
+      "scope": "sole",
+      "severity": 3,
+      "cause": "hot_floor",
+      "damage": {
+        "maxHealth": 4.0,
+        "healthBefore": 4.0,
+        "acceptedLoss": 1,
+        "healthAfter": 3.0,
+        "grade": 3,
+        "actualLossGrade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "selection": "house_burn_direct_grade_three",
+        "source": "Explicit user rule: house burns directly use grade three",
+        "runtime_selected": false,
+        "label": "家油受烧直接用三级外观；实际扣血不因此改写，运行选择待接入"
+      }
+    },
+    {
+      "model": "house_reimu",
+      "scope": "whole_body",
+      "severity": 3,
+      "cause": "body_fire",
+      "damage": {
+        "maxHealth": 4.0,
+        "healthBefore": 4.0,
+        "acceptedLoss": 1,
+        "healthAfter": 3.0,
+        "grade": 3,
+        "actualLossGrade": 1,
+        "previousWoundGrade": 0,
+        "fittedOpening": false,
+        "selection": "house_burn_direct_grade_three",
+        "source": "Explicit user rule: house burns directly use grade three",
+        "runtime_selected": false,
+        "label": "家油受烧直接用三级外观；实际扣血不因此改写，运行选择待接入"
+      }
+    }
+  ],
+  "growth": {
+    "stages": [
+      {
+        "id": "baby",
+        "min_scale": 0.32,
+        "max_scale": 0.5
+      },
+      {
+        "id": "juvenile",
+        "min_scale": 0.5,
+        "max_scale": 0.8
+      },
+      {
+        "id": "adult",
+        "min_scale": 0.8,
+        "max_scale": 1.0
+      }
+    ],
+    "stage_health": {
+      "baby": 1.0,
+      "juvenile": 2.0,
+      "adult": 4.0
+    },
+    "adult_only": false,
+    "form_scale": 1,
+    "rule": "Use the SAME actual body anchor/profile, followed by the same growth transform as the character; never use fixed world-size decals."
+  },
+  "core_example": null,
+  "protected_parts": [
+    "cuff_-1_house_fit_0",
+    "cuff_-1_house_fit_1",
+    "cuff_-1_house_fit_2",
+    "cuff_top_-1_house_fit_0",
+    "cuff_hem_-1_house_fit_0",
+    "cuff_fold_-1_house_fit_0",
+    "cuff_fold_-1_house_fit_1",
+    "cuff_fold_-1_house_fit_2",
+    "cuff_1_house_fit_0",
+    "cuff_1_house_fit_1",
+    "cuff_1_house_fit_2",
+    "cuff_top_1_house_fit_0",
+    "cuff_hem_1_house_fit_0",
+    "cuff_fold_1_house_fit_0",
+    "cuff_fold_1_house_fit_1",
+    "cuff_fold_1_house_fit_2",
+    "bow_inner_-1",
+    "bow_middle_-1",
+    "bow_outer_-1",
+    "bow_hem_-1",
+    "bow_edge_-1",
+    "bow_frill_0_-1",
+    "bow_frill_1_-1",
+    "bow_frill_2_-1",
+    "bow_frill_3_-1",
+    "bow_frill_top_-1",
+    "bow_frill_bottom_-1",
+    "bow_fold_0_-1",
+    "bow_fold_1_-1",
+    "bow_tail_top_-1_house_fit_0",
+    "bow_tail_top_-1_house_fit_1",
+    "bow_tail_top_-1_house_fit_2",
+    "bow_tail_top_-1_house_fit_3",
+    "bow_tail_mid_-1_house_fit_0",
+    "bow_tail_mid_-1_house_fit_1",
+    "bow_tail_mid_-1_house_fit_2",
+    "bow_tail_mid_-1_house_fit_3",
+    "bow_tail_end_-1_house_fit_0",
+    "bow_tail_end_-1_house_fit_1",
+    "bow_tail_end_-1_house_fit_2",
+    "bow_tail_end_-1_house_fit_3",
+    "bow_tail_hem_-1_house_fit_0",
+    "bow_inner_1",
+    "bow_middle_1",
+    "bow_outer_1",
+    "bow_hem_1",
+    "bow_edge_1",
+    "bow_frill_0_1",
+    "bow_frill_1_1",
+    "bow_frill_2_1",
+    "bow_frill_3_1",
+    "bow_frill_top_1",
+    "bow_frill_bottom_1",
+    "bow_fold_0_1",
+    "bow_fold_1_1",
+    "bow_tail_top_1_house_fit_0",
+    "bow_tail_top_1_house_fit_1",
+    "bow_tail_top_1_house_fit_2",
+    "bow_tail_top_1_house_fit_3",
+    "bow_tail_mid_1_house_fit_0",
+    "bow_tail_mid_1_house_fit_1",
+    "bow_tail_mid_1_house_fit_2",
+    "bow_tail_mid_1_house_fit_3",
+    "bow_tail_end_1_house_fit_0",
+    "bow_tail_end_1_house_fit_1",
+    "bow_tail_end_1_house_fit_2",
+    "bow_tail_end_1_house_fit_3",
+    "bow_tail_hem_1_house_fit_0",
+    "bow_knot",
+    "bow_knot_fold"
+  ]
+}
