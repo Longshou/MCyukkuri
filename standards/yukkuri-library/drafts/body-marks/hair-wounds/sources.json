@@ -1,0 +1,25 @@
+{
+  "policy": "Every authored sample names its actual cause. Code proves a project damage path, not an original-work visual reference. User rules override code. Grade dimensions and colors remain authored project design, not sourced facts.",
+  "references": {
+    "user_thermal": {"type": "user_rule", "locator": "2026-10-22 当前会话：烧伤只有可能是脚部或者全身性质，不存在局部", "supports": "Only sole and whole-body thermal scopes; no isolated scalp burn or thermal core-hole sample."},
+    "user_hair": {"type": "user_rule", "locator": "2026-10-22 当前会话：砸击随体表凹陷，裂伤处断发直接消失，不做散落头发", "supports": "Shared dent deformation and local severing only at a genuine break."},
+    "user_filling": {"type": "user_rule", "locator": "2026-10-22 当前会话：中枢馅与周边材质区别过强、边界感太强", "supports": "Continuous material family without an isolated organ-like shell."},
+    "injury_code": {"type": "project_code", "path": "src/main/java/io/github/longshou/mcyukkuri/body/InjuryModel.java", "symbols": ["kind", "underfoot", "severity"], "supports": "Actual damage-source mapping and project grades; not a visual authority."},
+    "body_signs": {"type": "project_code", "path": "src/main/java/io/github/longshou/mcyukkuri/body/BodySigns.java", "symbols": ["open", "deep"], "supports": "Existing mechanical opening grades; does not authorize arbitrary thermal holes."},
+    "body_l36": {"type": "repository_source_extract", "path": "wiki/hakkei-reference/lore/entities-sources.md", "url": "https://komicolle.org/c/40720", "locator": "L36 身体与面皮、足部与行动、馅与中枢馅", "supports": "Elastic skin, heat-damaged sole and deep central filling. Original page timed out during this review; repository extract only."},
+    "dense_filling_e01": {"type": "author_specific_work", "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html", "locator": "2.1 餡／餡密度", "supports": "Central filling described as denser filling; not a differently colored organ. Read on 2026-10-22; author labels the work personal setting. Numerical proportions are not adopted."}
+  },
+  "causes": {
+    "friction_contact": {"kind": "scratch", "label": "滚动／拖行摩擦", "evidence": ["injury_code", "body_signs"], "locator": "kind: contactPose ROLL/SLIDE -> SCRATCH", "visual_boundary": "Shallow directional scuff; grades do not make a core cavity."},
+    "blade_cut": {"kind": "tear", "label": "刀刃切割", "evidence": ["injury_code", "body_signs", "user_hair"], "locator": "kind: SWORDS / cutting_knife -> TEAR", "visual_boundary": "Directional split; these samples do not claim to depict tooth spacing, projectile entry or explosion damage."},
+    "blunt_impact": {"kind": "dent", "label": "钝击／落物压击", "evidence": ["injury_code", "body_signs", "user_hair"], "locator": "kind: default DENT; crush: FALLING_ANVIL / FALLING_BLOCK", "visual_boundary": "Compression precedes rupture; grade 1/2 preserve skin and hair topology."},
+    "hot_floor": {"kind": "scorch", "scope": "sole", "label": "热地板接触足底", "evidence": ["user_thermal", "injury_code", "body_l36"], "locator": "underfoot: HOT_FLOOR; analyse: soleSite", "visual_boundary": "Continuous underside and sole edge only; no scalp spot or thermal core hole."},
+    "body_fire": {"kind": "scorch", "scope": "whole_body", "label": "全身着火", "evidence": ["user_thermal", "injury_code"], "locator": "kind: IS_FIRE -> SCORCH; whole-body extent required by current user rule", "visual_boundary": "Whole body and hair share continuous heat damage. Existing runtime anchor still conflicts with this scope."}
+  },
+  "runtime_gaps": [
+    "InjuryModel currently treats heated_awl as local SCORCH; incompatible with the current two-scope rule. No art is exported for that path.",
+    "IN_FIRE/LAVA currently use soleSite; fire context and whole-body coverage still need runtime integration.",
+    "BodySigns currently allows deep SCORCH to expose core; no corresponding thermal-only cavity is authored.",
+    "TEAR also groups projectile, bite, thorn, explosion and hard-fall sources; the blade samples do not prove those distinct shapes. Runtime cause-specific art selection remains pending."
+  ]
+}

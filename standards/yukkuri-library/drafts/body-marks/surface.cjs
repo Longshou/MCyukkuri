@@ -10,6 +10,7 @@ const {RuntimePose}=require(path.join(root,'preview/review/pose.js'));
 const {createCavity}=require('./cavity.cjs');
 const {createRuntimeCavity}=require('./preview_cavity.cjs');
 const {createHairWound}=require('./hair-wounds/author.cjs');
+const {createThermal}=require('./hair-wounds/thermal.cjs');
 const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8'));
 const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
@@ -26,6 +27,8 @@ for(const job of jobs){
   if(job.woundMesh){const data=JSON.parse(require('zlib').gunzipSync(fs.readFileSync(job.woundMesh)));for(const key of ['vertices','colors','materials','surfaceEdits'])cavity[key]=data[key];}
   if(cavity?.surfaceEdits)for(const [index,x,y,z,nx,ny,nz] of cavity.surfaceEdits){const i=index*8;vertices[i]=x;vertices[i+1]=y;vertices[i+2]=z;vertices[i+5]=nx;vertices[i+6]=ny;vertices[i+7]=nz;}
   const decal=job.woundDecal?fs.readFileSync(job.woundDecal):null,decalSize=job.decalSize||512;
+  const thermal=job.thermal?createThermal({...job.thermal,model:job.model},pose.model.parts):null;
+  const thermalPixels=thermal?fs.readFileSync(job.thermalTexture):null;
   if(cavity)vertices=Float64Array.from([...vertices,...cavity.vertices]);
   const texture=fs.readFileSync(job.texture),ts=model.texture_size||128;
   const w=job.width,h=job.height,n=w*h;
@@ -66,7 +69,7 @@ for(const job of jobs){
       if(!solid&&texture[t+3]<128)continue;
       depth[index]=z;
       let light=wa*lights[0]+wb*lights[1]+wc*lights[2];
-      if(solid&&cavity.materials[-1-vertices[i+3]]==='filling'){
+      if(solid&&['filling','core'].includes(cavity.materials[-1-vertices[i+3]])){
         const hash=Math.sin(Math.floor(point[0]*32)*127.1+Math.floor(point[1]*32)*311.7+Math.floor(point[2]*32)*74.7)*43758.5453;
         light*=.94+.12*(hash-Math.floor(hash));
       }
@@ -82,6 +85,12 @@ for(const job of jobs){
           const t=(ty*decalSize+tx)*4,alpha=decal[t+3]/255;
           for(let k=0;k<3;k++)pixels[p+k]=Math.floor(pixels[p+k]*(1-alpha)+decal[t+k]*light*alpha);
         }
+      }
+      if(thermal&&!solid){
+        const coverage=thermal.coverage(point,part?.name),uv=thermal.uv(point,norm);
+        const ti=(Math.min(511,Math.floor(uv[1]*512))*512+Math.min(511,Math.floor(uv[0]*512)))*4;
+        const alpha=coverage*thermalPixels[ti+3]/255;
+        for(let k=0;k<3;k++)pixels[p+k]=Math.floor(pixels[p+k]*(1-alpha)+thermalPixels[ti+k]*light*alpha);
       }
       pixels[p+3]=255;buffer[q+6]=light;
       buffer[q+7]=paintable.some(part=>i/8>=part.start&&i/8<part.start+part.count)?1:0;

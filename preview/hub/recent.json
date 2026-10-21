@@ -24,24 +24,48 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "四类活动伤各三级；裂伤、凹伤、灼伤各有三种中枢状态。黑发、金发、裸皮对照，原发面保留至不规则断口。尚未接入游戏发面裁切。",
+      "summary": "逐份登记伤因：摩擦、刀割、钝击；烧伤仅足部／全身各三级。中枢与腔壁共用馅料材质。制作源尚未接入游戏。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
-        "擦伤、裂伤、凹伤、灼伤均包含 1–3 级，按实际开放程度制作。",
-        "撕裂保留参差断端，压碎保留折发，烧损保留焦茬；断离部分消失，不制作散落头发。",
-        "中枢外露继承伤因，外侧头发和附着毛束保留并真实遮挡创腔，不做统一剃空环带。"
+        "伤因须有来源：摩擦擦伤、刀割裂伤、钝击凹伤，不能用一种裂口冒充所有来源。",
+        "烧伤只做足部接触和全身着火，撤掉局部焦斑与烧伤露核样例。",
+        "中枢与周围同色同质，保留中央位置、深度和残留头发遮挡。"
       ],
       "steps": [
-        {"title": "通用伤口", "caption": "当前制作源网格与贴图的静态模型预览，游戏接入待完成。", "image": "hair-wounds/current.png"},
-        {"title": "四类三级", "caption": "每行一种伤口，依次为 1、2、3 级。", "image": "hair-wounds/marisa-hair-grades.png"}
+        {
+          "title": "通用伤口",
+          "caption": "当前制作源网格与贴图的静态模型预览，游戏接入待完成。",
+          "image": "hair-wounds/current.png"
+        },
+        {
+          "title": "机械伤三级",
+          "caption": "每行一种伤口，依次为 1、2、3 级。",
+          "image": "hair-wounds/marisa-hair-grades.png"
+        }
       ],
       "gallery": [
-        {"src": "hair-wounds/reimu-hair-grades.png", "label": "黑发四类三级"},
-        {"src": "hair-wounds/reimu-skin-grades.png", "label": "裸皮四类三级"},
-        {"src": "hair-wounds/reimu-hair-core.png", "label": "三伤因与三中枢状态"},
-        {"src": "hair-wounds/sides.png", "label": "残余发缘侧视"}
+        {
+          "src": "hair-wounds/reimu-hair-grades.png",
+          "label": "黑发机械伤三级"
+        },
+        {
+          "src": "hair-wounds/reimu-skin-grades.png",
+          "label": "裸皮机械伤三级"
+        },
+        {
+          "src": "hair-wounds/reimu-hair-core.png",
+          "label": "两种伤因与三中枢状态"
+        },
+        {
+          "src": "hair-wounds/sides.png",
+          "label": "残余发缘侧视"
+        },
+        {
+          "src": "hair-wounds/marisa-thermal.png",
+          "label": "足部与全身烧伤"
+        }
       ]
     },
     {

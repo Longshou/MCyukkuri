@@ -1,4 +1,4 @@
-"""Four actual injury types, three authored grades each; no new game states."""
+"""Source-backed mechanical injury decals and continuous thermal material; no new game states."""
 import io
 import numpy as np
 from PIL import Image
@@ -50,16 +50,15 @@ def material(kind, grade=1, size=512):
             p=[(.34*np.cos(angle),.34*np.sin(angle)),(.60*np.cos(angle+.06),.60*np.sin(angle+.06)),(.83*np.cos(angle),.83*np.sin(angle))]
             s.put((48,33,27),stroke(x,y,p,.012+.004*grade)*.5)
             s.put((185,151,104),stroke(x-.014,y+.012,p,.007)*.35)
-    elif kind=='scorch':
-        r=source.blob(x,y,.84,.82,28,.11)
-        s.put((134,87,40),(1-smooth(.65,1.1,r))*(.30+.16*grade))
-        if grade>=2:
-            s.put((43,35,28),(1-smooth(.48,.94,r))*(.70 if grade==2 else .97))
-            s.put((25,23,22),(1-smooth(.08,.64,r))*.67)
-        for j in range([3,7,12][grade-1]):
-            xx=-.65+j*1.3/max(1,[3,7,12][grade-1]-1)
-            p=[(xx-.035,-.60),(xx+.035,-.22),(xx-.035,.20),(xx+.02,.57)]
-            s.put((111,88,58),stroke(x,y,p,.008+.002*grade)*(1-smooth(.72,1,r))*(.4+.15*grade))
+    elif kind=='thermal':
+        # Seamless material over an extent mask, not a local wound decal.
+        grain=rng.random(x.shape)
+        waves=np.sin(x*np.pi*6+.3*np.sin(y*np.pi*4))*np.sin(y*np.pi*5)
+        fissure=(np.abs(waves)<.045)*(grade>=2)
+        base=np.array([(157,108,58),(77,57,37),(36,31,25)][grade-1])
+        color=base[None,None,:]*(.92+.16*grain[...,None])
+        color*=1-fissure[...,None]*(.18+.05*grade)
+        s.put(color,np.full(x.shape,[.35,.65,.90][grade-1]))
     elif kind=='scar':
         p=[(-.82,-.09),(-.43,-.035),(-.1,.04),(.25,.02),(.78,.14)]
         s.put((46,34,28),stroke(x,y+.014,p,.038)*.62)
