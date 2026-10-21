@@ -147,8 +147,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private Cannibalism cannibalism;
     public Cannibalism cannibalism() { return cannibalism; }
     /** Last words to kin and sacrifice against predators (static hooks plus a clock). */
-    private final GriefLife grief = new GriefLife(this);
+    private GriefLife grief;
+    void createGrief() { grief = new GriefLife(this); }
     public GriefLife grief() { return grief; }
+    public void beginProtectionApproach() { if (grief.protecting()) panicTicks = 0; }
     /** "Please eat me": a parent gives its body to a starving child (created in registerGoals). */
     private SelfOffering offering;
     public SelfOffering offering() { return offering; }
@@ -397,6 +399,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public SurfaceLife surfaceLife(){return surfaceLife;}
     public void frightenFrom(YukkuriEntity threat) {
         if(level().isClientSide||!isAlive()||life.isSleeping())return;
+        if(grief.protecting())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
         fleeFrom(threat);
     }
@@ -838,7 +841,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     YukkuriAction requestedActionValue() { return requestedAction; }
     boolean hurtBase(DamageSource source, float amount) {
         int previousHurt = hurtTime, previousDuration = hurtDuration;
+        Vec3 previousMotion = getDeltaMovement();
         boolean accepted = super.hurt(source, amount);
+        if (YukkuriLife.isSoaking(source)) setDeltaMovement(previousMotion);
         if (source.is(DamageTypes.STARVE)) { hurtTime = previousHurt; hurtDuration = previousDuration; }
         return accepted;
     }

@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
+import io.github.longshou.mcyukkuri.life.CombatCourage;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
@@ -148,7 +149,7 @@ public final class PredatorLife implements EcologyRoutine {
                 && !animal.isInWaterOrBubble() && !animal.isOnFire();
     }
     public boolean wantsHunt() {
-        if (!ready() || !animal.family().adult() || animal.life().energy() < 30) return false;
+        if (!ready() || !animal.family().adult() || animal.life().energy() < 30 || !CombatCourage.willing(animal)) return false;
         if (order() == Order.PEACEFUL || order() == Order.RETURN) return false;
         int threshold = 45 + animal.life().personality().trait(Trait.BOLDNESS) / 5;
         if (order() == Order.HUNT) threshold = 75;
@@ -175,13 +176,13 @@ public final class PredatorLife implements EcologyRoutine {
         return true;
     }
     private boolean retaliationReady() {
-        return ready() && animal.family().adult() && animal.body().healthRatio() > .4f
+        return ready() && animal.family().adult() && CombatCourage.willing(animal)
                 && animal.life().energy() >= 20 && order() != Order.PEACEFUL && order() != Order.RETURN;
     }
     /** Read-only status detail; StatusKey owns the command-facing key. */
     public String describe() {
         return "task=" + task.name().toLowerCase() + " target=" + (prey == null ? "none" : "#" + prey.getId())
-                + " retaliation=" + retaliation + " huntRange=" + HUNT_RANGE
+                + " retaliation=" + retaliation + " boldness=" + animal.life().personality().boldness() + " retreatRatio=" + CombatCourage.retreatRatio(animal) + " huntRange=" + HUNT_RANGE
                 + " preySpeed=" + (prey == null ? 0 : prey.getAttributeValue(Attributes.MOVEMENT_SPEED)) + " blocking=" + blocking();
     }
     private String blocking() {
@@ -194,7 +195,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.operations().active() || animal.pet().busy()) return "occupied";
         if (animal.life().isSleeping() || animal.life().mealTicks() != 0) return "life";
         if (!animal.family().adult()) return "not_adult";
-        if (animal.body().healthRatio() <= .4f) return "injured";
+        if (!CombatCourage.willing(animal)) return "courage_or_health";
         if (animal.life().energy() < 20) return "energy";
         if (order() == Order.PEACEFUL || order() == Order.RETURN) return "order_" + order().name().toLowerCase();
         if (!active() && cooldown > 0) return "cooldown";

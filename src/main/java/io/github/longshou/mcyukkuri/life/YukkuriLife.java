@@ -371,10 +371,13 @@ public final class YukkuriLife {
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
         if (ageTicks % 20 == 0) {
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
-            else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + entity.subspecies().waterGain(2));
+            else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + (entity.profile().aquatic() ? 1.5f : entity.subspecies().waterGain(3)));
             else wetness = Math.max(0, wetness - 3);
-            if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % 100 == 0)
-                entity.hurt(soaking(), 1);
+            if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % (entity.profile().aquatic() ? 200 : 100) == 0) {
+                float before = entity.getHealth();
+                boolean accepted = entity.hurt(soaking(), 1);
+                GameplayLog.event(entity,"needs","soaking damage wetness={} aquatic={} accepted={} health={} -> {}",wetness,entity.profile().aquatic(),accepted,before,entity.getHealth());
+            }
         }
         temperature.tick();
         if (!entity.isAlive()) return;

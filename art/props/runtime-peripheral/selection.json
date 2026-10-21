@@ -201,17 +201,17 @@
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.mesh.json",
-      "sha256": "27b0d8d3252adf6ba07d1b13b47b6c1b99a9e98fa0f38540ef521d5732795dce",
+      "sha256": "f25cdd5ce68e1ea333fca7e9854dbdd10d388ac18e114c0667165577cfcc0eb4",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/yukkuri_nest.bbmodel",
-      "sha256": "2f6119b78701e3d300942c83192e06900fdef9dceb18d4d836e1de4c39ef82c7",
+      "sha256": "23a7f973947443009716bc0fe1044712e89798bf6549e56d0b44fb864abe4871",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_nest/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_nest/texture.png",
-      "sha256": "dfeef1525dfe4c1d9debc4979261b008bef156ccad21657cd20344bcf950b6f9",
+      "sha256": "68031eba3b825664cfc5b1e1c1ebad7da9ee6fa8679dfcb18f5fdb92f2f92f0d",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/oil_grain_budget/oil_grain_budget.mesh.json": {

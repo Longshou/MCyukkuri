@@ -5,6 +5,8 @@ import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.season.Season;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ public final class ForageGoal extends Goal {
     private static final int MAX_PATH_TESTS = 3;
     private final YukkuriEntity entity;
     private BlockPos target;
+    private BlockPos searchSpot;
+    private boolean running;
     private ForageClaims.Claim claim;
     private int cooldown, elapsed;
     public ForageGoal(YukkuriEntity entity) {
@@ -38,7 +42,7 @@ public final class ForageGoal extends Goal {
     /** A proposed target can precede start; running ownership is checked outside this pure query. */
     @Nullable public String activity() {
         if (entity.life().mealTicks() > 0) return entity.life().activity();
-        return target == null ? null : Behaviors.FORAGE_SEEK;
+        return running ? Behaviors.FORAGE_SEEK : null;
     }
 
     private ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -53,10 +57,15 @@ public final class ForageGoal extends Goal {
         double skill = MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
         int reach = (int) Math.round(TravelRange.search(entity, 6) * skill * entity.life().personality().exploreMultiplier());
-        if (SettlementSeasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
+        if (SettlementSeasons.forageBlocked(entity)) return false;
+        findFood(reach);
+        elapsed = 0; searchSpot = null;
+        return true;
+    }
+    private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
-            if (grass(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());
+            if (edible(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());
         found.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atCenterOf(pos))));
         // A claim from an earlier offer that the goal selector never started would otherwise linger.
         ForageClaims.release(claim);
@@ -69,18 +78,38 @@ public final class ForageGoal extends Goal {
                 if (claim != null) { target = pos; break; }
             }
         }
-        elapsed = 0;
-        if (target == null) return false;
-        return true;
+    }
+    @Override public void start() {
+        running = true;
+        GameplayLog.limited(entity,"forage","start",1200,"food search started target={} nutrition={}",target,entity.life().nutrition());
     }
     @Override public boolean canContinueToUse() {
-        return target != null && ForageClaims.owns(level(), target, claim) && elapsed < 400 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
+        return running && elapsed < 400 && (target == null || ForageClaims.owns(level(), target, claim) && edible(target)) && !entity.family().awaitingLanding() && entity.life().canEat()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void tick() {
         elapsed++;
         if (!canContinueToUse()) { stop(); return; }
+        if (target == null) {
+            if (elapsed % 40 == 1 && SearchBudget.take(level(),entity,Purpose.FORAGE)) {
+                findFood((int)Math.round(TravelRange.search(entity,6)*MyonLife.forageScale(entity)*entity.life().personality().exploreMultiplier()));
+                if(target != null) {
+                    GameplayLog.event(entity,"forage","food found target={} elapsed={}",target,elapsed);
+                    searchSpot = null;
+                    return;
+                }
+            }
+            if (elapsed % 20 == 1 && (searchSpot == null || entity.getNavigation().isDone())) {
+                var point = LandRandomPos.getPos(entity,TravelRange.search(entity,12),3);
+                if (point != null && TravelRange.babyDestination(entity,BlockPos.containing(point))
+                        && Reactions.Weather.allowsStep(entity,BlockPos.containing(point)) && entity.family().allowsIdleWalk(point)) {
+                    searchSpot = BlockPos.containing(point);
+                    entity.life().navigate(searchSpot,1,false);
+                }
+            }
+            return;
+        }
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) < 1) {
             // One bite takes the plant back one growth stage (Grazing); it grows again on game time, so the meadow lasts.
             if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
@@ -91,6 +120,7 @@ public final class ForageGoal extends Goal {
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE,0);
         ForageClaims.release(claim); claim = null;
+        running = false; searchSpot = null;
         target = null; cooldown = 60; entity.getNavigation().stop();
     }
 }

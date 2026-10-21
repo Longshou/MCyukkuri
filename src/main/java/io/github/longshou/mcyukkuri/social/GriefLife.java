@@ -3,6 +3,11 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import net.minecraft.world.entity.ai.goal.Goal;
+import java.util.EnumSet;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +34,11 @@ public final class GriefLife {
     private String danger = "none", decision = "waiting", physicalBlock = "none";
     private int chance;
     private boolean decided;
+    private YukkuriEntity challenger, protectedChild;
+    private int protectTicks, tauntTicks;
+    private boolean protecting;
+    public boolean protecting() { return challenger != null; }
+    public String activity() { return protecting ? (tauntTicks > 0 ? Behaviors.PROTECT_TAUNT : Behaviors.PROTECT_APPROACH) : null; }
 
     public GriefLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -36,7 +46,8 @@ public final class GriefLife {
     /** Read-only status detail; a danger is rolled once, then retained until that exact chase ends. */
     public String describe() {
         return "danger=" + danger + " decision=" + decision + " chance=" + chance
-                + " physical_block=" + physicalBlock + " cooldown=" + sacrificeWait + " decided=" + decided;
+                + " physical_block=" + physicalBlock + " cooldown=" + sacrificeWait + " decided=" + decided
+                + " phase=" + activity() + " elapsed=" + protectTicks + " tauntTicks=" + tauntTicks;
     }
 
     // ---- last words ------------------------------------------------------------------------------------------------------------
@@ -84,6 +95,12 @@ public final class GriefLife {
     /** Every tick from the entity. */
     public void clock() {
         if (entity.level().isClientSide) return;
+        if (challenger != null) {
+            if (!protecting && (++protectTicks > 40 || !challenger.isAlive() || challenger.predator().prey() != protectedChild)) {
+                challenger = protectedChild = null; decision = "approach_unavailable";
+            }
+            return;
+        }
         if (sacrificeWait > 0) { sacrificeWait--; return; }
         if (++sacrificeCheck < 10) return;
         sacrificeCheck = 0;
@@ -125,12 +142,11 @@ public final class GriefLife {
                 sacrificeWait = 0;
                 return;
             }
-            if (predator.predator().divert(entity)) {
-                sacrificeWait = 3600;
+            if (physicalBlock.equals("none")) {
+                challenger = predator; protectedChild = prey; protectTicks = tauntTicks = 0;
                 entity.life().personality().decided("protect_child");
-                decision = "diverted"; decided = true;
-                entity.showReaction("angry", "sacrifice", 100);
-                GameplayLog.event(entity, "grief", "protection diverted predator={} child={} chance={}",
+                decision = "approaching"; decided = true;
+                GameplayLog.event(entity, "grief", "protection approach predator={} child={} chance={}",
                         predator.getUUID(), prey.getUUID(), chance);
                 return;
             }
@@ -156,5 +172,56 @@ public final class GriefLife {
     }
     private boolean isMyChild(YukkuriEntity other) {
         return Bonds.parentOf(entity, other);
+    }
+    public Goal goal() { return new ProtectionGoal(); }
+    private final class ProtectionGoal extends Goal {
+        ProtectionGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
+        @Override public boolean canUse() { return challenger != null && valid(); }
+        private boolean valid() {
+            return entity.isAlive() && !entity.isNoAi() && !entity.body().dying() && !entity.isPassenger()
+                    && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.isCommandPlaying() && !entity.operations().active()
+                    && challenger != null && challenger.isAlive() && protectedChild != null && protectedChild.isAlive()
+                    && challenger.predator().prey() == protectedChild && protectTicks < 160 && protectBlock().equals("none")
+                    && (!protecting || !entity.isPanicking());
+        }
+        @Override public boolean canContinueToUse() { return valid(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { protecting = true; entity.beginProtectionApproach(); entity.life().interrupt(); }
+        @Override public void tick() {
+            protectTicks++;
+            entity.getLookControl().setLookAt(challenger,30,30);
+            if (entity.distanceToSqr(challenger) > 36 || !entity.hasLineOfSight(challenger)) {
+                tauntTicks = 0;
+                if(protectTicks % 10 == 1) entity.getNavigation().moveTo(challenger,1.15);
+                return;
+            }
+            SurfaceApproach.halt(entity);
+            SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),challenger.position()));
+            if (++tauntTicks == 1) {
+                decision = "taunting";
+                entity.showReaction("cheek_puff","protect_taunt",45);
+                GameplayLog.event(entity,"grief","protection taunt predator={} child={} distance={}",challenger.getUUID(),protectedChild.getUUID(),entity.distanceTo(challenger));
+            }
+            if (tauntTicks < 32) return;
+            if (challenger.predator().divert(entity)) {
+                decision = "diverted"; sacrificeWait = 3600;
+                challenger.showReaction("angry","protect_angered",60);
+                int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());
+                int friendliness = protectedChild.life().personality().friendliness();
+                String response = affinity >= 40 && friendliness >= 40 ? "protect_child_worry" : friendliness < 35 ? "protect_child_selfish" : "protect_child_flee";
+                protectedChild.showReactionDelayed(affinity >= 40 ? "teary" : "surprise",response,80,12);
+                GameplayLog.event(entity,"grief","protection diverted predator={} child={} affinity={} friendliness={} response={}",challenger.getUUID(),protectedChild.getUUID(),affinity,friendliness,response);
+                entity.fleeFrom(challenger);
+            } else decision = "divert_blocked";
+            protectTicks = 160;
+        }
+        @Override public void stop() {
+            if (!decision.equals("diverted")) {
+                decision = "interrupted";
+                GameplayLog.event(entity,"grief","protection interrupted ticks={} predator={} child={}",protectTicks,challenger==null?null:challenger.getUUID(),protectedChild==null?null:protectedChild.getUUID());
+            }
+            challenger = protectedChild = null; protecting = false; tauntTicks = 0;
+            entity.getNavigation().stop();
+        }
     }
 }

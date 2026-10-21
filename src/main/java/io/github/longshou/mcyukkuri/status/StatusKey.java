@@ -189,6 +189,10 @@ public enum StatusKey {
     LEAK("needs", "leak", 0, null, (y, raw) -> y.life().involuntaryRelease("status", true) ? null : "nothing released (bladder under 15, on cooldown, or blocked)"),
     FLOUR_ADDICTION("health", "flour_addiction", 0, y -> y.life().addicted(), null),
     // ---- marks (appearance) -----------------------------------------------------------------------------------
+    FACE_MARKS("marks", "face", 0, y -> y.body().faceMarks(), (y, raw) -> {
+        if (!raw.equals("true") && !raw.equals("false")) return "true or false";
+        y.body().faceMarks(Boolean.parseBoolean(raw)); return null;
+    }),
     DIRT("marks", "dirt", 0, y -> y.status().marks().dirt(), (y, raw) -> {
         Float v = number(raw);
         return v != null && y.status().marks().setGrime(Math.round(v)) ? null : "dirt must be 0-3";

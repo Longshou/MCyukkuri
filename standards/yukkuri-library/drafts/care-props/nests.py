@@ -7,14 +7,13 @@ QUILT_AT = (16, 0)          # 16x16 texel quilted cushion top (1 texel per unit)
 
 # Real body sizes (runtime models, BEHAVIOR.md): standard adult 12.8 wide x 10.7 deep x 9.6 high, individual target up
 # to 1.2x (15.4 wide), deibu x1.5, Reimu with ribbon 17.4 wide. The pet bed is an artificial cushion, so it may overhang
-# the placement block: interior 16.4 across (R 8.2), outer 24 across (R 12).
-BED_IN = 8.2
-BED_FLOOR = 2.0             # standing surface; matches the CareBlock collision height for yukkuri_nest
+# the placement block. The current shallow nest is 20 wide; its low profile and entrance also define CareBlock collision.
+BED_IN = 8.0
+BED_FLOOR = 1.5             # inner surface; low shell/entrance profile matches CareBlock.nestShape
 
 
 def yukkuri_nest():
-    """Round pet cushion bed sized for adults: a thick rolled strawberry rim (about 4.5 high, outer diameter 24) around a
-    quilted cream cushion with an interior 16.4 across, a seam ring and a cream piping."""
+    """Soft shallow fabric nest with a lowered entrance and a cream quilted hollow; no tall rolled wall."""
     p = Prop('yukkuri_nest', wide=True)
     ox, oy = QUILT_AT
     fill(p.img, ox, oy, 16, 16, C('paper', 2))
@@ -26,15 +25,28 @@ def yukkuri_nest():
         p.img.putpixel((ox + x, oy + y), colour('berry', 2) + (255,))
     top = Planar(ox + 8, oy + 8, ax=0, ay=2, sx=.96, sy=.96)    # 16 texels across the 16.4 interior
     cushion = p.part('quilted_cushion')
-    profile = [(0, 0), (10.8, 0), (10.8, 1.3), (BED_IN, 2.2), (5, BED_FLOOR + .1), (2.5, BED_FLOOR), (0, BED_FLOOR - .05)]
-    specs = [C('paper', 0), C('paper', 1), C('paper', 1), top, top, top]
-    for i in range(len(profile) - 1):
-        p.lathe(cushion, profile[i:i + 2], specs[i], seg=20, smooth='both' if i >= 3 else 'around', grid=.25)
-    rim = p.part('rolled_rim')
-    tone = [C('berry', 0), C('berry', 1), C('berry', 2), C('berry', 3), C('berry', 2), C('berry', 1)]
-    p.torus(rim, [0, 2.55, 0], BED_IN + 1.75, 1.95, seg=20, tube=6, spec=Band(lambda i, j, c: tone[i]), grid=.25, smooth='both')
-    seam = p.part('seam_ring')
-    p.torus(seam, [0, BED_FLOOR + .1, 0], 6.4, .5, seg=20, tube=3, spec=C('berry', 1), grid=.25, smooth='both')
-    piping = p.part('cream_piping')
-    p.torus(piping, [0, 4.4, 0], BED_IN + 1.75, .5, seg=20, tube=3, spec=C('paper', 3), grid=.25, smooth='both')
+    # Lower bowl shell, with a strawberry exterior and broad cream interior.
+    p.lathe(cushion, [(0,0),(9.5,0),(10,.75)], C('berry',1), seg=32, smooth='both', grid=.125)
+    radii = [10, 9.5, 8.8, 7.8, 0]
+    loops = []
+    for radius in radii:
+        loop = []
+        for j in range(32):
+            angle = math.tau*j/32
+            x, z = radius*math.cos(angle), radius*math.sin(angle)
+            # The front opening is lower; gentle fabric gathers remain inside the physical low step.
+            entrance = max(0, -math.sin(angle))**6
+            height = {10:.75,9.5:2.4,8.8:3,7.8:1.5,0:1.5}[radius]
+            if radius in (9.5,8.8): height -= entrance*1.15
+            loop.append([x,height,z])
+        loops.append(loop)
+    p.skin(cushion,loops,Band(lambda i,j,c: C('berry',2) if i<2 else top),smooth='both',grid=.125)
+    # Short contrasting stitch dashes explain the cloth construction without a raised piping wall.
+    stitches=p.part('soft_seam_stitches')
+    for j in range(24):
+        a=math.tau*j/24
+        entrance=max(0,-math.sin(a))**6
+        y=2.91-entrance*1.15
+        p.rod(stitches,[8.9*math.cos(a-.016),y,8.9*math.sin(a-.016)],
+              [8.9*math.cos(a+.016),y,8.9*math.sin(a+.016)],.055,.055,seg=4,spec=C('paper',2),grid=None)
     return p

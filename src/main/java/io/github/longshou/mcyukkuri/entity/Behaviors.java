@@ -172,6 +172,8 @@ public final class Behaviors {
     public static final String PREDATOR_TAKEOFF = "predator_takeoff";
     public static final String PROTECT_PEER = "protect_peer";
     public static final String RAIN_HUDDLE = "rain_huddle";
+    public static final String ROAM = "roam";
+    public static final String PROTECT_APPROACH = "protect_approach", PROTECT_TAUNT = "protect_taunt";
     public static final String RAIN_RUN = "rain_run";
     public static final String RAIN_SHAKE = "rain_shake";
     public static final String RAIN_WAIT = "rain_wait";

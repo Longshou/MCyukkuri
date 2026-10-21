@@ -69,6 +69,8 @@ entitySaveViews = false
 
 搜索经 `settlement/SearchBudget` 兼容入口进入 `world/SearchBudget` 的共享账本，分别返回找到遮蔽、搜索无结果和等待预算三种状态。
 
+`marks.face=true` 指定人工展示的脏污、后续预置疤痕及油霉位于脸部；保存于身体 `FaceMarks`，同步展示位标志，既有伤口和自然愈合疤痕不搬移。
+
 湿度和水伤由生活/身体领域负责，本层负责感知与避险行动。帽船乘员的水上警报由 `HatFamilyAlarm` 等水生组件处理。
 
 ## 4. 从规则到显示

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -67,6 +68,10 @@ public final class Marks {
         var mesh = mesh();
         if (mesh == null || mesh.skinCount < 3) return null;
         var random = new Random(seed);
+        if (entity.body().faceMarks()) {
+            var hit = BodyPart.FRONT.site(mesh,random);
+            return hit == null ? null : new BodyWound(new UUID(seed,0),WoundKind.SCAR,hit.triangle(),hit.u(),hit.v(),1,1,0,0);
+        }
         for (int attempt = 0; attempt < 48; attempt++) {
             int triangle = random.nextInt(mesh.skinCount / 3) * 3;
             var n = mesh.normal(triangle);

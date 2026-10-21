@@ -37657,6 +37657,812 @@
    "english": "So toasty! Come in my kotatsu!",
    "origin": "project-original",
    "basis": "kotatsu Marisa (summer: too hot, sleeps in the cool shade; winter: warm kotatsu); project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.retest_protect_taunt",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.baby.retest_protect_child_worry",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.juvenile.retest_protect_child_worry",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.adult.retest_protect_child_worry",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.baby.retest_protect_child_selfish",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.juvenile.retest_protect_child_selfish",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.adult.retest_protect_child_selfish",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.baby.retest_protect_child_flee",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.juvenile.retest_protect_child_flee",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.adult.retest_protect_child_flee",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.adult.retest_protect_taunt",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.baby.retest_protect_child_worry",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.juvenile.retest_protect_child_worry",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.adult.retest_protect_child_worry",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.baby.retest_protect_child_selfish",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.juvenile.retest_protect_child_selfish",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.adult.retest_protect_child_selfish",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.baby.retest_protect_child_flee",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.juvenile.retest_protect_child_flee",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "marisa.adult.retest_protect_child_flee",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.adult.retest_protect_taunt",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.baby.retest_protect_child_worry",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.juvenile.retest_protect_child_worry",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.adult.retest_protect_child_worry",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.baby.retest_protect_child_selfish",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.juvenile.retest_protect_child_selfish",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.adult.retest_protect_child_selfish",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.baby.retest_protect_child_flee",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.juvenile.retest_protect_child_flee",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "alice.adult.retest_protect_child_flee",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.adult.retest_protect_taunt",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.baby.retest_protect_child_worry",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.juvenile.retest_protect_child_worry",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.adult.retest_protect_child_worry",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.baby.retest_protect_child_selfish",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.juvenile.retest_protect_child_selfish",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.adult.retest_protect_child_selfish",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.baby.retest_protect_child_flee",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.juvenile.retest_protect_child_flee",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "chen.adult.retest_protect_child_flee",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.adult.retest_protect_taunt",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.baby.retest_protect_child_worry",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.juvenile.retest_protect_child_worry",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.adult.retest_protect_child_worry",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.baby.retest_protect_child_selfish",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.juvenile.retest_protect_child_selfish",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.adult.retest_protect_child_selfish",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.baby.retest_protect_child_flee",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.juvenile.retest_protect_child_flee",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "patchouli.adult.retest_protect_child_flee",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.adult.retest_protect_taunt",
+   "species": "myon",
+   "age": "adult",
+   "events": [
+    "protect_taunt"
+   ],
+   "japanese": "ぷくー！こっちだよ！ちいさいこに さわらないでね！",
+   "chinese": "噗咕——！看这边！不许碰小家伙！",
+   "english": "Puff! Over here! Leave the little one alone!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.baby.retest_protect_child_worry",
+   "species": "myon",
+   "age": "baby",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.juvenile.retest_protect_child_worry",
+   "species": "myon",
+   "age": "juvenile",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.adult.retest_protect_child_worry",
+   "species": "myon",
+   "age": "adult",
+   "events": [
+    "protect_child_worry"
+   ],
+   "japanese": "やだー！いっしょに にげてー！",
+   "chinese": "不要呀！一起逃呀——！",
+   "english": "No! Run away with me!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.baby.retest_protect_child_selfish",
+   "species": "myon",
+   "age": "baby",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.juvenile.retest_protect_child_selfish",
+   "species": "myon",
+   "age": "juvenile",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.adult.retest_protect_child_selfish",
+   "species": "myon",
+   "age": "adult",
+   "events": [
+    "protect_child_selfish"
+   ],
+   "japanese": "あっちで おとりに なってね！",
+   "chinese": "去那边引开它吧！",
+   "english": "Lead it away over there!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.baby.retest_protect_child_flee",
+   "species": "myon",
+   "age": "baby",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.juvenile.retest_protect_child_flee",
+   "species": "myon",
+   "age": "juvenile",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "myon.adult.retest_protect_child_flee",
+   "species": "myon",
+   "age": "adult",
+   "events": [
+    "protect_child_flee"
+   ],
+   "japanese": "こわいよー！にげるよー！",
+   "chinese": "好可怕！要逃走啦——！",
+   "english": "Scary! I am running away!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "remilia.adult.retest_protect_angered",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "protect_angered"
+   ],
+   "japanese": "うー！おまえを つかまえるよ！",
+   "chinese": "呜——！要抓住你！",
+   "english": "Uu! I will catch you!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "flandre.adult.retest_protect_angered",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "protect_angered"
+   ],
+   "japanese": "うー！おまえを つかまえるよ！",
+   "chinese": "呜——！要抓住你！",
+   "english": "Uu! I will catch you!",
+   "origin": "project-original",
+   "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
   }
  ]
 }

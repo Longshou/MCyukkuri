@@ -199,7 +199,7 @@
         ]
       }
     },
-    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density); pet bed yukkuri_nest is the artificial bed (interior 16.4, outer 24, floor 2), wild self-built nests are wild.py"
+    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density); pet bed yukkuri_nest is the artificial bed (shallow fabric nest 20 wide, hollow floor 1.5, soft shell at most 3 high with lowered entrance; matching low collision, user refinement 2026-10-22), wild self-built nests are wild.py"
   },
   "pet_goods": {
     "source": "standards/yukkuri-library/drafts/care-props/goods.py",

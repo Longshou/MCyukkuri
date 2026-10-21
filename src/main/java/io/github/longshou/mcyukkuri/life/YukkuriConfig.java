@@ -49,7 +49,7 @@ public final class YukkuriConfig {
         ENERGY_INTERVAL = builder.defineInRange("energyInterval", 160, 20, 24000);
         HYGIENE_INTERVAL = builder.defineInRange("hygieneInterval", 300, 20, 24000);
         WET_DAMAGE_THRESHOLD = builder.comment("Wetness damage outside water. Immersion always deals one health point per second, regardless of this threshold.")
-                .defineInRange("wetDamageThreshold", 60, 20, 100);
+                .defineInRange("wetDamageThreshold", 100, 100, 100);
         builder.pop().push("temperature");
         COLD_THRESHOLD = builder.comment("Original gameplay thresholds in Minecraft biome-temperature units, not Celsius.")
                 .defineInRange("coldBelow", .2, -2.0, 1.0);

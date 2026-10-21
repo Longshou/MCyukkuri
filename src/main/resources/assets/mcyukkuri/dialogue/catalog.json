@@ -56170,5 +56170,749 @@
     ],
     "ticks": 127,
     "sound": ""
+  },
+  {
+    "id": "reimu.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "reimu.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "reimu.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "reimu.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "marisa.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "marisa.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "marisa.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.alice.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.alice.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.alice.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.alice.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.alice.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "alice.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.alice.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "alice.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "alice.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.alice.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.chen.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.chen.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.chen.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.chen.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.chen.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "chen.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.chen.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "chen.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "chen.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.chen.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "patchouli.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "myon.adult.retest_protect_taunt",
+    "key": "dialogue.mcyukkuri.original.myon.adult.retest_protect_taunt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "protect_taunt"
+    ],
+    "ticks": 115,
+    "sound": ""
+  },
+  {
+    "id": "myon.baby.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.myon.baby.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.juvenile.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.myon.juvenile.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.adult.retest_protect_child_worry",
+    "key": "dialogue.mcyukkuri.original.myon.adult.retest_protect_child_worry",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "protect_child_worry"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.baby.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.myon.baby.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.juvenile.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.myon.juvenile.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.adult.retest_protect_child_selfish",
+    "key": "dialogue.mcyukkuri.original.myon.adult.retest_protect_child_selfish",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "protect_child_selfish"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "myon.baby.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.myon.baby.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "myon.juvenile.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.myon.juvenile.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "myon.adult.retest_protect_child_flee",
+    "key": "dialogue.mcyukkuri.original.myon.adult.retest_protect_child_flee",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "protect_child_flee"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "remilia.adult.retest_protect_angered",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.retest_protect_angered",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "protect_angered"
+    ],
+    "ticks": 75,
+    "sound": ""
+  },
+  {
+    "id": "flandre.adult.retest_protect_angered",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.retest_protect_angered",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "protect_angered"
+    ],
+    "ticks": 75,
+    "sound": ""
   }
 ]

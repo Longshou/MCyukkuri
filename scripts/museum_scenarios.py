@@ -10,6 +10,7 @@ The ``TOPICS`` mapping at the end connects user concerns to scenarios; docs/TODO
 Scenario definitions and readouts live here; docs/DEVELOPMENT.md covers navigation and shared operations.
 """
 import sys
+import re
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, human, item, block, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
@@ -38,7 +39,7 @@ class Scenario:
                  asks='', note='', sub=None, vantage=(0, 14), reads=(), late=()):
         self.id, self.field, self.title, self.hint = sid, field, title, hint
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
-        self.lines, self.give, self.env = list(lines), list(give), env or {}
+        self.lines, self.give, self.env = surface_demo_lines(sid,lines), list(give), env or {}
         # settings that need the individuals to stand on the ground (a home, a conception, a boat) run two seconds after the summons
         deferred = [i for i, line in enumerate(self.lines) if line.startswith(LATE_COMMANDS)]
         self.late_lines = [self.lines[i] for i in deferred]
@@ -48,7 +49,7 @@ class Scenario:
         self.sub = sub                 # name of the plot cleared before this scenario (default: the whole field)
         self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
-        self.late = self.late_lines + list(late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
+        self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
 
     @property
     def tag(self):
@@ -60,6 +61,23 @@ class Scenario:
         if self.note:
             head.append(say(f'注意：{self.note}', 'red'))
         return head + self.lines + [f'give @s {g}' for g in self.give]
+
+
+def surface_demo_lines(sid, lines):
+    """Preset skin demonstrations face the observer; explicit body-region comparisons retain their regions."""
+    result = []
+    comparisons = {'wound_parts', 'hatless_monster', 'hatless_boundary', 'core_exposed'}
+    for line in lines:
+        if not isinstance(line,str):
+            result.append(line)
+            continue
+        match = re.match(r'(yukkuri status set .+?) (marks\.(?:dirt|scars)|health\.mold) ',line)
+        if match:
+            result.append(match[1] + ' marks.face true')
+        if sid not in comparisons and ' health.wound_at ' in line:
+            line = re.sub(r'( health.wound_at )(side|back|top):',r'\1front:',line)
+        result.append(line)
+    return result
 
 
 def own(name):
@@ -328,7 +346,7 @@ add('family_search', 'family', '亲子走散后寻回', '走散寻回',
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease',
     '约 30 秒', [
-        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
+        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', aquatic=True, yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
     env={'time': 'noon', 'weather': 'rain'}, spot='shelter', vantage=(0, 14),
     reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')])
 
@@ -361,6 +379,19 @@ add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
         set_status('range_pred', 'needs.nutrition', 10)],
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
+
+add('forage_empty','weather','无粮主动搜索','无粮寻食',
+    '开始不放食物：饥饿灵梦先真实走动搜索；之后手动丢下苹果，观察发现、接近、吞咽与营养回升。搜不到粮仍会饿，不指定Goal',
+    '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
+    env=DAY,spot='pred',give=['minecraft:apple 3'],reads=[('读主动寻粮',f'yukkuri status {sel("seeker")} raw')])
+
+add('rain_damage','weather','满湿伤害与耐雨','满湿雨伤',
+    '普通种湿度97、水生种98.5起步；下雨每秒分别+3与+1.5，满100才伤害。无屋顶，观察搜索、生命、湿度，伤害不弹起不横移；可手动晴天观察干燥后停止雨伤',
+    '约30秒',[yk('reimu',-3,0,'wet_ordinary',nutrition=90,energy=90,lead=True),
+    yk('marisa',3,0,'wet_aquatic',aquatic=True,nutrition=90,energy=90),
+    set_status('wet_ordinary','needs.wetness',97),set_status('wet_aquatic','needs.wetness',98.5)],
+    env={'time':'noon','weather':'rain'},spot='open',
+    reads=[('读普通雨伤',f'yukkuri status {sel("wet_ordinary")} raw'),('读水生雨伤',f'yukkuri status {sel("wet_aquatic")} raw')])
 
 # Sheltered actors are a legitimate start for testing activity after the run has ended.
 _rain_life = []
@@ -1105,18 +1136,20 @@ def protect_child(sid, title, hint, friendliness, watch):
 
 
 protect_child('sacrifice', '挡捕食种', '挡捕食种', 90,
-    '芙兰先选小灵梦，亲油高友善较愿意引开；转向很快，读亲油 behavior.protection 的 danger 与 decision=diverted，再对照捕食目标和孩子血量。走近挡护的演出待补')
+    '芙兰先选小灵梦，亲油决定帮助后靠近、噗咕挑衅，芙兰转怒追亲油，亲油再逃跑；读protection阶段与真实目标，子油按亲密度和友善度分支说话，保留真实拒绝及危险')
 protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', 10,
     '与高意愿组只差友善：仍有机会引开追击。读 behavior.protection 的 chance、decision，再对照捕食目标；不能以一次仍追亲油判失败')
 
 MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
 add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
-    '持棍妖梦接触且有视线才打：1.5 伤、间隔 1.6 秒。看 behavior.myon_combat、双方血量与捕食种反击；妖梦应略弱，低血量退避；旁边灵梦照常逃',
+    '持棍妖梦接触且有视线才打：1.5伤、间隔1.6秒。双方胆量至少35参战，退战比例=0.65−0.0055×胆量；读myon_combat与predator。旁边灵梦照常逃，可用按钮调整双方胆量后重观；战斗到死亡不应卡死',
     '约 30 秒', [
         yk('myon', 0, 0, 'myon', yaw=-90, lead=True, extra=MYON % ('miyo', '1b'), **pair_ready()),
         yk('reimu', 0, 3, 'a', yaw=-90, **pair_ready()),
         yk('flandre', 12, 0, 'pred', yaw=90, nutrition=100, energy=100), set_status('pred', 'needs.nutrition', 10)],
-    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读妖梦', f'yukkuri status {sel("myon")} raw'), ('读捕食反击', f'yukkuri status {sel("pred")} raw')])
+    env=DAY, spot='pred', vantage=(6, 14), note=NEW, reads=[('读妖梦', f'yukkuri status {sel("myon")} raw'), ('读捕食反击', f'yukkuri status {sel("pred")} raw'),
+        ('妖梦胆量20',set_status('myon','personality.boldness',20)),('妖梦胆量90',set_status('myon','personality.boldness',90)),
+        ('捕食种胆量20',set_status('pred','personality.boldness',20)),('捕食种胆量90',set_status('pred','personality.boldness',90))])
 
 
 # ---- headwear and recognition
@@ -1486,7 +1519,7 @@ TOPICS = {
     'sleep': 'D1', 'fatigue': 'D1', 'fatigue_predator': 'D1', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
-    'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',
+    'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
     'cargo_empty': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',

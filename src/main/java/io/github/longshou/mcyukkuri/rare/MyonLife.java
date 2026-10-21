@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.life.CombatCourage;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -36,7 +37,7 @@ import net.minecraft.world.item.Items;
  *       (consuming the item) or now and then break one off near trees. It drops as an ordinary stick on death or when a
  *       hard blow knocks it out of the mouth. It is shown in the mouth whenever the mouth is free (client).
  *   <li>Bravery: a healthy Myon does not bolt when hit or when a predator or attacker comes; it turns on the attacker and
- *       strikes with the stick (1.5 damage, 1 bare-mouthed), protecting kin. Below 40% health it flees like anyone else.
+ *       strikes with the stick (1.5 damage, 1 bare-mouthed), protecting kin. Its courage sets willingness and the retreat health fraction.
  * </ul>
  * Physique (14 health, 0.20 speed) is in {@link #attributes}; lower innate cognition and quicker foraging are applied by
  * {@code cognition/Cognition} and {@code settlement/ForageGoal} through {@link #cognitionScale} and {@link #forageScale}.
@@ -46,7 +47,7 @@ public final class MyonLife {
     public static final double COGNITION_SCALE = .6;
     /** Forage searches come this much sooner and reach this much farther (plan 4.2 "采集效率更高"; project number). */
     public static final double FORAGE_SCALE = 1.5;
-    // The predator needs time for its initial takeoff and repeated bites before the Myon can force it below 40% health.
+    // Real contact and attack recovery leave room for both combatants to respond.
     private static final int STRIKE_COOLDOWN = 32, FOE_MEMORY = 200, STICK_SEARCH = 200;
     private static final float STICK_DAMAGE = 1.5f, BARE_DAMAGE = 1f;
     private final YukkuriEntity entity;
@@ -152,7 +153,7 @@ public final class MyonLife {
         return true;
     }
     private boolean brave() {
-        return entity.getHealth() > entity.getMaxHealth() * .4f && !entity.isOnFire() && !entity.isInWaterOrBubble()
+        return CombatCourage.willing(entity) && !entity.isOnFire() && !entity.isInWaterOrBubble()
                 && entity.family().stage() != FamilyLife.Stage.BABY && !entity.body().dying();
     }
     private void engage(LivingEntity attacker) {
@@ -245,7 +246,7 @@ public final class MyonLife {
         if (!myon()) return "not_myon";
         LivingEntity target = foeEntity();
         return "target=" + (target == null ? "none" : "#" + target.getId())
-                + " brave=" + brave() + " damage=" + (kanroken ? STICK_DAMAGE : BARE_DAMAGE)
+                + " brave=" + brave() + " boldness=" + entity.life().personality().boldness() + " retreatRatio=" + CombatCourage.retreatRatio(entity) + " damage=" + (kanroken ? STICK_DAMAGE : BARE_DAMAGE)
                 + " cooldown=" + strikeCooldown + "/" + STRIKE_COOLDOWN
                 + (target == null ? "" : " distance=" + Math.round(entity.distanceTo(target) * 100) / 100f
                         + " reach=" + Math.round(strikeReach(target) * 100) / 100f

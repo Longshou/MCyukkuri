@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 
@@ -30,6 +31,25 @@ public final class CareBlock extends Block implements EntityBlock {
     private final String style;
     private final int capacity;
     private final float height;
+    private static final VoxelShape NEST_SHAPE = nestShape();
+    /** Low soft shell follows the authored nest profile, including its lowered north entrance. */
+    private static VoxelShape nestShape() {
+        VoxelShape shape = Shapes.empty();
+        for(int x=-2;x<18;x++)for(int z=-2;z<18;z++) {
+            double high=0;
+            for(int sx=0;sx<=2;sx++)for(int sz=0;sz<=2;sz++) {
+                double dx=x+sx*.5-8,dz=z+sz*.5-8,r=Math.hypot(dx,dz);
+                if(r>10)continue;
+                double entrance=r<.001?0:Math.pow(Math.max(0,-dz/r),6);
+                double h=r<=7.8?1.5:r<=8.8?1.5+(r-7.8)*(1.5-entrance*1.15)
+                        :r<=9.5?3-entrance*1.15-(r-8.8)*(.6/.7)
+                        :2.4-entrance*1.15+(r-9.5)*((.75-2.4+entrance*1.15)/.5);
+                high=Math.max(high,h);
+            }
+            if(high>0)shape=Shapes.or(shape,box(x,0,z,x+1,Math.ceil(high*8)/8,z+1));
+        }
+        return shape.optimize();
+    }
     public CareBlock(Kind kind, Properties properties) { this(kind,properties,"",8,0); }
     public CareBlock(Kind kind, Properties properties,String style,int capacity,float height) { super(properties);this.kind=kind;this.style=style;this.capacity=capacity;this.height=height; }
     public Kind kind() { return kind; }
@@ -44,7 +64,7 @@ public final class CareBlock extends Block implements EntityBlock {
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(0,0,0,16,2,16);   // pet bed: cushion floor 2 high, full block footprint (the 24-wide bed overhangs the block)
+            case NEST -> NEST_SHAPE;
             case TOILET -> box(1.975,0,3.175,14.025,2.35,12.825);
             case MAT -> box(0,0,0,16,.15,16);
         };

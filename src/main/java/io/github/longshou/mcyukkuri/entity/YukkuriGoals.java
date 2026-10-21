@@ -50,6 +50,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(0, new HotFloorGoal());
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
+        owner.createGrief();
+        goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.PROTECTION, owner.grief().goal()));
         goalSelector.addGoal(1, new FleeGoal());
         owner.createMyon();
         goalSelector.addGoal(1, owner.myon().goal());
@@ -146,7 +148,7 @@ final class YukkuriGoals {
     }
     private final class FleeGoal extends Goal {
         FleeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.shellRetracts() && !owner.shelteredInHat(); }
+        @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.grief().protecting() && !owner.shellRetracts() && !owner.shelteredInHat(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
@@ -154,11 +156,11 @@ final class YukkuriGoals {
                 if (owner.getLastHurtByMob() instanceof YukkuriEntity threat && threat.profile().dangerToYukkuri()) {
                     if (owner.pet().fleeToOwner()) return;
                     var safe = owner.life().homeStand();
-                    if (safe != null && owner.life().navigate(safe, 1.7, false)) return;
+                    if (safe != null && owner.life().navigate(safe, 1.2, false)) return;
                 }
                 Vec3 target = owner.getLastHurtByMob() == null ? DefaultRandomPos.getPos(owner, 6, 3)
                         : DefaultRandomPos.getPosAway(owner, 6, 3, owner.getLastHurtByMob().position());
-                if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.7);
+                if (target != null) owner.directNavigation().moveTo(target.x, target.y, target.z, 1.2);
             }
         }
         @Override public void stop() { owner.directNavigation().stop(); }

@@ -45,6 +45,7 @@ public final class PresentationGoals {
 
     // Priority and tie order come from the real selector, not this declaration order.
     public static final Source<RoamingGoal> ROAMING = observed("roaming", RoamingGoal::activity);
+    public static final Source<Goal> PROTECTION = state("protection", e -> e.grief().activity());
     public static final Source<Goal> MIND = state("mind", e -> e.mind().active() ? e.mind().activity() : null);
     public static final Source<Goal> THREAT = state("threat", e -> switch (e.status().reactions().threat().stage()) {
         case WATCH -> Behaviors.THREAT_WATCH;

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -116,7 +117,10 @@ public final class BodyLife {
     public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
-    public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0);}
+    public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0) | (faceMarks ? BodySigns.FACE_MARKS : 0);}
+    private boolean faceMarks;
+    public boolean faceMarks(){return faceMarks;}
+    public void faceMarks(boolean value){faceMarks=value;entity.syncBody();entity.syncMarks(Marks.write(entity.status().marks().visible()));}
     public boolean footBurned(){return footBurned;}
     public int toxin(){return toxin;}
     /** Physiological thresholds derive from the one live health value. */
@@ -507,6 +511,7 @@ public final class BodyLife {
         // Preserve the old integer path for saved bodies, without retaining the removed bandage effect.
         tag.putInt("Bandage",0);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
+        tag.putBoolean("FaceMarks",faceMarks);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
@@ -524,6 +529,7 @@ public final class BodyLife {
     public void load(CompoundTag tag){wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
         // Old Bandage time is deliberately ignored: loading a save must not restore the removed treatment.
         infection=Math.clamp(tag.getInt("Infection"),0,8);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
+        faceMarks=tag.getBoolean("FaceMarks");
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
         // Saves from before the centre filling existed carry no flag: their core is unhurt.

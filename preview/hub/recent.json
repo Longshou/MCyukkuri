@@ -2,6 +2,26 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "pet-cushion",
+      "title": "浅软布窝",
+      "summary": "浅凹窝心、奶油色绗缝、草莓色软布和低入口；碰撞对应实际低矮轮廓。",
+      "model": "reimu",
+      "source": "standards/yukkuri-library/drafts/care-props/nests.py",
+      "demoPage": "pet-cushion/index.html",
+      "points": [
+        "移除原高卷边，保留窝形与布面缝线。",
+        "源、选用快照与运行资源已同步；外观和赤油通行待试玩。"
+      ],
+      "steps": [
+        {
+          "title": "当前软窝",
+          "caption": "离线渲染当前运行网格。",
+          "image": "pet-cushion/current.png"
+        }
+      ],
+      "gallery": []
+    },
+    {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
       "summary": "四类活动伤各三级；裂伤、凹伤、灼伤各有三种中枢状态。黑发、金发、裸皮对照，原发面保留至不规则断口。尚未接入游戏发面裁切。",

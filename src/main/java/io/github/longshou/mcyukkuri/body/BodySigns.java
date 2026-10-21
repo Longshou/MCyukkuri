@@ -18,7 +18,7 @@ import net.minecraft.nbt.CompoundTag;
  * never a surface dot. Precise core hits use the shared {@link BodyCavity} mesh and the actual source ray.
  */
 public final class BodySigns {
-    public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64;
+    public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64, FACE_MARKS = 128;
     /** The legacy 0-12 display value at which a deep wound can show the centre (30% health, rounded up). */
     public static final int CORE_SHOWS = 4;
     private static final Map<WoundSurface, int[]> SOLE_SITES = new ConcurrentHashMap<>();
@@ -29,7 +29,7 @@ public final class BodySigns {
         return Math.clamp(mold, 0, 15) | (footBurned ? FOOT_BURNED : 0) | (coreHurt ? CORE_HURT : 0) | (dying ? DYING : 0);
     }
     public static int pack(CompoundTag body) {
-        return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false);
+        return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false) | (body.getBoolean("FaceMarks") ? FACE_MARKS : 0);
     }
     /**
      * Low health only changes the silhouette when skin is actually open.  The curve starts below
@@ -71,7 +71,7 @@ public final class BodySigns {
             int count = new int[]{0, 3, 4, 6, 9}[tier];
             float size = new float[]{0, .95f, 1.1f, 1.4f, 1.75f}[tier];
             for (int i = 0; i < count; i++) {
-                var site = moldSite(mesh, random);
+                var site = (packed & FACE_MARKS) != 0 ? BodyPart.FRONT.site(mesh,random) : moldSite(mesh, random);
                 if (site == null) break;
                 // Each patch keeps its place as the mould advances; only the size and the tier grow.
                 result.add(new SkinDecal(new UUID(seed.getMostSignificantBits() ^ 0x6d6f6c64L, i), WoundKind.MOLD, site.triangle(), site.u(), site.v(),

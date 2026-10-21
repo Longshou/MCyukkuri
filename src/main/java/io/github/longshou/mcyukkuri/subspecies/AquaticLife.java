@@ -434,6 +434,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (canTendHat()) { hatCareTicks = 0; return true; }
         if (!EcologyRoutines.aquaticVoyage(entity)) return false;
         if (entity.isPassenger()) return refuseLaunch("passenger");
+        if (level().isRaining()) return refuseLaunch("rain_shelter");
         if (shoreWorkActive()) return refuseLaunch("shore_work");
         if (entity.isPanicking()) return refuseLaunch("panicking");
         if (!entity.onGround()) return refuseLaunch("not_grounded");
@@ -493,7 +494,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (entity.getVehicle() instanceof HatBoatEntity boat) return boat.protects(entity);
         if (canTendHat()) return hatCareTicks < 48;
         if (bank == null || water == null) return false;
-        if (shoreWorkActive()) return false;
+        if (level().isRaining() || shoreWorkActive()) return false;
         if (elapsed >= 720) return refuseLaunch("attempt_timeout");
         if (entity.isPanicking()) return refuseLaunch("panicking");
         if (entity.life().mealTicks() != 0) return refuseLaunch("eating");
@@ -795,6 +796,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             yieldAllBut(BoatTask.URGENT_FOOD); entity.life().wakeInHat(); boat.stopPaddling();
             if (boat.cargo().feed(entity)) { activity = Behaviors.BOAT_EAT; return; }
         }
+        if (level().isRainingAt(boat.blockPosition()) && !shoreVisitRequested && !boat.landing()) requestShoreVisit(false);
         var climate = entity.life().temperature();
         if (!shoreVisitRequested && !boat.landing() && (climate.active() || climate.unsafeSleep() && climate.plan())) {
             yieldAllBut(BoatTask.DISTRESS); entity.life().wakeInHat();

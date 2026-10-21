@@ -48,7 +48,7 @@ public final class EcologyPresentation {
             case Behaviors.COMFORT_LICK, Behaviors.SHARD_LICK -> YukkuriAction.COMFORT_LICK;
             // headwear: gathering the pieces of a shattered accessory; a sanction declared, then carried out by bullying
             case Behaviors.SHARD_SEEK, Behaviors.SANCTION_APPROACH -> YukkuriAction.LOOK_AROUND;
-            case Behaviors.SANCTION_DECLARE -> YukkuriAction.PUFF;
+            case Behaviors.SANCTION_DECLARE, Behaviors.PROTECT_TAUNT -> YukkuriAction.PUFF;
             case Behaviors.SANCTION_BULLY -> YukkuriAction.PUSH;
             case Behaviors.SELF_DEFENSE -> YukkuriAction.PUSH;
             case Behaviors.COMFORT_RECEIVE -> YukkuriAction.DROOP;

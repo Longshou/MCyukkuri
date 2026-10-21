@@ -314,7 +314,7 @@ public final class PetLife {
         if (!isPet() || !(animal.getLastHurtByMob() instanceof YukkuriEntity threat) || !threat.profile().dangerToYukkuri()) return false;
         var o = animal.level().getPlayerByUUID(owner());
         if (o == null || !o.isAlive() || o.isSpectator() || o.distanceToSqr(animal) > 256) return false;
-        if (o.distanceToSqr(animal) > 6.25) animal.getNavigation().moveTo(o, 1.7); else animal.getNavigation().stop();
+        if (o.distanceToSqr(animal) > 6.25) animal.getNavigation().moveTo(o, 1.2); else animal.getNavigation().stop();
         return true;
     }
 

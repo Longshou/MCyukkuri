@@ -219,10 +219,10 @@ public final class Reactions {
 
         boolean wants() {
             var s = source();
-            if (s == null || !free(y) || y.isPanicking() || y.level().getGameTime() < cooldownUntil) return false;
+            if (s == null || !free(y) || y.grief().protecting() || y.myon().fighting() || y.isPanicking() || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
-        boolean keeps() { return stage != Stage.NONE && free(y) && !y.isPanicking(); }
+        boolean keeps() { return stage != Stage.NONE && free(y) && !y.grief().protecting() && !y.myon().fighting() && !y.isPanicking(); }
         void start() {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
@@ -291,14 +291,14 @@ public final class Reactions {
                     && sl.getEntity(y.pet().owner()) instanceof HumanNpc resident) owner = resident; // a resident's pet runs to its keeper
             if (owner != null && owner.isAlive() && !owner.isSpectator() && owner.distanceToSqr(y) < 256
                     && owner.distanceToSqr(s) > 36) {
-                if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.5);
+                if (owner.distanceToSqr(y) > 6.25) y.getNavigation().moveTo(owner, 1.2);
                 else { y.getNavigation().stop(); stage = Stage.HIDE; ticks = 0; }
                 return;
             }
             var home = y.life().homeStand();
-            if (home != null && home.distSqr(s.blockPosition()) > 25 && y.life().navigate(home, 1.4, false)) return;
+            if (home != null && home.distSqr(s.blockPosition()) > 25 && y.life().navigate(home, 1.2, false)) return;
             Vec3 away = DefaultRandomPos.getPosAway(y, 10, 4, s.position());
-            if (away != null) y.getNavigation().moveTo(away.x, away.y, away.z, 1.4);
+            if (away != null) y.getNavigation().moveTo(away.x, away.y, away.z, 1.2);
         }
     }
 
