@@ -8,9 +8,8 @@
 #
 # The world is built from scripts/build_museum_full.py into .local/experimental-map/museum (replaced as a whole, never
 # repaired in place). The mod itself comes from the prepared CI runtime named in .local/experimental-map/museum-runtime.json
-# ("runtime", "java"; optional "python" for the interpreter that has nbtlib). Update that runtime from a CI build that contains
-# the playground commands whenever command/Scenario*.java or command/PlaygroundTools.java changes (an older runtime makes the world say
-# "运行模组过旧" on entry instead of silently missing parts).
+# ("runtime", "java"; optional "python" for the interpreter that has nbtlib). Source and scene inputs must match the
+# selected CI commit before world generation. Command probes alone cannot detect older implementations of existing commands.
 param([switch]$Menu, [switch]$Fresh, [switch]$Resume)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
@@ -18,6 +17,16 @@ $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 $manifestFile = Join-Path $taskRoot 'museum-runtime.json'
 if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See docs/DEVELOPMENT.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
+$runtimeCommit = [string]$runtimeConfig.commit
+if ($runtimeCommit -notmatch '^[0-9a-f]{40}$') { throw 'The playground runtime has no valid CI commit. Update it with scripts/update_museum_runtime.py.' }
+& git -C $projectRoot cat-file -e "$runtimeCommit^{commit}" 2>$null
+if ($LASTEXITCODE -ne 0) { throw "Cannot verify runtime commit $runtimeCommit. Fetch its Git history before starting the playground." }
+# Compare committed and local source changes, while allowing unrelated documentation/art-source edits.
+& git -C $projectRoot diff --quiet $runtimeCommit -- src scripts build.gradle settings.gradle gradle.properties gradle
+if ($LASTEXITCODE -eq 1) {
+    throw "Playground runtime is out of date (commit $runtimeCommit, CI $($runtimeConfig.run)). Code/resources/scenes differ from this checkout. Close the playground and run scripts/update_museum_runtime.py --run <successful Build run for this checkout>. No world was regenerated and no game was started."
+}
+if ($LASTEXITCODE -ne 0) { throw 'Could not compare playground inputs with the selected CI commit; startup stopped.' }
 $runtimeRoot = Join-Path $projectRoot $runtimeConfig.runtime
 $javaExe = Join-Path $projectRoot $runtimeConfig.java
 $gameRoot = Join-Path $taskRoot 'museum'

@@ -27,7 +27,7 @@ PR 产物对应合并提交 SHA。失败用 `gh run view <id> --log-failed` 查�
 <python> scripts/update_museum_runtime.py --run <该提交成功的 Build run ID>
 ```
 
-需要 `git`、已登录的 `gh` 和现有 `.local/experimental-map/museum-runtime.json`。脚本要求 CI 与当前提交一致，从同一提交恢复资源并核对哈希，保留原运行包后切换配置；不编译、不启动游戏。更新后仍用原 `.cmd` 启动。
+需要 `git`、已登录的 `gh` 和现有 `.local/experimental-map/museum-runtime.json`。脚本要求 CI 与当前提交一致，从同一提交恢复资源并核对哈希，保留原运行包后切换配置；不编译、不启动游戏。更新后仍用原 `.cmd` 启动。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置；不一致时停止并提示更新 CI 包，避免新版场景搭配旧版模组。仅文档或未导出的美术源变化不阻止启动。
 
 ## 试玩场
 
