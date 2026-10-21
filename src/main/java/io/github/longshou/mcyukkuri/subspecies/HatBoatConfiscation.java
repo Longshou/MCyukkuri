@@ -203,7 +203,7 @@ final class HatBoatConfiscation {
         if(owner!=null)AccessoryItem.markSource(hat,owner,token);
         else CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
             tag.putUUID("Owner",boat.ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
-            tag.putString("Stage",boat.accessoryStage().name());tag.putString("SourceModel",boat.aquaticHull()?"marisa_aquatic":"marisa");
+            tag.putString("Stage",boat.accessoryStage().name());tag.putString("SourceModel","marisa");
             tag.putFloat("SourceScale",boat.hullScale());
         });
         // The empty main-inventory slot was checked on this same server tick, so this cannot merge, drop, or lose the only physical hat.
