@@ -100,7 +100,8 @@
       0,
       0.5
     ],
-    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1."
+    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1.",
+    "appearance": "Wiki EH16-008 soot stipple, dry matte darkening and fine grain; no Voronoi polygons, connected crack graph or bright fracture rims."
   },
   "material": "thermal-{severity}.png",
   "no_cutout": true

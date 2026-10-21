@@ -24,12 +24,17 @@ for(const job of jobs){
   const paintable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_blush_'));
   const cuttable=pose.model.parts.filter(p=>p===skin||p.name.startsWith('face_'));
   const cavity=job.hairWound?createHairWound(vertices,pose.model.parts,{...job.hairWound,model:job.model}):job.cavityRuntime?createRuntimeCavity(vertices,skin,job.cavityRuntime):job.cavity?createCavity(vertices,skin,recipe.core_cavity,job.cavity==='broken'):null;
-  if(job.woundMesh){const data=JSON.parse(require('zlib').gunzipSync(fs.readFileSync(job.woundMesh)));for(const key of ['vertices','colors','materials','surfaceEdits'])cavity[key]=data[key];}
+  if(job.woundMesh){const data=JSON.parse(require('zlib').gunzipSync(fs.readFileSync(job.woundMesh)));for(const key of ['vertices','colors','materials','surfaceEdits','surfacePatches'])cavity[key]=data[key];}
   if(cavity?.surfaceEdits)for(const [index,x,y,z,nx,ny,nz] of cavity.surfaceEdits){const i=index*8;vertices[i]=x;vertices[i+1]=y;vertices[i+2]=z;vertices[i+5]=nx;vertices[i+6]=ny;vertices[i+7]=nz;}
   const decal=job.woundDecal?fs.readFileSync(job.woundDecal):null,decalSize=job.decalSize||512;
   const thermal=job.thermal?createThermal({...job.thermal,model:job.model},pose.model.parts):null;
   const thermalPixels=thermal?fs.readFileSync(job.thermalTexture):null;
-  if(cavity)vertices=Float64Array.from([...vertices,...cavity.vertices]);
+  const replaced=new Set((cavity?.surfacePatches||[]).map(p=>p.triangle)),patchParts=[];
+  if(cavity){
+    const appended=Array.from(cavity.vertices);let start=(vertices.length+appended.length)/8;
+    for(const patch of cavity.surfacePatches||[]){patchParts.push({name:patch.part,start,count:patch.vertices.length/8});start+=patch.vertices.length/8;for(const value of patch.vertices)appended.push(value);}
+    vertices=Float64Array.from([...vertices,...appended]);
+  }
   const texture=fs.readFileSync(job.texture),ts=model.texture_size||128;
   const w=job.width,h=job.height,n=w*h;
   const pixels=new Uint8Array(n*4),depth=new Float64Array(n).fill(-Infinity);
@@ -38,7 +43,8 @@ for(const job of jobs){
   const s=Math.sin(job.az),c=Math.cos(job.az),se=Math.sin(job.el),ce=Math.cos(job.el);
   const right=[c,0,s],up=[-s*se,ce,c*se],eye=[s*ce,se,-c*ce],scale=h/(2*job.span);
   for(let i=0;i<vertices.length;i+=24){
-    const part=pose.model.parts.find(p=>i/8>=p.start&&i/8<p.start+p.count);
+    if(replaced.has(i/8))continue;
+    const part=pose.model.parts.find(p=>i/8>=p.start&&i/8<p.start+p.count)||patchParts.find(p=>i/8>=p.start&&i/8<p.start+p.count);
     const solid=vertices[i+3]<0?cavity.colors[-1-vertices[i+3]]:null;
     const cut=cavity&&!solid&&(job.hairWound?cavity.cuttable.has(part?.name):cuttable.some(part=>i/8>=part.start&&i/8<part.start+part.count));
     const norm=[vertices[i+5],vertices[i+6],vertices[i+7]];

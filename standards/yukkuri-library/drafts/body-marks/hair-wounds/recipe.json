@@ -23,7 +23,9 @@
     "core": "derived from an evidenced deep tear/dent; one central dense filling region, same material family",
     "puncture": "Small penetrating opening; hair breaks only at entry, never a broad core-display hole.",
     "bite": "Paired scalloped bite margins; preserve hair outside the bitten material.",
-    "blast": "Irregular pressure and tearing; no automatic scorching without a separate fire source."
+    "blast": "Irregular pressure and tearing; no automatic scorching without a separate fire source.",
+    "thorn": "Retain surrounding hair; isolated sharp contacts do not shave a patch or make a core cavity.",
+    "impale": "Deep vertical splitting at actual large spike contact; attached hair stays outside the irregular wedge."
   },
   "grades": {
     "scratch": [
@@ -181,6 +183,58 @@
         "open": true,
         "depth": 1.3
       }
+    ],
+    "thorn": [
+      {
+        "radius": [
+          1.15,
+          0.85
+        ],
+        "open": false,
+        "depth": 0
+      },
+      {
+        "radius": [
+          1.55,
+          1.1
+        ],
+        "open": false,
+        "depth": 0
+      },
+      {
+        "radius": [
+          1.95,
+          1.35
+        ],
+        "open": false,
+        "depth": 0
+      }
+    ],
+    "impale": [
+      {
+        "radius": [
+          0.5,
+          0.85
+        ],
+        "open": false,
+        "depth": 0.15
+      },
+      {
+        "radius": [
+          0.95,
+          1.35
+        ],
+        "open": true,
+        "depth": 0.9
+      },
+      {
+        "radius": [
+          1.35,
+          1.85
+        ],
+        "open": true,
+        "depth": 1.8
+      }
     ]
   },
   "core_openings": {
@@ -336,7 +390,8 @@
       0,
       0.5
     ],
-    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1."
+    "shrink_rule": "User: whole-body burn slightly shrinks the yukkuri; authored 1.5/3.5/6 percent by grade, not runtime collision or gameplay values. Sole burns retain scale 1.",
+    "appearance": "Wiki EH16-008 soot stipple, dry matte darkening and fine grain; no Voronoi polygons, connected crack graph or bright fracture rims."
   },
   "filling_material": {
     "base": [
@@ -348,5 +403,6 @@
     "grain_scale": 32,
     "grain_amplitude": 0.11,
     "boundary": "Shared hue, shared grain, no specular shell or dark outline."
-  }
+  },
+  "surface_rule": "Transparent wound decals without a skin-color background; wound thickness is inside the actual missing tissue. Dent receiver triangles share one sampled field and preserve face UVs."
 }

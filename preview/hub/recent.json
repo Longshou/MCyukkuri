@@ -24,20 +24,20 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "核对 MC 1.21.1 的 47 种实际伤害来源，区分六种机械伤形态。足部／全身烧伤有焦枯纹理，全身轻微收缩；中枢材质连续。制作源尚未接入。",
+      "summary": "47 种 MC 来源逐级对应；八种机械形态各三级。伤缘无肤色底，凹陷保留眼部；烧伤参考 Wiki 改为焦黑细点与干枯哑光。制作源尚未接入。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
-        "MC 来源与上下文决定伤型：摩擦、刀割、钝击、刺入、啃咬、爆裂；零伤害不造伤。",
-        "烧伤仅足部／全身，加入焦枯裂纹；全身按等级轻微缩小，足部维持原大小。",
-        "中枢与周围同色同质，保留中央位置和残留头发遮挡。"
+        "MC 实际伤因决定选图，47 种来源均列三级；荆棘附魔等不虚构机械缺口。",
+        "无底透明伤缘；皮面、头发与五官共同细分凹陷，保留伤口外器官。",
+        "Wiki EH16-008 的焦黑细点与连续表皮；足部／全身各三级，全身轻微缩小。"
       ],
       "steps": [
         {
-          "title": "通用伤口",
-          "caption": "当前制作源网格与贴图的静态模型预览，游戏接入待完成。",
-          "image": "hair-wounds/current.png"
+          "title": "眼部叠加",
+          "caption": "透明伤缘与共同凹陷；真实缺损以外的五官保留。",
+          "image": "hair-wounds/eye-overlap.png"
         },
         {
           "title": "按实际伤害机制区分",
@@ -69,6 +69,10 @@
         {
           "src": "hair-wounds/thermal-size.png",
           "label": "焦枯与体积对照"
+        },
+        {
+          "src": "hair-wounds/transparent-decals.png",
+          "label": "无底贴图三级"
         }
       ]
     },

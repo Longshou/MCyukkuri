@@ -1,0 +1,2643 @@
+{
+  "format": "mcyukkuri.authored-source-coverage.v1",
+  "runtime_selected": false,
+  "source_count": 47,
+  "level_count": 141,
+  "grading": "Project injury levels, not fixed Minecraft damage amounts; use accepted loss and actual mechanism.",
+  "sources": [
+    {
+      "damage_type": "player_attack",
+      "label": "玩家近战",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "刀刃命中",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-1.png",
+              "mesh_templates": [
+                "reimu-hair-tear-1-normal.json.gz",
+                "marisa-hair-tear-1-normal.json.gz",
+                "reimu-skin-tear-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "空手／钝器命中",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "刀刃命中",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-2.png",
+              "mesh_templates": [
+                "reimu-hair-tear-2-normal.json.gz",
+                "marisa-hair-tear-2-normal.json.gz",
+                "reimu-skin-tear-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "空手／钝器命中",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "刀刃命中",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-3.png",
+              "mesh_templates": [
+                "reimu-hair-tear-3-normal.json.gz",
+                "marisa-hair-tear-3-normal.json.gz",
+                "reimu-skin-tear-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "空手／钝器命中",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "mob_attack",
+      "label": "生物近战",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "已确认的狼咬等咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-1.png",
+              "mesh_templates": [
+                "reimu-hair-bite-1-normal.json.gz",
+                "marisa-hair-bite-1-normal.json.gz",
+                "reimu-skin-bite-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-1.png",
+              "mesh_templates": [
+                "reimu-hair-tear-1-normal.json.gz",
+                "marisa-hair-tear-1-normal.json.gz",
+                "reimu-skin-tear-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "已确认的狼咬等咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-2.png",
+              "mesh_templates": [
+                "reimu-hair-bite-2-normal.json.gz",
+                "marisa-hair-bite-2-normal.json.gz",
+                "reimu-skin-bite-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-2.png",
+              "mesh_templates": [
+                "reimu-hair-tear-2-normal.json.gz",
+                "marisa-hair-tear-2-normal.json.gz",
+                "reimu-skin-tear-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "已确认的狼咬等咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-3.png",
+              "mesh_templates": [
+                "reimu-hair-bite-3-normal.json.gz",
+                "marisa-hair-bite-3-normal.json.gz",
+                "reimu-skin-bite-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-3.png",
+              "mesh_templates": [
+                "reimu-hair-tear-3-normal.json.gz",
+                "marisa-hair-tear-3-normal.json.gz",
+                "reimu-skin-tear-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "mob_attack_no_aggro",
+      "label": "不激怒的生物近战",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "已确认的咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-1.png",
+              "mesh_templates": [
+                "reimu-hair-bite-1-normal.json.gz",
+                "marisa-hair-bite-1-normal.json.gz",
+                "reimu-skin-bite-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-1.png",
+              "mesh_templates": [
+                "reimu-hair-tear-1-normal.json.gz",
+                "marisa-hair-tear-1-normal.json.gz",
+                "reimu-skin-tear-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "已确认的咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-2.png",
+              "mesh_templates": [
+                "reimu-hair-bite-2-normal.json.gz",
+                "marisa-hair-bite-2-normal.json.gz",
+                "reimu-skin-bite-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-2.png",
+              "mesh_templates": [
+                "reimu-hair-tear-2-normal.json.gz",
+                "marisa-hair-tear-2-normal.json.gz",
+                "reimu-skin-tear-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "已确认的咬击",
+              "style": "bite",
+              "external_injury": true,
+              "decal": "bite-3.png",
+              "mesh_templates": [
+                "reimu-hair-bite-3-normal.json.gz",
+                "marisa-hair-bite-3-normal.json.gz",
+                "reimu-skin-bite-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际持刃攻击",
+              "style": "tear",
+              "external_injury": true,
+              "decal": "tear-3.png",
+              "mesh_templates": [
+                "reimu-hair-tear-3-normal.json.gz",
+                "marisa-hair-tear-3-normal.json.gz",
+                "reimu-skin-tear-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "实际钝击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "arrow",
+      "label": "箭矢",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "单次箭头刺入",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-1.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-1-normal.json.gz",
+                "marisa-hair-puncture-1-normal.json.gz",
+                "reimu-skin-puncture-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "单次箭头刺入",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-2.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-2-normal.json.gz",
+                "marisa-hair-puncture-2-normal.json.gz",
+                "reimu-skin-puncture-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "单次箭头刺入",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-3.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-3-normal.json.gz",
+                "marisa-hair-puncture-3-normal.json.gz",
+                "reimu-skin-puncture-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "trident",
+      "label": "三叉戟",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际单次实体命中，不虚构三次接触",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-1.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-1-normal.json.gz",
+                "marisa-hair-puncture-1-normal.json.gz",
+                "reimu-skin-puncture-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际单次实体命中，不虚构三次接触",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-2.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-2-normal.json.gz",
+                "marisa-hair-puncture-2-normal.json.gz",
+                "reimu-skin-puncture-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际单次实体命中，不虚构三次接触",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-3.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-3-normal.json.gz",
+                "marisa-hair-puncture-3-normal.json.gz",
+                "reimu-skin-puncture-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "cactus",
+      "label": "仙人掌",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "接触范围内的细刺痕",
+              "style": "thorn",
+              "external_injury": true,
+              "decal": "thorn-1.png",
+              "mesh_templates": [
+                "reimu-hair-thorn-1-normal.json.gz",
+                "marisa-hair-thorn-1-normal.json.gz",
+                "reimu-skin-thorn-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "接触范围内的细刺痕",
+              "style": "thorn",
+              "external_injury": true,
+              "decal": "thorn-2.png",
+              "mesh_templates": [
+                "reimu-hair-thorn-2-normal.json.gz",
+                "marisa-hair-thorn-2-normal.json.gz",
+                "reimu-skin-thorn-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "接触范围内的细刺痕",
+              "style": "thorn",
+              "external_injury": true,
+              "decal": "thorn-3.png",
+              "mesh_templates": [
+                "reimu-hair-thorn-3-normal.json.gz",
+                "marisa-hair-thorn-3-normal.json.gz",
+                "reimu-skin-thorn-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "sweet_berry_bush",
+      "label": "甜浆果丛",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "移动穿过枝刺造成的擦损",
+              "style": "scratch",
+              "external_injury": true,
+              "decal": "scratch-1.png",
+              "mesh_templates": [
+                "reimu-hair-scratch-1-normal.json.gz",
+                "marisa-hair-scratch-1-normal.json.gz",
+                "reimu-skin-scratch-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "移动穿过枝刺造成的擦损",
+              "style": "scratch",
+              "external_injury": true,
+              "decal": "scratch-2.png",
+              "mesh_templates": [
+                "reimu-hair-scratch-2-normal.json.gz",
+                "marisa-hair-scratch-2-normal.json.gz",
+                "reimu-skin-scratch-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "移动穿过枝刺造成的擦损",
+              "style": "scratch",
+              "external_injury": true,
+              "decal": "scratch-3.png",
+              "mesh_templates": [
+                "reimu-hair-scratch-3-normal.json.gz",
+                "marisa-hair-scratch-3-normal.json.gz",
+                "reimu-skin-scratch-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "sting",
+      "label": "蜂蜇",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "小刺口；后续毒素不重复造伤",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-1.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-1-normal.json.gz",
+                "marisa-hair-puncture-1-normal.json.gz",
+                "reimu-skin-puncture-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "小刺口；后续毒素不重复造伤",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-2.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-2-normal.json.gz",
+                "marisa-hair-puncture-2-normal.json.gz",
+                "reimu-skin-puncture-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "小刺口；后续毒素不重复造伤",
+              "style": "puncture",
+              "external_injury": true,
+              "decal": "puncture-3.png",
+              "mesh_templates": [
+                "reimu-hair-puncture-3-normal.json.gz",
+                "marisa-hair-puncture-3-normal.json.gz",
+                "reimu-skin-puncture-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "stalagmite",
+      "label": "落到石笋",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "足底方向的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-1.png",
+              "mesh_templates": [
+                "reimu-hair-impale-1-normal.json.gz",
+                "marisa-hair-impale-1-normal.json.gz",
+                "reimu-skin-impale-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "足底方向的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-2.png",
+              "mesh_templates": [
+                "reimu-hair-impale-2-normal.json.gz",
+                "marisa-hair-impale-2-normal.json.gz",
+                "reimu-skin-impale-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "足底方向的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-3.png",
+              "mesh_templates": [
+                "reimu-hair-impale-3-normal.json.gz",
+                "marisa-hair-impale-3-normal.json.gz",
+                "reimu-skin-impale-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "falling_stalactite",
+      "label": "落下的滴水石锥",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "来自上方的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-1.png",
+              "mesh_templates": [
+                "reimu-hair-impale-1-normal.json.gz",
+                "marisa-hair-impale-1-normal.json.gz",
+                "reimu-skin-impale-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "来自上方的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-2.png",
+              "mesh_templates": [
+                "reimu-hair-impale-2-normal.json.gz",
+                "marisa-hair-impale-2-normal.json.gz",
+                "reimu-skin-impale-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "来自上方的尖锥穿压",
+              "style": "impale",
+              "external_injury": true,
+              "decal": "impale-3.png",
+              "mesh_templates": [
+                "reimu-hair-impale-3-normal.json.gz",
+                "marisa-hair-impale-3-normal.json.gz",
+                "reimu-skin-impale-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "fall",
+      "label": "摔落",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "落地实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "落地实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "落地实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "fly_into_wall",
+      "label": "高速撞墙",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "碰撞面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "碰撞面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "碰撞面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "falling_block",
+      "label": "落方块",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "方块实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "方块实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "方块实际接触面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "falling_anvil",
+      "label": "落铁砧",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际承压面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际承压面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际承压面压陷",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "cramming",
+      "label": "实体挤压",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "拥挤压迫；位置需真实接触上下文",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "拥挤压迫；位置需真实接触上下文",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "拥挤压迫；位置需真实接触上下文",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "explosion",
+      "label": "爆炸",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-1.png",
+              "mesh_templates": [
+                "reimu-hair-blast-1-normal.json.gz",
+                "marisa-hair-blast-1-normal.json.gz",
+                "reimu-skin-blast-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-2.png",
+              "mesh_templates": [
+                "reimu-hair-blast-2-normal.json.gz",
+                "marisa-hair-blast-2-normal.json.gz",
+                "reimu-skin-blast-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-3.png",
+              "mesh_templates": [
+                "reimu-hair-blast-3-normal.json.gz",
+                "marisa-hair-blast-3-normal.json.gz",
+                "reimu-skin-blast-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "player_explosion",
+      "label": "玩家引发的爆炸",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-1.png",
+              "mesh_templates": [
+                "reimu-hair-blast-1-normal.json.gz",
+                "marisa-hair-blast-1-normal.json.gz",
+                "reimu-skin-blast-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-2.png",
+              "mesh_templates": [
+                "reimu-hair-blast-2-normal.json.gz",
+                "marisa-hair-blast-2-normal.json.gz",
+                "reimu-skin-blast-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "真实爆炸冲击",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-3.png",
+              "mesh_templates": [
+                "reimu-hair-blast-3-normal.json.gz",
+                "marisa-hair-blast-3-normal.json.gz",
+                "reimu-skin-blast-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "fireworks",
+      "label": "烟花爆炸",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "真实爆炸伤害，不自动添烧伤",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-1.png",
+              "mesh_templates": [
+                "reimu-hair-blast-1-normal.json.gz",
+                "marisa-hair-blast-1-normal.json.gz",
+                "reimu-skin-blast-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "真实爆炸伤害，不自动添烧伤",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-2.png",
+              "mesh_templates": [
+                "reimu-hair-blast-2-normal.json.gz",
+                "marisa-hair-blast-2-normal.json.gz",
+                "reimu-skin-blast-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "真实爆炸伤害，不自动添烧伤",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-3.png",
+              "mesh_templates": [
+                "reimu-hair-blast-3-normal.json.gz",
+                "marisa-hair-blast-3-normal.json.gz",
+                "reimu-skin-blast-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "bad_respawn_point",
+      "label": "无效重生点爆炸",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "床／重生锚爆炸",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-1.png",
+              "mesh_templates": [
+                "reimu-hair-blast-1-normal.json.gz",
+                "marisa-hair-blast-1-normal.json.gz",
+                "reimu-skin-blast-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "床／重生锚爆炸",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-2.png",
+              "mesh_templates": [
+                "reimu-hair-blast-2-normal.json.gz",
+                "marisa-hair-blast-2-normal.json.gz",
+                "reimu-skin-blast-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "床／重生锚爆炸",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-3.png",
+              "mesh_templates": [
+                "reimu-hair-blast-3-normal.json.gz",
+                "marisa-hair-blast-3-normal.json.gz",
+                "reimu-skin-blast-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "hot_floor",
+      "label": "热地板",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-sole-1",
+                "marisa-sole-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-sole-2",
+                "marisa-sole-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-sole-3",
+                "marisa-sole-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "campfire",
+      "label": "营火",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-sole-1",
+                "marisa-sole-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-sole-2",
+                "marisa-sole-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "足部接触",
+              "style": "sole",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-sole-3",
+                "marisa-sole-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "in_fire",
+      "label": "处于火中",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "on_fire",
+      "label": "持续着火",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际持续热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际持续热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际持续热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "lava",
+      "label": "岩浆",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "fireball",
+      "label": "火球命中",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "热损；后续爆炸另按真实事件",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "热损；后续爆炸另按真实事件",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "热损；后续爆炸另按真实事件",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "unattributed_fireball",
+      "label": "无归属火球",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "lightning_bolt",
+      "label": "雷击",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "电击本身不推导实体破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            },
+            {
+              "condition": "实际引燃并产生热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-1.png",
+              "thermal_samples": [
+                "reimu-whole_body-1",
+                "marisa-whole_body-1"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "电击本身不推导实体破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            },
+            {
+              "condition": "实际引燃并产生热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-2.png",
+              "thermal_samples": [
+                "reimu-whole_body-2",
+                "marisa-whole_body-2"
+              ]
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "电击本身不推导实体破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            },
+            {
+              "condition": "实际引燃并产生热损",
+              "style": "whole_body",
+              "external_injury": true,
+              "decal": "thermal-3.png",
+              "thermal_samples": [
+                "reimu-whole_body-3",
+                "marisa-whole_body-3"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "mob_projectile",
+      "label": "生物投射物",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "如潜影弹的接触冲击；不伪造箭孔",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "如潜影弹的接触冲击；不伪造箭孔",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "如潜影弹的接触冲击；不伪造箭孔",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "spit",
+      "label": "羊驼唾沫",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "无尖硬物，不凭扣血制造机械缺口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "无尖硬物，不凭扣血制造机械缺口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "无尖硬物，不凭扣血制造机械缺口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "wind_charge",
+      "label": "风弹",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "实际压力冲击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "实际压力冲击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "实际压力冲击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "wither_skull",
+      "label": "凋灵之首",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "直接撞击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-1.png",
+              "mesh_templates": [
+                "reimu-hair-dent-1-normal.json.gz",
+                "marisa-hair-dent-1-normal.json.gz",
+                "reimu-skin-dent-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "另一次真实爆炸事件",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-1.png",
+              "mesh_templates": [
+                "reimu-hair-blast-1-normal.json.gz",
+                "marisa-hair-blast-1-normal.json.gz",
+                "reimu-skin-blast-1-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "后续凋零",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "直接撞击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-2.png",
+              "mesh_templates": [
+                "reimu-hair-dent-2-normal.json.gz",
+                "marisa-hair-dent-2-normal.json.gz",
+                "reimu-skin-dent-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "另一次真实爆炸事件",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-2.png",
+              "mesh_templates": [
+                "reimu-hair-blast-2-normal.json.gz",
+                "marisa-hair-blast-2-normal.json.gz",
+                "reimu-skin-blast-2-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "后续凋零",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "直接撞击",
+              "style": "dent",
+              "external_injury": true,
+              "decal": "dent-3.png",
+              "mesh_templates": [
+                "reimu-hair-dent-3-normal.json.gz",
+                "marisa-hair-dent-3-normal.json.gz",
+                "reimu-skin-dent-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "另一次真实爆炸事件",
+              "style": "blast",
+              "external_injury": true,
+              "decal": "blast-3.png",
+              "mesh_templates": [
+                "reimu-hair-blast-3-normal.json.gz",
+                "marisa-hair-blast-3-normal.json.gz",
+                "reimu-skin-blast-3-normal.json.gz"
+              ],
+              "placement": "Use actual hit/contact coordinates and direction; templates demonstrate appearance only."
+            },
+            {
+              "condition": "后续凋零",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "thrown",
+      "label": "抛掷物",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "原版蛋／非烈焰人雪球为零伤害；其他需具体证据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "原版蛋／非烈焰人雪球为零伤害；其他需具体证据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "原版蛋／非烈焰人雪球为零伤害；其他需具体证据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "in_wall",
+      "label": "墙内窒息",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "窒息不指示局部破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "窒息不指示局部破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "窒息不指示局部破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "drown",
+      "label": "溺水",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "starve",
+      "label": "饥饿",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "营养损耗不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "营养损耗不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "营养损耗不增加机械伤口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "magic",
+      "label": "魔法／毒素",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "按效果状态处理，无可证实的接触破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "按效果状态处理，无可证实的接触破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "按效果状态处理，无可证实的接触破口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "indirect_magic",
+      "label": "间接魔法",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "按具体效果状态处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "按具体效果状态处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "按具体效果状态处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "wither",
+      "label": "凋零",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "状态损耗，不凭空挖洞",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "状态损耗，不凭空挖洞",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "状态损耗，不凭空挖洞",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "dragon_breath",
+      "label": "龙息",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "魔法伤害，不按火焰或刀刃处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "魔法伤害，不按火焰或刀刃处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "魔法伤害，不按火焰或刀刃处理",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "dry_out",
+      "label": "脱水",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "状态损耗，不当烧伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "状态损耗，不当烧伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "状态损耗，不当烧伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "freeze",
+      "label": "冰冻",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "冻伤状态，不当烧伤或切伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "冻伤状态，不当烧伤或切伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "冻伤状态，不当烧伤或切伤",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "sonic_boom",
+      "label": "音波",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "非接触音波，不虚构裂口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "非接触音波，不虚构裂口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "非接触音波，不虚构裂口",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "thorns",
+      "label": "荆棘附魔反伤",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "附魔反伤，无实体尖刺接触",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "附魔反伤，无实体尖刺接触",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "附魔反伤，无实体尖刺接触",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "out_of_world",
+      "label": "虚空",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "outside_border",
+      "label": "世界边界",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "generic_kill",
+      "label": "直接清除",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "系统处理，无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "系统处理，无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "系统处理，无局部伤口依据",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "damage_type": "generic",
+      "label": "泛用来源",
+      "levels": [
+        {
+          "grade": 1,
+          "choices": [
+            {
+              "condition": "缺少具体伤因时不猜；模组来源须单独登记",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 2,
+          "choices": [
+            {
+              "condition": "缺少具体伤因时不猜；模组来源须单独登记",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        },
+        {
+          "grade": 3,
+          "choices": [
+            {
+              "condition": "缺少具体伤因时不猜；模组来源须单独登记",
+              "style": null,
+              "external_injury": false,
+              "surface": "keep_existing_surface",
+              "reason": "This cause does not establish a mechanical opening. State effects remain separate; no blank injury object is created."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

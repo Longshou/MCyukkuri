@@ -62,6 +62,18 @@
         "strike"
       ],
       "supports": "ROLL/SLIDE accumulate actual grounded movement times floor roughness; threshold strike deducts accepted health. Pose alone is not a damage source."
+    },
+    "wiki_burn_eh16": {
+      "type": "repository_visual_reference",
+      "path": "wiki/art-references/ehentai/images/EH16/008.webp",
+      "locator": "EH16-008 綾蔵／shku，茎上个体受灼烧画格；本轮直接核看原图",
+      "supports": "焦黑细点、烟熏与连续表皮，没有碎瓷状块面。仅采用材质语言，不采用局部火焰范围、幼体伤情或照抄原图。",
+      "sha256": "ce9718f51d8c299b70820debea0177795790de931732d0c4e62f4b267e86b78e"
+    },
+    "user_transparency": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：无底贴图，避免肤色边框误盖眼睛；烧伤不应像即将碎裂",
+      "supports": "No opaque skin-colored exterior; preserve organs outside actual injury; soot and desiccation instead of fracture plates."
     }
   },
   "causes": {
@@ -112,7 +124,9 @@
         "user_thermal",
         "injury_code",
         "body_l36",
-        "minecraft_1211"
+        "minecraft_1211",
+        "wiki_burn_eh16",
+        "user_transparency"
       ],
       "locator": "underfoot: HOT_FLOOR; analyse: soleSite",
       "visual_boundary": "Continuous underside and sole edge only; no scalp spot or thermal core hole."
@@ -124,7 +138,9 @@
       "evidence": [
         "user_thermal",
         "injury_code",
-        "minecraft_1211"
+        "minecraft_1211",
+        "wiki_burn_eh16",
+        "user_transparency"
       ],
       "locator": "kind: IS_FIRE -> SCORCH; whole-body extent required by current user rule",
       "visual_boundary": "Whole body and hair share continuous heat damage. Existing runtime anchor still conflicts with this scope."
@@ -167,12 +183,35 @@
       ],
       "locator": "DamageTypes.EXPLOSION / PLAYER_EXPLOSION; actual explosion event",
       "visual_boundary": "受压、撕裂的破口；没有着火事件不额外叠加焦黑。"
+    },
+    "cactus_contact": {
+      "kind": "scratch",
+      "style": "thorn",
+      "label": "仙人掌尖刺接触",
+      "evidence": [
+        "minecraft_1211",
+        "user_hair"
+      ],
+      "locator": "CactusBlock.entityInside -> damageSources.cactus",
+      "visual_boundary": "项目设计的离散细刺痕；MC 不提供每根刺坐标，不伪称逐刺复现，三档增加已有接触范围内的密度。"
+    },
+    "dripstone_impact": {
+      "kind": "tear",
+      "style": "impale",
+      "label": "滴水石锥尖穿压",
+      "evidence": [
+        "minecraft_1211",
+        "user_hair",
+        "body_signs"
+      ],
+      "locator": "PointedDripstoneBlock.fallOn / getFallDamageSource",
+      "visual_boundary": "宽尖锥穿压的纵向楔口，与箭的窄口区分；方向由上方落锥／下方石笋真实接触决定。"
     }
   },
   "runtime_gaps": [
     "InjuryModel currently treats heated_awl as local SCORCH; incompatible with the current two-scope rule. No art is exported for that path.",
     "IN_FIRE/LAVA currently use soleSite; fire context and whole-body coverage still need runtime integration.",
     "BodySigns currently allows deep SCORCH to expose core; no corresponding thermal-only cavity is authored.",
-    "Cause-specific selection is not connected. Authored puncture, bite and blast shapes must not be selected from TEAR alone; trident prongs, plant thorn spacing and distinct projectile context still require actual contact data."
+    "Cause-specific selection is not connected. Eight mechanical styles and two thermal scopes have three authored levels and explicit per-source coverage. MC supplies single entity hits rather than individual trident prongs or thorn coordinates; do not invent separate contacts."
   ]
 }

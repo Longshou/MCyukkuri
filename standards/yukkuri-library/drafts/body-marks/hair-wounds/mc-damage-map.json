@@ -19,7 +19,14 @@
     "net/minecraft/world/entity/projectile/AbstractArrow.java": "fb36a216264a5d28ab9ab89864f551af025c6b3ad8c7979f9eeb7d2a63c8fd32",
     "net/minecraft/world/entity/Mob.java": "018c676ace0c958ecd3b377a044f19ec0332ac2045f9d3174a7a7aaf537e446c",
     "net/minecraft/world/entity/animal/Wolf.java": "a2d9a8d1508c4b75644562a9652aa0ba1891139e16b4c875e27e131d299a5613",
-    "net/minecraft/world/level/Explosion.java": "c0a5ca9a60ecedab11b73ed3a087e00066f5f5d42b73982937d18591e7742af7"
+    "net/minecraft/world/level/Explosion.java": "c0a5ca9a60ecedab11b73ed3a087e00066f5f5d42b73982937d18591e7742af7",
+    "net/minecraft/world/item/enchantment/effects/DamageEntity.java": "9521e1911e1cc9376cac047dd3faa4ca740c416788d9d7a89d06c51ee4fcc7b3",
+    "net/minecraft/world/item/enchantment/Enchantments.java": "daadf80534f9c6f22c27df5cba6bcebf28c2463764460bfc38ca54c31f4d38c0",
+    "net/minecraft/world/entity/projectile/ThrownTrident.java": "b999433b3f6333c54295e565625e24d735487128651dc947f750f489e1d0ce5a",
+    "net/minecraft/world/level/block/CactusBlock.java": "d58018cfe5ff8656b70a16dc30cb10f70e6768965eb13f7f2328a0cbd0fc2ff1",
+    "net/minecraft/world/level/block/SweetBerryBushBlock.java": "29deae81bece3acc09377cfda84a764c76e74da5e1a9328c665a0ecb326c4d62",
+    "net/minecraft/world/level/block/PointedDripstoneBlock.java": "3f72ae9181d53b537464c44bcbae0f27d07cf98177db2abe13ce6056e1a6c24a",
+    "net/minecraft/world/entity/Entity.java": "ca0586cb259e95dbd29524bf2db0ed7eaccfa5ca3a3c21492f5072c6ceef44bb"
   },
   "required_context": [
     "accepted_health_loss",
@@ -36,7 +43,8 @@
     "No new injury when accepted health loss is zero.",
     "Resolve specific source and actual context before broad damage tags.",
     "Split direct impact, ongoing fire and status damage; do not duplicate loss or invented wounds.",
-    "Wound severity never substitutes for injury mechanism or a visible opening."
+    "Wound severity never substitutes for injury mechanism or a visible opening.",
+    "Every registry source has levels 1, 2 and 3 in assembled/source-coverage.json; internal/system sources explicitly select no external injury, never a guessed wound."
   ],
   "groups": [
     {
@@ -59,10 +67,9 @@
         "sweet_berry_bush",
         "sting",
         "stalagmite",
-        "falling_stalactite",
-        "thorns"
+        "falling_stalactite"
       ],
-      "art_rule": "箭／尖刺是窄刺口；三叉戟与成组棘刺按接触形状分布。针口不因伤级高就扩成露核大洞。蜂毒另走内部状态。"
+      "art_rule": "箭／三叉戟使用实际单次命中的窄刺口；蜂蜇用小刺口；仙人掌是细刺接触，浆果丛是移动擦伤，石笋／落锥是宽尖锥穿压。MC 不提供三叉戟逐齿或植物逐刺接触，不凭模型外形伪造三个命中。"
     },
     {
       "id": "impact",
@@ -106,7 +113,7 @@
         "fireball",
         "unattributed_fireball"
       ],
-      "art_rule": "按用户规则为整体热损，焦枯裂纹及轻微收缩；不生成局部烧斑或烧伤洞。"
+      "art_rule": "整体焦褐、焦黑颗粒及干枯哑光，轻微收缩；不生成碎瓷裂网、局部烧斑或烧伤洞。"
     },
     {
       "id": "mixed_electric",
@@ -155,9 +162,10 @@
         "dragon_breath",
         "dry_out",
         "freeze",
-        "sonic_boom"
+        "sonic_boom",
+        "thorns"
       ],
-      "art_rule": "窒息、溺水、饥饿、毒／魔法、冻伤和音波不凭扣血画刀口或洞；保留各自状态及真实后果。冻伤不当烧伤。"
+      "art_rule": "窒息、溺水、饥饿、毒／魔法、冻伤和音波不凭扣血画刀口或洞；保留各自状态及真实后果。冻伤不当烧伤。 荆棘附魔是反伤调用，没有实体尖刺接触，不生成针孔。"
     },
     {
       "id": "system",

@@ -42,6 +42,7 @@ function createHairWound(vertices,parts,spec){
     }return z;
   }
   function rough(a){
+    if(style==='impale')return .80+.18*Math.cos(3*a+.5)+.045*Math.sin(11*a);
     if(style==='puncture')return .96+.06*Math.sin(4*a)+.03*Math.sin(9*a);
     if(style==='bite')return 1-.10*Math.abs(Math.cos(a))+.035*Math.sin(15*Math.cos(a))*Math.abs(Math.sin(a));
     if(style==='blast')return .82+.15*Math.cos(5*a+.2)+.09*Math.sin(9*a+.8);
@@ -53,14 +54,14 @@ function createHairWound(vertices,parts,spec){
   function hairBoundary(a){
     const vertical=Math.abs(Math.sin(a));
     if(style==='bite')return rough(a)*(.84-.09*vertical+.055*Math.sin(13*Math.cos(a))*vertical);
-    if(style==='puncture'||style==='blast')return rough(a)*(.84+.06*Math.sin(13*a));
+    if(style==='puncture'||style==='impale'||style==='blast')return rough(a)*(.84+.06*Math.sin(13*a));
     if(kind==='tear')return rough(a)*(.96-.23*vertical+.075*Math.sin(19*Math.cos(a)+.4)*vertical);
     if(kind==='dent')return rough(a)*(.78+.09*Math.sin(11*a+.5));
     return rough(a)*(.87+.055*Math.sin(19*a));
   }
   const outline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=rough(a);return [Math.cos(a)*k,Math.sin(a)*k];});
   const hairOutline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=hairBoundary(a);return [Math.cos(a)*k,Math.sin(a)*k];});
-  const colors=[],materials=[],out=[],surfaceEdits=[];
+  const colors=[],materials=[],out=[],surfaceEdits=[],surfacePatches=[];
   if(kind==='dent'){
     // Displace the real skin and covering strands by the SAME field, never hide them.
     for(const part of [skin,...hair,...parts.filter(p=>p.name.startsWith('face_'))]){
@@ -76,6 +77,38 @@ function createHairWound(vertices,parts,spec){
     }
   }
   const depression=(x,y)=>kind==='dent'?grade.depth*Math.max(0,1-((x-cx)/rx)**2-((y-cy)/ry)**2)**3:0;
+  if(kind==='dent'){
+    // Skin and face use very different tessellation. Moving only their original
+    // vertices pushes coarse eyes behind the finer skin. Subdivide every affected
+    // receiver triangle before applying the same field, preserving its own UVs.
+    for(const part of [skin,...hair,...parts.filter(p=>p.name.startsWith('face_'))]){
+      for(let index=part.start;index<part.start+part.count;index+=3){
+        const tri=[0,1,2].map(j=>Array.from(vertices.slice((index+j)*8,(index+j+1)*8)));
+        const q=tri.map(p=>local(p.slice(0,3)));
+        if(Math.max(...q.map(p=>p[2]))<.15||Math.min(...q.map(p=>p[0]))>cx+rx||Math.max(...q.map(p=>p[0]))<cx-rx||Math.min(...q.map(p=>p[1]))>cy+ry||Math.max(...q.map(p=>p[1]))<cy-ry)continue;
+        const steps=Math.max(1,Math.ceil(Math.max(...tri.map((p,j)=>Math.hypot(...p.slice(0,3).map((v,k)=>v-tri[(j+1)%3][k]))))/.16));
+        const patch=[];
+        function vertex(a,b){
+          const wa=1-a/steps-b/steps,wb=a/steps,wc=b/steps;
+          const p=tri[0].map((v,k)=>v*wa+tri[1][k]*wb+tri[2][k]*wc),z=local(p.slice(0,3));
+          const depth=z[2]>.15?depression(z[0],z[1]):0;
+          for(let k=0;k<3;k++)p[k]-=n[k]*depth;
+          const r2=((z[0]-cx)/rx)**2+((z[1]-cy)/ry)**2;
+          if(z[2]>.15&&r2<1){
+            const nz=dot(p.slice(5,8),n),dx=-6*(z[0]-cx)/rx**2*(1-r2)**2,dy=-6*(z[1]-cy)/ry**2*(1-r2)**2;
+            for(let k=0;k<3;k++)p[k+5]+=grade.depth*nz*(dx*u[k]+dy*v[k]);
+          }
+          const length=Math.hypot(...p.slice(5,8));for(let k=5;k<8;k++)p[k]/=length;
+          return p;
+        }
+        for(let a=0;a<steps;a++)for(let b=0;b<steps-a;b++){
+          patch.push(...vertex(a,b),...vertex(a+1,b),...vertex(a,b+1));
+          if(a+b<steps-1)patch.push(...vertex(a+1,b),...vertex(a+1,b+1),...vertex(a,b+1));
+        }
+        surfacePatches.push({triangle:index,part:part.name,vertices:patch});
+      }
+    }
+  }
   function triangle(a,b,c,color,material){
     const ab=b.map((q,i)=>q-a[i]),ac=c.map((q,i)=>q-a[i]),normal=cross(ab,ac),length=Math.hypot(...normal);
     if(length<1e-9)return;
@@ -113,9 +146,9 @@ function createHairWound(vertices,parts,spec){
       }
     }
     const controls=core?
-      [[1.04,-.01,0,[220,193,152]],[1.005,.025,0,[244,220,181]],[.97,.20,0,[212,177,138]],
+      [[.999,.012,0,[194,158,115]],[.985,.05,0,[192,152,112]],[.97,.20,0,[179,134,97]],
        [.87,.78,.12,[103,69,53]],[.79,1.75,.34,[97,64,50]],[.72,3,.65,[91,60,47]],[.62,4.5,1,[82,54,42]],[0,5.7,1,[76,50,39]]]:
-      [[1.04,-.01,0,[225,197,155]],[1.005,.02,0,[244,219,177]],[.94,.15,0,[206,168,129]],
+      [[.999,.012,0,[194,158,115]],[.98,.04,0,[192,152,112]],[.94,.15,0,[179,134,97]],
        [.72,grade.depth*.5,0,[111,73,56]],[.40,grade.depth*.85,0,[85,51,43]],[0,grade.depth,0,[68,40,35]]];
     const levels=[];
     for(let r=0;r<controls.length-1;r++){
@@ -180,10 +213,10 @@ function createHairWound(vertices,parts,spec){
   for(let i=0;i<out.length;i+=8){const mat=materials[-1-out[i+3]],key=mat+out.slice(i,i+3).map(q=>Math.round(q*1e5)).join(',');
     const normal=normals.get(key);if(normal){const length=Math.hypot(...normal);for(let k=0;k<3;k++)out[i+5+k]=normal[k]/length;}
   }
-  return {vertices:out,colors,materials,surfaceEdits,inside,cuttable,paintable:new Set([skin.name,...hair.map(p=>p.name)]),
+  return {vertices:out,colors,materials,surfaceEdits,surfacePatches,inside,cuttable,paintable:new Set([skin.name,...hair.map(p=>p.name),...parts.filter(p=>p.name.startsWith('face_')).map(p=>p.name)]),
     project:p=>{const q=local(p);return [(q[0]-cx)/rx,(q[1]-cy)/ry,q[2]];},
     profile:{origin,u,v,n,center:[cx,cy],cause:spec.cause,radius:radii,cutRadius:[cutRx,cutRy],outline,hairOutline,kind,style,severity,open,core,coreCenter:recipe.core_center,
-      hairResponse:recipe.hair_response[style],preserveHairOutsideBreak:true},
+      hairResponse:recipe.hair_response[style],preserveHairOutsideBreak:true,transparentExterior:true,surfacePatchRule:'Replace listed original triangles with UV-preserving shared-field patches; never draw a skin-colored backing over face organs.'},
     hairSamples:hairs.filter(q=>q!==null).length};
 }
 module.exports={createHairWound};
