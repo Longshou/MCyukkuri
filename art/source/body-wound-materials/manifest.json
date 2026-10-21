@@ -4,45 +4,120 @@
   "recipe": "recipe.json",
   "selection": "user_requested_2026-10-21",
   "runtime_status": "pending_gameplay_visual_review",
-  "scope": "scratch, dent, tear, local scorch and healed scar surface materials; existing injury anchors and deformation preserved; core cavity not included",
+  "scope": "existing scratch, dent, tear, local scorch, healed scar, three dirt stages, four mould stages and continuous baked sole; core geometry exported separately by export_cavity.cjs",
   "texture_size": 256,
   "local_radius": 2.0,
+  "sole_projection": {
+    "width": 1024,
+    "height": 256,
+    "u": [
+      -20.106192982974676,
+      20.106192982974676
+    ],
+    "v": [
+      -0.5,
+      2.0
+    ],
+    "body_height": 9.6,
+    "top_is_v_max": true
+  },
   "text_fingerprint_newlines": "LF",
   "source_sha256": {
     "preview.py": "516809943eb543da6dd18270f93519cf8f76ccbdd0d58fd3aa1cbdd1f73eb042",
-    "recipe.json": "4fcb4d8c81a81ec18315581b2739494d78b110d6692bd937a62c25d98ddf1db8",
-    "export_wounds.py": "a0e7a90f6ccaffd619f98bed7896130e38b3d6ac46a56ee15c2ec3deb76dca3f"
+    "recipe.json": "7edb4195fa2b947eda34de0e238ecfcd28fdf61481f1a7198b3e352a5710cef7",
+    "export_wounds.py": "1f223578c6082342e127a501ef62ab91f0e1b0eaeeee11d440ffd011935524d6"
   },
   "materials": {
     "scratch": {
       "source_function": "scratch",
+      "stage": null,
       "snapshot": "art/source/body-wound-materials/scratch.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scratch.png",
       "sha256": "8689ef1cf7a29cc50f7ab27e95084e1fdb628167f6c1b3f2faadd4162135df6c"
     },
     "dent": {
       "source_function": "dent",
+      "stage": null,
       "snapshot": "art/source/body-wound-materials/dent.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/dent.png",
       "sha256": "061cc7066321f3da34c52fe2f5cc438ca1fa63a5fe4b5b624f9509549bc124f0"
     },
     "tear": {
       "source_function": "tear",
+      "stage": null,
       "snapshot": "art/source/body-wound-materials/tear.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/tear.png",
       "sha256": "da94d5b9f88ebcbb5b2af3967d71f84a010afad8c86b95c5c872f003bf80c6e4"
     },
     "scorch": {
       "source_function": "char",
+      "stage": null,
       "snapshot": "art/source/body-wound-materials/scorch.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scorch.png",
       "sha256": "727475108bc30803225423e14dfc7e7e123e57166fa8b5ab7acef2ac390b4118"
     },
     "scar": {
       "source_function": "scar",
+      "stage": null,
       "snapshot": "art/source/body-wound-materials/scar.png",
       "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/scar.png",
       "sha256": "3089dac67ac2634188425a251708f68efee57581094d18f2a6b190cbeaa8450b"
+    },
+    "dirt_1": {
+      "source_function": "dirt",
+      "stage": 1,
+      "snapshot": "art/source/body-wound-materials/dirt_1.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/dirt_1.png",
+      "sha256": "0b8dcbf0c4e1a43aafce183dfaf0eabfd5b97ca34af871682e848102b46b1c39"
+    },
+    "dirt_2": {
+      "source_function": "dirt",
+      "stage": 2,
+      "snapshot": "art/source/body-wound-materials/dirt_2.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/dirt_2.png",
+      "sha256": "16e19960abef34ea0886de35dacaf46a26f2d1f60ce9bbdc82a04bb94143d6c7"
+    },
+    "dirt_3": {
+      "source_function": "dirt",
+      "stage": 3,
+      "snapshot": "art/source/body-wound-materials/dirt_3.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/dirt_3.png",
+      "sha256": "bddbfc9a93867d76af790cc71f7431495ebc390173081e1132d1cc13ddec0044"
+    },
+    "mold_1": {
+      "source_function": "mold",
+      "stage": 1,
+      "snapshot": "art/source/body-wound-materials/mold_1.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/mold_1.png",
+      "sha256": "9693cfcaa391e82b705baca95ab1fa32a2e91d45cb5a2fdb7f76986ec5853bf8"
+    },
+    "mold_2": {
+      "source_function": "mold",
+      "stage": 2,
+      "snapshot": "art/source/body-wound-materials/mold_2.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/mold_2.png",
+      "sha256": "58304c89c6634558dcd99b532fc561884fe474884c5680b854f3ce8cb7b2af21"
+    },
+    "mold_3": {
+      "source_function": "mold",
+      "stage": 3,
+      "snapshot": "art/source/body-wound-materials/mold_3.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/mold_3.png",
+      "sha256": "510405bc26c29dbb02113eaac701452923cade31e0db0099e0c36c46b00f2602"
+    },
+    "mold_4": {
+      "source_function": "mold",
+      "stage": 4,
+      "snapshot": "art/source/body-wound-materials/mold_4.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/mold_4.png",
+      "sha256": "a1d567d8634bbec303fd7544d076cf1672d338c5b54be26ae0dbaf1e358b75fe"
+    },
+    "char": {
+      "source_function": "char",
+      "stage": null,
+      "snapshot": "art/source/body-wound-materials/char.png",
+      "runtime": "src/main/resources/assets/mcyukkuri/textures/props/body_wounds/char.png",
+      "sha256": "b5ab562f701068ca74d6faa44302fdcef4ac68929069fec93cef0876118d3cc7"
     }
   }
 }

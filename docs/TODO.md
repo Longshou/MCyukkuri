@@ -116,7 +116,7 @@
   - `marks` 脏污与伤痕：陆 21（9）与陆 49 留疤问题合并复测；普通伤口概率原位留疤、大伤口必留疤，橙汁治伤也须结算，面粉糊去疤。当前差距见陆 49。
 - **伤病与遗体**
   - `airborne` 腾空与小跳：陆 38（14）明显腾空才感叹。`house_health` 家油血量：陆 45（24）生命上限 1／2／4。
-  - `wound_leak`、`core_exposed`、`core_filling`、`carrion`、`cannibal_hunt`：血量与遗体资源按[血量与遗体资源](INJURIES_AND_REMAINS.md#身体状态)；治疗止漏另看陆 49；`cannibal_hunt` 另看活体追咬；客户端显示霉斑、烤足、露馅、中枢、变瘪。
+  - `wound_leak`、`core_exposed`、`core_filling`、`carrion`、`cannibal_hunt`：血量与遗体资源按[血量与遗体资源](INJURIES_AND_REMAINS.md#身体状态)；治疗止漏另看陆 49；`cannibal_hunt` 另看活体追咬；`body_mold` 核对四档油霉及治疗后的原位回退，`core_exposed` 核对大创腔、普通馅／唯一中央中枢、低血小裂口及完整皮面对照。
   - `treatment_severe` 橙汁治伤与烤足、`treatment_scars` 去疤与治伤分工、`treatment_care` NPC 治疗用料：陆 49，伤口、烤足、生命、疤痕、感染与医疗余量按[治疗流程](INJURIES_AND_REMAINS.md#伤口与治疗)；`marks` 核对自然闭合留疤后去疤。
   - `remains_rot` 遗体腐败与死臭：按[遗体腐败](INJURIES_AND_REMAINS.md)，手持或冷冻不老化、重载保持阶段。
   - `offering` 请吃了我（含临终献体分支）：陆 24（37）按性格、好感、自身与孩子饥饿触发（拒绝后 1200 tick 冷却），投喂可中断，GIVE 后留受赠遗体。
@@ -211,8 +211,8 @@
 
 - **火烧后的烧焦外观**：未做。本轮新增美术待办。完成：伤病区真实受火烧后出现可见烧焦表现，与实际灼伤状态对应，由用户确认；由 Opus 制作。
 - **面粉糊、橙汁与饲料颗粒重做**：未做。本轮要求更贴近 Minecraft 原版风格；“饲料颗粒”暂按用户原文“私聊颗粒”理解，具体资产待核对。完成：Opus 重做对应道具美术效果，在持物、物品展示与实际交互中由用户确认；面粉糊、橙汁旧候选不再视为只等认可。
-- **身体印记**（霉斑、烤足、露馅、中枢大凹陷）：部分接入，草稿在 `standards/yukkuri-library/drafts/body-marks/`，未替换 `art/props/body-marks` 与 `WoundRenderer`；中枢外露入口已放大，等用户看。
-- **伤口旧稿接入**：已接入待试玩。按本次要求换用 `drafts/body-marks` 既有擦伤、压伤、细长裂伤、局部灼伤和旧疤材质，选用快照在 `art/source/body-wound-materials/`；保留真实挂点、局部变形和伤势规则。完成：`hatless_monster`、`hatless_boundary` 和伤病区核对移动中的伤口贴合、透明边缘与远近显示；大创腔和其余身体印记仍按原待办。
+- **身体印记与重伤创腔**：已接入待试玩。按用户要求选用 `standards/yukkuri-library/drafts/body-marks/` 既有油霉四阶段、脏污、连续足缘焦化与露核大创腔；真实深伤上裁开面皮及五官层，腔壁通向体内唯一中枢，已取中枢的遗体只留空腔。完成：`body_mold` 核对四档与去霉后的原位变化，`marks` 看脏污，`treatment_severe` 看足缘及解除，`core_exposed` 绕行核对腔壁深度、动作贴合与对照，`core_filling` 核对取出后不重复显示；清场重开恢复初态。
+- **伤口旧稿接入**：已接入待试玩。按本次要求换用 `drafts/body-marks` 既有擦伤、压伤、细长裂伤、局部灼伤和旧疤材质，选用快照在 `art/source/body-wound-materials/`；保留真实挂点、局部变形和伤势规则。完成：`hatless_monster`、`hatless_boundary` 和伤病区核对移动中的伤口贴合、透明边缘与远近显示；其余身体印记与大创腔见上项。
 - **已接入待试玩，等视觉确认**：爱丽丝八景蓝瞳与蓝眼表情（制作源 `standards/yukkuri-library/body-standard/features/alice-hakkei/`，视觉确认仍按源登记核对）；雷普魔 1.12 脸、行为序列与 peni 显示（`drafts/rapem-alice/` 未认可）；成体状态脸（八景 U 重绘，`art/source/adult-states/`）；稀有形态贴图（妖梦与红眼、橙尾、被炉魔理沙，登记缺认可字段）；中枢馅、去霉药、酸奶、兴奋药、幼语药、弹珠汽水喷雾。
 - **部分接入**：照料道具 R4 统一造型与 `hat_provisions` 候选待确认；NPC 草药描述与步骤纠正见陆 49，不再安排草药图标制作（绷带已移除，旧档迁移待试玩）。**未做**：按死因区分的[遗体美术](INJURIES_AND_REMAINS.md#同伴照护与遗体)、[水中泡软与溶化遗体](AQUATIC_MARISA_IMPLEMENTATION.md#未实现边界)。
 - **未做**：树叶襁褓按[参考与制作要点](../wiki/leaf-swaddle.md)制作并导出；商店补“进货”页签与“售罄”图标。完成标准：对应物品和商店界面显示专用美术，由用户确认。

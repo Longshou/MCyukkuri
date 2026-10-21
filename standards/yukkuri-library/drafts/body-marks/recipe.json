@@ -1,9 +1,9 @@
 {
   "id": "body-marks",
-  "status": "wound_materials_selected_pending_runtime_review",
-  "runtime_selected": ["scratch", "dent", "tear", "scorch", "scar"],
+  "status": "selected_pending_runtime_review",
+  "runtime_selected": ["scratch", "dent", "tear", "scorch", "scar", "dirt_1", "dirt_2", "dirt_3", "mold_1", "mold_2", "mold_3", "mold_4", "char", "core_cavity"],
   "runtime_exporter": "export_wounds.py",
-  "runtime_selection": "2026-10-21 用户要求换用之前制作的伤口版本；只选用既有表面材质，大创腔、脏污、霉斑和足缘状态造型仍为草稿。",
+  "runtime_selection": "2026-10-21 用户要求接入此前整批伤口、油霉、脏污、足缘焦化及重伤露核造型；复用既有制作配方，运行视觉待试玩。",
   "date": "2026-10-18",
   "design": "面皮上的局部变化：低饱和、疏密成簇、尖端收细；保留眼口与角色轮廓。",
   "sources": [
@@ -28,7 +28,7 @@
   "scar": {"seed": 19, "principle": "淡米色细长收口，边缘略凹，少量不规则短支痕，不默认缝线。"},
   "wounds": {"seed": 28, "principle": "擦伤细划线，压伤低对比斑，普通裂伤只露豆沙；中枢外露必须是大范围面皮与馅料缺损，露出体内核心。"},
   "core_cavity": {
-    "status": "draft_pending_user_review",
+    "status": "selected_pending_runtime_review",
     "opening_center": [2.1, 4.2],
     "opening_radius": [3.05, 2.55],
     "core_center": [0, 4.5, 0.5],
@@ -36,7 +36,7 @@
     "segments": 80,
     "seed": 28,
     "principle": "裁掉创口内的面皮和对应五官层，保留面皮断面、凹入的豆沙腔壁与位于身体中央的唯一核心。",
-    "dimensions_note": "当前灵梦网格的审美提案参数，开口约为体宽48%和体高53%；不是Wiki尺寸，也不作为游戏数值。"
+    "dimensions_note": "制作源基于灵梦，开口约为体宽48%和体高53%；运行接入按真实伤口位置与各模型尺寸适配。尺寸为项目美术设计，不是Wiki数值。"
   },
-  "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "离线材质预览。scratch/dent/tear/scorch/scar 已选入游戏并保留真实伤口落点与既有变形；游戏效果待试玩。其余纹样和大创腔仍为提案。"}
+  "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "制作源离线预览；运行资源另由export_wounds.py与export_cavity.cjs导出。真实落点、动作蒙皮、透明排序和深度遮挡需用户试玩确认。"}
 }

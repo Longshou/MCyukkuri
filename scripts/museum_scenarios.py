@@ -840,6 +840,15 @@ def kin_of(**parents):
 
 
 # ---- injuries and remains (open ground: nothing to eat, nothing to hide behind)
+add('body_mold', 'body', '油霉阶段与去霉', '油霉阶段',
+    '四只灵梦分别为油霉 1／3／6／8 级，对应四档灰绿菌落；先绕行看侧背面，再用去霉药核对真实阶段回退及原位菌落缩小。终末个体会自然进入濒死，完整皮面不应凭中枢损伤冒出创洞',
+    '立即看外观；终末约 20 秒后濒死', [
+        *[yk('reimu', -6 + 4 * i, 0, f'mold{i}', lead=i == 0, label=f'油霉{level}', **pair_ready())
+          for i, level in enumerate((1, 3, 6, 8))],
+        *[set_status(f'mold{i}', 'health.mold', level) for i, level in enumerate((1, 3, 6, 8))]],
+    give=['mcyukkuri:mold_remover 8'], env=DAY, vantage=(0, 10),
+    reads=[(f'读油霉{level}', f'yukkuri status {sel(f"mold{i}")} raw') for i, level in enumerate((1, 3, 6, 8))])
+
 add('airborne', 'body', '腾空与小跳', '腾空与小跳',
     '两只灵梦落地站稳后，高抛个体腾空，小跳个体轻跳；观察高抛时的飞起感叹，以及同一次腾空不会重复刷屏。落地后仍按普通规则活动',
     '生成后约 2–6 秒', [
@@ -927,14 +936,21 @@ add('treatment_care', 'body', 'NPC治疗用料', 'NPC治疗',
                                     ('读医疗余量', f'data get entity {sel("carer")} Medicine')])
 
 add('core_exposed', 'body', '中枢外露与准确命中', '中枢外露',
-    '两只都是正面三级凹伤、剩3血。读 core_site 找实际中枢位置：玩家空手准确击中外露中枢应立即死亡，击中同部位旁边只结算普通伤害。core_impact 与服务端日志记录真实命中；不要用伤害命令代替瞄准',
-    '玩家手动瞄准，每次清场重开可重复', [
-        yk('reimu', -3, 0, 'exposed', label='准确命中', lead=True, **pair_ready()),
+    '从左到右：低血多处深伤、准确命中的旁侧对照、满血深伤、低血小裂口、低血完整皮面。深伤可见普通馅，只有露核者的大创腔通向体内唯一中枢；绕行看腔壁遮挡和背面，橙汁治伤后创口关闭。玩家准确击中可见中枢应立即死亡，击中旁侧只结算普通伤；读 core_site／core_impact，不用伤害命令代替瞄准',
+    '先绕行看外观；再手动瞄准，清场后可重复', [
+        yk('reimu', -8, 0, 'exposed', label='低血多处深伤', lead=True, **pair_ready()),
         set_status('exposed', 'health.wound_at', 'front:dent:3'), set_status('exposed', 'health.health', 3),
-        yk('marisa', 3, 0, 'struck', label='旁侧对照', **pair_ready()),
-        set_status('struck', 'health.wound_at', 'front:dent:3'), set_status('struck', 'health.health', 3)],
-    note=NEW, vantage=(0, 10), reads=[('读中枢与命中', f'yukkuri status {sel("exposed")} raw'),
-                                    ('读旁侧对照', f'yukkuri status {sel("struck")} raw')])
+        set_status('exposed', 'health.wound_at', 'back:dent:3'),
+        yk('marisa', -4, 0, 'struck', label='旁侧对照', **pair_ready()),
+        set_status('struck', 'health.wound_at', 'front:dent:3'), set_status('struck', 'health.health', 3),
+        yk('reimu', 0, 0, 'deep_full', label='满血深灼伤', **pair_ready()),
+        set_status('deep_full', 'health.wound_at', 'side:scorch:3'),
+        yk('reimu', 4, 0, 'small', label='低血小裂口', **pair_ready()),
+        set_status('small', 'health.wound_at', 'front:tear:2'), set_status('small', 'health.health', 3),
+        yk('reimu', 8, 0, 'closed', label='低血完整皮面', **pair_ready()), set_status('closed', 'health.health', 3)],
+    give=['mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 12),
+    reads=[(caption, f'yukkuri status {sel(name)} raw') for caption, name in (
+        ('读中枢外露', 'exposed'), ('读受击者', 'struck'), ('读满血深伤', 'deep_full'), ('读小裂口', 'small'), ('读完整皮面', 'closed'))])
 
 add('magma_sole', 'body', '岩浆块烫脚', '岩浆块烫脚',
     '左边站在真实岩浆块，右边普通石头对照；不预置伤口。观察脚底灼伤、烤足与位置变化，允许自己离开热源；离开后用橙汁治伤，再看脚底疤和跳跃恢复',
@@ -948,9 +964,10 @@ add('magma_sole', 'body', '岩浆块烫脚', '岩浆块烫脚',
     reads=[('读脚底灼伤', f'yukkuri status {sel("hot")} raw'), ('读普通地面对照', f'yukkuri status {sel("cool")} raw')])
 
 add('core_filling', 'body', '中枢馅', '中枢馅',
-    '一只灵梦身体耗尽（核心完好）留下空壳，2 秒后割出独立中枢馅；旁边重伤又饿的魔理沙吃下它：血 +4、营养 +10、不安下降。普通食用量为零仍可取一次核心',
+    '一只有正面深伤的灵梦身体耗尽（核心完好）留下空壳，2 秒后割出独立中枢馅，遗体创腔保留但不再画核心；旁边重伤又饿的魔理沙吃下它：血 +4、营养 +10、不安下降。普通食用量为零仍可取一次核心，搬起放下不能让核心重新出现',
     '约 10–30 秒', [
         yk('reimu', 0, 0, 'dead', **pair_ready()),
+        set_status('dead', 'health.wound_at', 'front:dent:3'),
         yk('marisa', 5, 0, 'hurt', lead=True, nutrition=30, energy=95),
         set_status('hurt', 'health.wound_at', 'side:dent:3'), set_status('hurt', 'health.health', 4),
         f'damage {sel("dead")} 100 minecraft:generic'],
@@ -1427,7 +1444,7 @@ TOPICS = {
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'body_mold': 'R5', 'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2',
