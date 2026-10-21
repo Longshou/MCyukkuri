@@ -85,9 +85,9 @@ public final class CorpseFood {
         boolean offered = RemainsRot.offered(remains);
         boolean foul = remains.getBoolean("FoodFoul");
         int sweetness = Math.clamp(remains.getInt("FoodSweetness"), 0, 100);
-        if (stage >= RemainsRot.ROTTEN || foul) return new BodyFood.Bite(portions, portions * 3, 90, "foul");
-        if (stage == RemainsRot.STALE) return new BodyFood.Bite(portions, portions * 4, 60, "stale");
-        float nutrition = offered || sweetness >= 85 ? 6 : 5;
+        if (stage >= RemainsRot.ROTTEN || foul) return new BodyFood.Bite(portions, portions * 30, 90, "foul");
+        if (stage == RemainsRot.STALE) return new BodyFood.Bite(portions, portions * 40, 60, "stale");
+        float nutrition = offered || sweetness >= 85 ? 60 : 50;
         return new BodyFood.Bite(portions, portions * nutrition, offered ? 0 : 30, "fresh");
     }
 

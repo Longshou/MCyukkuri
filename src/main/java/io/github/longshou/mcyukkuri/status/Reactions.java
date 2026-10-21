@@ -94,9 +94,9 @@ public final class Reactions {
                 && !y.family().laboring() && !y.family().birthDuty() && !y.family().braidRescueActive()
                 && !y.family().awaitingLanding() && y.life().mealTicks() == 0;
     }
-    /** Fright reaches an individual busy eating or asleep too; only contact, command and water override it. */
+    /** Feeding does not hide danger; sleeping individuals do not perceive approaching predators. */
     static boolean alarmable(YukkuriEntity y) {
-        return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy() && !y.isInWaterOrBubble();
+        return prey(y) && !y.life().isSleeping() && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy() && !y.isInWaterOrBubble();
     }
     static boolean kin(YukkuriEntity a, YukkuriEntity b) {
         if (!Recognition.recognizes(a, b)) return false;
@@ -132,6 +132,7 @@ public final class Reactions {
         public Stage stage() { return stage; }
         /** The predator (or attacker) that currently matters, or null. */
         public LivingEntity source() {
+            if(y.life().isSleeping())return null;
             if (seen != null && seen.isAlive()) return seen;
             long now = y.level().getGameTime();
             return heard != null && heard.isAlive() && now < heardUntil && heard.level() == y.level() && heard.distanceToSqr(y) < 576 ? heard : null;
@@ -161,7 +162,7 @@ public final class Reactions {
 
         /** Every few ticks: look around, then alarm or notice. */
         void scan() {
-            if (!prey(y)) { seen = null; return; }
+            if (!prey(y) || y.life().isSleeping()) { seen = null; heard = null; return; }
             long now = y.level().getGameTime();
             LivingEntity best = null; double bestD = Double.MAX_VALUE;
             for (var p : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(16, 6, 16), this::menacing)) {
@@ -177,7 +178,6 @@ public final class Reactions {
             double d = Math.sqrt(bestD);
             // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
             if (!fresh(best, now)) knownAt = now;
-            if (y.life().isSleeping() && d < 8) y.life().interrupt();
             boolean hunting = best instanceof YukkuriEntity predator && predator.predator().active();
             if ((d <= alarmRange() || hunting && d <= 14) && now >= alarmUntil && !y.isPanicking() && alarmable(y)) {
                 alarmUntil = now + 120;
@@ -209,6 +209,7 @@ public final class Reactions {
                     o -> o != y && prey(o) && kin(y, o))) z.status().reactions().threat().heard(danger, now);
         }
         void heard(LivingEntity danger, long now) {
+            if(y.life().isSleeping())return;
             if (danger == y || !danger.isAlive()) return;
             heard = danger; heardUntil = now + 160;
             if (!fresh(danger, now)) return;
@@ -368,6 +369,7 @@ public final class Reactions {
         }
         void start() {
             ticks = 0;
+            y.life().wakeForDanger("weather");
             y.life().interrupt();
             stage = cover != null ? Stage.RUN : Stage.SEARCH;
             GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);

@@ -83,6 +83,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
@@ -395,7 +396,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public PlayLife playLife(){return playLife;}
     public SurfaceLife surfaceLife(){return surfaceLife;}
     public void frightenFrom(YukkuriEntity threat) {
-        if(level().isClientSide||!isAlive())return;
+        if(level().isClientSide||!isAlive()||life.isSleeping())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
         fleeFrom(threat);
     }
@@ -835,7 +836,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     int panicTicksValue() { return panicTicks; }
     void setPanicTicks(int ticks) { panicTicks = ticks; }
     YukkuriAction requestedActionValue() { return requestedAction; }
-    boolean hurtBase(DamageSource source, float amount) { return super.hurt(source, amount); }
+    boolean hurtBase(DamageSource source, float amount) {
+        int previousHurt = hurtTime, previousDuration = hurtDuration;
+        boolean accepted = super.hurt(source, amount);
+        if (source.is(DamageTypes.STARVE)) { hurtTime = previousHurt; hurtDuration = previousDuration; }
+        return accepted;
+    }
+    @Override public void handleDamageEvent(DamageSource source) {
+        if (!source.is(DamageTypes.STARVE)) super.handleDamageEvent(source);
+    }
+    @Override protected void playHurtSound(DamageSource source) {
+        if (!source.is(DamageTypes.STARVE)) super.playHurtSound(source);
+    }
     void dieBase(DamageSource source) { super.die(source); }
     void removeBase(Entity.RemovalReason reason) { super.remove(reason); }
     InteractionResult mobInteractBase(Player player, InteractionHand hand) { return super.mobInteract(player, hand); }

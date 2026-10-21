@@ -270,24 +270,7 @@ public final class HumanNpc extends PathfinderMob {
             GameplayLog.event(this, "npc-care", "action=begin_meal target={} food={}->{} nutrition={} result=accepted", y.getUUID(), careFood + 1, careFood, y.life().nutrition());
             return true;
         }
-        // Medicine is the existing finite supply budget: one successful dose, not an ongoing free bandage effect.
-        if (medicine > 0) {
-            // Close active wounds first. Once closed, remove scars before topping up health again:
-            // ongoing infection/mould damage must not keep flour paste behind endless orange doses.
-            boolean physical = y.body().wounds().stream().anyMatch(w -> switch (w.kind()) {
-                case TEAR, DENT, SCRATCH, SCORCH -> true;
-                default -> false;
-            }) || y.body().footBurned();
-            var treatments = physical
-                    ? new TreatmentItem.Kind[] {TreatmentItem.Kind.ORANGE_JUICE, TreatmentItem.Kind.FLOUR_PASTE}
-                    : new TreatmentItem.Kind[] {TreatmentItem.Kind.FLOUR_PASTE, TreatmentItem.Kind.ORANGE_JUICE};
-            for (var treatment : treatments) {
-                if (!TreatmentItem.apply(y, treatment)) continue;
-                medicine--; swing(InteractionHand.MAIN_HAND);
-                GameplayLog.event(this, "npc-care", "action=treatment target={} treatment={} medicine={}->{} result=applied", y.getUUID(), treatment, medicine + 1, medicine);
-                return true;
-            }
-        }
+        // Treatment is staged by RoutineGoal, with a real reserved dose in the vanilla hand slot.
         if (!y.isPanicking()) {
             y.life().personality().talk(getUUID(), true);
             y.showReaction("happy", "", 60); swing(InteractionHand.MAIN_HAND); return true;
@@ -302,6 +285,8 @@ public final class HumanNpc extends PathfinderMob {
     }
     private final class RoutineGoal extends Goal {
         private int elapsed;
+        private int careTicks;
+        private TreatmentItem.Kind dose;
         RoutineGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() {
             if (isTrading() || resting()) return true;
@@ -315,7 +300,7 @@ public final class HumanNpc extends PathfinderMob {
             return attention != null;
         }
         @Override public boolean canContinueToUse() { return isTrading() || resting() || attention != null && attention.isAlive() && elapsed < 140; }
-        @Override public void start() { elapsed = 0; }
+        @Override public void start() { elapsed = 0; careTicks = 0; dose = null; }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (ExamSession.active(HumanNpc.this)) return; // the exam session steers the examiner
@@ -327,10 +312,62 @@ public final class HumanNpc extends PathfinderMob {
             }
             elapsed++; if (attention == null) return;
             getLookControl().setLookAt(attention, 30, 30);
-            if (distanceToSqr(attention) > 4) { if (elapsed % 20 == 1) getNavigation().moveTo(attention, .85); }
-            else { getNavigation().stop(); attend(attention); elapsed = 140; }
+            if (distanceToSqr(attention) > 4 || !hasLineOfSight(attention)) {
+                careTicks = 0;
+                if (elapsed % 20 == 1) getNavigation().moveTo(attention, .85);
+            } else {
+                getNavigation().stop();
+                if (careTicks < 0) { careTicks++; return; }
+                if (dose == null && !prepareDose(attention)) { attend(attention); elapsed = 140; return; }
+                if (++careTicks == 20) swing(InteractionHand.MAIN_HAND);
+                if (careTicks < 30) return;
+                if (dose == null || !getMainHandItem().is(dose==TreatmentItem.Kind.ORANGE_JUICE ? ModItems.ORANGE_JUICE.get() : ModItems.FLOUR_PASTE.get())
+                        || !level().isDay() || attitude()!=Attitude.CARING || !mayTend(attention)) {
+                    GameplayLog.event(HumanNpc.this,"npc-care","action=treatment_refused reason=dose_or_care_context_changed target={}",attention.getUUID());
+                    elapsed=140; return;
+                }
+                boolean applied=TreatmentItem.apply(attention,dose);
+                GameplayLog.event(HumanNpc.this,"npc-care","action=treatment target={} treatment={} medicine={} reserved=1 result={}",
+                        attention.getUUID(),dose,medicine,applied?"applied":"refused");
+                if (!applied) { elapsed=140; return; }
+                getMainHandItem().shrink(1);
+                dose=null; careTicks=-20;
+            }
         }
-        @Override public void stop() { attention = null; getNavigation().stop(); routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200); }
+        private boolean prepareDose(YukkuriEntity patient) {
+            if(attitude()!=Attitude.CARING || !mayTend(patient) || !level().isDay()
+                    || !patient.body().treatmentBlockReason().equals("none")
+                    || job()==Job.FACTORY && production.pipeline().needsService(patient))return false;
+            boolean physical=patient.body().footBurned() || patient.body().wounds().stream().anyMatch(w -> switch(w.kind()) {
+                case TEAR,DENT,SCRATCH,SCORCH -> true;
+                default -> false;
+            });
+            var desired=physical ? TreatmentItem.Kind.ORANGE_JUICE
+                    : patient.status().marks().scarCount()>0 ? TreatmentItem.Kind.FLOUR_PASTE
+                    : patient.getHealth()<patient.getMaxHealth() ? TreatmentItem.Kind.ORANGE_JUICE : null;
+            if(desired==null)return false;
+            var item=desired==TreatmentItem.Kind.ORANGE_JUICE ? ModItems.ORANGE_JUICE.get() : ModItems.FLOUR_PASTE.get();
+            if(!getMainHandItem().isEmpty()) {
+                // A saved, reserved dose remains a real item after reload; never recreate its budget.
+                if(!getMainHandItem().is(item))return false;
+            } else {
+                if(medicine<=0)return false;
+                medicine--;
+                setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(item));
+                setDropChance(EquipmentSlot.MAINHAND,0);
+            }
+            dose=desired;
+            GameplayLog.event(HumanNpc.this,"npc-care","action=prepare_dose target={} treatment={} medicine={} reserved=1",patient.getUUID(),dose,medicine);
+            return true;
+        }
+        @Override public void stop() {
+            var hand=getMainHandItem();
+            if(isAlive() && (hand.is(ModItems.ORANGE_JUICE.get()) || hand.is(ModItems.FLOUR_PASTE.get()))) {
+                medicine+=hand.getCount(); setItemSlot(EquipmentSlot.MAINHAND,ItemStack.EMPTY);
+                GameplayLog.event(HumanNpc.this,"npc-care","action=return_unused_dose medicine={}",medicine);
+            }
+            dose=null; careTicks=0; attention = null; getNavigation().stop(); routineDelay = Math.max(routineDelay, job() == Job.FACTORY ? 80 : 200);
+        }
     }
     @Override public void addAdditionalSaveData(CompoundTag t) {
         super.addAdditionalSaveData(t); t.putInt("HumanJob", job().ordinal()); t.putInt("HumanAttitude", attitude().ordinal()); t.putString("SiteRole", siteRole);

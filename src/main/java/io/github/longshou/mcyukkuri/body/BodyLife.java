@@ -364,7 +364,7 @@ public final class BodyLife {
         lastWitness=now;
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(8),other->other!=entity&&other.isAlive()
                 &&!other.life().isSleeping()&&other.distanceToSqr(entity)<=64&&other.hasLineOfSight(entity))){
-            witness.mind().felt(EmotionEvent.WOUND_DISTRESS);witness.showReaction("surprise","wounded",60);
+            witness.mind().felt(EmotionEvent.WOUND_DISTRESS);witness.showReaction("surprise","",60);
         }
     }
     /** A point on the underside (lowest fifth of the skin) where a hot floor or flame touches the sole. */

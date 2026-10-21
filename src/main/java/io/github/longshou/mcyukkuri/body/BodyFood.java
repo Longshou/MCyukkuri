@@ -20,7 +20,7 @@ public final class BodyFood {
         if (!Float.isFinite(actualLoss) || actualLoss <= 0 || source.getMaxHealth() <= 0) return Bite.EMPTY;
         float portions = capacity(source) * Math.min(actualLoss / source.getMaxHealth(), 1);
         boolean foul = source.mind().foulFilling();
-        float perPortion = foul ? 3 : source.mind().fillingSweetness() >= 85 ? 6 : 5;
+        float perPortion = foul ? 30 : source.mind().fillingSweetness() >= 85 ? 60 : 50;
         return new Bite(portions, portions * perPortion, foul ? 90 : 0, foul ? "foul" : "fresh");
     }
 

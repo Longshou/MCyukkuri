@@ -11,7 +11,7 @@ public final class BehaviorContinuity {
                 || entity.isInWaterOrBubble() || entity.waterDistress().active()
                 || entity.isCommandPlaying() || entity.operations().controlling()
                 || entity.body().dying() || entity.mind().nonYukkuri()
-                || entity.life().nutrition() < 15 || entity.life().energy() < 15) return true;
+                || entity.life().hotFloor().active() || entity.life().nutrition() < 15 || entity.life().energy() < 15) return true;
         var threat = entity.status().reactions().threat().source();
         if (threat == null || !threat.isAlive()) return false;
         if (threat instanceof YukkuriEntity predator && predator.predator().prey() == entity) return true;

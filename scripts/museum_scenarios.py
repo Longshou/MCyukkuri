@@ -192,6 +192,32 @@ for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
     *shed(7, 0), yk('reimu', 0, 0, 'a', energy=18, yaw=-90, lead=True), home('a', 7, 0)], vantage=None)
 
+add('fatigue', 'meadow', '困倦、原地打盹与惊醒', '困倦惊醒',
+    '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并平均每30秒打盹1–3秒。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
+    '先看两只睡眠时长；再观察后排约1–2分钟，可清场后试雨或轻击', [
+        yk('reimu', -5, 0, 'timid', label='胆小·困值100', energy=0, boldness=10, lead=True),
+        yk('reimu', 5, 0, 'bold', label='胆大·困值100', energy=0, boldness=90),
+        yk('chen', 0, 5, 'drowsy', label='困值80·短打盹', energy=20)],
+    env=DAY, vantage=None, reads=[(label, f'yukkuri status {sel(name)} raw') for label,name in
+        (('读胆小睡眠','timid'),('读胆大睡眠','bold'),('读短打盹','drowsy'))])
+
+add('fatigue_predator', 'weather', '睡眠中捕食种接近', '睡眠与捕食',
+    '胆量90、精力0的灵梦自行入睡；12格外有饥饿蕾米莉亚，按正常捕食逻辑选目标和接近。睡眠期间不因接近而惊醒，真实咬伤应立即唤醒，困值高于50时退到50；没有强制指定猎物或Goal',
+    '看睡眠→真实接近→咬伤与惊醒；捕食未发生时读捕食者拒绝原因', [
+        yk('reimu', 0, 0, 'sleeper', label='困值100·睡者', energy=0, boldness=90, lead=True),
+        yk('remilia', 0, 12, 'hunter', label='饥饿捕食种', nutrition=10, energy=95)],
+    env=DAY, vantage=None, reads=[('读睡者',f'yukkuri status {sel("sleeper")} raw'),('读捕食者',f'yukkuri status {sel("hunter")} raw')])
+
+add('nutrition_age', 'body', '成长营养与饥饿虚弱', '营养与虚弱',
+    '前排赤／子／亚成／成体均营养50，无食物；同一代谢周期扣0.12／0.36／1／2。后排营养0成体有原版虚弱和缓慢，每60秒掉1血但不受击惊跳。玩家补食后状态自然到期；读取原版ActiveEffects与各自营养需求倍率',
+    '12秒比较代谢；至少60秒看饥饿掉血', [
+        *[yk('reimu', -9+6*i, 0, 'age_'+stage, label=label, stage=stage, nutrition=50, energy=95, lead=i==0)
+          for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
+        yk('chen', 0, 7, 'starving', label='营养0·虚弱', nutrition=0, energy=95)],
+    env=DAY, give=['minecraft:apple 4'], vantage=None,
+    reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
+        + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
+
 add('meet', 'meadow', '相遇与蹭蹭', '相遇蹭蹭', '橙和爱丽丝互相认识、想亲近，会自己走近、问候、蹭蹭', '约 1–2 分钟', [
     yk('chen', -2, 0, 'a', yaw=-90, affection=95, social_wait=0, lead=True),
     yk('alice', 2, 0, 'b', yaw=90, affection=95, social_wait=0),
@@ -901,16 +927,16 @@ add('wound_parts', 'body', '受击部位', '伤口部位',
     note=NEW, vantage=(0, 10, 180), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
 
 add('wound_leak', 'body', '漏馅与止漏对照', '漏馅止漏',
-    '四只灵梦有 1／2／3 级及两处 3 级裂口；每 10 秒各漏血 0／0.5／1／1。橙汁直接关闭全部裂口、补满血并停止漏血；面粉糊只去疤，对这些无疤伤者无效',
+    '五只灵梦：1／2／3级裂口、多处三级裂口、血3且三级大裂口露核；每10秒漏血0／0.5／1／1／1。绕行看大伤口普通馅与唯一中枢创腔，橙汁闭伤补血止漏并原位留疤，面粉糊只去疤；露核者真实漏血可致死，及时治疗',
     '先等 10 秒读血量，再用橙汁；随后再等 10 秒确认止漏', [
-        *[yk('reimu', -6 + 4 * i, 0, f'v{i}', yaw=180, lead=i == 1, label=label, nutrition=20, energy=95)
-          for i, label in enumerate(('轻伤', '二级裂口', '三级裂口', '多处裂口'))],
-        *[set_status(f'v{i}', 'marks.scars', 0) for i in range(4)],
-        *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(4)],
-        set_status('v3', 'health.wound_at', 'back:tear:3')],
-    give=['mcyukkuri:flour_paste 4', 'mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 10),
+        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', yaw=180, lead=i == 1, label=label, nutrition=20, energy=95)
+          for i, label in enumerate(('轻伤', '二级裂口', '三级大伤口', '多处大伤口', '低血露核'))],
+        *[set_status(f'v{i}', 'marks.scars', 0) for i in range(5)],
+        *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(5)],
+        set_status('v3', 'health.wound_at', 'back:tear:3'), set_status('v4','health.health',3)],
+    give=['mcyukkuri:flour_paste 5', 'mcyukkuri:orange_juice 5'], note=NEW, vantage=(0, 10),
     reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读三级裂口', f'yukkuri status {sel("v2")}'),
-           ('读多处裂口', f'yukkuri status {sel("v3")}')])
+           ('读多处裂口', f'yukkuri status {sel("v3")}'), ('读漏馅露核',f'yukkuri status {sel("v4")} raw')])
 
 add('treatment_severe', 'body', '橙汁治伤与烤足', '橙汁治伤',
     '四类三级伤、旧包扎裂伤、烤足共六只：自然等 40 秒三级伤仍在，旧包扎仍漏血。橙汁一剂清伤补满血，三级伤在原处必留疤，烤足也恢复；满血有伤照样能治。先读 wound_anchors，治后对照 scar_sites，面粉糊只去疤',
@@ -947,7 +973,7 @@ add('treatment_scars', 'body', '去疤与治伤分工', '去疤治伤',
         ('读先去疤', 'paste_first'), ('读先治伤', 'orange_first'), ('读伤后留疤', 'healing'), ('读无效对照', 'healthy'), ('读油霉对照', 'moldy'))])
 
 add('treatment_care', 'body', 'NPC治疗用料', 'NPC治疗',
-    '伤者有三级裂口、血 6、旧疤 1、无感染。NPC按橙汁→面粉糊处理，余量 8→7→6：清伤补血、新疤形成，再清除新旧疤；无效不扣料。用药持物演出待补',
+    '伤者有三级裂口、血6、旧疤1、无感染。NPC先手持橙汁约1秒、挥手交互，再换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
     '约 10–40 秒', [
         yk('reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
         set_status('patient', 'health.wound_at', 'front:tear:3'),
@@ -975,11 +1001,11 @@ add('core_exposed', 'body', '中枢外露与准确命中', '中枢外露',
         ('读中枢外露', 'exposed'), ('读受击者', 'struck'), ('读满血深伤', 'deep_full'), ('读小裂口', 'small'), ('读完整皮面', 'closed'))])
 
 add('magma_sole', 'body', '岩浆块烫脚', '岩浆块烫脚',
-    '左边站在真实岩浆块，右边普通石头对照；不预置伤口。观察脚底灼伤、烤足与位置变化，允许自己离开热源；离开后用橙汁治伤，再看脚底疤和跳跃恢复',
+    '左边位于半径4格岩浆块区中心，右边普通石头对照；不预置伤口。每次实际烫伤应高跳并连续奔向安全地面，热地板伤害至少间隔3秒，健康个体应活着离开；离开后橙汁治伤，核对脚底疤和烤足',
     '先观察数秒；离开过快可清场重开', [
-        box(-7, -1, -2, -3, -1, 2, 'minecraft:magma_block'),
+        box(-13, -1, -4, -5, -1, 4, 'minecraft:magma_block'),
         box(3, -1, -2, 7, -1, 2, 'minecraft:stone'),
-        yk('reimu', -5, 0, 'hot', label='岩浆块', lead=True, **pair_ready()),
+        yk('reimu', -9, 0, 'hot', label='半径4格岩浆块', lead=True, **pair_ready()),
         yk('reimu', 5, 0, 'cool', label='普通石头', **pair_ready()),
         set_status('hot', 'marks.scars', 0), set_status('cool', 'marks.scars', 0)],
     env=DAY, give=['mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 10),
@@ -1011,11 +1037,11 @@ for _label, _x, _z, _friend, _control, _bold in (
         remains(_x, _z, 'body_' + _label, ident=_dead, food=6),
         yk('reimu', _x + 5, _z, 'starving_' + _label, label='饿油', nutrition=2, energy=95,
            friendliness=10, self_control=10, boldness=50, lead=_label == 'guard'),
-        yk('chen', _x + 1, _z - 2, 'mate_' + _label, label={'guard':'护尸倾向','eat':'食尸倾向','refuse':'拒食退避倾向'}[_label],
+        yk('chen', _x + 1, _z - 2, 'mate_' + _label, label={'guard':'大胆护尸','eat':'食尸倾向','refuse':'胆小噗咕护尸'}[_label],
            nutrition=2, energy=95, friendliness=_friend, self_control=_control, boldness=_bold,
            kin=f'Partner:{uuid_nbt(_dead)}')]
 add('carrion', 'body', '饿极食尸', '饿极食尸',
-    '三组同样饥饿，各有有限遗体和食尸者。伴侣只改友善、自制、胆量：左较愿护尸，右较愿食尸，北边拒食但胆小不敢护尸。读双方 decision、score 和实际 Goal；护尸必须走近命中，吃空留壳、搬运不补资源',
+    '三组同样饥饿，各有有限遗体和食尸者。伴侣只改友善、自制、胆量：左大胆护尸走近攻击，右较愿食尸，北边胆小拒食但在尸边噗咕。读decision、score、last和实际Goal；攻击须真实接触，目标停止食尸后短暂观察再结束，吃空留壳、搬运不补资源',
     '约5–20秒，长期饥饿和伤势可能改变选择', _carrion_lines, note=NEW, vantage=(0, 14),
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
            for label in ('guard','eat','refuse') for role in ('mate','starving')])
@@ -1054,12 +1080,15 @@ for _label, _x, _friend, _nutrition, _health in (
         yk('reimu', _x + 3, 1, 'child_' + _label, stage='child', uuid=_child,
            nutrition=_nutrition, energy=95, kin=kin_of(Mother=_parent)),
         set_status('child_' + _label, 'health.health', _health)]
+_offering_lines += [yk('reimu', -17, 4, 'other_child', stage='child', label='同亲另一只子油', nutrition=20, energy=95,
+                       kin=kin_of(Mother=uid('offering','desperate_parent')))]
 add('offering', 'body', '请吃了我', '请吃了我',
-    '三组均无食物：左高友善亲油与濒饿低血孩子；中间只降低亲油友善；右边孩子只是一般饥饿。连续六次检查同一个绝境孩子后才按概率决定，拒绝后冷却60秒；投喂或出现真实照护可中止，不保证成功',
+    '三组均无食物：左高友善亲油与濒饿低血孩子，另有同亲子油可共享献身遗体；中间只降低亲油友善；右边孩子一般饥饿。连续六次检查绝境孩子才按概率决定，拒绝冷却60秒；投喂或真实照护可中止。自然献身后两子共扣有限余额，吞咽才加营养',
     '约30–35秒首次抽签；未中可重开，孩子可能因真实缺粮死亡', _offering_lines,
     give=['minecraft:apple 4'], note=NEW, vantage=(0, 12),
     reads=[(f'读{role}·{label}', f'yukkuri status {sel(role + "_" + label)} raw')
-           for label in ('desperate','reluctant','ordinary') for role in ('parent','child')])
+           for label in ('desperate','reluctant','ordinary') for role in ('parent','child')]
+          + [('读同亲子油',f'yukkuri status {sel("other_child")} raw')])
 
 # ---- predators: a parent drawing the chase, Youmu standing her ground
 def protect_child(sid, title, hint, friendliness, watch):
@@ -1454,7 +1483,7 @@ TOPICS = {
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
-    'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
+    'sleep': 'D1', 'fatigue': 'D1', 'fatigue_predator': 'D1', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
     'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',

@@ -59,13 +59,18 @@ final class YukkuriDamage {
             if(kind!=BodyHit.Kind.TERMINAL&&owner.shellRetraction().protects(source))amount*=.5f;
             if(owner.level().isClientSide||owner.body()==null)
                 return new HurtResult(owner.hurtBase(source,amount),0,null,BodyFood.Bite.EMPTY);
+            if(source.is(DamageTypes.HOT_FLOOR) && !owner.life().hotFloor().damageReady())return HurtResult.REJECTED;
             var transaction=new Transaction(owner.body().prepareHurt(source,amount,kind));
             current=transaction;
             boolean accepted=owner.hurtBase(source,amount);
+            if(accepted && source.is(DamageTypes.HOT_FLOOR))owner.life().hotFloor().burned();
             boolean physicalHit=accepted&&transaction.hit.physical()&&!YukkuriLife.isSoaking(source);
             boolean notify=physicalHit&&owner.isAlive();
             var interruption=InterruptContext.hurt(source);
-            if(notify)owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
+            if(notify) {
+                owner.life().wakeForDanger("damage");
+                owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
+            }
             var result=settle(transaction,accepted);
             // Witnesses see a lethal hit too; the victim's own recovery and panic require it to remain alive.
             if(physicalHit&&!owner.isAlive())owner.status().hurt(source);

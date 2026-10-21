@@ -63,6 +63,8 @@ public final class Cannibalism extends Goal {
     private double decisionScore;
     private String decision = "none";
     private int guardCooldown;
+    private boolean guardAttacks;
+    private int guardQuietTicks;
 
     public Cannibalism(YukkuriEntity entity) { this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); scanWait = 40 + entity.getRandom().nextInt(60); }
 
@@ -82,7 +84,7 @@ public final class Cannibalism extends Goal {
             case CARRION -> body == null || !body.isAlive() ? null
                     : entity.distanceToSqr(body) > CARRION_CONTACT_BASE + body.getBbWidth() * body.getBbWidth()
                     ? Behaviors.CANNIBAL_APPROACH : Behaviors.CANNIBAL_WAIT;
-            case GUARD -> prey != null && prey.isAlive() ? Behaviors.SELF_DEFENSE : null;
+            case GUARD -> prey != null && prey.isAlive() ? guardAttacks ? Behaviors.SELF_DEFENSE : Behaviors.SANCTION_DECLARE : null;
             case HUNT -> {
                 if (prey == null || !prey.isAlive()) yield null;
                 double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + HUNT_CONTACT_MARGIN;
@@ -95,7 +97,7 @@ public final class Cannibalism extends Goal {
     public String describe() {
         return "mode=" + mode.name().toLowerCase() + " smellWait=" + smellWait + " scanWait=" + scanWait + " free=" + free() + " eligible=" +
                 eligible() + " last=" + lastReason + " huntCooldown=" + huntCooldown()
-                + " decision=" + decision + " score=" + Math.round(decisionScore)
+                + " decision=" + decision + " score=" + Math.round(decisionScore) + " guardStyle=" + (guardAttacks ? "attack" : "puff")
                 + " body=" + (body == null ? null : body.getUUID()) + " target=" + (prey == null ? null : prey.getUUID());
     }
     private boolean free() {
@@ -122,7 +124,11 @@ public final class Cannibalism extends Goal {
 
     /** A body its owner offered to this very individual (social/SelfOffering). */
     private boolean offeredToMe(CompoundTag data) {
-        return data.getBoolean("Offered") && data.hasUUID("OfferedTo") && data.getUUID("OfferedTo").equals(entity.getUUID());
+        if (!data.getBoolean("Offered")) return false;
+        if (data.hasUUID("OfferedTo") && data.getUUID("OfferedTo").equals(entity.getUUID())) return true;
+        // The same finite offered body can feed the donor's other dependent children too.
+        return !entity.family().adult() && data.hasUUID("Identity")
+                && (data.getUUID("Identity").equals(entity.family().mother()) || data.getUUID("Identity").equals(entity.family().father()));
     }
     /** Whether this individual could bring itself to eat these remains right now. */
     public boolean mayEat(RemainsEntity remains) {
@@ -185,12 +191,14 @@ public final class Cannibalism extends Goal {
                     || other.offeredToMe(remains.data()) || !entity.hasLineOfSight(remains)) continue;
             var p = entity.life().personality();
             int affection = YukkuriWorldData.get(level()).affinity(entity.getUUID(), remains.data().getUUID("Identity"));
-            double score = p.boldness() + p.friendliness() * .35 + Math.max(0, affection) * .2
-                    - p.fear(eater.getUUID()) * .5 - Math.max(0, 15 - entity.life().nutrition()) * 1.5 + powerDifference(eater);
+            double score = p.friendliness() * .7 + p.selfControl() * .2 + Math.max(0, affection) * .2
+                    - Math.max(0, 15 - entity.life().nutrition()) * 1.5;
             guardCooldown = 400;
-            if (!decide("guard", eater, score, 60, combatFit())) return false;
+            if (!decide("guard", eater, score, 50, entity.body().healthRatio() > .2f && entity.life().energy() >= 10)) return false;
+            guardAttacks = p.boldness() - p.fear(eater.getUUID()) * .5 + powerDifference(eater) >= 50 && combatFit();
+            guardQuietTicks = 0;
             body = remains; prey = eater;
-            return begin(Mode.GUARD, "protecting_remains");
+            return begin(Mode.GUARD, guardAttacks ? "guard_attack" : "guard_puff");
         }
         return false;
     }
@@ -301,8 +309,9 @@ public final class Cannibalism extends Goal {
             case CARRION -> body != null && body.isAlive() && mayEat(body);
             case HUNT -> prey != null && prey.isAlive() && !prey.body().dying() && bites < 6 && entity.life().nutrition() < 30
                     && combatFit() && Headwear.fairGame(entity, prey) && !Recognition.grotesque(prey);
-            case GUARD -> body != null && body.isAlive() && prey != null && prey.isAlive() && combatFit()
-                    && prey.cannibalism().eatingBody(body) && elapsed < 240 && entity.distanceToSqr(body) <= 144;
+            case GUARD -> body != null && body.isAlive() && prey != null && prey.isAlive()
+                    && (guardAttacks ? combatFit() : entity.body().healthRatio() > .2f && entity.life().energy() >= 10)
+                    && guardQuietTicks < 60 && elapsed < 240 && entity.distanceToSqr(body) <= 144;
             default -> false;
         };
     }
@@ -312,6 +321,7 @@ public final class Cannibalism extends Goal {
         entity.life().interrupt(); entity.social().stop();
         if (mode == Mode.AVOID) entity.showReaction("teary", "stench", 80);
         else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);
+        else if (mode == Mode.GUARD && !guardAttacks) entity.showReaction("angry", "puff", 80);
         GameplayLog.limited(entity, "cannibal", "start." + mode, 200, "started mode={} body={} prey={} nutrition={}",
                 mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), entity.life().nutrition());
     }
@@ -330,7 +340,7 @@ public final class Cannibalism extends Goal {
         entity.getLookControl().setLookAt(body, 30, 30);
         if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()
                 || EcologyMovement.boat(entity) != null && !mouthTouches(body)) {
-            if (elapsed % 10 == 1 && !EcologyMovement.approach(entity, body, 1)) lastReason = "approaching_contact";
+            if (!EcologyMovement.approach(entity, body, 1)) lastReason = "approaching_contact";
             return;
         }
         EcologyMovement.halt(entity);
@@ -353,14 +363,21 @@ public final class Cannibalism extends Goal {
         }
     }
     private void guard() {
+        if (prey.cannibalism().eatingBody(body)) guardQuietTicks = 0;
+        else guardQuietTicks++;
         entity.getLookControl().setLookAt(prey, 30, 30);
+        if (!guardAttacks) {
+            // A timid protector protests beside the body without being promoted to an attacker.
+            if (entity.distanceToSqr(body) > 2.25) EcologyMovement.approach(entity, body, 1);
+            else EcologyMovement.halt(entity);
+            return;
+        }
+        if (!prey.cannibalism().eatingBody(body)) { EcologyMovement.halt(entity); return; }
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .18;
         if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)
                 || (EcologyMovement.boat(entity) != null || EcologyMovement.boat(prey) != null) && !mouthTouches(prey)) {
-            if (elapsed % 10 == 1 && !EcologyMovement.approach(entity, prey, 1.2)) {
-                lastReason = "guard_path_blocked";
-                GameplayLog.limited(entity,"cannibal",lastReason,200,"guard approach blocked target={} body={}",prey.getUUID(),body.getUUID());
-            }
+            EcologyMovement.approach(entity, prey, 1.2);
+            lastReason = "guard_approach";
             return;
         }
         EcologyMovement.halt(entity);

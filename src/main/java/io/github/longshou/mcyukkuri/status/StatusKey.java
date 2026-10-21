@@ -43,6 +43,8 @@ public enum StatusKey {
     WETNESS("needs", "wetness", 10, y -> Math.round(y.life().wetness()), need("wetness")),
     DRYNESS("needs", "dryness", 10, y -> Math.round(y.life().dryness()), need("dryness")),
     SLEEPING("needs", "sleeping", 0, y -> y.life().isSleeping(), null),
+    FATIGUE("needs", "fatigue", 0, y -> y.life().fatigueDetail(), null),
+    NUTRITION_DEMAND("needs", "nutrition_demand", 0, y -> y.life().nutritionDemand(), null),
     TEMPERATURE("needs", "temperature", 0, y -> y.life().temperature().cold() ? "cold" : y.life().temperature().hot() ? "hot" : "comfortable", null),
     COLD_EXPOSURE("needs", "cold_exposure", 0, y -> y.life().temperature().coldExposure(), null),
     // ---- mood --------------------------------------------------------------------------------------------------

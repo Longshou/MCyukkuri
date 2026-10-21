@@ -137,7 +137,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (ALERTED.size() > 128) { ALERTED.prune(now); if (ALERTED.size() > 1024) ALERTED.clear(); }
         ALERTED.put(prey.getUUID(), now + 600);
         owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
-        if (owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", 80); }
+        if (!prey.life().isSleeping() && owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", 80); }
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {

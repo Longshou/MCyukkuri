@@ -39,6 +39,7 @@ final class CavityRenderer {
     private final Matrix3f normalMatrix = new Matrix3f();
 
     CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent) {
+        long started=System.nanoTime();
         this.opening = opening;
         tissue=mesh.tissueBone();
         for (int i = 0; i < original.length; i += 3) {
@@ -48,6 +49,9 @@ final class CavityRenderer {
         build(mesh, wounds, broken, corePresent);
         posed = new Vector3f[vertices.size()]; normals = new Vector3f[vertices.size()];
         for (int i = 0; i < posed.length; i++) { posed[i] = new Vector3f(); normals[i] = new Vector3f(); }
+        long millis=(System.nanoTime()-started)/1_000_000;
+        if(millis>=250)MCYukkuri.LOGGER.warn("[body-render] cavity build slow ms={} skinTriangles={} cutTriangles={} cavityVertices={}",
+                millis,original.length/3,skinCuts.size(),vertices.size());
     }
 
     /** Barycentric triangles outside the actual, possibly concave source outline. Null means unchanged. */
@@ -56,29 +60,20 @@ final class CavityRenderer {
         float ax=opening.x(a), ay=opening.y(a), bx=opening.x(b), by=opening.y(b), cx=opening.x(c), cy=opening.y(c);
         float minX=Math.min(ax,Math.min(bx,cx)),maxX=Math.max(ax,Math.max(bx,cx)),minY=Math.min(ay,Math.min(by,cy)),maxY=Math.max(ay,Math.max(by,cy));
         if (minX > opening.radiusU*1.1f || maxX < -opening.radiusU*1.1f || minY > opening.radiusV*1.1f || maxY < -opening.radiusV*1.1f) return null;
+        var source = List.of(new Piece(ax,ay,1,0,0), new Piece(bx,by,0,1,0), new Piece(cx,cy,0,0,1));
         List<List<Piece>> remaining = new ArrayList<>();
-        remaining.add(List.of(new Piece(ax,ay,1,0,0), new Piece(bx,by,0,1,0), new Piece(cx,cy,0,0,1)));
         boolean touched = false;
         var center = new float[]{0,0};
-        for (int i=0;i<opening.polygon.length&&!remaining.isEmpty();i++) {
+        // The authored outline is radial and counter-clockwise. Partition the original triangle
+        // into disjoint angular sectors, then keep the portion beyond each rim edge. Never feed
+        // clipped fragments back through 80 subtractions: shared zero-area edges multiplied them.
+        for (int i=0;i<opening.polygon.length;i++) {
             var p=opening.polygon[i]; var q=opening.polygon[(i+1)%opening.polygon.length];
-            if (Math.max(0,Math.max(p[0],q[0]))<minX || Math.min(0,Math.min(p[0],q[0]))>maxX
-                    || Math.max(0,Math.max(p[1],q[1]))<minY || Math.min(0,Math.min(p[1],q[1]))>maxY) continue;
-            float[][] triangle={center,p,q};
-            var next = new ArrayList<List<Piece>>();
-            for (var polygon:remaining) {
-                var inside=polygon;
-                var rejected = new ArrayList<List<Piece>>();
-                for(int edge=0;edge<3&&!inside.isEmpty();edge++) {
-                    var from=triangle[edge];var to=triangle[(edge+1)%3];
-                    var outside=clip(inside,from,to,false);
-                    if(outside.size()>=3)rejected.add(outside);
-                    inside=clip(inside,from,to,true);
-                }
-                if(inside.size()<3)next.add(polygon);
-                else { touched=true; next.addAll(rejected); }
-            }
-            remaining=next;
+            var sector=clip(clip(source,center,p,true),q,center,true);
+            if(!hasArea(sector))continue;
+            if(hasArea(clip(sector,p,q,true)))touched=true;
+            var outside=clip(sector,p,q,false);
+            if(hasArea(outside))remaining.add(outside);
         }
         if(!touched)return null;
         var result=new ArrayList<float[]>();
@@ -88,6 +83,16 @@ final class CavityRenderer {
             result.add(new float[]{p.a,p.b,p.c,q.a,q.b,q.c,r.a,r.b,r.c});
         }
         return result;
+    }
+    private static boolean hasArea(List<Piece> polygon) {
+        if(polygon.size()<3)return false;
+        double area=0;
+        var origin=polygon.getFirst();
+        for(int i=1;i+1<polygon.size();i++) {
+            var a=polygon.get(i);var b=polygon.get(i+1);
+            area+=(double)(a.x-origin.x)*(b.y-origin.y)-(double)(a.y-origin.y)*(b.x-origin.x);
+        }
+        return Math.abs(area)>1e-9;
     }
     private static List<Piece> clip(List<Piece> polygon,float[] from,float[] to,boolean inside) {
         var result=new ArrayList<Piece>();if(polygon.isEmpty())return result;

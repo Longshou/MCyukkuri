@@ -551,7 +551,7 @@ public final class HouseLife implements EcologyRoutine {
                 entity.getNavigation().stop();
                 if (!physicallyInside() || value.disturbedTicks() > 0) { finishRest(); phase(Phase.LEAVE); return; }
                 if (needsTending(value)) { finishRest(); tending = true; phase(Phase.TEND); return; }
-                if (sleepTicks >= 60 && entity.tickCount >= restCheckAt) {
+                if (sleepTicks >= entity.life().sleepDuration() && entity.tickCount >= restCheckAt) {
                     restCheckAt = entity.tickCount + 100;
                     if (entity.tickCount >= hideUntil) {
                         if (mayTransfer() && relocationPlan(value)) { finishRest(); lifting = true; phase(Phase.LIFT); return; }
@@ -570,7 +570,10 @@ public final class HouseLife implements EcologyRoutine {
                     GameplayLog.event(entity,"sleep","begin source=house home={} energy={} nutrition={}",nest,entity.life().energy(),entity.life().nutrition());
                 }
                 if (sleepTicks >= 20) entity.life().restInHouse();
-                if (sleepTicks >= 220) rested = true;
+                if (sleepTicks >= entity.life().sleepDuration()) {
+                    rested = true;
+                    if(entity.life().energy() >= 95) { stop(); wait=120; return; }
+                }
             }
             case TEND, LISTEN -> {
                 if (!physicallyInside() || value.eggs() == 0 && value.dirt() == 0 && !careContact || value.disturbedTicks() > 0) {
@@ -691,7 +694,7 @@ public final class HouseLife implements EcologyRoutine {
                 GameplayLog.event(entity,"sleep","begin source=corner site={} energy={} nutrition={}",den==null?null:den.site(),entity.life().energy(),entity.life().nutrition());
             }
             if (sleepTicks >= 20) entity.life().restInHouse();
-            if (sleepTicks >= 400 || sleepTicks >= 40 && entity.life().energy() >= 99) { stop(); wait = 60; }
+            if (sleepTicks >= entity.life().sleepDuration()) { stop(); wait = 60; }
             return;
         }
         if (entity.tickCount >= hideUntil && humanDistance >= SHY + 1) { stop(); wait = 60; }

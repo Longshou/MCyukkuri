@@ -47,6 +47,7 @@ final class YukkuriGoals {
         owner.initializeComponents();
         presentationGoals = new PresentationGoals(owner);
         goalSelector.addGoal(0, new EscapeWaterGoal());
+        goalSelector.addGoal(0, new HotFloorGoal());
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
         goalSelector.addGoal(1, new FleeGoal());
@@ -59,6 +60,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HEADWEAR, owner.headwear()));
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new Reactions.ThreatGoal(owner)));
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
+        goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.LIFE, new FatigueGoal()));
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.FAMILY, new BirthGoal()));
@@ -160,6 +162,23 @@ final class YukkuriGoals {
             }
         }
         @Override public void stop() { owner.directNavigation().stop(); }
+    }
+    private final class HotFloorGoal extends Goal {
+        HotFloorGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }
+        @Override public boolean canUse() { return owner.life().hotFloor().active() && !owner.isInWaterOrBubble(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { owner.life().wakeForDanger("hot_floor"); owner.life().interrupt(); }
+        @Override public void tick() { owner.life().hotFloor().tick(); }
+        @Override public void stop() { owner.directNavigation().stop(); }
+    }
+    private final class FatigueGoal extends Goal {
+        FatigueGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }
+        @Override public boolean canUse() { return owner.life().wantsFatigueRest(); }
+        @Override public boolean canContinueToUse() { return owner.life().fatigueActive() && owner.life().canFatigueRest(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { owner.life().startFatigueRest(); }
+        @Override public void tick() { owner.life().tickFatigueRest(); }
+        @Override public void stop() { owner.life().stopFatigueRest(); }
     }
     private final class LifeGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.life().protectsStep()); }

@@ -42,6 +42,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
@@ -70,8 +72,63 @@ public final class YukkuriLife {
     private int exerciseReliefTicks;
     private boolean toiletAccident;
     private final HatToilet hatToilet = new HatToilet(this);
+    private final HotFloorEscape hotFloor;
+    private int starvingTicks, fatigueTicks, fatigueLength;
+    private boolean napReady, fullFatigueSleep;
 
-    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); }
+    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); hotFloor = new HotFloorEscape(entity); }
+    public HotFloorEscape hotFloor() { return hotFloor; }
+    /** Project design: equal food units, smaller daily needs for smaller life stages. */
+    public float nutritionDemand() { return switch(entity.family().stage()) { case BABY -> .06f; case JUVENILE -> entity.family().subadult() ? .5f : .18f; case ADULT -> 1f; }; }
+    public int sleepDuration() { return 200 + 4 * personality.boldness(); }
+    public String fatigueDetail() { return "ready="+napReady+" ticks="+fatigueTicks+" duration="+fatigueLength+" full="+fullFatigueSleep+" starvation="+starvingTicks; }
+    public boolean fatigueActive() { return fatigueTicks > 0; }
+    public boolean canFatigueRest() {
+        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.onGround()
+                && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
+                && !entity.family().awaitingLanding() && !entity.family().laboring() && !entity.family().birthDuty()
+                && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
+                && !level().isRainingAt(entity.blockPosition()) && !temperature.unsafeSleep();
+    }
+    public boolean wantsFatigueRest() { return !isSleeping() && (energy <= 0 || napReady && energy <= 25) && canFatigueRest(); }
+    public void startFatigueRest() {
+        interrupt();
+        fullFatigueSleep = energy <= 0;
+        fatigueLength = fullFatigueSleep ? sleepDuration() : 20 + entity.getRandom().nextInt(41);
+        fatigueTicks = 1; napReady = false;
+        SurfaceApproach.halt(entity);
+        GameplayLog.event(entity,"sleep","begin source=fatigue full={} duration={} boldness={} energy={}",fullFatigueSleep,fatigueLength,personality.boldness(),energy);
+    }
+    public void tickFatigueRest() {
+        SurfaceApproach.halt(entity);
+        energy = Math.min(100, energy + (fullFatigueSleep ? 100f/fatigueLength : .05f));
+        if (++fatigueTicks > fatigueLength) stopFatigueRest();
+    }
+    public void stopFatigueRest() {
+        if(fatigueTicks == 0)return;
+        accountEnvironmentalWake();
+        GameplayLog.event(entity,"sleep","end source=fatigue full={} ticks={} energy={}",fullFatigueSleep,fatigueTicks,energy);
+        boolean rested = fullFatigueSleep && fatigueTicks > fatigueLength;
+        fatigueTicks = 0; napReady = false;
+        if(rested) { restWait = restInterval(); entity.family().woke(); }
+    }
+    public void wakeForDanger(String reason) {
+        if (!isSleeping()) return;
+        float before=energy;
+        energy=Math.max(50,energy);
+        GameplayLog.event(entity,"sleep","woken by danger reason={} sleepiness={} -> {}",reason,100-before,100-energy);
+        stopFatigueRest();
+        interrupt();
+        if(entity.house().sleeping())entity.house().stop();
+    }
+    private void accountEnvironmentalWake() {
+        if(energy>=50 || !isSleeping())return;
+        if(entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || hotFloor.active()
+                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep()) {
+            GameplayLog.event(entity,"sleep","woken during interruption sleepiness={} -> 50",100-energy);
+            energy=50;
+        }
+    }
     YukkuriEntity entity() { return entity; }
     HomeProvider homeProvider() { return HomeProvider.forEntity(entity); }
     void emptyBladder() { bladder = 0; }
@@ -207,7 +264,7 @@ public final class YukkuriLife {
     public boolean canReceiveCareFood(){ return meal.canReceiveCareFood(); }
     public boolean canReceiveCareFood(ItemStack food){ return meal.canReceiveCareFood(food); }
     public boolean hasUrgentNeed() { return nutrition < 30 || energy < 25 || bladder >= 90 && !constipated() || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
-    public boolean isSleeping() { return task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620 || entity.house().sleeping(); }
+    public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && sleepTicks < 620 || entity.house().sleeping(); }
     /** The house goal owns the physical entry and waking sequence; only real grounded rest restores energy. */
     public void restInHouse() {
         if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
@@ -227,7 +284,7 @@ public final class YukkuriLife {
         }
         if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
         doses.tickDrugSleep();
-        if (drugSleep() == 0 && (nutrition < 15 || !level().isNight() && sleepTicks >= 220 && energy >= 95)) wakeInHat();
+        if (drugSleep() == 0 && sleepTicks >= sleepDuration() && (nutrition < 15 || energy >= 95)) wakeInHat();
     }
     /** A summer noon rest uses the existing biome season, physiology and sleep cooldown. */
     public boolean wantsHatNap() {
@@ -248,6 +305,7 @@ public final class YukkuriLife {
                 && entity.distanceToSqr(targetFood) < 1;
     }
     public String activity() {
+        if (fatigueActive()) return Behaviors.SLEEP;
         if (mealTicks() > 0) {
             if (meal.preparedMeal()) return mealTicks() < 53 ? Behaviors.RECEIVE_MASH : Behaviors.MEAL_FINISH;
             return mealTicks() < 10 ? Behaviors.TAKE_FOOD : mealTicks() < 45 ? Behaviors.CHEW : mealTicks() < 53 ? Behaviors.SWALLOW : Behaviors.MEAL_FINISH;
@@ -290,12 +348,24 @@ public final class YukkuriLife {
         if (homeWait > 0) homeWait--;
         doses.tickSpice();
         emotionTick();
-        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1) * (entity.profile().hungerIntervalMultiplier()))) {
+        if (++metabolismTicks >= Math.max(20, YukkuriConfig.HUNGER_INTERVAL.get() * entity.profile().hungerIntervalMultiplier())) {
             float before = nutrition;
-            metabolismTicks = 0; nutrition = Math.max(0, nutrition - (isSleeping() ? 1 : 2));
+            metabolismTicks = 0; nutrition = Math.max(0, nutrition - (isSleeping() ? 1 : 2) * nutritionDemand());
             nutritionBoundary(before, "metabolism");
-            if (nutrition == 0) entity.hurt(level().damageSources().starve(), 1);
         }
+        if (nutrition > 0) starvingTicks = 0;
+        else if (++starvingTicks >= Math.max(1200, YukkuriConfig.HUNGER_INTERVAL.get()*5)) {
+            starvingTicks=0;
+            float before=entity.getHealth();
+            boolean accepted=entity.hurt(level().damageSources().starve(),1);
+            GameplayLog.event(entity,"needs","starvation damage accepted={} health={} -> {}",accepted,before,entity.getHealth());
+        }
+        if (ageTicks % 20 == 0) {
+            if(nutrition < 10)entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,40,0,false,false,true));
+            if(nutrition < 10 || energy <= 25)entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,40,0,false,false,true));
+        }
+        if(energy > 25)napReady=false;
+        else if(!isSleeping() && !napReady && entity.getRandom().nextInt(600)==0)napReady=true;
         if (++energyTicks >= Math.max(20,
                 YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
@@ -308,6 +378,8 @@ public final class YukkuriLife {
         }
         temperature.tick();
         if (!entity.isAlive()) return;
+        if(isSleeping() && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
+                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep())) wakeForDanger("environment");
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
             if (mealTicks() > 0 || task != Task.NONE || sprayDelay()>0 || drugSleep()>0) interrupt();
             return;
@@ -336,6 +408,8 @@ public final class YukkuriLife {
     public boolean handOverMouth(YukkuriEntity peer, String event){ return meal.handOverMouth(peer, event); }
     private void tryShare(){ meal.tryShare(); }
     public void interrupt() {
+        accountEnvironmentalWake();
+        stopFatigueRest();
         WildCards.mealInterrupted(entity);
         temperature.stop();
         entity.dailyLife().stop();
@@ -604,7 +678,7 @@ public final class YukkuriLife {
                     GameplayLog.event(entity,"sleep","begin source=life energy={} nutrition={} drugTicks={}",energy,nutrition,drugSleep());
                 }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
-                if (drugSleep()==0 && sleepTicks >= 220 && (energy >= 95 || nutrition < 15
+                if (drugSleep()==0 && sleepTicks >= sleepDuration() && (energy >= 95 || nutrition < 15
                         || homeProvider().finishRestEarly(this))) sleepTicks = Math.max(sleepTicks, 620);
                 if (sleepTicks >= 640) {
                     GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={}",sleepTicks,energy,nutrition);
@@ -675,6 +749,7 @@ public final class YukkuriLife {
                 || entity.blockPosition().distManhattan(pos) <= 1;
     }
     public void stopGoal() {
+        accountEnvironmentalWake();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","stop",200,
                 "stopped source=life ticks={} energy={} nutrition={} panic={} water={} rain={}",
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
@@ -748,6 +823,7 @@ public final class YukkuriLife {
         tag.putInt("ExerciseReliefTicks",exerciseReliefTicks);
         tag.putFloat("Dryness",dryness);doses.save(tag);
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
+        tag.putInt("StarvingTicks", starvingTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
         if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         meal.save(tag);
@@ -773,6 +849,8 @@ public final class YukkuriLife {
         exerciseReliefTicks=Math.clamp(tag.getInt("ExerciseReliefTicks"),0,1200);
         dryness=bounded(tag,"Dryness",0);doses.load(tag);
         metabolismTicks = Math.clamp(tag.getInt("HungerProgress"),0,23999); energyTicks = Math.clamp(tag.getInt("EnergyProgress"),0,23999);
+        starvingTicks = Math.clamp(tag.getInt("StarvingTicks"),0,Math.max(1200,YukkuriConfig.HUNGER_INTERVAL.get()*5)-1);
+        fatigueTicks=0; napReady=false;
         hygieneTicks = Math.clamp(tag.getInt("HygieneProgress"),0,23999); restWait = Math.clamp(tag.getInt("RestWait"),0,1200);
         socialWait = Math.clamp(tag.getInt("SocialWait"),0,2400);
         meal.load(tag);
