@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * Shelf stock of every shopkeeper's goods and what each player has bought or delivered today (docs/PET_SHOP.md section 12). Keyed by the shopkeeper's UUID.
+ * Shelf stock of every shopkeeper's goods and what each player has bought or delivered today (docs/PET_SHOP.md). Keyed by the shopkeeper's UUID.
  * Restocking is applied lazily when a shelf is looked at: each elapsed game day adds the good's daily restock up to its capacity, so nothing ticks and
  * nothing depends on whether the shop was loaded. A new shopkeeper starts with full shelves. Server only.
  */

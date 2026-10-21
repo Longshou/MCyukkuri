@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Sweets are an extra: a treat on top of meals, never a meal replacement (docs/PET_SHOP.md section 12).
+ * Sweets are an extra: a treat on top of meals, never a meal replacement (docs/PET_SHOP.md).
  * The tag {@code mcyukkuri:yukkuri_sweets} (sweet candy, cookie, custard pudding) is part of {@code yukkuri_food}; the numbers are project-original.
  * A sweet is accepted up to nutrition 95 ("second stomach") while ordinary food is only taken at 75 or less.
  * The effects below are applied once, when the serving is swallowed, and only for an owner's pet fed by its own owner.

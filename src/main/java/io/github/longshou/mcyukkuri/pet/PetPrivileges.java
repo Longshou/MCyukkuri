@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * What a badge is good for in the shop and in the family (docs/PET_SHOP.md section 12). One place decides, always by the effective grade
+ * What a badge is good for in the shop and in the family (docs/PET_SHOP.md). One place decides, always by the effective grade
  * (a lapsed silver or gold counts one lower, a voided badge counts as none):
  * <ul>
  * <li>bronze: the harness can be bought; a breeding permit can be given (both pets need a badge); resale 60%;</li>

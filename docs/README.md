@@ -1,6 +1,6 @@
 # 文档索引
 
-按系统找文档和代码。入口只给方向：规则细节在专题文档里，最终以代码为准。代码根目录 `src/main/java/io/github/longshou/mcyukkuri/`，以下包名都相对于它。
+按系统找文档和代码。入口只给方向：规则细节在专题文档里，待办集中记录状态与完成标准，最终实现以代码为准。代码根目录 `src/main/java/io/github/longshou/mcyukkuri/`，以下包名都相对于它。
 
 ## 流程与总览
 
@@ -9,9 +9,8 @@
 | [设计取向与用户裁决](DESIGN_DECISIONS.md) | 设定来源优先级、设计平衡、动作约束、设定冲突的采用结果。设计玩法前必读 |
 | [待办](TODO.md) | 复测失败、按试玩场景分组的待试玩清单、修复顺序、演出缺口、最后统一补的配音台词、美术与用户待决 |
 | [玩法日志](GAMEPLAY_LOGGING.md) | 新功能留痕规则、关键链路覆盖、治疗排查和高频日志省略范围 |
-| [完善计划](DEVELOPMENT_PLAN.md) | 各步骤状态总表与未做项的设计 |
-| [代码架构说明](REFACTOR_HANDOFF.md) | 注册、组件生命周期、控制与显示、同步视图、领域数据和分片搜索（6.2） |
-| [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、无界面自查） |
+| [代码架构说明](REFACTOR_HANDOFF.md) | 注册、组件生命周期、控制与显示、同步视图、领域数据和分片搜索 |
+| [开发指南](DEVELOPMENT.md) | 环境版本、CI 产物、本机工具（Python、语法检查、运行包、静态检查） |
 | [试玩场](EXPERIMENTAL_MAP.md) | 唯一试玩入口：场地、场景、观察台命令；新场景加在 `scripts/museum_scenarios.py` |
 | [动作清单](MOTION_MUSEUM_ACTIONS.md) | `YukkuriAction` 全部动作及资源适配范围 |
 | [周边美术清单](PROP_ART_INVENTORY.md) | 道具美术的确认状态与待替换的占位 |
@@ -22,19 +21,15 @@
 | --- | --- | --- |
 | 基础操作、生活数值、服务端配置 | [基础生活与饲养操作](CORE_GAMEPLAY.md) | `life/`、`item/`、`interaction/`、`play/` |
 | 状态查询、外部受控写入与反应仲裁 | [状态中枢](STATUS_HUB.md) | `status/`；真实数据仍由各领域拥有 |
-| 五属性、成长遗传与行为连续性（已接入待试玩） | [行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md) | `social/`、`cognition/`、`family/`、`subspecies/`；规则与建议初值 |
+| 五属性、关系、教学、成长体型与行为连续性 | [行为数值与成长设计](BEHAVIOR_BALANCE_DESIGN.md) | `social/`、`cognition/`、`family/`、`subspecies/`；现行规则、存档、读数及尚未落实的设计 |
 | 日常行为总表 | [日常生态](ECOLOGY_DAILY_LIFE.md) | `social/DailyLife`、`life/` |
 | **家庭与生命周期** | | |
 | 胎体到亚成、亲代照料、离巢 | [子代生命周期](CHILDHOOD_LIFECYCLE.md) | `family/` |
-| 成长时长、寿命、体型 | [成长与寿命](GROWTH_BALANCE.md) | `family/GrowthTiming`、`GrowthSize` |
 | 消耗品、胎生与分娩触发 | [消耗品与胎生](CONSUMABLES_AND_BIRTH.md) | `life/Consumables`、`family/` |
 | 发情期、攻击素鸡立（雷普魔） | [成体发情期](ADULT_AGITATION.md) | `family/FamilyLife`、`life/AgitationLife` |
 | **身体与心理** | | |
 | 伤口、中枢馅、遗体与腐败、同类相食、献身、舔舐 | [受伤与遗体](INJURIES_AND_REMAINS.md) | `body/`、`social/`（`WoundComfort`、`Cannibalism`、`SelfOffering`）、`entity/RemainsEntity` |
-| 血量、受击与遗体资源（已接入，待试玩） | [资源与演出对应方案](BODY_RESOURCE_PLAN.md) | 单一血量、伤口漏馅演出、捕食、遗体食用与工厂共用资源 |
 | 不安、甜化、非油症、取名 | [情绪链](EMOTION_CHAIN.md) | `mind/` |
-| 五项行为属性、对象关系与压力 | [行为属性与对象关系](PERSONALITY_DESIGN.md) | `social/YukkuriPersonality`、`life/YukkuriWorldData`、`mind/` |
-| 智力、具体技能与教学 | [智力与教学](COGNITION_IMPLEMENTATION.md) | `cognition/`、`pet/PetLessons`、`social/` |
 | 头饰第二生命、识别、轻蔑与制裁 | [头饰](HEADWEAR.md) | `headwear/` |
 | **种族与形态** | | |
 | 种族注册、元数据、创造栏 | [种族注册与接入](SPECIES.md) | `entity/YukkuriVariant`、`registry/` |

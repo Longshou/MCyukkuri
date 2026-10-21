@@ -4,7 +4,7 @@
 
 [生态来源](sources-lore.md) · [对白与情节来源](sources-events.md)
 
-[漫画本地图库](../art-references/README.md) · [小说核读卡](../novel-reading/README.md) · [术语表](../glossary.md) · [维护口径](../EDITORIAL_GUIDE.md) · [游戏实现状态](../implementation-status.md)
+[漫画本地图库](../art-references/README.md) · [小说核读卡](../novel-reading/README.md) · [术语表](../glossary.md) · [维护口径](../EDITORIAL_GUIDE.md) · [游戏文档索引](../../docs/README.md)
 
 本资料介绍油库里的背景、外形、习性、身体、家庭与社会生活。本设定、具体作品和社区资料分别注明范围，本库原创例句另行标明。
 

@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The shopkeeper's goods (docs/PET_SHOP.md section 6.3 and section 12). Order and ids are stable: shelf stock is saved by id, pages are built per
+ * The shopkeeper's goods (docs/PET_SHOP.md section 6.2). Order and ids are stable: shelf stock is saved by id, pages are built per
  * category. Each good has a price per unit (in emeralds), a shelf capacity, a daily restock and an optional badge requirement
  * (0 none, 1 bronze, 2 silver) checked against {@code PetPrivileges}. Pure data, safe on both sides.
  */

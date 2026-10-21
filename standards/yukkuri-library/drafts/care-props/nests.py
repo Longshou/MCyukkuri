@@ -5,7 +5,7 @@ from kit import Prop, Band, Planar, colour, fill, paint, deterministic, unit
 C = lambda ramp, step: (ramp, step)
 QUILT_AT = (16, 0)          # 16x16 texel quilted cushion top (1 texel per unit)
 
-# Real body sizes (runtime models, GROWTH_BALANCE.md): standard adult 12.8 wide x 10.7 deep x 9.6 high, individual target up
+# Real body sizes (runtime models, BEHAVIOR_BALANCE_DESIGN.md): standard adult 12.8 wide x 10.7 deep x 9.6 high, individual target up
 # to 1.2x (15.4 wide), deibu x1.5, Reimu with ribbon 17.4 wide. The pet bed is an artificial cushion, so it may overhang
 # the placement block: interior 16.4 across (R 8.2), outer 24 across (R 12).
 BED_IN = 8.2

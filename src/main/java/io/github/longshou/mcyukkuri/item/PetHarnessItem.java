@@ -9,7 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A body band with a ring on the back (docs/PET_SHOP.md section 12; project-original, no wiki basis). Yukkuri have no neck, so the lead is tied
+ * A body band with a ring on the back (docs/PET_SHOP.md; project-original, no wiki basis). Yukkuri have no neck, so the lead is tied
  * to this ring and never to the accessory, whose loss would count as a serious event. Right-click the owner's own pet to fit it; the pet can then be
  * led on a vanilla lead by its owner only. Take it off with the care menu.
  */

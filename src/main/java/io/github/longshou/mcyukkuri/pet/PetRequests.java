@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Locale;
 
 /**
- * A pet that wants something tells its owner (docs/PET_SHOP.md section 12): near the owner it shows an icon card above its head,
+ * A pet that wants something tells its owner (docs/PET_SHOP.md): near the owner it shows an icon card above its head,
  * voices the need and waits. An answer raises trust and lowers stress; ignoring it repeatedly makes the pet sulk. Server-authoritative and
  * driven by game ticks only. All numbers are project-original.
  */

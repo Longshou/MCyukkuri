@@ -65,18 +65,18 @@
     },
     {
       "id": "妖梦",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "已接入种类",
+      "basis": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriVariant.java"
     },
     {
       "id": "被炉魔理沙",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "已纳入形态",
+      "basis": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SubspeciesLife.java"
     },
     {
       "id": "DOS魔理沙",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "采用方向（未做）",
+      "basis": "docs/RARE_FORMS.md"
     },
     {
       "id": "通用油库里",
@@ -246,7 +246,10 @@
     "N17",
     "N18",
     "N91",
-    "N94"
+    "N94",
+    "N116",
+    "N117",
+    "N120"
   ],
   "scanned_sheets": [
     "M01-1",
@@ -7112,6 +7115,59 @@
       ],
       "focus": "河边与山坡家庭的食源对照与落水提醒",
       "purpose": "用一篇作品中的河岸采贝／水草和山地坚果／山菜／昆虫食源表现栖地差异，并保留水边活动的落水提醒；不建立固定菜单、领地制度或群体冲突。"
+    },
+    {
+      "id": "N115",
+      "entities": [
+        "通用油库里"
+      ],
+      "scenarios": [
+        "出生发育"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作"
+      ],
+      "focus": "单篇卵生版本中的壳开裂、啃开出口与自行爬出",
+      "purpose": "仅参考破壳动作的顺序，不据此采用可食卵壳、洞穴越冬、出生接近成体或家油的通用孵化规则；原卡明确它是参考他作后的个人解释。"
+    },
+    {
+      "id": "N118",
+      "entities": [
+        "人类",
+        "灵梦"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "住所布置",
+        "采集进食"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "动作",
+        "道具"
+      ],
+      "focus": "宠物随笼交接、搭设铺垫休息区与放低食盘引导进食",
+      "purpose": "作为已有运输、安置和喂食场景的参考，不把单篇交接提升为寄养制度，也不推定病因、寿命、临终过程或笼具标准。"
+    },
+    {
+      "id": "N119",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "照料幼体",
+        "卫生如厕"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "亲代含水吹洒清洁幼体，以及同伴对洗浴的不同接受度",
+      "purpose": "参考清洁动作和接受、拒绝的不同反应；不作为常见清洁方法、卫生阈值、耐水或油霉机制的依据，后续疾病及群落冲突不纳入。"
     }
   ],
   "image_queue": [
@@ -8071,5 +8127,10 @@
       "id": "EH34-010",
       "state": "overview_not_selected"
     }
-  ]
+  ],
+  "excluded_text_reasons": {
+    "N116": "本卡主要呈现尚未纳入游戏的咻咻车及集体意念驱动；保留作品卡，不收入当前制作筛选。",
+    "N117": "本卡主要呈现定期扫墓与供物；项目不采用油库里扫墓行为，保留作品证据。",
+    "N120": "本卡洗浴风险使用未纳入游戏的胴体型身体私设；保留态度变化的作品卡，不收入当前制作筛选。"
+  }
 }

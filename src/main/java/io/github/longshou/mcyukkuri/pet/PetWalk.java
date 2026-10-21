@@ -15,7 +15,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * A walk on the harness (docs/PET_SHOP.md section 12): while the pet is leashed to its own owner, the owner's horizontal travel adds up
+ * A walk on the harness (docs/PET_SHOP.md): while the pet is leashed to its own owner, the owner's horizontal travel adds up
  * and the pet's actual travel add up by their smaller distance (teleports, vehicles and elytra flight do not count). Every 64 blocks is one walk unit, at most 4 units a game day take effect: boredom,
  * the need for affection, stress, energy and a little nutrition change. Everything is counted in blocks moved, never in frames.
  * {@link #walking(YukkuriEntity)} is the hook for encounters: a pet on a walk passing wild yukkuri is a natural poise practice.

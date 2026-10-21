@@ -9,7 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * A soft warming cloth for a baby or young yukkuri (docs/PET_SHOP.md section 12). PROJECT-ORIGINAL: the only wiki entry on a swaddle (EH30) is a
+ * A soft warming cloth for a baby or young yukkuri (docs/PET_SHOP.md). PROJECT-ORIGINAL: the only wiki entry on a swaddle (EH30) is a
  * restraint context and is deliberately not used. The cloth is open at the face, never limits movement, growth or learning, and comes off by itself
  * once the young one can live independently. Right-click the owner's own young pet to wrap it up; the care menu takes it off.
  */

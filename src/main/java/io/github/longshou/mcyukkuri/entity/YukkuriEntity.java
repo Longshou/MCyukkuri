@@ -706,7 +706,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) { return interactions().mobInteract(player, hand); }
 
-    // pet harness and lead (docs/PET_SHOP.md section 12): the lead is tied to the harness ring on the back, never to the accessory
+    // pet harness and lead (docs/PET_SHOP.md): the lead is tied to the harness ring on the back, never to the accessory
     public int visibleWear() { return sync().visibleWear(); }
     public void setWear(int bits) { sync().setWear(bits); }
     /** Only a harnessed pet can be led; PetCare/LeashGuard further restrict this to the owner (the check below is the same on both sides). */

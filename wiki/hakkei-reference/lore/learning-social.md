@@ -97,7 +97,7 @@
 
 按[认知与教育](../../reference-library/topics/cognition.md)、[身份与群体](../../reference-library/topics/society.md)查本地材料；[交叉核对](../../reference-library/cross-checks.md)另列作者独立性和使用边界。
 
-本项目将认知与利己性、攻击性、依恋性、自制力四轴分开处理。多毛灵梦采用可教育、成功率较低的版本。[项目实装说明](../../../docs/PERSONALITY_DESIGN.md)
+本项目把认知作为五项行为属性中的智力，并与友善、胆量、依恋、自制共同影响行为；多毛灵梦可以学习，具体公式和形态边界见[行为、成长、遗传与认知](../../../docs/BEHAVIOR_BALANCE_DESIGN.md)。
 
 **I／P：** 教学与协作场景可依次表现观察、理解、信任、意愿和行动结果。角色会通过提问、复述、练习和回报交流知识，也会因经验与关系不同而作出不同判断。
 

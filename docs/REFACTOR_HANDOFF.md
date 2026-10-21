@@ -59,7 +59,7 @@
 
 四份调试视图由配置控制；`SukkiriExhaustion` 为瞬态并清理旧键；身体停止写派生的 `YukkuriBody.Wound` / `Burns`，保留旧档读取，并从真实伤口重建显示。
 
-单一血量玩法额外迁移 `YukkuriBody.Filling` 到原版 Health，并写 `HealthVersion` 防止反复折算；遗体 `FoodRemaining` 兼读旧 `Filling`，中枢濒死保存一次 `PendingFood`。捕食待吞咽收益由进食组件保存，客户端只同步嘴里显示。完整契约见[血量与遗体资源](BODY_RESOURCE_PLAN.md)。
+单一血量玩法额外迁移 `YukkuriBody.Filling` 到原版 Health，并写 `HealthVersion` 防止反复折算；遗体 `FoodRemaining` 兼读旧 `Filling`，中枢濒死保存一次 `PendingFood`。捕食待吞咽收益由进食组件保存，客户端只同步嘴里显示。完整契约见[血量与遗体资源](INJURIES_AND_REMAINS.md#资源结算遗体余额与旧档)。
 
 ### 打断
 
@@ -122,7 +122,7 @@
 
 帽船搬运、护理座、初航泊位与救援配对通过 `HatSeatState` 的预约、释放、移动和快照方法协作，不直接取得可变座位表。`HatBoatEntity` 保留实体交接与原同步时机；状态所有者生成 `SEATS` 的 `S`、`OwnerService`、`Carry`、`Crowding`、`Overcrowded` 展示结构。存档仍使用原 `ResidentSeats`、`CapsizeSeats`、`CarryPassengerSeats` 路径与类型。
 
-`MindLife` 接收 `EmotionEvent` 命名情绪输入；对白负责选句和播放，业务效果不再依赖一句话是否播放。性格只保存五项主属性及其有界经历，当前试玩阶段不转换旧数值格式；现有阈值与含义见[情绪链](EMOTION_CHAIN.md)和[性格设计](PERSONALITY_DESIGN.md)。
+`MindLife` 接收 `EmotionEvent` 命名情绪输入；对白负责选句和播放，业务效果不再依赖一句话是否播放。性格只保存五项主属性及其有界经历，当前试玩阶段不转换旧数值格式；现有阈值与含义见[情绪链](EMOTION_CHAIN.md)和[性格设计](BEHAVIOR_BALANCE_DESIGN.md#数据模型与保存)。
 
 `human/Custody` 管理 `HumanCommerce` 的饲主身份、`Role`、分配与释放。`CustodyData` 保存已确认 NPC 死亡记录；主人暂未加载或身份 UNKNOWN 不表示死亡。查询正规化与成功入场后的世界清理分开，快照回滚保留未知字段。
 

@@ -129,7 +129,7 @@ public final class TemperatureLife {
         felt -= entity.life().wetness() / 100.0 * .35;
         felt += RareForms.kotatsuWarmth(entity, felt); // a kotatsu Marisa carries her own warmth
         double bonus = insulated && tooCold(felt) ? YukkuriConfig.NEST_INSULATION.get() : 0;
-        // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/PET_SHOP.md section 12).
+        // The swaddle adds a little warmth on top of a nest, up to a combined bonus of 1.5 (docs/PET_SHOP.md).
         if (entity.pet().care().swaddled() && tooCold(felt + bonus)) bonus = Math.max(bonus, Math.min(bonus + SWADDLE_WARMTH, SWADDLE_CAP));
         felt += bonus;
         double warmth = 0;

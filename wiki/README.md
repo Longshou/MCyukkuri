@@ -5,7 +5,7 @@
 | 内容 | 阅读入口 |
 | --- | --- |
 | 资料维护入口、后续缺口与编辑规则 | [维护计划](MAINTENANCE_PLAN.md) · [编辑口径](EDITORIAL_GUIDE.md) |
-| 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [实现状态导航](implementation-status.md) |
+| 名称、同名异义与项目实现边界 | [术语表](glossary.md) · [游戏文档索引](../docs/README.md) |
 | 游戏参考：190 张图、108 张文字卡；按实体、情景、情绪组合查找 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [制作归纳](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 城市边缘的食源、栖所、设施与同伴关系 | [城市边缘生活](city-life.md) |

@@ -16,7 +16,7 @@
 | `art/structures/human-world/` | 商店、工厂的原创布局、模板实体与生成规则 |
 | `art/audio/`、`art/dialogue/` | AquesTalk 配音与生态音效制作源；八景 U 原版对白检索、选句与译文。游戏 OGG 在 `src/main/resources/assets/mcyukkuri/sounds/` |
 | `wiki/` | 设定与作品出处、参考图库、小说阅读卡。设定依据，不是运行资源。见 [wiki/](wiki/README.md) |
-| `docs/` | 开发文档：入口、计划、设计裁决和各系统专题。见 [文档索引](docs/README.md) |
+| `docs/` | 开发文档：入口、待办、设计裁决和各系统专题。见 [文档索引](docs/README.md) |
 | `scripts/` | 跨目录的导出、检查和试玩场生成脚本，每个脚本注明用途与写入边界。见 [scripts/](scripts/README.md) |
 | `preview/hub/`、`preview/review/` | 预览总入口模板与素材检查室源码；由 `scripts/build_preview_hub.py` 生成到 `.local/previews/` |
 | `tools/browser-check/` | 各 `verify*.cjs` 使用的 Playwright 依赖 |
@@ -45,4 +45,5 @@
 
 - 根 README 只放项目简介与导航；目录职责在本页；开发规则在 `AGENTS.md`；系统文档入口在 `docs/README.md`。
 - 专题文档描述系统**现在**的样子：规则、数值、类名、接口。不写按轮次的流水账和验收记录；被取代的设计直接删掉（Git 历史可查）。
+- 未完成项的状态和完成标准集中在 `docs/TODO.md`，独有设计边界放回专题；Wiki 保存作品证据和采用出处，不另维护一份实现状态总表。
 - 新增、删除、改名文档时同步 `docs/README.md` 和入链。

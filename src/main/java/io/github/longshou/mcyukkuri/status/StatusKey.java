@@ -363,7 +363,7 @@ public enum StatusKey {
     WAITING_TICKS("personality", "waiting_ticks", 0, y -> y.life().personality().waitingTicks(), null),
     WORK_SEGMENTS("personality", "work_segments", 0, y -> y.life().personality().workSegments(), null),
     SEES_HATLESS("cognition", "sees_hatless", 0, y -> Recognition.seesPastAccessory(y), null),
-    /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 13). */
+    /** Whole game days on a shop shelf (-1 when not stock), and the daily ration cuts made so far (docs/PET_SHOP.md section 6.3). */
     FOR_SALE_DAYS("commerce", "for_sale_days", 0, CommodityLife::forSaleDays, null),
     RATION_CUTS("commerce", "ration_cuts", 0, CommodityLife::rationCuts, null),
     SKY("behavior", "sky", 0, y -> y.status().reactions().weather().sky().name().toLowerCase(Locale.ROOT), null);

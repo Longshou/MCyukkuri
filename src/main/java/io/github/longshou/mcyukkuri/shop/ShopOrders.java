@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * Delivery orders (docs/PET_SHOP.md section 12): every game day each shopkeeper wants three things from a fixed pool, drawn from the shopkeeper UUID and
+ * Delivery orders (docs/PET_SHOP.md): every game day each shopkeeper wants three things from a fixed pool, drawn from the shopkeeper UUID and
  * the day, so everybody sees the same three. A player can deliver each of them once a day for the retail value of the goods (no bonus, so buying from the
  * shop and delivering back is never a gain). Delivered goods refill the shelf up to its capacity, which closes the loop farm, shelf, other players.
  * This is game design; the wiki has no such service. Server logic, pool data readable on both sides.

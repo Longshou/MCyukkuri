@@ -7,7 +7,7 @@
     "image_bytes": 94188760,
     "image_unique_hashes": 427,
     "game_images": 190,
-    "game_texts": 109,
+    "game_texts": 112,
     "game_image_sources": 45,
     "quality_selected": 38,
     "quality_reviewed": 47,
@@ -176,18 +176,18 @@
     },
     {
       "id": "妖梦",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "已接入种类",
+      "basis": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriVariant.java"
     },
     {
       "id": "被炉魔理沙",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "已纳入形态",
+      "basis": "src/main/java/io/github/longshou/mcyukkuri/subspecies/SubspeciesLife.java"
     },
     {
       "id": "DOS魔理沙",
-      "status": "开发计划明确纳入",
-      "basis": "docs/DEVELOPMENT_PLAN.md"
+      "status": "采用方向（未做）",
+      "basis": "docs/RARE_FORMS.md"
     },
     {
       "id": "通用油库里",
@@ -12297,6 +12297,107 @@
       ],
       "focus": "河边与山坡家庭的食源对照与落水提醒",
       "description": "用一篇作品中的河岸采贝／水草和山地坚果／山菜／昆虫食源表现栖地差异，并保留水边活动的落水提醒；不建立固定菜单、领地制度或群体冲突。",
+      "kind": "reference"
+    },
+    {
+      "id": "N115",
+      "media": "text",
+      "topics": [
+        "growth",
+        "habitat",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N115.md",
+      "source_id": "N115",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/261.html",
+      "source_title": "～ゆっくりの出産～（卵生型破壳段）",
+      "source_note": "即興の人；仅核读开篇个人设定／参考声明及卵生型破壳段，不整理茎生、胎生、分裂型和后续求生剧情。",
+      "source_group": "author:即興の人",
+      "observation": "一类卵生个体在深洞越冬，春季幼体啃破卵壳并自行出壳。",
+      "limits": "卵生段自述参考另一作者作品并作个人解释；只支持此版本的破壳动作，不算独立重复证据，也不补家油孵化或统一卵壳规则。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "通用油库里"
+      ],
+      "scenarios": [
+        "出生发育"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作"
+      ],
+      "focus": "单篇卵生版本中的壳开裂、啃开出口与自行爬出",
+      "description": "仅参考破壳动作的顺序，不据此采用可食卵壳、洞穴越冬、出生接近成体或家油的通用孵化规则；原卡明确它是参考他作后的个人解释。",
+      "kind": "reference"
+    },
+    {
+      "id": "N118",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "human",
+        "habitat"
+      ],
+      "path": "wiki/novel-reading/cards/N118.md",
+      "source_id": "N118",
+      "source_url": "https://w.atwiki.jp/slowlove/pages/1035.html",
+      "source_title": "ゆっくりとわたくし いつまでも同居人 上",
+      "source_note": "页面未见作者署名；仅核读照护交接、居家休息区与早期照料段。",
+      "source_group": "unknown:N118",
+      "observation": "宠物灵梦转交他人短期照看；笼具、食品和联络资料随行，接手者搭设带报纸、毛毯和靠垫的休息区并喂食。",
+      "limits": "文本未说明病因或是否因衰老；不推广为普遍寄养制度、临终流程或设备标准，后续关系剧情不纳入。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "人类",
+        "灵梦"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "住所布置",
+        "采集进食"
+      ],
+      "emotions": [],
+      "targets": [
+        "场景",
+        "动作",
+        "道具"
+      ],
+      "focus": "宠物随笼交接、搭设铺垫休息区与放低食盘引导进食",
+      "description": "作为已有运输、安置和喂食场景的参考，不把单篇交接提升为寄养制度，也不推定病因、寿命、临终过程或笼具标准。",
+      "kind": "reference"
+    },
+    {
+      "id": "N119",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "growth",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N119.md",
+      "source_id": "N119",
+      "source_url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/952.html",
+      "source_title": "ゆっくりいじめ系775 風呂嫌いの結末",
+      "source_note": "页面未见作者署名；仅核读开篇家庭清洁场景。",
+      "source_group": "unknown:N119",
+      "observation": "母亲含水后吹洒清洁幼体；同篇个体对冷水反应不同，另有成体水浴而未强迫不愿洗浴的朋友。",
+      "limits": "只记录单篇清洁与接受度实例；不采纳后续病理解释、水洗机制和群落处置。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "灵梦",
+        "魔理沙"
+      ],
+      "scenarios": [
+        "照料幼体",
+        "卫生如厕"
+      ],
+      "emotions": [],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "亲代含水吹洒清洁幼体，以及同伴对洗浴的不同接受度",
+      "description": "参考清洁动作和接受、拒绝的不同反应；不作为常见清洁方法、卫生阈值、耐水或油霉机制的依据，后续疾病及群落冲突不纳入。",
       "kind": "reference"
     }
   ]

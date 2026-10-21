@@ -8,8 +8,8 @@
 | --- | --- | --- |
 | 作品证据 | 写明作品、作者标注、段落或图片序号、实际阅读范围 | 来源表、[小说核读](novel-reading/README.md)、[漫画索引](art-references/README.md) |
 | 整理解释 | 明说“可据此理解”“本次归纳”，保留其他可能解释 | 专题页的归纳段 |
-| 项目采用 | 写明采用决定及日期；原创数值不伪装成作品统计 | [基本设定](hakkei-reference/world/rules.md)、[冲突采用表](hakkei-reference/lore/conflicts.md)、[开发计划附录 A](../docs/DEVELOPMENT_PLAN.md#附录-a设定冲突的采用决定) |
-| 实现状态 | 指向实现文档；区分已接入、计划、历史方案及验收范围 | [实现状态导航](implementation-status.md) |
+| 项目采用 | 写明采用决定及日期；原创数值不伪装成作品统计 | [基本设定](hakkei-reference/world/rules.md)、[冲突采用表](hakkei-reference/lore/conflicts.md)、[设计取向与用户裁决](../docs/DESIGN_DECISIONS.md) |
+| 实现状态 | 指向实现文档；区分已接入、计划、历史方案及验收范围 | [游戏文档索引](../docs/README.md) |
 
 ## 证据标记统一
 

@@ -19,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The grim side of the pet trade (komicolle 11518786, docs/PET_SHOP.md section 13): stock nobody buys is fed less and less and finally sent to a
+ * The grim side of the pet trade (komicolle 11518786, docs/PET_SHOP.md section 6.3): stock nobody buys is fed less and less and finally sent to a
  * factory, factory parent animals wear down, a failed exam is punished and core filling is a valuable raw material. Everything scales with
  * {@link HumanWorld#COMMODITY_HARSHNESS} (0 off, 1 mild default, 2 harsh, 3 brutal). Server only; no client class is touched.
  */

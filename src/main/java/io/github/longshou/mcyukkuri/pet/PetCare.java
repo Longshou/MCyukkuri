@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Everyday care of an owner's pet that is not part of the badge record: sweets, habit praise, requests, walks, harness and swaddle
- * (docs/PET_SHOP.md section 12). Server-authoritative; it only ticks while the pet is loaded and nothing here depends on frame rate.
+ * (docs/PET_SHOP.md). Server-authoritative; it only ticks while the pet is loaded and nothing here depends on frame rate.
  * All counters are per game day (24000 ticks of game time) and reset the first time the pet notices a new day.
  */
 public final class PetCare {

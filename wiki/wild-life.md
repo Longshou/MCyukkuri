@@ -218,7 +218,7 @@
 
 ## 日常交互的实际结果
 
-[N73](novel-reading/cards/N73.md)新增赠食、歌唱回应、幼体加入与实际分食；[N74](novel-reading/cards/N74.md)新增森林中的借帽、索还及表演误传。完整过程与未展示结果已并列于[交互对照](hakkei-reference/lore/learning-social.md#请求回应与实际结果对照)。目前仍缺借用后完整归还、拒收之后赠予者回应，以及跨场景持续合作的过程。
+[N73](novel-reading/cards/N73.md)新增赠食、歌唱回应、幼体加入与实际分食；[N74](novel-reading/cards/N74.md)新增森林中的借帽、索还及表演误传。完整过程与未展示结果已并列于[交互对照](hakkei-reference/lore/learning-social.md#请求回应与往来)。目前仍缺借用后完整归还、拒收之后赠予者回应，以及跨场景持续合作的过程。
 
 ## 取水帮助、共居与雨后入口清理
 

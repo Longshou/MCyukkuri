@@ -10,4 +10,4 @@
 
 普通灵梦使用 `reimu_deibu`，多毛灵梦使用 `reimu_wasa_deibu`；两者的身体尺度为普通对应成体的1.5倍，蝴蝶结保持普通实际尺寸，仅调整挂接位置。模型和资源见[灵胖素材登记](../standards/yukkuri-library/subspecies/reimu-dos/README.md)。
 
-结构化设计见[行为数值与成长设计](../docs/BEHAVIOR_BALANCE_DESIGN.md#3-灵胖只在成年转换时判定)，当前接线见[亚种实现记录](../docs/SUBSPECIES_IMPLEMENTATION.md#灵胖成年判定)，固定时钟见[成长与寿命](../docs/GROWTH_BALANCE.md)。
+结构化设计见[行为数值与成长设计](../docs/BEHAVIOR_BALANCE_DESIGN.md#灵胖成年时的一次判定)，当前接线见[亚种实现记录](../docs/SUBSPECIES_IMPLEMENTATION.md#灵胖成年判定)，固定时钟见[成长与寿命](../docs/BEHAVIOR_BALANCE_DESIGN.md#成长时钟阶段与体型)。

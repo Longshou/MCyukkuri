@@ -69,7 +69,7 @@ public final class ModItems {
     public static final DeferredItem<Item> GRAIN_BUDGET=ITEMS.registerSimpleItem("oil_grain_budget",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_REGULAR=ITEMS.registerSimpleItem("oil_grain_regular",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_PREMIUM=ITEMS.registerSimpleItem("oil_grain_premium",new Item.Properties());
-    // Sweets (docs/PET_SHOP.md section 12): placeholder icons, tagged mcyukkuri:yukkuri_sweets together with the vanilla cookie.
+    // Sweets (docs/PET_SHOP.md): placeholder icons, tagged mcyukkuri:yukkuri_sweets together with the vanilla cookie.
     public static final DeferredItem<Item> SWEET_CANDY=ITEMS.registerSimpleItem("sweet_candy",new Item.Properties());
     public static final DeferredItem<Item> CUSTARD_PUDDING=ITEMS.registerSimpleItem("custard_pudding",new Item.Properties().stacksTo(16));
     public static final DeferredItem<TreatmentItem> ORANGE_JUICE=ITEMS.register("orange_juice",()->new TreatmentItem(TreatmentItem.Kind.ORANGE_JUICE,new Item.Properties().stacksTo(16)));

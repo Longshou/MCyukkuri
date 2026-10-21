@@ -9,7 +9,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Vanilla ties a lead to any mob that allows it. A yukkuri may only be led when it carries its harness (YukkuriEntity.canBeLeashed) and only by
- * its owner: shop stock, other people's pets and wild yukkuri cannot be taken away on a lead (docs/PET_SHOP.md section 12).
+ * its owner: shop stock, other people's pets and wild yukkuri cannot be taken away on a lead (docs/PET_SHOP.md).
  * Runs on the server only: the client cannot see ownership, so it must not cancel the interaction itself.
  */
 public final class LeashGuard {

@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Pet harness and swaddle as flat-coloured shells derived procedurally from the posed body surface (no per-species authored attachments,
- * docs/PET_SHOP.md section 12). The body's skinned vertices are reduced to a radius profile (largest horizontal radius per angle bin and
+ * docs/PET_SHOP.md). The body's skinned vertices are reduced to a radius profile (largest horizontal radius per angle bin and
  * height cell); a shell at any height is read from that profile by interpolating between the nearest samples below and above, so sparse
  * meshes (the rounded bodies have only eight vertex rings) and dense ones alike give a closed shell, and both follow squash, stretch and
  * growth of whatever model and clip is being drawn. The harness is a low belt just above the ground contact, under the face, with the lead

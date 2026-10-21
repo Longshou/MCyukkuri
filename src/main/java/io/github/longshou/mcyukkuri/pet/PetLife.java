@@ -52,7 +52,7 @@ public final class PetLife {
     public PetLessons lessons() { return lessons; }
     /** What this individual remembers of the badge-holders it has noticed (pet/social). */
     public BadgeLedger badgeLedger() { return ledger; }
-    /** Sweets, habits, requests, walks and worn gear (docs/PET_SHOP.md section 12). */
+    /** Sweets, habits, requests, walks and worn gear (docs/PET_SHOP.md). */
     public PetCare care() { return care; }
 
     // ownership
