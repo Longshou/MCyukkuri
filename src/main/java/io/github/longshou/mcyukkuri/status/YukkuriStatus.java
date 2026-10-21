@@ -156,8 +156,9 @@ public final class YukkuriStatus {
     public static String label(YukkuriEntity y) {
         var text = new StringBuilder();
         if (!y.mind().givenName().isEmpty()) text.append(y.mind().givenName()).append(' ');
-        text.append(y.life().isSleeping() ? "睡觉" : String.valueOf(get(y, StatusKey.LIFE_ACTIVITY))).append('/').append(get(y, StatusKey.ANIMATION));
-        text.append(" 饥").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
+        text.append(get(y, StatusKey.BEHAVIOR)).append('/').append(get(y, StatusKey.ANIMATION));
+        text.append(" 营养").append(get(y, StatusKey.NUTRITION)).append(" 困").append(get(y, StatusKey.SLEEPINESS));
+        text.append(" 生命").append(get(y, StatusKey.HEALTH)).append('/').append(get(y, StatusKey.MAX_HEALTH));
         if (y.agitation().active()) text.append(" 状态:").append(switch (y.agitation().phase()) {
             case ONSET, RELIEF, HEAT -> "发情期";
             case HEAT_RELIEVED -> "素鸡立完成";
@@ -172,9 +173,12 @@ public final class YukkuriStatus {
         if (y.family().inBreedingPeriod()) text.append(" 发情余").append((y.family().sexDrive()+19)/20).append("秒");
         if ((int) get(y, StatusKey.BLADDER) >= 50) text.append(" 便").append(get(y, StatusKey.BLADDER));
         if ((int) get(y, StatusKey.WETNESS) >= 20) text.append(" 湿").append(get(y, StatusKey.WETNESS));
-        if (y.family().adult()) text.append(" 成");
-        else text.append(' ').append(y.family().stage() == FamilyLife.Stage.BABY ? "赤" : "幼")
-                .append(get(y, StatusKey.GROWTH_PERCENT)).append('%');
+        text.append(' ').append(switch(String.valueOf(get(y,StatusKey.STAGE))) {
+            case "baby" -> "赤油"; case "juvenile" -> "子油"; case "subadult" -> "亚成体";
+            case "elder" -> "老年"; default -> "成体";
+        });
+        if(!y.family().adult())text.append(" 距换阶段").append((y.family().stageRemainingTicks()+19)/20).append("秒");
+        text.append(" 不安").append(get(y,StatusKey.UNEASE));
         if ((boolean) get(y, StatusKey.PREGNANT)) text.append(" 孕").append(get(y, StatusKey.BROOD_PROGRESS)).append('%');
         if ((boolean) get(y, StatusKey.AFTERMATH)) text.append(" 事后茎负担");
         if ((int) get(y, StatusKey.WOUND) > 0) text.append(" 伤").append(get(y, StatusKey.WOUND));
@@ -184,8 +188,7 @@ public final class YukkuriStatus {
         if ((int) get(y, StatusKey.SCARS) > 0) text.append(" 疤").append(get(y, StatusKey.SCARS));
         var mind = y.mind();
         if (mind.nonYukkuri()) text.append(" 非油症");
-        else if (mind.unease() >= MindLife.SWEETENED) text.append(" 甜化").append(Math.round(mind.unease()));
-        else if (mind.unease() >= MindLife.UNEASY) text.append(" 不安").append(Math.round(mind.unease()));
+        else if (mind.unease() >= MindLife.SWEETENED) text.append(" 甜化");
         text.append(" [").append(switch (identity(y)) {
             case HOUSE -> "家油"; case PET -> "宠物"; case OWNED -> "有主"; case SETTLER -> "聚落"; case STRAY -> "流浪"; case WILD -> "野生";
         }).append(']');

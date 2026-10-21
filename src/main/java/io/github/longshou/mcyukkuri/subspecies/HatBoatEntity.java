@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -1758,7 +1759,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             return InteractionResult.PASS;
         }
         if (level().isClientSide) return InteractionResult.SUCCESS;
-        if (catches()) return player.isShiftKeyDown() && recoverUnattended(player) ? InteractionResult.CONSUME : InteractionResult.PASS;
+        if (catches()) {
+            if(player.isShiftKeyDown()&&recoverUnattended(player))return InteractionResult.CONSUME;
+            var keeper=owner();
+            player.displayClientMessage(Component.literal("接生帽：幼体 "+youngPassengers().size()+"；"
+                    +(keeper==null?"帽主未在加载范围内":keeper.family().keepsCradle()?"正在接生或安置幼体":"等待帽主接回；潜行空手可尝试托管")),true);
+            return InteractionResult.CONSUME;
+        }
         if(isAfloat()&&!player.isShiftKeyDown()){shake(player,1);return InteractionResult.CONSUME;}
         if(capsizing())return InteractionResult.CONSUME;
         if (player.isShiftKeyDown() && recoverUnattended(player)) return InteractionResult.CONSUME;
@@ -1868,7 +1875,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
             // An owner who is gone for good leaves her hat where it lies; one nearby comes back for it.
             var y = owner();
-            if (!confiscating() && tickCount % 20 == 0 && y != null && y.isAlive() && !y.family().keepsCradle() && y.distanceToSqr(this) <= 64) y.family().fetchHat(this);
+            if (!confiscating() && tickCount % 20 == 0 && y != null && y.isAlive() && !y.family().keepsCradle() && y.distanceToSqr(this) <= 48*48) y.family().fetchHat(this);
             return;
         }
         var pos = BlockPos.containing(getX(),getY()-.12,getZ());

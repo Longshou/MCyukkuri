@@ -22,7 +22,7 @@ public final class SearchBudget {
         public static Result of(boolean found) { return found ? FOUND : NOT_FOUND; }
     }
     public enum Purpose { FIND_HOME, PREDATOR_NEST, SETTLE, RELOCATE, PICK_SITE, NAVIGATE,
-        FORAGE, FORAGE_TRIP, DIG, GRANARY, BEDDING, LEGACY_ANONYMOUS }
+        FORAGE, FORAGE_TRIP, FAMILY_FEED, DIG, GRANARY, BEDDING, LEGACY_ANONYMOUS }
     public record Cost(long probes, long surveys, long paths) {
         public Cost {
             if (probes < 0 || surveys < 0 || paths < 0) throw new IllegalArgumentException("Negative search cost");

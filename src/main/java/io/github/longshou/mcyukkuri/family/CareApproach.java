@@ -193,7 +193,8 @@ public final class CareApproach {
         if (current!=null) return current;
         List<Vec3> candidates = new ArrayList<>();
         for (var pos:BlockPos.betweenClosed(child.blockPosition().offset(-3,-1,-3),child.blockPosition().offset(3,1,3))) {
-            var at=Vec3.atBottomCenterOf(pos);
+            var at=SurfaceApproach.floor(child,Vec3.atBottomCenterOf(pos));
+            if(at==null)continue;
             if (at.distanceToSqr(child.position())>12 || !child.childhood().canJump() && at.y>child.getY()+.1) continue;
             if (SurfaceApproach.supported(child, at) && child.life().reachable(pos,false)) candidates.add(at);
         }
@@ -207,9 +208,10 @@ public final class CareApproach {
         List<Vec3> candidates=new ArrayList<>();
         for (var direction:Direction.Plane.HORIZONTAL) {
             for (double dy:new double[]{0,-.5,.5}) {
-                Vec3 at=childFeet.add(direction.getStepX()*radius,dy,direction.getStepZ()*radius);
+                Vec3 at=SurfaceApproach.floor(owner,childFeet.add(direction.getStepX()*radius,dy,direction.getStepZ()*radius));
+                if(at==null)continue;
                 double mouthDelta=(at.y+owner.getBbHeight()*.5)-(childFeet.y+child.getBbHeight()*.5);
-                if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(dy)>.18) continue;
+                if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(at.y-childFeet.y)>.18) continue;
                 if (rejected.stream().anyMatch(old->old.distanceToSqr(at)<.04)) continue;
                 if (SurfaceApproach.supported(owner,at) && owner.life().reachable(BlockPos.containing(at),false)) candidates.add(at);
             }

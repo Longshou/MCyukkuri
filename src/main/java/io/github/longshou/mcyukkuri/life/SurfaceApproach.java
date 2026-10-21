@@ -12,6 +12,19 @@ import net.minecraft.world.phys.Vec3;
 public final class SurfaceApproach {
     private SurfaceApproach() {}
 
+    /** Resolve the real sole height on a low nest or adjacent floor, retaining its collision shell. */
+    public static Vec3 floor(YukkuriEntity actor, Vec3 near) {
+        if(!actor.level().hasChunkAt(BlockPos.containing(near)))return null;
+        double half=actor.getBbWidth()*.5-.005, top=Double.NEGATIVE_INFINITY;
+        var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
+        for(var shape:actor.level().getBlockCollisions(actor,probe))for(var box:shape.toAabbs())
+            if(box.maxX>probe.minX&&box.minX<probe.maxX&&box.maxZ>probe.minZ&&box.minZ<probe.maxZ
+                    &&box.maxY>=probe.minY&&box.maxY<=probe.maxY)top=Math.max(top,box.maxY);
+        if(!Double.isFinite(top))return null;
+        var at=new Vec3(near.x,top,near.z);
+        return supported(actor,at)?at:null;
+    }
+
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
         var level = actor.level();
         if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
@@ -29,10 +42,17 @@ public final class SurfaceApproach {
 
     public static boolean clearLastStep(YukkuriEntity actor, Vec3 destination) {
         Vec3 start = actor.position();
-        if (!actor.onGround() || Math.abs(start.y-destination.y) > .08 || start.distanceToSqr(destination) > 2.25) return false;
+        if (!actor.onGround() || Math.abs(start.y-destination.y) > .25 || start.distanceToSqr(destination) > 2.25) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
-        for (int i=0; i<=samples; i++) if (!supportedStep(actor, start.lerp(destination, (double)i/samples))) return false;
+        double previous=start.y;
+        for (int i=0; i<=samples; i++) {
+            var sample=start.lerp(destination,(double)i/samples);
+            if(supportedStep(actor,sample)){previous=sample.y;continue;}
+            var surface=floor(actor,sample);
+            if(surface==null||Math.abs(surface.y-previous)>.25||!supportedStep(actor,surface))return false;
+            previous=surface.y;
+        }
         return true;
     }
 

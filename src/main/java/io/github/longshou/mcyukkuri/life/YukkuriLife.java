@@ -796,6 +796,10 @@ public final class YukkuriLife {
         return false;
     }
     private Path path(BlockPos target, boolean escapeWater) {
+        // A nest occupies the feet cell with a fractional-height floor. Vanilla's walk node
+        // is the cell above that floor, even while both actors' blockPosition remains inside it.
+        if(level().getBlockState(target).getBlock() instanceof CareBlock care&&care.kind()==CareBlock.Kind.NEST)
+            target=target.above();
         float old = entity.getPathfindingMalus(PathType.WATER);
         if (escapeWater) entity.setPathfindingMalus(PathType.WATER, 0);
         Path path;

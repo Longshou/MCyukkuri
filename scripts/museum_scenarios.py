@@ -288,10 +288,25 @@ add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
         home('mother', 8, 0),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth', vantage=(4, 12))
 
-add('feed', 'family', '嚼糜喂食', '嚼糜喂食', '赤油饿了，还不会吃固体：亲油取苹果、嚼成糜、凑近嘴部喂它', '约 1.5 分钟', [
-    yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
-    yk('reimu', 3, 0, 'baby', stage='baby', nutrition=32, yaw=90, lead=True),
-    f'yukkuri scenario kin {sel("mom")} {sel("baby")} false', item('minecraft:apple', 3, 1, 2)], spot='feed', vantage=(0, 10))
+add('feed', 'family', '嚼糜喂食', '嚼糜喂食',
+    '三家饥饿赤油：前排孩子在窝、后排亲油在窝、最右低友善对照。左侧16格外只有两份苹果，另有一株草；看接受后找粮、真实采食、嚼糜和窝内外交接。低友善仍可能接受；无粮须显示搜索结束原因，可手动补苹果再观察',
+    '约 1–3 分钟；读双方与实际粮源', [
+    block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
+    yk('chen', 0, 0, 'mom', yaw=-90, friendliness=95, **pair_ready()),
+    yk('reimu', 3, 0, 'baby', dy=.2, stage='baby', nutrition=25, yaw=90, lead=True),
+    f'yukkuri scenario kin {sel("mom")} {sel("baby")} false',
+    block(0, 0, 7, 'mcyukkuri:yukkuri_nest'),
+    yk('chen', 0, 7, 'mom_in', dy=.2, friendliness=95, **pair_ready()),
+    yk('reimu', 3, 7, 'baby_out', stage='baby', nutrition=25),
+    f'yukkuri scenario kin {sel("mom_in")} {sel("baby_out")} false',
+    yk('chen', -5, 12, 'reluctant', friendliness=0, self_control=0, **pair_ready()),
+    yk('reimu', -2, 12, 'requester', stage='baby', nutrition=25),
+    f'yukkuri scenario kin {sel("reluctant")} {sel("requester")} false',
+    item('minecraft:apple', 2, -16, 0), block(-10, 0, 7, 'minecraft:short_grass')],
+    spot='feed', vantage=(0, 17), give=['minecraft:apple 4'],
+    reads=[(label, f'yukkuri status {sel(name)} raw') for label,name in
+           [('读窝外亲油','mom'),('读窝内赤油','baby'),('读窝内亲油','mom_in'),('读窝外赤油','baby_out'),
+            ('读低友善亲油','reluctant'),('读低友善子代','requester')]])
 
 add('first_toilet', 'family', '首餐后首便', '首餐后首便', '新生赤油尚未吃过第一餐：先观察它求食而不排便，再把手里的苹果丢到亲油身边。亲油嚼糜、近身递喂，孩子实际吞下后才请求首便辅助', '丢下苹果后约 1.5 分钟', [
     yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),

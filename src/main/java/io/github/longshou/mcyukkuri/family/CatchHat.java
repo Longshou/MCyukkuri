@@ -37,6 +37,7 @@ final class CatchHat {
     private HatPose hatTarget;
     private HatBoatEntity fetching;
     private boolean dutyGaveUp;
+    private long fetchRetryAt;
     /** The helper's confirmed land hat and the mother pose it was placed for. */
     private UUID deliveryBrood, deliveryHat;
     private Vec3 deliveryStation, deliveryHatAt;
@@ -53,6 +54,9 @@ final class CatchHat {
     CatchHat(FamilyLife o) { this.o=o; }
     boolean moving() { return hatMove!=HatMove.NONE; }
     boolean fetching() { return fetching!=null; }
+    boolean cleanupPending() { return fetching!=null||hatMove==HatMove.ON||hatMove==HatMove.ON_SELF||cradleLinger>0&&cradleEntity()!=null; }
+    String describe() { return "move="+hatMove+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
+            +" fetchTicks="+fetchTicks+" pickup="+o.cradlePickup().active(); }
     boolean dutyGaveUp() { return dutyGaveUp; }
     void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
@@ -191,7 +195,8 @@ final class CatchHat {
         int paths=0;
         for(int radius=0;radius<=3;radius++)for(int side=0;side<(radius==0?1:8);side++) {
             double angle=side*Math.PI/4;
-            var at=mother.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius);
+            var at=SurfaceApproach.floor(mother,mother.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
+            if(at==null)continue;
             for(float turn:new float[]{0,90,-90,180}) {
                 var site=new FamilyLife.DeliveryStation(at,mother.yBodyRot+turn);
                 if(!usableSite(mother,brood,site))continue;
@@ -322,20 +327,31 @@ final class CatchHat {
             }
             return;
         }
-        if(fetching==null)return;
+    }
+
+    /** The birth goal owns MOVE throughout post-delivery collection; passive ticks never steer it. */
+    void tickFetch(){
+        if(fetching==null){o.entity().getNavigation().stop();return;}
         if(fetching.isRemoved()||!fetching.catches()||o.entity().isPassenger()){fetching=null;return;}
         if(keepsCradle()||o.entity().isPanicking())return;
         var stand=stand(poseOf(fetching),o.entity());fetchTicks++;
+        if(fetchTicks>600){
+            GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} reason=approach_or_release_timeout",fetching.getUUID(),fetching.getPassengers().size());
+            fetching=null;fetchRetryAt=o.level().getGameTime()+100;return;
+        }
         if(o.entity().distanceToSqr(stand.at())>.36&&fetchTicks<200){if(fetchTicks%10==1)o.entity().life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
-        if(o.entity().distanceToSqr(stand.at())>16){fetching=null;return;}
+        if(o.entity().distanceToSqr(stand.at())>16)return;
         var role=fetching.role();var hat=fetching;
         if(!approachHatStand(stand))return;
         o.entity().getNavigation().stop();o.face(stand.yaw());
         // Dependent newborns leave in the parent's braid; capable children hop out before the empty hat is retrieved.
         if(hat.releaseYoung(o.entity())){releaseWait=14;return;}
         if(releaseWait>0){releaseWait--;return;}
-        fetching=null;
-        if(hat.retrieve(o.entity()))beginHat(role==HatVessel.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
+        if(hat.retrieve(o.entity())){
+            fetching=null;
+            GameplayLog.event(o.entity(),"family","catch cleanup completed hat={} passengers=0",hat.getUUID());
+            beginHat(role==HatVessel.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
+        }
     }
 
     /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
@@ -348,7 +364,10 @@ final class CatchHat {
     }
 
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
-    void fetchHat(HatBoatEntity hat){if(hatMove==HatMove.NONE&&fetching==null&&!o.entity().isPassenger()){fetching=hat;fetchTicks=0;}}
+    void fetchHat(HatBoatEntity hat){if(hatMove==HatMove.NONE&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt){
+        fetching=hat;fetchTicks=0;
+        GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={}",hat.getUUID(),hat.getPassengers().size());
+    }}
 
     /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
     boolean playHatOn(){

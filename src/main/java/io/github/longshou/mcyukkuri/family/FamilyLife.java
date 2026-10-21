@@ -44,7 +44,7 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
             FAMILY_SEARCH_RANGE = 16;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.ADULT_START, age=maturity+1, nourishment=maturity,
@@ -99,7 +99,7 @@ public final class FamilyLife {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt)
-                + " radius=" + Math.sqrt(familyRadiusSqr());
+                + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "}";
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
     public String waterBirthDetail() { return delivery.waterBirthDetail(); }
@@ -243,6 +243,7 @@ public final class FamilyLife {
             case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> Behaviors.SEARCH_FAMILY;
             case MIDWIFE -> cradleEntity()!=null?Behaviors.aquatic(Behaviors.HAT_HOLD, aquatic):Behaviors.MIDWIFE;
             case FEED_CHILD -> feeding.activity();
+            case FETCH_HAT -> Behaviors.MIDWIFE;
             case STAY_HOME -> Behaviors.STAY_HOME; case RECOVER -> Behaviors.POSTPARTUM; default -> awaitingLanding?Behaviors.NEWBORN_FALL:Behaviors.IDLE;
         };
     }
@@ -303,7 +304,7 @@ public final class FamilyLife {
                 ||entity.operations().active()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding||needsWaterBirthBoat())return false;
         var b=brood();
         return b!=null&&!b.cancelled&&!b.complete()&&b.kind!=FamilyData.BirthKind.EGG&&b.elapsed>=Math.max(0,b.duration-CatchHat.APPROACH_LEAD)
-                ||task==Task.MIDWIFE||catchHat.mateInLabor()!=null;
+                ||task==Task.MIDWIFE||catchHat.cleanupPending()||catchHat.mateInLabor()!=null;
     }
     void catchStationActivated(FamilyData.Brood brood){delivery.catchStationActivated(brood);}
     /** The helper still holds this exact hat, the mother is at its outlet and they can both see the delivery. */
@@ -772,6 +773,10 @@ public final class FamilyLife {
         // Do not keep the shared MOVE flag while the aquatic controller walks a late parent to the bank and launches the
         // real hat boat. A failed shore search simply retries through that controller; this goal remains idle meanwhile.
         if(needsWaterBirthBoat())return false;
+        if(catchHat.cleanupPending()&&task!=Task.MIDWIFE&&task!=Task.BROOD&&task!=Task.RECOVER) {
+            if(task!=Task.FETCH_HAT){stop();task=Task.FETCH_HAT;taskTicks=0;}
+            return true;
+        }
         if(task!=Task.NONE)return true;
         if(delivery.recoveryTicks()>0){task=Task.RECOVER;taskTicks=0;return true;}
         if(laboring()){task=Task.BROOD;taskTicks=0;return true;}
@@ -945,6 +950,7 @@ public final class FamilyLife {
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
         if(task==Task.FEED_CHILD)return feeding.canContinue();
         if(entity.life().hasUrgentNeed())return false;
+        if(task==Task.FETCH_HAT)return catchHat.cleanupPending();
         if(task==Task.RECOVER)return delivery.recoveryTicks()>0;
         // Let the duty execute its completion/cancellation cleanup once when the brood disappears.
         if(task==Task.MIDWIFE)return target!=null&&target.level()==entity.level();
@@ -961,6 +967,7 @@ public final class FamilyLife {
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
+        if(catchHat.moving()){entity.getNavigation().stop();return;}
         if(task==Task.SEARCH&&taskTicks==1)GameplayLog.limited(entity,"family","search.started",1200,
                 "family search started target={} lastKnownPosition={} mother={} father={} nutrition={} energy={}",
                 target==null?null:target.getUUID(),searchAt,mother,father,entity.life().nutrition(),entity.life().energy());
@@ -1014,6 +1021,7 @@ public final class FamilyLife {
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target))stop();
             }
             case MIDWIFE -> catchHat.tickMidwife();
+            case FETCH_HAT -> catchHat.tickFetch();
             case SEARCH -> {
                 if(target!=null) {
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)

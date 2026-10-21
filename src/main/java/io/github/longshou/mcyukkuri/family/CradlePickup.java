@@ -71,7 +71,11 @@ public final class CradlePickup {
                 ||young.getVehicle()!=home||!young.isAlive()||young.family().adult()||!home.young(young)||!related(young)
                 ||!BraidRescueGeometry.canLift(parent,young)||parent.distanceToSqr(home)>16)return false;
         retryAt=level().getGameTime()+40;
-        var plan=plan(home,young,preferred);if(plan==null)return false;
+        var plan=plan(home,young,preferred);if(plan==null){
+            GameplayLog.limited(parent,"cradle","land_plan",200,"pickup refused child={} hat={} reason=no_reachable_lift_plan parentPosition={} childPosition={} preferred={}",
+                    young.getUUID(),home.getUUID(),parent.position(),young.position(),preferred);
+            return false;
+        }
         childId=young.getUUID();hatId=home.getUUID();stand=plan.stand();endStand=plan.endStand();yaw=plan.yaw();
         from=young.position();hatAt=home.position();raised=plan.raised();across=plan.across();destination=plan.destination();
         tip=prevTip=BraidRescueGeometry.restTip(parent,0);joint=prevJoint=BraidRescueGeometry.restJoint(parent,0);
