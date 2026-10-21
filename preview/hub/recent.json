@@ -2,6 +2,28 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "hair-wounds-art",
+      "title": "头发覆盖区的伤口",
+      "summary": "黑发、金发通用伤口制作源：砸击共同凹陷，裂伤局部断发，露核保持中央深度。尚未接入游戏发面裁切。",
+      "model": "reimu",
+      "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
+      "demoPage": "hair-wounds/index.html",
+      "points": [
+        "砸击不删发：皮面和覆盖毛束按同一个位移场凹陷。",
+        "裂伤在实际开口内断发，断掉部分直接消失，不制作散落头发。",
+        "断发边、面皮断面、普通馅腔壁连接到唯一中央中枢；含破裂和取出后空腔。"
+      ],
+      "steps": [
+        {"title": "通用伤口", "caption": "当前制作源网格与贴图的静态模型预览，游戏接入待完成。", "image": "hair-wounds/current.png"},
+        {"title": "砸击前后", "caption": "相同模型与角度；头发保留，与体表一起凹陷。", "image": "hair-wounds/impact.png"}
+      ],
+      "gallery": [
+        {"src": "hair-wounds/reimu.png", "label": "黑发八种状态"},
+        {"src": "hair-wounds/marisa.png", "label": "金发八种状态"},
+        {"src": "hair-wounds/details.png", "label": "创腔近看"}
+      ]
+    },
+    {
       "id": "body-marks-art",
       "title": "身体纹样",
       "summary": "旧稿油霉、脏污、伤口、旧疤、足缘焦化与露核大创腔已接入；当前导出资源离线预览，游戏视觉待试玩。",

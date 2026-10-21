@@ -1,0 +1,32 @@
+{
+  "id": "hair-wounds",
+  "status": "authored_pending_review",
+  "authorization": "2026-10-22 用户要求本次由 Codex 制作，不使用 Opus。",
+  "design": "项目设计：同一伤位的发面擦损、压痕、焦痕、旧疤及断发—面皮—普通馅—中央中枢分层。",
+  "seed": 28,
+  "texture_size": 512,
+  "core_center": [0, 4.5, 0.5],
+  "core_radius": [1.22, 1.05, 1.12],
+  "segments": 96,
+  "hair_opening_scale": 1.07,
+  "dent": {"radius": [2.1, 1.65], "depth": 0.62, "falloff": "(1 - elliptical_radius_squared)^3", "remove_hair": false},
+  "hair_response": {"scratch": "surface scuffs, retain strands", "dent": "skin and covering hair indent together, no cutout", "scorch": "local char, retain closed hair surface", "tear": "break strands only inside opening; removed fragments vanish, no loose hair", "core": "break hair only along real open tissue loss; no loose hair"},
+  "wounds": {
+    "tear": {"radius": [1.65, 0.5], "depth": 0.62, "core": false},
+    "core": {"radius": [2.55, 2.0], "depth": 5.6, "core": true}
+  },
+  "models": {
+    "reimu": {
+      "hair_parts": ["crown", "back_hair", "back_hair_lower", "hair_cap", "back_lock_0", "back_lock_1", "back_lock_2", "back_lock_3", "back_lock_4", "bang_0", "bang_1", "bang_2", "bang_3", "bang_4", "bang_5", "bang_6", "bang_tip_0", "bang_tip_1", "bang_tip_2", "bang_tip_3", "bang_tip_4", "bang_tip_5", "bang_tip_6", "centre_bang_tip", "rear_side_hair_left", "rear_side_hair_right", "side_hair_-1", "side_hair_1"],
+      "hair_edge": [44, 37, 35],
+      "hair_highlight": [79, 66, 58]
+    },
+    "marisa": {
+      "hair_parts": ["crown", "back_hair", "back_hair_lower", "hair_cap", "back_lock_0", "back_lock_1", "back_lock_2", "back_lock_3", "back_lock_4", "bang_0", "bang_1", "bang_2", "bang_3", "bang_4", "bang_5", "bang_6", "bang_tip_0", "bang_tip_1", "bang_tip_2", "bang_tip_3", "bang_tip_4", "bang_tip_5", "bang_tip_6", "rear_side_hair_left", "rear_side_hair_right", "side_hair_loose", "side_hair_loose_tip_0", "side_hair_loose_tip_1"],
+      "hair_edge": [149, 104, 49],
+      "hair_highlight": [223, 181, 96]
+    }
+  },
+  "coordinates": "Model units; central core stays at core_center. Local U is tangent, V is up, N points outward. Decal UV: u=(U/radiusU+1)/2, v=(1-V/radiusV)/2. No screen-space placement.",
+  "boundary": "Authored meshes and textures only. Runtime hair clipping, bone binding and wound-state selection are not connected by this package. Independent ornaments and hanging braids are excluded."
+}
