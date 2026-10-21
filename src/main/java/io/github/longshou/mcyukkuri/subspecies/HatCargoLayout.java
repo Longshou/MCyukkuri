@@ -12,11 +12,10 @@ import java.nio.charset.StandardCharsets;
 
 /** Cargo geometry exported with the heap meshes. Coordinates are in the unsquashed hat frame. */
 final class HatCargoLayout {
-    private static final JsonObject LAND = read("/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json");
-    private static final JsonObject AQUATIC = read("/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_cargo_layout.json");
+    private static final JsonObject DATA = read();
 
-    private static JsonObject read(String resource) {
-        try (var stream = HatCargoLayout.class.getResourceAsStream(resource)) {
+    private static JsonObject read() {
+        try (var stream = HatCargoLayout.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json")) {
             if (stream == null) throw new IllegalStateException("Missing hat cargo layout");
             return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
         } catch (IOException error) { throw new UncheckedIOException(error); }
@@ -24,9 +23,8 @@ final class HatCargoLayout {
 
     static List<HatVessel.ProvisionZone> zones(HatVessel.Mode mode, int tier, boolean aside) {
         if (tier <= 0) return List.of();
-        var data=mode.aquatic()?AQUATIC:LAND;
         var result = new ArrayList<HatVessel.ProvisionZone>();
-        for (var raw : data.getAsJsonArray(aside ? "aside_tiers" : "tiers").get(Math.min(3, tier)).getAsJsonArray()) {
+        for (var raw : DATA.getAsJsonArray(aside ? "aside_tiers" : "tiers").get(Math.min(3, tier)).getAsJsonArray()) {
             var value = raw.getAsJsonObject();
             double squash = HatVessel.squash(mode);
             result.add(new HatVessel.ProvisionZone(new Vec3(value.get("x").getAsDouble(),

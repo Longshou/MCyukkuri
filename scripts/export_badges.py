@@ -39,7 +39,7 @@ def nearest(p,a,b,c):
         w=(d4-d3)/((d4-d3)+(d5-d6));return [0,1-w,w]
     denom=1/(va+vb+vc);v=vb*denom;w=vc*denom;return [1-v-w,v,w]
 
-def mounts(only=None,detached=None):
+def mounts(only=None):
     recipe=json.loads((ART/'mounts.json').read_text(encoding='utf-8'));result={'format':1}
     rounded=ROOT/'art/source/rounded-runtime/attachments.json'
     if rounded.exists():
@@ -48,12 +48,6 @@ def mounts(only=None,detached=None):
     if only:
         if only not in recipe['variants']:raise ValueError('Unknown badge variant: '+only)
         result=json.loads((ASSETS/'yukkuri/badge_mounts.json').read_text(encoding='utf-8'))
-    if detached:
-        # One detached accessory alone (e.g. accessory_marisa_aquatic); every other exported mount is kept as it is.
-        if detached not in recipe['detached']:raise ValueError('Unknown detached accessory: '+detached)
-        result=json.loads((ASSETS/'yukkuri/badge_mounts.json').read_text(encoding='utf-8'))
-        result['detached'].update(export_mount_group({detached:recipe['detached'][detached]},'yukkuri_props',previous.get('detached',{})))
-        return result
     for kind in ['variants','detached']:
         specs=recipe[kind]
         if only:specs={name:spec for name,spec in specs.items() if name==only or name=='accessory_'+only}
@@ -147,9 +141,9 @@ def handbook_png():
     medal(5,2,'gold');medal(8,7,'silver')
     stream=BytesIO(); image.save(stream,format='PNG'); return stream.getvalue()
 
-def main(check=False, mounts_only=False, only=None, detached=None):
+def main(check=False, mounts_only=False, only=None):
     if mounts_only:
-        path=ASSETS/'yukkuri/badge_mounts.json'; data=mounts(only,detached)
+        path=ASSETS/'yukkuri/badge_mounts.json'; data=mounts(only)
         if check: assert json.loads(path.read_text(encoding='utf-8'))==data,str(path)
         else: path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         print('Badge mounts '+('match.' if check else 'exported.')); return
@@ -173,8 +167,6 @@ def main(check=False, mounts_only=False, only=None, detached=None):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--check',action='store_true');p.add_argument('--mounts-only',action='store_true')
     p.add_argument('--only',help='Refresh one variant and its derived accessory (requires --mounts-only).')
-    p.add_argument('--detached',help='Refresh one detached accessory mount alone, e.g. accessory_marisa_aquatic (requires --mounts-only).')
     args=p.parse_args()
-    if (args.only or args.detached) and not args.mounts_only:p.error('--only and --detached require --mounts-only')
-    if args.only and args.detached:p.error('use --only or --detached, not both')
-    main(args.check,args.mounts_only,args.only,args.detached)
+    if args.only and not args.mounts_only:p.error('--only requires --mounts-only')
+    main(args.check,args.mounts_only,args.only)

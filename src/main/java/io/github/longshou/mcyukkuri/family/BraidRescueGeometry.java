@@ -27,20 +27,6 @@ public final class BraidRescueGeometry {
     /** Project-original bite grip (not canon): the mouth anchor in model units and its contact reach in blocks of a standard adult. */
     private static final Vec3 MOUTH_ROOT=DATA.has("mouth_root")?vector("mouth_root"):new Vec3(0,2.0034,-5.215);
     private static final double MOUTH_REACH=DATA.has("mouth_reach")?DATA.get("mouth_reach").getAsDouble():.03;
-    /** The hat is independently authored for aquatic Marisa; use its exported real envelope, never the land constants. */
-    private static String hatKind(YukkuriEntity actor){return HatVessel.aquatic(actor)?"aquatic":"land";}
-    private static double hatHeight(YukkuriEntity actor){
-        return DATA.has("hat_heights_model_units")?DATA.getAsJsonObject("hat_heights_model_units").get(hatKind(actor)).getAsDouble()
-                :DATA.get("hat_height_model_units").getAsDouble();
-    }
-    private static Vec3 hatBrimHalf(YukkuriEntity actor){
-        if(!DATA.has("hat_brim_half_model_units")){
-            var brim=HatVessel.brim(HatVessel.aquatic(actor)?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT);
-            return new Vec3(brim[0],0,brim[1]);
-        }
-        var values=DATA.getAsJsonObject("hat_brim_half_model_units").getAsJsonArray(hatKind(actor));
-        return new Vec3(values.get(0).getAsDouble(),0,values.get(1).getAsDouble());
-    }
     private static JsonObject read(){
         try(var stream=BraidRescueGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
             if(stream==null)throw new IllegalStateException("Missing selected braid rescue geometry");
@@ -187,9 +173,9 @@ public final class BraidRescueGeometry {
         }else boxes.add(boardingBox(actor,feet,vector("body_min"),vector("body_max"),pitch,roll,yaw));
         if(actor.life().hasAccessory()){
             double multiplier=HatVessel.hatScale(actor)/Math.max(.001,actor.growthScale());
-            var brim=hatBrimHalf(actor);double base=HatVessel.anchor().y,height=hatHeight(actor)*multiplier;
-            boxes.add(boardingBox(actor,feet,new Vec3(-brim.x*multiplier,base,-brim.z*multiplier),
-                    new Vec3(brim.x*multiplier,base+height,brim.z*multiplier),pitch,roll,yaw));
+            double base=HatVessel.anchor().y,height=DATA.get("hat_height_model_units").getAsDouble()*multiplier;
+            boxes.add(boardingBox(actor,feet,new Vec3(-HatVessel.BRIM[0]*multiplier,base,-HatVessel.BRIM[1]*multiplier),
+                    new Vec3(HatVessel.BRIM[0]*multiplier,base+height,HatVessel.BRIM[1]*multiplier),pitch,roll,yaw));
         }
         return boxes;
     }
@@ -259,10 +245,10 @@ public final class BraidRescueGeometry {
         var boxes=new ArrayList<AABB>();boxes.add(actor.getBoundingBox().move(feet.subtract(actor.position())));
         if(actor.getVariant()==YukkuriVariant.MARISA&&actor.life().hasAccessory()){
             double unit=HatVessel.hatScale(actor)*actor.getScale()/16;
-            var brim=hatBrimHalf(actor);double yaw=Math.toRadians(actor.yBodyRot),hx=Math.abs(Math.cos(yaw))*brim.x*unit+Math.abs(Math.sin(yaw))*brim.z*unit;
-            double hz=Math.abs(Math.sin(yaw))*brim.x*unit+Math.abs(Math.cos(yaw))*brim.z*unit;
+            double yaw=Math.toRadians(actor.yBodyRot),hx=Math.abs(Math.cos(yaw))*HatVessel.BRIM[0]*unit+Math.abs(Math.sin(yaw))*HatVessel.BRIM[1]*unit;
+            double hz=Math.abs(Math.sin(yaw))*HatVessel.BRIM[0]*unit+Math.abs(Math.cos(yaw))*HatVessel.BRIM[1]*unit;
             double base=HatVessel.anchor().y*actor.growthScale()*actor.getScale()/16;
-            double height=hatHeight(actor)*unit;
+            double height=(DATA.has("hat_height_model_units")?DATA.get("hat_height_model_units").getAsDouble():8)*unit;
             boxes.add(new AABB(feet.x-hx,feet.y+base,feet.z-hz,feet.x+hx,feet.y+base+height,feet.z+hz));
         }
         return boxes;

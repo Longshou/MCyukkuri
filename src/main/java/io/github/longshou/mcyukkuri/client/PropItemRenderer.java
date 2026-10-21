@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.house.HouseEggGeometry;
@@ -34,10 +36,9 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(stack.is(ModItems.ACCESSORY_SHARD.get())){renderShard(stack,context,pose,buffers,light,overlay);return;}
         if(stack.getItem() instanceof AccessoryItem){
             String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
-            if(PropModels.has(selected))name=selected;
-            // A creative or command-created aquatic hat may not have its source tags yet.  It is
-            // still the same distinct physical form and must not fall through to a missing model.
-            else if(stack.is(ModItems.AQUATIC_MARISA_HAT.get()))name="accessory_marisa_aquatic";
+            // The aquatic item keeps its type and source scale, but uses the same hat mesh.
+            if(stack.is(ModItems.AQUATIC_MARISA_HAT.get()))name="accessory_marisa";
+            else if(PropModels.has(selected))name=selected;
         }
         if(!PropModels.has(name))return;
         pose.pushPose();pose.translate(.5,.5,.5);
@@ -47,7 +48,8 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(!gui&&(stack.getItem() instanceof ShelterItem||stack.getItem() instanceof PlayItem))scale=12/Math.max(1,PropModels.extent(name));
         if(!gui&&(stack.getItem() instanceof AccessoryItem||name.equals("yukkuri_waste"))){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;
+            float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):
+                    stack.is(ModItems.AQUATIC_MARISA_HAT.get())?HatVessel.AQUATIC_SCALE:1;
             if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);

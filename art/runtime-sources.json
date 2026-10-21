@@ -3948,44 +3948,6 @@
     "scope": "Marisa's own worn hat copied box for box, opened into a well and turned upside down with its crown pressed flat (user 2026-10-15: just turn the hat over and squash its bottom): on land, where her braid presses it down to catch young, and afloat (the aquatic hat boat, larger, and the hat floated at a bank to catch); braid placements read by the lore hat clips and the game",
     "references": "wiki/art-references/ehentai/works/EH22.md"
   },
-  "marisa_aquatic_hat": {
-    "source": "standards/yukkuri-library/interactions/marisa-aquatic-hat",
-    "recipe": "standards/yukkuri-library/interactions/marisa-aquatic-hat/recipe.json",
-    "builder": "standards/yukkuri-library/interactions/marisa-aquatic-hat/build.py",
-    "geometry_check": "standards/yukkuri-library/interactions/marisa-aquatic-hat/check.py",
-    "motion_check": "standards/yukkuri-library/interactions/marisa-aquatic-hat/check_motion.py",
-    "preview_builder": "standards/yukkuri-library/interactions/marisa-aquatic-hat/preview.py",
-    "selected_snapshot": "art/source/marisa-aquatic-hat",
-    "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-    "inputs_read": [
-      "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
-      "standards/yukkuri-library/drafts/care-props/cargo.py",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-      "art/source/rounded-runtime/attachments.json"
-    ],
-    "runtime": [
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/accessory_marisa_aquatic.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_aquatic_hat_turned.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_aquatic_hat_provisions.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_cargo_layout.json",
-      "src/main/resources/assets/mcyukkuri/models/item/marisa_aquatic_hat.json"
-    ],
-    "language_keys": [
-      "item.mcyukkuri.marisa_aquatic_hat"
-    ],
-    "derived_reexports": {
-      "src/main/resources/assets/mcyukkuri/yukkuri/badge_mounts.json": "detached.accessory_marisa_aquatic; recipe art/props/badges/mounts.json, exporter scripts/export_badges.py --mounts-only --detached accessory_marisa_aquatic",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "hat_heights_model_units / hat_brim_half_model_units (land, aquatic); exporter standards/yukkuri-library/interactions/braid-water-rescue/author.py",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "marisa and marisa_kotatsu clips hat_off_aq, hat_hold_aq, hat_on_aq, hat_off_self_aq, hat_on_self_aq, aquatic_hat_care; exporter standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic-hat; manifest art/source/motion-corrections/manifest.json"
-    },
-    "registered_in": "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json",
-    "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
-    "manifest": "standards/yukkuri-library/interactions/marisa-aquatic-hat/manifest.json",
-    "status": "pending_user_review",
-    "scope": "The aquatic Marisa's own hat, a separate object from the land Marisa hat (user 2026-10-19: deeper, rounder, like a boat hull). One triangle set serves the worn hat, the removed item (SourceModel marisa_aquatic), damage and pieces, and turned over by the marisa_hat_turned transform the hat boat; its stepped cavity is exported as convex polygon sections; hat provisions reuse the care-props forage pile on this cavity. The land bow is wrapped onto the round band by a shear that keeps all its contacts. Its badge mount, braid-rescue hat height and the aquatic hat clips are re-exported from this hat; the clips hand the hat to the hat entity within 0.0005 model units (check_motion.py). Offline preview only, awaiting game verification.",
-    "references": "wiki/art-references/ehentai/works/EH22.md"
-  },
   "food_mash_serving": {
     "source_exporter": "standards/yukkuri-library/drafts/consumables/build.py",
     "editable_source": "standards/yukkuri-library/drafts/consumables/assembled/food_mash_serving/food_mash_serving.bbmodel",

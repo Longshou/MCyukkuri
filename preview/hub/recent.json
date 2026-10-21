@@ -18,35 +18,14 @@
         "制作源登记为待确认草稿，尚未替换游戏素材。"
       ],
       "steps": [
-        {
-          "title": "中枢外露 · 大创口修订",
-          "caption": "整只比例、近看、破裂和侧视；真实三维创腔，尚未接入游戏。",
-          "image": "body-marks/core-cavity.png"
-        },
-        {
-          "title": "完整角色",
-          "caption": "当前角色网格、贴图和位置适配的离线材质提案。",
-          "image": "body-marks/overview.png"
-        },
-        {
-          "title": "纹样局部",
-          "caption": "局部放大核对霉斑粉霜、面皮裂口、浅色旧疤与尘土。",
-          "image": "body-marks/details.png"
-        }
+        {"title": "中枢外露 · 大创口修订", "caption": "整只比例、近看、破裂和侧视；真实三维创腔，尚未接入游戏。", "image": "body-marks/core-cavity.png"},
+        {"title": "完整角色", "caption": "当前角色网格、贴图和位置适配的离线材质提案。", "image": "body-marks/overview.png"},
+        {"title": "纹样局部", "caption": "局部放大核对霉斑粉霜、面皮裂口、浅色旧疤与尘土。", "image": "body-marks/details.png"}
       ],
       "gallery": [
-        {
-          "src": "body-marks/comparison.png",
-          "label": "旧图形与新提案"
-        },
-        {
-          "src": "body-marks/stages.png",
-          "label": "霉斑与脏污阶段"
-        },
-        {
-          "src": "body-marks/injuries.png",
-          "label": "受伤补充"
-        }
+        {"src": "body-marks/comparison.png", "label": "旧图形与新提案"},
+        {"src": "body-marks/stages.png", "label": "霉斑与脏污阶段"},
+        {"src": "body-marks/injuries.png", "label": "受伤补充"}
       ]
     },
     {
@@ -288,11 +267,6 @@
           "body": "亲油以自然两节辫长托住孩子，沿近侧帽缘低位回护，支撑稳定后松开。",
           "kind": "playback",
           "scene": "braid_rescue"
-        },
-        {
-          "title": "独立的水生帽",
-          "body": "佩戴、摘下、碎片与翻转船体共用一份制作源；船体席位、粮堆和接触读取更深、更圆的帽腔。当前为离线模型对照，等待游戏内确认。",
-          "image": "aquatic-hat/aquatic-hat.png"
         }
       ],
       "gallery": [
@@ -302,7 +276,7 @@
         },
         {
           "src": "aquatic-hat/aquatic-hat.png",
-          "label": "水生帽：佩戴、船体与帽腔对照（待试玩）"
+          "label": "普通与水生魔理沙共用原帽型；水生帽仅放大为 1.5 倍"
         }
       ],
       "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md"

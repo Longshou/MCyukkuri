@@ -115,9 +115,8 @@ public final class HatCareGeometry {
     private static int find(int[] roots,int i){while(roots[i]!=i){roots[i]=roots[roots[i]];i=roots[i];}return i;}
 
     /**
-     * Solid wall strips from the selected hull's exported cavity sections.  Land data has rectangles;
-     * the aquatic data supplies narrow z strips that follow its rounded cavity, so no care pose can
-     * enter the empty corners of the old rectangular land hat.
+     * Solid walls from the shared hat's exported cavity sections. The hull unit applies the
+     * aquatic size multiplier to the same supported interior used by the ordinary hat.
      */
     private static Map<HatVessel.Mode,List<AABB>> readWalls(){
         var result=new EnumMap<HatVessel.Mode,List<AABB>>(HatVessel.Mode.class);
@@ -137,11 +136,11 @@ public final class HatCareGeometry {
                 double zMin=Double.POSITIVE_INFINITY,zMax=Double.NEGATIVE_INFINITY;
                 for(var strip:strips){
                     zMin=Math.min(zMin,strip[2]);zMax=Math.max(zMax,strip[3]);
-                    // Within each exported z band, the two side slabs exactly bound its rounded width.
+                    // Within each exported z band, the two side slabs bound the exported width.
                     walls.add(new AABB(-brimX,lower,strip[2],strip[0],upper,strip[3]));
                     walls.add(new AABB(strip[1],lower,strip[2],brimX,upper,strip[3]));
                 }
-                // The front and rear slabs close the strip union without filling the rounded cavity between bands.
+                // The front and rear slabs close the strip union without filling the cavity between bands.
                 walls.add(new AABB(-brimX,lower,-brimZ,brimX,upper,zMin));
                 walls.add(new AABB(-brimX,lower,zMax,brimX,upper,brimZ));
                 upper=lower;

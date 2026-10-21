@@ -21,8 +21,8 @@ import org.joml.Vector3f;
  *  Hat units are the prop's, unscaled (HatBoatEntity.unit() blocks each). */
 public final class HatVessel {
     /**
-     * A hull keeps its authored geometry after launch.  Do not infer this from a currently resolved owner: boats stay
-     * loaded while their owner does not, and an aquatic vessel is a different physical object, not a scaled land hat.
+     * Both variants use the same authored hat shape. Aquatic size is applied by the hull unit,
+     * so geometry remains available even while the owner is unloaded.
      */
     private static final class Profile {
         final JsonObject data,bowl,delivery;
@@ -55,7 +55,7 @@ public final class HatVessel {
         }
     }
     private static final Profile LAND=new Profile("/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json");
-    private static final Profile AQUATIC=new Profile("/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json");
+    private static final Profile AQUATIC=LAND;
     private static final JsonObject DATA=LAND.data;
     /** On dry ground (NEST: the crown pressed flat under it) or afloat (a boat, or floated at a bank). */
     public enum Mode {

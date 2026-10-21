@@ -28,8 +28,6 @@ BIRTH_CLIPS=('labor','boat_labor','midwife','postpartum','first_wake','hat_hold'
 BADGE_CLIPS=('snatch_pull','stand_ground','offer_bite')
 # Worried comfort lick for an injured mate or kin, exported alone by --export-comfort.
 COMFORT_CLIPS=('comfort_lick',)
-# Clips that carry or tend the aquatic Marisa's own hat (marisa_aquatic_hat_vessel.json), exported alone by --export-aquatic-hat.
-AQUATIC_HAT_CLIPS=('hat_off_aq','hat_hold_aq','hat_on_aq','hat_off_self_aq','hat_on_self_aq','aquatic_hat_care')
 TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harvest','nest_place','nest_spread','greet',
                 'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
@@ -702,11 +700,10 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
         return [{'bone':i,'channel':'rotation','keys':[[round(t,8),*c['braid_fold']] for t in samples]}
                 for i,b in enumerate(model['bones']) if b['name'] in ('hand_left','hand_right')]
     if action != 'aquatic_hat_care': return []
-    rig = hat['Rig'](model, root); metrics = hat['metrics_for']('aquatic')
+    rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
     pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
-    anchor = np.array(metrics['anchor_worn']); k = metrics['aquatic_scale']
-    # the aquatic hat's own brim point, on the hat as drawn (fitted brim scaled about the anchor)
-    brim = hat['seat'](rig, 'aquatic', anchor, k)+k*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
+    anchor = np.array(metrics['anchor_worn'])
+    brim = anchor+metrics['aquatic_scale']*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
     rows = {name: [] for name in ('position', 'rotation', 'scale', 'tip_rotation', 'tip_scale')}
     previous = None
     for i, t in enumerate(samples):
@@ -783,17 +780,8 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def rare_form_bases():
-    """Rare forms whose runtime motion entry is a copy of their root base model's (scripts/export_rare_forms.py)."""
-    forms=json.loads((ROOT/'standards/yukkuri-library/subspecies/rare-forms/recipe.json').read_text(encoding='utf-8'))['forms']
-    def base(form):return base(forms[form]['base_form']) if 'base_form' in forms[form] else forms[form]['base']
-    return {form:base(form) for form in forms}
-
-
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False,
-                          include_aquatic_hat=False, trial=None):
-    """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips.
-    include_aquatic_hat also refreshes rare forms' copies of the patched clips; trial writes the resource there only."""
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False):
+    """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
     import placement_fit
@@ -803,15 +791,13 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge or include_comfort else None
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
-    names=AQUATIC_HAT_CLIPS if include_aquatic_hat else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    names=COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     birth_poses={'format':1,'units':'model_pixels','ticks_per_second':20,'variants':{}}
-    copies=rare_form_bases() if include_aquatic_hat else {}
     for ident,revision in payload['models'].items():
-        if ident in copies:continue  # refreshed below from its base, as export_rare_forms copies it
         model=placement_fit.fitted(ROOT/f'src/main/resources/assets/mcyukkuri/yukkuri/{ident}.json',fits)
         root=next(i for i,bone in enumerate(model['bones']) if bone['name']=='root')
         pivot=np.array(model['bones'][root]['pivot']);raw=np.array(model['vertices']).reshape(-1,8)
@@ -842,31 +828,15 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
                 track['bone']=revision['bone_names'].index(name)
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
-    for form,base in copies.items():
-        if form not in payload['models'] or base not in payload['models']:continue
-        source,target=payload['models'][base],payload['models'][form]
-        refreshed={name:json.loads(json.dumps(source['clips'][name])) for name in names if name in source['clips']}
-        if not refreshed:continue
-        assert source['bone_names']==target['bone_names'],form
-        target['clips'].update(refreshed)
-        print('Copied refreshed lore clips to rare form:',form,'from',base,sorted(refreshed),flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='aquatic-hat-20261021-v31' if include_aquatic_hat else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
-    if trial:
-        Path(trial).mkdir(parents=True,exist_ok=True)
-        (Path(trial)/'motion_corrections.json').write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-        return
+    payload['revision']='comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
                        ('braid_rescue_recipe',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json'),
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
-                       ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json'),
-                       *((('lore_hat',here/'hat.py'),
-                          ('aquatic_hat_vessel',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/marisa_aquatic_hat_vessel.json'),
-                          ('aquatic_hat_prop',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_props/accessory_marisa_aquatic.json'))
-                         if include_aquatic_hat else ())):
+                       ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
         entry[field]=path.relative_to(ROOT).as_posix();entry[field+'_sha256']=hashlib.sha256(path.read_bytes()).hexdigest()
     if include_birth:
         pose_path=resource.parent/'live_birth_pose.json'
@@ -886,12 +856,9 @@ if __name__=='__main__':
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
-    parser.add_argument('--export-aquatic-hat',action='store_true',help='Export the aquatic hat clips (AQUATIC_HAT_CLIPS) only, and their rare-form copies.')
-    parser.add_argument('--trial',help='With --export-aquatic-hat: write motion_corrections.json to this directory instead of the runtime.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
     if args.export_carry:export_distress_clips(include_carry=True)
     if args.export_badge:export_distress_clips(include_badge=True)
     if args.export_comfort:export_distress_clips(include_comfort=True)
-    if args.export_aquatic_hat:export_distress_clips(include_aquatic_hat=True,trial=args.trial)

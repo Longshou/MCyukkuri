@@ -297,20 +297,6 @@
         -0.6
       ],
       "diameter": 1.6
-    },
-    "accessory_marisa_aquatic": {
-      "part": "hat_band",
-      "point": [
-        4.9067,
-        12.155,
-        -4.5666
-      ],
-      "normal": [
-        0.4061,
-        0.0,
-        -0.9138
-      ],
-      "diameter": 1.9
     }
   }
 }

@@ -224,7 +224,7 @@
   - `recipe.json` 写时长、循环、幅度、表情编排、门控与出处。
   - `author.py` 的 `state()` 给出每个时刻的整体变换，只驱动 `root`，包括缩放、旋转（Rz·Ry·Rx）、抬升和水平位移。
   - 手部骨骼的小幅动作另加：魔理沙挥辫、鬓发ぴこぴこ、分娩时侧发颤抖。
-  - 带 `hat` 块的片段由 `hat.py` 求解，额外驱动 `hat_follow`（帽子与蝴蝶结整体，放下时沿帽子轴向把帽冠压扁到陆地或水上的比例）、`hand_right`（辫子，旋转加沿辫长缩放）和辫梢 `hand_right_tip`、`hand_right_ribbon`（卷住帽檐并抵消辫长缩放）。帽子的终点就是游戏放下帽子实体的位置，普通帽取自[帽子容器](../../../interactions/marisa-hat-vessel/README.md)的 `hat_vessel.json`；`reverse` 的片段按时间倒放。水生版本（`*_aq` 与 `aquatic_hat_care`）取[水生帽](../../../interactions/marisa-aquatic-hat/README.md)的 `marisa_aquatic_hat_vessel.json`，帽子按实际画出的位置落座（位置适配后的帽檐，绕 `anchor_worn` 放大 1.5 倍），末帧与帽子实体重合；`author.py --export-aquatic-hat` 只重导这六段，并刷新稀有形态的复制件。普通帽片段的算法与数据不变。
+  - 带 `hat` 块的片段由 `hat.py` 求解，额外驱动 `hat_follow`（帽子与蝴蝶结整体，放下时沿帽子轴向把帽冠压扁到陆地或水上的比例）、`hand_right`（辫子，旋转加沿辫长缩放）和辫梢 `hand_right_tip`、`hand_right_ribbon`（卷住帽檐并抵消辫长缩放）。帽子的终点就是游戏放下帽子实体的位置，取自[帽子容器](../../../interactions/marisa-hat-vessel/README.md)的 `hat_vessel.json`；`reverse` 的片段按时间倒放。水生版本让未缩放的帽子落在大帽的锚点上，游戏再按 1.5 倍缩放帽子骨骼。
 - **编译**
   - 由 [contact-safe](../contact-safe/README.md) 第 9 版的 `compile_revision` 逐形态编译。
   - 每 0.04 秒采样一次，按可见网格最低点落地，所以前倾时绕着地面接触点倾斜。
