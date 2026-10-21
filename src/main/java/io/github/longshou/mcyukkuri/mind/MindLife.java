@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.mind;
 
+import net.minecraft.world.level.biome.Biome;
+
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -226,6 +228,10 @@ public final class MindLife {
         if (threat != Reactions.Threat.Stage.NONE) put("threat", 1.5f);
         if (life.temperature().cold()) put("cold", 1);
         if (life.wetness() >= 60) put("soaked", 1);
+        // The nearby weather is perceptible under a roof too; shelter and home still provide their ordinary relief.
+        if (entity.level().isRaining() && entity.level().getBiome(entity.blockPosition()).value()
+                .getPrecipitationAt(entity.blockPosition()) == Biome.Precipitation.RAIN)
+            put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
         if (identity == Identity.STRAY) put("homeless", .3f);
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()) put("shunned", 1);
         surroundings(identity);

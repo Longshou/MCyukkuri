@@ -43,10 +43,10 @@ import net.minecraft.world.phys.HitResult;
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
 public final class PredatorLife implements EcologyRoutine {
     /** Acquisition stays within a loaded local view; an active hunt uses bounded path segments to continue past it. */
-    private static final double HUNT_RANGE = 30;
+    private static final double HUNT_RANGE = 60;
     /** Leave margin below the predator-only follow range so a moving target is still reachable by each path search. */
     private static final double FLIGHT_PATH_SEGMENT = 24;
-    private static final double PATROL_RADIUS = 30;
+    private static final double PATROL_RADIUS = 60;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
     private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL }
     private final YukkuriEntity animal;
@@ -181,7 +181,8 @@ public final class PredatorLife implements EcologyRoutine {
     /** Read-only status detail; StatusKey owns the command-facing key. */
     public String describe() {
         return "task=" + task.name().toLowerCase() + " target=" + (prey == null ? "none" : "#" + prey.getId())
-                + " retaliation=" + retaliation + " blocking=" + blocking();
+                + " retaliation=" + retaliation + " huntRange=" + HUNT_RANGE
+                + " preySpeed=" + (prey == null ? 0 : prey.getAttributeValue(Attributes.MOVEMENT_SPEED)) + " blocking=" + blocking();
     }
     private String blocking() {
         if (!EcologyRoutines.predator(animal)) return "not_predator";
@@ -304,8 +305,14 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if (wantsHunt()) {
             prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(HUNT_RANGE, 8, HUNT_RANGE), this::mayHunt).stream()
-                    .min(Comparator.comparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal())).orElse(null); // sweetened prey is preferred
-            if (prey != null) { task = Task.TAKEOFF; return true; }
+                    .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
+                            .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
+                            .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal())).orElse(null);
+            if (prey != null) {
+                GameplayLog.event(animal,"predator","prey selected target={} stage={} speed={} slow_child={} range={} distance={}",
+                        prey.getUUID(),prey.family().stage(),prey.getAttributeValue(Attributes.MOVEMENT_SPEED),slowChild(prey),HUNT_RANGE,animal.distanceTo(prey));
+                task = Task.TAKEOFF; return true;
+            }
             if (restrain()) { cooldown = 20; return false; }
         }
         if (patrolWait == 0 && order() != Order.RETURN && animal.family().adult() && animal.life().energy() > 45
@@ -321,6 +328,10 @@ public final class PredatorLife implements EcologyRoutine {
             patrolWait = 80;
         }
         cooldown = 20; return false;
+    }
+    private boolean slowChild(YukkuriEntity target) {
+        return !target.family().adult() && !target.family().subadult()
+                && target.getAttributeValue(Attributes.MOVEMENT_SPEED) < .18;
     }
     private boolean edibleDrop(ItemEntity item) {
         return item.isAlive() && !item.hasPickUpDelay() && animal.hasLineOfSight(item)
@@ -386,8 +397,8 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private void tickGoal() {
         ticks++;
-        if (!ready() || ticks > 400) {
-            GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>400?"timeout":"not_ready",ticks);
+        if (!ready() || ticks > 800) {
+            GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>800?"timeout":"not_ready",ticks);
             stop(); return;
         }
         if (animal.life().energy() < 15 && task != Task.LAND) land();

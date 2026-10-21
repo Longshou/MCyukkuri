@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
@@ -778,6 +779,7 @@ public final class FamilyLife {
         var pregnancy=brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind!=FamilyData.BirthKind.EGG) { task=Task.BROOD;taskTicks=0;return true; }
         if(!adult()) {
+            if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
             var home=earlyHomeStand();
             if(home!=null) {
@@ -870,7 +872,9 @@ public final class FamilyLife {
      * formula. Attachment only narrows or releases the radius while the child is still dependent;
      * independent subadults never enter this follow/search path.
      */
+    private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
     private double familyRadiusSqr() {
+        if(exploring()&&!familyTravelling())return Math.pow(entity.roaming().radius()+2,2);
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
         var personality=entity.life().personality();
         double radius=FAMILY_FOLLOW_DISTANCE*personality.exploreMultiplier();
@@ -882,6 +886,7 @@ public final class FamilyLife {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
+                &&(!other.family().exploring()||other.life().hasUrgentNeed())
                 &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
@@ -894,13 +899,13 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
-        if(familyTravelling())return null;
+        if(familyTravelling()||exploring())return null;
         if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
     }
     /** Dependent walkers follow their real family on the march and on an aborted move's return route. */
-    private boolean familyTravelling() {
+    public boolean familyTravelling() {
         if(entity.settlement().familyMarching())return true;
         for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
                 &&parent.isAlive()&&parent.settlement().familyMarching())return true;
@@ -919,6 +924,7 @@ public final class FamilyLife {
     }
     /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
     public boolean allowsIdleWalk(Vec3 destination) {
+        if(stage==Stage.BABY)return TravelRange.babyDestination(entity,BlockPos.containing(destination));
         if(!entity.childhood().shouldStayWithParents()||earlyHomeStand()==null)return true;
         var home=entity.habitat().shelter();
         return home!=null&&home.contains(BlockPos.containing(destination));

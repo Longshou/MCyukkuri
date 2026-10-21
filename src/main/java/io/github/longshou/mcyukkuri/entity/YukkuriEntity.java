@@ -98,7 +98,6 @@ import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
-import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -208,7 +207,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         this.house = new HouseLife(this);
         this.body = new BodyLife(this);
         this.operations = new OperationLife(this);
-        this.navigation = new GroundPathNavigation(this,level);
+        this.navigation = new YukkuriGroundNavigation(this,level);
         this.moveControl = new HouseCrawlControl(this);
         setPathfindingMalus(PathType.WATER, -1);
         setPathfindingMalus(PathType.WATER_BORDER, 8);
@@ -315,7 +314,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         navigation.stop();
         sync().predatorFlight(flying); setNoGravity(flying); fallDistance = 0;
         navigation = flying ? new FlyingPathNavigation(this, level())
-                : new GroundPathNavigation(this, level());
+                : new YukkuriGroundNavigation(this, level());
         moveControl = flying ? new FlyingMoveControl(this, 30, true)
                 : new HouseCrawlControl(this);
         setDeltaMovement(getDeltaMovement().scale(.25));
@@ -815,6 +814,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private YukkuriInteractions interactions;
     // Assigned only inside Mob.registerGoals; it owns the selector's exact Goal identity bindings.
     private YukkuriGoals goals;
+    public RoamingGoal roaming() { return goals == null ? null : goals.roaming(); }
     private YukkuriSync sync() {
         if (sync == null) sync = new YukkuriSync(this);
         return sync;

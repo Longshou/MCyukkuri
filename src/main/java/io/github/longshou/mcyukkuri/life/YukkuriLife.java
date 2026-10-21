@@ -438,10 +438,11 @@ public final class YukkuriLife {
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
         if (canEat() && EventHooks.canEntityGrief(level(), entity)) {
-            targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), item ->
+            targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
                     .sorted(Comparator.comparingInt((ItemEntity item) -> FoodTaste.rank(item.getItem()))
                             .thenComparingDouble(entity::distanceToSqr))
+                    .filter(item -> TravelRange.babyDestination(entity,item.blockPosition()))
                     .filter(item -> entity.distanceToSqr(item)<.5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(),false))
                     .findFirst().orElse(null);
             targetBlock = nearestCare(CareBlock.Kind.BOWL, true);

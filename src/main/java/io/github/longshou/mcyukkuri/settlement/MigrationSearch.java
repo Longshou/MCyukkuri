@@ -48,7 +48,7 @@ final class MigrationSearch {
         from = group.center.immutable(); danger = group.threatPos == null ? null : group.threatPos.immutable();
         oldSite = group.siteId; fleeing = danger != null && group.threat > 0;
         afloat = Migration.afloat(group);
-        min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get(); max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get());
+        min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get(); max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
         this.forced = forced; this.reason = reason;
         hungry = "famine".equals(reason) || "worn_out".equals(reason);
         sites = SettlementData.get(level).sites().stream().map(site -> site.id).toList();
@@ -61,7 +61,7 @@ final class MigrationSearch {
                 && fleeing == (group.threatPos != null && group.threat > 0)
                 && afloat == Migration.afloat(group)
                 && min == YukkuriConfig.MIGRATE_MIN_DISTANCE.get()
-                && max == Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get());
+                && max == Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
     }
     void cancel() {
         var level = world.get(); var entity = owner.get();

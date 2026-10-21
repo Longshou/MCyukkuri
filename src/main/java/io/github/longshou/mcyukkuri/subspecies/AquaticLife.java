@@ -452,7 +452,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         // Her home is afloat. Shore visits end as soon as actual food/toilet/hat-care needs allow.
         bank = null; water = null;
         double nearest = Double.MAX_VALUE;
-        int range=shore.coastal(entity.blockPosition())?8:16;
+        int range=shore.coastal(entity.blockPosition())?16:32;
         for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-range,-2,-range), entity.blockPosition().offset(range,2,range))) {
             if (!HatBoatRoute.calmSurface(level(), p)) continue;
             for (var side : Direction.Plane.HORIZONTAL) {
@@ -951,7 +951,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (daily.tick(boat)) { activity = daily.activity(); return; }
         if (elapsed%40 == 1 && boat.cargo().remainingCapacity() > 0) seekFloatingFood(boat);
         if (!boat.paddling() && elapsed%160 == 1) {
-            var around = boat.position().add(entity.getRandom().nextInt(11)-5, 0, entity.getRandom().nextInt(11)-5);
+            var around = boat.position().add(entity.getRandom().nextInt(21)-10, 0, entity.getRandom().nextInt(21)-10);
             paddleWithinFamily(boat,around);
         }
         activity = boat.paddling() ? Behaviors.BOAT_PADDLE : Behaviors.BOAT_DRIFT;
@@ -959,12 +959,12 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private boolean seekFloatingFood(HatBoatEntity boat) {
         if(!boat.cargo().paddle()||!EventHooks.canEntityGrief(level(),entity))return false;
         if(floatingSource!=null&&(!floatingSource.isAlive()||floatingSource.hasPickUpDelay()||!floatingSource.isInWater()
-                ||floatingSource.distanceToSqr(boat)>144||!boat.cargo().canStore(floatingSource.getItem())
+                ||floatingSource.distanceToSqr(boat)>576||!boat.cargo().canStore(floatingSource.getItem())
                 ||!familyLife.allowsDestination(boat,floatingSource.position())))floatingSource=null;
         long now=level().getGameTime();
         if(floatingSource==null&&now>=nextFoodSearch){
             nextFoodSearch=now+40;
-            var food=level().getEntitiesOfClass(ItemEntity.class,boat.getBoundingBox().inflate(10,2,10),i->i.isAlive()
+            var food=level().getEntitiesOfClass(ItemEntity.class,boat.getBoundingBox().inflate(20,2,20),i->i.isAlive()
                     &&!i.hasPickUpDelay()&&i.isInWater()&&entity.life().acceptsFood(i.getItem())&&boat.cargo().canStore(i.getItem())
                     &&familyLife.allowsDestination(boat,i.position())).stream()
                     .sorted(Comparator.comparingDouble(boat::distanceToSqr)).limit(5).toList();

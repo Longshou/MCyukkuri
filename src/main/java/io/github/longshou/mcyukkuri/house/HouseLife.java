@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -406,8 +407,9 @@ public final class HouseLife implements EcologyRoutine {
     private record Source(SupplyPileBlockEntity pile, BlockPos pos, double distance) {}
     private void findSource(HouseNestBlockEntity value) { locate(value, LOCATE_RADIUS); }
     private void locate(HouseNestBlockEntity value, int radius) {
+        radius = TravelRange.search(entity, radius);
         clearSource(); var candidates = new ArrayList<Source>();
-        // The search box intersects at most four loaded chunks; inspect their real pile entries once.
+        // Inspect real pile entries only in loaded chunks within the travel radius.
         for (var pile : new SupplyPileView((ServerLevel)entity.level()).nearby(entity.blockPosition(), radius, 1))
             if (wantedResource(value, pile))
                 candidates.add(new Source(pile, pile.getBlockPos(), entity.distanceToSqr(pile.pickupPosition())));

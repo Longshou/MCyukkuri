@@ -50,11 +50,11 @@ public final class ForageTrip extends Goal {
     public enum Role { NONE, FATHER, MOTHER, CHIEF, HUNTER }
     /** MUSTER: a hunter waiting at the gathering point for the party to leave. */
     public enum Phase { NONE, MUSTER, OUT, GATHER, BACK }
-    public static final int FATHER_BASE = 24, MOTHER_BASE = 10, MAX_RADIUS = 96, MOTHER_MAX = 64;
+    public static final int FATHER_BASE = 48, MOTHER_BASE = 20, MAX_RADIUS = 192, MOTHER_MAX = 128;
     public static final int FATHER_LOAD = 6, MOTHER_LOAD = 4;
     /** Game ticks the father may stay away before the mother counts him as not coming back (about 2.5 minutes). */
     public static final int LONG_AWAY = 3000;
-    private static final int FATHER_MAX_TICKS = 3600, MOTHER_MAX_TICKS = 2400, FATHER_INTERVAL = 4000, MOTHER_INTERVAL = 2400;
+    private static final int FATHER_MAX_TICKS = 7200, MOTHER_MAX_TICKS = 4800, FATHER_INTERVAL = 4000, MOTHER_INTERVAL = 2400;
 
     private final YukkuriEntity entity;
     private final PlantBedding plants;

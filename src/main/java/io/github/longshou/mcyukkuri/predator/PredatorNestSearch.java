@@ -29,7 +29,7 @@ final class PredatorNestSearch {
 
     PredatorNestSearch(ServerLevel level, YukkuriEntity animal, boolean weave) {
         world = new WeakReference<>(level); origin = animal.blockPosition().immutable(); this.weave = weave;
-        cells = BlockPos.betweenClosed(origin.offset(-10, -3, -10), origin.offset(10, 8, 10)).iterator();
+        cells = BlockPos.betweenClosed(origin.offset(-20, -3, -20), origin.offset(20, 8, 20)).iterator();
     }
     boolean current(ServerLevel level, YukkuriEntity animal) {
         // Small movement does not restart thousands of probes; assignment still checks the actual distance.
@@ -53,7 +53,7 @@ final class PredatorNestSearch {
                     if (!cells.hasNext()) {
                         if (weaving || !weave) return Result.NOT_FOUND;
                         weaving = true;
-                        cells = BlockPos.betweenClosed(origin.offset(-8, 1, -8), origin.offset(8, 6, 8)).iterator();
+                        cells = BlockPos.betweenClosed(origin.offset(-16, 1, -16), origin.offset(16, 6, 16)).iterator();
                     }
                     pending = cells.next().immutable();
                 }

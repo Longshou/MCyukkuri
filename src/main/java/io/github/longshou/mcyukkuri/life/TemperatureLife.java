@@ -193,8 +193,8 @@ public final class TemperatureLife {
         if (EcologyMovement.captain(entity)) return planAfloat();
         var candidates = new ArrayList<Refuge>();
         var center = entity.blockPosition();
-        var sources = heatSources(center, 10);
-        for (var pos : BlockPos.betweenClosed(center.offset(-6, -2, -6), center.offset(6, 2, 6))) {
+        var sources = heatSources(center, 20);
+        for (var pos : BlockPos.betweenClosed(center.offset(-TravelRange.search(entity,6), -2, -TravelRange.search(entity,6)), center.offset(TravelRange.search(entity,6), 2, TravelRange.search(entity,6)))) {
             if (!safeStand(pos)) continue;
             if (!mayUse(pos)) continue;
             var at = sample(pos, sources);
@@ -218,8 +218,8 @@ public final class TemperatureLife {
         var boat = EcologyMovement.boat(entity);
         var center = BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ());
         var candidates = new ArrayList<Refuge>();
-        var sources = heatSources(center, 10);
-        for (var at : BlockPos.betweenClosed(center.offset(-8, 0, -8), center.offset(8, 0, 8))) {
+        var sources = heatSources(center, 20);
+        for (var at : BlockPos.betweenClosed(center.offset(-16, 0, -16), center.offset(16, 0, 16))) {
             if (!HatBoatRoute.quietSurface(level(), at)) continue;
             var feet = at.above();
             if (!refuge(sample(feet, sources))) continue;
@@ -245,7 +245,7 @@ public final class TemperatureLife {
         return comfortable(at.felt()) && (seekingWarmth || at.shade());
     }
     private boolean mayUse(BlockPos pos) {
-        if (!level().hasChunkAt(pos)) return false;
+        if (!TravelRange.babyDestination(entity,pos) || !level().hasChunkAt(pos)) return false;
         var state = level().getBlockState(pos);
         if (state.getBlock() instanceof ShelterBlock && !level().hasChunkAt(ShelterBlock.root(pos, state))) return false;
         var owner = ShelterBlock.shelter(level(), pos);

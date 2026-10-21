@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -13,6 +14,7 @@ public final class SurfaceApproach {
 
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
         var level = actor.level();
+        if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
         if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (!level.noCollision(actor, body)) return false;
@@ -37,6 +39,7 @@ public final class SurfaceApproach {
     /** A step may begin with the body partly over the edge it just climbed onto. */
     private static boolean supportedStep(YukkuriEntity actor, Vec3 feet) {
         var level = actor.level();
+        if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
         if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (!level.noCollision(actor, body)) return false;
@@ -55,6 +58,8 @@ public final class SurfaceApproach {
 
     /** Never substitute a straight line for a route around a step or obstruction. */
     public static boolean walk(YukkuriEntity actor, Vec3 destination, double speed) {
+        if (TravelRange.keepBabyHome(actor) && !TravelRange.babyDestination(actor,BlockPos.containing(destination))) { halt(actor); return false; }
+        if (!Reactions.Weather.allowsStep(actor, BlockPos.containing(destination))) { halt(actor); return false; }
         if (arrived(actor, destination)) { halt(actor); return true; }
         if (clearLastStep(actor, destination)) {
             actor.getNavigation().stop();

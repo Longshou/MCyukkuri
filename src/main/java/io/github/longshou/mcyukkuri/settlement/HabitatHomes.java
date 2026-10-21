@@ -65,10 +65,10 @@ final class HabitatHomes {
         HomeSearch(HabitatHomes owner) {
             dimension=owner.level().dimension();anchor=owner.o.entity().blockPosition().immutable();
             need=owner.o.householdNeed();
-            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),anchor.offset(-12,-2,-12),anchor.offset(12,2,12)));
+            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),anchor.offset(-24,-2,-24),anchor.offset(24,2,24)));
             cores.sort(Comparator.comparingDouble(value->fit(value.capacity(),value.capacity()-value.usedSlots(),need,
                     owner.o.entity().distanceToSqr(Vec3.atBottomCenterOf(value.getBlockPos())))));
-            cells=BlockPos.betweenClosed(anchor.offset(-8,-2,-8),anchor.offset(8,2,8)).iterator();
+            cells=BlockPos.betweenClosed(anchor.offset(-16,-2,-16),anchor.offset(16,2,16)).iterator();
         }
         boolean current(HabitatHomes owner) { return dimension.equals(owner.level().dimension())&&anchor.distSqr(owner.o.entity().blockPosition())<=12*12
                 &&need==owner.o.householdNeed(); }
@@ -93,8 +93,8 @@ final class HabitatHomes {
         final Set<UUID> movedIds=new HashSet<>();
         RelocationSearch(HabitatHomes owner,ShelterBlockEntity value) {
             old=value.getBlockPos();dimension=owner.level().dimension();oldCore=value;minimum=Math.max(value.capacity()+2,owner.o.householdNeed()+3);
-            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),owner.o.entity().blockPosition().offset(-24,-2,-24),owner.o.entity().blockPosition().offset(24,2,24)));
-            cells=BlockPos.betweenClosed(owner.o.entity().blockPosition().offset(-30,-2,-30),owner.o.entity().blockPosition().offset(30,2,30)).iterator();
+            cores=new ArrayList<>(Homes.loadedWithin(owner.level(),owner.o.entity().blockPosition().offset(-48,-2,-48),owner.o.entity().blockPosition().offset(48,2,48)));
+            cells=BlockPos.betweenClosed(owner.o.entity().blockPosition().offset(-60,-2,-60),owner.o.entity().blockPosition().offset(60,2,60)).iterator();
             var original=new ArrayList<YukkuriEntity>();
             for(var id:value.residentIds())if(owner.level().getEntity(id) instanceof YukkuriEntity member&&member.isAlive()
                     &&member.distanceToSqr(owner.o.entity())<=48*48)original.add(member);
@@ -538,9 +538,11 @@ final class HabitatHomes {
     private boolean startRoam() {
         roamWait=300;
         for(int attempt=0;attempt<8;attempt++) {
-            int dx=o.entity().getRandom().nextInt(41)-20,dz=o.entity().getRandom().nextInt(41)-20;
+            int dx=o.entity().getRandom().nextInt(81)-40,dz=o.entity().getRandom().nextInt(81)-40;
             if(dx*dx+dz*dz<100)continue;
-            var ground=level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,o.entity().blockPosition().offset(dx,0,dz));
+            var column=o.entity().blockPosition().offset(dx,0,dz);
+            if(!level().hasChunkAt(column))continue;
+            var ground=level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,column);
             if(!level().hasChunkAt(ground)||!o.entity().life().dryStand(ground)||!o.entity().life().reachable(ground,false))continue;
             SearchBudget.cancel(level(),o.entity(),Purpose.DIG,0);
             roamTarget=ground;o.task(Task.ROAM);o.resetTicks();return true;

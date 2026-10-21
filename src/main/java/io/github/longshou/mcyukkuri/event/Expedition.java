@@ -25,9 +25,9 @@ public final class Expedition {
         var members=peers.stream().filter(e -> eligibleMember(captain,e)).limit(3).toList();
         if(members.isEmpty())return null;
         if(captain.getRandom().nextInt(YukkuriConfig.BIOME_EXPEDITION_ONE_IN.get())==0){var distant=discoverFar(captain,members);if(distant!=null)return distant;}
-        for(BlockPos pos:BlockPos.betweenClosed(captain.blockPosition().offset(-10,-1,-10),captain.blockPosition().offset(10,1,10))) {
+        for(BlockPos pos:BlockPos.betweenClosed(captain.blockPosition().offset(-20,-1,-20),captain.blockPosition().offset(20,1,20))) {
             double distance=pos.distSqr(captain.blockPosition());
-            if(distance>=36&&distance<=100&&captain.level().hasChunkAt(pos)&&captain.level().getBlockState(pos).is(Blocks.SHORT_GRASS)) {
+            if(distance>=144&&distance<=400&&captain.level().hasChunkAt(pos)&&captain.level().getBlockState(pos).is(Blocks.SHORT_GRASS)) {
                 Scene s=form(captain,members,pos);if(s!=null)return s;
             }
         }
@@ -39,7 +39,7 @@ public final class Expedition {
         var here=level.getBiome(captain.blockPosition()).unwrapKey().orElse(null);
         if(here==null)return null;
         for(int i=0;i<12;i++) {
-            double angle=captain.getRandom().nextDouble()*Math.PI*2,distance=24+captain.getRandom().nextInt(17);
+            double angle=captain.getRandom().nextDouble()*Math.PI*2,distance=48+captain.getRandom().nextInt(33);
             int x=captain.blockPosition().getX()+(int)Math.round(Math.cos(angle)*distance),z=captain.blockPosition().getZ()+(int)Math.round(Math.sin(angle)*distance);
             if(!level.hasChunkAt(new BlockPos(x,captain.blockPosition().getY(),z)))continue;
             BlockPos destination=new BlockPos(x,level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z),z);
@@ -51,7 +51,7 @@ public final class Expedition {
     private static Scene formFar(YukkuriEntity captain,List<YukkuriEntity> members,BlockPos destination) {
         if(!eligibleCaptain(captain)||members.isEmpty()||members.size()>3||members.stream().anyMatch(e -> !eligibleMember(captain,e)))return null;
         var level=(ServerLevel)captain.level();double distance=destination.distSqr(captain.blockPosition());
-        if(distance<24*24||distance>42*42||!level.hasChunkAt(destination)||!captain.life().dryStand(destination))return null;
+        if(distance<48*48||distance>84*84||!level.hasChunkAt(destination)||!captain.life().dryStand(destination))return null;
         var roster=new ArrayList<YukkuriEntity>();roster.add(captain);roster.addAll(members);
         var s=WildEventData.get(level).start(Kind.EXPEDITION,"expedition-biome",GlobalPos.of(level.dimension(),captain.blockPosition()),
                 roster.stream().map(YukkuriEntity::getUUID).toList(),null,level.getGameTime());
@@ -91,7 +91,7 @@ public final class Expedition {
     public static Scene form(YukkuriEntity captain,List<YukkuriEntity> members,BlockPos destination) {
         if(!eligibleCaptain(captain)||members.isEmpty()||members.size()>3||members.stream().anyMatch(e -> !eligibleMember(captain,e)))return null;
         var level=(ServerLevel)captain.level();double distance=destination.distSqr(captain.blockPosition());
-        if(distance<36||distance>100||!level.hasChunkAt(destination)||!level.getBlockState(destination).is(Blocks.SHORT_GRASS)
+        if(distance<144||distance>400||!level.hasChunkAt(destination)||!level.getBlockState(destination).is(Blocks.SHORT_GRASS)
                 ||!captain.life().dryStand(destination)||!captain.life().reachable(destination,false)
                 ||members.stream().anyMatch(e -> !e.life().reachable(destination,false)))return null;
         var roster=new ArrayList<YukkuriEntity>();roster.add(captain);roster.addAll(members);
@@ -125,7 +125,7 @@ public final class Expedition {
                 } else {if(distant)captain.showReaction("surprise","food_found",70);s.sourceCount=2;s.responses=0;WildEventData.get(level).phase(s,Phase.RESPONDING);}
             }
         }
-        if(distant?s.ticks>=2300:s.ticks>=1200)WildEvents.finish(level,s,Phase.INTERRUPTED,distant?"biome_expedition_timed_out":"local_expedition_timed_out");
+        if(distant?s.ticks>=4600:s.ticks>=2400)WildEvents.finish(level,s,Phase.INTERRUPTED,distant?"biome_expedition_timed_out":"local_expedition_timed_out");
     }
     public static void move(YukkuriEntity e,Scene s) {
         var level=(ServerLevel)e.level();var captain=level.getEntity(s.members.getFirst());

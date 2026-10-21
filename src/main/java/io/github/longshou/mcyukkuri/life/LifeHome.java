@@ -46,8 +46,8 @@ final class LifeHome {
 
     BlockPos nearestDryCover() {
         BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8),o.entity().blockPosition().offset(8,2,8))) {
-            if(!dryStand(pos)||!covered(pos))continue;
+        for(var pos:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
+            if(!TravelRange.babyDestination(o.entity(),pos)||!dryStand(pos)||!covered(pos))continue;
             var owner=ShelterBlock.shelter(o.level(),pos);
             if(owner!=null&&!owner.owns(o.entity().getUUID()))continue;
             double candidate=o.entity().distanceToSqr(Vec3.atBottomCenterOf(pos));
@@ -77,7 +77,7 @@ final class LifeHome {
 
     boolean assignHome(GlobalPos selected) {
         if (!selected.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(selected.pos())
-                || o.entity().distanceToSqr(Vec3.atCenterOf(selected.pos())) > 256) return false;
+                || o.entity().distanceToSqr(Vec3.atCenterOf(selected.pos())) > 64 * 64) return false;
         var wild=ShelterBlock.shelter(o.level(),selected.pos());
         if(wild!=null)return o.entity().habitat().choose(wild);
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
@@ -102,7 +102,7 @@ final class LifeHome {
     boolean assignNaturalHome(BlockPos selected) {
         var shelter=ShelterBlock.shelter(o.level(),selected);
         if(shelter!=null&&!shelter.owns(o.entity().getUUID()))return false;
-        if (o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) > 256 || !dryStand(selected) || !(shelter!=null&&shelter.owns(o.entity().getUUID())&&shelter.sound()||covered(selected))
+        if (o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) > 64 * 64 || !dryStand(selected) || !(shelter!=null&&shelter.owns(o.entity().getUUID())&&shelter.sound()||covered(selected))
                 || !o.reachable(selected, false)) return false;
         var previous=home;
         releaseHome(false); home = GlobalPos.of(o.level().dimension(), selected.immutable()); naturalHome = true;
@@ -152,7 +152,7 @@ final class LifeHome {
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
         if (o.entity().habitat().wildLiver()) return false;
         BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8), o.entity().blockPosition().offset(8,2,8))) {
+        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
             if(ShelterBlock.shelter(o.level(),scan)!=null)continue;
             if (!dryStand(scan) || !covered(scan)) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atBottomCenterOf(scan));
@@ -167,8 +167,8 @@ final class LifeHome {
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
         BlockPos best = null; double distance = Double.MAX_VALUE;
-        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-8,-2,-8), o.entity().blockPosition().offset(8,2,8))) {
-            if (!o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
+        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
+            if (!TravelRange.babyDestination(o.entity(),scan) || !o.level().hasChunkAt(scan) || !(o.level().getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
             if (requireFood && !care.hasFood(o::acceptsFood) || kind == CareBlock.Kind.TOILET && care.waste() >= care.capacity()
                     || kind == CareBlock.Kind.NEST && care.resident() != null && !care.resident().equals(o.entity().getUUID())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
@@ -221,8 +221,8 @@ final class LifeHome {
 
     BlockPos nearestDrink(){
         BlockPos best=null;double distance=Double.MAX_VALUE;
-        for(var water:BlockPos.betweenClosed(o.entity().blockPosition().offset(-6,-2,-6),o.entity().blockPosition().offset(6,1,6))){
-            if(!o.level().hasChunkAt(water)||!o.level().getFluidState(water).is(FluidTags.WATER))continue;
+        for(var water:BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),6),-2,-TravelRange.search(o.entity(),6)),o.entity().blockPosition().offset(TravelRange.search(o.entity(),6),1,TravelRange.search(o.entity(),6)))){
+            if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!o.level().getFluidState(water).is(FluidTags.WATER))continue;
             double d=o.entity().distanceToSqr(Vec3.atCenterOf(water));
             if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
         }

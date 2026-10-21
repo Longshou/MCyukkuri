@@ -322,12 +322,12 @@ class Weather(Field):
         super().__init__(*args, **kw)
         cx, cz = self.cx, self.cz
         self.roof_at = (cx - 22, cz)
-        self.spots = {'shelter': (cx - 22 + 10, cz - 6), 'open': (cx + 26, cz - 6), 'thunder': (cx - 22 + 10, cz + 8), 'pred': (cx + 2, cz + 14), 'marks': (cx + 24, cz + 14),
-                      'orange': (cx + 2, cz - 16)}
+        self.spots = {'shelter': (cx - 22 + 28, cz - 6), 'open': (cx + 26, cz - 6), 'thunder': (cx - 22 + 10, cz + 8), 'pred': (cx + 2, cz + 14), 'marks': (cx + 24, cz + 14),
+                      'orange': (cx + 2, cz - 16), 'dry_life': (cx, cz - 12), 'roaming': (cx, cz)}
         self.anchor = self.spots['shelter']
 
     def features(self):
-        return roof(*self.roof_at)
+        return roof(*self.roof_at, half=4)
 
 
 class Open(Field):

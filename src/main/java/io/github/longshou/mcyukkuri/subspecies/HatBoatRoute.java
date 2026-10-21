@@ -17,7 +17,7 @@ import java.util.Comparator;
 
 /** Bounded, loaded-chunk surface routing. A hat never gains the ability to climb a bank or waterfall. */
 public final class HatBoatRoute {
-    private static final int RANGE = 12, MAX_NODES = 400;
+    private static final int RANGE = 24, MAX_NODES = 1600;
 
     public static boolean calmSurface(Level level, BlockPos pos) {
         if (!level.hasChunkAt(pos) || !level.hasChunkAt(pos.above())) return false;

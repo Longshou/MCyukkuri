@@ -309,6 +309,8 @@ public enum StatusKey {
     EXPRESSION("behavior", "expression", 0, YukkuriEntity::getExpressionId, null),
     LIFE_ACTIVITY("behavior", "life_activity", 0, y -> y.life().activity(), null),
     REACTION("behavior", "reaction", 0, y -> y.status().reactions().describe(), null),
+    ROAMING_STATE("behavior", "roaming", 0, y -> y.roaming() == null ? "unavailable" : y.roaming().describe(), null),
+    WEATHER_STATE("behavior", "weather", 0, y -> y.status().reactions().weather().describe(), null),
     PREDATOR_STATE("behavior", "predator", 0, y -> y.predator().describe(), null),
     PROTECTION_STATE("behavior", "protection", 0, y -> y.grief().describe(), null),
     // ---- treasures (worldview package 10): at most three small finds kept by a free-living individual ------------

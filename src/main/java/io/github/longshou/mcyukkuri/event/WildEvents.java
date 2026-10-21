@@ -218,7 +218,7 @@ public final class WildEvents {
         // Badge arcs keep their own (action-tolerant) safety checks: they play actions that the generic test would read as danger.
         if(s.kind==Kind.BADGE_ARC && s.phase!=Phase.SEPARATED){BadgeArcs.advance(level,s,loaded);return;}
         if(loaded.stream().anyMatch(e -> !safe(e))) { finish(level,s,Phase.INTERRUPTED,"danger_or_unavailable");return; }
-        if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?72*72:32*32))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
+        if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?144*144:64*64))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
         s.ticks++;s.phaseTicks++;data.setDirty();
         if(s.phase==Phase.SEPARATED) {
             if(s.phaseTicks%60==1)for(var e:loaded)e.showReaction("teary","wait_family",60);

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.entity;
 
 /** Stable wire IDs. Values are byte-for-byte legacy spellings, not enum names. */
 public final class Behaviors {
+    public static final String MARISA_EXPLORE = "marisa_explore";
     public static final String ACCESSORY = "accessory";
     public static final String AGITATION_RECOVER = "agitation_recover";
     public static final String ALICE_ACT = "alice_act";

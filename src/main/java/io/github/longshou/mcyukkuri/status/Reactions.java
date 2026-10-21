@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -310,6 +312,7 @@ public final class Reactions {
         private long cooldownUntil, searchAfter, stepAfter;
         private int ticks;
         private boolean spoke;
+        private int searchOffset;
 
         Weather(YukkuriEntity y) { this.y = y; }
 
@@ -320,11 +323,23 @@ public final class Reactions {
                      case SHAKE -> Behaviors.RAIN_SHAKE; default -> Behaviors.IDLE; };
         }
         String describe() { return "weather:" + stage.name().toLowerCase(Locale.ROOT) + " sky=" + sky.name().toLowerCase(Locale.ROOT)
-                + (cover == null ? "" : " cover=" + cover.toShortString()); }
+                + " searchRadius=" + TravelRange.search(y, 16) + " keepDry=" + keepDry(y)
+                + " hungryRain=" + (y.life().nutrition() < 20) + (cover == null ? "" : " cover=" + cover.toShortString()); }
 
         void scan() {
             sky = prey(y) ? Sky.at(y.level(), y.blockPosition()) : Sky.CLEAR;
             if (sky == Sky.CLEAR && stage == Stage.NONE && !y.level().isRaining()) spoke = false;
+        }
+        public static boolean rainAt(YukkuriEntity animal, BlockPos pos) {
+            return Sky.at(animal.level(), pos).wet();
+        }
+        public static boolean keepDry(YukkuriEntity animal) {
+            return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= 20
+                    && !rainAt(animal, animal.blockPosition()) && !BehaviorContinuity.emergency(animal)
+                    && !animal.family().birthDuty() && !animal.family().braidRescueActive();
+        }
+        public static boolean allowsStep(YukkuriEntity animal, BlockPos destination) {
+            return !keepDry(animal) || !rainAt(animal, destination);
         }
         private boolean bothered() {
             return sky.wet() || sky == Sky.SNOW && y.life().temperature().cold();
@@ -347,6 +362,7 @@ public final class Reactions {
         }
         boolean keeps() {
             if (stage == Stage.NONE) return false;
+            if (stage == Stage.WAIT && !rainAt(y, y.blockPosition())) return false;
             if (!free(y) || y.isPanicking() || pressing()) return false;
             return stage == Stage.SHAKE || y.level().isRaining();
         }
@@ -382,8 +398,8 @@ public final class Reactions {
             if (home != null && life.covered(home) && Sky.at(level, home) == Sky.CLEAR && life.reachable(home, false)) return home;
             var origin = y.blockPosition();
             var candidates = new ArrayList<BlockPos>();
-            for (int dx = -16; dx <= 16; dx++) for (int dz = -16; dz <= 16; dz++) {
-                if ((Math.abs(dx) > 8 || Math.abs(dz) > 8) && ((dx + dz) & 1) != 0) continue;
+            int radius = TravelRange.search(y, 16);
+            for (int dx = -radius; dx <= radius; dx++) for (int dz = -radius; dz <= radius; dz++) {
                 int x = origin.getX() + dx, z = origin.getZ() + dz;
                 if (!level.hasChunkAt(new BlockPos(x, origin.getY(), z))) continue;
                 int roof = level.getHeight(Heightmap.Types.MOTION_BLOCKING, x, z);
@@ -391,7 +407,7 @@ public final class Reactions {
                     if (roof <= ry) continue;                          // open sky at this height
                     var pos = new BlockPos(x, ry, z);
                     if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) continue;
-                    if (!life.dryStand(pos) || !life.covered(pos)) continue;
+                    if (!life.dryStand(pos) || !life.covered(pos) || !TravelRange.babyDestination(y, pos)) continue;
                     var owner = ShelterBlock.shelter(level, pos);
                     if (owner != null && !owner.owns(y.getUUID())) continue;
                     candidates.add(pos.immutable());
@@ -399,10 +415,12 @@ public final class Reactions {
                 }
             }
             candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)));
-            int tried = 0;
-            for (var pos : candidates) {
-                if (tried++ >= 8) break;
-                if (life.reachable(pos, false)) return pos;
+            if (!candidates.isEmpty()) {
+                // Rotate through candidates: eight unreachable nearby cells must not hide a farther roof forever.
+                for (int tried = 0; tried < Math.min(8, candidates.size()); tried++) {
+                    var pos = candidates.get(Math.floorMod(searchOffset++, candidates.size()));
+                    if (life.reachable(pos, false)) return pos;
+                }
             }
             return null;
         }
@@ -428,7 +446,7 @@ public final class Reactions {
                     else if (ticks % 10 == 1 || y.getNavigation().isDone()) {
                         if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { searchOnFoot(); return; }
                     }
-                    if (ticks > 500) searchOnFoot();
+                    if (ticks > 1000) searchOnFoot();
                 }
                 case WAIT -> {
                     y.getNavigation().stop();
@@ -437,10 +455,7 @@ public final class Reactions {
                         return;
                     }
                     if (!raining) { stage = Stage.SHAKE; ticks = 0; }
-                    // Stay under the roof for as long as it rains; only a body emergency (keeps()) or sleep sends it out.
-                    // A 1200 tick wait followed by a 600 tick cooldown walked dry settlers back into the downpour, where the
-                    // soaking (wetness >= 60) killed them.
-                    else if (life.energy() < 35) end(0);                  // let the life goal put it to bed under the roof
+                    else end(0); // dry-area planning resumes; navigation preserves the rain preference
                 }
                 case SEARCH -> {
                     long now = level.getGameTime();
@@ -451,8 +466,8 @@ public final class Reactions {
                     }
                     if (now >= stepAfter && (y.getNavigation().isDone() || ticks % 80 == 0)) {
                         stepAfter = now + 20;
-                        var next = DefaultRandomPos.getPos(y, 14, 3);
-                        if (next != null && y.distanceToSqr(next) >= 4 && life.dryStand(BlockPos.containing(next))) {
+                        var next = DefaultRandomPos.getPos(y, TravelRange.search(y, 14), 3);
+                        if (next != null && y.distanceToSqr(next) >= 4 && life.dryStand(BlockPos.containing(next)) && TravelRange.babyDestination(y, BlockPos.containing(next))) {
                             life.navigate(BlockPos.containing(next), sky == Sky.STORM ? 1.7 : 1.4, false);
                         }
                     }
@@ -482,7 +497,7 @@ public final class Reactions {
         @Override public void stop() { if (threat().stage != Threat.Stage.NONE) threat().end(60); }
     }
 
-    /** Needs tier: search on foot, run to a roof, wait under it, then shake off. */
+    /** Needs tier: search on foot, reach dry ground, then release routine movement. */
     public static final class WeatherGoal extends Goal {
         private final YukkuriEntity y;
         public WeatherGoal(YukkuriEntity y) { this.y = y; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

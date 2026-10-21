@@ -112,14 +112,14 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 ## 补充群体事件
 
-魔理沙探险队的子油远行闲逛（项目设计，待实现）：子油魔理沙在个体数值足够时，以小概率进行正常范围两倍的闲逛，并有对应演出。正常范围取统一扩大后的同阶段、同条件常规闲逛范围，按相同距离口径乘 2；所用属性、阈值、概率与冷却待落实，赤油不参与。复用已有行为和事件能力时仍须落实子油资格，现有成人魔理沙队长、队员与跨群系路线不代表这项新规则已实现；不擅自增加必须组队或跨群系的触发要求。演出跟随实际出发、途中、结束或中断，饥饿、体力与危险仍真实结算。机制与演出待办见[玩法待办](TODO.md#玩法待办)。
+魔理沙探险队的子油远行闲逛（项目设计）：`RoamingGoal` 复用真实地面寻路。子油魔理沙（不含赤油和亚成）完成早期行动能力、胆量≥65、智力≥40、营养≥50、精力≥60且不下雨时，每 1200 tick 最多进行一次 5% 抽签。成功后在普通闲逛半径 `20×胆量探索系数` 的两倍范围内选择实际可达点，目标须超出普通范围；找不到路径不算启动。抵达后返程，营养低于 35 或精力低于 40 提前返程；紧急需求、危险或其他实际 Goal 可中断，最多 1600 tick，不发放额外资源或成长。运行中的探险使用对应的亲子会合范围，结束后恢复普通亲子规则，真实危险仍交接。`behavior.roaming` 和 `[explore]` 记录已执行抽签、起点、目标、半径、返程与中断；读数不抽签或发起行为。此短途事件的瞬态计划不写存档，重载后由普通 AI 重新规划；现有成人组队事件的名单与存档规则保留。演出随真实过程在最后统一补，机制待试玩，见[玩法待办](TODO.md#玩法待办)。
 
 四张卡写成 `WildEventData` 场景（`Kind.CARD` / `Kind.EXPEDITION`），代码在 `event/GroupCards.java`（前三张）与 `event/Expedition.java`。配置在 `group_events` 段。
 
 - 共同筑巢后独占（`nest-monopoly`）：条件为同一住所、满足 `Bonds.careKin` 的成年亲属（同母者优先），发起者友善 ≤35，都在住所 6 格内且 `usable`；每次检查（约 5 秒）以 `1/nestMonopolyOneIn`（默认 8）触发。过程：独占者守入口（`angry`/`mine`），被挡在外的亲属站在入口外（`teary`/`wait_turn`），其 `getPersistentData()` 写 `ShelterBarredUntil`，`ShelterBlockEntity.usable` 经 `GroupCards.barred` 在场景存活且未到期时返回 false（场景因任何原因结束都自动解除）；其余亲属每 100 tick 对独占者降好感 2 并 `shy` 背身。600–900 tick [original] 后，若家人对独占者的好感合计为负：独占者 `teary`/`gentle` 认错，好感各回升 4，被挡者 `share`，结果 `apologized_and_shared`；否则 `kept_the_nest`；住所失效为 `nest_lost`（INTERRUPTED）。
 - 流浪强盗团（`bandit-raid`）：`SettlementData.Kind.BANDITS` 群体由 `SettlementSpawner.Preset.BANDITS` 生成：3–4 只成年普通种，无住所（`HabitatLife.choose/findHome` 对该群体直接返回 false），不主动登记家庭；自然发现抽签接在森林、家庭区间之后（`banditChance`，默认 5%）；命令 `/yukkuri settlement spawn bandits`。卡：强盗团成员发现 16 格内有住户且存粮的住所（可达），以 `1/banditRaidOneIn`（默认 3）触发，2–3 只出动，首只走到入口，经 `ShelterBlockEntity.raid()` 真实取走 1 份食物，能吃则 `beginMeal`，否则丢在脚边；间隔 60 tick，最多 3 份。10 格内住户 `angry`/`mine`（护家者）或 `teary`/`afraid`，对强盗好感 -3。结果 `raided_store` / `store_empty`（空仓），超时 `raid_timed_out`。强盗不伤害个体。
 - 多层巢塌方（`burrow-collapse`）：天然洞穴住户 >= 3，湿度 >= 90 连续超过 2400 tick（`ShelterBlockEntity.soaked`，不存档），之后每 100 tick 以 `1/burrowCollapseOneIn`（默认 200）触发，且 `EventHooks.canEntityGrief` 允许。住户（已加载者）受 1–2 点伤害（血量 > 3 才扣）、`cry`/`afraid` 并走向入口；产生泥土粒子与碎砾声；记一条立即完成的 CARD 记录（至多 6 名住户），结果 `collapsed_in_long_rain`；随后 `dismantle()` 拆除（物品掉落，不放置方块），住户经 `YukkuriLife.maintainHome` 释放旧住所并另找新家。
-- 跨群系探险队（`expedition-biome`）：在 `Expedition.discover` 现有队长/队员条件通过后，以 `1/biomeExpeditionOneIn`（默认 3）改找 24–42 格外、已加载、可站立、群系与出发地不同的目的地；移动用分段导航（同 `SettlementLife.navigateToward`），队伍间距放宽到 14 格并不再要求视线，与出发地允许相距 72 格，超时 2300 tick。到达后点名、队长 `surprise`/`food_found`；返回后队长 `hello`，向 24 格内玩家发无配音文字 `event.mcyukkuri.biome_expedition`（群系名），结果 `crossed_biome_and_returned`；超时为 `biome_expedition_timed_out`。
+- 跨群系探险队（`expedition-biome`）：在 `Expedition.discover` 现有队长/队员条件通过后，以 `1/biomeExpeditionOneIn`（默认 3）改找 48–84 格外、已加载、可站立、群系与出发地不同的目的地；移动用分段导航（同 `SettlementLife.navigateToward`），队伍间距放宽到 14 格并不再要求视线，与出发地允许相距 144 格，超时 4600 tick。到达后点名、队长 `surprise`/`food_found`；返回后队长 `hello`，向 24 格内玩家发无配音文字 `event.mcyukkuri.biome_expedition`（群系名），结果 `crossed_biome_and_returned`；超时为 `biome_expedition_timed_out`。
 强盗无法吞咽时会把夺取的食物落在入口；强盗不登记家庭，亦无专门的离开／解散行为。卡片触发依各自概率与场景条件。
 
 ## 可选的误判危险事件

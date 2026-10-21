@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.season.Season;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,7 +52,7 @@ public final class ForageGoal extends Goal {
         cooldown = (SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) + entity.getRandom().nextInt(10); // autumn foragers are keener
         double skill = MyonLife.forageScale(entity); // a Myon forages quicker and farther (plan 4.2)
         cooldown = (int) Math.round(cooldown / skill);
-        int reach = (int) Math.round(6 * skill * entity.life().personality().exploreMultiplier());
+        int reach = (int) Math.round(TravelRange.search(entity, 6) * skill * entity.life().personality().exploreMultiplier());
         if (SettlementSeasons.forageBlocked(entity) || !entity.life().acceptsFood(new ItemStack(Items.SHORT_GRASS))) return false;
         var found = new ArrayList<BlockPos>();
         for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
@@ -60,7 +62,7 @@ public final class ForageGoal extends Goal {
         ForageClaims.release(claim);
         claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
-            if (!entity.life().dryStand(pos) || !entity.family().allowsIdleWalk(Vec3.atBottomCenterOf(pos))) continue;
+            if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos) || !entity.family().allowsIdleWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (++tests > MAX_PATH_TESTS) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());
@@ -72,7 +74,7 @@ public final class ForageGoal extends Goal {
         return true;
     }
     @Override public boolean canContinueToUse() {
-        return target != null && ForageClaims.owns(level(), target, claim) && elapsed < 200 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
+        return target != null && ForageClaims.owns(level(), target, claim) && elapsed < 400 && edible(target) && !entity.family().awaitingLanding() && entity.life().canEat()
                 && !entity.isInWaterOrBubble() && EventHooks.canEntityGrief(level(), entity);
     }
     @Override public boolean requiresUpdateEveryTick() { return true; }

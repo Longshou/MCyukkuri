@@ -31,8 +31,8 @@ import java.util.Locale;
  * transient; finished hunts are recorded in {@link Commons#hunts}.
  */
 public final class CommonHunt {
-    public static final int MAX_PARTY = 6, CALL_RANGE = 32, MUSTER_TICKS = 600, HUNT_TICKS = 4800, RETRY_TICKS = 600;
-    static final int RADIUS = 32, FAMINE_RADIUS = 48;
+    public static final int MAX_PARTY = 6, CALL_RANGE = 32, MUSTER_TICKS = 600, HUNT_TICKS = 9600, RETRY_TICKS = 600;
+    static final int RADIUS = 64, FAMINE_RADIUS = 96;
 
     /** The community organises hunts: rules, an active leader and a common store. */
     public static boolean organised(ServerLevel level, SettlementData.Group group) {

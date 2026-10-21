@@ -300,7 +300,7 @@ add('family_search', 'family', '亲子走散后寻回', '走散寻回',
     reads=[('读寻子亲油', f'yukkuri status {sel("search_parent")} raw'), ('读寻亲子油', f'yukkuri status {sel("search_child")} raw')])
 
 # ====================================================================================================== weather and predators
-add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '下雨了：6–16 格外有一块石顶，三只油先“跑向”遮雨处（weather:run），到了就“等待”（weather:wait）',
+add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease',
     '约 30 秒', [
         yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
     env={'time': 'noon', 'weather': 'rain'}, spot='shelter', vantage=(0, 14),
@@ -328,13 +328,35 @@ add('pred_hunt', 'weather', '被捕食种追猎', '被追猎', '芙兰饿了（�
     env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')])
 
 add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
-    '饥饿芙兰与灵梦相距 30 格：观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
+    '饥饿芙兰与灵梦相距 48 格：观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
     '约 1–2 分钟', [
-        yk('reimu', -15, 0, 'range_prey', yaw=-90, **pair_ready()),
-        yk('flandre', 15, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100),
+        yk('reimu', -24, 0, 'range_prey', yaw=-90, **pair_ready()),
+        yk('flandre', 24, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100),
         set_status('range_pred', 'needs.nutrition', 10)],
     env=DAY, spot='pred', vantage=(0, 18),
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
+
+# Sheltered actors are a legitimate start for testing activity after the run has ended.
+_rain_life = []
+for _name, _x, _nutrition in (('ordinary', -12, 90), ('hungry', 12, 10)):
+    _rain_life += [box(_x-3, 3, -3, _x+3, 3, 3, 'minecraft:stone_bricks'),
+                   yk('reimu', _x, 0, _name, nutrition=_nutrition, energy=95, lead=_name=='ordinary'),
+                   item('minecraft:apple', 2, _x+7, 0, _name+'_food')]
+add('rain_life', 'weather', '雨天干燥区活动', '干燥区活动',
+    '左右都有真实屋顶，屋外各两枚苹果：左营养90保持干燥区活动，右营养10可冒雨觅食；同场可手动切雷暴对照不安原因，不指定Goal',
+    '约1–2分钟', _rain_life, env={'time':'noon','weather':'rain'}, spot='dry_life', vantage=(0,14),
+    reads=[('读普通雨天活动', f'yukkuri status {sel("ordinary")} raw'), ('读饿油冒雨', f'yukkuri status {sel("hungry")} raw')])
+
+_roaming = [*shed(-16, 0, half=4), yk('marisa', -16, 1, 'roam_baby', stage='baby', lead=True), home('roam_baby', -16, 0)]
+for _i in range(4):
+    _roaming.append(yk('marisa', _i*4-4, 6, f'explorer{_i}', stage='child', boldness=85, intelligence=70, nutrition=95, energy=95))
+_roaming += [yk('marisa', 16, 0, 'roam_cautious', stage='child', boldness=30, intelligence=70),
+             yk('reimu', 16, 6, 'roam_control', stage='child', boldness=85, intelligence=70)]
+add('marisa_explore', 'weather', '魔理沙探险队', '子油远行',
+    '四只胆量85智力70子油魔理沙，各自每60秒至多一次5%抽签；普通半径27、探险54格，真实走到远点再返回。低胆量魔理沙与灵梦不触发；左侧赤油有真实巢，只在巢附近活动。读behavior.roaming，不保证单轮触发，缺台词动作最后补',
+    '数分钟，可用场内调速；饥饿与危险照常中断', _roaming, env=DAY, spot='roaming', vantage=(0,18),
+    reads=[(f'读探险子油{i+1}', f'yukkuri status {sel(f"explorer{i}")} raw') for i in range(4)]
+          + [('读赤油边界', f'yukkuri status {sel("roam_baby")} raw'), ('读低胆量对照', f'yukkuri status {sel("roam_cautious")} raw')])
 
 add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只是干净、脏污、疤痕对照；另两只有 1／2 级裂伤，衣食充足时自然闭合，再按原伤级概率留疤。面粉糊只去已有疤痕，不治未闭合伤口；橙汁不参与', '约 20–40 秒；未留疤可重开观察概率差异', [
     yk('reimu', -6, 0, 'clean', yaw=180, lead=True), yk('reimu', -3, 0, 'dirty', yaw=180), yk('reimu', 0, 0, 'scarred', yaw=180),
@@ -1435,7 +1457,7 @@ TOPICS = {
     'sleep': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'family_distance': 'F8', 'family_search': 'F8',
-    'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',
+    'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
     'cargo_empty': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',

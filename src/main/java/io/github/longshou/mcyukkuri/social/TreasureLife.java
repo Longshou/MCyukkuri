@@ -103,7 +103,7 @@ public final class TreasureLife extends Goal {
         scanWait = 200 + entity.getRandom().nextInt(100);
         if (entity.getRandom().nextInt(10) != 0) return false; // one idle spell in ten is spent on a find
         ItemEntity best = null; double bestDist = 1e9;
-        for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8, 3, 8), i -> treasure(i.getItem()) && i.isAlive() && !i.hasPickUpDelay())) {
+        for (var item : level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(16, 3, 16), i -> treasure(i.getItem()) && i.isAlive() && !i.hasPickUpDelay())) {
             double d = entity.distanceToSqr(item);
             if (d < bestDist && entity.life().reachable(item.blockPosition(), false)) { best = item; bestDist = d; }
         }
