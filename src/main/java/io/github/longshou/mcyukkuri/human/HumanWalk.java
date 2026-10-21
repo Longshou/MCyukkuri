@@ -56,7 +56,8 @@ final class HumanWalk {
         if (!walking) {
             long dayTime = npc.level().getDayTime() % 24000;
             if (shoreUntil != 0 && (pet == null || !fair() || dayTime < 500 || dayTime > 6500
-                    || now >= shoreUntil || !pet.pet().ownedBy(npc.getUUID()) || pet.pet().busy())) {
+                    || now >= shoreUntil || !pet.pet().ownedBy(npc.getUUID()) || pet.pet().busy()
+                    || !pet.pet().isPet() || !pet.canBeLeashed() || pet.distanceToSqr(npc) > 400)) {
                 if (pet != null) {
                     pet.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
                     GameplayLog.event(pet, "pet-walk", "npc shore request cancelled owner={} reason=outing_unavailable", npc.getUUID());
