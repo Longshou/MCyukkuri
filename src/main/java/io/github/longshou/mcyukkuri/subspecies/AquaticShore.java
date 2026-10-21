@@ -57,7 +57,7 @@ public final class AquaticShore {
         if(land&&tired()&&entity.tickCount%100==0){
             entity.life().applyEnvironment(0,0,1);
             if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()&&entity.tickCount%200==0)
-                { entity.mind().felt(EmotionEvent.WOUND_DISTRESS); entity.showReaction("afraid","wounded",40); }
+                { entity.mind().felt(EmotionEvent.WOUND_DISTRESS); entity.showReaction("teary","wounded",40); }
         }
     }
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("LandTicks",landTicks);return tag;}

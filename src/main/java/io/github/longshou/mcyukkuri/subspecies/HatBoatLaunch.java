@@ -329,16 +329,14 @@ final class HatBoatLaunch {
 
     static boolean retrieve(HatBoatEntity boat, YukkuriEntity owner) {
         if (boat.level().isClientSide || !boat.catches() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 16) return false;
-        if (boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
-        if (boat.isMoored()) { var spots=boat.landingSpots(owner.blockPosition(), owner); if (spots==null) return false; boat.landCrew(spots); }
-        for (var p : List.copyOf(boat.getPassengers())) p.stopRiding();
-        boat.clearCrew();
+        if (boat.confiscating()||boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
         if (!owner.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
+        boat.clearCrew();
         boat.state(State.RESCUED); return true;
     }
 
     static boolean board(HatBoatEntity boat, YukkuriEntity owner) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
+        if (boat.level().isClientSide || boat.confiscating() || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
                 || !boat.isAfloat() || !owner.life().matchesAccessory(boat.ownerYukkuri(), boat.launchToken())) return false;
         if (!owner.startRiding(boat, true)) return false;
         owner.life().restoreCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());

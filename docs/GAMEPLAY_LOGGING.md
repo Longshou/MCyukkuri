@@ -65,12 +65,12 @@
 | 陆 33 `colony_migrate` | `[needs] nutrition threshold` 只在营养跨 30、10、0 档时记实际前后值；`[settlement]` 记迁徙背景下 Goal 拒绝原因、旧址／目的地、营养、能量、口渴、排便与携粮，打包跳过原因，以及实际获准的迁徙／归队路线和停止。`[habitat]`、`[forage]` 在本次实际资格判断走到“迁徙未安置”且营养低于 30 时限频记录；若更早条件已拒绝，不虚构后续判定。结合现场实际 Goal、`settlementDetail` 和住所读数，区分集体迁徙与个人安置。 |
 | 陆 11 `hatless_kin`、陆 20 `hatless_monster` | 同一亲油／子油 UUID 的 `scorn` 给出 `known=false`、智力、亲近前后值及制裁是否受理；对照 `accessory.contacts` 的识别、视线、冷却和 `last`。认出了目标或没有候选的每轮扫描不输出 INFO。 |
 | 陆 16 `sacrifice`、`sacrifice_reluctant` | `[grief] protection decision` 给出本次 `chance/roll/physicalBlock`；随后看转移成功还是拒绝，再与 `[predator]` 的真实目标及孩子血量对照。 |
-| `offering`、`offer_dedicate` | 同一受赠者 UUID 可串起意愿、APPROACH→ASK→INSIST→GIVE、`dying` 与 `[body]` 死亡，再到 `[cannibal]` 交餐和 `[meal]` 吞咽；中途喂饱应有 `spared`。这些日志不表示已经修复双亲重复献身或携粮未纳入判断的问题。 |
+| `offering`（含临终献体分支） | 同一受赠者 UUID 可串起意愿、APPROACH→ASK→INSIST→GIVE、`dying` 与 `[body]` 死亡，再到 `[cannibal]` 交餐和 `[meal]` 吞咽；中途喂饱应有 `spared`。这些日志不表示已经修复双亲重复献身或携粮未纳入判断的问题。 |
 | `first_toilet`、`hop` | 应按真实结果看到首餐吞咽、首便照护意愿／接触、首便完成，之后才是爬行／跳跃学会；对照 childhood 读数，不能以接近或一次跳起当作学会。 |
 | `indep_near`、`indep_far`、`balance_deibu` | 离家与告别结束分开，日志给出原住所和联系时长；灵胖资格锁定、等待空间与实际变体分开，对照独立／成长读数。 |
 | A1 `voyage`、A4 返帽与救援场景 | `[voyage]` 串起初航阶段和退出原因；`lesson completed` 只在完成航程、返回亲油帽且取回自帽后出现。`[boarding]` 对照实际登船乘员，`[cradle]` 对照抱持／放下及失败后释放；`[water]` 对照 `water.distress` 的落水阶段、疲劳、救援引导。结合 `water.self_rescue`、帽船乘员和现场阶段读数，区分仍在接近、登船失败、抱持中断和已登船。 |
 | A1／A4 `cargo_full`、`cargo_load`、`cargo_stow`、`cargo_rescue`、`capsize_siblings` | `[cargo]` 对照实船库存：挪到帽缘只改变 `aside`，不增加总粮；喂食取粮后总量减一，实际营养仍看 `[meal]`；弃粮／散落以 `spawned` 数量核对地上实物，桨是否保留单独记录。`[family-alarm]` 用亲油 UUID 与 `event` 开始 tick 串起召回，等待因超时／对象不可用而结束不表示孩子死亡或已返船。 |
-| 水上起点 `cargo_load`、`shore` 与没收 `hat_custody` | 造船的 `hull collision` 保留本次实际拒绝类别 `block/entity/world_border`、船体包围盒和碰撞检查上下文 UUID；方块给首个阻挡形状的边界，实体给碰撞形状数量，不据此猜具体实体或方块。`crew relocated method=teleport` 如实记录现有业务的位置跳转及前后坐标，不称为搬运成功；没收记录拒绝原因、乘员数量变化和帽子进入背包／生成掉落物结果。这些日志不代表已修复待办中的碰撞与瞬移。 |
+| 水上起点 `cargo_load`、`shore` 与没收 `hat_custody` | 场景分别记录初态准备完成与失败回滚，初态完成不表示被测行为完成。造船的 `hull collision` 保留本次实际拒绝类别 `block/entity/world_border`、船体包围盒和碰撞检查上下文 UUID；方块给首个阻挡形状的边界，实体给碰撞形状数量，不据此猜具体实体或方块。没收记录真实靠岸、乘员交接开始／结束／中断、实际剩余乘员、拒绝原因及帽子进入主背包的槽位；只有乘员已实际离船后才结算。`water.cargo` 可在帽主离船后继续读取其原帽的没收阶段、当前乘员和最近拒绝原因。日志与读数用于定位交接，不能代替用户试玩。 |
 
 家庭链还记录实际求偶权限判定、接触开始、停止原因和受孕结果；喂食意愿补充本次抽签值，已选中饥饿子油但未找到粮源时限频记录双方营养。亲油死亡时记录携带照护粮是否成功生成掉落物。失散寻亲在实际 Goal 首 tick 记录目标／最后已知位置；普通跟随、守家、等待孩子的频繁停止不记 INFO。
 
@@ -97,6 +97,7 @@
 - 不记录每一滴漏馅、每一步代谢、能量／卫生自然衰减、每次咀嚼或舔舐的微量回血。保留伤病变化、弱势阈值、真正吞咽、治疗与结束时的数值。
 - 不把所有候选扫描、无目标扫描、探路节点、分片搜索 `DEFERRED`、逐格挖掘和每棵采草写入 INFO。已经开始的任务在交接、失败、结束、实际交付处留痕；诊断细节不足时补对应读数，不另做一条业务路径。
 - 同一自动失败／等待反复出现时限频；成功交易和真正物资结算通常逐次记录。大规模实体和密集战斗仍会产生相应数量的事件，未设置会丢掉真实交易的全局条数上限。
+- 水生出航记录幼体实际归船／死亡／独立后移出等待名单、岸边托举开始与接触路径拒绝；等候和拒绝按实体与原因限频，不逐 tick 记录寻路。
 - 水生几何细节继续由原有 `AquaDiag` 开关控制（`/yukkuri aqdiag on`，关闭用 `off`），状态变化细查继续用 `/yukkuri status trace true`（关闭用 `false`）；均不默认开启。它们的细密日志可能较快增大文件。
 - `HatBoarding`、`CradlePickup`、`FirstVoyage` 和落水的离散阶段默认 INFO，按实体与阶段 200 tick 限频；同阶段反复停止也限频，动态坐标不作限频键。逐步路径、接触几何、划桨、甲板行走和水流采样仍需 `AquaDiag`，不逐 tick 输出。求偶接触和权限判定 200 tick 限频，照护无粮与失散寻亲开始 1200 tick 限频；读档不重放阶段事件。
 - 船内库存日志在实际物资转移处记录，每次弃粮／散落汇总数量，不逐个物品刷屏；空仓扫描、满仓候选判断、救援召回每次发声尝试不输出。挪粮起止／拒绝、警报阶段及救援目标切换按主体与稳定类别 200 tick 限频；库存 `load` 和警报 `load` 不补写旧事务。

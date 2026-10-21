@@ -31,20 +31,15 @@ import java.util.List;
 import java.util.UUID;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -54,8 +49,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
@@ -151,6 +144,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private static final int BABY_LOAD = 2, JUVENILE_LOAD = 4, SUBADULT_LOAD = 8;
     private final HatBoatCrowding crowding=new HatBoatCrowding(this);
     private final AquaticLanding landing=new AquaticLanding(this);
+    /** Player confiscation uses the ordinary physical shore hand-off before it settles the hat token. */
+    private final HatBoatConfiscation confiscation=new HatBoatConfiscation(this);
     final Set<UUID> cramped=new HashSet<>();
     /** Server only: places aboard, retained arrivals, movements, and the temporary owner stand. */
     final HatSeatState seatState = new HatSeatState();
@@ -1576,6 +1571,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return landing.begin(y,hint,rescuer);
     }
     public boolean landing(){return landing.active();}
+    /** A read-only guard for competing hat retrieval and launch controllers. */
+    public boolean confiscating(){return confiscation.active();}
+    /** Read-only progress for the aquatic custody diagnostic. */
+    public String confiscationDetail(){return confiscation.detail();}
     /** A kinematic drive step owns the hull pose until this game tick (see {@link #driveToward}). */
     private long driveUntil=Long.MIN_VALUE;
     public boolean driving(){return level().getGameTime()<=driveUntil;}
@@ -1616,57 +1615,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();owner.subspecies().boatId(null);
         accessoryToken=null;state(State.RESCUED);stopPaddling();clearTowTicks();return true;
     }
-    /** Reserve all dry places before returning the token or moving anybody. */
-    Map<UUID,Vec3> landingSpots(BlockPos stand, Entity owner) {
-        if (!(level() instanceof ServerLevel server)) return null;
-        // Waking may grow a juvenile. Reserve using the resulting dimensions, not yesterday's smaller body.
-        if (owner instanceof YukkuriEntity y) y.life().wakeInHat();
-        var roster=landingRoster();
-        for (var id : roster) if (server.getEntity(id) instanceof YukkuriEntity child && child.isAlive() && child.distanceToSqr(this)<=64)
-            child.life().wakeInHat();
-        var result=new LinkedHashMap<UUID,Vec3>();
-        var used=new ArrayList<AABB>();
-        used.add(owner.getBoundingBox().move(Vec3.atBottomCenterOf(stand).subtract(owner.position())).inflate(.04));
-        for (var id : roster) {
-            if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this)>64
-                    || child.isPassenger() && child.getVehicle()!=this) continue;
-            var candidates=new ArrayList<BlockPos>();
-            for(var spot:BlockPos.betweenClosed(stand.offset(-2,0,-2),stand.offset(2,1,2)))candidates.add(spot.immutable());
-            candidates.sort(Comparator.comparingDouble(spot->distanceToSqr(Vec3.atBottomCenterOf(spot))));
-            for (var spot : candidates) {
-                if (!level().hasChunkAt(spot) || !level().getFluidState(spot).isEmpty()
-                        || !level().getBlockState(spot.below()).isFaceSturdy(level(),spot.below(),Direction.UP)) continue;
-                var at=Vec3.atBottomCenterOf(spot); var box=child.getBoundingBox().move(at.subtract(child.position()));
-                if (used.stream().anyMatch(box::intersects) || level().containsAnyLiquid(box) || !level().noCollision(child,box)) continue;
-                result.put(id,at); used.add(box.inflate(.04)); break;
-            }
-            if (!result.containsKey(id)) return null;
-        }
-        return result;
-    }
-    /** Everyone actually aboard besides the captain, in boarding order. The remembered crew alone can miss riders and list ones long gone. */
-    private Set<UUID> landingRoster() {
-        var roster=new LinkedHashSet<UUID>();
-        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && !y.getUUID().equals(ownerYukkuri())) roster.add(y.getUUID());
-        return roster;
-    }
-    /** Bring the young ashore with their mother, each on its own dry spot around the stand. */
-    void landCrew(Map<UUID,Vec3> spots) {
-        if (!(level() instanceof ServerLevel server)) return;
-        for (var id : List.copyOf(spots.keySet())) {
-            if (!(server.getEntity(id) instanceof YukkuriEntity child) || !child.isAlive() || child.distanceToSqr(this) > 64
-                    || child.isPassenger() && child.getVehicle()!=this) continue;
-            var at = spots.get(id); if (at == null) continue;
-            var before=child.position();var previousVehicle=child.getVehicle()==null?null:child.getVehicle().getUUID();
-            child.life().wakeInHat(); child.stopRiding(); child.teleportTo(at.x, at.y, at.z); child.setDeltaMovement(Vec3.ZERO);
-            GameplayLog.event(child,"aquatic",
-                    "crew relocated method=teleport sourceHat={} owner={} from={} requested={} actual={} previousVehicle={}",
-                    getUUID(),ownerYukkuri(),before,at,child.position(),previousVehicle);
-        }
-        crew.clear();
-    }
     @Override public InteractionResult interact(Player player, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND || player.distanceToSqr(this) > 36) return InteractionResult.PASS;
+        if (confiscating()) return level().isClientSide ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         var held = player.getItemInHand(hand);
         if (!held.isEmpty()) {
             if (!isAfloat()) return InteractionResult.PASS;
@@ -1687,39 +1638,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (rescue(player.blockPosition(), player.getUUID())) return InteractionResult.CONSUME;
         pullTarget = player.position(); pullTicks = 100; syncTowState(); return InteractionResult.CONSUME;
     }
-    /** A crouching player may take an owner-unoccupied hat only after every actual passenger has a reserved dry landing. */
+    /** A crouching player may take an owner-unoccupied hat only after every actual passenger has physically reached shore. */
     private boolean recoverUnattended(Player player) {
-        if (!(level() instanceof ServerLevel server)) return false;
-        String reason=accessoryToken==null?"no_accessory_token":ownerYukkuri()==null?"no_owner"
-                :capsizing()?"capsizing":state()==State.RESCUED?"already_rescued":state()==State.REMOVED?"removed":hasIncoming()?"incoming_passenger":null;
-        if(reason!=null)return recoveryRefused(player,reason);
-        if (getPassengers().stream().anyMatch(passenger -> passenger.getUUID().equals(ownerYukkuri()))) return recoveryRefused(player,"owner_aboard");
-        var stand=player.blockPosition();
-        if (!level().getFluidState(stand).isEmpty() || player.isInWaterOrBubble()
-                || !level().getBlockState(stand.below()).isFaceSturdy(level(),stand.below(),Direction.UP)) return recoveryRefused(player,"player_not_on_dry_support");
-        var spots=landingSpots(stand,player); if (spots==null) return recoveryRefused(player,"crew_landing_unavailable");
-        UUID token = accessoryToken;
-        YukkuriEntity owner = null;
-        for (var dimension : server.getServer().getAllLevels())
-            if (dimension.getEntity(ownerYukkuri()) instanceof YukkuriEntity candidate) { owner = candidate; break; }
-        if (owner != null && !owner.life().relinquishCustody(getUUID(), ownerYukkuri(), token, player.getUUID())) return recoveryRefused(player,"custody_transfer_rejected");
-        var hat=new ItemStack(ModItems.HAT.get());
-        CustomData.update(DataComponents.CUSTOM_DATA,hat,tag->{
-            tag.putUUID("Owner",ownerYukkuri());tag.putUUID("Token",token);tag.putString("Variant","marisa");
-            tag.putString("SourceModel","marisa");tag.putFloat("SourceScale",hullScale());
-        });
-        if (owner == null) YukkuriWorldData.get(server).accessoryConfiscated(ownerYukkuri(), token, player.getUUID());
-        int passengersBefore=getPassengers().size(),foodBefore=cargo.count();
-        accessoryToken=null; landCrew(spots); cargo.spillAt(player.position()); state(State.RESCUED); stopPaddling();
-        boolean inInventory=player.getInventory().add(hat);
-        var dropped=!inInventory?player.drop(hat,false):null;
-        GameplayLog.event(this,"aquatic",
-                "unattended hat recovered player={} owner={} token={} passengers={} -> {} foodRemoved={} inInventory={} droppedItem={}",
-                player.getUUID(),ownerYukkuri(),token,passengersBefore,getPassengers().size(),foodBefore,inInventory,
-                dropped==null?null:dropped.getUUID());
-        return true;
+        return confiscation.begin(player);
     }
-    private boolean recoveryRefused(Player player,String reason){
+    boolean recoveryRefused(Player player,String reason){
         GameplayLog.limited(this,"aquatic","recovery."+reason,200,
                 "unattended hat recovery refused player={} owner={} token={} reason={} state={} passengers={}",
                 player.getUUID(),ownerYukkuri(),accessoryToken,reason,state(),getPassengers().size());
@@ -1764,6 +1687,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             releaseSelfRescueCarry();
         }
         tickCapsize();
+        if (confiscating() && state()==State.CAPSIZED) confiscation.hullInterrupted("hull_capsized");
         tickSelfRighting();
         if(selfRighting()&&level().getGameTime()-entityData.get(MOTION).getLong("RightTouched")<=1){
             // The continuously held rim is the physical pivot. Buoyancy resumes as soon as grip is released.
@@ -1782,11 +1706,14 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
                         !y.aquaticLife().firstVoyage().keepsBerth(this))) releaseVoyageBerth(departure.voyageYoung);
         if(state()!=State.CAPSIZED){
             cargo.tick();
-            tickCarry();
-            landing.tick();
-            crowding.tick();
-            if (tickCount % 10 == 0&&!crowding.contesting()&&!landing()) tendSeats();
-            tendLeaving();
+            if(confiscating())confiscation.tick();
+            else {
+                tickCarry();
+                landing.tick();
+                crowding.tick();
+                if (tickCount % 10 == 0&&!crowding.contesting()&&!landing()) tendSeats();
+                tendLeaving();
+            }
         }
         if (catches()) {
             if (isCradle()) {  // resting on the ground
@@ -1800,7 +1727,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
             // An owner who is gone for good leaves her hat where it lies; one nearby comes back for it.
             var y = owner();
-            if (tickCount % 20 == 0 && y != null && y.isAlive() && !y.family().keepsCradle() && y.distanceToSqr(this) <= 64) y.family().fetchHat(this);
+            if (!confiscating() && tickCount % 20 == 0 && y != null && y.isAlive() && !y.family().keepsCradle() && y.distanceToSqr(this) <= 64) y.family().fetchHat(this);
             return;
         }
         var pos = BlockPos.containing(getX(),getY()-.12,getZ());
@@ -1919,6 +1846,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         tag.put("Cargo", cargo.save());
         tag.put("Crowding",crowding.save());
         tag.put("ShoreLanding",landing.save());
+        tag.put("UnattendedConfiscation",confiscation.save());
         var residentSeats=new ListTag();
         for(var p:youngPassengers()){
             var saved=new CompoundTag();saved.putUUID("Id",p.getUUID());point(saved,"Seat",toLocal(p.position()));
@@ -2019,6 +1947,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             var berth=tag.getCompound("VoyageBerth");departure.voyageBerth=new double[]{berth.getDouble("X"),berth.getDouble("Y"),berth.getDouble("Z"),berth.getDouble("R")};
         }else departure.voyageYoung=null;
         mooring=tag.contains("MooringX")?new Vec3(tag.getDouble("MooringX"),0,tag.getDouble("MooringZ")):null;
+        confiscation.load(tag.getCompound("UnattendedConfiscation"));
         crew.clear();for(var raw:tag.getList("Crew",Tag.TAG_INT_ARRAY))crew.add(NbtUtils.loadUUID(raw));
     }
 }

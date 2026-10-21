@@ -27,20 +27,13 @@ import java.util.Set;
 final class ScenarioSetup {
     /** Parent and child become real kin. With {@code newborn} the baby also keeps its first-stool and movement care. */
     static String kin(YukkuriEntity parent, YukkuriEntity child, boolean newborn) {
-        if (parent == child || !(parent.level() instanceof ServerLevel level) || parent.level() != child.level()
-                || !parent.isAlive() || !child.isAlive() || !parent.family().adult() || child.family().adult())
-            return "亲子关系没能建立：亲油要是成年，子油要未成年且在同一维度。";
+        String refusal = kinRefusal(parent, child, newborn);
+        if (refusal != null) return refusal;
         if (parent.family().caresFor(child)) {
-            if (!newborn) return null;
-            if (child.family().stage() != FamilyLife.Stage.BABY || child.childhood().active() || parent.childhood().active()
-                    || child.family().active() || parent.family().active()) return "亲子已经建立，且幼体不是新生或双方正忙于照护。";
-            child.childhood().newborn();
+            if (newborn) child.childhood().newborn();
             return null;
         }
-        if (child.family().mother() != null || child.family().father() != null || child.family().birthId() != null)
-            return "子油已经有别的亲缘。";
-        if (newborn && (child.family().stage() != FamilyLife.Stage.BABY || child.childhood().active() || parent.childhood().active()
-                || child.family().active() || parent.family().active())) return "首便/学起跳场景要求幼体仍是新生赤油。";
+        var level = (ServerLevel)parent.level();
         var growth = child.family().save();
         child.family().generatedChild(parent, null);
         var linked = child.family().save();
@@ -49,6 +42,24 @@ final class ScenarioSetup {
         child.family().load(linked);
         if (newborn) child.childhood().newborn();
         FamilyData.get(level).register(child);
+        return null;
+    }
+
+    /** Read-only gate for callers that need to reserve physical space before committing a real family ledger entry. */
+    static String kinRefusal(YukkuriEntity parent, YukkuriEntity child, boolean newborn) {
+        if (parent == child || !(parent.level() instanceof ServerLevel level) || parent.level() != child.level()
+                || !parent.isAlive() || !child.isAlive() || !parent.family().adult() || child.family().adult())
+            return "亲子关系没能建立：亲油要是成年，子油要未成年且在同一维度。";
+        if (parent.family().caresFor(child)) {
+            if (!newborn) return null;
+            if (child.family().stage() != FamilyLife.Stage.BABY || child.childhood().active() || parent.childhood().active()
+                    || child.family().active() || parent.family().active()) return "亲子已经建立，且幼体不是新生或双方正忙于照护。";
+            return null;
+        }
+        if (child.family().mother() != null || child.family().father() != null || child.family().birthId() != null)
+            return "子油已经有别的亲缘。";
+        if (newborn && (child.family().stage() != FamilyLife.Stage.BABY || child.childhood().active() || parent.childhood().active()
+                || child.family().active() || parent.family().active())) return "首便/学起跳场景要求幼体仍是新生赤油。";
         return null;
     }
 
