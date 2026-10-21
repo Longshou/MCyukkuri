@@ -61,6 +61,9 @@ public final class Headwear extends Goal {
     // shard gathering (goal)
     private ItemEntity target;
     private int elapsed, scanWait, lickTicks;
+    private String gatherCheck="not_checked";
+    private long gatherScanTick=-1;
+    private int gatherCandidates,gatherReachable;
     // contempt for the hatless this individual cannot recognise (Contempt)
     private int contemptWait;
     private String lastContact = "none";
@@ -126,7 +129,8 @@ public final class Headwear extends Goal {
     public String describe() {
         return stateId() + " damage=" + damage + " mend=" + mend + " fit=" + Math.round(relativeFit() * 100) / 100f
                 + " shards=" + shardsHeld + "/" + shardsTotal + " reassembly=" + reassembly + (cause.isEmpty() ? "" : " cause=" + cause)
-                + " " + entity.life().accessoryCustodyDetail() + (target != null ? " gathering" : "");
+                + " " + entity.life().accessoryCustodyDetail() + (target != null ? " gathering" : "")
+                + " gatherCheck=" + gatherCheck + " scanTick=" + gatherScanTick + " candidates=" + gatherCandidates + " reachable=" + gatherReachable;
     }
     /** Read-only encounter diagnostics; inspecting status never performs an observation or changes its cooldown. */
     public String contactDetail() {
@@ -388,18 +392,38 @@ public final class Headwear extends Goal {
     // ---- goal: lick the pieces together ----------------------------------------------------------------------------
     public boolean active() { return target != null; }
     public String activity() { return target == null ? Behaviors.IDLE : lickTicks > 0 ? Behaviors.SHARD_LICK : Behaviors.SHARD_SEEK; }
-    private boolean able() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.isPassenger()
-                && !entity.life().isSleeping() && entity.life().mealTicks() == 0 && !entity.operations().active() && !entity.mind().nonYukkuri()
-                && entity.childhood().canLearn();
+    private String inabilityReason() {
+        if(!entity.isAlive())return "not_alive";
+        if(entity.isNoAi())return "no_ai";
+        if(entity.isPanicking())return "panicking";
+        if(entity.isCommandPlaying())return "command";
+        if(entity.isPassenger())return "passenger";
+        if(entity.life().isSleeping())return "sleeping";
+        if(entity.life().mealTicks()>0)return "eating";
+        if(entity.operations().active())return "operation";
+        if(entity.mind().nonYukkuri())return "mind_broken";
+        if(!entity.childhood().canLearn())return "movement_not_learned";
+        return null;
     }
+    private boolean able() { return inabilityReason()==null; }
     @Override public boolean canUse() {
         if (target != null) return true;
-        if (scanWait > 0 || state() != State.SHATTERED || !able()) return false;
+        if (scanWait > 0 || state() != State.SHATTERED) return false;
+        String blocked=inabilityReason();
+        if(blocked!=null){gatherCheck=blocked;return false;}
         scanWait = 60;
-        target = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12, 4, 12),
-                        item -> item.isAlive() && !item.hasPickUpDelay() && canReceiveTransferredShard(item.getItem()) && entity.life().reachable(item.blockPosition(), false))
-                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        var candidates = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(12, 4, 12),
+                item -> item.isAlive() && !item.hasPickUpDelay() && canReceiveTransferredShard(item.getItem()));
+        gatherCandidates=candidates.size();gatherReachable=0;gatherScanTick=entity.level().getGameTime();
+        for(var item:candidates){
+            if(!entity.life().reachable(item.blockPosition(),false))continue;
+            gatherReachable++;
+            if(target==null||entity.distanceToSqr(item)<entity.distanceToSqr(target))target=item;
+        }
+        gatherCheck=target!=null?"target_selected":candidates.isEmpty()?"no_compatible_fragments":"no_reachable_fragments";
+        if(target==null&&!candidates.isEmpty())GameplayLog.limited(entity,"headwear","shard_scan_no_path",200,
+                "shard scan blocked reason=no_reachable_fragments candidates={} sampleDrop={} samplePosition={} aquatic={} held={} total={}",
+                gatherCandidates,candidates.getFirst().getUUID(),candidates.getFirst().blockPosition(),entity.profile().aquatic(),shardsHeld,shardsTotal);
         elapsed = lickTicks = 0;
         return target != null;
     }
@@ -461,5 +485,6 @@ public final class Headwear extends Goal {
         reassembly = Math.max(0, tag.getInt("Reassembly")); lastProgress = tag.getLong("LastProgress"); cause = tag.getString("Cause");
         if (shattered && shardToken == null) { shattered = false; lost = true; }
         target = null; hatlessContactUntil.clear();
+        gatherCheck="not_checked";gatherScanTick=-1;gatherCandidates=gatherReachable=0;
     }
 }
