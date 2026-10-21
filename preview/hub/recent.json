@@ -4,24 +4,22 @@
     {
       "id": "body-marks-art",
       "title": "身体纹样",
-      "summary": "霉斑、旧疤、擦伤、裂伤、脏污和烤足的离线材质提案；当前角色完整预览，待确认，尚未接入游戏。",
+      "summary": "旧稿油霉、脏污、伤口、旧疤、足缘焦化与露核大创腔已接入；当前导出资源离线预览，游戏视觉待试玩。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/README.md",
-      "demoPage": "body-marks/index.html",
+      "demoPage": "body-core-runtime/index.html",
       "points": [
         "依据 Wiki 的柔韧面皮、馅料与霉变设定，以及 EH27-001 的局部污迹观察；具体色板与纹路为原创。",
         "霉斑四档、脏污三档，另含压伤、烤足侧视。中枢外露采用大创口、凹入豆沙腔壁和唯一中央核心。",
-        "制作源登记为待确认草稿，尚未替换游戏素材。"
+        "表面纹样沿真实状态显示；大创腔裁去皮面和覆盖的五官，中枢取出后只留空腔。动态蒙皮与游戏遮挡仍需试玩。"
       ],
       "steps": [
-        {"title": "中枢外露 · 大创口", "caption": "整只比例、近看、破裂和侧视；真实三维创腔，尚未接入游戏。", "image": "body-marks/core-cavity.png"},
-        {"title": "完整角色", "caption": "当前角色网格、贴图和位置适配的离线材质提案。", "image": "body-marks/overview.png"},
-        {"title": "纹样局部", "caption": "局部放大核对霉斑粉霜、面皮裂口、浅色旧疤与尘土。", "image": "body-marks/details.png"}
+        {"title": "中枢外露与空腔", "caption": "当前导出几何的整只、近看、侧视、裂损及取出后空腔；离线静态预览。", "image": "body-core-runtime/current.png"},
+        {"title": "当前身体印记", "caption": "十三张当前选用贴图，包含油霉四阶段、脏污三阶段和连续足缘焦化。", "image": "body-marks-runtime/current.png"}
       ],
       "gallery": [
-        {"src": "body-marks/comparison.png", "label": "旧图形与新提案"},
-        {"src": "body-marks/stages.png", "label": "霉斑与脏污阶段"},
-        {"src": "body-marks/injuries.png", "label": "受伤补充"}
+        {"src": "body-marks-runtime/current.png", "label": "当前表面材质"},
+        {"src": "body-core-runtime/current.png", "label": "当前三维创腔"}
       ]
     },
     {
