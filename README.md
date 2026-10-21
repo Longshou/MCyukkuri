@@ -23,6 +23,6 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 
 ## 参与开发
 
-先读 [AGENTS.md](AGENTS.md)（开发规则与入口），再看 [项目地图](PROJECT_MAP.md) 与 [文档索引](docs/README.md)。设定来源见 [Wiki](wiki/README.md)，第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+先读 [AGENTS.md](AGENTS.md)（开发规则与按变更维护文档的要求）。找目录与素材流向用[项目地图](PROJECT_MAP.md)，找玩法专题和代码用[文档索引](docs/README.md)，按任务选读。设定来源见 [Wiki](wiki/README.md)，第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 项目暂按 **All Rights Reserved** 管理。不是 Mojang 或 Microsoft 官方产品。

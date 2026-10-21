@@ -33,11 +33,7 @@ PR 构建编译的是 PR **合并提交**，产物名用合并提交的 sha。�
 
 ## 启动接线与服务器配置
 
-`MCYukkuri` 负责资源与配置入口，`registry/CommonRegistration` 逐条声明通用事件监听；独立的 CLIENT 模组入口 `client/ClientRegistration` 负责渲染、声音和客户端读数接线。监听的事件类型、优先级和取消策略以这两个入口为准。新增监听时在对应入口登记，业务类不再使用自动订阅注解。
-
-同一事件的注册顺序写在入口中：保留原构造期前缀及聚落 ticker 的位置；入世界时恢复演出状态；五属性由实体的性格组件持有，不再另存认知账本。`HumanCommerce` 在实体完整 `super.tick()` 后处理，随后实体 Post 事件依次处理帽上乘客和野生事件发现；组件原有阶段不变。该顺序不承诺与第三方监听维持过去未定义的交错。
-
-Facilities、Playgrounds、Consumables、FreezerModule 的 `register(modBus)` 分别绑定本模块的资源登记器。资源标识不变，旧物品 `mint_leaf` 仍通过别名读取为 `sleep_spray`。登记入口只在模组构造时调用一次，重复绑定由 DeferredRegister 抛错，不静默跳过。
+启动、模块资源注册与事件顺序统一见[代码架构说明](REFACTOR_HANDOFF.md#1-启动注册与事件)。本节只说明运行配置的位置与用途。
 
 三份配置均注册为 SERVER 配置，保存到对应世界的 `serverconfig/`，以服务器值为准：
 
@@ -108,8 +104,8 @@ Facilities、Playgrounds、Consumables、FreezerModule 的 `register(modBus)` �
 - [NeoForge 1.21.1 开发文档](https://docs.neoforged.net/docs/1.21.1/gettingstarted/)
 - [NeoForge ModDevGradle 模板](https://github.com/NeoForgeMDKs/MDK-1.21.1-ModDevGradle)
 
-## 暂缓的技术改动
+## 技术改动的采用条件
 
-- **运行资源瘦身（未做）**：先测同一提交的完整 Jar 体积和 Java 加载／重载耗时，再决定是否改变 JSON 或归档压缩；不能用单文件 gzip 比例替代完整产物收益。保持模型数字字面量、几何指纹、资源包覆盖与外观契约；收益不足则保留现格式。Java 测量放在允许运行的远端或试玩环境，本机不编译。
-- **实体同步改网络包（未做，按需）**：已有 `ReadoutPayload` / `ReadoutNetworking` 服务于定向报告；实体展示仍沿用 `SynchedEntityData` / `CompoundTag`。只有实际性能问题或同步内容扩展需要时再迁移。
-- **可选兼容（未做）**：Jade 状态显示、农夫乐事食物、季节模组替换 `Seasons.at`；Patchouli 图鉴优先级最低，已有观察笔记覆盖基本用途。
+- **运行资源瘦身**：先测同一提交的完整 Jar 体积和 Java 加载／重载耗时，再决定是否改变 JSON 或归档压缩；不能用单文件 gzip 比例替代完整产物收益。保持模型数字字面量、几何指纹、资源包覆盖与外观契约；收益不足则保留现格式。Java 测量放在允许运行的远端或试玩环境，本机不编译。
+- **实体同步改网络包**：已有 `ReadoutPayload` / `ReadoutNetworking` 服务于定向报告；实体展示仍沿用 `SynchedEntityData` / `CompoundTag`。只有实际性能问题或同步内容扩展需要时再迁移。
+- **可选兼容候选**：Jade 状态显示、农夫乐事食物、季节模组替换 `Seasons.at`；已有观察笔记覆盖基本用途，不优先新增 Patchouli 图鉴。此处保留候选边界，正式排期只登记在待办。

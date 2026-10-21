@@ -7,7 +7,7 @@ body:
     id: environment
     attributes:
       label: 运行环境
-      description: 填写 Mod 版本或 commit、NeoForge / GeckoLib 版本、其他模组及单人或服务器。
+      description: 填写实际运行包的 commit（不知道就写“版本待核实”）、已知 CI run、NeoForge 版本、其他模组及单人或服务器；不要用当前代码 HEAD 代替运行版本。
     validations:
       required: true
   - type: textarea

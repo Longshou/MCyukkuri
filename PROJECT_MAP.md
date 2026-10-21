@@ -19,7 +19,7 @@
 | `docs/` | 开发文档：入口、待办、设计裁决和各系统专题。见 [文档索引](docs/README.md) |
 | `scripts/` | 跨目录的导出、检查和试玩场生成脚本，每个脚本注明用途与写入边界。见 [scripts/](scripts/README.md) |
 | `preview/hub/`、`preview/review/` | 预览总入口模板与素材检查室源码；由 `scripts/build_preview_hub.py` 生成到 `.local/previews/` |
-| `tools/browser-check/` | 各 `verify*.cjs` 使用的 Playwright 依赖 |
+| `tools/browser-check/` | 历史浏览器检查工具的依赖；不是当前 Agent 验证入口，见[脚本边界](scripts/README.md) |
 | `.github/` | CI（只编译）与 Issue／PR 模板 |
 | `.local/` | 本机工作区，不提交：预览、截图、报告、草稿、下载的参考、CI 运行包、试玩场存档、本机工具（见[开发指南](docs/DEVELOPMENT.md#本机工具)） |
 | `.worktrees/` | 需要隔离时的 git 工作树，不纳入版本管理 |

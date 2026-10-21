@@ -1,10 +1,12 @@
 # 试玩场动作清单
 
+本页由 `scripts/build_museum_full.py` 的 `write_catalogue` 生成，不手工维护；修改动作注册、分类或适配资源后再重建。操作命令见文末。
+
 当前 `YukkuriAction` 注册 114 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适配。水生魔理沙与普通魔理沙共用模型，场景按生态身份分开。
 
 试玩场的“动作片段”场地用 9 位固定演员播放 47 个纯动作片段（含待机），分五类：身体与移动、日常生活、交流与情绪、宠物店与表情、运输与篮子，另有全体合唱和全体体操。家庭、照护、帽子与水边、落水与救援类动作由真实行为触发，在对应场景里自然出现，不放假按钮。
 
-缩壳虽然有专属资源，但当前命令将所有 `_retract` 当作成对收回动作，导致 `shell_retract` 回到待机，因此不放置缩壳按钮；自然受惊时的缩壳由另一条行为路径触发。身体结构四段、失去幼体后的悲伤（`bereaved`）和家油内部片段不放按钮，但仍在下表列全。
+缩壳命令只接受有壳且不在水中、不着火的个体；自然受惊时也可触发。动作片段场地没有缩壳按钮，适配资源仍列在下表。身体结构四段、失去幼体后的悲伤（`bereaved`）和家油内部片段不放按钮，但仍在下表列全。
 
 ## 身体与移动
 
@@ -182,7 +184,7 @@
 | 模型 | 内部片段 |
 | --- | --- |
 | 灵梦 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
-| 魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`boat_toilet`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
+| 魔理沙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`boat_toilet`、`braid_reach_low`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
 | 橙 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
 | 爱丽丝 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
 | 帕秋莉 | `boat_be_carried`、`boat_carry_young`、`boat_prepare_carry`、`boat_release_carry`、`care_finish`、`feed_child`、`first_toilet_assist`、`hat_walk`、`learn_jump`、`learn_watch`、`nest_harvest`、`nest_place`、`nest_press`、`nest_spread`、`newborn_crawl`、`water_hat_over`、`water_hat_pull`、`water_held_breath` |
@@ -203,4 +205,4 @@
 
 家油夹取、搬运、放下、蠕动由相应行为状态调用；试玩场的家油场景让一对家油真实拾絮、筑巢、产卵，不播放这些内部片段。
 
-维护入口：`scripts/build_museum_full.py --install`（生成新世界）；本清单用 `--catalog docs/MOTION_MUSEUM_ACTIONS.md --pack-only --output <新目录>` 重新生成。
+重建清单：`python scripts/build_museum_full.py --catalog docs/MOTION_MUSEUM_ACTIONS.md --pack-only --output .local/experimental-map/<新目录>`。该命令同时生成临时数据包，输出目录必须不存在；核对后删除本次临时目录。无需为更新清单使用会替换试玩世界的 `--install`。

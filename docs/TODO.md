@@ -126,7 +126,7 @@
   - `harness_walk`、`walker` 牵引：陆 37（12）套胸带回应限时、归还移动控制，看跟随、喂食、解绳后活动。`feed_wild` 喂野生油：陆 40（18）只喂营养 ≤35 的野生个体，间隔 2400 tick。
   - `oniisan`、`oniisan_prey`、`attack_witness` 鬼威惨与目击：陆 10（22）同时看见双方的目击者退避、亲友收到警报；陆 15 看见鬼威惨即退避。
   - `exam_fail` 考试不及格：处分。`shop_stale` 滞销库存照料：陆 34 滞销减粮已关。`shop_build` 整座商店：饲养员回收、强度 3 档、中枢馅收购价。`factory_wear` 种油损耗：多胎恶化曲线。
-- **物种与稀有形态**：`marisa_sumo` 魔理沙好斗：陆 4（1）相扑出现。`myon_stick` 妖梦与楼观剑：[妖梦](RARE_FORMS.md)口癖与觅草（战力见陆 17）。`rare_forms` 稀有形态一览及 `/yukkuri action`：逐一查看全部 19 种形态受伤有伤口、佩章有圆牌，日志不出现 `Wound/Badge attachment disabled`；素材匹配不代替视觉确认。
+- **物种与稀有形态**：`marisa_sumo` 魔理沙好斗：陆 4（1）相扑出现。`myon_stick` 妖梦与楼观剑：[妖梦](RARE_FORMS.md)口癖与觅草（战力见陆 17）。`rare_forms` 稀有形态一览及 `/yukkuri action`：逐一查看全部 19 种形态受伤有伤口、佩章有圆牌，日志不出现 `Wound/Badge attachment disabled`；另核对木棍嘴部朝向与被炉动作穿插；跨季节行为结合陆 5 冬夏场景，红眼兆头迁址需在真实聚落旁观察，一览场景本身不证明迁址。素材匹配不代替视觉确认。
 - **无专属场景**：[胎数随体型变化](BEHAVIOR_BALANCE_DESIGN.md)、[认屋与群体事件](WILD_EVENTS_IMPLEMENTATION.md)、[螺壳雨天缩壳](SUBSPECIES_IMPLEMENTATION.md)、[工厂到店物流](PET_SHOP.md)、[声音注册](DIALOGUE_IMPLEMENTATION.md)；命名牌取名、子代本名不重名、宝物被取走或被抢。
 
 ## 修复顺序
@@ -187,12 +187,12 @@
 用户说“保存 xx”即登记为标准；改模型走制作源→导出→`art/runtime-sources.json`。道具逐项见[周边美术清单](PROP_ART_INVENTORY.md)。
 
 - **身体印记**（霉斑、烤足、露馅、中枢大凹陷）：部分接入，草稿在 `standards/yukkuri-library/drafts/body-marks/`，未替换 `art/props/body-marks` 与 `WoundRenderer`；中枢外露入口已放大，等用户看。
-- **已接入待试玩，等视觉确认**：爱丽丝八景蓝瞳与蓝眼表情（`art/alice` 分支另一版 `body-standard/features/alice-hakkei/` 待确认，主检出有别的会话未提交的爱丽丝制作源改动，先协调）；雷普魔 1.12 脸、行为序列与 peni 显示（`drafts/rapem-alice/` 未认可）；成体状态脸（八景 U 重绘，`art/source/adult-states/`）；稀有形态贴图（妖梦与红眼、橙尾、被炉魔理沙，登记缺认可字段）；小麦粉糊、中枢馅、橙汁、去霉药、酸奶、兴奋药、幼语药、弹珠汽水喷雾。
+- **已接入待试玩，等视觉确认**：爱丽丝八景蓝瞳与蓝眼表情（制作源 `standards/yukkuri-library/body-standard/features/alice-hakkei/`，视觉确认仍按源登记核对）；雷普魔 1.12 脸、行为序列与 peni 显示（`drafts/rapem-alice/` 未认可）；成体状态脸（八景 U 重绘，`art/source/adult-states/`）；稀有形态贴图（妖梦与红眼、橙尾、被炉魔理沙，登记缺认可字段）；小麦粉糊、中枢馅、橙汁、去霉药、酸奶、兴奋药、幼语药、弹珠汽水喷雾。
 - **部分接入**：照料道具 R4 统一造型与 `hat_provisions` 候选待确认；草药借原版海带要换图标（绷带已移除，旧档迁移待试玩）。**未做**：按死因区分的[遗体美术](INJURIES_AND_REMAINS.md#尚未接入的遗体表现)、[水中泡软与溶化遗体](AQUATIC_MARISA_IMPLEMENTATION.md#浸水表现的未做项)。
 - **随玩法排入**：暖桌帘布（陆 5）、妖梦咬刀（陆 17）、茎下垂（陆 22）、献身切面（陆 24）、握桨与运婴姿态（水 13、14）；水生帽模型（水 15）已接入待试玩，另见上方待办；群系地形材料（陆 12）另作场景包。
 
 ## 暂缓/不重要
 
 - **陆 28 痛苦记忆随排便淡化**（21）：已接入待试玩。真实完成排便对已记住对象的恐惧减2，不改亲近或当前伤口；在“亲近与恐惧独立”查看排便前后 `relations.objects`。见[行为数值设计](BEHAVIOR_BALANCE_DESIGN.md)。
-- 用户不提不开工（未做）：[DOS](RARE_FORMS.md#dos-的采用边界)、[捕食种误判危险](WILD_EVENTS_IMPLEMENTATION.md#可选的误判危险事件)、[村边纠纷](HUMAN_WORLD.md)、[饲主威胁线](PET_SHOP.md)、[网络包同步和可选兼容](DEVELOPMENT.md#暂缓的技术改动)。部分接入、现状待核对：[工厂流水线与 NPC 态度关系](HUMAN_WORLD.md)。
-- 未做：[认屋成员脱离聚落、解除伴侣与强盗团离开消散](WILD_EVENTS_IMPLEMENTATION.md)；[运行资源瘦身](DEVELOPMENT.md#暂缓的技术改动)（先测完整 Jar 大小与加载耗时）。
+- 用户不提不开工（未做）：[DOS](RARE_FORMS.md#dos-的采用边界)、[捕食种误判危险](WILD_EVENTS_IMPLEMENTATION.md#可选的误判危险事件)、[村边纠纷](HUMAN_WORLD.md)、[饲主威胁线](PET_SHOP.md)、[网络包同步和可选兼容](DEVELOPMENT.md#技术改动的采用条件)。部分接入、现状待核对：[工厂流水线与 NPC 态度关系](HUMAN_WORLD.md)。
+- 未做：[认屋成员脱离聚落、解除伴侣与强盗团离开消散](WILD_EVENTS_IMPLEMENTATION.md)；[运行资源瘦身](DEVELOPMENT.md#技术改动的采用条件)（先测完整 Jar 大小与加载耗时）。

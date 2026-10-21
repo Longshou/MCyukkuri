@@ -29,11 +29,13 @@
 
 素材集中检查使用 `build_review_catalog.py` 从当前运行资源生成模型／声音索引，`start_review.ps1` 启动仅监听本机的只读服务；`-NoOpen` 只启动服务并输出地址，不打开浏览器。`stop_review.ps1` 按进程记录停止该服务。`verify_review.cjs` 通过命令行验证动作数据并生成模型缩略图，不操作浏览器或游戏。入口见[素材检查室](../preview/review/README.md)。
 
-灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑；`preview_reimu_deficient.py` 生成当前四视图和动作检查，页面检查用 `node scripts/verify_marisa_deficient_browser.cjs reimu`。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
+灵梦稀毛／歪脸的定向导出为 `export_reimu_deficient_rounded.py`，复用现有不足形态圆润生成逻辑。当前运行模型统一用 `build_preview_hub.py --render` 离线预览。`preview_reimu_deficient.py`／`preview_marisa_deficient.py` 保留源、快照、运行资源指纹与动作采样检查，但仍依赖旧专项预览目录；使用前需迁移输出路径，不能把通用预览当作已通过这些专项检查。来源见[制作包](../standards/yukkuri-library/subspecies/deficient/rounded-reimu/README.md)。
+
+`verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
 人工试玩当前使用[油库里试玩场](../docs/EXPERIMENTAL_MAP.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录必须是 `.local/experimental-map` 下不存在的新目录。
 
-圆润体型、四轴性格与灵胖发育的新素材依次使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only`、`export_family_assets.py` 和 `build_rounded_preview.py`；束具仍由标准库 `drafts/operation-tools/build.py` 生成。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
+圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 只服务旧专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
 接触器具的制作与导出入口为 `standards/yukkuri-library/drafts/operation-tools/build.py`。它从参数配方及所选角色表面制作器具、固定带、铁箱和培养瓶，同步可编辑模型、接入快照、运行资源、配方与指纹；`--check` 只核对导出。当前版本为待确认的游戏适配版。
 

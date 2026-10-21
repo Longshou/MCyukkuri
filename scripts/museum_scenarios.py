@@ -6,7 +6,8 @@ wound, a hat boat afloat ...). After that nothing is scripted, fixed or invulner
 clock up, flies to the lead, or clears the field and starts again.
 
 Fields hold the terrain (museum_fields.py); each scenario names its field and the spot of that field it stands around.
-Every scenario carries the code of the user concern it answers (``TOPICS`` at the end), which docs/EXPERIMENTAL_MAP.md tabulates.
+The ``TOPICS`` mapping at the end connects user concerns to scenarios; docs/TODO.md owns progress and completion criteria.
+Scenario definitions and readouts live here; docs/EXPERIMENTAL_MAP.md covers navigation and shared operations.
 """
 import sys
 

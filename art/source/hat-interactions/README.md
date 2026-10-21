@@ -10,4 +10,4 @@
 
 帽托位置在右侧帽檐支撑区中央。接纳前检查足印余量、完整幼油模型与帽身／蝴蝶结的相交，以及座位处的方块和液体。托载时使用行走或静止姿态，幼油位置、朝向及倾斜跟随帽根矩阵；父体的其他日常外部变形暂不叠加。长大后放不下、帽子失效或遇到危险时解除乘坐关系。正常放下和取帽会先寻找安全地面；危险时无安全地面则释放到附近自由空间，继续服从实体原有的重力设置。
 
-制作参数由 [recipe.json](recipe.json)登记，`scripts/export_hat_interactions.py` 从五种当前模型推导帽根、动作尺度、支撑区及候选幼油包围盒，输出 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json`。本包不覆盖角色造型源或图集。修改角色几何后须重导并复核尺寸组合；`scripts/preview_hat_interactions.py` 在本机生成交互预览（不入库），读取当前游戏模型，家油按同屏可读尺寸放大展示；`node scripts/verify_hat_interactions.cjs` 检查交互页。
+制作参数由 [recipe.json](recipe.json)登记，`scripts/export_hat_interactions.py` 从五种当前模型推导帽根、动作尺度、支撑区及候选幼油包围盒，输出 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json`。本包不覆盖角色造型源或图集。修改角色几何后须重导并复核尺寸组合；当前运行模型预览统一见[预览工具](../../../scripts/README.md)。`preview_hat_interactions.py` 与 `verify_hat_interactions.cjs` 保留旧专项页面及浏览器检查方式，不作为当前 Agent 执行入口；帽托接触和乘坐结果由用户在对应试玩场景确认。

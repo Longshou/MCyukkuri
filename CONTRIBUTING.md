@@ -1,6 +1,6 @@
 # 协作约定
 
-规则以 [AGENTS.md](AGENTS.md) 为准，入口与目录分工见 [项目地图](PROJECT_MAP.md) 和 [文档索引](docs/README.md)。
+规则及每次改动的[文档维护范围](AGENTS.md#文档按变更维护)以 AGENTS.md 为准，入口与目录分工见 [项目地图](PROJECT_MAP.md) 和 [文档索引](docs/README.md)。
 
 1. 一次改动围绕一个目标。生态设定尽量附来源（讲堂帖楼层或 Wiki 页），原创规则注明“原创”或“项目设计”。
 2. `main` 是集成分支，CI 只编译；玩法由用户在油库里试玩场亲自试玩。
