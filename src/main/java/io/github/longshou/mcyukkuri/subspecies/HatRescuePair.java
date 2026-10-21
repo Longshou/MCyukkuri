@@ -50,7 +50,8 @@ final class HatRescuePair {
         }
         // Include the delivery seat lattice as well as the walking lattice; a half-unit side shift
         // can put a finite braid within reach even when the nearest default seat is unreachable.
-        var opening=HatVessel.opening(boat.mode()),brim=HatVessel.brim(boat.mode());
+        var opening=HatVessel.opening(boat.mode());
+        var brim=HatVessel.brim(boat.mode());
         for(double step:new double[]{.5,.4})for(double x=opening[0]+radius;x<=opening[1]-radius+1e-6;x+=step)
             for(double z=opening[2]+radius;z<=opening[3]-radius+1e-6;z+=step){
                 double y=HatVessel.footprint(boat.mode(),x,z,radius);
