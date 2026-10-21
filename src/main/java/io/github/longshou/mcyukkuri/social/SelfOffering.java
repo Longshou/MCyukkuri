@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * 「ゆっくりたべていってね」 ("please eat me"): the parent's last gift in a famine, a special mechanism of its own and not the ordinary dying
@@ -22,8 +23,8 @@ import net.minecraft.world.entity.item.ItemEntity;
  * version in which the rite can be interrupted). Everything numeric is project design.
  * <ul>
  * <li>Trigger: a free adult (wild, stray, settler) whose own child (or, with no child in need, partner) within 12 blocks has been starving
- *     (nutrition below 10) for three scans in a row with no food in sight. The parent's own hunger raises the probability; a well-fed
- *     one only volunteers occasionally. A parent already dying near such a child offers its body too ({@link #dedicate}).</li>
+ *     (nutrition below 10) for three scans in a row without an available meal or viable parental care. Friendliness and the
+ *     familiar, urgent relationship determine willingness. A parent already dying near such a child offers its body too ({@link #dedicate}).</li>
  * <li>Chain: approach, ASK ({@code offer_ask}; the child hesitates and cries, unease up), INSIST ({@code offer_insist}), GIVE
  *     ({@code offer_give}): the parent's core gives out ({@code damageCore("offering")}) and the body is left marked
  *     {@code Offered}/{@code OfferedTo}. Feeding the child before the GIVE stops it ({@code offer_spared}).</li>
@@ -79,16 +80,48 @@ public final class SelfOffering extends Goal {
     private boolean mine(YukkuriEntity other) {
         return Bonds.parentOf(entity, other);
     }
-    private boolean foodNear(YukkuriEntity around) {
-        if (around.profile().aquatic() && around.aquaticLife().availableFood() > 0) return true;
-        return !level().getEntitiesOfClass(ItemEntity.class, around.getBoundingBox().inflate(8, 3, 8),
-                i -> i.isAlive() && around.life().acceptsFood(i.getItem())).isEmpty();
+    /** A real current meal, never merely an item that happens to be nearby. */
+    private boolean foodAvailable(YukkuriEntity target) {
+        if (target.profile().aquatic() && target.aquaticLife().availableFood() > 0) return true;
+        if (!target.life().canEat()) return false;
+        var carried=target.habitat().carrying();
+        if (!carried.isEmpty() && carried.is(YukkuriEntity.FOOD) && target.life().acceptsFood(carried)) return true;
+        var home=target.habitat().shelter();
+        var pile=home==null?null:home.pile();
+        if (!target.settlement().underway() && home!=null && home.usable(target) && pile!=null && home.hasFoodFor(target,target)
+                && target.life().reachable(pile.standCell(),false)) return true;
+        return EventHooks.canEntityGrief(level(),target) && !level().getEntitiesOfClass(ItemEntity.class,
+                target.getBoundingBox().inflate(8,3,8), item -> item.isAlive()&&!item.hasPickUpDelay()
+                        && target.life().acceptsFood(item.getItem())
+                        && (target.distanceToSqr(item)<.5&&target.hasLineOfSight(item)||target.life().reachable(item.blockPosition(),false))).isEmpty();
+    }
+    /** A parent may prevent the rite only through the existing, physically checked care path. */
+    private boolean parentCanFeed(YukkuriEntity target, UUID parentId) {
+        return parentId!=null && level().getEntity(parentId) instanceof YukkuriEntity parent && parent.isAlive()
+                && parent.family().hasFeedingOpportunity(target);
+    }
+    private boolean anotherParentOffering(YukkuriEntity target, UUID parentId) {
+        return parentId!=null&&!parentId.equals(entity.getUUID())&&level().getEntity(parentId) instanceof YukkuriEntity parent
+                && parent.isAlive()&&parent.offering().active()&&target.getUUID().equals(parent.offering().recipient());
+    }
+    /** Do not replace food currently being eaten or the first parent's already active offering. */
+    private boolean alreadyRescued(YukkuriEntity target) {
+        if (target.life().mealTicks() > 0) return true;
+        UUID mother=target.family().mother(), father=target.family().father();
+        return anotherParentOffering(target,mother)||anotherParentOffering(target,father);
+    }
+    /** A real independent meal or an existing, physically checked care path can take over before GIVE. */
+    private boolean remedyAvailable(YukkuriEntity target) {
+        if (foodAvailable(target)) return true;
+        UUID mother=target.family().mother(), father=target.family().father();
+        return parentCanFeed(target,mother)||parentCanFeed(target,father);
     }
     /** The one to give oneself to: a starving child first, then the partner. */
     private YukkuriEntity findRecipient(boolean ignoreHunger) {
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(12, 4, 12), y -> y != entity && y.isAlive()
                 && !y.body().dying() && !y.profile().dangerToYukkuri() && !y.life().isSleeping() && y.hasLineOfSight(entity)
-                && (ignoreHunger || y.life().nutrition() < 10 && !foodNear(y)) && (mine(y) || y.getUUID().equals(entity.family().partner())));
+                && !alreadyRescued(y) && (ignoreHunger || y.life().nutrition() < 10 && !remedyAvailable(y))
+                && (mine(y) || y.getUUID().equals(entity.family().partner())));
         return near.stream().min(Comparator.comparingInt((YukkuriEntity y) -> mine(y) ? 0 : 1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
@@ -147,6 +180,19 @@ public final class SelfOffering extends Goal {
             child.getLookControl().setLookAt(entity, 30, 30);
             return;
         }
+        boolean rescued = alreadyRescued(child);
+        boolean remedy = remedyAvailable(child);
+        // A new real meal or care opportunity takes over at every pre-GIVE phase, including the approach.
+        if (child.life().nutrition() >= 25 || rescued || remedy) {
+            EcologyMovement.halt(entity); EcologyMovement.halt(child);
+            entity.showReaction("happy", "offer_spared", 80);
+            lastReason = child.life().nutrition() >= 25 ? "spared (child fed)"
+                    : rescued ? "spared (care already started)" : "spared (food available)";
+            GameplayLog.event(entity, "offering", "spared recipient={} nutrition={} phase={} elapsed={} reason={}",
+                    child.getUUID(), child.life().nutrition(), phase, elapsed, lastReason);
+            phase = Phase.NONE; recipient = null;
+            return;
+        }
         if (phase == Phase.APPROACH) {
             if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
                 if (elapsed % 10 == 1) EcologyMovement.approach(entity, child, 1.1);
@@ -163,15 +209,6 @@ public final class SelfOffering extends Goal {
         }
         EcologyMovement.halt(entity); EcologyMovement.halt(child);
         child.getLookControl().setLookAt(entity, 30, 30);
-        // The rite can be interrupted: fed in time, the child is no longer starving and the parent lives.
-        if (child.life().nutrition() >= 25) {
-            entity.showReaction("happy", "offer_spared", 80);
-            lastReason = "spared (child fed)";
-            GameplayLog.event(entity, "offering", "spared recipient={} nutrition={} phase={} elapsed={}",
-                    child.getUUID(), child.life().nutrition(), phase, elapsed);
-            phase = Phase.NONE; recipient = null;
-            return;
-        }
         if ((EcologyMovement.boat(entity) != null || EcologyMovement.boat(child) != null)
                 && (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child))) {
             phase = Phase.APPROACH; phaseTicks = 0; lastReason = "recipient_moved"; return;
@@ -198,7 +235,8 @@ public final class SelfOffering extends Goal {
     public boolean dedicate() {
         if (!YukkuriConfig.SELF_OFFERING.get() || !free() || !entity.family().adult() || entity.profile().dangerToYukkuri() || entity.profile().houseBody()) return false;
         var near = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive() && !y.body().dying()
-                && !y.profile().dangerToYukkuri() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity));
+                && !y.profile().dangerToYukkuri() && mine(y) && y.life().nutrition() < 10 && y.hasLineOfSight(entity)
+                && !alreadyRescued(y));
         var target = near.stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (target == null) return false;
         recipient = target.getUUID(); child = target; phase = Phase.GIVE; elapsed = phaseTicks = 0; lastReason = "dedicate";

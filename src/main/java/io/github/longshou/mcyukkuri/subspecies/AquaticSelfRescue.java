@@ -203,8 +203,11 @@ public final class AquaticSelfRescue {
             return false;
         }
         if(lastEscape==now())return active();lastEscape=now();
+        boolean childFirstWasBlocking=parentRescue.blockingSelfRescue();
         if(parentRescue.active()&&parentRescue.tick(hat()))return true;
         if(parentRescue.retryAfterFailure(hat()))return true;
+        if(childFirstWasBlocking)GameplayLog.event(actor,"aquatic",
+                "parent water rescue yielded to self rescue hat={} phase={} detail={}",hatId,phase,parentRescue.statusDetail());
         if(actor.family().selfClimbActive()){set(Phase.CLIMB);return true;}
         if(!capable()){
             // WaterDistress keeps the known physical hat as its destination and supplies the exhausted weak drift.

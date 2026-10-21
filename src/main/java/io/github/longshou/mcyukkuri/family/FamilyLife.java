@@ -39,9 +39,9 @@ public final class FamilyLife {
     private static final ResourceLocation GROWTH_SPEED=MCYukkuri.id("growth_speed");
     /** Existing stimulant/normal breeding-period duration; a project parameter, not a source-game timer. */
     public static final int BREEDING_PERIOD_TICKS = 1200;
-    /** A dependent child normally stays within 1.5 blocks; curiosity or boldness opens the radius gradually, never past six blocks. */
+    /** The existing close-follow baseline for a dependent land child; boldness and attachment adjust it at the decision boundary. */
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
-            FAMILY_WANDER_START = 60, FAMILY_WANDER_PER_POINT = .225, FAMILY_WANDER_MAX = 6, FAMILY_SEARCH_RANGE = 16;
+            FAMILY_SEARCH_RANGE = 16;
     public enum Stage { BABY, JUVENILE, ADULT }
     enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER }
     private final YukkuriEntity entity;
@@ -204,6 +204,19 @@ public final class FamilyLife {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),
                 child->caresFor(child)&&child.life().nutrition()<30&&child.life().canReceiveCareFood()).isEmpty();
     }
+    /** Uses the existing food source, care refusal and physical reach rules; it never starts care or rolls willingness. */
+    public boolean hasFeedingOpportunity(YukkuriEntity child) { return feeding.hasOpportunity(child); }
+    /** Migration yields to the same feeding and lost-child routines instead of leaving dependants behind. */
+    public boolean prepareMigrationCare() {
+        if(!adult()||!ordinaryLandFree(entity)||!entity.settlement().familyMarching())return false;
+        if(migrationCareActive())return canContinue();
+        if(task!=Task.NONE||wait>0||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0
+                ||entity.life().isSleeping()||entity.dailyLife().active())return false;
+        wait=40;
+        return feeding.startCare()||startLandChildSearch();
+    }
+    /** Current family work only: no search or willingness decision is performed for this readout. */
+    public boolean migrationCareActive() { return task==Task.FEED_CHILD||task==Task.SEARCH&&target!=null&&caresFor(target); }
     public boolean elder() { return age>=GrowthTiming.ELDER_START; }
     /** The final child interval is internally still {@link Stage#JUVENILE}; it is a separate age qualification. */
     public boolean subadult() { return age>=GrowthTiming.SUBADULT_START&&age<GrowthTiming.ADULT_START; }
@@ -791,10 +804,7 @@ public final class FamilyLife {
         if(entity.forageTrip()!=null&&entity.forageTrip().outing())return false;
         if(feeding.startCare())return true;
         if(ordinaryLandFree(entity)) {
-            var child=closestSeparatedDependentChild();
-            if(child!=null) {
-                task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("happy","wait_family",80);return true;
-            }
+            if(startLandChildSearch())return true;
         } else if(!entity.profile().landSettler()) {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                     &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
@@ -816,24 +826,62 @@ public final class FamilyLife {
         }
         return false;
     }
+    private boolean startLandChildSearch() {
+        var child=closestSeparatedDependentChild();
+        if(child==null)return false;
+        task=Task.SEARCH;target=child;searchAt=null;taskTicks=0;entity.showReaction("happy","wait_family",80);return true;
+    }
     private YukkuriEntity closestParent() {
+        if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(Bonds.parentOf(other, entity))&&entity.life().canRecognize(other))
                 .stream().filter(other->entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
-    /** The current child's own confidence sets how much room a parent gives it before searching. */
+    /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
+    private YukkuriEntity migrationEscort() {
+        YukkuriEntity first=null,second=null;
+        for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
+                &&ordinaryLandFree(parent)&&parent.family().adult()
+                &&(parent.settlement().familyMarching()||entity.settlement().returningToSettledParent(parent))
+                &&entity.distanceToSqr(parent)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE
+                &&entity.life().canRecognize(parent)&&parent.life().canRecognize(entity)) {
+            if(first==null)first=parent;else second=parent;
+        }
+        // Retain an actual rendezvous until it finishes; neither parent may pull against the child's running follow.
+        if(task==Task.FOLLOW&&(target==first||target==second))return target;
+        boolean firstSearching=first!=null&&first.family().task==Task.SEARCH&&first.family().target==entity;
+        boolean secondSearching=second!=null&&second.family().task==Task.SEARCH&&second.family().target==entity;
+        if(firstSearching&&secondSearching)return first.getUUID().compareTo(second.getUUID())<0?first:second;
+        if(firstSearching)return first;
+        if(secondSearching)return second;
+        if(first==null)return null;
+        if(second!=null&&(entity.distanceToSqr(second)<entity.distanceToSqr(first)
+                ||entity.distanceToSqr(second)==entity.distanceToSqr(first)&&second.getUUID().compareTo(first.getUUID())<0)) {
+            var swap=first;first=second;second=swap;
+        }
+        if(entity.life().reachable(first.blockPosition(),false))return first;
+        return second!=null&&entity.life().reachable(second.blockPosition(),false)?second:null;
+    }
+    private boolean escortsMigratingChild(YukkuriEntity child) {
+        return !child.family().familyTravelling()||child.family().migrationEscort()==entity;
+    }
+    /**
+     * The existing 1.5-block dependent-child follow baseline is scaled by the shared exploration
+     * formula. Attachment only narrows or releases the radius while the child is still dependent;
+     * independent subadults never enter this follow/search path.
+     */
     private double familyRadiusSqr() {
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
-        int wandering=entity.life().personality().trait(Trait.BOLDNESS);
-        double radius=FAMILY_FOLLOW_DISTANCE+Math.max(0,wandering-FAMILY_WANDER_START)*FAMILY_WANDER_PER_POINT;
-        radius=Math.min(FAMILY_WANDER_MAX,radius);
+        var personality=entity.life().personality();
+        double radius=FAMILY_FOLLOW_DISTANCE*personality.exploreMultiplier();
+        if(entity.childhood().shouldStayWithParents())radius*=1.20-.004*personality.attachment();
         return radius*radius;
     }
     /** The new mutual search is only for ordinary land families that can all move freely; independent young are never recalled. */
     private YukkuriEntity closestSeparatedDependentChild() {
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(FAMILY_SEARCH_RANGE),other->other.isAlive()
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
-                &&!safeInSharedHome(other)
+                &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
@@ -846,9 +894,17 @@ public final class FamilyLife {
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
+        if(familyTravelling())return null;
         if(readyForOwnNest()&&!parentForaging(mother)&&!parentForaging(father))return null;
         var home=entity.habitat().shelter();
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
+    }
+    /** Dependent walkers follow their real family on the march and on an aborted move's return route. */
+    private boolean familyTravelling() {
+        if(entity.settlement().familyMarching())return true;
+        for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
+                &&parent.isAlive()&&parent.settlement().familyMarching())return true;
+        return false;
     }
     private boolean parentForaging(UUID id) {
         return id!=null&&level().getEntity(id) instanceof YukkuriEntity parent&&parent.isAlive()
@@ -856,6 +912,7 @@ public final class FamilyLife {
                 &&entity.habitat().shelter()==parent.habitat().shelter();
     }
     private boolean safeInSharedHome(YukkuriEntity child) {
+        if(entity.settlement().familyMarching()&&entity.settlement().underway())return false;
         var home=entity.habitat().shelter();
         return home!=null&&home==child.habitat().shelter()&&home.usable(child)&&home.contains(child.blockPosition())
                 &&!child.isPanicking()&&!child.isInWaterOrBubble()&&!child.isOnFire();
@@ -890,7 +947,7 @@ public final class FamilyLife {
         }
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&ordinaryLandFree(target)&&caresFor(target)
-                &&!safeInSharedHome(target)
+                &&escortsMigratingChild(target)&&!safeInSharedHome(target)
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<240&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         return (taskTicks<240||task==Task.BROOD&&prioritizesBirth())

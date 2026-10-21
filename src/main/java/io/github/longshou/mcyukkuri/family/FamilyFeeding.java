@@ -77,7 +77,7 @@ final class FamilyFeeding {
         return o.adult()&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
                 &&!o.entity().profile().aquatic()&&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
-                &&o.entity().habitat().carrying().isEmpty()&&o.entity().independence().carrying().isEmpty()
+                &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty();
     }
     /** New care work needs a comfortable reserve; a started handoff uses the lower emergency boundary. */
@@ -124,14 +124,18 @@ final class FamilyFeeding {
         o.target(hungriestOwnChild());
         if(o.target()==null)return false;
         foodSource=null;foodStore=null;careOfferTicks=0;
-        if(carrying.isEmpty())selectFoodSource();
-        if(carrying.isEmpty()&&foodSource==null&&foodStore==null){
+        boolean ration=o.entity().habitat().hasMoveFoodFor(o.target());
+        if(carrying.isEmpty()&&!ration)selectFoodSource();
+        if(carrying.isEmpty()&&!ration&&foodSource==null&&foodStore==null){
             GameplayLog.limited(o.entity(),"family","care.no_food",1200,
                     "feed refused reason=no_food_source child={} parentNutrition={} childNutrition={}",
                     o.target().getUUID(),o.entity().life().nutrition(),o.target().life().nutrition());
             o.target(null);return false;
         }
         if(!acceptsCare(o.target())){o.target(null);foodSource=null;foodStore=null;return false;}
+        if(carrying.isEmpty()&&ration){
+            carrying=o.entity().habitat().takeMoveFoodFor(o.target());careChewTicks=careOfferTicks=0;
+        }
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
         GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",
                 o.target().getUUID(),carrying,foodSource==null?null:foodSource.getUUID(),foodStore);
@@ -154,6 +158,22 @@ final class FamilyFeeding {
     }
 
     boolean validCareTarget() { return o.target()!=null&&hungryOwnChild(o.target()); }
+
+    /** A real reachable meal can be attempted before a parent treats starvation as having no remedy. */
+    boolean hasOpportunity(YukkuriEntity child) {
+        if(child==null||!hungryOwnChild(child))return false;
+        if(o.task()==Task.FEED_CHILD&&o.target()==child&&careContinuationReady()
+                &&(!carrying.isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null))return true;
+        if(!careReady()||careRefusedUntil.getOrDefault(child.getUUID(),0L)>o.level().getGameTime())return false;
+        if(!carrying.isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
+        var home=o.entity().habitat().shelter();var pile=home==null?null:home.pile();
+        if(home!=null&&home.usable(o.entity())&&pile!=null&&home.hasFoodFor(o.entity(),child)
+                &&o.entity().life().reachable(pile.standCell(),false))return true;
+        return EventHooks.canEntityGrief(o.level(),o.entity())&&!o.level().getEntitiesOfClass(ItemEntity.class,
+                o.entity().getBoundingBox().inflate(8),item->item.isAlive()&&!item.hasPickUpDelay()
+                        &&o.entity().life().acceptsFood(item.getItem())&&child.life().canReceiveCareFood(item.getItem())
+                        &&o.entity().life().reachable(item.blockPosition(),false)).isEmpty();
+    }
 
     /** A cancelled handoff does not mint or erase food: return the held portion or leave it where the parent stands. */
     void settleCareFood() {

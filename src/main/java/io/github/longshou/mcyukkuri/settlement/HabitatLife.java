@@ -67,6 +67,19 @@ public final class HabitatLife {
     public boolean unavailable() { return home!=null&&(!home.dimension().equals(entity.level().dimension())||!entity.level().hasChunkAt(home.pos())); }
     public ShelterBlockEntity shelter() { return home==null||unavailable()?null:ShelterBlock.shelter(entity.level(),home.pos()); }
     public ItemStack carrying() { return carrying; }
+    /** Real migration rations may be shared with a dependent through the ordinary feeding handoff. */
+    public boolean hasMoveFoodFor(YukkuriEntity child) {
+        return moveLoad&&!carrying.isEmpty()&&child!=null&&child.life().canReceiveCareFood(carrying);
+    }
+    public boolean carryingMoveFood() { return moveLoad&&!carrying.isEmpty(); }
+    /** Ownership changes once, after the caregiver accepts; the remaining load still belongs to this habitat. */
+    public ItemStack takeMoveFoodFor(YukkuriEntity child) {
+        if(!hasMoveFoodFor(child))return ItemStack.EMPTY;
+        var portion=carrying.split(1);
+        if(carrying.isEmpty()){carrying=ItemStack.EMPTY;moveLoad=false;}
+        GameplayLog.event(entity,"habitat","migration food reserved for child={} item={} remaining={}",child.getUUID(),portion,carrying.getCount());
+        return portion;
+    }
     /**
      * Migration (settlement/Migration PREPARE): a mouthful of up to {@code max} real portions of one kind of food leaves
      * the own store and is carried to the new site, where the ordinary deposit puts it on the new pile. Returns the count.
@@ -289,6 +302,7 @@ public final class HabitatLife {
                 &&!entity.wintering().usesWinterStores();
     }
     public boolean canUse() {
+        if(carrying.isEmpty())moveLoad=false;
         if(!ready()){homes.cancelVagrantProject();return false;}
         // A higher-priority goal must reject maintenance before the selector interrupts construction.
         if(entity.independence().householdOuting()&&carrying.isEmpty()
@@ -328,7 +342,6 @@ public final class HabitatLife {
         if(seasonal.shareStart(value))return true;
         if(carrying.isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
         boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
-        if(carrying.isEmpty())moveLoad=false;
         if(!carrying.isEmpty()) {
             if(!mayWork&&!(moveLoad&&carrying.is(YukkuriEntity.FOOD))){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();return false;}
             task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;
@@ -366,7 +379,7 @@ public final class HabitatLife {
         return findNestBedding(value);
     }
     private void normalizeNestMaterials() {
-        if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
+        if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carry(nestMaterial);nestMaterial=ItemStack.EMPTY;}
         if(nestMaterial.isEmpty()&&carrying.getCount()==2)nestMaterial=carrying.split(1);
     }
     boolean hasNestProject() { return nestHome!=null; }
@@ -397,7 +410,7 @@ public final class HabitatLife {
     }
     private void takeNestMaterial(ShelterBlockEntity value,ItemStack material) {
         if(nestHome==null)nestHome=GlobalPos.of(level().dimension(),value.getBlockPos());
-        if(carrying.isEmpty())carrying=material;
+        if(carrying.isEmpty())carry(material);
         else if(nestMaterial.isEmpty())nestMaterial=material;
     }
     private boolean planHarvest(ShelterBlockEntity value) {
@@ -431,7 +444,7 @@ public final class HabitatLife {
             if(!mouth(pile))return;
             var food=Rations.fetchTake(entity,value,pile,rationFetch);
             if(food.isEmpty()){stop();return;}
-            rationFetch=null;carrying=food;rationLoad=true;task=Task.DEPOSIT;ticks=0;contact.reset();return;
+            rationFetch=null;carry(food);rationLoad=true;task=Task.DEPOSIT;ticks=0;contact.reset();return;
         }
         if(task==Task.GRAIN_TAKE) {
             var pile=granaryPile();
@@ -469,7 +482,7 @@ public final class HabitatLife {
                     if(!carrying.isEmpty()){stop();return;}
                 }
                 var food=value.takeFood(entity);
-                if(!food.isEmpty()&&!entity.life().beginMeal(food,null,false))carrying=value.returnFood(food);
+                if(!food.isEmpty()&&!entity.life().beginMeal(food,null,false))carry(value.returnFood(food));
                 stop();
             }
         } else if(task==Task.NEST_PICKUP) {
@@ -491,7 +504,7 @@ public final class HabitatLife {
             if(SurfaceApproach.walk(entity,Vec3.atBottomCenterOf(targetBlock),.65)) {
                 int portions=value.nestPortions(entity.getUUID()),work=value.nestWork(entity.getUUID());
                 if(work>=portions*60&&portions<2){
-                    if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
+                    if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carry(nestMaterial);nestMaterial=ItemStack.EMPTY;}
                     if(!carrying.isEmpty()&&value.layNestPortion(entity,carrying)){
                         GameplayLog.event(entity,"habitat","nest material home={} item={} count={} portions={}",
                                 value.getBlockPos(),carrying.getItem(),carrying.getCount(),value.nestPortions(entity.getUUID()));
@@ -510,13 +523,13 @@ public final class HabitatLife {
                     ||!(targetItem.getItem().is(ModItems.WASTE.get())&&value.contains(targetItem.blockPosition())
                     ||wantsMaterial(value,targetItem.getItem()))){stop();return;}
             if(approach(targetItem.blockPosition())&&entity.distanceToSqr(targetItem)<2.25) {
-                carrying=targetItem.getItem().split(1);cheekFill();if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
+                carry(targetItem.getItem().split(1));cheekFill();if(targetItem.getItem().isEmpty())targetItem.discard();targetItem=null;
                 task=carrying.is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;
             }
         } else if(task==Task.HARVEST) {
             if(!wantsHarvest(value)){stop();return;}
             var portion=plants.tick();
-            if(!portion.isEmpty()){carrying=portion;task=Task.DEPOSIT;ticks=0;}
+            if(!portion.isEmpty()){carry(portion);task=Task.DEPOSIT;ticks=0;}
             else if(!plants.active())stop();
         } else if(task==Task.DEPOSIT) {
             // Food goes onto the forage pile by mouth contact; lining and repair materials are still worked in at the bed.
@@ -571,6 +584,7 @@ public final class HabitatLife {
         GameplayLog.event(entity,"habitat","deposit home={} item={} moved=1 carried={} stock={} migrant={} ration={}",
                 value.getBlockPos(),item,carrying.getCount(),value.food(),moveLoad,rationLoad);
         if(!carrying.isEmpty()){contact.reset();ticks=0;return;}
+        moveLoad=false;
         if(entity.getRandom().nextFloat()<.4f)entity.species().count(SpeechCount.STOCK,value.food());
         stop();
     }
@@ -578,13 +592,13 @@ public final class HabitatLife {
         if(entity.level().isClientSide)return;
         if(!carrying.isEmpty())drop(carrying,true);
         if(!nestMaterial.isEmpty())drop(nestMaterial,false);
-        if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carrying=nestMaterial;nestMaterial=ItemStack.EMPTY;}
+        if(carrying.isEmpty()&&!nestMaterial.isEmpty()){carry(nestMaterial);nestMaterial=ItemStack.EMPTY;}
     }
     private void drop(ItemStack stack,boolean primary) {
         var drop=new ItemEntity(level(),entity.getX(),entity.getY(),entity.getZ(),stack.copy());drop.setPickUpDelay(100);
         if(level().addFreshEntity(drop)){
             GameplayLog.event(entity,"habitat","drop item={} count={} task={} drop={}",stack.getItem(),stack.getCount(),task,drop.getUUID());
-            if(primary)carrying=ItemStack.EMPTY;else nestMaterial=ItemStack.EMPTY;
+            if(primary)carry(ItemStack.EMPTY);else nestMaterial=ItemStack.EMPTY;
         } else GameplayLog.limited(entity,"habitat","drop_refused",200,"drop refused item={} count={} task={}",stack.getItem(),stack.getCount(),task);
     }
     YukkuriEntity entity() { return entity; }
@@ -594,7 +608,7 @@ public final class HabitatLife {
     Task task() { return task; }
     BlockPos targetBlock() { return targetBlock; }
     void targetBlock(BlockPos next) { targetBlock=next; }
-    void carry(ItemStack next) { carrying=next; }
+    void carry(ItemStack next) { carrying=next;moveLoad=false; }
     void resetContact() { contact.reset(); }
     int quarrelCooldown() { return seasonal.quarrelCooldown(); }
     void quarrelCooldown(int ticks) { seasonal.quarrelCooldown(ticks); }
@@ -602,7 +616,10 @@ public final class HabitatLife {
     public CompoundTag save() {
         var tag=new CompoundTag();FamilyData.putPosition(tag,"Home",home);
         FamilyData.putPosition(tag,"NestHome",nestHome);
-        if(!carrying.isEmpty())tag.put("Carrying",carrying.save(entity.registryAccess()));
+        if(!carrying.isEmpty()) {
+            tag.put("Carrying",carrying.save(entity.registryAccess()));
+            tag.putBoolean("MoveLoad",moveLoad);
+        }
         if(!nestMaterial.isEmpty())tag.put("NestMaterial",nestMaterial.save(entity.registryAccess()));return tag;
     }
     public void load(CompoundTag tag) {
@@ -610,6 +627,7 @@ public final class HabitatLife {
         homes.resetTransient();
         home=FamilyData.position(tag,"Home");nestHome=FamilyData.position(tag,"NestHome");carrying=tag.contains("Carrying")?ItemStack.parseOptional(entity.registryAccess(),
                 tag.getCompound("Carrying")):ItemStack.EMPTY;
+        moveLoad=!carrying.isEmpty()&&tag.getBoolean("MoveLoad");
         nestMaterial=tag.contains("NestMaterial")?ItemStack.parseOptional(entity.registryAccess(),tag.getCompound("NestMaterial")):ItemStack.EMPTY;
         task=Task.NONE;targetItem=null;targetBlock=null;ticks=buildTicks=0;seasonal.resetLoad();
         wait=20+entity.getRandom().nextInt(100);

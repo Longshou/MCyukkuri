@@ -1235,6 +1235,24 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')])
 
+# The same real households and stores, with dependent crawling infants as an explicit initial condition.
+_migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
+colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
+       '村中孩子从赤油阶段开始：亲油备真实口粮，赤油爬行跟亲，亲油回找掉队孩子并按友善决定喂养；到新址后一起认家庭新窝',
+       '约3–6分钟', [
+           'tag @e[type=#mcylab:yukkuri,nbt={YukkuriFamily:{Stage:"JUVENILE"}},distance=..45] add scn_migrant_baby',
+           f'yukkuri status set {_migrant_babies} growth.age_ticks 36000',
+           f'execute as {_migrant_babies} run data modify entity @s YukkuriChildhood set value {{{CHILDHOOD_CRAWLING_READY}}}',
+           'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] personality.friendliness 90',
+           'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] needs.nutrition 80',
+           f'yukkuri status set {_migrant_babies} needs.nutrition 40',
+           Retry('yukkuri settlement migrate', COLONY_LEAD)],
+       lines=_migration_site,
+       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。检查同一孩子实际移动、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。',
+       reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
+              ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
+              ('读迁徙完成条件', 'yukkuri settlement rules')])
+
 # ---- commodification
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
@@ -1377,7 +1395,7 @@ TOPICS = {
     'hatless_monster': 'C2', 'hatless_sanction': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
-    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2',
+    'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
     'shop_stale': 'M6', 'factory_wear': 'M6', 'exam_fail': 'M6',
 }
 for _s in S:

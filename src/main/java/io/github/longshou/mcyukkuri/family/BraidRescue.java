@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.AABB;
@@ -37,6 +40,9 @@ public final class BraidRescue {
     private float parentYaw,braidTurn=65;
     private int totalTicks, biteMode, biteTicks, stalled, lastSide=-1;
     private boolean spoke, braidGrip;
+    /** A water emergency gets one willingness decision per parent and boat; physical retries retain an accepted choice. */
+    private static final int MAX_HELP_DECISIONS=16;
+    private final Map<HelpKey,HelpDecision> helpDecisions=new HashMap<>();
     private Vec3 braidTip, braidJoint, previousTip, previousJoint, reachFrom;
     /** Set only while a straight-up draw from this point is being checked and made (see PUSH). */
     private Vec3 riseFrom;
@@ -44,6 +50,8 @@ public final class BraidRescue {
     private final Map<Integer,Long> failedSides=new HashMap<>();
     private record Rim(double x,double z,double gap,Vec3 world,double ux,double uz){}
     private record Plan(Vec3 seat,Vec3 approach,Vec3 offer,boolean braid,float turn){}
+    private record HelpKey(UUID parent,UUID hat){}
+    private record HelpDecision(boolean accepted,long until,long decidedAt){}
     /** Headings (degrees turned away from facing the child) that bring the right braid toward it, tried in this order. */
     private static final float[] BRAID_TURNS={65,50,80,35,95,20,110};
     private record Berth(Vec3 center,double cost){}
@@ -140,6 +148,7 @@ public final class BraidRescue {
     }
     public boolean start(HatBoatEntity home){
         if(child.level().isClientSide)return false;
+        if(child.isPassenger()||!child.isInWaterOrBubble())clearAcceptedHelp("target_safe");
         if(active())return home.getUUID().equals(hatId);
         long now=level().getGameTime();
         if(now<retryAt){AquaDiag.log(child,"rescue.wait."+child.getId(),40,"retry in "+(retryAt-now));return false;}
@@ -152,6 +161,13 @@ public final class BraidRescue {
                     +" parentBusy="+(parent!=null&&parent.family().braidRescueActive()));
             return false;
         }
+        // Dry boarding retains its own route, including an alarm return. A refuge reservation is the prior orphan decision;
+        // once it becomes a saved caregiver relation, a later fall is a new danger and must decide again.
+        boolean emergency=child.isInWaterOrBubble()||child.isPanicking()||parent.aquaticLife().familyLife().alarm().active();
+        boolean reservedRefuge=!home.young(child)&&!home.temporaryCaregiver(child)&&home.admits(child);
+        if(child.isInWaterOrBubble()&&!reservedRefuge&&!willingToRescue(parent,home))return false;
+        if(reservedRefuge)GameplayLog.limited(parent,"aquatic","braid.refuge_authorized."+child.getId(),200,
+                "braid rescue uses accepted orphan refuge child={} hat={}",child.getUUID(),home.getUUID());
         var rim=rim(home);
         if(rim==null||rim.gap()>GAP_LIMIT||!between(home,parent,rim)){
             AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"rim "+(rim==null?"null":"gap="+rim.gap()+" between="+between(home,parent,rim))
@@ -160,7 +176,6 @@ public final class BraidRescue {
         }
         // A dry infant may use this same lift to board routinely. Only a real
         // rescue sacrifices provisions; ordinary boarding puts them aside.
-        boolean emergency=child.isInWaterOrBubble()||child.isPanicking()||parent.aquaticLife().familyLife().alarm().active();
         if(home.cargo().count()>0&&!home.prepareCargoSpace(child,emergency))return false;
         retryAt=now+20;
         var plan=plan(parent,home,rim);
@@ -179,6 +194,49 @@ public final class BraidRescue {
         totalTicks=biteMode=biteTicks=stalled=0;spoke=false;braidGrip=plan.braid();braidTurn=plan.turn();braidTip=braidJoint=previousTip=previousJoint=reachFrom=null;slideQ=0;lastVelocity=Vec3.ZERO;
         child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.APPROACH);
         return true;
+    }
+    private boolean willingToRescue(YukkuriEntity parent,HatBoatEntity home){
+        long now=level().getGameTime();
+        pruneHelpDecisions(now);
+        var key=new HelpKey(parent.getUUID(),home.getUUID());
+        var prior=helpDecisions.get(key);
+        if(prior!=null){
+            if(prior.accepted())return true;
+            if(now<prior.until())return false;
+            helpDecisions.remove(key);
+        }
+        // A saved temporary caregiver is familiar for a later, separate fall, but still takes this new willingness draw.
+        boolean temporaryCare=home.temporaryCaregiver(child);
+        boolean familiar=Bonds.careKin(parent,child)||temporaryCare;
+        if(!familiar||!parent.life().canRecognize(child)){
+            GameplayLog.limited(parent,"aquatic","braid.ineligible."+child.getId(),200,
+                    "braid rescue not offered child={} hat={} kin={} temporaryCare={} recognized={}",
+                    child.getUUID(),home.getUUID(),Bonds.careKin(parent,child),temporaryCare,parent.life().canRecognize(child));
+            return false;
+        }
+        float chance=parent.life().personality().helpProbability(true,true);
+        float roll=parent.getRandom().nextFloat();
+        boolean accepted=roll<chance;
+        rememberHelpDecision(key,new HelpDecision(accepted,accepted?Long.MAX_VALUE:now+1200,now));
+        GameplayLog.event(parent,"aquatic","braid rescue decision child={} hat={} chance={} roll={} accepted={} declinedUntil={}",
+                child.getUUID(),home.getUUID(),chance,roll,accepted,accepted?0:now+1200);
+        return accepted;
+    }
+    private void clearAcceptedHelp(String reason){
+        int before=helpDecisions.size();
+        helpDecisions.entrySet().removeIf(entry->entry.getValue().accepted());
+        int cleared=before-helpDecisions.size();
+        if(cleared>0)GameplayLog.limited(child,"aquatic","braid.decision.clear."+reason,200,
+                "braid rescue accepted decisions cleared child={} count={} reason={}",child.getUUID(),cleared,reason);
+    }
+    private void pruneHelpDecisions(long now){
+        helpDecisions.entrySet().removeIf(entry->!entry.getValue().accepted()&&entry.getValue().until()<=now);
+    }
+    private void rememberHelpDecision(HelpKey key,HelpDecision decision){
+        if(!helpDecisions.containsKey(key)&&helpDecisions.size()>=MAX_HELP_DECISIONS)
+            helpDecisions.entrySet().stream().min(Comparator.comparingLong(entry->entry.getValue().decidedAt()))
+                    .ifPresent(entry->helpDecisions.remove(entry.getKey()));
+        helpDecisions.put(key,decision);
     }
     /** Boat-centre berth where the near rim lies about .03 block from the child's body, with a supported stand for the parent. */
     public Vec3 approach(HatBoatEntity home){
@@ -281,6 +339,11 @@ public final class BraidRescue {
     public void tick(){
         if(child.level().isClientSide)return;
         cleanupAbandoned();
+        pruneHelpDecisions(level().getGameTime());
+        if(!active()){
+            if(child.isPassenger()||!child.isInWaterOrBubble())clearAcceptedHelp("target_safe");
+            return;
+        }
         long now=level().getGameTime();if(lastTick==now)return;lastTick=now;
         if(!active())return;
         var parent=parent();var home=hat();
@@ -562,6 +625,7 @@ public final class BraidRescue {
         phase=Phase.IDLE;lastSide=-1;home.cancelIncoming(child);parent.family().rescueTarget(null);home.releaseRescueOwner(parent);
         // The safe child is nuzzled by real mouth contact; this neither cleans nor heals.
         parent.aquaticLife().care().expectNuzzle(child);
+        clearAcceptedHelp("boarded");
         parentId=hatId=null;lastVelocity=Vec3.ZERO;
     }
     public void cancel(){cancel("external_cancel");}
@@ -612,10 +676,26 @@ public final class BraidRescue {
         return tag;
     }
     private static void point(CompoundTag tag,String key,Vec3 point){tag.putDouble(key+"X",point.x);tag.putDouble(key+"Y",point.y);tag.putDouble(key+"Z",point.z);}
-    public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);return tag;}
+    public CompoundTag save(){
+        var tag=new CompoundTag();
+        if(hatId!=null)tag.putUUID("ReservedHat",hatId);else if(abandonedHat!=null)tag.putUUID("ReservedHat",abandonedHat);
+        var decisions=new ListTag();
+        helpDecisions.forEach((key,decision)->{
+            var entry=new CompoundTag();entry.putUUID("Parent",key.parent());entry.putUUID("Hat",key.hat());
+            entry.putBoolean("Accepted",decision.accepted());entry.putLong("Until",decision.until());entry.putLong("DecidedAt",decision.decidedAt());
+            decisions.add(entry);
+        });
+        tag.put("HelpDecisions",decisions);return tag;
+    }
     public void load(CompoundTag tag){
         // Loading never recreates a rescue or moves either actor. Every saved phase loads as IDLE.
         phase=Phase.IDLE;lastSide=-1;parentId=hatId=null;abandonedHat=tag.hasUUID("ReservedHat")?tag.getUUID("ReservedHat"):null;
         lastTick=Long.MIN_VALUE;retryAt=0;failedSides.clear();lastVelocity=Vec3.ZERO;
+        helpDecisions.clear();
+        for(var raw:tag.getList("HelpDecisions",Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry
+                &&entry.hasUUID("Parent")&&entry.hasUUID("Hat")) {
+            rememberHelpDecision(new HelpKey(entry.getUUID("Parent"),entry.getUUID("Hat")),
+                    new HelpDecision(entry.getBoolean("Accepted"),entry.getLong("Until"),entry.getLong("DecidedAt")));
+        }
     }
 }
