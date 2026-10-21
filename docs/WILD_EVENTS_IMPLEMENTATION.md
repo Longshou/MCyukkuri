@@ -112,6 +112,8 @@ N01 的实际歌唱仍由 `DailyLife` 共享会话掌管；`songSessionToken` �
 
 ## 补充群体事件
 
+魔理沙探险队的子油远行闲逛（项目设计，待实现）：子油魔理沙在个体数值足够时，以小概率进行正常范围两倍的闲逛，并有对应演出。正常范围取统一扩大后的同阶段、同条件常规闲逛范围，按相同距离口径乘 2；所用属性、阈值、概率与冷却待落实，赤油不参与。复用已有行为和事件能力时仍须落实子油资格，现有成人魔理沙队长、队员与跨群系路线不代表这项新规则已实现；不擅自增加必须组队或跨群系的触发要求。演出跟随实际出发、途中、结束或中断，饥饿、体力与危险仍真实结算。机制与演出待办见[玩法待办](TODO.md#玩法待办)。
+
 四张卡写成 `WildEventData` 场景（`Kind.CARD` / `Kind.EXPEDITION`），代码在 `event/GroupCards.java`（前三张）与 `event/Expedition.java`。配置在 `group_events` 段。
 
 - 共同筑巢后独占（`nest-monopoly`）：条件为同一住所、满足 `Bonds.careKin` 的成年亲属（同母者优先），发起者友善 ≤35，都在住所 6 格内且 `usable`；每次检查（约 5 秒）以 `1/nestMonopolyOneIn`（默认 8）触发。过程：独占者守入口（`angry`/`mine`），被挡在外的亲属站在入口外（`teary`/`wait_turn`），其 `getPersistentData()` 写 `ShelterBarredUntil`，`ShelterBlockEntity.usable` 经 `GroupCards.barred` 在场景存活且未到期时返回 false（场景因任何原因结束都自动解除）；其余亲属每 100 tick 对独占者降好感 2 并 `shy` 背身。600–900 tick [original] 后，若家人对独占者的好感合计为负：独占者 `teary`/`gentle` 认错，好感各回升 4，被挡者 `share`，结果 `apologized_and_shared`；否则 `kept_the_nest`；住所失效为 `nest_lost`（INTERRUPTED）。
