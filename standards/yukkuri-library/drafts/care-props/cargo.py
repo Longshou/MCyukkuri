@@ -1,9 +1,10 @@
-"""Hat provisions reuse the existing forage_pile, scaled as one complete heap.
+"""Hat provisions reuse the forage_pile as one complete heap, scaled by quantity tier.
 
-No new food geometry or recolouring. The current forage-pile source (including
-its leaf mat, stalks, bundles, wheat, fruit and nuts) is copied intact. Only its
-overall scale and location change. Shared server cylinders are measured from
-those exact transformed vertices, never maintained as separate coordinates.
+No new food geometry or recolouring: the full pile of designs.forage_pile (its
+leaf plate, unit 0, and the full stage-4 heap with its food, unit 4) is copied
+intact with the same atlas. Only its overall scale and location change. Shared
+server cylinders are measured from those exact transformed vertices, never
+maintained as separate coordinates.
 """
 import copy
 import json
@@ -30,8 +31,13 @@ def placements():
     return inside,aside
 
 
+FULL_PILE=(0,4)    # leaf plate and the full heap; the smaller stage heaps lie inside it
+
+
 def _source():
-    return designs.forage_pile()
+    source=designs.forage_pile()
+    source.parts=[part for part in source.parts if part['unit'] in FULL_PILE]
+    return source
 
 
 def _points(source):
@@ -59,7 +65,7 @@ def layout():
                 source_prop='forage_pile',source_factory='designs.py:forage_pile',source_units=4,
                 vessel_source=VESSEL_PATH.relative_to(ROOT).as_posix(),
                 tier_max_counts=[0,3,7,12],full_tier_excludes_interior=True,
-                note='Exact existing forage pile, only whole-pile scaling and placement; the full pile represents 8-12 portions, and side stow is the same inventory. Occupancy encloses the transformed source vertices.',
+                note='Full forage pile (leaf plate and full heap), only whole-pile scaling and placement; the full pile represents 8-12 portions, and side stow is the same inventory. Occupancy encloses the transformed source vertices.',
                 tiers=zones(inside),aside_tiers=zones(aside),
                 visual_placements=dict(tiers=inside,aside_tiers=aside))
 

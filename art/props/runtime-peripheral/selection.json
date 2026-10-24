@@ -396,42 +396,42 @@
     },
     "generated:art/props/pet-goods/swaddle_cloth.png": {
       "snapshot": "art/props/pet-goods/swaddle_cloth.png",
-      "sha256": "306493bbc874567b5aa844e1d3ccb1480a5a25f7307ec73d51a99811b80ef982",
+      "sha256": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json",
-      "sha256": "6b3ce7c47506bd9202982bab4cded09a6cbeeeeef7b7fd7e23def3ff0fe5e2f6",
+      "sha256": "db0ecbb3cd7bd484f93b1fc58172570668c42d2402eb532d65628bde93f42372",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel",
-      "sha256": "14307be6c7b65dd76d063a39b1821a0417aba8709f7a4f2b7f0921dae2066c31",
+      "sha256": "4fa724274b80ddba2631f3f3c6c2589631e497f1b6f4fd979b35dee0613b57ec",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/texture.png",
-      "sha256": "bac1d26669ae681d09ac6f6fcc7d80a07c3cc6ae928add69f763ec193a75ad14",
+      "sha256": "b23ed0ecf8cf70bb9ba1f926d653bf9f7df2d0c74a5cf95653ba40366406d709",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json",
-      "sha256": "741d532105852336ae972eca3f87491dcdf7c5488a8aa8888d5446bfb4d2153f",
+      "sha256": "b476b7ac68bb60ca6e5e822dd724f48ecfd2b0e7f95d273e6d28e0b06c6b15f2",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel",
-      "sha256": "9ec4e048e80c463020d099ae1942f429fcaab7189dd03bea2fe30ab5c8927ee2",
+      "sha256": "b34602acbaf7b4ba4b5d8a6559ffe8cc2ef70ac6c2bfff76130288602936ebc2",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/texture.png",
-      "sha256": "bac1d26669ae681d09ac6f6fcc7d80a07c3cc6ae928add69f763ec193a75ad14",
+      "sha256": "b23ed0ecf8cf70bb9ba1f926d653bf9f7df2d0c74a5cf95653ba40366406d709",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json": {
       "snapshot": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "sha256": "0698f9611c9d68b3ab4ce22ef566e765a451a49dca30a75d81ad6e2bcd2b8c8f",
+      "sha256": "979916de90f6815f36d224ee835d34676c11b53411cca97a07791940fd551dae",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/toilet_waste/toilet_waste.mesh.json": {

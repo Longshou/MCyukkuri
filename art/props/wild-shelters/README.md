@@ -4,8 +4,9 @@
 
 | ID | 游戏运行文件 | 显示 |
 | --- | --- | --- |
-| `forest_burrow` | `assets/mcyukkuri/yukkuri_props/forest_burrow.json` | 相邻共巢睡位连成的厚实、连续叶垫；叶、干草和细枝仅在整片外缘形成围沿，无土墙或屋顶 |
-| `personal_leaf_nest` | `assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json` | 后期子体在原睡位完成的较小、碗形个人叶巢；不产生新住所外壳或物理睡位 |
+| `forest_burrow` | `assets/mcyukkuri/yukkuri_props/forest_burrow.json` | 相邻共巢睡位连成的连续落叶垫；扎起的草束、细枝和草茎只在整片外缘叠成围沿，无土墙或屋顶 |
+| `personal_leaf_nest` | `assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json` | 后期子体在原睡位完成的较小、碗形个人草窝（散叶 → 低草圈 → 草束小窝）；不产生新住所外壳或物理睡位 |
+| `bedding_bundle` | `assets/mcyukkuri/yukkuri_props/bedding_bundle.json` | 施工中放在睡位上的一份垫料：扎成小捆的干草，扎绳下夹一片叶 |
 | `nest_boundary` | `assets/mcyukkuri/yukkuri_props/nest_boundary.json` | 洞口至多三根细枝，靠向现有侧壁，无承重或防御碰撞 |
 | `cardboard_shelter` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter.json` | 开口、折盖、胶带、标签与箱内底面；使用共用色板的纸板明暗阶，保留折盖接缝与折痕 |
 | `wild_latrine` / `wild_latrine_dirty` | `assets/mcyukkuri/yukkuri_props/<ID>.json` | 围枝浅土面，脏污切换；R4 只并入共用色板 |

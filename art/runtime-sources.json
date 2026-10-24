@@ -71,21 +71,21 @@
         "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
-        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults; packed leaf, moss and straw litter, exposed sides get a 3-4 high rim of leaf clumps, twigs and grass built in the neighbouring block space"
+        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults; leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a woven dry-grass roll (crest 9 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
       },
       "personal_leaf_nest": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
         "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
-        "role": "growing child's own bed: 10x8 hollow, three build layers (underlayer, second portion, pressed rim with grass and twigs)"
+        "role": "growing child's own bed: 10x8 hollow, three build layers (scattered leaves and litter, low rough grass ring, woven bowl with a twig and loose stems)"
       },
       "bedding_bundle": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/bedding_bundle.bbmodel",
         "selected": "art/props/wild-shelters/bedding_bundle.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/bedding_bundle.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/bedding_bundle.png",
-        "role": "finite harvested leaves and grass held at the mouth and placed before spreading"
+        "role": "finite harvested leaves and grass held at the mouth and placed before spreading: a small tied sheaf of dry grass with a leaf under the tie"
       }
     },
     "status": "pending_user_confirmation",
@@ -96,7 +96,8 @@
         "personal_leaf_nest",
         "bedding_bundle"
       ],
-      "note": "R5 self-built nests of wild yukkuri: parts reference vanilla textures (minecraft:textures/block/oak_leaves.png etc.) with the vanilla plains tint, mapped at 1 texel per unit; nothing copied from the vanilla pack. forest_burrow render units: 1 bedding, 2-5 side mids N/E/S/W, 6-9 corner arcs, 10-17 side ends (client/ShelterRenderer.sharedLeafLayers picks them so a connected nest gets one round-cornered rim); personal_leaf_nest units 1-3 unchanged."
+      "kit": "standards/yukkuri-library/drafts/care-props/wild_kit.py",
+      "note": "Self-built nests of wild yukkuri share the hand-drawn wild_kit atlas with the forage pile and large_wild_nest (16x16 tiles and cut-out sprites, 1 texel per unit, no vanilla files or references). forest_burrow render units: 1 bedding, 2-5 side mids N/E/S/W, 6-9 corner arcs, 10-17 side ends (client/ShelterRenderer.sharedLeafLayers picks them so a connected nest gets one round-cornered rim); personal_leaf_nest units 1-3 unchanged."
     }
   },
   "care_props": {
@@ -107,7 +108,7 @@
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions",
       "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_provisions.json",
       "shared_layout": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "note": "Reuse the current forage pile at three count-based scales. Interior and temporary brim storage share authored occupancy volumes."
+      "note": "Reuse the full forage pile (leaf plate and full heap, units 0 and 4 of forage_pile) at three count-based scales. Interior and temporary brim storage share occupancy volumes measured from the transformed vertices."
     },
     "builder": "standards/yukkuri-library/drafts/care-props/build.py",
     "palette": "art/props/palette.json",
@@ -211,8 +212,7 @@
         "toilet_waste",
         "ceramic_toilet",
         "covered_toilet",
-        "large_yukkuri_nest",
-        "large_wild_nest"
+        "large_yukkuri_nest"
       ],
       "author": "standards/yukkuri-library/drafts/care-props/vanilla_props.py",
       "kit": "standards/yukkuri-library/drafts/care-props/voxel.py",
@@ -226,7 +226,7 @@
     "source": "standards/yukkuri-library/drafts/care-props",
     "authors": {
       "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/vanilla_props.py:large_yukkuri_nest",
-      "large_wild_nest": "standards/yukkuri-library/drafts/care-props/vanilla_props.py:large_wild_nest"
+      "large_wild_nest": "standards/yukkuri-library/drafts/care-props/wild.py:large_wild_nest (called by vanilla_props.py:large_wild_nest)"
     },
     "exporter": "standards/yukkuri-library/drafts/care-props/large_nests.py",
     "snapshot": "art/props/large-nests",
@@ -243,7 +243,7 @@
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_wild_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_wild_nest.json",
-        "role": "wild family bedding: one-cell bed of dry leaf litter with moss and hay patches and a few bare spots, no marked places; rim of green leaf heaps 2-3 high with laid twigs, open front"
+        "role": "wild family bedding (wild_kit atlas): leaf-litter pad at the collision floor 0.5 with lining leaves, moss and hay, no marked places; woven dry-grass roll up to 3 high following the collision rim and front shoulders, twigs worked in, open front"
       }
     },
     "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; 31-cell rounded (squircle n=4) outline at half-extent 15.5, one-cell rim leaving a 29-unit interior (collision interior 28.5), rim at most 3 high, down to the floor across 14 units of the south side and 2 high to |x| 11; family members settle anywhere",

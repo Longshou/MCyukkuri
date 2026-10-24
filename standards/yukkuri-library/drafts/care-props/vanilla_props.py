@@ -494,57 +494,9 @@ def large_yukkuri_nest():
 
 
 def large_wild_nest():
-    """Wild family bedding: a one-cell litter bed of mixed fresh and dry leaves with moss and hay patches and a few bare spots,
-    edged by leaf heaps 2-3 high with laid twigs; open across the +z front."""
-    v = Voxels('large_wild_nest', ox=-.5, oz=-.5, vtop=3)
-    tiles(v, {'litter_a': leaf_tile([DRY, DRY, LEAF], 'la'), 'litter_b': leaf_tile([DRY], 'lb'),
-              'heap_top': leaf_tile([LEAF, LEAF, DRY], 'ht', base=2), 'heap_top2': leaf_tile([LEAF], 'ht2', base=2),
-              'heap_side': leaf_tile([LEAF, DRY], 'hs', base=1),
-              'moss': clustered(MOSS, 2, 'moss', .5), 'hay_top': hay_tile('ht'), 'hay_side': hay_tile('hs', side=True),
-              'bark': bark_tile('bk'), 'dirt': clustered(DIRT, 1, 'dirt', .4)})
-    # floor: dry leaf litter in broad 4x4 patches; rim: greener gathered leaf heaps
-    litter = Mat('leaf_litter', top=lambda i, j, k, f: ('litter_a', 'litter_b')[((i // 4) * 3 + (k // 4) * 5) % 7 < 3],
-                 side='litter_a', bottom='dirt')
-    heap = Mat('leaf_heap', top=lambda i, j, k, f: ('heap_top', 'heap_top2')[((i // 3) + (k // 3)) % 3 == 0],
-               side='heap_side', bottom='dirt')
-    moss = Mat('moss', top='moss', side='moss', bottom='dirt')
-    hay = Mat('hay', top='hay_top', side='hay_side', bottom='dirt')
-    bark = Mat('twig', top='bark', side='bark', bottom='bark')
-    cells, ring = large_cells()
-    r = rng_of('wild-large')
-    bare = {(r.randint(-11, 11), r.randint(-11, 11)) for _ in range(14)}
-    patches = []
-    for _ in range(5):
-        patches.append((r.randint(-10, 10), r.randint(-10, 8), r.choice((moss, moss, hay)), r.randint(1, 2)))
-    inner_ring = ring_of(None, [c for c in cells if c not in ring])
-    for i, k in cells:
-        if (i, k) in ring:
-            if k > 0 and abs(i) < 11:
-                h = front_height(i, 3)
-            else:
-                h = 3 if (k < -6 or r.random() < .55) else 2
-            for j in range(h):
-                v.set(i, j, k, heap if h > 1 else litter)
-            continue
-        if (i, k) in bare:
-            continue
-        mat = litter
-        for (px, pz, m, s) in patches:
-            if abs(i - px) <= s and abs(k - pz) <= s - (1 if abs(i - px) == s else 0):
-                mat = m
-        v.set(i, 0, k, mat)
-        if (i, k) in inner_ring and not (k > 0 and abs(i) < 11) and r.random() < .45:
-            v.set(i, 1, k, heap)                       # soft inner shoulder of the rim heaps
-    # twigs laid along the straight runs of the rim top (back and both sides), replacing the top leaf layer
-    for run in ((range(-6, 0), -15, 'x'), (range(3, 8), -15, 'x'), (range(-9, -4), 15, 'z'), (range(-2, 4), -15, 'z'),
-                (range(2, 7), 15, 'z')):
-        cells_run, fixed, axis = run
-        for a in cells_run:
-            i, k = (a, fixed) if axis == 'x' else (fixed, a)
-            top = max((j for j in range(4) if v.get(i, j, k)), default=None)
-            if top is not None and top >= 1:
-                v.set(i, top, k, bark)
-    return v.to_prop()
+    """Wild family bedding: a woven dry-grass roll and leaf-litter pad from the wild nest family (wild.py, wild_kit atlas)."""
+    import wild
+    return wild.large_wild_nest()
 
 
 # =====================================================================================================================
