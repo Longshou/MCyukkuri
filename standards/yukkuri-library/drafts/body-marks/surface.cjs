@@ -58,7 +58,7 @@ for(const job of jobs){
     const norm=[vertices[i+5],vertices[i+6],vertices[i+7]];
     const ab=[0,1,2].map(k=>vertices[i+8+k]-vertices[i+k]),ac=[0,1,2].map(k=>vertices[i+16+k]-vertices[i+k]);
     const geometric=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];
-    if(!(job.hairWound&&solid)&&geometric.reduce((sum,v,k)=>sum+v*eye[k],0)<=0)continue;
+    if(!solid&&geometric.reduce((sum,v,k)=>sum+v*eye[k],0)<=0)continue;
     const lights=[0,8,16].map(j=>{
       const normal=thermal?thermal.normal(Array.from(vertices.slice(i+j,i+j+3)),Array.from(vertices.slice(i+j+5,i+j+8)),part?.name):Array.from(vertices.slice(i+j+5,i+j+8));
       return .78+.22*Math.max(0,normal[0]*-.35+normal[1]*.8+normal[2]*-.48);

@@ -8,6 +8,19 @@ const assets=path.join(root,'src/main/resources/assets/mcyukkuri');
 const fits=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri_presentation/placement_fit.json'))).models;
 const jobs=JSON.parse(fs.readFileSync(process.argv[2],'utf8')),check=process.argv.includes('--check');
 const models=new Map();
+function writeGenerated(file,data){
+  // Replace atomically so a transient Windows file-filter error cannot leave a
+  // truncated asset. Retry only transient errors; every attempt has full bytes.
+  const temporary=file+'.tmp-'+process.pid;
+  for(let attempt=0;;attempt++){
+    try{fs.writeFileSync(temporary,data);fs.renameSync(temporary,file);return;}
+    catch(error){
+      try{fs.unlinkSync(temporary);}catch{}
+      if(attempt>=7||!['UNKNOWN','EBUSY','EPERM'].includes(error.code))throw error;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,75*(attempt+1));
+    }
+  }
+}
 for(const job of jobs){
   if(!models.has(job.model)){
     const model=JSON.parse(fs.readFileSync(path.join(assets,'yukkuri',job.model+'.json'))),pose=new RuntimePose(model,1,null,fits[job.model]||null);
@@ -36,6 +49,6 @@ for(const job of jobs){
     integration:'Static fitted authoring sample; apply the profile to runtime skin/hair and supply actual bone weights. Do not render over an uncut character.'};
   const data=zlib.gzipSync(Buffer.from(JSON.stringify(result)+'\n'),{level:9});
   if(check){if(!fs.readFileSync(job.output).equals(data))throw Error('Stale mesh '+job.id);}
-  else {fs.mkdirSync(path.dirname(job.output),{recursive:true});fs.writeFileSync(job.output,data);}
+  else {fs.mkdirSync(path.dirname(job.output),{recursive:true});writeGenerated(job.output,data);}
   console.log(`${check?'Verified':'Exported'} ${job.id}: ${wound.materials.length} triangles / ${wound.hairSamples} hair rim samples / ${wound.surfaceEdits.length} indented vertices`);
 }

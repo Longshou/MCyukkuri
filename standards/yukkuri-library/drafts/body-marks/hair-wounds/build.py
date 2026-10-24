@@ -1,11 +1,15 @@
 """Export evidenced mechanical wounds, extent-based burns and continuous central filling."""
 from pathlib import Path
 import argparse
+import errno
 import hashlib
 import io
 import json
+import os
 import subprocess
 import sys
+import threading
+import time
 import numpy as np
 from PIL import Image
 
@@ -57,8 +61,17 @@ def mesh_jobs():
 def write_or_check(path,data,check):
     if check:
         if not path.exists() or path.read_bytes()!=data:raise ValueError(f'Stale output: {path}')
-    else:
-        path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+        return
+    path.parent.mkdir(parents=True,exist_ok=True)
+    temporary=path.with_name(path.name+f'.tmp-{os.getpid()}-{threading.get_ident()}')
+    for attempt in range(8):
+        try:
+            temporary.write_bytes(data);temporary.replace(path);return
+        except OSError as error:
+            try:temporary.unlink(missing_ok=True)
+            except OSError:pass
+            if error.errno not in (errno.EINVAL,errno.EBUSY,errno.EPERM) or attempt==7:raise
+            time.sleep(.075*(attempt+1))
 
 
 def main():
@@ -175,7 +188,7 @@ def make_preview(node,preview_root,meshes,thermal_specs,coverage):
         for grade in [1,2,3]:images[f'reimu-skin-{kind}-{grade}-normal'].resize((320,290),Image.Resampling.LANCZOS).save(output/f'sources/{kind}-{grade}.png')
     for scope in ['sole','whole_body']:
         for grade in [1,2,3]:images[f'marisa-{scope}-{grade}'].resize((320,290),Image.Resampling.LANCZOS).save(output/f'sources/{scope}-{grade}.png')
-    footer='制作源静态预览 · 来源与采用范围见素材说明 · 尚未接入游戏伤因选择、烧伤范围与动态蒙皮'
+    footer='制作源静态预览 · 来源与采用范围见素材说明 · 实际伤位、动态蒙皮与游戏遮挡由动作博物馆确认'
     for model,site,title in [('reimu','hair','黑发'),('marisa','hair','金发'),('reimu','skin','裸露皮面')]:
         cards=[(f'{LABELS[kind]} · {grade}级',EVIDENCE['causes'][CAUSES[kind]]['label']+' · '+NOTES[kind][grade-1],images[f'{model}-{site}-{kind}-{grade}-normal']) for kind in KINDS for grade in [1,2,3]]
         source.sheet(title+' · MC 伤害机制 × 三级','每行一种伤口，从左到右为 1、2、3 级；形状、开放程度与头发反应随等级改变。',cards,3,(450,360),footer).save(output/f'{model}-{site}-grades.png')
@@ -211,8 +224,8 @@ def make_preview(node,preview_root,meshes,thermal_specs,coverage):
         p=(output/name).resolve()
         if p.parent!=output.resolve():raise ValueError('Preview outside topic')
         if p.exists():p.unlink()
-    grading='<section><h2>实际伤害与露核规则</h2><p>新伤按实际扣血：0 不造伤；0 &lt; 损失 ≤ 2 为一级；2 &lt; 损失 ≤ 4 为二级；损失 &gt; 4 为三级。同部位同类型旧伤：min(3, max(旧等级, 本次等级) + [本次损失≥2])；伤口满八处时，现有代码加重最近旧伤一级。</p><p>普通露核须为三级深伤、剩余生命≤30%、伤位能拟合通向中枢的创腔；本包只对刀割、压裂、咬缺、爆裂的大缺损制作完整中枢外露。窄刺口与烧伤不为展示中枢而扩洞。</p><p>当前代码差距：已坏中枢可绕过血量阈值，深烧伤仍可能露核，旧 TEAR 也未区分窄刺与大缺损；这些不是本次新增的合法美术分支。热锥另有最低二级特例。制作源尚未替换运行玩法，完整核对记录在 damage-examples.json。</p></section>'
-    (output/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>完整伤口等级美术</title><style>body{margin:0;background:#f4f0e6;font-family:system-ui;color:#303b32}img{display:block;width:100%;max-width:1550px;margin:auto}nav{padding:24px;text-align:center}section{padding:24px;max-width:1450px;margin:auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:12px;vertical-align:top}th{width:16%}td{width:28%}figure{margin:0 0 20px}figure img{max-width:320px}small{color:#777}thead{position:sticky;top:0;background:#f4f0e6}</style><nav><a href="../index.html">全部预览</a> · <a href="#source-coverage">47 种 MC 来源三级对应</a> · 8 种机械外形各三级 + 足部／全身烧伤各三级 · 制作源，未接入游戏</nav>'+''.join(f'<img loading="lazy" src="{name}.png" alt="{name}">' for name in names)+grading+preview_table(coverage,LABELS),encoding='utf-8')
+    grading='<section><h2>实际伤害与露核规则</h2><p>新伤按实际扣血：0 不造伤；0 &lt; 损失 ≤ 2 为一级；2 &lt; 损失 ≤ 4 为二级；损失 &gt; 4 为三级。同部位同类型旧伤：min(3, max(旧等级, 本次等级) + [本次损失≥2])；伤口满八处时，现有代码加重最近旧伤一级。</p><p>普通露核须为三级深伤、剩余生命≤30%、伤位能拟合通向中枢的创腔；本包只对刀割、压裂、咬缺、爆裂的大缺损制作完整中枢外露。窄刺口与烧伤不为展示中枢而扩洞。</p><p>热锥另有最低二级特例。运行按同一伤势选择形状与等级，完整核对记录在 damage-examples.json。</p></section>'
+    (output/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>完整伤口等级美术</title><style>body{margin:0;background:#f4f0e6;font-family:system-ui;color:#303b32}img{display:block;width:100%;max-width:1550px;margin:auto}nav{padding:24px;text-align:center}section{padding:24px;max-width:1450px;margin:auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:12px;vertical-align:top}th{width:16%}td{width:28%}figure{margin:0 0 20px}figure img{max-width:320px}small{color:#777}thead{position:sticky;top:0;background:#f4f0e6}</style><nav><a href="../index.html">全部预览</a> · <a href="#source-coverage">47 种 MC 来源三级对应</a> · 8 种机械外形各三级 + 足部／全身烧伤各三级 · 当前制作与运行素材，静态预览</nav>'+''.join(f'<img loading="lazy" src="{name}.png" alt="{name}">' for name in names)+grading+preview_table(coverage,LABELS),encoding='utf-8')
     print(output/'current.png')
 
 

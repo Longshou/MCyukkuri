@@ -22,7 +22,7 @@ const shared={version:1,reference_bounds:bounds,
   center:recipe.core_cavity.core_center.map((v,k)=>(v-bounds[k])/span[k]),
   core_radius:recipe.core_cavity.core_radius.map((v,k)=>v/span[k]),
   opening_radius:[recipe.core_cavity.opening_radius[0]/span[0],recipe.core_cavity.opening_radius[1]/span[1]],
-  reference_depth:recipe.core_cavity.core_center[2]-bounds[2],
+  reference_depth:recipe.core_cavity.core_lip.at(-1)[1],
   outline:cavity.outline,levels:cavity.levels};
 const core={vertices:[],colours:[],broken_colours:[]};
 for(let i=0;i<cavity.vertices.length;i+=24){

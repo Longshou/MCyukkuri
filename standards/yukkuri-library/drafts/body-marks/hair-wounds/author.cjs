@@ -2,7 +2,7 @@
 'use strict';
 const fs=require('fs'),path=require('path');
 const recipe=JSON.parse(fs.readFileSync(path.join(__dirname,'recipe.json'),'utf8'));
-const {createCavity}=require('../cavity.cjs');
+const {createCavity,expandOutline,insidePolygon,wallTone}=require('../cavity.cjs');
 const provenance=JSON.parse(fs.readFileSync(path.join(__dirname,'sources.json'),'utf8'));
 const baseRecipe=JSON.parse(fs.readFileSync(path.join(__dirname,'../recipe.json'),'utf8'));
 const {modelInfo,fitFor}=require('./species.cjs');
@@ -47,7 +47,7 @@ function authorCanonical(vertices,parts,spec){
   if(core&&(severity!==3||!recipe.core_openings[style]))throw Error('Core needs a real grade-three deep injury');
   const open=grade.open,radii=spec.radius||(core?recipe.core_openings[style]:grade.radius),[rx,ry]=radii;
   // A crushed body cracks within the indentation; it does not lose the whole dent.
-  const openingScale=kind==='dent'?(core ? .76 : .55):1;
+  const openingScale=kind==='dent'?(core ? .76 : .42):1;
   const cutRx=rx*openingScale,cutRy=ry*openingScale;
   const local=p=>{const d=p.map((x,i)=>x-origin[i]);return [dot(d,u),dot(d,v),dot(d,n)];};
   const world=(x,y,z)=>origin.map((q,i)=>q+x*u[i]+y*v[i]+z*n[i]);
@@ -65,32 +65,19 @@ function authorCanonical(vertices,parts,spec){
       if(Math.min(wa,wb,wc)>=-1e-6)z=Math.max(z,wa*a[2]+wb*b[2]+wc*c[2]);
     }return z;
   }
-  function rough(a){
-    if(style==='impale')return .80+.18*Math.cos(3*a+.5)+.045*Math.sin(11*a);
-    if(style==='puncture')return .96+.06*Math.sin(4*a)+.03*Math.sin(9*a);
-    if(style==='bite'){
-      const x=Math.cos(a),jaw=Math.sin(a)>0?1:-1;
-      const teeth=[[-.64,.40,.14],[-.16,.19,.16],[.43,.29,.14]];
-      let edge=.80;
-      for(const [center,depth,width] of teeth)edge+=depth*Math.exp(-(((x-center-(jaw<0?.035:0))/width)**2));
-      return .80+(edge-.80)*Math.abs(Math.sin(a));
-    }
-    if(style==='blast')return .82+.15*Math.cos(5*a+.2)+.09*Math.sin(9*a+.8);
-    if(kind==='dent')return .82+.20*Math.cos(5*a+.3)+.06*Math.sin(11*a);
-    return 1+.07*Math.sin(5*a+.4)+.045*Math.sin(13*a+1.1);
+  // Hand-authored, radial low-poly silhouettes. Extra collinear vertices keep
+  // runtime clipping and rim binding stable without smoothing away the shape.
+  function hairScale(x,y,a){
+    const vertical=Math.abs(y);
+    if(style==='bite')return .94-.025*vertical;
+    if(style==='puncture'||style==='impale'||style==='blast')return .88+.04*Math.sin(13*a);
+    if(kind==='tear')return .96-.20*vertical+.05*Math.sin(19*x+.4)*vertical;
+    if(kind==='dent')return .88+.04*Math.sin(11*a+.5);
+    return .92;
   }
-  // Hair breaks in uneven strand ends INSIDE the tissue opening. The original
-  // hair outside this boundary remains, including overhanging edges above the cavity.
-  function hairBoundary(a){
-    const vertical=Math.abs(Math.sin(a));
-    if(style==='bite')return rough(a)*(.94-.025*vertical);
-    if(style==='puncture'||style==='impale'||style==='blast')return rough(a)*(.84+.06*Math.sin(13*a));
-    if(kind==='tear')return rough(a)*(.96-.23*vertical+.075*Math.sin(19*Math.cos(a)+.4)*vertical);
-    if(kind==='dent')return rough(a)*(.78+.09*Math.sin(11*a+.5));
-    return rough(a)*(.87+.055*Math.sin(19*a));
-  }
-  const outline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=rough(a);return [Math.cos(a)*k,Math.sin(a)*k];});
-  const hairOutline=Array.from({length:recipe.segments},(_,j)=>{const a=j*2*Math.PI/recipe.segments,k=hairBoundary(a);return [Math.cos(a)*k,Math.sin(a)*k];});
+  const sourceOutline=style==='tear'?baseRecipe.core_cavity.outline:(recipe.outlines[style+'_'+severity]||recipe.outlines[style]||recipe.outlines.closed);
+  const outline=expandOutline(sourceOutline,recipe.segments);
+  const hairOutline=outline.map(([x,y])=>{const a=Math.atan2(y,x),k=hairScale(x,y,a);return [x*k,y*k];});
   const colors=[],materials=[],out=[],surfaceEdits=[],surfacePatches=[];
   if(kind==='dent'){
     // Displace the real skin and covering strands by the SAME field, never hide them.
@@ -151,6 +138,8 @@ function authorCanonical(vertices,parts,spec){
       const px=cx+x*cutRx,py=cy+y*cutRy;
       const z=sample(skinTris,px,py);if(!Number.isFinite(z)||z<.2)throw Error('Wound outside same-side skin');skins.push(z-depression(px,py));
     }
+    const centreSkin=sample(skinTris,cx,cy);
+    if(!Number.isFinite(centreSkin))throw Error('Wound centre outside same-side skin');
     const N=outline.length;
     for(const [x,y] of hairOutline){
       const px=cx+x*cutRx,py=cy+y*cutRy,hz=sample(hairTris,px,py),sz=sample(skinTris,px,py);
@@ -165,7 +154,7 @@ function authorCanonical(vertices,parts,spec){
       triangle(a,c,b,col,'hair_break');triangle(a,d,c,col,'hair_break');
       // Attached remnants hang over the cavity. They originate at surviving hair,
       // have uneven blunt/frayed ends, and are not particles or detached fragments.
-      if((style==='bite'?[13,27,37,59,72,85].includes(j):j%(kind==='dent'?6:4)===0)&&(kind!=='tear'||Math.abs(Math.sin(j*2*Math.PI/N))>.45)){
+      if((style==='bite'?[.14,.28,.39,.61,.75,.89].some(v=>j===Math.floor(v*N)):j%(kind==='dent'?6:4)===0)&&(kind!=='tear'||Math.abs(Math.sin(j*2*Math.PI/N))>.45)){
         const angle=j*2*Math.PI/N,down=Math.sin(angle)>.1;
         const length=style==='bite'?.09+(down?.06:0):kind==='dent'?.24:.18+(down?.18:0);
         const tip=p(j,1-length,hairs[j]-(kind==='dent'?.32:.08));
@@ -175,17 +164,18 @@ function authorCanonical(vertices,parts,spec){
         triangle(base,tip,side,col,material);triangle(side,tip,end,col,material);
       }
     }
-    const controls=core?
-      [[.999,.012,0,[194,158,115]],[.985,.05,0,[192,152,112]],[.97,.20,0,[179,134,97]],
-       [.87,.78,.12,[103,69,53]],[.79,1.75,.34,[97,64,50]],[.72,3,.65,[91,60,47]],[.62,4.5,1,[82,54,42]],[0,5.7,1,[76,50,39]]]:
-      [[.999,.012,0,[194,158,115]],[.98,.04,0,[192,152,112]],[.94,.15,0,[179,134,97]],
-       [.72,grade.depth*.5,0,[111,73,56]],[.40,grade.depth*.85,0,[85,51,43]],[0,grade.depth,0,[68,40,35]]];
+    const controls=core?baseRecipe.core_cavity.core_lip:baseRecipe.core_cavity.ordinary_lip.map(([scale,depth,t,col],index)=>
+      [scale,index<3?depth:depth*grade.depth,t,col]);
+    const stepsFor=core?baseRecipe.core_cavity.core_steps:controls.slice(0,-1).map(()=>1);
     const levels=[];
     for(let r=0;r<controls.length-1;r++){
-      const a=controls[r],b=controls[r+1],steps=r<2?1:6;
-      for(let j=0;j<steps;j++){const t=j/steps;levels.push([a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t,a[2]*(1-t)+b[2]*t,mix(a[3],b[3],t)]);}
+      const a=controls[r],b=controls[r+1],steps=stepsFor[r];
+      for(let j=0;j<steps;j++){
+        const t=j/steps,depth=a[1]*(1-t)+b[1]*t,raw=mix(a[3],b[3],t);
+        levels.push([a[0]*(1-t)+b[0]*t,depth,a[2]*(1-t)+b[2]*t,raw]);
+      }
     }
-    levels.push(controls.at(-1));
+    levels.push(core?[...controls.at(-1).slice(0,3),[...recipe.filling_material.base]]:controls.at(-1));
     const corePresent=core;
     function fillingJoin(x,y){
       // Ordinary filling remains attached around the dense central region.
@@ -199,17 +189,18 @@ function authorCanonical(vertices,parts,spec){
       return origin.map((q,i)=>q+off[i]+dir[i]*r);
     }
     const rings=levels.map(([scale,depth,t])=>outline.map(([x,y],j)=>{
-      const p=world(cx*(1-t)+x*cutRx*scale,cy*(1-t)+y*cutRy*scale,
-        core&&depth>0?skins[j]*(1-depth/5.7)-1.5*depth/5.7:skins[j]-depth);
+      const centre=core?t:0,flatten=core?0:t;
+      const surface=core&&depth>0?skins[j]*(1-depth/5.7)-1.5*depth/5.7:skins[j]*(1-flatten)+centreSkin*flatten-depth;
+      const p=world(cx*(1-centre)+x*cutRx*scale,cy*(1-centre)+y*cutRy*scale,surface);
       if(!corePresent||depth<=3)return p;
       const blend=Math.min(1,(depth-3)/2.7);
       return mix(p,fillingJoin(x,y),blend);
     }));
     for(let r=0;r<rings.length-1;r++)for(let j=0;j<N;j++){
       const k=(j+1)%N,a=rings[r][j],b=rings[r][k],c=rings[r+1][k],d=rings[r+1][j];
-      const blend=corePresent?Math.max(0,Math.min(1,(levels[r][1]-1.75)/2)):0;
-      const col=mix(levels[r][3],recipe.filling_material.base,blend).map(q=>q*(.98+.035*Math.sin(j*2.13+r*4.1))),mat=r<2?'dough':'filling';
-      triangle(a,c,b,col,mat);triangle(a,d,c,col,mat);
+      const tone=wallTone(r,j,outline[j][1],levels[r][0]);
+      const col=levels[r][3].map(q=>q*tone),mat=r<2?'dough':'filling';
+      triangle(a,b,c,col,mat);triangle(a,c,d,col,mat);
     }
     // Only intact exposed filling. No broken-core or extracted-empty variants.
     if(core){
@@ -217,8 +208,9 @@ function authorCanonical(vertices,parts,spec){
       for(let i=0;i<existing.vertices.length;i+=24){const id=-1-existing.vertices[i+3];if(existing.materials[id]!=='core')continue;
         const points=[0,8,16].map(j=>existing.vertices.slice(i+j,i+j+3));
         // Same bean filling as the cavity: no purple hue, painted gleam or shell.
-        const colorBase=recipe.filling_material.base;
-        const color=colorBase.map(c=>c*recipe.filling_material.core_density_tint);
+        const colorBase=recipe.filling_material.core_color||recipe.filling_material.base;
+        const grain=[.94,1,1.06][Math.floor(i/24)%3];
+        const color=colorBase.map(c=>c*recipe.filling_material.core_density_tint*grain);
         triangle(...points,color,'core');
       }
     }
@@ -227,18 +219,11 @@ function authorCanonical(vertices,parts,spec){
   function inside(x,y,z,partName){
     if(!open||!cuttable.has(partName))return false;
     const q=local([x,y,z]);if(q[2]<.15)return false;
-    const a=(q[0]-cx)/cutRx,b=(q[1]-cy)/cutRy,angle=Math.atan2(b,a);
-    return Math.hypot(a,b)<(model.hair_parts.includes(partName)?hairBoundary(angle):rough(angle));
+    const a=(q[0]-cx)/cutRx,b=(q[1]-cy)/cutRy;
+    return insidePolygon(model.hair_parts.includes(partName)?hairOutline:outline,a,b);
   }
-  // Smooth the filling and core only; preserve cut hair and dough thickness edges.
-  const normals=new Map();
-  for(let i=0;i<out.length;i+=8){const mat=materials[-1-out[i+3]];if(!['filling','core'].includes(mat))continue;
-    const key=mat+out.slice(i,i+3).map(q=>Math.round(q*1e5)).join(',');
-    const normal=normals.get(key)||[0,0,0];for(let k=0;k<3;k++)normal[k]+=out[i+5+k];normals.set(key,normal);
-  }
-  for(let i=0;i<out.length;i+=8){const mat=materials[-1-out[i+3]],key=mat+out.slice(i,i+3).map(q=>Math.round(q*1e5)).join(',');
-    const normal=normals.get(key);if(normal){const length=Math.hypot(...normal);for(let k=0;k<3;k++)out[i+5+k]=normal[k]/length;}
-  }
+  // Flat face normals retain the pixel/low-poly cross-section. The body itself
+  // and all unchanged organs keep their existing shading.
   return {vertices:out,colors,materials,surfaceEdits,surfacePatches,inside,cuttable,paintable:new Set([skin.name,...hair.map(p=>p.name),...parts.filter(p=>p.name.startsWith('face_')).map(p=>p.name)]),
     project:p=>{const q=local(p);return [(q[0]-cx)/rx,(q[1]-cy)/ry,q[2]];},
     profile:{origin,u,v,n,center:[cx,cy],cause:spec.cause,radius:radii,cutRadius:[cutRx,cutRy],outline,hairOutline,kind,style,severity,open,core,coreCenter:recipe.core_center,

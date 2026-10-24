@@ -137,7 +137,7 @@ def render(model,args,mesh_jobs):
     run(args.node,HERE.parent/'surface.cjs',jobs,'render-'+model)
     images={Path(j['out']).name:Image.fromarray(np.fromfile(j['out']+'.rgba',np.uint8).reshape(j['height'],j['width'],4)) for j in jobs}
     dest=args.preview_root/'.local/previews/hair-wounds/species'/model;dest.mkdir(parents=True,exist_ok=True)
-    footer='制作源适配 · 未接入游戏 · 原伤因与真实扣血规则不变 · 静态审图不代替试玩'
+    footer='制作源适配 · 当前运行素材的静态对照 · 原伤因与真实扣血规则不变 · 动态效果由试玩确认'
     if info['house']:
         cards=[('健康','同一模型与高度',images['healthy']),('全身烧伤 · 直接三级','全身焦枯，头饰同步变色',images['whole_body-3']),('足部烧伤 · 直接三级','仅足底，不缩小全身',images['sole-3'])]
         build.source.sheet(info['label']+' · 受烧直接三级','用户限定家油仅烧伤，直接使用三级外观；实际扣血独立结算，不增加机械伤或露核。',cards,3,(380,320),footer).save(dest/'thermal.png')
@@ -191,7 +191,7 @@ def main():
             links=f'<a href="{k}/thermal.png">三级烧伤</a> · <a href="{k}/growth.png">成长</a>'
             if not v['house']:links+=f' · <a href="{k}/hair.png">覆发伤级</a> · <a href="{k}/skin.png">皮面伤级</a>'
             rows+=f'<article><h2>{v["label"]}'+(' · 仅烧伤' if v['house'] else '')+f'</h2><a href="{k}/index.html"><img loading="lazy" src="{k}/overview.png"></a><p>{links}</p></article>'
-        (dest/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>全品种伤口适配</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}article{max-width:1450px;margin:30px auto}img{width:100%}a{color:#456447}</style><a href="../index.html">伤口总览</a><h1>24 套模型 · 全品种伤口适配</h1><p>家油仅足部/全身烧伤，受烧直接用三级外观；其余22套另有八种机械伤各三级及受条件限制的完好中枢外露。按各自发型、体表、UV 与生命值适配。水生魔理沙复用身体，另展示1.5倍帽饰；灵胖只展示成年形态。全身烧伤同时影响布质头饰，壳与彩晶受烟熏；独立附件不随脸颊压窄。制作源待视觉确认，尚未接入游戏。</p>'+rows,encoding='utf-8')
+        (dest/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>全品种伤口适配</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}article{max-width:1450px;margin:30px auto}img{width:100%}a{color:#456447}</style><a href="../index.html">伤口总览</a><h1>24 套模型 · 全品种伤口适配</h1><p>家油仅足部/全身烧伤，受烧直接用三级外观；其余22套另有八种机械伤各三级及受条件限制的完好中枢外露。按各自发型、体表、UV 与生命值适配。水生魔理沙复用身体，另展示1.5倍帽饰；灵胖只展示成年形态。全身烧伤同时影响布质头饰，壳与彩晶受烟熏；独立附件不随脸颊压窄。制作源静态适配；实际伤位、动态遮挡、治疗与中枢命中仍由动作博物馆确认。</p>'+rows,encoding='utf-8')
         root=dest.parent/'index.html';page=root.read_text(encoding='utf-8');link='<section id="species-link"><h2><a href="species/index.html">查看全部 24 套品种与形态适配 →</a></h2><p>含家油、捕食种、亚种、先天不足、灵胖及成长对照。</p></section>'
         if 'id="species-link"' not in page:root.write_text(page.replace('<nav>',link+'<nav>',1),encoding='utf-8')
     print(f'Coverage: {len(MODELS)} models / {data["mesh_count"]} meshes / {data["face_atlas_count"]} face atlases / {data["thermal_sample_count"]} thermal samples')

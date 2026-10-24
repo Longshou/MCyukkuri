@@ -122,7 +122,8 @@ final class CavityRenderer {
         for(int r=0;r<levels.length-1;r++)for(int j=0;j<count;j++) {
             int k=(j+1)%count,a=r*count+j,b=r*count+k,c=(r+1)*count+k,d=(r+1)*count+j;
             // The local tangent basis faces outward; the source XY plane faced inward (+Z).
-            var color=levels[r];faces.add(new Face(a,b,c,color[3],color[4],color[5],false));faces.add(new Face(a,c,d,color[3],color[4],color[5],false));
+            var color=levels[r];float tone=HairWoundAssets.wallTone(r,j,opening.polygon[j][1]/opening.radiusV,color[0]);
+            faces.add(new Face(a,b,c,color[3]*tone,color[4]*tone,color[5]*tone,false));faces.add(new Face(a,c,d,color[3]*tone,color[4]*tone,color[5]*tone,false));
         }
         if(!corePresent)return;
         var source=BodyCavity.coreMesh();var data=source.vertices();int start=vertices.size();
@@ -136,10 +137,11 @@ final class CavityRenderer {
             // Retain the real damaged-core contrast, within the selected ordinary
             // filling palette. An intact core has no independent shell or outline.
             var p=vertices.get(start+i).rest;
-            float grain=.98f+.035f*(float)Math.sin(p.x*2.13f+p.y*4.1f+p.z*1.7f);
+            int cell=Math.floor(p.x*6+p.y*10+p.z*14);
+            float grain=.94f+.06f*Math.floorMod(cell,3);
             float shade=broken?Math.clamp((damage[i]+damage[i+1]+damage[i+2]+1)/(colours[i]+colours[i+1]+colours[i+2]+1),.35f,1.1f):1;
             float tone=HairWoundAssets.coreDensity*grain*shade;
-            var filling=HairWoundAssets.filling;
+            var filling=HairWoundAssets.coreFilling;
             faces.add(new Face(start+i,start+i+1,start+i+2,filling.x*tone,filling.y*tone,filling.z*tone,true));
         }
     }
@@ -181,16 +183,24 @@ final class CavityRenderer {
         for(var face:faces){normal.set(posed[face.b]).sub(posed[face.a]).cross(edge.set(posed[face.c]).sub(posed[face.a]));
             normals[face.a].add(normal);normals[face.b].add(normal);normals[face.c].add(normal);}
         for(var n:normals){if(n.lengthSquared()>1e-12)n.normalize();else n.set(opening.normal);}
-        // The authored soft core keeps its smooth normals, including non-uniform body scale.
+        // The authored low-poly core retains its source normals, including non-uniform body scale.
         world[tissue].normal(normalMatrix);
         for(int i=0;i<vertices.size();i++){var vertex=vertices.get(i);if(vertex.sourceNormal==null)continue;
             normalMatrix.transform(vertex.sourceNormal,normals[i]).normalize();}
         var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_cavity_white.png")));
         var transform=stack.last();
-        for(var face:faces)for(int j=0;j<4;j++) {
-            int i=j==0?face.a:j==1?face.b:face.c;var p=posed[i];var n=normals[i];
-            buffer.addVertex(transform.pose(),p.x/16,p.y/16,p.z/16).setColor(Math.round(face.red),Math.round(face.green),Math.round(face.blue),255)
-                    .setUv(.5f,.5f).setOverlay(overlay).setLight(light).setNormal(transform,n.x,n.y,n.z);
+        for(var face:faces){
+            if(!face.core){
+                normal.set(posed[face.b]).sub(posed[face.a]).cross(edge.set(posed[face.c]).sub(posed[face.a])).normalize();
+            }
+            for(int j=0;j<4;j++){
+                int i=j==0?face.a:j==1?face.b:face.c;var p=posed[i];
+                // Broad flat wall bands make the dough/filling cross-section
+                // readable; the core keeps its authored low-poly normals.
+                var n=face.core?normals[i]:normal;
+                buffer.addVertex(transform.pose(),p.x/16,p.y/16,p.z/16).setColor(Math.round(face.red),Math.round(face.green),Math.round(face.blue),255)
+                        .setUv(.5f,.5f).setOverlay(overlay).setLight(light).setNormal(transform,n.x,n.y,n.z);
+            }
         }
     }
 }

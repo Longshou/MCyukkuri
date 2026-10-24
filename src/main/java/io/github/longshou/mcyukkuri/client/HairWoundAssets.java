@@ -46,8 +46,15 @@ final class HairWoundAssets {
     static float[] widthLoss;
     static float minimumInset,cheekHeight,cheekFalloff,soleLow,soleHigh,textureScale;
     static float[][] cavityControls;
-    static Vector3f filling;
+    static Vector3f filling,coreFilling;
     static float coreDensity;
+
+    static float wallTone(int ring,int segment,float y,float scale){
+        float top=Math.clamp((y+1)*.5f,0,1);
+        float occlusion=1-.24f*top*Math.min(1,scale*1.15f);
+        float grain=ring<2?.98f+.02f*((segment+ring)%3):.92f+.08f*Math.floorMod(segment*7+ring*3,3);
+        return occlusion*grain;
+    }
 
     static void reload(ResourceManager manager){
         try(var reader=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/hair_wounds.json")).openAsReader()){
@@ -72,6 +79,7 @@ final class HairWoundAssets {
             var sole=floats(thermal.getAsJsonArray("sole_y"));soleLow=sole[0];soleHigh=sole[1];textureScale=thermal.get("texture_world_scale").getAsFloat();
             cavityControls=rows(data.getAsJsonArray("cavity_controls"));
             var material=recipe.getAsJsonObject("filling_material");filling=vector(material.getAsJsonArray("base"));
+            coreFilling=material.has("core_color")?vector(material.getAsJsonArray("core_color")):filling;
             coreDensity=material.get("core_density_tint").getAsFloat();
         }catch(IOException error){throw new UncheckedIOException("Cannot load selected hair wound art",error);}
         HairWoundRenderer.clear();

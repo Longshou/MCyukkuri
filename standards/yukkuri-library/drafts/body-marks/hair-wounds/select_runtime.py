@@ -27,6 +27,8 @@ def main():
             data = data.replace(b'\r\n', b'\n')
         select(SNAPSHOT / relative, data)
     recipe = json.loads((HERE / 'recipe.json').read_text(encoding='utf-8'))
+    body_recipe = json.loads((HERE.parent / 'recipe.json').read_text(encoding='utf-8'))
+    cavity_recipe = body_recipe['core_cavity']
     catalog = json.loads((HERE / 'species.json').read_text(encoding='utf-8'))
     profiles = {}
     input_meshes = {}
@@ -39,21 +41,17 @@ def main():
                 ('radius', 'cutRadius', 'outline', 'hairOutline', 'open')}
             input_meshes[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
             select(SNAPSHOT / f'profiles/{style}-{grade}.json', encoded(mesh['profile']))
-    # These are authored control rings, copied from author.cjs; the material/shape
-    # generation remains solely in that source. They are selected, not redesigned.
-    cavity_controls = [[.999,.012,194,158,115],[.98,.04,192,152,112],
-        [.94,.15,179,134,97],[.72,.5,111,73,56],[.40,.85,85,51,43],[0,1,68,40,35]]
-    core_controls = [[.999,.012,0,[194,158,115]],[.985,.05,0,[192,152,112]],
-        [.97,.20,0,[179,134,97]],[.87,.78,.12,[103,69,53]],
-        [.79,1.75,.34,[97,64,50]],[.72,3,.65,[91,60,47]],
-        [.62,4.5,1,[82,54,42]],[0,5.7,1,[76,50,39]]]
+    # Ordinary and core lofts share the parent authoring recipe with the
+    # standalone cavity exporter; only the runtime row layout is adapted here.
+    cavity_controls = [[row[0], row[1], row[2], *row[3]] for row in cavity_recipe['ordinary_lip']]
+    core_controls = cavity_recipe['core_lip']
     core_levels = []
     for index, (a, b) in enumerate(zip(core_controls, core_controls[1:])):
-        for step in range(1 if index < 2 else 6):
-            t = step / (1 if index < 2 else 6)
+        steps = cavity_recipe['core_steps'][index]
+        for step in range(steps):
+            t = step / steps
             row = [a[k]*(1-t)+b[k]*t for k in range(3)]
-            blend = max(0, min(1, (row[1]-1.75)/2))
-            color = [(a[3][k]*(1-t)+b[3][k]*t)*(1-blend)+recipe['filling_material']['base'][k]*blend for k in range(3)]
+            color = [a[3][k]*(1-t)+b[3][k]*t for k in range(3)]
             core_levels.append(row+color)
     core_levels.append(core_controls[-1][:3]+recipe['filling_material']['base'])
     for name in [*(f'{style}-{g}' for style in recipe['grades'] for g in (1,2,3)),
@@ -72,7 +70,7 @@ def main():
     runtime_recipe = {key: recipe[key] for key in ('grades', 'core_openings', 'thermal',
         'core_center', 'core_radius', 'segments', 'filling_material')}
     selected = dict(format=1, recipe=runtime_recipe, models=catalog['models'], profiles=profiles,
-        dry_faces=faces, cavity_controls=cavity_controls, core_levels=core_levels, core_reference_depth=5.7)
+        dry_faces=faces, cavity_controls=cavity_controls, core_levels=core_levels, core_reference_depth=core_controls[-1][1])
     fits = json.loads((ASSETS / 'yukkuri_presentation/placement_fit.json').read_text(encoding='utf-8'))['models']
     for ident, info in catalog['models'].items():
         if not info['house']:
@@ -140,7 +138,9 @@ def main():
     select(ASSETS / 'yukkuri_presentation/hair_wounds.json', encoded(selected))
     manifest = dict(format=1, source=HERE.relative_to(ROOT).as_posix(),
         selector_sha256=hashlib.sha256(Path(__file__).read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
-        scope='Existing authored profiles, transparent materials and expression atlases; runtime reprojects at the authoritative wound site.',
+        source_inputs={ (HERE.parent / 'recipe.json').relative_to(ROOT).as_posix():
+            hashlib.sha256((HERE.parent / 'recipe.json').read_bytes()).hexdigest() },
+        scope='Redrawn pixel-authored profiles, transparent materials and expression atlases; runtime reprojects at the authoritative wound site.',
         status='selected_for_runtime_pending_user_review',
         input_meshes=input_meshes,
         files={path.relative_to(ROOT).as_posix(): hashlib.sha256(data).hexdigest()

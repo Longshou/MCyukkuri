@@ -9,6 +9,7 @@ const add=(a,b)=>a.map((v,k)=>v+b[k]),sub=(a,b)=>a.map((v,k)=>v-b[k]),mul=(a,s)=
 const dot=(a,b)=>a.reduce((s,v,k)=>s+v*b[k],0);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>mul(a,1/Math.hypot(...a));
+const {wallTone}=require('./cavity.cjs');
 function createRuntimeCavity(vertices,skin,state='intact'){
   const spec=JSON.parse(fs.readFileSync(path.join(assets,'body_cavity.json')));
   const core=JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(assets,'body_core.json.gz'))));
@@ -58,7 +59,9 @@ function createRuntimeCavity(vertices,skin,state='intact'){
   }));
   for(let r=0;r<rings.length-1;r++)for(let j=0;j<rim.length;j++){
     const k=(j+1)%rim.length,a=rings[r][j],b=rings[r][k],c=rings[r+1][k],d=rings[r+1][j];
-    triangle(a,b,c,spec.levels[r][3],r<2?'dough':'filling');triangle(a,c,d,spec.levels[r][3],r<2?'dough':'filling');
+    const tone=wallTone(r,j,spec.outline[j][1],spec.levels[r][0]);
+    const color=spec.levels[r][3].map(v=>v*tone);
+    triangle(a,b,c,color,r<2?'dough':'filling');triangle(a,c,d,color,r<2?'dough':'filling');
   }
   if(state!=='empty')for(let i=0;i<core.vertices.length;i+=18){
     const positions=[],normals=[];
@@ -69,12 +72,8 @@ function createRuntimeCavity(vertices,skin,state='intact'){
     const colours=state==='broken'?core.broken_colours:core.colours;
     triangle(...positions,colours.slice(i/6,i/6+3),'core',normals);
   }
-  // The runtime smooths shared loft vertices; preserve exported core normals.
-  const groups=new Map(),keys=[];
-  for(let i=0;i<out.length;i+=8){const kind=materials[-1-out[i+3]];
-    const key=kind==='filling'?out.slice(i,i+3).map(v=>Math.round(v*1e5)).join(','):String(i);
-    keys.push(key);if(!groups.has(key))groups.set(key,[0,0,0]);const sum=groups.get(key);for(let k=0;k<3;k++)sum[k]+=out[i+5+k];}
-  for(let i=0;i<out.length;i+=8){const norm=unit(groups.get(keys[i/8]));for(let k=0;k<3;k++)out[i+5+k]=norm[k];}
+  // Keep the same flat low-poly wall bands as the runtime renderer; the core
+  // already carries authored face normals from its exported mesh.
   return {vertices:out,colors,materials,inside,coreCenter:center};
 }
 module.exports={createRuntimeCavity};

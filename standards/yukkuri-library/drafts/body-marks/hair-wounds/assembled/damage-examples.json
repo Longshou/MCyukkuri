@@ -7,11 +7,7 @@
     "capacity_rule": "At eight wounds, current insertWound strengthens the nearest existing wound by one; it does not create a ninth.",
     "hot_tool_exception": "Current hot heated_awl forces at least grade 2; the removed local-burn art path is not exported.",
     "core_rule": "A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant.",
-    "live_code_gaps": [
-      "Current BodySigns also allows already damaged core to bypass the health threshold and includes deep SCORCH.",
-      "Current WoundKind.TEAR does not retain the authored mechanism: narrow punctures must not be widened just to show the core.",
-      "Broken-core and extracted-empty-cavity authoring variants are excluded by the current user request; no gameplay removal is implied."
-    ]
+    "live_code_gaps": []
   },
   "basis": "10-health example with supported blade/blunt/bite/blast contact, no armor assumptions, no terminal destruction or core damage; actual fitted opening required.",
   "single_hits": [

@@ -2856,6 +2856,1842 @@
         ]
       }
     },
+    "dry-face-reimu-remains_burned-1.png": {
+      "model": "reimu",
+      "expression": "remains_burned",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_burned-2.png": {
+      "model": "reimu",
+      "expression": "remains_burned",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_burned-3.png": {
+      "model": "reimu",
+      "expression": "remains_burned",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_crushed-1.png": {
+      "model": "reimu",
+      "expression": "remains_crushed",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_crushed-2.png": {
+      "model": "reimu",
+      "expression": "remains_crushed",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_crushed-3.png": {
+      "model": "reimu",
+      "expression": "remains_crushed",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_dissolving-1.png": {
+      "model": "reimu",
+      "expression": "remains_dissolving",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_dissolving-2.png": {
+      "model": "reimu",
+      "expression": "remains_dissolving",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_dissolving-3.png": {
+      "model": "reimu",
+      "expression": "remains_dissolving",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_drowned-1.png": {
+      "model": "reimu",
+      "expression": "remains_drowned",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_drowned-2.png": {
+      "model": "reimu",
+      "expression": "remains_drowned",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_drowned-3.png": {
+      "model": "reimu",
+      "expression": "remains_drowned",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_frozen-1.png": {
+      "model": "reimu",
+      "expression": "remains_frozen",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_frozen-2.png": {
+      "model": "reimu",
+      "expression": "remains_frozen",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_frozen-3.png": {
+      "model": "reimu",
+      "expression": "remains_frozen",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_natural-1.png": {
+      "model": "reimu",
+      "expression": "remains_natural",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_natural-2.png": {
+      "model": "reimu",
+      "expression": "remains_natural",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_natural-3.png": {
+      "model": "reimu",
+      "expression": "remains_natural",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_sick-1.png": {
+      "model": "reimu",
+      "expression": "remains_sick",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_sick-2.png": {
+      "model": "reimu",
+      "expression": "remains_sick",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_sick-3.png": {
+      "model": "reimu",
+      "expression": "remains_sick",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_starved-1.png": {
+      "model": "reimu",
+      "expression": "remains_starved",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_starved-2.png": {
+      "model": "reimu",
+      "expression": "remains_starved",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_starved-3.png": {
+      "model": "reimu",
+      "expression": "remains_starved",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_violent-1.png": {
+      "model": "reimu",
+      "expression": "remains_violent",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_violent-2.png": {
+      "model": "reimu",
+      "expression": "remains_violent",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-reimu-remains_violent-3.png": {
+      "model": "reimu",
+      "expression": "remains_violent",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
     "dry-face-reimu-satisfied-1.png": {
       "model": "reimu",
       "expression": "satisfied",
@@ -7279,6 +9115,1842 @@
     "dry-face-marisa-puff-3.png": {
       "model": "marisa",
       "expression": "puff",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_burned-1.png": {
+      "model": "marisa",
+      "expression": "remains_burned",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_burned-2.png": {
+      "model": "marisa",
+      "expression": "remains_burned",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_burned-3.png": {
+      "model": "marisa",
+      "expression": "remains_burned",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_crushed-1.png": {
+      "model": "marisa",
+      "expression": "remains_crushed",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_crushed-2.png": {
+      "model": "marisa",
+      "expression": "remains_crushed",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_crushed-3.png": {
+      "model": "marisa",
+      "expression": "remains_crushed",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_dissolving-1.png": {
+      "model": "marisa",
+      "expression": "remains_dissolving",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_dissolving-2.png": {
+      "model": "marisa",
+      "expression": "remains_dissolving",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_dissolving-3.png": {
+      "model": "marisa",
+      "expression": "remains_dissolving",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_drowned-1.png": {
+      "model": "marisa",
+      "expression": "remains_drowned",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_drowned-2.png": {
+      "model": "marisa",
+      "expression": "remains_drowned",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_drowned-3.png": {
+      "model": "marisa",
+      "expression": "remains_drowned",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_frozen-1.png": {
+      "model": "marisa",
+      "expression": "remains_frozen",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_frozen-2.png": {
+      "model": "marisa",
+      "expression": "remains_frozen",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_frozen-3.png": {
+      "model": "marisa",
+      "expression": "remains_frozen",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_natural-1.png": {
+      "model": "marisa",
+      "expression": "remains_natural",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_natural-2.png": {
+      "model": "marisa",
+      "expression": "remains_natural",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_natural-3.png": {
+      "model": "marisa",
+      "expression": "remains_natural",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_sick-1.png": {
+      "model": "marisa",
+      "expression": "remains_sick",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_sick-2.png": {
+      "model": "marisa",
+      "expression": "remains_sick",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_sick-3.png": {
+      "model": "marisa",
+      "expression": "remains_sick",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_starved-1.png": {
+      "model": "marisa",
+      "expression": "remains_starved",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_starved-2.png": {
+      "model": "marisa",
+      "expression": "remains_starved",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_starved-3.png": {
+      "model": "marisa",
+      "expression": "remains_starved",
+      "grade": 3,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_violent-1.png": {
+      "model": "marisa",
+      "expression": "remains_violent",
+      "grade": 1,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_violent-2.png": {
+      "model": "marisa",
+      "expression": "remains_violent",
+      "grade": 2,
+      "scope": "whole_body",
+      "boxes": {
+        "face_eye_left": [
+          58,
+          0,
+          73,
+          12
+        ],
+        "face_eye_right": [
+          73,
+          0,
+          88,
+          12
+        ],
+        "face_brow_left": [
+          102,
+          0,
+          119,
+          6
+        ],
+        "face_brow_right": [
+          102,
+          6,
+          119,
+          12
+        ],
+        "face_mouth": [
+          0,
+          0,
+          28,
+          24
+        ],
+        "face_blush_left": [
+          88,
+          11,
+          98,
+          17
+        ],
+        "face_blush_right": [
+          58,
+          12,
+          68,
+          18
+        ],
+        "face_tear_left": [
+          28,
+          0,
+          43,
+          16
+        ],
+        "face_tear_right": [
+          43,
+          0,
+          58,
+          16
+        ],
+        "face_effect_mouth": [
+          88,
+          0,
+          102,
+          11
+        ]
+      }
+    },
+    "dry-face-marisa-remains_violent-3.png": {
+      "model": "marisa",
+      "expression": "remains_violent",
       "grade": 3,
       "scope": "whole_body",
       "boxes": {

@@ -14,7 +14,7 @@ def read_rules(root):
     compact=re.sub(r'\s+','',life)
     if 'Math.min(3,Math.max(old.severity(),severity)+(loss>=2?1:0))' not in compact:
         raise ValueError('Re-audit repeated-hit grading before exporting examples')
-    if '!broken && healthFraction > BodyLife.WEAK_HEALTH_RATIO' not in signs:
+    if 'healthFraction > BodyLife.WEAK_HEALTH_RATIO' not in signs or '!broken && healthFraction' in signs or 'wound.shape().supportsCore()' not in signs:
         raise ValueError('Re-audit current core visibility before exporting examples')
     return dict(grade_divisor=divisor,core_health_ratio=threshold,
         grade_rule='clamp(ceil(accepted health loss / divisor), 1, 3); zero accepted loss creates no wound',
@@ -22,9 +22,7 @@ def read_rules(root):
         capacity_rule='At eight wounds, current insertWound strengthens the nearest existing wound by one; it does not create a ninth.',
         hot_tool_exception='Current hot heated_awl forces at least grade 2; the removed local-burn art path is not exported.',
         core_rule='A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant.',
-        live_code_gaps=['Current BodySigns also allows already damaged core to bypass the health threshold and includes deep SCORCH.',
-                        'Current WoundKind.TEAR does not retain the authored mechanism: narrow punctures must not be widened just to show the core.',
-                        'Broken-core and extracted-empty-cavity authoring variants are excluded by the current user request; no gameplay removal is implied.'])
+        live_code_gaps=[])
 
 
 def grade_for(loss,rules):

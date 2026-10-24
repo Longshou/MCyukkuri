@@ -101,25 +101,25 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "24 套现有模型与形态：家油仅足部／全身烧伤且直接三级，其余22套机械伤各三级及条件露核。各自UV、发型、成长比例和虹膜适配；全身烧伤头饰同步焦褐、烟熏，独立饰物不挤扁。制作源未接入游戏。",
+      "summary": "重绘八类机械伤的三级透明像素贴图与低面数创腔：刮擦簇、狭长裂口、压陷、窄刺、细刺、尖锥、错位齿痕和不对称爆裂各有轮廓。24 套现有模型与形态完成适配；中枢与空腔沿用同一豆沙色系。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
-      "demoPage": "hair-wounds/species/index.html",
+      "demoPage": "hair-wounds/index.html",
       "points": [
-        "真实扣血决定新伤等级，同处旧伤按确定公式加深；普通露核须三级大缺损、生命≤30%与创腔通道。",
-        "全身同高横向干瘦，焦褐到炭化分三级，去掉下巴描线；足部无全身形变。",
-        "家油受烧直接三级；妖梦按14点最大生命判断露核；水生魔理沙展示实际1.5倍帽饰。"
+        "64×64 硬边像素最近邻导出，无肤色底块；开放伤有真实创缘、垂直内壁与底部，不用平滑凸面。",
+        "窄刺与尖锥三级使用独立轮廓；核心保持身体中央，完好、裂损与取出后的深色空腔可区分。",
+        "家油仍仅足部／全身烧伤且直接三级；其余形态保留真实伤位、发型、成长和既有热损规则。"
       ],
       "steps": [
         {
-          "title": "同高干瘦",
-          "caption": "横向形变与干枯表情，不做整体缩放。",
-          "image": "hair-wounds/thermal-size.png"
+          "title": "像素伤纹与低面数创腔",
+          "caption": "黑发三级裂伤、压陷与中枢外露；实际伤位、动态蒙皮和遮挡仍需试玩。",
+          "image": "hair-wounds/current.png"
         },
         {
-          "title": "实际扣血与露核",
-          "caption": "10点最大生命的确定伤害对照；真实伤位仍须可建立通道。",
-          "image": "hair-wounds/damage-thresholds.png"
+          "title": "完好、裂损与取出空腔",
+          "caption": "同一运行创腔的近看、侧视与状态对照；核心位置不随镜头移动。",
+          "image": "body-core-runtime/current.png"
         }
       ],
       "gallery": [

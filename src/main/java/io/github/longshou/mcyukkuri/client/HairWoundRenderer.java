@@ -343,18 +343,24 @@ final class HairWoundRenderer {
             var layer=layer(MCYukkuri.id("textures/props/body_cavity_white.png"));
             var controls=HairWoundAssets.cavityControls;int count=cut.skin.length;
             Sample[] samples=new Sample[count];for(int i=0;i<count;i++)samples[i]=sample(cut,cut.skin[i][0],cut.skin[i][1],false,0,true);
+            Sample centre=sample(cut,0,0,false,0,true);
             for(int r=0;r<controls.length-1;r++)for(int j=0;j<count;j++){
                 int k=(j+1)%count;if(samples[j]==null||samples[k]==null)continue;
                 var level=controls[r];var next=controls[r+1];
-                var a=wall(cut,samples[j],level,r);var b=wall(cut,samples[k],level,r);var c=wall(cut,samples[k],next,r+1);var d=wall(cut,samples[j],next,r+1);
-                float[] color={level[2],level[3],level[4]};colored(layer,a,c,b,color);colored(layer,a,d,c,color);
+                var a=wall(cut,samples[j],level,r,centre);var b=wall(cut,samples[k],level,r,centre);
+                var c=wall(cut,samples[k],next,r+1,centre);var d=wall(cut,samples[j],next,r+1,centre);
+                float tone=HairWoundAssets.wallTone(r,j,cut.skin[j][1]/cut.cutV,level[0]);
+                float[] color={level[3]*tone,level[4]*tone,level[5]*tone};colored(layer,a,b,c,color);colored(layer,a,c,d,color);
             }
         }
-        private Corner wall(Cut cut,Sample rim,float[] level,int index){
+        private Corner wall(Cut cut,Sample rim,float[] level,int index,Sample centre){
             var delta=new Vector3f(rim.point).sub(cut.anchor);
+            float rimDepth=delta.dot(cut.n);
+            float centreDepth=centre==null?rimDepth:new Vector3f(centre.point).sub(cut.anchor).dot(cut.n);
+            float surface=rimDepth*(1-level[2])+centreDepth*level[2];
             // Source first two rings have fixed dough thickness; deeper rings follow real grade depth.
             float depth=index<3?level[1]*cut.scale:level[1]*cut.depth;
-            var point=new Vector3f(cut.anchor).fma(delta.dot(cut.u)*level[0],cut.u).fma(delta.dot(cut.v)*level[0],cut.v).fma(delta.dot(cut.n)-depth,cut.n);
+            var point=new Vector3f(cut.anchor).fma(delta.dot(cut.u)*level[0],cut.u).fma(delta.dot(cut.v)*level[0],cut.v).fma(surface-depth,cut.n);
             return derived(rim,point);
         }
         private void hairEdge(Cut cut,int loss,boolean accessory){
@@ -373,7 +379,8 @@ final class HairWoundRenderer {
                 var c=hairDerived(cut,pb,new Vector3f(pb.point).fma(-.075f*cut.scale,cut.n));
                 var d=hairDerived(cut,pa,new Vector3f(pa.point).fma(-.075f*cut.scale,cut.n));
                 colored(layer,a,c,b,rgb);colored(layer,a,d,c,rgb);
-                boolean strand=cut.wound.shape()==WoundShape.BITE?(j==13||j==27||j==37||j==59||j==72||j==85):j%(cut.dent()?6:4)==0;
+                boolean strand=cut.wound.shape()==WoundShape.BITE?(j==(int)(count*.14f)||j==(int)(count*.28f)||j==(int)(count*.39f)
+                        ||j==(int)(count*.61f)||j==(int)(count*.75f)||j==(int)(count*.89f)):j%(cut.dent()?6:4)==0;
                 if(strand&&(cut.wound.shape()!=WoundShape.CUT||Math.abs(Math.sin(j*2*Math.PI/count))>.45)){
                     float length=cut.wound.shape()==WoundShape.BITE?.12f:cut.dent()?.24f:.25f;
                     var tip=new Vector3f(pa.point).fma(-cut.x(pa.point)*length,cut.u).fma(-cut.y(pa.point)*length,cut.v).fma((cut.dent()?-.32f:-.08f)*cut.scale,cut.n);

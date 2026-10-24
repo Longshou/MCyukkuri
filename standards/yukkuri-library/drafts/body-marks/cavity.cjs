@@ -1,16 +1,49 @@
-/* Pending art geometry: a large opening, recessed filling walls and ONE central
- * filling body. The actual front skin is sampled to sew the lip to the model.
- * No runtime resources or Java are changed by this authoring module.
+/* Low-poly cavity geometry: a thin dough lip, stepped bean-paste walls and ONE
+ * central filling body. The actual front skin is sampled to sew the lip to the
+ * model. No runtime resources or Java are changed by this authoring module.
  */
 'use strict';
-function createCavity(vertices, skin, spec, broken=false){
+const mix=(a,b,t)=>a.map((v,i)=>v*(1-t)+b[i]*t);
+
+function expandOutline(points,count){
+  if(points.length>=count)return points.map(p=>[...p]);
+  const edges=points.map((p,i)=>({a:p,b:points[(i+1)%points.length],steps:1}));
+  let total=points.length;
+  while(total<count){
+    let best=edges[0],score=-1;
+    for(const edge of edges){
+      const value=Math.hypot(edge.b[0]-edge.a[0],edge.b[1]-edge.a[1])/edge.steps;
+      if(value>score){best=edge;score=value;}
+    }
+    best.steps++;total++;
+  }
+  const out=[];
+  for(const edge of edges)for(let step=0;step<edge.steps;step++){
+    const t=step/edge.steps;out.push(mix(edge.a,edge.b,t));
+  }
+  return out;
+}
+function insidePolygon(polygon,x,y){
+  let inside=false;
+  for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[i],b=polygon[j];
+    if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])inside=!inside;
+  }
+  return inside;
+}
+function wallTone(ring,segment,y,scale){
+  const top=Math.max(0,Math.min(1,(y+1)*.5));
+  const occlusion=1-.24*top*Math.min(1,scale*1.15);
+  const grain=ring<2?.98+.02*((segment+ring)%3):.92+.08*((segment*7+ring*3)%3);
+  return occlusion*grain;
+}
+function createCavity(vertices,skin,spec,broken=false){
   const colors=[],materials=[],out=[];
   const [cx,cy]=spec.opening_center,[rx,ry]=spec.opening_radius;
-  const center=spec.core_center,axes=spec.core_radius,N=spec.segments;
-  const rough=a=>1+.045*Math.sin(a*3+.4)+.027*Math.sin(a*7+1.1)+.016*Math.sin(a*13+.8);
+  const center=spec.core_center,axes=spec.core_radius;
+  const outline=expandOutline(spec.outline,spec.segments),N=outline.length;
   function inside(x,y,z){
-    const u=(x-cx)/rx,v=(y-cy)/ry,a=Math.atan2(v,u);
-    return z<center[2]-.25&&Math.hypot(u,v)<rough(a);
+    return z<center[2]-.25&&insidePolygon(outline,(x-cx)/rx,(y-cy)/ry);
   }
   function front(x,y){
     let found=Infinity;
@@ -33,45 +66,35 @@ function createCavity(vertices, skin, spec, broken=false){
     const material=colors.length;colors.push(col);materials.push(kind);
     for(const p of [a,b,c])out.push(...p,-material-1,0,...n.map(v=>v/len));
   }
-  // ring scale, inward translation, centre interpolation, material, darkness.
-  // The far rings are ordinary filling; the separate core sits in front of them.
-  const controls=[
-    [1.045,-.035,0,[234,209,163]],
-    [1.0,.01,0,[246,221,178]],
-    [.947,.22,0,[215,183,144]],
-    [.86,.93,.16,[111,73,58]],
-    [.72,1.95,.40,[91,58,49]],
-    [.53,3.40,.73,[72,44,40]],
-    [.32,4.70,1,[55,33,32]],
-    [0,5.6,1,[51,34,32]],
-  ];
-  const levels=[];
+  // Few broad, flat bands make the cross-section legible at Minecraft scale.
+  // The outer two bands are only the actual dough thickness, not a white frame.
+  const controls=spec.core_lip,levels=[];
   for(let r=0;r<controls.length-1;r++){
-    const a=controls[r],b=controls[r+1],steps=r<2?1:5;
+    const a=controls[r],b=controls[r+1],steps=spec.core_steps[r]||1;
     for(let j=0;j<steps;j++){
-      const t=j/steps;
-      levels.push([a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t,a[2]*(1-t)+b[2]*t,
-        a[3].map((v,k)=>v*(1-t)+b[3][k]*t)]);
+      const t=j/steps,scale=a[0]*(1-t)+b[0]*t,depth=a[1]*(1-t)+b[1]*t,centre=a[2]*(1-t)+b[2]*t;
+      const raw=mix(a[3],b[3],t);
+      levels.push([scale,depth,centre,raw]);
     }
   }
-  levels.push(controls.at(-1));
-  const rings=levels.map(([scale,depth,t])=>Array.from({length:N},(_,j)=>{
-    const a=j*2*Math.PI/N,k=rough(a),x=cx+rx*k*Math.cos(a),y=cy+ry*k*Math.sin(a);
-    const xx=cx*(1-t)+center[0]*t+rx*k*Math.cos(a)*scale;
-    const yy=cy*(1-t)+center[1]*t+ry*k*Math.sin(a)*scale;
+  levels.push([...controls.at(-1).slice(0,3),[...spec.filling_color]]);
+  const rings=levels.map(([scale,depth,t])=>outline.map(([ox,oy])=>{
+    const x=cx+rx*ox,y=cy+ry*oy;
+    const xx=cx*(1-t)+center[0]*t+rx*ox*scale;
+    const yy=cy*(1-t)+center[1]*t+ry*oy*scale;
     return [xx,yy,front(x,y)+depth];
   }));
   for(let r=0;r<rings.length-1;r++)for(let j=0;j<N;j++){
     const k=(j+1)%N,a=rings[r][j],b=rings[r][k],c=rings[r+1][k],d=rings[r+1][j];
-    const col=levels[r][3];
+    const tone=wallTone(r,j,outline[j][1],levels[r][0]);
+    const col=levels[r][3].map(v=>v*tone),kind=r<2?'dough':'filling';
     // Facing the cavity mouth, with real wall depth and parallax.
-    const kind=r<2?'dough':'filling';
-    triangle(a,c,b,col,kind);triangle(a,d,c,col,kind);
+    triangle(a,b,c,col,kind);triangle(a,c,d,col,kind);
   }
-  const L=28,M=56;
+  const L=10,M=20;
   function corePoint(i,j){
     const a=j*2*Math.PI/M,t=-Math.PI/2+i*Math.PI/L;
-    const k=1+.025*Math.sin(3*a+1)*Math.cos(t)*Math.cos(t);
+    const k=1+.018*Math.sin(3*a+1)*Math.cos(t)*Math.cos(t);
     return [center[0]+axes[0]*Math.cos(t)*Math.cos(a)*k,
       center[1]+axes[1]*Math.sin(t),center[2]+axes[2]*Math.cos(t)*Math.sin(a)*k];
   }
@@ -79,29 +102,14 @@ function createCavity(vertices, skin, spec, broken=false){
     const a=corePoint(i,j),b=corePoint(i,j+1),c=corePoint(i+1,j+1),d=corePoint(i+1,j);
     const x=(a[0]+b[0]+c[0]+d[0])/4-center[0],y=(a[1]+b[1]+c[1]+d[1])/4-center[1];
     const z=(a[2]+b[2]+c[2]+d[2])/4-center[2];
-    let col=[76,42,46];
-    const fleck=.96+.07*Math.sin(i*9.13+j*4.73);
-    const gleam=Math.exp(-((x+.35)**2/.12+(y-.35)**2/.05))*Math.max(0,-z/axes[2]);
-    col=col.map((v,k)=>v*fleck+[28,23,20][k]*gleam);
+    const fleck=[.94,1,1.06][(i*7+j*3)%3];
+    let col=(spec.core_color||spec.filling_color).map(v=>v*fleck);
     const cut=Math.abs(y-.18*Math.sin(x*7)-.12*x)<.055;
     const branch=x>.05&&Math.abs(y+.55*x+.12)<.045;
-    if(broken&&z<0&&(cut||branch))col=[31,21,23];
-    triangle(a,c,b,col,'core');triangle(a,d,c,col,'core');
+    if(broken&&z<0&&(cut||branch))col=[48,32,28];
+    // Flat source normals keep the central filling in the same low-poly language.
+    triangle(a,b,c,col,'core');triangle(a,c,d,col,'core');
   }
-  // Smooth the soft filling and core, retaining the distinct dough lip.
-  const groups=new Map(),keys=[];
-  for(let i=0;i<out.length;i+=8){
-    const kind=materials[-1-out[i+3]];
-    const key=kind==='dough'?String(i):kind+':'+out.slice(i,i+3).map(v=>Math.round(v*1e5)).join(',');
-    keys.push(key);if(!groups.has(key))groups.set(key,[0,0,0]);
-    const sum=groups.get(key);for(let k=0;k<3;k++)sum[k]+=out[i+5+k];
-  }
-  for(let i=0;i<out.length;i+=8){
-    const n=groups.get(keys[i/8]),len=Math.hypot(...n);
-    for(let k=0;k<3;k++)out[i+5+k]=n[k]/len;
-  }
-  // Export the same authored outline and loft levels for the runtime adapter.
-  const outline=Array.from({length:N},(_,j)=>{const a=j*2*Math.PI/N,k=rough(a);return [k*Math.cos(a),k*Math.sin(a)];});
   return {vertices:out,colors,materials,inside,coreCenter:center,levels,outline};
 }
-module.exports={createCavity};
+module.exports={createCavity,expandOutline,insidePolygon,wallTone};
