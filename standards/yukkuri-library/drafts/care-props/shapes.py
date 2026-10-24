@@ -314,3 +314,62 @@ def sprite(b, part, corners, key, img, normal=None):
     if n[1] < 0:
         n = [-c for c in n]
     b.p.quad(part, corners, None, uvs=[(ox, oy), (ox + w, oy), (ox + w, oy + h), (ox, oy + h)], normal=n)
+
+
+# ---- collision ------------------------------------------------------------------------------------------------------
+def heightmap(prop, half, cell, sub=3, step=.25):
+    """Top-surface height of a prop over square cells (side `cell`) covering [-half, half]^2: the highest mesh point found
+    at `sub` x `sub` samples inside each cell, rounded up to `step`. Cells nothing covers are 0. Rows run along z, columns
+    along x, both from -half. Used to give the block a collision shell that follows the visible shape."""
+    import numpy as np
+    n = int(round(2 * half / cell))
+    offs = (np.arange(sub) + .5) / sub * cell
+    xs = (-half + np.repeat(np.arange(n) * cell, sub) + np.tile(offs, n))
+    X, Z = np.meshgrid(xs, xs)                       # [z, x] samples
+    top = np.zeros_like(X)
+    for part in prop.parts:
+        for tri in part['tris']:
+            (a, _, _), (b, _, _), (c, _, _) = tri
+            x0, x1 = min(a[0], b[0], c[0]), max(a[0], b[0], c[0])
+            z0, z1 = min(a[2], b[2], c[2]), max(a[2], b[2], c[2])
+            ix = np.nonzero((xs >= x0) & (xs <= x1))[0]
+            iz = np.nonzero((xs >= z0) & (xs <= z1))[0]
+            if not len(ix) or not len(iz):
+                continue
+            px, pz = X[np.ix_(iz, ix)], Z[np.ix_(iz, ix)]
+            den = (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2])
+            if abs(den) < 1e-9:
+                continue
+            w0 = ((b[2] - c[2]) * (px - c[0]) + (c[0] - b[0]) * (pz - c[2])) / den
+            w1 = ((c[2] - a[2]) * (px - c[0]) + (a[0] - c[0]) * (pz - c[2])) / den
+            w2 = 1 - w0 - w1
+            inside = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
+            y = w0 * a[1] + w1 * b[1] + w2 * c[1]
+            sub_top = top[np.ix_(iz, ix)]
+            top[np.ix_(iz, ix)] = np.where(inside, np.maximum(sub_top, y), sub_top)
+    cells = top.reshape(n, sub, n, sub).max(axis=(1, 3))
+    return [[float(np.ceil(v / step - 1e-6) * step) for v in row] for row in cells]
+
+
+def collision_boxes(hm, half, cell):
+    """Greedy rectangles of equal height over a heightmap: [x0, z0, x1, z1, top] in units from the footprint centre."""
+    n = len(hm)
+    left = {(i, k) for k in range(n) for i in range(n) if hm[k][i] > 0}
+    boxes = []
+    for k in range(n):
+        for i in range(n):
+            if (i, k) not in left:
+                continue
+            h = hm[k][i]
+            i1 = i + 1
+            while (i1, k) in left and hm[k][i1] == h:
+                i1 += 1
+            k1 = k + 1
+            while all((x, k1) in left and hm[k1][x] == h for x in range(i, i1)):
+                k1 += 1
+            for x in range(i, i1):
+                for z in range(k, k1):
+                    left.discard((x, z))
+            boxes.append([round(-half + i * cell, 4), round(-half + k * cell, 4), round(-half + i1 * cell, 4),
+                          round(-half + k1 * cell, 4), h])
+    return boxes

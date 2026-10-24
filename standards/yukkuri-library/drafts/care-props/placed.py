@@ -10,11 +10,11 @@ Source evidence (wiki): a small shallow round floor bowl of kibble beside an ope
 pet bowl lettered with the pet's name and hearts next to a round raised-rim cushion (EH23 p.2), a rectangular toilet
 for babies (EH34 p.17), sand flooring for small breeds (L32). Colours, patterns, the woven 2x2 basket, the lidded
 toilet and the fills' look are project design. Palettes are local hue-shifted ramps (dark -> light); nothing copied.
-Footprints, heights and entrances follow life/CareBlock collision, which is unchanged.
+Footprints follow life/CareBlock; the two pet nests get a collision shell generated from their visible top surface (collision()).
 """
 import math
 from shapes import (Build, Outline, CIRCLE, revolve, cap, box, sprite, canvas, put, get, grain, stamp, top_view,
-                    rng, smoothstep)
+                    rng, smoothstep, heightmap, collision_boxes)
 
 # ---- ramps (dark -> light) ------------------------------------------------------------------------------------------
 CREAM = ['#8c7a5c', '#b6a481', '#d7c8a6', '#ece2c7', '#f9f4e4']
@@ -81,7 +81,7 @@ STAR = ['.x.', 'xxx', '.x.']
 MOTIFS = {      # 16 px floor prints (top view, -z at the top)
     'heart': (['.x.x.', 'xxxxx', 'xxxxx', '.xxx.', '..x..'], {'x': RED[3]}),
     'anchor': (['..x..', '.xxx.', '..x..', 'x.x.x', '.xxx.'], {'x': NAVY[3]}),
-    'paw': (['..x.x..', 'x.....x', '.......', '..xxx..', '.xxxxx.', '..xxx..'], {'x': BROWN[1]}),
+    'paw': (['..xx.xx..', '..xx.xx..', 'xx.....xx', 'xx.....xx', '...xxx...', '..xxxxx..', '..xxxxx..', '...xxx...'], {'x': BROWN[1]}),
     'clover': (['x.x', '.s.', 'x.x'], {'x': MINT[3], 's': MINT[2]}),
     'flower': (['.p.', 'pcp', '.p.'], {'p': TERRA[3], 'c': LEMON[3]}),
     'star': (['..x..', 'xxxxx', '.xxx.', '.x.x.'], {'x': LEMON[3]}),
@@ -363,15 +363,15 @@ def food_bowl_forage():
 
 
 # =====================================================================================================================
-# Pet cushion nest (1x1, overhanging to 20 across; CareBlock.nestShape): a thick round cushion roll 5 high and 4.5 wide
+# Pet cushion nest (1x1, overhanging to 20 across): a thick round cushion roll 5 high
 # (EH23's round raised-rim cushion) with piping on the outer shoulder, round a quilted cushion pad at y 2; across the north
-# (-z) entrance the roll dips to a low rolled lip (U notch). Collision is unchanged (rim 3, pad 1.5), so the visual roll
-# stands about 2 above the collision rim.
+# (-z) entrance the roll dips to a low rolled lip (U notch). The inner side is a gentle slope so bodies of every size settle
+# at the centre; collision follows this surface (see collision()).
 NEST_SEGS = 24
-NEST_ROLL = [(9.55, 0.0, 0), (9.95, .9, 1), (10.0, 2.0, 2), (9.85, 3.0, 3), (9.4, 3.95, 4), (8.7, 4.6, 5), (7.8, 5.0, 6),
-             (6.9, 4.85, 7), (6.15, 4.3, 8), (5.7, 3.5, 9), (5.55, 2.6, 10), (5.7, 2.05, 11)]
-NEST_CUSHION = [(5.7, 2.05), (5.0, 2.25), (3.5, 2.35), (1.5, 2.4)]
-NEST_CREST = 7.8
+NEST_ROLL = [(9.55, 0.0, 0), (9.95, .9, 1), (10.0, 2.0, 2), (9.85, 3.0, 3), (9.55, 3.9, 4), (9.05, 4.6, 5), (8.4, 5.0, 6),
+             (7.6, 4.6, 7), (6.8, 3.95, 8), (6.0, 3.15, 9), (5.2, 2.45, 10), (4.6, 2.15, 11)]
+NEST_CUSHION = [(4.6, 2.15), (3.4, 2.3), (1.6, 2.38)]
+NEST_CREST = 8.4
 
 
 def nest_notch(x, z, y, floor=2.0, lip=2.6, top=5.0):
@@ -410,11 +410,11 @@ def fabric_band(style, w, key):
         for x in range(w):
             put(img, x, y, ramp[ROLL_SHADE[y] if ROLL_SHADE[y] is not None else 3])
     body = [y for y in range(1, h - 1) if y != 4]
-    if style == '':                          # strawberry: sparse seed dots
-        for y in body:
-            for x in range(w):
-                if (x + 3 * (y % 2)) % 6 == 0 and y % 2:
-                    put(img, x, y, LEMON[3] if ROLL_SHADE[y] >= 3 else LEMON[2])
+    if style == '':                          # strawberry: sparse two-texel seeds, soft yellow
+        for i, x in enumerate(range(0, w, 6)):
+            for y in ((2, 6), (8, 5))[i % 2]:
+                put(img, x + (i % 2) * 3, y, LEMON[2])
+                put(img, x + (i % 2) * 3, y + 1, RED[1])
     elif style == 'gingham':                 # blue gingham: two-texel checks, darker where the bands cross
         for y in body:
             s = ROLL_SHADE[y]
@@ -438,24 +438,22 @@ def fabric_band(style, w, key):
                     put(img, x, y, LAV[max(0, s - 1)])
     elif style == 'teddy':                   # plush: soft tufts
         grain(img, BROWN, key, .4, up=.55, rows=body)
-    elif style == 'stars':                   # navy velvet with pin-point stars
-        r = rng(key + 'stars')
-        for y in body:
-            for x in range(w):
-                if r.random() < .05:
-                    put(img, x, y, LEMON[4] if r.random() < .6 else WHITE[4])
+    elif style == 'stars':                   # navy velvet with a few small stars and dim twinkles
+        for i, x in enumerate(range(0, w, 12)):
+            stamp(img, x + 2, (2, 6)[i % 2] - 1, STAR, {'x': LEMON[3]})
+            put(img, x + 8, (7, 2)[i % 2], NAVY[4])
     if style not in ('teddy', 'lavender', 'gingham'):     # tufting dimples: a dark stitch with a lit puff above it
         for x in range(4, w, 8):
             for y in (3, 7):
                 put(img, x, y, ramp[1])
                 put(img, x, y - 1, ramp[4])
-    grain(img, ramp, key + 'g', .07, rows=body)
+    grain(img, ramp, key + 'g', .03, rows=body)
     for x in range(w):                       # piping cord on the outer shoulder
         put(img, x, 4, PIPING[style] if x % 3 else ramp[1])
     return img
 
 
-def cushion_top(style, size=16, radius=5.7):
+def cushion_top(style, size=16, radius=4.6):
     """Quilted pad seen from above: stitched diamonds with lit puffs, a dark seam ring where the pad meets the roll."""
     _, ramp = NESTS[style]
     seam = {'': PINK[2], 'gingham': SKY[2], 'polka': PINK[2], 'floral': MINT[2], 'lavender': LAV[2], 'teddy': BROWN[2], 'stars': LEMON[2]}[style]
@@ -480,17 +478,17 @@ def yukkuri_nest(style=''):
     b = Build(model_name('yukkuri_nest', style))
     o = CIRCLE(NEST_SEGS)
     part = b.part('nest')
-    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 48, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=7.8)
-    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=2.42)
+    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 48, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=8.0)
+    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=2.4)
     cap(b, part, o, [(9.55, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
     return b.finish()
 
 
 # =====================================================================================================================
-# 2x2 woven family nest (large_nests.py exports it; collision CareBlock.largeNestShape): a rounded-square basket 31 across
+# 2x2 woven family nest (large_nests.py exports it): a rounded-square basket 31 across
 # with a wicker wall 1.3 thick and 7 high at the back and sides, braided top, darker inside; the +z front opens down to
 # the floor for |x| < 6 and climbs back to full height by |x| 12. Inside lies a quilted pad with a stitched, rolled hem.
-# Collision is unchanged (rim 3, floor 1), so the visual wall stands about 4 above the collision rim.
+# Collision follows the visible wall and pad (see collision()).
 LARGE = Outline(15.5, 15.5, 7.0, arc=6, step=4.0)
 LARGE_WALL = [(0.0, 0.0, 0), (0.0, 1.5, 1.5), (0.0, 3.0, 3), (0.0, 4.5, 4.5), (0.0, 6.0, 6), (-.2, 6.55, 6.6),
               (-.65, 6.8, 7.3), (-1.1, 6.55, 8), (-1.3, 6.0, 8.7), (-1.3, 3.5, 9.8), (-1.3, 1.0, 11)]
@@ -786,3 +784,20 @@ def variants():
             if base == 'yukkuri_toilet':
                 out[model_name(base, style) + '_dirty'] = (lambda s=style: yukkuri_toilet_dirty(s))
     return out
+
+
+# Collision shells that follow the visible nests (life/CareBlock reads them): top-surface heightmaps of the meshes over
+# square cells, rounded up so a body rests on or just above the visible surface, merged into equal-height boxes.
+# The small nest's gentle inner slope lets every body size settle at the centre: small ones on the pad, large ones on
+# the slope with their feet supported (SurfaceApproach), so nobody sinks into the roll.
+COLLISION = {'yukkuri_nest': (yukkuri_nest, 10.0, .25, .5), 'large_yukkuri_nest': (large_yukkuri_nest, 15.5, .5, .25)}
+
+
+def collision():
+    out = {'format': 1, 'generator': 'standards/yukkuri-library/drafts/care-props/placed.py',
+           'units': 'boxes [x0, z0, x1, z1, top] in 1/16 block from the footprint centre (block centre), bottom 0'}
+    for name, (factory, half, cell, step) in COLLISION.items():
+        boxes = collision_boxes(heightmap(factory(), half, cell, step=step), half, cell)
+        out[name] = {'cell': cell, 'top': max(b[4] for b in boxes), 'boxes': boxes}
+    return out
+

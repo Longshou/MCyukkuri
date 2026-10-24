@@ -65,7 +65,7 @@ def outputs():
          'footprint': '2x2 blocks (32 x 32 units), origin at the footprint centre, entrance +z',
          'capacity': 'two adults and four newborns settling anywhere on an unmarked floor',
          'interior': 'about 29 units (1.8 blocks) across inside a one-cell rim; outline within 15.5 of the centre',
-         'rim_max_height': {'large_yukkuri_nest': 7.0, 'large_wild_nest': 3.0, 'collision_rim': 3.0}, 'files': files})
+         'rim_max_height': {'large_yukkuri_nest': 7.0, 'large_wild_nest': 3.0}, 'files': files})
     return result, props
 
 

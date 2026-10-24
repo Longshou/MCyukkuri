@@ -119,6 +119,18 @@ BEFORE_ROOT = R.ROOT.parents[1] if R.ROOT.parent.name == '.worktrees' else R.ROO
 BEFORE = Scene(os.environ.get('MCYUKKURI_BEFORE', BEFORE_ROOT / '.local/care-props-before'))
 REIMU, MARISA = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
 CAULDRON, COMPOSTER, POT = 'vanilla:cauldron', 'vanilla:composter', 'vanilla:flower_pot'
+COLLISION = json.loads((R.ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json').read_text(encoding='utf-8'))
+
+
+def rest(nest, x, z, scale):
+    """Height a body of this scale rests at in a nest: the highest authored collision box under its footprint (12.8 wide
+    at scale 1), as the game's own collision would place it."""
+    h = 12.8 * scale / 2 - .08
+    return max((b[4] for b in COLLISION[nest]['boxes'] if b[0] < x + h and b[2] > x - h and b[1] < z + h and b[3] > z - h), default=0.0)
+
+
+def sit(who, nest, x, z, scale, yaw):
+    return (who, 8, x, rest(nest, x, z, scale), z, scale, yaw)
 
 
 def tile(items, label, size, ppu, az=210, el=30, src=AFTER):
@@ -164,12 +176,12 @@ def vanilla():
                           for (n, u, dx, y, dz, sc, *rest) in group]
     one = lambda n, u=0: [(n, u, 0, 0, 0, 1)]
     feed = line(one(POT), one('food_bowl'), [('food_bowl_hearts', 0, 0, 0, 0, 1), ('food_bowl_regular', 8, 0, 0, 0, 1)], one(CAULDRON))
-    beds = line(one(COMPOSTER), [('yukkuri_nest', 0, 0, 0, 0, 1), (REIMU, 8, 0, 1.6, 0, 1.0, 340)],
-                [('yukkuri_nest_teddy', 0, 0, 0, 0, 1), (MARISA, 8, 0, 1.6, 0, .5, 20)], one(CAULDRON))
+    beds = line(one(COMPOSTER), [('yukkuri_nest', 0, 0, 0, 0, 1), sit(REIMU, 'yukkuri_nest', 0, 0, 1.0, 340)],
+                [('yukkuri_nest_teddy', 0, 0, 0, 0, 1), sit(MARISA, 'yukkuri_nest', 0, 0, .5, 20)], one(CAULDRON))
     loos = line(one('yukkuri_toilet'), one('ceramic_toilet_sailor'), one('covered_toilet'), one(COMPOSTER))
     big = [g(30), ('large_yukkuri_nest', 0, 0, 0, 0, 1), (CAULDRON, 0, -26, 0, -8, 1), (COMPOSTER, 0, 26, 0, -8, 1),
-           (REIMU, 8, -5.8, 1, -5, 1.0, 175), (MARISA, 8, 5.6, 1, .4, 1.0, 210), (REIMU, 8, -1.6, 1, 6, .32, 205),
-           (MARISA, 8, 1.8, 1, 8.6, .32, 172)]
+           sit(REIMU, 'large_yukkuri_nest', -5.8, -5, 1.0, 175), sit(MARISA, 'large_yukkuri_nest', 5.6, .4, 1.0, 210),
+           sit(REIMU, 'large_yukkuri_nest', -1.6, 6, .32, 205), sit(MARISA, 'large_yukkuri_nest', 1.8, 8.6, .32, 172)]
     rows = [[tile(feed, '花盆｜食盆（奶油薄荷）｜红心食盆盛油粮 8 份｜炼药锅', SZ, 11, az=200, el=28),
              tile(beds, '堆肥桶｜软垫窝 + 灵梦｜小熊绒软垫窝 + 子体魔理沙｜炼药锅', SZ, 11, az=200, el=28)],
             [tile(loos, '沙厕｜水手条纹陶厕｜带盖厕（盖在后半，前侧开口）｜堆肥桶', SZ, 11, az=200, el=28),
@@ -183,7 +195,7 @@ def bowls():
     rows = [[tile([g(9), (n, 0, 0, 0, 0, 1)], l, SZ, 26, el=28) for n, l in items[:4]],
             [tile([g(9), (n, 0, 0, 0, 0, 1)], l, SZ, 26, el=28) for n, l in items[4:]] +
             [tile([g(9), ('food_bowl', 0, 0, 0, 0, 1)], '奶油薄荷 侧视', SZ, 26, az=180, el=5)],
-            [tile([g(9), (n, 0, 0, 0, 0, 1)], l + ' 俯视', SZ, 22, az=0, el=80) for n, l in items[:4]]]
+            [tile([g(9), (n, 0, 0, 0, 0, 1)], l + ' 俯视', SZ, 22, az=0, el=80) for n, l in (items[0], items[1], items[3], items[4])]]
     sheet(rows, 'bowls.png', '食盆款式：放置后用对应颜色染料右键切换（括号内为染料）；14 宽、3 高、盆底 y 1', SZ)
 
 
@@ -204,25 +216,26 @@ def nests():
     rows = [[tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[:4]],
             [tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[4:]] +
             [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], '侧视：右侧为北入口，软卷降成低卷边', SZ, 18, az=90, el=6)],
-            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1), (REIMU, 8, 0, 1.6, 0, 1.0, 345)], '成体灵梦', SZ, 15, el=26),
-             tile([g(11), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), (MARISA, 8, -3, 1.6, 1, .5, 20), (REIMU, 8, 3, 1.6, -1.5, .5, 320)],
+            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1), sit(REIMU, 'yukkuri_nest', 0, 0, 1.0, 345)], '成体灵梦（停在软卷内坡上）', SZ, 15, el=26),
+             tile([g(11), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), sit(MARISA, 'yukkuri_nest', -3, 1, .5, 20), sit(REIMU, 'yukkuri_nest', 3, -1.5, .5, 320)],
                   '两只子体 0.5', SZ, 15, el=26),
              tile([g(11), ('yukkuri_nest_stars', 0, 0, 0, 0, 1)], '星夜 俯视', SZ, 15, az=0, el=80),
              tile([g(11), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1)], '小熊绒 侧视', SZ, 18, az=90, el=4)]]
-    sheet(rows, 'nests.png', '宠物软垫窝款式（20 宽、软卷 5 高 4.5 宽、垫面 y 2，北侧 U 形卷边缺口；碰撞仍为 3 高）：染料右键切换', SZ)
+    sheet(rows, 'nests.png', '宠物软垫窝款式（20 宽、软卷 5 高、内侧缓坡、垫面 y 2.15–2.4，北侧 U 形卷边缺口；碰撞跟随可见外形，油库里按碰撞停放）：染料右键切换', SZ)
 
 
 def large():
     SZ = (460, 340)
     items = styles('large_yukkuri_nest')
-    fam = [(REIMU, 8, -5.8, 1, -6, 1.0, 175), (MARISA, 8, 5.6, 1, .4, 1.0, 210), (REIMU, 8, -1.6, 1, 4.6, .32, 205),
-           (MARISA, 8, -7.4, 1, 4.6, .32, 140), (REIMU, 8, 1.8, 1, 8.6, .32, 172), (MARISA, 8, 8.8, 1, -7.2, .32, 248)]
+    fam = [sit(who, 'large_yukkuri_nest', x, z, s, yaw) for who, x, z, s, yaw in
+           ((REIMU, -5.8, -6, 1.0, 175), (MARISA, 5.6, .4, 1.0, 210), (REIMU, -1.6, 4.6, .32, 205),
+            (MARISA, -7.4, 4.6, .32, 140), (REIMU, 1.8, 8.6, .32, 172), (MARISA, 8.8, -7.2, .32, 248))]
     rows = [[tile([g(18), (n, 0, 0, 0, 0, 1)], l, SZ, 9, az=30) for n, l in items],
             [tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)] + fam, '成体 2 + 新生 4', SZ, 9, az=30),
              tile([g(18), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)], '原色藤编 入口侧视（+z）', SZ, 9, az=0, el=8),
              tile([g(18), ('large_yukkuri_nest_mint', 0, 0, 0, 0, 1)] + fam, '薄荷格纹 俯视', SZ, 8, az=0, el=80),
              tile([g(18), ('large_yukkuri_nest_lavender', 0, 0, 0, 0, 1)], '薰衣草 背面', SZ, 9, az=200)]]
-    sheet(rows, 'large_nests.png', '2×2 编织大窝款式（31 宽圆角方篮、后侧与两侧围沿 7 高、窝内带折边软垫，正面 +z 开口落地；碰撞仍为 3 高）：染料右键切换', SZ)
+    sheet(rows, 'large_nests.png', '2×2 编织大窝款式（31 宽圆角方篮、后侧与两侧围沿 7 高、窝内带折边软垫，正面 +z 开口落地；碰撞跟随可见外形）：染料右键切换', SZ)
 
 
 def toilets():

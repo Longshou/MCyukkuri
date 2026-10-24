@@ -29,6 +29,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
 public final class CareBlock extends Block implements EntityBlock {
@@ -37,13 +45,37 @@ public final class CareBlock extends Block implements EntityBlock {
     private final String style;
     private final int capacity;
     private final float height;
-    private static final VoxelShape NEST_SHAPE = nestShape();
-    private static final VoxelShape LARGE_NEST_SHAPE = largeNestShape(false);
-    private static final VoxelShape LARGE_WILD_SHAPE = largeNestShape(true);
-    /** Rounded 31-unit footprint with a 28.5-unit interior and a low southern entrance. */
-    private static VoxelShape largeNestShape(boolean wild) {
+    private static final JsonObject AUTHORED = readCollision();
+    private static final VoxelShape NEST_SHAPE = authoredShape("yukkuri_nest");
+    private static final VoxelShape LARGE_NEST_SHAPE = authoredShape("large_yukkuri_nest");
+    private static final VoxelShape LARGE_WILD_SHAPE = largeWildShape();
+    private static final double NEST_TOP = authoredTop("yukkuri_nest"), LARGE_NEST_TOP = authoredTop("large_yukkuri_nest");
+    /** Collision shells generated from the visible pet nests (drafts/care-props/placed.py collision()). */
+    private static JsonObject readCollision() {
+        try (var stream = CareBlock.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/care_collision.json")) {
+            if (stream == null) throw new IllegalStateException("Missing care_collision.json");
+            return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
+        } catch (IOException error) { throw new UncheckedIOException(error); }
+    }
+    private static double authoredTop(String name) { return AUTHORED.getAsJsonObject(name).get("top").getAsDouble(); }
+    /** Equal-height boxes of the mesh's top surface, centred on the block; joined pairwise to keep the merge cheap. */
+    private static VoxelShape authoredShape(String name) {
+        List<VoxelShape> shapes = new ArrayList<>();
+        for (var raw : AUTHORED.getAsJsonObject(name).getAsJsonArray("boxes")) {
+            var b = raw.getAsJsonArray();
+            shapes.add(box(8 + b.get(0).getAsDouble(), 0, 8 + b.get(1).getAsDouble(), 8 + b.get(2).getAsDouble(), b.get(4).getAsDouble(), 8 + b.get(3).getAsDouble()));
+        }
+        while (shapes.size() > 1) {
+            List<VoxelShape> next = new ArrayList<>();
+            for (int i = 0; i < shapes.size(); i += 2) next.add(i + 1 < shapes.size() ? Shapes.or(shapes.get(i), shapes.get(i + 1)) : shapes.get(i));
+            shapes = next;
+        }
+        return shapes.isEmpty() ? Shapes.empty() : shapes.getFirst().optimize();
+    }
+    /** Wild bedding: rounded 31-unit footprint with a 28.5-unit interior and a low southern entrance. */
+    private static VoxelShape largeWildShape() {
         VoxelShape shape=Shapes.empty();
-        double floor=wild?.5:1, rim=wild?2.6:3;
+        double floor=.5, rim=2.6;
         for(double x=-15.5;x<15.5;x+=1){
             double sample=Math.abs(x+.5);
             double outer=Math.pow(Math.max(0,Math.pow(15.5,4)-Math.pow(sample,4)),.25);
@@ -58,24 +90,6 @@ public final class CareBlock extends Block implements EntityBlock {
         }
         return shape.optimize();
     }
-    /** Low soft shell follows the authored nest profile, including its lowered north entrance. */
-    private static VoxelShape nestShape() {
-        VoxelShape shape = Shapes.empty();
-        for(int x=-2;x<18;x++)for(int z=-2;z<18;z++) {
-            double high=0;
-            for(int sx=0;sx<=2;sx++)for(int sz=0;sz<=2;sz++) {
-                double dx=x+sx*.5-8,dz=z+sz*.5-8,r=Math.hypot(dx,dz);
-                if(r>10)continue;
-                double entrance=r<.001?0:Math.pow(Math.max(0,-dz/r),6);
-                double h=r<=7.8?1.5:r<=8.8?1.5+(r-7.8)*(1.5-entrance*1.15)
-                        :r<=9.5?3-entrance*1.15-(r-8.8)*(.6/.7)
-                        :2.4-entrance*1.15+(r-9.5)*((.75-2.4+entrance*1.15)/.5);
-                high=Math.max(high,h);
-            }
-            if(high>0)shape=Shapes.or(shape,box(x,0,z,x+1,Math.ceil(high*8)/8,z+1));
-        }
-        return shape.optimize();
-    }
     public CareBlock(Kind kind, Properties properties) { this(kind,properties,"",8,0); }
     public CareBlock(Kind kind, Properties properties,String style,int capacity,float height) { super(properties);this.kind=kind;this.style=style;this.capacity=capacity;this.height=height; }
     public Kind kind() { return kind; }
@@ -87,11 +101,11 @@ public final class CareBlock extends Block implements EntityBlock {
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(style.startsWith("large_"))return box(-7.5,0,-7.5,23.5,3,23.5);
+        if(style.startsWith("large_"))return box(-7.5,0,-7.5,23.5,style.equals("large_wild_nest")?3:LARGE_NEST_TOP,23.5);
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(-2,0,-2,18,3,18);
+            case NEST -> box(-2,0,-2,18,NEST_TOP,18);
             case TOILET -> box(1.975,0,3.175,14.025,2.35,12.825);
             case MAT -> box(0,0,0,16,.15,16);
         };

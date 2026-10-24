@@ -27,7 +27,7 @@ public final class NestResting {
         double edge=large?14.25/16:.61;float width=e.getBbWidth();
         var previous=others.get(e.getUUID());
         if(previous!=null&&supported.test(e.getUUID(),previous)&&fits(previous.x(),previous.z(),width,edge,e.getUUID(),others))return new Place(previous.x(),previous.z(),width);
-        var direct=sample(e,e.getUUID(),width,edge,others,supported);
+        var direct=sample(e,e.getUUID(),width,edge,others,supported,!large);
         if(direct!=null)return direct;
         // Admission/growth may move rest targets, never bodies. Random layouts avoid fixed rows
         // and keep the first sleeper from permanently reserving the centre of a shared bed.
@@ -35,13 +35,15 @@ public final class NestResting {
         var order=new ArrayList<>(sizes.keySet());order.sort((a,b)->Float.compare(sizes.get(b),sizes.get(a)));
         for(int attempt=0;attempt<32;attempt++){
             var layout=new LinkedHashMap<UUID,Place>();
-            for(UUID id:order){var p=sample(e,id,sizes.get(id),edge,layout,supported);if(p==null)break;layout.put(id,p);}
+            for(UUID id:order){var p=sample(e,id,sizes.get(id),edge,layout,supported,!large);if(p==null)break;layout.put(id,p);}
             if(layout.size()==sizes.size()){others.clear();others.putAll(layout);return layout.get(e.getUUID());}
         }
         return null;
     }
-    private static Place sample(YukkuriEntity e,UUID id,float width,double edge,Map<UUID,Place> others,BiPredicate<UUID,Place> supported){
+    private static Place sample(YukkuriEntity e,UUID id,float width,double edge,Map<UUID,Place> others,BiPredicate<UUID,Place> supported,boolean centreFirst){
         double limit=edge-width*.5;if(limit<0)return null;
+        // The small nest is a bowl: every body size settles at its centre (on the pad or on the slope), so try it first.
+        if(centreFirst){var centre=new Place(0,0,width);if(fits(0,0,width,edge,id,others)&&supported.test(id,centre))return centre;}
         for(int attempt=0;attempt<96;attempt++){
             double x=(e.getRandom().nextDouble()*2-1)*limit,z=(e.getRandom().nextDouble()*2-1)*limit;
             var candidate=new Place(x,z,width);

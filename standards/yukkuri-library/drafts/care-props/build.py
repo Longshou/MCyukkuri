@@ -21,13 +21,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, designs, bags, small, goods, cargo, vanilla_props
+import kit, designs, bags, small, goods, cargo, vanilla_props, placed
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
 SNAP = ROOT / 'art/props/runtime-peripheral/selected'
 ICONS = ROOT / 'art/props/pet-goods'     # 16x16 item icons for the four pet-care goods; scripts/export_pet_goods_icons.py ships them
 GENERATOR = 'standards/yukkuri-library/drafts/care-props/build.py'
+COLLISION = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
 
 BUILD = {
     **vanilla_props.PROPS,
@@ -62,6 +63,8 @@ def outputs(only_cargo=False):
         result[folder / f'{name}.bbmodel'] = kit.dumps(prop.bbmodel())
         result[folder / 'texture.png'] = texture
     result[cargo.LAYOUT_PATH] = kit.dumps(cargo.layout())
+    if not only_cargo:
+        result[COLLISION] = kit.dumps(placed.collision())      # nest collision shells for life/CareBlock
     return result, props
 
 
