@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.client.YukkuriModel.Part;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatSeat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,7 @@ final class HatDamageDraw {
     int level(){return hatDamage;}
     float fit(){return hatFit;}
     Vector3f seat(){return hatSeat;}
-    void visual(int headwear){hatDamage=Headwear.visualLevel(headwear);hatFit=Headwear.visualFit(headwear);}
+    void visual(int headwear){hatDamage=Headwear.visualLevel(headwear);hatFit=HatSeat.fit(o.id(),Headwear.visualFit(headwear));}
     void sampler(HatDamageFaces.Sampler sampler){hatSampler=sampler;}
     void deferCaps(){hatCaps.clear();deferHatCaps=true;}
     void drawCaps(MultiBufferSource buffers){hatCaps.draw(buffers);}
@@ -52,11 +53,11 @@ final class HatDamageDraw {
         for(var p:parts)if(o.accessoryPart(p)){ranges.add(p.start());ranges.add(p.count());}
         int[] r=ranges.stream().mapToInt(Integer::intValue).toArray();
         hatBounds=HatDamageMask.bounds(restVertices,r);
-        // The seat: the lowest accessory vertices, about which a small (not yet regrown) hat is drawn.
-        float low=hatBounds[1]+(hatBounds[4]-hatBounds[1])*.15f;
-        var seat=new ArrayList<Integer>();
-        for(int i=0;i<r.length;i+=2)for(int v=r[i];v<r[i]+r[i+1];v++)if(restVertices[v*8+1]<=low)seat.add(v);
-        hatSeatVertices=seat.stream().mapToInt(Integer::intValue).toArray();
+        // The seat: the lowest accessory (or registered seat part) vertices, about which a small (not yet regrown) hat is drawn.
+        var seatParts=HatSeat.parts(o.id());
+        var seatRanges=new ArrayList<Integer>();
+        for(var p:parts)if(o.accessoryPart(p)&&seatParts.contains(p.name())){seatRanges.add(p.start());seatRanges.add(p.count());}
+        hatSeatVertices=HatSeat.lowest(restVertices,r,seatRanges.stream().mapToInt(Integer::intValue).toArray());
     }
     HatDamageFaces.Face[] hatFaces(int partIndex){
         var parts=o.parts();var restVertices=o.restVertices();

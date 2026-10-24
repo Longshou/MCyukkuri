@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "source": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
+  "models": {
+    "marisa_kotatsu": {
+      "parts": [
+        "hat_base"
+      ],
+      "min_fit": 0.88
+    }
+  }
+}

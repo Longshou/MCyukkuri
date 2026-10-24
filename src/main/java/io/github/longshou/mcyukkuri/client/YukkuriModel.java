@@ -571,6 +571,7 @@ public final class YukkuriModel {
 
     JsonObject badgeMount(){return badgeMount;}
     static JsonObject detachedBadge(String name){return detachedBadges.get(name);}
+    String id(){return id;}
     List<Part> parts(){return parts;}
     float[] restVertices(){return restVertices;}
     Vector3f normal(){return normal;}

@@ -4363,7 +4363,7 @@
         "source": "standards/yukkuri-library/subspecies/rare-forms/assembled/marisa_kotatsu/runtime.model.json",
         "recipe": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
         "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-        "runtime_sha256": "ce76bf7d7ce4c8432f94943095be77a2baab99d652031ea62eed1c6ee070ff1e",
+        "runtime_sha256": "fecf2ba61b2e9b794c98f2a9d8ad2670a0adce73d2380907fb1c902c8f188c7b",
         "snapshot": "art/source/rare-forms-runtime/marisa_kotatsu",
         "textures": [
           "angry",
@@ -4384,6 +4384,7 @@
           "sleep",
           "sleepy",
           "smug",
+          "squeezed_cry_tears",
           "surprise",
           "teary",
           "yawn"

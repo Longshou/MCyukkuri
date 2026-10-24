@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatSeat;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -63,11 +64,13 @@ final class WoundOcclusion {
                     counts.merge(group,part.count,Integer::sum);}
                 centers.forEach((group,center)->center.div(counts.get(group)));
                 var ranges=new ArrayList<Integer>();for(var part:parts)if(part.accessory){ranges.add(part.start);ranges.add(part.count);}
-                float[] bounds=HatDamageGeometry.bounds(layoutVertices,ranges.stream().mapToInt(Integer::intValue).toArray());
-                float low=bounds[1]+(bounds[4]-bounds[1])*.15f;var seat=new ArrayList<Integer>();
-                for(var part:parts)if(part.accessory)for(int i=part.start;i<part.start+part.count;i++)if(xyz[i*3+1]<=low)seat.add(i);
+                int[] accessoryRanges=ranges.stream().mapToInt(Integer::intValue).toArray();
+                float[] bounds=HatDamageGeometry.bounds(layoutVertices,accessoryRanges);
+                var seatParts=HatSeat.parts(key);var seatRanges=new ArrayList<Integer>();
+                for(var part:parts)if(part.accessory&&seatParts.contains(part.name)){seatRanges.add(part.start);seatRanges.add(part.count);}
+                int[] seat=HatSeat.lowest(layoutVertices,accessoryRanges,seatRanges.stream().mapToInt(Integer::intValue).toArray());
                 return new Surface(xyz,layoutVertices,weights,List.copyOf(parts),Map.copyOf(centers),bounds,
-                        seat.stream().mapToInt(Integer::intValue).toArray(),new ConcurrentHashMap<>());
+                        seat,new ConcurrentHashMap<>());
             }catch(IOException ex){throw new UncheckedIOException(ex);}
         });
     }
@@ -98,7 +101,7 @@ final class WoundOcclusion {
         int whole=wounds.stream().filter(w->w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN).mapToInt(BodyWound::severity).max().orElse(0);
         float pregnancy=entity.livePregnancyProgress();
         var lifts=WoundPlacement.pregnancyLifts(entity);
-        int level=Headwear.visualLevel(entity.visibleHeadwear());float fit=Headwear.visualFit(entity.visibleHeadwear());
+        int level=Headwear.visualLevel(entity.visibleHeadwear());float fit=HatSeat.fit(mesh.assetId,Headwear.visualFit(entity.visibleHeadwear()));
         boolean accessory=entity.hasVisibleAccessory()||level==3||entity.contactPose().equals("HAT_REMOVE");
         var seat=new Vector3f();
         if(accessory&&fit<.999f&&surface.hatSeat.length>0){

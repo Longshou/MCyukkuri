@@ -133,7 +133,9 @@ def base_inputs(base):
     packaged = (ASSETS / 'yukkuri' / (base + '.json')).read_bytes()
     if raw != packaged:
         raise SystemExit(f'{base}: selected runtime snapshot differs from the packaged model; re-export the base first')
-    textures = {p.stem: Image.open(p).convert('RGBA') for p in sorted((ASSETS / 'textures/entity' / base).glob('*.png'))}
+    # Expression atlases only: remains_* forms are drawn per base body (rare forms keep the sleep face, see remains_art).
+    textures = {p.stem: Image.open(p).convert('RGBA') for p in sorted((ASSETS / 'textures/entity' / base).glob('*.png'))
+                if not p.stem.startswith('remains_')}
     return json.loads(raw), textures, sha(raw)
 
 
@@ -244,18 +246,30 @@ def build_kotatsu(spec, model, textures):
     blocks = free_blocks(model, textures, len(spec['palette']))
     rects = {}
     for (name, colour), (bx, by) in zip(spec['palette'].items(), blocks):
+        shading = spec.get('shading', {}).get(name)
         for im in textures.values():
             for x in range(bx, bx + 8):
                 for y in range(by, by + 8):
-                    shade = 1 + (((x * 7 + y * 13) % 5) - 2) * .018  # faint weave, no hard pattern
+                    if shading:  # authored tones: columns run across every face, rows from its top edge down
+                        shade = shading.get('columns', [1] * 8)[x - bx] * shading.get('rows', [1] * 8)[y - by]
+                    else:
+                        shade = 1 + (((x * 7 + y * 13) % 5) - 2) * .018  # faint weave, no hard pattern
                     im.putpixel((x, y), tuple(max(0, min(255, round(c * shade))) for c in colour) + (255,))
         rects[name] = (bx + .5, by + .5, bx + 7.5, by + 7.5)
     bone = next(i for i, b in enumerate(model['bones']) if b['name'] == spec['accessory_bone'])
     names = {p['name']: p for p in model['parts']}
     reshaped = []
-    for name, (material, lo, hi) in spec['boxes'].items():
+    for name, (material, lo, hi, *extra) in spec['boxes'].items():
         p = names[name]
         verts = cuboid(lo, hi, rects[material], size)
+        if extra:  # a sloped edge: turn the box about the X axis through pivot (y, z)
+            a, (py, pz) = math.radians(extra[0]['rotate_x']), extra[0]['pivot']
+            for i in range(0, len(verts), 8):
+                dy, dz, ny, nz = verts[i + 1] - py, verts[i + 2] - pz, verts[i + 6], verts[i + 7]
+                verts[i + 1] = round(py + dy * math.cos(a) - dz * math.sin(a), 6)
+                verts[i + 2] = round(pz + dy * math.sin(a) + dz * math.cos(a), 6)
+                verts[i + 6] = round(ny * math.cos(a) - nz * math.sin(a), 6)
+                verts[i + 7] = round(ny * math.sin(a) + nz * math.cos(a), 6)
         if len(verts) // 8 != p['count']:
             raise SystemExit(f'{name}: expected {p["count"]} vertices, authored {len(verts) // 8}')
         model['vertices'][p['start'] * 8:(p['start'] + p['count']) * 8] = verts

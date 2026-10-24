@@ -8,7 +8,8 @@ Reads standards/yukkuri-library/subspecies/rare-forms/assembled/<form>/ and the 
 A derived form keeps its base's vertex count and part order, so every base entry keyed by asset id is carried
 over under the form's id with the form's own model hash; only data of parts the recipe changed is rebuilt.
 Run it after any exporter that rewrites the shared presentation files (it only touches its own keys).
-Writes the snapshot art/source/rare-forms-runtime/ and the 'rare_forms' record in art/runtime-sources.json.
+Writes the snapshot art/source/rare-forms-runtime/, yukkuri_presentation/hat_seat.json and the 'rare_forms' record in
+art/runtime-sources.json.
 No game, compiler or browser is started.
 """
 import argparse
@@ -298,6 +299,9 @@ def outputs():
                   'live_birth_pose': ('variants',), 'living': ('variants',), 'motion_corrections': ('models',),
                   'placement_fit': ('models',), 'subspecies': (), 'toilet_contact': ('models',)}
     forms = list(recipe['forms'])
+    # Seat parts of accessories that reach the ground: a small (regrowing) one is scaled about them (headwear.HatSeat).
+    files[PRESENTATION / 'hat_seat.json'] = text({'format': 1, 'source': (LIB / 'recipe.json').relative_to(ROOT).as_posix(), 'models': {
+        form: spec['accessory_seat'] for form, spec in recipe['forms'].items() if spec.get('accessory_seat')}})
     stick, stick_png = kanroken(recipe['props']['kanroken'])
     files[PROPS / 'kanroken.json'] = text(stick, pretty=False)
     files[ASSETS / 'textures/props/kanroken.png'] = stick_png
