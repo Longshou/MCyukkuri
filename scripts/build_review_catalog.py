@@ -26,12 +26,20 @@ def read(path):
 def url(path):
     return '/' + path.relative_to(ROOT).as_posix()
 
+def current_roles():
+    variants = read(ASSETS/'yukkuri_presentation/living.json')['variants']
+    forms = read(ASSETS/'yukkuri_presentation/subspecies.json')
+    registered = set(variants) | set(forms)
+    roles = [role for role in ROLES if role[0] in registered]
+    listed = {ident for ident, _, _ in roles}
+    lang = read(ASSETS/'lang/zh_cn.json')
+    for ident in sorted(registered - listed):
+        name = lang.get('entity.mcyukkuri.'+ident) or lang.get('subspecies.mcyukkuri.kind.'+ident) or ident
+        roles.append((ident, name, '亚种' if ident in forms else '普通种'))
+    return roles
+
+
 def main():
-    registered = set(read(ASSETS/'yukkuri_presentation/living.json')['variants'])
-    registered.update(read(ASSETS/'yukkuri_presentation/subspecies.json'))
-    listed = {ident for ident, _, _ in ROLES}
-    if registered != listed:
-        raise ValueError(f'Model catalog differs from runtime: missing={registered-listed}, retired={listed-registered}')
     OUT.mkdir(parents=True, exist_ok=True)
     for name in ('index.html', 'style.css', 'app.js', 'pose.js'):
         shutil.copy2(ROOT / 'preview/review' / name, OUT / name)
@@ -42,7 +50,7 @@ def main():
     # Placement fit is spliced before the motion revision; both identify what a note was written against.
     fit_path=ASSETS/'yukkuri_presentation/placement_fit.json'
     fit_hash=hashlib.sha256(fit_path.read_bytes()).hexdigest()
-    for ident,name,group in ROLES:
+    for ident,name,group in current_roles():
         path=ASSETS/'yukkuri'/f'{ident}.json'
         raw=path.read_bytes(); model=json.loads(raw)
         textures={p.stem:url(p) for p in sorted((ASSETS/'textures/entity'/ident).glob('*.png'))}

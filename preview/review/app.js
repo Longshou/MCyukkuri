@@ -1,6 +1,9 @@
 'use strict';
 const $=id=>document.getElementById(id),catalog=window.REVIEW_CATALOG;
 const names={reimu:'灵梦',marisa:'魔理沙',chen:'橙',alice:'爱丽丝',patchouli:'帕秋莉'},ages={adult:'成体',young:'幼语',song:'哼唱'};
+for(const model of catalog.models)names[model.id]=model.name;
+$('model-count').textContent=catalog.models.length;
+$('audio-summary').textContent=catalog.audio.length+' 条当前打包音频。一次只播放一条，文字与声音一一对应。';
 const labels={idle:'待机',eat:'进食',shiawase:'しあわせー',drink:'饮水',sleep:'睡眠',wake:'醒来',nuzzle:'擦擦脸',sing:'唱歌',sway:'跟着摇摆',push:'推挤',greet:'问候',tremble:'发抖',droop:'低落',look_around:'张望',shake:'甩水',brood:'安胎',labor:'分娩',midwife:'接生',postpartum:'产后',first_wake:'初醒',boat_drift:'帽船漂流',boat_steady:'帽船稳船',boat_call:'帽船呼唤',boat_brood:'帽船安胎',boat_labor:'帽船分娩',hat_cradle:'帽中幼体',still:'静止',shell_sway:'壳体摇摆',shell_retract:'缩壳',fur_sway:'多毛摇摆',stretch_shape:'伸展造型',side_bend:'侧弯',waddle:'走动',puff:'鼓腮',brace:'撑地',startle:'受惊',turn:'转身',hop:'跳动',stretch:'伸展',exercise_vertical:'纵向体操',exercise_sides:'横向体操',press:'按压',taiso:'完整体操',flee:'逃跑',house_pickup:'俯身夹取',house_carry:'短辫搬运',house_deposit:'俯身放下',house_crawl:'贴地蠕动',predator_fly:'飞行',predator_dive:'俯冲',predator_land:'降落',predator_bite:'捕咬',anatomy_mamu_extend:'麻姆麻姆伸出',anatomy_mamu_retract:'麻姆麻姆收回',anatomy_peni_extend:'佩尼佩尼伸出',anatomy_peni_retract:'佩尼佩尼收回'};
 Object.assign(labels,{boat_board:'登上帽船',boat_drink:'帽船饮水',boat_eat:'帽船进食',boat_feed_young:'帽船递食',boat_first_balance:'初航稳身',boat_gather:'帽船收食',boat_lullaby:'帽船摇篮曲',boat_nuzzle:'帽船亲昵',boat_paddle:'帽船划桨',boat_sleep:'帽船夜宿',boat_wake:'帽船醒来',hat_brim:'坐上帽檐',hat_hold:'持帽',hat_hold_aq:'水上持帽',hat_off:'脱帽',hat_off_aq:'水上脱帽',hat_off_self:'自己脱帽',hat_off_self_aq:'水上自己脱帽',hat_on:'戴帽',hat_on_aq:'水上戴帽',hat_on_self:'自己戴帽',hat_on_self_aq:'水上自己戴帽'});
 const expressionNames={neutral:'常态',happy:'开心',angry:'生气',sad:'难过',cry:'哭泣',sleep:'睡着',sleepy:'困倦',surprise:'惊讶',scared:'害怕',chewing:'咀嚼张嘴',chewing_closed:'咀嚼闭嘴',closed_smile:'闭嘴微笑',open_smile:'张嘴微笑',confused:'困惑',puff:'鼓腮',satisfied:'满足',smug:'得意',drool:'流口水',teary:'含泪',yawn:'打哈欠'};
@@ -122,7 +125,12 @@ function nextAudio(delta){const index=filteredAudio.findIndex(a=>a.id===activeAu
 $('audio-prev').onclick=()=>nextAudio(-1);$('audio-next').onclick=()=>nextAudio(1);$('player').onended=()=>{if($('auto-next').checked)nextAudio(1);};$('player').onerror=()=>{$('audio-error').textContent='音频读取失败，请确认本地服务正在运行。';};
 $('stop-audio').onclick=()=>{$('player').pause();$('player').currentTime=0;};$('play-all').onclick=()=>{$('auto-next').checked=true;playSound(filteredAudio[0]);};
 for(const id of ['voice-species','voice-age','voice-event'])$(id).onchange=()=>{$('player').pause();renderAudio();};$('voice-search').oninput=renderAudio;
+for(const [id,key,labels,title] of [['voice-species','species',names,'全部角色'],['voice-age','age',ages,'全部声线']]){
+ $(id).replaceChildren(new Option(title,''));
+ for(const value of new Set(catalog.audio.map(a=>a[key])))$(id).add(new Option(labels[value]||value,value));
+}
 for(const event of [...new Set(catalog.audio.flatMap(a=>a.events))].sort())$('voice-event').add(new Option(label(event,eventNames),event));
+if(requested.get('species')&&catalog.audio.some(a=>a.species===requested.get('species')))$('voice-species').value=requested.get('species');
 function switchTab(id){for(const panel of document.querySelectorAll('.panel'))panel.classList.toggle('active',panel.id===id);for(const tab of document.querySelectorAll('[data-tab]'))tab.classList.toggle('active',tab.dataset.tab===id);document.body.classList.toggle('audio-mode',id==='audio');if(id!=='audio')$('player').pause();if(id!=='models')setPlaying(false);else resize();if(id==='audio')renderAudio();location.hash=id;}
 for(const tab of document.querySelectorAll('[data-tab]'))tab.onclick=()=>switchTab(tab.dataset.tab);
 $('export').onclick=()=>{const entries=Object.values(notes).filter(n=>n.status!=='unreviewed'||n.text||n.view);const report={project:'MCyukkuri',exportedAt:new Date().toISOString(),scope:'User review notes only; does not change approved asset records.',entries};const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='油库里检查意见-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast(`已导出 ${entries.length} 条检查记录`);};

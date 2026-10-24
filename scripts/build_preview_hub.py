@@ -13,6 +13,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 import build_review_catalog
+import build_preview_library
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.local/previews'
@@ -32,7 +33,7 @@ def render_models(node):
     work = OUT / '_work'
     work.mkdir(parents=True, exist_ok=True)
     tasks = []
-    for ident, name, group in build_review_catalog.ROLES:
+    for ident, name, group in build_review_catalog.current_roles():
         texture = ROOT / 'src/main/resources/assets/mcyukkuri/textures/entity' / ident / 'neutral.png'
         (work / f'{ident}.texture').write_bytes(Image.open(texture).convert('RGBA').tobytes())
         tasks.append(dict(id=ident, model=ident, action='idle', time=0, face='neutral',
@@ -133,12 +134,12 @@ def main():
     for relative in ('scripts/build_preview_hub.py', 'scripts/render_preview_models.cjs',
                      'preview/review/pose.js', 'standards/yukkuri-library/runtime/render.js'):
         digest.update((ROOT / relative).read_bytes())
-    for ident, _, _ in build_review_catalog.ROLES:
+    for ident, _, _ in build_review_catalog.current_roles():
         digest.update((build_review_catalog.ASSETS / 'textures/entity' / ident / 'neutral.png').read_bytes())
     fingerprint = digest.hexdigest()
     stamp = OUT / '_work/model-preview.sha256'
     missing_thumb = any(not (OUT / 'models/thumbs' / (ident + '.png')).exists()
-                        for ident, _, _ in build_review_catalog.ROLES)
+                        for ident, _, _ in build_review_catalog.current_roles())
     if args.render or missing_thumb or not (OUT / 'overview.png').exists() or not stamp.exists() or stamp.read_text() != fingerprint:
         render_models(args.node)
         stamp.write_text(fingerprint)
@@ -161,6 +162,7 @@ def main():
     manifest['subtitleSamples'] = [next(item for item in catalog['subtitles'] if item['id']==ident)
                                    for ident in ('remilia.adult.o_hello', 'flandre.adult.o_hello')]
     prepare_chapters(manifest, actions)
+    build_preview_library.build(manifest, catalog, OUT)
     render_overview()
     manifest['availableMedia'] = sorted({
         media for chapter in manifest['chapters']

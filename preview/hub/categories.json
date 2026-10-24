@@ -1,0 +1,49 @@
+{
+  "categories": [
+    {"id":"life","label":"日常生活","description":"吃饭、饮水、睡眠、如厕与日常活动。","source":"docs/CORE_GAMEPLAY.md","topics":["D1","F5"],"items":"^(food_|oil_grain_|wheat_flour$|yogurt_drink$|yukkuri_(nest|toilet|waste)$|ceramic_toilet$|covered_toilet$|wash_cloth$|cold_storage$|newspaper_mat$|soil_mat$)"},
+    {"id":"family","label":"繁殖与成长","description":"求偶、孕育、分娩、接生、亲代照料与离巢。","source":"docs/CHILDHOOD_LIFECYCLE.md","topics":["D2","F1","F2","F4","F6","F7","F8","R4"],"items":"^(swaddle_|yukkuri_stem$|large_yukkuri_nest$|reproductive_filling$|stimulant$|sitataran$|stem_shears$|sterilizing_shears$|bottle_stem_shears$)"},
+    {"id":"health","label":"身体、伤病与治疗","description":"伤口、身体印记、中枢、治疗、遗体与接触工具。","source":"docs/INJURIES_AND_REMAINS.md","topics":["F3","R3","R5","R6","R7","R8","R9"],"items":"^(core_filling$|orange_juice$|flour_paste$|mold_remover$|herbal_medicine$|yukkuri_remains$|care_|cutting_knife$|hair_clippers$|hanging_hook$|heated_awl$|iron_enclosure$|pin_tool$|restraint_frame$|wrap_sling$|sandpaper_mat$|trimmed_hair$|sleep_spray$|spicy_grain$)"},
+    {"id":"headwear","label":"头饰与身份","description":"头饰佩戴、损坏、修复、识别与失饰后的反应。","source":"docs/HEADWEAR.md","topics":["C1","C2"],"items":"^(accessory_shard$|reimu_ribbon$|marisa_hat$|chen_hat$|alice_headband$|patchouli_bonnet$|remilia_bonnet$|flandre_bonnet$|myon_hairband$)"},
+    {"id":"water","label":"水上生活与帽船","description":"航行、帽内储粮、亲子生活、上下岸与落水救援。","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","topics":["A1","A2","A3","A4","A5","A6","A7","A8"],"items":"^marisa_aquatic_hat$"},
+    {"id":"wild","label":"野外、聚落与季节","description":"野外住所、储粮、天气、聚落秩序与迁徙。","source":"docs/SETTLEMENTS.md","topics":["W1","W2","W3","W4","W5","W6","W7","B1","B2","R1"],"items":"^(forest_burrow$|cardboard_shelter$|forage_pile$|large_wild_nest$|wild_latrine$)"},
+    {"id":"house","label":"家油生态","description":"室内寄居、棉絮、巢与卵，以及清扫和驱离。","source":"docs/HOUSE_ECOLOGY.md","topics":["H1","H2","H3"],"items":"^(house_egg$|household_guard$|nest_lint$)"},
+    {"id":"pets","label":"宠物、商店与徽章","description":"宠物照料、牵引运输、玩具、学习、交易与徽章考试。","source":"docs/PET_SHOP.md","topics":["M1","M5","M6"],"items":"^(.*yukkuri_badge$|badge_handbook$|exam_|pet_harness$|yukkuri_carrier$|companion_cord$|teaching_whistle$|sweet_candy$|custard_pudding$|yarn_ball$|rubber_ball$|glass_marble$|pretty_stone$|clear_dice$|reimu_doll$|marisa_doll$|paper_tunnel$|ceramic_tunnel$|yukkuri_(pool|slide|trampoline)$)"},
+    {"id":"human","label":"人类与工厂","description":"人类交互、工厂设施、加工与出货。","source":"docs/HUMAN_WORLD.md","topics":["M2","M3","M4"],"items":"^(factory_|labor_bench$|live_packing_table$|live_yukkuri_bag$|manju_steamer$|nursery_station$|yukkuri_manju$)"},
+    {"id":"species","label":"种族与特殊形态","description":"普通种、亚种、不足形态、妖梦、被炉魔理沙与捕食种。","source":"docs/SPECIES.md","topics":["S1","S2","S3","R2"],"items":"^(marisa_kotatsu$|marisa_shell$|predator_nest$)"},
+    {"id":"social","label":"情绪、交流与声音","description":"性格、关系、情绪反应、对白和已有声音。","source":"docs/BEHAVIOR.md","topics":["N1"],"items":"^field_notebook$"},
+    {"id":"other","label":"其他内容","description":"新增且尚未指定游戏分类的内容，保留可见以便整理。","source":"docs/README.md","topics":[],"items":"(?!)"}
+  ],
+  "actionGroups": {"身体与移动":"life","日常生活":"life","交流与情绪":"social","家庭与照料":"family","帽子与水边":"headwear","宠物店与表情":"pets","运输与篮子":"pets","水上日常与亲子":"water","初航与帽檐":"water","落水与救援":"water","特殊身体":"species"},
+  "actionRules": [
+    ["^(boat_|water_|aquatic_|braid_rescue_|braid_reach_low$|hat_.*_aq$|hat_walk$)","water"],
+    ["^house_","house"], ["^predator_|^shell_|^fur_","species"],
+    ["^nest_","wild"], ["^comfort_lick$","health"],
+    ["^(anatomy_|feed_child$|first_toilet_assist$|newborn_crawl$|learn_jump$|learn_watch$|care_finish$|hat_cradle$)","family"],
+    ["^still$","life"]
+  ],
+  "actionLabels": {"boat_be_carried":"被亲油承托","boat_carry_young":"承托幼体","boat_prepare_carry":"准备承托","boat_release_carry":"放下幼体","boat_toilet":"帽沿排便","braid_reach_low":"低位伸辫","care_finish":"照料收尾","feed_child":"递喂幼体","first_toilet_assist":"辅助首便","fur_sway":"多毛摇摆","hat_walk":"帽沿移动","house_carry":"夹絮搬运","house_crawl":"家油爬行","house_deposit":"放下物资","house_pickup":"俯身夹取","learn_jump":"练习跳跃","learn_watch":"观察学习","nest_harvest":"收集巢材","nest_place":"放置巢材","nest_press":"压实巢材","nest_spread":"铺开巢材","newborn_crawl":"新生爬行","predator_bite":"捕咬","predator_dive":"俯冲","predator_fly":"飞行","predator_land":"降落","shell_sway":"壳体摇摆","still":"静止","water_hat_over":"越过帽缘","water_hat_pull":"拉近帽子","water_held_breath":"被托住后喘息"},
+  "chapters": {
+    "swaddle-leaf-cloth":"family", "care-props-vanilla":"life", "predator-body":"species",
+    "hair-wounds-art":"health", "body-marks-art":"health", "alice-appearance":"species",
+    "adult-agitation":"family", "hat-motion":"water", "house-ecology":"house", "water":"water",
+    "climate":"wild", "stores":"wild", "family":"family", "community":"wild", "shell":"species", "voices":"social"
+  },
+  "splitChapters": {
+    "art-batch-items-remains-poses": [
+      {"id":"remains","category":"health","title":"遗体与死因外观","prefixes":["remains/"]},
+      {"id":"rare-poses","category":"species","title":"被炉与妖梦咬刀","prefixes":["kotatsu/","poses/kanroken"]},
+      {"id":"stem-poses","category":"family","title":"茎生悬挂姿态","prefixes":["poses/stem-"]},
+      {"id":"paddle-poses","category":"water","title":"水生魔理沙握桨","prefixes":["poses/paddle-"]},
+      {"id":"supply-icons","category":"health","title":"照料补给图标","prefixes":["item-icons/"]}
+    ]
+  },
+  "scenarioOverrides": {"factory_wear":"human","pet_birth":"family","house_health":"house","balance_forms":"species","balance_deibu":"species","balance_growth":"family"},
+  "excludeItems": {"leaked_filling":"仅旧存档兼容占位，不作为当前可获取物品展示"},
+  "supplements": [
+    {"id":"headwear-damage","category":"headwear","title":"头饰损坏与修复外观","source":"docs/HEADWEAR.md","media":[["hat-damage/hat-damage.png","头饰损坏"],["hat-damage/hat-damage-close.png","损坏近景"],["hat-care/current.png","扶携与理帽"]]},
+    {"id":"birth-performance","category":"family","title":"分娩与接生分镜","source":"docs/CONSUMABLES_AND_BIRTH.md","media":[["birth-performance/current.png","分娩与接生"]]},
+    {"id":"badge-mounts","category":"pets","title":"徽章与佩戴位置","source":"art/props/badges/README.md","media":[["shop-badge-pets/badges.png","徽章"],["shop-badge-pets/badge-mounts.png","佩戴位置"]]},
+    {"id":"land-cargo","category":"wild","title":"陆上储粮堆","source":"docs/WILD_SHELTERS.md","media":[["forage-pile/forage_pile_stages.png","逐份堆放"]]},
+    {"id":"boat-cargo","category":"water","title":"帽内储粮与空间","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","media":[["hat-boat-cargo/hat-boat-cargo.png","帽内储粮"],["hat-boat-cargo/servings.png","份数变化"]]}
+  ]
+}
