@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.List;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -39,9 +41,8 @@ final class FamilyRenderer {
         var arc=FamilyGeometry.arc(count,growth,scale,variation,parent);
         int[] color=spent&&born==(1<<count)-1?new int[]{157,135,79}:new int[]{66,186,57};
         var stem=buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE));
-        for(int i=1;i<arc.size();i++)tube(pose,stem,arc.get(i-1),arc.get(i),
-                FamilyGeometry.radius(count,(i-1)/(double)(arc.size()-1),variation)*scale,
-                FamilyGeometry.radius(count,i/(double)(arc.size()-1),variation)*scale,light,color);
+        // A spline through the authored centerline, swept with continuous rings: the stalk never shows polyline creases.
+        sweep(pose,stem,smooth(arc,STALK_SUBDIVISIONS),FamilyGeometry.radius(count,0,variation)*scale,FamilyGeometry.radius(count,1,variation)*scale,light,color);
         if(progress<.15f)return;
         var linear=pose.last().pose().get3x3(new Matrix3f());
         for(int i=0;i<count;i++) {
@@ -49,13 +50,22 @@ final class FamilyRenderer {
             var variants=YukkuriVariant.values();
             var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];float childScale=FamilyGeometry.fruitScale(progress);
             Vec3 socket=FamilyGeometry.socket(count,i,scale,variation,parent),anchor=FamilyGeometry.hangingAnchor(progress,child);
-            Vec3 origin=socket.add(FamilyGeometry.spur(count,i,scale));
-            // The pedicel hangs along world gravity from its spur, whatever tilt the mother's root carries.
+            Vec3 hangPoint=socket.add(FamilyGeometry.hangOffset(count,i,scale));
+            // The lower part hangs along world gravity (swung by sway and lag), whatever tilt the mother's root carries.
             Vector3f down=hang(linear,ticks,travel,i,sway);double length=FamilyGeometry.pedicel(progress,scale,child);
-            Vec3 head=origin.add(down.x*length,down.y*length,down.z*length);
+            Vec3 hanging=new Vec3(down.x,down.y,down.z),head=hangPoint.add(hanging.scale(length));
             double radius=Math.min(.0075*scale,FamilyGeometry.radius(count,(i+.5)/count,variation)*scale*.6);
-            if(origin.distanceToSqr(socket)>1e-10)tube(pose,buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),socket,origin,radius,radius,light,color);
-            tube(pose,buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),origin,head,radius,radius*.78,light,color);
+            // Keep the twig visibly load-bearing: never thinner than a third of the stalk where it leaves.
+            int nearest=0;double best=Double.MAX_VALUE;
+            for(int k=0;k<arc.size();k++){double d=arc.get(k).distanceToSqr(socket);if(d<best){best=d;nearest=k;}}
+            double stalk=FamilyGeometry.radius(count,nearest/(double)(arc.size()-1),variation)*scale;
+            // One continuous twig: it leaves the stalk outward and a little downward, then bends smoothly into the drop.
+            double drop=FamilyGeometry.branchDrop();Vec3 heading=FamilyGeometry.branchHeading(count,i);
+            Vec3 leave=heading.scale(Math.cos(drop)).add(0,-Math.sin(drop),0);
+            double reach=hangPoint.subtract(socket).horizontalDistance();
+            sweep(pose,buffers.getBuffer(RenderType.entityCutoutNoCull(WHITE)),
+                    bezier(socket,socket.add(leave.scale(reach*.75)),head.subtract(hanging.scale(length*.6)),head,PEDICEL_SEGMENTS),
+                    Math.max(radius*1.15,stalk*.55),Math.max(radius*.72,stalk/3),light,color);
             pose.pushPose();pose.translate(head.x,head.y,head.z);pose.mulPose(new Quaternionf().rotationTo(0,-1,0,down.x,down.y,down.z));
             pose.translate(-anchor.x,-anchor.y,-anchor.z);pose.scale(childScale,childScale,childScale);
             var skin=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+child.assetId()+"/sleep.png")));
@@ -75,6 +85,66 @@ final class FamilyRenderer {
         float horizontal=(float)Math.sqrt(swing.x*swing.x+swing.z*swing.z);
         if(horizontal>MAX_SWING)swing.mul(MAX_SWING/horizontal);
         return new Matrix3f(linear).invert().transform(new Vector3f(swing.x,-1,swing.z)).normalize();
+    }
+    private static final int PEDICEL_SEGMENTS=10,STALK_SUBDIVISIONS=4;
+    /** Uniform Catmull-Rom spline through the points (ends clamped), {@code subdivisions} samples per span. */
+    static List<Vec3> smooth(List<Vec3> points,int subdivisions) {
+        int n=points.size();if(n<3)return points;
+        List<Vec3> result=new ArrayList<>((n-1)*subdivisions+1);
+        for(int k=0;k<n-1;k++){
+            Vec3 p0=points.get(Math.max(0,k-1)),p1=points.get(k),p2=points.get(k+1),p3=points.get(Math.min(n-1,k+2));
+            for(int s=0;s<subdivisions;s++){
+                double t=s/(double)subdivisions,t2=t*t,t3=t2*t;
+                result.add(p1.scale(2).add(p2.subtract(p0).scale(t)).add(p0.scale(2).subtract(p1.scale(5)).add(p2.scale(4)).subtract(p3).scale(t2))
+                        .add(p1.scale(3).subtract(p0).subtract(p2.scale(3)).add(p3).scale(t3)).scale(.5));
+            }
+        }
+        result.add(points.get(n-1));
+        return result;
+    }
+    static List<Vec3> bezier(Vec3 p0,Vec3 p1,Vec3 p2,Vec3 p3,int segments) {
+        List<Vec3> points=new ArrayList<>(segments+1);
+        for(int k=0;k<=segments;k++){
+            double t=k/(double)segments,s=1-t;
+            points.add(p0.scale(s*s*s).add(p1.scale(3*s*s*t)).add(p2.scale(3*s*t*t)).add(p3.scale(t*t*t)));
+        }
+        return points;
+    }
+    /** A continuous tapering tube along a polyline, with rings carried by parallel transport so bends never crease. */
+    static void sweep(PoseStack pose,VertexConsumer buffer,List<Vec3> points,double r0,double r1,int light,int[] color) {
+        int n=points.size();if(n<2)return;
+        Vec3[] tangents=new Vec3[n];
+        for(int k=0;k<n;k++){
+            Vec3 t=points.get(Math.min(n-1,k+1)).subtract(points.get(Math.max(0,k-1)));
+            tangents[k]=t.lengthSqr()<1e-14?(k>0?tangents[k-1]:new Vec3(0,-1,0)):t.normalize();
+        }
+        Vec3 reference=Math.abs(tangents[0].z)<.9?new Vec3(0,0,1):new Vec3(1,0,0);
+        Vec3 u=tangents[0].cross(reference).normalize();
+        Vec3[][] rings=new Vec3[n][8];Vec3[][] normals=new Vec3[n][8];
+        for(int k=0;k<n;k++){
+            if(k>0){Vec3 t=tangents[k];Vec3 projected=u.subtract(t.scale(u.dot(t)));if(projected.lengthSqr()>1e-12)u=projected.normalize();}
+            Vec3 v=tangents[k].cross(u).normalize();double r=r0+(r1-r0)*k/(n-1);
+            for(int j=0;j<8;j++){double a=j*Math.PI/4;normals[k][j]=u.scale(Math.cos(a)).add(v.scale(Math.sin(a)));rings[k][j]=points.get(k).add(normals[k][j].scale(r));}
+        }
+        for(int k=1;k<n;k++)for(int j=0;j<8;j++){
+            int m=(j+1)%8;
+            vertex(pose,buffer,rings[k-1][j],normals[k-1][j],0,0,light,color);
+            vertex(pose,buffer,rings[k][j],normals[k][j],0,1,light,color);
+            vertex(pose,buffer,rings[k][m],normals[k][m],1,1,light,color);
+            vertex(pose,buffer,rings[k-1][m],normals[k-1][m],1,0,light,color);
+        }
+        // Closed ends keep the narrow twig solid from close viewpoints.
+        for(int j=0;j<8;j++){
+            int m=(j+1)%8;Vec3 back=tangents[0].scale(-1),front=tangents[n-1];
+            vertex(pose,buffer,points.get(0),back,.5f,.5f,light,color);
+            vertex(pose,buffer,rings[0][m],back,1,0,light,color);
+            vertex(pose,buffer,rings[0][j],back,0,0,light,color);
+            vertex(pose,buffer,points.get(0),back,.5f,.5f,light,color);
+            vertex(pose,buffer,points.get(n-1),front,.5f,.5f,light,color);
+            vertex(pose,buffer,rings[n-1][j],front,0,0,light,color);
+            vertex(pose,buffer,rings[n-1][m],front,1,0,light,color);
+            vertex(pose,buffer,points.get(n-1),front,.5f,.5f,light,color);
+        }
     }
     static void tube(PoseStack pose,VertexConsumer buffer,Vec3 from,Vec3 to,double r0,double r1,int light,int[] color) {
         Vec3 axis=to.subtract(from);if(axis.lengthSqr()<1e-10)return;axis=axis.normalize();

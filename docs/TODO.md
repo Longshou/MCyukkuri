@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 陆 22 花梗改为自然弯曲枝条 | `.worktrees/stem-curve` | `client/FamilyRenderer.java`、`family/FamilyGeometry.java`、`client/DetachedStemRenderer.java`、`art/props/family-life/` |
 
 ## 玩法待办
 

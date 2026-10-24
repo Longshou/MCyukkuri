@@ -10,8 +10,9 @@ fruit (at the size standard's full fruit size, docs/BEHAVIOR.md) hangs:
   hangs plumb: its hanging anchor (crown top when none is registered) lies directly below its socket;
 - apart from the other fruit front to back, so a fruit falling first never lands on one still
   hanging below it, and the hanging fruit read as separate in an oblique view;
-- with neighbouring fruit on alternate short side spurs (socket_spur, nearest fruit to the right),
-  so they do not bunch in an oblique view and the descending stalk passes beside the nearest one;
+- hung from one curved pedicel each, reaching pedicel_reach out from its socket: on along the stalk
+  for a single fruit, else alternately to each side (pedicel_side, nearest fruit to the right), so
+  they do not bunch in an oblique view and the descending stalk passes beside the nearest one;
 - above the ground.
 
 Every stem-bearing mother and every child kind is checked, at the shortest individual variation
@@ -98,9 +99,12 @@ def mother_front(mother, x0, x1):
     return _FRONT[key]
 
 
-def spur(recipe, count, index):
-    """FamilyGeometry.spur at mother scale 1: lateral model units of a socket's side spur (none for a single fruit)."""
-    return 0 if count < 2 else (1 if (count-1-index) % 2 == 0 else -1)*recipe['socket_spur']
+def hang_offset(recipe, count, index):
+    """FamilyGeometry.hangOffset at mother scale 1, model units: where a pedicel's plumb tip hangs from."""
+    if count < 2:
+        return [0, 0, -recipe['pedicel_reach']]
+    side = recipe['pedicel_side']*(1 if (count-1-index) % 2 == 0 else -1)
+    return [side*recipe['pedicel_reach'], 0, -(1-recipe['pedicel_side']**2)**.5*recipe['pedicel_reach']]
 
 
 def fits(stem, fruits, length, layout, mothers, spacing_kinds):
@@ -112,8 +116,9 @@ def fits(stem, fruits, length, layout, mothers, spacing_kinds):
     for mother in mothers:
         sockets = [stem.point(zy, length, mother) for zy in layout]
         for kind, f in fruits.items():
-            for index, sk in enumerate(sockets):  # the pedicel hangs plumb: the anchor sits right under its spur
-                base = sk+[spur(stem.r, len(sockets), index)-f['anchor'][0], -pend-f['crown'], -f['anchor'][2]]
+            for index, sk in enumerate(sockets):  # the pedicel tip hangs plumb: the anchor sits right under its hang point
+                reach = hang_offset(stem.r, len(sockets), index)
+                base = sk+[reach[0]-f['anchor'][0], -pend-f['crown'], reach[2]-f['anchor'][2]]
                 front_z = mother_front(mother, base[0]-f['half'], base[0]+f['half'])
                 worst['mother'] = min(worst['mother'], front_z-(base[2]+f['back']))
                 worst['ground'] = min(worst['ground'], base[1])

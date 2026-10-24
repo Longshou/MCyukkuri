@@ -4,11 +4,11 @@
   "growth_source": "standards/yukkuri-v1/profiles/growth.json",
   "action_source": "standards/yukkuri-v1/behaviors/stem-birth.json",
   "count_length_scale": [
-    0.71,
-    1.24,
-    1.77,
-    2.29,
-    2.82
+    0.7,
+    1.13,
+    1.66,
+    2.19,
+    2.71
   ],
   "count_radius_scale": [
     0.85,
@@ -17,7 +17,9 @@
     1.1,
     1.2
   ],
-  "socket_spur": 1.2,
+  "pedicel_reach": 2.0,
+  "pedicel_side": 0.92,
+  "pedicel_drop_degrees": 35,
   "variants": {
     "reimu": {
       "root": [

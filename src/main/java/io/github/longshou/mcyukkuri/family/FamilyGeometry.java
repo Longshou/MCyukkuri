@@ -52,11 +52,19 @@ public final class FamilyGeometry {
         var a=STEM.getAsJsonObject("socket_layouts").getAsJsonArray(String.valueOf(count)).get(index).getAsJsonArray();
         return point(a.get(0).getAsDouble(),a.get(1).getAsDouble(),count,scale,variance,mother);
     }
-    /** Short side spur of a socket, alternating sides from the nearest fruit so neighbours do not bunch; none for one fruit. */
-    public static Vec3 spur(int count,int index,float scale) {
-        if(count<2)return Vec3.ZERO;
-        return new Vec3(((count-1-index)%2==0?1:-1)*DATA.get("socketSpur").getAsDouble()/16*Math.max(1,scale),0,0);
+    /** Horizontal heading of a pedicel leaving its socket: on along the stalk for a single fruit; with several,
+     *  alternately to each side (nearest fruit to the right) so neighbours do not bunch. */
+    public static Vec3 branchHeading(int count,int index) {
+        if(count<2)return new Vec3(0,0,-1);
+        double side=DATA.get("pedicelSide").getAsDouble();
+        return new Vec3(((count-1-index)%2==0?1:-1)*side,0,-Math.sqrt(Math.max(0,1-side*side)));
     }
+    /** Horizontal reach of the curved pedicel: at rest its tip hangs plumb below socket + this offset. */
+    public static Vec3 hangOffset(int count,int index,float scale) {
+        return branchHeading(count,index).scale(DATA.get("pedicelReach").getAsDouble()/16*Math.max(1,scale));
+    }
+    /** Angle below horizontal at which a pedicel leaves the stalk. */
+    public static double branchDrop() { return Math.toRadians(DATA.get("pedicelDropDegrees").getAsDouble()); }
     public static float fruitScale(float progress) { return GrowthSize.fruit(progress); }
     public static double pendant(float motherScale) { return STEM.get("pendant_length_reference").getAsDouble()*STEM.get("reference_units_to_model").getAsDouble()/16*motherScale; }
     /** Where the pedicel meets the fruit, relative to its body origin in blocks: the registered hanging anchor, else the crown top. */
@@ -70,13 +78,13 @@ public final class FamilyGeometry {
         var config=DATA.getAsJsonObject("variants").getAsJsonObject(child.assetId());
         return config.get(config.has("hang_clearance_height")?"hang_clearance_height":"crown_height").getAsDouble()/16*fruitScale(progress);
     }
-    /** At rest the pedicel hangs plumb: the fruit's anchor lies directly below the end of its socket's spur. Birth drops from here. */
+    /** At rest the curved pedicel ends hanging plumb: the fruit's anchor lies directly below socket + hangOffset. Birth drops from here. */
     public static Vec3 childBase(int count,int index,float progress,float motherScale,float variance,YukkuriVariant mother,YukkuriVariant child) {
         var anchor=hangingAnchor(progress,child);
-        return socket(count,index,motherScale,variance,mother).add(spur(count,index,motherScale))
+        return socket(count,index,motherScale,variance,mother).add(hangOffset(count,index,motherScale))
                 .add(-anchor.x,-pendant(motherScale)-hangClearance(progress,child),-anchor.z);
     }
-    /** Rest length of the pedicel from its spur down to the fruit's anchor. */
+    /** Rest drop of the pedicel tip below its hang point, down to the fruit's anchor. */
     public static double pedicel(float progress,float motherScale,YukkuriVariant child) {
         return pendant(motherScale)+hangClearance(progress,child)-hangingAnchor(progress,child).y;
     }
