@@ -10,12 +10,15 @@ import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.ModelFingerprint;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundMigration;
+import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,6 +83,9 @@ public final class YukkuriModel {
     private final PregnancyFaces.Surface pregnancySurface=new PregnancyFaces.Surface();
     private int woundTriangle=-1;
     private boolean drawingWoundedBody, drawingSurfaceMarks;
+    private HairWoundRenderer.Prepared woundDisplay;
+    private final Vector3f[] woundHatCorners={new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
+    private boolean[] woundAccessoryVertices;
     private boolean adultStatePose;
     private float pregnancyBelly,pregnancyContraction;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
@@ -633,7 +639,7 @@ public final class YukkuriModel {
         // geometry. Keep their original mesh until those combined poses have
         // their own morph bindings; never detach a held item or move wound ink.
         // The side-lock swing is part of the same morph, so it stops with it.
-        if(gripping||drawingSurfaceMarks)puffAmount=0;
+        if(gripping||drawingSurfaceMarks||woundDisplay!=null)puffAmount=0;
         if (selected.equals("house_carry") && action.equals("waddle")) {
             // Walking owns the body; the carry clip retains the two closed locks.
             clips.get("waddle").sample(elapsed, pose);
@@ -733,6 +739,7 @@ public final class YukkuriModel {
         if(pregnancyBelly>.001f)for(int index=0;index<parts.size();index++)if(bodySurface(parts.get(index).name)){
             Part surface=puffAmount>0&&index==puffPartIndex?puffSurface:parts.get(index);
             for(int first=surface.start;first<surface.start+surface.count;first+=3){
+                if(woundDisplay!=null&&woundDisplay.pregnancySurface(first,pregnantSurface))continue;
                 for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);pregnantSurface.add(triangle);
             }
         }
@@ -754,6 +761,7 @@ public final class YukkuriModel {
                 }
             }
             for (int first = part.start; first < part.start + part.count; first += 3) {
+                if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
                 // House expression cards overlap on the curved face. Their opaque
                 // backs can hide neighbouring eyes with the no-cull entity material.
                 // Keep the authored front ink; the head already supplies the skin.
@@ -779,7 +787,7 @@ public final class YukkuriModel {
                 }
                 // An affine, flat pair has the same source diagonal as a native quad.
                 // Keep nonlinear pregnancy/puff/delivery and damaged hats on their original triangles.
-                int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart?quadFourth[first]:-1;
+                int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null?quadFourth[first]:-1;
                 if(fourth>=0)skin(fourth,fourthCorner);
                 int rotation=fourth>=0?quadRotation[first]:0;
                 for (int corner = 0; corner < 4; corner++) {
@@ -854,10 +862,13 @@ public final class YukkuriModel {
                 drawingSurfaceMarks=false;if(!warnedWoundMismatch){
                         LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
-            drawingWoundedBody=drawingSurfaceMarks&&WoundRenderer.deforms(entity);
+            drawingWoundedBody=false;
             String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
                     ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
             setExpression(expression);
+            float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
+            var wounds=new ArrayList<>(entity.visibleWounds());
+            wounds.addAll(entity.visibleMarks().stream().filter(mark->mark.kind()==WoundKind.SCAR).toList());
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
@@ -866,13 +877,17 @@ public final class YukkuriModel {
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
             boolean pieces=hatDamageDraw.level()==3;
+            if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
+                woundDisplay=HairWoundRenderer.prepare(entity,this,id,expression,wounds,entity.visibleSigns(),health,hairLoss,
+                        accessory||pieces||hatMotion.equals("HAT_REMOVE"),headwear,true);
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
             render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
+            if(woundDisplay!=null)woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);
             hatDamageDraw.drawCaps(buffers);
-        }finally{adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+        }finally{woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
@@ -881,9 +896,11 @@ public final class YukkuriModel {
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
         boolean house=id.startsWith("house_");
-        var wounds=(house?List.<BodyWound>of():BodyWound.read(body).stream()
+        var injuries=(BodyWound.read(body).stream()
                 .map(w->WoundMigration.restore(id,mesh,body,w))
                 .filter(Objects::nonNull).filter(mesh::valid).toList());
+        var wounds=new ArrayList<>(injuries);
+        wounds.addAll(Marks.read(data.getCompound("Marks")).stream().filter(mesh::valid).toList());
         // The remains keep the body signs (mould, baked sole, bare or broken core) of the moment of death.
         var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new UUID(0,0);
         // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
@@ -891,17 +908,21 @@ public final class YukkuriModel {
         int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
         float foodCapacity=CorpseFood.capacity(data);
         float fullness=foodCapacity<=0?0:Math.clamp(CorpseFood.remaining(data)/foodCapacity,0,1);
-        var signs=WoundRenderer.signs(key,seed,id,packedSigns,fullness,wounds);
+        var signs=WoundRenderer.signs(key,seed,id,packedSigns,0,wounds);
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
-        drawingWoundedBody=drawingSurfaceMarks&&WoundRenderer.deforms(wounds);
+        drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
         hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
+        int headwear=data.getInt("Headwear");hatDamageDraw.visual(headwear);
         try{
+            if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(packedSigns&BodySigns.FOOT_BURNED)!=0))
+                woundDisplay=HairWoundRenderer.prepare(key,this,id,"sleep",wounds,packedSigns,0,body.getInt("HairLoss"),accessory,headwear,!data.getBoolean("CoreTaken"));
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
             if(drawingSurfaceMarks)WoundRenderer.render(key,id,"sleep",wounds,signs,0,fullness,house,!data.getBoolean("CoreTaken"),world,stack,buffer,buffers,light,overlay);
+            if(woundDisplay!=null)woundDisplay.render(world,0,stack,buffers,light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
-        }finally{drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;setExpression("");}
+        }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatDamageDraw.reset();setExpression("");}
     }
     private void setExpression(String name){
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.
@@ -925,7 +946,9 @@ public final class YukkuriModel {
     private boolean hairHidden(Part part,int loss){
         if(loss==0)return false;
         Integer mask=staticHairMasks.get(part);if(mask!=null)return (loss&mask)!=0;
-        if(!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")))return false;
+        var selected=HairWoundAssets.model(id);
+        if(!(part.name.contains("hair")||part.name.contains("bang")||part.name.contains("braid")||part.name.startsWith("wasa_")
+                ||selected!=null&&selected.hair.contains(part.name)))return false;
         if((loss&4)!=0)return true;
         if(part.name.contains("bang")||part.name.contains("crown")||part.name.contains("wrap")||part.name.startsWith("wasa_scalp"))return false;
         float x=0;for(int v=part.start;v<part.start+part.count;v++)x+=vertices[v*8];
@@ -989,22 +1012,19 @@ public final class YukkuriModel {
                 for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
             }
         }
-        float s=1+LiveBirthGeometry.SWELL*pregnancyBelly;
-        float hatWeight=1;
-        if(hat>=0){var v=pose[hat];hatWeight=Math.max(0,1-(float)Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])/3-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);}
-        crownLift.set(0,LiveBirthGeometry.modelHeight(id)*(s-1)*hatWeight,0);
+        crownLift.set(PregnancyAttachments.crownLift(id,pregnancyBelly,hat>=0?pose[hat]:null));
         braidLift.zero();
         if(braid>=0){
-            var v=pose[braid];float weight=Math.max(0,1-Math.max(Math.abs(v[3]),Math.max(Math.abs(v[4]),Math.abs(v[5])))/30);
-            var root=new Vector3f(bones[braid].x(),bones[braid].y(),bones[braid].z());var moved=new Vector3f(root);
-            LiveBirthGeometry.deform(moved,pregnancyBelly,0);braidLift.set(moved.sub(root).mul(weight));
+            var root=new Vector3f(bones[braid].x(),bones[braid].y(),bones[braid].z());
+            braidLift.set(PregnancyAttachments.braidLift(root,pregnancyBelly,pose[braid]));
         }
     }
     private void skinBase(int index, Vector3f target) {
-        if(skinningCache.read(index,target))return;
+        if(woundDisplay==null&&skinningCache.read(index,target))return;
         int offset = index * 8;
         Binding binding = bindings[index];
         target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
+        if(woundDisplay!=null)woundDisplay.deform(index,target);
         if(puffAmount>0)target.add(puffAmount*puffOffsets[index*3],puffAmount*puffOffsets[index*3+1],puffAmount*puffOffsets[index*3+2]);
         if (binding.weight > 0) {
             second.set(target);
@@ -1014,6 +1034,51 @@ public final class YukkuriModel {
         if (binding.weight > 0) target.lerp(second, binding.weight);
         int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
         // Pregnancy and rigid accessory lifts happen in skin(), after this cached base position.
-        skinningCache.write(index,target);
+        if(woundDisplay==null)skinningCache.write(index,target);
+    }
+    float[] woundVertices(){return vertices;}
+    List<Part> woundParts(){return parts;}
+    boolean woundVisible(Part part,int hairLoss,boolean accessory){return !hairHidden(part,hairLoss)&&(accessory||!accessoryPart(part));}
+    /** Reprojected fragment retains the original triangle's exact blended bone binding. */
+    void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target){
+        woundSkin(triangle,a,b,c,rest,target,true);
+    }
+    void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target,boolean pregnancy){
+        target.zero();
+        for(int corner=0;corner<3;corner++){
+            int index=triangle+corner;Binding binding=bindings[index];
+            float bary=corner==0?a:corner==1?b:c;
+            second.set(rest);world[binding.first].transformPosition(second);
+            target.fma(bary*(1-binding.weight),second);
+            if(binding.weight>0){second.set(rest);world[binding.second].transformPosition(second);target.fma(bary*binding.weight,second);}
+        }
+        int feature=featureBones[triangle];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
+        if(pregnancy&&pregnancyBelly>0){int group=rigidGroups==null?0:rigidGroups[triangle];
+            if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);}
+        if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
+    }
+    private boolean woundAccessoryVertex(int vertex){
+        if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];
+            for(var part:parts)if(accessoryPart(part))Arrays.fill(woundAccessoryVertices,part.start,part.start+part.count,true);}
+        return woundAccessoryVertices[vertex];
+    }
+    boolean woundDamagedHat(Part part){return hatDamageDraw.level()>0&&accessoryPart(part);}
+    HatDamageFaces.Face[] woundHatFaces(Part part){return hatDamageDraw.hatFaces(parts.indexOf(part));}
+    void woundHatQuad(int[] corners,float u,float v,Vector3f target){
+        for(int i=0;i<4;i++){skin(corners[i],woundHatCorners[i]);if(hatDamageDraw.fit()<.999f)
+            woundHatCorners[i].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());}
+        target.set(woundHatCorners[0]).mul((1-u)*(1-v)).fma(u*(1-v),woundHatCorners[1])
+                .fma(u*v,woundHatCorners[2]).fma((1-u)*v,woundHatCorners[3]);
+    }
+    boolean woundPregnancyFace(String part){return pregnancyBelly>.001f&&part.startsWith("face_");}
+    /** Replacement triangles retain the same pregnancy projection and real birth outlet subtraction. */
+    boolean woundPatch(String part,Vector3f[] points,float[] uv,PoseStack stack,VertexConsumer buffer,int light,int overlay,
+                       int red,int green,int blue,float alphaA,float alphaB,float alphaC){
+        if(woundPregnancyFace(part)){
+            PregnancyFaces.render(points,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnancySurface,
+                    red,green,blue,alphaA,alphaB,alphaC);return true;
+        }
+        return delivery!=null&&bodySurface(part)&&delivery.drawMotherTriangle(stack,buffer,light,overlay,points,uv,
+                red,green,blue,alphaA,alphaB,alphaC);
     }
 }

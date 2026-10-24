@@ -139,9 +139,14 @@ final class PregnancyFaces {
 
     static void render(Vector3f[] points,float[] uv,float belly,float contraction,LiveBirthRenderer.Delivery delivery,
                        PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface){
+        render(points,uv,belly,contraction,delivery,stack,buffer,light,overlay,surface,255,255,255,1,1,1);
+    }
+    static void render(Vector3f[] points,float[] uv,float belly,float contraction,LiveBirthRenderer.Delivery delivery,
+                       PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface,
+                       int red,int green,int blue,float alphaA,float alphaB,float alphaC){
         Scratch scratch=SCRATCH.get();float low=Float.MAX_VALUE,high=-Float.MAX_VALUE;
         for(int i=0;i<3;i++){
-            Vertex vertex=scratch.source[i];vertex.set(points[i],uv[i*2],uv[i*2+1]);LiveBirthGeometry.deform(vertex.point,belly,contraction);
+            Vertex vertex=scratch.source[i];vertex.set(points[i],uv[i*2],uv[i*2+1]);vertex.alpha=i==0?alphaA:i==1?alphaB:alphaC;LiveBirthGeometry.deform(vertex.point,belly,contraction);
             low=Math.min(low,vertex.point.y);high=Math.max(high,vertex.point.y);
         }
         int bands=surface.bands(low,high);
@@ -149,20 +154,21 @@ final class PregnancyFaces {
             int lower=clip(scratch.source,3,surface.band(band),true,scratch.lower);
             int strip=clip(scratch.lower,lower,surface.band(band+1),false,scratch.upper);
             for(int i=0;i<strip;i++)surface.fit(scratch.upper[i].point);
-            for(int i=1;i+1<strip;i++)draw(scratch,scratch.upper[0],scratch.upper[i],scratch.upper[i+1],delivery,stack,buffer,light,overlay);
+            for(int i=1;i+1<strip;i++)draw(scratch,scratch.upper[0],scratch.upper[i],scratch.upper[i+1],delivery,stack,buffer,light,overlay,red,green,blue);
         }
     }
 
     private static void draw(Scratch scratch,Vertex first,Vertex second,Vertex third,LiveBirthRenderer.Delivery delivery,
-                             PoseStack stack,VertexConsumer buffer,int light,int overlay){
+                             PoseStack stack,VertexConsumer buffer,int light,int overlay,int red,int green,int blue){
         scratch.points[0].set(first.point);scratch.points[1].set(second.point);scratch.points[2].set(third.point);
         scratch.uv[0]=first.u;scratch.uv[1]=first.v;scratch.uv[2]=second.u;scratch.uv[3]=second.v;scratch.uv[4]=third.u;scratch.uv[5]=third.v;
-        if(delivery!=null&&delivery.drawMotherTriangle(stack,buffer,light,overlay,scratch.points,scratch.uv))return;
+        if(delivery!=null&&delivery.drawMotherTriangle(stack,buffer,light,overlay,scratch.points,scratch.uv,red,green,blue,first.alpha,second.alpha,third.alpha))return;
         scratch.normal.set(scratch.points[1]).sub(scratch.points[0]).cross(scratch.edge.set(scratch.points[2]).sub(scratch.points[0]));
         if(scratch.normal.lengthSquared()<1e-12)return;scratch.normal.normalize();
         for(int i=0;i<4;i++){
             int index=Math.min(i,2);Vector3f point=scratch.points[index];
-            buffer.addVertex(stack.last().pose(),point.x/16,point.y/16,point.z/16).setColor(255,255,255,255)
+            float alpha=index==0?first.alpha:index==1?second.alpha:third.alpha;
+            buffer.addVertex(stack.last().pose(),point.x/16,point.y/16,point.z/16).setColor(red,green,blue,Math.round(Math.clamp(alpha,0,1)*255))
                     .setUv(scratch.uv[index*2],scratch.uv[index*2+1]).setOverlay(overlay).setLight(light)
                     .setNormal(stack.last(),scratch.normal.x,scratch.normal.y,scratch.normal.z);
         }
@@ -194,12 +200,13 @@ final class PregnancyFaces {
 
     private static final class Vertex {
         private final Vector3f point=new Vector3f();
-        private float u,v;
-        void set(Vector3f source,float u,float v){point.set(source);this.u=u;this.v=v;}
-        void set(Vertex source){set(source.point,source.u,source.v);}
+        private float u,v,alpha=1;
+        void set(Vector3f source,float u,float v){point.set(source);this.u=u;this.v=v;alpha=1;}
+        void set(Vertex source){set(source.point,source.u,source.v);alpha=source.alpha;}
         void mix(Vertex first,Vertex second,float amount){
             point.set(first.point).lerp(second.point,amount);
             u=first.u+(second.u-first.u)*amount;v=first.v+(second.v-first.v)*amount;
+            alpha=first.alpha+(second.alpha-first.alpha)*amount;
         }
     }
 

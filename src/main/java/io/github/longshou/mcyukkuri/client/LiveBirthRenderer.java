@@ -20,8 +20,9 @@ import org.joml.Vector3f;
 /** Client-only view of the saved litter. Clipping and emergence never create an entity. */
 final class LiveBirthRenderer {
     private static final Map<YukkuriModel,float[]> SKINS=new WeakHashMap<>(),CHILDREN=new WeakHashMap<>(),MAMU=new WeakHashMap<>(),MARKS=new WeakHashMap<>();
-    private record Vertex(Vector3f point,float u,float v){
-        Vertex mix(Vertex other,float q){return new Vertex(new Vector3f(point).lerp(other.point,q),u+(other.u-u)*q,v+(other.v-v)*q);}
+    private record Vertex(Vector3f point,float u,float v,float alpha){
+        Vertex(Vector3f point,float u,float v){this(point,u,v,1);}
+        Vertex mix(Vertex other,float q){return new Vertex(new Vector3f(point).lerp(other.point,q),u+(other.u-u)*q,v+(other.v-v)*q,alpha+(other.alpha-alpha)*q);}
     }
     static float contraction(YukkuriView mother,float partial){
         if(mother.liveDeliveryTicks()<0||Integer.bitCount(mother.liveBornMask())>=mother.liveChildCount()||!mother.visibleWounds().isEmpty())return 0;
@@ -55,7 +56,7 @@ final class LiveBirthRenderer {
         void follow(Matrix4f pose){root.set(pose);rest.set(pose).invert();}
         private Vector3f at(Vector3f p){return root.transformPosition(new Vector3f(p));}
         private List<Vertex> placed(List<Vertex> polygon){
-            var out=new ArrayList<Vertex>(polygon.size());for(var v:polygon)out.add(new Vertex(at(v.point),v.u,v.v));return out;
+            var out=new ArrayList<Vertex>(polygon.size());for(var v:polygon)out.add(new Vertex(at(v.point),v.u,v.v,v.alpha));return out;
         }
         Delivery(YukkuriView mother,YukkuriModel model,float contraction){
             this.mother=mother;
@@ -141,6 +142,10 @@ final class LiveBirthRenderer {
             }
         }
         boolean drawMotherTriangle(PoseStack pose,VertexConsumer buffer,int light,int overlay,Vector3f[] posed,float[] uv){
+            return drawMotherTriangle(pose,buffer,light,overlay,posed,uv,255,255,255,1,1,1);
+        }
+        boolean drawMotherTriangle(PoseStack pose,VertexConsumer buffer,int light,int overlay,Vector3f[] posed,float[] uv,
+                                   int red,int green,int blue,float alphaA,float alphaB,float alphaC){
             if(hole.size()<3)return false;
             // The hole is cut in rest space; the posed skin is brought back there and the pieces placed again.
             Vector3f[] points={rest.transformPosition(new Vector3f(posed[0])),rest.transformPosition(new Vector3f(posed[1])),rest.transformPosition(new Vector3f(posed[2]))};
@@ -149,11 +154,11 @@ final class LiveBirthRenderer {
             for(var p:hole){left=Math.min(left,p.x);right=Math.max(right,p.x);bottom=Math.min(bottom,p.y);top=Math.max(top,p.y);}
             if(Math.min(points[0].x,Math.min(points[1].x,points[2].x))>right||Math.max(points[0].x,Math.max(points[1].x,points[2].x))<left
                     ||Math.min(points[0].y,Math.min(points[1].y,points[2].y))>top||Math.max(points[0].y,Math.max(points[1].y,points[2].y))<bottom)return false;
-            List<Vertex> remaining=new ArrayList<>();for(int i=0;i<3;i++)remaining.add(new Vertex(new Vector3f(points[i]),uv[i*2],uv[i*2+1]));
+            List<Vertex> remaining=new ArrayList<>();for(int i=0;i<3;i++)remaining.add(new Vertex(new Vector3f(points[i]),uv[i*2],uv[i*2+1],i==0?alphaA:i==1?alphaB:alphaC));
             // Subtract a convex hole, keeping every exterior strip of the original textured triangle.
             for(int edge=0;edge<hole.size()&&!remaining.isEmpty();edge++){
                 Vector3f a=hole.get(edge),b=hole.get((edge+1)%hole.size());
-                polygon(pose,buffer,light,overlay,placed(clip(remaining,a,b,false)),255,255,255);
+                polygon(pose,buffer,light,overlay,placed(clip(remaining,a,b,false)),red,green,blue);
                 remaining=clip(remaining,a,b,true);
             }
             return true;
@@ -227,7 +232,7 @@ final class LiveBirthRenderer {
             Vertex[] tri={polygon.getFirst(),polygon.get(i),polygon.get(i+1)};
             var normal=new Vector3f(tri[1].point).sub(tri[0].point).cross(new Vector3f(tri[2].point).sub(tri[0].point));if(normal.lengthSquared()<1e-12)continue;normal.normalize();
             for(int k=0;k<4;k++){var v=tri[Math.min(k,2)];buffer.addVertex(stack.last().pose(),v.point.x/16,v.point.y/16,v.point.z/16).setColor(r,g,b,
-                    255).setUv(v.u,v.v).setOverlay(overlay).setLight(light).setNormal(stack.last(),normal.x,normal.y,normal.z);}
+                    Math.round(Math.clamp(v.alpha,0,1)*255)).setUv(v.u,v.v).setOverlay(overlay).setLight(light).setNormal(stack.last(),normal.x,normal.y,normal.z);}
         }
     }
     private LiveBirthRenderer(){}

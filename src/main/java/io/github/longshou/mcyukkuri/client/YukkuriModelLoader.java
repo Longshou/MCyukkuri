@@ -42,6 +42,7 @@ final class YukkuriModelLoader {
             houseEcology=data.getAsJsonObject("models");
         } catch(IOException error) { throw new UncheckedIOException("Cannot load house ecology motions",error); }
         JsonObject toiletContact = ToiletPresentation.reload(manager);
+        HairWoundAssets.reload(manager);
         var assetIds = new ArrayList<String>();
         for (YukkuriVariant variant : YukkuriVariant.values()) assetIds.add(variant.assetId());
         assetIds.addAll(SubspeciesAssets.MODELS);

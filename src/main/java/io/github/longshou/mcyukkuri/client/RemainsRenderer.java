@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
+import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import net.minecraft.client.renderer.*;
@@ -17,7 +18,9 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
     static String asset(CompoundTag data){String id=data.getString("Model");if(id.isEmpty())id=data.getString("Variant");return id.isEmpty()?"reimu":id;}
     static float renderScale(CompoundTag data){return RemainsEntity.dimension(data,"RenderScale",asset(data).startsWith("house_")?
             RemainsEntity.dimension(data,"SourceScale",.32f)/.32f:RemainsEntity.dimension(data,"SourceScale",1));}
-    @Override public ResourceLocation getTextureLocation(RemainsEntity entity){return MCYukkuri.id("textures/entity/"+asset(entity.data())+"/sleep.png");}
+    @Override public ResourceLocation getTextureLocation(RemainsEntity entity){return texture(entity.data());}
+    private static ResourceLocation texture(CompoundTag data){String id=asset(data);
+        return HairWoundAssets.texture(id,"sleep",HairWoundAssets.wholeBurn(BodyWound.read(data.getCompound("Body")),id.startsWith("house_")));}
     @Override public void render(RemainsEntity entity,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light){
         shadowRadius=entity.getBbWidth()*.4f;
         pose.pushPose();pose.mulPose(Axis.YP.rotationDegrees(180-yaw));
@@ -35,7 +38,7 @@ public final class RemainsRenderer extends EntityRenderer<RemainsEntity>{
         super.render(entity,yaw,partial,pose,buffers,light);
     }
     static void draw(Object key,CompoundTag data,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-        var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/entity/"+asset(data)+"/sleep.png")));
+        var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(texture(data)));
         YukkuriModel.get(asset(data)).renderRemains(key,data,pose,buffer,buffers,light,overlay);
     }
 }

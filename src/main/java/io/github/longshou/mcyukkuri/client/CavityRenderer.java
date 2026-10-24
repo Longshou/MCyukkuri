@@ -39,10 +39,13 @@ final class CavityRenderer {
     private final Matrix3f normalMatrix = new Matrix3f();
 
     CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent) {
+        this(mesh,opening,original,wounds,broken,corePresent,true);
+    }
+    CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent,boolean cutSkin) {
         long started=System.nanoTime();
         this.opening = opening;
         tissue=mesh.tissueBone();
-        for (int i = 0; i < original.length; i += 3) {
+        for (int i = 0; cutSkin&&i < original.length; i += 3) {
             var pieces = outside(original[i], original[i+1], original[i+2]);
             if (pieces != null) skinCuts.put(i, pieces);
         }
@@ -59,7 +62,9 @@ final class CavityRenderer {
         if (!opening.front(new Vector3f(a).add(b).add(c).div(3))) return null;
         float ax=opening.x(a), ay=opening.y(a), bx=opening.x(b), by=opening.y(b), cx=opening.x(c), cy=opening.y(c);
         float minX=Math.min(ax,Math.min(bx,cx)),maxX=Math.max(ax,Math.max(bx,cx)),minY=Math.min(ay,Math.min(by,cy)),maxY=Math.max(ay,Math.max(by,cy));
-        if (minX > opening.radiusU*1.1f || maxX < -opening.radiusU*1.1f || minY > opening.radiusV*1.1f || maxY < -opening.radiusV*1.1f) return null;
+        float left=Float.MAX_VALUE,right=-Float.MAX_VALUE,bottom=Float.MAX_VALUE,top=-Float.MAX_VALUE;
+        for(var p:opening.polygon){left=Math.min(left,p[0]);right=Math.max(right,p[0]);bottom=Math.min(bottom,p[1]);top=Math.max(top,p[1]);}
+        if (minX > right || maxX < left || minY > top || maxY < bottom) return null;
         var source = List.of(new Piece(ax,ay,1,0,0), new Piece(bx,by,0,1,0), new Piece(cx,cy,0,0,1));
         List<List<Piece>> remaining = new ArrayList<>();
         boolean touched = false;
@@ -126,8 +131,17 @@ final class CavityRenderer {
             var n=new Vector3f(data[i+3],data[i+4],data[i+5]).div(opening.span).normalize();
             vertices.add(new Vertex(p,new float[]{tissue,1},n,null,null,1));
         }
-        var colours=broken?source.brokenColors():source.colors();
-        for(int i=0;i<colours.length;i+=3)faces.add(new Face(start+i,start+i+1,start+i+2,colours[i],colours[i+1],colours[i+2],true));
+        var colours=source.colors();var damage=source.brokenColors();
+        for(int i=0;i<colours.length;i+=3){
+            // Retain the real damaged-core contrast, within the selected ordinary
+            // filling palette. An intact core has no independent shell or outline.
+            var p=vertices.get(start+i).rest;
+            float grain=.98f+.035f*(float)Math.sin(p.x*2.13f+p.y*4.1f+p.z*1.7f);
+            float shade=broken?Math.clamp((damage[i]+damage[i+1]+damage[i+2]+1)/(colours[i]+colours[i+1]+colours[i+2]+1),.35f,1.1f):1;
+            float tone=HairWoundAssets.coreDensity*grain*shade;
+            var filling=HairWoundAssets.filling;
+            faces.add(new Face(start+i,start+i+1,start+i+2,filling.x*tone,filling.y*tone,filling.z*tone,true));
+        }
     }
 
     /** Returns true when this replaces or removes the original skin/face triangle. */

@@ -4412,6 +4412,17 @@
       }
     }
   },
+  "hair_wounds": {
+    "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds",
+    "exporter": "standards/yukkuri-library/drafts/body-marks/hair-wounds/select_runtime.py",
+    "selected_snapshot": "art/source/hair-wounds",
+    "manifest": "art/source/hair-wounds/manifest.json",
+    "runtime_profiles": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hair_wounds.json",
+    "runtime_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/hair/{model}.json.gz",
+    "runtime_materials": "src/main/resources/assets/mcyukkuri/textures/wounds/hair",
+    "status": "selected_for_runtime_pending_user_review",
+    "scope": "Existing authored eight mechanical styles, separate skin/hair outlines, shared indentation, sole/whole-body heat and character expression atlases. Runtime reprojects the source parameters at each authoritative wound anchor and retains bone weights, real hair loss, treatment scars and corpse state. House forms select only grade-three thermal art. No newly drawn art or game visual acceptance."
+  },
   "alice_appearance": {
     "source": "standards/yukkuri-library/body-standard/features/alice-hakkei",
     "texture_style": "standards/yukkuri-library/characters/alice.json",

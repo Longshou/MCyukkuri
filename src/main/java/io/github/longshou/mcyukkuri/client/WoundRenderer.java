@@ -94,19 +94,20 @@ final class WoundRenderer {
         Geometry(WoundSurface mesh,List<BodyWound> wounds,List<SkinDecal> signs,String expression,boolean corePresent){
             this.mesh=mesh;this.wounds=List.copyOf(wounds);this.signs=List.copyOf(signs);this.expression=expression;
             this.corePresent=corePresent;
-            drawBody=deforms(wounds);topology=topology(mesh,expression);int count=mesh.weights.length;
+            drawBody=false;topology=topology(mesh,expression);int count=mesh.weights.length;
             var coreSign=signs.stream().filter(s->s.kind()==WoundKind.CORE).findFirst().orElse(null);
             var coreWound=coreSign==null?null:wounds.stream().filter(w->BodySigns.deep(w)&&w.triangle()==coreSign.triangle()
                     &&w.u()==coreSign.u()&&w.v()==coreSign.v()).findFirst().orElse(null);
             var opening=coreWound==null?null:BodyCavity.opening(mesh,coreWound);
             cavity=opening==null?null:new CavityRenderer(mesh,opening,topology.original,wounds,coreSign.severity()>=3,corePresent);
             rest=new Vector3f[count];posed=new Vector3f[count];
-            for(var w:wounds)if(mesh.valid(w))author(SkinDecal.of(w,mesh.displaySite(w)));
+            for(var w:wounds)if(mesh.valid(w)&&(w.kind()==WoundKind.DIRT||w.kind()==WoundKind.MOLD))author(SkinDecal.of(w,mesh.displaySite(w)));
             for(var sign:signs)if(mesh.valid(sign))author(sign);
             if(cavity!=null)clipMarks();
             boolean ink=false,tone=false,textured=false;for(var mark:marks)if(mark.material<16)ink=true;else if(mark.material<32)tone=true;else textured=true;
             woundMarks=ink;toneMarks=tone;texturedMarks=textured;
             var used=new BitSet(count);
+            for(var wound:wounds)if(wound.kind()==WoundKind.TEAR&&BodySigns.open(wound)&&mesh.valid(wound))used.set(wound.triangle(),wound.triangle()+3);
             if(drawBody)used.set(0,count);
             else for(var mark:marks)for(var hit:List.of(mark.a,mark.b,mark.c))used.set(hit.triangle(),hit.triangle()+3);
             var wantedGroups=new BitSet(topology.normalGroupCount);
@@ -252,7 +253,7 @@ final class WoundRenderer {
     }
     static void render(YukkuriView e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
-        boolean house=e.profile().houseBody();var wounds=house?List.<BodyWound>of():e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
+        boolean house=e.profile().houseBody();var wounds=house?e.visibleWounds().stream().filter(w->w.kind()==WoundKind.SCORCH).toList():e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
         // House bodies keep independent mould and baked-sole signs, but omit wounds and old wound scars.
         var marks=visibleMarks(e);var all=marks.isEmpty()?wounds:Stream.concat(wounds.stream(),marks.stream()).toList();
         render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
@@ -263,6 +264,10 @@ final class WoundRenderer {
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
                        boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
+        // Mechanical wounds, scars and heat now share the authored hair/skin renderer.
+        // The old stable dirt/mould projection remains responsible for its own status marks.
+        wounds=wounds.stream().filter(w->w.kind()!=WoundKind.SCAR).toList();
+        signs=signs.stream().filter(s->s.kind()!=WoundKind.CORE&&s.kind()!=WoundKind.CHAR&&s.kind()!=WoundKind.PASTE).toList();
         if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
         if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||!geometry.expression.equals(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,

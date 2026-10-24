@@ -68,7 +68,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if(distress==null&&(boat=entity.vehicleHat())!=null
                 &&(boat.rocking()||boat.capsizing()))expression=!entity.isBaby()?"surprise":"teary";
         expression=AgitationPresentation.expression(entity,expression);
-        return MCYukkuri.id("textures/entity/" + entity.assetId() + "/" + expression + ".png");
+        return HairWoundAssets.texture(entity.assetId(),expression,HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
     }
 
     @Override

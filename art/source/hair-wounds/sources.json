@@ -1,0 +1,237 @@
+{
+  "policy": "Every authored sample names its actual cause. Code proves a project damage path, not an original-work visual reference. User rules override code. Grade dimensions and colors remain authored project design, not sourced facts. Minecraft source routing takes priority over the existing four project enums; mc-damage-map.json covers the inspected registry.",
+  "references": {
+    "user_thermal": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：足部或全身烧伤；焦枯纹理；全身高度不变、宽度收窄成干瘦，参考灵胖脸部绘制方法强化干感；烧伤整体重做，去掉双下巴描线，以焦枯材质表达，咬伤齿间不连线，每轮独立 subagent 审图",
+      "supports": "Only sole and whole-body thermal scopes; no isolated scalp burn or thermal core-hole sample."
+    },
+    "user_hair": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：砸击随体表凹陷，裂伤处断发直接消失，不做散落头发",
+      "supports": "Shared dent deformation and local severing only at a genuine break."
+    },
+    "user_filling": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：中枢馅与周边材质区别过强、边界感太强",
+      "supports": "Continuous material family without an isolated organ-like shell."
+    },
+    "injury_code": {
+      "type": "project_code",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/body/InjuryModel.java",
+      "symbols": [
+        "kind",
+        "underfoot",
+        "severity"
+      ],
+      "supports": "Actual damage-source mapping and project grades; not a visual authority."
+    },
+    "body_signs": {
+      "type": "project_code",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/body/BodySigns.java",
+      "symbols": [
+        "open",
+        "deep"
+      ],
+      "supports": "Existing mechanical opening grades; does not authorize arbitrary thermal holes."
+    },
+    "body_l36": {
+      "type": "repository_source_extract",
+      "path": "wiki/hakkei-reference/lore/entities-sources.md",
+      "url": "https://komicolle.org/c/40720",
+      "locator": "L36 身体与面皮、足部与行动、馅与中枢馅",
+      "supports": "Elastic skin, heat-damaged sole and deep central filling. Original page timed out during this review; repository extract only."
+    },
+    "dense_filling_e01": {
+      "type": "author_specific_work",
+      "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
+      "locator": "2.1 餡／餡密度",
+      "supports": "Central filling described as denser filling; not a differently colored organ. Read on 2026-10-22; author labels the work personal setting. Numerical proportions are not adopted."
+    },
+    "minecraft_1211": {
+      "type": "minecraft_source",
+      "path": "standards/yukkuri-library/drafts/body-marks/hair-wounds/mc-damage-map.json",
+      "locator": "DamageTypes registry plus actual projectile and damage callers; exact source paths and hashes inside",
+      "supports": "Actual available Minecraft damage mechanisms; not a visual reference."
+    },
+    "operation_friction": {
+      "type": "project_code",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java",
+      "symbols": [
+        "tick",
+        "strike"
+      ],
+      "supports": "ROLL/SLIDE accumulate actual grounded movement times floor roughness; threshold strike deducts accepted health. Pose alone is not a damage source."
+    },
+    "wiki_burn_eh16": {
+      "type": "repository_visual_reference",
+      "path": "wiki/art-references/ehentai/images/EH16/008.webp",
+      "locator": "EH16-008 綾蔵／shku，茎上个体受灼烧画格；本轮直接核看原图",
+      "supports": "焦黑细点、烟熏与连续表皮，没有碎瓷状块面。仅采用材质语言，不采用局部火焰范围、幼体伤情或照抄原图。",
+      "sha256": "ce9718f51d8c299b70820debea0177795790de931732d0c4e62f4b267e86b78e"
+    },
+    "user_transparency": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：无底贴图，避免肤色边框误盖眼睛；烧伤不应像即将碎裂",
+      "supports": "No opaque skin-colored exterior; preserve organs outside actual injury; soot and desiccation instead of fracture plates."
+    },
+    "deibu_face": {
+      "type": "project_art_source",
+      "path": "standards/yukkuri-library/body-standard/features/deibu-mature/author.py",
+      "locator": "apply_style(atlas, boxes, expression, recipe)",
+      "supports": "在既有面部 UV 框内逐表情画眼睑、脸颊纹与唇纹；采用绘制方法，不照搬灵胖体型或成熟人设。"
+    },
+    "actual_grade": {
+      "type": "project_code",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/body/BodyLife.java",
+      "locator": "onHurt: accepted actual loss -> InjuryModel.severity; repeated-hit deepening; core visibility via BodySigns",
+      "supports": "伤级、合并旧伤与低血量阈值来自真实结算，不随机。"
+    },
+    "user_core_states": {
+      "type": "user_rule",
+      "locator": "2026-10-22 当前会话：中枢受损和取出空腔的贴图不需要",
+      "supports": "This authoring package exports ordinary wounds and intact exposed central filling only."
+    }
+  },
+  "causes": {
+    "friction_contact": {
+      "kind": "scratch",
+      "label": "滚动／拖行摩擦",
+      "evidence": [
+        "injury_code",
+        "body_signs",
+        "minecraft_1211",
+        "operation_friction"
+      ],
+      "locator": "OperationLife.tick actual movement/roughness -> strike(player,1); InjuryModel.kind ROLL/SLIDE -> SCRATCH",
+      "visual_boundary": "只在实际摩擦扣血后显示浅擦痕；普通滚动姿态本身不是 MC 伤害来源。",
+      "style": "scratch"
+    },
+    "blade_cut": {
+      "kind": "tear",
+      "label": "刀刃切割",
+      "evidence": [
+        "injury_code",
+        "body_signs",
+        "user_hair",
+        "minecraft_1211"
+      ],
+      "locator": "kind: SWORDS / cutting_knife -> TEAR",
+      "visual_boundary": "Directional split; these samples do not claim to depict tooth spacing, projectile entry or explosion damage.",
+      "style": "tear"
+    },
+    "blunt_impact": {
+      "kind": "dent",
+      "label": "钝击／落物压击",
+      "evidence": [
+        "injury_code",
+        "body_signs",
+        "user_hair",
+        "minecraft_1211"
+      ],
+      "locator": "kind: default DENT; crush: FALLING_ANVIL / FALLING_BLOCK",
+      "visual_boundary": "Compression precedes rupture; grade 1/2 preserve skin and hair topology.",
+      "style": "dent"
+    },
+    "hot_floor": {
+      "kind": "scorch",
+      "scope": "sole",
+      "label": "热地板接触足底",
+      "evidence": [
+        "user_thermal",
+        "injury_code",
+        "body_l36",
+        "minecraft_1211",
+        "wiki_burn_eh16",
+        "user_transparency"
+      ],
+      "locator": "underfoot: HOT_FLOOR; analyse: soleSite",
+      "visual_boundary": "Continuous underside and sole edge only; no scalp spot or thermal core hole."
+    },
+    "body_fire": {
+      "kind": "scorch",
+      "scope": "whole_body",
+      "label": "全身着火",
+      "evidence": [
+        "user_thermal",
+        "injury_code",
+        "minecraft_1211",
+        "wiki_burn_eh16",
+        "user_transparency",
+        "deibu_face",
+        "actual_grade"
+      ],
+      "locator": "kind: IS_FIRE -> SCORCH; whole-body extent required by current user rule",
+      "visual_boundary": "Whole body and hair share continuous heat damage. Existing runtime anchor still conflicts with this scope."
+    },
+    "arrow_impact": {
+      "kind": "tear",
+      "style": "puncture",
+      "label": "箭矢刺入",
+      "evidence": [
+        "minecraft_1211",
+        "injury_code",
+        "body_signs",
+        "user_hair"
+      ],
+      "locator": "DamageSources.arrow / AbstractArrow.onHitEntity",
+      "visual_boundary": "窄入口；高伤级不能凭空拓宽成露核洞。"
+    },
+    "wolf_bite": {
+      "kind": "tear",
+      "style": "bite",
+      "label": "狼的啃咬",
+      "evidence": [
+        "minecraft_1211",
+        "injury_code",
+        "body_signs",
+        "user_hair"
+      ],
+      "locator": "DamageSources.mobAttack plus attacker Wolf; InjuryModel.kind bite classification",
+      "visual_boundary": "由上下咬合范围形成参差缺损；不能把所有 mob_attack 都看作咬击。"
+    },
+    "explosion_impact": {
+      "kind": "tear",
+      "style": "blast",
+      "label": "TNT／苦力怕等爆炸",
+      "evidence": [
+        "minecraft_1211",
+        "injury_code",
+        "body_signs",
+        "user_hair"
+      ],
+      "locator": "DamageTypes.EXPLOSION / PLAYER_EXPLOSION; actual explosion event",
+      "visual_boundary": "受压、撕裂的破口；没有着火事件不额外叠加焦黑。"
+    },
+    "cactus_contact": {
+      "kind": "scratch",
+      "style": "thorn",
+      "label": "仙人掌尖刺接触",
+      "evidence": [
+        "minecraft_1211",
+        "user_hair"
+      ],
+      "locator": "CactusBlock.entityInside -> damageSources.cactus",
+      "visual_boundary": "项目设计的离散细刺痕；MC 不提供每根刺坐标，不伪称逐刺复现，三档增加已有接触范围内的密度。"
+    },
+    "dripstone_impact": {
+      "kind": "tear",
+      "style": "impale",
+      "label": "滴水石锥尖穿压",
+      "evidence": [
+        "minecraft_1211",
+        "user_hair",
+        "body_signs"
+      ],
+      "locator": "PointedDripstoneBlock.fallOn / getFallDamageSource",
+      "visual_boundary": "宽尖锥穿压的纵向楔口，与箭的窄口区分；方向由上方落锥／下方石笋真实接触决定。"
+    }
+  },
+  "runtime_gaps": [
+    "InjuryModel currently treats heated_awl as local SCORCH; incompatible with the current two-scope rule. No art is exported for that path.",
+    "IN_FIRE/LAVA currently use soleSite; fire context and whole-body coverage still need runtime integration.",
+    "BodySigns currently allows deep SCORCH to expose core; no corresponding thermal-only cavity is authored.",
+    "Cause-specific selection is not connected. Eight mechanical styles and two thermal scopes have three authored levels and explicit per-source coverage. MC supplies single entity hits rather than individual trident prongs or thorn coordinates; do not invent separate contacts.",
+    "Visual narrowing and dry expression atlases are authored only; current source examples read real grade constants but do not replace runtime source routing."
+  ]
+}
