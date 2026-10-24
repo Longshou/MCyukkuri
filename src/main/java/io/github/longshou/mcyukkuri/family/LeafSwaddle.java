@@ -36,8 +36,8 @@ import net.minecraft.world.phys.Vec3;
 public final class LeafSwaddle {
     /** Parents who make and put on a wrap: friendliness and intelligence at least these (project design). */
     public static final int MAKER_FRIENDLINESS = 60, MAKER_INTELLIGENCE = 50;
-    /** Leaf blocks harvested and folded into one wrap. */
-    public static final int LEAVES_PER_WRAP = 2;
+    /** Leaf blocks harvested for one wrap: the swaddle is a single leaf worn like a diaper (user ruling, docs/CHILDHOOD_LIFECYCLE.md). */
+    public static final int LEAVES_PER_WRAP = 1;
     /** A closed wrap asks for care from this bowel load (the ordinary toilet minimum); at the urgent load it soils the wrap. */
     public static final int CARE_URGE = 40, SOIL_URGE = 90;
     /** Stool loads a wrap holds; a further load overflows onto the ground. */
@@ -103,7 +103,7 @@ public final class LeafSwaddle {
         if (pollWait > 0) pollWait--;
         tickCarry();
         if (!worn) return;
-        String off = entity.family().adult() || entity.childhood().canLiveIndependently() ? "outgrown"
+        String off = !swaddleAge(entity) ? "outgrown"
                 : entity.isOnFire() ? "fire" : entity.isInWaterOrBubble() ? "water" : entity.pet().care().swaddled() ? "cloth_swaddle"
                 : open && ++openClock > OPEN_LIMIT ? "left_open" : null;
         if (off != null) { remove(off); return; }
@@ -297,13 +297,18 @@ public final class LeafSwaddle {
 
     private boolean dependentInRange() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SEARCH_RADIUS),
-                child -> entity.family().caresFor(child) && !child.childhood().canLiveIndependently() && !child.pet().care().swaddled()
+                child -> entity.family().caresFor(child) && swaddleAge(child) && !child.pet().care().swaddled()
                         && !child.profile().aquatic() && !child.profile().houseBody() && !child.profile().dangerToYukkuri()).isEmpty();
     }
 
-    /** A bare dependent land child on its own feet, after its first toilet, who does not need to go right now. */
+    /** Only a baby (赤油) or a young child (子油) wears the leaf: a subadult or an adult does not, whether or not it lives on its own yet. */
+    static boolean swaddleAge(YukkuriEntity child) {
+        return !child.family().adult() && !child.family().subadult();
+    }
+
+    /** A bare dependent land baby or young child on its own feet, after its first toilet, who does not need to go right now. */
     private static boolean wrapCandidate(YukkuriEntity child) {
-        return !child.leafSwaddle().worn && !child.family().adult() && !child.childhood().canLiveIndependently()
+        return !child.leafSwaddle().worn && swaddleAge(child)
                 && child.childhood().landed() && child.childhood().firstToiletDone() && child.getVehicle() == null
                 && !child.pet().care().swaddled() && !child.profile().aquatic() && !child.profile().houseBody()
                 && !child.profile().dangerToYukkuri() && child.life().bladder() < CARE_URGE;

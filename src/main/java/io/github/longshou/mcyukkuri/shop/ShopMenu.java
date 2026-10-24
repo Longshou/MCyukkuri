@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.human.HumanMenu;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -415,10 +416,13 @@ public final class ShopMenu extends AbstractContainerMenu {
         if(!room(p))return refused(p,"buy_good","inventory_full");
         int stockBefore=stocks.stock(level,shopId(),good), delivered=stack.getCount();
         var item=stack.getItem();
+        // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/PET_SHOP.md).
+        var style=stack.is(ModItems.SWADDLE_CLOTH.get())?SwaddleStyle.random(level.random):null;
+        if(style!=null)style.apply(stack);
         if(!stocks.take(level, shopId(), good))return refused(p,"buy_good","stock_changed");
         debit(p, Items.EMERALD, price); give(p, stack); stocks.useTrade(level, shopId(), p.getUUID());
-        GameplayLog.event(p,"shop","action=buy_good result=delivered shop={} item={} count={} emeralds_used={} stock={}->{}",
-                target.getUUID(),item,delivered,price,stockBefore,stocks.stock(level,shopId(),good));
+        GameplayLog.event(p,"shop","action=buy_good result=delivered shop={} item={} count={} style={} emeralds_used={} stock={}->{}",
+                target.getUUID(),item,delivered,style==null?null:style.id,price,stockBefore,stocks.stock(level,shopId(),good));
         return true;
     }
     /** Delivery order 0-2 of today. */

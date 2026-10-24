@@ -342,9 +342,9 @@ LEAF_BUSH = 'minecraft:oak_leaves[persistent=true]'
 
 
 def leaf_wrap(soil=0, open_=False):
-    """A wrap already on the child: two real oak leaves inside, ``soil`` stool loads held."""
+    """A wrap already on the child: one real oak leaf inside, ``soil`` stool loads held."""
     return (f'YukkuriLeafSwaddle:{{Worn:1b,Open:{1 if open_ else 0}b,Soil:{soil},'
-            'Material:[{id:"minecraft:oak_leaves",count:1},{id:"minecraft:oak_leaves",count:1}]}')
+            'Material:[{id:"minecraft:oak_leaves",count:1}]}')
 
 
 def leaf_reads(*names):
@@ -352,22 +352,23 @@ def leaf_reads(*names):
 
 
 add('leaf_swaddle', 'family', '树叶襁褓·制作、排便照护', '树叶襁褓',
-    '友善、聪明的亲油先照护两只已裹着树叶襁褓的子油：便意 55 的一只被解开（叶片铺在身下）、舔舐后排出一份便便、舔净、重新包好；'
-    '已积 2 份的一只解开时两份便便落地、脏叶作废，舔净后要另采叶子。随后亲油从左侧叶丛逐块衔下叶片（叶块真实消失）、原地折叠，'
-    '走到赤油和脏襁褓子油身后包上。右侧低友善亲油不制作。丢苹果喂子油可再次积起便意',
+    '友善、聪明的亲油先照护两只已裹着树叶襁褓的子油：便意 55 的一只被解开（这片叶摊在身下）、舔舐后排出一份便便、舔净、重新包好；'
+    '已积 2 份的一只解开时两份便便落地、脏叶作废，舔净后要另采叶子。随后亲油从左侧叶丛衔下一片叶（叶块真实消失）、原地整理，'
+    '走到赤油和脏襁褓子油身后包上：叶柄在身后油菊处，叶片兜过底部包到前下方排泄口。亚成油不包；右侧低友善亲油不制作。丢苹果喂子油可再次积起便意',
     '约 2–4 分钟（可倍速）', [
         yk('reimu', 0, 0, 'mom', yaw=-90, friendliness=85, intelligence=75, **pair_ready()),
         yk('reimu', 2, -2, 'baby', stage='baby', yaw=90, nutrition=90, hygiene=70),
         yk('reimu', 2, 1, 'kid', stage='child', yaw=90, lead=True, nutrition=80, bladder=55, hygiene=60, extra=leaf_wrap()),
         yk('reimu', 2, 3, 'kid_soiled', stage='child', yaw=90, nutrition=80, bladder=20, hygiene=45, extra=leaf_wrap(soil=2)),
-        *[f'yukkuri scenario kin {sel("mom")} {sel(k)} false' for k in ('baby', 'kid', 'kid_soiled')],
+        yk('reimu', 2, 5, 'teen', stage='teen', yaw=90, nutrition=80, bladder=10, hygiene=70),
+        *[f'yukkuri scenario kin {sel("mom")} {sel(k)} false' for k in ('baby', 'kid', 'kid_soiled', 'teen')],
         *[block(-4, 0, dz, LEAF_BUSH) for dz in (1, 2, 3, 4)], block(-3, 0, 4, LEAF_BUSH),
         yk('marisa', 10, 0, 'cold', yaw=-90, friendliness=20, intelligence=30, **pair_ready()),
         yk('reimu', 12, 0, 'cold_baby', stage='baby', yaw=90, nutrition=90, hygiene=70),
         f'yukkuri scenario kin {sel("cold")} {sel("cold_baby")} false',
         block(9, 0, 3, LEAF_BUSH), block(10, 0, 3, LEAF_BUSH)],
     give=['minecraft:apple 4'], env=DAY, spot='leaf_swaddle', vantage=(5, 10),
-    reads=leaf_reads(('亲油', 'mom'), ('赤油', 'baby'), ('便意子油', 'kid'), ('积便子油', 'kid_soiled'), ('低友善亲油', 'cold')))
+    reads=leaf_reads(('亲油', 'mom'), ('赤油', 'baby'), ('便意子油', 'kid'), ('积便子油', 'kid_soiled'), ('亚成油', 'teen'), ('低友善亲油', 'cold')))
 
 _fd = {k: uid('family_distance', k) for k in ('parent_near', 'child_near', 'parent_bold', 'child_bold')}
 add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',
@@ -871,6 +872,20 @@ add('transport', 'town', '运输与动手', '运输动手', '喷弹珠汽水喷�
 
 add('walker', 'town', '牵宠散步', '牵宠散步', '爱派居民（哥哥和姐姐）牵着拴了绳的宠物灵梦在街上散步', '持续', [
     'yukkuri human walker ~ ~ ~ brother', 'yukkuri human walker ~6 ~ ~ sister', LEAD_ANY], vantage=(0, 12))
+
+SWADDLE_STYLES = ('frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral')
+add('swaddle_styles', 'town', '布襁褓八款', '布襁褓款式',
+    '自家赤油、子油（灵梦、魔理沙、爱丽丝）各一只：用不同款式的襁褓布右键给它们包上，护理菜单“解开”取回同款；'
+    '看八款的外观（奶油针织交叠襟、荷叶边蝴蝶结、背后首字母、虎纹、外出胶底挎包、厚绒绒球、格纹、碎花）与图标是否一致。'
+    '另给两块原色襁褓布和八种染料，在工作台用“襁褓布＋染料”合成改款', '随意', [
+        yk('reimu', 0, 0, 'wrap_baby', stage='baby', lead=True, nutrition=90, energy=100, hygiene=100),
+        yk('marisa', 2, 0, 'wrap_kid', stage='child', nutrition=90, energy=100, hygiene=100),
+        yk('alice', 4, 0, 'wrap_alice', stage='child', nutrition=90, energy=100, hygiene=100),
+        *own('wrap_baby'), *own('wrap_kid'), *own('wrap_alice')],
+    give=['mcyukkuri:swaddle_cloth 2', 'minecraft:crafting_table 1',
+          *[f'mcyukkuri:swaddle_cloth[minecraft:custom_data={{SwaddleStyle:"{style}"}}] 1' for style in SWADDLE_STYLES],
+          *[f'minecraft:{dye}_dye 1' for dye in ('white', 'pink', 'red', 'orange', 'light_blue', 'brown', 'blue', 'green')]],
+    reads=[(f"读{label}襁褓", f"data get entity {sel(name)} YukkuriPet.Care") for label, name in (("赤油", "wrap_baby"), ("子油", "wrap_kid"), ("爱丽丝", "wrap_alice"))], vantage=(2, 8))
 
 add('harness_walk', 'town', '亲手牵引与照料', '亲手牵引',
     '先用胴带右键宠物，再用拴绳牵引；戴上后短暂回应即恢复活动。走动、停下喂食，再解绳观察它恢复日常', '随意', [
@@ -1759,7 +1774,7 @@ TOPICS = {
     'cargo_empty': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'capsize_siblings': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'swaddle_styles': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

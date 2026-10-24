@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.play.Playgrounds;
@@ -10,8 +11,10 @@ import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -36,6 +39,15 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(ModBlocks.DETACHED_STEM_ENTITY.get(),DetachedStemRenderer::new);
     }
 
+
+    /**
+     * The swaddle cloth's icon follows its style: property mcyukkuri:swaddle_style is (ordinal + .5) / 8, so the item model's overrides at
+     * k / 8 pick swaddle_cloth_<style> (models/item/swaddle_cloth.json).
+     */
+    public static void registerItemProperties(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ItemProperties.register(ModItems.SWADDLE_CLOTH.get(), MCYukkuri.id("swaddle_style"),
+                (stack, level, entity, seed) -> (SwaddleStyle.of(stack).ordinal() + .5f) / 8));
+    }
 
     public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(YukkuriModel.RELOAD);

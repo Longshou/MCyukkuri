@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "mcyukkuri:swaddle_style",
+  "ingredients": [
+    {
+      "item": "mcyukkuri:swaddle_cloth"
+    },
+    {
+      "item": "minecraft:red_dye"
+    }
+  ],
+  "result": {
+    "id": "mcyukkuri:swaddle_cloth",
+    "count": 1,
+    "components": {
+      "minecraft:custom_data": {
+        "SwaddleStyle": "letter"
+      }
+    }
+  }
+}

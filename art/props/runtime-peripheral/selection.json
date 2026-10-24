@@ -823,6 +823,41 @@
       "snapshot": "art/props/runtime-peripheral/selected/covered_toilet_navy/texture.png",
       "sha256": "cef33a61d61d9abd3d87c1863f015568869454c16e50547db084d9a54b8fdd9a",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_frill.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_frill.png",
+      "sha256": "5f2bd19eae5a1f56270c5998a9b3dd5b7d9f5dcdc51ba4d658fb897fcfa34aa8",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_letter.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_letter.png",
+      "sha256": "34c3d410f31c6e8cc1d0172b45904482fdcc2da1f452418de7844d491ed14a63",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_tiger.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_tiger.png",
+      "sha256": "d28aff076f932c9a16f07e155eb207ec27930f0bc66a7a7bac4b018edc822242",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_outing.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_outing.png",
+      "sha256": "30277fb67b57ab38c6cd4cf337877a7786bb6b09fd715c24a52c830e526e0c1c",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_fleece.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_fleece.png",
+      "sha256": "ce15dd2b784af6e67f321ab0469dd666efd4f081ccef825a85992d577a486c49",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_gingham.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_gingham.png",
+      "sha256": "3df93d7b77ab14f4ba21dc3b4f90fe2aa60a0cb6aad35261cfe42ad8ae87db8c",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
+    },
+    "generated:art/props/pet-goods/swaddle_cloth_floral.png": {
+      "snapshot": "art/props/pet-goods/swaddle_cloth_floral.png",
+      "sha256": "b9be62408f25c247dec27f3547c8b552a26d2b4fe497491ef63b39fd4b8ddcdf",
+      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }
   }
 }

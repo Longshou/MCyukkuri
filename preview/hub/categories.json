@@ -24,7 +24,7 @@
     ["^still$","life"]
   ],
   "actionLabels": {"boat_be_carried":"被亲油承托","boat_carry_young":"承托幼体","boat_prepare_carry":"准备承托","boat_release_carry":"放下幼体","boat_toilet":"帽沿排便","braid_reach_low":"低位伸辫","care_finish":"照料收尾","feed_child":"递喂幼体","first_toilet_assist":"辅助首便","fur_sway":"多毛摇摆","hat_walk":"帽沿移动","house_carry":"夹絮搬运","house_crawl":"家油爬行","house_deposit":"放下物资","house_pickup":"俯身夹取","learn_jump":"练习跳跃","learn_watch":"观察学习","nest_harvest":"收集巢材","nest_place":"放置巢材","nest_press":"压实巢材","nest_spread":"铺开巢材","newborn_crawl":"新生爬行","predator_bite":"捕咬","predator_dive":"俯冲","predator_fly":"飞行","predator_land":"降落","shell_sway":"壳体摇摆","still":"静止","water_hat_over":"越过帽缘","water_hat_pull":"拉近帽子","water_held_breath":"被托住后喘息"},
-  "chapters": {"care-props-vanilla":"life","pet-goods-styles":"life","voices":"social"},
+  "chapters": {"care-props-vanilla":"life","pet-goods-styles":"life","swaddle-leaf-cloth":"family","voices":"social"},
   "scenarioOverrides": {"factory_wear":"human","pet_birth":"family","house_health":"house","balance_forms":"species","balance_deibu":"species","balance_growth":"family"},
   "excludeItems": {"leaked_filling":"仅旧存档兼容占位，不作为当前可获取物品展示"},
   "previewGaps": [

@@ -5,8 +5,10 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -36,6 +38,7 @@ public final class PetCare {
     private int day = Integer.MIN_VALUE, snacks, habits, habitLeft;
     private long askUntil;
     private boolean harness, swaddle;
+    private SwaddleStyle swaddleStyle = SwaddleStyle.KNIT;
     private UUID habitCard;
 
     public PetCare(YukkuriEntity animal) { this.animal = animal; requests = new PetRequests(animal); walk = new PetWalk(animal); }
@@ -45,8 +48,11 @@ public final class PetCare {
     // worn gear: the harness (a body band with a back ring for the lead, never the accessory) and the swaddle (a warming cloth for the young)
     public boolean harnessed() { return harness; }
     public boolean swaddled() { return swaddle; }
-    /** Bit 0 harness, bit 1 swaddle: what the client draws and what the lead check reads (the leaf swaddle adds its own bits, YukkuriEntity.wornBits). */
-    public int wearBits() { return (harness ? 1 : 0) | (swaddle ? 2 : 0); }
+    /**
+     * Bit 0 harness, bit 1 swaddle, bits 6-8 the swaddle's style: what the client draws and what the lead check reads (the leaf swaddle
+     * adds its own bits, YukkuriEntity.wornBits).
+     */
+    public int wearBits() { return (harness ? 1 : 0) | (swaddle ? 2 | swaddleStyle.ordinal() << 6 : 0); }
     private void syncWear() { animal.syncWear(); }
     private void say(Player player, String key) { player.displayClientMessage(Component.translatable("pet.mcyukkuri." + key, animal.getDisplayName()), true); }
     /** Whether this player may lead the pet right now (its owner, harness on, not busy): the lead guard asks this before vanilla ties the lead. */
@@ -80,8 +86,9 @@ public final class PetCare {
         String why = !pet.isPet() || !pet.owned(player) ? "not_yours" : swaddle ? "already" : !swaddleAge() ? "too_old" : player.distanceToSqr(animal) > 9 ? "too_far"
                 : animal.isInWaterOrBubble() || animal.isOnFire() || animal.isPanicking() ? "not_calm" : null;
         if (why != null) { say(player, "swaddle.refuse." + why); return false; }
-        swaddle = true; wearOwner = player.getUUID(); swaddleClock = 0; syncWear();
+        swaddle = true; swaddleStyle = SwaddleStyle.of(stack); wearOwner = player.getUUID(); swaddleClock = 0; syncWear();
         if (!player.getAbilities().instabuild) stack.shrink(1);
+        GameplayLog.event(animal, "interaction", "swaddle on player={} style={}", player.getUUID(), swaddleStyle.id);
         pet.contact(player.getUUID(), true);
         animal.showReaction("happy", "swaddle_on", 80);
         requests.answer(PetRequests.Kind.WARM);
@@ -91,7 +98,8 @@ public final class PetCare {
     public boolean takeOffSwaddle(Player player) {
         if (!swaddle || !animal.pet().owned(player)) return false;
         swaddle = false; syncWear();
-        giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), player);
+        giveBack(swaddleStyle.stack(), player);
+        GameplayLog.event(animal, "interaction", "swaddle off reason=owner player={} style={}", player.getUUID(), swaddleStyle.id);
         return true;
     }
     /** Only a baby or young one that cannot live independently yet is swaddled; adults never. */
@@ -129,7 +137,7 @@ public final class PetCare {
         if (animal.level().isClientSide) return;
         if (animal.isLeashed()) animal.dropLeash(true, true);
         if (harness) animal.spawnAtLocation(new ItemStack(ModItems.PET_HARNESS.get()));
-        if (swaddle) animal.spawnAtLocation(new ItemStack(ModItems.SWADDLE_CLOTH.get()));
+        if (swaddle) { animal.spawnAtLocation(swaddleStyle.stack()); GameplayLog.event(animal, "interaction", "swaddle off reason=death dropped=1 style={}", swaddleStyle.id); }
         harness = false; swaddle = false; syncWear();
     }
     /** Any session lock (exam, lesson, sale, matchmaking) and carrier capture release the lead; the owner gets it back. */
@@ -140,7 +148,7 @@ public final class PetCare {
     }
     private void stripWear(Player preferred) {
         if (harness) giveBack(new ItemStack(ModItems.PET_HARNESS.get()), preferred);
-        if (swaddle) giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), preferred);
+        if (swaddle) { giveBack(swaddleStyle.stack(), preferred); GameplayLog.event(animal, "interaction", "swaddle off reason=owner_changed style={}", swaddleStyle.id); }
         harness = false; swaddle = false; syncWear();
     }
     private void tickWear() {
@@ -151,7 +159,9 @@ public final class PetCare {
         if (swaddle) {
             // The cloth comes off by itself once the young one can live on its own, or when it is soaked or burning; the owner gets it back.
             if (animal.tickCount % 20 == 5 && (!animal.pet().isPet() || !swaddleAge() || animal.isInWaterOrBubble() || animal.isOnFire())) {
-                swaddle = false; syncWear(); giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), null);
+                swaddle = false; syncWear(); giveBack(swaddleStyle.stack(), null);
+                GameplayLog.event(animal, "interaction", "swaddle off reason={} style={}", !animal.pet().isPet() ? "not_pet" : !swaddleAge() ? "outgrown"
+                        : animal.isOnFire() ? "fire" : "water", swaddleStyle.id);
             } else if (++swaddleClock >= 1200) { swaddleClock = 0; animal.pet().addStress(-1); } // calms it: stress eases twice as fast while swaddled
         }
         if (animal.level().getGameTime() % 40 == 0 && animal.visibleWear() != animal.wornBits()) syncWear();
@@ -251,7 +261,7 @@ public final class PetCare {
     public CompoundTag save() {
         var tag = new CompoundTag();
         tag.putInt("Day", day); tag.putInt("Snacks", snacks); tag.putInt("Habits", habits);
-        tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.put("Requests", requests.save());
+        tag.putBoolean("Harness", harness); tag.putBoolean("Swaddle", swaddle); tag.putString("SwaddleStyle", swaddleStyle.id); tag.put("Requests", requests.save());
         tag.putInt("WalkUnits", walk.saveUnits()); tag.putDouble("WalkCarry", walk.carry()); if (wearOwner != null) tag.putUUID("WearOwner", wearOwner);
         return tag;
     }
@@ -259,7 +269,7 @@ public final class PetCare {
         day = tag.contains("Day") ? tag.getInt("Day") : Integer.MIN_VALUE;
         snacks = Math.clamp(tag.getInt("Snacks"), 0, 99); habits = Math.clamp(tag.getInt("Habits"), 0, 99);
         habitLeft = 0; habitCard = null; askUntil = 0;
-        harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); requests.load(tag.getCompound("Requests"));
+        harness = tag.getBoolean("Harness"); swaddle = tag.getBoolean("Swaddle"); swaddleStyle = SwaddleStyle.byId(tag.getString("SwaddleStyle")); requests.load(tag.getCompound("Requests"));
         walk.load(tag.getInt("WalkUnits"), tag.getDouble("WalkCarry")); wearOwner = tag.hasUUID("WearOwner") ? tag.getUUID("WearOwner") : null;
     }
 }

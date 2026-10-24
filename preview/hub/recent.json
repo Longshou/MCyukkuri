@@ -43,6 +43,36 @@
       "source": "standards/yukkuri-library/drafts/care-props/README.md"
     },
     {
+      "id": "swaddle-leaf-cloth",
+      "label": "树叶襁褓与布襁褓",
+      "title": "一片叶做的树叶襁褓与八款布襁褓",
+      "tag": "美术与玩法·待试玩",
+      "summary": "树叶襁褓改为一片叶：叶柄端在身后油菊处，从后兜过底部包到前下方排泄口，叶尖在嘴下；只给赤油、子油。布襁褓同一物品分八款（奶油针织、荷叶边蝴蝶结、首字母、虎纹、外出款、防寒厚绒、格纹、碎花），贴身包住下身。离线渲染并按游戏视角左右翻转，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "亲油真实采一块叶、整理、包裹；包着时须亲油解开、辅助排便、舔净、包回，解开时同一片叶摊在身下。",
+        "积便从叶片底部起染色，最多 3 份后溢出；亚成油不包。",
+        "布襁褓款式存于物品数据，图标与身上外观同款；染料合成改款，商店随机交付。",
+        "试玩场：leaf_swaddle、leaf_swaddle_neglect、swaddle_styles。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "swaddle/leaf.png",
+          "label": "树叶襁褓：子油与赤油的正面、3/4、侧面、背面、跳跃、睡眠，解开摊叶与积便"
+        },
+        {
+          "src": "swaddle/cloth.png",
+          "label": "布襁褓八款：灵梦四面，魔理沙与爱丽丝"
+        },
+        {
+          "src": "swaddle/icons.png",
+          "label": "襁褓布八款图标、叶片、布料与装饰贴图"
+        }
+      ],
+      "source": "art/props/pet-goods/README.md"
+    },
+    {
       "id": "care-props-vanilla",
       "label": "照料设施基础网格",
       "title": "食盆、巢穴与厕所基础网格",

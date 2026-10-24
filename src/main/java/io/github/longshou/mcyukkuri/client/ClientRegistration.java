@@ -35,6 +35,7 @@ public final class ClientRegistration {
 
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ReadoutClientEvents::setup);
         modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, BodyEffectClientEvents::setup);
+        modBus.addListener(EventPriority.NORMAL, false, FMLClientSetupEvent.class, ClientEvents::registerItemProperties);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, DialogueAudio::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, EcologyAudio::tick);
