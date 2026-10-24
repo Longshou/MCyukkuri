@@ -203,9 +203,10 @@ CIRCLE = lambda segs: Outline(0, 0, 0, arc=segs // 4)
 
 
 # ---- surfaces -------------------------------------------------------------------------------------------------------
-def grid(b, part, P, UV, origin, closed, hint, smooth_rows=()):
+def grid(b, part, P, UV, origin, closed, hint, smooth_rows=(), around=True):
     """Quads between rows of points P[i][j] with texel coordinates UV[i][j] (UV rows hold one extra column when closed).
-    Face normals face hint(i, j); vertex normals average around, and across rows listed in smooth_rows."""
+    Face normals face hint(i, j); vertex normals average around (unless around=False: one flat facet per column),
+    and across rows listed in smooth_rows."""
     rows, cols = len(P), len(P[0])
     segs = cols if closed else cols - 1
     F = {}
@@ -221,7 +222,7 @@ def grid(b, part, P, UV, origin, closed, hint, smooth_rows=()):
 
     def vn(i, j, ri, cj):
         rs = [ri - 1, ri] if ri in smooth_rows else [i]
-        cs = [cj - 1, cj]
+        cs = [cj - 1, cj] if around else [j]
         acc = [0.0, 0.0, 0.0]
         for r in rs:
             for c in cs:
@@ -240,7 +241,7 @@ def grid(b, part, P, UV, origin, closed, hint, smooth_rows=()):
             b.p.tri(part, [pts[a], pts[c], pts[d]], [nrm[a], nrm[c], nrm[d]], None, uvs=[uvs[a], uvs[c], uvs[d]])
 
 
-def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None, ref=None, inward=False):
+def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None, ref=None, inward=False, facet=False):
     """Band surface: profile [(offset, y, v)] in order bottom-outer -> over the top -> inner-down, around the outline.
     The painted band `img` wraps around (u = distance at offset `ref`), v is the given row coordinate."""
     closed = cols is None
@@ -263,7 +264,7 @@ def revolve(b, part, outline, profile, key, img, smooth=(), ymap=None, cols=None
         s = outline.samples[idx[j]]
         n = [s[2] * a, c, s[3] * a]
         return [-x for x in n] if inward else n
-    grid(b, part, P, UV, origin, closed, hint, smooth)
+    grid(b, part, P, UV, origin, closed, hint, smooth, around=not facet)
 
 
 def cap(b, part, outline, rings, key, img, down=False, ymap=None, centre=None, cols=None):

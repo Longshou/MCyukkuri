@@ -81,7 +81,7 @@ STAR = ['.x.', 'xxx', '.x.']
 MOTIFS = {      # 16 px floor prints (top view, -z at the top)
     'heart': (['.x.x.', 'xxxxx', 'xxxxx', '.xxx.', '..x..'], {'x': RED[3]}),
     'anchor': (['..x..', '.xxx.', '..x..', 'x.x.x', '.xxx.'], {'x': NAVY[3]}),
-    'paw': (['.x.x.', 'x...x', '.....', '.xxx.', '.xxx.'], {'x': BROWN[2]}),
+    'paw': (['..x.x..', 'x.....x', '.......', '..xxx..', '.xxxxx.', '..xxx..'], {'x': BROWN[1]}),
     'clover': (['x.x', '.s.', 'x.x'], {'x': MINT[3], 's': MINT[2]}),
     'flower': (['.p.', 'pcp', '.p.'], {'p': TERRA[3], 'c': LEMON[3]}),
     'star': (['..x..', 'xxxxx', '.xxx.', '.x.x.'], {'x': LEMON[3]}),
@@ -89,25 +89,27 @@ MOTIFS = {      # 16 px floor prints (top view, -z at the top)
 
 
 def glaze_band(style, w, key):
+    """Four steps per material: the rim top is the lit band, the inside wall just under the rim is shaded so the rim reads
+    as an outline, the foot is the darkest step (contact line), belly and inside wall carry 8% one-step grain."""
     belly, step, lip, inside, foot, _ = GLAZES[style]
     rim = lip if lip is not belly else belly
     img = canvas(w, GLAZE_ROWS, belly[step])
     for x in range(w):
         put(img, x, 0, inside[2])
-        put(img, x, 1, inside[2])
-        put(img, x, 2, inside[3])
-        put(img, x, 3, rim[3])
-        put(img, x, 4, rim[4])
-        put(img, x, 8, foot[1] if foot is CLAY else foot[2])
-    grain(img, inside, key + 'in', .08, rows=range(0, 3))
-    grain(img, belly, key, .04, rows=range(6, 8))
-    if style == '':                          # classic: cream shoulder above a mint belly, scalloped where they meet
+        put(img, x, 1, inside[3])
+        put(img, x, 2, inside[1])
+        put(img, x, 3, rim[4])
+        put(img, x, 4, rim[3] if x % 7 else rim[4])
+        put(img, x, 7, belly[max(0, step - 1)])
+        put(img, x, 8, foot[0])
+    if style == '':                          # classic: cream shoulder above a mint belly
         for x in range(w):
             put(img, x, 5, CREAM[3])
             put(img, x, 6, MINT[3] if x % 6 == 0 else MINT[2])
     elif style in ('hearts', 'pink'):        # hearts all round (EH23: a pet's bowl lettered with hearts)
         for x in range(0, w, 8):
             stamp(img, x + 1, 5, ['xx.xx', 'xxxxx', '.xxx.'], {'x': RED[2] if style == 'hearts' else WHITE[4]})
+            put(img, x + 1, 5, RED[3] if style == 'hearts' else WHITE[4])
     elif style == 'polka':                   # white dots, staggered
         for x in range(w):
             for y, phase in ((5, 0), (6, 3), (7, 0)):
@@ -123,7 +125,6 @@ def glaze_band(style, w, key):
                 put(img, x, 7, BROWN[3])
     elif style == 'terracotta':              # cream glaze runs down from the lip over bare clay
         r = rng(key + 'drip')
-        grain(img, TERRA, key + 'clay', .14, rows=range(5, 8))
         for x in range(w):
             run = r.choice((1, 1, 1, 1, 2, 3)) if x % 3 else 1
             for y in range(5, 5 + run):
@@ -132,19 +133,21 @@ def glaze_band(style, w, key):
         r = rng(key + 'st')
         for x in range(w):
             if r.random() < .25:
-                for y in range(5, 8):
+                for y in range(5, 7):
                     put(img, x, y, STEEL[4])
-            if r.random() < .2:
-                put(img, x, 1, STEEL[3])
     elif style == 'navy':                    # pin-point yellow stars on navy
         for x in range(w):
             if x % 5 == 1:
                 put(img, x, 5 + (x // 5) % 3, LEMON[4])
+    grain(img, inside, key + 'in', .08, rows=range(0, 2))
+    grain(img, belly, key, .08, rows=range(5, 8))
+    if style == 'terracotta':
+        grain(img, TERRA, key + 'clay', .1, rows=range(5, 8))
     return img
 
 
-def glaze_floor(style, size=16, motif=True):
-    """Floor top view: speckled inside glaze with a small print in the middle (bowls only)."""
+def glaze_floor(style, size=16, motif=True, radius=4.6):
+    """Floor top view: inside glaze with 8% grain and a small print (bowls); the shaded contact is on the wall band."""
     inside, print_ = GLAZES[style][3], GLAZES[style][5]
 
     def paint(x, z, r):
@@ -154,7 +157,7 @@ def glaze_floor(style, size=16, motif=True):
         if motif and print_ == 'brushed' and v % 4 == 0 and (u + v) % 5:
             return '#d4dbe1'
         return inside[3]
-    img = grain(top_view(size, paint), inside, 'floor' + style, .05, up=0)
+    img = grain(top_view(size, paint), inside, 'floor' + style, .08)
     if motif and print_ in MOTIFS:
         rows, legend = MOTIFS[print_]
         stamp(img, (size - len(rows[0]) + 1) // 2, (size - len(rows)) // 2, rows, legend, wrap=False)
@@ -164,7 +167,7 @@ def glaze_floor(style, size=16, motif=True):
 # =====================================================================================================================
 # Food bowl: 14 across, 3 high, interior floor at y 1 (fills start there). Round like the wiki bowls, with an upright
 # outer wall so the pattern shows, a rolled lip and a broad foot.
-BOWL_SEGS = 24
+BOWL_SEGS = 16
 BOWL = [(6.1, 0.0, 9), (6.45, .4, 8), (6.6, 1.0, 7), (6.85, 2.3, 5), (7.0, 2.65, 4.5), (6.85, 3.0, 4), (5.9, 3.0, 3),
         (5.55, 2.0, 2), (5.1, 1.25, 1), (4.6, 1.0, 0)]
 BOWL_FLOOR_Y = 1.0
@@ -174,7 +177,7 @@ BOWL_FLOOR_R = 4.6
 def bowl_shell(b, style, key):
     o = CIRCLE(BOWL_SEGS)
     part = b.part('bowl')
-    revolve(b, part, o, BOWL, 'glaze', glaze_band(style, 48, key), smooth=(2, 3, 4, 7, 8), ref=6.3)
+    revolve(b, part, o, BOWL, 'glaze', glaze_band(style, 48, key), smooth=(2, 3, 4, 7, 8), ref=6.3, facet=True)
     cap(b, part, o, [(BOWL_FLOOR_R, BOWL_FLOOR_Y)], 'floor', glaze_floor(style), centre=BOWL_FLOOR_Y)
     cap(b, part, o, [(6.1, 0.0)], 'foot', canvas(4, 4, GLAZES[style][4][1]), down=True, centre=0.0)
 
@@ -290,13 +293,6 @@ def wheat_ear():
     return img
 
 
-def grass_blades():
-    """Two cut blades side by side (cut-out), lighter toward the lifted tips."""
-    img = canvas(7, 2)
-    stamp(img, 0, 0, ['ddggglL', '.dgggl.'], {'d': CLIP[1], 'g': CLIP[2], 'l': CLIP[3], 'L': CLIP[4]}, wrap=False)
-    return img
-
-
 def food_bowl_regular():
     """Oil-grain kibble heap; each portion also drops two loose pellets on its surface."""
     b = Build('food_bowl_regular')
@@ -339,39 +335,58 @@ def food_bowl_wheat():
     return b.finish()
 
 
+def grass_tuft():
+    """A tuft of cut blades (cut-out): pale cut ends at the root, darker green toward the tips."""
+    img = canvas(4, 5)
+    stamp(img, 0, 0, ['d..d', 'd.dm', 'mdm.', '.mml', '.ll.'], {'d': CLIP[2], 'm': CLIP[3], 'l': CLIP[4]}, wrap=False)
+    return img
+
+
 def food_bowl_forage():
-    """Cut grass heap; each portion leaves a few loose blades curling up off the top."""
+    """Cut grass heap; each portion adds two small crossed tufts of blades standing out of the heap."""
     b = Build('food_bowl_forage')
     fill_heaps(b, 'clippings', grass_tile(), lump=.2)
+    tuft = grass_tuft()
     for k in range(1, 9):
-        R = min(FILL_R[k - 1], FILL_CLIP)
-        laid(b, b.part(f'grass_blades_u{k}', k), 'blades', grass_blades(), k, 2 if k < 3 else 3, min(5.0, 1.3 * R), 1.4,
-             'blades', .25 + .1 * k)
+        part = b.part(f'grass_tufts_u{k}', k)
+        r = rng('tufts' + str(k))
+        R = min(FILL_R[k - 1], FILL_CLIP) * .6
+        for _ in range(2):
+            a, rr = r.uniform(0, 2 * math.pi), r.uniform(.1, 1) * R
+            x, z = rr * math.cos(a), rr * math.sin(a)
+            y = heap_y(k, rr) - .4
+            for yaw in (a + .4, a + .4 + math.pi / 2):
+                dx, dz = math.cos(yaw) * 1.2, math.sin(yaw) * 1.2
+                sprite(b, part, [[x - dx, y + 2.6, z - dz], [x + dx, y + 2.6, z + dz], [x + dx, y, z + dz], [x - dx, y, z - dz]],
+                       'tuft', tuft)
     return b.finish()
 
 
 # =====================================================================================================================
-# Pet cushion nest (1x1, overhanging to 20 across; CareBlock.nestShape): a round soft bolster 3 high around a puffy
-# cushion at y 2 (EH23's round raised-rim cushion); across the north (-z) entrance the bolster sinks to the cushion.
-NEST_SEGS = 32
-NEST_BOLSTER = [(9.55, 0.0, 0), (10.0, .7, 1), (10.0, 2.1, 3), (9.75, 2.6, 4), (9.0, 2.98, 5), (8.1, 3.05, 6),
-                (7.4, 2.85, 7), (7.0, 2.45, 8), (6.9, 2.0, 9)]
-NEST_CUSHION = [(6.9, 2.0), (5.6, 2.12), (3.6, 2.22), (1.6, 2.28)]
+# Pet cushion nest (1x1, overhanging to 20 across; CareBlock.nestShape): a thick round cushion roll 5 high and 4.5 wide
+# (EH23's round raised-rim cushion) with piping on the outer shoulder, round a quilted cushion pad at y 2; across the north
+# (-z) entrance the roll dips to a low rolled lip (U notch). Collision is unchanged (rim 3, pad 1.5), so the visual roll
+# stands about 2 above the collision rim.
+NEST_SEGS = 24
+NEST_ROLL = [(9.55, 0.0, 0), (9.95, .9, 1), (10.0, 2.0, 2), (9.85, 3.0, 3), (9.4, 3.95, 4), (8.7, 4.6, 5), (7.8, 5.0, 6),
+             (6.9, 4.85, 7), (6.15, 4.3, 8), (5.7, 3.5, 9), (5.55, 2.6, 10), (5.7, 2.05, 11)]
+NEST_CUSHION = [(5.7, 2.05), (5.0, 2.25), (3.5, 2.35), (1.5, 2.4)]
+NEST_CREST = 7.8
 
 
-def nest_dip(x, z, y, floor=2.0):
-    """North entrance (collision: rim 1.85 at r 8.8 falling to about .75 at r 10): the inside of the roll sinks to the
-    cushion, the outside of the roll slopes down to the ground like a ramp."""
+def nest_notch(x, z, y, floor=2.0, lip=2.6, top=5.0):
+    """U-shaped entrance: within about 35 degrees of north the roll sinks to a low rolled lip; the outer half scales toward
+    the ground, the inner half toward the cushion, meeting at the crest."""
     r = math.hypot(x, z)
     c = max(0.0, -z / r) if r > 1e-6 else 0.0
-    w = c ** 2
-    if r >= 8.9:
-        return y * (1 - .65 * w)
-    return floor + (y - floor) * (1 - .95 * w) if y > floor else y
+    w = smoothstep(.74, .89, c)
+    if r >= NEST_CREST:
+        return y * (1 - (1 - lip / top) * w)
+    return floor + (y - floor) * (1 - (1 - (lip - floor) / (top - floor)) * w) if y > floor else y
 
 
 NESTS = {
-    #           bolster ramp, cushion ramp
+    #           roll ramp, cushion ramp
     '':         (RED, CREAM),
     'gingham':  (SKY, WHITE),
     'polka':    (PINK, CREAM),
@@ -380,63 +395,68 @@ NESTS = {
     'teddy':    (BROWN, CREAM),
     'stars':    (NAVY, NAVY),
 }
-
-
 PIPING = {'': CREAM[4], 'gingham': SKY[1], 'polka': WHITE[4], 'floral': WHITE[4], 'lavender': LILAC[4], 'teddy': CREAM[3],
           'stars': LEMON[3]}
+ROLL_SHADE = [0, 2, 2, 3, None, 3, 4, 3, 2, 1, 0]     # contact, outer side, piping, crest (lit), inner side, tuck under
 
 
-def fabric_band(style, w, h, key):
-    """Cushion roll cover: rows 0-2 outer side, 3 piping cord on the outer shoulder, 4-5 top, 6-8 inner side."""
+def fabric_band(style, w, key):
+    """Cushion roll cover, 11 rows from the outer foot over the crest to the tuck at the pad: four steps of the fabric,
+    darkest at the ground and the tuck, lit along the crest, a piping cord on the outer shoulder, tufting dimples."""
     ramp, _ = NESTS[style]
-    shade = [1, 2, 2, 3, 3, 3, 3, 2, 1][:h]
+    h = len(ROLL_SHADE)
     img = canvas(w, h)
     for y in range(h):
         for x in range(w):
-            put(img, x, y, ramp[shade[y]])
-    if style == '':                          # strawberry: seed dots
-        for y in range(h):
+            put(img, x, y, ramp[ROLL_SHADE[y] if ROLL_SHADE[y] is not None else 3])
+    body = [y for y in range(1, h - 1) if y != 4]
+    if style == '':                          # strawberry: sparse seed dots
+        for y in body:
             for x in range(w):
-                if (x + 2 * (y % 2)) % 4 == 0 and 0 < y < h - 1 and y % 2:
-                    put(img, x, y, CREAM[4] if shade[y] >= 3 else CREAM[3])
+                if (x + 3 * (y % 2)) % 6 == 0 and y % 2:
+                    put(img, x, y, LEMON[3] if ROLL_SHADE[y] >= 3 else LEMON[2])
     elif style == 'gingham':                 # blue gingham: two-texel checks, darker where the bands cross
-        for y in range(h):
+        for y in body:
+            s = ROLL_SHADE[y]
             for x in range(w):
                 a, c = (x // 2) % 2, (y // 2) % 2
-                put(img, x, y, SKY[3] if a and c else SKY[4] if a or c else WHITE[4 if shade[y] >= 2 else 3])
+                put(img, x, y, SKY[max(1, s)] if a and c else SKY[min(4, s + 1)] if a or c else WHITE[max(1, s)])
     elif style == 'polka':
-        for y in range(h):
+        for y in body:
             for x in range(w):
                 if (x + 3 * ((y // 2) % 2)) % 6 == 0 and y % 2 == 1:
-                    put(img, x, y, WHITE[4] if shade[y] >= 2 else WHITE[2])
+                    put(img, x, y, WHITE[4] if ROLL_SHADE[y] >= 3 else WHITE[2])
     elif style == 'floral':                  # small white flowers with lemon centres on mint
-        for i, x in enumerate(range(0, w, 5)):
-            y = 1 + (i * 3) % (h - 2)
-            stamp(img, x, y - 1, ['.f.', 'fcf', '.f.'], {'f': WHITE[4], 'c': LEMON[3]})
+        for i, x in enumerate(range(0, w, 6)):
+            y = (2, 6, 8)[i % 3]
+            stamp(img, x, y - 1, ['.f.', 'fcf', '.f.'], {'f': WHITE[4] if y < 8 else WHITE[2], 'c': LEMON[3]})
     elif style == 'lavender':                # diamond quilting stitches
-        for y in range(h):
+        for y in body:
+            s = ROLL_SHADE[y]
             for x in range(w):
                 if (x + y) % 6 == 0 or (x - y) % 6 == 0:
-                    put(img, x, y, LAV[max(0, shade[y] - 1)])
-                elif (x + y) % 6 == 3 and (x - y) % 6 == 3:
-                    put(img, x, y, LAV[min(4, shade[y] + 1)])
+                    put(img, x, y, LAV[max(0, s - 1)])
     elif style == 'teddy':                   # plush: soft tufts
-        grain(img, BROWN, key, .45, up=.55)
+        grain(img, BROWN, key, .4, up=.55, rows=body)
     elif style == 'stars':                   # navy velvet with pin-point stars
         r = rng(key + 'stars')
-        for y in range(h):
+        for y in body:
             for x in range(w):
-                if r.random() < .04:
+                if r.random() < .05:
                     put(img, x, y, LEMON[4] if r.random() < .6 else WHITE[4])
-    if style != 'teddy':
-        grain(img, ramp, key + 'g', .05)
+    if style not in ('teddy', 'lavender', 'gingham'):     # tufting dimples: a dark stitch with a lit puff above it
+        for x in range(4, w, 8):
+            for y in (3, 7):
+                put(img, x, y, ramp[1])
+                put(img, x, y - 1, ramp[4])
+    grain(img, ramp, key + 'g', .07, rows=body)
     for x in range(w):                       # piping cord on the outer shoulder
-        put(img, x, 3, PIPING[style] if x % 3 else ramp[1] if style != 'stars' else LEMON[2])
+        put(img, x, 4, PIPING[style] if x % 3 else ramp[1])
     return img
 
 
-def cushion_top(style, size=16, radius=6.9):
-    """Quilted cushion seen from above: stitched diamonds with a lit puff in each."""
+def cushion_top(style, size=16, radius=5.7):
+    """Quilted pad seen from above: stitched diamonds with lit puffs, a dark seam ring where the pad meets the roll."""
     _, ramp = NESTS[style]
     seam = {'': PINK[2], 'gingham': SKY[2], 'polka': PINK[2], 'floral': MINT[2], 'lavender': LAV[2], 'teddy': BROWN[2], 'stars': LEMON[2]}[style]
 
@@ -444,35 +464,38 @@ def cushion_top(style, size=16, radius=6.9):
         if r > radius + .6:
             return None
         u, v = math.floor(x), math.floor(z)
-        if r > radius - .9:
-            return ramp[2]
-        if (u + v) % 6 == 3 or (u - v) % 6 == 3:              # stitched diamonds round a puff at the centre
+        if r > radius - .7:
+            return ramp[1]
+        if r > radius - 1.4:
+            return seam if (u + v) % 2 else ramp[2]
+        if (u + v) % 6 == 3 or (u - v) % 6 == 3:
             return seam if (u * 3 + v) % 4 == 0 else ramp[2]
-        if (u + v) % 6 == 0 and (u - v) % 6 == 0 and r > 2.5:
+        if (u + v) % 6 == 0 and (u - v) % 6 == 0:
             return ramp[4]
         return ramp[3]
-    return top_view(size, paint)
+    return grain(top_view(size, paint), ramp, 'cushion' + style, .07)
 
 
 def yukkuri_nest(style=''):
     b = Build(model_name('yukkuri_nest', style))
     o = CIRCLE(NEST_SEGS)
     part = b.part('nest')
-    revolve(b, part, o, NEST_BOLSTER, 'bolster', fabric_band(style, 64, 9, 'bolster' + style), smooth=range(1, 8),
-            ymap=nest_dip, ref=8.6)
-    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), ymap=nest_dip, centre=2.3)
-    cap(b, part, o, [(9.5, 0.0)], 'under', canvas(4, 4, NESTS[style][0][1]), down=True, centre=0.0)
+    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 48, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=7.8)
+    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=2.42)
+    cap(b, part, o, [(9.55, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
     return b.finish()
 
 
 # =====================================================================================================================
-# 2x2 woven family nest (large_nests.py exports it; collision CareBlock.largeNestShape): a rounded-square basket 31 across,
-# woven wall 1.25 thick and 3 high with a braided top, round a quilted floor at y 1 that puffs up along the wall. The
-# +z front opens down to the floor for |x| < 6 and climbs back to full height by |x| 12. No marked sleeping places.
+# 2x2 woven family nest (large_nests.py exports it; collision CareBlock.largeNestShape): a rounded-square basket 31 across
+# with a wicker wall 1.3 thick and 7 high at the back and sides, braided top, darker inside; the +z front opens down to
+# the floor for |x| < 6 and climbs back to full height by |x| 12. Inside lies a quilted pad with a stitched, rolled hem.
+# Collision is unchanged (rim 3, floor 1), so the visual wall stands about 4 above the collision rim.
 LARGE = Outline(15.5, 15.5, 7.0, arc=6, step=4.0)
-LARGE_WALL = [(0.0, 0.0, 0), (0.0, 1.2, 1.5), (0.0, 2.4, 3), (-.2, 2.85, 3.7), (-.62, 3.05, 4.4), (-1.05, 2.85, 5.1),
-              (-1.25, 2.4, 5.8), (-1.25, 1.95, 7)]
-LARGE_FLOOR = [(-1.25, 1.95), (-2.1, 1.8), (-3.0, 1.35), (-4.2, 1.08), (-6.5, 1.0)]
+LARGE_WALL = [(0.0, 0.0, 0), (0.0, 1.5, 1.5), (0.0, 3.0, 3), (0.0, 4.5, 4.5), (0.0, 6.0, 6), (-.2, 6.55, 6.6),
+              (-.65, 6.8, 7.3), (-1.1, 6.55, 8), (-1.3, 6.0, 8.7), (-1.3, 3.5, 9.8), (-1.3, 1.0, 11)]
+LARGE_HEM = [(-1.45, 1.0, 0), (-1.6, 1.45, 1), (-1.95, 1.72, 2), (-2.5, 1.8, 3)]
+LARGE_PAD = [(-2.5, 1.8), (-3.5, 1.76), (-6.0, 1.72)]
 
 
 def large_front(x, z, y, floor=1.0):
@@ -482,7 +505,7 @@ def large_front(x, z, y, floor=1.0):
 
 
 LARGES = {
-    #           weave ramp, braid ramp, floor ramp, seam
+    #           weave ramp, braid ramp, pad ramp, seam
     '':         (RED, PINK, CREAM, PINK[2]),
     'wicker':   (TAN, TAN, CREAM, TAN[2]),
     'mint':     (MINT, WHITE, WHITE, MINT[2]),
@@ -490,26 +513,40 @@ LARGES = {
 }
 
 
-def weave_band(style, w, h):
-    """Wicker: rows 0-2 outer wall and 6 inner wall are over-under weavers (three lit texels, a shaded crossing, offset by
-    two each row), rows 3-5 a braided rim of slanted strokes."""
+def weave_band(style, w):
+    """Wicker wall, 11 rows: 0 contact (darkest), 1-5 outer over-under weave (three lit texels and a shaded crossing,
+    offset by two each row), 6-8 braided rim (slanted strokes, lit on top), 9-10 inside one step darker."""
     weave, braid, _, _ = LARGES[style]
-    img = canvas(w, h, weave[2])
-    for y in range(h):
+    img = canvas(w, 11, weave[2])
+    for y in range(11):
         for x in range(w):
-            if y <= 2 or y >= 6:
+            if 1 <= y <= 5 or y >= 9:
                 k = (x + 2 * y) % 4
-                put(img, x, y, weave[1] if k == 3 else weave[3] if k == 0 else weave[2])
-            else:
+                v = weave[1] if k == 3 else weave[3] if k == 0 else weave[2]
+                if y >= 9:
+                    v = weave[0] if k == 3 else weave[2] if k == 0 else weave[1]
+                put(img, x, y, v)
+            elif y in (6, 7, 8):
                 k = (x + y) % 3
-                put(img, x, y, braid[3] if k == 0 else braid[2] if k == 1 else braid[1])
+                put(img, x, y, braid[4 if y == 7 else 3] if k == 0 else braid[2] if k == 1 else braid[1])
     for x in range(w):
-        put(img, x, 4, braid[4] if (x + 4) % 3 == 0 else braid[3])
+        put(img, x, 0, weave[0])
+        put(img, x, 10, weave[0])
+    return grain(img, weave, 'wicker' + style, .07, rows=range(1, 6))
+
+
+def hem_band(style, w):
+    _, _, ramp, seam = LARGES[style]
+    img = canvas(w, 3, ramp[2])
+    for x in range(w):
+        put(img, x, 0, ramp[0])
+        put(img, x, 1, ramp[2])
+        put(img, x, 2, seam if x % 2 else ramp[3])
     return img
 
 
 def large_floor(style, size=32):
-    """Quilted floor, low contrast so the basket reads first."""
+    """Quilted pad top, low contrast so the basket reads first."""
     _, _, ramp, seam = LARGES[style]
 
     def paint(x, z, r):
@@ -522,14 +559,16 @@ def large_floor(style, size=32):
         if (u + v) % 8 == 4 and (u - v) % 8 == 4:
             return ramp[4]
         return ramp[3]
-    return grain(top_view(size, paint), ramp, 'largefloor' + style, .05)
+    return grain(top_view(size, paint), ramp, 'largefloor' + style, .07)
 
 
 def large_yukkuri_nest(style=''):
     b = Build(model_name('large_yukkuri_nest', style))
     part = b.part('large_nest')
-    revolve(b, part, LARGE, LARGE_WALL, 'wall', weave_band(style, 108, 7), smooth=(3, 4, 5), ymap=large_front, ref=-.6)
-    cap(b, part, LARGE, LARGE_FLOOR, 'floor', large_floor(style), ymap=large_front, centre=1.0)
+    revolve(b, part, LARGE, LARGE_WALL, 'wall', weave_band(style, 108), smooth=(5, 6, 7, 8), ymap=large_front, ref=-.6)
+    revolve(b, part, LARGE, LARGE_HEM, 'hem', hem_band(style, 104), smooth=(1, 2), ref=-1.9)
+    cap(b, part, LARGE, LARGE_PAD, 'pad', large_floor(style), centre=1.7)
+    cap(b, part, LARGE, [(-1.3, 1.0)], 'floor', canvas(4, 4, LARGES[style][2][1]), centre=1.0)
     cap(b, part, LARGE, [(0.0, 0.0)], 'under', canvas(4, 4, LARGES[style][0][1]), down=True, centre=0.0)
     return b.finish()
 
@@ -550,14 +589,12 @@ PLASTICS = {
 
 def plastic_band(style, w, h):
     ramp, emblem, colour = PLASTICS[style]
-    rows = [2, 3, 4, 3, 3, 2]                 # inner wall, lip, lip top, outer wall (3 rows, darker at the floor)
+    rows = [1, 4, 3, 3, 2, 0]                 # inner wall at the sand (shaded), lit lip top, outer wall, contact line
     img = canvas(w, h)
     for y in range(h):
         for x in range(w):
             put(img, x, y, ramp[rows[y]])
-    for x in range(w):
-        put(img, x, 2, ramp[4] if x % 5 else ramp[3])        # glossy lip
-    return grain(img, ramp, 'plastic' + style, .04)
+    return grain(img, ramp, 'plastic' + style, .08, rows=range(2, 5))
 
 
 def sand_top(dirty, size=16):
@@ -566,12 +603,15 @@ def sand_top(dirty, size=16):
     def paint(x, z, _):
         if abs(x) > 6 or abs(z) > 5:
             return None
-        return SAND[r.choice((2, 2, 2, 2, 3, 3, 3, 1, 4))]
+        if abs(x) > 4.6 or abs(z) > 3.6:                     # shaded where the sand meets the wall
+            return SAND[1]
+        k = r.random()
+        return SAND[3] if k < .22 else SAND[1] if k < .3 else SAND[4] if k < .33 else SAND[2]
     img = top_view(size, paint)
     if dirty:
         for _ in range(8):                   # damp clumps
             x, y = r.randrange(3, 13), r.randrange(4, 12)
-            stamp(img, x, y, ['ab', 'bc'], {'a': STAIN[2], 'b': STAIN[1], 'c': STAIN[0]}, wrap=False)
+            stamp(img, x, y, ['ab', 'bc'], {'a': STAIN[1], 'b': STAIN[0], 'c': ANKO[1]}, wrap=False)
     return img
 
 
@@ -662,8 +702,8 @@ def potty(b, style, floor, rim, glaze=None):
     part = b.part('tray')
     notch = potty_notch(floor)
     revolve(b, part, POTTY, potty_profile(floor, rim), 'glaze', glaze_band(glaze, 48, 'potty' + glaze), smooth=(3, 4, 6, 7),
-            ymap=notch, ref=-.6)
-    cap(b, part, POTTY, [(-1.35, floor)], 'floor', glaze_floor(glaze, motif=False), centre=floor)
+            ymap=notch, ref=-.6, facet=True)
+    cap(b, part, POTTY, [(-1.35, floor)], 'floor', glaze_floor(glaze, motif=False, radius=5.6), centre=floor)
     cap(b, part, POTTY, [(-.4, 0.0)], 'foot', canvas(4, 4, GLAZES[glaze][4][1]), down=True, centre=0.0)
 
 
@@ -697,7 +737,7 @@ def hood_band(style, w, h):
             for x in range(w):
                 if r.random() < .06:
                     put(img, x, y, LEMON[4])
-    return grain(img, ramp, 'hood' + style, .05)
+    return grain(img, ramp, 'hood' + style, .08)
 
 
 def covered_toilet(style=''):

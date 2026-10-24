@@ -260,7 +260,7 @@
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_yukkuri_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_yukkuri_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_yukkuri_nest.json",
-        "role": "pet family bed: rounded-square woven basket, wicker wall 1.25 thick and 3 high with a braided rim, round a quilted floor at 1 that puffs up along the wall; front opening down to the floor; dye styles ship as runtime-peripheral attachments"
+        "role": "pet family bed: rounded-square woven basket, wicker wall 1.3 thick and 7 high at the back and sides (collision rim stays 3) with a braided top, a quilted pad with a rolled hem at about 1.7 inside; front opening down to the floor; dye styles ship as runtime-peripheral attachments"
       },
       "large_wild_nest": {
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
