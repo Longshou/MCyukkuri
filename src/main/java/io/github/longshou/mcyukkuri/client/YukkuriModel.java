@@ -944,7 +944,7 @@ public final class YukkuriModel {
             remainsSkinFrame=new float[]{(minX+maxX)/2,(minZ+maxZ)/2,Math.max(.001f,(maxX-minX)/2),Math.max(.001f,(maxZ-minZ)/2),minY,Math.max(.001f,maxY-minY)};
         }
         float[] f=remainsSkinFrame;float[] uv=new float[6];
-        var n=new Vector3f(),e=new Vector3f(),a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
+        Vector3f n=new Vector3f(),e=new Vector3f(),a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
         for(var part:parts){
             if(!bodySurface(part.name))continue;
             for(int first=part.start;first<part.start+part.count;first+=3){
