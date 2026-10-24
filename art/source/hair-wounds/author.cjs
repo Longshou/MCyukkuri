@@ -78,7 +78,7 @@ function authorCanonical(vertices,parts,spec){
   }
   const sourceOutline=style==='tear'?baseRecipe.core_cavity.outline:(recipe.outlines[style+'_'+severity]||recipe.outlines[style]||recipe.outlines.closed);
   const outline=expandOutline(sourceOutline,recipe.segments);
-  const hairOutline=outline.map(([x,y])=>{const a=Math.atan2(y,x),k=hairScale(x,y,a);return [x*k,y*k];});
+  const hairOutline=core?outline:outline.map(([x,y])=>{const a=Math.atan2(y,x),k=hairScale(x,y,a);return [x*k,y*k];});
   const colors=[],materials=[],out=[],surfaceEdits=[],surfacePatches=[];
   if(kind==='dent'){
     // Displace the real skin and covering strands by the SAME field, never hide them.
@@ -221,7 +221,8 @@ function authorCanonical(vertices,parts,spec){
   const cuttable=new Set([skin.name,...hair.map(p=>p.name),...parts.filter(p=>p.name.startsWith('face_')).map(p=>p.name)]);
   function inside(x,y,z,partName){
     if(!open||!cuttable.has(partName))return false;
-    const q=local([x,y,z]);if(q[2]<.15)return false;
+    const q=local([x,y,z]),tunnel=core&&model.core_tunnel_parts?.includes(partName);
+    if(q[2]<.15&&!tunnel)return false;
     const a=(q[0]-cx)/cutRx,b=(q[1]-cy)/cutRy;
     return insidePolygon(model.hair_parts.includes(partName)?hairOutline:outline,a,b);
   }

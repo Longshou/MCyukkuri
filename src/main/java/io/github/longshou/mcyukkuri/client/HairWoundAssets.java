@@ -35,7 +35,7 @@ final class HairWoundAssets {
         final Palette palette;
         final boolean house;
         final Vector3f scale,offset,hairEdge,hairHighlight;
-        final Set<String> hair,thermalHair;
+        final Set<String> hair,thermalHair,coreTunnel;
         final Map<String,String> rigid,accessories;
         final Map<Integer,Set<String>> dryFaces=new HashMap<>();
         Model(JsonObject data,JsonObject faces,Palette palette){
@@ -44,6 +44,7 @@ final class HairWoundAssets {
             var fit=data.getAsJsonObject("fit");scale=vector(fit.getAsJsonArray("scale"));offset=vector(fit.getAsJsonArray("offset"));
             hairEdge=vector(data.getAsJsonArray("hair_edge"));hairHighlight=vector(data.getAsJsonArray("hair_highlight"));
             hair=strings(data.getAsJsonArray("hair_parts"));thermalHair=strings(data.getAsJsonArray("thermal_extra_hair_parts"));
+            coreTunnel=strings(data.getAsJsonArray("core_tunnel_parts"));
             rigid=map(data.getAsJsonObject("rigid_groups"));accessories=map(data.getAsJsonObject("thermal_accessories"));
             if(faces!=null)for(var entry:faces.entrySet())dryFaces.put(Integer.parseInt(entry.getKey()),strings(entry.getValue().getAsJsonArray()));
         }

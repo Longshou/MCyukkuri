@@ -155,7 +155,9 @@ public final class BodyCavity {
     private static Opening fit(WoundSurface mesh, BodyWound wound) {
         var fit=WoundProfiles.fit(mesh.assetId);var scale=fit.scale();
         var shape=WoundProfiles.grade(wound.shape(),3);
-        var outline=shape.outline();var hairOutline=shape.hairOutline();
+        var outline=shape.outline(),hairOutline=outline;
+        // The exposed-core channel removes the same tissue from skin and covering
+        // hair. Ordinary wounds keep their smaller, cause-specific hair outline.
         var radius=WoundProfiles.coreRadius(wound.shape());
         var anchor = mesh.anchor(wound);
         var normal = mesh.normal(wound.triangle());

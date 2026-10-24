@@ -26,6 +26,11 @@
       "locator": "当前用户明确指定：捕食种是肉包",
       "supports": "Remilia and Flandre use a savoury meat-bun filling palette; RGB values are project art and no combat rule changes."
     },
+    "user_core_hair_channel": {
+      "type": "user_rule",
+      "locator": "当前用户反馈：捕食种核心与周边材质之间漏出发色；须去除接缝中的内层发束，外侧发型保留",
+      "supports": "Registered inner underlayer parts join the exposed-core clipping channel; ordinary wounds and outer back hair keep their existing boundaries."
+    },
     "filling_rules": {
       "type": "repository_source_extract",
       "path": "wiki/hakkei-reference/world/rules.md",

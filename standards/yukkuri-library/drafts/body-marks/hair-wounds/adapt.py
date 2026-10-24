@@ -196,6 +196,14 @@ def main():
         build.source.sheet('同一创腔 · 品种内馅配色','灵梦／魔理沙为豆沙，爱丽丝为卡仕达，橙为巧克力，妖梦为白巧克力，捕食种为肉包；帕秋莉等未明确品种沿用默认色，不断言口味。',palette_cards,4,(360,320),
             '制作源静态预览 · 馅料名称见 Wiki／项目登记 · RGB 色板为项目美术 · 动态效果待试玩').save(dest.parent/'filling-palettes.png')
         (dest.parent/'filling-palettes.html').write_text('<!doctype html><meta charset="utf-8"><title>品种内馅配色</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}img{display:block;width:100%;max-width:1400px;margin:auto}a{color:#456447}</style><a href="index.html">伤口总览</a> · <a href="species/index.html">全部品种</a><img src="filling-palettes.png" alt="豆沙、卡仕达、巧克力、白巧克力与肉包创腔对照">',encoding='utf-8')
+        channel_cards=[]
+        for model in ['remilia','flandre']:
+            for site in ['skin','hair']:
+                rgba=np.fromfile(WORK/model/f'{site}-tear-3-intact.rgba',np.uint8).reshape(440,480,4)
+                channel_cards.append((MODELS[model]['label']+' · '+('皮面' if site=='skin' else '发面'),
+                    '真实皮面命中位置' if site=='skin' else '覆盖发面命中位置',Image.fromarray(rgba)))
+        build.source.sheet('露核创腔 · 发面与皮面共用通道','开口内不保留穿出发色的原发束；外缘断发、腔壁和中央核心保留。',channel_cards,2,(480,400),
+            '露核通道静态检查 · 普通开放伤仍保留原有发束遮挡 · 动态效果待试玩').save(dest.parent/'predator-core-channel.png')
         for k,v in MODELS.items():
             links=f'<a href="{k}/thermal.png">三级烧伤</a> · <a href="{k}/growth.png">成长</a>'
             if not v['house']:links+=f' · <a href="{k}/hair.png">覆发伤级</a> · <a href="{k}/skin.png">皮面伤级</a>'

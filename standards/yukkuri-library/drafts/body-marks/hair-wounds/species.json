@@ -36,6 +36,7 @@
         "side_hair_-1",
         "side_hair_1"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "tied_lock_-1",
         "lock_tip_-1",
@@ -267,6 +268,7 @@
         "side_hair_loose_tip_0",
         "side_hair_loose_tip_1"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "braid_lock_root",
         "braid_lock_root_outer",
@@ -687,6 +689,7 @@
         "side_hair_1_house_fit_10",
         "side_hair_1_house_fit_11"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "house_rump_core",
         "house_rump_round_end"
@@ -1168,6 +1171,7 @@
         "braid_lock_tuft_point_out_house_fit_0",
         "braid_lock_tuft_point_in_house_fit_0"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "house_rump_core",
         "house_rump_round_end"
@@ -1402,6 +1406,7 @@
         "chen_tuft_right1",
         "chen_tuft_right2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark",
         "chen_ear_socket_left",
@@ -1668,6 +1673,7 @@
         "alice_hair_front_tip2_right",
         "alice_hair_front_tip3_right"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -2508,6 +2514,7 @@
         "patchouli_resting_tuft_right_3_1",
         "patchouli_resting_tuft_right_3_2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -2895,6 +2902,9 @@
         "predator_rear_lock_5",
         "predator_rear_lock_6"
       ],
+      "core_tunnel_parts": [
+        "predator_rear_underlayer"
+      ],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark",
         "predator_membrane_left",
@@ -3028,6 +3038,9 @@
         "predator_rear_lock_5",
         "predator_rear_lock_6",
         "predator_ponytail"
+      ],
+      "core_tunnel_parts": [
+        "predator_rear_underlayer"
       ],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark",
@@ -3240,6 +3253,7 @@
         "alice_bob_inward_tip_right2",
         "alice_bob_inward_tip_right3"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -3445,6 +3459,7 @@
         "braid_lock_tuft_point_out",
         "braid_lock_tuft_point_in"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -7353,6 +7368,7 @@
         "wasa_fringe_layer_1_2_1",
         "wasa_fringe_layer_1_2_2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -7540,6 +7556,7 @@
         "tied_lock_1",
         "lock_tip_1"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -7765,6 +7782,7 @@
         "lock_tip_1",
         "side_hair_1"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -7976,6 +7994,7 @@
         "bean_braid_1_0",
         "bean_braid_1_1"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "puff_left_0",
         "puff_left_1",
@@ -8201,6 +8220,7 @@
         "braid_lock_core",
         "braid_lock_tuft_0"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -8376,6 +8396,7 @@
         "braid_lock_tuft_point_out",
         "braid_lock_tuft_point_in"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -8550,6 +8571,7 @@
         "braid_lock_tuft_point_out",
         "braid_lock_tuft_point_in"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "puff_left_0",
         "puff_left_1",
@@ -8873,6 +8895,7 @@
         "hair_deibu_pointed_scalp_16",
         "hair_deibu_pointed_scalp_17"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -9244,6 +9267,7 @@
         "wasa_fringe_layer_1_2_1",
         "wasa_fringe_layer_1_2_2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -9482,6 +9506,7 @@
         "alice_bob_inward_tip_right2",
         "alice_bob_inward_tip_right3"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],
@@ -9711,6 +9736,7 @@
         "chen_tuft_right1",
         "chen_tuft_right2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark",
         "chen_ear_socket_left",
@@ -9968,6 +9994,7 @@
         "chen_tuft_right1",
         "chen_tuft_right2"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark",
         "chen_ear_socket_left",
@@ -10201,6 +10228,7 @@
         "braid_lock_tuft_point_out",
         "braid_lock_tuft_point_in"
       ],
+      "core_tunnel_parts": [],
       "thermal_extra_hair_parts": [
         "rounded_rump_mark"
       ],

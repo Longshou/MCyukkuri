@@ -72,7 +72,8 @@ def registry():
                 eyes.extend(points[:,1].tolist())
         skin_y=(float(np.mean(eyes))-offset[1])/scale[1]-4.5-.4
         hair_y=3.7 if name.endswith('_bean') else 2.4 if name.startswith('house_') else 2.3 if name in ['remilia','flandre'] else 1.15
-        models[name]=dict(label=LABELS[name],filling_palette=filling_palette(name,palettes),body_part=body,hair_parts=hair,thermal_extra_hair_parts=extras,
+        models[name]=dict(label=LABELS[name],filling_palette=filling_palette(name,palettes),body_part=body,hair_parts=hair,
+            core_tunnel_parts=[n for n in hair if 'underlayer' in n],thermal_extra_hair_parts=extras,
             protected_parts=ornaments,hair_edge=local['hair_edge'] if local else np.clip(c*.7,0,255).astype(int).tolist(),
             hair_highlight=local['hair_highlight'] if local else np.clip(c*1.08+8,0,255).astype(int).tolist(),
             fit=dict(scale=scale.tolist(),offset=offset.tolist()),texture_size=texture.width,

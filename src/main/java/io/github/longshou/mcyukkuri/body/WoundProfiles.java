@@ -58,6 +58,13 @@ public final class WoundProfiles {
         var groups=data().getAsJsonObject("models").getAsJsonObject(id).getAsJsonObject("rigid_groups");
         return groups!=null&&groups.has(part)?groups.get(part).getAsString():part;
     }
+    public static synchronized boolean coreTunnelPart(String id,String part) {
+        var model=data().getAsJsonObject("models").getAsJsonObject(id);
+        var parts=model==null?null:model.getAsJsonArray("core_tunnel_parts");
+        if(parts==null)return false;
+        for(var value:parts)if(value.getAsString().equals(part))return true;
+        return false;
+    }
     public static synchronized float verticalScale(String id,Vector3f normal) {
         var scale=data().getAsJsonObject("models").getAsJsonObject(id).getAsJsonObject("mechanical_v_scale");
         return scale==null?1:scale.get(normal.z<-.6f?"skin":"hair").getAsFloat();

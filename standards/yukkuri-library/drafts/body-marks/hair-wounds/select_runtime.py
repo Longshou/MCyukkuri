@@ -154,7 +154,7 @@ def main():
         selector_sha256=hashlib.sha256(Path(__file__).read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
         source_inputs={ (HERE.parent / 'recipe.json').relative_to(ROOT).as_posix():
             hashlib.sha256((HERE.parent / 'recipe.json').read_bytes()).hexdigest() },
-        scope='Redrawn pixel-authored profiles, transparent materials, species filling palettes and expression atlases; runtime reprojects at the authoritative wound site without changing hit geometry.',
+        scope='Redrawn pixel-authored profiles, transparent materials, species filling palettes and expression atlases; runtime reprojects at the authoritative wound site with shared core-channel underlayer clipping and unchanged hit geometry.',
         status='selected_for_runtime_pending_user_review',
         input_meshes=input_meshes,
         files={path.relative_to(ROOT).as_posix(): hashlib.sha256(data).hexdigest()

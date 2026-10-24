@@ -127,7 +127,7 @@ final class WoundOcclusion {
                 var q=delta.cross(ab);float v=direction.dot(q)*inverse;if(v<0||u+v>1)continue;
                 float distance=ac.dot(q)*inverse;if(distance<0||distance>=coreDistance-.0001f)continue;
                 var point=rest(surface,i).mul(1-u-v).fma(u,rest(surface,i+1)).fma(v,rest(surface,i+2));
-                if(!part.receiver||!cut(mesh,wounds,opening,point))return true;
+                if(!part.receiver||!cut(mesh,wounds,opening,point,part.name))return true;
             }
         }
         return false;
@@ -157,8 +157,9 @@ final class WoundOcclusion {
         }
         return false;
     }
-    private static boolean cut(WoundSurface mesh,List<BodyWound> wounds,BodyCavity.Opening opening,Vector3f point) {
-        if(opening.containsHair(point))return true;
+    private static boolean cut(WoundSurface mesh,List<BodyWound> wounds,BodyCavity.Opening opening,Vector3f point,String partName) {
+        if(opening.containsHair(point)||WoundProfiles.coreTunnelPart(mesh.assetId,partName)
+                &&opening.contains(opening.x(point),opening.y(point)))return true;
         var fit=WoundProfiles.fit(mesh.assetId);var scale=fit.scale();
         for(var wound:wounds){
             if(!BodySigns.open(wound)||!mesh.valid(wound))continue;
