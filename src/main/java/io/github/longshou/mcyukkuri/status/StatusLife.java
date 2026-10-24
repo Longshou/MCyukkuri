@@ -56,13 +56,13 @@ public final class StatusLife {
     }
 
     /**
-     * A clearly airborne body may use the L36 "it feels like flying in the sky" phrase. This only observes resolved
+     * A clearly airborne non-flying species may use the L36 "it feels like flying in the sky" phrase. This only observes resolved
      * movement: it never starts a goal, alters velocity, or treats the family's controlled trajectories as flight.
      */
     private void airborneTick() {
         double y = entity.getY();
         var family = entity.family();
-        if (entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
+        if (entity.getVariant().isPredator() || entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
                 || family.braidRescueActive() || family.selfClimbActive()
                 || family.laboring() || family.birthDuty() || family.awaitingLanding()) {
             // A carried or rescued body starts a new observation after release; do not inherit the lift's height.
@@ -86,6 +86,8 @@ public final class StatusLife {
         if (entity.speak("airborne")) {
             airborneSpoken = true;
             nextAirborneSpeech = now + AIRBORNE_COOLDOWN;
+            GameplayLog.event(entity, "status", "airborne speech height={} airborne_ticks={} dialogue={}",
+                    y - groundY, airborneTicks, entity.getDialogueKey());
         }
     }
 

@@ -91,7 +91,9 @@
 | 爱丽丝 | 家务频率 ×1.5 | 持家。 |
 | 帕秋莉 | 易吐；体力消耗 ×1.25（等效体力上限约 80%）；对战强度 ×0.8；挑衅 ×0.8、相扑 ×0.5；可数到 9 | 吐馅见下。 |
 | 橙 | 移速 ×1.2（属性修饰）；被欺负权重 ×1.5；对战强度 ×0.75 | 敏捷、打不赢。体型（娇小）属美术，未改碰撞箱。 |
-| 妖梦 | 觅食间隔 ×0.7；家务 ×1.2；挑衅 ×1.2；相扑 ×1.8；被欺负权重 ×0.8；对战强度 ×1.4 | 移速另由 `rare/MyonLife` 的属性适配处理；体力消耗系数 0.9 尚未生效，见[待办](TODO.md#源码核查发现的问题)。 |
+| 妖梦 | 觅食间隔 ×0.7；家务 ×1.2；挑衅 ×1.2；相扑 ×1.8；被欺负权重 ×0.8；对战强度 ×1.4；体力消耗 ×0.9 | 移速另由 `rare/MyonLife` 的属性适配处理。 |
+
+体力系数用于清醒时的周期代谢，小数增减量在服务端累计，达到整份后兑现；行为额外耗费不经过此系数。累计余量与代谢统计均为实体加载后的瞬态数据，不写入存档。
 
 ### 吐馅（仅帕秋莉）
 
@@ -110,4 +112,4 @@
 
 ### 状态读数
 
-状态键 `species.cheek_capacity / cheek_load / vomits / chores / songs / nuzzles / move_speed / speech_hooks`，用 `/data get entity <e> YukkuriStatusView.species` 读取。
+状态键 `species.cheek_capacity / cheek_load / vomits / chores / songs / nuzzles / move_speed / speech_hooks / fatigue`，用 `/data get entity <e> YukkuriStatusView.species` 读取。`fatigue` 给出体力系数、代谢调用次数、已返回扣量累计与未兑现余量；扣量累计不包含其他行为消耗，也不扣除精力已归零后的截断。

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.entity.SpeciesTraits;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,7 @@ public final class SpeciesLife {
     private SpeciesTraits traits;
     private int vomits, chores, addressed, counted, narrated;
     private float fatigueDebt;
+    private long fatigueSteps, fatigueCost;
     private long lastMeal = Long.MIN_VALUE / 2, vomitReady, lastNarrate = Long.MIN_VALUE / 2;
     private final Map<UUID, Long> addressedAt = new HashMap<>();
     private boolean wasPanicking;
@@ -62,11 +64,24 @@ public final class SpeciesLife {
     public String speechHooks() { return "address=" + addressed + ",count=" + counted + ",narrate=" + narrated; }
     public void chore() { chores++; }
 
-    /** Energy lost by one metabolic step: frail species tire a quarter faster (a lower effective stamina ceiling). */
+    /** Metabolic costs returned since loading; other energy costs and the caller's zero-energy clamp are separate. */
+    public String fatigueDetail() {
+        return "factor=" + traits().fatigue() + " steps=" + fatigueSteps + " cost=" + fatigueCost + " remainder=" + fatigueDebt;
+    }
+
+    /** Carry fractional surcharges and discounts between server-side metabolic steps. */
     public int drain() {
         fatigueDebt += traits().fatigue() - 1;
-        if (fatigueDebt >= 1) { fatigueDebt -= 1; return 2; }
-        return 1;
+        // Truncate toward zero so a whole discount skips one step, retaining the remaining signed fraction.
+        int adjustment = (int) fatigueDebt;
+        fatigueDebt -= adjustment;
+        int cost = 1 + adjustment;
+        fatigueSteps++;
+        fatigueCost += cost;
+        if (fatigueSteps % 20 == 0)
+            GameplayLog.event(entity, "needs", "metabolic drain summary steps={} cost={} factor={} remainder={}",
+                    fatigueSteps, fatigueCost, traits().fatigue(), fatigueDebt);
+        return cost;
     }
 
     // ---- hooks called by the shared life code ---------------------------------------------------------------
@@ -227,5 +242,6 @@ public final class SpeciesLife {
     public void load(CompoundTag tag) {
         vomits = Math.max(0, tag.getInt("Vomits")); chores = Math.max(0, tag.getInt("Chores"));
         addressed = Math.max(0, tag.getInt("Addressed")); counted = Math.max(0, tag.getInt("Counted")); narrated = Math.max(0, tag.getInt("Narrated"));
+        fatigueDebt = 0; fatigueSteps = fatigueCost = 0;
     }
 }
