@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 面粉糊、橙汁与油粮重做 | `.worktrees/art-items` | `art/props/runtime-peripheral/`、`standards/yukkuri-library/drafts/consumables/`、`drafts/care-props/`、`models/item/`、`textures/item/`、`client/ClientEvents.java` |
 | 遗体美术 | `.worktrees/art-remains` | `entity/RemainsEntity.java`、`client/RemainsRenderer.java`、`client/YukkuriModel.java`（遗体渲染）、遗体表情与贴图 |
 
 ## 玩法待办
