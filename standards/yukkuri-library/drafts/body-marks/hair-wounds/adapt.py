@@ -189,13 +189,13 @@ def main():
     if args.preview:
         dest=args.preview_root/'.local/previews/hair-wounds/species';rows=''
         palette_cards=[]
-        for model in ['reimu','marisa','alice','chen','myon','patchouli']:
+        for model in ['reimu','marisa','alice','chen','myon','remilia','flandre','patchouli']:
             info=MODELS[model];palette=build.RECIPE['filling_palettes'][info['filling_palette']]
             rgba=np.fromfile(WORK/model/'skin-tear-3-intact.rgba',np.uint8).reshape(440,480,4)
             palette_cards.append((info['label']+' · '+palette['label'],'同一三级裂伤露核样例；RGB 为项目美术',Image.fromarray(rgba)))
-        build.source.sheet('同一创腔 · 品种内馅配色','灵梦／魔理沙为豆沙，爱丽丝为卡仕达，橙为巧克力，妖梦为白巧克力；帕秋莉等未明确品种沿用默认色，不断言口味。',palette_cards,3,(420,360),
+        build.source.sheet('同一创腔 · 品种内馅配色','灵梦／魔理沙为豆沙，爱丽丝为卡仕达，橙为巧克力，妖梦为白巧克力，捕食种为肉包；帕秋莉等未明确品种沿用默认色，不断言口味。',palette_cards,4,(360,320),
             '制作源静态预览 · 馅料名称见 Wiki／项目登记 · RGB 色板为项目美术 · 动态效果待试玩').save(dest.parent/'filling-palettes.png')
-        (dest.parent/'filling-palettes.html').write_text('<!doctype html><meta charset="utf-8"><title>品种内馅配色</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}img{display:block;width:100%;max-width:1400px;margin:auto}a{color:#456447}</style><a href="index.html">伤口总览</a> · <a href="species/index.html">全部品种</a><img src="filling-palettes.png" alt="豆沙、卡仕达、巧克力与白巧克力创腔对照">',encoding='utf-8')
+        (dest.parent/'filling-palettes.html').write_text('<!doctype html><meta charset="utf-8"><title>品种内馅配色</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}img{display:block;width:100%;max-width:1400px;margin:auto}a{color:#456447}</style><a href="index.html">伤口总览</a> · <a href="species/index.html">全部品种</a><img src="filling-palettes.png" alt="豆沙、卡仕达、巧克力、白巧克力与肉包创腔对照">',encoding='utf-8')
         for k,v in MODELS.items():
             links=f'<a href="{k}/thermal.png">三级烧伤</a> · <a href="{k}/growth.png">成长</a>'
             if not v['house']:links+=f' · <a href="{k}/hair.png">覆发伤级</a> · <a href="{k}/skin.png">皮面伤级</a>'

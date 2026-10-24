@@ -468,6 +468,17 @@
       "mid": [84, 50, 36],
       "deep": [62, 39, 30]
     },
+    "meat_bun": {
+      "label": "肉包馅",
+      "evidence": ["user_predator_filling"],
+      "base": [106, 77, 54],
+      "bottom": [162, 127, 85],
+      "core_color": [190, 153, 108],
+      "wall": [145, 110, 75],
+      "shadow": [79, 57, 41],
+      "mid": [166, 127, 85],
+      "deep": [106, 77, 54]
+    },
     "white_chocolate": {
       "label": "白巧克力馅",
       "evidence": ["myon_filling"],

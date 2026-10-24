@@ -21,6 +21,11 @@
       "locator": "当前用户明确要求：不同油库里的内馅可以不同，按品种调整伤口配色；爱丽丝为卡仕达馅",
       "supports": "Species-specific filling palettes and a custard presentation for Alice; RGB values remain project art."
     },
+    "user_predator_filling": {
+      "type": "user_rule",
+      "locator": "当前用户明确指定：捕食种是肉包",
+      "supports": "Remilia and Flandre use a savoury meat-bun filling palette; RGB values are project art and no combat rule changes."
+    },
     "filling_rules": {
       "type": "repository_source_extract",
       "path": "wiki/hakkei-reference/world/rules.md",

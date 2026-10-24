@@ -4463,7 +4463,7 @@
     "runtime_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/hair/{model}.json.gz",
     "runtime_materials": "src/main/resources/assets/mcyukkuri/textures/wounds/hair",
     "status": "selected_for_runtime_pending_user_review",
-    "scope": "Redrawn pixel-authored eight mechanical styles with grade-specific outlines, separate skin/hair clipping, shared indentation, low-poly vertical cavity walls and flat bottoms, species filling palettes for red bean, custard, chocolate and white chocolate with a generic fallback, plus sole/whole-body heat and character expression atlases. Runtime reprojects the source parameters at each authoritative wound anchor and retains bone weights, real hair loss, treatment scars and corpse state. House forms select only grade-three thermal art. Offline independent image review passed; game visual acceptance remains pending."
+    "scope": "Redrawn pixel-authored eight mechanical styles with grade-specific outlines, separate skin/hair clipping, shared indentation, low-poly vertical cavity walls and flat bottoms, species filling palettes for red bean, custard, chocolate, white chocolate and meat bun with a generic fallback, plus sole/whole-body heat and character expression atlases. Runtime reprojects the source parameters at each authoritative wound anchor and retains bone weights, real hair loss, treatment scars and corpse state. House forms select only grade-three thermal art. Offline independent image review passed; game visual acceptance remains pending."
   },
   "alice_appearance": {
     "source": "standards/yukkuri-library/body-standard/features/alice-hakkei",

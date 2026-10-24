@@ -19,6 +19,7 @@ def filling_palette(name,palettes):
     # Species, not the donor geometry, determines the filling. Myon reuses some
     # Alice topology but has its own adopted white-chocolate filling.
     if name.startswith('myon'):result='white_chocolate'
+    elif name in ('remilia','flandre'):result='meat_bun'
     elif name=='alice':result='custard'
     elif name.startswith('chen'):result='chocolate'
     elif name.startswith(('reimu','marisa','house_reimu','house_marisa')):result='red_bean'

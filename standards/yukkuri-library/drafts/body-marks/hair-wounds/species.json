@@ -2869,7 +2869,7 @@
     },
     "remilia": {
       "label": "蕾米莉亚",
-      "filling_palette": "generic",
+      "filling_palette": "meat_bun",
       "body_part": "predator_body_surface",
       "hair_parts": [
         "predator_hair_crown",
@@ -3002,7 +3002,7 @@
     },
     "flandre": {
       "label": "芙兰",
-      "filling_palette": "generic",
+      "filling_palette": "meat_bun",
       "body_part": "predator_body_surface",
       "hair_parts": [
         "predator_hair_crown",
