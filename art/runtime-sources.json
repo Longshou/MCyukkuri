@@ -245,6 +245,21 @@
     "role": "16x16 item sprites (item/generated); the same sprite is drawn in GUI, hand, ground and mouth",
     "status": "pending_user_confirmation"
   },
+  "supply_icons": {
+    "source": "standards/yukkuri-library/drafts/care-props/supplies.py",
+    "snapshot": "art/props/supply-icons",
+    "exporter": "scripts/export_supply_icons.py",
+    "items": {
+      "orange_juice": "src/main/resources/assets/mcyukkuri/textures/item/orange_juice.png",
+      "flour_paste": "src/main/resources/assets/mcyukkuri/textures/item/flour_paste.png",
+      "oil_grain_budget": "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_budget.png",
+      "oil_grain_regular": "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_regular.png",
+      "oil_grain_premium": "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_premium.png"
+    },
+    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (item/generated, written by the exporter)",
+    "role": "vanilla-style 16x16 item sprites; the same sprite is drawn in GUI, hand (extruded), ground, item frames, the shop display and NPC hands. The oil-grain and orange-juice meshes remain only as runtime-peripheral attachments used by offline previews; the food bowl keeps its own grain fill",
+    "status": "pending_user_confirmation"
+  },
   "badge_attachments": {
     "source": "art/props/badges/mounts.json",
     "rounded_selection": "art/source/rounded-runtime/attachments.json",

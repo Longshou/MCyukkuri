@@ -27,7 +27,6 @@ RECIPES={
  'reproductive_filling':[box([-1.5,0,-.6],[1.5,.35,.6],1),rod([0,.35,0],[0,3.7,0],1.25,0,.9),rod([0,3.7,0],[0,4.5,0],.9,0,.35),rod([0,4.5,0],[0,5.8,0],.35,1,.15),box([-.75,1.2,-1.26],[.75,2.9,-1.2],1),ball([0,2.25,-1.29],[.35,.45,.08],11)],
  'wheat_flour':[box([-2,0,-1.2],[2,5.2,1.2],11),box([-2.1,5.2,-1.3],[2.1,5.7,1.3],0),box([-2.1,4.4,-1.3],[2.1,4.8,1.3],3),box([-1.2,1,-1.27],[1.2,3.5,-1.2],8),
   rod([0,1.3,-1.29],[0,3.2,-1.29],.1,10),ball([-.32,2.7,-1.3],[.22,.1,.04],10),ball([.32,2.7,-1.3],[.22,.1,.04],10),ball([-.3,2.15,-1.3],[.22,.1,.04],10),ball([.3,2.15,-1.3],[.22,.1,.04],10)],
- 'flour_paste':[rod([0,0,0],[0,.3,0],1.7,8,1.9),rod([0,.3,0],[0,3.2,0],1.9,8),rod([0,3.2,0],[0,3.6,0],1.9,11,1.6),ball([0,3.7,0],[1.5,.55,1.5],0),box([-1,.9,-1.93],[1,2.4,-1.85],11),ball([0,1.65,-1.95],[.3,.45,.05],10)],
  'water_serving':[ball([0,0,0],[.6,.35,.5],2)],
  'yogurt_serving':[ball([0,0,0],[.6,.35,.5],0)],
  'food_mash_serving':[],
@@ -73,6 +72,9 @@ def outputs():
    emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:builtin/entity','gui_light':'front','textures':{'particle':f'mcyukkuri:props/{name}'},'display':{'gui':{'rotation':[20,225,0]}}})
    emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
   index[name]={'bounds':extent,'triangles':len(vertices)//24}
+ # Recipe-only entries: flour_paste is a 16x16 item sprite (care-props/supplies.py, scripts/export_supply_icons.py), no mesh.
+ for name in [n for n in INGREDIENTS if n not in RECIPES]:
+  emit(DATA/f'recipe/{name}.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':x} for x in INGREDIENTS[name]],'result':{'id':'mcyukkuri:'+name,'count':1}})
  emit(ASSETS/'yukkuri_props/consumables-index.json',index)
  for n,locale in enumerate(['zh_cn','en_us']):
   path=ASSETS/f'lang/{locale}.json';data=json.loads(path.read_text(encoding='utf8'));strings={'item.mcyukkuri.'+k:v[n] for k,v in LABELS.items()}

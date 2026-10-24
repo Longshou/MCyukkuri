@@ -1,0 +1,24 @@
+{
+  "status": "pending_user_confirmation",
+  "generator": "standards/yukkuri-library/drafts/care-props/supplies.py",
+  "exporter": "scripts/export_supply_icons.py",
+  "inputs": {
+    "art/props/supply-icons/orange_juice.png": "a3e40e6fb0f0370ccadbf931bba84fb8c185354701dfc82a22baa2556f80c70b",
+    "art/props/supply-icons/flour_paste.png": "21e64fb2f7505b4f1bcec06708cac65870e4e347eaa346ffd191f704abf9623e",
+    "art/props/supply-icons/oil_grain_budget.png": "4e09f9bf0a35f48a46917c7eb8a9b0cd85e7d26f0e4f8c1405f6478290d62aab",
+    "art/props/supply-icons/oil_grain_regular.png": "b7a1d4c13276dcd1830bc21f3ba9726ebd31eecf5c3d120431dab3c63a9b8a0d",
+    "art/props/supply-icons/oil_grain_premium.png": "4071f71969b27dd0f01673adc67b30601796584253ebb497c6cb10905a1e9496"
+  },
+  "outputs": {
+    "src/main/resources/assets/mcyukkuri/textures/item/orange_juice.png": "a3e40e6fb0f0370ccadbf931bba84fb8c185354701dfc82a22baa2556f80c70b",
+    "src/main/resources/assets/mcyukkuri/models/item/orange_juice.json": "825b38014da3b1c0e0c19ee14ab3b291f82208839898c467e1e50cfea45b0d39",
+    "src/main/resources/assets/mcyukkuri/textures/item/flour_paste.png": "21e64fb2f7505b4f1bcec06708cac65870e4e347eaa346ffd191f704abf9623e",
+    "src/main/resources/assets/mcyukkuri/models/item/flour_paste.json": "66a0d16f02d155e58029bb3380c24142079363509a4e3214f50eefdd46160f84",
+    "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_budget.png": "4e09f9bf0a35f48a46917c7eb8a9b0cd85e7d26f0e4f8c1405f6478290d62aab",
+    "src/main/resources/assets/mcyukkuri/models/item/oil_grain_budget.json": "839ca04ab3dc0f5f964025f029e17999585b8c62b87285c215709fbf41084cb5",
+    "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_regular.png": "b7a1d4c13276dcd1830bc21f3ba9726ebd31eecf5c3d120431dab3c63a9b8a0d",
+    "src/main/resources/assets/mcyukkuri/models/item/oil_grain_regular.json": "d6cadfd662db5615fb2913739dab6dd56d476bda3d3a7bd35bf75e300438502a",
+    "src/main/resources/assets/mcyukkuri/textures/item/oil_grain_premium.png": "4071f71969b27dd0f01673adc67b30601796584253ebb497c6cb10905a1e9496",
+    "src/main/resources/assets/mcyukkuri/models/item/oil_grain_premium.json": "d6182c843ef7000a105c31fea5c687322ba920bc163dbfabcd5a8fba0bb81ae9"
+  }
+}

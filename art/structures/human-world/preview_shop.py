@@ -172,14 +172,18 @@ def goods(out):
            ('orange_juice','橙汁'),('mold_remover','除霉剂'),('companion_cord','同伴绳')]
     sheet=Image.new('RGB',(1440,880),'#edf1eb');d=ImageDraw.Draw(sheet)
     d.text((30,20),'商店用品 · 标签、等级与轮廓修订',font=font(30),fill='#273e37')
-    d.text((30,65),'当前运行网格与贴图的离线渲染；家油缝隙另调整了背包展示朝向。',font=font(17),fill='#596f65')
+    d.text((30,65),'当前运行网格或 16×16 物品图标的离线渲染；家油缝隙另调整了背包展示朝向。',font=font(17),fill='#596f65')
     for i,(ident,title) in enumerate(items):
+        x=10+i%3*480;y=105+i//3*380;sprite=ASSETS/f'mcyukkuri/textures/item/{ident}.png'
+        if sprite.exists():   # item/generated goods: the 16x16 sprite is the in-game art
+            icon=Image.open(sprite).convert('RGBA').resize((256,256),Image.Resampling.NEAREST)
+            sheet.paste(icon,(x+107,y+27),icon);d.text((x+180,y+325),title,font=font(23),fill='#273e37');continue
         model=json.loads((ASSETS/f'mcyukkuri/yukkuri_props/{ident}.json').read_text(encoding='utf8'))
         texture=Image.open(ASSETS/f'mcyukkuri/textures/props/{ident}.png').convert('RGBA').resize((2048,2048),Image.Resampling.NEAREST)
         v=np.array(model['vertices']).reshape(-1,8);bounds=model['bounds'];center=(bounds[1][0]+bounds[1][1])/2
         span=max((b[1]-b[0]) for b in bounds)*.72
         im=render(SimpleNamespace(atlas=texture),v,out,ident,470,310,.35,.3,span,center).convert('RGB')
-        x=10+i%3*480;y=105+i//3*380;sheet.paste(im,(x,y));d.text((x+180,y+325),title,font=font(23),fill='#273e37')
+        sheet.paste(im,(x,y));d.text((x+180,y+325),title,font=font(23),fill='#273e37')
     sheet.save(out/'goods.png')
 
 def worn_badges(out):

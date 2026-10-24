@@ -1,1 +1,1 @@
-{"parent":"minecraft:builtin/entity","gui_light":"front","textures":{"particle":"mcyukkuri:props/flour_paste"},"display":{"gui":{"rotation":[20,225,0]}}}
+{"parent":"minecraft:item/generated","textures":{"layer0":"mcyukkuri:item/flour_paste"}}

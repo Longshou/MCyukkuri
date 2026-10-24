@@ -53,8 +53,8 @@ public final class ClientEvents {
         };
         for(String name:new String[]{"food_bowl","yukkuri_nest","large_yukkuri_nest","large_wild_nest","yukkuri_toilet","yukkuri_carrier","wash_cloth","teaching_whistle","yarn_ball",
                 "companion_cord","food_scrap","yukkuri_waste","leaked_filling","core_filling","reimu_ribbon","marisa_hat","marisa_aquatic_hat","chen_hat","alice_headband",
-                "myon_hairband","marisa_kotatsu","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest","oil_grain_budget",
-                "oil_grain_regular","oil_grain_premium","orange_juice","flour_paste","mold_remover","forage_pile"})
+                "myon_hairband","marisa_kotatsu","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest",
+                "mold_remover","forage_pile"})
             event.registerItem(extension,BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));
         ModItems.OPERATION_TOOLS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,ModItems.TRIMMED_HAIR.get());
