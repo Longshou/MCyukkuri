@@ -49,6 +49,10 @@
           "label": "茎生下垂：魔理沙母体 前后"
         },
         {
+          "src": "poses/stem-branch-closeup.png",
+          "label": "茎生下垂：单根弯枝特写 前后"
+        },
+        {
           "src": "poses/paddle-grip.png",
           "label": "水生魔理沙握桨 前后"
         }
