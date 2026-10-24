@@ -25,8 +25,8 @@ def hexrgb(h):
 
 
 # ---- ramps (dark -> light) --------------------------------------------------------------------------------------------
-STRAW = ['#5a4214', '#83641c', '#a88424', '#c8a232', '#dfbd4a', '#f0da82']     # dry grass, warm hay-bale gold
-OLD = ['#4e3a18', '#735723', '#93732f', '#b08e42', '#c9aa5c']                  # older, shaded straw (inner side)
+STRAW = ['#56431d', '#7b6429', '#9b8035', '#b49745', '#c9ae5e', '#dccb8c']     # dry grass, hay-bale ochre
+OLD = ['#4a3d26', '#6a5a3a', '#877450', '#a18e66', '#b8a67e']                  # older, weathered grey-brown straw
 SAGE = ['#38431f', '#53602a', '#717d36', '#929b47', '#b4b866']                 # cut grass drying to hay
 DRYLEAF = ['#43200f', '#6b3516', '#934f1f', '#b96e2a', '#d8933d', '#ecbb68']   # fallen leaf, orange-brown
 GREEN = ['#1d3818', '#2d5421', '#41722b', '#5a9135', '#7aae45', '#a2cc62']     # fresh leaf
@@ -95,9 +95,9 @@ def weave(key, ramp=STRAW, base=2, gaps=True):
             x = r.randrange(T)
             done = 0
             while done < T:
-                n = r.randint(3, 8)
-                run = shade if r.random() < (.5 if row == 0 else .3) else base  # broken bands, not stripes
-                step = max(0, min(top, run + r.choice((0, 0, 0, 1, -1))))
+                n = r.randint(2, 6)                                           # short fibres, each its own shade
+                run = shade if r.random() < (.6 if row == 0 else .35) else base
+                step = max(0, min(top, run + r.choice((0, 1, -1, -1, 1))))
                 for k in range(n):
                     c.put(x + k, y + row, ramp[step])
                 if row == 0 and r.random() < .6:                              # glint on a lit strand
@@ -486,7 +486,7 @@ class WildProp(Prop):
 
     # -- swept roll ---------------------------------------------------------------------------------------------------------
     def roll(self, part, path, profile, tile_out='weave', tile_in='weave_in', cap_start=False, cap_end=False, inner_split=None,
-             tile_cap=None):
+             tile_cap=None, faceted=False):
         """Sweep a cross-section along a path.
         path: [(x, z, nx, nz, s)] with the outward horizontal normal (nx, nz) and the texel coordinate s along the path.
         profile(i) -> [(t, y)] from the inner foot over the crest to the outer foot (t = outward offset).
@@ -537,7 +537,7 @@ class WildProp(Prop):
             for j in range(n_j - 1):
                 tile = tile_in if inner_split is not None and j < inner_split else tile_out
                 pts = [rows[i][j], rows[i + 1][j], rows[i + 1][j + 1], rows[i][j + 1]]
-                nrm = [vn[i, j], vn[i + 1, j], vn[i + 1, j + 1], vn[i, j + 1]]
+                nrm = [fn[i, j]] * 4 if faceted else [vn[i, j], vn[i + 1, j], vn[i + 1, j + 1], vn[i, j + 1]]
                 st = [(path[i][4], tcoord[i][j]), (path[i + 1][4], tcoord[i + 1][j]), (path[i + 1][4], tcoord[i + 1][j + 1]),
                       (path[i][4], tcoord[i][j + 1])]
                 self.face(part, pts, nrm, tile, st)
@@ -788,23 +788,33 @@ class PathLine:
                 return a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, nx / d, nz / d
 
 
-def bundle(prop, part, line, s0, s1, h, inner, outer, foot=0.0, inner_foot=None, shift=0.0, droop=0.0, tex0=0.0, steps=4,
-           inner_split=2):
-    """One tied bundle of dry grass laid along a path from length s0 to s1: a short roll with blunt, tapered ends, strands
-    running along it. droop lowers one end (signed) so neighbouring bundles sit at slightly different angles."""
-    path, scale = [], []
-    for k in range(steps + 1):
-        u = k / steps
-        x, z, nx, nz = line.at(s0 + (s1 - s0) * u)
-        path.append((x, z, nx, nz, tex0 + (s1 - s0) * u))
-        scale.append(.5 + .5 * math.sin(math.pi * u) ** .6)
+def bundle(prop, part, line, s0, s1, h, inner, outer, foot=0.0, inner_foot=None, shift=0.0, droop=0.0, tex0=0.0,
+           inner_split=2, old=False, tie=True):
+    """One tied sheaf of dry grass laid straight along the chord of a stretch of path: a short, barely tapered roll with
+    flat cut ends showing the packed stems, a dark twisted-grass tie round its middle, faceted so the fibres read. droop
+    lowers one end (signed) so neighbouring sheaves sit at slightly different angles; old sheaves use the weathered straw."""
+    xa, za, nxa, nza = line.at(s0)
+    xb, zb, nxb, nzb = line.at(s1)
+    nx, nz = nxa + nxb, nza + nzb
+    d = math.hypot(nx, nz) or 1
+    nx, nz = nx / d, nz / d
+    length = math.hypot(xb - xa, zb - za)
+    us = (0.0, .12, .5, .88, 1.0)
+    scale = (.86, 1.0, 1.0, 1.0, .86)
+    path = [(xa + (xb - xa) * u, za + (zb - za) * u, nx, nz, tex0 + length * u) for u in us]
     fi = foot if inner_foot is None else inner_foot
+    tile = 'weave_in' if old else 'weave'
 
-    def profile(i):
-        f = scale[i]
-        hh = fi + (h * (1 + droop * (i / steps - .5)) - fi) * f
-        return [(t * (.6 + .4 * f) + shift, y) for t, y in rim_profile(max(hh, fi + .3), inner, outer, foot, inner_foot)]
-    prop.roll(part, path, profile, inner_split=inner_split, cap_start=True, cap_end=True, tile_cap='straw_end')
+    def section(u, f):
+        hh = fi + (h * (1 + droop * (u - .5)) - fi) * f
+        return [(t * f + shift, y) for t, y in rim_profile(max(hh, fi + .3), inner, outer, foot, inner_foot)]
+    prop.roll(part, path, lambda i: section(us[i], scale[i]), tile_out=tile, inner_split=inner_split, cap_start=True,
+              cap_end=True, tile_cap='straw_end', faceted=True)
+    if tie and length > 2.2:
+        a, b = .5 - .5 / length, .5 + .5 / length
+        band = [(xa + (xb - xa) * u, za + (zb - za) * u, nx, nz, length * u) for u in (a, b)]
+        prop.roll(part, band, lambda i: section((a, b)[i], 1.07), tile_out='bark', tile_in='bark', cap_start=True,
+                  cap_end=True, tile_cap='bark', faceted=True)
 
 
 def smooth(x):

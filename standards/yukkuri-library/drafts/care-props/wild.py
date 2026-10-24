@@ -178,17 +178,19 @@ def rim_run(p, part, rng, line, lo, hi, h, n, tex0=0):
         inner_row = k % 2 == 0
         bundle(p, part, line, s0, s1, h * (rng.uniform(.95, 1.08) if inner_row else rng.uniform(.8, .95)),
                BED_IN * rng.uniform(.5, .62), BED_OUT * rng.uniform(.5, .62), inner_foot=PAD_Y,
-               shift=(-.95 if inner_row else .95) + rng.uniform(-.25, .25), droop=rng.uniform(-.25, .25), tex0=tex0 + 5 * k)
+               shift=(-.95 if inner_row else .95) + rng.uniform(-.25, .25), droop=rng.uniform(-.25, .25), tex0=tex0 + 5 * k,
+               old=rng.random() < .33)
         if n > 2 and k < n - 1:                                       # a second, offset bundle under each joint
             bundle(p, part, line, lo + (k + .6) * step, lo + (k + 1.4) * step, h * rng.uniform(.75, .9),
-                   BED_IN * .5, BED_OUT * .5, inner_foot=PAD_Y, shift=(.95 if inner_row else -.95), droop=0.0, tex0=tex0 + 3)
+                   BED_IN * .5, BED_OUT * .5, inner_foot=PAD_Y, shift=(.95 if inner_row else -.95), droop=0.0, tex0=tex0 + 3,
+                   old=rng.random() < .33)
 
 
 def forest_burrow():
     """Shared family bed cell. Unit 1: leaf pad over the whole cell (seamless with neighbouring cells). Units 2..5 = side
     mids N/E/S/W (|a| <= 4), 6..9 = corner arcs NE/SE/SW/NW (both adjoining sides exposed), 10..17 = side ends where the edge
-    runs on over the next bed: N-west N-east E-north E-south S-east S-west W-south W-north. Each piece is two to four thin
-    tied grass bundles in two staggered rows, reaching a little past its ends, so joined pieces overlap into one lumpy rim round the whole bed."""
+    runs on over the next bed: N-west N-east E-north E-south S-east S-west W-south W-north. Each piece is two to four thin,
+    straight tied sheaves (flat cut ends, a dark tie, a third of them weathered grey-brown) in two staggered rows, reaching a little past its ends, so joined pieces overlap into one lumpy rim round the whole bed."""
     p = WildProp('forest_burrow')
     rng = rng_of('forest_burrow')
     pad = p.mat('leaf_pad', 1)
@@ -208,7 +210,7 @@ def forest_burrow():
             x1, z1, _, _ = line.at(11.5)
             o = rng.uniform(-.3, .8)
             p.stick(part, [x0 + nx * o, h - .2, z0 + nz * o], [x1 + nx * (o + .5), h - .5, z1 + nz * (o + .5)], .42, s0=rng.randrange(16))
-        tufts(p, part, rng, line, 4.0, 12.0, h, 4)
+        tufts(p, part, rng, line, 4.0, 12.0, h, 6)
         if side in (1, 3):                                                # a green lining leaf spilling over the rim
             x, z, nx, nz = line.at(8.0 + (2 if side == 1 else -2))
             p.leaf(part, 'leaf_slim', (x - nx * 1.6, h * .8, z - nz * 1.6), math.atan2(nx, nz), fold=.35, tilt=-.42)
@@ -218,13 +220,13 @@ def forest_burrow():
         rim_run(p, part, rng, line, -.4, line.length + .4, (ha + hb) / 2 + .2, 3, tex0=12)
         x, z, nx, nz = line.at(line.length / 2)
         p.ball(part, [x + nx * 2.2, .5, z + nz * 2.2], 1.1, 'moss', rng, seg=6, squash=.55)
-        tufts(p, part, rng, line, 1.0, line.length - 1.0, ha, 2)
+        tufts(p, part, rng, line, 1.0, line.length - 1.0, ha, 3)
     for unit, side, sign in ((10, 0, 1), (11, 0, -1), (12, 1, 1), (13, 1, -1), (14, 2, 1), (15, 2, -1), (16, 3, 1), (17, 3, -1)):
         part = p.mat(f'rim_end_{unit}', unit)
         line = side_line(side)
         lo, hi = (11.4, 16.6) if sign > 0 else (-.6, 4.6)                  # a = 3.4 .. 8.6 or -8.6 .. -3.4
         rim_run(p, part, rng, line, lo, hi, SIDE_H[side], 2, tex0=3)
-        tufts(p, part, rng, line, lo + 1, hi - 1, SIDE_H[side], 2)
+        tufts(p, part, rng, line, lo + 1, hi - 1, SIDE_H[side], 3)
     return p
 
 
@@ -258,7 +260,7 @@ def ring_of_bundles(p, part, rng, line, count, h_back, h_front, inner, outer, fo
         bundle(p, part, line, s0, s1, h * (rng.uniform(.95, 1.1) if inner_row else rng.uniform(.8, .95)),
                inner * rng.uniform(.5, .62), outer * rng.uniform(.5, .62), inner_foot=foot,
                shift=(-.55 if inner_row else .55) * (inner + outer) / 2 + rng.uniform(-.2, .2), droop=rng.uniform(-.25, .25),
-               tex0=rng.randrange(16))
+               tex0=rng.randrange(16), old=rng.random() < .33)
 
 
 def personal_leaf_nest():
@@ -288,7 +290,7 @@ def personal_leaf_nest():
         h0 = 3.4 - 1.5 * front_drop(x0, z0)
         h1 = 3.4 - 1.5 * front_drop(x1, z1)
         p.stick(s3, [x0 + nx0 * o, h0 - .2, z0 + nz0 * o], [x1 + nx1 * (o + .3), h1 - .1, z1 + nz1 * (o + .3)], .38, s0=int(f0 * 40))
-    for _ in range(10):
+    for _ in range(15):
         x, z, nx, nz = line.at(rng.uniform(0, line.length))
         h = 3.4 - 1.5 * front_drop(x, z)
         t = rng.uniform(.3, .9)
@@ -389,11 +391,12 @@ def large_wild_nest():
         x, z, _, _ = line.at((s0 + s1) / 2)
         droop = rng.uniform(-.2, .2)
         inner_row = k % 2 == 0
-        h = min(large_rim_height(x, z) * (rng.uniform(.96, 1.06) if inner_row else rng.uniform(.8, .92)), 2.95 / (1 + abs(droop) / 2))
+        h = min(large_rim_height(x, z) * (rng.uniform(.96, 1.06) if inner_row else rng.uniform(.8, .92)), 2.75 / (1 + abs(droop) / 2))
         bundle(p, rim, line, s0, s1, h, 1.7 * rng.uniform(.9, 1.1), .9, inner_foot=FLOOR,
-               shift=(-1.1 if inner_row else -.2) + rng.uniform(-.15, .05), droop=droop, tex0=rng.randrange(16))
-    for k in range(18):                                                # loose stems crossing the rim top and the inner slope
-        x, z, nx, nz = line.at(line.length * (k + rng.uniform(.1, .9)) / 18)
+               shift=(-1.1 if inner_row else -.2) + rng.uniform(-.15, .05), droop=droop, tex0=rng.randrange(16),
+               old=rng.random() < .33)
+    for k in range(27):                                                # loose stems crossing the rim top and the inner slope
+        x, z, nx, nz = line.at(line.length * (k + rng.uniform(.1, .9)) / 27)
         tx, tz = -nz, nx
         if k % 3 == 2:
             a, base = math.atan2(-nz, -nx) + rng.uniform(-.8, .8), [x - nx * 1.2, 1.4, z - nz * 1.2]
