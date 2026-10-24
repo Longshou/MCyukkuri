@@ -2,6 +2,30 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "swaddle-leaf-cloth",
+      "label": "树叶襁褓与布襁褓",
+      "title": "亲油采叶包裹的树叶襁褓与重做的布襁褓外观",
+      "tag": "美术与玩法·待试玩",
+      "summary": "树叶襁褓为四片带叶脉、锯齿缘的大叶斜包下身，脸、头发与帽饰外露；布襁褓改为贴身白色毛线织纹与粉边。离线渲染，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "亲油真实采叶（叶块消失）、折叠、包裹；子油包着时需亲油解开、辅助排便、舔净、包回。",
+        "无人照护时积便染色下沿，最多 3 份后溢出。",
+        "试玩场：leaf_swaddle、leaf_swaddle_neglect。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "swaddle/on-body.png",
+          "label": "树叶襁褓与布襁褓：灵梦、魔理沙、爱丽丝 静止／跳跃／睡眠，积便与解开承托叶"
+        },
+        {
+          "src": "swaddle/icons.png",
+          "label": "布襁褓图标与身上贴图"
+        }
+      ]
+    },
+    {
       "id": "care-props-vanilla",
       "label": "放置照料道具原版风",
       "title": "食盆及填充、软垫窝、2×2 大窝与厕所改为 1/16 方块与 16px 材质",
