@@ -10,6 +10,8 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 放置照料道具原版风重做（食盆及填充、窝、大窝、厕所） | `.worktrees/art-care-props` | `standards/yukkuri-library/drafts/care-props/`（designs、nests、large_nests、trays、wild 中大野窝）、`art/props/runtime-peripheral/`、`art/props/large-nests/`、`yukkuri_props/`、`textures/props/` |
+| 树叶襁褓实装与布襁褓外观 | `.worktrees/leaf-swaddle` | `client/CareWearRenderer.java`、`pet/PetCare.java`、`item/SwaddleItem.java`、新增树叶襁褓与亲代照护代码、`drafts/care-props/goods.py`（襁褓图标）、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
 
