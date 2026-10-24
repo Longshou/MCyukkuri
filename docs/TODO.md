@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 伤口品种内馅配色 | `.worktrees/wound-filling-palettes` | `drafts/body-marks/hair-wounds/`、`client/HairWoundAssets.java`、`client/CavityRenderer.java`、`client/HairWoundRenderer.java`、`wiki/hakkei-reference/`、`docs/TODO.md` |
 | 树叶襁褓实装与布襁褓外观 | `.worktrees/leaf-swaddle` | `client/CareWearRenderer.java`、`pet/PetCare.java`、`item/SwaddleItem.java`、新增树叶襁褓与亲代照护代码、`drafts/care-props/goods.py`（襁褓图标）、`scripts/museum_scenarios.py` |
 
 ## 玩法待办
