@@ -10,6 +10,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 襁褓贴皮肤、头发在外 | `.worktrees/swaddle-fit` | `client/CareWearRenderer.java`、`drafts/care-props/wear.py` 等襁褓制作源 |
+| 放置方块尺寸与窝容量 | `.worktrees/placed-size` | `life/CareBlock.java`、`care_collision.json`、`drafts/care-props/shapes.py`/`placed.py`/`large_nests.py`/`wild.py` |
+| 野外嗯嗯坑与山脚洞穴聚落 | `.worktrees/wild-settle` | `settlement/site/`、`settlement/structure`、`worldgen` 群系标签、野外排泄行为、`docs/SETTLEMENTS.md` |
 
 ## 玩法待办
 
