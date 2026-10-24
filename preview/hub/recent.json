@@ -2,6 +2,38 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "care-props-vanilla",
+      "label": "放置照料道具原版风",
+      "title": "食盆及填充、软垫窝、2×2 大窝与厕所改为 1/16 方块与 16px 材质",
+      "tag": "美术更新·待确认",
+      "summary": "保留奶油釉面＋薄荷带、草莓毛呢与青绿沙盘的配色；与原版炼药锅、堆肥桶同场对照。离线渲染，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "食盆八边形；油粮、小麦、短草按份数从中央小堆长到满盆隆起。",
+        "宠物软垫窝八边形毛呢靠枕；2×2 编织窝与野生草窝内宽约 1.8 格。",
+        "沙厕干净／脏，陶厕与带盖厕同族八边形，便便为豆沙色像素旋。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "care-props/bowl.png",
+          "label": "食盆与填充 前后（0/1/4/8 份）"
+        },
+        {
+          "src": "care-props/nests.png",
+          "label": "宠物软垫窝 前后"
+        },
+        {
+          "src": "care-props/large_nests.png",
+          "label": "2×2 编织窝与野生草窝 前后"
+        },
+        {
+          "src": "care-props/toilets.png",
+          "label": "厕所 干净／脏、陶厕、带盖厕 前后"
+        }
+      ]
+    },
+    {
       "id": "art-batch-items-remains-poses",
       "label": "物品、遗体与演出美术",
       "title": "原版风物品图标、按死因遗体、被炉帘布与咬刀／茎／握桨姿态",
