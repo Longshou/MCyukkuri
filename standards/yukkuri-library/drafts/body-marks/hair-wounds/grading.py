@@ -21,8 +21,7 @@ def read_rules(root):
         repeated_hit_rule='same kind and body part: min(3,max(old grade,hit grade)+(accepted loss>=2 ? 1 : 0))',
         capacity_rule='At eight wounds, current insertWound strengthens the nearest existing wound by one; it does not create a ninth.',
         hot_tool_exception='Current hot heated_awl forces at least grade 2; the removed local-burn art path is not exported.',
-        core_rule='A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant.',
-        live_code_gaps=[])
+        core_rule='A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant.')
 
 
 def grade_for(loss,rules):

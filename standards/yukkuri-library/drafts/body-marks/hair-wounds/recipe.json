@@ -1,7 +1,6 @@
 {
   "id": "hair-wounds",
   "status": "authored_pending_review",
-  "authorization": "2026-10-22 用户要求本次由 Codex 制作，不使用 Opus。",
   "design": "项目设计：有可追溯伤因的擦伤、裂伤、凹伤；烧伤仅足部或全身。中枢与周围同属馅料，材质连续。",
   "seed": 28,
   "texture_size": 512,

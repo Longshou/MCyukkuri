@@ -98,7 +98,6 @@ def outputs():
         'source': str(HERE.relative_to(ROOT)).replace('\\', '/'),
         'material_source': 'preview.py',
         'recipe': 'recipe.json',
-        'selection': 'user_requested_2026-10-21',
         'runtime_status': 'pending_gameplay_visual_review',
         'scope': 'existing scratch, dent, tear, local scorch, healed scar, three dirt stages, four mould stages and continuous baked sole; core geometry exported separately by export_cavity.cjs',
         'texture_size': SIZE,

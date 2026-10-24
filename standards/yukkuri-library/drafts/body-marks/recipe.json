@@ -3,8 +3,6 @@
   "status": "selected_pending_runtime_review",
   "runtime_selected": ["scratch", "dent", "tear", "scorch", "scar", "dirt_1", "dirt_2", "dirt_3", "mold_1", "mold_2", "mold_3", "mold_4", "char", "core_cavity"],
   "runtime_exporter": "export_wounds.py",
-  "runtime_selection": "2026-10-21 用户要求接入此前整批伤口、油霉、脏污、足缘焦化及重伤露核造型；复用既有制作配方，运行视觉待试玩。",
-  "date": "2026-10-18",
   "design": "面皮上的局部变化：低饱和、疏密成簇、尖端收细；保留眼口与角色轮廓。",
   "sources": [
     {"path": "wiki/hakkei-reference/lore/entities-sources.md", "use": "柔韧面皮、粗糙足面、馅料与深处中枢、清洁和霉变。具体配色与图形为项目原创。"},

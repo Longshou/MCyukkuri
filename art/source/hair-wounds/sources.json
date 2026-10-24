@@ -3,32 +3,32 @@
   "references": {
     "user_thermal": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：足部或全身烧伤；焦枯纹理；全身高度不变、宽度收窄成干瘦，参考灵胖脸部绘制方法强化干感；烧伤整体重做，去掉双下巴描线，以焦枯材质表达，咬伤齿间不连线，每轮独立 subagent 审图",
+      "locator": "项目采用：烧伤仅分足部或全身；焦枯纹理、全身高度不变并横向干瘦；咬伤齿间不连线，出图后须独立审图",
       "supports": "Only sole and whole-body thermal scopes; no isolated scalp burn or thermal core-hole sample."
     },
     "user_hair": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：砸击随体表凹陷，裂伤处断发直接消失，不做散落头发",
+      "locator": "项目采用：钝击时头发随体表凹陷，裂伤只在实际断口断发，不制作散落头发",
       "supports": "Shared dent deformation and local severing only at a genuine break."
     },
     "user_filling": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：中枢馅与周边材质区别过强、边界感太强",
+      "locator": "项目采用：中枢与周边馅料保持连续材质，不做边界过强的异色器官",
       "supports": "Continuous material family without an isolated organ-like shell."
     },
     "user_filling_species": {
       "type": "user_rule",
-      "locator": "当前用户明确要求：不同油库里的内馅可以不同，按品种调整伤口配色；爱丽丝为卡仕达馅",
+      "locator": "项目采用：不同油库里的内馅按品种区分；爱丽丝为卡仕达馅，伤口使用对应配色",
       "supports": "Species-specific filling palettes and a custard presentation for Alice; RGB values remain project art."
     },
     "user_predator_filling": {
       "type": "user_rule",
-      "locator": "当前用户明确指定：捕食种是肉包",
+      "locator": "项目采用：蕾米莉亚与芙兰等捕食种为肉包馅，伤口使用熟食肉馅配色",
       "supports": "Remilia and Flandre use a savoury meat-bun filling palette; RGB values are project art and no combat rule changes."
     },
     "user_core_hair_channel": {
       "type": "user_rule",
-      "locator": "当前用户反馈：捕食种核心与周边材质之间漏出发色；须去除接缝中的内层发束，外侧发型保留",
+      "locator": "项目采用：露核创腔不得在核心与周边馅料之间露出内层发束，外侧发型保留",
       "supports": "Registered inner underlayer parts join the exposed-core clipping channel; ordinary wounds and outer back hair keep their existing boundaries."
     },
     "filling_rules": {
@@ -87,7 +87,7 @@
       "type": "author_specific_work",
       "url": "https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html",
       "locator": "2.1 餡／餡密度",
-      "supports": "Central filling described as denser filling; not a differently colored organ. Read on 2026-10-22; author labels the work personal setting. Numerical proportions are not adopted."
+      "supports": "Central filling described as denser filling; not a differently colored organ. Author labels the work personal setting. Numerical proportions are not adopted."
     },
     "minecraft_1211": {
       "type": "minecraft_source",
@@ -107,13 +107,13 @@
     "wiki_burn_eh16": {
       "type": "repository_visual_reference",
       "path": "wiki/art-references/ehentai/images/EH16/008.webp",
-      "locator": "EH16-008 綾蔵／shku，茎上个体受灼烧画格；本轮直接核看原图",
+      "locator": "EH16-008 綾蔵／shku，茎上个体受灼烧画格；核看受热处的焦黑细点与连续表皮",
       "supports": "焦黑细点、烟熏与连续表皮，没有碎瓷状块面。仅采用材质语言，不采用局部火焰范围、幼体伤情或照抄原图。",
       "sha256": "ce9718f51d8c299b70820debea0177795790de931732d0c4e62f4b267e86b78e"
     },
     "user_transparency": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：无底贴图，避免肤色边框误盖眼睛；烧伤不应像即将碎裂",
+      "locator": "项目采用：无底贴图，不以肤色边框遮盖五官；烧伤表现焦枯而非碎裂",
       "supports": "No opaque skin-colored exterior; preserve organs outside actual injury; soot and desiccation instead of fracture plates."
     },
     "deibu_face": {
@@ -130,7 +130,7 @@
     },
     "user_core_states": {
       "type": "user_rule",
-      "locator": "2026-10-22 当前会话：中枢受损和取出空腔的贴图不需要",
+      "locator": "项目采用：本包只导出普通伤与完好中枢，不另制中枢受损或取出空腔分支",
       "supports": "This authoring package exports ordinary wounds and intact exposed central filling only."
     }
   },
