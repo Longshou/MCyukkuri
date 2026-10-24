@@ -4,6 +4,8 @@ import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
+import net.minecraft.nbt.CompoundTag;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -57,6 +59,41 @@ public final class SelfRescueHatGeometry {
     private static Vec3 transform(Quaternionf q,Vec3 p){var v=q.transform(new Vector3f((float)p.x,(float)p.y,(float)p.z));return new Vec3(v.x,v.y,v.z);}
     public static double bodyUnit(YukkuriView actor){return actor.growthScale()*actor.getScale()/16;}
     public static double hatUnit(YukkuriView actor){return bodyUnit(actor)*HatVessel.hatMultiplier(actor.subspeciesFlags());}
+    public record Motion(String clip,float seconds) {}
+    /** Only observes the executed phase and its clock; presentation and surface queries sample the same frame. */
+    public static Motion motion(YukkuriView actor,float partial) {
+        var state=actor.aquaticSelfRescueState();
+        if(!actor.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)||state.getString("Phase").isEmpty())return null;
+        float elapsed=Math.max(0,(actor.level().getGameTime()-state.getLong("Start")+partial)/20f);
+        return switch(state.getString("Phase")){
+            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*Mth.clamp(elapsed/(state.contains("RemoveTicks")?Math.max(1,state.getInt("RemoveTicks"))/20f:1.8f),0,1));
+            case "DEPLOY_HAT"->new Motion("water_hat_shake",1.2f);
+            case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
+            case "RIGHT_HAT"->{int index=Mth.clamp(state.getInt("PushIndex"),0,2);float local=elapsed>=index?elapsed-index:elapsed;
+                yield new Motion("water_hat_push",Math.min(.8f,Math.max(0,local)));}
+            case "CLIMB"->new Motion("water_mouth_grip",elapsed%.8f);
+            case "SLIPPED"->new Motion("water_gasp",elapsed%1.6f);
+            case "SAFE"->new Motion("water_recover",Math.min(2.8f,elapsed));
+            default->null;
+        };
+    }
+    /** Read only the already executed and synchronized carried-hat pose; this never plans or advances a rescue. */
+    public static Matrix4f wornMatrix(YukkuriView actor,float partial,float bodyYaw) {
+        var state=actor.aquaticSelfRescueState();
+        if(!actor.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)||!actor.hasVisibleAccessory()||!state.getBoolean("HatPose"))return null;
+        float q=Math.clamp(partial,0,1);
+        var rotation=rotation(state,"PrevHat").slerp(rotation(state,"Hat"),q);
+        var origin=point(state,"PrevHat").lerp(point(state,"Hat"),q);
+        float squash=Mth.lerp(q,state.getFloat("PrevHatSquash"),state.getFloat("HatSquash"));
+        var pose=new Pose(origin,rotation,squash,Vec3.ZERO,Vec3.ZERO,null);
+        return pose.wornMatrix(actor.getPosition(q),bodyYaw,bodyUnit(actor),hatUnit(actor));
+    }
+    private static Quaternionf rotation(CompoundTag state,String key) {
+        return new Quaternionf(state.getFloat(key+"QX"),state.getFloat(key+"QY"),state.getFloat(key+"QZ"),state.getFloat(key+"QW")).normalize();
+    }
+    private static Vec3 point(CompoundTag state,String key) {
+        return new Vec3(state.getDouble(key+"X"),state.getDouble(key+"Y"),state.getDouble(key+"Z"));
+    }
     private static Quaternionf facing(float yaw){return new Quaternionf().rotationY((float)Math.toRadians(180-yaw));}
     private static Vec3 anchor(){var a=HatVessel.anchor();return new Vec3(a.x,a.y,a.z);}
     private static Vec3 wornOrigin(YukkuriView actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}

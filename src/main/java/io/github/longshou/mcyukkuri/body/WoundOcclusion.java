@@ -20,7 +20,7 @@ import org.joml.Vector3f;
 
 /** Actual remaining hair and independent accessories can occlude a core ray just as they occlude its drawing. */
 final class WoundOcclusion {
-    private record Part(String name,int start,int count,boolean hair,boolean receiver,boolean accessory,int hiddenMask) {}
+    private record Part(String name,int start,int count,boolean hair,boolean receiver,boolean accessory,int hiddenMask,int pregnancyGroup) {}
     private record Surface(float[] points,float[] layoutVertices,float[][] weights,List<Part> parts,Map<String,Vector3f> rigidCenters,
                            float[] hatBounds,int[] hatSeat,Map<Integer,Map<String,HatDamageGeometry.Layout[]>> hatLayouts) {}
     private static final Map<String,Surface> SURFACES=new ConcurrentHashMap<>();
@@ -47,9 +47,15 @@ final class WoundOcclusion {
                     layoutVertices[i*8+3]=uv.get(i*2).getAsFloat();layoutVertices[i*8+4]=uv.get(i*2+1).getAsFloat();}
                 var rows=raw.getAsJsonArray("weights");float[][] weights=new float[rows.size()][3];
                 for(int i=0;i<weights.length;i++){var row=rows.get(i).getAsJsonArray();for(int k=0;k<3;k++)weights[i][k]=row.get(k).getAsFloat();}
+                var bones=raw.getAsJsonArray("bones");int braid=-1;
+                for(int i=0;i<bones.size();i++)if(bones.get(i).getAsJsonObject().get("name").getAsString().equals("hand_right"))braid=i;
                 var parts=new ArrayList<Part>();for(var entry:raw.getAsJsonArray("parts")){var p=entry.getAsJsonObject();
-                    parts.add(new Part(p.get("name").getAsString(),p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("hair").getAsBoolean(),p.get("receiver").getAsBoolean(),
-                            p.get("accessory").getAsBoolean(),p.get("hiddenMask").getAsInt()));}
+                    String name=p.get("name").getAsString();int start=p.get("start").getAsInt(),bone=(int)weights[start][0];
+                    boolean accessory=p.get("accessory").getAsBoolean();
+                    int group=accessory?1:name.startsWith("braid_lock")&&braid>=0
+                            &&(bone==braid||bones.get(bone).getAsJsonObject().get("parent").getAsInt()==braid)?2:0;
+                    parts.add(new Part(name,start,p.get("count").getAsInt(),p.get("hair").getAsBoolean(),p.get("receiver").getAsBoolean(),
+                            accessory,p.get("hiddenMask").getAsInt(),group));}
                 var centers=new HashMap<String,Vector3f>();var counts=new HashMap<String,Integer>();
                 for(var part:parts)if(!part.hair){String group=WoundProfiles.rigidGroup(key,part.name);
                     var center=centers.computeIfAbsent(group,ignored->new Vector3f());
@@ -68,7 +74,7 @@ final class WoundOcclusion {
     private static Vector3f rest(Surface surface,int index) {
         int i=index*3;return new Vector3f(surface.points[i],surface.points[i+1],surface.points[i+2]);
     }
-    private static Vector3f posed(Surface surface,int index,WoundSurface mesh,List<BodyWound> wounds,Matrix4f[] world,float pregnancy,Part part,int whole) {
+    private static Vector3f posed(Surface surface,int index,WoundSurface mesh,List<BodyWound> wounds,Matrix4f[] world,float pregnancy,Part part,int whole,WoundSurface.AttachmentLifts lifts) {
         var point=rest(surface,index);
         if(part.receiver)point=mesh.deformDisplay(point,wounds);
         else if(part.hair)WoundProfiles.thermalPoint(mesh.assetId,point,whole);
@@ -79,7 +85,11 @@ final class WoundOcclusion {
         }
         var weight=surface.weights[index];var out=world[(int)weight[0]].transformPosition(point,new Vector3f());
         if(weight[1]>=0&&weight[2]>0){var second=world[(int)weight[1]].transformPosition(point,new Vector3f());out.lerp(second,weight[2]);}
-        if(pregnancy>.001f)LiveBirthGeometry.deform(out,pregnancy,0);
+        if(pregnancy>.001f){
+            if(part.pregnancyGroup==1)out.add(lifts.crown());
+            else if(part.pregnancyGroup==2)out.add(lifts.braid());
+            else LiveBirthGeometry.deform(out,pregnancy,0);
+        }
         return out;
     }
     static boolean blocked(YukkuriEntity entity,WoundSurface mesh,BodyCavity.Opening opening,Vector3f origin,Vector3f direction,
@@ -87,24 +97,25 @@ final class WoundOcclusion {
         var surface=surface(mesh.assetId);var wounds=entity.body().wounds();int hairLoss=entity.body().hairLoss();
         int whole=wounds.stream().filter(w->w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN).mapToInt(BodyWound::severity).max().orElse(0);
         float pregnancy=entity.livePregnancyProgress();
+        var lifts=WoundPlacement.pregnancyLifts(entity);
         int level=Headwear.visualLevel(entity.visibleHeadwear());float fit=Headwear.visualFit(entity.visibleHeadwear());
         boolean accessory=entity.hasVisibleAccessory()||level==3||entity.contactPose().equals("HAT_REMOVE");
         var seat=new Vector3f();
         if(accessory&&fit<.999f&&surface.hatSeat.length>0){
             for(var part:surface.parts)if(part.accessory)for(int index:surface.hatSeat)
-                if(index>=part.start&&index<part.start+part.count)seat.add(posed(surface,index,mesh,wounds,world,pregnancy,part,whole));
+                if(index>=part.start&&index<part.start+part.count)seat.add(posed(surface,index,mesh,wounds,world,pregnancy,part,whole,lifts));
             seat.div(surface.hatSeat.length);
         }
         for(var part:surface.parts){
             if(part.accessory&&!accessory||(hairLoss&part.hiddenMask)!=0)continue;
             if(part.accessory&&level>0){
-                if(hatBlocked(surface,part,level,fit,seat,mesh,wounds,world,pregnancy,whole,origin,direction,coreDistance))return true;
+                if(hatBlocked(surface,part,level,fit,seat,mesh,wounds,world,pregnancy,whole,lifts,origin,direction,coreDistance))return true;
                 continue;
             }
             for(int i=part.start;i<part.start+part.count;i+=3){
-                var a=posed(surface,i,mesh,wounds,world,pregnancy,part,whole);
-                var b=posed(surface,i+1,mesh,wounds,world,pregnancy,part,whole);
-                var c=posed(surface,i+2,mesh,wounds,world,pregnancy,part,whole);
+                var a=posed(surface,i,mesh,wounds,world,pregnancy,part,whole,lifts);
+                var b=posed(surface,i+1,mesh,wounds,world,pregnancy,part,whole,lifts);
+                var c=posed(surface,i+2,mesh,wounds,world,pregnancy,part,whole,lifts);
                 if(part.accessory&&fit<.999f){a.sub(seat).mul(fit).add(seat);b.sub(seat).mul(fit).add(seat);c.sub(seat).mul(fit).add(seat);}
                 var ab=new Vector3f(b).sub(a);var ac=new Vector3f(c).sub(a);var h=new Vector3f(direction).cross(ac);float determinant=ab.dot(h);
                 if(Math.abs(determinant)<1e-8f)continue;
@@ -119,7 +130,7 @@ final class WoundOcclusion {
         return false;
     }
     private static boolean hatBlocked(Surface surface,Part part,int level,float fit,Vector3f seat,WoundSurface mesh,List<BodyWound> wounds,
-                                      Matrix4f[] world,float pregnancy,int whole,Vector3f origin,Vector3f direction,float coreDistance) {
+                                      Matrix4f[] world,float pregnancy,int whole,WoundSurface.AttachmentLifts lifts,Vector3f origin,Vector3f direction,float coreDistance) {
         var byPart=surface.hatLayouts.computeIfAbsent(level,ignored->new ConcurrentHashMap<>());
         var layouts=byPart.computeIfAbsent(part.name,ignored->HatDamageGeometry.layout(surface.layoutVertices,part.start,part.count,part.name,surface.hatBounds,level,hatPattern()));
         var face=new Vector3f[4];var cell=new Vector3f[]{new Vector3f(),new Vector3f(),new Vector3f(),new Vector3f()};
@@ -127,12 +138,12 @@ final class WoundOcclusion {
         for(var layout:layouts){
             if(layout.original()){
                 for(int first=layout.originalStart();first<layout.originalStart()+layout.originalCount();first+=3){
-                    for(int k=0;k<3;k++){face[k]=posed(surface,first+k,mesh,wounds,world,pregnancy,part,whole);if(fit<.999f)face[k].sub(seat).mul(fit).add(seat);}
+                    for(int k=0;k<3;k++){face[k]=posed(surface,first+k,mesh,wounds,world,pregnancy,part,whole,lifts);if(fit<.999f)face[k].sub(seat).mul(fit).add(seat);}
                     if(BodyCavity.intersection(origin,direction,face[0],face[1],face[2])<coreDistance-.0001f)return true;
                 }
                 continue;
             }
-            var corners=layout.corners();for(int k=0;k<4;k++){face[k]=posed(surface,corners[k],mesh,wounds,world,pregnancy,part,whole);
+            var corners=layout.corners();for(int k=0;k<4;k++){face[k]=posed(surface,corners[k],mesh,wounds,world,pregnancy,part,whole,lifts);
                 if(fit<.999f)face[k].sub(seat).mul(fit).add(seat);}
             for(int i=0;i<layout.n();i++)for(int j=0;j<layout.m();j++){
                 if(!HatDamageGeometry.cell(face,layout.n(),layout.m(),i,j,layout.code(i,j),layout.flip(),cell,normal,temp))continue;

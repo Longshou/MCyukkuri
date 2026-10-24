@@ -14,6 +14,8 @@ import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 
 /** Immutable selected skin geometry, shared by server hit tests and client attachments. No client classes. */
@@ -34,6 +36,7 @@ public final class WoundSurface {
     private final Node tree;
     private record Node(float[] box,Node left,Node right,int[] triangles) {}
     public record Hit(int triangle,float u,float v,float distance) {}
+    public record AttachmentLifts(Vector3f crown,Vector3f braid) {}
     public static WoundSurface get(String id){return CACHE.computeIfAbsent(id,key->{
         var stream=WoundSurface.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_wounds/"+key+".json.gz");
         if(stream==null)throw new IllegalStateException("Missing wound surface "+key);
@@ -48,7 +51,8 @@ public final class WoundSurface {
         for(int i=0;i<raw.size();i++){var a=raw.get(i).getAsJsonArray();weights[i]=new float[a.size()*2];for(int j=0;j<a.size();j++){var w=
                 a.get(j).getAsJsonArray();weights[i][j*2]=w.get(0).getAsInt();weights[i][j*2+1]=w.get(1).getAsFloat();}}
         replaced=new HashSet<>();data.getAsJsonArray("replaced").forEach(v->replaced.add(v.getAsString()));bones=data.getAsJsonArray("bones");clips=
-                data.getAsJsonObject("clips");envelope=data.getAsJsonArray("envelope");accessoryPrefixes=data.getAsJsonArray("accessoryPrefixes");
+                data.getAsJsonObject("clips").deepCopy();WoundMotion.apply(assetId,bones,clips);
+        envelope=data.getAsJsonArray("envelope");accessoryPrefixes=data.getAsJsonArray("accessoryPrefixes");
         faceParts=new ArrayList<>();for(var rawPart:data.getAsJsonArray("faceParts")){var p=rawPart.getAsJsonObject();
                 faceParts.add(new FacePart(p.get("start").getAsInt(),p.get("count").getAsInt(),p.get("bone").getAsInt(),p.get("parent").getAsInt()));}
         if(data.has("expressionPoints"))for(var entry:data.getAsJsonObject("expressionPoints").entrySet()){
@@ -106,6 +110,7 @@ public final class WoundSurface {
         return rest(triangle).mul(1-u-v).add(rest(triangle+1).mul(u)).add(rest(triangle+2).mul(v));
     }
     public float[] bounds(){return tree.box.clone();}
+    public boolean hasClip(String id){return clips.has(id);}
     /** Deep tissue follows the central body stretch, while the rim inherits its actual skin weights. */
     public int tissueBone(){
         for(int i=0;i<bones.size();i++)if(bones.get(i).getAsJsonObject().get("name").getAsString().equals("body_stretch"))return i;
@@ -173,16 +178,17 @@ public final class WoundSurface {
     public Vector3f point(Hit h,Matrix4f[] world,List<BodyWound> wounds){return posed(h.triangle,world,wounds).mul(1-h.u-h.v).add(posed(h.triangle+1,
             world,wounds).mul(h.u)).add(posed(h.triangle+2,world,wounds).mul(h.v));}
     public Vector3f point(BodyWound w,Matrix4f[] world,List<BodyWound> wounds){return point(new Hit(w.triangle(),w.u(),w.v(),0),world,wounds);}
-    public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds){Hit best=null;
+    public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds){return ray(origin,direction,world,wounds,0);}
+    public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds,float pregnancy){Hit best=null;
         if(world==null)return restRay(tree,origin,direction,null);
         for(int i=0;i<skinCount;i+=3){var a=world==null?rest(i):posed(i,world,wounds);var b=world==null?rest(i+1):posed(i+1,world,wounds);var c=world==null?rest(i+2):posed(i+2,world,wounds);
+            if(pregnancy>.001f){LiveBirthGeometry.deform(a,pregnancy,0);LiveBirthGeometry.deform(b,pregnancy,0);LiveBirthGeometry.deform(c,pregnancy,0);}
             Vector3f e=b.sub(a),f=c.sub(a),h=new Vector3f(direction).cross(f);float det=e.dot(h);if(det<1e-7)continue;
             var s=new Vector3f(origin).sub(a);float u=s.dot(h)/det;if(u<-.0001||u>1.0001)continue;var q=s.cross(e);float v=direction.dot(q)/det;if(v<-.0001||u+v>1.0001)continue;
             float t=f.dot(q)/det;if(t>=0&&(best==null||t<best.distance))best=new Hit(i,u,v,t);
         }return best;
     }
-    public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,1,"",0);}
-    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
+    private float[][] poseValues(String action,float elapsed,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
         sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);
         if(hatMotion.equals("HAT_REMOVE")||hatMotion.equals("HAT_RETURN")){
             var hat=HatCarry.shape(assetId);if(hat!=null){float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
@@ -190,12 +196,27 @@ public final class WoundSurface {
                 float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
                 var root=values[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;root[2]+=hat.get("forward").getAsFloat()*forward;}
         }
-        var world=new Matrix4f[bones.size()];
+        return values;
+    }
+    public AttachmentLifts pregnancyLifts(String action,float elapsed,String hatMotion,float hatPhase,float belly) {
+        if(belly<=.001f)return new AttachmentLifts(new Vector3f(),new Vector3f());
+        var values=poseValues(action,elapsed,hatMotion,hatPhase);int hat=-1,braid=-1;
+        for(int i=0;i<bones.size();i++){String name=bones.get(i).getAsJsonObject().get("name").getAsString();
+            if(name.equals("hat_follow"))hat=i;if(name.equals("hand_right"))braid=i;}
+        var root=braid<0?null:new Vector3f(floats(bones.get(braid).getAsJsonObject().getAsJsonArray("pivot")));
+        return new AttachmentLifts(PregnancyAttachments.crownLift(assetId,belly,hat<0?null:values[hat]),
+                PregnancyAttachments.braidLift(root,belly,braid<0?null:values[braid]));
+    }
+    public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,1,"",0,null);}
+    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase){return pose(action,elapsed,hatScale,hatMotion,hatPhase,null);}
+    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase,Matrix4f selfHatPose){
+        var values=poseValues(action,elapsed,hatMotion,hatPhase);var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=
                 b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
                 p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);
             if(hatScale!=1&&b.get("name").getAsString().equals("hat_follow")){
                 var anchor=HatVessel.anchor();world[i].translate(anchor).scale(hatScale).translate(anchor.negate());}
+            if(selfHatPose!=null&&b.get("name").getAsString().equals("hat_follow"))world[i].set(selfHatPose);
         }return world;
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */
