@@ -42,47 +42,49 @@ final class CareWearRenderer {
     private static final float FABRIC_DENSITY = 1;
 
     // ---- cloth swaddle styles (order of item.SwaddleStyle) ----------------------------------------------------------------
-    private static final int ROLL = 0, FRILL = 1, HEM = 2;
+    private static final int FOLD = 0, FRILL = 1;
     private static final int PLAIN = 0, LETTER = 1, MARK = 2, OUTING = 3, POMPOMS = 4;
     /**
-     * One style: body fabric tile and colour, rim fabric and colour, accent (piping under the cuff, crossover edge, lace frill), trim colour
-     * (bow, pompoms, letter), rim kind, crossover front flap, fixture, rim height at the back and the front, extra bulge of the bag and
-     * the cuff's thickness (fractions of the body height). Colours multiply the near-white tiles; patterned tiles take white.
+     * One style: body fabric tile and colour, edge fabric and colour, accent (a one-line piping under the folded edge, the flap's topstitch,
+     * lace frill), trim colour (bow, pompoms, letter), rim kind, crossover front flap, fixture, rim height at the back and the front, extra
+     * bulge of the bag, and the edge: for FOLD the width of the folded-over band (narrower at the front) and its thickness, for FRILL the
+     * cuff tube under the lace (fractions of the body height). Colours multiply the near-white tiles; patterned tiles take white.
      */
     private record Style(ResourceLocation fabric, int[] body, ResourceLocation rollFabric, int[] roll, int[] accent, int[] trim, int rim,
-                         boolean crossover, int fixture, float back, float front, float puff, float rollSize) {}
+                         boolean crossover, int fixture, float back, float front, float puff, float rollSize, float fold) {}
     private static final int[] WHITE = {255, 255, 255};
     private static final Style[] STYLES = {
-            // knit: cream knit, thick cuff piped in pink, a crossover flap tied with a pink bow (project design)
-            new Style(fabric("knit"), rgb(255, 250, 240), fabric("knit"), rgb(255, 250, 240), rgb(242, 176, 198), rgb(240, 136, 168), ROLL, true, PLAIN, .55f, .20f, .04f, .13f),
+            // knit: cream knit folded over to show its pale pink lining, a pink piping line, a crossover flap tied with a pink bow (project design)
+            new Style(fabric("knit"), rgb(255, 250, 240), fabric("cotton"), rgb(248, 210, 220), rgb(226, 136, 166), rgb(240, 136, 168), FOLD, true, PLAIN, .55f, .20f, .04f, .17f, .055f),
             // frill: pink bag, white lace frill, red bow at the front (EH30's look only)
-            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .52f, .20f, .05f, .07f),
+            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .52f, .20f, .05f, .07f, 0),
             // letter: red bag with a frilled collar and the wearer's white initial on the back (EH34 p.7-8)
-            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .55f, .20f, .05f, .07f),
-            // tiger: striped lower piece with a fluffy cuff and the tiger mark front and back (EH34 p.12-14; the eared hood is not made)
-            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 244, 226), null, null, ROLL, false, MARK, .55f, .20f, .04f, .13f),
-            // outing: light cloth with a navy piped edge, a rubber sole, a strap and a pouch (EH31 p.2)
-            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, HEM, false, OUTING, .50f, .20f, .03f, .07f),
-            // fleece: thick, higher winter wrap, crossover flap and pompom ties at the sides (N91's cold-season wear; the shape is project design)
-            new Style(fabric("fleece"), rgb(226, 206, 176), fabric("fleece"), rgb(242, 228, 206), rgb(242, 228, 206), rgb(198, 96, 78), ROLL, true, POMPOMS, .60f, .19f, .07f, .15f),
-            // gingham: blue checks, white cuff piped in navy, crossover flap and navy bow (project design)
-            new Style(fabric("gingham"), WHITE, fabric("cotton"), WHITE, rgb(70, 96, 170), rgb(70, 96, 170), ROLL, true, PLAIN, .55f, .20f, .04f, .12f),
-            // floral: cream with small flowers, pale green cuff piped in green, crossover flap and green bow (project design)
-            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), ROLL, true, PLAIN, .55f, .20f, .04f, .12f)};
+            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .55f, .20f, .05f, .07f, 0),
+            // tiger: striped lower piece folded over in cream fleece, the tiger mark front and back (EH34 p.12-14; the eared hood is not made)
+            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 236, 206), null, null, FOLD, false, MARK, .55f, .20f, .04f, .17f, .06f),
+            // outing: light cloth with a navy folded edge, a rubber sole, a strap and a pouch (EH31 p.2)
+            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, FOLD, false, OUTING, .50f, .20f, .03f, .15f, .05f),
+            // fleece: thick, higher winter wrap with a plush folded edge, crossover flap and pompom ties at the sides (N91's cold-season wear; shape project design)
+            new Style(fabric("fleece"), rgb(226, 206, 176), fabric("fleece"), rgb(244, 232, 212), rgb(206, 186, 156), rgb(198, 96, 78), FOLD, true, POMPOMS, .60f, .19f, .07f, .19f, .08f),
+            // gingham: blue checks folded over white with a navy line, crossover flap and navy bow (project design)
+            new Style(fabric("gingham"), WHITE, fabric("cotton"), rgb(250, 250, 252), rgb(70, 96, 170), rgb(70, 96, 170), FOLD, true, PLAIN, .55f, .20f, .04f, .16f, .055f),
+            // floral: cream with small flowers folded over pale green with a green line, crossover flap and green bow (project design)
+            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), FOLD, true, PLAIN, .55f, .20f, .04f, .16f, .055f)};
     /**
      * Every bag stands SHELL_OUT of the body height clear of it (less at the ground, so the bottom rounds in) plus the style's bulge, which is
      * fullest in the lower half: a padded wrap, not a sleeve.
      */
     private static final float SHELL_OUT = .12f;
     /**
-     * The crossover flap: one panel wrapped round from the back left (SEAM_AT) over the left flank and across the front; its leading edge
-     * runs diagonally from low at the front right up to the rim beside the left cheek (SEAM_SLANT of the sweep back at the top), where
-     * the bow ties it, and stands FLAP_LIFT proud of the bag.
+     * The crossover flap: one panel wrapped round from the back left (SEAM_AT) over the left flank and across the front, tucked under the
+     * folded edge; its cut edge runs diagonally from low at the front right up to under the left cheek (SEAM_SLANT of the sweep back at
+     * the top), where the bow ties it, and stands FLAP_LIFT (about one unit) proud of the bag.
      */
-    private static final float SEAM_AT = -4.0f, SEAM_SWEEP = 3.03f, SEAM_SLANT = .53f, FLAP_LIFT = .08f;
-    /** Cross-section of the cuff tube (radians from outwards, upwards positive), and how many of its first segments take the accent. */
+    private static final float SEAM_AT = -4.0f, SEAM_SWEEP = 3.03f, SEAM_SLANT = .38f, FLAP_LIFT = .05f;
+    /** Cross-section of the frill styles' cuff tube (radians from outwards, upwards positive). */
     private static final float[] TUBE = {-1.75f, -1.05f, -.45f, .15f, .75f, 1.35f, 2.4f};
-    private static final int PIPING = 2;
+    /** Folded edge: lit top line and piping line heights, and the shadow band under it (fractions of the body height). */
+    private static final float FOLD_LIGHT = .025f, FOLD_PIPING = .03f, FOLD_SHADOW = .03f;
     /** Which way round from its leading edge the flap lies (+1: towards larger angles). */
     private static final float FLAP_SIDE = Math.signum(SEAM_SWEEP) * -1;
     /** Trim sheet rectangles in texels of the 64x64 sheet: {x, y, w, h}. */
@@ -124,6 +126,7 @@ final class CareWearRenderer {
     private static final float[][] NEAR = new float[CELLS / 2][BINS];
     /** Cloth surface of the current swaddle: inset, shell offset and bulge (model units), the angle leafPoint last used, point scratch. */
     private static float clothInset, clothShell, clothPuff, leafAngle;
+    private static Style clothStyle;
     private static final float[] PT = new float[3], PT2 = new float[3];
 
     /** Direction of each bin centre. */
@@ -327,11 +330,22 @@ final class CareWearRenderer {
     }
 
     /** Top edge of a cup at an angle: high at the back and sides, low at the front (-pi/2), rising to the cheeks beside the face. */
-    private static float rim(float angle, float front, float back) {
+    private static float rim(float angle, float front, float back) { return front + (back - front) * side(angle); }
+
+    /** 0 at the front (-pi/2) .. 1 at the sides and back, smoothstep, rising beside the face. */
+    private static float side(float angle) {
         float away = Math.abs((float) Math.atan2(Math.sin(angle + Math.PI / 2), Math.cos(angle + Math.PI / 2)));
         float s = Math.clamp((away - .3f) / 1.25f, 0f, 1f);
-        return front + (back - front) * s * s * (3 - 2 * s);
+        return s * s * (3 - 2 * s);
     }
+
+    /** Height (fraction) the edge takes below the rim at an angle: the folded band, narrower at the front, or the frill styles' tube. */
+    private static float bandAt(float angle) {
+        return clothStyle.rim == FRILL ? clothStyle.rollSize * .7f : clothStyle.rollSize * (.55f + .45f * side(angle));
+    }
+
+    /** Height fraction of ring k of the crossover flap, which stops under the folded edge. */
+    private static float flapF(float angle, int k) { return CUP_BASE + (topAt(angle) - bandAt(angle) - CUP_BASE) * k / (RINGS - 1); }
 
     /** RING[k] = body radius per bin at the k-th of RINGS heights between the base and TOP[bin]; false when the profile is empty. */
     private static boolean rings(float front, float back) {
@@ -422,9 +436,9 @@ final class CareWearRenderer {
     private static float seamLead(int k) { return SEAM_AT + SEAM_SWEEP * (1 - SEAM_SLANT * k / (RINGS - 1)); }
 
     /**
-     * The cloth swaddle in three passes (one texture each): the padded bag, the shadow under the cuff and the crossover flap with its edge
-     * and shadow in the style's fabric; the round cuff tube (piped with the accent), and the flap's hemmed edge, in the rim fabric; then the
-     * trim sheet's lace frill, bow and fixtures. Every ring radius comes from the profile at that ring's height plus the bag's offset, so
+     * The cloth swaddle in three passes (one texture each): the padded bag, the shadow under its edge and the crossover flap with its cut
+     * edge, shadow and topstitch in the style's fabric; the flat folded-over edge band (or, for the frill styles, a small cuff tube) in the
+     * edge fabric; then the trim sheet's lace frill, bow and fixtures. Every ring radius comes from the profile at that ring's height plus the bag's offset, so
      * the bag follows every form and growth stage; the fabric runs around the body by arc length (rounded to whole tiles so the seam
      * closes) and up by height at FABRIC_DENSITY texels per model unit.
      */
@@ -440,24 +454,27 @@ final class CareWearRenderer {
             ARC[i + 1] = ARC[i] + (float) Math.hypot(c[0] - p0x[0], c[2] - p0x[1]);
         }
         float tiles = Math.max(1, Math.round(ARC[BINS] * 16 * FABRIC_DENSITY / 16)), uScale = tiles / Math.max(1e-4f, ARC[BINS]), vScale = 16 * FABRIC_DENSITY / 16;
-        float roll = style.rollSize * h, under = style.rollSize * .7f;
+        clothStyle = style;
+        float roll = style.rollSize * h;
         int[] shade = {style.body[0] * 7 / 10, style.body[1] * 7 / 10, style.body[2] * 7 / 10};
         var b = buffers.getBuffer(RenderType.entityCutoutNoCull(style.fabric));
         for (int i = 0; i < BINS; i++) {
             int j = (i + 1) % BINS;
             float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0), nx = (float) Math.cos(am), nz = (float) Math.sin(am);
-            float u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale;
+            float u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale, bi = TOP[i] - bandAt(ai), bj = TOP[j] - bandAt(aj);
             for (int k = 0; k + 1 < RINGS; k++)
                 clothQuad(b, pose, style.body, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale,
                         ai, ringF(ai, k), u0, aj, ringF(aj, k), u1, aj, ringF(aj, k + 1), u1, ai, ringF(ai, k + 1), u0, 0, 0);
-            // the cuff's shadow on the bag just under it
-            clothQuad(b, pose, shade, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, TOP[i] - under - .04f, u0, aj, TOP[j] - under - .04f, u1,
-                    aj, TOP[j] - under, u1, ai, TOP[i] - under, u0, .002f * h, .002f * h);
+            // the shadow the edge casts on the bag just under it
+            clothQuad(b, pose, shade, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, bi - FOLD_SHADOW, u0, aj, bj - FOLD_SHADOW, u1,
+                    aj, bj, u1, ai, bi, u0, .002f * h, .002f * h);
         }
-        // the crossover flap: lapped across the front from the left side, standing proud of the bag and thinning to it at its far end
-        float lift = FLAP_LIFT * h, edge = .16f, meanR = ARC[BINS] / (float) (2 * Math.PI);
+        // the crossover flap: lapped across the front from the left side and tucked under the edge, a unit proud of the bag, thinning to
+        // it at its far end; its cut edge is a step face a shade darker, with the shadow it casts past the edge
+        float lift = FLAP_LIFT * h, meanR = ARC[BINS] / (float) (2 * Math.PI);
         if (style.crossover) {
             int steps = 8;
+            int[] cut = {style.body[0] * 4 / 5, style.body[1] * 4 / 5, style.body[2] * 4 / 5};
             for (int k = 0; k + 1 < RINGS; k++) {
                 float leadA = seamLead(k), leadB = seamLead(k + 1);
                 for (int s = 0; s < steps; s++) {
@@ -465,52 +482,64 @@ final class CareWearRenderer {
                     float c0 = SEAM_AT + (leadB - SEAM_AT) * s / steps, c1 = SEAM_AT + (leadB - SEAM_AT) * (s + 1) / steps;
                     float am = (a0 + a1 + c0 + c1) / 4, la = lift * Math.min(1, s / 3f), lb = lift * Math.min(1, (s + 1) / 3f);
                     clothQuad(b, pose, style.body, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
-                            a0, ringF(a0, k), .37f + a0 * meanR * uScale, a1, ringF(a1, k), .37f + a1 * meanR * uScale,
-                            c1, ringF(c1, k + 1), .37f + c1 * meanR * uScale, c0, ringF(c0, k + 1), .37f + c0 * meanR * uScale, la, lb);
+                            a0, flapF(a0, k), .37f + a0 * meanR * uScale, a1, flapF(a1, k), .37f + a1 * meanR * uScale,
+                            c1, flapF(c1, k + 1), .37f + c1 * meanR * uScale, c0, flapF(c0, k + 1), .37f + c0 * meanR * uScale, la, lb);
                 }
-                // the flap's cut edge down to the bag, and the shadow it casts past the edge
-                int[] side = {style.body[0] * 3 / 4, style.body[1] * 3 / 4, style.body[2] * 3 / 4};
-                float am = (leadA + leadB) / 2 - FLAP_SIDE * .2f;
-                clothQuad(b, pose, side, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
-                        leadA, ringF(leadA, k), 0, leadA, ringF(leadA, k), .1f, leadB, ringF(leadB, k + 1), .1f, leadB, ringF(leadB, k + 1), 0, lift, .001f * h);
+                float am = (leadA + leadB) / 2 - FLAP_SIDE * .2f, o = FLAP_SIDE * .18f;
+                clothQuad(b, pose, cut, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
+                        leadA, flapF(leadA, k), 0, leadA, flapF(leadA, k), .1f, leadB, flapF(leadB, k + 1), .1f, leadB, flapF(leadB, k + 1), 0, lift, .001f * h);
                 clothQuad(b, pose, shade, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
-                        leadA, ringF(leadA, k), 0, leadA - FLAP_SIDE * .18f, ringF(leadA - FLAP_SIDE * .18f, k), .1f,
-                        leadB - FLAP_SIDE * .18f, ringF(leadB - FLAP_SIDE * .18f, k + 1), .1f,
-                        leadB, ringF(leadB, k + 1), 0, .002f * h, .002f * h);
+                        leadA, flapF(leadA, k), 0, leadA - o, flapF(leadA - o, k), .1f, leadB - o, flapF(leadB - o, k + 1), .1f,
+                        leadB, flapF(leadB, k + 1), 0, .002f * h, .002f * h);
+                // topstitch: a dashed thread line just inside the cut edge
+                if (style.accent != null) for (int d = 0; d < 4; d += 2) {
+                    float t0 = d / 4f, t1 = (d + 1) / 4f, s0 = leadA + (leadB - leadA) * t0, s1 = leadA + (leadB - leadA) * t1;
+                    float f0 = flapF(leadA, k) + (flapF(leadB, k + 1) - flapF(leadA, k)) * t0, f1 = flapF(leadA, k) + (flapF(leadB, k + 1) - flapF(leadA, k)) * t1;
+                    float w = FLAP_SIDE * .05f, in = FLAP_SIDE * .03f;
+                    clothQuad(b, pose, style.accent, light, overlay, (float) Math.cos(s0), 0, (float) Math.sin(s0), cx, cz, minY, h, vScale,
+                            s0 + in, f0, 0, s0 + in + w * .4f, f0, 0, s1 + in + w * .4f, f1, 0, s1 + in, f1, 0, lift + .002f * h, lift + .002f * h);
+                }
             }
         }
-        // the cuff: a round tube along the rim, its lower segments piped with the accent; then the flap's hemmed edge
+        // the edge: a flat band folded over the rim (lit top line, its face, a one-line piping at its foot, its underside), or the frill
+        // styles' small cuff tube
         b = buffers.getBuffer(RenderType.entityCutoutNoCull(style.rollFabric));
-        float tube = roll * .5f;
         for (int i = 0; i < BINS; i++) {
             int j = (i + 1) % BINS;
             float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0), nx = (float) Math.cos(am), nz = (float) Math.sin(am);
             float u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale;
-            float[] p = clothPoint(TOP[i], ai, 0, cx, cz, minY, h, PT), q = clothPoint(TOP[j], aj, 0, cx, cz, minY, h, PT2);
-            float ri = (float) Math.hypot(p[0] - cx, p[2] - cz) + tube, rj = (float) Math.hypot(q[0] - cx, q[2] - cz) + tube;
-            float yi = p[1] - .2f * roll, yj = q[1] - .2f * roll;
-            for (int t = 0; t + 1 < TUBE.length; t++) {
-                float c0 = (float) Math.cos(TUBE[t]), s0 = (float) Math.sin(TUBE[t]), c1 = (float) Math.cos(TUBE[t + 1]), s1 = (float) Math.sin(TUBE[t + 1]);
-                float mid = (TUBE[t] + TUBE[t + 1]) / 2, mc = (float) Math.cos(mid);
-                int[] tint = t < PIPING && style.rim == ROLL && style.accent != null ? style.accent : style.roll;
-                ring(b, pose, tint, light, overlay, nx * mc, (float) Math.sin(mid), nz * mc, u0, u1, t / 8f, (t + 1) / 8f, cx, cz, ai, aj,
-                        ri + tube * c0, yi + tube * s0, rj + tube * c0, yj + tube * s0, ri + tube * c1, yi + tube * s1, rj + tube * c1, yj + tube * s1);
+            if (style.rim == FRILL) {
+                float tube = roll * .5f;
+                float[] p = clothPoint(TOP[i], ai, 0, cx, cz, minY, h, PT), q = clothPoint(TOP[j], aj, 0, cx, cz, minY, h, PT2);
+                float ri = (float) Math.hypot(p[0] - cx, p[2] - cz) + tube, rj = (float) Math.hypot(q[0] - cx, q[2] - cz) + tube;
+                float yi = p[1] - .2f * roll, yj = q[1] - .2f * roll;
+                for (int t = 0; t + 1 < TUBE.length; t++) {
+                    float c0 = (float) Math.cos(TUBE[t]), s0 = (float) Math.sin(TUBE[t]), c1 = (float) Math.cos(TUBE[t + 1]), s1 = (float) Math.sin(TUBE[t + 1]);
+                    float mid = (TUBE[t] + TUBE[t + 1]) / 2, mc = (float) Math.cos(mid);
+                    ring(b, pose, style.roll, light, overlay, nx * mc, (float) Math.sin(mid), nz * mc, u0, u1, t / 8f, (t + 1) / 8f, cx, cz, ai, aj,
+                            ri + tube * c0, yi + tube * s0, rj + tube * c0, yj + tube * s0, ri + tube * c1, yi + tube * s1, rj + tube * c1, yj + tube * s1);
+                }
+                continue;
             }
-        }
-        if (style.crossover && style.accent != null) for (int k = 0; k + 1 < RINGS; k++) {
-            float leadA = seamLead(k), leadB = seamLead(k + 1), hemLift = lift + .003f * h, nx = (float) Math.cos(leadA), nz = (float) Math.sin(leadA);
-            float ea = leadA + FLAP_SIDE * edge, eb = leadB + FLAP_SIDE * edge;
-            float[] a0 = clothPoint(ringF(ea, k), ea, hemLift, cx, cz, minY, h, new float[3]), a1 = clothPoint(ringF(leadA, k), leadA, hemLift, cx, cz, minY, h, new float[3]);
-            float[] b1 = clothPoint(ringF(leadB, k + 1), leadB, hemLift, cx, cz, minY, h, new float[3]), b0 = clothPoint(ringF(eb, k + 1), eb, hemLift, cx, cz, minY, h, new float[3]);
-            quad(b, pose, style.accent, light, overlay, nx, 0, nz, 0, .5f, .2f, .5f, .2f, .6f, 0, .6f, a0, a1, b1, b0);
+            float th = style.fold * h, ti = TOP[i], tj = TOP[j], bi = ti - bandAt(ai), bj = tj - bandAt(aj);
+            int[] light1 = brighter(style.roll), dark = {style.roll[0] * 3 / 5, style.roll[1] * 3 / 5, style.roll[2] * 3 / 5};
+            // the fold over the top of the rim, from the bag's lip out to the band's face
+            foldQuad(b, pose, light1, light, overlay, nx * .4f, .9f, nz * .4f, cx, cz, minY, h, vScale, ai, aj, u0, u1, ti, tj, 0, ti, tj, th, .006f * h);
+            float li = ti - FOLD_LIGHT, lj = tj - FOLD_LIGHT, pipe = style.accent != null ? FOLD_PIPING : 0;
+            foldQuad(b, pose, light1, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, aj, u0, u1, ti, tj, th, li, lj, th, 0);
+            foldQuad(b, pose, style.roll, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, aj, u0, u1, li, lj, th, bi + pipe, bj + pipe, th, 0);
+            if (pipe > 0) foldQuad(b, pose, style.accent, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, aj, u0, u1, bi + pipe, bj + pipe, th, bi, bj, th, 0);
+            // the band's foot turning back to the bag
+            foldQuad(b, pose, dark, light, overlay, nx * .4f, -.9f, nz * .4f, cx, cz, minY, h, vScale, ai, aj, u0, u1, bi, bj, th, bi, bj, 0, 0);
         }
         // trim: lace frill, bow and fixtures
         b = buffers.getBuffer(RenderType.entityCutoutNoCull(TRIM));
         if (style.rim == FRILL) frill(b, pose, style, cx, cz, minY, h, roll, light, overlay);
         if (style.fixture == PLAIN && style.trim != null) {
-            float a = style.crossover ? seamLead(RINGS - 1) + FLAP_SIDE * .15f : (float) (-Math.PI / 2);
-            float f = style.crossover ? topAt(a) - under - .08f : BOW_AT, bowLift = style.crossover ? FLAP_LIFT + .02f : .11f;
-            bow(b, pose, style.trim, light, overlay, clothPoint(f, a, bowLift * h, cx, cz, minY, h, PT), a, .30f * h, .22f * h);
+            // on the folded edge where the flap's cut edge meets it, or at the front of the frill
+            float a = style.crossover ? seamLead(RINGS - 1) : (float) (-Math.PI / 2);
+            float f = style.crossover ? topAt(a) - bandAt(a) * .5f : BOW_AT, bowLift = style.crossover ? style.fold + .015f : .11f;
+            bow(b, pose, style.trim, light, overlay, clothPoint(f, a, bowLift * h, cx, cz, minY, h, PT), a, .26f * h, .19f * h);
         }
         switch (style.fixture) {
             case LETTER -> decal(b, pose, style.trim, light, overlay, LETTERS_X + letter % 8 * 8, LETTERS_Y + letter / 8 * 8, 8, 8,
@@ -523,7 +552,7 @@ final class CareWearRenderer {
             case POMPOMS -> {
                 for (float side : new float[]{-1.15f, 1.15f}) {
                     float a = (float) (-Math.PI / 2) + side;
-                    cube(b, pose, style.trim, light, overlay, clothPoint(topAt(a) - under - .06f, a, .06f * h, cx, cz, minY, h, PT), .055f * h, POMPOM_UV);
+                    cube(b, pose, style.trim, light, overlay, clothPoint(topAt(a) - bandAt(a) - .05f, a, .06f * h, cx, cz, minY, h, PT), .055f * h, POMPOM_UV);
                 }
             }
             default -> { }
@@ -543,6 +572,23 @@ final class CareWearRenderer {
         clothPoint(f2, a2, liftB, cx, cz, minY, h, p); vertex(b, pose, c, u2, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
         clothPoint(f3, a3, liftA, cx, cz, minY, h, p); vertex(b, pose, c, u3, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
     }
+
+    /**
+     * One quad of the folded edge between bins at angles ai and aj: the lower edge at height fractions (fi0, fj0) standing lift0 off the
+     * bag, the upper at (fi1, fj1) and lift1, plus `rise` added to the upper edge's height.
+     */
+    private static void foldQuad(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
+                                 float cx, float cz, float minY, float h, float vScale, float ai, float aj, float u0, float u1,
+                                 float fi1, float fj1, float lift1, float fi0, float fj0, float lift0, float rise) {
+        float[] p = PT;
+        clothPoint(fi0, ai, lift0, cx, cz, minY, h, p); vertex(b, pose, c, u0, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(fj0, aj, lift0, cx, cz, minY, h, p); vertex(b, pose, c, u1, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(fj1, aj, lift1, cx, cz, minY, h, p); vertex(b, pose, c, u1, -(p[1] + rise - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1] + rise, p[2]);
+        clothPoint(fi1, ai, lift1, cx, cz, minY, h, p); vertex(b, pose, c, u0, -(p[1] + rise - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1] + rise, p[2]);
+    }
+
+    /** One step lighter: the lit top line of a folded edge. */
+    private static int[] brighter(int[] c) { return new int[]{Math.min(255, c[0] + 22), Math.min(255, c[1] + 22), Math.min(255, c[2] + 22)}; }
 
     /** A rim quad between angles ai and aj: the bottom edge at radii/heights (r0, y0) and the top edge at (r2, y2) of each side. */
     private static void ring(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
@@ -632,7 +678,7 @@ final class CareWearRenderer {
 
     /** Height fraction of the outing strap's middle at angle a: from the pouch top, sagging across the back, up to the rim at the end. */
     private static float strapF(float a, float start, float end) {
-        float t = (a - start) / (end - start), rim = topAt(end) - .03f;
+        float t = (a - start) / (end - start), rim = topAt(end) - bandAt(end) - .02f;
         return .34f + (rim - .34f) * t - .06f * (float) Math.sin(Math.PI * t);
     }
 
