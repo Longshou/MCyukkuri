@@ -93,9 +93,11 @@ public final class InjuryModel {
         WoundShape shape = bite ? WoundShape.BITE : shape(entity, source);
         if (shape == WoundShape.NONE) return null;
         boolean plant=source.is(DamageTypes.CACTUS)||source.is(DamageTypes.SWEET_BERRY_BUSH);
-        var hit = underfoot(source) ? soleSite(entity) : plant ? plantSite(entity,source) : WoundPlacement.hit(entity, source, false);
-        boolean aimed = hit != null && !underfoot(source) && !plant && source.getDirectEntity() != null;
-        if(plant&&hit==null)return null;
+        boolean ground=shape==WoundShape.ABRASION&&(source.is(Facilities.ABRASION)||entity.operations().settlingDamage());
+        var hit = underfoot(source) ? soleSite(entity) : plant ? plantSite(entity,source)
+                : ground ? WoundPlacement.groundContact(entity) : WoundPlacement.hit(entity, source, false);
+        boolean aimed = hit != null && !underfoot(source) && !plant && !ground && source.getDirectEntity() != null;
+        if((plant||ground)&&hit==null)return null;
         if (hit == null) hit = WoundPlacement.hit(entity, source);
         if (hit == null) return null;
         var mesh = WoundSurface.get(entity.subspecies().assetId());

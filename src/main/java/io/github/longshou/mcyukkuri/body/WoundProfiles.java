@@ -52,9 +52,15 @@ public final class WoundProfiles {
     public static synchronized float[] coreRadius(WoundShape shape) {
         return floats(data().getAsJsonObject("recipe").getAsJsonObject("core_openings").getAsJsonArray(shape.id()));
     }
+    public static synchronized float[][] coreLevels() { return polygon(data().getAsJsonArray("core_levels")); }
+    public static synchronized float coreReferenceDepth() { return data().get("core_reference_depth").getAsFloat(); }
     public static synchronized String rigidGroup(String id,String part) {
         var groups=data().getAsJsonObject("models").getAsJsonObject(id).getAsJsonObject("rigid_groups");
         return groups!=null&&groups.has(part)?groups.get(part).getAsString():part;
+    }
+    public static synchronized float verticalScale(String id,Vector3f normal) {
+        var scale=data().getAsJsonObject("models").getAsJsonObject(id).getAsJsonObject("mechanical_v_scale");
+        return scale==null?1:scale.get(normal.z<-.6f?"skin":"hair").getAsFloat();
     }
     private static synchronized DryShape dryShape() {
         if(dryShape!=null)return dryShape;

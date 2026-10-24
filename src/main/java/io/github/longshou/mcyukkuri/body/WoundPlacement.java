@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.body;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -49,8 +50,21 @@ public final class WoundPlacement {
         return m.scale(1,y,1).scale(1f/16);
     }
     public static Matrix4f[] pose(YukkuriEntity e){boolean operated=!e.contactPose().equals("NONE")&&!e.contactPose().equals("SLIDE");
-            return WoundSurface.get(e.subspecies().assetId()).pose(operated?"idle":e.getAnimationId(),operated?0:Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f));}
+            return WoundSurface.get(e.subspecies().assetId()).pose(operated?"idle":e.getAnimationId(),operated?0:Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f),
+                    HatVessel.hatMultiplier(e.subspeciesFlags()),e.contactPose(),e.contactTurn());}
     public static WoundSurface.Hit hit(YukkuriEntity e,DamageSource source){return hit(e,source,true);}
+    /** Lowest posed tissue touching the supporting floor, including the body's actual rolling angle. */
+    public static WoundSurface.Hit groundContact(YukkuriEntity e) {
+        if(!e.onGround())return null;
+        var mesh=WoundSurface.get(e.subspecies().assetId());var world=pose(e);var transform=transform(e);var wounds=e.body().wounds();
+        int lowest=-1;float height=Float.POSITIVE_INFINITY;
+        for(int i=0;i<mesh.skinCount;i+=3){
+            var center=mesh.posed(i,world,wounds).add(mesh.posed(i+1,world,wounds)).add(mesh.posed(i+2,world,wounds)).div(3);
+            transform.transformPosition(center);
+            if(center.y<height){height=center.y;lowest=i;}
+        }
+        return lowest<0?null:new WoundSurface.Hit(lowest,1f/3,1f/3,0);
+    }
     /** A collision callback without a source entity can still supply the actual contacting block's direction. */
     public static WoundSurface.Hit contact(YukkuriEntity e,Vec3 contact) {
         var center=e.getBoundingBox().getCenter();var outward=contact.subtract(center);

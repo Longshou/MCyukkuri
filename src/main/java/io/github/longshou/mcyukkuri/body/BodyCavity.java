@@ -34,17 +34,12 @@ public final class BodyCavity {
         if (input == null) throw new IllegalStateException("Missing authored body cavity");
         try (var reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             var data = JsonParser.parseReader(reader).getAsJsonObject();
-            var levels = data.getAsJsonArray("levels");
-            float[][] loft = new float[levels.size()][6];
-            for (int i = 0; i < loft.length; i++) {
-                var row = levels.get(i).getAsJsonArray();
-                for (int j = 0; j < 3; j++) { loft[i][j] = row.get(j).getAsFloat(); loft[i][j + 3] = row.get(3).getAsJsonArray().get(j).getAsFloat(); }
-            }
+            float[][] loft = WoundProfiles.coreLevels();
             var outline = data.getAsJsonArray("outline");
             float[][] ring = new float[outline.size()][];
             for (int i = 0; i < ring.length; i++) ring[i] = floats(outline.get(i).getAsJsonArray());
             return new Profile(floats(data.getAsJsonArray("center")), floats(data.getAsJsonArray("core_radius")),
-                    floats(data.getAsJsonArray("opening_radius")), data.get("reference_depth").getAsFloat(), ring, loft,
+                    floats(data.getAsJsonArray("opening_radius")), WoundProfiles.coreReferenceDepth(), ring, loft,
                     floats(data.getAsJsonArray("reference_bounds")));
         } catch (IOException ex) { throw new UncheckedIOException(ex); }
     }
@@ -135,7 +130,7 @@ public final class BodyCavity {
         return true;
     }
     /** Both sides are solid, matching the non-culling cavity material. */
-    private static float intersection(Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c) {
+    static float intersection(Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c) {
         var ab=new Vector3f(b).sub(a);var ac=new Vector3f(c).sub(a);var h=new Vector3f(direction).cross(ac);float determinant=ab.dot(h);
         if(Math.abs(determinant)<1e-8f)return Float.POSITIVE_INFINITY;
         float inverse=1/determinant;var s=new Vector3f(origin).sub(a);float u=s.dot(h)*inverse;
@@ -172,7 +167,7 @@ public final class BodyCavity {
         var center = new Vector3f(fit.center());
         float openingScale=wound.shape()==WoundShape.BLUNT?.76f:1;
         float radiusU = radius[0]*openingScale*wound.size()*new Vector3f(u).mul(scale).length();
-        float radiusV = radius[1]*openingScale*wound.size()*new Vector3f(v).mul(scale).length();
+        float radiusV = radius[1]*openingScale*wound.size()*new Vector3f(v).mul(scale).length()*WoundProfiles.verticalScale(mesh.assetId,normal);
         float depth = new Vector3f(anchor).sub(center).dot(normal);
         if (depth <= .01f) return null;
         float range = span.length() * 2;

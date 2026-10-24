@@ -13,6 +13,8 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 
 /** Immutable selected skin geometry, shared by server hit tests and client attachments. No client classes. */
 public final class WoundSurface {
@@ -155,7 +157,7 @@ public final class WoundSurface {
             var u=tangent(n);var v=new Vector3f(n).cross(u);var d=new Vector3f(p).sub(anchor(w));
             if(Math.abs(d.dot(n))>=2.5f*normalScale)continue;
             float radiusU=grade.radius()[0]*w.size()*new Vector3f(u).mul(scale).length();
-            float radiusV=grade.radius()[1]*w.size()*new Vector3f(v).mul(scale).length();
+            float radiusV=grade.radius()[1]*w.size()*new Vector3f(v).mul(scale).length()*WoundProfiles.verticalScale(assetId,n);
             float x=d.dot(u)/radiusU,y=d.dot(v)/radiusV,r=x*x+y*y;
             if(r<1)result.fma(-grade.depth()*w.size()*normalScale*(1-r)*(1-r)*(1-r),n);
         }
@@ -179,11 +181,22 @@ public final class WoundSurface {
             float t=f.dot(q)/det;if(t>=0&&(best==null||t<best.distance))best=new Hit(i,u,v,t);
         }return best;
     }
-    public Matrix4f[] pose(String action,float elapsed){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
-        sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);var world=new Matrix4f[bones.size()];
+    public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,1,"",0);}
+    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
+        sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);
+        if(hatMotion.equals("HAT_REMOVE")||hatMotion.equals("HAT_RETURN")){
+            var hat=HatCarry.shape(assetId);if(hat!=null){float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
+                float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
+                float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
+                var root=values[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;root[2]+=hat.get("forward").getAsFloat()*forward;}
+        }
+        var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=
                 b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
-                p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);}return world;
+                p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);
+            if(hatScale!=1&&b.get("name").getAsString().equals("hat_follow")){
+                var anchor=HatVessel.anchor();world[i].translate(anchor).scale(hatScale).translate(anchor.negate());}
+        }return world;
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */
     public Matrix4f rootPose(float[] values){
