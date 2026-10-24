@@ -21,7 +21,7 @@ import kit as care_kit,trays as care_trays,vanilla_props as care_voxels
 H=care_kit.hex_of
 # Toy palette touched up to the shared care-prop ramps (art/props/palette.json); indices are unchanged.
 PALETTE=[H('paper',2),H('anko',0),H('wood',1),H('wood',2),H('wood',3),H('paper',3),H('berry',2),H('chili',1),H('anko',0),H('gold',2),H('sky',2),H('sky',3),H('steel',0),H('mint',1),H('ceramic',2),H('paper',3)]
-KIT={'ceramic_toilet':care_voxels.ceramic_toilet,'covered_toilet':care_voxels.covered_toilet,'newspaper_mat':care_trays.newspaper_mat,'soil_mat':care_trays.soil_mat,'sandpaper_mat':care_trays.sandpaper_mat}
+KIT={**care_voxels.TRAYS,'newspaper_mat':care_trays.newspaper_mat,'soil_mat':care_trays.soil_mat,'sandpaper_mat':care_trays.sandpaper_mat}
 SNAPSHOT=ROOT/'art/props/care-expansion'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 DATA=ROOT/'src/main/resources/data/mcyukkuri'
@@ -62,7 +62,7 @@ RECIPES['sandpaper_mat']=[box([-8,0,-8],[8,.12,8],4)]
 for _ in range(240):
     x,z=scatter.uniform(-7.7,7.7),scatter.uniform(-7.7,7.7);r=scatter.uniform(.04,.11)
     RECIPES['sandpaper_mat'].append(box([x-r,.12,z-r],[x+r,.16,z+r],scatter.choice([1,2,3])))
-for _name in KIT:RECIPES[_name]=[]   # authored by care-props (vanilla_props.py toilets, trays.py mats)
+for _name in KIT:RECIPES[_name]=[]   # authored by care-props (placed.py toilets, trays.py mats)
 INGREDIENTS={'newspaper_mat':['paper','paper'],'soil_mat':['dirt','dirt'],'sandpaper_mat':['paper','sand'],
  'ceramic_toilet':['brick','brick','brick','white_dye'],'covered_toilet':['iron_ingot','iron_ingot','green_dye','brick'],
  'glass_marble':['glass','red_dye'],'rubber_ball':['slime_ball','pink_dye'],

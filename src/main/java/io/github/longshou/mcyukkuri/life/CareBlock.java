@@ -1,6 +1,12 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
@@ -99,7 +105,38 @@ public final class CareBlock extends Block implements EntityBlock {
         // Let notebook selection and the cleaning tool reach Item.useOn.
         if (stack.is(ModItems.FIELD_NOTEBOOK.get()) || stack.is(ModItems.WASH_CLOTH.get()))
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        if (stack.getItem() instanceof DyeItem dye && CareStyles.styled(id()))
+            return restyle(dye.getDyeColor(), stack, level, pos, player);
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+    private String id(){return BuiltInRegistries.BLOCK.getKey(this).getPath();}
+    /** A dye of a listed colour switches the placed good to that style and is used up (not in creative). */
+    private ItemInteractionResult restyle(DyeColor dye, ItemStack stack, Level level, BlockPos pos, Player player) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+        if (!(level.getBlockEntity(pos) instanceof CareBlockEntity care)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        String block = id();
+        var target = CareStyles.forDye(block, dye);
+        if (target == null) {
+            player.displayClientMessage(Component.literal("这种染料没有对应款式；可用：" + CareStyles.hint(block)), true);
+            GameplayLog.limited(player, "interaction", "care_style_no_dye", 20, "care style refused; block={} at={} dye={} reason=no_style_for_dye",
+                    block, pos.toShortString(), dye.getName());
+            return ItemInteractionResult.CONSUME;
+        }
+        String before = care.pattern();
+        if (target.id().equals(before)) {
+            player.displayClientMessage(Component.literal("已经是「" + target.label() + "」款式"), true);
+            GameplayLog.limited(player, "interaction", "care_style_same", 20, "care style refused; block={} at={} dye={} style={} reason=already_this_style",
+                    block, pos.toShortString(), dye.getName(), target.id().isEmpty() ? "default" : target.id());
+            return ItemInteractionResult.CONSUME;
+        }
+        care.setPattern(target.id());
+        boolean consumed = !player.getAbilities().instabuild;
+        if (consumed) stack.shrink(1);
+        level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
+        player.displayClientMessage(Component.literal("换成「" + target.label() + "」款式"), true);
+        GameplayLog.event(player, "interaction", "care style changed; block={} at={} dye={} style {} -> {} dye_consumed={}",
+                block, pos.toShortString(), dye.getName(), before.isEmpty() ? "default" : before, target.id().isEmpty() ? "default" : target.id(), consumed);
+        return ItemInteractionResult.SUCCESS;
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(kind==Kind.MAT)return InteractionResult.PASS;

@@ -39,7 +39,32 @@
     "oil_grain_budget",
     "oil_grain_regular",
     "oil_grain_premium",
-    "orange_juice"
+    "orange_juice",
+    "food_bowl_hearts",
+    "food_bowl_polka",
+    "food_bowl_sailor",
+    "food_bowl_paws",
+    "food_bowl_terracotta",
+    "food_bowl_steel",
+    "yukkuri_nest_gingham",
+    "yukkuri_nest_polka",
+    "yukkuri_nest_floral",
+    "yukkuri_nest_lavender",
+    "yukkuri_nest_teddy",
+    "yukkuri_nest_stars",
+    "large_yukkuri_nest_wicker",
+    "large_yukkuri_nest_mint",
+    "large_yukkuri_nest_lavender",
+    "yukkuri_toilet_pink",
+    "yukkuri_toilet_pink_dirty",
+    "yukkuri_toilet_lemon",
+    "yukkuri_toilet_lemon_dirty",
+    "yukkuri_toilet_sky",
+    "yukkuri_toilet_sky_dirty",
+    "ceramic_toilet_polka",
+    "ceramic_toilet_sailor",
+    "covered_toilet_pink",
+    "covered_toilet_navy"
   ],
   "retired_recipes": [
     "herbal_medicine"
@@ -93,7 +118,18 @@
     "patchouli": "patchouli_bonnet"
   },
   "gui_display": {
-    "companion_cord": {"rotation": [50, 225, 0], "scale": [1.25, 1.25, 1.25]}
+    "companion_cord": {
+      "rotation": [
+        50,
+        225,
+        0
+      ],
+      "scale": [
+        1.25,
+        1.25,
+        1.25
+      ]
+    }
   },
   "item_sprites": "oil_grain_budget/regular/premium and orange_juice items are 16x16 item/generated sprites from scripts/export_supply_icons.py; their meshes stay as attachments for offline shop, nest and hat-cargo previews"
 }

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
@@ -37,6 +38,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     private final List<ItemStack> wastePortions=new ArrayList<>();
     private ItemStack displayFood = ItemStack.EMPTY;
     private int visibleFoodCount;
+    /** Dye-selected look (CareStyles); "" is the default. Saved and synced with the block. */
+    private String pattern="";
     public CareBlockEntity(BlockPos pos, BlockState state) { super(ModBlocks.CARE.get(), pos, state); }
     public CareBlock.Kind kind() { return ((CareBlock)getBlockState().getBlock()).kind(); }
     public UUID resident() { return residents.keySet().stream().findFirst().orElse(null); }
@@ -57,6 +60,9 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public int capacity(){return ((CareBlock)getBlockState().getBlock()).capacity();}
     public ItemStack displayFood() { return displayFood; }
     public int visibleFoodCount(){return visibleFoodCount;}
+    public String pattern(){return pattern;}
+    public void setPattern(String value){if(!pattern.equals(value)){pattern=value;changed();}}
+    private String blockId(){return BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock()).getPath();}
     private void reconcileGrowth(ServerLevel server){
         // Resolve the member who changed stage first, rather than ejecting whichever parent ticks first.
         for(UUID member:List.copyOf(residents.keySet()))if(server.getEntity(member) instanceof YukkuriEntity actor){
@@ -130,6 +136,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         var portions=new ListTag();wastePortions.forEach(stack->portions.add(stack.save(registries)));tag.put("WastePortions",portions);
         if (resident() != null) {tag.putUUID("Resident", resident());tag.putInt("ResidentStage",residents.get(resident()));}
         tag.put("RestingPlaces",NestResting.save(resting));
+        if(!pattern.isEmpty())tag.putString("Pattern",pattern);
         var guests=new ListTag();for(var entry:residents.entrySet())if(!entry.getKey().equals(resident())){
             var guest=new CompoundTag();guest.putUUID("Id",entry.getKey());guest.putInt("Stage",entry.getValue());guests.add(guest);
         }tag.put("NestGuests",guests);
@@ -144,6 +151,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         }
         while(wastePortions.size()<waste)wastePortions.add(new ItemStack(ModItems.WASTE.get()));
         NestResting.load(tag.getList("RestingPlaces",Tag.TAG_COMPOUND),resting);
+        String saved=tag.getString("Pattern");pattern=CareStyles.valid(blockId(),saved)?saved:"";
         residents.clear();if(tag.hasUUID("Resident"))residents.put(tag.getUUID("Resident"),tag.contains("ResidentStage")?Math.clamp(tag.getInt("ResidentStage"),0,2):2);
         for(var raw:tag.getList("NestGuests",Tag.TAG_COMPOUND)){var guest=(CompoundTag)raw;if(guest.hasUUID("Id")&&residents.size()<6)residents.put(guest.getUUID("Id"),Math.clamp(guest.getInt("Stage"),0,2));}
     }
@@ -151,6 +159,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         // Inventory contents use the vanilla menu; only the visible fill level is broadcast.
         CompoundTag tag = new CompoundTag(); tag.putInt("Waste", waste);
         tag.putInt("FoodCount",foodCount());
+        if(!pattern.isEmpty())tag.putString("Pattern",pattern);
         ItemStack food = items.stream().filter(stack -> stack.is(YukkuriEntity.FOOD)).findFirst().orElse(ItemStack.EMPTY);
         if (!food.isEmpty()) tag.put("DisplayFood", food.copyWithCount(1).save(registries));
         return tag;
@@ -158,6 +167,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     @Override public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         waste = tag.getInt("Waste");
         visibleFoodCount=Math.max(0,tag.getInt("FoodCount"));
+        pattern=tag.getString("Pattern");
         displayFood = tag.contains("DisplayFood") ? ItemStack.parseOptional(registries,tag.getCompound("DisplayFood")) : ItemStack.EMPTY;
     }
     @Override public ClientboundBlockEntityDataPacket getUpdatePacket() { return ClientboundBlockEntityDataPacket.create(this); }

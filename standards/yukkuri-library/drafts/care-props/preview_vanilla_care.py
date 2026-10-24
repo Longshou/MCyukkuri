@@ -1,29 +1,42 @@
-"""Offline before/after sheets for the vanilla-style placed care props (bowl and fills, pet nest, 2x2 nests, toilets),
-with Reimu / Marisa for scale and a vanilla cauldron / composter / flower pot beside them for style comparison.
+"""Offline preview sheets for the placed pet-care goods (placed.py): the goods beside vanilla blocks, every dye style, the
+bowl fills by portion, and an optional before/after row.
 
-Local preview only: vanilla block models are read from the locally downloaded client jar (MCYUKKURI_VANILLA_JAR, default
+Local preview only. Vanilla block models are read from the locally downloaded client jar (MCYUKKURI_VANILLA_JAR, default
 .local/vanilla-ref/dl/client.jar) and textures from MCYUKKURI_VANILLA; nothing vanilla is copied into the repository.
-BEFORE = MCYUKKURI_BEFORE (a tree holding src/main/resources/assets/mcyukkuri of the previous meshes).
-Output: <MCYUKKURI_PREVIEWS or .local/previews>/care-props/{bowl.png, nests.png, large_nests.png, toilets.png, index.html}.
-Usage: python preview_vanilla_care.py [bowl nests large toilets]
+Meshes come from this tree's runtime assets (run build.py and the exporters first). MCYUKKURI_BEFORE may name a tree that
+holds src/main/resources/assets/mcyukkuri of the previous meshes for the before/after sheet.
+Output: <MCYUKKURI_PREVIEWS or .local/previews>/pet-goods/{vanilla.png, bowls.png, fills.png, nests.png, large_nests.png,
+toilets.png, before_after.png, index.html}.
+Usage: python preview_vanilla_care.py [vanilla bowls fills nests large toilets before]
 """
 import json, os, sys, zipfile
 from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import render_preview as R
+import placed
 from PIL import Image, ImageDraw, ImageFont
 
 PREVIEWS = Path(os.environ.get('MCYUKKURI_PREVIEWS', Path(__file__).resolve().parents[4] / '.local/previews'))
 if not (PREVIEWS / 'index.html').exists() and (R.ROOT.parents[1] / '.local/previews').exists():
     PREVIEWS = R.ROOT.parents[1] / '.local/previews'            # worktree: share the main checkout's preview hub
-OUT = PREVIEWS / 'care-props'
+OUT = PREVIEWS / 'pet-goods'
 JAR = Path(os.environ.get('MCYUKKURI_VANILLA_JAR', R.VANILLA.parents[2] / 'dl/client.jar'))
-F = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 15)
-FS = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 12)
+F = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 16)
+FS = ImageFont.truetype(os.environ.get('MCYUKKURI_FONT', 'C:/Windows/Fonts/msyh.ttc'), 13)
 BG = (214, 222, 230, 255)
 FACES = {'up': ([0, 1, 0], 1), 'down': ([0, -1, 0], 1), 'north': ([0, 0, -1], 2), 'south': ([0, 0, 1], 2),
          'west': ([-1, 0, 0], 0), 'east': ([1, 0, 0], 0)}
+LABELS = {
+    'food_bowl': {'': '奶油薄荷（青）', 'hearts': '红心（红）', 'polka': '樱粉波点（粉红）', 'sailor': '水手条纹（淡蓝）', 'paws': '柠檬爪印（黄）',
+                  'terracotta': '赤陶流釉（橙）', 'steel': '不锈钢（淡灰）'},
+    'yukkuri_nest': {'': '草莓（红）', 'gingham': '蓝格（淡蓝）', 'polka': '粉波点（粉红）', 'floral': '薄荷碎花（黄绿）', 'lavender': '薰衣草绗缝（紫）',
+                     'teddy': '小熊绒（棕）', 'stars': '星夜（蓝）'},
+    'large_yukkuri_nest': {'': '草莓编织（红）', 'wicker': '原色藤编（棕）', 'mint': '薄荷格纹（青）', 'lavender': '薰衣草（紫）'},
+    'yukkuri_toilet': {'': '薄荷（青）', 'pink': '樱粉（粉红）', 'lemon': '柠檬（黄）', 'sky': '天蓝（淡蓝）'},
+    'ceramic_toilet': {'': '奶油薄荷（白）', 'polka': '樱粉波点（粉红）', 'sailor': '水手条纹（淡蓝）'},
+    'covered_toilet': {'': '薄荷盖（青）', 'pink': '粉点盖（粉红）', 'navy': '星夜盖（蓝）'},
+}
 
 
 class Scene(R.Source):
@@ -48,6 +61,7 @@ class Scene(R.Source):
             if not parent:
                 break
             data = json.loads(Scene._jar.read(f'assets/minecraft/models/{parent.split(":")[-1]}.json'))
+
         def resolve(ref):
             while ref.startswith('#'):
                 ref = textures[ref[1:]]
@@ -68,9 +82,8 @@ class Scene(R.Source):
                 sign = n[axis]
                 plane = hi[axis] if sign > 0 else lo[axis]
                 a, b = [k for k in (0, 1, 2) if k != axis]
-                corners = [(lo[a], lo[b]), (hi[a], lo[b]), (hi[a], hi[b]), (lo[a], hi[b])]
                 pts = []
-                for ca, cb in corners:
+                for ca, cb in [(lo[a], lo[b]), (hi[a], lo[b]), (hi[a], hi[b]), (lo[a], hi[b])]:
                     p = [0.0, 0.0, 0.0]
                     p[axis], p[a], p[b] = plane, ca, cb
                     pts.append(p)
@@ -78,24 +91,21 @@ class Scene(R.Source):
                 uv = spec.get('uv') or {'up': [f[0], f[2], t[0], t[2]], 'down': [f[0], 16 - t[2], t[0], 16 - f[2]],
                                         'north': [16 - t[0], 16 - t[1], 16 - f[0], 16 - f[1]], 'south': [f[0], 16 - t[1], t[0], 16 - f[1]],
                                         'west': [f[2], 16 - t[1], t[2], 16 - f[1]], 'east': [16 - t[2], 16 - t[1], 16 - f[2], 16 - f[1]]}[face]
-                def face_ab(p):
-                    # texture-space position (0..16, v down) of a point on this face, vanilla orientation
+
+                def face_ab(p, face=face):
                     x, y, z = p[0] + 8, p[1], p[2] + 8
                     return {'up': (x, z), 'down': (x, 16 - z), 'north': (16 - x, 16 - y), 'south': (x, 16 - y),
                             'west': (z, 16 - y), 'east': (16 - z, 16 - y)}[face]
                 ab = [face_ab(q) for q in pts]
                 amin, amax = min(q[0] for q in ab), max(q[0] for q in ab)
                 bmin, bmax = min(q[1] for q in ab), max(q[1] for q in ab)
-                def tex_uv(p):
-                    ua, va = face_ab(p)
-                    u = uv[0] + (uv[2] - uv[0]) * ((ua - amin) / max(amax - amin, 1e-6))
-                    v = uv[1] + (uv[3] - uv[1]) * ((va - bmin) / max(bmax - bmin, 1e-6))
-                    return u / 16, v / 16
                 start = sum(len(r) for r in rows)
                 tri = []
                 for i in (0, 1, 2, 0, 2, 3):
-                    u, v = tex_uv(pts[i])
-                    tri.append([*pts[i], u, v, *n])
+                    ua, va = face_ab(pts[i])
+                    u = uv[0] + (uv[2] - uv[0]) * ((ua - amin) / max(amax - amin, 1e-6))
+                    v = uv[1] + (uv[3] - uv[1]) * ((va - bmin) / max(bmax - bmin, 1e-6))
+                    tri.append([*pts[i], u / 16, v / 16, *n])
                 rows.append(tri)
                 parts.append({'name': face, 'start': start, 'count': 6, 'texture': resolve(spec['texture'])})
         arr = np.array([r for tri in rows for r in tri], dtype=np.float32)
@@ -105,133 +115,154 @@ class Scene(R.Source):
 AFTER = Scene(os.environ.get('MCYUKKURI_AFTER', R.ROOT))
 BEFORE = Scene(os.environ.get('MCYUKKURI_BEFORE', R.ROOT.parents[1] / '.local/care-props-before'))
 REIMU, MARISA = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
+CAULDRON, COMPOSTER, POT = 'vanilla:cauldron', 'vanilla:composter', 'vanilla:flower_pot'
 
 
-def tile(src, items, label, size, ppu, az=210, el=30, lock=None):
+def tile(items, label, size, ppu, az=210, el=30, src=AFTER):
     im = Image.new('RGBA', size, BG)
-    r, _ = R.render(src, items, az=az, el=el, ppu=ppu, lock=lock)
-    k = min((size[0] - 8) / r.width, (size[1] - 26) / r.height, 1.0)
+    r, _ = R.render(src, items, az=az, el=el, ppu=ppu)
+    k = min((size[0] - 8) / r.width, (size[1] - 30) / r.height, 1.0)
     if k < 1:
         r = r.resize((max(1, int(r.width * k)), max(1, int(r.height * k))), Image.LANCZOS)
-    im.paste(r, ((size[0] - r.width) // 2, 22 + (size[1] - 22 - r.height) // 2), r)
-    ImageDraw.Draw(im).text((6, 3), label, font=FS, fill=(20, 20, 20, 255))
+    im.paste(r, ((size[0] - r.width) // 2, 26 + (size[1] - 26 - r.height) // 2), r)
+    ImageDraw.Draw(im).text((8, 4), label, font=FS, fill=(20, 20, 20, 255))
     return im
 
 
 def sheet(rows, out, title, size):
     W, H = size
     cols = max(len(r) for r in rows)
-    s = Image.new('RGBA', (W * cols, 32 + H * len(rows)), BG)
+    s = Image.new('RGBA', (W * cols, 36 + H * len(rows)), BG)
     d = ImageDraw.Draw(s)
-    d.text((8, 7), title, font=F, fill=(0, 0, 0, 255))
+    d.text((10, 8), title, font=F, fill=(0, 0, 0, 255))
     for ri, tiles in enumerate(rows):
         for ci, t in enumerate(tiles):
-            s.paste(t, (ci * W, 32 + ri * H))
-            d.rectangle([ci * W, 32 + ri * H, ci * W + W - 1, 32 + ri * H + H - 1], outline=(170, 178, 186, 255))
+            s.paste(t, (ci * W, 36 + ri * H))
+            d.rectangle([ci * W, 36 + ri * H, ci * W + W - 1, 36 + ri * H + H - 1], outline=(170, 178, 186, 255))
     OUT.mkdir(parents=True, exist_ok=True)
     s.convert('RGB').save(OUT / out)
     print(OUT / out)
 
 
-def views(src, tag, items, label, size, ppu, scale_items=()):
-    """3/4 view with scale yukkuri and vanilla neighbours, plus top and side of the prop alone."""
-    return [tile(src, items + list(scale_items), f'{tag} {label} 3/4', size, ppu),
-            tile(src, items, f'{tag} {label} 俯视', size, ppu, az=180, el=88),
-            tile(src, items, f'{tag} {label} 侧视', size, ppu, az=180, el=4)]
+def g(half):
+    return ('ground:%g' % half, 0, 0, 0, 0, 1)
 
 
-GROUND = ('ground:24', 0, 0, 0, 0, 1)
-CAULDRON = ('vanilla:cauldron', 0, 6, 0, 22, 1)
-COMPOSTER = ('vanilla:composter', 0, 22, 0, 4, 1)
-POT = ('vanilla:flower_pot', 0, -12, 0, 16, 1)
+def styles(base):
+    return [(placed.model_name(base, s), LABELS[base][s]) for s in placed.STYLES[base]]
 
 
-def bowl():
-    SZ = (460, 330)
+def vanilla():
+    """The goods in a row of blocks next to a flower pot, cauldron and composter, with Reimu / Marisa for scale."""
+    SZ = (720, 400)
+
+    def line(*things):
+        return [g(34)] + [(n, u, 24 - 16 * i + dx, y, dz, sc, *rest) for i, group in enumerate(things)
+                          for (n, u, dx, y, dz, sc, *rest) in group]
+    one = lambda n, u=0: [(n, u, 0, 0, 0, 1)]
+    feed = line(one(POT), one('food_bowl'), [('food_bowl_hearts', 0, 0, 0, 0, 1), ('food_bowl_regular', 8, 0, 0, 0, 1)], one(CAULDRON))
+    beds = line(one(COMPOSTER), [('yukkuri_nest', 0, 0, 0, 0, 1), (REIMU, 8, 0, 1.6, 0, 1.0, 340)],
+                [('yukkuri_nest_teddy', 0, 0, 0, 0, 1), (MARISA, 8, 0, 1.6, 0, .5, 20)], one(CAULDRON))
+    loos = line(one('yukkuri_toilet'), one('ceramic_toilet_sailor'), one('covered_toilet'), one(COMPOSTER))
+    big = [g(30), ('large_yukkuri_nest', 0, 0, 0, 0, 1), (CAULDRON, 0, -26, 0, -8, 1), (COMPOSTER, 0, 26, 0, -8, 1),
+           (REIMU, 8, -5.8, 1, -5, 1.0, 175), (MARISA, 8, 5.6, 1, .4, 1.0, 210), (REIMU, 8, -1.6, 1, 6, .32, 205),
+           (MARISA, 8, 1.8, 1, 8.6, .32, 172)]
+    rows = [[tile(feed, '花盆｜食盆（奶油薄荷）｜红心食盆盛油粮 8 份｜炼药锅', SZ, 11, az=200, el=28),
+             tile(beds, '堆肥桶｜软垫窝 + 灵梦｜小熊绒软垫窝 + 子体魔理沙｜炼药锅', SZ, 11, az=200, el=28)],
+            [tile(loos, '沙厕｜水手条纹陶厕｜带盖厕（盖在后半，前侧开口）｜堆肥桶', SZ, 11, az=200, el=28),
+             tile(big, '2×2 编织大窝（入口 +z）与炼药锅、堆肥桶；亲油两只、新生两只', SZ, 10, az=30)]]
+    sheet(rows, 'vanilla.png', '宠物照料用品与原版方块并排：圆润低多边形 + 1 像素／单位手绘材质（离线渲染）', SZ)
+
+
+def bowls():
+    SZ = (380, 300)
+    items = styles('food_bowl')
+    rows = [[tile([g(9), (n, 0, 0, 0, 0, 1)], l, SZ, 26, el=28) for n, l in items[:4]],
+            [tile([g(9), (n, 0, 0, 0, 0, 1)], l, SZ, 26, el=28) for n, l in items[4:]] +
+            [tile([g(9), ('food_bowl', 0, 0, 0, 0, 1)], '奶油薄荷 侧视', SZ, 26, az=180, el=5)],
+            [tile([g(9), (n, 0, 0, 0, 0, 1)], l + ' 俯视', SZ, 22, az=0, el=80) for n, l in items[:4]]]
+    sheet(rows, 'bowls.png', '食盆款式：放置后用对应颜色染料右键切换（括号内为染料）；14 宽、3 高、盆底 y 1', SZ)
+
+
+def fills():
+    SZ = (360, 290)
     rows = []
-    for src, tag in ((BEFORE, '前'), (AFTER, '后')):
-        rows.append(views(src, tag, [GROUND, ('food_bowl', 0, 0, 0, 0, 1)], '空食盆', SZ, 14,
-                          [CAULDRON, POT, (REIMU, 8, -13, 0, 4, 1.0, 345), (MARISA, 8, 11, 0, -9, .5, 330)]))
-    for name, label in (('food_bowl_regular', '油粮'), ('food_bowl_wheat', '小麦'), ('food_bowl_forage', '短草')):
-        for src, tag in ((BEFORE, '前'), (AFTER, '后')):
-            r = []
-            for units in (0, 1, 4, 8):
-                r.append(tile(src, [('ground:12', 0, 0, 0, 0, 1), (name, units, 0, 0, 0, 1)], f'{tag} {label} {units}/8 3/4', SZ, 26))
-            r.append(tile(src, [('ground:12', 0, 0, 0, 0, 1), (name, 8, 0, 0, 0, 1)], f'{tag} {label} 8/8 俯视', SZ, 26, az=180, el=88))
-            rows.append(r)
-    sheet(rows, 'bowl.png', '食盆与盆内填充：前＝当前主线，后＝原版风格（1/16 方块 + 16px 材质）；份数 0/1/4/8 逐份可见', SZ)
+    for name, label, bowl in (('food_bowl_regular', '油粮', 'food_bowl'), ('food_bowl_wheat', '小麦', 'food_bowl_terracotta'),
+                              ('food_bowl_forage', '短草', 'food_bowl_sailor')):
+        r = [tile([g(9), (bowl, 0, 0, 0, 0, 1), (name, k, 0, 0, 0, 1)], f'{label} {k}/8', SZ, 26, el=38) for k in (1, 2, 4, 8)]
+        r.append(tile([g(9), (bowl, 0, 0, 0, 0, 1), (name, 8, 0, 0, 0, 1)], f'{label} 8/8 俯视', SZ, 22, az=0, el=80))
+        rows.append(r)
+    sheet(rows, 'fills.png', '盆内填充：自绘材质堆按份数长大（1/2/4/8 份），不再插原版贴图；填充与盆的款式无关', SZ)
 
 
 def nests():
-    SZ = (460, 340)
-    rows = []
-    for src, tag in ((BEFORE, '前'), (AFTER, '后')):
-        floor = 1.5
-        rows.append(views(src, tag, [GROUND, ('yukkuri_nest', 0, 0, 0, 0, 1)], '宠物软垫窝', SZ, 13,
-                          [CAULDRON, COMPOSTER, (REIMU, 8, 0, floor, 0, 1.0, 345)]))
-        rows.append([tile(src, [GROUND, ('yukkuri_nest', 0, 0, 0, 0, 1), (MARISA, 8, 0, floor, 0, 1.2, 340)], f'{tag} 软垫窝 + 魔理沙 1.2', SZ, 13),
-                     tile(src, [GROUND, ('yukkuri_nest', 0, 0, 0, 0, 1), (MARISA, 8, -3, floor, 1, .5, 20), (REIMU, 8, 3, floor, -1.5, .5, 320)],
-                          f'{tag} 软垫窝 + 两只子体 0.5', SZ, 13),
-                     tile(src, [GROUND, ('yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 软垫窝 入口侧(-z)', SZ, 13, az=180, el=20)])
-    sheet(rows, 'nests.png', '宠物软垫窝（1×1，可外伸至 20 宽，入口朝 -z）：前＝当前主线，后＝原版风格', SZ)
-
-
-ADULTS = ((-5.8, -6.0, 175), (5.6, .4, 210))
-NEWBORNS = ((-1.6, 4.6, 205), (-7.4, 4.6, 140), (1.8, 8.6, 172), (8.8, -7.2, 248))
-
-
-def family(floor):
-    return ([(REIMU if i == 0 else MARISA, 8, x, floor, z, 1.0, yaw) for i, (x, z, yaw) in enumerate(ADULTS)] +
-            [(MARISA if i % 2 else REIMU, 8, x, floor, z, .32, yaw) for i, (x, z, yaw) in enumerate(NEWBORNS)])
+    SZ = (380, 300)
+    items = styles('yukkuri_nest')
+    rows = [[tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[:4]],
+            [tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[4:]] +
+            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], '侧视：右侧为北入口，软卷下沉成坡', SZ, 18, az=90, el=6)],
+            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1), (REIMU, 8, 0, 1.6, 0, 1.0, 345)], '成体灵梦', SZ, 15, el=26),
+             tile([g(11), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), (MARISA, 8, -3, 1.6, 1, .5, 20), (REIMU, 8, 3, 1.6, -1.5, .5, 320)],
+                  '两只子体 0.5', SZ, 15, el=26),
+             tile([g(11), ('yukkuri_nest_stars', 0, 0, 0, 0, 1)], '星夜 俯视', SZ, 15, az=0, el=80),
+             tile([g(11), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1)], '小熊绒 侧视', SZ, 18, az=90, el=4)]]
+    sheet(rows, 'nests.png', '宠物软垫窝款式（20 宽、软卷 3 高、垫面 y 2，北侧入口）：染料右键切换', SZ)
 
 
 def large():
-    SZ = (520, 400)
-    rows = []
-    g = ('ground:34', 0, 0, 0, 0, 1)
-    for name, floor_b, floor_a, label in (('large_yukkuri_nest', 1.0, 1.0, '大编织软窝'), ('large_wild_nest', .2, .5, '野生大草窝')):
-        for src, tag, fl in ((BEFORE, '前', floor_b), (AFTER, '后', floor_a)):
-            nest = (name, 0, 0, 0, 0, 1)
-            rows.append([tile(src, [g, nest, ('vanilla:cauldron', 0, -26, 0, -14, 1), ('vanilla:composter', 0, 26, 0, -18, 1)] + family(fl),
-                              f'{tag} {label} 成体2+新生4 3/4', SZ, 10, az=30),
-                         tile(src, [g, nest] + family(fl), f'{tag} {label} 俯视', SZ, 9, az=0, el=88),
-                         tile(src, [g, nest], f'{tag} {label} 入口侧视(+z)', SZ, 9, az=0, el=6),
-                         tile(src, [g, nest], f'{tag} {label} 空窝 3/4', SZ, 9, az=30)])
-    sheet(rows, 'large_nests.png', '2×2 家庭窝（内部 29 单位 ≈ 1.8 格，碰撞内宽 28.5，入口 +z）：前＝当前主线，后＝原版风格', SZ)
+    SZ = (460, 340)
+    items = styles('large_yukkuri_nest')
+    fam = [(REIMU, 8, -5.8, 1, -6, 1.0, 175), (MARISA, 8, 5.6, 1, .4, 1.0, 210), (REIMU, 8, -1.6, 1, 4.6, .32, 205),
+           (MARISA, 8, -7.4, 1, 4.6, .32, 140), (REIMU, 8, 1.8, 1, 8.6, .32, 172), (MARISA, 8, 8.8, 1, -7.2, .32, 248)]
+    rows = [[tile([g(18), (n, 0, 0, 0, 0, 1)], l, SZ, 9, az=30) for n, l in items],
+            [tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)] + fam, '成体 2 + 新生 4', SZ, 9, az=30),
+             tile([g(18), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)], '原色藤编 入口侧视（+z）', SZ, 9, az=0, el=8),
+             tile([g(18), ('large_yukkuri_nest_mint', 0, 0, 0, 0, 1)] + fam, '薄荷格纹 俯视', SZ, 8, az=0, el=80),
+             tile([g(18), ('large_yukkuri_nest_lavender', 0, 0, 0, 0, 1)], '薰衣草 背面', SZ, 9, az=200)]]
+    sheet(rows, 'large_nests.png', '2×2 编织大窝款式（31 宽圆角方篮、围沿 3 高、窝面 y 1，正面 +z 开口落地）：染料右键切换', SZ)
 
 
 def toilets():
-    SZ = (430, 320)
+    SZ = (340, 270)
+    sand = styles('yukkuri_toilet')
+    dirty = lambda floor, style='': [('toilet_waste', 0, -4 + 2.56 * (i % 4), floor, -2.4 + 3.68 * (i // 4), .5) for i in range(6)]
+    rows = [[tile([g(8), (n, 0, 0, 0, 0, 1)], '沙厕 ' + l, SZ, 26) for n, l in sand],
+            [tile([g(8), (n + '_dirty', 0, 0, 0, 0, 1)], '沙厕 脏 ' + l.split('（')[0], SZ, 26, el=42) for n, l in sand],
+            [tile([g(8), (n, 0, 0, 0, 0, 1)], '陶厕 ' + l, SZ, 24) for n, l in styles('ceramic_toilet')] +
+            [tile([g(8), ('ceramic_toilet', 0, 0, 0, 0, 1)] + dirty(1.0), '陶厕 脏 6 份', SZ, 24, az=200, el=45)],
+            [tile([g(8), (n, 0, 0, 0, 0, 1)], '带盖厕 ' + l, SZ, 24) for n, l in styles('covered_toilet')] +
+            [tile([g(8), ('covered_toilet_pink', 0, 0, 0, 0, 1)] + dirty(1.5), '带盖厕 脏 6 份（前开口）', SZ, 24, az=200, el=40)]]
+    sheet(rows, 'toilets.png', '厕所款式：沙厕 12×10（沙面 y 2）、陶厕与带盖厕 14×14（底面 y 1 / 1.5，前侧缺口）；染料右键切换', SZ)
+
+
+def before():
+    """Previous meshes (MCYUKKURI_BEFORE) against the current ones, same camera."""
+    SZ = (360, 280)
+    if not (BEFORE.assets / 'yukkuri_props/food_bowl.json').exists():
+        print('skip before/after: no MCYUKKURI_BEFORE tree')
+        return
     rows = []
-    for src, tag in ((BEFORE, '前'), (AFTER, '后')):
-        rows.append(views(src, tag, [GROUND, ('yukkuri_toilet', 0, 0, 0, 0, 1)], '沙厕 干净', SZ, 14,
-                          [CAULDRON, COMPOSTER, (REIMU, 8, 0, 2.35, 0, .6, 345)]))
-        r = [tile(src, [GROUND, ('yukkuri_toilet_dirty', 8, 0, 0, 0, 1), CAULDRON, COMPOSTER], f'{tag} 沙厕 脏 3/4', SZ, 14),
-             tile(src, [GROUND, ('yukkuri_toilet_dirty', 8, 0, 0, 0, 1)], f'{tag} 沙厕 脏 俯视', SZ, 14, az=180, el=88)]
-        r.append(tile(src, [GROUND, ('ceramic_toilet', 0, 0, 0, 0, 1)], f'{tag} 陶厕', SZ, 14))
-        waste = 'toilet_waste' if src is AFTER else 'yukkuri_waste'
-        scale, unit = (.5, 0) if src is AFTER else (.4, 1)
-        def dirty(floor):     # CareRenderer: one dropping per stored waste, up to 8, at fixed spots on the floor
-            return [(waste, unit, -4 + 2.56 * (i % 4), floor, -2.4 + 3.68 * (i // 4), scale) for i in range(6)]
-        r.append(tile(src, [GROUND, ('ceramic_toilet', 0, 0, 0, 0, 1)] + dirty(1.0 if src is AFTER else .88), f'{tag} 陶厕 脏 6', SZ, 14))
-        rows.append(r)
-        rows.append([tile(src, [GROUND, ('covered_toilet', 0, 0, 0, 0, 1)], f'{tag} 带盖厕', SZ, 14),
-                     tile(src, [GROUND, ('covered_toilet', 0, 0, 0, 0, 1)] + dirty(1.5 if src is AFTER else 1.376), f'{tag} 带盖厕 脏 6（前开口）', SZ, 14, az=200, el=45),
-                     tile(src, [GROUND, ('wild_latrine', 0, 0, 0, 0, 1)], f'{tag} 野外便所', SZ, 14),
-                     tile(src, [GROUND, ('wild_latrine_dirty', 8, 0, 0, 0, 1)], f'{tag} 野外便所 脏', SZ, 14)])
-    sheet(rows, 'toilets.png', '厕所：沙厕干净／脏（前＝当前主线，后＝原版风格），同族陶厕、带盖厕、野外便所对照', SZ)
+    for tag, src in (('前', BEFORE), ('后', AFTER)):
+        bowl_fill = [('food_bowl_forage', 8, 0, 0, 0, 1)] if src is BEFORE else [('food_bowl', 0, 0, 0, 0, 1), ('food_bowl_forage', 8, 0, 0, 0, 1)]
+        rows.append([tile([g(9), ('food_bowl', 0, 0, 0, 0, 1)], f'{tag} 食盆', SZ, 24, src=src),
+                     tile([g(9)] + bowl_fill, f'{tag} 短草 8 份', SZ, 24, el=38, src=src),
+                     tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 软垫窝', SZ, 17, src=src),
+                     tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 编织大窝', SZ, 9, az=30, src=src),
+                     tile([g(8), ('covered_toilet', 0, 0, 0, 0, 1)], f'{tag} 带盖厕', SZ, 24, src=src)])
+    sheet(rows, 'before_after.png', '上一轮（1/16 体素阶梯）与本轮（圆润低多边形 + 手绘材质）', SZ)
 
 
 def index():
-    pages = [('bowl.png', '食盆与填充'), ('nests.png', '宠物软垫窝'), ('large_nests.png', '2×2 家庭窝'), ('toilets.png', '厕所')]
+    pages = [('vanilla.png', '与原版方块并排'), ('bowls.png', '食盆款式'), ('fills.png', '盆内填充'), ('nests.png', '软垫窝款式'),
+             ('large_nests.png', '2×2 编织大窝款式'), ('toilets.png', '厕所款式'), ('before_after.png', '上一轮对比')]
     body = ''.join(f'<h2>{t}</h2><img src="{p}" alt="{t}" style="max-width:100%">' for p, t in pages if (OUT / p).exists())
-    (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>照料道具原版风格</title><h1>照料道具原版风格（前／后）</h1>'
-                                    '<p>放置后的食盆与填充、宠物软垫窝、2×2 家庭窝和厕所；原版炼药锅、堆肥桶、花盆作风格对照，灵梦／魔理沙作尺度。</p>'
-                                    + body, encoding='utf-8')
+    (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>宠物照料用品款式</title><h1>宠物照料用品款式</h1>'
+                                    '<p>放置后的食盆与填充、宠物软垫窝、2×2 编织大窝和三种厕所：圆润低多边形 + 手绘像素材质，'
+                                    '每件可用染料右键切换款式。离线渲染，非游戏截图；原版方块只作风格与尺度对照。</p>' + body, encoding='utf-8')
 
 
 if __name__ == '__main__':
-    which = sys.argv[1:] or ['bowl', 'nests', 'large', 'toilets']
+    which = sys.argv[1:] or ['vanilla', 'bowls', 'fills', 'nests', 'large', 'toilets', 'before']
     for w in which:
-        {'bowl': bowl, 'nests': nests, 'large': large, 'toilets': toilets}[w]()
+        {'vanilla': vanilla, 'bowls': bowls, 'fills': fills, 'nests': nests, 'large': large, 'toilets': toilets, 'before': before}[w]()
     index()

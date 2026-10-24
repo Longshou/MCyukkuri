@@ -1,4 +1,4 @@
-"""Family-size 2x2 nests: the woven pet bed and the wild leaf bedding, vanilla-style voxel props from vanilla_props.py.
+"""Family-size 2x2 nests: the woven pet bed (placed.py) and the wild bedding (wild.py), registered in vanilla_props.py.
 
 Writes the snapshot art/props/large-nests/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png} with manifest fingerprints, and the
 runtime mesh, palette texture, particle-only block model, builtin item model, blockstate, loot table and zh_cn / en_us names.

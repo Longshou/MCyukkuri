@@ -185,12 +185,6 @@
     "vanilla_texture_references": {
       "note": "Parts of these meshes name vanilla textures instead of carrying pixels; they resolve to the player's Minecraft resources at runtime and are not stored in the repository.",
       "models": {
-        "food_bowl_wheat": [
-          "minecraft:textures/item/wheat.png (one laid on each portion)"
-        ],
-        "food_bowl_forage": [
-          "minecraft:textures/block/short_grass.png (plains grass tint, one crossed tuft per portion)"
-        ],
         "forest_burrow/personal_leaf_nest/bedding_bundle": [
           "block/oak_leaves, birch_leaves, spruce_leaves (tinted), short_grass, moss_block, podzol_top, coarse_dirt, oak_log, spruce_log, hay_block_top, item/wheat"
         ],
@@ -199,8 +193,8 @@
         ]
       }
     },
-    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed bowl, fills, pet bed, toilets and 2x2 nests are voxel_props; wild self-built nests are wild.py",
-    "voxel_props": {
+    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed pet goods are placed_goods; wild self-built nests are wild.py",
+    "placed_goods": {
       "models": [
         "food_bowl",
         "food_bowl_regular",
@@ -214,18 +208,47 @@
         "covered_toilet",
         "large_yukkuri_nest"
       ],
-      "author": "standards/yukkuri-library/drafts/care-props/vanilla_props.py",
-      "kit": "standards/yukkuri-library/drafts/care-props/voxel.py",
+      "styles": [
+        "food_bowl_hearts",
+        "food_bowl_polka",
+        "food_bowl_sailor",
+        "food_bowl_paws",
+        "food_bowl_terracotta",
+        "food_bowl_steel",
+        "yukkuri_nest_gingham",
+        "yukkuri_nest_polka",
+        "yukkuri_nest_floral",
+        "yukkuri_nest_lavender",
+        "yukkuri_nest_teddy",
+        "yukkuri_nest_stars",
+        "large_yukkuri_nest_wicker",
+        "large_yukkuri_nest_mint",
+        "large_yukkuri_nest_lavender",
+        "yukkuri_toilet_pink",
+        "yukkuri_toilet_pink_dirty",
+        "yukkuri_toilet_lemon",
+        "yukkuri_toilet_lemon_dirty",
+        "yukkuri_toilet_sky",
+        "yukkuri_toilet_sky_dirty",
+        "ceramic_toilet_polka",
+        "ceramic_toilet_sailor",
+        "covered_toilet_pink",
+        "covered_toilet_navy"
+      ],
+      "author": "standards/yukkuri-library/drafts/care-props/placed.py",
+      "kit": "standards/yukkuri-library/drafts/care-props/shapes.py",
+      "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, TRAYS, VARIANTS)",
       "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
-      "style": "vanilla block style on user request: 1/16 cubic cells, exposed faces only, hand-drawn 16x16 material tiles at 1 texel per unit (world aligned), axis normals; footprints, heights and entrances follow CareBlock collision, which is unchanged",
+      "style": "rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit; several dye-selected colour / pattern styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints, heights and entrances follow CareBlock collision, which is unchanged",
+      "styles_table": "life/CareStyles.java (dye -> style) mirrors placed.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
       "status": "pending_user_confirmation",
-      "runtime_hook": "client/CareRenderer draws toilet_waste (half scale, on the floor at y 1 / 1.5) once per stored dropping in ceramic_toilet and covered_toilet"
+      "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and toilet_waste (half scale, on the floor at y 1 / 1.5) once per stored dropping in ceramic_toilet and covered_toilet"
     }
   },
   "large_nests": {
     "source": "standards/yukkuri-library/drafts/care-props",
     "authors": {
-      "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/vanilla_props.py:large_yukkuri_nest",
+      "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/placed.py:large_yukkuri_nest",
       "large_wild_nest": "standards/yukkuri-library/drafts/care-props/wild.py:large_wild_nest (called by vanilla_props.py:large_wild_nest)"
     },
     "exporter": "standards/yukkuri-library/drafts/care-props/large_nests.py",
@@ -237,7 +260,7 @@
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_yukkuri_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_yukkuri_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_yukkuri_nest.json",
-        "role": "pet family bed: strawberry woven rim one cell thick and 3 high round a 29-wide cream quilted wool floor at 1 with no marked places; front opening down to the floor"
+        "role": "pet family bed: rounded-square woven basket, wicker wall 1.25 thick and 3 high with a braided rim, round a quilted floor at 1 that puffs up along the wall; front opening down to the floor; dye styles ship as runtime-peripheral attachments"
       },
       "large_wild_nest": {
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",

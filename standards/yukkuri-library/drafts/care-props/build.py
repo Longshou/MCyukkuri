@@ -4,10 +4,11 @@ Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json,
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
 Props authored here: the three oil-grain bags, forage pile, food scrap, waste, leaked filling, wash cloth, yarn ball and
-carrier on the low-poly kit; the placed food bowl with its grain / wheat / forage fills, the cushion pet nest and the sand
-toilet (clean and dirty) are vanilla-style voxel props from vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
+carrier on the low-poly kit; the placed food bowl, its heap-only grain / wheat / forage fills, the cushion pet nest, the sand
+toilet (clean and dirty), the droppings and every non-default dye style of the placed goods (including the 2x2 woven nest
+and the ceramic / covered toilets) come from placed.py through vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
-The ceramic and covered toilets (vanilla_props.py), mats, and spicy grain / food mash are exported by their own package
+The default ceramic and covered toilets (placed.py), mats, and spicy grain / food mash are exported by their own package
 builders, which import this folder. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
 The hat-boat provisions heaps and shared occupancy layout (three quantity tiers plus temporary side stow) come from cargo.py.
@@ -30,6 +31,7 @@ GENERATOR = 'standards/yukkuri-library/drafts/care-props/build.py'
 
 BUILD = {
     **vanilla_props.PROPS,
+    **vanilla_props.VARIANTS,
     'forage_pile': designs.forage_pile,
     'oil_grain_budget': bags.oil_grain_budget,
     'oil_grain_regular': bags.oil_grain_regular,

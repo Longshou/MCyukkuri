@@ -15,8 +15,8 @@ from build_preview_hub import font
 
 OUT = ROOT / '.local/previews/care-current'
 GROUPS = {
-    'feeding': [('food_bowl', '食盆 · 空'), ('food_bowl_regular', '食盆 · 油粮'),
-                ('food_bowl_wheat', '食盆 · 小麦'), ('food_bowl_forage', '食盆 · 短草')],
+    'feeding': [('food_bowl', '食盆 · 空'), ('food_bowl+food_bowl_regular', '食盆 · 油粮'),
+                ('food_bowl+food_bowl_wheat', '食盆 · 小麦'), ('food_bowl+food_bowl_forage', '食盆 · 短草')],
     'nests': [('yukkuri_nest', '宠物软垫窝'), ('large_yukkuri_nest', '大编织窝'),
               ('large_wild_nest', '野生大草窝'), ('personal_leaf_nest', '个人叶巢')],
     'toilets': [('yukkuri_toilet', '沙厕 · 干净'), ('yukkuri_toilet_dirty', '沙厕 · 脏'),
@@ -32,7 +32,7 @@ def main():
         draw = ImageDraw.Draw(sheet)
         for i, (model, label) in enumerate(items):
             x, y = i % 2 * 600, i // 2 * 410
-            picture, _ = render(source, [(model, 8, 0, 0, 0, 1)],
+            picture, _ = render(source, [(name, 8, 0, 0, 0, 1) for name in model.split('+')],   # fills are drawn inside the bowl
                                 ppu=24, az=220, el=32, bg=(243, 240, 232, 255))
             picture = ImageOps.contain(picture, (580, 350))
             sheet.paste(picture, (x+(600-picture.width)//2, y+10+(350-picture.height)//2), picture)

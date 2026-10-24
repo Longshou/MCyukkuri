@@ -2,6 +2,51 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "pet-goods-styles",
+      "label": "宠物用品款式",
+      "title": "食盆、软垫窝、编织大窝与厕所：圆润造型与多款花样",
+      "tag": "美术与交互·待试玩",
+      "summary": "放置后的宠物照料用品改为圆润低多边形加手绘像素材质，每件数款配色／花纹，用对应染料右键切换；盆内油粮、小麦、割草为自绘材质堆，按份数长大。离线渲染，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "食盆 7 款、软垫窝 7 款、编织大窝 4 款、沙厕 4 款、陶厕与带盖厕各 3 款；占地、高度与入口沿用原碰撞。",
+        "填充不再插原版贴图：油粮为一颗颗粮粒，小麦为麦秆堆与麦穗，短草为刚割下的草叶堆。",
+        "试玩：创造模式放置各用品，手持染料右键；toilet、family_nests、feed 场景中的沙厕与窝。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "pet-goods/vanilla.png",
+          "label": "与原版花盆、炼药锅、堆肥桶并排"
+        },
+        {
+          "src": "pet-goods/bowls.png",
+          "label": "食盆款式"
+        },
+        {
+          "src": "pet-goods/fills.png",
+          "label": "盆内填充 1/2/4/8 份"
+        },
+        {
+          "src": "pet-goods/nests.png",
+          "label": "宠物软垫窝款式"
+        },
+        {
+          "src": "pet-goods/large_nests.png",
+          "label": "2×2 编织大窝款式"
+        },
+        {
+          "src": "pet-goods/toilets.png",
+          "label": "厕所款式"
+        },
+        {
+          "src": "pet-goods/before_after.png",
+          "label": "上一轮与本轮对比"
+        }
+      ],
+      "source": "standards/yukkuri-library/drafts/care-props/README.md"
+    },
+    {
       "id": "care-props-vanilla",
       "label": "照料设施基础网格",
       "title": "食盆、巢穴与厕所基础网格",

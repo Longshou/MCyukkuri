@@ -1,4 +1,4 @@
-"""Floor mats: thin boxes with a tiled 1-texel-per-unit top. The ceramic and covered toilets are voxel props in vanilla_props.py."""
+"""Floor mats: thin boxes with a tiled 1-texel-per-unit top. The ceramic and covered toilets are in placed.py."""
 from kit import Prop, Planar, colour, fill, deterministic
 
 C = lambda ramp, step: (ramp, step)

@@ -14,4 +14,4 @@
 
 原生核读入口：`E:/yukkuri/Eight景U-ModLab/wiki/game/native-operation-audit.md`、`wiki/game/environment-interactions.md`。只参考物件含义和行为关系，没有复制原生游戏像素。当前运行与视觉证据见[文档索引](../../../docs/README.md)。
 
-陶瓷／带盖油厕由[照料道具统一造型](../../../standards/yukkuri-library/drafts/care-props/README.md)的 `vanilla_props.py`（原版方块风体素）、三种垫料由 `trays.py` 制作；玩具色板见[共用色板](../palette.json)。
+陶瓷／带盖油厕由[照料道具统一造型](../../../standards/yukkuri-library/drafts/care-props/README.md)的 `placed.py`（圆润低多边形加手绘材质，默认款；其他款式随周边适配导出）、三种垫料由 `trays.py` 制作；玩具色板见[共用色板](../palette.json)。
