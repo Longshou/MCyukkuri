@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
@@ -62,25 +63,8 @@ final class CabinDistressPresentation {
         };
     }
     private static Motion selfRescue(YukkuriView entity,float partial){
-        var state=entity.aquaticSelfRescueState();
-        if(!entity.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)||state.getString("Phase").isEmpty())return null;
-        float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
-        return switch(state.getString("Phase")){
-            // Shake the worn hat off (project original): the clip spans the server's whole phase.
-            case "REMOVE_HAT"->new Motion("water_hat_shake",1.2f*Mth.clamp(elapsed/(state.contains("RemoveTicks")?Math.max(1,state.getInt("RemoveTicks"))/20f:1.8f),0,1));
-            case "DEPLOY_HAT"->new Motion("water_hat_shake",1.2f);
-            case "GRIP"->new Motion("water_mouth_grip",elapsed%.8f);
-            case "RIGHT_HAT"->{
-                // Three body pushes of 20 ticks; tolerate a phase clock that is cumulative or restarts for each push.
-                int index=Mth.clamp(state.getInt("PushIndex"),0,2);
-                float local=elapsed>=index?elapsed-index:elapsed;
-                yield new Motion("water_hat_push",Math.min(.8f,Math.max(0,local)));
-            }
-            case "CLIMB"->new Motion("water_mouth_grip",elapsed%.8f); // HatBoarding takes over with its own clips
-            case "SLIPPED"->new Motion("water_gasp",elapsed%1.6f);
-            case "SAFE"->new Motion("water_recover",Math.min(2.8f,elapsed));
-            default->null; // Approach/failure remain the actual immersed struggle and breath.
-        };
+        var motion=SelfRescueHatGeometry.motion(entity,partial);
+        return motion==null?null:new Motion(motion.clip(),motion.seconds());
     }
     private static Motion boarding(YukkuriView entity,float partial){
         var state=entity.boardingState();String behavior=entity.getBehaviorId();
