@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 襁褓卷口改扁平翻折边（第二轮复审） | `.worktrees/swaddle-art` | `client/CareWearRenderer.java`、`drafts/care-props/preview_wear.*`、`wear.py` |
 | 宠物窝碰撞对齐可见造型（软垫窝、编织大窝） | `.worktrees/pet-goods-art` | `life/CareBlock.java`、`drafts/care-props/placed.py`、`shapes.py`、`build.py`、碰撞高度图 |
 
 ## 玩法待办
