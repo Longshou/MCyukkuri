@@ -28,6 +28,30 @@
         }
       ],
       "source": "standards/yukkuri-library/drafts/care-props/README.md"
+    },
+    {
+      "id": "voices",
+      "label": "对白与纯字幕",
+      "title": "当前对白与纯字幕",
+      "tag": "当前对白资源",
+      "summary": "从当前声音与对白登记读取试听样例和纯字幕；完整已有音频见声音目录。",
+      "model": "remilia",
+      "points": [],
+      "steps": [
+        {
+          "title": "现有语音试听",
+          "body": "直接播放打包音频并展示对应中日文本；普通对白没有通用说话口型，不配一个问候动作充数。",
+          "kind": "audio",
+          "audioSample": "hello"
+        },
+        {
+          "title": "捕食种字幕",
+          "body": "读取当前对白目录中的原句与翻译。这些条目只有字幕，没有独立配音。",
+          "kind": "subtitles"
+        }
+      ],
+      "source": "docs/DIALOGUE_IMPLEMENTATION.md",
+      "gallery": []
     }
   ]
 }
