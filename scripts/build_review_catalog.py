@@ -9,11 +9,13 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 OUT = ROOT / '.local/previews/models'
 ROLES = [
     ('reimu','灵梦','普通种'),('marisa','魔理沙','普通种'),('chen','橙','普通种'),
-    ('alice','爱丽丝','普通种'),('patchouli','帕秋莉','普通种'),
+    ('alice','爱丽丝','普通种'),('patchouli','帕秋莉','普通种'),('myon','妖梦','普通种'),
     ('house_reimu','家灵梦','家油'),('house_marisa','家魔理沙','家油'),
     ('remilia','蕾米莉亚','捕食种'),('flandre','弗兰','捕食种'),
     ('marisa_tsumuri','壳魔理沙','亚种'),('reimu_wasa','多毛灵梦','亚种'),
     ('reimu_deibu','灵胖','亚种'),('reimu_wasa_deibu','多毛灵胖','亚种'),
+    ('myon_redeye','红眼妖梦','亚种'),('chen_longtail','长尾橙','亚种'),
+    ('chen_roundtail','圆尾橙','亚种'),('marisa_kotatsu','被炉魔理沙','亚种'),
     ('reimu_sparse','稀毛灵梦','不足形态'),('reimu_face','歪脸灵梦','不足形态'),
     ('reimu_bean','豆形灵梦','不足形态'),('marisa_sparse','稀毛魔理沙','不足形态'),
     ('marisa_face','歪脸魔理沙','不足形态'),('marisa_bean','豆形魔理沙','不足形态')]
@@ -25,6 +27,11 @@ def url(path):
     return '/' + path.relative_to(ROOT).as_posix()
 
 def main():
+    registered = set(read(ASSETS/'yukkuri_presentation/living.json')['variants'])
+    registered.update(read(ASSETS/'yukkuri_presentation/subspecies.json'))
+    listed = {ident for ident, _, _ in ROLES}
+    if registered != listed:
+        raise ValueError(f'Model catalog differs from runtime: missing={registered-listed}, retired={listed-registered}')
     OUT.mkdir(parents=True, exist_ok=True)
     for name in ('index.html', 'style.css', 'app.js', 'pose.js'):
         shutil.copy2(ROOT / 'preview/review' / name, OUT / name)

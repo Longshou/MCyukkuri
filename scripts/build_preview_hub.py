@@ -73,6 +73,50 @@ def render_overview():
     sheet.save(OUT / 'overview.png')
 
 
+def prepare_chapters(manifest, actions):
+    """Publish only usable local media; gallery-only topics become selectable stills."""
+    chapters = []
+    for raw in manifest['chapters']:
+        chapter = dict(raw)
+        chapter.setdefault('label', chapter['title'])
+        chapter.setdefault('tag', '当前素材 · 离线预览')
+        if chapter.get('source') and not (ROOT / chapter['source']).is_file():
+            raise FileNotFoundError(chapter['source'])
+        if chapter.get('demoPage') and not (OUT / chapter['demoPage']).is_file():
+            print(f"Omitted unavailable demo: {chapter.pop('demoPage')}")
+        chapter['gallery'] = [item for item in chapter.get('gallery', []) if (OUT / item['src']).is_file()]
+        steps = []
+        for raw_step in chapter.get('steps', []):
+            step = dict(raw_step)
+            step.setdefault('body', step.pop('caption', ''))
+            if step.get('demo'):
+                demo = actions[step['demo']]
+                step.update(image=f"actions/{demo['id']}.png", animation=f"actions/{demo['id']}.gif", model=demo['model'], action=demo['action'])
+                if step.get('still'):
+                    step.pop('animation')
+                    step.pop('action')
+            if step.get('kind') == 'playback' and not chapter.get('demoPage'):
+                continue
+            if step.get('image') and not (OUT / step['image']).is_file():
+                print(f"Omitted unavailable still: {step['image']}")
+                continue
+            if step.get('animation') and not (OUT / step['animation']).is_file():
+                step.pop('animation')
+            steps.append(step)
+        if not steps and chapter['gallery']:
+            steps = [dict(title=item['label'], body='当前素材离线预览。', image=item['src'])
+                     for item in chapter['gallery']]
+            chapter['gallery'] = []
+        if not steps:
+            print(f"Omitted empty topic: {chapter['id']}")
+            continue
+        chapter['steps'] = steps
+        chapters.append(chapter)
+    if not chapters:
+        raise ValueError('No usable preview topics; generate topic media first.')
+    manifest['chapters'] = chapters
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--render', action='store_true')
@@ -108,6 +152,7 @@ def main():
     if args.render:
         childhood.append('--force')
     subprocess.run(childhood, check=True, cwd=ROOT)
+    subprocess.run([sys.executable, str(ROOT / 'scripts/build_preview_props.py')], check=True, cwd=ROOT)
     actions = {item['id']: item for item in json.loads((ROOT / 'preview/hub/actions.json').read_text(encoding='utf-8'))['clips']}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
@@ -115,24 +160,12 @@ def main():
         'song': next(item for item in catalog['audio'] if item['id']=='ecology.song.reimu')}
     manifest['subtitleSamples'] = [next(item for item in catalog['subtitles'] if item['id']==ident)
                                    for ident in ('remilia.adult.o_hello', 'flandre.adult.o_hello')]
-    for chapter in manifest['chapters']:
-        for step in chapter['steps']:
-            if step.get('demo'):
-                demo = actions[step['demo']]
-                step.update(image=f"actions/{demo['id']}.png", animation=f"actions/{demo['id']}.gif", model=demo['model'], action=demo['action'])
-                assert (OUT / step['image']).is_file() and (OUT / step['animation']).is_file(), demo['id']
-                if step.get('still'):
-                    step.pop('animation')
-                    step.pop('action')
-            if step.get('image') and not (OUT / step['image']).is_file():
-                step.update(kind='logic', states=['此分镜尚未生成', '完整生成方法见预览工具说明'], mediaPending=True)
-                step.pop('animation', None)
-            if step.get('animation') and not (OUT / step['animation']).is_file():
-                step.pop('animation')
-        chapter['gallery'] = [item for item in chapter.get('gallery', []) if (OUT / item['src']).is_file()]
+    prepare_chapters(manifest, actions)
     render_overview()
-    manifest['availableMedia'] = sorted(str(p.relative_to(OUT)) for p in OUT.rglob('*')
-                                        if p.suffix in ('.png', '.gif', '.webm', '.mp4') and not p.relative_to(OUT).parts[0].startswith('_'))
+    manifest['availableMedia'] = sorted({
+        media for chapter in manifest['chapters']
+        for media in [*(step[key] for step in chapter['steps'] for key in ('image', 'animation') if step.get(key)),
+                      *(item['src'] for item in chapter['gallery'])]})
     (OUT / 'recent.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     for name in ('style.css', 'app.js', 'index.html'):
         shutil.copy2(ROOT / 'preview/hub' / name, OUT / name)
