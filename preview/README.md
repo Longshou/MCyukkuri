@@ -11,7 +11,7 @@ python scripts/build_preview_hub.py --render
 python scripts/serve_review.py --port 8766
 ```
 
-`--render` 强制重建模型缩略图；不带它可复用输入指纹一致的缓存。照料设施每次从当前打包网格与贴图重建。服务仅监听本机；手动访问 `http://127.0.0.1:8766/.local/previews/index.html`。页面效果由用户手工查看。
+`--render` 强制重建模型缩略图；不带它可复用输入指纹一致的缓存。照料设施和宠物用品款式图（`pet-goods/`，与原版方块并排，需本机原版客户端 jar，见[照料道具制作源](../standards/yukkuri-library/drafts/care-props/README.md)）每次从当前打包网格与贴图重建。服务仅监听本机；手动访问 `http://127.0.0.1:8766/.local/previews/index.html`。页面效果由用户手工查看。
 
 ## 内容与边界
 

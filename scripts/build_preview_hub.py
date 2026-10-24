@@ -7,6 +7,7 @@ from pathlib import Path
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -17,6 +18,8 @@ import build_preview_library
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '.local/previews'
+PET_GOODS = ('vanilla', 'bowls', 'fills', 'nests', 'large', 'toilets')
+PET_GOODS_MEDIA = ('vanilla', 'bowls', 'fills', 'nests', 'large_nests', 'toilets')
 
 
 def font(size):
@@ -98,6 +101,10 @@ def main():
     subprocess.run([sys.executable, str(ROOT / 'scripts/build_preview_props.py')], check=True, cwd=ROOT)
     from build_preview_props import GROUPS
     current_media = {f'care-current/{name}.png' for name in GROUPS}
+    # Placed pet-goods style sheets (offline, beside vanilla blocks); rebuilt here from the current runtime meshes.
+    subprocess.run([sys.executable, str(ROOT / 'standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py'), *PET_GOODS],
+                   check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {f'pet-goods/{name}.png' for name in PET_GOODS_MEDIA}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),

@@ -38,10 +38,6 @@
         {
           "src": "pet-goods/toilets.png",
           "label": "厕所款式"
-        },
-        {
-          "src": "pet-goods/before_after.png",
-          "label": "上一轮与本轮对比"
         }
       ],
       "source": "standards/yukkuri-library/drafts/care-props/README.md"
