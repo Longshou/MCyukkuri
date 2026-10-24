@@ -21,14 +21,25 @@ import org.joml.Vector3f;
 final class HairWoundAssets {
     record Profile(float radiusU,float radiusV,float cutU,float cutV,float depth,boolean open,
                    float[][] outline,float[][] hairOutline) {}
+    static final class Palette {
+        final Vector3f core;
+        final float[][] cavityColours,coreColours;
+        Palette(JsonObject data){
+            core=vector(data.getAsJsonArray("core_color"));
+            cavityColours=rows(data.getAsJsonArray("cavity_controls"));
+            coreColours=rows(data.getAsJsonArray("core_levels"));
+        }
+    }
     static final class Model {
         final String body;
+        final Palette palette;
         final boolean house;
         final Vector3f scale,offset,hairEdge,hairHighlight;
         final Set<String> hair,thermalHair;
         final Map<String,String> rigid,accessories;
         final Map<Integer,Set<String>> dryFaces=new HashMap<>();
-        Model(JsonObject data,JsonObject faces){
+        Model(JsonObject data,JsonObject faces,Palette palette){
+            this.palette=palette;
             body=data.get("body_part").getAsString();house=data.get("house").getAsBoolean();
             var fit=data.getAsJsonObject("fit");scale=vector(fit.getAsJsonArray("scale"));offset=vector(fit.getAsJsonArray("offset"));
             hairEdge=vector(data.getAsJsonArray("hair_edge"));hairHighlight=vector(data.getAsJsonArray("hair_highlight"));
@@ -42,11 +53,11 @@ final class HairWoundAssets {
         Vector3f canonical(Vector3f point){return new Vector3f(point).sub(offset).div(scale);}
     }
     private static final Map<String,Model> MODELS=new HashMap<>();
+    private static final Map<String,Palette> PALETTES=new HashMap<>();
     private static final Map<String,Profile[]> PROFILES=new HashMap<>();
     static float[] widthLoss;
     static float minimumInset,cheekHeight,cheekFalloff,soleLow,soleHigh,textureScale;
     static float[][] cavityControls;
-    static Vector3f filling,coreFilling;
     static float coreDensity;
 
     static float wallTone(int ring,int segment,float y,float scale){
@@ -60,9 +71,12 @@ final class HairWoundAssets {
         try(var reader=manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/hair_wounds.json")).openAsReader()){
             var data=JsonParser.parseReader(reader).getAsJsonObject();
             if(data.get("format").getAsInt()!=1)throw new IllegalArgumentException("Unsupported selected hair wounds");
-            MODELS.clear();PROFILES.clear();var recipe=data.getAsJsonObject("recipe");
+            MODELS.clear();PROFILES.clear();PALETTES.clear();var recipe=data.getAsJsonObject("recipe");
+            for(var entry:data.getAsJsonObject("filling_palettes").entrySet())
+                PALETTES.put(entry.getKey(),new Palette(entry.getValue().getAsJsonObject()));
             for(var entry:data.getAsJsonObject("models").entrySet())MODELS.put(entry.getKey(),new Model(entry.getValue().getAsJsonObject(),
-                    data.getAsJsonObject("dry_faces").getAsJsonObject(entry.getKey())));
+                    data.getAsJsonObject("dry_faces").getAsJsonObject(entry.getKey()),
+                    PALETTES.get(entry.getValue().getAsJsonObject().get("filling_palette").getAsString())));
             for(var entry:data.getAsJsonObject("profiles").entrySet()){
                 var profiles=new Profile[4];var grades=recipe.getAsJsonObject("grades").getAsJsonArray(entry.getKey());
                 for(int grade=1;grade<=3;grade++){
@@ -78,13 +92,16 @@ final class HairWoundAssets {
             cheekHeight=dry.get("cheek_height").getAsFloat();cheekFalloff=dry.get("cheek_falloff").getAsFloat();
             var sole=floats(thermal.getAsJsonArray("sole_y"));soleLow=sole[0];soleHigh=sole[1];textureScale=thermal.get("texture_world_scale").getAsFloat();
             cavityControls=rows(data.getAsJsonArray("cavity_controls"));
-            var material=recipe.getAsJsonObject("filling_material");filling=vector(material.getAsJsonArray("base"));
-            coreFilling=material.has("core_color")?vector(material.getAsJsonArray("core_color")):filling;
+            var material=recipe.getAsJsonObject("filling_material");
             coreDensity=material.get("core_density_tint").getAsFloat();
         }catch(IOException error){throw new UncheckedIOException("Cannot load selected hair wound art",error);}
         HairWoundRenderer.clear();
     }
     static Model model(String id){return MODELS.get(id);}
+    private static Palette palette(String id){var model=MODELS.get(id);return model==null?PALETTES.get("generic"):model.palette;}
+    static float[] cavityColoursFor(String id,int ring){float[] row=palette(id).cavityColours[ring];return new float[]{row[3],row[4],row[5]};}
+    static float[] coreColoursFor(String id,int ring){float[] row=palette(id).coreColours[ring];return new float[]{row[3],row[4],row[5]};}
+    static Vector3f coreColourFor(String id){return palette(id).core;}
     static Profile profile(BodyWound wound){var profiles=PROFILES.get(wound.kind()==WoundKind.SCAR?"tear":wound.shape().id());
         return profiles==null?null:profiles[wound.severity()];}
     static int wholeBurn(Iterable<BodyWound> wounds,boolean house){int result=0;for(var wound:wounds)

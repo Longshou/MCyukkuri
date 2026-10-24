@@ -157,13 +157,14 @@
     {
       "id": "hair-wounds-art",
       "title": "头发覆盖区的伤口",
-      "summary": "重绘八类机械伤的三级透明像素贴图与低面数创腔：刮擦簇、狭长裂口、压陷、窄刺、细刺、尖锥、错位齿痕和不对称爆裂各有轮廓。24 套现有模型与形态完成适配；中枢与空腔沿用同一豆沙色系。",
+      "summary": "重绘八类机械伤的三级透明像素贴图与低面数创腔：刮擦簇、狭长裂口、压陷、窄刺、细刺、尖锥、错位齿痕和不对称爆裂各有轮廓。24 套现有模型与形态完成适配；中枢与空腔按品种使用对应内馅色系。",
       "model": "reimu",
       "source": "standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md",
       "demoPage": "hair-wounds/index.html",
       "points": [
         "64×64 硬边像素最近邻导出，无肤色底块；开放伤有真实创缘、垂直内壁与底部，不用平滑凸面。",
         "窄刺与尖锥三级使用独立轮廓；核心保持身体中央，完好、裂损与取出后的深色空腔可区分。",
+        "按既有资料分别使用豆沙、卡仕达、巧克力与白巧克力内馅；未明确品种保留默认色，不指定口味。",
         "家油仍仅足部／全身烧伤且直接三级；其余形态保留真实伤位、发型、成长和既有热损规则。"
       ],
       "steps": [
@@ -176,9 +177,18 @@
           "title": "完好、裂损与取出空腔",
           "caption": "同一运行创腔的近看、侧视与状态对照；核心位置不随镜头移动。",
           "image": "body-core-runtime/current.png"
+        },
+        {
+          "title": "品种内馅配色",
+          "caption": "同伤型比较豆沙、卡仕达、巧克力与白巧克力；RGB 为项目美术，未明确品种保持默认。",
+          "image": "hair-wounds/filling-palettes.png"
         }
       ],
       "gallery": [
+        {
+          "src": "hair-wounds/filling-palettes.png",
+          "label": "豆沙、卡仕达、巧克力与白巧克力创腔对照"
+        },
         {
           "src": "hair-wounds/species/house_reimu/thermal.png",
           "label": "家油仅烧伤与头饰褐变"

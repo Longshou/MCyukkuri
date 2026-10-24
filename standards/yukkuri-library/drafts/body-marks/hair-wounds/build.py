@@ -85,6 +85,14 @@ def main():
             evidence=EVIDENCE['references'][ref]
             if 'path' in evidence and not (ROOT/evidence['path']).is_file():raise ValueError('Missing source path: '+ref)
             if evidence.get('sha256') and hashlib.sha256((ROOT/evidence['path']).read_bytes()).hexdigest()!=evidence['sha256']:raise ValueError('Changed visual reference: '+ref)
+    for palette_name, palette in RECIPE['filling_palettes'].items():
+        for ref in palette['evidence']:
+            evidence=EVIDENCE['references'][ref]
+            if 'path' in evidence and not (ROOT/evidence['path']).is_file():raise ValueError('Missing filling palette source: '+ref)
+        for key in ('base','bottom','core_color','wall','shadow','mid','deep'):
+            colour=palette[key]
+            if len(colour)!=3 or any(not isinstance(v,(int,float)) or not 0<=v<=255 for v in colour):
+                raise ValueError(f'Invalid RGB filling palette: {palette_name}/{key}')
     textures={f'{kind}-{grade}.png':material(kind,grade,RECIPE['texture_size']) for kind in KINDS for grade in [1,2,3]}
     textures['scar.png']=material('scar',size=RECIPE['texture_size'])
     textures.update({f'thermal-{g}.png':material('thermal',g,RECIPE['texture_size']) for g in [1,2,3]})
@@ -136,6 +144,7 @@ def main():
     sources += [ROOT/f'src/main/resources/assets/mcyukkuri/yukkuri/{model}.json' for model in RECIPE['models']]
     manifest=dict(id='hair-wounds',status='authored_pending_review',runtime_selected=False,
       coverage=dict(injury_types=['scratch','tear','dent','scorch'],visual_styles=KINDS,grades=[1,2,3],core_causes=CORE_KINDS,core_states=['intact'],
+                    filling_palettes=list(RECIPE['filling_palettes']),
                     receivers=['reimu:hair','marisa:hair','reimu:skin'],mesh_count=len(meshes),texture_count=len(textures),dry_face_count=len(face_samples),thermal_scopes=['sole','whole_body'],thermal_sample_count=len(thermal_specs),minecraft_sources=47,source_grade_entries=141),
       derived_marks=dict(scar='assembled/scar.png; healed mark, not an active injury',
          dirt='../export_wounds.py: dirt_1..3',mold='../export_wounds.py: mold_1..4',char='../export_wounds.py: char (whole sole)',

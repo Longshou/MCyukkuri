@@ -16,6 +16,37 @@
       "locator": "2026-10-22 当前会话：中枢馅与周边材质区别过强、边界感太强",
       "supports": "Continuous material family without an isolated organ-like shell."
     },
+    "user_filling_species": {
+      "type": "user_rule",
+      "locator": "当前用户明确要求：不同油库里的内馅可以不同，按品种调整伤口配色；爱丽丝为卡仕达馅",
+      "supports": "Species-specific filling palettes and a custard presentation for Alice; RGB values remain project art."
+    },
+    "filling_rules": {
+      "type": "repository_source_extract",
+      "path": "wiki/hakkei-reference/world/rules.md",
+      "locator": "繁殖与食物：灵梦和魔理沙为豆沙馅，爱丽丝为卡仕达馅，橙为巧克力馅；其他种类沿用泛称馅",
+      "supports": "Adopted filling names and the generic fallback. It does not assign a flavour to species left unspecified."
+    },
+    "filling_alice": {
+      "type": "repository_source_extract",
+      "path": "wiki/hakkei-reference/lore/species/alice/README.md",
+      "url": "https://w.atwiki.jp/ykansatu/pages/39.html",
+      "locator": "外观：金发、红发箍、卡仕达馅（W，L10）",
+      "supports": "Alice custard in the adopted game-source version; RGB shades and cavity shading are project art."
+    },
+    "filling_chen": {
+      "type": "repository_source_extract",
+      "path": "wiki/hakkei-reference/lore/species/chen/README.md",
+      "url": "https://w.atwiki.jp/ykansatu/pages/39.html",
+      "locator": "《にっき》资料：绿帽、猫耳、巧克力馅（W，L10）",
+      "supports": "Chen chocolate in that source version; not promoted into a universal rule for every work."
+    },
+    "myon_filling": {
+      "type": "project_source",
+      "path": "standards/yukkuri-library/subspecies/rare-forms/recipe.json",
+      "locator": "basis.myon：komicolle 40720 No.11518905 妖梦（白巧克力）",
+      "supports": "Current adopted Myon metadata names white-chocolate filling; this is a visual palette only, not a new gameplay mechanic."
+    },
     "injury_code": {
       "type": "project_code",
       "path": "src/main/java/io/github/longshou/mcyukkuri/body/InjuryModel.java",

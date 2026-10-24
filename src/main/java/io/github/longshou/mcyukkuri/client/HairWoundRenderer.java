@@ -350,7 +350,8 @@ final class HairWoundRenderer {
                 var a=wall(cut,samples[j],level,r,centre);var b=wall(cut,samples[k],level,r,centre);
                 var c=wall(cut,samples[k],next,r+1,centre);var d=wall(cut,samples[j],next,r+1,centre);
                 float tone=HairWoundAssets.wallTone(r,j,cut.skin[j][1]/cut.cutV,level[0]);
-                float[] color={level[3]*tone,level[4]*tone,level[5]*tone};colored(layer,a,b,c,color);colored(layer,a,c,d,color);
+                float[] palette=HairWoundAssets.cavityColoursFor(mesh.assetId,r);
+                float[] color={palette[0]*tone,palette[1]*tone,palette[2]*tone};colored(layer,a,b,c,color);colored(layer,a,c,d,color);
             }
         }
         private Corner wall(Cut cut,Sample rim,float[] level,int index,Sample centre){

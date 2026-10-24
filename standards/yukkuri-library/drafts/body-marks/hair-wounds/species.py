@@ -15,6 +15,17 @@ def body_bounds(model):
     xyz=np.asarray(model['vertices']).reshape(-1,8)[part['start']:part['start']+part['count'],:3]
     return part['name'],xyz.min(axis=0),xyz.max(axis=0)
 
+def filling_palette(name,palettes):
+    # Species, not the donor geometry, determines the filling. Myon reuses some
+    # Alice topology but has its own adopted white-chocolate filling.
+    if name.startswith('myon'):result='white_chocolate'
+    elif name=='alice':result='custard'
+    elif name.startswith('chen'):result='chocolate'
+    elif name.startswith(('reimu','marisa','house_reimu','house_marisa')):result='red_bean'
+    else:result='generic'
+    if result not in palettes:raise ValueError(f'Missing filling palette {result} for {name}')
+    return result
+
 def registry():
     living=json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']
     variants={**living,**json.loads((ASSETS/'yukkuri_presentation/subspecies.json').read_text(encoding='utf-8'))}
@@ -22,6 +33,7 @@ def registry():
     if set(variants)!=actual or actual!=set(LABELS):raise ValueError('New model needs explicit wound-art classification')
     base=json.loads((ASSETS/'yukkuri/reimu.json').read_text(encoding='utf-8'));_,low0,high0=body_bounds(base)
     original=json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['models']
+    palettes=json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['filling_palettes']
     java=ROOT/'src/main/java/io/github/longshou/mcyukkuri'
     base_health=float(re.search(r'\.add\(Attributes\.MAX_HEALTH,\s*([\d.]+)',(java/'entity/YukkuriEntity.java').read_text(encoding='utf-8')).group(1))
     myon_health=float(re.search(r'\.add\(Attributes\.MAX_HEALTH,\s*([\d.]+)',(java/'rare/MyonLife.java').read_text(encoding='utf-8')).group(1))
@@ -59,7 +71,7 @@ def registry():
                 eyes.extend(points[:,1].tolist())
         skin_y=(float(np.mean(eyes))-offset[1])/scale[1]-4.5-.4
         hair_y=3.7 if name.endswith('_bean') else 2.4 if name.startswith('house_') else 2.3 if name in ['remilia','flandre'] else 1.15
-        models[name]=dict(label=LABELS[name],body_part=body,hair_parts=hair,thermal_extra_hair_parts=extras,
+        models[name]=dict(label=LABELS[name],filling_palette=filling_palette(name,palettes),body_part=body,hair_parts=hair,thermal_extra_hair_parts=extras,
             protected_parts=ornaments,hair_edge=local['hair_edge'] if local else np.clip(c*.7,0,255).astype(int).tolist(),
             hair_highlight=local['hair_highlight'] if local else np.clip(c*1.08+8,0,255).astype(int).tolist(),
             fit=dict(scale=scale.tolist(),offset=offset.tolist()),texture_size=texture.width,

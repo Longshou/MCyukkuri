@@ -43,17 +43,30 @@ def main():
             select(SNAPSHOT / f'profiles/{style}-{grade}.json', encoded(mesh['profile']))
     # Ordinary and core lofts share the parent authoring recipe with the
     # standalone cavity exporter; only the runtime row layout is adapted here.
-    cavity_controls = [[row[0], row[1], row[2], *row[3]] for row in cavity_recipe['ordinary_lip']]
-    core_controls = cavity_recipe['core_lip']
-    core_levels = []
-    for index, (a, b) in enumerate(zip(core_controls, core_controls[1:])):
-        steps = cavity_recipe['core_steps'][index]
-        for step in range(steps):
-            t = step / steps
-            row = [a[k]*(1-t)+b[k]*t for k in range(3)]
-            color = [a[3][k]*(1-t)+b[3][k]*t for k in range(3)]
-            core_levels.append(row+color)
-    core_levels.append(core_controls[-1][:3]+recipe['filling_material']['base'])
+    # Geometry is shared; each palette changes only the ordinary/core wall and
+    # dense-centre colours. The generic rows retain the previous runtime default.
+    def palette_rows(palette, core):
+        controls = cavity_recipe['core_lip'] if core else cavity_recipe['ordinary_lip']
+        roles = cavity_recipe['core_palette_roles'] if core else cavity_recipe['ordinary_palette_roles']
+        coloured = [[row[0], row[1], row[2], palette.get(roles[index], row[3])]
+                    for index, row in enumerate(controls)]
+        if not core:
+            return [[row[0], row[1], row[2], *row[3]] for row in coloured]
+        levels = []
+        for index, (a, b) in enumerate(zip(coloured, coloured[1:])):
+            steps = cavity_recipe['core_steps'][index]
+            for step in range(steps):
+                t = step / steps
+                row = [a[k]*(1-t)+b[k]*t for k in range(3)]
+                color = [a[3][k]*(1-t)+b[3][k]*t for k in range(3)]
+                levels.append(row+color)
+        levels.append(coloured[-1][:3]+palette['base'])
+        return levels
+    palette_outputs = {name: dict(core_color=palette['core_color'],
+        cavity_controls=palette_rows(palette, False), core_levels=palette_rows(palette, True))
+        for name, palette in recipe['filling_palettes'].items()}
+    cavity_controls = palette_outputs['generic']['cavity_controls']
+    core_levels = palette_outputs['generic']['core_levels']
     for name in [*(f'{style}-{g}' for style in recipe['grades'] for g in (1,2,3)),
                  *(f'thermal-{g}' for g in (1,2,3)), 'scar']:
         path = HERE / f'assembled/{name}.png'
@@ -70,7 +83,8 @@ def main():
     runtime_recipe = {key: recipe[key] for key in ('grades', 'core_openings', 'thermal',
         'core_center', 'core_radius', 'segments', 'filling_material')}
     selected = dict(format=1, recipe=runtime_recipe, models=catalog['models'], profiles=profiles,
-        dry_faces=faces, cavity_controls=cavity_controls, core_levels=core_levels, core_reference_depth=core_controls[-1][1])
+        dry_faces=faces, filling_palettes=palette_outputs, cavity_controls=cavity_controls,
+        core_levels=core_levels, core_reference_depth=cavity_recipe['core_lip'][-1][1])
     fits = json.loads((ASSETS / 'yukkuri_presentation/placement_fit.json').read_text(encoding='utf-8'))['models']
     for ident, info in catalog['models'].items():
         if not info['house']:
@@ -140,7 +154,7 @@ def main():
         selector_sha256=hashlib.sha256(Path(__file__).read_bytes().replace(b'\r\n', b'\n')).hexdigest(),
         source_inputs={ (HERE.parent / 'recipe.json').relative_to(ROOT).as_posix():
             hashlib.sha256((HERE.parent / 'recipe.json').read_bytes()).hexdigest() },
-        scope='Redrawn pixel-authored profiles, transparent materials and expression atlases; runtime reprojects at the authoritative wound site.',
+        scope='Redrawn pixel-authored profiles, transparent materials, species filling palettes and expression atlases; runtime reprojects at the authoritative wound site without changing hit geometry.',
         status='selected_for_runtime_pending_user_review',
         input_meshes=input_meshes,
         files={path.relative_to(ROOT).as_posix(): hashlib.sha256(data).hexdigest()

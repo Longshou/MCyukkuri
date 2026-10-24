@@ -1,4 +1,4 @@
-/* Low-poly cavity geometry: a thin dough lip, stepped bean-paste walls and ONE
+/* Low-poly cavity geometry: a thin dough lip, stepped species-filling walls and ONE
  * central filling body. The actual front skin is sampled to sew the lip to the
  * model. No runtime resources or Java are changed by this authoring module.
  */

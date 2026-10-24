@@ -422,6 +422,64 @@
     "grain_amplitude": 0.11,
     "boundary": "Shared hue, shared grain, no specular shell or dark outline."
   },
+  "filling_palette_rule": "Only filling types have sources; all RGB values are project art. Unknown species keep the generic palette and are not asserted to contain red bean paste.",
+  "filling_palettes": {
+    "generic": {
+      "label": "未指定馅料（项目默认）",
+      "evidence": ["filling_rules"],
+      "base": [88, 56, 43],
+      "bottom": [118, 76, 53],
+      "core_color": [126, 82, 55],
+      "wall": [128, 85, 60],
+      "shadow": [82, 53, 42],
+      "mid": [126, 83, 55],
+      "deep": [88, 56, 43]
+    },
+    "red_bean": {
+      "label": "豆沙馅",
+      "evidence": ["filling_rules"],
+      "base": [88, 56, 43],
+      "bottom": [118, 76, 53],
+      "core_color": [126, 82, 55],
+      "wall": [128, 85, 60],
+      "shadow": [82, 53, 42],
+      "mid": [126, 83, 55],
+      "deep": [88, 56, 43]
+    },
+    "custard": {
+      "label": "卡仕达馅",
+      "evidence": ["user_filling_species", "filling_alice"],
+      "base": [148, 104, 42],
+      "bottom": [198, 151, 67],
+      "core_color": [229, 190, 96],
+      "wall": [188, 142, 62],
+      "shadow": [105, 70, 34],
+      "mid": [207, 160, 72],
+      "deep": [148, 104, 42]
+    },
+    "chocolate": {
+      "label": "巧克力馅",
+      "evidence": ["filling_chen"],
+      "base": [62, 39, 30],
+      "bottom": [91, 57, 39],
+      "core_color": [112, 70, 47],
+      "wall": [99, 61, 42],
+      "shadow": [43, 28, 24],
+      "mid": [84, 50, 36],
+      "deep": [62, 39, 30]
+    },
+    "white_chocolate": {
+      "label": "白巧克力馅",
+      "evidence": ["myon_filling"],
+      "base": [164, 143, 104],
+      "bottom": [203, 179, 132],
+      "core_color": [235, 220, 172],
+      "wall": [198, 174, 127],
+      "shadow": [111, 89, 63],
+      "mid": [211, 187, 139],
+      "deep": [164, 143, 104]
+    }
+  },
   "surface_rule": "Transparent wound decals without a skin-color background; wound thickness is inside the actual missing tissue. Dent receiver triangles share one sampled field and preserve face UVs.",
   "grading": {
     "divisor": 2,

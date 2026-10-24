@@ -122,8 +122,9 @@ final class CavityRenderer {
         for(int r=0;r<levels.length-1;r++)for(int j=0;j<count;j++) {
             int k=(j+1)%count,a=r*count+j,b=r*count+k,c=(r+1)*count+k,d=(r+1)*count+j;
             // The local tangent basis faces outward; the source XY plane faced inward (+Z).
-            var color=levels[r];float tone=HairWoundAssets.wallTone(r,j,opening.polygon[j][1]/opening.radiusV,color[0]);
-            faces.add(new Face(a,b,c,color[3]*tone,color[4]*tone,color[5]*tone,false));faces.add(new Face(a,c,d,color[3]*tone,color[4]*tone,color[5]*tone,false));
+            var color=levels[r];float[] palette=HairWoundAssets.coreColoursFor(mesh.assetId,r);
+            float tone=HairWoundAssets.wallTone(r,j,opening.polygon[j][1]/opening.radiusV,color[0]);
+            faces.add(new Face(a,b,c,palette[0]*tone,palette[1]*tone,palette[2]*tone,false));faces.add(new Face(a,c,d,palette[0]*tone,palette[1]*tone,palette[2]*tone,false));
         }
         if(!corePresent)return;
         var source=BodyCavity.coreMesh();var data=source.vertices();int start=vertices.size();
@@ -141,7 +142,7 @@ final class CavityRenderer {
             float grain=.94f+.06f*Math.floorMod(cell,3);
             float shade=broken?Math.clamp((damage[i]+damage[i+1]+damage[i+2]+1)/(colours[i]+colours[i+1]+colours[i+2]+1),.35f,1.1f):1;
             float tone=HairWoundAssets.coreDensity*grain*shade;
-            var filling=HairWoundAssets.coreFilling;
+            var filling=HairWoundAssets.coreColourFor(mesh.assetId);
             faces.add(new Face(start+i,start+i+1,start+i+2,filling.x*tone,filling.y*tone,filling.z*tone,true));
         }
     }

@@ -30,7 +30,8 @@ function createHairWound(vertices,parts,spec){
   return result;
 }
 function authorCanonical(vertices,parts,spec){
-  const model=modelInfo(spec.model);
+  const model=modelInfo(spec.model),palette=recipe.filling_palettes[model.filling_palette||'generic'];
+  if(!palette)throw Error('Missing filling palette for '+spec.model);
   const skin=parts.find(p=>p.name===model.body_part);
   const hair=parts.filter(p=>model.hair_parts.includes(p.name));
   for(const name of model.hair_parts)if(!parts.some(p=>p.name===name))throw Error('Missing registered part '+name);
@@ -164,8 +165,10 @@ function authorCanonical(vertices,parts,spec){
         triangle(base,tip,side,col,material);triangle(side,tip,end,col,material);
       }
     }
-    const controls=core?baseRecipe.core_cavity.core_lip:baseRecipe.core_cavity.ordinary_lip.map(([scale,depth,t,col],index)=>
-      [scale,index<3?depth:depth*grade.depth,t,col]);
+    const cavity=baseRecipe.core_cavity,roles=core?cavity.core_palette_roles:cavity.ordinary_palette_roles;
+    const sourceControls=core?cavity.core_lip:cavity.ordinary_lip;
+    const controls=sourceControls.map(([scale,depth,t,col],index)=>
+      [scale,core?depth:index<3?depth:depth*grade.depth,t,palette[roles[index]]||col]);
     const stepsFor=core?baseRecipe.core_cavity.core_steps:controls.slice(0,-1).map(()=>1);
     const levels=[];
     for(let r=0;r<controls.length-1;r++){
@@ -175,7 +178,7 @@ function authorCanonical(vertices,parts,spec){
         levels.push([a[0]*(1-t)+b[0]*t,depth,a[2]*(1-t)+b[2]*t,raw]);
       }
     }
-    levels.push(core?[...controls.at(-1).slice(0,3),[...recipe.filling_material.base]]:controls.at(-1));
+    levels.push(core?[...controls.at(-1).slice(0,3),[...palette.base]]:controls.at(-1));
     const corePresent=core;
     function fillingJoin(x,y){
       // Ordinary filling remains attached around the dense central region.
@@ -207,8 +210,8 @@ function authorCanonical(vertices,parts,spec){
       const existing=createCavity(vertices,skin,baseRecipe.core_cavity,false);
       for(let i=0;i<existing.vertices.length;i+=24){const id=-1-existing.vertices[i+3];if(existing.materials[id]!=='core')continue;
         const points=[0,8,16].map(j=>existing.vertices.slice(i+j,i+j+3));
-        // Same bean filling as the cavity: no purple hue, painted gleam or shell.
-        const colorBase=recipe.filling_material.core_color||recipe.filling_material.base;
+        // The same species-specific filling as the cavity, without a shell.
+        const colorBase=palette.core_color;
         const grain=[.94,1,1.06][Math.floor(i/24)%3];
         const color=colorBase.map(c=>c*recipe.filling_material.core_density_tint*grain);
         triangle(...points,color,'core');

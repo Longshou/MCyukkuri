@@ -4,6 +4,7 @@
   "models": {
     "reimu": {
       "label": "灵梦",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "crown",
@@ -234,6 +235,7 @@
     },
     "marisa": {
       "label": "魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "crown",
@@ -424,6 +426,7 @@
     },
     "house_reimu": {
       "label": "家灵梦",
+      "filling_palette": "red_bean",
       "body_part": "house_body_surface",
       "hair_parts": [
         "house_hair_wrap_0_2",
@@ -958,6 +961,7 @@
     },
     "house_marisa": {
       "label": "家魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "house_body_surface",
       "hair_parts": [
         "house_hair_wrap_0_2",
@@ -1329,6 +1333,7 @@
     },
     "chen": {
       "label": "橙",
+      "filling_palette": "chocolate",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "chen_cap",
@@ -1585,6 +1590,7 @@
     },
     "alice": {
       "label": "爱丽丝",
+      "filling_palette": "custard",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "alice_hair_cap_left",
@@ -1900,6 +1906,7 @@
     },
     "patchouli": {
       "label": "帕秋莉",
+      "filling_palette": "generic",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "patchouli_cap",
@@ -2862,6 +2869,7 @@
     },
     "remilia": {
       "label": "蕾米莉亚",
+      "filling_palette": "generic",
       "body_part": "predator_body_surface",
       "hair_parts": [
         "predator_hair_crown",
@@ -2994,6 +3002,7 @@
     },
     "flandre": {
       "label": "芙兰",
+      "filling_palette": "generic",
       "body_part": "predator_body_surface",
       "hair_parts": [
         "predator_hair_crown",
@@ -3164,6 +3173,7 @@
     },
     "myon": {
       "label": "妖梦",
+      "filling_palette": "white_chocolate",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "alice_cap",
@@ -3390,6 +3400,7 @@
     },
     "marisa_tsumuri": {
       "label": "螺壳魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "crown",
@@ -7166,6 +7177,7 @@
     },
     "reimu_wasa": {
       "label": "多毛灵梦",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_hair",
@@ -7512,6 +7524,7 @@
     },
     "reimu_sparse": {
       "label": "稀发灵梦",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_lock_0",
@@ -7716,6 +7729,7 @@
     },
     "reimu_face": {
       "label": "面部不足灵梦",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "crown",
@@ -7946,6 +7960,7 @@
     },
     "reimu_bean": {
       "label": "豆形灵梦",
+      "filling_palette": "red_bean",
       "body_part": "deficient_body_surface",
       "hair_parts": [
         "bean_hair_cap",
@@ -8171,6 +8186,7 @@
     },
     "marisa_sparse": {
       "label": "稀发魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_lock_0",
@@ -8316,6 +8332,7 @@
     },
     "marisa_face": {
       "label": "面部不足魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_hair",
@@ -8505,6 +8522,7 @@
     },
     "marisa_bean": {
       "label": "豆形魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "deficient_body_surface",
       "hair_parts": [
         "bean_hair_cap",
@@ -8699,6 +8717,7 @@
     },
     "reimu_deibu": {
       "label": "灵胖",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_hair_taper_0",
@@ -9049,6 +9068,7 @@
     },
     "reimu_wasa_deibu": {
       "label": "多毛灵胖",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "back_hair",
@@ -9395,6 +9415,7 @@
     },
     "myon_redeye": {
       "label": "红眼妖梦",
+      "filling_palette": "white_chocolate",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "alice_cap",
@@ -9621,6 +9642,7 @@
     },
     "chen_longtail": {
       "label": "长尾橙",
+      "filling_palette": "chocolate",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "chen_cap",
@@ -9877,6 +9899,7 @@
     },
     "chen_roundtail": {
       "label": "圆尾橙",
+      "filling_palette": "chocolate",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "chen_cap",
@@ -10133,6 +10156,7 @@
     },
     "marisa_kotatsu": {
       "label": "被炉魔理沙",
+      "filling_palette": "red_bean",
       "body_part": "rounded_body_surface",
       "hair_parts": [
         "crown",

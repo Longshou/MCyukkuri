@@ -183,17 +183,30 @@ def main():
     outputs={p.relative_to(OUT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for m in MODELS for p in (OUT/m).iterdir()}
     data=dict(format='mcyukkuri.wound-species-coverage.v1',runtime_selected=False,model_count=len(MODELS),models=list(MODELS),aliases=CAT['aliases'],
         mesh_count=sum(len(meshes(m)) for m in MODELS),face_atlas_count=sum(1 for n in outputs if n.endswith('.png')),thermal_sample_count=sum(len(v['thermal_grades'])*2 for v in MODELS.values()),
+        filling_palettes={key:[name for name,value in MODELS.items() if value['filling_palette']==key] for key in build.RECIPE['filling_palettes']},
         source_sha256={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes() if p.suffix=='.png' else p.read_text(encoding='utf-8').encode()).hexdigest() for p in inputs},outputs=outputs)
     put(OUT/'manifest.json',encoded(data),args.check)
     if args.preview:
         dest=args.preview_root/'.local/previews/hair-wounds/species';rows=''
+        palette_cards=[]
+        for model in ['reimu','marisa','alice','chen','myon','patchouli']:
+            info=MODELS[model];palette=build.RECIPE['filling_palettes'][info['filling_palette']]
+            rgba=np.fromfile(WORK/model/'skin-tear-3-intact.rgba',np.uint8).reshape(440,480,4)
+            palette_cards.append((info['label']+' · '+palette['label'],'同一三级裂伤露核样例；RGB 为项目美术',Image.fromarray(rgba)))
+        build.source.sheet('同一创腔 · 品种内馅配色','灵梦／魔理沙为豆沙，爱丽丝为卡仕达，橙为巧克力，妖梦为白巧克力；帕秋莉等未明确品种沿用默认色，不断言口味。',palette_cards,3,(420,360),
+            '制作源静态预览 · 馅料名称见 Wiki／项目登记 · RGB 色板为项目美术 · 动态效果待试玩').save(dest.parent/'filling-palettes.png')
+        (dest.parent/'filling-palettes.html').write_text('<!doctype html><meta charset="utf-8"><title>品种内馅配色</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}img{display:block;width:100%;max-width:1400px;margin:auto}a{color:#456447}</style><a href="index.html">伤口总览</a> · <a href="species/index.html">全部品种</a><img src="filling-palettes.png" alt="豆沙、卡仕达、巧克力与白巧克力创腔对照">',encoding='utf-8')
         for k,v in MODELS.items():
             links=f'<a href="{k}/thermal.png">三级烧伤</a> · <a href="{k}/growth.png">成长</a>'
             if not v['house']:links+=f' · <a href="{k}/hair.png">覆发伤级</a> · <a href="{k}/skin.png">皮面伤级</a>'
             rows+=f'<article><h2>{v["label"]}'+(' · 仅烧伤' if v['house'] else '')+f'</h2><a href="{k}/index.html"><img loading="lazy" src="{k}/overview.png"></a><p>{links}</p></article>'
-        (dest/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>全品种伤口适配</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}article{max-width:1450px;margin:30px auto}img{width:100%}a{color:#456447}</style><a href="../index.html">伤口总览</a><h1>24 套模型 · 全品种伤口适配</h1><p>家油仅足部/全身烧伤，受烧直接用三级外观；其余22套另有八种机械伤各三级及受条件限制的完好中枢外露。按各自发型、体表、UV 与生命值适配。水生魔理沙复用身体，另展示1.5倍帽饰；灵胖只展示成年形态。全身烧伤同时影响布质头饰，壳与彩晶受烟熏；独立附件不随脸颊压窄。制作源静态适配；实际伤位、动态遮挡、治疗与中枢命中仍由动作博物馆确认。</p>'+rows,encoding='utf-8')
-        root=dest.parent/'index.html';page=root.read_text(encoding='utf-8');link='<section id="species-link"><h2><a href="species/index.html">查看全部 24 套品种与形态适配 →</a></h2><p>含家油、捕食种、亚种、先天不足、灵胖及成长对照。</p></section>'
-        if 'id="species-link"' not in page:root.write_text(page.replace('<nav>',link+'<nav>',1),encoding='utf-8')
+        (dest/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>全品种伤口适配</title><style>body{background:#f4f0e6;font:18px system-ui;margin:24px}article{max-width:1450px;margin:30px auto}img{width:100%}a{color:#456447}</style><a href="../index.html">伤口总览</a> · <a href="../filling-palettes.html">品种内馅配色</a><h1>24 套模型 · 全品种伤口适配</h1><p>家油仅足部/全身烧伤，受烧直接用三级外观；其余22套另有八种机械伤各三级及受条件限制的完好中枢外露。按各自发型、体表、UV 与生命值适配。水生魔理沙复用身体，另展示1.5倍帽饰；灵胖只展示成年形态。全身烧伤同时影响布质头饰，壳与彩晶受烟熏；独立附件不随脸颊压窄。制作源静态适配；实际伤位、动态遮挡、治疗与中枢命中仍由动作博物馆确认。</p>'+rows,encoding='utf-8')
+        root=dest.parent/'index.html';page=root.read_text(encoding='utf-8');link='<section id="species-link"><h2><a href="species/index.html">查看全部 24 套品种与形态适配 →</a></h2><p>含家油、捕食种、亚种、先天不足、灵胖及成长对照；另见<a href="filling-palettes.html">品种内馅配色</a>。</p></section>'
+        if 'id="species-link"' not in page:page=page.replace('<nav>',link+'<nav>',1)
+        else:
+            start=page.index('<section id="species-link">');end=page.index('</section>',start)+len('</section>')
+            page=page[:start]+link+page[end:]
+        root.write_text(page,encoding='utf-8')
     print(f'Coverage: {len(MODELS)} models / {data["mesh_count"]} meshes / {data["face_atlas_count"]} face atlases / {data["thermal_sample_count"]} thermal samples')
 
 if __name__=='__main__':main()

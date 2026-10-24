@@ -26,7 +26,7 @@
   "mold": {"seed": 42, "sizes": [0.72, 1.04, 1.38, 1.72], "colonies": [2, 3, 5, 7], "principle": "同一菌落从原位扩大；灰绿粉霜外缘，内部较深，细小散孢。"},
   "dirt": {"seed": 87, "principle": "薄尘、拖擦与少量泥粒，主要落在下缘和侧颊。"},
   "scar": {"seed": 19, "principle": "淡米色细长收口，边缘略凹，少量不规则短支痕，不默认缝线。"},
-  "wounds": {"seed": 28, "principle": "擦伤细划线，压伤低对比斑，普通裂伤只露豆沙；中枢外露必须是大范围面皮与馅料缺损，露出体内核心。"},
+  "wounds": {"seed": 28, "principle": "擦伤细划线，压伤低对比斑，普通裂伤只露对应内馅；中枢外露必须是大范围面皮与馅料缺损，露出体内核心。"},
   "core_cavity": {
     "status": "selected_pending_runtime_review",
     "opening_center": [2.1, 4.2],
@@ -44,6 +44,7 @@
       [0.55, 0.9, 0.65, [126, 83, 55]],
       [0, 0.9, 1, [118, 76, 53]]
     ],
+    "ordinary_palette_roles": ["dough", "dough", "wall", "shadow", "mid", "bottom"],
     "core_lip": [
       [0.999, 0.012, 0, [202, 169, 122]],
       [0.97, 0.08, 0, [178, 133, 95]],
@@ -54,10 +55,11 @@
       [0.42, 5.35, 0.88, [88, 56, 43]],
       [0, 5.7, 1, [88, 56, 43]]
     ],
+    "core_palette_roles": ["dough", "dough", "wall", "shadow", "mid", "deep", "deep", "base"],
     "core_steps": [1, 1, 1, 1, 2, 2, 1],
     "filling_color": [88, 56, 43],
     "core_color": [126, 82, 55],
-    "principle": "裁掉创口内的面皮和对应五官层；用清晰低面数轮廓、薄面皮断面、分阶豆沙腔壁和位于身体中央的唯一核心表现深度，不描粗白边。",
+    "principle": "裁掉创口内的面皮和对应五官层；用清晰低面数轮廓、薄面皮断面、分阶内馅腔壁和位于身体中央的唯一核心表现深度，不描粗白边。",
     "dimensions_note": "制作源基于灵梦，开口约为体宽48%和体高44%；运行接入按真实伤口位置与各模型尺寸适配。尺寸为项目美术设计，不是Wiki数值。"
   },
   "preview": {"models": ["reimu", "marisa"], "output": ".local/previews/body-marks", "renderer": "surface.cjs + preview.py (offline surface material study)", "limitations": "制作源离线预览；运行资源另由export_wounds.py与export_cavity.cjs导出。真实落点、动作蒙皮、透明排序和深度遮挡需用户试玩确认。"}
