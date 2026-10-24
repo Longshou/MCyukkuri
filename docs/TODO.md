@@ -10,6 +10,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 宠物照料用品美术审核修改 | `.worktrees/pet-goods-art` | `drafts/care-props/shapes.py`、`placed.py`、宠物用品快照与导出 |
+| 野生巢与储粮堆美术审核修改 | `.worktrees/wild-nest-art` | `drafts/care-props/wild.py`、`wild_kit.py`、`designs.py`、`cargo.py` |
+| 襁褓美术审核修改 | `.worktrees/swaddle-art` | `client/CareWearRenderer.java`、`drafts/care-props/wear.py`、`preview_wear.*` |
 
 ## 玩法待办
 
