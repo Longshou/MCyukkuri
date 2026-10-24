@@ -109,6 +109,10 @@ def main():
     wear = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wear.py'
     subprocess.run([sys.executable, str(wear)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'icons')}
+    # wild nests, forage pile and hat-boat provisions: drafts/care-props/preview_wild_nests.py redraws all four sheets from the runtime meshes
+    nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
+    subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage', 'hat-cargo')}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),

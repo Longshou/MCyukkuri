@@ -73,6 +73,57 @@
       "source": "art/props/pet-goods/README.md"
     },
     {
+      "id": "wild-nests-forage",
+      "label": "野生巢与陆上储粮堆",
+      "title": "叶床、野生大窝、个人小叶巢阶段与储粮堆各档",
+      "tag": "美术与玩法·待试玩",
+      "summary": "野生油自建巢与储粮堆改为同一套手绘低多边形：干草编成的鸟巢式围沿加落叶垫，个人小叶巢随叶量分三阶段，储粮堆是叶托上的低圆草丘，按存量分五档，草团与毛虫放在前方叶托上。配成体／子体对照尺度。离线渲染当前运行网格与贴图，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "叶床单睡位、三睡位相连的共巢与 2×2 野生大窝，附成体与新生对照。",
+        "个人小叶巢：衔回叶束，再到散叶、粗圈、编成小窝三个阶段，子体 0.5 与 0.8 体型对照。",
+        "储粮堆 0 份、1–8、9–32、33–96、97 份以上共五档，另有满堆近景、侧视、俯视与成体／子体对照。",
+        "此图只核对外观；筑巢与存取请在试玩场观察，规则见 docs/WILD_SHELTERS.md。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "wild-nests/nests.png",
+          "label": "叶床、共巢与 2×2 野生大窝"
+        },
+        {
+          "src": "wild-nests/stages.png",
+          "label": "个人小叶巢建造阶段"
+        },
+        {
+          "src": "wild-nests/forage.png",
+          "label": "陆上储粮堆五档与对照"
+        }
+      ],
+      "source": "standards/yukkuri-library/drafts/care-props/README.md"
+    },
+    {
+      "id": "hat-cargo-heaps",
+      "label": "帽船储粮堆三档",
+      "title": "帽内储粮堆按份数缩放三档与侧檐暂放",
+      "tag": "美术与玩法·待试玩",
+      "summary": "帽船上的储粮堆沿用陆上储粮堆的整堆外观，按 0.6 / 0.8 / 1.0 缩放为 1–3 / 4–7 / 8–12 份三档；侧檐每侧至多一堆，取该侧帽檐能容的大小。占位按实际顶点测量，含亲油在帽中的对照。离线渲染，非游戏截图。",
+      "model": "marisa",
+      "points": [
+        "较少、较多、满载三档与亲油在帽中的满载对照。",
+        "暂放侧檐：两侧各一堆，另有亲油在帽中的对照。",
+        "帽内乘员占位与空间仍需在试玩场观察。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "wild-nests/hat-cargo.png",
+          "label": "帽船储粮堆三档与侧檐暂放"
+        }
+      ],
+      "source": "standards/yukkuri-library/drafts/care-props/README.md"
+    },
+    {
       "id": "care-props-vanilla",
       "label": "照料设施基础网格",
       "title": "食盆、巢穴与厕所基础网格",
