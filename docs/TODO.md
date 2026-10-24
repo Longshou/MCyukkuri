@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 宠物窝碰撞对齐可见造型（软垫窝、编织大窝） | `.worktrees/pet-goods-art` | `life/CareBlock.java`、`drafts/care-props/placed.py`、`shapes.py`、`build.py`、碰撞高度图 |
 
 ## 玩法待办
 
