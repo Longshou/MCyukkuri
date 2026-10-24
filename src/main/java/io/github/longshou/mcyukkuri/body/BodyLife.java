@@ -49,6 +49,8 @@ public final class BodyLife {
     /** Ticks left of the short dying state after the core is hurt (0 = not dying); see startDying. */
     private int dying;
     private String dyingCause="";
+    /** Internal cause of the death in progress (old age, mould damage ...): read once by the remains snapshot, never saved. */
+    private String terminalCause="",internalDamageCause="";
     private DamageSource dyingSource;
     private String lastCoreImpact = "none";
     public String lastCoreImpact(){return lastCoreImpact;}
@@ -225,7 +227,7 @@ public final class BodyLife {
         int before=toxin;toxin=Math.min(12,toxin+dose);
         GameplayLog.event(entity,"body","poison dose {}; toxin {} -> {}; sick {}",dose,before,toxin,sick());
         if(toxin>=LETHAL_TOXIN){damageCore("poison");return;}
-        if(toxin>=SICK_TOXIN){vomit();damage(1);entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
+        if(toxin>=SICK_TOXIN){vomit();damage(1,"toxin");entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
         else { entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("surprise","bitter",80); }
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
@@ -264,12 +266,15 @@ public final class BodyLife {
         for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
     }
     private void finishDying(){
-        terminalKill(dyingSource!=null?dyingSource:entity.damageSources().generic(),true,false);
+        terminalKill(dyingSource!=null?dyingSource:entity.damageSources().generic(),true,false,dyingCause);
         if(entity.isAlive())dying=1;
     }
     /** Explicit terminal causes retain the pre-terminal food snapshot, never the final execution damage. */
-    public void terminalKill(DamageSource source,boolean destroyCore,boolean destroyFood){
+    public void terminalKill(DamageSource source,boolean destroyCore,boolean destroyFood){terminalKill(source,destroyCore,destroyFood,"");}
+    /** {@code cause} names an internal cause (old_age, poison ...) that a generic carrier source would otherwise lose. */
+    public void terminalKill(DamageSource source,boolean destroyCore,boolean destroyFood,String cause){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return;
+        terminalCause=cause==null?"":cause;
         float previousFood=deathFood;boolean previousCore=coreHurt;
         freezeFood();
         if(destroyFood)deathFood=0;
@@ -279,6 +284,7 @@ public final class BodyLife {
         // A vetoed terminal transition must not leave a living animal with a frozen corpse balance.
         if(entity.isAlive()){deathFood=previousFood;coreHurt=previousCore;
             GameplayLog.limited(entity,"body","terminal_veto",200,"terminal death rejected; cause={} health={}",source.getMsgId(),entity.getHealth());}
+        terminalCause="";
     }
     public BodyHit prepareHurt(DamageSource source,float incoming,BodyHit.Kind kind){
         boolean physical=kind!=BodyHit.Kind.INTERNAL&&kind!=BodyHit.Kind.TERMINAL
@@ -446,18 +452,18 @@ public final class BodyLife {
         if(mold>0){
             // Mould spreads on dirty skin and holds still on clean skin; the terminal stage reaches the core.
             if(life.hygiene()<50&&++moldSpread>=6000){moldSpread=0;advanceMold("spread");entity.syncBody();}
-            if(ticks%400==0){if(mold>=MOLD_TERMINAL){damageCore("mold");return;}if(mold>=3)damage(.25f+mold*.1f);}
+            if(ticks%400==0){if(mold>=MOLD_TERMINAL){damageCore("mold");return;}if(mold>=3)damage(.25f+mold*.1f,"mold");}
         }
         if(toxin>0&&ticks%400==0)toxin--;
         if(ticks%20==0)updateMobility();
         boolean open=wounds.stream().anyMatch(BodySigns::open);
-        if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){if(healBurn())life.spendNutrition(1);}else if(burns>=4)damage(.5f);}
+        if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){if(healBurn())life.spendNutrition(1);}else if(burns>=4)damage(.5f,"burn");}
         if(wound>0&&ticks%200==0){
             // Only an open cut (severity 2+) leaks; orange juice closes every cut grade.
             var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
             float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
             if(total>0){
-                float before=entity.getHealth();damage(Math.min(1,total));
+                float before=entity.getHealth();damage(Math.min(1,total),"leak");
                 float loss=Math.max(0,before-entity.getHealth());
                 for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
                 if(!entity.isAlive())return;
@@ -468,7 +474,7 @@ public final class BodyLife {
         if(wound>0&&infection==0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
         if(infection>0&&ticks%400==0){
             if(!open&&life.hygiene()>=45&&life.nutrition()>=30)infection--;
-            else damage(.5f);
+            else damage(.5f,"infection");
         }
         if(!open&&infection==0&&mold<3&&!sick()&&ticks%600==0&&life.nutrition()>50&&entity.getHealth()<entity.getMaxHealth()){
             if(life.spendNutrition(4))entity.heal(1);
@@ -490,7 +496,17 @@ public final class BodyLife {
         if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
         else wounds.set(index,wound.heal());
         GameplayLog.event(entity,"body","wound healing {}/{}:{} -> {}; wound={}",wound.kind().id(),wound.shape().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
-    private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
+    /** Internal attrition through the generic carrier; the cause is kept only for a death this very hit causes. */
+    private void damage(float amount,String cause){
+        String previous=internalDamageCause;internalDamageCause=cause;
+        try{entity.hurtInternal(entity.damageSources().generic(),amount);}finally{internalDamageCause=previous;}
+    }
+    /** The internal cause behind the death being settled: an explicit terminal cause, internal attrition, then the dying cause. */
+    private String internalDeathCause(){
+        if(!terminalCause.isEmpty())return terminalCause;
+        if(!internalDamageCause.isEmpty())return internalDamageCause;
+        return dying>0||coreHurt?dyingCause:"";
+    }
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return injury(w)&&!severe(w);}
     public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
@@ -515,11 +531,13 @@ public final class BodyLife {
     public void died(DamageSource source,boolean stemDepletion){died(source,stemDepletion,false);}
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion){
         if(settled||entity.level().isClientSide)return;
-        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion);
+        String internal=internalDeathCause();
+        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal);
         if(!RemainsEntity.place(entity.level(),entity.position(),entity.yBodyRot,remains,false))return;
         settled=true;entity.syncBody();
-        GameplayLog.event(entity,"body","death settled into remains; cause={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",
-                source==null?"none":source.getMsgId(),coreHurt,remainsFood(),stemDepletion,sukkiriExhaustion);
+        var stored=remains.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        GameplayLog.event(entity,"body","death settled into remains; cause={} internal={} category={} core_hurt={} food={} stem_depletion={} sukkiri_exhaustion={}",
+                source==null?"none":source.getMsgId(),internal.isEmpty()?"none":internal,RemainsCause.of(stored),coreHurt,remainsFood(),stemDepletion,sukkiriExhaustion);
     }
     public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);

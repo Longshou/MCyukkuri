@@ -1,0 +1,444 @@
+{
+  "recipe_sha256": "b9fc9868b3589cde1052fb97bbce294e6b90f7cc15cd0a631ba026bc7253330d",
+  "builder_sha256": "07e67cf861d78e04218f8bfd5434f23d8482b77a5fb5d0689523e8efd0d29799",
+  "standard_confirmation": "standards/yukkuri-library/provenance/standard-expressions.json",
+  "atlases": {
+    "reimu": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "278b02083b721cd0520a3af9a2a6ff1c61aca1a68cc470cd58927475ae79631b"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
+        "sha256": "1db7175102998066be98e66f4b398d708f62b24df0fe4f81e37379726290480f"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
+        "sha256": "11070bac1a906e3c2fec7f1675fb35787657b4f8dd7bb2b6e73b48e5599be9ac"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
+        "sha256": "bc45a95c6e86b13c2f8b5712885bb43577ad01c38ff336b6c439d73796b3ea86"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
+        "sha256": "6397fd914d080cd9fefa55bce44186d5cc3f799efe32f726daf9fae2948d7a50"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "bd7a01a89366822b4dad67fd97f24e8f654c5702abef7743e2ce1ea8db41c38d"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
+        "sha256": "a163bbbffe8e681eb42b4c1a06cd2bcfe318d3b6421549a78e112f2a26c9db47"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
+        "sha256": "9f18be9d83cfa9b9dbfd7480c13770a66791176c435f02d86e02b5595d9b4eb5"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "82c2b0a3ca7b7ddd903ac01f8794684523513f3b262570d9a3fd5b91783d3fb2"
+      }
+    },
+    "marisa": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/old_dead.png",
+        "sha256": "12e1a7b04964862da792ac036b91dedcc9f47948c9301fce16e51b398721faec"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dry_dead.png",
+        "sha256": "779f803e7b413c925f80359d998526aff8d3a1d1979915a1d9d077a811effa14"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/blank_cry.png",
+        "sha256": "e4fc7f6bc59718fb3487611d1b0ef4daa47a2c46bdd5ca58627339cc1c0ac3d2"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/squashed.png",
+        "sha256": "30cbb9c70e73ff3e55790d1171f9d8b93cbbda142c6079cfe544196b1a21139a"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dead_tongue.png",
+        "sha256": "6956b0bfa158522221f56f80cba63461ee449f778406ec76b28a5a2d677ce829"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
+        "sha256": "94c7fe58760d1657fb9e5250254efbaf1b31f03aef5b71ad773d4c803b6a485e"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/cold.png",
+        "sha256": "d5f77f12f8557808e44f5cb14999191946f6373bd2ed5efd0193c5d34fab3536"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_closed.png",
+        "sha256": "16ebb4217a69ec095eb18637e3e5ee25c9492556b173f11a3f23b6b4d7bffaf4"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dying_blank.png",
+        "sha256": "077b0a6d858d91b82396657eee38284ef348785dfa6b1fec153b4346e6cc8832"
+      }
+    },
+    "chen": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/old_dead.png",
+        "sha256": "e5c28585a867acc0720f5ee7fc12508b7d58470854f36dba2a2eb38141cb5120"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/dry_dead.png",
+        "sha256": "d28b3cb6cb02f40d8e23704b5fd8892f417b0ee3cd0e9318606851ea6ff5a7ed"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/blank_cry.png",
+        "sha256": "2faf3366ef11d1ea80dffee82196366d11a8a0170a7a4adb0e18970fcac64e30"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/squashed.png",
+        "sha256": "6aba4721334da73dc1c3cdb1dc2c8d57900d32f6346d6d7e8231461cf7bcf605"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/dead_tongue.png",
+        "sha256": "391f6b3715de17041e506594f5899c740ae051ca346bdf827dcd56e4677006e1"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_blank.png",
+        "sha256": "94b1e363becf521d2c7a53b36cdbe84d9248830b4b9c1e2c51625e2f88d552f7"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/cold.png",
+        "sha256": "2174e4a6cccb8cc2c3029ab40d627429ce73cfb014f060d3b560814739d2b929"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_closed.png",
+        "sha256": "dce307980f794c2a99df53cac76e2173849b64c82eb083d2343cf0bcbda2440e"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/chen/textures/dying_blank.png",
+        "sha256": "eed35e85102ed9aa96648ccae675917d0870dd0ec1ac032fceb2786d4c853a03"
+      }
+    },
+    "alice": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/old_dead.png",
+        "sha256": "89e0452c9f6b3b5b4124a64a0585f6fd405d928a3e1906cabc9eceeca1f56575"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/dry_dead.png",
+        "sha256": "0db079a9e07841bc3d0b4879f2ba51f1d4099da53a1b99f61223661cf14da76d"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/blank_cry.png",
+        "sha256": "d2d86cfbacbd8bcc83caea4e0845dab71c5ac9f1f7108a9b0cdfeeaa04edc6ed"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/squashed.png",
+        "sha256": "8f2710b88603d69e7034064c9767a1e95d89c8ee232ee8c2c444a12a8a3b55ad"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/dead_tongue.png",
+        "sha256": "b5b1410724d61108bc3b72f613c56b44110247a99d66c1afe88047891cabbfb8"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
+        "sha256": "58a19d2d0ae04cfb1f05fb381bbe403a1d5f6556779593edc4e7ddd09a4cc0e1"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/cold.png",
+        "sha256": "535da5d7c73dd9d967041c5437b5ff410c03be0dd9bfa01c7c081bf9721be2cf"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_closed.png",
+        "sha256": "32249d238c6488c21918b67c3d7b474ac8de08f8aa9db61d16e6f504f79c4da2"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/alice/textures/dying_blank.png",
+        "sha256": "fd7d989dd4471ec28f28134d85075b4b8455fcdf18fd6886c0b6e3d7b20a8330"
+      }
+    },
+    "patchouli": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/old_dead.png",
+        "sha256": "0c23ae628d45b2c82e223cc3465197af4aa0f57c5fe5afd4c93d7a27e2203fa4"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dry_dead.png",
+        "sha256": "4b1ad80e085fe6eaced394dbd6313cdbdb74cb17b5f3ad0b619badb9af7aa616"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/blank_cry.png",
+        "sha256": "11dc6b5c1648e582fee2cf29d768dcaf0bfc5b9f03b276be3317605606be6a61"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/squashed.png",
+        "sha256": "a196c973191f1d1168a7c682c78f85085291f042e8204f36c837c66688af3c51"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dead_tongue.png",
+        "sha256": "3541bb04dc4c2e9b2728f038304edb4cb40618ad902dd60bb022d32bff7c2ac0"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_blank.png",
+        "sha256": "0a6797e2a5d434dc1071de1f2890529934301c9478765c8fdb94456d2521b27d"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/cold.png",
+        "sha256": "fa481d77923fe3fde73adf09366fb99eeaad17edcd47bcb9e6e851641066f799"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_closed.png",
+        "sha256": "3d6f6a804cfc8b37d184f7cd80c1906b062f9472998eabf21b4e85a11dac030a"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dying_blank.png",
+        "sha256": "5e97d409b4efe0102b3865b55d8ed48847d31ca37c1c238d1a1e06db3d05b687"
+      }
+    },
+    "marisa_tsumuri": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/old_dead.png",
+        "sha256": "52f23e57221be4a851435acdb7c8692aebd126c806fccdc7731cb85f4a1f2b4b"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dry_dead.png",
+        "sha256": "bbb72e9dc24656704f5b49476cfebc5a73b1ab0aa4bd5b0b1699a2d9abd6be87"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_cry.png",
+        "sha256": "9741762d695de7a00748b2c28a260a40461224f39bb848e5522d084e0a7dc66e"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/squashed.png",
+        "sha256": "95acdef07ebae93e3e2a360943609bf37b900d7f93f1fc617b6a1d95bf0ca489"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dead_tongue.png",
+        "sha256": "9b1fd5ee36e60f7917fccf783482c38f81afa2a833a44d4b08e91ecd5171b96e"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
+        "sha256": "fab16fea252ab610b6528ce741d2687645c0ab9c229d9608181e831d39604b95"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/cold.png",
+        "sha256": "46afa474dc50957dc4116187713892801031223bd7e9782cd40c8f7a715a0e20"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_closed.png",
+        "sha256": "7bc0fe1fd98dc16db59a05c4431bcdc22dcdc47e527afc5cb5477a219394af9f"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dying_blank.png",
+        "sha256": "870f4d2ef49926079885dd13ea3064723095d73772a886288db8fc9939a3475a"
+      }
+    },
+    "reimu_wasa": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "2d85541af64d3f925f4a1e03f47d05ce20996a3c09bb1c1db96c6ff43e0e7514"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
+        "sha256": "5b6671157db0a0c5b5d900eba1aa8f14fc244d83a9107b635ddf7a4a811f4b97"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
+        "sha256": "cf8ffb860f20f3e24d2ad5b67c5f03a17671aca4ddddae6989caa324b8b32f2c"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
+        "sha256": "bc45a95c6e86b13c2f8b5712885bb43577ad01c38ff336b6c439d73796b3ea86"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
+        "sha256": "6397fd914d080cd9fefa55bce44186d5cc3f799efe32f726daf9fae2948d7a50"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "509f8b238e8f8d729ced7f1ada15189426d811ae966b106ea8067781422dd4d0"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
+        "sha256": "dbc513f94311a7ce3bf168bd23afc503539d38e2956119493b66d2477b8a0f14"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
+        "sha256": "94608bb50926025889cc293423f5ffbc737095868632f25b6b9abd306626786d"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "497c2eea92d049d840ba2021fd153a952616da0b071b7755729ab80bb20bb0fb"
+      }
+    },
+    "reimu_deibu": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "d7097eea93b43696f39cd8dc48affc90efdd46ce086ed68e3b1d8326e957623a"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
+        "sha256": "3970995bfdcf1da6e3947d1e1e60f9c696ad48c47b72388c5b7613bcb03d2aba"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
+        "sha256": "784b478e1f37eaa70d886ffaf3d0db0e21a33ec3b20125167efec54fd5115846"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
+        "sha256": "bc45a95c6e86b13c2f8b5712885bb43577ad01c38ff336b6c439d73796b3ea86"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
+        "sha256": "6397fd914d080cd9fefa55bce44186d5cc3f799efe32f726daf9fae2948d7a50"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "e6ca778f349d2db9d85bb6facc89d864cddf43e44cae7511db5754bc013406cb"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
+        "sha256": "80201d9136935e1ac8076efe9982c2ef5684008d4090b37aeb994123e72db9d4"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
+        "sha256": "3bfe6498d395b0a7422e02ae23e1f7b517a54804686ec7cf175ad28188a4de36"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "7bdec13a31649560648e85dd01aee9af68433bb64789030c37c429982144e62c"
+      }
+    },
+    "reimu_wasa_deibu": {
+      "natural": {
+        "face": "old_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/old_dead.png",
+        "sha256": "2d85541af64d3f925f4a1e03f47d05ce20996a3c09bb1c1db96c6ff43e0e7514"
+      },
+      "starved": {
+        "face": "dry_dead",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
+        "sha256": "5b6671157db0a0c5b5d900eba1aa8f14fc244d83a9107b635ddf7a4a811f4b97"
+      },
+      "burned": {
+        "face": "blank_cry",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/blank_cry.png",
+        "sha256": "2e650994fbf190e710dfa5c61aa972272706c770efe7134a48bbc1f5eef72be7"
+      },
+      "crushed": {
+        "face": "squashed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/squashed.png",
+        "sha256": "bc45a95c6e86b13c2f8b5712885bb43577ad01c38ff336b6c439d73796b3ea86"
+      },
+      "violent": {
+        "face": "dead_tongue",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dead_tongue.png",
+        "sha256": "6397fd914d080cd9fefa55bce44186d5cc3f799efe32f726daf9fae2948d7a50"
+      },
+      "drowned": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "509f8b238e8f8d729ced7f1ada15189426d811ae966b106ea8067781422dd4d0"
+      },
+      "frozen": {
+        "face": "cold",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/cold.png",
+        "sha256": "dbc513f94311a7ce3bf168bd23afc503539d38e2956119493b66d2477b8a0f14"
+      },
+      "sick": {
+        "face": "dying_closed",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_closed.png",
+        "sha256": "94608bb50926025889cc293423f5ffbc737095868632f25b6b9abd306626786d"
+      },
+      "dissolving": {
+        "face": "dying_blank",
+        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dying_blank.png",
+        "sha256": "497c2eea92d049d840ba2021fd153a952616da0b071b7755729ab80bb20bb0fb"
+      }
+    }
+  },
+  "shared": {
+    "overlay_char": "e8970c123b35a1d09e25d206ba1aacd1aef4e223d00ecc86d6b75e3d725e2ab3",
+    "overlay_crack": "541010bf74f60c9a6dcd9db6a76e1e2775c411157f0e62e90ab13e9868425bdf",
+    "overlay_damp": "d4a5e7051dec5106534470fd932dad285a968490817f4030ea108202165418f0",
+    "overlay_frost": "8af468a58b561d2c119415564fca9cdae382d586fc400dda1c7049ca11efed7c",
+    "overlay_gash": "47dda055e21e8d4d73ef84747ca94d404692bc0593aaa532a5f5e9f3f46c0f02",
+    "overlay_melt": "d25d2596988842754ee4d4c989c168d2a31152292b8e3202ef293967bd62eb93",
+    "overlay_sallow": "56670a3336e37c736f7cd9aee516eb3aadfb7ea5d9ef0a7d03476217186a551f",
+    "overlay_soaked": "c03151c537727893d7c6c120f5bc31a67bfcb805326628ca8eff7ab853bd159d",
+    "overlay_wrinkle": "c5320949043ef9f44ba07b7f30077ec35b814d720a8bdc5c36c185234b0e05f8",
+    "decal_leak": "64f22a55654cfc347f8b2e5d0ec2a2165b7ac5fbff6739c019dfd35cc9d780a2",
+    "decal_residue": "bab1dbfbec4abd4b68a2223bd0b282d1a41f0d738d7a68d217f171f1d7e458e6",
+    "decal_splat": "44adc76f6df9623e3b7fbbdb1f3e3bb4948ffa194105267b6a4d8457dd956e19"
+  }
+}

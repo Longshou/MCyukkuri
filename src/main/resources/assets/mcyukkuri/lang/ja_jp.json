@@ -6296,6 +6296,7 @@
   "human.mcyukkuri.core.sold_factory": "作業員が中枢餡を高値で買い取った。エメラルド %s 個。",
   "human.mcyukkuri.core.sold_shop": "店主が中枢餡を買い取った。エメラルド %s 個。",
   "remains.mcyukkuri.core_rotten": "中枢餡は腐ってしまい、取り出せない。",
+  "remains.mcyukkuri.core_dissolved": "水に溶けてしまい、中枢餡は残っていない。",
   "activity.mcyukkuri.cannibal_avoid": "遺体の臭いを避ける",
   "activity.mcyukkuri.cannibal_approach": "遺体に近づく",
   "activity.mcyukkuri.cannibal_wait": "次の一口を待つ",

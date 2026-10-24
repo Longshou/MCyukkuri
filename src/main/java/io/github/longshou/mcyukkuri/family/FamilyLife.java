@@ -474,7 +474,7 @@ public final class FamilyLife {
         // Natural lifetime is authoritative even while the body is boarded or in a flight arc.
         if(FamilyConfig.AGING.get()&&age>=lifespan) {
             GameplayLog.limited(entity, "growth", "lifespan", 1200, "lifespan reached age={} lifespan={}", age, lifespan);
-            entity.body().terminalKill(level().damageSources().generic(),false,false);return;
+            entity.body().terminalKill(level().damageSources().generic(),false,false,"old_age");return;
         }
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         catchHat.tickLinger();

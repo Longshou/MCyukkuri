@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.joml.Matrix3f;
@@ -891,8 +892,9 @@ public final class YukkuriModel {
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
-    public void renderRemains(Object key,CompoundTag data,PoseStack stack,VertexConsumer buffer,
+    void renderRemains(Object key,CompoundTag data,RemainsAssets.Look look,PoseStack stack,VertexConsumer buffer,
                               MultiBufferSource buffers,int light,int overlay){
+        String face=look.face();
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
         boolean house=id.startsWith("house_");
@@ -911,18 +913,58 @@ public final class YukkuriModel {
         var signs=WoundRenderer.signs(key,seed,id,packedSigns,0,wounds);
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=false;
-        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression("sleep");
+        setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
         hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
         boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
         int headwear=data.getInt("Headwear");hatDamageDraw.visual(headwear);
         try{
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(packedSigns&BodySigns.FOOT_BURNED)!=0))
-                woundDisplay=HairWoundRenderer.prepare(key,this,id,"sleep",wounds,packedSigns,0,body.getInt("HairLoss"),accessory,headwear,!data.getBoolean("CoreTaken"));
+                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,body.getInt("HairLoss"),accessory,headwear,!data.getBoolean("CoreTaken"));
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
-            if(drawingSurfaceMarks)WoundRenderer.render(key,id,"sleep",wounds,signs,0,fullness,house,!data.getBoolean("CoreTaken"),world,stack,buffer,buffers,light,overlay);
+            if(drawingSurfaceMarks)WoundRenderer.render(key,id,face,wounds,signs,0,fullness,house,!data.getBoolean("CoreTaken"),world,stack,buffer,buffers,light,overlay);
             if(woundDisplay!=null)woundDisplay.render(world,0,stack,buffers,light,overlay);
+            // Taken last: the body and wound passes above still write into their own buffers.
+            if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCull(look.overlay())),light,overlay);
             if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
         }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatDamageDraw.reset();setExpression("");}
+    }
+    private float[] remainsSkinFrame;
+    /**
+     * The remains skin overlay: a cylindrical map over the rest skin (u around the body with the face at .5, v from the top to
+     * the sole), drawn just outside the posed skin. Triangles an injury has replaced keep their own wound art.
+     */
+    private void renderRemainsSkin(PoseStack stack,VertexConsumer buffer,int light,int overlay){
+        if(remainsSkinFrame==null){
+            float minX=Float.MAX_VALUE,minY=Float.MAX_VALUE,minZ=Float.MAX_VALUE,maxX=-Float.MAX_VALUE,maxY=-Float.MAX_VALUE,maxZ=-Float.MAX_VALUE;
+            for(var part:parts)if(bodySurface(part.name))for(int v=part.start;v<part.start+part.count;v++){
+                float x=restVertices[v*8],y=restVertices[v*8+1],z=restVertices[v*8+2];
+                minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);minZ=Math.min(minZ,z);maxZ=Math.max(maxZ,z);
+            }
+            if(minX>maxX)return;
+            remainsSkinFrame=new float[]{(minX+maxX)/2,(minZ+maxZ)/2,Math.max(.001f,(maxX-minX)/2),Math.max(.001f,(maxZ-minZ)/2),minY,Math.max(.001f,maxY-minY)};
+        }
+        float[] f=remainsSkinFrame;float[] uv=new float[6];
+        var n=new Vector3f(),e=new Vector3f(),a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
+        for(var part:parts){
+            if(!bodySurface(part.name))continue;
+            for(int first=part.start;first<part.start+part.count;first+=3){
+                if(woundDisplay!=null&&woundDisplay.replaced(first))continue;
+                float minU=1,maxU=0;
+                for(int corner=0;corner<3;corner++){
+                    int offset=(first+corner)*8;
+                    float u=(float)((Math.atan2((restVertices[offset]-f[0])/f[2],-(restVertices[offset+2]-f[1])/f[3])+Math.PI)/(2*Math.PI));
+                    uv[corner*2]=u;uv[corner*2+1]=Math.clamp(1-(restVertices[offset+1]-f[4])/f[5],0,1);
+                    minU=Math.min(minU,u);maxU=Math.max(maxU,u);
+                    skin(first+corner,triangle[corner]);
+                }
+                // The back seam wraps like the sole char band (WoundRenderer.soleTexture).
+                if(maxU-minU>.5f)for(int corner=0;corner<3;corner++)if(uv[corner*2]<.5f)uv[corner*2]+=1;
+                n.set(triangle[1]).sub(triangle[0]).cross(e.set(triangle[2]).sub(triangle[0]));
+                if(n.lengthSquared()<1e-16f)continue;n.normalize();
+                a.set(triangle[0]).fma(.03f,n);b.set(triangle[1]).fma(.03f,n);c.set(triangle[2]).fma(.03f,n);
+                WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],n,n,n);
+            }
+        }
     }
     private void setExpression(String name){
         // A revision may carry its own named patch; otherwise borrow the alias's geometry.

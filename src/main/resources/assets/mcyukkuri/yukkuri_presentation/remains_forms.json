@@ -1,0 +1,216 @@
+{
+  "format": 1,
+  "forms": {
+    "natural": {
+      "scale": [
+        1.0,
+        0.62,
+        1.0
+      ],
+      "face": "old_dead",
+      "roll": 7
+    },
+    "starved": {
+      "scale": [
+        0.86,
+        0.6,
+        0.86
+      ],
+      "face": "dry_dead",
+      "roll": 0,
+      "overlay": "wrinkle"
+    },
+    "burned": {
+      "scale": [
+        0.9,
+        0.74,
+        0.9
+      ],
+      "face": "blank_cry",
+      "roll": 0,
+      "overlay": "char"
+    },
+    "crushed": {
+      "scale": [
+        1.32,
+        0.4,
+        1.32
+      ],
+      "face": "squashed",
+      "roll": 0,
+      "overlay": "crack",
+      "decal": {
+        "name": "splat",
+        "radius": 0.9
+      }
+    },
+    "violent": {
+      "scale": [
+        1.04,
+        0.6,
+        1.04
+      ],
+      "face": "dead_tongue",
+      "roll": 10,
+      "overlay": "gash",
+      "decal": {
+        "name": "leak",
+        "radius": 0.66
+      }
+    },
+    "drowned": {
+      "scale": [
+        1.14,
+        0.76,
+        1.14
+      ],
+      "face": "dying_blank",
+      "roll": -5,
+      "overlay": "damp"
+    },
+    "frozen": {
+      "scale": [
+        1.0,
+        0.92,
+        1.0
+      ],
+      "face": "cold",
+      "roll": 0,
+      "overlay": "frost"
+    },
+    "sick": {
+      "scale": [
+        1.06,
+        0.58,
+        1.06
+      ],
+      "face": "dying_closed",
+      "roll": -7,
+      "overlay": "sallow"
+    }
+  },
+  "water": {
+    "softened": {
+      "scale": [
+        1.12,
+        0.82,
+        1.12
+      ],
+      "overlay": "soaked"
+    },
+    "dissolving": {
+      "scale": [
+        1.32,
+        0.55,
+        1.32
+      ],
+      "face": "dying_blank",
+      "overlay": "melt",
+      "decal": {
+        "name": "residue",
+        "radius": 1.25
+      }
+    }
+  },
+  "atlases": {
+    "reimu": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "marisa": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "chen": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "alice": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "patchouli": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "marisa_tsumuri": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "reimu_wasa": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "reimu_deibu": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ],
+    "reimu_wasa_deibu": [
+      "burned",
+      "crushed",
+      "dissolving",
+      "drowned",
+      "frozen",
+      "natural",
+      "sick",
+      "starved",
+      "violent"
+    ]
+  }
+}

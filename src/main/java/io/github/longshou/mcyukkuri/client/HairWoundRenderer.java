@@ -381,6 +381,8 @@ final class HairWoundRenderer {
                 }
             }
         }
+        /** Whether an injury patch replaces this skin triangle (the remains overlay leaves it to the wound art). */
+        boolean replaced(int first){return patches.containsKey(first);}
         boolean triangle(int first,PoseStack stack,VertexConsumer buffer,int light,int overlay){
             var triangles=patches.get(first);if(triangles==null)return false;
             for(var tri:triangles)emit(tri,stack,buffer,light,overlay,false);return true;

@@ -1,0 +1,76 @@
+{
+  "format": 1,
+  "status": "draft_pending_user_review",
+  "models": ["reimu", "marisa", "chen", "alice", "patchouli", "marisa_tsumuri", "reimu_wasa", "reimu_deibu", "reimu_wasa_deibu"],
+  "skin_parts": ["rounded_body_surface", "rounded_rump_mark"],
+  "overlay_size": [64, 16],
+  "decal_size": 32,
+  "seed": 4027,
+  "forms": {
+    "natural": {
+      "label": "寿终／未知", "face": "old_dead", "face_code": "N068 凹缝眼+N069 口", "mouth_from": "dying_blank",
+      "scale": [1.0, 0.62, 1.0], "roll": 7, "face_paint": "sunken",
+      "skin": {"toward": [196, 192, 186], "amount": 0.22, "desaturate": 0.3, "darken": 0.06}, "hair": {"desaturate": 0.2, "darken": 0.04},
+      "accessory": {"desaturate": 0.18}, "blush_fade": 1.0
+    },
+    "starved": {
+      "label": "饿死／干枯", "face": "dry_dead", "face_code": "N044",
+      "scale": [0.86, 0.6, 0.86], "roll": 0,
+      "skin": {"toward": [204, 176, 128], "amount": 0.32, "darken": 0.1}, "hair": {"desaturate": 0.32, "darken": 0.08},
+      "accessory": {"desaturate": 0.28}, "blush_fade": 1.0, "overlay": "wrinkle"
+    },
+    "burned": {
+      "label": "烧死", "face": "blank_cry", "face_code": "N027 去泪", "dry_grade": 3, "tears": "clear",
+      "scale": [0.9, 0.74, 0.9], "roll": 0,
+      "skin": {"toward": [150, 104, 70], "amount": 0.5, "desaturate": 0.15}, "hair": {"darken": 0.35, "desaturate": 0.2}, "hair_ash": 0.2,
+      "accessory": {"darken": 0.3, "desaturate": 0.3}, "blush_fade": 1.0, "overlay": "char"
+    },
+    "crushed": {
+      "label": "压死／摔死", "face": "squashed", "face_code": "N045",
+      "scale": [1.32, 0.4, 1.32], "roll": 0,
+      "skin": {"desaturate": 0.2, "darken": 0.04}, "blush_fade": 0.75, "overlay": "crack",
+      "decal": {"name": "splat", "radius": 0.9}
+    },
+    "violent": {
+      "label": "外伤致死", "face": "dead_tongue", "face_code": "N026",
+      "scale": [1.04, 0.6, 1.04], "roll": 10,
+      "skin": {"desaturate": 0.26, "darken": 0.05}, "blush_fade": 0.6, "overlay": "gash",
+      "decal": {"name": "leak", "radius": 0.66}
+    },
+    "drowned": {
+      "label": "溺死", "face": "dying_blank", "face_code": "N069",
+      "scale": [1.14, 0.76, 1.14], "roll": -5,
+      "skin": {"toward": [196, 210, 222], "amount": 0.48, "desaturate": 0.2}, "hair": {"darken": 0.22}, "accessory": {"darken": 0.14},
+      "blush_fade": 1.0, "overlay": "damp"
+    },
+    "frozen": {
+      "label": "冻死", "face": "cold", "face_code": "N060 霜瞳",
+      "scale": [1.0, 0.92, 1.0], "roll": 0,
+      "skin": {"toward": [206, 224, 242], "amount": 0.4}, "hair": {"toward": [222, 236, 250], "amount": 0.16},
+      "accessory": {"toward": [222, 236, 250], "amount": 0.14}, "blush_fade": 1.0, "overlay": "frost", "face_paint": "glaze"
+    },
+    "sick": {
+      "label": "病死／中毒", "face": "dying_closed", "face_code": "N070",
+      "scale": [1.06, 0.58, 1.06], "roll": -7,
+      "skin": {"toward": [186, 194, 136], "amount": 0.42}, "hair": {"desaturate": 0.26}, "blush_fade": 1.0, "overlay": "sallow"
+    }
+  },
+  "water": {
+    "softened": {
+      "label": "泡软", "scale": [1.12, 0.82, 1.12], "overlay": "soaked"
+    },
+    "dissolving": {
+      "label": "溶化", "face": "dying_blank", "face_code": "N069", "face_fade": 0.78,
+      "scale": [1.32, 0.55, 1.32],
+      "skin": {"toward": [238, 228, 206], "amount": 0.5}, "hair": {"desaturate": 0.3, "darken": 0.1},
+      "accessory": {"desaturate": 0.4, "lighten": 0.15}, "blush_fade": 1.0, "overlay": "melt",
+      "decal": {"name": "residue", "radius": 1.25}
+    }
+  },
+  "palette": {
+    "anko": [74, 40, 46], "anko_light": [110, 66, 70], "dough": [236, 222, 192], "dough_shade": [214, 196, 160],
+    "crease": [146, 112, 76], "crease_dark": [104, 76, 52], "char": [40, 34, 32], "ash": [104, 100, 96], "scorch": [72, 52, 40], "mould": [118, 138, 108],
+    "drowned_drip": [176, 196, 214], "frost": [242, 249, 255], "frost_blue": [198, 224, 246], "sallow": [176, 180, 118],
+    "bruise": [140, 112, 142], "damp": [236, 240, 243], "damp_shine": [252, 253, 255], "soak": [224, 216, 198], "soak_fold": [186, 172, 150]
+  }
+}

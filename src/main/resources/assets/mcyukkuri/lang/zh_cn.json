@@ -6338,6 +6338,7 @@
   "human.mcyukkuri.core.sold_factory": "工人高价收下了中枢馅，付你 %s 绿宝石。",
   "human.mcyukkuri.core.sold_shop": "店主收下了中枢馅，付你 %s 绿宝石。",
   "remains.mcyukkuri.core_rotten": "中枢馅已经腐坏，取不出来。",
+  "remains.mcyukkuri.core_dissolved": "遗体已在水里溶化，中枢馅没有了。",
   "activity.mcyukkuri.cannibal_avoid": "避开遗体气味",
   "activity.mcyukkuri.cannibal_approach": "接近遗体",
   "activity.mcyukkuri.cannibal_wait": "等候下一口",

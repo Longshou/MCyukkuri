@@ -24,7 +24,10 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.body.RemainsCause;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.body.RemainsWater;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.status.Marks;
 import net.minecraft.core.particles.ParticleTypes;
@@ -43,8 +46,14 @@ public final class RemainsEntity extends Entity {
     private long rot;
     public long rot(){return rot;}
     public int stage(){return RemainsRot.stage(data());}
-    /** The remains as an item stack, carrying the current decay clock. */
-    public ItemStack remains(){var stack=entityData.get(REMAINS).copy();if(!stack.isEmpty()&&rot>0)CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putLong("Rot",rot));return stack;}
+    /** Ticks these remains have spent in water (body/RemainsWater); like the decay clock it only runs in the world. */
+    private long soak;
+    private int waterStage;
+    public long soak(){return soak;}
+    public int waterStage(){return waterStage;}
+    /** The remains as an item stack, carrying the current decay and soaking clocks. */
+    public ItemStack remains(){var stack=entityData.get(REMAINS).copy();if(!stack.isEmpty()&&(rot>0||soak>0))CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{
+            if(rot>0)tag.putLong("Rot",rot);if(soak>0)tag.putLong(RemainsWater.SOAK,soak);});return stack;}
     /** Set the decay clock (tests, /yukkuri body rot). */
     public void setRot(long ticks){rot=Math.max(0,ticks);refreshStage();}
     private void refreshStage(){
@@ -52,11 +61,28 @@ public final class RemainsEntity extends Entity {
         var stack=remains();CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putInt("RotStage",now));setRemains(stack);
         MCYukkuri.LOGGER.info("[remains] #{} is now {} (rot {})",getId(),RemainsRot.id(now),rot);
     }
+    /**
+     * Water softens and then dissolves the body; a stage never reverses. Dissolving takes the remaining filling into the water:
+     * the shared food balance becomes zero and the centre filling is gone, which the log records with the real before value.
+     */
+    private void refreshWater(){
+        int now=RemainsWater.stageFor(soak),before=waterStage;if(now<=before)return;
+        var stack=remains();var old=data();float food=CorpseFood.remaining(old);boolean core=hasCore(old);
+        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putInt(RemainsWater.STAGE,now);if(now==RemainsWater.DISSOLVING)tag.putFloat(CorpseFood.REMAINING,0);});
+        setRemains(stack);var after=data();
+        // At most two transitions per body, each a real resource change: never throttled.
+        GameplayLog.event(this,"body","remains water stage {} -> {}; soak={} food {} -> {} core {} -> {} category={} identity={}",
+                RemainsWater.id(before),RemainsWater.id(now),soak,food,CorpseFood.remaining(after),core,hasCore(after),RemainsCause.of(after),
+                after.hasUUID("Identity")?after.getUUID("Identity"):"none");
+    }
+    /** Set the soaking clock (/yukkuri body soak); the stage still only moves forward. */
+    public void setSoak(long ticks){soak=Math.max(0,ticks);refreshWater();}
     /** One real bite from this corpse's shared food balance. It does not create a loose item. */
     public BodyFood.Bite biteFood(){return CorpseFood.take(this,1);}
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
-            CustomData.EMPTY).copyTag().getLong("Rot");refreshDimensions();}
+            CustomData.EMPTY).copyTag().getLong("Rot");var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            soak=Math.max(0,tag.getLong(RemainsWater.SOAK));waterStage=RemainsWater.stage(tag);refreshDimensions();}
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key){super.onSyncedDataUpdated(key);if(REMAINS.equals(key))refreshDimensions();}
     public static float dimension(CompoundTag data,String key,float fallback){float v=data.contains(key)?data.getFloat(key):fallback;return Float.isFinite(v)?Math.clamp(v,.04f,8):fallback;}
     @Override public EntityDimensions getDimensions(Pose pose){var d=data();return EntityDimensions.scalable(dimension(d,"Width",.75f),dimension(d,"Height",.35f));}
@@ -68,6 +94,10 @@ public final class RemainsEntity extends Entity {
         return snapshot(source,cause,stemDepletion,false);
     }
     public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion){
+        return snapshot(source,cause,stemDepletion,sukkiriExhaustion,"");
+    }
+    /** {@code internalCause} is the body's own cause when the killing damage is only a generic carrier (body/RemainsCause). */
+    public static ItemStack snapshot(YukkuriEntity source,DamageSource cause,boolean stemDepletion,boolean sukkiriExhaustion,String internalCause){
         var result=new ItemStack(ModItems.REMAINS.get());
         CustomData.update(DataComponents.CUSTOM_DATA,result,tag->{
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
@@ -95,6 +125,9 @@ public final class RemainsEntity extends Entity {
                 tag.putString("CauseDetail","stem_nutrition_depletion");
             // 1.12 すっき死: a body that spent its last strength finishing the act.
             if(sukkiriExhaustion)tag.putBoolean("SukkiriExhaustion",true);
+            // The remains form follows the real cause; the internal cause survives a generic killing carrier.
+            if(internalCause!=null&&!internalCause.isEmpty())tag.putString(RemainsCause.INTERNAL,internalCause);
+            tag.putString(RemainsCause.CATEGORY,RemainsCause.category(cause,internalCause,stemDepletion&&cause!=null&&cause.is(DamageTypes.STARVE),sukkiriExhaustion));
         });
         result.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.yukkuri_remains.named",source.getName()));return result;
     }
@@ -118,13 +151,15 @@ public final class RemainsEntity extends Entity {
         return InteractionResult.sidedSuccess(level().isClientSide);
     }
     /** Whether these remains still hold a centre filling: the core was never hurt and nobody has taken it yet. */
-    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken")&&RemainsRot.stage(data)==RemainsRot.FRESH;}
+    public static boolean hasCore(CompoundTag data){return !data.getCompound("Body").getBoolean("CoreHurt")&&!data.getBoolean("CoreTaken")&&RemainsRot.stage(data)==RemainsRot.FRESH
+            &&RemainsWater.stage(data)<RemainsWater.DISSOLVING;}
     /** Cut out the centre filling (komicolle 11518802: the darkest, sweetest part). Only once, and only from an unhurt core. */
     private InteractionResult takeCore(Player player,InteractionHand hand){
         if(level().isClientSide)return InteractionResult.SUCCESS;
         var data=data();
         if(!hasCore(data)){
-            player.displayClientMessage(Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":data.getCompound("Body")
+            player.displayClientMessage(Component.translatable(data.getBoolean("CoreTaken")?"remains.mcyukkuri.core_taken":RemainsWater.stage(data)==RemainsWater.DISSOLVING
+                    &&!data.getCompound("Body").getBoolean("CoreHurt")?"remains.mcyukkuri.core_dissolved":data.getCompound("Body")
                     .getBoolean("CoreHurt")?"remains.mcyukkuri.core_broken":"remains.mcyukkuri.core_rotten"),true);
             return InteractionResult.FAIL;
         }
@@ -163,9 +198,11 @@ public final class RemainsEntity extends Entity {
         super.tick();
         if(level().isClientSide){if(tickCount%10==0)rotParticles();return;}
         if(++rot%20==0){refreshStage();FactoryProduction.releaseDeadOwner(this);}
+        if(isInWater()&&++soak%20==0)refreshWater();
         boolean afloat=isInWaterOrBubble();
         var motion=getDeltaMovement();
-        if(afloat) {
+        // Dissolved residue has lost its body and settles to the bottom.
+        if(afloat&&waterStage<RemainsWater.DISSOLVING) {
             // A water death stays recoverable where it happened.  This is physical
             // buoyancy for the corpse entity, not an inventory transfer or a rescue.
             if(motion.y<.025)motion=motion.add(0,Math.min(.04,.025-motion.y),0);

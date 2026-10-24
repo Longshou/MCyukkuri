@@ -22,7 +22,7 @@
 
 | 前缀 | 覆盖边界 | 关联与规则入口 |
 | --- | --- | --- |
-| `[body]` / `[remains]` / `[comfort]` | 真实受击、伤口／疤痕／疾病变化、治疗与耗材、死亡／遗体、舔伤接触和结束 | 实体、伤口、治疗者 UUID；[受伤与遗体](INJURIES_AND_REMAINS.md) |
+| `[body]` / `[remains]` / `[comfort]` | 真实受击、伤口／疤痕／疾病变化、治疗与耗材、死亡／遗体（死因类别、水中阶段）、舔伤接触和结束 | 实体、伤口、治疗者 UUID；[受伤与遗体](INJURIES_AND_REMAINS.md) |
 | `[predator]` / `[myon]` | 目标与追击阶段、攻击是否接受、生命变化、战斗停止、拾取／失去武器 | 双方 UUID；[捕食种](PREDATOR_IMPLEMENTATION.md)、[妖梦](RARE_FORMS.md) |
 | `[family]` / `[childhood]` / `[growth]` / `[independence]` | 配对受孕、出生、取粮与喂食交接、首餐首便、运动学习、成长、离家与新家 | brood、亲子 UUID、物资来源；[生命周期](CHILDHOOD_LIFECYCLE.md)、[成长](BEHAVIOR.md) |
 | `[care]` | 照护会合、拒绝、重新选位、真实接起／放下和停止 | 双方 UUID、会合种类；[照护](CHILDHOOD_LIFECYCLE.md) |

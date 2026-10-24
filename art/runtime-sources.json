@@ -4445,5 +4445,15 @@
     "status": "selected_for_runtime_pending_visual_feedback",
     "scope": "Alice hair, headband and open-eye irises; all existing selected expressions, including adult states",
     "shared_expression_shapes": "preserved"
+  },
+  "remains_art": {
+    "source": "standards/yukkuri-library/drafts/remains",
+    "exporter": "standards/yukkuri-library/drafts/remains/export.py",
+    "selected_snapshot": "art/source/remains",
+    "manifest": "art/source/remains/manifest.json",
+    "runtime_profile": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/remains_forms.json",
+    "runtime_textures": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/remains_{form}.png + textures/entity/remains/{overlay,decal}_*.png",
+    "status": "selected_for_runtime_pending_user_review",
+    "scope": "Eight death-cause forms and the dissolving residue for the nine rounded runtime bodies: accepted standard dead faces (N068/N044/N027/N045/N026/N069/N060/N070) on each body atlas, skin/hair/accessory recolouring, cylindrical skin overlays and two ground decals. House and rare forms keep the sleep face with the same pose and overlays. Deibu bodies use the ordinary reimu dead faces without the mature-face treatment. No user visual acceptance yet."
   }
 }

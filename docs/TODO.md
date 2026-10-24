@@ -68,7 +68,6 @@
 用户说“保存 xx”即登记为标准；制作源、快照和 `art/runtime-sources.json` 同步。道具见[制作入口](../art/props/README.md)。树叶襁褓、商店图标及各行为的专用姿态随所属任务交付；本节只保留独立的制作缺口，现有候选的视觉确认在文末。
 
 - **面粉糊、橙汁与饲料颗粒重做**：已接入待试玩，外观待用户确认。“饲料颗粒”按三档油粮理解；五件改为原版风格 16×16 物品图标（[照料补给图标](../art/props/supply-icons/README.md)），不再用网格渲染。观察：`treatment_care`、`treatment_severe`、`treatment_scars`、`marks` 的发放物品与 NPC 持药，商店陈列，玩家手持与展示框。完成：用户在上述位置认可外观；旧网格候选不作备选。
-- **遗体美术**：未做。按死因区分的[遗体造型](INJURIES_AND_REMAINS.md#同伴照护与遗体)及[水中泡软与溶化遗体](AQUATIC_MARISA_IMPLEMENTATION.md#未实现边界)。献身切面归演出包中的分体项，不重复制作。
 
 ## 低优先级
 
@@ -253,6 +252,7 @@
 - **宠物与野生大窝**：已接入待试玩。Opus 已制作并导出两个低沿2×2大窝，宠物窝底无座位标记；按后续反馈减薄围沿，将内部中央宽度扩大至约1.78格，保留圆角与外侧余量，真实碰撞同步；预览和实际休息位置采用分散布局。完成：用户确认外观、体型容纳、入口与真实碰撞，机制按“出生与成长”反馈4验收。
 - **火烧后的烧焦外观**：已接入待试玩。已选用足部／全身三级焦枯素材、干枯表情与全身横向干瘦，家油只用三级热损外观；规则见[伤口与治疗](INJURIES_AND_REMAINS.md#伤口与治疗)。完成：`thermal_body` 对照范围、伤级与 `health.thermal_state`；`wound_sources`、`magma_sole` 用真实火烧和接触验证，足烧只足底、全烧保持高度／深度与头饰尺寸，不误出露核洞，由用户确认。
 - **身体印记与重伤创腔**：已接入待试玩。已接入对应伤型的发面／皮面裁切、断发边、普通馅腔壁与唯一中央中枢，服务端命中采用相同开口并检查剩余头发和饰物遮挡；规则见[中枢与临终](INJURIES_AND_REMAINS.md#中枢与临终)。完成：`body_mold`、`marks`、`treatment_severe` 核对原位变化；`core_exposed` 的头顶／厚后发、低血大缺损与小伤／窄刺／尖锥／烧伤边界核对实际瞄准和遮挡；`core_filling` 核对取核后空腔，治疗、遗体搬放及清场重开不换位、不重复中枢。`wound_sources` 手动核对发际线真实命中，视觉仍待用户确认。
+- **遗体美术**：已接入待试玩。按[死因类别与水中阶段](INJURIES_AND_REMAINS.md#同伴照护与遗体)换死亡脸、姿态、表层与地面馅渍，九个圆润模型有专用图集，家油与稀有形态仍用睡脸只换姿态与表层，灵胖类沿用普通灵梦死亡脸；寿终缎带下垂需要骨骼姿态，目前缺；制作源 `standards/yukkuri-library/drafts/remains/` 未经用户认可，献身切面归演出包分体项。完成：`remains_forms` 用“读遗体”核对七种真实死因与溺死的 `category`／`form`，外观与预期形态一致；水池左具约 30–60 秒后 `water=softened`，右具约 30–60 秒后 `water=dissolving`、`food` 6→0、`core=false` 且沉底，岸上对照不变；用户确认各形态外观。
 - **伤口旧稿接入与发面适配**：已接入待试玩。已选用 `art/source/hair-wounds/` 的既有八类伤型、各模型绑定与热损素材，伤因 `Shape` 贯穿伤口、同步、疤痕及遗体；实际扣血仍只由身体结算。素材与边界见[发面素材](../standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md)和[挂接契约](../standards/yukkuri-library/drafts/body-marks/WOUND_GENERATION.md)。完成：`wound_materials`、`wound_parts` 核对各级伤的皮面／发面连续、动作贴合、透明边缘、远近显示及眼旁遮挡；`wound_sources` 用真实刀／钝／刺／咬／爆来源核对伤型，2／4／5／7点及重复命中读数对应伤级、普通馅与露核，不虚构逐齿／逐刺接触。覆盖各发型、豆形、稀发、多毛和水生；摘饰、治疗、重载保留原伤与疤痕锚点，治疗不恢复真实缺发，保留 `hatless_monster`／`hatless_boundary`，并核对孕肚与接生交接，由用户确认外观。
 - **已接入待试玩，等视觉确认**：爱丽丝八景蓝瞳与蓝眼表情（制作源 `standards/yukkuri-library/body-standard/features/alice-hakkei/`，视觉确认仍按源登记核对）；雷普魔 1.12 脸、行为序列与 peni 显示（`drafts/rapem-alice/` 未认可）；成体状态脸（八景 U 重绘，`art/source/adult-states/`）；稀有形态贴图（妖梦与红眼、橙尾、被炉魔理沙，登记缺认可字段）；中枢馅、去霉药、酸奶、兴奋药、幼语药、弹珠汽水喷雾。
 
