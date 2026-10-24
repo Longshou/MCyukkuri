@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import sys
+from preview_inventory import current_items
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
@@ -32,6 +33,10 @@ def classify_item(ident, categories):
 
 def item_visual(ident, model, out, warnings):
     """Follow the actual item dispatch: a sprite takes precedence over old meshes."""
+    # These render paths require per-stack state and cannot be reproduced by
+    # feeding a same-named mesh to the generic prop renderer.
+    if ident in ('yukkuri_remains', 'accessory_shard'):
+        return None, '实例外观待补'
     textures = model.get('textures', {})
     seen, elements = set(), model.get('elements')
     while (parent := model.get('parent', '')).startswith('mcyukkuri:'):
@@ -80,7 +85,7 @@ def item_visual(ident, model, out, warnings):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 image.save(target)
                 stamp.write_text(fingerprint)
-            return target.relative_to(out).as_posix(), '模型预览'
+            return target.relative_to(out).as_posix(), '基础网格预览'
         except FileNotFoundError as error:
             warnings.append(f'{ident}: missing render input: {error.filename or error}')
     if elements:
@@ -94,11 +99,8 @@ def item_visual(ident, model, out, warnings):
             return target.relative_to(out).as_posix(), '方块模型预览'
         except FileNotFoundError as error:
             warnings.append(f'{ident}: missing native render input: {error.filename or error}')
-    for ref in textures.values():
-        if ref.startswith('mcyukkuri:'):
-            path = ASSETS/'textures'/(ref.split(':', 1)[1]+'.png')
-            if path.is_file():
-                return resource_url(path), '材质预览'
+    # A particle/atlas texture is not an item image. Missing render support is
+    # visible as a gap, never disguised by an unrelated texture or old sheet.
     return None, '外观待补'
 
 
@@ -124,57 +126,18 @@ def build(manifest, catalog, out):
         add(dict(id='scene:'+chapter['id'], category=category, kind='scene',
                  title=chapter.get('label', chapter['title']), summary=chapter['summary'],
                  chapter=chapter['id'], image=first, source=chapter.get('source'),
-                 visual='场景分镜'))
+                 visual='基础外观对照'))
 
-    # Split mixed art batches by gameplay subject without changing their shared source.
-    chapters = []
-    available = {chapter['id'] for chapter in manifest['chapters']}
-    for chapter in read(ROOT/'preview/hub/recent.json')['chapters']:
-        if chapter['id'] not in available:
-            add(dict(id='reference:'+chapter['id'], category=config['chapters'].get(chapter['id'], 'other'),
-                     kind='reference', title=chapter.get('label', chapter['title']),
-                     summary='专项图片尚未生成，内容与制作入口仍保留。',
-                     source=chapter.get('source'), visual='预览待生成'))
     for chapter in manifest['chapters']:
-        splits = config['splitChapters'].get(chapter['id'])
-        if not splits:
-            chapters.append(chapter)
-            add_chapter(chapter, config['chapters'].get(chapter['id'], 'other'))
-            continue
-        remaining = list(chapter['steps'])
-        for split in splits:
-            steps = [s for s in remaining if any(s.get('image', '').startswith(p) for p in split['prefixes'])]
-            if not steps:
-                continue
-            remaining = [s for s in remaining if s not in steps]
-            topic = dict(chapter, id=split['id'], title=split['title'], label=split['title'],
-                         summary='当前选用素材的离线外观分镜；游戏内表现仍需试玩确认。',
-                         points=[], steps=steps, gallery=[])
-            chapters.append(topic)
-            add_chapter(topic, split['category'])
-        if remaining:
-            topic = dict(chapter, steps=remaining)
-            chapters.append(topic)
-            add_chapter(topic, 'other')
-    for supplement in config['supplements']:
-        steps = [dict(title=title, body='当前专项预览；离线分镜不代表游戏内验收。', image=path)
-                 for path, title in supplement['media'] if (out/path).is_file()]
-        if not steps:
-            add(dict(id='reference:'+supplement['id'], category=supplement['category'], kind='reference',
-                     title=supplement['title'], summary='已登记专项内容，预览图片尚未生成。',
-                     source=supplement['source'], visual='预览待生成'))
-            continue
-        topic = dict(id=supplement['id'], label=supplement['title'], title=supplement['title'],
-                     summary='按实际游戏内容归档的专项素材。', tag='专项预览', source=supplement['source'],
-                     points=[], steps=steps, gallery=[])
-        chapters.append(topic)
-        add_chapter(topic, supplement['category'])
-    manifest['chapters'] = chapters
+        add_chapter(chapter, config['chapters'].get(chapter['id'], 'other'))
+    for gap in config['previewGaps']:
+        add(dict(id='reference:'+gap['id'], category=gap['category'], kind='reference',
+                 title=gap['title'], summary=gap['reason'], source=gap['source'], visual='预览缺口'))
 
     for model in catalog['models']:
         category = 'house' if model['id'].startswith('house_') else 'species'
         add(dict(id='model:'+model['id'], category=category, kind='model', title=model['name'],
-                 summary=f"{model['group']} · {len(model['actions'])} 个动作 · {len(model['textures'])} 套表情贴图",
+                 summary=f"{model['group']} · {len(model['actions'])} 个有运行引用的片段 · {len(model['textures'])} 套贴图；仅基础模型，不含状态附加渲染",
                  model=model['id'], image=f"models/thumbs/{model['id']}.png",
                  source='docs/SPECIES.md', visual='可旋转模型'))
 
@@ -187,30 +150,38 @@ def build(manifest, catalog, out):
         category = next((category for pattern, category in config['actionRules'] if re.search(pattern, action)),
                         action_categories.get(action, 'other'))
         preferred = 'marisa' if category=='water' else 'house_reimu' if category=='house' else 'reimu'
+        for prefix, ident in [('predator_', 'remilia'), ('shell_', 'marisa_tsumuri'), ('house_', 'house_reimu')]:
+            if action.startswith(prefix): preferred = ident
         model = next((m for m in models if m['id']==preferred), models[0])
         add(dict(id='motion:'+action, category=category, kind='motion', title=action_names.get(action, action),
-                 summary=f"{model['name']}演示 · {len(models)} 种形态有此动作。仅播放动作片段，不触发玩法。",
+                 summary=f"{model['name']}演示 · 仅播放模型片段，不含目标、道具、环境和身体状态，不代表该形态具备对应玩法能力。",
                  model=model['id'], action=action, image=f"models/thumbs/{model['id']}.png",
                  source='docs/MOTION_MUSEUM_ACTIONS.md', visual='可播放动作'))
 
     lang = read(ASSETS/'lang/zh_cn.json')
-    for path in sorted((ASSETS/'models/item').glob('*.json')):
-        ident = path.stem
-        if ident.endswith('_spawn_egg') or ident in config['excludeItems']:
+    registered = current_items()
+    model_paths = {p.stem:p for p in (ASSETS/'models/item').glob('*.json')}
+    unconfirmed = [ident for ident in model_paths if ident not in registered
+                   and not ident.endswith('_spawn_egg')
+                   and ('item.mcyukkuri.'+ident in lang or 'block.mcyukkuri.'+ident in lang)]
+    for ident, registration in sorted(registered.items()):
+        if ident in config['excludeItems']:
             continue
-        title = lang.get('item.mcyukkuri.'+ident) or lang.get('block.mcyukkuri.'+ident)
-        # Per-body dispatch meshes are not separate player items. Only catalogued,
-        # localized item/block models are exposed here; models retain all body forms.
-        if not title:
-            continue
+        path = model_paths.get(ident)
+        title = lang.get('item.mcyukkuri.'+ident) or lang.get('block.mcyukkuri.'+ident) or ident
         category = classify_item(ident, categories)
-        image, visual = item_visual(ident, read(path), out, warnings)
-        if not image and ident=='yukkuri_remains' and (out/'remains/remains-forms.png').is_file():
-            image, visual = 'remains/remains-forms.png', '遗体外观分镜'
+        image, visual = item_visual(ident, read(path), out, warnings) if path else (None, '外观待补')
+        summary = '当前注册物品的基础外形；不含佩戴／放置位置、内容物变化和实例状态。'
+        if visual == '物品图标': summary = '当前物品图标；身上或场地中的效果不由此图表示。'
+        if ident == 'house_egg': summary = '未开裂的基础卵形；进度超过开裂阶段后由另一网格显示。'
+        if not image:
+            summary = ('遗体依赖死者形态、死因与水中阶段；离线实例渲染待补。' if ident=='yukkuri_remains' else
+                       '碎片依赖来源头饰的颜色与体型；离线实例渲染待补。' if ident=='accessory_shard' else
+                       '当前注册物品；暂无可可靠展示的离线外观，请使用对应试玩入口。')
         add(dict(id='item:'+ident, category=category, kind='item', title=title, image=image,
-                 visual=visual, summary=('当前物品／设施素材。' if visual != '材质预览' else
-                                         '展示当前材质；完整方块外观请在试玩场查看。'),
-                 source=next(c['source'] for c in categories if c['id']==category), resource=resource_url(path)))
+                 visual=visual, summary=summary, registration=registration,
+                 source=next(c['source'] for c in categories if c['id']==category),
+                 resource=resource_url(path) if path else None))
 
     # Import the authored scenario objects: no copied table of buttons, initial
     # states, instructions or progress. Importing this module does not run a game.
@@ -239,6 +210,10 @@ def build(manifest, catalog, out):
     report = ROOT/'.local/reports/preview-library.json'
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps(dict(unclassified=[e['id'] for e in entries if e['category']=='other'],
-                                      missingRenderInputs=warnings), ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+                                      missingRenderInputs=warnings,
+                                      unconfirmedItemResources=unconfirmed,
+                                      unconfirmedActions=sorted({a for m in catalog['models'] for a in m['unconfirmedActions']}),
+                                      previewGaps=config['previewGaps'],
+                                      itemAppearanceGaps=[e['id'] for e in entries if e['kind']=='item' and not e['image']]), ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(f'Indexed {len(entries)} gameplay entries; {sum(e["category"]=="other" for e in entries)} unclassified; {len(warnings)} missing render inputs.')
     return result

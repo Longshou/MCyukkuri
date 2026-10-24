@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let data,library,current,step=0,animated=true,categoryId='life';
-const kindNames={scene:'场景分镜',model:'角色模型',motion:'动作片段',item:'物品与设施',scenario:'游戏试玩入口',audio:'声音',reference:'待生成预览'};
+const kindNames={scene:'外观对照',model:'角色模型',motion:'动作片段',item:'物品与设施',scenario:'游戏试玩入口',audio:'声音',reference:'预览缺口'};
 function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;}
 function mode(name,url){
  const recent=name==='recent';$('recent').hidden=!recent;$('viewer').hidden=recent;$('sample-player').pause();
@@ -71,6 +71,10 @@ function showEntry(entry){
  const panel=$('entry-detail');panel.replaceChildren(el('p',entry.visual||kindNames[entry.kind],'eyebrow'),el('h2',entry.title));
  if(entry.image){const img=el('img');img.src=entry.image;img.alt=entry.title;img.className=entry.visual==='物品图标'||entry.visual==='材质预览'?'asset-image pixel-image':'asset-image';panel.append(img);}
  panel.append(el('p',entry.summary,'summary'));
+ if(entry.kind==='reference'||entry.kind==='item'&&!entry.image){
+  const button=el('button','查看本分类的游戏试玩入口','source-button');
+  button.onclick=()=>{$('kind-filter').value='scenario';$('search').value='';browse();};panel.append(button);
+ }
  if(entry.kind==='scenario'){
   panel.append(el('p','打开“启动动作博物馆.cmd”，到「'+entry.field+'」选择「'+entry.title+'」。','play-instruction'));
   const info=el('dl');for(const [label,value] of [['预计观察时间',entry.wait],['重开与重试',entry.retry],['场景说明',entry.note]]){if(value)info.append(el('dt',label),el('dd',value));}panel.append(info);
@@ -95,7 +99,7 @@ function renderLibrary(){
  $('entry-grid').replaceChildren(...entries.map(entry=>{
   const card=el('button',undefined,'entry-card');
   if(entry.image){const img=el('img');img.src=entry.image;img.alt='';img.loading='lazy';if(entry.visual==='物品图标'||entry.visual==='材质预览')img.className='pixel-image';card.append(img);}
-  else card.append(el('div',entry.kind==='scenario'?'进入游戏观察':entry.kind==='audio'?'♪':entry.kind==='reference'?'预览待生成':'行为与状态','card-placeholder'));
+  else card.append(el('div',entry.kind==='scenario'?'进入游戏观察':entry.kind==='audio'?'♪':entry.kind==='reference'?'预览缺口':'行为与状态','card-placeholder'));
   const copy=el('div',undefined,'card-copy');copy.append(el('small',entry.visual||kindNames[entry.kind]),el('h3',entry.title),el('p',entry.summary));card.append(copy);card.onclick=()=>showEntry(entry);return card;
  }));
 }
@@ -107,8 +111,8 @@ Promise.all(['recent.json','library.json'].map(url=>fetch(url).then(r=>{if(!r.ok
  $('search').value=params.get('q')||'';if(params.get('kind') in kindNames)$('kind-filter').value=params.get('kind');
  if(!library.categories.some(c=>c.id===categoryId)&&categoryId!=='all')categoryId='life';
  const counts=kind=>library.entries.filter(e=>e.kind===kind).length;
- $('library-summary').textContent=library.categories.filter(c=>library.entries.some(e=>e.category===c.id)).length+' 个游戏分类 · '+counts('scene')+' 组分镜 · '+counts('model')+' 种形态 · '+counts('motion')+' 个动作 · '+counts('item')+' 件物品与设施 · '+counts('scenario')+' 个试玩入口';
- $('version').textContent='素材提交 '+data.sourceRevision.slice(0,8)+(data.workingChanges?'，含本地修改':'')+'；离线演示不代表游戏内行为验收。';
+ $('library-summary').textContent=library.categories.filter(c=>library.entries.some(e=>e.category===c.id)).length+' 个游戏分类 · '+counts('model')+' 种形态 · '+counts('motion')+' 个动作片段 · '+counts('item')+' 件物品与设施 · '+counts('scenario')+' 个试玩入口 · '+counts('reference')+' 项专项预览缺口';
+ $('version').textContent='资源提交 '+data.sourceRevision.slice(0,8)+(data.workingChanges?'，含本地修改':'')+'；离线演示不代表游戏内行为验收。';
  $('generated').textContent='生成于 '+data.generatedAt.replace('T',' ').replace('+08:00','')+'（北京时间）';
  renderLibrary();const entry=library.entries.find(e=>e.id===params.get('entry')||params.get('topic')&&e.chapter===params.get('topic'));
  if(entry)showEntry(entry);else if(location.hash==='#audio')mode('audio');else if(location.hash==='#models')mode('models');

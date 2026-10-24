@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import shutil
+from preview_inventory import referenced_actions
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
@@ -44,6 +45,7 @@ def main():
     for name in ('index.html', 'style.css', 'app.js', 'pose.js'):
         shutil.copy2(ROOT / 'preview/review' / name, OUT / name)
     models=[]
+    runtime_actions = referenced_actions()
     motion_path=ASSETS/'yukkuri_presentation/motion_corrections.json'
     motions=read(motion_path)['models']
     motion_hash=hashlib.sha256(motion_path.read_bytes()).hexdigest()
@@ -55,10 +57,12 @@ def main():
         raw=path.read_bytes(); model=json.loads(raw)
         textures={p.stem:url(p) for p in sorted((ASSETS/'textures/entity'/ident).glob('*.png'))}
         assert 'neutral' in textures
+        all_actions = list(dict.fromkeys([*model['clips'], *model.get('behavior_clips',{}), *motions.get(ident,{}).get('clips',{})]))
         models.append(dict(id=ident,name=name,group=group,url=url(path),
             hash=hashlib.sha256(raw+motion_hash.encode()+fit_hash.encode()).hexdigest(),geometryHash=hashlib.sha256(raw).hexdigest(),textures=textures,
             formScale=1.5 if ident in ('reimu_deibu','reimu_wasa_deibu') else 1,
-            actions=list(dict.fromkeys([*model['clips'], *model.get('behavior_clips',{}), *motions.get(ident,{}).get('clips',{})])),
+            actions=[action for action in all_actions if action in runtime_actions],
+            unconfirmedActions=[action for action in all_actions if action not in runtime_actions],
             textureSize=model.get('texture_size',128)))
     zh=read(ASSETS/'lang/zh_cn.json'); ja=read(ASSETS/'lang/ja_jp.json')
     sounds=read(ASSETS/'sounds.json'); manifest=read(ROOT/'art/audio/aquestalk/manifest.json')['clips']

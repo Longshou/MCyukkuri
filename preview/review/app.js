@@ -62,14 +62,14 @@ async function applyExpression(){
 async function selectModel(item){
  const token=++loadToken;setPlaying(false);selected=item;model=null;pose=null;$('play').disabled=true;
  $('loading').style.display='grid';$('loading').textContent=`正在读取${item.name}…`;
- $('model-name').textContent=item.name;$('model-group').textContent=item.group;$('model-detail').textContent=`${item.actions.length} 段动作 · ${Object.keys(item.textures).length} 套表情 · 当前游戏资源`;
+ $('model-name').textContent=item.name;$('model-group').textContent=item.group;$('model-detail').textContent=`${item.actions.length} 段动作 · ${Object.keys(item.textures).length} 套贴图 · 基础模型，不含状态附加渲染`;
  buildModelList();
  try{
   const response=await fetch(item.url);if(!response.ok)throw new Error(`HTTP ${response.status}`);const data=await response.json();if(token!==loadToken)return;
   motionPromise??=fetch(catalog.motions).then(r=>{if(!r.ok)throw Error('动作资源 HTTP '+r.status);return r.json();});const motions=await motionPromise;if(token!==loadToken)return;
   fitPromise??=fetch(catalog.fit).then(r=>{if(!r.ok)throw Error('位置适配资源 HTTP '+r.status);return r.json();});const fits=await fitPromise;if(token!==loadToken)return;
-  model=data;pose=new RuntimePose(model,item.formScale,motions.models[item.id],fits.models[item.id]||null);action=pose.clips[action]?action:'idle';expression=expression==='auto'||item.textures[expression]?expression:'auto';time=0;appliedExpression=requestedExpression=null;
-  $('action').replaceChildren(...Object.keys(pose.clips).map(id=>new Option(label(id,labels),id)));$('action').value=action;
+  model=data;pose=new RuntimePose(model,item.formScale,motions.models[item.id],fits.models[item.id]||null);action=item.actions.includes(action)&&pose.clips[action]?action:'idle';expression=expression==='auto'||item.textures[expression]?expression:'auto';time=0;appliedExpression=requestedExpression=null;
+  $('action').replaceChildren(...item.actions.filter(id=>pose.clips[id]).map(id=>new Option(label(id,labels),id)));$('action').value=action;
   $('expression').replaceChildren(...['auto',...Object.keys(item.textures)].map(id=>new Option(label(id,expressionNames),id)));$('expression').value=expression;
   model=pose.model;const n=model.vertices.length/8;positions=new Float32Array(n*3);uvs=new Float32Array(n*2);colors=new Float32Array(n*3);
   if(mesh){scene.remove(mesh);geometry.dispose();}geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.BufferAttribute(uvs,2));geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));mesh=new THREE.Mesh(geometry,material);mesh.scale.x=-1;mesh.frustumCulled=false;scene.add(mesh);
@@ -84,7 +84,7 @@ async function selectModel(item){
 }
 function buildActions(){
  const common=['idle','waddle','hop','startle','puff','taiso','side_bend','flee',...Object.keys(model.behavior_clips||{})];$('action-bank').replaceChildren();
- for(const id of common.filter(id=>pose.clips[id])){const b=document.createElement('button');b.textContent=label(id,labels);b.className=id===action?'active':'';b.onclick=()=>setAction(id);$('action-bank').append(b);}
+ for(const id of common.filter(id=>selected.actions.includes(id)&&pose.clips[id])){const b=document.createElement('button');b.textContent=label(id,labels);b.className=id===action?'active':'';b.onclick=()=>setAction(id);$('action-bank').append(b);}
 }
 function setAction(id){if(!pose)return;action=id;time=0;$('action').value=id;$('time').max=pose.clips[id].duration;buildActions();applyExpression();loadNote();}
 function modelKey(){return `model/${selected.id}/${selected.hash}/${action}/${expression}`;}

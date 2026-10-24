@@ -16,34 +16,41 @@
   "actionGroups": {"身体与移动":"life","日常生活":"life","交流与情绪":"social","家庭与照料":"family","帽子与水边":"headwear","宠物店与表情":"pets","运输与篮子":"pets","水上日常与亲子":"water","初航与帽檐":"water","落水与救援":"water","特殊身体":"species"},
   "actionRules": [
     ["^(boat_|water_|aquatic_|braid_rescue_|braid_reach_low$|hat_.*_aq$|hat_walk$)","water"],
-    ["^house_","house"], ["^predator_|^shell_|^fur_","species"],
-    ["^nest_","wild"], ["^comfort_lick$","health"],
+    ["^house_","house"],
+    ["^predator_|^shell_|^fur_","species"],
+    ["^nest_","wild"],
+    ["^comfort_lick$","health"],
     ["^(anatomy_|feed_child$|first_toilet_assist$|newborn_crawl$|learn_jump$|learn_watch$|care_finish$|hat_cradle$)","family"],
     ["^still$","life"]
   ],
   "actionLabels": {"boat_be_carried":"被亲油承托","boat_carry_young":"承托幼体","boat_prepare_carry":"准备承托","boat_release_carry":"放下幼体","boat_toilet":"帽沿排便","braid_reach_low":"低位伸辫","care_finish":"照料收尾","feed_child":"递喂幼体","first_toilet_assist":"辅助首便","fur_sway":"多毛摇摆","hat_walk":"帽沿移动","house_carry":"夹絮搬运","house_crawl":"家油爬行","house_deposit":"放下物资","house_pickup":"俯身夹取","learn_jump":"练习跳跃","learn_watch":"观察学习","nest_harvest":"收集巢材","nest_place":"放置巢材","nest_press":"压实巢材","nest_spread":"铺开巢材","newborn_crawl":"新生爬行","predator_bite":"捕咬","predator_dive":"俯冲","predator_fly":"飞行","predator_land":"降落","shell_sway":"壳体摇摆","still":"静止","water_hat_over":"越过帽缘","water_hat_pull":"拉近帽子","water_held_breath":"被托住后喘息"},
-  "chapters": {
-    "swaddle-leaf-cloth":"family", "care-props-vanilla":"life", "predator-body":"species",
-    "hair-wounds-art":"health", "body-marks-art":"health", "alice-appearance":"species",
-    "adult-agitation":"family", "hat-motion":"water", "house-ecology":"house", "water":"water",
-    "climate":"wild", "stores":"wild", "family":"family", "community":"wild", "shell":"species", "voices":"social"
-  },
-  "splitChapters": {
-    "art-batch-items-remains-poses": [
-      {"id":"remains","category":"health","title":"遗体与死因外观","prefixes":["remains/"]},
-      {"id":"rare-poses","category":"species","title":"被炉与妖梦咬刀","prefixes":["kotatsu/","poses/kanroken"]},
-      {"id":"stem-poses","category":"family","title":"茎生悬挂姿态","prefixes":["poses/stem-"]},
-      {"id":"paddle-poses","category":"water","title":"水生魔理沙握桨","prefixes":["poses/paddle-"]},
-      {"id":"supply-icons","category":"health","title":"照料补给图标","prefixes":["item-icons/"]}
-    ]
-  },
+  "chapters": {"care-props-vanilla":"life"},
   "scenarioOverrides": {"factory_wear":"human","pet_birth":"family","house_health":"house","balance_forms":"species","balance_deibu":"species","balance_growth":"family"},
   "excludeItems": {"leaked_filling":"仅旧存档兼容占位，不作为当前可获取物品展示"},
-  "supplements": [
-    {"id":"headwear-damage","category":"headwear","title":"头饰损坏与修复外观","source":"docs/HEADWEAR.md","media":[["hat-damage/hat-damage.png","头饰损坏"],["hat-damage/hat-damage-close.png","损坏近景"],["hat-care/current.png","扶携与理帽"]]},
-    {"id":"birth-performance","category":"family","title":"分娩与接生分镜","source":"docs/CONSUMABLES_AND_BIRTH.md","media":[["birth-performance/current.png","分娩与接生"]]},
-    {"id":"badge-mounts","category":"pets","title":"徽章与佩戴位置","source":"art/props/badges/README.md","media":[["shop-badge-pets/badges.png","徽章"],["shop-badge-pets/badge-mounts.png","佩戴位置"]]},
-    {"id":"land-cargo","category":"wild","title":"陆上储粮堆","source":"docs/WILD_SHELTERS.md","media":[["forage-pile/forage_pile_stages.png","逐份堆放"]]},
-    {"id":"boat-cargo","category":"water","title":"帽内储粮与空间","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","media":[["hat-boat-cargo/hat-boat-cargo.png","帽内储粮"],["hat-boat-cargo/servings.png","份数变化"]]}
+  "previewGaps": [
+    {"id":"swaddle-leaf-cloth","title":"树叶襁褓与布襁褓","category":"family","source":"art/props/pet-goods/README.md","reason":"旧图仍是四叶包法；单叶包法与布襁褓多款正在重做，暂不展示旧外观。"},
+    {"id":"remains","title":"遗体与死因外观","category":"health","source":"art/props/README.md","reason":"旧前后对比与拼图未绑定当前输入；现有物品、角色或动作资源另列，专项状态外观需重建。"},
+    {"id":"rare-poses","title":"被炉与妖梦咬刀","category":"species","source":"art/props/README.md","reason":"旧前后对比与拼图未绑定当前输入；现有物品、角色或动作资源另列，专项状态外观需重建。"},
+    {"id":"stem-poses","title":"茎生悬挂姿态","category":"family","source":"art/props/README.md","reason":"旧前后对比与拼图未绑定当前输入；现有物品、角色或动作资源另列，专项状态外观需重建。"},
+    {"id":"paddle-poses","title":"水生魔理沙握桨","category":"water","source":"art/props/README.md","reason":"旧前后对比与拼图未绑定当前输入；现有物品、角色或动作资源另列，专项状态外观需重建。"},
+    {"id":"supply-icons","title":"照料补给图标","category":"health","source":"art/props/README.md","reason":"旧前后对比与拼图未绑定当前输入；现有物品、角色或动作资源另列，专项状态外观需重建。"},
+    {"id":"predator-body","title":"捕食种共享身体","category":"species","source":"standards/yukkuri-library/subspecies/predator/author_species.py","reason":"当前捕食种馅料已调整；旧专项图没有对应输入指纹，需重建伤口与馅料对照。"},
+    {"id":"hair-wounds-art","title":"头发覆盖区的伤口","category":"health","source":"standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md","reason":"需按当前毛发损伤、伤口遮罩和各品种馅料重新生成，旧图不能证明当前外观。"},
+    {"id":"body-marks-art","title":"身体纹样","category":"health","source":"standards/yukkuri-library/drafts/body-marks/README.md","reason":"身体印记和中枢由运行状态驱动，旧分镜缺少与当前渲染代码的对应校验。"},
+    {"id":"alice-appearance","title":"爱丽丝造型与蓝眼","category":"species","source":"standards/yukkuri-library/body-standard/features/alice-hakkei/README.md","reason":"旧外观对比包含历史方案；当前基础模型与表情可在角色目录查看，专项对照需重建。"},
+    {"id":"adult-agitation","title":"成体状态与爱丽丝失控","category":"family","source":"docs/ADULT_AGITATION.md","reason":"旧分镜没有与当前表情选用、姿态和客户端演出绑定，需按当前选用资源重新生成。"},
+    {"id":"hat-motion","title":"真实抓握、翻帽与攀檐","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧独立网页内嵌场景数据，重建总入口不会刷新；完整帽船过程请在对应试玩入口观察。"},
+    {"id":"house-ecology","title":"家油的一家","category":"house","source":"standards/yukkuri-library/ecology/house-nest/README.md","reason":"旧图的搬絮、护卵与孵化过程未随当前代码重建；当前家油模型和物品另列。"},
+    {"id":"water","title":"帽船一家","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧多角色分镜使用离线编排的位置与道具，尚未对应当前上下岸、救援与帽内空间。"},
+    {"id":"climate","title":"地方与季节","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧季节图混用通用动作与手写状态，未对应实际环境效果；请使用季节试玩场。"},
+    {"id":"stores","title":"储粮与越冬","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧储粮分镜由人工安排动作和道具，不能代表当前储粮阶段；存取请在试玩场观察。"},
+    {"id":"family","title":"从出生到离家","category":"family","source":"docs/CHILDHOOD_LIFECYCLE.md","reason":"旧分镜含用通用撑地动作代演筑巢的内容；需按当前照料与筑巢阶段重做。"},
+    {"id":"community","title":"聚落记忆","category":"wild","source":"docs/SETTLEMENTS.md","reason":"旧聚落分镜与手写状态未对应当前行为链；迁徙、继任等以实际试玩场为入口。"},
+    {"id":"shell","title":"螺壳与饰物","category":"species","source":"docs/SUBSPECIES_IMPLEMENTATION.md","reason":"旧缩壳徽章拼图没有当前输入校验；基础壳形与缩壳片段另列，徽章佩戴需专项重建。"},
+    {"id":"headwear-damage","title":"头饰损坏与修复外观","category":"headwear","source":"docs/HEADWEAR.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"birth-performance","title":"分娩与接生分镜","category":"family","source":"docs/CONSUMABLES_AND_BIRTH.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"badge-mounts","title":"徽章与佩戴位置","category":"pets","source":"art/props/badges/README.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"land-cargo","title":"陆上储粮堆","category":"wild","source":"docs/WILD_SHELTERS.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"boat-cargo","title":"帽内储粮与空间","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"}
   ]
 }

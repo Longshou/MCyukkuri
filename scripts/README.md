@@ -20,9 +20,9 @@
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
-`python scripts/build_preview_hub.py --render` 生成集中入口、对应动作 GIF、当前模型缩略图、照料道具与动作总览图；需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
+`python scripts/build_preview_hub.py --render` 生成集中入口、当前模型缩略图与照料设施基础网格；需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
 
-总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
+总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染；`preview_inventory.py` 从 Java 注册与运行引用过滤残留资源。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
 
 `asset_export_checks.py` 是各导出器 `--check` 共用的只读比较库（生活、家庭、家油照料与周边）。普通 JSON 仅容忍 LF／CRLF 差异，仍核对字段顺序、空格与结尾换行；PNG 检查按字节比较，生成器仅在格式、模式、尺寸和像素完全一致时复用现有编码。三个道具包的网格生成器仅复用符号零（`-0.0`／`0.0`）等值的既有表示；其 Blockbench 模型按 JSON 内容比较，仅容忍顶点坐标不超过 `1e-15` 的计算尾差和内嵌 PNG 的等价编码。草麦食盆先核对预览图集裁切像素，再复用所选原始调色板字节。生活口部数据从圆润选用网格重新推导并对照选用记录；遗体物品模型从 `art/props/house-care/yukkuri_remains.item.json` 复制当前渲染配置。
 

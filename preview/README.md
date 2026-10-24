@@ -1,6 +1,6 @@
 # 预览与素材检查
 
-生成页面统一放在 `.local/previews/`，入口为 `.local/previews/index.html`；模型与声音查看器位于 `models/`。生成内容是离线演示，不修改游戏资源，也不运行游戏 AI。
+生成页面统一放在 `.local/previews/`，入口为 `.local/previews/index.html`；模型与声音查看器位于 `models/`。预览只读游戏资源，不运行游戏 AI。
 
 ## 生成与查看
 
@@ -11,37 +11,24 @@ python scripts/build_preview_hub.py --render
 python scripts/serve_review.py --port 8766
 ```
 
-`--render` 重建模型索引、缩略图、动作 GIF 和总览图；不带它可复用有效缓存。照料道具每次从当前运行网格与贴图重建，也可单独运行 `python scripts/build_preview_props.py`，输出到 `.local/previews/care-current/`。服务仅监听本机，不自动打开浏览器。手动访问 `http://127.0.0.1:8766/.local/previews/index.html`。单独更新模型索引可运行 `python scripts/build_review_catalog.py`。
-
-帽船分镜需要现有 Minecraft 资源 JAR 提供原版木棍、苹果贴图；依次运行以下命令后重建总览：
-
-```sh
-python standards/yukkuri-library/motions/variants/lore/aquatic_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
-python standards/yukkuri-library/motions/variants/lore/aquatic_family_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
-python standards/yukkuri-library/motions/variants/lore/first_voyage_preview.py --minecraft-resources PATH_TO_CLIENT_JAR --quick
-python standards/yukkuri-library/motions/variants/lore/hat_motion_preview.py --minecraft-resources PATH_TO_CLIENT_JAR
-python art/props/badges/preview.py
-python scripts/build_preview_hub.py --render
-```
-
-商店、徽章与宠物预览的完整生成顺序见[商店说明](../art/structures/human-world/README.md)：先生成 UI、动作分镜，再运行场景脚本。
+`--render` 强制重建模型缩略图；不带它可复用输入指纹一致的缓存。照料设施每次从当前打包网格与贴图重建。服务仅监听本机；手动访问 `http://127.0.0.1:8766/.local/previews/index.html`。页面效果由用户手工查看。
 
 ## 内容与边界
 
-集中入口按游戏系统分类，可搜索并筛选分镜、角色、动作、物品、声音和试玩入口。角色与动作直接打开模型播放器；物品区区分图标、网格、原生方块模型和外观分镜；试玩入口展示真实场地、观察要点和重试方式，不把场景登记当成行为验收。
+入口按游戏系统分类，可搜索、筛选角色、动作片段、物品、声音、试玩入口和预览缺口。基础网格、物品图标和真实场景效果分别标注；缺少实例渲染时明确留空，不用旧拼图、粒子贴图或通用动作替代。
 
-`preview/hub/categories.json` 是预览分类的唯一配置：主题归属、混合主题拆分、物品匹配规则、动作分类与专项图片入口在此维护。新增内容沿用现有规则自动归类，未匹配的内容保留在“其他内容”，并写入 `.local/reports/preview-library.json` 供整理；不静默丢弃。游戏规则与验收状态仍分别维护在所属专题和待办。
+`preview/hub/categories.json` 是分类配置：游戏系统、动作与物品匹配规则、专项预览缺口在此维护。游戏规则和验收状态仍分别在所属专题和待办维护。缺口说明只描述预览器覆盖范围，不代表玩法未实现。
 
-`build_preview_library.py` 随总入口生成 `library.json`：从运行形态登记读取模型，从模型与动作覆盖读取可播放动作，从有本地化名称的物品／方块模型读取展示资源，从 `museum_scenarios.S` 和场地定义读取试玩入口。刷怪蛋由角色目录承接，按身体分派的内部工具网格不列为独立物品，明确的兼容占位由分类配置排除。动作名称复用 `museum_actions`，额外行为动作的标签在分类配置补充。原生方块元素由 `preview_block_model.py` 离线转成渲染网格；依赖原版贴图时复用本机 `MCYUKKURI_VANILLA` 指向的缓存，仅复制所需图标到本地预览，不打入游戏资源。
+`build_preview_library.py` 从运行形态登记、物品注册和 `museum_scenarios.S` 建立目录。`preview_inventory.py` 读取当前 Java 注册形式（字面 ID、模块辅助方法和枚举），排除未注册的残留模型；旧存档兼容物品由分类配置排除。新增注册写法需扩展解析器，无法确认的本地化模型记入 `.local/reports/preview-library.json`。已注册但没有可用模型的物品保留为外观缺口。试玩入口直接读取场地和观察要点，不复制场景表。
 
-`preview/hub/recent.json` 保存专项分镜内容，不再决定首页的批次排列；纯图库自动转为可选择的静帧，缺失媒体不发布失效链接。专项图片仍需由各自制作源生成，重建入口不会刷新这些图片。`actions.json` 为离线动作指定角色、动作、道具和镜头；`childhood-life-actions.json` 保存幼年照料、爬跳及帽沿排泄分镜。场景路线只用于演示编排。
+动作目录只收录资源中存在且在非博物馆 Java 代码中找到字面引用的片段；无法解析的动态引用记入报告，不能据此认定游戏不使用该动作。片段存在或被引用都不等于完整行为已实现。单体播放器不模拟目标、碰撞、道具和身体状态附加渲染；捕食种、缩壳、家油片段分别选对应形态演示。角色支持旋转、线框、慢放、时间轴和逐帧查看；音频直接读取当前对白与声音登记。
 
-`build_preview_hub.py` 使用当前运行资源生成全部形态与声音索引，新登记形态自动收录，已移除形态不再展示。模型页支持旋转、线框、动作选择、慢放、时间轴和逐帧查看；声音页可按角色、场景和文字筛选播放。模型查询可用 `?model=marisa_tsumuri&action=shell_retract` 预选形态与动作。单体查看器不模拟多角色行为；多角色亲子、帽船与初航分镜由场景配置离线编排，不运行 Minecraft 碰撞、水流或救援 AI，因此不能证明游戏内行为自然触发。
+`recent.json` 只维护随总入口可靠重建的图片内容。生成器输出必须由 `build_preview_hub.py` 本次运行产生或按输入指纹校验，再进入允许发布的媒体集合；只有文件存在的旧图片和内嵌数据网页不再自动收录。接入新专项时同时接入其生成器、完整输入指纹和展示边界，再移除对应预览缺口。制作源和原始参考不随撤下展示而删除。
 
-没有专属动作的继任、库存变化等用状态图说明；对白可试听并显示字幕，纯字幕条目没有对应音频，捕食种字幕不表示新增配音。帽船剖视只展示帽沿下的身体和照料位置，游戏中的帽体仍完整。
-
-帽船动作页面模板为[hat_motion_preview.html](../standards/yukkuri-library/motions/variants/lore/hat_motion_preview.html)。`preview/hub/` 内的 `recent.json`、`actions.json`、`childhood-life-actions.json`、`shop-badge-pets-actions.json` 保存主题和动作配置；`index.html`、`shop-badge-pets.html`、CSS 与 JS 是页面源。模型/声音索引由 `scripts/build_review_catalog.py` 从运行资源生成。
+`actions.json`、`childhood-life-actions.json` 等旧离线编排仍可用于制作参考，但总入口不再生成或发布这些场景，避免用安排好的动作路线代表现有行为。专项制作方法在各制作源说明维护；重新生成旧脚本产物本身不代表可以恢复为当前场景。实际玩法统一通过仓库根目录的“启动动作博物馆.cmd”观察。
 
 ## 缓存与本地意见
 
-`build_preview_actions.py` 按模型几何、贴图和动作指纹复用动作缓存；模型缩略图按索引、渲染器和贴图指纹复用，指纹记录在 `.local/previews/_work/model-preview.sha256`。物品网格缩略图按网格、贴图与渲染脚本指纹复用，放在 `.local/previews/library/items/`；原生方块预览每次重建。临时栅格与任务文件放 `_work/`；各主题输出放 `.local/previews/<主题>/`。素材检查意见保存在当前浏览器本地，并按源资源指纹区分；导出 JSON 供讨论，不会改变游戏资源或标准素材认可状态。
+模型缩略图按索引、渲染器和贴图指纹复用，记录在 `.local/previews/_work/model-preview.sha256`。物品基础网格按网格、贴图与渲染脚本指纹复用，放在 `library/items/`；原生方块元素由 `preview_block_model.py` 每次重建。依赖原版贴图时读取本机 `MCYUKKURI_VANILLA` 缓存，只复制所需图标到本地预览，不打入游戏资源。
+
+分类缺口、未确认的动作／物品资源和缺失渲染输入写入 `.local/reports/preview-library.json`。模型检查意见保存在当前浏览器，按资源指纹区分；导出 JSON 不改变游戏资源或标准素材认可状态。
