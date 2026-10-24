@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 预览对白入口核对 | `.worktrees/preview-validity` | `preview/hub/recent.json` |
 | 露核创腔发面通道修正 | `.worktrees/wound-core-hair-channel` | `body/BodyCavity.java`、`drafts/body-marks/hair-wounds/author.cjs`、伤口预览与文档 |
 | 宠物照料用品美术重做（食盆及填充、软垫窝、编织大窝、厕所） | `.worktrees/pet-goods-art` | `drafts/care-props/vanilla_props.py`、`voxel.py`、`food-bowl`／`runtime-peripheral`／`care-expansion`／`large-nests` 快照与导出 |
 | 野生巢与储粮堆美术重做（个人叶巢、野生大窝、叶床、陆上与帽船储粮堆） | `.worktrees/wild-nest-art` | `drafts/care-props/wild.py`、`designs.py`、`cargo.py`、`art/props/wild-shelters/`、`hat_cargo_layout.json` |
