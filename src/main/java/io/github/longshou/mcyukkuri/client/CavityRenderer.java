@@ -137,7 +137,7 @@ final class CavityRenderer {
             // Retain the real damaged-core contrast, within the selected ordinary
             // filling palette. An intact core has no independent shell or outline.
             var p=vertices.get(start+i).rest;
-            int cell=Math.floor(p.x*6+p.y*10+p.z*14);
+            int cell=(int)Math.floor(p.x*6+p.y*10+p.z*14);
             float grain=.94f+.06f*Math.floorMod(cell,3);
             float shade=broken?Math.clamp((damage[i]+damage[i+1]+damage[i+2]+1)/(colours[i]+colours[i+1]+colours[i+2]+1),.35f,1.1f):1;
             float tone=HairWoundAssets.coreDensity*grain*shade;
