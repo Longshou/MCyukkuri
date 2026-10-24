@@ -58,14 +58,14 @@ NICKS = {(12, True): 1.8, (13, True): 1.2, (23, False): 1.5}   # irregular bites
 
 def half_width(x, top):
     """Blade half width above (top) or below the midrib at column x: a rounded base, broadest a little before the middle (the
-    part that lies under the body), tapering to a point at x 31; teeth every third column and a few irregular bites."""
+    part that lies under the body), tapering to a point at x 31; a tooth standing a pixel proud every fourth column and a few irregular bites."""
     t = (x - BLADE0 + .5) / (32 - BLADE0)
     if t <= 0 or t >= 1:
         return -1
     shape = math.sin(math.pi * t ** .82) ** .7 * (1 - .4 * max(0, t - .66) / .34)
     w = (12.6 if top else 12.2) * shape + (.5 if top else -.4) * (t - .5)
     if (x + (0 if top else 2)) % 4 == 0 and .06 < t < .95:
-        w -= .8
+        w += 1.0                                                # teeth stand one pixel proud of the margin
     return w - NICKS.get((x, top), 0)
 
 
@@ -149,11 +149,11 @@ def tile(draw):
     return img
 
 
-KNIT = ["0341", "0431", "0341", "0431"]           # knit rib: a dark purl gap, then two light legs leaning into a V, repeating down the column
+KNIT = ["3434", "2323", "4343", "1212"]           # fine garter knit: soft horizontal ridges with small offset stitch bumps
 
 
 def knit(x, y):
-    return grey((214, 232, 242, 250, 255)[int(KNIT[y % 4][x % 4])])
+    return grey((226, 236, 244, 250, 255)[int(KNIT[y % 4][x % 4])])
 
 
 def cotton(x, y):

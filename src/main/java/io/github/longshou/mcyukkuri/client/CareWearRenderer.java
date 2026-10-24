@@ -35,45 +35,56 @@ final class CareWearRenderer {
     /** Lowest edge of every shell, as a fraction of the body height. */
     private static final float CUP_BASE = .015f;
     /** Nothing worn rises above this height fraction at the front, so the mouth stays free; a front bow is centred no higher than BOW_AT. */
-    private static final float MOUTH_GUARD = .21f, BOW_AT = .12f;
+    private static final float MOUTH_GUARD = .22f, BOW_AT = .11f;
     /** Height window (fraction of the body height) of radiusNear's fallback, and the height below which radiusLow does without it. */
     private static final float NEAR_WINDOW = .05f, LOW = .1f;
-    /** Fabric texels per model unit (16 units per block); every fabric tile is 16 texels. */
-    private static final float FABRIC_DENSITY = 2;
+    /** Fabric texels per model unit (16 units per block), the same density as the placed care props; every fabric tile is 16 texels. */
+    private static final float FABRIC_DENSITY = 1;
 
     // ---- cloth swaddle styles (order of item.SwaddleStyle) ----------------------------------------------------------------
     private static final int ROLL = 0, FRILL = 1, HEM = 2;
     private static final int PLAIN = 0, LETTER = 1, MARK = 2, OUTING = 3, POMPOMS = 4;
     /**
-     * One style: body fabric tile and colour, rim fabric and colour, accent (hem under the roll, crossover edge, lace frill), trim colour
-     * (bow, pompoms, letter), rim kind, crossover front flap, fixture, rim height at the back and the front, bag puff and rim size (fractions
-     * of the body height). Colours multiply the near-white tiles; patterned tiles take white.
+     * One style: body fabric tile and colour, rim fabric and colour, accent (piping under the cuff, crossover edge, lace frill), trim colour
+     * (bow, pompoms, letter), rim kind, crossover front flap, fixture, rim height at the back and the front, extra bulge of the bag and
+     * the cuff's thickness (fractions of the body height). Colours multiply the near-white tiles; patterned tiles take white.
      */
     private record Style(ResourceLocation fabric, int[] body, ResourceLocation rollFabric, int[] roll, int[] accent, int[] trim, int rim,
                          boolean crossover, int fixture, float back, float front, float puff, float rollSize) {}
     private static final int[] WHITE = {255, 255, 255};
     private static final Style[] STYLES = {
-            // knit: cream stockinette, pink-hemmed rolled cuff, crossover flap tied with a pink bow (project design)
-            new Style(fabric("knit"), rgb(255, 250, 240), fabric("knit"), rgb(255, 250, 240), rgb(242, 176, 198), rgb(240, 136, 168), ROLL, true, PLAIN, .50f, .19f, .025f, .018f),
-            // frill: pink bag, white lace frill, red bow at the front (EH30)
-            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .48f, .19f, .03f, .012f),
+            // knit: cream knit, thick cuff piped in pink, a crossover flap tied with a pink bow (project design)
+            new Style(fabric("knit"), rgb(255, 250, 240), fabric("knit"), rgb(255, 250, 240), rgb(242, 176, 198), rgb(240, 136, 168), ROLL, true, PLAIN, .55f, .20f, .04f, .13f),
+            // frill: pink bag, white lace frill, red bow at the front (EH30's look only)
+            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .52f, .20f, .05f, .07f),
             // letter: red bag with a frilled collar and the wearer's white initial on the back (EH34 p.7-8)
-            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .50f, .19f, .03f, .012f),
-            // tiger: striped lower piece with a fluffy cuff and the tiger mark (EH34 p.12-14; the hood is not made)
-            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 244, 226), null, null, ROLL, false, MARK, .50f, .19f, .03f, .024f),
-            // outing: light cloth with a rubber sole, a strap and a pouch (EH31 p.2)
-            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, HEM, false, OUTING, .46f, .19f, .02f, .012f),
-            // fleece: thick, higher winter wrap with pompom ties (N91's cold-season wear; the shape is project design)
-            new Style(fabric("fleece"), rgb(226, 206, 176), fabric("fleece"), rgb(242, 228, 206), null, rgb(198, 96, 78), ROLL, false, POMPOMS, .56f, .20f, .05f, .045f),
-            // gingham: blue checks, white cuff with a navy hem, crossover flap and navy bow (project design)
-            new Style(fabric("gingham"), WHITE, fabric("cotton"), WHITE, rgb(70, 96, 170), rgb(70, 96, 170), ROLL, true, PLAIN, .50f, .19f, .025f, .018f),
-            // floral: cream with small flowers, pale green cuff, crossover flap and green bow (project design)
-            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), ROLL, true, PLAIN, .50f, .19f, .025f, .018f)};
+            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .55f, .20f, .05f, .07f),
+            // tiger: striped lower piece with a fluffy cuff and the tiger mark front and back (EH34 p.12-14; the eared hood is not made)
+            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 244, 226), null, null, ROLL, false, MARK, .55f, .20f, .04f, .13f),
+            // outing: light cloth with a navy piped edge, a rubber sole, a strap and a pouch (EH31 p.2)
+            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, HEM, false, OUTING, .50f, .20f, .03f, .07f),
+            // fleece: thick, higher winter wrap, crossover flap and pompom ties at the sides (N91's cold-season wear; the shape is project design)
+            new Style(fabric("fleece"), rgb(226, 206, 176), fabric("fleece"), rgb(242, 228, 206), rgb(242, 228, 206), rgb(198, 96, 78), ROLL, true, POMPOMS, .60f, .19f, .07f, .15f),
+            // gingham: blue checks, white cuff piped in navy, crossover flap and navy bow (project design)
+            new Style(fabric("gingham"), WHITE, fabric("cotton"), WHITE, rgb(70, 96, 170), rgb(70, 96, 170), ROLL, true, PLAIN, .55f, .20f, .04f, .12f),
+            // floral: cream with small flowers, pale green cuff piped in green, crossover flap and green bow (project design)
+            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), ROLL, true, PLAIN, .55f, .20f, .04f, .12f)};
     /**
-     * The crossover flap at the front left: start angle and sweep (radians) at the bottom, lapping towards the front; its leading edge
-     * slants back by SEAM_SLANT of the sweep at the top, so it shows as a diagonal hemmed edge with the bow at its top.
+     * Every bag stands SHELL_OUT of the body height clear of it (less at the ground, so the bottom rounds in) plus the style's bulge, which is
+     * fullest in the lower half: a padded wrap, not a sleeve.
      */
-    private static final float SEAM_AT = -2.65f, SEAM_SWEEP = 1.2f, SEAM_SLANT = .6f;
+    private static final float SHELL_OUT = .12f;
+    /**
+     * The crossover flap: one panel wrapped round from the back left (SEAM_AT) over the left flank and across the front; its leading edge
+     * runs diagonally from low at the front right up to the rim beside the left cheek (SEAM_SLANT of the sweep back at the top), where
+     * the bow ties it, and stands FLAP_LIFT proud of the bag.
+     */
+    private static final float SEAM_AT = -4.0f, SEAM_SWEEP = 3.03f, SEAM_SLANT = .53f, FLAP_LIFT = .08f;
+    /** Cross-section of the cuff tube (radians from outwards, upwards positive), and how many of its first segments take the accent. */
+    private static final float[] TUBE = {-1.75f, -1.05f, -.45f, .15f, .75f, 1.35f, 2.4f};
+    private static final int PIPING = 2;
+    /** Which way round from its leading edge the flap lies (+1: towards larger angles). */
+    private static final float FLAP_SIDE = Math.signum(SEAM_SWEEP) * -1;
     /** Trim sheet rectangles in texels of the 64x64 sheet: {x, y, w, h}. */
     private static final float[] FRILL_UV = {0, 0, 16, 8}, BOW_UV = {16, 0, 16, 12}, MARK_UV = {32, 0, 16, 16}, POUCH_UV = {48, 0, 16, 16},
             POMPOM_UV = {0, 8, 8, 8}, SOLE_UV = {8, 8, 8, 8}, STRAP_UV = {0, 16, 8, 8};
@@ -85,14 +96,15 @@ final class CareWearRenderer {
      * The leaf laid as a diaper, as fractions of the body height: the blade base sits at the anus on the back (LEAF_BACK), the petiole
      * rises STALK above it and stands STALK_OUT off the body; the blade runs down the back, under the body and up the front to LEAF_FRONT,
      * over the front outlet and under the mouth. LEAF_HALF is the half width of the leaf texture across the body; the margins curl out by
-     * CURL. U_* split the texture along the leaf: petiole, blade on the back, under the body (its broadest part), blade on the front.
+     * CURL and rise by RISE towards the sides, so the leaf cups the bottom and shows on the flanks. U_* split the texture along the leaf:
+     * petiole, blade on the back, under the body, blade on the front (its broadest part low on the front).
      */
-    private static final float LEAF_BACK = .32f, LEAF_FRONT = .21f, STALK = .12f, STALK_OUT = .015f, LEAF_HALF = .70f, CURL = .012f;
-    private static final float U_STALK = 5 / 32f, U_UNDER = .45f, U_FRONT = .64f;
+    private static final float LEAF_BACK = .32f, LEAF_FRONT = .22f, STALK = .14f, STALK_OUT = .04f, LEAF_HALF = 1.05f, CURL = .01f, RISE = .22f;
+    private static final float U_STALK = 5 / 32f, U_UNDER = .40f, U_FRONT = .50f;
     /** Rows of the leaf grid per part (petiole, back, under, front) and columns across; the widest angle a margin wraps round the body. */
     private static final int STALK_ROWS = 2, BACK_ROWS = 5, UNDER_ROWS = 3, FRONT_ROWS = 5, ACROSS = 8;
     private static final int LEAF_ROWS = STALK_ROWS + BACK_ROWS + UNDER_ROWS + FRONT_ROWS;
-    private static final float MAX_WRAP = 1.25f;
+    private static final float MAX_WRAP = 1.6f;
     /** Texture v height of the leaf cell, and the offset from the clean leaf to its stool-stained copy. */
     private static final float CELL_V = .5f, STAINED_V = .5f;
     /** Stool loads the wear bits can show; at this many the base gets its brown blotch. */
@@ -110,8 +122,8 @@ final class CareWearRenderer {
     private static final float[] GRID = new float[(LEAF_ROWS + 1) * (ACROSS + 1) * 4];
     /** Hull radius per height cell (lower half of the body) and bin, rebuilt for each leaf wrap. */
     private static final float[][] NEAR = new float[CELLS / 2][BINS];
-    /** Cloth surface of the current swaddle: inset and puff (model units) and one point scratch. */
-    private static float clothInset, clothPuff;
+    /** Cloth surface of the current swaddle: inset, shell offset and bulge (model units), the angle leafPoint last used, point scratch. */
+    private static float clothInset, clothShell, clothPuff, leafAngle;
     private static final float[] PT = new float[3], PT2 = new float[3];
 
     /** Direction of each bin centre. */
@@ -314,10 +326,10 @@ final class CareWearRenderer {
         }
     }
 
-    /** Top edge of a cup at an angle: high at the back and sides, low at the front (-pi/2), smoothstep between. */
+    /** Top edge of a cup at an angle: high at the back and sides, low at the front (-pi/2), rising to the cheeks beside the face. */
     private static float rim(float angle, float front, float back) {
         float away = Math.abs((float) Math.atan2(Math.sin(angle + Math.PI / 2), Math.cos(angle + Math.PI / 2)));
-        float s = Math.clamp((away - .45f) / 1.65f, 0f, 1f);
+        float s = Math.clamp((away - .3f) / 1.25f, 0f, 1f);
         return front + (back - front) * s * s * (3 - 2 * s);
     }
 
@@ -370,8 +382,11 @@ final class CareWearRenderer {
 
     // ---- cloth swaddle ---------------------------------------------------------------------------------------------------
 
-    /** Puff of the bag at ring fraction u (0 base .. 1 rim): fullest at mid height, a little at the base and under the cuff. */
-    private static float puffAt(float u) { return clothPuff * (float) Math.sin(Math.PI * (.12f + .76f * u)); }
+    /** How far the bag stands off the body at ring fraction u (0 base .. 1 rim): drawn in at the ground, full above, bulging in the lower half. */
+    private static float puffAt(float u) {
+        float t = Math.min(1, u / .35f);
+        return clothShell * (.45f + .55f * t * t * (3 - 2 * t)) + clothPuff * (float) Math.sin(Math.PI * Math.min(1, u / .7f));
+    }
 
     /** Rim height fraction at a continuous angle, between the neighbouring bins. */
     private static float topAt(float angle) {
@@ -407,15 +422,16 @@ final class CareWearRenderer {
     private static float seamLead(int k) { return SEAM_AT + SEAM_SWEEP * (1 - SEAM_SLANT * k / (RINGS - 1)); }
 
     /**
-     * The cloth swaddle in three passes (one texture each): the bag and its crossover flap in the style's fabric; the rim (rolled cuff, plain
-     * hem) and the flap's hemmed edge in the rim fabric; then the trim sheet's lace frill, bow and fixtures. Every ring radius comes from the
-     * profile at that ring's height, so the bag hugs every form and growth stage; the fabric runs around the body by arc length (rounded to
-     * whole tiles so the seam closes) and up by height at FABRIC_DENSITY texels per model unit.
+     * The cloth swaddle in three passes (one texture each): the padded bag, the shadow under the cuff and the crossover flap with its edge
+     * and shadow in the style's fabric; the round cuff tube (piped with the accent), and the flap's hemmed edge, in the rim fabric; then the
+     * trim sheet's lace frill, bow and fixtures. Every ring radius comes from the profile at that ring's height plus the bag's offset, so
+     * the bag follows every form and growth stage; the fabric runs around the body by arc length (rounded to whole tiles so the seam
+     * closes) and up by height at FABRIC_DENSITY texels per model unit.
      */
     private static void swaddle(MultiBufferSource buffers, PoseStack.Pose pose, Style style, int letter, float cx, float cz, float minY, float h,
                                 float out, int light, int overlay) {
         if (!rings(style.front, style.back)) return;
-        clothInset = out * .6f; clothPuff = style.puff * h;
+        clothInset = out * .6f; clothShell = SHELL_OUT * h; clothPuff = style.puff * h;
         // arc length around the middle ring sets u, so every ring shares the same columns of the pattern
         ARC[0] = 0;
         for (int i = 0; i < BINS; i++) {
@@ -423,102 +439,109 @@ final class CareWearRenderer {
             float[] c = clothPoint(ringF(angle((i + 1) % BINS), 2), angle((i + 1) % BINS), 0, cx, cz, minY, h, PT2);
             ARC[i + 1] = ARC[i] + (float) Math.hypot(c[0] - p0x[0], c[2] - p0x[1]);
         }
-        float tiles = Math.max(1, Math.round(ARC[BINS] * FABRIC_DENSITY)), uScale = tiles / Math.max(1e-4f, ARC[BINS]), vScale = FABRIC_DENSITY;
+        float tiles = Math.max(1, Math.round(ARC[BINS] * 16 * FABRIC_DENSITY / 16)), uScale = tiles / Math.max(1e-4f, ARC[BINS]), vScale = 16 * FABRIC_DENSITY / 16;
+        float roll = style.rollSize * h, under = style.rollSize * .7f;
+        int[] shade = {style.body[0] * 7 / 10, style.body[1] * 7 / 10, style.body[2] * 7 / 10};
         var b = buffers.getBuffer(RenderType.entityCutoutNoCull(style.fabric));
         for (int i = 0; i < BINS; i++) {
             int j = (i + 1) % BINS;
-            float am = (angle(i) + angle(j)) / 2 + (j == 0 ? (float) Math.PI : 0), nx = (float) Math.cos(am), nz = (float) Math.sin(am);
+            float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0), nx = (float) Math.cos(am), nz = (float) Math.sin(am);
             float u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale;
-            for (int k = 0; k + 1 < RINGS; k++) {
+            for (int k = 0; k + 1 < RINGS; k++)
                 clothQuad(b, pose, style.body, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale,
-                        angle(i), ringF(angle(i), k), u0, angle(j), ringF(angle(j), k), u1, angle(j), ringF(angle(j), k + 1), u1, angle(i), ringF(angle(i), k + 1), u0, 0);
-            }
+                        ai, ringF(ai, k), u0, aj, ringF(aj, k), u1, aj, ringF(aj, k + 1), u1, ai, ringF(ai, k + 1), u0, 0, 0);
+            // the cuff's shadow on the bag just under it
+            clothQuad(b, pose, shade, light, overlay, nx, 0, nz, cx, cz, minY, h, vScale, ai, TOP[i] - under - .04f, u0, aj, TOP[j] - under - .04f, u1,
+                    aj, TOP[j] - under, u1, ai, TOP[i] - under, u0, .002f * h, .002f * h);
         }
-        // the crossover flap: its free end laps over the bag towards the front, the leading edge running diagonally
-        float lift = .014f * h, edge = .10f, meanR = ARC[BINS] / (float) (2 * Math.PI);
-        if (style.crossover) for (int k = 0; k + 1 < RINGS; k++) {
-            float leadA = seamLead(k), leadB = seamLead(k + 1);
-            for (int s = 0; s < 4; s++) {
-                float a0 = SEAM_AT + (leadA - edge - SEAM_AT) * s / 4f, a1 = SEAM_AT + (leadA - edge - SEAM_AT) * (s + 1) / 4f;
-                float c0 = SEAM_AT + (leadB - edge - SEAM_AT) * s / 4f, c1 = SEAM_AT + (leadB - edge - SEAM_AT) * (s + 1) / 4f;
-                float am = (a0 + a1 + c0 + c1) / 4;
-                clothQuad(b, pose, style.body, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
-                        a0, ringF(a0, k), .37f + a0 * meanR * uScale, a1, ringF(a1, k), .37f + a1 * meanR * uScale,
-                        c1, ringF(c1, k + 1), .37f + c1 * meanR * uScale, c0, ringF(c0, k + 1), .37f + c0 * meanR * uScale, lift);
-            }
-        }
-        // the shadow the flap's edge casts on the bag, a narrow darker strip just past the leading edge
+        // the crossover flap: lapped across the front from the left side, standing proud of the bag and thinning to it at its far end
+        float lift = FLAP_LIFT * h, edge = .16f, meanR = ARC[BINS] / (float) (2 * Math.PI);
         if (style.crossover) {
-            int[] shade = {style.body[0] * 3 / 4, style.body[1] * 3 / 4, style.body[2] * 3 / 4};
+            int steps = 8;
             for (int k = 0; k + 1 < RINGS; k++) {
-                float leadA = seamLead(k), leadB = seamLead(k + 1), am = leadA + .03f;
+                float leadA = seamLead(k), leadB = seamLead(k + 1);
+                for (int s = 0; s < steps; s++) {
+                    float a0 = SEAM_AT + (leadA - SEAM_AT) * s / steps, a1 = SEAM_AT + (leadA - SEAM_AT) * (s + 1) / steps;
+                    float c0 = SEAM_AT + (leadB - SEAM_AT) * s / steps, c1 = SEAM_AT + (leadB - SEAM_AT) * (s + 1) / steps;
+                    float am = (a0 + a1 + c0 + c1) / 4, la = lift * Math.min(1, s / 3f), lb = lift * Math.min(1, (s + 1) / 3f);
+                    clothQuad(b, pose, style.body, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
+                            a0, ringF(a0, k), .37f + a0 * meanR * uScale, a1, ringF(a1, k), .37f + a1 * meanR * uScale,
+                            c1, ringF(c1, k + 1), .37f + c1 * meanR * uScale, c0, ringF(c0, k + 1), .37f + c0 * meanR * uScale, la, lb);
+                }
+                // the flap's cut edge down to the bag, and the shadow it casts past the edge
+                int[] side = {style.body[0] * 3 / 4, style.body[1] * 3 / 4, style.body[2] * 3 / 4};
+                float am = (leadA + leadB) / 2 - FLAP_SIDE * .2f;
+                clothQuad(b, pose, side, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
+                        leadA, ringF(leadA, k), 0, leadA, ringF(leadA, k), .1f, leadB, ringF(leadB, k + 1), .1f, leadB, ringF(leadB, k + 1), 0, lift, .001f * h);
                 clothQuad(b, pose, shade, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), cx, cz, minY, h, vScale,
-                        leadA, ringF(leadA, k), 0, leadA + .06f, ringF(leadA + .06f, k), .1f, leadB + .06f, ringF(leadB + .06f, k + 1), .1f,
-                        leadB, ringF(leadB, k + 1), 0, lift * .3f);
+                        leadA, ringF(leadA, k), 0, leadA - FLAP_SIDE * .18f, ringF(leadA - FLAP_SIDE * .18f, k), .1f,
+                        leadB - FLAP_SIDE * .18f, ringF(leadB - FLAP_SIDE * .18f, k + 1), .1f,
+                        leadB, ringF(leadB, k + 1), 0, .002f * h, .002f * h);
             }
         }
-        // the rim and the flap's hemmed edge
+        // the cuff: a round tube along the rim, its lower segments piped with the accent; then the flap's hemmed edge
         b = buffers.getBuffer(RenderType.entityCutoutNoCull(style.rollFabric));
-        float roll = style.rollSize * h;
+        float tube = roll * .5f;
         for (int i = 0; i < BINS; i++) {
             int j = (i + 1) % BINS;
             float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0), nx = (float) Math.cos(am), nz = (float) Math.sin(am);
             float u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale;
             float[] p = clothPoint(TOP[i], ai, 0, cx, cz, minY, h, PT), q = clothPoint(TOP[j], aj, 0, cx, cz, minY, h, PT2);
-            float ri = (float) Math.hypot(p[0] - cx, p[2] - cz), rj = (float) Math.hypot(q[0] - cx, q[2] - cz), yi = p[1], yj = q[1];
-            if (style.rim == HEM) {
-                float band = .05f * h, o = .006f * h;
-                ring(b, pose, style.roll, light, overlay, nx, 0, nz, u0, u1, .1f, .5f, cx, cz, ai, aj, ri, yi - band - .01f * h, rj, yj - band - .01f * h, ri + o, yi - band, rj + o, yj - band);
-                ring(b, pose, style.roll, light, overlay, nx, 0, nz, u0, u1, .5f, .9f, cx, cz, ai, aj, ri + o, yi - band, rj + o, yj - band, ri + o, yi, rj + o, yj);
-                ring(b, pose, style.roll, light, overlay, nx * .5f, .85f, nz * .5f, u0, u1, .9f, 1f, cx, cz, ai, aj, ri + o, yi, rj + o, yj, ri - .02f * h, yi + .006f * h, rj - .02f * h, yj + .006f * h);
-                continue;
+            float ri = (float) Math.hypot(p[0] - cx, p[2] - cz) + tube, rj = (float) Math.hypot(q[0] - cx, q[2] - cz) + tube;
+            float yi = p[1] - .2f * roll, yj = q[1] - .2f * roll;
+            for (int t = 0; t + 1 < TUBE.length; t++) {
+                float c0 = (float) Math.cos(TUBE[t]), s0 = (float) Math.sin(TUBE[t]), c1 = (float) Math.cos(TUBE[t + 1]), s1 = (float) Math.sin(TUBE[t + 1]);
+                float mid = (TUBE[t] + TUBE[t + 1]) / 2, mc = (float) Math.cos(mid);
+                int[] tint = t < PIPING && style.rim == ROLL && style.accent != null ? style.accent : style.roll;
+                ring(b, pose, tint, light, overlay, nx * mc, (float) Math.sin(mid), nz * mc, u0, u1, t / 8f, (t + 1) / 8f, cx, cz, ai, aj,
+                        ri + tube * c0, yi + tube * s0, rj + tube * c0, yj + tube * s0, ri + tube * c1, yi + tube * s1, rj + tube * c1, yj + tube * s1);
             }
-            float ro = roll * .5f, inward = .03f * h, rise = Math.max(.012f * h, roll * .6f);
-            if (style.rim == ROLL && style.accent != null) {
-                float hem = .03f * h, e = .002f * h;
-                ring(b, pose, style.accent, light, overlay, nx, 0, nz, u0, u1, .5f, .6f, cx, cz, ai, aj, ri + ro + e, yi - roll - hem, rj + ro + e, yj - roll - hem, ri + ro + e, yi - roll, rj + ro + e, yj - roll);
-            } else ring(b, pose, style.roll, light, overlay, nx, -.5f, nz, u0, u1, .6f, .7f, cx, cz, ai, aj, ri, yi - roll * 1.6f, rj, yj - roll * 1.6f, ri + ro, yi - roll, rj + ro, yj - roll);
-            ring(b, pose, style.roll, light, overlay, nx, 0, nz, u0, u1, 0, .2f, cx, cz, ai, aj, ri + ro, yi - roll, rj + ro, yj - roll, ri + ro, yi, rj + ro, yj);
-            ring(b, pose, style.roll, light, overlay, nx * .5f, .85f, nz * .5f, u0, u1, .2f, .3f, cx, cz, ai, aj, ri + ro, yi, rj + ro, yj, ri - inward, yi + rise, rj - inward, yj + rise);
         }
         if (style.crossover && style.accent != null) for (int k = 0; k + 1 < RINGS; k++) {
             float leadA = seamLead(k), leadB = seamLead(k + 1), hemLift = lift + .003f * h, nx = (float) Math.cos(leadA), nz = (float) Math.sin(leadA);
-            float[] a0 = clothPoint(ringF(leadA - edge, k), leadA - edge, hemLift, cx, cz, minY, h, new float[3]), a1 = clothPoint(ringF(leadA, k), leadA, hemLift, cx, cz, minY, h, new float[3]);
-            float[] b1 = clothPoint(ringF(leadB, k + 1), leadB, hemLift, cx, cz, minY, h, new float[3]), b0 = clothPoint(ringF(leadB - edge, k + 1), leadB - edge, hemLift, cx, cz, minY, h, new float[3]);
+            float ea = leadA + FLAP_SIDE * edge, eb = leadB + FLAP_SIDE * edge;
+            float[] a0 = clothPoint(ringF(ea, k), ea, hemLift, cx, cz, minY, h, new float[3]), a1 = clothPoint(ringF(leadA, k), leadA, hemLift, cx, cz, minY, h, new float[3]);
+            float[] b1 = clothPoint(ringF(leadB, k + 1), leadB, hemLift, cx, cz, minY, h, new float[3]), b0 = clothPoint(ringF(eb, k + 1), eb, hemLift, cx, cz, minY, h, new float[3]);
             quad(b, pose, style.accent, light, overlay, nx, 0, nz, 0, .5f, .2f, .5f, .2f, .6f, 0, .6f, a0, a1, b1, b0);
         }
         // trim: lace frill, bow and fixtures
         b = buffers.getBuffer(RenderType.entityCutoutNoCull(TRIM));
         if (style.rim == FRILL) frill(b, pose, style, cx, cz, minY, h, roll, light, overlay);
         if (style.fixture == PLAIN && style.trim != null) {
-            float a = style.crossover ? seamLead(RINGS - 1) : (float) (-Math.PI / 2), bowH = .22f * h;
-            float f = Math.min(topAt(a) - .02f, BOW_AT);
-            bow(b, pose, style.trim, light, overlay, clothPoint(f, a, (style.rim == FRILL ? .075f : .022f) * h, cx, cz, minY, h, PT), a, .30f * h, bowH);
+            float a = style.crossover ? seamLead(RINGS - 1) + FLAP_SIDE * .15f : (float) (-Math.PI / 2);
+            float f = style.crossover ? topAt(a) - under - .08f : BOW_AT, bowLift = style.crossover ? FLAP_LIFT + .02f : .11f;
+            bow(b, pose, style.trim, light, overlay, clothPoint(f, a, bowLift * h, cx, cz, minY, h, PT), a, .30f * h, .22f * h);
         }
         switch (style.fixture) {
             case LETTER -> decal(b, pose, style.trim, light, overlay, LETTERS_X + letter % 8 * 8, LETTERS_Y + letter / 8 * 8, 8, 8,
-                    (float) Math.PI / 2, .21f, .13f * h, .13f, .008f * h, cx, cz, minY, h);
-            case MARK -> decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) Math.PI / 2, .21f, .13f * h, .13f, .008f * h, cx, cz, minY, h);
+                    (float) Math.PI / 2, .26f, .15f * h, .15f, .008f * h, cx, cz, minY, h);
+            case MARK -> {
+                decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) Math.PI / 2, .26f, .15f * h, .15f, .008f * h, cx, cz, minY, h);
+                decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) (-Math.PI / 2), .065f, .055f * h, .055f, .008f * h, cx, cz, minY, h);
+            }
             case OUTING -> outing(b, pose, cx, cz, minY, h, light, overlay);
             case POMPOMS -> {
-                for (float side : new float[]{-.3f, .3f}) {
+                for (float side : new float[]{-1.15f, 1.15f}) {
                     float a = (float) (-Math.PI / 2) + side;
-                    cube(b, pose, style.trim, light, overlay, clothPoint(BOW_AT, a, .07f * h, cx, cz, minY, h, PT), .065f * h, POMPOM_UV);
+                    cube(b, pose, style.trim, light, overlay, clothPoint(topAt(a) - under - .06f, a, .06f * h, cx, cz, minY, h, PT), .055f * h, POMPOM_UV);
                 }
             }
             default -> { }
         }
     }
 
-    /** One fabric quad between four (angle, height fraction) points on the cloth, its texture u given and v from the height. */
+    /**
+     * One fabric quad between four (angle, height fraction) points on the cloth, its texture u given and v from the height; the first and
+     * last corner stand liftA off the bag, the middle two liftB.
+     */
     private static void clothQuad(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
                                   float cx, float cz, float minY, float h, float vScale, float a0, float f0, float u0, float a1, float f1, float u1,
-                                  float a2, float f2, float u2, float a3, float f3, float u3, float lift) {
+                                  float a2, float f2, float u2, float a3, float f3, float u3, float liftA, float liftB) {
         float[] p = PT;
-        clothPoint(f0, a0, lift, cx, cz, minY, h, p); vertex(b, pose, c, u0, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
-        clothPoint(f1, a1, lift, cx, cz, minY, h, p); vertex(b, pose, c, u1, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
-        clothPoint(f2, a2, lift, cx, cz, minY, h, p); vertex(b, pose, c, u2, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
-        clothPoint(f3, a3, lift, cx, cz, minY, h, p); vertex(b, pose, c, u3, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(f0, a0, liftA, cx, cz, minY, h, p); vertex(b, pose, c, u0, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(f1, a1, liftB, cx, cz, minY, h, p); vertex(b, pose, c, u1, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(f2, a2, liftB, cx, cz, minY, h, p); vertex(b, pose, c, u2, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
+        clothPoint(f3, a3, liftA, cx, cz, minY, h, p); vertex(b, pose, c, u3, -(p[1] - minY) * vScale, light, overlay, nx, ny, nz, p[0], p[1], p[2]);
     }
 
     /** A rim quad between angles ai and aj: the bottom edge at radii/heights (r0, y0) and the top edge at (r2, y2) of each side. */
@@ -533,7 +556,7 @@ final class CareWearRenderer {
     }
 
     /**
-     * The lace frill under the cuff: one scallop of the trim sheet per angle bin, from just under the rim out and down; every other bin
+     * The lace frill under the cuff tube: one scallop of the trim sheet per angle bin, from under the tube out and down; every other bin
      * stands a little further out so the lace ruffles.
      */
     private static void frill(VertexConsumer b, PoseStack.Pose pose, Style style, float cx, float cz, float minY, float h, float roll, int light, int overlay) {
@@ -542,8 +565,8 @@ final class CareWearRenderer {
             int j = (i + 1) % BINS;
             float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0);
             float[] p = clothPoint(TOP[i], ai, 0, cx, cz, minY, h, PT), q = clothPoint(TOP[j], aj, 0, cx, cz, minY, h, PT2);
-            float ri = (float) Math.hypot(p[0] - cx, p[2] - cz) + roll * .5f, rj = (float) Math.hypot(q[0] - cx, q[2] - cz) + roll * .5f;
-            float yi = p[1] - roll * .6f, yj = q[1] - roll * .6f, oi = reach + (i % 2 == 0 ? .014f : -.004f) * h, oj = reach + (j % 2 == 0 ? .014f : -.004f) * h;
+            float ri = (float) Math.hypot(p[0] - cx, p[2] - cz) + roll * .4f, rj = (float) Math.hypot(q[0] - cx, q[2] - cz) + roll * .4f;
+            float yi = p[1] - roll * .7f, yj = q[1] - roll * .7f, oi = reach + (i % 2 == 0 ? .014f : -.004f) * h, oj = reach + (j % 2 == 0 ? .014f : -.004f) * h;
             ring(b, pose, style.accent, light, overlay, (float) Math.cos(am) * .7f, -.7f, (float) Math.sin(am) * .7f, u1, u0, v0, v1, cx, cz, ai, aj,
                     ri, yi, rj, yj, ri + oi, yi - drop, rj + oj, yj - drop);
         }
@@ -632,7 +655,8 @@ final class CareWearRenderer {
      * The leaf swaddle: one leaf laid like a diaper on a grid LEAF_ROWS long and ACROSS wide. The petiole stands off the back above the
      * anus; the blade runs down the back from LEAF_BACK, under the body and up the front to LEAF_FRONT, its pointed tip lying on the
      * body. Across the leaf every grid column keeps its lateral distance from the middle line, wrapping round the posed profile (which
-     * includes the hair hanging at the back, so the leaf closes outside it) up to MAX_WRAP radians, and its margins curl out. Grid cells
+     * includes the hair hanging at the back, so the leaf closes outside it) up to MAX_WRAP radians; the margins rise and curl out so the
+     * leaf cups the bottom like a diaper and shows on the flanks. Grid cells
      * below the soiled height use the stool-stained copy of the leaf, higher with every load.
      */
     private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, float out, int soil,
@@ -660,15 +684,24 @@ final class CareWearRenderer {
             for (int j = 0; j <= ACROSS; j++) {
                 float edge = (j / (float) ACROSS - .5f) * 2, lateral = edge * half;
                 int at = (row * (ACROSS + 1) + j) * 4;
+                float cup = RISE * edge * edge;
                 if (part == 2) {
-                    // under the body: straight across between the back and front edges of the blade at the base
-                    leafPoint(true, CUP_BASE, lateral, base, cx, cz, minY, h, PT);
-                    leafPoint(false, CUP_BASE, lateral, base, cx, cz, minY, h, PT2);
-                    GRID[at] = PT[0] + (PT2[0] - PT[0]) * s; GRID[at + 1] = minY + .006f * h; GRID[at + 2] = PT[2] + (PT2[2] - PT[2]) * s; GRID[at + 3] = 0;
+                    // under the body: the middle runs straight across between the back and front of the blade at the base; towards the
+                    // margins it follows the flank round the side at the cupped height, where the back and front halves of the margin meet
+                    float fs = CUP_BASE + cup, w = edge * edge;
+                    leafPoint(true, fs, lateral, base, cx, cz, minY, h, PT);
+                    float aBack = leafAngle;
+                    leafPoint(false, fs, lateral, base, cx, cz, minY, h, PT2);
+                    float d = aBack - (float) (Math.PI / 2), arc = aBack + (float) ((edge >= 0 ? Math.PI : -Math.PI) - 2 * d) * s;
+                    float rr = radiusAround(fs, arc) + base;
+                    float chordX = PT[0] + (PT2[0] - PT[0]) * s, chordZ = PT[2] + (PT2[2] - PT[2]) * s, chordY = minY + (.006f + (fs - .006f) * w) * h;
+                    GRID[at] = chordX + (cx + (float) Math.cos(arc) * rr - chordX) * w; GRID[at + 1] = chordY;
+                    GRID[at + 2] = chordZ + (cz + (float) Math.sin(arc) * rr - chordZ) * w; GRID[at + 3] = 0;
                     continue;
                 }
                 boolean back = part < 2;
-                float f = part == 0 ? LEAF_BACK + STALK * (1 - s) : part == 1 ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * s : CUP_BASE + (LEAF_FRONT - CUP_BASE) * s;
+                float f = part == 0 ? LEAF_BACK + STALK * (1 - s) : Math.min(.48f, cup + (part == 1 ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * s
+                        : CUP_BASE + (LEAF_FRONT - CUP_BASE) * s));
                 float lift = base + CURL * h * edge * edge + (part == 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
                 leafPoint(back, f, lateral, lift, cx, cz, minY, h, PT);
                 GRID[at] = PT[0]; GRID[at + 1] = PT[1]; GRID[at + 2] = PT[2]; GRID[at + 3] = f;
@@ -679,7 +712,8 @@ final class CareWearRenderer {
             for (int j = 0; j < ACROSS; j++) {
                 int c00 = (i * (ACROSS + 1) + j) * 4, c10 = ((i + 1) * (ACROSS + 1) + j) * 4, c11 = c10 + 4, c01 = c00 + 4;
                 float mx = (GRID[c00] + GRID[c11]) / 2 - cx, mz = (GRID[c00 + 2] + GRID[c11 + 2]) / 2 - cz, ml = (float) Math.sqrt(mx * mx + mz * mz) + 1e-6f;
-                float nx = under ? 0 : mx / ml, ny = under ? -1 : 0, nz = under ? 0 : mz / ml, u0 = along[i], u1 = along[i + 1];
+                float side = under ? Math.abs((j + .5f) / ACROSS - .5f) * 2 : 1;
+                float nx = mx / ml * side, ny = -(1 - side), nz = mz / ml * side, u0 = along[i], u1 = along[i + 1];
                 float midF = (GRID[c00 + 3] + GRID[c11 + 3]) / 2, cell = midF < soilHeight(soil) ? STAINED_V : 0;
                 float v0 = cell + CELL_V * j / ACROSS, v1 = cell + CELL_V * (j + 1) / ACROSS;
                 gridVertex(b, pose, c00, u0, v0, light, overlay, nx, ny, nz, soil);
@@ -692,13 +726,15 @@ final class CareWearRenderer {
 
     /**
      * A point of the leaf on the back (+Z) or front (-Z) of the body at height fraction f, `lateral` model units to the side of the middle
-     * line measured round the profile (both faces turn the same lateral side to the same model side), pushed out by `lift`.
+     * line measured round the profile (both faces turn the same lateral side to the same model side), pushed out by `lift`; the angle used
+     * is left in leafAngle.
      */
     private static void leafPoint(boolean back, float f, float lateral, float lift, float cx, float cz, float minY, float h, float[] out) {
         float meridian = (float) (back ? Math.PI / 2 : -Math.PI / 2);
         float d = Math.clamp(lateral / Math.max(1e-4f, radiusAround(f, meridian)), -MAX_WRAP, MAX_WRAP), a = back ? meridian + d : meridian - d;
         float r = radiusAround(f, a) + lift;
         out[0] = cx + (float) Math.cos(a) * r; out[1] = minY + f * h; out[2] = cz + (float) Math.sin(a) * r;
+        leafAngle = a;
     }
 
     /** A full wrap (three loads) also darkens its very base towards brown, so soiling never reads as autumn leaves. */

@@ -75,12 +75,19 @@ def leaf_panels():
         panels.append({'id': pid, 'azimuth': az, 'span': 11 * .4, 'centerY': 7.5 * .4, 'actors': [actor], 'elevation': .5 if pid.startswith('open') else .12})
         extra.append((pid, label))
     pid = 'family-leaf'
-    panels.append({'id': pid, 'azimuth': 1.1, 'span': 9, 'centerY': 6, 'actors': [
-        {'model': 'reimu', 'action': 'idle', 'at': [-5, 0, 6]},
-        {'model': 'reimu', 'action': 'idle', 'scale': .4, 'at': [3, 0, -5], 'wear': 'leaf'},
-        {'model': 'marisa', 'action': 'idle', 'scale': .18, 'at': [8, 0, -7], 'wear': 'leaf'}]})
+    panels.append({'id': pid, 'azimuth': .25, 'span': 11, 'centerY': 7, 'actors': [
+        {'model': 'reimu', 'action': 'idle', 'at': [-10, 0, 0]},
+        {'model': 'reimu', 'action': 'idle', 'scale': .4, 'at': [3, 0, 0], 'wear': 'leaf'},
+        {'model': 'marisa', 'action': 'idle', 'scale': .18, 'at': [9, 0, 0], 'wear': 'leaf'}]})
     extra.append((pid, '实际大小：成体亲油、子油(.40)、赤油(.18)'))
     rows.append(extra)
+    sizes = []
+    for pid, az, label in (('true-front', .35, '同一镜头实际大小 正面偏左：子油与赤油'), ('true-side', 1.9, '同一镜头实际大小 侧后：子油与赤油')):
+        panels.append({'id': pid, 'azimuth': az, 'span': 5.5, 'centerY': 3, 'actors': [
+            {'model': 'reimu', 'action': 'idle', 'scale': .4, 'at': [-3.5, 0, 0], 'wear': 'leaf'},
+            {'model': 'marisa', 'action': 'idle', 'scale': .18, 'at': [3.5, 0, -.5], 'wear': 'leaf'}]})
+        sizes.append((pid, label))
+    rows.append(sizes)
     return panels, rows
 
 
