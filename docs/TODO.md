@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 野生作品去掉扎绳与草捆（窝沿、叶束、储粮堆与帽船粮堆改为叼来堆压的散草） | `.worktrees/wild-nest-art` | `drafts/care-props/wild_kit.py`、`wild.py`、`designs.py`、野生巢与储粮堆导出物、`docs/WILD_SHELTERS.md` |
 
 ## 玩法待办
 
