@@ -67,6 +67,20 @@ final class ToiletPresentation {
         } catch (IOException error) { throw new UncheckedIOException("Cannot load toilet presentation", error); }
     }
 
+    /** Contact at the child's rear: the first toilet and every leaf-swaddle care phase share its clip and lean. */
+    static boolean rearCare(String behavior) {
+        return switch (behavior) {
+            case Behaviors.FIRST_TOILET_ASSIST, Behaviors.LEAF_SWADDLE_WRAP, Behaviors.SWADDLE_UNWRAP, Behaviors.SWADDLE_TOILET_ASSIST,
+                    Behaviors.SWADDLE_CLEAN, Behaviors.SWADDLE_REWRAP -> true;
+            default -> false;
+        };
+    }
+
+    /** Rear care that licks (stimulating a release, cleaning); opening and wrapping the leaves are done with the closed mouth. */
+    static boolean rearLick(String behavior) {
+        return behavior.equals(Behaviors.FIRST_TOILET_ASSIST) || behavior.equals(Behaviors.SWADDLE_TOILET_ASSIST) || behavior.equals(Behaviors.SWADDLE_CLEAN);
+    }
+
     static boolean authored(String behavior) {
         return switch (behavior) {
             case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.BOAT_TOILET, Behaviors.TOILET_ACCIDENT, Behaviors.FIRST_TOILET_ASSIST,
@@ -79,7 +93,7 @@ final class ToiletPresentation {
                              YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         boolean comfort = behavior.equals(Behaviors.COMFORT_LICK);
         YukkuriView child;
-        if (!(comfort || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)) || parent.careContactProgress() <= 0
+        if (!(comfort || rearLick(behavior)) || parent.careContactProgress() <= 0
                 || (child = parent.yukkuriView(parent.carePartnerId())) == null
                 || !(comfort ? FamilyFeedingContact.visibleMouthsMeet(parent, child) : FamilyFeedingContact.visibleRearContact(parent, child))) return;
         var face = LivingPresentation.variants.get(parent.assetId());

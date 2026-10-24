@@ -138,6 +138,17 @@ public final class Behaviors {
     public static final String JUDGEMENT_APPROACH = "judgement_approach";
     public static final String JUDGEMENT_HEARING = "judgement_hearing";
     public static final String LABOR = "labor";
+    // leaf swaddle (family/LeafSwaddle): the parent's gathering, folding, wrapping and care; the child's answer
+    public static final String LEAF_SWADDLE_APPROACH = "leaf_swaddle_approach";
+    public static final String LEAF_SWADDLE_FOLD = "leaf_swaddle_fold";
+    public static final String LEAF_SWADDLE_HARVEST = "leaf_swaddle_harvest";
+    public static final String LEAF_SWADDLE_SEEK = "leaf_swaddle_seek";
+    public static final String LEAF_SWADDLE_WRAP = "leaf_swaddle_wrap";
+    public static final String SWADDLE_CLEAN = "swaddle_clean";
+    public static final String SWADDLE_RECEIVE = "swaddle_receive";
+    public static final String SWADDLE_REWRAP = "swaddle_rewrap";
+    public static final String SWADDLE_TOILET_ASSIST = "swaddle_toilet_assist";
+    public static final String SWADDLE_UNWRAP = "swaddle_unwrap";
     public static final String LEARN_JUMP = "learn_jump";
     public static final String LEARN_WATCH = "learn_watch";
     public static final String LISTEN_SONG = "listen_song";

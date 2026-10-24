@@ -37,6 +37,8 @@ public final class PlantBedding {
     /** The last {@link #find} gave up only because the shared per-tick search budget was spent; asking again later is fine. */
     public boolean refused(){return refused;}
     public boolean active(){return target!=null;}
+    /** The plant block currently being approached or harvested, for logs; null without a target. */
+    public BlockPos source(){return target==null?null:target.block();}
     public boolean harvesting(){return contactTicks>0;}
     public CompoundTag debug(){
         var tag=new CompoundTag();tag.putInt("Candidates",candidates);tag.putInt("Supported",supportedSites);tag.putInt("Reachable",reachableSites);

@@ -245,6 +245,15 @@ public final class YukkuriModel {
     }
     private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||
             name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
+    private static boolean wornBody(String name){return bodySurface(name)||name.endsWith("_rump_mark");}
+    /**
+     * Name heuristic for the hair a swaddle wraps outside of: parts whose name holds "hair" or "lock" and "back" or "rear" (back_hair,
+     * back_lock_n, rear_side_hair_*, alice_hair_back_*). Side hair, tied locks, braids and curls do not match, so they stay outside the
+     * wrap and visible. A new model part naming its hanging back hair otherwise is simply not wrapped over.
+     */
+    private static boolean hangingHair(String name){return (name.contains("hair")||name.contains("lock"))&&(name.contains("back")||name.contains("rear"));}
+    private float[] wearBuffer = new float[0];
+    private int wearBody, wearAll;
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
     private int rootBone = -1;
@@ -353,16 +362,27 @@ public final class YukkuriModel {
         var point=new Vector3f();var vertex=new Vector3f();
         for(int i=0;i<3;i++){skin(woundTriangle+i,vertex);point.add(vertex);}return point.div(48);
     }
-    /** Skinned vertices (x, y, z in blocks) of the body surface in the pose of the last render, for attachments that are derived from the body itself (CareWearRenderer). */
-    float[] posedBody() {
+    /**
+     * Skins the worn-shell surface of the last render pose into one reused buffer (x, y, z in blocks), for attachments derived from the
+     * body itself (CareWearRenderer): first the body surface with its rump mark (a raised patch that shells must close over), then the
+     * hair hanging at the back and rear sides. The first {@link #wearBodyLength()} floats are the body alone; the whole buffer up to
+     * {@link #wearLength()} is the hull a swaddle closes outside of. Render thread only.
+     */
+    float[] posedWear() {
         int count = 0;
-        for (var part : parts) if (bodySurface(part.name)) count += part.count;
-        float[] out = new float[count * 3];
+        for (var part : parts) if (wornBody(part.name) || hangingHair(part.name)) count += part.count;
+        if (wearBuffer.length < count * 3) wearBuffer = new float[count * 3];
         var point = new Vector3f(); int k = 0;
-        for (var part : parts) if (bodySurface(part.name))
-            for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); out[k++] = point.x / 16; out[k++] = point.y / 16; out[k++] = point.z / 16; }
-        return out;
+        for (var part : parts) if (wornBody(part.name))
+            for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); wearBuffer[k++] = point.x / 16; wearBuffer[k++] = point.y / 16; wearBuffer[k++] = point.z / 16; }
+        wearBody = k;
+        for (var part : parts) if (!wornBody(part.name) && hangingHair(part.name))
+            for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); wearBuffer[k++] = point.x / 16; wearBuffer[k++] = point.y / 16; wearBuffer[k++] = point.z / 16; }
+        wearAll = k;
+        return wearBuffer;
     }
+    int wearBodyLength() { return wearBody; }
+    int wearLength() { return wearAll; }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
@@ -615,6 +635,10 @@ public final class YukkuriModel {
         if (behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.FIRST_TOILET_ASSIST)
                 || behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP)
                 || ToiletPresentation.authored(behavior)) selected=behavior;
+        // Leaf-swaddle care reuses the first-toilet rear contact; harvesting and folding the leaves reuse the bedding clips.
+        if (ToiletPresentation.rearCare(behavior)) selected=Behaviors.FIRST_TOILET_ASSIST;
+        else if (behavior.equals(Behaviors.LEAF_SWADDLE_HARVEST)) selected=Behaviors.NEST_HARVEST;
+        else if (behavior.equals(Behaviors.LEAF_SWADDLE_FOLD)) selected=Behaviors.NEST_PRESS;
         if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||
                 behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY)
                 ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
@@ -666,7 +690,7 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||behavior.equals(Behaviors.FIRST_TOILET_ASSIST));
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
         if(Float.isFinite(boardingPitch)){
             // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
             var root=pose[rootBone()];
@@ -681,7 +705,7 @@ public final class YukkuriModel {
             // 50-degree reach on top of the authored feeding lean made the parent tip forward.
             // A tiny child is expressed through proximity, face changes and speech, not a dive.
             float floor=bodyMinimumY();float[] root=pose[rootBone()];
-            boolean feeding=!behavior.equals(Behaviors.FIRST_TOILET_ASSIST);
+            boolean feeding=!ToiletPresentation.rearCare(behavior);
             float maximumPitch=feeding?10:12;
             root[3]=Math.max(-maximumPitch,root[3]);composeWorld();
             float basePitch=root[3],baseMouth=mouthY();

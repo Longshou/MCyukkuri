@@ -2,7 +2,8 @@
 
 These four items use the plain item/generated sprite path (no PropItemRenderer registration), which is also what the mouth
 slot draws for them, so the icon is the single art for GUI, hand, ground and mouth. Colours come only from art/props/palette.json
-(4 steps per material, dark to light); light falls from the top left, contact edges take the darkest step of their own
+(4 steps per material, dark to light), except swaddle_cloth, which is drawn like supplies.py with local hue-shifted ramps (outline
+= darkest step of its own material); light falls from the top left, contact edges take the darkest step of their own
 material, no black outline. The on-body harness and swaddle shells are drawn procedurally by client/CareWearRenderer and use
 the same ramps (see README).
 """
@@ -132,34 +133,54 @@ def pet_harness():
     return i
 
 
-# ---- swaddle_cloth: a soft cream cloth with one corner folded over along a diagonal, stitched hem and a strawberry heart ----------------
+# ---- swaddle_cloth: a folded cream knit wrap, the top-right corner turned down onto the cloth to show its pink lining, -----------
+# a pink hem along the bottom, a second layer peeking out underneath and a small strawberry heart. Vanilla item style with
+# supplies.py-style local hue-shifted ramps (outline = darkest step of its own material), unlike the palette-only icons above.
+CREAM = ['#9a8164', '#c7b393', '#e3d7bd', '#f4ede0', '#fffcf4']
+LINING = ['#9e3b57', '#cc6a86', '#e99cb0', '#f8c9d4']
+HEART = ['#8c1f3c', '#d23e5e', '#f27f95']
+
+
+def _hex(c):
+    return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+
+
 def swaddle_cloth():
     i = Icon('swaddle_cloth')
-    cloth = lambda step: ('ceramic', step)
-    inside = lambda x, y: 2 <= x <= 13 and 2 <= y <= 13 and x + y < 22 and (x, y) not in ((2, 2), (13, 2), (2, 13))
-    flap = lambda x, y: x >= 8 and y >= 8 and x + y <= 21
-    for y in range(SIZE):
-        for x in range(SIZE):
-            if not inside(x, y):
-                continue
-            edge = not inside(x + 1, y) or not inside(x, y + 1) or x + y == 21
-            if flap(x, y):
-                step = 1
-                if x == 8 or y == 8:
-                    step = 2
-            else:
-                step = 3 if not edge else 2
-                if x == 7 and y >= 8 or y == 7 and x >= 8:
-                    step = 2
-            if not flap(x, y) and (not inside(x + 1, y) or not inside(x, y + 1)):
-                step = 0 if (y == 13 or x + y >= 21) else 1
-            i.put(x, y, cloth(step))
-    for x in range(4, 12, 2):                               # stitched hem along the top and left edges
-        i.put(x, 3, cloth(2))
-    for y in range(5, 8, 2):
-        i.put(3, y, cloth(2))
-    for x, y, step in ((4, 5, 3), (6, 5, 2), (4, 6, 2), (5, 6, 2), (6, 6, 1), (5, 7, 1)):   # heart mark
-        i.put(x, y, ('berry', step))
+    colours = {}
+    x0, x1, y0, y1 = 1, 14, 2, 11                   # top layer; rows y1-1..y1 are the pink hem
+    crease = 8                                       # the top-right corner is turned down along x - y = crease
+    top = {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1) if x - y <= crease}
+    flap = {(x, y) for (x, y) in top if x >= y0 + crease and y <= x1 - crease and x - y <= crease}
+    under = {(x, y) for x in range(x0 + 1, x1 + 2) for y in (y1 + 1, y1 + 2)}   # the folded lower layer below the hem
+    for x, y in under:
+        colours[(x, y)] = CREAM[0] if y == y1 + 2 or x == x1 + 1 else CREAM[2] if x % 2 else CREAM[1]
+    for x, y in top:
+        knit = CREAM[4] if x % 2 == 1 and y % 2 == 0 else CREAM[2] if x % 2 == 0 and y % 2 == 1 else CREAM[3]
+        if y >= y1 - 1:
+            knit = LINING[3] if y == y1 - 1 and x % 2 else LINING[2]
+        colours[(x, y)] = knit
+    for x, y in top:                                 # outline: one lighter on the lit top/left, darkest on the shaded sides
+        lit = (x - 1, y) not in top or (x, y - 1) not in top
+        shaded = (x + 1, y) not in top or (x, y + 1) not in top
+        hem = y >= y1 - 1
+        if shaded:
+            colours[(x, y)] = LINING[0] if hem else CREAM[0]
+        elif lit:
+            colours[(x, y)] = LINING[1] if hem else CREAM[1]
+    for x, y in top - flap:                          # shadow the flap casts down-left onto the cloth
+        if (x + 1, y) in flap or (x, y - 1) in flap:
+            colours[(x, y)] = CREAM[2]
+    for x, y in flap:                                # turned-down corner: pink lining, bright rolled crease
+        free = (x - 1, y) not in flap or (x, y + 1) not in flap
+        colours[(x, y)] = LINING[1] if x - y == crease else LINING[1] if free else LINING[3] if x - y == crease - 1 else LINING[2]
+    colours[(x0 + crease, y0)] = CREAM[1]
+    for (x, y), c in (((3, 5), HEART[1]), ((5, 5), HEART[1]), ((3, 6), HEART[1]), ((4, 6), HEART[1]), ((5, 6), HEART[0]),
+                      ((4, 7), HEART[0]), ((4, 5), CREAM[3])):
+        colours[(x, y)] = c
+    colours[(3, 5)] = HEART[2]
+    for xy, c in colours.items():
+        i.px[xy] = _hex(c)
     return i
 
 

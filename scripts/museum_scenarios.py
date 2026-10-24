@@ -337,6 +337,38 @@ add('growth', 'family', '一路长大', '一路长大', '右侧亚成从335999 t
         item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth', vantage=(0, 10),
     reads=[('读成长与阶段', f'yukkuri status {sel("teen")}')])
 
+# Leaf swaddle (docs/CHILDHOOD_LIFECYCLE.md#树叶襁褓与幼体排便照护): leaf bushes are the real material; a worn wrap is a starting state only.
+LEAF_BUSH = 'minecraft:oak_leaves[persistent=true]'
+
+
+def leaf_wrap(soil=0, open_=False):
+    """A wrap already on the child: two real oak leaves inside, ``soil`` stool loads held."""
+    return (f'YukkuriLeafSwaddle:{{Worn:1b,Open:{1 if open_ else 0}b,Soil:{soil},'
+            'Material:[{id:"minecraft:oak_leaves",count:1},{id:"minecraft:oak_leaves",count:1}]}')
+
+
+def leaf_reads(*names):
+    return [(f'读{label}襁褓与需要', f'yukkuri status {sel(name)} raw') for label, name in names]
+
+
+add('leaf_swaddle', 'family', '树叶襁褓·制作、排便照护', '树叶襁褓',
+    '友善、聪明的亲油先照护两只已裹着树叶襁褓的子油：便意 55 的一只被解开（叶片铺在身下）、舔舐后排出一份便便、舔净、重新包好；'
+    '已积 2 份的一只解开时两份便便落地、脏叶作废，舔净后要另采叶子。随后亲油从左侧叶丛逐块衔下叶片（叶块真实消失）、原地折叠，'
+    '走到赤油和脏襁褓子油身后包上。右侧低友善亲油不制作。丢苹果喂子油可再次积起便意',
+    '约 2–4 分钟（可倍速）', [
+        yk('reimu', 0, 0, 'mom', yaw=-90, friendliness=85, intelligence=75, **pair_ready()),
+        yk('reimu', 2, -2, 'baby', stage='baby', yaw=90, nutrition=90, hygiene=70),
+        yk('reimu', 2, 1, 'kid', stage='child', yaw=90, lead=True, nutrition=80, bladder=55, hygiene=60, extra=leaf_wrap()),
+        yk('reimu', 2, 3, 'kid_soiled', stage='child', yaw=90, nutrition=80, bladder=20, hygiene=45, extra=leaf_wrap(soil=2)),
+        *[f'yukkuri scenario kin {sel("mom")} {sel(k)} false' for k in ('baby', 'kid', 'kid_soiled')],
+        *[block(-4, 0, dz, LEAF_BUSH) for dz in (1, 2, 3, 4)], block(-3, 0, 4, LEAF_BUSH),
+        yk('marisa', 10, 0, 'cold', yaw=-90, friendliness=20, intelligence=30, **pair_ready()),
+        yk('reimu', 12, 0, 'cold_baby', stage='baby', yaw=90, nutrition=90, hygiene=70),
+        f'yukkuri scenario kin {sel("cold")} {sel("cold_baby")} false',
+        block(9, 0, 3, LEAF_BUSH), block(10, 0, 3, LEAF_BUSH)],
+    give=['minecraft:apple 4'], env=DAY, spot='leaf_swaddle', vantage=(5, 10),
+    reads=leaf_reads(('亲油', 'mom'), ('赤油', 'baby'), ('便意子油', 'kid'), ('积便子油', 'kid_soiled'), ('低友善亲油', 'cold')))
+
 _fd = {k: uid('family_distance', k) for k in ('parent_near', 'child_near', 'parent_bold', 'child_bold')}
 add('family_distance', 'family', '亲子距离·性格对照', '亲子距离',
     '两家亲子都相距 4 格：普通子油更早回到亲油身边，大胆子油可以多活动一段；亲油尊重孩子的活动范围，离得过远才主动寻回',
@@ -885,6 +917,15 @@ for _kind, _caption, _pad in (('labor', '劳动工厂', -44), ('manju', '馒头�
 def agitation_start(phase):
     return f'YukkuriAgitation:{{Phase:"{phase}",PhaseTicks:0,Cooldown:0,NextCheck:2400}}'
 
+
+add('leaf_swaddle_neglect', 'meadow', '树叶襁褓·无人照护积便', '襁褓积便',
+    '两只裹着树叶襁褓的子油没有亲油：便意 95 的一只马上把便便排进襁褓（soil 加 1，卫生、不安恶化，襁褓下沿染色）；'
+    '已积 3 份的一只再满就从肛门溢到地上。之后每 30 秒按积便扣卫生、加不安；丢苹果喂食可让便意继续积累',
+    '立即；之后每 30 秒一次变化', [
+        yk('reimu', 0, 0, 'kid', stage='child', yaw=180, lead=True, nutrition=80, bladder=95, hygiene=80, extra=leaf_wrap()),
+        yk('marisa', 3, 0, 'kid_full', stage='child', yaw=180, nutrition=80, bladder=92, hygiene=50, extra=leaf_wrap(soil=3))],
+    give=['minecraft:apple 4'], env=DAY, vantage=(1, 8),
+    reads=leaf_reads(('刚积便子油', 'kid'), ('积满子油', 'kid_full')))
 
 add('agitation_relief', 'meadow', '成体发情期与日常活动', '成体发情期',
     '爱丽丝处于持续发情期：空闲观察时偶尔说想素鸡立；喂食、避险会暂停表现但保留剩余期，期满未配对改播heat_unmet未解台词。给对照个体喂催情剂可现场听heat_start开始台词', '约一分钟', [
@@ -1711,7 +1752,7 @@ TOPICS = {
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
+    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',

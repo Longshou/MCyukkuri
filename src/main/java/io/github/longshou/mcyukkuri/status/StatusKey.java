@@ -41,6 +41,8 @@ public enum StatusKey {
     SLEEPINESS("needs", "sleepiness", 0, y -> 100 - Math.round(y.life().energy()), null),
     HYGIENE("needs", "hygiene", 10, y -> Math.round(y.life().hygiene()), need("hygiene")),
     BLADDER("needs", "bladder", 10, y -> Math.round(y.life().bladder()), need("bladder")),
+    /** Leaf swaddle: on a child the wrap that blocks its own toileting (closed/open, stool loads, leaves inside); on a parent its care task and carried leaves. */
+    LEAF_SWADDLE("needs", "leaf_swaddle", 0, y -> y.leafSwaddle().statusDetail(), null),
     WETNESS("needs", "wetness", 10, y -> Math.round(y.life().wetness()), need("wetness")),
     DRYNESS("needs", "dryness", 10, y -> Math.round(y.life().dryness()), need("dryness")),
     SLEEPING("needs", "sleeping", 0, y -> y.life().isSleeping(), null),

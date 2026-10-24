@@ -45,6 +45,8 @@ final class LifeDoses {
     boolean involuntaryRelease(String cause, boolean force){
         if(o.entity().level().isClientSide||!o.entity().isAlive()||leakCooldown>0||o.bladder()<15||o.entity().isInWaterOrBubble()||o.entity().getVehicle()!=null&&!force)return false;
         if(!force&&o.entity().getRandom().nextFloat()>=Math.min(1f,.3f+o.bladder()/100f))return false;
+        // A closed leaf swaddle catches it: the load goes into the wrap instead of onto the ground (family/LeafSwaddle).
+        if(o.entity().leafSwaddle().catchesRelease()){if(!o.entity().leafSwaddle().soil("involuntary:"+cause))return false;leakCooldown=2400;return true;}
         Vec3 outlet=ToiletContact.anus(o.entity(),0);
         if(outlet==null)outlet=o.entity().position().add(0,.05,0);
         if(!ToiletContact.drop(o.entity(),outlet))return false;

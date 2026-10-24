@@ -45,9 +45,9 @@ public final class PetCare {
     // worn gear: the harness (a body band with a back ring for the lead, never the accessory) and the swaddle (a warming cloth for the young)
     public boolean harnessed() { return harness; }
     public boolean swaddled() { return swaddle; }
-    /** Bit 0 harness, bit 1 swaddle: what the client draws and what the lead check reads. */
+    /** Bit 0 harness, bit 1 swaddle: what the client draws and what the lead check reads (the leaf swaddle adds its own bits, YukkuriEntity.wornBits). */
     public int wearBits() { return (harness ? 1 : 0) | (swaddle ? 2 : 0); }
-    private void syncWear() { animal.setWear(wearBits()); }
+    private void syncWear() { animal.syncWear(); }
     private void say(Player player, String key) { player.displayClientMessage(Component.translatable("pet.mcyukkuri." + key, animal.getDisplayName()), true); }
     /** Whether this player may lead the pet right now (its owner, harness on, not busy): the lead guard asks this before vanilla ties the lead. */
     public String leashRefusal(Player player) {
@@ -154,7 +154,7 @@ public final class PetCare {
                 swaddle = false; syncWear(); giveBack(new ItemStack(ModItems.SWADDLE_CLOTH.get()), null);
             } else if (++swaddleClock >= 1200) { swaddleClock = 0; animal.pet().addStress(-1); } // calms it: stress eases twice as fast while swaddled
         }
-        if (animal.level().getGameTime() % 40 == 0 && animal.visibleWear() != wearBits()) syncWear();
+        if (animal.level().getGameTime() % 40 == 0 && animal.visibleWear() != animal.wornBits()) syncWear();
     }
 
     private int today() { return (int)(animal.level().getGameTime() / DAY); }

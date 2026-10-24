@@ -24,6 +24,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
@@ -446,6 +447,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncSubspecies(int flags) { sync().syncSubspecies(flags); }
     public SettlementLife settlement() { return settlement; }
     public Judgement judgement() { return component(YukkuriComponents.JUDGEMENT); }
+    /** The leaf swaddle on a child and its parents' care for it (docs/CHILDHOOD_LIFECYCLE.md). */
+    public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
     public HabitatLife habitat() { return habitat; }
     private ForageTrip forageTrip;
     /** Foraging trips of a household with young (father far, mother when short); read by status and the museum. */
@@ -725,7 +728,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     // pet harness and lead (docs/PET_SHOP.md): the lead is tied to the harness ring on the back, never to the accessory
     public int visibleWear() { return sync().visibleWear(); }
-    public void setWear(int bits) { sync().setWear(bits); }
+    /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle). */
+    public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits(); }
+    public void syncWear() { sync().setWear(wornBits()); }
     /** Only a harnessed pet can be led; PetCare/LeashGuard further restrict this to the owner (the check below is the same on both sides). */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override protected Vec3 getLeashOffset() { return interactions().getLeashOffset(); }

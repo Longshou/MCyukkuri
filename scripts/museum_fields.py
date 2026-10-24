@@ -303,7 +303,8 @@ class Family(Field):
         super().__init__(*args, **kw)
         cx, cz = self.cx, self.cz
         self.spots = {'land_caught': (cx - 24, cz - 8), 'land_missed': (cx - 8, cz - 8), 'pet_birth': (cx + 8, cz - 8), 'feed': (cx + 24, cz - 8),
-                      'first_toilet': (cx - 24, cz + 8), 'hop': (cx - 8, cz + 8), 'hurt_kin': (cx + 8, cz + 8), 'growth': (cx + 24, cz + 8)}
+                      'first_toilet': (cx - 24, cz + 8), 'hop': (cx - 8, cz + 8), 'hurt_kin': (cx + 8, cz + 8), 'growth': (cx + 24, cz + 8),
+                      'leaf_swaddle': (cx - 10, cz + 18)}
         self.anchor = self.spots['land_caught']
 
     def features(self):

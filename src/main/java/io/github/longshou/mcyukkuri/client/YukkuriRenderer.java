@@ -279,7 +279,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
      * gap with a bounded root lean while keeping the caregiver's body supported.
      */
     private static void configureCareContact(YukkuriView parent,String behavior,float partialTick,YukkuriModel model) {
-        boolean firstToilet=behavior.equals(Behaviors.FIRST_TOILET_ASSIST);
+        boolean firstToilet=ToiletPresentation.rearCare(behavior);
         YukkuriView child;
         if (!(behavior.equals(Behaviors.FEED_CHILD) || behavior.equals(Behaviors.BOAT_FEED_YOUNG) || firstToilet) || parent.carePartnerId() < 0
                 || (child=parent.yukkuriView(parent.carePartnerId()))==null) {

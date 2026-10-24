@@ -48,6 +48,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.family.CareApproach;
+import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
 import java.util.ArrayList;
@@ -107,6 +108,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<CareApproach> CARE_APPROACH = new ComponentKey<>("careApproach", CareApproach.class);
     public static final ComponentKey<WinteringLife> WINTERING = new ComponentKey<>("wintering", WinteringLife.class);
     public static final ComponentKey<ShellRetraction> SHELL_RETRACTION = new ComponentKey<>("shellRetraction", ShellRetraction.class);
+    public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
 
     // Numeric orders follow the lifecycle baseline, with gaps for explicit insertions.
@@ -308,6 +310,25 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
+        // Leaf swaddle and swaddled-child bowel care (docs/CHILDHOOD_LIFECYCLE.md): the parent's Goal sits with the other priority-3 care goals.
+        ComponentSpec.ready(LEAF_SWADDLE, LeafSwaddle::new)
+                .goal(3, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (swaddle, entity) -> new Goal() {
+                    { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+                    @Override public boolean canUse() { return swaddle.canUse(); }
+                    @Override public boolean canContinueToUse() { return swaddle.canContinue(); }
+                    @Override public boolean requiresUpdateEveryTick() { return true; }
+                    @Override public void tick() { swaddle.tickGoal(); }
+                    @Override public void stop() { swaddle.stop(); }
+                }, PresentationGoals.LEAF_SWADDLE)
+                .tick(345, LeafSwaddle::tick)
+                .save(320, (c, tag) -> tag.put("YukkuriLeafSwaddle", c.save()))
+                .load(340, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriLeafSwaddle")))
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 85, (c, ctx) -> c.stop("fright"))
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 85, (c, ctx) -> c.stop("command"))
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 45, (c, ctx) -> c.stop("hurt"))
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 45, (c, ctx) -> c.stop("pet_lock"))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 80, (c, ctx) -> c.died())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 45, (c, ctx) -> c.stop("removed")).build(),
         ComponentSpec.ready(SHELL_RETRACTION, YukkuriEntity::shellRetraction)
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 10, (c, ctx) -> c.reset()).build(),
         ComponentSpec.ready(HOOKS, e -> e)

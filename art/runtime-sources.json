@@ -262,8 +262,13 @@
       "pet_harness": "src/main/resources/assets/mcyukkuri/textures/item/pet_harness.png",
       "swaddle_cloth": "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png"
     },
-    "on_body": "src/main/java/io/github/longshou/mcyukkuri/client/CareWearRenderer.java (procedural harness and swaddle shells; colour constants are palette ramps mint 2, gold 2, ceramic 3/1, berry 3; shells are built from an interpolated body radius profile)",
-    "role": "16x16 item sprites (item/generated); the same sprite is drawn in GUI, hand, ground and mouth",
+    "wear_source": "standards/yukkuri-library/drafts/care-props/wear.py",
+    "wear_textures": {
+      "swaddle_leaf_wear": "src/main/resources/assets/mcyukkuri/textures/misc/swaddle_leaf_wear.png",
+      "swaddle_wool_wear": "src/main/resources/assets/mcyukkuri/textures/misc/swaddle_wool_wear.png"
+    },
+    "on_body": "src/main/java/io/github/longshou/mcyukkuri/client/CareWearRenderer.java (procedural shells built from an interpolated body radius profile: harness in flat colours on textures/misc/care_wear.png; radii from the posed body plus the hair hanging at the back, convexified over flat face plates; cloth swaddle in the swaddle_wool_wear tile tinted by vertex colour (cream cloth, one darker overlap flap, pink hem); leaf swaddle as four large diagonal overlapping leaves from swaddle_leaf_wear (two variants, stool-stained copies for the lowest cells of a soiled wrap), laid flat as a ground support leaf while opened for care)",
+    "role": "16x16 item sprites (item/generated); the same sprite is drawn in GUI, hand, ground and mouth. swaddle_cloth is drawn in the vanilla item style of supplies.py; the leaf swaddle is made in the world by parents and has no item",
     "status": "pending_user_confirmation"
   },
   "supply_icons": {

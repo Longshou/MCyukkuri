@@ -1,18 +1,23 @@
 {
   "status": "pending_user_confirmation",
   "generator": "standards/yukkuri-library/drafts/care-props/build.py",
+  "wear_generator": "standards/yukkuri-library/drafts/care-props/wear.py",
   "exporter": "scripts/export_pet_goods_icons.py",
   "palette": "art/props/palette.json",
   "inputs": {
     "art/props/pet-goods/sweet_candy.png": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
     "art/props/pet-goods/custard_pudding.png": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
     "art/props/pet-goods/pet_harness.png": "52053963719cc8df8eb990a119256efb71b58ef0edff2224fad589d6f030ffcc",
-    "art/props/pet-goods/swaddle_cloth.png": "306493bbc874567b5aa844e1d3ccb1480a5a25f7307ec73d51a99811b80ef982"
+    "art/props/pet-goods/swaddle_cloth.png": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",
+    "art/props/pet-goods/swaddle_leaf_wear.png": "5b7907bf3c941d1036ea6792423fc80f805e627f3175f0b18d5a2941e519eaa4",
+    "art/props/pet-goods/swaddle_wool_wear.png": "f368444443a3d78a4114162dc89ed339fe8a148c091f067ebe3b8b78d99cde73"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/textures/item/sweet_candy.png": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
     "src/main/resources/assets/mcyukkuri/textures/item/custard_pudding.png": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
     "src/main/resources/assets/mcyukkuri/textures/item/pet_harness.png": "52053963719cc8df8eb990a119256efb71b58ef0edff2224fad589d6f030ffcc",
-    "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png": "306493bbc874567b5aa844e1d3ccb1480a5a25f7307ec73d51a99811b80ef982"
+    "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",
+    "src/main/resources/assets/mcyukkuri/textures/misc/swaddle_leaf_wear.png": "5b7907bf3c941d1036ea6792423fc80f805e627f3175f0b18d5a2941e519eaa4",
+    "src/main/resources/assets/mcyukkuri/textures/misc/swaddle_wool_wear.png": "f368444443a3d78a4114162dc89ed339fe8a148c091f067ebe3b8b78d99cde73"
   }
 }

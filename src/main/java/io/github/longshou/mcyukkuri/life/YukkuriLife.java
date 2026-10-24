@@ -194,6 +194,19 @@ public final class YukkuriLife {
     public void primeFirstStool() { bladder = Math.max(bladder, 12); }
     /** Only the completed newborn-care contact may retire this first bowel load. */
     public boolean completeAssistedFirstToilet(YukkuriEntity parent){ return hatToilet.completeAssistedFirstToilet(parent); }
+    /** Leaf swaddle (family/LeafSwaddle): one load goes into the closed wrap, with the same bladder and hygiene cost as a leak. */
+    public void releaseIntoWrap() { leaked(); }
+    /** Leaf swaddle care: after the parent's verified rear contact the opened child drops one real load from its anus. */
+    public boolean assistedRelease() {
+        if (!(entity.level() instanceof ServerLevel) || bladder < 10 || constipated() || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
+                || entity.isInWaterOrBubble() || isSleeping() || mealTicks() > 0 || entity.leafSwaddle().wrapped()) return false;
+        if (!ToiletContact.drop(entity, ToiletContact.anus(entity, 0))) return false;
+        bladder = Math.max(0, bladder - 40); personality.relieveFear();
+        entity.showReaction("happy", "toilet_done", 60);
+        return true;
+    }
+    /** A real cleaning or soiling of the body surface, bounded like every other hygiene change. */
+    public void changeHygiene(float delta) { if (Float.isFinite(delta)) hygiene = Math.clamp(hygiene + delta, 0, 100); }
     public boolean hatToiletReleasing(){ return hatToilet.hatToiletReleasing(); }
     /** Supported hat passengers can relieve themselves without turning a bodily need into a shore trip. */
     public boolean toiletInHat(HatBoatEntity boat){ return hatToilet.toiletInHat(boat); }
@@ -581,7 +594,8 @@ public final class YukkuriLife {
         return choice.follows();
     }
     private boolean planToilet() {
-        if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated()) return false;
+        // A closed leaf swaddle keeps the young one from going by itself; only a parent's care opens it (family/LeafSwaddle).
+        if (!entity.childhood().firstToiletDone() || bladder < 40 || constipated() || entity.leafSwaddle().wrapped()) return false;
         targetBlock = nearestCare(CareBlock.Kind.TOILET, false);
         if (targetBlock != null && followsRule(PetSkill.TOILET)) {
             task = Task.TOILET; toiletTicks = pursuitTicks = 0; toiletAccident = false; return true;

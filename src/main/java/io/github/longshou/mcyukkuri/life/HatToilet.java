@@ -32,7 +32,7 @@ final class HatToilet {
         if (o.entity().level().getGameTime() < hatToiletRetryAt) return false;
         if (!boat.protects(o.entity()) || !o.entity().childhood().firstToiletDone() || o.bladder() < 40 || o.constipated()
                 || o.entity().isPanicking() || o.entity().isOnFire() || o.isSleeping() || o.mealTicks() > 0
-                || o.entity().isCommandPlaying() || o.entity().operations().active()) {
+                || o.entity().isCommandPlaying() || o.entity().operations().active() || o.entity().leafSwaddle().wrapped()) {
             hatToiletTicks = hatToiletWait = 0; boat.releaseToiletSeat(o.entity()); return false;
         }
         if (++hatToiletWait > 300) {

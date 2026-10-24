@@ -13,7 +13,9 @@
 | `small.py` | 食物残渣、便便、漏馅（12 个单位逐块显示）、食糜、清洗布、毛线球、携带篮 |
 | `large_nests.py`、`preview_large_nests.py` | 2×2 家庭窝（项目设计）导出：`vanilla_props.py` 的 `large_yukkuri_nest` 与 `large_wild_nest`，占地 32×32、原点在四格公共角、入口朝 +z，可容两名成体与四只新生随意散卧。写入 `art/props/large-nests/` 快照及运行网格、粒子方块模型、物品模型、方块状态、掉落表与中英文名，并以 `owner` 条目加入共享 `yukkuri_props/index.json`；`--check` 只读。预览输出到 `.local/previews/birth-large-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
 | `cargo.py`、`preview_cargo.py` | 按用户要求直接复用 `designs.py:forage_pile` 的现有储粮堆网格与原材质，帽腔中始终一整堆，仅按三档缩放；非紧急照料暂放侧檐时每侧至多一堆。各档与食物种类无关，服务端占位由缩放后的实际顶点测量生成。`build.py --hat-cargo` 只更新本素材和 `hat_cargo_layout.json`，随后运行周边素材导出。离线当前模型预览输出到 `.local/previews/hat-cargo/` |
-| `goods.py` | 宠物照料四件物品（糖粒、布丁、牵引胴带、襁褓布）的 16×16 物品图标：按色板阶绘制，`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制，颜色常量取同一色板 |
+| `goods.py` | 宠物照料四件物品（糖粒、布丁、牵引胴带、襁褓布）的 16×16 物品图标：前三件按色板阶绘制，襁褓布按 `supplies.py` 的原版物品画法；`build.py` 写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/item/`；身上外观由 `client/CareWearRenderer` 程序化绘制 |
+| `wear.py` | 襁褓身上贴图：`swaddle_leaf_wear.png`（32×64：两片横卧整叶及其积便染色版，树叶襁褓的四片斜包叶与打开时的承托叶）与 `swaddle_wool_wear.png`（16×16 可平铺针织纹，布襁褓按顶点色着色）；直接运行写入 `art/props/pet-goods/`，`scripts/export_pet_goods_icons.py` 导出到 `textures/misc/`；`--check` 只读 |
+| `preview_wear.py`、`preview_wear.cjs` | 本机离线身上预览（不入库、不进游戏）：`.cjs` 逐行移植 `CareWearRenderer` 的半径剖面与布杯、四片叠叶、打开时承托叶算法，用审阅页 `RuntimePose` 取运行动作姿态并软件光栅化；`.py` 准备贴图图集（顶点色着色的针织纹、积便染色叶片）、调用 node 并拼成 `swaddle/on-body.png`（`MCYUKKURI_PREVIEWS` 可改预览根目录） |
 | `supplies.py` | 橙汁、面粉糊与廉价／普通／高级油粮五件物品的原版风格 16×16 图标：左上受光，每种材质用本文件内的色相偏移色阶，外轮廓取本材质最暗一阶，无黑边、无抗锯齿；直接运行写入 `art/props/supply-icons/`，`scripts/export_supply_icons.py` 导出贴图与 `item/generated` 物品模型 |
 | `trays.py` | 三种垫料 |
 | `render_preview.py`、`preview_nests*.py`、`preview_vanilla_care.py` | 本机离线预览（不入库、不进游戏）：软件光栅化网格，原版贴图引用从本机解出的原版资源（环境变量 `MCYUKKURI_VANILLA`）取用，成体／子体油库里以静止姿态对照尺度；`preview_vanilla_care.py` 另从本机原版客户端 jar（`MCYUKKURI_VANILLA_JAR`）读入炼药锅、堆肥桶、花盆方块模型并排对照，前后对比由 `MCYUKKURI_BEFORE` 指定旧资源树，输出到 `.local/previews/care-props/` |

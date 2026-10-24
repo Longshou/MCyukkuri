@@ -320,7 +320,8 @@ final class YukkuriSync {
         var familyPaddle=owner.aquaticLife().familyPaddle().carried();
         owner.getEntityData().set(CARRYING,
                 (!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
-                        ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying():EcologyRoutines.carryingFallback(owner)).copy());
+                        ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying()
+                        :!owner.leafSwaddle().carried().isEmpty()?owner.leafSwaddle().carried():EcologyRoutines.carryingFallback(owner)).copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
@@ -334,6 +335,11 @@ final class YukkuriSync {
             careTarget = partner == null ? -1 : partner.getId();
             careProgress = owner.childhood().careProgress() / (float) ChildhoodLife.FIRST_TOILET_CONTACT_TICKS;
         }
+        if (owner.leafSwaddle().caring()) {
+            var partner = owner.leafSwaddle().careTarget();
+            careTarget = partner == null ? -1 : partner.getId();
+            careProgress = owner.leafSwaddle().contactProgress();
+        }
         if (owner.woundComfort().licking()) { careTarget = owner.woundComfort().victimId(); careProgress = owner.woundComfort().contactProgress(); }
         owner.getEntityData().set(CARE_PARTNER, careTarget);
         owner.getEntityData().set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
@@ -344,7 +350,7 @@ final class YukkuriSync {
     void syncAppearance() {
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), owner.life().mouth())) owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
-        owner.getEntityData().set(WEAR, owner.pet().care().wearBits());
+        owner.getEntityData().set(WEAR, owner.wornBits());
     }
     void resetDeathPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
@@ -355,7 +361,7 @@ final class YukkuriSync {
         owner.getEntityData().set(EXPRESSION, "neutral");
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY,
                 owner.life().hasAccessory()); owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
-        owner.getEntityData().set(WEAR, owner.pet().care().wearBits());
+        owner.getEntityData().set(WEAR, owner.wornBits());
     }
     static void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(SUBSPECIES, 0);

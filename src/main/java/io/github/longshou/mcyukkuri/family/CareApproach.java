@@ -65,6 +65,8 @@ public final class CareApproach {
     }
     public String activity() { return waiting() ? incoming.kind==Kind.REAR ? rearResponse() : Behaviors.CARE_WAIT : Behaviors.IDLE; }
     private String rearResponse() {
+        // A swaddled child answers the leaf-swaddle care phase of this parent (open, assisted toilet, clean, rewrap).
+        if (incoming.owner.leafSwaddle().caringFor(owner)) return incoming.owner.leafSwaddle().receiverActivity(owner);
         int contact = incoming.owner.childhood().careProgress();
         if (contact == 0 || !FamilyFeedingContact.rearContact(incoming.owner, owner)) return Behaviors.FIRST_TOILET_WAIT;
         return contact >= ChildhoodLife.FIRST_TOILET_CONTACT_TICKS ? Behaviors.GROUND_TOILET : Behaviors.FIRST_TOILET_STIMULATED;

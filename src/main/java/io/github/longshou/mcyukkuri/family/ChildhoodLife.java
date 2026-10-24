@@ -510,13 +510,13 @@ public final class ChildhoodLife {
                 && entity.life().mealTicks() == 0 && !entity.life().hasUrgentNeed();
     }
 
-    private static boolean childAvailable(YukkuriEntity child) {
+    static boolean childAvailable(YukkuriEntity child) {
         return child.isAlive() && !child.isNoAi() && !child.isPanicking() && !child.isCommandPlaying()
                 && !child.operations().active() && !child.isOnFire() && !child.isInWaterOrBubble()
                 && !child.life().isSleeping() && child.life().mealTicks() == 0 && !child.family().awaitingLanding();
     }
 
-    private static boolean parentAvailable(YukkuriEntity parent) {
+    static boolean parentAvailable(YukkuriEntity parent) {
         return parent != null && childAvailable(parent) && parent.family().adult() && !parent.life().hasUrgentNeed()
                 && parent.subspecies().congenital() != SubspeciesLife.Congenital.BEAN_BODY
                 && !parent.family().laboring() && !parent.predator().active() && !parent.independence().active();

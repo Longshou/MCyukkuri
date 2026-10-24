@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Ship the four pet-care goods icons (sweet candy, custard pudding, pet harness, swaddle cloth).
+"""Ship the four pet-care goods icons (sweet candy, custard pudding, pet harness, swaddle cloth) and the worn swaddle textures.
 
-Reads the 16x16 snapshot PNGs written by standards/yukkuri-library/drafts/care-props/build.py from art/props/pet-goods/ and writes
-src/main/resources/assets/mcyukkuri/textures/item/<id>.png, then records input and output fingerprints in
-art/props/pet-goods/provenance.json. The item models (plain item/generated) are unchanged. --check is read-only.
+Reads the 16x16 snapshot PNGs written by standards/yukkuri-library/drafts/care-props/build.py (goods.py) from art/props/pet-goods/
+and writes src/main/resources/assets/mcyukkuri/textures/item/<id>.png; reads the leaf sheet and wool tile written by
+drafts/care-props/wear.py and writes them to textures/misc/ for client/CareWearRenderer. Input and output fingerprints are
+recorded in art/props/pet-goods/provenance.json. The item models (plain item/generated) are unchanged. --check is read-only.
 """
 import argparse
 import hashlib
@@ -13,7 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'art/props/pet-goods'
 ITEMS = ROOT / 'src/main/resources/assets/mcyukkuri/textures/item'
+MISC = ROOT / 'src/main/resources/assets/mcyukkuri/textures/misc'
 NAMES = ('sweet_candy', 'custard_pudding', 'pet_harness', 'swaddle_cloth')
+WEAR = ('swaddle_leaf_wear', 'swaddle_wool_wear')   # on-body textures, drawn by drafts/care-props/wear.py
 STATUS = 'pending_user_confirmation'
 
 
@@ -28,7 +31,13 @@ def outputs():
         result[ITEMS / f'{name}.png'] = data
         inputs[f'art/props/pet-goods/{name}.png'] = sha(data)
         outs[f'src/main/resources/assets/mcyukkuri/textures/item/{name}.png'] = sha(data)
+    for name in WEAR:
+        data = (SOURCE / f'{name}.png').read_bytes()
+        result[MISC / f'{name}.png'] = data
+        inputs[f'art/props/pet-goods/{name}.png'] = sha(data)
+        outs[f'src/main/resources/assets/mcyukkuri/textures/misc/{name}.png'] = sha(data)
     provenance = {'status': STATUS, 'generator': 'standards/yukkuri-library/drafts/care-props/build.py',
+                  'wear_generator': 'standards/yukkuri-library/drafts/care-props/wear.py',
                   'exporter': 'scripts/export_pet_goods_icons.py', 'palette': 'art/props/palette.json',
                   'inputs': inputs, 'outputs': outs}
     result[SOURCE / 'provenance.json'] = (json.dumps(provenance, ensure_ascii=False, indent=2) + '\n').encode('utf-8')

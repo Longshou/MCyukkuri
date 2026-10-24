@@ -32,6 +32,11 @@ public final class EcologyPresentation {
             // These distinct care/learning states select matching authored clips in YukkuriModel.
             // The base enum remains the closest locomotion family so server animation timing stays shared.
             case Behaviors.FEED_CHILD, Behaviors.FIRST_TOILET_ASSIST -> YukkuriAction.NUZZLE;
+            // Leaf swaddle care keeps the first-toilet rear-contact clip; harvesting and folding the leaves reuse the bedding press.
+            case Behaviors.LEAF_SWADDLE_WRAP, Behaviors.SWADDLE_UNWRAP, Behaviors.SWADDLE_TOILET_ASSIST, Behaviors.SWADDLE_CLEAN,
+                 Behaviors.SWADDLE_REWRAP -> YukkuriAction.NUZZLE;
+            case Behaviors.LEAF_SWADDLE_HARVEST, Behaviors.LEAF_SWADDLE_FOLD -> YukkuriAction.BRACE;
+            case Behaviors.LEAF_SWADDLE_SEEK, Behaviors.LEAF_SWADDLE_APPROACH -> YukkuriAction.LOOK_AROUND;
             case Behaviors.FIRST_TOILET_SEEK -> YukkuriAction.LOOK_AROUND;
             case Behaviors.NEWBORN_CRAWL, Behaviors.HAT_WALK -> YukkuriAction.WADDLE;
             case Behaviors.LEARN_JUMP -> YukkuriAction.HOP;
@@ -216,6 +221,10 @@ public final class EcologyPresentation {
             case Behaviors.FIRST_TOILET_SEEK, Behaviors.FIRST_TOILET_WAIT -> "teary";
             case Behaviors.FIRST_TOILET_STIMULATED -> "surprise";
             case Behaviors.FIRST_TOILET_ASSIST -> "closed_smile";
+            case Behaviors.LEAF_SWADDLE_HARVEST, Behaviors.LEAF_SWADDLE_FOLD -> "chewing_closed";
+            case Behaviors.LEAF_SWADDLE_WRAP, Behaviors.SWADDLE_REWRAP, Behaviors.SWADDLE_TOILET_ASSIST, Behaviors.SWADDLE_CLEAN,
+                 Behaviors.SWADDLE_RECEIVE -> "closed_smile";
+            case Behaviors.SWADDLE_UNWRAP -> "neutral";
             case Behaviors.NEWBORN_CRAWL, Behaviors.LEARN_JUMP -> "happy";
             case Behaviors.RECEIVE_MASH -> "open_smile";
             case Behaviors.SING -> (e.level().getGameTime()-e.getBehaviorStartTick())%10 < 7 ? "open_smile" : "closed_smile";
