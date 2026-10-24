@@ -126,7 +126,7 @@ def build(manifest, catalog, out):
         add(dict(id='scene:'+chapter['id'], category=category, kind='scene',
                  title=chapter.get('label', chapter['title']), summary=chapter['summary'],
                  chapter=chapter['id'], image=first, source=chapter.get('source'),
-                 visual='基础外观对照'))
+                 visual=chapter.get('visual', '基础外观对照')))
 
     for chapter in manifest['chapters']:
         add_chapter(chapter, config['chapters'].get(chapter['id'], 'other'))
