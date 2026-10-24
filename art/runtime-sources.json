@@ -145,6 +145,7 @@
       "leaked_filling",
       "yukkuri_toilet",
       "yukkuri_toilet_dirty",
+      "toilet_waste",
       "ceramic_toilet",
       "covered_toilet",
       "newspaper_mat",
@@ -161,8 +162,6 @@
       "bedding_bundle"
     ],
     "palette_only": [
-      "yukkuri_toilet",
-      "yukkuri_toilet_dirty",
       "wild_latrine",
       "wild_latrine_dirty",
       "rubber_ball",
@@ -186,10 +185,10 @@
       "note": "Parts of these meshes name vanilla textures instead of carrying pixels; they resolve to the player's Minecraft resources at runtime and are not stored in the repository.",
       "models": {
         "food_bowl_wheat": [
-          "minecraft:textures/item/wheat.png"
+          "minecraft:textures/item/wheat.png (one laid on each portion)"
         ],
         "food_bowl_forage": [
-          "minecraft:textures/block/short_grass.png (plains grass tint)"
+          "minecraft:textures/block/short_grass.png (plains grass tint, one crossed tuft per portion)"
         ],
         "forest_burrow/personal_leaf_nest/bedding_bundle": [
           "block/oak_leaves, birch_leaves, spruce_leaves (tinted), short_grass, moss_block, podzol_top, coarse_dirt, oak_log, spruce_log, hay_block_top, item/wheat"
@@ -199,13 +198,35 @@
         ]
       }
     },
-    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density); pet bed yukkuri_nest is the artificial bed (shallow fabric nest 20 wide, hollow floor 1.5, soft shell at most 3 high with lowered entrance; matching low collision, user refinement 2026-10-22), wild self-built nests are wild.py"
+    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed bowl, fills, pet bed, toilets and 2x2 nests are voxel_props; wild self-built nests are wild.py",
+    "voxel_props": {
+      "models": [
+        "food_bowl",
+        "food_bowl_regular",
+        "food_bowl_wheat",
+        "food_bowl_forage",
+        "yukkuri_nest",
+        "yukkuri_toilet",
+        "yukkuri_toilet_dirty",
+        "toilet_waste",
+        "ceramic_toilet",
+        "covered_toilet",
+        "large_yukkuri_nest",
+        "large_wild_nest"
+      ],
+      "author": "standards/yukkuri-library/drafts/care-props/vanilla_props.py",
+      "kit": "standards/yukkuri-library/drafts/care-props/voxel.py",
+      "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
+      "style": "vanilla block style on user request: 1/16 cubic cells, exposed faces only, hand-drawn 16x16 material tiles at 1 texel per unit (world aligned), axis normals; footprints, heights and entrances follow CareBlock collision, which is unchanged",
+      "status": "pending_user_confirmation",
+      "runtime_hook": "client/CareRenderer draws toilet_waste (half scale, on the floor at y 1 / 1.5) once per stored dropping in ceramic_toilet and covered_toilet"
+    }
   },
   "large_nests": {
     "source": "standards/yukkuri-library/drafts/care-props",
     "authors": {
-      "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/nests.py:large_yukkuri_nest",
-      "large_wild_nest": "standards/yukkuri-library/drafts/care-props/wild.py:large_wild_nest"
+      "large_yukkuri_nest": "standards/yukkuri-library/drafts/care-props/vanilla_props.py:large_yukkuri_nest",
+      "large_wild_nest": "standards/yukkuri-library/drafts/care-props/vanilla_props.py:large_wild_nest"
     },
     "exporter": "standards/yukkuri-library/drafts/care-props/large_nests.py",
     "snapshot": "art/props/large-nests",
@@ -216,17 +237,17 @@
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_yukkuri_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_yukkuri_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_yukkuri_nest.json",
-        "role": "pet family bed: thin strawberry basket-weave bolster (1.25 deep, crest 3.0) round a 28.5-wide cream quilted floor at 1.0 with no marked places, flush front opening"
+        "role": "pet family bed: strawberry woven rim one cell thick and 3 high round a 29-wide cream quilted wool floor at 1 with no marked places; front opening down to the floor"
       },
       "large_wild_nest": {
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_wild_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_wild_nest.json",
-        "role": "wild family bedding: one continuous 28.5-wide bed of pressed leaf and grass litter with hay and moss, no marked places; a single thin band of low leaf heaps (about 1.4 deep) bound with laid twigs under 3.0 at the edge, open front"
+        "role": "wild family bedding: one-cell bed of dry leaf litter with moss and hay patches and a few bare spots, no marked places; rim of green leaf heaps 2-3 high with laid twigs, open front"
       }
     },
-    "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; rounded (squircle n=4) outline at half-extent 15.5 (wild heaps up to 15.7), interior about 28.5 across, rim at most 3.0 high and down to floor level across about 14 units of the south side; family members settle anywhere",
-    "vanilla_texture_references": "large_wild_nest parts name block/oak_leaves, birch_leaves, spruce_leaves (tinted), short_grass, moss_block, podzol_top, oak_log, spruce_log, hay_block_top, item/wheat; nothing copied",
+    "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; 31-cell rounded (squircle n=4) outline at half-extent 15.5, one-cell rim leaving a 29-unit interior (collision interior 28.5), rim at most 3 high, down to the floor across 14 units of the south side and 2 high to |x| 11; family members settle anywhere",
+    "vanilla_texture_references": "none: all tiles hand-drawn in vanilla_props.py",
     "status": "pending_user_confirmation"
   },
   "pet_goods": {

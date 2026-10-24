@@ -3,11 +3,12 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: food bowl and its grain / wheat / forage fills, cushion pet nest, the three oil-grain bags, food
-scrap, waste, leaked filling, wash cloth, yarn ball and carrier. The four pet-care goods (sweet candy, custard pudding, pet harness,
-swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py. The sand toilet (clean and dirty) keeps its geometry and
-only moves onto the shared palette (retint); its dirty state swaps the old block for the anko swirl. The ceramic and covered toilets, mats, and spicy grain / food mash are
-authored by their own package builders, which import this kit. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
+Props authored here: the three oil-grain bags, forage pile, food scrap, waste, leaked filling, wash cloth, yarn ball and
+carrier on the low-poly kit; the placed food bowl with its grain / wheat / forage fills, the cushion pet nest and the sand
+toilet (clean and dirty) are vanilla-style voxel props from vanilla_props.py. The four pet-care goods (sweet candy, custard pudding, pet harness,
+swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
+The ceramic and covered toilets (vanilla_props.py), mats, and spicy grain / food mash are exported by their own package
+builders, which import this folder. The self-built nests of wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, predator_nest) are authored by wild.py with vanilla texture references and exported by
 ecology/wild-shelters/build.py and art/props/predators/build.py.
 The hat-boat provisions heaps and shared occupancy layout (three quantity tiers plus temporary side stow) come from cargo.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
@@ -19,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, designs, bags, nests, small, goods, cargo
+import kit, designs, bags, small, goods, cargo, vanilla_props
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
@@ -28,12 +29,8 @@ ICONS = ROOT / 'art/props/pet-goods'     # 16x16 item icons for the four pet-car
 GENERATOR = 'standards/yukkuri-library/drafts/care-props/build.py'
 
 BUILD = {
-    'food_bowl': designs.food_bowl,
-    'food_bowl_regular': designs.food_bowl_regular,
-    'food_bowl_wheat': designs.food_bowl_wheat,
-    'food_bowl_forage': designs.food_bowl_forage,
+    **vanilla_props.PROPS,
     'forage_pile': designs.forage_pile,
-    'yukkuri_nest': nests.yukkuri_nest,
     'oil_grain_budget': bags.oil_grain_budget,
     'oil_grain_regular': bags.oil_grain_regular,
     'oil_grain_premium': bags.oil_grain_premium,
@@ -45,37 +42,15 @@ BUILD = {
     'yukkuri_carrier': small.yukkuri_carrier,
     **cargo.CARGO,
 }
-RETINT = ('yukkuri_toilet', 'yukkuri_toilet_dirty')
 REMOVED = ('food_bowl_garbage',
            'hat_cargo_apple', 'hat_cargo_berries', 'hat_cargo_carrot', 'hat_cargo_bread', 'hat_cargo_cookie', 'hat_cargo_melon',
            'hat_cargo_grass', 'hat_cargo_tall_grass', 'hat_cargo_wheat', 'hat_cargo_candy', 'hat_cargo_pudding', 'hat_cargo_mat')          # no code or recipe references it; mesh, texture and registry rows are dropped
-
-
-def retint(name):
-    """Palette-only touch-up: same triangles, each flat-colour face re-pointed at the nearest shared swatch."""
-    folder = SNAP / name
-    mesh = json.loads((folder / f'{name}.mesh.json').read_text(encoding='utf-8'))
-    old = Image.open(folder / 'texture.png').convert('RGBA')
-    w, h = old.size
-
-    def swatch(part, uvs):
-        u, v = uvs[0]
-        px = old.getpixel((min(w - 1, int(u * w)), min(h - 1, int(v * h))))
-        return kit.nearest_swatch(px[:3])
-    prop = kit.Prop.from_mesh(name, mesh, swatch)
-    if name.endswith('_dirty'):
-        # the dirty state shows the shared anko swirl (scaled to the tray) instead of the old purple block
-        prop.parts = [part for part in prop.parts if part['name'] not in ('waste', 'swirl_mound')]
-        prop.graft(small.yukkuri_waste(), .5, (1.0, .7, .2))
-    return prop
 
 
 def outputs(only_cargo=False):
     result, props = {}, {}
     for name, factory in (cargo.CARGO if only_cargo else BUILD).items():
         props[name] = factory()
-    for name in (() if only_cargo else RETINT):
-        props[name] = retint(name)
     for name, factory in ({} if only_cargo else goods.GOODS).items():
         result[ICONS / f'{name}.png'] = preserve_equivalent_png(ICONS / f'{name}.png', factory().png())
     for name, prop in props.items():
@@ -93,7 +68,7 @@ def update_selection(result, only_cargo=False):
     import hashlib
     path = ROOT / 'art/props/runtime-peripheral/selection.json'
     data = json.loads(path.read_text(encoding='utf-8'))
-    names = set(cargo.CARGO) if only_cargo else set(BUILD) | set(RETINT) | set(REMOVED)
+    names = set(cargo.CARGO) if only_cargo else set(BUILD) | set(REMOVED)
     files = {}
     for key, entry in data['files'].items():
         folder = Path(entry['snapshot']).parent.name

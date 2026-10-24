@@ -1,4 +1,4 @@
-"""Family-size 2x2 nests: the woven pet bed (nests.large_yukkuri_nest) and wild grass/twig bedding (wild.large_wild_nest).
+"""Family-size 2x2 nests: the woven pet bed and the wild leaf bedding, vanilla-style voxel props from vanilla_props.py.
 
 Writes the snapshot art/props/large-nests/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png} with manifest fingerprints, and the
 runtime mesh, palette texture, particle-only block model, builtin item model, blockstate, loot table and zh_cn / en_us names.
@@ -12,14 +12,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, nests, wild
+import kit, vanilla_props
 from asset_export_checks import check_output, preserve_equivalent_png
 
 SNAPSHOT = ROOT / 'art/props/large-nests'
 ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 DATA = ROOT / 'src/main/resources/data/mcyukkuri'
 GENERATOR = 'standards/yukkuri-library/drafts/care-props/large_nests.py'
-BUILD = {'large_yukkuri_nest': nests.large_yukkuri_nest, 'large_wild_nest': wild.large_wild_nest}
+BUILD = vanilla_props.LARGE
 LABELS = {'large_yukkuri_nest': ('油库里大编织软窝', 'Large Woven Yukkuri Nest'),
           'large_wild_nest': ('野生大草窝', 'Large Wild Grass Nest')}
 
@@ -64,7 +64,7 @@ def outputs():
     emit(SNAPSHOT / 'manifest.json', {'status': 'pending_user_confirmation', 'generator': GENERATOR,
          'footprint': '2x2 blocks (32 x 32 units), origin at the footprint centre, entrance +z',
          'capacity': 'two adults and four newborns settling anywhere on an unmarked floor',
-         'interior': 'about 28.5 units (1.78 blocks) across inside a thin rim about 1.25-1.4 deep; outline within 15.5-15.7 of the centre',
+         'interior': 'about 29 units (1.8 blocks) across inside a one-cell rim; outline within 15.5 of the centre',
          'rim_max_height': 3.0, 'files': files})
     return result, props
 
