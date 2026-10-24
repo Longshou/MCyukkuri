@@ -2,6 +2,59 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "art-batch-items-remains-poses",
+      "label": "物品、遗体与演出美术",
+      "title": "原版风物品图标、按死因遗体、被炉帘布与咬刀／茎／握桨姿态",
+      "tag": "美术更新·待确认",
+      "summary": "三批美术均经独立审图通过，已接入运行资源；外观仍待用户确认。均为离线渲染，非游戏截图。",
+      "model": "reimu",
+      "points": [
+        "橙汁、小麦粉糊与三档油粮改为16×16原版风物品图标，与原版物品并排对照。",
+        "遗体按死因8种形态，水中泡软与溶化残渣两阶段，覆盖9个圆润模型。",
+        "被炉魔理沙补被褥帘布，小被炉以桌板为中心缩放。",
+        "妖梦横咬观楼剑、茎上子油竖直下垂随母体轻摆、水生魔理沙辫梢握桨。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "item-icons/item-icons.png",
+          "label": "橙汁、小麦粉糊、三档油粮（物品栏与原版对照、8×、手持挤出）"
+        },
+        {
+          "src": "remains/remains-forms.png",
+          "label": "遗体：灵梦、魔理沙 8 种死因与水中阶段"
+        },
+        {
+          "src": "remains/remains-other-models.png",
+          "label": "遗体：其余 7 个模型"
+        },
+        {
+          "src": "kotatsu/kotatsu-futon.png",
+          "label": "被炉魔理沙帘布 前后与动作帧"
+        },
+        {
+          "src": "kotatsu/kotatsu-small-hat.png",
+          "label": "小被炉缩放 前后"
+        },
+        {
+          "src": "poses/kanroken-bite.png",
+          "label": "妖梦咬观楼剑 前后"
+        },
+        {
+          "src": "poses/stem-hang-reimu.png",
+          "label": "茎生下垂：灵梦母体 前后"
+        },
+        {
+          "src": "poses/stem-hang-marisa.png",
+          "label": "茎生下垂：魔理沙母体 前后"
+        },
+        {
+          "src": "poses/paddle-grip.png",
+          "label": "水生魔理沙握桨 前后"
+        }
+      ]
+    },
+    {
       "id": "predator-body",
       "title": "捕食种共享身体",
       "summary": "复用当前标准身体、油菊与互斥伸缩结构，更新通用地面步态。",
