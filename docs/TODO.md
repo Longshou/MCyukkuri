@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 陆 5 被炉帘布 | `.worktrees/art-kotatsu` | `standards/yukkuri-library/subspecies/rare-forms/`、`art/source/rare-forms-runtime/marisa_kotatsu/`、`yukkuri/marisa_kotatsu.json`、`textures/entity/marisa_kotatsu/` |
 | 陆 17 妖梦咬刀、陆 22 茎下垂、水 13 握桨 | `.worktrees/art-poses` | `client/YukkuriRenderer.java`、`client/HeldItemPresentation.java`、`client/FamilyRenderer.java`、`family/FamilyGeometry.java`、`client/AquaticMotionPresentation.java` |
 
 ## 玩法待办
