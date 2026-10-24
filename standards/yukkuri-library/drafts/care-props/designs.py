@@ -12,16 +12,17 @@ from wild_kit import WildProp, rng_of
 # beside the nest - a caterpillar, a white flower, rolled clumps of green grass (EH19); hay and "bug dumplings" kept in the
 # nest (N71); dry grass and nuts kept for winter (L06); flowers, caterpillars and fallen fruit gathered (N93, N38, EH35).
 # The shape, its four stages and the mix shown are project design. Unit 0: three big leaves (dry, green, old) as the
-# plate, always shown. Units 1..4: one low round hay mound per stage (a later mound swallows the earlier one), a few tied
-# sheaves laid across its top like the nest rims, a cluster of red berries on one side of the top; the front of the plate
+# plate, always shown. Units 1..4: one low round hay mound per stage (a later mound swallows the earlier one), a few
+# mouthfuls of loose grass pressed onto its top like the nest rims and stems lying across it (nothing tied: wild
+# yukkuri have no hands, user ruling), a cluster of red berries on one side of the top; the front of the plate
 # gathers grass balls and a caterpillar as in EH19, one more item per stage; the full pile adds one small white flower.
 # Colours stay hay yellow, leaf green and the red accent. About 2/16 high for a handful, 5/16 when full.
 PLATE_Y = .22
 LEAF_SCALE = .66                          # plate leaves at 2/3 size: the plate stays inside the block and the deepest hat cavity
 MOUND = ((2.6, 1.5), (3.3, 2.3), (3.9, 3.1), (4.3, 3.8))      # radius, height of the hay mound per stage
 MOUND_Z = -.7                                                   # mound sits toward the back; the plate's front stays clear
-# sheaves on each stage's mound: (angle across the top, offset from the top along z, length)
-SHEAVES = (((.4, 0.0, 3.2),),
+# loose wads pressed onto each stage's mound: (angle across the top, offset from the top along z, length)
+WADS = (((.4, 0.0, 3.2),),
            ((.2, .4, 3.8), (2.2, -.6, 3.4)),
            ((.5, .5, 4.4), (2.0, -.7, 4.0)),
            ((.1, .7, 4.8), (1.4, -.4, 4.6), (2.7, .2, 4.2)))
@@ -49,17 +50,20 @@ def caterpillar(p, part, x, z, heading):
         p.cube(part, [px, PLATE_Y + .55 + (.15 if k == 3 else 0), pz], (.72, .66, .72), 'worm', yaw=-a, offset=(k * 3, 0))
 
 
-def sheaf(p, part, rng, stage, angle, offset, length):
-    """A tied sheaf lying across the top of the mound, ends sloping down with it."""
-    from wild_kit import PathLine, bundle
+def top_wad(p, part, rng, stage, angle, offset, length):
+    """A mouthful of loose grass pushed onto the mound and pressed down, ends sloping with it, a stem or two across it."""
+    from wild_kit import PathLine, wad
     cx, cz = 0.0, MOUND_Z + offset
     dx, dz = math.cos(angle) * length / 2, math.sin(angle) * length / 2
     a, b = (cx - dx, cz - dz), (cx + dx, cz + dz)
     nx, nz = -math.sin(angle), math.cos(angle)
     line = PathLine([(a[0], a[1], nx, nz), (b[0], b[1], nx, nz)])
     base = min(mound_height(a[0], a[1], stage), mound_height(b[0], b[1], stage), mound_height(cx, cz, stage)) - .35
-    bundle(p, part, line, 0, line.length, base + 1.45, .85, .85, foot=base, droop=-.25 if rng.random() < .5 else .25,
-           tex0=rng.randrange(16), old=rng.random() < .33)
+    wad(p, part, line, 0, line.length, base, base + 1.25, 1.1, 1.1, droop=-.25 if rng.random() < .5 else .25,
+        tex0=rng.randrange(16), old=rng.random() < .33)
+    a2 = angle + rng.uniform(.6, 1.2)
+    sx, sz = cx - math.cos(a2) * length * .4, cz - math.sin(a2) * length * .4
+    p.straw(part, [sx, mound_height(sx, sz, stage) + .3, sz], a2, rng.uniform(-.1, .15), length * .8, s0=rng.randrange(8))
 
 
 def forage_pile():
@@ -77,8 +81,8 @@ def forage_pile():
         R, H = MOUND[stage - 1]
         hay = p.mat(f'stored_hay_{stage}', stage)
         p.dome(hay, (0, PLATE_Y - .15, MOUND_Z), R, R * .9, H + .15, 'hay', rng, seg=9, phase=stage * .6, jitter=.06)
-        for angle, offset, length in SHEAVES[stage - 1]:
-            sheaf(p, hay, rng, stage, angle, offset, length)
+        for angle, offset, length in WADS[stage - 1]:
+            top_wad(p, hay, rng, stage, angle, offset, length)
         food = p.mat(f'food_{stage}', stage)
         bx, bz = 1.1, MOUND_Z - .9
         berries(p, food, [bx, mound_height(bx, bz, stage) + .2, bz], rng)

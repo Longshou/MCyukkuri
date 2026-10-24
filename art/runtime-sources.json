@@ -71,7 +71,7 @@
         "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
-        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults; leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a woven dry-grass roll (crest 9 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
+        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults; leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a rim of loose dry grass pressed down in layers, nothing tied (crest 9 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
       },
       "personal_leaf_nest": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
@@ -85,7 +85,7 @@
         "selected": "art/props/wild-shelters/bedding_bundle.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/bedding_bundle.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/bedding_bundle.png",
-        "role": "finite harvested leaves and grass held at the mouth and placed before spreading: a small tied sheaf of dry grass with a leaf under the tie"
+        "role": "finite harvested leaves and grass held at the mouth and placed before spreading: a small loose mouthful of dry grass and a leaf, not tied"
       }
     },
     "status": "pending_user_confirmation",
@@ -267,7 +267,7 @@
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/large_wild_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/large_wild_nest.png",
         "block_model": "src/main/resources/assets/mcyukkuri/models/block/large_wild_nest.json",
-        "role": "wild family bedding (wild_kit atlas): leaf-litter pad at the collision floor 0.5 with lining leaves, moss and hay, no marked places; woven dry-grass roll up to 3 high following the collision rim and front shoulders, twigs worked in, open front"
+        "role": "wild family bedding (wild_kit atlas): leaf-litter pad at the collision floor 0.5 with lining leaves, moss and hay, no marked places; rim of loose dry grass pressed down in layers, up to 3 high, following the collision rim and front shoulders, twigs worked in, open front"
       }
     },
     "geometry": "2x2 block footprint (32 x 32 units) centred on the origin = shared corner of the four blocks; entrance +z; 31-cell rounded (squircle n=4) outline at half-extent 15.5, one-cell rim leaving a 29-unit interior (collision interior 28.5), rim at most 3 high, down to the floor across 14 units of the south side and 2 high to |x| 11; family members settle anywhere",

@@ -6,9 +6,10 @@ its own hue-shifted ramp (shadows toward olive / red-brown, lights toward pale y
 own outline, no black, no anti-aliasing, alpha only 0 or 255. Nothing is copied from Minecraft.
 
 Shapes follow vanilla's way of building organic props (campfire logs, composter, hay bale, beehive): a few large rounded
-pieces instead of many small blocks. Nest rims are tied bundles of dry grass (short rolls swept along the rim path with
-tapered, cut ends) overlapping into a ring, the straw texture running along each bundle like a bird's nest; stored hay is
-a lumpy low-poly dome; twigs and loose stems are square sticks; leaves and flowers are cut-out sprites. Every texture is mapped at the vanilla density of
+pieces instead of many small blocks. Wild yukkuri have no hands and can only carry in the mouth, push, press and pile
+(user ruling), so nothing is tied: nest rims are mouthfuls of loose dry grass pressed down in overlapping layers (short
+flattened lumps swept along the rim path, stems lying along it) with stems, twigs and leaves pushed in; stored hay is a
+low lumpy mound; twigs and loose stems are square sticks; leaves and flowers are cut-out sprites. Every texture is mapped at the vanilla density of
 one texel per unit (16 per block); tiling surfaces stay world/path continuous. Units are 1/16 block, +Y up.
 """
 import math, random, zlib
@@ -200,8 +201,8 @@ def clumps(key, ramp, base=2, count=9, dark=8):
     return c.image()
 
 
-def straw_end(key):
-    """Cut end of a tied grass bundle: packed stem ends as light dots with dark hollows."""
+def stem_ends(key):
+    """Blunt end of a pressed layer of loose grass: stem ends as light dots with dark hollows between them."""
     r = rng_of(key)
     c = Canvas(STRAW[1])
     for y in range(0, T, 2):
@@ -385,7 +386,7 @@ TILES = {
     'weave': (0, 0), 'weave_in': (32, 0), 'litter': (64, 0), 'hay': (96, 0),
     'moss': (0, 32), 'bark': (32, 32), 'blades': (64, 32), 'worm': (96, 32),
     'berry': (0, 64), 'nut': (32, 64), 'cap': (64, 64), 'litter_dry': (96, 64),
-    'wood_end': (0, 96), 'straw_end': (96, 96), 'stem': (0, 128),
+    'wood_end': (0, 96), 'stem_ends': (96, 96), 'stem': (0, 128),
 }
 SPRITES = {
     'leaf_green': (32, 96), 'leaf_dry': (48, 96), 'leaf_old': (64, 96), 'leaf_slim': (32, 112),
@@ -399,7 +400,7 @@ def tile_images():
         'moss': clumps('moss', MOSS), 'bark': bark('bark'), 'blades': blades('blades'), 'worm': caterpillar(),
         'berry': solid(BERRY, 2, 'berry', .35), 'nut': solid(NUT, 2, 'nut', .3), 'cap': solid(CAP, 1, 'cap', .5),
         'litter_dry': litter('litter_dry', mix=((DRYLEAF, 5), (STRAW, 3), (OLD, 2)), straws=10),
-        'wood_end': wood_end(), 'straw_end': straw_end('se'), 'stem': stem('stem'),
+        'wood_end': wood_end(), 'stem_ends': stem_ends('se'), 'stem': stem('stem'),
     }
 
 
@@ -788,33 +789,49 @@ class PathLine:
                 return a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, nx / d, nz / d
 
 
-def bundle(prop, part, line, s0, s1, h, inner, outer, foot=0.0, inner_foot=None, shift=0.0, droop=0.0, tex0=0.0,
-           inner_split=2, old=False, tie=True):
-    """One tied sheaf of dry grass laid straight along the chord of a stretch of path: a short, barely tapered roll with
-    flat cut ends showing the packed stems, a dark twisted-grass tie round its middle, faceted so the fibres read. droop
-    lowers one end (signed) so neighbouring sheaves sit at slightly different angles; old sheaves use the weathered straw."""
-    xa, za, nxa, nza = line.at(s0)
-    xb, zb, nxb, nzb = line.at(s1)
-    nx, nz = nxa + nxb, nza + nzb
-    d = math.hypot(nx, nz) or 1
-    nx, nz = nx / d, nz / d
-    length = math.hypot(xb - xa, zb - za)
-    us = (0.0, .12, .5, .88, 1.0)
-    scale = (.86, 1.0, 1.0, 1.0, .86)
-    path = [(xa + (xb - xa) * u, za + (zb - za) * u, nx, nz, tex0 + length * u) for u in us]
-    fi = foot if inner_foot is None else inner_foot
-    tile = 'weave_in' if old else 'weave'
+def wad(prop, part, line, s0, s1, y0, y1, inner, outer, shift=0.0, droop=0.0, tex0=0.0, old=False, inner_split=2):
+    """One mouthful of loose dry grass pushed and pressed down along a stretch of path, from y0 up to y1: a flattened,
+    slightly curved lump with ragged blunt ends, stems lying along the path, faceted so the fibres read. droop tips one
+    end (signed); old layers use the weathered grey-brown straw. Nothing is tied: wild yukkuri have no hands."""
+    us = (0.0, .2, .5, .8, 1.0)
+    scale = (.62, .92, 1.0, .9, .66)
+    path = []
+    for u in us:
+        x, z, nx, nz = line.at(s0 + (s1 - s0) * u)
+        path.append((x, z, nx, nz, tex0 + (s1 - s0) * u))
 
-    def section(u, f):
-        hh = fi + (h * (1 + droop * (u - .5)) - fi) * f
-        return [(t * f + shift, y) for t, y in rim_profile(max(hh, fi + .3), inner, outer, foot, inner_foot)]
-    prop.roll(part, path, lambda i: section(us[i], scale[i]), tile_out=tile, inner_split=inner_split, cap_start=True,
-              cap_end=True, tile_cap='straw_end', faceted=True)
-    if tie and length > 2.2:
-        a, b = .5 - .5 / length, .5 + .5 / length
-        band = [(xa + (xb - xa) * u, za + (zb - za) * u, nx, nz, length * u) for u in (a, b)]
-        prop.roll(part, band, lambda i: section((a, b)[i], 1.07), tile_out='bark', tile_in='bark', cap_start=True,
-                  cap_end=True, tile_cap='bark', faceted=True)
+    def section(i):
+        f = scale[i]
+        top = y0 + (y1 * (1 + droop * (us[i] - .5)) - y0) * f
+        return [(t * (.55 + .45 * f) + shift, y) for t, y in rim_profile(max(top, y0 + .25), inner, outer, y0, y0)]
+    prop.roll(part, path, section, tile_out='weave_in' if old else 'weave', inner_split=inner_split, cap_start=True,
+              cap_end=True, tile_cap='stem_ends', faceted=True)
+
+
+# Layers of a pressed rim: (bottom, top) as fractions of the rim height, width factor, wad length.
+RIM_LAYERS = ((0.0, .55, 1.0, 4.6), (.3, .85, .72, 4.0), (.6, 1.0, .46, 3.0))
+
+
+def pressed_rim(prop, part, rng, line, lo, hi, h, inner, outer, foot, layers=3, overlap=1.0, bias=0.0):
+    """A rim stretch built the way a yukkuri builds it: mouthfuls of loose grass pushed into place and pressed down in
+    layers - a wide flattened bottom layer, a narrower middle layer laid over its joints and short top wads with gaps -
+    each wad a little askew, about a third of them old weathered grass. Wads reach `overlap` past lo / hi so stretches
+    built separately (the joinable bed pieces) still meet; bias moves every wad inward (-) or outward (+)."""
+    span = hi - lo
+    for li, (b, t, w, seg) in enumerate(RIM_LAYERS[:layers]):
+        n = max(1, round(span / seg))
+        step = span / n
+        start = lo + (step / 2 if li == 1 and n > 1 else 0.0)
+        count = n - 1 if li == 1 and n > 1 else n
+        for k in range(count):
+            s0 = max(lo - overlap, start + k * step - overlap * rng.uniform(.4, 1.0))
+            s1 = min(hi + overlap, start + (k + 1) * step + overlap * rng.uniform(.4, 1.0))
+            if li == 2 and n > 1 and rng.random() < .25:
+                continue                                                      # gaps between the top wads
+            y0 = foot + (h - foot) * b * rng.uniform(.85, 1.0)
+            y1 = foot + (h - foot) * t * rng.uniform(.9, 1.06)
+            wad(prop, part, line, s0, s1, y0, y1, inner * w * rng.uniform(.85, 1.1), outer * w * rng.uniform(.85, 1.1),
+                shift=bias + rng.uniform(-.5, .5) * w, droop=rng.uniform(-.3, .3), tex0=rng.randrange(16), old=rng.random() < .33)
 
 
 def smooth(x):

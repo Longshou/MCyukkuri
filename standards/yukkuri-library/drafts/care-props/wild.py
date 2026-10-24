@@ -1,7 +1,7 @@
 """Self-built nests of wild yukkuri.
 
 Ordinary wild yukkuri (forest_burrow, personal_leaf_nest, bedding_bundle, large_wild_nest) use the hand-drawn wild_kit atlas
-shared with the forage pile: a woven dry-grass roll, a leaf-litter pad, big leaves, square twigs and grass tufts, every
+shared with the forage pile: loose dry grass pressed down in layers, a leaf-litter pad, big leaves, square twigs and stems, every
 texture at 1 texel per unit. The predator species' twig nest (predator_nest) keeps its vanilla texture references
 (minecraft:textures/..., never copied, plains tint on leaves and grass) through Builder below.
 Units are 1/16 block, origin at the centre of the bed, ground Y = 0, +Z is the south side.
@@ -16,7 +16,7 @@ Render units follow client/ShelterRenderer: forest_burrow 1 = bedding, 2..5 = si
 """
 import math
 from kit import Prop, deterministic
-from wild_kit import WildProp, PathLine, bundle, rim_profile, rng_of, smooth
+from wild_kit import WildProp, PathLine, pressed_rim, wad, rng_of, smooth
 
 V = 'minecraft:textures/'
 LEAF = (V + 'block/oak_leaves.png', (138, 196, 58))        # plains foliage tint
@@ -110,9 +110,10 @@ class Builder:
 
 
 # =====================================================================================================================
-# Self-built nests of ordinary wild yukkuri (wild_kit atlas, hand drawn). A bird's-nest bowl: a woven roll of dry grass
-# whose strands circle the bed, a floor of fallen leaves and straw, a few big leaves laid in as lining, a couple of square
-# twigs worked into the rim and grass tufts poking out. Wiki: dry-grass bowl nests lined with green leaves (EH19, M04),
+# Self-built nests of ordinary wild yukkuri (wild_kit atlas, hand drawn). A bird's-nest bowl: wild yukkuri have no hands
+# and only carry in the mouth, push, press and pile (user ruling), so the rim is mouthfuls of loose dry grass pushed into a
+# ring and pressed down in layers, stems lying round the bed; a floor of fallen leaves and straw, a few big leaves laid in
+# as lining, a couple of square twigs pushed into the rim and loose stems poking out. Nothing is tied or bound. Wiki: dry-grass bowl nests lined with green leaves (EH19, M04),
 # a hay bed wider than the sleeping circle (N103), leaves and twigs gathered in autumn (N38), moss layers (N23).
 # Arrangement, sizes and the moss / twig mix are project design.
 
@@ -123,7 +124,7 @@ def to_world(side, a, t):
 
 SIDE_H = (5.0, 4.0, 2.4, 4.0)          # crest height by side: back (north) highest, front (south, entrance side) lowest
 CREST = 9.0                            # crest line distance from the bed centre
-BED_IN, BED_OUT = 2.9, 2.8             # bundle half widths at the foot: inner foot near t 6.1, outer foot near t 11.8
+BED_IN, BED_OUT = 2.9, 2.8             # rim half widths at the foot: inner foot near t 6.1, outer foot near t 11.8
 PAD_Y = .18                            # top of the leaf pad; the sleeping surface stays at y 0
 ARC_SIDES = {(-1, -1): (0, 3), (-1, 1): (3, 2), (1, 1): (2, 1), (1, -1): (1, 0)}     # corner -> (side before, side after)
 
@@ -169,28 +170,12 @@ def tufts(p, part, rng, line, s_lo, s_hi, h, count):
                     rng.uniform(-.15, .2), rng.uniform(2.5, 4.0), s0=rng.randrange(8))
 
 
-def rim_run(p, part, rng, line, lo, hi, h, n, tex0=0):
-    """n thin grass bundles overlapping along a stretch of rim, staggered in two rows (the inner row a little higher)."""
-    step = (hi - lo) / n
-    for k in range(n):
-        s0 = lo if k == 0 else lo + k * step - rng.uniform(.6, 1.2)
-        s1 = hi if k == n - 1 else lo + (k + 1) * step + rng.uniform(.6, 1.2)
-        inner_row = k % 2 == 0
-        bundle(p, part, line, s0, s1, h * (rng.uniform(.95, 1.08) if inner_row else rng.uniform(.8, .95)),
-               BED_IN * rng.uniform(.5, .62), BED_OUT * rng.uniform(.5, .62), inner_foot=PAD_Y,
-               shift=(-.95 if inner_row else .95) + rng.uniform(-.25, .25), droop=rng.uniform(-.25, .25), tex0=tex0 + 5 * k,
-               old=rng.random() < .33)
-        if n > 2 and k < n - 1:                                       # a second, offset bundle under each joint
-            bundle(p, part, line, lo + (k + .6) * step, lo + (k + 1.4) * step, h * rng.uniform(.75, .9),
-                   BED_IN * .5, BED_OUT * .5, inner_foot=PAD_Y, shift=(.95 if inner_row else -.95), droop=0.0, tex0=tex0 + 3,
-                   old=rng.random() < .33)
-
-
 def forest_burrow():
     """Shared family bed cell. Unit 1: leaf pad over the whole cell (seamless with neighbouring cells). Units 2..5 = side
     mids N/E/S/W (|a| <= 4), 6..9 = corner arcs NE/SE/SW/NW (both adjoining sides exposed), 10..17 = side ends where the edge
-    runs on over the next bed: N-west N-east E-north E-south S-east S-west W-south W-north. Each piece is two to four thin,
-    straight tied sheaves (flat cut ends, a dark tie, a third of them weathered grey-brown) in two staggered rows, reaching a little past its ends, so joined pieces overlap into one lumpy rim round the whole bed."""
+    runs on over the next bed: N-west N-east E-north E-south S-east S-west W-south W-north. Each piece is loose dry grass
+    carried in by mouth and pressed down in layers (pressed_rim), reaching a little past its ends, so joined pieces
+    overlap into one lumpy rim round the whole bed; nothing is tied."""
     p = WildProp('forest_burrow')
     rng = rng_of('forest_burrow')
     pad = p.mat('leaf_pad', 1)
@@ -204,7 +189,7 @@ def forest_burrow():
         part = p.mat(f'rim_side_{"nesw"[side]}', 2 + side)
         line = side_line(side)
         h = SIDE_H[side]
-        rim_run(p, part, rng, line, 3.3, 12.7, h, 4)                       # a = -4.7 .. 4.7
+        pressed_rim(p, part, rng, line, 4.0, 12.0, h, BED_IN, BED_OUT, PAD_Y, overlap=.8)   # a = -4 .. 4
         if side != 2:
             x0, z0, nx, nz = line.at(5.0)
             x1, z1, _, _ = line.at(11.5)
@@ -217,15 +202,15 @@ def forest_burrow():
     for unit, corner in zip((6, 7, 8, 9), ((1, -1), (1, 1), (-1, 1), (-1, -1))):
         part = p.mat('rim_corner_' + {(1, -1): 'ne', (1, 1): 'se', (-1, 1): 'sw', (-1, -1): 'nw'}[corner], unit)
         line, ha, hb = arc_line(*corner)
-        rim_run(p, part, rng, line, -.4, line.length + .4, (ha + hb) / 2 + .2, 3, tex0=12)
+        pressed_rim(p, part, rng, line, 0.0, line.length, (ha + hb) / 2 + .2, BED_IN, BED_OUT, PAD_Y, overlap=.5)
         x, z, nx, nz = line.at(line.length / 2)
         p.ball(part, [x + nx * 2.2, .5, z + nz * 2.2], 1.1, 'moss', rng, seg=6, squash=.55)
         tufts(p, part, rng, line, 1.0, line.length - 1.0, ha, 3)
     for unit, side, sign in ((10, 0, 1), (11, 0, -1), (12, 1, 1), (13, 1, -1), (14, 2, 1), (15, 2, -1), (16, 3, 1), (17, 3, -1)):
         part = p.mat(f'rim_end_{unit}', unit)
         line = side_line(side)
-        lo, hi = (11.4, 16.6) if sign > 0 else (-.6, 4.6)                  # a = 3.4 .. 8.6 or -8.6 .. -3.4
-        rim_run(p, part, rng, line, lo, hi, SIDE_H[side], 2, tex0=3)
+        lo, hi = (12.0, 16.0) if sign > 0 else (0.0, 4.0)                  # a = 4 .. 8 or -8 .. -4
+        pressed_rim(p, part, rng, line, lo, hi, SIDE_H[side], BED_IN, BED_OUT, PAD_Y, overlap=.7)
         tufts(p, part, rng, line, lo + 1, hi - 1, SIDE_H[side], 3)
     return p
 
@@ -246,27 +231,23 @@ def front_drop(x, z):
     return smooth((math.sin(a) + .25) * 1.2)
 
 
-def ring_of_bundles(p, part, rng, line, count, h_back, h_front, inner, outer, foot, overlap=1.1, gaps=()):
+def pressed_ring(p, part, rng, line, count, h_back, h_front, inner, outer, foot, layers=3, gaps=()):
+    """A closed rim of pressed loose grass in `count` stretches, each as high as its place between back and front."""
     step = line.length / count
     start = rng.uniform(0, step)
     for k in range(count):
         if k in gaps:
             continue
-        s0 = start + k * step - overlap * rng.uniform(.6, 1.0)
-        s1 = start + (k + 1) * step + overlap * rng.uniform(.6, 1.0)
+        s0, s1 = start + k * step, start + (k + 1) * step
         x, z, _, _ = line.at((s0 + s1) / 2)
         h = h_back - (h_back - h_front) * front_drop(x, z)
-        inner_row = k % 2 == 0
-        bundle(p, part, line, s0, s1, h * (rng.uniform(.95, 1.1) if inner_row else rng.uniform(.8, .95)),
-               inner * rng.uniform(.5, .62), outer * rng.uniform(.5, .62), inner_foot=foot,
-               shift=(-.55 if inner_row else .55) * (inner + outer) / 2 + rng.uniform(-.2, .2), droop=rng.uniform(-.25, .25),
-               tex0=rng.randrange(16), old=rng.random() < .33)
+        pressed_rim(p, part, rng, line, s0, s1, h, inner, outer, foot, layers=layers, overlap=.6)
 
 
 def personal_leaf_nest():
     """A growing child's own bed, oval hollow about 10 x 8. Stage 1 (unit 1): a scrap of leaf litter, a few big leaves and
-    fallen stems on the spot. Stage 2 (unit 2): a low, thin ring of loose grass bundles with a gap round a wider pad. Stage 3
-    (unit 3): the ring tied up into a bowl of thin bundles in two staggered rows (back highest, front low), twigs worked in, stems poking out and
+    fallen stems on the spot. Stage 2 (unit 2): a low, thin ring of pressed loose grass with gaps round a wider pad. Stage 3
+    (unit 3): more grass pushed on and pressed in layers into a bowl (back highest, front low), twigs pushed in, stems poking out and
     a leaf hanging over the rim."""
     p = WildProp('personal_leaf_nest')
     rng = rng_of('personal_leaf_nest')
@@ -280,10 +261,10 @@ def personal_leaf_nest():
         p.straw(s1, [-2.0 + k * .7, .25, -2.4 + k * .3], .4 + k * .5, 0.0, 3.0 + k * .4, s0=k * 5)
     s2 = p.mat('rough_ring', 2)
     p.patch(s2, (0, 0), (RX - .4, RZ - .4), .12, 'litter_dry', rng, seg=14, wobble=.06)
-    ring_of_bundles(p, s2, rng, oval_line(RX - .5, RZ - .5), 12, 1.6, 1.0, 1.3, 1.2, .1, overlap=.4, gaps=(7, 8))
-    s3 = p.mat('woven_bowl', 3)
+    pressed_ring(p, s2, rng, oval_line(RX - .5, RZ - .5), 6, 1.6, 1.0, 1.3, 1.2, .1, layers=1, gaps=(4,))
+    s3 = p.mat('pressed_bowl', 3)
     line = oval_line(RX, RZ)
-    ring_of_bundles(p, s3, rng, line, 16, 3.4, 1.9, 2.0, 2.1, .14)
+    pressed_ring(p, s3, rng, line, 6, 3.4, 1.9, 2.0, 2.1, .14)
     for f0, f1, o in ((.05, .2, .3), (.55, .68, .2)):
         x0, z0, nx0, nz0 = line.at(line.length * f0)
         x1, z1, nx1, nz1 = line.at(line.length * f1)
@@ -302,23 +283,26 @@ def personal_leaf_nest():
 
 
 def bedding_bundle():
-    """One carried portion: a small tied sheaf of dry grass (a hay bale in miniature, strands along its length) with a green
-    grass tie, a leaf tucked under the tie and splayed straw at both ends."""
+    """One carried portion: a small loose mouthful of dry grass and leaves as it was set down - two pressed wads, a green
+    leaf caught in them and stems sticking out every way. Nothing is tied."""
     p = WildProp('bedding_bundle')
-    part = p.mat('sheaf')
-    p.stick(part, [-2.5, 1.3, .35], [2.5, 1.3, -.35], 1.25, side='weave', end='hay', hw=1.1, roll=.12)
-    p.stick(part, [-.45, 1.3, .06], [.45, 1.3, -.06], 1.4, side='blades', end='blades', hw=1.25, roll=.12)
-    p.leaf(part, 'leaf_slim', (.2, 2.6, .1), 1.6, fold=.35, curl=.1, scale=.7)
-    for x, z, a in ((-2.5, .35, math.pi), (2.5, -.35, 0.0)):        # splayed stems at both cut ends
-        for k, (dy, da) in enumerate(((.5, .35), (-.3, -.4), (.1, .05))):
-            p.straw(part, [x, 1.3 + dy, z], a + da, .1 * k - .05, 1.4 + .3 * k, s0=4 * k)
+    rng = rng_of('bedding_bundle')
+    part = p.mat('mouthful')
+    line = PathLine([(-2.6, .4, -.15, .99), (2.6, -.4, -.15, .99)])
+    wad(p, part, line, 0.0, line.length, 0.0, 1.9, 1.6, 1.5, droop=.15, tex0=3)
+    wad(p, part, line, .8, line.length - 1.2, .9, 2.7, 1.0, 1.0, shift=.3, droop=-.2, tex0=9, old=True)
+    p.leaf(part, 'leaf_slim', (.3, 2.2, .3), 1.9, fold=.35, curl=.1, scale=.7)
+    for k in range(9):
+        a = rng.uniform(0, math.tau)
+        p.straw(part, [math.cos(a) * 1.2, rng.uniform(.6, 2.2), math.sin(a) * .6], a + rng.uniform(-.6, .6), rng.uniform(-.2, .5),
+                rng.uniform(1.6, 2.8), s0=k)
     return p
 
 
 # ---- 2x2 wild family nest -------------------------------------------------------------------------------------------
 # 31 units across (outline within 15.5 of the centre), entrance on +z. Collision (life/CareBlock.largeNestShape wild):
 # floor 0.5, rim 2.6 outside a 14.25 rounded square, the front open to the floor across |x| < 7, then 1.5 to 10 and 2.3 to
-# 12. The woven roll follows that profile and stays within 3.0 high.
+# 12. The pressed grass rim follows that profile and stays within 3.0 high.
 LARGE_CREST = 14.35
 
 
@@ -345,7 +329,7 @@ def large_rim_height(x, z):
 
 
 def large_wild_nest():
-    """Wild family bedding on a 2x2 footprint: a woven dry-grass roll round three sides and the front shoulders, a pad of
+    """Wild family bedding on a 2x2 footprint: a rim of loose dry grass pressed down in layers round three sides and the front shoulders, a pad of
     fallen leaves at the collision floor with big green and dry leaves, moss and loose hay laid in, square twigs worked
     into the roll and dry tufts poking out of it. Open across the +z front."""
     p = WildProp('large_wild_nest')
@@ -382,19 +366,13 @@ def large_wild_nest():
     if pts[1][1] > pts[0][1]:
         pts = pts[::-1]
     line = PathLine(pts)
-    rim = p.mat('woven_rim')
-    count = 26                                                         # thin bundles in two staggered rows
-    step = line.length / count
-    for k in range(count):
-        s0 = max(0.0, k * step - rng.uniform(.8, 1.4))
-        s1 = min(line.length, (k + 1) * step + rng.uniform(.8, 1.4))
+    rim = p.mat('pressed_rim')
+    stretches = 9                                                      # pressed loose grass, kept inside the footprint
+    step = line.length / stretches
+    for k in range(stretches):
+        s0, s1 = k * step, (k + 1) * step
         x, z, _, _ = line.at((s0 + s1) / 2)
-        droop = rng.uniform(-.2, .2)
-        inner_row = k % 2 == 0
-        h = min(large_rim_height(x, z) * (rng.uniform(.96, 1.06) if inner_row else rng.uniform(.8, .92)), 2.75 / (1 + abs(droop) / 2))
-        bundle(p, rim, line, s0, s1, h, 1.7 * rng.uniform(.9, 1.1), .9, inner_foot=FLOOR,
-               shift=(-1.1 if inner_row else -.2) + rng.uniform(-.15, .05), droop=droop, tex0=rng.randrange(16),
-               old=rng.random() < .33)
+        pressed_rim(p, rim, rng, line, s0, s1, min(large_rim_height(x, z), 2.6), 2.8, .8, FLOOR, overlap=.8, bias=-.45)
     for k in range(27):                                                # loose stems crossing the rim top and the inner slope
         x, z, nx, nz = line.at(line.length * (k + rng.uniform(.1, .9)) / 27)
         tx, tz = -nz, nx

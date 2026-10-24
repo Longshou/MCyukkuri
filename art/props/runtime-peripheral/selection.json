@@ -401,12 +401,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json",
-      "sha256": "9399ce36e3f4f67e60a028c56cc015ed83d591b79c6c139670f4ee707b48aa58",
+      "sha256": "f9168a5007fb582041130e0c8e061b01203af8a807e57ad27e0608cd4d2dd4d7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel",
-      "sha256": "24c15ce7fa35a3ba0412d5dd3afb3e563b134232d02e405aa8fe4a2cb1d418f9",
+      "sha256": "237e176b24085dc08e8ffe30d7655a907e41017a4f8d9b2deb6ec4a559a13723",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/texture.png": {
@@ -416,12 +416,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json",
-      "sha256": "b66f60040e5e6d46087bbb79da114ba5f80d33d171f217b59978763c87cf7fbc",
+      "sha256": "db19651ef5e2b46ea30d8f9ca6547daa6966f36b6c8480873edeaac3846d3b39",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel",
-      "sha256": "bcbd950410dc2e3fff1e346dcf8e223bbf32455d57b2e5549b4247b8abed49ba",
+      "sha256": "645b71493c063712a76fb7df7a80c1b0e92ea879b4de769b82c2b4134c44dbfd",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/texture.png": {
