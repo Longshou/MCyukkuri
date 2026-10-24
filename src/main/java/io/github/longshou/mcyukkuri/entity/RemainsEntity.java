@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.status.Marks;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -72,6 +73,7 @@ public final class RemainsEntity extends Entity {
             tag.putUUID("Identity",source.getUUID());tag.putString("Variant",source.getVariant().assetId());
             tag.putInt("SubspeciesFlags",source.subspeciesFlags());
             tag.putString("Model",source.subspecies().assetId());tag.put("Body",source.body().save());
+            tag.put("Marks",Marks.write(source.status().marks().visible()));
             tag.putFloat(CorpseFood.CAPACITY,BodyFood.capacity(source));
             tag.putFloat(CorpseFood.REMAINING,source.body().remainsFood());
             tag.putInt("FoodSweetness",source.mind().fillingSweetness());

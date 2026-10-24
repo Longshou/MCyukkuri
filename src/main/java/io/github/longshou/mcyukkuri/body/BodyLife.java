@@ -96,6 +96,13 @@ public final class BodyLife {
     public int infection(){return infection;}
     public int mold(){return mold;}
     public int burns(){return burns;}
+    /** Derived readout, never a second thermal state. House bodies select grade-three art independently of health loss. */
+    public String thermalState(){
+        int sole=wounds.stream().filter(w->w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.SOLE_BURN).mapToInt(BodyWound::severity).max().orElse(0);
+        int whole=wounds.stream().filter(w->w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN).mapToInt(BodyWound::severity).max().orElse(0);
+        return "sole="+sole+" whole="+whole+" visibleSole="+(sole>0&&entity.profile().houseBody()?3:sole)
+                +" visibleWhole="+(whole>0&&entity.profile().houseBody()?3:whole)+" footScorch="+footScorch+" footBurned="+footBurned;
+    }
     public int hairLoss(){return hairLoss;}
     public boolean coreIntact(){return !coreHurt;}
     public boolean dying(){return dying>0;}
@@ -108,7 +115,7 @@ public final class BodyLife {
         var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
         if(core==null)return "none";
         var opening=BodyCavity.opening(mesh,core);
-        return "wound="+core.id()+" triangle="+core.triangle()+" u="+core.u()+" v="+core.v()
+        return "wound="+core.id()+" shape="+core.shape().id()+" triangle="+core.triangle()+" u="+core.u()+" v="+core.v()
                 +" openingWorld="+WoundPlacement.outlet(entity,core)+" openingHalfAxesModel="+opening.radiusU+","+opening.radiusV
                 +" coreWorld="+BodyCavity.coreWorld(entity,opening)+" coreHalfAxesModel="
                 +BodyCavity.profile().coreRadius()[0]*opening.span.x+","+BodyCavity.profile().coreRadius()[1]*opening.span.y+","+BodyCavity.profile().coreRadius()[2]*opening.span.z;
@@ -305,7 +312,8 @@ public final class BodyLife {
             var point=mesh.anchor(strike.hit());
             for(int i=0;i<wounds.size();i++){
                 var old=wounds.get(i);
-                if(old.kind()!=strike.kind()||!mesh.valid(old)||BodyPart.of(mesh,old)!=strike.part())continue;
+                if(old.kind()!=strike.kind()||old.shape()!=strike.shape()||!mesh.valid(old))continue;
+                if(!strike.shape().thermal()&&BodyPart.of(mesh,old)!=strike.part())continue;
                 float d=mesh.anchor(old).distanceSquared(point);
                 if(d<distance){distance=d;closest=i;}
             }
@@ -317,7 +325,7 @@ public final class BodyLife {
                 checkSole(placed,mesh);refreshWounds();
             }else{
                 placed=new BodyWound(UUID.randomUUID(),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
-                        severity,entity.profile().portionScale(),0,0);
+                        severity,entity.profile().portionScale(),0,0,severity,strike.shape());
                 insertWound(placed);
                 for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
             }
@@ -328,10 +336,10 @@ public final class BodyLife {
                 if(previous.severity()!=current.severity()){actual=current;change="deepened";break;}
             }
             if(change.equals("retained"))
-                GameplayLog.event(entity,"body","wound unchanged after hit {} on {} (hit loss {}, health {}/{}); wounds={} source={}",
-                        strike.kind().id(),strike.part().id(),loss,entity.getHealth(),entity.getMaxHealth(),wounds.size(),hit.source().getMsgId());
-            else GameplayLog.event(entity,"body","wound {} {}:{} on {} (hit loss {}, health {}/{}); wound={} source={} attacker={}",
-                    change,actual.kind().id(),actual.severity(),BodyPart.of(mesh,actual).id(),loss,entity.getHealth(),entity.getMaxHealth(),
+                GameplayLog.event(entity,"body","wound unchanged after hit {}/{} on {} (hit loss {}, health {}/{}); wounds={} source={}",
+                        strike.kind().id(),strike.shape().id(),strike.part().id(),loss,entity.getHealth(),entity.getMaxHealth(),wounds.size(),hit.source().getMsgId());
+            else GameplayLog.event(entity,"body","wound {} {}/{}:{} on {} (hit loss {}, health {}/{}); wound={} source={} attacker={}",
+                    change,actual.kind().id(),actual.shape().id(),actual.severity(),BodyPart.of(mesh,actual).id(),loss,entity.getHealth(),entity.getMaxHealth(),
                     actual.id(),hit.source().getMsgId(),hit.source().getEntity()==null?"none":hit.source().getEntity().getUUID());
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
             if(entity.isAlive()){
@@ -371,16 +379,23 @@ public final class BodyLife {
             witness.mind().felt(EmotionEvent.WOUND_DISTRESS);witness.showReaction("surprise","",60);
         }
     }
-    /** A point on the underside (lowest fifth of the skin) where a hot floor or flame touches the sole. */
+    /** A point on the underside (lowest fifth of the skin) where a hot floor or campfire touches the sole. */
     private WoundSurface.Hit soleSite(){return InjuryModel.soleSite(entity);}
     /** Test and scenario tool: a wound of the given kind and severity on a region, through the normal wound logic. */
     public boolean woundAt(BodyPart part,String kind,int severity){
+        var woundKind=WoundKind.parse(kind);
+        var shape=woundKind==WoundKind.SCORCH?(part==BodyPart.BOTTOM?WoundShape.SOLE_BURN:WoundShape.WHOLE_BURN):WoundShape.defaultFor(woundKind);
+        return woundAt(part,kind,severity,shape);
+    }
+    public boolean woundAt(BodyPart part,String kind,int severity,WoundShape shape){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return false;
+        var woundKind=WoundKind.parse(kind);
+        if(shape==null||shape.kind()!=woundKind)return false;
         var mesh=WoundSurface.get(entity.subspecies().assetId());var hit=part.site(mesh,new Random(entity.getRandom().nextLong()));if(hit==null)return false;
-        insertWound(new BodyWound(UUID.randomUUID(),kind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0));
+        insertWound(new BodyWound(UUID.randomUUID(),woundKind,hit.triangle(),hit.u(),hit.v(),Math.clamp(severity,1,3),entity.profile().portionScale(),0,0,severity,shape));
         entity.syncBody();return true;
     }
-    /** Burn the sole badly enough to lose its spring (scenario and status tool; real fire does it through insertWound). */
+    /** Burn the sole badly enough to lose its spring (scenario/status tool; actual sole burns use insertWound). */
     public boolean burnFoot(){
         var hit=soleSite();if(hit==null||entity.level().isClientSide||!entity.isAlive())return false;
         insertWound(new BodyWound(UUID.randomUUID(),WoundKind.SCORCH,hit.triangle(),hit.u(),hit.v(),3,entity.profile().portionScale(),0,0));
@@ -389,7 +404,7 @@ public final class BodyLife {
     /** Restore sole mobility after treatment, also used by the status tool. */
     public void mendFoot(){footBurned=false;footScorch=0;updateMobility();}
     private void checkSole(BodyWound wound,WoundSurface mesh){
-        if(wound.kind()!=WoundKind.SCORCH)return;
+        if(wound.kind()!=WoundKind.SCORCH||wound.shape()!=WoundShape.SOLE_BURN)return;
         var b=mesh.bounds();if(mesh.anchor(wound).y>b[1]+(b[4]-b[1])*BodyConstants.SOLE_HEIGHT_BAND)return;
         footScorch=Math.min(12,footScorch+wound.severity());
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
@@ -415,7 +430,7 @@ public final class BodyLife {
     private void insertWound(BodyWound wound){if(entity.level().isClientSide||settled)return;var mesh=WoundSurface.get(entity.subspecies().assetId());if(!mesh.valid(wound))return;
         checkSole(wound,mesh);
         if(wounds.size()<8)wounds.add(wound);else{int best=0;float distance=Float.MAX_VALUE;var p=mesh.anchor(wound);
-            for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind().equals(wound.kind())?0:10000);if(d<distance){distance=d;best=i;}}
+            for(int i=0;i<wounds.size();i++){var w=wounds.get(i);float d=mesh.anchor(w).distanceSquared(p)+(w.kind()==wound.kind()?0:10000)+(w.shape()==wound.shape()?0:1000);if(d<distance){distance=d;best=i;}}
             var old=wounds.get(best);wounds.set(best,old.withSeverity(Math.min(3,old.severity()+1)));}
         refreshWounds();
     }
@@ -474,7 +489,7 @@ public final class BodyLife {
     private void healWound(int index){var wound=wounds.get(index);
         if(wound.severity()==1){wounds.remove(index);entity.status().marks().healed(wound);}
         else wounds.set(index,wound.heal());
-        GameplayLog.event(entity,"body","wound healing {}:{} -> {}; wound={}",wound.kind().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
+        GameplayLog.event(entity,"body","wound healing {}/{}:{} -> {}; wound={}",wound.kind().id(),wound.shape().id(),wound.severity(),Math.max(0,wound.severity()-1),wound.id());}
     private void damage(float amount){entity.hurtInternal(entity.damageSources().generic(),amount);}
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return injury(w)&&!severe(w);}

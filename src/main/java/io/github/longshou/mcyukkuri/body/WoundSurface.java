@@ -22,9 +22,9 @@ public final class WoundSurface {
     public final int skinCount;
     public final Set<String> replaced;
     public final String runtimeSourceHash;
+    public final String assetId;
     public record FacePart(int start,int count,int bone,int parent){}
     public final List<FacePart> faceParts;
-    private final float bodyScale;
     private final JsonArray bones;
     private final JsonObject clips;
     private final JsonArray envelope,accessoryPrefixes;
@@ -40,7 +40,7 @@ public final class WoundSurface {
     });}
     private WoundSurface(JsonObject data){
         runtimeSourceHash=data.get("runtimeSourceHash").getAsString();
-        bodyScale=data.get("id").getAsString().startsWith("house_")?.32f:1;
+        assetId=data.get("id").getAsString();
         points=floats(data.getAsJsonArray("points"));skinCount=data.get("skinCount").getAsInt();
         var raw=data.getAsJsonArray("weights");weights=new float[raw.size()][];
         for(int i=0;i<raw.size();i++){var a=raw.get(i).getAsJsonArray();weights[i]=new float[a.size()*2];for(int j=0;j<a.size();j++){var w=
@@ -114,7 +114,7 @@ public final class WoundSurface {
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
         var hit=remapSite(anchor,outward,oldBounds);
         if(hit==null)return wound;
-        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),wound.peakSeverity());
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),wound.peakSeverity(),wound.shape());
     }
     public BodyWound.Site remapSite(Vector3f anchor,Vector3f outward,float[] oldBounds){
         var point=new Vector3f(anchor);
@@ -140,16 +140,26 @@ public final class WoundSurface {
             }
         }return best;
     }
-    public Vector3f deform(Vector3f p,List<BodyWound> wounds){return deform(p,wounds,false);}
-    public Vector3f deformDisplay(Vector3f p,List<BodyWound> wounds){return deform(p,wounds,true);}
-    private Vector3f deform(Vector3f p,List<BodyWound> wounds,boolean display){var result=new Vector3f(p);
-        for(var w:wounds){if(!valid(w)||!(w.kind()==WoundKind.TEAR||w.kind()==WoundKind.DENT))continue;
-            var site=display?displaySite(w):w.origin();
-            var n=normal(site.triangle());var d=new Vector3f(p).sub(anchor(site.hit()));float distance=d.dot(n);if(Math.abs(distance)>.16)continue;
-            var u=tangent(n);var v=new Vector3f(n).cross(u);float radius=w.size()*(.6f+w.severity()*.16f);
-            float r=(float)(Math.pow(d.dot(u)/(1.15*radius),2)+Math.pow(d.dot(v)/(.85*radius),2));
-            if(r<1){float depth=w.kind()==WoundKind.DENT?new float[]{0,.25f,.6f,1}[w.severity()]:.18f*w.severity();result.sub(n.mul(depth*bodyScale*(1-r)*(1-r)));}
-        }return result;
+    public Vector3f deform(Vector3f p,List<BodyWound> wounds){return deformDisplay(p,wounds);}
+    public Vector3f deformDisplay(Vector3f p,List<BodyWound> wounds){var result=new Vector3f(p);
+        boolean house=assetId.startsWith("house_");
+        int whole=0;
+        for(var w:wounds){
+            if(w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN)whole=Math.max(whole,w.severity());
+            if(house||!valid(w)||w.kind()!=WoundKind.DENT||w.shape()!=WoundShape.BLUNT)continue;
+            var n=normal(w.triangle());if(!n.isFinite())continue;
+            var fit=WoundProfiles.fit(assetId);var scale=fit.scale();
+            float normalScale=new Vector3f(n).mul(scale).length();
+            if(new Vector3f(p).sub(fit.center()).dot(n)<=.15f*normalScale)continue;
+            var grade=WoundProfiles.grade(w.shape(),w.severity());
+            var u=tangent(n);var v=new Vector3f(n).cross(u);var d=new Vector3f(p).sub(anchor(w));
+            if(Math.abs(d.dot(n))>=2.5f*normalScale)continue;
+            float radiusU=grade.radius()[0]*w.size()*new Vector3f(u).mul(scale).length();
+            float radiusV=grade.radius()[1]*w.size()*new Vector3f(v).mul(scale).length();
+            float x=d.dot(u)/radiusU,y=d.dot(v)/radiusV,r=x*x+y*y;
+            if(r<1)result.fma(-grade.depth()*w.size()*normalScale*(1-r)*(1-r)*(1-r),n);
+        }
+        return WoundProfiles.thermalPoint(assetId,result,whole>0&&house?3:whole);
     }
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}
     public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;

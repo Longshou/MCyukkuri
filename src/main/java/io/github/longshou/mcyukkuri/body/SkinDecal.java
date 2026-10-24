@@ -4,9 +4,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 /** Drawing parameters only: derived signs never enter the body's injury or filling-release lists. */
-public record SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v, int severity, float size) {
+public record SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v, int severity, float size, WoundShape shape) {
     public SkinDecal {
         Objects.requireNonNull(kind);
+        shape = shape == null ? WoundShape.defaultFor(kind) : shape;
         // Match the former BodyWound drawing parameters, including the final size clamp for mould.
         triangle = Math.max(0, triangle / 3 * 3);
         u = Float.isFinite(u) ? Math.clamp(u, 0, 1) : 0;
@@ -15,11 +16,15 @@ public record SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v,
         size = Float.isFinite(size) ? Math.clamp(size, .3f, 2f) : 1;
     }
 
+    public SkinDecal(UUID id, WoundKind kind, int triangle, float u, float v, int severity, float size) {
+        this(id, kind, triangle, u, v, severity, size, WoundShape.defaultFor(kind));
+    }
+
     /** One-way projection for the renderer; there is deliberately no conversion back to an injury. */
     public static SkinDecal of(BodyWound wound) {
         return of(wound, wound.origin());
     }
     public static SkinDecal of(BodyWound wound, BodyWound.Site site) {
-        return new SkinDecal(wound.id(), wound.kind(), site.triangle(), site.u(), site.v(), wound.severity(), wound.size());
+        return new SkinDecal(wound.id(), wound.kind(), site.triangle(), site.u(), site.v(), wound.severity(), wound.size(), wound.shape());
     }
 }

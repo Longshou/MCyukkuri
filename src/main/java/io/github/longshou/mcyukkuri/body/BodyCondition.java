@@ -13,7 +13,6 @@ public record BodyCondition(int wound, int burns, int infection, int mold, int f
     public boolean readyForHouseCare() { return wound == 0 && infection == 0; }
     public boolean readyForAgitation() { return wound == 0 && infection == 0; }
     public boolean readyForFactory() { return wound == 0 && infection == 0 && mold == 0; }
-    public boolean readyForAutumnStock() { return wound == 0 && burns == 0 && infection == 0 && mold == 0; }
     public boolean readyToLick() { return wound == 0 && burns == 0 && infection == 0; }
     public boolean hasSkinOrBurnDamage() { return wound > 0 || burns > 0; }
     public boolean needsPainExpression() { return wound > 0 || burns > 0 || infection > 0; }

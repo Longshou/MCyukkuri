@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.interaction;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -47,6 +48,7 @@ public final class OperationLife {
     private int remaining,elapsed,cooldown;
     private float turn,abrasion;
     private boolean ownDamage;
+    private WoundShape settlingShape=WoundShape.NONE;
     /** The dose occupies the same durable reservation slot as a physical tool. */
     public boolean beginAssistance(Player player,InteractionHand hand){
         var stack=player.getItemInHand(hand);
@@ -60,6 +62,9 @@ public final class OperationLife {
     }
     public OperationLife(YukkuriEntity entity){this.entity=entity;}
     public boolean active(){return pose!=Pose.NONE;}
+    /** True only inside this operation's accepted damage transaction, never for an unrelated incoming attack. */
+    public boolean settlingDamage(){return ownDamage;}
+    public WoundShape settlingShape(){return settlingShape;}
     public boolean controlling(){return active()&&pose!=Pose.SLIDE;}
     public Pose pose(){return pose;}
     public UUID operator(){return operator;}
@@ -109,7 +114,7 @@ public final class OperationLife {
             }
             case FLICK,PUNCH,SLAP -> {
                 float damage=action==CareAction.PUNCH?2:action==CareAction.FLICK?.5f:1;
-                if(!strike(player,damage))yield false;
+                if(!strike(player,damage,WoundShape.BLUNT))yield false;
                 var away=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
                 entity.setDeltaMovement(away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0));
                 if(entity.isAlive())begin(player,Pose.SLIDE,30,null);yield true;
@@ -121,18 +126,18 @@ public final class OperationLife {
                 yield begin(player,action==CareAction.SHOW_RUMP?Pose.RUMP:Pose.SUPINE,80,null);
             }
             case SHAKE_HOME -> shakeHome(player);
-            case PIN -> {if(!entity.onGround()||!strike(player,1)||!entity.isAlive())yield false;yield begin(player,Pose.PIN,240,Tool.PIN);}
-            case MALLET -> strike(player,entity.getMaxHealth()+20);
-            case PIERCE -> strike(player,2);
+            case PIN -> {if(!entity.onGround()||!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive())yield false;yield begin(player,Pose.PIN,240,Tool.PIN);}
+            case MALLET -> strike(player,entity.getMaxHealth()+20,WoundShape.BLUNT);
+            case PIERCE -> strike(player,2,WoundShape.PUNCTURE);
             case BURN -> {
                 if(!OperationToolItem.isHot(player.getMainHandItem(),entity.level()))yield false;
-                if(!strike(player,2))yield false;
+                if(!strike(player,2,WoundShape.PUNCTURE))yield false;
                 yield true;
             }
             case FIX_SUPINE -> entity.onGround()&&begin(player,Pose.FIXED,400,Tool.RESTRAINT);
             case WRAP_HANG,HOOK_HANG -> {
                 var support=ceiling();if(support==null){player.displayClientMessage(Component.translatable("operation.mcyukkuri.need_ceiling"),true);yield false;}
-                if(action==CareAction.HOOK_HANG&&(!strike(player,1)||!entity.isAlive()))yield false;
+                if(action==CareAction.HOOK_HANG&&(!strike(player,1,WoundShape.PUNCTURE)||!entity.isAlive()))yield false;
                 ceiling=support;yield begin(player,action==CareAction.WRAP_HANG?Pose.WRAPPED:Pose.HOOK,300,action.tool);
             }
             case TRIM_HAIR -> entity.body().cutHair(7,player);
@@ -142,7 +147,7 @@ public final class OperationLife {
             case VIBRATE -> entity.family().adult()&&!entity.family().sterile()&&begin(player,Pose.VIBRATE,120,Tool.VIBRATOR);
             case STERILIZE -> {
                 if(!entity.family().adult()||entity.family().sterile()||entity.family().stimulation()==0)yield false;
-                if(!strike(player,2)||!entity.isAlive())yield false;
+                if(!strike(player,2,WoundShape.CUT)||!entity.isAlive())yield false;
                 yield entity.family().sterilize();
             }
             case ENCLOSE -> entity.onGround()&&begin(player,Pose.BOX,400,Tool.BOX);
@@ -168,9 +173,9 @@ public final class OperationLife {
                 player.getUUID(),action,done,entity.getHealth(),entity.getMaxHealth(),pose);
         return done;
     }
-    private boolean strike(Player player,float amount){
-        ownDamage=true;
-        try{return entity.hurt(entity.damageSources().playerAttack(player),amount);}finally{ownDamage=false;}
+    private boolean strike(Player player,float amount,WoundShape shape){
+        ownDamage=true;settlingShape=shape;
+        try{return entity.hurt(entity.damageSources().playerAttack(player),amount);}finally{ownDamage=false;settlingShape=WoundShape.NONE;}
     }
     private boolean begin(Player player,Pose next,int duration,Tool binding){
         if(!entity.isAlive()||active())return false;
@@ -220,7 +225,7 @@ public final class OperationLife {
         }else if(pose==Pose.LIFT||pose==Pose.GRIP){
             var forward=player.getLookAngle().multiply(1,0,1).normalize();
             moveTo(player.getEyePosition().add(forward.scale(1.1)).add(0,-.65-entity.getBbHeight()/2,0));
-            if(pose==Pose.GRIP&&elapsed%40==0)strike(player,1);
+            if(pose==Pose.GRIP&&elapsed%40==0)strike(player,1,WoundShape.BLUNT);
         }else if(pose==Pose.PIN||pose==Pose.FIXED||pose==Pose.SUPINE||pose==Pose.BOX||pose==Pose.VIBRATE||pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN){
             moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
@@ -238,7 +243,7 @@ public final class OperationLife {
             var floor=Facilities.floor(entity);
             float roughness=Facilities.roughness(floor);
             abrasion+=moved*roughness;
-            if(abrasion>=1.5f){abrasion-=1.5f;strike(player,1);}
+            if(abrasion>=1.5f){abrasion-=1.5f;strike(player,1,WoundShape.ABRASION);}
         }
         last=entity.position();entity.syncOperation(pose.name(),pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN?elapsed/20f:turn);
     }

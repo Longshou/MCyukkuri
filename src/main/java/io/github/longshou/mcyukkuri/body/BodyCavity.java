@@ -22,7 +22,7 @@ import org.joml.Vector3f;
 /** The authored opening shared by skin clipping and accepted-hit core vulnerability. */
 public final class BodyCavity {
     public record Profile(float[] center, float[] coreRadius, float[] openingRadius,
-                          float referenceDepth, float[][] outline, float[][] levels) {}
+                          float referenceDepth, float[][] outline, float[][] levels, float[] referenceBounds) {}
     private static final Profile PROFILE = load();
     private static final Map<WoundSurface, Map<BodyWound, Opening>> CACHE = new WeakHashMap<>();
     public record CoreMesh(float[] vertices,float[] colors,float[] brokenColors) {}
@@ -44,7 +44,8 @@ public final class BodyCavity {
             float[][] ring = new float[outline.size()][];
             for (int i = 0; i < ring.length; i++) ring[i] = floats(outline.get(i).getAsJsonArray());
             return new Profile(floats(data.getAsJsonArray("center")), floats(data.getAsJsonArray("core_radius")),
-                    floats(data.getAsJsonArray("opening_radius")), data.get("reference_depth").getAsFloat(), ring, loft);
+                    floats(data.getAsJsonArray("opening_radius")), data.get("reference_depth").getAsFloat(), ring, loft,
+                    floats(data.getAsJsonArray("reference_bounds")));
         } catch (IOException ex) { throw new UncheckedIOException(ex); }
     }
     private static float[] floats(JsonArray values) {
@@ -53,7 +54,7 @@ public final class BodyCavity {
         return result;
     }
     public static Profile profile() { return PROFILE; }
-    public static synchronized void clear() { CACHE.clear(); coreMesh=null; }
+    public static synchronized void clear() { CACHE.clear(); coreMesh=null; WoundProfiles.clear(); WoundOcclusion.clear(); }
     public static synchronized CoreMesh coreMesh() {
         if(coreMesh!=null)return coreMesh;
         var stream=BodyCavity.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_core.json.gz");
@@ -115,6 +116,7 @@ public final class BodyCavity {
             coreDistance=Math.min(coreDistance,intersection(o,direction,a,b,c));
         }
         if(!Float.isFinite(coreDistance)||coreDistance<skinHit.distance()-.001f)return false;
+        if(WoundOcclusion.blocked(entity,mesh,opening,o,direction,world,coreDistance))return false;
         var levels=PROFILE.levels();int count=opening.rim.length;
         var wall=new Vector3f[levels.length*count];
         for(int j=0;j<count;j++){
@@ -144,7 +146,8 @@ public final class BodyCavity {
 
     /** Bounded immutable geometry cache; no cache or extra wound state is saved. */
     public static synchronized Opening opening(WoundSurface mesh, BodyWound wound) {
-        if (mesh == null || !mesh.valid(wound) || !BodySigns.deep(wound)) return null;
+        if (mesh == null || mesh.assetId.startsWith("house_") || !mesh.valid(wound)
+                || !BodySigns.deep(wound) || !wound.shape().supportsCore()) return null;
         var entries = CACHE.computeIfAbsent(mesh, ignored -> new LinkedHashMap<>(128, .75f, true) {
             @Override protected boolean removeEldestEntry(Map.Entry<BodyWound, Opening> entry) { return size() > 128; }
         });
@@ -155,29 +158,35 @@ public final class BodyCavity {
     }
 
     private static Opening fit(WoundSurface mesh, BodyWound wound) {
+        var fit=WoundProfiles.fit(mesh.assetId);var scale=fit.scale();
+        var shape=WoundProfiles.grade(wound.shape(),3);
+        var outline=shape.outline();var hairOutline=shape.hairOutline();
+        var radius=WoundProfiles.coreRadius(wound.shape());
         var anchor = mesh.anchor(wound);
         var normal = mesh.normal(wound.triangle());
         if (!normal.isFinite()) return null;
         var u = WoundSurface.tangent(normal);
         var v = new Vector3f(normal).cross(u);
-        var bounds = mesh.bounds();
-        var span = new Vector3f(bounds[3] - bounds[0], bounds[4] - bounds[1], bounds[5] - bounds[2]);
-        var center = new Vector3f(bounds[0], bounds[1], bounds[2]).add(new Vector3f(PROFILE.center[0], PROFILE.center[1], PROFILE.center[2]).mul(span));
-        float radiusU = new Vector3f(u).absolute().dot(span) * PROFILE.openingRadius[0];
-        float radiusV = new Vector3f(v).absolute().dot(span) * PROFILE.openingRadius[1];
+        var bounds = PROFILE.referenceBounds;
+        var span = new Vector3f(bounds[3] - bounds[0], bounds[4] - bounds[1], bounds[5] - bounds[2]).mul(scale);
+        var center = new Vector3f(fit.center());
+        float openingScale=wound.shape()==WoundShape.BLUNT?.76f:1;
+        float radiusU = radius[0]*openingScale*wound.size()*new Vector3f(u).mul(scale).length();
+        float radiusV = radius[1]*openingScale*wound.size()*new Vector3f(v).mul(scale).length();
         float depth = new Vector3f(anchor).sub(center).dot(normal);
         if (depth <= .01f) return null;
         float range = span.length() * 2;
         for (int attempt = 0; attempt < 12; attempt++) {
-            var rim = new WoundSurface.Hit[PROFILE.outline.length];
+            var rim = new WoundSurface.Hit[outline.length];
             boolean fitted = true;
             for (int i = 0; i < rim.length; i++) {
-                var point = new Vector3f(anchor).fma(PROFILE.outline[i][0] * radiusU, u).fma(PROFILE.outline[i][1] * radiusV, v);
+                var point = new Vector3f(anchor).fma(outline[i][0] * radiusU, u).fma(outline[i][1] * radiusV, v);
                 var hit = mesh.ray(point.fma(range, normal), new Vector3f(normal).negate(), null, List.of());
                 if (hit == null || new Vector3f(mesh.anchor(hit)).sub(center).dot(normal) <= depth * .06f) { fitted = false; break; }
                 rim[i] = hit;
             }
-            if (fitted) return new Opening(anchor, normal, u, v, center, span, radiusU, radiusV, depth / PROFILE.referenceDepth, rim);
+            if (fitted) return new Opening(anchor, normal, u, v, center, span, radiusU, radiusV, depth / PROFILE.referenceDepth,
+                    2.5f*new Vector3f(normal).mul(scale).length(),rim,outline,hairOutline);
             // Keep the actual injury centre. A bounded fit reduces only an outline that runs off this body.
             radiusU *= .86f; radiusV *= .86f;
         }
@@ -186,21 +195,29 @@ public final class BodyCavity {
 
     public static final class Opening {
         public final Vector3f anchor, normal, u, v, center, span;
-        public final float radiusU, radiusV, depthScale;
+        public final float radiusU, radiusV, depthScale, projectionDepth;
         public final WoundSurface.Hit[] rim;
-        public final float[][] polygon;
+        public final float[][] polygon, hairPolygon;
         private Opening(Vector3f anchor, Vector3f normal, Vector3f u, Vector3f v, Vector3f center, Vector3f span,
-                        float radiusU, float radiusV, float depthScale, WoundSurface.Hit[] rim) {
+                        float radiusU, float radiusV, float depthScale,float projectionDepth,WoundSurface.Hit[] rim,float[][] outline,float[][] hairOutline) {
             this.anchor = anchor; this.normal = normal; this.u = u; this.v = v; this.center = center; this.span = span;
             this.radiusU = radiusU; this.radiusV = radiusV; this.depthScale = depthScale; this.rim = rim;
-            polygon = new float[rim.length][2];
-            for (int i = 0; i < rim.length; i++) { polygon[i][0] = PROFILE.outline[i][0] * radiusU; polygon[i][1] = PROFILE.outline[i][1] * radiusV; }
+            this.projectionDepth=projectionDepth;
+            polygon = new float[outline.length][2];hairPolygon = new float[hairOutline.length][2];
+            for (int i = 0; i < polygon.length; i++) { polygon[i][0] = outline[i][0] * radiusU; polygon[i][1] = outline[i][1] * radiusV; }
+            for (int i = 0; i < hairPolygon.length; i++) { hairPolygon[i][0] = hairOutline[i][0] * radiusU; hairPolygon[i][1] = hairOutline[i][1] * radiusV; }
         }
         public float x(Vector3f point) { return new Vector3f(point).sub(anchor).dot(u); }
         public float y(Vector3f point) { return new Vector3f(point).sub(anchor).dot(v); }
         public boolean front(Vector3f point) { return new Vector3f(point).sub(center).dot(normal) > .25f * depthScale; }
         public boolean contains(Vector3f point) { return front(point) && contains(x(point), y(point)); }
         public boolean contains(float x, float y) {
+            return contains(polygon,x,y);
+        }
+        public boolean containsHair(Vector3f point) {
+            return front(point) && Math.abs(new Vector3f(point).sub(anchor).dot(normal))<projectionDepth && contains(hairPolygon,x(point),y(point));
+        }
+        private static boolean contains(float[][] polygon,float x,float y) {
             boolean inside = false;
             for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
                 var a = polygon[i]; var b = polygon[j];

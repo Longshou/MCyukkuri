@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.WoundKind;
+import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -132,12 +133,12 @@ public final class Marks {
                 GameplayLog.event(entity,"body","oldest scar retired at capacity; scar={} replacementWound={}",oldest.id(),wound.id());
             }
             scars.add(new BodyWound(wound.id(), WoundKind.SCAR, wound.triangle(), wound.u(), wound.v(),
-                    wound.peakSeverity(), wound.size(), 0, 0));
+                    wound.peakSeverity(), wound.size(), 0, 0, wound.peakSeverity(), wound.shape()));
             rolled = true;
             entity.syncMarks(write(visible()));
         }
-        GameplayLog.event(entity,"body","scar {} from {} wound (peak {}, chance {}%, roll {}%); wound={} reason={}",
-                formed?"formed":"not formed",wound.kind().id(),wound.peakSeverity(),Math.round(chance*100),Math.round(roll*100),
+        GameplayLog.event(entity,"body","scar {} from {}/{} wound (peak {}, chance {}%, roll {}%); wound={} reason={}",
+                formed?"formed":"not formed",wound.kind().id(),wound.shape().id(),wound.peakSeverity(),Math.round(chance*100),Math.round(roll*100),
                 wound.id(),formed?"added":roll>=chance?"chance":"invalid_site");
     }
 
@@ -160,8 +161,10 @@ public final class Marks {
         for (Tag raw : tag.getList("Wounds", Tag.TAG_COMPOUND)) {
             var w = (CompoundTag) raw;
             if (!w.hasUUID("Id")) continue;
-            result.add(new BodyWound(w.getUUID("Id"), w.getString("Kind"), w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
-                    Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0));
+            var kind = WoundKind.parse(w.getString("Kind"));
+            result.add(new BodyWound(w.getUUID("Id"), kind, w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
+                    Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0, Math.max(1, w.getInt("Severity")),
+                    WoundShape.parse(w.getString("Shape"), kind)));
             if (result.size() >= MAX_SCARS + MAX_PATCHES) break;
         }
         return List.copyOf(result);
@@ -183,7 +186,8 @@ public final class Marks {
             var w = (CompoundTag) raw;
             if (!w.hasUUID("Id") || scars.size() >= MAX_SCARS) continue;
             scars.add(new BodyWound(w.getUUID("Id"), WoundKind.SCAR, w.getInt("Triangle"), w.getFloat("U"), w.getFloat("V"),
-                    Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0));
+                    Math.max(1, w.getInt("Severity")), w.getFloat("Size"), 0, 0, Math.max(1, w.getInt("Severity")),
+                    WoundShape.parse(w.getString("Shape"), WoundKind.SCAR)));
         }
         shown = shownScars = -1; lastHygiene = -1;
     }

@@ -51,6 +51,16 @@ public final class WoundPlacement {
     public static Matrix4f[] pose(YukkuriEntity e){boolean operated=!e.contactPose().equals("NONE")&&!e.contactPose().equals("SLIDE");
             return WoundSurface.get(e.subspecies().assetId()).pose(operated?"idle":e.getAnimationId(),operated?0:Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f));}
     public static WoundSurface.Hit hit(YukkuriEntity e,DamageSource source){return hit(e,source,true);}
+    /** A collision callback without a source entity can still supply the actual contacting block's direction. */
+    public static WoundSurface.Hit contact(YukkuriEntity e,Vec3 contact) {
+        var center=e.getBoundingBox().getCenter();var outward=contact.subtract(center);
+        if(outward.lengthSqr()<1e-8)outward=e.getDeltaMovement().scale(-1);
+        if(outward.lengthSqr()<1e-8)return null;
+        outward=outward.normalize();
+        var inverse=transform(e).invert();var origin=inverse.transformPosition(center.add(outward.scale(3)).subtract(e.position()).toVector3f());
+        var direction=inverse.transformDirection(outward.scale(-1).toVector3f()).normalize();
+        return WoundSurface.get(e.subspecies().assetId()).ray(origin,direction,pose(e),e.body().wounds());
+    }
     /** The actual source ray in posed model space, without centre-aim correction. */
     public record SourceRay(Vector3f origin,Vector3f direction,Matrix4f[] pose){}
     public static SourceRay sourceRay(YukkuriEntity e,DamageSource source){var inverse=transform(e).invert();Vec3 origin,direction;

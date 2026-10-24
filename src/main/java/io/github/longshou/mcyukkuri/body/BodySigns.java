@@ -48,17 +48,17 @@ public final class BodySigns {
     public static float sagHeight(int filling) { return sagHeight(filling / 12f, true); }
     /** Mould stage to drawn tier: 1-2 early, 3-5 middle, 6-7 late, 8 terminal. */
     public static int moldTier(int mold) { return mold <= 0 ? 0 : mold <= 2 ? 1 : mold <= 5 ? 2 : mold <= 7 ? 3 : 4; }
-    /** A deep wound: missing skin with filling showing (severity 3 tear, dent or burn). Orange juice closes it. */
+    /** Deep mechanical damage; thermal damage changes continuous tissue, never opens a cavity. */
     public static boolean deep(BodyWound w) {
-        return w.severity() >= 3 && (w.kind()==WoundKind.TEAR || w.kind()==WoundKind.DENT || w.kind()==WoundKind.SCORCH);
+        return w.severity() >= 3 && (w.kind()==WoundKind.TEAR || w.kind()==WoundKind.DENT);
     }
     /** Filling shows: any deep wound, or a tear of severity 2 (the existing leaking cut). */
     public static boolean open(BodyWound w) { return deep(w) || w.kind()==WoundKind.TEAR && w.severity() >= 2; }
 
-    /** The same visible core opening is used for drawing and pre-hit core vulnerability. */
+    /** The same visible opening is used for drawing and pre-hit vulnerability; broken state never bypasses low health. */
     public static BodyWound coreWound(WoundSurface mesh, List<BodyWound> wounds, boolean broken, float healthFraction) {
-        if (mesh == null || !broken && healthFraction > BodyLife.WEAK_HEALTH_RATIO) return null;
-        for (var wound : wounds) if (deep(wound) && mesh.valid(wound) && BodyCavity.opening(mesh, wound) != null) return wound;
+        if (mesh == null || mesh.assetId.startsWith("house_") || healthFraction > BodyLife.WEAK_HEALTH_RATIO) return null;
+        for (var wound : wounds) if (deep(wound) && wound.shape().supportsCore() && mesh.valid(wound) && BodyCavity.opening(mesh, wound) != null) return wound;
         return null;
     }
 
@@ -89,7 +89,7 @@ public final class BodySigns {
         if (deepest != null) {
             var site = mesh.displaySite(deepest);
             result.add(new SkinDecal(new UUID(deepest.id().getMostSignificantBits(), deepest.id().getLeastSignificantBits() ^ 0x636f7265L), WoundKind.CORE,
-                    site.triangle(), site.u(), site.v(), broken ? 3 : 1, deepest.size()));
+                    site.triangle(), site.u(), site.v(), broken ? 3 : 1, deepest.size(), deepest.shape()));
         }
         return result;
     }
