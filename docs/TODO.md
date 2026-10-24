@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 预览室按游戏系统分类与内容补齐 | `.worktrees/preview-categories` | `preview/hub/`（不改 `recent.json`）、`scripts/build_preview_*`、`preview/README.md` |
 | 捕食种肉包馅配色 | `.worktrees/wound-predator-filling` | `drafts/body-marks/hair-wounds/`、`wiki/hakkei-reference/`、`preview/hub/recent.json`、`docs/TODO.md` |
 | 宠物照料用品美术重做（食盆及填充、软垫窝、编织大窝、厕所） | `.worktrees/pet-goods-art` | `drafts/care-props/vanilla_props.py`、`voxel.py`、`food-bowl`／`runtime-peripheral`／`care-expansion`／`large-nests` 快照与导出 |
 | 野生巢与储粮堆美术重做（个人叶巢、野生大窝、叶床、陆上与帽船储粮堆） | `.worktrees/wild-nest-art` | `drafts/care-props/wild.py`、`designs.py`、`cargo.py`、`art/props/wild-shelters/`、`hat_cargo_layout.json` |
