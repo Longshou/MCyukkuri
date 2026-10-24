@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import io.github.longshou.mcyukkuri.status.Reactions;
-import io.github.longshou.mcyukkuri.season.Season;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -61,7 +60,7 @@ public final class ForageGoal extends Goal {
     private void scanFood() {
         long now = level().getGameTime();
         if (now < scanAfter || !SearchBudget.take(level(), entity, Purpose.FORAGE)) return;
-        scanAfter = now + Math.max(1, Math.round((SettlementSeasons.is(entity, Season.AUTUMN) ? 20 : 40) / MyonLife.forageScale(entity)));
+        scanAfter = now + Math.max(1, Math.round(40 / MyonLife.forageScale(entity)));
         int reach = (int)Math.round(TravelRange.search(entity, 6) * MyonLife.forageScale(entity)
                 * entity.life().personality().exploreMultiplier());
         findFood(reach);

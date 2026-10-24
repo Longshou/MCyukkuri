@@ -39,8 +39,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
  * <li>Famine level: 2 (famine) when the whole community holds less than one day of food, or less than two days after
  *     two checks of failed foraging or with most members hungry; 1 (short) below two days or when the commons cannot
  *     cover the short households; a famine ends only at two days or more. In famine the leader hunts twice a day,
- *     nobody may court, theft weighs one step heavier, and the autumn reserve is released.</li>
- * <li>In autumn two days of the whole community's need stay in the store for the winter (outside famine).</li>
+ *     nobody may court and theft weighs one step heavier.</li>
  * <li>A selfish leader (selfishness &ge; 65, self-control &lt; 50) takes half again for its own household when that one
  *     is short; the others feel it ({@code unfair_ration}).</li>
  * </ul>
@@ -55,8 +54,8 @@ public final class Rations {
     /** A landing can take longer than a land errand; the same one-hat household remains exclusive throughout it. */
     static final int WATER_FETCH_HOLD = 3200;
     static final int START = 11000, END = 13000;
-    /** Days of the community's need the common store aims at (hunts stop, the levy pauses); autumn more, for the winter. */
-    static final int STORE_DAYS = 3, AUTUMN_STORE_DAYS = 5;
+    /** Days of current community need the common store aims at; hunts stop and the levy pauses at that target. */
+    static final int STORE_DAYS = 3;
 
     static long key(ShelterBlockEntity home) { return home.getBlockPos().asLong(); }
 
@@ -121,10 +120,9 @@ public final class Rations {
         for (var m : members(level, group)) weight += mouth(m, group, now).weight();
         return (int)Math.ceil(weight * PER_MOUTH);
     }
-    /** What the common store aims to hold: {@value #STORE_DAYS} days of need (autumn {@value #AUTUMN_STORE_DAYS}), at most 80 % of its room. */
+    /** What the common store aims to hold: {@value #STORE_DAYS} days of current need, at most 80 % of its room. */
     public static int storeTarget(ServerLevel level, SettlementData.Group group) {
-        int days = Seasons.on(level, group.center, Season.AUTUMN) ? AUTUMN_STORE_DAYS : STORE_DAYS;
-        return Math.min(communityNeed(level, group) * days, (int)(CommonStore.capacity(level, group) * .8));
+        return Math.min(communityNeed(level, group) * STORE_DAYS, (int)(CommonStore.capacity(level, group) * .8));
     }
     /** Days of its own need a household must hold before it counts as short: one, two in winter. */
     static int minimumDays(ServerLevel level, SettlementData.Group group) { return Seasons.on(level, group.center, Season.WINTER) ? 2 : 1; }
@@ -326,7 +324,7 @@ public final class Rations {
             commons.note(now, "famine_over", leader == null ? null : leader.getUUID(), "days " + daysText);
             for (var m : members) m.mind().add(-3, "famine_over");
         }
-        String relief = CommunityRules.rule(group, Commons.SHARE_BY_MOUTH) ? relieve(level, group, leader, homes, waterHomes, stock, totalWeight) : "no share rule";
+        String relief = CommunityRules.rule(group, Commons.SHARE_BY_MOUTH) ? relieve(level, group, leader, homes, waterHomes, stock) : "no share rule";
         String summary = "day " + day + " food " + daysText + " days (store " + stock + " homes " + held + " need " + need + ")"
                 + " outings " + fruitful + "/" + outings + " failDays " + commons.failDays + " levy " + levy + " kept " + kept
                 + " famine " + famine + " short " + shortHomes + "; " + relief;
@@ -337,12 +335,11 @@ public final class Rations {
 
     /** Relief for the short households only, out of the common store. */
     private static String relieve(ServerLevel level, SettlementData.Group group, YukkuriEntity leader,
-                                  Map<Long, Household> homes, Map<UUID, WaterHousehold> waterHomes, int stock, float totalWeight) {
+                                  Map<Long, Household> homes, Map<UUID, WaterHousehold> waterHomes, int stock) {
         var commons = group.commons;
         long now = level.getGameTime(), day = level.getDayTime() / 24000;
         boolean winter = Seasons.on(level, group.center, Season.WINTER);
-        int reserve = !winter && commons.famine < 2 && Seasons.on(level, group.center, Season.AUTUMN) ? (int)Math.ceil(totalWeight * PER_MOUTH * 2) : 0;
-        int available = Math.max(0, stock - reserve);
+        int available = Math.max(0, stock);
         boolean unfair = leader != null && Levy.greedy(leader);
         int wanted = 0;
         var list = new ArrayList<ReliefTarget>();
@@ -400,7 +397,7 @@ public final class Rations {
         for (var h : list) if (h.quota > 0) for (var m : h.people) m.mind().add(-2, "ration");
         if (unfair) for (var h : homes.values()) if (!h.leaders) for (var m : h.people) if (m.family().adult()) m.mind().add(3, "unfair_ration");
         if (unfair) for (var h : waterHomes.values()) if (!h.leaders) for (var m : h.people) if (m.family().adult()) m.mind().add(3, "unfair_ration");
-        String summary = "relief " + given + "/" + wanted + " to " + list.size() + " short households" + (reserve > 0 ? " reserve " + reserve : "")
+        String summary = "relief " + given + "/" + wanted + " to " + list.size() + " short households"
                 + (winter ? " winter" : "") + (unfair ? " unfair" : "");
         commons.note(now, "ration", leader == null ? null : leader.getUUID(), summary);
         return summary;

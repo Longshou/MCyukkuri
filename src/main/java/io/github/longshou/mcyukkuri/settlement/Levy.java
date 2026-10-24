@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.season.Season;
-import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
@@ -23,7 +21,7 @@ import io.github.longshou.mcyukkuri.status.StatusEvents;
  *     commons is what it was called for (a 6-portion load pays 2).</li>
  * <li>A selfish leader (selfishness &ge; 65, self-control &lt; 50) asks a tenth more and the payers feel it
  *     ({@code heavy_levy}); a generous one (friendliness &gt; 65) a twentieth less.</li>
- * <li>Autumn adds a tenth (the winter reserve); a hunt in shortage or famine adds 15 % (relief comes from the commons).</li>
+ * <li>A hunt in shortage or famine adds 15 % (relief comes from the commons).</li>
  * <li>Nothing is due when the common store already holds its target ({@link Rations#storeTarget}) and from a family
  *     trip of a household that is itself short ({@link Rations#isShort}): relief would only hand it back.</li>
  * </ul>
@@ -50,7 +48,6 @@ public final class Levy {
             if (greedy(leader)) rate += .1f;
             else if (p.friendliness() > 65) rate -= .05f;
         }
-        if (Seasons.on(level, group.center, Season.AUTUMN)) rate += .1f;
         if (hunt && group.commons.famine >= 1) rate += .15f;
         return Math.clamp(rate, 0f, MAX_RATE);
     }

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
+import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
@@ -82,6 +83,7 @@ public enum StatusKey {
     GROUP_SESSION("behavior", "group_session", 0, y -> y.groupInteraction().detail(), null),
     MOVE_SPEED("species", "move_speed", 0, y -> Math.round(y.getAttributeValue(Attributes.MOVEMENT_SPEED) * 1000) / 1000f, null),
     SPEECH_HOOKS("species", "speech_hooks", 0, y -> y.species().speechHooks(), null),
+    SPECIES_FATIGUE("species", "fatigue", 0, y -> y.species().fatigueDetail(), null),
     BOREDOM("mood", "boredom", 10, y -> y.dailyLife().boredom(), null),
     PANIC("mood", "panic", 0, y -> y.isPanicking(), null),
     AGITATION_PHASE("agitation", "phase", 0, y -> y.agitation().phase().name().toLowerCase(Locale.ROOT), null),
@@ -146,29 +148,34 @@ public enum StatusKey {
     CORE_EXPOSED("health", "core_exposed", 0, y -> y.body().coreExposed(), null),
     CORE_SITE("health", "core_site", 0, y -> y.body().coreSite(), null),
     CORE_IMPACT("health", "core_impact", 0, y -> y.body().lastCoreImpact(), null),
+    THERMAL_STATE("health", "thermal_state", 0, y -> y.body().thermalState(), null),
     WOUND_ANCHORS("health", "wound_anchors", 0, y -> y.body().wounds().stream()
-            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()+":peak"+w.peakSeverity()).toList(), null),
+            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()+":peak"+w.peakSeverity()
+                    +":shape="+w.shape().id()+":severity="+w.severity()).toList(), null),
     SCAR_SITES("marks", "scar_sites", 0, y -> y.status().marks().scars().stream()
-            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()).toList(), null),
+            .map(w -> w.id()+":"+w.triangle()+":"+w.u()+":"+w.v()+":shape="+w.shape().id()+":severity="+w.severity()).toList(), null),
     /** Regions with a deep wound (top, front, side, back, bottom); a region alone is not a core hit. */
     DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(BodyPart::id).toList()), null),
-    /** Every wound as region:kind+severity, e.g. {@code front:tear3 bottom:dent1}. */
+    /** Every wound as region:kind+severity:shape; the treatment category remains distinct from its mechanism. */
     WOUND_SITES("health", "wound_sites", 0, y -> {
         var mesh = WoundSurface.get(y.subspecies().assetId());
         return String.join(" ", y.body().wounds().stream().filter(mesh::valid)
-                .map(w -> BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity()).toList());
+                .map(w -> BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity() + ":" + w.shape().id()).toList());
     }, null),
-    /** Write-only: {@code part:kind:severity} puts a wound on that region through the body's own wound logic. */
+    /** Write-only body-display initial state: {@code part:kind:severity[:shape]}; it does not emulate a real hit. */
     WOUND_AT("health", "wound_at", 0, null, (y, raw) -> {
         String[] parts = raw.trim().toLowerCase(Locale.ROOT).split(":");
-        if (parts.length != 3) return "part:kind:severity, e.g. front:tear:3";
+        if (parts.length != 3 && parts.length != 4) return "part:kind:severity[:shape], e.g. front:tear:3:bite";
         var part = BodyPart.parse(parts[0]);
         if (part == null) return "part must be top, front, side, back or bottom";
         if (!Set.of("scratch", "tear", "dent", "scorch").contains(parts[1])) return "kind must be scratch, tear, dent or scorch";
         int severity;
         try { severity = Integer.parseInt(parts[2]); } catch (NumberFormatException ex) { return "severity must be 1-3"; }
         if (severity < 1 || severity > 3) return "severity must be 1-3";
-        return y.body().woundAt(part, parts[1], severity) ? null : "no skin site on that region";
+        if (parts.length == 3) return y.body().woundAt(part, parts[1], severity) ? null : "no skin site on that region";
+        var shape = WoundShape.parse(parts[3]);
+        if (shape == null || shape.kind() == null || !shape.kind().id().equals(parts[1])) return "shape must match the injury kind";
+        return y.body().woundAt(part, parts[1], severity, shape) ? null : "no skin site on that region";
     }),
     /** Filling is low enough that the body is too weak to run or jump, but the core keeps it alive. */
     WEAK("health", "weak", 0, y -> y.body().weak(), null),

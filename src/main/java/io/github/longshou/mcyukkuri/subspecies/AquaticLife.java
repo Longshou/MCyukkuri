@@ -102,8 +102,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public AquaticSelfRescue selfRescue(){return selfRescue;}
     public int provisions() { return provisions.getCount(); }
     public int stockTarget() {
-        return Seasons.on(level(), entity.blockPosition(), Season.AUTUMN)
-                || Seasons.on(level(), entity.blockPosition(), Season.WINTER) ? 8 : 4;
+        return Seasons.on(level(), entity.blockPosition(), Season.WINTER) ? 8 : 4;
     }
     public int availableFood() {
         var home = entity.habitat().waterHome();
@@ -903,8 +902,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         }
         // Small captains replenish a real reserve while still well fed; parent refuge is the fallback when it runs out.
         boolean lowStores = boat.cargo().count() < Math.min(stockTarget(), boat.cargo().count() + boat.cargo().remainingCapacity())
-                && (Seasons.on(level(), entity.blockPosition(), Season.AUTUMN)
-                    || Seasons.on(level(), entity.blockPosition(), Season.WINTER)
+                && (Seasons.on(level(), entity.blockPosition(), Season.WINTER)
                     || familyLife.followsParent() || boat.getPassengers().stream().anyMatch(p -> p instanceof YukkuriEntity y && y.life().nutrition() < 60));
         if ((shoreForage.active() || lowStores) && shoreForage.tick(boat)) { yieldAllBut(BoatTask.SHORE_FORAGE); activity=shoreForage.activity(); return; }
         if (lowStores && floatingSource == null && !shoreForage.active() && entity.family().adult()

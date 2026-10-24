@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
-import io.github.longshou.mcyukkuri.season.Season;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -218,7 +217,6 @@ public final class HabitatLife {
         entity.life().applyEnvironment(wet,hygiene+(value==null&&vagrant()&&!entity.life().isSleeping()?1:0),0);
         seasonal.quarrelIfNeeded(value);
     }
-    private boolean autumn() { return SettlementSeasons.is(entity,Season.AUTUMN); }
     private boolean ready() {
         return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
@@ -240,17 +238,8 @@ public final class HabitatLife {
     private boolean wantsHarvest(ShelterBlockEntity value) {
         var grass=new ItemStack(Items.SHORT_GRASS);
         if(value.needsMaterial(grass))return true;
-        return entity.life().acceptsFood(grass)&&value.food()<AutumnStock.target(level(),value)&&value.foodSpace(grass)>0
-                &&(!AutumnStock.autumn(level(),value.getBlockPos())||AutumnStock.fitCollector(entity))
-                ||granaryWants(value,grass);
+        return entity.life().acceptsFood(grass)&&value.food()<HouseholdStores.target(value)&&value.foodSpace(grass)>0;
     }
-    /** Autumn surplus goes to the community granary of a planned site once the own store has met its target. */
-    private boolean granaryWants(ShelterBlockEntity value,ItemStack grass) {
-        if(!autumn()||!entity.life().acceptsFood(grass)||value.food()<AutumnStock.target(level(),value)||!AutumnStock.fitCollector(entity))return false;
-        var site=SiteLife.of(entity);
-        return site!=null&&SiteLife.stock(level(),site)<GRANARY_LIMIT&&SiteLife.store(level(),site,entity.blockPosition(),pile->pile.foodSpace(grass)>0)!=null;
-    }
-    private static final int GRANARY_LIMIT=160;
     private boolean meal() { return task==Task.FOOD||task==Task.GRAIN_TAKE; }
     /** Own store empty and hungry: walk to the nearest granary pile that holds something this animal eats. */
     private boolean startGranaryTake() {
@@ -313,7 +302,7 @@ public final class HabitatLife {
         if(homes.relocationPending()) {
             if(homes.continueRelocation()==Result.DEFERRED)return false;
         }
-        if(wait>0)return false;wait=(int)((autumn()?30:60)/entity.species().traits().chore());
+        if(wait>0)return false;wait=(int)(60/entity.species().traits().chore());
         var value=shelter();boolean housed=value!=null&&value.usable(entity);
         if(!housed) {
             if(hasNestProject())cancelNestProject();
@@ -536,7 +525,7 @@ public final class HabitatLife {
             if(!value.needsMaterial(carrying)&&carrying.is(YukkuriEntity.FOOD)) {
                 var pile=value.ensurePile();
                 if(pile==null){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();stop();return;}
-                if(!rationLoad&&(value.foodSpace(carrying)==0||autumn()&&value.food()>=AutumnStock.target(level(),value))&&startGranaryPut())return;
+                if(!rationLoad&&value.foodSpace(carrying)==0&&startGranaryPut())return;
                 if(!mouth(pile))return;
                 depositCarried(value);
             } else if(approach(value.bed(entity.getUUID()))) {
@@ -559,7 +548,7 @@ public final class HabitatLife {
     }
     public void stop() { if(entity.level() instanceof ServerLevel level)SearchBudget.cancel(level,entity,Purpose.GRANARY,0);Rations.fetchAbort(rationFetch);rationFetch=null;
             stealing=rationLoad=false;homes.stop(task);plants.stop();contact.reset();seasonal.resetLoad();task=Task.NONE;targetItem=null;targetBlock=null;
-            seasonal.clearShareTarget();granary=null;wait=(int)((autumn()?40:80)/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
+            seasonal.clearShareTarget();granary=null;wait=(int)(80/entity.species().traits().chore());ticks=buildTicks=0;entity.getNavigation().stop(); }
     /** Cheek pouches (Reimu only): after the first portion, take more of the same food lying within reach, up to the species' capacity. */
     private void cheekFill() {
         if(!carrying.is(YukkuriEntity.FOOD))return;

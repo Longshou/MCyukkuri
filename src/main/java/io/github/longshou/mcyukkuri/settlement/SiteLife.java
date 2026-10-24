@@ -259,8 +259,7 @@ public final class SiteLife {
         site.group = group.id;
         site.failures = 0;
         SettlementData.get(level).setDirty();
-        boolean autumn = site.palette <= 1;
-        int portions = Math.min(64, (int)Math.round((population * (autumn ? 5 : 3) / 2 + 4) * site.plan().profile().stock));
+        int portions = Math.min(64, (int)Math.round((population * 3 / 2 + 4) * site.plan().profile().stock));
         for (var slot : site.slots(SiteSlot.Kind.STORE)) {
             var at = slot.anchor();
             if (!level.hasChunkAt(at)) continue;

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -62,7 +63,7 @@ public final class StatusLife {
     private void airborneTick() {
         double y = entity.getY();
         var family = entity.family();
-        if (entity.getVariant().isPredator() || entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
+        if (entity.profile().ecology() == Ecology.PREDATOR || entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
                 || family.braidRescueActive() || family.selfClimbActive()
                 || family.laboring() || family.birthDuty() || family.awaitingLanding()) {
             // A carried or rescued body starts a new observation after release; do not inherit the lift's height.

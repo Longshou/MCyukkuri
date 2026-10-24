@@ -66,7 +66,7 @@ class Scenario:
 def surface_demo_lines(sid, lines):
     """Preset skin demonstrations face the observer; explicit body-region comparisons retain their regions."""
     result = []
-    comparisons = {'wound_parts', 'hatless_monster', 'hatless_boundary', 'core_exposed'}
+    comparisons = {'wound_parts', 'wound_materials', 'thermal_body', 'wound_sources', 'hatless_monster', 'hatless_boundary', 'core_exposed'}
     for line in lines:
         if not isinstance(line,str):
             result.append(line)
@@ -1000,14 +1000,20 @@ add('body_mold', 'body', '油霉阶段与去霉', '油霉阶段',
     reads=[(f'读油霉{level}', f'yukkuri status {sel(f"mold{i}")} raw') for i, level in enumerate((1, 3, 6, 8))])
 
 add('airborne', 'body', '腾空与小跳', '腾空与小跳',
-    '两只灵梦落地站稳后，高抛个体腾空，小跳个体轻跳；观察高抛时的飞起感叹，以及同一次腾空不会重复刷屏。落地后仍按普通规则活动',
+    '左侧灵梦对照高抛与小跳，右侧蕾米莉亚和弗兰同样高抛；石墙隔开视线，避免捕食威胁打断普通组。普通高抛只感叹一次，小跳与两种原生会飞捕食种不说飞起感叹；落地后仍按普通规则活动',
     '生成后约 2–6 秒', [
-        box(-6, -1, -2, 6, -1, 2, 'minecraft:hay_block'),
-        yk('reimu', -3, 0, 'high', label='高抛', lead=True, **pair_ready()),
-        yk('reimu', 3, 0, 'low', label='小跳', **pair_ready())],
+        box(-10, -1, -4, 12, -1, 4, 'minecraft:hay_block'),
+        box(1,0,-28,1,5,28,'minecraft:stone'),
+        yk('reimu', -7, 0, 'high', label='普通·高抛', lead=True, **pair_ready()),
+        yk('reimu', -3, 0, 'low', label='普通·小跳', **pair_ready()),
+        yk('remilia', 5, 0, 'native_remilia', label='原生飞行·蕾米莉亚', **pair_ready()),
+        yk('flandre', 10, 0, 'native_flandre', label='原生飞行·弗兰', **pair_ready())],
     late=[f'data modify entity {sel("high")} Motion set value [0.0d,0.9d,0.0d]',
-          f'data modify entity {sel("low")} Motion set value [0.0d,0.25d,0.0d]'],
-    env=DAY, vantage=(0, 10), note=NEW)
+          f'data modify entity {sel("low")} Motion set value [0.0d,0.25d,0.0d]',
+          *[f'data modify entity {sel(name)} Motion set value [0.0d,0.9d,0.0d]' for name in ('native_remilia', 'native_flandre')]],
+    env=DAY, vantage=(0, 14), note=NEW,
+    reads=[(label, f'yukkuri status {sel(name)} raw') for name,label in
+           (('high','读普通高抛'),('low','读普通小跳'),('native_remilia','读蕾米莉亚'),('native_flandre','读弗兰'))])
 
 add('house_health', 'body', '家油血量', '家油血量',
     '三只家油分别处于赤油、子油和成体阶段，旁边是普通成体灵梦。先读各自血量，再空手攻击家油，观察幼体的脆弱程度；家油受击不显示伤口，仍会真实扣血、死亡并留下遗体',
@@ -1020,13 +1026,71 @@ add('house_health', 'body', '家油血量', '家油血量',
     reads=[(title, f'yukkuri status {sel(name)}') for title, name in (
         ('读家油赤油', 'house_baby'), ('读家油子油', 'house_child'), ('读家油成体', 'house_adult'), ('读普通成体', 'ordinary'))])
 
-_parts = (('头顶', 0, 2, 0), ('正面', 0, 0, 3), ('背面', 0, 0, -3), ('侧面', 3, 0, 0), ('底面', 0, -1.2, 0))
-add('wound_parts', 'body', '受击部位', '伤口部位',
-    '五只面朝南的灵梦各从一个方向挨一记仙人掌刺：伤口落在头顶、正面、背面、侧面、底面；读数 health.wound_sites 是“部位:种类+级”',
-    '立即；惊慌约 6 秒', [
-        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', yaw=0, lead=i == 1, label=part, **pair_ready()) for i, (part, *_) in enumerate(_parts)],
-        *[f'damage {sel(f"v{i}")} 5 minecraft:cactus at ~{-7.5 + 4 * i + ox:g} ~{.4 + oy:g} ~{.5 + oz:g}' for i, (_, ox, oy, oz) in enumerate(_parts)]],
-    note=NEW, vantage=(0, 10, 180), reads=[('读正面伤口', f'yukkuri status {sel("v1")}')])
+_parts = (('头顶','top'),('正面','front'),('背面','back'),('侧面','side'),('底面','bottom'))
+add('wound_parts', 'body', '伤口部位对照', '伤口部位',
+    '五只灵梦分别预置头顶、正面、背面、侧面、底面的二级细刺伤，只比较锚点和动作贴合；这不是实际受击证明。真实仙人掌须接触方块，另用真实伤因场景；读wound_sites与wound_anchors',
+    '立即绕行；可用橙汁观察原位闭合留疤', [
+        *[yk('reimu',-8+4*i,0,f'v{i}',yaw=0,lead=i==1,label=label,**pair_ready()) for i,(label,_) in enumerate(_parts)],
+        *[set_status(f'v{i}','marks.scars',0) for i in range(5)],
+        *[set_status(f'v{i}','health.wound_at',f'{part}:scratch:2:thorn') for i,(_,part) in enumerate(_parts)]],
+    note=NEW, vantage=(0,10,180), give=['mcyukkuri:orange_juice 6'],
+    reads=[(f'读{label}伤口',f'yukkuri status {sel(f"v{i}")} raw') for i,(label,_) in enumerate(_parts)])
+
+_wound_shapes = (('scratch','scratch','擦伤'),('tear','tear','刀割'),('dent','dent','钝击'),
+                 ('puncture','tear','窄刺'),('thorn','scratch','细刺'),('impale','tear','尖锥'),
+                 ('bite','tear','啃咬'),('blast','tear','爆裂'))
+_wound_materials=[]
+for i,(shape,kind,label) in enumerate(_wound_shapes):
+    name=f'shape{i}'
+    _wound_materials += [yk('reimu',-14+4*i,0,name,label=label+'1/2/3',nutrition=20,energy=95,lead=i==0,also=('wound_shapes',)),
+        set_status(name,'marks.scars',0),
+        *[set_status(name,'health.wound_at',f'{part}:{kind}:{grade}:{shape}')
+          for part,grade in (('front',1),('side',2),('back',3))]]
+for i,(species,extra,label) in enumerate((('reimu',{'congenital':'BEAN_BODY'},'豆形'),
+        ('reimu',{'congenital':'SPARSE_HAIR'},'先天稀发'),('reimu',{'form':'WASA_REIMU'},'多毛后发'),
+        ('marisa',{'aquatic':True},'水生与大帽'))):
+    name=f'hair{i}'
+    _wound_materials += [yk(species,-9+6*i,8,name,label=label,nutrition=20,energy=95,**extra),
+        set_status(name,'marks.scars',0),set_status(name,'health.wound_at','top:dent:2:dent'),
+        set_status(name,'health.wound_at','back:tear:3:bite')]
+add('wound_materials','body','八伤型与发面适配','伤型与发面',
+    '前排八种伤型每只正面一级、侧面二级、背面三级；后排豆形、先天稀发、多毛及水生大帽对照。绕行看皮面、发面和断发边，移动时看蒙皮；用橙汁闭伤后看同锚点留疤，再用面粉糊。三级裂口继续漏血，及时治疗。本场是外观初态，实际来源另看真实伤因场景',
+    '先看后背三级，再看侧面与正面；可清场重开',_wound_materials,env=DAY,vantage=(0,15),
+    give=['mcyukkuri:orange_juice 16','mcyukkuri:flour_paste 16'],
+    reads=[('读八类伤型与锚点',f'execute as {sel_all("wound_shapes")} run yukkuri status @s raw')]
+        + [(f'读{label}',f'yukkuri status {sel(f"hair{i}")} raw') for i,label in enumerate(('豆形','先天稀发','多毛后发','水生大帽'))])
+_thermal=[]
+for i,(scope,grade) in enumerate((('sole',1),('sole',2),('sole',3),('whole',1),('whole',2),('whole',3))):
+    name=f'thermal{i}'
+    _thermal += [yk('reimu',-15+6*i,0,name,label=('足部' if scope=='sole' else '全身')+str(grade),nutrition=20,energy=95,lead=i==0),
+        set_status(name,'marks.scars',0),set_status(name,'health.wound_at',f'{"bottom" if scope=="sole" else "front"}:scorch:{grade}:{scope}')]
+for i,scope in enumerate(('sole','whole')):
+    name=f'house_heat{i}'
+    _thermal += [yk('house_reimu',-6+6*i,8,name,label='家油'+('足部' if i==0 else '全身'),nutrition=20,energy=95),
+        set_status(name,'health.wound_at',f'{"bottom" if scope=="sole" else "front"}:scorch:1:{scope}')]
+_thermal += [yk('reimu',6,8,'thermal_control',label='健康对照',nutrition=20,energy=95)]
+add('thermal_body','body','足部与全身烧伤','烧伤范围',
+    '前排足部1/2/3级与全身1/2/3级，后排家油两种范围及健康对照。家油伤级初态为1但外观直接三级；读thermal_state区分真实等级和显示等级。全身仅横向干瘦，保持高度与深度，头发五官一起变化、头饰保尺寸；足烧只足底，不露核。用橙汁观察恢复与原位疤',
+    '立即绕行；真实受火另用伤因场景',_thermal,env=DAY,vantage=(0,15),
+    give=['mcyukkuri:orange_juice 12','mcyukkuri:flour_paste 12'],
+    reads=[(f'读热损{i+1}',f'yukkuri status {sel(f"thermal{i}")} raw') for i in range(6)]
+        + [('读家油足烧',f'yukkuri status {sel("house_heat0")} raw'),('读家油全身',f'yukkuri status {sel("house_heat1")} raw')])
+
+_source_cases=(('cut',-12,0,'木剑刀割'),('blunt',-6,0,'空手钝击'),('arrow',0,0,'箭与三叉戟'),
+               ('thorn',6,0,'仙人掌细刺'),('cone',12,0,'滴水石尖锥'),('blast',-12,10,'真实爆炸'),
+               ('heat',-6,10,'火烧与热地板'),('friction',0,10,'真实滚拖摩擦'))
+add('wound_sources','body','真实伤因与实际扣血','真实伤因',
+    '目标从健康无伤开始，玩家用有限工具真实命中，读实际扣血、wound_sites/anchors的shape与伤级；弓箭和三叉戟用真实投射物，仙人掌/石笋按实际接触，爆炸用TNT。右后玻璃围区有饥饿捕食种和猎物，普通AI自行追咬，观察bite。热地板只足烧，着火整体焦枯；滚拖用原生空手操作。一次MC命中不虚构逐齿逐刺落点',
+    '先看右后追咬，再逐类手动操作；清场恢复地形与实体',[
+        *[yk('reimu',dx,dz,name,label=label,nutrition=90,energy=95,lead=i==0) for i,(name,dx,dz,label) in enumerate(_source_cases)],
+        box(10,-1,7,20,5,17,'minecraft:glass','hollow'),
+        yk('reimu',15,11,'bite_target',label='真实追咬猎物',nutrition=70,energy=95),
+        yk('remilia',15,15,'bite_hunter',label='饥饿捕食种',nutrition=10,energy=95)],
+    env=DAY,vantage=(0,17),give=['minecraft:wooden_sword','minecraft:stick','minecraft:bow','minecraft:arrow 16',
+        'minecraft:trident','minecraft:sand 4','minecraft:cactus 4','minecraft:pointed_dripstone 4','minecraft:tnt 2','minecraft:redstone_torch 2',
+        'minecraft:flint_and_steel','minecraft:magma_block 4','mcyukkuri:orange_juice 12'],
+    reads=[(f'读{label}',f'yukkuri status {sel(name)} raw') for name,_,_,label in _source_cases]
+        + [('读真实咬伤',f'yukkuri status {sel("bite_target")} raw'),('读捕食交接',f'yukkuri status {sel("bite_hunter")} raw')])
 
 add('wound_leak', 'body', '漏馅与止漏对照', '漏馅止漏',
     '五只灵梦：1／2／3级裂口、多处三级裂口、血3且三级大裂口露核；每10秒漏血0／0.5／1／1／1。绕行看大伤口普通馅与唯一中枢创腔，橙汁闭伤补血止漏并原位留疤，面粉糊只去疤；露核者真实漏血可致死，及时治疗',
@@ -1086,21 +1150,28 @@ add('treatment_care', 'body', 'NPC治疗用料', 'NPC治疗',
                                     ('读医疗余量', f'data get entity {sel("carer")} Medicine')])
 
 add('core_exposed', 'body', '中枢外露与准确命中', '中枢外露',
-    '从左到右：低血多处深伤、准确命中的旁侧对照、满血深伤、低血小裂口、低血完整皮面。深伤可见普通馅，只有露核者的大创腔通向体内唯一中枢；绕行看腔壁遮挡和背面，橙汁治伤后创口关闭。玩家准确击中可见中枢应立即死亡，击中旁侧只结算普通伤；读 core_site／core_impact，不用伤害命令代替瞄准',
+    '前排依次是低血多处深伤、厚后发深伤、满血爆裂、低血小伤、低血完整皮面、低血窄刺、低血尖锥、低血烧伤；后排是头顶深伤。仅满足真实大缺损与低血通道者露出唯一中央中枢，窄刺/尖锥/烧伤不自动露核。绕到后发与头顶看连续创缘；玩家实际瞄准可见中枢，头发或帽饰挡住时射线也应被挡，旁侧只受普通伤，橙汁闭口并原位留疤',
     '先绕行看外观；再手动瞄准，清场后可重复', [
-        yk('reimu', -8, 0, 'exposed', label='低血多处深伤', lead=True, **pair_ready()),
+        yk('reimu', -14, 0, 'exposed', label='低血多处深伤', lead=True, **pair_ready()),
         set_status('exposed', 'health.wound_at', 'front:dent:3'), set_status('exposed', 'health.health', 3),
         set_status('exposed', 'health.wound_at', 'back:dent:3'),
-        yk('marisa', -4, 0, 'struck', label='旁侧对照', **pair_ready()),
-        set_status('struck', 'health.wound_at', 'front:dent:3'), set_status('struck', 'health.health', 3),
-        yk('reimu', 0, 0, 'deep_full', label='满血深灼伤', **pair_ready()),
-        set_status('deep_full', 'health.wound_at', 'side:scorch:3'),
-        yk('reimu', 4, 0, 'small', label='低血小裂口', **pair_ready()),
+        yk('marisa', -10, 0, 'struck', label='厚后发·绕背瞄准', **pair_ready()),
+        set_status('struck', 'health.wound_at', 'back:dent:3'), set_status('struck', 'health.health', 3),
+        yk('reimu', -6, 0, 'deep_full', label='满血爆裂·不露核', **pair_ready()),
+        set_status('deep_full', 'health.wound_at', 'front:tear:3:blast'),
+        yk('reimu', -2, 0, 'small', label='低血小裂口', **pair_ready()),
         set_status('small', 'health.wound_at', 'front:tear:2'), set_status('small', 'health.health', 3),
-        yk('reimu', 8, 0, 'closed', label='低血完整皮面', **pair_ready()), set_status('closed', 'health.health', 3)],
-    give=['mcyukkuri:orange_juice 4'], note=NEW, vantage=(0, 12),
+        yk('reimu', 2, 0, 'closed', label='低血完整皮面', **pair_ready()), set_status('closed', 'health.health', 3),
+        *[command for name,dx,kind,shape,label in (('pointed',6,'tear','puncture','低血窄刺'),
+                ('cone',10,'tear','impale','低血尖锥'),('burnt',14,'scorch','whole','低血烧伤'))
+          for command in (yk('reimu',dx,0,name,label=label,**pair_ready()),
+              set_status(name,'health.wound_at',f'front:{kind}:3:{shape}'),set_status(name,'health.health',3))],
+        yk('reimu',0,7,'hairline',label='头顶深伤',**pair_ready()),
+        set_status('hairline','health.wound_at','top:dent:3'),set_status('hairline','health.health',3)],
+    give=['mcyukkuri:orange_juice 12','mcyukkuri:flour_paste 12'], note=NEW, vantage=(0, 16),
     reads=[(caption, f'yukkuri status {sel(name)} raw') for caption, name in (
-        ('读中枢外露', 'exposed'), ('读受击者', 'struck'), ('读满血深伤', 'deep_full'), ('读小裂口', 'small'), ('读完整皮面', 'closed'))])
+        ('读中枢外露', 'exposed'), ('读厚后发', 'struck'), ('读满血深伤', 'deep_full'), ('读小裂口', 'small'), ('读完整皮面', 'closed'),
+        ('读窄刺', 'pointed'), ('读尖锥', 'cone'), ('读烧伤', 'burnt'), ('读头顶深伤', 'hairline'))])
 
 add('magma_sole', 'body', '岩浆块烫脚', '岩浆块烫脚',
     '左边位于半径4格岩浆块区中心，右边普通石头对照；不预置伤口。热地板伤害沿用玩家相同的原版判定与受伤冷却；每次实际受伤跳起，高度约为此前高跳的一半，并连续逃向安全地面。健康个体应活着离开；离开后橙汁治伤，核对脚底疤和烤足',
@@ -1329,6 +1400,16 @@ add('puff_response', 'headwear', '被噗咕的数值反应', '噗咕反应',
     env=DAY, vantage=(0, 26), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
 
 # ---- species traits and rare forms
+add('species_fatigue', 'species', '物种体力消耗对照', '体力消耗',
+    '妖梦、灵梦和帕秋莉均成年、营养100、精力95，各有两份真实苹果并用玻璃隔开。按 species.fatigue 的 steps 对照代谢 cost：同为20次时应为18／20／25；睡眠会暂停清醒代谢，其他活动额外耗能不计入cost，不要求同一秒达到同次数',
+    '默认间隔下约3分钟，精力耗尽前读20次；可用已有推进按钮', [
+        box(-3, 0, -4, -3, 2, 4, 'minecraft:glass'), box(3, 0, -4, 3, 2, 4, 'minecraft:glass'),
+        *[command for species,dx,name,label in (('myon',-7,'myon','妖梦·0.9'),('reimu',0,'neutral','灵梦·1'),('patchouli',7,'frail','帕秋莉·1.25'))
+          for command in (yk(species,dx,0,name,label=label,nutrition=100,energy=95,lead=name=='myon'),item('minecraft:apple',2,dx,2))]],
+    env=DAY, spot='race', vantage=(0, 12),
+    reads=[(label,f'yukkuri status {sel(name)} raw') for name,label in
+           (('myon','读妖梦代谢'),('neutral','读中性代谢'),('frail','读体弱代谢'))])
+
 add('myon_stick', 'species', '妖梦与楼观剑', '妖梦楼观剑',
     '两只还没有楼观剑的妖梦：左边脚下有根木棍，马上捡起来当楼观剑（开心台词）；右边只有一棵树，过一阵从树上折一根（平均约 20 秒）。两只口癖不同',
     '立即／约 20 秒', [
@@ -1613,11 +1694,11 @@ TOPICS = {
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
-    'body_mold': 'R5', 'wound_parts': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
+    'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
-    'myon_stick': 'S1', 'myon_brave': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
+    'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
     'colony_hunt': 'B2', 'colony_ration': 'B2', 'colony_judge': 'B2', 'colony_migrate': 'B2', 'colony_migrate_babies': 'B2',
     'shop_stale': 'M6', 'factory_wear': 'M6', 'exam_fail': 'M6',

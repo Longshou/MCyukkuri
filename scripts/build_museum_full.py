@@ -235,7 +235,13 @@ def build_pack(world):
             cancel.append(f'schedule clear {NS}:clip/rest')
         # The field mark (util/tag_fields) also takes the individuals and drops that wandered out of the box since the scene began.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        sweep = cancel + [clear_entities,
+        trial_cleanup = []
+        if f.id == 'body':
+            # Real injury tools leave vanilla projectiles and primed explosives in this field.
+            for kind in ('arrow','spectral_arrow','trident','tnt'):
+                trial_cleanup += [f'kill @e[type=minecraft:{kind},tag={field_mark(f)}]',
+                    f'kill @e[type=minecraft:{kind},x={bx1},y={by1},z={bz1},dx={bx2-bx1},dy={by2-by1},dz={bz2-bz1}]']
+        sweep = cancel + trial_cleanup + [clear_entities,
                  f'kill @e[type=!minecraft:player,tag=scn_prop,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]',
                  f'function {NS}:field/{f.id}/terrain',
                  clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.

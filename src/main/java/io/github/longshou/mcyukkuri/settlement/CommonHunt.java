@@ -18,7 +18,7 @@ import java.util.Locale;
  * along). "Hunting" therefore is real gathering of meadow plants ({@link Grazing}), the same work as a family trip.
  *
  * <p>Project design: on a fair morning (day time 1000-6000, in famine until 7500) when the common store is below its
- * target ({@link Rations#storeTarget}: three days of the community's need, five in autumn), the leader calls the adults within {@value #CALL_RANGE} blocks. Able adults
+ * target ({@link Rations#storeTarget}), the leader calls the adults within {@value #CALL_RANGE} blocks. Able adults
  * come (pregnant members, elders and, outside famine, parents of babies on mash stay home); a defiant one (low
  * attachment, selfish, little self-control) refuses, which the leader judges as {@link CommunityRules.Offence#DEFIANCE}.
  * The party gathers at the centre, walks out behind the leader to a meadow {@code radius} blocks away, each member

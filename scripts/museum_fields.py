@@ -53,7 +53,7 @@ def fillbiome_boxes(x1, z1, x2, z2, biome, y1=56, y2=100, limit=30000):
 
 
 class Field:
-    def __init__(self, fid, title, group, cx, cz, hx, hz, biome, ground='minecraft:grass_block', blurb=''):
+    def __init__(self, fid, title, group, cx, cz, hx, hz, biome, ground='minecraft:grass_block', blurb='', deck_depth=DECK_DEPTH):
         self.id, self.title, self.group, self.cx, self.cz, self.hx, self.hz = fid, title, group, cx, cz, hx, hz
         self.biome, self.ground, self.blurb = biome, ground, blurb
         self.x1, self.x2, self.z1, self.z2 = cx - hx, cx + hx, cz - hz, cz + hz
@@ -61,7 +61,7 @@ class Field:
         self.extras = []          # (function name, caption, hint) of extra deck buttons beyond the scenarios
         self.anchor = (cx, cz)    # default block the scenarios stand around
         # observation deck: north of the field, looking south into it
-        self.deck = (cx - 14, self.z1 - 6 - DECK_DEPTH + 1, cx + 14, self.z1 - 6)
+        self.deck = (cx - 14, self.z1 - 6 - deck_depth + 1, cx + 14, self.z1 - 6)
         self.gate = (cx, self.z2 + 4)   # return posts just outside the field (never cleared)
 
     def rect(self):
@@ -490,7 +490,7 @@ FIELDS = [
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
-    Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
+    Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', deck_depth=19, blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
     Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
     Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：帽船、出航、落水救援、船上接生'),
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),

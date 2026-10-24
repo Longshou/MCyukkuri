@@ -40,7 +40,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 
 - `YukkuriVersion` 为 1，缺失按 0 读取。拆分保持完整 NBT 路径、类型、写入位置和读取条件，不另包 compound。
 - 加载顺序由登记表表达：`SubspeciesLife` 先加载并承载水生数据，`YukkuriLife` 承载越冬，`MindLife` 兼读 `YukkuriPet`；家庭、家油和身体旧键按存在条件读取，捕食种数据按资格存读。
-- 四份调试视图受配置控制；`SukkiriExhaustion` 为瞬态，加载时清理旧键。伤口是真实数据，`Wound` / `Burns` 只兼读，显示从伤口重建。旧 `Display*` 字段忽略，模型变更只迁移真实伤口锚点。
+- 四份调试视图受配置控制；`SukkiriExhaustion` 为瞬态，加载时清理旧键。伤口是真实数据，`Wounds` 内追加 `Shape` 保存已发生的伤因形态，疤痕和遗体沿用同一身份与锚点；`Wound` / `Burns` 只兼读，显示从伤口重建。旧 `Display*` 字段忽略，模型变更只迁移真实伤口锚点。
 - 血量以原版 Health 为准；`HealthVersion` 防止 `YukkuriBody.Filling` 重复折算。遗体 `FoodRemaining` 兼读 `Filling`，中枢濒死保存一次 `PendingFood`；待吞咽收益由进食组件保存，客户端只同步嘴中显示。见[身体资源](INJURIES_AND_REMAINS.md)。
 - `Interrupt` 区分受惊、受击、命令、锁定、死亡和移除；`InterruptContext` 携带上下文，`InterruptPhase` 保证通知、清理与死亡顺序。内部伤害、相扑、淋湿和死亡单次通知分别处理。
 
@@ -56,11 +56,11 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 
 客户端经 `YukkuriView` / `HatBoatView` 读取同步值和只读派生结果，不读取服务端组件。`componentData(SyncSlot)` 是同步槽，`component(ComponentKey)` 是服务端实例；视图 tag 只读，帽船座位、货物和运动快照返回副本。
 
-- `WoundKind` 表示真实伤口，`SkinDecal` 表示展示覆盖；`WoundSurface` 提供共享皮面锚点。伤口使用实际受击位置，接受帽发遮挡，不另算可见位置。
+- `WoundKind` 表示治疗与漏馅类别，`WoundShape` 表示真实伤因及热损范围，`SkinDecal` 表示展示覆盖；`WoundSurface` 提供共享皮面锚点。伤口使用实际受击位置，接受帽发遮挡，不另算可见位置。
 - 人工体表展示的 `YukkuriBody.FaceMarks` 由 `BodyLife` 保存，`BodySigns.FACE_MARKS` 经既有整数同步字段传给客户端；只约束预置脏污、疤痕和油霉位置，不移动真实受击伤口或其愈合疤痕。
 - `YukkuriModelLoader` 解析模型；渲染缓存默认姿态与骨骼局部变换，每次绘制仍重算实体世界矩阵。只有共面、同绑定及同纹理边界的相邻三角形可合为四边形，曲面、表情、孕肚和受损帽饰保留三角形路径。
-- `WoundRenderer` 的撕裂、凹伤与严重灼伤替换表皮，贴花只更新覆盖三角形及法线邻域；原始命中网格与存档锚点号保持稳定。`BodyCavity` 从制作源导出描述拟合真实深伤的开口，供服务端中枢暴露命中和客户端皮面／五官裁切共用；`CavityRenderer` 缓存裁切、腔壁和中央核心，遗体 `CoreTaken` 控制核心是否存在。帽衬在身体伤口后的缓冲边界提交，避免使用失效的顶点消费者。
-- 孕肚贴脸复用 `PregnancyFaces.Surface` 和候选索引；气泡缓存断行与尺寸，资源或语言变化时失效。
+- `HairWoundRenderer` 从所选制作源按真实锚点生成皮面／发面裁切、断发边与热损覆层，凹伤和全身干瘦共用 `WoundSurface`／`WoundProfiles` 形变；原始命中网格与存档锚点号保持稳定。`BodyCavity` 提供深伤开口与唯一中央核心，客户端 `CavityRenderer` 和服务端中枢命中共用；`WoundOcclusion` 使用实际剩余发面和独立饰物的同步姿态阻挡射线。遗体 `CoreTaken` 控制核心是否存在。帽衬在身体伤口后的缓冲边界提交，避免使用失效的顶点消费者。
+- 孕肚贴脸复用 `PregnancyFaces.Surface` 和候选索引；`PregnancyAttachments` 与 `SelfRescueHatGeometry` 分别向显示和命中提供孕期附件位移及同步帽姿态。气泡缓存断行与尺寸，资源或语言变化时失效。
 
 ## 数据所有者与共享接口
 

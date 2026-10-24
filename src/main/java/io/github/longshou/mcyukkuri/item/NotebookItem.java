@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.notebook.NotebookGuide;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.season.SeasonCalendar;
-import io.github.longshou.mcyukkuri.settlement.AutumnStock;
+import io.github.longshou.mcyukkuri.settlement.HouseholdStores;
 import io.github.longshou.mcyukkuri.settlement.SettlementObservation;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -103,7 +103,7 @@ public final class NotebookItem extends Item {
                 entity.independence().observation(),
                 life.temperature().observation(),
                 SeasonCalendar.page((ServerLevel) entity.level(), entity.blockPosition()),
-                AutumnStock.observation(entity),
+                HouseholdStores.observation(entity),
                 entity.wintering().observation(),
                 entity.habitat().shelter()==null?Component.translatable("shelter.mcyukkuri.none"):entity.habitat().shelter().description(),
                 Component.translatable("notebook.mcyukkuri.stats", entity.getName(), Math.round(life.nutrition()), Math.round(life.energy()),

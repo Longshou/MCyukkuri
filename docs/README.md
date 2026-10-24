@@ -26,7 +26,7 @@
 | 对白、气泡、配音、声音注册 | [对白与配音](DIALOGUE_IMPLEMENTATION.md) | `dialogue/`、`registry/ModSounds` |
 | 洞穴、睡窝、纸箱、流浪油 | [野外住所](WILD_SHELTERS.md) | `settlement/`（`NaturalShelter`、`Burrowing`、`ShelterBlock`） |
 | 聚落、族长、族规、共同狩猎、迁徙 | [野外家庭与森林聚落](SETTLEMENTS.md) | `settlement/` |
-| 群系季节、体感温度、秋储、越冬 | [季节与气候生活](SEASONAL_LIFE.md) | `season/` |
+| 群系季节、体感温度、储粮、寒地生活 | [季节与气候生活](SEASONAL_LIFE.md) | `season/` |
 | 野外事件、情景卡、认屋 | [野外事件](WILD_EVENTS_IMPLEMENTATION.md) | `event/` |
 | 家油（室内寄居、巢与卵） | [家油生态](HOUSE_ECOLOGY.md) | `house/` |
 | 宠物店、徽章考核、宠物培育 | [宠物店与徽章](PET_SHOP.md) | `pet/`、`shop/`、`badge/` |

@@ -21,7 +21,7 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.IntValue COMMUNITY_SPAWN_CAP, COMMUNITY_POPULATION_CAP;
     public static final ModConfigSpec.IntValue MIGRATE_THRESHOLD, THREAT_DECAY_TICKS, MIGRATE_TIMEOUT, MIGRATE_MIN_DISTANCE, MIGRATE_MAX_DISTANCE;
     public static final ModConfigSpec.BooleanValue BIOME_SEASONS;
-    public static final ModConfigSpec.IntValue AUTUMN_STOCK_PER_RESIDENT, WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT,
+    public static final ModConfigSpec.IntValue WINTER_COURT_STOCK, SHARE_SURPLUS_PER_RESIDENT, SHARE_NEED_PER_RESIDENT,
             SHARE_COOLDOWN, ASSEMBLY_TICKS, WINTER_QUARREL_PENALTY;
     public static final ModConfigSpec.BooleanValue HOME_CLAIMS, HOME_CLAIM_ENCLOSURE;
     public static final ModConfigSpec.IntValue HOME_CLAIM_CHANCE, HOME_CLAIM_REGION_COOLDOWN, HOME_CLAIM_SETTLE_TICKS;
@@ -33,8 +33,6 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.BooleanValue CANNIBAL_CARRION, CANNIBAL_UNRECOGNIZED, SACRIFICE, SELF_OFFERING;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION;
     public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
-    public static final ModConfigSpec.IntValue SEASON_DAYS;
-    public static final ModConfigSpec.IntValue AUTUMN_STOCK_BUFFER;
     public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -64,15 +62,11 @@ public final class YukkuriConfig {
         FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
         HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);
         builder.pop().push("seasons");
-        SEASON_DAYS = builder.comment("Autumn stock planning horizon in game days. This does not advance or select seasons; seasons follow biome tags.")
-                .defineInRange("daysPerSeason", 7, 1, 365);
         SPRING_TEMPERATURE = builder.comment("MC biome-temperature offsets, only in dimensions with skylight and a moving sun. Not Celsius.")
                 .defineInRange("springTemperature", 0.0, -2.0, 2.0);
         SUMMER_TEMPERATURE = builder.defineInRange("summerTemperature", .45, -2.0, 2.0);
         AUTUMN_TEMPERATURE = builder.defineInRange("autumnTemperature", -.25, -2.0, 2.0);
         WINTER_TEMPERATURE = builder.defineInRange("winterTemperature", -.8, -2.0, 2.0);
-        AUTUMN_STOCK_BUFFER = builder.comment("Autumn stock estimate: extra percent above ordinary-forage winter meals, plus dry household spoilage. A planning target, not guaranteed survival.")
-                .defineInRange("autumnStockBufferPercent", 25, 0, 200);
         builder.pop().push("discovery");
         NATURAL_SPAWNS = builder.define("naturalSpawns", true);
         LOCAL_SPAWN_CAP = builder.defineInRange("localSpawnCap", 8, 1, 64);
@@ -98,7 +92,6 @@ public final class YukkuriConfig {
         MIGRATE_MAX_DISTANCE = builder.comment("Farthest distance of a new site from the old centre.").defineInRange("migrateMaxDistance", 48, 16, 128);
         builder.pop().push("seasons");
         BIOME_SEASONS = builder.comment("Biomes act as seasons (snowy = winter, plains = spring...); false restores the season-free behaviour.").define("biomeSeasons", true);
-        AUTUMN_STOCK_PER_RESIDENT = builder.comment("Autumn regions: stored food each resident aims for (other regions aim for 3).").defineInRange("autumnStockPerResident", 6, 3, 12);
         WINTER_COURT_STOCK = builder.comment("Winter regions: courtship starts only when stored food >= (residents + 2) * this.").defineInRange("winterCourtStockPerHead", 2, 0, 8);
         SHARE_SURPLUS_PER_RESIDENT = builder.comment("A household with stored food above residents * this hands out one portion at a gathering.").defineInRange("shareSurplusPerResident", 4, 2, 12);
         SHARE_NEED_PER_RESIDENT = builder.comment("A household with stored food below residents * this receives portions.").defineInRange("shareNeedPerResident", 2, 1, 6);

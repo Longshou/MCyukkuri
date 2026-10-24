@@ -207,7 +207,7 @@ public final class ForageTrip extends Goal {
         int food = home.food(), people = Math.max(1, home.occupants());
         if (food == 0) return 3;
         if (food < people * 2) return 2;
-        return food < AutumnStock.target(level(), home) ? 1 : 0;
+        return food < HouseholdStores.target(home) ? 1 : 0;
     }
     private boolean fair() {
         var level = level();
