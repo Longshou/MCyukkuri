@@ -173,10 +173,11 @@ def kanroken(spec):
     for name, rect in (('shaft', (0, 0, 12, 16)), ('knot', (0, 2, 6, 8)), ('tip', (12, 0, 16, 16))):
         lo, hi = spec[name]
         verts = cuboid(lo, hi, rect, 16)
-        for i in range(0, len(verts), 8):  # yaw about Y and push forward of the lips
+        for i in range(0, len(verts), 8):  # yaw about Y, then seat it at the lips (forward/rise from the mouth anchor)
             x, z = verts[i], verts[i + 2]
             a = math.radians(spec['yaw_degrees'])
             verts[i], verts[i + 2] = round(x * math.cos(a) - z * math.sin(a), 6), round(x * math.sin(a) + z * math.cos(a) + spec['forward'], 6)
+            verts[i + 1] = round(verts[i + 1] + spec.get('rise', 0), 6)
             nx, nz = verts[i + 5], verts[i + 7]
             verts[i + 5], verts[i + 7] = round(nx * math.cos(a) - nz * math.sin(a), 6), round(nx * math.sin(a) + nz * math.cos(a), 6)
         parts.append({'name': name, 'start': len(vertices) // 8, 'count': len(verts) // 8})

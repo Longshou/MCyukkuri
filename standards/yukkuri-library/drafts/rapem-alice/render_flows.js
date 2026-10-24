@@ -82,7 +82,8 @@ function fruitMesh(mother,id,progress){
  for(const [index,[z,y]] of stem.socket_layouts[String(count)].entries()){
   const rise=(y-stem.reference_origin[1])*stem.reference_units_to_model*family.lengthScale[count-1];
   const socket=[root[0],root[1]+rise,root[2]+z*stem.reference_units_to_model*family.lengthScale[count-1]-parent.depth_clearance*clamp(rise/parent.clearance_rise)];
-  const base=[socket[0],socket[1]-stem.pendant_length_reference*stem.reference_units_to_model-family.variants.reimu.crown_height*scale,socket[2]-family.fruitForwardClearance];
+  const spur=count<2?0:((count-1-index)%2===0?1:-1)*family.socketSpur;
+  const base=[socket[0]+spur,socket[1]-stem.pendant_length_reference*stem.reference_units_to_model-family.variants.reimu.crown_height*scale,socket[2]];
   const head=[base[0],base[1]+family.variants.reimu.crown_height*scale,base[2]];
   const a=mother.rootPoint(socket),b=mother.rootPoint(head),axis=b.map((v,i)=>v-a[i]);
   const len=Math.hypot(...axis),n=axis.map(v=>v/len),ref=Math.abs(n[2])<.9?[0,0,1]:[1,0,0];

@@ -46,11 +46,22 @@ final class AquaticMotionPresentation {
         return action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young");
     }
 
-    /** Lift the real twig around its braid grip during the return, without detaching the grip. */
-    static void recoverPaddle(PoseStack pose,HatBoatView boat,float partial){
-        float lift=(float)Math.max(0,-Math.sin(boat.paddleCycle(partial)*Math.PI*2));
-        pose.mulPose(Axis.XP.rotationDegrees(105*lift));
+    /**
+     * Pose the real twig in the braid-tip frame: gripped near its upper end a little outboard of the tip,
+     * leaning out past the brim so its lower end dips beside the hull. The braid's own sweep carries the stroke; while rowing the twig
+     * sweeps a little further aft in the power half and is raised outward out of the water on the return.
+     */
+    static void holdPaddle(PoseStack pose,HatBoatView boat,float partial,boolean stroking){
+        double cycle=stroking?boat.paddleCycle(partial):0;
+        float lift=stroking?(float)Math.max(0,-Math.sin(cycle*Math.PI*2)):0,sweep=stroking?(float)Math.cos(cycle*Math.PI*2):0;
+        pose.translate(PADDLE_REACH,0,0);
+        pose.mulPose(Axis.ZP.rotationDegrees(PADDLE_OUTWARD+PADDLE_LIFT*lift));
+        pose.mulPose(Axis.XP.rotationDegrees(PADDLE_SWEEP*sweep));
+        pose.translate(0,-PADDLE_GRIP_OFFSET,0);
+        // FIXED item display turns the sprite 180 degrees about Y, mirroring its diagonal; -45 stands it on the grip axis.
+        pose.mulPose(Axis.ZP.rotationDegrees(-45));pose.scale(.85f,.85f,.85f);
     }
+    private static final float PADDLE_OUTWARD=30,PADDLE_LIFT=30,PADDLE_SWEEP=10,PADDLE_GRIP_OFFSET=.26f,PADDLE_REACH=.05f;
 
     private AquaticMotionPresentation(){}
 }

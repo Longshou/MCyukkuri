@@ -185,9 +185,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var grip = model.paddlePose();
                 if (grip != null) {
                     pose.pushPose(); pose.mulPose(grip);
-                    if(action.equals("boat_paddle"))AquaticMotionPresentation.recoverPaddle(pose,paddleBoat,partialTick);
-                    pose.translate(0,-.22,0);
-                    pose.mulPose(Axis.ZP.rotationDegrees(45)); pose.scale(.85f,.85f,.85f);
+                    AquaticMotionPresentation.holdPaddle(pose,paddleBoat,partialTick,action.equals("boat_paddle"));
                     Minecraft.getInstance().getItemRenderer().renderStatic(paddleBoat.visiblePaddleItem(),
                             ItemDisplayContext.FIXED,packedLight,overlay,pose,buffers,entity.level(),entity.getId());
                     pose.popPose();
@@ -266,7 +264,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var follow=new Matrix4f(root);float units=entity.growthScale()/16f;
             follow.m30(follow.m30()*units);follow.m31(follow.m31()*units);follow.m32(follow.m32()*units);
             pose.last().pose().mul(follow);pose.last().normal().mul(new Matrix3f(follow));
-            FamilyRenderer.render(entity,pose,buffers,packedLight);
+            FamilyRenderer.render(entity,partialTick,pose,buffers,packedLight);
             pose.popPose();
             pose.popPose();
         }

@@ -6,9 +6,12 @@ and is scaled per brood size. For each count the shortest stem is chosen on whic
 fruit (at the size standard's full fruit size, docs/BEHAVIOR.md) hangs:
 
 - clear in front of the mother, so it drops straight to the ground without touching her face,
-  hat or ears (the mother's runtime model, in the column the fruit falls through);
+  hat or ears (the mother's runtime model, in the column the fruit falls through). At rest a fruit
+  hangs plumb: its hanging anchor (crown top when none is registered) lies directly below its socket;
 - apart from the other fruit front to back, so a fruit falling first never lands on one still
-  hanging below it;
+  hanging below it, and the hanging fruit read as separate in an oblique view;
+- with neighbouring fruit on alternate short side spurs (socket_spur, nearest fruit to the right),
+  so they do not bunch in an oblique view and the descending stalk passes beside the nearest one;
 - above the ground.
 
 Every stem-bearing mother and every child kind is checked, at the shortest individual variation
@@ -33,7 +36,7 @@ GROWTH = ROOT/'standards/yukkuri-v1/profiles/growth.json'
 MODELS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri'
 MOTHERS = ['reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre']
 SPACING = ['reimu', 'marisa']  # the young measured for spacing; tails and wings of other kinds are soft
-FIT = {'mother_clear': 0.8, 'fruit_gap': 0.6, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.7,
+FIT = {'mother_clear': 0.8, 'fruit_gap': 1.0, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.7,
        'far_socket': [-1.28, 1.89]}
 
 
@@ -73,12 +76,13 @@ class Stem:
 
 
 def fruit_boxes(recipe, size):
-    """Per child kind: (front z, back z, height) of the hanging fruit relative to its base, and its crown offset."""
+    """Per child kind: (front z, back z, height) of the hanging fruit relative to its base, its crown offset and hanging anchor."""
     out = {}
     for kind in MOTHERS:
         V = bounds(kind); var = recipe['variants'][kind]
         out[kind] = dict(front=float(V[:, 2].min())*size, back=float(V[:, 2].max())*size, height=float(V[:, 1].max())*size,
-                         half=float(np.abs(V[:, 0]).max())*size, crown=var.get('hang_clearance_height', var['crown_height'])*size)
+                         half=float(np.abs(V[:, 0]).max())*size, crown=var.get('hang_clearance_height', var['crown_height'])*size,
+                         anchor=[v*size for v in var.get('hanging_anchor', [0, 0, 0])])
     return out
 
 
@@ -94,17 +98,22 @@ def mother_front(mother, x0, x1):
     return _FRONT[key]
 
 
+def spur(recipe, count, index):
+    """FamilyGeometry.spur at mother scale 1: lateral model units of a socket's side spur (none for a single fruit)."""
+    return 0 if count < 2 else (1 if (count-1-index) % 2 == 0 else -1)*recipe['socket_spur']
+
+
 def fits(stem, fruits, length, layout, mothers, spacing_kinds):
     """Whether fruit at these reference sockets (far to near) hang clear on every mother for every child kind, and
     apart for the spacing kinds; the worst margins."""
     worst = dict(mother=9e9, gap=9e9, ground=9e9)
-    pend = stem.s['pendant_length_reference']*stem.s['reference_units_to_model']; fwd = stem.r['fruit_forward_clearance']
+    pend = stem.s['pendant_length_reference']*stem.s['reference_units_to_model']
     back = max(fruits[k]['back'] for k in spacing_kinds); front = max(-fruits[k]['front'] for k in spacing_kinds)
     for mother in mothers:
         sockets = [stem.point(zy, length, mother) for zy in layout]
         for kind, f in fruits.items():
-            for sk in sockets:
-                base = sk+[0, -pend-f['crown'], -fwd]
+            for index, sk in enumerate(sockets):  # the pedicel hangs plumb: the anchor sits right under its spur
+                base = sk+[spur(stem.r, len(sockets), index)-f['anchor'][0], -pend-f['crown'], -f['anchor'][2]]
                 front_z = mother_front(mother, base[0]-f['half'], base[0]+f['half'])
                 worst['mother'] = min(worst['mother'], front_z-(base[2]+f['back']))
                 worst['ground'] = min(worst['ground'], base[1])

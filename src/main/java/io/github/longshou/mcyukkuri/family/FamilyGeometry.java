@@ -52,13 +52,33 @@ public final class FamilyGeometry {
         var a=STEM.getAsJsonObject("socket_layouts").getAsJsonArray(String.valueOf(count)).get(index).getAsJsonArray();
         return point(a.get(0).getAsDouble(),a.get(1).getAsDouble(),count,scale,variance,mother);
     }
+    /** Short side spur of a socket, alternating sides from the nearest fruit so neighbours do not bunch; none for one fruit. */
+    public static Vec3 spur(int count,int index,float scale) {
+        if(count<2)return Vec3.ZERO;
+        return new Vec3(((count-1-index)%2==0?1:-1)*DATA.get("socketSpur").getAsDouble()/16*Math.max(1,scale),0,0);
+    }
     public static float fruitScale(float progress) { return GrowthSize.fruit(progress); }
     public static double pendant(float motherScale) { return STEM.get("pendant_length_reference").getAsDouble()*STEM.get("reference_units_to_model").getAsDouble()/16*motherScale; }
-    public static Vec3 childBase(int count,int index,float progress,float motherScale,float variance,YukkuriVariant mother,YukkuriVariant child) {
+    /** Where the pedicel meets the fruit, relative to its body origin in blocks: the registered hanging anchor, else the crown top. */
+    public static Vec3 hangingAnchor(float progress,YukkuriVariant child) {
+        var shape=DATA.getAsJsonObject("variants").getAsJsonObject(child.assetId());
+        var anchor=shape.getAsJsonArray("hanging_anchor");double size=fruitScale(progress)/16;
+        return anchor==null?new Vec3(0,shape.get("crown_height").getAsDouble()*size,0)
+                :new Vec3(anchor.get(0).getAsDouble()*size,anchor.get(1).getAsDouble()*size,anchor.get(2).getAsDouble()*size);
+    }
+    private static double hangClearance(float progress,YukkuriVariant child) {
         var config=DATA.getAsJsonObject("variants").getAsJsonObject(child.assetId());
-        double crown=config.get(config.has("hang_clearance_height")?"hang_clearance_height":"crown_height").getAsDouble()/16;
-        double forward=DATA.get("fruitForwardClearance").getAsDouble()/16;
-        return socket(count,index,motherScale,variance,mother).add(0,-pendant(motherScale)-crown*fruitScale(progress),-forward);
+        return config.get(config.has("hang_clearance_height")?"hang_clearance_height":"crown_height").getAsDouble()/16*fruitScale(progress);
+    }
+    /** At rest the pedicel hangs plumb: the fruit's anchor lies directly below the end of its socket's spur. Birth drops from here. */
+    public static Vec3 childBase(int count,int index,float progress,float motherScale,float variance,YukkuriVariant mother,YukkuriVariant child) {
+        var anchor=hangingAnchor(progress,child);
+        return socket(count,index,motherScale,variance,mother).add(spur(count,index,motherScale))
+                .add(-anchor.x,-pendant(motherScale)-hangClearance(progress,child),-anchor.z);
+    }
+    /** Rest length of the pedicel from its spur down to the fruit's anchor. */
+    public static double pedicel(float progress,float motherScale,YukkuriVariant child) {
+        return pendant(motherScale)+hangClearance(progress,child)-hangingAnchor(progress,child).y;
     }
     public static Vec3 toWorld(YukkuriEntity mother,Vec3 local) {
         return mother.position().add(local.yRot((float)Math.toRadians(180-mother.yBodyRot)).scale(mother.getScale()));

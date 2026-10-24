@@ -604,42 +604,44 @@
       "basis": "komicolle 40720 No.11518905「喜歡帶著一根木棍或形狀類似的東西當作武器，取名為觀樓劍」；wiki species/myon：不借用东方原作长刀造型",
       "shaft": [
         [
-          -7.6,
-          -0.38,
-          -0.38
+          -9.0,
+          -0.5,
+          -0.5
         ],
         [
-          7.6,
-          0.38,
-          0.38
+          9.0,
+          0.5,
+          0.5
         ]
       ],
       "knot": [
         [
           2.2,
-          -0.5,
-          -0.5
+          -0.62,
+          -0.62
         ],
         [
           3.0,
-          0.5,
-          0.5
+          0.62,
+          0.62
         ]
       ],
       "tip": [
         [
-          -7.9,
-          -0.3,
-          -0.3
+          -9.3,
+          -0.4,
+          -0.4
         ],
         [
-          -7.4,
-          0.3,
-          0.3
+          -8.8,
+          0.4,
+          0.4
         ]
       ],
-      "yaw_degrees": 18,
-      "forward": -0.35,
+      "yaw_degrees": 0,
+      "forward": 0.1,
+      "rise": 0.1,
+      "placement": "Bitten crosswise: level across the face and overhanging both cheeks, seated a little into the lips and on the drawn lip line (mouth attachment centre +0.1 up).",
       "colors": {
         "wood": [
           139,

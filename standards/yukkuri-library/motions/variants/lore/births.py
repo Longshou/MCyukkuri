@@ -308,7 +308,9 @@ def stem_bases(count, kinds, mother='reimu'):
     pendant = stem['pendant_length_reference']*stem['reference_units_to_model']/16; out = []
     for i, (z, y) in enumerate(stem['socket_layouts'][str(count)]):
         shape = fam['variants'][kinds[i]]; crown = shape.get('hang_clearance_height', shape['crown_height'])/16*FRUIT; s = point(z, y)
-        out.append([s[0]*16, (s[1]-pendant-crown)*16, (s[2]-fam['fruitForwardClearance']/16)*16])
+        anchor = shape.get('hanging_anchor', [0, 0, 0])  # plumb at rest: the anchor right under its socket's spur
+        spur = 0 if count < 2 else (1 if (count-1-i) % 2 == 0 else -1)*fam['socketSpur']
+        out.append([s[0]*16+spur-anchor[0]*FRUIT, (s[1]-pendant-crown)*16, s[2]*16-anchor[2]*FRUIT])
     return out
 
 
@@ -601,7 +603,7 @@ function stemItems(st,actor,t,root){  // the stem on this mother (FamilyGeometry
   // GrowthSize.fruit and FamilyGeometry.childBase / FamilyRenderer: each fruit hangs by its own crown (or hanging anchor)
   const items=[],Fr=F.growth.fruit,fs=Fr.from+(Fr.to-Fr.from)*Math.min(1,Math.max(0,(prog-Fr.visible_from)/(Fr.full_at-Fr.visible_from)));
   S.socket_layouts[String(count)].forEach(([z,y],i)=>{if(t>=st.drops[i]||prog<Fr.visible_from)return;const s=point(z,y).map(v=>v*16),shape=F.variants[st.kinds[i]],an=shape.hanging_anchor;
-    const base=[s[0],s[1]-S.pendant_length_reference*S.reference_units_to_model-(shape.hang_clearance_height??shape.crown_height)*fs,s[2]-F.fruitForwardClearance];
+    const base=[s[0],s[1]-S.pendant_length_reference*S.reference_units_to_model-(shape.hang_clearance_height??shape.crown_height)*fs,s[2]-(an?an[2]*fs:0)];base[0]+=(count<2?0:((count-1-i)%2===0?1:-1)*F.socketSpur)-(an?an[0]*fs:0);
     tube(tri,s,an?[base[0]+an[0]*fs,base[1]+an[1]*fs,base[2]+an[2]*fs]:[base[0],base[1]+shape.crown_height*fs,base[2]],.12,.09);const M=MODELS[st.kinds[i]],posed=poseModel(M,'idle',0,1).v;
     items.push({v:place(posed,new Float32Array(posed.length),{s:fs,yaw:0,pos:base}),tex:M.tex.sleep,size:M.size});});
   items.push({v:new Float32Array(tri),color:col});
@@ -697,7 +699,7 @@ def main():
     family = json.loads((PRESENT/'family.json').read_text(encoding='utf-8'))
     data = dict(models={ident: pack(ident, corrections) for ident in ('reimu', 'marisa')}, hat=hat_prop(), metrics=dict(VESSEL, birth=dict(preparation=PREP,strain=STRAIN,strain_later=STRAIN_LATER,emergence=EMERGE,rest=REST,interval=INTERVAL,interval_later=INTERVAL_LATER,recovery=RECOVERY)),
                 family=dict(stem=family['stem'], growth=family['growth'], lengthScale=family['lengthScale'], radiusScale=family['radiusScale'],
-                            fruitForwardClearance=family['fruitForwardClearance'], variants={k: family['variants'][k] for k in ('reimu', 'marisa')}),
+                            socketSpur=family['socketSpur'], variants={k: family['variants'][k] for k in ('reimu', 'marisa')}),
                 scenes=[])
     data['scenes'] = [s(data['models']) if s is scene_land_stem else s() for s in SCENES]
     for scene in data['scenes']:

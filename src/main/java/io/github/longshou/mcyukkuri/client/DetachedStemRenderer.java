@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public final class DetachedStemRenderer implements BlockEntityRenderer<DetachedStemBlockEntity> {
     public DetachedStemRenderer(BlockEntityRendererProvider.Context context){}
@@ -28,8 +29,9 @@ public final class DetachedStemRenderer implements BlockEntityRenderer<DetachedS
                 FamilyRenderer.tube(pose,material,bottom,mouth,radius,radius,light,color);
             }
             pose.translate(offset.x,offset.y,offset.z);
+            // A planted or bottled stem stands still: its fruit hang plumb without sway.
             FamilyRenderer.renderStem(stem.count(),stem.progress(),1,stem.variation(),stem.source(),stem.born(),stem.types(),
-                    stem.born()==(1<<stem.count())-1,pose,buffers,light);
+                    stem.born()==(1<<stem.count())-1,0,Vec3.ZERO,0,pose,buffers,light);
         }
         pose.popPose();
     }

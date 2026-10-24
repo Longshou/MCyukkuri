@@ -2,10 +2,10 @@
   "status": "pending_user_review",
   "source": {
     "art/props/family-life/shed-stem.json": "eaecd9e7ab49adab39aac9bedc50bf8d3d39561d63c0d58b20877d561eacedf1",
-    "standards/yukkuri-v1/components/common/stem.json": "50b3afc5261b848b3d83abf4c0dc189d5a8a465a48a4622d5e3f6b465f05db51"
+    "standards/yukkuri-v1/components/common/stem.json": "78b36fe14d3e9df13ebbc0fd912ead52cf918d5a2d6b9a0e7069defbaac1c1af"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json": "205b93378f43c6a5f66949eb6008dce71116f181e2e3f7f89ad463203e1cb147",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/yukkuri_stem.json": "94ab9eb19178f4fa1fa5839e1f1aa7cfd696ac8e7a255bd933aa090103856312",
     "src/main/resources/assets/mcyukkuri/models/item/yukkuri_stem.json": "df9bfd789ab266f9ba0c4d953d9b7771e4af44da5d61a8e8960449c87a3ffbe4",
     "src/main/resources/assets/mcyukkuri/textures/props/yukkuri_stem.png": "0fa602be5217bd17a314841a877ff37b93d065e9665838b75a4e44871fc92f49",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/family-index.json": "d2e8314c3646030f41e94bc13d3240cbb8e5ff3afc2eea83e302162bf6c3e984"
