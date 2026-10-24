@@ -401,37 +401,37 @@
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.mesh.json",
-      "sha256": "db0ecbb3cd7bd484f93b1fc58172570668c42d2402eb532d65628bde93f42372",
+      "sha256": "c77608644b2362e3032742b38e34a549c0656f0ad90371a5968d4a2c087924fc",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/forage_pile.bbmodel",
-      "sha256": "4fa724274b80ddba2631f3f3c6c2589631e497f1b6f4fd979b35dee0613b57ec",
+      "sha256": "1403207072916c9eb3c935362d6d3fa9e52185ee26cb62a8e3d1194619b6f3f0",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/forage_pile/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/forage_pile/texture.png",
-      "sha256": "b23ed0ecf8cf70bb9ba1f926d653bf9f7df2d0c74a5cf95653ba40366406d709",
+      "sha256": "4f7dadd36bea6b58cc22560286a698505ac7764dcf189a6995f345a6930fb693",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json",
-      "sha256": "b476b7ac68bb60ca6e5e822dd724f48ecfd2b0e7f95d273e6d28e0b06c6b15f2",
+      "sha256": "5baf9408935c95d0a6cc458bd0e54ea66bbd6e4a4262b2c26fb187dc487c8417",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel",
-      "sha256": "b34602acbaf7b4ba4b5d8a6559ffe8cc2ef70ac6c2bfff76130288602936ebc2",
+      "sha256": "413324fff92ced841942395c6c5d5529f307845a6ab8913431a7d731733b9c39",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/texture.png",
-      "sha256": "b23ed0ecf8cf70bb9ba1f926d653bf9f7df2d0c74a5cf95653ba40366406d709",
+      "sha256": "4f7dadd36bea6b58cc22560286a698505ac7764dcf189a6995f345a6930fb693",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json": {
       "snapshot": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "sha256": "979916de90f6815f36d224ee835d34676c11b53411cca97a07791940fd551dae",
+      "sha256": "812487cd3b5f6c62f9db081edc8afff42f07446af0977adae3552f2953647377",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/toilet_waste/toilet_waste.mesh.json": {

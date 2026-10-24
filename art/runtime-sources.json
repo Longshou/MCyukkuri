@@ -108,7 +108,7 @@
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions",
       "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_provisions.json",
       "shared_layout": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "note": "Reuse the full forage pile (leaf plate and full heap, units 0 and 4 of forage_pile) at three count-based scales. Interior and temporary brim storage share occupancy volumes measured from the transformed vertices."
+      "note": "Reuse the full forage pile (all units 0-4 of forage_pile: leaf plate, hay clumps and food) at 0.6 / 0.8 / 1.0 for the three count-based tiers. Interior and temporary brim storage share occupancy volumes measured from the transformed vertices."
     },
     "builder": "standards/yukkuri-library/drafts/care-props/build.py",
     "palette": "art/props/palette.json",

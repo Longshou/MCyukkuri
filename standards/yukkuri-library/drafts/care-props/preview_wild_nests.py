@@ -72,7 +72,7 @@ def forage():
             tile(AFTER, [g, ('forage_pile', 4, 0, 0, 0, 1)], '满堆近景', size=(420, 360), ppu=34, az=50, el=30),
             tile(AFTER, [g, ('forage_pile', 4, 0, 0, 0, 1)], '满堆侧视', size=(420, 360), ppu=24, az=0, el=6),
             tile(AFTER, [g, ('forage_pile', 4, 0, 0, 0, 1)], '满堆俯视', size=(420, 360), ppu=24, az=0, el=80)]
-    sheet([row, row2], 'forage.png', '陆上储粮堆：叶托上一堆干草，上放草团、浆果、橡子、白花、毛虫；满堆另有一捆扎草', 5, size=(420, 360))
+    sheet([row, row2], 'forage.png', '陆上储粮堆：叶托上逐档叠起黄干草团，草团、浆果、橡子、白花、毛虫一部分放在叶托上；满堆另有一捆扎草', 5, size=(420, 360))
 
 
 def hat():
@@ -82,7 +82,7 @@ def hat():
     sheet_img = Image.new('RGB', (1600, 1000), '#eef2e9')
     d = ImageDraw.Draw(sheet_img)
     d.text((28, 16), '帽船储粮堆 · 陆上储粮堆整堆缩放三档', font=C.P.preview_font(34), fill='#2b4035')
-    d.text((30, 62), '同一满堆（叶托 + 满档草堆与食物）；1–3 / 4–7 / 8–12 份三档，侧檐暂放每侧至多一堆；服务端占位按实际顶点测量。',
+    d.text((30, 62), '同一满堆（叶托 + 五团干草与食物）按 0.6 / 0.8 / 1.0 缩放为 1–3 / 4–7 / 8–12 份三档，侧檐每侧至多一堆、取该侧帽檐能容的大小；占位按实际顶点测量。',
            font=C.P.preview_font(20), fill='#536855')
     cards = [('较少 · 1—3 份', 1, 0, False), ('较多 · 4—7 份', 2, 0, False), ('满载 · 8—12 份', 3, 0, False),
              ('满载 · 亲油在帽中', 3, 0, True), ('暂放侧檐 · 两侧各一堆', 0, 3, False), ('暂放侧檐 · 亲油在帽中', 0, 3, True)]
@@ -91,9 +91,11 @@ def hat():
         d.rounded_rectangle((x, y, x + 518, y + 423), 16, fill='#f9faf5')
         d.text((x + 14, y + 10), label, font=C.P.preview_font(24), fill='#2b4035')
         close = not parent and not aside                  # quantity tiers: close on the cavity floor
+        brim = aside and not parent                       # side stow: close on both brims
         pixels, _, _ = C.H.rasterize(study.scene(tier, aside, parent), texture, az=.22, el=1.12 if not parent else .83,
-                                     span=6.5 if close else 11.6, center_y=-3.5 if close else -.8 if not parent else 1.3,
-                                     center_x=-.5 if close else 0, center_z=0)
+                                     span=6.5 if close else 8.5 if brim else 11.6,
+                                     center_y=-3.5 if close else 0 if brim else -.8 if not parent else 1.3,
+                                     center_x=-.5 if close else 0, center_z=1.5 if brim else 0)
         sheet_img.paste(Image.fromarray(pixels), (x, y + 45))
     sheet_img.save(OUT / 'hat-cargo.png')
 

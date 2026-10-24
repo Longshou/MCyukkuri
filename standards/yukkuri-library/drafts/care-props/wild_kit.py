@@ -17,6 +17,7 @@ from kit import Prop, unit as norm, sub, cross, dot, add, mul
 
 T = 16
 ATLAS = 128
+ATLAS_H = 160
 
 
 def hexrgb(h):
@@ -24,8 +25,8 @@ def hexrgb(h):
 
 
 # ---- ramps (dark -> light) --------------------------------------------------------------------------------------------
-STRAW = ['#463a1e', '#77653b', '#8f7c48', '#a5915a', '#bfab70', '#d9ca94']     # dry woven grass, hay-bale beige
-OLD = ['#3a3020', '#57482e', '#76643f', '#958052', '#b19c68']                  # weathered inner straw
+STRAW = ['#5a4214', '#83641c', '#a88424', '#c8a232', '#dfbd4a', '#f0da82']     # dry grass, warm hay-bale gold
+OLD = ['#4e3a18', '#735723', '#93732f', '#b08e42', '#c9aa5c']                  # older, shaded straw (inner side)
 SAGE = ['#38431f', '#53602a', '#717d36', '#929b47', '#b4b866']                 # cut grass drying to hay
 DRYLEAF = ['#43200f', '#6b3516', '#934f1f', '#b96e2a', '#d8933d', '#ecbb68']   # fallen leaf, orange-brown
 GREEN = ['#1d3818', '#2d5421', '#41722b', '#5a9135', '#7aae45', '#a2cc62']     # fresh leaf
@@ -212,6 +213,18 @@ def straw_end(key):
     return c.image()
 
 
+def stem(key):
+    """Loose dry stems: pale gold with a lighter sheen along them, a darker node here and there."""
+    r = rng_of(key)
+    c = Canvas(STRAW[4])
+    for y in range(T):
+        x = r.randrange(T)
+        for k in range(r.randint(3, 7)):
+            c.put(x + k, y, STRAW[5] if y % 2 == 0 else STRAW[3])
+        c.put(r.randrange(T), y, STRAW[2])
+    return c.image()
+
+
 def blades(key):
     """A rolled grass ball (草团): short upright blades with light tips, packed tight."""
     r = rng_of(key)
@@ -347,23 +360,22 @@ def leaf_sprite(ramp, broad=True, nibbled=False):
 
 
 def daisy():
-    """Small white wild flower with a yellow eye on its stem, for crossed planes like a vanilla flower."""
+    """Small white wild flower with a yellow eye on its stem, for crossed planes like a vanilla flower (3 texels wide)."""
     c = Canvas()
     c.rows([
-        ".lwl.",
-        "lwYwm",
-        ".mwm.",
-        "..g..",
-        ".Gg..",
-        "..g..",
-    ], {'l': PETAL[2], 'w': PETAL[3], 'm': PETAL[1], 'Y': POLLEN[1], 'g': GREEN[2], 'G': GREEN[3]}, 5, 10)
+        ".w.",
+        "wYm",
+        ".g.",
+        "Gg.",
+        ".g.",
+    ], {'w': PETAL[3], 'm': PETAL[1], 'Y': POLLEN[1], 'g': GREEN[2], 'G': GREEN[3]}, 6, 11)
     return c.image()
 
 
 def bloom():
     """The flower head seen from above, laid on top of the crossed stem so it reads from every side."""
     c = Canvas()
-    c.rows([".w.", "wYw", ".m."], {'w': PETAL[3], 'm': PETAL[1], 'Y': POLLEN[1]}, 6, 6)
+    c.rows(["w.", "Yw"], {'w': PETAL[3], 'Y': POLLEN[1]}, 7, 7)
     return c.image()
 
 
@@ -373,7 +385,7 @@ TILES = {
     'weave': (0, 0), 'weave_in': (32, 0), 'litter': (64, 0), 'hay': (96, 0),
     'moss': (0, 32), 'bark': (32, 32), 'blades': (64, 32), 'worm': (96, 32),
     'berry': (0, 64), 'nut': (32, 64), 'cap': (64, 64), 'litter_dry': (96, 64),
-    'wood_end': (0, 96), 'straw_end': (96, 96),
+    'wood_end': (0, 96), 'straw_end': (96, 96), 'stem': (0, 128),
 }
 SPRITES = {
     'leaf_green': (32, 96), 'leaf_dry': (48, 96), 'leaf_old': (64, 96), 'leaf_slim': (32, 112),
@@ -387,7 +399,7 @@ def tile_images():
         'moss': clumps('moss', MOSS), 'bark': bark('bark'), 'blades': blades('blades'), 'worm': caterpillar(),
         'berry': solid(BERRY, 2, 'berry', .35), 'nut': solid(NUT, 2, 'nut', .3), 'cap': solid(CAP, 1, 'cap', .5),
         'litter_dry': litter('litter_dry', mix=((DRYLEAF, 5), (STRAW, 3), (OLD, 2)), straws=10),
-        'wood_end': wood_end(), 'straw_end': straw_end('se'),
+        'wood_end': wood_end(), 'straw_end': straw_end('se'), 'stem': stem('stem'),
     }
 
 
@@ -405,7 +417,7 @@ _atlas = None
 def atlas():
     global _atlas
     if _atlas is None:
-        img = Image.new('RGBA', (ATLAS, ATLAS), (0, 0, 0, 0))
+        img = Image.new('RGBA', (ATLAS, ATLAS_H), (0, 0, 0, 0))
         boxes = {}
         for key, tile in tile_images().items():
             ox, oy = TILES[key]
@@ -428,7 +440,7 @@ class WildProp(Prop):
         super().__init__(name, noise=False)
         self.parts = []
         self.img, _ = atlas()
-        self.W = self.H = ATLAS
+        self.W, self.H = ATLAS, ATLAS_H
 
     def mat(self, name, unit=0):
         """Part for one (material group, render unit); parts with the same name and unit are shared."""
@@ -709,7 +721,7 @@ class WildProp(Prop):
         """One loose grass stem poking out of a roll: a thin square stem with the straw texture along it."""
         d = [math.cos(yaw) * math.cos(rise), math.sin(rise), math.sin(yaw) * math.cos(rise)]
         tip = [base[k] + d[k] * length for k in range(3)]
-        self.stick(part, base, tip, .2, side='weave', end='weave', s0=s0)
+        self.stick(part, base, tip, .2, side='stem', end='stem', s0=s0)
 
     def cross(self, part, name, base, yaw, scale=1.0):
         """Upright crossed planes anchored at the bottom centre of the sprite's opaque box (a vanilla flower)."""

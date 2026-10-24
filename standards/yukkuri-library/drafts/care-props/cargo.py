@@ -1,7 +1,7 @@
 """Hat provisions reuse the forage_pile as one complete heap, scaled by quantity tier.
 
 No new food geometry or recolouring: the full pile of designs.forage_pile (its
-leaf plate, unit 0, and the full stage-4 heap with its food, unit 4) is copied
+leaf plate and all four stages of hay clumps and food, units 0..4) is copied
 intact with the same atlas. Only its overall scale and location change. Shared
 server cylinders are measured from those exact transformed vertices, never
 maintained as separate coordinates.
@@ -23,15 +23,16 @@ def placements():
     # The whole original pile rests on the deepest real floor. Modest X
     # compression fits its naturally round footprint into the narrow crown.
     inside=[[]]+[[dict(x=-.55,z=-.10,bottom=-vessel['floor']+.025,
-                       scale=[.39*f,.55*f,.55*f])] for f in (.40,.70,1.0)]
+                       scale=[.39*f,.55*f,.55*f])] for f in (.60,.80,1.0)]
     # Temporarily set aside, at most two natural piles; no queue of tiny heaps.
-    aside=[[],[dict(x=5.42,z=2.3,bottom=.025,scale=[.08]*3)],
-           [dict(x=5.42,z=2.3,bottom=.025,scale=[.115]*3),dict(x=-5.22,z=3.1,bottom=.025,scale=[.09]*3)],
-           [dict(x=5.42,z=2.3,bottom=.025,scale=[.145]*3),dict(x=-5.22,z=3.1,bottom=.025,scale=[.12]*3)]]
+    # Each sits on its own side brim (right 4.37..7.21, left -6.51..-4.37), as large as that brim allows.
+    aside=[[],[dict(x=5.8,z=2.3,bottom=.025,scale=[.13]*3)],
+           [dict(x=5.8,z=2.3,bottom=.025,scale=[.165]*3),dict(x=-5.44,z=3.1,bottom=.025,scale=[.13]*3)],
+           [dict(x=5.8,z=2.3,bottom=.025,scale=[.2]*3),dict(x=-5.44,z=3.1,bottom=.025,scale=[.17]*3)]]
     return inside,aside
 
 
-FULL_PILE=(0,4)    # leaf plate and the full heap; the smaller stage heaps lie inside it
+FULL_PILE=(0,1,2,3,4)    # leaf plate and every stage: the full land pile
 
 
 def _source():
@@ -65,7 +66,7 @@ def layout():
                 source_prop='forage_pile',source_factory='designs.py:forage_pile',source_units=4,
                 vessel_source=VESSEL_PATH.relative_to(ROOT).as_posix(),
                 tier_max_counts=[0,3,7,12],full_tier_excludes_interior=True,
-                note='Full forage pile (leaf plate and full heap), only whole-pile scaling and placement; the full pile represents 8-12 portions, and side stow is the same inventory. Occupancy encloses the transformed source vertices.',
+                note='Full forage pile (leaf plate and all stages), only whole-pile scaling and placement; the full pile represents 8-12 portions, and side stow is the same inventory. Occupancy encloses the transformed source vertices.',
                 tiers=zones(inside),aside_tiers=zones(aside),
                 visual_placements=dict(tiers=inside,aside_tiers=aside))
 
