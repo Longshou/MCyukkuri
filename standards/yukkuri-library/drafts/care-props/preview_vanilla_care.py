@@ -113,7 +113,10 @@ class Scene(R.Source):
 
 
 AFTER = Scene(os.environ.get('MCYUKKURI_AFTER', R.ROOT))
-BEFORE = Scene(os.environ.get('MCYUKKURI_BEFORE', R.ROOT.parents[1] / '.local/care-props-before'))
+# A worktree can share the main checkout's before tree; the main checkout itself
+# has no parent project directory to reuse, so it uses its own current assets.
+BEFORE_ROOT = R.ROOT.parents[1] if R.ROOT.parent.name == '.worktrees' else R.ROOT
+BEFORE = Scene(os.environ.get('MCYUKKURI_BEFORE', BEFORE_ROOT / '.local/care-props-before'))
 REIMU, MARISA = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
 CAULDRON, COMPOSTER, POT = 'vanilla:cauldron', 'vanilla:composter', 'vanilla:flower_pot'
 
