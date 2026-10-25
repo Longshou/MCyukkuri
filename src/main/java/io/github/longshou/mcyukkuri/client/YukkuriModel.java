@@ -316,6 +316,7 @@ public final class YukkuriModel {
     private static final float SMOOTH_ANGLE_COS=(float)Math.cos(Math.toRadians(47));
     /** Model units the expression cards sit in front of their own plane, over the head skin they were measured against (about 0.02 deep at the mouth). */
     static final float CARD_LIFT=.04f;
+    private static final float REMAINS_LIFT=.015f;
     private void updateAngleNormals(AngleNormals smooth){
         for(int t=0;t<smooth.firsts.length;t++){
             int first=smooth.firsts[t];
@@ -1101,7 +1102,7 @@ public final class YukkuriModel {
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,0,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             // Taken last: the body and wound passes above still write into their own buffers.
-            if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCull(look.overlay())),light,overlay);
+            if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(look.overlay())),light,overlay);
             if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);
         }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatDamageDraw.reset();setExpression("");}
     }
@@ -1122,6 +1123,7 @@ public final class YukkuriModel {
         }
         float[] f=remainsSkinFrame;float[] uv=new float[6];
         Vector3f n=new Vector3f(),e=new Vector3f(),a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
+        Vector3f na=new Vector3f(),nb=new Vector3f(),nc=new Vector3f();
         for(var part:parts){
             if(!bodySurface(part.name))continue;
             for(int first=part.start;first<part.start+part.count;first+=3){
@@ -1138,8 +1140,11 @@ public final class YukkuriModel {
                 if(maxU-minU>.5f)for(int corner=0;corner<3;corner++)if(uv[corner*2]<.5f)uv[corner*2]+=1;
                 n.set(triangle[1]).sub(triangle[0]).cross(e.set(triangle[2]).sub(triangle[0]));
                 if(n.lengthSquared()<1e-16f)continue;n.normalize();
-                a.set(triangle[0]).fma(.03f,n);b.set(triangle[1]).fma(.03f,n);c.set(triangle[2]).fma(.03f,n);
-                WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],n,n,n);
+                // Smooth vertex normals keep neighbouring triangles on shared offset vertices (no seams); the polygon-offset render type
+                // settles the fight with the skin, and the small lift stays below CARD_LIFT so the face cards win over the overlay.
+                if(!woundVertexNormal(first,na))na.set(n);if(!woundVertexNormal(first+1,nb))nb.set(n);if(!woundVertexNormal(first+2,nc))nc.set(n);
+                a.set(triangle[0]).fma(REMAINS_LIFT,na);b.set(triangle[1]).fma(REMAINS_LIFT,nb);c.set(triangle[2]).fma(REMAINS_LIFT,nc);
+                WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],na,nb,nc);
             }
         }
     }

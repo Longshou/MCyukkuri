@@ -345,10 +345,10 @@ final class WoundRenderer {
                 mesh.points[i*5+3],mesh.points[i*5+4],mesh.points[(i+1)*5+3],mesh.points[(i+1)*5+4],mesh.points[(i+2)*5+3],mesh.points[(i+2)*5+4],
                 geometry.smoothNormals[geometry.normalSlots[i]],geometry.smoothNormals[geometry.normalSlots[i+1]],geometry.smoothNormals[geometry.normalSlots[i+2]]);}
         if(geometry.cavity!=null)geometry.cavity.render(world,geometry.posed,pregnancy,stack,buffers,light,overlay);
-        if(geometry.woundMarks){var ink=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_wounds.png")));
+        if(geometry.woundMarks){var ink=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(MCYukkuri.id("textures/props/body_wounds.png")));
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material<16)drawMark(geometry,mark,stack,ink,light,overlay,mark.material);}}
         if(geometry.toneMarks){
-            var tone=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_marks.png")));
+            var tone=buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(MCYukkuri.id("textures/props/body_marks.png")));
             for(int i=0;i<geometry.marks.size();i++){var mark=geometry.marks.get(i);if(mark.material>=16&&mark.material<32)drawMark(geometry,mark,stack,tone,light,overlay,mark.material-16);}
         }
         // Authored transparency preserves the subtle bruise and skin lip; geometry and UVs are cached with the injury.
