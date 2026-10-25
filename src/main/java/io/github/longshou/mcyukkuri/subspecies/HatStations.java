@@ -152,10 +152,6 @@ final class HatStations {
         }
     }
 
-    void afterCarry(YukkuriEntity child, YukkuriEntity parent) {
-        // The child sits on its new seat; the captain is on the station seat she delivered to (care) or goes home (return).
-        if (!stations.containsKey(child.getUUID()) && stations.isEmpty() && ownerToiletSlot < 0 && !rescueOwnerHeld) deck().release(parent.getUUID(), "carry_done");
-    }
 
     /** Stop every station and walk: the hull capsizes and everyone is where they stand. */
     void clearAll() {
@@ -476,11 +472,6 @@ final class HatStations {
     String departureDebug() { return departureDebug; }
     boolean preparingDepartureBerth(YukkuriEntity child) { return child != null && child.getUUID().equals(departureChild); }
 
-    private Vec3 brimOf(YukkuriEntity child) {
-        var cb = body(child);
-        for (var slot : boat.deckLayout().slots()) if (slot.kind() == Kind.BRIM && slot.allows(cb.cls())) return slot.pos();
-        return null;
-    }
 
     /** The pupil, already on the front brim, keeps that berth while its own hat is away. */
     boolean keepVoyageBerth(YukkuriEntity child) {

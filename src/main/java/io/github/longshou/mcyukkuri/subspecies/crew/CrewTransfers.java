@@ -57,7 +57,7 @@ public final class CrewTransfers {
 
     /**
      * A swimmer or a child on the bank is brought aboard by the captain of {@code hat}: a jumper in the water climbs with her nudge, any
-     * other is lifted in her braid. The decision gates of the old rescue stay on the caller's side of the line: whether a swimmer is
+     * other is lifted in her braid. The decision gates stay on the caller's side of the line: whether a swimmer is
      * helped at all ({@link WaterIncidents}), whether the child can be lifted yet, whether she sees it.
      */
     public static Result liftAboard(YukkuriEntity body, HatBoatEntity hat) {

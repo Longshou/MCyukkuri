@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
@@ -39,7 +38,7 @@ import net.minecraft.world.phys.Vec3;
  * boat's frame runs the curve backwards to its start; outside any boat the body is simply let go and falls.
  *
  * <p>The ticket is driven from {@code CrewTransferGoal}; the only other writer of a body's position is the boat's
- * {@code positionRider}. Nothing here moves a body the family tick used to move.
+ * {@code positionRider}.
  */
 public final class CrewTransfer {
     public enum Mode { HOP, CLIMB, LIFT }
@@ -236,7 +235,7 @@ public final class CrewTransfer {
     private static boolean carrierReady(YukkuriEntity c) {
         return usable(c) && !c.life().isSleeping() && c.life().mealTicks() == 0 && !c.family().tiedToLabor();
     }
-    /** Jumping, climbing and pulling oneself up need a body that can and energy to spend (the old boarding rule). */
+    /** Jumping, climbing and pulling oneself up need a body that can and energy to spend. */
     public static boolean canStepOut(YukkuriEntity y) { return selfCapable(y, Mode.HOP); }
     private static boolean selfCapable(YukkuriEntity y, Mode mode) {
         if (y.family().adult() || y.childhood().canJump()) return y.life().energy() >= 8 && !y.life().isSleeping() && y.family().stage() != FamilyLife.Stage.BABY;
@@ -587,7 +586,7 @@ public final class CrewTransfer {
         }
         plannedStart = body.position();
         publish();
-        AquaDiag.log(body, "crew.open." + body.getId(), 0, mode + " " + from.key() + " -> " + to.key() + " slot=" + slot + " why=" + why);
+        GameplayLog.detail(body, "crew.open." + body.getId(), 0, mode + " " + from.key() + " -> " + to.key() + " slot=" + slot + " why=" + why);
     }
 
     // ================================================================= the tick
@@ -664,7 +663,7 @@ public final class CrewTransfer {
         if (p == Phase.CONTACT) contactStart = phaseStart;
         if (p == Phase.CONTACT && mode != Mode.HOP) bodyHeld = true;
         if (p == Phase.RELEASE) { contact = Contact.NONE; contactAt = null; }
-        AquaDiag.log(body(), "crew.phase." + id, 0, "-> " + p + " mode=" + mode);
+        GameplayLog.detail(body(), "crew.phase." + id, 0, "-> " + p + " mode=" + mode);
     }
 
     private void holdHulls(YukkuriEntity carrier) {
@@ -848,7 +847,7 @@ public final class CrewTransfer {
         // The body belongs to the hull whose frame the curve starts in, from the first tick on.
         syncVehicle(body, 0, first.frame() == 0 ? -1 : (first.frame() == 1 ? boatA : boatB));
         if (mode == Mode.LIFT && boatA >= 0 && boatA == boatB) hatB().deck().lift(bodyId, true);
-        if (!finished) AquaDiag.log(body, "crew.move." + id, 0, mode + " ticks=" + geometry.moveTicks() + " curve=" + geometry.curve() + " entry=" + geometry.entryId());
+        if (!finished) GameplayLog.detail(body, "crew.move." + id, 0, mode + " ticks=" + geometry.moveTicks() + " curve=" + geometry.curve() + " entry=" + geometry.entryId());
     }
 
     // ---------------------------------------------------------------- MOVE

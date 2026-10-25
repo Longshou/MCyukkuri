@@ -285,7 +285,6 @@ public final class DeckLayout {
         return BodyClass.JUVENILE;
     }
     public double classLoad(BodyClass c) { return classLoad[c.ordinal()]; }
-    public boolean classJumps(BodyClass c) { return jumps[c.ordinal()]; }
 
     /** Waterline sink in hat units at this load: how far the hull rides lower than empty (project design, ecology A3). */
     public double sinkUnits(double load) {
@@ -359,14 +358,6 @@ public final class DeckLayout {
             }
         }
         return null;
-    }
-    /** Whether any edge of the path is a step (a riser the body cannot climb unaided). */
-    public boolean hasStep(int[] path) {
-        for (int i = 1; i < path.length; i++) {
-            for (var edge : adjacency.get(path[i - 1]))
-                if ((edge.a() == path[i] || edge.b() == path[i]) && edge.step()) return true;
-        }
-        return false;
     }
     /** The walking length of the path in hat units. */
     public double length(int[] path) {

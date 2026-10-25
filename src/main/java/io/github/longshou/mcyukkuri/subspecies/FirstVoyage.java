@@ -73,8 +73,6 @@ public final class FirstVoyage {
     public boolean keepsBerth(HatBoatEntity boat){return phase!=Phase.NONE&&boat.getUUID().equals(homeHat);}
     public boolean routineSailing(){return routineSailing&&phase==Phase.NONE&&!independent;}
     public boolean returningToParent(){return !leavingHome&&(phase==Phase.RETURN||phase==Phase.REBOARD);}
-    /** The token and provisions of this hat's last voyage ride in its custody record while the hat is worn. */
-    public UUID retainedHatToken(){return child.life().custody().retainedToken();}
     public int retainedFoodCount() {return child.life().custody().retainedFoodCount();}
     public boolean hasRetainedPaddle(){
         var retainedCargo=child.life().custody().retainedCargo();
@@ -416,8 +414,8 @@ public final class FirstVoyage {
             // First bring both real brims together; FamilyLife then walks to the
             // near edge and selects a reachable climb or a bounded low hop.
             var approach=home.emergencyApproach(child);
-            AquaDiag.log(child,"return."+child.getId(),40,"phase="+phase+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" approach="+AquaDiag.at(approach)
-                    +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
+            GameplayLog.detail(child,"return."+child.getId(),40,"phase="+phase+" boat="+GameplayLog.at(boat.position())+" yaw="+boat.getYRot()+" approach="+GameplayLog.at(approach)
+                    +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+GameplayLog.at(home.position())+" paddling="+boat.paddling()
                     +" crew="+child.family().crew().describe());
             boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome
                     &&(home.canMakeRoom(child,false)||emergencyReturn(boat));
@@ -433,7 +431,7 @@ public final class FirstVoyage {
                     if(touching){
                         if(CrewTransfers.hopReturn(child,boat,home,emergencyReturn(boat)).ok()){set(Phase.REBOARD);contactTicks=0;return;}
                         if(boat.changingSeat(child))return;
-                        AquaDiag.log(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().crew().describe());
+                        GameplayLog.detail(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().crew().describe());
                     }
                     return;
                 }

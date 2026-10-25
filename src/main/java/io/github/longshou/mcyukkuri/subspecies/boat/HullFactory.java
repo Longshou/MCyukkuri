@@ -29,7 +29,6 @@ public final class HullFactory {
     public enum Origin {
         BANK, PARENT_HAT, SWIMMING, SPAWN, SCENARIO, CRADLE, MOORING;
         boolean boardsOwner() { return this == SPAWN || this == SCENARIO; }
-        boolean aquaticDeployment() { return this != CRADLE && this != MOORING; }
     }
 
     /** Hull centre (at the waterline), yaw, hull scale; {@code water} is the cell reported in logs; {@code home} the parent hat of a first voyage. */

@@ -53,7 +53,6 @@ public final class HatFamilyPaddle {
     /** Identity guard for the one held ItemStack; generic stick insertion never uses this exception. */
     boolean handingOverTo(YukkuriEntity child,ItemStack offered){return handingOverTo(child)&&offered==held&&held.is(Items.STICK);}
     public ItemStack carried(){return held.copy();}
-    public ItemStack heldStick(){return carried();}
     public void rememberOwnDroppedPaddle(UUID itemId){if(itemId!=null)ownDroppedPaddle=itemId;}
     public String response(YukkuriEntity child){
         return child!=null&&child.getUUID().equals(recipient)&&handingOver()?Behaviors.BOAT_RECEIVE_PADDLE:Behaviors.IDLE;

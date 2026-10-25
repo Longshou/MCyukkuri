@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.GripRim;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.SelfRescueDeployment;
@@ -183,7 +182,7 @@ public final class HullHazards {
 
     /**
      * The owner's place in the hull's custody record: aboard it is DEPLOYED; off it while the voyage is not a shore transaction she is
-     * ADRIFT. (Boarding is also a real event; this only keeps the record true when it happened without one of the old call sites.)
+     * ADRIFT. (Boarding is also a real event; this only keeps the record true when it happened without one.)
      */
     private void custodyWatch() {
         var ownerId = boat.ownerYukkuri();
@@ -351,7 +350,7 @@ public final class HullHazards {
         if (!(actor.level() instanceof ServerLevel level) || !actor.profile().aquatic() || !actor.isAlive() || !actor.isInWaterOrBubble()
                 || actor.isPassenger() || actor.life().custody().custodied() || !actor.life().hasAccessory()) return null;
         var water = BlockPos.containing(actor.position());
-        if (!HatBoatRoute.calmSurface(level, water)) { AquaDiag.log(actor, "self.surface." + actor.getId(), 40, "not a calm surface at " + water); return null; }
+        if (!HatBoatRoute.calmSurface(level, water)) { GameplayLog.detail(actor, "self.surface." + actor.getId(), 40, "not a calm surface at " + water); return null; }
         var path = SelfRescueHatGeometry.plan(actor, HatBoatRoute.surface(level, water).y,
                 candidate -> selfRescueDeploymentReachable(actor, new SelfRescueDeployment(candidate.finalCentre(), candidate.boatYaw(), candidate)));
         return path == null ? null : new SelfRescueDeployment(path.finalCentre(), path.boatYaw(), path);
@@ -364,7 +363,7 @@ public final class HullHazards {
         boolean inside = level.getWorldBorder().isWithinBounds(water);
         boolean flat = Math.abs(HatBoatRoute.surface(level, water).y - plan.position().y) < .08;
         var fit = HullFootprint.fits(level, actor, null, plan.position(), plan.yaw(), HatVessel.hatScale(actor) * actor.getScale(), 0);
-        if (!(inside && flat && fit.ok())) AquaDiag.log(actor, "self.spot." + actor.getId(), 40, "hat spot " + AquaDiag.at(plan.position()) + " bounds="
+        if (!(inside && flat && fit.ok())) GameplayLog.detail(actor, "self.spot." + actor.getId(), 40, "hat spot " + GameplayLog.at(plan.position()) + " bounds="
                 + inside + " level=" + flat + " fit=" + fit.reason() + " " + fit.detail());
         return inside && flat && fit.ok();
     }

@@ -40,7 +40,6 @@ public final class HatCargo {
     /** How full the larder looks: 0 empty, 1 a little (1-3 portions), 2 half full (4-7), 3 full (8-12). */
     public static int tierFor(int n) { return DeckLayout.tierFor(n); }
     public int tier() { return tierFor(count()); }
-    boolean discardCooling() { return boat.level().getGameTime() < discardUntil; }
 
     void tick() {
         if (boat.level().isClientSide) return;
@@ -226,15 +225,6 @@ public final class HatCargo {
                     owner.getUUID(),hatToken,keptCount,count());
         }
         spillAt(owner.position());
-    }
-    public void returnToFamily(YukkuriEntity owner, HatBoatEntity home) {
-        int before=count(),receiverBefore=home.cargo().count();
-        for (var stack : food) home.cargo().store(stack,stack.getCount(),false);
-        food.removeIf(ItemStack::isEmpty);
-        if(before>0)GameplayLog.event(boat,"cargo","family return owner={} receiverHat={} moved={} remaining={} receiverFood={} -> {}",
-                owner.getUUID(),home.getUUID(),before-count(),count(),receiverBefore,home.cargo().count());
-        // The pupil keeps its actual paddle. Any food that will not fit remains a real dropped item.
-        unload(owner, null);
     }
     public void spillAt(Vec3 at) {
         if (boat.level().isClientSide) return;

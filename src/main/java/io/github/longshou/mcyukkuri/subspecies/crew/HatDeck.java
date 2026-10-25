@@ -78,7 +78,6 @@ public final class HatDeck {
         public boolean overflow() { return overflow; }
         public boolean returning() { return returning; }
         public Move move() { return move; }
-        public Vec3 freePosition() { return free; }
         /** The seat this body occupies or is bound for: the destination while moving or reserved, else where it sits. */
         public int seat() { return target >= 0 ? target : slot; }
         private boolean retained() { return lease != null && lease.purpose() == Purpose.RETAINED; }
@@ -105,7 +104,8 @@ public final class HatDeck {
 
     public static final int WALK_MIN_TICKS = 16, MOVE_SLACK_TICKS = 100, REST_ON_STATION_TICKS = 1200;
     public static final double WALK_SPEED = .20;
-    private static final int SEARCH_BUDGET = 20000, MAX_DISPLACED = 3;
+    /** Search bounds: the seat table is large (127 seats), so each need only tries its best-ranked seats and the whole search has a node budget. */
+    private static final int SEARCH_BUDGET = 20000, MAX_DISPLACED = 3, SEARCH_CANDIDATES = 16;
     public static final long BOARD_TTL = 600, SERVICE_TTL = 1600, REFUGE_TTL = 240, OWN_TTL = 240;
 
     private final Host host;
@@ -175,19 +175,6 @@ public final class HatDeck {
         else s = p.target >= 0 ? p.target : p.retained() ? p.home : DeckLayout.NONE;
         return s < 0 ? p.free : layout().slot(s).pos();
     }
-    /** The state of one seat right now. A moving body holds both its origin and its destination. */
-    public State stateOf(int slot) {
-        long now = host.now();
-        State state = State.FREE;
-        for (var p : placements.values()) {
-            if (!p.holds(slot)) continue;
-            boolean moving = p.move != null && p.move.active(now) && (p.slot == slot || p.target == slot);
-            if (moving) return State.MOVING;
-            if (p.aboard && p.slot == slot) state = State.OCCUPIED;
-            else if (state == State.FREE) state = State.RESERVED;
-        }
-        return state;
-    }
     /** The seat's occupant or the body promised it, or null. */
     public UUID occupant(int slot) {
         for (var p : placements.values()) if (p.holds(slot)) return p.id;
@@ -202,8 +189,6 @@ public final class HatDeck {
         return !p.aboard && p.lease != null && (p.lease.purpose() == Purpose.BOARD || p.lease.purpose() == Purpose.RESCUE);
     }
     public boolean anyOverflow() { for (var p : placements.values()) if (p.overflow) return true; return false; }
-    public boolean anyLease(Purpose purpose) { for (var p : placements.values()) if (p.lease != null && p.lease.purpose() == purpose && p.aboard) return true; return false; }
-    public int aboardCount() { int n = 0; for (var p : placements.values()) if (p.aboard && !p.captain()) n++; return n; }
     public String lastRefusal() { return lastRefusal; }
 
     /** The readout used by the cargo scenario report: every body's seat, lease and move. */
@@ -635,15 +620,6 @@ public final class HatDeck {
         return true;
     }
 
-    /** Whether two bodies could take these two seats together (read only; the pair itself excepted). */
-    public boolean canPlacePair(Body a, int seatA, Purpose pa, Body b, int seatB, Purpose pb, boolean pairConflict) {
-        ensureLayout();
-        if (seatA < 0 || seatB < 0 || seatA == seatB) return false;
-        if (!legal(a, pa, layout.slot(seatA)) || !legal(b, pb, layout.slot(seatB))) return false;
-        var ignore = Set.of(a.id(), b.id());
-        if (blocker(a, seatA, ignore) != null || blocker(b, seatB, ignore) != null) return false;
-        return !pairConflict || !layout.conflict(seatA, a.cls(), seatB, b.cls());
-    }
 
     /** Seats this body could take now, best first (read only): free, lawful for the purpose, and conflict-free. */
     public List<Integer> freeSeats(Body b, Purpose purpose, Vec3 near) {
@@ -844,17 +820,28 @@ public final class HatDeck {
         for (var n : needs) {
             var list = candidates(n.body, n.purpose, n.near, n.original);
             if (n.only >= 0) list.removeIf(i -> i != n.only);
+            else if (list.size() > SEARCH_CANDIDATES) list = new ArrayList<>(list.subList(0, SEARCH_CANDIDATES));
             options.add(list);
         }
         int[] result = new int[needs.size()];
         Arrays.fill(result, DeckLayout.NONE);
         int[] budget = {SEARCH_BUDGET};
+        long started = System.nanoTime();
+        int[] found = null;
         for (int limit = 0; limit <= maxDisplaced; limit++) {
             Arrays.fill(result, DeckLayout.NONE);
-            if (assign(needs, ordered, 0, options, result, ignore, budget, 0, limit)) return result;
+            if (assign(needs, ordered, 0, options, result, ignore, budget, 0, limit)) { found = result; break; }
             if (budget[0] <= 0) break;
         }
-        return null;
+        boolean budgetHit = found == null && budget[0] <= 0;
+        long micros = (System.nanoTime() - started) / 1000;
+        if (budgetHit) {
+            // Deterministic fallback: no assignment is claimed; callers see "no seat for the class" and the decision layer takes over.
+            remember("search budget " + Admission.Reason.NO_SLOT_FOR_CLASS);
+            host.limited("deck.budget", 200, "deck search budget hit needs={} nodes={} micros={} reason={}", needs.size(), SEARCH_BUDGET, micros,
+                    Admission.Reason.NO_SLOT_FOR_CLASS);
+        } else if (micros > 5000) host.limited("deck.slow", 400, "deck search slow needs={} nodes={} micros={}", needs.size(), SEARCH_BUDGET - budget[0], micros);
+        return found;
     }
 
     private boolean assign(List<Need> needs, List<Integer> order, int depth, List<List<Integer>> options, int[] result, Set<UUID> ignore,
@@ -950,7 +937,6 @@ public final class HatDeck {
         p.home = DeckLayout.NONE;
         p.returning = false;
     }
-    public int homeOf(UUID id) { var p = placements.get(id); return p == null ? DeckLayout.NONE : p.home; }
     public boolean returning(UUID id) { var p = placements.get(id); return p != null && p.returning; }
 
     // ---------------------------------------------------------------- care stations
@@ -1105,7 +1091,6 @@ public final class HatDeck {
         lastRefusal = text;
         lastRefusalAt = host.now();
     }
-    public long lastRefusalTick() { return lastRefusalAt; }
     private String name(int slot) { return slot < 0 ? "" : layout.slot(slot).id(); }
     private static String fmt(double value) { return String.format(Locale.ROOT, "%.1f", value); }
 }

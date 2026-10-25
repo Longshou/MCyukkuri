@@ -27,7 +27,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
@@ -63,7 +66,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private final AfloatAgenda agenda;
     private final AfloatActivities activities;
     private BlockPos rememberedBank, paddleStand;
-    private BlockPos failedBirthWater;
     private int hatCareTicks;
     private boolean hatCareDue, nightSettled;
     public enum ShoreWork { SETTLEMENT, INDEPENDENCE, FORAGE, HUMAN, PLAY, THERMAL }
@@ -82,7 +84,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private String launchCheck = "not_evaluated";
     private long launchCheckTick = -1;
     private UUID observedOwnBoat;
-    private long retryBirthWaterAt;
 
     public AquaticLife(YukkuriEntity entity) {
         this.entity = entity; care = new HatFamilyCare(entity); firstVoyage = new FirstVoyage(entity); shore = new AquaticShore(entity); shoreForage = new HatShoreForage(entity);
@@ -204,16 +205,12 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     }
     /** Server-side voyage and water-birth readout ({@code water.launch}); it never plans, launches, or searches for water. */
     public String waterBirthDetail(){
-        long now=level().getGameTime();
         String spawn=!afloatSpawn?"idle":naturalAfloatSpawn?"natural_pending":"pending";
-        long retry=failedBirthWater==null?0:Math.max(0,retryBirthWaterAt-now);
         return voyage.detail()+" spawn="+spawn+" spawnAge="+entity.tickCount+" required="+entity.family().waterBirthRequired()
-                +" needsBoat="+entity.family().needsWaterBirthBoat()
-                +" retryWater="+(failedBirthWater==null?"none":failedBirthWater.toShortString())+" retry="+retry
+
                 +" agenda="+agenda.currentId()+" activity="+activity()+" launchCheck="+launchCheck+" checkTick="+launchCheckTick
                 +" heldPaddle="+hasStick()+" provisions="+provisions.getCount();
     }
-    public void noteBirthWaterFailure(BlockPos water) { failedBirthWater = water; retryBirthWaterAt = level().getGameTime() + 400; }
 
     private boolean afloatSpawn, naturalAfloatSpawn;
     /** A newly created aquatic joins the world aboard her own real hull; the pending flag is spent by {@link #attemptAfloatSpawn}. */
@@ -288,6 +285,17 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!provisions.isEmpty() && available() && !entity.isPassenger() && !entity.life().isSleeping()
                 && entity.life().nutrition() < 30 && entity.life().beginMeal(provisions.copyWithCount(1),null,true)) provisions.shrink(1);
     }
+    /** Player hands a stick to an aquatic yukkuri (the owner aboard keeps it as the paddle). Accepted or refused, the click ends here. */
+    public static void deliverStick(PlayerInteractEvent.EntityInteract event) {
+        if(event.getHand()!=InteractionHand.MAIN_HAND || !(event.getTarget() instanceof YukkuriEntity y)
+                || !event.getItemStack().is(Items.STICK) || event.getEntity().isShiftKeyDown() || !y.profile().aquatic())return;
+        if(!event.getLevel().isClientSide){
+            if(y.getVehicle() instanceof HatBoatEntity boat && y.getUUID().equals(boat.ownerYukkuri()))
+                boat.cargo().givePaddle(event.getItemStack(),event.getEntity().getAbilities().instabuild);
+            else y.aquaticLife().giveStick(event.getItemStack(),event.getEntity().getAbilities().instabuild);
+        }
+        event.setCancellationResult(InteractionResult.sidedSuccess(event.getLevel().isClientSide));event.setCanceled(true);
+    }
     public boolean giveStick(ItemStack stack, boolean creative) {
         if (!EcologyRoutines.aquaticVoyage(entity) || hasPaddleForReturn() || !stack.is(Items.STICK)
                 || entity.family().flying() || entity.family().crew().busy() || entity.waterDistress().receivingWaterRescue()) return false;
@@ -349,12 +357,11 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if(partner!=null&&level().getEntity(partner) instanceof YukkuriEntity mother&&mother.family().waterBirthRequired())return mother.blockPosition();
         return entity.blockPosition();
     }
-    /** The launch bank and its water, or the real refusal. A birth launch lies at the mother's shore and skips water that just failed. */
+    /** The launch bank and its water, or the real refusal. A birth launch lies at the mother's shore. */
     public ShoreBerth.Outcome planLaunch(boolean birth) {
         if (birth) {
-            long now=level().getGameTime();
             var query=new ShoreBerth.Query(entity,null,HatVessel.hatScale(entity),birthLaunchAnchor(),ShoreBerth.Purpose.LAUNCH,null,16,0,
-                    p->!(p.equals(failedBirthWater)&&now<retryBirthWaterAt));
+                    p->true);
             var outcome=ShoreBerth.find(level(),query);
             if(outcome instanceof ShoreBerth.Refusal refusal)
                 GameplayLog.limited(entity,"aquatic","birth.noberth",400,"birth launch found no berth reason={}",refusal.describe());
@@ -372,10 +379,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private boolean available() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.family().flying();
-    }
-    private boolean reactingToBoatMotion() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isCommandPlaying() && !entity.operations().active()
-                && !entity.family().flying() && entity.getVehicle() instanceof HatBoatEntity boat && boat.unsteadyMotion();
     }
     private boolean routineAfloat() {
         return available() && entity.getVehicle() instanceof HatBoatEntity boat && boat.protects(entity);

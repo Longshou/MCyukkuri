@@ -38,7 +38,7 @@ public final class CrewPort {
     public boolean active() { return ticket != null && !ticket.finished(); }
     public boolean asBody() { return active() && ticket.bodyId().equals(entity.getUUID()); }
     public boolean asCarrier() { return active() && entity.getUUID().equals(ticket.carrierId()); }
-    /** Replaces the old {@code braidRescueActive()}: this entity is part of a transfer, whichever side. */
+    /** This entity is part of a transfer, whichever side. */
     public boolean busy() { return active(); }
     /** The ticket has reached the clip stage (contact or later): the transfer's own clip is what this entity shows. */
     public boolean presenting() { return active() && ticket.phase().ordinal() >= CrewTransfer.Phase.CONTACT.ordinal(); }
@@ -46,7 +46,7 @@ public final class CrewPort {
     public boolean holdsBody() { return asBody() && ticket.holdsBody(); }
     /** The carrier has the body in braid or mouth. */
     public boolean carrying() { return asCarrier() && ticket.holdsBody(); }
-    /** A climb of the hull's rim is under way (the old self-climb). */
+    /** A climb of the hull's rim is under way (a self-climb). */
     public boolean climbing() { return asBody() && ticket.mode() == CrewTransfer.Mode.CLIMB; }
     /** The teeth are on the rim. */
     public boolean gripping() { return climbing() && ticket.holdsBody(); }

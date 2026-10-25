@@ -71,7 +71,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     final HatHullMotion hullMotion = new HatHullMotion(this);
     private final HullHazards hazards = new HullHazards(this);
     // Keep protected synchronized data and physical-hat ownership behind entity-owned hooks.
-    CompoundTag deckData() { return entityData.get(DECK); }
     boolean hasServiceSeats() { return stations.hasServiceSeats(); }
     boolean hasReturningSeats() { return stations.hasReturningSeats(); }
     boolean ownerUsesToiletSeat() { return stations.ownerUsesToiletSeat(); }
@@ -107,7 +106,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** The deployed hat's own wear (headwear damage 0 intact, 1 frayed, 2 torn), drawn on the hull like a worn hat. */
     private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     /** The deck snapshot: for each body aboard its seat id, seat kind and place (hat units), any walk in progress, the load,
-     *  a lift in progress and the crowding display. Replaces the old brim-by-height guess. */
+     *  a lift in progress and the crowding display. */
     private static final EntityDataAccessor<CompoundTag> DECK = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** Every transfer that touches this hull: the one CrewState record (id, mode, body, carrier, curve, clock, phase, contact). */
     private static final EntityDataAccessor<CompoundTag> CREW = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
@@ -346,12 +345,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean canAdmitNewborn() {
         return boardable() && deck.canAdmit(new Body(NEWBORN_PROBE, BodyClass.NEWBORN, false, true, 0), Purpose.BOARD).ok();
     }
-    /** What the deck says about a newborn arriving now (read only), for the held-birth log. */
-    public String newbornRoomDebug() {
-        var a = deck.canAdmit(new Body(NEWBORN_PROBE, BodyClass.NEWBORN, false, true, 0), Purpose.BOARD);
-        return "admission=" + a.text() + " load=" + String.format(Locale.ROOT, "%.1f/%.1f", a.loadBefore(), deck.maxLoad())
-                + " last=" + deck.lastRefusal() + " mode=" + mode() + " assignment=" + deck.assignmentText();
-    }
     /** Short text of why the last admission was refused, for failure reports. */
     public String roomDebug(YukkuriEntity child){
         var a = admission(child, Purpose.BOARD);
@@ -431,12 +424,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return seat;
     }
     public boolean overcrowded(){return level().isClientSide?entityData.get(DECK).getBoolean("Overcrowded"):deck.anyOverflow();}
-    public boolean needsOwnHat(YukkuriEntity child){
-        var placed = child == null ? null : deck.get(child.getUUID());
-        return child!=null&&child.getVehicle()==this&&(placed!=null&&placed.overflow()||overcrowded())
-                &&child.aquaticLife().firstVoyage().completed()&&child.aquaticLife().firstVoyage().readySize()
-                &&!child.aquaticLife().firstVoyage().independent()&&!child.life().custody().custodied();
-    }
     /** Close arrivals may take a rescue seat when the ordinary ones are gone; the deck still refuses a conflicting one. */
     public boolean requestEmergencyBerth(YukkuriEntity child){
         if(level().isClientSide||child==null||!young(child)||!isAfloat()||capsizing()||!child.isAlive())return false;
@@ -481,7 +468,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     public String crowdingState(Entity rider){return crowding.state(rider);}
     public long crowdingPhaseStart(Entity rider){return crowding.phaseStart(rider);}
-    public UUID crowdingPusher(Entity rider){return crowding.pusher(rider);}
     public float riderBalanceRoll(Entity rider,float partial){return transportingInHat(rider)?0:crowding.roll(rider,partial);}
     public float riderBalancePitch(Entity rider,float partial){return transportingInHat(rider)?0:crowding.pitch(rider,partial);}
     CompoundTag crowdingData(){return entityData.get(DECK).getCompound("Crowding");}
@@ -613,10 +599,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var kind = seatKind(young);
         return isAfloat() && kind != null && (kind == Kind.BRIM || kind == Kind.TOILET_RIM || kind == Kind.RESCUE_RIM) && !changingSeat(young);
     }
-    /** Wait for the live rider-position update, rather than accepting only an expired timer. */
-    boolean atSeat(YukkuriEntity rider, Vec3 local) {
-        return rider.getVehicle() == this && !changingSeat(rider) && rider.position().distanceToSqr(toWorld(local)) < .0004;
-    }
     public boolean walkingInHat(Entity rider){
         var move=seatMove(rider);
         return move!=null&&!move.arc()&&!move.route().isEmpty()&&level().getGameTime()>=move.start()&&level().getGameTime()<move.start()+move.ticks();
@@ -628,17 +610,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         double support = HatVessel.travelSupport(mode(), local.x, local.z, radiusOf(rider));
         // Lift onto a short ledge without ever sinking the feet through its surface.
         return new Vec3(local.x, Math.max(local.y, support), local.z);
-    }
-    /** Where this rider is in the hull right now (hat units), a walk or hop in progress included. */
-    Vec3 seatLocalNow(Entity rider) {
-        var local = seatOf(rider);
-        if (local == null) return rider instanceof YukkuriEntity y && y.getUUID().equals(ownerYukkuri()) ? ownerSeat(y) : null;
-        var movement = seatMove(rider);
-        if (movement == null) return local;
-        double time = Math.clamp(level().getGameTime() - movement.start(), 0, movement.ticks());
-        Vec3 from = movement.from();
-        return movement.arc() ? toLocal(HatVessel.arc(toWorld(from), toWorld(local), movement.ticks(), time))
-                : movement.route().isEmpty() ? from : walkingLocal(rider, movement, time);
     }
     private Vec3 walkingPosition(Entity rider,HatDeck.Move movement,double time){
         Vec3 at=toWorld(walkingLocal(rider,movement,time));
@@ -703,8 +674,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var e = CrewState.entryFor(crewEntries(), rider.getUUID());
         return e != null && e.mode() == CrewTransfer.Mode.LIFT && e.phase().ordinal() >= CrewTransfer.Phase.CONTACT.ordinal();
     }
-    /** A transfer is in progress here: the hull is held and no seat reflow runs. */
-    public boolean carryBusy() { return crewState.busy(); }
     /** The captain lifts a rider to another seat of this hull (a care station, a way home); false when the transfer is refused. */
     boolean beginCarry(YukkuriEntity child, YukkuriEntity parent, int toSlot, int captainSlot) {
         var result = CrewTransfers.carryWithin(child, parent, this, toSlot, captainSlot);

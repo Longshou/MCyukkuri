@@ -12,8 +12,7 @@ import java.util.Map;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * What a rider of an afloat hull does, one registered {@link AfloatActivity} at a time. It replaces the old branch chain, the task
- * matrix and the priority predicates: the activities are tried in priority order, the first that takes the turn runs, a running one
+ * What a rider of an afloat hull does, one registered {@link AfloatActivity} at a time. The activities are tried in priority order, the first that takes the turn runs, a running one
  * that a more urgent one displaces is stopped with {@code preempted}, and nothing resumes by itself.
  *
  * <p>The agenda keeps no goal teardown: if it is not ticked for a few ticks (another goal took over, the rider left the hull) the

@@ -42,7 +42,6 @@ public final class HatFamilyCare {
     public int comforts() { return comforts; }
     public int songs() { return songs; }
     public boolean active() { return kind != Kind.NONE; }
-    public boolean bedtimeReady() { return bedtimeSung; }
     /** A rescued child is nuzzled once the parent can attend; still mouth contact only, no cleaning or healing. */
     public void expectNuzzle(YukkuriEntity young) { grateful = young.getUUID(); gratefulUntil = level().getGameTime() + 200; }
     private ServerLevel level() { return (ServerLevel) parent.level(); }

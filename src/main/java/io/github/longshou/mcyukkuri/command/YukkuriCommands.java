@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.command;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,7 +24,6 @@ import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.settlement.SeasonCommands;
 import io.github.longshou.mcyukkuri.settlement.SettlementCommands;
 import io.github.longshou.mcyukkuri.status.StatusCommands;
-import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 
 /** Operator-only animation demonstrations. Ordinary entity behaviour requires no commands. */
 public final class YukkuriCommands {
@@ -50,7 +50,7 @@ public final class YukkuriCommands {
                 .then(ScenarioCommands.speed())
                 .then(ScenarioCommands.relay())
                 .then(ScenarioCommands.readout())
-                .then(AquaDiag.command())
+                .then(GameplayLog.detailCommand())
                 .then(Commands.literal("say")
                         .then(Commands.argument("targets", EntityArgument.entities())
                                 .then(Commands.argument("event", StringArgumentType.word())

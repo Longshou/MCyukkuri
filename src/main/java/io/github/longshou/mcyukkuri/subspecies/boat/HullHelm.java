@@ -52,7 +52,6 @@ public final class HullHelm {
     /** {@code ttl} is the longest this order may stand without being renewed; 0 takes the order's default. */
     public record HelmLease(UUID holder, Purpose purpose, int priority, int ttl) {
         public static HelmLease of(Entity holder, Purpose purpose) { return new HelmLease(holder.getUUID(), purpose, purpose.priority, 0); }
-        public HelmLease withTtl(int ticks) { return new HelmLease(holder, purpose, priority, ticks); }
     }
 
     public sealed interface HelmOrder {
@@ -104,13 +103,6 @@ public final class HullHelm {
     public boolean held() { return active != null && active.kind == Kind.HOLD || !liveHolds().isEmpty(); }
     public UUID holder() { return active == null ? null : active.lease.holder; }
     public Purpose purpose() { return active == null ? null : active.lease.purpose; }
-    /** What became of this holder's last order: its running status, or the ended result kept for a short while. */
-    public Status statusOf(UUID holder) {
-        if (active != null && active.lease.holder.equals(holder)) return active.status;
-        var result = ended.get(holder);
-        if (result != null && now() - result.at <= RESULT_KEEP_TICKS) return result.status;
-        return Status.IDLE;
-    }
     public Status status() { return active == null ? Status.IDLE : active.status; }
     public Vec3 mooring() { return mooring; }
     public void moor(Vec3 at) { mooring = at; }

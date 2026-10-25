@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -111,7 +112,7 @@ public final class SelfRescueHatGeometry {
             if(validPath(actor,candidate))return candidate;
             invalid++;
         }
-        AquaDiag.log(actor,"self.geometry."+actor.getId(),40,"no hat spot: unusable="+unusable+" invalid="+invalid+" lastFailure="+lastFailure);
+        GameplayLog.detail(actor,"self.geometry."+actor.getId(),40,"no hat spot: unusable="+unusable+" invalid="+invalid+" lastFailure="+lastFailure);
         return null;
     }
     public static Pose pose(YukkuriView actor,Plan plan,double elapsed){

@@ -51,10 +51,7 @@ public final class AquaticFamilyLife {
     private UUID rescueTarget;
     private UUID recoveringHat, missedHat;
     private long recoveryStarted, missedHatUntil;
-    /** A swimming young whose rescue has not worked for this long is lifted in directly; the physical rescue stays the first attempt. */
-    private static final int SWIMMER_FALLBACK_TICKS=160;
     private UUID swimmerWatch;
-    private long swimmerSince;
     private ServerLevel cacheLevel;
     private long cacheTick=Long.MIN_VALUE;
     private boolean parentResolved;
@@ -246,30 +243,6 @@ public final class AquaticFamilyLife {
         }
     }
 
-    /** May hold an idle parent for its family, but never consumes the caller's basic-needs turn. */
-    public void beforeNeeds(HatBoatEntity boat){
-        guarding=gathering=false;activity=Behaviors.IDLE;
-        if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat())return;
-        if(alarm.active())return;
-        var children=freeChildren();
-        var selected=children.stream().max(Comparator.<YukkuriEntity>comparingInt(y->danger(y,ownHat(y))?2:y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()?1:0)
-                .thenComparingDouble(entity::distanceToSqr)).orElse(null);
-        if(selected!=null){
-            double distance=horizontal(boat.position(),selected.position());
-            // Keep the fleet-wide stop threshold when the furthest sibling changes; otherwise
-            // two similarly distant children make the captain repeatedly clear her wait latch.
-            boolean waiting=waitingOn!=null;
-            double limit=selected.life().isSleeping()?WAIT_START:waiting?WAIT_STOP:WAIT_START;
-            if(danger(selected,ownHat(selected))||selected.aquaticLife().firstVoyage().returningToParent()||selected.family().flying()
-                    ||distance>limit)waitingOn=selected.getUUID();
-            else waitingOn=null;
-        }else waitingOn=null;
-        boolean missing=missingYoung.values().stream().anyMatch(ticks->ticks<=100);
-        boolean sleeping=children.stream().anyMatch(y->y.life().isSleeping());
-        if(!danger(entity,boat)&&HatBoatRoute.quietSurface(level(),water(boat))
-                &&!entity.life().hasUrgentNeed()&&(waitingOn!=null||sleeping||missing)
-                &&!(boat.getUUID().equals(steeringHat)&&boat.paddling()))boat.helm().hold(entity, Purpose.CARE);
-    }
 
     /** Called after the passenger has had its meal, drink, toilet and rest opportunity. */
     public boolean tickPassenger(HatBoatEntity home){
@@ -571,12 +544,12 @@ public final class AquaticFamilyLife {
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
                     if(!troubled.getUUID().equals(swimmerWatch))swimmerWatch=troubled.getUUID();
-                    if(CrewTransfers.liftAboard(troubled,boat).ok()){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,Behaviors.BOAT_RETURN_FAMILY);}
-                    else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),
-                            troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
-                    else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),
+                    if(CrewTransfers.liftAboard(troubled,boat).ok()){GameplayLog.detail(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,Behaviors.BOAT_RETURN_FAMILY);}
+                    else if(this.alarm.approachRescue(boat,troubled)){GameplayLog.detail(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),
+                            troubled.position())+" boat="+GameplayLog.at(boat.position()));steeringHat=boat.getUUID();}
+                    else if(horizontal(boat.position(),troubled.position())>.8){GameplayLog.detail(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),
                             troubled.position()));steer(boat,troubled.position(),false);}
-                    else{AquaDiag.log(entity,"swimmer.guard",40,"guard d="+horizontal(boat.position(),troubled.position()));hold(boat,Behaviors.BOAT_GUARD_YOUNG);}
+                    else{GameplayLog.detail(entity,"swimmer.guard",40,"guard d="+horizontal(boat.position(),troubled.position()));hold(boat,Behaviors.BOAT_GUARD_YOUNG);}
                     rescueActivity(troubled,boat.paddling()?Behaviors.BOAT_RESCUE_APPROACH:Behaviors.BOAT_RESCUE_YOUNG);return true;
                 }
                 var threat=nearestThreat(troubled);
@@ -685,7 +658,7 @@ public final class AquaticFamilyLife {
                 y->entity.family().caresFor(y)))result.put(child.getUUID(),child);
         // Every dependent young of this parent counts, whatever its own subspecies: half of an aquatic Marisa's young are born
         // ordinary (see SubspeciesLife.birthFlags), ride her hat all the same and drown just as fast, so the alarm and the
-        // braid rescue must not skip them (they used to: only an aquatic young was ever "a child" here).
+        // braid rescue must not skip them.
         return cachedChildren=result.values().stream().filter(y->y.aquaticLife().familyLife().dependentYoung()
                 &&(entity.getUUID().equals(y.aquaticLife().familyLife().selectedParentId())||coversLabouringMate(y))).toList();
     }

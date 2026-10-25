@@ -30,7 +30,6 @@ public final class AquaticDailyLife {
     public AquaticDailyLife(YukkuriEntity child){this.child=child;}
     private ServerLevel level(){return (ServerLevel)child.level();}
     public boolean active(){return task!=Task.NONE;}
-    public boolean ownsMovement(){return ownsRoute;}
     public String activity(){return activity;}
     /** Real accumulated powered movement, not time spent aboard a drifting parent's hat. */
     public double sailedDistance(){return sailedDistance;}

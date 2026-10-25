@@ -29,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
-import io.github.longshou.mcyukkuri.subspecies.HatRoomProbe;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.Random;
@@ -505,8 +504,6 @@ public final class FamilyLife {
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
             if(boatHome()!=null)entity.life().wakeInHat();else entity.life().interrupt();
         }
-        if(brood!=null&&!brood.cancelled&&!brood.complete()&&FLIGHT_DEBUG&&brood.elapsed>=brood.duration&&entity.tickCount%200==0&&boatHome()!=null)
-            MCYukkuri.LOGGER.info("[birth-debug] hold={} {}",birthBlock(),HatRoomProbe.explain(boatHome()));
         // An expecting mother shows it at a glance: a stem on her head or a swelling belly, and a small heart now and then.
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource==null&&brood.kind!=FamilyData.BirthKind.EGG&&entity.tickCount%60==0)
             level().sendParticles(ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);

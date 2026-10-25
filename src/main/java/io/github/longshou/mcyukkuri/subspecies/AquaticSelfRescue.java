@@ -158,8 +158,8 @@ public final class AquaticSelfRescue {
     private void set(Phase next){if(phase!=next){
         GameplayLog.limited(actor,"aquatic","self.phase."+next,200,"self rescue phase {}->{} hat={} health={} energy={}",
                 phase,next,hatId,actor.getHealth(),actor.life().energy());
-        AquaDiag.log(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+
-            AquaDiag.at(actor.position()));phase=next;started=now();}}
+        GameplayLog.detail(actor,"self.phase."+actor.getId(),0,phase+" -> "+next+" hp="+actor.getHealth()+" at="+
+            GameplayLog.at(actor.position()));phase=next;started=now();}}
     private void trackYaw(){
         if(poseTick!=now()){previousPoseYaw=poseYaw;poseTick=now();}
         poseYaw=actor.yBodyRot;
@@ -176,7 +176,7 @@ public final class AquaticSelfRescue {
                 set(Phase.SAFE);current.releaseOwnBoardingSeat(actor);actor.showReaction("sad","self_rescue_safe",40);
                 GameplayLog.event(actor,"aquatic","self rescue safe hat={} health={} energy={}",current.getUUID(),actor.getHealth(),actor.life().energy());
             }
-            if(AquaDiag.enabled())AquaDiag.log(actor,"self.aboard."+actor.getId(),0,"local="+current.toLocal(actor.position())+" ownerSeat="+current.ownerSeat(actor));
+            if(GameplayLog.detailEnabled())GameplayLog.detail(actor,"self.aboard."+actor.getId(),0,"local="+current.toLocal(actor.position())+" ownerSeat="+current.ownerSeat(actor));
             if(now()-started>=40){phase=Phase.IDLE;hatId=null;deployment=null;removalProgress=0;}return;
         }
         if(phase==Phase.CLIMB){
@@ -191,7 +191,7 @@ public final class AquaticSelfRescue {
             if(now()-started>=20){stop("slip_retry");nextAttempt=Math.max(nextAttempt,now()+12);}return;
         }
         // Swimming toward a known hull is still useful when too tired or too small to grip it.  Only the finite
-        // physical operations themselves require the old jump/energy gate.
+        // physical operations themselves require the jump/energy gate.
         if(active()&&phase!=Phase.SLIPPED&&phase!=Phase.APPROACH&&!capable()){slip("body_or_energy");return;}
         if(!actor.isInWaterOrBubble()||actor.isPassenger()){stop("left_water_or_mounted");return;}
         if(active()&&phase!=Phase.REMOVE_HAT&&phase!=Phase.SLIPPED&&!ownsPhysicalHat(current)){stop("physical_hat_lost");nextAttempt=now()+20;}
@@ -199,7 +199,7 @@ public final class AquaticSelfRescue {
     /** Called by WaterDistress's existing escape goal after impact; it never suppresses the water clock or damage. */
     public boolean escapeTick(){
         if(!enabled()||!actor.isInWaterOrBubble()||actor.isPassenger()||actor.family().flying()){
-            AquaDiag.log(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+
+            GameplayLog.detail(actor,"self.skip."+actor.getId(),40,"enabled="+enabled()+" capable="+capable()+" water="+actor.isInWaterOrBubble()+" passenger="+
                     actor.isPassenger()+" flying="+actor.family().flying());
             return false;
         }
@@ -225,15 +225,15 @@ public final class AquaticSelfRescue {
                 deployment=HatBoatEntity.planSelfRescueDeployment(actor);
                 if(deployment==null){
                     GameplayLog.limited(actor,"aquatic","self.no_deployment",200,"self rescue waiting reason=no_deployment_spot");
-                    AquaDiag.log(actor,"self.plan."+actor.getId(),40,"no deployment spot at "+AquaDiag.at(actor.position())+" yaw="+actor.yBodyRot);nextAttempt=now()+20;return false;
+                    GameplayLog.detail(actor,"self.plan."+actor.getId(),40,"no deployment spot at "+GameplayLog.at(actor.position())+" yaw="+actor.yBodyRot);nextAttempt=now()+20;return false;
                 }
                 hatId=null;removalProgress=0;carriedPose=previousCarriedPose=null;set(Phase.REMOVE_HAT);
             }
             else{
                 GameplayLog.limited(actor,"aquatic","self.no_hat",200,"self rescue waiting reason=no_owned_hat accessory={} boat={}",actor.life().hasAccessory(),actor.life().custody().state());
-                AquaDiag.log(actor,"self.nohat."+actor.getId(),40,"no hat state accessory="+actor.life().hasAccessory()+" custody="+actor.life().custody().state());return false;
+                GameplayLog.detail(actor,"self.nohat."+actor.getId(),40,"no hat state accessory="+actor.life().hasAccessory()+" custody="+actor.life().custody().state());return false;
             }
-            AquaDiag.log(actor,"self.start."+actor.getId(),0,"phase="+phase);
+            GameplayLog.detail(actor,"self.start."+actor.getId(),0,"phase="+phase);
             attemptTicks=contact=rightTicks=0;lastGrip=lockedGripLocal=null;actor.showReaction("teary","self_rescue_hat",36);
         }
         // Reaching a loaded drifting hat may take much longer than a single grip/righting attempt.  Keep the approach
@@ -370,7 +370,7 @@ public final class AquaticSelfRescue {
     private boolean startClimb(HatBoatEntity current){
         var climb=CrewTransfers.climb(actor,current,true);
         if(climb.ok()){set(Phase.CLIMB);actor.speak("self_rescue_climb");return true;}
-        AquaDiag.log(actor,"self.climb."+actor.getId(),0,"climb refused: "+climb.refusal()+" "+climb.reason()+" hat="+AquaDiag.at(current.position())+" self="+AquaDiag.at(actor.position()));
+        GameplayLog.detail(actor,"self.climb."+actor.getId(),0,"climb refused: "+climb.refusal()+" "+climb.reason()+" hat="+GameplayLog.at(current.position())+" self="+GameplayLog.at(actor.position()));
         // GEOMETRY never repeats as it is: this entry is struck off and she swims to another. TRANSIENT only waits with the teeth on the rim.
         if(climb.refusal()==CrewTransfer.Refusal.GEOMETRY)return refuseEntry(current,"climb_"+climb.reason());
         if(climb.refusal()==CrewTransfer.Refusal.TRANSIENT)return true;
@@ -414,7 +414,7 @@ public final class AquaticSelfRescue {
         GameplayLog.limited(actor,"aquatic","self.slip."+reason,200,
                 "self rescue slipped phase={} hat={} reason={} probability={} health={} energy={} attemptTicks={}",
                 phase,hatId,reason,Float.isNaN(probability)?null:probability,actor.getHealth(),actor.life().energy(),attemptTicks);
-        AquaDiag.log(actor,"self.slip."+actor.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
+        GameplayLog.detail(actor,"self.slip."+actor.getId(),0,"phase="+phase+" line="+StackWalker.getInstance().walk(f->f.skip(1).findFirst().map(StackWalker.StackFrame::getLineNumber).orElse(-1)));
         var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().crew().climbing())current.releaseOwnBoardingSeat(actor);}
         if(phase!=Phase.SLIPPED)actor.showReaction("teary","self_rescue_slip",24);
         WaterIncidents.selfSlip(actor,reason);

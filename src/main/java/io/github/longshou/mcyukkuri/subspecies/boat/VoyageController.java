@@ -50,7 +50,6 @@ public final class VoyageController {
 
     private static final int BUSY_LIMIT = 300, CHILD_LOAD_TICKS = 420, CHILD_UNLOAD_TICKS = 420, MAX_RESPOTS = 6, BERTH_ATTEMPTS = 2,
             UNAVAILABLE_TICKS = 2400, RECOVER_BLOCK_TICKS = 1200, SHORE_NEAR_SQUARED = 36, NO_BERTH_CACHE = 100;
-    private static final String SHORE_SOURCE = "voyage";
 
     private final YukkuriEntity entity;
     private final AquaticLife life;
@@ -102,7 +101,6 @@ public final class VoyageController {
     public boolean shoreVisit() { return phase.shoreVisit(); }
     public BlockPos bank() { return bank; }
     public String lastRefusal() { return lastRefusal; }
-    public boolean courtshipVisit() { return courtship && phase.shoreVisit(); }
     /** The child is part of the trip being loaded (it walks to the bank rather than wandering). */
     public boolean awaiting(UUID child) { return phase.launching() && manifest.containsKey(child) && !"ABSENT".equals(manifest.get(child)); }
 

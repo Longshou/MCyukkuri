@@ -85,7 +85,6 @@ public final class WaterIncidents {
         public int approachTicks() { return approachTicks; }
         /** Self-rescue has given up the hull for this incident: the swimmer drifts weakly toward the nearest shore. */
         public boolean shoreDrift() { return shoreDrift; }
-        public Decision decisionOf(UUID rescuer) { return decisions.get(rescuer); }
         public int failuresOf(UUID rescuer) { return failures.getOrDefault(rescuer, 0); }
         public Map<UUID, Decision> decisions() { return Map.copyOf(decisions); }
         public boolean refused(String entryId) { return entryId != null && refusedEntries.contains(entryId); }

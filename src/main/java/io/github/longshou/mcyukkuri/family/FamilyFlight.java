@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
-import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
