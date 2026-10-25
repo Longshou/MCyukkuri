@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 伤口渲染卡顿与贴图异常 | `.worktrees/wound-perf` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/CavityRenderer.java`、`client/YukkuriModel.java`（伤口相关段） |
 
 ## 玩法待办
 
