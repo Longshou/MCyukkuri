@@ -49,7 +49,16 @@ public final class PredatorLife implements EcologyRoutine {
     private static final double FLIGHT_PATH_SEGMENT = 24;
     private static final double PATROL_RADIUS = 60;
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
-    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL }
+    private enum Task { NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT }
+    /** One attack run: climb above the target, stoop onto it, pull away, circle back (project design, after the Phantom's swoop). */
+    private enum Pass { APPROACH, STOOP, WITHDRAW }
+    /** A feeding bite and a combat strike hurt less than the former 2.0 so a blocker survives several passes (project design). */
+    private static final float BITE_DAMAGE = 1.5f, COMBAT_DAMAGE = 1.5f;
+    /** Ticks a predator stays and eats after one feeding bite, and stays settled after a combat kill (project design). */
+    private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
+    /** Least ticks between two hits, stoop timeout, contact hold after a hit, and pull-away flight time (project design). */
+    private static final int SWOOP_GAP = 40, STOOP_LIMIT = 30, CONTACT_HOLD = 5, WITHDRAW_TICKS = 14;
+    private static final double SWOOP_HEIGHT = 4.5;
     private final YukkuriEntity animal;
     private Task task = Task.NONE;
     private Order order = Order.NATURAL;
@@ -59,8 +68,13 @@ public final class PredatorLife implements EcologyRoutine {
     private RemainsEntity corpse;
     private Vec3 destination;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
-    /** A defensive pursuit has the ordinary flight phases, but never consumes food or depends on hunger. */
+    /** Combat (true) is a continuous defensive fight that never feeds or depends on hunger; predation (false) is bite, then eat. */
     private boolean retaliation;
+    private Pass pass = Pass.APPROACH;
+    private int passTicks, lastHit = -SWOOP_GAP, hits, restTicks, pendingRest;
+    private String restReason = "";
+    private boolean contactHold;
+    private Vec3 withdrawGoal;
     private YukkuriEntity bittenPrey;
     private long bittenAt;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
@@ -78,6 +92,7 @@ public final class PredatorLife implements EcologyRoutine {
             case CHASE -> Behaviors.PREDATOR_CHASE;
             case DIVE -> Behaviors.PREDATOR_DIVE;
             case SCAVENGE -> Behaviors.PREDATOR_FEED;
+            case EAT -> Behaviors.PREDATOR_FEED;
             case RETURN, LAND -> Behaviors.PREDATOR_RETURN;
             case PATROL -> Behaviors.PREDATOR_FLY;
             default -> Behaviors.IDLE;
@@ -146,6 +161,8 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean ready() {
         return readyExceptMeal() && animal.life().mealTicks() == 0;
     }
+    /** An eat pause (or the landing that leads into it) is the very meal, so a mouthful does not end it. */
+    private boolean runnable() { return task == Task.EAT || task == Task.LAND && pendingRest > 0 ? readyExceptMeal() : ready(); }
     private boolean readyExceptMeal() {
         return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
@@ -175,7 +192,7 @@ public final class PredatorLife implements EcologyRoutine {
             return false;
         }
         prey = attacker; food = null; corpse = null; destination = null;
-        task = Task.TAKEOFF; retaliation = true;
+        task = Task.TAKEOFF; mode(true, "struck_by " + attacker.getUUID());
         // The Goal may already be running for a previous target; reset its shared pursuit setup now.
         start();
         return true;
@@ -186,7 +203,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     /** Read-only status detail; StatusKey owns the command-facing key. */
     public String describe() {
-        return "task=" + task.name().toLowerCase() + " target=" + (prey == null ? "none" : "#" + prey.getId())
+        return "task=" + task.name().toLowerCase() + " mode=" + (retaliation ? "combat" : "predation") + " rest=" + restTicks + " target=" + (prey == null ? "none" : "#" + prey.getId())
                 + " retaliation=" + retaliation + " boldness=" + animal.life().personality().boldness() + " retreatRatio=" + CombatCourage.retreatRatio(animal) + " huntRange=" + HUNT_RANGE
                 + " preySpeed=" + (prey == null ? 0 : prey.getAttributeValue(Attributes.MOVEMENT_SPEED)) + " blocking=" + blocking();
     }
@@ -224,7 +241,7 @@ public final class PredatorLife implements EcologyRoutine {
         // Interrupting a mouthful uses the same real-food interruption path as other threats.
         boolean chasing = prey() != null;
         animal.life().interrupt();
-        prey = shield; retaliation = true; food = null; corpse = null; destination = null;
+        prey = shield; mode(true, "blocked_by " + shield.getUUID()); food = null; corpse = null; destination = null;
         if (!chasing) { task = Task.TAKEOFF; start(); }
         GameplayLog.event(animal,"predator","taunt accepted child={} shield={} phase={} retaliation={}",
                 child.getUUID(),shield.getUUID(),task,retaliation);
@@ -269,7 +286,7 @@ public final class PredatorLife implements EcologyRoutine {
         if (nestWait > 0) nestWait--;
         if (reactWait > 0) reactWait--;
         if (restrainWait > 0) restrainWait--;
-        if (!ready() && active()) stop();
+        if (active() && !runnable()) stop();
         if (animal.predatorFlying() && !active()) animal.setPredatorFlying(false);
         if (animal.isNoAi()) { cancelNestSearch(); return; }
         if (naturalSpawn && nestWait == 0) {
@@ -370,17 +387,20 @@ public final class PredatorLife implements EcologyRoutine {
                 data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null);
     }
     private void start() {
-        ticks = 0; animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
+        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = pendingRest = 0; contactHold = false; withdrawGoal = null;
+        animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
         if (task != Task.SCAVENGE || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1) animal.setPredatorFlying(true);
     }
-    private void fly(Vec3 goal, double speed) {
+    private void fly(Vec3 goal, double speed) { fly(goal, speed, 6.25); }
+    /** A clear line within directRange squared is flown straight instead of by path nodes. */
+    private void fly(Vec3 goal, double speed, double directRange) {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { land(); return; }
         // Path nodes end at block centers. Finish the last approach at the moving target's
         // exact position, otherwise the animal circles just outside bite or landing range.
-        if (animal.distanceToSqr(goal) < 6.25 && level().clip(new ClipContext(
+        if (animal.distanceToSqr(goal) < directRange && level().clip(new ClipContext(
                 animal.getEyePosition(), goal.add(0,.2,0), ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS) {
             animal.getNavigation().stop();
@@ -407,7 +427,7 @@ public final class PredatorLife implements EcologyRoutine {
     private void land() {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
-        prey = null; food = null; corpse = null; retaliation = false; task = Task.LAND;
+        prey = null; food = null; corpse = null; mode(false, "landing"); task = Task.LAND;
         destination = null;
         for (int y = 0; y <= 8 && destination == null; y++) {
             var base = animal.blockPosition().below(y);
@@ -418,17 +438,21 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private void tickGoal() {
         ticks++;
-        if (!ready() || ticks > 800) {
+        if (!runnable() || ticks > 800) {
             GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>800?"timeout":"not_ready",ticks);
             stop(); return;
         }
-        if (animal.life().energy() < 15 && task != Task.LAND) land();
+        if (animal.life().energy() < 15 && task != Task.LAND && task != Task.EAT) land();
         if (task == Task.NONE) return;
+        if (task == Task.EAT) { eat(); return; }
         if (task == Task.TAKEOFF || task == Task.CHASE || task == Task.DIVE) {
             if (!(retaliation ? retaliationReady() : wantsHunt()) || prey == null || !huntable(prey, true)) {
                 GameplayLog.event(animal,"predator","pursuit ended; prey={} prey_alive={} retaliation={} energy={} nutrition={} health={}",
                         prey==null?"none":prey.getUUID(),prey!=null&&prey.isAlive(),retaliation,animal.life().energy(),animal.life().nutrition(),animal.getHealth());
-                land(); return;
+                // A fight that ended in a kill leaves the winner settled beside the body, not chasing the next target.
+                if (retaliation && prey != null && (!prey.isAlive() || prey.body().dying())) rest(KILL_PAUSE, "combat_kill");
+                else land();
+                return;
             }
             if (ticks % 20 == 1) alertPrey();
             // A genuine visible predator is the danger that wakes a crew.  The hat's alarm retains
@@ -439,38 +463,7 @@ public final class PredatorLife implements EcologyRoutine {
                 fly(animal.position().add(0, 1.2, 0), 1);
                 if (task != Task.TAKEOFF || prey != target) return;
                 if (ticks >= 15) { phase(Task.CHASE); alertOwner(); }
-            } else {
-                double d = animal.distanceToSqr(prey);
-                phase(d < 16 ? Task.DIVE : Task.CHASE);
-                YukkuriEntity target = prey;
-                fly(target.position().add(0, task == Task.DIVE ? .12 : 1.2, 0), task == Task.DIVE ? 1.35 : 1.1);
-                if ((task != Task.CHASE && task != Task.DIVE) || prey != target) return;
-                animal.getLookControl().setLookAt(target, 30, 30);
-                double reach = (animal.getBbWidth() + target.getBbWidth()) * .5 + .18;
-                if (d <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target)
-                        && (retaliation || animal.life().canAcceptBodyFood())) {
-                    biteTicks = 16;
-                    float before=target.getHealth();
-                    if (retaliation) {
-                        // Defensive bites wound but never create a mouthful or alter nutrition.
-                        boolean accepted=target.hurtBiteWound(level().damageSources().mobAttack(animal),2);
-                        if (accepted) { animal.life().spendEnergy(2); bittenPrey = target; bittenAt = level().getGameTime(); }
-                        GameplayLog.event(animal,"predator","defensive bite target=#{} uuid={} accepted={} health={} -> {} alive={}",
-                                target.getId(),target.getUUID(),accepted,before,target.getHealth(),target.isAlive());
-                    } else {
-                        BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), 2);
-                        if (target.getHealth() < before) { bittenPrey = target; bittenAt = level().getGameTime(); }
-                        boolean taken=!bite.isEmpty()&&animal.life().acceptBodyFood(bite);
-                        GameplayLog.event(animal,"predator","feeding bite target=#{} uuid={} mouthful_accepted={} health={} -> {} alive={}",
-                                target.getId(),target.getUUID(),taken,before,target.getHealth(),target.isAlive());
-                        if (taken) {
-                            animal.life().spendEnergy(2);
-                            // The damage result supplied this one mouthful; swallowing settles it later.
-                            land(); cooldown = 25;
-                        }
-                    }
-                }
-            }
+            } else swoop();
         } else if (task == Task.SCAVENGE) {
             if (corpse != null) {
                 if (!edibleCorpse(corpse) || !animal.life().canAcceptBodyFood()) { stop(); return; }
@@ -479,7 +472,7 @@ public final class PredatorLife implements EcologyRoutine {
                 if (task != Task.SCAVENGE || corpse != feeding) return;
                 double reach = (animal.getBbWidth() + corpse.getBbWidth()) * .5 + .18;
                 if (animal.distanceToSqr(corpse) <= reach * reach && animal.hasLineOfSight(corpse)) {
-                    animal.life().acceptBodyFood(CorpseFood.take(corpse, 1));
+                    takeRemains(corpse, "scavenge");
                     stop();
                 }
                 return;
@@ -492,9 +485,12 @@ public final class PredatorLife implements EcologyRoutine {
                 var stack = feeding.getItem();
                 if (stack.is(ModItems.REMAINS.get())) {
                     if (animal.life().canAcceptBodyFood()) {
+                        float before = CorpseFood.remaining(FillingResource.data(stack));
                         BodyFood.Bite bite = CorpseFood.take(stack, 1);
                         if (!bite.isEmpty() && animal.life().acceptBodyFood(bite)) {
                             feeding.setItem(stack.copy());
+                            GameplayLog.event(animal,"predator","remains feeding carried; remains={} portions={} remaining={} -> {} nutrition={}",
+                                    feeding.getUUID(),bite.portions(),before,CorpseFood.remaining(FillingResource.data(stack)),animal.life().nutrition());
                         }
                     }
                 } else if (animal.life().beginMeal(stack.copyWithCount(1), null, true)) {
@@ -510,9 +506,135 @@ public final class PredatorLife implements EcologyRoutine {
             if (task != current || destination != goal) return;
             if (animal.position().distanceToSqr(goal) < .36) {
                 if (task == Task.PATROL) land();
+                else if (task == Task.LAND && pendingRest > 0) beginRest(pendingRest, restReason);
                 else { stop(); if (order() == Order.RETURN) order = Order.PEACEFUL; }
             } else if (task == Task.PATROL && ticks > 200) land();
         }
+    }
+    private void mode(boolean combat, String reason) {
+        if (retaliation == combat) return;
+        retaliation = combat;
+        GameplayLog.event(animal,"predator","mode {} -> {}; reason={} task={} prey={} nutrition={} health={}/{}",
+                combat?"predation":"combat",combat?"combat":"predation",reason,task,prey==null?"none":prey.getUUID(),
+                animal.life().nutrition(),animal.getHealth(),animal.getMaxHealth());
+    }
+    /** Mouthful of world remains by an eating or scavenging predator. */
+    private void takeRemains(RemainsEntity remains, String via) {
+        float before = CorpseFood.remaining(remains.data());
+        BodyFood.Bite bite = CorpseFood.take(remains, 1);
+        boolean taken = !bite.isEmpty() && animal.life().acceptBodyFood(bite);
+        GameplayLog.event(animal,"predator","remains feeding via={} remains={} accepted={} portions={} remaining={} -> {} nutrition={}",
+                via,remains.getUUID(),taken,bite.portions(),before,CorpseFood.remaining(remains.data()),animal.life().nutrition());
+    }
+    /** Stay and eat where the bite or the kill happened; land first if still in the air. */
+    private void rest(int ticks, String reason) {
+        if (animal.onGround() && !animal.isInWaterOrBubble()) { beginRest(ticks, reason); return; }
+        land();
+        if (task == Task.LAND) { pendingRest = ticks; restReason = reason; }
+    }
+    private void beginRest(int ticks, String reason) {
+        mode(false, reason);
+        prey = null; food = null; corpse = null; destination = null; pendingRest = 0;
+        task = Task.EAT; restTicks = ticks; restReason = reason;
+        animal.getNavigation().stop(); animal.setPredatorFlying(false);
+        GameplayLog.event(animal,"predator","eat pause started; reason={} ticks={} meal_ticks={} nutrition={} energy={}",
+                reason,ticks,animal.life().mealTicks(),animal.life().nutrition(),animal.life().energy());
+    }
+    /** The predator holds still while it chews; remains within reach are eaten without a chase. */
+    private void eat() {
+        animal.getNavigation().stop();
+        if (animal.tickCount % 10 == 0 && animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) {
+            var remains = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(1.5), this::edibleCorpse).stream()
+                    .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+            if (remains != null && animal.distanceToSqr(remains) <= Math.pow((animal.getBbWidth() + remains.getBbWidth()) * .5 + .18, 2)) {
+                takeRemains(remains, "eat_pause");
+                restTicks = Math.max(restTicks, 60);
+            }
+        }
+        if (--restTicks <= 0) {
+            GameplayLog.event(animal,"predator","eat pause ended; reason={} meal_ticks={} nutrition={}",restReason,animal.life().mealTicks(),animal.life().nutrition());
+            stop();
+        }
+    }
+    /** Height the attack run may gain above a point before a ceiling. */
+    private double clearHeight(Vec3 from) {
+        Vec3 start = from.add(0, animal.getBbHeight(), 0);
+        var hit = level().clip(new ClipContext(start, start.add(0, SWOOP_HEIGHT, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, animal));
+        double free = hit.getType() == HitResult.Type.MISS ? SWOOP_HEIGHT : hit.getLocation().y - start.y;
+        return Math.max(1.2, Math.min(SWOOP_HEIGHT, free + animal.getBbHeight() - .5));
+    }
+    private void setPass(Pass next) { pass = next; passTicks = 0; }
+    /** Chase and attack as repeated runs: climb above the target, stoop, bite once, pull away, circle back. */
+    private void swoop() {
+        YukkuriEntity target = prey;
+        Vec3 at = target.position();
+        double dx = at.x - animal.getX(), dz = at.z - animal.getZ(), horizontal = dx * dx + dz * dz;
+        passTicks++;
+        animal.getLookControl().setLookAt(target, 30, 30);
+        boolean cooled = ticks - lastHit >= SWOOP_GAP;
+        switch (pass) {
+            case APPROACH -> {
+                double height = clearHeight(at);
+                phase(Task.CHASE);
+                fly(at.add(0, height, 0), 1.2);
+                if (task != Task.CHASE || prey != target) return;
+                boolean high = animal.getY() >= at.y + Math.min(height, 2.5) - .3;
+                if (cooled && animal.hasLineOfSight(target)
+                        && (horizontal < 36 && (high || passTicks > 60) || horizontal < 9 && height < 2)) setPass(Pass.STOOP);
+            }
+            case STOOP -> {
+                phase(Task.DIVE);
+                fly(at.add(0, .12, 0), 1.6, 49);
+                if (task != Task.DIVE || prey != target) return;
+                double reach = (animal.getBbWidth() + target.getBbWidth()) * .5 + .18;
+                if (animal.distanceToSqr(target) <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target)
+                        && (retaliation || animal.life().canAcceptBodyFood())) {
+                    if (hit(target)) return;
+                    contactHold = true; withdrawGoal = null; setPass(Pass.WITHDRAW);
+                } else if (passTicks > STOOP_LIMIT || horizontal > 100) { contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW); }
+            }
+            case WITHDRAW -> {
+                if (contactHold && passTicks <= CONTACT_HOLD) {
+                    // The run ends with the body still on the target for a moment: a close foe gets its answering blow here.
+                    phase(Task.DIVE);
+                    fly(at.add(0, .12, 0), .6, 49);
+                    return;
+                }
+                phase(Task.CHASE);
+                if (withdrawGoal == null) {
+                    Vec3 away = new Vec3(-dx, 0, -dz);
+                    away = away.lengthSqr() < 1e-4 ? animal.getLookAngle().multiply(-1, 0, -1) : away;
+                    away = away.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : away.normalize();
+                    withdrawGoal = animal.position().add(away.scale(6)).add(0, clearHeight(animal.position()), 0);
+                }
+                fly(withdrawGoal, 1.5);
+                if (task == Task.CHASE && prey == target && passTicks > CONTACT_HOLD + WITHDRAW_TICKS) { contactHold = false; withdrawGoal = null; setPass(Pass.APPROACH); }
+            }
+        }
+    }
+    /** One bite or combat strike at the end of a stoop; returns true when predation moved on to its eat pause. */
+    private boolean hit(YukkuriEntity target) {
+        biteTicks = 16;
+        int since = ticks - lastHit; lastHit = ticks; hits++;
+        float before = target.getHealth();
+        if (retaliation) {
+            // Combat wounds but never creates a mouthful or alters nutrition.
+            boolean accepted = target.hurtBiteWound(level().damageSources().mobAttack(animal), COMBAT_DAMAGE);
+            if (accepted) { animal.life().spendEnergy(2); bittenPrey = target; bittenAt = level().getGameTime(); }
+            GameplayLog.event(animal,"predator","combat strike target=#{} uuid={} accepted={} damage={} health={} -> {} alive={} pass={} since_last={}",
+                    target.getId(),target.getUUID(),accepted,COMBAT_DAMAGE,before,target.getHealth(),target.isAlive(),hits,since);
+            return false;
+        }
+        BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), BITE_DAMAGE);
+        if (target.getHealth() < before) { bittenPrey = target; bittenAt = level().getGameTime(); }
+        boolean taken = !bite.isEmpty() && animal.life().acceptBodyFood(bite);
+        GameplayLog.event(animal,"predator","feeding bite target=#{} uuid={} mouthful_accepted={} damage={} health={} -> {} alive={} pass={} since_last={}",
+                target.getId(),target.getUUID(),taken,BITE_DAMAGE,before,target.getHealth(),target.isAlive(),hits,since);
+        if (!taken) return false;
+        animal.life().spendEnergy(2);
+        // The damage result supplied this one mouthful; it stays and eats before looking for anything else.
+        cooldown = 25; rest(EAT_PAUSE, "feeding_bite");
+        return true;
     }
     private void alertPrey() {
         for (var target : level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(8),
@@ -528,7 +650,8 @@ public final class PredatorLife implements EcologyRoutine {
         if(task!=Task.NONE)GameplayLog.event(animal,"predator","activity stopped; task={} prey={} elapsed={} health={}/{} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.getHealth(),animal.getMaxHealth(),animal.life().energy());
         cancelNestSearch();
-        task = Task.NONE; prey = null; food = null; corpse = null; destination = null; retaliation = false;
+        mode(false, "stopped");
+        task = Task.NONE; prey = null; food = null; corpse = null; destination = null; restTicks = pendingRest = 0;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);
     }
@@ -550,7 +673,7 @@ public final class PredatorLife implements EcologyRoutine {
         private final YukkuriEntity animal;
         public BehaviorGoal(YukkuriEntity animal) { this.animal = animal; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return animal.predator().canUse(); }
-        @Override public boolean canContinueToUse() { return animal.predator().active() && animal.predator().ready(); }
+        @Override public boolean canContinueToUse() { return animal.predator().active() && animal.predator().runnable(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { animal.predator().start(); }
         @Override public void tick() { animal.predator().tickGoal(); }

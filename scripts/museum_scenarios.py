@@ -1390,13 +1390,13 @@ def protect_child(sid, title, hint, friendliness, watch):
 
 
 protect_child('sacrifice', '挡捕食种', '挡捕食种', 90,
-    '芙兰先选小灵梦，亲油决定帮助后靠近、噗咕挑衅，芙兰转怒追亲油，亲油再逃跑；读protection阶段与真实目标，子油按亲密度和友善度分支说话，保留真实拒绝及危险')
+    '芙兰先选小灵梦，亲油决定帮助后靠近、噗咕挑衅，芙兰转怒追亲油，亲油再逃跑；读protection阶段与真实目标，子油按亲密度和友善度分支说话，保留真实拒绝及危险。转怒后为战斗态：俯冲命中1.5伤、两次命中至少隔2秒、不产生食物；亲油被杀后芙兰原地稳住约5秒；读predator的mode、rest')
 protect_child('sacrifice_reluctant', '挡捕食种·低意愿', '护子低意愿', 10,
     '与高意愿组只差友善：仍有机会引开追击。读 behavior.protection 的 chance、decision，再对照捕食目标；不能以一次仍追亲油判失败')
 
 MYON = 'YukkuriMyon:{SpeechQuirk:"%s",Kanroken:%s,Initialized:1b}'
 add('myon_brave', 'weather', '妖梦拔刀', '妖梦拔刀',
-    '持棍妖梦接触且有视线才打：1.5伤、间隔1.6秒。双方胆量至少35参战，退战比例=0.65−0.0055×胆量；读myon_combat与predator。旁边灵梦照常逃，可用按钮调整双方胆量后重观；战斗到死亡不应卡死',
+    '持棍妖梦接触且有视线才打：1.5伤、间隔1.6秒。双方胆量至少35参战，退战比例=0.65−0.0055×胆量；读myon_combat与predator（芙兰受击转战斗态，俯冲命中1.5伤、间隔不少于2秒，拉开时妖梦够不着，战斗不增加其饱食）。旁边灵梦照常逃，可用按钮调整双方胆量后重观；战斗到死亡不应卡死',
     '约 30 秒', [
         yk('myon', 0, 0, 'myon', yaw=-90, lead=True, extra=MYON % ('miyo', '1b'), **pair_ready()),
         yk('reimu', 0, 3, 'a', yaw=-90, **pair_ready()),
