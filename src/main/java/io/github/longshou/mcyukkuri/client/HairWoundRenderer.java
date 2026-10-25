@@ -212,7 +212,14 @@ final class HairWoundRenderer {
             float ax=x(a),bx=x(b),cx=x(c),ay=y(a),by=y(b),cy=y(c);
             return Math.min(ax,Math.min(bx,cx))<=radiusU*extra&&Math.max(ax,Math.max(bx,cx))>=-radiusU*extra
                     &&Math.min(ay,Math.min(by,cy))<=radiusV*extra&&Math.max(ay,Math.max(by,cy))>=-radiusV*extra
-                    &&(near(a,part)||near(b,part)||near(c,part)||near(new Vector3f(a).add(b).add(c).div(3),part));
+                    &&nearTriangle(a,b,c,part);
+        }
+        /** Some vertex is in front and the triangle's depth interval (along n from the anchor) reaches the cut band, even when no vertex lies inside it. */
+        boolean nearTriangle(Vector3f a,Vector3f b,Vector3f c,String part){
+            if(core!=null&&info.coreTunnel.contains(part))return true;
+            if(!(front(a)||front(b)||front(c)))return false;
+            float za=new Vector3f(a).sub(anchor).dot(n),zb=new Vector3f(b).sub(anchor).dot(n),zc=new Vector3f(c).sub(anchor).dot(n);
+            return Math.min(za,Math.min(zb,zc))<2.5f*scale&&Math.max(za,Math.max(zb,zc))>-2.5f*scale;
         }
     }
     static final class Prepared {
@@ -335,9 +342,12 @@ final class HairWoundRenderer {
                 var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
                 List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
                 if(receiver){
-                    if(!simple)for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())&&cut.dentTouches(pa,pb,pc)){
+                    // A dent cell must carry the same crossing vertices from both sides of every edge, so it never keeps the original triangle when a hole cuts it.
+                    boolean conform=false;
+                    for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())&&cut.dentTouches(pa,pb,pc)){
+                        conform=true;
                         // Only a triangle whose area reaches the dent ellipse is refined, and only when it really splits.
-                        int steps=Math.min(MAX_DENT_STEPS,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale))));
+                        int steps=simple?1:Math.min(MAX_DENT_STEPS,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale))));
                         if(steps>1){triangles=subdivide(pa,pb,pc,steps);changed=true;}
                         break;
                     }
@@ -351,7 +361,7 @@ final class HairWoundRenderer {
                             if(removed!=null)removed.clear();
                             var pieces=outside(cut,hairPart?cut.hair:cut.skin,first,tri,removed);
                             // A triangle the opening does not touch stays the original triangle and is not re-emitted as a patch.
-                            if(untouched(cut,first,tri,pieces))outside.add(tri);else{outside.addAll(pieces);changed=true;if(removed!=null)for(var gone:removed)lid(cut,first,gone);}
+                            if(!conform&&whole<=0&&untouched(cut,first,tri,pieces))outside.add(tri);else{outside.addAll(pieces);changed=true;if(removed!=null)for(var gone:removed)lid(cut,first,gone);}
                         }
                         triangles=outside;
                     }
@@ -631,6 +641,13 @@ final class HairWoundRenderer {
             var point=new Vector3f(cut.anchor).fma(delta.dot(cut.u)*level[0],cut.u).fma(delta.dot(cut.v)*level[0],cut.v).fma(surface-depth,cut.n);
             return derived(rim,point);
         }
+        private Sample planeSample(Cut cut,Sample[] ring,float[] xy,int index){
+            for(int d=1;d<=ring.length/2;d++)for(int side=-1;side<=1;side+=2){
+                var near=ring[Math.floorMod(index+side*d,ring.length)];
+                if(near!=null)return new Sample(near.triangle,near.bary,new Vector3f(cut.anchor).fma(xy[0],cut.u).fma(xy[1],cut.v));
+            }
+            return null;
+        }
         private void hairEdge(Cut cut,int loss,boolean accessory){
             var layer=layer(MCYukkuri.id("textures/props/body_cavity_white.png"));
             int count=cut.hair.length;Sample[] samples=new Sample[count],floor=new Sample[count];
@@ -638,6 +655,13 @@ final class HairWoundRenderer {
                 samples[i]=sample(cut,cut.hair[i][0],cut.hair[i][1],true,loss,accessory);
                 floor[i]=sample(cut,cut.skin[i][0],cut.skin[i][1],false,0,true);
             }
+            // A missing sample takes the cut-plane point of its outline vertex, bound to the nearest sampled neighbour.
+            var hairPlane=Arrays.copyOf(samples,count);var skinPlane=Arrays.copyOf(floor,count);
+            for(int i=0;i<count;i++){
+                if(samples[i]==null)hairPlane[i]=planeSample(cut,samples,cut.hair[i],i);
+                if(floor[i]==null)skinPlane[i]=planeSample(cut,floor,cut.skin[i],i);
+            }
+            samples=hairPlane;floor=skinPlane;
             for(int j=0;j<count;j++){
                 int k=(j+1)%count;var pa=samples[j];var pb=samples[k];var sa=floor[j];var sb=floor[k];
                 if(pa==null||pb==null||sa==null||sb==null)continue;
