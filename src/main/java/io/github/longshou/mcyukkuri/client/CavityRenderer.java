@@ -39,9 +39,10 @@ final class CavityRenderer {
     private final Matrix3f normalMatrix = new Matrix3f();
 
     CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent) {
-        this(mesh,opening,original,wounds,broken,corePresent,true);
+        this(mesh,opening,original,wounds,broken,corePresent,true,true);
     }
-    CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent,boolean cutSkin) {
+    /** walls=false draws only the core mesh; the hole walls then come from the real skin edge (HairWoundRenderer). */
+    CavityRenderer(WoundSurface mesh, BodyCavity.Opening opening, Vector3f[] original, List<BodyWound> wounds, boolean broken, boolean corePresent,boolean cutSkin,boolean walls) {
         long started=System.nanoTime();
         this.opening = opening;
         tissue=mesh.tissueBone();
@@ -49,7 +50,7 @@ final class CavityRenderer {
             var pieces = outside(original[i], original[i+1], original[i+2]);
             if (pieces != null) skinCuts.put(i, pieces);
         }
-        build(mesh, wounds, broken, corePresent);
+        build(mesh, wounds, broken, corePresent, walls);
         posed = new Vector3f[vertices.size()]; normals = new Vector3f[vertices.size()];
         for (int i = 0; i < posed.length; i++) { posed[i] = new Vector3f(); normals[i] = new Vector3f(); }
         long millis=(System.nanoTime()-started)/1_000_000;
@@ -112,8 +113,8 @@ final class CavityRenderer {
     }
     private static float side(float[] a,float[] b,Piece p) { return (b[0]-a[0])*(p.y-a[1])-(b[1]-a[1])*(p.x-a[0]); }
 
-    private void build(WoundSurface mesh,List<BodyWound> wounds,boolean broken,boolean corePresent) {
-        var levels=BodyCavity.profile().levels();int count=opening.rim.length;
+    private void build(WoundSurface mesh,List<BodyWound> wounds,boolean broken,boolean corePresent,boolean walls) {
+        var levels=walls?BodyCavity.profile().levels():new float[0][];int count=opening.rim.length;
         for(var level:levels)for(int j=0;j<count;j++) {
             var hit=opening.rim[j];var rim=BodyCavity.restRim(mesh,hit,wounds);
             var p=BodyCavity.wallRest(opening,rim,level);
