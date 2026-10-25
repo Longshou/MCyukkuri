@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 final class WoundLod {
     static final int FULL_COUNT = 2;
     static final float FULL_RANGE = 6;
+    private static final float KEEP_BIAS = .6f;
     static final int FULL_BUILDS_PER_FRAME = 1;
     private static final long REPORT_NANOS = 5_000_000_000L;
     private static final Logger LOGGER = LoggerFactory.getLogger("MCYukkuri/render");
@@ -94,13 +95,15 @@ final class WoundLod {
 
     /** Registers a wounded body drawn this frame and says whether the previous frame's nearest-few selection includes it. */
     static boolean wantsFull(Object owner, float distanceSquared) {
+        boolean chosen = false;
+        for (var full : FULL) if (full == owner) { chosen = true; break; }
         if (SEEN.size() < 64) {
             boolean known = false;
             for (var seen : SEEN) if (seen.owner == owner) { known = true; break; }
-            if (!known) SEEN.add(new Seen(owner, distanceSquared));
+            // Hysteresis: a body that already has full detail looks nearer, so it does not flip at the range edge.
+            if (!known) SEEN.add(new Seen(owner, chosen ? distanceSquared * KEEP_BIAS : distanceSquared));
         }
-        for (var chosen : FULL) if (chosen == owner) return true;
-        return false;
+        return chosen;
     }
     /** At most one full-detail build per frame; later ones stay simple until a following frame. */
     static boolean takeFullBuild() {

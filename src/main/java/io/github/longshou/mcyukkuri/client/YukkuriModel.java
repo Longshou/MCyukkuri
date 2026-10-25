@@ -1142,7 +1142,9 @@ public final class YukkuriModel {
         }
     }
     private void skinBase(int index, Vector3f target) {
-        if(woundDisplay==null&&skinningCache.read(index,target))return;
+        // Only vertices a wound actually moved leave the shared cache; the rest still match their rest-point key.
+        boolean moved=woundDisplay!=null&&woundDisplay.moved(index);
+        if(!moved&&skinningCache.read(index,target))return;
         int offset = index * 8;
         Binding binding = bindings[index];
         target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
@@ -1156,7 +1158,7 @@ public final class YukkuriModel {
         if (binding.weight > 0) target.lerp(second, binding.weight);
         int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
         // Pregnancy and rigid accessory lifts happen in skin(), after this cached base position.
-        if(woundDisplay==null)skinningCache.write(index,target);
+        if(!moved)skinningCache.write(index,target);
     }
     float[] woundVertices(){return vertices;}
     List<Part> woundParts(){return parts;}
