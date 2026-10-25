@@ -150,25 +150,47 @@ public final class WoundSurface {
         }return best;
     }
     public Vector3f deform(Vector3f p,List<BodyWound> wounds){return deformDisplay(p,wounds);}
-    public Vector3f deformDisplay(Vector3f p,List<BodyWound> wounds){var result=new Vector3f(p);
-        boolean house=assetId.startsWith("house_");
-        int whole=0;
-        for(var w:wounds){
-            if(w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN)whole=Math.max(whole,w.severity());
-            if(house||!valid(w)||w.kind()!=WoundKind.DENT||w.shape()!=WoundShape.BLUNT)continue;
-            var n=normal(w.triangle());if(!n.isFinite())continue;
-            var fit=WoundProfiles.fit(assetId);var scale=fit.scale();
-            float normalScale=new Vector3f(n).mul(scale).length();
-            if(new Vector3f(p).sub(fit.center()).dot(n)<=.15f*normalScale)continue;
-            var grade=WoundProfiles.grade(w.shape(),w.severity());
-            var u=tangent(n);var v=new Vector3f(n).cross(u);var d=new Vector3f(p).sub(anchor(w));
-            if(Math.abs(d.dot(n))>=2.5f*normalScale)continue;
-            float radiusU=grade.radius()[0]*w.size()*new Vector3f(u).mul(scale).length();
-            float radiusV=grade.radius()[1]*w.size()*new Vector3f(v).mul(scale).length()*WoundProfiles.verticalScale(assetId,n);
-            float x=d.dot(u)/radiusU,y=d.dot(v)/radiusV,r=x*x+y*y;
-            if(r<1)result.fma(-grade.depth()*w.size()*normalScale*(1-r)*(1-r)*(1-r),n);
+    public Vector3f deformDisplay(Vector3f p,List<BodyWound> wounds){return deformer(wounds).apply(new Vector3f(p));}
+    public Deformer deformer(List<BodyWound> wounds){return new Deformer(wounds);}
+    /**
+     * The display deformation (blunt dents, whole-body burn) of one wound list, with every per-wound value computed once so that
+     * moving many vertices allocates nothing. Not thread safe: each user keeps its own instance.
+     */
+    public final class Deformer {
+        private record Dent(Vector3f n,Vector3f center,Vector3f anchor,Vector3f u,Vector3f v,float near,float far,float depth,float radiusU,float radiusV) {}
+        private final List<Dent> dents=new ArrayList<>();
+        private final int whole;
+        private final Vector3f scratch=new Vector3f(),delta=new Vector3f();
+        Deformer(List<BodyWound> wounds){
+            boolean house=assetId.startsWith("house_");
+            int strongest=0;
+            for(var w:wounds){
+                if(w.kind()==WoundKind.SCORCH&&w.shape()==WoundShape.WHOLE_BURN)strongest=Math.max(strongest,w.severity());
+                if(house||!valid(w)||w.kind()!=WoundKind.DENT||w.shape()!=WoundShape.BLUNT)continue;
+                var n=normal(w.triangle());if(!n.isFinite())continue;
+                var fit=WoundProfiles.fit(assetId);var scale=fit.scale();
+                float normalScale=new Vector3f(n).mul(scale).length();
+                var grade=WoundProfiles.grade(w.shape(),w.severity());
+                var u=tangent(n);var v=new Vector3f(n).cross(u);
+                float radiusU=grade.radius()[0]*w.size()*new Vector3f(u).mul(scale).length();
+                float radiusV=grade.radius()[1]*w.size()*new Vector3f(v).mul(scale).length()*WoundProfiles.verticalScale(assetId,n);
+                dents.add(new Dent(n,fit.center(),anchor(w),u,v,.15f*normalScale,2.5f*normalScale,-grade.depth()*w.size()*normalScale,radiusU,radiusV));
+            }
+            whole=strongest>0&&house?3:strongest;
         }
-        return WoundProfiles.thermalPoint(assetId,result,whole>0&&house?3:whole);
+        /** Deforms {@code p} in place and returns it. */
+        public Vector3f apply(Vector3f p){
+            if(dents.isEmpty()&&whole<=0)return p;
+            float ox=p.x,oy=p.y,oz=p.z;
+            for(var dent:dents){
+                if(scratch.set(ox,oy,oz).sub(dent.center).dot(dent.n)<=dent.near)continue;
+                delta.set(ox,oy,oz).sub(dent.anchor);
+                if(Math.abs(delta.dot(dent.n))>=dent.far)continue;
+                float x=delta.dot(dent.u)/dent.radiusU,y=delta.dot(dent.v)/dent.radiusV,r=x*x+y*y;
+                if(r<1)p.fma(dent.depth*(1-r)*(1-r)*(1-r),dent.n);
+            }
+            return WoundProfiles.thermalPoint(assetId,p,whole);
+        }
     }
     public static Vector3f tangent(Vector3f n){return Math.abs(n.y)>.9?new Vector3f(1,0,0):new Vector3f(0,1,0).cross(n).normalize();}
     public Vector3f skin(int i,Vector3f p,Matrix4f[] world){var out=new Vector3f();var temp=new Vector3f();var w=weights[i];for(int k=0;k<w.length;

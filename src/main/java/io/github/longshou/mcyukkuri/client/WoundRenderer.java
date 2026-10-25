@@ -124,8 +124,9 @@ final class WoundRenderer {
             for(int group=wantedGroups.nextSetBit(0);group>=0;group=wantedGroups.nextSetBit(group+1)){groupSlots[group]=slot;smoothNormals[slot++]=new Vector3f();}
             for(int i:activeVertices)normalSlots[i]=groupSlots[topology.normalGroups[i]];
             var source=new int[topology.transformGroupCount];Arrays.fill(source,-1);int[] unique=new int[activeVertices.length],copies=new int[activeVertices.length*2];int uniqueCount=0,copyCount=0;
+            var deformer=mesh.deformer(wounds);
             for(int i:activeVertices){int group=topology.transformGroups[i],first=source[group];posed[i]=new Vector3f();if(first<0){source[group]=i;unique[uniqueCount++]=i;
-                    rest[i]=mesh.deformDisplay(topology.original[i],wounds);}else{copies[copyCount++]=i;copies[copyCount++]=first;}}
+                    rest[i]=deformer.apply(new Vector3f(topology.original[i]));}else{copies[copyCount++]=i;copies[copyCount++]=first;}}
             uniqueVertices=Arrays.copyOf(unique,uniqueCount);copiedVertices=Arrays.copyOf(copies,copyCount);
         }
         /**

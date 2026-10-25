@@ -25,10 +25,12 @@ final class WoundLod {
 
     // Readout state
     private static boolean measuring;
-    private static int frameDrawn, frameFull, frameTriangles;
-    private static long frameNanos, windowStart;
+    static final int PREPARE = 0, BODY = 1, SURFACE = 2, DISPLAY = 3;
+    private static int frameDrawn, frameFull, framePatch, frameLayer, frameCavity;
+    private static final long[] FRAME_STAGE = new long[4], STAGE = new long[4];
+    private static long windowStart;
     private static int frames, drawn, fullDrawn, simpleDrawn;
-    private static long triangles, nanos, maxNanos, buildNanos;
+    private static long patchTriangles, layerTriangles, cavityTriangles, maxNanos, buildNanos;
     private static int maxTriangles, buildsFull, buildsSimple;
 
     static void stage(RenderLevelStageEvent event) {
@@ -45,15 +47,23 @@ final class WoundLod {
         if (windowStart == 0) windowStart = now;
         if (frameDrawn > 0) {
             frames++; drawn += frameDrawn; fullDrawn += frameFull; simpleDrawn += frameDrawn - frameFull;
-            triangles += frameTriangles; maxTriangles = Math.max(maxTriangles, frameTriangles);
-            nanos += frameNanos; maxNanos = Math.max(maxNanos, frameNanos);
+            patchTriangles += framePatch; layerTriangles += frameLayer; cavityTriangles += frameCavity;
+            maxTriangles = Math.max(maxTriangles, framePatch + frameLayer + frameCavity);
+            long total = 0;
+            for (int i = 0; i < FRAME_STAGE.length; i++) { STAGE[i] += FRAME_STAGE[i]; total += FRAME_STAGE[i]; }
+            maxNanos = Math.max(maxNanos, total);
         }
-        frameDrawn = frameFull = frameTriangles = 0; frameNanos = 0;
+        frameDrawn = frameFull = framePatch = frameLayer = frameCavity = 0; java.util.Arrays.fill(FRAME_STAGE, 0);
         if (now - windowStart >= REPORT_NANOS) {
-            if (frames > 0) LOGGER.info("[render] wound frames={} drawn/frame={} full/frame={} simple/frame={} tris/frame avg={} max={} ms/frame avg={} max={} builds full={} simple={} buildMs={}",
+            if (frames > 0) LOGGER.info("[render] wound frames={} drawn/frame={} full/frame={} simple/frame={} tris/frame patch={} layer={} cavity={} max={} "
+                            + "ms/frame prepare={} body={} surface={} display={} total={} max={} builds full={} simple={} buildMs={}",
                     frames, fmt(drawn / (double) frames), fmt(fullDrawn / (double) frames), fmt(simpleDrawn / (double) frames),
-                    triangles / frames, maxTriangles, fmt(nanos / 1e6 / frames), fmt(maxNanos / 1e6), buildsFull, buildsSimple, fmt(buildNanos / 1e6));
-            frames = drawn = fullDrawn = simpleDrawn = 0; triangles = nanos = maxNanos = buildNanos = 0;
+                    patchTriangles / frames, layerTriangles / frames, cavityTriangles / frames, maxTriangles,
+                    fmt(STAGE[PREPARE] / 1e6 / frames), fmt(STAGE[BODY] / 1e6 / frames), fmt(STAGE[SURFACE] / 1e6 / frames), fmt(STAGE[DISPLAY] / 1e6 / frames),
+                    fmt((STAGE[PREPARE] + STAGE[BODY] + STAGE[SURFACE] + STAGE[DISPLAY]) / 1e6 / frames), fmt(maxNanos / 1e6),
+                    buildsFull, buildsSimple, fmt(buildNanos / 1e6));
+            frames = drawn = fullDrawn = simpleDrawn = 0; patchTriangles = layerTriangles = cavityTriangles = maxNanos = buildNanos = 0;
+            java.util.Arrays.fill(STAGE, 0);
             maxTriangles = buildsFull = buildsSimple = 0; windowStart = now;
         }
     }
@@ -100,11 +110,17 @@ final class WoundLod {
 
     static boolean measuring() { return measuring; }
     static long start() { return measuring ? System.nanoTime() : 0; }
-    static void drawn(boolean full, long startNanos) {
+    /** Counts one wounded body drawn this frame. */
+    static void drawn(boolean full) {
         if (!measuring) return;
-        frameDrawn++; if (full) frameFull++; frameNanos += System.nanoTime() - startNanos;
+        frameDrawn++; if (full) frameFull++;
     }
-    static void triangle() { frameTriangles++; }
+    /** Adds the time since {@code startNanos} (from {@link #start()}) to one stage of this frame's wound cost. */
+    static void time(int stage, long startNanos) {
+        if (measuring) FRAME_STAGE[stage] += System.nanoTime() - startNanos;
+    }
+    static void triangle(boolean layer) { if (layer) frameLayer++; else framePatch++; }
+    static void cavity(int faces) { frameCavity += faces; }
     static void built(boolean full, long startNanos) {
         if (!measuring) return;
         if (full) buildsFull++; else buildsSimple++;

@@ -190,6 +190,7 @@ final class CavityRenderer {
             normalMatrix.transform(vertex.sourceNormal,normals[i]).normalize();}
         var buffer=buffers.getBuffer(RenderType.entityCutoutNoCull(MCYukkuri.id("textures/props/body_cavity_white.png")));
         var transform=stack.last();
+        if(WoundLod.measuring())WoundLod.cavity(faces.size());
         for(var face:faces){
             if(!face.core){
                 normal.set(posed[face.b]).sub(posed[face.a]).cross(edge.set(posed[face.c]).sub(posed[face.a])).normalize();
