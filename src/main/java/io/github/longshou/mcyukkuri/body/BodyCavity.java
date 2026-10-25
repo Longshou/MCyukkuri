@@ -100,38 +100,15 @@ public final class BodyCavity {
         WoundPlacement.transform(entity).transformPosition(point);return entity.position().add(new Vec3(point));
     }
 
-    /** A real ray must enter the opening, strike the central core, and reach it before any visible cavity wall. */
+    /** Per user decision the core hit zone is forgiving: the opening outline scaled about its centre by this factor. */
+    public static final float CORE_HIT_ZONE_SCALE=1.5f;
+
+    /** An aimed hit whose skin surface point lies in the widened opening counts; no ray, hair/hat or wall test applies. */
     public static boolean hitsCore(YukkuriEntity entity,BodyWound wound,WoundSurface.Hit skinHit,DamageSource source) {
         var mesh=WoundSurface.get(entity.subspecies().assetId());var opening=opening(mesh,wound);
-        if(opening==null||!opening.contains(mesh.anchor(skinHit)))return false;
-        var ray=WoundPlacement.sourceRay(entity,source);var o=ray.origin();var direction=ray.direction();var world=ray.pose();
-        if(!o.isFinite()||!direction.isFinite())return false;
-        var wounds=entity.body().wounds();float pregnancy=entity.livePregnancyProgress();int tissue=mesh.tissueBone();
-        var data=coreMesh().vertices();float coreDistance=Float.POSITIVE_INFINITY;
-        var a=new Vector3f();var b=new Vector3f();var c=new Vector3f();var offset=new Vector3f();var temp=new Vector3f();
-        for(int i=0;i<data.length;i+=18){
-            world[tissue].transformPosition(coreRest(opening,data,i),a);world[tissue].transformPosition(coreRest(opening,data,i+6),b);world[tissue].transformPosition(coreRest(opening,data,i+12),c);
-            if(pregnancy>.001f){LiveBirthGeometry.deform(a,pregnancy,0);LiveBirthGeometry.deform(b,pregnancy,0);LiveBirthGeometry.deform(c,pregnancy,0);}
-            coreDistance=Math.min(coreDistance,intersection(o,direction,a,b,c));
-        }
-        if(!Float.isFinite(coreDistance)||coreDistance<skinHit.distance()-.001f)return false;
-        if(WoundOcclusion.blocked(entity,mesh,opening,o,direction,world,coreDistance))return false;
-        var levels=PROFILE.levels();int count=opening.rim.length;
-        var wall=new Vector3f[levels.length*count];
-        for(int j=0;j<count;j++){
-            var hit=opening.rim[j];var rest=restRim(mesh,hit,wounds);var weights=rimWeights(mesh,hit);
-            var pa=mesh.posedDisplay(hit.triangle(),world,wounds);var pb=mesh.posedDisplay(hit.triangle()+1,world,wounds);var pc=mesh.posedDisplay(hit.triangle()+2,world,wounds);
-            if(pregnancy>.001f){LiveBirthGeometry.deform(pa,pregnancy,0);LiveBirthGeometry.deform(pb,pregnancy,0);LiveBirthGeometry.deform(pc,pregnancy,0);}
-            var posedRim=pa.mul(1-hit.u()-hit.v()).fma(hit.u(),pb).fma(hit.v(),pc);
-            for(int r=0;r<levels.length;r++)wall[r*count+j]=poseWall(wallRest(opening,rest,levels[r]),rest,weights,levels[r][2],posedRim,
-                    world,tissue,pregnancy,new Vector3f(),offset,temp);
-        }
-        for(int r=0;r<levels.length-1;r++)for(int j=0;j<count;j++){
-            int k=(j+1)%count,ia=r*count+j,ib=r*count+k,ic=(r+1)*count+k,id=(r+1)*count+j;
-            if(intersection(o,direction,wall[ia],wall[ib],wall[ic])<=coreDistance+.0001f
-                    ||intersection(o,direction,wall[ia],wall[ic],wall[id])<=coreDistance+.0001f)return false;
-        }
-        return true;
+        if(opening==null)return false;
+        var point=mesh.anchor(skinHit);
+        return opening.front(point)&&opening.contains(opening.x(point)/CORE_HIT_ZONE_SCALE,opening.y(point)/CORE_HIT_ZONE_SCALE);
     }
     /** Both sides are solid, matching the non-culling cavity material. */
     static float intersection(Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c) {
