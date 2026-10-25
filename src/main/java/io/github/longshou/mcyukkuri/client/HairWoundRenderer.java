@@ -249,7 +249,7 @@ final class HairWoundRenderer {
         private void buildPart(YukkuriModel.Part part,int hairLoss,boolean accessory){
             if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))return;
             if(whole>0&&model.woundDamagedHat(part)){thermalHat(part);return;}
-            boolean receiver=info.surface(part.name());
+            boolean receiver=receives(part.name());
             for(int first=part.start();first<part.start()+part.count();first+=3){
                 if(part.name().startsWith("face_")&&source[first*8+7]>=-.15f)continue;
                 var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
@@ -308,10 +308,12 @@ final class HairWoundRenderer {
         }
         private Triangle triangle(int first,Bary[] bary,Cut decal,float alpha){return new Triangle(corner(first,bary[0],decal,alpha),corner(first,bary[1],decal,alpha),corner(first,bary[2],decal,alpha),255,255,255);}
         Vector3f deform(int index,Vector3f point){return point.set(display[index]);}
+        /** Skin the wound art replaces (body, face, hair and the rump mark) is clipped by the opening and follows the dent. */
+        private boolean receives(String part){return info.surface(part)||mesh.replaced.contains(part);}
         private Vector3f deformRest(String part,Vector3f point){
             // This exact shared field is also used by actual server hit tests.
             // It is evaluated only while rebuilding a changed cached surface.
-            if(info.surface(part))point.set(mesh.deformDisplay(point,wounds));
+            if(receives(part))point.set(mesh.deformDisplay(point,wounds));
             else if(whole>0){if(info.heated(part))WoundProfiles.thermalPoint(mesh.assetId,point,whole);
                 else point.x+=rigidOffsets.getOrDefault(part,0f);}
             return point;
@@ -449,19 +451,23 @@ final class HairWoundRenderer {
         }
         private void hairEdge(Cut cut,int loss,boolean accessory){
             var layer=layer(MCYukkuri.id("textures/props/body_cavity_white.png"));
-            int count=cut.hair.length;Sample[] samples=new Sample[count];
-            for(int i=0;i<count;i++)samples[i]=sample(cut,cut.hair[i][0],cut.hair[i][1],true,loss,accessory);
+            int count=cut.hair.length;Sample[] samples=new Sample[count],floor=new Sample[count];
+            for(int i=0;i<count;i++){
+                samples[i]=sample(cut,cut.hair[i][0],cut.hair[i][1],true,loss,accessory);
+                floor[i]=sample(cut,cut.skin[i][0],cut.skin[i][1],false,0,true);
+            }
             for(int j=0;j<count;j++){
-                int k=(j+1)%count;var pa=samples[j];var pb=samples[k];if(pa==null||pb==null)continue;
-                var sa=sample(cut,cut.hair[j][0],cut.hair[j][1],false,0,true);
-                var sb=sample(cut,cut.hair[k][0],cut.hair[k][1],false,0,true);
-                if(sa==null||sb==null||new Vector3f(pa.point).sub(sa.point).dot(cut.n)<-.15f*cut.scale||pa.point.distance(sa.point)>2.5f*cut.scale)continue;
+                int k=(j+1)%count;var pa=samples[j];var pb=samples[k];var sa=floor[j];var sb=floor[k];
+                if(pa==null||pb==null||sa==null||sb==null)continue;
+                // The wall runs from the hair opening down to the skin opening so no hair layer edge or shell interior shows.
+                float ha=new Vector3f(pa.point).sub(sa.point).dot(cut.n),hb=new Vector3f(pb.point).sub(sb.point).dot(cut.n);
+                if(ha<-.15f*cut.scale||hb<-.15f*cut.scale||ha>4f*cut.scale||hb>4f*cut.scale)continue;
                 float amount=.18f+.08f*(float)Math.sin(j*1.7);
                 var color=new Vector3f(info.hairEdge).lerp(info.hairHighlight,amount);float[] rgb={color.x,color.y,color.z};
                 var a=hairDerived(cut,pa,new Vector3f(pa.point).fma(.012f*cut.scale,cut.n));
                 var b=hairDerived(cut,pb,new Vector3f(pb.point).fma(.012f*cut.scale,cut.n));
-                var c=hairDerived(cut,pb,new Vector3f(pb.point).fma(-.075f*cut.scale,cut.n));
-                var d=hairDerived(cut,pa,new Vector3f(pa.point).fma(-.075f*cut.scale,cut.n));
+                var c=derived(sb,new Vector3f(sb.point).fma(-.012f*cut.scale,cut.n));
+                var d=derived(sa,new Vector3f(sa.point).fma(-.012f*cut.scale,cut.n));
                 colored(layer,a,c,b,rgb);colored(layer,a,d,c,rgb);
                 boolean strand=cut.wound.shape()==WoundShape.BITE?(j==(int)(count*.14f)||j==(int)(count*.28f)||j==(int)(count*.39f)
                         ||j==(int)(count*.61f)||j==(int)(count*.75f)||j==(int)(count*.89f)):j%(cut.dent()?6:4)==0;
