@@ -2,7 +2,9 @@
 
 Writes the snapshot art/props/large-nests/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png} with manifest fingerprints, and the
 runtime mesh, palette texture, particle-only block model, builtin item model, blockstate, loot table and zh_cn / en_us names.
-Meshes are centred on the 2x2 footprint (origin = shared corner of the four blocks), entrance on +z. The props join the shared
+Meshes are centred on the 2x2 footprint (origin = shared corner of the four blocks), entrance on +z. The block
+(life/LargeNestBlock) occupies those four cells: part 0 is the north-west cell, part bits 1 / 2 the +x / +z cells; the
+blockstate lists the four parts and only part 0 drops the item. The props join the shared
 yukkuri_props/index.json as owner entries, which scripts/export_peripheral_assets.py keeps. --check is read-only.
 """
 import argparse, hashlib, json, sys
@@ -41,7 +43,7 @@ def outputs():
         result[ASSETS / f'textures/props/{name}.png'] = texture
         index[name] = {'bounds': mesh['bounds'], 'triangles': len(mesh['vertices']) // 24, 'owner': 'large_nests'}
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})
-        emit(ASSETS / f'blockstates/{name}.json', {'variants': {'': {'model': f'mcyukkuri:block/{name}'}}})
+        emit(ASSETS / f'blockstates/{name}.json', {'variants': {f'part={k}': {'model': f'mcyukkuri:block/{name}'} for k in range(4)}})
         emit(ASSETS / f'models/item/{name}.json', {
             'parent': 'minecraft:builtin/entity', 'gui_light': 'front', 'textures': {'particle': f'mcyukkuri:props/{name}'},
             'display': {'gui': {'rotation': [25, 225, 0], 'translation': [0, 0, 0], 'scale': [.85, .85, .85]},
@@ -50,7 +52,8 @@ def outputs():
                         'thirdperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [.25, .25, .25]},
                         'firstperson_righthand': {'rotation': [0, 0, 0], 'translation': [0, 2, 0], 'scale': [.3, .3, .3]}}})
         emit(DATA / f'loot_table/blocks/{name}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [
-            {'type': 'minecraft:item', 'name': f'mcyukkuri:{name}'}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
+            {'type': 'minecraft:item', 'name': f'mcyukkuri:{name}'}], 'conditions': [{'condition': 'minecraft:survives_explosion'},
+            {'condition': 'minecraft:block_state_property', 'block': f'mcyukkuri:{name}', 'properties': {'part': '0'}}]}]})
     emit(ASSETS / 'yukkuri_props/index.json', index)
     for i, locale in enumerate(('zh_cn', 'en_us')):
         path = ASSETS / f'lang/{locale}.json'

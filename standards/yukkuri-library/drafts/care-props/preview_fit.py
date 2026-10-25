@@ -194,25 +194,25 @@ def pet():
     N = 'yukkuri_nest'
     row_old = []
     if (BEFORE.assets / 'yukkuri_props/yukkuri_nest.json').exists() and BEFORE.root != AFTER.root:
-        row_old = [tile([g(12), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345, BEFORE)], '前：成体停在软卷顶上（悬空）', SZ, 15, el=22, src=BEFORE),
+        row_old = [tile([g(8), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345, BEFORE)], '前：成体停在软卷顶上（悬空）', SZ, 15, el=22, src=BEFORE),
                    section(N, 0, '前：软垫窝 + 成体 1.0／1.2', [(1.0, 0, RED), (1.2, 0, ORANGE)], src=BEFORE, size=SZ),
                    section(N, 0, '前：软垫窝', [(1.0, 0, RED), (1.2, 0, ORANGE)], diagonal=True, src=BEFORE, size=SZ)]
     rows = [row_old] if row_old else []
-    rows.append([tile([g(12), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345)], '后：成体 1.0 坐进垫面', SZ, 15, el=22),
+    rows.append([tile([g(8), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345)], '后：成体 1.0 坐进垫面', SZ, 15, el=22),
                  section(N, 0, '后：软垫窝 + 成体 1.0／1.2', [(1.0, 0, RED), (1.2, 0, ORANGE)], size=SZ),
                  section(N, 0, '后：软垫窝', [(1.0, 0, RED), (1.2, 0, ORANGE)], diagonal=True, size=SZ)])
-    rows.append([tile([g(12), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1), seat(N, MARISA, 0, 0, 1.2, 20)], '成体 1.2（最大个体）', SZ, 15, el=22),
-                 tile([g(12), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), seat(N, REIMU, -4.2, 0, .55, 330), seat(N, MARISA, 4.2, 0, .55, 30)],
+    rows.append([tile([g(8), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1), seat(N, MARISA, 0, 0, 1.2, 20)], '成体 1.2（最大个体）', SZ, 15, el=22),
+                 tile([g(8), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), seat(N, REIMU, -4.2, 0, .55, 330), seat(N, MARISA, 4.2, 0, .55, 30)],
                       '两只子油 0.55（并排上限约 0.59）', SZ, 15, el=26),
-                 tile([g(12), ('yukkuri_nest_floral', 0, 0, 0, 0, 1)] +
+                 tile([g(8), ('yukkuri_nest_floral', 0, 0, 0, 0, 1)] +
                       [seat(N, REIMU if i % 2 else MARISA, x, z, .15, 180 + 40 * i) for i, (x, z) in enumerate(((-3, -2), (2.5, -2.5), (-2, 3), (3, 2.5)))],
                       '四只赤油 0.15', SZ, 22, el=34)])
     L = 'large_yukkuri_nest'
     fam = [seat(L, REIMU, -7.2, -5, 1.0, 160), seat(L, MARISA, 7.2, 1.5, 1.0, 215)] + \
           [seat(L, REIMU if i % 2 else MARISA, x, z, .15, 170 + 30 * i) for i, (x, z) in enumerate(((-4, 7), (-1, 9.5), (1.5, 11), (-6, 10)))]
     big = [seat(L, REIMU, -7.55, 0, 1.1, 175), seat(L, MARISA, 7.55, 0, 1.1, 200)]
-    rows.append([tile([g(18), (L, 0, 0, 0, 0, 1)] + fam, '编织大窝：成体 2 + 赤油 4', SZ, 9, az=30),
-                 tile([g(18), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)] + big, '编织大窝：两只 1.1 倍成体并排', SZ, 9, az=30),
+    rows.append([tile([g(16), (L, 0, 0, 0, 0, 1)] + fam, '编织大窝：成体 2 + 赤油 4', SZ, 9, az=30),
+                 tile([g(16), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)] + big, '编织大窝：两只 1.1 倍成体并排', SZ, 9, az=30),
                  section(L, 0, '编织大窝 + 两只成体 1.0／1.1', [(1.0, -7.1, RED), (1.1, 7.55, ORANGE)], half=18, size=SZ)])
     sheet(rows, PREVIEWS / 'pet-goods/fit.png', '宠物窝容纳：整格是平软垫，软卷在身体外侧且低于腰线；成体坐进窝里，不再停在窝沿上（离线渲染与剖面）', SZ)
 
@@ -223,16 +223,16 @@ def wild():
     B = ('forest_burrow', ('mask', SINGLE), 0, 0, 0, 1)
     P = ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1)
     W = 'large_wild_nest'
-    rows = [[tile([g(14), B, (REIMU, 8, 0, 0, 0, 1.0, 345)], '叶床单睡位 + 成体 1.0', SZ, 15, el=26),
-             tile([g(14), B, (MARISA, 8, 0, 0, 0, 1.2, 20)], '叶床 + 成体 1.2', SZ, 15, el=26),
+    rows = [[tile([g(8), B, (REIMU, 8, 0, 0, 0, 1.0, 345)], '叶床单睡位 + 成体 1.0', SZ, 15, el=26),
+             tile([g(8), B, (MARISA, 8, 0, 0, 0, 1.2, 20)], '叶床 + 成体 1.2', SZ, 15, el=26),
              section('forest_burrow', ('mask', SINGLE), '叶床 + 成体 1.0／1.2（无碰撞，站在地面）', [(1.0, 0, RED), (1.2, 0, ORANGE)], size=SZ)],
-            [tile([g(14), P, (REIMU, 8, 0, 0, 0, 1.0, 345)], '个人小叶巢 + 长成的成体 1.0', SZ, 15, el=26),
-             tile([g(14), P, (MARISA, 8, 0, 0, 0, .75, 20)], '个人小叶巢 + 亚成 0.75', SZ, 15, el=26),
+            [tile([g(8), P, (REIMU, 8, 0, 0, 0, 1.0, 345)], '个人小叶巢 + 长成的成体 1.0', SZ, 15, el=26),
+             tile([g(8), P, (MARISA, 8, 0, 0, 0, .75, 20)], '个人小叶巢 + 亚成 0.75', SZ, 15, el=26),
              section('personal_leaf_nest', ('mask', 7), '个人小叶巢 + 成体 1.0／亚成 0.75', [(1.0, 0, RED), (.75, 0, GREEN)], size=SZ)],
-            [tile([g(18), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.2, -5, 1.0, 160), seat(W, MARISA, 7.2, 1.5, 1.0, 215)] +
+            [tile([g(16), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.2, -5, 1.0, 160), seat(W, MARISA, 7.2, 1.5, 1.0, 215)] +
                   [seat(W, REIMU if i % 2 else MARISA, x, z, .15, 180 + 30 * i) for i, (x, z) in enumerate(((-4, 7), (-1, 9.5), (1.5, 11), (-6, 10)))],
                   '野生大窝：成体 2 + 赤油 4', SZ, 9, az=30),
-             tile([g(18), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.55, 0, 1.1, 175), seat(W, MARISA, 7.55, 0, 1.1, 200)], '野生大窝：两只 1.1 倍成体', SZ, 9, az=30),
+             tile([g(16), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.55, 0, 1.1, 175), seat(W, MARISA, 7.55, 0, 1.1, 200)], '野生大窝：两只 1.1 倍成体', SZ, 9, az=30),
              section(W, 0, '野生大窝 + 两只成体 1.0／1.1', [(1.0, -7.1, RED), (1.1, 7.55, ORANGE)], half=18, size=SZ)]]
     sheet(rows, PREVIEWS / 'wild-nests/fit.png', '野生巢容纳：叶床睡坑整格、个人小叶巢放大到成体也躺得下、野生大窝两格宽（离线渲染与剖面）', SZ)
 

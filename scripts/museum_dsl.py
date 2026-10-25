@@ -150,6 +150,12 @@ def block(dx, dy, dz, state):
     return f'setblock ~{dx} ~{dy} ~{dz} {state}'
 
 
+def large_nest(dx, dz, block):
+    """A 2x2 family nest (life/LargeNestBlock) as the game places it: part 0 at (dx, dz), parts 1-3 on the +x, +z and +x+z
+    cells; its centre is the shared corner, ``yk`` offset (dx + .5, dz + .5)."""
+    return [f'setblock ~{dx + (part & 1)} ~ ~{dz + (part >> 1)} {block}[part={part}]' for part in range(4)]
+
+
 def box(dx1, dy1, dz1, dx2, dy2, dz2, state, mode=''):
     return f'fill ~{dx1} ~{dy1} ~{dz1} ~{dx2} ~{dy2} ~{dz2} {state}' + (' ' + mode if mode else '')
 

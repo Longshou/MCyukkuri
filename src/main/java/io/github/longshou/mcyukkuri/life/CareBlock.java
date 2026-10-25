@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.life;
 
-import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -24,6 +23,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -40,17 +41,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Small survival facilities. Inventory and residence are owned by the block entity. */
-public final class CareBlock extends Block implements EntityBlock {
+public class CareBlock extends Block implements EntityBlock {
     public enum Kind { BOWL, NEST, TOILET, MAT }
     private final Kind kind;
     private final String style;
     private final int capacity;
     private final float height;
     private static final JsonObject AUTHORED = readCollision();
-    private static final VoxelShape NEST_SHAPE = authoredShape("yukkuri_nest");
-    private static final VoxelShape LARGE_NEST_SHAPE = authoredShape("large_yukkuri_nest");
-    private static final VoxelShape LARGE_WILD_SHAPE = largeWildShape();
-    private static final double NEST_TOP = authoredTop("yukkuri_nest"), LARGE_NEST_TOP = authoredTop("large_yukkuri_nest");
+    private static final VoxelShape NEST_SHAPE = authoredShape("yukkuri_nest", 8);
+    private static final double NEST_TOP = authoredTop("yukkuri_nest");
+    /** How far the cushion nest's bolster reaches past its block on every side (placed.py NEST_ROLL outer radius 11.4). */
+    private static final double NEST_OVERHANG = 3.4 / 16;
     /** Collision shells generated from the visible pet nests (drafts/care-props/placed.py collision()). */
     private static JsonObject readCollision() {
         try (var stream = CareBlock.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/care_collision.json")) {
@@ -58,13 +59,14 @@ public final class CareBlock extends Block implements EntityBlock {
             return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
         } catch (IOException error) { throw new UncheckedIOException(error); }
     }
-    private static double authoredTop(String name) { return AUTHORED.getAsJsonObject(name).get("top").getAsDouble(); }
-    /** Equal-height boxes of the mesh's top surface, centred on the block; joined pairwise to keep the merge cheap. */
-    private static VoxelShape authoredShape(String name) {
+    static double authoredTop(String name) { return AUTHORED.getAsJsonObject(name).get("top").getAsDouble(); }
+    /** Equal-height boxes of the mesh's top surface around a footprint centre {@code centre} units from the block's corner
+     *  (8 = block centre, 16 = shared corner of a 2x2 footprint); joined pairwise to keep the merge cheap. */
+    static VoxelShape authoredShape(String name, double centre) {
         List<VoxelShape> shapes = new ArrayList<>();
         for (var raw : AUTHORED.getAsJsonObject(name).getAsJsonArray("boxes")) {
             var b = raw.getAsJsonArray();
-            shapes.add(box(8 + b.get(0).getAsDouble(), 0, 8 + b.get(1).getAsDouble(), 8 + b.get(2).getAsDouble(), b.get(4).getAsDouble(), 8 + b.get(3).getAsDouble()));
+            shapes.add(box(centre + b.get(0).getAsDouble(), 0, centre + b.get(1).getAsDouble(), centre + b.get(2).getAsDouble(), b.get(4).getAsDouble(), centre + b.get(3).getAsDouble()));
         }
         while (shapes.size() > 1) {
             List<VoxelShape> next = new ArrayList<>();
@@ -73,47 +75,46 @@ public final class CareBlock extends Block implements EntityBlock {
         }
         return shapes.isEmpty() ? Shapes.empty() : shapes.getFirst().optimize();
     }
-    /** Wild bedding: rounded 32-unit (two-block) footprint with a 29.5-unit interior and a low southern entrance. */
-    private static VoxelShape largeWildShape() {
-        VoxelShape shape=Shapes.empty();
-        double floor=.5, rim=2.6;
-        for(double x=-16;x<16;x+=1){
-            double sample=Math.abs(x+.5);
-            double outer=Math.pow(Math.max(0,Math.pow(16,4)-Math.pow(sample,4)),.25);
-            double inner=Math.pow(Math.max(0,Math.pow(14.75,4)-Math.pow(sample,4)),.25);
-            shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,floor,8+outer));
-            if(inner==0)shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,rim,8+outer));
-            else {
-                shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,rim,8-inner));
-                double south=sample<7?floor:sample<10?1.5:sample<12?2.3:rim;
-                shape=Shapes.or(shape,box(8+x,0,8+inner,9+x,south,8+outer));
-            }
-        }
-        return shape.optimize();
-    }
     public CareBlock(Kind kind, Properties properties) { this(kind,properties,"",8,0); }
     public CareBlock(Kind kind, Properties properties,String style,int capacity,float height) { super(properties);this.kind=kind;this.style=style;this.capacity=capacity;this.height=height; }
     public Kind kind() { return kind; }
     public String style(){return style;}
     public int capacity(){return capacity;}
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CareBlockEntity(pos, state); }
+    /** The cell holding this facility's block entity (a 2x2 nest's helper cells answer for their owner). */
+    protected BlockPos owner(BlockState state, BlockPos pos) { return pos; }
+    /** The pet cushion nest's bolster overhangs its block: it is only placed where the four side cells hold nothing solid,
+     *  so the soft roll never draws into a wall, another nest or another block (blocks set beside it later are the player's choice). */
+    @Override public BlockState getStateForPlacement(BlockPlaceContext context) {
+        if (kind != Kind.NEST || height > 0) return super.getStateForPlacement(context);
+        var level = context.getLevel(); var pos = context.getClickedPos();
+        for (Direction side : Direction.Plane.HORIZONTAL) {
+            var next = pos.relative(side);
+            var shape = level.getBlockState(next).getCollisionShape(level, next);
+            if (!shape.isEmpty() && (side.getAxisDirection() == Direction.AxisDirection.POSITIVE
+                    ? shape.min(side.getAxis()) < NEST_OVERHANG : shape.max(side.getAxis()) > 1 - NEST_OVERHANG)) {
+                if (level.isClientSide && context.getPlayer() != null)
+                    context.getPlayer().displayClientMessage(Component.literal("软垫窝的软卷会伸出本格约 3 像素：四周侧边须留空"), true);
+                return null;
+            }
+        }
+        return super.getStateForPlacement(context);
+    }
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) {
         // A toilet is a low step with a standing surface, not an open cell at ground height.
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(style.startsWith("large_"))return box(-8,0,-8,24,style.equals("large_wild_nest")?3:LARGE_NEST_TOP,24);
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
             case NEST -> box(-3.5,0,-3.5,19.5,NEST_TOP,19.5);
-            // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x; the wild latrine keeps its own small box.
-            case TOILET -> this==ModBlocks.TOILET.get()?box(.77,0,2.21,15.23,2.35,13.79):box(1.975,0,3.175,14.025,2.35,12.825);
+            // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x.
+            case TOILET -> box(.77,0,2.21,15.23,2.35,13.79);
             case MAT -> box(0,0,0,16,.15,16);
         };
     }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(style.startsWith("large_"))return style.equals("large_wild_nest")?LARGE_WILD_SHAPE:LARGE_NEST_SHAPE;
         return kind == Kind.NEST && height == 0 ? NEST_SHAPE : getShape(state,level,pos,context);
     }
     @Override protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
@@ -122,7 +123,7 @@ public final class CareBlock extends Block implements EntityBlock {
         if (stack.is(ModItems.FIELD_NOTEBOOK.get()) || stack.is(ModItems.WASH_CLOTH.get()))
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
         if (stack.getItem() instanceof DyeItem dye && CareStyles.styled(id()))
-            return restyle(dye.getDyeColor(), stack, level, pos, player);
+            return restyle(dye.getDyeColor(), stack, level, owner(state, pos), player);
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
     private String id(){return BuiltInRegistries.BLOCK.getKey(this).getPath();}
@@ -156,7 +157,7 @@ public final class CareBlock extends Block implements EntityBlock {
     }
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(kind==Kind.MAT)return InteractionResult.PASS;
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof CareBlockEntity care) {
+        if (!level.isClientSide && level.getBlockEntity(owner(state, pos)) instanceof CareBlockEntity care) {
             if (kind == Kind.BOWL) {
                 player.openMenu(new SimpleMenuProvider((id, inventory, owner) ->
                         new ChestMenu(MenuType.GENERIC_9x1, id, inventory, care, 1), Component.translatable("block.mcyukkuri.food_bowl")));

@@ -31,14 +31,14 @@ public final class FamilyNest {
     public static boolean atAssignedNest(YukkuriEntity e){
         var c=care(e);var wild=e.habitat().shelter();
         BlockPos pos=c!=null?c.getBlockPos():wild!=null?wild.bed(e.getUUID()):null;
-        return pos!=null&&e.distanceToSqr(Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire();
+        return pos!=null&&e.distanceToSqr(c!=null?c.centre():Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire();
     }
     public static boolean large(YukkuriEntity e){
         var c=care(e);if(c!=null)return c.largeNest();
         var shelter=e.habitat().shelter();return shelter!=null&&shelter.largeBed(e.getUUID());
     }
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
-        return SurfaceApproach.restingFloor(e,Vec3.atBottomCenterOf(c.getBlockPos()).add(c.restOffset(e.getUUID())));
+        return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
     }
     public static Vec3 restPosition(YukkuriEntity e,BlockPos bed){
         var c=care(e);if(c!=null&&c.getBlockPos().equals(bed))return restPosition(e,c);
@@ -50,7 +50,7 @@ public final class FamilyNest {
         if(!baby.onGround()||baby.isInWaterOrBubble())return false;
         for(var pos:BlockPos.betweenClosed(baby.blockPosition().offset(-1,-1,-1),baby.blockPosition().offset(1,0,1)))
             if(baby.level().getBlockEntity(pos) instanceof CareBlockEntity c&&c.largeNest()
-                    &&Math.abs(baby.getX()-(pos.getX()+.5))<1&&Math.abs(baby.getZ()-(pos.getZ()+.5))<1
+                    &&Math.abs(baby.getX()-c.centre().x)<1&&Math.abs(baby.getZ()-c.centre().z)<1
                     &&baby.getY()>=pos.getY()&&baby.getY()<pos.getY()+.3)return true;
         return large(baby)&&atAssignedNest(baby);
     }

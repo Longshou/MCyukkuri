@@ -13,9 +13,15 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 
 public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> {
     public CareRenderer(BlockEntityRendererProvider.Context context) {}
+    /** The cushion nest's bolster overhangs its block a little; a 2x2 nest covers the three cells beside its owner. */
+    @Override public AABB getRenderBoundingBox(CareBlockEntity care) {
+        var cell=new AABB(care.getBlockPos());
+        return care.largeNest()?cell.expandTowards(1,0,1):care.kind()==CareBlock.Kind.NEST?cell.inflate(.25,0,.25):cell;
+    }
     @Override public void render(CareBlockEntity care, float partial, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         String model=switch(care.kind()){
             case BOWL -> "food_bowl";
@@ -36,7 +42,9 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         // Fills are heap-only meshes drawn inside whichever bowl style is placed.
         String fill=care.kind()!=CareBlock.Kind.BOWL?null:grain?"food_bowl_regular":wheat?"food_bowl_wheat":grass?"food_bowl_forage":null;
         int units=Math.min(8,care.visibleFoodCount());
-        pose.pushPose();pose.translate(.5,0,.5);
+        // A 2x2 nest is drawn from its north-west part around the shared corner of its four cells.
+        double centre=care.largeNest()?1:.5;
+        pose.pushPose();pose.translate(centre,0,centre);
         PropModels.render(model,units,pose,buffers,light,overlay);
         if(fill!=null)PropModels.render(fill,units,pose,buffers,light,overlay);
         pose.popPose();

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -37,10 +38,10 @@ public final class ModBlocks {
             ()->BlockEntityType.Builder.of(DetachedStemBlockEntity::new,DETACHED_STEM.get(),BOTTLED_STEM.get()).build(null));
     public static final DeferredBlock<CareBlock> FOOD_BOWL = register("food_bowl", CareBlock.Kind.BOWL, SoundType.STONE);
     public static final DeferredBlock<CareBlock> NEST = register("yukkuri_nest", CareBlock.Kind.NEST, SoundType.GRASS);
-    public static final DeferredBlock<CareBlock> LARGE_NEST = BLOCKS.register("large_yukkuri_nest", () ->
-            new CareBlock(CareBlock.Kind.NEST,BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion(),"large_yukkuri_nest",6,0));
-    public static final DeferredBlock<CareBlock> LARGE_WILD_NEST = BLOCKS.register("large_wild_nest", () ->
-            new CareBlock(CareBlock.Kind.NEST,BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion(),"large_wild_nest",6,0));
+    public static final DeferredBlock<LargeNestBlock> LARGE_NEST = BLOCKS.register("large_yukkuri_nest", () ->
+            new LargeNestBlock(BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY),"large_yukkuri_nest"));
+    public static final DeferredBlock<LargeNestBlock> LARGE_WILD_NEST = BLOCKS.register("large_wild_nest", () ->
+            new LargeNestBlock(BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY),"large_wild_nest"));
     public static final DeferredBlock<CareBlock> PREDATOR_NEST = BLOCKS.register("predator_nest", () ->
             new CareBlock(CareBlock.Kind.NEST, BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.ROOTS).noOcclusion(),
                     "predator_nest", 1, 2.4f));

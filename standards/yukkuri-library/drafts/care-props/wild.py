@@ -166,8 +166,11 @@ def tufts(p, part, rng, line, s_lo, s_hi, h, count):
                     rng.uniform(.05, .6), rng.uniform(2.0, 3.8), s0=rng.randrange(8))
         else:
             tx, tz = -nz, nx
-            a = math.atan2(tz, tx) + rng.choice((0, math.pi)) + rng.uniform(-.45, .45)
-            p.straw(part, [x + nx * rng.uniform(-.6, .4), h * rng.uniform(.88, 1.0), z + nz * rng.uniform(-.6, .4)], a,
+            base = math.atan2(tz, tx) + rng.choice((0, math.pi))
+            dev = rng.uniform(0, .35)                       # along the crest, swung outward, never into the hollow
+            a = max(base + dev, base - dev, key=lambda q: math.cos(q) * nx + math.sin(q) * nz)
+            o = rng.uniform(-.1, .5)
+            p.straw(part, [x + nx * o, h * rng.uniform(.88, 1.0), z + nz * o], a,
                     rng.uniform(-.15, .2), rng.uniform(2.5, 4.0), s0=rng.randrange(8))
 
 
@@ -183,19 +186,19 @@ def forest_burrow():
     p.planar(pad, [[-8, PAD_Y, -8], [-8, PAD_Y, 8], [8, PAD_Y, 8], [8, PAD_Y, -8]], [[0, 1, 0]] * 4, 'litter', (8, 8))
     p.patch(pad, (-3.5, 2.8), (2.4, 1.8), PAD_Y + .03, 'moss', rng)
     lining = p.mat('lining', 1)
-    p.leaf(lining, 'leaf_green', (2.6, PAD_Y + .05, -2.0), 2.2, fold=.25, curl=.05)
-    p.leaf(lining, 'leaf_dry', (-2.4, PAD_Y + .09, -3.2), 4.1, fold=.2, curl=.05)
-    p.leaf(lining, 'leaf_old', (3.4, PAD_Y + .07, 3.6), .9, fold=.15, curl=.04)
+    p.leaf(lining, 'leaf_green', (2.6, PAD_Y + .03, -2.0), 2.2, fold=.06, curl=.02)      # pressed flat under the sleepers
+    p.leaf(lining, 'leaf_dry', (-2.4, PAD_Y + .05, -3.2), 4.1, fold=.05, curl=.02)
+    p.leaf(lining, 'leaf_old', (3.4, PAD_Y + .04, 3.6), .9, fold=.04, curl=.02)
     for side in range(4):
         part = p.mat(f'rim_side_{"nesw"[side]}', 2 + side)
         line = side_line(side)
         h = SIDE_H[side]
         pressed_rim(p, part, rng, line, 4.0, 12.0, h, BED_IN, BED_OUT, PAD_Y, overlap=.8)   # a = -4 .. 4
-        if side != 2:
-            x0, z0, nx, nz = line.at(5.0)
-            x1, z1, _, _ = line.at(11.5)
-            o = rng.uniform(-.3, .8)
-            p.stick(part, [x0 + nx * o, h - .2, z0 + nz * o], [x1 + nx * (o + .5), h - .5, z1 + nz * (o + .5)], .42, s0=rng.randrange(16))
+        if side != 2:                                                     # a twig pushed in at the crest, leaning outward
+            x0, z0, nx, nz = line.at(rng.uniform(6.0, 10.0))
+            j = rng.uniform(-1.0, 1.0)
+            p.stick(part, [x0 + nx * .3, h - .15, z0 + nz * .3], [x0 + nx * 3.4 - nz * j, h * .4, z0 + nz * 3.4 + nx * j], .42,
+                    s0=rng.randrange(16))
         tufts(p, part, rng, line, 4.0, 12.0, h, 6)
         if side in (1, 3):                                                # a green lining leaf lying over the rim crest, clear of the hollow
             x, z, nx, nz = line.at(8.0 + (2 if side == 1 else -2))
@@ -255,11 +258,11 @@ def personal_leaf_nest():
     RX, RZ = 9.8, 9.2
     s1 = p.mat('scattered_leaves', 1)
     p.patch(s1, (.4, -.3), (5.4, 4.4), .1, 'litter', rng, seg=12, wobble=.3)
-    p.leaf(s1, 'leaf_dry', (-3.2, .14, .8), .5, fold=.2, curl=.08)
-    p.leaf(s1, 'leaf_green', (3.4, .16, -1.2), 2.6, fold=.25, curl=.06)
-    p.leaf(s1, 'leaf_old', (.8, .18, 3.8), 4.4, fold=.15, curl=.05)
+    p.leaf(s1, 'leaf_dry', (-3.2, .12, .8), .5, fold=.06, curl=.02)
+    p.leaf(s1, 'leaf_green', (3.4, .13, -1.2), 2.6, fold=.06, curl=.02)
+    p.leaf(s1, 'leaf_old', (.8, .14, 3.8), 4.4, fold=.05, curl=.02)
     for k in range(4):                                             # a few fallen stems
-        p.straw(s1, [-3.0 + k * .9, .25, -3.4 + k * .4], .4 + k * .5, 0.0, 3.0 + k * .4, s0=k * 5)
+        p.straw(s1, [-3.0 + k * .9, .2, -3.4 + k * .4], .4 + k * .5, 0.0, 3.0 + k * .4, s0=k * 5)
     s2 = p.mat('rough_ring', 2)
     p.patch(s2, (0, 0), (RX - .4, RZ - .4), .12, 'litter_dry', rng, seg=14, wobble=.06)
     pressed_ring(p, s2, rng, oval_line(RX - .5, RZ - .5), 8, 1.6, 1.0, 1.3, 1.2, .1, layers=1, gaps=(5,))
@@ -353,7 +356,7 @@ def large_wild_nest():
         p.patch(lining, (x, z), r, FLOOR + .03, tile, rng, seg=10)
     for name, x, z, yaw in (('leaf_green', -2.0, -1.5, .7), ('leaf_green', 3.0, 1.0, 2.2), ('leaf_dry', 5.5, -6.5, 4.0),
                             ('leaf_slim', -6.5, 5.0, 5.4)):
-        p.leaf(lining, name, (x, FLOOR + .06 + rng.uniform(0, .05), z), yaw, fold=.22, curl=.05)
+        p.leaf(lining, name, (x, FLOOR + .04 + rng.uniform(0, .03), z), yaw, fold=.06, curl=.02)
     # roll: from the front-right end round the back to the front-left end
     start = math.atan2(1, 0)                                       # +z
     pts = []

@@ -13,7 +13,7 @@ import sys
 import re
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, human, item, block, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
+from museum_dsl import (yk, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
 from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
@@ -297,8 +297,8 @@ land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed'
 add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
     '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0, half=3),
-        block(8, 0, 0, 'mcyukkuri:large_yukkuri_nest'),
-        yk('reimu', 8, 0, 'mother', yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
+        *large_nest(8, 0, 'mcyukkuri:large_yukkuri_nest'),
+        yk('reimu', 8.5, .5, 'mother', yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
         yk('marisa', 6, 2, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
@@ -411,8 +411,8 @@ add('family_search', 'family', '亲子走散后寻回', '走散寻回',
 # Real initial conditions for the retained birth/growth rules; no goal or successful outcome is assigned.
 add('birth_nest_safe', 'family', '大窝自然生产', '大窝生产',
     '灵梦父母不能用帽接生；母油回到野生大草窝生产，只有赤油实际落到垫面才免出生摔伤。读产程、出生落点和伤势',
-    '约 2 分钟', [*shed(0, 0, half=4), block(0, 0, 0, 'mcyukkuri:large_wild_nest'),
-    yk('reimu', 0, 2, 'mother', yaw=180, lead=True, **pair_ready()),
+    '约 2 分钟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
+    yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
     yk('reimu', 3, 2, 'father', **pair_ready()),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
     f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth',
@@ -421,13 +421,13 @@ add('birth_nest_safe', 'family', '大窝自然生产', '大窝生产',
 _nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1','b2','b3']}
 add('family_nests', 'family', '窝容量与成长分窝', '大小窝同居',
     '父母和四赤油认领同一大窝；旁边普通窝提供长成子油后的真实空位。读床位、亲密与不安；物品栏可摆放两种大窝。成长用本区已有时间倍率，不直接写成功状态',
-    '先看认窝，再观察成长', [*shed(0, 0, half=5), block(0, 0, 0, 'mcyukkuri:large_yukkuri_nest'),
+    '先看认窝，再观察成长', [*shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
-    yk('reimu', -1.5, -1, 'mother', uuid=_nest_ids['mother'], energy=35, rest_wait=0, lead=True),
-    yk('marisa', 1.7, -.4, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
+    yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], energy=35, rest_wait=0, lead=True),
+    yk('marisa', 2.2, .1, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
     *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_nest_ids[f'b{i}'], energy=35, rest_wait=0,
-         kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-1.4,1.6),(-.3,2.1),(.7,1.5),(1.7,2.3)])],
+         kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-.9,2.1),(.2,2.6),(1.2,2),(2.2,2.8)])],
     *[home(name, 0, 0) for name in _nest_ids]], spot='pet_birth',
     give=['mcyukkuri:large_yukkuri_nest 2','mcyukkuri:large_wild_nest 2','mcyukkuri:yukkuri_nest 6'],
     reads=[('读同居与床位', f'yukkuri status @e[tag=scn,distance=..48] raw')])
