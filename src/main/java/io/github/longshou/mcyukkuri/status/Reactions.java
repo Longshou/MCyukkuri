@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -65,10 +66,11 @@ public final class Reactions {
         return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe() : "none";
     }
     void scan() { threat.scan(); weather.scan(); }
-    void stop() { threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
+    void stop() { threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }
 
     /** Kin hear the alarm; nearby witnesses also react when they see a person inflict harm. */
     void hurtBy(DamageSource source) {
+        threat.seal.abort("attacked");
         if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == entity) return;
         threat.warnKin(attacker);
         if (!(attacker instanceof Player || attacker instanceof HumanNpc)) return;
@@ -113,6 +115,8 @@ public final class Reactions {
     public static final class Threat {
         public enum Stage { NONE, WATCH, RETREAT, HIDE }
         private final YukkuriEntity y;
+        /** A clever wild Reimu's den-mouth sealing (project design, see WILD_SHELTERS.md); idle for everyone else. */
+        private final DenSeal seal;
         private Stage stage = Stage.NONE;
         private LivingEntity seen;
         private LivingEntity heard;
@@ -127,9 +131,10 @@ public final class Reactions {
         private long knownAt = Long.MIN_VALUE / 2;
         static final int SAME_DANGER = 3600;
 
-        Threat(YukkuriEntity y) { this.y = y; }
+        Threat(YukkuriEntity y) { this.y = y; seal = new DenSeal(y); }
 
         public Stage stage() { return stage; }
+        public DenSeal seal() { return seal; }
         /** The predator (or attacker) that currently matters, or null. */
         public LivingEntity source() {
             if(y.life().isSleeping())return null;
@@ -140,7 +145,7 @@ public final class Reactions {
         String activity() { return switch (stage) { case WATCH -> Behaviors.THREAT_WATCH; case RETREAT -> Behaviors.THREAT_RETREAT; case HIDE -> Behaviors.THREAT_HIDE; default -> Behaviors.IDLE; }; }
         String describe() {
             var s = source();
-            return "threat:" + stage.name().toLowerCase(Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y)));
+            return "threat:" + stage.name().toLowerCase(Locale.ROOT) + (s == null ? "" : " from #" + s.getId() + " d=" + Math.round(s.distanceTo(y))) + " seal=" + seal.describe();
         }
 
         private boolean menacing(YukkuriEntity p) {
@@ -227,6 +232,7 @@ public final class Reactions {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();
             stage = danger != null && y.hasLineOfSight(danger) ? Stage.RETREAT : Stage.WATCH; ticks = 0; lostSince = 0;
+            seal.reset();
             GameplayLog.limited(y, "threat", "start", 1200, "response started source={} stage={}",
                     danger == null ? null : danger.getUUID(), stage);
             y.life().interrupt();
@@ -239,6 +245,7 @@ public final class Reactions {
             if (s != null) know(s, now);
         }
         void end(int cooldown) {
+            seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
                     "response ended stage={} phaseTicks={} cooldown={}", stage, ticks, cooldown);
             stage = Stage.NONE; ticks = 0; cooldownUntil = y.level().getGameTime() + cooldown;
@@ -250,6 +257,7 @@ public final class Reactions {
             var s = source();
             long now = y.level().getGameTime();
             if (s != null) y.getLookControl().setLookAt(s, 30, 30);
+            else if (seal.active()) seal.abort("danger_lost");
             if (s == null || s.distanceToSqr(y) > 576) { if (lostSince == 0) lostSince = now; } else lostSince = 0;
             switch (stage) {
                 case WATCH -> {
@@ -259,6 +267,7 @@ public final class Reactions {
                 }
                 case RETREAT -> {
                     if (s == null) { stage = Stage.HIDE; ticks = 0; return; }
+                    if (seal.drive(s)) return;
                     double d = s.distanceTo(y);
                     if (ticks % 10 == 1 || y.getNavigation().isDone()) retreat(s);
                     var home = y.life().homeStand();
@@ -266,6 +275,7 @@ public final class Reactions {
                     if (d > 20 || ticks > 400) { stage = Stage.HIDE; ticks = 0; }
                 }
                 case HIDE -> {
+                    if (s != null && seal.drive(s)) return;
                     if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) { stage = Stage.RETREAT; ticks = 0; return; }
                     y.getNavigation().stop();
                     if (lostSince != 0 && now - lostSince > 80) { end(100); return; }

@@ -419,6 +419,7 @@
   "block.mcyukkuri.cardboard_shelter": "Cardboard Shelter",
   "item.mcyukkuri.cardboard_shelter": "Cardboard Shelter",
   "block.mcyukkuri.forage_pile": "Forage Pile",
+  "block.mcyukkuri.den_barrier": "Den Barrier",
   "shelter.mcyukkuri.pile.inspect": "Forage pile: %s portions stored (room for %s). Sneak with an empty hand to take one.",
   "shelter.mcyukkuri.none": "No burrow or cardboard shelter claimed.",
   "shelter.mcyukkuri.inspect": "%s\nResidents: %s / %s\nCondition: %s%%  Moisture: %s%%\nBedding: %s / 4  Food: %s\nDirt: %s%%\n%s",

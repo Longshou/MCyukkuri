@@ -13,6 +13,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.Homes;
@@ -68,6 +70,15 @@ final class ScenarioSetup {
         var data = YukkuriWorldData.get((ServerLevel)first.level());
         data.relate(first.getUUID(), second.getUUID(), 30 - data.affinity(first.getUUID(), second.getUUID()));
         data.relate(second.getUUID(), first.getUUID(), 30 - data.affinity(second.getUUID(), first.getUUID()));
+    }
+
+    /** Sticks go into the doorway stock of the individual's own den through the ordinary deposit (it holds three at most); returns how many were taken. */
+    static int twigs(YukkuriEntity y, int count) {
+        var shelter = y.habitat().shelter();
+        if (shelter == null) return -1;
+        int put = 0;
+        for (int i = 0; i < count; i++) if (shelter.deposit(new ItemStack(Items.STICK))) put++;
+        return put;
     }
 
     /** The nest (or shelter, or house nest) at {@code pos} becomes this individual's home. */

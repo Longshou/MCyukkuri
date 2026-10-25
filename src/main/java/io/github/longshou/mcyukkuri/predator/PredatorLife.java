@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
@@ -259,6 +260,13 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.family().caresFor(target) || target.getUUID().equals(animal.family().partner())) return false;
         var shelter = target.habitat().shelter();
         if (shelter != null && shelter.owns(target.getUUID()) && shelter.sound() && shelter.contains(target.blockPosition())) return false;
+        // A den whose mouth is screened with twigs shelters everyone inside it, residents or not (settlement/DenSeal).
+        var screened = DenBarrier.shielding(target);
+        if (screened != null) {
+            GameplayLog.limited(animal, "predator", "barrier_reject", 200, "target rejected reason=barrier target={} den={} mouth={}",
+                    target.getUUID(), screened.getBlockPos().toShortString(), screened.entrance().toShortString());
+            return false;
+        }
         return true;
     }
     /** A protected passenger may be hunted only while its actual hat is steady and afloat.

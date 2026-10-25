@@ -22,7 +22,7 @@ CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,Firs
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
-LATE_COMMANDS = ('yukkuri scenario aquatic_colony', 'yukkuri scenario home', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario boat', 'yukkuri scenario shore')
+LATE_COMMANDS = ('yukkuri scenario aquatic_colony', 'yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario boat', 'yukkuri scenario shore')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
 
@@ -164,6 +164,26 @@ add('den_move', 'den', '搬往大洞', '搬往大洞',
         ],
     late=[f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('mother', 'father', 'child')],
     env=DAY, spot='small', vantage=(8, 14), reads=[('读搬家说明', f'yukkuri status {sel("mother")} raw')])
+
+# Two wild Reimu, each with a den of her own (the family and indep mounds, 18 apart) holding the two sticks a natural den starts with;
+# only their five-axis personality differs. A hungry predator is summoned 20+ blocks south of each only after they have settled,
+# and chooses and approaches by the ordinary hunt rules; nothing here names a Goal, a target or a result.
+add('den_barrier', 'den', '洞口结界', '灵梦结界',
+    '左洞灵梦智力90、自制90，右洞灵梦智力40、自制30，各自洞里有 2 根结界枝。12 秒后各洞南面 20 格外出现饥饿蕾米莉亚，按正常捕食逻辑选目标追来：'
+    '灵梦逃回自己的洞，聪明且自制的那只在洞口转身用约 2 秒把洞口格封上树枝叶屏（用掉 1 根枝，每格 1 根），右洞那只只逃进窝。'
+    '捕食种不再把封好的洞里的个体当猎物，日志 [predator] target rejected reason=barrier；屏障挡住碰撞和寻路，玩家可徒手打掉（掉 1 根木棍）。'
+    '捕食种离开约 10 秒后灵梦自己拆下屏障、把枝条放回洞口库存，最长 4 分钟自行朽散。读数看各灵梦 threat 的 seal=',
+    '约 1–2 分钟，可倍速', [
+        yk('reimu', 0, 6, 'wise', label='智力90·自制90', intelligence=90, self_control=90, lead=True, **pair_ready()),
+        yk('reimu', 18, 6, 'plain', label='智力40·自制30', intelligence=40, self_control=30, **pair_ready()),
+        home('wise', 0, -1), home('plain', 18, -1),
+        f'yukkuri scenario twigs {sel("wise")} 2', f'yukkuri scenario twigs {sel("plain")} 2'],
+    late=[Retry(yk('remilia', 0, 26, 'hunter_wise', label='饥饿捕食种', nutrition=10, energy=95), sel('wise'), tries=1, first=240),
+          Retry(yk('remilia', 18, 26, 'hunter_plain', label='饥饿捕食种', nutrition=10, energy=95), sel('plain'), tries=1, first=240)],
+    env=DAY, spot='family', vantage=(9, 16), retry='先“清空本场地”（洞口格要空）再按一次',
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读聪明灵梦', f'yukkuri status {sel("wise")} raw'), ('读普通灵梦', f'yukkuri status {sel("plain")} raw'),
+           ('读左捕食者', f'yukkuri status {sel("hunter_wise")} raw'), ('读右捕食者', f'yukkuri status {sel("hunter_plain")} raw')])
 
 # ====================================================================================================== vagrants and foraging
 add('dig', 'forage', '流浪油挖穴', '流浪挖穴', '没有家的成年流浪油走到土丘边：先挖通地面，再向上挖内部第二层；入口保留一格高、内部两格高，每块约 6 秒，挖完自成一个家',
@@ -1813,7 +1833,7 @@ TOPICS = {
     'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_first_contact': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'alice_interrupt': 'R4',
     'aftermath_growth': 'F7', 'aftermath_burden': 'F7', 'aftermath_depletion': 'F7',
-    'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
+    'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7', 'den_barrier': 'W8',
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',

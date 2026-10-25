@@ -159,6 +159,10 @@ public final class ShelterBlockEntity extends BlockEntity {
                 .filter(Objects::nonNull).distinct().toList();
     }
     public int branches() { return branches; }
+    /** The owner lays a mouth-screen twig from the doorway stock (project design: {@link DenSeal}); false when none is left. */
+    boolean takeBranch() { if(branches<=0)return false;branches--;changed();return true; }
+    /** A twig of a taken-down screen goes back to the doorway stock. */
+    void returnBranch() { if(branches<3){branches++;changed();} }
     public void setNaturalSite(NaturalShelter.Site site) {
         naturalBeds=site==null?List.of():site.sleeping();naturalEntrance=site==null?null:site.entrance();
         naturalPile=site==null?null:site.pile();naturalPileStand=site==null?null:site.pileStand();changed();
@@ -369,7 +373,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean usable(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());
-        return bed!=null&&!SettlementEvents.shelterBarred(entity)&&sound()&&moisture<85&&dirt<90&&entity.life().dryStand(bed)&&entity.life().dryStand(entrance());
+        return bed!=null&&!SettlementEvents.shelterBarred(entity)&&sound()&&moisture<85&&dirt<90&&entity.life().dryStand(bed)&&(entity.life().dryStand(entrance())||DenBarrier.sealed(this));
     }
     public boolean insulated() { return lining>=3&&moisture<55&&(kind()==ShelterBlock.Kind.BURROW||condition>=40); }
     public boolean suitableForYoung(int children) {

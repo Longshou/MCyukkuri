@@ -169,7 +169,7 @@ PROBE_COMMANDS = {
     'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
-    'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario birth': 'yukkuri scenario birth @s @s natural',
+    'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario eggs': 'yukkuri scenario eggs @s @s',
     'scenario aquatic_colony': 'yukkuri scenario aquatic_colony @s 0 0 0',
     'scenario boat': 'yukkuri scenario boat sail @s @s 0 0 0 0 0 0', 'scenario shore': 'yukkuri scenario shore @s',

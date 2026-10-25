@@ -155,6 +155,9 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
+            // A clever wild Reimu that has run into her den seals its mouth (settlement/DenSeal); the sealing owns the body meanwhile.
+            if (owner.getLastHurtByMob() instanceof YukkuriEntity danger && danger.profile().dangerToYukkuri()
+                    && owner.status().reactions().threat().seal().drive(danger)) return;
             if (owner.directNavigation().isDone() || owner.tickCount % 10 == 0) {
                 if (owner.getLastHurtByMob() instanceof YukkuriEntity threat && threat.profile().dangerToYukkuri()) {
                     if (owner.pet().fleeToOwner()) return;

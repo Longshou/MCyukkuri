@@ -23,6 +23,8 @@ import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PoopBlock;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
+import io.github.longshou.mcyukkuri.settlement.DenBarrierBlock;
+import io.github.longshou.mcyukkuri.settlement.DenBarrierBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlock;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -59,6 +61,11 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ForagePileBlockEntity>> FORAGE_PILE_ENTITY=BLOCK_ENTITIES.register("forage_pile",
             ()->BlockEntityType.Builder.of(ForagePileBlockEntity::new,FORAGE_PILE.get()).build(null));
+    /** The twig-and-leaf screen a clever wild Reimu piles across its den mouth (settlement/DenSeal). Has no item. */
+    public static final DeferredBlock<DenBarrierBlock> DEN_BARRIER=BLOCKS.register("den_barrier",
+            ()->new DenBarrierBlock(BlockBehaviour.Properties.of().strength(.3f).sound(SoundType.GRASS).noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<DenBarrierBlockEntity>> DEN_BARRIER_ENTITY=BLOCK_ENTITIES.register("den_barrier",
+            ()->BlockEntityType.Builder.of(DenBarrierBlockEntity::new,DEN_BARRIER.get()).build(null));
     public static final DeferredBlock<GraveBlock> GRAVE=BLOCKS.register("burial_mound",()->new GraveBlock(BlockBehaviour.Properties.of().strength(.5f).sound(SoundType.GRAVEL).noOcclusion()));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<GraveBlockEntity>> GRAVE_ENTITY=BLOCK_ENTITIES.register("grave",
             ()->BlockEntityType.Builder.of(GraveBlockEntity::new,GRAVE.get()).build(null));

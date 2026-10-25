@@ -154,6 +154,13 @@ public final class ScenarioCommands {
                                 return refused(c.getSource(), actor, "指定窝位", actor.getName().getString() + " 没能认下这个窝：窝位要有顶、够得着、没被别人占着。");
                             return 1;
                         }))))
+                .then(Commands.literal("twigs").then(Commands.argument("actor", EntityArgument.entity())
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 3)).executes(c -> {
+                            var actor = yukkuri(c, "actor");
+                            if (actor == null) return 0;
+                            int put = ScenarioSetup.twigs(actor, IntegerArgumentType.getInteger(c, "count"));
+                            return put < 0 ? refused(c.getSource(), actor, "备枝条", actor.getName().getString() + " 还没有认下洞穴。") : put;
+                        }))))
                 .then(Commands.literal("eggs").then(Commands.argument("mother", EntityArgument.entity())
                         .then(Commands.argument("father", EntityArgument.entity()).executes(c -> {
                             var mother = yukkuri(c, "mother"); var father = yukkuri(c, "father");

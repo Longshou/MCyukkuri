@@ -419,6 +419,7 @@
   "block.mcyukkuri.cardboard_shelter": "流浪油纸箱",
   "item.mcyukkuri.cardboard_shelter": "流浪油纸箱",
   "block.mcyukkuri.forage_pile": "储粮堆",
+  "block.mcyukkuri.den_barrier": "洞口结界",
   "shelter.mcyukkuri.pile.inspect": "储粮堆：现存 %s 份（容量 %s）。潜行空手使用可取走一份。",
   "shelter.mcyukkuri.none": "尚未入住野外巢穴或纸箱。",
   "shelter.mcyukkuri.inspect": "%s\n住户：%s / %s\n完好：%s%%  潮湿：%s%%\n垫料：%s / 4  存粮：%s\n脏污：%s%%\n%s",
