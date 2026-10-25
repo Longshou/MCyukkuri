@@ -909,6 +909,7 @@ public final class YukkuriModel {
     private void raiseWorld(float lift){for(var matrix:world)matrix.m31(matrix.m31()+lift);}
 
     /** Squared distance from the camera to the entity origin: the render pose is camera-relative. */
+    private static float cameraDistanceSquared(PoseStack stack){var pose=stack.last().pose();return pose.m30()*pose.m30()+pose.m31()*pose.m31()+pose.m32()*pose.m32();}
 
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     public void renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
@@ -938,13 +939,13 @@ public final class YukkuriModel {
             long perfStart=WoundLod.start();
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
                 woundDisplay=HairWoundRenderer.prepare(entity,this,id,expression,wounds,entity.visibleSigns(),health,hairLoss,
-                        accessory||pieces||hatMotion.equals("HAT_REMOVE"),headwear,true);
+                        accessory||pieces||hatMotion.equals("HAT_REMOVE"),headwear,true,cameraDistanceSquared(stack));
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
             render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),behavior,behaviorTicks,hairLoss);
             if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty())captureMouthAttachment();
             if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
-            if(woundDisplay!=null){woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.drawn(perfStart);}
+            if(woundDisplay!=null){woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.drawn(!woundDisplay.simple,perfStart);}
             hatDamageDraw.drawCaps(buffers);
         }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
@@ -986,10 +987,10 @@ public final class YukkuriModel {
         try{
             long perfStart=WoundLod.start();
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(packedSigns&BodySigns.FOOT_BURNED)!=0))
-                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,in.hairLoss(),accessory,headwear,in.coreKept());
+                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,in.hairLoss(),accessory,headwear,in.coreKept(),cameraDistanceSquared(stack));
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,in.hairLoss());
             if(drawingSurfaceMarks)WoundRenderer.render(key,id,face,wounds,signs,0,fullness,house,in.coreKept(),world,stack,buffer,buffers,light,overlay);
-            if(woundDisplay!=null){woundDisplay.render(world,0,stack,buffers,light,overlay);WoundLod.drawn(perfStart);}
+            if(woundDisplay!=null){woundDisplay.render(world,0,stack,buffers,light,overlay);WoundLod.drawn(!woundDisplay.simple,perfStart);}
             // Taken last: the body and wound passes above still write into their own buffers.
             if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCull(look.overlay())),light,overlay);
             if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);

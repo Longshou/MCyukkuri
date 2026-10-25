@@ -6,7 +6,7 @@
 
 ## 伤口与治疗
 
-伤口锚定在实际命中的 `Triangle/U/V`；部位、中枢风险、脚底灼伤、显示和漏馅共用此位置，不为显示另找裸露皮肤。用户要求：伤位被头发覆盖时，伤口须在对应发面可见。项目设计采用同一伤口的分层表现：普通伤口（含开放伤与凹伤）为贴在皮面与发面上的平面作者贴图，客户端不裁洞、不压陷（出于性能与稳健性的降级，原“开放伤切开相交头发、凹伤共同压陷”的造型要求未接入）；只有露核重伤真实裁开面皮、头发并贯通至中央中枢；帽子、蝴蝶结等独立饰物仍按正常深度遮挡。发面显示不是另一处伤，不重复扣血或漏馅。挂接与裁切接口见[通用伤口设计](../standards/yukkuri-library/drafts/body-marks/WOUND_GENERATION.md#通用分层表现)，视觉仍须[试玩确认](TODO.md#美术opus)。模型变化时通过 `SurfaceHash`、`SurfaceBounds`、`Anchor/Normal` 迁移锚点。存档保留 `Id`、`Triangle/U/V`、`Severity`、`PeakSeverity`、`Size`、`Emitted`、`LastRelease`，`Shape` 保存真实伤因形态及烧伤范围，贯穿同步、愈合疤痕和遗体；旧 `Display*` 字段不再读取。
+伤口锚定在实际命中的 `Triangle/U/V`；部位、中枢风险、脚底灼伤、显示和漏馅共用此位置，不为显示另找裸露皮肤。用户要求：伤位被头发覆盖时，伤口须在对应发面可见。项目设计采用同一伤口的分层表现：浅伤贴合局部发面，开放伤切开相交头发并露出下方破皮与馅料，露核重伤继续贯通至中央中枢；帽子、蝴蝶结等独立饰物仍按正常深度遮挡。发面显示不是另一处伤，不重复扣血或漏馅。挂接、压陷和裁切接口见[通用伤口设计](../standards/yukkuri-library/drafts/body-marks/WOUND_GENERATION.md#通用分层表现)，视觉仍须[试玩确认](TODO.md#美术opus)。模型变化时通过 `SurfaceHash`、`SurfaceBounds`、`Anchor/Normal` 迁移锚点。存档保留 `Id`、`Triangle/U/V`、`Severity`、`PeakSeverity`、`Size`、`Emitted`、`LastRelease`，`Shape` 保存真实伤因形态及烧伤范围，贯穿同步、愈合疤痕和遗体；旧 `Display*` 字段不再读取。
 
 伤口与身体印记采用[身体纹样制作源](../standards/yukkuri-library/drafts/body-marks/README.md)的既有材质：断续擦痕、低对比压伤、浅色面皮翻边与哑光内馅裂口、连续热损、细长浅色旧疤、三档脏污及四档灰绿油霉。离线烘焙的透明贴图沿真实接收面裁切；油霉保留稳定挂点并随阶段扩大或缩小，足部烧伤沿整个足缘连续显示焦化。开放创腔与中枢按[基本设定馅料称呼](../wiki/hakkei-reference/world/rules.md#繁殖与食物)和[品种色板](../standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md#品种内馅配色)选择同品种色系；未明确品种保留默认美术色，不据此指定口味。色板只改变显示，不改伤级、命中或治疗。伤口等级、局部变形和交互仍由身体状态决定。
 

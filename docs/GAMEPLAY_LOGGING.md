@@ -59,7 +59,7 @@
 | `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生几何细节，默认关闭 |
 | `/yukkuri status trace true` / `false` | 显式开启／关闭细密状态变化日志，默认关闭 |
 | `debug.entitySaveViews` | 完整实体保存调试视图，默认关闭 |
-| `render.woundPerfLog`（客户端配置 `mcyukkuri-client.toml`） | 约每 5 秒输出 `[render]` 伤口渲染耗时汇总（绘制数、三角形、构建次数与帧耗时），默认关闭 |
+| `render.woundPerfLog`（客户端配置 `mcyukkuri-client.toml`） | 约每 5 秒输出 `[render]` 伤口渲染耗时汇总（实体数、完整／简化数量、三角形、构建与帧耗时），默认关闭 |
 | `/yukkuri status`、`mcylab:read/` | 按需只读快照；不自动轮询或补造历史状态，调用方法见[试玩场](DEVELOPMENT.md#导航操作与读数) |
 
 常规排查只需场景和大概时间，按[开发指南](DEVELOPMENT.md#试玩日志与事后排查)定位运行包与原生日志；沿实体和事务标识追到具体业务代码。细密调试可能快速增大日志，用完关闭。版本和失败证据只回填待办原条目，不在本页复制一份场景排障记录。
