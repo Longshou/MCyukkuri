@@ -10,6 +10,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 山脚家洞几何与聚落预览复修 | `.worktrees/wild-settle` | `settlement/site/SiteBuilder.java`、`SitePlanner.java`、`SiteProfile.java`、`scripts/settlement_site_preview.py`、`preview/hub/categories.json` |
+| 窝越格占位 | `.worktrees/placed-size` | `life/CareBlock.java`、`care_collision.json`、`drafts/care-props/` 窝制作源 |
+| 树叶襁褓背缘与正面叶形 | `.worktrees/swaddle-fit` | `client/CareWearRenderer.java`、`drafts/care-props/preview_wear.*` |
 
 ## 玩法待办
 
