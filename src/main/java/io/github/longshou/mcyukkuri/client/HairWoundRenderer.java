@@ -161,6 +161,27 @@ final class HairWoundRenderer {
             skin=core==null?scaled(profile.outline(),cutU,cutV):core.polygon;
             hair=core==null?scaled(profile.hairOutline(),cutU,cutV):core.hairPolygon;
         }
+        /** Skin depth (along n, from the anchor) on a grid over the opening; NaN where no skin lies there. Ordinary open cuts only. */
+        float[] skinZ;
+        int gridU,gridV;
+        float cell,extentU,extentV;
+        boolean fitsOrdinary(){return core==null&&open();}
+        float skinDepthAt(float x,float y){
+            if(skinZ==null)return Float.NaN;
+            int i=Math.round((x+extentU)/cell),j=Math.round((y+extentV)/cell);
+            if(i<0||j<0||i>=gridU||j>=gridV)return Float.NaN;
+            return skinZ[j*gridU+i];
+        }
+        /** True when hair at this point lies outside the opening channel and so must stay uncut. */
+        boolean hairKept(float px,float py,float pz){
+            float skinDepth=skinDepthAt(px,py);
+            return skinZ!=null&&(Float.isNaN(skinDepth)||pz<skinDepth-depth-.02f*scale);
+        }
+        boolean hairKept(Vector3f point){
+            if(skinZ==null)return false;
+            var d=new Vector3f(point).sub(anchor);
+            return hairKept(d.dot(u),d.dot(v),d.dot(n));
+        }
         float x(Vector3f point){return new Vector3f(point).sub(anchor).dot(u);}
         float y(Vector3f point){return new Vector3f(point).sub(anchor).dot(v);}
         boolean front(Vector3f point){return new Vector3f(point).sub(center).dot(n)>.15f*scale;}
@@ -237,6 +258,8 @@ final class HairWoundRenderer {
                     var core=wound==coreWound?BodyCavity.opening(mesh,wound):null;if(core!=null)opening=core;
                     cuts.add(new Cut(wound,mesh,info,core));
                 }
+                // Only the full detail cuts ordinary holes; fit the opening to the real facing surface once per body (variants share it).
+                if(!simple)for(var cut:cuts)if(cut.fitsOrdinary()){fit(cut);depthField(cut);}
                 if(opening==null){cavity=null;cavitySkin=null;cavityRest=null;cavityIndices=new int[0];}else{
                     cavity=new CavityRenderer(mesh,opening,new Vector3f[0],wounds,(signs&BodySigns.CORE_HURT)!=0,corePresent,false);
                     cavitySkin=new Vector3f[mesh.weights.length];cavityRest=new Vector3f[mesh.weights.length];
@@ -296,7 +319,10 @@ final class HairWoundRenderer {
                     }
                     for(var cut:cuts)if(cutsHole(cut)&&cut.bounds(pa,pb,pc,1.5f,part.name())){
                         var outside=new ArrayList<Bary[]>();
-                        for(var tri:triangles)outside.addAll(outside(cut,info.hair.contains(part.name())?cut.hair:cut.skin,first,tri));
+                        boolean hairPart=info.hair.contains(part.name());
+                        // Hair outside the opening channel (beside or far behind the skin) is not part of this hole.
+                        if(hairPart&&cut.skinZ!=null&&cut.hairKept(new Vector3f(pa).add(pb).add(pc).div(3)))continue;
+                        for(var tri:triangles)outside.addAll(outside(cut,hairPart?cut.hair:cut.skin,first,tri));
                         triangles=outside;changed=true;
                     }
                     if(changed){var base=new ArrayList<Triangle>();for(var tri:triangles)base.add(triangle(first,tri,null,1));current.patches.put(first,base);}
@@ -306,7 +332,7 @@ final class HairWoundRenderer {
                         // Only the outward facing layer receives ink. Original depth testing
                         // resolves actual hair coverage and keeps detached accessories opaque.
                         var n=new Vector3f(pb).sub(pa).cross(new Vector3f(pc).sub(pa));
-                        if(n.lengthSquared()<1e-12||n.normalize().dot(cut.n)<.05f)continue;
+                        if(n.lengthSquared()<1e-12||n.normalize().dot(cut.n)<.3f)continue;
                         for(var tri:triangles){
                             var polygon=polygon(cut,first,tri);float rx=cut.radiusU,ry=cut.radiusV;
                             float[][] box={{-rx,-ry},{rx,-ry},{rx,ry},{-rx,ry}};
@@ -429,9 +455,45 @@ final class HairWoundRenderer {
                     float u=((x-ax)*(cy-ay)-(y-ay)*(cx-ax))/det,v=((bx-ax)*(y-ay)-(by-ay)*(x-ax))/det;
                     if(u<-.0001f||v<-.0001f||u+v>1.0001f)continue;
                     var bary=new Bary(1-u-v,u,v);var point=point(first,bary);if(!cut.near(point,part.name()))continue;
+                    if(hair&&cut.hairKept(point))continue;
                     float z=new Vector3f(point).sub(cut.anchor).dot(cut.n);if(z>depth){result=new Sample(first,bary,point);depth=z;}
                 }
             }return result;
+        }
+        /** Whether the body triangle under this sample faces the cut direction well enough to hold the opening rim. */
+        private boolean facing(Cut cut,Sample sample){
+            var pa=point(sample.triangle,A);var pb=point(sample.triangle,B);var pc=point(sample.triangle,C);
+            var face=new Vector3f(pb).sub(pa).cross(new Vector3f(pc).sub(pa));
+            return face.lengthSquared()>=1e-12&&face.normalize().dot(cut.n)>=.3f;
+        }
+        private boolean rimFits(Cut cut,int j,float f){
+            var hit=sample(cut,f*cut.skin[j][0],f*cut.skin[j][1],false,0,true);
+            return hit!=null&&facing(cut,hit);
+        }
+        /** Shrinks each outline vertex radially to the largest factor whose rim still lands on a surface facing the cut. */
+        private void fit(Cut cut){
+            for(int j=0;j<cut.skin.length;j++){
+                float f=1;
+                if(!rimFits(cut,j,1)){
+                    float low=0,high=1;
+                    for(int step=0;step<7;step++){float mid=(low+high)/2;if(rimFits(cut,j,mid))low=mid;else high=mid;}
+                    f=Math.max(low,.05f);
+                }
+                f*=.97f;
+                cut.skin[j][0]*=f;cut.skin[j][1]*=f;
+                if(j<cut.hair.length){cut.hair[j][0]*=f;cut.hair[j][1]*=f;}
+            }
+        }
+        /** Skin depth under the opening, sampled once so hair cutting can tell the channel from hair beside or behind it. */
+        private void depthField(Cut cut){
+            cut.cell=.25f*cut.scale;cut.extentU=1.5f*cut.radiusU;cut.extentV=1.5f*cut.radiusV;
+            cut.gridU=(int)Math.ceil(2*cut.extentU/cut.cell)+1;cut.gridV=(int)Math.ceil(2*cut.extentV/cut.cell)+1;
+            var field=new float[cut.gridU*cut.gridV];
+            for(int j=0;j<cut.gridV;j++)for(int i=0;i<cut.gridU;i++){
+                var hit=sample(cut,i*cut.cell-cut.extentU,j*cut.cell-cut.extentV,false,0,true);
+                field[j*cut.gridU+i]=hit==null?Float.NaN:new Vector3f(hit.point).sub(cut.anchor).dot(cut.n);
+            }
+            cut.skinZ=field;
         }
         private Corner derived(Sample sample,Vector3f point){return new Corner(sample.triangle,sample.bary,
                 deformRest(triangleParts.getOrDefault(sample.triangle,""),new Vector3f(point)),.5f,.5f,1);}

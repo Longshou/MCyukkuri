@@ -53,7 +53,7 @@ public final class BodyCavity {
         return result;
     }
     public static Profile profile() { return PROFILE; }
-    public static synchronized void clear() { CACHE.clear(); coreMesh=null; WoundProfiles.clear(); WoundOcclusion.clear(); }
+    public static synchronized void clear() { CACHE.clear(); coreMesh=null; WoundProfiles.clear(); }
     public static synchronized CoreMesh coreMesh() {
         if(coreMesh!=null)return coreMesh;
         var stream=BodyCavity.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_core.json.gz");
