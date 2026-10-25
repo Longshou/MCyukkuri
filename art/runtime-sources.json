@@ -156,15 +156,11 @@
       "wash_cloth",
       "yarn_ball",
       "cardboard_shelter",
-      "wild_latrine",
-      "wild_latrine_dirty",
       "forest_burrow",
       "personal_leaf_nest",
       "bedding_bundle"
     ],
     "palette_only": [
-      "wild_latrine",
-      "wild_latrine_dirty",
       "rubber_ball",
       "glass_marble",
       "marisa_doll",

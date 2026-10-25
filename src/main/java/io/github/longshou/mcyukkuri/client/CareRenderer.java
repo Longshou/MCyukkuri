@@ -25,8 +25,6 @@ public final class CareRenderer implements BlockEntityRenderer<CareBlockEntity> 
         };
         String style=((CareBlock)care.getBlockState().getBlock()).style();
         if(!style.isEmpty())model=style;
-        if(care.getBlockState().is(ModBlocks.WILD_LATRINE.get()))
-            model=care.waste()>0?"wild_latrine_dirty":"wild_latrine";
         // Dye-selected style (CareStyles): the sand toilet's dirty mesh follows its style; unknown names fall back to the default.
         boolean dirtySand=model.equals("yukkuri_toilet_dirty");
         String styled=CareStyles.model(dirtySand?"yukkuri_toilet":model,care.pattern())+(dirtySand?"_dirty":"");

@@ -201,19 +201,6 @@ final class LifeHome {
                 if (access) { best = scan.immutable(); distance = candidate; }
             }
         }
-        return best == null && kind == CareBlock.Kind.TOILET ? siteToilet() : best;
-    }
-
-    BlockPos siteToilet() {
-        var site = SiteLife.of(o.entity());
-        if (site == null) return null;
-        BlockPos best = null; double distance = 24 * 24;
-        for (BlockPos at : SiteLife.latrines(site)) {
-            if (!o.level().hasChunkAt(at) || !(o.level().getBlockEntity(at) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.TOILET
-                    || care.waste() >= care.capacity()) continue;
-            double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(at));
-            if (candidate < distance && ToiletContact.facilitySeat(o.entity(), at) != null && o.reachable(at.above(), false)) { best = at.immutable(); distance = candidate; }
-        }
         return best;
     }
 

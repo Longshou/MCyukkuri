@@ -111,14 +111,15 @@ class Field:
 
 
 # ----------------------------------------------------------------------------------------------- shared pieces
-def tree(x, z, trunk='minecraft:oak_log', leaves='minecraft:oak_leaves', height=5):
-    top = FEET + height
+def tree(x, z, trunk='minecraft:oak_log', leaves='minecraft:oak_leaves', height=5, feet=FEET):
+    top = feet + height
     return [fill(x - 2, top - 2, z - 2, x + 2, top - 1, z + 2, f'{leaves}[persistent=true]', 'keep'),
             fill(x - 1, top, z - 1, x + 1, top + 1, z + 1, f'{leaves}[persistent=true]', 'keep'),
-            fill(x, FEET, z, x, top, z, trunk)]
+            fill(x, feet, z, x, top, z, trunk)]
 
 
-def scatter_trees(field, count, seed, keep_out=0, trunk='minecraft:oak_log', leaves='minecraft:oak_leaves', margin=4, avoid=(), rect=None):
+def scatter_trees(field, count, seed, keep_out=0, trunk='minecraft:oak_log', leaves='minecraft:oak_leaves', margin=4, avoid=(), rect=None,
+                  ground=None):
     rng = random.Random(seed)
     x1, z1, x2, z2 = rect or (field.x1, field.z1, field.x2, field.z2)
     out, placed = [], []
@@ -132,7 +133,7 @@ def scatter_trees(field, count, seed, keep_out=0, trunk='minecraft:oak_log', lea
         if any(ax1 - 3 <= x <= ax2 + 3 and az1 - 3 <= z <= az2 + 3 for ax1, az1, ax2, az2 in avoid):
             continue
         placed.append((x, z))
-        out += tree(x, z, trunk, leaves, rng.randint(4, 6))
+        out += tree(x, z, trunk, leaves, rng.randint(4, 6), feet=ground(x, z) if ground else FEET)
     return out
 
 
@@ -218,21 +219,26 @@ class Forage(Field):
 
 
 # ----------------------------------------------------------------------------------------------- biome settlements
-BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title
-    ('forest', 'minecraft:forest', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '森林'),
-    ('plains', 'minecraft:plains', 'minecraft:grass_block', None, None, '平原'),
-    ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原'),
-    ('taiga', 'minecraft:taiga', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '针叶林'),
-    ('swamp', 'minecraft:swamp', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '沼泽'),
-    ('savanna', 'minecraft:savanna', 'minecraft:grass_block', 'minecraft:acacia_log', 'minecraft:acacia_leaves', '热带草原'),
-    ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠'),
-    ('badlands', 'minecraft:badlands', 'minecraft:red_sand', None, None, '恶地'),
+BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (None: flat plot)
+    ('forest', 'minecraft:forest', 'minecraft:grass_block', 'minecraft:oak_log', 'minecraft:oak_leaves', '森林', 'minecraft:dirt'),
+    ('plains', 'minecraft:plains', 'minecraft:grass_block', None, None, '平原', None),
+    ('taiga', 'minecraft:taiga', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '针叶林', 'minecraft:dirt'),
+    ('cherry', 'minecraft:cherry_grove', 'minecraft:grass_block', 'minecraft:cherry_log', 'minecraft:cherry_leaves', '樱花林', 'minecraft:dirt'),
+    ('hills', 'minecraft:windswept_hills', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '风袭丘陵', 'minecraft:stone'),
+    ('savanna', 'minecraft:savanna', 'minecraft:grass_block', 'minecraft:acacia_log', 'minecraft:acacia_leaves', '热带草原', 'minecraft:coarse_dirt'),
+    # no settlement generates in these two (docs/SETTLEMENTS.md, 群系适居裁定): flat plots for the cold / hot season scenes
+    ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原', None),
+    ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠', None),
 ]
 
 
 class Biomes(Field):
-    """Eight 44x44 plots in a 4x2 grid, one biome each. A plot's scenario sets its biome again, then spawns a natural settlement.
-    Every clear puts the plots' ground, trees and biomes back."""
+    """Eight 44x44 plots in a 4x2 grid, one biome each. The six where settlements generate (docs/SETTLEMENTS.md) all but plains
+    have a slope rising in their north part, its foot five blocks north of the plot centre, so a settlement spawned at the centre
+    digs its burrows into the bank; snow and desert stay flat for the cold and hot season scenes. A plot's scenario sets its biome again, then spawns a settlement. Every clear puts
+    the plots' ground, hill, trees and biomes back."""
+    HILL_FOOT = 5          # blocks north of the plot centre where the slope begins
+    HILL_TOP = 9           # height of the hill crest above the ground
     PITCH = 48
     VILLAGE_REACH = 30     # SiteTier.VILLAGE.bound (29, hedge plus meadow ring) and one more
 
@@ -249,17 +255,45 @@ class Biomes(Field):
     def plot_rect(self, px, pz):
         return px - 22, pz - 22, px + 22, pz + 22
 
+    def hill_height(self, plot, px, pz, x, z):
+        """Blocks of hill above the ground at (x, z): a wavy foot line, 0.6 block up per block (rock 0.9), a flat crest."""
+        if not plot[6]:
+            return 0
+        foot = pz - self.HILL_FOOT + round(1.5 * math.sin((x - px) / 6.0 + px * .37))
+        d = foot - z
+        return 0 if d < 0 else min(self.HILL_TOP, int(d * (.9 if plot[6] == 'minecraft:stone' else .6)) + 1)
+
     def plot_base(self, plot, px, pz):
         x1, z1, x2, z2 = self.plot_rect(px, pz)
         out = big_fill(x1, GROUND - 3, z1, x2, GROUND - 1, z2, 'minecraft:sandstone' if 'sand' in plot[2] else 'minecraft:dirt')
         out += big_fill(x1, GROUND, z1, x2, GROUND, z2, plot[2])
-        return out + big_fill(x1, GROUND + 1, z1, x2, SKY, z2, 'minecraft:air')
+        out += big_fill(x1, GROUND + 1, z1, x2, SKY, z2, 'minecraft:air')
+        if plot[6]:
+            # layer by layer in five-block strips; every layer is the hill block with turf on its exposed edge
+            for xa in range(x1, x2 + 1, 5):
+                xb = min(x2, xa + 4)
+                xm = (xa + xb) // 2
+                for k in range(1, self.HILL_TOP + 1):
+                    edge = max((z for z in range(z1, z2 + 1) if self.hill_height(plot, px, pz, xm, z) >= k), default=None)
+                    if edge is None:
+                        continue
+                    upper = max((z for z in range(z1, z2 + 1) if self.hill_height(plot, px, pz, xm, z) >= k + 1), default=z1 - 1)
+                    if upper >= z1:
+                        out.append(fill(xa, GROUND + k, z1, xb, GROUND + k, upper, plot[6]))
+                    out.append(fill(xa, GROUND + k, upper + 1, xb, GROUND + k, edge, 'minecraft:grass_block'))
+        return out
+
+    def plot_ground(self, plot, px, pz):
+        """Standing level of the plot's own ground (the hill included) at a column."""
+        strip = lambda x: (x - (px - 22)) // 5 * 5 + (px - 22) + 2
+        return lambda x, z: FEET + self.hill_height(plot, px, pz, min(px + 22, strip(x)), z)
 
     def plot_features(self, plot, px, pz):
-        _, _, _, trunk, leaves, _ = plot
+        trunk, leaves = plot[3], plot[4]
         if not trunk:
             return []
-        return scatter_trees(self, 7, 91 + px + pz, margin=3, keep_out=20, trunk=trunk, leaves=leaves, rect=self.plot_rect(px, pz))
+        return scatter_trees(self, 7, 91 + px + pz, margin=3, keep_out=20, trunk=trunk, leaves=leaves, rect=self.plot_rect(px, pz),
+                             ground=self.plot_ground(plot, px, pz))
 
     def plot_terrain(self, plot, px, pz):
         return self.plot_base(plot, px, pz) + self.plot_features(plot, px, pz)

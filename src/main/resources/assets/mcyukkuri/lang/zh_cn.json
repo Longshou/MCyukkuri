@@ -410,7 +410,6 @@
   "item.mcyukkuri.forest_burrow": "旧版巢穴标记",
   "block.mcyukkuri.cardboard_shelter": "流浪油纸箱",
   "item.mcyukkuri.cardboard_shelter": "流浪油纸箱",
-  "block.mcyukkuri.wild_latrine": "野外便所",
   "block.mcyukkuri.forage_pile": "储粮堆",
   "shelter.mcyukkuri.pile.inspect": "储粮堆：现存 %s 份（容量 %s）。潜行空手使用可取走一份。",
   "shelter.mcyukkuri.none": "尚未入住野外巢穴或纸箱。",

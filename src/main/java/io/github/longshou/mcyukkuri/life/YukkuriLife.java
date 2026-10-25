@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -73,6 +75,10 @@ public final class YukkuriLife {
     private final LifeDoses doses = new LifeDoses(this);
     private int exerciseReliefTicks;
     private boolean toiletAccident;
+    /** The current ground toilet trip goes to the community's waste pit (settlement/GroupPits), not to nearby ground. */
+    private boolean toiletPit;
+    /** A pit trip may cross the whole site; a trip to nearby ground gives up much sooner. */
+    private static final int PIT_TRIP_TICKS = 900, GROUND_TRIP_TICKS = 240;
     private final HatToilet hatToilet = new HatToilet(this);
     private final HotFloorEscape hotFloor;
     private int starvingTicks, fatigueTicks, fatigueLength;
@@ -603,14 +609,26 @@ public final class YukkuriLife {
         boolean pet = (Custody.view(entity).owner() != null)
                 || home() != null && !naturalHome();
         if (bladder < (pet ? 90 : 70)) return false;
-        targetBlock = null;
+        targetBlock = null; toiletPit = false;
         if (!pet) {
-            for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
-                if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 4) continue;
-                if (!dryStand(candidate) || !reachable(candidate, false)) continue;
-                if (!level().getEntitiesOfClass(ItemEntity.class,new AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
-                if (targetBlock == null || candidate.distSqr(entity.blockPosition()) < targetBlock.distSqr(entity.blockPosition())) targetBlock = candidate.immutable();
+            // A community member walks to the group's waste pit; lone wild yukkuri and families use ground away from home.
+            var pit = GroupPits.target(entity);
+            if (pit != null) {
+                targetBlock = pit; toiletPit = true; toiletAccident = false;
+                task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
+                GameplayLog.event(entity,"needs","toilet pit trip start pit={} distance={} bladder={}",pit,
+                        String.format("%.1f",Math.sqrt(pit.distSqr(entity.blockPosition()))),bladder);
+                return true;
             }
+            var candidates = new ArrayList<BlockPos>();
+            for (BlockPos candidate : BlockPos.betweenClosed(entity.blockPosition().offset(-4,0,-4),entity.blockPosition().offset(4,0,4))) {
+                if (home() != null && home().dimension().equals(level().dimension()) && candidate.distSqr(home().pos()) < 16) continue;
+                if (!dryStand(candidate)) continue;
+                if (!level().getEntitiesOfClass(ItemEntity.class,new AABB(candidate).inflate(1),i->acceptsFood(i.getItem())).isEmpty()) continue;
+                candidates.add(candidate.immutable());
+            }
+            candidates.sort(Comparator.comparingDouble(c -> c.distSqr(entity.blockPosition())));
+            for (int i = 0; i < Math.min(6, candidates.size()) && targetBlock == null; i++) if (reachable(candidates.get(i), false)) targetBlock = candidates.get(i);
         }
         toiletAccident = pet || targetBlock == null;
         if (targetBlock == null && bladder >= 90 && dryStand(entity.blockPosition())) targetBlock = entity.blockPosition();
@@ -678,7 +696,10 @@ public final class YukkuriLife {
             }
             case GROUND_TOILET -> {
                 if (!entity.childhood().firstToiletDone()) { stopGoal(); return; }
-                if (targetBlock == null || !dryStand(targetBlock) || constipated() || pursuitTicks > 240) { stopGoal(); return; }
+                if (targetBlock == null || !dryStand(targetBlock) || constipated() || pursuitTicks > (toiletPit ? PIT_TRIP_TICKS : GROUND_TRIP_TICKS)) {
+                    if (toiletPit && targetBlock != null) GroupPits.refuse(entity, pursuitTicks > PIT_TRIP_TICKS ? "timeout" : "cell_lost", targetBlock);
+                    stopGoal(); return;
+                }
                 if (entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) entity.speak("need_toilet");
@@ -686,13 +707,16 @@ public final class YukkuriLife {
                         // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
                         if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
                             bladder -= 40; personality.relieveFear();
-                            GameplayLog.event(entity,"needs","relieved source=ground at={} bladder={} -> {} accident={}",targetBlock,bladder+40,bladder,toiletAccident);
+                            GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,bladder+40,bladder,toiletAccident);
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
                         } else { stopGoal(); return; }
                     }
                     if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
-                } else { toiletTicks=0; if(pursuitTicks%10==1&&!navigate(targetBlock,1,false))stopGoal(); }
+                } else {
+                    toiletTicks=0;
+                    if(pursuitTicks%10==1&&!travel(targetBlock,1)){ if(toiletPit)GroupPits.refuse(entity,"no_path",targetBlock); stopGoal(); }
+                }
             }
             case SLEEP -> {
                 if (temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) { stopGoal(); break; }
@@ -797,8 +821,6 @@ public final class YukkuriLife {
     public BlockPos homeStand(){ return home.homeStand(); }
     private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
-    /** The latrine ground of a planned site, up to 24 blocks away (the ordinary search only looks 8 blocks around). */
-    private BlockPos siteToilet(){ return home.siteToilet(); }
     private boolean seesWater(BlockPos water){ return home.seesWater(water); }
     private BlockPos drinkStand(BlockPos water){ return home.drinkStand(water); }
     boolean hasReachableDrink(){ return home.hasReachableDrink(); }
@@ -836,6 +858,14 @@ public final class YukkuriLife {
     private boolean trustRoutes;
     public void trustRoutes(boolean value) { trustRoutes = value; }
     public boolean reachable(BlockPos target, boolean escapeWater) { return trustRoutes || path(target, escapeWater) != null; }
+    /**
+     * Walk to a dry target on land. Within the pathfinder's range the path must reach it; farther away (a waste pit across
+     * the site) the mob follows the partial path towards it and the full check is made once it is near.
+     */
+    public boolean travel(BlockPos target, double speed) {
+        if (target.distSqr(entity.blockPosition()) <= GroupPits.NEAR * GroupPits.NEAR) return navigate(target, speed, false);
+        return entity.getNavigation().moveTo(target.getX() + .5, target.getY(), target.getZ() + .5, speed);
+    }
     public boolean navigate(BlockPos target, double speed, boolean escapeWater) {
         Path path = path(target, escapeWater); return path != null && entity.getNavigation().moveTo(path, speed);
     }

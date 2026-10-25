@@ -75,9 +75,10 @@ final class SiteUpkeep {
         if (keys.isEmpty()) return;
         long key = keys.get(level.random.nextInt(keys.size()));
         int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
-        var probe = new BlockPos(x, site.origin.getY() + 3, z);
+        // Trails climb to the burrows on the slope: probe from well above the clearing.
+        var probe = new BlockPos(x, site.origin.getY() + 8, z);
         if (!level.hasChunkAt(probe)) return;
-        for (int y = probe.getY(); y > probe.getY() - 9; y--) {
+        for (int y = probe.getY(); y > probe.getY() - 14; y--) {
             var pos = new BlockPos(x, y, z);
             var state = level.getBlockState(pos);
             if (state.isAir() || !state.getFluidState().isEmpty() || state.canBeReplaced()) continue;

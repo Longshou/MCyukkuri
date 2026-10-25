@@ -685,7 +685,6 @@
   "item.mcyukkuri.forest_burrow": "旧式の巣マーカー",
   "block.mcyukkuri.cardboard_shelter": "野良ゆの段ボール箱",
   "item.mcyukkuri.cardboard_shelter": "野良ゆの段ボール箱",
-  "block.mcyukkuri.wild_latrine": "野外トイレ",
   "block.mcyukkuri.forage_pile": "貯食の山",
   "shelter.mcyukkuri.pile.inspect": "貯食の山：%s 個を保存（容量 %s）。しゃがんで素手で使うと1個取れます。",
   "shelter.mcyukkuri.none": "まだ野外の巣や段ボール箱に住んでいません。",

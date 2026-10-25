@@ -1,6 +1,6 @@
 # 天然住所的叶床、结界与纸箱
 
-原创制作源为 `build.py`，叶床、个人小叶巢和叶束由 `drafts/care-props/wild.py` 生成；叶床按成体真实尺寸铺设，后高前低、由叼来的散干草堆压成的围沿连接相邻睡位。贴图为 `drafts/care-props/wild_kit.py` 的手绘图集，不引用也不复制原版纹理。渲染单位为：1 铺垫、2–5 边中段、6–9 外角、10–17 边延续段。细枝结界、纸箱和便所由本包制作源维护。天然住所只添加叶床与细枝，洞顶、洞壁和坑底由现有地形提供；来源指纹见 `manifest.json`。
+原创制作源为 `build.py`，叶床、个人小叶巢和叶束由 `drafts/care-props/wild.py` 生成；叶床按成体真实尺寸铺设，后高前低、由叼来的散干草堆压成的围沿连接相邻睡位。贴图为 `drafts/care-props/wild_kit.py` 的手绘图集，不引用也不复制原版纹理。渲染单位为：1 铺垫、2–5 边中段、6–9 外角、10–17 边延续段。细枝结界和纸箱由本包制作源维护。天然住所只添加叶床与细枝，洞顶、洞壁和坑底由现有地形提供；来源指纹见 `manifest.json`。
 
 从仓库根目录运行 `python standards/yukkuri-library/ecology/wild-shelters/build.py`，同步可编辑 `.bbmodel`、静态网格、图集、选用快照及游戏资源。
 

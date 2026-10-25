@@ -19,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.EventHooks;
-import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
 import java.util.ArrayList;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -180,16 +179,25 @@ public final class SettlementDuties {
         if (!carrying.isEmpty()) { task = Task.DUMP; elapsed = 0; return true; }
         item = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8), waste -> waste.isAlive()
                 && waste.getItem().is(ModItems.WASTE.get()) && !waste.hasPickUpDelay() && workArea(waste.blockPosition())
+                && !GroupPits.inPit(level(), entity.settlement().group(), waste.blockPosition())
                 && waste.getPersistentData().getLong("YukkuriClearedUntil") <= level().getGameTime() && entity.hasLineOfSight(waste))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(waste -> entity.life().dryStand(waste.blockPosition()) && entity.life().reachable(waste.blockPosition(), false))
                 .findFirst().orElse(null);
-        if (item != null) { task = Task.PICKUP; elapsed = 0; return true; }
+        if (item != null) {
+            task = Task.PICKUP; elapsed = 0;
+            GameplayLog.event(entity, "settlement", "cleanup start source=ground waste={} at={} dump={} assigner={}", item.getId(), item.blockPosition(), destination, assigner.getUUID());
+            return true;
+        }
         for (var pos : BlockPos.betweenClosed(workCenter.offset(-6,-2,-6), workCenter.offset(6,2,6))) {
             if (!workArea(pos) || entity.distanceToSqr(Vec3.atCenterOf(pos)) > 12 * 12) continue;
             if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) {
                 var stand = standBeside(pos);
-                if (stand != null) { toilet = pos.immutable(); task = Task.TOILET; elapsed = 0; return true; }
+                if (stand != null) {
+                    toilet = pos.immutable(); task = Task.TOILET; elapsed = 0;
+                    GameplayLog.event(entity, "settlement", "cleanup start source=toilet at={} dump={} assigner={}", toilet, destination, assigner.getUUID());
+                    return true;
+                }
             }
         }
         return false;
@@ -197,11 +205,10 @@ public final class SettlementDuties {
     private BlockPos dumpSite() {
         // Outside the six-block cleaning area; bounded local dry paths only, never a teleport.
         // An independent resident may live here while currently roaming outside the work radius.
-        // A planned site has one latrine ground at its downwind edge: everything is carried there.
-        var site = SiteLife.of(level(), entity.settlement().group());
-        if (site != null) for (var slot : site.slots(SiteSlot.Kind.LATRINE)) {
-            var front = slot.anchor().relative(slot.facing());
-            if (local(front) && entity.life().dryStand(front) && entity.life().reachable(front, false)) return front;
+        // A community with a waste pit has everything carried there, into the dip itself.
+        for (var cell : GroupPits.cells(level(), entity.settlement().group())) {
+            if (!local(cell) || !entity.life().dryStand(cell)) continue;
+            if (cell.distSqr(entity.blockPosition()) > GroupPits.NEAR * GroupPits.NEAR || entity.life().reachable(cell, false)) return cell;
         }
         var homes = new ArrayList<BlockPos>();
         for (var loaded : level().getAllEntities()) if (loaded instanceof YukkuriEntity resident && resident.isAlive()) {
@@ -259,7 +266,12 @@ public final class SettlementDuties {
                 carrying = care.takeWaste(); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0;
             }
         } else if (task == Task.DUMP && approach(destination)) {
-            if (dropCarrying()) { entity.life().personality().decided("settlement_cleaned"); stop(); }
+            if (dropCarrying()) {
+                entity.life().personality().decided("settlement_cleaned");
+                GameplayLog.event(entity, "settlement", "cleanup done dumped_at={} pit={}", entity.blockPosition(),
+                        GroupPits.inPit(level(), entity.settlement().group(), entity.blockPosition()));
+                stop();
+            }
         }
     }
     private boolean clearContact(BlockPos pos) {
@@ -270,7 +282,7 @@ public final class SettlementDuties {
     private boolean approach(BlockPos pos) {
         if (!local(pos) || !entity.life().dryStand(pos)) { stop(); return false; }
         if (entity.distanceToSqr(Vec3.atBottomCenterOf(pos)) < .64) { entity.getNavigation().stop(); return true; }
-        if (elapsed % 20 == 1 && !entity.life().navigate(pos, 1, false)) stop();
+        if (elapsed % 20 == 1 && !entity.life().travel(pos, 1)) stop();
         return false;
     }
     public boolean dropCarrying() {

@@ -117,6 +117,13 @@ def main():
     fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
     subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {'pet-goods/fit.png', 'pet-goods/lineup.png', 'wild-nests/fit.png'}
+    # wild settlement sites: built offline by the mod's own planner and builder (settlement_site_preview.py, needs the local JDK);
+    # rerun only when the site code or the preview harness changed since the images were made
+    import settlement_site_preview as sites
+    stamp = OUT / 'wild-settlements/source.sha256'
+    if not stamp.is_file() or stamp.read_text(encoding='utf-8') != sites.source_digest():
+        subprocess.run([sys.executable, str(ROOT / 'scripts/settlement_site_preview.py'), '--seeds', '1'], check=True, cwd=ROOT)
+    current_media |= {f'wild-settlements/{name}.png' for name in sites.HUB_MEDIA}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),

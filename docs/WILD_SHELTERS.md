@@ -4,7 +4,7 @@
 
 代码：`settlement/`（`NaturalShelter`、`ShelterGeometry`、`ShelterPlacement`、`ShelterBlock`、`ShelterBlockEntity`、`Homes`、`PlantBedding`、`ForageGoal`），家庭与睡眠接入见 `family/`、`life/`
 
-规划聚落场地由世界生成或管理员命令布置土丘巢、粮仓洞与广场；其几何满足 `NaturalShelter` 勘测，居民不建造这些结构，只会在软土里挖小穴。粮仓洞、广场和育幼角属于保留区，不会被认作住所，详见[聚落场地](SETTLEMENTS.md#聚落场地丘陵穴居群)。
+规划聚落场地由世界生成或管理员命令在坡脚布置挖进山坡的家洞、粮仓洞、空地与嗯嗯坑；其几何满足 `NaturalShelter` 勘测，居民不建造这些结构，只会在软土里挖小穴。粮仓洞、广场、育幼角和嗯嗯坑属于保留区，不会被认作住所，详见[聚落场地](SETTLEMENTS.md#聚落场地山脚穴居群)。
 
 ## 家是被识别的区域
 

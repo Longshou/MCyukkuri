@@ -194,17 +194,32 @@ BIOMES = BY_ID['biomes']
 
 def settlement(plot, title, kind, wait):
     from museum_fields import BIOME_PLOTS
-    biome = next(p[1] for p in BIOME_PLOTS if p[0] == plot)
-    # A plains village reaches four blocks into the snow plot next door: its whole footprint becomes plains ground first.
-    ground = BIOMES.plains_site(*BIOMES.spots[plot]) if plot == 'plains' else [f'fillbiome ~-22 56 ~-22 ~22 100 ~22 {biome}']
-    add(f'settle_{plot}', 'biomes', f'{title}聚落', title, f'{title}群系里自然生成的{"村落" if kind == "village" else "营地"}：成员、住所、仓堆随群系特色而不同', wait,
-        [*ground, f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
-        vantage=(0, 26), retry=f'先“清空本场地”再按一次')
+    entry = next(p for p in BIOME_PLOTS if p[0] == plot)
+    # A plains village reaches into the plots next door: its whole footprint becomes plains ground first.
+    ground = BIOMES.plains_site(*BIOMES.spots[plot]) if plot == 'plains' else [f'fillbiome ~-22 56 ~-22 ~22 100 ~22 {entry[1]}']
+    where = ('洞穴挖进北侧山坡：洞口朝南对着空地，洞顶是山坡本身的土石' if entry[6]
+             else '该群系不自然生成聚落（群系适居裁定），此处用管理员命令放在平地上，只用来看寒冷／炎热季节生活，洞岸由土堆补起'
+             if plot in ('snow', 'desert') else '平地上没有山坡，洞口两侧和洞顶由土堆补起（对照）')
+    add(f'settle_{plot}', 'biomes', f'{title}聚落', title,
+        f'{title}的{"村落" if kind == "village" else "小群"}：{where}；南边低处有一处浅浅的嗯嗯坑（裸土凹地，无厕所方块）。成员、住所、仓堆随群系特色而不同',
+        wait, [*ground, f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
+        vantage=(0, 26), retry='先“清空本场地”再按一次',
+        reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读场地勘测', 'yukkuri settlement site check')])
 
 
-for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原', 'village'), ('snow', '雪原', 'band'), ('taiga', '针叶林', 'band'),
-                             ('swamp', '沼泽', 'band'), ('savanna', '热带草原', 'band'), ('desert', '沙漠', 'band'), ('badlands', '恶地', 'band')):
+for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原', 'village'), ('taiga', '针叶林', 'band'), ('cherry', '樱花林', 'band'),
+                             ('hills', '风袭丘陵', 'band'), ('savanna', '热带草原', 'band'), ('snow', '雪原', 'band'), ('desert', '沙漠', 'band')):
     settlement(_plot, _title, _kind, '数分钟（可倍速）')
+
+# The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
+_PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'
+add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
+    '森林山脚的小群入住约 10 秒后，全员便意升到 80：看它们各自从洞里走到南边低处的嗯嗯坑，站进凹地里排泄，排泄物真实落在坑里；'
+    '不在洞口或空地上排。读数看坑的位置；日志 [needs] toilet pit trip start → relieved source=pit',
+    '约 1–2 分钟', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 80', _PIT_ADULTS, tries=1, first=200)],
+    reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')])
 
 # ====================================================================================================== daily life meadow
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [

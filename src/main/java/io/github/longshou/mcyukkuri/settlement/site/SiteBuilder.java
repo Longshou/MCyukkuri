@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -60,7 +61,7 @@ public final class SiteBuilder {
         return true;
     }
 
-    /** The reason a freshly built site would not work, or null: survey every dwelling and walk plaza to every door. */
+    /** The reason a freshly built site would not work, or null: survey every dwelling and walk plaza to every door and the pit. */
     public static String validate(ServerLevel level, SitePlan plan) {
         for (var slot : plan.slots()) {
             if (!slot.dwelling()) continue;
@@ -88,6 +89,8 @@ public final class SiteBuilder {
             var door = slot.kind() == SiteSlot.Kind.GRANARY ? slot.anchor() : slot.door();
             if (!seen.contains(door)) return slot.kind() + " door " + door.toShortString() + " cannot be reached from the plaza";
         }
+        var pit = plan.slots().stream().filter(s -> s.kind() == SiteSlot.Kind.PIT).toList();
+        if (!pit.isEmpty() && pit.stream().noneMatch(s -> seen.contains(s.anchor()))) return "the waste pit cannot be reached from the plaza";
         return null;
     }
     private static boolean walkable(ServerLevel level, BlockPos pos) {
@@ -127,11 +130,25 @@ public final class SiteBuilder {
         public GridTerrain(int x0, int z0, int step, int nx, int nz, int[] heights) {
             this.x0 = x0; this.z0 = z0; this.step = step; this.nx = nx; this.nz = nz; this.heights = heights;
         }
+        /** Bilinear between the four surrounding samples: on a slope the nearest sample alone would misplace a door by blocks. */
         @Override public int at(int x, int z) {
-            int ix = Math.max(0, Math.min(nx - 1, Math.floorDiv(x - x0 + step / 2, step)));
-            int iz = Math.max(0, Math.min(nz - 1, Math.floorDiv(z - z0 + step / 2, step)));
-            return heights[iz * nx + ix];
+            if (nx < 2 || nz < 2) {
+                int ix = Math.max(0, Math.min(nx - 1, Math.floorDiv(x - x0 + step / 2, step)));
+                int iz = Math.max(0, Math.min(nz - 1, Math.floorDiv(z - z0 + step / 2, step)));
+                return heights[iz * nx + ix];
+            }
+            double gx = (x - x0) / (double)step, gz = (z - z0) / (double)step;
+            int ix = Math.max(0, Math.min(nx - 2, (int)Math.floor(gx))), iz = Math.max(0, Math.min(nz - 2, (int)Math.floor(gz)));
+            double tx = Math.max(0, Math.min(1, gx - ix)), tz = Math.max(0, Math.min(1, gz - iz));
+            double north = heights[iz * nx + ix] * (1 - tx) + heights[iz * nx + ix + 1] * tx;
+            double south = heights[(iz + 1) * nx + ix] * (1 - tx) + heights[(iz + 1) * nx + ix + 1] * tx;
+            return (int)Math.floor(north * (1 - tz) + south * tz + .5);
         }
+    }
+
+    /** Ground that counts as a burrow bank ({@code NaturalShelter.earth} without the sturdiness test). */
+    static boolean earthy(BlockState state) {
+        return state.is(BlockTags.DIRT) || state.is(BlockTags.BASE_STONE_OVERWORLD) || state.is(BlockTags.LOGS) || state.is(Blocks.MOSS_BLOCK);
     }
 
     // ---- the builder proper
@@ -140,7 +157,7 @@ public final class SiteBuilder {
         final SiteProfile pf;
         final Map<Long, BlockState> blocks = new LinkedHashMap<>();
         final Map<Long, Integer> heights = new HashMap<>();
-        /** Standing level of every column a part levelled (footprints and their eased rim); other columns keep the natural ground. */
+        /** Standing level of every column a part levelled (its flattened cells and their eased rim); other columns keep the natural ground. */
         final Map<Long, Integer> standing = new HashMap<>();
         /** The level of the part being built: every part is placed on its own ground, there is no site-wide platform. */
         int G;
@@ -166,13 +183,13 @@ public final class SiteBuilder {
         }
 
         void run() {
-            // Each part is levelled on its own footprint only, at the height of the ground it stands on; the one-block rim around it
-            // is eased towards the natural ground so nothing sits on a platform.
+            // Each part flattens only what it needs, at the height of the ground it stands on; the one-block rim around that
+            // is eased towards the natural ground so nothing sits on a platform. Burrows are dug into the bank, not cut out of it.
             for (int i = 0; i < plan.parts.size(); i++) {
                 if (!plan.used(i)) continue;
                 var part = plan.parts.get(i);
                 G = plan.levelAt(i);
-                var footprint = SiteGeom.cells(part);
+                var footprint = levelled(part, i);
                 for (long key : footprint) {
                     int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
                     if (!inClip(x, z)) continue;
@@ -193,17 +210,35 @@ public final class SiteBuilder {
                 var part = plan.parts.get(i);
                 G = plan.levelAt(i);
                 switch (part.kind()) {
-                    case HOME, HALL, GRANARY -> mound(part);
+                    case HOME, HALL, GRANARY -> burrow(part);
                     case PLAZA -> plaza(part);
                     case POOL -> pool(part);
-                    case LATRINE -> latrine(part);
+                    case PIT -> pit(part);
                     case NURSERY -> nursery(part);
-                    case KNOLL -> knoll(part);
+                    case KNOLL -> knoll(part, plan.naturalRise(i));
                 }
             }
             paths();
             works();
             meadow();
+        }
+
+        /**
+         * The columns a part flattens to its own level. A burrow flattens only the trodden ground in front of its mouth (the
+         * bank itself is dug into, never cut down); a pit only its rim; a lookout on a real rise only its top.
+         */
+        Set<Long> levelled(Part part, int index) {
+            return switch (part.kind()) {
+                case HOME, HALL, GRANARY -> SiteGeom.lane(part);
+                case PIT -> SiteGeom.pitRim(part);
+                case KNOLL -> {
+                    if (!plan.naturalRise(index)) yield SiteGeom.cells(part);
+                    var top = new HashSet<Long>();
+                    for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) top.add(SiteGeom.key(part.x() + dx, part.z() + dz));
+                    yield top;
+                }
+                default -> SiteGeom.cells(part);
+            };
         }
 
         /** Cut or fill one column so its top block (at target - 1) is {@code top}; everything above is cleared of growth. */
@@ -222,7 +257,7 @@ public final class SiteBuilder {
         }
 
         BlockState leaves() { return pf.leaf.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true); }
-        /** The turf over a mound: grass, or bare earth in arid country (a roof must be earth, never sand). */
+        /** The turf over a heaped bank: grass, or bare earth in arid country (a roof must be earth, never sand). */
         BlockState turf() { return (pf.arid() ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState(); }
         BlockState wallBlock(double h) { return pf.walls[Math.min(pf.walls.length - 1, (int)(h * pf.walls.length))].defaultBlockState(); }
         BlockState flora(double h) {
@@ -235,46 +270,65 @@ public final class SiteBuilder {
         void cap(int x, int z, int top) {
             if (pf.snowy() && get(x, top, z).isAir()) set(x, top, z, Blocks.SNOW.defaultBlockState());
         }
+        /** Free air standing on solid ground, inside the clip. */
+        boolean open(int x, int y, int z) { return inClip(x, z) && get(x, y, z).isAir() && get(x, y - 1, z).blocksMotion(); }
+        /** Plug any water or lava next to a dug cell with soil, so opening the bank never lets a spring into a burrow. */
+        void seal(int x, int y, int z) {
+            for (var side : new int[][]{{1, 0, 0}, {-1, 0, 0}, {0, 0, 1}, {0, 0, -1}, {0, 1, 0}}) {
+                int sx = x + side[0], sy = y + side[1], sz = z + side[2];
+                if (!get(sx, sy, sz).getFluidState().isEmpty()) set(sx, sy, sz, pf.walls[0].defaultBlockState());
+            }
+        }
 
-        // ---- burrow mounds: low hills with a hollow in them (geometry keeps NaturalShelter.survey true)
-        void mound(Part p) {
+        // ---- burrows: holes dug into the bank of the slope; where the slope is too low for that, the bank is heaped up over
+        // them. The geometry keeps NaturalShelter.survey true: the mouth open to the sky, the cavity roofed with earth and
+        // earth on both sides of it.
+        void burrow(Part p) {
             int[] d = SiteGeom.dims(p);
             int halfW = d[0], depth = d[1], cavHalf = d[2], cavDepth = d[3];
             boolean granary = p.kind() == SiteGeom.Kind.GRANARY, hall = p.kind() == SiteGeom.Kind.HALL;
             for (int u = -halfW; u <= halfW; u++) for (int w = 0; w <= depth; w++) {
                 int x = SiteGeom.fx(p, u, w), z = SiteGeom.fz(p, u, w);
                 if (!inClip(x, z)) continue;
+                int n = nat(x, z);
                 double h = hash(x, z, 11);
                 boolean door = w == 0 && u == 0, cavity = Math.abs(u) <= cavHalf && w >= 1 && w <= cavDepth;
                 boolean corner = Math.abs(u) == halfW && (w == 0 || w == depth);
+                // The slope covers this column above the roof line: it is dug into, nothing is heaped on it.
+                boolean buried = n >= G + 3;
                 if (door) {
-                    // the mouth: open to the sky, a little worn
+                    // the mouth: a notch in the bank face, open to the sky, a little worn
                     set(x, G - 1, z, (h < .5 ? Blocks.COARSE_DIRT : Blocks.GRAVEL).defaultBlockState());
-                    for (int y = 0; y < 3; y++) set(x, G + y, z, AIR);
+                    for (int y = 0; y <= 3; y++) { set(x, G + y, z, AIR); if (y < 2) seal(x, G + y, z); }
                     continue;
                 }
                 if (cavity) {
                     set(x, G - 1, z, pf.floor.defaultBlockState());
                     set(x, G, z, AIR); set(x, G + 1, z, AIR);
-                    set(x, G + 2, z, turf());
-                    cap(x, z, G + 3);
+                    seal(x, G, z); seal(x, G + 1, z);
+                    // under the slope the bank itself is the roof; only loose or foreign stuff in it is replaced with soil
+                    if (buried) { if (!earthy(get(x, G + 2, z))) set(x, G + 2, z, wallBlock(hash(x, z, 18))); }
+                    else { set(x, G + 2, z, turf()); cap(x, z, G + 3); }
                 } else {
-                    // the flank: a lumpy skirt, not a wall; some edge columns stay a block lower and the corners are rounded off
-                    boolean rim = Math.abs(u) == halfW || w == depth || w == 0;
-                    set(x, G - 1, z, wallBlock(h));
-                    set(x, G, z, wallBlock(hash(x, z, 12))); set(x, G + 1, z, wallBlock(hash(x, z, 13)));
-                    int top = G + 1;
-                    if (!corner && !(rim && hash(x, z, 14) < .35)) {
-                        set(x, G + 2, z, Math.abs(u) == halfW && hash(x, z, 14) < .3 ? leaves() : turf());
-                        top = G + 2;
-                    } else {
-                        set(x, G + 2, z, AIR);
-                        if (!corner) set(x, G + 1, z, turf());
+                    // the flank: the bank's own earth from floor to roof line; where the slope does not reach, a lumpy skirt
+                    for (int y = G - 1; y <= G + 1; y++)
+                        if (y >= n || !earthy(get(x, y, z))) set(x, y, z, wallBlock(hash(x, z, 12 + y - G)));
+                    if (!buried) {
+                        // some edge columns stay a block lower and the corners are rounded off
+                        boolean rim = Math.abs(u) == halfW || w == depth || w == 0;
+                        int top = G + 1;
+                        if (!corner && !(rim && hash(x, z, 14) < .35)) {
+                            set(x, G + 2, z, Math.abs(u) == halfW && hash(x, z, 14) < .3 ? leaves() : turf());
+                            top = G + 2;
+                        } else {
+                            if (n <= G + 2) set(x, G + 2, z, AIR);
+                            if (!corner) set(x, G + 1, z, turf());
+                        }
+                        cap(x, z, top + 1);
                     }
-                    cap(x, z, top + 1);
                 }
-                // the rounded back of the mound
-                boolean crown = Math.abs(u) <= cavHalf && w >= 1 && w <= depth - 1;
+                // the rounded back of a heaped bank, only where the slope leaves the roof bare
+                boolean crown = n <= G + 2 && Math.abs(u) <= cavHalf && w >= 1 && w <= depth - 1;
                 if (crown) {
                     set(x, G + 3, z, granary && hash(x, z, 15) < .6 ? leaves() : (hash(x, z, 16) < .5 ? wallBlock(hash(x, z, 18)) : pf.floor.defaultBlockState()));
                     boolean top = !granary && (hall ? Math.abs(u) <= 1 && w == 2 : u == 0 && w == 2);
@@ -282,16 +336,18 @@ public final class SiteBuilder {
                     cap(x, z, top ? G + 5 : G + 4);
                 }
             }
-            // a root-log lying in the flank and a half-buried stone at the mouth: both stay low and are not part of any wall
+            // a root-log lying against the flank and a half-buried stone at the mouth: only on open ground, never in a wall
             if ((p.a() & 2) != 0 && !granary) {
                 int side = (p.a() & 4) != 0 ? 1 : -1;
-                set(SiteGeom.fx(p, side * (halfW + 1), 2), G, SiteGeom.fz(p, side * (halfW + 1), 2), log(p.facing().getAxis()));
+                int x = SiteGeom.fx(p, side * (halfW + 1), 2), z = SiteGeom.fz(p, side * (halfW + 1), 2);
+                if (open(x, G, z)) set(x, G, z, log(p.facing().getAxis()));
             }
             if ((p.a() & 1) != 0) {
                 int side = (p.a() & 8) != 0 ? 1 : -1;
-                set(SiteGeom.fx(p, side * 2, -1), G, SiteGeom.fz(p, side * 2, -1), rock());
+                int x = SiteGeom.fx(p, side * 2, -1), z = SiteGeom.fz(p, side * 2, -1);
+                if (open(x, G, z)) set(x, G, z, rock());
             }
-            // the trodden approach: three cells, ragged
+            // the trodden approach: three cells, ragged (the spoil of the digging, pushed out and walked flat)
             for (int k = 1; k <= 3; k++) for (int u = -1; u <= 1; u++) {
                 int x = SiteGeom.fx(p, u, -k), z = SiteGeom.fz(p, u, -k);
                 if (!inClip(x, z)) continue;
@@ -316,7 +372,7 @@ public final class SiteBuilder {
                 double h = hash(x, z, 21);
                 BlockState top;
                 if (Math.abs(dx) <= 1 && Math.abs(dz) <= 1) top = (h < .55 ? Blocks.COARSE_DIRT : Blocks.DIRT_PATH).defaultBlockState();
-                else top = (h < .45 ? Blocks.COARSE_DIRT : h < .62 ? Blocks.PODZOL : h < .8 ? Blocks.DIRT_PATH : Blocks.GRASS_BLOCK).defaultBlockState();
+                else top = (h < .45 ? Blocks.COARSE_DIRT : h < .62 ? (pf.dry() ? Blocks.COARSE_DIRT : Blocks.PODZOL) : h < .8 ? Blocks.DIRT_PATH : Blocks.GRASS_BLOCK).defaultBlockState();
                 if (pf.arid()) top = Blocks.COARSE_DIRT.defaultBlockState();
                 set(x, G - 1, z, top);
                 set(x, G, z, AIR);
@@ -349,22 +405,29 @@ public final class SiteBuilder {
             }
         }
 
-        /** A patch of bare ground with the toilet blocks on it; a few clumps of brush stand about, but nothing encloses it. */
-        void latrine(Part p) {
-            int b = p.b(), depth = SiteGeom.latrineDepth(p);
-            for (int u = -b; u <= b; u++) for (int w = 0; w <= depth; w++) {
-                int x = SiteGeom.fx(p, u, w), z = SiteGeom.fz(p, u, w);
+        /**
+         * The waste pit: a shallow scraped hollow one block below its rim, bare earth only. Nothing is built in or around it;
+         * a few weeds grow on the trodden rim.
+         */
+        void pit(Part p) {
+            for (var cell : SiteGeom.pitDip(p)) {
+                int x = (int)cell[0], z = (int)cell[1];
                 if (!inClip(x, z)) continue;
+                int n = nat(x, z);
                 double h = hash(x, z, 41);
-                boolean edge = w == depth || Math.abs(u) == b;
-                set(x, G - 1, z, (h < .45 ? Blocks.PODZOL : h < .75 ? Blocks.COARSE_DIRT : Blocks.DIRT).defaultBlockState());
-                set(x, G, z, edge && hash(x, z, 42) < .3 ? (hash(x, z, 43) < .5 ? Blocks.FERN.defaultBlockState() : Blocks.DEAD_BUSH.defaultBlockState()) : AIR);
-                set(x, G + 1, z, AIR);
+                for (int y = G - 1; y < Math.max(n, G + 1); y++) set(x, y, z, AIR);
+                for (int y = n; y < G - 2; y++) set(x, y, z, pf.walls[0].defaultBlockState());
+                set(x, G - 2, z, (pf.dry() ? (h < .6 ? Blocks.COARSE_DIRT : Blocks.DIRT)
+                        : h < .4 ? Blocks.PODZOL : h < .75 ? Blocks.COARSE_DIRT : Blocks.DIRT).defaultBlockState());
+                seal(x, G - 1, z);
             }
-            var toilet = ModBlocks.WILD_LATRINE.get().defaultBlockState();
-            set(SiteGeom.fx(p, -1, 1), G, SiteGeom.fz(p, -1, 1), toilet);
-            set(SiteGeom.fx(p, 1, 1), G, SiteGeom.fz(p, 1, 1), toilet);
-            if (p.a() > 0 && depth == 3) set(SiteGeom.fx(p, 0, 2), G, SiteGeom.fz(p, 0, 2), toilet);
+            for (long key : SiteGeom.pitRim(p)) {
+                int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
+                if (!inClip(x, z)) continue;
+                double h = hash(x, z, 42), g = hash(x, z, 43);
+                set(x, G - 1, z, (h < .5 || pf.dry() ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState());
+                set(x, G, z, g < .22 ? (pf.dry() ? Blocks.DEAD_BUSH : g < .11 ? Blocks.FERN : Blocks.SHORT_GRASS).defaultBlockState() : AIR);
+            }
         }
 
         void nursery(Part p) {
@@ -381,7 +444,18 @@ public final class SiteBuilder {
             set(p.x() + p.a(), G, p.z() - p.b(), rock());
         }
 
-        void knoll(Part p) {
+        /** The lookout: on a real rise only its top is trodden bare, with a stump to sit by; on flat ground a low knoll of earth. */
+        void knoll(Part p, boolean rise) {
+            if (rise) {
+                for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+                    int x = p.x() + dx, z = p.z() + dz;
+                    if (!inClip(x, z)) continue;
+                    set(x, G - 1, z, (hash(x, z, 61) < .5 ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState());
+                    set(x, G, z, AIR);
+                }
+                set(p.x(), G, p.z(), pf.log.defaultBlockState());
+                return;
+            }
             double r = p.a() / 10.0, r2 = r * .5 + .2;
             for (long key : SiteGeom.cells(p)) {
                 int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
@@ -408,7 +482,7 @@ public final class SiteBuilder {
                 var ground = get(x, y - 1, z);
                 if (!ground.is(BlockTags.DIRT)) continue;
                 byte code = entry.getValue();
-                set(x, y - 1, z, (code == 1 ? Blocks.DIRT_PATH : code == 2 ? Blocks.PODZOL : Blocks.COARSE_DIRT).defaultBlockState());
+                set(x, y - 1, z, (code == 1 ? Blocks.DIRT_PATH : code == 2 && !pf.dry() ? Blocks.PODZOL : Blocks.COARSE_DIRT).defaultBlockState());
                 var above = get(x, y, z);
                 if (!above.isAir() && above.canBeReplaced()) set(x, y, z, AIR);
             }

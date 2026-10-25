@@ -6,20 +6,15 @@
     "minecraft:birch_forest",
     "minecraft:old_growth_birch_forest",
     "minecraft:dark_forest",
-    "minecraft:meadow",
-    "minecraft:plains",
-    "minecraft:sunflower_plains",
-    "minecraft:cherry_grove",
     "minecraft:taiga",
-    "minecraft:snowy_taiga",
     "minecraft:old_growth_pine_taiga",
     "minecraft:old_growth_spruce_taiga",
-    "minecraft:snowy_plains",
-    "minecraft:grove",
-    "minecraft:savanna",
-    "minecraft:windswept_hills",
+    "minecraft:meadow",
+    "minecraft:cherry_grove",
     "minecraft:windswept_forest",
-    "minecraft:swamp",
-    "minecraft:mangrove_swamp"
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:windswept_hills",
+    "minecraft:savanna"
   ]
 }

@@ -218,7 +218,6 @@ public final class SettlementSpawner {
         }
         if(site!=null)SiteLife.found(level,site,group,members.size());
         else if (waterCommons != null) initializeWaterCommons(level, group, members.size());
-        else for(int i=0;i<homes.size();i+=2)ShelterPlacement.latrine(level,homes.get(i).shelter());
         return List.copyOf(members);
     }
     /** A water group's public store is a normal forage pile on an actual dry bank, seeded only at colony creation. */

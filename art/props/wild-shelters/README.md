@@ -9,8 +9,7 @@
 | `bedding_bundle` | `assets/mcyukkuri/yukkuri_props/bedding_bundle.json` | 施工中放在睡位上的一份垫料：叼来的一小撮松散干草，夹着一片叶，草茎四散 |
 | `nest_boundary` | `assets/mcyukkuri/yukkuri_props/nest_boundary.json` | 洞口至多三根细枝，靠向现有侧壁，无承重或防御碰撞 |
 | `cardboard_shelter` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter.json` | 开口、折盖、胶带、标签与箱内底面；使用共用色板的纸板明暗阶，保留折盖接缝与折痕 |
-| `wild_latrine` / `wild_latrine_dirty` | `assets/mcyukkuri/yukkuri_props/<ID>.json` | 围枝浅土面，脏污切换；R4 只并入共用色板 |
 
-以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 按实际住户的睡位组合共巢外缘，并在个人巢的原睡位显示小叶巢；`CareRenderer` 负责便所。物品缩略模型复用相同导出。
+以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 按实际住户的睡位组合共巢外缘，并在个人巢的原睡位显示小叶巢。野外没有便所模型，聚落的嗯嗯坑只是地形浅坑（见[聚落场地](../../../docs/SETTLEMENTS.md#聚落场地山脚穴居群)）。物品缩略模型复用相同导出。
 
 重建通过制作包的 `build.py` 同步，禁止只改本目录或打包资源。指纹见 `manifest.json`；玩法规则见[生活环境说明](../../../docs/WILD_SHELTERS.md)。

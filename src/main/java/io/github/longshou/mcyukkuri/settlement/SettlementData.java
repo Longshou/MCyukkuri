@@ -52,6 +52,8 @@ public final class SettlementData extends SavedData {
         public UUID siteId;
         /** Bank-side real forage pile serving an afloat community; null for land communities and planned granaries. */
         public BlockPos waterCommons;
+        /** Standing cell of the waste pit a natural-cave community chose (GroupPits); planned sites use their own pit. */
+        public BlockPos pit;
         public UUID leader;
         /** A forest group only elects after a real incumbent's death/removal. */
         public boolean hasLeaderOffice, vacancyConfirmed;
@@ -254,7 +256,7 @@ public final class SettlementData extends SavedData {
         return site;
     }
     public void removeSite(UUID id) { if (sites.remove(id) != null) { cachedSites = null;setDirty(); } }
-    /** True for columns of granary hollows, plazas and nurseries: ordinary shelter hunting must never claim these. */
+    /** True for columns of granary hollows, plazas, nurseries and waste pits: ordinary shelter hunting must never claim these. */
     public boolean reserved(BlockPos pos) {
         for (Site site : sites.values()) {
             int bound = site.tier.bound;
@@ -437,6 +439,7 @@ public final class SettlementData extends SavedData {
             value.putLong("Center", group.center.asLong());
             if (group.siteId != null) value.putUUID("Site", group.siteId);
             if (group.waterCommons != null) value.putLong("WaterCommons", group.waterCommons.asLong());
+            if (group.pit != null) value.putLong("Pit", group.pit.asLong());
             if (group.migrateWater != null) value.putLong("MigrateWater", group.migrateWater.asLong());
             if (group.leader != null) value.putUUID("Leader", group.leader);
             value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
@@ -530,6 +533,7 @@ public final class SettlementData extends SavedData {
                 group.commons.retainWith(data::retain);data.retain(group.leader);
                 if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
                 if (value.contains("WaterCommons", Tag.TAG_LONG)) group.waterCommons = BlockPos.of(value.getLong("WaterCommons"));
+                if (value.contains("Pit", Tag.TAG_LONG)) group.pit = BlockPos.of(value.getLong("Pit"));
                 if (value.contains("MigrateWater", Tag.TAG_LONG)) group.migrateWater = BlockPos.of(value.getLong("MigrateWater"));
                 loadOffice(value, group);
                 data.loadMembers(value, group);

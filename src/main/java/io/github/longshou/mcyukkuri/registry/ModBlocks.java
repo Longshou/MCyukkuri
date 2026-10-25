@@ -45,7 +45,6 @@ public final class ModBlocks {
             new CareBlock(CareBlock.Kind.NEST, BlockBehaviour.Properties.of().strength(.6f).sound(SoundType.ROOTS).noOcclusion(),
                     "predator_nest", 1, 2.4f));
     public static final DeferredBlock<CareBlock> TOILET = register("yukkuri_toilet", CareBlock.Kind.TOILET, SoundType.WOOD);
-    public static final DeferredBlock<CareBlock> WILD_LATRINE = register("wild_latrine",CareBlock.Kind.TOILET,SoundType.GRAVEL);
     public static final DeferredBlock<ShelterBlock> FOREST_BURROW=BLOCKS.register("forest_burrow",
             ()->new ShelterBlock(ShelterBlock.Kind.BURROW,BlockBehaviour.Properties.of().strength(.8f).sound(SoundType.ROOTS).noOcclusion()));
     public static final DeferredBlock<ShelterBlock> CARDBOARD_SHELTER=BLOCKS.register("cardboard_shelter",
@@ -71,7 +70,7 @@ public final class ModBlocks {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<SupplyPileBlockEntity>> HOUSE_SUPPLIES_ENTITY=BLOCK_ENTITIES.register("house_supplies",
             ()->BlockEntityType.Builder.of(SupplyPileBlockEntity::new,HOUSE_SUPPLIES.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",
-            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get(),WILD_LATRINE.get(),
+            () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get(),
                     Facilities.NEWSPAPER.get(),Facilities.SOIL.get(),Facilities.SANDPAPER.get(),
                     Facilities.CERAMIC_TOILET.get(),Facilities.COVERED_TOILET.get()).build(null));
 

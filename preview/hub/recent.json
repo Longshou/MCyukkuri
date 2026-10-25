@@ -2,6 +2,48 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "wild-settlements",
+      "label": "野外山脚聚落",
+      "title": "山脚穴居聚落与嗯嗯坑（各适居群系）",
+      "tag": "新玩法·待试玩",
+      "summary": "自然生成的聚落只落在坡脚：空地平整，家洞、长屋和粮仓洞朝下坡挖进现成山坡（坡不够高处只补土成岸），南边低处是一处浅浅的裸土嗯嗯坑，有水的群系才有浅塘。图由模组自己的规划器与建造器离线建出，并逐洞复核洞穴勘测与可达。",
+      "model": "reimu",
+      "points": [
+        "只有适居群系生成：森林、桦木林、黑森林、繁花森林、针叶林、草甸、樱花林；平原、风袭丘陵、热带草原只在近林近河处，裁定见 docs/SETTLEMENTS.md。",
+        "嗯嗯坑不是方块：一格深的裸土凹地，成员走进坑里排泄，排泄物真实落地；嗯嗯奴隶把住处附近的排泄物搬进坑里。",
+        "陡岩坡只容得下小群；村落需要较缓、较宽的坡脚，上排家洞最多高出空地 8 格。",
+        "预览只看布局和外观，实际行为在试玩场“群系聚落”与“聚落嗯嗯坑”场景观察。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "wild-settlements/forest_village_hill.png",
+          "label": "森林村落：长屋与家洞沿坡脚挖进山坡，坑在南边低处"
+        },
+        {
+          "src": "wild-settlements/taiga_band_hill.png",
+          "label": "针叶林小群：更深的洞，灰化土与苔石"
+        },
+        {
+          "src": "wild-settlements/cherry_band_hill.png",
+          "label": "樱花林小群：粉瓣草地，樱木树桩"
+        },
+        {
+          "src": "wild-settlements/hills_band_rock.png",
+          "label": "风袭丘陵小群：洞挖进岩坡，无水塘"
+        },
+        {
+          "src": "wild-settlements/savanna_band_hill.png",
+          "label": "热带草原小群（仅近林近河）：粗土岸，无水塘"
+        },
+        {
+          "src": "wild-settlements/forest_band_flat.png",
+          "label": "对照：平地命令放置时由土岸补起洞顶"
+        }
+      ],
+      "source": "docs/SETTLEMENTS.md"
+    },
+    {
       "id": "pet-goods-styles",
       "label": "宠物用品款式",
       "title": "食盆、软垫窝、编织大窝与厕所：圆润造型与多款花样",

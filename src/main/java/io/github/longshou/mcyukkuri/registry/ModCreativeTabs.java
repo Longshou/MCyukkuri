@@ -42,7 +42,6 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.LARGE_NEST.get());output.accept(ModItems.LARGE_WILD_NEST.get());
                         output.accept(ModItems.TOILET.get());
                         output.accept(ModItems.CARDBOARD_SHELTER.get());
-                        output.accept(ModItems.WILD_LATRINE.get());
                         output.accept(ModItems.FORAGE_PILE.get());
                         output.accept(ModItems.WASH_CLOTH.get());
                         output.accept(ModItems.HOUSEHOLD_GUARD.get());

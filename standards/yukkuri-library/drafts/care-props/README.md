@@ -29,7 +29,7 @@
 | `preview_wild_nests.py` | 野生族当前运行网格的离线预览（不入库）：叶床单睡位与 L 形相连、2×2 野生大窝、个人小叶巢各阶段与叶束、储粮堆各档与特写、帽船三档与侧檐，配成体／子体对照；帽船部分沿用 `preview_cargo.py` 的占位与帽面校验。输出 `.local/previews/wild-nests/`（`MCYUKKURI_PREVIEWS` 可改根目录） |
 | `build.py` | 写入 `art/props/runtime-peripheral/selected/` 的快照（含 `placed.py` 的食盆、填充、软垫窝、沙厕、便堆，以及全部非默认款式：大窝、陶厕、带盖厕的款式也在这里，作为附属网格导出）；`--check` 只读 |
 
-`build.py` 之后执行 `scripts/export_peripheral_assets.py`。陶厕、带盖厕默认款（`placed.py`）、垫料、玩具色板由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种巢由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱、野外便所由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
+`build.py` 之后执行 `scripts/export_peripheral_assets.py`。陶厕、带盖厕默认款（`placed.py`）、垫料、玩具色板由 `drafts/care-expansion/build.py` 导出；超辣油粮与食糜由 `drafts/consumables/build.py`；捕食种巢由 `art/props/predators/build.py`；叶床、个人小叶巢、叶束（`wild.py`）及纸箱由 `ecology/wild-shelters/build.py` 导出，结界等其余件的输出指纹不变；2×2 编织大窝默认款与野生大窝由 `large_nests.py` 导出。
 
 被替换的原三档袋“标签位图”改动脚本 `art/props/runtime-peripheral/shop_goods_v2.py` 不再处理油粮袋。厨余盆 `food_bowl_garbage` 无任何代码引用，已删除。旧导出的 `nest_lining` 不由游戏代码使用，但仍被动作预览 `preview/hub/actions.json` 引用，保留不动。
 

@@ -84,12 +84,14 @@ public final class SitePlan {
                     for (int k = 0; k < Math.min(3, water.size()); k++)
                         out.add(new SiteSlot(SiteSlot.Kind.WATER, new BlockPos((int)water.get(k)[0], y - 2, (int)water.get(k)[1]), Direction.UP, 0));
                 }
-                case LATRINE -> {
-                    out.add(new SiteSlot(SiteSlot.Kind.LATRINE, new BlockPos(SiteGeom.fx(p, -1, 1), y, SiteGeom.fz(p, -1, 1)), p.facing(), 0));
-                    out.add(new SiteSlot(SiteSlot.Kind.LATRINE, new BlockPos(SiteGeom.fx(p, 1, 1), y, SiteGeom.fz(p, 1, 1)), p.facing(), 0));
-                    if (p.a() > 0) out.add(new SiteSlot(SiteSlot.Kind.LATRINE, new BlockPos(SiteGeom.fx(p, 0, 2), y, SiteGeom.fz(p, 0, 2)), p.facing(), 0));
+                case PIT -> {
+                    // The floor of the dip, one block below the ground around it; nearest the clearing first.
+                    var dip = new ArrayList<long[]>(SiteGeom.pitDip(p));
+                    dip.sort(Comparator.comparingDouble((long[] c) -> (c[0] - ox) * (double)(c[0] - ox)
+                            + (c[1] - oz) * (double)(c[1] - oz)).thenComparingLong(c -> c[0]).thenComparingLong(c -> c[1]));
+                    for (var cell : dip) out.add(new SiteSlot(SiteSlot.Kind.PIT, new BlockPos((int)cell[0], y - 1, (int)cell[1]), Direction.UP, 0));
                 }
-                case KNOLL -> out.add(new SiteSlot(SiteSlot.Kind.LOOKOUT, new BlockPos(p.x() + 1, y + 2, p.z()), Direction.UP, 0));
+                case KNOLL -> out.add(new SiteSlot(SiteSlot.Kind.LOOKOUT, new BlockPos(p.x() + 1, naturalRise(i) ? y : y + 2, p.z()), Direction.UP, 0));
                 case NURSERY -> out.add(new SiteSlot(SiteSlot.Kind.NURSERY, new BlockPos(p.x(), y, p.z()), Direction.UP, 0));
             }
         }
@@ -97,13 +99,16 @@ public final class SitePlan {
         return slots;
     }
 
-    /** Columns that ordinary shelter hunting must never claim: granary hollows, the plaza and the nursery. {minX,minZ,maxX,maxZ}. */
+    /** True when a knoll part stands on a real rise above the clearing: its top is only tidied, nothing is heaped on it. */
+    public boolean naturalRise(int index) { return parts.get(index).kind() == Kind.KNOLL && levels[index] >= level + 3; }
+
+    /** Columns that ordinary shelter hunting must never claim: granary hollows, the plaza, the nursery and the waste pit. {minX,minZ,maxX,maxZ}. */
     public synchronized List<int[]> reserved() {
         if (reserved != null) return reserved;
         var out = new ArrayList<int[]>();
         for (int i = 0; i < parts.size(); i++) {
             var p = parts.get(i);
-            if (levels[i] != SiteGeom.SKIP && (p.kind() == Kind.GRANARY || p.kind() == Kind.PLAZA || p.kind() == Kind.NURSERY)) out.add(SiteGeom.bounds(SiteGeom.cells(p)));
+            if (levels[i] != SiteGeom.SKIP && (p.kind() == Kind.GRANARY || p.kind() == Kind.PLAZA || p.kind() == Kind.NURSERY || p.kind() == Kind.PIT)) out.add(SiteGeom.bounds(SiteGeom.cells(p)));
         }
         reserved = List.copyOf(out);
         return reserved;

@@ -101,9 +101,10 @@ public final class SiteLife {
         for (var slot : site.slots(SiteSlot.Kind.WATER)) if (best == null || slot.anchor().distSqr(from) < best.distSqr(from)) best = slot.anchor();
         return best;
     }
-    public static List<BlockPos> latrines(Site site) {
+    /** The standing cells in the floor of the site's waste pit, nearest the clearing first. */
+    public static List<BlockPos> pit(Site site) {
         var out = new ArrayList<BlockPos>();
-        for (var slot : site.slots(SiteSlot.Kind.LATRINE)) out.add(slot.anchor());
+        for (var slot : site.slots(SiteSlot.Kind.PIT)) out.add(slot.anchor());
         return out;
     }
     /** The granary pile nearest to {@code from} (loaded, within 64 blocks) that satisfies {@code ok}. */
@@ -280,7 +281,8 @@ public final class SiteLife {
         for (var slot : layout.slots()) {
             if (!slot.dwelling() && slot.kind() != SiteSlot.Kind.GRANARY) continue;
             var door = slot.kind() == SiteSlot.Kind.GRANARY ? slot.anchor() : slot.door();
-            for (int k = 0; k <= 3; k++) for (int side = k == 0 ? 0 : -1; side <= (k == 0 ? 0 : 1); side++) for (int y = 0; y <= 2; y++) {
+            // The mouth itself must stay open three blocks up, or the burrow survey reads it as roofed.
+            for (int k = 0; k <= 3; k++) for (int side = k == 0 ? 0 : -1; side <= (k == 0 ? 0 : 1); side++) for (int y = 0; y <= (k == 0 ? 3 : 2); y++) {
                 var pos = door.relative(slot.facing(), k).relative(slot.facing().getClockWise(), side).above(y);
                 if (!level.hasChunkAt(pos)) continue;
                 var state = level.getBlockState(pos);

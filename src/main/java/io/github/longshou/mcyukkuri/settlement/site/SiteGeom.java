@@ -8,10 +8,10 @@ import net.minecraft.core.Direction;
 
 /** Footprint geometry shared by planner, plan and builder. All coordinates are world X/Z once a plan is rotated. */
 public final class SiteGeom {
-    public enum Kind { HOME, HALL, GRANARY, PLAZA, POOL, LATRINE, NURSERY, KNOLL }
+    public enum Kind { HOME, HALL, GRANARY, PLAZA, POOL, PIT, NURSERY, KNOLL }
     /**
-     * x,z: door cell for mounds, the open edge middle for the latrine, the centre otherwise.
-     * a,b,c: shape numbers (mound: variant bits, extra depth rows; plaza: radius*10, unused, phase; pool: axes*10, phase;
+     * x,z: door cell for burrows, the centre otherwise.
+     * a,b,c: shape numbers (burrow: variant bits, extra depth rows; plaza: radius*10, unused, phase; pool and pit: axes*10, phase;
      * nursery/knoll: size).
      */
     public record Part(Kind kind, int x, int z, Direction facing, int a, int b, int c) {
@@ -71,8 +71,27 @@ public final class SiteGeom {
         }
         return shelf;
     }
-    /** Latrine patch depth: the back hedge row is at this w. */
-    public static int latrineDepth(Part p) { return p.b() >= 3 ? 3 : 2; }
+    /**
+     * The dip of a waste pit: a ragged shallow hollow one block below the ground around it. It is only bare earth that the
+     * settlers keep using; nothing is built in or around it.
+     */
+    public static List<long[]> pitDip(Part p) {
+        var out = new ArrayList<long[]>();
+        int r = (int)Math.ceil(Math.max(p.a(), p.b()) / 10.0 * 1.3);
+        for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPool(p, dx, dz)) out.add(new long[]{p.x() + dx, p.z() + dz});
+        return out;
+    }
+    /** The ring of ground around the dip, eased to the dip's rim level. */
+    public static Set<Long> pitRim(Part p) {
+        var dip = new HashSet<Long>();
+        for (var cell : pitDip(p)) dip.add(key((int)cell[0], (int)cell[1]));
+        var rim = new HashSet<Long>();
+        for (var cell : pitDip(p)) for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+            long k = key((int)cell[0] + dx, (int)cell[1] + dz);
+            if (!dip.contains(k)) rim.add(k);
+        }
+        return rim;
+    }
     /** Every column a part levels (its footprint, including the door lane of a mound). */
     public static Set<Long> cells(Part p) {
         var out = new HashSet<Long>();
@@ -90,8 +109,9 @@ public final class SiteGeom {
                 for (var cell : poolWater(p)) out.add(key((int)cell[0], (int)cell[1]));
                 out.addAll(poolShelf(p));
             }
-            case LATRINE -> {
-                for (int u = -p.b(); u <= p.b(); u++) for (int w = 0; w <= latrineDepth(p); w++) out.add(key(fx(p, u, w), fz(p, u, w)));
+            case PIT -> {
+                for (var cell : pitDip(p)) out.add(key((int)cell[0], (int)cell[1]));
+                out.addAll(pitRim(p));
             }
             case NURSERY -> {
                 for (int dx = -p.a(); dx <= p.a(); dx++) for (int dz = -p.b(); dz <= p.b(); dz++) out.add(key(p.x() + dx, p.z() + dz));

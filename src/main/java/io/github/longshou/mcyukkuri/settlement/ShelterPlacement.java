@@ -37,7 +37,7 @@ public final class ShelterPlacement {
     }
     public static boolean canPlace(ServerLevel level,Plan plan) {
         SearchBudget.probe(level);
-        // Granary hollows, plazas and nurseries of a planned site are never a home, however well they survey.
+        // Granary hollows, plazas, nurseries and the waste pit of a planned site are never a home, however well they survey.
         if(plan.kind==ShelterBlock.Kind.BURROW&&SettlementData.get(level).reserved(plan.center))return false;
         // A home is a recognised area: a roofed cavity with a way in and room enough for a nest and a store.
         if(plan.kind==ShelterBlock.Kind.BURROW) {
@@ -85,16 +85,6 @@ public final class ShelterPlacement {
         if(plan.kind==ShelterBlock.Kind.BURROW)core.setNaturalSite(NaturalShelter.survey(level,plan.center,plan.facing));
         Homes.registerLoaded(level,core);
         return new Placed(core,before);
-    }
-    public static void latrine(ServerLevel level,ShelterBlockEntity home) {
-        for(int side:new int[]{2,-2}) {
-            var pos=home.entrance().relative(home.facing().getClockWise(),side);
-            if(level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()&&level.getBlockEntity(pos)==null
-                    &&(level.getBlockState(pos).isAir()||level.getBlockState(pos).is(Blocks.SHORT_GRASS))
-                    &&level.getBlockState(pos.below()).isFaceSturdy(level,pos.below(),Direction.UP)) {
-                level.setBlock(pos,ModBlocks.WILD_LATRINE.get().defaultBlockState(),3);return;
-            }
-        }
     }
     private ShelterPlacement() {}
 }

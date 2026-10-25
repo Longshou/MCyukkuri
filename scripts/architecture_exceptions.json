@@ -862,7 +862,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementDuties.java",
       "signature": "SettlementDuties#canUse ( )",
-      "token_hash": "bf63eb58c9db48839cbd600679acf787b2912922a654dcc62f333bd8a0399680",
+      "token_hash": "db0bf64eab188c2d4b88f18ab065d72ea194528bdc40b3bdf28d45c8593cb378",
       "subjects": {
         "getPersistentData": 1
       },

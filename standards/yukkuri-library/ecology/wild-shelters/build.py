@@ -9,12 +9,13 @@ ROOT=HERE.parents[3]
 import sys
 sys.path.insert(0,str(ROOT/'standards/yukkuri-library/drafts/care-props'))
 import kit as care_kit   # shared care-prop palette (art/props/palette.json)
-care_kit.NOISE_DEFAULT=False   # cardboard shelter and latrines keep flat swatches; self-built nests below are vanilla-textured
-# Cardboard shelter and wild latrine use the shared palette strip; the confirmed leaf-bed atlas below stays untouched.
+care_kit.NOISE_DEFAULT=False   # the cardboard shelter keeps flat swatches; self-built nests below are vanilla-textured
+# The cardboard shelter uses the shared palette strip; the confirmed leaf-bed atlas below stays untouched.
+# Wild settlements have no latrine model: their waste pit is bare terrain (settlement/site/SiteBuilder.pit).
 FLAT_MATERIALS={'paper':('cardboard',2),'paper_light':('cardboard',3),'paper_dark':('cardboard',0),'tape':('straw',2),'ink':('wood',0),
                 'grass':('straw',1),'leaf_dry':('straw',0),'soil':('wood',1),'wood':('wood',2),'waste':('anko',1),
                 'waste0':('anko',0),'waste1':('anko',1),'waste2':('anko',2),'waste3':('anko',3)}
-FLAT_MODELS={'cardboard_shelter','wild_latrine','wild_latrine_dirty'}
+FLAT_MODELS={'cardboard_shelter'}
 OUT=HERE/'assembled'; PRE=ROOT/'.local/previews/wild-shelters/source-views'
 RUN=ROOT/'src/main/resources'; SNAP=ROOT/'art/props/wild-shelters'
 for p in (OUT,PRE,SNAP,RUN/'assets/mcyukkuri/yukkuri_props',RUN/'textures',RUN/'data/mcyukkuri/shelters'):
@@ -140,20 +141,6 @@ for i in range(12):m.box('corrugated_edge_'+str(i),[-13+i*2,24,23.03],[-12.3+i*2
 for i in range(9):m.box('bedding_'+str(i),[-8+i*1.7,.2,-7],[-7+i*1.7,.35,8],'grass',unit=1)
 for i in range(4):m.box('food_'+str(i),[-18,.2+i*.25,-16],[-12,.5+i*.25,-8],'leaf_dry',unit=2)
 models.append(m)
-for dirty in (False,True):
-    m=Model('wild_latrine'+('_dirty' if dirty else ''))
-    m.box('shallow_soil',[-6,0,-5],[6,.3,5],'soil')
-    for z in (-5,5):m.beam('border_'+str(z),[-6,.5,z],[6,.5,z],.45,'wood')
-    for x in (-6,6):m.beam('side_'+str(x),[x,.5,-5],[x,.5,5],.4,'wood')
-    if dirty:
-        # the shared anko swirl mound (care-props), scaled to the latrine's soil patch
-        import small as care_small
-        swirl=care_small.yukkuri_waste();scale=1.0
-        for step in range(4):
-            tris=[t for part in swirl.parts for t in part['tris'] if int(t[0][2][0]//care_kit.SWATCH)==step]
-            if tris:
-                m.mesh('waste_swirl_%d'%step,[[v[0][0]*scale,v[0][1]*scale+.3,v[0][2]*scale] for t in tris for v in t],[(3*k,3*k+1,3*k+2) for k in range(len(tris))],'waste%d'%step)
-    models.append(m)
 # Self-built nests (wild yukkuri) are authored in the care-props kit with vanilla texture references (wild.py).
 
 import wild as care_wild

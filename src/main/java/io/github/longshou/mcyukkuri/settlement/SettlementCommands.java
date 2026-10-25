@@ -95,6 +95,10 @@ public final class SettlementCommands {
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.info", site.tier.name().toLowerCase(Locale.ROOT),
                 site.origin.toShortString(), site.state.name().toLowerCase(Locale.ROOT), site.prosperity,
                 site.group == null ? "-" : site.group.toString().substring(0, 8)), false);
+        var pit = SiteLife.pit(site);
+        var plan = site.plan();
+        source.sendSuccess(() -> Component.literal("Country " + (plan == null ? "?" : plan.profile().name().toLowerCase(Locale.ROOT))
+                + ", waste pit " + (pit.isEmpty() ? "none" : pit.getFirst().toShortString() + " (" + pit.size() + " cells)")), false);
         return 1;
     }
     private static int siteCheck(CommandSourceStack source) {
@@ -121,8 +125,11 @@ public final class SettlementCommands {
     private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate) {
         var level = source.getLevel();
         var terrain = new SiteBuilder.LevelTerrain(level);
-        var plan = SitePlanner.plan(tier, level.random.nextLong(), level.random.nextInt(4), pos.getX(), pos.getZ(),
-                SiteWorld.palette(level.getBiome(pos)), terrain, false);
+        long seed = level.random.nextLong();
+        int palette = SiteWorld.palette(level.getBiome(pos));
+        // The burrows go into the highest ground around the given spot; on flat ground their banks are heaped up instead.
+        int rotation = SitePlanner.bestRotation(tier, seed, pos.getX(), pos.getZ(), palette, terrain);
+        var plan = SitePlanner.plan(tier, seed, rotation, pos.getX(), pos.getZ(), palette, terrain, false);
         if (plan == null) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", SitePlanner.lastFailure())); return 0; }
         if (!SiteBuilder.loaded(level, plan)) {
             source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.fail", "the area is not loaded")); return 0;
