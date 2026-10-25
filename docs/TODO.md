@@ -13,6 +13,8 @@
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
+| 油库里互挡绕行与可推动 | `.worktrees/yukkuri-avoid` | `entity/YukkuriGroundNavigation.java`、`entity/YukkuriControl.java`、`entity/YukkuriEntity.java`（推挤／碰撞段）、`entity/RoamingGoal.java` |
+| 嗯嗯落块容量、嗯嗯奴隶与坑边排泄 | `.worktrees/poop-block` | 排泄物放置与新嗯嗯方块（`item/`、`registry/`、排泄相关 `life/` 段）、`settlement/SettlementSociety` 嗯嗯奴隶段、`scripts/museum_scenarios.py` 聚落嗯嗯坑场景、排泄与聚落所属专题 |
 
 ## 玩法待办
 
