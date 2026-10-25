@@ -114,6 +114,7 @@ final class HairWoundRenderer {
     private static final class PartOut {
         final Map<Integer,List<Triangle>> patches=new HashMap<>();
         final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
+        final List<Triangle> lids=new ArrayList<>();
     }
     private record Bary(float a,float b,float c) {
         Bary mix(Bary other,float t){return new Bary(a+(other.a-a)*t,b+(other.b-b)*t,c+(other.c-c)*t);}
@@ -219,6 +220,8 @@ final class HairWoundRenderer {
         final List<Cut> cuts;
         final Map<Integer,List<Triangle>> patches=new HashMap<>();
         final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
+        /** Removed skin pieces, reversed and back-face culled: invisible from outside, solid to anything leaving through the hole. */
+        final List<Triangle> lids=new ArrayList<>();
         final Map<String,Float> rigidOffsets;
         final Map<String,YukkuriModel.Part> parts;
         final Map<Integer,String> triangleParts;
@@ -321,6 +324,7 @@ final class HairWoundRenderer {
             if(out==null)return;
             patches.putAll(out.patches);
             for(var entry:out.layers.entrySet())layers.computeIfAbsent(entry.getKey(),ignored->new ArrayList<>()).addAll(entry.getValue());
+            lids.addAll(out.lids);
         }
         private void buildPart(YukkuriModel.Part part,int hairLoss,boolean accessory){
             if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))return;
@@ -342,10 +346,12 @@ final class HairWoundRenderer {
                         boolean hairPart=info.hair.contains(part.name());
                         // Hair outside the opening channel (beside or far behind the skin) is not part of this hole.
                         if(hairPart&&cut.skinZ!=null&&cut.hairKept(new Vector3f(pa).add(pb).add(pc).div(3),part.name()))continue;
+                        var removed=part.name().equals(info.body)?new ArrayList<Bary[]>():null;
                         for(var tri:triangles){
-                            var pieces=outside(cut,hairPart?cut.hair:cut.skin,first,tri);
+                            if(removed!=null)removed.clear();
+                            var pieces=outside(cut,hairPart?cut.hair:cut.skin,first,tri,removed);
                             // A triangle the opening does not touch stays the original triangle and is not re-emitted as a patch.
-                            if(untouched(cut,first,tri,pieces))outside.add(tri);else{outside.addAll(pieces);changed=true;}
+                            if(untouched(cut,first,tri,pieces))outside.add(tri);else{outside.addAll(pieces);changed=true;if(removed!=null)for(var gone:removed)lid(cut,first,gone);}
                         }
                         triangles=outside;
                     }
@@ -369,6 +375,13 @@ final class HairWoundRenderer {
                 }
                 if(sole>whole)thermal(first,part.name(),triangles,sole,true);
             }
+        }
+        private void lid(Cut cut,int first,Bary[] tri){
+            float[] palette=cut.core!=null?HairWoundAssets.coreColoursFor(mesh.assetId,1):HairWoundAssets.cavityColoursFor(mesh.assetId,1);
+            current.lids.add(new Triangle(lidCorner(first,tri[0]),lidCorner(first,tri[2]),lidCorner(first,tri[1]),palette[0],palette[1],palette[2]));
+        }
+        private Corner lidCorner(int first,Bary bary){
+            return new Corner(first,bary,deformRest(triangleParts.getOrDefault(first,""),point(first,bary)),.5f,.5f,1);
         }
         private List<Triangle> layer(ResourceLocation texture){return current.layers.computeIfAbsent(texture,ignored->new ArrayList<>());}
         private Vector3f point(int first,Bary bary){return new Vector3f(source[first*8],source[first*8+1],source[first*8+2]).mul(bary.a)
@@ -455,12 +468,13 @@ final class HairWoundRenderer {
             }
         }
         private List<Piece> polygon(Cut cut,int first,Bary[] tri){var out=new ArrayList<Piece>();for(var bary:tri){var p=point(first,bary);out.add(new Piece(cut.x(p),cut.y(p),bary));}return out;}
-        private List<Bary[]> outside(Cut cut,float[][] outline,int first,Bary[] tri){
+        private List<Bary[]> outside(Cut cut,float[][] outline,int first,Bary[] tri,List<Bary[]> removed){
             var polygon=polygon(cut,first,tri);var result=new ArrayList<Bary[]>();float[] zero={0,0};
             for(int i=0;i<outline.length;i++){
                 var p=outline[i];var q=outline[(i+1)%outline.length];
                 var sector=clip(clip(polygon,zero,p,true),q,zero,true);
                 result.addAll(fan(clip(sector,p,q,false)));
+                if(removed!=null)removed.addAll(fan(clip(sector,p,q,true)));
             }return result;
         }
         /** True when clipping removed nothing: the pieces cover exactly the projected area of the triangle. */
@@ -650,7 +664,7 @@ final class HairWoundRenderer {
         boolean replaced(int first){return patches.containsKey(first);}
         boolean triangle(int first,PoseStack stack,VertexConsumer buffer,int light,int overlay){
             var triangles=patches.get(first);if(triangles==null)return false;
-            for(var tri:triangles)emit(tri,stack,buffer,light,overlay,false);return true;
+            for(var tri:triangles)emit(tri,stack,buffer,light,overlay,false,false);return true;
         }
         boolean pregnancySurface(int first,PregnancyFaces.Surface surface){
             var triangles=patches.get(first);if(triangles==null)return false;
@@ -662,7 +676,11 @@ final class HairWoundRenderer {
                 cavity.render(world,cavitySkin,pregnancy,stack,buffers,light,overlay);}
             for(var entry:layers.entrySet()){
                 var buffer=buffers.getBuffer(RenderType.entityTranslucent(entry.getKey()));
-                for(var tri:entry.getValue())emit(tri,stack,buffer,light,overlay,true);
+                for(var tri:entry.getValue())emit(tri,stack,buffer,light,overlay,true,true);
+            }
+            if(!lids.isEmpty()){
+                var buffer=buffers.getBuffer(RenderType.entityCutout(MCYukkuri.id("textures/props/body_cavity_white.png")));
+                for(var tri:lids)emit(tri,stack,buffer,light,overlay,false,true);
             }
         }
         private void pose(Corner corner,Vector3f out,boolean pregnancy){
@@ -673,8 +691,8 @@ final class HairWoundRenderer {
                 model.woundSkin(binding.triangle,binding.bary.a,binding.bary.b,binding.bary.c,point,skinPoint,pregnancy);
                 out.lerp(skinPoint,corner.skinWeight);}
         }
-        private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset){
-            if(WoundLod.measuring())WoundLod.triangle(offset);
+        private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset,boolean layer){
+            if(WoundLod.measuring())WoundLod.triangle(layer);
             String part=triangleParts.getOrDefault(tri.a.triangle,"");boolean pregnancy=!model.woundPregnancyFace(part);
             pose(tri.a,a,pregnancy);pose(tri.b,b,pregnancy);pose(tri.c,c,pregnancy);
             normal.set(b).sub(a).cross(edge.set(c).sub(a));if(normal.lengthSquared()<1e-12)return;normal.normalize();
