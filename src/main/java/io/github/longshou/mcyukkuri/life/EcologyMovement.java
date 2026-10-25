@@ -20,7 +20,7 @@ public final class EcologyMovement {
         var hat = boat(actor);
         return hat == null ? !actor.isPassenger() && actor.onGround()
                 : hat.isAfloat() && !hat.unsteadyMotion() && !hat.towed() && hat.flooding() == 0
-                && !hat.landing() && !hat.confiscating() && !hat.driving() && !hat.transportingInHat(actor)
+                && !hat.landing() && !hat.driving() && !hat.transportingInHat(actor)
                 && !hat.cargo().handling() && !hat.hasIncoming() && !actor.family().braidRescueActive()
                 && !actor.aquaticLife().firstVoyage().active();
     }

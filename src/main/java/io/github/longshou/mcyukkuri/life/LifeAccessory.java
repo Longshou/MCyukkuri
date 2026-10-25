@@ -137,7 +137,7 @@ final class LifeAccessory {
             if (changed) GameplayLog.event(o.entity(), "headwear", "boat custody restored boat={} token={}", boat, token);
         }
     }
-    /** A player taking the actual boat is the same existing lost-accessory reaction as taking the hat itself. */
+    /** A confirmed drift, destruction or legacy custody transfer uses the ordinary lost-accessory reaction. */
     boolean relinquishCustody(UUID boat, UUID owner, UUID token, UUID player) {
         // The unique physical hat remains recoverable after an earlier drift loss, without charging that loss twice.
         if (custodyEnded) return matchesAccessory(owner, token);

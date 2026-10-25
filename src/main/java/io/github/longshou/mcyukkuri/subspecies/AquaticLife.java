@@ -133,7 +133,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         }
         if(boat==null)return state+" boat=none heldPaddle="+hasStick()
                 +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
-        state+=" confiscation="+boat.confiscationDetail();
         var cargo=boat.cargo();
         return state+" boat=#"+boat.getId()+" used="+boat.capacityUsed()+"/"+HatBoatCargo.CAPACITY+" remaining="+boat.remainingCapacity()
                 +" young="+boat.youngAboard()+" incoming="+boat.hasIncoming()+" food="+cargo.count()+" inner="+cargo.innerCount()
@@ -263,7 +262,11 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 || entity.family().flying() || entity.family().braidRescueActive() || entity.waterDistress().receivingWaterRescue()) return false;
         if(entity.getVehicle() instanceof HatBoatEntity boat&&!entity.getUUID().equals(boat.ownerYukkuri())
                 &&boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
-        stick = creative ? stack.copyWithCount(1) : stack.split(1); return true;
+        int before=stack.getCount();
+        stick = creative ? stack.copyWithCount(1) : stack.split(1);
+        GameplayLog.event(entity,"aquatic","paddle received sourceCount={} -> {} held={} creative={}",
+                before,stack.getCount(),stick.getCount(),creative);
+        return true;
     }
     /** A family paddle handoff is the same already-accounted held stick, never an external player/item insertion. */
     boolean receiveFamilyPaddle(HatFamilyPaddle source,ItemStack stack){
@@ -359,7 +362,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if(!available()||entity.isPassenger()||!entity.onGround()||entity.family().flying()
                 ||firstVoyage.active()||entity.subspecies().boatId()==null)return null;
         var hat=HatBoatEntity.owned(entity);
-        return hat!=null&&hat.isAfloat()&&!hat.isVehicle()&&!hat.landing()&&!hat.confiscating()&&!hat.unsteadyMotion()
+        return hat!=null&&hat.isAfloat()&&!hat.isVehicle()&&!hat.landing()&&!hat.unsteadyMotion()
                 &&hat.distanceToSqr(entity)<=9&&hat.ownsPhysicalHat(entity)?hat:null;
     }
     private HatBoatEntity landingFamilyHat(){
@@ -378,7 +381,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private boolean priorityAtSea() {
         if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.protects(entity)) return true;
         if (!boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() > 0
-                || boat.landing() || boat.confiscating() || boat.transportingInHat(entity)
+                || boat.landing() || boat.transportingInHat(entity)
                 || boat.hasIncoming() || boat.cargo().handling() || !expectedYoung.isEmpty()
                 || shoreVisitRequested || firstVoyage.active() || care.active() || familyPaddle.active()
                 || shoreForage.active() || entity.family().laboring() || entity.family().braidRescueActive()

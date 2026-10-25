@@ -292,13 +292,6 @@ final class HatBoatLaunch {
                 Math.abs(toward.z)<1e-8?Double.POSITIVE_INFINITY:z/Math.abs(toward.z));
     }
 
-    static HatBoatEntity tryLaunchNearby(YukkuriEntity owner) {
-        for (var p : BlockPos.betweenClosed(owner.blockPosition().offset(-2,-1,-2), owner.blockPosition().offset(2,0,2))) {
-            HatBoatEntity boat = launchFromBank(owner, p); if (boat != null) return boat;
-        }
-        return null;
-    }
-
     static HatBoatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatVessel.Mode mode, HatVessel.Role role) {
         if (!(owner.level() instanceof ServerLevel level) || owner.getVariant() != YukkuriVariant.MARISA || !owner.isAlive()
                 || owner.isPassenger() || !owner.life().hasAccessory() || owner.subspecies().boatId() != null) return null;
@@ -329,14 +322,14 @@ final class HatBoatLaunch {
 
     static boolean retrieve(HatBoatEntity boat, YukkuriEntity owner) {
         if (boat.level().isClientSide || !boat.catches() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 16) return false;
-        if (boat.confiscating()||boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
+        if (boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
         if (!owner.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
         boat.clearCrew();
         boat.state(State.RESCUED); return true;
     }
 
     static boolean board(HatBoatEntity boat, YukkuriEntity owner) {
-        if (boat.level().isClientSide || boat.confiscating() || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
+        if (boat.level().isClientSide || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
                 || !boat.isAfloat() || !owner.life().matchesAccessory(boat.ownerYukkuri(), boat.launchToken())) return false;
         if (!owner.startRiding(boat, true)) return false;
         owner.life().restoreCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());

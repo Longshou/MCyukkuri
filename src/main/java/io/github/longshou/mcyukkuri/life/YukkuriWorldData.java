@@ -269,11 +269,6 @@ public final class YukkuriWorldData extends SavedData {
         return outgoing == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(outgoing));
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
-    /** The boat can be removed before its owner loads; retain only the event needed to replay the ordinary loss reaction. */
-    public void accessoryConfiscated(UUID owner, UUID token, UUID player) {
-        if (owner == null || token == null || player == null) return;
-        accessoryConfiscations.put(owner, new AccessoryLoss(token, player, "")); setDirty();
-    }
     public void accessoryDestroyed(UUID owner, UUID token, String cause) {
         if (owner == null || token == null || cause == null || cause.isEmpty()) return;
         accessoryConfiscations.put(owner, new AccessoryLoss(token, null, cause)); setDirty();

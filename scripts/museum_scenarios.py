@@ -576,12 +576,6 @@ pond('sail', '备粮划桨', '自主出航', '成体从干岸自主拾桨、备�
     note='动机沿用水生种回水上生活的普通规则。没有出航时读 water.launch 的最近判定和实际阶段；失败保留现场。',
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
-pond('hat_custody', '暂放帽船与没收', '托帽与没收',
-    '亲油站在岸上，自己的帽船停在水面并载着赤油。暂放不悲伤；站在干岸上空手蹲下右击帽船，观察赤油安全上岸、帽子进入物品栏和主人失帽反应',
-    '手动操作', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
-    note='再把同一顶帽子归还主人，核对只回收一顶帽、幼体仍在、主人能继续放船。没有安全落点时没收应失败。',
-    reads=[('读托管与失帽', f'yukkuri status {sel("a")} raw'), ('读没收后的赤油', f'yukkuri status {sel("kid")} raw'),
-           ('读实船凭据与库存', f'data get entity {_cargo_boat}')])
 pond('hat_custody_burn', '暂放帽船·烧毁边界', '实船烧毁',
     '亲油暂放的真实帽船受到一次火焰伤害，走正常烧毁结算；帽主失去原帽、赤油落水、库存只散落一次，不生成可回收的新帽',
     '约 10 秒', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('unattended', 'a', sel('kid'))],
@@ -589,16 +583,18 @@ pond('hat_custody_burn', '暂放帽船·烧毁边界', '实船烧毁',
     note='这次外力只设置真实起因，不固定后续状态。重复试前先清场；不可把普通卸载或清场当作烧毁。',
     reads=[('读烧毁后的帽主', f'yukkuri status {sel("a")} raw'), ('读落水赤油', f'yukkuri status {sel("kid")} raw'),
            ('读剩余实船', f'data get entity {_cargo_boat}')])
-for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
-        ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内没有粮堆；持食物逐份存入，观察粮堆从空仓到满载的变化'),
-        ('cargo_full', '帽内粮堆·满载', '11 粮＋1 桨', '11 份粮食和一根桨占满 12 份容量；再存粮应留在手中，亲油仍有自己的位置。保存重进核对同船与真实库存')):
+for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, _floating_count in (
+        ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内起初无粮；旁边水中有 12 份真实苹果，观察自主拾取并装满 11 份，最后一份留在船外', 12),
+        ('cargo_full', '帽内粮堆·满载', '11 粮＋1 桨', '11 份粮食和一根桨占满 12 份容量；旁边两份苹果不能入库。保存重进核对同船与真实库存', 2)):
     pond(_cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, '随意',
-         [captain(), boat(_cargo_mode, 'a', sel('a'))], give=['minecraft:apple 8', 'minecraft:carrot 8'],
-         note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。吃掉的口粮不会恢复。',
+         [captain(), boat(_cargo_mode, 'a', sel('a')),
+          item('minecraft:apple', _floating_count, 4, 0, 'floating_food', dy=-1)],
+         note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。食物只能右击油库里本人交付，右击船体只会晃船。',
          reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'), ('读船粮与实物桨', f'data get entity {_cargo_boat} Cargo')])
-pond('cargo_load', '孩子在帽内·再装粮', '先载幼体', '赤油占 2 份、桨占 1 份，最多再装 9 份粮；持食物逐份存入，观察容量与落脚空间，装不下的留在手中', '随意', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_load', 'a', sel('kid'))],
-    give=['minecraft:apple 8', 'minecraft:carrot 8'], note='对比先装满粮再接孩子的场景；还可潜行一次尝试存入多份，观察是否穿粮或挤落。',
+pond('cargo_load', '孩子在帽内·自主装粮', '先载幼体', '赤油占 2 份、桨占 1 份；旁边 12 份真实苹果由亲油自主拾取，最多装入 9 份，其余留在船外，幼体座位不被粮堆覆盖', '随意', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
+    boat('cargo_load', 'a', sel('kid')), item('minecraft:apple', 12, 4, 0, 'floating_food', dy=-1)],
+    note='对比先装满粮再接孩子的场景；库存只由真实初态和自主拾取改变，右击船体只晃船。',
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
@@ -626,9 +622,9 @@ pond('shore_babies', '两只赤油返岸', '两只赤油返岸', '船上是两�
     yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()), boat('shore', 'a', sel_all('young')), SHORE_CALL],
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读全部幼体', f'yukkuri status {sel_all("young")} raw')])
-pond('high', '四幼体高载荷', '四幼体', '四只赤油占 8 份，加三份粮和一根桨共 12 份，观察满载吃水、座位与继续装粮被拒绝', '约 1–3 分钟', [
+pond('high', '四幼体高载荷', '四幼体', '四只赤油占 8 份，加三份粮和一根桨共 12 份，观察满载吃水与座位；旁边两份苹果不能入库', '约 1–3 分钟', [
     captain(), *[yk('marisa', -2 - i % 2, i // 2 * 2 - 1, f'k{i}', stage='baby', aquatic=True, also=('young',), **pair_ready()) for i in range(4)],
-    boat('high', 'a', sel_all('young'))],
+    boat('high', 'a', sel_all('young')), item('minecraft:apple', 2, 4, 0, 'floating_food', dy=-1)],
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读全部幼体', f'yukkuri status {sel_all("young")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
@@ -1785,7 +1781,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
-    'sail': 'A1', 'hat_custody': 'A2', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
+    'sail': 'A1', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
     'cargo_empty': 'A1', 'cargo_full': 'A1', 'cargo_load': 'A1', 'cargo_rescue': 'A4', 'cargo_stow': 'A1',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'shore_babies': 'A4', 'rescue_baby': 'A4', 'self_rescue': 'A4', 'self_far': 'A4', 'self_tired': 'A4', 'shore_capsized': 'A4', 'capsize_caring': 'A4', 'capsize_selfish': 'A4', 'capsize_siblings': 'A4', 'couple_boats': 'A5', 'family_skiffs': 'A5',

@@ -13,6 +13,7 @@
 | 山脚家洞几何与聚落预览复修 | `.worktrees/wild-settle` | `settlement/site/SiteBuilder.java`、`SitePlanner.java`、`SiteProfile.java`、`scripts/settlement_site_preview.py`、`preview/hub/categories.json` |
 | 窝越格占位 | `.worktrees/placed-size` | `life/CareBlock.java`、`care_collision.json`、`drafts/care-props/` 窝制作源 |
 | 树叶襁褓背缘与正面叶形 | `.worktrees/swaddle-fit` | `client/CareWearRenderer.java`、`drafts/care-props/preview_wear.*` |
+| 帽船玩家交互解耦 | `.worktrees/hat-boat-interactions` | `subspecies/HatBoat*`、`AquaticLife`、`interaction/OperationLife`、`command/ScenarioCommands`、`scripts/museum_scenarios.py`、水生专题与待办 |
 
 ## 玩法待办
 
@@ -190,12 +191,12 @@
 
 **原运行包 01:46–01:52 的结果：复测失败。** 实际运行版本为 [56b5e4f1d6155b89a078ded5b385a6585702b0bd](https://github.com/Longshou/MCyukkuri/commit/56b5e4f1d6155b89a078ded5b385a6585702b0bd)，[CI run 39465772518](https://github.com/Longshou/MCyukkuri/actions/runs/39465772518)，由本次启动会话快照和运行包回执交叉确认，不使用登记时的 HEAD。原生日志、会话与回执副本在 `.local/reports/aquatic-20261021-0146/`。用户反馈：收帽后赤油瞬移上岸、所有初始水上行为失败、先放子油失败。具体证据与边界：
 
-- **没收乘员瞬移（原运行包复测失败）**：01:47:28、01:47:45、01:48:41 启动 `hat_custody`。01:47:57 赤油 `#22848` 已出现在干岸 `-161,64,300`；01:48:05–06 帽主 `#22847` 有归帽动作。该运行版本的 `recoverUnattended → landCrew` 明确执行 `stopRiding → teleportTo(干岸落点)`，与用户观察吻合，属于业务位置跳转，不只是缺动画。本次没有没收瞬间逐乘员日志，不能从日志精确还原跳转前坐标。完成标准：没收不直接把仍在帽中的赤油传到干岸，乘员安置沿真实可达的接触／搬运交接完成后再结算帽子；过程与拒绝原因可追踪，帽子、乘员、库存均不复制或丢失。
+- **旧没收乘员瞬移（原运行包复测失败）**：旧版 `56b5e4f1` 的 `recoverUnattended → landCrew` 曾把赤油直接传到干岸，与用户观察一致。现已按交互裁决删除玩家没收、返岸和拖船三个旧入口，不再把该功能列为待修或以其旧完成标准复测；岸上通用摘取／没收及水上禁用按“水 33”验收。历史证据不用于证明新交互已通过。
 - **水上起点造船碰撞（原运行包复测失败）**：01:49:44 `cargo_load`（按钮“先载幼体”）帽主 `#32155` 与 01:52:44 `shore` 帽主 `#33467` 均在 `createAfloatAndBoard` 被 `path=afloat reason=hull_collision` 拒绝，目标同为 `water=-160,63,300`，当时 `boatId=null accessory=true operation=false`。01:52:45 的返岸请求随后因未在自船上失败，是前置造船失败的连锁结果。日志确认这两场，用户所述其余水上场景保留为待逐场核实；碰撞日志未区分具体方块／实体，不能直接认定碰到了岸或亲油。完成标准：先修共用起点与实际船体碰撞检查的衔接，再确认各水上场景能开始目标链，不能绕过碰撞、跳到完成状态或把后续行为全判为独立故障。
 - **失败后遗留亲缘状态与岸上赤油阻塞（原运行包复测失败）**：`ScenarioBoats.prepare` 在建船前已经登记亲缘、初始化赤油并摘掉幼体头饰，建船失败直接返回，未撤销这些前置修改；`cargo_load` 同 tick 随即出现 `infant_ashore` 并停止找桨。另在归还帽子后的 01:48:06–26，`#22847` 也持续被 `infant_ashore` 拒绝。运行版 `infantsAshore()` 直接阻止身边有不会跳的自家幼体时出航，没有在此处启动“先把赤油放进帽中”的交接。按钮“先载幼体”这次尚未进入装载容量验证，不能声称是容量不足。完成标准：场景失败不遗留半套准备状态；普通亲油能在实际条件允许时接上幼体装帽／登船顺序，真实拒绝有原因，不靠瞬移、强行初始化成功或简单删除护幼限制。
 - **单体出航的有效对照**：01:46:31 `sail` 的 `#19357` 实际拾桨并取得 3 份苹果，01:46:35 记录 `hull deployed path=bank food=3 paddle=true`，8 tick 后成为同一自有帽船乘员。这段日志能确认本轮单体出航接通，不能由此把带幼体、水上初始化或完整航行玩法写成已完成。
 
-当前实现：水上初态改用岸外开阔水面并保留真实碰撞检查；普通出航先精确走到岸格中心，亲油登船后等待幼体实际到岸并跳入或被辫子接入；没收改走靠岸、逐名乘员真实落岸、空船后结算的顺序。`water.cargo` 显示等待幼体、登船岸格和没收阶段／拒绝原因。岸上疲惫误用的表情键改为现有 `teary`。场景准备失败会恢复参与者状态，亲缘账本在准备成功后才提交。以上修正已接入，仍需在新运行包依次试玩 `sail`、`afloat`、`cargo_load`、`shore_babies`、`hat_custody`；数值与真实交接满足各条完成标准后再移除待办。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](DEVELOPMENT.md)、[日志覆盖](GAMEPLAY_LOGGING.md)。
+当前实现：水上初态改用岸外开阔水面并保留真实碰撞检查；普通出航先精确走到岸格中心，亲油登船后等待幼体实际到岸并跳入或被辫子接入。场景准备失败会恢复参与者状态，亲缘账本在准备成功后才提交。玩家右键出航、初航、返岸、翻船、没收与拖船入口已移除，船体右击只晃船，交付只针对油库里本人；岸上疲惫误用的表情键改为现有 `teary`。以上修正已接入，仍需在新运行包依次试玩 `sail`、`afloat`、`cargo_load`、`shore_babies`，新交互另按“水 33”验收；数值与真实交接满足各条完成标准后再移除待办。专题：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)、[试玩场](DEVELOPMENT.md)、[日志覆盖](GAMEPLAY_LOGGING.md)。
 
 ### 其他已接入玩法
 
@@ -237,7 +238,8 @@
   - `cargo_*`（含修正后待试玩的 `cargo_load`）帽内粮堆：水 4 已用／12 与挪粮、弃粮、暂放、站帽檐的实际占位，`water.cargo` 已补船主／幼体与库存对照。`shore_child`、`shore_babies` 带幼体返岸，`high` 满载航行：水 6 只召集未归队孩子，无桨时找原桨。
   - `self_rescue`、`self_far`、`self_tired` 落水自救：水 1 远帽连续接近、疲惫弱漂、失败重试。`shore_capsized` 从岸上找回翻帽：水 2 浮、翻、搁浅的原帽都能找回。
   - `capsize_caring`、`capsize_selfish`、`capsize_siblings` 翻船决策与连续救子：水 3 在相同胆量与依恋下，按友善作一次救子决策；拒绝后保留冷却；同次救子决定的物理失败已接回限频重试，成功一只后继续剩余孩子，永久尺寸不合则退出该候选，真实危险仍优先。
-  - `hat_custody` 暂放帽船与没收：已接入待试玩，旧版乘员直接传岸的证据与当前逐名落岸交接见日志问题 2。`hat_custody_burn` 真实烧毁仍待试玩确认：水 8 暂放不失帽，漂远、烧毁、沉没各结算一次；帽子和库存不复制或丢失。
+  - `hat_custody_burn` 托管实船烧毁：已接入待试玩。水 8 暂放不失帽，漂远、烧毁、沉没各结算一次；帽子和库存不复制或丢失。旧 `hat_custody` 玩家没收场景随功能删除，不再生成。
+  - **水 33 玩家与帽船交互边界**：已接入待试玩。按[交互与场景边界](AQUATIC_MARISA_IMPLEMENTATION.md#交互与场景边界)和[头饰托管](HEADWEAR.md#暂放帽船托管与真正失去)核对新白名单；旧没收、玩家返岸和拖船功能不再存在。完成：`cargo_empty`、`cargo_load` 看自主拾取与容量，空手及持物点船均只晃船且不改变库存；点本人无行为指令。`hat_swap` 核对岸上摘取与归还，`shore` 核对水上拒绝、返岸后恢复通用摘取；`/yukkuri scenario shore id <数字ID>` 精确选择当前已加载目标，错误 ID 明确失败，原选择器形式继续可用。
   - `family_skiffs` 亲子各自帽船：水 20 初航后子油用自己的船。`afloat` 已改作亲子自主出航观察，赤油留岸阻塞及复测口径见日志问题 2；不再以该场景验证“生成即坐船”。
   - `birth_boat_caught`、`birth_boat_missed` 船上接生：水 7、19 干岸受孕、两船各放、按余量分婴、产后转移，漏接时产间与产后救子（固定版父油卡住的原因未复现）。`couple_boats` 夫妻各一艘船：水 28 岸边探访后往返，伴侣开船来救；双方与双船读数已补齐，`water.launch`／`water.birth` 直接显示放船重试、产程阻塞和实际跨船阶段。
   - 任一池塘：水 9 水生认得无饰个体、8 格内自帽船算有头饰；见[水生生活](AQUATIC_MARISA_IMPLEMENTATION.md)。

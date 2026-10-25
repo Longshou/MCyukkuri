@@ -28,7 +28,7 @@
 | `[care]` | 照护会合、拒绝、重新选位、真实接起／放下和停止 | 双方 UUID、会合种类；[照护](CHILDHOOD_LIFECYCLE.md) |
 | `[offering]` / `[grief]` / `[cannibal]` | 献身与护子意愿、阻塞、阶段、中断、亲属临终反应、遗体食用交餐 | 亲子、捕食者、遗体 UUID；[献身与遗体](INJURIES_AND_REMAINS.md) |
 | `[aquatic]` / `[water]` / `[voyage]` / `[boarding]` / `[cradle]` | 出航、建船、翻船、自救／救子、返岸、初航、登船与抱持、岸上工作、孤幼接手 | 行动者、帽船、子代 UUID；[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md) |
-| `[cargo]` / `[family-alarm]` | 库存真实出入、腐坏、散落、幼体装载与没收、召回事件起止 | 船 UUID、亲子 UUID、事件开始 tick；[帽船](AQUATIC_MARISA_IMPLEMENTATION.md) |
+| `[cargo]` / `[family-alarm]` | 库存真实出入、腐坏、散落、幼体装载与靠岸交接、召回事件起止 | 船 UUID、亲子 UUID、事件开始 tick；[帽船](AQUATIC_MARISA_IMPLEMENTATION.md) |
 | `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |
 | `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |

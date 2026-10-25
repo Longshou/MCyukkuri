@@ -55,6 +55,11 @@ public final class ScenarioCommands {
         return EntityArgument.getEntity(c, name) instanceof YukkuriEntity y ? y : null;
     }
 
+    private static int requestShore(CommandSourceStack source,YukkuriEntity parent){
+        return parent.aquaticLife().requestShoreVisit()?1
+                : refused(source,parent,"返岸","亲油现在不能返岸：要在自己的船上、船在水面、八格内有干岸、没有别的任务。");
+    }
+
     private static BadgeGrade badgeGrade(String id) {
         return switch (id) {
             case "bronze" -> BadgeGrade.BRONZE;
@@ -204,12 +209,20 @@ public final class ScenarioCommands {
                                                     if (reason != null) return refused(c.getSource(), parent, "水上场景 " + mode, reason);
                                                     return done(c.getSource(), "水上场景 " + mode + " 已设置初始条件；之后由普通行为接管。");
                                                 })))))))
-                .then(Commands.literal("shore").then(Commands.argument("parent", EntityArgument.entity()).executes(c -> {
-                    var parent = yukkuri(c, "parent");
-                    if (parent == null) return 0;
-                    return parent.aquaticLife().requestShoreVisit() ? 1
-                            : refused(c.getSource(), parent, "返岸", "亲油现在不能返岸：要在自己的船上、船在水面、八格内有干岸、没有别的任务。");
-                })))
+                .then(Commands.literal("shore")
+                        .then(Commands.argument("parent", EntityArgument.entity()).executes(c -> {
+                            var parent = yukkuri(c, "parent");
+                            if (parent == null) return 0;
+                            return requestShore(c.getSource(),parent);
+                        }))
+                        .then(Commands.literal("id").then(Commands.argument("entityId",IntegerArgumentType.integer(0)).executes(c -> {
+                            int id=IntegerArgumentType.getInteger(c,"entityId");
+                            if(!(c.getSource().getLevel().getEntity(id) instanceof YukkuriEntity parent)){
+                                c.getSource().sendFailure(Component.literal("数字 ID #"+id+" 没有对应当前已加载的油库里。"));
+                                return 0;
+                            }
+                            return requestShore(c.getSource(),parent);
+                        }))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
