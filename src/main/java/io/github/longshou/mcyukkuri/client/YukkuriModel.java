@@ -74,6 +74,8 @@ public final class YukkuriModel {
     private final List<Part> parts = new ArrayList<>();
     private final Map<Part,Integer> staticHairMasks = new IdentityHashMap<>();
     private final HouseNormals houseNormals;
+    /** Angle-thresholded smooth skin normals of the body surface and of its puff mesh; null on house models. */
+    private AngleNormals skinNormals,puffSkinNormals;
     private final SkinningCache skinningCache;
     private final int[] bodyFloorVertices;
     private final float[][] defaultPose, lastLocalPose;
@@ -257,6 +259,74 @@ public final class YukkuriModel {
                 }
             }
             normals=new Vector3f[ids.size()];for(int i=0;i<normals.length;i++)normals[i]=new Vector3f();
+        }
+    }
+    /**
+     * Smooth the flat skin triangles across slice seams: a vertex takes the posed face normals of every triangle at its position
+     * whose rest normal lies within {@link #SMOOTH_ANGLE_COS} of its own triangle's, so rounded seams (up to 44 degrees on the
+     * shared body model) blend while real corners (50 degrees and more) stay sharp. Adjacency is built once; per frame only sums.
+     */
+    private static final class AngleNormals {
+        final int[] firsts;
+        final float[] faces;
+        final int[] neighbourStart;
+        final int[] neighbours;
+        final int[] vertices;
+        final Vector3f[] normals;
+        AngleNormals(float[] rest,List<Part> parts){
+            int total=rest.length/8,count=0;
+            for(var part:parts)count+=part.count/3;
+            firsts=new int[count];faces=new float[count*3];
+            float[] rn=new float[count*3];
+            int t=0;
+            for(var part:parts)for(int first=part.start;first<part.start+part.count;first+=3,t++){
+                firsts[t]=first;
+                float ax=rest[(first+1)*8]-rest[first*8],ay=rest[(first+1)*8+1]-rest[first*8+1],az=rest[(first+1)*8+2]-rest[first*8+2];
+                float bx=rest[(first+2)*8]-rest[first*8],by=rest[(first+2)*8+1]-rest[first*8+1],bz=rest[(first+2)*8+2]-rest[first*8+2];
+                float x=ay*bz-az*by,y=az*bx-ax*bz,z=ax*by-ay*bx,length=(float)Math.sqrt(x*x+y*y+z*z);
+                if(length>1e-9f){rn[t*3]=x/length;rn[t*3+1]=y/length;rn[t*3+2]=z/length;}
+            }
+            var byPosition=new HashMap<String,List<Integer>>();
+            for(t=0;t<count;t++)for(int c=0;c<3;c++){
+                int o=(firsts[t]+c)*8;
+                byPosition.computeIfAbsent(Math.round(rest[o]*100000)+","+Math.round(rest[o+1]*100000)+","+Math.round(rest[o+2]*100000),k->new ArrayList<>()).add(t);
+            }
+            neighbourStart=new int[total+1];
+            var list=new ArrayList<Integer>();var used=new ArrayList<Integer>();
+            int[] owner=new int[total];Arrays.fill(owner,-1);
+            for(t=0;t<count;t++)for(int c=0;c<3;c++)owner[firsts[t]+c]=t;
+            for(int v=0;v<total;v++){
+                neighbourStart[v]=list.size();
+                int own=owner[v];if(own<0)continue;
+                int o=v*8;
+                for(int other:byPosition.get(Math.round(rest[o]*100000)+","+Math.round(rest[o+1]*100000)+","+Math.round(rest[o+2]*100000))){
+                    float dot=rn[own*3]*rn[other*3]+rn[own*3+1]*rn[other*3+1]+rn[own*3+2]*rn[other*3+2];
+                    if(other==own||dot>=SMOOTH_ANGLE_COS)list.add(other);
+                }
+                used.add(v);
+            }
+            neighbourStart[total]=list.size();
+            neighbours=list.stream().mapToInt(Integer::intValue).toArray();
+            vertices=used.stream().mapToInt(Integer::intValue).toArray();
+            normals=new Vector3f[total];for(int v:vertices)normals[v]=new Vector3f();
+        }
+        boolean has(int vertex){return normals[vertex]!=null;}
+    }
+    /** cos(47 degrees): above the 44 degree rounded seams and below the 50 degree corners of the shared body model. */
+    private static final float SMOOTH_ANGLE_COS=(float)Math.cos(Math.toRadians(47));
+    /** Model units the expression cards sit in front of their own plane, over the head skin they were measured against (about 0.02 deep at the mouth). */
+    static final float CARD_LIFT=.04f;
+    private void updateAngleNormals(AngleNormals smooth){
+        for(int t=0;t<smooth.firsts.length;t++){
+            int first=smooth.firsts[t];
+            for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
+            normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);normal.cross(edge);
+            smooth.faces[t*3]=normal.x;smooth.faces[t*3+1]=normal.y;smooth.faces[t*3+2]=normal.z;
+        }
+        for(int v:smooth.vertices){
+            var sum=smooth.normals[v].zero();
+            for(int i=smooth.neighbourStart[v];i<smooth.neighbourStart[v+1];i++){int face=smooth.neighbours[i]*3;sum.add(smooth.faces[face],smooth.faces[face+1],smooth.faces[face+2]);}
+            if(sum.lengthSquared()>1e-16f)sum.normalize();else sum.set(0,0,-1);
         }
     }
     private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||
@@ -550,6 +620,11 @@ public final class YukkuriModel {
         clips.get("idle").sample(0,defaultPose);
         houseNormals=id.startsWith("house_")?new HouseNormals(restVertices,parts):null;
         if(puffSurface!=null)puffNormals=new HouseNormals(restVertices,List.of(puffSurface),true);
+        if(!id.startsWith("house_")){
+            var skin=parts.stream().filter(part->bodySurface(part.name)).toList();
+            if(!skin.isEmpty())skinNormals=new AngleNormals(restVertices,skin);
+            if(puffSurface!=null)puffSkinNormals=new AngleNormals(restVertices,List.of(puffSurface));
+        }
         boolean[] expressionVertices=new boolean[bindings.length];
         for(var patches:expressionPatches.values())for(var patch:patches)
             Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
@@ -793,6 +868,8 @@ public final class YukkuriModel {
             }
             for(var n:houseNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
         }
+        if(skinNormals!=null)updateAngleNormals(skinNormals);
+        if(puffSkinNormals!=null&&puffAmount>0)updateAngleNormals(puffSkinNormals);
         cardNormals.clear();
         if(!id.startsWith("house_"))for(var card:parts)if(card.name.startsWith("face_")&&card.anatomy.isEmpty()){
             var sum=cardNormals.computeIfAbsent(card.name,ignored->new Vector3f()).zero();
@@ -846,6 +923,8 @@ public final class YukkuriModel {
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
+                var lifted=cardNormals.get(part.name);
+                if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
                 if(hatPart&&hatDamageDraw.fit()<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
                 normal.set(triangle[1]).sub(triangle[0]);
                 edge.set(triangle[2]).sub(triangle[0]);
@@ -869,8 +948,12 @@ public final class YukkuriModel {
                     int uv = vertex * 8 + 3;
                     Vector3f vertexNormal=houseNormals!=null&&houseNormals.groups[vertex]>=0
                             ?houseNormals.normals[houseNormals.groups[vertex]]:normal;
+                    var angled=puffAmount>0&&puffSkinNormals!=null&&puffSkinNormals.has(vertex)?puffSkinNormals
+                            :skinNormals!=null&&skinNormals.has(vertex)?skinNormals:null;
+                    Vector3f smoothBase=angled==null?normal:angled.normals[vertex];
+                    if(angled!=null)vertexNormal=smoothBase;
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)
-                        vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
+                        vertexNormal=puffBlendedNormal.set(smoothBase).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
                     var card=cardNormals.get(part.name);if(card!=null)vertexNormal=card;
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(tint>>16&255, tint>>8&255, tint&255, 255).setUv(vertices[uv], vertices[uv + 1])
