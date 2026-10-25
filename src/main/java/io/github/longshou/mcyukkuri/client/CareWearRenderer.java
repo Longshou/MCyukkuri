@@ -7,6 +7,7 @@ import java.util.Arrays;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 
 /**
  * Pet harness, cloth swaddle and leaf swaddle as shells derived procedurally from the posed body surface (no per-species authored
@@ -15,13 +16,15 @@ import net.minecraft.resources.ResourceLocation;
  * samples below and above, so sparse meshes (the rounded bodies have only eight vertex rings) and dense ones alike give a closed shell, and
  * all follow squash, stretch and growth of whatever model and clip is being drawn.
  *
- * <p>The harness is a low belt just above the ground contact with the lead ring on the back. The cloth swaddle is a soft bag over the lower
- * body, outside the hanging back hair, whose rim is high at the back and dips under the mouth at the front; each of the eight styles of
- * {@link io.github.longshou.mcyukkuri.item.SwaddleStyle} picks its fabric tile, colours, rim (rolled cuff, lace frill or plain hem), a
- * crossover front flap with a bow, and fixtures (back initial, tiger mark, rubber sole with strap and pouch, pompoms). The leaf swaddle is
- * one leaf worn like a diaper: petiole and blade base at the anus on the back, down and under the body, the tip up over the front outlet
- * below the mouth; while a parent has opened it for care it lies flat on the ground under the child. Presentation only; the wear state
- * comes from the server. The model's front is -Z, so the back is +Z. Client only.</p>
+ * <p>The harness is a low belt just above the ground contact with the lead ring on the back. The cloth swaddle is a thin wrap hugging the
+ * skin of the lower body, whose rim is high at the back and dips under the mouth at the front; each of the eight styles of
+ * {@link io.github.longshou.mcyukkuri.item.SwaddleStyle} picks its fabric tile, colours, rim (folded band or lace frill), a crossover
+ * front flap with a bow, and fixtures (back initial, tiger mark, rubber sole with strap and pouch, pompoms). The leaf swaddle is one leaf
+ * worn like a diaper: petiole and blade base at the anus on the back, down and under the body, the tip up over the front outlet below the
+ * mouth; while a parent has opened it for care it lies flat on the ground under the child. Both wraps lie under the hair, as the game
+ * atlas layers おくるみ under 髪 and もみあげ: {@link #prepareClearance} reads the same posed skin before the model draws, and
+ * {@link #clearHair} lifts every hair, sidelock, braid and accessory vertex that falls inside the wrap's thickness out over it.
+ * Presentation only; the wear state comes from the server. The model's front is -Z, so the back is +Z. Client only.</p>
  */
 final class CareWearRenderer {
     private static final ResourceLocation TEXTURE = MCYukkuri.id("textures/misc/care_wear.png");
@@ -29,7 +32,9 @@ final class CareWearRenderer {
     private static final ResourceLocation LEAF = MCYukkuri.id("textures/misc/swaddle_leaf_wear.png");
     /** 64x64 cutout sheet of the cloth's non-repeating parts (art/props/pet-goods, drafts/care-props/wear.py TRIM). */
     private static final ResourceLocation TRIM = MCYukkuri.id("textures/misc/swaddle_trim.png");
-    private static final int BINS = 24, CELLS = 32, HARNESS = 1, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 5;
+    private static final int BINS = 24, CELLS = 32, HARNESS = 1, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 9;
+    /** Height cells of the skin table (the lower three quarters of the body: every rim, the leaf and the hair fade above them). */
+    private static final int SKIN_CELLS = CELLS * 3 / 4;
     /** Harness belt centre and half height as fractions of the body height: low, under the mouth line, never across the face. */
     private static final float BELT_AT = .14f, BELT_HALF = .045f;
     /** Lowest edge of every shell, as a fraction of the body height. */
@@ -47,40 +52,51 @@ final class CareWearRenderer {
     /**
      * One style: body fabric tile and colour, edge fabric and colour, accent (a one-line piping under the folded edge, the flap's topstitch,
      * lace frill), trim colour (bow, pompoms, letter), rim kind, crossover front flap, fixture, rim height at the back and the front, extra
-     * bulge of the bag, and the edge: for FOLD the width of the folded-over band (narrower at the front) and its thickness, for FRILL the
-     * cuff tube under the lace (fractions of the body height). Colours multiply the near-white tiles; patterned tiles take white.
+     * fullness of the cloth low on the body, and the edge: for FOLD the width of the folded-over band (narrower at the front) and its
+     * thickness, for FRILL the cuff tube under the lace (fractions of the body height). Colours multiply the near-white tiles; patterned
+     * tiles take white.
      */
     private record Style(ResourceLocation fabric, int[] body, ResourceLocation rollFabric, int[] roll, int[] accent, int[] trim, int rim,
                          boolean crossover, int fixture, float back, float front, float puff, float rollSize, float fold) {}
     private static final int[] WHITE = {255, 255, 255};
     private static final Style[] STYLES = {
             // knit: cream knit folded over to show its pale pink lining, a pink piping line, a crossover flap tied with a pink bow (project design)
-            new Style(fabric("knit"), rgb(255, 250, 240), fabric("cotton"), rgb(248, 210, 220), rgb(226, 136, 166), rgb(240, 136, 168), FOLD, true, PLAIN, .55f, .20f, .04f, .17f, .055f),
-            // frill: pink bag, white lace frill, red bow at the front (EH30's look only)
-            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .52f, .20f, .05f, .07f, 0),
-            // letter: red bag with a frilled collar and the wearer's white initial on the back (EH34 p.7-8)
-            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .55f, .20f, .05f, .07f, 0),
+            new Style(fabric("knit"), rgb(255, 250, 240), fabric("cotton"), rgb(248, 210, 220), rgb(226, 136, 166), rgb(240, 136, 168), FOLD, true, PLAIN, .42f, .20f, .010f, .17f, .022f),
+            // frill: pink cloth, white lace frill, red bow at the front (EH30's look only)
+            new Style(fabric("cotton"), rgb(246, 176, 196), fabric("cotton"), rgb(246, 176, 196), WHITE, rgb(222, 64, 58), FRILL, false, PLAIN, .40f, .20f, .010f, .044f, 0),
+            // letter: red cloth with a frilled collar and the wearer's white initial on the back (EH34 p.7-8)
+            new Style(fabric("cotton"), rgb(206, 64, 60), fabric("cotton"), rgb(206, 64, 60), WHITE, WHITE, FRILL, false, LETTER, .42f, .20f, .010f, .044f, 0),
             // tiger: striped lower piece folded over in cream fleece, the tiger mark front and back (EH34 p.12-14; the eared hood is not made)
-            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 236, 206), null, null, FOLD, false, MARK, .55f, .20f, .04f, .17f, .06f),
+            new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 236, 206), null, null, FOLD, false, MARK, .42f, .20f, .010f, .15f, .024f),
             // outing: light cloth with a navy folded edge, a rubber sole, a strap and a pouch (EH31 p.2)
-            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, FOLD, false, OUTING, .50f, .20f, .03f, .15f, .05f),
-            // fleece: thick, higher winter wrap with a plush folded edge, crossover flap and pompom ties at the sides (N91's cold-season wear; shape project design)
-            new Style(fabric("fleece"), rgb(226, 206, 176), fabric("fleece"), rgb(244, 232, 212), rgb(206, 186, 156), rgb(198, 96, 78), FOLD, true, POMPOMS, .60f, .19f, .07f, .19f, .08f),
+            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, FOLD, false, OUTING, .40f, .20f, .006f, .15f, .020f),
+            // fleece: thicker, higher winter wrap with a plush folded edge, crossover flap and pompom ties at the front (N91's cold-season wear; shape project design)
+            new Style(fabric("fleece"), rgb(192, 166, 136), fabric("fleece"), rgb(244, 232, 212), rgb(160, 136, 108), rgb(198, 96, 78), FOLD, true, POMPOMS, .48f, .19f, .018f, .19f, .032f),
             // gingham: blue checks folded over white with a navy line, crossover flap and navy bow (project design)
-            new Style(fabric("gingham"), WHITE, fabric("cotton"), rgb(250, 250, 252), rgb(70, 96, 170), rgb(70, 96, 170), FOLD, true, PLAIN, .55f, .20f, .04f, .16f, .055f),
+            new Style(fabric("gingham"), WHITE, fabric("cotton"), rgb(250, 250, 252), rgb(70, 96, 170), rgb(70, 96, 170), FOLD, true, PLAIN, .42f, .20f, .010f, .16f, .022f),
             // floral: cream with small flowers folded over pale green with a green line, crossover flap and green bow (project design)
-            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), FOLD, true, PLAIN, .55f, .20f, .04f, .16f, .055f)};
+            new Style(fabric("floral"), WHITE, fabric("cotton"), rgb(214, 236, 200), rgb(120, 180, 110), rgb(120, 180, 110), FOLD, true, PLAIN, .42f, .20f, .010f, .16f, .022f)};
     /**
-     * Every bag stands SHELL_OUT of the body height clear of it (less at the ground, so the bottom rounds in) plus the style's bulge, which is
-     * fullest in the lower half: a padded wrap, not a sleeve.
+     * The cloth hugs the skin: it stands CLOTH_INSET plus SHELL_OUT of the body height clear of it (a little less at the ground, so the
+     * bottom rounds in) plus the style's fullness low on the body, a few hundredths of the body height in all, so the hair, sidelocks and
+     * braids hang over it.
      */
-    private static final float SHELL_OUT = .12f;
+    private static final float CLOTH_INSET = .006f, SHELL_OUT = .016f;
     /**
      * The crossover flap: one panel wrapped round from the back left (SEAM_AT) over the left flank and across the front, tucked under the
      * folded edge; its cut edge runs diagonally from low at the front right up to under the left cheek (SEAM_SLANT of the sweep back at
-     * the top), where the bow ties it, and stands FLAP_LIFT (about one unit) proud of the bag.
+     * the top), where the bow ties it, and stands FLAP_LIFT (a layer of cloth) proud of the wrap.
      */
-    private static final float SEAM_AT = -4.0f, SEAM_SWEEP = 3.03f, SEAM_SLANT = .38f, FLAP_LIFT = .05f;
+    private static final float SEAM_AT = -4.0f, SEAM_SWEEP = 3.03f, SEAM_SLANT = .38f, FLAP_LIFT = .016f;
+    /** Lace frill of the frill styles: how far it reaches out and hangs down from under the cuff tube (fractions of the body height). */
+    private static final float FRILL_REACH = .03f, FRILL_DROP = .075f;
+    /**
+     * The outing pouch: its angle (behind the right sidelock, below the hair at the back), centre height, half size and how far it stands
+     * off the cloth; the strap runs STRAP_SWEEP from it round the back to the rim at the front left.
+     */
+    private static final float POUCH_ANGLE = .2f, STRAP_SWEEP = 4.0f, POUCH_AT = .15f, POUCH_HALF = .10f, POUCH_LIFT = .02f;
+    /** Centre height and half size of the letter and tiger mark on the back, below the hanging back hair (fractions of the body height). */
+    private static final float BACK_MARK_AT = .17f, BACK_MARK_HALF = .11f;
     /** Cross-section of the frill styles' cuff tube (radians from outwards, upwards positive). */
     private static final float[] TUBE = {-1.75f, -1.05f, -.45f, .15f, .75f, 1.35f, 2.4f};
     /** Folded edge: lit top line and piping line heights, and the shadow band under it (fractions of the body height). */
@@ -97,11 +113,14 @@ final class CareWearRenderer {
     /**
      * The leaf laid as a diaper, as fractions of the body height: the blade base sits at the anus on the back (LEAF_BACK), the petiole
      * rises STALK above it and stands STALK_OUT off the body; the blade runs down the back, under the body and up the front to LEAF_FRONT,
-     * over the front outlet and under the mouth. LEAF_HALF is the half width of the leaf texture across the body; the margins curl out by
-     * CURL and rise by RISE towards the sides, so the leaf cups the bottom and shows on the flanks. U_* split the texture along the leaf:
-     * petiole, blade on the back, under the body, blade on the front (its broadest part low on the front).
+     * over the front outlet and under the mouth, LEAF_LIFT off the skin. LEAF_HALF is the half width of the leaf texture across the body;
+     * the margins curl out by CURL and rise by RISE towards the sides, so the leaf cups the bottom and shows on the flanks. U_* split the
+     * texture along the leaf: petiole, blade on the back, under the body, blade on the front (its broadest part low on the front).
      */
-    private static final float LEAF_BACK = .32f, LEAF_FRONT = .22f, STALK = .14f, STALK_OUT = .04f, LEAF_HALF = 1.05f, CURL = .01f, RISE = .22f;
+    private static final float LEAF_BACK = .32f, LEAF_FRONT = .22f, STALK = .14f, STALK_OUT = .025f, LEAF_HALF = 1.05f, CURL = .01f, RISE = .22f,
+            LEAF_LIFT = .010f;
+    /** Highest the leaf reaches at the front and at the sides and back (the cupped margins and the petiole), for clearHair. */
+    private static final float LEAF_TOP_FRONT = .26f, LEAF_TOP_BACK = .50f;
     private static final float U_STALK = 5 / 32f, U_UNDER = .40f, U_FRONT = .50f;
     /** Rows of the leaf grid per part (petiole, back, under, front) and columns across; the widest angle a margin wraps round the body. */
     private static final int STALK_ROWS = 2, BACK_ROWS = 5, UNDER_ROWS = 3, FRONT_ROWS = 5, ACROSS = 8;
@@ -119,14 +138,26 @@ final class CareWearRenderer {
     /** True angle of the sample radiusAt / radiusNear / radiusLow last returned, and the convex-hull scratch (render thread). */
     private static float sampleAngle;
     private static final float[] ANG = new float[BINS], HX = new float[BINS], HZ = new float[BINS], HULL_X = new float[2 * BINS + 1], HULL_Z = new float[2 * BINS + 1];
-    private static final float[][] RING = new float[RINGS][BINS];
     private static final float[] BELT_LO = new float[BINS], BELT_HI = new float[BINS], TOP = new float[BINS], COPY = new float[BINS], ARC = new float[BINS + 1];
     private static final float[] GRID = new float[(LEAF_ROWS + 1) * (ACROSS + 1) * 4];
-    /** Hull radius per height cell (lower half of the body) and bin, rebuilt for each leaf wrap. */
-    private static final float[][] NEAR = new float[CELLS / 2][BINS];
-    /** Cloth surface of the current swaddle: inset, shell offset and bulge (model units), the angle leafPoint last used, point scratch. */
+    /** Skin: hull radius per height cell (lower three quarters of the body) and bin, rebuilt for each wrap; cloth, leaf and clearHair read it. */
+    private static final float[][] SKIN = new float[SKIN_CELLS][BINS];
+    /** Cloth surface of the current swaddle: inset, shell offset and fullness (model units), the angle leafPoint last used, point scratch. */
     private static float clothInset, clothShell, clothPuff, leafAngle;
     private static Style clothStyle;
+
+    // ---- hair over the wrap (clearHair) ------------------------------------------------------------------------------
+    /**
+     * Hair within the wrap's thickness of the skin is lifted out over it by that thickness plus CLEAR_MARGIN; the lift fades to nothing at
+     * CLEAR_REACH beyond the wrap and at CLEAR_DEPTH inside the skin (roots running into the head stay put), and above the rim over
+     * CLEAR_FADE, starting CLEAR_RIM above it (the folded band's lip); the fade is long so that a hair strip with one corner below the rim
+     * and the other far above it, drawn straight between them, still clears the edge. Fractions of the body height.
+     */
+    private static final float CLEAR_MARGIN = .012f, CLEAR_REACH = .05f, CLEAR_DEPTH = .03f, CLEAR_FADE = .2f, CLEAR_RIM = .012f;
+    /** Body frame and wrap of the model being drawn (prepareClearance), in blocks; the style, or null for the leaf. */
+    private static float clearCx, clearCz, clearMinY, clearH, clearTop;
+    private static Style clearStyle;
+    private static final float[][] CLEAR_SKIN = new float[SKIN_CELLS][BINS];
     private static final float[] PT = new float[3], PT2 = new float[3];
 
     /** Direction of each bin centre. */
@@ -141,8 +172,28 @@ final class CareWearRenderer {
     static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         if (wear == 0) return;
         float[] pts = model.posedWear();
-        int body = model.wearBodyLength(), all = model.wearLength();
+        int body = model.wearBodyLength();
         if (body < 9) return;
+        float[] frame = frame(pts, body);
+        if (frame == null) return;
+        float cx = frame[0], cz = frame[1], minY = frame[2], h = frame[3];
+        var last = pose.last();
+        float out = .035f * h;
+        boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0, open = leaf && (wear & LEAF_OPEN) != 0;
+        // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
+        // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
+        profile(pts, body, cx, cz, minY, h);
+        if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
+        if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
+        if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
+        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, light, overlay);
+        // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
+        if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
+                cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
+    }
+
+    /** Centre x and z, lowest y and height of the posed body points (blocks), or null for a degenerate body. */
+    private static float[] frame(float[] pts, int body) {
         float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE, minZ = Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
         for (int i = 0; i < body; i += 3) {
             minX = Math.min(minX, pts[i]); maxX = Math.max(maxX, pts[i]);
@@ -150,24 +201,67 @@ final class CareWearRenderer {
             minZ = Math.min(minZ, pts[i + 2]); maxZ = Math.max(maxZ, pts[i + 2]);
         }
         float h = maxY - minY;
-        if (h < .02f) return;
-        float cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
-        var last = pose.last();
-        float out = .035f * h;
-        boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0;
-        // Heights come from the body alone. The cloth hugs the body and the hanging hair falls over it; the leaf's radii also take the hair
-        // hanging at the back, so the leaf closes outside it. One buffer at a time: a batched source may flush the previous one when another
-        // texture is requested.
-        if (cloth) profile(pts, body, cx, cz, minY, h);
-        if (leaf) profile(pts, all, cx, cz, minY, h);
-        if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, out, light, overlay);
-        if (leaf && (wear & LEAF_OPEN) != 0) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
-        else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, out, wear >> 4 & 3, light, overlay);
-        boolean wrapped = cloth || leaf && (wear & LEAF_OPEN) == 0;
-        // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
-        if ((wear & HARNESS) != 0) profile(pts, body, cx, cz, minY, h);
-        if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
-                wrapped ? out + .03f * h : .03f * h, light, overlay);
+        return h < .02f ? null : new float[]{(minX + maxX) / 2, (minZ + maxZ) / 2, minY, h};
+    }
+
+    /**
+     * Before the model draws a wrapped body: reads its posed skin into the clearance table, so {@link #clearHair} can lift the hair that
+     * would fall inside the cloth or leaf. False when nothing is wrapped (no wear, harness only, the leaf opened for care).
+     */
+    static boolean prepareClearance(YukkuriModel model, int wear) {
+        boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0 && (wear & LEAF_OPEN) == 0;
+        if (!cloth && !leaf) return false;
+        float[] pts = model.posedWear();
+        int body = model.wearBodyLength();
+        float[] frame = body < 9 ? null : frame(pts, body);
+        if (frame == null) return false;
+        clearCx = frame[0]; clearCz = frame[1]; clearMinY = frame[2]; clearH = frame[3];
+        profile(pts, body, clearCx, clearCz, clearMinY, clearH);
+        if (!skinTable(CLEAR_SKIN)) return false;
+        clearStyle = cloth ? STYLES[wear >> 6 & 7] : null;
+        clearTop = (cloth ? Math.max(clearStyle.back, clearStyle.front) : LEAF_TOP_BACK) + CLEAR_RIM + CLEAR_FADE;
+        return true;
+    }
+
+    /**
+     * Lifts one posed hair or accessory vertex (model units, the frame of the last prepareClearance) radially out over the wrap: a vertex
+     * on the skin goes to the wrap's outer face plus CLEAR_MARGIN, one further out moves less, keeping the order of the hair's layers, and
+     * nothing moves beyond CLEAR_REACH, deeper than CLEAR_DEPTH inside the skin or above the rim's fade. Heights never change.
+     */
+    static void clearHair(Vector3f p) {
+        float x = p.x / 16 - clearCx, z = p.z / 16 - clearCz, f = (p.y / 16 - clearMinY) / clearH;
+        if (f < 0 || f > clearTop) return;
+        float a = (float) Math.atan2(z, x), thick = wrapThickness(f, a);
+        if (thick <= 0) return;
+        float r = (float) Math.sqrt(x * x + z * z);
+        if (r < 1e-5f) return;
+        float skin = radiusAround(CLEAR_SKIN, f, a), g = (r - skin) / clearH, reach = thick + CLEAR_REACH;
+        if (g <= -CLEAR_DEPTH || g >= reach) return;
+        float lifted = g + thick * (g >= 0 ? 1 - g / reach : 1 + g / CLEAR_DEPTH), s = (skin + lifted * clearH) / r;
+        p.x = (clearCx + x * s) * 16; p.z = (clearCz + z * s) * 16;
+    }
+
+    /**
+     * How far (fraction of the body height) the prepared wrap plus CLEAR_MARGIN stands off the skin at height fraction f and angle a,
+     * faded out just above its rim; 0 outside it. The cloth: inset, shell and fullness, the flap layer of the crossover styles, the
+     * folded band, cuff tube and frill near the rim and the outing pouch; the leaf: its lift and curl, and the petiole up the back.
+     */
+    private static float wrapThickness(float f, float a) {
+        Style style = clearStyle;
+        float top, thick;
+        if (style != null) {
+            top = rim(a, style.front, style.back);
+            float u = Math.clamp((f - CUP_BASE) / Math.max(1e-4f, top - CUP_BASE), 0f, 1f), band = bandAt(style, a);
+            float edge = Math.clamp((f - (top - band - .04f)) / .04f, 0f, 1f);
+            thick = CLOTH_INSET + puffAt(u, SHELL_OUT, style.puff) + (style.crossover ? FLAP_LIFT : 0) + (style.fixture == OUTING ? POUCH_LIFT : 0)
+                    + edge * edge * (3 - 2 * edge) * (style.rim == FRILL ? style.rollSize + FRILL_REACH : style.fold);
+        } else {
+            top = rim(a, LEAF_TOP_FRONT, LEAF_TOP_BACK);
+            float back = Math.abs(offset(a, (float) (Math.PI / 2)));
+            thick = LEAF_LIFT + CURL + (back < .45f && f > LEAF_BACK - .04f ? STALK_OUT : 0);
+        }
+        float fade = Math.clamp(1 - (f - top - CLEAR_RIM) / CLEAR_FADE, 0f, 1f);
+        return fade <= 0 ? 0 : (thick + CLEAR_MARGIN) * fade;
     }
 
     /** Letter index (0 = A) of the model's initial for the letter style; a house form takes its species' letter. */
@@ -340,20 +434,22 @@ final class CareWearRenderer {
     }
 
     /** Height (fraction) the edge takes below the rim at an angle: the folded band, narrower at the front, or the frill styles' tube. */
-    private static float bandAt(float angle) {
-        return clothStyle.rim == FRILL ? clothStyle.rollSize * .7f : clothStyle.rollSize * (.55f + .45f * side(angle));
+    private static float bandAt(float angle) { return bandAt(clothStyle, angle); }
+    private static float bandAt(Style style, float angle) {
+        return style.rim == FRILL ? style.rollSize * .7f : style.rollSize * (.55f + .45f * side(angle));
     }
 
     /** Height fraction of ring k of the crossover flap, which stops under the folded edge. */
     private static float flapF(float angle, int k) { return CUP_BASE + (topAt(angle) - bandAt(angle) - CUP_BASE) * k / (RINGS - 1); }
 
-    /** RING[k] = body radius per bin at the k-th of RINGS heights between the base and TOP[bin]; false when the profile is empty. */
-    private static boolean rings(float front, float back) {
-        for (int i = 0; i < BINS; i++) TOP[i] = rim(angle(i), front, back);
-        for (int k = 0; k < RINGS; k++) {
-            float u = k / (float) (RINGS - 1);
-            for (int i = 0; i < BINS; i++) { RING[k][i] = radiusLow(CUP_BASE + (TOP[i] - CUP_BASE) * u, i); ANG[i] = sampleAngle; }
-            if (!hull(RING[k], ANG)) return false;
+    /**
+     * table[c] = hull radius of the profiled skin per bin at the centre of height cell c, from the ground up to SKIN_CELLS; false when the
+     * profile is empty.
+     */
+    private static boolean skinTable(float[][] table) {
+        for (int c = 0; c < table.length; c++) {
+            for (int i = 0; i < BINS; i++) { table[c][i] = radiusLow((c + .5f) / CELLS, i); ANG[i] = sampleAngle; }
+            if (!hull(table[c], ANG)) return false;
         }
         return true;
     }
@@ -396,10 +492,11 @@ final class CareWearRenderer {
 
     // ---- cloth swaddle ---------------------------------------------------------------------------------------------------
 
-    /** How far the bag stands off the body at ring fraction u (0 base .. 1 rim): drawn in at the ground, full above, bulging in the lower half. */
-    private static float puffAt(float u) {
+    /** How far the cloth stands off the body at ring fraction u (0 base .. 1 rim): drawn in at the ground, full above, fuller low down. */
+    private static float puffAt(float u) { return puffAt(u, clothShell, clothPuff); }
+    private static float puffAt(float u, float shell, float puff) {
         float t = Math.min(1, u / .35f);
-        return clothShell * (.45f + .55f * t * t * (3 - 2 * t)) + clothPuff * (float) Math.sin(Math.PI * Math.min(1, u / .7f));
+        return shell * (.45f + .55f * t * t * (3 - 2 * t)) + puff * (float) Math.sin(Math.PI * Math.min(1, u / .7f));
     }
 
     /** Rim height fraction at a continuous angle, between the neighbouring bins. */
@@ -413,19 +510,13 @@ final class CareWearRenderer {
 
     /**
      * A point on the cloth surface at height fraction f (clamped between the base and the rim at that angle) and a continuous angle,
-     * pushed out by `lift`: rings and bins interpolated, plus the cloth's inset and puff. Written into `out`.
+     * pushed out by `lift`: the skin table read there, plus the cloth's inset and fullness. Written into `out`.
      */
     private static float[] clothPoint(float f, float angle, float lift, float cx, float cz, float minY, float h, float[] out) {
         double w = Math.atan2(Math.sin(angle), Math.cos(angle));
-        float fb = (float) ((w + Math.PI) / (2 * Math.PI) * BINS - .5);
-        int lo = Math.floorMod((int) Math.floor(fb), BINS), hi = (lo + 1) % BINS;
-        float t = fb - (float) Math.floor(fb), top = TOP[lo] + (TOP[hi] - TOP[lo]) * t;
-        float u = Math.clamp((f - CUP_BASE) / Math.max(1e-4f, top - CUP_BASE), 0f, 1f), kf = u * (RINGS - 1);
-        int k = Math.min(RINGS - 2, (int) kf);
-        float q = kf - k;
-        float r0 = RING[k][lo] + (RING[k][hi] - RING[k][lo]) * t, r1 = RING[k + 1][lo] + (RING[k + 1][hi] - RING[k + 1][lo]) * t;
-        float r = r0 + (r1 - r0) * q + clothInset + puffAt(u) + lift;
-        out[0] = cx + (float) Math.cos(w) * r; out[1] = minY + (CUP_BASE + (top - CUP_BASE) * u) * h; out[2] = cz + (float) Math.sin(w) * r;
+        float top = topAt(angle), u = Math.clamp((f - CUP_BASE) / Math.max(1e-4f, top - CUP_BASE), 0f, 1f), at = CUP_BASE + (top - CUP_BASE) * u;
+        float r = radiusAround(SKIN, at, angle) + clothInset + puffAt(u) + lift;
+        out[0] = cx + (float) Math.cos(w) * r; out[1] = minY + at * h; out[2] = cz + (float) Math.sin(w) * r;
         return out;
     }
 
@@ -443,14 +534,14 @@ final class CareWearRenderer {
      * closes) and up by height at FABRIC_DENSITY texels per model unit.
      */
     private static void swaddle(MultiBufferSource buffers, PoseStack.Pose pose, Style style, int letter, float cx, float cz, float minY, float h,
-                                float out, int light, int overlay) {
-        if (!rings(style.front, style.back)) return;
-        clothInset = out * .6f; clothShell = SHELL_OUT * h; clothPuff = style.puff * h;
+                                int light, int overlay) {
+        for (int i = 0; i < BINS; i++) TOP[i] = rim(angle(i), style.front, style.back);
+        clothInset = CLOTH_INSET * h; clothShell = SHELL_OUT * h; clothPuff = style.puff * h;
         // arc length around the middle ring sets u, so every ring shares the same columns of the pattern
         ARC[0] = 0;
         for (int i = 0; i < BINS; i++) {
-            float[] a = clothPoint(ringF(angle(i), 2), angle(i), 0, cx, cz, minY, h, PT), p0x = {a[0], a[2]};
-            float[] c = clothPoint(ringF(angle((i + 1) % BINS), 2), angle((i + 1) % BINS), 0, cx, cz, minY, h, PT2);
+            float[] a = clothPoint(ringF(angle(i), RINGS / 2), angle(i), 0, cx, cz, minY, h, PT), p0x = {a[0], a[2]};
+            float[] c = clothPoint(ringF(angle((i + 1) % BINS), RINGS / 2), angle((i + 1) % BINS), 0, cx, cz, minY, h, PT2);
             ARC[i + 1] = ARC[i] + (float) Math.hypot(c[0] - p0x[0], c[2] - p0x[1]);
         }
         float tiles = Math.max(1, Math.round(ARC[BINS] * 16 * FABRIC_DENSITY / 16)), uScale = tiles / Math.max(1e-4f, ARC[BINS]), vScale = 16 * FABRIC_DENSITY / 16;
@@ -538,21 +629,23 @@ final class CareWearRenderer {
         if (style.fixture == PLAIN && style.trim != null) {
             // on the folded edge where the flap's cut edge meets it, or at the front of the frill
             float a = style.crossover ? seamLead(RINGS - 1) : (float) (-Math.PI / 2);
-            float f = style.crossover ? topAt(a) - bandAt(a) * .5f : BOW_AT, bowLift = style.crossover ? style.fold + .015f : .11f;
+            float f = style.crossover ? topAt(a) - bandAt(a) * .5f : BOW_AT, bowLift = style.crossover ? style.fold + .015f : style.rollSize + FRILL_REACH + .005f;
             bow(b, pose, style.trim, light, overlay, clothPoint(f, a, bowLift * h, cx, cz, minY, h, PT), a, .26f * h, .19f * h);
         }
         switch (style.fixture) {
             case LETTER -> decal(b, pose, style.trim, light, overlay, LETTERS_X + letter % 8 * 8, LETTERS_Y + letter / 8 * 8, 8, 8,
-                    (float) Math.PI / 2, .26f, .15f * h, .15f, .008f * h, cx, cz, minY, h);
+                    (float) Math.PI / 2, BACK_MARK_AT, BACK_MARK_HALF * h, BACK_MARK_HALF, .008f * h, cx, cz, minY, h);
             case MARK -> {
-                decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) Math.PI / 2, .26f, .15f * h, .15f, .008f * h, cx, cz, minY, h);
+                decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) Math.PI / 2, BACK_MARK_AT, BACK_MARK_HALF * h, BACK_MARK_HALF, .008f * h, cx, cz, minY, h);
                 decal(b, pose, WHITE, light, overlay, MARK_UV[0], MARK_UV[1], MARK_UV[2], MARK_UV[3], (float) (-Math.PI / 2), .065f, .055f * h, .055f, .008f * h, cx, cz, minY, h);
             }
             case OUTING -> outing(b, pose, cx, cz, minY, h, light, overlay);
             case POMPOMS -> {
-                for (float side : new float[]{-1.15f, 1.15f}) {
-                    float a = (float) (-Math.PI / 2) + side;
-                    cube(b, pose, style.trim, light, overlay, clothPoint(topAt(a) - bandAt(a) - .05f, a, .06f * h, cx, cz, minY, h, PT), .055f * h, POMPOM_UV);
+                // a short tie at the top of the flap's cut edge, its two pompoms hanging over the folded edge, clear of the sidelocks
+                float a = seamLead(RINGS - 1), f = topAt(a) - bandAt(a) * .5f;
+                for (int end = 0; end < 2; end++) {
+                    float at = a + (end == 0 ? -.13f : .1f), drop = end == 0 ? .07f : .11f;
+                    cube(b, pose, style.trim, light, overlay, clothPoint(f - drop, at, (style.fold + .045f) * h, cx, cz, minY, h, PT), .042f * h, POMPOM_UV);
                 }
             }
             default -> { }
@@ -606,7 +699,7 @@ final class CareWearRenderer {
      * stands a little further out so the lace ruffles.
      */
     private static void frill(VertexConsumer b, PoseStack.Pose pose, Style style, float cx, float cz, float minY, float h, float roll, int light, int overlay) {
-        float drop = .085f * h, reach = .055f * h, u0 = FRILL_UV[0] / 64, u1 = (FRILL_UV[0] + FRILL_UV[2]) / 64, v0 = FRILL_UV[1] / 64, v1 = (FRILL_UV[1] + FRILL_UV[3]) / 64;
+        float drop = FRILL_DROP * h, reach = FRILL_REACH * h, u0 = FRILL_UV[0] / 64, u1 = (FRILL_UV[0] + FRILL_UV[2]) / 64, v0 = FRILL_UV[1] / 64, v1 = (FRILL_UV[1] + FRILL_UV[3]) / 64;
         for (int i = 0; i < BINS; i++) {
             int j = (i + 1) % BINS;
             float ai = angle(i), aj = angle(j), am = (ai + aj) / 2 + (j == 0 ? (float) Math.PI : 0);
@@ -664,7 +757,7 @@ final class CareWearRenderer {
             quad(b, pose, WHITE, light, overlay, 0, 1, 0, su1, (SOLE_UV[1] + 1) / 64, su0, (SOLE_UV[1] + 1) / 64, su0, SOLE_UV[1] / 64, su1, SOLE_UV[1] / 64, hi0, hi1, in1, in0);
         }
         // the strap: from the pouch's top on the right, round the back, up to the rim at the front left
-        float start = -.25f, end = start + 4.25f, steps = 16, half = .035f;
+        float start = POUCH_ANGLE, end = start + STRAP_SWEEP, steps = 16, half = .035f;
         for (int s = 0; s < steps; s++) {
             float a0 = start + (end - start) * s / steps, a1 = start + (end - start) * (s + 1) / steps;
             float f0 = strapF(a0, start, end), f1 = strapF(a1, start, end), am = (a0 + a1) / 2;
@@ -673,13 +766,13 @@ final class CareWearRenderer {
             float u0 = STRAP_UV[0] / 64, u1 = (STRAP_UV[0] + STRAP_UV[2]) / 64, v0 = STRAP_UV[1] / 64, v1 = (STRAP_UV[1] + STRAP_UV[3]) / 64;
             quad(b, pose, WHITE, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), u0, v0, u0, v1, u1, v1, u1, v0, p0, p1, p2, p3);
         }
-        decal(b, pose, WHITE, light, overlay, POUCH_UV[0], POUCH_UV[1], POUCH_UV[2], POUCH_UV[3], start, .22f, .14f * h, .14f, .03f * h, cx, cz, minY, h);
+        decal(b, pose, WHITE, light, overlay, POUCH_UV[0], POUCH_UV[1], POUCH_UV[2], POUCH_UV[3], start, POUCH_AT, POUCH_HALF * h, POUCH_HALF, POUCH_LIFT * h, cx, cz, minY, h);
     }
 
     /** Height fraction of the outing strap's middle at angle a: from the pouch top, sagging across the back, up to the rim at the end. */
     private static float strapF(float a, float start, float end) {
-        float t = (a - start) / (end - start), rim = topAt(end) - bandAt(end) - .02f;
-        return .34f + (rim - .34f) * t - .06f * (float) Math.sin(Math.PI * t);
+        float t = (a - start) / (end - start), rim = topAt(end) - bandAt(end) - .02f, from = POUCH_AT + POUCH_HALF;
+        return from + (rim - from) * t - .06f * (float) Math.sin(Math.PI * t);
     }
 
     /** A small axis-aligned cube centred at `at` with the same sprite on every face (the fleece's pompoms). */
@@ -700,18 +793,13 @@ final class CareWearRenderer {
     /**
      * The leaf swaddle: one leaf laid like a diaper on a grid LEAF_ROWS long and ACROSS wide. The petiole stands off the back above the
      * anus; the blade runs down the back from LEAF_BACK, under the body and up the front to LEAF_FRONT, its pointed tip lying on the
-     * body. Across the leaf every grid column keeps its lateral distance from the middle line, wrapping round the posed profile (which
-     * includes the hair hanging at the back, so the leaf closes outside it) up to MAX_WRAP radians; the margins rise and curl out so the
-     * leaf cups the bottom like a diaper and shows on the flanks. Grid cells
-     * below the soiled height use the stool-stained copy of the leaf, higher with every load.
+     * body. Across the leaf every grid column keeps its lateral distance from the middle line, wrapping round the skin (the hair lies
+     * over the leaf, clearHair) up to MAX_WRAP radians; the margins rise and curl out so the leaf cups the bottom like a diaper and shows
+     * on the flanks. Grid cells below the soiled height use the stool-stained copy of the leaf, higher with every load.
      */
-    private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, float out, int soil,
+    private static void leafWrap(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, int soil,
                                  int light, int overlay) {
-        for (int c = 0; c < NEAR.length; c++) {
-            for (int i = 0; i < BINS; i++) { NEAR[c][i] = radiusLow((c + .5f) / CELLS, i); ANG[i] = sampleAngle; }
-            if (!hull(NEAR[c], ANG)) return;
-        }
-        float base = out * .6f, half = LEAF_HALF * h;
+        float base = LEAF_LIFT * h, half = LEAF_HALF * h;
         float[] along = new float[LEAF_ROWS + 1];
         for (int row = 0; row <= LEAF_ROWS; row++) {
             int part = row <= STALK_ROWS ? 0 : row <= STALK_ROWS + BACK_ROWS ? 1 : row < STALK_ROWS + BACK_ROWS + UNDER_ROWS ? 2 : 3;
@@ -739,7 +827,7 @@ final class CareWearRenderer {
                     float aBack = leafAngle;
                     leafPoint(false, fs, lateral, base, cx, cz, minY, h, PT2);
                     float d = aBack - (float) (Math.PI / 2), arc = aBack + (float) ((edge >= 0 ? Math.PI : -Math.PI) - 2 * d) * s;
-                    float rr = radiusAround(fs, arc) + base;
+                    float rr = radiusAround(SKIN, fs, arc) + base;
                     float chordX = PT[0] + (PT2[0] - PT[0]) * s, chordZ = PT[2] + (PT2[2] - PT[2]) * s, chordY = minY + (.006f + (fs - .006f) * w) * h;
                     GRID[at] = chordX + (cx + (float) Math.cos(arc) * rr - chordX) * w; GRID[at + 1] = chordY;
                     GRID[at + 2] = chordZ + (cz + (float) Math.sin(arc) * rr - chordZ) * w; GRID[at + 3] = 0;
@@ -777,8 +865,8 @@ final class CareWearRenderer {
      */
     private static void leafPoint(boolean back, float f, float lateral, float lift, float cx, float cz, float minY, float h, float[] out) {
         float meridian = (float) (back ? Math.PI / 2 : -Math.PI / 2);
-        float d = Math.clamp(lateral / Math.max(1e-4f, radiusAround(f, meridian)), -MAX_WRAP, MAX_WRAP), a = back ? meridian + d : meridian - d;
-        float r = radiusAround(f, a) + lift;
+        float d = Math.clamp(lateral / Math.max(1e-4f, radiusAround(SKIN, f, meridian)), -MAX_WRAP, MAX_WRAP), a = back ? meridian + d : meridian - d;
+        float r = radiusAround(SKIN, f, a) + lift;
         out[0] = cx + (float) Math.cos(a) * r; out[1] = minY + f * h; out[2] = cz + (float) Math.sin(a) * r;
         leafAngle = a;
     }
@@ -791,13 +879,13 @@ final class CareWearRenderer {
                 .setUv(u, v).setOverlay(overlay).setLight(light).setNormal(pose, nx, ny, nz);
     }
 
-    /** Hull radius at height fraction f and a continuous angle: bilinear in the NEAR table between height cells and neighbouring bins. */
-    private static float radiusAround(float f, float angle) {
+    /** Hull radius at height fraction f and a continuous angle: bilinear in a skin table between height cells and neighbouring bins. */
+    private static float radiusAround(float[][] table, float f, float angle) {
         double wrapped = Math.atan2(Math.sin(angle), Math.cos(angle));
-        float fb = (float) ((wrapped + Math.PI) / (2 * Math.PI) * BINS - .5), fc = Math.clamp(f * CELLS - .5f, 0f, NEAR.length - 1f);
-        int lo = Math.floorMod((int) Math.floor(fb), BINS), hi = (lo + 1) % BINS, c0 = (int) fc, c1 = Math.min(NEAR.length - 1, c0 + 1);
+        float fb = (float) ((wrapped + Math.PI) / (2 * Math.PI) * BINS - .5), fc = Math.clamp(f * CELLS - .5f, 0f, table.length - 1f);
+        int lo = Math.floorMod((int) Math.floor(fb), BINS), hi = (lo + 1) % BINS, c0 = (int) fc, c1 = Math.min(table.length - 1, c0 + 1);
         float t = fb - (float) Math.floor(fb), q = fc - c0;
-        float r0 = NEAR[c0][lo] + (NEAR[c0][hi] - NEAR[c0][lo]) * t, r1 = NEAR[c1][lo] + (NEAR[c1][hi] - NEAR[c1][lo]) * t;
+        float r0 = table[c0][lo] + (table[c0][hi] - table[c0][lo]) * t, r1 = table[c1][lo] + (table[c1][hi] - table[c1][lo]) * t;
         return r0 + (r1 - r0) * q;
     }
 

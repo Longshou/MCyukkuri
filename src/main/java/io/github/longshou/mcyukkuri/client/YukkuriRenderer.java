@@ -172,6 +172,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
                 action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
             if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
+            // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
+            model.setWear(!hatCarrier&&hatParent==null?entity.visibleWear():0);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:distress!=null?distress.clip():behavior,
                             distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);

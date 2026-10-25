@@ -4,7 +4,8 @@ Writes the raw textures (entity faces, the leaf sheet, the cloth fabric tiles an
 CareWearRenderer port, which bakes vertex colours into tinted atlas copies), runs node and assembles in .local/previews/swaddle/:
 leaf.png (baby and young child at their true scales, front, three-quarter, side and back, mid-hop and asleep, the opened leaf under the
 child, one and three stool loads, a family at true sizes), cloth.png (the eight cloth styles on reimu from four sides and on marisa and
-alice) and icons.png (the eight swaddle cloth icons at 1x and 4x, the leaf sheet, fabric tiles and trim sheet). Panels are mirrored
+alice), fit.png (close-ups of the leaf and cloth under the hair of the sidelock, braid and long-haired species, front, side and back)
+and icons.png (the eight swaddle cloth icons at 1x and 4x, the leaf sheet, fabric tiles and trim sheet). Panels are mirrored
 left-right so they read as in the game (the review rasterizer is mirror-handed).
 Environment: MCYUKKURI_PREVIEWS overrides the preview root.
 """
@@ -17,7 +18,7 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 OUT = Path(os.environ.get('MCYUKKURI_PREVIEWS', ROOT / '.local/previews')) / 'swaddle'
 WORK = OUT.parent / '_work/swaddle'
 W, H = 260, 230
-MODELS = ('reimu', 'marisa', 'alice')
+MODELS = ('reimu', 'marisa', 'alice', 'patchouli', 'flandre', 'chen')
 FACES = ('neutral', 'sleep')
 FABRICS = ('knit', 'cotton', 'fleece', 'tiger', 'gingham', 'floral')
 STYLES = (('knit', '奶油针织（项目设计）'), ('frill', '荷叶边蝴蝶结（EH30）'), ('letter', '首字母（EH34 第7–8页）'), ('tiger', '虎纹（EH34 第12–14页）'),
@@ -104,6 +105,29 @@ def cloth_panels():
     return panels, rows
 
 
+FIT = (('reimu', '子油', .40, '灵梦 鬓发'), ('reimu', '赤油', .18, '灵梦 鬓发'), ('marisa', '子油', .40, '魔理沙 单辫'),
+       ('marisa', '赤油', .18, '魔理沙 单辫'), ('patchouli', '子油', .40, '帕秋莉 长鬓发'), ('flandre', '子油', .40, '芙兰 侧发'),
+       ('alice', '子油', .40, '爱丽丝 后发'), ('chen', '赤油', .18, '橙 后发与尾'))
+FIT_VIEWS = (('leaf', None, '叶 正面', 0.0), ('leaf', None, '叶 侧面', 1.5708), ('leaf', None, '叶 背面', 3.14159),
+             ('cloth', 'knit', '针织 正面', 0.0), ('cloth', 'knit', '针织 3/4', .75), ('cloth', 'knit', '针织 侧面', -1.5708),
+             ('cloth', 'knit', '针织 背面', 3.14159), ('cloth', 'fleece', '厚绒 3/4', -.75), ('cloth', 'frill', '荷叶边 3/4', .75))
+
+
+def fit_panels():
+    panels, rows = [], []
+    for model, stage, scale, label in FIT:
+        row = []
+        for wear, style, vname, az in FIT_VIEWS:
+            pid = f'fit-{model}-{stage}-{len(row)}'
+            actor = {'model': model, 'action': 'idle', 'scale': scale, 'wear': wear}
+            if style:
+                actor['style'] = style
+            panels.append({'id': pid, 'azimuth': az, 'span': 11 * scale, 'centerY': 7 * scale, 'actors': [actor]})
+            row.append((pid, f'{stage}({scale}) {label} {vname}' if not row else vname))
+        rows.append(row)
+    return panels, rows
+
+
 def sheet(rows, title, file):
     font = ImageFont.truetype('C:/Windows/Fonts/msyh.ttc', 13)
     cols = max(len(r) for r in rows)
@@ -162,7 +186,8 @@ def icons():
 def main():
     leaf, leaf_rows = leaf_panels()
     cloth, cloth_rows = cloth_panels()
-    tasks = {'width': W, 'height': H, 'work': str(WORK), 'textures': textures(), 'panels': leaf + cloth}
+    fit, fit_rows = fit_panels()
+    tasks = {'width': W, 'height': H, 'work': str(WORK), 'textures': textures(), 'panels': leaf + cloth + fit}
     task_file = WORK / 'tasks.json'
     task_file.write_text(json.dumps(tasks), encoding='utf-8')
     subprocess.run(['node', str(Path(__file__).with_name('preview_wear.cjs')), '--tasks', str(task_file)], check=True)
@@ -171,8 +196,10 @@ def main():
         old.unlink()
     sheet(leaf_rows, '树叶襁褓离线预览（CareWearRenderer 逐行移植；姿态取运行动作）：一片叶，叶柄在油菊处，从后兜过底部包到前方排泄口，脸、头发、帽饰外露',
           'leaf.png')
-    sheet(cloth_rows, '布襁褓八款离线预览（同一物品 swaddle_cloth，款式存于物品数据）：袋状包被、卷边／荷叶边／滚边、交叠襟与蝴蝶结、背后字母、虎纹、外出胶底与挎包、厚绒绒球',
+    sheet(cloth_rows, '布襁褓八款离线预览（同一物品 swaddle_cloth，款式存于物品数据）：贴皮肤的包被、头发在外，翻折边／荷叶边、交叠襟与蝴蝶结、背后字母、虎纹、外出胶底与挎包、厚绒绒球',
           'cloth.png')
+    sheet(fit_rows, '襁褓贴皮肤、头发在外（近景）：鬓发、单辫、长鬓发、侧发与后发都盖在叶片和布外，不被吞进去也不从布里穿出；子油 .40、赤油 .18',
+          'fit.png')
     icons()
 
 

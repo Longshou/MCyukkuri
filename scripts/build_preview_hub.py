@@ -105,10 +105,10 @@ def main():
     subprocess.run([sys.executable, str(ROOT / 'standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py'), *PET_GOODS],
                    check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'pet-goods/{name}.png' for name in PET_GOODS_MEDIA}
-    # worn swaddles: drafts/care-props/preview_wear.py redraws its three sheets from the current runtime textures on every build
+    # worn swaddles: drafts/care-props/preview_wear.py redraws its four sheets from the current runtime textures on every build
     wear = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wear.py'
     subprocess.run([sys.executable, str(wear)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'icons')}
+    current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'fit', 'icons')}
     # wild nests, forage pile and hat-boat provisions: drafts/care-props/preview_wild_nests.py redraws all four sheets from the runtime meshes
     nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
     subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

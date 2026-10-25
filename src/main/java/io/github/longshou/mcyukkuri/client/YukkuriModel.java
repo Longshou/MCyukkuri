@@ -247,13 +247,30 @@ public final class YukkuriModel {
             name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
     private static boolean wornBody(String name){return bodySurface(name)||name.endsWith("_rump_mark");}
     /**
-     * Name heuristic for the hair a swaddle wraps outside of: parts whose name holds "hair" or "lock" and "back" or "rear" (back_hair,
-     * back_lock_n, rear_side_hair_*, alice_hair_back_*). Side hair, tied locks, braids and curls do not match, so they stay outside the
-     * wrap and visible. A new model part naming its hanging back hair otherwise is simply not wrapped over.
+     * Parts that lie over a swaddle (CareWearRenderer.clearHair): every hair, sidelock, braid, tail and accessory part. The body skin,
+     * its rump and rear marks (covered by the wrap), the face cards, anatomy and puff meshes are not.
      */
-    private static boolean hangingHair(String name){return (name.contains("hair")||name.contains("lock"))&&(name.contains("back")||name.contains("rear"));}
+    private static boolean overWear(Part part){String name=part.name;return !bodySurface(name)&&!name.startsWith("face_")&&part.anatomy.isEmpty()
+            &&!name.contains("puff")&&!name.contains("rump")&&!name.contains("rear_mark");}
     private float[] wearBuffer = new float[0];
-    private int wearBody, wearAll;
+    private int wearBody;
+    /** Wear bits (YukkuriView.visibleWear) of the body being drawn, set by the renderer until renderLiving ends. */
+    private int wear;
+    /** The posed skin of a worn wrap is prepared: overWear vertices are lifted over it as they are skinned. */
+    private boolean wearClear;
+    /** Per vertex: lies over a swaddle (overWear), lazy. */
+    private boolean[] overWearVertices;
+    public void setWear(int bits){wear=bits;}
+    private boolean overWearVertex(int index){
+        if(overWearVertices==null){
+            var flags=new boolean[bindings.length];
+            for(var part:parts)if(overWear(part))Arrays.fill(flags,part.start,part.start+part.count,true);
+            // A puffed face swaps some hair parts for their puff copies under the same name.
+            for(var part:puffAttachments.values())if(overWear(part))Arrays.fill(flags,part.start,part.start+part.count,true);
+            overWearVertices=flags;
+        }
+        return index>=0&&index<overWearVertices.length&&overWearVertices[index];
+    }
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
     private int rootBone = -1;
@@ -364,25 +381,20 @@ public final class YukkuriModel {
     }
     /**
      * Skins the worn-shell surface of the last render pose into one reused buffer (x, y, z in blocks), for attachments derived from the
-     * body itself (CareWearRenderer): first the body surface with its rump mark (a raised patch that shells must close over), then the
-     * hair hanging at the back and rear sides. The first {@link #wearBodyLength()} floats are the body alone; the whole buffer up to
-     * {@link #wearLength()} is the hull a swaddle closes outside of. Render thread only.
+     * body itself (CareWearRenderer): the body surface with its rump mark (a raised patch that shells must close over); the first
+     * {@link #wearBodyLength()} floats are valid. The hair is not part of it: it lies over the wrap. Render thread only.
      */
     float[] posedWear() {
         int count = 0;
-        for (var part : parts) if (wornBody(part.name) || hangingHair(part.name)) count += part.count;
+        for (var part : parts) if (wornBody(part.name)) count += part.count;
         if (wearBuffer.length < count * 3) wearBuffer = new float[count * 3];
         var point = new Vector3f(); int k = 0;
         for (var part : parts) if (wornBody(part.name))
             for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); wearBuffer[k++] = point.x / 16; wearBuffer[k++] = point.y / 16; wearBuffer[k++] = point.z / 16; }
         wearBody = k;
-        for (var part : parts) if (!wornBody(part.name) && hangingHair(part.name))
-            for (int i = part.start; i < part.start + part.count; i++) { skin(i, point); wearBuffer[k++] = point.x / 16; wearBuffer[k++] = point.y / 16; wearBuffer[k++] = point.z / 16; }
-        wearAll = k;
         return wearBuffer;
     }
     int wearBodyLength() { return wearBody; }
-    int wearLength() { return wearAll; }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
     public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
@@ -733,6 +745,9 @@ public final class YukkuriModel {
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.
         skinningCache.begin();
         try {
+            // A swaddle or leaf lies under the hair: read the final posed skin before any hair is drawn (CareWearRenderer.clearHair).
+            wearClear=false;
+            if(wear!=0)wearClear=CareWearRenderer.prepareClearance(this,wear);
             renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss);
         } finally {
             skinningCache.end();
@@ -913,7 +928,7 @@ public final class YukkuriModel {
             if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);
             if(woundDisplay!=null)woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);
             hatDamageDraw.drawCaps(buffers);
-        }finally{woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
@@ -1057,10 +1072,12 @@ public final class YukkuriModel {
     }
     void skin(int index, Vector3f target) {
         skinBase(index,target);
-        if(pregnancyBelly<=0)return;
-        int group=rigidGroups==null?0:rigidGroups[index];
-        if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);
-        else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
+        if(pregnancyBelly>0){
+            int group=rigidGroups==null?0:rigidGroups[index];
+            if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);
+            else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);
+        }
+        if(wearClear&&overWearVertex(index))CareWearRenderer.clearHair(target);
     }
     private int hatFollowBone(){
         if(hatFollowBone==-2){hatFollowBone=-1;braidBone=-1;for(int i=0;i<bones.length;i++){if(bones[i].name().equals("hat_follow"))hatFollowBone=i;
@@ -1123,6 +1140,7 @@ public final class YukkuriModel {
         if(pregnancy&&pregnancyBelly>0){int group=rigidGroups==null?0:rigidGroups[triangle];
             if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);else LiveBirthGeometry.deform(target,pregnancyBelly,pregnancyContraction);}
         if(hatDamageDraw.fit()<.999f&&woundAccessoryVertex(triangle))target.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
+        if(wearClear&&overWearVertex(triangle))CareWearRenderer.clearHair(target);
     }
     private boolean woundAccessoryVertex(int vertex){
         if(woundAccessoryVertices==null){woundAccessoryVertices=new boolean[bindings.length];

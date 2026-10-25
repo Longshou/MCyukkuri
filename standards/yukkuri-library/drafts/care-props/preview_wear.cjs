@@ -1,7 +1,8 @@
 /* Offline on-body preview of the cloth and leaf swaddle shells (not shipped, outputs go to .local/previews).
-   The shell maths are a line-by-line port of client/CareWearRenderer: radius profile of the posed body surface and hanging back hair,
-   rings between the base and a rim that dips at the front, the eight cloth styles (bag, crossover flap, cuff, hem, lace frill, bow, back
-   initial, tiger mark, sole, strap, pouch, pompoms), the single diaper leaf and the flat opened leaf. Bodies are posed with the review
+   The shell maths are a line-by-line port of client/CareWearRenderer: radius profile and skin table of the posed body surface, a thin
+   wrap between the base and a rim that dips at the front, the eight cloth styles (cloth, crossover flap, folded band, cuff, lace frill,
+   bow, back initial, tiger mark, sole, strap, pouch, pompoms), the single diaper leaf, the flat opened leaf, and clearHair, which lifts
+   the hair, sidelocks, braids and accessories over a worn wrap (YukkuriModel.skin). Bodies are posed with the review
    page's RuntimePose and drawn with its software rasterizer; vertex colours are baked into tinted atlas copies of each texture.
    Usage: node preview_wear.cjs --tasks <tasks.json>   (written by preview_wear.py, which also assembles the sheets). */
 'use strict';
@@ -15,32 +16,37 @@ const fits = JSON.parse(fs.readFileSync(path.join(assets, 'yukkuri_presentation/
 const tasks = JSON.parse(fs.readFileSync(process.argv[process.argv.indexOf('--tasks') + 1], 'utf8'));
 
 // ---- CareWearRenderer constants -------------------------------------------------------------------------------------
-const BINS = 24, CELLS = 32, RINGS = 5, CUP_BASE = .015, MOUTH_GUARD = .22, BOW_AT = .11, NEAR_WINDOW = .05, LOW = .1, FABRIC_DENSITY = 1;
+const BINS = 24, CELLS = 32, RINGS = 9, SKIN_CELLS = CELLS * 3 / 4, CUP_BASE = .015, MOUTH_GUARD = .22, BOW_AT = .11, NEAR_WINDOW = .05, LOW = .1, FABRIC_DENSITY = 1;
 const FOLD = 0, FRILL = 1, PLAIN = 0, LETTER = 1, MARK = 2, OUTING = 3, POMPOMS = 4;
 const WHITE = [255, 255, 255];
 const S = (fabric, body, rollFabric, roll, accent, trim, rim, crossover, fixture, back, front, puff, rollSize, fold) =>
   ({fabric, body, rollFabric, roll, accent, trim, rim, crossover, fixture, back, front, puff, rollSize, fold});
 const STYLES = [
-  S('knit', [255, 250, 240], 'cotton', [248, 210, 220], [226, 136, 166], [240, 136, 168], FOLD, true, PLAIN, .55, .20, .04, .17, .055),
-  S('cotton', [246, 176, 196], 'cotton', [246, 176, 196], WHITE, [222, 64, 58], FRILL, false, PLAIN, .52, .20, .05, .07, 0),
-  S('cotton', [206, 64, 60], 'cotton', [206, 64, 60], WHITE, WHITE, FRILL, false, LETTER, .55, .20, .05, .07, 0),
-  S('tiger', WHITE, 'fleece', [255, 236, 206], null, null, FOLD, false, MARK, .55, .20, .04, .17, .06),
-  S('cotton', [168, 204, 232], 'cotton', [72, 94, 138], null, null, FOLD, false, OUTING, .50, .20, .03, .15, .05),
-  S('fleece', [226, 206, 176], 'fleece', [244, 232, 212], [206, 186, 156], [198, 96, 78], FOLD, true, POMPOMS, .60, .19, .07, .19, .08),
-  S('gingham', WHITE, 'cotton', [250, 250, 252], [70, 96, 170], [70, 96, 170], FOLD, true, PLAIN, .55, .20, .04, .16, .055),
-  S('floral', WHITE, 'cotton', [214, 236, 200], [120, 180, 110], [120, 180, 110], FOLD, true, PLAIN, .55, .20, .04, .16, .055)];
-const SHELL_OUT = .12, TUBE = [-1.75, -1.05, -.45, .15, .75, 1.35, 2.4], FOLD_LIGHT = .025, FOLD_PIPING = .03, FOLD_SHADOW = .03;
+  S('knit', [255, 250, 240], 'cotton', [248, 210, 220], [226, 136, 166], [240, 136, 168], FOLD, true, PLAIN, .42, .20, .010, .17, .022),
+  S('cotton', [246, 176, 196], 'cotton', [246, 176, 196], WHITE, [222, 64, 58], FRILL, false, PLAIN, .40, .20, .010, .044, 0),
+  S('cotton', [206, 64, 60], 'cotton', [206, 64, 60], WHITE, WHITE, FRILL, false, LETTER, .42, .20, .010, .044, 0),
+  S('tiger', WHITE, 'fleece', [255, 236, 206], null, null, FOLD, false, MARK, .42, .20, .010, .15, .024),
+  S('cotton', [168, 204, 232], 'cotton', [72, 94, 138], null, null, FOLD, false, OUTING, .40, .20, .006, .15, .020),
+  S('fleece', [192, 166, 136], 'fleece', [244, 232, 212], [160, 136, 108], [198, 96, 78], FOLD, true, POMPOMS, .48, .19, .018, .19, .032),
+  S('gingham', WHITE, 'cotton', [250, 250, 252], [70, 96, 170], [70, 96, 170], FOLD, true, PLAIN, .42, .20, .010, .16, .022),
+  S('floral', WHITE, 'cotton', [214, 236, 200], [120, 180, 110], [120, 180, 110], FOLD, true, PLAIN, .42, .20, .010, .16, .022)];
+const CLOTH_INSET = .006, SHELL_OUT = .016, FRILL_REACH = .03, FRILL_DROP = .075;
+const POUCH_ANGLE = .2, STRAP_SWEEP = 4.0, POUCH_AT = .15, POUCH_HALF = .10, POUCH_LIFT = .02, BACK_MARK_AT = .17, BACK_MARK_HALF = .11;
+const CLEAR_MARGIN = .012, CLEAR_REACH = .05, CLEAR_DEPTH = .03, CLEAR_FADE = .2, CLEAR_RIM = .012;
+const TUBE = [-1.75, -1.05, -.45, .15, .75, 1.35, 2.4], FOLD_LIGHT = .025, FOLD_PIPING = .03, FOLD_SHADOW = .03;
 const STYLE_IDS = ['knit', 'frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral'];
-const SEAM_AT = -4.0, SEAM_SWEEP = 3.03, SEAM_SLANT = .38, FLAP_LIFT = .05, FLAP_SIDE = -Math.sign(SEAM_SWEEP);
+const SEAM_AT = -4.0, SEAM_SWEEP = 3.03, SEAM_SLANT = .38, FLAP_LIFT = .016, FLAP_SIDE = -Math.sign(SEAM_SWEEP);
 const FRILL_UV = [0, 0, 16, 8], BOW_UV = [16, 0, 16, 12], MARK_UV = [32, 0, 16, 16], POUCH_UV = [48, 0, 16, 16], POMPOM_UV = [0, 8, 8, 8],
   SOLE_UV = [8, 8, 8, 8], STRAP_UV = [0, 16, 8, 8], LETTERS_X = 0, LETTERS_Y = 32;
-const LEAF_BACK = .32, LEAF_FRONT = .22, STALK = .14, STALK_OUT = .04, LEAF_HALF = 1.05, CURL = .01, RISE = .22;
+const LEAF_BACK = .32, LEAF_FRONT = .22, STALK = .14, STALK_OUT = .025, LEAF_HALF = 1.05, CURL = .01, RISE = .22, LEAF_LIFT = .010;
+const LEAF_TOP_FRONT = .26, LEAF_TOP_BACK = .50;
 const U_STALK = 5 / 32, U_UNDER = .40, U_FRONT = .50, STALK_ROWS = 2, BACK_ROWS = 5, UNDER_ROWS = 3, FRONT_ROWS = 5, ACROSS = 8;
 const LEAF_ROWS = STALK_ROWS + BACK_ROWS + UNDER_ROWS + FRONT_ROWS, MAX_WRAP = 1.6, CELL_V = .5, STAINED_V = .5, MAX_SOIL_SHOWN = 3;
 const BODY = name => name.startsWith('soft_head_slice_') || name.endsWith('_rump_mark')
   || ['house_body_surface', 'predator_body_surface', 'deficient_body_surface', 'rounded_body_surface'].includes(name);
-// YukkuriModel.posedWear: the body plus hair hanging at the back and rear sides
-const HULL = name => BODY(name) || (name.includes('hair') || name.includes('lock')) && (name.includes('back') || name.includes('rear'));
+// YukkuriModel.overWear: parts lifted over a worn wrap (hair, sidelocks, braids, tails, accessories)
+const OVER = part => !BODY(part.name) && !part.name.startsWith('face_') && !part.anatomy && !part.name.includes('puff')
+  && !part.name.includes('rump') && !part.name.includes('rear_mark');
 
 const bin = (dx, dz) => Math.min(BINS - 1, Math.max(0, Math.floor((Math.atan2(dz, dx) + Math.PI) / (2 * Math.PI) * BINS)));
 const angle = b => -Math.PI + 2 * Math.PI * (b + .5) / BINS;
@@ -48,7 +54,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const wrapA = a => Math.atan2(Math.sin(a), Math.cos(a));
 const mod = (a, n) => ((a % n) + n) % n;
 
-function profileOf(pts, hull) { // pts: body x,y,z in blocks (heights); hull: body and back hair (radii)
+function profileOf(pts) { // pts: posed body skin x,y,z in blocks
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, minZ = Infinity, maxZ = -Infinity;
   for (let i = 0; i < pts.length; i += 3) {
     minX = Math.min(minX, pts[i]); maxX = Math.max(maxX, pts[i]); minY = Math.min(minY, pts[i + 1]); maxY = Math.max(maxY, pts[i + 1]);
@@ -56,8 +62,8 @@ function profileOf(pts, hull) { // pts: body x,y,z in blocks (heights); hull: bo
   }
   const h = maxY - minY, cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
   const R = new Float64Array(CELLS * BINS), F = new Float64Array(CELLS * BINS), A = new Float64Array(CELLS * BINS);
-  for (let i = 0; i < hull.length; i += 3) {
-    const dx = hull[i] - cx, dz = hull[i + 2] - cz, f = (hull[i + 1] - minY) / h, r = Math.hypot(dx, dz);
+  for (let i = 0; i < pts.length; i += 3) {
+    const dx = pts[i] - cx, dz = pts[i + 2] - cz, f = (pts[i + 1] - minY) / h, r = Math.hypot(dx, dz);
     if (f < 0) continue;
     const at = Math.min(CELLS - 1, Math.max(0, Math.floor(f * CELLS))) * BINS + bin(dx, dz);
     if (r > R[at]) { R[at] = r; F[at] = f; A[at] = Math.atan2(dz, dx); }
@@ -135,35 +141,30 @@ const side = a => {
   return s * s * (3 - 2 * s);
 };
 const rim = (a, front, back) => front + (back - front) * side(a);
+const bandOf = (style, a) => style.rim === FRILL ? style.rollSize * .7 : style.rollSize * (.55 + .45 * side(a));
+const puffOf = (u, shell, puff) => { const t = Math.min(1, u / .35); return shell * (.45 + .55 * t * t * (3 - 2 * t)) + puff * Math.sin(Math.PI * Math.min(1, u / .7)); };
 
 // quads: {tex, tint, uv: 'repeat' | 'sheet', n:[x,y,z], p:[[x,y,z,u,v] x4]}
 const Q = (out, tex, tint, n, p, repeat = false) => out.push({tex, tint, repeat, n, p});
 
 // ---- cloth swaddle ---------------------------------------------------------------------------------------------------
 function swaddle(P, style, letter) {
-  const out = [], {h, minY, cx, cz} = P, TOP = [], RING = [];
+  const out = [], {h, minY, cx, cz} = P, TOP = [], around = skinTable(P);
+  if (!around) return out;
   for (let i = 0; i < BINS; i++) TOP.push(rim(angle(i), style.front, style.back));
-  for (let k = 0; k < RINGS; k++) {
-    const ring = hullRing([...Array(BINS)].map((_, i) => P.sampleLow(CUP_BASE + (TOP[i] - CUP_BASE) * k / (RINGS - 1), i)));
-    if (!ring) return out;
-    RING.push(ring);
-  }
-  const inset = .035 * h * .6, shell = SHELL_OUT * h, puff = style.puff * h;
-  const puffAt = u => { const t = Math.min(1, u / .35); return shell * (.45 + .55 * t * t * (3 - 2 * t)) + puff * Math.sin(Math.PI * Math.min(1, u / .7)); };
+  const inset = CLOTH_INSET * h, shell = SHELL_OUT * h, puff = style.puff * h;
+  const puffAt = u => puffOf(u, shell, puff);
   const topAt = a => { const fb = (wrapA(a) + Math.PI) / (2 * Math.PI) * BINS - .5, lo = mod(Math.floor(fb), BINS), hi = (lo + 1) % BINS, t = fb - Math.floor(fb); return TOP[lo] + (TOP[hi] - TOP[lo]) * t; };
   const point = (f, a, lift) => {
-    const w = wrapA(a), fb = (w + Math.PI) / (2 * Math.PI) * BINS - .5, lo = mod(Math.floor(fb), BINS), hi = (lo + 1) % BINS;
-    const t = fb - Math.floor(fb), top = TOP[lo] + (TOP[hi] - TOP[lo]) * t;
-    const u = clamp((f - CUP_BASE) / Math.max(1e-4, top - CUP_BASE), 0, 1), kf = u * (RINGS - 1), k = Math.min(RINGS - 2, Math.trunc(kf)), q = kf - k;
-    const r0 = RING[k][lo] + (RING[k][hi] - RING[k][lo]) * t, r1 = RING[k + 1][lo] + (RING[k + 1][hi] - RING[k + 1][lo]) * t;
-    const r = r0 + (r1 - r0) * q + inset + puffAt(u) + lift;
-    return [cx + Math.cos(w) * r, minY + (CUP_BASE + (top - CUP_BASE) * u) * h, cz + Math.sin(w) * r];
+    const w = wrapA(a), top = topAt(a), u = clamp((f - CUP_BASE) / Math.max(1e-4, top - CUP_BASE), 0, 1), at = CUP_BASE + (top - CUP_BASE) * u;
+    const r = around(at, a) + inset + puffAt(u) + lift;
+    return [cx + Math.cos(w) * r, minY + at * h, cz + Math.sin(w) * r];
   };
   const ringF = (a, k) => CUP_BASE + (topAt(a) - CUP_BASE) * k / (RINGS - 1);
   const seamLead = k => SEAM_AT + SEAM_SWEEP * (1 - SEAM_SLANT * k / (RINGS - 1));
   const ARC = [0];
   for (let i = 0; i < BINS; i++) {
-    const a = point(ringF(angle(i), 2), angle(i), 0), c = point(ringF(angle((i + 1) % BINS), 2), angle((i + 1) % BINS), 0);
+    const a = point(ringF(angle(i), RINGS >> 1), angle(i), 0), c = point(ringF(angle((i + 1) % BINS), RINGS >> 1), angle((i + 1) % BINS), 0);
     ARC.push(ARC[i] + Math.hypot(c[0] - a[0], c[2] - a[2]));
   }
   const tiles = Math.max(1, Math.round(ARC[BINS] * 16 * FABRIC_DENSITY / 16)), uScale = tiles / Math.max(1e-4, ARC[BINS]), vScale = 16 * FABRIC_DENSITY / 16;
@@ -171,7 +172,7 @@ function swaddle(P, style, letter) {
   // corners [angle, f, u, lift]
   const fabricQuad = (tint, n, corners) => Q(out, style.fabric, tint, n, corners.map(([a, f, u, l]) => { const p = point(f, a, l); return [...p, u, -(p[1] - minY) * vScale]; }), true);
   const roll = style.rollSize * h, shade = style.body.map(v => Math.floor(v * 7 / 10));
-  const bandAt = a => style.rim === FRILL ? style.rollSize * .7 : style.rollSize * (.55 + .45 * side(a));
+  const bandAt = a => bandOf(style, a);
   const flapF = (a, k) => CUP_BASE + (topAt(a) - bandAt(a) - CUP_BASE) * k / (RINGS - 1);
   for (let i = 0; i < BINS; i++) {
     const j = (i + 1) % BINS, ai = angle(i), aj = angle(j), am = midA(i, j), n = [Math.cos(am), 0, Math.sin(am)], u0 = ARC[i] * uScale, u1 = ARC[i + 1] * uScale;
@@ -236,7 +237,7 @@ function swaddle(P, style, letter) {
   // trim
   const T = 'trim', sheet = (corners, tint, n) => Q(out, T, tint, n, corners);
   if (style.rim === FRILL) {
-    const drop = .085 * h, reach = .055 * h, u0 = FRILL_UV[0] / 64, u1 = (FRILL_UV[0] + FRILL_UV[2]) / 64, v0 = FRILL_UV[1] / 64, v1 = (FRILL_UV[1] + FRILL_UV[3]) / 64;
+    const drop = FRILL_DROP * h, reach = FRILL_REACH * h, u0 = FRILL_UV[0] / 64, u1 = (FRILL_UV[0] + FRILL_UV[2]) / 64, v0 = FRILL_UV[1] / 64, v1 = (FRILL_UV[1] + FRILL_UV[3]) / 64;
     for (let i = 0; i < BINS; i++) {
       const j = (i + 1) % BINS, ai = angle(i), aj = angle(j), am = midA(i, j);
       const [ri0, yi0] = rimAt(i), [rj0, yj0] = rimAt(j), ri = ri0 + roll * .4, rj = rj0 + roll * .4, yi = yi0 - roll * .7, yj = yj0 - roll * .7;
@@ -246,7 +247,7 @@ function swaddle(P, style, letter) {
   }
   if (style.fixture === PLAIN && style.trim) {
     const a = style.crossover ? seamLead(RINGS - 1) : -Math.PI / 2, bowH = .19 * h, w = .26 * h;
-    const f = style.crossover ? topAt(a) - bandAt(a) * .5 : BOW_AT, at = point(f, a, (style.crossover ? style.fold + .015 : .11) * h);
+    const f = style.crossover ? topAt(a) - bandAt(a) * .5 : BOW_AT, at = point(f, a, (style.crossover ? style.fold + .015 : style.rollSize + FRILL_REACH + .005) * h);
     const nx = Math.cos(a), nz = Math.sin(a), tx = -nz, tz = nx, turn = .3, cs = Math.cos(turn) * w / 2, sn = Math.sin(turn) * w / 2;
     const u0 = BOW_UV[0] / 64, um = (BOW_UV[0] + BOW_UV[2] / 2) / 64, u1 = (BOW_UV[0] + BOW_UV[2]) / 64, v0 = BOW_UV[1] / 64, v1 = (BOW_UV[1] + BOW_UV[3]) / 64;
     for (const side of [-1, 1]) {
@@ -262,9 +263,9 @@ function swaddle(P, style, letter) {
       sheet([[...point(fB, aA, lift), uA, vB], [...point(fB, aB, lift), uB, vB], [...point(fA, aB, lift), uB, vA], [...point(fA, aA, lift), uA, vA]], tint, [Math.cos(am), 0, Math.sin(am)]);
     }
   };
-  if (style.fixture === LETTER) decal(style.trim, LETTERS_X + letter % 8 * 8, LETTERS_Y + Math.floor(letter / 8) * 8, 8, 8, Math.PI / 2, .26, .15 * h, .15, .008 * h);
+  if (style.fixture === LETTER) decal(style.trim, LETTERS_X + letter % 8 * 8, LETTERS_Y + Math.floor(letter / 8) * 8, 8, 8, Math.PI / 2, BACK_MARK_AT, BACK_MARK_HALF * h, BACK_MARK_HALF, .008 * h);
   if (style.fixture === MARK) {
-    decal(WHITE, ...MARK_UV, Math.PI / 2, .26, .15 * h, .15, .008 * h);
+    decal(WHITE, ...MARK_UV, Math.PI / 2, BACK_MARK_AT, BACK_MARK_HALF * h, BACK_MARK_HALF, .008 * h);
     decal(WHITE, ...MARK_UV, -Math.PI / 2, .065, .055 * h, .055, .008 * h);
   }
   if (style.fixture === OUTING) {
@@ -275,17 +276,18 @@ function swaddle(P, style, letter) {
       sheet([[...lo0, su1, (SOLE_UV[1] + 8) / 64], [...lo1, su0, (SOLE_UV[1] + 8) / 64], [...hi1, su0, (SOLE_UV[1] + 1) / 64], [...hi0, su1, (SOLE_UV[1] + 1) / 64]], WHITE, [Math.cos(am), 0, Math.sin(am)]);
       sheet([[...hi0, su1, (SOLE_UV[1] + 1) / 64], [...hi1, su0, (SOLE_UV[1] + 1) / 64], [...in1, su0, SOLE_UV[1] / 64], [...in0, su1, SOLE_UV[1] / 64]], WHITE, [0, 1, 0]);
     }
-    const start = -.25, end = start + 4.25, steps = 16, half = .035, rimEnd = topAt(end) - bandAt(end) - .02;
-    const strapF = a => { const t = (a - start) / (end - start); return .34 + (rimEnd - .34) * t - .06 * Math.sin(Math.PI * t); };
+    const start = POUCH_ANGLE, end = start + STRAP_SWEEP, steps = 16, half = .035, rimEnd = topAt(end) - bandAt(end) - .02, from = POUCH_AT + POUCH_HALF;
+    const strapF = a => { const t = (a - start) / (end - start); return from + (rimEnd - from) * t - .06 * Math.sin(Math.PI * t); };
     for (let s = 0; s < steps; s++) {
       const a0 = start + (end - start) * s / steps, a1 = start + (end - start) * (s + 1) / steps, f0 = strapF(a0), f1 = strapF(a1), am = (a0 + a1) / 2;
       const u0 = STRAP_UV[0] / 64, u1 = (STRAP_UV[0] + STRAP_UV[2]) / 64, v0 = STRAP_UV[1] / 64, v1 = (STRAP_UV[1] + STRAP_UV[3]) / 64, l = .012 * h;
       sheet([[...point(f0 - half, a0, l), u0, v0], [...point(f1 - half, a1, l), u0, v1], [...point(f1 + half, a1, l), u1, v1], [...point(f0 + half, a0, l), u1, v0]], WHITE, [Math.cos(am), 0, Math.sin(am)]);
     }
-    decal(WHITE, ...POUCH_UV, start, .22, .14 * h, .14, .03 * h);
+    decal(WHITE, ...POUCH_UV, start, POUCH_AT, POUCH_HALF * h, POUCH_HALF, POUCH_LIFT * h);
   }
-  if (style.fixture === POMPOMS) for (const side of [-1.15, 1.15]) {
-    const a = -Math.PI / 2 + side, at = point(topAt(a) - bandAt(a) - .05, a, .06 * h), s = .055 * h;
+  if (style.fixture === POMPOMS) for (let end = 0; end < 2; end++) {
+    const a0 = seamLead(RINGS - 1), f = topAt(a0) - bandAt(a0) * .5, a = a0 + (end === 0 ? -.13 : .1);
+    const at = point(f - (end === 0 ? .07 : .11), a, (style.fold + .045) * h), s = .042 * h;
     const u0 = POMPOM_UV[0] / 64, u1 = (POMPOM_UV[0] + POMPOM_UV[2]) / 64, v0 = POMPOM_UV[1] / 64, v1 = (POMPOM_UV[1] + POMPOM_UV[3]) / 64;
     const corner = [...Array(8)].map((_, n) => [at[0] + (n & 1 ? s : -s), at[1] + (n & 2 ? s : -s), at[2] + (n & 4 ? s : -s)]);
     const faces = [[0, 4, 6, 2], [5, 1, 3, 7], [0, 1, 5, 4], [6, 7, 3, 2], [1, 0, 2, 3], [4, 5, 7, 6]], normals = [[-1, 0, 0], [1, 0, 0], [0, -1, 0], [0, 1, 0], [0, 0, -1], [0, 0, 1]];
@@ -295,9 +297,10 @@ function swaddle(P, style, letter) {
 }
 
 // ---- leaf swaddle ----------------------------------------------------------------------------------------------------
-function nearTable(P) {
+// CareWearRenderer.skinTable + radiusAround: hull radius per height cell centre, read bilinearly
+function skinTable(P) {
   const near = [];
-  for (let c = 0; c < CELLS / 2; c++) {
+  for (let c = 0; c < SKIN_CELLS; c++) {
     const row = hullRing([...Array(BINS)].map((_, i) => P.sampleLow((c + .5) / CELLS, i)));
     if (!row) return null;
     near.push(row);
@@ -310,9 +313,9 @@ function nearTable(P) {
   };
 }
 function leafWrap(P, soil) {
-  const out = [], {h, minY, cx, cz} = P, around = nearTable(P);
+  const out = [], {h, minY, cx, cz} = P, around = skinTable(P);
   if (!around) return out;
-  const base = .035 * h * .6, half = LEAF_HALF * h, soilHeight = soil <= 0 ? -1 : .04 + .09 * Math.min(3, soil);
+  const base = LEAF_LIFT * h, half = LEAF_HALF * h, soilHeight = soil <= 0 ? -1 : .04 + .09 * Math.min(3, soil);
   const leafPoint = (back, f, lateral, lift) => {
     const meridian = back ? Math.PI / 2 : -Math.PI / 2, d = clamp(lateral / Math.max(1e-4, around(f, meridian)), -MAX_WRAP, MAX_WRAP), a = back ? meridian + d : meridian - d;
     const r = around(f, a) + lift;
@@ -410,16 +413,47 @@ function initial(id) {
   const name = id.startsWith('house_') ? id.slice(6) : id, c = name.toUpperCase().charCodeAt(0);
   return c < 65 || c > 90 ? 24 : c - 65;
 }
+// ---- CareWearRenderer.wrapThickness / clearHair: hair over the wrap -----------------------------------------------------
+function wrapThickness(style, f, a) {
+  let top, thick;
+  if (style) {
+    top = rim(a, style.front, style.back);
+    const u = clamp((f - CUP_BASE) / Math.max(1e-4, top - CUP_BASE), 0, 1), band = bandOf(style, a), edge = clamp((f - (top - band - .04)) / .04, 0, 1);
+    thick = CLOTH_INSET + puffOf(u, SHELL_OUT, style.puff) + (style.crossover ? FLAP_LIFT : 0) + (style.fixture === OUTING ? POUCH_LIFT : 0)
+      + edge * edge * (3 - 2 * edge) * (style.rim === FRILL ? style.rollSize + FRILL_REACH : style.fold);
+  } else {
+    top = rim(a, LEAF_TOP_FRONT, LEAF_TOP_BACK);
+    const back = Math.abs(wrapA(a - Math.PI / 2));
+    thick = LEAF_LIFT + CURL + (back < .45 && f > LEAF_BACK - .04 ? STALK_OUT : 0);
+  }
+  const fade = clamp(1 - (f - top - CLEAR_RIM) / CLEAR_FADE, 0, 1);
+  return fade <= 0 ? 0 : (thick + CLEAR_MARGIN) * fade;
+}
+function clearHair(P, around, style, raw, model) {
+  const {h, minY, cx, cz} = P, topMax = (style ? Math.max(style.back, style.front) : LEAF_TOP_BACK) + CLEAR_RIM + CLEAR_FADE;
+  for (const part of model.parts) if (OVER(part)) for (let i = part.start; i < part.start + part.count; i++) {
+    const x = raw[i * 8] / 16 - cx, z = raw[i * 8 + 2] / 16 - cz, f = (raw[i * 8 + 1] / 16 - minY) / h;
+    if (f < 0 || f > topMax) continue;
+    const a = Math.atan2(z, x), thick = wrapThickness(style, f, a);
+    if (thick <= 0) continue;
+    const r = Math.hypot(x, z);
+    if (r < 1e-5) continue;
+    const skin = around(f, a), g = (r - skin) / h, reach = thick + CLEAR_REACH;
+    if (g <= -CLEAR_DEPTH || g >= reach) continue;
+    const lifted = g + thick * (g >= 0 ? 1 - g / reach : 1 + g / CLEAR_DEPTH), s = (skin + lifted * h) / r;
+    raw[i * 8] = (cx + x * s) * 16; raw[i * 8 + 2] = (cz + z * s) * 16;
+  }
+}
 function actorVertices(actor) {
   const pose = poseFor(actor.model), duration = pose.clips[actor.action].duration;
   pose.expression(actor.face || 'neutral');
   const raw = pose.frame(actor.action, duration * (actor.phase ?? 0)).slice(), model = pose.model;
-  const pts = [], hull = [];
-  for (const part of model.parts) for (let i = part.start; i < part.start + part.count; i++) {
-    const point = [raw[i * 8] / 16, raw[i * 8 + 1] / 16, raw[i * 8 + 2] / 16];
-    if (BODY(part.name)) pts.push(...point);
-    if (HULL(part.name)) hull.push(...point);
-  }
+  const pts = [];
+  for (const part of model.parts) if (BODY(part.name)) for (let i = part.start; i < part.start + part.count; i++)
+    pts.push(raw[i * 8] / 16, raw[i * 8 + 1] / 16, raw[i * 8 + 2] / 16);
+  const P = actor.wear ? profileOf(pts) : null, style = actor.wear === 'cloth' ? STYLES[STYLE_IDS.indexOf(actor.style || 'knit')] : null;
+  // YukkuriModel.skin: with a wrap on, the hair is lifted over it before the body is drawn
+  if (actor.wear === 'cloth' || actor.wear === 'leaf') { const around = skinTable(P); if (around) clearHair(P, around, style, raw, model); }
   const scale = actor.scale ?? 1, at = actor.at || [0, 0, 0], yaw = (actor.yaw || 0) * Math.PI / 180, c = Math.cos(yaw), s = Math.sin(yaw);
   const skin = region('entity:' + actor.model + ':' + (actor.face || 'neutral'), WHITE, false);
   const out = [];
@@ -429,8 +463,7 @@ function actorVertices(actor) {
       (skin.x0 + raw[i + 3] * skin.w) / ATLAS, (skin.y0 + raw[i + 4] * skin.hgt) / ATLAS, nx * c + nz * s, raw[i + 6], -nx * s + nz * c);
   }
   if (actor.wear) {
-    const P = profileOf(pts, actor.wear === 'cloth' ? pts : hull);  // CareWearRenderer: the cloth hugs the body alone
-    const quads = actor.wear === 'cloth' ? swaddle(P, STYLES[STYLE_IDS.indexOf(actor.style || 'knit')], initial(actor.model))
+    const quads = actor.wear === 'cloth' ? swaddle(P, style, initial(actor.model))
       : actor.wear === 'open' ? groundLeaf(P) : leafWrap(P, actor.soil || 0);
     for (const q of quads) emitQuad(out, q, scale, at, yaw);
   }
