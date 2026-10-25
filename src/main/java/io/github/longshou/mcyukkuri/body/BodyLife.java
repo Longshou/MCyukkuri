@@ -40,6 +40,8 @@ public final class BodyLife {
     private int releaseCursor;
     private boolean settled;
     private float deathFood = -1;
+    /** Filling the body still held when external wounds took it to the weak line; -1 while it is above it. */
+    private float entryFood = -1;
     private long lastWitness = Long.MIN_VALUE;
     private Boolean observedWeak;
     /** Core damage is irreversible; an intact core no longer supplies a second life bar. */
@@ -91,6 +93,18 @@ public final class BodyLife {
     /** Legacy readout scale, derived from health; never stored or separately replenished. */
     public int filling(){return Math.round(healthRatio()*BodyConstants.MAX_FILLING);}
     public float remainsFood(){return Math.max(0,deathFood);}
+    /**
+     * An external wound that kills without the dying state leaves the body as it was when it crossed the weak line, like
+     * {@link #startDying} freezing the balance at the threshold: the crossing hit counts at most the weak-line filling
+     * (a swallowed bite counts what it left). Later swallowed bites and leaks come off it; healing past the line resets it.
+     */
+    private void trackTraumaFood(BodyHit hit,float loss){
+        float max=Math.max(1,entity.getMaxHealth());
+        float before=hit.healthBefore()/max,after=Math.max(0,entity.getHealth())/max;
+        if(entryFood>=0){if(hit.kind()==BodyHit.Kind.BITE)entryFood=Math.max(0,entryFood-BodyFood.live(entity,loss).portions());}
+        else if(after<=WEAK_HEALTH_RATIO)entryFood=BodyFood.capacity(entity)*(hit.kind()==BodyHit.Kind.BITE?after:Math.min(before,WEAK_HEALTH_RATIO));
+        if(entity.getHealth()<=0&&entryFood>=0)deathFood=entryFood;
+    }
     private void freezeFood(){if(deathFood<0)deathFood=BodyFood.capacity(entity)*healthRatio();}
     public BodyCondition condition() {
         return new BodyCondition(wound, burns, infection, mold, filling(), weak(), dying(), sick(), footBurned);
@@ -302,8 +316,7 @@ public final class BodyLife {
         if(loss<=0)return new HurtResult(accepted,0,hit.part(),BodyFood.Bite.EMPTY);
         if(hit.kind()==BodyHit.Kind.TERMINAL)return new HurtResult(true,loss,null,BodyFood.Bite.EMPTY);
         if(InjuryModel.destroysBody(hit.source(),loss,hit.healthBefore(),hit.incoming())){deathFood=0;coreHurt=true;}
-        // A wounding bite that kills was never swallowed: the filling it opened stays in the body as remains food.
-        if(hit.kind()==BodyHit.Kind.BITE_WOUND&&!hit.dyingBefore()&&deathFood<0&&entity.getHealth()<=0)deathFood=BodyFood.live(entity,loss).portions();
+        if(hit.strike()!=null&&!hit.dyingBefore()&&deathFood<0)trackTraumaFood(hit,loss);
         if(hit.dyingBefore())return new HurtResult(true,loss,hit.part(),BodyFood.Bite.EMPTY);
         var food=hit.kind()==BodyHit.Kind.BITE?BodyFood.live(entity,loss):BodyFood.Bite.EMPTY;
         var outcome=InjuryModel.decide(entity,hit,loss);
@@ -437,6 +450,7 @@ public final class BodyLife {
     private void updateMobility(){
         var speed=entity.getAttribute(Attributes.MOVEMENT_SPEED);if(speed==null)return;
         boolean currentWeak=weak();
+        if(!currentWeak&&entity.isAlive())entryFood=-1;
         if(observedWeak!=null&&observedWeak!=currentWeak)
             GameplayLog.event(entity,"body","weakness {} -> {}; health {}/{} threshold={}",observedWeak,currentWeak,entity.getHealth(),entity.getMaxHealth(),WEAK_HEALTH_RATIO);
         observedWeak=currentWeak;
@@ -478,6 +492,7 @@ public final class BodyLife {
             if(total>0){
                 float before=entity.getHealth();damage(Math.min(1,total),"leak");
                 float loss=Math.max(0,before-entity.getHealth());
+                if(entryFood>=0)entryFood=Math.max(0,entryFood-BodyFood.live(entity,loss).portions());
                 for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
                 if(!entity.isAlive())return;
             }
@@ -557,6 +572,7 @@ public final class BodyLife {
         // Preserve the old integer path for saved bodies, without retaining the removed bandage effect.
         tag.putInt("Bandage",0);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
+        if(entryFood>=0)tag.putFloat("EntryFood",entryFood);
         tag.putBoolean("FaceMarks",faceMarks);
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
@@ -586,6 +602,7 @@ public final class BodyLife {
         if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=
                 WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
         refreshWounds();
+        entryFood=tag.contains("EntryFood")&&Float.isFinite(tag.getFloat("EntryFood"))?Math.max(0,tag.getFloat("EntryFood")):-1;
         deathFood=tag.contains("PendingFood")&&Float.isFinite(tag.getFloat("PendingFood"))?Math.max(0,tag.getFloat("PendingFood")):-1;
         if(tag.getInt("HealthVersion")==0&&tag.contains("Filling")&&!settled&&entity.getHealth()>0){
             float before=entity.getHealth();
