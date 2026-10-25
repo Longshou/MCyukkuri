@@ -645,17 +645,17 @@ final class HairWoundRenderer {
         private void walls(){
             if(rimEdges.isEmpty())return;
             var layer=layer(MCYukkuri.id("textures/props/body_cavity_white.png"));
-            var centres=new HashMap<Cut,Sample>();
+            var apexes=new HashMap<Cut,Vector3f>();
             for(var edge:rimEdges){
                 var cut=edge.cut;boolean core=cut.core!=null;
                 float[][] levels=core?BodyCavity.profile().levels():HairWoundAssets.cavityControls;
-                Sample centre=null;
-                if(!core)centre=centres.computeIfAbsent(cut,c->sample(c,0,0,false,0,true));
                 int rings=levels.length-1;
+                var apexRest=apexes.computeIfAbsent(cut,c->apexPoint(c,c.core!=null?null:sample(c,0,0,false,0,true),levels[rings]));
+                var apexLocal=core?new Vector3f(apexRest):deformRest(triangleParts.getOrDefault(edge.first,""),apexRest);
                 var ra=new Corner[rings+1];var rb=new Corner[rings+1];
                 ra[0]=skinCorner(edge.first,edge.a);rb[0]=skinCorner(edge.first,edge.b);
-                for(int k=0;k<rings;k++){ra[k+1]=ring(cut,edge.first,edge.a,k,levels[k],centre);rb[k+1]=ring(cut,edge.first,edge.b,k,levels[k],centre);}
-                var apex=apex(cut,edge,levels[rings],centre);
+                for(int k=0;k<rings;k++){float t=fraction(levels,k);ra[k+1]=ring(cut,edge.first,edge.a,t,apexLocal);rb[k+1]=ring(cut,edge.first,edge.b,t,apexLocal);}
+                var apex=apex(cut,edge,apexLocal);
                 float y=cut.skin[edge.j][1]/cut.cutV;
                 for(int i=0;i<=rings;i++){
                     int r=Math.max(i-1,0);var level=levels[r];
@@ -670,30 +670,29 @@ final class HairWoundRenderer {
         private Corner skinCorner(int first,Bary bary){
             return new Corner(first,bary,deformRest(triangleParts.getOrDefault(first,""),point(first,bary)),.5f,.5f,1);
         }
-        private Corner ring(Cut cut,int first,Bary bary,int index,float[] level,Sample centre){
-            String part=triangleParts.getOrDefault(first,"");var rim=point(first,bary);
-            if(cut.core!=null){
-                var corner=new Corner(first,bary,BodyCavity.wallRest(cut.core,deformRest(part,rim),level),.5f,.5f,1);
-                corner.deep=level[2];return corner;
-            }
-            var delta=new Vector3f(rim).sub(cut.anchor);
-            float rimDepth=delta.dot(cut.n);
-            float centreDepth=centre==null?rimDepth:new Vector3f(centre.point).sub(cut.anchor).dot(cut.n);
-            float surface=rimDepth*(1-level[2])+centreDepth*level[2];
-            // Source first two rings have fixed dough thickness; deeper rings follow real grade depth.
-            float depth=index<3?level[1]*cut.scale:level[1]*cut.depth;
-            var point=new Vector3f(cut.anchor).fma(delta.dot(cut.u)*level[0],cut.u).fma(delta.dot(cut.v)*level[0],cut.v).fma(surface-depth,cut.n);
-            return new Corner(first,bary,deformRest(part,point),.5f,.5f,1);
+        /** Ring on the straight segment from the exact skin rim point to the apex, so it can never leave the body. */
+        private Corner ring(Cut cut,int first,Bary bary,float t,Vector3f apex){
+            var rim=deformRest(triangleParts.getOrDefault(first,""),point(first,bary));
+            var corner=new Corner(first,bary,rim.lerp(apex,t),.5f,.5f,1);
+            if(cut.core!=null)corner.deep=t;
+            return corner;
         }
-        private Corner apex(Cut cut,RimEdge edge,float[] level,Sample centre){
-            if(cut.core!=null){
-                var corner=new Corner(edge.first,edge.a,new Vector3f(cut.core.center),.5f,.5f,1);corner.deep=1;return corner;
-            }
-            var rim=point(edge.first,edge.a);
-            float centreDepth=new Vector3f(centre==null?rim:centre.point).sub(cut.anchor).dot(cut.n);
-            var point=new Vector3f(cut.anchor).fma(centreDepth-level[1]*cut.depth,cut.n);
-            int first=centre==null?edge.first:centre.triangle;var bary=centre==null?edge.a:centre.bary;
-            return new Corner(first,bary,deformRest(triangleParts.getOrDefault(first,""),point),.5f,.5f,1);
+        /** Level depth fraction along the wall; the last authored ring stays short of the apex. */
+        private static float fraction(float[][] levels,int k){
+            return Math.min(.9f,.9f*levels[k][1]/Math.max(1e-6f,levels[levels.length-2][1]));
+        }
+        /** Undeformed point inside the body (below the anchor plane) that every wall of this cut converges on. */
+        private Vector3f apexPoint(Cut cut,Sample centre,float[] level){
+            if(cut.core!=null)return new Vector3f(cut.core.center);
+            var fallback=new Vector3f(cut.anchor).fma(-cut.depth,cut.n);
+            if(centre==null)return fallback;
+            float centreDepth=new Vector3f(centre.point).sub(cut.anchor).dot(cut.n);
+            return new Vector3f(cut.anchor).fma(Math.min(centreDepth-level[1]*cut.depth,0),cut.n);
+        }
+        private Corner apex(Cut cut,RimEdge edge,Vector3f point){
+            var corner=new Corner(edge.first,edge.a,point,.5f,.5f,1);
+            if(cut.core!=null)corner.deep=1;
+            return corner;
         }
         private Sample planeSample(Cut cut,Sample[] ring,float[] xy,int index){
             for(int d=1;d<=ring.length/2;d++)for(int side=-1;side<=1;side+=2){
