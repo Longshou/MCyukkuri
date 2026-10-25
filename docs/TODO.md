@@ -9,8 +9,6 @@
 开工前登记，合入后移除；已登记区域先协调，不同时改。
 
 | 条目 | 工作树 | 主要改动文件 |
-| --- | --- | --- |
-| 山脚家洞几何与聚落预览复修 | `.worktrees/wild-settle` | `settlement/site/SiteBuilder.java`、`SitePlanner.java`、`SiteProfile.java`、`scripts/settlement_site_preview.py`、`preview/hub/categories.json` |
 
 ## 玩法待办
 
@@ -210,7 +208,7 @@
 - **群系聚落**
   - `settle_snow` 雪原聚落、`settle_desert` 沙漠聚落：体感、保温窝和避暑效果符合[季节与温度](SEASONAL_LIFE.md)，笔记与命令季节一致，跳时间不换季。`colony_hunt`、`colony_ration` 族规狩猎与分粮：实际召集、取粮、分粮符合[族规](SETTLEMENTS.md)，空缺族长在见证下继任。
   - `colony_judge` 族规·审判：陆 32（45）逐案走近、相向听审再裁决。
-  - **野外嗯嗯坑与山脚穴居聚落**：已接入待试玩。野外厕所方块已移除，聚落改为坡脚挖洞、南边低处一处裸土浅坑；不适居群系不再生成聚落。规则见[聚落场地](SETTLEMENTS.md#聚落场地山脚穴居群)、[嗯嗯坑的使用](SETTLEMENTS.md#嗯嗯坑的使用项目设计)与[群系适居裁定](SETTLEMENTS.md#群系适居裁定项目设计)。看：`settle_forest`（村）、`settle_taiga`、`settle_cherry`、`settle_hills`、`settle_savanna` 的家洞挖进北侧坡、洞口朝南，坡高处洞顶是坡体本身的土石，坑是低一格的凹地、没有方块和围栏，只有可饮水的群系才有塘；`settle_plains` 平地对照洞岸补起；“读聚落场地与嗯嗯坑”列出群系配置和坑位置，“读场地勘测”为 ok。`settle_pit`：约 10 秒后全员便意 80，成员从洞里走进坑里站定排泄，排泄物落在坑底而不在洞口或空地，日志 `[needs] toilet pit trip start` → `relieved source=pit`，去不了时有 `toilet pit refused reason=…` 并改用离家 4 格外的地面。新开世界：聚落只出现在适居群系的坡脚，雪原、沙漠、恶地、沼泽、丛林里没有。完成：用户试玩认可外观与如厕行为。
+  - **野外嗯嗯坑与山脚穴居聚落**：已接入待试玩。首版 [98b93c71](https://github.com/Longshou/MCyukkuri/commit/98b93c71) 美术复审不通过（缓坡上的家洞像堆在坡面的土屋、土柱），已改为补土顺坡、去掉丘顶与竖直土墙，坑沿改为参差。野外厕所方块已移除，聚落改为坡脚挖洞、南边低处一处裸土浅坑；不适居群系不再生成聚落。规则见[聚落场地](SETTLEMENTS.md#聚落场地山脚穴居群)、[嗯嗯坑的使用](SETTLEMENTS.md#嗯嗯坑的使用项目设计)与[群系适居裁定](SETTLEMENTS.md#群系适居裁定项目设计)。看：`settle_forest`（村）、`settle_taiga`、`settle_cherry`、`settle_hills`、`settle_savanna` 的家洞挖进北侧坡、洞口朝南，从坡下看是坡面上的暗洞口，补土处是顺坡的草地、没有露土竖墙或台阶锥，坡高处洞顶是坡体本身的土石，坑是低一格的凹地、没有方块和围栏，只有可饮水的群系才有塘；`settle_plains` 平地对照洞岸补起；“读聚落场地与嗯嗯坑”列出群系配置和坑位置，“读场地勘测”为 ok。`settle_pit`：约 10 秒后全员便意 80，成员从洞里走进坑里站定排泄，排泄物落在坑底而不在洞口或空地，日志 `[needs] toilet pit trip start` → `relieved source=pit`，去不了时有 `toilet pit refused reason=…` 并改用离家 4 格外的地面。新开世界：聚落只出现在适居群系的坡脚，雪原、沙漠、恶地、沼泽、丛林里没有。完成：用户试玩认可外观与如厕行为。
 - **日常草地**：`meet` 相遇与蹭蹭：已建立关系的两只个体普通问候与蹭蹭。
 - **出生与成长**
   - `birth_land_caught`、`birth_land_reunion`、`birth_land_missed` 陆地接生：陆 25（41）已接入待试玩，产后赤油困帽、父油离开与交互失败按上方“出生与成长”反馈 3 复测，不能以真实入帽算整链通过；临产出窝与大窝生产见反馈 4。

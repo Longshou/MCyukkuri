@@ -22,30 +22,30 @@ public enum SiteProfile {
     // name        accept top               soil              hill deep  stock   walls
     /** Oak woods: soil banks under roots, moss at the mouths. */
     FOREST (1.00, Blocks.GRASS_BLOCK, Blocks.DIRT, 5, 0, 1.0, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.PODZOL},
-            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.MOSSY_COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.STONE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SHORT_GRASS},
             new Item[]{Items.SHORT_GRASS, Items.BROWN_MUSHROOM, Items.APPLE}, new int[]{4, 3, 2}, true, true),
     BIRCH  (1.00, Blocks.GRASS_BLOCK, Blocks.DIRT, 5, 0, 1.0, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.DIRT},
-            Blocks.MOSS_BLOCK, Blocks.BIRCH_LEAVES, Blocks.BIRCH_LOG, Blocks.MOSSY_COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.BIRCH_LEAVES, Blocks.BIRCH_LOG, Blocks.STONE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SHORT_GRASS, Blocks.LILY_OF_THE_VALLEY},
             new Item[]{Items.SHORT_GRASS, Items.BROWN_MUSHROOM, Items.SWEET_BERRIES}, new int[]{4, 2, 2}, true, true),
     /** Open grassland: only where a bank or a wooded rise breaks the flat, so sites here are few. */
     PLAINS (0.80, Blocks.GRASS_BLOCK, Blocks.DIRT, 5, 0, 0.8, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.DIRT, Blocks.ROOTED_DIRT},
-            Blocks.ROOTED_DIRT, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.COBBLESTONE,
+            Blocks.ROOTED_DIRT, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.ANDESITE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.SHORT_GRASS, Blocks.DANDELION, Blocks.SHORT_GRASS, Blocks.AZURE_BLUET},
             new Item[]{Items.WHEAT, Items.SHORT_GRASS, Items.CARROT}, new int[]{4, 3, 1}, false, true),
     FLOWER (1.00, Blocks.GRASS_BLOCK, Blocks.DIRT, 5, 0, 1.0, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.PODZOL},
-            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.MOSSY_COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.OAK_LOG, Blocks.STONE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.POPPY, Blocks.DANDELION, Blocks.CORNFLOWER, Blocks.OXEYE_DAISY, Blocks.FERN, Blocks.LILY_OF_THE_VALLEY},
             new Item[]{Items.SHORT_GRASS, Items.APPLE, Items.SWEET_BERRIES}, new int[]{3, 3, 2}, true, true),
-    /** Spruce country: deeper burrows under spruce roots and mossy boulders, berries and mushrooms. */
+    /** Spruce country: deeper burrows under spruce roots, grey boulders, berries and mushrooms. */
     TAIGA  (0.90, Blocks.GRASS_BLOCK, Blocks.DIRT, 6, 1, 1.3, new Block[]{Blocks.PODZOL, Blocks.COARSE_DIRT, Blocks.DIRT, Blocks.ROOTED_DIRT},
-            Blocks.MOSS_BLOCK, Blocks.SPRUCE_LEAVES, Blocks.SPRUCE_LOG, Blocks.MOSSY_COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.SPRUCE_LEAVES, Blocks.SPRUCE_LOG, Blocks.ANDESITE,
             new Block[]{Blocks.FERN, Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SWEET_BERRY_BUSH, Blocks.FERN},
             new Item[]{Items.SWEET_BERRIES, Items.BROWN_MUSHROOM, Items.SHORT_GRASS}, new int[]{4, 3, 2}, true, true),
     /** Not generated (lasting winter): kept for the admin command in snow country. */
     SNOW   (0.00, Blocks.GRASS_BLOCK, Blocks.DIRT, 6, 1, 1.7, new Block[]{Blocks.DIRT, Blocks.COARSE_DIRT, Blocks.ROOTED_DIRT, Blocks.PODZOL},
-            Blocks.MOSS_BLOCK, Blocks.SPRUCE_LEAVES, Blocks.SPRUCE_LOG, Blocks.COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.SPRUCE_LEAVES, Blocks.SPRUCE_LOG, Blocks.STONE,
             new Block[]{Blocks.SHORT_GRASS, Blocks.DEAD_BUSH, Blocks.FERN, Blocks.SHORT_GRASS},
             new Item[]{Items.SWEET_BERRIES, Items.WHEAT, Items.BROWN_MUSHROOM, Items.APPLE}, new int[]{4, 3, 2, 1}, true, false),
     /** Savanna next to woods or a river only: dry banks of coarse earth under acacia shade, no pond. */
@@ -55,7 +55,7 @@ public enum SiteProfile {
             new Item[]{Items.WHEAT, Items.SHORT_GRASS, Items.MELON_SLICE}, new int[]{4, 3, 1}, false, false),
     /** Not generated (wet ground everywhere): kept for the admin command. */
     SWAMP  (0.00, Blocks.GRASS_BLOCK, Blocks.DIRT, 7, 0, 1.0, new Block[]{Blocks.DIRT, Blocks.ROOTED_DIRT, Blocks.PODZOL, Blocks.COARSE_DIRT},
-            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.MANGROVE_LOG, Blocks.MOSSY_COBBLESTONE,
+            Blocks.MOSS_BLOCK, Blocks.OAK_LEAVES, Blocks.MANGROVE_LOG, Blocks.MOSS_BLOCK,
             new Block[]{Blocks.SHORT_GRASS, Blocks.FERN, Blocks.SHORT_GRASS, Blocks.BLUE_ORCHID, Blocks.FERN},
             new Item[]{Items.BROWN_MUSHROOM, Items.SHORT_GRASS, Items.MELON_SLICE}, new int[]{4, 3, 1}, true, false),
     /** Not generated (no water, no grass): kept for the admin command. */

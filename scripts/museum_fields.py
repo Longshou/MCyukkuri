@@ -256,12 +256,12 @@ class Biomes(Field):
         return px - 22, pz - 22, px + 22, pz + 22
 
     def hill_height(self, plot, px, pz, x, z):
-        """Blocks of hill above the ground at (x, z): a wavy foot line, 0.6 block up per block (rock 0.9), a flat crest."""
+        """Blocks of hill above the ground at (x, z): a wavy foot line, 0.8 block up per block (rock 0.9), a flat crest."""
         if not plot[6]:
             return 0
         foot = pz - self.HILL_FOOT + round(1.5 * math.sin((x - px) / 6.0 + px * .37))
         d = foot - z
-        return 0 if d < 0 else min(self.HILL_TOP, int(d * (.9 if plot[6] == 'minecraft:stone' else .6)) + 1)
+        return 0 if d < 0 else min(self.HILL_TOP, int(d * (.9 if plot[6] == 'minecraft:stone' else .8)) + 1)
 
     def plot_base(self, plot, px, pz):
         x1, z1, x2, z2 = self.plot_rect(px, pz)

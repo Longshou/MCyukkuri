@@ -39,12 +39,12 @@ public final class SiteDump {
     private static final Map<Long, BlockState> WORLD = new HashMap<>();
     private static String terrain = "hill";
 
-    /** Natural ground (first free y): flat 64, or a slope with a wavy foot five blocks north of the origin (earth 0.6, rock 0.9 up per block), crest nine blocks up. */
+    /** Natural ground (first free y): flat 64, or a slope with a wavy foot five blocks north of the origin (earth 0.8, rock 0.9 up per block), crest nine blocks up. */
     static int ground(int x, int z) {
         if (terrain.equals("flat")) return 64;
         int foot = -5 + (int)Math.round(1.5 * Math.sin(x / 6.0));
         int d = foot - z;
-        return 64 + (d < 0 ? 0 : Math.min(9, (int)(d * (terrain.equals("rock") ? .9 : .6)) + 1));
+        return 64 + (d < 0 ? 0 : Math.min(9, (int)(d * (terrain.equals("rock") ? .9 : .8)) + 1));
     }
 
     public static void main(String[] args) throws Exception {

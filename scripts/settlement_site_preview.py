@@ -214,64 +214,108 @@ def check(head, b):
 
 
 # ---- rendering
-COLORS = {'grass_block': (96, 150, 64), 'dirt': (134, 96, 67), 'coarse_dirt': (119, 85, 59), 'rooted_dirt': (144, 104, 76), 'podzol': (91, 63, 24),
+COLORS = {'dirt': (134, 96, 67), 'coarse_dirt': (119, 85, 59), 'rooted_dirt': (144, 104, 76), 'podzol': (91, 63, 24),
           'dirt_path': (148, 122, 65), 'gravel': (131, 127, 126), 'stone': (125, 125, 125), 'andesite': (136, 136, 137), 'tuff': (108, 109, 102),
           'mossy_cobblestone': (100, 118, 94), 'cobblestone': (120, 120, 120), 'moss_block': (89, 109, 45), 'mud': (60, 57, 61), 'clay': (160, 166, 179),
-          'water': (63, 118, 228), 'short_grass': (110, 170, 70), 'fern': (90, 150, 60), 'dead_bush': (148, 108, 52), 'forage_pile': (200, 180, 90),
-          'pink_petals': (240, 170, 200), 'lily_pad': (32, 128, 48), 'sweet_berry_bush': (60, 110, 50), 'snow': (240, 240, 250), 'granite': (150, 105, 85)}
+          'water': (63, 118, 228), 'dead_bush': (148, 108, 52), 'forage_pile': (200, 180, 90), 'pink_petals': (240, 170, 200), 'lily_pad': (32, 128, 48),
+          'sweet_berry_bush': (60, 110, 50), 'snow': (240, 240, 250), 'granite': (150, 105, 85), 'sand': (219, 207, 163), 'sandstone': (216, 203, 155),
+          'dandelion': (240, 220, 40), 'poppy': (200, 40, 40), 'cornflower': (90, 120, 220), 'oxeye_daisy': (235, 235, 225), 'allium': (180, 110, 220),
+          'azure_bluet': (225, 230, 240), 'lily_of_the_valley': (240, 240, 240), 'blue_orchid': (60, 160, 230)}
+# vanilla biome tints: grass (grass blocks, short grass, ferns) and foliage (oak-type leaves); spruce, birch and cherry leaves have their own
+TINTS = {'FOREST': ('79C05A', '59AE30'), 'BIRCH': ('88BB67', '80A755'), 'FLOWER': ('79C05A', '59AE30'), 'TAIGA': ('86B783', '619961'),
+         'PLAINS': ('91BD59', '77AB2F'), 'CHERRY': ('B6DB61', 'F2B6D2'), 'MEADOW': ('83BB6D', '63A948'), 'HILLS': ('8AB689', '619961'),
+         'SAVANNA': ('BFB755', 'AEA42A')}
+PLANTS = PASS | {'forage_pile'}
 
 
-def color(name):
-    if name in COLORS:
-        return COLORS[name]
-    if name.endswith('_log'):
-        return (102, 81, 50) if 'birch' not in name else (215, 210, 200)
-    if name.endswith('_leaves'):
-        return (240, 160, 200) if 'cherry' in name else (60, 120, 45)
-    return (220, 200, 80)
+def palette(profile):
+    grass, foliage = (tuple(int(h[i:i + 2], 16) for i in (0, 2, 4)) for h in TINTS.get(profile, TINTS['FOREST']))
+
+    def color(name):
+        if name in ('grass_block', 'short_grass', 'fern'):
+            return tuple(int(c * (.82 if name == 'grass_block' else .95)) for c in grass)
+        if name in COLORS:
+            return COLORS[name]
+        if name.endswith('_log'):
+            return {'birch_log': (215, 210, 200), 'cherry_log': (60, 32, 40), 'spruce_log': (60, 44, 28), 'acacia_log': (105, 98, 90)}.get(name, (102, 81, 50))
+        if name.endswith('_leaves'):
+            return {'spruce_leaves': (97, 153, 97), 'birch_leaves': (128, 167, 85), 'cherry_leaves': (242, 182, 210)}.get(name, foliage)
+        return (220, 200, 80)
+    return color
 
 
-def render(head, b, problems, path, title):
+def shade(c, k):
+    return tuple(max(0, min(255, int(ch * k))) for ch in c)
+
+
+def render_iso(head, b, color, span=None, center=None, s=7, labels=True):
+    """Iso view from the south-east (south and east faces visible). Faces looking into a roofed cell (a burrow mouth or
+    cavity) are drawn dark, so an open doorway reads as a dark hole in the bank."""
     from PIL import Image, ImageDraw
-    span = head['bound'] + 3
-    ox, oz = head['ox'], head['oz']
-    pts = {p: n for p, n in b.items() if abs(p[0] - ox) <= span and abs(p[2] - oz) <= span and p[1] >= 60}
-    s = 7                                  # half width of a block's top diamond
-    W, H = (2 * span + 2) * 2 * s + 40, (2 * span + 2) * s + 30 * s + 80
-    img = Image.new('RGB', (W, H), (236, 238, 242))
+    span = span or head['bound'] + 3
+    ox, oz = center if center else (head['ox'], head['oz'])
+    pts = {q: n for q, n in b.items() if abs(q[0] - ox) <= span and abs(q[2] - oz) <= span and q[1] >= 60}
+    top_y = max((q[1] for q in pts), default=76) + 2
+    W, H = (2 * span + 2) * 2 * s + 20, (2 * span + 2) * s + (top_y - 58) * s * 1.1 + 20
+    img = Image.new('RGB', (W, int(H)), (236, 238, 242))
     d = ImageDraw.Draw(img)
 
     def iso(x, y, z):
         u, v = x - ox, z - oz
-        return W / 2 + (u - v) * s, 60 + (u + v + 2 * span) * s / 2 + (75 - y) * s * 1.1
+        return W / 2 + (u - v) * s, 10 + (u + v + 2 * span) * s / 2 + (top_y - y) * s * 1.1
 
-    def shade(c, k):
-        return tuple(max(0, min(255, int(ch * k))) for ch in c)
-    for p in sorted(pts, key=lambda p: (p[0] + p[2], p[1])):
-        x, y, z = p
-        name = pts[p]
+    def dark(x, y, z):
+        return any(pts.get((x, y + k, z), 'air') not in PASS for k in (1, 2, 3))
+    for q in sorted(pts, key=lambda q: (q[0] + q[2], q[1])):
+        x, y, z = q
+        name = pts[q]
         c = color(name)
-        top = [iso(x, y + 1, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)]
-        plant = name in PASS or name == 'forage_pile'
-        if plant:
+        if name in PLANTS:
             cx, cy = iso(x + .5, y + .4, z + .5)
-            d.ellipse([cx - s * .45, cy - s * .45, cx + s * .45, cy + s * .45], fill=c)
+            d.ellipse([cx - s * .4, cy - s * .4, cx + s * .4, cy + s * .4], fill=c)
             continue
-        if (x, y + 1, z) not in pts or pts[(x, y + 1, z)] in PASS:
-            d.polygon(top, fill=shade(c, 1.0))
-        if (x, y, z + 1) not in pts or pts[(x, y, z + 1)] in PASS:
-            d.polygon([iso(x, y + 1, z + 1), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1), iso(x, y, z + 1)], fill=shade(c, .72))
-        if (x + 1, y, z) not in pts or pts[(x + 1, y, z)] in PASS:
-            d.polygon([iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1), iso(x + 1, y, z)], fill=shade(c, .85))
-    for slot in head['slots']:
-        if slot['slot'] in ('HOME', 'HALL', 'GRANARY', 'PIT') and (slot['slot'] != 'PIT' or slot is next(t for t in head['slots'] if t['slot'] == 'PIT')):
-            cx, cy = iso(slot['x'] + .5, slot['y'] + 2.6, slot['z'] + .5)
-            label = {'HOME': '家', 'HALL': '长屋', 'GRANARY': '仓', 'PIT': '坑'}[slot['slot']]
-            d.text((cx - 6, cy - 8), label, fill=(30, 30, 30), font=font(13))
-    d.text((12, 10), title, fill=(20, 20, 20), font=font(18))
+        if pts.get((x, y + 1, z), 'air') in PASS:
+            d.polygon([iso(x, y + 1, z), iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x, y + 1, z + 1)], fill=shade(c, .45 if dark(x, y + 1, z) else 1))
+        if pts.get((x, y, z + 1), 'air') in PASS:
+            d.polygon([iso(x, y + 1, z + 1), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1), iso(x, y, z + 1)], fill=shade(c, .3 if dark(x, y, z + 1) else .72))
+        if pts.get((x + 1, y, z), 'air') in PASS:
+            d.polygon([iso(x + 1, y + 1, z), iso(x + 1, y + 1, z + 1), iso(x + 1, y, z + 1), iso(x + 1, y, z)], fill=shade(c, .35 if dark(x + 1, y, z) else .85))
+    if labels:
+        for slot in head['slots']:
+            if slot['slot'] in ('HOME', 'HALL', 'GRANARY') or slot is next((t for t in head['slots'] if t['slot'] == 'PIT'), None):
+                cx, cy = iso(slot['x'] + .5, slot['y'] + 3.2, slot['z'] + .5)
+                label = {'HOME': '家', 'HALL': '长屋', 'GRANARY': '仓', 'PIT': '坑'}[slot['slot']]
+                d.text((cx - 6, cy - 8), label, fill=(30, 30, 30), font=font(13))
+    return img
+
+
+def render(head, b, problems, path, title, profile):
+    from PIL import Image, ImageDraw
+    color = palette(profile)
+    overview = render_iso(head, b, color)
+    home = next((t for t in head['slots'] if t['slot'] == 'HOME'), None)
+    pit = next((t for t in head['slots'] if t['slot'] == 'PIT'), None)
+    views = []
+    if home:
+        f = DIRS[home['facing']]
+        views.append(('家洞近景（洞口朝向右下，暗处是洞口与洞内）', render_iso(head, b, color, span=7, center=(home['x'] + f[0], home['z'] + f[1]), s=15, labels=False)))
+    if pit:
+        views.append(('嗯嗯坑近景', render_iso(head, b, color, span=5, center=(pit['x'], pit['z']), s=15, labels=False)))
+    side = max((v.width for _, v in views), default=0)
+    W = overview.width + side + 30
+    H = max(overview.height, sum(v.height + 26 for _, v in views)) + 64
+    sheet = Image.new('RGB', (W, H), (236, 238, 242))
+    d = ImageDraw.Draw(sheet)
+    d.text((12, 8), title, fill=(20, 20, 20), font=font(18))
     d.text((12, 34), ('问题：' + '；'.join(problems)) if problems else '勘测：全部洞穴通过 NaturalShelter.survey，空地可走到每个洞口与嗯嗯坑',
            fill=(170, 30, 30) if problems else (30, 110, 40), font=font(13))
-    img.save(path)
+    sheet.paste(overview, (0, 60))
+    y = 60
+    for label, view in views:
+        d.text((overview.width + 20, y), label, fill=(30, 30, 30), font=font(14))
+        sheet.paste(view, (overview.width + 20, y + 22))
+        y += view.height + 26
+    sheet.save(path)
 
 
 _FONT = {}
@@ -307,8 +351,13 @@ def main():
     report, bad = [], 0
     cases = [(p, t, tier, 'strict') for p, t in CASES for tier in ('band', 'village')] + [('FOREST', 'flat', 'band', 'command'), ('FOREST', 'flat', 'village', 'command')]
     for profile, terrain, tier, mode in cases:
-        for i in range(args.seeds):
-            seed = 1000 + i * 7919
+        base = 1000 + sum(map(ord, profile)) * 37
+        rendered = False
+        # the first seed that yields a site is drawn; a few extra seeds are tried only to find one to draw
+        for i in range(args.seeds + 4):
+            if i >= args.seeds and (rendered or args.no_render):
+                break
+            seed = base + i * 7919
             head, blocks = dump(tier, seed, profile, terrain, mode)
             if head is None:
                 report.append(f'{profile:8} {tier:7} {terrain:4} seed {seed}: no site ({blocks})')
@@ -317,9 +366,10 @@ def main():
             bad += bool(problems)
             report.append(f"{profile:8} {tier:7} {terrain:4} seed {seed}: rot {head['rotation']} origin {head['ox']},{head['oz']} roofed {dug}/{burrows}"
                           + (' PROBLEMS ' + '; '.join(problems) if problems else ' ok'))
-            if i == 0 and not args.no_render:
+            if not rendered and not args.no_render:
+                rendered = True
                 title = f"{TITLES[profile]} · {'村落' if tier == 'village' else '小群'} · {'山脚坡地，挖进坡里' if mode == 'strict' else '平地命令放置，土岸补起'}"
-                render(head, blocks, problems, OUT / f'{profile.lower()}_{tier}_{terrain}.png', title)
+                render(head, blocks, problems, OUT / f'{profile.lower()}_{tier}_{terrain}.png', title, profile)
     print('\n'.join(report))
     print(f'{bad} problem runs')
     if not args.no_render:

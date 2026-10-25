@@ -102,6 +102,11 @@ public final class SitePlanner {
 
     /** Highest a home door may stand above (or below) the clearing; the longhouse and stores must keep within it too. */
     private static final int MAX_DOOR_RISE = 8;
+    /**
+     * A burrow counts as dug into the slope when the natural ground at its back wall stands this high above its door: then
+     * at most the front of its roof is made up (SiteBuilder.Job.burrow needs the surface three blocks over the floor).
+     */
+    private static final int DUG_RISE = 3;
     /** Layout draws are cheap and independent; a village fails a single draw fairly often, so many are made before giving up. */
     private static final int ATTEMPTS = 64;
     private static final ThreadLocal<String> FAILURE = new ThreadLocal<>();
@@ -111,7 +116,7 @@ public final class SitePlanner {
 
     /**
      * Why a generated site would not be a hill-foot settlement, or null: the clearing must be near-level, the burrow doors
-     * near the clearing level, the longhouse and at least three in five burrows backed by a slope at least two blocks high.
+     * near the clearing level, the longhouse and at least three in five burrows backed by a slope at least {@link #DUG_RISE} blocks high.
      */
     private static String unfit(SitePlan plan, Ground ground) {
         int low = Integer.MAX_VALUE, high = Integer.MIN_VALUE;
@@ -131,7 +136,7 @@ public final class SitePlanner {
             if (p.kind() == Kind.HOME) homes++;
             if (rise > 12) return p.kind() + " lies under a cliff (" + rise + " blocks)";
             burrows++;
-            if (rise >= 2) { dug++; if (p.kind() == Kind.HALL) hall = true; }
+            if (rise >= DUG_RISE) { dug++; if (p.kind() == Kind.HALL) hall = true; }
         }
         if (homes < (plan.tier.hall ? 4 : 2)) return "only " + homes + " homes fit below the slope";
         if (!hall) return "no slope behind the longhouse";
@@ -277,7 +282,7 @@ public final class SitePlanner {
         for (int tries = 0; tries < 30 && pit == null; tries++) {
             double angle = low + rng.range(-.6, .6), r = hedge - (village ? 4.5 : 3.8) + rng.range(-1, 1);
             int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
-            var p = new Part(Kind.PIT, x, z, Direction.SOUTH, village ? 19 : 15, village ? 14 : 11, rng.nextInt(628));
+            var p = new Part(Kind.PIT, x, z, Direction.SOUTH, village ? 24 : 20, village ? 17 : 14, rng.nextInt(628));
             if (d.place(p)) pit = p;
         }
         if (pit == null) return why("waste pit");
@@ -303,7 +308,7 @@ public final class SitePlanner {
         }
         for (int i = 0; i < tier.homes; i++) {
             Part home = null;
-            for (int tries = 0; tries < 200 && home == null; tries++) {
+            for (int tries = 0; tries < 300 && home == null; tries++) {
                 var p = burrow(Kind.HOME, footX(rng, village), footZ(rng, rp, village, village), rng, deep);
                 if (d.dig(p)) home = p;
             }
@@ -380,10 +385,10 @@ public final class SitePlanner {
      * Burrow mouths lie along the foot of the slope: spread sideways along it, most within a few blocks of the clearing's
      * edge and only a few a little way up the bank (a slope rises fast; doors high up it are left out by the terrain).
      */
-    private static int footX(SiteRng rng, boolean village) { return (int)Math.floor(rng.range(-1, 1) * (village ? 19 : 10) + .5); }
+    private static int footX(SiteRng rng, boolean village) { return (int)Math.floor(rng.range(-1, 1) * (village ? 21 : 10) + .5); }
     private static int footZ(SiteRng rng, double rp, boolean village, boolean upper) {
         // a village is too wide for one row: some of its homes open a row higher up the bank (stores stay at the foot)
-        double up = upper && rng.nextDouble() < .4 ? 9 + rng.range(0, 3) : rng.nextDouble() * rng.nextDouble() * (village ? 4 : 5);
+        double up = upper && rng.nextDouble() < .4 ? 7 + rng.range(0, 2) : rng.nextDouble() * rng.nextDouble() * (village ? 4 : 5);
         return -(int)Math.floor(rp + 2 + up + .5);
     }
     private static Part burrow(Kind kind, int x, int z, SiteRng rng, int deep) {

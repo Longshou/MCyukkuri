@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement.site;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,19 +77,30 @@ public final class SiteGeom {
      * settlers keep using; nothing is built in or around it.
      */
     public static List<long[]> pitDip(Part p) {
-        var out = new ArrayList<long[]>();
+        var inside = new HashSet<Long>();
         int r = (int)Math.ceil(Math.max(p.a(), p.b()) / 10.0 * 1.3);
-        for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPool(p, dx, dz)) out.add(new long[]{p.x() + dx, p.z() + dz});
+        for (int dx = -r; dx <= r; dx++) for (int dz = -r; dz <= r; dz++) if (inPool(p, dx, dz)) inside.add(key(p.x() + dx, p.z() + dz));
+        // a scraped hollow has no straight edges: some edge cells stay ground, so its outline frays
+        var out = new ArrayList<long[]>();
+        for (long k : inside) {
+            int x = keyX(k), z = keyZ(k), around = 0;
+            for (int[] s : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) if (inside.contains(key(x + s[0], z + s[1]))) around++;
+            if (around <= 2 && !(x == p.x() && z == p.z()) && SiteRng.hash(p.c(), x, z, 91) < .35) continue;
+            out.add(new long[]{x, z});
+        }
+        out.sort(Comparator.<long[]>comparingLong(c -> c[0]).thenComparingLong(c -> c[1]));
         return out;
     }
-    /** The ring of ground around the dip, eased to the dip's rim level. */
+    /** The trodden ground around the dip: its side neighbours, and only some of its corners, so the rim is ragged too. */
     public static Set<Long> pitRim(Part p) {
         var dip = new HashSet<Long>();
         for (var cell : pitDip(p)) dip.add(key((int)cell[0], (int)cell[1]));
         var rim = new HashSet<Long>();
         for (var cell : pitDip(p)) for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
-            long k = key((int)cell[0] + dx, (int)cell[1] + dz);
-            if (!dip.contains(k)) rim.add(k);
+            int x = (int)cell[0] + dx, z = (int)cell[1] + dz;
+            long k = key(x, z);
+            if (dip.contains(k) || dx != 0 && dz != 0 && SiteRng.hash(p.c(), x, z, 92) < .55) continue;
+            rim.add(k);
         }
         return rim;
     }
