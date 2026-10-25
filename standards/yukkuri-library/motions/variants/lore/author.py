@@ -33,6 +33,8 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
 _BRAID_RESCUE=None
+# Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
+TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
 
 
 def smooth(x):
@@ -82,7 +84,10 @@ def keyed(t, keys):
 def state(action, t, c, height):
     s, r, lift, shift = [1., 1., 1.], [0., 0., 0.], 0., [0., 0.]
     d = c['duration']
-    if action.startswith('braid_rescue_'):
+    owned = TOOLS['state'](action, t, c, height) if action in TOOLS['EXPORT_CLIPS'] else None
+    if owned is not None:
+        s, r, lift, shift = owned
+    elif action.startswith('braid_rescue_'):
         global _BRAID_RESCUE
         if _BRAID_RESCUE is None:_BRAID_RESCUE=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
         r=list(_BRAID_RESCUE['root_rotation']);lift=_BRAID_RESCUE['root_lift']  # v4: root_pitch_degrees is 0, no whole-body tilt
@@ -109,9 +114,6 @@ def state(action, t, c, height):
     elif action=='water_hat_grip':
         # Mouth hold on the rim (project original): the head rides a few degrees low, braids only touch.
         q=min(1,max(0,t/d));s=[1,1,1];r=[-6*smooth(q),0,-3*math.sin(math.pi*q)**2]
-    elif action=='water_hat_climb':
-        press=keyed(t,[(0,.5),(.2,1),(.52,.8),(.8,.35),(1.2,0)])
-        s=[1+.055*press,1-.14*press,1+.04*press];r=[-9*press,0,keyed(t,[(0,-3),(.34,2),(.75,-1),(1.2,0)])]
     elif action=='water_hat_pull':
         q=min(1,max(0,t/d))
         progress=.58*smooth((q-.15)/.23)+.42*smooth((q-.62)/.23)
@@ -207,9 +209,6 @@ def state(action, t, c, height):
             r = [-9*lean, 0, 3*math.sin(phase*2)*lean]; s[1] -= .025*lean
         elif action == 'boat_lullaby':
             r = [2, 0, 2.5*math.sin(phase*2)]; s[1] += .008*(1-math.cos(phase*4))
-        elif action == 'boat_paddle':
-            r = [-2-3*math.sin(phase), 3*math.sin(phase), -2+1.5*math.cos(phase)]
-            s[1] -= .015*(1-math.cos(phase))
         elif action == 'boat_gather':
             reach = bump(t/d); r = [-7*reach, -9*reach, -3*reach]
             s[1] -= .025*reach
@@ -631,7 +630,7 @@ def flourish_tracks(model, action, samples, cfg, c):
             if not parts:continue
             def gesture(t):
                 if paddle:  # the right braid keeps holding the paddle; the other rests
-                    return [4,0,24+3*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]
+                    return [4,0,31+2*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]
                 if action=='water_mouth_grip':
                     q=.5+.5*math.sin(2*math.pi*t/d);return [2-3*q,0,side*(8+5*q)]
                 if action=='water_bob_lunge':
@@ -644,12 +643,11 @@ def flourish_tracks(model, action, samples, cfg, c):
                     q=bump((t-.2)/.3);return [-8*q,0,side*(8+14*q)]
                 q=bump((t-.3)/.3);return [-8*q,0,side*(8+16*q)]  # hat_hop_up
             tracks.append({'bone':hand,'channel':'rotation','keys':[[round(t,8),*[round(v,5) for v in gesture(t)]] for t in samples]})
-    if action in ('boat_paddle', 'boat_gather', 'boat_drink'):
+    if action in ('boat_gather', 'boat_drink'):
         hand, parts = carried(model, 'hand_right')
         if parts:
             def rowing(t):
                 phase = 2*math.pi*t/c['duration']
-                if action == 'boat_paddle': return [18*math.sin(phase), 0, 24+6*math.cos(phase)]
                 a = bump(t/c['duration']); return [-18*a, -8*a, 12+12*a]
             tracks.append({'bone': hand, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in rowing(t)]] for t in samples]})
     wave = cfg['flourishes']['braid_wave']
@@ -774,13 +772,18 @@ def compile_clips(model, cfg, root, ground, height):
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]
-        out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks+flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c),
-                     'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield']}
+        tracks += flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c)
+        fields = {}
+        if name in TOOLS['EXPORT_CLIPS']:
+            if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
+            more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more
+        out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks,
+                     'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'], **fields}
         if 'hat_transfer' in c:out[name]['hat_transfer']=c['hat_transfer']
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -791,7 +794,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
     contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge or include_comfort else None
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
-    names=COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
+    names=TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
         names+=('think','nervous','proud','joy_jump','sulk','hide_face','beg','bow','shy','doze_off','struggle','basket_in','basket_out','ignore','restrain')
     cfg['clips']={name:cfg['clips'][name] for name in names}
@@ -830,10 +833,10 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
+    payload['revision']='aquatic-tools-20261026-v31' if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
-    for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('runtime',resource),
+    for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('lore_aquatic_tools',here/'aquatic_tools.py'),('runtime',resource),
                        ('braid_rescue_recipe',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json'),
                        ('braid_rescue_author',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/author.py'),
                        ('braid_rescue_geometry',ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json')):
@@ -856,9 +859,11 @@ if __name__=='__main__':
     parser.add_argument('--export-carry',action='store_true',help='Export the supported prepare, hold and release carry poses only.')
     parser.add_argument('--export-badge',action='store_true',help='Export the badge-arc clips (BADGE_CLIPS) and the tilt-refitted clips (TILT_FIX_CLIPS) only.')
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
+    parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
     args=parser.parse_args()
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
     if args.export_carry:export_distress_clips(include_carry=True)
     if args.export_badge:export_distress_clips(include_badge=True)
     if args.export_comfort:export_distress_clips(include_comfort=True)
+    if args.export_aquatic:export_distress_clips(include_aquatic=True)

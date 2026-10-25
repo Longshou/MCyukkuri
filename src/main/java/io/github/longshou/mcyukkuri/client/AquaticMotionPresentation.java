@@ -1,10 +1,10 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 /** Presentation of the server's real stroke and current, without adding motion or an item entity. */
 final class AquaticMotionPresentation {
@@ -21,9 +21,9 @@ final class AquaticMotionPresentation {
         if(distress!=null&&!alarmOnly&&!distress.clip().equals("boat_paddle"))return distress;
         boolean captain=entity.getUUID().equals(boat.ownerYukkuri());
         if(captain&&boat.paddling()&&boat.visiblePaddle()){
-            // The authored stroke travels aft from .4 to 1.2 seconds; map that onto the server power half.
-            // Alarm/care animation clocks must never restart or desynchronise this cycle.
-            return new CabinDistressPresentation.Motion("boat_paddle",(float)((boat.paddleCycle(partial)*1.6+.4)%1.6));
+            // The clip's power_start..power_end markers carry the stick aft through the water; map that onto the server
+            // power half and the rest of the clip onto the recovery. Alarm/care clocks never restart this cycle.
+            return new CabinDistressPresentation.Motion("boat_paddle",strokeSeconds(YukkuriModel.get(entity.assetId()),boat.paddleCycle(partial)));
         }
         if(alarmOnly)return distress;
         if(boat.visibleDrifting()||captain&&entity.getAnimationId().equals("boat_paddle")){
@@ -43,25 +43,30 @@ final class AquaticMotionPresentation {
         if(boat.rocking()||boat.capsizing())action="boat_steady";
         var displayed=motion(entity,partial);
         if(displayed!=null&&YukkuriModel.get(entity.assetId()).hasClip(displayed.clip()))action=displayed.clip();
-        return action.equals("boat_paddle")||action.equals("hat_brim_offer")||action.equals("boat_nudge_young");
+        return YukkuriModel.get(entity.assetId()).clipHasProp(action,PADDLE_SLOT);
+    }
+    /** Clip seconds for a server stroke cycle: [0, .5) is the power half between the clip's power markers. */
+    static float strokeSeconds(YukkuriModel model,double cycle){
+        float duration=model.clipDuration("boat_paddle");if(!(duration>0))return 0;
+        float start=model.clipMarker("boat_paddle","power_start",0),end=model.clipMarker("boat_paddle","power_end",duration/2);
+        double c=cycle-Math.floor(cycle);
+        double seconds=c<.5?start+(end-start)*c*2:end+(start+duration-end)*(c-.5)*2;
+        return (float)(seconds%duration);
     }
 
     /**
-     * Pose the real twig in the braid-tip frame: gripped near its upper end a little outboard of the tip,
-     * leaning out past the brim so its lower end dips beside the hull. The braid's own sweep carries the stroke; while rowing the twig
-     * sweeps a little further aft in the power half and is raised outward out of the water on the return.
+     * The real stick in the braid tuft, placed by the clip's own props.paddle keys (the same keys the previews read):
+     * the tuft wraps its grip, the long end swings outside the brim into the water in the power half.
      */
-    static void holdPaddle(PoseStack pose,HatBoatView boat,float partial,boolean stroking){
-        double cycle=stroking?boat.paddleCycle(partial):0;
-        float lift=stroking?(float)Math.max(0,-Math.sin(cycle*Math.PI*2)):0,sweep=stroking?(float)Math.cos(cycle*Math.PI*2):0;
-        pose.translate(PADDLE_REACH,0,0);
-        pose.mulPose(Axis.ZP.rotationDegrees(PADDLE_OUTWARD+PADDLE_LIFT*lift));
-        pose.mulPose(Axis.XP.rotationDegrees(PADDLE_SWEEP*sweep));
-        pose.translate(0,-PADDLE_GRIP_OFFSET,0);
-        // FIXED item display turns the sprite 180 degrees about Y, mirroring its diagonal; -45 stands it on the grip axis.
-        pose.mulPose(Axis.ZP.rotationDegrees(-45));pose.scale(.85f,.85f,.85f);
+    static void renderHeldStick(YukkuriModel model,String clip,float seconds,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        var socket=model.propPose(clip,PADDLE_SLOT,seconds);
+        if(socket==null||!PropModels.has(STICK))return;
+        pose.pushPose();pose.mulPose(socket);
+        var grip=PropModels.socket(STICK);pose.translate(-grip.x,-grip.y,-grip.z);
+        PropModels.render(STICK,8,pose,buffers,light,overlay);
+        pose.popPose();
     }
-    private static final float PADDLE_OUTWARD=30,PADDLE_LIFT=30,PADDLE_SWEEP=10,PADDLE_GRIP_OFFSET=.26f,PADDLE_REACH=.05f;
+    static final String STICK="paddle_stick",PADDLE_SLOT="paddle";
 
     private AquaticMotionPresentation(){}
 }

@@ -106,6 +106,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** The physical headwear identity stays with the hull while its owner is unloaded. */
     private static final EntityDataAccessor<Boolean> AQUATIC_HULL = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ACCESSORY_STAGE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
+    /** The deployed hat's own wear (headwear damage 0 intact, 1 frayed, 2 torn), drawn on the hull like a worn hat. */
+    private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     /** Where each young aboard sits (hat units), as the server gave it: where it landed, or the next free place. */
     private static final EntityDataAccessor<CompoundTag> SEATS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> CARGO = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
@@ -170,7 +172,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         // Every pre-Water-15 hat boat is an aquatic Marisa vessel.  This preserves its identity until a loaded owner refreshes it.
         builder.define(AQUATIC_HULL, true); builder.define(ACCESSORY_STAGE, FamilyLife.Stage.ADULT.ordinal()); builder.define(SEATS, new CompoundTag());
         builder.define(CARGO, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
-        builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0);
+        builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0); builder.define(HULL_DAMAGE, 0);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -419,7 +421,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public void syncAccessoryIdentity(YukkuriEntity owner) {
         entityData.set(AQUATIC_HULL,owner.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA);
         entityData.set(ACCESSORY_STAGE,owner.family().stage().ordinal());
+        entityData.set(HULL_DAMAGE,Math.clamp(owner.headwear().damage(),0,2));
     }
+    public int hullDamage() { return entityData.get(HULL_DAMAGE); }
     public State state() { return State.values()[Math.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
     public boolean isAfloat() { return state() == State.AFLOAT; }
     /** The hat's size: its owner's growth, larger for the aquatic Marisa. */

@@ -1,0 +1,372 @@
+{
+  "status": "pending_user_review",
+  "origin": "project design",
+  "recipe": {
+    "sad": "teary atlas, tear and mouth-effect cells from neutral, top quarter of each eye under a flat lid line",
+    "afraid": "teary atlas, tear and mouth-effect cells from neutral, eyes from surprise with a small dark pupil, a pressed zigzag mouth"
+  },
+  "builder": "standards/yukkuri-library/expressions/derived/faces.py",
+  "builder_sha256": "606938c903bc9732635fa96b16dd198376122c53b02bd60c1781595b90eb7179",
+  "models": {
+    "alice": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/sad.png",
+        "sha256": "75ac56cb3663aaf3bb467b96fdb731766eef8c773fb6a654aa052c69e358f33e"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/afraid.png",
+        "sha256": "c6cb0adbb591b3ce857aea740104d1d5e51321320729f9764ad0989f1da7300f"
+      },
+      "from": {
+        "teary": "3eb3c4f8fb44b3b7646411e2d0a7d0836e9868904263f8763db5b84c0d56cf03",
+        "neutral": "04fba1df3dbb9e6e88aeeab5015a49b2732e73b03a5eb9c214837802db9330f3",
+        "surprise": "6457975a218172ea93a82b267df022aeaa8c01215dd8a3c29d788238d2dc7779"
+      }
+    },
+    "chen": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/sad.png",
+        "sha256": "6dc046da993331c97c9b5623751860ba591a49efc88da77ce01031c3bffb40b2"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/afraid.png",
+        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+      },
+      "from": {
+        "teary": "79092e63c06b318ba81d9681b9f16c2bf3ebd9baef54748d790eba1766f11c2f",
+        "neutral": "be9014c8e109d1865ec130fdee4f8551909954ecdb12505cef0a98942afcbd4b",
+        "surprise": "37dd0261091248af8133334741687d75f2b51dc8f440e0aae4d206aca8890817"
+      }
+    },
+    "chen_longtail": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/sad.png",
+        "sha256": "6dc046da993331c97c9b5623751860ba591a49efc88da77ce01031c3bffb40b2"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/afraid.png",
+        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+      },
+      "from": {
+        "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
+        "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
+        "surprise": "6ef3c3c3d8e6f6411370d0250493e21ca314205f504fbd7bd2397b10ba47f521"
+      }
+    },
+    "chen_roundtail": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/sad.png",
+        "sha256": "6dc046da993331c97c9b5623751860ba591a49efc88da77ce01031c3bffb40b2"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/afraid.png",
+        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+      },
+      "from": {
+        "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
+        "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
+        "surprise": "6ef3c3c3d8e6f6411370d0250493e21ca314205f504fbd7bd2397b10ba47f521"
+      }
+    },
+    "flandre": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/sad.png",
+        "sha256": "764ef42fd8f7496e3d780dbe297f7c1b0ce17c0ed6ad73b98205b9065e378222"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/afraid.png",
+        "sha256": "a29ba7cfb76c9f8468ee5214264025bdad419201c78608d7e1b514e9caeeb66c"
+      },
+      "from": {
+        "teary": "db3461c3f738c13395f6e4d40f5cc4bd13f9da97e9804062e8ba3b3e24098b1a",
+        "neutral": "a731584876aa3a5faa634b294e3923d8fee5c4d094d974a4107c4bc1206f6920",
+        "surprise": "ff84a96476fc029f04f70004da9fdca26c649b084c2508c3b0c46808116aa1e3"
+      }
+    },
+    "house_marisa": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/sad.png",
+        "sha256": "617cfab58a45a410126651f0fa9048d8d362267806d3b56c98c85ee965330396"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/afraid.png",
+        "sha256": "71c655867ab81dce75eebf7837e73dc36f0d90b3e8594482da7c3030d600cef3"
+      },
+      "from": {
+        "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
+        "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
+        "surprise": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639"
+      }
+    },
+    "house_reimu": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/sad.png",
+        "sha256": "d1161e72cfaabfb74ad03787ad92fd07350fefc74545dc11a0ede215a5154a09"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/afraid.png",
+        "sha256": "6742d774c0b0ab992760134e3277d20d3c54ee081fa151d6380f75420a4055e6"
+      },
+      "from": {
+        "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+        "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+        "surprise": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e"
+      }
+    },
+    "marisa": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/sad.png",
+        "sha256": "94a4de913bfe329e393ea9f38dd6ad40e9b0df417162ac29549fe84e7c2d05c6"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/afraid.png",
+        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+      },
+      "from": {
+        "teary": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "surprise": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947"
+      }
+    },
+    "marisa_bean": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/sad.png",
+        "sha256": "617cfab58a45a410126651f0fa9048d8d362267806d3b56c98c85ee965330396"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/afraid.png",
+        "sha256": "71c655867ab81dce75eebf7837e73dc36f0d90b3e8594482da7c3030d600cef3"
+      },
+      "from": {
+        "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
+        "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
+        "surprise": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639"
+      }
+    },
+    "marisa_face": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/sad.png",
+        "sha256": "94a4de913bfe329e393ea9f38dd6ad40e9b0df417162ac29549fe84e7c2d05c6"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/afraid.png",
+        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+      },
+      "from": {
+        "teary": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "surprise": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947"
+      }
+    },
+    "marisa_kotatsu": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/sad.png",
+        "sha256": "97803035a8c4b86d08d0ba0d72afd538a27532eb95314986f71b86f634dce944"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/afraid.png",
+        "sha256": "0eefbe1763bbbc69bc0bacefe7c12bcd6021451b40ba56812f8fb4b4388651af"
+      },
+      "from": {
+        "teary": "49ea5d6b5e6892580cbf3ba8e1b4dd76ab4bd4852b763824dd573a945a9f9642",
+        "neutral": "c7ece5155a54137534a16bfa8ddbf922fd43b4960e30dedb60883e90a45d731c",
+        "surprise": "fc465fced3613697732d6b8adf17bb81dc7f52be4975b23401896f84d35fde4d"
+      }
+    },
+    "marisa_sparse": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/sad.png",
+        "sha256": "94a4de913bfe329e393ea9f38dd6ad40e9b0df417162ac29549fe84e7c2d05c6"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/afraid.png",
+        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+      },
+      "from": {
+        "teary": "0a678bf33887525aadb3635ab65b73bbdef5630b9efbeff8162925821d012ca6",
+        "neutral": "e58037a4bbc89571feddf7aaf169fe316696d56fc183f60f2bbacf3b7d5f3848",
+        "surprise": "1d4bbaa10e0a42b9366b08a78199eefdc349a9259c82e681a9b280abaef8a947"
+      }
+    },
+    "marisa_tsumuri": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/sad.png",
+        "sha256": "87ae4fe3439e650a6e56c377c4c214e8c54addd88b1a355657870c406a8911d4"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/afraid.png",
+        "sha256": "5a97aba1f2fcab2221852fadd0ce6baf982d9b8a67eb30a4aad4b755496110e1"
+      },
+      "from": {
+        "teary": "f51468e85acf117a0409b1880d1d43ce37f39d1f96235c7d583a5d99b0cda72c",
+        "neutral": "752987d5fe8fcb94f033c159d7117fc5df72fb8af26b3bdd1d356161335a18ec",
+        "surprise": "818b804e9ec00d5e868b7075f4d477d701d097985181d2b50ab4b4f3670b5428"
+      }
+    },
+    "myon": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/sad.png",
+        "sha256": "6e646578de4d161ce68a6ea5740247f06231ae4bb0db69570dbc1433e3a008e0"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/afraid.png",
+        "sha256": "1680bbc41c56a09b094edc8ff5295baa4ab31aec4e9a8ea023424eec154dfede"
+      },
+      "from": {
+        "teary": "c24d400821aec1be9d949b6d6eeaf3df49a906f12cce0a2562c28dee131872e2",
+        "neutral": "5e87fc1223f78f2cf484bef7ece44bcc4dd39e3b42dfe40dcf47e7b1beedadd9",
+        "surprise": "777d9ba04ab7683cdfefcd11b9a6d227226392af8600850cdbbdf89df39173dd"
+      }
+    },
+    "myon_redeye": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/sad.png",
+        "sha256": "e8acb9cb810c4909eff3a1925b98b0b2f833dfcbbb834edd75bc568ae4fce51c"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/afraid.png",
+        "sha256": "e6f6aca79788f7385bb7c29d0fe88e8416a0db447c55f7785e455f19c99988ce"
+      },
+      "from": {
+        "teary": "bb7e3a9119fa7a83dc9c47a2dd2b02e1a0757f1f8791e9b76a916ee287c5ea33",
+        "neutral": "db22c96fff753207ecce63b6adf886cef201a9d13fd619ec745b2e44917e2c6e",
+        "surprise": "bd76655d342f39f51afc4402537446f95ba6b0adfaab8fc52fc62c0a623590c6"
+      }
+    },
+    "patchouli": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/sad.png",
+        "sha256": "f3e16d1d09db3ae49d9f3ec6359a3ebbab903e63947af02d7dc9c1fc6d0eb358"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/afraid.png",
+        "sha256": "1613b8f11ff58ced014d151add319f911ca80ff5a8a2dee6ddb0ba91fde00eae"
+      },
+      "from": {
+        "teary": "a5afdfb95307bd58e0767e392166b09ca86ec6bf6cced190398eaeeb3325c9b0",
+        "neutral": "6ec3f523e25142a410ed2bbe8bafb2c7069bc1ecf54d6514a504c9d8f21b2006",
+        "surprise": "e18342d17141dd314f33061eed853c7c4143ac79b31fa0b597cad1c3805a5c2b"
+      }
+    },
+    "reimu": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/sad.png",
+        "sha256": "0ecc15ee4ddb71865b662277a416fa297f9583d25f2fa8dca81818c9d7afa95a"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/afraid.png",
+        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+      },
+      "from": {
+        "teary": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "surprise": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af"
+      }
+    },
+    "reimu_bean": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/sad.png",
+        "sha256": "d1161e72cfaabfb74ad03787ad92fd07350fefc74545dc11a0ede215a5154a09"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/afraid.png",
+        "sha256": "6742d774c0b0ab992760134e3277d20d3c54ee081fa151d6380f75420a4055e6"
+      },
+      "from": {
+        "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
+        "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
+        "surprise": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e"
+      }
+    },
+    "reimu_deibu": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/sad.png",
+        "sha256": "7c7d44316c22296817fa7953b58d3b730f4d78311fb47a6e0bfe2f58ae0fda3e"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/afraid.png",
+        "sha256": "687819bd978b78616ede9b7595b4da0393ee976fbe6cde4f5c0ab2d468ca2184"
+      },
+      "from": {
+        "teary": "7f150c8816bde95fd084741edc74e57b9159c0f4a70aa2a10cbe8f5d2a439572",
+        "neutral": "0a14618936612587909793d52489fb9d834565debf2015b8622ec5974fc63d01",
+        "surprise": "eeca31aafdc7e38532d1d47c5724e00001be192e136714b831a15232928a1dca"
+      }
+    },
+    "reimu_face": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/sad.png",
+        "sha256": "0ecc15ee4ddb71865b662277a416fa297f9583d25f2fa8dca81818c9d7afa95a"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/afraid.png",
+        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+      },
+      "from": {
+        "teary": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "surprise": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af"
+      }
+    },
+    "reimu_sparse": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/sad.png",
+        "sha256": "0ecc15ee4ddb71865b662277a416fa297f9583d25f2fa8dca81818c9d7afa95a"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/afraid.png",
+        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+      },
+      "from": {
+        "teary": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "surprise": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af"
+      }
+    },
+    "reimu_wasa": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/sad.png",
+        "sha256": "0ecc15ee4ddb71865b662277a416fa297f9583d25f2fa8dca81818c9d7afa95a"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/afraid.png",
+        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+      },
+      "from": {
+        "teary": "d97dae763354fef73db701c4aa5b4b8549cd3bb0f1f2c5d7fb7b0c5091894d32",
+        "neutral": "6917965c7cbb7bc362afcbb46f5f2a966b9113d3f40d2df2a0a145cfac8e6183",
+        "surprise": "11724d6d929f4ac1cd45dc846d60cb238dff6b5ad0c50aeb28a3948f3761c7af"
+      }
+    },
+    "reimu_wasa_deibu": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/sad.png",
+        "sha256": "7c7d44316c22296817fa7953b58d3b730f4d78311fb47a6e0bfe2f58ae0fda3e"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/afraid.png",
+        "sha256": "687819bd978b78616ede9b7595b4da0393ee976fbe6cde4f5c0ab2d468ca2184"
+      },
+      "from": {
+        "teary": "7f150c8816bde95fd084741edc74e57b9159c0f4a70aa2a10cbe8f5d2a439572",
+        "neutral": "0a14618936612587909793d52489fb9d834565debf2015b8622ec5974fc63d01",
+        "surprise": "eeca31aafdc7e38532d1d47c5724e00001be192e136714b831a15232928a1dca"
+      }
+    },
+    "remilia": {
+      "sad": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/sad.png",
+        "sha256": "7d5dba2d7d2afb239021d0a9c6f973ef224a490a0751f3541bf777b53ead3b1c"
+      },
+      "afraid": {
+        "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/afraid.png",
+        "sha256": "555195b609d971a4396d9c7658cb1941078742c07bca9128e15bf78e7e5d5d41"
+      },
+      "from": {
+        "teary": "248a65f930a1c148ecf602d23ab87e7211376ec01856e8ea3135fa4ee79422cd",
+        "neutral": "5b72014140c0791876c7d4712aba4d8fea52c0b3afdffc64154dcba23b72f83b",
+        "surprise": "c6c646a9a6a0e28a87962931cbe6c52b461d87ac0c90b98be736119ed828da67"
+      }
+    }
+  }
+}

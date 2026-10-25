@@ -726,19 +726,50 @@
       "faces": [
         [
           0,
-          0.65,
+          0.2,
+          "closed_smile"
+        ],
+        [
+          0.2,
+          1.0,
           "chewing_closed"
         ],
         [
-          0.65,
+          1.0,
           1.6,
           "closed_smile"
         ]
       ],
-      "lore": "EH22-005 braid-held twig; N09 mouth-held stick is a documented alternative. Stroke timing is project design.",
+      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 2.5, a shoulder yaw twist and a drive squash. The stick keys (props.paddle) are solved against hat_vessel.json so the stick passes outside the brim; game and previews read the exported keys.",
       "triggers": [
         "server surface route has a real stick and a waypoint"
-      ]
+      ],
+      "markers": {
+        "power_start": 0.2,
+        "power_end": 1.0
+      },
+      "braid_sweep": [
+        16,
+        -12
+      ],
+      "braid_out": 30,
+      "braid_raise": 12,
+      "paddle": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "min_clearance": 0.3,
+        "catch_z": -8.0,
+        "finish_z": 4.0,
+        "depth": 2.2,
+        "air": 2.0,
+        "arc": 1.0,
+        "feather": 0,
+        "rest_height": 2.6,
+        "rest_z": 2.0,
+        "rest_feather": 0
+      },
+      "base_pose": "boat_steady"
     },
     "boat_gather": {
       "label": "收食入帽",
@@ -3529,26 +3560,53 @@
     },
     "water_hat_climb": {
       "label": "沿真实帽檐爬入",
-      "duration": 1.2,
+      "duration": 1.8,
       "loop": false,
       "applies": "aquatic_marisa",
       "root_support": "free_water",
       "faces": [
         [
           0,
-          0.42,
-          "cry"
+          0.35,
+          "teary"
         ],
         [
-          0.42,
-          61.2,
+          0.35,
+          1.6,
+          "chewing_closed"
+        ],
+        [
+          1.6,
+          1.8,
           "teary"
         ]
       ],
-      "lore": "Retired v14: the server no longer uses this clip, kept so old saves and previews still resolve. The server owns every climb position and duration. The pose compresses against the edge then relaxes; it never adds a jump arc or root translation.",
+      "lore": "Project original (water 11 ruling): self-rescue climb (reworked; replaces the retired v14 press-and-relax pose). The mouth bites the brim, the braid swings forward over it and its tuft hooks down outside the rim, then two pulls lift the body (squash, stretch, a small lift) ready for hat_slide_over. Pitch <= 9, roll <= 2.",
       "triggers": [
-        "water_hat_climb"
-      ]
+        "AquaticSelfRescue CLIMB",
+        "self-rescue CLIMB"
+      ],
+      "markers": {
+        "bite_contact": 0.35,
+        "hook_contact": 0.75,
+        "pull_start": 0.85,
+        "pull_end": 1.55
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        },
+        "braid_hook": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "BRAID_HOOK"
+        }
+      }
     },
     "shy": {
       "label": "害羞",
@@ -3834,11 +3892,27 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project original (not canon): the captain sits her weight toward the near rim while the hull dips (HatBoatEntity dip, at most 5 degrees). Pitch -4.5, roll 3, yaw 3, squash h .94 w 1.04; the right braid keeps holding the paddle.",
+      "lore": "Project original (not canon): the captain sits her weight toward the near rim while the hull dips (HatBoatEntity dip, at most 5 degrees). Pitch -4.5, roll 3, yaw 3, squash h .94 w 1.04; the right braid keeps holding the stick out of the water outboard (props.paddle).",
       "triggers": [
         "HatBoarding offer",
         "BraidRescue OFFER, BITE, SLIDE (parent)"
-      ]
+      ],
+      "paddle": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "min_clearance": 0.3,
+        "catch_z": -8.0,
+        "finish_z": 4.0,
+        "depth": 2.2,
+        "air": 2.0,
+        "arc": 1.0,
+        "feather": 0,
+        "rest_height": 2.6,
+        "rest_z": 2.0,
+        "rest_feather": 0
+      },
+      "base_pose": "boat_steady"
     },
     "hat_hop_up": {
       "label": "小步急跳上帽檐",
@@ -4014,10 +4088,25 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project original: a short chest-first nudge at the child's back (forward shift under .06 block, stretch, pitch -8). Never a lift or a carry; the right braid keeps holding the paddle.",
+      "lore": "Project original: a short chest-first nudge at the child's back (forward shift under .06 block, stretch, pitch -8). Never a lift or a carry; the right braid keeps holding the stick out of the water outboard (props.paddle).",
       "triggers": [
         "BraidRescue PUSH (parent)"
-      ]
+      ],
+      "paddle": {
+        "grip_offset": 1.6,
+        "top_length": 1.6,
+        "blade_length": 10.4,
+        "min_clearance": 0.3,
+        "catch_z": -8.0,
+        "finish_z": 4.0,
+        "depth": 2.2,
+        "air": 2.0,
+        "arc": 1.0,
+        "feather": 0,
+        "rest_height": 2.6,
+        "rest_z": 2.0,
+        "rest_feather": 0
+      }
     },
     "water_held_breath": {
       "label": "被辫梢托住时喘息与小幅回应",
@@ -4205,6 +4294,385 @@
       "triggers": [
         "BraidRescue REACH, GRIP, PUSH, SLIDE with the braid grip (parent); SETTLE reversed"
       ]
+    },
+    "braid_cradle_lift": {
+      "label": "辫梢卷兜托起幼油",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.5,
+          "teary"
+        ],
+        [
+          0.5,
+          1.5,
+          "chewing_closed"
+        ],
+        [
+          1.5,
+          2.4,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project original (water 11 ruling): the braid reaches out beside the hull, its tuft rolls up into a scoop under the young, lifts it over the rim and sets it on the front-right inner rim (as far as the braid reaches; the transfer moves it on to its seat), then unrolls. Body lean <= 6 with yaw toward the braid side; the young is moved by the server transfer, the pose only shows the scoop.",
+      "triggers": [
+        "CrewTransfer LIFT(braid) (parent)"
+      ],
+      "markers": {
+        "contact_closed": 1.05,
+        "lift_start": 1.05,
+        "lift_end": 1.5,
+        "place": 1.9,
+        "release": 2.3
+      },
+      "contacts": {
+        "braid_cradle": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.2,
+            0.75,
+            -3.95
+          ],
+          "kind": "BRAID_CRADLE"
+        }
+      }
+    },
+    "be_cradled": {
+      "label": "被辫梢兜着",
+      "duration": 1.2,
+      "loop": true,
+      "applies": "all",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          1.2,
+          "teary"
+        ]
+      ],
+      "lore": "Project original: a young held in the curled tuft sags into the scoop (wider and lower), slightly limp, swaying a little; its place follows the carrier and the hull.",
+      "triggers": [
+        "CrewTransfer LIFT(braid) (carried young)"
+      ],
+      "base_pose": "hat_cradle"
+    },
+    "mouth_bite_hold": {
+      "label": "咬住并拖拽",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          1.0,
+          "puff"
+        ]
+      ],
+      "lore": "Project original (water 11 ruling): the mouth bites a brim or a young's headwear and holds it with two short backward tugs per loop: righting a capsized hat, pulling a drifting young back, handing food. Species without a braid use only this. Pitch -6..-3; the biting face is puff (lips pressed shut, cheeks puffed), falling back to chewing_closed.",
+      "triggers": [
+        "CrewTransfer LIFT(mouth)",
+        "WaterIncidents pull",
+        "food hand-over"
+      ],
+      "markers": {
+        "bite_contact": 0.0,
+        "tug_peak": 0.25
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        }
+      },
+      "base_pose": "idle"
+    },
+    "boat_thrown": {
+      "label": "翻船被甩出",
+      "duration": 0.6,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.4,
+          "surprise"
+        ],
+        [
+          0.4,
+          0.6,
+          "cry"
+        ]
+      ],
+      "lore": "Project original: thrown out as the hat capsizes; a stretched startle with a half yaw spin and a braid flail, then the splash squash at the marker. The server owns the arc and the water entry.",
+      "triggers": [
+        "HullHazards capsize (captain)"
+      ],
+      "markers": {
+        "splash": 0.425
+      }
+    },
+    "water_hat_right": {
+      "label": "咬檐翻正帽子",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.24,
+          "teary"
+        ],
+        [
+          0.24,
+          1.2,
+          "chewing_closed"
+        ],
+        [
+          1.2,
+          1.6,
+          "teary"
+        ]
+      ],
+      "lore": "Project original (water 11 ruling): righting the capsized hat (replaces water_hat_flip/push/shake for righting). Bite the near brim, heave and twist it up (yaw), then the braid swings under the rising far brim and pushes it over; let go and sit back. Pitch -6..+5, roll <= 4.",
+      "triggers": [
+        "AquaticSelfRescue RIGHT_HAT"
+      ],
+      "markers": {
+        "bite_contact": 0.24,
+        "flip_start": 0.48,
+        "push_start": 0.72,
+        "push_end": 1.2,
+        "release": 1.28
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        },
+        "braid_push": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "PUSH"
+        }
+      }
+    },
+    "boat_cover_young": {
+      "label": "俯身护住孩子",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          2.4,
+          "teary"
+        ]
+      ],
+      "lore": "Project original: bent 9 degrees over the young in the hollow before her (night, rain, a shadow overhead), pressed low and breathing slowly; the braid drapes over them and its tuft curls round.",
+      "triggers": [
+        "AfloatAgenda cover (rain, threat, night)"
+      ],
+      "base_pose": "boat_steady"
+    },
+    "boat_wedge_berth": {
+      "label": "楔岸夜泊",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          1.05,
+          "chewing_closed"
+        ],
+        [
+          1.05,
+          1.6,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project original (no rope or knot): nose into a bank notch, two braid shoves at the bank, then sit back on the stern brim so the bow lifts and catches. Pitch -4..+5.",
+      "triggers": [
+        "VoyageController DOCK (night berth)"
+      ],
+      "markers": {
+        "push_1": 0.35,
+        "push_2": 0.9,
+        "press": 1.2
+      },
+      "contacts": {
+        "braid_push": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "PUSH"
+        }
+      }
+    },
+    "boat_push_off": {
+      "label": "辫子推岸离岸",
+      "duration": 0.8,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.25,
+          "neutral"
+        ],
+        [
+          0.25,
+          0.55,
+          "chewing_closed"
+        ],
+        [
+          0.55,
+          0.8,
+          "open_smile"
+        ]
+      ],
+      "lore": "Project original: gather, shove the bank with the braid, ride the glide out.",
+      "triggers": [
+        "VoyageController EMBARK -> AFLOAT"
+      ],
+      "markers": {
+        "push": 0.35
+      },
+      "contacts": {
+        "braid_push": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "PUSH"
+        }
+      }
+    },
+    "boat_cargo_stow": {
+      "label": "把粮放进帽冠袋底",
+      "duration": 1.0,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.55,
+          "chewing_closed"
+        ],
+        [
+          0.55,
+          1.0,
+          "closed_smile"
+        ]
+      ],
+      "lore": "Project original: head down into the opening before her to the crown larder and let the mouthful go at the bottom. Pitch to -10.",
+      "triggers": [
+        "HatCargo stow"
+      ],
+      "markers": {
+        "release": 0.55
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        }
+      }
+    },
+    "boat_cargo_fetch": {
+      "label": "从帽冠袋底取粮",
+      "duration": 1.0,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.5,
+          "neutral"
+        ],
+        [
+          0.5,
+          1.0,
+          "chewing_closed"
+        ]
+      ],
+      "lore": "Project original: head down to the crown larder, bite one portion and bring it up. Pitch to -10.",
+      "triggers": [
+        "HatCargo fetch"
+      ],
+      "markers": {
+        "bite": 0.5
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_BITE"
+        }
+      }
+    },
+    "boat_jettison": {
+      "label": "推出帽檐",
+      "duration": 1.0,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "height": 0.95,
+      "width": 1.025,
+      "faces": [
+        [
+          0,
+          0.6,
+          "chewing_closed"
+        ],
+        [
+          0.6,
+          1.0,
+          "neutral"
+        ]
+      ],
+      "lore": "Project original: twist to the braid side and sweep spoiled food, dirt or spare cargo over the brim with the flat tuft, then a short look after it.",
+      "triggers": [
+        "HatCargo jettison",
+        "hull cleaning"
+      ],
+      "markers": {
+        "push": 0.45,
+        "over": 0.7
+      },
+      "contacts": {
+        "braid_push": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "PUSH"
+        }
+      }
     }
   },
   "flourishes": {

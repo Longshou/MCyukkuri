@@ -4122,7 +4122,7 @@
     "exporter": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
     "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
     "status": "pending_user_review",
-    "scope": "v4 mouth-bite rescue geometry (project original, not canon): standard-adult mouth_root and mouth_reach for the rim bite, no whole-body tilt (root rotation 0), phase ticks offer/bite/push/slide/settle/release. The two natural Marisa braid segments only hold the paddle or lightly touch the rim; they never lift, carry or turn anything.",
+    "scope": "v4 mouth-bite rescue geometry (project original, not canon): standard-adult mouth_root and mouth_reach for the rim bite, no whole-body tilt (root rotation 0), phase ticks offer/bite/push/slide/settle/release. In these rescue clips the two natural Marisa braid segments only hold the stick or lightly touch the rim; lifting a young, hooking a brim and pushing a hat over are the separate aquatic_tools clips (braid_cradle_lift, water_hat_climb, water_hat_right).",
     "preview": ".local/previews/hat-motion/index.html"
   },
   "hat_care_contact": {
@@ -4538,5 +4538,31 @@
     ],
     "status": "selected_for_runtime_pending_user_review",
     "scope": "Den-mouth screen block (settlement/DenBarrierBlock, collision 14x16x14, no facing): native cuboid block model of twigs wedged into the soil, leaned along each side or tipped inward against the opposite side, a few fallen at 45 degrees, two forked shoots, a crossed loose wad of leaf litter in the middle, leaves pushed into gaps and scattered at the foot; nothing tied, knotted or woven; uneven tops and visible gaps. Hand-painted 64x64 texture from the wild_kit ramps. Project design (user request); no user visual acceptance yet."
+  },
+  "aquatic_tools": {
+    "source": "standards/yukkuri-library/interactions/aquatic-tools/recipe.json",
+    "exporter": "standards/yukkuri-library/interactions/aquatic-tools/build.py",
+    "manifest": "standards/yukkuri-library/interactions/aquatic-tools/manifest.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json",
+      "src/main/resources/assets/mcyukkuri/textures/props/paddle_stick.png",
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_wetline.json",
+      "src/main/resources/assets/mcyukkuri/textures/props/marisa_hat_wetline.png"
+    ],
+    "clips": {
+      "author": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
+      "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic",
+      "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
+    },
+    "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py",
+    "status": "pending_user_review",
+    "scope": "Plain picked-up stick held in the braid tuft (props.paddle clip keys) or stowed on the left brim; translucent waterline wet band derived from marisa_hat_turned; braid cradle, mouth bite, capsize, self-rescue and hull-life clips (project original)."
+  },
+  "derived_faces": {
+    "exporter": "standards/yukkuri-library/expressions/derived/faces.py",
+    "manifest": "standards/yukkuri-library/expressions/derived/manifest.json",
+    "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/{model}/sad.png, afraid.png",
+    "status": "pending_user_review",
+    "scope": "sad and afraid derived from each model's own approved teary, neutral and surprise atlases (project design); not part of the standard expression set until saved."
   }
 }

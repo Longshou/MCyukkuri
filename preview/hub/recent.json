@@ -2,6 +2,55 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "aquatic-tools",
+      "label": "水生辫子与嘴的动作",
+      "title": "水生魔理沙：木棍划桨、辫兜、嘴咬、翻覆与自救",
+      "tag": "水生演出（待试玩）",
+      "summary": "只用辫子、嘴和身体完成的帽船动作：辫梢缠住捡来的木棍划水，辫梢卷兜托幼油，嘴咬帽檐或头饰，翻船甩出、咬檐勾辫爬回与咬檐翻正；帽船的吃水湿色带、左侧帽檐存放的木棍与翻覆后帽冠朝上；新表情沮丧与害怕。片段关键帧、接触点与木棍位置均读自运行资源，离线渲染，非游戏实录。",
+      "model": "marisa",
+      "points": [
+        "推水段木棍下端入水向后扫，回桨段抬出水面，木棍不穿帽檐。",
+        "辫兜、嘴咬与自救片段带 markers 与 contacts，接线后由服务端驱动。",
+        "sad、afraid 为派生候选表情，待用户确认。"
+      ],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "aquatic-tools/paddle.png",
+          "label": "划桨：辫梢缠住捡来的木棍"
+        },
+        {
+          "src": "aquatic-tools/cradle.png",
+          "label": "辫梢卷兜托起幼油"
+        },
+        {
+          "src": "aquatic-tools/boat-life.png",
+          "label": "护子、楔岸、推岸、放粮取粮、推出帽檐"
+        },
+        {
+          "src": "aquatic-tools/bite.png",
+          "label": "嘴咬并拖拽"
+        },
+        {
+          "src": "aquatic-tools/capsize.png",
+          "label": "翻船甩出与帽冠朝上"
+        },
+        {
+          "src": "aquatic-tools/self-rescue.png",
+          "label": "咬檐勾辫爬回与咬檐翻正"
+        },
+        {
+          "src": "aquatic-tools/hull.png",
+          "label": "湿色带、左檐存放木棍、翻覆终态"
+        },
+        {
+          "src": "aquatic-tools/faces.png",
+          "label": "新表情 sad 与 afraid"
+        }
+      ],
+      "source": "standards/yukkuri-library/motions/variants/lore/README.md"
+    },
+    {
       "id": "wild-settlements",
       "label": "野外山脚聚落",
       "title": "山脚穴居聚落与嗯嗯坑（各适居群系）",

@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -17,13 +16,13 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.joml.Quaternionf;
 
 public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
+    private static final String HULL="marisa_hat_turned",WETLINE="marisa_hat_wetline";
     public HatBoatRenderer(EntityRendererProvider.Context context) { super(context); shadowRadius=.45f; }
     public static void register(EntityRenderersEvent.RegisterRenderers event) { event.registerEntityRenderer(ModEntities.HAT_BOAT.get(),HatBoatRenderer::new); }
     public static void items(RegisterClientExtensionsEvent event) {
@@ -53,26 +52,35 @@ public final class HatBoatRenderer extends EntityRenderer<HatBoatEntity> {
         var heldOffset=boat.motionPosition(partial).subtract(boat.getPosition(partial));
         pose.translate(heldOffset.x,heldOffset.y,heldOffset.z);
         pose.mulPose(Axis.YP.rotationDegrees(180-HatBoatMotion.yaw(boat,partial)));
-        HatBoatMotion.local(pose,boat,partial);
-        applyDip(pose,boat,partial);
         float scale=boat.hullScale(),k=scale/16;boolean ground=boat.isCradle();
         var mode=ground?HatVessel.Mode.NEST:boat.aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
+        if(boat.state()==HatBoatEntity.State.CAPSIZED||boat.selfRighting()){
+            // Turning over about the waterline would sink the brim a freeboard under; a capsized felt hat floats crown up
+            // with its brim just awash, so rise by nearly that freeboard as the roll goes over.
+            float roll=boat.visibleMotionRoll(partial)*Mth.DEG_TO_RAD;
+            pose.translate(0,HatVessel.top(mode)*k*.45f*(1-Mth.cos(roll)),0);
+        }
+        HatBoatMotion.local(pose,boat,partial);
+        applyDip(pose,boat,partial);
         pose.translate(0,HatVessel.top(mode)*k,0);
         pose.pushPose();pose.scale(scale,scale*boat.hullSquash(partial),scale);
-        PropModels.render("marisa_hat_turned",1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.
+        int damage=boat.hullDamage();
+        if(damage>0)PropModels.renderHat(HULL,damage,-1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        else PropModels.render(HULL,1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        // Wet cloth from just under the floating waterline up toward the brim (not on a dry land cradle).
+        if(!ground&&PropModels.has(WETLINE))PropModels.render(WETLINE,1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
         // The synchronized provisions remain visible when the loaded hat beaches or is lifted, too.
         HatCargoRenderer.render(boat,partial,pose,buffers,light);
-        var paddle=boat.visiblePaddleItem();
         boolean held=source.getPassengers().stream().anyMatch(passenger->passenger instanceof YukkuriEntity captain
                 &&AquaticMotionPresentation.paddleInGrip(captain,boat,partial));
-        if(!paddle.isEmpty()&&!held){
-            pose.pushPose();
-            pose.translate(5.5*k,.12*k,0);
-            pose.mulPose(Axis.XP.rotationDegrees(90));pose.mulPose(Axis.ZP.rotationDegrees(45));
-            float twigScale=.55f*scale;pose.scale(twigScale,twigScale,twigScale);
-            Minecraft.getInstance().getItemRenderer().renderStatic(paddle,ItemDisplayContext.FIXED,
-                    light,OverlayTexture.NO_OVERLAY,pose,buffers,source.level(),source.getId());
+        var stowed=PropModels.anchor(AquaticMotionPresentation.STICK,"stow_hull");
+        if(boat.visiblePaddle()&&!held&&stowed!=null){
+            // The same 3D stick the captain's braid holds, lying on the braid-side brim (paddle_stick anchors.stow_hull).
+            pose.pushPose();pose.scale(scale,scale,scale);stowed.apply(pose);
+            var grip=PropModels.socket(AquaticMotionPresentation.STICK);pose.translate(-grip.x,-grip.y,-grip.z);
+            PropModels.render(AquaticMotionPresentation.STICK,8,pose,buffers,light,OverlayTexture.NO_OVERLAY);
             pose.popPose();
         }
         // Enqueue the actual render transform; water-only depth follows real entity/item colors later this frame.

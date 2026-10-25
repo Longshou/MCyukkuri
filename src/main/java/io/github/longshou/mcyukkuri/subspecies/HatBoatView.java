@@ -30,6 +30,8 @@ public interface HatBoatView {
     boolean isMoored();
     boolean isCradle();
     float hullScale();
+    /** Synchronized headwear damage of the deployed hat (0..2), drawn as on a worn hat. */
+    int hullDamage();
     boolean paddling();
     HullHelm.Kind helmKind();
     HullHelm.State helmStatus();
@@ -137,6 +139,8 @@ public interface HatBoatView {
     private double motionAge(CompoundTag motion, String key, float partial) {
         return Math.max(0, level().getGameTime() - motion.getLong(key) + partial);
     }
+    /** Final roll of a capsized hull: turned fully over, crown up, the brim lying on the water. */
+    float CAPSIZED_ROLL = 180;
     default float visibleMotionRoll(float partial) {
         var m = motionSnapshot(); int side = m.getInt("Side") < 0 ? -1 : 1;
         if (selfRescueHeld()) return 0;
@@ -146,11 +150,12 @@ public interface HatBoatView {
         }
         if (deploying() || selfRighting()) {
             double t = deploying() ? Math.clamp(motionAge(m, "DeployAt", partial) / 20, 0, 1) : Math.clamp(selfRightingProgress(partial), 0, 1);
-            return (float) (side * 110 * (1 - t * t * (3 - 2 * t)));
+            // A capsized hat floats crown up; righting turns it back from there.
+            return (float) (side * (deploying() ? 110 : CAPSIZED_ROLL) * (1 - t * t * (3 - 2 * t)));
         }
         if (state() == HatBoatEntity.State.CAPSIZED) {
             double t = m.contains("CapAt") ? Math.clamp(motionAge(m, "CapAt", partial) / HatBoatEntity.CAPSIZE_TICKS, 0, 1) : 1;
-            return (float) (side * 110 * t * t * (3 - 2 * t));
+            return (float) (side * CAPSIZED_ROLL * t * t * (3 - 2 * t));
         }
         if (!rocking()) return visibleDrifting() ? (float) (Math.sin((level().getGameTime() + partial) * .19) * currentStrength() * 2.5) : 0;
         double age = motionAge(m, "RockAt", partial);

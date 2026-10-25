@@ -198,6 +198,11 @@ public final class YukkuriModel {
     /** Server faces that win over a clip's timeline, such as the injury cry. */
     private final Map<String, Set<String>> expressionYields = new HashMap<>();
     private final Map<String, float[]> puffEnvelopes = new HashMap<>();
+    /** Clip-authored prop keys (clip props.<slot>): [t, px, py, pz, rx, ry, rz] in the bone frame at its pivot (aquatic_tools.py). */
+    private record PropTrack(int bone, float[][] keys) {}
+    private final Map<String, Map<String, PropTrack>> clipProps = new HashMap<>();
+    /** Named clip seconds (clip markers), such as the paddle's power_start and power_end. */
+    private final Map<String, Map<String, Float>> clipMarkers = new HashMap<>();
     /** One rest-space morph target: refined skin, blush carriers and swung side locks. */
     private float[] puffOffsets;
     private float puffAmount;
@@ -374,6 +379,28 @@ public final class YukkuriModel {
     }
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
+    public float clipDuration(String name) { var clip = clips.get(name); return clip == null ? 0 : clip.duration(); }
+    /** A named second of the clip (its markers), or the fallback when the clip does not author it. */
+    public float clipMarker(String clip, String marker, float fallback) {
+        var markers = clipMarkers.get(clip); return markers == null ? fallback : markers.getOrDefault(marker, fallback);
+    }
+    public boolean clipHasProp(String clip, String slot) { var props = clipProps.get(clip); return props != null && props.containsKey(slot); }
+    /** The clip-keyed prop socket frame in the last posed render, in block units like paddlePose; null when the clip has none. */
+    public Matrix4f propPose(String clip, String slot, float seconds) {
+        var props = clipProps.get(clip); var track = props == null ? null : props.get(slot); var owner = clips.get(clip);
+        if (track == null || owner == null) return null;
+        float time = owner.loop() ? Math.max(0, seconds) % owner.duration() : Math.clamp(seconds, 0f, owner.duration());
+        float[][] keys = track.keys(); int low = 0, high = keys.length - 1;
+        while (high - low > 1) { int middle = (low + high) >>> 1; if (keys[middle][0] <= time) low = middle; else high = middle; }
+        float[] a = keys[low], b = keys[Math.min(low + 1, keys.length - 1)];
+        float q = b[0] == a[0] ? 0 : Math.clamp((time - a[0]) / (b[0] - a[0]), 0f, 1f);
+        float[] v = new float[6]; for (int i = 0; i < 6; i++) v[i] = a[i + 1] + (b[i + 1] - a[i + 1]) * q;
+        Bone bone = bones[track.bone()];
+        var matrix = new Matrix4f(world[track.bone()]).translate(bone.x() + v[0], bone.y() + v[1], bone.z() + v[2])
+                .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES);
+        matrix.m30(matrix.m30() / 16); matrix.m31(matrix.m31() / 16); matrix.m32(matrix.m32() / 16);
+        return matrix;
+    }
     private int rootBone = -1;
     private int rootBone() {
         if (rootBone < 0) { rootBone = 0; for (int i = 0; i < bones.length; i++) if (bones[i].name().equals("root")) { rootBone = i; break; } }
@@ -617,6 +644,23 @@ public final class YukkuriModel {
                         transfer.get("slide_begin").getAsFloat(),transfer.get("lower_begin").getAsFloat());
             }
             if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
+            if (clip.has("props")) {
+                Map<String, PropTrack> slots = new HashMap<>();
+                for (var slot : clip.getAsJsonObject("props").entrySet()) {
+                    var prop = slot.getValue().getAsJsonObject();String boneName = prop.get("bone").getAsString();int bone = -1;
+                    for (int i = 0; i < bones.length; i++) if (bones[i].name().equals(boneName)) { bone = i; break; }
+                    var keys = prop.getAsJsonArray("keys");float[][] samples = new float[keys.size()][];
+                    for (int i = 0; i < samples.length; i++) { samples[i] = floats(keys.get(i).getAsJsonArray()); if (samples[i].length != 7) throw new IllegalArgumentException("Invalid prop key"); }
+                    if (bone < 0 || samples.length == 0) throw new IllegalArgumentException("Invalid clip prop: " + entry.getKey());
+                    slots.put(slot.getKey(), new PropTrack(bone, samples));
+                }
+                clipProps.put(entry.getKey(), Map.copyOf(slots));
+            }
+            if (clip.has("markers")) {
+                Map<String, Float> markers = new HashMap<>();
+                for (var marker : clip.getAsJsonObject("markers").entrySet()) if (marker.getValue().isJsonPrimitive()) markers.put(marker.getKey(), marker.getValue().getAsFloat());
+                clipMarkers.put(entry.getKey(), Map.copyOf(markers));
+            }
             if (clip.has("expression_spans")) {
                 List<ExpressionSpan> spans = new ArrayList<>();
                 for (var raw : clip.getAsJsonArray("expression_spans")) {

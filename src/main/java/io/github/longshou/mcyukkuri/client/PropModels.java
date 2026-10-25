@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -23,7 +24,12 @@ import org.joml.Vector3f;
 public final class PropModels {
     public static final ResourceManagerReloadListener RELOAD = PropModels::reload;
     private record Part(String name,int start, int count, int unit, ResourceLocation texture, int red,int green,int blue,boolean translucent) {}
-    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds) {}
+    private record Model(float[] vertices, Part[] parts, float[][] bounds,Vec3 socket,Vec3 rootSocket,float bodyLift,Map<Integer,AABB> unitBounds,Map<String,Anchor> anchors) {}
+    /** A named placement authored with the prop: position in blocks, rotation degrees composed Rz*Ry*Rx, uniform scale. */
+    public record Anchor(Vec3 position,float rx,float ry,float rz,float scale) {
+        public void apply(PoseStack pose){pose.translate(position.x,position.y,position.z);
+            pose.mulPose(Axis.ZP.rotationDegrees(rz));pose.mulPose(Axis.YP.rotationDegrees(ry));pose.mulPose(Axis.XP.rotationDegrees(rx));pose.scale(scale,scale,scale);}
+    }
     private static Map<String, Model> models = Map.of();
     private static Map<ResourceLocation,HatDamageFaces.Sampler> propSamplers = Map.of();
     private static final Map<String,HatDamageFaces.Face[][]> HAT_FACES = new HashMap<>();
@@ -55,7 +61,7 @@ public final class PropModels {
                     loaded.put(name,new Model(vertices,parts,bounds,socket==null?Vec3.ZERO:
                             new Vec3(socket.get(0).getAsDouble()/16,socket.get(1).getAsDouble()/16,socket.get(2).getAsDouble()/16),rootSocket==null?Vec3.ZERO:
                             new Vec3(rootSocket.get(0).getAsDouble()/16,rootSocket.get(1).getAsDouble()/16,rootSocket.get(2).getAsDouble()/16),
-                                    data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>()));
+                                    data.has("body_lift")?data.get("body_lift").getAsFloat():0,new HashMap<>(),anchors(data)));
                 }
             }
         } catch(IOException error){throw new UncheckedIOException(error);}
@@ -68,7 +74,19 @@ public final class PropModels {
         propSamplers=Map.copyOf(samplers);
         HAT_FACES.clear();
     }
+    private static Map<String,Anchor> anchors(JsonObject data){
+        if(!data.has("anchors"))return Map.of();
+        Map<String,Anchor> out=new HashMap<>();
+        for(var entry:data.getAsJsonObject("anchors").entrySet()){
+            var a=entry.getValue().getAsJsonObject();var p=a.getAsJsonArray("position");var r=a.getAsJsonArray("rotation");
+            out.put(entry.getKey(),new Anchor(new Vec3(p.get(0).getAsDouble()/16,p.get(1).getAsDouble()/16,p.get(2).getAsDouble()/16),
+                    r.get(0).getAsFloat(),r.get(1).getAsFloat(),r.get(2).getAsFloat(),a.has("scale")?a.get("scale").getAsFloat():1));
+        }
+        return Map.copyOf(out);
+    }
     public static boolean has(String name){return models.containsKey(name);}
+    /** The prop's named anchor, or null when the prop or anchor is missing. */
+    public static Anchor anchor(String name,String anchor){var model=models.get(name);return model==null?null:model.anchors.get(anchor);}
     public static Vec3 socket(String name){return models.get(name).socket;}
     public static Vec3 rootSocket(String name){return models.get(name).rootSocket;}
     public static float bodyLift(String name){return models.get(name).bodyLift;}

@@ -137,7 +137,7 @@ def main():
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
-    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'hat.py', VESSEL, Path(__file__)]
+    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__)]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']

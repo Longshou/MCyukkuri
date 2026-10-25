@@ -113,6 +113,10 @@ def main():
     nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
     subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage', 'hat-cargo')}
+    # aquatic Marisa tool clips, hull dressing and the derived faces: lore/aquatic_tools_preview.py reads the runtime clips and props
+    aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
+    subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {f'aquatic-tools/{name}.png' for name in ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')}
     # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
     fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
     subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

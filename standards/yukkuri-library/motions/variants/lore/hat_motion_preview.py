@@ -5,7 +5,7 @@ Pillow renders only the current cover. All scenes are controlled offline authori
 not engine recordings; no browser, game, Java compilation or check runner is invoked.
 """
 from pathlib import Path
-import json, math, os, shutil, runpy, sys, io, zipfile, uuid
+import json, math, os, shutil, runpy, sys, io, uuid
 import heapq
 import numpy as np
 from PIL import Image, ImageDraw
@@ -78,6 +78,27 @@ class SelectedPosed(P.Posed):
         nrm=np.einsum('nij,nj->ni',M[self.a][:,:3,:3],self.n)
         if self.boat:pos[-self.boat:],nrm[-self.boat:]=self.v[-self.boat:],self.n[-self.boat:]
         return pos.reshape(-1,3,3),self.uv.reshape(-1,3,2),nrm.reshape(-1,3,3)[:,0]
+
+
+STICK=json.loads((P.ASSETS/'yukkuri_props/paddle_stick.json').read_text(encoding='utf-8'))
+STICK_MESH=np.array(STICK['vertices'],float).reshape(-1,8)
+STICK_IMAGE=Image.open(P.ASSETS/'textures/props/paddle_stick.png').convert('RGBA')
+
+
+def stick_local(model,clip,time):
+    """props.paddle of the exported clip: the stick prop's transform in its tuft bone frame, or None."""
+    data=model.clips[clip]
+    if 'props' not in data:return None,None
+    d=data['duration'];time=time%d if data['loop'] else min(d,max(0,time))
+    p=data['props']['paddle'];v=P.sample(p['keys'],time);index=next(i for i,b in enumerate(model.model['bones']) if b['name']==p['bone'])
+    local=np.eye(4);local[:3,:3]=P.euler(v[3:]);local[:3,3]=np.array(model.model['bones'][index]['pivot'])+v[:3]
+    socket=np.eye(4);socket[:3,3]=-np.array(STICK['socket'],float)
+    return index,local@socket
+
+
+def stick_socket(model,clip,time):
+    index,local=stick_local(model,clip,time)
+    return None if index is None else model.last_matrices[index]@local
 
 
 class Atlas:
@@ -383,8 +404,6 @@ class CausalScene(Scene):
         self.calm_infant=self.seats[3].copy()
         self.rescue=None
         self.voices=self.voice_cues()
-        with zipfile.ZipFile(LOCAL/'gradle-home/caches/neoformruntime/artifacts/minecraft_1.21.1_client.jar') as archive:
-            self.stick=Image.open(io.BytesIO(archive.read('assets/minecraft/textures/item/stick.png'))).convert('RGBA')
         self.source=np.array([1.6,0,-48.])
         self.escape=self.sail(np.zeros(3),np.array([0.,0.,96.]),44,180,stop_distance=7*16,source=self.source)
 
@@ -566,18 +585,13 @@ class CausalScene(Scene):
         pos,uv,normals=model.frame(clip,time);model.rescue_tip=None;model.self_hat_transfer=None
         mesh=np.concatenate((pos,uv,np.repeat(normals[:,None,:],3,axis=1)),axis=2).reshape(-1,8)
         if hatless:mesh=mesh[:-model.boat]
-        if clip=='boat_paddle':
-            index=next(i for i,b in enumerate(model.model['bones']) if b['name']=='hand_right_tip');pivot=np.array(model.model['bones'][index]['pivot'])
-            transform=model.last_matrices[index].copy();transform[:3,3]=(transform@np.r_[pivot,1])[:3]+transform[:3,:3]@np.array([0,-.22*16,0])
-            transform[:3,:3]=transform[:3,:3]@P.euler([0,0,45])
-            corners=np.array([[-8,-8,0],[8,-8,0],[8,8,0],[-8,8,0]])*(.85*.5)
-            points=(transform@np.c_[corners,np.ones(4)].T).T[:,:3]
-            uv=atlas.uv('minecraft/stick',self.stick,np.array([[0,1],[1,1],[1,0],[0,0]]))
-            item=[]
-            for order in ([0,1,2],[0,2,3],[2,1,0],[3,2,0]):
-                p=points[order];normal=np.cross(p[1]-p[0],p[2]-p[0]);normal/=np.linalg.norm(normal)
-                item.append(np.c_[p,uv[order],np.tile(normal,(3,1))])
-            item=np.concatenate(item);mesh[:,3:5]=atlas.uv('marisa/'+face,Image.fromarray(model.texture(face)),mesh[:,3:5])
+        grip=stick_socket(model,clip,time)
+        if grip is not None:
+            # The same props.paddle keys the game reads (aquatic_tools.py), on the runtime paddle_stick prop.
+            item=STICK_MESH.copy();item[:,:3]=item[:,:3]@grip[:3,:3].T+grip[:3,3]
+            n=item[:,5:8]@np.linalg.inv(grip[:3,:3]);item[:,5:8]=n/np.linalg.norm(n,axis=1,keepdims=True)
+            item[:,3:5]=atlas.uv('paddle_stick',STICK_IMAGE,item[:,3:5])
+            mesh[:,3:5]=atlas.uv('marisa/'+face,Image.fromarray(model.texture(face)),mesh[:,3:5])
             mesh=np.concatenate((mesh,item));mesh[:,:3]*=scale
             return rotate_mesh(mesh,P.euler([0,yaw,0]),at)
         mesh[:,:3]*=scale;mesh[:,3:5]=atlas.uv('marisa/'+face,Image.fromarray(model.texture(face)),mesh[:,3:5])
@@ -1285,14 +1299,8 @@ class PlaybackExport:
         for name in ('oil_grain_regular','food_scrap'):
             raw=scene.prop(name,atlas);self.mesh(name,raw)
         self.image('cargo',atlas.image)
-        if hasattr(scene,'stick'):self.image('stick',scene.stick)
-        else:
-            source=LOCAL/'gradle-home/caches/neoformruntime/artifacts/minecraft_1.21.1_client.jar'
-            with zipfile.ZipFile(source) as archive:self.image('stick',Image.open(io.BytesIO(archive.read('assets/minecraft/textures/item/stick.png'))))
-        quad=[]
-        for x,y,u,v in ((-8,-8,0,1),(8,-8,1,1),(8,8,1,0),(-8,-8,0,1),(8,8,1,0),(-8,8,0,0)):
-            quad.append([x,y,0,u,v,0,0,-1])
-        self.mesh('paddle',np.array(quad))
+        self.image('stick',STICK_IMAGE)
+        self.mesh('paddle',STICK_MESH)
     def add(self,array):
         value=np.asarray(array,dtype='<f4').ravel();at=self.count;self.count+=len(value);self.chunks.append(value);return at
     def mesh(self,ident,vertices):
@@ -1315,9 +1323,9 @@ class PlaybackExport:
         offset=self.matrices(palette);instances=[]
         for suffix,mesh,shown in (('bare','bare',not worn),('worn','worn',worn)):
             instances.append(dict(id=ident+'_'+suffix,mesh=mesh,texture='marisa_'+face,bonesOffset=offset,visible=bool(visible and shown)))
-        index=next(i for i,b in enumerate(self.scene.young.model['bones']) if b['name']=='hand_right_tip');pivot=np.array(self.scene.young.model['bones'][index]['pivot'])
-        grip=self.world(pivot+[0,-.22*16,0],scale=.85*.5,rotation=P.euler([0,0,45]))
-        instances.append(self.instance(ident+'_paddle','paddle','stick',[world@matrices[index]@grip],visible and paddle))
+        index,grip=stick_local(self.scene.young,clip,time)  # the clip's own props.paddle keys, as in the game
+        held=index is not None
+        instances.append(self.instance(ident+'_paddle','paddle','stick',[world@matrices[index]@grip if held else world],visible and paddle and held))
         return instances
     def boat(self,ident,size,at=(0,0,0),yaw=0,rotation=None,visible=True,food=0,hull_pose=None,mask=True):
         scene=self.scene;k=scene.k*size;motion=self.world(at,yaw,rotation=rotation);hull=motion@self.world((0,scene.vessel['bowl']['freeboard']*k,0));hull[:3,:3]=hull[:3,:3]@np.diag([k,k*scene.vessel['squash']['bowl'],k])

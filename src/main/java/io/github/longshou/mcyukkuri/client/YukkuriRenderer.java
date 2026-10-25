@@ -186,18 +186,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
             var root=model.rootPose();
-            // The captain keeps holding the paddle while she offers the brim or nudges the child.
+            // The captain keeps holding the stick in clips that key it (rowing, offering the brim, nudging the child).
             HatBoatView paddleBoat;
-            if ((paddleBoat=entity.vehicleHat())!=null&&AquaticMotionPresentation.paddleInGrip(entity,paddleBoat,partialTick)) {
-                var grip = model.paddlePose();
-                if (grip != null) {
-                    pose.pushPose(); pose.mulPose(grip);
-                    AquaticMotionPresentation.holdPaddle(pose,paddleBoat,partialTick,action.equals("boat_paddle"));
-                    Minecraft.getInstance().getItemRenderer().renderStatic(paddleBoat.visiblePaddleItem(),
-                            ItemDisplayContext.FIXED,packedLight,overlay,pose,buffers,entity.level(),entity.getId());
-                    pose.popPose();
-                }
-            }
+            if ((paddleBoat=entity.vehicleHat())!=null&&AquaticMotionPresentation.paddleInGrip(entity,paddleBoat,partialTick))
+                AquaticMotionPresentation.renderHeldStick(model,action,elapsed,pose,buffers,packedLight,overlay);
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
