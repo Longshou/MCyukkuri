@@ -242,6 +242,8 @@ public enum StatusKey {
     }, null),
     STERILE("reproduction", "sterile", 0, y -> y.family().sterile(), null),
     BIRTH_BLOCK("reproduction", "birth_block", 20, y -> y.family().birthBlock(), null),
+    /** How this newborn's birth ended: outcome (HAT, CUSHION, GROUND, WATER), push strength and distance from the planned landing point. */
+    BIRTH_LANDING("childhood", "birth_landing", 0, y -> y.family().landingStatus(), null),
     CONCEPTIONS("reproduction", "conceptions", 0, y -> y.family().conceptions(), null),
     RECOVERY("reproduction", "recovery", 0, y -> y.family().recovery() > 0, null),
     // ---- growth -----------------------------------------------------------------------------------------------

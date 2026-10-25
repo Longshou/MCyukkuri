@@ -52,7 +52,16 @@ public final class FamilyNest {
             if(baby.level().getBlockEntity(pos) instanceof CareBlockEntity c&&c.largeNest()
                     &&Math.abs(baby.getX()-c.centre().x)<1&&Math.abs(baby.getZ()-c.centre().z)<1
                     &&baby.getY()>=pos.getY()&&baby.getY()<pos.getY()+.3)return true;
-        return large(baby)&&atAssignedNest(baby);
+        var centre=largeCentre(baby);
+        return centre!=null&&Math.abs(baby.getX()-centre.x)<1&&Math.abs(baby.getZ()-centre.z)<1&&Math.abs(baby.getY()-centre.y)<.4;
+    }
+    /** The common corner of the real 2x2 nest this actor is assigned to; null without a large nest. */
+    public static Vec3 largeCentre(YukkuriEntity e){
+        var c=care(e);if(c!=null)return c.largeNest()?c.centre():null;
+        var shelter=e.habitat().shelter();
+        if(shelter==null||!shelter.largeBed(e.getUUID()))return null;
+        var bed=shelter.bed(e.getUUID());
+        return bed==null?null:Vec3.atBottomCenterOf(bed);
     }
     public static void tick(YukkuriEntity e){
         var c=care(e);

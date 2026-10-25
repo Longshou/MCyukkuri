@@ -68,6 +68,10 @@ public final class FamilyLife {
     record DeliveryStation(Vec3 at, float yaw) {}
     /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
     private boolean doomed;
+    /** The launch decided for this land birth (null for water and boat births) and, once down, how it ended. Not saved. */
+    private BirthLaunch.Plan launch;
+    private String landingOutcome="";
+    private double landingFromAim=Double.NaN,landingImpactVy,airVy;
     private final FamilyFlight flight;
     private final HatBoarding boarding;
     private final BraidRescue rescue;
@@ -370,7 +374,50 @@ public final class FamilyLife {
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){ flight.launchInto(hat,tmin,prefer); }
     static final boolean FLIGHT_DEBUG=false;
     public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){ flight.launchInto(hat,tmin,prefer,reach); }
-    public boolean newbornLaunching(){ return flight.newbornLaunching(); }
+    void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach,double push,double yawDeg,boolean land){ flight.launchInto(hat,tmin,prefer,reach,push,yawDeg,land); }
+    public boolean newbornLaunching(){ return flight.newbornLaunching()||freeFalling(); }
+    /** A newborn between the outlet (or stem) and its first contact: nothing steers or shoves it. */
+    public boolean freeFalling(){ return awaitingLanding&&!entity.onGround()&&!entity.isPassenger()&&!entity.isInWaterOrBubble(); }
+    /** Randomized land launch (live push or stem toss) decided for this newborn; logged once. */
+    void launched(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
+        launch=plan;
+        entity.setDeltaMovement(plan.velocity());entity.hasImpulse=true;entity.getNavigation().stop();
+        logLaunch(plan,brood,index,hat);
+    }
+    /** A stem fruit comes away with a small random toss; the hat held under the stem, a large nest or the bare ground take it by contact. */
+    void tossStem(FamilyData.Brood brood,int index){
+        var start=entity.position();
+        var hats=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity));
+        HatBoatEntity hat=hats.isEmpty()?null:hats.get(0);
+        var mom=mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent?parent:null;
+        var centre=mom==null?null:FamilyNest.largeCentre(mom);
+        double half=io.github.longshou.mcyukkuri.life.NestResting.LARGE.half();
+        var target=hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(start.x-centre.x)<half&&Math.abs(start.z-centre.z)<half?BirthLaunch.Target.NEST:BirthLaunch.Target.GROUND;
+        launched(BirthLaunch.stem(level().random,start,target),brood,index,hat);
+    }
+    /** A flight to a hat was started with its own randomized impulse. */
+    void launchedIntoHat(Vec3 aim,Vec3 start,double push,double yaw,FamilyData.Brood brood,int index,HatBoatEntity hat){
+        var velocity=entity.getDeltaMovement();
+        var plan=new BirthLaunch.Plan(BirthLaunch.Target.HAT,start,aim,Double.NaN,Math.hypot(velocity.x,velocity.z)/push,push,yaw,velocity);
+        launch=plan;logLaunch(plan,brood,index,hat);
+    }
+    Vec3 flightDestination(){ return flight.destination(); }
+    private void logLaunch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
+        GameplayLog.event(entity,"family","birth launch brood={} index={} kind={} target={} hat={} aim={} start={} room={} nominal={} push={} yaw={} velocity={}",
+                brood.id,index,brood.kind,plan.target(),hat==null?null:hat.getUUID(),plan.aim(),plan.start(),
+                Double.isNaN(plan.room())?"n/a":String.format(java.util.Locale.ROOT,"%.2f",plan.room()),
+                String.format(java.util.Locale.ROOT,"%.3f",plan.nominal()),String.format(java.util.Locale.ROOT,"%.2f",plan.push()),
+                String.format(java.util.Locale.ROOT,"%.1f",plan.yaw()),plan.velocity());
+    }
+    /** Where the kit came down: outcome, distance from the planned landing point and the vertical speed on impact. */
+    public String landingOutcome(){ return landingOutcome; }
+    public double landingFromAim(){ return landingFromAim; }
+    public double landingImpactVy(){ return landingImpactVy; }
+    public String landingStatus(){
+        if(landingOutcome.isEmpty())return "";
+        return landingOutcome+" push="+(launch==null?"n/a":String.format(java.util.Locale.ROOT,"%.2f",launch.push()))
+                +" fromAim="+(Double.isNaN(landingFromAim)?"n/a":String.format(java.util.Locale.ROOT,"%.2f",landingFromAim));
+    }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
     public void launchPast(HatBoatEntity hat){ flight.launchPast(hat); }
     /** Out of the hat over its brim to a spot beside it. */
@@ -482,6 +529,8 @@ public final class FamilyLife {
         if(delivery.bumping())delivery.tickBump();
         if(boarding.active())return;
         if(flight.hasArc())return;
+        if(awaitingLanding&&!entity.onGround())airVy=entity.getDeltaMovement().y;
+        if(freeFalling())entity.getNavigation().stop();
         if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
         if(handleLanding(true))return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
@@ -514,25 +563,30 @@ public final class FamilyLife {
     private boolean handleLanding(boolean hopIntoHat) {
         if(!awaitingLanding||flight.hasArc()||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
         awaitingLanding=false;
-        if(FamilyNest.cushions(entity)){
-            doomed=false;delivery.clearPendingBump();entity.fallDistance=0;
-            GameplayLog.event(entity,"family","newborn landed on large nest cushion");
-        }
-        if(doomed){
-            // Missed the hat. In water the newborn is simply in the river: the ordinary water rules apply (it cannot swim,
-            // drowns by immersion unless a parent's braid brings it out). On the ground it falls hard: a real injury.
-            doomed=false;
-            if(entity.isInWaterOrBubble()){
-                BirthStaging.thud(entity);entity.waterDistress().plunge(null,null);
-                if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)BirthStaging.caption(parent,"漏接落水：新生儿掉进水里，无法自救，须亲油及时救起，否则溺亡");
-                return true;
+        // Only real contact decides: the hat, the water, the nest cushion, or the bare ground.
+        String outcome=entity.getVehicle() instanceof HatBoatEntity?"HAT":entity.isInWaterOrBubble()?"WATER":FamilyNest.cushions(entity)?"CUSHION":"GROUND";
+        boolean randomized=launch!=null||doomed;
+        landingOutcome=outcome;landingImpactVy=airVy;
+        landingFromAim=launch==null||launch.aim()==null?Double.NaN:Math.hypot(entity.getX()-launch.aim().x,entity.getZ()-launch.aim().z);
+        doomed=false;
+        switch(outcome){
+            case "CUSHION" -> {
+                entity.fallDistance=0;
+                GameplayLog.event(entity,"family","newborn landed on large nest cushion");
             }
-            delivery.bump();return false;
-        }
-        if(delivery.bumpPending()){delivery.clearPendingBump();delivery.bump();return false;}
-        if(hopIntoHat&&!entity.isPassenger()){
-            var hat=nearHat(2.5);
-            if(hat!=null)launchInto(hat,HatVessel.HOP_TMIN,hat.toLocal(entity.position()));
+            case "WATER" -> {
+                // Missed the hat into the river: the newborn cannot swim and drowns by immersion unless a parent's braid brings it out.
+                if(randomized){
+                    BirthStaging.thud(entity);entity.waterDistress().plunge(null,null);
+                    if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)BirthStaging.caption(parent,"漏接落水：新生儿掉进水里，无法自救，须亲油及时救起，否则溺亡");
+                    return true;
+                }
+            }
+            case "GROUND" -> {
+                // Nothing under it: a real fall injury.
+                delivery.bump();return false;
+            }
+            default -> {}
         }
         // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick.
         entity.showReactionDelayed("happy","newborn",100,24);return false;
@@ -722,7 +776,7 @@ public final class FamilyLife {
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
             if(child!=null) {
-                if(boat==null&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(0,-.015,0);
+                if(boat==null&&!child.family().doomed()&&!child.family().flying())child.family().tossStem(brood,i);
                 if(brood.incidentSource==null)entity.showReaction("happy","birth",100);
                 else entity.showReaction("teary","",100);
             }
@@ -753,10 +807,6 @@ public final class FamilyLife {
     public boolean sceneRequested() { return delivery.sceneRequested(); }
     /** The demonstrated miss: no hat is set down for this delivery. */
     public boolean withholdsCushion() { return delivery.withholdsCushion(); }
-    /** A Marisa was due to catch this brood and no hat is down at the moment of birth: a miss, not a gentle drop. */
-    public boolean catchExpected(FamilyData.Brood brood) { return delivery.catchExpected(brood); }
-    /** This newborn came out onto bare ground in a demonstrated miss: it will hit the floor, be hurt and cry. */
-    public void bumpOnLanding() { delivery.bumpOnLanding(); }
     public boolean bumped() { return delivery.bumped(); }
     /** Birth duties that come before first-stool licking and mash feeding: the hat is still down or being taken back,
      *  a hurt newborn is being comforted, or the mother is still recovering. */

@@ -24,6 +24,9 @@ final class FamilyFlight {
     private Flight flight;
     private int flightTick;
     private boolean newbornLaunch,pendingNewbornLaunch;
+    /** A land birth whose push was randomized: when the flight ends off its seat the kit goes on under plain physics. */
+    private boolean landLaunch,pendingLandLaunch;
+    private double pendingPush=1,pendingYaw;
     private String sweepWhy="";
 
     FamilyFlight(FamilyLife o) { this.o=o; }
@@ -53,7 +56,10 @@ final class FamilyFlight {
 
     void flightLog(String why){if(FamilyLife.FLIGHT_DEBUG)MCYukkuri.LOGGER.info("[flight-debug] {} {}",o.entity().getId(),why);}
 
-    void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){
+    void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){launchInto(hat,tmin,prefer,reach,1,0,false);}
+
+    /** A land birth: the nominal arc to the seat is scaled by {@code push} and turned by {@code yawDeg} before it is released. */
+    void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach,double push,double yawDeg,boolean land){
         flightLog("launch awaiting="+o.awaitingLanding()+" onGround="+o.entity().onGround()+" inWater="+o.entity().isInWaterOrBubble()+" at="+o.entity().position()+" hat="
                 +(hat==null?null:hat.position()));
         if(hat==null||flying()||o.heldByBraid()||hat.unsteadyMotion())return;
@@ -71,10 +77,13 @@ final class FamilyFlight {
                 +birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);hat.cancelIncoming(o.entity());return;}
         flightLog("flight "+duration+" ticks to "+to);
         pendingNewbornLaunch=o.awaitingLanding();
+        pendingLandLaunch=land&&pendingNewbornLaunch;pendingPush=push;pendingYaw=yawDeg;
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
     }
 
     boolean newbornLaunching(){return newbornLaunch;}
+    /** Where the current flight is aimed (the reserved seat), null without a flight. */
+    Vec3 destination(){return flight==null?null:flight.to();}
 
     boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to){
         sweepWhy="";
@@ -250,10 +259,17 @@ final class FamilyFlight {
 
     void beginFlight(Flight next){
         newbornLaunch=pendingNewbornLaunch;pendingNewbornLaunch=false;
+        landLaunch=pendingLandLaunch;pendingLandLaunch=false;
+        double push=pendingPush,yaw=pendingYaw;pendingPush=1;pendingYaw=0;
         flight=next;flightTick=0;
         // A single impulse. The subsequent path is velocity integration with real collision,
         // never a series of absolute positions or corrections toward a moving seat.
-        o.entity().setDeltaMovement(HatVessel.arc(next.from(),next.to(),next.ticks(),1).subtract(next.from()));
+        var impulse=HatVessel.arc(next.from(),next.to(),next.ticks(),1).subtract(next.from());
+        if(push!=1||yaw!=0){
+            var across=new Vec3(impulse.x,0,impulse.z).scale(push).yRot((float)Math.toRadians(yaw));
+            impulse=new Vec3(across.x,impulse.y,across.z);
+        }
+        o.entity().setDeltaMovement(impulse);
         o.entity().getNavigation().stop();o.entity().hasImpulse=true;
     }
 
@@ -292,7 +308,7 @@ final class FamilyFlight {
             if(hat!=null)hat.cancelIncoming(o.entity());flightLog("moved_short at tick "+flightTick+" wanted "+wanted+" got "+o.entity().position());flight=null;return true;
         }
         if(flightTick<f.ticks())return true;
-        flight=null;boolean newborn=newbornLaunch;newbornLaunch=false;
+        flight=null;boolean newborn=newbornLaunch,land=landLaunch;newbornLaunch=false;landLaunch=false;
         if(hat!=null) {
             if(hat.unsteadyMotion()){hat.cancelIncoming(o.entity());o.entity().setDeltaMovement(0,-.03,0);return true;}
             // Only actual contact with the reserved seat permits boarding. External impulses,
@@ -302,7 +318,10 @@ final class FamilyFlight {
                     :o.entity().position().distanceToSqr(to)<=.0025&&velocity.y<=0;
             boolean landed=contact&&(o.entity().getUUID().equals(hat.ownerYukkuri())?hat.board(o.entity()):hat.boardYoung(o.entity()));
             if(!landed)flightLog("not_landed contact="+contact+" dist="+Math.sqrt(o.entity().position().distanceToSqr(to))+" vy="+velocity.y+" to="+to+" at="+o.entity().position());
-            if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null);o.entity().setDeltaMovement(0,-.03,0);}
+            if(!landed&&land){
+                // The push missed its seat: whatever velocity is left carries on under ordinary physics, and contact decides the outcome.
+                hat.cancelIncoming(o.entity());o.entity().hasImpulse=true;
+            }else if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null);o.entity().setDeltaMovement(0,-.03,0);}
         }
         return true;
     }
@@ -322,7 +341,11 @@ final class FamilyFlight {
         for(var hat:o.level().getEntitiesOfClass(HatBoatEntity.class,o.entity().getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(o.entity())
                 &&(b.cargo().count()==0?b.hasRoomFor(o.entity()):b.canPrepareCargoSpace(o.entity())))){
             var l=hat.toLocal(o.entity().position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
-            if(Double.isNaN(h)||l.y>h+1e-3||l.y<h-.12/hat.unit())continue;
+            if(Double.isNaN(h))continue;
+            // Swept: the floor height was crossed (or touched) between the last position and this one while the centre is over the hat.
+            var before=hat.toLocal(new Vec3(o.entity().xo,o.entity().yo,o.entity().zo));
+            boolean crossed=l.y<=h+1e-3&&before.y>=h-1e-3&&l.y>h-3/hat.unit();
+            if(!crossed&&(l.y>h+1e-3||l.y<h-.12/hat.unit()))continue;
             if(hat.cargo().count()>0&&!hat.prepareCargoSpace(o.entity(),false))continue;
             var seat=hat.reserve(o.entity(),l);  // where it came down, if free
             if(seat==null)continue;

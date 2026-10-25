@@ -44,7 +44,7 @@ final class LiveDelivery {
     /** Transient candidate and search throttles; parentage, capacity and custody stay in their existing owners. */
     private UUID waterPartnerChild;
     private long nextWaterPartnerScan,nextWaterPartnerRoute;
-    private boolean bumpPending, bumped;
+    private boolean bumped;
     private UUID comfortBaby;
     private static final int COMFORT=200;
     private static final int NEST_GRACE=400, NEST_PATIENCE=100;
@@ -57,8 +57,6 @@ final class LiveDelivery {
     boolean nuzzling() { return comfortTicks>0&&comfortNear>=10; }
     boolean bumping() { return bumpTicks>0; }
     boolean welcoming() { return welcomeTicks>0&&newborn!=null; }
-    boolean bumpPending() { return bumpPending; }
-    void clearPendingBump() { bumpPending=false; }
     /** Passive detail for the two real partner hulls and the existing cross-hull cradle transfer. */
     String waterBirthDetail(){
         var mine=o.boatHome();
@@ -198,9 +196,6 @@ final class LiveDelivery {
     /** The demonstrated miss: no hat is set down for this delivery. */
     boolean withholdsCushion(){return deliveryOutcome==3||catchStation==CatchStationState.ABANDONED;}
 
-    /** A Marisa was due to catch this brood and no hat is down at the moment of birth: a miss, not a gentle drop. */
-    boolean catchExpected(FamilyData.Brood brood){return catchStation==CatchStationState.ABANDONED||FamilyLife.catcher(o.entity(),brood)!=null;}
-
     boolean catchStationAbandoned(){return catchStation==CatchStationState.ABANDONED;}
     void catchStationActivated(FamilyData.Brood brood){if(brood!=null&&brood==o.brood()&&catchStation==CatchStationState.UNUSED)catchStation=CatchStationState.ACTIVE;}
     private void abandonCatchStation(FamilyData.Brood brood){
@@ -208,10 +203,7 @@ final class LiveDelivery {
         catchStation=CatchStationState.ABANDONED;stationWait=0;o.abandonDeliveryStation(brood);
     }
 
-    /** This newborn came out onto bare ground in a demonstrated miss: it will hit the floor, be hurt and cry. */
-    void bumpOnLanding(){bumpPending=true;}
-
-    boolean bumped(){return bumped||bumpPending;}
+    boolean bumped(){return bumped;}
 
     /**
      * Water birth with a partner: his own hat boat comes alongside hers for the last stretch and the labour (he needs no shore), so that a share
@@ -423,9 +415,6 @@ final class LiveDelivery {
             if(brood.elapsed>=brood.duration+LiveBirthGeometry.birthTick(next)){
                 var child=FamilyData.get(o.level()).birth(brood,next,o.level(),LiveBirthGeometry.position(o.entity(),next));
                 if(child!=null){
-                    // A soft physical release lets the landed sibling clear the next child's outlet; a small visible pop (project original).
-                    if(boat==null&&!child.isPassenger()&&!child.family().doomed()&&!child.family().flying())child.setDeltaMovement(new Vec3(0,.26,
-                            -.12).yRot((float)Math.toRadians(180-o.entity().yBodyRot)).scale(o.entity().getScale()));
                     BirthStaging.emerge(o.entity(),child.position());
                     newborn=child.getUUID();welcomeTicks=WELCOME;
                     // Later children come easier but leave her more tired.
@@ -485,8 +474,9 @@ final class LiveDelivery {
         BirthStaging.thud(o.entity());BirthStaging.whimper(o.entity());
         var motion=o.entity().getDeltaMovement();o.entity().setDeltaMovement(motion.x,.2,motion.z);o.entity().hasImpulse=true;
         // A real fall injury through the ordinary damage path (wound record, infection and care rules), never lethal.
-        float lost=Math.min(2f,o.entity().getHealth()-1f);
+        float lost=Math.min(2f,o.entity().getHealth()-1f),healthBefore=o.entity().getHealth();
         if(lost>0)o.entity().hurt(o.level().damageSources().fall(),lost);
+        GameplayLog.event(o.entity(),"family","birth impact injury lost={} health={}->{}",String.format(java.util.Locale.ROOT,"%.1f",Math.max(0f,lost)),healthBefore,o.entity().getHealth());
         o.entity().mind().felt(EmotionEvent.WOUND_DISTRESS); o.entity().showReaction("cry","wounded",140);
         // The newborn carries no exhibit tag; the report goes out under its mother.
         if(o.mother()!=null&&o.level().getEntity(o.mother()) instanceof YukkuriEntity parent)

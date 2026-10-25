@@ -86,6 +86,8 @@ public final class FamilyData extends SavedData {
         public YukkuriPersonality.BirthProfile birthProfile;
         public boolean born;
         public boolean landed;
+        /** How the birth ended: HAT, CUSHION, GROUND or WATER (empty until it lands). */
+        public String landing="";
         // House eggs keep individual custody and time when separated from their clutch.
         public boolean eggManaged, eggLost;
         public int eggElapsed;
@@ -675,7 +677,20 @@ public final class FamilyData extends SavedData {
         boolean noCushion=scene!=null&&scene.family().withholdsCushion();
         var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
                 cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
-        if(hat!=null) {
+        boolean landBirth=boat==null&&waterHat==null&&scene!=null;
+        if(hat!=null&&landBirth) {
+            // On land the push is random, not a preset catch or miss: a strong or crooked one carries the kit past the seat.
+            boolean overstrain=scene.family().missesDelivery(false);
+            double push=overstrain?BirthLaunch.OVERSTRAIN_PUSH:BirthLaunch.push(level.random),yaw=BirthLaunch.yaw(level.random);
+            var start=entity.position();
+            entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25,push,yaw,true);
+            if(entity.family().flying())entity.family().launchedIntoHat(entity.family().flightDestination(),start,push,yaw,brood,index,hat);
+            else{
+                // The seat could not be reserved or the arc was refused: the kit is pushed out on the ground instead.
+                hat.cancelIncoming(entity);
+                entity.family().launched(BirthLaunch.live(level.random,scene,entity,start),brood,index,null);
+            }
+        } else if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
             if(miss) { hat.cancelIncoming(entity);entity.family().doom();entity.family().launchPast(hat); }
@@ -686,11 +701,7 @@ public final class FamilyData extends SavedData {
             // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
             if(waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
                 entity.family().launchInto(boat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
-        } else if(brood.kind==BirthKind.STEM&&level.random.nextFloat()<.12f&&!level.getEntitiesOfClass(HatBoatEntity.class,
-                entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity)).isEmpty()) {
-            // A fruit that comes away awkwardly misses the hat held under the stem.
-            entity.family().doom();var side=Vec3.directionFromRotation(0,entity.yBodyRot+90);entity.setDeltaMovement(side.x*.22,.05,side.z*.22);
-        } else if(brood.kind==BirthKind.LIVE&&scene!=null&&(scene.family().sceneRequested()||scene.family().catchExpected(brood)))entity.family().bumpOnLanding();
+        } else if(landBirth)entity.family().launched(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
@@ -724,9 +735,12 @@ public final class FamilyData extends SavedData {
         if(brood==null||!entity.isAlive()||entity.family().awaitingLanding()||entity.family().flying()
                 ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return;
         for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){
-            child.landed=true;setDirty();
-            GameplayLog.event(entity,"family","birth landed brood={} vehicle={} water={} ground={} bumped={}",brood.id,
-                    entity.getVehicle()==null?null:entity.getVehicle().getUUID(),entity.isInWaterOrBubble(),entity.onGround(),entity.family().bumped());return;
+            child.landed=true;child.landing=entity.family().landingOutcome();setDirty();
+            double fromAim=entity.family().landingFromAim();
+            GameplayLog.event(entity,"family","birth landed brood={} vehicle={} water={} ground={} bumped={} outcome={} at={} fromAim={} impactVy={}",brood.id,
+                    entity.getVehicle()==null?null:entity.getVehicle().getUUID(),entity.isInWaterOrBubble(),entity.onGround(),entity.family().bumped(),
+                    child.landing.isEmpty()?"UNKNOWN":child.landing,entity.position(),Double.isNaN(fromAim)?"n/a":String.format(java.util.Locale.ROOT,"%.2f",fromAim),
+                    String.format(java.util.Locale.ROOT,"%.3f",entity.family().landingImpactVy()));return;
         }
     }
     /** Unloaded ALIVE children remain pending. Only recorded landing or a known terminal outcome resolves a birth. */
@@ -853,7 +867,7 @@ public final class FamilyData extends SavedData {
                     if(child.eggToken!=null)c.putUUID("EggToken",child.eggToken);
                 }
                 c.putIntArray("BirthProfile",child.birthProfile.innateValues());
-                        c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);children.add(c);
+                        c.putBoolean("Born",child.born);c.putBoolean("Landed",child.landed);if(!child.landing.isEmpty())c.putString("Landing",child.landing);children.add(c);
             }
             value.put("Children",children);pregnancies.add(value);
         }
@@ -900,7 +914,7 @@ public final class FamilyData extends SavedData {
                     child.eggNest=position(c,"EggNest");child.eggNestId=c.hasUUID("EggNestId")?c.getUUID("EggNestId"):null;
                     child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
                     child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.birthProfile=YukkuriPersonality.BirthProfile.fromInnateValues(c.getIntArray("BirthProfile"));
-                            child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");
+                            child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");child.landing=child.landed?c.getString("Landing"):"";
                     if(!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
                     brood.children.add(child);
                     data.retainForCleanup(child.id);

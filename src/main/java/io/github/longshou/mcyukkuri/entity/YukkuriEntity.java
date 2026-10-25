@@ -366,7 +366,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
             setDeltaMovement(dx*fraction, getDeltaMovement().y, dz*fraction);
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
-        } else super.travel(input);
+        } else super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
     }
     public String getDialogueKey() { return sync().getDialogueKey(); }
     public long speechStart() { return sync().speechStart(); }
