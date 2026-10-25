@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.body.WoundProfiles;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import io.github.longshou.mcyukkuri.headwear.HatDamageGeometry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -64,7 +63,7 @@ final class HairWoundRenderer {
         Entry(Key key,boolean weak){this.key=key;this.weak=weak;}
         Slot slot(boolean wantFull){return wantFull?full:simple;}
     }
-    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8,MAX_DENT_STEPS=4;
+    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8,MAX_DENT_STEPS=4,MAX_SQUEEZE_STEPS=6;
     private static final Map<Object,Entry> CACHE=new LinkedHashMap<>(MAX_CACHED_BODIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<Object,Entry> eldest){return size()>MAX_CACHED_BODIES;}
     };
@@ -199,6 +198,7 @@ final class HairWoundRenderer {
         final Vector3f[] display;
         final List<BodyWound> wounds;
         final int whole,sole;
+        private final Map<String,Integer> tints=new HashMap<>();
         final CavityRenderer cavity;
         final Vector3f[] cavitySkin;
         final Vector3f[] cavityRest;
@@ -275,12 +275,20 @@ final class HairWoundRenderer {
         }
         private void buildPart(YukkuriModel.Part part,int hairLoss,boolean accessory){
             if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))return;
-            if(whole>0&&model.woundDamagedHat(part)){thermalHat(part);return;}
+            if(whole>0&&model.woundDamagedHat(part))return;
             boolean receiver=receives(part.name());
             for(int first=part.start();first<part.start()+part.count();first+=3){
                 if(part.name().startsWith("face_")&&source[first*8+7]>=-.15f)continue;
                 var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
                 List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
+                if(whole>0&&!simple&&info.heated(part.name())){
+                    // The cheek squeeze is applied per vertex; a coarse sprite or lock would otherwise cross it linearly and detach from the head.
+                    int steps=squeezeSteps(pa,pb,pc);
+                    if(steps>1){
+                        triangles=subdivide(pa,pb,pc,steps);changed=true;
+                        if(!receiver){var base=new ArrayList<Triangle>();for(var tri:triangles)base.add(triangle(first,tri,null,1));current.patches.put(first,base);}
+                    }
+                }
                 if(receiver){
                     if(!simple)for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())){
                         triangles=subdivide(pa,pb,pc,Math.min(MAX_DENT_STEPS,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale)))));
@@ -307,8 +315,13 @@ final class HairWoundRenderer {
                         }
                     }
                 }
-                if(whole>0||sole>0)thermal(first,part.name(),triangles);
+                if(sole>whole)thermal(first,part.name(),triangles,sole,true);
             }
+        }
+        private int squeezeSteps(Vector3f pa,Vector3f pb,Vector3f pc){
+            float low=Math.min(info.canonical(pa).y,Math.min(info.canonical(pb).y,info.canonical(pc).y));
+            float high=Math.max(info.canonical(pa).y,Math.max(info.canonical(pb).y,info.canonical(pc).y));
+            return Math.clamp((int)Math.ceil((high-low)/(HairWoundAssets.cheekFalloff*.5f)),1,MAX_SQUEEZE_STEPS);
         }
         private List<Triangle> layer(ResourceLocation texture){return current.layers.computeIfAbsent(texture,ignored->new ArrayList<>());}
         private Vector3f point(int first,Bary bary){return new Vector3f(source[first*8],source[first*8+1],source[first*8+2]).mul(bary.a)
@@ -333,7 +346,22 @@ final class HairWoundRenderer {
                 if(binding!=null){corner.skinBinding=binding;corner.skinWeight=weight;}
             }
         }
-        private Triangle triangle(int first,Bary[] bary,Cut decal,float alpha){return new Triangle(corner(first,bary[0],decal,alpha),corner(first,bary[1],decal,alpha),corner(first,bary[2],decal,alpha),255,255,255);}
+        private Triangle triangle(int first,Bary[] bary,Cut decal,float alpha){
+            int tint=tint(triangleParts.getOrDefault(first,""));
+            return new Triangle(corner(first,bary[0],decal,alpha),corner(first,bary[1],decal,alpha),corner(first,bary[2],decal,alpha),
+                    tint>>16&255,tint>>8&255,tint&255);
+        }
+        /** Packed RGB multiplied into this part's base draw: whole-body burn darkens the surface instead of overlaying texture. */
+        int tint(String part){
+            if(whole<=0)return 0xFFFFFF;
+            Integer cached=tints.get(part);
+            if(cached!=null)return cached;
+            float coverage=info.accessories.containsKey(part)?(info.accessories.get(part).equals("char")?1:.55f)
+                    :info.heated(part)?(part.startsWith("face_")?.35f:1):0;
+            int[] target=HairWoundAssets.WHOLE_TINT[whole-1];int packed=0;
+            for(int channel=0;channel<3;channel++)packed=packed<<8|Math.round(255+(target[channel]-255)*coverage);
+            tints.put(part,packed);return packed;
+        }
         Vector3f deform(int index,Vector3f point){return point.set(display[index]);}
         /** Skin the wound art replaces (body, face, hair and the rump mark) is clipped by the opening and follows the dent. */
         private boolean receives(String part){return info.surface(part)||mesh.replaced.contains(part);}
@@ -353,10 +381,7 @@ final class HairWoundRenderer {
             for(var group:groups.values()){float x=0,y=0;int count=0;for(var part:group)for(int i=part.start();i<part.start()+part.count();i++){x+=source[i*8];y+=source[i*8+1];count++;}
                 float offset=x/count*(width(y/count)-1);for(var part:group)rigidOffsets.put(part.name(),offset);}
         }
-        private void thermal(int first,String part,List<Bary[]> triangles){
-            if(whole>0)thermal(first,part,triangles,whole,false);
-            if(sole>whole)thermal(first,part,triangles,sole,true);
-        }
+        /** Foot-band burn only; whole-body burn is a per-part vertex tint (tint). */
         private void thermal(int first,String part,List<Bary[]> triangles,int grade,boolean soleScope){
             if(!info.heated(part)&&!info.accessories.containsKey(part))return;
             for(var tri:triangles){
@@ -378,44 +403,6 @@ final class HairWoundRenderer {
                         bindHair(corners[j]);
                         p.set(deformRest(part,new Vector3f(p)));
                     }if(corners[0].alpha>0||corners[1].alpha>0||corners[2].alpha>0)layer.add(new Triangle(corners[0],corners[1],corners[2],255,255,255));
-                }
-            }
-        }
-        /** Reuse the actual damaged hat's cells, including recessed caps and pieced seams. */
-        private void thermalHat(YukkuriModel.Part part){
-            var layer=layer(HairWoundAssets.material("thermal-"+whole));
-            float coverage=info.accessories.getOrDefault(part.name(),"char").equals("char")?1:.55f;
-            for(var face:model.woundHatFaces(part)){
-                if(face.original()){
-                    for(int first=face.originalStart();first<face.originalStart()+face.originalCount();first+=3)
-                        thermal(first,part.name(),List.<Bary[]>of(new Bary[]{A,B,C}),whole,false);
-                    continue;
-                }
-                int[] indices=face.corners();Vector3f[] sourceCorners=new Vector3f[4],cell=new Vector3f[4];
-                for(int i=0;i<4;i++){int k=indices[i]*8;sourceCorners[i]=new Vector3f(source[k],source[k+1],source[k+2]);cell[i]=new Vector3f();}
-                var n=new Vector3f();var temp=new Vector3f();
-                for(int x=0;x<face.n();x++)for(int y=0;y<face.m();y++){
-                    if(!HatDamageGeometry.cell(sourceCorners,face.n(),face.m(),x,y,HatDamageGeometry.DRAW,face.flip(),cell,n,temp))continue;
-                    float u0=x/(float)face.n(),u1=(x+1f)/face.n(),v0=y/(float)face.m(),v1=(y+1f)/face.m();
-                    float[] us={u0,u1,u1,u0},vs={v0,v0,v1,v1};
-                    var canonicalNormal=new Vector3f(n).mul(info.scale).normalize();
-                    float[] weights={(float)Math.pow(Math.abs(canonicalNormal.x),4),(float)Math.pow(Math.abs(canonicalNormal.y),4),(float)Math.pow(Math.abs(canonicalNormal.z),4)};
-                    float sum=weights[0]+weights[1]+weights[2];
-                    for(int axis=0;axis<3;axis++)if(weights[axis]/sum>.002f){var corners=new Corner[4];
-                        for(int j=0;j<4;j++){
-                            var p=info.canonical(cell[j]);float u=(axis==0?p.z:p.x)/HairWoundAssets.textureScale,v=(axis==1?p.z:p.y)/HairWoundAssets.textureScale;
-                            corners[j]=new Corner(indices[0]/3*3,A,new Vector3f(cell[j]),u,v,coverage*weights[axis]/sum);
-                            corners[j].quad=indices;corners[j].quadU=us[j];corners[j].quadV=vs[j];
-                        }
-                        float inset=face.codes()[x*face.m()+y]==HatDamageGeometry.HIDDEN?-HatDamageGeometry.CAP_INSET:0;
-                        if(face.flip()){
-                            layer.add(new Triangle(corners[0],corners[2],corners[1],255,255,255,inset));
-                            layer.add(new Triangle(corners[0],corners[3],corners[2],255,255,255,inset));
-                        }else{
-                            layer.add(new Triangle(corners[0],corners[1],corners[2],255,255,255,inset));
-                            layer.add(new Triangle(corners[0],corners[2],corners[3],255,255,255,inset));
-                        }
-                    }
                 }
             }
         }
@@ -539,7 +526,7 @@ final class HairWoundRenderer {
             normal.set(b).sub(a).cross(edge.set(c).sub(a));if(normal.lengthSquared()<1e-12)return;normal.normalize();
             // Only actual projected overlays use a microscopic normal lift; solid
             // wound edges and wall vertices retain their authored recess/depth.
-            float lift=(offset&&tri.red==255&&tri.a.u!=.5f?.006f:0)+tri.inset;
+            float lift=(offset&&tri.a.u!=.5f?.006f:0)+tri.inset;
             if(lift!=0){a.fma(lift,normal);b.fma(lift,normal);c.fma(lift,normal);}
             triangleUv[0]=tri.a.u;triangleUv[1]=tri.a.v;triangleUv[2]=tri.b.u;triangleUv[3]=tri.b.v;triangleUv[4]=tri.c.u;triangleUv[5]=tri.c.v;
             if(model.woundPatch(part,posedTriangle,triangleUv,stack,buffer,light,overlay,

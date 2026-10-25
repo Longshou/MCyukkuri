@@ -73,7 +73,7 @@ final class HatDamageDraw {
     }
 
     /** Draw the square face cells and close-colour inner caps of one accessory part. */
-    void renderHatFaces(VertexConsumer buffer,PoseStack.Pose transform,Part part,HatDamageFaces.Face[] faces,int light,int overlay){
+    void renderHatFaces(VertexConsumer buffer,PoseStack.Pose transform,Part part,HatDamageFaces.Face[] faces,int light,int overlay,int tint){
         // These aliases are the owner's exact renderPosed scratch buffers, never copies.
         var triangle=o.triangle();var normal=o.normal();var edge=o.edge();var vertices=o.vertices();
         for(var face:faces){
@@ -87,7 +87,7 @@ final class HatDamageDraw {
                     for(int corner=0;corner<4;corner++){
                         int index=Math.min(corner,2),uv=(first+index)*8+3;
                         buffer.addVertex(transform.pose(),triangle[index].x/16,triangle[index].y/16,triangle[index].z/16)
-                                .setColor(255,255,255,255).setUv(vertices[uv],vertices[uv+1])
+                                .setColor(tint>>16&255,tint>>8&255,tint&255,255).setUv(vertices[uv],vertices[uv+1])
                                 .setOverlay(overlay).setLight(light).setNormal(transform,normal.x,normal.y,normal.z);
                     }
                 }
@@ -113,14 +113,17 @@ final class HatDamageDraw {
                 cellUv[6]=bilerp(faceUv[0],faceUv[2],faceUv[4],faceUv[6],u0,v1);
                 cellUv[7]=bilerp(faceUv[1],faceUv[3],faceUv[5],faceUv[7],u0,v1);
                 if(code==HatDamageMask.HIDDEN){
-                    emitCap(buffer,transform,cellCorners,face.cap()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,multiply(face.cap()[cell],tint),light,overlay,faceNormal);
                 }else if(code==HatDamageMask.EDGE){
-                    emitCap(buffer,transform,cellCorners,face.rim()[cell],light,overlay,faceNormal);
+                    emitCap(buffer,transform,cellCorners,multiply(face.rim()[cell],tint),light,overlay,faceNormal);
                 }else{
-                    emitCell(buffer,transform,cellCorners,cellUv,0xFFFFFF,light,overlay,faceNormal);
+                    emitCell(buffer,transform,cellCorners,cellUv,tint,light,overlay,faceNormal);
                 }
             }
         }
+    }
+    private static int multiply(int color,int tint){
+        return (((color>>16&255)*(tint>>16&255)/255)<<16)|(((color>>8&255)*(tint>>8&255)/255)<<8)|((color&255)*(tint&255)/255);
     }
     private static final float[] WHITE_UV={.5f,.5f,.5f,.5f,.5f,.5f,.5f,.5f};
 

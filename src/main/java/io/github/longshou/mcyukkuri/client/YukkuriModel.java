@@ -810,10 +810,12 @@ public final class YukkuriModel {
             if (hatPart && hatDamageDraw.level() > 0) {
                 var source=parts.get(partIndex);
                 if(source.start==part.start&&source.count==part.count){
-                    hatDamageDraw.renderHatFaces(buffer,transform,part,hatDamageDraw.hatFaces(partIndex),light,overlay);
+                    hatDamageDraw.renderHatFaces(buffer,transform,part,hatDamageDraw.hatFaces(partIndex),light,overlay,
+                            woundDisplay==null?0xFFFFFF:woundDisplay.tint(part.name));
                     continue;
                 }
             }
+            int tint=woundDisplay==null?0xFFFFFF:woundDisplay.tint(part.name);
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
                 // House expression cards overlap on the curved face. Their opaque
@@ -855,7 +857,7 @@ public final class YukkuriModel {
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)
                         vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
-                            .setColor(255, 255, 255, 255).setUv(vertices[uv], vertices[uv + 1])
+                            .setColor(tint>>16&255, tint>>8&255, tint&255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
                             .setNormal(transform, vertexNormal.x, vertexNormal.y, vertexNormal.z);
                 }

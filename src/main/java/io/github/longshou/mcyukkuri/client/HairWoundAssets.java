@@ -21,6 +21,8 @@ import org.joml.Vector3f;
 final class HairWoundAssets {
     record Profile(float radiusU,float radiusV,float cutU,float cutV,float depth,boolean open,
                    float[][] outline,float[][] hairOutline) {}
+    /** Whole-body burn vertex tint per grade (browned, smoked dark brown, near-black char), the former thermal-N swatches' mean colour over skin. */
+    static final int[][] WHOLE_TINT={{196,150,112},{110,90,78},{52,44,40}};
     static final class Palette {
         final Vector3f core;
         final float[][] cavityColours,coreColours;
