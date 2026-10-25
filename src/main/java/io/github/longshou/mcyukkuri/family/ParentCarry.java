@@ -20,7 +20,8 @@ import org.joml.Vector3f;
 
 /**
  * A parent carries a dependent baby over land with a real passenger (the same custody as the hat brim): brim for hat
- * Marisa, tail for Chen, mouth for everyone else, one child at a time (Reimu holds several in the mouth, within a volume budget). Pick-up needs reach, capacity and a free carrier;
+ * Marisa (as many as physically fit the brim, then one in the mouth), one per tail for Chen (two), mouth for everyone else (one;
+ * Reimu holds several, within a volume budget). Pick-up needs reach, capacity and a free carrier;
  * the child rides until it is put down at its own position (never copied, never teleported to a goal) for a real reason.
  * Client code reads only {@link #mode} / {@link #rawSeat} / {@link #seatYaw}; the finer pose per mode is an art hook.
  */
@@ -38,10 +39,16 @@ public final class ParentCarry {
     /** Reimu holds several babies in her mouth (project design): their summed volume stays within this fraction of her own, scaled by strength. */
     static final double MOUTH_LOAD_FRACTION = .45;
     static final int MAX_MOUTH_BABIES = 4;
+    /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design). */
+    static final int TAIL_COUNT = 2;
+    static final double TAIL_BABY_FRACTION = .26;
     /** Basic tail seat: top of the tails, behind the body (model units); an art pass refines the pose. */
-    private record Tail(double y, double z) {}
-    private static final Map<String, Tail> TAILS = Map.of("chen", new Tail(5.3, 10.4), "chen_longtail", new Tail(4.6, 12.0),
-            "chen_roundtail", new Tail(4.75, 6.9));
+    private record Tail(double x, double y, double z) {}
+    /** One seat per tail (left, right), model units; a carrier's two tails hold one baby each. */
+    private static final Map<String, Tail[]> TAILS = Map.of(
+            "chen", new Tail[]{new Tail(-1.0, 5.3, 10.4), new Tail(1.0, 5.3, 10.4)},
+            "chen_longtail", new Tail[]{new Tail(-1.0, 4.6, 12.0), new Tail(1.0, 4.6, 12.0)},
+            "chen_roundtail", new Tail[]{new Tail(-.95, 4.75, 6.9), new Tail(.95, 4.75, 6.9)});
     private record Hold(long until, String reason) {}
 
     private final YukkuriEntity carrier;
@@ -55,41 +62,78 @@ public final class ParentCarry {
 
     // ------------------------------------------------------------------------------------------ shared geometry
 
-    /** How this carrier holds this child; the same answer on both sides, from synchronized size and form only. */
-    public static Mode mode(YukkuriView carrier, YukkuriView child) {
-        if (carrier == null || child == null) return null;
-        if (HatCarry.hasHat(carrier) && carrier.hasVisibleAccessory()
-                && HatCarry.fits(carrier.assetId(), child.assetId(), size(child) / size(carrier))) return Mode.HAT;
-        return carrier.getVariant() == YukkuriVariant.CHEN ? Mode.TAIL : Mode.MOUTH;
+    /** Where one carried child sits: the hold, its place within that hold, how many share it, and the brim offset. */
+    public record Seat(Mode mode, int lane, int lanes, double dz) {}
+
+    /**
+     * Seat of this child, from synchronized size and form only, so both sides agree. Riders are placed in boarding order
+     * (a child not yet aboard comes last): on a hatted Marisa's brim while real brim room is left, otherwise on Chen's
+     * tails or in the mouth.
+     */
+    public static Seat resolve(YukkuriView carrier, YukkuriView child) {
+        var all = new ArrayList<>(carrier.passengerViews());
+        int me = -1;
+        for (int i = 0; i < all.size(); i++) if (all.get(i).getUUID().equals(child.getUUID())) me = i;
+        if (me < 0) { all.add(child); me = all.size() - 1; }
+        int n = all.size();
+        boolean brim = HatCarry.hasHat(carrier) && carrier.hasVisibleAccessory();
+        double[] dz = null;
+        if (brim) {
+            var ids = new ArrayList<String>();
+            var ratios = new ArrayList<Double>();
+            for (var rider : all) { ids.add(rider.assetId()); ratios.add(size(rider) / size(carrier)); }
+            dz = HatCarry.layout(carrier.assetId(), ids, ratios);
+        }
+        boolean chen = carrier.getVariant() == YukkuriVariant.CHEN;
+        Mode[] modes = new Mode[n];
+        int[] lane = new int[n], used = new int[3];
+        for (int i = 0; i < n; i++) {
+            modes[i] = brim && !Double.isNaN(dz[i]) ? Mode.HAT : chen ? Mode.TAIL : Mode.MOUTH;
+            lane[i] = used[modes[i].ordinal()]++;
+        }
+        return new Seat(modes[me], lane[me], used[modes[me].ordinal()], modes[me] == Mode.HAT ? dz[me] : 0);
     }
-    /** The mode the carrier is using right now, or null when nothing rides on it. */
+    /** How this carrier holds this child (see {@link #resolve}). */
+    public static Mode mode(YukkuriView carrier, YukkuriView child) {
+        return carrier == null || child == null ? null : resolve(carrier, child).mode();
+    }
+    /** What the carrier is doing with its riders: the brim if any rider is on it, else its first rider's hold; null when empty. */
     public static Mode carryMode(YukkuriView carrier) {
-        return carrier.isVehicle() ? mode(carrier, carrier.carriedYukkuri()) : null;
+        if (!carrier.isVehicle()) return null;
+        Mode first = null;
+        for (var rider : carrier.passengerViews()) {
+            var mode = mode(carrier, rider);
+            if (mode == Mode.HAT) return mode;
+            if (first == null) first = mode;
+        }
+        return first;
     }
     /** True while the child is a passenger of this carrier. */
     public static boolean visibleCarried(YukkuriView carrier, YukkuriView child) { return carrier.hasPassengerId(child.getUUID()); }
     public static boolean riding(YukkuriEntity carrier, Entity child) { return child instanceof YukkuriEntity && carrier.hasPassenger(child); }
     private static double size(YukkuriView v) { return v.growthScale() * v.getScale(); }
-    /** Reimu carries babies in her mouth, several at once; every other species holds one. */
+    /** Reimu carries babies in her mouth, several at once; every other mouth carrier holds one. */
     public static boolean multi(YukkuriView carrier) { return carrier.getVariant() == YukkuriVariant.REIMU; }
 
-    /** Feet of the carried child before any collision adjustment (also what the client draws for the hat). */
-    public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, Mode mode, float partial) {
-        if (mode == Mode.HAT) return HatCarry.seatWorld(carrier, partial);
+    /** Feet of the carried child before any collision adjustment (also what the client draws for the brim). */
+    public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
+        var seat = resolve(carrier, child);
+        if (seat.mode() == Mode.HAT) return HatCarry.seatWorld(carrier, partial, seat.dz());
         float scale = (float) size(carrier);
         float yaw = carrier.level().isClientSide ? Mth.rotLerp(partial, carrier.previousBodyYaw(), carrier.bodyYaw()) : carrier.bodyYaw();
         float turn = (180 - yaw) * Mth.DEG_TO_RAD;
         var base = carrier.level().isClientSide ? carrier.getPosition(partial) : carrier.position();
-        if (mode == Mode.TAIL) {
-            var tail = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"));
-            var point = new Vector3f(0, (float) tail.y(), (float) tail.z()).mul(scale / 16).rotateY(turn);
+        if (seat.mode() == Mode.TAIL) {
+            var tails = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"));
+            var tail = tails[Math.min(seat.lane(), tails.length - 1)];
+            var point = new Vector3f((float) tail.x(), (float) tail.y(), (float) tail.z()).mul(scale / 16).rotateY(turn);
             return base.add(point.x, point.y, point.z);
         }
         var mouth = MouthPlacement.anchor(carrier).mul(scale / 16).rotateY(turn);
         var forward = new Vector3f(0, 0, -1).rotateY(turn);
         var across = new Vector3f(1, 0, 0).rotateY(turn);
         // Several babies are staggered across the mouth (and alternately a little forward) so they do not overlap.
-        int count = Math.max(1, carrier.passengerCount()), index = Math.max(0, carrier.passengerIndex(child.getUUID()));
+        int count = Math.max(1, seat.lanes()), index = seat.lane();
         double spacing = count < 2 ? 0 : Math.min(child.getBbWidth() * 1.05, carrier.getBbWidth() * .9 / (count - 1));
         double side = (index - (count - 1) / 2.0) * spacing;
         double reach = child.getBbWidth() * .25 + (index % 2) * child.getBbWidth() * .5;
@@ -103,13 +147,17 @@ public final class ParentCarry {
         return Mth.rotLerp(partial, carrier.previousBodyYaw(), carrier.bodyYaw()) + (mode == Mode.MOUTH ? 90 : 0);
     }
     /** Mouth carry closes the carrier's mouth on the child. */
-    public static boolean mouthCarrying(YukkuriView carrier) { return carryMode(carrier) == Mode.MOUTH; }
+    public static boolean mouthCarrying(YukkuriView carrier) {
+        if (!carrier.isVehicle()) return false;
+        for (var rider : carrier.passengerViews()) if (mode(carrier, rider) == Mode.MOUTH) return true;
+        return false;
+    }
 
     /** Seat used by the passenger position update: the raw seat pulled toward the carrier's own cell until the child fits. */
     public static Vec3 seat(YukkuriEntity carrier, YukkuriEntity child) {
         var mode = mode(carrier, child);
         // The client has already moved the carrier this tick: use its current pose (partial 1) so the child does not trail it.
-        var raw = rawSeat(carrier, child, mode, mode == Mode.HAT ? 0 : 1);
+        var raw = rawSeat(carrier, child, mode == Mode.HAT ? 0 : 1);
         if (mode == Mode.HAT) return raw;
         for (double t : new double[]{0, .35, .7, 1}) {
             var at = new Vec3(Mth.lerp(t, raw.x, carrier.getX()), raw.y, Mth.lerp(t, raw.z, carrier.getZ()));
@@ -144,23 +192,23 @@ public final class ParentCarry {
         if (!carrier.family().adult() || child.family().adult()) return "stage";
         if (carrier.profile().aquatic() || carrier.profile().houseBody() || carrier.profile().dangerToYukkuri()) return "carrier_kind";
         if (carrier.isPassenger()) return "carrier_boarded";
-        boolean multi = multi(carrier);
-        if (!multi) {
-            for (var rider : carrier.getPassengers()) if (rider != child) return "occupied";
-            if (!ongoing && !carrier.getPassengers().isEmpty()) return "occupied";
-        }
         if (child.isVehicle()) return "child_carrying";
         if (child.isPassenger() && child.getVehicle() != carrier) return "child_boarded";
         if (carrier.livePregnancyProgress() > 0) return "pregnant";
-        var mode = mode(carrier, child);
+        var seat = resolve(carrier, child);
         double ratio = volume(child) / Math.max(1e-6, volume(carrier));
-        switch (mode) {
+        switch (seat.mode()) {
             case HAT -> { if (!ongoing && full && !HatCarry.canSeat(carrier, child)) return "hat_seat"; }
-            case TAIL -> { if (ratio > .26 * strength(carrier)) return "too_big"; }
+            case TAIL -> {
+                // Two tails, one baby each; each tail takes a baby up to this share of the carrier's volume (project design).
+                if (seat.lane() >= TAIL_COUNT) return "occupied";
+                if (ratio > TAIL_BABY_FRACTION * strength(carrier)) return "too_big";
+            }
             case MOUTH -> {
                 if (ratio > .20 * strength(carrier)) return "too_big";
                 if (!mouthFree(carrier)) return "mouth_full";
-                if (multi) {
+                if (!multi(carrier)) { if (seat.lane() >= 1) return "occupied"; }
+                else {
                     // Babies already aboard (for a rider: those ahead of it in seat order) share the budget.
                     double load = volume(child);
                     int count = 1;
@@ -204,10 +252,9 @@ public final class ParentCarry {
     public static boolean mayEscort(YukkuriEntity parent, YukkuriEntity child) {
         return !needsCarry(child) || parent.family().carry().capable(child) || parent.hasPassenger(child);
     }
-    /** Escort preference for a baby that needs carrying: a Reimu who can take several, then any capable carrier, then none. */
+    /** Escort preference for a baby that needs carrying: how many more babies like it this parent can still take (0: none). */
     public static int carryRank(YukkuriEntity parent, YukkuriEntity child) {
-        if (!needsCarry(child) || !parent.family().carry().capable(child)) return 0;
-        return multi(parent) ? 2 : 1;
+        return needsCarry(child) ? parent.family().carry().room(child) : 0;
     }
     /**
      * A mouth-carrier with babies to carry keeps the mouth for them and packs no food: the mother always does; the father
@@ -225,18 +272,59 @@ public final class ParentCarry {
         return kids.size() > (mother == null ? 0 : mother.family().carry().seatsFor(kids));
     }
 
-    /** How many of these babies this carrier could hold at once from empty (a single carrier: one if it can hold any). */
-    int seatsFor(List<YukkuriEntity> kids) {
-        if (!multi(carrier)) return kids.stream().anyMatch(this::capable) ? 1 : 0;
-        double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier), load = 0;
-        int count = 0;
-        for (var kid : kids) {
-            if (count >= MAX_MOUTH_BABIES || !capable(kid) && !carrier.hasPassenger(kid)) continue;
-            if (load + volume(kid) > budget) continue;
-            load += volume(kid);
-            count++;
+    /** Babies like {@code child} this carrier could take from now on, this one included: 0 if it cannot take it. */
+    int room(YukkuriEntity child) {
+        if (!capable(child)) return 0;
+        var seat = resolve(carrier, child);
+        switch (seat.mode()) {
+            case TAIL: return Math.max(0, TAIL_COUNT - seat.lane());
+            case HAT: {
+                // Add copies of this baby behind the current riders until the brim has no more room.
+                var ids = new ArrayList<String>();
+                var ratios = new ArrayList<Double>();
+                for (var rider : carrier.passengerViews()) { ids.add(rider.assetId()); ratios.add(size(rider) / size(carrier)); }
+                int base = ids.size();
+                for (int k = 0; k < 6; k++) { ids.add(child.assetId()); ratios.add(size(child) / size(carrier)); }
+                var dz = HatCarry.layout(carrier.assetId(), ids, ratios);
+                int fit = 0;
+                for (int i = base; i < dz.length; i++) if (!Double.isNaN(dz[i])) fit++;
+                // A baby that does not fit the brim can still take the free mouth.
+                return Math.max(1, fit);
+            }
+            default: {
+                if (!multi(carrier)) return 1;
+                double load = 0;
+                for (var rider : carrier.getPassengers()) if (rider instanceof YukkuriEntity other) load += volume(other);
+                double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier);
+                int byVolume = (int) Math.floor((budget - load) / Math.max(1e-6, volume(child)));
+                return Math.max(1, Math.min(byVolume, MAX_MOUTH_BABIES - carrier.getPassengers().size()));
+            }
         }
-        return count;
+    }
+
+    /** How many of these babies this carrier could hold at once from empty (father's share of carrying is what is left). */
+    int seatsFor(List<YukkuriEntity> kids) {
+        if (multi(carrier)) {
+            double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier), load = 0;
+            int count = 0;
+            for (var kid : kids) {
+                if (count >= MAX_MOUTH_BABIES || !capable(kid) && !carrier.hasPassenger(kid)) continue;
+                if (load + volume(kid) > budget) continue;
+                load += volume(kid);
+                count++;
+            }
+            return count;
+        }
+        if (carrier.getVariant() == YukkuriVariant.CHEN) return Math.min(TAIL_COUNT, (int) kids.stream().filter(this::capable).count());
+        if (HatCarry.hasHat(carrier) && carrier.hasVisibleAccessory()) {
+            var ids = new ArrayList<String>();
+            var ratios = new ArrayList<Double>();
+            for (var kid : kids) { ids.add(kid.assetId()); ratios.add(size(kid) / size(carrier)); }
+            int fit = 0;
+            for (double z : HatCarry.layout(carrier.assetId(), ids, ratios)) if (!Double.isNaN(z)) fit++;
+            return fit + (fit < kids.size() && mouthFree(carrier) ? 1 : 0);
+        }
+        return kids.stream().anyMatch(this::capable) ? 1 : 0;
     }
 
     // ------------------------------------------------------------------------------------------ pick-up (server)
@@ -252,7 +340,7 @@ public final class ParentCarry {
         return out;
     }
     /** The mouth is taken by a child, so mash feeding and food packing cannot use it. */
-    public boolean mouthBusy() { var c = carried(); return c != null && mode(carrier, c) == Mode.MOUTH; }
+    public boolean mouthBusy() { return mouthCarrying(carrier); }
 
     private boolean blocked(YukkuriEntity child) {
         var hold = holds.get(child.getUUID());
@@ -395,7 +483,7 @@ public final class ParentCarry {
         if (carrier.isPanicking()) return "carrier_panic";
         if (purpose != Purpose.MANUAL) {
             if (life.isSleeping()) return "carrier_sleeping";
-            if (life.mealTicks() > 0 && mode(carrier, first) == Mode.MOUTH) return "carrier_eating";
+            if (life.mealTicks() > 0 && mouthBusy()) return "carrier_eating";
             if (life.hasUrgentNeed() && !carrier.settlement().marchTiredOnly()) return "carrier_need";
         }
         if (carrier.operations().active()) return "operation";

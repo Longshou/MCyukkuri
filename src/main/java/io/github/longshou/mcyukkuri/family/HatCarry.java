@@ -56,14 +56,76 @@ public final class HatCarry {
         }
         return true;
     }
+    private static boolean obstacleHit(JsonObject hat,JsonObject child,double[] seat,double z,double ratio){
+        for(var raw:child.getAsJsonArray("parts")){
+            double[] part=values(raw.getAsJsonArray());
+            for(var obstacle:hat.getAsJsonArray("obstacles")){
+                double[] box=values(obstacle.getAsJsonArray());boolean overlap=true;
+                double[] at={seat[0],seat[1],z};
+                for(int k=0;k<3;k++)if(at[k]+part[k+3]*ratio<=box[k]+.005||at[k]+part[k]*ratio>=box[k+3]-.005){overlap=false;break;}
+                if(overlap)return true;
+            }
+        }
+        return false;
+    }
+    private static final java.util.Map<String,double[]> LAYOUTS=new java.util.concurrent.ConcurrentHashMap<>();
+    /**
+     * Seats of several children on one brim, in boarding order: each child takes the first spot along the brim lip where its
+     * real foot box lies inside the support area, clears the crown and does not overlap the children before it; the group
+     * is then centred on the lip. Entry i is the child's seat offset along z (model units, from the authored seat), or NaN
+     * when it does not fit. Pure geometry, so server and client agree (project design for the packing order and gap).
+     */
+    public static double[] layout(String hatId,java.util.List<String> childIds,java.util.List<Double> ratios){
+        var key=new StringBuilder(hatId);
+        for(int i=0;i<childIds.size();i++)key.append('|').append(childIds.get(i)).append(':').append(Math.round(ratios.get(i)*1000));
+        var cached=LAYOUTS.get(key.toString());if(cached!=null)return cached;
+        int n=childIds.size();double[] out=new double[n];java.util.Arrays.fill(out,Double.NaN);
+        var hat=shape(hatId);
+        if(hat!=null&&n>0){
+            double[] seat=values(hat.getAsJsonArray("seat")),support=values(hat.getAsJsonArray("support"));
+            double margin=hat.get("margin").getAsDouble(),zLow=support[2]+margin,zHigh=support[5]-margin,gap=.05;
+            var placed=new java.util.ArrayList<double[]>();double[] absolute=new double[n];
+            for(int i=0;i<n;i++){
+                var shape=GEOMETRY.getAsJsonObject("children").getAsJsonObject(childIds.get(i));
+                double ratio=Math.round(ratios.get(i)*1000)/1000.0;
+                if(shape==null||!Double.isFinite(ratio)||ratio<=0)continue;
+                double[] foot=values(shape.getAsJsonArray("foot"));
+                double x0=seat[0]+foot[0]*ratio,x1=seat[0]+foot[3]*ratio;
+                if(x0<support[0]+margin||x1>support[3]-margin)continue;
+                double low=zLow-foot[2]*ratio,high=zHigh-foot[5]*ratio;
+                if(high<low-1e-9)continue;
+                for(int step=0;;step++){
+                    double z=Math.min(high,low+step*.1);
+                    double z0=z+foot[2]*ratio,z1=z+foot[5]*ratio;boolean free=true;
+                    for(var other:placed)if(x0<other[1]-.02&&x1>other[0]+.02&&z0<other[3]+gap&&z1>other[2]-gap){free=false;break;}
+                    if(free&&!obstacleHit(hat,shape,seat,z,ratio)){
+                        placed.add(new double[]{x0,x1,z0,z1,i});absolute[i]=z;out[i]=z-seat[2];break;
+                    }
+                    if(z>=high)break;
+                }
+            }
+            if(!placed.isEmpty()){
+                double lowest=Double.MAX_VALUE,highest=-Double.MAX_VALUE;
+                for(var p:placed){lowest=Math.min(lowest,p[2]);highest=Math.max(highest,p[3]);}
+                double shift=((zHigh-highest)-(lowest-zLow))/2;boolean ok=Math.abs(shift)>1e-6;
+                for(var p:placed){
+                    int i=(int)p[4];
+                    if(ok&&obstacleHit(hat,GEOMETRY.getAsJsonObject("children").getAsJsonObject(childIds.get(i)),seat,absolute[i]+shift,Math.round(ratios.get(i)*1000)/1000.0))ok=false;
+                }
+                if(ok)for(var p:placed)out[(int)p[4]]+=shift;
+            }
+        }
+        if(LAYOUTS.size()>512)LAYOUTS.clear();
+        LAYOUTS.put(key.toString(),out);
+        return out;
+    }
     public static boolean canSeat(YukkuriEntity carrier,Entity passenger){
         if(!(passenger instanceof YukkuriEntity child)||carrier==child||!carrier.isAlive()||!child.isAlive()
                 ||carrier.level()!=child.level()||!carrier.family().adult()||child.family().adult()
-                ||!hasHat(carrier)||!carrier.life().hasAccessory()||carrier.isPassenger()||!carrier.getPassengers().isEmpty()
+                ||!hasHat(carrier)||!carrier.life().hasAccessory()||carrier.isPassenger()||carrier.hasPassenger(child)
                 ||child.isPassenger()||child.isVehicle()||carrier.isInWaterOrBubble()||child.isInWaterOrBubble()
                 ||carrier.operations().active()||child.operations().active())return false;
-        double ratio=child.growthScale()*child.getScale()/(carrier.growthScale()*carrier.getScale());
-        return fits(carrier.subspecies().assetId(),child.subspecies().assetId(),ratio)&&seatClear(carrier,child);
+        return ParentCarry.resolve(carrier,child).mode()==ParentCarry.Mode.HAT&&seatClear(carrier,child);
     }
     public static boolean pickUp(YukkuriEntity carrier,Player player){
         if(!(carrier.level() instanceof ServerLevel)||!CareMenu.valid(player,carrier)
@@ -89,9 +151,11 @@ public final class HatCarry {
         float yaw=carrier.level().isClientSide?Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
         return new Matrix4f().rotationY((180-yaw)*(float)Math.PI/180).mul(hatPose(carrier,partial)).setTranslation(0,0,0);
     }
-    public static Vec3 seatWorld(YukkuriView carrier,float partial){
+    public static Vec3 seatWorld(YukkuriView carrier,float partial){return seatWorld(carrier,partial,0);}
+    /** The brim seat moved {@code dz} along the lip (model units); several carried children each take their own. */
+    public static Vec3 seatWorld(YukkuriView carrier,float partial,double dz){
         var hat=shape(carrier.assetId());if(hat==null)return carrier.position();
-        var seat=values(hat.getAsJsonArray("seat"));var point=new Vector3f((float)seat[0],(float)seat[1],(float)seat[2]);
+        var seat=values(hat.getAsJsonArray("seat"));var point=new Vector3f((float)seat[0],(float)seat[1],(float)(seat[2]+dz));
         hatPose(carrier,partial).transformPosition(point);
         float yaw=carrier.level().isClientSide?Mth.rotLerp(partial,carrier.previousBodyYaw(),carrier.bodyYaw()):carrier.bodyYaw();
         point.mul(carrier.growthScale()*carrier.getScale()/16f).rotateY((180-yaw)*(float)Math.PI/180);
@@ -103,7 +167,7 @@ public final class HatCarry {
         if(geometry==null)return false;
         double[] bounds={Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE};
         for(var part:geometry.getAsJsonArray("parts")){var b=values(part.getAsJsonArray());for(int k=0;k<3;k++){bounds[k]=Math.min(bounds[k],b[k]);bounds[k+3]=Math.max(bounds[k+3],b[k+3]);}}
-        var rotation=riderRotation(carrier,0);var seat=seatWorld(carrier,0);
+        var rotation=riderRotation(carrier,0);var seat=seatWorld(carrier,0,ParentCarry.resolve(carrier,child).dz());
         double[] world={Double.MAX_VALUE,Double.MAX_VALUE,Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE,-Double.MAX_VALUE};
         for(int corner=0;corner<8;corner++){
             var point=new Vector3f((float)bounds[(corner&1)==0?0:3],(float)bounds[(corner&2)==0?1:4],(float)bounds[(corner&4)==0?2:5]).mul(child.growthScale()*child.getScale()/16);
@@ -131,18 +195,17 @@ public final class HatCarry {
     }
     public static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof YukkuriEntity carrier)||carrier.level().isClientSide||!hasHat(carrier)||!carrier.isVehicle())return;
-        var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return;
-        if(ParentCarry.mode(carrier,child)!=ParentCarry.Mode.HAT)return;
-        double ratio=child.growthScale()*child.getScale()/(carrier.growthScale()*carrier.getScale());
-        boolean unsafe=!carrier.isAlive()||!carrier.life().hasAccessory()||carrier.isInWaterOrBubble()||carrier.isOnFire()
-                ||carrier.operations().active()||child.family().adult()||!fits(carrier.subspecies().assetId(),child.subspecies().assetId(),ratio);
-        unsafe|=!seatClear(carrier,child);
-        if(unsafe){
-            // Set the child down where it sits (only nudged clear of blocks); the carrier then holds it off briefly before any re-lift.
-            carrier.family().carry().putDown("hat_unsafe",ParentCarry.HOLD_TICKS);
-            return;
+        for(var child:carrier.family().carry().riders()){
+            if(ParentCarry.resolve(carrier,child).mode()!=ParentCarry.Mode.HAT)continue;
+            boolean unsafe=!carrier.isAlive()||!carrier.life().hasAccessory()||carrier.isInWaterOrBubble()||carrier.isOnFire()
+                    ||carrier.operations().active()||child.family().adult()||!seatClear(carrier,child);
+            if(unsafe){
+                // Set the child down where it sits (only nudged clear of blocks); the carrier then holds it off briefly before any re-lift.
+                carrier.family().carry().putDown(child,"hat_unsafe",ParentCarry.HOLD_TICKS);
+                continue;
+            }
+            child.fallDistance=0;child.getNavigation().stop();
         }
-        child.fallDistance=0;child.getNavigation().stop();
     }
     private HatCarry(){}
 }

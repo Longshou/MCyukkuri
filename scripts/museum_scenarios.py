@@ -1694,7 +1694,7 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
 # The same real households and stores, with dependent crawling infants as an explicit initial condition.
 _migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
-       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙托在帽檐、橙用尾托、其余叼在嘴里，一次一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
+       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙托在帽檐上，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
        '约3–6分钟', [
            'tag @e[type=#mcylab:yukkuri,nbt={YukkuriFamily:{Stage:"JUVENILE"}},distance=..45] add scn_migrant_baby',
            f'yukkuri status set {_migrant_babies} growth.age_ticks 36000',
@@ -1704,7 +1704,7 @@ colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
            f'yukkuri status set {_migrant_babies} needs.nutrition 40',
            Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site,
-       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup mode= purpose=MIGRATE），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，同一亲油一次只抬一只（灵梦可口含多只，逐只接起、座位沿嘴前错开），多出的孩子等另一位亲油，没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。承托姿态只是基础座位，细姿态待演出包。',
+       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup mode= purpose=MIGRATE），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只各有座位，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。承托姿态只是基础座位，细姿态待演出包。',
        reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),

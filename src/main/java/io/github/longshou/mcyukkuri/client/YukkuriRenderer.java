@@ -98,7 +98,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var rockingHat=boat!=null?boat:hatParent!=null?hatParent.vehicleHat():null;
             if(rockingHat!=null)HatBoatMotion.rider(pose,entity,rockingHat,partialTick);
             if(hatParent!=null){
-                var offset=HatCarry.seatWorld(hatParent,partialTick).subtract(entity.getPosition(partialTick));
+                var offset=ParentCarry.rawSeat(hatParent,entity,partialTick).subtract(entity.getPosition(partialTick));
                 pose.translate(offset.x,offset.y,offset.z);
                 pose.mulPose(HatCarry.riderRotation(hatParent,partialTick));
             }else {

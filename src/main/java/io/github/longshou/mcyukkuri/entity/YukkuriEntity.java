@@ -69,6 +69,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -258,12 +259,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int deathTicks() { return deathTime; }
     public int vehicleId() { return getVehicle() == null ? -1 : getVehicle().getId(); }
     public YukkuriView vehicleYukkuri() { return getVehicle() instanceof YukkuriView view ? view : null; }
-    public int passengerIndex(UUID passenger) {
-        var riders = getPassengers();
-        for (int i = 0; i < riders.size(); i++) if (riders.get(i).getUUID().equals(passenger)) return i;
-        return -1;
+    public List<YukkuriView> passengerViews() {
+        var out = new ArrayList<YukkuriView>();
+        for (var rider : getPassengers()) if (rider instanceof YukkuriView view) out.add(view);
+        return out;
     }
-    public int passengerCount() { return getPassengers().size(); }
     public YukkuriView carriedYukkuri() { return getFirstPassenger() instanceof YukkuriView view ? view : null; }
     public HatBoatView vehicleHat() {
         return getVehicle() instanceof HatBoatView view ? view : null;
