@@ -27,7 +27,7 @@ PR 产物对应合并提交 SHA。失败用 `gh run view <id> --log-failed` 查�
 <python> scripts/update_museum_runtime.py --run <该提交成功的 Build run ID>
 ```
 
-需要 `git`、已登录的 `gh` 和现有 `.local/experimental-map/museum-runtime.json`。脚本要求 CI 与当前提交一致，从同一提交恢复资源并核对哈希，保留原运行包后切换配置；不编译、不启动游戏。更新后仍用原 `.cmd` 启动。每次切换将背景音乐设为静音，保留其他音量设置；旧 options 随运行包回执备份，新建试玩场也默认音乐静音。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置；不一致时停止并提示更新 CI 包，避免新版场景搭配旧版模组。仅文档或未导出的美术源变化不阻止启动。
+需要 `git`、已登录的 `gh` 和现有 `.local/experimental-map/museum-runtime.json`，运行包须位于 `.local/setup/runtime-*`。脚本要求 CI 与当前提交一致，从同一提交恢复资源并核对哈希，切换配置并回读成功后删除原运行包及本次下载目录，不保留旧包、旧配置或 options 备份；切换前失败不删除原运行包。不编译、不启动游戏，更新后仍用原 `.cmd` 启动。每次切换将背景音乐设为静音，保留其他音量设置；新建试玩场也默认音乐静音。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置；不一致时停止并提示更新 CI 包，避免新版场景搭配旧版模组。仅文档或未导出的美术源变化不阻止启动。
 
 ## 试玩场
 
@@ -99,4 +99,4 @@ PR 产物对应合并提交 SHA。失败用 `gh run view <id> --log-failed` 查�
 
 生成文件冲突先合并制作源再重建：动作源包括 `motions/variants/lore/recipe.json`、`author.py`、`motion_corrections.json`，再执行对应导出器；语言按键合并，台词按行 ID 合并后运行 `export_dialogue.py`。只重建受影响输出。
 
-标准制作源、选用快照和运行资源分工见[素材流向](README.md#素材从制作到游戏)；标准更新不自动替换游戏快照。清理 `.local/setup/` 的 `runtime-*`、`ci-*` 前，核对运行配置、进程与待回退包，只删不再引用的产物。
+标准制作源、选用快照和运行资源分工见[素材流向](README.md#素材从制作到游戏)；标准更新不自动替换游戏快照。清理 `.local/setup/` 的 `runtime-*`、`ci-*` 前，核对运行配置与进程，只删不再引用的产物。

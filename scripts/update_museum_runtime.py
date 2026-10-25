@@ -1,4 +1,4 @@
-"""Install a successful CI runtime for this checkout, preserving the previous playground runtime.
+"""Install a successful CI runtime for this checkout, removing the previous runtime after switching.
 
 Run with the playground closed: python scripts/update_museum_runtime.py --run <GitHub run ID>
 Requires git, gh, and an existing museum-runtime.json with a prepared NeoForge runtime. Never compiles or starts the game.
@@ -122,8 +122,8 @@ def main():
     original_config = CONFIG.read_bytes()
     config = json.loads(original_config.decode('utf-8-sig'))
     old_runtime = (ROOT / config['runtime']).resolve()
-    if not old_runtime.is_relative_to((ROOT / '.local').resolve()):
-        parser.error('The existing prepared runtime must be inside this repository .local directory.')
+    if old_runtime.parent != (ROOT / '.local/setup').resolve() or not old_runtime.name.startswith('runtime-'):
+        parser.error('The existing prepared runtime must be a runtime-* directory directly inside .local/setup.')
     bootstrap = ('clientRunClasspath.txt', 'clientRunVmArgs.txt', 'clientRunProgramArgs.txt')
     if not all((old_runtime / name).is_file() for name in bootstrap):
         parser.error('The existing NeoForge runtime is incomplete; prepare its dependencies first.')
@@ -160,12 +160,9 @@ def main():
     require_closed()
     if CONFIG.read_bytes() != original_config:
         raise ValueError('Playground configuration changed during preparation; the new runtime is preserved but not selected.')
-    shutil.copy2(CONFIG, update / 'previous-museum-runtime.json')
     # launch_museum.ps1 uses this fixed game root, even for older configs whose game field is stale.
     options = ROOT / '.local/experimental-map/museum/options.txt'
     options.parent.mkdir(parents=True, exist_ok=True)
-    if options.exists():
-        shutil.copy2(options, update / 'previous-options.txt')
     lines = options.read_text(encoding='utf-8-sig').splitlines() if options.exists() else []
     lines = [line for line in lines if not line.startswith('soundCategory_music:')]
     lines.append('soundCategory_music:0.0')
@@ -177,8 +174,11 @@ def main():
     readback = read_json(CONFIG)
     if readback['commit'] != commit or (ROOT / readback['runtime']).resolve() != new_runtime.resolve():
         raise ValueError('Runtime configuration readback did not match the installed runtime.')
+    # Delete only the validated previous runtime after the new configuration has been read back.
+    shutil.rmtree(old_runtime)
+    shutil.rmtree(update)
     print(f'Installed CI runtime {commit}; verified {len(manifest["resources"])} resources.')
-    print(f'Previous runtime preserved: {old_runtime}')
+    print(f'Previous runtime removed: {old_runtime}')
     print('Background music muted; other sound categories preserved.')
     print('Launch with 启动动作博物馆.cmd. In-game behavior still needs your playthrough.')
 
