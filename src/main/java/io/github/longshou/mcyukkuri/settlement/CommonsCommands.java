@@ -98,7 +98,8 @@ public final class CommonsCommands {
                 .append(" outcome ").append(record.getString("Outcome")).append(" ticks ").append(record.getLong("Ended") - record.getLong("Called")).append('\n');
         var pressure = Migration.pressure(level, group, leader(level, group));
         out.append("migration ").append(group.migrateTo == null ? "settled" : Migration.phase(group, now).name().toLowerCase(Locale.ROOT)
-                        + " to " + group.migrateTo.toShortString() + " reason " + c.migrateReason)
+                        + " to " + group.migrateTo.toShortString() + " reason " + c.migrateReason
+                        + " vanguard " + id(group.migrateVanguard) + " pivot_arrived " + (group.migrateArrivedAt == 0 ? "-" : (now - group.migrateArrivedAt) + " ago"))
                 .append(c.settledUntil > now ? " settling " + (c.settledUntil - now) : "").append(" threat ").append(group.threat)
                 .append(" deaths ").append(c.deaths.size()).append('\n');
         out.append("pressure now ").append(pressure.text()).append(" main ").append(pressure.main()).append('\n');

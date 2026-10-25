@@ -12,7 +12,6 @@
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
-| 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
 | 油库里互挡绕行与可推动 | `.worktrees/yukkuri-avoid` | `entity/YukkuriGroundNavigation.java`、`entity/YukkuriControl.java`、`entity/YukkuriEntity.java`（推挤／碰撞段）、`entity/RoamingGoal.java` |
 | 嗯嗯落块容量、嗯嗯奴隶与坑边排泄 | `.worktrees/poop-block` | 排泄物放置与新嗯嗯方块（`item/`、`registry/`、排泄相关 `life/` 段）、`settlement/SettlementSociety` 嗯嗯奴隶段、`scripts/museum_scenarios.py` 聚落嗯嗯坑场景、排泄与聚落所属专题 |
 
@@ -20,7 +19,7 @@
 
 ### 复测失败/待修复
 
-- **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 出现幼油饿停、住所仍指旧窝、重复献身与批量死亡。统一修正行军资格、真实亲代运输、饥饿让位、觅食喂养和脱队寻回；新规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)及[子代移动边界](CHILDHOOD_LIFECYCLE.md#子代移动与亲代运输)。各运行版本、现象、现有接线与最短完成标准只在[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)维护；运输演出并入演出包。
+- **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 出现幼油饿停、住所仍指旧窝、重复献身与批量死亡。统一修正行军资格、真实亲代运输、饥饿让位、觅食喂养和脱队寻回；新规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)及[子代移动边界](CHILDHOOD_LIFECYCLE.md#子代移动与亲代运输)。各运行版本、现象、现有接线与最短完成标准只在[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)维护（含 ac4ba87b 暴露的先锋、新址自建与途中卡住，已接入待试玩）；运输演出并入演出包。
 
 ### 家庭、繁殖与照护
 
@@ -106,13 +105,19 @@
 
 ### 日志问题 1：群体迁徙断粮与连锁死亡（陆 33）
 
-**状态：复测失败。** 场景：群系聚落 `colony_migrate`。首次观察：2026-10-20，2026-10-21 登记。运行版本：[c235e18977a28e30e2fc55254c561ebfad44b245](https://github.com/Longshou/MCyukkuri/commit/c235e18977a28e30e2fc55254c561ebfad44b245)，[CI run 39427119109](https://github.com/Longshou/MCyukkuri/actions/runs/39427119109)，取自当时的 `museum-runtime.json`；现场后期开启 5 倍速。事件来源：本机 `.local/experimental-map/play-museum/20261020-224823.log`，另对照同轮暂停保存的实体数据；保存快照不是连续逐 tick 跟踪。
+**状态：复测失败（断粮、亲代运输、亲油照护各行）；先锋、新址自建与途中卡住一行已接入待试玩。** 场景：群系聚落 `colony_migrate`。首次观察：2026-10-20，2026-10-21 登记。运行版本：[c235e18977a28e30e2fc55254c561ebfad44b245](https://github.com/Longshou/MCyukkuri/commit/c235e18977a28e30e2fc55254c561ebfad44b245)，[CI run 39427119109](https://github.com/Longshou/MCyukkuri/actions/runs/39427119109)，取自当时的 `museum-runtime.json`；现场后期开启 5 倍速。事件来源：本机 `.local/experimental-map/play-museum/20261020-224823.log`，另对照同轮暂停保存的实体数据；保存快照不是连续逐 tick 跟踪。
 
 **已确认的现象**
 
 - 多轮出现幼油断粮与亲油献身。23:39 一轮有 4 只成体献身死亡、3 只幼油饿死，出现双亲几乎同时献给同一个孩子；23:53:14 重开的一轮，截至 23:56:26 有 6 只幼油饿死、2 只成体献身死亡，族长帕琪也饿死。死亡并非都发生在安家之后：23:54:48 同时饿死的 5 只幼油距新址仍约 36–48 格。
 - 23:47 一轮死亡前快照中，两只幼油已到新址附近，营养 22、行为 `idle`，住所仍指旧窝；其双亲已认领新窝、营养均为 82。这两只幼油随后于 23:49:42 饿死。
 - 后续反应确有发生：献身记录为 `offering → core hurt`；孩子实际吃到受赠遗体，两个受赠孩子后来进入非油症，23:56:30 其中一个触发 3 名执行者的 `non_yukkuri` 制裁流程。此记录不代表族长主持审判，也不能证明已完成全部制裁动作。
+
+- ac4ba87b 复测（2026-10-25 22:02–22:10，运行版本 [ac4ba87b6207183f67222d1da335c74564a321b6](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b6207183f67222d1da335c74564a321b6)，[CI run 40196337976](https://github.com/Longshou/MCyukkuri/actions/runs/40196337976)；原生日志副本 `.local/experimental-map/play-museum/20261025-211412-264.log`，`logs/latest.log` 已被下一次启动覆盖）：【族规·迁徙】两轮（22:02、22:05）均 `migrate_failed reason deadline phase MARCH elapsed 7211／7213`，【迁徙·赤油跟亲】22:09 只到议事阶段就结束，无读数。
+  - 领队：族长帕琪（体弱，疲劳系数 1.25）走在最前，第二轮部分成员的 `march route accepted` 目标是族长当时的位置（`-733,64,478`，距目标约 13 格），族长因体力 24→8 被 `urgent_need` 拒绝而停下，随队者停在她身边等待。
+  - 到达后没有一只成员在新址认屋：整个日志里 `settled` 到 -720 的记录为 0，没有新址的 `home chosen`；成员几乎都在 -721～-713 抵达（`march stopped` 距离 ≈2），释放旧窝（`home released`）后只见部分成员（含幼油与第二轮的爱丽丝）重复 `settle waiting reason=no_home`，其余连这条日志都没有，也没有 `settled`；成年与否未逐只核对。认屋搜索只在行走 Goal 被选中且离目标 8 格内才推进一小步，成员闲逛、觅食或被 `urgent_need`（体力<25）拦住后离开广场又被 `march route accepted` 拉回，直到超时。
+  - 超时后旧窝已释放，成员 `regroup route accepted` 折返约 64 格；途中每名成员数百次 `settlement goal refused ... reason=urgent_need`（营养 70–90、体力 24→9，suppressed 485–600），`march stopped` 在 elapsed 400 处被切断；约 1200–2000 tick 后少数成员 `home chosen old=null` 回到旧窝，其余到日志结束仍停在 x=-766～-739。
+  - 新址与旧址之间的成员数、先锋与族长距离、已安顿数在原日志里没有记录；新日志已补（见下）。
 
 **待修复与待核实**
 
@@ -121,6 +126,7 @@
 | 饥饿、迁徙安置与取食互相阻塞 | 原故障中 `SettlementLife` 在营养低于 30 等急需时拒绝迁徙与归队；待复测接线仅放行新址附近的单一饥饿安置。`HabitatLife`、`ForageTrip` 在个人尚未安置时暂停住所取食和外出觅食。成体可吃迁徙携粮，幼油不携粮。代码与上述快照吻合；族长本轮饿死的具体阻塞尚缺读数，不直接归入同一原因。 | 同场景达到已确定的行军饥饿阈值后，迁徙让位于实际可执行的觅食、补给或安置路径；幼油能继续抵达、住所切到新窝、取食后营养回升，不再因两条限制互卡而持续 `idle` 至死。族长若仍饿停，补齐当时实际 Goal、安置阶段与粮源读数再修。 |
 | 亲油照护与献身衔接失衡 | 迁徙 Goal 优先级 4 高于家庭照护 5；找走散孩子范围 16 格、喂养搜索 12 格；原故障中携带迁徙粮会阻止普通喂养启动，献身优先级 2 且仅以附近掉落食物判断有无粮。待复测接线已加入行军让位、口粮交接与真实救助机会／重复献身判定，需按下列读数验证。普通照护未逐次打日志，不能把每只亲油的不救助都判为同一原因；友善决策失败与物理阻塞应区分。 | 有意愿且条件允许的亲油能接上寻回、真实粮食交接与喂养；食物来源和消耗可核对。可用食物或已生效救助不会被误判为绝境，避免双亲对同一孩子重复献身；保留真实缺粮和性格决策，不保证每次救助成功。 |
 | 赤油行军资格与亲代运输 | 现有迁徙允许赤油爬行跟亲，未接入按品种承托的完整运输链；极饿越界取食也与新离巢边界冲突。 | `colony_migrate`、`colony_migrate_babies` 核对实际接起、途中承托与放下、同一实体／亲缘／住所，赤油不自行出巢随迁；子油可真实步行跟随，行动不便时走运输。保存重载和中断不复制、不瞬移；配合 `infant_starvation` 核对极饿不越界。 |
+| 先锋、新址自建与途中卡住（ac4ba87b） | 已接入待试玩。行军由先锋（有魔理沙时魔理沙，体弱者最后）先行，其余约 160 tick 后出发，不再停在族长身后；仅疲劳（体力 12–25）不再拦住行军；认屋搜索改由成员自己的 tick 推进并在目标 24 格内持续，不依赖行走 Goal；规划站点认领不到窝时，成年成员可在新址 16 格内按普通挖洞规则自己刨窝；天然选址不再要求现成洞穴，9 格内有可刨的软土坡面即可；先锋或族长到达后另给 6000 tick 安家，到达判定以先锋为准。 | `colony_migrate`：读“迁徙与压力”看 `vanguard`、`pivot_arrived`；读“全体成员安置”看 `identity.settlement_detail` 的 `result`／`vanguard`、`home.pos` 是否变到 -720 附近；日志看 `migration vanguard`（选了谁）、`migration pivot arrived`、`settle started`、`settled`、`site settle found no home`（空位／被占／放置失败／拒绝认领计数）和 `migrate_failed` 末尾的 members／near／settled／unsettled_near 与先锋、族长距离。通过：先锋先到；多数成员在新址 `settled` 并有新的 `home.pos`；`migrate_done` 后中心改为目标；失败时原因能由计数读出，折返的成员不再长时间卡在半路。若空位不足或放置失败计数仍高，补读当时实际阶段再修，不以停用能力或强制到位掩盖。 |
 | 群落对途中危机的响应缺口 | 原完成条件仅要求族长与至少半数已加载参与者到达，待复测接线增加已加载依赖子代的实际新家交接，其余成员仍依赖归队；途中暂停公共狩猎与例行分粮。死亡会计入迁徙压力，但没有直接接上停队、送粮或救援；完成迁徙清除此前死亡记录并进入两天安顿期。上述为代码行为，现场是否已记 `migrate_done`、如何盘粮及如何响应死亡尚需群落读数；不能将普通日志无记录写成“群落完全没反应”。 | 结合现有族规确定途中缺粮、掉队和安顿期死亡如何响应，接回真实物资与现有行为链；读数能区分集体迁徙结束和个人尚未安置，并显示存活掉队者、粮食与死亡压力的处理结果，不以中心已变或仅触发制裁算通过。 |
 
 **当前接线与缺口**：已有行军让位于寻回／喂养、迁徙口粮分出一份进入嚼糜和接触交接、近身子代在亲代认屋后继承新窝，以及新址饥饿安置接线。赤油当前仍会沿爬行／跟亲路径随迁，极饿搜索也可能越界，须改成已定的亲代运输与离巢限制；更高饥饿容忍、降行军优先级后真实觅食、幼体请求驱动亲油找粮及掉队交接仍需连成完整链。规则只在[所属专题](SETTLEMENTS.md#运输补给与掉队)维护。原失败状态保留，不能因已有兜底或运输准备完成算通过；群落危机响应仍待核实。

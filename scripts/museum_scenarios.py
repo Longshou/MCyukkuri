@@ -1643,11 +1643,11 @@ colony('colony_judge', '族规·审判', '族规审判',
 _mx, _mz = BIOMES.spots['plains']
 _migration_site = [*BIOMES.plains_site(_mx + 64, _mz), 'yukkuri settlement site vacant village ~64 ~ ~']
 colony('colony_migrate', '族规·迁徙', '族群迁徙',
-       '族长决定迁徙：讨论 30 秒→准备 30 秒→前往东侧 64 格外的真实空聚落，抵达者认领新窝、存放携粮；掉队者继续赶往新址',
-       '约 2–4 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
+       '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就自己挖；掉队者继续赶往新址',
+       '约 2–5 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site,
-       note='观察实际行走和新窝，读数核对中心、目的地与成员住所。行军超时且未到达会记失败，中心不会直接跳到新址。',
-       reads=[('读迁徙与压力', 'yukkuri settlement rules'),
+       note='观察先锋是否先到、其余成员是否不再停在族长身后，以及抵达后是否留在新址认屋而不是折回旧址。读数核对先锋、中心、目的地与成员住所（identity.settlement_detail 的 result／vanguard）。行军超时且未到达会记失败（日志 migrate_failed 附到达数与已安顿数），中心不会直接跳到新址。',
+       reads=[('读迁徙与压力（含先锋）', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')])

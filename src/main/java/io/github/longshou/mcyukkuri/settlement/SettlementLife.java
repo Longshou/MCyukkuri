@@ -43,9 +43,11 @@ public final class SettlementLife {
     /** The real calm-water berth currently held by a settlement migration or regroup route. */
     private BlockPos afloatTarget;
     private int wait, elapsed, navigationRetry;
+    /** Ticks until the next arrival home search; settling is driven from {@link #tick()}, not from the walking Goal. */
+    private int settleWait;
     private BlockPos searchDestination;
     private long navigationGeneration;
-    private long greeted = -1, arrivedFor = -1;
+    private long greeted = -1;
     /** Last outcome of the bounded settlement search; transient like its search cursor. */
     private Result settlementResult;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
@@ -132,7 +134,7 @@ public final class SettlementLife {
                 : settlementResult == Result.NOT_FOUND ? "home:" + wait : "none";
         return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
                 + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
-                + " retry=" + retry + " phase=" + phase + " migration_care=" + entity.family().migrationCareActive()
+                + " retry=" + retry + " phase=" + phase + " vanguard=" + (group != null && Migration.isVanguard(entity, group)) + " migration_care=" + entity.family().migrationCareActive()
                 + " water_ration=" + waterRationDetail();
     }
     private static String position(GlobalPos value) {
@@ -208,6 +210,7 @@ public final class SettlementLife {
         var group = group();
         if (group == null) return;
         SettlementTicker.submit(entity, group);
+        driveSettling(group);
         if(entity.tickCount%20==0&&!Migration.moving(group)&&!Migration.afloat(group)
                 &&entity.childhood().shouldStayWithParents()&&!settledAt(group.center))
             settleWithMigratingParent(group,group.center);
@@ -263,7 +266,7 @@ public final class SettlementLife {
         String blocked = entity.independence().householdOuting() ? "independence"
                 : entity.wintering().active() ? "wintering" : society.role() == SettlementData.Role.OUTCAST ? "outcast"
                 : entity.isPanicking() ? "panic" : entity.isCommandPlaying() ? "command"
-                : entity.life().hasUrgentNeed() && !(settlingAtTarget && nutritionOnlyUrgent()) ? "urgent_need" : entity.life().mealTicks() > 0 ? "meal"
+                : urgentBlocks(settlingAtTarget) ? "urgent_need" : entity.life().mealTicks() > 0 ? "meal"
                 : entity.life().isSleeping() ? "sleep" : entity.isInWaterOrBubble() ? "water" : null;
         if (blocked != null) {
             var blockedGroup = group();
@@ -352,6 +355,23 @@ public final class SettlementLife {
             destination = group.center;
         }
         return entity.distanceToSqr(Vec3.atBottomCenterOf(destination)) <= 8 * 8;
+    }
+
+    /**
+     * Plain tiredness (energy 12 to 25) does not stop a migrant that is still walking: it keeps going and rests in place at the
+     * next stop. Hunger, a full bladder, wetness, water and fire still do, and below 12 it has to sleep.
+     */
+    private boolean tiredOnlyUrgent() {
+        var life = entity.life();
+        return life.energy() < 25 && life.energy() >= 12 && life.nutrition() >= 30
+                && (life.bladder() < 90 || life.constipated())
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && life.wetness() <= 40;
+    }
+
+    private boolean urgentBlocks(boolean settlingAtTarget) {
+        if (!entity.life().hasUrgentNeed()) return false;
+        if (settlingAtTarget && nutritionOnlyUrgent()) return false;
+        return !(Migration.underway(entity) && tiredOnlyUrgent());
     }
 
     /** The destination handoff may proceed through hunger alone, never through fatigue, toilet, wetness, water or fire. */
@@ -485,19 +505,18 @@ public final class SettlementLife {
         double distance = entity.distanceToSqr(goal);
         // A resident already assigned to this destination may walk to its new home outside the plaza radius.
         if (settledAt(site)) return false;
-        if (distance <= 8 * 8) {
-            if (arrivedFor != group.migrateSince) {
-                if (settleAt(site) == Result.FOUND) arrivedFor = group.migrateSince;
-            }
+        // At the destination the home search runs from tick() (driveSettling); the Goal only walks.
+        if (distance <= 8 * 8) return false;
+        // The vanguard leaves first; the rest follow after a short head start. Nobody waits for the leader: a frail leader
+        // trails behind as an ordinary straggler instead of holding the whole column.
+        var scout = Migration.vanguard(level(), group);
+        if (scout != null && scout != entity
+                && now < group.migrateSince + Migration.DISCUSS_TICKS + Migration.PREPARE_TICKS + Migration.VANGUARD_HEAD_START
+                && entity.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 14 * 14) {
+            wait = 20;
             return false;
         }
         BlockPos destination = site;
-        if (group.leader != null && !group.leader.equals(entity.getUUID())
-                && level().getEntity(group.leader) instanceof YukkuriEntity chief && chief.isAlive() && group.id.equals(chief.settlement().groupId())
-                && chief.distanceToSqr(goal) > distance + 36) {
-            if (entity.distanceToSqr(chief) <= 36) return false;
-            destination = chief.blockPosition();
-        }
         wait = 40;
         if (navigateToward(destination)!=Result.FOUND) return false;
         target = destination;
@@ -622,10 +641,7 @@ public final class SettlementLife {
     }
 
     private boolean regroup(SettlementData.Group group, double distance) {
-        if (distance <= 8 * 8) {
-            settleAt(group.center);
-            return false;
-        }
+        if (distance <= 8 * 8) return false; // the home search runs from tick() (driveSettling)
         if (distance > 96 * 96 && !returnEligible() || navigateToward(group.center)!=Result.FOUND) return false;
         target = group.center;
         elapsed = 0;
@@ -685,6 +701,44 @@ public final class SettlementLife {
         }
     }
 
+    /**
+     * Where this member should be running its arrival home search, or null. Settling is a bounded multi-slice search over the
+     * destination's homes (or its soil faces); it must not depend on the walking Goal being selected, or any wander, meal
+     * or tiredness would interrupt it and push the member back out of the plaza radius.
+     */
+    private BlockPos settleTarget(SettlementData.Group group) {
+        if (Migration.afloat(group) || entity.isPassenger() || entity.isPanicking() || entity.isCommandPlaying()) return null;
+        BlockPos site;
+        if (Migration.moving(group)) {
+            if (group.migrateTo == null || Migration.phase(group, level().getGameTime()) != Migration.Phase.MARCH) return null;
+            site = group.migrateTo;
+            if (settledAt(site) || !Migration.joins(entity, group)) return null;
+        } else {
+            if (!straggler(group)) return null;
+            site = group.center;
+        }
+        if (!level().hasChunkAt(site)) return null;
+        int reach = settlingAt != null && settlingAt.pos().equals(site) ? 24 : 8;
+        return entity.distanceToSqr(Vec3.atBottomCenterOf(site)) <= reach * reach ? site : null;
+    }
+
+    /** A positive answer while the member has arrived, released its old address and found no home yet. */
+    public BlockPos arrivalSite() {
+        var group = group();
+        if (group == null || settlementResult != Result.NOT_FOUND || settlingAt == null) return null;
+        var site = settleTarget(group);
+        return site != null && entity.distanceToSqr(Vec3.atBottomCenterOf(site)) <= 24 * 24 ? site : null;
+    }
+
+    private void driveSettling(SettlementData.Group group) {
+        if (settleWait > 0) { settleWait--; return; }
+        if (entity.tickCount % 5 != 0) return;
+        var site = settleTarget(group);
+        if (site == null) return;
+        var result = settleAt(site);
+        settleWait = result == Result.DEFERRED ? 10 : result == Result.NOT_FOUND ? SETTLEMENT_RETRY_TICKS : 0;
+    }
+
     private Result settleAt(BlockPos site) {
         var arrival=GlobalPos.of(entity.level().dimension(), site);
         if(!arrival.equals(settlingAt)&&!arrival.equals(origin)) {
@@ -696,6 +750,9 @@ public final class SettlementLife {
                 settlingAt=arrival;
                 entity.habitat().release();
             }
+            GameplayLog.event(entity,"settlement","settle started group={} destination={} origin={} independent={} nutrition={} energy={}",
+                    groupId,arrival,origin,entity.family().adult()||entity.family().readyForOwnNest(),
+                    entity.life().nutrition(),entity.life().energy());
             // The destination site's allocated homes are available during the march and to later stragglers.
             return settledAt(arrival,entity.habitat().findHome());
         }
@@ -766,8 +823,8 @@ public final class SettlementLife {
         if (yieldsToMigrationCare(settlingAtTarget)) return false;
         if (marching && !Migration.moving(group) && (group == null || !straggler(group) || target == null || !target.equals(group.center))) return false;
         return active() && !entity.independence().householdOuting() && !entity.wintering().active() && society.role() != SettlementData.Role.OUTCAST
-                && elapsed < 400 && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
-                && (!entity.life().hasUrgentNeed() || settlingAtTarget && nutritionOnlyUrgent()) && entity.life().mealTicks() == 0
+                && elapsed < (marching ? 1200 : 400) && !entity.isPanicking() && !SettlementSeasons.confined(entity) && !entity.isCommandPlaying()
+                && !urgentBlocks(settlingAtTarget) && entity.life().mealTicks() == 0
                 && (marching || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 48 * 48)
                 && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > 2.25;
     }

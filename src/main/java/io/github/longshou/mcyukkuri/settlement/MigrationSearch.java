@@ -15,12 +15,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 
 /** Server-thread, transient cursor; a slice never carries its lease into the next tick. */
 final class MigrationSearch {
     private static final int SLICE = 4096, TRIES = 24, THREAT_GAP = 24;
-    private static final int ROOM_COST = 1 + 17 * 5 * 17 * 2, GRASS_COST = 21 * 7 * 21;
+    private static final int ROOM_COST = 1 + 17 * 5 * 17 * 2, GRASS_COST = 21 * 7 * 21, DIG_COST = 19 * 5 * 19 + 400;
     private enum Stage { SITES, COLUMNS, SCORE, FINISH }
     private record Candidate(BlockPos pos, int grass) {}
 
@@ -42,6 +43,8 @@ final class MigrationSearch {
     private boolean bearingChosen;
     private BlockPos column, scoring, result;
     private long lastSlice = Long.MIN_VALUE;
+    /** Extra scan cost of the last {@link #suitable} call beyond {@link #ROOM_COST}. */
+    private int extra;
 
     MigrationSearch(ServerLevel level, YukkuriEntity leader, SettlementData.Group group, boolean forced, String reason) {
         owner = new WeakReference<>(leader); world = new WeakReference<>(level);
@@ -115,7 +118,7 @@ final class MigrationSearch {
                         }
                         if (left < ROOM_COST) return Result.DEFERRED;
                         var spot = column.offset(0, dy--, 0);
-                        boolean suitable = suitable(level, leader, spot); left -= ROOM_COST;
+                        boolean suitable = suitable(level, leader, spot); left -= spent();
                         if (suitable) {
                             scoring = spot.immutable(); column = null; stage = Stage.SCORE;
                         } else if (dy < -12) column = null;
@@ -132,7 +135,7 @@ final class MigrationSearch {
                         Candidate best = candidates.getFirst();
                         for (var candidate : candidates) if (candidate.grass > best.grass) best = candidate;
                         candidates.remove(best);
-                        boolean valid = suitable(level, leader, best.pos); left -= ROOM_COST;
+                        boolean valid = suitable(level, leader, best.pos); left -= spent();
                         if (valid) { result = best.pos; return Result.FOUND; }
                     }
                 }
@@ -155,9 +158,25 @@ final class MigrationSearch {
         SearchBudget.probe(level);
         if (!level.hasChunkAt(spot) || nearDanger(spot) || !leader.life().dryStand(spot)) return false;
         if (afloat) return Migration.waterBankReady(level, spot, leader);
+        // The colony makes its own homes, so a ready cave is not required: three natural hollow cells within reach, or soft
+        // soil where the members can really scrape a hollow with their own bodies (Burrowing), is enough.
         int found = 0;
         for (BlockPos pos : BlockPos.betweenClosed(spot.offset(-8, -2, -8), spot.offset(8, 2, 8)))
             if (NaturalShelter.enclosed(level, pos) && ++found >= 3) return true;
+        extra += DIG_COST;
+        return diggable(level, spot);
+    }
+    private int spent() { int cost = ROOM_COST + extra; extra = 0; return cost; }
+    /** At least one soil face near the spot where a real hollow plan fits (the same plan the diggers will follow). */
+    private static boolean diggable(ServerLevel level, BlockPos spot) {
+        int tried = 0;
+        for (var face : Burrowing.faces(level, spot, 9)) {
+            if (++tried > 12) break;
+            for (var direction : Direction.Plane.HORIZONTAL) {
+                if (!Burrowing.soft(level, face.relative(direction))) continue;
+                if (Burrowing.plan(level, face, direction, Burrowing.MIN_CELLS) != null) return true;
+            }
+        }
         return false;
     }
     private static int grazing(ServerLevel level, BlockPos spot) {

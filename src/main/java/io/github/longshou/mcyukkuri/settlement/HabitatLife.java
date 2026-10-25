@@ -230,7 +230,8 @@ public final class HabitatLife {
             GameplayLog.limited(entity, "habitat", "migration.hungry", 1200,
                     "home work refused reason=migration_unsettled group={} nutrition={} carried={} home={} task={}",
                     entity.settlement().groupId(), entity.life().nutrition(), carrying.getCount(), home, task);
-        return !underway;
+        // A migrant that has reached the chosen ground, released its old address and found no ready home may scrape its own hollow.
+        return !underway || entity.settlement().arrivalSite() != null;
     }
     /** Loose materials worth fetching from the ground: only what the shelter itself needs, never food (food is gathered from plants into the pile). */
     private boolean wantsMaterial(ShelterBlockEntity value,ItemStack stack) { return value.needsMaterial(stack); }

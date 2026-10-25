@@ -82,6 +82,10 @@ public final class SettlementData extends SavedData {
         /** Actual calm-water berth selected for an afloat migration; the dry {@link #migrateTo} remains the bank anchor. */
         public BlockPos migrateWater;
         public long migrateSince;
+        /** The scout that walks ahead and is the arrival pivot of the current move; null when none is chosen. */
+        public UUID migrateVanguard;
+        /** Game time when the vanguard (or the leader, if no vanguard) first stood at the destination; 0 until then. */
+        public long migrateArrivedAt;
         public final Map<UUID, Long> sighted = new HashMap<>();
         public long decayAt, migrateRetry, attackedAt;
         /** What the group believes about humans and pets (see Rumours); saved. */
@@ -456,6 +460,8 @@ public final class SettlementData extends SavedData {
             if (group.migrateTo != null) {
                 value.putLong("MigrateTo", group.migrateTo.asLong());
                 value.putLong("MigrateSince", group.migrateSince);
+                if (group.migrateVanguard != null) value.putUUID("MigrateVanguard", group.migrateVanguard);
+                value.putLong("MigrateArrivedAt", group.migrateArrivedAt);
             }
             ListTag members = new ListTag();
             group.members.forEach((id, member) -> {
@@ -556,6 +562,8 @@ public final class SettlementData extends SavedData {
                 if (value.contains("MigrateTo", Tag.TAG_LONG)) {
                     group.migrateTo = BlockPos.of(value.getLong("MigrateTo"));
                     group.migrateSince = value.getLong("MigrateSince");
+                    if (value.hasUUID("MigrateVanguard")) group.migrateVanguard = value.getUUID("MigrateVanguard");
+                    group.migrateArrivedAt = value.getLong("MigrateArrivedAt");
                 }
                 data.groups.put(group.id, group);data.cleanupGroups.add(group.id);
             } catch (IllegalArgumentException ignored) { /* Unknown future kinds do not invent communities. */ }

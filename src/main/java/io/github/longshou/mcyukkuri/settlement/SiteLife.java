@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.SettlementData.Site;
 import io.github.longshou.mcyukkuri.settlement.site.SitePlan;
 import io.github.longshou.mcyukkuri.settlement.site.SiteSlot;
@@ -41,7 +42,7 @@ public final class SiteLife {
         final boolean allDwellings;
         final List<SiteSlot> slots;
         final long generation;
-        int existing, placement, attempts;
+        int existing, placement, attempts, occupied, placeFailed, refused;
         boolean placing, householdOnly = true;
         final Set<BlockPos> householdTried = new HashSet<>();
         SettleSearch(Site site, YukkuriEntity entity) {
@@ -191,6 +192,9 @@ public final class SiteLife {
         if(lease==null)return Result.DEFERRED;
         Result result;
         try(lease;var scope=lease.bind(entity)){result=settleNow(entity,habitat,site,search);}
+        if(result==Result.NOT_FOUND)GameplayLog.limited(entity,"settlement","site_settle_failed",400,
+                "site settle found no home site={} slots={} occupied={} place_failed={} claim_refused={} attempts={} independent={} all_dwellings={}",
+                site.id,search.slots.size(),search.occupied,search.placeFailed,search.refused,search.attempts,independent(entity),search.allDwellings);
         if(result!=Result.DEFERRED)clearSettle(level,entity);
         return result;
     }
@@ -219,7 +223,10 @@ public final class SiteLife {
             if (slot.anchor().distSqr(entity.blockPosition()) <= 48 * 48 && level.hasChunkAt(slot.anchor())
                     && (!search.householdOnly || householdHome(level,entity,slot))
                     && (independent(entity) || householdHome(level,entity,slot))
-                    && level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core && habitat.choose(core)) return Result.FOUND;
+                    && level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity core) {
+                if (habitat.choose(core)) return Result.FOUND;
+                search.refused++;
+            }
             if(search.householdOnly||search.existing<slots.size())return Result.DEFERRED;
             return beginPlacement(search,entity);
         }
@@ -228,13 +235,16 @@ public final class SiteLife {
             var slot=slots.get(search.placement++);
             SearchBudget.probe(level);
             if (slot.anchor().distSqr(entity.blockPosition()) > 48 * 48 || !level.hasChunkAt(slot.anchor())
-                    || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity)
+                    || level.getBlockEntity(slot.anchor()) instanceof ShelterBlockEntity) {
+                search.occupied++;
                 return search.placement<slots.size()?Result.DEFERRED:Result.NOT_FOUND;
+            }
             if (++search.attempts > 3) return Result.NOT_FOUND;
             var plan = new ShelterPlacement.Plan(slot.anchor(), ShelterBlock.Kind.BURROW, slot.facing());
             var placed = ShelterPlacement.place(level, plan);
-            if (placed == null) return Result.DEFERRED;
+            if (placed == null) { search.placeFailed++; return Result.DEFERRED; }
             if (habitat.choose(placed.shelter())) return Result.FOUND;
+            search.refused++;
             placed.rollback(level);
             return Result.DEFERRED;
         }

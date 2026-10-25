@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -15,6 +16,8 @@ import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -66,6 +69,13 @@ final class Migration {
     /** The leader reviews the pressure once a minute; a failed site search waits two minutes. */
     private static final int REVIEW_TICKS = 1200, NO_SITE_TICKS = 2400;
     static final int DISCUSS_TICKS = 600, PREPARE_TICKS = 600, SETTLE_TICKS = 48000;
+    /**
+     * Once the pivot (vanguard, or the leader when there is none) stands at the destination the group gets this long from that
+     * moment to dig or claim its homes; a slow march must not eat the building time.
+     */
+    static final int SETTLE_BUILD_TICKS = 6000;
+    /** The others leave the old centre this long after the march begins, so the scout is really ahead. */
+    static final int VANGUARD_HEAD_START = 160;
     static final long DEATH_WINDOW = 72000;
 
     enum Phase { NONE, DISCUSS, PREPARE, MARCH }
@@ -206,6 +216,7 @@ final class Migration {
                 return;
             }
             var phase = phase(group, now);
+            if (!afloat(group)) trackPioneer(level, group, phase, now);
             var logged=LOGGED_PHASES.get(group);
             if(logged==null||logged.startedAt()!=group.migrateSince||logged.phase()!=phase) {
                 GameplayLog.world(level,"settlement","migration phase={} group={} origin={} destination={} elapsed={}",
@@ -225,7 +236,76 @@ final class Migration {
     }
 
     static boolean expired(SettlementData.Group group, long now) {
-        return now - group.migrateSince >= DISCUSS_TICKS + PREPARE_TICKS + YukkuriConfig.MIGRATE_TIMEOUT.get();
+        long deadline = group.migrateSince + DISCUSS_TICKS + PREPARE_TICKS + YukkuriConfig.MIGRATE_TIMEOUT.get();
+        if (group.migrateArrivedAt > 0) deadline = Math.max(deadline, group.migrateArrivedAt + SETTLE_BUILD_TICKS);
+        return now >= deadline;
+    }
+
+    // ---- vanguard ---------------------------------------------------------------------------------------------------
+
+    /** The scout of the current land move if it is still a loaded, living, participating member. */
+    static YukkuriEntity vanguard(ServerLevel level, SettlementData.Group group) {
+        if (group.migrateVanguard == null) return null;
+        return level.getEntity(group.migrateVanguard) instanceof YukkuriEntity scout && scout.isAlive()
+                && group.id.equals(scout.settlement().groupId()) && joins(scout, group) ? scout : null;
+    }
+    static boolean isVanguard(YukkuriEntity entity, SettlementData.Group group) {
+        return group.migrateVanguard != null && group.migrateVanguard.equals(entity.getUUID());
+    }
+
+    /** Marisa goes first (bold, sturdy, not frail); without one the sturdiest healthy adult; a frail Patchouli only if nobody else can. */
+    private static double scoutScore(YukkuriEntity member, SettlementData.Group group) {
+        var traits = member.species().traits();
+        double score = member.getVariant() == YukkuriVariant.MARISA ? 100 : 0;
+        score += 10 * traits.might() - 10 * traits.fatigue() + 20 * member.getHealth() / Math.max(1f, member.getMaxHealth());
+        if (traits.fatigue() > 1.1f) score -= 40;
+        if (member.life().nutrition() >= 30) score += 5;
+        if (member.life().energy() >= 40) score += 5;
+        if (member.getUUID().equals(group.leader)) score -= 5;
+        // A scout without a partner or young to wait for can really go ahead.
+        score -= 4 * Math.max(0, member.habitat().householdNeed() - 1);
+        return score;
+    }
+
+    /** Keeps a still-fit scout; otherwise picks the best loaded adult. Logged when the choice changes. */
+    private static void refreshVanguard(ServerLevel level, SettlementData.Group group) {
+        var current = vanguard(level, group);
+        if (current != null && current.getHealth() >= .4f * current.getMaxHealth() && current.life().nutrition() >= 20) return;
+        YukkuriEntity best = null;
+        double bestScore = -1e9;
+        var area = new AABB(group.center).inflate(72);
+        for (var member : LoadedGroupMembers.query(level, group.id, area,
+                e -> e.isAlive() && group.id.equals(e.settlement().groupId()) && joins(e, group) && e.family().adult() && !e.isPassenger())) {
+            double score = scoutScore(member, group);
+            if (best == null || score > bestScore || score == bestScore && member.getUUID().compareTo(best.getUUID()) < 0) {
+                best = member; bestScore = score;
+            }
+        }
+        UUID chosen = best == null ? null : best.getUUID();
+        if (Objects.equals(chosen, group.migrateVanguard)) return;
+        group.migrateVanguard = chosen;
+        GameplayLog.world(level, "settlement", "migration vanguard group={} vanguard={} species={} score={} previous={} leader={}",
+                group.id, chosen, best == null ? null : best.getVariant().assetId(), String.format(Locale.ROOT, "%.1f", bestScore),
+                current == null ? null : current.getUUID(), group.leader);
+    }
+
+    /** The vanguard (leader if none) standing at the destination, for the arrival test and the build-time extension. */
+    private static boolean pivotAtDestination(ServerLevel level, SettlementData.Group group) {
+        var pivot = vanguard(level, group);
+        if (pivot == null && group.leader != null && level.getEntity(group.leader) instanceof YukkuriEntity chief && chief.isAlive()
+                && group.id.equals(chief.settlement().groupId())) pivot = chief;
+        if (pivot == null || group.migrateTo == null) return false;
+        return pivot.settlement().settledAt(group.migrateTo)
+                || pivot.distanceToSqr(group.migrateTo.getX() + .5, group.migrateTo.getY(), group.migrateTo.getZ() + .5) <= ARRIVE_RANGE * ARRIVE_RANGE;
+    }
+
+    private static void trackPioneer(ServerLevel level, SettlementData.Group group, Phase phase, long now) {
+        refreshVanguard(level, group);
+        if (phase != Phase.MARCH || group.migrateArrivedAt > 0 || !pivotAtDestination(level, group)) return;
+        group.migrateArrivedAt = now;
+        SettlementData.get(level).setDirty();
+        GameplayLog.world(level, "settlement", "migration pivot arrived group={} destination={} vanguard={} leader={} elapsed={} build_deadline={}",
+                group.id, group.migrateTo, group.migrateVanguard, group.leader, now - group.migrateSince, now + SETTLE_BUILD_TICKS);
     }
 
     static void decay(SettlementData data, SettlementData.Group group, long now) {
@@ -418,6 +498,7 @@ final class Migration {
         if (afloat(group) && (water == null || waterCommons(level, site, water) == null)) { releaseTarget(data, group, site); return Result.NOT_FOUND; }
         var c = group.commons;
         group.migrateTo = site; group.migrateWater = water; group.migrateSince = now;
+        group.migrateVanguard = null; group.migrateArrivedAt = 0;
         c.migrateReason = reason;
         c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
         data.setDirty();
@@ -496,8 +577,9 @@ final class Migration {
             }
             return there * 2 >= total;
         }
-        if (!chief.settlement().settledAt(group.migrateTo)
-                && chief.distanceToSqr(arrival.getX() + .5, arrival.getY(), arrival.getZ() + .5) > ARRIVE_RANGE * ARRIVE_RANGE) return false;
+        // A frail leader may trail behind: the scout (or the leader when there is none) is the arrival pivot, and the leader
+        // counts in the census like everyone else, then follows as a straggler if she is still on the way.
+        if (!pivotAtDestination(level, group)) return false;
         int total = 0, there = 0;
         var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
         for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, travelledArea,
@@ -523,17 +605,35 @@ final class Migration {
 
     /** A failed march leaves the current community and its pressure intact; time passing is not arrival. */
     private static void abandon(SettlementData data, SettlementData.Group group, YukkuriEntity caller, long now, String reason) {
+        String census = "";
         if (phase(group, now) == Phase.MARCH && caller.level() instanceof ServerLevel level) {
             var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
+            double gx = group.migrateTo.getX() + .5, gy = group.migrateTo.getY(), gz = group.migrateTo.getZ() + .5;
+            int total = 0, near = 0, settled = 0, unsettledNear = 0;
             for (YukkuriEntity member : LoadedGroupMembers.query(level, group.id, travelledArea,
-                    e -> group.id.equals(e.settlement().groupId()) && joins(e, group)))
+                    e -> group.id.equals(e.settlement().groupId()) && joins(e, group))) {
                 member.settlement().recoverDepartureForAbandon(group);
+                total++;
+                boolean isSettled = member.settlement().settledAt(group.migrateTo);
+                boolean isNear = member.distanceToSqr(gx, gy, gz) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2);
+                if (isSettled) settled++;
+                if (isNear) near++;
+                if (isNear && !isSettled) unsettledNear++;
+            }
+            var scout = vanguard(level, group);
+            var chief = group.leader == null ? null : level.getEntity(group.leader);
+            census = String.format(Locale.ROOT, " members %d near %d settled %d unsettled_near %d vanguard %s vanguard_dist %s leader_dist %s pivot_arrived_at %d",
+                    total, near, settled, unsettledNear, group.migrateVanguard,
+                    scout == null ? "-" : String.format(Locale.ROOT, "%.0f", Math.sqrt(scout.distanceToSqr(gx, gy, gz))),
+                    chief == null ? "-" : String.format(Locale.ROOT, "%.0f", Math.sqrt(chief.distanceToSqr(gx, gy, gz))),
+                    group.migrateArrivedAt);
         }
         group.commons.note(now, "migrate_failed", caller.getUUID(), "reason " + reason + " destination " + group.migrateTo.toShortString()
-                + " phase " + phase(group,now) + " elapsed " + (now-group.migrateSince));
+                + " phase " + phase(group,now) + " elapsed " + (now-group.migrateSince) + census);
         releaseTarget(data, group, group.migrateTo);
         LOGGED_PHASES.remove(group);
         group.migrateTo = null; group.migrateWater = null; group.migrateSince = 0; group.migrateRetry = now + NO_SITE_TICKS;
+        group.migrateVanguard = null; group.migrateArrivedAt = 0;
         data.setDirty();
     }
 
@@ -607,6 +707,7 @@ final class Migration {
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
         LOGGED_PHASES.remove(group);
         group.center = group.migrateTo; group.migrateTo = null; group.migrateWater = null; group.migrateSince = 0;
+        group.migrateVanguard = null; group.migrateArrivedAt = 0;
         group.threat = 0; group.threatPos = null; group.sighted.clear();
         group.gatherUntil = 0; group.snowing = false; group.migrateRetry = now + REVIEW_TICKS;
         // Settling in: the old griefs and failures belong to the old ground; a hunt may be called at once.
