@@ -302,6 +302,8 @@ public final class BodyLife {
         if(loss<=0)return new HurtResult(accepted,0,hit.part(),BodyFood.Bite.EMPTY);
         if(hit.kind()==BodyHit.Kind.TERMINAL)return new HurtResult(true,loss,null,BodyFood.Bite.EMPTY);
         if(InjuryModel.destroysBody(hit.source(),loss,hit.healthBefore(),hit.incoming())){deathFood=0;coreHurt=true;}
+        // A wounding bite that kills was never swallowed: the filling it opened stays in the body as remains food.
+        if(hit.kind()==BodyHit.Kind.BITE_WOUND&&!hit.dyingBefore()&&deathFood<0&&entity.getHealth()<=0)deathFood=BodyFood.live(entity,loss).portions();
         if(hit.dyingBefore())return new HurtResult(true,loss,hit.part(),BodyFood.Bite.EMPTY);
         var food=hit.kind()==BodyHit.Kind.BITE?BodyFood.live(entity,loss):BodyFood.Bite.EMPTY;
         var outcome=InjuryModel.decide(entity,hit,loss);

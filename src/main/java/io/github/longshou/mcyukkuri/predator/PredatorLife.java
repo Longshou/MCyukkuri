@@ -75,6 +75,7 @@ public final class PredatorLife implements EcologyRoutine {
     private String restReason = "";
     private boolean contactHold;
     private Vec3 withdrawGoal;
+    private RemainsEntity eatRemains;
     private YukkuriEntity bittenPrey;
     private long bittenAt;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
@@ -535,24 +536,31 @@ public final class PredatorLife implements EcologyRoutine {
     private void beginRest(int ticks, String reason) {
         mode(false, reason);
         prey = null; food = null; corpse = null; destination = null; pendingRest = 0;
-        task = Task.EAT; restTicks = ticks; restReason = reason;
+        task = Task.EAT; restTicks = ticks; restReason = reason; eatRemains = null;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         GameplayLog.event(animal,"predator","eat pause started; reason={} ticks={} meal_ticks={} nutrition={} energy={}",
                 reason,ticks,animal.life().mealTicks(),animal.life().nutrition(),animal.life().energy());
     }
-    /** The predator holds still while it chews; remains within reach are eaten without a chase. */
+    /** The predator holds still while it chews, then keeps eating the nearby remains bite by bite until it is full or they are empty. */
     private void eat() {
-        animal.getNavigation().stop();
-        if (animal.tickCount % 10 == 0 && animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) {
-            var remains = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(1.5), this::edibleCorpse).stream()
+        if (animal.tickCount % 10 == 0)
+            eatRemains = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(3), this::edibleCorpse).stream()
                     .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
-            if (remains != null && animal.distanceToSqr(remains) <= Math.pow((animal.getBbWidth() + remains.getBbWidth()) * .5 + .18, 2)) {
-                takeRemains(remains, "eat_pause");
-                restTicks = Math.max(restTicks, 60);
+        if (eatRemains != null && (!eatRemains.isAlive() || CorpseFood.remaining(eatRemains.data()) <= 0)) eatRemains = null;
+        boolean wantsMore = eatRemains != null && animal.life().nutrition() <= 75;
+        if (wantsMore) {
+            double reach = (animal.getBbWidth() + eatRemains.getBbWidth()) * .5 + .18;
+            if (animal.distanceToSqr(eatRemains) > reach * reach) {
+                if (animal.tickCount % 10 == 0) animal.getNavigation().moveTo(eatRemains, 1.0);
+            } else {
+                animal.getNavigation().stop();
+                if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
             }
-        }
+            restTicks = Math.max(restTicks, 1);
+        } else animal.getNavigation().stop();
         if (--restTicks <= 0) {
-            GameplayLog.event(animal,"predator","eat pause ended; reason={} meal_ticks={} nutrition={}",restReason,animal.life().mealTicks(),animal.life().nutrition());
+            GameplayLog.event(animal,"predator","eat pause ended; reason={} meal_ticks={} nutrition={} remains_left={}",restReason,animal.life().mealTicks(),
+                    animal.life().nutrition(),eatRemains==null?0:CorpseFood.remaining(eatRemains.data()));
             stop();
         }
     }
@@ -651,7 +659,7 @@ public final class PredatorLife implements EcologyRoutine {
                 task,prey==null?"none":prey.getUUID(),ticks,animal.getHealth(),animal.getMaxHealth(),animal.life().energy());
         cancelNestSearch();
         mode(false, "stopped");
-        task = Task.NONE; prey = null; food = null; corpse = null; destination = null; restTicks = pendingRest = 0;
+        task = Task.NONE; prey = null; food = null; corpse = null; destination = null; restTicks = pendingRest = 0; eatRemains = null;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         cooldown = Math.max(cooldown, 20);
     }
