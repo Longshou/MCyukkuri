@@ -3,7 +3,7 @@
     "grade_divisor": 2.0,
     "core_health_ratio": 0.3,
     "grade_rule": "clamp(ceil(accepted health loss / divisor), 1, 3); zero accepted loss creates no wound",
-    "repeated_hit_rule": "same kind and body part: min(3,max(old grade,hit grade)+(accepted loss>=2 ? 1 : 0))",
+    "repeated_hit_rule": "same kind and body part: the wound adds accepted loss to its points (a new wound starts at the minimum of its grade: 1/3/5); grade = min(3, max(old grade, hit grade, clamp(ceil(points/2),1,3)) + (accepted loss>=2 ? 1 : 0))",
     "capacity_rule": "At eight wounds, current insertWound strengthens the nearest existing wound by one; it does not create a ninth.",
     "hot_tool_exception": "Current hot heated_awl forces at least grade 2; the removed local-burn art path is not exported.",
     "core_rule": "A supported grade-three mechanical opening, current health/max health <= threshold, and a fitted path to the actual central filling; never an independent random variant."
@@ -77,7 +77,7 @@
     {
       "acceptedLoss": 2,
       "healthAfter": 6,
-      "grade": 2,
+      "grade": 3,
       "exposed": false
     },
     {
