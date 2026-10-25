@@ -1,0 +1,65 @@
+{
+  "id": "yukkuri_poop",
+  "status": "pending_user_confirmation",
+  "generator": "standards/yukkuri-library/drafts/care-props/poop_block.py",
+  "tiers": {
+    "1": {
+      "portions": "1-2",
+      "elements": 2,
+      "outline": [
+        4,
+        4,
+        12,
+        12,
+        2
+      ]
+    },
+    "2": {
+      "portions": "3-4",
+      "elements": 6,
+      "outline": [
+        2,
+        2,
+        14,
+        14,
+        4
+      ]
+    },
+    "3": {
+      "portions": "5-6",
+      "elements": 10,
+      "outline": [
+        1,
+        1,
+        15,
+        15,
+        6
+      ]
+    },
+    "4": {
+      "portions": "7-8",
+      "elements": 15,
+      "outline": [
+        0,
+        0,
+        16,
+        16,
+        8
+      ]
+    }
+  },
+  "texture": "32x32, 1 texel per unit, anko ramp of art/props/palette.json (4 tones)",
+  "files": {
+    "src/main/resources/assets/mcyukkuri/textures/block/yukkuri_poop.png": "52b4066aa0d1f44b440f69deec45e0cb5cac03c24b7c57c5bfb96da6873734db",
+    "art/source/poop-block/yukkuri_poop.png": "52b4066aa0d1f44b440f69deec45e0cb5cac03c24b7c57c5bfb96da6873734db",
+    "src/main/resources/assets/mcyukkuri/models/block/yukkuri_poop_tier1.json": "8afbb1cea9f477c4b7ca333af1ea1afada463923a695bb3e625406c897dc23a0",
+    "art/source/poop-block/yukkuri_poop_tier1.json": "8afbb1cea9f477c4b7ca333af1ea1afada463923a695bb3e625406c897dc23a0",
+    "src/main/resources/assets/mcyukkuri/models/block/yukkuri_poop_tier2.json": "c6ba28e8d71be12b583befb1db03f61935d31bf17262f486a7d612424b14c75b",
+    "art/source/poop-block/yukkuri_poop_tier2.json": "c6ba28e8d71be12b583befb1db03f61935d31bf17262f486a7d612424b14c75b",
+    "src/main/resources/assets/mcyukkuri/models/block/yukkuri_poop_tier3.json": "3b3c49721388aa2ceed6e5db8654a6f8ff0c66029f4f0956c2b5c48df9378caa",
+    "art/source/poop-block/yukkuri_poop_tier3.json": "3b3c49721388aa2ceed6e5db8654a6f8ff0c66029f4f0956c2b5c48df9378caa",
+    "src/main/resources/assets/mcyukkuri/models/block/yukkuri_poop_tier4.json": "30ca335c796fff880ad1e1d70c4866148f1fc442fef226c8bf83afb493f718b1",
+    "art/source/poop-block/yukkuri_poop_tier4.json": "30ca335c796fff880ad1e1d70c4866148f1fc442fef226c8bf83afb493f718b1",
+    "src/main/resources/assets/mcyukkuri/blockstates/yukkuri_poop.json": "5b3424447556a26f30333005309dcf7ca99ed115ac55820df8113a69343380b9"
+  }
+}
