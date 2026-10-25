@@ -109,10 +109,10 @@ def main():
     wear = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wear.py'
     subprocess.run([sys.executable, str(wear)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'fit', 'icons')}
-    # wild nests, forage pile and hat-boat provisions: drafts/care-props/preview_wild_nests.py redraws all four sheets from the runtime meshes
+    # wild nests and the forage pile: drafts/care-props/preview_wild_nests.py redraws the sheets from the runtime meshes
     nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
     subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage', 'hat-cargo')}
+    current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage')}
     # aquatic Marisa tool clips, hull dressing and the derived faces: lore/aquatic_tools_preview.py reads the runtime clips and props
     aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
     subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
@@ -121,6 +121,10 @@ def main():
     deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
     subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {'hat-deck/hat-deck.png'}
+    # the hat boat as a home (hull size before/after, crown larder, crew poses): lore/aquatic_home_preview.py, runtime data only
+    home = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py'
+    subprocess.run([sys.executable, str(home)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {f'aquatic-home/{name}.png' for name in ('home', 'larder', 'crew')}
     # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
     fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
     subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

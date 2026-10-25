@@ -210,25 +210,33 @@
       "source": "standards/yukkuri-library/drafts/care-props/README.md"
     },
     {
-      "id": "hat-cargo-heaps",
-      "label": "帽船储粮堆三档",
-      "title": "帽内储粮堆按份数缩放三档与侧檐暂放",
+      "id": "aquatic-home",
+      "label": "帽船即家",
+      "title": "水生帽船 1.75 倍：成体船长与乘员、帽冠粮袋四档、昼夜姿态",
       "tag": "美术与玩法·待试玩",
-      "summary": "帽船上的储粮堆沿用陆上储粮堆的整堆外观，按 0.6 / 0.8 / 1.0 缩放为 1–3 / 4–7 / 8–12 份三档；侧檐每侧至多一堆，取该侧帽檐能容的大小。占位按实际顶点测量，含亲油在帽中的对照。离线渲染，非游戏截图。",
+      "summary": "水生帽从 1.5 倍放大到 1.75 倍，成体船长不再塞满帽口；同一乘员在新旧尺寸、粮袋四档与昼夜下的座位（按席位表与运行时同一规则求得）、吃水随载重下沉。帽冠粮袋按实际库存种类用物品模型显示，帽檐上不放粮；赤油白天在前台阶探头看水，夜里挤在船长身下，船长俯身盖住。离线渲染，非游戏截图。",
       "model": "marisa",
       "points": [
-        "较少、较多、满载三档与亲油在帽中的满载对照。",
-        "暂放侧檐：两侧各一堆，另有亲油在帽中的对照。",
-        "帽内乘员占位与空间仍需在试玩场观察。"
+        "1.5 与 1.75 倍对照：大子油夜里有座、小子油可坐两只。",
+        "粮袋 1 档几乎看不见，3 档顶上几件从船长胸前露出。",
+        "boat_rim_peek、boat_nest_curl 为新片段，接线后由服务端选择。"
       ],
       "steps": [],
       "gallery": [
         {
-          "src": "wild-nests/hat-cargo.png",
-          "label": "帽船储粮堆三档与侧檐暂放"
+          "src": "aquatic-home/home.png",
+          "label": "帽子 1.5 → 1.75：船长与乘员 × 粮袋四档 × 昼夜"
+        },
+        {
+          "src": "aquatic-home/larder.png",
+          "label": "帽冠粮袋各档"
+        },
+        {
+          "src": "aquatic-home/crew.png",
+          "label": "乘员昼夜姿态"
         }
       ],
-      "source": "standards/yukkuri-library/drafts/care-props/README.md"
+      "source": "standards/yukkuri-library/interactions/marisa-hat-vessel/README.md"
     },
     {
       "id": "hat-deck",

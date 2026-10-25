@@ -752,7 +752,7 @@
         16,
         -12
       ],
-      "braid_out": 30,
+      "braid_out": 42,
       "braid_raise": 12,
       "paddle": {
         "grip_offset": 1.6,
@@ -4371,7 +4371,7 @@
           "puff"
         ]
       ],
-      "lore": "Project original (water 11 ruling): the mouth bites a brim or a young's headwear and holds it with two short backward tugs per loop: righting a capsized hat, pulling a drifting young back, handing food. Species without a braid use only this. Pitch -6..-3; the biting face is puff (lips pressed shut, cheeks puffed), falling back to chewing_closed.",
+      "lore": "Project original (water 11 ruling): the mouth bites a brim or a young's headwear and holds it with two hard backward yanks per loop (a quick heave back, squashed and widened, then a slower ease forward; about 4.2 model units of travel): righting a capsized hat, pulling a drifting young back, handing food. Species without a braid use only this. Pitch -8..-3; the biting face is puff (lips pressed shut, cheeks puffed), falling back to chewing_closed.",
       "triggers": [
         "CrewTransfer LIFT(mouth)",
         "WaterIncidents pull",
@@ -4379,7 +4379,7 @@
       ],
       "markers": {
         "bite_contact": 0.0,
-        "tug_peak": 0.25
+        "tug_peak": 0.15
       },
       "contacts": {
         "mouth": {
@@ -4673,6 +4673,55 @@
           "kind": "PUSH"
         }
       }
+    },
+    "boat_rim_peek": {
+      "label": "帽檐探头看水",
+      "duration": 4.8,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          3.5,
+          "happy"
+        ],
+        [
+          3.5,
+          4.7,
+          "open_smile"
+        ],
+        [
+          4.7,
+          4.8,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (ecology design D 3.4, boat_rim_peek): a baby or small child on the bow perch by day leans out over the front rim to watch the water, stretched 4 % and tipped 7 degrees toward it, scanning left and right with two excited little hops, then turns to glance back at its mother and returns to the water. Pitch + roll <= 8.5.",
+      "triggers": [
+        "young on BOW_PERCH by day (hat_deck_layout crew)"
+      ],
+      "markers": {
+        "look_back": 3.8
+      },
+      "base_pose": "hat_cradle"
+    },
+    "boat_nest_curl": {
+      "label": "帽窝里挤着睡",
+      "duration": 4.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [
+          0,
+          4.0,
+          "sleep"
+        ]
+      ],
+      "lore": "Project design (ecology design D 3.4): asleep at night in the nest hollow under the mother's chest, pressed low and wide against the hat wall and its siblings with a soft list, breathing slowly; its own little hat knocked a little askew (hat_follow tipped 4 degrees forward and 5 sideways, lifted 0.35 so the brim stays on the hair) and both locks tucked back. Pitch + roll <= 9.",
+      "triggers": [
+        "young in NEST_HOLLOW at night (hat_deck_layout crew)"
+      ],
+      "base_pose": "sleep"
     }
   },
   "flourishes": {
@@ -4749,7 +4798,8 @@
     "snatch_pull",
     "stand_ground",
     "offer_bite",
-    "comfort_lick"
+    "comfort_lick",
+    "boat_rim_peek"
   ],
   "revision": 16
 }

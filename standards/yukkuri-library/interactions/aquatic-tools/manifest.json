@@ -1,15 +1,15 @@
 {
   "recipe": "standards/yukkuri-library/interactions/aquatic-tools/recipe.json",
-  "recipe_sha256": "fda6540e24ab3adc77688b888f7d4b6ab9d1a91e1aadfaffc824b1f87bbb66fd",
-  "builder_sha256": "415d5dd32e59531324eee7cd6dc4092c95daae790df10e0e426c9abed26f15bb",
+  "recipe_sha256": "fcbb53703dd71f82df16a2637f8a21e7125f810ad6d755908c245f559955d7bd",
+  "builder_sha256": "52de60bacf3ec57b573c431673fa62dd037a4d37c375e4076494aa52ec6ed215",
   "inputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "b4df20fe9a0c6fe87649be5941e818b2114134a43a60922f3af340803e6675bf",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "b6cb1444e4d04e5f87f66d73f98498527946056f12b193246eb9243bbf2b617a"
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "0a90fd7a32ce282ec0481bab0e6f707706f5c02e73b654f2c9ff340d4b12d802",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "b9c33c4b431485f44dc32620b100320b310f9ca16ca03198584a43f2fe56b47a"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json": "e10cfab2c1d848a81481ba7785a8eb41d73c3244ecd5f363c85c2bb5be89ebfd",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json": "15f6cc65ee28e6cd3167ba6481370245347adac6486173c3303cd172a22a6675",
     "src/main/resources/assets/mcyukkuri/textures/props/paddle_stick.png": "cfe65a4cfa44438b58dd201bf2c2380c7c466109b99c7151a66470d0d09f0fa5",
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_wetline.json": "ffe56f4334d9086d2a1007eb00f7c5568c928bb2e26eae1b92b3cd6dd112358b",
-    "src/main/resources/assets/mcyukkuri/textures/props/marisa_hat_wetline.png": "1eedf47d001728904729f21033ef004a2c4abae29678a2f0099b22f49a5b821b"
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_wetline.json": "58274bc9cbbf4eed20ffb8c8d1214d81a73763dfd9ecd180a9b64b4268c81152",
+    "src/main/resources/assets/mcyukkuri/textures/props/marisa_hat_wetline.png": "e56d2e1b4b82d42b9933c52d0db631eb2ba823537d13825aeefa34d2921b7eec"
   }
 }

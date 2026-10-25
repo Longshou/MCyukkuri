@@ -108,7 +108,7 @@
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions",
       "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_provisions.json",
       "shared_layout": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "note": "Reuse the full forage pile (all units 0-4 of forage_pile: leaf plate, hay clumps and food) at 0.6 / 0.8 / 1.0 for the three count-based tiers. Interior and temporary brim storage share occupancy volumes measured from the transformed vertices."
+      "note": "Crown larder of the aquatic hat boat (project design, ecology design D 3.3; user 2026-10-26: no food on the brim): hat_provisions holds only the forage-pile leaf beds of tiers 1-3; the stored items are drawn client-side with their own item models at the places cargo.py settled offline (hat_cargo_layout.json larder: ordered item places, quaternions, kind clusters, occupancy cells read by the deck exporter). Previewed by motions/variants/lore/aquatic_home_preview.py."
     },
     "builder": "standards/yukkuri-library/drafts/care-props/build.py",
     "palette": "art/props/palette.json",
@@ -4050,7 +4050,7 @@
     "deck_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/deck.py",
     "deck_preview": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py",
     "geometry_check": "standards/yukkuri-library/interactions/marisa-hat-vessel/check_cabin.py",
-    "cabin_revision": "Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. The discrete deck (seats per hull mode, conflicts, walking edges, entry points, larder tiers in the crown cavity, care pairs, load check) is exported as hat_deck_layout.json and the worn/turned/hull transform contract as hat_frames.json; no provisions on the brim (user 2026-10-26). Offline preview only, awaiting game verification.",
+    "cabin_revision": "Aquatic hat 1.75x the land hat (project design: at 1.5 an adult captain nearly filled the opening). Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. The discrete deck (seats per hull mode with day/night preference, conflicts, walking edges, entry points, crown-larder tiers, care pairs, load check, the crew pose table) is exported as hat_deck_layout.json and the worn/turned/hull transform contract as hat_frames.json; no provisions on the brim (user 2026-10-26). Offline preview only, awaiting game verification.",
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [
       "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json",
@@ -4559,8 +4559,9 @@
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
     },
     "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py",
+    "home_preview": "standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py",
     "status": "pending_user_review",
-    "scope": "Plain picked-up stick held in the braid tuft (props.paddle clip keys) or stowed on the left brim; translucent waterline wet band derived from marisa_hat_turned; braid cradle, mouth bite, capsize, self-rescue and hull-life clips (project original)."
+    "scope": "Plain picked-up stick held in the braid tuft (props.paddle clip keys) or stowed on the left brim (stow scale 1/aquatic_scale); translucent waterline wet band derived from marisa_hat_turned, drawn as a cool sheen with a bright waterline thread so it shows on the near-black felt; braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips, and the crew clips boat_rim_peek and boat_nest_curl (project original / ecology design D 3.4)."
   },
   "derived_faces": {
     "exporter": "standards/yukkuri-library/expressions/derived/faces.py",

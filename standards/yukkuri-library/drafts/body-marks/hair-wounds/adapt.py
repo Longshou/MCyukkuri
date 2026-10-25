@@ -162,7 +162,7 @@ def render(model,args,mesh_jobs):
     cards=[('健康','',images['healthy']),('二级裂伤','局部断发',images['hair-tear-2-normal']),('二级咬伤','保留齿缘',images['skin-bite-2-normal']),('二级烧伤','干瘦焦枯',images['whole_body-2'])]
     build.source.sheet(info['label']+' · 适配概览','',cards,4,(280,270),footer).save(dest/'overview.png')
     if model=='marisa':
-        build.source.sheet('水生魔理沙 · 共用身体、扩大帽饰','同一伤口/烧伤素材；帽饰按实际水生倍率 1.5 显示。',[('健康','水生1.5倍帽饰',images['aquatic-healthy'])]+[(f'烧伤 {g}级','布帽同步焦枯，保持尺寸',images[f'aquatic-{g}']) for g in [1,2,3]],4,(330,320),footer).save(dest/'aquatic.png')
+        build.source.sheet('水生魔理沙 · 共用身体、扩大帽饰',f"同一伤口/烧伤素材；帽饰按实际水生倍率 {CAT['aliases']['aquatic_marisa']['accessory_scale']:g} 显示。",[('健康',f"水生{CAT['aliases']['aquatic_marisa']['accessory_scale']:g}倍帽饰",images['aquatic-healthy'])]+[(f'烧伤 {g}级','布帽同步焦枯，保持尺寸',images[f'aquatic-{g}']) for g in [1,2,3]],4,(330,320),footer).save(dest/'aquatic.png')
     sections=['overview','thermal','face','growth','hair','skin','core']+(['aquatic'] if model=='marisa' else [])
     (dest/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>'+info['label']+'伤口适配</title><style>body{background:#f4f0e6;font:18px system-ui}img{display:block;width:100%;max-width:1450px;margin:20px auto}nav{padding:20px}</style><nav><a href="../index.html">全部品种</a> · '+info['label']+'</nav>'+''.join(f'<img loading="lazy" src="{n}.png" alt="{n}">' for n in sections),encoding='utf-8')
 

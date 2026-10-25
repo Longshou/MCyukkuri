@@ -30,15 +30,17 @@ def prop(name):
     return json.loads((P.ASSETS/'yukkuri_props'/f'{name}.json').read_text(encoding='utf-8'))
 
 
-def prop_mesh(name, atlas, matrix, opaque_alpha=False):
+def prop_mesh(name, atlas, matrix, opaque_alpha=False, opaque_rgb=False):
     data = prop(name); raw = np.array(data['vertices'], float).reshape(-1, 8); out = []
     for part in data['parts']:
         mesh = raw[part['start']:part['start']+part['count']].copy()
         texture = part.get('texture', f'mcyukkuri:textures/props/{name}.png').split(':', 1)[-1]
-        image = Image.open(P.ASSETS/texture).convert('RGBA')
+        image = Image.open(P.ASSETS/texture).convert('RGBA'); key = texture
         if opaque_alpha:  # translucent band: encode its alpha as grey for the blend pass
-            a = np.array(image)[:, :, 3]; image = Image.fromarray(np.dstack([a, a, a, np.full_like(a, 255)]))
-        mesh[:, 3:5] = atlas.uv(texture+('#alpha' if opaque_alpha else ''), image, mesh[:, 3:5]); out.append(mesh)
+            a = np.array(image)[:, :, 3]; image = Image.fromarray(np.dstack([a, a, a, np.full_like(a, 255)])); key += '#alpha'
+        elif opaque_rgb:  # and its colour, fully opaque, for the same pass
+            c = np.array(image); c[:, :, 3] = 255; image = Image.fromarray(c); key += '#rgb'
+        mesh[:, 3:5] = atlas.uv(key, image, mesh[:, 3:5]); out.append(mesh)
     return transform(np.concatenate(out), matrix)
 
 
@@ -120,7 +122,8 @@ def hull(atlas, M, wet=False, stick=False, capsized=0.):
     R = P.euler([0, 0, capsized]); lift = FREE*K*.45*(1-math.cos(math.radians(capsized)))
     frame = M@affine(t=(0, lift, 0))@affine(R)@affine(t=(0, FREE*K, 0))
     parts = [prop_mesh('marisa_hat_turned', atlas, frame@affine(np.diag([K, K*SQ, K])))]
-    alpha = prop_mesh('marisa_hat_wetline', atlas, frame@affine(np.diag([K, K*SQ, K])), True) if wet else None
+    alpha = (prop_mesh('marisa_hat_wetline', atlas, frame@affine(np.diag([K, K*SQ, K])), True),
+             prop_mesh('marisa_hat_wetline', atlas, frame@affine(np.diag([K, K*SQ, K])), opaque_rgb=True)) if wet else None
     if stick:
         a = prop('paddle_stick')['anchors']['stow_hull']; socket = np.array(prop('paddle_stick')['socket'], float)
         parts.append(prop_mesh('paddle_stick', atlas, frame@affine(s=K)@affine(P.euler(a['rotation']), a['position'], a['scale'])@affine(t=-socket)))
@@ -130,12 +133,12 @@ def hull(atlas, M, wet=False, stick=False, capsized=0.):
 def render(meshes, atlas, camera, water=True, wet=None, mask=None, tick=0):
     mesh = np.concatenate(meshes).reshape(-1, 3, 8); texture = np.array(atlas.image)
     pixels, depth, view = HM.rasterize(mesh, texture, **camera)
-    if wet is not None:
-        band, bdepth, _ = HM.rasterize(wet.reshape(-1, 3, 8), texture, **camera)
+    if wet is not None:  # the translucent band as the game blends it: its own colour at its own alpha
+        band, bdepth, _ = HM.rasterize(wet[0].reshape(-1, 3, 8), texture, **camera)
+        color, _, _ = HM.rasterize(wet[1].reshape(-1, 3, 8), texture, **camera)
         show = np.isfinite(bdepth) & (bdepth >= depth-.05)
-        a = (band[..., 0].astype(float)/255*1.25)[..., None]
-        tint = np.array([34, 40, 52], float)
-        pixels = np.where(show[..., None], pixels*(1-a)+tint*a, pixels).astype(np.uint8)
+        a = (band[..., 0].astype(float)/255)[..., None]
+        pixels = np.where(show[..., None], pixels*(1-a)+color.astype(float)*a, pixels).astype(np.uint8)
     if not water: return Image.fromarray(pixels)
     return HM.water_layer(pixels, depth, view, 'current', tick, np.eye(3), VESSEL, mask)
 

@@ -6,7 +6,7 @@
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
   "front_tread": {"depth": 1.1, "inner_z": -4.0, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well. Project design 2026-10-26 (aquatic deck): 2.01 hat units deep (was 1.66) so a 0.40 child sits on it before the owner by night."},
-  "aquatic_scale": 1.5,
+  "aquatic_scale": 1.75,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {
     "height": 3.2,
@@ -394,8 +394,7 @@
           "large_child"
         ],
         "food": 3,
-        "paddle": true,
-        "expect": "DAY_ONLY"
+        "paddle": true
       },
       {
         "name": "two_small_children",
@@ -404,8 +403,7 @@
           "small_child"
         ],
         "food": 0,
-        "paddle": true,
-        "expect": "NO_SLOT_FOR_CLASS"
+        "paddle": true
       }
     ],
     "yaw_sets": [
@@ -442,7 +440,6 @@
       "juvenile"
     ],
     "night_lore": "user 2026-10-14 (recipe bowl): by day the young ride before her, at night under her; a young may lie beneath the owner when its whole body and worn hat stay below her",
-    "larder_at": "front",
     "larder_lip": {
       "reach": 0.1,
       "height": 0.5
@@ -518,6 +515,117 @@
       ]
     ],
     "packings": 3,
-    "high_seat_margin": 0.2
+    "high_seat_margin": 0.2,
+    "owner_hat_gap": 0.45,
+    "owner_hat_gap_lore": "Project design (preview review 2026-10-26): a young's own hat cleared the owner's bounds by the plain gap but met her hair and face as drawn; hats keep this berth from the owner.",
+    "crew": {
+      "lore": "Project design (ecology design D 3.4): which clip and face each body aboard shows for where it sits and the time of day; the server picks from this table (clips and faces are server-chosen, the client never overrides them while the hull rocks). A young keeps its seat's yaw (the deck's conflicts are measured with it): by day the bow perch prefers places facing out over the bow, by night places facing the owner. Faces left out are the clip's own. Only what a player sees from the bank or alongside is dressed: young asleep under the owner show the tops of their hats.",
+      "captain": {
+        "day": {
+          "clip": "boat_drift"
+        },
+        "night": {
+          "clip": "boat_sleep",
+          "face": "sleep"
+        },
+        "night_with_young": {
+          "clip": "boat_cover_young",
+          "face": "sleep",
+          "when": "a young sits in NEST_HOLLOW or WELL_FRONT"
+        },
+        "threat": {
+          "clip": "boat_cover_young",
+          "face": "teary",
+          "when": "rain or a shadow overhead with young aboard"
+        }
+      },
+      "captain_high": {
+        "day": {
+          "clip": "boat_brood"
+        },
+        "night": {
+          "clip": "boat_brood",
+          "face": "sleep",
+          "cover": false
+        }
+      },
+      "young": [
+        {
+          "slot": "BOW_PERCH",
+          "classes": [
+            "newborn",
+            "baby",
+            "small_child"
+          ],
+          "day": {
+            "clip": "boat_rim_peek"
+          },
+          "night": {
+            "clip": "boat_nest_curl",
+            "face": "sleep"
+          }
+        },
+        {
+          "slot": "BOW_PERCH",
+          "classes": [
+            "child",
+            "large_child"
+          ],
+          "day": {
+            "clip": "hat_cradle"
+          },
+          "night": {
+            "clip": "boat_nest_curl",
+            "face": "sleep"
+          }
+        },
+        {
+          "slot": "WELL_FRONT",
+          "classes": [
+            "newborn",
+            "baby",
+            "small_child",
+            "child",
+            "large_child"
+          ],
+          "day": {
+            "clip": "hat_cradle"
+          },
+          "night": {
+            "clip": "boat_nest_curl",
+            "face": "sleep"
+          }
+        },
+        {
+          "slot": "NEST_HOLLOW",
+          "classes": [
+            "newborn",
+            "baby",
+            "small_child",
+            "child",
+            "large_child"
+          ],
+          "day": {
+            "clip": "hat_cradle"
+          },
+          "night": {
+            "clip": "boat_nest_curl",
+            "face": "sleep"
+          }
+        },
+        {
+          "slot": "BRIM",
+          "classes": [
+            "small_child",
+            "child",
+            "large_child"
+          ],
+          "day": {
+            "clip": "hat_brim"
+          },
+          "night": null
+        }
+      ]
+    }
   }
 }

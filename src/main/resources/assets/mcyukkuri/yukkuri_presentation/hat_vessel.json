@@ -3,7 +3,7 @@
   "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
   "source_model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
   "prop": "marisa_hat_turned",
-  "aquatic_scale": 1.5,
+  "aquatic_scale": 1.75,
   "anchor_worn": [
     0.0,
     10.3774,
@@ -257,20 +257,20 @@
       "exit_front": 11.7542
     },
     "aquatic": {
-      "scale": 1.5,
+      "scale": 1.75,
       "helper": {
         "mode": "bowl",
         "offset": [
-          13.6965,
+          10.6393,
           -1.8,
-          -16.8705
+          -20.1537
         ],
-        "yaw": 185,
+        "yaw": 170,
         "hat_in_mother": {
           "origin": [
             0.0,
             -1.8,
-            -18.174
+            -19.9773
           ],
           "yaw": 90
         },
@@ -279,23 +279,23 @@
           0.0,
           -6.0
         ],
-        "angle": 95,
+        "angle": 80,
         "rim": [
           4.0699,
           0.0,
           -7.0492
         ],
         "grip_worn": [
-          9.5,
+          8.5,
           10.85,
-          -3.4
+          -2.9
         ],
         "reach": {
-          "hold": 1.435,
-          "set_down": 1.377,
-          "above": 0.96
+          "hold": 1.4,
+          "set_down": 1.38,
+          "above": 0.977
         },
-        "look": 15.56,
+        "look": 0.56,
         "near_brim": 7.2132
       },
       "self": {
@@ -303,31 +303,31 @@
         "offset": [
           0.0,
           -1.8,
-          -18.174
+          -19.9773
         ],
         "yaw": 90,
         "hat_in_mother": {
           "origin": [
             0.0,
             -1.8,
-            -18.174
+            -19.9773
           ],
           "yaw": 90
         },
         "rim": [
-          7.1307,
+          5.6307,
           -0.3544,
           -5.5
         ],
         "grip_worn": [
           5.5,
           10.85,
-          -6.9
+          -5.4
         ],
         "bow": -14,
         "reach": {
-          "set_down": 1.284,
-          "above": 1.128
+          "set_down": 1.453,
+          "above": 1.321
         },
         "near_brim": 7.2132
       },

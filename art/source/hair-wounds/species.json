@@ -10378,7 +10378,7 @@
     "aquatic_marisa": {
       "model": "marisa",
       "label": "水生魔理沙",
-      "accessory_scale": 1.5,
+      "accessory_scale": 1.75,
       "accessory_anchor": [
         0.0,
         10.3774,

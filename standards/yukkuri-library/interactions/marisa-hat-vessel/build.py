@@ -392,8 +392,7 @@ def main():
         'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy']}
     texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
     # the discrete deck and the one transform contract, from these same measures (deck.py)
-    decks, modes = DK.export(metrics, body, json.loads(CARGO.read_text(encoding='utf-8')),
-                             json.loads(PROVISIONS.read_text(encoding='utf-8')), R['deck'], R['pregnancy'],
+    decks, modes = DK.export(metrics, body, json.loads(CARGO.read_text(encoding='utf-8')), R['deck'], R['pregnancy'],
                              json.loads(STICK.read_text(encoding='utf-8')) if STICK.is_file() else None)
     layout = deck_layout(modes, texts[METRICS])
     texts[DECK] = json.dumps(layout, ensure_ascii=False, separators=(',', ':'))+'\n'
@@ -437,7 +436,7 @@ def deck_layout(modes, metrics_text):
                     'brim (stern +Z, bow -Z), y up from the water line or the ground; one unit is hullScale/16 blocks; a seat '
                     'yaw r faces (sin r, -cos r) and adds to the hull entity yaw.',
             'sources': src, 'classes': {c: D['classes'][c] for c in DK.ORDER}, 'jumps': D['jumps'], 'load': D['load'],
-            'curves': D['curves'], 'modes': modes}
+            'curves': D['curves'], 'crew': D['crew'], 'modes': modes}
 
 
 def report(V, body):

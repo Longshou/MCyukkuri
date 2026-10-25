@@ -8,19 +8,19 @@
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
   "author_sha256": "7d885b8c9b972c42336ad2c13b57c66d413eb9348821e0b55416429910f3e611",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "10c4b48b19332491f6b22003b94b5baccabc5ec3fae66f04424836820bd87272",
+  "lore_recipe_sha256": "2ce3e0fa19c4001aac80395547a908f651cc15ca30b22bca439337a9ce433fcb",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "ede33a4a4b23f845ea031b621325842b14a121efaa052c6eec1b63a40c3a720b",
+  "lore_author_sha256": "0a9211607e35d6e5ba8f8742ceeb196c20d3951e9c3644357172131b008e550a",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
-  "hat_vessel_sha256": "dafa76c2329e5cc03335f9e6fecd8f3487869d472d6611248c51eb6c5a7ae627",
+  "hat_vessel_sha256": "b9c33c4b431485f44dc32620b100320b310f9ca16ca03198584a43f2fe56b47a",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "ae2e4d80a9c01abb36b6b7208e156e610efaeda84c2d8bd4f8ee2bf0d8f873f2",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "00f942340e2f781342f2557de278b5a8b781d612dedf306ab53772d54d70fa89",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "5708368d479fa764f729096cd375569c73b317cb10ae652e3a4d2f25613bb8f8",
+  "runtime_sha256": "4fab3d068868d584e839ef47dda466460321a12f052d0a49965eecddfd0a96f7",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -330,5 +330,5 @@
   "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
   "birth_pose_sha256": "c40f9403db1a3f6fa6c2be37dcd55a08086df5b34aaa469fd47e8a442ba96799",
   "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-  "lore_aquatic_tools_sha256": "cf215f11c5f4350e3ce49bd8f9d56830b58345bb7334825acfff09e7dd542703"
+  "lore_aquatic_tools_sha256": "7d75f052a5bdc0aeffd319ce4c14678ed06c421db664fe208476ed0d46c188e0"
 }

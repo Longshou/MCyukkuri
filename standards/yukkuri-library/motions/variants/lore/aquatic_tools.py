@@ -25,7 +25,8 @@ BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 
 PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
-             'boat_cover_young', 'boat_wedge_berth', 'boat_push_off', 'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison')
+             'boat_cover_young', 'boat_wedge_berth', 'boat_push_off', 'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison',
+             'boat_rim_peek', 'boat_nest_curl')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS
@@ -121,11 +122,11 @@ def state(action, t, c, height):
         w = 2*math.pi*t/d
         s = [1.07+.012*math.sin(w), .88-.015*math.sin(w), 1.06]; r = [4+1.5*math.sin(w+.7), 0, 3*math.sin(w)]
     elif action == 'mouth_bite_hold':
-        # Bite and hold a brim or a young's headwear: head forward to the contact, then short backward tugs (rear shift,
-        # squash) twice per loop with a small yaw worry. Pitch -6..-3.
-        tug = bump((t % (d/2))/(d/2))
-        s = [1+.06*tug, .97-.08*tug, 1+.05*tug]; r = [-6+3*tug, 6*math.sin(2*math.pi*t/d), 1.5*math.sin(4*math.pi*t/d)]
-        shift[1] = -.6+1.0*tug
+        # Bite and hold a brim or a young's headwear: head forward to the contact, then two hard backward yanks per loop
+        # (quick heave back with the whole body squashed and widened, slower ease forward) with a yaw worry. Pitch -8..-3.
+        u = (t % (d/2))/(d/2); tug = smooth(u/.3) if u < .3 else 1-smooth((u-.3)/.7)
+        s = [1+.12*tug, .93-.17*tug, 1+.1*tug]; r = [-8+6*tug, 10*math.sin(2*math.pi*t/d), 2*math.sin(4*math.pi*t/d)]
+        shift[1] = -1.6+4.2*tug
     elif action == 'boat_thrown':
         # Pitched out as the hat capsizes: a stretched startle with a half yaw spin and a wobble (pitch + roll <= 12),
         # then the splash squash. The server owns the arc; no lift is added.
@@ -152,6 +153,22 @@ def state(action, t, c, height):
         w = 2*math.pi*t/d
         s = [c['width']+.03, c['height']-.06+.01*math.sin(w), c['width']+.05]; r = [-9+.6*math.sin(w), 0, .8*math.sin(w/2)]
         shift[1] = -.35
+    elif action == 'boat_rim_peek':
+        # A baby on the bow perch by day leaning out over the front rim to look at the water: stretched 4 % toward it,
+        # tipped 7 degrees forward, scanning left and right, an excited little bob, then one glance back at its mother
+        # (the body turns, the lean relaxes) and back to the water.
+        look_back = keyed(t, [(0, 0), (3.5, 0), (3.8, 1), (4.3, 1), (4.7, 0)])
+        lean = 1-look_back; bob = bump((t-1.0)/.35)+bump((t-1.45)/.35)
+        s = [1-.01*lean+.03*bob, 1+.04*lean-.06*bob, 1-.01*lean+.02*bob]
+        r = [-7*lean, keyed(t, [(0, 0), (.8, -14), (1.6, -14), (2.3, 12), (3.1, 12), (3.5, 0)])+160*look_back,
+             1.5*math.sin(2*math.pi*t/d)*lean]
+        lift = .04*height*(bump((t-1.1)/.3)+bump((t-1.55)/.3))  # two little hops of excitement
+        shift[1] = -.35*lean
+    elif action == 'boat_nest_curl':
+        # Asleep in the nest hollow at night, pressed against the hat wall and its siblings under the mother's chest:
+        # low and wide, a soft list onto one side, slow breathing (4 s).
+        w = 2*math.pi*t/d
+        s = [1.08+.012*math.sin(w), .86-.018*math.sin(w), 1.07+.01*math.sin(w)]; r = [-3+.5*math.sin(w), 0, 5+.8*math.sin(w/2)]
     elif action == 'boat_wedge_berth':
         # Nose into a bank notch: two braid shoves at the bank ahead, then she sits back on the stern brim so the bow lifts
         # and catches. Pitch -4..+5.
@@ -202,7 +219,9 @@ def braid_rotation(action, t, c, side):
     if action == 'be_cradled':
         return [0, 0, side*(14+3*math.sin(2*math.pi*t/d))]  # limp locks hanging off the scoop
     if action == 'mouth_bite_hold':
-        tug = bump((t % (d/2))/(d/2)); return [-3*tug, 0, side*(8+6*tug)]
+        u = (t % (d/2))/(d/2); tug = smooth(u/.3) if u < .3 else 1-smooth((u-.3)/.7); return [-5*tug, 0, side*(8+10*tug)]
+    if action == 'boat_nest_curl':
+        return [8, 0, side*12]  # both locks tucked back along the body
     if action == 'boat_thrown':
         flail = math.sin(2*math.pi*t/.42)*(1-smooth((t-.8)/.3)); return [-20*flail*side, side*6, side*(30+22*abs(flail))]
     if action == 'water_hat_climb':
@@ -355,6 +374,11 @@ def extras(model, action, samples, tracks, c):
         if worst < c['paddle']['min_clearance']:
             raise ValueError(f'{model["id"]} {action}: the stick passes {-worst:.2f} units inside the brim (t, along, point, joint) {where}')
         print(f'  {action}: stick clears the brim edge by {worst:.2f} model units', flush=True)
+    if action == 'boat_nest_curl' and 'hat_follow' in names:
+        # Its own little hat knocked askew against the wall and the mother's chest, lifted a touch so the tilted brim
+        # stays on the hair.
+        more.append({'bone': names['hat_follow'], 'channel': 'rotation', 'keys': [[0.0, -4.0, 0.0, 5.0], [round(c['duration'], 8), -4.0, 0.0, 5.0]]})
+        more.append({'bone': names['hat_follow'], 'channel': 'position', 'keys': [[0.0, 0.0, 0.35, 0.0], [round(c['duration'], 8), 0.0, 0.35, 0.0]]})
     rotation = None if action in PADDLE_CLIPS else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:
         more.append({'bone': names['hand_right_tip'], 'channel': 'rotation',

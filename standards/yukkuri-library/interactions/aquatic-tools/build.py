@@ -101,7 +101,8 @@ def stick(cfg):
         p = [end+[-h, 0, -h], end+[h, 0, -h], end+[h, 0, h], end+[-h, 0, h]]
         quads.append((p, [(u, 24/32), (u+.5, 24/32), (u+.5, 1), (u, 1)], (0, sign, 0)))
     v = orient(tris(quads)); P = np.array(v).reshape(-1, 8)[:, :3]
-    anchor = cfg['stow_hull']; mid = (top+(top-length))/2; sc = anchor['scale']
+    anchor = cfg['stow_hull']; mid = (top+(top-length))/2
+    sc = round(1/json.loads(VESSEL.read_text(encoding='utf-8'))['aquatic_scale'], 4)  # the braid's stick, undoing the hull's size
     # Place the socket so the stick's middle sits at the anchor centre along the hull's Z.
     centre = np.array(anchor['centre'], float); yaw = math.radians(anchor['yaw'])
     axis = np.array([math.sin(yaw), 0, math.cos(yaw)])  # stick +Y after Rx(90) then Ry(yaw)
@@ -127,10 +128,9 @@ def clip_polygon(poly, y, keep_above):
 
 
 def wetline(cfg):
-    w = cfg['wetline']; V = json.loads(VESSEL.read_text(encoding='utf-8'))
+    w = cfg['wetline']
     hull = json.loads(HULL.read_text(encoding='utf-8')); raw = np.array(hull['vertices']).reshape(-1, 8)
-    sq = V['squash']['bowl']; water = -V['bowl']['freeboard']/sq  # prop y of the waterline when afloat
-    low, high = water-w['below']/sq, min(-w['brim_gap'], water+w['above']/sq)
+    low, high, water = wet_band_rows(cfg)  # prop y; the waterline afloat
     out = []
     for part in hull['parts']:
         if part['name'].endswith('_lining'): continue  # the dry inside of the hat
@@ -153,11 +153,21 @@ def wetline(cfg):
             'bounds': [[round(float(P[:, i].min()), 4), round(float(P[:, i].max()), 4)] for i in range(3)]}
 
 
+def wet_band_rows(cfg):
+    """Band height in prop units: (low, high, waterline) as wetline() lays it."""
+    w = cfg['wetline']; V = json.loads(VESSEL.read_text(encoding='utf-8'))
+    sq = V['squash']['bowl']; water = -V['bowl']['freeboard']/sq
+    return water-w['below']/sq, min(-w['brim_gap'], water+w['above']/sq), water
+
+
 def wet_texture(cfg):
-    w = cfg['wetline']; img = Image.new('RGBA', (4, 32)); px = img.load(); c = tuple(w['color'])
+    """4 x 32, v = 0 at the top of the band: the sheen fading up from the water, a bright thread at the waterline."""
+    w = cfg['wetline']; img = Image.new('RGBA', (4, 32)); px = img.load(); low, high, water = wet_band_rows(cfg)
+    line = round((1-(water-low)/(high-low))*31)-w.get('line_lift', 0)  # the thread sits just above the water surface
     for y in range(32):
-        q = 1-y/31  # v = 0 at the top of the band
-        a = w['alpha_low']*q**w['falloff']
+        q = min(1., (y/31)/max(1e-6, line/31))  # 0 at the top, 1 at the waterline and below
+        c, a = tuple(w['sheen']), w['alpha_low']*q**w['falloff']
+        if line-w['line_rows']//2 <= y < line-w['line_rows']//2+w['line_rows']: c, a = tuple(w['line']), w['line_alpha']
         for x in range(4): px[x, y] = c+(round(255*a),)
     return img
 

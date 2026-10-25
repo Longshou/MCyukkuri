@@ -65,7 +65,7 @@
 
 帽船只属于水生魔理沙；陆生魔理沙不放帽乘船，落水不会凭空生成帽船。投放、出航、翻覆救援、水上居住与生育、亲子初航、储粮与桨、争位和靠岸回帽等玩法见[水边生活实现](AQUATIC_MARISA_IMPLEMENTATION.md)。本页只保留亚种层面的约定：
 
-- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大（原创 1.5 倍），戴着时也按这个大小绘制。船体 `HatBoatEntity` 记录 `AFLOAT`、`BEACHED`、`CAPSIZED`、`RESCUED` 状态；实际乘员数由总载荷和真实座位共同限制，临时避难席位不建立亲缘，规则见[水边生活](AQUATIC_MARISA_IMPLEMENTATION.md)。
+- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大（原创 1.75 倍），戴着时也按这个大小绘制。船体 `HatBoatEntity` 记录 `AFLOAT`、`BEACHED`、`CAPSIZED`、`RESCUED` 状态；实际乘员数由总载荷和真实座位共同限制，临时避难席位不建立亲缘，规则见[水边生活](AQUATIC_MARISA_IMPLEMENTATION.md)。
 - 同一实体还有两种接生用状态。**地上的帽子**（`CRADLE`）：陆生魔理沙用辫子把帽子倒过来按在出口前的地上，帽冠压扁贴地，不可碰撞，不挡出生通道，幼体坐在帽内底部。**浮在岸边**（`MOORED`）：水生魔理沙在靠岸分娩时把帽子翻过来按在岸边水面上浮着，保持原位不漂走，孩子落进帽里。孩子进帽、跳出帽子都按重力下的抛物线运动（`HatVessel`、`FamilyLife` 的飞行）；不再需要时，主人回到摘帽位置，幼体先跳出帽子，再用辫子取回戴上。
 - 水生魔理沙只与水生魔理沙配对。帽船上的动作（漂流、稳船、向岸呼唤、帽船安胎、帽船分娩、夜里睡觉与帽中幼体）见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)。
 - `HatBoatEntity.find`、`createFor`、`board`、`boardYoung`、`capsize`、`rescue` 供野外事件和家庭使用；调用方以实际返回值和乘员关系判断阶段。查不到卸载区块中的实体不等于死亡或获救，不能生成替身船。`REMOVED` 保留给外部状态对接，正常收束走 `RESCUED` 后移除。

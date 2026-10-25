@@ -210,10 +210,12 @@ class Deck:
         ea, eb = self.env[ca], self.env[cb]
         (ax, _, az), (bx, _, bz) = a['pos'], b['pos']
         if y_overlap(sa[0].y, sb[0].y) and math.hypot(ax-bx, az-bz) < ea.radius+eb.radius+self.gap: return True
+        # a young's worn hat keeps a wider berth from the owner: her hair, braid and seated sway reach past her bounds
+        hat_gap = self.D.get('owner_hat_gap', self.gap) if ca in ('adult', 'gravid') or cb in ('adult', 'gravid') else self.gap
         for i, p in enumerate(sa):
             for j, q in enumerate(sb):
                 if i == 0 and j == 0: continue
-                if boxes_meet(p, q, self.gap): return True
+                if boxes_meet(p, q, hat_gap): return True
         return boxes_meet(sa[0], sb[0], -min(ea.width, eb.width)*.08)  # the bounds themselves, a little soft
 
     def pack(self, c, valid, cost, fixed):
@@ -241,15 +243,13 @@ class Deck:
                 self.add('captain_high', 'CAPTAIN_HIGH', (0, H.top, z), 0, ['adult', 'gravid'], True, False, lean_back=6,
                          rests_on=[r4(rest[0]), r4(rest[-1])])
         if self.spec['cargo']:
-            # the larder: the one store lies on the bottom of the crown cavity (user 2026-10-26: no brim heaps)
-            fl = V['cavity_sections'][-1]['rect']
+            # the larder: the one store lies on the bottom of the crown cavity, toward the bow, where cargo.py settled
+            # it (user 2026-10-26: no brim heaps); the owner's underside stays free for the young by night
             for t, pile in enumerate(self.pile):
                 if pile is None: self.heaps.append(None); continue
-                x0, x1, z0, z1 = pile['bounds']; w = self.wall
-                x = (fl[0]+fl[1])/2-(x0+x1)/2
-                z = {'front': fl[2]+w-z0, 'stern': fl[3]-w-z1, 'centre': (fl[2]+fl[3])/2-(z0+z1)/2}[D['larder_at']]
-                self.heaps.append(dict(x=x, y=H.top-pile['depth']*H.sq, z=z, height=pile['height']*H.sq,
-                                       bounds=[x+x0, x+x1, z+z0, z+z1], visual_offset=[x-pile['visual'][0], z-pile['visual'][1]],
+                (x, z), (x0, x1, z0, z1) = pile['centre'], pile['bounds']
+                y = H.top-V['floor']*H.sq  # the crown floor; cells are heights over it, unsquashed
+                self.heaps.append(dict(x=x, y=y, z=z, height=pile['height']*H.sq, bounds=[x+x0, x+x1, z+z0, z+z1],
                                        cells=pile['cells'], grid=pile['grid']))
         # cabin places: each size class packed alone round the owner, by day from the bow perch, by night close round
         # and beneath her, every facing set tried; the fullest packings are merged into one set of places
@@ -343,7 +343,10 @@ class Deck:
         order = {'day': ['BOW_PERCH', 'BRIM', 'WELL_FRONT', 'NEST_HOLLOW'], 'night': ['NEST_HOLLOW', 'WELL_FRONT', 'BOW_PERCH']}
         for when, kinds in order.items():
             rest = [s for s in self.slots if s['kind'] in kinds]
-            key = lambda s: (kinds.index(s['kind']), math.hypot(s['pos'][0], s['pos'][2]-(cap['pos'][2] if cap and when == 'night' else self.hull.opening[2])))
+            # by day a young on the bow perch faces out over the bow (yaw 0), by night it turns to her (yaw 180)
+            face = 0 if when == 'day' else 180
+            key = lambda s: (kinds.index(s['kind']), s['kind'] in CABIN and s['yaw'] != face,
+                             math.hypot(s['pos'][0], s['pos'][2]-(cap['pos'][2] if cap and when == 'night' else self.hull.opening[2])))
             for n, s in enumerate(sorted(rest, key=key)): s.setdefault('prefer', {})[when] = n+1
 
     # ---------------------------------------------------------- measured relations
@@ -385,7 +388,7 @@ class Deck:
                     d = math.hypot(max(b[0]-x, 0, x-b[1]), max(b[2]-z, 0, z-b[3]))
                     if d <= e.radius+lip['reach']*self.block and y+e.height/2-top <= lip['height']*self.block: row['lip'].append(s['id'])
                 row.update(occupies=['larder'], zone=dict(x=r4(h['x']), y=r4(h['y']), z=r4(h['z']), height=r4(h['height']),
-                                                          bounds=[r4(v) for v in h['bounds']], visual_offset=[r4(v) for v in h['visual_offset']]))
+                                                          bounds=[r4(v) for v in h['bounds']]))
             out.append(row)
         return out
 
@@ -511,7 +514,8 @@ class Deck:
             for k, v in self.fixtures['paddle_stow']['excludes'].items(): blocked[k] = min(v, blocked.get(k, v), key=rank)
         seat = next((s for s in self.slots if s['kind'] == ('CAPTAIN_HIGH' if owner == 'gravid' else 'CAPTAIN')), None)
         placed0 = [(seat, owner)] if seat and self.spec['captain'] else []
-        homes = [s for s in self.slots if s['kind'] in CABIN+('BRIM',)]
+        when = 'night' if night else 'day'  # homes in the slots' preference order for this time (rank_slots)
+        homes = sorted((s for s in self.slots if s['kind'] in CABIN+('BRIM',)), key=lambda s: s.get('prefer', {}).get(when, 999))
         order = sorted(range(len(bodies)), key=lambda i: -rank(bodies[i]))
         result = [None]*len(bodies)
 
@@ -612,37 +616,28 @@ class Deck:
                     care=care, capacity=self.capacity())
 
 
-def measure_pile(provisions, cargo, grid=.25):
-    """The provisions of each tier as built (hat_provisions.json: the same transformed forage_pile vertices that
-    hat_cargo_layout.json encloses): footprint and, per grid column, how high it stands; unsquashed hat units."""
-    verts = provisions['vertices']; out = [None]
-    for t, place in enumerate(cargo['visual_placements']['tiers']):
-        if not place: continue
-        place = place[0]; name = f'inside_tier{t}_copy0_'; cells = {}; xs, zs, hs = [], [], []
-        for part in provisions['parts']:
-            if not part['name'].startswith(name): continue
-            for k in range(part['start'], part['start']+part['count']):
-                x, y, z = verts[8*k:8*k+3]; dx, dz, h = x-place['x'], z-place['z'], y-place['bottom']
-                xs.append(dx); zs.append(dz); hs.append(h)
-                key = (round(dx/grid), round(dz/grid)); cells[key] = max(cells.get(key, 0.), h)
-        grown = {}
-        for (i, j), h in cells.items():  # cover the faces between vertices
-            for di in (-1, 0, 1):
-                for dj in (-1, 0, 1): grown[(i+di, j+dj)] = max(grown.get((i+di, j+dj), 0.), h)
-        out.append(dict(bounds=[min(xs), max(xs), min(zs), max(zs)], height=max(hs), depth=-place['bottom'], cells=grown, grid=grid,
-                        visual=[place['x'], place['z']]))
+def measure_pile(cargo):
+    """The crown larder of each tier as exported (hat_cargo_layout.json larder[t].occupancy: the leaf bed and the items
+    settled on it, drops/care-props/cargo.py): its centre, footprint and per grid column the height over the crown floor;
+    unsquashed hat units, as the hull's depths."""
+    out = [None]
+    for t in cargo['larder'][1:]:
+        o = t['occupancy']; g = o['grid']; cells = {(round(dx/g), round(dz/g)): h for dx, dz, h in o['cells']}
+        xs = [dx for dx, _, _ in o['cells']]; zs = [dz for _, dz, _ in o['cells']]
+        out.append(dict(bounds=[min(xs)-g/2, max(xs)+g/2, min(zs)-g/2, max(zs)+g/2], height=max(cells.values()),
+                        floor=o['floor'], cells=cells, grid=g, centre=o['centre']))
     return out
 
 
-def export(V, body, cargo, provisions, D, pregnancy, stick=None):
-    pile = measure_pile(provisions, cargo)
+def export(V, body, cargo, D, pregnancy, stick=None):
+    pile = measure_pile(cargo)
     decks = {name: Deck(name, spec, V, body, cargo, pile, D, pregnancy, stick) for name, spec in D['modes'].items()}
     return decks, {name: d.export(D['verify']) for name, d in decks.items()}
 
 
 def verify(decks, D):
     """The documented loads: the load budget first, then a legal set of places by day and by night."""
-    lines = []; L = D['load']
+    lines = []; L = D['load']; wrong = []
     for case in D['verify']:
         deck = decks[case.get('mode', 'AQUATIC_FLOAT')]; bodies = case['bodies']
         load = sum(L[c] for c in bodies)+case['food']*L['food']+(L['paddle'] if case['paddle'] else 0)+(L['gravid'] if case.get('owner') == 'gravid' else 0)
@@ -651,7 +646,8 @@ def verify(decks, D):
         elif case['food'] > L['larder_max']: state = 'LARDER_FULL'
         else: state = 'OK' if all(v is not None for v in got.values()) else 'DAY_ONLY' if got['day'] is not None else 'NO_SLOT_FOR_CLASS'
         lines.append((case['name'], load, state, got))
-        if state != case.get('expect', 'OK'): raise SystemExit(f"verify {case['name']}: {state} (load {load}) {got}")
+        if state != case.get('expect', 'OK'): wrong.append(f"verify {case['name']}: {state} (load {load}) {got}")
+    if wrong: raise SystemExit('\n'.join(wrong))
     return lines
 
 

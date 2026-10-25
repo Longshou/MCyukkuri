@@ -258,9 +258,8 @@ def verification():
     """Re-run the exporter's own load check (the same code path as build.py)."""
     body = json.loads((ASSETS/'body_geometry.json').read_text(encoding='utf-8'))['variants']['marisa']
     cargo = json.loads((ASSETS/'hat_cargo_layout.json').read_text(encoding='utf-8'))
-    prov = json.loads((ASSETS.parent/'yukkuri_props/hat_provisions.json').read_text(encoding='utf-8'))
     stick = ASSETS.parent/'yukkuri_props/paddle_stick.json'
-    decks, _ = DK.export(VESSEL, body, cargo, prov, RECIPE['deck'], RECIPE['pregnancy'], json.loads(stick.read_text(encoding='utf-8')) if stick.is_file() else None)
+    decks, _ = DK.export(VESSEL, body, cargo, RECIPE['deck'], RECIPE['pregnancy'], json.loads(stick.read_text(encoding='utf-8')) if stick.is_file() else None)
     return {name: dict(load=load, state=state, **got) for name, load, state, got in DK.verify(decks, RECIPE['deck'])}
 
 
