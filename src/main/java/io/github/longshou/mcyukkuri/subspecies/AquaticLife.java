@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
+import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
@@ -197,7 +199,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 +" elapsed="+elapsed+" cooldown="+cooldown+" heldPaddle="+hasStick()+" provisions="+provisions.getCount();
     }
     private boolean afloatSpawn, naturalAfloatSpawn;
-    /** A newly created aquatic may begin aboard her own real hull on the nearest calm surface once her normal voyage eligibility allows it. */
+    /** A newly created aquatic joins the world aboard her own real hull; the pending flag is spent by {@link #attemptAfloatSpawn}. */
     public boolean requestAfloatSpawn() {
         if(!EcologyRoutines.aquaticVoyage(entity))return false;
         afloatSpawn=true;return true;
@@ -207,22 +209,35 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if(!requestAfloatSpawn())return false;
         naturalAfloatSpawn=true;return true;
     }
-    /** Spawn directly into one real water-surface hull. Equipment stays finite; this path creates neither a paddle nor food. */
-    public boolean launchAfloat() {
-        if (level().isClientSide || !EcologyRoutines.aquaticVoyage(entity) || !afloatSpawnAvailable() || entity.isPassenger() || entity.isVehicle()
+    /**
+     * Spawn directly into one real water-surface hull: the berth is chosen where she stands at creation
+     * ({@link ShoreBerth.Purpose#SPAWN}) and she is aboard before she ever acts. Equipment stays finite; this path creates neither
+     * a paddle nor food beyond the natural start. Spent once; only a chunk still loading is retried, within the first 40 ticks.
+     */
+    public boolean attemptAfloatSpawn() {
+        if (!afloatSpawn || level().isClientSide) return false;
+        boolean natural = naturalAfloatSpawn;
+        if (!EcologyRoutines.aquaticVoyage(entity) || !afloatSpawnAvailable() || entity.isPassenger() || entity.isVehicle()
                 || entity.subspecies().boatId() != null || !entity.life().hasAccessory() || !firstVoyage.mayLaunch()
-                || entity.life().isSleeping() || entity.family().active() || entity.family().brood() != null) return false;
-        BlockPos water = null; double nearest = Double.MAX_VALUE;
-        for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-14,-3,-14), entity.blockPosition().offset(14,3,14))) {
-            if (!HatBoatRoute.calmSurface(level(), p)) continue;
-            double distance=p.distSqr(entity.blockPosition());
-            if(distance<nearest&&HatBoatLaunch.afloatSpawnClear(entity,p)){nearest=distance;water=p.immutable();}
+                || entity.life().isSleeping() || entity.family().active() || entity.family().brood() != null) {
+            afloatSpawn = false; naturalAfloatSpawn = false;
+            GameplayLog.event(entity,"aquatic","afloat spawn skipped: spawn conditions not met");
+            return false;
         }
-        var boat=water==null?null:HatBoatEntity.createAfloatAndBoard(entity,water);
-        if(boat==null)return false;
-        if(naturalAfloatSpawn) equipNaturalAfloat(boat);
+        var outcome = ShoreBerth.find(level(), entity, HatVessel.hatScale(entity), entity.blockPosition(), ShoreBerth.Purpose.SPAWN, null);
+        if (outcome instanceof ShoreBerth.Refusal refusal) {
+            if (!refusal.reason().equals("no_calm_water") && refusal.counts().containsKey("hull_unloaded") && entity.tickCount <= 40) return false;
+            afloatSpawn = false; naturalAfloatSpawn = false;
+            GameplayLog.event(entity,"aquatic","afloat spawn refused berth={}",refusal.describe());
+            return false;
+        }
+        var result = HullFactory.deployOnBerth(entity, HullFactory.Origin.SPAWN, (ShoreBerth.Berth) outcome);
+        afloatSpawn = false; naturalAfloatSpawn = false;
+        var boat = HullFactory.boatOf(result);
+        if (boat == null) return false;
+        if (natural) equipNaturalAfloat(boat);
         GameplayLog.event(entity,"aquatic","afloat spawn boarded hat={} natural={} cargo={} paddle={}",
-                boat.getUUID(),naturalAfloatSpawn,boat.cargo().count(),boat.cargo().paddle());
+                boat.getUUID(),natural,boat.cargo().count(),boat.cargo().paddle());
         return true;
     }
     private void equipNaturalAfloat(HatBoatEntity boat) {
@@ -248,9 +263,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             GameplayLog.event(entity, "aquatic", "own-hat passenger changed {} -> {}", observedOwnBoat, ownBoat);
             observedOwnBoat = ownBoat;
         }
-        if (afloatSpawn && entity.tickCount >= 20 && entity.tickCount % 10 == 0 && !entity.level().isClientSide) {
-            if (launchAfloat() || entity.tickCount > 1200) { afloatSpawn = false; naturalAfloatSpawn=false; }
-        }
+        if (afloatSpawn && entity.tickCount >= 1 && entity.tickCount % 10 == 1 && !entity.level().isClientSide) attemptAfloatSpawn();
         if (cooldown > 0) cooldown--; shore.tick(); care.clock(); firstVoyage.clock(); familyLife.clock(); daily.clock();
         selfRescue.clock();
         // A cancelled trip must not leave her starving while she still carries real provisions.
@@ -320,17 +333,15 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     }
     private boolean planBirthLaunch() {
         bank = water = null;
-        var anchor=birthLaunchAnchor(); double nearest=Double.MAX_VALUE;
-        for(var p:BlockPos.betweenClosed(entity.blockPosition().offset(-16,-2,-16),entity.blockPosition().offset(16,2,16))) {
-            if(p.equals(failedBirthWater)&&level().getGameTime()<retryBirthWaterAt||!HatBoatRoute.calmSurface(level(),p))continue;
-            for(var side:Direction.Plane.HORIZONTAL) {
-                var stand=p.relative(side).above();double distance=stand.distSqr(anchor);
-                if(distance>=nearest||!level().hasChunkAt(stand)||!entity.life().dryStand(stand)
-                        ||!HatBoatLaunch.bankLaunchClear(entity,stand,p)||!entity.life().reachable(stand,false))continue;
-                nearest=distance;bank=stand.immutable();water=p.immutable();
-            }
+        long now=level().getGameTime();
+        var query=new ShoreBerth.Query(entity,null,HatVessel.hatScale(entity),birthLaunchAnchor(),ShoreBerth.Purpose.LAUNCH,null,16,0,
+                p->!(p.equals(failedBirthWater)&&now<retryBirthWaterAt));
+        var outcome=ShoreBerth.find(level(),query);
+        if(!(outcome instanceof ShoreBerth.Berth berth)){
+            GameplayLog.limited(entity,"aquatic","birth.noberth",400,"birth launch found no berth reason={}",((ShoreBerth.Refusal)outcome).describe());
+            return false;
         }
-        if(bank==null)return false;
+        bank=berth.bank();water=berth.water();
         elapsed=launchTicks=provisionTicks=familyWait=0;return true;
     }
     /** Nearby loaded candidates are only a reason to ask the ordinary landing controller for shore; FamilyLife later owns courtship. */
@@ -454,20 +465,17 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         nextPlan = now+40;
         // Her home is afloat. Shore visits end as soon as actual food/toilet/hat-care needs allow.
         bank = null; water = null;
-        double nearest = Double.MAX_VALUE;
         int range=shore.coastal(entity.blockPosition())?16:32;
-        for (var p : BlockPos.betweenClosed(entity.blockPosition().offset(-range,-2,-range), entity.blockPosition().offset(range,2,range))) {
-            if (!HatBoatRoute.calmSurface(level(), p)) continue;
-            for (var side : Direction.Plane.HORIZONTAL) {
-                var stand = p.relative(side).above(); double distance = stand.distSqr(entity.blockPosition());
-                if (distance >= nearest || !level().hasChunkAt(stand) || !entity.life().dryStand(stand)
-                        || !HatBoatLaunch.bankLaunchClear(entity, stand, p)
-                        || !entity.life().reachable(stand, false)) continue;
-                nearest = distance; bank = stand.immutable(); water = p.immutable();
-            }
+        var outcome = ShoreBerth.find(level(), new ShoreBerth.Query(entity, null, HatVessel.hatScale(entity), entity.blockPosition(),
+                ShoreBerth.Purpose.LAUNCH, null, range, 0, p -> true));
+        String refusal = null;
+        if (outcome instanceof ShoreBerth.Berth berth) { bank = berth.bank(); water = berth.water(); }
+        else {
+            refusal = ((ShoreBerth.Refusal) outcome).describe();
+            GameplayLog.limited(entity, "aquatic", "shore.noberth", 600, "shore voyage found no berth reason={}", refusal);
         }
         elapsed = launchTicks = provisionTicks = familyWait = 0;
-        launchCheck = bank == null ? "no_reachable_bank" : "bank_selected";
+        launchCheck = bank == null ? "no_berth:" + refusal : "bank_selected";
         launchCheckTick = now;
         if (bank != null) GameplayLog.event(entity, "aquatic", "shore voyage planned bank={} water={} paddle={} provisions={}",
                 bank, water, hasStick(), provisions.getCount());
@@ -593,7 +601,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         entity.setYRot(yaw); entity.yBodyRot = yaw; entity.setYHeadRot(yaw);
         activity = Behaviors.BOAT_LAUNCH;
         if (++launchTicks >= 36) {
-            var boat = HatBoatEntity.launchFromBank(entity, water);
+            var boat = HullFactory.launchFromBank(entity, bank, water);
             launchCheck = boat == null ? "hull_creation_failed" : "hull_created_boarding_pending";
             launchCheckTick = level().getGameTime();
             if(boat==null&&birthLaunch){failedBirthWater=water;retryBirthWaterAt=level().getGameTime()+400;}

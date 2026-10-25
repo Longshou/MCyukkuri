@@ -105,6 +105,8 @@ public final class SubspeciesLife {
         if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestNaturalAfloatSpawn();
         entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
                 congenital!=Congenital.NORMAL,kind));
+        // A loaded-world spawn joins already aboard; chunk generation cannot place entities and falls back to her first ticks.
+        if (kind == Kind.AQUATIC_MARISA && reason == MobSpawnType.NATURAL) entity.aquaticLife().attemptAfloatSpawn();
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();

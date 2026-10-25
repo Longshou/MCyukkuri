@@ -196,26 +196,15 @@ public final class ScenarioCommands {
                                     ChatFormatting.GOLD);
                             return done(c.getSource(), "水族聚落已建立：" + members.size() + " 名成员、真实岸边公仓；之后不强制角色或路线。");
                         }))))
-                .then(Commands.literal("boat").then(Commands.argument("mode", StringArgumentType.word())
-                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"sail", "shore", "high", "voyage", "braid", "self", "birth", "drop", "shake", "afloat", "unattended", "self_far", "self_tired", "return_capsized", "capsize_family",
-                                "cargo_empty", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow"}, b))
-                        .then(Commands.argument("parent", EntityArgument.entity())
-                                .then(Commands.argument("others", EntityArgument.entities())
-                                        .then(Commands.argument("bank", BlockPosArgument.blockPos())
-                                                .then(Commands.argument("water", BlockPosArgument.blockPos()).executes(c -> {
-                                                    var parent = yukkuri(c, "parent");
-                                                    if (parent == null) return 0;
-                                                    var others = new ArrayList<YukkuriEntity>();
-                                                    for (var selected : EntityArgument.getEntities(c, "others")) {
-                                                        if (selected == parent) continue;
-                                                        if (selected instanceof YukkuriEntity other) others.add(other);
-                                                    }
-                                                    String mode = StringArgumentType.getString(c, "mode");
-                                                    String reason = ScenarioBoats.prepare(mode, parent, others,
-                                                            BlockPosArgument.getLoadedBlockPos(c, "bank"), BlockPosArgument.getLoadedBlockPos(c, "water"));
-                                                    if (reason != null) return refused(c.getSource(), parent, "水上场景 " + mode, reason);
-                                                    return done(c.getSource(), "水上场景 " + mode + " 已设置初始条件；之后由普通行为接管。");
-                                                })))))))
+                .then(Commands.literal("aboard").then(Commands.argument("parent", EntityArgument.entity())
+                        .then(Commands.argument("crew", EntityArgument.entities())
+                                .then(Commands.argument("bank", BlockPosArgument.blockPos())
+                                        .executes(c -> aboard(c, ""))
+                                        .then(Commands.argument("options", StringArgumentType.greedyString()).executes(c -> aboard(c, StringArgumentType.getString(c, "options"))))))))
+                .then(Commands.literal("swim").then(Commands.argument("actor", EntityArgument.entity())
+                        .then(Commands.argument("anchor", BlockPosArgument.blockPos())
+                                .executes(c -> swim(c, ""))
+                                .then(Commands.argument("options", StringArgumentType.greedyString()).executes(c -> swim(c, StringArgumentType.getString(c, "options")))))))
                 .then(Commands.literal("shore")
                         .then(Commands.argument("parent", EntityArgument.entity()).executes(c -> {
                             var parent = yukkuri(c, "parent");
@@ -241,6 +230,29 @@ public final class ScenarioCommands {
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
+    }
+
+    /** {@code scenario aboard <parent> <crew> <bank> [food=N] [paddle=0|1]}: the parent's hat boat on searched open water, the crew aboard. */
+    private static int aboard(CommandContext<CommandSourceStack> c, String options) throws CommandSyntaxException {
+        var parent = yukkuri(c, "parent");
+        if (parent == null) return 0;
+        var crew = new ArrayList<YukkuriEntity>();
+        for (var selected : EntityArgument.getEntities(c, "crew")) {
+            if (selected == parent) continue;
+            if (selected instanceof YukkuriEntity other) crew.add(other);
+        }
+        String reason = ScenarioBoats.aboard(parent, crew, BlockPosArgument.getLoadedBlockPos(c, "bank"), options);
+        if (reason != null) return refused(c.getSource(), parent, "水上场景 aboard", reason);
+        return done(c.getSource(), "水上场景 aboard 已设置初始条件；之后由普通行为接管。");
+    }
+
+    /** {@code scenario swim <actor> <anchor> [near=nearest|uuid] [dist=D] [energy=E]}: put one individual into searched open water and plunge it. */
+    private static int swim(CommandContext<CommandSourceStack> c, String options) throws CommandSyntaxException {
+        var actor = yukkuri(c, "actor");
+        if (actor == null) return 0;
+        String reason = ScenarioBoats.swim(actor, BlockPosArgument.getLoadedBlockPos(c, "anchor"), options);
+        if (reason != null) return refused(c.getSource(), actor, "水上场景 swim", reason);
+        return done(c.getSource(), "水上场景 swim：已落水；之后由普通行为接管。");
     }
 
     /**

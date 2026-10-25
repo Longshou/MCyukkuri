@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -39,7 +40,7 @@ final class AquaticLanding {
     private boolean active;
     private Stage stage=Stage.DOCK;
     private UUID ownerId,rescuer,current;
-    private HatDock.Plan plan;
+    private ShoreBerth.Berth plan;
     private BlockPos hint;
     private long started,stageSince,actorSince,airSince;
     private int blocked,replans,respots,refusals;
@@ -58,10 +59,11 @@ final class AquaticLanding {
             if(child.family().flying()||child.family().braidRescueActive())return false;
             crew.add(child.getUUID());
         }
-        var found=HatDock.plan(boat,owner,crew.size(),stand);
-        if(found==null){
-            GameplayLog.limited(owner,"aquatic","landing.no_dock",200,"landing refused hat={} reason=no_dock crew={}",boat.getUUID(),crew.size());
-            AquaDiag.log(owner,"landing.noplan",40,"no bank with a free place for the hull near "+AquaDiag.at(boat.position()));
+        var outcome=berth(owner,crew.size(),stand);
+        if(!(outcome instanceof ShoreBerth.Berth found)){
+            var refusal=(ShoreBerth.Refusal)outcome;
+            GameplayLog.limited(owner,"aquatic","landing.no_dock",200,"landing refused hat={} reason=no_dock crew={} berth={}",boat.getUUID(),crew.size(),refusal.describe());
+            AquaDiag.log(owner,"landing.noplan",40,"no bank with a free place for the hull near "+AquaDiag.at(boat.position())+": "+refusal.describe());
             return false;
         }
         for(var passenger:boat.getPassengers())if(passenger instanceof YukkuriEntity rider)rider.life().wakeInHat();
@@ -73,6 +75,12 @@ final class AquaticLanding {
         AquaDiag.log(owner,"landing.begin",0,"owner="+owner.getUUID()+" bank="+plan.bank()+" toWater="+plan.toWater()+" crew="+crew.size()
                 +" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" dock="+AquaDiag.at(plan.center())+"/"+plan.yaw());
         return true;
+    }
+
+    /** The one berth query for this hull: the bank and hull pose the landing lies along, or the refusal with its real obstruction. */
+    private ShoreBerth.Outcome berth(YukkuriEntity owner,int crew,BlockPos hint){
+        return ShoreBerth.find((ServerLevel)boat.level(),new ShoreBerth.Query(owner,boat,boat.hullScale(),boat.blockPosition(),
+                ShoreBerth.Purpose.LAND,hint,ShoreBerth.defaultRange(ShoreBerth.Purpose.LAND),crew,p->true));
     }
 
     void tick(){
@@ -109,8 +117,7 @@ final class AquaticLanding {
         boolean turned=Math.abs(Mth.wrapDegrees(plan.yaw()-boat.getYRot()))<=12;
         if(gap<=.4&&turned){next(Stage.CREW,now);AquaDiag.log(boat,"landing.docked",0,"close enough rimGap="+gap+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot());return;}
         if(replans++<2){
-            var again=HatDock.plan(boat,owner,queue.size(),hint);
-            if(again!=null){plan=again;blocked=0;stageSince=now;AquaDiag.log(boat,"landing.replan",0,"bank="+plan.bank());return;}
+            if(berth(owner,queue.size(),hint) instanceof ShoreBerth.Berth again){plan=again;blocked=0;stageSince=now;AquaDiag.log(boat,"landing.replan",0,"bank="+plan.bank());return;}
         }
         abort("could not lie alongside the bank gap="+gap);
     }

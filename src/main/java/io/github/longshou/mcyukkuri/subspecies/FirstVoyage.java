@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -89,7 +90,7 @@ public final class FirstVoyage {
     /** True when the hat can take provisions bound to this token: nothing else is held, or it is the same hat. */
     boolean canRetainHat(UUID token){return retainedCargo==null||token.equals(retainedHatToken);}
     void retainHat(UUID token,CompoundTag cargo){retainedHatToken=token;retainedCargo=cargo.copy();}
-    void restoreHatCargo(HatBoatEntity boat){
+    public void restoreHatCargo(HatBoatEntity boat){
         if(retainedCargo!=null){boat.cargo().load(retainedCargo);boat.syncCargo(boat.cargo().save());retainedCargo=null;}
         retainedHatToken=null;
     }
@@ -324,7 +325,7 @@ public final class FirstVoyage {
             if(!HatBoatRoute.quietSurface(level(),water)){finish("launch_water_not_quiet");return;}
             float yaw=home.getYRot();child.setYRot(yaw);child.yBodyRot=yaw;child.setYHeadRot(yaw);
             if(phase==Phase.APPROACH){if(ticks>=20)set(Phase.LAUNCH);return;}
-            if(ticks>=36){boat=HatBoatEntity.launchFromFather(child,home,water);if(boat==null){finish("launch_failed");return;}
+            if(ticks>=36){boat=HullFactory.launchFromFather(child,home,water);if(boat==null){finish("launch_failed");return;}
                 harbor=BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());set(Phase.BOARD);}return;
         }
         if(phase==Phase.CELEBRATE){

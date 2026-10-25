@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFootprint;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -134,17 +136,13 @@ final class HatBoatCapsize {
     static boolean selfRescueDeploymentReachable(YukkuriEntity actor,SelfRescueDeployment plan){
         if(plan==null||!(actor.level() instanceof ServerLevel level))return false;
         if(plan.path()==null)return false;
-        var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return false;
-        boat.syncHullScale(HatVessel.hatScale(actor)*actor.getScale());boat.setPos(plan.position());boat.setYRot(plan.yaw());
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
-        boolean calm=HatBoatRoute.calmSurface(level,water),inside=level.getWorldBorder().isWithinBounds(water);
-        boolean level_=Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08,free=level.noCollision(boat,boat.getBoundingBox());
-        if(!(calm&&inside&&level_&&free))AquaDiag.log(actor,"self.spot."+actor.getId(),40,"hat spot "+AquaDiag.at(plan.position())+" calm="+calm+" bounds="+
-                inside+" level="+level_+" free="+free+" box="+boat.getBoundingBox()
-                +" blocks="+level.getBlockCollisions(boat,boat.getBoundingBox()).iterator().hasNext()+" entities="+level.getEntityCollisions(boat,boat.getBoundingBox()).size()
-                +" near="+level.getEntities(boat,boat.getBoundingBox().inflate(.3)).stream().map(e->e.getType().toShortString()+"@"+AquaDiag.at(e.position())+
-                        "/"+e.getBoundingBox().getXsize()).toList());
-        return calm&&inside&&level_&&free;
+        boolean inside=level.getWorldBorder().isWithinBounds(water);
+        boolean level_=Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)<.08;
+        var fit=HullFootprint.fits(level,actor,null,plan.position(),plan.yaw(),HatVessel.hatScale(actor)*actor.getScale(),0);
+        if(!(inside&&level_&&fit.ok()))AquaDiag.log(actor,"self.spot."+actor.getId(),40,"hat spot "+AquaDiag.at(plan.position())+" bounds="+
+                inside+" level="+level_+" fit="+fit.reason()+" "+fit.detail());
+        return inside&&level_&&fit.ok();
     }
 
     static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan){
@@ -152,21 +150,11 @@ final class HatBoatCapsize {
     }
 
     static HatBoatEntity deployForSelfRescue(YukkuriEntity actor,SelfRescueDeployment plan,SelfRescueHatGeometry.Pose heldPose,float elapsed){
-        if(!(actor.level() instanceof ServerLevel level)||!actor.profile().aquatic()||!actor.isAlive()||!actor.isInWaterOrBubble()
-                ||actor.isPassenger()||actor.subspecies().boatId()!=null||!actor.life().hasAccessory()||!selfRescueDeploymentReachable(actor,plan))return null;
+        if(!(actor.level() instanceof ServerLevel)||!selfRescueDeploymentReachable(actor,plan))return null;
         var water=BlockPos.containing(plan.position().add(0,-.12,0));
-        if(!HatBoatRoute.calmSurface(level,water)||!level.getWorldBorder().isWithinBounds(water)
-                ||Math.abs(HatBoatRoute.surface(level,water).y-plan.position().y)>.08)return null;
-        var boat=ModEntities.HAT_BOAT.get().create(level);if(boat==null)return null;
-        boat.syncHullScale(HatVessel.hatScale(actor)*actor.getScale());boat.launchRole(HatVessel.Role.SELF);
-        boat.setPos(plan.position());boat.setYRot(plan.yaw());
-        if(!level.noCollision(boat,boat.getBoundingBox()))return null;
-        boat.syncOwner(Optional.of(actor.getUUID()));boat.syncAccessoryIdentity(actor);
-        if(!level.addFreshEntity(boat))return null;
-        var retained=actor.aquaticLife().firstVoyage().retainedHatToken();boat.launchToken(actor.life().stowAccessory(retained, boat.getUUID()));
-        if(boat.launchToken()==null){boat.discard();return null;}
-        actor.subspecies().boatId(boat.getUUID());actor.setPersistenceRequired();
-        actor.aquaticLife().firstVoyage().restoreHatCargo(boat);actor.aquaticLife().equip(boat);
+        var boat=HullFactory.boatOf(HullFactory.deploy(actor,new HullFactory.Spec(HullFactory.Origin.SWIMMING,plan.position(),plan.yaw(),
+                HatVessel.hatScale(actor)*actor.getScale(),water,null,0)));
+        if(boat==null)return null;
         // The held head hat has already turned and lowered to this exact upright pose. Never flip it a second time.
         boat.syncMotion(new CompoundTag());
         boat.setDeltaMovement(actor.getDeltaMovement().multiply(.65,0,.65));

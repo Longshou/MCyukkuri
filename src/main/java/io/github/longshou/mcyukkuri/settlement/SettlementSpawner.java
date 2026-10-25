@@ -173,7 +173,7 @@ public final class SettlementSpawner {
             added.add(member);
         }
         if(preset==Preset.WANDERER) {
-            if (aquaticSettlement) return List.copyOf(members);
+            if (aquaticSettlement) { boardAquaticMembers(members); return List.copyOf(members); }
             homes.getFirst().shelter().initializeEncounter(1);
             if(!members.getFirst().habitat().choose(homes.getFirst().shelter())){rollback(level,added,homes,seed,seedSnapshot,seedPartner);return List.of();}
 
@@ -218,7 +218,12 @@ public final class SettlementSpawner {
         }
         if(site!=null)SiteLife.found(level,site,group,members.size());
         else if (waterCommons != null) initializeWaterCommons(level, group, members.size());
+        if (aquaticSettlement) boardAquaticMembers(members);
         return List.copyOf(members);
+    }
+    /** Once the household's ages and kin are set, every aquatic member joins the world aboard her own hull in this same tick. */
+    private static void boardAquaticMembers(List<YukkuriEntity> members) {
+        for (var member : members) if (member.isAlive()) member.aquaticLife().attemptAfloatSpawn();
     }
     /** A water group's public store is a normal forage pile on an actual dry bank, seeded only at colony creation. */
     private static void initializeWaterCommons(ServerLevel level, SettlementData.Group group, int population) {

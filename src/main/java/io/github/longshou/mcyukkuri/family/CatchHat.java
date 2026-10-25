@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.UUID;
@@ -320,7 +321,7 @@ final class CatchHat {
             if(--hatTicks<=0){
                 // The clip ends with the hat where it now lies: it becomes the set-down hat (the accessory leaves the head).
                 if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null){
-                    var down=HatBoatEntity.setDown(o.entity(),hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
+                    var down=HullFactory.setDown(o.entity(),hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
                     // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
                     if(down==null){
                         dutyGaveUp=true;clearDeliveryStation();BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");

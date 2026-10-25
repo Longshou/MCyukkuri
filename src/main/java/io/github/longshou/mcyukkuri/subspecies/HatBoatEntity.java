@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.item.ItemStack;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -94,12 +95,12 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     CompoundTag dipData() { return entityData.get(DIP); }
     void syncDip(CompoundTag data) { entityData.set(DIP, data); }
     void markHullHurt() { markHurt(); }
-    void syncHullScale(float scale) { entityData.set(SCALE, scale); }
-    void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
-    UUID launchToken() { return accessoryToken; }
-    void launchToken(UUID token) { accessoryToken = token; }
-    void launchRole(HatVessel.Role next) { role = next; }
-    void moorAt(Vec3 at) { mooring = at; }
+    public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
+    public void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
+    public UUID launchToken() { return accessoryToken; }
+    public void launchToken(UUID token) { accessoryToken = token; }
+    public void launchRole(HatVessel.Role next) { role = next; }
+    public void moorAt(Vec3 at) { mooring = at; }
     void clearCrew() { crew.clear(); }
     List<HatVessel.ProvisionZone> capsizeSpillZones() { return interior.zones(cargo.innerCount(), cargo.asideCount()); }
 
@@ -436,7 +437,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public FamilyLife.Stage accessoryStage() {
         var stages=FamilyLife.Stage.values(); return stages[Math.clamp(entityData.get(ACCESSORY_STAGE),0,stages.length-1)];
     }
-    void syncAccessoryIdentity(YukkuriEntity owner) {
+    public void syncAccessoryIdentity(YukkuriEntity owner) {
         entityData.set(AQUATIC_HULL,owner.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA);
         entityData.set(ACCESSORY_STAGE,owner.family().stage().ordinal());
     }
@@ -446,7 +447,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public float hullScale() { return entityData.get(SCALE); }
     public HatVessel.Role role() { return role; }
     public int flooding() { return flooding; }
-    void state(State next) { entityData.set(STATE, next.ordinal()); }
+    public void state(State next) { entityData.set(STATE, next.ordinal()); }
+    /** Keep the hull still for this many ticks after it is deployed, so boarding can begin on a settled hull. */
+    public void holdFor(int ticks) { heldTicks = ticks; }
     @Override public boolean isPickable() { return !isRemoved(); }
     /** The hull box is a thin slab at the waterline; a wider pick margin lets a player aim at the brim past the riders to shake it. */
     @Override public float getPickRadius() { return .4f; }
@@ -1394,20 +1397,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean towed() { return level().isClientSide ? visibleTowed() : pullTicks > 0; }
     /** Drift toward a bank point, as when towed (an aquatic mother coming ashore to give birth). */
     public void towTo(Vec3 target, int ticks) { if (isAfloat()) { stopPaddling(); pullTarget = target; pullTicks = Math.max(pullTicks, ticks); syncTowState(); } }
-    /** Nearest dry, standable block beside water within a few blocks, or null. */
-    public BlockPos nearestBank() {
-        BlockPos best = null; double bestDistance = Double.MAX_VALUE;
-        for (var p : BlockPos.betweenClosed(blockPosition().offset(-8, -1, -8), blockPosition().offset(8, 2, 8))) {
-            if (!level().hasChunkAt(p) || !level().getFluidState(p).isEmpty() || !level().getBlockState(p).isAir()
-                    || !level().getBlockState(p.below()).isFaceSturdy(level(), p.below(), Direction.UP)) continue;
-            boolean shore = false;
-            for (var side : Direction.Plane.HORIZONTAL) if (level().getFluidState(p.relative(side).below()).is(FluidTags.WATER) ||
-                    level().getFluidState(p.relative(side)).is(FluidTags.WATER)) shore = true;
-            double d = p.distSqr(blockPosition());
-            if (shore && d < bestDistance) { bestDistance = d; best = p.immutable(); }
-        }
-        return best;
-    }
+    /** Nearest standable block beside water within a few blocks, or null (see {@link ShoreBerth#nearestBank}). */
+    public BlockPos nearestBank() { return ShoreBerth.nearestBank(level(), blockPosition()); }
     @Override public LivingEntity getControllingPassenger() {
         for (var p : getPassengers()) if (p instanceof YukkuriEntity y && y.getUUID().equals(ownerYukkuri())) return y;
         return null;
@@ -1447,15 +1438,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     public static HatBoatEntity find(YukkuriEntity y) { return HatBoatLaunch.find(y); }
     public static HatBoatEntity owned(YukkuriEntity y) { return HatBoatLaunch.owned(y); }
-    /** Undo a deployment that could not be finished (spawn or scenario): everyone gets off, the same hat goes back on its
-     *  owner's head with its provisions kept for it, and the boat disappears. Nothing is duplicated or lost. */
-    public void abortDeployment(YukkuriEntity owner) { HatBoatLaunch.abortDeployment(this, owner); }
-    public static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water) { return HatBoatLaunch.createFor(owner, water); }
-    public static HatBoatEntity createAfloatAndBoard(YukkuriEntity owner, BlockPos water) { return HatBoatLaunch.createAfloatAndBoard(owner, water); }
-    public static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos water) { return HatBoatLaunch.launchFromBank(owner, water); }
-    static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated) { return HatBoatLaunch.createFor(owner, water, animated); }
-    public static HatBoatEntity launchFromFather(YukkuriEntity child, HatBoatEntity home, BlockPos water) { return HatBoatLaunch.launchFromFather(child, home, water); }
-    static HatBoatEntity createFor(YukkuriEntity owner, BlockPos water, boolean animated, HatBoatEntity home) { return HatBoatLaunch.createFor(owner, water, animated, home); }
     /** Reclaim the same empty hat after its young is safe aboard a parent, including a rescued capsize. */
     public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home) { return HatBoatLaunch.retrieveAfloat(this, child, home); }
     /** {@code reachFallback} lifts the rim-contact requirement for an empty hat still within a short, bounded distance. */
@@ -1465,8 +1447,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Parent-centre docking target with actual hull/AABB clearance; it grants no remote retrieval. */
     public Vec3 retrievalApproach(HatBoatEntity parentHat,YukkuriEntity child){ return HatBoatLaunch.retrievalApproach(this, parentHat, child); }
     double boxReach(Vec3 toward){ return HatBoatLaunch.boxReach(this, toward); }
-    /** A Marisa's braid sets her hat down upside down to catch young: pressed on dry ground, or floated at a bank (aquatic). */
-    public static HatBoatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatVessel.Mode mode, HatVessel.Role role) { return HatBoatLaunch.setDown(owner, at, yaw, mode, role); }
     /** Put the hat back on: the young climb out first, onto the bank beside a floated hat. */
     public boolean retrieve(YukkuriEntity owner) { return HatBoatLaunch.retrieve(this, owner); }
     public boolean board(YukkuriEntity owner) { return HatBoatLaunch.board(this, owner); }

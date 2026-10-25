@@ -6,10 +6,19 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFootprint;
+import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -18,50 +27,48 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Starting conditions of the water scenarios: the owner's real hat boat afloat with a real paddle and finite provisions,
- * young aboard or in the water. Movement, cargo, shore visits and rescues afterwards belong to ordinary goals.
- * Cargo modes start empty or full, with a child before loading, or a full hat before rescue; stow keeps seven portions beside one child.
- * afloat: an adult or already trained young captain starts directly aboard one physical hat on the specified calm water.
- * Ordinary afloat scenarios share the same spawn-time hull creation path; unattended and self retain their shore/water setup.
- * drop: 1-4 young aboard; the first listed one is shaken into the water {@link #DROP_DELAY} ticks later through the hat's own
- * fall path (HatBoatEntity.dropRiderAfter), so the ordinary plunge/rescue behaviour follows. shake: 0-4 young aboard and one
- * scenario shove at once (HatBoatEntity.shake with no person), which calls the family only if the captain really has young.
+ * Starting conditions of the water scenarios, as two primitives. {@link #aboard}: the captain's real hat boat on open water
+ * found by {@link ShoreBerth} near the bank, a real paddle and finite provisions, the listed young aboard; the whole
+ * transaction is rolled back, with the precise obstruction, if any step fails, and the kin ledger is written only on success.
+ * {@link #swim}: one individual put into searched open water and really plunged. Movement, cargo, shore visits and rescues
+ * afterwards belong to ordinary goals; external causes (a shaken or struck hull, fire) come from real player actions.
  */
 final class ScenarioBoats {
-    /** Ticks between the end of preparation and the scripted fall of the first young in mode drop. */
-    static final int DROP_DELAY = 100;
-    private static final Set<String> MODES = Set.of("high", "voyage", "self", "braid", "shore", "birth", "sail", "drop", "shake", "afloat", "unattended",
-            "self_far", "self_tired", "return_capsized", "capsize_family", "cargo_empty", "cargo_full", "cargo_load", "cargo_rescue", "cargo_stow");
+    private static final int DEFAULT_FOOD = 2;
+    private static final Pattern OPTION = Pattern.compile("([a-z]+)=(\\S+)");
+
+    /** Parses {@code key=value} options separated by spaces. Returns the map, or null with the reason in {@code error[0]}. */
+    private static Map<String, String> options(String text, Set<String> allowed, String[] error) {
+        var result = new HashMap<String, String>();
+        if (text == null || text.isBlank()) return result;
+        for (var word : text.trim().split("\\s+")) {
+            var m = OPTION.matcher(word);
+            if (!m.matches() || !allowed.contains(m.group(1))) { error[0] = "选项 " + word + " 不认识（可用：" + String.join(" ", allowed) + "）。"; return null; }
+            result.put(m.group(1), m.group(2));
+        }
+        return result;
+    }
 
     /**
-     * bank is a dry feet block, water a calm surface-water block two to eight horizontal blocks seaward
-     * ({@code bank.y = water.y + 1}). The gap leaves the hull clear of the bank while retaining a real shore route.
-     * Returns null on success, otherwise the reason nothing was prepared.
+     * {@code bank} is the dry feet block the scenario stands around. The hull goes on calm water two or more blocks away that
+     * {@link ShoreBerth} finds free for the whole brim rectangle. Returns null on success, otherwise the reason nothing was prepared.
      */
-    static String prepare(String mode, YukkuriEntity parent, List<YukkuriEntity> young, BlockPos bank, BlockPos water) {
-        if (!MODES.contains(mode)) return "未知模式 " + mode + "。";
+    static String aboard(YukkuriEntity parent, List<YukkuriEntity> young, BlockPos bank, String optionText) {
+        var error = new String[1];
+        var opt = options(optionText, Set.of("food", "paddle"), error);
+        if (opt == null) return error[0];
+        int food; boolean paddle;
+        try {
+            food = Integer.parseInt(opt.getOrDefault("food", Integer.toString(DEFAULT_FOOD)));
+            paddle = !opt.getOrDefault("paddle", "1").equals("0");
+        } catch (NumberFormatException ex) { return "food 要是整数。"; }
+        if (food < 0 || food > 11) return "food 要在 0 到 11 之间（桨占 1 份，容量 12）。";
         if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !parent.profile().aquatic())
             return "亲船的主角必须是活着的水生魔理沙。";
-        if (mode.equals("afloat") && !parent.aquaticLife().firstVoyage().mayLaunch())
-            return "直接水上生成需要成年帽主，或已完成初航、具备操帽能力的子油。";
-        if (!parent.family().adult() && !mode.equals("self") && !mode.equals("afloat")) return "这个模式的亲船主角要是成年。";
-        if (mode.equals("self") && (!parent.childhood().canJump()
-                || !parent.family().adult() && !parent.aquaticLife().firstVoyage().readySize()))
-            return "自救场景的小子油要已能跳跃，且体型够大（readySize）。";
-        int waterDistance = Math.abs(bank.getX() - water.getX()) + Math.abs(bank.getZ() - water.getZ());
-        if (!level.hasChunkAt(bank) || !level.hasChunkAt(water) || bank.getY() != water.getY() + 1
-                || waterDistance < 2 || waterDistance > 8)
-            return "水面格要在干岸外 2–8 格（岸比水面高一格）。";
-        if (!parent.life().dryStand(bank)) return "岸边格站不下（要干燥、有支撑、净空）。";
-        if (!HatBoatRoute.calmSurface(level, water)) return "水面格不是平静的水源（水深、流动或上方有遮挡）。";
+        if (!parent.aquaticLife().firstVoyage().mayLaunch()) return "直接水上生成需要成年帽主，或已完成初航、具备操帽能力的子油。";
+        if (!level.hasChunkAt(bank)) return "岸边格所在区块没有加载。";
         if (young.contains(parent) || young.size() > HatBoatEntity.MAX_YOUNG || new HashSet<>(young).size() != young.size())
             return "幼体名单不合法。";
-        if (mode.equals("self") && !young.isEmpty() || mode.equals("high") && young.size() < 4
-                || mode.equals("drop") && (young.isEmpty() || young.size() > HatBoatEntity.MAX_YOUNG)
-                || (mode.equals("voyage") || mode.equals("braid") || mode.equals("birth") || mode.equals("cargo_rescue")
-                || mode.equals("cargo_load") || mode.equals("cargo_stow")) && young.size() != 1)
-            return "幼体数量与模式 " + mode + " 不符。";
-        if (mode.equals("birth") && !young.getFirst().family().adult()) return "接生场景岸上的伴侣要是成年。";
         var actors = new ArrayList<YukkuriEntity>();
         actors.add(parent);
         actors.addAll(young);
@@ -70,107 +77,102 @@ final class ScenarioBoats {
                     || actor.subspecies().boatId() != null) return actor.getName().getString() + " 不能参加：已死亡、不是水生魔理沙、已在船上或已有帽船。";
             if (actor.family().active() || actor.family().flying() || actor.family().heldByBraid() || actor.operations().active())
                 return actor.getName().getString() + " 不能参加：正处在不能安全回滚的照护、飞行、辫子救援或操作中。";
-            if (actor != parent && actor.family().adult() && !mode.equals("birth")) return "同船的幼体要是未成年。";
+            if (actor != parent && actor.family().adult()) return "同船的幼体要是未成年。";
         }
-        if (mode.equals("voyage") && !young.getFirst().aquaticLife().firstVoyage().readySize()) return "初航的小子油体型还不够（readySize）。";
-        var bankPoint = Vec3.atBottomCenterOf(bank);
-        if (mode.equals("birth") && (young.getFirst().distanceToSqr(bankPoint) > 64 || !young.getFirst().onGround()
-                || !young.getFirst().life().dryStand(young.getFirst().blockPosition())))
-            return "接生场景里岸上的伴侣要站在岸边八格内的干地上。";
-        if (!level.noCollision(parent, parent.getBoundingBox().move(bankPoint.subtract(parent.position())))) return "岸边格放不下亲油的身体。";
-        var away = new Vec3(water.getX() - bank.getX(), 0, water.getZ() - bank.getZ()).normalize();
-        boolean rescue = mode.equals("braid") || mode.equals("cargo_rescue");
-        boolean waterReturn = mode.equals("self_far") || mode.equals("self_tired");
-        if ((waterReturn || mode.equals("return_capsized")) && !young.isEmpty()) return "返帽场景只放一位帽主。";
-        var immersion = new Vec3(water.getX() + .5, water.getY() + .12, water.getZ() + .5).add(away.scale(waterReturn ? 9 : rescue ? 1.4 : 1));
-        var returnStand = bankPoint.subtract(away.scale(6));
-        if (mode.equals("return_capsized") && (!parent.life().dryStand(BlockPos.containing(returnStand))
-                || !level.noCollision(parent,parent.getBoundingBox().move(returnStand.subtract(parent.position())))))
-            return "岸上的返帽起点站不下。";
-        var swimmer = rescue ? young.getFirst() : parent;
-        if ((rescue || mode.equals("self") || waterReturn)
-                && (!HatBoatRoute.calmSurface(level, BlockPos.containing(immersion))
-                || !level.noCollision(swimmer, swimmer.getBoundingBox().move(immersion.subtract(swimmer.position())))))
-            return "落水点不是平静开阔的水面。";
-        if (!mode.equals("birth")) for (var child : young) {
+        for (var child : young) {
             String refusal = ScenarioSetup.kinRefusal(parent, child, false);
             if (refusal != null) return refusal;
         }
-
-        if (mode.equals("self")) {
-            parent.setPos(immersion);
-            parent.setOnGround(false);
-            parent.waterDistress().plunge(null, null);
-            return null;
+        var outcome = ShoreBerth.find(level, parent, HatVessel.hatScale(parent), bank, ShoreBerth.Purpose.SCENARIO, bank);
+        if (outcome instanceof ShoreBerth.Refusal refusal) {
+            GameplayLog.event(parent, "aquatic", "scenario aboard refused berth={}", refusal.describe());
+            return "岸边找不到放得下帽船的开阔水面：" + refusal.describe();
         }
-
+        var berth = (ShoreBerth.Berth) outcome;
         var parentPose = ParentPose.capture(parent);
-        var scenarioTransaction = ScenarioTransaction.capture(parent, young, !mode.equals("birth"));
-        var boat = mode.equals("unattended")
-                ? HatBoatEntity.setDown(parent, Vec3.atBottomCenterOf(water), parent.yBodyRot,
-                        HatVessel.aquatic(parent)?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT, HatVessel.Role.HELPER)
-                : HatBoatEntity.createAfloatAndBoard(parent, water);
-        if (boat == null) return abort(null, parent, parentPose, scenarioTransaction, "帽船没能生成（帽主要有自己的帽子与操帽能力，水面平静且船体放得下）。");
-        if (mode.equals("unattended") && (!level.getWorldBorder().isWithinBounds(boat.getBoundingBox())
-                || !level.noCollision(boat, boat.getBoundingBox())))
-            return abort(boat, parent, parentPose, scenarioTransaction, "暂放帽船的船体被方块、实体或世界边界阻挡。");
-        if (mode.equals("unattended")) {
-            parent.setPos(bankPoint);parent.setDeltaMovement(Vec3.ZERO);parent.setOnGround(true);
-        } else parent.setPos(boat.toWorld(boat.ownerSeat(parent)));
-        int provisions = switch (mode) {
-            case "cargo_empty", "cargo_load" -> 0;
-            case "cargo_full", "cargo_rescue" -> 11;
-            case "cargo_stow" -> 7;
-            case "high" -> 3;
-            default -> 2;
-        };
-        if (boat.cargoRoom() < provisions) return abort(boat, parent, parentPose, scenarioTransaction, "船舱放不下场景所需的 " + provisions + " 份口粮。");
-        if (!boat.cargo().paddle() && !boat.cargo().givePaddle(new ItemStack(Items.STICK), false)) {
+        var scenarioTransaction = ScenarioTransaction.capture(parent, young, true);
+        var deployed = HullFactory.deployOnBerth(parent, HullFactory.Origin.SCENARIO, berth);
+        if (deployed instanceof HullFactory.Refused refused) return "帽船没能生成：" + refused.describe();
+        var boat = ((HullFactory.Deployed) deployed).boat();
+        if (boat.cargoRoom() < food) return abort(boat, parent, parentPose, scenarioTransaction, "船舱放不下场景所需的 " + food + " 份口粮。");
+        if (paddle && !boat.cargo().paddle() && !boat.cargo().givePaddle(new ItemStack(Items.STICK), false))
             return abort(boat, parent, parentPose, scenarioTransaction, "桨没能交给帽船。");
-        }
-        if (provisions > 0 && boat.cargo().store(new ItemStack(Items.APPLE, provisions), provisions, false) < provisions) {
+        if (food > 0 && boat.cargo().store(new ItemStack(Items.APPLE, food), food, false) < food)
             return abort(boat, parent, parentPose, scenarioTransaction, "口粮没能放进船舱。");
-        }
         // A temporary actor-local family mirror lets the shared berth code see the prospective parent without writing a ledger.
         scenarioTransaction.establishTemporaryKin();
-        if (mode.equals("voyage")) {
-            var child = young.getFirst();
-            if (!child.aquaticLife().hasStick()) child.aquaticLife().giveStick(new ItemStack(Items.STICK, 1), false);
-        }
-        if (!mode.equals("birth") && !rescue) {
-            for (var child : young) {
-                // Ask for an existing safe refuge layout; the shared capacity limit still applies.
-                if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
-                if (!boat.boardYoung(child)) return abort(boat, parent, parentPose, scenarioTransaction, "幼体没能上船（船满了或还不能载）。");
-            }
+        for (var child : young) {
+            // Ask for an existing safe refuge layout; the shared capacity limit still applies.
+            if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
+            if (!boat.boardYoung(child)) return abort(boat, parent, parentPose, scenarioTransaction, child.getName().getString() + " 没能上船（船满了或还不能载）。");
         }
         String kinCommitRefusal = scenarioTransaction.commitRealKin();
         if (kinCommitRefusal != null) return abort(boat, parent, parentPose, scenarioTransaction, kinCommitRefusal);
-        // Only committed starting conditions may trigger the ordinary fall, alarm, shore or first-voyage controllers.
-        if (rescue) {
-            var child = young.getFirst();
-            child.setPos(immersion);
-            child.setDeltaMovement(Vec3.ZERO);
-            child.setOnGround(false);
-            child.waterDistress().plunge(boat.getUUID(), null);
+        GameplayLog.event(parent, "aquatic", "scenario aboard prepared hat={} water={} passengers={} food={} paddle={}",
+                boat.getUUID(), berth.water(), boat.getPassengers().size(), boat.cargo().count(), boat.cargo().paddle());
+        return null;
+    }
+
+    /**
+     * Put one individual into searched open water and plunge it for real. With {@code near=nearest|<uuid>} the water is about
+     * {@code dist} blocks (default 4) from that hat boat; otherwise it is the free open water {@link ShoreBerth} finds near
+     * {@code anchor}. {@code energy=E} leaves the swimmer with that much energy.
+     */
+    static String swim(YukkuriEntity actor, BlockPos anchor, String optionText) {
+        var error = new String[1];
+        var opt = options(optionText, Set.of("near", "dist", "energy"), error);
+        if (opt == null) return error[0];
+        double dist; Float energy;
+        try {
+            dist = Double.parseDouble(opt.getOrDefault("dist", "4"));
+            energy = opt.containsKey("energy") ? Float.parseFloat(opt.get("energy")) : null;
+        } catch (NumberFormatException ex) { return "dist 和 energy 要是数字。"; }
+        if (!(actor.level() instanceof ServerLevel level) || !actor.isAlive() || !actor.profile().aquatic()) return "落水的必须是活着的水生魔理沙。";
+        if (actor.family().flying() || actor.family().heldByBraid() || actor.operations().active() || actor.isVehicle())
+            return actor.getName().getString() + " 不能落水：正处在飞行、辫子救援、操作或载着别人的状态。";
+        if (!level.hasChunkAt(anchor)) return "锚点所在区块没有加载。";
+        HatBoatEntity boat = null;
+        if (opt.containsKey("near")) {
+            String near = opt.get("near");
+            if (near.equals("nearest")) boat = level.getEntitiesOfClass(HatBoatEntity.class, actor.getBoundingBox().inflate(48),
+                    candidate -> !candidate.isRemoved()).stream().min(Comparator.comparingDouble(actor::distanceToSqr)).orElse(null);
+            else try { boat = level.getEntity(UUID.fromString(near)) instanceof HatBoatEntity found ? found : null; }
+            catch (IllegalArgumentException ex) { return "near 要是 nearest 或帽船的 UUID。"; }
+            if (boat == null) return "附近 48 格内没有指定的帽船。";
         }
-        if (mode.equals("drop")) boat.dropRiderAfter(young.getFirst(), DROP_DELAY);
-        if (mode.equals("shake")) boat.shake(null, 1);
-        if (mode.equals("capsize_family")) boat.capsize();
-        if (waterReturn || mode.equals("return_capsized")) {
-            parent.stopRiding();
-            parent.setPos(waterReturn ? immersion : returnStand);
-            parent.setDeltaMovement(Vec3.ZERO);
-            parent.setOnGround(!waterReturn);
-            if (mode.equals("self_tired")) parent.life().spendEnergy(Math.max(0,parent.life().energy()-3));
-            if (waterReturn) parent.waterDistress().plunge(boat.getUUID(),null);
-            else boat.capsize();
+        float scale = HatVessel.hatScale(actor);
+        Vec3 point = null;
+        if (boat == null) {
+            var outcome = ShoreBerth.find(level, actor, scale, anchor, ShoreBerth.Purpose.SCENARIO, anchor);
+            if (outcome instanceof ShoreBerth.Refusal refusal) return "岸边找不到开阔的落水水面：" + refusal.describe();
+            var berth = (ShoreBerth.Berth) outcome;
+            point = new Vec3(berth.center().x, berth.water().getY() + .12, berth.center().z);
+        } else {
+            var origin = boat.position();
+            double bestCost = Double.MAX_VALUE;
+            String detail = "";
+            var reasons = new LinkedHashMap<String, Integer>();
+            int reach = (int) Math.ceil(dist) + 3;
+            for (var p : BlockPos.betweenClosed(BlockPos.containing(origin).offset(-reach, -2, -reach), BlockPos.containing(origin).offset(reach, 2, reach))) {
+                if (!HatBoatRoute.calmSurface(level, p)) continue;
+                double cost = Math.abs(Math.hypot(p.getX() + .5 - origin.x, p.getZ() + .5 - origin.z) - dist);
+                if (cost >= bestCost || cost > 1.5) continue;
+                var at = new Vec3(p.getX() + .5, p.getY() + .12, p.getZ() + .5);
+                // The swimmer's own hat must also find room to be put on the water here, beside the boat but never inside it.
+                var fit = HullFootprint.fits(level, actor, boat, HatBoatRoute.surface(level, p), actor.yBodyRot, scale, 0);
+                if (!fit.ok()) { reasons.merge(fit.reason(), 1, Integer::sum); if (detail.isEmpty()) detail = fit.detail(); continue; }
+                if (!level.noCollision(actor, actor.getBoundingBox().move(at.subtract(actor.position())))) { reasons.merge("body_blocked", 1, Integer::sum); continue; }
+                bestCost = cost; point = at;
+            }
+            if (point == null) return "帽船周围 " + dist + " 格找不到开阔的落水水面：" + reasons + (detail.isEmpty() ? "" : " (" + detail + ")");
         }
-        // The call-back may be refused on the very tick the boat is created; the data pack asks again (scenario shore) a moment later.
-        if (mode.equals("shore")) parent.aquaticLife().requestShoreVisit();
-        if (mode.equals("voyage")) young.getFirst().aquaticLife().firstVoyage().tryStart();
-        GameplayLog.event(parent,"aquatic","scenario initial state prepared mode={} hat={} passengers={} food={} paddle={}",
-                mode,boat.getUUID(),boat.getPassengers().size(),boat.cargo().count(),boat.cargo().paddle());
+        if (actor.isPassenger()) actor.stopRiding();
+        actor.setPos(point);
+        actor.setDeltaMovement(Vec3.ZERO);
+        actor.setOnGround(false);
+        if (energy != null) actor.life().spendEnergy(Math.max(0, actor.life().energy() - energy));
+        actor.waterDistress().plunge(boat == null ? null : boat.getUUID(), null);
+        GameplayLog.event(actor, "aquatic", "scenario swim plunged at={} near={} energy={}", point, boat == null ? null : boat.getUUID(), actor.life().energy());
         return null;
     }
 
