@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 洞口结界屏障外观 | `.worktrees/barrier-art` | `den_barrier` 方块模型／贴图／blockstate、`client/DenBarrierRenderer.java`（移除占位）、`standards/yukkuri-library/ecology/wild-shelters/` 制作源、`art/runtime-sources.json` |
 | 帽檐多只与橙双尾承托 | `.worktrees/carry-multi2` | `family/ParentCarry.java`、`family/HatCarry.java`、`entity/YukkuriEntity.java`（乘客座位）、`docs/SETTLEMENTS.md` 运输表 |
 | 生产窝尺寸、孕体容纳与茎生接生（dd75d650 复测） | `.worktrees/birth-nest-fit` | 窝方块与碰撞（宠物软垫窝、编织大窝、叶床、野生大窝）、窝模型与制作源、`family/` 分娩落点／认窝空间判定／茎生悬挂与接生、客户端茎与赤油挂点、`scripts/museum_scenarios.py` 生产与接生场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` 窝容量段 |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
