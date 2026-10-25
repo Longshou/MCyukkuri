@@ -5,7 +5,7 @@
   "lore": "user 2026-10-15: turned over, the hat's soft top gives like a nest (a likeness); just turn the hat upside down and squash its bottom, without turning it into another shape",
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
-  "front_tread": {"depth": 1.1, "inner_z": -4.35, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well."},
+  "front_tread": {"depth": 1.1, "inner_z": -4.0, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well. Project design 2026-10-26 (aquatic deck): 2.01 hat units deep (was 1.66) so a 0.40 child sits on it before the owner by night."},
   "aquatic_scale": 1.5,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {
@@ -115,5 +115,409 @@
     "out_spread": 1.15,
     "fall_speed": 0.24,
     "lore": "user 2026-10-15: the young clipped into the hat on land, the stem young's fall swerved and the bank arc was wrong; newborns now fly true arcs under gravity over the brim, stem fruit drop straight and bounce in from the brim or the ground, and each young sits apart (round body, radius young_radius of its collision width)"
+  },
+  "deck": {
+    "lore": "Project design (aquatic rework, lead decisions 2026-10-26 from the ecology design): the seat table is the one authority on space and the load only sets draft and stability (A1); the freeboard sinks with load (A3); a high stern seat frees the front cavity in late pregnancy (A5); the stick stows on the left outer brim, away from the owner's right braid (A9); no provisions on the brim, the whole store lies in the crown cavity and children sit in the cabin (user 2026-10-26).",
+    "classes": {
+      "newborn": 0.14,
+      "baby": 0.2,
+      "small_child": 0.3,
+      "child": 0.4,
+      "large_child": 0.45,
+      "juvenile": 0.8,
+      "adult": 1.0,
+      "gravid": 1.0
+    },
+    "classes_lore": "Largest body of each class relative to the hull's hat fit: live newborn 0.14 and baby to 0.20 (family.json growth); small child to 0.30 and children to 0.45 (ecology design A1), split at 0.40 where the cabin stops holding a child before the owner by night; above 0.45 not a regular passenger (rescue rim only). The owner 1.0; gravid at a full belly (recipe pregnancy). A body takes the smallest class at least its relative size.",
+    "jumps": {
+      "newborn": false,
+      "baby": false,
+      "small_child": true,
+      "child": true,
+      "juvenile": true,
+      "adult": true,
+      "gravid": false,
+      "large_child": true
+    },
+    "modes": {
+      "AQUATIC_FLOAT": {
+        "surface": "bowl",
+        "hull_ratio": "aquatic_scale",
+        "afloat": true,
+        "captain": true,
+        "brim": true,
+        "service": true,
+        "cargo": true
+      },
+      "FLOAT": {
+        "surface": "bowl",
+        "hull_ratio": 1.0,
+        "afloat": true,
+        "captain": true,
+        "brim": true,
+        "service": true,
+        "cargo": true
+      },
+      "NEST": {
+        "surface": "nest",
+        "hull_ratio": 1.0,
+        "afloat": false,
+        "captain": false,
+        "brim": false,
+        "service": false,
+        "cargo": false
+      }
+    },
+    "cabin_classes": [
+      "large_child",
+      "child",
+      "small_child",
+      "baby",
+      "newborn"
+    ],
+    "brim_classes": [
+      "large_child",
+      "child",
+      "small_child"
+    ],
+    "yaw_cost": 0.05,
+    "ledge_cost": 4.0,
+    "grid": 0.25,
+    "merge": 0.3,
+    "ring_bin": 0.5,
+    "support": 0.5,
+    "gap": 0.04,
+    "wall": 0.025,
+    "edge_max": 7.0,
+    "detour": 1.12,
+    "care_step": 4,
+    "mouth_clearance": 0.1,
+    "mouth_height": 0.5,
+    "facing_dot": 0.7,
+    "rear_care_height": 0.18,
+    "paddle": {
+      "length": 7.0,
+      "radius": 0.3,
+      "inset": 0.45,
+      "side": "left",
+      "lore": "fallback only: the stowed stick is taken from paddle_stick.json anchors.stow_hull (interactions/aquatic-tools), on the left outer brim away from the owner's right braid (D A9)"
+    },
+    "entries": [
+      {
+        "id": "bow",
+        "from": [
+          0,
+          0
+        ],
+        "dir": [
+          0,
+          -1
+        ]
+      },
+      {
+        "id": "port",
+        "from": [
+          0,
+          -4
+        ],
+        "dir": [
+          -1,
+          0
+        ]
+      },
+      {
+        "id": "starboard",
+        "from": [
+          0,
+          -4
+        ],
+        "dir": [
+          1,
+          0
+        ]
+      }
+    ],
+    "curves": {
+      "hop_rim": {
+        "method": "HOP",
+        "contact": null,
+        "lore": "a parabola under Minecraft gravity (delivery.gravity) clearing the brim by delivery.clear, at least delivery.hop_tmin ticks"
+      },
+      "climb_rim": {
+        "method": "CLIMB",
+        "contact": "mouth+braid",
+        "lore": "ruling water 11: bite the brim, hook the braid over it, pull the body up and slide over the rim; braidless kinds use the mouth only"
+      },
+      "lift": {
+        "method": "LIFT",
+        "contact": "braid|mouth",
+        "lore": "the parent's braid tip curls into a cradle under the body (mouth for braidless kinds); the carried body rides as a hull passenger while it moves"
+      }
+    },
+    "curves_by_class": {
+      "newborn": {
+        "from_water": "lift",
+        "from_bank": "lift"
+      },
+      "baby": {
+        "from_water": "lift",
+        "from_bank": "lift"
+      },
+      "small_child": {
+        "from_water": "climb_rim",
+        "from_bank": "hop_rim"
+      },
+      "child": {
+        "from_water": "climb_rim",
+        "from_bank": "hop_rim"
+      },
+      "juvenile": {
+        "from_water": "climb_rim",
+        "from_bank": "hop_rim"
+      },
+      "adult": {
+        "from_water": "climb_rim",
+        "from_bank": "hop_rim"
+      },
+      "large_child": {
+        "from_water": "climb_rim",
+        "from_bank": "hop_rim"
+      }
+    },
+    "verify": [
+      {
+        "name": "cargo_load",
+        "bodies": [
+          "baby"
+        ],
+        "food": 9,
+        "paddle": true
+      },
+      {
+        "name": "two_babies_nine_food",
+        "bodies": [
+          "baby",
+          "baby"
+        ],
+        "food": 9,
+        "paddle": true
+      },
+      {
+        "name": "high",
+        "bodies": [
+          "baby",
+          "baby",
+          "baby",
+          "baby"
+        ],
+        "food": 3,
+        "paddle": true
+      },
+      {
+        "name": "cargo_stow",
+        "bodies": [
+          "child"
+        ],
+        "food": 7,
+        "paddle": true
+      },
+      {
+        "name": "cargo_full",
+        "bodies": [],
+        "food": 12,
+        "paddle": true
+      },
+      {
+        "name": "shore_babies",
+        "bodies": [
+          "baby",
+          "baby"
+        ],
+        "food": 0,
+        "paddle": true
+      },
+      {
+        "name": "litter",
+        "bodies": [
+          "newborn",
+          "newborn",
+          "newborn",
+          "newborn",
+          "newborn"
+        ],
+        "food": 0,
+        "paddle": true
+      },
+      {
+        "name": "labour",
+        "bodies": [
+          "newborn",
+          "newborn",
+          "newborn"
+        ],
+        "food": 3,
+        "paddle": true,
+        "owner": "gravid"
+      },
+      {
+        "name": "small_children",
+        "bodies": [
+          "small_child",
+          "baby",
+          "baby"
+        ],
+        "food": 3,
+        "paddle": true
+      },
+      {
+        "name": "child_two_babies",
+        "bodies": [
+          "child",
+          "baby",
+          "baby"
+        ],
+        "food": 3,
+        "paddle": true
+      },
+      {
+        "name": "juvenile",
+        "bodies": [
+          "juvenile"
+        ],
+        "food": 0,
+        "paddle": true,
+        "expect": "NO_SLOT_FOR_CLASS"
+      },
+      {
+        "name": "large_child",
+        "bodies": [
+          "large_child"
+        ],
+        "food": 3,
+        "paddle": true,
+        "expect": "DAY_ONLY"
+      },
+      {
+        "name": "two_small_children",
+        "bodies": [
+          "small_child",
+          "small_child"
+        ],
+        "food": 0,
+        "paddle": true,
+        "expect": "NO_SLOT_FOR_CLASS"
+      }
+    ],
+    "yaw_sets": [
+      [
+        0
+      ],
+      [
+        90,
+        -90
+      ],
+      [
+        180
+      ],
+      [
+        0,
+        90,
+        -90,
+        180
+      ]
+    ],
+    "toilet_classes": [
+      "newborn",
+      "baby",
+      "small_child",
+      "child",
+      "large_child",
+      "adult"
+    ],
+    "rescue_classes": [
+      "baby",
+      "small_child",
+      "child",
+      "large_child",
+      "juvenile"
+    ],
+    "night_lore": "user 2026-10-14 (recipe bowl): by day the young ride before her, at night under her; a young may lie beneath the owner when its whole body and worn hat stay below her",
+    "larder_at": "front",
+    "larder_lip": {
+      "reach": 0.1,
+      "height": 0.5
+    },
+    "load": {
+      "max": 12,
+      "food": 0.5,
+      "paddle": 1,
+      "newborn": 2,
+      "baby": 2,
+      "small_child": 3,
+      "child": 4,
+      "juvenile": 8,
+      "gravid": 2,
+      "larder_max": 12,
+      "sink": 0.5,
+      "roll": 0.5,
+      "large_child": 4
+    },
+    "curves_on_ground": {
+      "newborn": {
+        "from_ground": "lift"
+      },
+      "baby": {
+        "from_ground": "lift"
+      },
+      "small_child": {
+        "from_ground": "hop_rim"
+      },
+      "child": {
+        "from_ground": "hop_rim"
+      },
+      "juvenile": {
+        "from_ground": "hop_rim"
+      },
+      "adult": {
+        "from_ground": "hop_rim"
+      },
+      "large_child": {
+        "from_ground": "hop_rim"
+      }
+    },
+    "pack_from": [
+      [
+        0,
+        -5.2,
+        4.0
+      ],
+      [
+        0,
+        "owner",
+        -4.0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        -3,
+        -5,
+        0
+      ],
+      [
+        3,
+        -5,
+        0
+      ],
+      [
+        0,
+        -6,
+        -4.0
+      ]
+    ],
+    "packings": 3,
+    "high_seat_margin": 0.2
   }
 }

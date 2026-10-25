@@ -10,6 +10,8 @@ import heapq
 import numpy as np
 from PIL import Image, ImageDraw
 import preview as P
+# The one hull transform contract (interactions/marisa-hat-vessel/build.py): the game reads the same numbers.
+FRAMES=json.loads((P.ASSETS/'yukkuri_presentation/hat_frames.json').read_text(encoding='utf-8'))
 
 # Scratch lives in the repository's .local; a linked worktree may point MCY_LOCAL at the main checkout's .local.
 LOCAL=Path(os.environ.get('MCY_LOCAL',P.ROOT/'.local'))
@@ -131,8 +133,11 @@ class Scene:
     def __init__(self):
         data=json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
         self.vessel=V=json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
-        self.k=V['aquatic_scale'];self.floor=V['bowl']['freeboard']-V['floor']*V['squash']['bowl']
-        self.ledge=V['bowl']['freeboard']-V['ledge']*V['squash']['bowl']
+        # One hull transform contract (marisa-hat-vessel/build.py -> hat_frames.json), shared with the game.
+        self.frames=FRAMES
+        F=self.hull_frame=self.frames['modes']['aquatic']
+        self.k=F['hull_ratio'];self.floor=F['top']-V['floor']*F['squash']
+        self.ledge=F['top']-V['ledge']*F['squash']
         self.parent=SelectedPosed('marisa',data,True)
         self.young=SelectedPosed('marisa',data,worn_hat_scale=self.k)
         self.sizes=[1,.20,.16,.14]
@@ -156,6 +161,13 @@ class Scene:
             if seat is None:raise RuntimeError('No fully supported real brim berth for this newborn.')
             self.seats[i]=np.array(seat);brim_taken.append(self.reservation(seat,self.sizes[i]))
         self.seats[1]=self.place(3.584*.20,brim_taken,self.body_space(.20))
+
+    def hull_prop(self,atlas,k):
+        """The turned hat placed by hat_frames.json: prop (x, y, z) -> hull (x, top + y*squash, z), k model units per hat unit."""
+        F=self.hull_frame;mesh=self.prop('marisa_hat_turned',atlas)
+        mesh[:,:3]*=[k,k*F['squash'],k];mesh[:,1]+=F['top']*k
+        mesh[:,5:]/=[1,F['squash'],1];mesh[:,5:]/=np.linalg.norm(mesh[:,5:],axis=1)[:,None]
+        return mesh
 
     def body_space(self,size):
         V=self.vessel
@@ -279,10 +291,7 @@ class Scene:
     def build(self,kind,age):
         if kind=='crowd':return self.crowd(age)
         atlas=Atlas();meshes=[];rotation=motion(kind,age);released=kind=='cap' and age>=9
-        hat=self.prop('marisa_hat_turned',atlas)
-        hat[:,:3]*=np.array([self.k,self.k*self.vessel['squash']['bowl'],self.k]);hat[:,1]+=self.vessel['bowl']['freeboard']*self.k
-        hat[:,5:]/=np.array([1,self.vessel['squash']['bowl'],1]);hat[:,5:]/=np.linalg.norm(hat[:,5:],axis=1)[:,None]
-        meshes.append(rotate_mesh(hat,rotation))
+        meshes.append(rotate_mesh(self.hull_prop(atlas,self.k),rotation))
         for i,size in enumerate(self.sizes):
             clip='boat_steady' if i==0 else 'hat_cradle';face='surprise' if i==0 else 'teary'
             if kind=='rock' and age>=44:clip='boat_drift' if i==0 else 'hat_cradle';face='closed_smile'
@@ -348,10 +357,7 @@ class Scene:
     def crowd(self,age):
         if not hasattr(self,'crowd_data'):self.crowd_data=self.crowd_plan()
         plan=self.crowd_data;atlas=Atlas();meshes=[];V=self.vessel
-        hat=self.prop('marisa_hat_turned',atlas)
-        hat[:,:3]*=[self.k,self.k*V['squash']['bowl'],self.k];hat[:,1]+=V['bowl']['freeboard']*self.k
-        hat[:,5:]/=[1,V['squash']['bowl'],1];hat[:,5:]/=np.linalg.norm(hat[:,5:],axis=1)[:,None]
-        meshes.append(hat)
+        meshes.append(self.hull_prop(atlas,self.k))
         release=plan['release'];flight_start=release+plan['rescue'];land=flight_start+plan['duration']
         for i,size in enumerate(self.sizes):
             clip='boat_reassure' if i==0 and age>=8 else 'boat_drift' if i==0 else 'hat_brim' if i>=2 else 'hat_cradle'
@@ -598,15 +604,13 @@ class CausalScene(Scene):
         return rotate_mesh(mesh,P.euler([0,yaw,0]),at)
 
     def vessel_mesh(self,atlas,scale,at=(0,0,0),yaw=0,tilt=None,food=2):
-        V=self.vessel;k=V['aquatic_scale']*scale;rotation=P.euler([0,yaw,0])@(np.eye(3) if tilt is None else tilt)
-        mesh=self.prop('marisa_hat_turned',atlas);mesh[:,:3]*=[k,k*V['squash']['bowl'],k];mesh[:,1]+=V['bowl']['freeboard']*k
-        mesh[:,5:]/=[1,V['squash']['bowl'],1];mesh[:,5:]/=np.linalg.norm(mesh[:,5:],axis=1)[:,None]
-        parts=[rotate_mesh(mesh,rotation,at)]
+        k=self.k*scale;rotation=P.euler([0,yaw,0])@(np.eye(3) if tilt is None else tilt)
+        parts=[rotate_mesh(self.hull_prop(atlas,k),rotation,at)]
         for point,radius,name in self.cargo[:food]:
             item=self.prop(name,atlas);bounds=np.array(self.props[name]['bounds']);extent=max(bounds[:,1]-bounds[:,0])
             item[:,:3]-=[bounds[0].mean(),bounds[1,0],bounds[2].mean()];item[:,:3]*=radius*k*math.sqrt(2)*.92/extent
             parts.append(rotate_mesh(item,rotation,rotation@(point*k)+at))
-        corners=np.array([[p[0]*k,.48*scale,p[1]*k] for p in V['bowl']['mask']])@rotation.T+at;self.masks.append(corners)
+        F=self.hull_frame;corners=np.array([[p[0]*k,(F['water_y']*self.k+.03*16)*scale,p[1]*k] for p in F['mask']])@rotation.T+at;self.masks.append(corners)
         return parts
 
     def rescue_frame(self,age):
@@ -964,7 +968,7 @@ def water_layer(pixels,depth,camera,kind,age,rotation,vessel,mask_quads=None):
         wet&=~np.array(mask,dtype=bool)
     elif kind in ('rock','crowd'):
         # Project the tilted depth-only opening, after entity colours; skip water hidden behind it.
-        corners=np.array([[p[0]*1.5,.48,p[1]*1.5] for p in vessel['bowl']['mask']])@rotation.T
+        F=FRAMES['modes']['aquatic'];k=F['hull_ratio'];corners=np.array([[p[0]*k,F['water_y']*k+.03*16,p[1]*k] for p in F['mask']])@rotation.T
         polygon=np.c_[W/2+(corners-center)@right*scale,H/2-(corners-center)@up*scale]
         mask=Image.new('1',(W,H));ImageDraw.Draw(mask).polygon([tuple(p) for p in polygon],fill=1)
         wet&=~np.array(mask,dtype=bool)
@@ -1166,9 +1170,10 @@ def current_interactions():
         angle=math.pi+i*math.pi/4;center=np.array([math.sin(angle)*distance,0,-math.cos(angle)*distance])
         if any(np.linalg.norm(center+roll@(p*scene.k*size)-root)<=scene.braid_length*size+.02*16 for p in brim):planned=center;break
     if planned is None:raise RuntimeError('No finite natural-braid deployment endpoint in this single calm-water art sample.')
-    relative=(planned-child)/size;anchor=np.array(V['anchor_worn']);Mv=np.array([[0,0,-1],[0,-1,0],[-1,0,0.]])
-    transform=roll@np.diag([scene.k,scene.k*V['squash']['bowl'],scene.k])@Mv
-    destination=np.eye(4);destination[:3,:3]=transform;destination[:3,3]=relative+roll@np.array([0,V['bowl']['freeboard']*scene.k,0])-transform@anchor
+    relative=(planned-child)/size;F=scene.hull_frame;worn=np.array(scene.frames['turned']['from_worn'],float)
+    anchor=np.array(scene.frames['worn']['anchor']);Mv=worn[:3,:3]
+    transform=roll@np.diag([scene.k,scene.k*F['squash'],scene.k])@Mv
+    destination=np.eye(4);destination[:3,:3]=transform;destination[:3,3]=relative+roll@np.array([0,F['top']*scene.k,0])-transform@anchor
     atlas=Atlas();scene.masks=[]
     meshes=[scene.person(size,'water_hat_flip',.8*.7,atlas,'teary',child,hat_transfer=(destination,.7,config))]
     add(meshes,atlas,'④ 原帽离头，连续移到固定端点','同一帽骨；18 tick 后才生成该物理帽，失败反向退回',dict(az=.9,el=.32,span=5.2,center_y=1,center_z=1))
@@ -1328,10 +1333,10 @@ class PlaybackExport:
         instances.append(self.instance(ident+'_paddle','paddle','stick',[world@matrices[index]@grip if held else world],visible and paddle and held))
         return instances
     def boat(self,ident,size,at=(0,0,0),yaw=0,rotation=None,visible=True,food=0,hull_pose=None,mask=True):
-        scene=self.scene;k=scene.k*size;motion=self.world(at,yaw,rotation=rotation);hull=motion@self.world((0,scene.vessel['bowl']['freeboard']*k,0));hull[:3,:3]=hull[:3,:3]@np.diag([k,k*scene.vessel['squash']['bowl'],k])
+        scene=self.scene;F=scene.hull_frame;k=scene.k*size;motion=self.world(at,yaw,rotation=rotation);hull=motion@self.world((0,F['top']*k,0));hull[:3,:3]=hull[:3,:3]@np.diag([k,k*F['squash'],k])
         if hull_pose is not None:
             hull=np.asarray(hull_pose,float)
-            normal=self.world((0,scene.vessel['bowl']['freeboard']*k,0));normal[:3,:3]=np.diag([k,k*scene.vessel['squash']['bowl'],k])
+            normal=self.world((0,F['top']*k,0));normal[:3,:3]=np.diag([k,k*F['squash'],k])
             motion=hull@np.linalg.inv(normal)
         instances=[self.instance(ident,'hat','marisa_neutral',[hull],visible)];masks=[]
         if visible and mask:

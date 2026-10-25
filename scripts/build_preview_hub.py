@@ -117,6 +117,10 @@ def main():
     aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
     subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'aquatic-tools/{name}.png' for name in ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')}
+    # hat boat deck: interactions/marisa-hat-vessel/preview_deck.py redraws the seat table from the exported runtime data
+    deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
+    subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {'hat-deck/hat-deck.png'}
     # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
     fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
     subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

@@ -4047,12 +4047,16 @@
     "recipe": "standards/yukkuri-library/interactions/marisa-hat-vessel/recipe.json",
     "builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
     "preview_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_cabin.py",
+    "deck_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/deck.py",
+    "deck_preview": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py",
     "geometry_check": "standards/yukkuri-library/interactions/marisa-hat-vessel/check_cabin.py",
-    "cabin_revision": "2026-10-17: three crown tiers hollowed with a wall-connected shallow front tread; four shared cavity sections and eight cargo envelopes. 2026-10-18: cargo now sits on the rear halves of the two side brims (outside the captain's body and behind the young's front brim places), all eight fit with her aboard; capacity is still limited by complete bodies, accessories and reserved arrivals. Offline preview only, awaiting game verification.",
+    "cabin_revision": "Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. The discrete deck (seats per hull mode, conflicts, walking edges, entry points, larder tiers in the crown cavity, care pairs, load check) is exported as hat_deck_layout.json and the worn/turned/hull transform contract as hat_frames.json; no provisions on the brim (user 2026-10-26). Offline preview only, awaiting game verification.",
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [
       "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json"
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_frames.json"
     ],
     "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
     "manifest": "standards/yukkuri-library/interactions/marisa-hat-vessel/manifest.json",

@@ -33,7 +33,7 @@
 
 - 每只幼体有自己的位置，按身体大小（碰撞宽度的 0.42 倍作半径）排开，彼此留出约一成空隙；内腔底坐不下时才坐到台阶上。
 - 位置由服务端给出并同步：茎生实子落在帽里空着的地方就坐在原处，胎生的孩子从帽子正中往外依次排；选位置时避开要从别的幼体身上越过去的地方。
-- 陆地上坐在内腔底。帽船上，船主坐在船尾台阶，后背贴开口后沿（按孕体实际后背计算）。前部浅台阶在水上高 0.375，范围 Z=-6.01…-4.35；普通选位优先较浅位置，空间不足时才用深层。按身体完整宽度和头饰矩形检查对应高度的内壁，座位中心必须接触真实阶面。
+- 陆地上坐在内腔底。帽船上，船主坐在船尾台阶，后背贴开口后沿（按孕体实际后背计算）。前部浅台阶在水上高 0.375，范围 Z=-6.01…-4.00（深 2.01，项目设计：让 0.40 的子油夜里也能坐在船长身前）；普通选位优先较浅位置，空间不足时才用深层。按身体完整宽度和头饰矩形检查对应高度的内壁，座位中心必须接触真实阶面。
 - 储粮最多 12 份，`hat_provisions` 在帽腔和临时檐边分区显示同一份库存；各区 1–3、4–7、8–12 份分别为少量、半满、装满。它复用 `forage_pile` 的满堆（叶托、各档草丘、压上的散草与食物）网格和图集，按满堆的 0.6／0.8／1.0 缩放整体外观。粮堆位于帽腔真实底面，最高点低于亲油脚底并保留原座位；满载禁止幼体进入。非紧急腾位将库存移至两侧后帽檐，每侧至多一堆且计入净空，恢复帽内布局后再取回；救援时可主动弃粮。`drafts/care-props/cargo.py` 从 `designs.py:forage_pile` 测量实际占位并导出 `hat_cargo_layout.json`，服务端读取同一数据。
 
 当前帽面几何、座位净空和粮堆占位由 `recipe.json`、`delivery.py` 与 `hat_cargo_layout.json` 共用；步高使用 `maxSurfaceStep`（相邻阶面最大高度）。
@@ -84,16 +84,74 @@
 | `manifest.json` | 配方、脚本与输出的 SHA-256 |
 | `preview_cabin.py` | 兼容的离线预览入口，转到 `drafts/care-props/preview_cargo.py` |
 | `check_cabin.py` | 检查帽面三角网格、座位支撑和储粮净空 |
+| `deck.py` | 离散席位表与变换契约：席位、冲突、步行边、入舷点、粮袋档位、照护配对、载荷核对（`build.py` 调用） |
+| `preview_deck.py` | 席位表离线俯视与剖面预览，输出 `.local/previews/hat-deck/` |
 
 **运行资源**：
 
 - `yukkuri_props/marisa_hat_turned.json`，登记在 `subspecies-index.json`。
 - `yukkuri_presentation/hat_vessel.json`：开口、内腔、帽檐各块、压扁比例、帽檐高度、水面遮罩、站位和 `delivery` 参数，由 `HatVessel` 读取。
+- `yukkuri_presentation/hat_deck_layout.json`：各船体模式的离散席位表，见下文“席位表”。供重构后的 `HatDeck` 读取，目前尚无 Java 读取。
+- `yukkuri_presentation/hat_frames.json`：佩戴帽、倒置帽与各船体模式的唯一变换契约，见下文“变换契约”。`motions/variants/lore/hat_motion_preview.py` 已改读它；船体渲染、水面遮罩与自救帽矩阵待帽船客户端姿态层接入。
 
-`cavity_sections` 由浅至深记录四段矩形/未压扁深度；包含前部浅台阶与三层帽冠。`surface` 取覆盖该 XZ 的最深段；`cabinClear` 按物体所在高度检查内腔。旧字段 `opening`、`well`、`ledge`、`floor` 和 `CargoBerth(position,radius)` 仍可读取，`floor` 现在表示最深底，`well` 前界为 -4.35。旧资源没有新数组时使用原两层读取逻辑。外轮廓、船主高度、干舷、压扁、放帽站位均未变。
+`cavity_sections` 由浅至深记录四段矩形/未压扁深度；包含前部浅台阶与三层帽冠。`surface` 取覆盖该 XZ 的最深段；`cabinClear` 按物体所在高度检查内腔。旧字段 `opening`、`well`、`ledge`、`floor` 和 `CargoBerth(position,radius)` 仍可读取，`floor` 现在表示最深底，`well` 前界为 -4.00。旧资源没有新数组时使用原两层读取逻辑。外轮廓、船主高度、干舷、压扁、放帽站位均未变。
 
 **重建顺序**：魔理沙帽子造型改动后依次运行下列脚本：
 
-1. 本目录的 `build.py`
+1. 本目录的 `build.py`（席位表还读取 `drafts/care-props` 导出的 `hat_cargo_layout.json` 与 `hat_provisions.json`；粮堆网格改动后也要重跑）
 2. `scripts/export_motion_corrections.py`（重新生成辫子动作）
 3. `motions/variants/lore/births.py`（在本机生成出生场景预览，输出到 `.local/previews/lore/`，不入库）
+
+## 席位表
+
+`hat_deck_layout.json` 把帽船上所有可给身体的位置离线算成一张表，运行时只在表内枚举，不再做连续几何搜索。坐标为船体局部帽单位（与 `HatVessel` 相同：x 横向，船长辫子一侧为 +X；z 沿长轴，船尾 +Z、船头 −Z；y 自水线或地面向上；一个帽单位为 `hullScale/16` 格）。席位朝向 `yaw` 为相对船体实体朝向的角度，面向船体局部 `(sin yaw, −cos yaw)`。
+
+顶层字段：`format`、`status`、`source`、`note`、`sources`（输入文件指纹）、`classes`、`jumps`（各级别默认能否跳）、`load`、`curves`、`modes`。`modes` 按 `AQUATIC_FLOAT`、`FLOAT`、`NEST` 各给 `hull_ratio`、`surface`、`top`、`squash`、`afloat`、`envelopes`、`slots`、`edges`、`entries`、`larder`、`fixtures`、`care`、`capacity`。
+
+**体型级别**（`classes`，相对船主帽子尺度的最大成长比例；身体取第一个不小于自身比例的级别）：新生 `newborn` 0.14、赤油 `baby` 0.20、小子油 `small_child` 0.30、子油 `child` 0.40、大子油 `large_child` 0.45、亚成 `juvenile` 0.80、船主 `adult` 1.0、临产船主 `gravid`（满孕体）。各模式的 `envelopes` 给出每级的碰撞宽度、软半径、身高、身体前后与侧向范围，以及幼体自己戴的帽子（前、后、侧半宽，帽底高度、帽高）；船主不戴帽，她的帽子就是船体。
+
+**载重**（`load`）只决定吃水与稳性，空间只由席位决定：粮每份 0.5（粮袋最多 12 份）、木桨 1、新生与赤油 2、小子油 3、子油与大子油 4、亚成 8（只用救援檐）、孕体加 2，满载 12（项目设计，生态设计 A1）。
+
+**席位类型**（`slots[].kind`）：
+
+| 类型 | 位置 | 用途 |
+| --- | --- | --- |
+| `CAPTAIN` | 帽口后段，背贴后沿（`HatBoatEntity.ownerSeat`） | 船长常座 |
+| `CAPTAIN_HIGH` | 臀部压在后帽檐内沿，身体悬在帽口与船尾上方 | 孕晚期船长，让出身前帽腔接生 |
+| `BOW_PERCH` | 前浅台阶 | 白天醒着的幼体、子油；夜里也可用 |
+| `WELL_FRONT` | 二段阶面 | 体型合适的幼体 |
+| `NEST_HOLLOW` | 三、四段深凹（船长身前与身下） | 夜里的幼体、新生落点；整个身体与帽子都低于船长时可在她身下 |
+| `BRIM` | 前帽檐 | 能跳的子油白天站立看水，夜里不可用 |
+| `TOILET_RIM` | 左右后侧帽檐，背朝水 | 如厕服务位（租约），船长也可用 |
+| `RESCUE_RIM` | 左右侧帽檐内沿 | 救援临时位（只发租约，不是常座），亚成与超额乘员 |
+| `SERVICE` | 帽口中线上的前移站位 | 船长照护站位（`purpose: care`） |
+| `LARDER` | 冠底 | 粮袋，仅放物品 |
+
+**每个席位**：`id`、`kind`、`pos`、`yaw`、`classes`（可坐的级别）、`night`（夜里可用）、`requires_jump`（只给能跳的身体）、`prefer.day/night`（偏好序，小者优先）、`conflicts`；救援檐另有 `lease_only`，服务位有 `purpose`，高座有 `lean_back`。`conflicts[级别][另一席位] = 最小级别`：这一级别的身体坐在此席位时，另一席位上不小于该级别的身体会与它接触。表是对称的，身体越大冲突越多；同一船主的各座位互斥。
+
+**其余字段**：
+
+- `edges`：席位间步行边 `a`、`b`、`length`、`rise`（沿途最大台阶高差）、`step`（有台阶，不会跳的身体须被托举）、`classes`（通道宽度够的级别）；只保留不经过其他席位的直达边。船主的座位、照护位与如厕位另成一组。
+- `entries`：入舷点 `bow`、`port`、`starboard`，含帽檐外缘点 `edge`、外法线 `normal`、各级别的水面锚点 `outside`（y 为水线或地面）、岸侧锚点 `bank`（同一水平位置，y 取帽檐高，运行时换成真实岸高）、翻越曲线 `curves`（`from_water` / `from_bank`，地面模式为 `from_ground`），以及最近的四个席位 `nearest`。曲线定义在顶层 `curves`：`hop_rim`（重力抛物线，越过帽檐 `delivery.clear`）、`climb_rim`（嘴咬帽檐、辫子勾檐爬上，无辫种类只用嘴）、`lift`（亲油辫梢卷兜或嘴叼托起，被托者移动期间是船体乘客）。
+- `larder[档]`：0 档空，1–3、4–7、8–12 份分别为 1、2、3 档；`zone` 给出粮袋所在（底面 `y`、高度、外接矩形 `bounds`，以及相对 `hat_cargo_layout.json` 现有显示位置的平移 `visual_offset`），`excludes` 为被粮袋占到的席位与最小级别，`lip` 为嘴够得着粮袋的席位（子油自取粮）。粮袋大小取自 `hat_provisions.json` 实际网格的逐列高度，不用外接圆柱；位置在冠底靠船头一侧，让船长身下留给夜里的幼体。
+- `fixtures.paddle_stow`：存放的木棍沿左侧帽檐外沿横放（船长辫子在右），`segment`、`radius` 与它占到的席位 `excludes`。
+- `care`：船长站位 `captain` 与幼体席位 `young` 的照护配对，`classes` 为嘴对嘴够得着、嘴高差与朝向满足 `FamilyFeedingContact`、转身后不碰船长的级别，`rear` 为高差小到可以辅助如厕的级别，`young_yaw` 为幼体转向船长时的朝向。取代 `HatCareGeometry` 三角网格与 `HatCareAnchor`。
+- `capacity`：船长在座、木棍存放时，单一级别最多几只，按昼夜与粮袋档位列出（`day_档`、`night_档`）。
+
+运行时判定：先看载重不超过 12，再在 `classes`、`night`、`requires_jump`、粮袋档位与木棍的 `excludes`、已坐身体的 `conflicts` 下找一组席位；`build.py` 用同一判定核对 `recipe.json` 中 `deck.verify` 的载荷并打印分配结果，不符即失败。
+
+**当前几何的边界**（水生帽 1.5 倍）：幼体自己的大帽子是主要限制。帽腔内同时只坐得下一只小子油或子油；大子油（0.40–0.45）只在白天站前帽檐，夜里没有常座；亚成只用救援檐。若把水生帽倍数提高到约 1.75，船长占用变小，大子油夜里也能坐进帽口，小子油可坐两只；这一改动牵涉佩戴帽尺寸、辫子放帽动作与相关文档，尚未采用。
+
+席位表不含帽檐粮堆（用户 2026-10-26：粮只放在帽腔里）。现有运行代码仍按旧规则把粮暂放到侧帽檐，直到席位表接入。
+
+## 变换契约
+
+`hat_frames.json` 给出同一顶帽子在各处的变换，所有使用者读这一份：
+
+- `worn`：佩戴帽在身体模型中的锚点 `anchor` 与倍数 `multiplier`（陆生 1、水生 1.5），帽上一点 p 位于 `anchor + multiplier·(p − anchor)`。
+- `turned.from_worn`：佩戴帽坐标到倒置帽道具坐标的 4×4 矩阵（`rotateY(90°)·rotateX(180°)·translate(−anchor)`），以及 `keel`、`brim`、`opening`。
+- `modes.nest/float/aquatic`：压扁 `squash`、帽檐高度 `top`、`hull_ratio`（船体尺度＝帽子尺度×该值）；水上模式另有水线 `water_y`、开口遮罩 `mask`、船主高度 `owner_y`，以及按载重的干舷 `freeboard_by_load` 与晃动系数 `roll_by_load`（`[载重, 值]`，步长 0.5）。
+- `hull`：道具点 (x, y, z) 到船体局部 (x, top + y·squash, z)，船体局部到世界为实体位置加 `rotateY(180 − yaw)·(局部·hullScale/16)`；吃水随载重变化时整船连同座位一起下沉，遮罩始终在水线。
+- `load`：干舷 `freeboard·(1 − 0.5·载重/12)`，晃动与进水敏感度 `×(1 + 0.5·载重/12)`（项目设计，生态设计 A3）。
+
+预览：`python preview_deck.py` 输出 `.local/previews/hat-deck/hat-deck.png`（俯视全部席位、入舷点、木棍、粮袋三档、一组冲突，文档载荷的分配，以及中线剖面）。
