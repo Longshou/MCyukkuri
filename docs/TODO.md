@@ -13,7 +13,6 @@
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
-| 妖梦拔刀时观楼剑叼在嘴里 | `.worktrees/youmu-sword` | `client/YukkuriRenderer.java`（妖梦持剑段）、相关嘴部挂点与道具渲染 |
 
 ## 玩法待办
 
@@ -51,7 +50,7 @@
 
 - **陆 14 雨天与雷暴演出**：未做。本轮要求补充与实际天气、不安和行为对应的表现：普通雨的不安、雷暴更强的不安、寻找掩体、干燥区恢复休闲／觅食，以及很饿时冒雨觅食；台词、表情和动作随真实状态，不能一直锁在躲雨等待表现。随演出统一收尾，机制复测另见待试玩的陆 14，尚不标记数值通过。
 - **陆 5 暖桌魔理沙**（2，`kotatsu_winter`、`kotatsu_summer`）：部分接入。被炉帘布已补造型（被褥垂到地面，前方与两侧前段斜着掀起露脸和辫子手；小被炉按桌板缩放），待视觉确认；冬天应不觉冷、不进洞冬居，夏天白天回棚下睡，现在看不出区别。读数里冬夏状态不同则只补演出，相同按数值问题修。
-- **陆 17 妖梦咬刀**：已接入待试玩。观楼剑改为水平横咬在唇线上（去掉偏航，加长加粗、两端伸出脸颊），仍随嘴部挂点转向与形变；妖梦脸组没有单独的咬合脸，保留实际表情。完成：`myon_stick` 拾到木棍后，正面与侧面都看到木棍横贯嘴部，张口表情上下唇夹住木棍，走动、跳动和转身时不脱离嘴部。
+- **陆 17 妖梦咬刀**：已接入待试玩。观楼剑改为水平横咬在唇线上（去掉偏航，加长加粗、两端伸出脸颊），仍随嘴部挂点转向与形变；妖梦脸组没有单独的咬合脸，保留实际表情。完成：`myon_stick` 拾到木棍后，正面与侧面都看到木棍横贯嘴部，张口表情上下唇夹住木棍，走动、跳动和转身时不脱离嘴部。运行版本 [ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b)，CI `40196337976`：`myon_brave` 妖梦拔刀与捕食种交战时，观楼剑显示在身体下方而不在嘴里。已改为空口持剑时也逐帧刷新嘴部挂点（此前只在嘴里或发辫有真实物品时刷新）。观察 `myon_brave`：交战、追击、受击与退战全程木棍横贯嘴部，不出现在身体下方或地面原点，与同场其他妖梦互不串位。
 - **陆 22 茎生尊重重力**（7）：已接入待试玩。花梗按重力竖直下垂、随母体轻摇和滞后，出生落点同步为悬挂处；挂法与茎长见[家庭生长素材](../art/props/family-life/README.md)。完成：`aftermath_growth` 结果后看花梗竖直，母体走动、跳跃时子油轻摆、不穿茎或母体，出生时从悬挂处直落。
 - **陆 24 献身分体**（37）：部分接入。现 GIVE 只停步、注视、低垂后进中枢濒死，遗体完整压低（`RemainsRenderer`）。要从中间劈成两半，横切面按身体构造分层，中枢馅／中枢线也分两半，两半对应同一具遗体资源；试玩入口已合并到 `offering`，触发差别作为同场景分支。完成：分体可见、资源不重复。见[受伤与遗体](INJURIES_AND_REMAINS.md)。
 - **水 11 交互工具**：未做。裁决：用辫子和嘴交互，无辫种类只用嘴；“帽子是交互工具”是误传。挣扎、扶正帽子、托孩子、爬上船、递粮改由辫子或嘴完成，少些僵硬。
