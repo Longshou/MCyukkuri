@@ -83,7 +83,7 @@
 
 ## 运行证据索引（2026-10-21–22）
 
-下列编号只定位运行版本、用户反馈与原始证据；日志和一次桌面复测用于诊断，不代替用户试玩验收。下列条目以 E1–E5 引用。会话文件与启动日志位于 `.local/experimental-map/play-museum/`，原生日志位于 `.local/experimental-map/museum/logs/`。E1 的启动日志为 `20261021-211804-694.log`，跨午夜原生日志为 `2026-10-21-1.log.gz` 与 `latest.log`。
+下列编号只定位运行版本、用户反馈与原始证据；日志和一次桌面复测用于诊断，不代替用户试玩验收。下列条目以 E1–E6 引用。会话文件与启动日志位于 `.local/experimental-map/play-museum/`，原生日志位于 `.local/experimental-map/museum/logs/`。E1 的启动日志为 `20261021-211804-694.log`，跨午夜原生日志为 `2026-10-21-1.log.gz` 与 `latest.log`。
 
 | 编号 | 运行包与证据 | 已确认现象／边界 |
 | --- | --- | --- |
@@ -92,6 +92,7 @@
 | **E3** | 2026-10-22 00:45–01:09，[cc0e78ff](https://github.com/Longshou/MCyukkuri/commit/cc0e78ff8a8c4ceb9fceb96065f875f194b4e040)，[CI 39634939963](https://github.com/Longshou/MCyukkuri/actions/runs/39634939963)；`20261022-004156-985.session.json`、`20261022-005129-600.session.json` 与原生日志。 | 天气、捕食、睡眠与闲逛场景反馈，具体历史现象见对应待试玩条目。 |
 | **E4** | 01:19 仍为 E3；01:25:54 起 [d1cf4f1f](https://github.com/Longshou/MCyukkuri/commit/d1cf4f1f0be69eebbae1889c252d55d63d442399)，[CI 39641090628](https://github.com/Longshou/MCyukkuri/actions/runs/39641090628)，启动记录与 `20261022-012554-791.session.json` 会话交叉确认。 | 01:26–01:28 授权桌面复测未再卡死且有取核／治疗日志，只是诊断证据；01:29–01:38 护尸、移速反馈归属 d1cf。 |
 | **E5** | 01:44–01:58，[193a87ae](https://github.com/Longshou/MCyukkuri/commit/193a87aec4dcbcb46a8a4b82556c723ab4dc066b)，[CI 39644324457](https://github.com/Longshou/MCyukkuri/actions/runs/39644324457)；`20261022-014141-137.session.json` 与原生日志。 | 天气、捕食、困倦、认窝与通用身体复测；各条保留失败现象。 |
+| **E6** | 2026-10-25 16:08–16:09，[303d10d0](https://github.com/Longshou/MCyukkuri/commit/303d10d03dd7befcb4a2f87fae37e176360111f1)，[CI 40173988194](https://github.com/Longshou/MCyukkuri/actions/runs/40173988194)；`20261025-160041-330.session.json` 与原生日志。 | `core_exposed` 多只伤员同屏明显卡顿，服务端无落后记录；发面伤口处头发穿透／缺口。 |
 
 ## 实时日志发现的问题
 
@@ -257,7 +258,8 @@
 - **火烧后的烧焦外观**：已接入待试玩。已选用足部／全身三级焦枯素材、干枯表情与全身横向干瘦，家油只用三级热损外观；规则见[伤口与治疗](INJURIES_AND_REMAINS.md#伤口与治疗)。完成：`thermal_body` 对照范围、伤级与 `health.thermal_state`；`wound_sources`、`magma_sole` 用真实火烧和接触验证，足烧只足底、全烧保持高度／深度与头饰尺寸，不误出露核洞，由用户确认。
 - **身体印记与重伤创腔**：已接入待试玩。已接入对应伤型的发面／皮面裁切、硬边像素断发边、低面数直壁与平底、普通馅和唯一中央中枢；核心与深色空腔使用同一品种色系，服务端命中采用相同开口并检查剩余头发和饰物遮挡。规则见[中枢与临终](INJURIES_AND_REMAINS.md#中枢与临终)。完成：`body_mold`、`marks`、`treatment_severe` 核对原位变化；`core_exposed` 的头顶／厚后发、低血大缺损与小伤／窄刺／尖锥／烧伤边界核对实际瞄准和遮挡；`core_filling` 核对取核后空腔，`rare_forms` 对照品种内馅配色及捕食种核心接缝无原发色弧边，治疗、遗体搬放及清场重开不换位、不重复中枢。`wound_sources` 手动核对发际线真实命中，`rare_forms` 对照爱丽丝、橙、妖梦、捕食种及未指定品种的内馅配色，视觉仍待用户确认。
 - **遗体美术**：已接入待试玩。按[死因类别与水中阶段](INJURIES_AND_REMAINS.md#同伴照护与遗体)换死亡脸、姿态、表层与地面馅渍，九个圆润模型有专用图集，家油与稀有形态仍用睡脸只换姿态与表层，灵胖类沿用普通灵梦死亡脸；寿终缎带下垂需要骨骼姿态，目前缺；制作源 `standards/yukkuri-library/drafts/remains/` 未经用户认可，献身切面归演出包分体项。完成：`remains_forms` 用“读遗体”核对七种真实死因与溺死的 `category`／`form`，外观与预期形态一致；水池左具约 30–60 秒后 `water=softened`，右具约 30–60 秒后 `water=dissolving`、`food` 6→0、`core=false` 且沉底，岸上对照不变；用户确认各形态外观。
-- **伤口贴图、创腔与发面适配**：已接入待试玩。已选用 `art/source/hair-wounds/` 重绘的八类三级机械伤、各模型绑定与既有热损素材；轻伤为透明硬边像素簇，开放伤有实际内壁和底部，窄刺／尖锥三级使用独立轮廓，并按已有资料区分豆沙、卡仕达、巧克力、白巧克力与肉包馅；未指定品种保留默认色。伤因 `Shape` 贯穿伤口、同步、疤痕及遗体，实际扣血仍只由身体结算。素材与边界见[发面素材](../standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md)和[挂接契约](../standards/yukkuri-library/drafts/body-marks/WOUND_GENERATION.md)。完成：`wound_materials`、`wound_parts` 核对各级伤的皮面／发面连续、动作贴合、透明边缘、远近显示及眼旁遮挡；`wound_sources` 用真实刀／钝／刺／咬／爆来源核对伤型，2／4／5／7点及重复命中读数对应伤级、普通馅与露核，不虚构逐齿／逐刺接触。覆盖各发型、豆形、稀发、多毛和水生；`rare_forms` 核对各品种内馅色系与共享几何。摘饰、治疗、重载保留原伤与疤痕锚点，治疗不恢复真实缺发，保留 `hatless_monster`／`hatless_boundary`，并核对孕肚与接生交接，由用户确认外观。
+- **多只伤员同屏卡顿**：已接入待试玩。E6 `core_exposed` 多只伤员同屏明显卡顿；已改为表情、漏馅计时和精确血量变化不再重建伤口与开口缓存。完成：`core_exposed`、`rare_forms` 全部伤员同屏绕行，眨眼、说话和漏馅时无明显卡顿，伤口外观与此前一致。
+- **伤口贴图、创腔与发面适配**：复测失败。E6 `core_exposed` 发面伤口处头发穿透／缺口，待定位修复。已选用 `art/source/hair-wounds/` 重绘的八类三级机械伤、各模型绑定与既有热损素材；轻伤为透明硬边像素簇，开放伤有实际内壁和底部，窄刺／尖锥三级使用独立轮廓，并按已有资料区分豆沙、卡仕达、巧克力、白巧克力与肉包馅；未指定品种保留默认色。伤因 `Shape` 贯穿伤口、同步、疤痕及遗体，实际扣血仍只由身体结算。素材与边界见[发面素材](../standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md)和[挂接契约](../standards/yukkuri-library/drafts/body-marks/WOUND_GENERATION.md)。完成：`wound_materials`、`wound_parts` 核对各级伤的皮面／发面连续、动作贴合、透明边缘、远近显示及眼旁遮挡；`wound_sources` 用真实刀／钝／刺／咬／爆来源核对伤型，2／4／5／7点及重复命中读数对应伤级、普通馅与露核，不虚构逐齿／逐刺接触。覆盖各发型、豆形、稀发、多毛和水生；`rare_forms` 核对各品种内馅色系与共享几何。摘饰、治疗、重载保留原伤与疤痕锚点，治疗不恢复真实缺发，保留 `hatless_monster`／`hatless_boundary`，并核对孕肚与接生交接，由用户确认外观。
 - **已接入待试玩，等视觉确认**：爱丽丝八景蓝瞳与蓝眼表情（制作源 `standards/yukkuri-library/body-standard/features/alice-hakkei/`，视觉确认仍按源登记核对）；雷普魔 1.12 脸、行为序列与 peni 显示（`drafts/rapem-alice/` 未认可）；成体状态脸（八景 U 重绘，`art/source/adult-states/`）；稀有形态贴图（妖梦与红眼、橙尾、被炉魔理沙，登记缺认可字段）；中枢馅、去霉药、酸奶、兴奋药、幼语药、弹珠汽水喷雾。
 
 ### 演出与表现复测
