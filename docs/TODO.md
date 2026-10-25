@@ -12,6 +12,9 @@
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
+| 捕食种战斗／捕食分态、俯冲攻击与进食停留 | `.worktrees/predator-combat` | `predator/`、捕食种相关 Goal（`PREDATOR_*`）、`scripts/museum_scenarios.py` 挡捕食种／妖梦拔刀场景、捕食种所属专题 |
+| 无粮觅食游荡与紧急移速 | `.worktrees/forage-urgency` | 觅食／`SEEK_FOOD`／`FORAGE_SEEK` 相关 Goal、移速修正、`scripts/museum_scenarios.py` 无粮主动搜索／雨天场景、觅食所属专题 |
+| 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
 
 ## 玩法待办
 
