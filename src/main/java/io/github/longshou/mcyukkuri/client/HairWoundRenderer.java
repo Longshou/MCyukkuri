@@ -49,42 +49,66 @@ final class HairWoundRenderer {
      * One owner's prepared body. Expression patches only move face parts, so every variant shares the expensive
      * expression independent work (cuts, cavity, hair and body decals, wall rings) of the first one.
      */
-    private static final class Entry {
-        final Key key;
+    private static final class Slot {
         final Prepared shared;
         final Map<Object,Prepared> variants=new LinkedHashMap<>(MAX_VARIANTS,.75f,true){
             @Override protected boolean removeEldestEntry(Map.Entry<Object,Prepared> eldest){return size()>MAX_VARIANTS;}
         };
-        boolean weak;
-        Entry(Key key,Prepared shared,Object expression,boolean weak){this.key=key;this.shared=shared;this.weak=weak;variants.put(expression,shared);}
+        Slot(Prepared shared,Object expression){this.shared=shared;variants.put(expression,shared);}
     }
-    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8;
+    /** Full and simple detail are cached side by side so walking away and back never rebuilds the other one. */
+    private static final class Entry {
+        final Key key;
+        Slot full,simple;
+        boolean weak;
+        Entry(Key key,boolean weak){this.key=key;this.weak=weak;}
+        Slot slot(boolean wantFull){return wantFull?full:simple;}
+    }
+    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8,MAX_DENT_STEPS=4;
     private static final Map<Object,Entry> CACHE=new LinkedHashMap<>(MAX_CACHED_BODIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<Object,Entry> eldest){return size()>MAX_CACHED_BODIES;}
     };
     static void clear(){CACHE.clear();}
     static Prepared prepare(Object owner,YukkuriModel model,String asset,String expression,List<BodyWound> wounds,
-                            int signs,float health,int hairLoss,boolean accessory,int headwear,boolean corePresent){
+                            int signs,float health,int hairLoss,boolean accessory,int headwear,boolean corePresent,float distanceSquared){
         // Leakage clocks and hat regrowth percentages do not change topology.
         // The current fit and bone pose still apply every rendered frame.
         int level=Headwear.visualLevel(headwear);
         boolean weak=health<=BodyLife.WEAK_HEALTH_RATIO;
         var geometry=model.woundExpressionKey(expression);
+        boolean wantFull=WoundLod.wantsFull(owner,distanceSquared);
         var old=CACHE.get(owner);
+        boolean same=old!=null&&old.key.same(asset,wounds,signs,hairLoss,accessory,level,corePresent);
         // Common frame: nothing but possibly the expression changed, so no key, core opening or list is built.
-        if(old!=null&&old.weak==weak&&old.key.same(asset,wounds,signs,hairLoss,accessory,level,corePresent)){
-            var hit=old.variants.get(geometry);if(hit!=null)return hit;
+        if(same&&old.weak==weak){
+            var hit=lookup(old,wantFull,geometry);if(hit!=null)return hit;
         }
         var mesh=WoundSurface.get(asset);
         var core=BodySigns.coreWound(mesh,wounds,(signs&BodySigns.CORE_HURT)!=0,health);
-        if(old!=null&&old.key.same(asset,wounds,signs,hairLoss,accessory,level,corePresent)&&old.key.exposed==(core!=null)){
-            old.weak=weak;var hit=old.variants.get(geometry);if(hit!=null)return hit;
-            var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent,old.shared);
-            old.variants.put(geometry,result);return result;
+        if(same&&old.key.exposed==(core!=null)){
+            old.weak=weak;var hit=lookup(old,wantFull,geometry);if(hit!=null)return hit;
+            return build(old,wantFull&&WoundLod.takeFullBuild(),model,asset,wounds,signs,hairLoss,accessory,core,corePresent,geometry);
         }
         var key=new Key(asset,wounds.stream().map(VisibleWound::new).toList(),signs,hairLoss,accessory,level,corePresent,core!=null);
-        var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent,null);
-        CACHE.put(owner,new Entry(key,result,geometry,weak));return result;
+        var entry=new Entry(key,weak);CACHE.put(owner,entry);
+        return build(entry,wantFull&&WoundLod.takeFullBuild(),model,asset,wounds,signs,hairLoss,accessory,core,corePresent,geometry);
+    }
+    /** The wanted detail when already built; a full request that is not built yet falls through to the budgeted build. */
+    private static Prepared lookup(Entry entry,boolean wantFull,Object geometry){
+        var slot=entry.slot(wantFull);
+        if(slot!=null){var hit=slot.variants.get(geometry);if(hit!=null)return hit;}
+        return null;
+    }
+    private static Prepared build(Entry entry,boolean full,YukkuriModel model,String asset,List<BodyWound> wounds,int signs,int hairLoss,
+                                  boolean accessory,BodyWound core,boolean corePresent,Object geometry){
+        var slot=entry.slot(full);
+        if(slot!=null){var hit=slot.variants.get(geometry);if(hit!=null)return hit;}
+        long start=WoundLod.start();
+        var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent,slot==null?null:slot.shared,!full);
+        WoundLod.built(full,start);
+        if(slot==null){slot=new Slot(result,geometry);if(full)entry.full=slot;else entry.simple=slot;}
+        else slot.variants.put(geometry,result);
+        return result;
     }
     /** Triangles one part contributed, kept per part so a new expression only redoes the parts it moves. */
     private static final class PartOut {
@@ -170,6 +194,8 @@ final class HairWoundRenderer {
         private static final int TAIL=-1;
         /** Only face parts move with the expression, so a variant may reuse what was drawn on every other part. */
         private final boolean reusable;
+        /** Cheap far/crowd detail: flat ink on the original triangles; only a core opening is still cut. */
+        final boolean simple;
         final Vector3f[] display;
         final List<BodyWound> wounds;
         final int whole,sole;
@@ -182,8 +208,8 @@ final class HairWoundRenderer {
         final Vector3f[] posedTriangle={a,b,c};
         final float[] triangleUv=new float[6];
         Prepared(YukkuriModel model,String asset,List<BodyWound> wounds,int signs,int hairLoss,boolean accessory,
-                 BodyWound coreWound,boolean corePresent,Prepared donor){
-            this.model=model;mesh=WoundSurface.get(asset);info=HairWoundAssets.model(asset);
+                 BodyWound coreWound,boolean corePresent,Prepared donor,boolean simple){
+            this.model=model;this.simple=simple;mesh=WoundSurface.get(asset);info=HairWoundAssets.model(asset);
             // The expression is already applied to the live vertices and the constructor never changes them.
             source=model.woundVertices();
             display=new Vector3f[source.length/8];
@@ -230,7 +256,7 @@ final class HairWoundRenderer {
                 if(donor==null)outputs.put(part.start(),current);
                 merge(current);
             }
-            if(donor==null){
+            if(donor==null&&!simple){
                 current=new PartOut();
                 for(var cut:cuts)if(cut.open()){
                     if(cut.core==null)ordinaryWall(cut);
@@ -241,6 +267,7 @@ final class HairWoundRenderer {
             merge(outputs.get(TAIL));
             current=null;source=null;
         }
+        private boolean cutsHole(Cut cut){return cut.open()&&(!simple||cut.core!=null);}
         private void merge(PartOut out){
             if(out==null)return;
             patches.putAll(out.patches);
@@ -255,11 +282,11 @@ final class HairWoundRenderer {
                 var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
                 List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
                 if(receiver){
-                    for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())){
-                        triangles=subdivide(pa,pb,pc,Math.min(18,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale)))));
+                    if(!simple)for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())){
+                        triangles=subdivide(pa,pb,pc,Math.min(MAX_DENT_STEPS,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale)))));
                         changed=true;break;
                     }
-                    for(var cut:cuts)if(cut.open()&&cut.bounds(pa,pb,pc,1.5f,part.name())){
+                    for(var cut:cuts)if(cutsHole(cut)&&cut.bounds(pa,pb,pc,1.5f,part.name())){
                         var outside=new ArrayList<Bary[]>();
                         for(var tri:triangles)outside.addAll(outside(cut,info.hair.contains(part.name())?cut.hair:cut.skin,first,tri));
                         triangles=outside;changed=true;
@@ -298,7 +325,7 @@ final class HairWoundRenderer {
         }
         private void bindHair(Corner corner){
             var point=corner.rest;
-            if(info.hair.contains(triangleParts.get(corner.triangle)))for(var cut:cuts)if(cut.open()&&cut.near(point,triangleParts.get(corner.triangle))){
+            if(info.hair.contains(triangleParts.get(corner.triangle)))for(var cut:cuts)if(cutsHole(cut)&&cut.near(point,triangleParts.get(corner.triangle))){
                 float distance=distance(cut.hair,cut.x(point),cut.y(point));
                 float weight=1-Math.clamp(distance/(.25f*cut.scale),0,1);
                 if(weight<=corner.skinWeight)continue;
@@ -506,6 +533,7 @@ final class HairWoundRenderer {
                 out.lerp(skinPoint,corner.skinWeight);}
         }
         private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset){
+            if(WoundLod.measuring())WoundLod.triangle();
             String part=triangleParts.getOrDefault(tri.a.triangle,"");boolean pregnancy=!model.woundPregnancyFace(part);
             pose(tri.a,a,pregnancy);pose(tri.b,b,pregnancy);pose(tri.c,c,pregnancy);
             normal.set(b).sub(a).cross(edge.set(c).sub(a));if(normal.lengthSquared()<1e-12)return;normal.normalize();
