@@ -34,8 +34,8 @@ def main():
             matrix = model.last_matrices[tip]
             pivot = np.array(model.model['bones'][tip]['pivot'])
             # FIXED item display applies another .5 scale. Keep the tip on the braid grip;
-            # AquaticMotionPresentation offsets the clip .4 s and lifts the return half.
-            cycle = ((time-.4) % 1.6)/1.6
+            # The server starts boat_paddle its power_start marker (.2 s) before the hull's stroke clock; lift the return half.
+            cycle = ((time-.2) % 1.6)/1.6
             recovery = 105*max(0, -math.sin(cycle*2*math.pi))
             corners = np.array([[-8,-8,0],[8,-8,0],[8,8,0],[-8,8,0]])*(.85*.5)
             corners = (corners@P.euler([0,0,45]).T+[0,-.22*16,0])@P.euler([recovery,0,0]).T+pivot

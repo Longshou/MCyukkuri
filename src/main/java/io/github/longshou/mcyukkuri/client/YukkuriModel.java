@@ -161,6 +161,11 @@ public final class YukkuriModel {
     void setBraidRescueContact(Vector3f point){braidPose.setBraidRescueContact(point);}
     void setBraidRescueGrip(boolean active){braidPose.setBraidRescueGrip(active);}
     void setBraidRescueJoint(Vector3f point){braidPose.setBraidRescueJoint(point);}
+    /** A transfer contact for the braid tip only (client/aquatic ContactTargets): the joint is solved on the authored segments. */
+    void setBraidContactTip(Vector3f tip,boolean grip){braidPose.setContactTip(tip,grip);}
+    /** The mouth holds a transfer contact: the care-contact lean brings the lips to the target set by setCareContact. */
+    private boolean mouthBite;
+    void setMouthBite(boolean value){mouthBite=value;}
     /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
     void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
         boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
@@ -409,6 +414,15 @@ public final class YukkuriModel {
     /** Root bone transform of the last posed render, in model units (16 per block). Attachments drawn
      *  outside the skinned mesh (held food, stem, delivery) follow it so whole-body motion does not detach them. */
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
+    /** A bone's posed frame at its pivot in the last render, in block units like propPose; null when the model has no such bone. */
+    public Matrix4f boneFrame(String name) {
+        for (int i = 0; i < bones.length; i++) if (bones[i].name().equals(name)) {
+            var matrix = new Matrix4f(world[i]).translate(bones[i].x(), bones[i].y(), bones[i].z());
+            matrix.m30(matrix.m30() / 16); matrix.m31(matrix.m31() / 16); matrix.m32(matrix.m32() / 16);
+            return matrix;
+        }
+        return null;
+    }
     /** Captured from the rendered lip surface before its expression patch is restored. */
     public Matrix4f mouthAttachmentPose() { return new Matrix4f(mouthAttachment); }
     private void captureMouthAttachment() {
@@ -858,7 +872,7 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(mouthBite||behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
         if(Float.isFinite(boardingPitch)){
             // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
             var root=pose[rootBone()];

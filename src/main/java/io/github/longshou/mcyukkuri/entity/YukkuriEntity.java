@@ -289,10 +289,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long waterDistressStartTick() { return sync().waterDistressStartTick(); }
     public boolean waterDistressEffort() { return sync().waterDistressEffort(); }
     // Compatibility views return the actual whole synchronized tag, without re-encoding snapshots.
-    public CompoundTag braidRescueState() { return sync().braidRescueState(); }
-    public String braidRescuePhase() { return sync().braidRescuePhase(); }
-    public long braidRescueStartTick() { return sync().braidRescueStartTick(); }
-    public CompoundTag boardingState() { return sync().boardingState(); }
+    public int crewBoat() { return sync().crewBoat(); }
     public CompoundTag aquaticSelfRescueState() { return sync().aquaticSelfRescueState(); }
     public int aquaticRescueTargetId() { return sync().aquaticRescueTargetId(); }
     public String aquaticAlarmActivity() { return sync().aquaticAlarmActivity(); }
@@ -302,8 +299,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriSyncState.Agitation agitationSync() { return sync().agitationSync(); }
     public YukkuriSyncState.WaterDistress waterDistressSync() { return sync().waterDistressSync(); }
     public YukkuriSyncState.AquaticAlarm aquaticAlarmSync() { return sync().aquaticAlarmSync(); }
-    public YukkuriSyncState.BraidRescue braidRescueSync() { return sync().braidRescueSync(); }
-    public YukkuriSyncState.Boarding boardingSync() { return sync().boardingSync(); }
     public YukkuriSyncState.SelfRescue selfRescueSync() { return sync().selfRescueSync(); }
     public YukkuriSyncState.LiveChildren liveChildrenSync() { return sync().liveChildrenSync(); }
 

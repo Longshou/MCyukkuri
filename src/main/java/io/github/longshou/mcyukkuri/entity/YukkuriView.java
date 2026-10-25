@@ -127,14 +127,12 @@ public interface YukkuriView {
     boolean aftermathBurden();
     boolean aftermathWeak();
     CompoundTag agitationState();
-    CompoundTag braidRescueState();
-    CompoundTag boardingState();
+    /** The hull whose CrewState holds this body's transfer (entity id), or -1. */
+    int crewBoat();
     CompoundTag aquaticSelfRescueState();
     String waterDistressPhase();
     long waterDistressStartTick();
     boolean waterDistressEffort();
-    String braidRescuePhase();
-    long braidRescueStartTick();
     int aquaticRescueTargetId();
     String aquaticAlarmActivity();
     long aquaticAlarmStartTick();

@@ -416,12 +416,12 @@
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.mesh.json",
-      "sha256": "f86cd3f07525293f1bf4109bad8307dba0799830b315352a8bb14eef32930034",
+      "sha256": "25277bfad79e8b6e39b1aac05a7f9a75509a347d2e4abcb727c275e1eeee1fe6",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/hat_provisions/hat_provisions.bbmodel",
-      "sha256": "187b432c93153eb96b11018faa001289220f595b9f390e943a3ae8251300b17c",
+      "sha256": "58428e206de42edfa94f93cec2f790637a438b82b369ff2dbd92cf5ea473e2df",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/hat_provisions/texture.png": {
@@ -431,7 +431,7 @@
     },
     "generated:src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json": {
       "snapshot": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "sha256": "7040778f982d1157934381c61e97b42e0a9fbf1fb4e50c416419f1d7505af374",
+      "sha256": "adb91c5f9e0e664564c9ce0172ec0d58fd6591ce5fb77e902f860f31ce5a9fd7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/toilet_waste/toilet_waste.mesh.json": {

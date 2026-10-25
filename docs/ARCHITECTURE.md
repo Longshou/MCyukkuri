@@ -54,6 +54,8 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 
 `PresentationGoals` 只筛同一已注册实例的 `WrappedGoal.isRunning()`，按真实 priority 与注册序排序；不调用 `canUse`、`canContinueToUse` 或 `plan`。计划或阶段残留不构成显示资格。真实等待可显示行为 ID 而不移动；ID 使用 `Behaviors`，动作使用 `YukkuriAction`。
 
+帽船上的静止姿态由 `CrewPoseTable` 读 `hat_deck_layout.json` 的 `crew` 表选出；`PresentationWatchdog` 在每次发布后核对：接管来源的票据缺失或停滞时回到基础姿态，片段或表情不在 `PresentationCatalog`（服务端读取同一份模型片段名、片段标记与表情贴图）中时按映射回退并限频记日志。客户端 `client/aquatic/BoatPose` 是每条帽船每帧唯一的刚体帧（船体、储粮、遮罩、存放木棍与乘员共用），`CrewPose` 把乘员放进这一帧并给出平衡补偿，`ContactTargets` 是转移接触点到载体模型空间的唯一换算；它们只读 `HatBoatView` 的同步数据，运动曲线在客户端求值。
+
 客户端经 `YukkuriView` / `HatBoatView` 读取同步值和只读派生结果，不读取服务端组件。`componentData(SyncSlot)` 是同步槽，`component(ComponentKey)` 是服务端实例；视图 tag 只读，帽船座位、货物和运动快照返回副本。
 
 - `WoundKind` 表示治疗与漏馅类别，`WoundShape` 表示真实伤因及热损范围，`SkinDecal` 表示展示覆盖；`WoundSurface` 提供共享皮面锚点。伤口使用实际受击位置，接受帽发遮挡，不另算可见位置。
@@ -71,7 +73,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `SpeciesProfile` / `EcologyRoutines` | 不可变物种能力，以及按家油／捕食种／水生资格分派的被动时钟 |
 | `HomeProvider` / `LifeHome` | 住所、休息、地址、搜索与保存；帽船位置来自水生组件 |
 | `HatDeck`（`subspecies/crew/`，每船一个） | 帽船空间的唯一权威：席位表来自 `hat_deck_layout.json`，状态为空／租约预留／占用／移动中，所有临时需要都是租约；`canAdmit`／`claim`／`commit`／`release`／`moveWithin`／`heapFits`／`snapshot`，拒绝原因是有限枚举；载重只决定吃水与稳性。`HatCargo` 只管真实物品、腐坏、散落与交付 |
-| `CrewTransfer`／`CrewTransfers`／`CrewPort`（`subspecies/crew/`） | 身体在地面、水面与帽船席位之间、以及两个席位之间移动的唯一原语：锚点地面／水面／席位，方式 HOP／CLIMB／LIFT，阶段 CLAIM→APPROACH→CONTACT→MOVE→SETTLE→RELEASE，拒绝四类 GEOMETRY／TRANSIENT／SLIP／INCAPABLE，每阶段有时限，200 tick 无进展即止；`CrewTransferGoal`（优先级 1）持有本体与载体，是唯一推进票据的地方，`FamilyLife.tick` 不再移动身体。MOVE 关键帧写在所属船的局部坐标里，被托身体在该段是这条船的乘客（`positionRider` 求值曲线），越过帽檐时切换一次；每船同一时刻一个 MOVE，船体用舵租约保持。决策层经 `CrewTransfers` 提交请求并读 `CrewPort.last()`。`CrewState` 是帽船同步的唯一转移记录（`CREW`）：转移 id、方式、本体与载体、锚定帽船、曲线 id 与节点、起止时刻、阶段、接触类型与载体系下的目标点（含上一刻）、同步体朝向；`CrewClips` 从导出片段数据读 CONTACT／MOVE／SETTLE 的标记时长，服务端 `PresentationArbiter` 选片段。`CrewLegacy` 是现有客户端接触层的最小适配，接触点层重做后删除 |
+| `CrewTransfer`／`CrewTransfers`／`CrewPort`（`subspecies/crew/`） | 身体在地面、水面与帽船席位之间、以及两个席位之间移动的唯一原语：锚点地面／水面／席位，方式 HOP／CLIMB／LIFT，阶段 CLAIM→APPROACH→CONTACT→MOVE→SETTLE→RELEASE，拒绝四类 GEOMETRY／TRANSIENT／SLIP／INCAPABLE，每阶段有时限，200 tick 无进展即止；`CrewTransferGoal`（优先级 1）持有本体与载体，是唯一推进票据的地方，`FamilyLife.tick` 不再移动身体。MOVE 关键帧写在所属船的局部坐标里，被托身体在该段是这条船的乘客（`positionRider` 求值曲线），越过帽檐时切换一次；每船同一时刻一个 MOVE，船体用舵租约保持。决策层经 `CrewTransfers` 提交请求并读 `CrewPort.last()`。`CrewState` 是帽船同步的唯一转移记录（`CREW`）：转移 id、方式、本体与载体、锚定帽船、曲线 id 与节点、起止时刻、阶段、接触类型与载体系下的目标点（含上一刻）、同步体朝向；`CrewClips` 从导出片段数据读 CONTACT／MOVE／SETTLE 的标记时长，服务端 `PresentationArbiter` 选片段；客户端接触点只经 `client/aquatic/ContactTargets` 读取 |
 | `WaterIncidents`（`subspecies/crew/`） | 落水救助决定的唯一所有者：每个入水的人一个事件（挂在 `CrewPort` 上，不存档），创建于 `WaterDistress.plunge` 或水中被发现，关闭于上船、上岸或死亡；每个（救助者，事件）只抽一次 `helpProbability`，结果与物理失败计数都记在事件上，`CrewTransfers.liftAboard` 只读 `permits`；自救的打滑数、被拒入舷点与接近时限也记在这里。船体驱动留在家庭生活，只有岸上拉人和翻船后船长托举由这里驱动 |
 | `HullHazards`（`subspecies/boat/`） | 船体灾害的一套计数：进水、翻覆释放（乘员甩出、粮与木桨散落）、扶正、泡水下沉、烧毁、重载摇晃判定、挤出事件、船长死亡后的无主船 |
 | `VoyageController`／`AfloatAgenda`／`HullHelm`／`ShoreBerth`／`HullFootprint`／`HullFactory`（`subspecies/boat/`） | 船与船长的唯一决定者：`VoyageController` 是存档的船长阶段机，对外只有 `requestShore`；`AfloatAgenda` 是在航注册式活动，一次只跑一个；`HullHelm` 是船体运动与朝向的唯一写入者（租约＋指令）；`ShoreBerth` 是岸位唯一查询；`HullFootprint` 是“放得下”的唯一判定；`HullFactory` 是造船的唯一入口（一次预检、统一回滚）。规则见[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md) |

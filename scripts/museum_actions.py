@@ -30,7 +30,7 @@ CATEGORIES = [
         ('boat_sleep','船上睡觉'),('boat_wake','船上醒来'),('boat_board','登船'),('boat_feed_young','船上递食'),
         ('boat_nuzzle','船上亲昵'),('boat_lullaby','哼唱摇篮曲'),('aquatic_hat_care','返岸理帽'),('boat_cover_young','俯身护住孩子'),
         ('boat_wedge_berth','楔岸夜泊'),('boat_push_off','辫子推岸离岸'),('boat_cargo_stow','把粮放进帽冠袋底'),('boat_cargo_fetch','从帽冠袋底取粮'),
-        ('boat_jettison','推出帽檐')]),
+        ('boat_jettison','推出帽檐'),('boat_rim_peek','前台阶探头看水'),('boat_nest_curl','深窝里蜷着睡')]),
     ('初航与帽檐', [('hat_brim','站帽檐'),('boat_first_balance','试坐平衡'),('hat_stumble','帽檐失衡'),('hat_jostle','帽檐拥挤'),
         ('hat_brim_offer','低下近缘帽檐'),('hat_hop_up','蹿上帽檐'),('hat_slide_over','贴缘滑进帽里')]),
     ('落水与救援', [('water_plunge','落水冲击'),('water_struggle','水中扑腾'),('water_gasp','呼救喘息'),('water_recover','获救喘息'),

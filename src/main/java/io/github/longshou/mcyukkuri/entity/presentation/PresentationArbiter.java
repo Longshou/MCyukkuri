@@ -12,24 +12,26 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;
 
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
     private final PresentationAccess state;
+    private final PresentationWatchdog watchdog;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
     private int lastEntityTick;
     private long lastGameTick;
 
-    public PresentationArbiter(PresentationAccess state) { this.state = state; }
+    public PresentationArbiter(PresentationAccess state) { this.state = state; this.watchdog = new PresentationWatchdog(state); }
 
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
     public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ) {
         var motion = new Motion(travelledX, travelledZ);
         switch (frame.takeover()) {
-            case CREW_TRANSFER -> publish("crew_transfer", crewTransfer(state, motion));
+            case CREW_TRANSFER -> publish("crew_transfer", crewTransfer(state, watchdog, motion));
             case HAT_MOTION -> publish("hat_motion", hatMotion(state, motion));
             case SELF_RESCUE -> publish("self_rescue", selfRescue(state, motion));
             case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
@@ -43,6 +45,7 @@ public final class PresentationArbiter {
 
     private void publish(String id, Presentation result) {
         result.publish();
+        watchdog.check(id);
         if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
             lastSource = id;
             lastEntityTick = state.owner().tickCount;
@@ -144,12 +147,17 @@ public final class PresentationArbiter {
      * cradle, the climber's pull over the rim, the hop. The ticket's clock chooses the clip start so the authored markers meet the server's
      * contact and move; when the ticket ends the next tick falls back to the ordinary state.
      */
-    private static Presentation crewTransfer(PresentationAccess state, Motion m) {
+    private static Presentation crewTransfer(PresentationAccess state, PresentationWatchdog watchdog, Motion m) {
         var e = state.owner();
         return new Presentation(() -> {
             var port = e.family().crew();
             var ticket = port.ticket();
-            if (ticket == null) { state.behavior(Behaviors.IDLE); state.animation(YukkuriAction.IDLE); state.expression("neutral"); return; }
+            // The ticket is the clip's owner: gone or not driven for a heartbeat, the body shows its base pose at once.
+            if (ticket == null || ticket.stale(e.level().getGameTime())) {
+                state.behavior(Behaviors.IDLE);
+                watchdog.expire("crew_transfer", ticket == null ? "no_ticket" : "stale");
+                return;
+            }
             boolean carrier = port.asCarrier();
             long start = ticket.contactStart();
             String behavior;
@@ -276,11 +284,21 @@ public final class PresentationArbiter {
                 : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
                 : stationaryAction(state, behavior, actions);
         String flightAnimation = state.requestedAction() == null ? predatorAnimation(e, actions) : null;
+        // A body at rest aboard takes its seat's clip and face from the deck's crew table (hat_deck_layout.json crew).
+        var rest = state.requestedAction() == null && flightAnimation == null && e.getVehicle() instanceof HatBoatEntity boat
+                ? crewRest(e, boat, behavior, action) : null;
+        if (rest != null) action = YukkuriAction.byId(rest.clip()).orElse(action);
         if (flightAnimation != null) {
             // The old raw flight write has the reverse order of setAnimation: ID, then start.
             if (!e.getAnimationId().equals(flightAnimation)) { state.animationId(flightAnimation); state.animationStart(e.level().getGameTime()); }
         } else {
             state.animation(action);
+            // The braid stroke (with the stick or the bare braid) keeps the hull's stroke clock: the clip's power markers meet the
+            // server's power half (32 ticks a stroke, thrust in the first 16).
+            if (action == YukkuriAction.BOAT_PADDLE && e.getVehicle() instanceof HatBoatEntity paddled && paddled.paddling()) {
+                long start = paddled.strokeStartTick() - Math.round(PresentationCatalog.marker(e.assetId(), "boat_paddle", "power_start", 0) * 20);
+                if (e.getAnimationStartTick() != start) state.animationStart(start);
+            }
             if(behavior.equals(Behaviors.PAIRING_ACCEPT)&&action==YukkuriAction.GREET
                     ||behavior.equals(Behaviors.PAIRING)&&action==YukkuriAction.NUZZLE) {
                 long start=e.family().courtAnimationStart();
@@ -301,6 +319,8 @@ public final class PresentationArbiter {
         }
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.
         state.behavior(behavior);
+        if (rest != null && rest.face() != null && state.reactionTicks() <= 0 && !e.body().dying()) { state.expression(rest.face()); return; }
+        if (behavior.equals(Behaviors.BOAT_RESCUE_APPROACH) && e.aquaticRescueTargetId() >= 0) { state.expression("teary"); return; }
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
                 state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
                         e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() || e.life().accessoryCustodied() ? "neutral" : "surprise")));
@@ -331,6 +351,35 @@ public final class PresentationArbiter {
                 && e.subspecies().kind() == SubspeciesLife.Kind.AQUATIC_MARISA) action = YukkuriAction.SHAKE;
         return action == YukkuriAction.IDLE && (!e.life().hasAccessory() && !e.life().accessoryCustodied() || e.body().weak() || e.body().dying()) ? YukkuriAction.DROOP : action;
     }
+    /**
+     * The crew table's resting pose for a body whose own choice is only the resting one (the captain drifting, sleeping or
+     * covering; a young cradled, on the brim or asleep), or null to keep that choice. Rocking, capsizing, transfers and
+     * every activity keep their own clip.
+     */
+    private static CrewPoseTable.Pose crewRest(YukkuriEntity e, HatBoatEntity boat, String behavior, YukkuriAction action) {
+        if (boat.rocking() || boat.capsizing() || !boat.protects(e)) return null;
+        var table = CrewPoseTable.get();
+        var seat = boat.seatKind(e);
+        boolean asleep = e.life().isSleeping();
+        if (e.getUUID().equals(boat.ownerYukkuri())) {
+            boolean high = seat == DeckLayout.Kind.CAPTAIN_HIGH;
+            boolean youngBefore = false, youngAboard = false;
+            for (var rider : boat.youngPassengers()) {
+                var kind = boat.seatKind(rider);
+                youngAboard = true;
+                youngBefore |= kind == DeckLayout.Kind.NEST_HOLLOW || kind == DeckLayout.Kind.WELL_FRONT;
+            }
+            boolean threat = youngAboard && e.level().isRainingAt(boat.blockPosition().above());
+            if (action == YukkuriAction.BOAT_COVER_YOUNG)
+                return high ? table.captain(true, asleep, false, false) : new CrewPoseTable.Pose(action.id(), asleep ? "sleep" : "teary");
+            if (action != YukkuriAction.BOAT_DRIFT && action != YukkuriAction.BOAT_SLEEP) return null;
+            return table.captain(high, asleep, youngBefore, threat);
+        }
+        if (seat == null || boat.changingSeat(e)) return null;
+        if (action != YukkuriAction.HAT_CRADLE && action != YukkuriAction.HAT_BRIM && action != YukkuriAction.SLEEP) return null;
+        return table.young(seat, boat.bodyOf(e).cls(), asleep);
+    }
+
     /** The aquatic owner's boat set, or the young aboard rocked in the hat. */
     private static YukkuriAction boatAction(PresentationAccess state, HatBoatEntity boat, String behavior) {
         var e = state.owner();

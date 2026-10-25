@@ -244,8 +244,8 @@ class Deck:
                 self.add('captain_high', 'CAPTAIN_HIGH', (0, H.top, z), 0, ['adult', 'gravid'], True, False, lean_back=6,
                          rests_on=[r4(rest[0]), r4(rest[-1])])
         if self.spec['cargo']:
-            # the larder: the one store lies on the bottom of the crown cavity, toward the bow, where cargo.py settled
-            # it (user 2026-10-26: no brim heaps); the owner's underside stays free for the young by night
+            # the larder: the store lies in the two side wells beside the owner, where cargo.py wedged it (lead decision
+            # 2026-10-26; user 2026-10-26: no brim heaps); the cabin before and under her stays free for the young
             for t, pile in enumerate(self.pile):
                 if pile is None: self.heaps.append(None); continue
                 (x, z), (x0, x1, z0, z1) = pile['centre'], pile['bounds']
@@ -380,13 +380,17 @@ class Deck:
             row = dict(tier=t, max_count=self.cargo['tier_max_counts'][t], occupies=[], zone=None, excludes={}, lip=[])
             if h is not None:
                 for s in self.body_slots():
+                    # the owner's own seats: cargo.py wedged every item clear of her own mesh at each of them, which her
+                    # box bounds (wider than her round lower body) cannot tell
+                    if s['kind'] in OWNER: continue
                     for c in s['classes']:
                         if any(self.heap_hits(h, b) for b in self.shapes(s, c)): row['excludes'][s['id']] = c; break
-                top = h['y']+h['height']
+                top = h['y']+h['height']; g = h['grid']
+                cells = [(h['x']+i*g, h['z']+j*g) for (i, j) in h['cells']]
                 for s in self.body_slots():
                     if s['kind'] not in CABIN or s['id'] in row['excludes']: continue
-                    c = s['classes'][0]; e = self.env[c]; x, y, z = s['pos']; b = h['bounds']
-                    d = math.hypot(max(b[0]-x, 0, x-b[1]), max(b[2]-z, 0, z-b[3]))
+                    c = s['classes'][0]; e = self.env[c]; x, y, z = s['pos']
+                    d = min(math.hypot(cx-x, cz-z) for cx, cz in cells)-g/2  # the nearest stored item, not the store's outline
                     if d <= e.radius+lip['reach']*self.block and y+e.height/2-top <= lip['height']*self.block: row['lip'].append(s['id'])
                 row.update(occupies=['larder'], zone=dict(x=r4(h['x']), y=r4(h['y']), z=r4(h['z']), height=r4(h['height']),
                                                           bounds=[r4(v) for v in h['bounds']]))

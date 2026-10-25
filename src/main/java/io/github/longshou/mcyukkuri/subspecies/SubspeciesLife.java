@@ -38,6 +38,9 @@ public final class SubspeciesLife {
     private boolean initialized;
     private boolean boatExperienced;
     public static final int DEIBU_FLAG=256;
+    /** An aquatic young that has not yet started its first voyage still wears the land-size hat (hat_deck_layout.json
+     *  young_hat_multiplier, project design); the boat-size hat comes with that voyage. */
+    public static final int YOUNG_HAT_FLAG=512;
     /** One full loaded game-day at the end of subadulthood. */
     private static final int DEIBU_EXPOSURE_TICKS=24_000, DEIBU_MAX_SPACE_ATTEMPTS=3;
     private boolean deibu;
@@ -92,7 +95,11 @@ public final class SubspeciesLife {
         if(entity.life()!=null)entity.life().personality().constrainToForm();
         return true;
     }
-    private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0)); }
+    private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0) | (youngHat()?YOUNG_HAT_FLAG:0)); }
+    private boolean youngHat() {
+        return kind == Kind.AQUATIC_MARISA && !boatExperienced && entity.family() != null && !entity.family().adult()
+                && entity.aquaticLife() != null && !entity.aquaticLife().firstVoyage().active();
+    }
     public void onNaturalSpawn(MobSpawnType reason) {
         if (initialized || reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return;
         roll(null, null);

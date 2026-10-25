@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.subspecies.HatCargo;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import io.github.longshou.mcyukkuri.client.aquatic.BoatPose;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -64,7 +64,8 @@ final class HatCargoRenderer {
         return Form.FLAT;
     }
 
-    static void render(HatBoatView boat,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
+    static void render(BoatPose frame,PoseStack pose,MultiBufferSource buffers,int light) {
+        var boat=frame.boat;
         // The stored kinds and portions exactly as synchronized; at most HatCargo.SLOTS kinds.
         var kinds=new ArrayList<ItemStack>();int total=0;
         CompoundTag cargo=boat.cargoSnapshot();
@@ -79,7 +80,7 @@ final class HatCargoRenderer {
         // Cluster 0 is the most numerous kind (ties keep the stored order).
         kinds.sort((a,b)->Integer.compare(b.getCount(),a.getCount()));
         int[] left=new int[kinds.size()];for(int i=0;i<left.length;i++)left[i]=kinds.get(i).getCount();
-        float scale=boat.hullScale(),r=boat.hullSquash(partial)/BOWL_SQUASH;
+        float scale=frame.scale,r=frame.squash/BOWL_SQUASH;
         pose.pushPose();
         if(PropModels.has(BED)){
             pose.pushPose();pose.scale(scale,scale*r,scale);

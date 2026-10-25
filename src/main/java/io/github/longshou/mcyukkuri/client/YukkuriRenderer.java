@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodySigns;
+import io.github.longshou.mcyukkuri.client.aquatic.ContactTargets;
+import io.github.longshou.mcyukkuri.client.aquatic.CrewPose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
@@ -14,6 +16,7 @@ import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -55,19 +58,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
         float elapsed = Math.max(0,(entity.level().getGameTime()-entity.getAnimationStartTick()+partialTick)/20f);
-        var distress=AquaticMotionPresentation.motion(entity,partialTick);
-        String expression = YukkuriModel.get(entity.assetId())
-                .expressionFor(distress!=null?distress.clip():entity.getAnimationId(),distress!=null?distress.seconds():elapsed,entity.getExpressionId());
-        if (ToiletPresentation.authored(entity.getBehaviorId()) && distress == null)
+        // Clip and face are the server's (PresentationArbiter); the clip's own face timeline may show over the face.
+        String expression = YukkuriModel.get(entity.assetId()).expressionFor(entity.getAnimationId(),elapsed,entity.getExpressionId());
+        if (ToiletPresentation.authored(entity.getBehaviorId()))
             expression=YukkuriModel.get(entity.assetId()).expressionFor(entity.getBehaviorId(),
                     Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick)/20f,entity.getExpressionId());
-        if(entity.getBehaviorId().equals(Behaviors.BOAT_RESCUE_APPROACH)&&entity.aquaticRescueTargetId()>=0)expression="teary";
-        if(CabinDistressPresentation.alarmSelected(entity)&&(entity.aquaticAlarmActivity().equals(Behaviors.BOAT_FLEE)||
-                entity.aquaticAlarmActivity().equals(Behaviors.BOAT_RETURN_CALLED)))expression="teary";
-        // A calm seated clip must not replace the actual crew's frightened face during a shared tilt.
-        HatBoatView boat;
-        if(distress==null&&(boat=entity.vehicleHat())!=null
-                &&(boat.rocking()||boat.capsizing()))expression=!entity.isBaby()?"surprise":"teary";
         expression=AgitationPresentation.expression(entity,expression);
         return HairWoundAssets.texture(entity.assetId(),expression,HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
     }
@@ -83,19 +78,19 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.pushPose();
             var parent=entity.vehicleYukkuri();
             var carryMode=parent!=null&&ParentCarry.visibleCarried(parent,entity)?ParentCarry.mode(parent,entity):null;
-            var hatParent=carryMode==ParentCarry.Mode.HAT?parent:null;
             boolean carried=carryMode!=null;
             boolean hatCarrier=ParentCarry.carryMode(entity)==ParentCarry.Mode.HAT;
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
-            var boardingPose=entity.boardingState();var selfRescuePose=entity.aquaticSelfRescueState();
-            boolean controlledContact=boardingPose.getBoolean("Active")||selfRescuePose.contains("BodyYaw")||BraidRescuePresentation.active(entity);
-            if(boardingPose.getBoolean("Active")&&boardingPose.contains("BodyYaw"))
-                renderedBodyYaw=Mth.rotLerp(partialTick,boardingPose.getFloat("PrevBodyYaw"),boardingPose.getFloat("BodyYaw"));
+            var selfRescuePose=entity.aquaticSelfRescueState();
+            // A body in a transfer turns by the transfer's synced yaw; aboard, every body is drawn in its hull's one frame.
+            var transfer=CrewPose.transfer(entity);
+            boolean controlledContact=selfRescuePose.contains("BodyYaw")||transfer!=null;
+            if(transfer!=null&&entity.getUUID().equals(transfer.body())&&transfer.phase().ordinal()>=CrewTransfer.Phase.CONTACT.ordinal())
+                renderedBodyYaw=Mth.rotLerp(partialTick,transfer.prevBodyYaw(),transfer.bodyYaw());
             else if(selfRescuePose.contains("BodyYaw"))
                 renderedBodyYaw=Mth.rotLerp(partialTick,selfRescuePose.getFloat("PrevBodyYaw"),selfRescuePose.getFloat("BodyYaw"));
-            var boat=entity.vehicleHat();
-            var rockingHat=boat!=null?boat:hatParent!=null?hatParent.vehicleHat():null;
-            if(rockingHat!=null)HatBoatMotion.rider(pose,entity,rockingHat,partialTick);
+            var crew=carried?null:CrewPose.of(entity,partialTick);
+            if(crew!=null)renderedBodyYaw=crew.bodyYaw;
             // A carried child is drawn on the carrier's live lips, brim or tail; a child just set down eases to the ground.
             if(carried)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,carryMode,pose,partialTick);
             else {
@@ -107,10 +102,10 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     float headYaw=Mth.rotLerp(partialTick,entity.previousHeadYaw(),entity.getYHeadRot());
                     bodyYaw+=Mth.clamp(Mth.wrapDegrees(headYaw-bodyYaw),-35,35);
                 }
-                pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
+                if(crew!=null)crew.apply(pose,entity.getPosition(partialTick),bodyYaw);
+                else pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
                 renderedBodyYaw=bodyYaw;
             }
-            if(rockingHat!=null&&hatParent==null)CabinDistressPresentation.balance(pose,entity,rockingHat,partialTick,renderedBodyYaw);
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
@@ -165,31 +160,26 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setCarrying(!entity.getCarriedItem().isEmpty());
             model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity));
             configureCareContact(entity,behavior,partialTick,model);
-            BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
-            CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
+            configureCrewContact(entity,model,partialTick,start,pose.last().pose());
             SelfRescueHatPresentation.configure(entity,model,partialTick,renderedBodyYaw);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=carried?"idle":hatCarrier?HatCarry.carryAction(entity):entity.getAnimationId();
-            var distress=AquaticMotionPresentation.motion(entity,partialTick);
             if(!carried)ParentCarryPresentation.configure(entity,model,partialTick);
-            if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
-                action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
-            if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated||carried?0:elapsed, pose, buffer, packedLight, overlay,
-                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:distress!=null?distress.clip():behavior,
-                            distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
+                    entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
             var root=model.rootPose();
-            // The captain keeps holding the stick in clips that key it (rowing, offering the brim, nudging the child).
+            // The stick is where the server put it: in the captain's braid while she rows (the hull draws it stowed otherwise).
             HatBoatView paddleBoat;
-            if ((paddleBoat=entity.vehicleHat())!=null&&AquaticMotionPresentation.paddleInGrip(entity,paddleBoat,partialTick))
-                AquaticMotionPresentation.renderHeldStick(model,action,elapsed,pose,buffers,packedLight,overlay);
+            if (!operated&&(paddleBoat=entity.vehicleHat())!=null&&entity.getUUID().equals(paddleBoat.ownerYukkuri())
+                    &&paddleBoat.stick()==HatBoatView.Stick.BRAID)
+                HatBoatRenderer.renderBraidStick(model,action,elapsed,pose,buffers,packedLight,overlay);
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
@@ -270,6 +260,24 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         super.render(source, yaw, partialTick, pose, buffers, packedLight);
         RapemOverlayRenderer.render(entity, partialTick, pose, buffers, packedLight);
         SpeechBubble.render(entity, partialTick, pose, buffers, packedLight);
+    }
+
+    /**
+     * The transfer contact this body holds (client/aquatic ContactTargets, the one conversion): the braid tip on a cradle,
+     * a rim hook or a push, or the lips on a bite. Without a live ticket nothing is held.
+     */
+    private static void configureCrewContact(YukkuriView entity,YukkuriModel model,float partialTick,Matrix4f start,Matrix4f drawn) {
+        model.setBraidRescueContact(null);model.setBraidRescueJoint(null);model.setBraidRescueGrip(false);model.setBraidCarryContact(false);
+        model.setMouthBite(false);
+        var target=ContactTargets.forCarrier(entity,partialTick,start,drawn);
+        if(target==null)return;
+        var at=target.model();
+        switch(target.kind()){
+            case BRAID_CRADLE,BRAID_HOOK->model.setBraidContactTip(at,true);
+            case PUSH->model.setBraidContactTip(at,false);
+            case MOUTH_BITE->{model.setCareContact(at.x,at.y,at.z,1);model.setMouthBite(true);}
+            default->{}
+        }
     }
 
     /**

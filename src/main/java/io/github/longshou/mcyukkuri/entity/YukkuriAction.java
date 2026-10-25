@@ -118,6 +118,9 @@ public enum YukkuriAction {
     BOAT_CARGO_STOW("boat_cargo_stow", 1.0, false),
     BOAT_CARGO_FETCH("boat_cargo_fetch", 1.0, false),
     BOAT_JETTISON("boat_jettison", 1.0, false),
+    // Resting crew of the hat home (hat_deck_layout.json crew, ecology design D 3.4; project original).
+    BOAT_RIM_PEEK("boat_rim_peek", 4.8, true),
+    BOAT_NEST_CURL("boat_nest_curl", 4.0, true),
     // Pet shop, exam and raising performances (lore recipe v13, all standard forms).
     THINK("think", 2.0, true),
     NERVOUS("nervous", 1.5, true),

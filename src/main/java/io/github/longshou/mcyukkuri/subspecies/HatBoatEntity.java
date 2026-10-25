@@ -115,6 +115,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private static final EntityDataAccessor<Float> LOAD = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> PADDLING = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Long> STROKE_START = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.LONG);
+    /** Where the stick is (Stick ordinal): the client draws it there and never infers it from a clip. */
+    private static final EntityDataAccessor<Integer> STICK = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HELM_KIND = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HELM_STATUS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     /** The captain's voyage phase, read-only for clients and readouts. */
@@ -157,7 +159,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         builder.define(AQUATIC_HULL, true); builder.define(ACCESSORY_STAGE, FamilyLife.Stage.ADULT.ordinal()); builder.define(DECK, new CompoundTag());
         builder.define(CARGO, new CompoundTag()); builder.define(CREW, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
         builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0); builder.define(VOYAGE_PHASE, 0); builder.define(HULL_DAMAGE, 0);
-        builder.define(LOAD, 0f);
+        builder.define(LOAD, 0f); builder.define(STICK, Stick.NONE.ordinal());
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -572,7 +574,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var c = seatTag(rider);
         return c == null ? null : new Vec3(c.getDouble("X"), c.getDouble("Y"), c.getDouble("Z"));
     }
-    private DeckLayout.Kind seatKind(Entity rider) {
+    /** The deck's seat kind of a rider (server: the deck; client: the synchronized snapshot), or null. */
+    public DeckLayout.Kind seatKind(Entity rider) {
         if (!level().isClientSide) { var slot = deck.slotOf(rider.getUUID()); return slot == null ? null : slot.kind(); }
         var c = seatTag(rider);
         if (c == null) return null;
@@ -705,6 +708,18 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     // ---------------------------------------------------------------- hull motion
     public boolean paddling() { return entityData.get(PADDLING); }
+    /** The tick the current stroke cycle started (32 ticks a stroke); the server sets the stroke clip's start from it. */
+    public long strokeStartTick() { return entityData.get(STROKE_START); }
+    public Stick stick() { return Stick.values()[Math.clamp(entityData.get(STICK), 0, Stick.values().length - 1)]; }
+    /** The stick: in the captain's braid while she rows with it, in her mouth while she hands it over, else on the hull stow. */
+    private void syncStick() {
+        var captain = owner();
+        boolean aboard = captain != null && captain.getVehicle() == this;
+        Stick now = aboard && captain.aquaticLife().familyPaddle().handingOver() ? Stick.MOUTH
+                : !cargo.paddle() ? Stick.NONE
+                : aboard && paddling() && helm.kind() == HullHelm.Kind.ROUTE ? Stick.BRAID : Stick.HULL_STOW;
+        if (entityData.get(STICK) != now.ordinal()) entityData.set(STICK, now.ordinal());
+    }
     /** The physical paddle and its displayed water stroke share this server-started cycle. */
     public double paddleCycle(float partial) {
         double ticks = Math.max(0, level().getGameTime()-entityData.get(STROKE_START)+partial);
@@ -1083,6 +1098,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         deck.tick();
         crewState.reap(level().getGameTime());
         tickLoad();
+        syncStick();
         if (tickCount % 20 == 0) stations.tickLeases();
         if(state()!=State.CAPSIZED){
             cargo.tick();

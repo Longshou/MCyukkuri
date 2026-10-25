@@ -121,10 +121,10 @@ def main():
     deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
     subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {'hat-deck/hat-deck.png'}
-    # the hat boat as a home (hull size before/after, crown larder, crew poses): lore/aquatic_home_preview.py, runtime data only
+    # the hat boat as a home seen from the bank (side-well larder, crew): lore/aquatic_home_preview.py, runtime data only
     home = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py'
     subprocess.run([sys.executable, str(home)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'aquatic-home/{name}.png' for name in ('home', 'larder', 'crew')}
+    current_media |= {'aquatic-home/shore.png'}
     # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
     fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
     subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

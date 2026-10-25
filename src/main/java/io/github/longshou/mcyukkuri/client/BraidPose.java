@@ -21,7 +21,13 @@ final class BraidPose {
     void setBraidCarryContact(boolean active){braidCarryContact=active;}
     void setBraidRescueContact(Vector3f point){rescueContact=point!=null;if(point!=null)rescueTip.set(point);}
     void setBraidRescueGrip(boolean active){rescueGrip=active;}
-    void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);}
+    void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);solveJoint=false;}
+    /** Only the tip is given: the joint is solved on the two authored segment lengths, bending the way the clip bends them. */
+    private boolean solveJoint;
+    void setContactTip(Vector3f tip,boolean grip){
+        rescueContact=tip!=null;solveJoint=tip!=null;rescueJointActive=false;rescueGrip=grip;braidCarryContact=grip;
+        if(tip!=null)rescueTip.set(tip);
+    }
 
     /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
     void poseRescueBraid(){
@@ -34,6 +40,7 @@ final class BraidPose {
         if(joint<0||tip<0||bones[joint].parent()<0)return;
         var base=bones[joint];var end=bones[tip];
         Matrix4f parent=world[base.parent()];
+        if(solveJoint)solveJoint(world[joint],world[tip],base,end);
         var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueJointActive?rescueJoint:rescueTip)).sub(base.x(),base.y(),base.z());
         var authored=BraidRescueGeometry.modelTip();
         var rest=rescueJointActive?new Vector3f(end.x()-base.x(),end.y()-base.y(),end.z()-base.z())
@@ -70,5 +77,25 @@ final class BraidPose {
         }
         // The ribbon can be a sibling before the tip in the authored bone list.
         for(int i=joint+1;i<bones.length;i++)if(bones[i].name().equals("hand_right_ribbon"))world[i].set(world[tip]);
+    }
+
+    /** Two-segment reach in model space: segment lengths as posed, the bend kept on the clip's own side, never stretched. */
+    private void solveJoint(Matrix4f upper,Matrix4f lower,Bone base,Bone end){
+        var authored=BraidRescueGeometry.modelTip();
+        var root=upper.transformPosition(new Vector3f(base.x(),base.y(),base.z()));
+        var elbow=upper.transformPosition(new Vector3f(end.x(),end.y(),end.z()));
+        var tipNow=lower.transformPosition(new Vector3f((float)authored.x,(float)authored.y,(float)authored.z));
+        float first=elbow.distance(root),second=tipNow.distance(elbow);
+        var toward=new Vector3f(rescueTip).sub(root);float reach=toward.length();
+        if(first<1e-4f||second<1e-4f||reach<1e-4f){rescueJointActive=false;return;}
+        toward.div(reach);
+        float d=Math.clamp(reach,Math.abs(first-second)+1e-3f,first+second-1e-3f);
+        var pole=new Vector3f(elbow).sub(root);pole.sub(new Vector3f(toward).mul(pole.dot(toward)));
+        if(pole.lengthSquared()<1e-8f)pole.set(0,1,0).sub(new Vector3f(toward).mul(toward.y));
+        if(pole.lengthSquared()<1e-8f)pole.set(1,0,0);
+        pole.normalize();
+        float along=(first*first-second*second+d*d)/(2*d),side=(float)Math.sqrt(Math.max(0,first*first-along*along));
+        rescueJoint.set(root).add(new Vector3f(toward).mul(along)).add(pole.mul(side));
+        rescueJointActive=true;
     }
 }

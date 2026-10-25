@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
+import io.github.longshou.mcyukkuri.client.aquatic.BoatPose;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,10 +19,12 @@ public final class HatWaterMaskPass {
     private static ClientLevel frameLevel;
     private static boolean collecting;
 
-    static void enqueue(HatBoatView boat,PoseStack pose) {
+    /** The pose stands in the boat's frame at the brim top (HatBoatRenderer); the mask follows that one frame. */
+    static void enqueue(BoatPose frame,PoseStack pose) {
+        var boat=frame.boat;
         if(!collecting||boat.level()!=frameLevel||!(boat.isAfloat()||boat.isMoored()))return;
         var mode=boat.aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
-        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16,mode,boat.visibleSink()));
+        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),frame.unit,mode,frame.sink()));
     }
 
     public static void renderStage(RenderLevelStageEvent event) {

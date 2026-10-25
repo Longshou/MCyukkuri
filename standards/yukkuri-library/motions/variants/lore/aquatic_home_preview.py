@@ -1,16 +1,18 @@
-"""Offline sheets for the aquatic hat boat as a home (ecology design D 3): hull size, crown larder, crew seats and poses.
+"""Offline sheet for the aquatic hat boat as a home (ecology design D 3): the larder and the crew as seen from the bank.
 
 Reads only exported runtime data, as the game does: hat_vessel.json (size), hat_deck_layout.json (seats, conflicts,
 larder exclusions, the crew pose table), hat_cargo_layout.json and hat_provisions.json (the larder), hat_frames.json
 (freeboard by load), marisa_hat_turned / marisa_hat_wetline / paddle_stick and the exported clips. Seats are chosen
 from the deck table with the same rules the runtime uses (classes, night, larder and stick exclusions, conflicts,
-preference order). The "before" column reads the previous commit's resources from git (hull 1.5, the old heap).
-Stored items are drawn with the vanilla item sprites from the local NeoForge client resources jar (preview only, not
-copied). Pillow/NumPy CPU renders; nothing launches the game.
+preference order). Stored items are drawn with the vanilla item sprites from the local NeoForge client resources jar
+(preview only, not copied). Pillow/NumPy CPU renders; nothing launches the game. The cameras stand where a player stands on
+the museum pond's bank (feet one block over the water cell, eye 1.62 higher: 30 degrees down at 3 blocks, 16 at 6),
+broadside on the braid (right) and the left bank, framed as a 70-degree view at that distance.
 
-    python standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py [--before <git rev>]
+    python standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py
 
-Writes <MCYUKKURI_PREVIEWS or .local/previews>/aquatic-home/{home,larder,crew}.png and index.html.
+Writes <MCYUKKURI_PREVIEWS or .local/previews>/aquatic-home/shore.png and index.html, and prints two checks: the young under
+the captain by night, and the larder under her own posed mesh (every resting clip she shows aboard).
 """
 from pathlib import Path
 import argparse, io, json, math, os, subprocess, sys, zipfile
@@ -285,74 +287,36 @@ def describe(crew, seats, dropped):
 # ------------------------------------------------------------------------------------------------- sheets
 STOCK = {0: [], 1: [('apple', 2), ('sweet_berries', 1)], 2: [('apple', 3), ('sweet_berries', 2), ('short_grass', 2)],
          3: [('apple', 4), ('sweet_berries', 3), ('short_grass', 3), ('carrot', 1)]}
-CREW = {0: ['large_child', 'baby'], 1: ['child', 'baby'], 2: ['small_child', 'small_child'], 3: ['baby', 'baby', 'baby']}
-# The player on the bank, eye 1.62 over a bank about 0.9 over the water, looking at the boat from 3 and 6 blocks: down
-# about 40 and 23 degrees; and a close 45-degree look. Orthographic, from the bow quarter on the braid side.
-BANK3 = ('岸上 3 格（俯角约 40°）', lambda span=16, at=(0, 1, -1): cam(.7, .70, span, at))
-BANK6 = ('岸上 6 格（约 23°）', lambda span=16, at=(0, 1, -1): cam(.7, .40, span, at))
-CLOSE = ('前上 45°', lambda span=16, at=(0, 1, -1): cam(.5, .79, span, at))
-VIEWS = ((False, BANK3), (False, BANK6), (False, CLOSE), (True, BANK3))
+# A player on the museum pond's bank: feet one block over the water cell (0.11 over the surface), eye 1.62 higher.
+EYE = 1.73
+SHORE = [(f'{side} {d} 格', az, math.atan2(EYE, d), d) for side, az in (('右岸（辫子侧）', math.pi/2), ('左岸', -math.pi/2)) for d in (3, 6)]
 
 
-def home_sheet(now, before):
+CELL = (420, 290)
+
+
+def shore_view(az, el, d):
+    """An orthographic stand-in for a 70-degree view at distance d blocks (16 model units a block), aimed at the hull and
+    cropped to the cell at the pixel size a 1080-line screen shows it."""
+    return cam(az, el, 16*d*math.tan(math.radians(35))*CELL[1]/1080, (0, 2.5, -.5))
+
+
+def shore_sheet(now):
     rows = []
-    for tier in (0, 1, 2, 3):
-        for tag, home in ((f'现在\n压扁 {now.sq:g}', now), (f'之前\n压扁 {before.sq:g}', before)):
-            cells = []
-            for night, (vname, view) in VIEWS:
-                    atlas = HM.Atlas()
-                    meshes, wet, mask, dropped, seats = home.scene(CREW[tier], STOCK[tier], night, atlas)
-                    img = render(meshes, wet, mask, atlas, view(), night=night)
-                    food = sum(n for _, n in STOCK[tier]); load = home.load(CREW[tier][:len(CREW[tier])-len(dropped)], food)
-                    cells.append(label(img, f"{'夜' if night else '昼'} · {vname}", describe(CREW[tier], seats, dropped)+f' · 载重 {load:g}', warn=bool(dropped)))
-            rows.append((f'粮 {tier} 档\n（{sum(n for _, n in STOCK[tier])} 份）\n{tag}', cells))
-    sheet(OUT/'home.png', '帽船即家（1.75 倍）：水下帽冠压平、帽腔底抬高前后对照，成体船长 + 乘员 × 粮袋四档，从岸上看',
-          ['视角为玩家站在岸上 3 格、6 格处的眼高，以及前上 45°；座位按 hat_deck_layout.json 的席位、冲突、粮袋与木棍排除和昼夜偏好求得（与运行时同一规则）；“之前”读上一提交的资源。',
-           '吃水随载重下沉（hat_frames.json freeboard_by_load）；帽檐上不放粮。离线渲染、夜色为调暗示意，非游戏实录。'], rows)
-
-
-def larder_sheet(now):
-    rows = []
-    for row_name, night, baby, view, sub in (
-            ('昼 · 岸上 3 格\n无赤油', False, False, lambda: BANK3[1](12, (0, 0, -2)), '各档在船长胸前的粮堆高度不同'),
-            ('昼 · 岸上 6 格\n无赤油', False, False, lambda: BANK6[1](12, (0, 0, -2)), '远处只看得到最高的几件'),
-            ('昼 · 前上 45°\n有赤油', False, True, lambda: CLOSE[1](11, (0, 0, -2)), '看进帽口：粮袋、叶托与孩子'),
-            ('夜 · 岸上 3 格\n赤油', True, True, lambda: BANK3[1](12, (0, 0, -2)), '船长俯身'),
-            ('正上\n（席位不重叠，帽檐无粮）', False, True, lambda: cam(0, 1.5707, 13, (0, 0, 0)), None)):
+    shots = [(f'粮 {t} 档（{sum(n for _, n in STOCK[t])} 份）\n昼 · 赤油 ×2 在前台阶', ['baby', 'baby'], t, False) for t in (0, 1, 2, 3)]
+    shots += [('粮 3 档\n昼 · 子油 + 赤油', ['child', 'baby'], 3, False), ('粮 3 档\n夜 · 赤油 ×2\n船长俯身盖窝', ['baby', 'baby'], 3, True)]
+    for name, crew, tier, night in shots:
         cells = []
-        for tier in (0, 1, 2, 3):
-            atlas = HM.Atlas(); crew = ['baby', 'baby'] if baby else []
-            meshes, wet, mask, dropped, seats = now.scene(crew, STOCK[tier], night, atlas)
-            img = render(meshes, wet, mask, atlas, view(), night=night)
-            stock = '、'.join(f'{NAMES[n]}×{c}' for n, c in STOCK[tier]) or '空'
-            cells.append(label(img, f'{tier} 档 · {stock}', sub if tier == 0 or sub is None else describe(crew, seats, dropped) if crew else None, warn=bool(dropped)))
-        rows.append((row_name, cells))
-    # a cut through the larder at each tier, the hull drawn without its starboard half so the heap shows in section
-    sheet(OUT/'larder.png', '帽冠粮袋：0 / 1–3 / 4–7 / 8–12 份，按实际库存种类显示（最多 4 种）',
-          ['物品用各自的原版物品模型缩小，按放入顺序落在倒置帽冠底的叶托上（嘴叼放、推压，无捆扎）；草类对折塞进缝里，浆果一小把。',
-           '帽冠压平后帽腔底抬高；粮堆顶在船长胸前（视线越过前台阶最深处），各档高度不同，从岸上 3 格能分辨；3 档最高点低于船长脚底与帽口；只为看得见的顶层花心思；帽檐上不出现粮。'], rows)
-
-
-def crew_sheet(now):
-    shots = [('赤油 ×3\n昼：前台阶探头看水', ['baby', 'baby', 'baby'], [], False),
-             ('赤油 ×3\n夜：深窝挤着睡\n船长俯身盖住', ['baby', 'baby', 'baby'], [], True),
-             ('新生 ×4\n昼／夜', ['newborn']*4, [('apple', 2)], None),
-             ('小子油 ×2\n昼／夜：前台阶', ['small_child', 'small_child'], [], None),
-             ('子油 + 赤油 ×2\n子油在前台阶', ['child', 'baby', 'baby'], [('apple', 2), ('sweet_berries', 1)], None),
-             ('大子油\n昼夜都在前台阶', ['large_child'], [('apple', 1)], None)]
-    views = ((BANK3[0], BANK3[1](13)), (BANK6[0], BANK6[1](13)), (CLOSE[0], CLOSE[1](11, (0, 0, -2))))
-    rows = []
-    for name, crew, stock, night in shots:
-        cells = []
-        for n in ((False, True) if night is None else (night,)):
-            for vname, view in (views if night is not None else views[:2:1] if not n else views[:1]):
-                atlas = HM.Atlas(); meshes, wet, mask, dropped, seats = now.scene(crew, stock, n, atlas)
-                cells.append(label(render(meshes, wet, mask, atlas, view, night=n), f"{'夜' if n else '昼'} · {vname}",
-                                   describe(crew, seats, dropped), warn=bool(dropped)))
+        for vname, az, el, d in SHORE:
+            atlas = HM.Atlas(); meshes, wet, mask, dropped, seats = now.scene(crew, STOCK[tier], night, atlas)
+            img = render(meshes, wet, mask, atlas, shore_view(az, el, d), night=night)
+            cells.append(label(img, f"{'夜' if night else '昼'} · {vname}（俯角 {math.degrees(el):.0f}°）", describe(crew, seats, dropped),
+                               size=CELL, warn=bool(dropped)))
         rows.append((name, cells))
-    sheet(OUT/'crew.png', '乘员姿态：赤油昼探头、夜挤在船长身下；子油前台阶面朝外；船长夜里俯身盖窝（boat_cover_young）',
-          ['姿态与表情取 hat_deck_layout.json 的 crew 表（boat_rim_peek / boat_nest_curl / hat_cradle / boat_cover_young）；孩子戴自己的小帽，深窝里小帽被挤歪一点。',
-           '座位由席位表求得；离线渲染，夜色为调暗示意，非游戏实录。'], rows)
+    sheet(OUT/'shore.png', '帽船即家：从岸上看粮与孩子（粮在船长肩前两侧的侧窝，左右交替放入）',
+          ['相机在试玩场池塘岸上玩家眼高（脚下比水面高约 0.1 格，眼高 1.62）：3 格处俯角约 30°，6 格处约 16°；画面为 70° 视野、1080 线屏幕上的实际像素大小裁切；左右两岸各一列。',
+           '粮在船长肩前两侧帽壁边的二段台阶上，左右交替放入，靠帽壁斜立、图面朝帽腔中间：近岸一侧被帽壁挡住，对岸一侧越过帽口看得见；不上帽檐、不高出帽口。离线渲染、夜色为调暗示意，非游戏实录。'],
+          rows, cell=CELL)
 
 
 def under_check(now):
@@ -384,21 +348,44 @@ def under_check(now):
     return report
 
 
+def larder_check(now):
+    """The larder items against the captain's own posed mesh in every resting clip she shows aboard (crew pose table and the
+    agenda's base clips): from straight below her underside, from straight above the items' tops, column by column."""
+    clips = ['boat_drift', 'boat_sleep', 'boat_cover_young', 'boat_steady', 'boat_eat', 'boat_paddle', 'boat_feed_young']
+    report = []
+    for tier in (1, 2, 3):
+        cap = next(s for s in now.mode['slots'] if s['kind'] == 'CAPTAIN'); x, y, z = cap['pos']
+        worst = (-1e9, '')
+        for clip in clips:
+            if clip not in CAPTAIN.posed.clips: continue
+            for t in np.linspace(0, CAPTAIN.posed.clips[clip]['duration'], 6):
+                atlas = HM.Atlas()
+                capm = CAPTAIN.mesh(clip, t, atlas, T.world((x*now.k, y*now.k, z*now.k), -cap['yaw']))
+                food = [m for m in now.larder(atlas, np.eye(4), STOCK[tier]) if len(m)]
+                tex = np.array(atlas.image); view = dict(span=14, center_y=0, center_x=0, center_z=0)
+                _, below, _ = HM.rasterize(capm.reshape(-1, 3, 8), tex, az=0, el=-math.pi/2+1e-4, **view)
+                _, above, _ = HM.rasterize(np.concatenate(food).reshape(-1, 3, 8), tex, az=0, el=math.pi/2-1e-4, **view)
+                under, top = np.flipud(-below), above
+                both = np.isfinite(under) & np.isfinite(top)
+                if both.any():
+                    v = float((top-under)[both].max())
+                    if v > worst[0]: worst = (v, f'{clip}@{t:.1f}s')
+        report.append((tier, worst))
+    return report
+
+
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(description=__doc__); ap.add_argument('--before', default='HEAD')
-    ap.add_argument('--only', nargs='*', default=['home', 'larder', 'crew'])
-    args = ap.parse_args()
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     CAPTAIN = T.Actor('marisa', aquatic=True)
-    now, before = Home(Resources()), Home(Resources(args.before))
-    if 'crew' in args.only:
-        for crew, worst in under_check(now): print('under-captain check', crew, 'young top minus captain underside, worst column (model units, < 0 is clear):', round(worst, 3))
-    if 'home' in args.only: home_sheet(now, before)
-    if 'larder' in args.only: larder_sheet(now)
-    if 'crew' in args.only: crew_sheet(now)
+    now = Home(Resources())
+    for crew, worst in under_check(now): print('under-captain check', crew, 'young top minus captain underside, worst column (model units, < 0 is clear):', round(worst, 3))
+    for tier, (worst, where) in larder_check(now): print('larder check tier', tier, 'item top minus captain underside, worst column (model units, < 0 is clear):', round(worst, 3), where)
+    shore_sheet(now)
+    for old in ('home', 'larder', 'crew'):
+        (OUT/f'{old}.png').unlink(missing_ok=True)
     (OUT/'index.html').write_text(
         '<!doctype html><meta charset="utf-8"><title>帽船即家</title><body style="background:#ecf5f6;font-family:sans-serif;margin:20px">'
-        '<a href="../index.html">预览总入口</a><h1>帽船即家：尺寸、粮袋与乘员</h1><p>当前运行资源离线渲染；不是游戏画面或行为验收。</p>'
-        + ''.join(f'<h2>{t}</h2><img src="{m}.png" style="max-width:100%">' for m, t in
-                  (('home', '帽子 1.5 → 1.75 倍：成体船长与乘员 × 粮袋四档 × 昼夜'), ('larder', '帽冠粮袋各档'), ('crew', '乘员昼夜姿态')))
-        + '</body>\n', encoding='utf-8')
+        '<a href="../index.html">预览总入口</a><h1>帽船即家：从岸上看粮袋与孩子</h1><p>当前运行资源离线渲染；不是游戏画面或行为验收。</p>'
+        '<img src="shore.png" style="max-width:100%"></body>\n', encoding='utf-8')

@@ -104,7 +104,24 @@ public final class HatVessel {
     public static float[] brim(Mode mode){return profile(mode).brim;}
     public static boolean aquatic(YukkuriEntity y){return y.subspecies().kind()==SubspeciesLife.Kind.AQUATIC_MARISA;}
     /** Ancestry determines hat size in life and in saved remains; water and boat state never change it. */
-    public static float hatMultiplier(int subspeciesFlags){return (subspeciesFlags&15)==SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?AQUATIC_SCALE:1;}
+    public static float hatMultiplier(int subspeciesFlags){
+        if((subspeciesFlags&15)!=SubspeciesLife.Kind.AQUATIC_MARISA.ordinal())return 1;
+        return (subspeciesFlags&SubspeciesLife.YOUNG_HAT_FLAG)!=0?YOUNG_HAT:AQUATIC_SCALE;
+    }
+    /** The aquatic young's hat before its first voyage (hat_deck_layout.json young_hat_multiplier; 1 when absent). */
+    private static final float YOUNG_HAT=youngHat();
+    private static float youngHat(){
+        try(var stream=HatVessel.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json")){
+            if(stream==null)return 1;
+            var reader=new com.google.gson.stream.JsonReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8));
+            reader.beginObject();
+            while(reader.hasNext()){
+                if(reader.nextName().equals("young_hat_multiplier"))return (float)reader.nextDouble();
+                reader.skipValue();
+            }
+        }catch(java.io.IOException|RuntimeException unreadable){/* the land size */}
+        return 1;
+    }
     /** The size of this Marisa's hat relative to the worn standard. */
     public static float hatScale(YukkuriEntity y){return y.growthScale()*hatMultiplier(y.subspeciesFlags());}
     /** The braid can serve a protected child in the same hat only while their existing close-care boundary holds.
