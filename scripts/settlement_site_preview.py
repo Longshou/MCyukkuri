@@ -289,18 +289,33 @@ def render_iso(head, b, color, span=None, center=None, s=7, labels=True):
     return img
 
 
+def clearest_mouth(head, b):
+    """The home whose mouth the south-east view sees best: fewest solid blocks above its door level in front of it."""
+    best, score = None, None
+    for t in head['slots']:
+        if t['slot'] != 'HOME':
+            continue
+        f = DIRS[t['facing']]
+        dx, dy, dz = t['x'] + f[0], t['y'], t['z'] + f[1]
+        hidden = sum(1 for i in range(0, 6) for j in range(0, 6) for k in range(1, 7)
+                     if (i or j) and b.get((dx + i, dy + k, dz + j), 'air') not in PASS)
+        if score is None or hidden < score:
+            best, score = t, hidden
+    return best
+
+
 def render(head, b, problems, path, title, profile):
     from PIL import Image, ImageDraw
     color = palette(profile)
     overview = render_iso(head, b, color)
-    home = next((t for t in head['slots'] if t['slot'] == 'HOME'), None)
+    home = clearest_mouth(head, b)
     pit = next((t for t in head['slots'] if t['slot'] == 'PIT'), None)
     views = []
     if home:
         f = DIRS[home['facing']]
-        views.append(('家洞近景（洞口朝向右下，暗处是洞口与洞内）', render_iso(head, b, color, span=7, center=(home['x'] + f[0], home['z'] + f[1]), s=15, labels=False)))
+        views.append(('家洞近景（洞口朝向右下，暗处是洞口与洞内）', render_iso(head, b, color, span=5, center=(home['x'] + f[0], home['z'] + f[1]), s=20, labels=False)))
     if pit:
-        views.append(('嗯嗯坑近景', render_iso(head, b, color, span=5, center=(pit['x'], pit['z']), s=15, labels=False)))
+        views.append(('嗯嗯坑近景', render_iso(head, b, color, span=4, center=(pit['x'], pit['z']), s=20, labels=False)))
     side = max((v.width for _, v in views), default=0)
     W = overview.width + side + 30
     H = max(overview.height, sum(v.height + 26 for _, v in views)) + 64

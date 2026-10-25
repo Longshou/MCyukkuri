@@ -202,7 +202,7 @@ public final class SiteBuilder {
                     if (footprint.contains(rim) || plan.flat.contains(rim) || standing.containsKey(rim) || !inClip(x, z)) continue;
                     int n = nat(x, z), t = Math.max(G - 1, Math.min(G + 1, n));
                     standing.put(rim, t);
-                    if (t != n) level(x, z, t, hash(x, z, 3) < .25 ? Blocks.COARSE_DIRT.defaultBlockState() : Blocks.GRASS_BLOCK.defaultBlockState());
+                    if (t != n) level(x, z, t, hash(x, z, 3) < .1 ? Blocks.COARSE_DIRT.defaultBlockState() : Blocks.GRASS_BLOCK.defaultBlockState());
                 }
             }
             for (int i = 0; i < plan.parts.size(); i++) {
@@ -312,14 +312,14 @@ public final class SiteBuilder {
                 need.put(SiteGeom.key(SiteGeom.fx(p, u, w), SiteGeom.fz(p, u, w)), r);
             }
             var own = SiteGeom.cells(p);
-            // the made-up bank runs out into the slope around it
+            // the made-up bank runs out into the slope around it, a block lower about every two blocks: few, wide steps
             int[] box = SiteGeom.bounds(need.keySet());
-            for (int x = box[0] - 3; x <= box[2] + 3; x++) for (int z = box[1] - 3; z <= box[3] + 3; z++) {
+            for (int x = box[0] - 5; x <= box[2] + 5; x++) for (int z = box[1] - 5; z <= box[3] + 5; z++) {
                 long key = SiteGeom.key(x, z);
                 if (own.contains(key) || plan.flat.contains(key)) continue;
                 int target = Integer.MIN_VALUE;
                 for (var e : need.entrySet())
-                    target = Math.max(target, e.getValue() - (int)Math.ceil(Math.hypot(x - SiteGeom.keyX(e.getKey()), z - SiteGeom.keyZ(e.getKey())) - .01));
+                    target = Math.max(target, e.getValue() - (int)Math.ceil(Math.hypot(x - SiteGeom.keyX(e.getKey()), z - SiteGeom.keyZ(e.getKey())) * .6 - .01));
                 raise(x, z, target);
             }
             for (int u = -halfW; u <= halfW; u++) for (int w = 0; w <= depth; w++) {
@@ -329,7 +329,7 @@ public final class SiteBuilder {
                 double h = hash(x, z, 11);
                 if (w == 0 && u == 0) {
                     // the mouth: a notch in the bank face, open to the sky, a little worn
-                    set(x, G - 1, z, (h < .5 ? Blocks.COARSE_DIRT : Blocks.GRAVEL).defaultBlockState());
+                    set(x, G - 1, z, Blocks.COARSE_DIRT.defaultBlockState());
                     for (int y = 0; y <= 3; y++) { set(x, G + y, z, AIR); if (y < 2) seal(x, G + y, z); }
                     continue;
                 }
@@ -342,11 +342,13 @@ public final class SiteBuilder {
                     seal(x, G, z); seal(x, G + 1, z);
                 }
             }
-            // a root-log lying against the flank and a half-buried stone at the mouth: only on open ground, never in a wall
+            // a fallen trunk lying along the foot of the flank and a half-buried stone at the mouth: only on open ground at the
+            // burrow's own level, never in a wall, and the trunk only whole (two blocks) or not at all
             if ((p.a() & 2) != 0 && !granary) {
                 int side = (p.a() & 4) != 0 ? 1 : -1;
-                int x = SiteGeom.fx(p, side * (halfW + 1), 2), z = SiteGeom.fz(p, side * (halfW + 1), 2);
-                if (open(x, G, z)) set(x, G, z, log(p.facing().getAxis()));
+                int x1 = SiteGeom.fx(p, side * (halfW + 1), 1), z1 = SiteGeom.fz(p, side * (halfW + 1), 1);
+                int x2 = SiteGeom.fx(p, side * (halfW + 1), 2), z2 = SiteGeom.fz(p, side * (halfW + 1), 2);
+                if (open(x1, G, z1) && open(x2, G, z2)) { set(x1, G, z1, log(p.facing().getAxis())); set(x2, G, z2, log(p.facing().getAxis())); }
             }
             if ((p.a() & 1) != 0) {
                 int side = (p.a() & 8) != 0 ? 1 : -1;
@@ -358,7 +360,9 @@ public final class SiteBuilder {
                 int x = SiteGeom.fx(p, u, -k), z = SiteGeom.fz(p, u, -k);
                 if (!inClip(x, z)) continue;
                 double h = hash(x, z, 17);
-                BlockState lane = h < .5 ? Blocks.COARSE_DIRT.defaultBlockState() : h < .8 || u == 0 ? Blocks.GRAVEL.defaultBlockState() : Blocks.DIRT_PATH.defaultBlockState();
+                BlockState lane = k == 1 && u == 0 ? Blocks.GRAVEL.defaultBlockState()
+                        : u == 0 ? (h < .6 ? Blocks.COARSE_DIRT : Blocks.DIRT_PATH).defaultBlockState()
+                        : (h < .65 ? turf() : Blocks.COARSE_DIRT.defaultBlockState());
                 set(x, G - 1, z, lane);
                 for (int y = 0; y < 3; y++) set(x, G + y, z, AIR);
             }
@@ -369,7 +373,7 @@ public final class SiteBuilder {
         }
 
         // ---- shared ground
-        /** A trodden clearing: bare, uneven earth with a stump and a few stones lying about. No paving, no seats. */
+        /** A trodden clearing: bare, uneven earth with a fallen trunk and a few stones lying about. No paving, no seats. */
         void plaza(Part p) {
             for (long key : SiteGeom.cells(p)) {
                 int x = SiteGeom.keyX(key), z = SiteGeom.keyZ(key);
@@ -383,11 +387,11 @@ public final class SiteBuilder {
                 set(x, G - 1, z, top);
                 set(x, G, z, AIR);
             }
-            // the speaker's stump, and a few stones that happen to lie there
-            set(p.x(), G, p.z(), pf.log.defaultBlockState());
+            // a fallen trunk beside the middle to sit on, and a few stones that happen to lie there
+            for (int dx = -1; dx <= 1; dx++) set(p.x() + dx, G, p.z() - 1, log(Direction.Axis.X));
             for (int i = 0; i < 6; i++) {
                 int x = p.x() + (int)Math.floor(hash(p.x() + i, p.z(), 23) * 9 - 4.5), z = p.z() + (int)Math.floor(hash(p.x(), p.z() + i, 24) * 9 - 4.5);
-                if (Math.abs(x - p.x()) + Math.abs(z - p.z()) <= 1 || !SiteGeom.inPlaza(p, x - p.x(), z - p.z()) || hash(x, z, 22) < .4) continue;
+                if (Math.abs(x - p.x()) + Math.abs(z - p.z()) <= 1 || z == p.z() - 1 && Math.abs(x - p.x()) <= 1 || !SiteGeom.inPlaza(p, x - p.x(), z - p.z()) || hash(x, z, 22) < .4) continue;
                 set(x, G, z, rock());
             }
         }
@@ -454,7 +458,7 @@ public final class SiteBuilder {
             set(p.x() + p.a(), G, p.z() - p.b(), rock());
         }
 
-        /** The lookout: on a real rise only its top is trodden bare, with a stump to sit by; on flat ground a low knoll of earth. */
+        /** The lookout: on a real rise only its top is trodden bare, with a short fallen trunk to sit by; on flat ground a low knoll of earth. */
         void knoll(Part p, boolean rise) {
             if (rise) {
                 for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
@@ -463,7 +467,7 @@ public final class SiteBuilder {
                     set(x, G - 1, z, (hash(x, z, 61) < .5 ? Blocks.COARSE_DIRT : Blocks.GRASS_BLOCK).defaultBlockState());
                     set(x, G, z, AIR);
                 }
-                set(p.x(), G, p.z(), pf.log.defaultBlockState());
+                for (int dx = -1; dx <= 0; dx++) set(p.x() + dx, G, p.z(), log(Direction.Axis.X));
                 return;
             }
             double r = p.a() / 10.0, r2 = r * .5 + .2;
@@ -509,13 +513,29 @@ public final class SiteBuilder {
                 double h = hash(x, z, 71);
                 BlockState state = switch (entry.getValue()) {
                     case 1 -> rock();
-                    case 2 -> log(h < .5 ? Direction.Axis.X : Direction.Axis.Z);
+                    case 2 -> { fallen(x, y, z, h); yield null; }
                     case 3 -> leaves();
                     default -> h < .5 ? Blocks.FERN.defaultBlockState() : h < .8 ? Blocks.SHORT_GRASS.defaultBlockState() : Blocks.DEAD_BUSH.defaultBlockState();
                 };
+                if (state == null) continue;
                 if (pf.arid() && entry.getValue() == 3) state = rock();
                 set(x, y, z, state);
             }
+        }
+
+        /** A fallen trunk two or three blocks long lying flat on even ground from (x, y, z); false (nothing set) where it does not fit. */
+        boolean fallen(int x, int y, int z, double h) {
+            var axis = h < .5 ? Direction.Axis.X : Direction.Axis.Z;
+            int length = hash(x, z, 72) < .5 ? 2 : 3, dx = axis == Direction.Axis.X ? 1 : 0, dz = 1 - dx;
+            for (int i = 0; i < length; i++) {
+                int cx = x + dx * i, cz = z + dz * i;
+                long key = SiteGeom.key(cx, cz);
+                if (!inClip(cx, cz) || plan.flat.contains(key) || plan.paths.containsKey(key) || levelAt(cx, cz) != y) return false;
+                var here = get(cx, y, cz);
+                if ((!here.isAir() && !here.canBeReplaced()) || !get(cx, y - 1, cz).blocksMotion()) return false;
+            }
+            for (int i = 0; i < length; i++) set(x + dx * i, y, z + dz * i, log(axis));
+            return true;
         }
 
         void meadow() {

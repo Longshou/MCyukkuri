@@ -85,7 +85,8 @@ public final class SiteGeom {
         for (long k : inside) {
             int x = keyX(k), z = keyZ(k), around = 0;
             for (int[] s : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) if (inside.contains(key(x + s[0], z + s[1]))) around++;
-            if (around <= 2 && !(x == p.x() && z == p.z()) && SiteRng.hash(p.c(), x, z, 91) < .35) continue;
+            double fray = around <= 2 ? .55 : around == 3 ? .2 : 0;
+            if (!(x == p.x() && z == p.z()) && SiteRng.hash(p.c(), x, z, 91) < fray) continue;
             out.add(new long[]{x, z});
         }
         out.sort(Comparator.<long[]>comparingLong(c -> c[0]).thenComparingLong(c -> c[1]));

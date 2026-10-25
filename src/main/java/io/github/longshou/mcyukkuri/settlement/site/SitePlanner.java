@@ -282,7 +282,7 @@ public final class SitePlanner {
         for (int tries = 0; tries < 30 && pit == null; tries++) {
             double angle = low + rng.range(-.6, .6), r = hedge - (village ? 4.5 : 3.8) + rng.range(-1, 1);
             int x = (int)Math.floor(r * Math.cos(angle) + .5), z = (int)Math.floor(r * Math.sin(angle) + .5);
-            var p = new Part(Kind.PIT, x, z, Direction.SOUTH, village ? 24 : 20, village ? 17 : 14, rng.nextInt(628));
+            var p = new Part(Kind.PIT, x, z, Direction.SOUTH, village ? 28 : 24, village ? 18 : 16, rng.nextInt(628));
             if (d.place(p)) pit = p;
         }
         if (pit == null) return why("waste pit");
