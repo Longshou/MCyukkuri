@@ -249,7 +249,7 @@ public final class EcologyPresentation {
             case Behaviors.TOILET, Behaviors.GROUND_TOILET, Behaviors.BOAT_TOILET -> "chewing_closed";
             case Behaviors.TOILET_ACCIDENT -> "teary";
             case Behaviors.SEEK_TOILET -> e.life().bladder() >= 90 ? "teary" : "neutral";
-            case Behaviors.FORAGE_SEEK -> e.life().nutrition() < 20 ? "teary" : "drool";
+            case Behaviors.FORAGE_SEEK -> "drool";
             case Behaviors.TAKE_FOOD, Behaviors.SEEK_FOOD -> "drool";
             case Behaviors.BOAT_PADDLE, Behaviors.BOAT_DRIFT -> "closed_smile";
             case Behaviors.AQUATIC_WATCH_PARENT -> "neutral";

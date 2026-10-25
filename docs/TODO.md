@@ -13,7 +13,6 @@
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 捕食种战斗／捕食分态、俯冲攻击与进食停留 | `.worktrees/predator-combat` | `predator/`、捕食种相关 Goal（`PREDATOR_*`）、`scripts/museum_scenarios.py` 挡捕食种／妖梦拔刀场景、捕食种所属专题 |
-| 无粮觅食游荡与紧急移速 | `.worktrees/forage-urgency` | 觅食／`SEEK_FOOD`／`FORAGE_SEEK` 相关 Goal、移速修正、`scripts/museum_scenarios.py` 无粮主动搜索／雨天场景、觅食所属专题 |
 | 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
 
 ## 玩法待办
@@ -154,7 +153,7 @@
 - **空手击打无伤口反馈**：已接入待试玩。E7 `core_exposed` 空手击打只在首拳留一级凹伤，重复击打记 `wound unchanged`。已改为同一处累计扣血定伤级（规则见[伤口与治疗](INJURIES_AND_REMAINS.md#伤口与治疗)），一级凹伤／擦伤加深显示，有效命中在命中点喷馅屑（火烧冒烟）。完成：`core_exposed` 对“满血爆裂”个体背面空手连打同一处，第 3、5 拳分别升到二、三级，`[body]` 日志点数前后值对应；远近都能看清一级伤，每拳命中点有馅屑。
 - **旁观受伤语音串用**：已接入待试玩。E2 中旁观者播放自己的受伤语音；已移除旁观伤势入口的 `wounded` 事件，保留惊讶与不安。完成：`hurt` 中手动轻击一只，只有实际受伤者播放痛呼，旁观者不串用；受伤和目击情绪仍真实结算。
 - **漏馅止漏演示覆盖**：已接入待试玩。E2 缺大伤口与露核对照；`wound_leak` 已覆盖轻伤、多级／多处裂口和低血露核，不自动治愈或止漏。完成：读漏血、`core_site`、`wound_anchors`；橙汁闭口止漏并原位留疤，面粉糊仅去疤，场景不卡死。
-- **无粮时主动搜索（E3 反馈6）**：已接入待试玩。E5 01:53:07 开场、01:53:14 才有空目标搜索，用户仍见 `idle`，发现食物才 `seek_food`；已修正初始冷却、强制退出和显示绑定。规则见[行为与成长](BEHAVIOR.md)。完成：`forage_empty` 先无食物，读 `forage_seek`、位置、营养；再手动丢苹果，核对找到→接近→吃下。无粮不假装取食，保留饥饿后果。
+- **无粮时主动搜索（E3 反馈6）**：已接入待试玩。运行 ac4ba87b（CI 40196337976）21:35 用户见搜索与 `seek_food` 是两段状态，表情不对，被攻击或雨中觅食仍慢悠悠。原为 `ForageGoal`（`forage_seek`）游荡时优先级 4 的手持食物吸引被挡住，只有生活 Goal 计划到地面食物才切 `seek_food`；现为同一游荡状态内立即处理手持食物玩家与地面食物，表情固定流口水，并加紧急移速（规则见[行为与成长](BEHAVIOR.md)）。完成：`forage_empty` 先空手，饥饿灵梦应流口水并游荡；手持苹果走近应立即走向玩家（`[forage] search met player holding food`），丢下后看 `[forage] search saw loose food` 再吃下；雨天干燥区活动与攻击后观察 `[urgency] urgency speed on reason=...`、`move_speed` 读数约 ×1.3，结束后 off。无粮不假装取食，保留饥饿后果。
 - **捕食种／水生种通用身体与地面动作（E5 反馈3、4）**：已接入待试玩。E5 反馈捕食种缺油菊、伸缩与步态仍旧；当前已改复用身体组件、骨架、伤口绑定和动作覆盖；水生魔理沙继续共用魔理沙身体。完成：`shared_body` 四种对照核对油菊、互斥伸缩、通用步态及落地后真实行走，片段通过不算移动通过。
 - **岩浆块烫伤脚底**：已接入待试玩。E2 见伤害过快；E4 已按用户裁决改为原版受伤频率、实际受伤后降低跳高并逃向真实安全地面，支撑与碰撞仍检查。规则见[伤口与治疗](INJURIES_AND_REMAINS.md#伤口与治疗)。完成：`magma_sole` 健康个体从四格岩浆块中心活着离开，普通石头对照不烫伤；读血量、脚底伤、位置和 `[body]` 跳跃／离开／阻塞，离开后不再新增接触伤，仍可核对治疗与原位疤。
 

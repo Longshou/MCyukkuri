@@ -35,6 +35,10 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class SpeciesLife {
     private static final ResourceLocation SPEED_ID = MCYukkuri.id("species_speed");
+    private static final ResourceLocation URGENCY_ID = MCYukkuri.id("urgency_speed");
+    /** Project design: a real emergency lifts walking speed by at most this fraction of the species' own speed. */
+    public static final double URGENCY_BOOST = .3;
+    private String urgency;
     private static final int VOMIT_COOLDOWN = 3600, FAST_MEAL_TICKS = 600, NARRATE_COOLDOWN = 400;
     private static final float NARRATE_CHANCE = .3f;
     private final YukkuriEntity entity;
@@ -126,6 +130,7 @@ public final class SpeciesLife {
         if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
         int t = entity.tickCount;
         if (t == 1 || t % 400 == 3) speed();
+        if (t % 10 == 4) urgencySpeed();
         boolean panic = entity.isPanicking();
         if (panic && !wasPanicking) { vomit(.25f, "fright"); narrate("flee"); }
         wasPanicking = panic;
@@ -141,6 +146,34 @@ public final class SpeciesLife {
         if (t % 40 == 13) greetHuman();
         if (t % 100 == 37) greetKin();
         if (t % 200 == 91) talkCounts();
+    }
+
+    /** The emergency now pressing this animal, or null: fleeing, just hurt, retreating from a threat, or starving in the rain. */
+    private String urgentReason() {
+        if (entity.life().isSleeping() || entity.isPassenger()) return null;
+        if (entity.isPanicking()) return "panic";
+        if (entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT) return "retreat";
+        if (entity.getLastHurtByMob() != null && entity.tickCount - entity.getLastHurtByMobTimestamp() < 200) return "hurt";
+        if (entity.status().reactions().weather().stage() == Reactions.Weather.Stage.RUN) return "rain_run";
+        if (entity.life().nutrition() < 20 && entity.level().isRainingAt(entity.blockPosition())) return "rain_hunger";
+        return null;
+    }
+    private void urgencySpeed() {
+        var attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (attribute == null) return;
+        String reason = urgentReason();
+        if (reason != null) {
+            if (!attribute.hasModifier(URGENCY_ID))
+                attribute.addTransientModifier(new AttributeModifier(URGENCY_ID, URGENCY_BOOST, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            if (urgency == null) GameplayLog.limited(entity, "urgency", "on", 100,
+                    "urgency speed on reason={} boost={} speed={} nutrition={} health={}", reason, URGENCY_BOOST,
+                    attribute.getValue(), entity.life().nutrition(), entity.getHealth());
+        } else if (urgency != null || attribute.hasModifier(URGENCY_ID)) {
+            attribute.removeModifier(URGENCY_ID);
+            if (urgency != null) GameplayLog.limited(entity, "urgency", "off", 100,
+                    "urgency speed off previous={} speed={}", urgency, attribute.getValue());
+        }
+        urgency = reason;
     }
 
     private void speed() {

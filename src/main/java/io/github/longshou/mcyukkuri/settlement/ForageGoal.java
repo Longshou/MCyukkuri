@@ -14,6 +14,9 @@ import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
+import io.github.longshou.mcyukkuri.social.BondLevels;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -65,6 +68,37 @@ public final class ForageGoal extends Goal {
                 * entity.life().personality().exploreMultiplier());
         findFood(reach);
     }
+    /**
+     * The search is one state: a wander whose purpose is food. Food that shows up during it is acted on at once, not at
+     * the next life plan: a player holding food in sight is walked to (the hand feeds it), and loose food or a stocked
+     * bowl makes the life goal plan its meal this tick.
+     */
+    private boolean attendFood() {
+        Player holder = null;
+        for (Player player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 12)),
+                p -> p.isAlive() && !p.isSpectator() && (held(p.getMainHandItem()) || held(p.getOffhandItem()))
+                        && entity.hasLineOfSight(p) && entity.life().personality().fear(p.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT)) {
+            if (holder == null || entity.distanceToSqr(player) < entity.distanceToSqr(holder)) holder = player;
+        }
+        if (holder != null) {
+            entity.getLookControl().setLookAt(holder, 20, 20);
+            if (entity.distanceToSqr(holder) > 2.25) entity.getNavigation().moveTo(holder, 1.15);
+            else entity.getNavigation().stop();
+            searchSpot = null; walkTicks = 0;
+            GameplayLog.limited(entity, "forage", "player_food", 400, "search met player holding food player={} distance={} nutrition={}",
+                    holder.getGameProfile().getName(), Math.round(entity.distanceTo(holder) * 10) / 10.0, entity.life().nutrition());
+            return true;
+        }
+        var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 8)),
+                item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().acceptsFood(item.getItem()));
+        if (!items.isEmpty()) {
+            entity.life().replanNow();
+            GameplayLog.limited(entity, "forage", "item_food", 400, "search saw loose food item={} count={} handoff=life nutrition={}",
+                    items.get(0).getItem().getHoverName().getString(), items.size(), entity.life().nutrition());
+        }
+        return false;
+    }
+    private boolean held(ItemStack stack) { return !stack.isEmpty() && stack.is(YukkuriEntity.FOOD) && entity.life().acceptsFood(stack); }
     private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
     private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();
@@ -106,6 +140,7 @@ public final class ForageGoal extends Goal {
                 GameplayLog.event(entity,"forage","food found target={} elapsed={}",target,elapsed);
                 searchSpot = null; return;
             }
+            if (elapsed % 10 == 3 && attendFood()) return;
             if (++walkTicks >= 120 || searchSpot == null || entity.getNavigation().isDone()) {
                 if (elapsed % 10 != 1) return;
                 searchSpot = null; walkTicks = 0;

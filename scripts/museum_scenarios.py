@@ -505,7 +505,7 @@ add('pred_range', 'weather', '捕食种远处觅食', '远处觅食',
     reads=[('读远猎', f'yukkuri status {sel("range_pred")} raw'), ('读远猎猎物', f'yukkuri status {sel("range_prey")} raw')])
 
 add('forage_empty','weather','无粮主动搜索','无粮寻食',
-    '开始不放食物：先切到空手，饥饿灵梦立即主动搜索，搜不到也不定时退回idle；手持苹果时会向玩家寻食，再丢下观察接近、吞咽与营养回升。真实受阻仍会饿，不指定Goal',
+    '开始不放食物：先切到空手，饥饿灵梦立即主动搜索（同一游荡状态、流口水表情），搜不到也不定时退回idle；手持苹果时立即走向玩家，再丢下观察接近、吞咽与营养回升；读移速可见紧急修正。真实受阻仍会饿，不指定Goal',
     '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
     env=DAY,spot='pred',give=['minecraft:apple 3'],reads=[('读主动寻粮',f'yukkuri status {sel("seeker")} raw')])
 

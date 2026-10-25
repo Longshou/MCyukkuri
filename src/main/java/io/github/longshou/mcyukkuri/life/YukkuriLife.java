@@ -492,6 +492,9 @@ public final class YukkuriLife {
         return mealTicks() > 0 || task == Task.SLEEP || toiletTicks > 0 || task == Task.DRINK && drinkTicks > 0;
     }
 
+    /** Food was just seen by another goal: let the next plan run now instead of after its wait. */
+    public void replanNow() { planWait = 0; }
+
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
         if (entity.shelteredInHat()) return false;
