@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 灵梦口含多只赤油 | `.worktrees/carry-multi` | `family/ParentCarry.java`、`entity/YukkuriEntity.java`（`canAddPassenger`／`positionRider`）、`docs/SETTLEMENTS.md` 运输表 |
 | 嗯嗯方块分档外观 | `.worktrees/poop-art` | `yukkuri_poop` 方块模型／贴图／blockstate、`client/PoopRenderer.java`（移除占位）、`life/PoopBlock.java` 渲染形状、对应制作源与 `art/runtime-sources.json` |
 | 野生灵梦入巢结界 | `.worktrees/reimu-barrier` | 新结界方块与放置逻辑（`house/` 或 `subspecies/` 灵梦能力段）、威胁逃巢交接（`Reactions.Threat` 回巢段）、捕食种接近判定（`predator/PredatorLife.java` 选猎／接近段）、`scripts/museum_scenarios.py` 新结界场景、灵梦能力与巢穴所属专题 |
 | 生产窝尺寸、孕体容纳与茎生接生（dd75d650 复测） | `.worktrees/birth-nest-fit` | 窝方块与碰撞（宠物软垫窝、编织大窝、叶床、野生大窝）、窝模型与制作源、`family/` 分娩落点／认窝空间判定／茎生悬挂与接生、客户端茎与赤油挂点、`scripts/museum_scenarios.py` 生产与接生场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` 窝容量段 |
