@@ -71,6 +71,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `SpeciesProfile` / `EcologyRoutines` | 不可变物种能力，以及按家油／捕食种／水生资格分派的被动时钟 |
 | `HomeProvider` / `LifeHome` | 住所、休息、地址、搜索与保存；帽船位置来自水生组件 |
 | `HatSeatState` | 已登船座位、预约、座内移动与帽主临时站位的唯一所有者；通过预约／释放／移动／快照协作，不泄露可变数组 |
+| `ParentCarry`（`FamilyLife.carry()`） | 陆上亲代承托的唯一所有者：能力与座位判定、接起、放下原因与保留时间；孩子是亲油实体的真实乘客（`YukkuriEntity.canAddPassenger`／`positionRider` 委托），不另存副本；客户端经 `YukkuriView.carriedYukkuri()`／`carryMode()` 与静态座位函数读取，不读服务端组件 |
 | `InteractionDispatch` / `CareAction` | 服务端照护入口与稳定动作 ID，菜单使用命名槽位常量 |
 | `YukkuriStatus` | 指向领域读取器和受控写入方法；不复制权威数据，见[状态中枢](STATUS_HUB.md) |
 | `Custody` / `CustodyData` | 饲主、角色、分配、释放与已确认 NPC 死亡；未加载或 UNKNOWN 不算死亡 |

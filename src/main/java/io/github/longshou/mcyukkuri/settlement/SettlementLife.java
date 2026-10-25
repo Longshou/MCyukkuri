@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
@@ -161,6 +162,19 @@ public final class SettlementLife {
         return entity.childhood().shouldStayWithParents() && !settledAt(group.center)
                 || (entity.family().adult() || entity.family().stage() == FamilyLife.Stage.JUVENILE) && straggler(group);
     }
+
+    /**
+     * Settled at the migration destination (or, once the move is over, at the group's centre) with a real home. A carried
+     * baby is put down only after this holds for the carrier and the baby has inherited the home beside it.
+     */
+    public boolean migrationLanded() {
+        var group = group();
+        if (group == null || Migration.afloat(group)) return false;
+        if (Migration.moving(group)) return group.migrateTo != null && settledAt(group.migrateTo);
+        return settledAt(group.center) && !straggler(group);
+    }
+    /** Plain tiredness does not stop a marching carrier from holding its child; every other urgent need does. */
+    public boolean marchTiredOnly() { return Migration.underway(entity) && tiredOnlyUrgent(); }
 
     /** A returning dependent may finish following a parent who has already reclaimed the real home. */
     public boolean returningToSettledParent(YukkuriEntity parent) {
@@ -474,6 +488,11 @@ public final class SettlementLife {
         if (phase == Migration.Phase.PREPARE) {
             // Only the grown-ups carry food; children wait by the gathering place.
             if (packedFor == group.migrateSince || !entity.family().adult()) return false;
+            if (ParentCarry.reservesMouth(entity)) {
+                packedFor = group.migrateSince;
+                GameplayLog.event(entity, "settlement", "packing skipped group={} migration={} reason=mouth_reserved_for_child", groupId, group.migrateSince);
+                return false;
+            }
             var home = entity.habitat().shelter();
             var pile = home == null ? null : home.pile();
             if (pile == null || pile.food() == 0 || !entity.habitat().carrying().isEmpty()) {

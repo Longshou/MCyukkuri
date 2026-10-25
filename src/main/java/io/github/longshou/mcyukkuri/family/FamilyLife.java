@@ -44,7 +44,7 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
             FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT, CARRY }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.ADULT_START, age=maturity+1, nourishment=maturity,
@@ -76,6 +76,7 @@ public final class FamilyLife {
     private final HatBoarding boarding;
     private final BraidRescue rescue;
     private final CradlePickup pickup;
+    private final ParentCarry carry;
     private UUID cradleHolder;
     private UUID rescuingChild;
     /** Visible pregnancy and the brief post-delivery recovery of the mother's belly. */
@@ -93,6 +94,7 @@ public final class FamilyLife {
         rescue=new BraidRescue(entity);
         boarding=new HatBoarding(entity);
         pickup=new CradlePickup(entity);
+        carry=new ParentCarry(entity);
         feeding=new FamilyFeeding(this);
         separation=new FamilySeparation(this);
         flight=new FamilyFlight(this);
@@ -101,11 +103,28 @@ public final class FamilyLife {
         delivery=new LiveDelivery(this);
     }
     public CradlePickup cradlePickup(){return pickup;}
+    /** Land transport of dependent babies (hat brim, tail or mouth); see {@link ParentCarry}. */
+    public ParentCarry carry(){return carry;}
+    FamilyFeeding feeding(){return feeding;}
+    /** Where a retrieved baby is set down: its care nest, else its own shelter bed. */
+    public BlockPos carryHome(){
+        var care=FamilyNest.care(entity);if(care!=null)return care.getBlockPos();
+        var home=entity.habitat().shelter();
+        return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
+    }
+    /** The carrier walks the carried baby home (retrieval); marching carriers keep to the settlement walk instead. */
+    void beginCarry(){if(task==Task.NONE){task=Task.CARRY;target=carry.carried();taskTicks=0;}}
+    void endCarry(){if(task==Task.CARRY)stop();}
+    public void carryInterrupted(String why){
+        boolean childSide=entity.isPassenger()&&!carry.carrying();
+        if(childSide&&(why.equals("fright")))return;
+        carry.interrupted(why,childSide);
+    }
     public String describe() {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt)
-                + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "}";
+                + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "} carry={" + carry.describe() + "}";
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
     public String waterBirthDetail() { return delivery.waterBirthDetail(); }
@@ -475,7 +494,8 @@ public final class FamilyLife {
     public void tick() {
         if(entity.level().isClientSide)return;
         FamilyData.get(level()).importPartner(entity);
-        if(!entity.isAlive()){boarding.cancel();rescue.cancel();pickup.cancel();return;}
+        if(!entity.isAlive()){boarding.cancel();rescue.cancel();pickup.cancel();carry.dropAll("carrier_dead");return;}
+        carry.tick();
         if(!entity.isNoAi())tickAftermathBurden();
         pickup.tick();
         if(pickupController()!=null)return;
@@ -846,6 +866,9 @@ public final class FamilyLife {
             if(emergencyForaging())return false;
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
+            if(entity.getVehicle() instanceof YukkuriEntity)return false;
+            // A baby that cannot keep up waits for a parent who can carry it instead of crawling after the march.
+            if(ParentCarry.awaitsCarrier(entity))return false;
             var home=earlyHomeStand();
             if(home!=null) {
                 if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
@@ -908,7 +931,7 @@ public final class FamilyLife {
     private YukkuriEntity migrationEscort() {
         YukkuriEntity first=null,second=null;
         for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
-                &&ordinaryLandFree(parent)&&parent.family().adult()
+                &&ordinaryLandFree(parent)&&parent.family().adult()&&ParentCarry.mayEscort(parent,entity)
                 &&(parent.settlement().familyMarching()||entity.settlement().returningToSettledParent(parent))
                 &&entity.distanceToSqr(parent)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE
                 &&entity.life().canRecognize(parent)&&parent.life().canRecognize(entity)) {
@@ -952,11 +975,11 @@ public final class FamilyLife {
                 &&ordinaryLandFree(other)&&caresFor(other)&&other.childhood().shouldStayWithParents()&&entity.life().canRecognize(other)
                 &&escortsMigratingChild(other)&&!safeInSharedHome(other)
                 &&(!other.family().exploring()||other.life().hasUrgentNeed())
-                &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)))
+                &&(entity.distanceToSqr(other)>other.family().familyRadiusSqr()||!entity.hasLineOfSight(other)||carry.pickupDue(other)))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */
-    private static boolean ordinaryLandFree(YukkuriEntity member) {
+    static boolean ordinaryLandFree(YukkuriEntity member) {
         var family=member.family();
         return member.isAlive()&&!member.isNoAi()&&!member.profile().aquatic()&&!member.profile().houseBody()&&!member.profile().dangerToYukkuri()
                 &&!member.isInWaterOrBubble()&&!member.isPassenger()&&!member.isCommandPlaying()&&!member.operations().active()
@@ -1020,6 +1043,7 @@ public final class FamilyLife {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
+        if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&ordinaryLandFree(target)&&caresFor(target)
                 &&escortsMigratingChild(target)&&!safeInSharedHome(target)
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<1200&&target.level()==entity.level()
@@ -1091,10 +1115,20 @@ public final class FamilyLife {
             }
             case MIDWIFE -> catchHat.tickMidwife();
             case FETCH_HAT -> catchHat.tickFetch();
+            case CARRY -> { if(!carry.tickHome(taskTicks))stop(); }
             case SEARCH -> {
                 if(target!=null) {
-                    if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)
-                            ||entity.distanceToSqr(target)<=target.family().familyRadiusSqr()&&entity.hasLineOfSight(target)){stop();return;}
+                    if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}
+                    if(carry.pickupWanted(target)) {
+                        // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
+                        var purpose=carry.purposeFor(target);
+                        var step=carry.tickPickup(target,taskTicks);
+                        if(step==ParentCarry.Step.DONE){
+                            if(purpose==ParentCarry.Purpose.RETRIEVE){task=Task.CARRY;target=carry.carried();taskTicks=0;}else stop();
+                        } else if(step==ParentCarry.Step.FAILED)stop();
+                        return;
+                    }
+                    if(entity.distanceToSqr(target)<=target.family().familyRadiusSqr()&&entity.hasLineOfSight(target)){stop();return;}
                     if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.1,false))stop();
                 } else {
                     if(searchAt==null||entity.distanceToSqr(searchAt)<2){stop();return;}

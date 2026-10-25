@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
@@ -71,6 +72,10 @@ public interface YukkuriView {
     /** -1 when there is no vehicle; entity IDs are used only within this view's world. */
     int vehicleId();
     YukkuriView vehicleYukkuri();
+    /** The yukkuri riding this one (a carried baby), or null. */
+    YukkuriView carriedYukkuri();
+    /** How this actor holds the baby riding on it (brim, mouth, tail), or null; derived from synchronized size and form. */
+    default ParentCarry.Mode carryMode() { return ParentCarry.carryMode(this); }
     HatBoatView vehicleHat();
     boolean hasPassengerId(UUID passenger);
     /** Native line-of-sight query, without exposing the entity behind another view. */

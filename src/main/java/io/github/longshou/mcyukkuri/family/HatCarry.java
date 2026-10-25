@@ -76,6 +76,7 @@ public final class HatCarry {
         carrier.family().stop();carrier.social().stop();carrier.dailyLife().stop();
         if(!child.startRiding(carrier,true))return false;
         carrier.setPersistenceRequired();child.setPersistenceRequired();child.fallDistance=0;
+        carrier.family().carry().manual(child);
         GameplayLog.event(carrier,"care","hat passenger picked up child={} player={}",child.getUUID(),player.getUUID());
         carrier.mind().felt(EmotionEvent.COMFORTED); carrier.showReaction("happy","gentle",40);return true;
     }
@@ -112,7 +113,7 @@ public final class HatCarry {
         var box=new AABB(world[0],world[1],world[2],world[3],world[4],world[5]);
         return !carrier.level().getBlockCollisions(child,box).iterator().hasNext()&&!carrier.level().containsAnyLiquid(box);
     }
-    private static Vec3 landing(YukkuriEntity carrier,YukkuriEntity child){
+    static Vec3 landing(YukkuriEntity carrier,YukkuriEntity child){
         for(int i=0;i<12;i++)for(int dy=1;dy>=-2;dy--){
             double angle=i*Math.PI/6,radius=(carrier.getBbWidth()+child.getBbWidth())/2+.3;
             var pos=BlockPos.containing(carrier.getX()+Math.cos(angle)*radius,carrier.getY()+dy,carrier.getZ()+Math.sin(angle)*radius);
@@ -136,24 +137,14 @@ public final class HatCarry {
     public static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof YukkuriEntity carrier)||carrier.level().isClientSide||!hasHat(carrier)||!carrier.isVehicle())return;
         var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return;
+        if(ParentCarry.mode(carrier,child)!=ParentCarry.Mode.HAT)return;
         double ratio=child.growthScale()*child.getScale()/(carrier.growthScale()*carrier.getScale());
         boolean unsafe=!carrier.isAlive()||!carrier.life().hasAccessory()||carrier.isInWaterOrBubble()||carrier.isOnFire()
                 ||carrier.operations().active()||child.family().adult()||!fits(carrier.subspecies().assetId(),child.subspecies().assetId(),ratio);
         unsafe|=!seatClear(carrier,child);
         if(unsafe){
-            if(!putDown(carrier)){
-                // If solid ground is unavailable, release to free space and let normal gravity resume.
-                Vec3 free=carrier.position();boolean found=false;
-                for(int dy=0;dy<=2&&!found;dy++)for(int i=0;i<12&&!found;i++){
-                    var candidate=carrier.position().add(Math.cos(i*Math.PI/6)*.8,dy*.5,Math.sin(i*Math.PI/6)*.8);
-                    var box=child.getBoundingBox().move(candidate.subtract(child.position()));
-                    if(!carrier.level().getBlockCollisions(child,box).iterator().hasNext()){free=candidate;found=true;}
-                }
-                Vec3 before=child.position();
-                child.stopRiding();child.setPos(free);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;
-                GameplayLog.event(carrier,"care","unsafe hat passenger released method=setPos child={} freeSpaceFound={} before={} actual={}",
-                        child.getUUID(),found,before,child.position());
-            }
+            // Set the child down where it sits (only nudged clear of blocks); the carrier then holds it off briefly before any re-lift.
+            carrier.family().carry().putDown("hat_unsafe",ParentCarry.HOLD_TICKS);
             return;
         }
         child.fallDistance=0;child.getNavigation().stop();

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
@@ -80,8 +81,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if (!entity.isInvisible()) {
             pose.pushPose();
             var parent=entity.vehicleYukkuri();
-            var hatParent=parent!=null&&HatCarry.visibleRiding(parent,entity)?parent:null;
-            boolean hatCarrier=entity.isVehicle()&&HatCarry.hasHat(entity);
+            var carryMode=parent!=null&&ParentCarry.visibleCarried(parent,entity)?ParentCarry.mode(parent,entity):null;
+            var hatParent=carryMode==ParentCarry.Mode.HAT?parent:null;
+            // Mouth and tail carry: the child entity already sits at the seat (server and client position it alike); only its facing is drawn here.
+            var seatParent=carryMode!=null&&hatParent==null?parent:null;
+            boolean carried=carryMode!=null;
+            boolean hatCarrier=ParentCarry.carryMode(entity)==ParentCarry.Mode.HAT;
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
             var boardingPose=entity.boardingState();var selfRescuePose=entity.aquaticSelfRescueState();
             boolean controlledContact=boardingPose.getBoolean("Active")||selfRescuePose.contains("BodyYaw")||BraidRescuePresentation.active(entity);
@@ -97,7 +102,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 pose.translate(offset.x,offset.y,offset.z);
                 pose.mulPose(HatCarry.riderRotation(hatParent,partialTick));
             }else {
-                float bodyYaw=renderedBodyYaw;
+                float bodyYaw=seatParent!=null?ParentCarry.seatYaw(seatParent,carryMode,partialTick):renderedBodyYaw;
                 String state=entity.getBehaviorId(),waterPhase=entity.waterDistressPhase();
                 if(!controlledContact&&(state.equals(Behaviors.BOAT_REASSURE)||state.equals(Behaviors.BOAT_CROWD_GUARD)
                         ||waterPhase.equals("IMPACT")||waterPhase.equals("STRUGGLE")||waterPhase.equals("EXHAUSTED"))){
@@ -111,7 +116,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
-            if(!hatCarrier&&hatParent==null)dailyMotion(entity,partialTick,pose);
+            if(!hatCarrier&&!carried)dailyMotion(entity,partialTick,pose);
             pose.pushPose();pose.scale(entity.growthScale(),entity.growthScale(),entity.growthScale());
             var model=YukkuriModel.get(entity.assetId());
             String contact=entity.contactPose();boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
@@ -137,7 +142,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
-            String behavior = hatCarrier||hatParent!=null?Behaviors.IDLE:entity.getBehaviorId();
+            String behavior = hatCarrier||carried?Behaviors.IDLE:entity.getBehaviorId();
             if(behavior.equals(Behaviors.SLIDE_DOWN)){
                 var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==PlayBlock.Kind.SLIDE){
@@ -149,7 +154,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
-            if (entity.isCrawling()&&!hatCarrier&&hatParent==null) {
+            if (entity.isCrawling()&&!hatCarrier&&!carried) {
                 behavior = Behaviors.HOUSE_CRAWL;
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
@@ -160,21 +165,21 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 else if (behavior.equals(Behaviors.WAKE)) pose.scale(1, .96f + Math.min(1, phaseTicks/20)*.04f, 1);
             }
             model.setCarrying(!entity.getCarriedItem().isEmpty());
-            model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty());
+            model.setMouthHolding(HeldItemPresentation.closedGrip(entity)||!entity.getMouthBodyFood().isEmpty()||ParentCarry.mouthCarrying(entity));
             configureCareContact(entity,behavior,partialTick,model);
             BraidRescuePresentation.configure(entity,model,partialTick,renderedBodyYaw);
             CabinDistressPresentation.configureBoardingContact(entity,model,partialTick,renderedBodyYaw);
             SelfRescueHatPresentation.configure(entity,model,partialTick,renderedBodyYaw);
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
-            String action=hatParent!=null?"idle":hatCarrier?HatCarry.carryAction(entity):entity.getAnimationId();
+            String action=carried?"idle":hatCarrier?HatCarry.carryAction(entity):entity.getAnimationId();
             var distress=AquaticMotionPresentation.motion(entity,partialTick);
             if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
                 action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
             if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
-            model.setWear(!hatCarrier&&hatParent==null?entity.visibleWear():0);
-            model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated||hatParent!=null?0:elapsed, pose, buffer, packedLight, overlay,
+            model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
+            model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated||carried?0:elapsed, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:distress!=null?distress.clip():behavior,
                             distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
@@ -194,7 +199,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
-            if(entity.visibleWear()!=0&&!hatCarrier&&hatParent==null)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
+            if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
             if(!entity.getMouthBodyFood().isEmpty()) {
                 pose.pushPose();

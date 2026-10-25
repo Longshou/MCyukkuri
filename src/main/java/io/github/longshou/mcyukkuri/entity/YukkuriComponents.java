@@ -161,6 +161,12 @@ public final class YukkuriComponents {
                 .tick(90, FamilyLife::tick)
                 .save(150, (c, tag) -> tag.put("YukkuriFamily", c.save()))
                 .load(170, (c, ctx) -> { if (ctx.root().contains("YukkuriFamily")) c.load(ctx.root().getCompound("YukkuriFamily")); })
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("fright"))
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("command"))
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("pet_lock"))
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("burning"))
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 25, (c, ctx) -> c.carryInterrupted("hurt"))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 55, (c, ctx) -> c.carryInterrupted("death"))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 60, (c, ctx) -> c.cancelBraidRescue())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(CHILDHOOD, YukkuriEntity::childhood)

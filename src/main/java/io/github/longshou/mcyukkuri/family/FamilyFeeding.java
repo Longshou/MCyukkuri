@@ -95,8 +95,11 @@ final class FamilyFeeding {
                 &&!o.entity().profile().aquatic()&&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
-                &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty();
+                &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()
+                &&(carriedCheck||!o.carry().mouthBusy());
     }
+    /** Set only while asking whether a child on the carrier's own seat could be fed once it is put down. */
+    private boolean carriedCheck;
     /** New care work needs a comfortable reserve; a started handoff uses the lower emergency boundary. */
     boolean careReady() {
         var life=o.entity().life();
@@ -112,7 +115,7 @@ final class FamilyFeeding {
         return child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()
                 &&(carrying.isEmpty()||child.life().canReceiveCareFood(carrying))
-                &&!child.isPassenger()&&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()
+                &&(!child.isPassenger()||carriedCheck&&child.getVehicle()==o.entity())&&child.life().nutrition()<o.entity().life().nutrition()-o.entity().species().traits().dote()
                 &&o.entity().careApproach().mayTry(child);
     }
 
@@ -195,6 +198,12 @@ final class FamilyFeeding {
     }
 
     boolean validCareTarget() { return o.target()!=null&&hungryOwnChild(o.target()); }
+
+    /** Whether a carried hungry child would get a real meal if set down; reads the same sources and refusals, starts nothing. */
+    boolean hasCarriedOpportunity(YukkuriEntity child) {
+        carriedCheck=true;
+        try{return hasOpportunity(child);}finally{carriedCheck=false;}
+    }
 
     /** A real reachable meal can be attempted before a parent treats starvation as having no remedy. */
     boolean hasOpportunity(YukkuriEntity child) {

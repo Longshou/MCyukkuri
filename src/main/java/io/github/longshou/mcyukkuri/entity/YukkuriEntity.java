@@ -30,6 +30,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
@@ -257,6 +258,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int deathTicks() { return deathTime; }
     public int vehicleId() { return getVehicle() == null ? -1 : getVehicle().getId(); }
     public YukkuriView vehicleYukkuri() { return getVehicle() instanceof YukkuriView view ? view : null; }
+    public YukkuriView carriedYukkuri() { return getFirstPassenger() instanceof YukkuriView view ? view : null; }
     public HatBoatView vehicleHat() {
         return getVehicle() instanceof HatBoatView view ? view : null;
     }
@@ -520,12 +522,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncMarks(CompoundTag marks){ sync().syncMarks(marks); }
     public OperationLife operations(){return operations;}
     @Override protected boolean canAddPassenger(Entity passenger){
-        return HatCarry.canSeat(this,passenger);
+        return ParentCarry.canSeat(this,passenger);
     }
     @Override public LivingEntity getControllingPassenger(){return null;}
     @Override protected void positionRider(Entity passenger,MoveFunction move){
-        if(HatCarry.riding(this,passenger)){
-            var point=HatCarry.seatWorld(this,0);
+        if(passenger instanceof YukkuriEntity child&&ParentCarry.riding(this,child)){
+            var point=ParentCarry.seat(this,child);
+            if(point==null)point=position();
             move.accept(passenger,point.x,point.y,point.z);
         }else super.positionRider(passenger,move);
     }
