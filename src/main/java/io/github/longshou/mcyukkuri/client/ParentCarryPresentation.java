@@ -140,18 +140,20 @@ final class ParentCarryPresentation {
         float pitch, roll;
         switch (mode) {
             case HAT -> {
-                pitch = me.gait * Mth.sin(phase * 2 - .7f);
-                roll = me.roll * .75f + me.gait * Mth.sin(phase - .7f);
-                var seatPoint = brimSeat(carrier, child);
-                // The brim seat sits against the crown: the child may lean out over the brim, hardly in toward the crown.
-                if (seatPoint != null) roll = seatPoint.x >= 0 ? Math.min(roll, .5f) : Math.max(roll, -.5f);
-                if (live && state.hat != null && seatPoint != null) {
-                    feet = state.hat.transformPosition(seatPoint);
-                    state.hat.getNormalizedRotation(turnTo);
+                // On the ring the child faces out over the brim edge with the crown at its back and neighbours at its
+                // sides: it may tip outward, hardly back toward the crown, and only a little sideways.
+                pitch = Math.min(.5f, me.gait * Mth.sin(phase * 2 - .7f));
+                roll = Math.clamp(me.roll * .4f + .8f * me.gait * Mth.sin(phase - .7f), -1.2f, 1.2f);
+                double ring = ParentCarry.resolve(carrier, child).dz();
+                var shape = HatCarry.shape(carrier.assetId());
+                var seat = shape != null && shape.has("ring") ? HatCarry.ringSeat(shape, ring) : null;
+                if (live && state.hat != null && seat != null) {
+                    feet = state.hat.transformPosition(new Vector3f((float) seat.x(), (float) seat.y(), (float) seat.z()));
+                    state.hat.getNormalizedRotation(turnTo).rotateY(seat.yaw() * Mth.DEG_TO_RAD);
                 } else {
                     var at = ParentCarry.rawSeat(carrier, child, partial).subtract(origin);
                     feet = new Vector3f((float) at.x, (float) at.y, (float) at.z);
-                    HatCarry.riderRotation(carrier, partial).getNormalizedRotation(turnTo);
+                    HatCarry.riderRotation(carrier, partial, ring).getNormalizedRotation(turnTo);
                 }
             }
             case TAIL -> {
@@ -236,15 +238,6 @@ final class ParentCarryPresentation {
         pose.mulPose(turnTo);
         return yaw;
     }
-    /** The brim seat of this child in hat-bone model units, or null when it has no brim place. */
-    private static Vector3f brimSeat(YukkuriView carrier, YukkuriView child) {
-        var shape = HatCarry.shape(carrier.assetId());
-        if (shape == null) return null;
-        var seat = shape.getAsJsonArray("seat");
-        double dz = ParentCarry.resolve(carrier, child).dz();
-        return new Vector3f(seat.get(0).getAsFloat(), seat.get(1).getAsFloat(), (float) (seat.get(2).getAsFloat() + dz));
-    }
-
     /**
      * A child on its own feet: remember where it stands (for the next lift) and, just after it was set down, ease it from
      * its last seat to where the server put it.

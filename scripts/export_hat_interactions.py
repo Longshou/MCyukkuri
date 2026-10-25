@@ -34,8 +34,15 @@ def main():
         seat=[brim[3]-.8*unit,brim[4]+.02*unit,0]
         support=[band[3]+.10*unit,brim[1],-2*unit,brim[3]-.08*unit,brim[4],2*unit]
         seat[0]=(support[0]+support[3])/2
+        # The brim ring around the crown: the top faces children can stand on and one seat line per side, placed
+        # 42% of the way in from the outer edge towards the crown (project design; HatCarry.layout fills it).
+        brims=[bounds(m,parts[n]) for n in ('brim_center','brim_sides','brim_front','brim_back') if n in parts]
+        base=bounds(m,parts['hat_base']);crown=[min(base[0],band[0]),min(base[2],band[2]),max(base[3],band[3]),max(base[5],band[5])]
+        outer=[min(b[0] for b in brims),min(b[2] for b in brims),max(b[3] for b in brims),max(b[5] for b in brims)]
+        ring={'front':outer[1]+.42*(crown[1]-outer[1]),'back':outer[3]-.42*(outer[3]-crown[3]),'side':outer[2]-.42*(outer[2]-crown[2]),
+              'supports':[[b[0],b[2],b[3],b[5],b[4]] for b in brims]}
         result['variants'][ident]={'bone':next(i for i,b in enumerate(m['bones']) if b['name']=='hat_follow'),
-            'bone_name':'hat_follow','lift':3*unit,'forward':-3*unit,'seat':seat,'support':support,'margin':.10*unit,
+            'bone_name':'hat_follow','lift':3*unit,'forward':-3*unit,'seat':seat,'support':support,'ring':ring,'margin':.10*unit,
             'obstacles':[bounds(m,p) for p in m['parts'] if p['name'].startswith(('hat_','bow_'))],
             'runtime_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
         fingerprints[path.relative_to(ROOT).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
@@ -44,7 +51,7 @@ def main():
     OUT.mkdir(parents=True,exist_ok=True)
     (OUT/'recipe.json').write_text(json.dumps({'status':'pending_user_confirmation','scope':IDS,
         'motion':'Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.',
-        'carry':'One small young entity on the right brim; foot margin and full model part bounds must fit without intersecting the hat or bow.',
+        'carry':'Young entities around the brim ring (front, then sides, then back), facing outward; feet on the real brim top, whole bodies apart and clear of the hat and bow.',
         'exporter':'scripts/export_hat_interactions.py','exporter_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'runtime':target.relative_to(ROOT).as_posix(),'runtime_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
         'sources':fingerprints,'placement_fit':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),
