@@ -10,6 +10,8 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 生产窝尺寸、孕体容纳与茎生接生（dd75d650 复测） | `.worktrees/birth-nest-fit` | 窝方块与碰撞（宠物软垫窝、编织大窝、叶床、野生大窝）、窝模型与制作源、`family/` 分娩落点／认窝空间判定／茎生悬挂与接生、客户端茎与赤油挂点、`scripts/museum_scenarios.py` 生产与接生场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` 窝容量段 |
+| 赤油受伤原地哭泣 | `.worktrees/baby-hurt-cry` | 受伤／逃跑反应中赤油分支（威胁与恐慌 Goal）、`life/SpeciesLife.java` 紧急移速条件 |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 亲油陆上承托赤油（帽檐／口含／尾托） | `.worktrees/parent-carry` | `family/` 承托与运输（`CradlePickup` 邻近、新承托类）、`settlement/SettlementLife.java` 迁徙随行交接、客户端承托挂点（基础位置）、`scripts/museum_scenarios.py` 迁徙·赤油跟亲场景、`docs/SETTLEMENTS.md` 运输段、`docs/CHILDHOOD_LIFECYCLE.md` 子代运输段 |
