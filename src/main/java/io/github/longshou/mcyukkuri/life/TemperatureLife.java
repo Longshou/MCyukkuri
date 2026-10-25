@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -298,7 +299,7 @@ public final class TemperatureLife {
             var boat = EcologyMovement.boat(entity);
             var point = HatBoatRoute.surface(level(), target.below());
             if (boat.position().distanceToSqr(point) <= .2) {
-                boat.holdPosition(); restTicks++; return true;
+                boat.helm().hold(entity, Purpose.ROUTINE); restTicks++; return true;
             }
             restTicks = 0;
             if (taskTicks % 20 == 1 && !EcologyMovement.navigate(entity, point, 1)) { stop(); return false; }

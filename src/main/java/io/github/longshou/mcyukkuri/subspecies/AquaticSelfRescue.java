@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -96,7 +97,7 @@ public final class AquaticSelfRescue {
     }
     public String shoreRecoveryActivity(){return shoreRecoveryActivity;}
     private boolean shoreRecoverable(HatBoatEntity current){
-        return ownsPhysicalHat(current)&&!current.towed()&&!current.deploying()
+        return ownsPhysicalHat(current)&&!current.deploying()
                 &&(current.isAfloat()||current.state()==HatBoatEntity.State.CAPSIZED||current.state()==HatBoatEntity.State.BEACHED);
     }
     /** Run by AquaticLife while still ashore.  Once the body enters water, WaterDistress and this class's water path own it. */
@@ -108,7 +109,7 @@ public final class AquaticSelfRescue {
             shoreHatId=current.getUUID();shoreBank=null;nextShoreRoute=0;
         }
         if(current.isAfloat()&&!current.unsteadyMotion()&&!current.hasIncoming()&&current.distanceToSqr(actor)<=9){
-            shoreRecoveryActivity=Behaviors.BOAT_LAUNCH;actor.getNavigation().stop();current.holdPosition();
+            shoreRecoveryActivity=Behaviors.BOAT_LAUNCH;actor.getNavigation().stop();current.helm().hold(actor, HullHelm.Purpose.SAFETY);
             if(now()%10==1)actor.family().embark(current);
             return true;
         }
@@ -278,7 +279,7 @@ public final class AquaticSelfRescue {
             }
             current.finishSelfRescueCarry(actor);carriedPose=previousCarriedPose=null;set(Phase.APPROACH);
         }
-        if(current.capsizing()||current.state()==HatBoatEntity.State.BEACHED||current.towed())return false;
+        if(current.capsizing()||current.state()==HatBoatEntity.State.BEACHED)return false;
         var target=current.ownGripApproach(actor);if(target==null){slip("no_grip_approach");return false;}
         boolean holding=(phase==Phase.GRIP||phase==Phase.RIGHT_HAT)&&lockedGripLocal!=null;
         var grip=holding?current.selfRescueGrip(actor,lockedGripLocal):current.selfRescueGrip(actor);

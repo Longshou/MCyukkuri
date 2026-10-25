@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
@@ -83,7 +84,7 @@ public final class HatBoarding {
             &&actor.life().energy()>=8&&!actor.life().isSleeping();}
     public static boolean stable(HatBoatEntity hat){
         return hat!=null&&!hat.isRemoved()&&(hat.isAfloat()||hat.catches())&&!hat.unsteadyMotion()
-                &&!hat.towed()&&hat.flooding()==0;
+&&hat.flooding()==0;
     }
     /** A tiny step-over arc, whose clearance is measured from this body's scale, not a minimum airtime. */
     public static Vec3 hopPoint(Vec3 from,Vec3 to,int ticks,double elapsed){return hopPoint(from,to,ticks,elapsed,Math.min(.04,from.distanceTo(to)*.08));}
@@ -338,7 +339,7 @@ public final class HatBoarding {
         }
         if(!actor.life().spendEnergy(.5f))return false;
         sourceId=null;hatId=hat.getUUID();seat=localSeat;dip=plan;from=origin;to=destination;stagedClimb=true;hump=0;releasedGrip=landing=false;biteTicks=0;
-        steadyTicks=totalTicks=0;lastVelocity=Vec3.ZERO;waterAlign=true;set(Phase.ALIGN,6);hat.holdPosition();return true;
+        steadyTicks=totalTicks=0;lastVelocity=Vec3.ZERO;waterAlign=true;set(Phase.ALIGN,6);hat.helm().hold(actor, Purpose.BOARDING);return true;
     }
     /** The owner's nearest free patch may overhang the hull's outline (a seat only needs its centre and walking square on the hat),
      *  where the sliding belly could never come to rest. Try the nearest few patches whose whole belly disc the hat carries;
@@ -415,9 +416,9 @@ public final class HatBoarding {
         if(source!=null){
             actor.stopRiding();
             if(actor.position().distanceToSqr(from)>1e-8)actor.setPos(from.x,from.y,from.z);
-            source.holdPosition();
+            source.helm().hold(actor, Purpose.BOARDING);
         }
-        if(targetHat!=null)targetHat.holdPosition();
+        if(targetHat!=null)targetHat.helm().hold(actor, Purpose.BOARDING);
         actor.getNavigation().stop();actor.setDeltaMovement(Vec3.ZERO);actor.hasImpulse=true;
         landingRefusal="started "+(targetHat!=null?"onto hull":"ashore")+" gap="+gap+" ticks="+ticks;
         AquaDiag.log(actor,"step.start."+actor.getId(),0,landingRefusal+" from="+AquaDiag.at(from)+" to="+AquaDiag.at(to));
@@ -436,9 +437,9 @@ public final class HatBoarding {
         if(!actor.isAlive()||actor.isNoAi()||actor.isCommandPlaying()||actor.operations().active()||actor.isPassenger()||++totalTicks>80){cancel("step aborted");return;}
         if(target!=null){
             if(!stable(target)){cancel("target hull unsteady");return;}
-            target.holdPosition();
+            target.helm().hold(actor, Purpose.BOARDING);
         }
-        if(source!=null&&!source.isRemoved())source.holdPosition();
+        if(source!=null&&!source.isRemoved())source.helm().hold(actor, Purpose.BOARDING);
         int elapsed=(int)Math.min(stepTicks,now-start);
         double q=Mth.clamp(elapsed/(double)Math.max(1,stepTicks),0,1);
         var to=target!=null?target.toWorld(stepSeat):stepTo;
@@ -637,9 +638,9 @@ public final class HatBoarding {
                 before,next,sourceId,hatId,stepHat,duration,totalTicks,shoreLanding,stepping);
     }
     private void hold(HatBoatEntity source,HatBoatEntity hat){
-        actor.getNavigation().stop();hat.holdPosition();
+        actor.getNavigation().stop();hat.helm().hold(actor, Purpose.BOARDING);
         // A supported down-step keeps the paired hats steady until the feet have settled on the lower rim.
-        if(source!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP||!stepDownPath.isEmpty()))source.holdPosition();
+        if(source!=null&&(phase==Phase.ALIGN||phase==Phase.GRIP||!stepDownPath.isEmpty()))source.helm().hold(actor, Purpose.BOARDING);
     }
     /** The visitor's weight keeps the near rim down until the belly has support; then the hull levels again. */
     private void leanHull(HatBoatEntity hat){

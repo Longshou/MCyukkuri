@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -65,7 +66,7 @@ public final class HatShoreForage {
         if (owner.level().isClientSide || !owner.isAlive() || owner.isNoAi() || owner.isPanicking()
                 || owner.life().isSleeping() || owner.life().mealTicks() > 0 || owner.family().laboring()
                 || owner.getVehicle() != boat || !owner.getUUID().equals(boat.ownerYukkuri())
-                || !owner.profile().aquatic() || !boat.isAfloat() || boat.towed() || boat.flooding() > 0
+                || !owner.profile().aquatic() || !boat.isAfloat() || boat.flooding() > 0
                 || !boat.cargo().paddle() || !EventHooks.canEntityGrief(owner.level(), owner)) { reason = "unavailable"; stop(); return false; }
         if (target == null) {
             if (retry-- > 0) { reason = "retry"; return false; }
@@ -78,20 +79,18 @@ public final class HatShoreForage {
                 || !owner.aquaticLife().familyLife().allowsDestination(boat,berth(target.plant(),target.water(),boat))
                 || boat.cargo().remainingCapacity() < fruitCount(target.state())
                 || boat.cargoRoom() < fruitCount(target.state())
-                || !boat.cargo().canStore(yieldFor(target.state()))) { reason = "source_or_capacity_changed"; boat.stopPaddling(); stop(); return false; }
+                || !boat.cargo().canStore(yieldFor(target.state()))) { reason = "source_or_capacity_changed"; boat.helm().drift(owner, Purpose.CARGO); stop(); return false; }
         Vec3 berth = berth(target.plant(), target.water(),boat);
         if (boat.position().subtract(berth).horizontalDistanceSqr() > .0025) {
             reason = "sailing_to_shore";
             contact = 0; lastContactTick = Long.MIN_VALUE;
-            if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; boat.stopPaddling(); stop(); return false; }
+            if (elapsed % 20 == 1 && !sailToBerth(boat, berth)) { reason = "unreachable_berth"; boat.helm().drift(owner, Purpose.CARGO); stop(); return false; }
             return true;
         }
-        boat.holdPosition();
         // The normal owner seat is at the stern. Rotate the physical hat before testing the rider's real mouth.
         float toward = SurfaceApproach.yaw(boat.position(), Vec3.atCenterOf(target.plant()));
         float stern = toward + 180;
-        float turn = Mth.clamp(Mth.wrapDegrees(stern - boat.getYRot()), -4, 4);
-        boat.setYRot(boat.getYRot() + turn);
+        boat.helm().berth(owner, Purpose.CARGO, boat.position(), stern, 0, 4f);
         SurfaceApproach.face(owner, SurfaceApproach.yaw(owner.position(), Vec3.atCenterOf(target.plant())));
         if (Math.abs(Mth.wrapDegrees(stern - boat.getYRot())) > 5 || !mouthTouches(target.plant())) {
             reason = Math.abs(Mth.wrapDegrees(stern - boat.getYRot())) > 5 ? "turning_stern" : "mouth_out_of_reach_or_occluded";
@@ -160,7 +159,7 @@ public final class HatShoreForage {
         // Surface BFS ends at a cell centre. This final waypoint stays inside that same calm water cell;
         // all movement/collisions still run through the actual hat paddling physics.
         route.add(berth);
-        return boat.paddleAlong(route,.0025);
+        return boat.helm().route(owner, Purpose.CARGO, route,.0025);
     }
 
     /** Grid-centre BFS may reject the shore cell's centre even though its outward-offset berth is clear. */

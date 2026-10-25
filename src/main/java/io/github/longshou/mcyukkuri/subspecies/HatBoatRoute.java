@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFootprint;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
@@ -29,6 +31,11 @@ public final class HatBoatRoute {
     public static Vec3 surface(Level level, BlockPos pos) {
         return new Vec3(pos.getX()+.5, pos.getY()+level.getFluidState(pos).getHeight(level, pos)+.025, pos.getZ()+.5);
     }
+    /** Whether the hull's oriented brim rectangle (not the thin collision box) is clear lying at this surface point. */
+    static boolean hullFits(HatBoatEntity boat, Vec3 point) {
+        return boat.level() instanceof ServerLevel server
+                && HullFootprint.fits(server, boat, boat, point, boat.getYRot(), boat.hullScale(), 0).ok();
+    }
     public static boolean exposedWeather(Level level, BlockPos pos) {
         return level.isRainingAt(pos) || level.canSeeSky(pos) && (level.isThundering() || Seasons.snowing(level, pos));
     }
@@ -45,7 +52,7 @@ public final class HatBoatRoute {
         var candidates = new ArrayList<BlockPos>();
         for (var p : BlockPos.betweenClosed(origin.offset(-6,0,-6), origin.offset(6,0,6)))
             if (quietSurface(level,p) && allowed.test(surface(level,p)) && level.getWorldBorder().isWithinBounds(p)
-                    && level.noCollision(boat,boat.getBoundingBox().move(surface(level,p).subtract(boat.position())))) candidates.add(p.immutable());
+                    && hullFits(boat,surface(level,p))) candidates.add(p.immutable());
         candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)+(bank == null ? 0 : .4*p.distSqr(bank))));
         for (var p : candidates.stream().limit(8).toList())
             if (p.equals(origin) || !find(boat,surface(level,p),allowed).isEmpty()) return p;
@@ -68,8 +75,7 @@ public final class HatBoatRoute {
                 var next = at.relative(side);
                 if (previous.containsKey(next) || next.distSqr(origin) > RANGE*RANGE || !calmSurface(level, next)) continue;
                 var point = surface(level, next);
-                if (!allowed.test(point) || !level.getWorldBorder().isWithinBounds(next)
-                        || !level.noCollision(boat, boat.getBoundingBox().move(point.subtract(boat.position())))) continue;
+                if (!allowed.test(point) || !level.getWorldBorder().isWithinBounds(next) || !hullFits(boat, point)) continue;
                 previous.put(next, at); queue.add(next);
                 double d = point.distanceToSqr(target);
                 if (d < distance) { distance = d; best = next; }

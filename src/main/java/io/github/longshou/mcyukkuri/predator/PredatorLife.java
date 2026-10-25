@@ -275,7 +275,7 @@ public final class PredatorLife implements EcologyRoutine {
      * predator still has to satisfy sight and its later physical attack checks. */
     private boolean waterbornePrey(YukkuriEntity target) {
         var hat = target == null ? null : EcologyMovement.boat(target);
-        return hat != null && hat.isAfloat() && !hat.unsteadyMotion() && !hat.towed() && hat.flooding() == 0;
+        return hat != null && hat.isAfloat() && !hat.unsteadyMotion() && hat.flooding() == 0;
     }
     /** New hunts require sight in the local search radius; an active hunt deliberately does not. */
     private boolean visibleHuntable(YukkuriEntity target, boolean respect) {

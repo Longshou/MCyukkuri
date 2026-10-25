@@ -193,7 +193,7 @@ public final class WoundComfort {
         if (victim == entity) return "self";
         if (boat == null || entity.getVehicle() != boat || victim.getVehicle() != boat
                 || !boat.protects(entity) || !boat.protects(victim) || !EcologyMovement.captain(entity)
-                || !boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() != 0) return "boat_unavailable";
+                || !boat.isAfloat() || boat.unsteadyMotion() || boat.flooding() != 0) return "boat_unavailable";
         var unable = afloatUnable(entity);
         if (unable != null) return unable;
         var victimReason = afloatVictimReason(victim, false);
@@ -298,7 +298,7 @@ public final class WoundComfort {
     private boolean afloatValid(Session s) {
         if (!s.afloat() || !(s.licker.getVehicle() instanceof HatBoatEntity boat) || !s.boat.equals(boat.getUUID())
                 || s.victim.getVehicle() != boat || !boat.protects(s.licker) || !boat.protects(s.victim)
-                || !EcologyMovement.captain(s.licker) || !boat.isAfloat() || boat.unsteadyMotion() || boat.towed() || boat.flooding() != 0
+                || !EcologyMovement.captain(s.licker) || !boat.isAfloat() || boat.unsteadyMotion() || boat.flooding() != 0
                 || s.elapsed > APPROACH_LIMIT + CONTACT_TICKS + LOST_CONTACT || s.licker.distanceToSqr(s.victim) > 144
                 || !s.licker.hasLineOfSight(s.victim) || s.victim.life().personality().fear(s.licker.getUUID()) >= 60) return false;
         return afloatUnable(s.licker) == null && afloatVictimReason(s.victim, true) == null;

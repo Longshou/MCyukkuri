@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -54,7 +55,7 @@ public final class HatBoatCargo {
         if (target == asideCount()) return true;
         if (!boat.canHandleCargo() || !boat.cargoFits(count()-target, target)) return false;
         targetAside = target; handlingAt = boat.level().getGameTime();
-        boat.holdPosition(); changed();
+        boat.helm().hold(boat, Purpose.CARGO); changed();
         GameplayLog.limited(boat,"cargo","handling.started",200,
                 "handling started owner={} food={} aside={} targetAside={}",boat.ownerYukkuri(),count(),asideCount(),targetAside);
         return false;
@@ -72,7 +73,7 @@ public final class HatBoatCargo {
                         boat.ownerYukkuri(),reason,count(),asideCount(),targetAside,boat.level().getGameTime()-handlingAt);
                 targetAside = -1; changed(); return;
             }
-            boat.holdPosition();
+            boat.helm().hold(boat, Purpose.CARGO);
             if (boat.level().getGameTime()-handlingAt >= 20) {
                 int before=asideCount();
                 asideCount = targetAside; targetAside = -1; keepAside(); changed();
@@ -112,7 +113,7 @@ public final class HatBoatCargo {
         var origin = boat.cargoSpillOrigin();
         food.clear(); asideCount = 0; targetAside = -1;
         discardUntil = boat.level().getGameTime() + 200;
-        changed(); boat.holdPosition();
+        changed(); boat.helm().hold(boat, Purpose.CARGO);
         int spawned=0;
         for (int i = 0; i < drops.size(); i++) {
             var at = boat.toWorld(origin).add(0, .12, 0);

@@ -102,13 +102,13 @@ final class HatBoatCapsize {
         if(movement.lengthSqr()>.12*.12||!boat.level().noCollision(boat,boat.getBoundingBox().move(movement))){boat.syncMotion(before);return false;}
         // Rotating around the actually held rim translates the same boat centre. Clients apply
         // motionRoll/Pitch at that synced centre, yielding exactly this world-space grasp pivot.
-        boat.setPos(centre);boat.setDeltaMovement(Vec3.ZERO);boat.stopPaddling();return true;
+        boat.setPos(centre);boat.setDeltaMovement(Vec3.ZERO);boat.helm().stop("capsize_reset");return true;
     }
 
     boolean finishSelfRighting(YukkuriEntity actor){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||!boat.selfRighting()||boat.motionData().getFloat("RightProgress")<1
                 ||selfRescueGrip(actor,HatBoatEntity.point(boat.motionData(),"RightGrip"))==null)return false;
-        boat.state(State.AFLOAT);boat.flooding=0;boat.syncMotion(new CompoundTag());capsizeReleased=true;boat.stopPaddling();
+        boat.state(State.AFLOAT);boat.flooding=0;boat.syncMotion(new CompoundTag());capsizeReleased=true;boat.helm().stop("righted");
         GameplayLog.event(boat,"aquatic","hat righted actor={} state=AFLOAT flooding=0",actor.getUUID());return true;
     }
 
@@ -172,12 +172,12 @@ final class HatBoatCapsize {
         m.putFloat("PreviousSquash",m.getBoolean("SelfHeld")?m.getFloat("HeldSquash"):pose.squash());
         m.putBoolean("SelfHeld",true);m.putFloat("HeldPitch",(float)(-180*(1-q)));m.putFloat("HeldSquash",pose.squash());m.putLong("HeldTouched",boat.level().getGameTime());
         HatBoatEntity.point(m,"PreviousCentre",m.contains("HeldCentreX")?HatBoatEntity.point(m,"HeldCentre"):centre);HatBoatEntity.point(m,"HeldCentre",centre);
-        boat.setPos(centre);boat.syncMotion(m);boat.setDeltaMovement(Vec3.ZERO);boat.stopPaddling();return true;
+        boat.setPos(centre);boat.syncMotion(m);boat.setDeltaMovement(Vec3.ZERO);boat.helm().stop("capsize_reset");return true;
     }
 
     void finishSelfRescueCarry(YukkuriEntity actor){
         if(boat.level().isClientSide||!ownsPhysicalHat(actor)||!boat.selfRescueHeld())return;
-        boat.syncMotion(new CompoundTag());boat.heldTicks=0;boat.setDeltaMovement(actor.getDeltaMovement().multiply(.65,0,.65));
+        boat.syncMotion(new CompoundTag());boat.setDeltaMovement(actor.getDeltaMovement().multiply(.65,0,.65));
     }
 
     void releaseSelfRescueCarry(){
@@ -203,7 +203,7 @@ final class HatBoatCapsize {
             HatBoatEntity.point(m,"HeldCentre",boat.position());HatBoatEntity.point(m,"PreviousCentre",boat.position());
         }
         boat.syncMotion(m);capsizeReleased=false;boat.rescuePair.rescueOwnerHeld=false;
-        boat.state(State.CAPSIZED);boat.flooding=100;boat.stopPaddling();boat.heldTicks=0;boat.clearTowTicks();boat.pullTarget=null;
+        boat.state(State.CAPSIZED);boat.flooding=100;boat.helm().stop("capsized");
         boat.setDeltaMovement(boat.getDeltaMovement().scale(.25));
         GameplayLog.event(boat,"aquatic","capsize started owner={} side={} passengers={} cargo={} paddle={}",
                 boat.ownerYukkuri(),side,boat.getPassengers().size(),boat.cargo().count(),boat.cargo().paddle());

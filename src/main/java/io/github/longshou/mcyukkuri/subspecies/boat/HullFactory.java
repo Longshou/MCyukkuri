@@ -42,6 +42,9 @@ public final class HullFactory {
 
     private HullFactory() {}
 
+    /** Counted-hold key: a freshly deployed hull stays still while boarding begins on a settled hull. */
+    private static final Object DEPLOY_SETTLE = new Object();
+
     /** The boat of a successful result, or null. */
     public static HatBoatEntity boatOf(Result result) { return result instanceof Deployed deployed ? deployed.boat() : null; }
 
@@ -89,7 +92,7 @@ public final class HullFactory {
         }
         owner.aquaticLife().firstVoyage().restoreHatCargo(boat);
         owner.aquaticLife().equip(boat);
-        if (origin != Origin.SWIMMING) boat.holdFor(60);
+        if (origin != Origin.SWIMMING) boat.helm().hold(DEPLOY_SETTLE, 60);
         if (spec.home() != null && origin == Origin.PARENT_HAT) {
             // During the real hat-off launch the child still rides the parent and can hand over provisions.
             // Restored or carried provisions are used first; a parent never loses its final serving.
@@ -173,7 +176,7 @@ public final class HullFactory {
         hat.setPos(at.x, y, at.z);
         hat.setYRot(yaw);
         hat.launchRole(role);
-        hat.moorAt(hat.position());
+        hat.helm().moor(hat.position());
         hat.syncOwner(Optional.of(owner.getUUID()));
         hat.syncAccessoryIdentity(owner);
         hat.syncHullScale(HatVessel.hatScale(owner));

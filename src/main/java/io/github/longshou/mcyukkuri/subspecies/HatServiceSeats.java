@@ -45,7 +45,7 @@ final class HatServiceSeats {
     boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rearCare) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || child == null || parent == null || parent != boat.owner() || child.getVehicle() != boat
                 || parent.getVehicle() != boat || !boat.careRecipient(child) || !boat.protects(parent) || !boat.protects(child)
-                || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || ownerToiletSeat || boat.departure.departureYielding!=null ||
+                || !boat.isAfloat() || boat.flooding != 0 || boat.hasIncoming() || ownerToiletSeat || boat.departure.departureYielding!=null ||
                         child.getUUID().equals(boat.departure.voyageYoung)) return false;
         var held = serviceSeats.get(child.getUUID());
         if (held != null && held.ownerService() != null) {
@@ -125,7 +125,7 @@ final class HatServiceSeats {
 
     boolean prepareToiletSeat(YukkuriEntity child) {
         if (boat.level().isClientSide || child == null || child.getVehicle() != boat
-                || !boat.protects(child) || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming()) return false;
+                || !boat.protects(child) || !boat.isAfloat() || boat.flooding != 0 || boat.hasIncoming()) return false;
         if (child.getUUID().equals(boat.ownerYukkuri())) return prepareOwnerToiletSeat(child);
         var service = serviceSeats.get(child.getUUID());
         if (service != null && service.toiletReady()) return true;
@@ -244,7 +244,7 @@ final class HatServiceSeats {
     boolean beginPracticeMove(YukkuriEntity child, boolean hop) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || boat.cargo().handling() || boat.cargo().tier()>=3 || child == null ||
                 child.getVehicle() != boat || !boat.young(child) || !boat.protects(child)
-                || !boat.isAfloat() || boat.towed() || boat.flooding != 0 || boat.hasIncoming() || boat.departure.departureYielding!=null || child.getUUID().equals(boat.departure.voyageYoung)
+                || !boat.isAfloat() || boat.flooding != 0 || boat.hasIncoming() || boat.departure.departureYielding!=null || child.getUUID().equals(boat.departure.voyageYoung)
                 || !serviceSeats.isEmpty() || !returningSeats.isEmpty() || boat.carry.carryTrip!=null || boat.changingSeat(child) || boat.ownerSeatBusy()) return false;
         var original = boat.seatState.residentSeat(child.getUUID());
         if (original == null) return false;

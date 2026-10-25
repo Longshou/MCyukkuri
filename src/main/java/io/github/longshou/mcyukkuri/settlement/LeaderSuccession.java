@@ -83,7 +83,7 @@ public final class LeaderSuccession {
     private static boolean afloatAtAnchor(YukkuriEntity y) {
         if (!(y.getVehicle() instanceof HatBoatEntity boat)) return false;
         return y.getUUID().equals(boat.ownerYukkuri()) && boat.isAfloat() && boat.protects(y)
-                && !boat.unsteadyMotion() && !boat.towed() && boat.flooding() == 0 && !boat.paddling()
+                && !boat.unsteadyMotion() && boat.flooding() == 0 && !boat.paddling()
                 && !boat.landing() && !boat.hasIncoming() && !boat.cargo().handling();
     }
     private LeaderSuccession() {}

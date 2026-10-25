@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -123,7 +124,7 @@ public final class FirstVoyage {
                 &&!y.life().hasUrgentNeed()&&y.life().nutrition()>=35&&y.life().energy()>=30&&y.life().bladder()<70&&!y.family().laboring();
     }
     private boolean safeHome(HatBoatEntity boat,YukkuriEntity father){
-        return boat!=null&&father!=null&&!boat.unsteadyMotion()&&boat.protects(father)&&boat.flooding()==0&&!boat.towed();
+        return boat!=null&&father!=null&&!boat.unsteadyMotion()&&boat.protects(father)&&boat.flooding()==0;
     }
     /** A short player-induced rock pauses the same trip and reservations, including its timeout. */
     private boolean pauseForMotion(boolean hold){
@@ -135,8 +136,8 @@ public final class FirstVoyage {
                 ||home!=null&&home.unsteadyMotion()||learnerBoat!=null&&learnerBoat.unsteadyMotion();
         if(!moving)return false;
         if(hold){
-            if(riding!=null)riding.holdPosition();if(own!=null&&(own.isVehicle()||own.hasIncoming()))own.holdPosition();
-            if(home!=null)home.holdPosition();if(learnerBoat!=null&&(learnerBoat.isVehicle()||learnerBoat.hasIncoming()))learnerBoat.holdPosition();
+            if(riding!=null)riding.helm().hold(child, Purpose.CARE);if(own!=null&&(own.isVehicle()||own.hasIncoming()))own.helm().hold(child, Purpose.CARE);
+            if(home!=null)home.helm().hold(child, Purpose.CARE);if(learnerBoat!=null&&(learnerBoat.isVehicle()||learnerBoat.hasIncoming()))learnerBoat.helm().hold(child, Purpose.CARE);
         }
         return true;
     }
@@ -169,11 +170,11 @@ public final class FirstVoyage {
         mentor=father.getUUID();homeHat=boat.getUUID();father.aquaticLife().firstVoyage().pupil=child.getUUID();
         child.setPersistenceRequired();father.setPersistenceRequired();elapsed=0;reachedTurn=false;leavingHome=departure;
         routineLaunch=routine;routineSailing=false;emergencyRecall=false;
-        boat.holdPosition();set(Phase.APPROACH);child.speak("hello");return true;
+        boat.helm().hold(child, Purpose.CARE);set(Phase.APPROACH);child.speak("hello");return true;
     }
     /** A child already living in its own hat leaves in that vessel, without first packing it into a parent's hat. */
     private boolean departAfloat(HatBoatEntity boat){
-        if(cooldown>0||!readySize()||!healthy(child)||boat.unsteadyMotion()||!boat.protects(child)||boat.flooding()>0||boat.towed()
+        if(cooldown>0||!readySize()||!healthy(child)||boat.unsteadyMotion()||!boat.protects(child)||boat.flooding()>0
                 ||!boat.cargo().paddle()||level().isNight()||!child.life().activity().equals(Behaviors.IDLE)
                 ||WildEvents.reserved(child))return false;
         long now=level().getGameTime();if(now<nextSearch)return false;nextSearch=now+80;
@@ -193,7 +194,7 @@ public final class FirstVoyage {
             parent.aquaticLife().firstVoyage().pupil=child.getUUID();
             reachedTurn=false;routineSailing=false;ticks=elapsed=0;
             child.setPersistenceRequired();parent.setPersistenceRequired();
-            boat.holdPosition();home.holdPosition();set(Phase.OUT);child.speak("hello");return true;
+            boat.helm().hold(child, Purpose.CARE);home.helm().hold(child, Purpose.CARE);set(Phase.OUT);child.speak("hello");return true;
         }
         return false;
     }
@@ -209,7 +210,7 @@ public final class FirstVoyage {
         if(homeHat!=null&&!homeHat.equals(parentHat.getUUID()))return false;
         mentor=parentHat.ownerYukkuri();homeHat=parentHat.getUUID();reachedTurn=false;leavingHome=false;
         emergencyRecall=true;routineSailing=false;if(completed)routineLaunch=true;
-        elapsed=0;own.stopPaddling();set(Phase.RETURN);return true;
+        elapsed=0;own.helm().drift(child, Purpose.ROUTINE);set(Phase.RETURN);return true;
     }
     public boolean requestReturnToParent(HatBoatEntity parentHat){
         return requestReturnToParent(parentHat,false);
@@ -228,7 +229,7 @@ public final class FirstVoyage {
         if(!room&&!emergency&&!emergencyReturn(own))return false;
         mentor=parent.getUUID();homeHat=parentHat.getUUID();elapsed=0;reachedTurn=false;leavingHome=false;
         emergencyRecall=emergency||emergencyReturn(own);
-        routineLaunch=true;routineSailing=false;own.stopPaddling();set(Phase.RETURN);return true;
+        routineLaunch=true;routineSailing=false;own.helm().drift(child, Purpose.ROUTINE);set(Phase.RETURN);return true;
     }
     /** Unloading, needs, commands and weather interrupt the milestone, never award a timed success. */
     public void clock(){
@@ -277,7 +278,7 @@ public final class FirstVoyage {
         leavingHome=false;
         if(completed)routineLaunch=true;
         var boat=HatBoatEntity.owned(child);
-        if(boat!=null&&(boat.isAfloat()||boat.state()==HatBoatEntity.State.BEACHED)){boat.stopPaddling();set(Phase.RETURN);}
+        if(boat!=null&&(boat.isAfloat()||boat.state()==HatBoatEntity.State.BEACHED)){boat.helm().drift(child, Purpose.ROUTINE);set(Phase.RETURN);}
         else finish("interrupted_without_own_hat");
     }
     /** The placement authored for taking off one's own hat, measured from the retained front berth. */
@@ -297,7 +298,7 @@ public final class FirstVoyage {
     public void tick(){
         if(loadGrace>0)return;
         if(child.aquaticLife().familyLife().alarm().answerPending()){
-            child.getNavigation().stop();var own=HatBoatEntity.owned(child);if(own!=null)own.holdPosition();return;
+            child.getNavigation().stop();var own=HatBoatEntity.owned(child);if(own!=null)own.helm().hold(child, Purpose.CARE);return;
         }
         if(pauseForMotion(true))return;
         if(pupil!=null){
@@ -306,7 +307,7 @@ public final class FirstVoyage {
                 var abandoned=learner==null?null:HatBoatEntity.owned(learner);
                 if(learner!=null&&learner.aquaticLife().firstVoyage().returningToParent()&&learner.getVehicle()==hat&&abandoned!=null
                         &&child.aquaticLife().familyLife().approachDriftingHat(learner,hat,abandoned))return;
-                hat.holdPosition();
+                hat.helm().hold(child, Purpose.CARE);
             }
             if(learner!=null){face(child,learner.position());if(child.tickCount%100==0)child.speak("wait_family");}return;
         }
@@ -316,11 +317,11 @@ public final class FirstVoyage {
         if(phase==Phase.APPROACH||phase==Phase.LAUNCH){
             if(!safeHome(home,father)||child.getVehicle()!=home){finish("home_or_parent_unavailable");return;}
             if(home.preparingDepartureBerth(child)){
-                home.holdPosition();if(!home.advanceDepartureBerth(child))finish("departure_berth_failed");return;
+                home.helm().hold(child, Purpose.CARE);if(!home.advanceDepartureBerth(child))finish("departure_berth_failed");return;
             }
-            if(home.changingSeat(child)){home.holdPosition();return;}
+            if(home.changingSeat(child)){home.helm().hold(child, Purpose.CARE);return;}
             if(!home.onVoyageBerth(child)){finish("voyage_berth_lost");return;}
-            home.holdPosition();var at=dock(home);if(at==null){finish("dock_missing");return;}
+            home.helm().hold(child, Purpose.CARE);var at=dock(home);if(at==null){finish("dock_missing");return;}
             var water=BlockPos.containing(at.x,at.y-.12,at.z);
             if(!HatBoatRoute.quietSurface(level(),water)){finish("launch_water_not_quiet");return;}
             float yaw=home.getYRot();child.setYRot(yaw);child.yBodyRot=yaw;child.setYHeadRot(yaw);
@@ -334,11 +335,11 @@ public final class FirstVoyage {
         if(boat==null||!boat.isAfloat()&&boat.state()!=HatBoatEntity.State.BEACHED){finish("own_hat_unavailable");return;}
         if(child.family().flying()){
             // A source hat with no rider or incoming grip is an actual loose object in the current.
-            if(boat.isVehicle()||boat.hasIncoming())boat.holdPosition();
-            if(home!=null)home.holdPosition();return;
+            if(boat.isVehicle()||boat.hasIncoming())boat.helm().hold(child, Purpose.CARE);
+            if(home!=null)home.helm().hold(child, Purpose.CARE);return;
         }
         if(phase==Phase.BOARD&&home!=null&&child.getVehicle()==home){
-            boat.holdPosition();home.holdPosition();
+            boat.helm().hold(child, Purpose.CARE);home.helm().hold(child, Purpose.CARE);
             // Approaching the real brim is part of boarding, not a failed launch or a return.
             child.family().transferHat(home,boat);
             if(ticks>180&&!child.family().flying())interrupt("boarding_timeout");
@@ -366,7 +367,7 @@ public final class FirstVoyage {
             return;
         }
         if(phase==Phase.BOARD){
-            boat.holdPosition();
+            boat.helm().hold(child, Purpose.CARE);
             if(routineLaunch){
                 if(father!=null&&child.getUUID().equals(father.aquaticLife().firstVoyage().pupil))father.aquaticLife().firstVoyage().pupil=null;
                 if(home!=null)home.releaseVoyageBerth(child.getUUID());
@@ -378,14 +379,14 @@ public final class FirstVoyage {
             set(Phase.BALANCE);return;
         }
         if(phase==Phase.BALANCE){
-            boat.holdPosition();if(ticks>=40){turn=leavingHome?findDeparture(boat):findTurn(boat);if(turn==null){interrupt("turn_point_unavailable");return;}set(Phase.OUT);}return;
+            boat.helm().hold(child, Purpose.CARE);if(ticks>=40){turn=leavingHome?findDeparture(boat):findTurn(boat);if(turn==null){interrupt("turn_point_unavailable");return;}set(Phase.OUT);}return;
         }
         if(phase==Phase.OUT){
             // Leaving the flotilla starts with an actual exchange while both real hulls are still held together.
             // Independence is still committed only after the child has subsequently paddled clear of this berth.
             if(leavingHome&&ticks<=40){
                 if(!safeHome(home,father)){interrupt("farewell_home_unavailable");return;}
-                boat.holdPosition();home.holdPosition();face(child,father.position());face(father,child.position());
+                boat.helm().hold(child, Purpose.CARE);home.helm().hold(child, Purpose.CARE);face(child,father.position());face(father,child.position());
                 if(ticks==1){
                     child.showReaction("happy","hello",90);child.speak("hello");
                     GameplayLog.event(child,"voyage","afloat farewell started boat={} mentor={} homeHat={}",boat.getUUID(),mentor,homeHat);
@@ -396,7 +397,7 @@ public final class FirstVoyage {
                 }
                 return;
             }
-            String reason=boat.flooding()>0?"own_hat_flooded":boat.towed()?"own_hat_towed":!boat.cargo().paddle()?"paddle_missing"
+            String reason=boat.flooding()>0?"own_hat_flooded":!boat.cargo().paddle()?"paddle_missing"
                     :turn==null?"turn_point_missing":!HatBoatRoute.quietSurface(level(),turn)?"turn_water_not_quiet":!boat.protects(child)?"own_hat_not_protecting":null;
             if(reason!=null){interrupt(reason);return;}
             if(boat.position().distanceToSqr(HatBoatRoute.surface(level(),turn))<.36&&ticks>20){
@@ -425,15 +426,15 @@ public final class FirstVoyage {
                     +" boarding="+child.family().hatBoardingDebug());
             boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome
                     &&((home.cargo().count()==0?home.hasSafeRoomFor(child):home.canPrepareCargoSpace(child))||emergencyReturn(boat));
-            if(room&&approach!=null&&boat.protects(child)&&!boat.towed()&&!child.family().flying()){
+            if(room&&approach!=null&&boat.protects(child)&&!child.family().flying()){
                 double near=boat.position().distanceToSqr(approach);
                 // Within a stride of the contact point the paddle is put away and the hull is eased the last bit alongside the
                 // parent's (a bounded kinematic drive); the hop that follows only needs the brims to touch, not an exact stop.
                 if(near<=.64){
-                    home.holdPosition();
-                    var drive=boat.driveToward(approach,boat.getYRot(),.035,4f);
+                    home.helm().hold(child, Purpose.CARE);
+                    var drive=boat.helm().berth(child, Purpose.BOARDING, approach,boat.getYRot(),.035,4f);
                     contactTicks++;
-                    boolean touching=near<=.06||drive==HatBoatEntity.Drive.ARRIVED||contactTicks>40&&near<=.25;
+                    boolean touching=near<=.06||drive.arrived()||contactTicks>40&&near<=.25;
                     if(touching){
                         if(child.family().returnToHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);contactTicks=0;return;}
                         if(boat.changingSeat(child))return;
@@ -443,12 +444,12 @@ public final class FirstVoyage {
                 }
                 contactTicks=0;
             }
-            if(ticks%20==1&&!sail(boat,dock(home))){boat.stopPaddling();if(ticks%100==1)child.speak("wait_family");}
+            if(ticks%20==1&&!sail(boat,dock(home))){boat.helm().drift(child, Purpose.ROUTINE);if(ticks%100==1)child.speak("wait_family");}
         }
     }
     private boolean emergencyReturn(HatBoatEntity boat){
         return emergencyRecall||child.isPanicking()||child.waterDistress().active()||child.life().nutrition()<30||child.life().energy()<20
-                ||boat.flooding()>0||boat.towed();
+                ||boat.flooding()>0;
     }
     private List<Vec3> practicePath(HatBoatEntity boat,Vec3 destination){
         var home=home();if(destination==null||home==null)return List.of();
@@ -481,7 +482,7 @@ public final class FirstVoyage {
         if(boat.unsteadyMotion())return false;
         var home=home();
         boolean closeReturn=returningToParent()&&home!=null;
-        if(!closeReturn)return boat.paddleAlong(practicePath(boat,destination));
+        if(!closeReturn)return boat.helm().route(child, Purpose.ROUTINE, practicePath(boat,destination));
         // A retained berth can become crowded during the trip. Approach outside both
         // actual hulls rather than navigating the child's own hat into that interior seat.
         destination=home.emergencyApproach(child);
@@ -490,7 +491,7 @@ public final class FirstVoyage {
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
         if(!closeReturnLegClear(boat,home,from,destination))return false;
         path.add(destination);
-        return boat.paddleAlong(path,.09);
+        return boat.helm().route(child, Purpose.ROUTINE, path,.09);
     }
     private boolean returnNodeAllowed(HatBoatEntity boat,HatBoatEntity home,Vec3 point){
         return (routineLaunch||point.distanceToSqr(home.position())<=25)
@@ -516,7 +517,7 @@ public final class FirstVoyage {
                 reason, phase, mentor, homeHat, elapsed, completed, independent, reachedTurn, hatRecoveryTicks);
         var father=person(mentor);if(father!=null&&child.getUUID().equals(father.aquaticLife().firstVoyage().pupil))father.aquaticLife().firstVoyage().pupil=null;
         var home=home();if(home!=null)home.releaseVoyageBerth(child.getUUID());
-        var boat=HatBoatEntity.owned(child);if(boat!=null)boat.stopPaddling();
+        var boat=HatBoatEntity.owned(child);if(boat!=null)boat.helm().drift(child, Purpose.ROUTINE);
         mentor=homeHat=null;phase=Phase.NONE;cooldown=completed&&!independent?80:600;reachedTurn=false;leavingHome=false;
         hatRecoveryTicks=0;returnTicks=0;contactTicks=0;
         routineLaunch=routineSailing=emergencyRecall=false;

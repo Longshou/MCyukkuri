@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -95,7 +96,7 @@ public final class BraidRescue {
                 &&!parent.isNoAi()&&!parent.isCommandPlaying()&&!parent.operations().active()&&!parent.isOnFire()
                 &&parent.life().mealTicks()==0&&!parent.life().isSleeping()&&!parent.family().tiedToLabor()
                 &&!child.isCommandPlaying()&&!child.operations().active()&&!child.isOnFire()
-                &&hat!=null&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.flooding()==0
+                &&hat!=null&&hat.isAfloat()&&!hat.unsteadyMotion()&&hat.flooding()==0
                 // A temporary water-refuge permit is physical boarding authority only.  It
                 // deliberately does not alter the child's family ledger, but it may use the
                 // same measured braid lift as the captain's own young.
@@ -192,7 +193,7 @@ public final class BraidRescue {
         parentId=parent.getUUID();hatId=home.getUUID();seat=plan.seat();approachStand=plan.approach();offerStand=plan.offer();
         dipTarget=child.position();lastSide=side(rim.ux(),rim.uz());parentYaw=parent.yBodyRot;parent.family().rescueTarget(child.getUUID());
         totalTicks=biteMode=biteTicks=stalled=0;spoke=false;braidGrip=plan.braid();braidTurn=plan.turn();braidTip=braidJoint=previousTip=previousJoint=reachFrom=null;slideQ=0;lastVelocity=Vec3.ZERO;
-        child.life().wakeInHat();parent.life().wakeInHat();home.holdPosition();phase(Phase.APPROACH);
+        child.life().wakeInHat();parent.life().wakeInHat();home.helm().hold(parent, Purpose.RESCUE);phase(Phase.APPROACH);
         return true;
     }
     private boolean willingToRescue(YukkuriEntity parent,HatBoatEntity home){
@@ -353,7 +354,7 @@ public final class BraidRescue {
         if(phase==Phase.APPROACH||phase==Phase.OFFER){
             SurfaceApproach.face(parent,SurfaceApproach.yaw(parent.position(),child.position())-(braidGrip?braidTurn:0));parentYaw=parent.yBodyRot;
         }else SurfaceApproach.face(parent,parentYaw);
-        parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.holdPosition();
+        parent.getLookControl().setLookAt(child,35,35);parent.getNavigation().stop();home.helm().hold(parent, Purpose.RESCUE);
         // The swimmer clings to the parent's rim from the offer on: its struggling no longer carries it out of the braid's reach.
         if(!held()&&phase!=Phase.RELEASE){var v=child.getDeltaMovement();child.setDeltaMovement(v.x*.1,v.y,v.z*.1);}
         long elapsed=now-start;
@@ -362,7 +363,7 @@ public final class BraidRescue {
         if(phase==Phase.OFFER||phase==Phase.REACH||phase==Phase.GRIP){
             // The hull follows the clinging child's drift so the rim stays where the braid was planned.
             var berth=approach(home);
-            if(berth!=null&&berth.subtract(home.position()).horizontalDistanceSqr()<.25)home.driveToward(berth,home.getYRot(),.03,0f);
+            if(berth!=null&&berth.subtract(home.position()).horizontalDistanceSqr()<.25)home.helm().berth(parent, Purpose.RESCUE, berth,home.getYRot(),.03,0f);
         }
         if(phase==Phase.REACH||phase==Phase.GRIP){
             var root=braidRoot(parent);var target=BraidRescueGeometry.rescueContact(child,child.position(),root);
@@ -535,8 +536,8 @@ public final class BraidRescue {
         AquaDiag.log(child,"rescue.nudge."+child.getId(),20,"mouth="+AquaDiag.at(mouth)+" face="+AquaDiag.at(face)
                 +" horizontal="+length+" vertical="+(mouth.y-face.y)+" reach="+BraidRescueGeometry.biteReach(child)+" hull="+AquaDiag.at(home.position()));
         if(length<1e-4)return;
-        var drive=home.driveToward(home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
-        if(drive==HatBoatEntity.Drive.BLOCKED)AquaDiag.log(child,"rescue.nudge.blocked."+child.getId(),20,"hull drive blocked");
+        var drive=home.helm().berth(parent(), Purpose.RESCUE, home.position().add(gap.scale(Math.min(length,.02)/length)),home.getYRot(),.02,0f);
+        if(drive.blocked())AquaDiag.log(child,"rescue.nudge.blocked."+child.getId(),20,"hull drive blocked");
     }
     /** A small lunge across the last bit of water; the child's own bounded effort, not a carry. */
     private void lunge(Rim rim){

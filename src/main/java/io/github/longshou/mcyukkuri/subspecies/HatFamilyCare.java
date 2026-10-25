@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -96,7 +97,7 @@ public final class HatFamilyCare {
     private boolean availableContext(HatBoatEntity boat) {
         return parent.isAlive() && !parent.isNoAi() && !parent.isCommandPlaying() && !parent.operations().active()
                 && parent.getVehicle() == boat && parent.getUUID().equals(boat.ownerYukkuri()) && boat.protects(parent)
-                && boat.isAfloat() && !boat.towed() && boat.flooding() == 0 && !boat.hasIncoming()
+                && boat.isAfloat() && boat.flooding() == 0 && !boat.hasIncoming()
                 && !parent.isPanicking() && !parent.family().laboring() && !parent.life().isSleeping()
                 && parent.life().mealTicks() == 0;
     }
@@ -174,7 +175,7 @@ public final class HatFamilyCare {
         if (kind == Kind.LULLABY && (children.isEmpty() || children.stream().anyMatch(y -> y.life().nutrition() < 15))) {
             cancel(); return false;
         }
-        boat.stopPaddling(); ticks++;
+        boat.helm().drift(parent, Purpose.CARE); ticks++;
         if(kind!=Kind.FEED&&children.stream().anyMatch(y->y.life().nutrition()<15&&y.life().canReceiveCareFood())){cancel();return false;}
         if (finishTicks > 0) {
             finishTicks++;

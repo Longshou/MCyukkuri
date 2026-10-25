@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -80,7 +81,7 @@ public final class HatFamilyAlarm {
         if(now()<nextEvent||danger!=null&&danger.getUUID().equals(source)&&now()<until+SAME_SOURCE_GAP)return;
         source=danger==null?null:danger.getUUID();sourcePosition=observed==null?boat.position():observed;
         began=now();until=began+EVENT_TICKS;nextEvent=until+100;nextCall=recall?began+8:Long.MAX_VALUE;nextRoute=began;calmTicks=0;expected.clear();
-        entity.life().wakeInHat();boat.holdPosition();set(recall?Behaviors.BOAT_ALARM_CALL:Behaviors.BOAT_ALARM_WAIT);
+        entity.life().wakeInHat();boat.helm().hold(entity, Purpose.SAFETY);set(recall?Behaviors.BOAT_ALARM_CALL:Behaviors.BOAT_ALARM_WAIT);
         entity.showReaction("surprise","boat_rock_startle",24);
         entity.aquaticLife().firstVoyage().suspendMentoring();
         GameplayLog.event(entity,"family-alarm","started hat={} source={} sourcePosition={} recall={} event={} until={}",
@@ -167,7 +168,7 @@ public final class HatFamilyAlarm {
         answerAt=heardAt+8+Math.floorMod(entity.getUUID().hashCode(),13);answered=false;shoreMeeting=null;nextRoute=now();
         entity.life().wakeInHat();set(Behaviors.BOAT_ANSWER_CALL);
         entity.showReaction("surprise",null,(int)(answerAt-now()));
-        if(entity.getVehicle() instanceof HatBoatEntity own&&own!=boat)own.holdPosition();
+        if(entity.getVehicle() instanceof HatBoatEntity own&&own!=boat)own.helm().hold(entity, Purpose.SAFETY);
         GameplayLog.event(entity,"family-alarm","call heard parent={} hat={} event={} expiry={}",caller,calledHat,heardEvent,heardUntil);
         return true;
     }
@@ -237,30 +238,30 @@ public final class HatFamilyAlarm {
     public boolean tickOwner(HatBoatEntity boat,List<YukkuriEntity> children){
         if(!active()||!controllable()||entity.getVehicle()!=boat)return false;
         entity.life().wakeInHat();
-        if(boat.unsteadyMotion()){boat.holdPosition();return true;}
+        if(boat.unsteadyMotion()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
         var returning=unreturnedChildren(children,boat).stream().filter(y->awaiting(y)||y.family().flying()||y.family().braidRescueActive()
                 ||!y.isPassenger()&&y.isInWaterOrBubble()&&entity.distanceToSqr(y)<=144)
                 .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().braidRescueActive()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
                         .thenComparingDouble(entity::distanceToSqr)).toList();
         boolean swimmer=returning.stream().anyMatch(y->!y.isPassenger()&&y.isInWaterOrBubble());
-        if(now()-began<24&&!swimmer){boat.holdPosition();face(sourcePosition);return true;}
+        if(now()-began<24&&!swimmer){boat.helm().hold(entity, Purpose.SAFETY);face(sourcePosition);return true;}
         if(!returning.isEmpty()){
             var child=returning.getFirst();boolean changedTarget=!child.getUUID().equals(rescueTarget);rescueTarget=child.getUUID();
             if(changedTarget)GameplayLog.limited(entity,"family-alarm","rescue.target",200,
                     "gather target selected child={} hat={} water={} event={}",rescueTarget,boat.getUUID(),child.isInWaterOrBubble(),began);
             if(!child.isInWaterOrBubble())set(Behaviors.BOAT_ALARM_WAIT);else if(!boat.paddling())set(Behaviors.BOAT_RESCUE_YOUNG);
             entity.getLookControl().setLookAt(child,35,35);
-            if(child.family().flying()||child.family().braidRescueActive()){boat.holdPosition();return true;}
+            if(child.family().flying()||child.family().braidRescueActive()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
                 boat.prepareCargoSpace(child,true);
-            if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.holdPosition();return true;}
-            if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.holdPosition();return true;}
+            if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.helm().hold(entity, Purpose.SAFETY);return true;}
+            if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
             var braidApproach=!child.isPassenger()?child.family().braidRescueApproach(boat):null;
             if(braidApproach!=null){approachExact(boat,braidApproach);rescueApproachPose(boat,child);return true;}
             Vec3 target=child.aquaticLife().familyLife().alarm().meetingPoint();boolean shore=target!=null;
             if(target==null)target=child.position();
-            if(entity.distanceToSqr(child)>2.25)approach(boat,target,shore);else boat.holdPosition();
+            if(entity.distanceToSqr(child)>2.25)approach(boat,target,shore);else boat.helm().hold(entity, Purpose.SAFETY);
             if(child.isInWaterOrBubble())rescueApproachPose(boat,child);
             return true;
         }
@@ -268,14 +269,14 @@ public final class HatFamilyAlarm {
         double distance=boat.position().subtract(sourcePosition).horizontalDistance();
         if(source==null||distance>=7){
             if(!entity.aquaticLife().familyLife().alarmSafe(boat)){
-                calmTicks=0;set(Behaviors.BOAT_ALARM_WAIT);boat.holdPosition();return true;
+                calmTicks=0;set(Behaviors.BOAT_ALARM_WAIT);boat.helm().hold(entity, Purpose.SAFETY);return true;
             }
             if(!phase.equals(Behaviors.BOAT_CALM)){set(Behaviors.BOAT_CALM);stageReaction("sad","family_alarm_calm",80);}
-            boat.holdPosition();if(++calmTicks>=80)until=now();return true;
+            boat.helm().hold(entity, Purpose.SAFETY);if(++calmTicks>=80)until=now();return true;
         }
         calmTicks=0;
         if(now()<nextRoute)return true;nextRoute=now()+20;
-        if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();set(Behaviors.BOAT_ALARM_WAIT);return true;}
+        if(!boat.cargo().paddle()||entity.life().energy()<10){boat.helm().hold(entity, Purpose.SAFETY);set(Behaviors.BOAT_ALARM_WAIT);return true;}
         var origin=BlockPos.containing(boat.position().add(0,-.12,0));var candidates=new ArrayList<BlockPos>();
         for(var p:BlockPos.betweenClosed(origin.offset(-6,0,-6),origin.offset(6,0,6)))
             if(p.distSqr(origin)>=4&&p.distSqr(origin)<=36&&HatBoatRoute.calmSurface(level(),p)
@@ -284,16 +285,16 @@ public final class HatFamilyAlarm {
         for(var p:candidates.stream().limit(10).toList()){
             var path=HatBoatRoute.find(boat,HatBoatRoute.surface(level(),p),point->point.subtract(sourcePosition).horizontalDistance()>=distance-.15
                     &&entity.aquaticLife().familyLife().allowsDestination(boat,point));
-            if(!path.isEmpty()&&boat.paddleAlong(path)){
+            if(!path.isEmpty()&&boat.helm().route(entity, Purpose.SAFETY, path)){
                 if(!phase.equals(Behaviors.BOAT_FLEE)){set(Behaviors.BOAT_FLEE);stageReaction("teary","family_alarm_flee",60);}return true;
             }
         }
-        boat.holdPosition();set(Behaviors.BOAT_ALARM_WAIT);return true;
+        boat.helm().hold(entity, Purpose.SAFETY);set(Behaviors.BOAT_ALARM_WAIT);return true;
     }
     private Vec3 meetingPoint(){return shoreMeeting==null?null:Vec3.atBottomCenterOf(shoreMeeting);}
     private void approach(HatBoatEntity boat,Vec3 target,boolean shore){
         if(now()<nextRoute)return;nextRoute=now()+20;
-        if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();return;}
+        if(!boat.cargo().paddle()||entity.life().energy()<10){boat.helm().hold(entity, Purpose.SAFETY);return;}
         var origin=BlockPos.containing(target.add(0,-.12,0));var options=new ArrayList<BlockPos>();
         for(var p:BlockPos.betweenClosed(origin.offset(-2,-1,-2),origin.offset(2,1,2)))
             if(HatBoatRoute.calmSurface(level(),p))options.add(p.immutable());
@@ -307,10 +308,10 @@ public final class HatFamilyAlarm {
             if(!level().noCollision(boat,boat.getBoundingBox().move(berth.subtract(boat.position()))))continue;
             var path=new ArrayList<>(HatBoatRoute.find(boat,berth,point->entity.aquaticLife().familyLife().allowsDestination(boat,point)));
             Vec3 from=path.isEmpty()?boat.position():path.getLast();
-            if(finalApproachClear(boat,from,berth)){path.add(berth);if(boat.paddleAlong(path,.0025))return;}
-            else if(!path.isEmpty()&&boat.paddleAlong(path))return;
+            if(finalApproachClear(boat,from,berth)){path.add(berth);if(boat.helm().route(entity, Purpose.SAFETY, path,.0025))return;}
+            else if(!path.isEmpty()&&boat.helm().route(entity, Purpose.SAFETY, path))return;
         }
-        boat.holdPosition();
+        boat.helm().hold(entity, Purpose.SAFETY);
     }
     private boolean finalApproachClear(HatBoatEntity boat,Vec3 from,Vec3 to){
         var start=BlockPos.containing(from.add(0,-.12,0));var end=BlockPos.containing(to.add(0,-.12,0));
@@ -327,16 +328,16 @@ public final class HatFamilyAlarm {
     private void approachExact(HatBoatEntity boat,Vec3 berth){
         // The last stretch is a bounded kinematic drive (it follows a swimmer's drift every tick); paddle routes only bring the hull near.
         if(boat.isAfloat()&&!boat.unsteadyMotion()&&boat.position().subtract(berth).horizontalDistanceSqr()<=6.25){
-            boat.driveToward(berth,boat.getYRot(),.06,3f);return;
+            boat.helm().berth(entity, Purpose.SAFETY, berth,boat.getYRot(),.06,3f);return;
         }
         if(now()<nextRoute)return;nextRoute=now()+20;
-        if(!boat.cargo().paddle()||boat.towed()||entity.life().energy()<10){boat.holdPosition();return;}
-        if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.holdPosition();return;}
+        if(!boat.cargo().paddle()||entity.life().energy()<10){boat.helm().hold(entity, Purpose.SAFETY);return;}
+        if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.helm().hold(entity, Purpose.SAFETY);return;}
         var path=new ArrayList<>(HatBoatRoute.find(boat,berth,point->entity.aquaticLife().familyLife().allowsDestination(boat,point)));
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
-        if(finalApproachClear(boat,from,berth)){path.add(berth);boat.paddleAlong(path,.0009);}
-        else if(!path.isEmpty())boat.paddleAlong(path);
-        else boat.holdPosition();
+        if(finalApproachClear(boat,from,berth)){path.add(berth);boat.helm().route(entity, Purpose.SAFETY, path,.0009);}
+        else if(!path.isEmpty())boat.helm().route(entity, Purpose.SAFETY, path);
+        else boat.helm().hold(entity, Purpose.SAFETY);
     }
     public boolean approachRescue(HatBoatEntity boat,YukkuriEntity child){
         if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))

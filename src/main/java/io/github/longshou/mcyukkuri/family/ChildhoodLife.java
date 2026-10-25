@@ -154,7 +154,7 @@ public final class ChildhoodLife {
         if (hatPractice) observeHatMovement();
         if(practiceRest>0&&!hatPractice)return false;
         if (!newborn || !landed || !firstToiletDone || movementReady() || !boat.protects(entity)
-                || !safePracticeState() || boat.flooding() > 0 || boat.towed()) {
+                || !safePracticeState() || boat.flooding() > 0) {
             stopHatPractice(); return false;
         }
         var parent = boat.getControllingPassenger() instanceof YukkuriEntity y ? y : null;

@@ -51,7 +51,7 @@ final class HatBoatLoss {
         // Invalidate the vessel before callbacks can try to reclaim its hat or release its inventory a second time.
         boat.state(HatBoatEntity.State.REMOVED);
         boat.launchToken(null);
-        boat.stopPaddling();
+        boat.helm().stop("lost");
         boat.cargo().spillAt(boat.position());
         for (var passenger : List.copyOf(boat.getPassengers())) {
             var at = passenger.position();

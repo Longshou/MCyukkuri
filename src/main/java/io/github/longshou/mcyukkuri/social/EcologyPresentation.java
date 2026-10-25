@@ -162,7 +162,7 @@ public final class EcologyPresentation {
         var brood = owner.family().brood();
         if (brood != null && !brood.cancelled && !brood.complete()) return YukkuriAction.BOAT_BROOD;
         if (behavior.equals(Behaviors.EVENT_RIVER)) return YukkuriAction.BOAT_CALL;
-        if (boat.flooding() > 0 || boat.towed() || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
+        if (boat.flooding() > 0 || reaction.equals("afraid")) return YukkuriAction.BOAT_STEADY;
         return YukkuriAction.BOAT_DRIFT;
     }
     /** Shared predicates only: captain checks and paddling reads stay at each caller's old position. */

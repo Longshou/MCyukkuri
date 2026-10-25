@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -58,7 +59,7 @@ public final class WaterDistress {
     /** A nearby parent has selected this stable hat, before the braid actually reaches the child. */
     public boolean receivingWaterRescue(){return rescueHat!=null;}
     public void guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
-        if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&hat.young(entity)){
+        if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&hat.young(entity)){
             boolean changed = !parent.getUUID().equals(waterRescueParent) || !hat.getUUID().equals(rescueHat);
             temporaryRefugeGuide=false;waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
             if (changed) GameplayLog.limited(entity, "water", "rescue.guide", 200,
@@ -72,7 +73,7 @@ public final class WaterDistress {
      */
     public void guideToTemporaryRefuge(YukkuriEntity caregiver,HatBoatEntity hat){
         if(caregiver==null||hat==null||!caregiver.isAlive()||!hat.isAlive()||!hat.isAfloat()
-                ||hat.unsteadyMotion()||hat.towed()||hat.flooding()>0||!caregiver.getUUID().equals(hat.ownerYukkuri())
+                ||hat.unsteadyMotion()||hat.flooding()>0||!caregiver.getUUID().equals(hat.ownerYukkuri())
                 ||caregiver.getVehicle()!=hat||!hat.protects(caregiver)||!hat.admits(entity))return;
         boolean changed=!temporaryRefugeGuide||!caregiver.getUUID().equals(waterRescueParent)||!hat.getUUID().equals(rescueHat);
         temporaryRefugeGuide=true;waterRescueParent=caregiver.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
@@ -121,7 +122,7 @@ public final class WaterDistress {
         }
         if(temporaryRefugeGuide){
             var hat=rescueHat!=null&&level().getEntity(rescueHat) instanceof HatBoatEntity candidate?candidate:null;
-            if(hat==null||!hat.isAlive()||!hat.isAfloat()||hat.unsteadyMotion()||hat.towed()||hat.flooding()>0
+            if(hat==null||!hat.isAlive()||!hat.isAfloat()||hat.unsteadyMotion()||hat.flooding()>0
                     ||!parent.getUUID().equals(hat.ownerYukkuri())||parent.getVehicle()!=hat||!hat.protects(parent)||!hat.admits(entity))
                 clearWaterRescue();
             return;
@@ -208,7 +209,7 @@ public final class WaterDistress {
     public void escapeTick(){
         if(!entity.level().isClientSide&&!entity.isInWaterOrBubble()&&restingBreath()){
             entity.getNavigation().stop();
-            if(entity.getVehicle() instanceof HatBoatEntity hat&&entity.getUUID().equals(hat.ownerYukkuri()))hat.stopPaddling();
+            if(entity.getVehicle() instanceof HatBoatEntity hat&&entity.getUUID().equals(hat.ownerYukkuri()))hat.helm().drift(entity, Purpose.SAFETY);
             return;
         }
         if(entity.level().isClientSide||!entity.isInWaterOrBubble()||entity.isNoAi()
@@ -296,17 +297,17 @@ public final class WaterDistress {
         }
     }
     private boolean safeHat(HatBoatEntity hat){
-        if(!hat.isAlive()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||hat.towed()||!hat.admits(entity))return false;
+        if(!hat.isAlive()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0||!hat.admits(entity))return false;
         return level().getEntity(hat.ownerYukkuri()) instanceof YukkuriEntity parent&&parent.isAlive()&&hat.protects(parent);
     }
     /** The individual's own loaded, token-matched hat remains a swimming landmark even if it is upside down or beached.
      *  The lookup never revives declared custody; only the later physical board operation may do that. */
     private boolean safeOwnHat(HatBoatEntity hat){
-        return hat!=null&&hat.isAlive()&&hat.ownsPhysicalHat(entity)&&!hat.towed()&&!hat.deploying()
+        return hat!=null&&hat.isAlive()&&hat.ownsPhysicalHat(entity)&&!hat.deploying()
                 &&(hat.isAfloat()||hat.state()==HatBoatEntity.State.CAPSIZED||hat.state()==HatBoatEntity.State.BEACHED);
     }
     private boolean safeRescueHat(HatBoatEntity hat){
-        return hat!=null&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.towed()&&!hat.deploying()&&hat.admits(entity);
+        return hat!=null&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&!hat.deploying()&&hat.admits(entity);
     }
     private void findEscape(){
         target=null;shore=null;destination=null;

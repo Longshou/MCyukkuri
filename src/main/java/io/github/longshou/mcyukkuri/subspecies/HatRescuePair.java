@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -75,7 +76,7 @@ final class HatRescuePair {
 
     boolean canPlaceRescuePair(YukkuriEntity child,YukkuriEntity parent,Vec3 youngSeat,Vec3 parentStand){
         if(child==null||parent==null||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.admits(child)||child.isPassenger()
-                ||youngSeat==null||parentStand==null||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()||boat.flooding>0||boat.cargo().handling())return false;
+                ||youngSeat==null||parentStand==null||!boat.isAfloat()||boat.unsteadyMotion()||boat.flooding>0||boat.cargo().handling())return false;
         if(!boat.cargoSeatClear(child,youngSeat)||Math.abs(HatVessel.surface(boat.mode(),youngSeat.x,youngSeat.z)-youngSeat.y)>1e-4)return false;
         var obstacles=boat.takenExcept(child.getUUID());
         var childObstacles=new ArrayList<>(obstacles);childObstacles.add(boat.rescueBody(parent,parentStand));
@@ -98,16 +99,16 @@ final class HatRescuePair {
     }
 
     boolean moveRescueOwner(YukkuriEntity parent,Vec3 localSupported){
-        if(boat.level().isClientSide||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()
+        if(boat.level().isClientSide||parent!=boat.owner()||parent.getVehicle()!=boat||!boat.isAfloat()||boat.unsteadyMotion()
                 ||localSupported==null||boat.hasCarryTrip()||boat.ownerUsesToiletSeat()||boat.hasServiceSeats()||boat.hasReturningSeats())return false;
         if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,boat.hullScale(),boat.unit())))return false;
         if(!boat.moveOwnerSeat(parent,localSupported,false))return false;
-        rescueOwnerHeld=true;boat.holdPosition();boat.syncSeats();return true;
+        rescueOwnerHeld=true;boat.helm().hold(parent, Purpose.RESCUE);boat.syncSeats();return true;
     }
 
     String rescueOwnerRefusal(YukkuriEntity parent,Vec3 localSupported){
         if(parent!=boat.owner()||parent.getVehicle()!=boat)return "not the captain aboard";
-        if(!boat.isAfloat()||boat.unsteadyMotion()||boat.towed())return "hull not steady";
+        if(!boat.isAfloat()||boat.unsteadyMotion())return "hull not steady";
         if(boat.hasCarryTrip())return "carry trip";if(boat.ownerUsesToiletSeat())return "toilet seat";
         if(boat.hasServiceSeats())return "service seats "+boat.serviceSeatIdsDebug();if(boat.hasReturningSeats())return "returning seats "+boat.returningSeatIdsDebug();
         if(!HatVessel.fitsSupported(boat.mode(),localSupported,boat.radiusOf(parent),boat.takenExcept(parent.getUUID()),HatVessel.bodySpace(parent,

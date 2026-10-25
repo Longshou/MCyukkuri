@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -30,6 +31,8 @@ public interface HatBoatView {
     boolean isCradle();
     float hullScale();
     boolean paddling();
+    HullHelm.Kind helmKind();
+    HullHelm.State helmStatus();
     double paddleCycle(float partial);
     float currentStrength();
     boolean rocking();
@@ -48,9 +51,7 @@ public interface HatBoatView {
     CompoundTag cargoSnapshot();
     CompoundTag motionSnapshot();
 
-    /** The server refreshes this deadline when its physical towing counter pauses. Never persisted. */
-    default boolean visibleTowed() { return motionSnapshot().getLong("TowUntil") > level().getGameTime(); }
-    default boolean visibleDrifting() { return isAfloat() && !paddling() && !visibleTowed() && currentStrength() > .08f; }
+    default boolean visibleDrifting() { return isAfloat() && !paddling() && currentStrength() > .08f; }
     /** The cargo owns the actual stack even while the captain poses with it. */
     default ItemStack visiblePaddleItem() {
         var cargo=cargoSnapshot();

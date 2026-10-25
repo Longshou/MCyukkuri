@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -146,9 +147,9 @@ public final class CradlePickup {
     public boolean startRefugeTransfer(HatBoatEntity source,HatBoatEntity home,YukkuriEntity young){
         if(parent.level().isClientSide||active()||source==null||home==null||source==home||young==null||level().getGameTime()<retryAt
                 ||!parent.isAlive()||parent.getVehicle()!=home||interrupted(parent)||interrupted(young)||parent.getVariant()!=YukkuriVariant.MARISA
-                ||!source.isAfloat()||source.unsteadyMotion()||source.towed()||source.flooding()>0
+                ||!source.isAfloat()||source.unsteadyMotion()||source.flooding()>0
                 ||source.ownerYukkuri()!=null&&level().getEntity(source.ownerYukkuri()) instanceof YukkuriEntity owner&&owner.isAlive()
-                ||!home.isAfloat()||home.unsteadyMotion()||home.towed()||home.flooding()>0||home.cargo().handling()
+                ||!home.isAfloat()||home.unsteadyMotion()||home.flooding()>0||home.cargo().handling()
                 ||young.getVehicle()!=source||!young.isAlive()||young.family().adult()||!home.admits(young)
                 ||source.position().subtract(home.position()).multiply(1,0,1).lengthSqr()>9||!parent.hasLineOfSight(young)
                 ||!BraidRescueGeometry.canLift(parent,young))return false;
@@ -177,7 +178,7 @@ public final class CradlePickup {
         YukkuriEntity father=null;
         if(fatherHat.ownerYukkuri()!=null&&level().getEntity(fatherHat.ownerYukkuri()) instanceof YukkuriEntity owner)father=owner;
         if(active()||home==null||home==fatherHat||young==null||level().getGameTime()<retryAt
-                ||parent.getVehicle()!=home||young.getVehicle()!=home||home.unsteadyMotion()||fatherHat.unsteadyMotion()||home.towed()||fatherHat.towed()
+                ||parent.getVehicle()!=home||young.getVehicle()!=home||home.unsteadyMotion()||fatherHat.unsteadyMotion()
                 ||!home.isAfloat()||!fatherHat.isAfloat()||!parent.isAlive()||!young.isAlive()||interrupted(parent)||interrupted(young)
                 ||home.ownerYukkuri()==null||!parent.getUUID().equals(home.ownerYukkuri())||young.family().adult()||!home.young(young)||!fatherHat.young(young)||!related(young)||!parent.getUUID().equals(young.family().mother())
                 ||father==null||!father.getUUID().equals(young.family().father())||father.getVehicle()!=fatherHat
@@ -432,11 +433,11 @@ public final class CradlePickup {
                 :(boatMode?parent.getVehicle()!=home:parent.isPassenger())?"parent_vehicle_changed"
                 :interrupted(parent)?"parent_interrupted":interrupted(young)?"child_interrupted":home.unsteadyMotion()?"caregiver_hat_unsteady"
                 :(boatMode?!home.isAfloat():!home.catches())?"caregiver_hat_unavailable"
-                :refugeTransfer&&(!source.isAfloat()||source.unsteadyMotion()||source.towed()||source.flooding()>0
+                :refugeTransfer&&(!source.isAfloat()||source.unsteadyMotion()||source.flooding()>0
                         ||source.ownerYukkuri()!=null&&level().getEntity(source.ownerYukkuri()) instanceof YukkuriEntity owner&&owner.isAlive())?"orphan_source_changed"
                 :home.position().distanceToSqr(hatAt)>(boatMode?.09:.0025)?"caregiver_hat_moved"
                 :!refugeTransfer&&!home.young(young)?"child_berth_lost":!refugeTransfer&&!related(young)?"kinship_lost"
-                :!landingAvailable(landing,young)?"destination_unavailable":landingHatId!=null&&(home.towed()||home.flooding()>0||home.landing()||home.cargo().handling()
+                :!landingAvailable(landing,young)?"destination_unavailable":landingHatId!=null&&(home.flooding()>0||home.landing()||home.cargo().handling()
                     ||parent.life().isSleeping()||parent.life().hasUrgentNeed()||parent.aquaticLife().care().active()
                     ||parent.aquaticLife().familyLife().alarm().active())?"cross_hat_context_unavailable"
                 :++total>(boatMode?420:360)?"timeout":!BraidRescueGeometry.canLift(parent,young)?"lift_capacity_lost":null;
@@ -446,7 +447,7 @@ public final class CradlePickup {
         }
         if((!held()&&phase!=Phase.RELEASE&&young.getVehicle()!=source)||(held()&&young.isPassenger())){cancel("child_vehicle_changed");return;}
         if((phase==Phase.REACH||phase==Phase.GRIP)&&young.position().distanceToSqr(from)>.0004){cancel("child_moved_before_grip");return;}
-        home.holdPosition();if(source!=home)source.holdPosition();if(landing!=null)landing.holdPosition();prevTip=tip;prevJoint=joint;
+        home.helm().hold(parent, Purpose.CARE);if(source!=home)source.helm().hold(parent, Purpose.CARE);if(landing!=null)landing.helm().hold(parent, Purpose.CARE);prevTip=tip;prevJoint=joint;
         if(phase==Phase.APPROACH&&boatMode){
             // The captain walks along the deck to her patch (a real seat walk), then turns so the braid faces the child.
             var rootNow=BraidRescueGeometry.root(parent,0);
@@ -570,7 +571,7 @@ public final class CradlePickup {
     }
     private boolean landingAvailable(HatBoatEntity target,YukkuriEntity young){
         if(landingHatId==null)return true;
-        if(target==null||young==null||!target.isAfloat()||target.unsteadyMotion()||target.towed()||target.flooding()>0||target.landing()
+        if(target==null||young==null||!target.isAfloat()||target.unsteadyMotion()||target.flooding()>0||target.landing()
                 ||target.cargo().handling()||target.position().distanceToSqr(landingHatAt)>.09
                 ||target.ownerYukkuri()==null||!target.ownerYukkuri().equals(young.family().father()))return false;
         return level().getEntity(target.ownerYukkuri()) instanceof YukkuriEntity father&&father.isAlive()&&father.getVehicle()==target

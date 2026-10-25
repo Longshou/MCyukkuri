@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -90,7 +91,7 @@ public final class AquaticFamilyLife {
         }
         rescueTarget=child.getUUID();activity=phase;
     }
-    boolean alarmSafe(HatBoatEntity boat){return boat.protects(entity)&&boat.flooding()==0&&!boat.towed()
+    boolean alarmSafe(HatBoatEntity boat){return boat.protects(entity)&&boat.flooding()==0
             &&HatBoatRoute.calmSurface(level(),water(boat))&&!entity.isOnFire()&&nearestThreat(entity)==null;}
     private ServerLevel level(){return (ServerLevel)entity.level();}
     private void cacheTick(){
@@ -139,7 +140,7 @@ public final class AquaticFamilyLife {
                 ||!boat.protects(entity)||boat.unsteadyMotion()||entity.distanceToSqr(young)>144||!entity.hasLineOfSight(young))return false;
         if(!young.isInWaterOrBubble()&&young.waterDistress().phase()!=WaterDistress.Phase.RECOVER)return false;
         entity.life().wakeInHat();entity.getLookControl().setLookAt(young,35,35);
-        if(entity.getUUID().equals(boat.ownerYukkuri()))boat.holdPosition();
+        if(entity.getUUID().equals(boat.ownerYukkuri()))boat.helm().hold(entity, Purpose.CARE);
         activity=boat.overcrowded()?Behaviors.BOAT_CROWD_GUARD:Behaviors.BOAT_REASSURE;return true;
     }
     private void alertCrew(YukkuriEntity young,HatBoatEntity boat){
@@ -265,7 +266,7 @@ public final class AquaticFamilyLife {
         boolean sleeping=children.stream().anyMatch(y->y.life().isSleeping());
         if(!danger(entity,boat)&&HatBoatRoute.quietSurface(level(),water(boat))
                 &&!entity.life().hasUrgentNeed()&&(waitingOn!=null||sleeping||missing)
-                &&!(boat.getUUID().equals(steeringHat)&&boat.paddling()))boat.holdPosition();
+                &&!(boat.getUUID().equals(steeringHat)&&boat.paddling()))boat.helm().hold(entity, Purpose.CARE);
     }
 
     /** Called after the passenger has had its meal, drink, toilet and rest opportunity. */
@@ -394,7 +395,7 @@ public final class AquaticFamilyLife {
     /** A dead captain's still-afloat hull keeps its riders safe until a real adjacent-hat transfer can begin. */
     private HatBoatEntity orphanSourceHat(YukkuriEntity child){
         if(!(child.getVehicle() instanceof HatBoatEntity source)||source.owner()!=null&&source.owner().isAlive()
-                ||!source.isAfloat()||source.unsteadyMotion()||source.towed()||source.flooding()>0)return null;
+                ||!source.isAfloat()||source.unsteadyMotion()||source.flooding()>0)return null;
         return source;
     }
 
@@ -473,7 +474,7 @@ public final class AquaticFamilyLife {
             }
             // If transfer is temporarily unavailable, close via the same checked water route.
             // The ordinary emergency goal remains available when this small hat is no longer safe.
-            if(!boat.protects(entity)||boat.flooding()>0||boat.towed())return false;
+            if(!boat.protects(entity)||boat.flooding()>0)return false;
             entity.life().wakeInHat();following=true;
             steer(boat,home.position(),false);activity=Behaviors.BOAT_RETURN_FAMILY;return true;
         }
@@ -638,7 +639,7 @@ public final class AquaticFamilyLife {
         if(horizontal(home.position(),target)<=.05){hold(home,Behaviors.BOAT_RETURN_FAMILY);return true;}
         if(routeWait>0)return home.paddling()||home.changingSeat(child);
         routeWait=8;
-        if(!home.cargo().paddle()||home.towed())return false;
+        if(!home.cargo().paddle())return false;
         var path=new ArrayList<>(HatBoatRoute.find(home,target,point->recoveryWater(home,point)));
         var from=path.isEmpty()?home.position():path.getLast();
         // The final metre uses the same finite hull clearance as docking, not a block-centre stop short of reach.
@@ -646,7 +647,7 @@ public final class AquaticFamilyLife {
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(target)/.08));
         for(int step=0;step<=steps;step++)if(!recoveryWater(home,from.lerp(target,(double)step/steps)))return false;
         path.add(target);steeringHat=home.getUUID();seekingQuiet=false;
-        return home.paddleAlong(path,.0025);
+        return home.helm().route(entity, Purpose.CARE, path,.0025);
     }
     private boolean recoveryWater(HatBoatEntity boat,Vec3 point){
         var at=BlockPos.containing(point.x,point.y-.12,point.z);
@@ -726,14 +727,14 @@ public final class AquaticFamilyLife {
     }
     private boolean immediateDanger(YukkuriEntity actor,HatBoatEntity boat){
         return actor==null||actor.isPanicking()||actor.isOnFire()||actor.isInWaterOrBubble()
-                ||boat!=null&&(boat.unsteadyMotion()||boat.flooding()>0||boat.towed()||!boat.isAfloat()||!boat.protects(actor)
+                ||boat!=null&&(boat.unsteadyMotion()||boat.flooding()>0||!boat.isAfloat()||!boat.protects(actor)
                 ||!HatBoatRoute.calmSurface(level(),water(boat)))
                 ||actor!=null&&nearestThreat(actor)!=null;
     }
     /** Seeing a threat is exactly when a sound parent hat must remain available as refuge. */
     private boolean refuge(YukkuriEntity actor,HatBoatEntity boat){
         return actor!=null&&actor.isAlive()&&!actor.isOnFire()&&!actor.isInWaterOrBubble()&&boat!=null
-                &&!boat.unsteadyMotion()&&boat.isAfloat()&&boat.protects(actor)&&boat.flooding()==0&&!boat.towed();
+                &&!boat.unsteadyMotion()&&boat.isAfloat()&&boat.protects(actor)&&boat.flooding()==0;
     }
     private LivingEntity nearestThreat(YukkuriEntity actor){
         cacheTick();if(cachedThreats.containsKey(actor.getUUID()))return cachedThreats.get(actor.getUUID());
@@ -748,12 +749,12 @@ public final class AquaticFamilyLife {
     }
     private static double horizontal(Vec3 a,Vec3 b){return a.subtract(b).horizontalDistance();}
     private static BlockPos water(HatBoatEntity boat){return BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());}
-    private void hold(HatBoatEntity boat,String state){boat.holdPosition();steeringHat=boat.getUUID();seekingQuiet=false;activity=state;}
+    private void hold(HatBoatEntity boat,String state){boat.helm().hold(entity, Purpose.CARE);steeringHat=boat.getUUID();seekingQuiet=false;activity=state;}
     private boolean steer(HatBoatEntity boat,Vec3 target,boolean quiet){
         seekingQuiet=false;
         if(boat.unsteadyMotion()){hold(boat,Behaviors.BOAT_WAIT_YOUNG);return false;}
         if(routeWait>0)return boat.paddling();routeWait=20;
-        if(!boat.cargo().paddle()||boat.towed()){hold(boat,Behaviors.BOAT_WAIT_YOUNG);return false;}
+        if(!boat.cargo().paddle()){hold(boat,Behaviors.BOAT_WAIT_YOUNG);return false;}
         Vec3 delta=target.subtract(boat.position()).multiply(1,0,1);
         Vec3 next=delta.lengthSqr()>64?boat.position().add(delta.normalize().scale(8)):target;
         var path=HatBoatRoute.find(boat,next);
@@ -771,7 +772,7 @@ public final class AquaticFamilyLife {
             }
         }
         if(path.isEmpty()){hold(boat,Behaviors.BOAT_WAIT_YOUNG);return false;}
-        steeringHat=boat.getUUID();return boat.paddleAlong(path);
+        steeringHat=boat.getUUID();return boat.helm().route(entity, Purpose.CARE, path);
     }
     private boolean routeSafe(List<Vec3> path,boolean quiet){
         return !path.isEmpty()&&path.stream().allMatch(point->{var at=BlockPos.containing(point.x,point.y-.12,point.z);
@@ -784,7 +785,7 @@ public final class AquaticFamilyLife {
             activity=Behaviors.BOAT_FOLLOW_FAMILY;return true;
         }
         routeWait=20;
-        if(!boat.cargo().paddle()||boat.towed())return false;
+        if(!boat.cargo().paddle())return false;
         var origin=water(boat);var candidates=new ArrayList<BlockPos>();
         for(var pos:BlockPos.betweenClosed(origin.offset(-6,0,-6),origin.offset(6,0,6)))
             if(pos.distSqr(origin)<=36&&HatBoatRoute.quietSurface(level(),pos))candidates.add(pos.immutable());
@@ -794,18 +795,18 @@ public final class AquaticFamilyLife {
             if(!routeSafe(path,false)||!HatBoatRoute.quietSurface(level(),BlockPos.containing(path.getLast().add(0,-.12,0))))continue;
             if(home!=null&&path.stream().anyMatch(point->horizontal(point,home.position())>6))continue;
             if(path.stream().anyMatch(point->children.stream().anyMatch(child->horizontal(point,child.position())>6)))continue;
-            if(boat.paddleAlong(path)){
+            if(boat.helm().route(entity, Purpose.CARE, path)){
                 steeringHat=boat.getUUID();seekingQuiet=true;activity=Behaviors.BOAT_FOLLOW_FAMILY;return true;
             }
         }
         return false;
     }
     private boolean yieldSteering(HatBoatEntity boat){
-        if(boat.getUUID().equals(steeringHat))boat.stopPaddling();
+        if(boat.getUUID().equals(steeringHat))boat.helm().drift(entity, Purpose.CARE);
         steeringHat=null;seekingQuiet=following=gathering=false;activity=Behaviors.IDLE;return false;
     }
     public void stop(){
-        var boat=HatBoatEntity.owned(entity);if(boat!=null&&boat.getUUID().equals(steeringHat))boat.stopPaddling();
+        var boat=HatBoatEntity.owned(entity);if(boat!=null&&boat.getUUID().equals(steeringHat))boat.helm().drift(entity, Purpose.CARE);
         steeringHat=null;waitingOn=null;recoveringHat=null;following=guarding=gathering=returnRequested=seekingQuiet=false;activity=Behaviors.IDLE;routeWait=0;
     }
     public CompoundTag save(){

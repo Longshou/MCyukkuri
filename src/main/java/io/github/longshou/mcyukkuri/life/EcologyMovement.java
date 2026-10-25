@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
@@ -19,8 +20,8 @@ public final class EcologyMovement {
     public static boolean supported(YukkuriEntity actor) {
         var hat = boat(actor);
         return hat == null ? !actor.isPassenger() && actor.onGround()
-                : hat.isAfloat() && !hat.unsteadyMotion() && !hat.towed() && hat.flooding() == 0
-                && !hat.landing() && !hat.driving() && !hat.transportingInHat(actor)
+                : hat.isAfloat() && !hat.unsteadyMotion() && hat.flooding() == 0
+                && !hat.landing() && !hat.helm().driving() && !hat.transportingInHat(actor)
                 && !hat.cargo().handling() && !hat.hasIncoming() && !actor.family().braidRescueActive()
                 && !actor.aquaticLife().firstVoyage().active();
     }
@@ -52,7 +53,7 @@ public final class EcologyMovement {
         if (hat == null) return !actor.isPassenger() && actor.life().navigate(BlockPos.containing(destination), speed, false);
         if (!supported(actor)) return false;
         if (!captain(actor)) return actor.position().distanceToSqr(destination) <= .04;
-        return hat.paddleFor(actor, destination);
+        return hat.helm().sail(actor, Purpose.ROUTINE, destination);
     }
 
     /** Supported final approach; contact remains the caller's existing geometric test. */
@@ -66,7 +67,7 @@ public final class EcologyMovement {
         }
         if (!supported(actor)) return false;
         if (target instanceof YukkuriEntity other && other.getVehicle() == hat) {
-            hat.holdPosition();
+            hat.helm().hold(actor, Purpose.ROUTINE);
             if (captain(actor) && hat.young(other)) {
                 return hat.prepareCareSeat(other, actor) && hat.careSeatReady(other);
             }
@@ -92,13 +93,13 @@ public final class EcologyMovement {
                 return false;
             }
         }
-        hat.holdPosition();
+        hat.helm().hold(actor, Purpose.ROUTINE);
         hat.approachBoardingEdge(actor, target.position());
         return false;
     }
 
     public static void halt(YukkuriEntity actor) {
-        if (captain(actor)) boat(actor).holdPosition();
+        if (captain(actor)) boat(actor).helm().hold(actor, Purpose.ROUTINE);
         SurfaceApproach.halt(actor);
     }
 

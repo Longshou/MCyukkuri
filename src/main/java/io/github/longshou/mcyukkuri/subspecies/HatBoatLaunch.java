@@ -51,7 +51,7 @@ final class HatBoatLaunch {
         child.aquaticLife().firstVoyage().retainHat(boat.launchToken(),boat.cargo().save());
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());boat.launchToken(null);
         child.subspecies().boatId(null);
-        boat.state(State.RESCUED); boat.stopPaddling(); boat.clearTowTicks(); return true;
+        boat.state(State.RESCUED); boat.helm().stop("retired"); return true;
     }
 
     static Vec3 retrievalGrip(HatBoatEntity boat, YukkuriEntity actor){

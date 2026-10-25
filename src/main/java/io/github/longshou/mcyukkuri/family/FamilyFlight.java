@@ -221,7 +221,7 @@ final class FamilyFlight {
         if(o.entity().level().isClientSide||hat==null||hat.level()!=o.entity().level()||flying()||o.heldByBraid()
                 ||!o.entity().childhood().canJump()||o.entity().isPassenger()||!o.entity().onGround()||o.entity().isInWaterOrBubble()
                 ||!o.entity().life().dryStand(o.entity().blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
-                ||hat.towed()||hat.flooding()>0||!hat.admits(o.entity())||o.entity().distanceToSqr(hat)>6.25||!o.entity().hasLineOfSight(hat))return false;
+||hat.flooding()>0||!hat.admits(o.entity())||o.entity().distanceToSqr(hat)>6.25||!o.entity().hasLineOfSight(hat))return false;
         if(hat.cargo().count()>0&&!hat.prepareCargoSpace(o.entity(),emergency))return false;
         // Compression is a close-contact seating fallback, separate from permission to discard provisions.
         var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),emergency||!hat.hasSafeRoomFor(o.entity()));if(seat==null)return false;
@@ -233,7 +233,7 @@ final class FamilyFlight {
     boolean scrambleIntoHat(HatBoatEntity hat){
         if(o.entity().level().isClientSide||hat==null||flying()||o.heldByBraid()||o.entity().isPassenger()||!o.entity().isInWaterOrBubble()
                 ||!o.entity().childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
-                ||hat.towed()||!hat.admits(o.entity())||!o.entity().hasLineOfSight(hat))return false;
+||!hat.admits(o.entity())||!o.entity().hasLineOfSight(hat))return false;
         var grip=hat.boardingGrip(o.entity());if(grip==null)return false;
         if(hat.cargo().count()>0&&!hat.prepareCargoSpace(o.entity(),true))return false;
         var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),true);if(seat==null)return false;

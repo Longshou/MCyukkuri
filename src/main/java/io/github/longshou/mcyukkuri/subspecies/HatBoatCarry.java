@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -243,7 +244,7 @@ final class HatBoatCarry {
             }
             carryTrip=null; boat.syncSeats(); return;
         }
-        boat.stopPaddling();
+        boat.helm().drift(boat, Purpose.CARE);
         if(trip.phase==-2){
             if(recoverCarry){
                 if(!boat.movePreparationCrawl(child,trip.from))return;

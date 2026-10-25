@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 
@@ -587,7 +588,7 @@ public final class SettlementLife {
         }
         if (!boat.paddling()) {
             BlockPos leg = waterLeg(boat, water);
-            if (leg == null || !boat.paddleFor(entity, HatBoatRoute.surface(level(), leg))) {
+            if (leg == null || !boat.helm().sail(entity, HullHelm.Purpose.ROUTINE, HatBoatRoute.surface(level(), leg))) {
                 GameplayLog.limited(entity, "settlement", moving ? "water_march.wait" : "water_regroup.wait", 200,
                         "water route waiting group={} boat={} destination={} reason=no_verified_water_leg",
                         groupId, boat.getUUID(), water);
@@ -708,7 +709,7 @@ public final class SettlementLife {
         // accepting an overlapping hull or silently treating anchor proximity as arrival.
         if (Migration.moving(group) && !entity.getUUID().equals(group.leader)
                 && !Migration.waterMemberBerthValid(level(), group.migrateWater, boat, water)) {
-            boat.stopPaddling();
+            boat.helm().drift(entity, HullHelm.Purpose.ROUTINE);
             BlockPos alternate = Migration.waterMemberBerth(level(), bank, group.migrateWater, boat);
             if (alternate == null) { stop(); return; }
             afloatTarget = target = alternate;
@@ -716,7 +717,7 @@ public final class SettlementLife {
         }
         if (!boat.paddling() && elapsed % 20 == 1) {
             BlockPos leg = waterLeg(boat, water);
-            if (leg != null) boat.paddleFor(entity, HatBoatRoute.surface(level(), leg));
+            if (leg != null) boat.helm().sail(entity, HullHelm.Purpose.ROUTINE, HatBoatRoute.surface(level(), leg));
         }
     }
 

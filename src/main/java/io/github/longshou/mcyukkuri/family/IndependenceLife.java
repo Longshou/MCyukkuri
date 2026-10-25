@@ -277,9 +277,9 @@ public final class IndependenceLife extends Goal {
                 || entity.family().recovery() != 0 || hasDependents() || !member() || !Bonds.parentOf(parent, entity)) return false;
         var parentHat = parent.habitat().waterHome();
         if (entity.getVehicle() != boat || !boat.isAfloat() || !boat.protects(entity) || !entity.getUUID().equals(boat.ownerYukkuri())
-                || boat.unsteadyMotion() || boat.flooding() > 0 || boat.towed() || !boat.cargo().paddle()
+                || boat.unsteadyMotion() || boat.flooding() > 0 || !boat.cargo().paddle()
                 || parentHat == null || parent.getVehicle() != parentHat || !parentHat.isAfloat() || !parentHat.protects(parent)
-                || parentHat.unsteadyMotion() || parentHat.flooding() > 0 || parentHat.towed()
+                || parentHat.unsteadyMotion() || parentHat.flooding() > 0
                 || !entity.life().canRecognize(parent) || !parent.life().canRecognize(entity)
                 || boat.position().subtract(parentHat.position()).horizontalDistanceSqr() < 64) return false;
         independent = true; afloatDeparture = true; armed = false; household = false; visits++;

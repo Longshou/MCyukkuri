@@ -595,7 +595,7 @@ public final class FamilyData extends SavedData {
     }
 
     private boolean canReserveBirth(HatBoatEntity boat,YukkuriEntity child,double reach){
-        if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||boat.towed()||!boat.hasRoomFor(child))return false;
+        if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||!boat.hasRoomFor(child))return false;
         var seat=boat.peekSeat(child);
         return seat!=null&&boat.toWorld(seat).subtract(child.position()).horizontalDistance()<=reach;
     }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -48,14 +49,14 @@ public final class AquaticDailyLife {
                 &&!y.family().laboring()&&!WildEvents.reserved(y);
     }
     private boolean supported(HatBoatEntity boat){
-        return boat!=null&&boat.protects(child)&&boat.flooding()==0&&!boat.towed()
+        return boat!=null&&boat.protects(child)&&boat.flooding()==0
                 &&!boat.hasIncoming()&&!boat.transportingInHat(child)&&!boat.changingSeat(child);
     }
     private YukkuriEntity parent(){
         var mother=person(child.family().mother());var father=person(child.family().father());
         return List.of(mother==null?child:mother,father==null?child:father).stream()
                 .filter(y->y!=child&&available(y)&&y.getVehicle() instanceof HatBoatEntity hat&&hat.protects(y)
-                        &&hat.flooding()==0&&!hat.towed()&&child.distanceToSqr(y)<=25&&child.hasLineOfSight(y)
+                        &&hat.flooding()==0&&child.distanceToSqr(y)<=25&&child.hasLineOfSight(y)
                         &&child.life().canRecognize(y)&&y.life().canRecognize(child))
                 .min(Comparator.comparingDouble(child::distanceToSqr)).orElse(null);
     }
@@ -93,7 +94,7 @@ public final class AquaticDailyLife {
         }
         if(child.life().isSleeping()||child.life().energy()<=(child.family().needsMash()?65:35)){
             if(level().isRainingAt(child.blockPosition())){stop();return false;}
-            stop();if(captain)boat.stopPaddling();child.life().restInHat(boat);activity=Behaviors.BOAT_SLEEP;return true;
+            stop();if(captain)boat.helm().drift(child, Purpose.ROUTINE);child.life().restInHat(boat);activity=Behaviors.BOAT_SLEEP;return true;
         }
         if(!pleasantWater(boat)||parent==null||parent.life().isSleeping()
                 ||parent.aquaticLife().care().active()||parent.aquaticLife().firstVoyage().active()){
@@ -106,7 +107,7 @@ public final class AquaticDailyLife {
         activity=Behaviors.IDLE;
         if(searchWait>0||cooldown>0){
             // A young captain waits nearby between bouts, rather than inheriting the adult's long random voyage.
-            if(captain){boat.holdPosition();activity=Behaviors.BOAT_DRIFT;return true;}return false;
+            if(captain){boat.helm().hold(child, Purpose.ROUTINE);activity=Behaviors.BOAT_DRIFT;return true;}return false;
         }
         searchWait=40;
         var peer=sibling(boat);
@@ -123,7 +124,7 @@ public final class AquaticDailyLife {
             boolean imitate=parentWorking&&observedDirection!=null&&observedDistance>=.15;
             if(startTrip(boat,parent,imitate))return run(boat,parent,now);
         }
-        if(captain){boat.holdPosition();activity=Behaviors.BOAT_DRIFT;return true;}
+        if(captain){boat.helm().hold(child, Purpose.ROUTINE);activity=Behaviors.BOAT_DRIFT;return true;}
         if(child.dailyLife().affectionNeed()>=25){begin(Task.ANSWER,parent);return run(boat,parent,now);}
         return false;
     }
@@ -141,7 +142,7 @@ public final class AquaticDailyLife {
     private YukkuriEntity sibling(HatBoatEntity boat){
         return level().getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(3.5,1.5,3.5),
                 y->y!=child&&!y.family().adult()&&sibling(y)&&available(y)&&y.getVehicle() instanceof HatBoatEntity hat
-                        &&hat.protects(y)&&hat.flooding()==0&&!hat.towed()&&!hat.transportingInHat(y)
+                        &&hat.protects(y)&&hat.flooding()==0&&!hat.transportingInHat(y)
                         &&!y.life().isSleeping()&&y.life().nutrition()>=60&&y.life().energy()>=40&&y.life().mealTicks()==0
                         &&!y.aquaticLife().care().active()&&!y.aquaticLife().firstVoyage().active()
                         &&child.distanceToSqr(y)<=12.25&&child.hasLineOfSight(y)&&child.life().canRecognize(y)&&y.life().canRecognize(child))
@@ -201,7 +202,7 @@ public final class AquaticDailyLife {
             var point=boat.position().add(Math.cos(angle)*reach,0,Math.sin(angle)*reach);
             if(!clearLeg(boat,boat.position(),point,home))continue;
             origin=boat.position();destination=point;lastBoatPosition=boat.position();sessionDistance=0;
-            routeBoat=boat.getUUID();ownsRoute=boat.paddleAlong(List.of(point),.01);
+            routeBoat=boat.getUUID();ownsRoute=boat.helm().route(child, Purpose.ROUTINE, List.of(point),.01);
             if(!ownsRoute)return false;
             begin(imitate?Task.IMITATE:Task.OUT,parent);return true;
         }
@@ -221,9 +222,9 @@ public final class AquaticDailyLife {
         lastBoatPosition=here;
         activity=task==Task.IMITATE?Behaviors.AQUATIC_IMITATE_PADDLE:Behaviors.AQUATIC_PADDLE_PRACTICE;
         if(here.subtract(destination).horizontalDistanceSqr()<=.025){
-            boat.stopPaddling();
+            boat.helm().drift(child, Purpose.ROUTINE);
             if(task!=Task.RETURN&&origin!=null&&clearLeg(boat,here,origin,home)){
-                task=Task.RETURN;destination=origin;ownsRoute=boat.paddleAlong(List.of(origin),.01);return true;
+                task=Task.RETURN;destination=origin;ownsRoute=boat.helm().route(child, Purpose.ROUTINE, List.of(origin),.01);return true;
             }
             if(sessionDistance>=.6){child.dailyLife().entertained(Math.min(8,(int)(sessionDistance*4)));face(parent);}
             finish();return true;
@@ -251,7 +252,7 @@ public final class AquaticDailyLife {
     /** The caller invokes this before issuing a care/follow/foraging route, so only our still-owned route is cancelled. */
     public void stop(){
         if(ownsRoute&&child.getVehicle() instanceof HatBoatEntity boat&&child.getUUID().equals(boat.ownerYukkuri())
-                &&boat.getUUID().equals(routeBoat))boat.stopPaddling();
+                &&boat.getUUID().equals(routeBoat))boat.helm().drift(child, Purpose.ROUTINE);
         yieldToOtherActivity();
     }
     /** Use after a higher-priority system has already written its own route: retire our intention without touching that route. */

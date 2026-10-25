@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -67,7 +68,7 @@ public final class HatFamilyPaddle {
                 "family paddle ended child={} hat={} reason={} held={} elapsed={}",recipient,
                 steering==null?null:steering.getUUID(),reason,held,elapsed);
         if(steering!=null&&active()){
-            if(stopRoute)steering.stopPaddling();
+            if(stopRoute)steering.helm().drift(owner, Purpose.CARE);
             if(reserved&&recipient!=null)steering.releaseCareSeat(recipient);
         }
         var dropped=held;held=ItemStack.EMPTY;
@@ -93,7 +94,7 @@ public final class HatFamilyPaddle {
     private boolean available(HatBoatEntity boat){
         if(owner.level().isClientSide||!owner.isAlive()||!owner.profile().aquatic()||owner.getVehicle()!=boat
                 ||!owner.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||!boat.protects(owner)
-                ||boat.flooding()>0||boat.towed()||!boat.cargo().paddle()||owner.isPanicking()||owner.isOnFire()
+                ||boat.flooding()>0||!boat.cargo().paddle()||owner.isPanicking()||owner.isOnFire()
                 ||owner.isNoAi()||owner.isCommandPlaying()||owner.operations().active()||owner.family().laboring()
                 ||owner.life().isSleeping()||owner.life().mealTicks()>0||owner.life().hasUrgentNeed()
                 ||owner.life().nutrition()<60||owner.life().energy()<40||owner.aquaticLife().care().active()
@@ -121,7 +122,7 @@ public final class HatFamilyPaddle {
     private boolean recoveryAvailable(HatBoatEntity boat){
         return !owner.level().isClientSide&&owner.isAlive()&&owner.profile().aquatic()&&owner.getVehicle()==boat
                 &&owner.getUUID().equals(boat.ownerYukkuri())&&boat.isAfloat()&&boat.protects(owner)
-                &&!boat.unsteadyMotion()&&!boat.towed()&&boat.flooding()==0&&!owner.isPanicking()&&!owner.isOnFire()
+                &&!boat.unsteadyMotion()&&boat.flooding()==0&&!owner.isPanicking()&&!owner.isOnFire()
                 &&!owner.isNoAi()&&!owner.isCommandPlaying()&&!owner.operations().active()&&!owner.family().laboring()
                 &&!owner.life().isSleeping()&&!owner.life().hasUrgentNeed();
     }
@@ -159,10 +160,10 @@ public final class HatFamilyPaddle {
             if(elapsed%20==1&&!sail(boat,water,berth)){stop("route_failed");return false;}
             return true;
         }
-        boat.holdPosition();
         Vec3 source=branch!=null?Vec3.atCenterOf(branch):floating.position().add(0,.05,0);
         float stern=SurfaceApproach.yaw(boat.position(),source)+180;
-        boat.setYRot(boat.getYRot()+Mth.clamp(Mth.wrapDegrees(stern-boat.getYRot()),-4,4));
+        // Holding the spot and turning the stern toward the source is one helm order: a berth at the present position.
+        boat.helm().berth(owner, Purpose.CARE, boat.position(), stern, 0, 4f);
         SurfaceApproach.face(owner,SurfaceApproach.yaw(owner.position(),source));
         Vec3 mouth=mouth(),touch=branch!=null?branchPoint(mouth):source;
         if(Math.abs(Mth.wrapDegrees(stern-boat.getYRot()))>5||mouth.distanceToSqr(touch)>.20*.20||!visible(touch)){
@@ -184,7 +185,7 @@ public final class HatFamilyPaddle {
         return true;
     }
     private boolean handOver(HatBoatEntity boat,YukkuriEntity child){
-        boat.holdPosition();
+        boat.helm().hold(owner, Purpose.CARE);
         if(!reserved){if(!boat.prepareCareSeat(child,owner))return true;reserved=true;}
         if(!boat.careSeatReady(child)){resetContact();return true;}
         FamilyFeedingContact.faceEachOther(owner,child);
@@ -264,7 +265,7 @@ public final class HatFamilyPaddle {
     private boolean sail(HatBoatEntity boat,BlockPos waterAt,Vec3 at){
         if(!reachable(boat,waterAt,at))return false;
         var path=new ArrayList<>(HatBoatRoute.find(boat,at,p->owner.aquaticLife().familyLife().allowsDestination(boat,p)));path.add(at);
-        return boat.paddleAlong(path,.0025);
+        return boat.helm().route(owner, Purpose.CARE, path,.0025);
     }
     private boolean finalLegClear(HatBoatEntity boat,BlockPos waterAt,Vec3 at){
         var current=BlockPos.containing(boat.getX(),boat.getY()-.12,boat.getZ());

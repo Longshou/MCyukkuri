@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -219,7 +221,7 @@ final class LiveDelivery {
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE){
             waterPartnerChild=null;
             if(!o.entity().getUUID().equals(pregnancy.father)||pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring())return false;
-            return approachWaterPartner(mine,hers,mate)!=HatBoatEntity.Drive.BLOCKED;
+            return approachWaterPartner(mine,hers,mate)!=HullHelm.State.BLOCKED;
         }
         return rebalanceWaterYoung(hers,mine,mate);
     }
@@ -238,8 +240,8 @@ final class LiveDelivery {
         if(waterPartnerChild==null||!(o.level().getEntity(waterPartnerChild) instanceof YukkuriEntity child)
                 ||!transferChild(child,motherHat,mother)||!fatherHat.hasRoomFor(child))return false;
         var approach=approachWaterPartner(fatherHat,motherHat,mother);
-        if(approach==HatBoatEntity.Drive.BLOCKED)return false;
-        if(approach==HatBoatEntity.Drive.MOVING)return true;
+        if(approach==HullHelm.State.BLOCKED)return false;
+        if(approach==HullHelm.State.MOVING)return true;
         return mother.family().cradlePickup().startBoatTransfer(motherHat,fatherHat,child);
     }
     private boolean transferChild(YukkuriEntity child,HatBoatEntity motherHat,YukkuriEntity mother){
@@ -247,23 +249,23 @@ final class LiveDelivery {
                 &&mother.getUUID().equals(child.family().mother())&&o.entity().getUUID().equals(child.family().father());
     }
     /** Water paths end at cell centres; use the established small physical docking steps for the final supported approach. */
-    private HatBoatEntity.Drive approachWaterPartner(HatBoatEntity mine,HatBoatEntity hers,YukkuriEntity mother){
-        if(!mine.cargo().paddle())return HatBoatEntity.Drive.BLOCKED;
+    private HullHelm.State approachWaterPartner(HatBoatEntity mine,HatBoatEntity hers,YukkuriEntity mother){
+        if(!mine.cargo().paddle())return HullHelm.State.BLOCKED;
         var forward=Vec3.directionFromRotation(0,mother.yBodyRot).multiply(1,0,1).normalize();
         var right=new Vec3(-forward.z,0,forward.x);
         double sign=mine.position().subtract(hers.position()).dot(right)>=0?1:-1;
         var station=hers.position().add(forward.scale(.5)).add(right.scale(sign*STATION_GAP));
         double distance=mine.position().subtract(station).horizontalDistanceSqr();
         if(distance<=1&&partnerApproachClear(mine,station)){
-            hers.holdPosition();
-            return mine.driveToward(station,mine.getYRot(),.035,4f);
+            hers.helm().hold(mother, Purpose.CARE);
+            return mine.helm().berth(mother, Purpose.CARE, station,mine.getYRot(),.035,4f).state();
         }
         long now=o.level().getGameTime();
         if(now>=nextWaterPartnerRoute){
             nextWaterPartnerRoute=now+20;
-            if(!mine.paddleTo(station))return HatBoatEntity.Drive.BLOCKED;
+            if(!mine.helm().travel(mother, Purpose.CARE, station))return HullHelm.State.BLOCKED;
         }
-        return mine.paddling()?HatBoatEntity.Drive.MOVING:HatBoatEntity.Drive.BLOCKED;
+        return mine.paddling()?HullHelm.State.MOVING:HullHelm.State.BLOCKED;
     }
     private boolean partnerApproachClear(HatBoatEntity boat,Vec3 target){
         var from=boat.position();int count=Math.max(1,(int)Math.ceil(from.distanceTo(target)/.1));
@@ -275,7 +277,7 @@ final class LiveDelivery {
         return true;
     }
     private static boolean safePartnerHull(YukkuriEntity parent,HatBoatEntity boat){
-        return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&!boat.towed()&&boat.flooding()<=0
+        return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&boat.flooding()<=0
                 &&!boat.landing()&&!boat.cargo().handling()&&!parent.family().braidRescueActive()
                 &&!parent.aquaticLife().care().active()&&!parent.aquaticLife().familyLife().alarm().active();
     }

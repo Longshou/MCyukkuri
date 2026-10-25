@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.family.HatBoarding;
@@ -120,7 +121,7 @@ final class AquaticParentWaterRescue {
 
     private boolean decisionStillValid(HatBoatEntity hat){
         return decided&&childFirst&&hat!=null&&hat.getUUID().equals(sourceHat)&&hat.isAfloat()
-                &&!hat.towed()&&!parent.isPassenger()&&!selfCritical()&&!windowElapsed();
+&&!parent.isPassenger()&&!selfCritical()&&!windowElapsed();
     }
     private boolean windowElapsed(){return rescueDeadline>0&&level().getGameTime()>=rescueDeadline;}
     private void scheduleRetry(String failure){
@@ -153,7 +154,7 @@ final class AquaticParentWaterRescue {
         if(!active())return false;
         if(windowElapsed()){abandonDecision("rescue_window_elapsed");return false;}
         var child=child();
-        if(hat==null||!hat.getUUID().equals(hatId)||!hat.isAfloat()||hat.towed()
+        if(hat==null||!hat.getUUID().equals(hatId)||!hat.isAfloat()
                 ||parent.isPassenger()||selfCritical()){abandonDecision("hat_or_parent_unavailable");return false;}
         if(hat.unsteadyMotion()){scheduleRetry("hull");return false;}
         if(child==null||child.isPassenger()||!hat.young(child)||++ticks>LIMIT
@@ -268,7 +269,7 @@ final class AquaticParentWaterRescue {
     }
     /** Pull through checked small slices: rise outside the shell, cross above its rim, then lower onto the reserved brim. */
     private boolean lift(YukkuriEntity child,HatBoatEntity hat){
-        hat.holdPosition();
+        hat.helm().hold(parent, Purpose.RESCUE);
         while(pathIndex<liftPath.size()&&child.position().distanceToSqr(liftPath.get(pathIndex))<=.000625)pathIndex++;
         if(pathIndex>=liftPath.size()){
             if(!supported(child,hat)){scheduleRetry("seat");return false;}

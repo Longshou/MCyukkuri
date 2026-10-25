@@ -30,7 +30,7 @@ final class HatHullMotion {
 
     HatHullMotion(HatBoatEntity boat) { this.boat = boat; }
 
-    boolean drifting() { return boat.isAfloat() && !boat.paddling() && !boat.towed() && boat.currentStrength()>.08f; }
+    boolean drifting() { return boat.isAfloat() && !boat.paddling() && boat.currentStrength()>.08f; }
 
     boolean rocking(){var m=boat.motionData();return boat.isAfloat()&&m.contains("RockAt")&&motionAge(m,"RockAt",0)<ROCK_TICKS;}
 
@@ -83,7 +83,7 @@ final class HatHullMotion {
     }
 
     boolean dippable(YukkuriEntity actor){
-        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.towed()||boat.flooding>0)return false;
+        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding>0)return false;
         var captain=boat.owner();
         return captain==null||captain==actor||captain.isAlive()&&!captain.isNoAi()&&!captain.life().isSleeping()&&!captain.isCommandPlaying()&&captain.getVehicle()==boat;
     }
@@ -103,7 +103,7 @@ final class HatHullMotion {
     }
 
     boolean dipToward(Vec3 worldTarget,float maxDegrees,int rampTicks){
-        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.towed()||boat.flooding>0||boat.catches())return false;
+        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding>0||boat.catches())return false;
         var plan=planDip(worldTarget,maxDegrees);if(plan.degrees()<=0)return false;
         var m=boat.dipData();boolean leaning=m.getFloat("To")>0;float held=m.getFloat("Yaw");
         // While tilted toward one side, a weight on the opposite side waits for the hull to level instead of snapping it across.
@@ -127,7 +127,7 @@ final class HatHullMotion {
 
     void tickDip(){
         var m=boat.dipData();if(m.isEmpty()||m.getFloat("To")<=0)return;
-        boolean unsettled=!boat.isAfloat()||unsteadyMotion()||boat.towed()||boat.catches();
+        boolean unsettled=!boat.isAfloat()||unsteadyMotion()||boat.catches();
         if(unsettled)releaseDip(4);
         else if(boat.level().getGameTime()-dipRenewed>DIP_RENEW_TICKS)releaseDip(14);
     }
@@ -189,7 +189,7 @@ final class HatHullMotion {
         var m=new CompoundTag();m.putLong("RockAt",now);
         m.putInt("Side",source!=null?(boat.toLocal(source.position()).x>=0?-1:1):(((now/7)&1)==0?1:-1));
         m.putFloat("Amplitude",Math.min(12f,8f+agitation*.8f));boat.syncMotion(m);
-        boat.stopPaddling();boat.heldTicks=Math.max(boat.heldTicks,12);boat.markHullHurt();
+        boat.helm().shaken(12);boat.markHullHurt();
         // Only a captain who really has children to gather calls them (the alarm itself checks); everyone else just reacts to the shove.
         var captain=boat.owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(boat,source,source==null?null:source.position());
         var riders=List.copyOf(boat.getPassengers());

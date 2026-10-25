@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -52,7 +53,7 @@ final class AquaticLanding {
     boolean active(){return active;}
     boolean begin(YukkuriEntity owner,BlockPos stand,UUID helper){
         if(active)return true;
-        if(!boat.isAfloat()&&boat.state()!=HatBoatEntity.State.BEACHED||boat.unsteadyMotion()||boat.towed()||owner.getVehicle()!=boat||owner.family().flying()
+        if(!boat.isAfloat()&&boat.state()!=HatBoatEntity.State.BEACHED||boat.unsteadyMotion()||owner.getVehicle()!=boat||owner.family().flying()
                 ||owner.family().braidRescueActive()||owner.aquaticLife().familyLife().alarm().preventsOuting())return false;
         var crew=new ArrayDeque<UUID>();
         for(var passenger:boat.getPassengers())if(passenger instanceof YukkuriEntity child&&child!=owner){
@@ -70,7 +71,7 @@ final class AquaticLanding {
         queue.clear();queue.addAll(crew);spots.clear();used.clear();
         plan=found;hint=stand;ownerId=owner.getUUID();rescuer=helper;current=null;
         started=stageSince=actorSince=boat.level().getGameTime();stage=Stage.DOCK;blocked=replans=respots=refusals=0;airSince=0;
-        active=true;boat.holdPosition();
+        active=true;boat.helm().hold(owner, Purpose.LANDING);
         GameplayLog.limited(boat,"aquatic","landing.begin",200,"landing started owner={} helper={} bank={} crew={}",ownerId,helper,plan.bank(),crew.size());
         AquaDiag.log(owner,"landing.begin",0,"owner="+owner.getUUID()+" bank="+plan.bank()+" toWater="+plan.toWater()+" crew="+crew.size()
                 +" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" dock="+AquaDiag.at(plan.center())+"/"+plan.yaw());
@@ -104,13 +105,13 @@ final class AquaticLanding {
         GameplayLog.limited(boat,"aquatic","landing.stage."+to,200,"landing phase {}->{} owner={} remaining={}",stage,to,ownerId,queue.size());
         stage=to;stageSince=now;actorSince=now;refusals=0;respots=0;current=null;airSince=0;AquaDiag.log(boat,"landing.stage",0,"-> "+to);
     }
-    private void hold(){boat.driveToward(plan.center(),plan.yaw(),.05,4f);}
+    private void hold(){boat.helm().berth(boat, Purpose.LANDING, plan.center(),plan.yaw(),.05,4f);}
 
     private void dock(YukkuriEntity owner,long now){
-        var result=boat.driveToward(plan.center(),plan.yaw(),.07,5f);
+        var result=boat.helm().berth(boat, Purpose.LANDING, plan.center(),plan.yaw(),.07,5f);
         double gap=HatDock.rimGap(boat,plan);
-        if(result==HatBoatEntity.Drive.ARRIVED){next(Stage.CREW,now);AquaDiag.log(boat,"landing.docked",0,"arrived boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" rimGap="+gap);return;}
-        blocked=result==HatBoatEntity.Drive.BLOCKED?blocked+1:0;
+        if(result.arrived()){next(Stage.CREW,now);AquaDiag.log(boat,"landing.docked",0,"arrived boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" rimGap="+gap);return;}
+        blocked=result.blocked()?blocked+1:0;
         boolean stuck=blocked>=15||now-stageSince>DOCK_TICKS;
         if(!stuck)return;
         // Pressed against the bank, or a stray current: close enough is enough when the near brim is within a hop of the wall.
@@ -233,7 +234,7 @@ final class AquaticLanding {
 
     /** The captain walks to the cell the hat-on clip is authored for. */
     private void walk(YukkuriEntity owner,long now){
-        boat.driveToward(plan.center(),plan.yaw(),.05,4f);
+        boat.helm().berth(boat, Purpose.LANDING, plan.center(),plan.yaw(),.05,4f);
         if(owner.isInWaterOrBubble()||owner.isPassenger()){abort("captain not on dry land");return;}
         if(owner.family().flying())return;
         double away=owner.position().subtract(plan.stand()).horizontalDistance();
@@ -247,7 +248,7 @@ final class AquaticLanding {
 
     /** Turn back toward the hat, take it in, and put it on; the landing is over from here. */
     private void hat(YukkuriEntity owner,long now){
-        boat.driveToward(plan.center(),plan.yaw(),.05,4f);
+        boat.helm().berth(boat, Purpose.LANDING, plan.center(),plan.yaw(),.05,4f);
         SurfaceApproach.halt(owner);
         var placement=HatVessel.placement(true,HatVessel.Role.SELF);
         float facing=Mth.wrapDegrees(plan.yaw()-placement.yaw());
