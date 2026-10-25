@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 帽船食物交付与满载提示 | `.worktrees/hat-cargo-feedback` | `subspecies/HatBoatEntity.java`、容量场景、三语手册、水生专题与待办 |
 
 ## 玩法待办
 
