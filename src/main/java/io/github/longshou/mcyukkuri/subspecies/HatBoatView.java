@@ -39,6 +39,8 @@ public interface HatBoatView {
     boolean paddling();
     HullHelm.Kind helmKind();
     HullHelm.State helmStatus();
+    /** The captain's voyage phase, read-only. */
+    io.github.longshou.mcyukkuri.subspecies.boat.VoyagePhase voyagePhase();
     double paddleCycle(float partial);
     float currentStrength();
     boolean rocking();

@@ -103,7 +103,7 @@ public final class HullFactory {
             // False can mean that the child has only started approaching the parent's rim.
             // BOARD owns retries and cancellation; the same physical hat must remain deployed meanwhile.
             CrewTransfers.hopOwnHat(owner, home, boat);
-        } else if (origin == Origin.BANK) CrewTransfers.embark(owner, boat);
+        }
         GameplayLog.event(owner, "aquatic", "hull deployed origin={} boat={} water={} at={} yaw={} scale={} ownerAboard={} food={} paddle={}",
                 origin, boat.getUUID(), water, spec.position(), spec.yaw(), spec.hullScale(), owner.getVehicle() == boat,
                 boat.cargo().count(), boat.cargo().paddle());
@@ -116,22 +116,22 @@ public final class HullFactory {
     }
 
     /**
-     * The animated shore launch: the owner stands on {@code stand} beside {@code water}; the hull lies along the bank wall
-     * where {@link ShoreBerth} puts it. The owner's hop onto it is a crew transfer started by the deployment.
+     * The shore launch hull: the owner stands on {@code stand} beside {@code water}; the hull lies along the bank wall where
+     * {@link ShoreBerth} puts it, empty. Loading the young and the owner's own hop aboard belong to the voyage controller.
      */
-    public static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos stand, BlockPos water) {
-        if (!(owner.level() instanceof ServerLevel level)) return null;
+    public static Result moorAtBank(YukkuriEntity owner, BlockPos stand, BlockPos water) {
+        if (!(owner.level() instanceof ServerLevel level)) return new Refused("client_side", "");
         float scale = HatVessel.hatScale(owner);
         var outcome = ShoreBerth.berthAt(level, owner, scale, stand, water, ShoreBerth.Purpose.LAUNCH);
         if (outcome instanceof ShoreBerth.Refusal refusal) {
             GameplayLog.limited(owner, "aquatic", "hull.refused.BANK." + refusal.reason(), 200,
                     "hull refused origin=BANK reason={} detail={} bank={} water={} counts={}", refusal.reason(), refusal.detail(), stand, water, refusal.counts());
-            return null;
+            return new Refused(refusal.reason(), refusal.detail());
         }
         var berth = (ShoreBerth.Berth) outcome;
         float facing = Mth.wrapDegrees(berth.yaw() - HatVessel.placement(true, HatVessel.Role.SELF).yaw());
         owner.setYRot(facing); owner.yBodyRot = facing; owner.setYHeadRot(facing);
-        return boatOf(deploy(owner, new Spec(Origin.BANK, berth.center(), berth.yaw(), scale, water, null, 0)));
+        return deploy(owner, new Spec(Origin.BANK, berth.center(), berth.yaw(), scale, water, null, 0));
     }
 
     /** A child's first launch from its parent's hull: its hat goes onto the water at the authored hat-off pose beside the child. */

@@ -57,7 +57,7 @@ public final class ScenarioCommands {
 
     private static int requestShore(CommandSourceStack source,YukkuriEntity parent){
         return parent.aquaticLife().requestShoreVisit()?1
-                : refused(source,parent,"返岸","亲油现在不能返岸：要在自己的船上、船在水面、八格内有干岸、没有别的任务。");
+                : refused(source,parent,"返岸","亲油现在不能返岸：要在自己的船上、船在水面、八格内有干岸、没有别的任务（最近答复："+parent.aquaticLife().voyage().lastRefusal()+"）。");
     }
 
     private static BadgeGrade badgeGrade(String id) {

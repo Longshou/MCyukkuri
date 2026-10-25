@@ -95,6 +95,12 @@ public final class AquaticSelfRescue {
                 ||actor.aquaticLife().firstVoyage().active())return false;
         return shoreRecoverable(knownOwnHat());
     }
+    /** The loaded, token-matched hull of this ashore captain when it can be recovered, else null (the voyage's RECOVER decision). */
+    public HatBoatEntity recoverableHat(){
+        if(!shoreRecoveryAvailable())return null;
+        var current=knownOwnHat();
+        return shoreRecoverable(current)?current:null;
+    }
     public String shoreRecoveryActivity(){return shoreRecoveryActivity;}
     private boolean shoreRecoverable(HatBoatEntity current){
         return ownsPhysicalHat(current)&&!current.deploying()
@@ -108,15 +114,7 @@ public final class AquaticSelfRescue {
         if(!current.getUUID().equals(shoreHatId)){
             shoreHatId=current.getUUID();shoreBank=null;nextShoreRoute=0;
         }
-        if(current.isAfloat()&&!current.unsteadyMotion()&&!current.hasIncoming()&&current.distanceToSqr(actor)<=9){
-            shoreRecoveryActivity=Behaviors.BOAT_LAUNCH;actor.getNavigation().stop();current.helm().hold(actor, HullHelm.Purpose.SAFETY);
-            if(now()%10==1)CrewTransfers.embark(actor,current);
-            return true;
-        }
-        if(current.state()==HatBoatEntity.State.BEACHED&&current.distanceToSqr(actor)<=36){
-            // The hull's existing BEACHED tick starts its real landing/rescue sequence when its owner reaches it.
-            shoreRecoveryActivity=Behaviors.BOAT_SEEK_BANK;actor.getNavigation().stop();return true;
-        }
+        // A hull within reach (afloat to hop onto, beached to slide back to the water) is the voyage's RECOVER phase, not decided here.
         boolean atBank=shoreBank!=null&&actor.distanceToSqr(Vec3.atBottomCenterOf(shoreBank))<=.4;
         if(current.state()!=HatBoatEntity.State.BEACHED&&atBank){
             // A capsize or a hull beyond one real hop is approached through normal water movement; do not fake a rim grip.

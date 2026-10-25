@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -26,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
  * hull must pass {@link HullFootprint}. The answer is a {@link Berth} or a {@link Refusal} that names the real obstruction.
  */
 public final class ShoreBerth {
-    public enum Purpose { LAUNCH, LAND, SPAWN, SCENARIO }
+    public enum Purpose { LAUNCH, LAND, SPAWN, SCENARIO, NIGHT }
 
     /** Gap between the near edge of the brim rectangle and the bank wall, in blocks. */
     public static final double CLEARANCE = .03;
@@ -69,7 +70,7 @@ public final class ShoreBerth {
     private ShoreBerth() {}
 
     public static int defaultRange(Purpose purpose) {
-        return switch (purpose) { case LAUNCH -> 16; case LAND -> 8; case SPAWN -> 14; case SCENARIO -> 10; };
+        return switch (purpose) { case LAUNCH -> 16; case LAND -> 8; case SPAWN -> 14; case SCENARIO -> 10; case NIGHT -> 12; };
     }
 
     public static Outcome find(ServerLevel level, YukkuriEntity captain, float hullScale, BlockPos near, Purpose purpose, BlockPos hint) {
@@ -78,7 +79,7 @@ public final class ShoreBerth {
 
     public static Outcome find(ServerLevel level, Query query) {
         return switch (query.purpose()) {
-            case LAUNCH, LAND -> alongBank(level, query);
+            case LAUNCH, LAND, NIGHT -> alongBank(level, query);
             case SPAWN, SCENARIO -> openWater(level, query);
         };
     }
@@ -117,11 +118,13 @@ public final class ShoreBerth {
         for (var p : BlockPos.betweenClosed(q.near().offset(-q.range(), -2, -q.range()), q.near().offset(q.range(), 2, q.range()))) {
             if (!HatBoatRoute.calmSurface(level, p) || !q.acceptWater().test(p)) continue;
             count(counts, "calm_water");
+            // A night berth lies still: current would carry a sleeping hull off its wedge.
+            if (q.purpose() == Purpose.NIGHT && level.getFluidState(p).getFlow(level, p).lengthSqr() >= .01) { count(counts, "night_current"); continue; }
             for (var side : Direction.Plane.HORIZONTAL) {
                 var stand = p.relative(side).above();
                 if (!level.getFluidState(p.relative(side)).isEmpty() || !level.hasChunkAt(stand)) continue;
                 count(counts, "bank_cells");
-                if (!(captain == null ? bankCell(level, stand) : captain.life().dryStand(stand))) { count(counts, "not_standable"); continue; }
+                if (!(captain == null || q.purpose() == Purpose.NIGHT ? bankCell(level, stand) : captain.life().dryStand(stand))) { count(counts, "not_standable"); continue; }
                 candidates.add(candidate(level, q, p.immutable(), stand.immutable(), side.getOpposite()));
             }
         }
@@ -156,6 +159,10 @@ public final class ShoreBerth {
         float ownerYaw = (float) Math.toDegrees(Math.atan2(-n.x, n.z));
         float yaw = Mth.wrapDegrees(ownerYaw + placement.yaw());
         var standFeet = Vec3.atBottomCenterOf(stand);
+        if (q.purpose() == Purpose.NIGHT) {
+            // Bow in: the long axis of the brim points at the bank, so the front edge wedges into the notch.
+            yaw = (float) Math.toDegrees(Math.atan2(n.x, -n.z));
+        }
         double distance = .5 + HullFootprint.reach(yaw, q.hullScale(), n.x, n.z) + CLEARANCE;
         double cx = standFeet.x + n.x * distance, cz = standFeet.z + n.z * distance;
         var centreCell = BlockPos.containing(cx, water.getY() + .5, cz);
@@ -171,8 +178,34 @@ public final class ShoreBerth {
                 if (k == 0 || level.hasChunkAt(side) && q.captain().life().dryStand(side) || level.hasChunkAt(side.above()) && q.captain().life().dryStand(side.above())) room++;
             }
             cost = centre.distanceTo(from) + yawGap + (room < q.crew() + 1 ? 100 : 0) + hintBonus(q.hint(), stand);
-        } else cost = stand.distSqr(q.near()) + hintBonus(q.hint(), stand);
+        } else if (q.purpose() == Purpose.NIGHT) cost = stand.distSqr(q.near()) * .2 - shelter(level, water);
+        else cost = stand.distSqr(q.near()) + hintBonus(q.hint(), stand);
         return new Candidate(stand, water, toWater, standFeet, centre, yaw, n.scale(-1), along, cost);
+    }
+
+    /**
+     * How sheltered a water cell is for a night berth: solid blocks or reeds / lily pads around it (a notch), and a roof over it.
+     * Higher is better; only blocks that are really there count.
+     */
+    private static double shelter(ServerLevel level, BlockPos water) {
+        double score = 0;
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+            if (dx == 0 && dz == 0) continue;
+            var side = water.offset(dx, 0, dz);
+            if (!level.hasChunkAt(side)) continue;
+            var above = level.getBlockState(side.above());
+            if (!level.getFluidState(side).isEmpty()) {
+                if (above.is(Blocks.LILY_PAD)) score += 1.5;
+                continue;
+            }
+            score += 1.5;
+        }
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) {
+            var reed = level.getBlockState(water.offset(dx, 1, dz));
+            if (reed.is(Blocks.SUGAR_CANE) || reed.is(Blocks.BAMBOO)) score += 1.5;
+        }
+        for (int up = 2; up <= 4; up++) if (!level.getBlockState(water.above(up)).isAir()) { score += 3; break; }
+        return score;
     }
 
     private static double hintBonus(BlockPos hint, BlockPos stand) {

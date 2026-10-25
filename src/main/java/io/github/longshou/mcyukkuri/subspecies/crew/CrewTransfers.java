@@ -76,6 +76,18 @@ public final class CrewTransfers {
                 swimming ? "rescue_lift" : "board_lift"));
     }
 
+    /**
+     * A dependent young on the bank is set into the moored hat by the captain standing on the bank (braid cradle, or mouth when the
+     * braid cannot reach). The captain boards last, so she is not yet aboard: the transfer takes her feet as the pickup stand.
+     */
+    public static Result loadFromBank(YukkuriEntity body, YukkuriEntity carrier, HatBoatEntity hat) {
+        if (carrier == null || !carrier.isAlive() || carrier.level() != body.level() || carrier.isPassenger())
+            return Result.refused(CrewTransfer.Refusal.TRANSIENT, "no_captain_on_bank");
+        if (body.isPassenger() || body.family().flying() || body.isInWaterOrBubble() || !hat.admits(body))
+            return Result.refused(CrewTransfer.Refusal.TRANSIENT, "preconditions");
+        return open(new Request(Mode.LIFT, body, carrier, world(body), anySeat(hat), Purpose.BOARD, false, false, DeckLayout.NONE, "load_lift"));
+    }
+
     /** A capsized captain, afloat herself, lifts one of her ejected young onto the hat she has righted. */
     public static Result liftFromWater(YukkuriEntity body, YukkuriEntity carrier, HatBoatEntity hat) {
         return open(new Request(Mode.LIFT, body, carrier, Anchor.water(body.position()), anySeat(hat), Purpose.RESCUE, true, true, DeckLayout.NONE, "water_parent_lift"));

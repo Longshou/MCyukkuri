@@ -128,6 +128,9 @@ public final class EcologyPresentation {
         if(boat.rocking()||boat.capsizing())return YukkuriAction.BOAT_STEADY;
         if(behavior.startsWith(Behaviors.BRAID_RESCUE_PREFIX)||behavior.equals(Behaviors.BOAT_ALARM_CALL)||behavior.equals(Behaviors.BOAT_ALARM_WAIT)
                 ||behavior.equals(Behaviors.BOAT_CALM)||behavior.equals(Behaviors.BOAT_ANSWER_CALL))return action(behavior);
+        if(behavior.equals(Behaviors.BOAT_WEDGE_BERTH))return YukkuriAction.BOAT_WEDGE_BERTH;
+        if(behavior.equals(Behaviors.BOAT_PUSH_OFF))return YukkuriAction.BOAT_PUSH_OFF;
+        if(behavior.equals(Behaviors.BOAT_COVER_YOUNG))return YukkuriAction.BOAT_COVER_YOUNG;
         if(boatFleeing(behavior))
             return boat.paddling()?YukkuriAction.BOAT_PADDLE:YukkuriAction.BOAT_FLEE;
         if (boatReassuring(behavior))

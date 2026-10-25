@@ -58,6 +58,9 @@ public final class Behaviors {
     public static final String BOAT_STEADY = "boat_steady";
     public static final String BOAT_TOILET = "boat_toilet";
     public static final String BOAT_WAIT_YOUNG = "boat_wait_young";
+    public static final String BOAT_WEDGE_BERTH = "boat_wedge_berth";
+    public static final String BOAT_PUSH_OFF = "boat_push_off";
+    public static final String BOAT_COVER_YOUNG = "boat_cover_young";
     public static final String BRAID_BE_RESCUED = "braid_be_rescued";
     public static final String BRAID_RESCUE_HOLD = "braid_rescue_hold";
     public static final String BRAID_RESCUE_OFFER = "braid_rescue_offer";

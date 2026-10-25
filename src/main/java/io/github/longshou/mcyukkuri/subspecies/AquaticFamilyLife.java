@@ -291,6 +291,14 @@ public final class AquaticFamilyLife {
         return false;
     }
 
+    /** The owner's answer to a danger near her hull: hold while the hull is unsteady, else gather, call and steer away (the alarm). */
+    public boolean tickThreat(HatBoatEntity boat){
+        if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||entity.aquaticLife().firstVoyage().active())return false;
+        if(boat.unsteadyMotion()){hold(boat,Behaviors.BOAT_WAIT_YOUNG);return true;}
+        if(alarm.tickOwner(boat,loadedChildren())){guarding=true;activity=alarm.activity();return true;}
+        return false;
+    }
+
     /** Runs after immediate food/drink handling and before autonomous travel or the owner's panic hold. */
     public boolean tickOwner(HatBoatEntity boat){
         if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||entity.aquaticLife().firstVoyage().active())return false;
@@ -516,7 +524,7 @@ public final class AquaticFamilyLife {
         boolean rescue=rescueCandidates.stream().anyMatch(this::rescueNeed);
         if(entity.aquaticLife().care().active()){
             if(!rescue)return false;
-            entity.aquaticLife().yieldAllBut(BoatTask.RESCUE);
+            entity.aquaticLife().care().cancel();
         }
         // A sleeping flotilla must not indefinitely hide an infant's real meal or first toilet.
         // A committed rescue still has a brief, concrete physical task to finish first.

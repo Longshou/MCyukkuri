@@ -43,7 +43,7 @@ public final class HullHelm {
 
     /** Why the helm is wanted; the priority orders purposes (rescue first, routine last). */
     public enum Purpose {
-        RESCUE(90), SAFETY(70), LANDING(70), BOARDING(50), CARE(50), CARGO(30), ROUTINE(10);
+        RESCUE(90), SAFETY(70), LANDING(70), BOARDING(50), CARE(50), MOORING(40), CARGO(30), ROUTINE(10);
         final int priority;
         Purpose(int priority) { this.priority = priority; }
         public int priority() { return priority; }

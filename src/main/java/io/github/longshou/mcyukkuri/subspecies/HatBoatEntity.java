@@ -117,6 +117,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private static final EntityDataAccessor<Long> STROKE_START = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> HELM_KIND = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HELM_STATUS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
+    /** The captain's voyage phase, read-only for clients and readouts. */
+    private static final EntityDataAccessor<Integer> VOYAGE_PHASE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> CURRENT = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
     /** One authoritative start time and direction; clients evaluate the same continuous curve. */
     private static final EntityDataAccessor<CompoundTag> MOTION = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
@@ -144,7 +146,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Young born into the hat (water birth); kept after a capsize so a rescue can bring them ashore. */
     private final LinkedHashSet<UUID> crew = new LinkedHashSet<>();
     private final HatBoatCrowding crowding=new HatBoatCrowding(this);
-    private final AquaticLanding landing=new AquaticLanding(this);
     /** The probe body of a newborn that has no identity yet: only used to ask the deck whether one would fit. */
     private static final UUID NEWBORN_PROBE = new UUID(0L, 1L);
     /** Last read-only planner outcome, for server failure reports; never persisted or used as state. */
@@ -156,7 +157,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         // Every pre-Water-15 hat boat is an aquatic Marisa vessel.  This preserves its identity until a loaded owner refreshes it.
         builder.define(AQUATIC_HULL, true); builder.define(ACCESSORY_STAGE, FamilyLife.Stage.ADULT.ordinal()); builder.define(DECK, new CompoundTag());
         builder.define(CARGO, new CompoundTag()); builder.define(CREW, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
-        builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0); builder.define(HULL_DAMAGE, 0);
+        builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0); builder.define(VOYAGE_PHASE, 0); builder.define(HULL_DAMAGE, 0);
         builder.define(LOAD, 0f);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
@@ -299,7 +300,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return true;
     }
     /** Called after the ordinary shore landing has physically put the temporary rider on dry ground. */
-    void releaseTemporaryRefuge(YukkuriEntity child,String reason) {
+    public void releaseTemporaryRefuge(YukkuriEntity child,String reason) {
         if(child==null)return;
         deck.dropRefuge(child.getUUID(), reason);
         syncSeats();
@@ -557,7 +558,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public Vec3 toWorld(Vec3 local) { return position().add(local.scale(unit()).yRot(turn())); }
     public Vec3 toLocal(Vec3 world) { return world.subtract(position()).yRot(-turn()).scale(1/unit()); }
     double radiusOf(Entity young) { return HatVessel.radius(young.getBbWidth())/unit(); }
-    List<Entity> youngPassengers() { return getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).toList(); }
+    public List<Entity> youngPassengers() { return getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).toList(); }
     /** The owner's stern seat (hull-local): the high stern seat from late pregnancy. */
     public Vec3 ownerSeat(YukkuriEntity owner) {
         int home = deck.homeFor(bodyOf(owner).cls());
@@ -816,6 +817,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (entityData.get(PADDLING) != on) entityData.set(PADDLING, on);
     }
     public void syncHelm(int kind, int status) { entityData.set(HELM_KIND, kind); entityData.set(HELM_STATUS, status); }
+    public void syncVoyage(int phase) { if (entityData.get(VOYAGE_PHASE) != phase) entityData.set(VOYAGE_PHASE, phase); }
+    public io.github.longshou.mcyukkuri.subspecies.boat.VoyagePhase voyagePhase() { var all = io.github.longshou.mcyukkuri.subspecies.boat.VoyagePhase.values(); return all[Math.clamp(entityData.get(VOYAGE_PHASE), 0, all.length - 1)]; }
     public HullHelm.Kind helmKind() { return HullHelm.Kind.values()[Math.clamp(entityData.get(HELM_KIND), 0, HullHelm.Kind.values().length - 1)]; }
     public HullHelm.State helmStatus() { return HullHelm.State.values()[Math.clamp(entityData.get(HELM_STATUS), 0, HullHelm.State.values().length - 1)]; }
     public HullHelm helm() { return helm; }
@@ -996,20 +999,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
 
     public YukkuriEntity captain() { return owner(); }
-    YukkuriEntity owner() {
+    public YukkuriEntity owner() {
         return ownerYukkuri() != null && level() instanceof ServerLevel server && server.getEntity(ownerYukkuri()) instanceof YukkuriEntity y ? y : null;
     }
-    /** Start the shore landing of the whole crew; {@code hint} (may be null) only says which bank is preferred. */
-    public boolean rescue(BlockPos hint, UUID rescuer) {
-        var y = owner();
-        if (level().isClientSide || capsizing() || y == null || !y.isAlive() || state() == State.RESCUED || state() == State.REMOVED
-                || y.distanceToSqr(this)>36 || hint!=null&&distanceToSqr(Vec3.atBottomCenterOf(hint))>100) return false;
-        if (hasIncoming()) return false;
-        return landing.begin(y,hint,rescuer);
-    }
-    public boolean landing(){return landing.active();}
+    /** The captain's voyage is docking, unloading or putting the hat away: the hull is being handled, not sailed. */
+    public boolean landing(){var y=owner();return y!=null&&y.aquaticLife().voyage().landing();}
     /** Return the one accessory only after everyone has left and the captain is on dry land at the hat; the hat then leaves the water. */
-    boolean finishLanding(YukkuriEntity owner,UUID rescuer){
+    public boolean finishLanding(YukkuriEntity owner,UUID rescuer){
         if(isVehicle()||hasIncoming()||owner.isPassenger()||!owner.isAlive()||!owner.getUUID().equals(ownerYukkuri())||state()!=State.AFLOAT
                 ||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
         crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();owner.subspecies().boatId(null);
@@ -1109,7 +1105,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (tickCount % 20 == 0) stations.tickLeases();
         if(state()!=State.CAPSIZED){
             cargo.tick();
-            landing.tick();
             crowding.tick();
             if (tickCount % 10 == 0&&!crowding.contesting()&&!landing()) tendSeats();
         }
@@ -1199,7 +1194,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         tag.putString("Role",role.name());if(helm.mooring()!=null){tag.putDouble("MooringX",helm.mooring().x);tag.putDouble("MooringZ",helm.mooring().z);}
         tag.put("Cargo", cargo.save());
         tag.put("Crowding",crowding.save());
-        tag.put("ShoreLanding",landing.save());
         tag.put("Deck",deck.save());
         var young=new ListTag();for(var id:crew)young.add(NbtUtils.createUUID(id));tag.put("Crew",young);
     }
@@ -1207,7 +1201,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         loss.load(tag);
         stations.clearAll();
         crowding.load(tag.getCompound("Crowding"));
-        landing.load(tag.getCompound("ShoreLanding"));
         entityData.set(OWNER,tag.hasUUID("OwnerYukkuri")?Optional.of(tag.getUUID("OwnerYukkuri")):Optional.empty());
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
         try{state(State.valueOf(tag.getString("State")));}catch(IllegalArgumentException invalid){state(State.BEACHED);}
