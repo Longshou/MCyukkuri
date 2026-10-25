@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 亲代运输演出（帽檐／口含／尾托姿态与接放动作） | `.worktrees/carry-show` | `client/YukkuriRenderer.java` 承托分支、`family/ParentCarry.java` 座位偏移（`rawSeat`／`TAILS`）、`family/HatCarry.java` 布局显示、`entity/presentation/` 承托动作、嘴部挂点 |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 
@@ -56,7 +55,7 @@
 - **水 11 交互工具**：未做。裁决：用辫子和嘴交互，无辫种类只用嘴；“帽子是交互工具”是误传。挣扎、扶正帽子、托孩子、爬上船、递粮改由辫子或嘴完成，少些僵硬。
 - **水 13 握桨太斜、穿模**：已接入待试玩。原 +45° 未计物品 FIXED 显示自带的 Y180，木棍横躺并插进身体，回桨再前翻 105°；现改为辫梢握住木棍上端、外倾入水，推水后扫、回桨外抬出水（`AquaticMotionPresentation.holdPaddle`）。完成：`sail` 或 `voyage` 划船时从侧面和前方看木棍从辫梢斜伸出帽檐、下端入水，推水向后、回桨抬出水面，不插进身体或帽船；递帽檐、推孩子时木棍仍在辫梢、不穿模。
 - **水 14 运送赤油时辫子抽动**：数值通过·演出待补（轨迹大体对）。推测 `CradlePickupPresentation` 没用服务器同步朝向（登船、自救有），船身摇晃也没套到被举的孩子。
-- **亲代运输演出**：部分接入。真实接起、随行、放下、喂养中断与重接已接入（陆 33，待试玩）；基础座位已在位：帽檐沿用登帽座位，口含取嘴部锚点前下方，橙取尾顶（`ParentCarry.rawSeat` 与 `TAILS` 表），孩子朝向随亲油（`ParentCarry.seatYaw`），渲染分支在 `YukkuriRenderer` 的 carried 部分，`YukkuriView.carryMode()` 给出当前方式，口含时亲油闭口并隐藏妖梦木棍。未做（交 Opus 演出包）：抬起／放下动作（弯腰、衔起、卷尾）、口含悬挂姿态（后颈衔住的倾角与晃动）、尾托的卷尾姿态与摆动、行进中亲油步态随负重变化、孩子被抬时的表情与对白、放下时的落地动作；多只座位目前只是位置：帽檐沿前沿按 `HatCarry.layout` 排开，橙两尾取 `TAILS` 表左右各一点，灵梦／口含沿嘴前横向错开、奇数只前移半个身位（`ParentCarry.resolve` 给出方式与次序，`rawSeat` 给出位置），各孩子的悬挂／蹲坐姿态、互相遮挡和晃动留给演出包；口含锚点是静态值，不随嘴部动作逐帧更新。姿态按[迁徙规则](SETTLEMENTS.md#运输补给与掉队)，不另建运输机制任务。
+- **亲代运输演出**：已接入待试玩。孩子画在亲油当帧的模型上（`client/ParentCarryPresentation`）：口含挂在当帧嘴唇上，后脑上部被衔住、离地悬在嘴前，亲油闭嘴；灵梦多只沿嘴横排，嘴唇外的孩子衔鬓发并略外展；帽檐坐在当帧帽骨的座位上，底贴帽檐、朝前；橙两尾各自抬起、平托一只、尾尖上卷（`CarryTailCurl`，圆尾为上抬的尾球），不托时尾巴恢复原样。孩子随亲油转身与步伐滞后轻摆（俯仰与侧倾合计不超过 12°，帽檐上只向外侧倾）。亲油负重时行走摇摆减三成，接起前俯身（服务端 `carry_lift`）、抬起后直起、放下时再俯身一次；孩子从站处升／跳到座位，放下后从座位缓回落点。帽檐排位改为孩子整体（含头发饰物）沿帽檐互不重叠，0.14 赤油在魔理沙帽檐上由 3 只降为 2 只（规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)）。离线预览 `.local/previews/parent-carry/`。完成：`colony_migrate_babies` 行军开始后看亲油俯身再抬起孩子；灵梦嘴前横排多只、贴着嘴唇离地悬挂、互不穿插；魔理沙帽檐两只坐在帽檐上不浮不陷，满后再来的一只叼在嘴上；橙两尾抬起各卷住一只、空尾保持原样；走动和转身时孩子轻晃而不甩出、不穿进亲油；放下时亲油俯身、孩子平稳落到地上；1.0 与 1.2 体型亲油都看一遍。未做：被抬孩子的表情与对白（统一补）；口含孩子被放下时落点由服务端决定，若与嘴前位置相距较远仍会看到滑移。
 
 ### 最后统一补：配音、台词与表情
 

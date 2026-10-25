@@ -68,10 +68,31 @@ public final class HatCarry {
         }
         return false;
     }
+    private static final java.util.Map<String,Double> HALF_WIDTHS=new java.util.concurrent.ConcurrentHashMap<>();
+    /** Half width of a child's authored boxes, hair and ribbons included (model units); Reimu's when the form has none. */
+    public static double childHalfWidth(String childId){
+        return HALF_WIDTHS.computeIfAbsent(childId,id->{
+            var children=GEOMETRY.getAsJsonObject("children");
+            var child=children.has(id)?children.getAsJsonObject(id):children.getAsJsonObject("reimu");
+            double half=0;
+            for(var part:child.getAsJsonArray("parts")){var b=values(part.getAsJsonArray());half=Math.max(half,Math.max(Math.abs(b[0]),Math.abs(b[3])));}
+            return half;
+        });
+    }
+    private static final java.util.Map<String,double[]> SPANS=new java.util.concurrent.ConcurrentHashMap<>();
+    /** Front and back of a child's authored boxes along its facing, hair and ribbons included (model units). */
+    private static double[] childSpan(String childId,JsonObject child){
+        return SPANS.computeIfAbsent(childId,id->{
+            double[] span={Double.MAX_VALUE,-Double.MAX_VALUE};
+            for(var part:child.getAsJsonArray("parts")){var b=values(part.getAsJsonArray());span[0]=Math.min(span[0],b[2]);span[1]=Math.max(span[1],b[5]);}
+            return span;
+        });
+    }
     private static final java.util.Map<String,double[]> LAYOUTS=new java.util.concurrent.ConcurrentHashMap<>();
     /**
      * Seats of several children on one brim, in boarding order: each child takes the first spot along the brim lip where its
-     * real foot box lies inside the support area, clears the crown and does not overlap the children before it; the group
+     * real foot box lies inside the support area, clears the crown and whose whole body (hair and ribbons included) does
+     * not overlap the children before it; the group
      * is then centred on the lip. Entry i is the child's seat offset along z (model units, from the authored seat), or NaN
      * when it does not fit. Pure geometry, so server and client agree (project design for the packing order and gap).
      */
@@ -89,17 +110,17 @@ public final class HatCarry {
                 var shape=GEOMETRY.getAsJsonObject("children").getAsJsonObject(childIds.get(i));
                 double ratio=Math.round(ratios.get(i)*1000)/1000.0;
                 if(shape==null||!Double.isFinite(ratio)||ratio<=0)continue;
-                double[] foot=values(shape.getAsJsonArray("foot"));
+                double[] foot=values(shape.getAsJsonArray("foot")),span=childSpan(childIds.get(i),shape);
                 double x0=seat[0]+foot[0]*ratio,x1=seat[0]+foot[3]*ratio;
                 if(x0<support[0]+margin||x1>support[3]-margin)continue;
                 double low=zLow-foot[2]*ratio,high=zHigh-foot[5]*ratio;
                 if(high<low-1e-9)continue;
                 for(int step=0;;step++){
                     double z=Math.min(high,low+step*.1);
-                    double z0=z+foot[2]*ratio,z1=z+foot[5]*ratio;boolean free=true;
-                    for(var other:placed)if(x0<other[1]-.02&&x1>other[0]+.02&&z0<other[3]+gap&&z1>other[2]-gap){free=false;break;}
+                    double z0=z+foot[2]*ratio,z1=z+foot[5]*ratio,b0=z+span[0]*ratio,b1=z+span[1]*ratio;boolean free=true;
+                    for(var other:placed)if(x0<other[1]-.02&&x1>other[0]+.02&&b0<other[6]+gap&&b1>other[5]-gap){free=false;break;}
                     if(free&&!obstacleHit(hat,shape,seat,z,ratio)){
-                        placed.add(new double[]{x0,x1,z0,z1,i});absolute[i]=z;out[i]=z-seat[2];break;
+                        placed.add(new double[]{x0,x1,z0,z1,i,b0,b1});absolute[i]=z;out[i]=z-seat[2];break;
                     }
                     if(z>=high)break;
                 }

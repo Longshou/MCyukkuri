@@ -79,12 +79,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         if(entity.isDeadOrDying())return;
         shadowRadius = (entity.profile().shadowRadius())*entity.growthScale();
         if (!entity.isInvisible()) {
+            var start=new Matrix4f(pose.last().pose());
             pose.pushPose();
             var parent=entity.vehicleYukkuri();
             var carryMode=parent!=null&&ParentCarry.visibleCarried(parent,entity)?ParentCarry.mode(parent,entity):null;
             var hatParent=carryMode==ParentCarry.Mode.HAT?parent:null;
-            // Mouth and tail carry: the child entity already sits at the seat (server and client position it alike); only its facing is drawn here.
-            var seatParent=carryMode!=null&&hatParent==null?parent:null;
             boolean carried=carryMode!=null;
             boolean hatCarrier=ParentCarry.carryMode(entity)==ParentCarry.Mode.HAT;
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
@@ -97,12 +96,11 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var boat=entity.vehicleHat();
             var rockingHat=boat!=null?boat:hatParent!=null?hatParent.vehicleHat():null;
             if(rockingHat!=null)HatBoatMotion.rider(pose,entity,rockingHat,partialTick);
-            if(hatParent!=null){
-                var offset=ParentCarry.rawSeat(hatParent,entity,partialTick).subtract(entity.getPosition(partialTick));
-                pose.translate(offset.x,offset.y,offset.z);
-                pose.mulPose(HatCarry.riderRotation(hatParent,partialTick));
-            }else {
-                float bodyYaw=seatParent!=null?ParentCarry.seatYaw(seatParent,carryMode,partialTick):renderedBodyYaw;
+            // A carried child is drawn on the carrier's live lips, brim or tail; a child just set down eases to the ground.
+            if(carried)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,carryMode,pose,partialTick);
+            else {
+                ParentCarryPresentation.settle(entity,pose,partialTick);
+                float bodyYaw=renderedBodyYaw;
                 String state=entity.getBehaviorId(),waterPhase=entity.waterDistressPhase();
                 if(!controlledContact&&(state.equals(Behaviors.BOAT_REASSURE)||state.equals(Behaviors.BOAT_CROWD_GUARD)
                         ||waterPhase.equals("IMPACT")||waterPhase.equals("STRUGGLE")||waterPhase.equals("EXHAUSTED"))){
@@ -174,6 +172,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=carried?"idle":hatCarrier?HatCarry.carryAction(entity):entity.getAnimationId();
             var distress=AquaticMotionPresentation.motion(entity,partialTick);
+            if(!carried)ParentCarryPresentation.configure(entity,model,partialTick);
             if(rockingHat!=null&&(rockingHat.rocking()||rockingHat.capsizing())&&!operated)
                 action=entity.getUUID().equals(rockingHat.ownerYukkuri())?"boat_steady":"hat_cradle";
             if(distress!=null&&!operated&&model.hasClip(distress.clip())){action=distress.clip();elapsed=distress.seconds();}
@@ -183,6 +182,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:distress!=null?distress.clip():behavior,
                             distress!=null?distress.seconds()*20:phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
+            if(!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
             ToiletPresentation.renderTongue(entity,behavior,phaseTicks,partialTick,model,pose,buffers,packedLight,overlay);
             ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
             var root=model.rootPose();

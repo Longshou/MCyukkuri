@@ -271,7 +271,7 @@ public final class FamilyLife {
         if(delivery.recoveryTicks()>0)return Behaviors.POSTPARTUM;
         return switch(task) {
             case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
-            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> Behaviors.SEARCH_FAMILY;
+            case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:Behaviors.SEARCH_FAMILY;
             case MIDWIFE -> cradleEntity()!=null?Behaviors.aquatic(Behaviors.HAT_HOLD, aquatic):Behaviors.MIDWIFE;
             case FEED_CHILD -> feeding.activity();
             case FETCH_HAT -> Behaviors.MIDWIFE;

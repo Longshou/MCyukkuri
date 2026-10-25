@@ -23,7 +23,8 @@ import org.joml.Vector3f;
  * Marisa (as many as physically fit the brim, then one in the mouth), one per tail for Chen (two), mouth for everyone else (one;
  * Reimu holds several, within a volume budget). Pick-up needs reach, capacity and a free carrier;
  * the child rides until it is put down at its own position (never copied, never teleported to a goal) for a real reason.
- * Client code reads only {@link #mode} / {@link #rawSeat} / {@link #seatYaw}; the finer pose per mode is an art hook.
+ * Client code reads only {@link #mode} / {@link #rawSeat} / {@link #mouthLane}; the drawn pose follows the live carrier
+ * model in client ParentCarryPresentation.
  */
 public final class ParentCarry {
     public enum Mode { HAT, MOUTH, TAIL }
@@ -42,13 +43,28 @@ public final class ParentCarry {
     /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design). */
     static final int TAIL_COUNT = 2;
     static final double TAIL_BABY_FRACTION = .26;
-    /** Basic tail seat: top of the tails, behind the body (model units); an art pass refines the pose. */
+    /** Tail seat: the shelf of the curled tail behind and beside the body (model units, idle pose, full curl). */
     private record Tail(double x, double y, double z) {}
-    /** One seat per tail (left, right), model units; a carrier's two tails hold one baby each. */
+    /** One seat per tail (left, right), model units; matches the curl drawn by ParentCarryPresentation (the client follows the live tail). */
     private static final Map<String, Tail[]> TAILS = Map.of(
-            "chen", new Tail[]{new Tail(-1.0, 5.3, 10.4), new Tail(1.0, 5.3, 10.4)},
-            "chen_longtail", new Tail[]{new Tail(-1.0, 4.6, 12.0), new Tail(1.0, 4.6, 12.0)},
-            "chen_roundtail", new Tail[]{new Tail(-.95, 4.75, 6.9), new Tail(.95, 4.75, 6.9)});
+            "chen", new Tail[]{new Tail(-3.09, 6.46, 8.6), new Tail(3.09, 6.46, 8.6)},
+            "chen_longtail", new Tail[]{new Tail(-2.93, 6.82, 9.05), new Tail(2.93, 6.82, 9.05)},
+            "chen_roundtail", new Tail[]{new Tail(-2.95, 4.99, 8.78), new Tail(2.95, 4.99, 8.78)});
+    /**
+     * Mouth lanes (project design): children hang side by side across the lips in seat order, each gripped at the top-rear of
+     * its head; the closed lips stretch a little for each extra child, and a child whose lane lies past them is held by its
+     * inner side lock instead (lower on the head, so it rides a little higher and fans outward). Carrier model units.
+     */
+    static final double LANE_GAP = .12, MOUTH_HALF = 1.6, LIP_STRETCH = .25, GRIP_SIDE = 5.2, GRIP_DROP = 3.2, LANE_FAN = 12;
+    /** The grip on a child's head (child model units): top-rear of the head, the scruff. */
+    public static final double GRIP_Y = 8.2, GRIP_Z = 4.0;
+    /** The bite sits this far in front of the lip plane (carrier model units), so the hanging back clears the face; lanes
+     *  out at the cheeks come forward a little more (per squared lane offset) to clear the side locks. */
+    public static final double LIP_GAP = .8, LANE_FORWARD = .035;
+    /** Forward offset of a lane's bite from the lip plane (carrier model units). */
+    public static double biteForward(MouthLane lane) { return LIP_GAP + LANE_FORWARD * lane.side() * lane.side(); }
+    /** The lowest a mouth-held child's feet hang above the carrier's feet (carrier model units). */
+    public static final double MOUTH_FLOOR = .2;
     private record Hold(long until, String reason) {}
 
     private final YukkuriEntity carrier;
@@ -129,22 +145,40 @@ public final class ParentCarry {
             var point = new Vector3f((float) tail.x(), (float) tail.y(), (float) tail.z()).mul(scale / 16).rotateY(turn);
             return base.add(point.x, point.y, point.z);
         }
-        var mouth = MouthPlacement.anchor(carrier).mul(scale / 16).rotateY(turn);
-        var forward = new Vector3f(0, 0, -1).rotateY(turn);
-        var across = new Vector3f(1, 0, 0).rotateY(turn);
-        // Several babies are staggered across the mouth (and alternately a little forward) so they do not overlap.
-        int count = Math.max(1, seat.lanes()), index = seat.lane();
-        double spacing = count < 2 ? 0 : Math.min(child.getBbWidth() * 1.05, carrier.getBbWidth() * .9 / (count - 1));
-        double side = (index - (count - 1) / 2.0) * spacing;
-        double reach = child.getBbWidth() * .25 + (index % 2) * child.getBbWidth() * .5;
-        return new Vec3(base.x + mouth.x + forward.x * reach + across.x * side,
-                Math.max(base.y + .03, base.y + mouth.y - child.getBbHeight() * .6),
-                base.z + mouth.z + forward.z * reach + across.z * side);
+        // Feet under the lane's grip at rest: the client hangs the child from the live lip (ParentCarryPresentation).
+        var lane = mouthLane(carrier, child);
+        var mouth = MouthPlacement.anchor(carrier);
+        double rho = size(child) / Math.max(1e-6, size(carrier));
+        // The anchor lies about .35 in front of the lip plane the client grips at.
+        var feet = new Vector3f((float) lane.side(), (float) Math.max(MOUTH_FLOOR, mouth.y - lane.gripY() * rho),
+                (float) (mouth.z + .35 - biteForward(lane) - lane.gripZ() * rho)).mul(scale / 16).rotateY(turn);
+        return base.add(feet.x, feet.y, feet.z);
     }
-    /** Body yaw (degrees, entity convention) the carried child is drawn with; per-mode offsets belong here. */
-    public static float seatYaw(YukkuriView carrier, Mode mode, float partial) {
-        // Basic placeholder facing: across the mouth for a mouth-held child, with the carrier otherwise.
-        return Mth.rotLerp(partial, carrier.previousBodyYaw(), carrier.bodyYaw()) + (mode == Mode.MOUTH ? 90 : 0);
+    /** Where one mouth-held child hangs: lane centre across the lips, grip on its head, outward fan and side tilt (degrees). */
+    public record MouthLane(double side, double gripX, double gripY, double gripZ, float fan, float roll) {}
+    /** The lane of this child among the carrier's mouth-held riders (seat order; a child not yet aboard comes last). */
+    public static MouthLane mouthLane(YukkuriView carrier, YukkuriView child) {
+        var riders = new ArrayList<YukkuriView>();
+        boolean found = false;
+        for (var rider : carrier.passengerViews()) {
+            if (rider.getUUID().equals(child.getUUID())) { riders.add(rider); found = true; }
+            else if (mode(carrier, rider) == Mode.MOUTH) riders.add(rider);
+        }
+        if (!found) riders.add(child);
+        int n = riders.size(), me = 0;
+        double carrierSize = Math.max(1e-6, size(carrier)), width = (n - 1) * LANE_GAP;
+        double[] half = new double[n];
+        for (int i = 0; i < n; i++) {
+            half[i] = HatCarry.childHalfWidth(riders.get(i).assetId()) * size(riders.get(i)) / carrierSize;
+            width += half[i] * 2;
+            if (riders.get(i).getUUID().equals(child.getUUID())) me = i;
+        }
+        double x = -width / 2, side = 0;
+        for (int i = 0; i <= me; i++) { side = x + half[i]; x += half[i] * 2 + LANE_GAP; }
+        double rho = size(child) / carrierSize, lips = MOUTH_HALF * (1 + LIP_STRETCH * Math.max(0, n - 1));
+        double grip = Mth.clamp((Mth.clamp(side, -lips, lips) - side) / Math.max(1e-6, rho), -GRIP_SIDE, GRIP_SIDE), edge = grip / GRIP_SIDE;
+        float fan = n < 2 ? 0 : (float) (side / Math.max(1e-6, width / 2) * LANE_FAN);
+        return new MouthLane(side, grip, GRIP_Y - GRIP_DROP * edge * edge, GRIP_Z - .8 * edge * edge, fan, (float) (edge * 3));
     }
     /** Mouth carry closes the carrier's mouth on the child. */
     public static boolean mouthCarrying(YukkuriView carrier) {
@@ -374,6 +408,8 @@ public final class ParentCarry {
         return dx * dx + dz * dz <= reach * reach && Math.abs(child.getY() - carrier.getY()) < 1.2 && carrier.hasLineOfSight(child);
     }
 
+    /** Standing over a child and counting down its lift (shown as the lean-down of carry_lift). */
+    boolean lifting() { return lifting != null; }
     /** One tick of walking to the child, standing over it and lifting it. */
     Step tickPickup(YukkuriEntity child, int taskTicks) {
         var why = capacityProblem(carrier, child, false, true);
