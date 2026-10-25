@@ -32,6 +32,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
+import io.github.longshou.mcyukkuri.house.YukkuriJumpControl;
 import io.github.longshou.mcyukkuri.house.HouseCrawlMotion;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -213,6 +214,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         this.operations = new OperationLife(this);
         this.navigation = new YukkuriGroundNavigation(this,level);
         this.moveControl = new HouseCrawlControl(this);
+        this.jumpControl = new YukkuriJumpControl(this);
         setPathfindingMalus(PathType.WATER, -1);
         setPathfindingMalus(PathType.WATER_BORDER, 8);
         setPathfindingMalus(PathType.DANGER_FIRE, 16);
