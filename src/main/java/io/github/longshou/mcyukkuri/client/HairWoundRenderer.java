@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyCavity;
+import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.WoundKind;
@@ -28,28 +29,67 @@ import org.joml.Vector3f;
 
 /** Authored profiles reprojected onto real skin, hair and face triangles at one authoritative site. */
 final class HairWoundRenderer {
-    private record VisibleWound(UUID id,WoundKind kind,WoundShape shape,int triangle,float u,float v,int severity,float size) {
+    record VisibleWound(UUID id,WoundKind kind,WoundShape shape,int triangle,float u,float v,int severity,float size) {
         VisibleWound(BodyWound wound){this(wound.id(),wound.kind(),wound.shape(),wound.triangle(),wound.u(),wound.v(),wound.severity(),wound.size());}
+        /** Same comparison as record equality (float bits), without building a record. */
+        boolean same(BodyWound wound){return id.equals(wound.id())&&kind==wound.kind()&&shape==wound.shape()&&triangle==wound.triangle()
+                &&Float.compare(u,wound.u())==0&&Float.compare(v,wound.v())==0&&severity==wound.severity()&&Float.compare(size,wound.size())==0;}
     }
-    private record Key(String asset,String expression,List<VisibleWound> wounds,int signs,int hairLoss,
-                       boolean accessory,int headwear,boolean corePresent,boolean exposed) {}
-    private record Entry(Key key,Prepared prepared) {}
-    private static final int MAX_CACHED_BODIES=32;
+    /** Everything that selects the topology of a prepared body except the face expression. */
+    private record Key(String asset,List<VisibleWound> wounds,int signs,int hairLoss,
+                       boolean accessory,int headwear,boolean corePresent,boolean exposed) {
+        boolean same(String asset,List<BodyWound> list,int signs,int hairLoss,boolean accessory,int headwear,boolean corePresent){
+            if(!this.asset.equals(asset)||this.signs!=signs||this.hairLoss!=hairLoss||this.accessory!=accessory||this.headwear!=headwear
+                    ||this.corePresent!=corePresent||wounds.size()!=list.size())return false;
+            for(int i=0;i<list.size();i++)if(!wounds.get(i).same(list.get(i)))return false;
+            return true;
+        }
+    }
+    /**
+     * One owner's prepared body. Expression patches only move face parts, so every variant shares the expensive
+     * expression independent work (cuts, cavity, hair and body decals, wall rings) of the first one.
+     */
+    private static final class Entry {
+        final Key key;
+        final Prepared shared;
+        final Map<Object,Prepared> variants=new LinkedHashMap<>(MAX_VARIANTS,.75f,true){
+            @Override protected boolean removeEldestEntry(Map.Entry<Object,Prepared> eldest){return size()>MAX_VARIANTS;}
+        };
+        boolean weak;
+        Entry(Key key,Prepared shared,Object expression,boolean weak){this.key=key;this.shared=shared;this.weak=weak;variants.put(expression,shared);}
+    }
+    private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8;
     private static final Map<Object,Entry> CACHE=new LinkedHashMap<>(MAX_CACHED_BODIES,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<Object,Entry> eldest){return size()>MAX_CACHED_BODIES;}
     };
     static void clear(){CACHE.clear();}
     static Prepared prepare(Object owner,YukkuriModel model,String asset,String expression,List<BodyWound> wounds,
                             int signs,float health,int hairLoss,boolean accessory,int headwear,boolean corePresent){
-        var mesh=WoundSurface.get(asset);
-        var core=BodySigns.coreWound(mesh,wounds,(signs&BodySigns.CORE_HURT)!=0,health);
         // Leakage clocks and hat regrowth percentages do not change topology.
         // The current fit and bone pose still apply every rendered frame.
-        var key=new Key(asset,expression,wounds.stream().map(VisibleWound::new).toList(),signs,hairLoss,accessory,
-                Headwear.visualLevel(headwear),corePresent,core!=null);
-        var old=CACHE.get(owner);if(old!=null&&old.key.equals(key))return old.prepared;
-        var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent);
-        CACHE.put(owner,new Entry(key,result));return result;
+        int level=Headwear.visualLevel(headwear);
+        boolean weak=health<=BodyLife.WEAK_HEALTH_RATIO;
+        var geometry=model.woundExpressionKey(expression);
+        var old=CACHE.get(owner);
+        // Common frame: nothing but possibly the expression changed, so no key, core opening or list is built.
+        if(old!=null&&old.weak==weak&&old.key.same(asset,wounds,signs,hairLoss,accessory,level,corePresent)){
+            var hit=old.variants.get(geometry);if(hit!=null)return hit;
+        }
+        var mesh=WoundSurface.get(asset);
+        var core=BodySigns.coreWound(mesh,wounds,(signs&BodySigns.CORE_HURT)!=0,health);
+        if(old!=null&&old.key.same(asset,wounds,signs,hairLoss,accessory,level,corePresent)&&old.key.exposed==(core!=null)){
+            old.weak=weak;var hit=old.variants.get(geometry);if(hit!=null)return hit;
+            var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent,old.shared);
+            old.variants.put(geometry,result);return result;
+        }
+        var key=new Key(asset,wounds.stream().map(VisibleWound::new).toList(),signs,hairLoss,accessory,level,corePresent,core!=null);
+        var result=new Prepared(model,asset,wounds,signs,hairLoss,accessory,core,corePresent,null);
+        CACHE.put(owner,new Entry(key,result,geometry,weak));return result;
+    }
+    /** Triangles one part contributed, kept per part so a new expression only redoes the parts it moves. */
+    private static final class PartOut {
+        final Map<Integer,List<Triangle>> patches=new HashMap<>();
+        final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
     }
     private record Bary(float a,float b,float c) {
         Bary mix(Bary other,float t){return new Bary(a+(other.a-a)*t,b+(other.b-b)*t,c+(other.c-c)*t);}
@@ -114,15 +154,22 @@ final class HairWoundRenderer {
     }
     static final class Prepared {
         final HairWoundAssets.Model info;
-        final List<Cut> cuts=new ArrayList<>();
+        final List<Cut> cuts;
         final Map<Integer,List<Triangle>> patches=new HashMap<>();
         final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
-        final Map<String,Float> rigidOffsets=new HashMap<>();
-        final Map<String,YukkuriModel.Part> parts=new HashMap<>();
-        final Map<Integer,String> triangleParts=new HashMap<>();
+        final Map<String,Float> rigidOffsets;
+        final Map<String,YukkuriModel.Part> parts;
+        final Map<Integer,String> triangleParts;
         final YukkuriModel model;
         final WoundSurface mesh;
-        final float[] source;
+        /** The model's live vertices, read only while the constructor runs. */
+        private float[] source;
+        /** What each part (by start, and TAIL for the cavity walls) drew; shared by the variants of one body. */
+        private final Map<Integer,PartOut> outputs;
+        private PartOut current;
+        private static final int TAIL=-1;
+        /** Only face parts move with the expression, so a variant may reuse what was drawn on every other part. */
+        private final boolean reusable;
         final Vector3f[] display;
         final List<BodyWound> wounds;
         final int whole,sole;
@@ -135,74 +182,108 @@ final class HairWoundRenderer {
         final Vector3f[] posedTriangle={a,b,c};
         final float[] triangleUv=new float[6];
         Prepared(YukkuriModel model,String asset,List<BodyWound> wounds,int signs,int hairLoss,boolean accessory,
-                 BodyWound coreWound,boolean corePresent){
-            this.model=model;this.wounds=List.copyOf(wounds);mesh=WoundSurface.get(asset);info=HairWoundAssets.model(asset);source=model.woundVertices().clone();
+                 BodyWound coreWound,boolean corePresent,Prepared donor){
+            this.model=model;mesh=WoundSurface.get(asset);info=HairWoundAssets.model(asset);
+            // The expression is already applied to the live vertices and the constructor never changes them.
+            source=model.woundVertices();
             display=new Vector3f[source.length/8];
-            whole=HairWoundAssets.wholeBurn(wounds,info.house);
-            int foot=(signs&BodySigns.FOOT_BURNED)!=0?3:0;
-            for(var wound:wounds)if(wound.kind()==WoundKind.SCORCH&&wound.shape()==WoundShape.SOLE_BURN)foot=Math.max(foot,info.house?3:wound.severity());
-            sole=foot;
+            boolean isolated=true;
+            for(var part:model.woundParts())if(model.woundExpressionPart(part)&&!(part.name().startsWith("face_")&&!info.hair.contains(part.name())
+                    &&!part.name().equals(info.body)&&!info.thermalHair.contains(part.name())&&!info.rigid.containsKey(part.name())))isolated=false;
+            reusable=isolated;
+            if(donor!=null&&!(donor.reusable&&isolated))donor=null;
+            if(donor!=null){
+                this.wounds=donor.wounds;whole=donor.whole;sole=donor.sole;parts=donor.parts;triangleParts=donor.triangleParts;
+                cuts=donor.cuts;rigidOffsets=donor.rigidOffsets;outputs=donor.outputs;
+                cavity=donor.cavity;cavitySkin=donor.cavitySkin;cavityRest=donor.cavityRest;cavityIndices=donor.cavityIndices;
+            }else{
+                this.wounds=List.copyOf(wounds);whole=HairWoundAssets.wholeBurn(wounds,info.house);
+                int foot=(signs&BodySigns.FOOT_BURNED)!=0?3:0;
+                for(var wound:wounds)if(wound.kind()==WoundKind.SCORCH&&wound.shape()==WoundShape.SOLE_BURN)foot=Math.max(foot,info.house?3:wound.severity());
+                sole=foot;
+                parts=new HashMap<>();triangleParts=new HashMap<>();cuts=new ArrayList<>();rigidOffsets=new HashMap<>();outputs=new HashMap<>();
+                for(var part:model.woundParts()){
+                    parts.put(part.name(),part);
+                    for(int first=part.start();first<part.start()+part.count();first+=3)triangleParts.put(first,part.name());
+                }
+                BodyCavity.Opening opening=null;
+                for(var wound:wounds)if(!info.house&&mesh.valid(wound)&&HairWoundAssets.profile(wound)!=null){
+                    var core=wound==coreWound?BodyCavity.opening(mesh,wound):null;if(core!=null)opening=core;
+                    cuts.add(new Cut(wound,mesh,info,core));
+                }
+                if(opening==null){cavity=null;cavitySkin=null;cavityRest=null;cavityIndices=new int[0];}else{
+                    cavity=new CavityRenderer(mesh,opening,new Vector3f[0],wounds,(signs&BodySigns.CORE_HURT)!=0,corePresent,false);
+                    cavitySkin=new Vector3f[mesh.weights.length];cavityRest=new Vector3f[mesh.weights.length];
+                    var used=new BitSet(mesh.weights.length);for(var hit:opening.rim)used.set(hit.triangle(),hit.triangle()+3);
+                    cavityIndices=used.stream().toArray();for(int i:cavityIndices){cavitySkin[i]=new Vector3f();cavityRest[i]=mesh.deformDisplay(mesh.rest(i),wounds);}
+                }
+                if(whole>0)rigidOffsets();
+            }
+            // Vertices no expression moves keep the donor's already deformed display point.
+            for(int i=0;i<display.length;i++)
+                display[i]=donor!=null&&!model.woundExpressionVertex(i)?donor.display[i]
+                        :deformRest(triangleParts.getOrDefault(i/3*3,""),new Vector3f(source[i*8],source[i*8+1],source[i*8+2]));
             for(var part:model.woundParts()){
-                parts.put(part.name(),part);
-                for(int first=part.start();first<part.start()+part.count();first+=3)triangleParts.put(first,part.name());
+                if(donor!=null&&!model.woundExpressionPart(part)){merge(donor.outputs.get(part.start()));continue;}
+                current=new PartOut();
+                buildPart(part,hairLoss,accessory);
+                if(donor==null)outputs.put(part.start(),current);
+                merge(current);
             }
-            BodyCavity.Opening opening=null;
-            for(var wound:wounds)if(!info.house&&mesh.valid(wound)&&HairWoundAssets.profile(wound)!=null){
-                var core=wound==coreWound?BodyCavity.opening(mesh,wound):null;if(core!=null)opening=core;
-                cuts.add(new Cut(wound,mesh,info,core));
+            if(donor==null){
+                current=new PartOut();
+                for(var cut:cuts)if(cut.open()){
+                    if(cut.core==null)ordinaryWall(cut);
+                    hairEdge(cut,hairLoss,accessory);
+                }
+                outputs.put(TAIL,current);
             }
-            if(opening==null){cavity=null;cavitySkin=null;cavityRest=null;cavityIndices=new int[0];}else{
-                cavity=new CavityRenderer(mesh,opening,new Vector3f[0],wounds,(signs&BodySigns.CORE_HURT)!=0,corePresent,false);
-                cavitySkin=new Vector3f[mesh.weights.length];cavityRest=new Vector3f[mesh.weights.length];
-                var used=new BitSet(mesh.weights.length);for(var hit:opening.rim)used.set(hit.triangle(),hit.triangle()+3);
-                cavityIndices=used.stream().toArray();for(int i:cavityIndices){cavitySkin[i]=new Vector3f();cavityRest[i]=mesh.deformDisplay(mesh.rest(i),wounds);}
-            }
-            if(whole>0)rigidOffsets();
-            for(int i=0;i<display.length;i++)display[i]=deformRest(triangleParts.getOrDefault(i/3*3,""),
-                    new Vector3f(source[i*8],source[i*8+1],source[i*8+2]));
-            for(var part:model.woundParts()){
-                if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))continue;
-                if(whole>0&&model.woundDamagedHat(part)){thermalHat(part);continue;}
-                boolean receiver=info.surface(part.name());
-                for(int first=part.start();first<part.start()+part.count();first+=3){
-                    if(part.name().startsWith("face_")&&source[first*8+7]>=-.15f)continue;
-                    var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
-                    List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
-                    if(receiver){
-                        for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())){
-                            triangles=subdivide(pa,pb,pc,Math.min(18,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale)))));
-                            changed=true;break;
-                        }
-                        for(var cut:cuts)if(cut.open()&&cut.bounds(pa,pb,pc,1.5f,part.name())){
-                            var outside=new ArrayList<Bary[]>();
-                            for(var tri:triangles)outside.addAll(outside(cut,info.hair.contains(part.name())?cut.hair:cut.skin,first,tri));
-                            triangles=outside;changed=true;
-                        }
-                        if(changed){var base=new ArrayList<Triangle>();for(var tri:triangles)base.add(triangle(first,tri,null,1));patches.put(first,base);}
-                        for(var cut:cuts)if(cut.bounds(pa,pb,pc,1.25f,part.name())){
-                            String texture=cut.wound.kind()==WoundKind.SCAR?"scar":cut.wound.shape().id()+"-"+cut.wound.severity();
-                            var layer=layer(HairWoundAssets.material(texture));
-                            // Only the outward facing layer receives ink. Original depth testing
-                            // resolves actual hair coverage and keeps detached accessories opaque.
-                            var n=new Vector3f(pb).sub(pa).cross(new Vector3f(pc).sub(pa));
-                            if(n.lengthSquared()<1e-12||n.normalize().dot(cut.n)<.05f)continue;
-                            for(var tri:triangles){
-                                var polygon=polygon(cut,first,tri);float rx=cut.radiusU,ry=cut.radiusV;
-                                float[][] box={{-rx,-ry},{rx,-ry},{rx,ry},{-rx,ry}};
-                                for(int i=0;i<4;i++)polygon=clip(polygon,box[i],box[(i+1)%4],true);
-                                for(var fragment:fan(polygon))layer.add(triangle(first,fragment,cut,1));
-                            }
+            merge(outputs.get(TAIL));
+            current=null;source=null;
+        }
+        private void merge(PartOut out){
+            if(out==null)return;
+            patches.putAll(out.patches);
+            for(var entry:out.layers.entrySet())layers.computeIfAbsent(entry.getKey(),ignored->new ArrayList<>()).addAll(entry.getValue());
+        }
+        private void buildPart(YukkuriModel.Part part,int hairLoss,boolean accessory){
+            if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))return;
+            if(whole>0&&model.woundDamagedHat(part)){thermalHat(part);return;}
+            boolean receiver=info.surface(part.name());
+            for(int first=part.start();first<part.start()+part.count();first+=3){
+                if(part.name().startsWith("face_")&&source[first*8+7]>=-.15f)continue;
+                var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
+                List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
+                if(receiver){
+                    for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())){
+                        triangles=subdivide(pa,pb,pc,Math.min(18,Math.max(1,(int)Math.ceil(Math.max(pa.distance(pb),Math.max(pb.distance(pc),pc.distance(pa)))/(.16f*cut.scale)))));
+                        changed=true;break;
+                    }
+                    for(var cut:cuts)if(cut.open()&&cut.bounds(pa,pb,pc,1.5f,part.name())){
+                        var outside=new ArrayList<Bary[]>();
+                        for(var tri:triangles)outside.addAll(outside(cut,info.hair.contains(part.name())?cut.hair:cut.skin,first,tri));
+                        triangles=outside;changed=true;
+                    }
+                    if(changed){var base=new ArrayList<Triangle>();for(var tri:triangles)base.add(triangle(first,tri,null,1));current.patches.put(first,base);}
+                    for(var cut:cuts)if(cut.bounds(pa,pb,pc,1.25f,part.name())){
+                        String texture=cut.wound.kind()==WoundKind.SCAR?"scar":cut.wound.shape().id()+"-"+cut.wound.severity();
+                        var layer=layer(HairWoundAssets.material(texture));
+                        // Only the outward facing layer receives ink. Original depth testing
+                        // resolves actual hair coverage and keeps detached accessories opaque.
+                        var n=new Vector3f(pb).sub(pa).cross(new Vector3f(pc).sub(pa));
+                        if(n.lengthSquared()<1e-12||n.normalize().dot(cut.n)<.05f)continue;
+                        for(var tri:triangles){
+                            var polygon=polygon(cut,first,tri);float rx=cut.radiusU,ry=cut.radiusV;
+                            float[][] box={{-rx,-ry},{rx,-ry},{rx,ry},{-rx,ry}};
+                            for(int i=0;i<4;i++)polygon=clip(polygon,box[i],box[(i+1)%4],true);
+                            for(var fragment:fan(polygon))layer.add(triangle(first,fragment,cut,1));
                         }
                     }
-                    if(whole>0||sole>0)thermal(first,part.name(),triangles);
                 }
-            }
-            for(var cut:cuts)if(cut.open()){
-                if(cut.core==null)ordinaryWall(cut);
-                hairEdge(cut,hairLoss,accessory);
+                if(whole>0||sole>0)thermal(first,part.name(),triangles);
             }
         }
-        private List<Triangle> layer(ResourceLocation texture){return layers.computeIfAbsent(texture,ignored->new ArrayList<>());}
+        private List<Triangle> layer(ResourceLocation texture){return current.layers.computeIfAbsent(texture,ignored->new ArrayList<>());}
         private Vector3f point(int first,Bary bary){return new Vector3f(source[first*8],source[first*8+1],source[first*8+2]).mul(bary.a)
                 .fma(bary.b,new Vector3f(source[(first+1)*8],source[(first+1)*8+1],source[(first+1)*8+2]))
                 .fma(bary.c,new Vector3f(source[(first+2)*8],source[(first+2)*8+1],source[(first+2)*8+2]));}

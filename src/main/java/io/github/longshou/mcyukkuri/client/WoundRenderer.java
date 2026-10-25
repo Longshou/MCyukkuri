@@ -7,14 +7,13 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.util.*;
 import java.util.UUID;
-import java.util.stream.Stream;
 import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** Existing injury deformation with the selected authored materials clipped to posed skin triangles. */
 final class WoundRenderer {
-    private static final int MAX_TOPOLOGIES=8;
+    private static final int MAX_TOPOLOGIES=64;
     private static final String[] MATERIALS={"scratch","dent","tear","scorch","scar","dirt_1","dirt_2","dirt_3",
             "mold_1","mold_2","mold_3","mold_4","char"};
     private static final Map<Object,Geometry> CACHE=new WeakHashMap<>();
@@ -27,7 +26,7 @@ final class WoundRenderer {
         WoundSurface.Hit hit(float[] p){float x=p[0]-a[0],y=p[1]-a[1];float u=Math.clamp((x*(c[1]-a[1])-y*(c[0]-a[0]))/det,0,1),v=
                 Math.clamp(((b[0]-a[0])*y-(b[1]-a[1])*x)/det,0,1);float sum=Math.max(1,u+v);return new WoundSurface.Hit(triangle,u/sum,v/sum,0);}
     }
-    private record TopologyKey(WoundSurface mesh,String expression) {}
+    private record TopologyKey(WoundSurface mesh,Object restSet) {}
     /** Rounded exactly as the original normal-group key, without constructing a String per corner. */
     private record NormalKey(int x,int y,int z,int nx,int ny,int nz) {}
     private record TransformKey(int x,int y,int z,float[] weights) {
@@ -70,7 +69,7 @@ final class WoundRenderer {
             return faceAnchors=result;
         }
     }
-    private static Topology topology(WoundSurface mesh,String expression){return TOPOLOGIES.computeIfAbsent(new TopologyKey(mesh,expression),key->new Topology(mesh,expression));}
+    private static Topology topology(WoundSurface mesh,String expression){return TOPOLOGIES.computeIfAbsent(new TopologyKey(mesh,mesh.restSet(expression)),key->new Topology(mesh,expression));}
     private static final class Geometry {
         final List<BodyWound> wounds;
         final List<SkinDecal> signs;
@@ -81,6 +80,9 @@ final class WoundRenderer {
         final CavityRenderer cavity;
         final Topology topology;
         final int[] activeVertices,normalTriangles,normalSlots,uniqueVertices,copiedVertices;
+        final BitSet wantedGroups;
+        final boolean faceFree;
+        private final Set<String> accepted=new HashSet<>();
         final Vector3f temp=new Vector3f(), edge=new Vector3f(), normal=new Vector3f();
         final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f();
         final Vector3f na=new Vector3f(),nb=new Vector3f(),nc=new Vector3f();
@@ -110,13 +112,13 @@ final class WoundRenderer {
             for(var wound:wounds)if(wound.kind()==WoundKind.TEAR&&BodySigns.open(wound)&&mesh.valid(wound))used.set(wound.triangle(),wound.triangle()+3);
             if(drawBody)used.set(0,count);
             else for(var mark:marks)for(var hit:List.of(mark.a,mark.b,mark.c))used.set(hit.triangle(),hit.triangle()+3);
-            var wantedGroups=new BitSet(topology.normalGroupCount);
+            wantedGroups=new BitSet(topology.normalGroupCount);
             for(int i=used.nextSetBit(0);i>=0;i=used.nextSetBit(i+1))wantedGroups.set(topology.normalGroups[i]);
             var triangles=new BitSet(count/3);
             for(int i=0;i<count;i+=3)if(wantedGroups.get(topology.normalGroups[i])||wantedGroups.get(topology.normalGroups[i+1])||wantedGroups.get(topology.normalGroups[i+2])){
                 triangles.set(i/3);used.set(i,i+3);
             }
-            activeVertices=used.stream().toArray();normalTriangles=triangles.stream().map(i->i*3).toArray();
+            activeVertices=used.stream().toArray();faceFree=activeVertices.length==0||activeVertices[activeVertices.length-1]<mesh.skinCount;normalTriangles=triangles.stream().map(i->i*3).toArray();
             normalSlots=new int[count];Arrays.fill(normalSlots,-1);var groupSlots=new int[topology.normalGroupCount];Arrays.fill(groupSlots,-1);
             smoothNormals=new Vector3f[wantedGroups.cardinality()];int slot=0;
             for(int group=wantedGroups.nextSetBit(0);group>=0;group=wantedGroups.nextSetBit(group+1)){groupSlots[group]=slot;smoothNormals[slot++]=new Vector3f();}
@@ -125,6 +127,17 @@ final class WoundRenderer {
             for(int i:activeVertices){int group=topology.transformGroups[i],first=source[group];posed[i]=new Vector3f();if(first<0){source[group]=i;unique[uniqueCount++]=i;
                     rest[i]=mesh.deformDisplay(topology.original[i],wounds);}else{copies[copyCount++]=i;copies[copyCount++]=first;}}
             uniqueVertices=Arrays.copyOf(unique,uniqueCount);copiedVertices=Arrays.copyOf(copies,copyCount);
+        }
+        /**
+         * Expressions only move face vertices (index >= skinCount). When none of this geometry's vertices lies on a face triangle,
+         * and none of the new expression's face vertices falls into a wanted normal group, the build would come out identical.
+         */
+        boolean accepts(String next){
+            if(expression.equals(next)||accepted.contains(next))return true;
+            if(!faceFree)return false;
+            var other=topology(mesh,next);
+            for(int i=mesh.skinCount;i<other.normalGroups.length;i++)if(wantedGroups.get(other.normalGroups[i]))return false;
+            accepted.add(next);return true;
         }
         boolean same(List<BodyWound> other,List<SkinDecal> otherSigns){
             if(other.size()!=wounds.size()||otherSigns.size()!=signs.size())return false;
@@ -232,7 +245,30 @@ final class WoundRenderer {
     }
     private static List<BodyWound> visibleMarks(YukkuriView entity){
         var marks=entity.visibleMarks();
-        return entity.profile().houseBody()?marks.stream().filter(mark->mark.kind()!=WoundKind.SCAR).toList():marks;
+        return entity.profile().houseBody()?without(marks,WoundKind.SCAR):marks;
+    }
+    /** The same list when nothing is dropped, so the common frame allocates nothing. */
+    private static List<BodyWound> without(List<BodyWound> list,WoundKind kind){
+        int i=0;while(i<list.size()&&list.get(i).kind()!=kind)i++;
+        if(i==list.size())return list;
+        var result=new ArrayList<BodyWound>(list.size());
+        for(var wound:list)if(wound.kind()!=kind)result.add(wound);
+        return result;
+    }
+    private static List<BodyWound> scorchOnly(List<BodyWound> list){
+        boolean all=true;for(var wound:list)if(wound.kind()!=WoundKind.SCORCH){all=false;break;}
+        if(all)return list;
+        var result=new ArrayList<BodyWound>(list.size());
+        for(var wound:list)if(wound.kind()==WoundKind.SCORCH)result.add(wound);
+        return result;
+    }
+    private static boolean drawnSign(SkinDecal sign){return sign.kind()!=WoundKind.CORE&&sign.kind()!=WoundKind.CHAR&&sign.kind()!=WoundKind.PASTE;}
+    private static List<SkinDecal> drawnSigns(List<SkinDecal> signs){
+        int i=0;while(i<signs.size()&&drawnSign(signs.get(i)))i++;
+        if(i==signs.size())return signs;
+        var result=new ArrayList<SkinDecal>(signs.size());
+        for(var sign:signs)if(drawnSign(sign))result.add(sign);
+        return result;
     }
     static boolean active(YukkuriView e){
         return (!e.profile().houseBody()&&!e.visibleWounds().isEmpty())||!visibleMarks(e).isEmpty()
@@ -243,19 +279,32 @@ final class WoundRenderer {
         return false;
     }
     static boolean deforms(YukkuriView entity){return !entity.profile().houseBody()&&(deforms(entity.visibleWounds())||deforms(visibleMarks(entity)));}
-    private record SignKey(int packed,float healthFraction,List<BodyWound> wounds,String asset){}
+    /**
+     * BodySigns.of reads health only through the weak threshold and wounds only through their site, kind, shape, severity and
+     * size, so leak clocks and the raw health fraction never invalidate a cached result.
+     */
+    private record SignKey(int packed,boolean weak,List<HairWoundRenderer.VisibleWound> wounds,String asset){
+        boolean same(int packed,boolean weak,List<BodyWound> list,String asset){
+            if(this.packed!=packed||this.weak!=weak||wounds.size()!=list.size()||!this.asset.equals(asset))return false;
+            for(int i=0;i<list.size();i++)if(!wounds.get(i).same(list.get(i)))return false;
+            return true;
+        }
+    }
     private static final Map<Object,Map.Entry<SignKey,List<SkinDecal>>> SIGNS=new WeakHashMap<>();
     /** Derived body signs, recomputed only when the synced states change. */
     static List<SkinDecal> signs(Object key,UUID seed,String asset,int packed,float healthFraction,List<BodyWound> wounds){
-        var id=new SignKey(packed,healthFraction,wounds,asset);var cached=SIGNS.get(key);
-        if(cached!=null&&cached.getKey().equals(id))return cached.getValue();
+        boolean weak=healthFraction<=BodyLife.WEAK_HEALTH_RATIO;var cached=SIGNS.get(key);
+        if(cached!=null&&cached.getKey().same(packed,weak,wounds,asset))return cached.getValue();
+        var id=new SignKey(packed,weak,wounds.stream().map(HairWoundRenderer.VisibleWound::new).toList(),asset);
         var result=List.copyOf(BodySigns.of(WoundSurface.get(asset),seed,packed,wounds,healthFraction));SIGNS.put(key,Map.entry(id,result));return result;
     }
     static void render(YukkuriView e,String expression,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         float health=e.getMaxHealth()<=0?1:Math.clamp(e.getHealth()/e.getMaxHealth(),0,1);
-        boolean house=e.profile().houseBody();var wounds=house?e.visibleWounds().stream().filter(w->w.kind()==WoundKind.SCORCH).toList():e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
+        boolean house=e.profile().houseBody();var wounds=house?scorchOnly(e.visibleWounds()):e.visibleWounds();var signs=signs(e,e.getUUID(),e.assetId(),e.visibleSigns(),health,wounds);
         // House bodies keep independent mould and baked-sole signs, but omit wounds and old wound scars.
-        var marks=visibleMarks(e);var all=marks.isEmpty()?wounds:Stream.concat(wounds.stream(),marks.stream()).toList();
+        var marks=visibleMarks(e);
+        List<BodyWound> all=wounds;
+        if(!marks.isEmpty()){all=new ArrayList<>(wounds.size()+marks.size());all.addAll(wounds);all.addAll(marks);}
         render(e,e.assetId(),expression,all,signs,e.livePregnancyProgress(),health,e.profile().houseBody(),world,stack,body,buffers,light,overlay);
     }
     static void render(Object key,String asset,String expression,List<BodyWound> wounds,List<SkinDecal> signs,float pregnancy,float healthFraction,boolean house,
@@ -266,11 +315,11 @@ final class WoundRenderer {
                        boolean corePresent,Matrix4f[] world,PoseStack stack,VertexConsumer body,MultiBufferSource buffers,int light,int overlay){
         // Mechanical wounds, scars and heat now share the authored hair/skin renderer.
         // The old stable dirt/mould projection remains responsible for its own status marks.
-        wounds=wounds.stream().filter(w->w.kind()!=WoundKind.SCAR).toList();
-        signs=signs.stream().filter(s->s.kind()!=WoundKind.CORE&&s.kind()!=WoundKind.CHAR&&s.kind()!=WoundKind.PASTE).toList();
+        wounds=without(wounds,WoundKind.SCAR);
+        signs=drawnSigns(signs);
         if(wounds.isEmpty()&&signs.isEmpty())return;var mesh=WoundSurface.get(asset);var geometry=CACHE.get(key);
         String faceExpression=deforms(wounds)?YukkuriModel.get(asset).geometryExpression(expression):"";
-        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||!geometry.expression.equals(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
+        if(geometry==null||geometry.mesh!=mesh||geometry.corePresent!=corePresent||!geometry.accepts(faceExpression)||!geometry.same(wounds,signs)){geometry=new Geometry(mesh,
                 wounds,signs,faceExpression,corePresent);CACHE.put(key,geometry);}
         // The puff morph is off while wound geometry is drawn, so the wounded skin keeps its rest shape.
         var temp=geometry.temp;for(int i:geometry.uniqueVertices){var dest=geometry.posed[i].zero();var w=mesh.weights[i];for(int k=0;

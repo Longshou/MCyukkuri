@@ -84,6 +84,8 @@ public final class WoundSurface {
     }
     private static float[] floats(JsonArray a){float[] f=new float[a.size()];for(int i=0;i<f.length;i++)f[i]=a.get(i).getAsFloat();return f;}
     public Vector3f rest(int i){return new Vector3f(points[i*5],points[i*5+1],points[i*5+2]);}
+    /** Identity of the point set rest(i,expression) reads: equal sets give identical points. */
+    public Object restSet(String expression){return expressionPoints.getOrDefault(expression,points);}
     public Vector3f rest(int i,String expression){var values=expressionPoints.getOrDefault(expression,points);return new Vector3f(values[i*5],values[i*5+1],values[i*5+2]);}
     public float contactLift(float angle,boolean accessory,int loss){float min=Float.MAX_VALUE,c=(float)Math.cos(Math.toRadians(angle)),s=(float)Math.sin(Math.toRadians(angle));
         for(var raw:envelope){var p=raw.getAsJsonObject();String name=p.get("name").getAsString();if(!accessory&&

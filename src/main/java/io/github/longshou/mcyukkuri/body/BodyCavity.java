@@ -24,7 +24,11 @@ public final class BodyCavity {
     public record Profile(float[] center, float[] coreRadius, float[] openingRadius,
                           float referenceDepth, float[][] outline, float[][] levels, float[] referenceBounds) {}
     private static final Profile PROFILE = load();
-    private static final Map<WoundSurface, Map<BodyWound, Opening>> CACHE = new WeakHashMap<>();
+    /** The fit reads only these wound fields; leak clocks and peak severity change often and must not miss. */
+    private record OpeningKey(int triangle, float u, float v, float size, WoundKind kind, WoundShape shape, int severity) {
+        OpeningKey(BodyWound w) { this(w.triangle(), w.u(), w.v(), w.size(), w.kind(), w.shape(), w.severity()); }
+    }
+    private static final Map<WoundSurface, Map<OpeningKey, Opening>> CACHE = new WeakHashMap<>();
     public record CoreMesh(float[] vertices,float[] colors,float[] brokenColors) {}
     private static CoreMesh coreMesh;
     private BodyCavity() {}
@@ -144,11 +148,12 @@ public final class BodyCavity {
         if (mesh == null || mesh.assetId.startsWith("house_") || !mesh.valid(wound)
                 || !BodySigns.deep(wound) || !wound.shape().supportsCore()) return null;
         var entries = CACHE.computeIfAbsent(mesh, ignored -> new LinkedHashMap<>(128, .75f, true) {
-            @Override protected boolean removeEldestEntry(Map.Entry<BodyWound, Opening> entry) { return size() > 128; }
+            @Override protected boolean removeEldestEntry(Map.Entry<OpeningKey, Opening> entry) { return size() > 128; }
         });
-        if (entries.containsKey(wound)) return entries.get(wound);
+        var key = new OpeningKey(wound);
+        if (entries.containsKey(key)) return entries.get(key);
         var result = fit(mesh, wound);
-        entries.put(wound, result);
+        entries.put(key, result);
         return result;
     }
 

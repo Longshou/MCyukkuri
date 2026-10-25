@@ -192,6 +192,18 @@ public final class YukkuriModel {
     private HouseNormals puffNormals;
     private final Vector3f puffBlendedNormal=new Vector3f();
     String geometryExpression(String expression) { return expressionAliases.getOrDefault(expression,expression); }
+    /** Vertices any expression patch can move; the wound renderer reuses everything else across expressions. */
+    private boolean[] woundExpressionVertices=new boolean[0];
+    /** The patch list setExpression would apply: equal keys mean identical vertex data. */
+    Object woundExpressionKey(String name){
+        if(!expressionPatches.containsKey(name))name=geometryExpression(name);
+        return expressionPatches.getOrDefault(name,List.of());
+    }
+    boolean woundExpressionVertex(int vertex){return woundExpressionVertices[vertex];}
+    boolean woundExpressionPart(Part part){
+        for(int v=part.start;v<part.start+part.count;v++)if(woundExpressionVertices[v])return true;
+        return false;
+    }
 
     private static float smooth(float x) { x=Math.clamp(x,0,1); return x*x*(3-2*x); }
 
@@ -537,6 +549,7 @@ public final class YukkuriModel {
         boolean[] expressionVertices=new boolean[bindings.length];
         for(var patches:expressionPatches.values())for(var patch:patches)
             Arrays.fill(expressionVertices,patch.start/8,(patch.start+patch.values.length)/8,true);
+        woundExpressionVertices=expressionVertices;
         skinningCache=new SkinningCache(bindings.length,index->{
             if(expressionVertices[index])return null;
             int offset=index*8;Binding binding=bindings[index];
@@ -909,7 +922,7 @@ public final class YukkuriModel {
             setExpression(expression);
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
             var wounds=new ArrayList<>(entity.visibleWounds());
-            wounds.addAll(entity.visibleMarks().stream().filter(mark->mark.kind()==WoundKind.SCAR).toList());
+            for(var mark:entity.visibleMarks())if(mark.kind()==WoundKind.SCAR)wounds.add(mark);
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
