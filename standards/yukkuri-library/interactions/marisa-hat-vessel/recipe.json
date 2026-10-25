@@ -5,7 +5,7 @@
   "lore": "user 2026-10-15: turned over, the hat's soft top gives like a nest (a likeness); just turn the hat upside down and squash its bottom, without turning it into another shape",
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
-  "front_tread": {"depth": 1.1, "inner_z": -4.0, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well. Project design 2026-10-26 (aquatic deck): 2.01 hat units deep (was 1.66) so a 0.40 child sits on it before the owner by night."},
+  "front_tread": {"depth": 0.6, "inner_z": -4.0, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well. Project design 2026-10-26 (aquatic deck): 2.01 hat units deep (was 1.66) so a 0.40 child sits on it before the owner by night; 0.6 below the brim (was 1.1) so a baby there shows its face over the bow rim from the bank (lead review of the shore view)."},
   "aquatic_scale": 1.75,
   "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
   "nest": {
@@ -13,7 +13,8 @@
     "lore": "on the ground the crown is pressed until the turned-over hat stands this high on it, low enough that a newborn pushed out of the live exit clears the near brim on a short arc"
   },
   "bowl": {
-    "squash": 0.75,
+    "squash": 0.55,
+    "squash_lore": "Project design 2026-10-26 (lead review of the shore view): afloat the crown is pressed flatter (0.75 -> 0.55) so the cavity floor rises and the larder and young read from the bank; the crown is under water and the brim, band and look are unchanged.",
     "freeboard": 1.2,
     "lore": "afloat the crown, pressed a little, hangs under the water (EH22); the owner rests at the stern on the ledge in the opening; by day the young ride on the floor before her, at night under her (user, 2026-10-14)"
   },
@@ -517,6 +518,8 @@
     "packings": 3,
     "high_seat_margin": 0.2,
     "owner_hat_gap": 0.45,
+    "young_hat_multiplier": 1.0,
+    "young_hat_lore": "Project design (lead review 2026-10-26, shore view): a young aquatic Marisa still in her mother's hat wears a land-size hat (x1.0); the 1.75 hat at a young's size hid its whole face and filled the cabin. Its own boat-size hat comes with the first voyage (HatVessel.hatMultiplier must follow).",
     "owner_hat_gap_lore": "Project design (preview review 2026-10-26): a young's own hat cleared the owner's bounds by the plain gap but met her hair and face as drawn; hats keep this berth from the owner.",
     "crew": {
       "lore": "Project design (ecology design D 3.4): which clip and face each body aboard shows for where it sits and the time of day; the server picks from this table (clips and faces are server-chosen, the client never overrides them while the hull rocks). A young keeps its seat's yaw (the deck's conflicts are measured with it): by day the bow perch prefers places facing out over the bow, by night places facing the owner. Faces left out are the clip's own. Only what a player sees from the bank or alongside is dressed: young asleep under the owner show the tops of their hats.",

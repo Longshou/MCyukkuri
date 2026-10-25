@@ -33,32 +33,27 @@ INSET = .36                       # the opaque part of a typical item sprite: +-
 GRID = .125
 LEAF = .25                        # forage-pile leaf sprite to hat units (a leaf about 4 long, laid across the floor)
 
-# One place per portion, in the order they are put in (later ones rest on earlier ones). cluster: which stored kind
-# (0 = the most numerous); yaw: the direction its top edge leans (0 = toward the bow, 90 = toward +X); tilt: degrees
-# up from lying flat; spin: turn of the picture in its own plane; slide: lean into the nearest wall or item.
-# Tier 1 (D: one leaf, 1-3 items leaning on the bag wall, wholly below the third-tier floor; seen from the front
-# opening at most a corner).
-T1 = [dict(cluster=0, x=-1.3, z=-3.0, yaw=0, tilt=62, spin=8, slide=True),
-      dict(cluster=1, x=0.0, z=-3.0, yaw=8, tilt=58, spin=-14, slide=True),
-      dict(cluster=0, x=-.7, z=-2.6, yaw=0, tilt=40, spin=20, slide=True)]
-# Tiers 2 and 3: a heap pushed together right before the owner's chest, where she lets each mouthful go
-# (boat_cargo_stow) and where the sight line over the bow tread reaches deepest, so from the bank the top few items show
-# over the rim (user 2026-10-26: dress only what a player sees). The heap's body is a low dome of pressed dry leaves
-# (the forage-pile litter, drawn a little under the items so it only shows dark in their gaps), held by the crown walls;
-# the items lie on it ring by ring from the outside in, each with its top edge toward the peak and stood up a little more
-# than the slope so its picture faces out, resting on the dome (nothing floats, nothing goes under the hat surface).
-# D: tier 2 reaches the third-tier floor, tier 3 stays below the owner's feet and the opening.
-MOUND = {2: dict(cx=-.6, cz=-1.95, rx=2.3, rz=1.75, top=-3.75),
-         3: dict(cx=-.6, cz=-1.85, rx=2.4, rz=1.85, top=-2.55)}
+# Every tier is a heap pushed together right before the owner's chest, where she lets each mouthful go
+# (boat_cargo_stow) and where the sight line from the bank over the bow tread reaches deepest, so each tier reads from the
+# shore (user 2026-10-26: dress only what a player sees; lead review: tiers must be told apart from the bank). The heap's
+# body is a low dome of pressed dry leaves (the forage-pile litter, drawn a little under the items so it only shows dark
+# in their gaps), held by the crown walls; the items lie on it ring by ring from the outside in, each with its top edge
+# toward the peak and stood up a little more than the slope so its picture faces out, resting on the dome (nothing
+# floats, nothing goes under the hat surface). rise: the dome's height over the crown floor. Tier 3 stays below the
+# owner's feet and the opening (D 3.3).
+MOUND = {1: dict(cx=-.6, cz=-1.8, rx=1.5, rz=1.25, rise=.85),
+         2: dict(cx=-.6, cz=-1.9, rx=2.2, rz=1.7, rise=1.45),
+         3: dict(cx=-.6, cz=-1.85, rx=2.4, rz=1.85, rise=1.85)}
 DOME = ((1.0, 0.0), (.9, .3), (.72, .58), (.48, .82), (.22, .96))  # wild_kit dome rings: (radius, height) fractions
 # (angle round the peak in degrees from the bow, distance as a fraction of the half extents, extra stand-up, spin, cluster)
-RINGS = {2: [(200, .8, 10, 0, 0), (330, .8, 12, 30, 1), (90, .82, 10, -20, 2), (270, .8, 12, 10, 0),
+RINGS = {1: [(200, .55, 14, 0, 0), (40, .5, 16, 25, 1), (300, .2, 26, -15, 0)],
+         2: [(200, .8, 10, 0, 0), (330, .8, 12, 30, 1), (90, .82, 10, -20, 2), (270, .8, 12, 10, 0),
              (20, .62, 16, -15, 1), (150, .55, 14, 5, 3), (0, .15, 24, -35, 2)],
          3: [(200, .82, 10, 0, 0), (320, .82, 12, 40, 1), (90, .84, 10, -20, 2), (270, .84, 12, 12, 0),
              (30, .8, 12, -25, 3), (150, .8, 10, 8, 1), (240, .55, 16, -30, 0), (100, .55, 16, 20, 2),
              (0, .55, 20, -10, 0), (300, .5, 18, 35, 1), (60, .35, 22, -5, 3), (180, .12, 30, 15, 0)]}
 FILL_INSET = .18  # the leaf dome under the items, this far under the surface they rest on
-PLACES = [[], T1]
+PLACES = [[], [], [], []]  # settled loose places (settle()); every tier currently lies on its dome
 # Leaf beds: forage-pile plate leaves (sprite, centre x z, yaw, fold, curl), lying on the crown floor.
 BEDS = [[], [('leaf_green', -.6, -2.45, 1.5, .12, .02)],
         [('leaf_green', -.6, -2.45, 1.5, .12, .02), ('leaf_dry', -.7, -1.35, 1.75, .1, .02)],
@@ -248,7 +243,7 @@ def mound(spec, bowl, inset=0.):
 
     def h(x, z):
         d = math.hypot((x-spec['cx'])/spec['rx'], (z-spec['cz'])/spec['rz'])
-        return max(bowl.surface(x, z), bowl.floor+(spec['top']-bowl.floor)*frac(d)-inset)
+        return max(bowl.surface(x, z), bowl.floor+spec['rise']*frac(d)-inset)
     return h
 
 
@@ -276,7 +271,7 @@ def leaf_dome(prop, part, tier, bowl):
     if tier not in MOUND: return
     import random
     m = MOUND[tier]; rng = random.Random(f'hat-larder-{tier}')
-    prop.dome(part, (m['cx'], bowl.floor, m['cz']), m['rx'], m['rz'], m['top']-bowl.floor-FILL_INSET, 'litter_dry', rng, seg=10, jitter=.04)
+    prop.dome(part, (m['cx'], bowl.floor, m['cz']), m['rx'], m['rz'], m['rise']-FILL_INSET, 'litter_dry', rng, seg=10, jitter=.04)
 
 
 def build_tier(tier, bowl, strict=True):

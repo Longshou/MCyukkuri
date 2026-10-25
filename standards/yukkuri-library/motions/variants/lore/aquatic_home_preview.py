@@ -156,7 +156,7 @@ class Home:
         return out
 
     def young_actor(self):
-        if 'm' not in self.young: self.young['m'] = T.Actor('marisa', hat_scale=self.k)
+        if 'm' not in self.young: self.young['m'] = T.Actor('marisa', hat_scale=self.deck.get('young_hat_multiplier', self.k))
         return self.young['m']
 
     def scene(self, crew, food_stock, night, atlas, captain_clip=None, captain_face=None, t=1.0, owner='adult'):
@@ -285,35 +285,39 @@ def describe(crew, seats, dropped):
 # ------------------------------------------------------------------------------------------------- sheets
 STOCK = {0: [], 1: [('apple', 2), ('sweet_berries', 1)], 2: [('apple', 3), ('sweet_berries', 2), ('short_grass', 2)],
          3: [('apple', 4), ('sweet_berries', 3), ('short_grass', 3), ('carrot', 1)]}
-CREW = {0: ['large_child', 'baby'], 1: ['child', 'baby', 'baby'], 2: ['small_child', 'small_child'], 3: ['baby', 'baby', 'baby']}
-VIEWS = (('前方 3/4（岸上俯看约 38°）', lambda h: cam(.7, .66, 17, (0, 2, 0))),
-         ('侧视（右舷，看吃水）', lambda h: cam(math.pi/2, .1, 17, (0, 2, 0))))
+CREW = {0: ['large_child', 'baby'], 1: ['child', 'baby'], 2: ['small_child', 'small_child'], 3: ['baby', 'baby', 'baby']}
+# The player on the bank, eye 1.62 over a bank about 0.9 over the water, looking at the boat from 3 and 6 blocks: down
+# about 40 and 23 degrees; and a close 45-degree look. Orthographic, from the bow quarter on the braid side.
+BANK3 = ('岸上 3 格（俯角约 40°）', lambda span=16, at=(0, 1, -1): cam(.7, .70, span, at))
+BANK6 = ('岸上 6 格（约 23°）', lambda span=16, at=(0, 1, -1): cam(.7, .40, span, at))
+CLOSE = ('前上 45°', lambda span=16, at=(0, 1, -1): cam(.5, .79, span, at))
+VIEWS = ((False, BANK3), (False, BANK6), (False, CLOSE), (True, BANK3))
 
 
 def home_sheet(now, before):
     rows = []
     for tier in (0, 1, 2, 3):
-        for tag, home in (('1.75 现在', now), (f'{before.k:g} 之前', before)):
+        for tag, home in ((f'现在\n压扁 {now.sq:g}', now), (f'之前\n压扁 {before.sq:g}', before)):
             cells = []
-            for night in (False, True):
-                for vname, view in VIEWS:
+            for night, (vname, view) in VIEWS:
                     atlas = HM.Atlas()
                     meshes, wet, mask, dropped, seats = home.scene(CREW[tier], STOCK[tier], night, atlas)
-                    img = render(meshes, wet, mask, atlas, view(home), night=night)
+                    img = render(meshes, wet, mask, atlas, view(), night=night)
                     food = sum(n for _, n in STOCK[tier]); load = home.load(CREW[tier][:len(CREW[tier])-len(dropped)], food)
                     cells.append(label(img, f"{'夜' if night else '昼'} · {vname}", describe(CREW[tier], seats, dropped)+f' · 载重 {load:g}', warn=bool(dropped)))
             rows.append((f'粮 {tier} 档\n（{sum(n for _, n in STOCK[tier])} 份）\n{tag}', cells))
-    sheet(OUT/'home.png', '帽船即家：帽子 1.5 → 1.75 倍，成体船长 + 乘员 × 粮袋四档 × 昼夜',
-          ['座位按 hat_deck_layout.json 的席位、冲突、粮袋与木棍排除和昼夜偏好求得（与运行时同一规则）；“之前”列读上一提交的资源（1.5 倍、旧整堆粮）。',
+    sheet(OUT/'home.png', '帽船即家（1.75 倍）：水下帽冠压平、帽腔底抬高前后对照，成体船长 + 乘员 × 粮袋四档，从岸上看',
+          ['视角为玩家站在岸上 3 格、6 格处的眼高，以及前上 45°；座位按 hat_deck_layout.json 的席位、冲突、粮袋与木棍排除和昼夜偏好求得（与运行时同一规则）；“之前”读上一提交的资源。',
            '吃水随载重下沉（hat_frames.json freeboard_by_load）；帽檐上不放粮。离线渲染、夜色为调暗示意，非游戏实录。'], rows)
 
 
 def larder_sheet(now):
     rows = []
     for row_name, night, baby, view, sub in (
-            ('昼 · 岸上俯看 38°\n无赤油', False, False, lambda: cam(.7, .66, 12, (0, 0, -3)), '前方 3/4：高档时顶上几件从船长身前露出'),
-            ('昼 · 前上 45°\n有赤油', False, True, lambda: cam(.5, .8, 10, (0, -1, -3)), '看进帽口：粮袋、叶托与孩子'),
-            ('夜 · 前上 45°\n赤油在深窝', True, True, lambda: cam(.5, .8, 10, (0, -1, -3)), '船长俯身盖住深窝'),
+            ('昼 · 岸上 3 格\n无赤油', False, False, lambda: BANK3[1](12, (0, 0, -2)), '各档在船长胸前的粮堆高度不同'),
+            ('昼 · 岸上 6 格\n无赤油', False, False, lambda: BANK6[1](12, (0, 0, -2)), '远处只看得到最高的几件'),
+            ('昼 · 前上 45°\n有赤油', False, True, lambda: CLOSE[1](11, (0, 0, -2)), '看进帽口：粮袋、叶托与孩子'),
+            ('夜 · 岸上 3 格\n赤油', True, True, lambda: BANK3[1](12, (0, 0, -2)), '船长俯身'),
             ('正上\n（席位不重叠，帽檐无粮）', False, True, lambda: cam(0, 1.5707, 13, (0, 0, 0)), None)):
         cells = []
         for tier in (0, 1, 2, 3):
@@ -326,7 +330,7 @@ def larder_sheet(now):
     # a cut through the larder at each tier, the hull drawn without its starboard half so the heap shows in section
     sheet(OUT/'larder.png', '帽冠粮袋：0 / 1–3 / 4–7 / 8–12 份，按实际库存种类显示（最多 4 种）',
           ['物品用各自的原版物品模型缩小，按放入顺序落在倒置帽冠底的叶托上（嘴叼放、推压，无捆扎）；草类对折塞进缝里，浆果一小把。',
-           '1 档低于三段地面；2 档到三段地面；3 档最高点低于船长脚底与帽口，粮堆顶在船长胸前（视线越过前台阶最深处），从岸上俯看越过帽檐能看到顶上几件；只为看得见的顶层花心思；帽檐上不出现粮。'], rows)
+           '帽冠压平后帽腔底抬高；粮堆顶在船长胸前（视线越过前台阶最深处），各档高度不同，从岸上 3 格能分辨；3 档最高点低于船长脚底与帽口；只为看得见的顶层花心思；帽檐上不出现粮。'], rows)
 
 
 def crew_sheet(now):
@@ -336,13 +340,12 @@ def crew_sheet(now):
              ('小子油 ×2\n昼／夜：前台阶', ['small_child', 'small_child'], [], None),
              ('子油 + 赤油 ×2\n子油在前台阶', ['child', 'baby', 'baby'], [('apple', 2), ('sweet_berries', 1)], None),
              ('大子油\n昼夜都在前台阶', ['large_child'], [('apple', 1)], None)]
-    views = (('前方 3/4', cam(.7, .47, 13, (0, 1, -1))), ('右舷侧视', cam(math.pi/2, .12, 13, (0, 1, -1))),
-             ('前上近景', cam(.4, .85, 9, (0, 0, -2))))
+    views = ((BANK3[0], BANK3[1](13)), (BANK6[0], BANK6[1](13)), (CLOSE[0], CLOSE[1](11, (0, 0, -2))))
     rows = []
     for name, crew, stock, night in shots:
         cells = []
         for n in ((False, True) if night is None else (night,)):
-            for vname, view in (views if night is not None else views[:2]):
+            for vname, view in (views if night is not None else views[:2:1] if not n else views[:1]):
                 atlas = HM.Atlas(); meshes, wet, mask, dropped, seats = now.scene(crew, stock, n, atlas)
                 cells.append(label(render(meshes, wet, mask, atlas, view, night=n), f"{'夜' if n else '昼'} · {vname}",
                                    describe(crew, seats, dropped), warn=bool(dropped)))

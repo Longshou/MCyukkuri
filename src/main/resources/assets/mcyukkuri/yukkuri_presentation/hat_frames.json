@@ -66,7 +66,7 @@
     },
     "float": {
       "hull_mode": "FLOAT",
-      "squash": 0.75,
+      "squash": 0.55,
       "top": 1.2,
       "freeboard": 1.2,
       "hull_ratio": 1.0,
@@ -89,7 +89,7 @@
           6.01
         ]
       ],
-      "owner_y": -0.4863,
+      "owner_y": -0.0366,
       "freeboard_by_load": [
         [
           0.0,
@@ -297,7 +297,7 @@
     },
     "aquatic": {
       "hull_mode": "AQUATIC_FLOAT",
-      "squash": 0.75,
+      "squash": 0.55,
       "top": 1.2,
       "freeboard": 1.2,
       "hull_ratio": 1.75,
@@ -320,7 +320,7 @@
           6.01
         ]
       ],
-      "owner_y": -0.4863,
+      "owner_y": -0.0366,
       "freeboard_by_load": [
         [
           0.0,

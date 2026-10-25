@@ -69,10 +69,11 @@ def boxes_meet(p, q, gap):
 # ------------------------------------------------------------------ bodies
 class Envelope:
     """One body size class in one hull mode (hat units): collision width, soft radius, the body's bounds and its worn
-    hat (HatVessel.bodySpace: the young's own hat at its own hat multiplier; the owner has none, her hat is the hull)."""
+    hat (HatVessel.bodySpace: the young's own hat at its own hat multiplier; the owner has none, her hat is the hull).
+    young_hat: the young's worn-hat multiplier (the deck recipe's young_hat_multiplier, at most the hull's own)."""
 
-    def __init__(self, name, scale, ratio, body, V, pregnancy):
-        k = scale/ratio; bx, by, bz = body['bounds']
+    def __init__(self, name, scale, ratio, body, V, pregnancy, young_hat=None):
+        k = scale/ratio; bx, by, bz = body['bounds']; hk = k*min(ratio, ratio if young_hat is None else young_hat)
         sw = sd = sf = sb = 1.
         if name == 'gravid':  # LiveBirthGeometry.bodyDimensions at a full belly
             p = pregnancy; sw = (1+p['swell'])*(1+p['low_wide']); sd = 1+p['swell']
@@ -83,8 +84,8 @@ class Envelope:
         xs = [v for r in V['brim_rects'] for v in r[:2]]; zs = [v for r in V['brim_rects'] for v in r[2:]]
         anchor = V['anchor_worn']
         self.hat = None if name in ('adult', 'gravid') else dict(
-            front=max(xs)*scale, back=-min(xs)*scale, side=max(abs(v) for v in zs)*scale,
-            base=anchor[1]*k, height=V['keel']*scale, behind=anchor[2]*k)
+            front=max(xs)*hk, back=-min(xs)*hk, side=max(abs(v) for v in zs)*hk,
+            base=anchor[1]*k, height=V['keel']*hk, behind=anchor[2]*k)
 
     def shapes(self, x, y, z, yaw, below=None):
         f = facing(yaw); off = (self.back-self.front)/2
@@ -149,7 +150,7 @@ class Deck:
         self.name, self.spec, self.V, self.D = name, spec, V, D
         self.ratio = V['aquatic_scale'] if spec['hull_ratio'] == 'aquatic_scale' else spec['hull_ratio']
         self.hull = Hull(V, spec['surface'])
-        self.env = {c: Envelope(c, s, self.ratio, body, V, pregnancy) for c, s in D['classes'].items()}
+        self.env = {c: Envelope(c, s, self.ratio, body, V, pregnancy, D.get('young_hat_multiplier')) for c, s in D['classes'].items()}
         self.block = 16/self.ratio  # hat units per block for a standard (growth 1) owner
         self.gap, self.wall = D['gap'], D['wall']
         self.slots, self.cargo, self.pile, self.stick = [], cargo, pile, stick
@@ -529,8 +530,12 @@ class Deck:
                 if limit is not None and rank(c) >= rank(limit): return False
             return True
 
+        budget = [self.D.get('search_budget', 20000)]  # an offline bound: a search this long counts as no legal set
+
         def go(i, placed, last):
             if i == len(order): return True
+            budget[0] -= 1
+            if budget[0] < 0: return False
             k = order[i]; c = bodies[k]
             start = last+1 if i > 0 and bodies[order[i-1]] == c else 0  # same class: places in increasing order
             for n in range(start, len(homes)):

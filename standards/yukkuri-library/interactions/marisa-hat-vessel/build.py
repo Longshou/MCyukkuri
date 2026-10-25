@@ -436,7 +436,7 @@ def deck_layout(modes, metrics_text):
                     'brim (stern +Z, bow -Z), y up from the water line or the ground; one unit is hullScale/16 blocks; a seat '
                     'yaw r faces (sin r, -cos r) and adds to the hull entity yaw.',
             'sources': src, 'classes': {c: D['classes'][c] for c in DK.ORDER}, 'jumps': D['jumps'], 'load': D['load'],
-            'curves': D['curves'], 'crew': D['crew'], 'modes': modes}
+            'curves': D['curves'], 'crew': D['crew'], 'young_hat_multiplier': D['young_hat_multiplier'], 'modes': modes}
 
 
 def report(V, body):
