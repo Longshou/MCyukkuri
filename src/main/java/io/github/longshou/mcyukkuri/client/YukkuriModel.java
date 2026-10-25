@@ -190,6 +190,10 @@ public final class YukkuriModel {
     private final Map<Integer,Part> puffAttachments=new HashMap<>();
     private final Map<String,String> expressionAliases=new HashMap<>();
     private HouseNormals puffNormals;
+    /** One shared lighting normal per expression card, so its flat strips do not shade as separate pieces. */
+    private final Map<String,Vector3f> cardNormals=new HashMap<>();
+    /** The shared normal of an expression card part, or null when the part keeps per-triangle normals. */
+    Vector3f woundCardNormal(String part){return cardNormals.get(part);}
     private final Vector3f puffBlendedNormal=new Vector3f();
     String geometryExpression(String expression) { return expressionAliases.getOrDefault(expression,expression); }
     /** Vertices any expression patch can move; the wound renderer reuses everything else across expressions. */
@@ -789,6 +793,16 @@ public final class YukkuriModel {
             }
             for(var n:houseNormals.normals){if(n.lengthSquared()>1e-16f)n.normalize();else n.set(0,0,-1);}
         }
+        cardNormals.clear();
+        if(!id.startsWith("house_"))for(var card:parts)if(card.name.startsWith("face_")&&card.anatomy.isEmpty()){
+            var sum=cardNormals.computeIfAbsent(card.name,ignored->new Vector3f()).zero();
+            for(int first=card.start;first<card.start+card.count;first+=3){
+                if(vertices[first*8+7]>=-.15f)continue;
+                for(int corner=0;corner<3;corner++)skin(first+corner,triangle[corner]);
+                normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);sum.add(normal.cross(edge));
+            }
+            if(sum.lengthSquared()>1e-16f)sum.normalize();else cardNormals.remove(card.name);
+        }
         var pregnantSurface=pregnancyBelly>.001f?pregnancySurface.begin():null;
         if(pregnancyBelly>.001f)for(int index=0;index<parts.size();index++)if(bodySurface(parts.get(index).name)){
             Part surface=puffAmount>0&&index==puffPartIndex?puffSurface:parts.get(index);
@@ -821,7 +835,8 @@ public final class YukkuriModel {
                 // House expression cards overlap on the curved face. Their opaque
                 // backs can hide neighbouring eyes with the no-cull entity material.
                 // Keep the authored front ink; the head already supplies the skin.
-                if(id.startsWith("house_")&&part.name.startsWith("face_")&&vertices[first*8+7]>=-.15f)continue;
+                // Back and side faces of box cards are skipped on every model for the same reason.
+                if(part.name.startsWith("face_")&&vertices[first*8+7]>=-.15f)continue;
                 if(pregnancyBelly>.001f&&part.name.startsWith("face_")){
                     // The thin sprite boxes have opaque skin-coloured backs. On a curved face those backs
                     // receive inverted lighting through transparent pixels; the underlying head supplies skin.
@@ -856,6 +871,7 @@ public final class YukkuriModel {
                             ?houseNormals.normals[houseNormals.groups[vertex]]:normal;
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)
                         vertexNormal=puffBlendedNormal.set(normal).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
+                    var card=cardNormals.get(part.name);if(card!=null)vertexNormal=card;
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(tint>>16&255, tint>>8&255, tint&255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)

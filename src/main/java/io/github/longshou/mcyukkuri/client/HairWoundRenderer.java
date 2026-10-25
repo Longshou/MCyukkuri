@@ -682,6 +682,7 @@ final class HairWoundRenderer {
             // wound edges and wall vertices retain their authored recess/depth.
             float lift=(offset&&tri.a.u!=.5f?.006f:0)+tri.inset;
             if(lift!=0){a.fma(lift,normal);b.fma(lift,normal);c.fma(lift,normal);}
+            var card=model.woundCardNormal(part);if(card!=null)normal.set(card);
             triangleUv[0]=tri.a.u;triangleUv[1]=tri.a.v;triangleUv[2]=tri.b.u;triangleUv[3]=tri.b.v;triangleUv[4]=tri.c.u;triangleUv[5]=tri.c.v;
             if(model.woundPatch(part,posedTriangle,triangleUv,stack,buffer,light,overlay,
                     Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),tri.a.alpha,tri.b.alpha,tri.c.alpha))return;
