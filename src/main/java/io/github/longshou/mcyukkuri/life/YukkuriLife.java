@@ -86,13 +86,21 @@ public final class YukkuriLife {
     private int starvingTicks, fatigueTicks, fatigueLength;
     private boolean observedNeedSlowness;
     private boolean napReady, fullFatigueSleep;
+    /** Project design: awake ticks that must pass after a short nap before the next roll; transient, not saved. */
+    private int napCooldown;
+    private static final int NAP_MIN_GAP = 300;
+    /** Project design: baseline thirst, +1 dryness per minute awake (two for the young), i.e. the drink threshold of 40 after about 40 minutes; severe thirst only slows. */
+    private static final int THIRST_INTERVAL = 1200;
+    private static final float SEVERE_THIRST = 90;
+    private int thirstTicks;
+    private boolean severeThirst;
 
     public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); hotFloor = new HotFloorEscape(entity); }
     public HotFloorEscape hotFloor() { return hotFloor; }
     /** Project design: equal food units, smaller daily needs for smaller life stages. */
     public float nutritionDemand() { return switch(entity.family().stage()) { case BABY -> .06f; case JUVENILE -> entity.family().subadult() ? .5f : .18f; case ADULT -> 1f; }; }
     public int sleepDuration() { return 200 + 4 * personality.boldness(); }
-    public String fatigueDetail() { return "ready="+napReady+" ticks="+fatigueTicks+" duration="+fatigueLength+" full="+fullFatigueSleep+" starvation="+starvingTicks; }
+    public String fatigueDetail() { return "ready="+napReady+" gap="+napCooldown+" ticks="+fatigueTicks+" duration="+fatigueLength+" full="+fullFatigueSleep+" starvation="+starvingTicks; }
     public boolean fatigueActive() { return fatigueTicks > 0; }
     public boolean canFatigueRest() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.onGround()
@@ -120,6 +128,7 @@ public final class YukkuriLife {
         accountEnvironmentalWake();
         GameplayLog.event(entity,"sleep","end source=fatigue full={} ticks={} energy={}",fullFatigueSleep,fatigueTicks,energy);
         boolean rested = fullFatigueSleep && fatigueTicks > fatigueLength;
+        if(!fullFatigueSleep) napCooldown = NAP_MIN_GAP;
         fatigueTicks = 0; napReady = false;
         if(rested) { restWait = restInterval(); entity.family().woke(); }
     }
@@ -386,15 +395,20 @@ public final class YukkuriLife {
         }
         if (ageTicks % 20 == 0) {
             if(nutrition < 10)entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,40,0,false,false,true));
-            boolean slow = nutrition < 10 || energy <= 25;
+            boolean slow = nutrition < 10 || energy <= 25 || dryness >= SEVERE_THIRST;
             if(slow)entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,40,1,false,false,true));
             if(slow != observedNeedSlowness) {
                 observedNeedSlowness = slow;
                 GameplayLog.event(entity,"needs","slowness renewal={} nutrition={} energy={} effect={}",slow,nutrition,energy,entity.getEffect(MobEffects.MOVEMENT_SLOWDOWN));
             }
         }
+        if (!isSleeping() && ++thirstTicks >= (entity.family().adult() ? THIRST_INTERVAL : THIRST_INTERVAL * 2)) {
+            thirstTicks = 0; addDryness(1);
+            if (dryness == 40 || dryness == SEVERE_THIRST) GameplayLog.event(entity,"needs","thirst baseline dryness={} threshold={}",dryness,dryness >= SEVERE_THIRST ? "severe" : "drink");
+        }
         if(energy > 25)napReady=false;
-        else if(!isSleeping() && !napReady && entity.getRandom().nextInt(600)==0)napReady=true;
+        else if(napCooldown > 0) { if(!isSleeping()) napCooldown--; }
+        else if(!isSleeping() && !napReady && entity.getRandom().nextInt(300)==0)napReady=true;
         if (++energyTicks >= Math.max(20,
                 YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }

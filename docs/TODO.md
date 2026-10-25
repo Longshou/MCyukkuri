@@ -13,7 +13,6 @@
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
-| 短打盹间隔与饮水需求 | `.worktrees/nap-water` | 睡眠／打盹相关（`life/` 睡眠段）、饮水需求与 `SEEK_WATER`（`life/YukkuriLife.java` 对应段）、`scripts/museum_scenarios.py` 困倦惊醒场景、睡眠与需求所属专题 |
 
 ## 玩法待办
 
@@ -148,7 +147,7 @@
 - **低营养虚弱与饥饿掉血**：已接入待试玩。E4 01:36 用户看不出减速；已改有效速度读取、同种同体型对照和到场传送，效果及伤害规则见[生活规则](CORE_GAMEPLAY.md#服务端配置)。完成：`nutrition_age` 对照移速、营养、血量和 `needs.fatigue` 计时；补食后计时归零、效果自然到期，饥饿仍可致死。
 - **定向噗咕的数值回应**：已接入待试玩。按当前体型差、友善、胆量、对象恐惧与行为重要程度选择逃跑、无视、噗咕回应或激怒攻击；复用原有反击与受伤中断，生产／危险优先。完成：`puff_response` 四种真实初态待自然制裁宣告，再核对 `[social] puff` 输入、选择、实际 Goal 与移动／伤害；`carrion` 核对饥饿目标对护尸噗咕的反应，不能直接指定结果。
 - **新增演示到场传送**：已接入待试玩。E5 仍未传送；`fatigue`、`fatigue_predator`、`nutrition_age` 当前已设观察位置。完成：从各观察台启动均传送到对应样例附近，清场重开一致。
-- **困倦打盹、胆量睡时与危险惊醒**：已接入待试玩。E5 01:52:17 入睡、01:52:20 已受咬且未找到困倦演示，已调整场景观察期和入口；睡眠与惊醒规则已接入，详见[生活规则](CORE_GAMEPLAY.md#服务端配置)。完成：`fatigue`、`fatigue_predator` 与 `sleep` 对照停步、睡眠表情、胆量／时长、困值、危险惊醒和捕食目标；不指定 Goal，不忽略真实咬伤。
+- **困倦打盹、胆量睡时与危险惊醒**：已接入待试玩。实测运行版本 ac4ba87b（[CI 40196337976](https://github.com/Longshou/MCyukkuri/actions/runs/40196337976)）两次打盹间隔不足 0.5 秒：原为每 tick 1/600 无冷却的抽签，已加 300 tick 最小间隔，`fatigue` 场景观察后排“读短打盹”的 gap 倒数且两次打盹至少隔 15 秒。口渴：`dryness` 原只由食物／炎热增加，现加缓慢基础上升（成体每分钟 +1，40 起饮水，90 起缓慢 II），`yukkuri status … raw` 的 dryness 随时间上升，日志 `[needs] thirst baseline` / `drink`，观察一只放在水边的个体约 40 分钟后（或用口干按钮）自行走去喝水且不扣血。E5 01:52:17 入睡、01:52:20 已受咬且未找到困倦演示，已调整场景观察期和入口；睡眠与惊醒规则已接入，详见[生活规则](CORE_GAMEPLAY.md#服务端配置)。完成：`fatigue`、`fatigue_predator` 与 `sleep` 对照停步、睡眠表情、胆量／时长、困值、危险惊醒和捕食目标；不指定 Goal，不忽略真实咬伤。
 - **成长营养需求与献身供养总量**：已接入待试玩。E2 明确幼体需求低于成体、默认静态基础消耗估算下，献身余额可供两只子油约五天；倍率见[生活规则](CORE_GAMEPLAY.md#服务端配置)，共享余额见[献身规则](INJURIES_AND_REMAINS.md#献身捕食与遗体食用)。完成：`nutrition_age` 对照需求与营养扣值；`offering` 观察共享真实余额与吞咽，受伤、腐败和成长仍减少可供时间，不凭空续量。
 - **空手击打无伤口反馈**：已接入待试玩。E7 `core_exposed` 空手击打只在首拳留一级凹伤，重复击打记 `wound unchanged`。已改为同一处累计扣血定伤级（规则见[伤口与治疗](INJURIES_AND_REMAINS.md#伤口与治疗)），一级凹伤／擦伤加深显示，有效命中在命中点喷馅屑（火烧冒烟）。完成：`core_exposed` 对“满血爆裂”个体背面空手连打同一处，第 3、5 拳分别升到二、三级，`[body]` 日志点数前后值对应；远近都能看清一级伤，每拳命中点有馅屑。
 - **旁观受伤语音串用**：已接入待试玩。E2 中旁观者播放自己的受伤语音；已移除旁观伤势入口的 `wounded` 事件，保留惊讶与不安。完成：`hurt` 中手动轻击一只，只有实际受伤者播放痛呼，旁观者不串用；受伤和目击情绪仍真实结算。
