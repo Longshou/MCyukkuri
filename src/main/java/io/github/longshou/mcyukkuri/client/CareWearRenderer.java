@@ -69,7 +69,7 @@ final class CareWearRenderer {
             // tiger: striped lower piece folded over in cream fleece, the tiger mark front and back (EH34 p.12-14; the eared hood is not made)
             new Style(fabric("tiger"), WHITE, fabric("fleece"), rgb(255, 236, 206), null, null, FOLD, false, MARK, .42f, .20f, .010f, .15f, .024f),
             // outing: light cloth with a navy folded edge, a rubber sole, a strap and a pouch (EH31 p.2)
-            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(72, 94, 138), null, null, FOLD, false, OUTING, .40f, .20f, .006f, .15f, .020f),
+            new Style(fabric("cotton"), rgb(168, 204, 232), fabric("cotton"), rgb(100, 126, 170), null, null, FOLD, false, OUTING, .40f, .20f, .006f, .10f, .016f),
             // fleece: thicker, higher winter wrap with a plush folded edge, crossover flap and pompom ties at the front (N91's cold-season wear; shape project design)
             new Style(fabric("fleece"), rgb(192, 166, 136), fabric("fleece"), rgb(244, 232, 212), rgb(160, 136, 108), rgb(198, 96, 78), FOLD, true, POMPOMS, .48f, .19f, .018f, .19f, .032f),
             // gingham: blue checks folded over white with a navy line, crossover flap and navy bow (project design)
@@ -114,16 +114,20 @@ final class CareWearRenderer {
      * The leaf laid as a diaper, as fractions of the body height: the blade base sits at the anus on the back (LEAF_BACK), the petiole
      * rises STALK above it and stands STALK_OUT off the body; the blade runs down the back, under the body and up the front to LEAF_FRONT,
      * over the front outlet and under the mouth, LEAF_LIFT off the skin. LEAF_HALF is the half width of the leaf texture across the body;
-     * the margins curl out by CURL and rise by RISE towards the sides, so the leaf cups the bottom and shows on the flanks. U_* split the
-     * texture along the leaf: petiole, blade on the back, under the body, blade on the front (its broadest part low on the front).
+     * the margins curl out by CURL (FRONT_CURL times that on the front, so the front blade bends round the flanks instead of lying flat)
+     * and rise by RISE towards the sides, so the leaf cups the bottom and shows on the flanks. U_* split the texture along the leaf:
+     * petiole, blade on the back, under the body, blade on the front. The back and front blades are eased along their height (BACK_EASE,
+     * FRONT_EASE): the narrow base runs quickly into the broad blade high on the back, close under the hanging back hair, and the narrowing
+     * tip takes the upper half of the front, drawn in across the body by up to FRONT_NARROW towards the tip and with the margins' rise
+     * fading towards it, so it reads as a pointed leaf under the mouth rather than a straight-edged bib.
      */
-    private static final float LEAF_BACK = .32f, LEAF_FRONT = .22f, STALK = .14f, STALK_OUT = .025f, LEAF_HALF = 1.05f, CURL = .01f, RISE = .22f,
-            LEAF_LIFT = .010f;
+    private static final float LEAF_BACK = .36f, LEAF_FRONT = .22f, STALK = .10f, STALK_OUT = .025f, LEAF_HALF = 1.05f, CURL = .01f, RISE = .22f,
+            LEAF_LIFT = .012f, FRONT_CURL = 2.5f, BACK_EASE = 2f, FRONT_EASE = 2f, FRONT_NARROW = .3f;
     /** Highest the leaf reaches at the front and at the sides and back (the cupped margins and the petiole), for clearHair. */
     private static final float LEAF_TOP_FRONT = .26f, LEAF_TOP_BACK = .50f;
     private static final float U_STALK = 5 / 32f, U_UNDER = .40f, U_FRONT = .50f;
     /** Rows of the leaf grid per part (petiole, back, under, front) and columns across; the widest angle a margin wraps round the body. */
-    private static final int STALK_ROWS = 2, BACK_ROWS = 5, UNDER_ROWS = 3, FRONT_ROWS = 5, ACROSS = 8;
+    private static final int STALK_ROWS = 2, BACK_ROWS = 7, UNDER_ROWS = 3, FRONT_ROWS = 8, ACROSS = 14;
     private static final int LEAF_ROWS = STALK_ROWS + BACK_ROWS + UNDER_ROWS + FRONT_ROWS;
     private static final float MAX_WRAP = 1.6f;
     /** Texture v height of the leaf cell, and the offset from the clean leaf to its stool-stained copy. */
@@ -153,7 +157,7 @@ final class CareWearRenderer {
      * CLEAR_FADE, starting CLEAR_RIM above it (the folded band's lip); the fade is long so that a hair strip with one corner below the rim
      * and the other far above it, drawn straight between them, still clears the edge. Fractions of the body height.
      */
-    private static final float CLEAR_MARGIN = .012f, CLEAR_REACH = .05f, CLEAR_DEPTH = .03f, CLEAR_FADE = .2f, CLEAR_RIM = .012f;
+    private static final float CLEAR_MARGIN = .02f, CLEAR_REACH = .05f, CLEAR_DEPTH = .03f, CLEAR_FADE = .2f, CLEAR_RIM = .012f;
     /** Body frame and wrap of the model being drawn (prepareClearance), in blocks; the style, or null for the leaf. */
     private static float clearCx, clearCz, clearMinY, clearH, clearTop;
     private static Style clearStyle;
@@ -761,8 +765,8 @@ final class CareWearRenderer {
         for (int s = 0; s < steps; s++) {
             float a0 = start + (end - start) * s / steps, a1 = start + (end - start) * (s + 1) / steps;
             float f0 = strapF(a0, start, end), f1 = strapF(a1, start, end), am = (a0 + a1) / 2;
-            float[] p0 = clothPoint(f0 - half, a0, .012f * h, cx, cz, minY, h, new float[3]), p1 = clothPoint(f1 - half, a1, .012f * h, cx, cz, minY, h, new float[3]);
-            float[] p2 = clothPoint(f1 + half, a1, .012f * h, cx, cz, minY, h, new float[3]), p3 = clothPoint(f0 + half, a0, .012f * h, cx, cz, minY, h, new float[3]);
+            float[] p0 = clothPoint(f0 - half, a0, .02f * h, cx, cz, minY, h, new float[3]), p1 = clothPoint(f1 - half, a1, .02f * h, cx, cz, minY, h, new float[3]);
+            float[] p2 = clothPoint(f1 + half, a1, .02f * h, cx, cz, minY, h, new float[3]), p3 = clothPoint(f0 + half, a0, .02f * h, cx, cz, minY, h, new float[3]);
             float u0 = STRAP_UV[0] / 64, u1 = (STRAP_UV[0] + STRAP_UV[2]) / 64, v0 = STRAP_UV[1] / 64, v1 = (STRAP_UV[1] + STRAP_UV[3]) / 64;
             quad(b, pose, WHITE, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am), u0, v0, u0, v1, u1, v1, u1, v0, p0, p1, p2, p3);
         }
@@ -771,7 +775,7 @@ final class CareWearRenderer {
 
     /** Height fraction of the outing strap's middle at angle a: from the pouch top, sagging across the back, up to the rim at the end. */
     private static float strapF(float a, float start, float end) {
-        float t = (a - start) / (end - start), rim = topAt(end) - bandAt(end) - .02f, from = POUCH_AT + POUCH_HALF;
+        float t = (a - start) / (end - start), rim = topAt(end) - bandAt(end) - .045f, from = POUCH_AT + POUCH_HALF;
         return from + (rim - from) * t - .06f * (float) Math.sin(Math.PI * t);
     }
 
@@ -816,7 +820,7 @@ final class CareWearRenderer {
                 default -> U_FRONT + (1 - U_FRONT) * s;
             };
             for (int j = 0; j <= ACROSS; j++) {
-                float edge = (j / (float) ACROSS - .5f) * 2, lateral = edge * half;
+                float edge = (j / (float) ACROSS - .5f) * 2, lateral = edge * half * (part == 3 ? 1 - FRONT_NARROW * s : 1);
                 int at = (row * (ACROSS + 1) + j) * 4;
                 float cup = RISE * edge * edge;
                 if (part == 2) {
@@ -834,9 +838,11 @@ final class CareWearRenderer {
                     continue;
                 }
                 boolean back = part < 2;
-                float f = part == 0 ? LEAF_BACK + STALK * (1 - s) : Math.min(.48f, cup + (part == 1 ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * s
-                        : CUP_BASE + (LEAF_FRONT - CUP_BASE) * s));
-                float lift = base + CURL * h * edge * edge + (part == 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
+                // on the front the margins' rise fades towards the tip, so the tip stands as a point above the margins sloping to the flanks
+                float f = part == 0 ? LEAF_BACK + STALK * (1 - s) : Math.min(.48f, cup * (part == 3 ? 1 - s : 1) + (part == 1
+                        ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * (float) Math.pow(s, BACK_EASE)
+                        : CUP_BASE + (LEAF_FRONT - CUP_BASE) * (float) Math.pow(s, FRONT_EASE)));
+                float lift = base + CURL * (part == 3 ? FRONT_CURL : 1) * h * edge * edge + (part == 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
                 leafPoint(back, f, lateral, lift, cx, cz, minY, h, PT);
                 GRID[at] = PT[0]; GRID[at + 1] = PT[1]; GRID[at + 2] = PT[2]; GRID[at + 3] = f;
             }

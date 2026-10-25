@@ -26,21 +26,22 @@ const STYLES = [
   S('cotton', [246, 176, 196], 'cotton', [246, 176, 196], WHITE, [222, 64, 58], FRILL, false, PLAIN, .40, .20, .010, .044, 0),
   S('cotton', [206, 64, 60], 'cotton', [206, 64, 60], WHITE, WHITE, FRILL, false, LETTER, .42, .20, .010, .044, 0),
   S('tiger', WHITE, 'fleece', [255, 236, 206], null, null, FOLD, false, MARK, .42, .20, .010, .15, .024),
-  S('cotton', [168, 204, 232], 'cotton', [72, 94, 138], null, null, FOLD, false, OUTING, .40, .20, .006, .15, .020),
+  S('cotton', [168, 204, 232], 'cotton', [100, 126, 170], null, null, FOLD, false, OUTING, .40, .20, .006, .10, .016),
   S('fleece', [192, 166, 136], 'fleece', [244, 232, 212], [160, 136, 108], [198, 96, 78], FOLD, true, POMPOMS, .48, .19, .018, .19, .032),
   S('gingham', WHITE, 'cotton', [250, 250, 252], [70, 96, 170], [70, 96, 170], FOLD, true, PLAIN, .42, .20, .010, .16, .022),
   S('floral', WHITE, 'cotton', [214, 236, 200], [120, 180, 110], [120, 180, 110], FOLD, true, PLAIN, .42, .20, .010, .16, .022)];
 const CLOTH_INSET = .006, SHELL_OUT = .016, FRILL_REACH = .03, FRILL_DROP = .075;
 const POUCH_ANGLE = .2, STRAP_SWEEP = 4.0, POUCH_AT = .15, POUCH_HALF = .10, POUCH_LIFT = .02, BACK_MARK_AT = .17, BACK_MARK_HALF = .11;
-const CLEAR_MARGIN = .012, CLEAR_REACH = .05, CLEAR_DEPTH = .03, CLEAR_FADE = .2, CLEAR_RIM = .012;
+const CLEAR_MARGIN = .02, CLEAR_REACH = .05, CLEAR_DEPTH = .03, CLEAR_FADE = .2, CLEAR_RIM = .012;
 const TUBE = [-1.75, -1.05, -.45, .15, .75, 1.35, 2.4], FOLD_LIGHT = .025, FOLD_PIPING = .03, FOLD_SHADOW = .03;
 const STYLE_IDS = ['knit', 'frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral'];
 const SEAM_AT = -4.0, SEAM_SWEEP = 3.03, SEAM_SLANT = .38, FLAP_LIFT = .016, FLAP_SIDE = -Math.sign(SEAM_SWEEP);
 const FRILL_UV = [0, 0, 16, 8], BOW_UV = [16, 0, 16, 12], MARK_UV = [32, 0, 16, 16], POUCH_UV = [48, 0, 16, 16], POMPOM_UV = [0, 8, 8, 8],
   SOLE_UV = [8, 8, 8, 8], STRAP_UV = [0, 16, 8, 8], LETTERS_X = 0, LETTERS_Y = 32;
-const LEAF_BACK = .32, LEAF_FRONT = .22, STALK = .14, STALK_OUT = .025, LEAF_HALF = 1.05, CURL = .01, RISE = .22, LEAF_LIFT = .010;
+const LEAF_BACK = .36, LEAF_FRONT = .22, STALK = .10, STALK_OUT = .025, LEAF_HALF = 1.05, CURL = .01, RISE = .22, LEAF_LIFT = .012;
+const FRONT_CURL = 2.5, BACK_EASE = 2, FRONT_EASE = 2, FRONT_NARROW = .3;
 const LEAF_TOP_FRONT = .26, LEAF_TOP_BACK = .50;
-const U_STALK = 5 / 32, U_UNDER = .40, U_FRONT = .50, STALK_ROWS = 2, BACK_ROWS = 5, UNDER_ROWS = 3, FRONT_ROWS = 5, ACROSS = 8;
+const U_STALK = 5 / 32, U_UNDER = .40, U_FRONT = .50, STALK_ROWS = 2, BACK_ROWS = 7, UNDER_ROWS = 3, FRONT_ROWS = 8, ACROSS = 14;
 const LEAF_ROWS = STALK_ROWS + BACK_ROWS + UNDER_ROWS + FRONT_ROWS, MAX_WRAP = 1.6, CELL_V = .5, STAINED_V = .5, MAX_SOIL_SHOWN = 3;
 const BODY = name => name.startsWith('soft_head_slice_') || name.endsWith('_rump_mark')
   || ['house_body_surface', 'predator_body_surface', 'deficient_body_surface', 'rounded_body_surface'].includes(name);
@@ -276,11 +277,11 @@ function swaddle(P, style, letter) {
       sheet([[...lo0, su1, (SOLE_UV[1] + 8) / 64], [...lo1, su0, (SOLE_UV[1] + 8) / 64], [...hi1, su0, (SOLE_UV[1] + 1) / 64], [...hi0, su1, (SOLE_UV[1] + 1) / 64]], WHITE, [Math.cos(am), 0, Math.sin(am)]);
       sheet([[...hi0, su1, (SOLE_UV[1] + 1) / 64], [...hi1, su0, (SOLE_UV[1] + 1) / 64], [...in1, su0, SOLE_UV[1] / 64], [...in0, su1, SOLE_UV[1] / 64]], WHITE, [0, 1, 0]);
     }
-    const start = POUCH_ANGLE, end = start + STRAP_SWEEP, steps = 16, half = .035, rimEnd = topAt(end) - bandAt(end) - .02, from = POUCH_AT + POUCH_HALF;
+    const start = POUCH_ANGLE, end = start + STRAP_SWEEP, steps = 16, half = .035, rimEnd = topAt(end) - bandAt(end) - .045, from = POUCH_AT + POUCH_HALF;
     const strapF = a => { const t = (a - start) / (end - start); return from + (rimEnd - from) * t - .06 * Math.sin(Math.PI * t); };
     for (let s = 0; s < steps; s++) {
       const a0 = start + (end - start) * s / steps, a1 = start + (end - start) * (s + 1) / steps, f0 = strapF(a0), f1 = strapF(a1), am = (a0 + a1) / 2;
-      const u0 = STRAP_UV[0] / 64, u1 = (STRAP_UV[0] + STRAP_UV[2]) / 64, v0 = STRAP_UV[1] / 64, v1 = (STRAP_UV[1] + STRAP_UV[3]) / 64, l = .012 * h;
+      const u0 = STRAP_UV[0] / 64, u1 = (STRAP_UV[0] + STRAP_UV[2]) / 64, v0 = STRAP_UV[1] / 64, v1 = (STRAP_UV[1] + STRAP_UV[3]) / 64, l = .02 * h;
       sheet([[...point(f0 - half, a0, l), u0, v0], [...point(f1 - half, a1, l), u0, v1], [...point(f1 + half, a1, l), u1, v1], [...point(f0 + half, a0, l), u1, v0]], WHITE, [Math.cos(am), 0, Math.sin(am)]);
     }
     decal(WHITE, ...POUCH_UV, start, POUCH_AT, POUCH_HALF * h, POUCH_HALF, POUCH_LIFT * h);
@@ -327,7 +328,7 @@ function leafWrap(P, soil) {
     const s = [row / STALK_ROWS, (row - STALK_ROWS) / BACK_ROWS, (row - STALK_ROWS - BACK_ROWS) / UNDER_ROWS, (row - STALK_ROWS - BACK_ROWS - UNDER_ROWS) / FRONT_ROWS][part];
     along.push([U_STALK * s, U_STALK + (U_UNDER - U_STALK) * s, U_UNDER + (U_FRONT - U_UNDER) * s, U_FRONT + (1 - U_FRONT) * s][part]);
     for (let j = 0; j <= ACROSS; j++) {
-      const edge = (j / ACROSS - .5) * 2, lateral = edge * half, cup = RISE * edge * edge;
+      const edge = (j / ACROSS - .5) * 2, lateral = edge * half * (part === 3 ? 1 - FRONT_NARROW * s : 1), cup = RISE * edge * edge;
       if (part === 2) {
         // CareWearRenderer: straight across under the middle, round the flank at the cupped height towards the margins
         const fs = CUP_BASE + cup, w = edge * edge, A = leafPoint(true, fs, lateral, base), B = leafPoint(false, fs, lateral, base);
@@ -337,8 +338,8 @@ function leafWrap(P, soil) {
         continue;
       }
       const back = part < 2, f = part === 0 ? LEAF_BACK + STALK * (1 - s)
-        : Math.min(.48, cup + (part === 1 ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * s : CUP_BASE + (LEAF_FRONT - CUP_BASE) * s));
-      const lift = base + CURL * h * edge * edge + (part === 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
+        : Math.min(.48, cup * (part === 3 ? 1 - s : 1) + (part === 1 ? LEAF_BACK + (CUP_BASE - LEAF_BACK) * Math.pow(s, BACK_EASE) : CUP_BASE + (LEAF_FRONT - CUP_BASE) * Math.pow(s, FRONT_EASE)));
+      const lift = base + CURL * (part === 3 ? FRONT_CURL : 1) * h * edge * edge + (part === 0 ? STALK_OUT * h * (1 - s) * (1 - s) : 0);
       grid.push([...leafPoint(back, f, lateral, lift).slice(0, 3), f]);
     }
   }
