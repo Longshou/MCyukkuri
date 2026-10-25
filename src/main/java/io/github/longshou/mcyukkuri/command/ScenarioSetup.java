@@ -110,17 +110,20 @@ final class ScenarioSetup {
     /**
      * A real LIVE conception for an adult pair, then the brood is brought to the end of its term. {@code caught}: the
      * hatted father (if the pair has one) has time to take off his hat; {@code missed}: nobody cushions the newborn;
-     * {@code natural}: the usual branch.
+     * {@code natural}: the usual branch; {@code stem}: a real STEM conception brought to 400 ticks before term (the hat, if the father
+     * has one, is set under the stem by the ordinary rules).
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
-        if (!Set.of("natural", "caught", "missed").contains(outcome)) return "结果必须为 natural、caught 或 missed。";
+        if (!Set.of("natural", "caught", "missed", "stem").contains(outcome)) return "结果必须为 natural、caught、missed 或 stem。";
+        boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
         var boat = mother.family().boatHome();
         var home = mother.life().homeStand();
         boolean aquatic = mother.profile().aquatic();
+        if (stem && aquatic) return "茎生场景只用于陆生双亲。";
         if (aquatic) {
             if (mother.isPassenger() || father.isPassenger() || !mother.onGround() || !father.onGround()
                     || !mother.life().dryStand(mother.blockPosition()) || !father.life().dryStand(father.blockPosition()))
@@ -135,15 +138,19 @@ final class ScenarioSetup {
         mother.family().arrange(father.getUUID());
         father.family().arrange(mother.getUUID());
         try {
-            String reason = data.conceiveRefusal(mother, father, FamilyData.BirthKind.LIVE, anchor);
+            var kind = stem ? FamilyData.BirthKind.STEM : FamilyData.BirthKind.LIVE;
+            String reason = data.conceiveRefusal(mother, father, kind, anchor);
             if (reason != null) return "真实受孕条件未满足：" + reason + "（没有创建胎次）。";
-            brood = data.conceive(mother, father, FamilyData.BirthKind.LIVE, anchor);
+            brood = data.conceive(mother, father, kind, anchor);
         } finally {
             mother.family().arrange(null);
             father.family().arrange(null);
         }
         if (brood == null) return "真实受孕没有成功。";
-        if (outcome.equals("missed")) {
+        if (stem) {
+            brood.elapsed = Math.max(0, brood.duration - 400);
+            data.setDirty();
+        } else if (outcome.equals("missed")) {
             if (!mother.family().prepareBirthScene(brood, "missed")) return "胎次已建立，但不能提前临产。";
             if (aquatic) { brood.elapsed = Math.max(0, brood.duration - 400); data.setDirty(); }
         } else {

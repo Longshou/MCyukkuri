@@ -274,6 +274,10 @@ add('toilet', 'meadow', '厕所排便', '厕所排便', '橙有强烈便意：�
     block(6, 0, 0, 'mcyukkuri:yukkuri_toilet'), yk('chen', 0, 0, 'a', bladder=95, yaw=-90, lead=True)], vantage=None)
 
 # ====================================================================================================== family and growth
+# Newborns carry no scn tag; the selector finds them by stage instead (the function runs positioned at the anchor).
+NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BABY"}}]'
+
+
 def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
     add(sid, 'family', title, hint, watch, '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0),
@@ -283,7 +287,8 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
         home('mother', 8, 0),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12),
         late=[f'tp {sel("father")} ~{father_x} ~ ~1'] if father_x != 4 else [],
-        reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw')])
+        reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw'),
+               ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
@@ -293,6 +298,9 @@ land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', '
            'land_caught', father_x=-10)
 land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed', 'reimu',
            '没人用帽子垫底：新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
+land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 'marisa',
+           '魔理沙父油把帽子放到茎下：实子带一点随机横向力脱落，多数落进帽里或碰檐弹进去，少数落到帽外受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury）；多重复几次看比例',
+           'land_caught')
 
 add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
     '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
@@ -410,13 +418,22 @@ add('family_search', 'family', '亲子走散后寻回', '走散寻回',
 
 # Real initial conditions for the retained birth/growth rules; no goal or successful outcome is assigned.
 add('birth_nest_safe', 'family', '大窝自然生产', '大窝生产',
-    '灵梦父母不能用帽接生；母油回到野生大草窝生产，只有赤油实际落到垫面才免出生摔伤。读产程、出生落点和伤势',
+    '母油从窝外出发，不跳地走进野生大草窝（窝沿一格以内直接迈过，不被卡在窝边），到休息位后生产。每只赤油带随机推力：多数落在垫面（outcome=CUSHION，无伤），少数飞出窝外落地（GROUND，日志 birth impact injury，摔伤哭泣）。读产程、birth launch / birth landed 日志与伤势',
     '约 2 分钟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
     yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
     yk('reimu', 3, 2, 'father', **pair_ready()),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
     f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth',
-    reads=[('读自然产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status @e[tag=scn,distance=..48] raw')])
+    reads=[('读自然产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
+
+add('birth_nest_stem', 'family', '大窝茎生', '大窝茎生',
+    '灵梦父母，母油从窝外走进野生大草窝后茎生：实子脱落时带随机横向力，多数落在垫面（CUSHION，无伤），少数落到窝外受摔伤。读产程、birth launch / birth landed 日志',
+    '约 2 分钟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
+    yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
+    yk('reimu', 3, 2, 'father', **pair_ready()),
+    f'yukkuri scenario bond {sel("mother")} {sel("father")}', home('mother', 0, 0),
+    f'yukkuri scenario birth {sel("mother")} {sel("father")} stem'], spot='pet_birth',
+    reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 _nest_ids={name:uid('family_nests',name) for name in ['mother','father','b0','b1','b2','b3']}
 add('family_nests', 'family', '窝容量与成长分窝', '大小窝同居',
@@ -1779,7 +1796,7 @@ TOPICS = {
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7',
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
+    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'sail': 'A1', 'hat_custody_burn': 'A2', 'shore': 'A1', 'shore_child': 'A1', 'high': 'A1', 'voyage': 'A1', 'braid': 'A4', 'afloat': 'A2', 'shake': 'A2',
     'water_life': 'A6', 'water_winter': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
