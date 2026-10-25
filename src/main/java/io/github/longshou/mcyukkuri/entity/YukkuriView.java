@@ -74,6 +74,9 @@ public interface YukkuriView {
     YukkuriView vehicleYukkuri();
     /** The yukkuri riding this one (a carried baby), or null. */
     YukkuriView carriedYukkuri();
+    /** Seat order of a rider among this actor's passengers (-1 when it is not one) and how many ride; staggers several carried babies. */
+    int passengerIndex(UUID passenger);
+    int passengerCount();
     /** How this actor holds the baby riding on it (brim, mouth, tail), or null; derived from synchronized size and form. */
     default ParentCarry.Mode carryMode() { return ParentCarry.carryMode(this); }
     HatBoatView vehicleHat();

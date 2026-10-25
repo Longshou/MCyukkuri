@@ -945,8 +945,10 @@ public final class FamilyLife {
         if(firstSearching)return first;
         if(secondSearching)return second;
         if(first==null)return null;
-        if(second!=null&&(entity.distanceToSqr(second)<entity.distanceToSqr(first)
-                ||entity.distanceToSqr(second)==entity.distanceToSqr(first)&&second.getUUID().compareTo(first.getUUID())<0)) {
+        // A baby that needs carrying goes to the parent who can take it, a Reimu who can hold several before the rest.
+        int firstRank=ParentCarry.carryRank(first,entity),secondRank=second==null?0:ParentCarry.carryRank(second,entity);
+        if(second!=null&&(secondRank>firstRank||secondRank==firstRank&&(entity.distanceToSqr(second)<entity.distanceToSqr(first)
+                ||entity.distanceToSqr(second)==entity.distanceToSqr(first)&&second.getUUID().compareTo(first.getUUID())<0))) {
             var swap=first;first=second;second=swap;
         }
         if(entity.life().reachable(first.blockPosition(),false))return first;
@@ -1121,10 +1123,9 @@ public final class FamilyLife {
                     if(!ordinaryLandFree(entity)||!ordinaryLandFree(target)||!entity.life().canRecognize(target)){stop();return;}
                     if(carry.pickupWanted(target)) {
                         // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
-                        var purpose=carry.purposeFor(target);
                         var step=carry.tickPickup(target,taskTicks);
                         if(step==ParentCarry.Step.DONE){
-                            if(purpose==ParentCarry.Purpose.RETRIEVE){task=Task.CARRY;target=carry.carried();taskTicks=0;}else stop();
+                            if(carry.purpose()==ParentCarry.Purpose.RETRIEVE){task=Task.CARRY;target=carry.carried();taskTicks=0;}else stop();
                         } else if(step==ParentCarry.Step.FAILED)stop();
                         return;
                     }

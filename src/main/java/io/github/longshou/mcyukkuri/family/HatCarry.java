@@ -125,14 +125,9 @@ public final class HatCarry {
         return null;
     }
     public static boolean putDown(YukkuriEntity carrier){
+        // Every rider is set down where it sits (in place, nudged clear of blocks only if needed), then logged by ParentCarry.
         if(!(carrier.level() instanceof ServerLevel))return false;
-        var child=carrier.getFirstPassenger() instanceof YukkuriEntity y?y:null;if(child==null)return false;
-        var target=landing(carrier,child);if(target==null)return false;
-        Vec3 before=child.position();
-        child.stopRiding();child.moveTo(target.x,target.y,target.z,carrier.getYRot(),0);child.setDeltaMovement(Vec3.ZERO);child.fallDistance=0;
-        GameplayLog.event(carrier,"care","hat passenger put down method=moveTo child={} before={} requested={} actual={}",
-                child.getUUID(),before,target,child.position());
-        return true;
+        return carrier.family().carry().putDown("operation",0);
     }
     public static void tick(EntityTickEvent.Post event){
         if(!(event.getEntity() instanceof YukkuriEntity carrier)||carrier.level().isClientSide||!hasHat(carrier)||!carrier.isVehicle())return;

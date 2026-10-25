@@ -258,6 +258,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public int deathTicks() { return deathTime; }
     public int vehicleId() { return getVehicle() == null ? -1 : getVehicle().getId(); }
     public YukkuriView vehicleYukkuri() { return getVehicle() instanceof YukkuriView view ? view : null; }
+    public int passengerIndex(UUID passenger) {
+        var riders = getPassengers();
+        for (int i = 0; i < riders.size(); i++) if (riders.get(i).getUUID().equals(passenger)) return i;
+        return -1;
+    }
+    public int passengerCount() { return getPassengers().size(); }
     public YukkuriView carriedYukkuri() { return getFirstPassenger() instanceof YukkuriView view ? view : null; }
     public HatBoatView vehicleHat() {
         return getVehicle() instanceof HatBoatView view ? view : null;
