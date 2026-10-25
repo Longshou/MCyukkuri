@@ -66,13 +66,13 @@ public final class FamilyNest {
     private static final double FLOOR_TOP=2.1/16;
     /** How far a nest's soft rim or bolster reaches from its centre: the 2x2 nests' rim, the pet cushion's bolster (13.5). */
     private static final double LARGE_OUTER=1, CUSHION_OUTER=13.5/16;
-    private record Bed(Vec3 centre,double floor,double outer){}
+    private record Bed(Vec3 centre,double floor,double outer,CareBlockEntity nest){}
     /** The pet nests (2x2 and cushion) under or beside the body, with the half size of their level floor and rim. */
     private static java.util.List<Bed> beds(YukkuriEntity e){
         var found=new java.util.ArrayList<Bed>();
         for(var pos:BlockPos.betweenClosed(e.blockPosition().offset(-1,-1,-1),e.blockPosition().offset(1,0,1)))
             if(e.level().getBlockEntity(pos) instanceof CareBlockEntity c&&c.kind()==CareBlock.Kind.NEST&&!c.getBlockState().is(ModBlocks.PREDATOR_NEST.get()))
-                found.add(c.largeNest()?new Bed(c.centre(),NestResting.LARGE.box(),LARGE_OUTER):new Bed(c.centre(),NestResting.CUSHION.box(),CUSHION_OUTER));
+                found.add(c.largeNest()?new Bed(c.centre(),NestResting.LARGE.box(),LARGE_OUTER,c):new Bed(c.centre(),NestResting.CUSHION.box(),CUSHION_OUTER,c));
         return found;
     }
     /**
@@ -96,6 +96,15 @@ public final class FamilyNest {
         for(var bed:beds(baby)){
             double dx=Math.abs(baby.getX()-bed.centre().x),dz=Math.abs(baby.getZ()-bed.centre().z),dy=baby.getY()-bed.centre().y;
             if(dx<=bed.outer()&&dz<=bed.outer()&&dy>=FLOOR_TOP&&dy<.4)return bed.centre();
+        }
+        return null;
+    }
+    /** The pet nest whose soft rim or bolster a landed baby is resting on (see {@link #rimCentre}), else null. */
+    public static CareBlockEntity rimNest(YukkuriEntity baby){
+        if(!baby.onGround()||baby.isInWaterOrBubble())return null;
+        for(var bed:beds(baby)){
+            double dx=Math.abs(baby.getX()-bed.centre().x),dz=Math.abs(baby.getZ()-bed.centre().z),dy=baby.getY()-bed.centre().y;
+            if(dx<=bed.outer()&&dz<=bed.outer()&&dy>=FLOOR_TOP&&dy<.4)return bed.nest();
         }
         return null;
     }

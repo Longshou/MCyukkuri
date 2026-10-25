@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -28,7 +30,7 @@ import org.joml.Vector3f;
  */
 public final class ParentCarry {
     public enum Mode { HAT, MOUTH, TAIL }
-    public enum Purpose { MIGRATE, RETRIEVE, MANUAL }
+    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, MANUAL }
     enum Step { WORKING, DONE, FAILED }
     /** Ticks the parent stands over the child before it is lifted. */
     static final int LIFT_TICKS = 14;
@@ -73,6 +75,9 @@ public final class ParentCarry {
     private long since, arrivedAt;
     private int lift, homeFailures;
     private UUID lifting;
+    /** NEST_RIM: the nest whose rim the child lay on, and the free cushion spot being walked to. */
+    private BlockPos rimNest;
+    private Vec3 rimSpot;
 
     ParentCarry(YukkuriEntity carrier) { this.carrier = carrier; }
 
@@ -393,6 +398,7 @@ public final class ParentCarry {
     Purpose purposeFor(YukkuriEntity child) {
         if (!needsCarry(child) || child.isPassenger() || blocked(child)) return null;
         if (carrier.settlement().familyMarching() && child.family().familyTravelling()) return Purpose.MIGRATE;
+        if (FamilyNest.rimNest(child) != null) return Purpose.NEST_RIM;
         var home = child.family().carryHome();
         if (home != null && child.distanceToSqr(Vec3.atBottomCenterOf(home)) > 4 * 4) return Purpose.RETRIEVE;
         return null;
@@ -400,7 +406,10 @@ public final class ParentCarry {
     /** A search for this child should end in a lift rather than in waiting for it to walk over. */
     boolean pickupWanted(YukkuriEntity child) { return purposeFor(child) != null && capable(child); }
     /** During a march a baby near the parent still has to be lifted before the parent walks on. */
-    boolean pickupDue(YukkuriEntity child) { return purposeFor(child) == Purpose.MIGRATE && capable(child) && ready(); }
+    boolean pickupDue(YukkuriEntity child) {
+        var why = purposeFor(child);
+        return (why == Purpose.MIGRATE || why == Purpose.NEST_RIM) && capable(child) && ready();
+    }
 
     private boolean inReach(YukkuriEntity child) {
         double dx = child.getX() - carrier.getX(), dz = child.getZ() - carrier.getZ();
@@ -440,6 +449,7 @@ public final class ParentCarry {
 
     private boolean board(YukkuriEntity child) {
         var intent = purposeFor(child);
+        var rim = intent == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
         var mode = mode(carrier, child);
         Vec3 before = child.position();
         child.life().interrupt();
@@ -462,6 +472,8 @@ public final class ParentCarry {
             since = carrier.level().getGameTime();
             arrivedAt = 0;
             homeFailures = 0;
+            rimSpot = null;
+            rimNest = purpose == Purpose.NEST_RIM && rim != null ? rim.getBlockPos() : null;
         }
         holds.remove(child.getUUID());
         GameplayLog.event(carrier, "family", "carry pickup mode={} purpose={} child={} childStage={} before={} seat={} nutrition={} volume={}/{} aboard={}",
@@ -488,7 +500,7 @@ public final class ParentCarry {
             String childWhy = childReason(child, now);
             if (childWhy != null) putDown(child, childWhy, childWhy.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS);
         }
-        if (carrying() && purpose == Purpose.RETRIEVE) carrier.family().beginCarry();
+        if (carrying() && (purpose == Purpose.RETRIEVE || purpose == Purpose.NEST_RIM)) carrier.family().beginCarry();
     }
 
     /** A player-ordered hat carry: it stays until a safety reason or the player puts the child down. */
@@ -560,12 +572,45 @@ public final class ParentCarry {
     boolean tickHome(int taskTicks) {
         var child = carried();
         if (child == null) return false;
+        if (purpose == Purpose.NEST_RIM) return tickRim(child, taskTicks);
         var home = child.family().carryHome();
         if (home == null) { putDown("no_home", HOLD_TICKS); return false; }
         if (carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 2.5 * 2.5) { putDown("arrived_home", 0); return false; }
         if (taskTicks % 10 == 1 && !carrier.life().navigate(home, 1.0, false)) {
             if (++homeFailures >= 3) { putDown("home_unreachable", HOLD_TICKS); return false; }
         }
+        return true;
+    }
+
+    /** Carry a baby that lay on the nest rim onto the cushion and set it down at a free spot by the nest's own placement (never moved by teleport). */
+    private boolean tickRim(YukkuriEntity child, int taskTicks) {
+        var nest = rimNest != null && carrier.level().getBlockEntity(rimNest) instanceof CareBlockEntity c ? c : null;
+        if (nest == null) { putDown("no_nest", HOLD_TICKS); return false; }
+        if (rimSpot == null || taskTicks % 20 == 1) {
+            var spot = nest.freeSpot(child);
+            if (spot == null) {
+                if (++homeFailures >= 3) {
+                    GameplayLog.event(carrier, "family", "carry nest_rim refused child={} reason=no_free_cushion_spot nest={}", child.getUUID(), rimNest.toShortString());
+                    putDown("nest_full", HOLD_TICKS);
+                    return false;
+                }
+            } else {
+                if (rimSpot == null) GameplayLog.event(carrier, "family", "carry nest_rim target child={} nest={} spot={}", child.getUUID(), rimNest.toShortString(), spot);
+                rimSpot = spot;
+                homeFailures = 0;
+            }
+        }
+        if (taskTicks > 600) { putDown("nest_unreachable", HOLD_TICKS); return false; }
+        if (rimSpot == null) return true;
+        var floor = SurfaceApproach.restingFloor(carrier, rimSpot.add(0, .1, 0));
+        var at = floor == null ? rimSpot : floor;
+        double dx = at.x - carrier.getX(), dz = at.z - carrier.getZ(), near = dx * dx + dz * dz;
+        if (near <= .45 * .45 || near <= .9 * .9 && FamilyNest.cushions(carrier)) {
+            SurfaceApproach.halt(carrier);
+            putDown("nest_rim_to_cushion", HOLD_TICKS);
+            return false;
+        }
+        SurfaceApproach.walk(carrier, at, 1.0);
         return true;
     }
 

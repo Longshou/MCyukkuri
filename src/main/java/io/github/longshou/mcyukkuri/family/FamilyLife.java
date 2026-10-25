@@ -1031,6 +1031,7 @@ public final class FamilyLife {
                 &&entity.habitat().shelter()==parent.habitat().shelter();
     }
     private boolean safeInSharedHome(YukkuriEntity child) {
+        if(FamilyNest.rimNest(child)!=null)return false;
         if(entity.settlement().familyMarching()&&entity.settlement().underway())return false;
         if(FamilyNest.sameNest(entity,child)&&FamilyNest.atAssignedNest(child))return true;
         var home=entity.habitat().shelter();
@@ -1159,7 +1160,7 @@ public final class FamilyLife {
                         // Lift the baby instead of waiting for it to walk over; a march carries on, a stray goes back to its nest.
                         var step=carry.tickPickup(target,taskTicks);
                         if(step==ParentCarry.Step.DONE){
-                            if(carry.purpose()==ParentCarry.Purpose.RETRIEVE){task=Task.CARRY;target=carry.carried();taskTicks=0;}else stop();
+                            if(carry.purpose()==ParentCarry.Purpose.RETRIEVE||carry.purpose()==ParentCarry.Purpose.NEST_RIM){task=Task.CARRY;target=carry.carried();taskTicks=0;}else stop();
                         } else if(step==ParentCarry.Step.FAILED)stop();
                         return;
                     }

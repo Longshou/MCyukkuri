@@ -95,6 +95,16 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
     }
+    /** Where this body would lie on the bed now without moving anyone (its kept place, else a free one); null when no free supported spot exists. */
+    public Vec3 freeSpot(YukkuriEntity baby){
+        if(!(level instanceof ServerLevel server)||kind()!=CareBlock.Kind.NEST)return null;
+        var trial=new LinkedHashMap<>(resting);
+        var place=NestResting.choose(baby,bed(),trial,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
+                ||SurfaceApproach.restingFloor(actor,centre().add(p.offset()))!=null,false);
+        if(place==null)return null;
+        for(var entry:resting.entrySet())if(!entry.getKey().equals(baby.getUUID())&&!entry.getValue().equals(trial.get(entry.getKey())))return null;
+        return centre().add(place.x(),0,place.z());
+    }
     /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
     public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}
     public void release(UUID id) { if(residents.remove(id)!=null){resting.remove(id);changed();} }
