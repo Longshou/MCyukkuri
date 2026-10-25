@@ -40,8 +40,8 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&(!entity.family().flying()||entity.family().selfClimbActive())&&!entity.family().heldByBraid()
-            &&!entity.family().climbGripActive();}
+    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&(!entity.family().flying()||entity.family().crew().climbing())&&!entity.family().crew().holdsBody()
+            &&!entity.family().crew().gripping();}
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
     public UUID pusherId(){return pusher;}
@@ -53,7 +53,7 @@ public final class WaterDistress {
                 +" temporaryRefuge="+temporaryRefugeGuide+" held="+heldByWaterRescue();
     }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
-            &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().heldByBraid();}
+            &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().crew().holdsBody();}
     public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
     public boolean canBeLifted(){return liftWait==0;}
     /** A nearby parent has selected this stable hat, before the braid actually reaches the child. */
@@ -81,26 +81,9 @@ public final class WaterDistress {
                 waterRescueParent,rescueHat,phase,immersionTicks);
     }
     /** The controller calls this after real contact, and on every later hold/lift tick. */
-    public boolean confirmWaterRescueHold(YukkuriEntity parent,HatBoatEntity hat){
-        if(parent==null||hat==null||waterRescueParent==null||rescueHat==null||!waterRescueParent.equals(parent.getUUID())
-                ||!rescueHat.equals(hat.getUUID())||!parent.aquaticLife().selfRescue().holdsWaterRescue(entity))return false;
-        waterRescueHoldTick=level().getGameTime();burstTicks=0;return true;
-    }
-    /** Only a recent live controller confirmation can suppress the child's own buoyancy and escape work. */
+    /** The child is in a lifting braid right now: its own buoyancy and escape work stand aside. */
     public boolean heldByWaterRescue(){
-        if(entity.level().isClientSide)return false;
-        if(waterRescueParent==null||waterRescueHoldTick<level().getGameTime()-1)return false;
-        if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive()
-                ||!parent.aquaticLife().selfRescue().holdsWaterRescue(entity))return false;
-        return true;
-    }
-    /** Copy the parent's live controller tag only for this named child; no saved child flag can freeze a reload. */
-    public CompoundTag waterRescueBraidState(){
-        if(entity.level().isClientSide)return new CompoundTag();
-        if(waterRescueParent==null)return new CompoundTag();
-        if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive())return new CompoundTag();
-        var state=parent.aquaticLife().selfRescue().parentWaterBraidState();
-        return state.getInt("ChildId")==entity.getId()?state:new CompoundTag();
+        return !entity.level().isClientSide&&waterRescueParent!=null&&entity.family().crew().holdsBody();
     }
     /** The finite parent-water rescue ended without a board, so resume ordinary own-hat or shore choices next tick. */
     public void clearRescueHat(HatBoatEntity hat){
@@ -127,8 +110,7 @@ public final class WaterDistress {
                 clearWaterRescue();
             return;
         }
-        var state=parent.aquaticLife().selfRescue().parentWaterBraidState();
-        if(state.isEmpty()||state.getInt("ChildId")!=entity.getId())clearWaterRescue();
+        if(!parent.aquaticLife().selfRescue().targetsWaterRescue(entity))clearWaterRescue();
     }
     /** The parent's body nudge and rim slide take over the child's position; its bursts pause and it is not lifted again for 60 ticks. */
     public void lifted(){liftWait=60;burstTicks=0;}
@@ -173,12 +155,12 @@ public final class WaterDistress {
         phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
-            if(!entity.family().heldByBraid()&&!entity.family().climbGripActive())surfaceBuoyancy();
+            if(!entity.family().crew().holdsBody()&&!entity.family().crew().gripping())surfaceBuoyancy();
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&(fatigue>=160||entity.life().energy()<20))set(Phase.EXHAUSTED);
-            if(!entity.family().heldByBraid()&&!entity.family().climbGripActive()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
+            if(!entity.family().crew().holdsBody()&&!entity.family().crew().gripping()&&!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()){
                 if(burstTicks>0)burstTicks--;else if(restTicks>0)restTicks--;
                 if(callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;alertKin();}
             }else burstTicks=0;
@@ -187,7 +169,7 @@ public final class WaterDistress {
         burstTicks=0;
         // An upward flight or airborne tumble is not a completed rescue.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
-            if(entity.family().braidRescueActive()||entity.family().selfClimbActive()){drySupportTicks=0;return;}
+            if(entity.family().crew().busy()||entity.family().crew().climbing()){drySupportTicks=0;return;}
             if(entity.family().flying()||!entity.onGround()&&!entity.shelteredInHat()){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);shore=null;target=null;destination=null;
@@ -213,13 +195,13 @@ public final class WaterDistress {
             return;
         }
         if(entity.level().isClientSide||!entity.isInWaterOrBubble()||entity.isNoAi()
-                ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().heldByBraid())return;
+                ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().crew().holdsBody())return;
         tick();
         if(phase==Phase.IMPACT){entity.getNavigation().stop();return;}
         // While a parent offers the dipped rim the child waits in the water (it still floats, bites and takes real water damage);
         // its own swimming bursts resume at once if the rescue fails and cancels.
-        if(entity.family().braidRescueActive()){burstTicks=0;entity.getNavigation().stop();return;}
-        if(entity.family().selfClimbActive()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
+        if(entity.family().crew().busy()){burstTicks=0;entity.getNavigation().stop();return;}
+        if(entity.family().crew().climbing()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
         if(searchWait==0){findEscape();searchWait=20;}
         if(target!=null&&level().getEntity(target) instanceof HatBoatEntity hat){
             boolean own=safeOwnHat(hat);

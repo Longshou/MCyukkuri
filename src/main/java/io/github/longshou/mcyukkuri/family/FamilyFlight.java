@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.subspecies.AquaDiag;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.UUID;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Physical launch integration and existing hat boarding orchestration. */
+/** Physical launch integration: the newborn's launch arc, its catch by a hat and the falling stem fruit. Boarding is a crew transfer. */
 final class FamilyFlight {
     private final FamilyLife o;
     private record Flight(UUID hat,Vec3 from,Vec3 seat,Vec3 to,int ticks){}
@@ -63,11 +64,11 @@ final class FamilyFlight {
     void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach,double push,double yawDeg,boolean land){
         flightLog("launch awaiting="+o.awaitingLanding()+" onGround="+o.entity().onGround()+" inWater="+o.entity().isInWaterOrBubble()+" at="+o.entity().position()+" hat="
                 +(hat==null?null:hat.position()));
-        if(hat==null||flying()||o.heldByBraid()||hat.unsteadyMotion())return;
+        if(hat==null||flying()||hat.unsteadyMotion())return;
         // Only the actual birth push is not a voluntary jump. Landed children must
         // approach on real ground; swimming infants wait for their parent's dipped rim.
         if(!o.awaitingLanding()||o.entity().onGround()||o.entity().isInWaterOrBubble()){
-            boardFromShore(hat);return;
+            CrewTransfers.boardFromShore(o.entity(),hat,false);return;
         }
         if(!hat.makeRoom(o.entity(),false)){flightLog("room_pending");return;}
         var seat=hat.reserve(o.entity(),prefer);if(seat==null){flightLog("no_seat");return;}
@@ -129,127 +130,6 @@ final class FamilyFlight {
         beginFlight(new Flight(null,from,null,to,HatVessel.solve(from,to,hat,r,HatVessel.TMIN)));
     }
 
-    /** Out of the hat over its brim to a spot beside it. */
-    void hop(HatBoatEntity hat,Vec3 from,Vec3 to){
-        from=o.entity().position();
-        beginFlight(new Flight(null,from,null,to,HatVessel.solve(from,to,hat,HatVessel.radius(o.entity().getBbWidth()),HatVessel.HOP_TMIN)));
-    }
-
-    /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
-    void embark(HatBoatEntity hat) {
-        if(hat==null||flying()||o.heldByBraid()||!o.entity().getUUID().equals(hat.ownerYukkuri()))return;
-        var seat = hat.reserveOwnBoardingSeat(o.entity(),o.entity().position());
-        if(seat==null)return;
-        if(!o.boarding().begin(null,hat,seat)&&!o.boarding().startStep(null,hat,seat,null))hat.releaseOwnBoardingSeat(o.entity());
-    }
-
-    String hatBoardingDebug(){return o.boarding().diagnostic();}
-
-    /** A physical hop or supported step between hats; leave the source only after reserving the landing. */
-    boolean transferHat(HatBoatEntity from, HatBoatEntity to) {
-        return transferHat(from,to,false);
-    }
-
-    /** Emergency capacity is contested only by reserveEmergency's real close-brim contact. */
-    boolean transferHat(HatBoatEntity from, HatBoatEntity to, boolean emergency) {
-        if (o.boarding().active())return o.boarding().targets(to);
-        if(from==null||to==null||from==to)return false;
-        if (flight!=null || o.heldByBraid() || !o.entity().childhood().canJump()||o.stage()==Stage.BABY||from.unsteadyMotion() || to.unsteadyMotion()
-                || o.entity().getVehicle()!=from || !from.protects(o.entity()) || !to.isAfloat()
-                || !o.entity().getUUID().equals(to.ownerYukkuri()) && !to.admits(o.entity())) {
-            AquaDiag.log(o.entity(),"transfer.pre."+o.entity().getId(),40,"flight="+(flight!=null)+" held="+o.heldByBraid()+" canJump="+o.entity().childhood().canJump()
-                    +" fromUnsteady="+from.unsteadyMotion()+" toUnsteady="+to.unsteadyMotion()+" riding="+(o.entity().getVehicle()==from)+" protects="+from.protects(o.entity())
-                            +" toAfloat="+to.isAfloat());
-            return false;
-        }
-        if(!o.entity().getUUID().equals(to.ownerYukkuri())&&!to.makeRoom(o.entity(),emergency)){
-            AquaDiag.log(o.entity(),"transfer.room."+o.entity().getId(),40,"parent hull has no safe room: "+to.roomDebug(o.entity()));
-            return false;
-        }
-        if(from.changingSeat(o.entity())){
-            // A long supported walk must retain its departure patch until boarding can retry.
-            // approachBoardingEdge renews the lease and leaves an in-progress route untouched.
-            from.approachBoardingEdge(o.entity(),to.position());return false;
-        }
-        boolean own=o.entity().getUUID().equals(to.ownerYukkuri());
-        var seat=own?to.reserveOwnBoardingSeat(o.entity(),o.entity().position(),at->o.boarding().landingClear(from,to,at))
-                :to.reserveBoardingSeat(o.entity(),o.entity().position(),emergency);
-        if(seat==null){
-            AquaDiag.log(o.entity(),"transfer.seat."+o.entity().getId(),40,"no brim seat could be reserved on the target hull emergency="+emergency);
-            return false;
-        }
-        if(o.boarding().begin(from,to,seat))return true;
-        // The detailed rim planner is the first choice; between two hulls that touch, a short reach-tolerant hop is the fallback.
-        if(o.boarding().startStep(from,to,seat,null))return true;
-        AquaDiag.log(o.entity(),"transfer.step."+o.entity().getId(),40,"hop refused: "+o.boarding().landingRefusal());
-        to.cancelIncoming(o.entity());if(own)to.releaseOwnBoardingSeat(o.entity());
-        var grip=to.boardingGrip(o.entity());
-        from.approachBoardingEdge(o.entity(),grip!=null?grip:to.position());return false;
-    }
-
-    /** A pupil back from its first voyage steps from its own hat onto the berth kept for it in the parent's hull. */
-    boolean returnToHat(HatBoatEntity from,HatBoatEntity to,boolean emergency){
-        if(o.boarding().active())return o.boarding().targets(to);
-        if(from==null||to==null||from==to||flight!=null||o.heldByBraid()||o.stage()==Stage.BABY||!o.entity().childhood().canJump()
-                ||from.unsteadyMotion()||to.unsteadyMotion()||o.entity().getVehicle()!=from||!from.protects(o.entity())||!to.isAfloat()||!to.young(o.entity()))return false;
-        if(from.changingSeat(o.entity())){from.approachBoardingEdge(o.entity(),to.position());return false;}
-        if(!to.makeRoom(o.entity(),emergency))return false;
-        var seat=to.returnSeat(o.entity(),emergency);
-        if(seat==null){
-            AquaDiag.log(o.entity(),"return.seat."+o.entity().getId(),40,"no berth or brim place for the returning pupil");
-            return false;
-        }
-        if(o.boarding().begin(from,to,seat)||o.boarding().startStep(from,to,seat,null))return true;
-        AquaDiag.log(o.entity(),"return.step."+o.entity().getId(),40,"refused: "+o.boarding().landingRefusal()+" | "+o.boarding().diagnostic());
-        to.cancelIncoming(o.entity());
-        from.approachBoardingEdge(o.entity(),to.position());return false;
-    }
-
-    /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
-    boolean rescueIntoHat(HatBoatEntity hat){
-        return hat!=null&&!flying()&&o.rescue().start(hat);
-    }
-
-    /** A capable shore child jumps from its actual feet; infants wait for the parent's dipped rim. */
-    boolean boardFromShore(HatBoatEntity hat){
-        return boardFromShore(hat,false);
-    }
-
-    /** Alarm recall may sacrifice provisions; ordinary dry boarding only puts them aside. */
-    boolean boardFromShore(HatBoatEntity hat,boolean emergency){
-        if(o.entity().level().isClientSide||hat==null||hat.level()!=o.entity().level()||flying()||o.heldByBraid()
-                ||!o.entity().childhood().canJump()||o.entity().isPassenger()||!o.entity().onGround()||o.entity().isInWaterOrBubble()
-                ||!o.entity().life().dryStand(o.entity().blockPosition())||hat.unsteadyMotion()||!hat.isAfloat()
-||hat.flooding()>0||!hat.admits(o.entity())||o.entity().distanceToSqr(hat)>6.25||!o.entity().hasLineOfSight(hat))return false;
-        if(!hat.makeRoom(o.entity(),emergency))return false;
-        // Compression is a close-contact seating fallback, separate from permission to discard provisions.
-        var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),emergency);if(seat==null)return false;
-        if(o.boarding().begin(null,hat,seat)||o.boarding().startStep(null,hat,seat,null))return true;
-        hat.cancelIncoming(o.entity());return false;
-    }
-
-    /** A trained young may scramble from real brim contact; an untrained infant is nudged over the dipped rim by its parent. */
-    boolean scrambleIntoHat(HatBoatEntity hat){
-        if(o.entity().level().isClientSide||hat==null||flying()||o.heldByBraid()||o.entity().isPassenger()||!o.entity().isInWaterOrBubble()
-                ||!o.entity().childhood().canJump()||hat.unsteadyMotion()||!hat.isAfloat()||hat.flooding()>0
-||!hat.admits(o.entity())||!o.entity().hasLineOfSight(hat))return false;
-        var grip=hat.boardingGrip(o.entity());if(grip==null)return false;
-        if(!hat.makeRoom(o.entity(),true))return false;
-        var seat=hat.reserveBoardingSeat(o.entity(),o.entity().position(),true);if(seat==null)return false;
-        if(o.boarding().climb(hat,seat,grip))return true;
-        hat.cancelIncoming(o.entity());return false;
-    }
-
-    /** The same real near-brim grip is available to a capable owner of a recovered personal hat. */
-    boolean climbOwnHat(HatBoatEntity hat){
-        if(o.entity().level().isClientSide||hat==null||!o.entity().getUUID().equals(hat.ownerYukkuri())||flight!=null||o.heldByBraid())return false;
-        if(o.boarding().active())return o.boarding().climbing()&&o.boarding().targets(hat);
-        var grip=hat.selfRescueGrip(o.entity());if(grip==null)return false;
-        var seat=hat.reserveOwnBoardingSeat(o.entity(),o.entity().position());if(seat==null)return false;
-        if(o.boarding().climb(hat,seat,grip))return true;
-        hat.releaseOwnBoardingSeat(o.entity());return false;
-    }
-
     boolean birthPathClear(HatBoatEntity hat,Vec3 from,Vec3 to,int ticks){
         Vec3 previous=from;
         for(int i=1;i<=ticks*4;i++){
@@ -278,10 +158,7 @@ final class FamilyFlight {
 
     /** Called from travel while a checked boarding trajectory or gravity-driven launch owns movement. */
     boolean travelFlight(){
-        // Boarding advances in family.tick(), after vanilla aiStep. Running ordinary travel first
-        // would apply a second gravity step before its full-body sweep, dropping the feet into the hull.
         // No persistent gravity flag: completion/cancellation immediately returns control to vanilla.
-        if(o.boarding().active())return true;
         if(flight==null)return false;
         var hat=flight.hat()!=null&&o.level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
         if(flight.seat()!=null&&(hat==null||hat.capsizing()||!hat.isAfloat()&&!hat.catches())){
@@ -297,7 +174,7 @@ final class FamilyFlight {
                     flight=null;return false;
         }
         var velocity=o.entity().getDeltaMovement();var before=o.entity().position();var wanted=before.add(velocity);
-        if(!(newbornLaunch?birthSweepClear(hat,before,wanted):HatBoarding.sweepClear(o.entity(),null,hat,before,wanted))){
+        if(!birthSweepClear(hat,before,wanted)){
             if(hat!=null)hat.cancelIncoming(o.entity());flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted+" because "+sweepWhy);flight=null;
             // A swept body contact stops this step. Returning to vanilla travel here would
             // immediately repeat the rejected move through a non-solid sibling.

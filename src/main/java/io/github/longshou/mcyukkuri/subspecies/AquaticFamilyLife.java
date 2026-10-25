@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -118,7 +119,7 @@ public final class AquaticFamilyLife {
     /** A swimmer must actually grip the near brim and climb; water is not a jump takeoff. */
     public boolean tryWaterBoard(HatBoatEntity home){
         if(!entity.isInWaterOrBubble()||!entity.childhood().canJump()||!home.admits(entity))return false;
-        if(!entity.family().scrambleIntoHat(home))return false;
+        if(!CrewTransfers.climb(entity,home,false).ok())return false;
         entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("teary","afraid",40);return true;
     }
     /** Called only by an actual nearby, visible distressed relative or established friend. */
@@ -348,8 +349,8 @@ public final class AquaticFamilyLife {
                 // Keep the child on its still-afloat source hat until the existing checked
                 // inter-hat boarding route has a reachable destination.  There is no rescue
                 // by deliberately dropping it into the water.
-                if(child.family().transferHat(source,boat,true)
-                        ||entity.family().cradlePickup().startRefugeTransfer(source,boat,child)){
+                if(CrewTransfers.hopGuest(child,source,boat,true).ok()
+                        ||CrewTransfers.liftRefuge(child,entity,source,boat).ok()){
                     hold(boat,Behaviors.BOAT_RESCUE_YOUNG);
                     GameplayLog.event(entity,"aquatic","orphan refuge transfer started child={} relation={} sourceHat={} boat={}",
                             child.getUUID(),relation,source.getUUID(),boat.getUUID());
@@ -357,7 +358,7 @@ public final class AquaticFamilyLife {
                 }
                 // The shared cross-hat approach stops at an AABB-safe berth and routes the
                 // final segment with paddleFor.  Do not steer into the source hull's centre.
-                // This reservation is deliberately not an incoming seat; CradlePickup creates
+                // This reservation is deliberately not an incoming seat; the crew transfer creates
                 // that seat only after this approach has reached its measured berth.
                 EcologyMovement.approach(entity,child,.8);
                 activity=Behaviors.BOAT_RESCUE_APPROACH;
@@ -368,13 +369,13 @@ public final class AquaticFamilyLife {
             entity.life().wakeInHat();entity.getLookControl().setLookAt(child,35,35);
             // The same finite braid/collision/reserved-brim rescue used for the captain's
             // children now accepts this explicit permit; an infant is never teleported aboard.
-            if(child.family().rescueIntoHat(boat)){
+            if(CrewTransfers.liftAboard(child,boat).ok()){
                 hold(boat,Behaviors.BOAT_RESCUE_YOUNG);
                 GameplayLog.event(entity,"aquatic","orphan refuge lift started child={} relation={} boat={}",
                         child.getUUID(),relation,boat.getUUID());
                 return true;
             }
-            var berth=child.family().braidRescueApproach(boat);
+            var berth=CrewTransfers.berthFor(boat,child);
             if(berth!=null){
                 steer(boat,berth,false);activity=Behaviors.BOAT_RESCUE_APPROACH;return true;
             }
@@ -522,7 +523,7 @@ public final class AquaticFamilyLife {
         if(needsCare&&!rescue)return yieldSteering(boat);
         if(children.isEmpty()&&rescueYoung.isEmpty()&&missingYoung.values().stream().noneMatch(ticks->ticks<=100))return recoverNearbyHat(boat);
         var troubled=rescueCandidates.stream().filter(y->danger(y,ownHat(y))||y.aquaticLife().firstVoyage().returningToParent()||y.family().flying()||
-                y.family().braidRescueActive()||y.getUUID().equals(waitingOn))
+                y.family().crew().busy()||y.getUUID().equals(waitingOn))
                 .max(Comparator.<YukkuriEntity>comparingInt(y->y.family().flying()?4:y.isInWaterOrBubble()?3
                         :y.aquaticLife().firstVoyage().returningToParent()?2:danger(y,ownHat(y))?1:0)
                         .thenComparingDouble(y->y.isInWaterOrBubble()?-y.getHealth():0)
@@ -538,7 +539,7 @@ public final class AquaticFamilyLife {
                 return yieldSteering(boat);
             }
             entity.life().wakeInHat();entity.getLookControl().setLookAt(troubled,30,30);
-            if(troubled.aquaticLife().firstVoyage().returningToParent()||troubled.family().flying()||troubled.family().braidRescueActive()){
+            if(troubled.aquaticLife().firstVoyage().returningToParent()||troubled.family().flying()||troubled.family().crew().busy()){
                 hold(boat,Behaviors.BOAT_RESCUE_YOUNG);rescueActivity(troubled,Behaviors.BOAT_RESCUE_YOUNG);return true;
             }
             boolean threatened=danger(troubled,ownHat(troubled));guarding=threatened;waitingOn=troubled.getUUID();
@@ -547,7 +548,7 @@ public final class AquaticFamilyLife {
                     // A capsize ejects its owner, so the ordinary own-boat return state
                     // cannot handle this case. Reach the swimmer before starting a real lift.
                     if(!troubled.getUUID().equals(swimmerWatch))swimmerWatch=troubled.getUUID();
-                    if(troubled.family().rescueIntoHat(boat)){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,Behaviors.BOAT_RETURN_FAMILY);}
+                    if(CrewTransfers.liftAboard(troubled,boat).ok()){AquaDiag.log(entity,"swimmer.rescue",0,"braid rescue started");hold(boat,Behaviors.BOAT_RETURN_FAMILY);}
                     else if(this.alarm.approachRescue(boat,troubled)){AquaDiag.log(entity,"swimmer.approach",40,"alarm approach d="+horizontal(boat.position(),
                             troubled.position())+" boat="+AquaDiag.at(boat.position()));steeringHat=boat.getUUID();}
                     else if(horizontal(boat.position(),troubled.position())>.8){AquaDiag.log(entity,"swimmer.steer",40,"steer d="+horizontal(boat.position(),
@@ -677,7 +678,7 @@ public final class AquaticFamilyLife {
         return cachedRescuableYoung=result.values().stream().filter(child->child!=entity&&!child.family().adult()&&entity.family().caresFor(child)).toList();
     }
     private boolean rescueNeed(YukkuriEntity child){
-        return child.family().flying()||child.family().braidRescueActive()||!child.isPassenger()&&child.isInWaterOrBubble()
+        return child.family().flying()||child.family().crew().busy()||!child.isPassenger()&&child.isInWaterOrBubble()
                 ||child.isOnFire()||nearestThreat(child)!=null;
     }
     /** An unfledged young of this parent that has not set up on its own, aquatic or not. */
@@ -699,7 +700,7 @@ public final class AquaticFamilyLife {
         if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||boat.unsteadyMotion()||entity.isPanicking())return false;
         for(var child:level().getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(3,2,3),
                 y->y.isAlive()&&!y.isPassenger()&&y.isInWaterOrBubble()&&boat.young(y)).stream().sorted(Comparator.comparingDouble(boat::distanceToSqr)).toList())
-            if(child.family().rescueIntoHat(boat)){AquaDiag.log(entity,"gap.rescue",0,"between births, child="+child.getUUID());return true;}
+            if(CrewTransfers.liftAboard(child,boat).ok()){AquaDiag.log(entity,"gap.rescue",0,"between births, child="+child.getUUID());return true;}
         return false;
     }
     private UUID selectedParentId(){var parent=contactParent();return parent==null?parentId:parent.getUUID();}

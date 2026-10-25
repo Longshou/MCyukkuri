@@ -354,7 +354,6 @@ public final class BraidRescueGeometry {
         var at=from.lerp(to,q).add(perpendicular.scale(4*side*q*(1-q)));
         return new Vec3(at.x,height,at.z);
     }
-    public static double effortProgress(double q){return HatBoarding.pullProgress(q);}
     public static boolean touches(YukkuriEntity child,Vec3 tip){return child.getBoundingBox().inflate(.008).contains(tip);}
     /** Refine a supported grid candidate onto the exact reach circle at its measured floor height. */
     public static Vec3 stand(YukkuriEntity parent,HatBoatEntity hat,Vec3 target,Vec3 candidate){
@@ -373,11 +372,14 @@ public final class BraidRescueGeometry {
         }
         return reachable(parent,rootAt(parent,hat.toWorld(at)),target)?at:null;
     }
-    public static boolean canLift(YukkuriEntity parent,YukkuriEntity child){
+    /** The one lift rule: the carried body's volume against 24% of the carrier's, scaled by her energy. */
+    public static boolean canLift(YukkuriEntity parent,YukkuriEntity child){return canLift(parent,child,false);}
+    /** {@code atFullStrength}: the size ceiling alone, which waiting (resting, recovering energy) can never change. */
+    public static boolean canLift(YukkuriEntity parent,YukkuriEntity child,boolean atFullStrength){
         double parentVolume=parent.getBbWidth()*parent.getBbWidth()*parent.getBbHeight();
         double childVolume=child.getBbWidth()*child.getBbWidth()*child.getBbHeight();
-        double strength=Math.clamp((parent.life().energy()-8)/60.0,.2,1);
-        return parent.life().energy()>=10&&childVolume<=parentVolume*.24*strength;
+        double strength=atFullStrength?1:Math.clamp((parent.life().energy()-8)/60.0,.2,1);
+        return (atFullStrength||parent.life().energy()>=10)&&childVolume<=parentVolume*.24*strength;
     }
     private BraidRescueGeometry(){}
 }

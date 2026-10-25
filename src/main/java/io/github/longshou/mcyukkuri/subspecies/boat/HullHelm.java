@@ -334,7 +334,7 @@ public final class HullHelm {
         var captain = boat.captain();
         // A captain whose braid is lifting or rescuing a child keeps the heading that braid was planned for.
         // Afterwards she turns back with the hull at a body's pace rather than snapping round.
-        if (captain != null && captain.getVehicle() == boat && !captain.family().cradlePickup().active() && !captain.family().braidRescueActive()) {
+        if (captain != null && captain.getVehicle() == boat && !captain.family().crew().busy()) {
             float heading = Mth.approachDegrees(captain.getYRot(), boat.getYRot(), 15f);
             follow(captain, heading);
         }

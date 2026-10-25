@@ -362,7 +362,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     @Override public void travel(Vec3 input) {
-        if (!level().isClientSide && family.cradleHeld()) return;
+        if (!level().isClientSide && family.crew().holdsBody()) return;
         if (!level().isClientSide && family.travelFlight()) return;
         if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
@@ -457,7 +457,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Bodies that move on their own may be shoved; carried, boarded or launched ones follow their own carrier. */
     boolean nudgeable() {
         return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()
-                &&!family.cradleHeld()&&!family.travelFlight()&&!family.freeFalling();
+                &&!family.crew().holdsBody()&&!family.travelFlight()&&!family.freeFalling();
     }
     private double bodyMass() { return getBbWidth()*getBbWidth()*getBbHeight(); }
     /**

@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewPort;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -64,8 +67,8 @@ final class LiveDelivery {
         var mine=o.boatHome();
         var mate=o.partner()!=null&&o.level().getEntity(o.partner()) instanceof YukkuriEntity y&&y.isAlive()?y:null;
         var theirs=mate==null?null:mate.family().boatHome();
-        var transfer=o.cradlePickup();
-        var partnerTransfer=mate==null?null:mate.family().cradlePickup();
+        var transfer=o.crew();
+        var partnerTransfer=mate==null?null:mate.family().crew();
         long now=o.level().getGameTime();
         return "required="+waterBirthRequired()+" needsBoat="+needsWaterBirthBoat()+" labor="+laboring()+" gap="+deliveryGap()
                 +" block="+(birthBlock().isEmpty()?"none":birthBlock())+" own="+hullDetail(mine)
@@ -74,9 +77,9 @@ final class LiveDelivery {
                 +" ownTransfer={"+transferDetail(transfer)+"} partnerTransfer={"+transferDetail(partnerTransfer)+"}"
                 +" scan="+Math.max(0,nextWaterPartnerScan-now)+" route="+Math.max(0,nextWaterPartnerRoute-now);
     }
-    private static String transferDetail(CradlePickup transfer){
+    private static String transferDetail(CrewPort transfer){
         if(transfer==null||!transfer.active())return "idle";
-        return "phase="+transfer.state().getString("Phase")+" child="+transfer.childId()+" held="+transfer.held();
+        return "mode="+transfer.ticket().mode()+" phase="+transfer.ticket().phase()+" child="+transfer.ticket().bodyId()+" held="+transfer.holdsBody();
     }
     private static String hullDetail(HatBoatEntity boat){
         return boat==null?"none":"#"+boat.getId()+" load="+boat.capacityUsed()+" remaining="+boat.remainingCapacity()
@@ -227,7 +230,7 @@ final class LiveDelivery {
     }
     /**
      * A newborn's durable parents outlive the completed brood record. Keep this limited to a dependent baby actually aboard
-     * its recorded mother's own hull and the partner father's occupied hull; CradlePickup reserves and physically transfers it.
+     * its recorded mother's own hull and the partner father's occupied hull; a crew transfer reserves the seat and physically carries it.
      */
     private boolean rebalanceWaterYoung(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity mother){
         if(motherHat.hasIncoming()||fatherHat.hasIncoming())return false;
@@ -242,7 +245,18 @@ final class LiveDelivery {
         var approach=approachWaterPartner(fatherHat,motherHat,mother);
         if(approach==HullHelm.State.BLOCKED)return false;
         if(approach==HullHelm.State.MOVING)return true;
-        return mother.family().cradlePickup().startBoatTransfer(motherHat,fatherHat,child);
+        return boatTransferAllowed(motherHat,fatherHat,mother,child)&&CrewTransfers.liftAcross(child,mother,motherHat,fatherHat).ok();
+    }
+    /** Only the mother may rebalance her dependent child into the recorded father's close, occupied hat. */
+    private boolean boatTransferAllowed(HatBoatEntity home,HatBoatEntity fatherHat,YukkuriEntity mother,YukkuriEntity young){
+        YukkuriEntity father=fatherHat.ownerYukkuri()!=null&&o.level().getEntity(fatherHat.ownerYukkuri()) instanceof YukkuriEntity owner?owner:null;
+        return father!=null&&home!=fatherHat&&mother.getVehicle()==home&&young.getVehicle()==home&&home.isAfloat()&&fatherHat.isAfloat()
+                &&!home.unsteadyMotion()&&!fatherHat.unsteadyMotion()&&home.flooding()<=0&&fatherHat.flooding()<=0&&!fatherHat.landing()
+                &&mother.getUUID().equals(home.ownerYukkuri())&&!young.family().adult()&&home.young(young)&&fatherHat.young(young)
+                &&Bonds.parentOf(mother,young)&&mother.getUUID().equals(young.family().mother())&&father.getUUID().equals(young.family().father())
+                &&father.getVehicle()==fatherHat&&father.isAlive()&&!father.life().isSleeping()&&!father.life().hasUrgentNeed()
+                &&!father.aquaticLife().care().active()&&!father.aquaticLife().familyLife().alarm().active()
+                &&home.position().subtract(fatherHat.position()).multiply(1,0,1).lengthSqr()<=Math.pow(FamilyLife.SHARE_REACH+fatherHat.getBbWidth()*.5,2);
     }
     private boolean transferChild(YukkuriEntity child,HatBoatEntity motherHat,YukkuriEntity mother){
         return child.isAlive()&&child.getVehicle()==motherHat&&child.family().stage()==FamilyLife.Stage.BABY
@@ -278,7 +292,7 @@ final class LiveDelivery {
     }
     private static boolean safePartnerHull(YukkuriEntity parent,HatBoatEntity boat){
         return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&boat.flooding()<=0
-                &&!boat.landing()&&!parent.family().braidRescueActive()
+                &&!boat.landing()&&!parent.family().crew().busy()
                 &&!parent.aquaticLife().care().active()&&!parent.aquaticLife().familyLife().alarm().active();
     }
     /** A read-only-in-effect reservation round proves this particular child's real body-plus-return-paddle load lowers the total imbalance. */

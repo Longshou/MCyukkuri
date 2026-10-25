@@ -72,7 +72,7 @@ final class CabinDistressPresentation {
                 ||behavior.startsWith(Behaviors.WATER_HAT_PREFIX)))return null;
         float elapsed=Math.max(0,(entity.level().getGameTime()-state.getLong("Start")+partial)/20f);
         float q=Mth.clamp(elapsed/(Math.max(1,state.getInt("Duration"))/20f),0,1);
-        // Every root position belongs to HatBoarding; these clips add pressure and breathing only.
+        // Every root position belongs to the crew transfer; these clips add pressure and breathing only.
         // GRIP bites the rim, LIFT surges twice up the dipped rim, SETTLE slides over it, HOP is the small hop (project original).
         return switch(state.getString("Phase")){
             case "ALIGN"->new Motion("water_hat_grip",0);

@@ -167,7 +167,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("burning"))
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 25, (c, ctx) -> c.carryInterrupted("hurt"))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 55, (c, ctx) -> c.carryInterrupted("death"))
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 60, (c, ctx) -> c.cancelBraidRescue())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 60, (c, ctx) -> c.cancelCrew())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(CHILDHOOD, YukkuriEntity::childhood)
                 .tick(100, ChildhoodLife::tick)

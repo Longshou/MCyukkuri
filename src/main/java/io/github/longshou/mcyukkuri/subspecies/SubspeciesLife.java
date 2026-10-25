@@ -232,7 +232,7 @@ public final class SubspeciesLife {
     }
     private boolean safeForDeibuChange() {
         return entity.onGround()&&!entity.isPassenger()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
-                &&!entity.family().flying()&&!entity.family().braidRescueActive()&&!entity.careApproach().waiting()
+                &&!entity.family().flying()&&!entity.family().crew().busy()&&!entity.careApproach().waiting()
                 &&!entity.operations().active()&&!entity.family().active()&&entity.family().brood()==null&&!entity.groupInteraction().active()
                 &&!entity.social().active()&&!entity.dailyLife().active()&&!entity.playLife().active()&&!entity.house().active()&&!entity.habitat().active()
                 &&!entity.pet().busy()&&!entity.predator().active()&&!WildEvents.reserved(entity);

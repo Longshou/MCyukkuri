@@ -337,7 +337,7 @@ public final class AgitationLife {
                 && !other.body().dying() && other.body().coreIntact()
                 && !other.profile().dangerToYukkuri() && !other.isNoAi() && !other.isPassenger() && !other.isVehicle()
                 && !other.isCommandPlaying() && !other.operations().active() && !other.pet().busy()
-                && !other.family().laboring() && !other.family().birthDuty() && !other.family().braidRescueActive()
+                && !other.family().laboring() && !other.family().birthDuty() && !other.family().crew().busy()
                 && !other.life().sedated() && !other.life().isSleeping() && !other.isInWaterOrBubble()
                 && !other.isOnFire() && !other.agitation().agitated() && !other.agitation().held()
                 && entity.distanceToSqr(other) <= 144;

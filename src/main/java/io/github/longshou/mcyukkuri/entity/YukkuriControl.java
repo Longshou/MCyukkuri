@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 /** Advances transient gameplay controls once, independently of publishing an animation. */
 public final class YukkuriControl {
     public enum Takeover {
-        BRAID_RESCUE, HAT_MOTION, BOARDING, SELF_RESCUE, WATER_DISTRESS, AQUATIC_ALARM,
+        CREW_TRANSFER, HAT_MOTION, SELF_RESCUE, WATER_DISTRESS, AQUATIC_ALARM,
         PANIC, SHELL, AGITATION, NONE
     }
 
@@ -35,13 +35,11 @@ public final class YukkuriControl {
 
     private static Takeover earlyTakeover(YukkuriEntity owner, int panic) {
         // Preserve physical precedence and short-circuit reads; this never probes Goal eligibility.
-        if (owner.family().braidRescueActive() && !owner.isCommandPlaying() && !owner.operations().active())
-            return Takeover.BRAID_RESCUE;
+        if (owner.family().crew().presenting() && !owner.isCommandPlaying() && !owner.operations().active())
+            return Takeover.CREW_TRANSFER;
         if (owner.getVehicle() instanceof HatBoatEntity boat
                 && (boat.rocking() || boat.capsizing() || !boat.crowdingState(owner).equals(Behaviors.IDLE))
                 && !owner.isCommandPlaying() && !owner.operations().active()) return Takeover.HAT_MOTION;
-        if (owner.boardingSync().active().value() && !owner.isCommandPlaying() && !owner.operations().active())
-            return Takeover.BOARDING;
         if (owner.aquaticLife().selfRescue().active() && !owner.isCommandPlaying() && !owner.operations().active())
             return Takeover.SELF_RESCUE;
         if ((owner.waterDistress().active() || owner.waterDistress().airbornePlunge())

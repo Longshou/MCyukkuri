@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity.presentation;
 
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriControl;
@@ -28,9 +29,8 @@ public final class PresentationArbiter {
     public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ) {
         var motion = new Motion(travelledX, travelledZ);
         switch (frame.takeover()) {
-            case BRAID_RESCUE -> publish("braid_rescue", braidRescue(state, motion));
+            case CREW_TRANSFER -> publish("crew_transfer", crewTransfer(state, motion));
             case HAT_MOTION -> publish("hat_motion", hatMotion(state, motion));
-            case BOARDING -> publish("boarding", boarding(state, motion));
             case SELF_RESCUE -> publish("self_rescue", selfRescue(state, motion));
             case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
             case AQUATIC_ALARM -> publish("aquatic_alarm", aquaticAlarm(state, motion));
@@ -139,30 +139,45 @@ public final class PresentationArbiter {
         publish(id, new Presentation(() -> ordinary(state, motion, behavior, actions)));
     }
 
-    private static Presentation braidRescue(PresentationAccess state, Motion m) {
+    /**
+     * The clip of the transfer ticket this entity takes part in: the carrier's braid cradle (or mouth bite, or nudge), the carried body's
+     * cradle, the climber's pull over the rim, the hop. The ticket's clock chooses the clip start so the authored markers meet the server's
+     * contact and move; when the ticket ends the next tick falls back to the ordinary state.
+     */
+    private static Presentation crewTransfer(PresentationAccess state, Motion m) {
         var e = state.owner();
         return new Presentation(() -> {
-            String phase=e.braidRescuePhase();boolean parent=e.braidRescueSync().parentId().value()==e.getId();
-            if(phase.startsWith("CRADLE_")){
-                state.behavior(parent?Behaviors.CAREGIVER:Behaviors.NEWBORN);state.animation(YukkuriAction.IDLE);
-                state.expression(parent?"closed_smile":"neutral");return;
+            var port = e.family().crew();
+            var ticket = port.ticket();
+            if (ticket == null) { state.behavior(Behaviors.IDLE); state.animation(YukkuriAction.IDLE); state.expression("neutral"); return; }
+            boolean carrier = port.asCarrier();
+            long start = ticket.contactStart();
+            String behavior;
+            YukkuriAction action;
+            String expression;
+            switch (ticket.mode()) {
+                case LIFT -> {
+                    boolean mouth = ticket.contact() == CrewTransfer.Contact.MOUTH_BITE;
+                    behavior = carrier ? Behaviors.BOAT_CARRY_YOUNG : Behaviors.BOAT_BE_CARRIED;
+                    action = carrier ? (mouth ? YukkuriAction.MOUTH_BITE_HOLD : YukkuriAction.BRAID_CRADLE_LIFT) : YukkuriAction.BE_CRADLED;
+                    expression = carrier ? "closed_smile" : "teary";
+                }
+                case CLIMB -> {
+                    behavior = carrier ? Behaviors.BRAID_RESCUE_PUSH : Behaviors.WATER_HAT_CLIMB;
+                    action = carrier ? YukkuriAction.BOAT_NUDGE_YOUNG : YukkuriAction.WATER_HAT_CLIMB;
+                    expression = carrier ? "closed_smile" : "teary";
+                }
+                default -> {
+                    behavior = Behaviors.HAT_BOARD_HOP;
+                    action = YukkuriAction.HAT_HOP_UP;
+                    expression = "neutral";
+                    start = ticket.phaseStart();
+                }
             }
-            // Reaching and gripping retain their real contact phases.
-            String motion=parent?switch(phase){
-                case "REACH"->Behaviors.BRAID_RESCUE_REACH;
-                case "GRIP"->Behaviors.BRAID_RESCUE_HOLD;
-                case "OFFER","BITE","SLIDE"->Behaviors.BRAID_RESCUE_OFFER;
-                case "PUSH"->Behaviors.BRAID_RESCUE_PUSH;
-                default->Behaviors.BRAID_RESCUE_SETTLE;
-            }:e.family().heldByBraid()?Behaviors.BRAID_BE_RESCUED:e.waterDistress().activity();
-            state.behavior(motion);state.animation(EcologyPresentation.action(motion));
-            state.animationStart(parent||e.family().heldByBraid()?e.braidRescueStartTick():e.waterDistressStartTick());
-            state.expression(switch(phase){
-                case "PUSH","SLIDE"->parent?"closed_smile":"teary";
-                case "SETTLE","RELEASE"->"neutral";
-                default->"teary";
-            });
-            return;
+            state.behavior(behavior);
+            state.animation(action);
+            state.animationStart(start);
+            state.expression(ticket.phase() == CrewTransfer.Phase.RELEASE ? "neutral" : expression);
         });
     }
 
@@ -180,16 +195,6 @@ public final class PresentationArbiter {
             if(!movingHat.capsizing()&&!crowd.equals(Behaviors.IDLE))state.animationStart(movingHat.crowdingPhaseStart(e));
             state.expression(e.family().adult()?"surprise":"teary");
             return;
-        });
-    }
-
-    private static Presentation boarding(PresentationAccess state, Motion m) {
-        var e = state.owner();
-        return new Presentation(() -> {
-            var boarding=e.boardingSync();String phase=boarding.phase().value();
-            String motion=Behaviors.hatBoard(phase.toLowerCase(Locale.ROOT));
-            state.behavior(motion);state.animation(EcologyPresentation.action(motion));
-            state.animationStart(boarding.start().value());state.expression("teary");return;
         });
     }
 

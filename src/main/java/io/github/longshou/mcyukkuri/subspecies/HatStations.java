@@ -66,7 +66,7 @@ final class HatStations {
 
     /** The rider is on an errand (care, toilet, practice, a lift): it must not be shaken off or reflowed meanwhile. */
     boolean isStationed(UUID id) {
-        return stations.containsKey(id) || boat.carry.carryTrip != null && boat.carry.carryTrip.child.equals(id)
+        return stations.containsKey(id) || boat.crew().involves(id)
                 || id.equals(boat.ownerYukkuri()) && (ownerToiletSlot >= 0 || rescueOwnerHeld);
     }
     private final Map<UUID, Long> liftRetry = new HashMap<>();
@@ -90,8 +90,8 @@ final class HatStations {
         return out.toString();
     }
     String carePlanDebug() {
-        return carePlanDebug + "; carry=" + boat.carry.carryPlanDebug + "; returning=" + returningSeatIdsDebug() + " service=" + stations.size()
-                + " phase=" + (boat.carry.carryTrip == null ? "none" : boat.carry.carryTrip.phase) + " last=" + deck().lastRefusal();
+        return carePlanDebug + "; carry=" + boat.carryPlanDebug + "; returning=" + returningSeatIdsDebug() + " service=" + stations.size()
+                + " transfers=" + boat.crew().tickets().size() + " last=" + deck().lastRefusal();
     }
 
     /** Once a second: a booking whose body is no longer coming, a lapsed refuge, a berth the pupil no longer keeps, a station nobody uses. */
@@ -103,9 +103,9 @@ final class HatStations {
                 var y = server.getEntity(p.id()) instanceof YukkuriEntity found ? found : null;
                 boolean gone = y == null || !y.isAlive();
                 if (!gone) {
-                    boolean crossing = y.family().crossingToHat(boat);
-                    gone = y.isPassenger() && !crossing || !crossing && !y.family().flying() && !y.family().braidRescueActive() && !y.family().selfClimbActive()
-                            && !y.waterDistress().heldByWaterRescue() || y.distanceToSqr(boat) > 64;
+                    var ticket = y.family().crew().ticket();
+                    boolean coming = ticket != null && !ticket.finished() && ticket.touches(boat);
+                    gone = y.isPassenger() && !coming || !coming && !y.family().crew().active() || y.distanceToSqr(boat) > 64;
                 }
                 if (gone) deck().release(p.id(), "no_longer_coming");
             }
@@ -129,8 +129,8 @@ final class HatStations {
             var lease = p.lease();
             if (!p.aboard() || lease == null || lease.purpose() != Purpose.SERVICE) continue;
             boolean owner = p.id().equals(boat.ownerYukkuri());
-            boolean used = stations.containsKey(p.id()) || owner && (!stations.isEmpty() || ownerToiletSlot >= 0 || boat.carry.carryTrip != null)
-                    || boat.carry.carryTrip != null && boat.carry.carryTrip.child.equals(p.id()) || owner && rescueOwnerHeld
+            boolean used = stations.containsKey(p.id()) || owner && (!stations.isEmpty() || ownerToiletSlot >= 0 || boat.crew().busy())
+                    || boat.crew().involves(p.id()) || owner && rescueOwnerHeld
                     || deck().moving(p.id()) || yielders.contains(p.id()) || departureChild != null || now() < boardingEdgeUntil;
             if (!used) deck().release(p.id(), "unused_station");
         }
@@ -147,7 +147,7 @@ final class HatStations {
         if (stations.isEmpty() && ownerToiletSlot < 0 && !boat.hasIncoming()) {
             var owner = boat.ownerYukkuri();
             var lease = owner == null ? null : deck().lease(owner);
-            if (lease != null && lease.purpose() == Purpose.SERVICE && deck().aboard(owner) && boat.carry.carryTrip == null && !rescueOwnerHeld)
+            if (lease != null && lease.purpose() == Purpose.SERVICE && deck().aboard(owner) && !boat.crew().busy() && !rescueOwnerHeld)
                 deck().release(owner, "station_ended");
         }
     }
@@ -182,13 +182,13 @@ final class HatStations {
         if (held != null && held.captainSlot() >= 0) {
             if (held.rear() != rear) return false;
             // Unfolding may require a real withdrawal; the care station is restored afterwards.
-            if (boat.carry.carryTrip == null && !deck().moving(parent.getUUID()) && !settled(parent.getUUID(), held.captainSlot())) {
+            if (!boat.crew().busy() && !deck().moving(parent.getUUID()) && !settled(parent.getUUID(), held.captainSlot())) {
                 if (!deck().moveWithin(body(parent), held.captainSlot(), local(parent), false, Purpose.SERVICE)) { releaseCareSeat(id); return false; }
                 boat.syncSeats();
             }
             return true;
         }
-        if (boat.carry.carryTrip != null) return false;
+        if (boat.crew().busy()) return false;
         if (stations.keySet().stream().anyMatch(other -> !other.equals(id))) return false;
         // Feeding takes precedence over a child's voluntary movement.
         if (held != null) stations.remove(id);
@@ -212,8 +212,8 @@ final class HatStations {
         var pb = body(parent);
         if (deck().movePair(pb, captainSlot, local(parent), false, cb, youngSlot, local(child), false, Purpose.SERVICE, false)) return true;
         if (deck().needsLift()) {
-            if (boat.carry.beginCarry(child, parent, youngSlot, captainSlot)) return true;
-            carePlanDebug = "lift: " + boat.carry.carryPlanDebug;
+            if (boat.beginCarry(child, parent, youngSlot, captainSlot)) return true;
+            carePlanDebug = "lift: " + boat.carryPlanDebug;
             return false;
         }
         if (cb.jumps() && deck().movePair(pb, captainSlot, local(parent), false, cb, youngSlot, local(child), true, Purpose.SERVICE, false)) return true;
@@ -225,14 +225,14 @@ final class HatStations {
     private boolean moveChild(YukkuriEntity child, YukkuriEntity parent, int slot, int captainDelivery) {
         var cb = body(child);
         if (deck().moveWithin(cb, slot, local(child), false, Purpose.SERVICE)) return true;
-        if (deck().needsLift() && parent != null && boat.carry.beginCarry(child, parent, slot, captainDelivery)) return true;
+        if (deck().needsLift() && parent != null && boat.beginCarry(child, parent, slot, captainDelivery)) return true;
         return cb.jumps() && deck().moveWithin(cb, slot, local(child), true, Purpose.SERVICE);
     }
 
     boolean careSeatReady(YukkuriEntity child) {
         var st = child == null ? null : stations.get(child.getUUID());
         var parent = boat.owner();
-        return st != null && st.captainSlot() >= 0 && parent != null && boat.carry.carryTrip == null
+        return st != null && st.captainSlot() >= 0 && parent != null && !boat.crew().busy()
                 && settled(child.getUUID(), st.youngSlot()) && settled(parent.getUUID(), st.captainSlot());
     }
 
@@ -304,7 +304,7 @@ final class HatStations {
         if (child.getUUID().equals(boat.ownerYukkuri())) return ownerToiletSlot >= 0 && settled(child.getUUID(), ownerToiletSlot);
         var st = stations.get(child.getUUID());
         var parent = boat.owner();
-        return boat.carry.carryTrip == null && st != null && st.toilet() && settled(child.getUUID(), st.youngSlot())
+        return !boat.crew().busy() && st != null && st.toilet() && settled(child.getUUID(), st.youngSlot())
                 && (st.captainSlot() < 0 || parent != null && settled(parent.getUUID(), st.captainSlot()));
     }
 
@@ -364,13 +364,13 @@ final class HatStations {
         var st = stations.remove(childId);
         if (st != null) deck().release(childId, "care_done");
         var owner = boat.ownerYukkuri();
-        if (owner != null && stations.isEmpty() && ownerToiletSlot < 0 && boat.carry.carryTrip == null && !rescueOwnerHeld) deck().release(owner, "care_done");
+        if (owner != null && stations.isEmpty() && ownerToiletSlot < 0 && !boat.crew().busy() && !rescueOwnerHeld) deck().release(owner, "care_done");
         boat.syncSeats();
     }
 
     /** Send bodies that finished an errand back to the seat they left. Called every few ticks. */
     void tendReturns() {
-        if (boat.carry.carryTrip != null) return;
+        if (boat.crew().busy()) return;
         long now = now();
         for (var p : List.copyOf(deck().all())) {
             if (!p.aboard() || !p.returning() || deck().moving(p.id())) continue;
@@ -380,13 +380,13 @@ final class HatStations {
             if (p.home() < 0 || p.slot() == p.home()) { deck().forgetHome(p.id()); continue; }
             var y = entity(p.id());
             if (y == null || y.getVehicle() != boat) { deck().forgetHome(p.id()); continue; }
-            if (y.family().selfClimbActive()) continue;
+            if (y.family().crew().busy()) continue;
             var tries = returnTries.computeIfAbsent(p.id(), k -> new long[]{0, 0});
             if (now < tries[0]) continue;
             var parent = boat.owner();
             if (deck().moveWithin(body(y), p.home(), local(y), false, Purpose.BOARD)) continue;
             if (deck().needsLift()) {
-                if (parent != null && parent != y && parent.getVehicle() == boat && boat.carry.beginReturnCarry(y, parent, p.home())) continue;
+                if (parent != null && parent != y && parent.getVehicle() == boat && boat.beginCarry(y, parent, p.home(), DeckLayout.NONE)) continue;
             } else if (y.childhood().canJump() && deck().moveWithin(body(y), p.home(), local(y), true, Purpose.BOARD)) continue;
             tries[1]++;
             tries[0] = now + 40;
@@ -403,7 +403,7 @@ final class HatStations {
     boolean beginPracticeMove(YukkuriEntity child, boolean hop) {
         if (boat.level().isClientSide || boat.unsteadyMotion() || child == null || child.getVehicle() != boat || !boat.young(child) || !boat.protects(child)
                 || !boat.isAfloat() || boat.flooding() != 0 || boat.hasIncoming() || departurePreparing() || deck().hasLease(child.getUUID(), Purpose.RETAINED)
-                || !stations.isEmpty() || hasReturningSeats() || boat.carry.carryTrip != null || boat.changingSeat(child) || ownerSeatBusy()) return false;
+                || !stations.isEmpty() || hasReturningSeats() || boat.crew().busy() || boat.changingSeat(child) || ownerSeatBusy()) return false;
         var cb = body(child);
         var p = deck().get(child.getUUID());
         if (p == null || !p.aboard() || p.slot() < 0) return false;
@@ -439,97 +439,15 @@ final class HatStations {
         return true;
     }
 
-    // ---------------------------------------------------------------- joint rescue destinations
-    List<Vec3> rescueOwnerCandidates(YukkuriEntity parent) {
-        if (parent != boat.owner() || parent.getVehicle() != boat || !boat.isAfloat() || boat.unsteadyMotion()) return List.of();
-        var out = new ArrayList<Vec3>();
-        for (int seat : deck().freeSeats(body(parent), Purpose.RESCUE, local(parent))) out.add(slotPos(seat));
-        return out;
-    }
-    List<Vec3> rescueOwnerCandidates(YukkuriEntity parent, YukkuriEntity child) { return rescueOwnerCandidates(parent); }
 
-    List<Vec3> rescueYoungCandidates(YukkuriEntity child) {
-        if (child == null || !boat.admits(child) || child.isPassenger() || !boat.isAfloat() || boat.unsteadyMotion()) return List.of();
-        var cb = body(child);
-        if (!deck().canAdmit(cb, Purpose.RESCUE).ok() && !deck().incoming(child.getUUID())) return List.of();
-        var out = new ArrayList<Vec3>();
-        var held = deck().get(child.getUUID());
-        if (held != null && !held.aboard() && held.target() >= 0) out.add(slotPos(held.target()));
-        for (int seat : deck().freeSeats(cb, Purpose.RESCUE, null)) out.add(slotPos(seat));
-        return out;
-    }
 
-    private int seatAt(Vec3 local) { return boat.deckLayout().slotAt(local, .05); }
 
-    boolean canPlaceRescuePair(YukkuriEntity child, YukkuriEntity parent, Vec3 youngSeat, Vec3 parentStand) {
-        if (child == null || parent == null || parent != boat.owner() || parent.getVehicle() != boat || !boat.admits(child) || child.isPassenger()
-                || youngSeat == null || parentStand == null || !boat.isAfloat() || boat.unsteadyMotion() || boat.flooding() > 0) return false;
-        int young = seatAt(youngSeat), stand = seatAt(parentStand);
-        return young >= 0 && stand >= 0 && deck().canPlacePair(body(child), young, Purpose.RESCUE, body(parent), stand, Purpose.RESCUE, true)
-                && (deck().canAdmit(body(child), Purpose.RESCUE).ok() || deck().incoming(child.getUUID()));
-    }
 
-    boolean reserveRescuePair(YukkuriEntity child, YukkuriEntity parent, Vec3 youngSeat, Vec3 parentStand) {
-        if (boat.level().isClientSide || !canPlaceRescuePair(child, parent, youngSeat, parentStand) || boat.hasCarryTrip() || ownerToiletSlot >= 0
-                || !stations.isEmpty() || hasReturningSeats()
-                || parent.family().rescueTarget() != null && !child.getUUID().equals(parent.family().rescueTarget())) return false;
-        var lease = deck().get(child.getUUID()) != null && deck().incoming(child.getUUID()) ? deck().lease(child.getUUID())
-                : deck().claim(body(child), Purpose.RESCUE, youngSeat, seatAt(youngSeat), HatDeck.BOARD_TTL);
-        if (lease == null) return false;
-        boat.syncSeats();
-        return true;
-    }
 
-    boolean moveRescueOwner(YukkuriEntity parent, Vec3 localSupported) {
-        if (boat.level().isClientSide || parent != boat.owner() || parent.getVehicle() != boat || !boat.isAfloat() || boat.unsteadyMotion()
-                || localSupported == null || boat.hasCarryTrip() || ownerToiletSlot >= 0 || !stations.isEmpty() || hasReturningSeats()) return false;
-        int stand = seatAt(localSupported);
-        if (stand < 0) return false;
-        var p = deck().get(parent.getUUID());
-        if (p != null && p.aboard() && p.slot() != stand && !deck().moveWithin(body(parent), stand, local(parent), false, Purpose.RESCUE)) return false;
-        rescueOwnerHeld = true;
-        rescueStand = stand;
-        boat.helm().hold(parent, HullHelm.Purpose.RESCUE);
-        boat.syncSeats();
-        return true;
-    }
 
-    String rescueOwnerRefusal(YukkuriEntity parent, Vec3 localSupported) {
-        if (parent != boat.owner() || parent.getVehicle() != boat) return "not the captain aboard";
-        if (!boat.isAfloat() || boat.unsteadyMotion()) return "hull not steady";
-        if (boat.hasCarryTrip()) return "carry trip";
-        if (ownerToiletSlot >= 0) return "toilet seat";
-        if (hasServiceSeats()) return "service seats " + serviceSeatIdsDebug();
-        if (hasReturningSeats()) return "returning seats " + returningSeatIdsDebug();
-        int stand = localSupported == null ? DeckLayout.NONE : seatAt(localSupported);
-        if (stand < 0) return "stand is not a seat";
-        var p = deck().get(parent.getUUID());
-        if (p == null || !p.aboard()) return "captain has no seat";
-        if (p.slot() == stand || deck().freeSeats(body(parent), Purpose.RESCUE, null).contains(stand)) return null;
-        return "stand " + boat.deckLayout().slot(stand).id() + " is not free for her: " + deck().lastRefusal();
-    }
 
-    List<Vec3> rescueOwnerRoute(YukkuriEntity parent, Vec3 localStand, YukkuriEntity child) { return rescueOwnerRoute(parent, localStand, child, null); }
 
-    List<Vec3> rescueOwnerRoute(YukkuriEntity parent, Vec3 localStand, YukkuriEntity child, Vec3 youngSeat) {
-        if (parent != boat.owner() || parent.getVehicle() != boat || localStand == null || !boat.isAfloat() || boat.unsteadyMotion()) return List.of();
-        int stand = seatAt(localStand);
-        var p = deck().get(parent.getUUID());
-        if (stand < 0 || p == null || !p.aboard() || p.slot() < 0) return List.of();
-        var from = local(parent);
-        if (p.slot() == stand) return List.of(from);
-        var layout = boat.deckLayout();
-        int[] path = layout.path(p.slot(), stand, body(parent).cls(), false, null);
-        if (path == null) return List.of();
-        var route = new ArrayList<Vec3>();
-        route.add(from);
-        for (int i = 1; i < path.length; i++) route.add(layout.slot(path[i]).pos());
-        return route;
-    }
 
-    boolean rescueOwnerReady(YukkuriEntity parent) {
-        return rescueOwnerHeld && parent == boat.owner() && rescueStand >= 0 && settled(parent.getUUID(), rescueStand);
-    }
 
     void releaseRescueOwner(YukkuriEntity parent) {
         if (boat.level().isClientSide || parent != boat.owner()) return;
@@ -544,7 +462,7 @@ final class HatStations {
         if (!rescueOwnerHeld) return;
         var parent = boat.owner();
         if (parent == null || parent.getVehicle() != boat) { rescueOwnerHeld = false; rescueStand = DeckLayout.NONE; boat.syncSeats(); }
-        else if (!parent.isAlive() || !parent.family().braidRescueActive() && !parent.family().cradlePickup().active()) releaseRescueOwner(parent);
+        else if (!parent.isAlive() || !parent.family().crew().active()) releaseRescueOwner(parent);
     }
     boolean rescueOwnerHeld() { return rescueOwnerHeld; }
 
@@ -686,19 +604,6 @@ final class HatStations {
         return a.ok() ? slotPos(a.slot()) : null;
     }
 
-    /** Keep a place for a young whose lift is under way (it is no longer a rider, but must find its place again). */
-    boolean holdIncoming(YukkuriEntity child, Vec3 seatLocal) {
-        if (boat.level().isClientSide || child == null || seatLocal == null || !boat.admits(child) || !boat.isAfloat()) return false;
-        int seat = seatAt(seatLocal);
-        if (seat < 0) return false;
-        var have = deck().get(child.getUUID());
-        if (have != null && !have.aboard() && have.target() == seat) return true;
-        var lease = deck().claim(body(child), Purpose.BOARD, seatLocal, seat, HatDeck.BOARD_TTL);
-        if (lease == null) lease = deck().claim(body(child), Purpose.RESCUE, seatLocal, seat, HatDeck.BOARD_TTL);
-        if (lease == null) return false;
-        boat.syncSeats();
-        return true;
-    }
 
     /** A physical braid lift reserves the seat nearest the entry the child comes up at. */
     Vec3 reserveRescueBrim(YukkuriEntity child, Vec3 actualFrom) { return reserveBoardingSeat(child, actualFrom, false, true); }

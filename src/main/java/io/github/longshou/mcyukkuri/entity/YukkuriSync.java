@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewLegacy;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
@@ -62,9 +63,9 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> SUBSPECIES = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> AGITATION = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> WATER_DISTRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<CompoundTag> BRAID_RESCUE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
+    /** The hull whose CrewState carries the transfer this body or carrier takes part in (entity id, -1 none); the transfer itself is on the hull. */
+    private static final EntityDataAccessor<Integer> CREW_BOAT = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> AQUATIC_ALARM = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<CompoundTag> HAT_BOARDING = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> AQUATIC_SELF_RESCUE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> HEADWEAR = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> MARKS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
@@ -84,6 +85,8 @@ final class YukkuriSync {
     private YukkuriSyncState.AquaticAlarm aquaticAlarmSnapshot;
     private YukkuriSyncState.BraidRescue braidRescueSnapshot;
     private YukkuriSyncState.Boarding boardingSnapshot;
+    private CompoundTag braidRescueTag = new CompoundTag(), boardingTag = new CompoundTag();
+    private long legacyTick = Long.MIN_VALUE;
     private YukkuriSyncState.SelfRescue selfRescueSnapshot;
     private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
     private List<BodyWound> woundsSnapshot;
@@ -106,10 +109,21 @@ final class YukkuriSync {
     String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
     long waterDistressStartTick() { return waterDistressSync().start().value(); }
     boolean waterDistressEffort() { return waterDistressSync().effort().value(); }
-    CompoundTag braidRescueState() { return owner.getEntityData().get(BRAID_RESCUE); }
+    /** The legacy braid-contact view of the hull's CrewState (the client's minimal adapter until the contact layer is rebuilt). */
+    CompoundTag braidRescueState() { legacy(); return braidRescueTag; }
     String braidRescuePhase() { return braidRescueSync().phase().orElse("IDLE"); }
     long braidRescueStartTick() { return braidRescueSync().start().value(); }
-    CompoundTag boardingState() { return owner.getEntityData().get(HAT_BOARDING); }
+    CompoundTag boardingState() { legacy(); return boardingTag; }
+    int crewBoat() { return owner.getEntityData().get(CREW_BOAT); }
+    private void legacy() {
+        long now = owner.level().getGameTime();
+        if (legacyTick == now) return;
+        legacyTick = now;
+        braidRescueTag = CrewLegacy.braid(owner, crewBoat());
+        boardingTag = CrewLegacy.boarding(owner, crewBoat());
+        braidRescueSnapshot = YukkuriSyncState.BraidRescue.read(braidRescueTag);
+        boardingSnapshot = YukkuriSyncState.Boarding.read(boardingTag);
+    }
     CompoundTag aquaticSelfRescueState() { return owner.getEntityData().get(AQUATIC_SELF_RESCUE); }
     int aquaticRescueTargetId() { return aquaticAlarmSync().rescueTargetId().orElse(-1); }
     String aquaticAlarmActivity() { return aquaticAlarmSync().activity().orElse("idle"); }
@@ -128,11 +142,11 @@ final class YukkuriSync {
         return aquaticAlarmSnapshot;
     }
     YukkuriSyncState.BraidRescue braidRescueSync() {
-        if (braidRescueSnapshot == null) braidRescueSnapshot = YukkuriSyncState.BraidRescue.read(owner.getEntityData().get(BRAID_RESCUE));
+        legacy();
         return braidRescueSnapshot;
     }
     YukkuriSyncState.Boarding boardingSync() {
-        if (boardingSnapshot == null) boardingSnapshot = YukkuriSyncState.Boarding.read(owner.getEntityData().get(HAT_BOARDING));
+        legacy();
         return boardingSnapshot;
     }
     YukkuriSyncState.SelfRescue selfRescueSync() {
@@ -144,12 +158,8 @@ final class YukkuriSync {
         return liveChildrenSnapshot;
     }
     void syncAquaticInteraction() {
-        var rescue=owner.family().braidRescueState();
-        if(rescue.isEmpty())rescue=owner.aquaticLife().selfRescue().parentWaterBraidState();
-        if(rescue.isEmpty())rescue=owner.waterDistress().waterRescueBraidState();
-        if(!rescue.equals(owner.getEntityData().get(BRAID_RESCUE)))owner.getEntityData().set(BRAID_RESCUE,rescue);
-        var boarding=owner.family().boardingState();
-        if(!boarding.equals(owner.getEntityData().get(HAT_BOARDING)))owner.getEntityData().set(HAT_BOARDING,boarding);
+        int boat=owner.family().crew().boatId();
+        if(boat!=owner.getEntityData().get(CREW_BOAT))owner.getEntityData().set(CREW_BOAT,boat);
         var selfRescue=owner.aquaticLife().selfRescue().syncState();
         if(!selfRescue.equals(owner.getEntityData().get(AQUATIC_SELF_RESCUE)))owner.getEntityData().set(AQUATIC_SELF_RESCUE,selfRescue);
         var controller=owner.aquaticLife().familyLife();
@@ -387,8 +397,8 @@ final class YukkuriSync {
         builder.define(LIVE_PROGRESS,0f);builder.define(LIVE_DELIVERY,-1);builder.define(LIVE_CHILDREN,new CompoundTag());
         builder.define(WATER_DISTRESS,new CompoundTag());
         builder.define(AGITATION,new CompoundTag());
-        builder.define(BRAID_RESCUE,new CompoundTag());builder.define(AQUATIC_ALARM,new CompoundTag());
-        builder.define(HAT_BOARDING,new CompoundTag());builder.define(AQUATIC_SELF_RESCUE,new CompoundTag());
+        builder.define(CREW_BOAT,-1);builder.define(AQUATIC_ALARM,new CompoundTag());
+        builder.define(AQUATIC_SELF_RESCUE,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
@@ -396,8 +406,6 @@ final class YukkuriSync {
         if (AGITATION.equals(key)) agitationSnapshot = YukkuriSyncState.Agitation.read(owner.getEntityData().get(AGITATION));
         else if (WATER_DISTRESS.equals(key)) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(owner.getEntityData().get(WATER_DISTRESS));
         else if (AQUATIC_ALARM.equals(key)) aquaticAlarmSnapshot = YukkuriSyncState.AquaticAlarm.read(owner.getEntityData().get(AQUATIC_ALARM));
-        else if (BRAID_RESCUE.equals(key)) braidRescueSnapshot = YukkuriSyncState.BraidRescue.read(owner.getEntityData().get(BRAID_RESCUE));
-        else if (HAT_BOARDING.equals(key)) boardingSnapshot = YukkuriSyncState.Boarding.read(owner.getEntityData().get(HAT_BOARDING));
         else if (AQUATIC_SELF_RESCUE.equals(key)) selfRescueSnapshot = YukkuriSyncState.SelfRescue.read(owner.getEntityData().get(AQUATIC_SELF_RESCUE));
         else if (LIVE_CHILDREN.equals(key)) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(owner.getEntityData().get(LIVE_CHILDREN));
         else if (WOUNDS.equals(key)) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));

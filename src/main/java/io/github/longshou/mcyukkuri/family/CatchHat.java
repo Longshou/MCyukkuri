@@ -57,7 +57,7 @@ final class CatchHat {
     boolean fetching() { return fetching!=null; }
     boolean cleanupPending() { return fetching!=null||hatMove==HatMove.ON||hatMove==HatMove.ON_SELF||cradleLinger>0&&cradleEntity()!=null; }
     String describe() { return "move="+hatMove+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
-            +" fetchTicks="+fetchTicks+" pickup="+o.cradlePickup().active(); }
+            +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy(); }
     boolean dutyGaveUp() { return dutyGaveUp; }
     void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
@@ -306,7 +306,7 @@ final class CatchHat {
 
     /** The hat stays down while the young are coming and a little after, while they wake in it. */
     boolean keepsCradle() {
-        if(cradleLinger>0||o.task()==Task.MIDWIFE||o.cradlePickup().active())return true;
+        if(cradleLinger>0||o.task()==Task.MIDWIFE||o.crew().busy())return true;
         var pending=o.brood();return pending!=null&&!pending.cancelled&&!pending.complete();
     }
 
@@ -395,7 +395,7 @@ final class CatchHat {
     boolean dutyReady(){
         return o.adult()&&o.entity().isAlive()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()
                 &&!o.entity().operations().active()&&!o.entity().life().isSleeping()
-                &&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0&&!o.awaitingLanding()&&!o.hasFlightArc()&&!o.heldByBraid();
+                &&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0&&!o.awaitingLanding()&&!o.hasFlightArc()&&!o.crew().holdsBody();
     }
 
     /** The father notices the labour on the server clock and takes the duty himself, so no goal arbitration leaves him idle. */

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -205,7 +206,7 @@ public final class HatFamilyAlarm {
             entity.getLookControl().setLookAt(parent,30,30);return false;
         }
         if(!answered){entity.getNavigation().stop();entity.getLookControl().setLookAt(parent,35,35);return true;}
-        if(entity.family().flying()||entity.family().braidRescueActive())return true;
+        if(entity.family().flying()||entity.family().crew().busy())return true;
         if(entity.getVehicle() instanceof HatBoatEntity own&&entity.getUUID().equals(own.ownerYukkuri())){
             entity.aquaticLife().firstVoyage().recallFromParent(boat);return true;
         }
@@ -230,8 +231,8 @@ public final class HatFamilyAlarm {
         }
         entity.getNavigation().stop();entity.getLookControl().setLookAt(parent,35,35);
         // No takeoff relocation: trained children use embark's actual position; babies wait for the braid.
-        if(entity.childhood().canJump())entity.family().boardFromShore(boat,true);
-        else entity.family().rescueIntoHat(boat);
+        if(entity.childhood().canJump())CrewTransfers.boardFromShore(entity,boat,true);
+        else CrewTransfers.liftAboard(entity,boat);
         return true;
     }
     /** Parent gathering outranks escape. A finite audible recall can expire without declaring a missing child dead. */
@@ -239,9 +240,9 @@ public final class HatFamilyAlarm {
         if(!active()||!controllable()||entity.getVehicle()!=boat)return false;
         entity.life().wakeInHat();
         if(boat.unsteadyMotion()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
-        var returning=unreturnedChildren(children,boat).stream().filter(y->awaiting(y)||y.family().flying()||y.family().braidRescueActive()
+        var returning=unreturnedChildren(children,boat).stream().filter(y->awaiting(y)||y.family().flying()||y.family().crew().busy()
                 ||!y.isPassenger()&&y.isInWaterOrBubble()&&entity.distanceToSqr(y)<=144)
-                .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().braidRescueActive()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
+                .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().crew().busy()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
                         .thenComparingDouble(entity::distanceToSqr)).toList();
         boolean swimmer=returning.stream().anyMatch(y->!y.isPassenger()&&y.isInWaterOrBubble());
         if(now()-began<24&&!swimmer){boat.helm().hold(entity, Purpose.SAFETY);face(sourcePosition);return true;}
@@ -251,13 +252,13 @@ public final class HatFamilyAlarm {
                     "gather target selected child={} hat={} water={} event={}",rescueTarget,boat.getUUID(),child.isInWaterOrBubble(),began);
             if(!child.isInWaterOrBubble())set(Behaviors.BOAT_ALARM_WAIT);else if(!boat.paddling())set(Behaviors.BOAT_RESCUE_YOUNG);
             entity.getLookControl().setLookAt(child,35,35);
-            if(child.family().flying()||child.family().braidRescueActive()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
+            if(child.family().flying()||child.family().crew().busy()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
                 boat.makeRoom(child,true);
-            if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.helm().hold(entity, Purpose.SAFETY);return true;}
+            if(!child.isPassenger()&&CrewTransfers.liftAboard(child,boat).ok()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
-            var braidApproach=!child.isPassenger()?child.family().braidRescueApproach(boat):null;
+            var braidApproach=!child.isPassenger()?CrewTransfers.berthFor(boat,child):null;
             if(braidApproach!=null){approachExact(boat,braidApproach);rescueApproachPose(boat,child);return true;}
             Vec3 target=child.aquaticLife().familyLife().alarm().meetingPoint();boolean shore=target!=null;
             if(target==null)target=child.position();
@@ -342,7 +343,7 @@ public final class HatFamilyAlarm {
     public boolean approachRescue(HatBoatEntity boat,YukkuriEntity child){
         if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
             boat.makeRoom(child,true);
-        var berth=child.family().braidRescueApproach(boat);if(berth==null)return false;
+        var berth=CrewTransfers.berthFor(boat,child);if(berth==null)return false;
         approachExact(boat,berth);return true;
     }
     private void rescueApproachPose(HatBoatEntity boat,YukkuriEntity child){

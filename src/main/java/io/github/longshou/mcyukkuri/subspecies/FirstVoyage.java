@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -341,7 +342,7 @@ public final class FirstVoyage {
         if(phase==Phase.BOARD&&home!=null&&child.getVehicle()==home){
             boat.helm().hold(child, Purpose.CARE);home.helm().hold(child, Purpose.CARE);
             // Approaching the real brim is part of boarding, not a failed launch or a return.
-            child.family().transferHat(home,boat);
+            CrewTransfers.hopOwnHat(child,home,boat);
             if(ticks>180&&!child.family().flying())interrupt("boarding_timeout");
             return;
         }
@@ -423,7 +424,7 @@ public final class FirstVoyage {
             var approach=home.emergencyApproach(child);
             AquaDiag.log(child,"return."+child.getId(),40,"phase="+phase+" boat="+AquaDiag.at(boat.position())+" yaw="+boat.getYRot()+" approach="+AquaDiag.at(approach)
                     +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
-                    +" boarding="+child.family().hatBoardingDebug());
+                    +" crew="+child.family().crew().describe());
             boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome
                     &&(home.canMakeRoom(child,false)||emergencyReturn(boat));
             if(room&&approach!=null&&boat.protects(child)&&!child.family().flying()){
@@ -436,9 +437,9 @@ public final class FirstVoyage {
                     contactTicks++;
                     boolean touching=near<=.06||drive.arrived()||contactTicks>40&&near<=.25;
                     if(touching){
-                        if(child.family().returnToHat(boat,home,emergencyReturn(boat))){set(Phase.REBOARD);contactTicks=0;return;}
+                        if(CrewTransfers.hopReturn(child,boat,home,emergencyReturn(boat)).ok()){set(Phase.REBOARD);contactTicks=0;return;}
                         if(boat.changingSeat(child))return;
-                        AquaDiag.log(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().hatBoardingDebug()+" hop="+child.family().hatLandingRefusal());
+                        AquaDiag.log(child,"return.refused."+child.getId(),40,"transfer refused: "+child.family().crew().describe());
                     }
                     return;
                 }

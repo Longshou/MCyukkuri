@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransferGoal;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -47,6 +48,8 @@ final class YukkuriGoals {
         owner.initializeComponents();
         presentationGoals = new PresentationGoals(owner);
         goalSelector.addGoal(0, new EscapeWaterGoal());
+        // A crew transfer holds both its body and its carrier (priority 1, MOVE|JUMP|LOOK); the decision layers below stand aside.
+        goalSelector.addGoal(1, new CrewTransferGoal(owner));
         goalSelector.addGoal(0, new HotFloorGoal());
         goalSelector.addGoal(0, presentationGoals.bind(PresentationGoals.HURT_CRY, new HurtCryGoal()));
         goalSelector.addGoal(0, new HouseExitGoal());
@@ -307,7 +310,7 @@ final class YukkuriGoals {
     }
     private final class EscapeWaterGoal extends Goal {
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.isInWaterOrBubble() || owner.waterDistress().restingBreath(); }
+        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath()) && !owner.family().crew().active(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.waterDistress().escapeTick(); }
         @Override public void stop() { owner.directNavigation().stop(); }

@@ -4,7 +4,10 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewState;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -106,21 +109,25 @@ public interface HatBoatView {
         return (kind.equals("BRIM") || kind.equals("TOILET_RIM") || kind.equals("RESCUE_RIM"))
                 && !(tag.contains("At") && level().getGameTime() - tag.getLong("At") < tag.getInt("Ticks"));
     }
+    /** The transfers touching this hull as the server synchronized them (the one CrewState record). */
+    List<CrewState.Entry> crewEntries();
+    /** The rider is the body or the carrier of a lift in its hold (contact closed until the release). */
     default boolean visibleTransporting(UUID rider) {
-        var trip = deckSnapshot().getCompound("Carry");
-        return trip.hasUUID("Child") && (rider.equals(trip.getUUID("Child")) || rider.equals(ownerYukkuri()));
+        var e = CrewState.entryFor(crewEntries(), rider);
+        return e != null && e.mode() == CrewTransfer.Mode.LIFT && e.phase().ordinal() >= CrewTransfer.Phase.CONTACT.ordinal()
+                && e.phase().ordinal() <= CrewTransfer.Phase.SETTLE.ordinal();
     }
     default String visibleCarryActivity(UUID rider) {
-        var trip = deckSnapshot().getCompound("Carry");
-        if (!trip.hasUUID("Child")) return Behaviors.IDLE;
-        if (rider.equals(ownerYukkuri())) return Behaviors.BOAT_CARRY_YOUNG;
-        if (!rider.equals(trip.getUUID("Child"))) return Behaviors.IDLE;
-        int phase = trip.getInt("Phase");
-        return phase == -2 ? Behaviors.HAT_WALK : phase == -1 ? Behaviors.BOAT_PREPARE_CARRY : phase == 5 ? Behaviors.BOAT_RELEASE_CARRY : Behaviors.BOAT_BE_CARRIED;
+        var e = CrewState.entryFor(crewEntries(), rider);
+        if (e == null || e.mode() != CrewTransfer.Mode.LIFT) return Behaviors.IDLE;
+        if (rider.equals(e.carrier())) return Behaviors.BOAT_CARRY_YOUNG;
+        return e.phase().ordinal() < CrewTransfer.Phase.MOVE.ordinal() ? Behaviors.BOAT_PREPARE_CARRY
+                : e.phase() == CrewTransfer.Phase.RELEASE ? Behaviors.BOAT_RELEASE_CARRY : Behaviors.BOAT_BE_CARRIED;
     }
     default float visibleCarrySeconds(float partial) {
-        var trip = deckSnapshot().getCompound("Carry");
-        return !trip.hasUUID("Child") ? 0 : (float) Math.max(0, (level().getGameTime() - trip.getLong("At") + partial) / 20.0);
+        for (var e : crewEntries())
+            if (e.mode() == CrewTransfer.Mode.LIFT) return (float) Math.max(0, (level().getGameTime() - e.phaseStart() + partial) / 20.0);
+        return 0;
     }
     private CompoundTag balance(UUID rider) {
         for (var raw : deckSnapshot().getCompound("Crowding").getList("R", Tag.TAG_COMPOUND)) {

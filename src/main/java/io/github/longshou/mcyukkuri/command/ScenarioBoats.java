@@ -75,7 +75,7 @@ final class ScenarioBoats {
         for (var actor : actors) {
             if (!actor.isAlive() || actor.level() != level || !actor.profile().aquatic() || actor.isPassenger() || actor.isVehicle()
                     || actor.subspecies().boatId() != null) return actor.getName().getString() + " 不能参加：已死亡、不是水生魔理沙、已在船上或已有帽船。";
-            if (actor.family().active() || actor.family().flying() || actor.family().heldByBraid() || actor.operations().active())
+            if (actor.family().active() || actor.family().flying() || actor.family().crew().holdsBody() || actor.operations().active())
                 return actor.getName().getString() + " 不能参加：正处在不能安全回滚的照护、飞行、辫子救援或操作中。";
             if (actor != parent && actor.family().adult()) return "同船的幼体要是未成年。";
         }
@@ -128,7 +128,7 @@ final class ScenarioBoats {
             energy = opt.containsKey("energy") ? Float.parseFloat(opt.get("energy")) : null;
         } catch (NumberFormatException ex) { return "dist 和 energy 要是数字。"; }
         if (!(actor.level() instanceof ServerLevel level) || !actor.isAlive() || !actor.profile().aquatic()) return "落水的必须是活着的水生魔理沙。";
-        if (actor.family().flying() || actor.family().heldByBraid() || actor.operations().active() || actor.isVehicle())
+        if (actor.family().flying() || actor.family().crew().holdsBody() || actor.operations().active() || actor.isVehicle())
             return actor.getName().getString() + " 不能落水：正处在飞行、辫子救援、操作或载着别人的状态。";
         if (!level.hasChunkAt(anchor)) return "锚点所在区块没有加载。";
         HatBoatEntity boat = null;

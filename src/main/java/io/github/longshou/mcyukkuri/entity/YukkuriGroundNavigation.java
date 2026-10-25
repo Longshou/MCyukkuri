@@ -108,7 +108,7 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
         for (YukkuriEntity other : animal.level().getEntitiesOfClass(YukkuriEntity.class,
                 animal.getBoundingBox().inflate(.6, .1, .6),
                 o -> o != animal && o.isAlive() && !o.isPassenger() && !animal.isPassengerOfSameVehicle(o))) {
-            if (animal.careApproach().cooperatingWith(other) || other.family().cradleHeld()) continue;
+            if (animal.careApproach().cooperatingWith(other) || other.family().crew().holdsBody()) continue;
             if (other.blockPosition().distSqr(end) <= 4) continue;
             double dx = other.getX() - animal.getX(), dz = other.getZ() - animal.getZ(), distance = Math.hypot(dx, dz);
             double touching = (animal.getBbWidth() + other.getBbWidth()) * .5;

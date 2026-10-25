@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies.boat;
 
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
@@ -101,8 +102,8 @@ public final class HullFactory {
                 home.cargo().transferProvisionsTo(boat.cargo(), owner, 2);
             // False can mean that the child has only started approaching the parent's rim.
             // BOARD owns retries and cancellation; the same physical hat must remain deployed meanwhile.
-            owner.family().transferHat(home, boat);
-        } else if (origin == Origin.BANK) owner.family().embark(boat);
+            CrewTransfers.hopOwnHat(owner, home, boat);
+        } else if (origin == Origin.BANK) CrewTransfers.embark(owner, boat);
         GameplayLog.event(owner, "aquatic", "hull deployed origin={} boat={} water={} at={} yaw={} scale={} ownerAboard={} food={} paddle={}",
                 origin, boat.getUUID(), water, spec.position(), spec.yaw(), spec.hullScale(), owner.getVehicle() == boat,
                 boat.cargo().count(), boat.cargo().paddle());
@@ -116,7 +117,7 @@ public final class HullFactory {
 
     /**
      * The animated shore launch: the owner stands on {@code stand} beside {@code water}; the hull lies along the bank wall
-     * where {@link ShoreBerth} puts it. The owner's hop onto it is {@code FamilyFlight.embark}, started by the deployment.
+     * where {@link ShoreBerth} puts it. The owner's hop onto it is a crew transfer started by the deployment.
      */
     public static HatBoatEntity launchFromBank(YukkuriEntity owner, BlockPos stand, BlockPos water) {
         if (!(owner.level() instanceof ServerLevel level)) return null;

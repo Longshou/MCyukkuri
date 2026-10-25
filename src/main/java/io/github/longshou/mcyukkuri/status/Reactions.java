@@ -93,7 +93,7 @@ public final class Reactions {
     static boolean free(YukkuriEntity y) {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.waterDistress().active()
-                && !y.family().laboring() && !y.family().birthDuty() && !y.family().braidRescueActive()
+                && !y.family().laboring() && !y.family().birthDuty() && !y.family().crew().busy()
                 && !y.family().awaitingLanding() && y.life().mealTicks() == 0;
     }
     /** Feeding does not hide danger; sleeping individuals do not perceive approaching predators. */
@@ -347,7 +347,7 @@ public final class Reactions {
         public static boolean keepDry(YukkuriEntity animal) {
             return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= 20
                     && !rainAt(animal, animal.blockPosition()) && !BehaviorContinuity.emergency(animal)
-                    && !animal.family().birthDuty() && !animal.family().braidRescueActive();
+                    && !animal.family().birthDuty() && !animal.family().crew().busy();
         }
         public static boolean allowsStep(YukkuriEntity animal, BlockPos destination) {
             return !keepDry(animal) || !rainAt(animal, destination);

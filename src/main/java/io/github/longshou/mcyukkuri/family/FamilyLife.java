@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewPort;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.Comparator;
 import java.util.UUID;
@@ -77,12 +78,9 @@ public final class FamilyLife {
     private String landingOutcome="";
     private double landingFromAim=Double.NaN,landingImpactVy,airVy;
     private final FamilyFlight flight;
-    private final HatBoarding boarding;
-    private final BraidRescue rescue;
-    private final CradlePickup pickup;
+    /** This body's handle on the one crew transfer it is part of (as body or as carrier). */
+    private final CrewPort crew;
     private final ParentCarry carry;
-    private UUID cradleHolder;
-    private UUID rescuingChild;
     /** Visible pregnancy and the brief post-delivery recovery of the mother's belly. */
     public float liveBelly() { return delivery.liveBelly(); }
     private Task task=Task.NONE;
@@ -95,9 +93,7 @@ public final class FamilyLife {
     private final LiveDelivery delivery;
     public FamilyLife(YukkuriEntity entity) {
         this.entity=entity;
-        rescue=new BraidRescue(entity);
-        boarding=new HatBoarding(entity);
-        pickup=new CradlePickup(entity);
+        crew=new CrewPort(entity);
         carry=new ParentCarry(entity);
         feeding=new FamilyFeeding(this);
         separation=new FamilySeparation(this);
@@ -106,7 +102,8 @@ public final class FamilyLife {
         catchHat=new CatchHat(this);
         delivery=new LiveDelivery(this);
     }
-    public CradlePickup cradlePickup(){return pickup;}
+    /** The crew transfer this body takes part in, if any (hop, climb, lift); see {@code CrewTransfer}. */
+    public CrewPort crew(){return crew;}
     /** Land transport of dependent babies (hat brim, tail or mouth); see {@link ParentCarry}. */
     public ParentCarry carry(){return carry;}
     FamilyFeeding feeding(){return feeding;}
@@ -132,27 +129,13 @@ public final class FamilyLife {
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
     public String waterBirthDetail() { return delivery.waterBirthDetail(); }
-    /** The target hat may retain one incoming place only while this exact child's live cross-hat braid transfer is active. */
-    public boolean crossingToHat(HatBoatEntity target){
-        var controller=pickupController();return controller!=null&&controller.transferringTo(entity,target);
-    }
     /** Called by the afloat owner loop so a real family rendezvous cannot be overwritten by routine care or foraging. */
     public boolean tickWaterPartner(){return delivery.tickWaterPartner();}
-    public void cradleHolder(UUID id){cradleHolder=id;}
-    private CradlePickup pickupController(){
-        if(pickup.active())return pickup;
-        if(!entity.level().isClientSide&&cradleHolder!=null&&level().getEntity(cradleHolder) instanceof YukkuriEntity parent
-                &&parent.family().pickup.active()&&entity.getUUID().equals(parent.family().pickup.childId()))return parent.family().pickup;
-        return null;
-    }
-    public boolean cradleHeld(){var controller=pickupController();return controller!=null&&controller!=pickup&&controller.held();}
     ServerLevel level() { return (ServerLevel)entity.level(); }
     YukkuriEntity entity() { return entity; }
-    HatBoarding boarding() { return boarding; }
-    BraidRescue rescue() { return rescue; }
     Courtship courtship() { return courtship; }
     boolean hasFlightArc() { return flight.hasArc(); }
-    boolean rescuingYoung() { return rescueController()!=null; }
+    boolean rescuingYoung() { return crew.asCarrier(); }
     boolean comfortActive() { return delivery.comfortActive(); }
     boolean hatMoving() { return catchHat.moving(); }
     boolean catchDutyGaveUp() { return catchHat.dutyGaveUp(); }
@@ -252,7 +235,7 @@ public final class FamilyLife {
     public boolean elder() { return age>=GrowthTiming.ELDER_START; }
     /** The final child interval is internally still {@link Stage#JUVENILE}; it is a separate age qualification. */
     public boolean subadult() { return age>=GrowthTiming.SUBADULT_START&&age<GrowthTiming.ADULT_START; }
-    public boolean active() { return pickupController()!=null||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||flight.hasArc()
+    public boolean active() { return crew.active()||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||flight.hasArc()
             ||delivery.comfortActive(); }
     /**
      * An everyday family errand (waiting for, following or looking for a child, staying near the nest) gives way to comforting a hurt kin
@@ -260,7 +243,7 @@ public final class FamilyLife {
      * Before this the parent's standing "wait for the child" errand lasted as long as the child wandered, and the parent never noticed the wound.
      */
     public boolean yieldsToComfort() {
-        return pickupController()==null&&!laboring()&&delivery.recoveryTicks()==0&&!catchHat.moving()&&!catchHat.fetching()&&!flight.hasArc()&&!delivery.comfortActive()
+        return !crew.active()&&!laboring()&&delivery.recoveryTicks()==0&&!catchHat.moving()&&!catchHat.fetching()&&!flight.hasArc()&&!delivery.comfortActive()
                 &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH);
     }
     public String activity() {
@@ -357,39 +340,17 @@ public final class FamilyLife {
     public void fetchHat(HatBoatEntity hat) { catchHat.fetchHat(hat); }
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
-    public boolean flying(){return flight.hasArc()||boarding.active();}
-    /** The hat does not collide with its own incoming passenger: a boarding, a braid transfer, or a newborn's launch into it (it must reach seats inside the well). */
+    /** In a hop, climb or lift (a crew transfer), or a launch arc: the body is not on its own feet. */
+    public boolean flying(){return flight.hasArc()||crew.active();}
+    /** The hat does not collide with its own incoming passenger: a transfer through its rim, or a newborn's launch into it (it must reach seats inside the well). */
     public boolean boardingThrough(HatBoatEntity hat){
-        return boarding.traverses(hat)||rescue.transferringThrough(hat)||flight.targets(hat);
+        return crew.passesThrough(hat)||flight.targets(hat);
     }
-    public boolean boardingDismountInPlace(HatBoatEntity hat){return boarding.traverses(hat);}
-    public boolean hatLandingActive(){return boarding.landingAshore();}
-    public boolean startHatLanding(HatBoatEntity hat,Vec3 dryFeet){return !flight.hasArc()&&!heldByBraid()&&boarding.startLanding(hat,dryFeet);}
-    public String hatLandingRefusal(){return boarding.landingRefusal();}
-    /** True for a body that can hop between supports on its own; infants are lifted by the parent's braid. */
-    public boolean canStepOut(){return boarding.canStep();}
-    /** Hop from the hull this body rides onto another hull's reserved seat (a short, reach-tolerant arc). */
-    public boolean startHatStep(HatBoatEntity from,HatBoatEntity to,Vec3 seatLocal){return !flight.hasArc()&&!heldByBraid()&&boarding.startStep(from,to,seatLocal,null);}
     /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
     public boolean playHatOn() { return catchHat.playHatOn(); }
     public boolean hatOnPlaying() { return catchHat.hatOnPlaying(); }
-    public boolean selfClimbActive(){return boarding.climbing();}
-    public boolean climbGripActive(){return boarding.gripped();}
-    public CompoundTag boardingState(){return boarding.state();}
-    void rescueTarget(UUID id){rescuingChild=id;}
-    public UUID rescueTarget(){return rescuingChild;}
-    private BraidRescue rescueController(){
-        if(rescue.active())return rescue;
-        if(!entity.level().isClientSide&&rescuingChild!=null&&level().getEntity(rescuingChild) instanceof YukkuriEntity child
-                &&child.family().rescue.active()&&entity.getUUID().equals(child.family().rescue.parentId()))return child.family().rescue;
-        return null;
-    }
-    public boolean braidRescueActive(){return pickupController()!=null||rescueController()!=null;}
-    public boolean heldByBraid(){return cradleHeld()||rescue.active()&&rescue.held()||entity.waterDistress().heldByWaterRescue();}
-    public CompoundTag braidRescueState(){var cradle=pickupController();if(cradle!=null)return cradle.state();var controller=rescueController();return controller==null
-            ?new CompoundTag():controller.state();}
-    public Vec3 braidRescueApproach(HatBoatEntity hat){return hat==null?null:rescue.approach(hat);}
-    public void cancelBraidRescue(){boarding.cancel();var cradle=pickupController();if(cradle!=null)cradle.cancel();var controller=rescueController();if(controller!=null)controller.cancel();}
+    /** The transfer ticket of this body ends now (death, loading, a decision withdrawn): bodies stay where they physically are. */
+    public void cancelCrew(){crew.cancel("external_or_context_lost");}
     /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
      *  a parabola. */
     /** How far a newborn may be sent across the water from its mother's outlet into a partner's hat boat alongside. */
@@ -443,27 +404,6 @@ public final class FamilyLife {
     }
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
     public void launchPast(HatBoatEntity hat){ flight.launchPast(hat); }
-    /** Out of the hat over its brim to a spot beside it. */
-    public void hop(HatBoatEntity hat,Vec3 from,Vec3 to){ flight.hop(hat,from,to); }
-    /** The owner hops from the bank into the stern; her offspring use the same physical flight solver. */
-    public void embark(HatBoatEntity hat) { flight.embark(hat); }
-    public String hatBoardingDebug(){ return flight.hatBoardingDebug(); }
-    /** A physical hop or supported step between hats; leave the source only after reserving the landing. */
-    public boolean transferHat(HatBoatEntity from, HatBoatEntity to) { return flight.transferHat(from,to); }
-    /** Emergency capacity is contested only by reserveEmergency's real close-brim contact. */
-    public boolean transferHat(HatBoatEntity from, HatBoatEntity to, boolean emergency) { return flight.transferHat(from,to,emergency); }
-    /** A pupil back from its first voyage steps from its own hat onto the berth kept for it in the parent's hull. */
-    public boolean returnToHat(HatBoatEntity from,HatBoatEntity to,boolean emergency){ return flight.returnToHat(from,to,emergency); }
-    /** A parent at the rim offers a dipped brim to a swimming young; the child bites, is nudged and slides over from its real water position. */
-    public boolean rescueIntoHat(HatBoatEntity hat){ return flight.rescueIntoHat(hat); }
-    /** A capable shore child jumps from its actual feet; infants wait for the parent's dipped rim. */
-    public boolean boardFromShore(HatBoatEntity hat){ return flight.boardFromShore(hat); }
-    /** Alarm recall may sacrifice provisions; ordinary dry boarding only puts them aside. */
-    public boolean boardFromShore(HatBoatEntity hat,boolean emergency){ return flight.boardFromShore(hat,emergency); }
-    /** A trained young may scramble from real brim contact; an untrained infant is nudged over the dipped rim by its parent. */
-    public boolean scrambleIntoHat(HatBoatEntity hat){ return flight.scrambleIntoHat(hat); }
-    /** The same real near-brim grip is available to a capable owner of a recovered personal hat. */
-    public boolean climbOwnHat(HatBoatEntity hat){ return flight.climbOwnHat(hat); }
     /** Called from travel while a checked boarding trajectory or gravity-driven launch owns movement. */
     public boolean travelFlight(){ return flight.travelFlight(); }
     /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
@@ -498,18 +438,9 @@ public final class FamilyLife {
     public void tick() {
         if(entity.level().isClientSide)return;
         FamilyData.get(level()).importPartner(entity);
-        if(!entity.isAlive()){boarding.cancel();rescue.cancel();pickup.cancel();carry.dropAll("carrier_dead");return;}
+        if(!entity.isAlive()){crew.cancel("died");carry.dropAll("carrier_dead");return;}
         carry.tick();
         if(!entity.isNoAi())tickAftermathBurden();
-        pickup.tick();
-        if(pickupController()!=null)return;
-        cradleHolder=null;
-        boarding.tick();
-        rescue.tick();
-        if(rescuingChild!=null&&rescueController()==null){
-            rescuingChild=null;
-            if(entity.getVehicle() instanceof HatBoatEntity home)home.releaseRescueOwner(entity);
-        }
         var finished=brood();
         if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.STEM&&finished.complete())finishStem(finished);
         else if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.LIVE&&finished.complete())delivery.finishLive();
@@ -551,7 +482,7 @@ public final class FamilyLife {
         catchHat.tickLinger();
         catchHat.tickHat();
         if(delivery.bumping())delivery.tickBump();
-        if(boarding.active())return;
+        if(crew.active())return;
         if(flight.hasArc())return;
         if(awaitingLanding&&!entity.onGround())airVy=entity.getDeltaMovement().y;
         if(freeFalling())entity.getNavigation().stop();
@@ -869,7 +800,7 @@ public final class FamilyLife {
     /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
     public void comfort(YukkuriEntity baby) { delivery.comfort(baby); }
     public boolean canUse() {
-        if(pickupController()!=null)return false;
+        if(crew.active())return false;
         if(entity.dailyLife().active())return false;
         if(entity.isPanicking()||entity.isCommandPlaying()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding)return false;
         // Do not keep the shared MOVE flag while the aquatic controller walks a late parent to the bank and launches the
@@ -1008,7 +939,7 @@ public final class FamilyLife {
         var family=member.family();
         return member.isAlive()&&!member.isNoAi()&&!member.profile().aquatic()&&!member.profile().houseBody()&&!member.profile().dangerToYukkuri()
                 &&!member.isInWaterOrBubble()&&!member.isPassenger()&&!member.isCommandPlaying()&&!member.operations().active()
-                &&!family.awaitingLanding()&&!family.laboring()&&!family.birthDuty()&&!family.braidRescueActive()&&!family.heldByBraid();
+                &&!family.awaitingLanding()&&!family.laboring()&&!family.birthDuty()&&!family.crew().busy()&&!family.crew().holdsBody();
     }
     /** Early children wait by their real shared shelter instead of continually chasing a foraging parent. */
     private BlockPos earlyHomeStand() {
@@ -1055,7 +986,7 @@ public final class FamilyLife {
         if(FamilyData.ordinaryWildBurrow(mother,entity,home)&&!home.owns(entity.getUUID()))entity.habitat().choose(home);
     }
     public boolean canContinue() {
-        if(pickupController()!=null)return false;
+        if(crew.active())return false;
         if(needsWaterBirthBoat())return false;
         if((task==Task.COURT||task==Task.RECEIVE_COURT)&&!reproductionOnShore(target))return false;
         if(task==Task.NONE||entity.isPanicking()||entity.life().mealTicks()>0||entity.isCommandPlaying())return false;
@@ -1215,8 +1146,6 @@ public final class FamilyLife {
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
         tag.putBoolean("BirthMiss",doomed);
-        tag.put("BraidRescue",rescue.save());
-        tag.put("HatBoarding",boarding.save());
         delivery.save(tag);
         catchHat.save(tag);
         flight.save(tag);
@@ -1230,8 +1159,7 @@ public final class FamilyLife {
     public void load(CompoundTag tag) {
         // A saved body never resumes half of a live two-party handshake.
         task=Task.NONE;target=null;courtship.resetAttempt();
-        pickup.cancel();cradleHolder=null;
-        boarding.cancel();
+        crew.cancel("loaded");
         lifespan=GrowthTiming.LIFESPAN;age=Math.clamp(tag.getLong("Age"),0,GrowthTiming.LIFESPAN);nourishment=Math.max(0,tag.getLong("Nourishment"));
         maturity=GrowthTiming.ADULT_START;stage=stageForAge(age);
         adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.1f,1.2f);
@@ -1249,8 +1177,6 @@ public final class FamilyLife {
         separation.load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
-        rescuingChild=null;rescue.load(tag.getCompound("BraidRescue"));
-        boarding.load(tag.getCompound("HatBoarding"));
         stop();entity.syncFamily();
     }
 }

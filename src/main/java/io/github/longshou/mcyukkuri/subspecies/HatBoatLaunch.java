@@ -81,7 +81,7 @@ final class HatBoatLaunch {
 
     static boolean retrieve(HatBoatEntity boat, YukkuriEntity owner) {
         if (boat.level().isClientSide || !boat.catches() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 16) return false;
-        if (boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().cradlePickup().active()) return false;
+        if (boat.hasIncoming()||!boat.getPassengers().isEmpty()||owner.family().crew().busy()) return false;
         if (!owner.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
         boat.clearCrew();
         boat.state(State.RESCUED); return true;
