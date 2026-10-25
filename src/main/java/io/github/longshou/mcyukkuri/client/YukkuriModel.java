@@ -1294,6 +1294,17 @@ public final class YukkuriModel {
         target.set(woundHatCorners[0]).mul((1-u)*(1-v)).fma(u*(1-v),woundHatCorners[1])
                 .fma(u*v,woundHatCorners[2]).fma((1-u)*v,woundHatCorners[3]);
     }
+    /** The smooth normal the body loop draws this skin vertex with; false for non-skin parts and cards, which keep their own rules. */
+    boolean woundVertexNormal(int vertex,Vector3f out){
+        if(vertex<0||vertex>=bindings.length)return false;
+        var angled=puffAmount>0&&puffSkinNormals!=null&&puffSkinNormals.has(vertex)?puffSkinNormals
+                :skinNormals!=null&&skinNormals.has(vertex)?skinNormals:null;
+        if(angled!=null)out.set(angled.normals[vertex]);
+        else if(houseNormals!=null&&houseNormals.groups[vertex]>=0)out.set(houseNormals.normals[houseNormals.groups[vertex]]);
+        else return false;
+        if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)out.lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
+        return true;
+    }
     boolean woundPregnancyFace(String part){return pregnancyBelly>.001f&&part.startsWith("face_");}
     /** Replacement triangles retain the same pregnancy projection and real birth outlet subtraction. */
     boolean woundPatch(String part,Vector3f[] points,float[] uv,PoseStack stack,VertexConsumer buffer,int light,int overlay,

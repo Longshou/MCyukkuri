@@ -259,7 +259,8 @@ final class HairWoundRenderer {
         private Matrix4f[] world;
         private float pregnancyAmount;
         private final Vector3f tissuePoint=new Vector3f();
-        final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f(),normal=new Vector3f(),edge=new Vector3f();
+        final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f(),normal=new Vector3f(),edge=new Vector3f(),smoothVertex=new Vector3f();
+        final Vector3f[] smooth={new Vector3f(),new Vector3f(),new Vector3f()};
         final Vector3f skinPoint=new Vector3f();
         /** The display deformation of this body's wounds; allocation free per vertex, used only while the constructor runs. */
         private final WoundSurface.Deformer deformer;
@@ -772,6 +773,25 @@ final class HairWoundRenderer {
                 out.lerp(tissuePoint,corner.deep);
             }
         }
+        private static boolean bodySurfacePart(String name){return name.startsWith("soft_head_slice_")||name.endsWith("_body_surface");}
+        /**
+         * Shade skin-bound corners like the surrounding skin: each corner takes the barycentric blend of the smooth normals of its
+         * source skin triangle (per vertex, so thin slivers never band). Returns false when any corner lacks one.
+         */
+        private boolean smoothNormals(Triangle tri){
+            for(int i=0;i<3;i++){
+                var corner=i==0?tri.a:i==1?tri.b:tri.c;
+                if(corner.quad!=null)return false;
+                var blend=smooth[i].zero();
+                for(int k=0;k<3;k++){
+                    if(!model.woundVertexNormal(corner.triangle+k,smoothVertex))return false;
+                    blend.fma(k==0?corner.bary.a:k==1?corner.bary.b:corner.bary.c,smoothVertex);
+                }
+                if(blend.lengthSquared()<1e-12)return false;
+                blend.normalize();
+            }
+            return true;
+        }
         private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset,boolean layer){
             if(WoundLod.measuring())WoundLod.triangle(layer);
             String part=triangleParts.getOrDefault(tri.a.triangle,"");boolean pregnancy=!model.woundPregnancyFace(part);
@@ -782,14 +802,16 @@ final class HairWoundRenderer {
             float lift=(offset&&tri.a.u!=.5f?.006f:0)+tri.inset;
             if(lift!=0){a.fma(lift,normal);b.fma(lift,normal);c.fma(lift,normal);}
             var card=model.woundCardNormal(part);if(card!=null){normal.set(card);a.fma(YukkuriModel.CARD_LIFT,card);b.fma(YukkuriModel.CARD_LIFT,card);c.fma(YukkuriModel.CARD_LIFT,card);}
+            boolean perVertex=card==null&&bodySurfacePart(part)&&smoothNormals(tri);
+            if(perVertex)normal.set(smooth[0]).add(smooth[1]).add(smooth[2]).normalize();
             triangleUv[0]=tri.a.u;triangleUv[1]=tri.a.v;triangleUv[2]=tri.b.u;triangleUv[3]=tri.b.v;triangleUv[4]=tri.c.u;triangleUv[5]=tri.c.v;
             if(model.woundPatch(part,posedTriangle,triangleUv,stack,buffer,light,overlay,
                     Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),tri.a.alpha,tri.b.alpha,tri.c.alpha))return;
             var transform=stack.last();for(int i=0;i<4;i++){
-                var corner=i==0?tri.a:i==1?tri.b:tri.c;var point=i==0?a:i==1?b:c;
+                var corner=i==0?tri.a:i==1?tri.b:tri.c;var point=i==0?a:i==1?b:c;var shade=perVertex?smooth[Math.min(i,2)]:normal;
                 buffer.addVertex(transform.pose(),point.x/16,point.y/16,point.z/16)
                         .setColor(Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),Math.round(Math.clamp(corner.alpha,0,1)*255))
-                        .setUv(corner.u,corner.v).setOverlay(overlay).setLight(light).setNormal(transform,normal.x,normal.y,normal.z);
+                        .setUv(corner.u,corner.v).setOverlay(overlay).setLight(light).setNormal(transform,shade.x,shade.y,shade.z);
             }
         }
     }
