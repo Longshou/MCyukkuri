@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -326,27 +327,28 @@ public final class BodyLife {
             BodyWound placed;
             if(closest>=0){
                 var old=wounds.get(closest);
-                int next=Math.min(3,Math.max(old.severity(),severity)+(loss>=2?1:0));
-                placed=old.withSeverity(next);wounds.set(closest,placed);
+                placed=old.struck(loss,severity,loss>=2);wounds.set(closest,placed);
                 checkSole(placed,mesh);refreshWounds();
             }else{
                 placed=new BodyWound(UUID.randomUUID(),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),
-                        severity,entity.profile().portionScale(),0,0,severity,strike.shape());
+                        severity,entity.profile().portionScale(),0,0,severity,strike.shape(),loss);
                 insertWound(placed);
                 for(var wound:wounds)if(wound.id().equals(placed.id())){placed=wound;break;}
             }
-            BodyWound actual=placed;String change="retained";
+            BodyWound actual=placed;String change="retained";float pointsBefore=0;
             for(var current:wounds){
                 var previous=beforeWounds.stream().filter(w->w.id().equals(current.id())).findFirst().orElse(null);
                 if(previous==null){actual=current;change="placed";break;}
-                if(previous.severity()!=current.severity()){actual=current;change="deepened";break;}
+                if(previous.severity()!=current.severity()){actual=current;change="deepened";pointsBefore=previous.points();break;}
+                if(current.id().equals(placed.id()))pointsBefore=previous.points();
             }
             if(change.equals("retained"))
-                GameplayLog.event(entity,"body","wound unchanged after hit {}/{} on {} (hit loss {}, health {}/{}); wounds={} source={}",
-                        strike.kind().id(),strike.shape().id(),strike.part().id(),loss,entity.getHealth(),entity.getMaxHealth(),wounds.size(),hit.source().getMsgId());
-            else GameplayLog.event(entity,"body","wound {} {}/{}:{} on {} (hit loss {}, health {}/{}); wound={} source={} attacker={}",
-                    change,actual.kind().id(),actual.shape().id(),actual.severity(),BodyPart.of(mesh,actual).id(),loss,entity.getHealth(),entity.getMaxHealth(),
+                GameplayLog.event(entity,"body","wound unchanged after hit {}/{} on {} (points {}->{}, hit loss {}, health {}/{}); wounds={} source={}",
+                        strike.kind().id(),strike.shape().id(),strike.part().id(),pointsBefore,placed.points(),loss,entity.getHealth(),entity.getMaxHealth(),wounds.size(),hit.source().getMsgId());
+            else GameplayLog.event(entity,"body","wound {} {}/{}:{} on {} (points {}->{}, hit loss {}, health {}/{}); wound={} source={} attacker={}",
+                    change,actual.kind().id(),actual.shape().id(),actual.severity(),BodyPart.of(mesh,actual).id(),change.equals("placed")?0:pointsBefore,actual.points(),loss,entity.getHealth(),entity.getMaxHealth(),
                     actual.id(),hit.source().getMsgId(),hit.source().getEntity()==null?"none":hit.source().getEntity().getUUID());
+            hitParticles(strike,hit.source());
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
             if(entity.isAlive()){
                 entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
@@ -367,6 +369,15 @@ public final class BodyLife {
         }
         updateMobility();entity.syncBody();
         return new HurtResult(true,loss,hit.part(),food);
+    }
+    /** Small server-sent burst at the struck surface point: filling crumbs, or smoke for fire; no gameplay effect. */
+    private void hitParticles(InjuryModel.Strike strike,DamageSource source){
+        if(!(entity.level() instanceof ServerLevel level))return;
+        var site=new BodyWound(new UUID(0,0),strike.kind(),strike.hit().triangle(),strike.hit().u(),strike.hit().v(),1,1,0,0);
+        var at=WoundPlacement.outlet(entity,site);
+        boolean fire=source.is(DamageTypeTags.IS_FIRE)||strike.shape().thermal();
+        if(fire)level.sendParticles(ParticleTypes.SMOKE,at.x,at.y,at.z,5,.05,.05,.05,.01);
+        else level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,new ItemStack(ModItems.FILLING.get())),at.x,at.y,at.z,6,.06,.06,.06,.04);
     }
     private void emitWound(String reason,float loss,BodyWound outlet){
         if(loss<=0)return;

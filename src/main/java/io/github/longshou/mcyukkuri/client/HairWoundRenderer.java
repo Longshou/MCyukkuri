@@ -311,7 +311,9 @@ final class HairWoundRenderer {
                             var polygon=polygon(cut,first,tri);float rx=cut.radiusU,ry=cut.radiusV;
                             float[][] box={{-rx,-ry},{rx,-ry},{rx,ry},{-rx,ry}};
                             for(int i=0;i<4;i++)polygon=clip(polygon,box[i],box[(i+1)%4],true);
-                            for(var fragment:fan(polygon))layer.add(triangle(first,fragment,cut,1));
+                            for(var fragment:fan(polygon)){var ink=triangle(first,fragment,cut,1);layer.add(ink);
+                                // Grade-1 dent and scratch art is faint; draw its ink twice so it reads at distance and in the simple LOD.
+                                if(cut.wound.severity()==1&&cut.wound.kind()!=WoundKind.SCAR&&(cut.wound.shape()==WoundShape.BLUNT||cut.wound.shape()==WoundShape.ABRASION))layer.add(ink);}
                         }
                     }
                 }

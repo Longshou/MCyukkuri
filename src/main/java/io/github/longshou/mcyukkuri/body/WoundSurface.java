@@ -123,7 +123,7 @@ public final class WoundSurface {
     public BodyWound remap(BodyWound wound,Vector3f anchor,Vector3f outward,float[] oldBounds){
         var hit=remapSite(anchor,outward,oldBounds);
         if(hit==null)return wound;
-        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),wound.peakSeverity(),wound.shape());
+        return new BodyWound(wound.id(),wound.kind(),hit.triangle(),hit.u(),hit.v(),wound.severity(),wound.size(),wound.emitted(),wound.lastRelease(),wound.peakSeverity(),wound.shape(),wound.points());
     }
     public BodyWound.Site remapSite(Vector3f anchor,Vector3f outward,float[] oldBounds){
         var point=new Vector3f(anchor);
