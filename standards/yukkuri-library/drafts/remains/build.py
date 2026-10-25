@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import io
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -88,9 +89,13 @@ def masks(ident, model):
             tri = [(vertices[(first + j) * 8 + 3] * size, vertices[(first + j) * 8 + 4] * size) for j in range(3)]
             xs, ys = [p[0] for p in tri], [p[1] for p in tri]
             if max(xs) - min(xs) < 1 and max(ys) - min(ys) < 1:
-                # A collapsed island samples one texel (the rounded skin is a single swatch).
-                x, y = min(size - 1, int(xs[0])), min(size - 1, int(ys[0]))
-                draws[kind].point((x, y), fill=255)
+                # A collapsed island sits on a texel corner; nearest sampling can hit any
+                # texel around each vertex, so every one of them gets the colour.
+                for x0, y0 in tri:
+                    for x in {math.floor(x0 - 1e-3), math.floor(x0 + 1e-3)}:
+                        for y in {math.floor(y0 - 1e-3), math.floor(y0 + 1e-3)}:
+                            if 0 <= x < size and 0 <= y < size:
+                                draws[kind].point((x, y), fill=255)
             else:
                 draws[kind].polygon([(x - .5, y - .5) for x, y in tri], fill=255)
     return layers
