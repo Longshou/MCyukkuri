@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 聚落近景低项：坡口缓坡、洞口近景、坑尺寸、倒木 | `.worktrees/wild-settle` | `settlement/site/SiteBuilder.java`、`SiteGeom.java`、`SitePlanner.java`、`scripts/settlement_site_preview.py`、`docs/SETTLEMENTS.md` |
 
 ## 玩法待办
 
