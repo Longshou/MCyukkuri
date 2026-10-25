@@ -211,7 +211,7 @@ public final class PresentationArbiter {
     private static Presentation waterDistress(PresentationAccess state, Motion m) {
         var e = state.owner();
         return new Presentation(() -> {
-            String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
+            String distress = e.waterDistress().thrown() ? Behaviors.BOAT_THROWN : e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
             state.behavior(distress);
             state.animation(EcologyPresentation.action(distress));
             state.animationStart(e.waterDistressStartTick());

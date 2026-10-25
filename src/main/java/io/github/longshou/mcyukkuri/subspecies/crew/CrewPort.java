@@ -22,7 +22,7 @@ public final class CrewPort {
     private CrewTransfer ticket;
     private Outcome last;
     private final Map<String, Long> impossible = new HashMap<>();
-    private final Map<RescueWillingness.Key, RescueWillingness.Decision> help = new HashMap<>();
+    private WaterIncidents.Incident incident;
     private int slips;
     private long slipAt = Long.MIN_VALUE;
 
@@ -61,8 +61,9 @@ public final class CrewPort {
         return asBody() ? ticket.carrierId() : ticket.bodyId();
     }
     public Outcome last() { return last; }
-    /** The rescue decisions this body's fall has drawn (see {@link RescueWillingness}). */
-    Map<RescueWillingness.Key, RescueWillingness.Decision> helpDecisions() { return help; }
+    /** The water incident this body is in, with every rescue decision of it (see {@link WaterIncidents}), or null. */
+    public WaterIncidents.Incident incident() { return incident; }
+    void incident(WaterIncidents.Incident next) { incident = next; }
     public String describe() {
         return "ticket=" + (active() ? ticket.mode() + "/" + ticket.phase() : "none") + " last="
                 + (last == null ? "none" : (last.success() ? "ok" : last.refusal() + ":" + last.reason()) + "@" + last.tick());

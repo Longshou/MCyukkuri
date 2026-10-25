@@ -71,8 +71,7 @@ public final class HullFactory {
         boolean committed = false;
         String failure = "accessory_transfer_failed";
         try {
-            var retainedToken = owner.aquaticLife().firstVoyage().retainedHatToken();
-            boat.launchToken(owner.life().stowAccessory(retainedToken, boat.getUUID()));
+            boat.launchToken(owner.life().stowAccessory(boat.getUUID()));
             if (boat.launchToken() != null) {
                 failure = "boarding_refused";
                 committed = !origin.boardsOwner() || owner.startRiding(boat, true);
@@ -81,7 +80,7 @@ public final class HullFactory {
             if (!committed) rollback(owner, boat);
         }
         if (!committed) return refused(owner, spec, failure, "");
-        owner.subspecies().boatId(boat.getUUID());
+        owner.subspecies().noteBoatExperience();
         owner.setPersistenceRequired();
         if (origin != Origin.SWIMMING) owner.getNavigation().stop();
         if (origin.boardsOwner()) {
@@ -154,7 +153,7 @@ public final class HullFactory {
         if (!owner.isAlive()) { refused(owner, spec, "not_alive", ""); return null; }
         if (owner.isPassenger()) { refused(owner, spec, "passenger", ""); return null; }
         if (!owner.life().hasAccessory()) { refused(owner, spec, "no_accessory", ""); return null; }
-        if (owner.subspecies().boatId() != null) { refused(owner, spec, "existing_boat", ""); return null; }
+        if (owner.life().custody().custodied()) { refused(owner, spec, "existing_boat", ""); return null; }
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot)) { refused(owner, spec, "water_unloaded", spot.toShortString()); return null; }
         double y;
@@ -185,7 +184,7 @@ public final class HullFactory {
         if (!level.addFreshEntity(hat)) { refused(owner, spec, "entity_add_failed", ""); return null; }
         boolean committed = false;
         try {
-            hat.launchToken(owner.life().stowAccessory(null, hat.getUUID()));
+            hat.launchToken(owner.life().stowAccessory(hat.getUUID()));
             committed = hat.launchToken() != null;
         } finally {
             if (!committed) rollback(owner, hat);
@@ -203,7 +202,7 @@ public final class HullFactory {
             if (!owner.profile().aquatic()) return "not_aquatic_marisa";
         } else if (owner.getVariant() != YukkuriVariant.MARISA || owner.subspecies().kind() != SubspeciesLife.Kind.AQUATIC_MARISA) return "not_aquatic_marisa";
         if (origin != Origin.SWIMMING && !owner.aquaticLife().firstVoyage().mayLaunch()) return "first_voyage_ineligible";
-        if (owner.subspecies().boatId() != null) return "existing_boat";
+        if (owner.life().custody().custodied()) return "existing_boat";
         if (!owner.isAlive()) return "not_alive";
         if (owner.isPassenger() && origin != Origin.PARENT_HAT) return "passenger";
         if (owner.isVehicle() && origin != Origin.SWIMMING) return "carrying_passengers";
@@ -235,7 +234,7 @@ public final class HullFactory {
         GameplayLog.limited(owner, "aquatic", "hull.refused." + spec.origin() + "." + reason, 200,
                 "hull refused origin={} reason={} detail={} water={} at={} yaw={} scale={} distanceSquared={} boatId={} accessory={} operation={}",
                 spec.origin(), reason, detail, spec.water(), spec.position(), spec.yaw(), spec.hullScale(),
-                owner.distanceToSqr(spec.position()), owner.subspecies().boatId(), owner.life().hasAccessory(), owner.operations().active());
+                owner.distanceToSqr(spec.position()), owner.life().custody().state(), owner.life().hasAccessory(), owner.operations().active());
         return new Refused(reason, detail);
     }
 }

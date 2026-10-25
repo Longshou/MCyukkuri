@@ -190,7 +190,9 @@ public final class CrewTransfer {
         String key = r.mode() + ">" + r.from().key() + ">" + r.to().key() + "|" + where(carrier) + where(a) + where(b);
         if (port.knownImpossible(key, now)) return refuse(r, Refusal.GEOMETRY, "known_impossible", false);
         if (r.from().kind() == Kind.BERTH && a == null || r.to().kind() == Kind.BERTH && b == null) return refuse(r, Refusal.GEOMETRY, "hull_missing", false);
-        if (a == null && b == null) return refuse(r, Refusal.GEOMETRY, "no_hull", false);
+        // A hull is not needed to pull a swimmer up onto the bank: the carrier's braid or mouth is the whole of that trip.
+        boolean bankPull = r.mode() == Mode.LIFT && r.from().kind() != Kind.BERTH && r.to().kind() == Kind.GROUND;
+        if (a == null && b == null && !bankPull) return refuse(r, Refusal.GEOMETRY, "no_hull", false);
         for (var hat : new HatBoatEntity[]{a, b}) {
             if (hat == null) continue;
             if (hat.isRemoved() || !(hat.isAfloat() || hat.catches() || hat.state() == HatBoatEntity.State.BEACHED) || hat.unsteadyMotion()
@@ -384,7 +386,7 @@ public final class CrewTransfer {
 
     private static double rimY(HatBoatEntity hat) { return hat == null ? Double.NEGATIVE_INFINITY : hat.getY() + hat.deckLayout().top * hat.unit(); }
 
-    private static DeckLayout.Entry nearestEntry(HatBoatEntity hat, Vec3 world) {
+    static DeckLayout.Entry nearestEntry(HatBoatEntity hat, Vec3 world) {
         var local = hat.toLocal(world);
         DeckLayout.Entry best = null;
         double cost = Double.MAX_VALUE;
@@ -936,7 +938,7 @@ public final class CrewTransfer {
                 if (boatA >= 0 && boatA == boatB) { b.deck().arrived(bodyId); b.deck().lift(bodyId, false); }
                 b.syncSeats();
             } else if (to.kind() == Kind.WATER) {
-                body.waterDistress().plunge(boatA >= 0 ? level.getEntity(boatA).getUUID() : null, null);
+                body.waterDistress().plunge(boatA >= 0 ? level.getEntity(boatA).getUUID() : null, null, WaterIncidents.Cause.ofWhy(why));
             }
         }
         holdsMove = false;
@@ -1074,6 +1076,7 @@ public final class CrewTransfer {
         var ch = carrierHat(carrier);
         if (ch != null) ch.crew().detach(id);
         entry = null;
+        if (!success && rescue && body != null) WaterIncidents.transferFailed(carrier, body, refusal, reason);
         if (success && body != null) {
             if (b != null) body.waterDistress().clearRescueHat(b);
             if (rescue && carrier != null) {

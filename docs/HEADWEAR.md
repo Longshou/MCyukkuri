@@ -18,7 +18,7 @@
 
 ### 暂放、帽船托管与真正失去
 
-主动放帽接生、放船和落水时用自己的帽子自救，都登记同一主人、同一头饰令牌和实体帽子的托管关系。托管期间不触发失帽事件、无帽持续不安或无帽垂头待机。帽船卸载只表示当前位置未知，不算丢失；没有托管关系的失帽不会被推断为托管。
+帽子在哪只有一条记录（`HatCustody`）：`WORN` 戴着；`DEPLOYED` 是主人驾驶或系泊着的船（船与令牌）；`HELD_BY_PARENT` 重新戴上但带着上一趟航行的令牌和库存（子油的帽被亲船收回，或船长收帽靠岸），再放船时库存回到船里；`ADRIFT` 主人不在自己浮着的船上（被甩出或还没回去）；`LOST` 已不在托管中，附原因（`taken`、`drifted_away`、`burned`、`sunk`、`owner_died` 等）。所有读取都是纯函数，转换只有命名的几种并各记一条 `[headwear] custody A -> B`；船长真正登上自己的船才把 `ADRIFT` 或漂远失帽的 `LOST` 重新变成 `DEPLOYED`。主动放帽接生、放船和落水时用自己的帽子自救，都登记同一主人、同一头饰令牌和实体帽子的托管关系。主人乘在自己的船上时，头饰按佩戴时一半的速率自行修复（项目设计）；主人死亡则帽子以 `owner_died` 失去，不会被他者再戴。托管期间不触发失帽事件、无帽持续不安或无帽垂头待机。帽船卸载只表示当前位置未知，不算丢失；没有托管关系的失帽不会被推断为托管。
 
 玩家不再通过右击帽船没收、请求返岸或拖船。水生魔理沙在岸上的摘取、没收与剪下头饰沿用通用照护系统及其既有快捷入口；帽子正作为船使用或个体在水中时，这些移除操作拒绝执行，不能拆出第二份头饰。已经取得的松散帽子物品仍按通用转交规则归还。自然返岸收帽、烧毁、沉没和下文漂远结算不受影响。
 
@@ -80,4 +80,4 @@
 
 ## 状态键
 
-`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由可发起制裁，如 `hatless`、`monster`、`theft`）、`personality.intelligence`（写 0–100）、`cognition.sees_hatless`（只读）。`accessory.contacts`、`accessory.damaged_regions`、`accessory.face_wounds`、`accessory.severe_wounds`、`accessory.grotesque` 只读；受损区域数仅供观察，不参与怪物阈值。`accessory.detail` 另含 `custody=boat|provisional|lost|none` 与漂远计时。日志前缀 `[headwear]`、`[contempt]`、`[sanction]`（每次欺负动作、赶走、期间死亡）。
+`accessory.state`（写 `shatter|burn|lose|gather|knit|restore`）、`accessory.damage`（写 0–3，3 为碎裂）、`accessory.fit`（写 0.6–1）、`accessory.shards`、`accessory.detail`、`accessory.sanction`（写理由可发起制裁，如 `hatless`、`monster`、`theft`）、`personality.intelligence`（写 0–100）、`cognition.sees_hatless`（只读）。`accessory.contacts`、`accessory.damaged_regions`、`accessory.face_wounds`、`accessory.severe_wounds`、`accessory.grotesque` 只读；受损区域数仅供观察，不参与怪物阈值。`accessory.detail` 另含 `custody=worn|deployed|held_by_parent|adrift|lost(原因)` 与漂远计时。日志前缀 `[headwear]`、`[contempt]`、`[sanction]`（每次欺负动作、赶走、期间死亡）。

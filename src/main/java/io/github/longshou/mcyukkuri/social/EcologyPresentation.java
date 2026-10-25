@@ -96,7 +96,8 @@ public final class EcologyPresentation {
             case Behaviors.WATER_EXHAUSTED -> YukkuriAction.WATER_GASP;
             case Behaviors.WATER_RECOVER -> YukkuriAction.WATER_RECOVER;
             case Behaviors.WATER_HAT_REMOVE -> YukkuriAction.WATER_HAT_SHAKE;
-            case Behaviors.WATER_HAT_RIGHT -> YukkuriAction.WATER_HAT_PUSH;
+            case Behaviors.WATER_HAT_RIGHT -> YukkuriAction.WATER_HAT_RIGHT;
+            case Behaviors.BOAT_THROWN -> YukkuriAction.BOAT_THROWN;
             case Behaviors.WATER_HAT_REACH -> YukkuriAction.WATER_STRUGGLE;
             case Behaviors.WATER_HAT_GRIP, Behaviors.HAT_BOARD_GRIP -> YukkuriAction.WATER_MOUTH_GRIP;
             case Behaviors.WATER_HAT_CLIMB -> YukkuriAction.WATER_HAT_CLIMB;

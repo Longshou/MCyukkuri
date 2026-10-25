@@ -61,7 +61,8 @@ public final class YukkuriLife {
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
     private long ageTicks;
     private int metabolismTicks, energyTicks, hygieneTicks;
-    private int immersionTicks;
+    private int immersionTicks, dryTicks;
+    private static final int DRY_RESET_TICKS = 40;
     private final LifeMeal meal = new LifeMeal(this);
     private final LifeHome home = new LifeHome(this);
     private int homeWait, planWait, restWait = 200, sleepTicks, toiletTicks;
@@ -279,7 +280,9 @@ public final class YukkuriLife {
     public int mealTicks(){ return meal.mealTicks(); }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
-    public void removeAccessory(){ accessory.removeAccessory(); }
+    public void removeAccessory(){ accessory.removeAccessory("removed"); }
+    /** The hat is gone for the stated cause (destroyed, burned, sunk, owner died). */
+    public void removeAccessory(String cause){ accessory.removeAccessory(cause); }
     public int socialWait() { return socialWait; }
     public void deferSocial(int ticks) { socialWait = Math.max(socialWait, ticks); }
     /** Recognition by accessory, or past a missing one by intellect alone (headwear.Recognition; kin are no exception). */
@@ -368,10 +371,14 @@ public final class YukkuriLife {
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
         // Body contact with water hurts every species, even with AI disabled. A dry hat is not immersion.
-        if (!entity.isInWaterOrBubble()) immersionTicks = 0;
-        else if (++immersionTicks >= immersionInterval()) {
-            immersionTicks = 0;
-            entity.hurt(level().damageSources().drown(), 1);
+        // The soak timer only clears after 40 continuous dry ticks, so the dry ticks of a climb cannot cancel drowning damage.
+        if (!entity.isInWaterOrBubble()) { if (++dryTicks >= DRY_RESET_TICKS) immersionTicks = 0; }
+        else {
+            dryTicks = 0;
+            if (++immersionTicks >= immersionInterval()) {
+                immersionTicks = 0;
+                entity.hurt(level().damageSources().drown(), 1);
+            }
         }
         if (!entity.isAlive()) return;
         accessory.tick();
@@ -479,12 +486,8 @@ public final class YukkuriLife {
         personality.washed(player); entity.showReaction("happy", "washed", 60); return true;
     }
     public UUID takeAccessory(UUID player){ return accessory.takeAccessory(player); }
-    /** Voluntarily using one's own hat as a vessel is not an accessory theft. */
-    public UUID stowAccessory(){ return accessory.stowAccessory(); }
-    /** A child's folded vessel retains its identity through repeated refuge and relaunch. */
-    public UUID stowAccessory(UUID retainedToken){ return accessory.stowAccessory(retainedToken); }
-    /** Keep the locating index with the owner; return authority remains the token on both owner and physical boat. */
-    public UUID stowAccessory(UUID retainedToken,UUID boat){ return accessory.stowAccessory(retainedToken, boat); }
+    /** Voluntarily using one's own hat as a vessel is not an accessory theft: the worn hat becomes the hull {@code boat}. */
+    public UUID stowAccessory(UUID boat){ return accessory.stowAccessory(boat); }
     public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
     public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
     /** Receive a compatible loose physical accessory and its repair progress after releasing any held fragments. */
@@ -497,14 +500,13 @@ public final class YukkuriLife {
     public void wearAccessory(){ accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
     public boolean matchesCustody(UUID boat,UUID owner,UUID token){ return accessory.matchesCustody(boat, owner, token); }
-    public void confirmCustody(UUID boat,UUID owner,UUID token){ accessory.confirmCustody(boat, owner, token); }
-    public void restoreCustody(UUID boat,UUID owner,UUID token){ accessory.restoreCustody(boat, owner, token); }
+    /** A real boarding of the hull this token belongs to reopens the custody. */
+    public void boardCustody(UUID boat,UUID owner,UUID token){ accessory.boardCustody(boat, owner, token); }
+    /** Where the hat is: the one record every read of its whereabouts goes through. */
+    public io.github.longshou.mcyukkuri.headwear.HatCustody custody(){ return accessory.custody(); }
     /** A stowed, token-matched physical hat is still this individual's accessory. */
     public boolean accessoryCustodied(){ return accessory.custodied(); }
-    public UUID custodyBoat(){ return accessory.custodyBoat(); }
-    public boolean accessoryCustodyEnded(){ return accessory.custodyEnded(); }
-    public String accessoryCustodyDetail(){ return accessory.custodyDetail(); }
-    public boolean relinquishCustody(UUID boat,UUID owner,UUID token,UUID player){ return accessory.relinquishCustody(boat, owner, token, player); }
+    public boolean relinquishCustody(UUID boat,UUID owner,UUID token,UUID player,String cause){ return accessory.relinquishCustody(boat, owner, token, player, cause); }
 
     public boolean protectsStep() {
         return mealTicks() > 0 || task == Task.SLEEP || toiletTicks > 0 || task == Task.DRINK && drinkTicks > 0;

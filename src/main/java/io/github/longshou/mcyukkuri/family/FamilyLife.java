@@ -551,7 +551,7 @@ public final class FamilyLife {
             case "WATER" -> {
                 // Missed the hat into the river: the newborn cannot swim and drowns by immersion unless a parent's braid brings it out.
                 if(randomized){
-                    BirthStaging.thud(entity);entity.waterDistress().plunge(null,null);
+                    BirthStaging.thud(entity);entity.waterDistress().plunge(null,null,io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.BIRTH_MISS);
                     if(mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent)BirthStaging.caption(parent,"漏接落水：新生儿掉进水里，无法自救，须亲油及时救起，否则溺亡");
                     return true;
                 }

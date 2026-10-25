@@ -88,7 +88,7 @@ public final class HatFamilyPaddle {
                 &&!child.operations().active()&&!child.life().isSleeping()&&child.life().mealTicks()==0
                 &&!child.life().hasUrgentNeed()&&child.life().nutrition()>=35&&child.life().energy()>=30
                 &&child.aquaticLife().firstVoyage().readySize()&&!child.aquaticLife().firstVoyage().independent()
-                &&!child.aquaticLife().firstVoyage().active()&&child.subspecies().boatId()==null
+                &&!child.aquaticLife().firstVoyage().active()&&!child.life().custody().custodied()
                 &&!child.aquaticLife().hasStick()&&!child.aquaticLife().firstVoyage().hasRetainedPaddle();
     }
     private boolean available(HatBoatEntity boat){

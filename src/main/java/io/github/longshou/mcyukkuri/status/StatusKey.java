@@ -308,6 +308,8 @@ public enum StatusKey {
     WATER_CARGO("water", "cargo", 0, y -> y.aquaticLife().cargoDetail(), null),
     WATER_DISTRESS("water", "distress", 0, y -> y.waterDistress().statusDetail(), null),
     WATER_SELF_RESCUE("water", "self_rescue", 0, y -> y.aquaticLife().selfRescue().statusDetail(), null),
+    WATER_INCIDENTS("water", "incidents", 0, y -> io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.listing(y), null),
+    WATER_HULL("water", "hull", 0, y -> y.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity h ? h.hazards().detail() + " " + y.life().custody().detail() : y.life().custody().detail(), null),
     WATER_LAUNCH("water", "launch", 0, y -> y.aquaticLife().waterBirthDetail(), null),
     WATER_BIRTH("water", "birth", 0, y -> y.family().waterBirthDetail(), null),
     // ---- home -------------------------------------------------------------------------------------------------

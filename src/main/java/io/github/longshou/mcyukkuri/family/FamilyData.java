@@ -576,22 +576,17 @@ public final class FamilyData extends SavedData {
                 ||father.life().mealTicks()>0||father.family().tiedToLabor();
     }
     /**
-     * The hat boat that takes this newborn of a water birth. No partner and no shore are needed: it goes into its mother's own hat (a free
-     * seat, else the compressed refuge). A partner afloat alongside in his own boat takes a share: every other newborn, and all that follow
-     * once her hat is full, as long as his seat can be reached by the same flight that fills hers.
+     * The hat boat that takes this newborn of a water birth. No partner and no shore are needed: it lands on a seat claimed in its
+     * mother's own hat. Only when her hat has none does a partner afloat alongside take it, as long as his seat can be reached by the same
+     * flight; sharing the litter between the two hulls is the mother's own lift afterwards (LiveDelivery), not decided at birth.
      */
     private HatBoatEntity waterCradle(Brood brood,HatBoatEntity mine,YukkuriEntity child,ServerLevel level){
         HatBoatEntity partner=waterBirthPartner(brood,mine,level,child.position());
         boolean motherCan=canReserveBirth(mine,child,1.25);
         boolean fatherCan=canReserveBirth(partner,child,FamilyLife.SHARE_REACH);
         if(!motherCan&&!fatherCan)return null;
-        // The emptier hull takes the next child. Equal free load alternates, so a pair with equal boats naturally shares a
-        // litter without inventing a separate custody record or moving a child across space.
-        boolean fatherFirst=fatherCan&&(!motherCan||partner.remainingCapacity()>mine.remainingCapacity()
-                ||partner.remainingCapacity()==mine.remainingCapacity()&&brood.children.stream().filter(c->c.born).count()%2==1);
-        HatBoatEntity first=fatherFirst?partner:mine,second=fatherFirst?mine:partner;
-        if(reserveBirth(first,child,fatherFirst?FamilyLife.SHARE_REACH:1.25))return first;
-        if(second!=null&&second!=first&&reserveBirth(second,child,second==partner?FamilyLife.SHARE_REACH:1.25))return second;
+        if(motherCan&&reserveBirth(mine,child,1.25))return mine;
+        if(fatherCan&&reserveBirth(partner,child,FamilyLife.SHARE_REACH))return partner;
         return null;
     }
 
@@ -694,7 +689,12 @@ public final class FamilyData extends SavedData {
         } else if(hat!=null) {
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
-            if(miss) { hat.cancelIncoming(entity);entity.family().doom();entity.family().launchPast(hat); }
+            if(miss) {
+                hat.cancelIncoming(entity);entity.family().doom();entity.family().launchPast(hat);
+                // A missed catch over water is the newborn's water incident from the first moment: the mother decides for it once.
+                if(waterHat!=null)io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.open(entity,waterHat.getUUID(),null,
+                        io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.BIRTH_MISS);
+            }
             else entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
                     waterHat!=null&&waterHat!=boat?FamilyLife.SHARE_REACH:1.25);
             // A refused birth flight owns no future seat, including failures before the generic flight planner reserves again.

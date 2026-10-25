@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -333,7 +334,15 @@ public final class AquaticFamilyLife {
         for(var child:orphans){
             var relation=orphanRelation(child);
             if(nearbyAcceptedBetterRefuge(child,relation))continue;
-            var decision=orphanRefugeDecisions.get(child.getUUID());
+            OrphanRefugeDecision decision;
+            if(child.isInWaterOrBubble()){
+                // A swimmer's rescue decision is the incident's: one draw per (rescuer, incident), read back on every later look.
+                var incident=WaterIncidents.of(child);
+                if(incident==null)incident=WaterIncidents.open(child,null,null,WaterIncidents.Cause.OTHER);
+                var drawn=WaterIncidents.decide(entity,child,incident,WaterIncidents.Role.NEIGHBOUR);
+                if(!drawn.accepted()||incident.failuresOf(entity.getUUID())>=WaterIncidents.MAX_FAILURES)continue;
+                decision=new OrphanRefugeDecision(true,now+1200,relation,drawn.chance(),drawn.roll());
+            }else decision=orphanRefugeDecisions.get(child.getUUID());
             if(decision==null||decision.until()<=now){
                 if(orphanRefugeDecisions.size()>=MAX_ORPHAN_REFUGE_DECISIONS){
                     orphanRefugeDecisions.entrySet().stream().min(Comparator.comparingLong(entry->entry.getValue().until()))
@@ -398,7 +407,7 @@ public final class AquaticFamilyLife {
     private boolean orphanRefugeCandidate(HatBoatEntity boat,YukkuriEntity child){
         return child!=entity&&child.isAlive()&&!child.family().adult()&&!child.family().subadult()
                 &&!child.independence().independent()&&(child.isInWaterOrBubble()||orphanSourceHat(child)!=null)&&entity.distanceToSqr(child)<=144
-                &&entity.hasLineOfSight(child)&&orphaned(child)&&!orphanRelation(child).equals("none");
+                &&entity.hasLineOfSight(child)&&(orphaned(child)||orphanSourceHat(child)!=null||child.isInWaterOrBubble()&&!child.isPassenger())&&!orphanRelation(child).equals("none");
     }
 
     /** A dead captain's still-afloat hull keeps its riders safe until a real adjacent-hat transfer can begin. */
@@ -445,8 +454,14 @@ public final class AquaticFamilyLife {
 
     /** Read-only neighbour coordination: a captain counts only after its one-roll decision reserved a real berth. */
     private boolean acceptedOrphanRefuge(YukkuriEntity child){
-        var boat=ownHat(entity);var decision=orphanRefugeDecisions.get(child.getUUID());
-        return boat!=null&&decision!=null&&decision.accepted()&&decision.until()>level().getGameTime()&&boat.admits(child);
+        var boat=ownHat(entity);
+        if(boat==null)return false;
+        if(child.isInWaterOrBubble()){
+            var drawn=WaterIncidents.decisionFor(entity,child);
+            return drawn!=null&&drawn.accepted()&&boat.admits(child);
+        }
+        var decision=orphanRefugeDecisions.get(child.getUUID());
+        return decision!=null&&decision.accepted()&&decision.until()>level().getGameTime()&&boat.admits(child);
     }
 
     private boolean tickYoungOwner(HatBoatEntity boat){
@@ -699,17 +714,6 @@ public final class AquaticFamilyLife {
         if(child.isPassenger()||!child.isInWaterOrBubble()||ownHat(entity)==null||entity.distanceToSqr(child)>144)return false;
         var mate=person(entity.getUUID().equals(child.family().mother())?child.family().father():child.family().mother());
         return mate!=null&&mate!=entity&&mate.family().tiedToLabor();
-    }
-    /**
-     * Between two births (see {@link io.github.longshou.mcyukkuri.family.FamilyLife#deliveryGap}) the mother may lift a newborn that is
-     * floating beside her hat; nothing else (no steering, no fleeing) while the delivery is on. True when a rescue has begun.
-     */
-    boolean gapRescue(HatBoatEntity boat){
-        if(!entity.getUUID().equals(boat.ownerYukkuri())||!boat.isAfloat()||boat.unsteadyMotion()||entity.isPanicking())return false;
-        for(var child:level().getEntitiesOfClass(YukkuriEntity.class,boat.getBoundingBox().inflate(3,2,3),
-                y->y.isAlive()&&!y.isPassenger()&&y.isInWaterOrBubble()&&boat.young(y)).stream().sorted(Comparator.comparingDouble(boat::distanceToSqr)).toList())
-            if(CrewTransfers.liftAboard(child,boat).ok()){AquaDiag.log(entity,"gap.rescue",0,"between births, child="+child.getUUID());return true;}
-        return false;
     }
     private UUID selectedParentId(){var parent=contactParent();return parent==null?parentId:parent.getUUID();}
     private List<YukkuriEntity> freeChildren(){

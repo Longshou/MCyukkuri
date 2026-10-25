@@ -6,7 +6,9 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -50,7 +52,19 @@ public final class WaterDistress {
         return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" fatigue="+fatigue
                 +" burst="+burstTicks+" rest="+restTicks+" target="+(target==null?"none":target)
                 +" source="+(sourceBoat==null?"none":sourceBoat)+" guided="+(rescueHat!=null)
-                +" temporaryRefuge="+temporaryRefugeGuide+" held="+heldByWaterRescue();
+                +" temporaryRefuge="+temporaryRefugeGuide+" held="+heldByWaterRescue()+" "+WaterIncidents.describe(entity);
+    }
+    /** The body was thrown out of a hull and is still in the air: it shows the thrown pose, not an ordinary slip. */
+    public boolean thrown(){
+        if(!airbornePlunge())return false;
+        var incident=WaterIncidents.of(entity);
+        return incident!=null&&incident.cause().thrown();
+    }
+    /** The swimmer's call for help (and its kin hear it): also what is left of a rescue whose tries are spent. */
+    public void callForHelp(){
+        if(entity.level().isClientSide||!entity.isAlive())return;
+        if(callWait==0){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
+        alertKin();
     }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
             &&!entity.shelteredInHat()&&!entity.family().flying()&&!entity.family().crew().holdsBody();}
@@ -110,7 +124,7 @@ public final class WaterDistress {
                 clearWaterRescue();
             return;
         }
-        if(!parent.aquaticLife().selfRescue().targetsWaterRescue(entity))clearWaterRescue();
+        if(!WaterIncidents.guiding(parent,entity))clearWaterRescue();
     }
     /** The parent's body nudge and rim slide take over the child's position; its bursts pause and it is not lifted again for 60 ticks. */
     public void lifted(){liftWait=60;burstTicks=0;}
@@ -129,11 +143,12 @@ public final class WaterDistress {
         }
     }
     /** Called where a real capsize or shove releases a passenger; being notified is not yet immersion. */
-    public void plunge(UUID boat,UUID pushedBy){
+    public void plunge(UUID boat,UUID pushedBy,WaterIncidents.Cause cause){
         if(entity.level().isClientSide)return;
         sourceBoat=boat;pusher=pushedBy;pendingPlunge=12;
+        WaterIncidents.open(entity,boat,pushedBy,cause);
         GameplayLog.limited(entity, "water", "plunge", 200,
-                "passenger released sourceBoat={} pusher={} immersed={} phase={}", boat, pushedBy, entity.isInWaterOrBubble(), phase);
+                "passenger released sourceBoat={} pusher={} cause={} immersed={} phase={}", boat, pushedBy, cause, entity.isInWaterOrBubble(), phase);
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
     }
     private void enterWater(){
@@ -149,6 +164,7 @@ public final class WaterDistress {
         if(entity.level().isClientSide||!entity.isAlive())return;
         var current=level();long now=current.getGameTime();
         if(lastLevel==current&&lastTick==now)return;lastLevel=current;lastTick=now;
+        WaterIncidents.tick(entity);
         clearInactiveWaterRescue();
         if(searchWait>0)searchWait--;if(callWait>0)callWait--;if(pendingPlunge>0)pendingPlunge--;
         if(boardWait>0)boardWait--;if(liftWait>0)liftWait--;
@@ -215,7 +231,8 @@ public final class WaterDistress {
                 }
             }
         }else if(destination!=null)entity.getLookControl().setLookAt(destination.x,destination.y,destination.z,30,30);
-        boolean weak=phase==Phase.EXHAUSTED;
+        var incident=WaterIncidents.of(entity);
+        boolean weak=phase==Phase.EXHAUSTED||incident!=null&&incident.shoreDrift();
         if(burstTicks==0){
             entity.getNavigation().stop();
             // Exhaustion is not a frozen state.  While waiting for strength (including at zero energy), the body
@@ -299,18 +316,32 @@ public final class WaterDistress {
             return;
         }
         clearWaterRescue();
-        var own=entity.aquaticLife().selfRescue().knownOwnHat();
+        // A swimmer whose climbs are spent (or who cannot reach any entry) no longer heads for a hull: only the nearest shore.
+        var incident=WaterIncidents.of(entity);
+        boolean shoreOnly=incident!=null&&incident.shoreDrift();
+        var own=shoreOnly?null:entity.aquaticLife().selfRescue().knownOwnHat();
         if(safeOwnHat(own)){
             target=own.getUUID();destination=own.position();
             return;
         }
-        var hats=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(8,2,8),this::safeHat);
+        var hats=shoreOnly?List.<HatBoatEntity>of():level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(8,2,8),this::safeHat);
         var home=hats.stream().filter(entity::hasLineOfSight).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         double best=Double.POSITIVE_INFINITY;
         for(var pos:BlockPos.betweenClosed(entity.blockPosition().offset(-6,-1,-6),entity.blockPosition().offset(6,3,6))){
             double distance=entity.distanceToSqr(Vec3.atBottomCenterOf(pos));
             if(distance<best&&level().hasChunkAt(pos)&&entity.life().dryStand(pos)&&entity.life().reachable(pos,true)){
                 best=distance;shore=pos.immutable();
+            }
+        }
+        if(shore==null&&shoreOnly){
+            // Nothing dry within six blocks: look farther along sixteen headings, a few rings, nearest first.
+            outer:for(int ring=8;ring<=16;ring+=4)for(int k=0;k<16;k++){
+                double angle=k*Math.PI/8;
+                var pos=BlockPos.containing(entity.getX()+Math.cos(angle)*ring,entity.getY(),entity.getZ()+Math.sin(angle)*ring);
+                for(int dy=-1;dy<=2;dy++){
+                    var probe=pos.above(dy);
+                    if(level().hasChunkAt(probe)&&entity.life().dryStand(probe)&&entity.life().reachable(probe,true)){shore=probe.immutable();break outer;}
+                }
             }
         }
         if(home!=null&&(shore==null||entity.distanceToSqr(home)<=best+4)){

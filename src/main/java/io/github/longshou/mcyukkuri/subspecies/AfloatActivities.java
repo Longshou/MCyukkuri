@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import io.github.longshou.mcyukkuri.subspecies.boat.AfloatActivity;
 import io.github.longshou.mcyukkuri.subspecies.boat.AfloatAgenda;
 import io.github.longshou.mcyukkuri.subspecies.boat.AfloatAgenda.Context;
@@ -190,7 +191,7 @@ final class AfloatActivities {
             // In labour she cannot leave the delivery (a missed catch is a drowning child); only in the rest between two births
             // may she lift a newborn that is floating at her rim, and the next push waits for it.
             boat.helm().drift(entity, Purpose.CARE);
-            if (entity.family().deliveryGap() && family().gapRescue(boat)) c.show(Behaviors.BOAT_RESCUE_YOUNG);
+            if (entity.family().deliveryGap() && WaterIncidents.liftNearby(entity, boat, 3)) c.show(Behaviors.BOAT_RESCUE_YOUNG);
             return true;
         }
     }

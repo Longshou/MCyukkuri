@@ -201,7 +201,7 @@ final class FamilyFlight {
             if(!landed&&land){
                 // The push missed its seat: whatever velocity is left carries on under ordinary physics, and contact decides the outcome.
                 hat.cancelIncoming(o.entity());o.entity().hasImpulse=true;
-            }else if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null);o.entity().setDeltaMovement(0,-.03,0);}
+            }else if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null,io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.FALL);o.entity().setDeltaMovement(0,-.03,0);}
         }
         return true;
     }

@@ -74,7 +74,7 @@ final class ScenarioBoats {
         actors.addAll(young);
         for (var actor : actors) {
             if (!actor.isAlive() || actor.level() != level || !actor.profile().aquatic() || actor.isPassenger() || actor.isVehicle()
-                    || actor.subspecies().boatId() != null) return actor.getName().getString() + " 不能参加：已死亡、不是水生魔理沙、已在船上或已有帽船。";
+                    || actor.life().custody().custodied()) return actor.getName().getString() + " 不能参加：已死亡、不是水生魔理沙、已在船上或已有帽船。";
             if (actor.family().active() || actor.family().flying() || actor.family().crew().holdsBody() || actor.operations().active())
                 return actor.getName().getString() + " 不能参加：正处在不能安全回滚的照护、飞行、辫子救援或操作中。";
             if (actor != parent && actor.family().adult()) return "同船的幼体要是未成年。";
@@ -171,7 +171,7 @@ final class ScenarioBoats {
         actor.setDeltaMovement(Vec3.ZERO);
         actor.setOnGround(false);
         if (energy != null) actor.life().spendEnergy(Math.max(0, actor.life().energy() - energy));
-        actor.waterDistress().plunge(boat == null ? null : boat.getUUID(), null);
+        actor.waterDistress().plunge(boat == null ? null : boat.getUUID(), null, io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.OTHER);
         GameplayLog.event(actor, "aquatic", "scenario swim plunged at={} near={} energy={}", point, boat == null ? null : boat.getUUID(), actor.life().energy());
         return null;
     }

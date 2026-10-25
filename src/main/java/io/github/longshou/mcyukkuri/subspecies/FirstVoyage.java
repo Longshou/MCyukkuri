@@ -38,8 +38,6 @@ public final class FirstVoyage {
     private boolean completed, reachedTurn, independent, leavingHome;
     private boolean routineLaunch, routineSailing, emergencyRecall;
     /** The worn hat keeps its real cargo and identity while its owner shelters aboard a parent. */
-    private UUID retainedHatToken;
-    private CompoundTag retainedCargo;
     public FirstVoyage(YukkuriEntity entity){child=entity;}
     private ServerLevel level(){return (ServerLevel)child.level();}
     private YukkuriEntity person(UUID id){return id!=null&&level().getEntity(id) instanceof YukkuriEntity y?y:null;}
@@ -75,31 +73,27 @@ public final class FirstVoyage {
     public boolean keepsBerth(HatBoatEntity boat){return phase!=Phase.NONE&&boat.getUUID().equals(homeHat);}
     public boolean routineSailing(){return routineSailing&&phase==Phase.NONE&&!independent;}
     public boolean returningToParent(){return !leavingHome&&(phase==Phase.RETURN||phase==Phase.REBOARD);}
-    public UUID retainedHatToken(){return retainedHatToken;}
-    public int retainedFoodCount() {
-        if (retainedCargo == null) return 0;
-        int count = 0;
-        for (var raw : retainedCargo.getList("Food", Tag.TAG_COMPOUND))
-            count += ItemStack.parseOptional(child.registryAccess(), (CompoundTag) raw).getCount();
-        return count;
-    }
+    /** The token and provisions of this hat's last voyage ride in its custody record while the hat is worn. */
+    public UUID retainedHatToken(){return child.life().custody().retainedToken();}
+    public int retainedFoodCount() {return child.life().custody().retainedFoodCount();}
     public boolean hasRetainedPaddle(){
+        var retainedCargo=child.life().custody().retainedCargo();
         if(retainedCargo==null)return false;
         if(retainedCargo.contains("PaddleItem",Tag.TAG_COMPOUND))
             return ItemStack.parseOptional(child.registryAccess(),retainedCargo.getCompound("PaddleItem")).is(Items.STICK);
         return retainedCargo.getBoolean("Paddle");
     }
     /** True when the hat can take provisions bound to this token: nothing else is held, or it is the same hat. */
-    boolean canRetainHat(UUID token){return retainedCargo==null||token.equals(retainedHatToken);}
-    void retainHat(UUID token,CompoundTag cargo){retainedHatToken=token;retainedCargo=cargo.copy();}
+    boolean canRetainHat(UUID token){return child.life().custody().canRetain(token);}
+    void retainHat(UUID token,CompoundTag cargo){child.life().custody().retain(token,cargo);}
     public void restoreHatCargo(HatBoatEntity boat){
-        if(retainedCargo!=null){boat.cargo().load(retainedCargo);boat.syncCargo(boat.cargo().save());retainedCargo=null;}
-        retainedHatToken=null;
+        var retainedCargo=child.life().custody().releaseCargo();
+        if(retainedCargo!=null){boat.cargo().load(retainedCargo);boat.syncCargo(boat.cargo().save());}
     }
     /** A worn/storage hat cannot hide provisions from death, landing or an external accessory removal. */
     public void dropStoredCargo(){
         if(child.level().isClientSide)return;
-        var stored=retainedCargo;retainedCargo=null;retainedHatToken=null;
+        var stored=child.life().custody().dropCargo();
         if(stored==null)return;
         for(var raw:stored.getList("Food",Tag.TAG_COMPOUND)){
             var stack=ItemStack.parseOptional(child.registryAccess(),(CompoundTag)raw);
@@ -155,7 +149,7 @@ public final class FirstVoyage {
         if(departure&&child.getVehicle() instanceof HatBoatEntity own&&child.getUUID().equals(own.ownerYukkuri()))
             return departAfloat(own);
         if((!needsLesson()&&!departure&&!routine)||!readySize()||cooldown>0||!healthy(child)||!child.life().hasAccessory()
-                ||child.subspecies().boatId()!=null||!child.aquaticLife().hasStick()&&!hasRetainedPaddle()||level().isNight()
+                ||child.life().custody().custodied()||!child.aquaticLife().hasStick()&&!hasRetainedPaddle()||level().isNight()
                 ||!child.life().activity().equals(Behaviors.IDLE)||child.dailyLife().active()
                 ||!(child.getVehicle() instanceof HatBoatEntity boat)
                 ||!(boat.ownerYukkuri().equals(child.family().father())||boat.ownerYukkuri().equals(child.family().mother()))||boat.hasIncoming())return false;
@@ -527,8 +521,6 @@ public final class FirstVoyage {
         var tag=new CompoundTag();tag.putBoolean("Completed",completed);tag.putBoolean("Independent",independent);tag.putInt("Cooldown",cooldown);
         tag.putBoolean("RoutineLaunch",routineLaunch);tag.putBoolean("RoutineSailing",routineSailing);
         tag.putBoolean("EmergencyReturn",emergencyRecall);
-        if(retainedHatToken!=null)tag.putUUID("RetainedHatToken",retainedHatToken);
-        if(retainedCargo!=null)tag.put("RetainedCargo",retainedCargo.copy());
         tag.putBoolean("InterruptedTrip",phase!=Phase.NONE&&phase!=Phase.CELEBRATE);
         if(mentor!=null)tag.putUUID("Mentor",mentor);if(homeHat!=null)tag.putUUID("HomeHat",homeHat);if(pupil!=null)tag.putUUID("Pupil",pupil);
         if(harbor!=null)tag.putLong("Harbor",harbor.asLong());return tag;
@@ -537,8 +529,6 @@ public final class FirstVoyage {
         completed=tag.getBoolean("Completed");independent=tag.getBoolean("Independent");leavingHome=false;cooldown=Math.clamp(tag.getInt("Cooldown"),0,600);
         routineLaunch=tag.getBoolean("RoutineLaunch");routineSailing=tag.getBoolean("RoutineSailing")&&!independent;
         emergencyRecall=tag.getBoolean("InterruptedTrip")&&tag.getBoolean("EmergencyReturn");
-        retainedHatToken=tag.hasUUID("RetainedHatToken")?tag.getUUID("RetainedHatToken"):null;
-        retainedCargo=tag.contains("RetainedCargo")?tag.getCompound("RetainedCargo").copy():null;
         mentor=tag.hasUUID("Mentor")?tag.getUUID("Mentor"):null;homeHat=tag.hasUUID("HomeHat")?tag.getUUID("HomeHat"):null;
         pupil=tag.hasUUID("Pupil")?tag.getUUID("Pupil"):null;phase=Phase.NONE;ticks=elapsed=hatRecoveryTicks=0;reachedTurn=false;loadGrace=40;
         harbor=tag.contains("Harbor")?BlockPos.of(tag.getLong("Harbor")):null;

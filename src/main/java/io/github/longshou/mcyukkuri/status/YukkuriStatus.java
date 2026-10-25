@@ -43,7 +43,7 @@ public final class YukkuriStatus {
         // An aquatic's worn, intact hat remains its household address while it is ashore. Only a real hull is AFLOAT;
         // the accessory itself does not become a second persisted HomePos.
         boolean aquaticHome = y.profile().aquatic() && (y.habitat().waterHome() != null
-                || y.life().hasAccessory() && !y.life().accessoryCustodyEnded());
+                || y.life().hasAccessory());
         boolean homed = y.habitat().hasMemory() || y.life().home() != null || y.family().boatHome() != null || aquaticHome
                 || residence == HabitatLife.Residence.AFLOAT || residence == HabitatLife.Residence.DEPENDENT;
         return homed ? Identity.WILD : Identity.STRAY;
@@ -72,7 +72,7 @@ public final class YukkuriStatus {
         if (y.profile().houseBody() && y.house().homeStand() != null) return "house_nest";
         if (y.life().home() != null) return y.life().naturalHome() ? "cover" : "nest";
         if (y.habitat().waterHome() != null || y.family().boatHome() != null
-                || y.profile().aquatic() && y.life().hasAccessory() && !y.life().accessoryCustodyEnded()) return "hat_boat";
+                || y.profile().aquatic() && y.life().hasAccessory()) return "hat_boat";
         if (y.habitat().vagrant() && y.habitat().digProgress() > 0) return "digging";
         return "none";
     }

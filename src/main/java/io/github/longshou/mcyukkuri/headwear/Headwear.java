@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -131,7 +132,7 @@ public final class Headwear extends Goal {
     public String describe() {
         return stateId() + " damage=" + damage + " mend=" + mend + " fit=" + Math.round(relativeFit() * 100) / 100f
                 + " shards=" + shardsHeld + "/" + shardsTotal + " reassembly=" + reassembly + (cause.isEmpty() ? "" : " cause=" + cause)
-                + " " + entity.life().accessoryCustodyDetail() + (target != null ? " gathering" : "")
+                + " " + entity.life().custody().detail() + (target != null ? " gathering" : "")
                 + " gatherCheck=" + gatherCheck + " scanTick=" + gatherScanTick + " candidates=" + gatherCandidates + " reachable=" + gatherReachable;
     }
     /** Read-only encounter diagnostics; inspecting status never performs an observation or changes its cooldown. */
@@ -347,7 +348,7 @@ public final class Headwear extends Goal {
     /** Positive destruction of the actual deployed hat invalidates its sole token, even after an earlier drift loss. */
     public boolean deployedDestroyed(UUID owner, UUID token, String why) {
         if (entity.level().isClientSide || !entity.life().matchesAccessory(owner, token)) return false;
-        entity.life().removeAccessory();
+        entity.life().removeAccessory(why);
         damage = mend = reassembly = shardsHeld = shardsTotal = 0;
         if ("burned".equals(why)) entity.mind().add(20, "accessory_burned");
         loseForGood(why);
@@ -386,6 +387,14 @@ public final class Headwear extends Goal {
     }
     private void clear() { shattered = lost = false; shardsTotal = shardsHeld = 0; reassembly = 0; shardToken = null; mend = 0; cause = ""; }
 
+    private void mendStep(int feeling, String where) {
+        if (damage > 0 && feeling > 0 && (mend += feeling) >= (damage >= TORN ? MEND_TORN : MEND_FRAYED)) {
+            damage--; mend = 0;
+            if (entity.isAlive()) entity.showReaction("happy", "accessory_mended", 60);
+            GameplayLog.event(entity, "headwear", "accessory mended damage={} -> {} where={}", damage + 1, damage, where);
+        }
+    }
+
     // ---- every tick --------------------------------------------------------------------------------------------------
     public void clock() {
         if (entity.level().isClientSide) return;
@@ -398,11 +407,11 @@ public final class Headwear extends Goal {
         int feeling = feeling();
         if (worn) {
             if (fit < body && feeling > 0 && entity.tickCount % 20 == 0) fit = Math.min(body, fit + GROWTH_PER_SECOND * feeling * Math.max(.3f, body));
-            if (damage > 0 && feeling > 0 && (mend += feeling) >= (damage >= TORN ? MEND_TORN : MEND_FRAYED)) {
-                damage--; mend = 0;
-                if (entity.isAlive()) entity.showReaction("happy", "accessory_mended", 60);
-                GameplayLog.event(entity, "headwear", "accessory mended damage={} -> {}", damage + 1, damage);
-            }
+            mendStep(feeling, "worn");
+        } else if (entity.life().custody().state() == HatCustody.State.DEPLOYED && entity.getVehicle() instanceof HatBoatEntity hull
+                && hull.ownsPhysicalHat(entity)) {
+            // Project design (ecology A8): an owner aboard her own hull mends the hat at half the worn rate, so repairing needs no shore trip.
+            if ((entity.tickCount & 1) == 0) mendStep(feeling, "aboard_hull");
         } else if (state() == State.REASSEMBLING) {
             // Kept close and knitting even while miserable; only a broken mind stops it (recovery is not meant to be cruel).
             if (!entity.mind().nonYukkuri() && (reassembly += Math.max(1, feeling)) >= REASSEMBLE) restore();

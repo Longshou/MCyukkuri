@@ -142,10 +142,7 @@ public final class HabitatLife {
         // A child aboard a parent hat has the same physical address for food and status, even though it owns no boat token.
         if (entity.getVehicle() instanceof HatBoatEntity ridden && ridden.protects(entity)
                 && (entity.getUUID().equals(ridden.ownerYukkuri()) || ridden.young(entity))) return ridden;
-        if (entity.life().accessoryCustodyEnded()) return null;
-        var id = entity.life().custodyBoat();
-        if (id == null) id = entity.subspecies().boatId();
-        return id != null && level.getEntity(id) instanceof HatBoatEntity boat && boat.ownsPhysicalHat(entity) ? boat : null;
+        return HatBoatEntity.owned(entity);
     }
     /** Only a rider protected by her own afloat hull has an afloat residence. A grounded owner may retain a physical hat without a fake position. */
     public boolean afloatResidence() { return residence() == Residence.AFLOAT; }

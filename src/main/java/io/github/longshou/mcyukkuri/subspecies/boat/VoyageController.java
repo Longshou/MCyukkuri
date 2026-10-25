@@ -181,7 +181,7 @@ public final class VoyageController {
                     || entity.isPanicking() && !life.familyLife().alarm().active() || entity.life().isSleeping()))
                 rider.helm().cancelTravel("captain_busy");
         } else if (phase == VoyagePhase.ASHORE && entity.tickCount % 20 == 0 && entity.isAlive() && !entity.isPassenger()
-                && entity.life().custodyBoat() != null && level().getEntity(entity.life().custodyBoat()) instanceof HatBoatEntity hat
+                && entity.life().custody().boat() != null && level().getEntity(entity.life().custody().boat()) instanceof HatBoatEntity hat
                 && hat.isCradle() && hat.ownsPhysicalHat(entity) && !entity.family().keepsCradle() && entity.distanceToSqr(hat) <= 48 * 48)
             // The set-down cradle is no longer needed: its owner comes back for it.
             entity.family().fetchHat(hat);

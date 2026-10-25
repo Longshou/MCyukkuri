@@ -49,6 +49,8 @@ final class LiveDelivery {
     /** Transient candidate and search throttles; parentage, capacity and custody stay in their existing owners. */
     private UUID waterPartnerChild;
     private long nextWaterPartnerScan,nextWaterPartnerRoute;
+    /** Geometric refusals of the one lift across, per baby (not saved). */
+    private final java.util.Map<UUID,Integer> splitRefusals=new java.util.HashMap<>();
     private boolean bumped;
     private UUID comfortBaby;
     private static final int COMFORT=200;
@@ -211,8 +213,10 @@ final class LiveDelivery {
     boolean bumped(){return bumped;}
 
     /**
-     * Water birth with a partner: his own hat boat comes alongside hers for the last stretch and the labour (he needs no shore), so that a share
-     * of the newborns can be sent across into his hat (FamilyData.waterCradle). Without him, or when he cannot come, she gives birth alone in her hat.
+     * Water birth with a partner. Before the birth the father's own hat boat comes alongside hers for the last stretch and the labour (he
+     * needs no shore). After it the mother, if she carries more than her share, may share ONE baby with him: she asks once for one lift
+     * across to his hull; her care yields to it. Newborns themselves land on seats claimed in her hull or, when it has none, his
+     * (FamilyData.waterCradle).
      */
     boolean tickWaterPartner(){
         var mine=o.boatHome();
@@ -223,61 +227,80 @@ final class LiveDelivery {
         var pregnancy=mate.family().brood();
         if(pregnancy!=null&&!pregnancy.cancelled&&!pregnancy.complete()&&pregnancy.kind==FamilyData.BirthKind.LIVE){
             waterPartnerChild=null;
-            if(!o.entity().getUUID().equals(pregnancy.father)||pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring())return false;
+            if(!o.entity().getUUID().equals(pregnancy.father)||pregnancy.elapsed<pregnancy.duration-NEST_GRACE||laboring()
+                    ||o.entity().aquaticLife().care().active())return false;
             return approachWaterPartner(mine,hers,mate)!=HullHelm.State.BLOCKED;
         }
-        return rebalanceWaterYoung(hers,mine,mate);
+        return shareBabyWithFather(mine,hers,o.entity(),mate);
     }
     /**
-     * A newborn's durable parents outlive the completed brood record. Keep this limited to a dependent baby actually aboard
-     * its recorded mother's own hull and the partner father's occupied hull; a crew transfer reserves the seat and physically carries it.
+     * The mother's own decision, taken once per baby: when her hull carries clearly more than his and he has the room, one of her
+     * dependent babies is lifted across to his hull. Her care of the babies yields to it; nothing is probed or reserved to find out.
+     * Two geometric refusals for the same baby end the matter: it stays with her and the log says why.
      */
-    private boolean rebalanceWaterYoung(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity mother){
+    private boolean shareBabyWithFather(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity mother,YukkuriEntity father){
         if(motherHat.hasIncoming()||fatherHat.hasIncoming())return false;
+        if(mother.family().crew().active())return true;
         long now=o.level().getGameTime();
         if(now>=nextWaterPartnerScan){
             nextWaterPartnerScan=now+20;waterPartnerChild=null;
-            for(var rider:motherHat.getPassengers())if(rider instanceof YukkuriEntity child&&transferChild(child,motherHat,mother)
-                    &&reducesBoatLoad(motherHat,fatherHat,child)){waterPartnerChild=child.getUUID();break;}
+            for(var rider:motherHat.getPassengers())if(rider instanceof YukkuriEntity child&&transferChild(child,motherHat,mother,father)
+                    &&splitRefusals.getOrDefault(child.getUUID(),0)<2&&sharesLoad(motherHat,fatherHat,child)){waterPartnerChild=child.getUUID();break;}
         }
         if(waterPartnerChild==null||!(o.level().getEntity(waterPartnerChild) instanceof YukkuriEntity child)
-                ||!transferChild(child,motherHat,mother)||!fatherHat.canBoard(child))return false;
-        var approach=approachWaterPartner(fatherHat,motherHat,mother);
+                ||!transferChild(child,motherHat,mother,father)||!fatherHat.canBoard(child))return false;
+        // The care of the babies yields: she goes to the father's hull for this one baby.
+        if(mother.aquaticLife().care().active())mother.aquaticLife().care().cancel();
+        var approach=approachWaterPartner(motherHat,fatherHat,father);
         if(approach==HullHelm.State.BLOCKED)return false;
         if(approach==HullHelm.State.MOVING)return true;
-        return boatTransferAllowed(motherHat,fatherHat,mother,child)&&CrewTransfers.liftAcross(child,mother,motherHat,fatherHat).ok();
+        if(!boatTransferAllowed(motherHat,fatherHat,mother,father,child))return false;
+        var lift=CrewTransfers.liftAcross(child,mother,motherHat,fatherHat);
+        if(lift.ok()){
+            GameplayLog.event(mother,"family","split started baby={} from={} to={} load={}/{}",child.getUUID(),motherHat.getUUID(),fatherHat.getUUID(),
+                    motherHat.capacityUsed(),fatherHat.capacityUsed());
+            return true;
+        }
+        if(lift.refusal()==io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Refusal.TRANSIENT)return true;
+        int refused=splitRefusals.merge(child.getUUID(),1,Integer::sum);
+        if(splitRefusals.size()>8)splitRefusals.keySet().remove(splitRefusals.keySet().iterator().next());
+        GameplayLog.event(mother,"family","split refused baby={} reason={}:{} refusals={}/2",child.getUUID(),lift.refusal(),lift.reason(),refused);
+        waterPartnerChild=null;
+        return false;
     }
-    /** Only the mother may rebalance her dependent child into the recorded father's close, occupied hat. */
-    private boolean boatTransferAllowed(HatBoatEntity home,HatBoatEntity fatherHat,YukkuriEntity mother,YukkuriEntity young){
-        YukkuriEntity father=fatherHat.ownerYukkuri()!=null&&o.level().getEntity(fatherHat.ownerYukkuri()) instanceof YukkuriEntity owner?owner:null;
-        return father!=null&&home!=fatherHat&&mother.getVehicle()==home&&young.getVehicle()==home&&home.isAfloat()&&fatherHat.isAfloat()
-                &&!home.unsteadyMotion()&&!fatherHat.unsteadyMotion()&&home.flooding()<=0&&fatherHat.flooding()<=0&&!fatherHat.landing()
+    /** Both parents' own hulls, afloat and steady, the father aboard and alive; the baby is hers and his dependent. */
+    private boolean boatTransferAllowed(HatBoatEntity home,HatBoatEntity fatherHat,YukkuriEntity mother,YukkuriEntity father,YukkuriEntity young){
+        return father.getUUID().equals(fatherHat.ownerYukkuri())&&home!=fatherHat&&mother.getVehicle()==home&&young.getVehicle()==home&&home.isAfloat()
+                &&fatherHat.isAfloat()&&!home.unsteadyMotion()&&!fatherHat.unsteadyMotion()&&home.flooding()<=0&&fatherHat.flooding()<=0&&!fatherHat.landing()
                 &&mother.getUUID().equals(home.ownerYukkuri())&&!young.family().adult()&&home.young(young)&&fatherHat.young(young)
                 &&Bonds.parentOf(mother,young)&&mother.getUUID().equals(young.family().mother())&&father.getUUID().equals(young.family().father())
-                &&father.getVehicle()==fatherHat&&father.isAlive()&&!father.life().isSleeping()&&!father.life().hasUrgentNeed()
-                &&!father.aquaticLife().care().active()&&!father.aquaticLife().familyLife().alarm().active()
+                &&father.getVehicle()==fatherHat&&father.isAlive()&&!father.isPanicking()
                 &&home.position().subtract(fatherHat.position()).multiply(1,0,1).lengthSqr()<=Math.pow(FamilyLife.SHARE_REACH+fatherHat.getBbWidth()*.5,2);
     }
-    private boolean transferChild(YukkuriEntity child,HatBoatEntity motherHat,YukkuriEntity mother){
+    private boolean transferChild(YukkuriEntity child,HatBoatEntity motherHat,YukkuriEntity mother,YukkuriEntity father){
         return child.isAlive()&&child.getVehicle()==motherHat&&child.family().stage()==FamilyLife.Stage.BABY
-                &&mother.getUUID().equals(child.family().mother())&&o.entity().getUUID().equals(child.family().father());
+                &&mother.getUUID().equals(child.family().mother())&&father.getUUID().equals(child.family().father());
     }
-    /** Water paths end at cell centres; use the established small physical docking steps for the final supported approach. */
-    private HullHelm.State approachWaterPartner(HatBoatEntity mine,HatBoatEntity hers,YukkuriEntity mother){
+    /**
+     * Water paths end at cell centres; use the established small physical docking steps for the final supported approach. The runner
+     * brings her own (moving) hull to the still one's side, held on her own helm leases.
+     */
+    private HullHelm.State approachWaterPartner(HatBoatEntity mine,HatBoatEntity hers,YukkuriEntity stillCaptain){
+        var runner=o.entity();
         if(!mine.cargo().paddle())return HullHelm.State.BLOCKED;
-        var forward=Vec3.directionFromRotation(0,mother.yBodyRot).multiply(1,0,1).normalize();
+        var forward=Vec3.directionFromRotation(0,stillCaptain.yBodyRot).multiply(1,0,1).normalize();
         var right=new Vec3(-forward.z,0,forward.x);
         double sign=mine.position().subtract(hers.position()).dot(right)>=0?1:-1;
         var station=hers.position().add(forward.scale(.5)).add(right.scale(sign*STATION_GAP));
         double distance=mine.position().subtract(station).horizontalDistanceSqr();
         if(distance<=1&&partnerApproachClear(mine,station)){
-            hers.helm().hold(mother, Purpose.CARE);
-            return mine.helm().berth(mother, Purpose.CARE, station,mine.getYRot(),.035,4f).state();
+            hers.helm().hold(runner, Purpose.CARE);
+            return mine.helm().berth(runner, Purpose.CARE, station,mine.getYRot(),.035,4f).state();
         }
         long now=o.level().getGameTime();
         if(now>=nextWaterPartnerRoute){
             nextWaterPartnerRoute=now+20;
-            if(!mine.helm().travel(mother, Purpose.CARE, station))return HullHelm.State.BLOCKED;
+            if(!mine.helm().travel(runner, Purpose.CARE, station))return HullHelm.State.BLOCKED;
         }
         return mine.paddling()?HullHelm.State.MOVING:HullHelm.State.BLOCKED;
     }
@@ -293,15 +316,13 @@ final class LiveDelivery {
     private static boolean safePartnerHull(YukkuriEntity parent,HatBoatEntity boat){
         return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&boat.flooding()<=0
                 &&!boat.landing()&&!parent.family().crew().busy()
-                &&!parent.aquaticLife().care().active()&&!parent.aquaticLife().familyLife().alarm().active();
+                &&!parent.aquaticLife().familyLife().alarm().active();
     }
-    /** A read-only-in-effect reservation round proves this particular child's real body-plus-return-paddle load lowers the total imbalance. */
-    private boolean reducesBoatLoad(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity child){
+    /** She carries clearly more than he does: moving this baby lowers the difference (the deck's own class load; a read, not a reservation). */
+    private static boolean sharesLoad(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity child){
         if(!fatherHat.canBoard(child))return false;
-        double motherUsed=motherHat.capacityUsed(),fatherUsed=fatherHat.capacityUsed();
-        if(fatherHat.reserveRescueBrim(child,child.position())==null)return false;
-        double load=fatherHat.capacityUsed()-fatherUsed;fatherHat.cancelIncoming(child);
-        return load>0&&Math.abs((motherUsed-load)-(fatherUsed+load))<Math.abs(motherUsed-fatherUsed);
+        double load=motherHat.deckLayout().classLoad(motherHat.bodyOf(child).cls());
+        return load>0&&motherHat.capacityUsed()-fatherHat.capacityUsed()>2*load;
     }
     private static boolean transferReady(YukkuriEntity parent){
         return parent.isAlive()&&!parent.isNoAi()&&!parent.isCommandPlaying()&&!parent.operations().active()&&!parent.isPanicking()

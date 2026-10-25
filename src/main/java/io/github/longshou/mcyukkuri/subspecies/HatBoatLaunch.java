@@ -12,30 +12,17 @@ import net.minecraft.world.phys.Vec3;
 final class HatBoatLaunch {
     private HatBoatLaunch() {}
 
+    /** The hull this owner rides or has deployed; a pure read of her {@code HatCustody}. */
     static HatBoatEntity find(YukkuriEntity y) {
-        if (y.getVehicle() instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y)) {
-            y.life().restoreCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());
-            return boat;
-        }
+        if (y.getVehicle() instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y)) return boat;
         return owned(y);
     }
 
+    /** The hull her custody names while the hat is a hull (deployed or adrift), if it is loaded; no scan, no side effect. */
     static HatBoatEntity owned(YukkuriEntity y) {
         if (!(y.level() instanceof ServerLevel server)) return null;
-        if (y.life().accessoryCustodyEnded()) return null;
-        UUID id = y.life().custodyBoat();
-        if (id == null) id = y.subspecies().boatId();
-        if (id != null && server.getEntity(id) instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y)) {
-            y.life().confirmCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());
-            return boat;
-        }
-        // Old CRADLE/MOORED saves did not record the boat UUID on the owner. Adopt only a nearby exact owner+token match.
-        if (y.life().custodyBoat() != null) return null;
-        for (var boat : server.getEntitiesOfClass(HatBoatEntity.class, y.getBoundingBox().inflate(8), candidate -> candidate.ownsPhysicalHat(y))) {
-            y.life().confirmCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());
-            return boat;
-        }
-        return null;
+        UUID id = y.life().custody().boat();
+        return id != null && server.getEntity(id) instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y) ? boat : null;
     }
 
     static boolean retrieveAfloat(HatBoatEntity boat, YukkuriEntity child, HatBoatEntity home) {
@@ -50,7 +37,6 @@ final class HatBoatLaunch {
                 || !child.life().returnAccessory(boat.ownerYukkuri(),boat.launchToken(),null)) return false;
         child.aquaticLife().firstVoyage().retainHat(boat.launchToken(),boat.cargo().save());
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());boat.launchToken(null);
-        child.subspecies().boatId(null);
         boat.state(State.RESCUED); boat.helm().stop("retired"); return true;
     }
 
@@ -91,7 +77,7 @@ final class HatBoatLaunch {
         if (boat.level().isClientSide || boat.unsteadyMotion() || !owner.getUUID().equals(boat.ownerYukkuri()) || owner.distanceToSqr(boat) > 4
                 || !boat.isAfloat() || !owner.life().matchesAccessory(boat.ownerYukkuri(), boat.launchToken())) return false;
         if (!owner.startRiding(boat, true)) return false;
-        owner.life().restoreCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());
+        owner.life().boardCustody(boat.getUUID(), boat.ownerYukkuri(), boat.launchToken());
         owner.setYRot(boat.getYRot()); owner.yBodyRot=boat.getYRot(); owner.setYHeadRot(boat.getYRot()); return true;
     }
 }

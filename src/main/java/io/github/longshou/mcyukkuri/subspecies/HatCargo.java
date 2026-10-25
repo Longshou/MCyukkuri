@@ -257,7 +257,7 @@ public final class HatCargo {
                 boat.ownerYukkuri(),at,removed,spawned,removed-spawned,droppedPaddle,paddleSpawned);
     }
     /** The physical object remains preferred by the family paddle route after a landing or spill. */
-    void notePaddleDrop(ItemEntity item) {
+    public void notePaddleDrop(ItemEntity item) {
         var owner=boat.owner();
         if(item!=null&&owner!=null)owner.aquaticLife().familyPaddle().rememberOwnDroppedPaddle(item.getUUID());
     }

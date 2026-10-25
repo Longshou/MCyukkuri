@@ -23,6 +23,8 @@ import static io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.MAX_AGITATIO
 
 /** Bounded rocking, rim dips and delayed falls; the entity keeps the original tick schedule. */
 final class HatHullMotion {
+    /** A capsized hat ends crown-up: a half turn about its length. */
+    static final float CAPSIZED_ROLL = 180f;
     private final HatBoatEntity boat;
     long dipRenewed=Long.MIN_VALUE;
     int agitation;
@@ -83,7 +85,7 @@ final class HatHullMotion {
     }
 
     boolean dippable(YukkuriEntity actor){
-        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding>0)return false;
+        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding()>0)return false;
         var captain=boat.owner();
         return captain==null||captain==actor||captain.isAlive()&&!captain.isNoAi()&&!captain.life().isSleeping()&&!captain.isCommandPlaying()&&captain.getVehicle()==boat;
     }
@@ -103,7 +105,7 @@ final class HatHullMotion {
     }
 
     boolean dipToward(Vec3 worldTarget,float maxDegrees,int rampTicks){
-        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding>0||boat.catches())return false;
+        if(boat.level().isClientSide||!boat.isAfloat()||unsteadyMotion()||boat.flooding()>0||boat.catches())return false;
         var plan=planDip(worldTarget,maxDegrees);if(plan.degrees()<=0)return false;
         var m=boat.dipData();boolean leaning=m.getFloat("To")>0;float held=m.getFloat("Yaw");
         // While tilted toward one side, a weight on the opposite side waits for the hull to level instead of snapping it across.
@@ -140,15 +142,15 @@ final class HatHullMotion {
         var m=boat.motionData();int side=m.getInt("Side")<0?-1:1;
         if(selfRescueHeld())return 0;
         if(m.contains("LooseAt")){
-            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(side*110*t*t*(3-2*t));
+            double t=Math.clamp(motionAge(m,"LooseAt",partial)/14,0,1);return (float)(side*CAPSIZED_ROLL*t*t*(3-2*t));
         }
         if(deploying()||selfRighting()){
             double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
-            return (float)(side*110*(1-t*t*(3-2*t)));
+            return (float)(side*CAPSIZED_ROLL*(1-t*t*(3-2*t)));
         }
         if(boat.state()==State.CAPSIZED){
             double t=m.contains("CapAt")?Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1):1;
-            return (float)(side*110*t*t*(3-2*t));
+            return (float)(side*CAPSIZED_ROLL*t*t*(3-2*t));
         }
         if(!rocking())return drifting()?(float)(Math.sin((boat.level().getGameTime()+partial)*.19)*boat.currentStrength()*2.5):0;
         double age=motionAge(m,"RockAt",partial);
@@ -214,7 +216,7 @@ final class HatHullMotion {
                 if(outward.lengthSqr()<1e-6)outward=new Vec3(0,0,-1);
                 if(boat.crowdFall(y,local,outward,source==null?null:source.getUUID()))agitation=Math.max(0,agitation-1);
             }
-            if(agitation>=5&&server.random.nextDouble()<.2*boat.rollFactor()){boat.capsize();return true;}
+            if(agitation>=5&&server.random.nextDouble()<.2*boat.rollFactor()){boat.capsize("shaken");return true;}
         }
         return true;
     }

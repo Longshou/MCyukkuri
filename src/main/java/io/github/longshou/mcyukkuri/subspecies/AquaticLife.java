@@ -104,9 +104,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     /** Count the same return paddle while it is held, stowed, or still aboard the child's own hull. */
     boolean hasPaddleForReturn() {
         if (hasStick() || firstVoyage.hasRetainedPaddle()) return true;
-        UUID id=entity.subspecies().boatId();
-        if(id==null)id=entity.life().custodyBoat();
-        if(id==null||entity.life().accessoryCustodyEnded()||!(entity.level() instanceof ServerLevel server))return false;
+        UUID id=entity.life().custody().boat();
+        if(id==null||!(entity.level() instanceof ServerLevel server))return false;
         var loaded=server.getEntity(id);
         // Unloaded inventory is unknown, so keep its paddle slot until the hull can be inspected.
         return loaded==null || loaded instanceof HatBoatEntity own && own.ownsPhysicalHat(entity) && own.cargo().paddle();
@@ -145,11 +144,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
                 +" boardingBank="+rememberedBank+" shoreWork="+shoreWork.keySet()+" climate="+(entity.life().temperature().active()?entity.life().temperature().activity():"idle")
                 +" food="+availableFood()+" stockTarget="+stockTarget()+" forage="+entity.forageTrip().phase();
         HatBoatEntity boat=entity.getVehicle() instanceof HatBoatEntity ridden ? ridden : null;
-        if(boat==null&&entity.level() instanceof ServerLevel server){
-            UUID id=entity.life().custodyBoat();
-            if(id==null)id=entity.subspecies().boatId();
-            if(id!=null&&server.getEntity(id) instanceof HatBoatEntity own&&own.ownsPhysicalHat(entity))boat=own;
-        }
+        if(boat==null)boat=HatBoatEntity.owned(entity);
         if(boat==null)return state+" boat=none heldPaddle="+hasStick()
                 +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
         var cargo=boat.cargo();
@@ -240,7 +235,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!afloatSpawn || level().isClientSide) return false;
         boolean natural = naturalAfloatSpawn;
         if (!EcologyRoutines.aquaticVoyage(entity) || !afloatSpawnAvailable() || entity.isPassenger() || entity.isVehicle()
-                || entity.subspecies().boatId() != null || !entity.life().hasAccessory() || !firstVoyage.mayLaunch()
+                || entity.life().custody().custodied() || !entity.life().hasAccessory() || !firstVoyage.mayLaunch()
                 || entity.life().isSleeping() || entity.family().active() || entity.family().brood() != null) {
             afloatSpawn = false; naturalAfloatSpawn = false;
             GameplayLog.event(entity,"aquatic","afloat spawn skipped: spawn conditions not met");
@@ -346,7 +341,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     public boolean birthLaunchEligible() {
         return entity.family().needsWaterBirthBoat() && entity.onGround() && !entity.isPassenger() && !entity.isVehicle()
                 && !entity.isPanicking() && !entity.life().isSleeping() && entity.life().mealTicks()==0
-                && firstVoyage.mayLaunch() && entity.life().hasAccessory() && entity.subspecies().boatId() == null;
+                && firstVoyage.mayLaunch() && entity.life().hasAccessory() && !entity.life().custody().custodied();
     }
     /** Keep the father's escort launch at the mother's shore when the confirmed pair is still together. */
     private BlockPos birthLaunchAnchor() {
@@ -453,7 +448,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         else if (!entity.onGround()) why = "not_grounded";
         else if (!firstVoyage.mayLaunch()) why = "first_voyage_ineligible";
         else if (!entity.life().hasAccessory()) why = "no_accessory";
-        else if (entity.subspecies().boatId() != null) why = "existing_boat";
+        else if (entity.life().custody().custodied()) why = "existing_boat";
         else if (cooldown > 0) why = "cooldown";
         else if (entity.family().active()) why = "family_active";
         else if (entity.family().brood() != null) why = "brood";

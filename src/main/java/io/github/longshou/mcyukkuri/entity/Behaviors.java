@@ -55,6 +55,7 @@ public final class Behaviors {
     public static final String BOAT_SEEK_BANK = "boat_seek_bank";
     public static final String BOAT_SEEK_REST = "boat_seek_rest";
     public static final String BOAT_SLEEP = "boat_sleep";
+    public static final String BOAT_THROWN = "boat_thrown";
     public static final String BOAT_STEADY = "boat_steady";
     public static final String BOAT_TOILET = "boat_toilet";
     public static final String BOAT_WAIT_YOUNG = "boat_wait_young";

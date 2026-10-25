@@ -36,7 +36,6 @@ public final class SubspeciesLife {
     private Kind kind = Kind.NORMAL;
     private Congenital congenital = Congenital.NORMAL;
     private boolean initialized;
-    private UUID boat;
     private boolean boatExperienced;
     public static final int DEIBU_FLAG=256;
     /** One full loaded game-day at the end of subadulthood. */
@@ -49,8 +48,8 @@ public final class SubspeciesLife {
     public SubspeciesLife(YukkuriEntity entity) { this.entity = entity; }
     public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(Kind.values().length-1, entity.subspeciesFlags() & 15)] : kind; }
     public Congenital congenital() { return entity.level().isClientSide ? Congenital.values()[Math.min(3, (entity.subspeciesFlags() >> 4) & 15)] : congenital; }
-    public UUID boatId() { return boat; }
-    public void boatId(UUID id) { boat = id; if (id != null) boatExperienced = true; }
+    /** She has sailed her hat at least once. */
+    public void noteBoatExperience() { boatExperienced = true; }
     public boolean boatExperienced() { return boatExperienced; }
     public boolean deibu() { return entity.level().isClientSide ? (entity.subspeciesFlags()&DEIBU_FLAG)!=0 : deibu; }
     public float formScale() { return deibu()?1.5f:1; }
@@ -192,7 +191,7 @@ public final class SubspeciesLife {
         tag.putBoolean("DeibuPending",deibuPending);tag.putInt("DeibuSpaceAttempts",deibuSpaceAttempts);tag.putLong("DeibuRetryAt",deibuRetryAt);
         tag.putLong("DeibuSpaceSignature",deibuSpaceSignature);if(deibuCheckedAt!=null)tag.putLong("DeibuCheckedAt",deibuCheckedAt.asLong());
         tag.put("AquaticLife", entity.aquaticLife().save());
-        if (boat != null) tag.putUUID("Boat", boat); return tag;
+        return tag;
     }
     public void load(CompoundTag tag) {
         try { kind = Kind.valueOf(tag.getString("Kind")); } catch (IllegalArgumentException ex) { kind = Kind.NORMAL; }
@@ -200,7 +199,7 @@ public final class SubspeciesLife {
         if (!kind.fits(entity.getVariant())) kind = Kind.NORMAL;
         if (kind != Kind.NORMAL || entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
-        boat = tag.hasUUID("Boat") ? tag.getUUID("Boat") : null; sync();
+        sync();
         entity.aquaticLife().load(tag.getCompound("AquaticLife"));
         deibu=tag.getBoolean("Deibu")&&deibuCandidate();
         deibuExposure=Math.clamp(tag.getInt("DeibuExposure"),0,DEIBU_EXPOSURE_TICKS);

@@ -8,10 +8,13 @@ import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Mode;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Request;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Result;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
 import java.util.Comparator;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -55,25 +58,26 @@ public final class CrewTransfers {
     /**
      * A swimmer or a child on the bank is brought aboard by the captain of {@code hat}: a jumper in the water climbs with her nudge, any
      * other is lifted in her braid. The decision gates of the old rescue stay on the caller's side of the line: whether a swimmer is
-     * helped at all ({@link RescueWillingness}), whether the child can be lifted yet, whether she sees it.
+     * helped at all ({@link WaterIncidents}), whether the child can be lifted yet, whether she sees it.
      */
     public static Result liftAboard(YukkuriEntity body, HatBoatEntity hat) {
         var carrier = hat.captain();
         boolean swimming = body.isInWaterOrBubble();
-        if (!swimming || body.isPassenger()) RescueWillingness.clearAccepted(body, "target_safe");
         if (carrier == null || !carrier.isAlive() || carrier.level() != body.level() || carrier.getVehicle() != hat)
             return Result.refused(CrewTransfer.Refusal.TRANSIENT, "no_captain_aboard");
         if (body.isPassenger() || body.family().flying() || !swimming && !body.onGround() || swimming && !body.waterDistress().canBeLifted()
                 || body.distanceToSqr(hat) > 9 || !carrier.hasLineOfSight(body) || !hat.admits(body))
             return Result.refused(CrewTransfer.Refusal.TRANSIENT, "preconditions");
         boolean reservedRefuge = !hat.young(body) && !hat.temporaryCaregiver(body) && hat.admits(body);
-        if (swimming && !reservedRefuge && !RescueWillingness.willing(carrier, body, hat)) return Result.refused(CrewTransfer.Refusal.TRANSIENT, "declined");
+        if (swimming && !reservedRefuge && !WaterIncidents.permits(carrier, body)) return Result.refused(CrewTransfer.Refusal.TRANSIENT, "declined");
         // A water emergency may sacrifice provisions for the seat; ordinary dry boarding only puts them aside.
         boolean emergency = swimming || body.isPanicking() || carrier.aquaticLife().familyLife().alarm().active();
         boolean bites = body.childhood().canJump() && body.family().stage() != FamilyLife.Stage.BABY && swimming;
-        if (bites) return open(new Request(Mode.CLIMB, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, true, DeckLayout.NONE, "rescue_climb"));
-        return open(new Request(Mode.LIFT, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, swimming, DeckLayout.NONE,
-                swimming ? "rescue_lift" : "board_lift"));
+        var result = bites ? open(new Request(Mode.CLIMB, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, true, DeckLayout.NONE, "rescue_climb"))
+                : open(new Request(Mode.LIFT, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, swimming, DeckLayout.NONE,
+                        swimming ? "rescue_lift" : "board_lift"));
+        if (swimming) WaterIncidents.attempted(carrier, body, bites ? "rescue_climb" : "rescue_lift", result);
+        return result;
     }
 
     /**
@@ -91,6 +95,84 @@ public final class CrewTransfers {
     /** A capsized captain, afloat herself, lifts one of her ejected young onto the hat she has righted. */
     public static Result liftFromWater(YukkuriEntity body, YukkuriEntity carrier, HatBoatEntity hat) {
         return open(new Request(Mode.LIFT, body, carrier, Anchor.water(body.position()), anySeat(hat), Purpose.RESCUE, true, true, DeckLayout.NONE, "water_parent_lift"));
+    }
+
+    /**
+     * A yukkuri on the bank pulls a swimmer within her reach up onto the ground: braid cradle, or the mouth when the braid cannot
+     * reach. She does not enter the water; the landing spot is a standing place inside her own reach.
+     */
+    public static Result pullToBank(YukkuriEntity body, YukkuriEntity carrier) {
+        if (carrier == null || !carrier.isAlive() || carrier.level() != body.level() || carrier.isPassenger() || carrier.isInWaterOrBubble() || !carrier.onGround())
+            return Result.refused(CrewTransfer.Refusal.TRANSIENT, "carrier_not_on_bank");
+        if (!(body.level() instanceof ServerLevel level) || body.isPassenger() || !body.isInWaterOrBubble() || !body.waterDistress().canBeLifted())
+            return Result.refused(CrewTransfer.Refusal.TRANSIENT, "preconditions");
+        double ring = Math.max(.35, (CrewReach.hasBraid(carrier) ? BraidRescueGeometry.maximumReach(carrier) : BraidRescueGeometry.holdReach(carrier)) * .6);
+        var tries = new ArrayList<Vec3>();
+        for (int k = 0; k < 8; k++) tries.add(carrier.position().add(Math.cos(k * Math.PI / 4) * ring, 0, Math.sin(k * Math.PI / 4) * ring));
+        tries.add(carrier.position());
+        Result last = Result.refused(CrewTransfer.Refusal.GEOMETRY, "no_landing");
+        for (var at : tries) {
+            var spot = standingGround(level, at, body);
+            if (spot == null) continue;
+            last = open(new Request(Mode.LIFT, body, carrier, Anchor.water(body.position()), Anchor.ground(spot), Purpose.RESCUE, true, true, DeckLayout.NONE, "pull_to_bank"));
+            if (last.ok() || last.refusal() == CrewTransfer.Refusal.INCAPABLE) return last;
+        }
+        return last;
+    }
+
+    /**
+     * Growth left this rider no legal seat: she steps over the rim into the water beside the hull in one hop, and from there is an
+     * ordinary swimmer (an incident of cause SQUEEZED opens when she lands).
+     */
+    public static Result squeezeOut(YukkuriEntity body, HatBoatEntity hat) {
+        var spot = waterBeside(hat, body);
+        if (spot == null) return Result.refused(CrewTransfer.Refusal.GEOMETRY, "no_water_beside");
+        return open(new Request(Mode.HOP, body, null, seat(hat, body), Anchor.water(spot), Purpose.BOARD, false, false, DeckLayout.NONE, "squeeze_out"));
+    }
+
+    private static Vec3 waterBeside(HatBoatEntity hat, YukkuriEntity body) {
+        if (!(hat.level() instanceof ServerLevel level)) return null;
+        var local = hat.toLocal(body.position());
+        double base = Math.atan2(local.z, local.x);
+        for (int k = 0; k < 9; k++) {
+            double angle = base + (k % 2 == 1 ? 1 : -1) * ((k + 1) / 2) * Math.PI / 6;
+            var around = hat.toWorld(new Vec3(Math.cos(angle), 0, Math.sin(angle))).subtract(hat.toWorld(Vec3.ZERO)).multiply(1, 0, 1);
+            if (around.lengthSqr() < 1e-8) continue;
+            var dir = around.normalize();
+            double reach = hat.brimReachToward(dir) + HatVessel.radius(body.getBbWidth()) + .3;
+            var p = hat.position().add(dir.scale(reach));
+            var pos = BlockPos.containing(p.x, hat.getY() - .12, p.z);
+            if (!level.hasChunkAt(pos) || !level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos.above()).isEmpty()) continue;
+            var spot = new Vec3(p.x, HatBoatRoute.surface(level, pos).y - body.getBbHeight() * .3, p.z);
+            if (level.noCollision(body, body.getBoundingBox().move(spot.subtract(body.position())))) return spot;
+        }
+        return null;
+    }
+
+    /** The id of the hull entry nearest a world point, or null: the entry a swimmer there would climb by. */
+    public static String nearestEntryId(HatBoatEntity hat, Vec3 world) {
+        var entry = CrewTransfer.nearestEntry(hat, world);
+        return entry == null ? null : entry.id();
+    }
+
+    /**
+     * Where a swimmer should go to climb by the entry nearest her that she has not been refused at: the water just outside that entry
+     * (null when every entry is refused). The hull does not move.
+     */
+    public static Vec3 entryApproach(HatBoatEntity hat, YukkuriEntity body, WaterIncidents.Incident incident) {
+        var cls = hat.bodyOf(body).cls();
+        var local = hat.toLocal(body.position());
+        DeckLayout.Entry best = null;
+        double cost = Double.MAX_VALUE;
+        for (var entry : hat.deckLayout().entries()) {
+            var anchor = entry.anchors().get(cls);
+            if (anchor == null || incident != null && incident.refused(entry.id())) continue;
+            double d = Math.hypot(anchor.outside().x - local.x, anchor.outside().z - local.z);
+            if (d < cost) { cost = d; best = entry; }
+        }
+        if (best == null) return null;
+        var outside = hat.toWorld(new Vec3(best.anchors().get(cls).outside().x, 0, best.anchors().get(cls).outside().z));
+        return new Vec3(outside.x, body.getY(), outside.z);
     }
 
     /** A mother lifts a baby from her hull over to the father's. */
