@@ -945,12 +945,12 @@ public final class YukkuriModel {
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
     }
-    void renderRemains(Object key,CompoundTag data,RemainsAssets.Look look,PoseStack stack,VertexConsumer buffer,
-                              MultiBufferSource buffers,int light,int overlay){
-        String face=look.face();
+    /** The remains data a frame reads, derived once per synced snapshot (RemainsRenderer caches it per entity). */
+    record RemainsInputs(List<BodyWound> wounds,UUID seed,int rotStage,int packedSigns,float fullness,int subspeciesFlags,boolean accessory,
+                         int headwear,int hairLoss,boolean coreKept,int medal){}
+    RemainsInputs remainsInputs(CompoundTag data){
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
-        boolean house=id.startsWith("house_");
         var injuries=(BodyWound.read(body).stream()
                 .map(w->WoundMigration.restore(id,mesh,body,w))
                 .filter(Objects::nonNull).filter(mesh::valid).toList());
@@ -963,22 +963,30 @@ public final class YukkuriModel {
         int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
         float foodCapacity=CorpseFood.capacity(data);
         float fullness=foodCapacity<=0?0:Math.clamp(CorpseFood.remaining(data)/foodCapacity,0,1);
-        var signs=WoundRenderer.signs(key,seed,id,packedSigns,0,wounds);
+        return new RemainsInputs(wounds,seed,rotStage,packedSigns,fullness,data.getInt("SubspeciesFlags"),
+                !data.contains("Accessory")||data.getBoolean("Accessory"),data.getInt("Headwear"),body.getInt("HairLoss"),!data.getBoolean("CoreTaken"),data.getInt("Medal"));
+    }
+    void renderRemains(Object key,RemainsInputs in,RemainsAssets.Look look,PoseStack stack,VertexConsumer buffer,
+                              MultiBufferSource buffers,int light,int overlay){
+        String face=look.face();
+        boolean house=id.startsWith("house_");
+        var wounds=in.wounds();int packedSigns=in.packedSigns();float fullness=in.fullness();
+        var signs=WoundRenderer.signs(key,in.seed(),id,packedSigns,0,wounds);
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
-        hatScale=HatVessel.hatMultiplier(data.getInt("SubspeciesFlags"));
-        boolean accessory=!data.contains("Accessory")||data.getBoolean("Accessory");
-        int headwear=data.getInt("Headwear");hatDamageDraw.visual(headwear);
+        hatScale=HatVessel.hatMultiplier(in.subspeciesFlags());
+        boolean accessory=in.accessory();
+        int headwear=in.headwear();hatDamageDraw.visual(headwear);
         try{
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(packedSigns&BodySigns.FOOT_BURNED)!=0))
-                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,body.getInt("HairLoss"),accessory,headwear,!data.getBoolean("CoreTaken"));
-            render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,body.getInt("HairLoss"));
-            if(drawingSurfaceMarks)WoundRenderer.render(key,id,face,wounds,signs,0,fullness,house,!data.getBoolean("CoreTaken"),world,stack,buffer,buffers,light,overlay);
+                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,in.hairLoss(),accessory,headwear,in.coreKept());
+            render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,in.hairLoss());
+            if(drawingSurfaceMarks)WoundRenderer.render(key,id,face,wounds,signs,0,fullness,house,in.coreKept(),world,stack,buffer,buffers,light,overlay);
             if(woundDisplay!=null)woundDisplay.render(world,0,stack,buffers,light,overlay);
             // Taken last: the body and wound passes above still write into their own buffers.
             if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCull(look.overlay())),light,overlay);
-            if(accessory)renderBadge(data.getInt("Medal"),stack,buffers,light,overlay);
+            if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);
         }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatDamageDraw.reset();setExpression("");}
     }
     private float[] remainsSkinFrame;

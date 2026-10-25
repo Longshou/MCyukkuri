@@ -79,6 +79,8 @@ public final class RemainsEntity extends Entity {
     public void setSoak(long ticks){soak=Math.max(0,ticks);refreshWater();}
     /** One real bite from this corpse's shared food balance. It does not create a loose item. */
     public BodyFood.Bite biteFood(){return CorpseFood.take(this,1);}
+    /** The synced stack itself, replaced (never edited in place) whenever the remains data changes; clients use it to detect change. */
+    public ItemStack syncedRemains(){return entityData.get(REMAINS);}
     public CompoundTag data(){return entityData.get(REMAINS).getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
     public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
             CustomData.EMPTY).copyTag().getLong("Rot");var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
