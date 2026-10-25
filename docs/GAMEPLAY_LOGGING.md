@@ -37,7 +37,7 @@
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |
 | `[custody]` / `[badge]` / `[lesson]` / `[treasure]` | 归属与用途变化、死主清理、徽章变化、课程与技能学习、宝物转移 | 主人、目标、徽章序列 UUID；[归属](HUMAN_WORLD.md#店铺登记与饲主归属)、[宠物培育](PET_SHOP.md) |
 | `[contempt]` / `[sanction]` / `[headwear]` | 失饰识别与反应、制裁受理与实际动作、头饰损坏／修补／换主 | 双方 UUID、饰品种类／数量、实体头饰 token；[头饰](HEADWEAR.md) |
-| `[winter]` / `[temperature]` / `[weather]` / `[threat]` | 冬居、冷热与天气避难、危险响应及睡眠交接 | 实体、住所、掩体或危险来源；[季节生活](SEASONAL_LIFE.md) |
+| `[winter]` / `[temperature]` / `[weather]` / `[threat]` / `[urgency]` | 冬居、冷热与天气避难、危险响应、紧急移速及睡眠交接 | 实体、住所、掩体或危险来源；[季节生活](SEASONAL_LIFE.md) |
 | `[forage]` 记录寻粮开始与发现；`[explore]` | 子油魔理沙探险的已执行抽签、开始、返程、结束或中断 | 个体数值、概率与抽取结果、起点／目标、范围和真实结果；不记录每 tick 位置 |
 | `[daily]` / `[social]` / `[wild-event]` / `[judgement]` | 社交活动保留／开始／结算／结束、受欺负后的反击／退避及真实命中、野外事件、审判听审与中断 | 参与者、scene／聚落 UUID、案件；[行为](BEHAVIOR.md)、[日常生态](ECOLOGY_DAILY_LIFE.md)、[事件](WILD_EVENTS_IMPLEMENTATION.md)、[族规](SETTLEMENTS.md) |
 | `[request]` / `[play]` / `[shell]` / `[agitation]` / `[pet-walk]` | 宠物请求、娱乐设施、缩壳、躁动、牵引与靠岸请求的阶段和结果 | 主人／目标 UUID、设施位置、真实状态；[宠物](PET_SHOP.md)、[亚种](SUBSPECIES_IMPLEMENTATION.md)、[发情](ADULT_AGITATION.md) |

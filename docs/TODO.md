@@ -14,6 +14,7 @@
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 捕食种战斗／捕食分态、俯冲攻击与进食停留 | `.worktrees/predator-combat` | `predator/`、捕食种相关 Goal（`PREDATOR_*`）、`scripts/museum_scenarios.py` 挡捕食种／妖梦拔刀场景、捕食种所属专题 |
 | 迁徙先锋、选址放宽与途中卡住 | `.worktrees/migration-pioneer` | `settlement/Migration*.java`、`settlement/SettlementLife.java` 迁徙段、`scripts/museum_scenarios.py` 族规·迁徙场景、`docs/SETTLEMENTS.md` 迁徙段 |
+| 短打盹间隔与饮水需求 | `.worktrees/nap-water` | 睡眠／打盹相关（`life/` 睡眠段）、饮水需求与 `SEEK_WATER`（`life/YukkuriLife.java` 对应段）、`scripts/museum_scenarios.py` 困倦惊醒场景、睡眠与需求所属专题 |
 
 ## 玩法待办
 
