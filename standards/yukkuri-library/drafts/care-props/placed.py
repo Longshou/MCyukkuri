@@ -363,20 +363,22 @@ def food_bowl_forage():
 
 
 # =====================================================================================================================
-# Pet cushion nest (1x1, overhanging to 20 across): a thick round cushion roll 5 high
-# (EH23's round raised-rim cushion) with piping on the outer shoulder, round a quilted cushion pad at y 2; across the north
-# (-z) entrance the roll dips to a low rolled lip (U notch). The inner side is a gentle slope so bodies of every size settle
-# at the centre; collision follows this surface (see collision()).
-NEST_SEGS = 24
-NEST_ROLL = [(9.55, 0.0, 0), (9.95, .9, 1), (10.0, 2.0, 2), (9.85, 3.0, 3), (9.55, 3.9, 4), (9.05, 4.6, 5), (8.4, 5.0, 6),
-             (7.6, 4.6, 7), (6.8, 3.95, 8), (6.0, 3.15, 9), (5.2, 2.45, 10), (4.6, 2.15, 11)]
-NEST_CUSHION = [(4.6, 2.15), (3.4, 2.3), (1.6, 2.38)]
-NEST_CREST = 8.4
+# Pet cushion nest (one block, overhanging to 22.8 across): a thick round bolster 5.25 high (EH23's round raised-rim
+# cushion) with piping on the outer shoulder, round a flat quilted pad (y 1.6-1.8, radius 8.2) big enough for one adult:
+# the whole block square is level pad for the body box (collision()), and the bolster's steep inner side stays outside
+# the rounded body of a 1.2x adult (radius 9.2 from 2.4 above its bottom), so every adult sits down on the pad with the
+# bolster below its middle. Across the north (-z) entrance the bolster dips to a low rolled lip (U notch).
+NEST_SEGS = 32
+NEST_ROLL = [(10.9, 0.0, 0), (11.3, 1.0, 1), (11.4, 2.2, 2), (11.2, 3.4, 3), (10.85, 4.4, 4), (10.4, 5.05, 5), (9.95, 5.25, 6),
+             (9.6, 4.85, 7), (9.4, 4.0, 8), (9.2, 3.0, 9), (8.85, 2.1, 10), (8.2, 1.6, 11)]
+NEST_CUSHION = [(8.2, 1.6), (6.0, 1.7), (3.0, 1.78)]
+NEST_CREST = 9.95
+NEST_PAD = 1.75            # collision top of the level pad over the whole block square
 
 
-def nest_notch(x, z, y, floor=2.0, lip=2.6, top=5.0):
-    """U-shaped entrance: within about 35 degrees of north the roll sinks to a low rolled lip; the outer half scales toward
-    the ground, the inner half toward the cushion, meeting at the crest."""
+def nest_notch(x, z, y, floor=1.6, lip=2.8, top=5.25):
+    """U-shaped entrance: within about 35 degrees of north the bolster sinks to a low rolled lip; the outer half scales
+    toward the ground, the inner half toward the pad, meeting at the crest."""
     r = math.hypot(x, z)
     c = max(0.0, -z / r) if r > 1e-6 else 0.0
     w = smoothstep(.74, .89, c)
@@ -453,7 +455,7 @@ def fabric_band(style, w, key):
     return img
 
 
-def cushion_top(style, size=16, radius=4.6):
+def cushion_top(style, size=18, radius=8.2):
     """Quilted pad seen from above: stitched diamonds with lit puffs, a dark seam ring where the pad meets the roll."""
     _, ramp = NESTS[style]
     seam = {'': PINK[2], 'gingham': SKY[2], 'polka': PINK[2], 'floral': MINT[2], 'lavender': LAV[2], 'teddy': BROWN[2], 'stars': LEMON[2]}[style]
@@ -478,22 +480,23 @@ def yukkuri_nest(style=''):
     b = Build(model_name('yukkuri_nest', style))
     o = CIRCLE(NEST_SEGS)
     part = b.part('nest')
-    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 48, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=8.0)
-    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=2.4)
-    cap(b, part, o, [(9.55, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
+    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 72, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=10.6)
+    cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=1.8)
+    cap(b, part, o, [(10.9, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
     return b.finish()
 
 
 # =====================================================================================================================
-# 2x2 woven family nest (large_nests.py exports it): a rounded-square basket 31 across
-# with a wicker wall 1.3 thick and 7 high at the back and sides, braided top, darker inside; the +z front opens down to
-# the floor for |x| < 6 and climbs back to full height by |x| 12. Inside lies a quilted pad with a stitched, rolled hem.
+# 2x2 woven family nest (large_nests.py exports it): a rounded-square basket 32 across (two blocks, centred on its block)
+# with a wicker wall 1.1 thick and 6 high at the back and sides, braided top, darker inside; the +z front opens down to
+# the floor for |x| < 6 and climbs back to full height by |x| 12. Inside lies a quilted pad (29.8 across) with a stitched,
+# rolled hem: two adults up to 1.1x lie side by side with four newborns, the wall below their middles.
 # Collision follows the visible wall and pad (see collision()).
-LARGE = Outline(15.5, 15.5, 7.0, arc=6, step=4.0)
-LARGE_WALL = [(0.0, 0.0, 0), (0.0, 1.5, 1.5), (0.0, 3.0, 3), (0.0, 4.5, 4.5), (0.0, 6.0, 6), (-.2, 6.55, 6.6),
-              (-.65, 6.8, 7.3), (-1.1, 6.55, 8), (-1.3, 6.0, 8.7), (-1.3, 3.5, 9.8), (-1.3, 1.0, 11)]
-LARGE_HEM = [(-1.45, 1.0, 0), (-1.6, 1.45, 1), (-1.95, 1.72, 2), (-2.5, 1.8, 3)]
-LARGE_PAD = [(-2.5, 1.8), (-3.5, 1.76), (-6.0, 1.72)]
+LARGE = Outline(16.0, 16.0, 7.0, arc=6, step=4.0)
+LARGE_WALL = [(0.0, 0.0, 0), (0.0, 1.3, 1.5), (0.0, 2.6, 3), (0.0, 3.9, 4.5), (0.0, 5.2, 6), (-.2, 5.75, 6.6),
+              (-.65, 6.0, 7.3), (-1.0, 5.75, 8), (-1.1, 5.2, 8.7), (-1.1, 3.1, 9.8), (-1.1, 1.0, 11)]
+LARGE_HEM = [(-1.25, 1.0, 0), (-1.4, 1.45, 1), (-1.75, 1.72, 2), (-2.3, 1.8, 3)]
+LARGE_PAD = [(-2.3, 1.8), (-3.5, 1.76), (-6.0, 1.72)]
 
 
 def large_front(x, z, y, floor=1.0):
@@ -563,18 +566,18 @@ def large_floor(style, size=32):
 def large_yukkuri_nest(style=''):
     b = Build(model_name('large_yukkuri_nest', style))
     part = b.part('large_nest')
-    revolve(b, part, LARGE, LARGE_WALL, 'wall', weave_band(style, 108), smooth=(5, 6, 7, 8), ymap=large_front, ref=-.6)
-    revolve(b, part, LARGE, LARGE_HEM, 'hem', hem_band(style, 104), smooth=(1, 2), ref=-1.9)
+    revolve(b, part, LARGE, LARGE_WALL, 'wall', weave_band(style, 120), smooth=(5, 6, 7, 8), ymap=large_front, ref=-.6)
+    revolve(b, part, LARGE, LARGE_HEM, 'hem', hem_band(style, 108), smooth=(1, 2), ref=-1.7)
     cap(b, part, LARGE, LARGE_PAD, 'pad', large_floor(style), centre=1.7)
-    cap(b, part, LARGE, [(-1.3, 1.0)], 'floor', canvas(4, 4, LARGES[style][2][1]), centre=1.0)
+    cap(b, part, LARGE, [(-1.1, 1.0)], 'floor', canvas(4, 4, LARGES[style][2][1]), centre=1.0)
     cap(b, part, LARGE, [(0.0, 0.0)], 'under', canvas(4, 4, LARGES[style][0][1]), down=True, centre=0.0)
     return b.finish()
 
 
 # =====================================================================================================================
-# Sand toilet (CareBlock TOILET box 12.05 x 9.65, 2.35 high): a rounded plastic tray 12 x 10, 3 high, with a rolled lip
-# and sand at y 2 (EH34's rectangular toilet; L32's sand floor). A small emblem sits on the front and back.
-TRAY = Outline(6.0, 5.0, 1.6, arc=4, step=3.0)
+# Sand toilet (CareBlock sand tray box 14.46 x 11.58, 2.35 high): a rounded plastic tray 14.4 x 12, 3 high, with a rolled
+# lip and sand at y 2 (EH34's rectangular toilet; L32's sand floor), wide enough that an adult up to 1.2x sits in it.
+TRAY = Outline(7.2, 6.0, 2.0, arc=4, step=3.0)
 TRAY_WALL = [(0.0, 0.0, 6), (0.0, 1.25, 4.5), (0.0, 2.5, 3), (-.25, 2.95, 2), (-.75, 3.0, 1.5), (-1.0, 2.7, 1), (-1.0, 2.0, 0)]
 PLASTICS = {
     #        ramp, emblem rows, emblem colour
@@ -599,16 +602,16 @@ def sand_top(dirty, size=16):
     r = rng('sand' + ('d' if dirty else ''))
 
     def paint(x, z, _):
-        if abs(x) > 6 or abs(z) > 5:
+        if abs(x) > 7.2 or abs(z) > 6:
             return None
-        if abs(x) > 4.6 or abs(z) > 3.6:                     # shaded where the sand meets the wall
+        if abs(x) > 5.8 or abs(z) > 4.6:                     # shaded where the sand meets the wall
             return SAND[1]
         k = r.random()
         return SAND[3] if k < .22 else SAND[1] if k < .3 else SAND[4] if k < .33 else SAND[2]
     img = top_view(size, paint)
     if dirty:
         for _ in range(8):                   # damp clumps
-            x, y = r.randrange(3, 13), r.randrange(4, 12)
+            x, y = r.randrange(2, 14), r.randrange(3, 13)
             stamp(img, x, y, ['ab', 'bc'], {'a': STAIN[1], 'b': STAIN[0], 'c': ANKO[1]}, wrap=False)
     return img
 
@@ -616,7 +619,7 @@ def sand_top(dirty, size=16):
 def toilet_tray(b, style, dirty):
     part = b.part('tray')
     ramp = PLASTICS[style][0]
-    revolve(b, part, TRAY, TRAY_WALL, 'wall', plastic_band(style, 40, 6), smooth=(3, 4), ref=-.5)
+    revolve(b, part, TRAY, TRAY_WALL, 'wall', plastic_band(style, 48, 6), smooth=(3, 4), ref=-.5)
     cap(b, part, TRAY, [(-1.0, 2.0), (-1.4, 2.0)], 'sand', sand_top(dirty), centre=2.0)
     cap(b, part, TRAY, [(0.0, 0.0)], 'under', canvas(4, 4, ramp[1]), down=True, centre=0.0)
 
@@ -630,8 +633,8 @@ def yukkuri_toilet(style=''):
 def yukkuri_toilet_dirty(style=''):
     b = Build(model_name('yukkuri_toilet', style) + '_dirty')
     toilet_tray(b, style, True)
-    swirl(b, b.part('droppings'), (1.0, 2.0, -1.0), .62, 'swirl')
-    swirl(b, b.part('droppings'), (-3.2, 2.0, 1.6), .38, 'swirl', tiers=1)
+    swirl(b, b.part('droppings'), (1.2, 2.0, -1.2), .62, 'swirl')
+    swirl(b, b.part('droppings'), (-3.8, 2.0, 1.9), .38, 'swirl', tiers=1)
     return b.finish()
 
 
@@ -788,16 +791,27 @@ def variants():
 
 # Collision shells that follow the visible nests (life/CareBlock reads them): top-surface heightmaps of the meshes over
 # square cells, rounded up so a body rests on or just above the visible surface, merged into equal-height boxes.
-# The small nest's gentle inner slope lets every body size settle at the centre: small ones on the pad, large ones on
-# the slope with their feet supported (SurfaceApproach), so nobody sinks into the roll.
-COLLISION = {'yukkuri_nest': (yukkuri_nest, 10.0, .25, .5), 'large_yukkuri_nest': (large_yukkuri_nest, 15.5, .5, .25)}
+# The cushion nest's block square is one level pad: a body box (square, as wide as the body) resting anywhere inside the
+# block touches only the pad, never the bolster, so an adult sits down in the nest instead of hanging on the rim; the
+# bolster keeps its collision outside the block (NestResting keeps resting bodies inside it).
+# name: (factory, half extent, cell, step, (level half extent, level top) or None)
+COLLISION = {'yukkuri_nest': (yukkuri_nest, 11.5, .5, .5, (8.0, NEST_PAD)),
+             'large_yukkuri_nest': (large_yukkuri_nest, 16.0, .25, .25, None)}
 
 
 def collision():
     out = {'format': 1, 'generator': 'standards/yukkuri-library/drafts/care-props/placed.py',
            'units': 'boxes [x0, z0, x1, z1, top] in 1/16 block from the footprint centre (block centre), bottom 0'}
-    for name, (factory, half, cell, step) in COLLISION.items():
-        boxes = collision_boxes(heightmap(factory(), half, cell, step=step), half, cell)
+    for name, (factory, half, cell, step, level) in COLLISION.items():
+        hm = heightmap(factory(), half, cell, step=step)
+        if level:
+            inner, top = level
+            for k, row in enumerate(hm):
+                for i in range(len(row)):
+                    x0, z0 = -half + i * cell, -half + k * cell
+                    if -inner <= x0 and x0 + cell <= inner and -inner <= z0 and z0 + cell <= inner:
+                        row[i] = top
+        boxes = collision_boxes(hm, half, cell)
         out[name] = {'cell': cell, 'top': max(b[4] for b in boxes), 'boxes': boxes}
     return out
 

@@ -213,15 +213,15 @@ def fills():
 def nests():
     SZ = (380, 300)
     items = styles('yukkuri_nest')
-    rows = [[tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[:4]],
+    rows = [[tile([g(12), (n, 0, 0, 0, 0, 1)], l, SZ, 17, el=30) for n, l in items[:4]],
             [tile([g(11), (n, 0, 0, 0, 0, 1)], l, SZ, 18, el=30) for n, l in items[4:]] +
             [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], '侧视：右侧为北入口，软卷降成低卷边', SZ, 18, az=90, el=6)],
-            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1), sit(REIMU, 'yukkuri_nest', 0, 0, 1.0, 345)], '成体灵梦（停在软卷内坡上）', SZ, 15, el=26),
-             tile([g(11), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), sit(MARISA, 'yukkuri_nest', -3, 1, .5, 20), sit(REIMU, 'yukkuri_nest', 3, -1.5, .5, 320)],
+            [tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1), sit(REIMU, 'yukkuri_nest', 0, 0, 1.0, 345)], '成体灵梦（坐在垫面上，软卷低于腰线）', SZ, 15, el=26),
+             tile([g(11), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), sit(MARISA, 'yukkuri_nest', -3.8, 0, .5, 20), sit(REIMU, 'yukkuri_nest', 3.8, 0, .5, 320)],
                   '两只子体 0.5', SZ, 15, el=26),
              tile([g(11), ('yukkuri_nest_stars', 0, 0, 0, 0, 1)], '星夜 俯视', SZ, 15, az=0, el=80),
              tile([g(11), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1)], '小熊绒 侧视', SZ, 18, az=90, el=4)]]
-    sheet(rows, 'nests.png', '宠物软垫窝款式（20 宽、软卷 5 高、内侧缓坡、垫面 y 2.15–2.4，北侧 U 形卷边缺口；碰撞跟随可见外形，油库里按碰撞停放）：染料右键切换', SZ)
+    sheet(rows, 'nests.png', '宠物软垫窝款式（直径 22.8、软卷 5.25 高、平垫面 y 1.6–1.8 半径 8.2，北侧 U 形卷边缺口；整格平垫碰撞，成体坐进窝里）：染料右键切换', SZ)
 
 
 def large():
@@ -235,7 +235,7 @@ def large():
              tile([g(18), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)], '原色藤编 入口侧视（+z）', SZ, 9, az=0, el=8),
              tile([g(18), ('large_yukkuri_nest_mint', 0, 0, 0, 0, 1)] + fam, '薄荷格纹 俯视', SZ, 8, az=0, el=80),
              tile([g(18), ('large_yukkuri_nest_lavender', 0, 0, 0, 0, 1)], '薰衣草 背面', SZ, 9, az=200)]]
-    sheet(rows, 'large_nests.png', '2×2 编织大窝款式（31 宽圆角方篮、后侧与两侧围沿 7 高、窝内带折边软垫，正面 +z 开口落地；碰撞跟随可见外形）：染料右键切换', SZ)
+    sheet(rows, 'large_nests.png', '2×2 编织大窝款式（32 宽圆角方篮、后侧与两侧围沿 6 高、窝内带折边软垫 29.8 宽，正面 +z 开口落地；碰撞跟随可见外形）：染料右键切换', SZ)
 
 
 def toilets():
@@ -248,7 +248,7 @@ def toilets():
             [tile([g(8), ('ceramic_toilet', 0, 0, 0, 0, 1)] + dirty(1.0), '陶厕 脏 6 份', SZ, 24, az=200, el=45)],
             [tile([g(8), (n, 0, 0, 0, 0, 1)], '带盖厕 ' + l, SZ, 24) for n, l in styles('covered_toilet')] +
             [tile([g(8), ('covered_toilet_pink', 0, 0, 0, 0, 1)] + dirty(1.5), '带盖厕 脏 6 份（前开口）', SZ, 24, az=200, el=40)]]
-    sheet(rows, 'toilets.png', '厕所款式：沙厕 12×10（沙面 y 2）、陶厕与带盖厕 14×14（底面 y 1 / 1.5，前侧缺口）；染料右键切换', SZ)
+    sheet(rows, 'toilets.png', '厕所款式：沙厕 14.4×12（沙面 y 2，成体可坐进）、陶厕与带盖厕 14×14（底面 y 1 / 1.5，前侧缺口）；染料右键切换', SZ)
 
 
 def before():
@@ -265,11 +265,11 @@ def before():
                      tile([g(11), ('yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 软垫窝', SZ, 17, src=src),
                      tile([g(18), ('large_yukkuri_nest', 0, 0, 0, 0, 1)], f'{tag} 编织大窝', SZ, 9, az=30, src=src),
                      tile([g(8), ('covered_toilet', 0, 0, 0, 0, 1)], f'{tag} 带盖厕', SZ, 24, src=src)])
-    sheet(rows, 'before_after.png', '上一轮（1/16 体素阶梯）与本轮（圆润低多边形 + 手绘材质）', SZ)
+    sheet(rows, 'before_after.png', '上一版与当前（软垫窝放大、编织大窝 32 宽、沙厕放大）', SZ)
 
 
 def index():
-    pages = [('vanilla.png', '与原版方块并排'), ('bowls.png', '食盆款式'), ('fills.png', '盆内填充'), ('nests.png', '软垫窝款式'),
+    pages = [('fit.png', '窝的容纳与剖面'), ('lineup.png', '全部放置方块与成长阶段'), ('vanilla.png', '与原版方块并排'), ('bowls.png', '食盆款式'), ('fills.png', '盆内填充'), ('nests.png', '软垫窝款式'),
              ('large_nests.png', '2×2 编织大窝款式'), ('toilets.png', '厕所款式'), ('before_after.png', '上一轮对比')]
     body = ''.join(f'<h2>{t}</h2><img src="{p}" alt="{t}" style="max-width:100%">' for p, t in pages if (OUT / p).exists())
     (OUT / 'index.html').write_text('<!doctype html><meta charset="utf-8"><title>宠物照料用品款式</title><h1>宠物照料用品款式</h1>'

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -72,14 +73,14 @@ public final class CareBlock extends Block implements EntityBlock {
         }
         return shapes.isEmpty() ? Shapes.empty() : shapes.getFirst().optimize();
     }
-    /** Wild bedding: rounded 31-unit footprint with a 28.5-unit interior and a low southern entrance. */
+    /** Wild bedding: rounded 32-unit (two-block) footprint with a 29.5-unit interior and a low southern entrance. */
     private static VoxelShape largeWildShape() {
         VoxelShape shape=Shapes.empty();
         double floor=.5, rim=2.6;
-        for(double x=-15.5;x<15.5;x+=1){
+        for(double x=-16;x<16;x+=1){
             double sample=Math.abs(x+.5);
-            double outer=Math.pow(Math.max(0,Math.pow(15.5,4)-Math.pow(sample,4)),.25);
-            double inner=Math.pow(Math.max(0,Math.pow(14.25,4)-Math.pow(sample,4)),.25);
+            double outer=Math.pow(Math.max(0,Math.pow(16,4)-Math.pow(sample,4)),.25);
+            double inner=Math.pow(Math.max(0,Math.pow(14.75,4)-Math.pow(sample,4)),.25);
             shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,floor,8+outer));
             if(inner==0)shape=Shapes.or(shape,box(8+x,0,8-outer,9+x,rim,8+outer));
             else {
@@ -101,12 +102,13 @@ public final class CareBlock extends Block implements EntityBlock {
         return kind != Kind.TOILET && super.isPathfindable(state, type);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if(style.startsWith("large_"))return box(-7.5,0,-7.5,23.5,style.equals("large_wild_nest")?3:LARGE_NEST_TOP,23.5);
+        if(style.startsWith("large_"))return box(-8,0,-8,24,style.equals("large_wild_nest")?3:LARGE_NEST_TOP,24);
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(-2,0,-2,18,NEST_TOP,18);
-            case TOILET -> box(1.975,0,3.175,14.025,2.35,12.825);
+            case NEST -> box(-3.5,0,-3.5,19.5,NEST_TOP,19.5);
+            // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x; the wild latrine keeps its own small box.
+            case TOILET -> this==ModBlocks.TOILET.get()?box(.77,0,2.21,15.23,2.35,13.79):box(1.975,0,3.175,14.025,2.35,12.825);
             case MAT -> box(0,0,0,16,.15,16);
         };
     }

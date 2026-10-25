@@ -39,11 +39,11 @@ def nests():
     cells = [(0, 0), (1, 0), (0, 1)]
     fam = [('forest_burrow', ('mask', shared_mask(set(cells), c)), (c[0] - .5) * 16, 0, (c[1] - .5) * 16, 1) for c in cells]
     row1 = [tile(AFTER, [g, bed], '叶床（单睡位，入口 +z 低沿）', size=SZ, ppu=19),
-            tile(AFTER, [g, bed, (ADULT, 8, 0, 0, 0, 1.0, 180)], '叶床 + 成体 1.0', size=SZ, ppu=19),
+            tile(AFTER, [g, bed, (ADULT, 8, 0, 0, 0, 1.0, 345)], '叶床 + 成体 1.0', size=SZ, ppu=19),
             tile(AFTER, [('ground:26', 0, 0, 0, 0, 1)] + fam + [(ADULT, 8, -8, 0, -8, 1.0, 160), (ADULT, 8, 8, 0, -8, 1.0, 200), (CHILD, 8, -8, 0, 8, .5, 180)],
                  '三睡位相连的共巢（L 形，一圈连续围沿）', size=SZ, ppu=10)]
     large = ('large_wild_nest', 8, 0, 0, 0, 1)
-    family = [(ADULT, 8, -5.8, .5, -6.0, 1.0, 155), (ADULT, 8, 5.6, .5, .4, 1.0, 222)] + \
+    family = [(ADULT, 8, -7.1, .5, -3.0, 1.0, 155), (ADULT, 8, 7.1, .5, -3.0, 1.0, 222)] + \
              [(CHILD, 8, x, .5, z, .32, yaw) for x, z, yaw in ((-1.6, 4.6, 205), (-7.4, 4.6, 140), (1.8, 8.6, 172), (8.8, -7.2, 248))]
     row2 = [tile(AFTER, [('ground:24', 0, 0, 0, 0, 1), large], '2×2 野生大窝（入口 +z）', size=SZ, ppu=12),
             tile(AFTER, [('ground:24', 0, 0, 0, 0, 1), large] + family, '野生大窝 + 成体 2 + 新生 4', size=SZ, ppu=12),
@@ -56,11 +56,11 @@ def stages():
     row = [tile(AFTER, [('ground:8', 0, 0, 0, 0, 1), ('bedding_bundle', 0, 0, 0, 0, 1)], '叶束（衔运的一份垫料）', size=SZ, ppu=34)]
     for m, lab in ((1, '阶段 1 散落几片叶'), (3, '阶段 2 粗略成圈'), (7, '阶段 3 堆压成小窝')):
         row.append(tile(AFTER, [g, ('personal_leaf_nest', ('mask', m), 0, 0, 0, 1)], f'个人小叶巢 {lab}', size=SZ, ppu=26))
-    row2 = [tile(AFTER, [g, ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1), (CHILD, 8, 0, 0, 0, s, 180)], f'个人小叶巢 + 子体 {s}', size=SZ, ppu=26)
-            for s in (.5, .8)]
+    row2 = [tile(AFTER, [g, ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1), (CHILD, 8, 0, 0, 0, s, 20)], f'个人小叶巢 + {"子体" if s < .8 else "成体"} {s}', size=SZ, ppu=20)
+            for s in (.5, 1.0)]
     row2.append(tile(AFTER, [g, ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1)], '个人小叶巢 俯视', size=SZ, ppu=26, az=0, el=80))
     row2.append(tile(AFTER, [g, ('personal_leaf_nest', ('mask', 7), 0, 0, 0, 1)], '个人小叶巢 正面低视', size=SZ, ppu=26, az=0, el=10))
-    sheet([row, row2], 'stages.png', '个人小叶巢的建造阶段（衔回叶束 → 散叶 → 粗圈 → 堆压成小窝），子体 0.5 / 0.8', 4, size=SZ)
+    sheet([row, row2], 'stages.png', '个人小叶巢的建造阶段（衔回叶束 → 散叶 → 粗圈 → 堆压成小窝，坑约 15.6×14.4），子体 0.5 / 长成后的成体 1.0', 4, size=SZ)
 
 
 def forage():
@@ -105,7 +105,7 @@ INDEX = '''<!doctype html><meta charset="utf-8"><title>野生巢与储粮堆</ti
 <a href="../index.html">预览总入口</a><h1>野生巢与储粮堆（当前运行资源离线预览）</h1>
 <p>叼来的散干草堆压成的鸟巢式围沿（不扎不捆）、落叶垫、整片大叶、方截面细枝与外露草茎；储粮堆为叶托上的低圆草丘，丘顶压着散草与一簇浆果，草团与毛虫放在前方叶托上。
 同一套手绘 16×16 贴图，1 texel/单位。离线渲染，不是游戏画面或行为验收。</p>
-<h2>叶床与 2×2 野生大窝</h2><img src="nests.png"><h2>个人小叶巢阶段</h2><img src="stages.png">
+<h2>窝的容纳与剖面</h2><img src="fit.png"><h2>叶床与 2×2 野生大窝</h2><img src="nests.png"><h2>个人小叶巢阶段</h2><img src="stages.png">
 <h2>陆上储粮堆</h2><img src="forage.png"><h2>帽船储粮堆三档</h2><img src="hat-cargo.png">'''
 
 

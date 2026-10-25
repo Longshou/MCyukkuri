@@ -843,8 +843,9 @@ add('exam', 'town', '考场', '考场', '带宠物灵梦去考官面前考试：
 
 add('date', 'town', '相亲', '相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
     human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
-    # Five is the largest ordinary live litter; two adjacent spare nests cover extraCells(5) == 2 while the centre remains the mother's home.
-    block(-5, 0, -3, 'mcyukkuri:yukkuri_nest'), block(-3, 0, -3, 'mcyukkuri:yukkuri_nest'),
+    # Five is the largest ordinary live litter; two spare nests beside the mother's (centres two blocks apart, so the bolsters do not
+    # overlap) cover extraCells(5) == 2 while the centre remains the mother's home.
+    block(-6, 0, -3, 'mcyukkuri:yukkuri_nest'), block(-2, 0, -3, 'mcyukkuri:yukkuri_nest'),
     yk('reimu', 0, 0, 'bride', yaw=-90, lead=True), *own('bride'), yk('marisa', 8, 0, 'stud', yaw=90),
     f'yukkuri scenario badge {sel("bride")} silver false', f'yukkuri scenario stud {sel("keeper")} {sel("stud")}', home('bride', -4, -3)],
     give=['minecraft:emerald 6'], vantage=(0, 12))
@@ -1024,7 +1025,7 @@ for _sid, _title, _nutrition, _energy in (
             box(-6, -1, -5, 6, -1, 7, 'minecraft:oak_planks'),
             box(-6, 0, -5, 6, 0, -5, 'minecraft:oak_fence'), box(-6, 0, 7, 6, 0, 7, 'minecraft:oak_fence'),
             box(-6, 0, -4, -6, 0, 6, 'minecraft:oak_fence'), box(6, 0, -4, 6, 0, 6, 'minecraft:oak_fence'),
-            *shed(3, 2), block(2, 0, 2, 'mcyukkuri:yukkuri_nest'), block(4, 0, 2, 'mcyukkuri:yukkuri_nest'),
+            *shed(3, 2), block(1, 0, 2, 'mcyukkuri:yukkuri_nest'), block(5, 0, 2, 'mcyukkuri:yukkuri_nest'),
             yk('reimu', 0, 0, 'affected', lead=True, nutrition=_nutrition, energy=_energy,
                extra=agitation_start('IDLE') + (',Health:2f' if _depleted else '')),
             yk('alice', 10, 0, 'source', extra=agitation_start('IDLE'), **pair_ready()),

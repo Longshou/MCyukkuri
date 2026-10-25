@@ -69,8 +69,9 @@ public final class Homes {
 
     /**
      * Pets and other kept mothers sleep on a care-prop pet bed (one block, {@code CareBlock.Kind.NEST}). Giving birth needs a bigger bed:
-     * the mother's own bed plus one more free pet bed pushed up against it for every three young (the same one-cell-per-three rule as the
-     * wild family nest, {@link ShelterBlockEntity#extraCells}). Mothers without such a bed (wild, house yukkuri, factory stock) are not affected.
+     * the mother's own bed plus one more free pet bed set beside it (centre within two blocks, so the overhanging bolsters stay apart) for
+     * every three young (the same one-cell-per-three rule as the wild family nest, {@link ShelterBlockEntity#extraCells}). Mothers without
+     * such a bed (wild, house yukkuri, factory stock) are not affected.
      */
     public static boolean petBedFits(YukkuriEntity mother, int young) {
         if (!mother.pet().isPet() || mother.life().home() == null || mother.life().naturalHome()) return true;
@@ -80,9 +81,8 @@ public final class Homes {
                 || bed.kind() != CareBlock.Kind.NEST) return true;
         if(bed.largeNest())return young<=4;
         int need = ShelterBlockEntity.extraCells(young), have = 0;
-        for (var side : Direction.Plane.HORIZONTAL) {
-            var next = at.relative(side);
-            if (level.hasChunkAt(next) && level.getBlockEntity(next) instanceof CareBlockEntity other
+        for (var next : BlockPos.betweenClosed(at.offset(-2, 0, -2), at.offset(2, 0, 2))) {
+            if (!next.equals(at) && level.hasChunkAt(next) && level.getBlockEntity(next) instanceof CareBlockEntity other
                     && other.kind() == CareBlock.Kind.NEST
                     && other.canClaim(mother)) have++;
         }

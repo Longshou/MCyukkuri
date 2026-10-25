@@ -71,14 +71,14 @@
         "selected": "art/props/wild-shelters/forest_burrow.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/forest_burrow.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/forest_burrow.png",
-        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults; leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a rim of loose dry grass pressed down in layers, nothing tied (crest 9 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
+        "role": "shared family bed: 16x16 hollow sized for 12.8-15.4 wide adults (rim inner foot 7.8 out); leaf-litter pad with lining leaves and moss over the whole cell, exposed sides get a rim of loose dry grass pressed down in layers, nothing tied (crest 10.3 out, 5 back / 4 sides / 2.4 front high) with twigs and loose stems, built in the neighbouring block space"
       },
       "personal_leaf_nest": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/personal_leaf_nest.bbmodel",
         "selected": "art/props/wild-shelters/personal_leaf_nest.bbmodel",
         "runtime_mesh": "src/main/resources/assets/mcyukkuri/yukkuri_props/personal_leaf_nest.json",
         "runtime_texture": "src/main/resources/assets/mcyukkuri/textures/props/personal_leaf_nest.png",
-        "role": "growing child's own bed: 10x8 hollow, three build layers (scattered leaves and litter, low rough grass ring, woven bowl with a twig and loose stems)"
+        "role": "growing child's own bed, kept as a subadult and adult: oval hollow about 15.6x14.4, three build layers (scattered leaves and litter, low rough grass ring, bowl of loose grass pressed down in layers with twigs and loose stems)"
       },
       "bedding_bundle": {
         "editable_source": "standards/yukkuri-library/ecology/wild-shelters/assembled/bedding_bundle.bbmodel",

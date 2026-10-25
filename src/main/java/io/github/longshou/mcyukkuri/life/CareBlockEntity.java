@@ -46,6 +46,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public boolean owns(UUID id){return residents.containsKey(id);}
     public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
     public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
+    /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting). */
+    private NestResting.Bed bed(){return largeNest()?NestResting.LARGE:getBlockState().is(ModBlocks.PREDATOR_NEST.get())?NestResting.LEDGE:NestResting.CUSHION;}
     public boolean canClaim(YukkuriEntity entity){
         var current=new LinkedHashMap<UUID,Integer>();
         residents.forEach((id,stage)->{
@@ -83,9 +85,10 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
         resting.keySet().retainAll(residents.keySet());
         var before=new LinkedHashMap<>(resting);
-        var place=NestResting.choose(entity,largeNest(),resting,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
+        var place=NestResting.choose(entity,bed(),resting,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
                 ||SurfaceApproach.restingFloor(actor,Vec3.atBottomCenterOf(worldPosition).add(p.offset()))!=null);
-        if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} occupants={}",worldPosition,residents.size());return false;}
+        if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
+                worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
         resting.put(id,place);if(!resting.equals(before))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;

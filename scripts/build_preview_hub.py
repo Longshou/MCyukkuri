@@ -113,6 +113,10 @@ def main():
     nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
     subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
     current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage', 'hat-cargo')}
+    # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
+    fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
+    subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+    current_media |= {'pet-goods/fit.png', 'pet-goods/lineup.png', 'wild-nests/fit.png'}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),
