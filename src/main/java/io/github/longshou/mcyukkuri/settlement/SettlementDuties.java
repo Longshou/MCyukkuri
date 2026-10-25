@@ -5,6 +5,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
+import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
@@ -25,18 +27,23 @@ import net.minecraft.world.phys.HitResult;
 
 /** Low-priority, interruptible duties. Every waste portion keeps its real ItemStack and provenance. */
 public final class SettlementDuties {
-    private enum Task { NONE, RETREAT, PICKUP, TOILET, DUMP }
+    private enum Task { NONE, RETREAT, PICKUP, SCOOP, TOILET, DUMP }
     private final YukkuriEntity entity;
     private ItemStack carrying = ItemStack.EMPTY;
     private Task task = Task.NONE;
     private ItemEntity item;
-    private BlockPos destination, toilet, workCenter;
+    private BlockPos destination, toilet, workCenter, heap;
+    /** The slave's life in the waste pit (its goal runs whenever no assigned work is pending). */
+    private final PitSlave pit;
+    private long pendingCheckAt;
+    private boolean pending;
     private int elapsed, wait;
     /** A waterborne worker has accepted only a shore visit, never a remote toilet or item operation. */
     private boolean shorePending;
     private BlockPos shoreCenter;
     private long shoreDeadline;
-    public SettlementDuties(YukkuriEntity entity) { this.entity = entity; }
+    public SettlementDuties(YukkuriEntity entity) { this.entity = entity; pit = new PitSlave(entity); }
+    public PitSlave pit() { return pit; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     public ItemStack carrying() { return carrying; }
     public boolean active() { return task != Task.NONE; }
@@ -98,7 +105,27 @@ public final class SettlementDuties {
         for (var pos : BlockPos.betweenClosed(center.offset(-6, -2, -6), center.offset(6, 2, 6)))
             if (local(pos) && pos.distSqr(center) <= 6 * 6 && level().getBlockEntity(pos) instanceof CareBlockEntity care
                     && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) return true;
+        var group = entity.settlement().group();
+        for (var poop : Poops.near(level(), center, 6, 3))
+            if (local(poop.getBlockPos()) && poop.getBlockPos().distSqr(center) <= 6 * 6 && !GroupPits.inPit(level(), group, poop.getBlockPos())) return true;
         return false;
+    }
+
+    /**
+     * Whether a slave has real cleaning to do right now (its assigner stands behind it, there is something to carry and it is fit
+     * to work): then its pit goal gives way to the duty. Re-read every 40 ticks.
+     */
+    public boolean workPending() {
+        if (active()) return true;
+        long now = level().getGameTime();
+        if (now < pendingCheckAt) return pending;
+        pendingCheckAt = now + 40;
+        var assigner = assigner();
+        var center = workCenter(assigner);
+        pending = (!carrying.isEmpty() || assigner != null && center != null && local(center) && shoreWorkAvailable(center))
+                && assigner != null && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.life().hasUrgentNeed()
+                && EventHooks.canEntityGrief(level(), entity);
+        return pending;
     }
 
     /** Reserve a normal boat landing only when this captain can then walk to a real cleanup source. */
@@ -189,6 +216,16 @@ public final class SettlementDuties {
             GameplayLog.event(entity, "settlement", "cleanup start source=ground waste={} at={} dump={} assigner={}", item.getId(), item.blockPosition(), destination, assigner.getUUID());
             return true;
         }
+        heap = Poops.near(level(), workCenter, 6, 3).stream().map(poop -> poop.getBlockPos())
+                .filter(pos -> workArea(pos) && entity.distanceToSqr(Vec3.atCenterOf(pos)) <= 12 * 12 && !GroupPits.inPit(level(), entity.settlement().group(), pos))
+                .sorted(Comparator.comparingDouble(pos -> pos.distSqr(entity.blockPosition()))).limit(3)
+                .filter(pos -> entity.life().dryStand(pos) && entity.life().reachable(pos, false)).findFirst().orElse(null);
+        if (heap != null) {
+            task = Task.SCOOP; elapsed = 0;
+            GameplayLog.event(entity, "settlement", "cleanup start source=heap at={} portions={} dump={} assigner={}", heap,
+                    Poops.portions(level(), heap), destination, assigner.getUUID());
+            return true;
+        }
         for (var pos : BlockPos.betweenClosed(workCenter.offset(-6,-2,-6), workCenter.offset(6,2,6))) {
             if (!workArea(pos) || entity.distanceToSqr(Vec3.atCenterOf(pos)) > 12 * 12) continue;
             if (level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.TOILET && care.waste() > 0) {
@@ -257,6 +294,11 @@ public final class SettlementDuties {
                 if (remaining.isEmpty()) item.discard(); else item.setItem(remaining);
                 item = null; task = Task.DUMP; elapsed = 0;
             }
+        } else if (task == Task.SCOOP) {
+            if (heap == null || !workArea(heap) || !(level().getBlockEntity(heap) instanceof PoopBlockEntity source) || source.count() == 0) { stop(); return; }
+            if (approach(heap) && entity.distanceToSqr(Vec3.atBottomCenterOf(heap)) < 2.25) {
+                carrying = source.takeOne(); task = carrying.isEmpty() ? Task.NONE : Task.DUMP; elapsed = 0; heap = null;
+            }
         } else if (task == Task.TOILET) {
             if (toilet == null || !workArea(toilet) || !(level().getBlockEntity(toilet) instanceof CareBlockEntity care)
                     || care.kind() != CareBlock.Kind.TOILET || care.waste() == 0) { stop(); return; }
@@ -287,6 +329,17 @@ public final class SettlementDuties {
     }
     public boolean dropCarrying() {
         if (carrying.isEmpty()) return true;
+        if (carrying.is(ModItems.WASTE.get()) && carrying.getCount() == 1) {
+            // Set down where it stands, in the pit when it has reached it (life/Poops); a spot nothing can take keeps the item as before.
+            var group = entity.settlement().group();
+            var cells = GroupPits.cells(level(), group);
+            var placed = Poops.place(level(), entity.blockPosition(), carrying.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
+            if (placed != null) {
+                GameplayLog.event(entity, "settlement", "cleanup placed at={} tier={} -> {} portions={} overflow={}", placed.at(),
+                        placed.tierBefore(), placed.tierAfter(), placed.after(), placed.overflow());
+                carrying = ItemStack.EMPTY; return true;
+            }
+        }
         var drop = new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), carrying.copy());
         if (!level().addFreshEntity(drop)) return false;
         drop.setPickUpDelay(100); drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
@@ -294,7 +347,7 @@ public final class SettlementDuties {
     }
     public void cancelAssignment() { if (active()) stop(); else cancelShorePending("assignment_cancelled"); dropCarrying(); }
     public void stop() {
-        task = Task.NONE; item = null; toilet = destination = workCenter = null; elapsed = 0; wait = 80;
+        task = Task.NONE; item = null; toilet = destination = workCenter = heap = null; elapsed = 0; wait = 80;
         cancelShorePending("stopped");
         entity.aquaticLife().releaseShoreWork(ShoreWork.SETTLEMENT);
         entity.getNavigation().stop();

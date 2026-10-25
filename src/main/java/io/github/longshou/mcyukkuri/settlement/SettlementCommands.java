@@ -6,16 +6,20 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.settlement.site.SiteBuilder;
 import io.github.longshou.mcyukkuri.settlement.site.SitePlanner;
 import io.github.longshou.mcyukkuri.settlement.site.SiteTier;
 import io.github.longshou.mcyukkuri.settlement.site.SiteWorld;
+import java.util.Collection;
 import java.util.Locale;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 
@@ -38,6 +42,8 @@ public final class SettlementCommands {
                                                 .executes(context -> vacantSite(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
                         .then(Commands.literal("check").executes(context -> siteCheck(context.getSource()))))
                 .then(Commands.literal("migrate").executes(context -> migrate(context.getSource())))
+                .then(Commands.literal("slave").then(Commands.argument("targets", EntityArgument.entities())
+                        .executes(context -> slave(context.getSource(), EntityArgument.getEntities(context, "targets")))))
                 .then(CommonsCommands.command());
     }
     private static SettlementData.Group nearest(CommandSourceStack source) {
@@ -46,6 +52,27 @@ public final class SettlementCommands {
         SettlementData.Group nearest = null;
         for (var group : data.groups()) if (nearest == null || group.center.distSqr(here) < nearest.center.distSqr(here)) nearest = group;
         return nearest;
+    }
+    /**
+     * Test aid: sets the standing of group members to 嗯嗯奴隶 the way five rejections would leave it (record only: no goal, no
+     * position, no food). A member that still wears its accessory is restored at the next observation, so take the hat first.
+     */
+    private static int slave(CommandSourceStack source, Collection<? extends Entity> targets) {
+        int changed = 0;
+        for (var target : targets) {
+            if (!(target instanceof YukkuriEntity yukkuri) || yukkuri.level() != source.getLevel()) continue;
+            var group = yukkuri.settlement().group();
+            if (group == null) continue;
+            var data = SettlementData.get(source.getLevel());
+            var record = data.member(group, yukkuri.getUUID());
+            record.previousRole = record.role == SettlementData.Role.LEADER ? SettlementData.Role.LEADER : SettlementData.Role.MEMBER;
+            record.rejections = 5;
+            data.setRole(group, yukkuri.getUUID(), SettlementData.Role.UNUN_SLAVE);
+            changed++;
+        }
+        final int count = changed;
+        source.sendSuccess(() -> Component.literal("Set " + count + " group member(s) to ununn slave"), true);
+        return changed;
     }
     /** Test aid: the nearest community's loaded leader tries to move now (the site search still applies). */
     private static int migrate(CommandSourceStack source) {
@@ -99,6 +126,27 @@ public final class SettlementCommands {
         var plan = site.plan();
         source.sendSuccess(() -> Component.literal("Country " + (plan == null ? "?" : plan.profile().name().toLowerCase(Locale.ROOT))
                 + ", waste pit " + (pit.isEmpty() ? "none" : pit.getFirst().toShortString() + " (" + pit.size() + " cells)")), false);
+        if (!pit.isEmpty()) {
+            var level = source.getLevel();
+            var cells = new StringBuilder();
+            int total = 0;
+            for (var cell : pit) {
+                int portions = Poops.portions(level, cell);
+                total += portions;
+                cells.append(portions == 0 ? " 0" : " " + portions + "(tier " + Poops.tier(portions) + ")");
+            }
+            var group = site.group == null ? null : SettlementData.get(level).group(site.group);
+            int slaves = 0, inPit = 0;
+            if (group != null) for (var member : LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(64),
+                    e -> e.isAlive() && group.id.equals(e.settlement().groupId()) && group.role(e.getUUID()) == SettlementData.Role.UNUN_SLAVE)) {
+                slaves++;
+                if (GroupPits.inCells(pit, member.blockPosition())) inPit++;
+            }
+            final int sum = total, slaveCount = slaves, slavesInPit = inPit;
+            final String perCell = cells.toString();
+            source.sendSuccess(() -> Component.literal("Droppings in pit: " + sum + " of " + pit.size() * Poops.CAPACITY + " portions, per cell:" + perCell
+                    + "; slaves " + slaveCount + " (in pit " + slavesInPit + ")"), false);
+        }
         return 1;
     }
     private static int siteCheck(CommandSourceStack source) {

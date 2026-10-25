@@ -76,6 +76,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.AQUATIC, owner.aquaticLife()));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.LIFE, new LifeGoal()));
+        // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
+        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
@@ -210,6 +212,14 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.habitat().tickGoal(); }
         @Override public void stop() { owner.habitat().stop(); }
+    }
+    private final class PitSlaveGoal extends Goal {
+        PitSlaveGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return owner.settlement().duties().pit().canUse(); }
+        @Override public boolean canContinueToUse() { return owner.settlement().duties().pit().canContinue(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { owner.settlement().duties().pit().tick(); }
+        @Override public void stop() { owner.settlement().duties().pit().stop(); }
     }
     private final class SettlementDutyGoal extends Goal {
         SettlementDutyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

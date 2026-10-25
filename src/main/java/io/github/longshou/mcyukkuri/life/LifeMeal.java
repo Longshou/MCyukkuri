@@ -30,6 +30,8 @@ final class LifeMeal {
     private final YukkuriLife o;
     LifeMeal(YukkuriLife o) { this.o = o; }
 
+    /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
+    static final float PIT_MEAL_NUTRITION = 12, PIT_MEAL_DIRT = 8;
     private ItemStack mouth = ItemStack.EMPTY;
     /** A real bite of a living body or remains. It is food state, never an ItemStack. */
     private BodyFood.Bite bodyFood = BodyFood.Bite.EMPTY;
@@ -46,7 +48,8 @@ final class LifeMeal {
     boolean needsFood() { return o.nutrition() <= 75 && !hasMouthFood() && mealTicks == 0; }
 
     boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
-            ||FillingResource.isFilling(food)||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get());}
+            ||FillingResource.isFilling(food)||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())
+            ||food.is(ModItems.WASTE.get())&&o.entity().settlement().duties().pit().eatsWaste();}
 
     boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
 
@@ -208,10 +211,13 @@ final class LifeMeal {
                 boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
                 boolean sweet=Sweets.is(mouth);
                 boolean grass=FoodTaste.grass(mouth);
+                // A slave kept in the waste pit eats the droppings lying there (settlement/PitSlave): poor food, foul to the body.
+                boolean waste=mouth.is(ModItems.WASTE.get());
                 ItemStack swallowed=mouth.copy();
                 float nutritionBefore=o.nutrition();
                 float gain = filling?FillingResource.nutrition(mouth):scrap?10:food == null ? 20 : Math.clamp(food.nutrition() * 5, 10, 35);
-                if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
+                if(waste)gain=PIT_MEAL_NUTRITION;
+                else if(mouth.is(ModItems.GRAIN_BUDGET.get()))gain=12;
                 else if(mouth.is(ModItems.GRAIN_PREMIUM.get()))gain=30;
                 if(sweet)gain=Sweets.nutrition(mouth);
                 int toxic=Toxins.dose(mouth);
@@ -228,12 +234,13 @@ final class LifeMeal {
                 o.entity().childhood().firstMealSwallowed();
                 if(spicy)o.entity().body().poisoned(Toxins.SPICY_DOSE);
                 else if(toxic>0)o.entity().body().poisoned(toxic);
-                if(!filling&&!spicy&&toxic==0)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
+                if(waste)o.changeHygiene(-PIT_MEAL_DIRT);
+                if(!filling&&!spicy&&toxic==0&&!waste)o.entity().heal(2); o.personality().fed(feeder); o.entity().pet().contact(feeder,
                         true); WildEvents.fed(o.entity(),feeder); String treat = Sweets.eaten(o.entity(), swallowed, feeder); o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 if (bowlMeal) { o.entity().pet().routineCompleted(0); bowlMeal = false; }
-                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass?"teary":"happy",
-                        spicy||toxic>0?"hurt":grass?"bitter":treat!=null?treat:"fed", 100);
-                if(!spicy&&toxic==0&&!grass)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
+                o.entity().gameEvent(GameEvent.EAT); if(!o.entity().body().sick()||!(spicy||toxic>0))o.entity().showReaction(spicy||toxic>0?"surprise":grass||waste?"teary":"happy",
+                        spicy||toxic>0?"hurt":grass||waste?"bitter":treat!=null?treat:"fed", 100);
+                if(!spicy&&toxic==0&&!grass&&!waste)o.level().sendParticles(ParticleTypes.HEART, o.entity().getX(), o.entity().getY()+o.entity().getBbHeight(), o.entity().getZ(), 3, .1, .05, .1, 0);
                 }
             }
             if (mealTicks >= 64) { mealTicks = 0; sharedMeal = false; preparedMeal = false; o.finishConsumption(); }
@@ -302,7 +309,7 @@ final class LifeMeal {
         bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
         // A save from no released version cannot own both kinds of mouthful. Prefer the non-item bite so it cannot be duplicated.
         if (!bodyFood.isEmpty()) mouth = ItemStack.EMPTY;
-        if (!mouth.isEmpty() && ((!edible(mouth)&&!Consumables.oral(mouth)) || mouth.getCount()!=1)) mouth=ItemStack.EMPTY;
+        if (!mouth.isEmpty() && ((!edible(mouth)&&!Consumables.oral(mouth)&&!mouth.is(ModItems.WASTE.get())) || mouth.getCount()!=1)) mouth=ItemStack.EMPTY;
         mealTicks = Math.clamp(tag.getInt("MealTicks"),0,63);
         if (hasMouthFood()) mealTicks = Math.clamp(mealTicks,1,44);
         else if (mealTicks < 45) mealTicks=0;

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.Poops;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -19,7 +21,9 @@ import net.minecraft.world.phys.Vec3;
  * The shared waste pit of a community (project design; wild yukkuri have no toilets, only a bare hollow a little away from
  * the homes). A planned site uses the pit its ground was laid out with; a forest community on natural caves picks a bare,
  * open hollow once and keeps it in its group record until it moves. Families and lone wild yukkuri have no pit: they use
- * suitable ground away from their home. Nothing here creates waste or moves anybody: it only answers where to walk.
+ * suitable ground away from their home. Nothing here creates waste or moves anybody: it only answers where to walk. A
+ * member does not step into the pit: it stands on the bank beside the chosen pit cell with its back to it, and the
+ * portion is set down on that cell (life/Poops).
  */
 public final class GroupPits {
     /** A member goes to the pit only from this close (blocks); the pit of a natural community lies within this of its centre. */
@@ -90,11 +94,15 @@ public final class GroupPits {
                 "pit not found group={} center={} reason=no_open_ground_away_from_homes", group.id, group.center);
     }
 
+    /** The pit cell a member's portion is meant for and the bank cell it stands on to let it go. */
+    public record Spot(BlockPos pit, BlockPos stand) {}
+
     /**
-     * A standing cell in the pit for this member, or null; the caller then uses plain ground away from home. The emptiest
-     * cell is preferred, then the nearest. Refusals are logged with their reason and rate-limited per member.
+     * Where this member relieves itself: the emptiest pit cell (full cells last), then the nearest, with a dry bank cell beside it
+     * that is not itself a pit cell. Null makes the caller use plain ground away from home. Refusals are logged with their reason
+     * and rate-limited per member.
      */
-    public static BlockPos target(YukkuriEntity entity) {
+    public static Spot spot(YukkuriEntity entity) {
         if (!(entity.level() instanceof ServerLevel level)) return null;
         var until = REFUSED.get(entity);
         if (until != null && level.getGameTime() < until) return null;
@@ -106,16 +114,57 @@ public final class GroupPits {
         var nearest = cells.stream().min(Comparator.comparingDouble(c -> c.distSqr(here))).orElseThrow();
         if (nearest.distSqr(here) > REACH * REACH) { refuse(entity, "too_far", nearest); return null; }
         var ordered = new ArrayList<BlockPos>(cells);
-        ordered.sort(Comparator.<BlockPos>comparingInt(c -> waste(level, c)).thenComparingDouble(c -> c.distSqr(here)));
+        ordered.sort(Comparator.<BlockPos>comparingInt(c -> Math.min(waste(level, c), Poops.CAPACITY)).thenComparingDouble(c -> c.distSqr(here)));
+        // A slave lives in the pit: it lets go where it stands, on the nearest cell, instead of climbing out to the bank.
+        boolean resident = entity.settlement().duties().pit().slave();
+        if (resident) ordered.sort(Comparator.comparingDouble(c -> c.distSqr(here)));
         int tried = 0;
+        boolean anyEdge = false;
         for (var cell : ordered) {
-            if (!level.hasChunkAt(cell) || !entity.life().dryStand(cell)) continue;
-            if (cell.distSqr(here) > NEAR * NEAR) return cell;
-            if (entity.life().reachable(cell, false)) return cell;
+            if (!level.hasChunkAt(cell)) continue;
+            var stand = resident ? entity.life().dryStand(cell) ? cell : null : bank(level, entity, cells, cell);
+            if (stand == null) continue;
+            anyEdge = true;
+            if (stand.distSqr(here) > NEAR * NEAR) return new Spot(cell, stand);
+            if (entity.life().reachable(stand, false)) return new Spot(cell, stand);
             if (++tried >= 4) break;
         }
-        refuse(entity, tried == 0 ? "no_dry_cell" : "unreachable", nearest);
+        refuse(entity, !anyEdge ? "no_edge" : "unreachable", nearest);
         return null;
+    }
+
+    /** A dry cell on the bank beside {@code pit} (one block above the dip floor, or level with it), nearest to the member. */
+    private static BlockPos bank(ServerLevel level, YukkuriEntity entity, List<BlockPos> cells, BlockPos pit) {
+        BlockPos best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var column = pit.relative(side);
+            if (cells.stream().anyMatch(c -> c.getX() == column.getX() && c.getZ() == column.getZ())) continue;
+            for (int rise : new int[]{1, 0, -1}) {
+                var bank = column.above(rise);
+                if (!level.hasChunkAt(bank) || !entity.life().dryStand(bank)) continue;
+                double distance = bank.distSqr(entity.blockPosition());
+                if (distance < bestDistance) { best = bank; bestDistance = distance; }
+                break;
+            }
+        }
+        return best;
+    }
+
+    /** The point on the bank cell nearest the pit that the member walks to: its rear then lies over the pit. */
+    public static Vec3 edgePoint(YukkuriEntity entity, BlockPos stand, BlockPos pit) {
+        double dx = Integer.signum(pit.getX() - stand.getX()), dz = Integer.signum(pit.getZ() - stand.getZ());
+        // Close to the brink, yet all four corners of the body stay over the bank (SurfaceApproach.supported).
+        double offset = Math.max(0, .5 - entity.getBbWidth() * .42 - .03);
+        var near = Vec3.atBottomCenterOf(stand).add(dx * offset, 0, dz * offset);
+        var floor = SurfaceApproach.floor(entity, near.add(0, .1, 0));
+        return floor == null ? near : floor;
+    }
+
+    /** True when {@code pos} lies inside a loaded shelter's interior (droppings there stay loose items for the residents' own chores). */
+    public static boolean insideShelter(ServerLevel level, BlockPos pos) {
+        for (var core : LoadedShelters.within(level, pos.offset(-8, -4, -8), pos.offset(8, 4, 8))) if (core.contains(pos)) return true;
+        return false;
     }
 
     /** The member gives up on the pit for a while (unreachable, too far, path lost on the way, trip took too long). */
@@ -127,12 +176,17 @@ public final class GroupPits {
 
     /** True when {@code pos} is one of the group's pit cells (cleaners never pick waste up out of the pit). */
     public static boolean inPit(ServerLevel level, SettlementData.Group group, BlockPos pos) {
-        for (var cell : cells(level, group)) if (cell.getX() == pos.getX() && cell.getZ() == pos.getZ() && Math.abs(cell.getY() - pos.getY()) <= 1) return true;
+        return inCells(cells(level, group), pos);
+    }
+    /** True when {@code pos} is in the column of one of these pit cells (one block up or down allowed). */
+    public static boolean inCells(List<BlockPos> cells, BlockPos pos) {
+        for (var cell : cells) if (cell.getX() == pos.getX() && cell.getZ() == pos.getZ() && Math.abs(cell.getY() - pos.getY()) <= 1) return true;
         return false;
     }
 
-    private static int waste(ServerLevel level, BlockPos cell) {
-        return level.getEntitiesOfClass(ItemEntity.class, new AABB(Vec3.atBottomCenterOf(cell), Vec3.atBottomCenterOf(cell)).inflate(.5, .6, .5),
+    /** Portions lying on the cell: placed ones and any loose item (a fallback drop) in it. */
+    public static int waste(ServerLevel level, BlockPos cell) {
+        return Poops.portions(level, cell) + level.getEntitiesOfClass(ItemEntity.class, new AABB(Vec3.atBottomCenterOf(cell), Vec3.atBottomCenterOf(cell)).inflate(.5, .6, .5),
                 item -> item.isAlive() && item.getItem().is(ModItems.WASTE.get())).size();
     }
     private GroupPits() {}

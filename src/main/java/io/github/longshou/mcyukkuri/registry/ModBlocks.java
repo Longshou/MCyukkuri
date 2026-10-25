@@ -21,6 +21,8 @@ import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlock;
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.PoopBlock;
+import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlock;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -70,6 +72,11 @@ public final class ModBlocks {
                     .pushReaction(PushReaction.DESTROY)));
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<SupplyPileBlockEntity>> HOUSE_SUPPLIES_ENTITY=BLOCK_ENTITIES.register("house_supplies",
             ()->BlockEntityType.Builder.of(SupplyPileBlockEntity::new,HOUSE_SUPPLIES.get()).build(null));
+    /** Droppings on the ground (life/Poops): non-solid, up to eight portions per cell, four looks by load. */
+    public static final DeferredBlock<PoopBlock> POOP=BLOCKS.register("yukkuri_poop",
+            ()->new PoopBlock(BlockBehaviour.Properties.of().instabreak().sound(SoundType.MUD).noCollission().noOcclusion().pushReaction(PushReaction.DESTROY)));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<PoopBlockEntity>> POOP_ENTITY=BLOCK_ENTITIES.register("poop",
+            ()->BlockEntityType.Builder.of(PoopBlockEntity::new,POOP.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CareBlockEntity>> CARE = BLOCK_ENTITIES.register("care",
             () -> BlockEntityType.Builder.of(CareBlockEntity::new, FOOD_BOWL.get(), NEST.get(), LARGE_NEST.get(), LARGE_WILD_NEST.get(), PREDATOR_NEST.get(), TOILET.get(),
                     Facilities.NEWSPAPER.get(),Facilities.SOIL.get(),Facilities.SANDPAPER.get(),

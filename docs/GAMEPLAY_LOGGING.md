@@ -29,9 +29,9 @@
 | `[offering]` / `[grief]` / `[cannibal]` | 献身与护子意愿、阻塞、阶段、中断、亲属临终反应、遗体食用交餐 | 亲子、捕食者、遗体 UUID；[献身与遗体](INJURIES_AND_REMAINS.md) |
 | `[aquatic]` / `[water]` / `[voyage]` / `[boarding]` / `[cradle]` | 出航、建船、翻船、自救／救子、返岸、初航、登船与抱持、岸上工作、孤幼接手 | 行动者、帽船、子代 UUID；[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md) |
 | `[cargo]` / `[family-alarm]` | 库存真实出入、腐坏、散落、幼体装载与靠岸交接、召回事件起止 | 船 UUID、亲子 UUID、事件开始 tick；[帽船](AQUATIC_MARISA_IMPLEMENTATION.md) |
-| `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
+| `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、嗯嗯奴隶回坑／进食／被嫌恶、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |
-| `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |
+| `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便与排泄物落块（落点、档位、溢出）、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |
 | `[interaction]` / `[transport]` / `[carrier]` / `[live-bag]` / `[freezer]` | 玩家操作结果、工具归还、喂食扣量、收容与释放、票据和放置拒绝 | 玩家、原实体 UUID、token、设施位置；[基础操作](CORE_GAMEPLAY.md)、[冷冻收容](CORE_GAMEPLAY.md#冷冻收容与观察手册) |
 | `[npc-care]` / `[human-trade]` / `[factory]` | 供餐治疗扣量、工厂工序和服役替补、真实材料／产出与交易 | NPC／玩家、工位、批次和个体；[人类世界](HUMAN_WORLD.md) |
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |

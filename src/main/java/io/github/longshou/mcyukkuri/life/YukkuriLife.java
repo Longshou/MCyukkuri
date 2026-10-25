@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -79,6 +80,9 @@ public final class YukkuriLife {
     private boolean toiletAccident;
     /** The current ground toilet trip goes to the community's waste pit (settlement/GroupPits), not to nearby ground. */
     private boolean toiletPit;
+    /** The pit cell the portion is meant for while {@link #toiletPit}: the member stands on the bank beside it, never in it. */
+    private BlockPos toiletPitCell;
+    private int pitEdgeTicks;
     /** A pit trip may cross the whole site; a trip to nearby ground gives up much sooner. */
     private static final int PIT_TRIP_TICKS = 900, GROUND_TRIP_TICKS = 240;
     private final HatToilet hatToilet = new HatToilet(this);
@@ -554,13 +558,14 @@ public final class YukkuriLife {
             case ROUTINE -> { return false; }
             case CONTINUE -> { }
         }
-        if (canEat() && entity.wintering().stockedHome() != null) {
+        boolean penned = penned();
+        if (!penned && canEat() && entity.wintering().stockedHome() != null) {
             if (temperature.unsafeSleep() && temperature.plan()) { task = Task.TEMPERATURE; return true; }
             // Activate pending care before this new food route could monopolize the higher-priority life goal.
             if (!temperature.unsafeSleep() && !hasUrgentNeed() && entity.family().canUse()) return false;
             if (entity.wintering().planMeal()) { task = Task.WINTER_FOOD; pursuitTicks = 0; winterNeedCheckAt = 20; return true; }
         }
-        if (canEat() && EventHooks.canEntityGrief(level(), entity)) {
+        if (!penned && canEat() && EventHooks.canEntityGrief(level(), entity)) {
             targetFood = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
                     item.isAlive() && !item.hasPickUpDelay() && acceptsFood(item.getItem())).stream()
                     .sorted(Comparator.comparingInt((ItemEntity item) -> FoodTaste.rank(item.getItem()))
@@ -586,8 +591,9 @@ public final class YukkuriLife {
                 if (dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
                 return false;
             }
-            targetBlock = homeStand();
-            if (targetBlock == null && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
+            // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
+            targetBlock = penned ? null : homeStand();
+            if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
@@ -628,15 +634,15 @@ public final class YukkuriLife {
         boolean pet = (Custody.view(entity).owner() != null)
                 || home() != null && !naturalHome();
         if (bladder < (pet ? 90 : 70)) return false;
-        targetBlock = null; toiletPit = false;
+        targetBlock = null; toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0;
         if (!pet) {
-            // A community member walks to the group's waste pit; lone wild yukkuri and families use ground away from home.
-            var pit = GroupPits.target(entity);
-            if (pit != null) {
-                targetBlock = pit; toiletPit = true; toiletAccident = false;
+            // A community member walks to the group's waste pit and lets go from its bank; lone wild yukkuri and families use ground away from home.
+            var spot = GroupPits.spot(entity);
+            if (spot != null) {
+                targetBlock = spot.stand(); toiletPit = true; toiletPitCell = spot.pit(); toiletAccident = false;
                 task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
-                GameplayLog.event(entity,"needs","toilet pit trip start pit={} distance={} bladder={}",pit,
-                        String.format("%.1f",Math.sqrt(pit.distSqr(entity.blockPosition()))),bladder);
+                GameplayLog.event(entity,"needs","toilet pit trip start pit={} stand={} distance={} bladder={} portions={}",spot.pit(),spot.stand(),
+                        String.format("%.1f",Math.sqrt(spot.stand().distSqr(entity.blockPosition()))),bladder,GroupPits.waste((ServerLevel)level(),spot.pit()));
                 return true;
             }
             var candidates = new ArrayList<BlockPos>();
@@ -719,16 +725,22 @@ public final class YukkuriLife {
                     if (toiletPit && targetBlock != null) GroupPits.refuse(entity, pursuitTicks > PIT_TRIP_TICKS ? "timeout" : "cell_lost", targetBlock);
                     stopGoal(); return;
                 }
-                if (entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
+                if (toiletPit && toiletPitCell != null && !pitBankReady()) { toiletTicks = 0; return; }
+                if (toiletPit && toiletPitCell != null || entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
-                    if (++toiletTicks == 1) entity.speak("need_toilet");
+                    if (++toiletTicks == 1) {
+                        entity.speak("need_toilet");
+                        if (toiletPit) GameplayLog.event(entity,"needs","toilet pit edge reached stand={} pit={} portions={}",targetBlock,toiletPitCell,
+                                GroupPits.waste((ServerLevel)level(),toiletPitCell));
+                    }
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
-                        // From the anus of this very model at this moment of the clip (see ToiletContact.anus).
-                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS))) {
+                        // From the anus of this very model at this moment of the clip (see ToiletContact.anus); at the pit the portion lands in the pit cell behind it.
+                        if (bladder >= 40 && ToiletContact.drop(entity, ToiletContact.anus(entity, ToiletContact.DROP_TICKS), toiletPit ? toiletPitCell : null)) {
                             bladder -= 40; personality.relieveFear();
                             GameplayLog.event(entity,"needs","relieved source={} at={} bladder={} -> {} accident={}",toiletPit?"pit":"ground",targetBlock,bladder+40,bladder,toiletAccident);
                             if (toiletAccident) hygiene = Math.max(0,hygiene-20);
                             entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
+                            if (toiletPit) entity.settlement().society().pitExcreted();
                         } else { stopGoal(); return; }
                     }
                     if (toiletTicks >= ToiletContact.RELEASE_TICKS) stopGoal();
@@ -760,6 +772,29 @@ public final class YukkuriLife {
             default -> { }
         }
     }
+    /**
+     * The pit trip's last steps: reach the bank cell, step to its brink and turn the back to the pit. False while still on the way
+     * (the caller waits); after 60 ticks without reaching the brink the member lets go where it stands on the bank.
+     */
+    private boolean pitBankReady() {
+        var bank = Vec3.atBottomCenterOf(targetBlock);
+        if (!entity.onGround() || entity.position().subtract(bank).horizontalDistanceSqr() > 1.0) {
+            if (pursuitTicks % 10 == 1 && !travel(targetBlock, 1)) { GroupPits.refuse(entity, "no_path", targetBlock); stopGoal(); }
+            return false;
+        }
+        // Once straining has begun the brink was reached: the body stays put.
+        if (toiletTicks == 0) {
+            var edge = GroupPits.edgePoint(entity, targetBlock, toiletPitCell);
+            boolean brink = pitEdgeTicks > 60 || SurfaceApproach.walk(entity, edge, 1.0) || ++pitEdgeTicks > 60;
+            if (!brink) return false;
+        }
+        SurfaceApproach.halt(entity);
+        float away = SurfaceApproach.yaw(entity.position(), entity.position().add(targetBlock.getX() - toiletPitCell.getX(), 0, targetBlock.getZ() - toiletPitCell.getZ()));
+        SurfaceApproach.face(entity, away);
+        return Math.abs(Mth.wrapDegrees(entity.getYRot() - away)) <= 6;
+    }
+    /** A slave kept in its group's waste pit lives on what lies there (settlement/PitSlave): no food or bed errands outside it. */
+    private boolean penned() { return entity.settlement().duties().pit().penned(); }
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity) || pursuitTicks > 240) { stopGoal(); return; }
         if (targetFood != null && (!targetFood.isAlive() || targetFood.hasPickUpDelay() || !acceptsFood(targetFood.getItem()))) targetFood = null;
@@ -824,7 +859,7 @@ public final class YukkuriLife {
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),level().isRainingAt(entity.blockPosition()));
         temperature.stop();
         entity.wintering().stopMeal();
-        task = Task.NONE; targetFood = null; targetBlock = null; sleepTicks = toiletTicks = 0; planWait = 30;
+        task = Task.NONE; targetFood = null; targetBlock = null; toiletPitCell = null; pitEdgeTicks = 0; sleepTicks = toiletTicks = 0; planWait = 30;
         entity.getNavigation().stop();
     }
 

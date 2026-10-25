@@ -6,6 +6,10 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.WeakHashMap;
 import net.minecraft.server.level.ServerLevel;
 
 /** Actual nearby witnesses create social consequences; a missing hat alone creates none. */
@@ -102,6 +106,40 @@ public final class SettlementSociety {
                 record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
         data.setDirty();
     }
+    /** After a member's own mockery of a slave kept in the pit: one per slave per 400 ticks. Transient. */
+    private static final Map<YukkuriEntity, Long> MOCKED = new WeakHashMap<>();
+
+    /**
+     * A member has just let go at the pit bank. Any 嗯嗯奴隶 of the group in sight of it is jeered at by the harsh members who can
+     * see it (up to three, including this one): their angry reaction and a small, real drop of their regard for it; the slave
+     * feels submitted and is splashed (hygiene). Project design; the lines wait for the dialogue pass.
+     */
+    public void pitExcreted() {
+        var group = entity.settlement().group();
+        if (group == null || !accepted(entity)) return;
+        long now = level().getGameTime();
+        for (var slave : LoadedGroupMembers.query(level(), group.id, entity.getBoundingBox().inflate(7),
+                peer -> peer.isAlive() && peer.settlement().society().role() == SettlementData.Role.UNUN_SLAVE && entity.hasLineOfSight(peer))) {
+            var last = MOCKED.get(slave);
+            if (last != null && now - last < 400) continue;
+            MOCKED.put(slave, now);
+            var witnesses = new ArrayList<>(LoadedGroupMembers.query(level(), group.id, slave.getBoundingBox().inflate(6),
+                    peer -> peer != slave && peer.isAlive() && accepted(peer) && harsh(peer) && peer.hasLineOfSight(slave)));
+            if (witnesses.size() > 3) witnesses.subList(3, witnesses.size()).clear();
+            for (var witness : witnesses) {
+                witness.getLookControl().setLookAt(slave, 25, 25);
+                witness.showReaction("angry", "settlement_assign", 80);
+                YukkuriWorldData.get(level()).relate(witness.getUUID(), slave.getUUID(), -1);
+            }
+            float before = slave.life().hygiene();
+            slave.life().changeHygiene(-3);
+            slave.mind().felt(EmotionEvent.SUBMITTED);
+            slave.showReaction("teary", "settlement_submit", 100);
+            GameplayLog.event(slave, "settlement", "pit mockery witnesses={} excretor={} hygiene={} -> {}", witnesses.size(), entity.getUUID(),
+                    before, slave.life().hygiene());
+        }
+    }
+
     public void restored() {
         var group = entity.settlement().group();
         if (group == null) return;

@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
+import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -149,6 +150,7 @@ public final class MindLife {
         if (Consumables.kind(swallowed) == Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         if (FoodTaste.grass(swallowed)) { felt(EmotionEvent.BITTER_TASTE); return; }
+        if (swallowed.is(ModItems.WASTE.get())) { add(10, "waste_meal"); return; }
         add(-3, "meal");
     }
 
@@ -279,6 +281,8 @@ public final class MindLife {
         // The smell of stale and rotten remains carries farther than sight and needs no line of sight (body/RemainsRot).
         float stench = RemainsRot.pressureAt(level, entity.position());
         if (stench > 0) put("stench", stench);
+        // Droppings lying on the ground (life/Poops) smell like loose ones within three blocks.
+        if (!waste && !Poops.near(level, entity.blockPosition(), 3, 2).isEmpty()) waste = true;
         if (waste) put("waste", .5f);
     }
 

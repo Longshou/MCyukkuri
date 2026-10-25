@@ -177,7 +177,7 @@ PROBE_COMMANDS = {
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
     'settlement site': 'yukkuri settlement site vacant village 0 0 0',
-    'settlement migrate': 'yukkuri settlement migrate', 'settlement rules': 'yukkuri settlement rules', 'body': 'yukkuri body rot @s 0',
+    'settlement migrate': 'yukkuri settlement migrate', 'settlement slave': 'yukkuri settlement slave @s', 'settlement rules': 'yukkuri settlement rules', 'body': 'yukkuri body rot @s 0',
     'speed': 'yukkuri speed rate 20', 'relay': 'yukkuri relay yukkuri status @s'}
 
 

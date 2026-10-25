@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -62,6 +63,15 @@ public final class WashClothItem extends Item {
                 if(removed>0){if(water(context.getItemInHand())>0)useWater(context.getItemInHand());var waste=new ItemStack(ModItems.WASTE.get(),removed);
                     if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);
                     else Block.popResource(context.getLevel(),context.getClickedPos(),waste);}}
+            return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+        }
+        if (context.getLevel().getBlockEntity(context.getClickedPos()) instanceof PoopBlockEntity heap) {
+            // A heap on the ground is swept up with a wet cloth: every portion becomes the real waste item again.
+            if (water(context.getItemInHand())==0) return InteractionResult.FAIL;
+            if (!context.getLevel().isClientSide) {
+                var portions=heap.drain();context.getLevel().removeBlock(context.getClickedPos(),false);useWater(context.getItemInHand());
+                for(var waste:portions){if(context.getPlayer()!=null)SupplyPiles.give(context.getPlayer(),waste);else Block.popResource(context.getLevel(),context.getClickedPos(),waste);}
+            }
             return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
         }
         if (!(context.getLevel().getBlockEntity(context.getClickedPos()) instanceof CareBlockEntity care) || care.kind()!=CareBlock.Kind.TOILET) {

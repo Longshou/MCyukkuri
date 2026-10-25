@@ -213,13 +213,32 @@ for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原
 
 # The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
 _PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'
+_PIT_READS = [('读聚落场地、嗯嗯坑存量与奴隶', 'yukkuri settlement site info'), ('读群体成员与奴隶数', 'yukkuri settlement info')]
 add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
-    '森林山脚的小群入住约 10 秒后，全员便意升到 80：看它们各自从洞里走到南边低处的嗯嗯坑，站进凹地里排泄，排泄物真实落在坑里；'
-    '不在洞口或空地上排。读数看坑的位置；日志 [needs] toilet pit trip start → relieved source=pit',
-    '约 1–2 分钟', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
-    env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
-    late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 80', _PIT_ADULTS, tries=1, first=200)],
-    reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')])
+    '森林山脚的小群入住约 10 秒后，全员便意升到 90，约 80 秒时再升一次：看它们各自从洞里走到南边低处的嗯嗯坑，只站在坑沿、背对坑口排泄，'
+    '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
+    '不在洞口或空地上排。读数看坑内各格份数与档位；日志 [needs] toilet pit trip start → toilet pit edge reached → poop placed → relieved source=pit',
+    '约 1–3 分钟', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    env=DAY, vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
+          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600)],
+    reads=[*_PIT_READS, ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')])
+
+# The same pit with one grown member already its slave (record set the way five rejections leave it, hat gone for good):
+# nothing is scripted after that: the goal, the walk back, the meals and the others' reactions are the ordinary ones.
+_SLAVE = '@e[tag=scn_slave,distance=..70,limit=1]'
+add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
+    '同一处山脚小群，入住约 6 秒后一只成体失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
+    '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
+    '读数看奴隶营养与坑内份数；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=yukkuri_waste',
+    '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    env=DAY, vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
+          Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
+          Retry(f'yukkuri status set {_SLAVE} accessory.state lose', _SLAVE, tries=1, first=160),
+          Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
+          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=600)],
+    reads=[*_PIT_READS, ('读奴隶（营养、便意、卫生）', f'yukkuri status {_SLAVE} raw')])
 
 # ====================================================================================================== daily life meadow
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [

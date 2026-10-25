@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
+import io.github.longshou.mcyukkuri.house.SupplyPiles;
+import io.github.longshou.mcyukkuri.settlement.GroupPits;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.io.IOException;
+import java.util.List;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -69,12 +73,40 @@ public final class ToiletContact {
     }
 
     /** A blocked rear outlet never falls back to the body's centre. */
-    public static boolean drop(YukkuriEntity actor, Vec3 outlet) {
+    public static boolean drop(YukkuriEntity actor, Vec3 outlet) { return drop(actor, outlet, null); }
+
+    /**
+     * The portion is set down on the ground cell under the outlet (life/Poops: capacity, tiers, overflow to a neighbour cell).
+     * {@code pit}: the pit cell the member stands beside, which then takes the portion whatever lies under its rear. Only when no
+     * cell can take it (water, a ledge, a shelter's inside, everything around full) does it stay a loose item as before.
+     */
+    public static boolean drop(YukkuriEntity actor, Vec3 outlet, BlockPos pit) {
         if (!(actor.level() instanceof ServerLevel server) || outlet == null) return false;
-        var waste = new ItemEntity(server, outlet.x, outlet.y, outlet.z, DetachedItems.waste(actor));
+        var stack = DetachedItems.waste(actor);
+        var origin = pit != null ? pit : floorUnder(server, outlet);
+        var group = actor.settlement().group();
+        if (origin != null) {
+            var cells = pit == null || group == null ? List.<BlockPos>of() : GroupPits.cells(server, group);
+            var placed = Poops.place(server, origin, stack.copy(), cells.isEmpty() ? null : cell -> GroupPits.inCells(cells, cell));
+            if (placed != null) {
+                GameplayLog.event(actor, "needs", "poop placed at={} meant={} tier={} -> {} portions={} overflow={} pit={}",
+                        placed.at(), origin, placed.tierBefore(), placed.tierAfter(), placed.after(), placed.overflow(), pit != null);
+                return true;
+            }
+        }
+        var waste = new ItemEntity(server, outlet.x, outlet.y, outlet.z, stack);
         waste.setDefaultPickUpDelay();
         waste.setDeltaMovement(Vec3.ZERO);
-        return server.noCollision(waste, waste.getBoundingBox()) && server.addFreshEntity(waste);
+        boolean spawned = server.noCollision(waste, waste.getBoundingBox()) && server.addFreshEntity(waste);
+        if (spawned) GameplayLog.limited(actor, "needs", "poop_loose", 200, "poop stays a loose item reason={} meant={}",
+                origin == null ? "no_floor_cell" : "no_cell_within_" + Poops.SPREAD, origin);
+        return spawned;
+    }
+
+    private static BlockPos floorUnder(ServerLevel level, Vec3 outlet) {
+        var cell = BlockPos.containing(outlet);
+        if (SupplyPiles.supported(level, cell)) return cell;
+        return SupplyPiles.supported(level, cell.below()) ? cell.below() : null;
     }
 
     /** Stand on the actual collision surface, facing along the tray's longer axis. */

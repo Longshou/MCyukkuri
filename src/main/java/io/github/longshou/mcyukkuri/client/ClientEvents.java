@@ -35,6 +35,7 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(ModBlocks.FORAGE_PILE_ENTITY.get(), ForagePileRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.HOUSE_NEST_ENTITY.get(),HouseNestRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.HOUSE_SUPPLIES_ENTITY.get(),SupplyPileRenderer::new);
+        event.registerBlockEntityRenderer(ModBlocks.POOP_ENTITY.get(),PoopRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.GRAVE_ENTITY.get(),GraveRenderer::new);
         event.registerBlockEntityRenderer(ModBlocks.DETACHED_STEM_ENTITY.get(),DetachedStemRenderer::new);
     }

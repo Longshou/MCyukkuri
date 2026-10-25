@@ -34,8 +34,8 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
  *     forage). Only then does the leader give it relief: enough to reach that minimum, priority share first. When no
  *     household is short nothing is shared out; entitlements of an earlier relief lapse at the next check.</li>
  * <li>Mouths are weighted: adult 1, child (子油) 0.75, baby (赤油) 0.5, elder 0.75; pregnant +0.5, a parent with a
- *     baby still on mash +0.25, sick or wounded +0.25; a ration-cut offender counts half, an ununn slave a quarter,
- *     an outcast nothing. Babies, pregnant mothers, the sick and the young are the priority share.</li>
+ *     baby still on mash +0.25, sick or wounded +0.25; a ration-cut offender counts half, an ununn slave and an
+ *     outcast nothing. Babies, pregnant mothers, the sick and the young are the priority share.</li>
  * <li>Famine level: 2 (famine) when the whole community holds less than one day of food, or less than two days after
  *     two checks of failed foraging or with most members hungry; 1 (short) below two days or when the commons cannot
  *     cover the short households; a famine ends only at two days or more. In famine the leader hunts twice a day,
@@ -81,7 +81,8 @@ public final class Rations {
     static Mouth mouth(YukkuriEntity m, SettlementData.Group group, long now) {
         var role = group.role(m.getUUID());
         if (role == SettlementData.Role.OUTCAST) return new Mouth(0, 0);
-        if (role == SettlementData.Role.UNUN_SLAVE) return new Mouth(.25f, 0);
+        // A slave kept in the waste pit lives on what lies there (PitSlave): the common store owes it nothing.
+        if (role == SettlementData.Role.UNUN_SLAVE) return new Mouth(0, 0);
         var family = m.family();
         float base, priority = 0;
         if (family.stage() == FamilyLife.Stage.BABY) { base = .5f; priority = .5f; }
