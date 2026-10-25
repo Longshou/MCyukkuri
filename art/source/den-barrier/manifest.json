@@ -1,0 +1,22 @@
+{
+  "id": "den_barrier",
+  "status": "pending_user_confirmation",
+  "generator": "standards/yukkuri-library/ecology/wild-shelters/den_barrier.py",
+  "elements": 41,
+  "collision": [
+    1,
+    0,
+    1,
+    15,
+    16,
+    15
+  ],
+  "texture": "64x64, 1 texel per unit, wild_kit bark / wood end / leaf litter / leaf sprites",
+  "files": {
+    "src/main/resources/assets/mcyukkuri/textures/block/den_barrier.png": "483f3a57779f803ec0e2f079f8980298647ce14ad3130ad5583ea98ab5d31d20",
+    "art/source/den-barrier/den_barrier.png": "483f3a57779f803ec0e2f079f8980298647ce14ad3130ad5583ea98ab5d31d20",
+    "src/main/resources/assets/mcyukkuri/models/block/den_barrier.json": "b7f65cc57335ddbd02c02e5b76d351f0076efa44b6604215a636063076634189",
+    "art/source/den-barrier/den_barrier.json": "b7f65cc57335ddbd02c02e5b76d351f0076efa44b6604215a636063076634189",
+    "src/main/resources/assets/mcyukkuri/blockstates/den_barrier.json": "db3128b0566c3c853cb0e7258d551372a63801353c50a9a2feb25146050a1f54"
+  }
+}

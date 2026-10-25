@@ -4524,5 +4524,19 @@
     ],
     "status": "selected_for_runtime_pending_user_review",
     "scope": "Droppings heap block (life/PoopBlock, blockstate tier 1-4): native cuboid block models of tapering soft-serve coils in a hue-shifted bean-paste ramp; tier 1 one small dropping, 2 a pair, 3 a low pile under a swirl with two strays, 4 a mound nearly filling the cell floor. Heights 2/4/6/8 within the selection outlines; no collision. Project design; no user visual acceptance yet."
+  },
+  "den_barrier": {
+    "source": "standards/yukkuri-library/ecology/wild-shelters/den_barrier.py",
+    "exporter": "standards/yukkuri-library/ecology/wild-shelters/den_barrier.py",
+    "snapshot": "art/source/den-barrier",
+    "manifest": "art/source/den-barrier/manifest.json",
+    "preview_source": "standards/yukkuri-library/ecology/wild-shelters/preview_den_barrier.py",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/blockstates/den_barrier.json",
+      "src/main/resources/assets/mcyukkuri/models/block/den_barrier.json",
+      "src/main/resources/assets/mcyukkuri/textures/block/den_barrier.png"
+    ],
+    "status": "selected_for_runtime_pending_user_review",
+    "scope": "Den-mouth screen block (settlement/DenBarrierBlock, collision 14x16x14, no facing): native cuboid block model of twigs wedged into the soil, leaned along each side or tipped inward against the opposite side, a few fallen at 45 degrees, two forked shoots, a crossed loose wad of leaf litter in the middle, leaves pushed into gaps and scattered at the foot; nothing tied, knotted or woven; uneven tops and visible gaps. Hand-painted 64x64 texture from the wild_kit ramps. Project design (user request); no user visual acceptance yet."
   }
 }
