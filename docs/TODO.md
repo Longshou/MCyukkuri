@@ -12,7 +12,6 @@
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
-| 油库里互挡绕行与可推动 | `.worktrees/yukkuri-avoid` | `entity/YukkuriGroundNavigation.java`、`entity/YukkuriControl.java`、`entity/YukkuriEntity.java`（推挤／碰撞段）、`entity/RoamingGoal.java` |
 | 亲油陆上承托赤油（帽檐／口含／尾托） | `.worktrees/parent-carry` | `family/` 承托与运输（`CradlePickup` 邻近、新承托类）、`settlement/SettlementLife.java` 迁徙随行交接、客户端承托挂点（基础位置）、`scripts/museum_scenarios.py` 迁徙·赤油跟亲场景、`docs/SETTLEMENTS.md` 运输段、`docs/CHILDHOOD_LIFECYCLE.md` 子代运输段 |
 | 嗯嗯落块容量、嗯嗯奴隶与坑边排泄 | `.worktrees/poop-block` | 排泄物放置与新嗯嗯方块（`item/`、`registry/`、排泄相关 `life/` 段）、`settlement/SettlementSociety` 嗯嗯奴隶段、`scripts/museum_scenarios.py` 聚落嗯嗯坑场景、排泄与聚落所属专题 |
 
@@ -213,6 +212,7 @@
 
 ### 其他已接入玩法
 
+- **油库里互挡绕行与互相推挤**：已接入待试玩。[ac4ba87b](https://github.com/Longshou/MCyukkuri/commit/ac4ba87b6207183f67222d1da335c74564a321b6)（CI 40196337976）用户反馈一只挡住另一只路线时反复碰撞、既不绕行也不重算，油库里互相推不动，亲子被夹在窝里的两亲之间出不来。已核对：油库里之间没有硬碰撞，只有原版每 tick 约 0.03 的软推力，被步态覆盖；爬行步态每 tick 重写水平速度，推力对爬行的赤油完全无效。现按体型质量互推（轻者被推得更多、睡眠者减弱）并各自向右偏转，爬行时保留衰减的推力；地面导航发现停滞且前方有油库里时先侧步、再关闭该身体格重算路径、最后请空闲且清醒的挡路者让位，日志 `[move]`。规则见[行为与成长](BEHAVIOR.md)。看：`den_family`、`birth_nest_safe`（窝内双亲与赤油，赤油能从两亲之间出窝，亲代睡着时也被缓慢挤开）、聚落各场景与 `colony_migrate`（人多路窄处互让、不长期原地对撞），读 `[move] blocked by yukkuri` 的 action（sidestep／replanned／blocker_yields）与随后位置变化。完成：用户确认上述场景不再长期对撞或夹死，且护子、抱持、乘船与出生弹道不受影响；窝沿本身仍是真实低碰撞。窝内卡住的其余原因仍需现场读数。
 - **行为数值、成长与遗传**：五属性、对象关系与恐惧、技能学习和固定成长时钟已接入。完成标准：“五属性读数对照”的规则概率与任务预算符合公式；“固定成长边界”按实际tick换阶段；“特殊形态边界”不越界；“灵胖成年锁定”在成年边界锁定且不中断短动作。亲子分享、照护和翻船救援按友善作一次决策，普通失败冷却后才重选。见[正式设计](BEHAVIOR.md)与[试玩场](DEVELOPMENT.md)。
 - **数值改造适配**：修正初始商店资格／技能漏载、新生儿关系使用临时 UUID、中立对象无法首次问候。完成标准：`shop_build` 受训库存有原定徽章与六项技能，购买放出及重载保持；`birth_land_caught` 新生儿读取亲子关系，互动后收纳放出及重载继续累计；`balance_first_contact` 从亲近 0 开始普通问候并建立同伴关系，高恐惧仍按 `balance_relation` 退避。见[宠物店](PET_SHOP.md)、[正式设计](BEHAVIOR.md)与[试玩场](DEVELOPMENT.md)。
 

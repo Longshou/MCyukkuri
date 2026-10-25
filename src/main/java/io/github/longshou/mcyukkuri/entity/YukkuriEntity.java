@@ -364,7 +364,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
-            setDeltaMovement(dx*fraction, getDeltaMovement().y, dz*fraction);
+            setDeltaMovement(dx*fraction+crawlNudgeX, getDeltaMovement().y, dz*fraction+crawlNudgeZ);
+            crawlNudgeX*=.546;crawlNudgeZ*=.546;
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
         } else super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
     }
@@ -437,8 +438,46 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Actual body overlap, players and unrelated animals retain ordinary collision response.
         if(other instanceof YukkuriEntity peer&&careApproach.cooperatingWith(peer)
                 &&!getBoundingBox().intersects(peer.getBoundingBox()))return;
+        if(other instanceof YukkuriEntity rival&&rival!=this){bodyPush(rival);return;}
         super.push(other);
     }
+    /** Bodies that move on their own may be shoved; carried, boarded or launched ones follow their own carrier. */
+    boolean nudgeable() {
+        return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()
+                &&!family.cradleHeld()&&!family.travelFlight()&&!family.freeFalling();
+    }
+    private double bodyMass() { return getBbWidth()*getBbWidth()*getBbHeight(); }
+    /**
+     * Mutual body push between two yukkuri. Vanilla's 0.05 impulse is lost against a walking gait, so overlapping
+     * bodies press apart harder; the lighter body yields more, a resting one yields less, and both turn to their own
+     * right so a head-on pair slides past instead of cancelling. Called once per overlapping tick from each side.
+     */
+    private void bodyPush(YukkuriEntity peer) {
+        if(isPassengerOfSameVehicle(peer)||noPhysics||peer.noPhysics||(!nudgeable()&&!peer.nudgeable()))return;
+        double dx=peer.getX()-getX(),dz=peer.getZ()-getZ(),reach=(getBbWidth()+peer.getBbWidth())*.5;
+        double distance=Math.hypot(dx,dz);
+        if(distance<.01){ // exactly stacked bodies still separate, along an axis both sides agree on
+            double angle=Math.abs(getId()-peer.getId())*2.399963+Math.min(getId(),peer.getId());
+            dx=Math.cos(angle);dz=Math.sin(angle);
+            if(getId()>peer.getId()){dx=-dx;dz=-dz;}
+            distance=1;
+        }
+        double ux=dx/distance,uz=dz/distance,closeness=Math.clamp(1-distance/Math.max(reach,.05),0,1);
+        double strength=.035*(.5+.5*closeness),mine=bodyMass(),theirs=peer.bodyMass();
+        if(nudgeable())shove(-ux,-uz,strength*Math.clamp(2*theirs/(mine+theirs),.4,1.8)*(life.isSleeping()?.6:1));
+        if(peer.nudgeable())peer.shove(ux,uz,strength*Math.clamp(2*mine/(mine+theirs),.4,1.8)*(peer.life.isSleeping()?.6:1));
+    }
+    private void shove(double x,double z,double strength) {
+        double turn=.5,c=Math.cos(turn),s=Math.sin(turn);
+        nudge((x*c-z*s)*strength,(x*s+z*c)*strength);
+    }
+    /** A walking nudge. The crawl gait rewrites the horizontal velocity every tick, so crawlers keep a decaying carry. */
+    public void nudge(double x,double z) {
+        if(level().isClientSide)return;
+        if(isCrawling()){crawlNudgeX+=x;crawlNudgeZ+=z;}
+        else push(x,0,z);
+    }
+    private double crawlNudgeX,crawlNudgeZ;
     public IndependenceLife independence() { return independence; }
     public WinteringLife wintering() { return wintering; }
     public SubspeciesLife subspecies() { return subspecies; }
@@ -599,6 +638,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     public void aiStep() {
         if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
+        if (!isCrawling()) crawlNudgeX = crawlNudgeZ = 0;
         double movementX = getX(), movementZ = getZ();
         super.aiStep();
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
