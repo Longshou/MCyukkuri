@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
+import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -49,7 +50,10 @@ public interface HatBoatView {
     float dipYaw();
     long motionStartTick();
     float rockingAmplitude();
-    CompoundTag seatsSnapshot();
+    /** The deck: every body aboard with its seat id and kind, any walk, the load, a lift and the crowding display. */
+    CompoundTag deckSnapshot();
+    /** Synchronized load in units; the waterline rides lower with it. */
+    float hullLoad();
     CompoundTag cargoSnapshot();
     CompoundTag motionSnapshot();
 
@@ -68,23 +72,25 @@ public interface HatBoatView {
         int count = 0;
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {
             var stack = ItemStack.parseOptional(level().registryAccess(), (CompoundTag) raw);
-            if (!stack.isEmpty() && count < HatBoatCargo.CAPACITY)
-                count += Math.min(stack.getCount(), HatBoatCargo.CAPACITY - count);
+            if (!stack.isEmpty() && count < HatCargo.LARDER_MAX)
+                count += Math.min(stack.getCount(), HatCargo.LARDER_MAX - count);
         }
         return count;
     }
-    private int asideCount(CompoundTag tag, int count) {
-        return tag.getInt("Version") < 3 ? count : Math.clamp(tag.getInt("AsideCount"), 0, count);
-    }
+    /** How full the crown larder looks: 0 empty, 1 a little, 2 half full, 3 full. */
     default int visibleCargoTier() {
-        var tag = cargoSnapshot(); int count = cargoCount(tag);
-        return HatBoatCargo.tierFor(count - asideCount(tag, count));
+        return HatCargo.tierFor(cargoCount(cargoSnapshot()));
     }
-    default int visibleAsideTier() {
-        var tag = cargoSnapshot(); return HatBoatCargo.tierFor(asideCount(tag, cargoCount(tag)));
+    /** The hull's mode, to look up its deck layout. */
+    default HatVessel.Mode visibleMode() {
+        return isCradle() ? HatVessel.Mode.NEST : aquaticHull() ? HatVessel.Mode.AQUATIC_FLOAT : HatVessel.Mode.FLOAT;
+    }
+    /** How far the load sinks the hull below its empty waterline, in blocks. */
+    default float visibleSink() {
+        return (float) (DeckLayout.of(visibleMode()).sinkUnits(hullLoad()) * hullScale() / 16);
     }
     private CompoundTag seat(UUID rider) {
-        for (var raw : seatsSnapshot().getList("S", Tag.TAG_COMPOUND))
+        for (var raw : deckSnapshot().getList("S", Tag.TAG_COMPOUND))
             if (raw instanceof CompoundTag tag && tag.hasUUID("Id") && rider.equals(tag.getUUID("Id"))) return tag;
         return null;
     }
@@ -92,18 +98,20 @@ public interface HatBoatView {
         var tag = seat(rider);
         return tag == null ? null : new Vec3(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"));
     }
+    /** On a rim seat, by the seat kind the server gave (front brim, toilet rim, rescue rim), not by height. */
     default boolean visibleOnBrim(UUID rider) {
         var tag = seat(rider);
-        var mode=aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
-        return isAfloat() && tag != null && Math.abs(tag.getDouble("Y") - HatVessel.freeboard(mode)) < 1e-5
+        if (!isAfloat() || tag == null) return false;
+        String kind = tag.getString("Kind");
+        return (kind.equals("BRIM") || kind.equals("TOILET_RIM") || kind.equals("RESCUE_RIM"))
                 && !(tag.contains("At") && level().getGameTime() - tag.getLong("At") < tag.getInt("Ticks"));
     }
     default boolean visibleTransporting(UUID rider) {
-        var trip = seatsSnapshot().getCompound("Carry");
+        var trip = deckSnapshot().getCompound("Carry");
         return trip.hasUUID("Child") && (rider.equals(trip.getUUID("Child")) || rider.equals(ownerYukkuri()));
     }
     default String visibleCarryActivity(UUID rider) {
-        var trip = seatsSnapshot().getCompound("Carry");
+        var trip = deckSnapshot().getCompound("Carry");
         if (!trip.hasUUID("Child")) return Behaviors.IDLE;
         if (rider.equals(ownerYukkuri())) return Behaviors.BOAT_CARRY_YOUNG;
         if (!rider.equals(trip.getUUID("Child"))) return Behaviors.IDLE;
@@ -111,11 +119,11 @@ public interface HatBoatView {
         return phase == -2 ? Behaviors.HAT_WALK : phase == -1 ? Behaviors.BOAT_PREPARE_CARRY : phase == 5 ? Behaviors.BOAT_RELEASE_CARRY : Behaviors.BOAT_BE_CARRIED;
     }
     default float visibleCarrySeconds(float partial) {
-        var trip = seatsSnapshot().getCompound("Carry");
+        var trip = deckSnapshot().getCompound("Carry");
         return !trip.hasUUID("Child") ? 0 : (float) Math.max(0, (level().getGameTime() - trip.getLong("At") + partial) / 20.0);
     }
     private CompoundTag balance(UUID rider) {
-        for (var raw : seatsSnapshot().getCompound("Crowding").getList("R", Tag.TAG_COMPOUND)) {
+        for (var raw : deckSnapshot().getCompound("Crowding").getList("R", Tag.TAG_COMPOUND)) {
             var tag = (CompoundTag) raw;
             if (tag.hasUUID("Id") && rider.equals(tag.getUUID("Id"))) return tag;
         }
@@ -124,7 +132,7 @@ public interface HatBoatView {
     default String visibleCrowdingState(YukkuriView rider) {
         var tag = balance(rider.getUUID());
         if (rider.getUUID().equals(ownerYukkuri()))
-            return seatsSnapshot().getCompound("Crowding").getBoolean("Contesting") ? Behaviors.BOAT_CROWD_GUARD : Behaviors.IDLE;
+            return deckSnapshot().getCompound("Crowding").getBoolean("Contesting") ? Behaviors.BOAT_CROWD_GUARD : Behaviors.IDLE;
         int mode = tag == null ? 0 : Math.clamp(tag.getInt("Mode"), 0, 4);
         if (mode == 3) return Behaviors.HAT_SLIPPING;
         if (mode == 2) return Behaviors.HAT_JOSTLE;
@@ -132,7 +140,7 @@ public interface HatBoatView {
         return rider.vehicleId() == getId() && (rocking() || visibleDrifting()) ? Behaviors.HAT_STUMBLE : Behaviors.IDLE;
     }
     default long visibleCrowdingPhaseStart(UUID rider) {
-        if (rider.equals(ownerYukkuri())) return seatsSnapshot().getCompound("Crowding").getLong("GuardAt");
+        if (rider.equals(ownerYukkuri())) return deckSnapshot().getCompound("Crowding").getLong("GuardAt");
         var tag = balance(rider);
         return (tag == null ? motionStartTick() : tag.getLong("Since")) - Math.floorMod(rider.hashCode(), 13);
     }

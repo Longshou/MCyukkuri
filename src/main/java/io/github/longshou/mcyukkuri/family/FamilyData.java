@@ -556,11 +556,12 @@ public final class FamilyData extends SavedData {
         if(mine==null)return true;
         // This is only the unborn BABY=2 preflight. The identified child is admitted below through the boat's atomic
         // reservation, so food, paddles, incoming riders and retained voyage berths all count in both checks.
-        if(mine.prepareBirthCargoSpace()&&mine.hasRoomForYoung())return true;
+        // The mother may push the cheapest portion over the rim for her newborn; a partner's food is never touched.
+        if(mine.makeRoomForNewborn(true))return true;
         var other=waterBirthPartner(brood,mine,level,position);
         if(other==null)return false;
         if(fatherBusy(brood,level))return false;
-        return other.prepareBirthCargoSpace()&&other.hasRoomForYoung();
+        return other.makeRoomForNewborn(false);
     }
 
     private HatBoatEntity waterBirthPartner(Brood brood,HatBoatEntity mine,ServerLevel level,Vec3 position){
@@ -595,7 +596,7 @@ public final class FamilyData extends SavedData {
     }
 
     private boolean canReserveBirth(HatBoatEntity boat,YukkuriEntity child,double reach){
-        if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||!boat.hasRoomFor(child))return false;
+        if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||!boat.canBoard(child))return false;
         var seat=boat.peekSeat(child);
         return seat!=null&&boat.toWorld(seat).subtract(child.position()).horizontalDistance()<=reach;
     }
@@ -676,7 +677,7 @@ public final class FamilyData extends SavedData {
         YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         boolean noCushion=scene!=null&&scene.family().withholdsCushion();
         var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
-                cradle->cradle.catches()&&cradle.young(entity)&&cradle.hasRoomForYoung()).stream().min(Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
+                cradle->cradle.catches()&&cradle.young(entity)&&cradle.canAdmitNewborn()).stream().min(Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
         boolean landBirth=boat==null&&waterHat==null&&scene!=null;
         if(hat!=null&&landBirth) {
             // On land the push is random, not a preset catch or miss: a strong or crooked one carries the kit past the seat.

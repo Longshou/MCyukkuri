@@ -188,7 +188,12 @@ final class HatHullMotion {
         agitation=Math.min(MAX_AGITATION,agitation+Math.max(1,strength));
         var m=new CompoundTag();m.putLong("RockAt",now);
         m.putInt("Side",source!=null?(boat.toLocal(source.position()).x>=0?-1:1):(((now/7)&1)==0?1:-1));
-        m.putFloat("Amplitude",Math.min(12f,8f+agitation*.8f));boat.syncMotion(m);
+        // A full hull rolls more: the load's roll factor (hat_frames.json roll_by_load) scales the sway, up to 18 degrees.
+        float roll=(float)boat.rollFactor();
+        float amplitude=Math.min(18f,Math.min(12f,8f+agitation*.8f)*roll);
+        m.putFloat("Amplitude",amplitude);boat.syncMotion(m);
+        // In a roll of 15 degrees or more the stowed stick may slide off the left brim into the water (project design, ecology A9).
+        if(amplitude>=15f&&boat.cargo().paddle()&&!boat.paddling()&&boat.level().random.nextDouble()<.10)boat.cargo().slideStickOverboard(amplitude);
         boat.helm().shaken(12);boat.markHullHurt();
         // Only a captain who really has children to gather calls them (the alarm itself checks); everyone else just reacts to the shove.
         var captain=boat.owner();if(captain!=null)captain.aquaticLife().familyLife().alarm().start(boat,source,source==null?null:source.position());
@@ -203,13 +208,13 @@ final class HatHullMotion {
         if(agitation>=3&&boat.level() instanceof ServerLevel server){
             for(var p:riders){
                 if(!(p instanceof YukkuriEntity y)||p.getUUID().equals(boat.ownerYukkuri())||!boat.crowdMovable(y))continue;
-                double chance=(boat.onBrim(y)?.14:.03)*(agitation-2);
+                double chance=(boat.onBrim(y)?.14:.03)*(agitation-2)*boat.rollFactor();
                 if(server.random.nextDouble()>=chance)continue;
                 var local=boat.toLocal(y.position());var outward=new Vec3(local.x,0,local.z);
                 if(outward.lengthSqr()<1e-6)outward=new Vec3(0,0,-1);
                 if(boat.crowdFall(y,local,outward,source==null?null:source.getUUID()))agitation=Math.max(0,agitation-1);
             }
-            if(agitation>=5&&server.random.nextDouble()<.2){boat.capsize();return true;}
+            if(agitation>=5&&server.random.nextDouble()<.2*boat.rollFactor()){boat.capsize();return true;}
         }
         return true;
     }

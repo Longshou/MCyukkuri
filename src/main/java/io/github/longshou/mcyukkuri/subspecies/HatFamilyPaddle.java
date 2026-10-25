@@ -110,7 +110,7 @@ public final class HatFamilyPaddle {
     }
     /** Recover the exact lost cargo paddle while it is still in reach of its own righted boat. */
     public boolean recoverOwnPaddle(HatBoatEntity boat){
-        if(!recoveryAvailable(boat)||boat.cargo().paddle()||ownDroppedPaddle==null||boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
+        if(!recoveryAvailable(boat)||boat.cargo().paddle()||ownDroppedPaddle==null||boat.remainingCapacity()<boat.paddleLoad())return false;
         var entity=((ServerLevel)owner.level()).getEntity(ownDroppedPaddle);
         if(!(entity instanceof ItemEntity item)||!usableFloating(boat,item,true)){ownDroppedPaddle=null;return false;}
         if(!onOwnDeck(boat,item)&&boat.distanceToSqr(item)>2.25)return false;
@@ -144,7 +144,7 @@ public final class HatFamilyPaddle {
         }
         if(++elapsed>600){stop("timeout");return false;}
         if(!held.isEmpty())return handOver(boat,child);
-        if(boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
+        if(boat.remainingCapacity()<boat.paddleLoad())return false;
         if(berth==null&&!find(boat)){stop("no_source_or_route");return false;}
         if(branch!=null&&(!level.hasChunkAt(branch)||!level.getBlockState(branch).equals(branchState))) {stop("branch_changed");return false;}
         if(floating!=null&&(!floating.isAlive()||floating.hasPickUpDelay()||!floating.isInWater()

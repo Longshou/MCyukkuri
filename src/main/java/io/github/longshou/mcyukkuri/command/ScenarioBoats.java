@@ -34,7 +34,7 @@ import net.minecraft.world.phys.Vec3;
  * afterwards belong to ordinary goals; external causes (a shaken or struck hull, fire) come from real player actions.
  */
 final class ScenarioBoats {
-    private static final int DEFAULT_FOOD = 2;
+    private static final int DEFAULT_FOOD = 2, MAX_SCENARIO_YOUNG = 16;
     private static final Pattern OPTION = Pattern.compile("([a-z]+)=(\\S+)");
 
     /** Parses {@code key=value} options separated by spaces. Returns the map, or null with the reason in {@code error[0]}. */
@@ -62,12 +62,12 @@ final class ScenarioBoats {
             food = Integer.parseInt(opt.getOrDefault("food", Integer.toString(DEFAULT_FOOD)));
             paddle = !opt.getOrDefault("paddle", "1").equals("0");
         } catch (NumberFormatException ex) { return "food 要是整数。"; }
-        if (food < 0 || food > 11) return "food 要在 0 到 11 之间（桨占 1 份，容量 12）。";
+        if (food < 0 || food > 12) return "food 要在 0 到 12 之间（粮袋最多 12 份，每份 0.5 载重；桨 1 载重，总载重 12）。";
         if (!(parent.level() instanceof ServerLevel level) || !parent.isAlive() || !parent.profile().aquatic())
             return "亲船的主角必须是活着的水生魔理沙。";
         if (!parent.aquaticLife().firstVoyage().mayLaunch()) return "直接水上生成需要成年帽主，或已完成初航、具备操帽能力的子油。";
         if (!level.hasChunkAt(bank)) return "岸边格所在区块没有加载。";
-        if (young.contains(parent) || young.size() > HatBoatEntity.MAX_YOUNG || new HashSet<>(young).size() != young.size())
+        if (young.contains(parent) || young.size() > MAX_SCENARIO_YOUNG || new HashSet<>(young).size() != young.size())
             return "幼体名单不合法。";
         var actors = new ArrayList<YukkuriEntity>();
         actors.add(parent);
@@ -103,7 +103,7 @@ final class ScenarioBoats {
         scenarioTransaction.establishTemporaryKin();
         for (var child : young) {
             // Ask for an existing safe refuge layout; the shared capacity limit still applies.
-            if (!boat.hasRoomFor(child)) boat.requestEmergencyBerth(child);
+            if (!boat.canBoard(child)) boat.requestEmergencyBerth(child);
             if (!boat.boardYoung(child)) return abort(boat, parent, parentPose, scenarioTransaction, child.getName().getString() + " 没能上船（船满了或还不能载）。");
         }
         String kinCommitRefusal = scenarioTransaction.commitRealKin();

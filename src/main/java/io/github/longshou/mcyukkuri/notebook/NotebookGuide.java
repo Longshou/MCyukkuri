@@ -16,7 +16,6 @@ import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.subspecies.AquaticShore;
 import io.github.longshou.mcyukkuri.subspecies.FirstVoyage;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatCargo;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Locale;
 
@@ -95,9 +94,9 @@ public final class NotebookGuide {
         if(boat==null)return Component.translatable("notebook.mcyukkuri.chapter.aquatic");
         return Component.translatable("notebook.mcyukkuri.aquatic_status",
                 Component.translatable("subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(Locale.ROOT)),
-                boat.cargo().paddle()?"✓":"—",boat.capacityUsed(),HatBoatCargo.CAPACITY,
+                boat.cargo().paddle()?"✓":"—",String.format(Locale.ROOT,"%.1f",boat.capacityUsed()),String.format(Locale.ROOT,"%.0f",boat.maxLoad()),
                 boat.youngAboard(),Component.translatable("notebook.mcyukkuri.hat_space."+
-                        (boat.overcrowded()?"crowded":boat.hasRoomForYoung()?"available":"full")),
+                        (boat.overcrowded()?"crowded":boat.canAdmitNewborn()?"available":"full")),
                 Component.translatable("activity.mcyukkuri."+entity.getBehaviorId()));
     }
     public static Component aquaticFamily(YukkuriEntity entity) {

@@ -101,10 +101,10 @@ final class HatBoatCrowding {
         // Growth and returning siblings can compress real bodies even without a predator or panic.
         // Only measured overlap generates pressure; an empty reservation and head count never do.
         for(var child:actual){
-            if(!boat.crowdMovable(child)||child.isNoAi()||child.isCommandPlaying()||child.operations().active())continue;
+            if(!boat.crowdPressable(child)||child.isNoAi()||child.isCommandPlaying()||child.operations().active())continue;
             var at=boat.toLocal(child.position());
             for(var other:actual){
-                if(other==child||!boat.crowdMovable(other))continue;
+                if(other==child||!boat.crowdPressable(other))continue;
                 var where=boat.toLocal(other.position());
                 if(at.y>=where.y+other.getBbHeight()/boat.unit()-.1
                         ||at.y+child.getBbHeight()/boat.unit()<=where.y+.1)continue;
@@ -123,18 +123,25 @@ final class HatBoatCrowding {
         for(var child:actual){
             var b=entry(child);
             if(b.touched<now()-2){b.contacts=0;b.pusher=null;if(b.mode!=4)mode(b,boat.rocking()?1:0);}
-            if(danger&&!child.isNoAi()&&!child.isCommandPlaying()&&!child.operations().active()
+            if(danger&&boat.changingSeat(child)&&emergency(child.getUUID()))mode(b,4);
+            else if(danger&&!child.isNoAi()&&!child.isCommandPlaying()&&!child.operations().active()
                     &&boat.crowdMovable(child)&&(emergency(child.getUUID())||child.isPanicking()||boat.onBrim(child))){
-                var from=boat.toLocal(child.position());var target=boat.toLocal(parent.position());
-                double safe=boat.crowdRadius(child)+boat.crowdRadius(parent)+.25;
-                if(from.subtract(target).horizontalDistance()>safe||from.y>=HatVessel.freeboard(boat.mode())-.1){
-                    if(b.contacts==0)mode(b,4);
-                    var direction=target.subtract(from).multiply(1,0,1).normalize();
-                    attempt(child,direction.scale(.035),actual,parent,new HashSet<>(),0,null,true);
-                }else if(b.mode==4)mode(b,boat.rocking()?1:0);
+                if(boat.crowdPressable(child)){
+                    var from=boat.toLocal(child.position());var target=boat.toLocal(parent.position());
+                    double safe=boat.crowdRadius(child)+boat.crowdRadius(parent)+.25;
+                    if(from.subtract(target).horizontalDistance()>safe||from.y>=HatVessel.freeboard(boat.mode())-.1){
+                        if(b.contacts==0)mode(b,4);
+                        var direction=target.subtract(from).multiply(1,0,1).normalize();
+                        attempt(child,direction.scale(.035),actual,parent,new HashSet<>(),0,null,true);
+                    }else if(b.mode==4)mode(b,boat.rocking()?1:0);
+                }else{
+                    // A seated child on a rim runs for an inner seat: the deck walks or hops it there.
+                    if(boat.onBrim(child)&&now()%20==0&&boat.requestInnerRefuge(child))mode(b,4);
+                    else if(b.mode==4&&!boat.changingSeat(child))mode(b,boat.rocking()?1:0);
+                }
             }
             else if(b.mode==4)mode(b,boat.rocking()?1:0);
-            if(b.falling<0&&boat.crowdMovable(child))move(child,Vec3.ZERO,parent,null);
+            if(b.falling<0&&boat.crowdPressable(child))move(child,Vec3.ZERO,parent,null);
             if(b.contacts>=4)contesting=true;
         }
         if(contesting&&!wasContesting){guardAt=now();dirty=true;parent.showReaction("surprise","wait_family",40);}
@@ -144,7 +151,7 @@ final class HatBoatCrowding {
     }
     private boolean attempt(YukkuriEntity actor,Vec3 delta,List<YukkuriEntity> children,YukkuriEntity parent,
                             HashSet<UUID> visited,int depth,UUID responsible,boolean allowReaction){
-        if(depth>4||!visited.add(actor.getUUID())||!boat.crowdMovable(actor))return false;
+        if(depth>4||!visited.add(actor.getUUID())||!boat.crowdPressable(actor))return false;
         var at=boat.toLocal(actor.position());var proposed=at.add(delta);var centre=boat.toLocal(parent.position());
         double parentClear=boat.crowdRadius(parent)+boat.crowdRadius(actor);
         if(proposed.subtract(centre).horizontalDistance()<parentClear){
@@ -256,7 +263,6 @@ final class HatBoatCrowding {
             }else next=new Vec3(next.x,at.y,next.z);
         }
         else {b.falling=0;next=new Vec3(next.x,Math.max(at.y,support),next.z);}
-        if(!boat.cargoSeatClear(child,next))return false;
         boolean reached=boat.crowdPosition(child,next);
         b.movedDistance+=boat.toLocal(child.position()).subtract(at).horizontalDistance();dirty=true;return reached;
     }

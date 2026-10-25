@@ -225,7 +225,7 @@ public final class FirstVoyage {
         if(phase!=Phase.NONE)return false;
         var own=HatBoatEntity.owned(child);var parent=person(parentHat.ownerYukkuri());
         if(own==null||own.unsteadyMotion()||child.getVehicle()!=own||!own.protects(child)||!safeHome(parentHat,parent))return false;
-        boolean room=parentHat.cargo().count()==0?parentHat.hasSafeRoomFor(child):parentHat.canPrepareCargoSpace(child);
+        boolean room=parentHat.canMakeRoom(child,false);
         if(!room&&!emergency&&!emergencyReturn(own))return false;
         mentor=parent.getUUID();homeHat=parentHat.getUUID();elapsed=0;reachedTurn=false;leavingHome=false;
         emergencyRecall=emergency||emergencyReturn(own);
@@ -425,7 +425,7 @@ public final class FirstVoyage {
                     +" d="+(approach==null?-1:Math.sqrt(boat.position().distanceToSqr(approach)))+" home="+AquaDiag.at(home.position())+" paddling="+boat.paddling()
                     +" boarding="+child.family().hatBoardingDebug());
             boolean room=home.voyageBerth(child)!=null||completed&&!leavingHome
-                    &&((home.cargo().count()==0?home.hasSafeRoomFor(child):home.canPrepareCargoSpace(child))||emergencyReturn(boat));
+                    &&(home.canMakeRoom(child,false)||emergencyReturn(boat));
             if(room&&approach!=null&&boat.protects(child)&&!child.family().flying()){
                 double near=boat.position().distanceToSqr(approach);
                 // Within a stride of the contact point the paddle is put away and the hull is eased the last bit alongside the

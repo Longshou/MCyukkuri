@@ -238,7 +238,7 @@ final class LiveDelivery {
                     &&reducesBoatLoad(motherHat,fatherHat,child)){waterPartnerChild=child.getUUID();break;}
         }
         if(waterPartnerChild==null||!(o.level().getEntity(waterPartnerChild) instanceof YukkuriEntity child)
-                ||!transferChild(child,motherHat,mother)||!fatherHat.hasRoomFor(child))return false;
+                ||!transferChild(child,motherHat,mother)||!fatherHat.canBoard(child))return false;
         var approach=approachWaterPartner(fatherHat,motherHat,mother);
         if(approach==HullHelm.State.BLOCKED)return false;
         if(approach==HullHelm.State.MOVING)return true;
@@ -278,15 +278,15 @@ final class LiveDelivery {
     }
     private static boolean safePartnerHull(YukkuriEntity parent,HatBoatEntity boat){
         return transferReady(parent)&&boat.isAfloat()&&!boat.unsteadyMotion()&&boat.flooding()<=0
-                &&!boat.landing()&&!boat.cargo().handling()&&!parent.family().braidRescueActive()
+                &&!boat.landing()&&!parent.family().braidRescueActive()
                 &&!parent.aquaticLife().care().active()&&!parent.aquaticLife().familyLife().alarm().active();
     }
     /** A read-only-in-effect reservation round proves this particular child's real body-plus-return-paddle load lowers the total imbalance. */
     private boolean reducesBoatLoad(HatBoatEntity motherHat,HatBoatEntity fatherHat,YukkuriEntity child){
-        if(!fatherHat.hasRoomFor(child))return false;
-        int motherUsed=motherHat.capacityUsed(),fatherUsed=fatherHat.capacityUsed();
+        if(!fatherHat.canBoard(child))return false;
+        double motherUsed=motherHat.capacityUsed(),fatherUsed=fatherHat.capacityUsed();
         if(fatherHat.reserveRescueBrim(child,child.position())==null)return false;
-        int load=fatherHat.capacityUsed()-fatherUsed;fatherHat.cancelIncoming(child);
+        double load=fatherHat.capacityUsed()-fatherUsed;fatherHat.cancelIncoming(child);
         return load>0&&Math.abs((motherUsed-load)-(fatherUsed+load))<Math.abs(motherUsed-fatherUsed);
     }
     private static boolean transferReady(YukkuriEntity parent){

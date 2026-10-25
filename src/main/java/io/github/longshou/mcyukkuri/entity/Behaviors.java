@@ -48,7 +48,6 @@ public final class Behaviors {
     public static final String BOAT_RELEASE_CARRY = "boat_release_carry";
     public static final String BOAT_RESCUE_APPROACH = "boat_rescue_approach";
     public static final String BOAT_RESCUE_YOUNG = "boat_rescue_young";
-    public static final String BOAT_RETRIEVE_FOOD = "boat_retrieve_food";
     public static final String BOAT_RETURN_CALLED = "boat_return_called";
     public static final String BOAT_RETURN_FAMILY = "boat_return_family";
     public static final String BOAT_ROCK_STARTLE = "boat_rock_startle";
@@ -57,7 +56,6 @@ public final class Behaviors {
     public static final String BOAT_SEEK_REST = "boat_seek_rest";
     public static final String BOAT_SLEEP = "boat_sleep";
     public static final String BOAT_STEADY = "boat_steady";
-    public static final String BOAT_STOW_FOOD = "boat_stow_food";
     public static final String BOAT_TOILET = "boat_toilet";
     public static final String BOAT_WAIT_YOUNG = "boat_wait_young";
     public static final String BRAID_BE_RESCUED = "braid_be_rescued";

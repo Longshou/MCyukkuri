@@ -14,7 +14,7 @@ import org.joml.Matrix4f;
 
 /** Preserve opaque passengers/cargo before the depth-only water screen is submitted, still before world water. */
 public final class HatWaterMaskPass {
-    private record Mask(Matrix4f transform,float unit,HatVessel.Mode mode) {}
+    private record Mask(Matrix4f transform,float unit,HatVessel.Mode mode,float sink) {}
     private static final Map<Integer,Mask> PENDING=new LinkedHashMap<>();
     private static ClientLevel frameLevel;
     private static boolean collecting;
@@ -22,7 +22,7 @@ public final class HatWaterMaskPass {
     static void enqueue(HatBoatView boat,PoseStack pose) {
         if(!collecting||boat.level()!=frameLevel||!(boat.isAfloat()||boat.isMoored()))return;
         var mode=boat.aquaticHull()?HatVessel.Mode.AQUATIC_FLOAT:HatVessel.Mode.FLOAT;
-        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16,mode));
+        PENDING.put(boat.getId(),new Mask(new Matrix4f(pose.last().pose()),boat.hullScale()/16,mode,boat.visibleSink()));
     }
 
     public static void renderStage(RenderLevelStageEvent event) {
@@ -40,7 +40,8 @@ public final class HatWaterMaskPass {
         buffers.endBatch();
         var mask=buffers.getBuffer(RenderType.waterMask());
         for(var entry:PENDING.values()) {
-            float unit=entry.unit(),y=-HatVessel.freeboard(entry.mode())*unit+.03f;var ring=HatVessel.mask(entry.mode());
+            // A loaded hull rides lower with its seats, but the water screen stays at the true waterline.
+            float unit=entry.unit(),y=-HatVessel.freeboard(entry.mode())*unit+.03f+entry.sink();var ring=HatVessel.mask(entry.mode());
             // Convex authored opening: triangulate its fan from vertex 0 in both windings for the depth-only pass.
             for(int face=0;face<2;face++)for(int i=1;i+1<ring.length;i++) {
                 int a=0,b=face==0?i:i+1,c=face==0?i+1:i;

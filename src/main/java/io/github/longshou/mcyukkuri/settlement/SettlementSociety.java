@@ -49,7 +49,7 @@ public final class SettlementSociety {
         if (!member.profile().aquatic() || !(member.getVehicle() instanceof HatBoatEntity boat)) return false;
         return member.getUUID().equals(boat.ownerYukkuri()) && boat.isAfloat() && boat.protects(member)
                 && !boat.unsteadyMotion() && boat.flooding() == 0 && !boat.paddling()
-                && !boat.landing() && !boat.hasIncoming() && !boat.cargo().handling();
+                && !boat.landing() && !boat.hasIncoming();
     }
     /** Recognition past a missing hat is the observer's intellect (headwear.Recognition); a working own hat boat still counts as the hat. */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {

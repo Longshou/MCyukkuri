@@ -253,7 +253,7 @@ public final class HatFamilyAlarm {
             entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().braidRescueActive()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
-                boat.prepareCargoSpace(child,true);
+                boat.makeRoom(child,true);
             if(!child.isPassenger()&&child.family().rescueIntoHat(boat)){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
@@ -341,7 +341,7 @@ public final class HatFamilyAlarm {
     }
     public boolean approachRescue(HatBoatEntity boat,YukkuriEntity child){
         if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
-            boat.prepareCargoSpace(child,true);
+            boat.makeRoom(child,true);
         var berth=child.family().braidRescueApproach(boat);if(berth==null)return false;
         approachExact(boat,berth);return true;
     }

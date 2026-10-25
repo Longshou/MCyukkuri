@@ -1227,7 +1227,7 @@
     "status": "StatusLife",
     "mind": "MindLife",
     "operations": "OperationLife",
-    "cargo": "HatBoatCargo"
+    "cargo": "HatCargo"
   },
   "constant_dependencies": [
     {

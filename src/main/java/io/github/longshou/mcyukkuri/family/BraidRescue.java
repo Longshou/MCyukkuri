@@ -177,13 +177,10 @@ public final class BraidRescue {
         }
         // A dry infant may use this same lift to board routinely. Only a real
         // rescue sacrifices provisions; ordinary boarding puts them aside.
-        if(home.cargo().count()>0&&!home.prepareCargoSpace(child,emergency))return false;
+        if(!home.makeRoom(child,emergency))return false;
         retryAt=now+20;
         var plan=plan(parent,home,rim);
         if(plan==null){
-            // A free child berth alone may leave no route for the parent's braid.
-            // Move provisions only after this concrete dry lift failed to fit.
-            if(!emergency&&home.cargo().innerCount()>0&&!home.prepareManipulationCargoSpace(child)&&home.cargo().handling())return false;
             AquaDiag.log(child,"rescue.refuse."+child.getId(),40,"plan null gap="+rim.gap());
             failedSides.put(side(rim.ux(),rim.uz()),now+200);return false;
         }
@@ -268,10 +265,12 @@ public final class BraidRescue {
     }
     /** Choose the child's seat and the parent's rim stands together, with the whole slide pre-swept against both bodies. */
     private Plan plan(YukkuriEntity parent,HatBoatEntity home,Rim rim){
-        double unit=home.unit(),rp=HatVessel.radius(parent.getBbWidth())/unit,rc=HatVessel.radius(child.getBbWidth())/unit;
-        double tx=-rim.uz(),tz=rim.ux(),lateral=rp+rc+.4,pull=.03/unit;
+        // The parent can only stand on the captain's seats of the deck; the child lands on one of its free seats.
         var seats=new ArrayList<>(home.rescueYoungCandidates(child));
         seats.sort(Comparator.comparingDouble(at->home.toWorld(at).distanceToSqr(child.position())));
+        var stands=new ArrayList<>(home.rescueOwnerCandidates(parent,child));
+        stands.removeIf(at->home.toWorld(at).distanceToSqr(child.position())>9);
+        stands.sort(Comparator.comparingDouble(at->Math.hypot(at.x-rim.x(),at.z-rim.z())));
         for(boolean requireBraid:new boolean[]{true,false}){
         if(!requireBraid&&!canBite())break;
         int checked=0,scanned=0,noBraid=0,noPlace=0,noSlide=0,noReserve=0,offers=0;
@@ -280,13 +279,9 @@ public final class BraidRescue {
             var at=home.toWorld(young);
             if(BraidRescueGeometry.envelopeClearance(child,home,at)>at.y+.002)continue;
             checked++;
-            for(double depth:new double[]{1.2,1.5,2.0,2.5,3.0})for(double offset:new double[]{0,lateral*.3,-lateral*.3,lateral*.6,-lateral*.6,lateral,-lateral}){
-                double ox=rim.x()-rim.ux()*rp*depth+tx*offset,oz=rim.z()-rim.uz()*rp*depth+tz*offset;
-                double oy=HatVessel.footprint(home.mode(),ox,oz,rp);
-                if(!Double.isFinite(oy)||!Double.isFinite(HatVessel.surface(home.mode(),ox,oz)))continue;
-                var offer=new Vec3(ox,oy,oz);
-                double ax=ox-rim.ux()*pull,az=oz-rim.uz()*pull,ay=HatVessel.footprint(home.mode(),ax,az,rp);
-                var approach=Double.isFinite(ay)&&Double.isFinite(HatVessel.surface(home.mode(),ax,az))?new Vec3(ax,ay,az):offer;
+            for(var stand:stands){
+                var offer=stand;
+                var approach=stand;
                 var turn=braidPath(parent,home,young,offer);boolean braid=turn!=null;offers++;
                 if(braid!=requireBraid){if(requireBraid)noBraid++;continue;}
                 if(!home.canPlaceRescuePair(child,parent,young,offer)||!home.canPlaceRescuePair(child,parent,young,approach)){noPlace++;continue;}

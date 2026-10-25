@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.EnumMap;
@@ -137,10 +138,11 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if(boat==null)return state+" boat=none heldPaddle="+hasStick()
                 +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
         var cargo=boat.cargo();
-        return state+" boat=#"+boat.getId()+" used="+boat.capacityUsed()+"/"+HatBoatCargo.CAPACITY+" remaining="+boat.remainingCapacity()
-                +" young="+boat.youngAboard()+" incoming="+boat.hasIncoming()+" food="+cargo.count()+" inner="+cargo.innerCount()
-                +" aside="+cargo.asideCount()+" paddle="+cargo.paddle()+" cargoUsed="+cargo.usedCapacity()
-                +" foodRemaining="+cargo.remainingCapacity()+" handling="+cargo.handling()+" heldPaddle="+hasStick()
+        return state+" boat=#"+boat.getId()+" load="+String.format(Locale.ROOT,"%.1f/%.0f",boat.capacityUsed(),boat.maxLoad())
+                +" remaining="+String.format(Locale.ROOT,"%.1f",boat.remainingCapacity())
+                +" young="+boat.youngAboard()+" incoming="+boat.hasIncoming()+" food="+cargo.count()+" larderRoom="+cargo.remainingCapacity()
+                +" paddle="+cargo.paddle()+" heldPaddle="+hasStick()
+                +" assignment=["+boat.assignmentText()+"] lastRefusal="+boat.lastDeckRefusal()
                 +" familyPaddle="+familyPaddle.activity()+" handoff="+familyPaddle.handingOver();
     }
     public boolean resting() { return Behaviors.BOAT_SLEEP.equals(activity) || Behaviors.BOAT_LULLABY.equals(activity); }
@@ -298,7 +300,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!EcologyRoutines.aquaticVoyage(entity) || hasPaddleForReturn() || !stack.is(Items.STICK)
                 || entity.family().flying() || entity.family().braidRescueActive() || entity.waterDistress().receivingWaterRescue()) return false;
         if(entity.getVehicle() instanceof HatBoatEntity boat&&!entity.getUUID().equals(boat.ownerYukkuri())
-                &&boat.remainingCapacity()<HatBoatCargo.PADDLE_UNITS)return false;
+                &&boat.remainingCapacity()<boat.paddleLoad())return false;
         int before=stack.getCount();
         stick = creative ? stack.copyWithCount(1) : stack.split(1);
         GameplayLog.event(entity,"aquatic","paddle received sourceCount={} -> {} held={} creative={}",
@@ -417,7 +419,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.protects(entity)) return true;
         if (!boat.isAfloat() || boat.unsteadyMotion() || boat.flooding() > 0
                 || boat.landing() || boat.transportingInHat(entity)
-                || boat.hasIncoming() || boat.cargo().handling() || !expectedYoung.isEmpty()
+                || boat.hasIncoming() || !expectedYoung.isEmpty()
                 || shoreVisitRequested || firstVoyage.active() || care.active() || familyPaddle.active()
                 || shoreForage.active() || entity.family().laboring() || entity.family().braidRescueActive()
                 || familyLife.alarm().preventsOuting() || entity.isPanicking()) return true;
@@ -815,7 +817,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             // may she lift a newborn that is floating at her rim, and the next push waits for it (FamilyLife.advanceLive).
             yieldAllBut(BoatTask.LABOR); boat.helm().drift(entity, Purpose.CARE);
             if (entity.family().deliveryGap() && familyLife.gapRescue(boat)) activity = Behaviors.BOAT_RESCUE_YOUNG;
-            else if(boat.cargo().handling())activity=boat.cargo().activity();
             return;
         }
         if (entity.life().mealTicks() > 0) { yieldAllBut(BoatTask.EATING); boat.helm().drift(entity, Purpose.ROUTINE); activity = Behaviors.BOAT_EAT; return; }
@@ -847,17 +848,8 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (familyLife.tickOwner(boat)) {
             yieldAllBut(BoatTask.FAMILY_ROUTE);
             activity=familyLife.activity();
-            if(boat.cargo().handling()&&!familyLife.alarm().active()&&!entity.family().braidRescueActive()
-                    &&(activity.equals(Behaviors.BOAT_WAIT_YOUNG)||activity.equals(Behaviors.BOAT_SLEEP))){
-                entity.life().wakeInHat();boat.helm().hold(entity, Purpose.CARGO);activity=boat.cargo().activity();
-            }else yieldAllBut(BoatTask.FAMILY_CARE_YIELD);
+            yieldAllBut(BoatTask.FAMILY_CARE_YIELD);
             return;
-        }
-        // Cargo work yields to rescue above, but retains a live care transaction.
-        // Its meal and seat must survive the short move-aside/retrieve animation.
-        if (boat.cargo().handling()) {
-            yieldAllBut(BoatTask.CARGO);
-            boat.helm().hold(entity, Purpose.CARGO); activity=boat.cargo().activity(); return;
         }
         if (boat.overcrowded()) {
             yieldAllBut(BoatTask.CROWD_GUARD); boat.helm().hold(entity, Purpose.SAFETY);
@@ -1070,16 +1062,13 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (entity.family().braidRescueActive() || boat.hasIncoming()) return;
         if (elapsed%10 != 0) return;
         for (var young : youngOnBank(boat)) {
-            if(boat.cargo().count()==0&&!boat.hasSafeRoomFor(young)) {
-                GameplayLog.limited(entity, "aquatic", "boarding.no_safe_room", 200,
-                        "boarding wait child={} reason=no_safe_room hat={} capacityUsed={}", young.getUUID(), boat.getUUID(), boat.capacityUsed());
-                continue;
-            }
             if (expectedYoung.contains(young.getUUID()) && !young.isPanicking() && young.life().mealTicks() == 0
                     && !young.life().hasUrgentNeed() && !young.life().isSleeping()
                     && young.distanceToSqr(boat) <= 6.25 && young.hasLineOfSight(boat) && young.onGround()) {
-                if(boat.cargo().count()>0&&!boat.prepareCargoSpace(young,false)){
-                    if(boat.cargo().handling())break;
+                // Making room is an explicit decision: an idle sibling may be moved, food never is.
+                if(!boat.makeRoom(young,false)){
+                    GameplayLog.limited(entity, "aquatic", "boarding.no_room", 200,
+                            "boarding wait child={} reason=no_room hat={} {}", young.getUUID(), boat.getUUID(), boat.roomDebug(young));
                     continue;
                 }
                 if (young.childhood().canJump() && young.family().stage() != FamilyLife.Stage.BABY) {
@@ -1122,7 +1111,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
             case TRANSPORT, PASSENGER_ACTIVITY, PADDLE -> daily.yieldToOtherActivity();
             case TOWED, LABOR, EATING, URGENT_FOOD, DISTRESS -> { daily.stop(); care.cancel(); }
             case DRINKING, FAMILY_WAIT, NO_PADDLE, SELF_FEED, GATHERING, REST -> daily.stop();
-            case FAMILY_ROUTE, CARGO, CROWD_GUARD, FAMILY_REACTION -> {
+            case FAMILY_ROUTE, CROWD_GUARD, FAMILY_REACTION -> {
                 daily.yieldToOtherActivity(); familyPaddle.yieldToOtherActivity(); shoreForage.stop();
             }
             case FAMILY_CARE_YIELD, RESCUE -> care.cancel();
@@ -1185,7 +1174,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!provisions.isEmpty()) provisions.setCount(Math.min(8,provisions.getCount()));
         expectedYoung.clear(); restWater = null; restSearchTicks = 0;
         for (var raw : tag.getList("ExpectedYoung",Tag.TAG_COMPOUND))
-            if (raw instanceof CompoundTag entry && entry.hasUUID("Id") && expectedYoung.size() < HatBoatEntity.MAX_YOUNG) expectedYoung.add(entry.getUUID("Id"));
+            if (raw instanceof CompoundTag entry && entry.hasUUID("Id") && expectedYoung.size() < 16) expectedYoung.add(entry.getUUID("Id"));
         rememberedBank = tag.contains("Bank") && tag.getString("Dimension").equals(entity.level().dimension().location().toString()) ? BlockPos.of(tag.getLong("Bank")) : null;
     }
 }

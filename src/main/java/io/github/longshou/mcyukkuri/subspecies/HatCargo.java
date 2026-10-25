@@ -1,11 +1,10 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
-import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
+import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
@@ -16,77 +15,36 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import java.util.UUID;
 import net.minecraft.world.phys.Vec3;
+import java.util.Locale;
 
-/** Real, finite provisions in a hat. Every transfer removes the corresponding source item. */
-public final class HatBoatCargo {
-    /** Every food portion and the real paddle use one of the twelve hat-load units. */
-    public static final int CAPACITY = 12, SLOTS = 4, PADDLE_UNITS = 1;
+/**
+ * The real, finite provisions in the crown larder and the stick: items, spoilage, scatter and delivery. Space is not decided
+ * here: whether another portion fits is {@link io.github.longshou.mcyukkuri.subspecies.crew.HatDeck#heapFits}, and the load
+ * each portion adds is the deck's. Nothing is ever put aside on the brim; making room for a body is the decision layer's
+ * explicit {@link #jettisonCheapest} call, which throws a real portion into the water.
+ */
+public final class HatCargo {
+    /** The larder holds at most this many portions of at most this many kinds (hat_deck_layout.json {@code load.larder_max}). */
+    public static final int LARDER_MAX = 12, SLOTS = 4;
     private final HatBoatEntity boat;
     private final List<ItemStack> food = new ArrayList<>();
     /** The captain may display this in her braid, but the boat remains its only inventory owner. */
     private ItemStack paddle = ItemStack.EMPTY;
-    // The same Food inventory is divided between the cabin and a temporary, occupied brim patch.
-    // No second item list exists, so feeding, hat recovery and capsize cannot duplicate set-aside food.
-    private int asideCount, targetAside = -1;
-    private long handlingAt, keepAsideUntil, discardUntil;
+    private long discardUntil;
     private int decayTicks;
 
-    HatBoatCargo(HatBoatEntity boat) { this.boat = boat; }
+    HatCargo(HatBoatEntity boat) { this.boat = boat; }
     public boolean paddle() { return !paddle.isEmpty(); }
     public ItemStack paddleItem() { return paddle.copy(); }
     public int count() { return food.stream().mapToInt(ItemStack::getCount).sum(); }
-    /** How full the hat looks: 0 empty, 1 a little (1-3 portions), 2 half full (4-7), 3 full (8-12). */
-    public static int tierFor(int n) { return n <= 0 ? 0 : n <= 3 ? 1 : n <= 7 ? 2 : 3; }
-    public int tier() { return tierFor(innerCount()); }
-    public int innerCount() { return count() - asideCount(); }
-    public int asideCount() { return Math.min(asideCount, count()); }
-    public int asideTier() { return tierFor(asideCount()); }
-    public boolean handling() { return targetAside >= 0; }
-    int targetAsideCount() { return targetAside; }
-    public String activity() { return targetAside == 0 ? Behaviors.BOAT_RETRIEVE_FOOD : Behaviors.BOAT_STOW_FOOD; }
+    /** How full the larder looks: 0 empty, 1 a little (1-3 portions), 2 half full (4-7), 3 full (8-12). */
+    public static int tierFor(int n) { return DeckLayout.tierFor(n); }
+    public int tier() { return tierFor(count()); }
     boolean discardCooling() { return boat.level().getGameTime() < discardUntil; }
-    void keepAside() { keepAsideUntil = boat.level().getGameTime() + 100; }
-
-    /** Reserve a safe destination before the parent's short handling action. Recheck before committing. */
-    boolean moveAside(int target) {
-        if (boat.level().isClientSide || target < 0 || target > count()) return false;
-        keepAside();
-        if (handling()) return false;
-        if (target == asideCount()) return true;
-        if (!boat.canHandleCargo() || !boat.cargoFits(count()-target, target)) return false;
-        targetAside = target; handlingAt = boat.level().getGameTime();
-        boat.helm().hold(boat, Purpose.CARGO); changed();
-        GameplayLog.limited(boat,"cargo","handling.started",200,
-                "handling started owner={} food={} aside={} targetAside={}",boat.ownerYukkuri(),count(),asideCount(),targetAside);
-        return false;
-    }
 
     void tick() {
         if (boat.level().isClientSide) return;
         decay();
-        if (handling()) {
-            String reason=!boat.canHandleCargo()?"handling_unavailable":targetAside>count()?"food_count_changed"
-                    :!boat.cargoFits(count()-targetAside,targetAside)?"destination_no_longer_fits":null;
-            if (reason!=null) {
-                GameplayLog.limited(boat,"cargo","handling.stopped",200,
-                        "handling stopped owner={} reason={} food={} aside={} targetAside={} elapsed={}",
-                        boat.ownerYukkuri(),reason,count(),asideCount(),targetAside,boat.level().getGameTime()-handlingAt);
-                targetAside = -1; changed(); return;
-            }
-            boat.helm().hold(boat, Purpose.CARGO);
-            if (boat.level().getGameTime()-handlingAt >= 20) {
-                int before=asideCount();
-                asideCount = targetAside; targetAside = -1; keepAside(); changed();
-                GameplayLog.limited(boat,"cargo","handling.completed",200,
-                        "handling completed owner={} food={} aside={} -> {}",boat.ownerYukkuri(),count(),before,asideCount());
-            }
-            return;
-        }
-        if (asideCount() == 0 || boat.tickCount % 20 != 0 || boat.level().getGameTime() < keepAsideUntil
-                || !boat.canRestoreCargo()) return;
-        for (int target = 0; target < asideCount(); target++) if (boat.cargoFits(count()-target, target)) {
-            moveAside(target); return;
-        }
     }
     /** Loaded-time spoilage follows the existing shelter-store seasonal intervals. */
     private void decay() {
@@ -106,26 +64,57 @@ public final class HatBoatCargo {
                 boat.ownerYukkuri(), item, before, count(), interval, boat.flooding());
     }
 
-    /** A chosen rescue outranks stores. Throw real food out past the rim; the paddle stays aboard. */
-    void jettison() {
-        if (boat.level().isClientSide || food.isEmpty()) return;
-        var drops = new ArrayList<>(portions());
-        var origin = boat.cargoSpillOrigin();
-        food.clear(); asideCount = 0; targetAside = -1;
-        discardUntil = boat.level().getGameTime() + 200;
-        changed(); boat.helm().hold(boat, Purpose.CARGO);
-        int spawned=0;
-        for (int i = 0; i < drops.size(); i++) {
-            var at = boat.toWorld(origin).add(0, .12, 0);
-            var outward = boat.toWorld(new Vec3(HatVessel.brim(boat.mode())[0]+1, HatVessel.top(boat.mode()), 2+i*.1))
-                    .subtract(at).multiply(1,0,1).normalize();
-            var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drops.get(i));
-            item.setDeltaMovement(outward.scale(.20+i*.008).add(boat.getDeltaMovement()).add(0,.20,0));
-            item.setPickUpDelay(200); if(boat.level().addFreshEntity(item))spawned++;
+    /**
+     * Push the cheapest portion (the least nourishing, the oldest first) over the rim into the water as a real floating item
+     * that can be collected again. This is a decision, never a side effect of booking a seat: callers use it only to make
+     * room for a body or a newborn, and the loss is real. Returns false when there is nothing to throw.
+     */
+    boolean jettisonCheapest(String reason) {
+        if (boat.level().isClientSide || food.isEmpty()) return false;
+        ItemStack cheapest = null;
+        int value = Integer.MAX_VALUE;
+        for (var stack : food) {
+            var props = stack.getFoodProperties(null);
+            int worth = props == null ? 0 : props.nutrition();
+            if (worth < value) { value = worth; cheapest = stack; }
         }
-        GameplayLog.event(boat,"cargo","food jettisoned owner={} removed={} spawned={} failed={} remaining={} paddleRetained={}",
-                boat.ownerYukkuri(),drops.size(),spawned,drops.size()-spawned,count(),paddle());
+        if (cheapest == null) return false;
+        int before = count();
+        var drop = cheapest.split(1);
+        food.removeIf(ItemStack::isEmpty);
+        discardUntil = boat.level().getGameTime() + 200;
+        changed();
+        var rim = boat.cargoSpillOrigin();
+        var at = boat.toWorld(rim).add(0, .12, 0);
+        var outward = boat.toWorld(new Vec3(HatVessel.brim(boat.mode())[0] + 1, rim.y, rim.z + 2)).subtract(at).multiply(1, 0, 1).normalize();
+        var item = new ItemEntity(boat.level(), at.x, at.y, at.z, drop);
+        item.setDeltaMovement(outward.scale(.20).add(boat.getDeltaMovement()).add(0, .20, 0));
+        item.setPickUpDelay(200);
+        boolean spawned = boat.level().addFreshEntity(item);
+        GameplayLog.event(boat, "cargo", "food jettisoned owner={} reason={} item={} worth={} spawned={} food={} -> {}",
+                boat.ownerYukkuri(), reason, drop.getItem(), value, spawned, before, count());
+        return true;
     }
+
+    /** A rolling hull lets the stowed stick slide over the brim: a real floating stick, remembered by the family as its own. */
+    boolean slideStickOverboard(float roll) {
+        var stow = boat.deckLayout().stow();
+        if (boat.level().isClientSide || !paddle() || stow == null) return false;
+        var stick = paddle;
+        paddle = ItemStack.EMPTY;
+        changed();
+        var local = stow.middle();
+        var at = boat.tiltedWorld(local).add(0, .08, 0);
+        var outward = boat.toWorld(local.add(local.x < 0 ? -2 : 2, 0, 0)).subtract(boat.toWorld(local)).multiply(1, 0, 1).normalize();
+        var item = new ItemEntity(boat.level(), at.x, at.y, at.z, stick);
+        item.setDeltaMovement(boat.getDeltaMovement().add(outward.scale(.07)).add(0, .06, 0));
+        item.setDefaultPickUpDelay();
+        boolean spawned = boat.level().addFreshEntity(item);
+        notePaddleDrop(item);
+        GameplayLog.event(boat, "cargo", "stick slid overboard owner={} roll={} spawned={}", boat.ownerYukkuri(), String.format(Locale.ROOT, "%.1f", roll), spawned);
+        return true;
+    }
+
     public List<ItemStack> items() { return food.stream().map(ItemStack::copy).toList(); }
     /** Real servings for physical drops, retaining each item's components; the heap renderer only reads counts. */
     public List<ItemStack> portions() {
@@ -133,15 +122,14 @@ public final class HatBoatCargo {
         for (var stack : food) for (int i=0;i<stack.getCount();i++) result.add(stack.copyWithCount(1));
         return List.copyOf(result);
     }
-    private int foodSpace() { return Math.max(0, boat.cargoCapacity() - (paddle() ? PADDLE_UNITS : 0) - count()); }
-    public int usedCapacity() { return count() + (paddle() ? PADDLE_UNITS : 0); }
-    public int remainingCapacity() { return foodSpace(); }
+    /** Portions that still fit: the deck decides (load and the seats the larder would press on). */
+    public int remainingCapacity() { return boat.cargoRoom(); }
     public boolean canStore(ItemStack stack) {
-        return !stack.isEmpty() && foodSpace() > 0 && boat.cargoRoom() > 0 && (food.size() < SLOTS
+        return !stack.isEmpty() && boat.cargoRoom() > 0 && (food.size() < SLOTS
                 || food.stream().anyMatch(s -> ItemStack.isSameItemSameComponents(s, stack)));
     }
     public boolean givePaddle(ItemStack source, boolean creative) {
-        if (boat.level().isClientSide || paddle() || !source.is(Items.STICK) || foodSpace() < PADDLE_UNITS) return false;
+        if (boat.level().isClientSide || paddle() || !source.is(Items.STICK) || !boat.canCarryPaddle()) return false;
         int before=source.getCount();
         paddle = creative ? source.copyWithCount(1) : source.split(1);
         changed();
@@ -152,7 +140,7 @@ public final class HatBoatCargo {
     /** The caller has checked owner diet, reach and (for world pickups) mob griefing. */
     public int store(ItemStack source, int limit, boolean creative) {
         if (boat.level().isClientSide || !canStore(source)) return 0;
-        int amount = Math.min(Math.min(limit, source.getCount()), Math.min(foodSpace(),boat.cargoRoom()));
+        int amount = Math.min(Math.min(limit, source.getCount()), boat.cargoRoom());
         if (amount <= 0) return 0;
         int before=count(),sourceBefore=source.getCount(); var item=source.getItem();
         var same = food.stream().filter(s -> ItemStack.isSameItemSameComponents(s, source)).findFirst().orElse(null);
@@ -165,7 +153,7 @@ public final class HatBoatCargo {
     }
     /** Share up to two actual servings with a child's own nearby hat, keeping one serving in the parent hat.
      *  The caller arranges physical docking/launch contact before requesting this inventory handoff. */
-    public int transferProvisionsTo(HatBoatCargo receiver,YukkuriEntity eater,int limit) {
+    public int transferProvisionsTo(HatCargo receiver,YukkuriEntity eater,int limit) {
         if(receiver==null||receiver==this||eater==null||boat.level().isClientSide
                 ||boat.level()!=receiver.boat.level()||!boat.isAfloat()||!receiver.boat.isAfloat()
                 ||!boat.young(eater)||!eater.getUUID().equals(receiver.boat.ownerYukkuri())
@@ -273,18 +261,16 @@ public final class HatBoatCargo {
         var owner=boat.owner();
         if(item!=null&&owner!=null)owner.aquaticLife().familyPaddle().rememberOwnDroppedPaddle(item.getUUID());
     }
-    /** Food keeps its original item-list format. Version 2 added the visual tier; version 3 records the temporary
-     *  compartment and handling action; version 4 stores the real paddle. Old side-brim cargo stays aside until it can safely move into the well. */
-    public static final int VERSION = 4;
+    /** Food keeps its item-list format; version 5 has no side-brim heap (food lives only in the crown larder). */
+    public static final int VERSION = 5;
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putInt("Version", VERSION); tag.putInt("Tier", tier()); tag.putBoolean("Paddle", paddle());
         if (paddle()) tag.put("PaddleItem", paddle.save(boat.registryAccess()));
         var list = new ListTag();
         for (var stack : food) list.add(stack.save(boat.registryAccess()));
-        tag.put("Food", list); tag.putInt("AsideCount", asideCount());
+        tag.put("Food", list);
         tag.putInt("DecayTicks", decayTicks);
-        tag.putInt("HandlingTarget", targetAside); tag.putLong("HandlingAt", handlingAt);
-        tag.putLong("KeepAsideUntil", keepAsideUntil); tag.putLong("DiscardUntil", discardUntil); return tag;
+        tag.putLong("DiscardUntil", discardUntil); return tag;
     }
     public void load(CompoundTag tag) {
         decayTicks = Math.clamp(tag.getInt("DecayTicks"), 0, 8999);
@@ -295,20 +281,10 @@ public final class HatBoatCargo {
         food.clear();
         for (var raw : tag.getList("Food", Tag.TAG_COMPOUND)) {
             var stack = ItemStack.parseOptional(boat.registryAccess(), (CompoundTag) raw);
-            // A legacy or manually overfilled save remains intact; capacity only rejects new loads until it is reduced.
+            // A manually overfilled save remains intact; capacity only rejects new loads until it is reduced.
             if (!stack.isEmpty()) food.add(stack);
         }
-        // Older saves really displayed their stores on the side brim. Do not materialize a new heap on a saved child.
-        asideCount = tag.getInt("Version") < 3 ? count() : Math.clamp(tag.getInt("AsideCount"), 0, count());
-        // A saved unfinished action owned no moved items. Resume from the committed compartment only.
-        targetAside = boat.level().isClientSide && tag.contains("HandlingTarget") ? tag.getInt("HandlingTarget") : -1;
-        handlingAt = tag.getLong("HandlingAt");
-        keepAsideUntil = Math.min(boat.level().getGameTime()+100, tag.getLong("KeepAsideUntil"));
         discardUntil = Math.min(boat.level().getGameTime()+200, tag.getLong("DiscardUntil"));
     }
-    private void changed() {
-        asideCount = Math.min(asideCount, count());
-        if (targetAside > count() || count() == 0) targetAside = -1;
-        boat.syncCargo(save());
-    }
+    private void changed() { boat.syncCargo(save()); }
 }

@@ -70,14 +70,14 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `Bonds` / `BondLevels` / `Temperament` | 亲缘、照护、伴侣、群体、好感、信任与性格规则 |
 | `SpeciesProfile` / `EcologyRoutines` | 不可变物种能力，以及按家油／捕食种／水生资格分派的被动时钟 |
 | `HomeProvider` / `LifeHome` | 住所、休息、地址、搜索与保存；帽船位置来自水生组件 |
-| `HatSeatState` | 已登船座位、预约、座内移动与帽主临时站位的唯一所有者；通过预约／释放／移动／快照协作，不泄露可变数组 |
+| `HatDeck`（`subspecies/crew/`，每船一个） | 帽船空间的唯一权威：席位表来自 `hat_deck_layout.json`，状态为空／租约预留／占用／移动中，所有临时需要都是租约；`canAdmit`／`claim`／`commit`／`release`／`moveWithin`／`heapFits`／`snapshot`，拒绝原因是有限枚举；载重只决定吃水与稳性。`HatCargo` 只管真实物品、腐坏、散落与交付 |
 | `ParentCarry`（`FamilyLife.carry()`） | 陆上亲代承托的唯一所有者：能力与座位判定、接起、放下原因与保留时间；孩子是亲油实体的真实乘客（`YukkuriEntity.canAddPassenger`／`positionRider` 委托），不另存副本；客户端经 `YukkuriView.carriedYukkuri()`／`carryMode()` 与静态座位函数读取，不读服务端组件 |
 | `InteractionDispatch` / `CareAction` | 服务端照护入口与稳定动作 ID，菜单使用命名槽位常量 |
 | `YukkuriStatus` | 指向领域读取器和受控写入方法；不复制权威数据，见[状态中枢](STATUS_HUB.md) |
 | `Custody` / `CustodyData` | 饲主、角色、分配、释放与已确认 NPC 死亡；未加载或 UNKNOWN 不算死亡 |
 | `FamilyData` / `YukkuriWorldData` / `SettlementData` | 家谱、对象关系／收纳、聚落账本，负责死亡、离场、过期和停止时清理。FamilyData 的 DismissedChildren 只解除记录者对孩子的照料认领；生物血缘和孩子的亲代字段保留，Bonds 的照护判断按观察者方向查询 |
 
-`HatBoatEntity` 保持实体交接与同步时机；座位所有者生成 `SEATS` 中的 `S`、`OwnerService`、`Carry`、`Crowding`、`Overcrowded`，存档路径为 `ResidentSeats`、`CapsizeSeats`、`CarryPassengerSeats`。
+`HatBoatEntity` 保持实体交接与同步时机；`HatDeck.snapshot` 生成 `DECK` 中的 `S`（每个乘员的 `Slot`、`Kind`、位置与步行）、`Load`，帽船另加 `Carry`、`Crowding`、`Overcrowded`；存档路径为 `Deck`（`HatDeck.save`）。照护、如厕、练习、救援配对、初航保留位和登船的席位需求由 `HatStations` 转成租约与移动。
 
 `MindLife` 接收 `EmotionEvent`，业务效果不依赖对白播放；五属性由实体性格组件保存，`Cognition` 只查询规则。饲主查询正规化与成功入场后的世界清理分开，回滚保留未知字段。掉落拾取先复制要转交的一份，进食接纳后才缩减并写回剩余堆叠，不能转交已清空的引用。
 

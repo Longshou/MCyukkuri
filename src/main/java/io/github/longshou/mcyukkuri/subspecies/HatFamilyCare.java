@@ -53,7 +53,6 @@ public final class HatFamilyCare {
         return child != null && level().getEntity(child) instanceof YukkuriEntity y ? y : null;
     }
     public String activity() {
-        if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.cargo().handling())return boat.cargo().activity();
         if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.carryingInHat(parent))return Behaviors.BOAT_CARRY_YOUNG;
         if(parent.getVehicle() instanceof HatBoatEntity boat&&boat.walkingInHat(parent))return Behaviors.HAT_WALK;
         if(finishTicks>0)return Behaviors.CARE_FINISH;
@@ -192,11 +191,6 @@ public final class HatFamilyCare {
             // Rear care and the subsequent rim release set the child's orientation deliberately:
             // a generic look-at here would turn its back away from the parent or its rear back over the hat.
             if (kind != Kind.FIRST_TOILET) young.getLookControl().setLookAt(parent, 20, 20);
-            if(!boat.prepareCareCargoSpace(young)){
-                deliveryTicks=0;
-                if(ticks>=(kind==Kind.FIRST_TOILET?640:480))fail("cargo_space_timeout");
-                return active();
-            }
         }
         if (kind == Kind.FEED) {
             if (young.family().needsMash() && !InfantFood.isMash(serving)) {
@@ -204,7 +198,6 @@ public final class HatFamilyCare {
                 serving=InfantFood.mash(serving,parent.getUUID());
             }
             if (!boat.prepareCareSeat(young, parent)) {
-                if(boat.cargo().handling()){deliveryTicks=0;return true;}
                 fail("feeding_seat_refused"); return false;
             }
             boolean prepared=!young.family().needsMash()||InfantFood.isMash(serving);
@@ -225,7 +218,6 @@ public final class HatFamilyCare {
         }
         if (kind == Kind.FIRST_TOILET) {
             if (!boat.prepareRearCareSeat(young, parent)) {
-                if(boat.cargo().handling()){deliveryTicks=0;return true;}
                 fail("rear_care_seat_refused"); return false;
             }
             if (deliveryTicks < ChildhoodLife.FIRST_TOILET_CONTACT_TICKS) {
@@ -259,7 +251,6 @@ public final class HatFamilyCare {
         }
         if(kind==Kind.NUZZLE){
             if(!boat.prepareCareSeat(young,parent)){
-                if(boat.cargo().handling()){deliveryTicks=0;return true;}
                 fail("nuzzle_seat_refused");return false;
             }
             if(boat.careSeatReady(young))FamilyFeedingContact.faceEachOther(parent,young);

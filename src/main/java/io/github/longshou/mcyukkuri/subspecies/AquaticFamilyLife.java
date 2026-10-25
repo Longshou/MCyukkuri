@@ -440,11 +440,6 @@ public final class AquaticFamilyLife {
         return boat!=null&&decision!=null&&decision.accepted()&&decision.until()>level().getGameTime()&&boat.admits(child);
     }
 
-    private static int orphanLoad(YukkuriEntity child){
-        int body=child.family().stage()==FamilyLife.Stage.BABY?2:child.childhood().canLiveIndependently()?8:4;
-        return body+(child.aquaticLife().hasPaddleForReturn()?HatBoatCargo.PADDLE_UNITS:0);
-    }
-
     private boolean tickYoungOwner(HatBoatEntity boat){
         var parent=contactParent();var home=parent==null?null:ownHat(parent);
         if(home==null){

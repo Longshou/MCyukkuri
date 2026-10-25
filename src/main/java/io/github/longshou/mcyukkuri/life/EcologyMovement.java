@@ -22,7 +22,7 @@ public final class EcologyMovement {
         return hat == null ? !actor.isPassenger() && actor.onGround()
                 : hat.isAfloat() && !hat.unsteadyMotion() && hat.flooding() == 0
                 && !hat.landing() && !hat.helm().driving() && !hat.transportingInHat(actor)
-                && !hat.cargo().handling() && !hat.hasIncoming() && !actor.family().braidRescueActive()
+                && !hat.hasIncoming() && !actor.family().braidRescueActive()
                 && !actor.aquaticLife().firstVoyage().active();
     }
 

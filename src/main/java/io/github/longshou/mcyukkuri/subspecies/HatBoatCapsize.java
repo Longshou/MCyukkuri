@@ -202,7 +202,7 @@ final class HatBoatCapsize {
             m.putLong("LooseAt",boat.level().getGameTime());m.putFloat("LoosePitch",heldPitch);m.putFloat("LooseSquash",heldSquash);
             HatBoatEntity.point(m,"HeldCentre",boat.position());HatBoatEntity.point(m,"PreviousCentre",boat.position());
         }
-        boat.syncMotion(m);capsizeReleased=false;boat.rescuePair.rescueOwnerHeld=false;
+        boat.syncMotion(m);capsizeReleased=false;boat.stations.clearAll();
         boat.state(State.CAPSIZED);boat.flooding=100;boat.helm().stop("capsized");
         boat.setDeltaMovement(boat.getDeltaMovement().scale(.25));
         GameplayLog.event(boat,"aquatic","capsize started owner={} side={} passengers={} cargo={} paddle={}",
