@@ -68,6 +68,10 @@ public final class FamilyLife {
     record DeliveryStation(Vec3 at, float yaw) {}
     /** A newborn pushed past the hat by an overstrained delivery: it will not survive the landing. */
     private boolean doomed;
+    /** A kit that came down on a nest's soft rim tumbles inward up to RIM_ROLLS times (transient, from the landing tick). */
+    private int rimRolls,rimRollWait;
+    private static final int RIM_ROLLS=3;
+    private static final double RIM_ROLL_SPEED=.07,RIM_ROLL_LIFT=.12;
     /** The launch decided for this land birth (null for water and boat births) and, once down, how it ended. Not saved. */
     private BirthLaunch.Plan launch;
     private String landingOutcome="";
@@ -581,10 +585,24 @@ public final class FamilyLife {
     }
     /** Pure contact confirmation also runs with AI disabled; optional hat seeking remains an AI behavior. */
     private boolean handleLanding(boolean hopIntoHat) {
-        if(!awaitingLanding||flight.hasArc()||!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
+        if(!awaitingLanding||flight.hasArc())return false;
+        if(rimRollWait>0){rimRollWait--;return true;}
+        if(!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
+        // Only real contact decides: the hat, the water, the nest cushion, a nest's soft rim, or the bare ground.
+        boolean pad=FamilyNest.cushions(entity);
+        var rim=entity.getVehicle()==null&&!entity.isInWaterOrBubble()&&!pad?FamilyNest.rimCentre(entity):null;
+        if(rim!=null&&rimRolls<RIM_ROLLS){
+            // Come down on the soft rim or bolster: it tumbles down the inner slope toward the floor, a small real hop
+            // (project design); the next contact decides again.
+            var inward=rim.subtract(entity.position()).multiply(1,0,1);double reach=inward.length();
+            var step=reach>1e-4?inward.scale(RIM_ROLL_SPEED/reach):Vec3.ZERO;
+            rimRolls++;rimRollWait=3;
+            entity.setDeltaMovement(step.x,RIM_ROLL_LIFT,step.z);entity.hasImpulse=true;entity.fallDistance=0;
+            GameplayLog.event(entity,"family","newborn on nest rim rolls inward roll={} at={} centre={}",rimRolls,entity.position(),rim);
+            return true;
+        }
         awaitingLanding=false;
-        // Only real contact decides: the hat, the water, the nest cushion, or the bare ground.
-        String outcome=entity.getVehicle() instanceof HatBoatEntity?"HAT":entity.isInWaterOrBubble()?"WATER":FamilyNest.cushions(entity)?"CUSHION":"GROUND";
+        String outcome=entity.getVehicle() instanceof HatBoatEntity?"HAT":entity.isInWaterOrBubble()?"WATER":pad?"CUSHION":rim!=null?"RIM":"GROUND";
         boolean randomized=launch!=null||doomed;
         landingOutcome=outcome;landingImpactVy=airVy;
         landingFromAim=launch==null||launch.aim()==null?Double.NaN:Math.hypot(entity.getX()-launch.aim().x,entity.getZ()-launch.aim().z);
@@ -592,7 +610,12 @@ public final class FamilyLife {
         switch(outcome){
             case "CUSHION" -> {
                 entity.fallDistance=0;
-                GameplayLog.event(entity,"family","newborn landed on large nest cushion");
+                GameplayLog.event(entity,"family","newborn landed on nest cushion rimRolls={}",rimRolls);
+            }
+            case "RIM" -> {
+                // Still on the soft rim after rolling: unhurt, it stays there until it crawls or is carried in.
+                entity.fallDistance=0;
+                GameplayLog.event(entity,"family","newborn settled on soft nest rim rimRolls={}",rimRolls);
             }
             case "WATER" -> {
                 // Missed the hat into the river: the newborn cannot swim and drowns by immersion unless a parent's braid brings it out.
@@ -1078,6 +1101,8 @@ public final class FamilyLife {
                 if(prioritizesBirth()&&helper!=null&&helper!=entity&&helper.family().midwifeTarget()==entity
                         &&helper.distanceToSqr(entity)<=64&&supported()){SurfaceApproach.halt(entity);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
+                // Out of the nest for the birth (beside a cushion nest, or for the catcher): she stays out.
+                if(delivery.outOfNestForTerm()){SurfaceApproach.halt(entity);return;}
                 BlockPos home=nestStand();
                 var shelter=entity.habitat().shelter();
                 if(shelter!=null&&brood!=null&&shelter.prepareLargeBed(entity)){
@@ -1091,6 +1116,15 @@ public final class FamilyLife {
                 }
                 if(home==null){stop();return;}
                 var resting=FamilyNest.restPosition(entity,home);
+                if(resting==null){
+                    // Her place is not standable right now (another body, a growing belly): keep walking into the bed's
+                    // middle rather than standing wherever she is, on its rim; the nest claim picks a new place.
+                    var middle=FamilyNest.bedMiddle(entity,home);
+                    if(middle!=null&&entity.position().subtract(middle).horizontalDistanceSqr()>.04){
+                        GameplayLog.limited(entity,"family","brood_rest_unstandable",200,"brood walking to nest middle reason=rest_place_unstandable nest={} at={}",home,middle);
+                        SurfaceApproach.walk(entity,middle,.9);return;
+                    }
+                }
                 if(resting!=null&&entity.distanceToSqr(resting)>.04) { SurfaceApproach.walk(entity,resting,.9); }
                 else { entity.getNavigation().stop();entity.getLookControl().setLookAt(entity.getX(),entity.getEyeY(),entity.getZ()-2,10,10); }
             }

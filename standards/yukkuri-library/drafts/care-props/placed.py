@@ -363,16 +363,18 @@ def food_bowl_forage():
 
 
 # =====================================================================================================================
-# Pet cushion nest (one block, overhanging to 22.8 across): a thick round bolster 5.25 high (EH23's round raised-rim
-# cushion) with piping on the outer shoulder, round a flat quilted pad (y 1.6-1.8, radius 8.2) big enough for one adult:
-# the whole block square is level pad for the body box (collision()), and the bolster's steep inner side stays outside
-# the rounded body of a 1.2x adult (radius 9.2 from 2.4 above its bottom), so every adult sits down on the pad with the
-# bolster below its middle. Across the north (-z) entrance the bolster dips to a low rolled lip (U notch).
+# Pet cushion nest (one block, overhanging to 26.6 across): a thick round bolster 5.25 high (EH23's round raised-rim
+# cushion) with piping on the outer shoulder, round a flat quilted pad (y 1.6-1.8, radius 10.1) big enough for one adult
+# up to 1.2x at full term: a level pad 23 square (the block and the bolster's inner slope, collision()) takes the square
+# body box of a 1.2x adult whose term belly makes it 22.45 wide, and the bolster's steep inner side lies 11.1 out at body
+# height, so every adult sits down on the pad with the bolster below its middle (a full-term 1.2x adult presses about 2
+# into the bolster at the diagonals; NestResting.RIM_PRESS). Across the north (-z) entrance the bolster dips to a low
+# rolled lip (U notch).
 NEST_SEGS = 32
-NEST_ROLL = [(10.9, 0.0, 0), (11.3, 1.0, 1), (11.4, 2.2, 2), (11.2, 3.4, 3), (10.85, 4.4, 4), (10.4, 5.05, 5), (9.95, 5.25, 6),
-             (9.6, 4.85, 7), (9.4, 4.0, 8), (9.2, 3.0, 9), (8.85, 2.1, 10), (8.2, 1.6, 11)]
-NEST_CUSHION = [(8.2, 1.6), (6.0, 1.7), (3.0, 1.78)]
-NEST_CREST = 9.95
+NEST_ROLL = [(12.8, 0.0, 0), (13.2, 1.0, 1), (13.3, 2.2, 2), (13.1, 3.4, 3), (12.75, 4.4, 4), (12.3, 5.05, 5), (11.85, 5.25, 6),
+             (11.5, 4.85, 7), (11.3, 4.0, 8), (11.1, 3.0, 9), (10.75, 2.1, 10), (10.1, 1.6, 11)]
+NEST_CUSHION = [(10.1, 1.6), (7.4, 1.7), (3.7, 1.78)]
+NEST_CREST = 11.85
 NEST_PAD = 1.75            # collision top of the level pad over the whole block square
 
 
@@ -455,7 +457,7 @@ def fabric_band(style, w, key):
     return img
 
 
-def cushion_top(style, size=18, radius=8.2):
+def cushion_top(style, size=22, radius=10.1):
     """Quilted pad seen from above: stitched diamonds with lit puffs, a dark seam ring where the pad meets the roll."""
     _, ramp = NESTS[style]
     seam = {'': PINK[2], 'gingham': SKY[2], 'polka': PINK[2], 'floral': MINT[2], 'lavender': LAV[2], 'teddy': BROWN[2], 'stars': LEMON[2]}[style]
@@ -480,9 +482,9 @@ def yukkuri_nest(style=''):
     b = Build(model_name('yukkuri_nest', style))
     o = CIRCLE(NEST_SEGS)
     part = b.part('nest')
-    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 72, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=10.6)
+    revolve(b, part, o, NEST_ROLL, 'roll', fabric_band(style, 72, 'roll' + style), smooth=range(1, 11), ymap=nest_notch, ref=12.5)
     cap(b, part, o, NEST_CUSHION, 'cushion', cushion_top(style), centre=1.8)
-    cap(b, part, o, [(10.9, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
+    cap(b, part, o, [(12.8, 0.0)], 'under', canvas(4, 4, NESTS[style][0][0]), down=True, centre=0.0)
     return b.finish()
 
 
@@ -791,11 +793,12 @@ def variants():
 
 # Collision shells that follow the visible nests (life/CareBlock reads them): top-surface heightmaps of the meshes over
 # square cells, rounded up so a body rests on or just above the visible surface, merged into equal-height boxes.
-# The cushion nest's block square is one level pad: a body box (square, as wide as the body) resting anywhere inside the
-# block touches only the pad, never the bolster, so an adult sits down in the nest instead of hanging on the rim; the
-# bolster keeps its collision outside the block (NestResting keeps resting bodies inside it).
-# name: (factory, half extent, cell, step, (level half extent, level top) or None)
-COLLISION = {'yukkuri_nest': (yukkuri_nest, 11.5, .5, .5, (8.0, NEST_PAD)),
+# The cushion nest's level pad is a 23 square (the block and 3.5 beyond each side, clipped to the round nest at radius
+# 13.75 so that no pad reaches past the visible bolster at the diagonals): a body box resting anywhere inside it touches
+# only the pad, never the bolster, so an adult (to 1.2x at full term) sits down in the nest instead of hanging on the rim;
+# the bolster keeps its collision outside the square (NestResting keeps resting bodies inside it).
+# name: (factory, half extent, cell, step, (level half extent, level top, level radius) or None)
+COLLISION = {'yukkuri_nest': (yukkuri_nest, 13.5, .5, .5, (11.5, NEST_PAD, 13.75)),
              'large_yukkuri_nest': (large_yukkuri_nest, 16.0, .25, .25, None)}
 
 
@@ -805,11 +808,11 @@ def collision():
     for name, (factory, half, cell, step, level) in COLLISION.items():
         hm = heightmap(factory(), half, cell, step=step)
         if level:
-            inner, top = level
+            inner, top, reach = level
             for k, row in enumerate(hm):
                 for i in range(len(row)):
                     x0, z0 = -half + i * cell, -half + k * cell
-                    if -inner <= x0 and x0 + cell <= inner and -inner <= z0 and z0 + cell <= inner:
+                    if -inner <= x0 and x0 + cell <= inner and -inner <= z0 and z0 + cell <= inner                             and math.hypot(x0 + cell / 2, z0 + cell / 2) <= reach:
                         row[i] = top
         boxes = collision_boxes(hm, half, cell)
         out[name] = {'cell': cell, 'top': max(b[4] for b in boxes), 'boxes': boxes}

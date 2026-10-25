@@ -57,8 +57,11 @@ def boxes_for(nest, src=AFTER):
     return []                                   # wild leaf beds have no collision: bodies stand on the ground
 
 
-def rest(boxes, x, z, scale):
-    h = 12.8 * scale / 2 - .02
+TERM = (1 + .26) * (1 + .16), 1 + .26     # full-term belly: box width and height factors (LiveBirthGeometry SWELL, LOW_WIDE)
+
+
+def rest(boxes, x, z, scale, term=False):
+    h = 12.8 * scale * (TERM[0] if term else 1) / 2 - .02
     return max((b[4] for b in boxes if b[0] < x + h and b[2] > x - h and b[1] < z + h and b[3] > z - h), default=0.0)
 
 
@@ -135,7 +138,8 @@ BODY = tris(AFTER, REIMU, part_filter=lambda n: n == 'rounded_body_surface')
 
 
 def section(nest, units, label, people, diagonal=False, half=14.0, src=AFTER, size=(440, 300)):
-    """people: [(scale, x along the cut, colour)]."""
+    """people: [(scale, x along the cut, colour[, full term])]; a full-term body is drawn as the body scaled by the term
+    belly's box factors (an outline of its collision extent, not the exact swollen mesh)."""
     boxes = boxes_for(nest, src)
     im = Image.new('RGBA', size, (246, 247, 243, 255))
     d = ImageDraw.Draw(im)
@@ -162,16 +166,19 @@ def section(nest, units, label, people, diagonal=False, half=14.0, src=AFTER, si
         if prev is not None:
             d.line([P(prev[0], prev[1]), P(t, prev[1]), P(t, y)], fill=(40, 110, 220, 255), width=2)
         prev = (t, y)
-    for scale, at, colour in people:
+    for person in people:
+        scale, at, colour = person[:3]
+        term = len(person) > 3 and person[3]
+        fw, fh = TERM if term else (1, 1)
         bx, bz = (at / math.sqrt(2), at / math.sqrt(2)) if diagonal else (at, 0.0)
-        y0 = rest(boxes, bx, bz, scale)
-        body = BODY * scale
+        y0 = rest(boxes, bx, bz, scale, term)
+        body = BODY * scale * np.array([fw, fh, fw])
         body = body + np.array([0, y0, 0])
         for a, b in slice_segments(body, diagonal):
             d.line([P(a[0] + at, a[1]), P(b[0] + at, b[1])], fill=colour, width=2)
-        w = 12.8 * scale / 2 * (math.sqrt(2) if diagonal else 1)       # body box extent along the cut
-        d.rectangle([P(at - w, y0 + 9.6 * scale), P(at + w, y0)], outline=colour[:3] + (110,), width=1)
-        d.line([P(at - w, y0 + 4.8 * scale), P(at + w, y0 + 4.8 * scale)], fill=colour[:3] + (110,), width=1)
+        w = 12.8 * scale * fw / 2 * (math.sqrt(2) if diagonal else 1)       # body box extent along the cut
+        d.rectangle([P(at - w, y0 + 9.6 * scale * fh), P(at + w, y0)], outline=colour[:3] + (110,), width=1)
+        d.line([P(at - w, y0 + 4.8 * scale * fh), P(at + w, y0 + 4.8 * scale * fh)], fill=colour[:3] + (110,), width=1)
     d.text((8, 4), label + ('（对角剖面）' if diagonal else '（轴向剖面）'), font=FS, fill=(20, 20, 20, 255))
     d.text((8, H - 22), '棕：模型  蓝：碰撞顶面  色线：身体轮廓、碰撞箱与腰线  竖粗线：方块边界', font=FS, fill=(60, 60, 60, 255))
     return im
@@ -194,16 +201,19 @@ def pet():
     N = 'yukkuri_nest'
     row_old = []
     if (BEFORE.assets / 'yukkuri_props/yukkuri_nest.json').exists() and BEFORE.root != AFTER.root:
-        row_old = [tile([g(8), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345, BEFORE)], '前：成体停在软卷顶上（悬空）', SZ, 15, el=22, src=BEFORE),
+        row_old = [tile([g(8), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345, BEFORE)], '前：旧软垫窝 + 成体 1.0', SZ, 15, el=22, src=BEFORE),
                    section(N, 0, '前：软垫窝 + 成体 1.0／1.2', [(1.0, 0, RED), (1.2, 0, ORANGE)], src=BEFORE, size=SZ),
                    section(N, 0, '前：软垫窝', [(1.0, 0, RED), (1.2, 0, ORANGE)], diagonal=True, src=BEFORE, size=SZ)]
     rows = [row_old] if row_old else []
     rows.append([tile([g(8), (N, 0, 0, 0, 0, 1), seat(N, REIMU, 0, 0, 1.0, 345)], '后：成体 1.0 坐进垫面', SZ, 15, el=22),
                  section(N, 0, '后：软垫窝 + 成体 1.0／1.2', [(1.0, 0, RED), (1.2, 0, ORANGE)], size=SZ),
                  section(N, 0, '后：软垫窝', [(1.0, 0, RED), (1.2, 0, ORANGE)], diagonal=True, size=SZ)])
+    rows.append([section(N, 0, '后：软垫窝 + 足月孕体 1.0／1.2', [(1.0, 0, RED, True), (1.2, 0, ORANGE, True)], half=16, size=SZ),
+                 section(N, 0, '后：软垫窝 + 足月孕体 1.0／1.2', [(1.0, 0, RED, True), (1.2, 0, ORANGE, True)], diagonal=True, half=16, size=SZ),
+                 section(N, 0, '后：软垫窝 + 成体 1.2 + 子油 0.55 ×2', [(1.2, 0, ORANGE), (.55, -7.2, GREEN), (.55, 7.2, PURPLE)], half=16, size=SZ)])
     rows.append([tile([g(8), ('yukkuri_nest_teddy', 0, 0, 0, 0, 1), seat(N, MARISA, 0, 0, 1.2, 20)], '成体 1.2（最大个体）', SZ, 15, el=22),
                  tile([g(8), ('yukkuri_nest_polka', 0, 0, 0, 0, 1), seat(N, REIMU, -4.2, 0, .55, 330), seat(N, MARISA, 4.2, 0, .55, 30)],
-                      '两只子油 0.55（并排上限约 0.59）', SZ, 15, el=26),
+                      '两只子油 0.55 并排', SZ, 15, el=26),
                  tile([g(8), ('yukkuri_nest_floral', 0, 0, 0, 0, 1)] +
                       [seat(N, REIMU if i % 2 else MARISA, x, z, .15, 180 + 40 * i) for i, (x, z) in enumerate(((-3, -2), (2.5, -2.5), (-2, 3), (3, 2.5)))],
                       '四只赤油 0.15', SZ, 22, el=34)])
@@ -214,7 +224,7 @@ def pet():
     rows.append([tile([g(16), (L, 0, 0, 0, 0, 1)] + fam, '编织大窝：成体 2 + 赤油 4', SZ, 9, az=30),
                  tile([g(16), ('large_yukkuri_nest_wicker', 0, 0, 0, 0, 1)] + big, '编织大窝：两只 1.1 倍成体并排', SZ, 9, az=30),
                  section(L, 0, '编织大窝 + 两只成体 1.0／1.1', [(1.0, -7.1, RED), (1.1, 7.55, ORANGE)], half=18, size=SZ)])
-    sheet(rows, PREVIEWS / 'pet-goods/fit.png', '宠物窝容纳：整格是平软垫，软卷在身体外侧且低于腰线；成体坐进窝里，不再停在窝沿上（离线渲染与剖面）', SZ)
+    sheet(rows, PREVIEWS / 'pet-goods/fit.png', '宠物软垫窝容纳：直径 26.6，中间 23 见方平垫；1.2 倍成体足月也躺在窝心，软卷低于腰线（离线渲染与剖面；孕体按碰撞箱比例放大示意）', SZ)
 
 
 def wild():

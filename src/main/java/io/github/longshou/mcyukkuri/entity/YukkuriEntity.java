@@ -24,6 +24,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -466,6 +467,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      */
     private void bodyPush(YukkuriEntity peer) {
         if(isPassengerOfSameVehicle(peer)||noPhysics||peer.noPhysics||(!nudgeable()&&!peer.nudgeable()))return;
+        // Nest-mates lying in their shared bed may nestle (NestResting.NESTLE): they do not shove each other out of it.
+        if(!level().isClientSide&&FamilyNest.sameNest(this,peer)&&FamilyNest.atAssignedNest(this)&&FamilyNest.atAssignedNest(peer))return;
         double dx=peer.getX()-getX(),dz=peer.getZ()-getZ(),reach=(getBbWidth()+peer.getBbWidth())*.5;
         double distance=Math.hypot(dx,dz);
         if(distance<.01){ // exactly stacked bodies still separate, along an axis both sides agree on

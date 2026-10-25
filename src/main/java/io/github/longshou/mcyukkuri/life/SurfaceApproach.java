@@ -20,16 +20,20 @@ public final class SurfaceApproach {
     public static Vec3 restingFloor(YukkuriEntity actor, Vec3 near) {
         return floor(actor,near,true);
     }
-    private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
+    /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
+    public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
+    private static Vec3 top(YukkuriEntity actor, Vec3 near) {
         if(!actor.level().hasChunkAt(BlockPos.containing(near)))return null;
         double half=actor.getBbWidth()*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
         for(var shape:actor.level().getBlockCollisions(actor,probe))for(var box:shape.toAabbs())
             if(box.maxX>probe.minX&&box.minX<probe.maxX&&box.maxZ>probe.minZ&&box.minZ<probe.maxZ
                     &&box.maxY>=probe.minY&&box.maxY<=probe.maxY)top=Math.max(top,box.maxY);
-        if(!Double.isFinite(top))return null;
-        var at=new Vec3(near.x,top,near.z);
-        return supported(actor,at,planning)?at:null;
+        return Double.isFinite(top)?new Vec3(near.x,top,near.z):null;
+    }
+    private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
+        var at=top(actor,near);
+        return at!=null&&supported(actor,at,planning)?at:null;
     }
 
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
@@ -59,7 +63,9 @@ public final class SurfaceApproach {
         for (int i=0; i<=samples; i++) {
             var sample=start.lerp(destination,(double)i/samples);
             if(supportedStep(actor,sample)){previous=sample.y;continue;}
-            var surface=floor(actor,sample);
+            // Partly over an edge (a nest rim or step it is stepping down from): the top under part of the sole is enough
+            // for this sample; requiring all four feet here stranded wide bodies on a rim above the floor they walk to.
+            var surface=top(actor,sample);
             if(surface==null||Math.abs(surface.y-previous)>.25||!supportedStep(actor,surface))return false;
             previous=surface.y;
         }

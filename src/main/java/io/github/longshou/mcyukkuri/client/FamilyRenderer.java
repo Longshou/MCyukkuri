@@ -21,8 +21,9 @@ import org.joml.Vector3f;
 /** Draws unborn children only. Detached children are real server entities and are never drawn twice. */
 final class FamilyRenderer {
     private static final ResourceLocation WHITE=ResourceLocation.withDefaultNamespace("textures/block/white_concrete.png");
-    // Hanging fruit swing like pendulums about their sockets (project design): a slow sway, plus a lag
-    // opposite the mother's actual travel. Display only; the fruit's rest point is FamilyGeometry.childBase.
+    // Hanging fruit swing like pendulums about their sockets (project design), only from real motion: a sway that grows
+    // with the mother's actual travel (walking, hopping) and a lag opposite it. A still mother's fruit hang plumb; there is
+    // no idle sway. Display only; the fruit's rest point is FamilyGeometry.childBase.
     private static final float SWAY_PERIOD_TICKS=46,SWAY_FORE=.13f,SWAY_SIDE=.05f,TRAVEL_LAG=1.6f,MAX_SWING=.32f;
     static void render(YukkuriView mother,float partialTick,PoseStack pose,MultiBufferSource buffers,int light) {
         int count=mother.broodCount();if(!mother.isAlive()||count<1||mother.profile().houseBody())return;
@@ -32,7 +33,7 @@ final class FamilyRenderer {
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),
                 mother.ageTicks()+partialTick,travel,1,pose,buffers,light);
     }
-    /** {@code sway} scales the idle pendulum (0 keeps a resting stem plumb); {@code travel} is the mother's last tick of movement. */
+    /** {@code sway} scales the motion pendulum (0 keeps a planted stem plumb); {@code travel} is the mother's last tick of movement. */
     static void renderStem(int count,float progress,float scale,float variation,YukkuriVariant parent,int born,int types,boolean spent,
                            float ticks,Vec3 travel,float sway,PoseStack pose,MultiBufferSource buffers,int light){
         if(count<1||!Float.isFinite(progress)||!spent&&progress<=0)return;
@@ -73,13 +74,13 @@ final class FamilyRenderer {
             pose.popPose();
         }
     }
-    /** Local direction of a hanging pedicel: world down, swung by the idle sway and the travel lag. */
+    /** Local direction of a hanging pedicel: world down, swung by the motion sway and the travel lag. */
     private static Vector3f hang(Matrix3f linear,float ticks,Vec3 travel,int index,float sway) {
         if(Math.abs(linear.determinant())<1e-9f)return new Vector3f(0,-1,0);
         Vector3f forward=linear.transform(new Vector3f(0,0,-1)).mul(1,0,1),right=linear.transform(new Vector3f(1,0,0)).mul(1,0,1);
         if(forward.lengthSquared()>1e-8f)forward.normalize();
         if(right.lengthSquared()>1e-8f)right.normalize();
-        float speed=(float)Math.min(.25,travel.horizontalDistance()),phase=(ticks/SWAY_PERIOD_TICKS+index*.31f)*Mth.TWO_PI,amount=sway*(1+3*speed);
+        float speed=(float)Math.min(.25,travel.length()),phase=(ticks/SWAY_PERIOD_TICKS+index*.31f)*Mth.TWO_PI,amount=sway*Math.min(1,speed*10);
         Vector3f swing=forward.mul(SWAY_FORE*amount*Mth.sin(phase)).add(right.mul(SWAY_SIDE*amount*Mth.sin(phase*.63f+index)))
                 .add((float)-travel.x*TRAVEL_LAG,0,(float)-travel.z*TRAVEL_LAG);
         float horizontal=(float)Math.sqrt(swing.x*swing.x+swing.z*swing.z);

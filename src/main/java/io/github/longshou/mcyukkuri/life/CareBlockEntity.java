@@ -88,13 +88,15 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         resting.keySet().retainAll(residents.keySet());
         var before=new LinkedHashMap<>(resting);
         var place=NestResting.choose(entity,bed(),resting,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
-                ||SurfaceApproach.restingFloor(actor,centre().add(p.offset()))!=null);
+                ||SurfaceApproach.restingFloor(actor,centre().add(p.offset()))!=null,expecting(entity));
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
                 worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
         resting.put(id,place);if(!resting.equals(before))changed();
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
     }
+    /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
+    public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}
     public void release(UUID id) { if(residents.remove(id)!=null){resting.remove(id);changed();} }
     public boolean relieve() {
         return relieve(new ItemStack(ModItems.WASTE.get()));

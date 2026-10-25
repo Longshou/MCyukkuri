@@ -50,8 +50,9 @@ public class CareBlock extends Block implements EntityBlock {
     private static final JsonObject AUTHORED = readCollision();
     private static final VoxelShape NEST_SHAPE = authoredShape("yukkuri_nest", 8);
     private static final double NEST_TOP = authoredTop("yukkuri_nest");
-    /** How far the cushion nest's bolster reaches past its block on every side (placed.py NEST_ROLL outer radius 11.4). */
-    private static final double NEST_OVERHANG = 3.4 / 16;
+    /** How far the cushion nest's bolster reaches past its block on every side (placed.py NEST_ROLL outer radius 13.3, its
+     *  collision cells to 13.5). */
+    private static final double NEST_OVERHANG = 5.5 / 16;
     /** Collision shells generated from the visible pet nests (drafts/care-props/placed.py collision()). */
     private static JsonObject readCollision() {
         try (var stream = CareBlock.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/care_collision.json")) {
@@ -94,7 +95,7 @@ public class CareBlock extends Block implements EntityBlock {
             if (!shape.isEmpty() && (side.getAxisDirection() == Direction.AxisDirection.POSITIVE
                     ? shape.min(side.getAxis()) < NEST_OVERHANG : shape.max(side.getAxis()) > 1 - NEST_OVERHANG)) {
                 if (level.isClientSide && context.getPlayer() != null)
-                    context.getPlayer().displayClientMessage(Component.literal("软垫窝的软卷会伸出本格约 3 像素：四周侧边须留空"), true);
+                    context.getPlayer().displayClientMessage(Component.literal("软垫窝的软卷会伸出本格约 5.5 像素：四周侧边须留空"), true);
                 return null;
             }
         }
@@ -108,7 +109,7 @@ public class CareBlock extends Block implements EntityBlock {
         if(height>0)return box(0,0,0,16,height,16);
         return switch(kind){
             case BOWL -> box(.92,0,1.5572,15.08,2.22,14.4428);
-            case NEST -> box(-3.5,0,-3.5,19.5,NEST_TOP,19.5);
+            case NEST -> box(-5.5,0,-5.5,21.5,NEST_TOP,21.5);
             // The pet sand tray (placed.py, 14.4 x 12) seats adults up to 1.2x.
             case TOILET -> box(.77,0,2.21,15.23,2.35,13.79);
             case MAT -> box(0,0,0,16,.15,16);

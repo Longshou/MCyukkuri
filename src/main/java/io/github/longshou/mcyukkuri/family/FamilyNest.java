@@ -1,7 +1,10 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -40,20 +43,61 @@ public final class FamilyNest {
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
         return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
     }
+    /** The floor in the middle of this bed (its 2x2 corner or its block centre), even where the body would not fully stand. */
+    public static Vec3 bedMiddle(YukkuriEntity e,BlockPos bed){
+        var c=care(e);
+        var middle=c!=null&&c.getBlockPos().equals(bed)?c.centre():Vec3.atBottomCenterOf(bed);
+        return SurfaceApproach.surface(e,middle.add(0,.1,0));
+    }
     public static Vec3 restPosition(YukkuriEntity e,BlockPos bed){
         var c=care(e);if(c!=null&&c.getBlockPos().equals(bed))return restPosition(e,c);
         var home=e.habitat().shelter();
         return home!=null&&bed.equals(home.bed(e.getUUID()))?Vec3.atBottomCenterOf(bed).add(home.restOffset(e.getUUID())):Vec3.atBottomCenterOf(bed);
     }
-    /** A real contact with soft bedding cancels only the birth fall, never water or other hazards. */
+    /** Feet on the level floor of the assigned 2x2 nest, inside its rim (not standing on the rim or its entrance shoulders). */
+    public static boolean onLargeFloor(YukkuriEntity e){
+        var centre=largeCentre(e);
+        if(centre==null)return false;
+        double reach=NestResting.LARGE.box()-e.getBbWidth()*.5+NestResting.RIM_PRESS;
+        return Math.abs(e.getX()-centre.x)<=reach&&Math.abs(e.getZ()-centre.z)<=reach&&e.getY()<centre.y+FLOOR_TOP;
+    }
+    /** Above the highest pad or floor of a nest bed (woven pad and hem 1.75-2.0, pet cushion pad 1.75, wild leaf floor 0.5)
+     *  and below every rim or bolster top (wild pressed rim 2.6, its entrance shoulders 2.3, woven wall, pet bolster). */
+    private static final double FLOOR_TOP=2.1/16;
+    /** How far a nest's soft rim or bolster reaches from its centre: the 2x2 nests' rim, the pet cushion's bolster (13.5). */
+    private static final double LARGE_OUTER=1, CUSHION_OUTER=13.5/16;
+    private record Bed(Vec3 centre,double floor,double outer){}
+    /** The pet nests (2x2 and cushion) under or beside the body, with the half size of their level floor and rim. */
+    private static java.util.List<Bed> beds(YukkuriEntity e){
+        var found=new java.util.ArrayList<Bed>();
+        for(var pos:BlockPos.betweenClosed(e.blockPosition().offset(-1,-1,-1),e.blockPosition().offset(1,0,1)))
+            if(e.level().getBlockEntity(pos) instanceof CareBlockEntity c&&c.kind()==CareBlock.Kind.NEST&&!c.getBlockState().is(ModBlocks.PREDATOR_NEST.get()))
+                found.add(c.largeNest()?new Bed(c.centre(),NestResting.LARGE.box(),LARGE_OUTER):new Bed(c.centre(),NestResting.CUSHION.box(),CUSHION_OUTER));
+        return found;
+    }
+    /**
+     * A real contact with soft bedding cancels only the birth fall, never water or other hazards: the newborn's feet on the
+     * level pad or floor of a nest (a 2x2 nest, a pet cushion nest, or its family's large wild bed), inside the rim. A kit
+     * resting on the rim itself is not in the nest (see {@link #rimCentre}).
+     */
     public static boolean cushions(YukkuriEntity baby){
         if(!baby.onGround()||baby.isInWaterOrBubble())return false;
-        for(var pos:BlockPos.betweenClosed(baby.blockPosition().offset(-1,-1,-1),baby.blockPosition().offset(1,0,1)))
-            if(baby.level().getBlockEntity(pos) instanceof CareBlockEntity c&&c.largeNest()
-                    &&Math.abs(baby.getX()-c.centre().x)<1&&Math.abs(baby.getZ()-c.centre().z)<1
-                    &&baby.getY()>=pos.getY()&&baby.getY()<pos.getY()+.3)return true;
+        for(var bed:beds(baby)){
+            double dy=baby.getY()-bed.centre().y;
+            if(Math.abs(baby.getX()-bed.centre().x)<bed.floor()&&Math.abs(baby.getZ()-bed.centre().z)<bed.floor()&&dy>=-.01&&dy<FLOOR_TOP)return true;
+        }
         var centre=largeCentre(baby);
-        return centre!=null&&Math.abs(baby.getX()-centre.x)<1&&Math.abs(baby.getZ()-centre.z)<1&&Math.abs(baby.getY()-centre.y)<.4;
+        double floor=NestResting.LARGE.box();
+        return centre!=null&&Math.abs(baby.getX()-centre.x)<floor&&Math.abs(baby.getZ()-centre.z)<floor&&Math.abs(baby.getY()-centre.y)<.4;
+    }
+    /** The centre of the nest whose soft rim or bolster a landed kit is resting on (above the floor, within the rim), else null. */
+    public static Vec3 rimCentre(YukkuriEntity baby){
+        if(!baby.onGround()||baby.isInWaterOrBubble())return null;
+        for(var bed:beds(baby)){
+            double dx=Math.abs(baby.getX()-bed.centre().x),dz=Math.abs(baby.getZ()-bed.centre().z),dy=baby.getY()-bed.centre().y;
+            if(dx<=bed.outer()&&dz<=bed.outer()&&dy>=FLOOR_TOP&&dy<.4)return bed.centre();
+        }
+        return null;
     }
     /** The common corner of the real 2x2 nest this actor is assigned to; null without a large nest. */
     public static Vec3 largeCentre(YukkuriEntity e){

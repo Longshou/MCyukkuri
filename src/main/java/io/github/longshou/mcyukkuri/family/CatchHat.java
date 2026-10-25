@@ -97,12 +97,14 @@ final class CatchHat {
             return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
         }
         if(brood.kind==FamilyData.BirthKind.STEM){
-            // Under the fruit, its long axis along the stem so they drop into the opening (the near brim clear of her);
-            // turned whichever way puts the helper on the far side, facing her.
+            // The opening right under the fruit (where they drop plumb), its long axis along the stem; the near brim lip
+            // beyond the opening may slip under her front, but the opening itself starts in front of her body. Turned
+            // whichever way puts the helper on the far side, facing her. (The whole brim used to be kept clear of her:
+            // the opening then began past the nearer fruit, which all came down on the ground.)
             double sx=0,sz=0;int n=brood.children.size();
             for(int i=0;i<n;i++){var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),brood.children.get(i).variant);sx+=c.x;sz+=c.z;}
             var under=FamilyGeometry.toWorld(mother,new Vec3(sx/Math.max(1,n),0,sz/Math.max(1,n)));
-            double ahead=under.subtract(mother.position()).dot(forward),least=mother.getBbWidth()*.5+HatVessel.brim(place.mode())[1]*k+.1;
+            double ahead=under.subtract(mother.position()).dot(forward),least=stemClearance(mother,catcher);
             var at=under.add(forward.scale(Math.max(0,least-ahead)));HatPose best=null;double far=-1;
             for(float turn:new float[]{0,180}){
                 var pose=new HatPose(new Vec3(at.x,mother.getY(),at.z),mother.yBodyRot+turn,HatVessel.Mode.NEST,role);
@@ -117,6 +119,13 @@ final class CatchHat {
         double r=HatVessel.radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
         var at=LiveBirthGeometry.position(mother,next).add(forward.scale(r+place.gap()*body+place.nearBrim()*k));
         return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,HatVessel.Mode.NEST,role);
+    }
+
+    /** Least distance from the mother's centre to a stem catch hat's centre: her body's half width and the opening's half
+     *  length along the hat, so the fruit falls into the opening rather than onto her; the brim lip may lie under her. */
+    static double stemClearance(YukkuriEntity mother,YukkuriEntity catcher){
+        double k=HatVessel.hatScale(catcher)*catcher.getScale()/16;
+        return mother.getBbWidth()*.5+HatVessel.opening(HatVessel.Mode.NEST)[3]*k;
     }
 
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
@@ -184,8 +193,10 @@ final class CatchHat {
                 pose.at().x+width,pose.at().y+.3,pose.at().z+width);
         var motherBox=mother.getBoundingBox().move(site.at().subtract(mother.position()));
         var helperBox=o.entity().getBoundingBox().move(helper.at().subtract(o.entity().position()));
+        // A stem hat's near brim lip may lie under her front (stemClearance); a live catch keeps the whole brim clear of her.
+        double motherGap=brood.kind==FamilyData.BirthKind.STEM?stemClearance(mother,o.entity())-.01:mother.getBbWidth()*.5+width;
         return !motherBox.intersects(helperBox)
-                &&site.at().subtract(pose.at()).horizontalDistance()>mother.getBbWidth()*.5+width
+                &&site.at().subtract(pose.at()).horizontalDistance()>motherGap
                 &&helper.at().subtract(pose.at()).horizontalDistance()>o.entity().getBbWidth()*.5+width
                 &&!o.level().getBlockCollisions(o.entity(),hatBox).iterator().hasNext();
     }
@@ -319,8 +330,9 @@ final class CatchHat {
                         var brood=o.target()==null?null:o.target().family().brood();
                         if(rememberDeliveryStation(brood,down,hatTarget))o.target().family().catchStationActivated(brood);
                         BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
-                        GameplayLog.event(o.entity(),"family","catch hat placed brood={} hat={} mother={}",brood==null?null:brood.id,
-                                down.getUUID(),o.target()==null?null:o.target().getUUID());
+                        GameplayLog.event(o.entity(),"family","catch hat placed brood={} hat={} mother={} kind={} at={} yaw={} motherAt={}",brood==null?null:brood.id,
+                                down.getUUID(),o.target()==null?null:o.target().getUUID(),brood==null?null:brood.kind,down.position(),
+                                String.format(java.util.Locale.ROOT,"%.1f",down.getYRot()),o.target()==null?null:o.target().position());
                     }
                 }else if(hatMove==HatMove.ON||hatMove==HatMove.ON_SELF)BirthStaging.caption(o.entity(),"帽子已戴回头上");
                 hatMove=HatMove.NONE;hatTarget=null;

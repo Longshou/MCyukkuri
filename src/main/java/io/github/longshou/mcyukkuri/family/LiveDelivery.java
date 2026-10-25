@@ -298,12 +298,18 @@ final class LiveDelivery {
      * last stretch she is at the nest, afloat in her own hat boat (no partner and no shore needed), at a bank, or, with no nest in reach, on
      * firm ground after a short wait. {@link FamilyLife#nestStand()} is the single place where the family code asks for her nest.
      */
-    /** Actual near-term walking clears the nest before a capable father lays his hat. */
+    /**
+     * Actual near-term walking clears the nest before a capable father lays his hat. A live mother also steps out of a
+     * one-body pet cushion nest: it holds one adult (no newborns, NestOccupancy) and its bolster stands where the newborn
+     * comes out, so she gives birth on the floor beside it (project design).
+     */
     boolean walkOutForCatcher(FamilyData.Brood brood){
         if(brood==null||brood.elapsed<brood.duration-NEST_GRACE||o.boatHome()!=null)return false;
         var helper=FamilyLife.catcher(o.entity(),brood);
-        if(helper==null||helper==o.entity()||!helper.family().dutyReady()||helper.family().catchDutyGaveUp()){landExit=null;leftNest=false;return false;}
         var care=FamilyNest.care(o.entity());var shelter=o.entity().habitat().shelter();
+        boolean helped=helper!=null&&helper!=o.entity()&&helper.family().dutyReady()&&!helper.family().catchDutyGaveUp();
+        boolean cushion=care!=null&&!care.largeNest()&&brood.kind==FamilyData.BirthKind.LIVE;
+        if(!helped&&!cushion){landExit=null;leftNest=false;return false;}
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(o.entity().getUUID()):null;
         if(bed==null)return false;
         if(leftNest)return false;
@@ -312,13 +318,15 @@ final class LiveDelivery {
             for(var side:Direction.Plane.HORIZONTAL){
                 var at=SurfaceApproach.floor(o.entity(),Vec3.atBottomCenterOf(bed.relative(side,3)));
                 if(at!=null&&SurfaceApproach.supported(o.entity(),at)&&o.entity().life().reachable(BlockPos.containing(at),false)){
-                    landExit=at;GameplayLog.event(o.entity(),"family","near-term leave nest target={} catcher={}",at,helper.getUUID());break;
+                    landExit=at;GameplayLog.event(o.entity(),"family","near-term leave nest target={} catcher={} reason={}",at,
+                            helped?helper.getUUID():null,helped?"catcher":"one_body_cushion_nest");break;
                 }
             }
         }
         if(landExit==null){GameplayLog.limited(o.entity(),"family","nest_exit_blocked",200,"near-term nest exit blocked nest={}",bed);return false;}
         if(SurfaceApproach.walk(o.entity(),landExit,.9)){leftNest=true;return false;}return true;
     }
+    boolean outOfNestForTerm(){return leftNest;}
     boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
         var data=FamilyData.get(o.level());
         if(boat!=null)return data.relocate(brood,o.level(),boat.blockPosition());
@@ -330,8 +338,14 @@ final class LiveDelivery {
         if(leftNest)return o.supported()&&data.relocate(brood,o.level(),o.entity().blockPosition());
         if(landExit!=null)return false;
         if(FamilyNest.large(o.entity())){
+            // Lying in the nest: at her rest place, or (when no place stands for her right now) on the nest's real floor
+            // inside its rim, never on the rim itself.
             var nest=o.nestStand();var at=nest==null?null:FamilyNest.restPosition(o.entity(),nest);
-            return at!=null&&o.entity().distanceToSqr(at)<.16&&o.supported()&&data.relocate(brood,o.level(),nest);
+            boolean lying=at!=null?o.entity().distanceToSqr(at)<.16:nest!=null&&FamilyNest.onLargeFloor(o.entity());
+            if(!lying&&nest!=null)GameplayLog.limited(o.entity(),"family","term_not_lying",200,
+                    "near-term not lying in nest nest={} rest={} distance={} onFloor={}",nest,at,
+                    at==null?"n/a":String.format(java.util.Locale.ROOT,"%.2f",Math.sqrt(o.entity().distanceToSqr(at))),FamilyNest.onLargeFloor(o.entity()));
+            return lying&&o.supported()&&data.relocate(brood,o.level(),nest);
         }
         var home=o.nestStand();
         boolean away=home==null||o.entity().distanceToSqr(Vec3.atBottomCenterOf(home))>4;

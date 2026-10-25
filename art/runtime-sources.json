@@ -235,7 +235,7 @@
       "kit": "standards/yukkuri-library/drafts/care-props/shapes.py",
       "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, TRAYS, VARIANTS)",
       "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
-      "style": "rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit; several dye-selected colour / pattern styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints are unchanged; the two pet nests collide along their visible top surface",
+      "style": "rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit; several dye-selected colour / pattern styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; footprints are unchanged except the pet cushion nest (26.6 across, a 23 square level pad so a full-term 1.2x adult lies in it); the two pet nests collide along their visible top surface",
       "styles_table": "life/CareStyles.java (dye -> style) mirrors placed.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
       "status": "pending_user_confirmation",
       "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and toilet_waste (half scale, on the floor at y 1 / 1.5) once per stored dropping in ceramic_toilet and covered_toilet",

@@ -336,9 +336,9 @@ land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', '
            '父油从母油十余格外出发，先寻母、双方走到共同选定的安全位置，再摘帽放好；观察途中不会被普通觅食或闲逛抢走，母油对准真实帽子后生产',
            'land_caught', father_x=-10)
 land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'missed', 'reimu',
-           '没人用帽子垫底：新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
+           '没人用帽子垫底：母油临产先走出单人软垫窝，新生儿直接落地，摔伤（等同摔伤）哭泣，父母赶来安抚；伤口按普通规则处理', 'land_missed')
 land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 'marisa',
-           '魔理沙父油把帽子放到茎下：实子带一点随机横向力脱落，多数落进帽里或碰檐弹进去，少数落到帽外受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury）；多重复几次看比例',
+           '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，多数落进帽里或碰檐弹进去，少数落到帽外受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
            'land_caught')
 
 add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
@@ -457,7 +457,7 @@ add('family_search', 'family', '亲子走散后寻回', '走散寻回',
 
 # Real initial conditions for the retained birth/growth rules; no goal or successful outcome is assigned.
 add('birth_nest_safe', 'family', '大窝自然生产', '大窝生产',
-    '母油从窝外出发，不跳地走进野生大草窝（窝沿一格以内直接迈过，不被卡在窝边），到休息位后生产。每只赤油带随机推力：多数落在垫面（outcome=CUSHION，无伤），少数飞出窝外落地（GROUND，日志 birth impact injury，摔伤哭泣）。读产程、birth launch / birth landed 日志与伤势',
+    '母油从窝外出发，不跳地走进野生大草窝（窝沿一格以内直接迈过，不停在窝沿上），躺到休息位（有空时在窝心）后生产，伴侣也认领同窝挨着躺。每只赤油带随机推力：多数落在垫面（outcome=CUSHION，无伤），落在窝沿上的先滚向窝心（rolls inward），少数飞出窝外落地（GROUND，日志 birth impact injury，摔伤哭泣）。读产程、birth launch / birth landed 日志与伤势',
     '约 2 分钟', [*shed(0, 0, half=4), *large_nest(0, 0, 'mcyukkuri:large_wild_nest'),
     yk('reimu', .5, 2, 'mother', yaw=180, lead=True, **pair_ready()),
     yk('reimu', 3, 2, 'father', **pair_ready()),

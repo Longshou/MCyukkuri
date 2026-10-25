@@ -42,6 +42,7 @@ import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.NestResting;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -66,9 +67,9 @@ public final class ShelterBlockEntity extends BlockEntity {
         var at=bed(entity.getUUID());if(at==null)return false;
         var peers=new LinkedHashMap<UUID,NestResting.Place>();
         resting.forEach((id,place)->{if(at.equals(bed(id)))peers.put(id,place);});
-        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE:NestResting.LEAF_BED,peers,(id,p)->!(level instanceof ServerLevel server)
+        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE_BED:NestResting.LEAF_BED,peers,(id,p)->!(level instanceof ServerLevel server)
                 ||!(server.getEntity(id) instanceof YukkuriEntity actor)
-                ||SurfaceApproach.restingFloor(actor,Vec3.atBottomCenterOf(at).add(p.offset()))!=null);
+                ||SurfaceApproach.restingFloor(actor,Vec3.atBottomCenterOf(at).add(p.offset()))!=null,CareBlockEntity.expecting(entity));
         if(place!=null){peers.put(entity.getUUID(),place);if(peers.entrySet().stream().anyMatch(e->!e.getValue().equals(resting.get(e.getKey())))){resting.putAll(peers);setChanged();}}
         return place!=null;
     }
