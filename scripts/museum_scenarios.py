@@ -583,18 +583,18 @@ pond('hat_custody_burn', '暂放帽船·烧毁边界', '实船烧毁',
     note='这次外力只设置真实起因，不固定后续状态。重复试前先清场；不可把普通卸载或清场当作烧毁。',
     reads=[('读烧毁后的帽主', f'yukkuri status {sel("a")} raw'), ('读落水赤油', f'yukkuri status {sel("kid")} raw'),
            ('读剩余实船', f'data get entity {_cargo_boat}')])
-for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, _floating_count in (
-        ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内起初无粮；旁边水中有 12 份真实苹果，观察自主拾取并装满 11 份，最后一份留在船外', 12),
-        ('cargo_full', '帽内粮堆·满载', '11 粮＋1 桨', '11 份粮食和一根桨占满 12 份容量；旁边两份苹果不能入库。保存重进核对同船与真实库存', 2)):
+for _cargo_mode, _cargo_title, _cargo_hint, _cargo_watch in (
+        ('cargo_empty', '帽内粮堆·空仓', '空仓', '亲油帽内起初无粮；持食物右击船体逐份存入至 11 份，继续存入会提示满载且不晃船'),
+        ('cargo_full', '帽内粮堆·满载', '11 粮＋1 桨', '11 份粮食和一根桨占满 12 份容量；继续存粮只提示并留在手中，不晃船。保存重进核对同船与真实库存')):
     pond(_cargo_mode, _cargo_title, _cargo_hint, _cargo_watch, '随意',
-         [captain(), boat(_cargo_mode, 'a', sel('a')),
-          item('minecraft:apple', _floating_count, 4, 0, 'floating_food', dy=-1)],
-         note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。食物只能右击油库里本人交付，右击船体只会晃船。',
+         [captain(), boat(_cargo_mode, 'a', sel('a'))],
+         give=['minecraft:apple 8', 'minecraft:carrot 8', 'minecraft:cookie 1', 'minecraft:bread 1', 'minecraft:melon_slice 1'],
+         note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。先各存 1 份四种食物，再用西瓜片验证种类已满提示；清场重开后测满载。食物右击船体只入储粮，空手或非食物右击才晃船。',
          reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'), ('读船粮与实物桨', f'data get entity {_cargo_boat} Cargo')])
-pond('cargo_load', '孩子在帽内·自主装粮', '先载幼体', '赤油占 2 份、桨占 1 份；旁边 12 份真实苹果由亲油自主拾取，最多装入 9 份，其余留在船外，幼体座位不被粮堆覆盖', '随意', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
-    boat('cargo_load', 'a', sel('kid')), item('minecraft:apple', 12, 4, 0, 'floating_food', dy=-1)],
-    note='对比先装满粮再接孩子的场景；库存只由真实初态和自主拾取改变，右击船体只晃船。',
+pond('cargo_load', '孩子在帽内·再装粮', '先载幼体', '赤油占 2 份、桨占 1 份；持食物右击船体最多再装 9 份，继续存入只提示不晃船，幼体座位不被粮堆覆盖', '随意', [
+    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), boat('cargo_load', 'a', sel('kid'))],
+    give=['minecraft:apple 8', 'minecraft:carrot 8', 'minecraft:cookie 1', 'minecraft:bread 1', 'minecraft:melon_slice 1'],
+    note='对比先装满粮再接孩子的场景；潜行右击一次最多存入 8 份。各存 1 份四种食物后，西瓜片只提示种类已满；继续装满也只提示，不晃动。',
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
@@ -622,9 +622,9 @@ pond('shore_babies', '两只赤油返岸', '两只赤油返岸', '船上是两�
     yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()), boat('shore', 'a', sel_all('young')), SHORE_CALL],
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读全部幼体', f'yukkuri status {sel_all("young")} raw')])
-pond('high', '四幼体高载荷', '四幼体', '四只赤油占 8 份，加三份粮和一根桨共 12 份，观察满载吃水与座位；旁边两份苹果不能入库', '约 1–3 分钟', [
+pond('high', '四幼体高载荷', '四幼体', '四只赤油占 8 份，加三份粮和一根桨共 12 份，观察满载吃水与座位；再存食物只提示不晃船', '约 1–3 分钟', [
     captain(), *[yk('marisa', -2 - i % 2, i // 2 * 2 - 1, f'k{i}', stage='baby', aquatic=True, also=('young',), **pair_ready()) for i in range(4)],
-    boat('high', 'a', sel_all('young')), item('minecraft:apple', 2, 4, 0, 'floating_food', dy=-1)],
+    boat('high', 'a', sel_all('young'))], give=['minecraft:apple 2'],
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读全部幼体', f'yukkuri status {sel_all("young")} raw'),
            ('读实船库存', f'data get entity {_cargo_boat} Cargo')])

@@ -1738,10 +1738,30 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             }
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
+        if (held.is(YukkuriEntity.FOOD)) {
+            if (!level().isClientSide) storePlayerFood(player,held);
+            return InteractionResult.sidedSuccess(level().isClientSide);
+        }
         if (level().isClientSide) return InteractionResult.SUCCESS;
-        // Hull interaction is only a physical shove. Items are delivered to the yukkuri, never through this entity.
+        // Empty hands and non-food items only shove the hull; they never issue a behavior request.
         shake(player,1);
         return InteractionResult.CONSUME;
+    }
+    private void storePlayerFood(Player player,ItemStack held){
+        var y=owner();
+        String reason=!isAfloat()?"not_afloat":y==null?"owner_unavailable":!y.life().acceptsFood(held)?"not_accepted":null;
+        if(reason==null&&!cargo.canStore(held))reason=cargo.remainingCapacity()<=0||cargoRoom()<=0?"full":"slots";
+        if(reason!=null){refusePlayerFood(player,held,reason);return;}
+        cargo.store(held,player.isShiftKeyDown()?8:1,player.getAbilities().instabuild);
+    }
+    private void refusePlayerFood(Player player,ItemStack held,String reason){
+        var message="full".equals(reason)
+                ?Component.translatable("interaction.mcyukkuri.hat_cargo.full",capacityUsed(),HatBoatCargo.CAPACITY)
+                :Component.translatable("interaction.mcyukkuri.hat_cargo."+reason);
+        player.displayClientMessage(message,true);
+        GameplayLog.limited(this,"cargo","player_store."+reason,200,
+                "player food storage refused player={} owner={} item={} reason={} used={}/{} cargoRoom={} paddle={}",
+                player.getUUID(),ownerYukkuri(),held.getItem(),reason,capacityUsed(),HatBoatCargo.CAPACITY,cargoRoom(),cargo.paddle());
     }
     @Override public boolean hurt(DamageSource source, float amount) {
         if (isInvulnerableTo(source) || level().isClientSide || amount <= 0 || isRemoved()) return false;
