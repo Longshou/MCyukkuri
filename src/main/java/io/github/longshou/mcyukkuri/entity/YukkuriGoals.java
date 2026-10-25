@@ -48,6 +48,7 @@ final class YukkuriGoals {
         presentationGoals = new PresentationGoals(owner);
         goalSelector.addGoal(0, new EscapeWaterGoal());
         goalSelector.addGoal(0, new HotFloorGoal());
+        goalSelector.addGoal(0, presentationGoals.bind(PresentationGoals.HURT_CRY, new HurtCryGoal()));
         goalSelector.addGoal(0, new HouseExitGoal());
         goalSelector.addGoal(0, new OperationGoal());
         owner.createGrief();
@@ -164,6 +165,17 @@ final class YukkuriGoals {
             }
         }
         @Override public void stop() { owner.directNavigation().stop(); }
+    }
+    /** A hurt newborn stays where it is and cries; fire, water, being carried or held still override it. */
+    private final class HurtCryGoal extends Goal {
+        HurtCryGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        private boolean holds() { return owner.hurtCrying() && !owner.isPassenger() && !owner.isOnFire() && !owner.isInWaterOrBubble() && !owner.agitation().held(); }
+        @Override public boolean canUse() { return holds(); }
+        @Override public boolean canContinueToUse() { return holds(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void start() { owner.life().interrupt(); owner.directNavigation().stop(); owner.getNavigation().stop(); }
+        @Override public void tick() { owner.directNavigation().stop(); owner.getNavigation().stop(); }
+        @Override public void stop() { owner.endHurtCry(owner.hurtCrying() ? "interrupted" : "lapsed"); owner.directNavigation().stop(); }
     }
     private final class HotFloorGoal extends Goal {
         HotFloorGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }

@@ -56,7 +56,7 @@ public final class EcologyPresentation {
             case Behaviors.SANCTION_DECLARE, Behaviors.PROTECT_TAUNT -> YukkuriAction.PUFF;
             case Behaviors.SANCTION_BULLY -> YukkuriAction.PUSH;
             case Behaviors.SELF_DEFENSE -> YukkuriAction.PUSH;
-            case Behaviors.COMFORT_RECEIVE -> YukkuriAction.DROOP;
+            case Behaviors.COMFORT_RECEIVE, Behaviors.HURT_CRY -> YukkuriAction.DROOP;
             // The final offering remains a running SelfOffering goal during the ordinary short dying state.  It uses
             // the approved withdrawn pose instead of inventing a separate death animation.
             case Behaviors.SELF_OFFER_INSIST -> YukkuriAction.DROOP;
@@ -242,6 +242,7 @@ public final class EcologyPresentation {
             case Behaviors.HOUSE_DEPOSIT -> "satisfied";
             case Behaviors.SEEK_WARMTH, Behaviors.WARM_UP -> "teary";
             case Behaviors.THREAT_WATCH, Behaviors.THREAT_RETREAT -> "surprise";
+            case Behaviors.HURT_CRY -> "cry";
             case Behaviors.THREAT_HIDE, Behaviors.RAIN_RUN, Behaviors.RAIN_WAIT, Behaviors.RAIN_HUDDLE -> "teary";
             case Behaviors.RAIN_SHAKE -> "neutral";
             case Behaviors.SEEK_SHADE, Behaviors.SHADE_REST -> "sleepy";

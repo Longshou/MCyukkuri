@@ -11,7 +11,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 生产窝尺寸、孕体容纳与茎生接生（dd75d650 复测） | `.worktrees/birth-nest-fit` | 窝方块与碰撞（宠物软垫窝、编织大窝、叶床、野生大窝）、窝模型与制作源、`family/` 分娩落点／认窝空间判定／茎生悬挂与接生、客户端茎与赤油挂点、`scripts/museum_scenarios.py` 生产与接生场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` 窝容量段 |
-| 赤油受伤原地哭泣 | `.worktrees/baby-hurt-cry` | 受伤／逃跑反应中赤油分支（威胁与恐慌 Goal）、`life/SpeciesLife.java` 紧急移速条件 |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 亲油陆上承托赤油（帽檐／口含／尾托） | `.worktrees/parent-carry` | `family/` 承托与运输（`CradlePickup` 邻近、新承托类）、`settlement/SettlementLife.java` 迁徙随行交接、客户端承托挂点（基础位置）、`scripts/museum_scenarios.py` 迁徙·赤油跟亲场景、`docs/SETTLEMENTS.md` 运输段、`docs/CHILDHOOD_LIFECYCLE.md` 子代运输段 |
@@ -143,6 +142,7 @@
 
 ### 生存、捕食与伤病修正
 
+- **赤油受伤原地哭泣**：已接入待试玩（版本为本次合入提交）。此前用户反馈受伤赤油（接生漏接 `birth impact injury`、被攻击）会跑动逃跑；现赤油受伤后原地哭泣 400 tick，规则见[子代生命周期](CHILDHOOD_LIFECYCLE.md)。完成：`birth_land_missed` 看摔落赤油不走动、哭脸垂身，日志出现 `[childhood] hurt cry start/end`，亲油赶来舔舐；对赤油攻击（同场攻击者）无 `flee`／移速加成，子油受击仍逃跑；着火或落水时仍离开危险。
 - **妖梦体力系数未生效**：已接入待试玩。核查版本 [c3033e91](https://github.com/Longshou/MCyukkuri/commit/c3033e91701c45b898c9af7ab44b843601bc564b)，CI run `39580340893`；这是源码核查，尚无试玩复现。当前按有符号小数余量累计代谢增耗与减耗，并保留每次实际代谢调用／扣量读数。完成：`species_fatigue` 中妖梦、灵梦、帕秋莉同等初态自然活动，在相同 `species.fatigue.steps=20` 时实际代谢 `cost` 分别为18／20／25；同时看精力、睡眠及其他额外耗能，重载不带入上次会话统计。见[物种行为差异](SPECIES.md#种族行为差异)。
 - **陆 38 捕食种腾空台词**：已接入待试玩。此前用户反馈原生会飞的捕食种说“好像在天上飞”（版本待核实）；当前按物种能力排除该触发，普通个体仍观察真实腾空。完成：`airborne` 用实体墙分隔普通与捕食种，对照普通高抛／小跳及蕾米莉亚／弗兰，核对实际字幕、`[dialogue]` 事件及行为；普通高抛只触发一次，小跳和两种捕食种均不触发。
 - **固定群系下的日常储粮**：已接入待试玩。按当前固定群系季节规则移除秋储规划天数、额外采集、秋季加征和过冬预留；日常采集与公仓补给仍消耗实际物资。完成：`forage`、`settle_taiga` 的观察笔记对照住所库存／日常目标，`colony_hunt`、`colony_ration` 读公仓目标／上缴比例及缺粮补给；秋季群系不为未来冬天持续囤粮或扣留当前所需公粮。规则见[季节生活](SEASONAL_LIFE.md#日常采集目标与停止)。

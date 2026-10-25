@@ -219,10 +219,10 @@ public final class Reactions {
 
         boolean wants() {
             var s = source();
-            if (s == null || !free(y) || y.grief().protecting() || y.myon().fighting() || y.isPanicking() || y.level().getGameTime() < cooldownUntil) return false;
+            if (s == null || !free(y) || y.hurtCrying() || y.grief().protecting() || y.myon().fighting() || y.isPanicking() || y.level().getGameTime() < cooldownUntil) return false;
             return stage != Stage.NONE || s.distanceToSqr(y) <= 256 || s == heard;
         }
-        boolean keeps() { return stage != Stage.NONE && free(y) && !y.grief().protecting() && !y.myon().fighting() && !y.isPanicking(); }
+        boolean keeps() { return stage != Stage.NONE && free(y) && !y.hurtCrying() && !y.grief().protecting() && !y.myon().fighting() && !y.isPanicking(); }
         void start() {
             // Seeing the source of a warning is enough to retreat; unseen warnings retain the short listening phase.
             var danger = source();

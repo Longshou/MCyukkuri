@@ -21,6 +21,8 @@ import net.minecraft.world.entity.player.Player;
 
 /** One synchronous hurt/death transaction owner; public entity overrides delegate once. */
 final class YukkuriDamage {
+    /** A hurt newborn cries in place for this long (20 s), renewed by each further hit. */
+    private static final int HURT_CRY_TICKS=400;
     private final YukkuriEntity owner;
     YukkuriDamage(YukkuriEntity owner) { this.owner = owner; }
     private boolean deathRecorded;
@@ -93,10 +95,14 @@ final class YukkuriDamage {
                             && source.getEntity() instanceof YukkuriEntity attacker
                             && owner.predator().retaliate(attacker);
                     boolean defending = peerConflict && owner.groupInteraction().defense().respond((YukkuriEntity) source.getEntity());
-                    owner.setPanicTicks(112);
+                    boolean hurtCry=owner.newbornStage()&&!owner.shellRetracts()&&!owner.isOnFire()&&!source.is(DamageTypeTags.IS_FIRE)
+                            &&!source.is(DamageTypes.DROWN)&&!owner.isInWaterOrBubble();
+                    if(hurtCry)owner.startHurtCry(source.type().msgId(),HURT_CRY_TICKS);
+                    else owner.setPanicTicks(112);
                     if(defending || retaliating || !peerConflict && owner.myon().standGround(source))owner.setPanicTicks(0);
                     owner.directNavigation().stop();
-                    if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());
+                    if(hurtCry)owner.setAnimation(YukkuriAction.STARTLE,true);
+                    else if(owner.shellRetracts())owner.shellRetraction().tick(owner.panicTicksValue());
                     else owner.setAnimation(YukkuriAction.STARTLE,true);
                 }
             }

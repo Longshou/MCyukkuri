@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -186,6 +187,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private YukkuriAction requestedAction;
     private int panicTicks;
+    /** Game time until which a hurt newborn holds still and cries; server-only, never saved. */
+    private long hurtCryUntil;
+    private String hurtCryCause;
     private final ShellRetraction shellRetraction = new ShellRetraction(this);
     private int reactionTicks;
     private final SpeechTiming speechTiming = new SpeechTiming();
@@ -403,14 +407,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public PlayLife playLife(){return playLife;}
     public SurfaceLife surfaceLife(){return surfaceLife;}
     public void frightenFrom(YukkuriEntity threat) {
-        if(level().isClientSide||!isAlive()||life.isSleeping())return;
+        if(level().isClientSide||!isAlive()||life.isSleeping()||hurtCrying()||hurtCrying())return;
         if(grief.protecting())return;
         if(myon.confront(threat))return; // a brave Myon turns on the threat instead of bolting
         fleeFrom(threat);
     }
     /** A chosen retreat must not be replaced by a species' stand-ground override. */
     public void fleeFrom(YukkuriEntity threat) {
-        if(level().isClientSide||!isAlive())return;
+        if(level().isClientSide||!isAlive()||hurtCrying())return;
         interrupt(Interrupt.FRIGHT);
         setLastHurtByMob(threat);panicTicks=100;
         life.involuntaryRelease("fright", false);
@@ -886,6 +890,22 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void rememberHit(float incoming) { lastHurt = Math.max(lastHurt, incoming); }
     int panicTicksValue() { return panicTicks; }
     void setPanicTicks(int ticks) { panicTicks = ticks; }
+    /** Project design: a hurt newborn (BABY stage) does not flee; it stays put and cries until the cry lapses. */
+    public boolean hurtCrying() {
+        return hurtCryUntil > level().getGameTime() && isAlive() && lifeStage() == FamilyLife.Stage.BABY.ordinal();
+    }
+    public boolean newbornStage() { return lifeStage() == FamilyLife.Stage.BABY.ordinal(); }
+    public String hurtCryCause() { return hurtCryCause; }
+    void startHurtCry(String cause, int ticks) {
+        boolean fresh = !hurtCrying();
+        hurtCryUntil = level().getGameTime() + ticks; hurtCryCause = cause; panicTicks = 0;
+        if (fresh) GameplayLog.event(this, "childhood", "hurt cry start cause={} ticks={} health={}", cause, ticks, getHealth());
+    }
+    void endHurtCry(String reason) {
+        if (hurtCryUntil == 0) return;
+        hurtCryUntil = 0;
+        GameplayLog.event(this, "childhood", "hurt cry end cause={} reason={} health={}", hurtCryCause, reason, getHealth());
+    }
     YukkuriAction requestedActionValue() { return requestedAction; }
     boolean hurtBase(DamageSource source, float amount) {
         int previousHurt = hurtTime, previousDuration = hurtDuration;

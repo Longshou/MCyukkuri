@@ -68,6 +68,7 @@ public final class PresentationGoals {
     public static final Source<Goal> COMFORT_RECEIVER = state("comfort_receiver", e -> e.woundComfort().receiving() ? e.woundComfort().activity() : null);
     public static final Source<Cannibalism> CANNIBALISM = observed("cannibalism", Cannibalism::activity);
     public static final Source<SelfOffering> SELF_OFFERING = observed("self_offering", SelfOffering::activity);
+    public static final Source<Goal> HURT_CRY = state("hurt_cry", e -> e.hurtCrying() ? Behaviors.HURT_CRY : null);
     public static final Source<Goal> HEADWEAR = state("headwear", e -> e.headwear().active() ? e.headwear().activity() : null);
     public static final Source<Goal> PREDATOR = new Source<>("predator",
             (e, g) -> e.predator().active() ? e.predator().activity() : null, Actions.PREDATOR);

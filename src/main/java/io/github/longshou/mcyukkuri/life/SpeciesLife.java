@@ -151,9 +151,10 @@ public final class SpeciesLife {
     /** The emergency now pressing this animal, or null: fleeing, just hurt, retreating from a threat, or starving in the rain. */
     private String urgentReason() {
         if (entity.life().isSleeping() || entity.isPassenger()) return null;
+        if (entity.hurtCrying()) return null;
         if (entity.isPanicking()) return "panic";
         if (entity.status().reactions().threat().stage() == Reactions.Threat.Stage.RETREAT) return "retreat";
-        if (entity.getLastHurtByMob() != null && entity.tickCount - entity.getLastHurtByMobTimestamp() < 200) return "hurt";
+        if (!entity.newbornStage() && entity.getLastHurtByMob() != null && entity.tickCount - entity.getLastHurtByMobTimestamp() < 200) return "hurt";
         if (entity.status().reactions().weather().stage() == Reactions.Weather.Stage.RUN) return "rain_run";
         if (entity.life().nutrition() < 20 && entity.level().isRainingAt(entity.blockPosition())) return "rain_hunger";
         return null;
