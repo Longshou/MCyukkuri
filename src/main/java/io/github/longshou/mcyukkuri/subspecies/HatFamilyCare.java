@@ -13,6 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -23,6 +25,7 @@ import net.minecraft.core.particles.ParticleTypes;
 
 /** A parent stops rowing to tend real children. Interrupted servings return to cargo or the world. */
 public final class HatFamilyCare {
+    private static final int RETRY_TICKS = 100, MAX_RETRIES = 64;
     private enum Kind { NONE, FEED, FIRST_TOILET, COMFORT, NUZZLE, LULLABY }
     private final YukkuriEntity parent;
     private Kind kind = Kind.NONE;
@@ -82,7 +85,7 @@ public final class HatFamilyCare {
         if (affectionWait > 0) affectionWait--;
         if (songWait > 0) songWait--;
         if (!level().isNight()) bedtimeSung = false;
-        retryUntil.entrySet().removeIf(entry -> entry.getValue() <= level().getGameTime());
+        trimRetries(level().getGameTime());
         if (active() && (!(parent.getVehicle() instanceof HatBoatEntity boat) || !availableForContinuation(boat))) cancel();
         // A saved serving is recovered once; a partially completed interaction never grants its rewards on load.
         if (!active() && !serving.isEmpty()) refund();
@@ -174,6 +177,7 @@ public final class HatFamilyCare {
         if (kind == Kind.LULLABY && (children.isEmpty() || children.stream().anyMatch(y -> y.life().nutrition() < 15))) {
             cancel(); return false;
         }
+        touchDecision();
         boat.helm().drift(parent, Purpose.CARE); ticks++;
         if(kind!=Kind.FEED&&children.stream().anyMatch(y->y.life().nutrition()<15&&y.life().canReceiveCareFood())){cancel();return false;}
         if (finishTicks > 0) {
@@ -305,6 +309,9 @@ public final class HatFamilyCare {
         if (decisionNeed != null && decisionChild != null) parent.family().careDecisions().complete(decisionChild, decisionNeed);
         decisionChild = null; decisionNeed = null;
     }
+    private void touchDecision() {
+        if (decisionNeed != null && decisionChild != null) parent.family().careDecisions().touch(decisionChild, decisionNeed);
+    }
     public void cancel() {
         if(active())GameplayLog.limited(parent,"aquatic","care.stop."+kind,200,
                 "hat care stopped kind={} child={} ticks={} contactTicks={} finishTicks={} pendingItem={}",
@@ -317,7 +324,11 @@ public final class HatFamilyCare {
         GameplayLog.limited(parent,"aquatic","care.failed."+reason,200,
                 "hat care failed kind={} child={} reason={} ticks={} contactTicks={} finishTicks={} toiletTicks={} retryTicks=100",
                 kind,child,reason,ticks,deliveryTicks,finishTicks,toiletTicks);
-        if(child!=null)retryUntil.put(child,level().getGameTime()+100);cancel();
+        if(child!=null){
+            long now=level().getGameTime();
+            retryUntil.put(child,now+RETRY_TICKS);trimRetries(now);
+        }
+        cancel();
     }
     private void refund() {
         if (serving.isEmpty()) return;
@@ -334,11 +345,29 @@ public final class HatFamilyCare {
         tag.putInt("MealWait", mealWait); tag.putInt("AffectionWait", affectionWait); tag.putInt("SongWait", songWait);
         tag.putInt("Meals", meals); tag.putInt("Comforts", comforts); tag.putInt("Songs", songs); tag.putBoolean("BedtimeSung", bedtimeSung);
         if (!serving.isEmpty()) tag.put("Serving", serving.save(parent.registryAccess()));
+        long now=level().getGameTime();
+        trimRetries(now);
+        var retries=new ListTag();
+        retryUntil.forEach((young, until) -> {
+            long remaining=until-now;
+            if(remaining<=0)return;
+            var entry=new CompoundTag();
+            entry.putUUID("Child",young);entry.putInt("Remaining",(int)Math.min(remaining,RETRY_TICKS));
+            retries.add(entry);
+        });
+        tag.put("CareRetry",retries);
         return tag;
     }
     public void load(CompoundTag tag) {
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
         retryUntil.clear();
+        long now=level().getGameTime();
+        for(var raw:tag.getList("CareRetry",Tag.TAG_COMPOUND)){
+            if(!(raw instanceof CompoundTag entry)||!entry.hasUUID("Child"))continue;
+            int remaining=Math.clamp(entry.getInt("Remaining"),0,RETRY_TICKS);
+            if(remaining>0)retryUntil.put(entry.getUUID("Child"),now+remaining);
+        }
+        trimRetries(now);
         grateful = null;
         kind = Kind.NONE; child = decisionChild = null; decisionNeed = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0;
         mealWait = Math.clamp(tag.getInt("MealWait"), 0, 80); affectionWait = Math.clamp(tag.getInt("AffectionWait"), 0, 600);
@@ -346,6 +375,15 @@ public final class HatFamilyCare {
         meals = Math.max(0, tag.getInt("Meals")); comforts = Math.max(0, tag.getInt("Comforts")); songs = Math.max(0, tag.getInt("Songs"));
         serving = ItemStack.parseOptional(parent.registryAccess(), tag.getCompound("Serving"));
         if (!serving.isEmpty()) serving.setCount(1);
+    }
+
+    private void trimRetries(long now) {
+        retryUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+        while (retryUntil.size() > MAX_RETRIES) {
+            var oldest=retryUntil.entrySet().stream().min(Comparator.comparingLong(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(null);
+            if(oldest==null)return;
+            retryUntil.remove(oldest);
+        }
     }
 
     /** Child faces away from the captain so the parent is physically behind it for first-toilet care. */

@@ -39,11 +39,7 @@ public final class CareDecisionLedger {
         trim(now);
         var key = new Key(child.getUUID(), need);
         var previous = decisions.get(key);
-        if (previous != null) {
-            // A real retry keeps an accepted episode alive; an untouched episode remains bounded.
-            if (previous.accepted()) decisions.put(key, new Decision(true, now + DECISION_TICKS));
-            return new Result(previous.accepted(), false);
-        }
+        if (previous != null) return new Result(previous.accepted(), false);
         float chance = parent.life().personality().helpProbability(true, urgent);
         float roll = parent.getRandom().nextFloat();
         boolean accepted = roll < chance;
@@ -54,6 +50,22 @@ public final class CareDecisionLedger {
                 "care decision kind={} child={} urgent={} chance={} roll={} accepted={} until={}",
                 need, child.getUUID(), urgent, chance, roll, accepted, until);
         return new Result(accepted, true);
+    }
+
+    /** An active care route keeps its accepted episode alive without opening or changing a decision. */
+    public boolean touch(YukkuriEntity child, Need need) {
+        return child != null && touch(child.getUUID(), need);
+    }
+
+    /** An active care route with only the child's retained identity can renew its accepted episode. */
+    public boolean touch(UUID child, Need need) {
+        if (child == null) return false;
+        long now = now();
+        var key = new Key(child, need);
+        var decision = decisions.get(key);
+        if (decision == null || !decision.accepted() || decision.until() <= now) return false;
+        decisions.put(key, new Decision(true, now + DECISION_TICKS));
+        return true;
     }
 
     /** A completed handoff or release ends this need's episode; a cancelled retry keeps its decision. */

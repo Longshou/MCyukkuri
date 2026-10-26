@@ -13,8 +13,13 @@ import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
@@ -25,6 +30,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** Real parent food reservation, mouth preparation and handoff. The owner retains the goal state. */
 final class FamilyFeeding {
+    private static final int RETRY_TICKS = 200, MAX_RETRIES = 64;
     private final FamilyLife o;
     /** A single real portion survives interruption and reload. */
     private ItemStack carrying=ItemStack.EMPTY;
@@ -35,6 +41,8 @@ final class FamilyFeeding {
     private ForageClaims.Claim plantClaim;
     private int searchTicks, plantContact;
     private int careCarryTicks, careChewTicks, careOfferTicks, careFinishTicks;
+    /** Food-search failures are local to this route and do not change the parent's care decision. */
+    private final Map<UUID, Long> retryUntil = new HashMap<>();
 
     FamilyFeeding(FamilyLife o) { this.o=o; }
 
@@ -69,12 +77,31 @@ final class FamilyFeeding {
         if(!carrying.isEmpty())tag.put("CareFood",carrying.save(o.entity().registryAccess()));
         tag.putInt("CareFoodTicks",careCarryTicks);
         tag.putInt("CareChewTicks",careChewTicks);tag.putInt("CareOfferTicks",careOfferTicks);
+        long now=o.level().getGameTime();
+        trimRetries(now);
+        var retries=new ListTag();
+        retryUntil.forEach((child, until) -> {
+            long remaining=until-now;
+            if(remaining<=0)return;
+            var entry=new CompoundTag();
+            entry.putUUID("Child",child);entry.putInt("Remaining",(int)Math.min(remaining,RETRY_TICKS));
+            retries.add(entry);
+        });
+        tag.put("CareRetry",retries);
     }
     void load(CompoundTag tag) {
         carrying=tag.contains("CareFood")?ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
         if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;
         careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
         careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,FamilyFeedingContact.REQUIRED_CONTACT_TICKS);
+        retryUntil.clear();
+        long now=o.level().getGameTime();
+        for(var raw:tag.getList("CareRetry",Tag.TAG_COMPOUND)){
+            if(!(raw instanceof CompoundTag entry)||!entry.hasUUID("Child"))continue;
+            int remaining=Math.clamp(entry.getInt("Remaining"),0,RETRY_TICKS);
+            if(remaining>0)retryUntil.put(entry.getUUID("Child"),now+remaining);
+        }
+        trimRetries(now);
     }
 
     private boolean careContextReady() {
@@ -108,7 +135,7 @@ final class FamilyFeeding {
 
     YukkuriEntity hungriestOwnChild() {
         return o.level().getEntitiesOfClass(YukkuriEntity.class,o.entity().getBoundingBox().inflate(12),this::hungryOwnChild).stream()
-                .filter(child->!o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))
+                .filter(child->!retryBlocked(child)&&!o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))
                 .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(o.entity()::distanceToSqr)).orElse(null);
     }
 
@@ -188,7 +215,7 @@ final class FamilyFeeding {
 
     /** A real reachable meal can be attempted before a parent treats starvation as having no remedy. */
     boolean hasOpportunity(YukkuriEntity child) {
-        if(child==null||!hungryOwnChild(child))return false;
+        if(child==null||!hungryOwnChild(child)||retryBlocked(child))return false;
         if(o.task()==Task.FEED_CHILD&&o.target()==child&&careContinuationReady()
                 &&(!carrying.isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
         if(!careReady()||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
@@ -234,9 +261,12 @@ final class FamilyFeeding {
         if(!validCareTarget()) {
             endCare("no_eligible_child");return;
         }
+        o.careDecisions().touch(o.target(),CareDecisionLedger.Need.FEED);
         if(carrying.isEmpty()) {
             searchTicks++;
             if(searchTicks>600){
+                retryUntil.put(o.target().getUUID(),o.level().getGameTime()+RETRY_TICKS);
+                trimRetries(o.level().getGameTime());
                 endCare("food_search_exhausted");return;
             }
             if(foodSource==null&&foodStore==null&&plantSource==null&&searchTicks%40==1)selectFoodSource();
@@ -327,5 +357,19 @@ final class FamilyFeeding {
                 "feed interrupted child={} reason={} carrying={} ticks={}",
                 o.target()==null?null:o.target().getUUID(),reason,carrying,o.taskTicks());
         o.stop();
+    }
+    private boolean retryBlocked(YukkuriEntity child) {
+        long now=o.level().getGameTime();
+        long until=retryUntil.getOrDefault(child.getUUID(),0L);
+        if(until<=now){retryUntil.remove(child.getUUID());return false;}
+        return true;
+    }
+    private void trimRetries(long now) {
+        retryUntil.entrySet().removeIf(entry->entry.getValue()<=now);
+        while(retryUntil.size()>MAX_RETRIES){
+            var oldest=retryUntil.entrySet().stream().min(Comparator.comparingLong(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(null);
+            if(oldest==null)return;
+            retryUntil.remove(oldest);
+        }
     }
 }

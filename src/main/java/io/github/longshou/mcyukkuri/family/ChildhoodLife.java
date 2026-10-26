@@ -412,6 +412,7 @@ public final class ChildhoodLife {
     private void tickFirstToilet() {
         var child = person(careTarget);
         if (child == null) { stop(); return; }
+        entity.family().careDecisions().touch(child,CareDecisionLedger.Need.FIRST_TOILET);
         var approach=entity.careApproach().tick(child,CareApproach.Kind.REAR);
         if(approach==CareApproach.Result.FAILED){
             GameplayLog.limited(entity, "childhood", "care.approach_failed", 200,
