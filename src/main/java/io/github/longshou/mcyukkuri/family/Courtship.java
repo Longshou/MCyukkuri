@@ -230,8 +230,8 @@ final class Courtship {
         courtNearTicks++;
         if(courtNearTicks<=COURT_ACCEPT_TICKS){o.entity().getNavigation().stop();facePartner();return;}
         if(courtContactTicks==0) {
-            tickRearApproach(o,this);
-            if(o.task()==Task.COURT&&rearAligned(this)) {
+            tickRearApproach(o,o);
+            if(o.task()==Task.COURT&&rearAligned(o)) {
                 courtContactTicks=1;courtContactStart=o.level().getGameTime();
                 GameplayLog.event(o.entity(),"family","courtship contact started partner={} requiredTicks={} mother={} father={}",
                         o.target().getUUID(),courtRequiredTicks,mother(o.entity(),o.target()).getUUID(),
@@ -239,11 +239,11 @@ final class Courtship {
             }
             return;
         }
-        if(!rearAligned(this)) {
+        if(!rearAligned(o)) {
             GameplayLog.limited(o.entity(),"family","court.contact_lost",200,"courtship rear contact lost partner={} contactTicks={}",o.target().getUUID(),courtContactTicks);
-            courtContactTicks=0;courtContactStart=-1;tickRearApproach(o,this);return;
+            courtContactTicks=0;courtContactStart=-1;tickRearApproach(o,o);return;
         }
-        faceRearContact(o,this);
+        faceRearContact(o,o);
         if(++courtContactTicks>=courtRequiredTicks) {
             YukkuriEntity peer=o.target(),mother=mother(o.entity(),peer),father=mother==o.entity()?peer:o.entity();
             ReproductionEffects.release(o.level(),mother);

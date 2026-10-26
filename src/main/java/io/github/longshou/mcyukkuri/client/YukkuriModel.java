@@ -102,7 +102,7 @@ public final class YukkuriModel {
     private String reproductiveAnatomy;
     private float reproductiveAmount;
     /** An independent visible anatomy layer; it never selects or advances a business action. */
-    void setReproductiveAnatomy(String part,float amount){reproductiveAnatomy=part;reproductiveAmount=Mth.clamp(amount,0,1);}
+    void setReproductiveAnatomy(String part,float amount){reproductiveAnatomy=part;reproductiveAmount=Math.clamp(amount,0,1);}
     public void setPregnancy(float belly,float contraction){pregnancyBelly=belly;pregnancyContraction=contraction;}
     public void setDelivery(LiveBirthRenderer.Delivery value){delivery=value;}
     /** Current selected mesh, retaining the visible parts and UVs for the unborn child's emergence. */
