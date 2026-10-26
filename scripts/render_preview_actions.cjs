@@ -12,6 +12,8 @@ const fits=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/
 const presentations=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json'),'utf8')).variants;
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const poses=new Map(),models=new Map(),textures=new Map();
+const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
+const deckLayout=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json');
 function readJson(relative){return JSON.parse(fs.readFileSync(path.join(root,relative),'utf8'));}
 function poseFor(id){
  if(poses.has(id))return poses.get(id);
@@ -28,10 +30,56 @@ function rawTexture(key){
 function interpolate(from,to,q){return (from||[0,0,0]).map((v,i)=>v+((to||from||[0,0,0])[i]-v)*q);}
 function rotateXZ(x,z,yaw){const c=Math.cos(yaw),s=Math.sin(yaw);return [x*c+z*s,-x*s+z*c];}
 function inverseRotateXZ(x,z,yaw){const c=Math.cos(yaw),s=Math.sin(yaw);return [x*c-z*s,x*s+z*c];}
-function actorPosition(actor,q){return interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q);}
-function scenePoint(actor,point,q){
- const at=actorPosition(actor,q),scale=actor.scale===undefined?1:actor.scale,yaw=(actor.yaw||0)*Math.PI/180;
+function keyed(track,time,name,fallback){
+ const points=(track||[]).filter(point=>point[name]!==undefined);
+ if(!points.length)return fallback;
+ let before=points[0],after=points[points.length-1];
+ for(const point of points){if(point.at<=time)before=point;if(point.at>=time){after=point;break;}}
+ if(before===after||after.at===before.at)return before[name];
+ const q=(time-before.at)/(after.at-before.at),left=before[name],right=after[name];
+ return Array.isArray(left)?left.map((value,index)=>value+(right[index]-value)*q):left+(right-left)*q;
+}
+function actorState(actor,q,time,clip){
+ const position=keyed(actor.keyframes,time,'position',interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q));
+ let yaw=keyed(actor.keyframes,time,'yaw',actor.yaw||0);
+ if(!actor.boatSeat)return {position,yaw,scale:keyed(actor.keyframes,time,'scale',actor.scale===undefined?1:actor.scale)};
+ const prop=clip?.props?.[actor.boatSeat.prop];if(!prop?.boat)throw Error('boatSeat needs a boat prop index');
+ const slot=deckLayout.modes.AQUATIC_FLOAT.slots.find(item=>item.id===actor.boatSeat.slot);
+ if(!slot)throw Error('Unknown aquatic boat seat '+actor.boatSeat.slot);
+ const hull=propState(prop,q,time),turn=hull.yaw*Math.PI/180;
+ const [x,z]=rotateXZ(slot.pos[0]*vessel.aquatic_scale,slot.pos[2]*vessel.aquatic_scale,turn);
+ return {position:[hull.position[0]+x,hull.position[1]+slot.pos[1]*vessel.aquatic_scale,hull.position[2]+z],yaw:hull.yaw+slot.yaw,scale:keyed(actor.keyframes,time,'scale',actor.scale===undefined?1:actor.scale)};
+}
+function propState(prop,q,time){
+ const position=keyed(prop.keyframes,time,'position',interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q));
+ return {position,yaw:keyed(prop.keyframes,time,'yaw',prop.yaw||0),scale:keyed(prop.keyframes,time,'scale',prop.scale===undefined?1:prop.scale)};
+}
+function actorAt(clip,index,time){
+ const base=clip.actors[index];if(!base)throw Error(`Unknown actor ${index}`);
+ if(time<(base.start??0)||time>=(base.end??Infinity))return null;
+ const phase=(base.phases||[]).find(item=>time>=item.start&&(item.end===undefined||time<item.end));
+ return phase?{...base,...phase,_phaseStart:phase.start}:base;
+}
+function statePoint(state,point){
+ const at=state.position,scale=state.scale,yaw=state.yaw*Math.PI/180;
  const [x,z]=rotateXZ(point[0]*scale,point[2]*scale,yaw);return [at[0]+x,at[1]+point[1]*scale,at[2]+z];
+}
+function scenePoint(actor,point,q,time,clip){return statePoint(actorState(actor,q,time,clip),point);}
+function transformedPoint(matrix,point){
+ return [matrix[0]*point[0]+matrix[1]*point[1]+matrix[2]*point[2]+matrix[3],matrix[4]*point[0]+matrix[5]*point[1]+matrix[6]*point[2]+matrix[7],matrix[8]*point[0]+matrix[9]*point[1]+matrix[10]*point[2]+matrix[11]];
+}
+function contactState(actor,state,time,samples){
+ const follow=actor.contactFollow;
+ if(!follow||time<follow.start||time>follow.end)return state;
+ const source=samples.get(follow.actor);if(!source)throw Error(`Missing contact source actor ${follow.actor}`);
+ const contact=source.pose.clips[source.actor.action]?.contacts?.[follow.contact];
+ if(!contact)throw Error(`Missing ${follow.contact} contact on ${source.actor.action}`);
+ const bone=source.pose.model.bones.findIndex(item=>item.name===contact.bone);
+ if(bone<0||!source.pose.world)throw Error(`Missing contact bone ${contact.bone}`);
+ const local=transformedPoint(source.pose.world[bone],contact.point);
+ const [x,z]=rotateXZ(local[0]*source.state.scale,local[2]*source.state.scale,source.state.yaw*Math.PI/180);
+ const offset=follow.offset||[0,0,0];
+ return {...state,position:[source.state.position[0]+x+offset[0],source.state.position[1]+local[1]*source.state.scale+offset[1],source.state.position[2]+z+offset[2]]};
 }
 function transform(vertices,translation,scale,yaw,tile){
  const out=new Float64Array(vertices.length),c=Math.cos(yaw),s=Math.sin(yaw);
@@ -51,12 +99,13 @@ function bodyFloor(model,vertices){
  }
  return Number.isFinite(minimum)?minimum:0;
 }
-function careTarget(parent,child,q){
+function careTarget(parent,child,q,time,clip){
  const parentMouth=presentations[parent.model]?.mouth,childMouth=presentations[child.model]?.mouth;
  if(!parentMouth||!childMouth)throw Error('Care contact needs living.json mouth anchors');
- const parentScale=parent.scale===undefined?1:parent.scale,childScale=child.scale===undefined?1:child.scale;
- const parentYaw=(parent.yaw||0)*Math.PI/180,childYaw=(child.yaw||0)*Math.PI/180;
- const parentAt=actorPosition(parent,q),childAt=actorPosition(child,q);
+ const parentState=actorState(parent,q,time,clip),childState=actorState(child,q,time,clip);
+ const parentScale=parentState.scale,childScale=childState.scale;
+ const parentYaw=parentState.yaw*Math.PI/180,childYaw=childState.yaw*Math.PI/180;
+ const parentAt=parentState.position,childAt=childState.position;
  // Explicit offsets are in scene model units after the child's scale; first-toilet
  // assistance uses the physical rear point instead of the child's mouth.
  const point=parent.careTargetOffset||childMouth.map(value=>value*childScale);
@@ -99,8 +148,8 @@ function withoutAccessory(model,vertices){
  let offset=0;for(const part of kept){out.set(part,offset);offset+=part.length;}
  return out;
 }
-function propVertices(prop,tile,q){
- const data=readJson(prop.source),raw=Float64Array.from(data.vertices),position=interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q);
+function propVertices(prop,tile,q,time){
+ const data=readJson(prop.source),raw=Float64Array.from(data.vertices),state=propState(prop,q,time),position=state.position;
  let base=raw;
  if(Array.isArray(prop.parts)){
   const wanted=new Set(prop.parts),visible=[];
@@ -120,9 +169,11 @@ function propVertices(prop,tile,q){
   // HatBoatEntity keeps the turned hat fixed under a seated owner.  Reuse that
   // vessel transform so an offline water scene shows a real supporting bowl,
   // rather than a loose hat or a generic platform.
-  const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
   const k=vessel.aquatic_scale,squash=vessel.squash.bowl;
-  const seat=[0,vessel.bowl.owner_y*k,vessel.opening[3]*k-5.9];
+  // New scene manifests anchor a hull at its actual waterline origin and place
+  // riders by named `hat_deck_layout` slots. The older action manifests keep
+  // their captain-relative transform for compatibility with prior previews.
+  const seat=prop.boatAnchor==='hull'?[0,0,0]:[0,vessel.bowl.owner_y*k,vessel.opening[3]*k-5.9];
   base=Float64Array.from(base);
   for(let i=0;i<base.length;i+=8){
    base[i]=base[i]*k-seat[0];base[i+1]=base[i+1]*k*squash+vessel.bowl.freeboard*k-seat[1];base[i+2]=base[i+2]*k-seat[2];
@@ -130,37 +181,44 @@ function propVertices(prop,tile,q){
    const n=Math.hypot(base[i+5],base[i+6],base[i+7])||1;base[i+5]/=n;base[i+6]/=n;base[i+7]/=n;
   }
  }
- return transform(base,position,prop.scale===undefined?1:prop.scale,(prop.yaw||0)*Math.PI/180,tile);
+ return transform(base,position,state.scale,state.yaw*Math.PI/180,tile);
 }
 function sceneEntries(clip,time){
- const q=clip.duration?Math.min(1,Math.max(0,time/clip.duration)):0,entries=[];
- for(const baseActor of clip.actors){
-  const phase=(baseActor.phases||[]).find(p=>time>=p.start&&(p.end===undefined||time<p.end));
-  const actor=phase?{...baseActor,...phase}:baseActor;
-  const localTime=phase?time-phase.start:time;
+ const q=clip.duration?Math.min(1,Math.max(0,time/clip.duration)):0,entries=[],actorMouths=new Map(),actorSamples=new Map();
+ for(let actorIndex=0;actorIndex<clip.actors.length;actorIndex++){
+  const actor=actorAt(clip,actorIndex,time);if(!actor)continue;
+  const localTime=actor._phaseStart===undefined?time:time-actor._phaseStart;
   const pose=poseFor(actor.model);if(!pose.clips[actor.action])throw Error('Unknown action '+actor.model+'/'+actor.action);
   const actionTime=Math.min(actor.maxTime??Infinity,localTime*(actor.speed??1)+(actor.timeOffset??0)),face=actor.face||clip.face||pose.expressionFor(actor.action,actionTime);
   const key='entity:'+actor.model+':'+face;rawTexture(key);pose.expression(face);
+  const state=contactState(actor,actorState(actor,q,time,clip),time,actorSamples);
   let vertices,anchor=presentations[actor.model]?.mouth;
   if(Number.isInteger(actor.careTarget)){
-   const child=clip.actors[actor.careTarget];if(!child)throw Error(`Unknown care target ${actor.careTarget}`);
-   const contact=careTarget(actor,child,q);anchor=contact.anchor;vertices=groundedCarePose(pose,actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
+   const child=actorAt(clip,actor.careTarget,time);if(!child)throw Error(`Inactive care target ${actor.careTarget}`);
+   const contact=careTarget(actor,child,q,time,clip);anchor=contact.anchor;vertices=groundedCarePose(pose,actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
   }else vertices=pose.frame(actor.action,actionTime).slice();
   // RuntimePose owns one output buffer per model; keep this actor's sampled
   // result before the next actor with the same model samples into that buffer.
   vertices=vertices.slice();
   if(actor.accessory===false)vertices=withoutAccessory(pose.model,vertices);
-  entries.push({vertices,translation:actorPosition(actor,q),scale:actor.scale===undefined?1:actor.scale,yaw:(actor.yaw||0)*Math.PI/180,key,mouth:anchor?scenePoint(actor,pose.rootPoint(anchor),q):null});
+  const mouth=anchor?statePoint(state,pose.rootPoint(anchor)):null;
+  entries.push({vertices,translation:state.position,scale:state.scale,yaw:state.yaw*Math.PI/180,key,mouth});
+  actorMouths.set(actorIndex,mouth);
+  actorSamples.set(actorIndex,{actor,pose,state});
  }
  for(const prop of clip.props||[]){
   if(time<(prop.start??0)||time>=(prop.end??Infinity))continue;
   const progress=prop.start!==undefined||prop.end!==undefined?Math.min(1,Math.max(0,(time-(prop.start??0))/Math.max(.001,(prop.end??clip.duration)-(prop.start??0)))):q;
   let placed=prop;
   if(Number.isInteger(prop.mouthActor)){
-   const mouth=entries[prop.mouthActor]?.mouth;if(!mouth)throw Error(`Missing mouth anchor for actor ${prop.mouthActor}`);
+   const mouth=actorMouths.get(prop.mouthActor);if(!mouth)throw Error(`Missing mouth anchor for actor ${prop.mouthActor}`);
    const {from,to,...anchored}=prop;placed={...anchored,x:mouth[0],y:mouth[1],z:mouth[2]};
+  }else if(Number.isInteger(prop.fromMouthActor)||Number.isInteger(prop.toMouthActor)){
+   const from=actorMouths.get(prop.fromMouthActor),to=actorMouths.get(prop.toMouthActor);
+   if(!from||!to)throw Error(`Missing transfer mouth anchor for actors ${prop.fromMouthActor}/${prop.toMouthActor}`);
+   const {fromMouthActor,toMouthActor,keyframes,...transfer}=prop;placed={...transfer,from,to};
   }
-  rawTexture(placed.textureKey);entries.push({prop:placed,key:placed.textureKey,q:progress});
+  rawTexture(placed.textureKey);entries.push({prop:placed,key:placed.textureKey,q:progress,time});
  }
  return entries;
 }
@@ -169,18 +227,72 @@ function buildAtlas(entries){
  sources.forEach((source,index)=>{const col=index%grid,row=Math.floor(index/grid);tiles.set(keys[index],{col,row,grid,size:tileSize,width:source.width,height:source.height});for(let y=0;y<source.height;y++)source.raw.copy(raw,((row*tileSize+y)*size+col*tileSize)*4,y*source.width*4,(y+1)*source.width*4);});
  return {raw,size,tiles};
 }
-function composite(clip,time){
+const ENV_COLORS=[[117,183,205],[170,210,221],[205,191,126],[107,142,85],[91,128,79],[227,232,206],[239,246,247],[248,248,242]];
+function solidVertex(x,y,z,color){return [x,y,z,-1-color,0,0,1,0];}
+function solidQuad(x0,z0,x1,z1,y,color){
+ const a=solidVertex(x0,y,z0,color),b=solidVertex(x0,y,z1,color),c=solidVertex(x1,y,z1,color),d=solidVertex(x1,y,z0,color);
+ return Float64Array.from([...a,...b,...c,...a,...c,...d]);
+}
+function append(out,mesh){out.push(mesh);}
+function waterAroundHull(all,clip,time,x0,z0,x1,z1,y,color){
+ const hull=(clip.props||[]).find(prop=>prop.boat&&prop.boatAnchor==='hull');
+ if(!hull){append(all,solidQuad(x0,z0,x1,z1,y,color));return;}
+ const state=propState(hull,clip.duration?time/clip.duration:0,time);
+ const halfX=Math.abs(vessel.opening[1])*vessel.aquatic_scale+.6;
+ const halfZ=Math.abs(vessel.opening[3])*vessel.aquatic_scale+.6;
+ const hx0=Math.max(x0,state.position[0]-halfX),hx1=Math.min(x1,state.position[0]+halfX);
+ const hz0=Math.max(z0,state.position[2]-halfZ),hz1=Math.min(z1,state.position[2]+halfZ);
+ if(hx0>=hx1||hz0>=hz1){append(all,solidQuad(x0,z0,x1,z1,y,color));return;}
+ if(x0<hx0)append(all,solidQuad(x0,z0,hx0,z1,y,color));
+ if(hx1<x1)append(all,solidQuad(hx1,z0,x1,z1,y,color));
+ if(z0<hz0)append(all,solidQuad(hx0,z0,hx1,hz0,y,color));
+ if(hz1<z1)append(all,solidQuad(hx0,hz1,hx1,z1,y,color));
+}
+function environmentMesh(spec,time,clip){
+ if(!spec)return new Float64Array();
+ const all=[],kind=spec.kind;
+ if(kind==='shore-voyage'){
+  waterAroundHull(all,clip,time,-56,-52,56,9,-1.4,0);
+  append(all,solidQuad(-56,9,56,52,-.8,2));
+  append(all,solidQuad(-56,18,-8,52,-.72,3));
+  append(all,solidQuad(19,16,56,52,-.70,4));
+  // Reeds and pale sand shelves make the launch point legible while remaining
+  // simple terrain geometry, not a second authored art source.
+  for(const [x,z] of [[-39,14],[-32,18],[-25,12],[31,18],[39,24]])append(all,solidQuad(x,z,x+2,z+7,-.45,4));
+ }else if(kind==='forest-nest'){
+  append(all,solidQuad(-54,-54,54,54,-1.1,3));
+  append(all,solidQuad(-31,-25,31,30,-.92,5));
+  append(all,solidQuad(-15,-13,15,14,-.72,2));
+  append(all,solidQuad(-11,-10,11,11,-.62,5));
+  for(const [x,z] of [[-28,-8],[-23,12],[20,-5],[25,14],[-12,25],[12,23]])append(all,solidQuad(x,z,x+6,z+5,-.82,4));
+ }else if(kind==='water-rescue'){
+  waterAroundHull(all,clip,time,-58,-56,58,56,-1.45,0);
+  append(all,solidQuad(28,6,58,56,-.78,2));
+  append(all,solidQuad(35,16,58,56,-.70,3));
+  // Moving shallow wave strips are part of the terrain pass and give the water
+  // a continuous read across the rescue, without inventing a texture asset.
+  for(let index=0;index<7;index++){
+   const x=-50+index*15,z=-28+((time*6+index*11)%42);
+   waterAroundHull(all,clip,time,x,z,x+8,z+.7,-1.22,1);
+  }
+ }
+ const length=all.reduce((total,mesh)=>total+mesh.length,0),vertices=new Float64Array(length);let offset=0;
+ for(const mesh of all){vertices.set(mesh,offset);offset+=mesh.length;}
+ return vertices;
+}
+function composite(clip,time,includeEnvironment=false){
  const entries=sceneEntries(clip,time),atlas=buildAtlas(entries),all=[];
- for(const entry of entries){const tile=atlas.tiles.get(entry.key);all.push(entry.prop?propVertices(entry.prop,tile,entry.q):transform(entry.vertices,entry.translation,entry.scale,entry.yaw,tile));}
+ if(includeEnvironment)all.push(environmentMesh(clip.environment,time,clip));
+ for(const entry of entries){const tile=atlas.tiles.get(entry.key);all.push(entry.prop?propVertices(entry.prop,tile,entry.q,entry.time):transform(entry.vertices,entry.translation,entry.scale,entry.yaw,tile));}
  const length=all.reduce((n,v)=>n+v.length,0),vertices=new Float64Array(length);let offset=0;for(const v of all){vertices.set(v,offset);offset+=v.length;}
- return {vertices,texture:atlas.raw,textureSize:atlas.size};
+ return {vertices,texture:atlas.raw,textureSize:atlas.size,colors:ENV_COLORS};
 }
 function bounds(vertices){let low=Infinity,high=-Infinity,radius=0;for(let i=0;i<vertices.length;i+=8){low=Math.min(low,vertices[i+1]);high=Math.max(high,vertices[i+1]);radius=Math.max(radius,Math.hypot(vertices[i],vertices[i+2]));}return {low,high,radius};}
 function cameraFor(clip){let low=Infinity,high=-Infinity,radius=0;for(let frame=0;frame<tasks.frames;frame++){const scene=composite(clip,clip.duration*frame/(tasks.frames-1));const b=bounds(scene.vertices);low=Math.min(low,b.low);high=Math.max(high,b.high);radius=Math.max(radius,b.radius);}const configured=clip.camera||{};return {azimuth:configured.azimuth??.45,elevation:configured.elevation??.15,centerY:configured.centerY??(low+high)/2,span:configured.span??Math.max((high-low)*.66,radius*.95,4),bounds:{low,high,radius}};}
 const summary={clips:[]};
 for(const clip of tasks.clips){
  const camera=cameraFor(clip),frames=[];
- for(let frame=0;frame<tasks.frames;frame++){const scene=composite(clip,clip.duration*frame/(tasks.frames-1));const pixels=raster.renderModel(scene.vertices,scene.texture,tasks.width,tasks.height,camera.azimuth,camera.elevation,camera.span,{centerY:camera.centerY,textureSize:scene.textureSize});const output=path.join(tasks.work,clip.id+'-'+String(frame).padStart(3,'0')+'.rgba');fs.writeFileSync(output,Buffer.from(pixels));frames.push(output);}
+ for(let frame=0;frame<tasks.frames;frame++){const scene=composite(clip,clip.duration*frame/(tasks.frames-1),true);const pixels=raster.renderModel(scene.vertices,scene.texture,tasks.width,tasks.height,camera.azimuth,camera.elevation,camera.span,{centerY:camera.centerY,textureSize:scene.textureSize,colors:scene.colors});const output=path.join(tasks.work,clip.id+'-'+String(frame).padStart(3,'0')+'.rgba');fs.writeFileSync(output,Buffer.from(pixels));frames.push(output);}
  summary.clips.push({id:clip.id,frames,camera});
 }
 fs.writeFileSync(path.join(tasks.work,'render-result.json'),JSON.stringify(summary,null,2));

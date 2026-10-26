@@ -25,7 +25,7 @@
   ],
   "actionLabels": {"boat_be_carried":"被亲油承托","boat_carry_young":"承托幼体","boat_prepare_carry":"准备承托","boat_release_carry":"放下幼体","boat_toilet":"帽沿排便","braid_reach_low":"低位伸辫","care_finish":"照料收尾","feed_child":"递喂幼体","first_toilet_assist":"辅助首便","fur_sway":"多毛摇摆","hat_walk":"帽沿移动","house_carry":"夹絮搬运","house_crawl":"家油爬行","house_deposit":"放下物资","house_pickup":"俯身夹取","learn_jump":"练习跳跃","learn_watch":"观察学习","nest_harvest":"收集巢材","nest_place":"放置巢材","nest_press":"压实巢材","nest_spread":"铺开巢材","newborn_crawl":"新生爬行","predator_bite":"捕咬","predator_dive":"俯冲","predator_fly":"飞行","predator_land":"降落","shell_sway":"壳体摇摆","still":"静止","water_hat_over":"越过帽缘","water_hat_pull":"拉近帽子","water_held_breath":"被托住后喘息"},
   "chapters": {
-    "dynamic-samples":"water","care-props-vanilla":"life","pet-goods-styles":"life","swaddle-leaf-cloth":"family","wild-nests-forage":"wild","hat-cargo-heaps":"water","voices":"social"},
+    "care-props-vanilla":"life","pet-goods-styles":"life","swaddle-leaf-cloth":"family","wild-nests-forage":"wild","hat-cargo-heaps":"water","voices":"social"},
   "scenarioOverrides": {"den_barrier":"wild","factory_wear":"human","pet_birth":"family","house_health":"house","balance_forms":"species","balance_deibu":"species","balance_growth":"family"},
   "excludeItems": {"leaked_filling":"仅旧存档兼容占位，不作为当前可获取物品展示"},
   "previewGaps": [
@@ -42,7 +42,7 @@
     {"id":"adult-agitation","title":"成体状态与爱丽丝失控","category":"family","source":"docs/ADULT_AGITATION.md","reason":"旧分镜没有与当前表情选用、姿态和客户端演出绑定，需按当前选用资源重新生成。"},
     {"id":"hat-motion","title":"真实抓握、翻帽与攀檐","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧独立网页内嵌场景数据，重建总入口不会刷新；完整帽船过程请在对应试玩入口观察。"},
     {"id":"house-ecology","title":"家油的一家","category":"house","source":"standards/yukkuri-library/ecology/house-nest/README.md","reason":"旧图的搬絮、护卵与孵化过程未随当前代码重建；当前家油模型和物品另列。"},
-    {"id":"water","title":"帽船一家","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧多角色分镜使用离线编排的位置与道具，尚未对应当前上下岸、救援与帽内空间。"},
+    {"id":"water","title":"帽船一家","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"出航与救援已有连续场景；帽内生活、储粮与天气互动尚未整合为连续演示。"},
     {"id":"climate","title":"地方与季节","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧季节图混用通用动作与手写状态，未对应实际环境效果；请使用季节试玩场。"},
     {"id":"stores","title":"储粮与越冬","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧储粮分镜由人工安排动作和道具，不能代表当前储粮阶段；存取请在试玩场观察。"},
     {"id":"family","title":"从出生到离家","category":"family","source":"docs/CHILDHOOD_LIFECYCLE.md","reason":"旧分镜含用通用撑地动作代演筑巢的内容；需按当前照料与筑巢阶段重做。"},
@@ -51,6 +51,6 @@
     {"id":"headwear-damage","title":"头饰损坏与修复外观","category":"headwear","source":"docs/HEADWEAR.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
     {"id":"birth-performance","title":"分娩与接生分镜","category":"family","source":"docs/CONSUMABLES_AND_BIRTH.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
     {"id":"badge-mounts","title":"徽章与佩戴位置","category":"pets","source":"art/props/badges/README.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
-    {"id":"boat-cargo","title":"帽内空间与乘员","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"帽内储粮堆三档与侧檐暂放已有当前预览；帽内乘员占位、空间与身体状态的组合尚无带当前输入校验的专项图。"}
+    {"id":"boat-cargo","title":"帽内空间与乘员","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"当前连续演示使用舱位布局；多乘员与储粮负载、身体状态的组合仍未覆盖。"}
   ]
 }

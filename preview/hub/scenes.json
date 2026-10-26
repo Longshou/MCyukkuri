@@ -1,0 +1,696 @@
+{
+  "clips": [
+    {
+      "id": "shore-voyage",
+      "title": "岸边起航：幼体登船后驶离浅滩",
+      "summary": "幼体从岸边靠近帽船，越过船舷后在船头坐稳；船长推离浅滩，随后顺水驶向开阔水面。",
+      "category": "water",
+      "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md",
+      "model": "marisa",
+      "action": "boat_board",
+      "duration": 7.2,
+      "still": 0.94,
+      "flattenStill": true,
+      "background": "#d9edf1",
+      "environment": {
+        "kind": "shore-voyage"
+      },
+      "beats": [
+        {
+          "start": 0,
+          "title": "帽船贴岸停泊"
+        },
+        {
+          "start": 1.2,
+          "title": "幼体攀上船舷"
+        },
+        {
+          "start": 2.8,
+          "title": "幼体在船头坐稳"
+        },
+        {
+          "start": 3.2,
+          "title": "船长推离浅滩"
+        },
+        {
+          "start": 4.2,
+          "title": "顺水驶向开阔水面"
+        },
+        {
+          "start": 6.1,
+          "title": "离岸后稳定漂行"
+        }
+      ],
+      "actors": [
+        {
+          "model": "marisa",
+          "action": "boat_board",
+          "accessory": false,
+          "boatSeat": {
+            "prop": 0,
+            "slot": "captain"
+          },
+          "phases": [
+            {
+              "start": 0,
+              "end": 1.2,
+              "action": "boat_board"
+            },
+            {
+              "start": 1.2,
+              "end": 3.2,
+              "action": "boat_steady",
+              "face": "happy"
+            },
+            {
+              "start": 3.2,
+              "end": 4.2,
+              "action": "boat_push_off",
+              "face": "open_smile"
+            },
+            {
+              "start": 4.2,
+              "action": "boat_drift",
+              "face": "happy"
+            }
+          ]
+        },
+        {
+          "model": "marisa",
+          "action": "waddle",
+          "scale": 0.3,
+          "yaw": 180,
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                9,
+                0,
+                19
+              ]
+            },
+            {
+              "at": 1.2,
+              "position": [
+                9,
+                0,
+                11
+              ]
+            },
+            {
+              "at": 1.8,
+              "position": [
+                9,
+                2.1,
+                7
+              ]
+            },
+            {
+              "at": 2.3,
+              "position": [
+                8,
+                1.6,
+                -7
+              ]
+            },
+            {
+              "at": 2.8,
+              "position": [
+                -1.082,
+                1.5225,
+                -16.8925
+              ],
+              "yaw": 90
+            },
+            {
+              "at": 3.2,
+              "position": [
+                -1.082,
+                1.5225,
+                -16.8925
+              ],
+              "yaw": 90
+            },
+            {
+              "at": 4.2,
+              "position": [
+                -1.082,
+                1.5225,
+                -20.8925
+              ],
+              "yaw": 90
+            },
+            {
+              "at": 6.1,
+              "position": [
+                -1.082,
+                1.5225,
+                -30.8925
+              ],
+              "yaw": 90
+            },
+            {
+              "at": 7.2,
+              "position": [
+                -1.082,
+                1.5225,
+                -30.8925
+              ],
+              "yaw": 90
+            }
+          ],
+          "phases": [
+            {
+              "start": 0,
+              "end": 1.8,
+              "action": "waddle"
+            },
+            {
+              "start": 1.8,
+              "end": 2.8,
+              "action": "hat_cradle",
+              "face": "surprise"
+            },
+            {
+              "start": 2.8,
+              "action": "boat_rim_peek",
+              "face": "happy"
+            }
+          ]
+        }
+      ],
+      "props": [
+        {
+          "id": "marisa_hat_turned",
+          "textureFile": "entity/marisa/neutral.png",
+          "boat": true,
+          "boatAnchor": "hull",
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                0,
+                0,
+                -9
+              ]
+            },
+            {
+              "at": 3.2,
+              "position": [
+                0,
+                0,
+                -9
+              ]
+            },
+            {
+              "at": 4.2,
+              "position": [
+                0,
+                0,
+                -13
+              ]
+            },
+            {
+              "at": 6.1,
+              "position": [
+                0,
+                0,
+                -23
+              ]
+            },
+            {
+              "at": 7.2,
+              "position": [
+                0,
+                0,
+                -23
+              ]
+            }
+          ]
+        },
+        {
+          "id": "personal_leaf_nest",
+          "x": -23,
+          "y": -0.45,
+          "z": 23,
+          "scale": 0.8
+        },
+        {
+          "id": "forage_pile",
+          "x": -18,
+          "y": -0.55,
+          "z": 20,
+          "scale": 0.7
+        }
+      ],
+      "camera": {
+        "azimuth": 1.05,
+        "elevation": 0.8,
+        "span": 32,
+        "centerY": 1.5
+      }
+    },
+    {
+      "id": "family-feed",
+      "title": "林缘育幼：取食、咀嚼、递喂、幼体吞咽",
+      "summary": "亲代从巢边空地走近，咀嚼食物后在两嘴之间递送食糜；幼体吞咽，叶巢留在身后。",
+      "category": "family",
+      "source": "docs/CHILDHOOD_LIFECYCLE.md",
+      "model": "reimu",
+      "action": "waddle",
+      "duration": 7.2,
+      "still": 0.94,
+      "flattenStill": true,
+      "background": "#dce9d2",
+      "environment": {
+        "kind": "forest-nest"
+      },
+      "beats": [
+        {
+          "start": 0,
+          "title": "亲代回到巢边空地"
+        },
+        {
+          "start": 1.8,
+          "title": "取食并咀嚼"
+        },
+        {
+          "start": 3.3,
+          "title": "近身递喂"
+        },
+        {
+          "start": 4.7,
+          "title": "幼体吞咽"
+        },
+        {
+          "start": 6.1,
+          "title": "亲子留在巢边"
+        }
+      ],
+      "actors": [
+        {
+          "model": "reimu",
+          "action": "waddle",
+          "yaw": -90,
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                -10,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 1.8,
+              "position": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 7.2,
+              "position": [
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "phases": [
+            {
+              "start": 0,
+              "end": 1.8,
+              "action": "waddle"
+            },
+            {
+              "start": 1.8,
+              "end": 3.3,
+              "action": "eat",
+              "face": "chewing_closed"
+            },
+            {
+              "start": 3.3,
+              "end": 4.7,
+              "action": "feed_child",
+              "face": "happy",
+              "careTarget": 1
+            },
+            {
+              "start": 4.7,
+              "end": 6.1,
+              "action": "nuzzle",
+              "face": "happy"
+            },
+            {
+              "start": 6.1,
+              "action": "idle",
+              "face": "happy"
+            }
+          ]
+        },
+        {
+          "model": "reimu",
+          "action": "newborn_crawl",
+          "scale": 0.2,
+          "yaw": 90,
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                6.36,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 3.3,
+              "position": [
+                6.36,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 4.7,
+              "position": [
+                6.36,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 7.2,
+              "position": [
+                6.36,
+                0,
+                0
+              ]
+            }
+          ],
+          "phases": [
+            {
+              "start": 0,
+              "end": 3.3,
+              "action": "newborn_crawl",
+              "face": "open_smile"
+            },
+            {
+              "start": 3.3,
+              "end": 4.7,
+              "action": "drink",
+              "face": "open_smile"
+            },
+            {
+              "start": 4.7,
+              "action": "shiawase",
+              "face": "satisfied"
+            }
+          ]
+        }
+      ],
+      "props": [
+        {
+          "id": "forest_burrow",
+          "layers": 27,
+          "x": -13,
+          "y": -0.48,
+          "z": 16,
+          "scale": 0.55
+        },
+        {
+          "id": "personal_leaf_nest",
+          "x": -7.5,
+          "y": -0.28,
+          "z": 9.5,
+          "scale": 0.72
+        },
+        {
+          "id": "food_scrap",
+          "x": 2.1,
+          "y": -0.25,
+          "z": 1.1,
+          "end": 1.35,
+          "scale": 0.9
+        },
+        {
+          "id": "food_scrap",
+          "from": [
+            2.1,
+            -0.25,
+            1.1
+          ],
+          "to": [
+            5.55,
+            1.74,
+            0
+          ],
+          "start": 1.35,
+          "end": 1.8,
+          "scale": 0.34
+        },
+        {
+          "id": "food_mash_serving",
+          "mouthActor": 0,
+          "start": 1.8,
+          "end": 3.3,
+          "scale": 0.34
+        },
+        {
+          "id": "food_mash_serving",
+          "fromMouthActor": 0,
+          "toMouthActor": 1,
+          "start": 3.3,
+          "end": 4.7,
+          "scale": 0.26
+        },
+        {
+          "id": "food_mash_serving",
+          "mouthActor": 1,
+          "start": 4.7,
+          "end": 5.4,
+          "scale": 0.16
+        }
+      ],
+      "camera": {
+        "azimuth": 0.45,
+        "elevation": 0.18,
+        "span": 19,
+        "centerY": 3.1
+      }
+    },
+    {
+      "id": "water-rescue",
+      "title": "水面救援：发现落水幼体、靠近、捞起、安置回船",
+      "summary": "帽船向呼救的落水幼体靠近，船长以辫梢托住幼体并带到船舷；幼体连续移动至船头，随后在船内安稳下来。",
+      "category": "water",
+      "source": "docs/AQUATIC_MARISA_IMPLEMENTATION.md",
+      "model": "marisa",
+      "action": "boat_alarm_call",
+      "duration": 7.2,
+      "still": 0.94,
+      "flattenStill": true,
+      "background": "#d9edf3",
+      "environment": {
+        "kind": "water-rescue"
+      },
+      "beats": [
+        {
+          "start": 0,
+          "title": "听见水面呼救"
+        },
+        {
+          "start": 0.9,
+          "title": "帽船靠近落水幼体"
+        },
+        {
+          "start": 1.95,
+          "title": "辫梢卷兜托住幼体"
+        },
+        {
+          "start": 3.2,
+          "title": "越过救援船舷"
+        },
+        {
+          "start": 4.4,
+          "title": "安置到船头后安抚"
+        }
+      ],
+      "actors": [
+        {
+          "model": "marisa",
+          "action": "boat_alarm_call",
+          "accessory": false,
+          "boatSeat": {
+            "prop": 0,
+            "slot": "captain"
+          },
+          "phases": [
+            {
+              "start": 0,
+              "end": 0.9,
+              "action": "boat_alarm_call",
+              "face": "surprise"
+            },
+            {
+              "start": 0.9,
+              "end": 3.3,
+              "action": "braid_cradle_lift",
+              "face": "teary"
+            },
+            {
+              "start": 3.3,
+              "action": "boat_reassure",
+              "face": "happy"
+            }
+          ]
+        },
+        {
+          "model": "marisa",
+          "action": "water_struggle",
+          "scale": 0.3,
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                21,
+                -0.6,
+                -4
+              ],
+              "yaw": -90
+            },
+            {
+              "at": 0.9,
+              "position": [
+                18,
+                -0.7,
+                -2
+              ],
+              "yaw": -90
+            },
+            {
+              "at": 1.95,
+              "position": [
+                12.993,
+                2.679,
+                0.632
+              ],
+              "yaw": -90
+            },
+            {
+              "at": 3.2,
+              "position": [
+                7.563,
+                0.558,
+                -1.097
+              ],
+              "yaw": -90
+            },
+            {
+              "at": 4.4,
+              "position": [
+                -1.082,
+                1.5225,
+                -7.8925
+              ],
+              "yaw": 90
+            },
+            {
+              "at": 7.2,
+              "position": [
+                -1.082,
+                1.5225,
+                -7.8925
+              ],
+              "yaw": 90
+            }
+          ],
+          "phases": [
+            {
+              "start": 0,
+              "end": 1.95,
+              "action": "water_struggle"
+            },
+            {
+              "start": 1.95,
+              "end": 3.2,
+              "action": "be_cradled",
+              "face": "teary"
+            },
+            {
+              "start": 3.2,
+              "end": 4.4,
+              "action": "hat_cradle",
+              "face": "open_smile"
+            },
+            {
+              "start": 4.4,
+              "action": "boat_rim_peek",
+              "face": "happy"
+            }
+          ],
+          "contactFollow": {
+            "actor": 0,
+            "contact": "braid_cradle",
+            "start": 1.95,
+            "end": 3.2,
+            "offset": [
+              0,
+              -0.33,
+              0
+            ]
+          }
+        }
+      ],
+      "props": [
+        {
+          "id": "marisa_hat_turned",
+          "textureFile": "entity/marisa/neutral.png",
+          "boat": true,
+          "boatAnchor": "hull",
+          "keyframes": [
+            {
+              "at": 0,
+              "position": [
+                0,
+                0,
+                7
+              ]
+            },
+            {
+              "at": 0.9,
+              "position": [
+                0,
+                0,
+                3
+              ]
+            },
+            {
+              "at": 2.1,
+              "position": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "at": 7.2,
+              "position": [
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ],
+      "camera": {
+        "azimuth": 1.1,
+        "elevation": 0.8,
+        "span": 24,
+        "centerY": 2
+      }
+    }
+  ]
+}

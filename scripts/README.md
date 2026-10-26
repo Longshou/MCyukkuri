@@ -20,7 +20,7 @@
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
-`python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与单体动作 GIF；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
+`python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与连续场景 GIF／可拖动帧序列；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
 
 总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染；`preview_inventory.py` 从 Java 注册与运行引用过滤残留资源。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
 

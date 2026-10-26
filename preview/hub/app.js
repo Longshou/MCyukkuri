@@ -4,11 +4,12 @@ const labels={all:'全部',models:'角色',motions:'动作',items:'物品',audio
 const kinds={model:'三维角色',motion:'动态动作',item:'物品',audio:'声音',scene:'演示',scenario:'试玩指引',reference:'预览说明'};
 let library,data,state=R.parse(location.href), timer;
 const pageSize=36;
+let disposeScene;
 function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function link(text,next,cls){const a=el('a',text,cls);a.href=R.href(next);return a;}
 function browseState(patch={}){return {...state,entry:'',step:0,player:'',playerTab:'',...patch};}
 function go(next,replace=false){history[replace?'replaceState':'pushState'](null,'',R.href(next));state=next;render();}
-function stopMedia(){for(const a of document.querySelectorAll('audio,video'))a.pause();$('content').replaceChildren();$('steps').replaceChildren();}
+function stopMedia(){disposeScene?.();disposeScene=null;for(const a of document.querySelectorAll('audio,video'))a.pause();$('content').replaceChildren();$('steps').replaceChildren();}
 function picture(src,title,cls){const img=el('img',undefined,cls);img.src=src;img.alt=title;img.loading='lazy';img.onerror=()=>{img.replaceWith(el('p','此预览暂不可用。','media-missing'));};return img;}
 function viewerURL(entry){const p=new URLSearchParams({embed:'1'});if(entry.model)p.set('model',entry.model);if(entry.action){p.set('action',entry.action);p.set('autoplay','1');}if(entry.species)p.set('species',entry.species);if(state.player)for(const [k,v] of new URLSearchParams(state.player))if(['model','action','species','event','audioId','age','q','autoplay'].includes(k))p.set(k,v);return 'models/index.html?'+p+(state.playerTab?'#'+state.playerTab:entry.kind==='audio'?'#audio':'#models');}
 function renderNav(){
@@ -52,7 +53,8 @@ function renderDetail(){
    if(!steps.length){$('content').append(el('p','当前没有可用画面。'));return;}
    state.step=Math.min(state.step,steps.length-1);history.replaceState(null,'',R.href(state));
    const item=steps[state.step];
-   if(item.animation||item.image)$('content').append(picture(item.animation||item.image,item.title,'scene-image'));
+   if(item.playback)disposeScene=window.ScenePlayer.mount($('content'),item);
+   else if(item.animation||item.image)$('content').append(picture(item.animation||item.image,item.title,'scene-image'));
    if(item.audioSample&&data.audioSamples?.[item.audioSample]){const sample=data.audioSamples[item.audioSample],audio=el('audio');audio.src=sample.url;audio.controls=true;audio.preload='none';$('content').append(el('p',sample.zh),el('p',sample.ja),audio);}
    if(item.kind==='subtitles')for(const sample of data.subtitleSamples||[])$('content').append(el('h2',sample.species==='remilia'?'蕾米莉亚':'芙兰'),el('p',sample.zh),el('p',sample.ja));
    if(item.kind==='logic')for(const line of item.states||[])$('content').append(el('p',line));

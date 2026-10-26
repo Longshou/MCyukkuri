@@ -129,7 +129,7 @@ def build(manifest, catalog, out):
                  visual=chapter.get('visual', '基础外观对照')))
 
     for chapter in manifest['chapters']:
-        add_chapter(chapter, config['chapters'].get(chapter['id'], 'other'))
+        add_chapter(chapter, chapter.get('category') or config['chapters'].get(chapter['id'], 'other'))
     for gap in config['previewGaps']:
         add(dict(id='reference:'+gap['id'], category=gap['category'], kind='reference',
                  title=gap['title'], summary=gap['reason'], source=gap['source'], visual='预览缺口'))

@@ -21,6 +21,7 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 OUT = ROOT / '.local/previews/actions'
 WORK = ROOT / '.local/previews/_work/actions'
 SAFE_ID = re.compile(r'^[a-z0-9][a-z0-9_-]*$')
+ATLAS_COLUMNS = 8
 
 
 def sha(path: Path) -> str:
@@ -35,6 +36,24 @@ def flatten(frame: Image.Image, background: str) -> Image.Image:
     return canvas
 
 
+def validate_keyframes(ident: str, owner: str, keyframes: object) -> None:
+    if keyframes is None: return
+    if not isinstance(keyframes, list) or not keyframes:
+        raise ValueError(f'{ident}: {owner}.keyframes must be a non-empty list')
+    previous = -1.0
+    for frame in keyframes:
+        if not isinstance(frame, dict) or not isinstance(frame.get('at'), (int, float)) or frame['at'] < 0:
+            raise ValueError(f'{ident}: {owner}.keyframes needs a non-negative at')
+        if frame['at'] <= previous: raise ValueError(f'{ident}: {owner}.keyframes must be time ordered')
+        previous = frame['at']
+        if 'position' in frame and (not isinstance(frame['position'], list) or len(frame['position']) != 3
+                                  or not all(isinstance(value, (int, float)) for value in frame['position'])):
+            raise ValueError(f'{ident}: {owner}.keyframes.position must be [x,y,z]')
+        for name in ('yaw', 'scale'):
+            if name in frame and not isinstance(frame[name], (int, float)):
+                raise ValueError(f'{ident}: {owner}.keyframes.{name} must be numeric')
+
+
 def normalise(raw: dict) -> list[dict]:
     clips = raw.get('clips')
     if not isinstance(clips, list) or not clips: raise ValueError('actions manifest needs a non-empty clips array')
@@ -46,6 +65,17 @@ def normalise(raw: dict) -> list[dict]:
         if not isinstance(clip.get('duration'), (int, float)) or clip['duration'] <= 0: raise ValueError(f'{ident}: positive duration is required')
         if 'still' in clip and (not isinstance(clip['still'], (int, float)) or not 0 <= clip['still'] <= 1): raise ValueError(f'{ident}: still must be a 0..1 frame fraction')
         if 'flattenStill' in clip and not isinstance(clip['flattenStill'], bool): raise ValueError(f'{ident}: flattenStill must be boolean')
+        if 'beats' in clip:
+            beats = clip['beats']
+            if not isinstance(beats, list) or not beats: raise ValueError(f'{ident}: beats must be a non-empty list')
+            last = -1.0
+            for beat in beats:
+                if not isinstance(beat, dict) or not isinstance(beat.get('start'), (int, float)) or not 0 <= beat['start'] <= clip['duration'] or not isinstance(beat.get('title'), str):
+                    raise ValueError(f'{ident}: beat needs in-range start and title')
+                if beat['start'] < last: raise ValueError(f'{ident}: beats must be time ordered')
+                last = beat['start']
+        if 'environment' in clip and (not isinstance(clip['environment'], dict) or clip['environment'].get('kind') not in {'shore-voyage', 'forest-nest', 'water-rescue'}):
+            raise ValueError(f'{ident}: environment.kind must name a supported terrain layout')
         if 'inset' in clip:
             inset = clip['inset']
             if not isinstance(inset, dict) or any(not isinstance(inset.get(key), list) for key in ('crop', 'at', 'size')) or len(inset['crop']) != 4 or len(inset['at']) != 2 or len(inset['size']) != 2:
@@ -56,9 +86,23 @@ def normalise(raw: dict) -> list[dict]:
             if not isinstance(actor['model'], str) or not isinstance(actor['action'], str): raise ValueError(f'{ident}: actor model/action must be strings')
             for name in ('speed', 'timeOffset', 'maxTime'):
                 if name in actor and not isinstance(actor[name], (int, float)): raise ValueError(f'{ident}: actor.{name} must be numeric')
+            if 'start' in actor and (not isinstance(actor['start'], (int, float)) or actor['start'] < 0): raise ValueError(f'{ident}: actor.start must be non-negative')
+            if 'end' in actor and (not isinstance(actor['end'], (int, float)) or actor['end'] <= actor.get('start', 0)): raise ValueError(f'{ident}: actor.end must follow its start')
             if 'careTargetOffset' in actor and (not isinstance(actor['careTargetOffset'], list) or len(actor['careTargetOffset']) != 3 or not all(isinstance(value, (int, float)) for value in actor['careTargetOffset'])): raise ValueError(f'{ident}: actor.careTargetOffset must be [x,y,z] in scene model units')
             if 'from' in actor and (not isinstance(actor['from'], list) or len(actor['from']) != 3): raise ValueError(f'{ident}: actor.from must be [x,y,z]')
             if 'to' in actor and (not isinstance(actor['to'], list) or len(actor['to']) != 3): raise ValueError(f'{ident}: actor.to must be [x,y,z]')
+            validate_keyframes(ident, 'actor', actor.get('keyframes'))
+            if 'boatSeat' in actor and (not isinstance(actor['boatSeat'], dict) or not isinstance(actor['boatSeat'].get('prop'), int) or not isinstance(actor['boatSeat'].get('slot'), str)):
+                raise ValueError(f'{ident}: actor.boatSeat needs a prop index and named slot')
+            if 'contactFollow' in actor:
+                follow = actor['contactFollow']
+                if (not isinstance(follow, dict) or not isinstance(follow.get('actor'), int)
+                        or not 0 <= follow['actor'] < len(actors) or not isinstance(follow.get('contact'), str)
+                        or not isinstance(follow.get('start'), (int, float)) or not isinstance(follow.get('end'), (int, float))
+                        or not 0 <= follow['start'] < follow['end'] <= clip['duration']
+                        or ('offset' in follow and (not isinstance(follow['offset'], list) or len(follow['offset']) != 3
+                                                     or not all(isinstance(value, (int, float)) for value in follow['offset'])))):
+                    raise ValueError(f'{ident}: actor.contactFollow needs an actor, contact, in-range start/end, and optional [x,y,z] offset')
             for phase in actor.get('phases', []):
                 if not isinstance(phase.get('start'), (int, float)) or phase['start'] < 0: raise ValueError(f'{ident}: phase.start must be non-negative')
                 if 'end' in phase and (not isinstance(phase['end'], (int, float)) or phase['end'] <= phase['start']): raise ValueError(f'{ident}: phase.end must follow its start')
@@ -66,12 +110,18 @@ def normalise(raw: dict) -> list[dict]:
         for prop in clip.get('props', []):
             if not isinstance(prop.get('id'), str): raise ValueError(f'{ident}: prop id is required')
             if 'mouthActor' in prop and (not isinstance(prop['mouthActor'], int) or not 0 <= prop['mouthActor'] < len(actors)): raise ValueError(f'{ident}: prop.mouthActor must name an actor index')
+            transfer = ('fromMouthActor' in prop, 'toMouthActor' in prop)
+            if transfer[0] != transfer[1]: raise ValueError(f'{ident}: transfer props need both fromMouthActor and toMouthActor')
+            for name in ('fromMouthActor', 'toMouthActor'):
+                if name in prop and (not isinstance(prop[name], int) or not 0 <= prop[name] < len(actors)):
+                    raise ValueError(f'{ident}: prop.{name} must name an actor index')
             if 'textureFile' in prop and (not isinstance(prop['textureFile'], str) or prop['textureFile'].startswith('/') or '..' in Path(prop['textureFile']).parts): raise ValueError(f'{ident}: prop.textureFile must stay below textures/')
             if 'layers' in prop and (not isinstance(prop['layers'], int) or prop['layers'] < 0): raise ValueError(f'{ident}: prop.layers must be a non-negative integer')
             if 'from' in prop and (not isinstance(prop['from'], list) or len(prop['from']) != 3): raise ValueError(f'{ident}: prop.from must be [x,y,z]')
             if 'to' in prop and (not isinstance(prop['to'], list) or len(prop['to']) != 3): raise ValueError(f'{ident}: prop.to must be [x,y,z]')
             if 'start' in prop and (not isinstance(prop['start'], (int, float)) or prop['start'] < 0): raise ValueError(f'{ident}: prop.start must be non-negative')
             if 'end' in prop and (not isinstance(prop['end'], (int, float)) or prop['end'] <= prop.get('start', 0)): raise ValueError(f'{ident}: prop.end must follow its start')
+            validate_keyframes(ident, 'prop', prop.get('keyframes'))
         clip['actors'] = actors; result.append(clip)
     if len({item['id'] for item in result}) != len(result): raise ValueError('Action ids must be unique')
     return result
@@ -102,7 +152,7 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
 
 def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
     digest = hashlib.sha256(json.dumps({'clip': clip, 'frames': frames}, ensure_ascii=False, sort_keys=True).encode())
-    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', *sources]:
+    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ASSETS/'yukkuri_presentation/hat_vessel.json', ASSETS/'yukkuri_presentation/hat_deck_layout.json', *sources]:
         digest.update(source.relative_to(ROOT).as_posix().encode()); digest.update(source.read_bytes())
     return digest.hexdigest()
 
@@ -120,10 +170,10 @@ def main() -> None:
     dirty = []; final = []
     for clip in clips:
         digest = fingerprint(clip, [*model_sources, *resource_sources], args.frames)
-        saved = previous.get(clip['id']); png = out/f'{clip["id"]}.png'; gif = out/f'{clip["id"]}.gif'
-        if args.force or not saved or saved.get('inputFingerprint') != digest or not png.is_file() or not gif.is_file(): dirty.append((clip, digest))
+        saved = previous.get(clip['id']); png = out/f'{clip["id"]}.png'; gif = out/f'{clip["id"]}.gif'; atlas = out/f'{clip["id"]}-frames.png'
+        if args.force or not saved or saved.get('inputFingerprint') != digest or not png.is_file() or not gif.is_file() or not atlas.is_file(): dirty.append((clip, digest))
         else: final.append(saved)
-    wanted = {clip['id'] for clip in clips}
+    wanted = {name for clip in clips for name in (clip['id'], f'{clip["id"]}-frames')}
     for path in out.glob('*'):
         if path.suffix in {'.png', '.gif'} and path.stem not in wanted: path.unlink()
     if dirty:
@@ -142,6 +192,11 @@ def main() -> None:
                 border.paste(crop, (2, 2)); image.paste(border, (x - 2, y - 2))
             image.save(out/f'{clip["id"]}.png')
             flattened = [flatten(frame, clip.get('background', '#f3f0e8')) for frame in frames]
+            rows = (len(flattened) + ATLAS_COLUMNS - 1) // ATLAS_COLUMNS
+            atlas = Image.new('RGB', (task['width'] * ATLAS_COLUMNS, task['height'] * rows), clip.get('background', '#f3f0e8'))
+            for index, frame in enumerate(flattened):
+                atlas.paste(frame, ((index % ATLAS_COLUMNS) * task['width'], (index // ATLAS_COLUMNS) * task['height']))
+            atlas.save(out/f'{clip["id"]}-frames.png')
             palette = flattened[0].quantize(colors=256, method=Image.Quantize.MEDIANCUT)
             indexed = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in flattened]
             indexed[0].save(out/f'{clip["id"]}.gif', save_all=True, append_images=indexed[1:], loop=0,
@@ -149,11 +204,15 @@ def main() -> None:
             arrays = [np.asarray(frame) for frame in flattened]
             diffs = [int(np.any(arrays[i - 1] != arrays[i], axis=2).sum()) for i in range(1, len(arrays))]
             final.append({
-                'id': clip['id'], 'title': clip.get('title', clip['id']), 'model': clip['model'],
-                'action': clip['action'], 'duration': clip['duration'], 'frames': args.frames,
+                'id': clip['id'], 'title': clip.get('title', clip['id']), 'summary': clip.get('summary', ''),
+                'category': clip.get('category', ''), 'source': clip.get('source', ''), 'beats': clip.get('beats', []),
+                'model': clip['model'], 'action': clip['action'], 'duration': clip['duration'], 'frames': args.frames,
                 'inputFingerprint': digest,
-                'source': {'actors': clip['actors'], 'props': clip.get('props', []),
-                           'camera': rendered[clip['id']]['camera']},
+                'playback': {'image': f'{clip["id"]}-frames.png', 'columns': ATLAS_COLUMNS,
+                             'frames': args.frames, 'width': task['width'], 'height': task['height'],
+                             'duration': clip['duration']},
+                'renderSource': {'actors': clip['actors'], 'props': clip.get('props', []),
+                                 'environment': clip.get('environment'), 'camera': rendered[clip['id']]['camera']},
                 'frameDifference': {
                     'changedPixelsMin': min(diffs) if diffs else 0,
                     'changedPixelsMax': max(diffs) if diffs else 0,
@@ -162,6 +221,10 @@ def main() -> None:
                                            for frame in flattened}),
                 },
             })
+            # The atlas and GIF are the reusable playback cache. Keep only those
+            # final media products, not the renderer's 72 uncompressed RGBA frames.
+            for raw_path in rendered[clip['id']]['frames']:
+                Path(raw_path).unlink(missing_ok=True)
     final.sort(key=lambda item: item['id'])
     output = {'schemaVersion': 1, 'generatedAt': datetime.now(timezone.utc).isoformat(), 'inputManifest': str(manifest_path.relative_to(ROOT)), 'frameWidth': 640, 'frameHeight': 440, 'clips': final}
     old_path.write_text(json.dumps(output, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')

@@ -1,7 +1,7 @@
 """Build the local preview hub and current model views; no browser, game or Java compilation.
 
 All generated pages and media live in .local/previews. Authored templates remain in preview/.
-Default refresh: catalog, model thumbnails, item views and two action GIFs.
+Default refresh: catalog, model thumbnails, item views and continuous scene GIFs.
 Use --render to regenerate all specialized software-rendered sheets; never compiles Java.
 """
 from pathlib import Path
@@ -69,6 +69,10 @@ def prepare_chapters(manifest, current_media):
                 if media := step.get(key):
                     if media not in current_media or not (OUT/media).is_file():
                         raise ValueError(f'Preview not refreshed by this build: {media}')
+            if playback := step.get('playback'):
+                media = playback['image']
+                if media not in current_media or not (OUT/media).is_file():
+                    raise ValueError(f'Preview frames not refreshed by this build: {media}')
         if not steps:
             raise ValueError(f"Empty preview topic: {chapter['id']}")
         chapter.update(steps=steps, gallery=[])
@@ -151,23 +155,28 @@ def main():
         (OUT/'_work/scene-media.json').write_text(json.dumps(sorted(current_media)), encoding='utf-8')
     elif scene_stamp.is_file() and scene_stamp.read_text() == scene_fingerprint:
         current_media = set(json.loads((OUT/'_work/scene-media.json').read_text()))
-    # A default refresh builds only current, bounded single-actor GIFs. The 3D
-    # player provides the full action library without prerendering each clip.
-    dynamic = ROOT/'preview/hub/dynamic.json'
+    # Continuous previews share one authored timeline with GIF and seekable frames.
+    scene_source = ROOT/'preview/hub/scenes.json'
     subprocess.run([sys.executable, str(ROOT/'scripts/build_preview_actions.py'),
-                    '--manifest', str(dynamic), '--out', str(OUT/'dynamic-samples')], check=True, cwd=ROOT)
-    clips = json.loads((OUT/'dynamic-samples/manifest.json').read_text())['clips']
+                    '--manifest', str(scene_source), '--out', str(OUT/'scenes'),
+                    '--frames', '72', '--node', args.node], check=True, cwd=ROOT)
+    authored = {c['id']: c for c in json.loads(scene_source.read_text())['clips']}
+    clips = json.loads((OUT/'scenes/manifest.json').read_text())['clips']
     manifest['chapters'] = [c for c in manifest['chapters']
         if all(media in current_media and (OUT/media).is_file()
                for media in [*(s[k] for s in c.get('steps', []) for k in ('image','animation') if s.get(k)),
                              *(g['src'] for g in c.get('gallery', []))])]
-    manifest['chapters'].append(dict(id='dynamic-samples', title='水生动作片段', label='水生动作片段',
-        summary='当前角色的单体动作循环；不含帽船、目标与游戏 AI。', model='marisa',
-        source='docs/AQUATIC_MARISA_IMPLEMENTATION.md', points=[], gallery=[],
-        steps=[dict(title=c['title'], body='可切换到三维播放器，旋转或慢放查看。',
-                    model=c['model'], action=c['action'], image='dynamic-samples/'+c['id']+'.png',
-                    animation='dynamic-samples/'+c['id']+'.gif') for c in clips]))
-    current_media |= {f"dynamic-samples/{c['id']}.{ext}" for c in clips for ext in ('png','gif')}
+    for clip in clips:
+        source = authored[clip['id']]
+        image = 'scenes/'+clip['id']+'.png'
+        animation = 'scenes/'+clip['id']+'.gif'
+        playback = {**clip['playback'], 'image': 'scenes/'+clip['playback']['image']}
+        manifest['chapters'].append(dict(id=clip['id'], title=source['title'], label=source['title'],
+            category=source['category'], summary=source['summary'],
+            visual='连续场景编排', source=source['source'], points=[], gallery=[],
+            steps=[dict(title=source['title'], body='当前模型与动作的连续编排；游戏 AI、碰撞和行为成败请在试玩场确认。',
+                        image=image, animation=animation, playback=playback, beats=source.get('beats', []))]))
+        current_media |= {image, animation, playback['image']}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),
@@ -179,9 +188,10 @@ def main():
     manifest['availableMedia'] = sorted({
         media for chapter in manifest['chapters']
         for media in [*(step[key] for step in chapter['steps'] for key in ('image', 'animation') if step.get(key)),
-                      *(item['src'] for item in chapter['gallery'])]})
+                      *(item['src'] for item in chapter['gallery']),
+                      *(step['playback']['image'] for step in chapter['steps'] if step.get('playback'))]})
     (OUT / 'recent.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    for name in ('style.css', 'app.js', 'router.js', 'index.html'):
+    for name in ('style.css', 'app.js', 'router.js', 'scene-player.js', 'index.html'):
         shutil.copy2(ROOT / 'preview/hub' / name, OUT / name)
     print(OUT / 'index.html')
 
