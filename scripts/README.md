@@ -20,7 +20,7 @@
 
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
-`python scripts/build_preview_hub.py --render` 生成集中入口、当前模型缩略图、照料设施基础网格与襁褓身上外观；需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
+`python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与单体动作 GIF；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。
 
 总入口调用 `build_preview_library.py`，按 `preview/hub/categories.json` 生成游戏分类目录、物品缩略图及试玩入口；`preview_block_model.py` 适配原生方块元素供离线渲染；`preview_inventory.py` 从 Java 注册与运行引用过滤残留资源。它们只读资源与场景源码，输出在 `.local/previews/`，分类缺口报告在 `.local/reports/preview-library.json`；不会生成试玩世界或运行场景。
 
@@ -48,7 +48,7 @@
 | --- | --- | --- |
 | `export_predator_assets.py` | 从捕食种配方导出的模型同步两种实体快照、256 图集、19+4 动作与来源登记 | 只导蕾米莉亚、弗兰，不替换现有七种 |
 | `preview_predators.py` | 生成两种运行数据交互预览和八视图拼图 | 使用实际导出网格离线渲染，不启动游戏 |
-| `settlement_site_preview.py` | 用本机 JDK 编译模组源码与 `settlement_site_preview/SiteDump.java`，由真实的 `SitePlanner`／`SiteBuilder` 在内存里的合成坡地／平地上建出各适居群系的小群与村，镜像 `NaturalShelter.survey` 逐洞勘测并检查空地到洞口、嗯嗯坑的可达（`--seeds N`），出等轴预览 | 不用 Gradle、不启动游戏；需要主检出的 `.local/tools/java`、`build/moddev/artifacts` 合并 jar 与 `.local/gradle-home`；预览写 `.local/previews/wild-settlements/`，`build_preview_hub.py` 在场地代码变化时重跑 |
+| `settlement_site_preview.py` | 用本机 JDK 编译模组源码与 `settlement_site_preview/SiteDump.java`，由真实的 `SitePlanner`／`SiteBuilder` 在内存里的合成坡地／平地上建出各适居群系的小群与村，镜像 `NaturalShelter.survey` 逐洞勘测并检查空地到洞口、嗯嗯坑的可达（`--seeds N`），出等轴预览 | 不用 Gradle、不启动游戏；需要主检出的 `.local/tools/java`、`build/moddev/artifacts` 合并 jar 与 `.local/gradle-home`；预览写 `.local/previews/wild-settlements/`，`build_preview_hub.py` 只收录输入指纹一致的现有输出，不调用此编译脚本 |
 | `export_predator_language.py` | 增量合并捕食种专属语言、生成蛋模型和低权重森林生成规则 | 保留其他任务语言键 |
 | `export_wound_surfaces.cjs` | 读取七种当前运行角色与选定 R3.1 源，导出外皮细分、五官挂接、骨架、动作及材质；记录来源指纹 | 写 `yukkuri_wounds/` 与伤口适配包，不修改标准角色源，不启动游戏 |
 | `verify_wound_runtime.py` | 核对伤口源与输出指纹、有限数值及共点权重一致性 | 只读，不启动游戏 |

@@ -1,4 +1,4 @@
-# 预览与素材检查
+# 预览室
 
 生成页面统一放在 `.local/previews/`，入口为 `.local/previews/index.html`；模型与声音查看器位于 `models/`。预览只读游戏资源，不运行游戏 AI。
 
@@ -7,15 +7,17 @@
 在仓库根目录执行：
 
 ```sh
-python scripts/build_preview_hub.py --render
+python scripts/build_preview_hub.py
 python scripts/serve_review.py --port 8766
 ```
 
-`--render` 强制重建模型缩略图；不带它可复用输入指纹一致的缓存。照料设施、宠物用品款式图（`pet-goods/`，与原版方块并排，需本机原版客户端 jar，见[照料道具制作源](../standards/yukkuri-library/drafts/care-props/README.md)）和襁褓身上外观（`swaddle/`，`drafts/care-props/preview_wear.py`）、野生巢与储粮堆（`wild-nests/`，`drafts/care-props/preview_wild_nests.py`，含帽船储粮堆三档）每次从当前打包网格与贴图重建。服务仅监听本机；手动访问 `http://127.0.0.1:8766/.local/previews/index.html`。页面效果由用户手工查看。
+默认刷新角色／声音索引、模型与物品缩略图、`dynamic.json` 中的单体动作 GIF；不会启动浏览器、游戏或 Java 编译。可直接播放全部已登记动作，不需要把每个动作预先录成视频。`--render` 另行重建专项软件渲染图，部分专项需要已有的原版资源 jar；聚落场地图只复用输入指纹一致的现有结果，不自动调用其 Java 生成器。未生成或输入已变的专项图不收录。
+
+服务仅监听本机。手动访问 `http://127.0.0.1:8766/.local/previews/index.html`；页面效果由用户查看。
 
 ## 内容与边界
 
-入口按游戏系统分类，可搜索、筛选角色、动作片段、物品、声音、试玩入口和预览缺口。基础网格、物品图标和真实场景效果分别标注；缺少实例渲染时明确留空，不用旧拼图、粒子贴图或通用动作替代。
+入口分为全部、角色、动作、物品、声音、演示和试玩指引，侧栏按游戏系统筛选。列表支持组合搜索与分页；详情返回时保留分类、搜索与页码。页面只用于浏览和播放，不提供评论、审核或意见导出。基础网格、物品图标和真实场景效果分别标注；缺少实例渲染时明确留空，不用旧拼图、粒子贴图或通用动作替代。
 
 `preview/hub/categories.json` 是分类配置：游戏系统、动作与物品匹配规则、专项预览缺口在此维护。游戏规则和验收状态仍分别在所属专题和待办维护。缺口说明只描述预览器覆盖范围，不代表玩法未实现。
 
@@ -27,8 +29,10 @@ python scripts/serve_review.py --port 8766
 
 `actions.json`、`childhood-life-actions.json` 等旧离线编排仍可用于制作参考，但总入口不再生成或发布这些场景，避免用安排好的动作路线代表现有行为。专项制作方法在各制作源说明维护；重新生成旧脚本产物本身不代表可以恢复为当前场景。实际玩法统一通过仓库根目录的“启动动作博物馆.cmd”观察。
 
-## 缓存与本地意见
+## 地址与缓存
+
+`preview/hub/router.js` 统一解析和生成入口地址：`view` 为内容类型，`category` 为游戏分类，`q` 为搜索词，`page` 为列表页，`entry` 为内容 ID，`step` 为演示画面。导航使用浏览器历史，刷新、前进和后退恢复对应状态；旧 `kind`、`topic`、`#models`、`#audio` 入口继续解析。详情内的播放器状态由 `player` 与 `playerTab` 保存。`/` 与 `/preview/` 保留查询参数跳转总入口，旧 `/preview/review/index.html` 跳转当前播放器。模型与声音播放器仍可独立打开，`embed=1` 用于主入口内嵌。
 
 模型缩略图按索引、渲染器和贴图指纹复用，记录在 `.local/previews/_work/model-preview.sha256`。物品基础网格按网格、贴图与渲染脚本指纹复用，放在 `library/items/`；原生方块元素由 `preview_block_model.py` 每次重建。依赖原版贴图时读取本机 `MCYUKKURI_VANILLA` 缓存，只复制所需图标到本地预览，不打入游戏资源。
 
-分类缺口、未确认的动作／物品资源和缺失渲染输入写入 `.local/reports/preview-library.json`。模型检查意见保存在当前浏览器，按资源指纹区分；导出 JSON 不改变游戏资源或标准素材认可状态。
+分类缺口、未确认的动作／物品资源和缺失渲染输入写入 `.local/reports/preview-library.json`。预览页面不读写检查意见。

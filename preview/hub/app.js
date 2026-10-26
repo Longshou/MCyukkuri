@@ -1,119 +1,104 @@
 'use strict';
-const $=id=>document.getElementById(id);
-let data,library,current,step=0,animated=true,categoryId='life';
-const kindNames={scene:'外观对照',model:'角色模型',motion:'动作片段',item:'物品与设施',scenario:'游戏试玩入口',audio:'声音',reference:'预览缺口'};
-function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;}
-function mode(name,url){
- const recent=name==='recent';$('recent').hidden=!recent;$('viewer').hidden=recent;$('sample-player').pause();
- document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===name));
- if(!recent){$('sequence-player').removeAttribute('src');const src=url||('models/index.html'+(name==='audio'?'#audio':''));$('viewer-frame').src=src;$('viewer-open').href=src;}
- else{$('viewer-frame').src='about:blank';browse();}
- location.hash=recent?'recent':name;
+const $=id=>document.getElementById(id), R=window.PreviewRoute;
+const labels={all:'全部',models:'角色',motions:'动作',items:'物品',audio:'声音',scenes:'演示',guide:'试玩指引'};
+const kinds={model:'三维角色',motion:'动态动作',item:'物品',audio:'声音',scene:'演示',scenario:'试玩指引',reference:'预览说明'};
+let library,data,state=R.parse(location.href), timer;
+const pageSize=36;
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function link(text,next,cls){const a=el('a',text,cls);a.href=R.href(next);return a;}
+function browseState(patch={}){return {...state,entry:'',step:0,player:'',playerTab:'',...patch};}
+function go(next,replace=false){history[replace?'replaceState':'pushState'](null,'',R.href(next));state=next;render();}
+function stopMedia(){for(const a of document.querySelectorAll('audio,video'))a.pause();$('content').replaceChildren();$('steps').replaceChildren();}
+function picture(src,title,cls){const img=el('img',undefined,cls);img.src=src;img.alt=title;img.loading='lazy';img.onerror=()=>{img.replaceWith(el('p','此预览暂不可用。','media-missing'));};return img;}
+function viewerURL(entry){const p=new URLSearchParams({embed:'1'});if(entry.model)p.set('model',entry.model);if(entry.action){p.set('action',entry.action);p.set('autoplay','1');}if(entry.species)p.set('species',entry.species);if(state.player)for(const [k,v] of new URLSearchParams(state.player))if(['model','action','species','event','audioId','age','q','autoplay'].includes(k))p.set(k,v);return 'models/index.html?'+p+(state.playerTab?'#'+state.playerTab:entry.kind==='audio'?'#audio':'#models');}
+function renderNav(){
+ $('sections').replaceChildren(...Object.entries(labels).map(([id,label])=>{const a=link(label,browseState({section:id,page:1}),id===state.section?'active':'');if(id===state.section)a.setAttribute('aria-current','page');return a;}));
 }
-function renderMedia(){
- const item=current.steps[step],isPlayback=item.kind==='playback',isLogic=item.kind==='logic',isSubtitles=item.kind==='subtitles',isAudio=item.kind==='audio';
- $('main-image').hidden=isPlayback||isLogic||isSubtitles||isAudio;$('logic-visual').hidden=!isLogic;$('voice-visual').hidden=!(isSubtitles||isAudio);
- $('sequence-player').hidden=!isPlayback;
- if(!isPlayback)$('sequence-player').removeAttribute('src');
- $('media-frame').classList.remove('portrait');$('media-frame').style.background=item.color||'';
- $('season-name').textContent='';$('sample-player').pause();$('sample-audio').hidden=!item.audioSample;
- $('animate').hidden=!item.animation;$('animate').textContent=animated?'看静帧':'播放动作';
- if(isPlayback){
-  const url=current.demoPage+(item.scene?'?scene='+encodeURIComponent(item.scene):'');
-  if($('sequence-player').getAttribute('src')!==url)$('sequence-player').setAttribute('src',url);
-  $('media-caption').textContent='连续动作预览 · 可暂停、慢放、拖动，点开启声音试听';
- }else if(isLogic){
-  $('logic-visual').replaceChildren(el('small','规则示意 · 无独立动画'),el('h3',item.title),...item.states.map((text,i)=>{const row=el('div',undefined,'state-row');row.append(el('b',String(i+1).padStart(2,'0')),el('span',text));return row;}));
-  $('media-caption').textContent='服务端状态关系；不以无关模型动作代替';
- }else if(isSubtitles){
-  $('voice-visual').replaceChildren(el('small','当前对白资源 · 仅字幕'),...data.subtitleSamples.map(s=>{const line=el('div',undefined,'subtitle-sample');line.append(el('strong',s.species==='remilia'?'蕾米莉亚':'芙兰'),el('p',s.zh),el('p',s.ja,'jp'));return line;}));
-  $('media-caption').textContent='新增字幕原文与翻译 · 没有独立配音';
- }else if(isAudio){
-  const sample=data.audioSamples[item.audioSample];$('voice-visual').replaceChildren(el('small','当前打包音频'),el('h3',sample.zh),el('p',sample.ja,'jp'),el('p','使用下方播放器试听；普通对白没有通用说话口型。'));
-  $('media-caption').textContent='真实音频与对应字幕';
+function renderList(){
+ const available=library.entries.filter(e=>R.matches(e,{...state,category:'all'}));
+ const categories=[{id:'all',label:'全部分类'},...library.categories];
+ $('categories').replaceChildren(...categories.map(c=>{const count=available.filter(e=>c.id==='all'||e.category===c.id).length;const a=link('',browseState({category:c.id,page:1}),state.category===c.id?'active':'');a.append(el('span',c.label),el('small',String(count)));if(state.category===c.id)a.setAttribute('aria-current','page');return a;}));
+ const category=categories.find(c=>c.id===state.category);
+ $('category-title').textContent=category?.label||'全部分类';
+ const entries=library.entries.filter(e=>R.matches(e,state));
+ const pages=Math.max(1,Math.ceil(entries.length/pageSize));
+ if(state.page>pages){state.page=pages;history.replaceState(null,'',R.href(state));}
+ $('result-count').textContent=entries.length+' 项';$('empty').hidden=entries.length>0;
+ $('search').value=state.q;$('clear').hidden=!state.q&&state.category==='all';
+ $('entries').replaceChildren(...entries.slice((state.page-1)*pageSize,state.page*pageSize).map(entry=>{
+   const a=link('',{...state,entry:entry.id,step:0,player:'',playerTab:''},'entry');
+   if(entry.image)a.append(picture(entry.image,'','thumbnail'+(entry.visual==='物品图标'?' pixel':'')));
+   else a.append(el('div',{motion:'播放动作',model:'查看模型',audio:'试听',scenario:'游戏内查看',reference:'说明'}[entry.kind]||'暂无图片','placeholder'));
+   const copy=el('div',undefined,'entry-copy');copy.append(el('small',kinds[entry.kind]),el('h3',entry.title));a.append(copy);return a;
+ }));
+ const controls=[];
+ if(state.page>1)controls.push(link('← 上一页',browseState({page:state.page-1})));
+ if(pages>1)controls.push(el('span',state.page+' / '+pages));
+ if(state.page<pages)controls.push(link('下一页 →',browseState({page:state.page+1})));
+ $('pagination').replaceChildren(...controls);
+}
+function renderDetail(){
+ const entry=library.entries.find(e=>e.id===state.entry);
+ $('back').href=R.href(browseState());$('standalone').hidden=true;
+ if(!entry){$('detail-title').textContent='这项预览不存在';$('detail-description').textContent='内容可能已更新，请返回列表重新选择。';$('detail-category').textContent='';return;}
+ $('detail-title').textContent=entry.title;$('detail-description').textContent=entry.summary;
+ $('detail-category').textContent=library.categories.find(c=>c.id===entry.category)?.label||'';
+ if(['model','motion','audio'].includes(entry.kind)){
+   const src=viewerURL(entry),frame=el('iframe');frame.src=src;frame.title=entry.title;frame.className='viewer';frame.allow='autoplay';$('content').append(frame);
+   $('standalone').href=src.replace('embed=1&','').replace('embed=1','');$('standalone').hidden=false;
+ }else if(entry.kind==='scene'){
+   const chapter=data.chapters.find(c=>c.id===entry.chapter);
+   const steps=chapter?.steps||[];
+   if(!steps.length){$('content').append(el('p','当前没有可用画面。'));return;}
+   state.step=Math.min(state.step,steps.length-1);history.replaceState(null,'',R.href(state));
+   const item=steps[state.step];
+   if(item.animation||item.image)$('content').append(picture(item.animation||item.image,item.title,'scene-image'));
+   if(item.audioSample&&data.audioSamples?.[item.audioSample]){const sample=data.audioSamples[item.audioSample],audio=el('audio');audio.src=sample.url;audio.controls=true;audio.preload='none';$('content').append(el('p',sample.zh),el('p',sample.ja),audio);}
+   if(item.kind==='subtitles')for(const sample of data.subtitleSamples||[])$('content').append(el('h2',sample.species==='remilia'?'蕾米莉亚':'芙兰'),el('p',sample.zh),el('p',sample.ja));
+   if(item.kind==='logic')for(const line of item.states||[])$('content').append(el('p',line));
+   if(item.video){const video=el('video');video.src=item.video;video.controls=true;video.loop=true;video.className='scene-image';$('content').append(video);}
+   $('content').append(el('p',item.body||item.title,'caption'));
+   if(item.action&&chapter.model){const a=el('a','三维播放此动作 ↗');a.href=viewerURL({model:item.model||chapter.model,action:item.action}).replace('embed=1&','');a.target='_blank';$('content').append(a);}
+   $('steps').replaceChildren(...steps.map((s,i)=>link(s.title,{...state,step:i},i===state.step?'active':'')));
  }else{
-  $('main-image').src=animated&&item.animation?item.animation:item.image;$('main-image').alt=item.title+'：当前资源离线演示';
-  $('media-caption').textContent=item.mediaPending?'动作尚未生成，请重新生成预览':item.kind==='expression'?'当前表情对照 · 没有专属动作':item.demo?'运行资源动作 · 布景与路径为演示安排':item.animation?'当前资源的多角色动作分镜':'动作取样静帧';
+   if(entry.image)$('content').append(picture(entry.image,entry.title,'scene-image'+(entry.visual==='物品图标'?' pixel':'')));
+   if(entry.kind==='scenario'){
+     $('content').append(el('p','运行「启动动作博物馆.cmd」，到「'+entry.field+'」选择「'+entry.title+'」。','instruction'));
+     const dl=el('dl');for(const [k,v] of [['观察时间',entry.wait],['重开方式',entry.retry],['说明',entry.note]])if(v)dl.append(el('dt',k),el('dd',v));$('content').append(dl);
+   }else if(!entry.image)$('content').append(el('p','暂无独立外观预览，可到游戏里查看。','instruction'));
  }
- if(item.audioSample){const sample=data.audioSamples[item.audioSample];$('sample-player').src=sample.url;$('sample-caption').textContent=sample.zh+(sample.ja?' / '+sample.ja:'');}
- $('model-link').hidden=!item.action;$('model-link').textContent='在模型页控制此动作 ↗';
 }
-function showStep(index){
- step=index;animated=true;const item=current.steps[index];
- [...$('steps').children].forEach((b,i)=>{b.classList.toggle('active',i===index);b.setAttribute('aria-pressed',i===index);});
- $('step-number').textContent=String(index+1).padStart(2,'0');$('step-title').textContent=item.title;$('step-body').textContent=item.body;
- $('progress-dot').style.left=(index/Math.max(1,current.steps.length-1)*100)+'%';renderMedia();
-}
-function chapter(id){
- current=data.chapters.find(c=>c.id===id)||data.chapters[0];
- $('browse').hidden=true;$('detail').hidden=false;$('story-detail').hidden=false;$('entry-detail').hidden=true;
- $('tag').textContent=current.tag;$('title').textContent=current.title;$('summary').textContent=current.summary;
- $('points').replaceChildren(...current.points.map(p=>el('li',p)));$('source-link').hidden=!current.source;if(current.source)$('source-link').href='/'+current.source;
- $('demo-link').hidden=!current.demoPage;if(current.demoPage)$('demo-link').href=current.demoPage;
- $('steps').replaceChildren(...current.steps.map((item,i)=>{const b=el('button');b.append(el('small',item.kind==='playback'?'连续播放':item.animation||item.demo&&!item.still?'动作回放':item.kind==='expression'?'表情对照':item.kind==='logic'?'状态图':item.kind==='audio'?'音频':item.kind==='subtitles'?'字幕':'静态分镜'),el('strong',item.title));b.onclick=()=>showStep(i);return b;}));
- $('gallery').replaceChildren(...(current.gallery||[]).map(item=>{const f=el('figure'),a=el('a'),img=el('img');a.href=item.src;a.target='_blank';img.src=item.src;img.alt=item.label;img.loading='lazy';a.append(img);f.append(a,el('figcaption',item.label));return f;}));showStep(0);
-}
-$('animate').onclick=()=>{animated=!animated;const item=current.steps[step];$('main-image').src=animated?item.animation:item.image;$('animate').textContent=animated?'看静帧':'播放动作';};
-$('model-link').onclick=()=>{const item=current.steps[step];if(item.action)mode('models','models/index.html?model='+encodeURIComponent(item.model||current.model)+'&action='+encodeURIComponent(item.action)+'&autoplay=1');};
-$('back').onclick=()=>mode('recent');document.querySelector('.brand').onclick=e=>{e.preventDefault();mode('recent');};document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>mode(b.dataset.mode));
-$('main-image').onerror=()=>{$('media-caption').textContent='此动作文件尚未生成，请重新运行预览生成脚本。';};
-function route(entry){const query=new URLSearchParams();query.set('category',categoryId);if(entry)query.set('entry',entry.id);if($('search').value)query.set('q',$('search').value);if($('kind-filter').value!=='all')query.set('kind',$('kind-filter').value);history.replaceState(null,'','?'+query+'#recent');}
-function browse(){
- $('browse').hidden=false;$('detail').hidden=true;$('sample-player').pause();$('sequence-player').removeAttribute('src');
- if(library){renderLibrary();route();}
-}
-function showEntry(entry){
- categoryId=entry.category;route(entry);
- if(entry.kind==='model'||entry.kind==='motion'){mode('models','models/index.html?model='+encodeURIComponent(entry.model)+(entry.action?'&action='+encodeURIComponent(entry.action)+'&autoplay=1':''));return;}
- if(entry.kind==='audio'){mode('audio','models/index.html?species='+encodeURIComponent(entry.species)+'#audio');return;}
- if(entry.kind==='scene'){chapter(entry.chapter);return;}
- $('browse').hidden=true;$('detail').hidden=false;$('story-detail').hidden=true;$('entry-detail').hidden=false;
- const panel=$('entry-detail');panel.replaceChildren(el('p',entry.visual||kindNames[entry.kind],'eyebrow'),el('h2',entry.title));
- if(entry.image){const img=el('img');img.src=entry.image;img.alt=entry.title;img.className=entry.visual==='物品图标'||entry.visual==='材质预览'?'asset-image pixel-image':'asset-image';panel.append(img);}
- panel.append(el('p',entry.summary,'summary'));
- if(entry.kind==='reference'||entry.kind==='item'&&!entry.image){
-  const button=el('button','查看本分类的游戏试玩入口','source-button');
-  button.onclick=()=>{$('kind-filter').value='scenario';$('search').value='';browse();};panel.append(button);
- }
- if(entry.kind==='scenario'){
-  panel.append(el('p','打开“启动动作博物馆.cmd”，到「'+entry.field+'」选择「'+entry.title+'」。','play-instruction'));
-  const info=el('dl');for(const [label,value] of [['预计观察时间',entry.wait],['重开与重试',entry.retry],['场景说明',entry.note]]){if(value)info.append(el('dt',label),el('dd',value));}panel.append(info);
-  panel.append(el('p','场景标识：'+entry.sceneId,'resource-id'));
- }
- if(entry.source){const link=el('a','查看所属专题 ↗','source-button');link.href='/'+entry.source;link.target='_blank';panel.append(link);}
-}
-function renderLibrary(){
+function render(){
  if(!library)return;
- const query=$('search').value.trim().toLowerCase(),kind=$('kind-filter').value;
- const matches=entry=>(kind==='all'||entry.kind===kind)&&(!query||(entry.title+' '+entry.summary+' '+entry.id).toLowerCase().includes(query));
- const categories=library.categories.filter(c=>library.entries.some(e=>e.category===c.id));
- $('category-list').replaceChildren(...[{id:'all',label:'全部游戏内容'},...categories].map(c=>{
-  const count=library.entries.filter(e=>(c.id==='all'||e.category===c.id)&&matches(e)).length;
-  const button=el('button');button.className=c.id===categoryId?'active':'';button.setAttribute('aria-pressed',c.id===categoryId);
-  button.append(el('span',c.label),el('small',String(count)));button.onclick=()=>{categoryId=c.id;renderLibrary();route();};return button;
- }));
- const category=categories.find(c=>c.id===categoryId);
- $('category-title').textContent=category?.label||'全部游戏内容';$('category-description').textContent=category?.description||'按游戏系统归档的分镜、模型、物品、声音与试玩入口。';
- const entries=library.entries.filter(e=>(categoryId==='all'||e.category===categoryId)&&matches(e));
- $('result-count').textContent=entries.length+' 项';$('empty-results').hidden=entries.length>0;
- $('entry-grid').replaceChildren(...entries.map(entry=>{
-  const card=el('button',undefined,'entry-card');
-  if(entry.image){const img=el('img');img.src=entry.image;img.alt='';img.loading='lazy';if(entry.visual==='物品图标'||entry.visual==='材质预览')img.className='pixel-image';card.append(img);}
-  else card.append(el('div',entry.kind==='scenario'?'进入游戏观察':entry.kind==='audio'?'♪':entry.kind==='reference'?'预览缺口':'行为与状态','card-placeholder'));
-  const copy=el('div',undefined,'card-copy');copy.append(el('small',entry.visual||kindNames[entry.kind]),el('h3',entry.title),el('p',entry.summary));card.append(copy);card.onclick=()=>showEntry(entry);return card;
- }));
+ stopMedia();renderNav();$('browse').hidden=!!state.entry;$('detail').hidden=!state.entry;
+ document.title=(state.entry?library.entries.find(e=>e.id===state.entry)?.title||'预览':labels[state.section])+' · MCyukkuri';
+ if(state.entry)renderDetail();else renderList();
 }
-$('detail-back').onclick=browse;
-$('search').oninput=()=>{categoryId='all';renderLibrary();route();};$('kind-filter').onchange=()=>{renderLibrary();route();};
-Promise.all(['recent.json','library.json'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('预览索引读取失败');return r.json();}))).then(([value,index])=>{
- data=value;library=index;
- const params=new URLSearchParams(location.search);categoryId=params.get('category')||'life';
- $('search').value=params.get('q')||'';if(params.get('kind') in kindNames)$('kind-filter').value=params.get('kind');
- if(!library.categories.some(c=>c.id===categoryId)&&categoryId!=='all')categoryId='life';
- const counts=kind=>library.entries.filter(e=>e.kind===kind).length;
- $('library-summary').textContent=library.categories.filter(c=>library.entries.some(e=>e.category===c.id)).length+' 个游戏分类 · '+counts('model')+' 种形态 · '+counts('motion')+' 个动作片段 · '+counts('item')+' 件物品与设施 · '+counts('scenario')+' 个试玩入口 · '+counts('reference')+' 项专项预览缺口';
- $('version').textContent='资源提交 '+data.sourceRevision.slice(0,8)+(data.workingChanges?'，含本地修改':'')+'；离线演示不代表游戏内行为验收。';
- $('generated').textContent='生成于 '+data.generatedAt.replace('T',' ').replace('+08:00','')+'（北京时间）';
- renderLibrary();const entry=library.entries.find(e=>e.id===params.get('entry')||params.get('topic')&&e.chapter===params.get('topic'));
- if(entry)showEntry(entry);else if(location.hash==='#audio')mode('audio');else if(location.hash==='#models')mode('models');
-}).catch(error=>{$('error').hidden=false;$('error').textContent=error.message+'。请通过本地预览服务打开。';});
+document.addEventListener('click',event=>{
+ const a=event.target.closest('a');if(!a||a.target||event.button||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+ const url=new URL(a.href);if(url.origin!==location.origin||url.pathname!==location.pathname)return;
+ event.preventDefault();clearTimeout(timer);go(R.parse(url.href));window.scrollTo(0,0);
+});
+window.addEventListener('message',event=>{
+ const frame=$('content').querySelector('iframe');
+ if(event.origin!==location.origin||event.source!==frame?.contentWindow||event.data?.type!=='preview-selection'||typeof event.data.query!=='string')return;
+ const p=new URLSearchParams();for(const [k,v] of new URLSearchParams(event.data.query))if(['model','action','species','event','audioId','age','q','autoplay'].includes(k))p.set(k,v);
+ state.player=p.toString();state.playerTab=event.data.tab==='audio'?'audio':'models';
+ const previous=library.entries.find(e=>e.id===state.entry);
+ const id=state.playerTab==='audio'?'audio:'+p.get('species'):previous?.kind==='motion'?'motion:'+p.get('action'):'model:'+p.get('model');
+ const next=library.entries.find(e=>e.id===id);
+ if(next){state.entry=next.id;$('detail-title').textContent=next.title;$('detail-description').textContent=next.summary;$('detail-category').textContent=library.categories.find(c=>c.id===next.category)?.label||'';document.title=next.title+' · MCyukkuri';}
+ history.replaceState(null,'',R.href(state));
+ $('standalone').href='models/index.html?'+p+(event.data.tab==='audio'?'#audio':'#models');
+});
+window.addEventListener('popstate',()=>{clearTimeout(timer);state=R.parse(location.href);render();});
+$('search-form').onsubmit=e=>{e.preventDefault();clearTimeout(timer);go(browseState({q:$('search').value.trim(),page:1}));};
+$('search').oninput=()=>{clearTimeout(timer);const q=$('search').value;timer=setTimeout(()=>go(browseState({q,page:1}),true),220);};
+$('clear').onclick=()=>go(browseState({q:'',category:'all',page:1}));
+Promise.all(['library.json','recent.json'].map(url=>fetch(url).then(r=>{if(!r.ok)throw Error('预览目录加载失败，请刷新重试。');return r.json();}))).then(([index,manifest])=>{
+ library=index;data=manifest;
+ if(!library.categories.some(c=>c.id===state.category))state.category='all';
+ if(state.topic){state.entry=(library.entries.find(e=>e.chapter===state.topic)||library.entries.find(e=>e.id==='reference:'+state.topic))?.id||'scene:'+state.topic;state.topic='';}
+ $('version').textContent='资源 '+(data.sourceRevision||'').slice(0,8);
+ history.replaceState(null,'',R.href(state));render();
+}).catch(error=>{$('error').hidden=false;$('error').textContent=error.message;});

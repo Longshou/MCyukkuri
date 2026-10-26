@@ -12,9 +12,13 @@ class Handler(SimpleHTTPRequestHandler):
         if urlsplit(self.path).path=='/review-health':
             body=json.dumps({'project':'MCyukkuri','root':str(ROOT),'review':1}).encode()
             self.send_response(200);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body);return
-        requested=unquote(urlsplit(self.path).path)
-        if requested in ('/', '/preview/review/index.html'):
-            self.send_response(302);self.send_header('Location','/.local/previews/index.html');self.end_headers();return
+        parsed=urlsplit(self.path)
+        requested=unquote(parsed.path)
+        aliases={'/':'/.local/previews/index.html','/preview':'/.local/previews/index.html',
+                 '/preview/':'/.local/previews/index.html','/preview/review/index.html':'/.local/previews/models/index.html'}
+        if requested in aliases:
+            target=aliases[requested]+('?' + parsed.query if parsed.query else '')
+            self.send_response(302);self.send_header('Location',target);self.end_headers();return
         if requested.startswith('/.local/previews/_'):
             self.send_error(404);return
         if not requested.startswith(('/.local/previews/','/preview/','/src/main/resources/assets/','/art/','/standards/','/docs/')):

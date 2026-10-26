@@ -1,29 +1,16 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MCyukkuri · 游戏内容预览室</title><link rel="stylesheet" href="style.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MCyukkuri · 预览室</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<header class="topbar"><a class="brand" href="#recent"><span class="mark">ゆ</span><span>MCyukkuri<small>预览室</small></span></a><nav aria-label="预览分类"><button data-mode="recent" class="selected">游戏内容</button><button data-mode="models">模型与动作</button><button data-mode="audio">声音试听</button></nav><span class="local-tag">当前资源 · 本机预览</span></header>
-<main id="recent">
-  <section id="browse">
-    <div class="heading"><div><p class="eyebrow">按游戏里的生活与行为查找</p><h1>游戏内容预览室<span id="library-summary"></span></h1></div></div>
-    <div class="library-tools"><label class="search-label" for="search">搜索全部内容<input id="search" type="search" placeholder="例如：襁褓、治疗、帽船、妖梦…"></label><label for="kind-filter">内容类型<select id="kind-filter"><option value="all">全部内容</option><option value="scene">外观对照</option><option value="model">角色模型</option><option value="motion">动作片段</option><option value="item">物品与设施</option><option value="scenario">游戏试玩入口</option><option value="audio">声音</option><option value="reference">预览缺口</option></select></label></div>
-    <div class="library-layout"><aside><nav id="category-list" aria-label="游戏系统分类"></nav></aside><section class="library-results" aria-live="polite"><div class="results-heading"><h2 id="category-title"></h2><span id="result-count"></span></div><p id="category-description"></p><div id="entry-grid" class="entry-grid"></div><p id="empty-results" hidden>没有找到匹配内容。试试其他关键词或内容类型。</p></section></div>
-  </section>
-  <section id="detail" hidden>
-    <button id="detail-back" class="back-button">← 返回分类</button>
-    <div id="story-detail" hidden>
-      <article id="story" class="story">
-        <div class="story-copy"><p class="eyebrow" id="tag"></p><h2 id="title"></h2><p id="summary" class="summary"></p><ul id="points"></ul><div class="actions"><button id="model-link" class="primary">查看当前模型 ↗</button><a id="demo-link" target="_blank" hidden>播放完整演示 ↗</a><a id="source-link" target="_blank">实现说明 ↗</a></div></div>
-        <div class="media-area"><div class="media-frame" id="media-frame"><img id="main-image" alt=""><iframe id="sequence-player" title="连续动作预览" allow="autoplay; fullscreen" hidden></iframe><div id="season-name"></div><div id="logic-visual" hidden></div><div id="voice-visual" hidden></div></div><div class="media-toolbar"><span id="media-caption"></span><button id="animate" hidden>看静帧</button></div><div id="sample-audio" hidden><audio id="sample-player" controls preload="none"></audio><p id="sample-caption"></p></div></div>
-      </article>
-      <section class="sequence"><div class="sequence-heading"><h3>选择分镜</h3><span>动作回放、静帧和状态示意分别标注</span></div><div id="steps" class="steps"></div><div class="step-detail"><span id="step-number">01</span><div><strong id="step-title"></strong><p id="step-body"></p></div><div class="progress-track" aria-hidden="true"><span id="progress-dot">ゆ</span></div></div></section>
-      <section id="gallery" class="gallery"></section>
-    </div>
-    <article id="entry-detail" class="entry-detail" hidden></article>
-  </section>
-  <section class="footer-notes"><p>角色、物品与试玩入口随资源登记更新。旧分镜不因文件存在自动收录；缺少可靠外观的内容单列缺口。离线画面和场景入口都不代表玩法已通过验收。</p><details><summary>版本与更新范围</summary><p id="version"></p><p>游戏试玩使用仓库根目录的“启动动作博物馆.cmd”。分类页展示场景源码里的观察要点，不在网页运行游戏 AI。</p><p>同一主题保留当前预览；制作源与原始参考素材独立保存。</p></details></section>
-</main>
-<section id="viewer" hidden><div class="viewer-bar"><button id="back">← 返回分类</button><span>当前游戏模型、动作与已有音频</span><a id="viewer-open" target="_blank">独立打开 ↗</a></div><iframe id="viewer-frame" title="当前模型和声音检查室"></iframe></section>
-<footer>MCyukkuri / 预览统一入口 <span id="generated"></span></footer>
-<div id="error" role="alert" hidden></div><script src="app.js"></script>
+<header class="topbar"><a class="brand" href="?view=all">MCyukkuri <span>预览室</span></a><nav id="sections" aria-label="内容类型"></nav></header>
+<main>
+<section id="browse">
+  <div class="heading"><h1>随便看看。</h1><p>角色、动作、道具与声音。</p></div>
+  <form id="search-form" role="search"><label class="sr-only" for="search">搜索预览</label><input id="search" type="search" placeholder="搜索名称、角色或动作…" autocomplete="off"><button type="submit">搜索</button><button id="clear" type="button" hidden>清除筛选</button></form>
+  <div class="library-layout"><aside><nav id="categories" aria-label="游戏分类"></nav></aside><section aria-label="预览列表"><div class="results-heading"><h2 id="category-title"></h2><span id="result-count" role="status"></span></div><div id="entries" class="entry-grid"></div><p id="empty" hidden>没有找到相关内容。试试清除筛选或换个关键词。</p><nav id="pagination" aria-label="翻页"></nav></section></div>
+</section>
+<section id="detail" hidden><div class="detail-bar"><a id="back" href="?view=all">← 返回列表</a><span id="detail-category"></span><a id="standalone" target="_blank" rel="noopener" hidden>独立打开 ↗</a></div><h1 id="detail-title" tabindex="-1"></h1><p id="detail-description"></p><div id="content"></div><nav id="steps" aria-label="选择画面"></nav></section>
+<p id="error" role="alert" hidden></p>
+</main><footer><span>离线素材预览 · 完整玩法请在游戏中查看</span><span id="version"></span></footer>
+<script src="router.js"></script><script src="app.js"></script>
 </body></html>

@@ -1,7 +1,8 @@
 """Build the local preview hub and current model views; no browser, game or Java compilation.
 
 All generated pages and media live in .local/previews. Authored templates remain in preview/.
-Run with --render to regenerate current model thumbnails and current item views.
+Default refresh: catalog, model thumbnails, item views and two action GIFs.
+Use --render to regenerate all specialized software-rendered sheets; never compiles Java.
 """
 from pathlib import Path
 import argparse
@@ -98,44 +99,75 @@ def main():
     if args.render or missing_thumb or not stamp.exists() or stamp.read_text() != fingerprint:
         render_models(args.node)
         stamp.write_text(fingerprint)
-    subprocess.run([sys.executable, str(ROOT / 'scripts/build_preview_props.py')], check=True, cwd=ROOT)
-    from build_preview_props import GROUPS
-    current_media = {f'care-current/{name}.png' for name in GROUPS}
-    # Placed pet-goods style sheets (offline, beside vanilla blocks); rebuilt here from the current runtime meshes.
-    subprocess.run([sys.executable, str(ROOT / 'standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py'), *PET_GOODS],
-                   check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'pet-goods/{name}.png' for name in PET_GOODS_MEDIA}
-    # worn swaddles: drafts/care-props/preview_wear.py redraws its four sheets from the current runtime textures on every build
-    wear = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wear.py'
-    subprocess.run([sys.executable, str(wear)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'fit', 'icons')}
-    # wild nests and the forage pile: drafts/care-props/preview_wild_nests.py redraws the sheets from the runtime meshes
-    nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
-    subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage')}
-    # aquatic Marisa tool clips, hull dressing and the derived faces: lore/aquatic_tools_preview.py reads the runtime clips and props
-    aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
-    subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {f'aquatic-tools/{name}.png' for name in ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')}
-    # hat boat deck: interactions/marisa-hat-vessel/preview_deck.py redraws the seat table from the exported runtime data
-    deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
-    subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {'hat-deck/hat-deck.png'}
-    # the hat boat as a home seen from the bank (side-well larder, crew): lore/aquatic_home_preview.py, runtime data only
-    home = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py'
-    subprocess.run([sys.executable, str(home)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {'aquatic-home/shore.png'}
-    # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
-    fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
-    subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-    current_media |= {'pet-goods/fit.png', 'pet-goods/lineup.png', 'wild-nests/fit.png'}
-    # wild settlement sites: built offline by the mod's own planner and builder (settlement_site_preview.py, needs the local JDK);
-    # rerun only when the site code or the preview harness changed since the images were made
-    import settlement_site_preview as sites
-    stamp = OUT / 'wild-settlements/source.sha256'
-    if not stamp.is_file() or stamp.read_text(encoding='utf-8') != sites.source_digest():
-        subprocess.run([sys.executable, str(ROOT / 'scripts/settlement_site_preview.py'), '--seeds', '1'], check=True, cwd=ROOT)
-    current_media |= {f'wild-settlements/{name}.png' for name in sites.HUB_MEDIA}
+    current_media = set()
+    scene_stamp = OUT / '_work/scene-source.sha256'
+    scene_digest = hashlib.sha256()
+    for base in (ROOT/'src/main/resources/assets/mcyukkuri', ROOT/'src/main/java', ROOT/'standards/yukkuri-library', ROOT/'scripts', ROOT/'preview/hub'):
+        for source in sorted(base.rglob('*')):
+            if source.is_file() and source.suffix in ('.json', '.png', '.py', '.js', '.cjs', '.java'):
+                scene_digest.update(str(source.relative_to(ROOT)).encode())
+                scene_digest.update(source.read_bytes())
+    scene_fingerprint = scene_digest.hexdigest()
+    if args.render:
+        subprocess.run([sys.executable, str(ROOT / 'scripts/build_preview_props.py')], check=True, cwd=ROOT)
+        from build_preview_props import GROUPS
+        current_media = {f'care-current/{name}.png' for name in GROUPS}
+        # Placed pet-goods style sheets (offline, beside vanilla blocks); rebuilt here from the current runtime meshes.
+        subprocess.run([sys.executable, str(ROOT / 'standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py'), *PET_GOODS],
+                       check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {f'pet-goods/{name}.png' for name in PET_GOODS_MEDIA}
+        # worn swaddles: drafts/care-props/preview_wear.py redraws its four sheets from the current runtime textures on every build
+        wear = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wear.py'
+        subprocess.run([sys.executable, str(wear)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {f'swaddle/{name}.png' for name in ('leaf', 'cloth', 'fit', 'icons')}
+        # wild nests and the forage pile: drafts/care-props/preview_wild_nests.py redraws the sheets from the runtime meshes
+        nests = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_wild_nests.py'
+        subprocess.run([sys.executable, str(nests)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {f'wild-nests/{name}.png' for name in ('nests', 'stages', 'forage')}
+        # aquatic Marisa tool clips, hull dressing and the derived faces: lore/aquatic_tools_preview.py reads the runtime clips and props
+        aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
+        subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {f'aquatic-tools/{name}.png' for name in ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')}
+        # hat boat deck: interactions/marisa-hat-vessel/preview_deck.py redraws the seat table from the exported runtime data
+        deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
+        subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {'hat-deck/hat-deck.png'}
+        # the hat boat as a home seen from the bank (side-well larder, crew): lore/aquatic_home_preview.py, runtime data only
+        home = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py'
+        subprocess.run([sys.executable, str(home)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {'aquatic-home/shore.png'}
+        # nest fit: every growth stage resting where the collision puts it, cross-sections and the placed-block size lineup
+        fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
+        subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {'pet-goods/fit.png', 'pet-goods/lineup.png', 'wild-nests/fit.png'}
+        # Site previews may be reused only after their authoring inputs were checked.
+        # The preview room never invokes the Java-based site renderer.
+        import settlement_site_preview as sites
+        site_stamp = OUT / 'wild-settlements/source.sha256'
+        if site_stamp.is_file() and site_stamp.read_text(encoding='utf-8') == sites.source_digest():
+            current_media |= {f'wild-settlements/{name}.png' for name in sites.HUB_MEDIA}
+        scene_stamp.parent.mkdir(parents=True, exist_ok=True)
+        scene_stamp.write_text(scene_fingerprint, encoding='utf-8')
+        (OUT/'_work/scene-media.json').write_text(json.dumps(sorted(current_media)), encoding='utf-8')
+    elif scene_stamp.is_file() and scene_stamp.read_text() == scene_fingerprint:
+        current_media = set(json.loads((OUT/'_work/scene-media.json').read_text()))
+    # A default refresh builds only current, bounded single-actor GIFs. The 3D
+    # player provides the full action library without prerendering each clip.
+    dynamic = ROOT/'preview/hub/dynamic.json'
+    subprocess.run([sys.executable, str(ROOT/'scripts/build_preview_actions.py'),
+                    '--manifest', str(dynamic), '--out', str(OUT/'dynamic-samples')], check=True, cwd=ROOT)
+    clips = json.loads((OUT/'dynamic-samples/manifest.json').read_text())['clips']
+    manifest['chapters'] = [c for c in manifest['chapters']
+        if all(media in current_media and (OUT/media).is_file()
+               for media in [*(s[k] for s in c.get('steps', []) for k in ('image','animation') if s.get(k)),
+                             *(g['src'] for g in c.get('gallery', []))])]
+    manifest['chapters'].append(dict(id='dynamic-samples', title='水生动作片段', label='水生动作片段',
+        summary='当前角色的单体动作循环；不含帽船、目标与游戏 AI。', model='marisa',
+        source='docs/AQUATIC_MARISA_IMPLEMENTATION.md', points=[], gallery=[],
+        steps=[dict(title=c['title'], body='可切换到三维播放器，旋转或慢放查看。',
+                    model=c['model'], action=c['action'], image='dynamic-samples/'+c['id']+'.png',
+                    animation='dynamic-samples/'+c['id']+'.gif') for c in clips]))
+    current_media |= {f"dynamic-samples/{c['id']}.{ext}" for c in clips for ext in ('png','gif')}
     catalog = json.loads((OUT / 'models/catalog.js').read_text(encoding='utf-8').removeprefix('window.REVIEW_CATALOG=').rstrip(';\n'))
     manifest['audioSamples'] = {
         'hello': next(item for item in catalog['audio'] if item['species']=='reimu' and item['age']=='adult' and 'hello' in item['events']),
@@ -149,7 +181,7 @@ def main():
         for media in [*(step[key] for step in chapter['steps'] for key in ('image', 'animation') if step.get(key)),
                       *(item['src'] for item in chapter['gallery'])]})
     (OUT / 'recent.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    for name in ('style.css', 'app.js', 'index.html'):
+    for name in ('style.css', 'app.js', 'router.js', 'index.html'):
         shutil.copy2(ROOT / 'preview/hub' / name, OUT / name)
     print(OUT / 'index.html')
 
