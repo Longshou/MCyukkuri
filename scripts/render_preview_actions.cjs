@@ -10,6 +10,7 @@ const tasks=JSON.parse(fs.readFileSync(taskFile,'utf8'));
 const motions=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'),'utf8')).models;
 const fits=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json'),'utf8')).models;
 const presentations=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json'),'utf8')).variants;
+const adultStates=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json'),'utf8'));
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const poses=new Map(),models=new Map(),textures=new Map();
 const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
@@ -138,6 +139,36 @@ function groundedCarePose(pose,action,time,anchor,target,blend=1){
  const lift=Math.max(0,floor-bodyFloor(model,pose.output));
  return pose.frame(action,time,{pitch:clampPitch-pitch,translation:[x,lift,z]});
 }
+function actorPerformance(pose,actor,vertices,time){
+ if(actor.anatomy){
+  const extended=pose.frame('anatomy_'+actor.anatomy+'_extend',Math.min(.24,Math.max(0,time-(actor._phaseStart??0))));
+  for(const part of pose.model.parts||[])if(part.anatomy===actor.anatomy){
+   vertices.set(extended.subarray(part.start*8,(part.start+part.count)*8),part.start*8);
+   if(actor.anatomy==='mamu'&&actor.adultPose)for(let i=part.start*8;i<(part.start+part.count)*8;i+=8){
+    // Reproduction uses the rear while the unchanged birth rig keeps its front outlet.
+    vertices[i]=-vertices[i];vertices[i+2]=-vertices[i+2]+adultStates.mamu_rear_offset;vertices[i+5]=-vertices[i+5];vertices[i+7]=-vertices[i+7];
+   }
+  }
+ }
+ if(!actor.adultPose)return vertices;
+ const keys=adultStates[actor.adultPose];if(!keys)throw Error('Unknown adult pose '+actor.adultPose);
+ const progress=((time%1)+1)%1;let index=0;
+ while(index+2<keys.length&&progress>keys[index+1][0])index++;
+ const a=keys[index],b=keys[index+1],q=Math.max(0,Math.min(1,(progress-a[0])/(b[0]-a[0]))),m=q*q*(3-2*q);
+ const v=a.slice(1).map((x,k)=>x+(b[k+1]-x)*m),rad=Math.PI/180;
+ const cp=Math.cos(v[0]*rad),sp=Math.sin(v[0]*rad),cy=Math.cos(v[1]*rad),sy=Math.sin(v[1]*rad),cr=Math.cos(v[2]*rad),sr=Math.sin(v[2]*rad);
+ const floor=bodyFloor(pose.model,vertices);
+ for(let i=0;i<vertices.length;i+=8){
+  const x=vertices[i]*v[3],y=vertices[i+1]*v[4],z=vertices[i+2]*v[5];
+  const y1=y*cp-z*sp,z1=y*sp+z*cp,x2=x*cy+z1*sy,z2=-x*sy+z1*cy;
+  vertices[i]=x2*cr-y1*sr;vertices[i+1]=x2*sr+y1*cr;vertices[i+2]=z2;
+  const nx=vertices[i+5],ny=vertices[i+6],nz=vertices[i+7],ny1=ny*cp-nz*sp,nz1=ny*sp+nz*cp,nx2=nx*cy+nz1*sy,nz2=-nx*sy+nz1*cy;
+  vertices[i+5]=nx2*cr-ny1*sr;vertices[i+6]=nx2*sr+ny1*cr;vertices[i+7]=nz2;
+ }
+ const lift=Math.max(0,floor-bodyFloor(pose.model,vertices));
+ for(let i=1;i<vertices.length;i+=8)vertices[i]+=lift;
+ return vertices;
+}
 function withoutAccessory(model,vertices){
  // A HatBoat holds the owner's one real hat.  Preview the owner bare-headed,
  // matching the stowed-accessory state used while the turned hat is afloat.
@@ -197,6 +228,7 @@ function sceneEntries(clip,time){
    const child=actorAt(clip,actor.careTarget,time);if(!child)throw Error(`Inactive care target ${actor.careTarget}`);
    const contact=careTarget(actor,child,q,time,clip);anchor=contact.anchor;vertices=groundedCarePose(pose,actor.action,actionTime,contact.anchor,contact.target,actor.careProgress??1);
   }else vertices=pose.frame(actor.action,actionTime).slice();
+  vertices=actorPerformance(pose,actor,vertices,time);
   // RuntimePose owns one output buffer per model; keep this actor's sampled
   // result before the next actor with the same model samples into that buffer.
   vertices=vertices.slice();

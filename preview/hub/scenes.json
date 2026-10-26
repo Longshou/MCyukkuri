@@ -691,6 +691,116 @@
         "span": 24,
         "centerY": 2
       }
+    },
+    {
+      "id": "adult-pairing",
+      "title": "普通配对：回应、擦脸、绕后与佩妮麻姆接触",
+      "summary": "灵梦与魔理沙互相回应并擦脸，魔理沙绕到灵梦后方；到位后父方佩妮佩妮与母方马姆马姆伸出，双方按同一节拍接触，随后收回器官并进入结果反应。",
+      "category": "family",
+      "source": "docs/ADULT_AGITATION.md",
+      "model": "marisa",
+      "action": "greet",
+      "duration": 11,
+      "still": 0.72,
+      "flattenStill": true,
+      "background": "#eee5dc",
+      "beats": [
+        {"start": 0, "title": "双方回应"},
+        {"start": 1.4, "title": "擦脸前段"},
+        {"start": 2.8, "title": "父方真实绕后"},
+        {"start": 4.4, "title": "佩妮佩妮与马姆马姆接触"},
+        {"start": 9, "title": "收回器官与结果反应"}
+      ],
+      "actors": [
+        {
+          "model": "marisa",
+          "action": "greet",
+          "keyframes": [
+            {"at": 0, "position": [-16, 0, 0], "yaw": -90},
+            {"at": 2.8, "position": [-16, 0, 0], "yaw": -90},
+            {"at": 3.4, "position": [-10, 0, 14], "yaw": 0},
+            {"at": 3.9, "position": [2, 0, 12], "yaw": 90},
+            {"at": 4.4, "position": [5.4, 0, 0], "yaw": 90},
+            {"at": 11, "position": [5.4, 0, 0], "yaw": 90}
+          ],
+          "phases": [
+            {"start": 0, "end": 1.4, "action": "greet", "face": "happy"},
+            {"start": 1.4, "end": 2.8, "action": "nuzzle", "face": "closed_smile"},
+            {"start": 2.8, "end": 4.4, "action": "waddle", "face": "closed_smile"},
+            {"start": 4.4, "end": 9, "action": "idle", "face": "flushed_tongue", "anatomy": "peni", "adultPose": "pair_peni"},
+            {"start": 9, "action": "shiawase", "face": "satisfied"}
+          ]
+        },
+        {
+          "model": "reimu",
+          "action": "greet",
+          "x": -5.4,
+          "yaw": 90,
+          "phases": [
+            {"start": 0, "end": 1.4, "action": "greet", "face": "happy"},
+            {"start": 1.4, "end": 2.8, "action": "nuzzle", "face": "closed_smile"},
+            {"start": 2.8, "end": 4.4, "action": "idle", "face": "closed_smile"},
+            {"start": 4.4, "end": 9, "action": "idle", "face": "satisfied", "anatomy": "mamu", "adultPose": "pair_mamu"},
+            {"start": 9, "action": "shiawase", "face": "happy"}
+          ]
+        }
+      ],
+      "camera": {"azimuth": 0, "elevation": 0.25, "span": 20, "centerY": 2}
+    },
+    {
+      "id": "alice-rapem",
+      "title": "爱丽丝雷普魔：宣言、追击、压制与结束",
+      "summary": "爱丽丝伸出佩妮佩妮并追击，受方逃跑；接触后攻方从后方压制，受方显示马姆马姆并前趴挣扎，最后双方分离并收回器官。",
+      "category": "family",
+      "source": "docs/ADULT_AGITATION.md",
+      "model": "alice",
+      "action": "idle",
+      "duration": 12,
+      "still": 0.5,
+      "flattenStill": true,
+      "background": "#e5dce2",
+      "beats": [
+        {"start": 0, "title": "失控宣言与器官伸出"},
+        {"start": 1, "title": "追击与逃跑"},
+        {"start": 4, "title": "后方压制与双方器官"},
+        {"start": 8, "title": "攻方顶胯与受方挣扎"},
+        {"start": 10, "title": "分离、收回与恢复"}
+      ],
+      "actors": [
+        {
+          "model": "alice",
+          "action": "idle",
+          "keyframes": [
+            {"at": 0, "position": [14, 0, 12], "yaw": -90},
+            {"at": 1, "position": [14, 0, 12], "yaw": -90},
+            {"at": 4, "position": [5.4, 0, 0], "yaw": 90},
+            {"at": 12, "position": [5.4, 0, 0], "yaw": 90}
+          ],
+          "phases": [
+            {"start": 0, "end": 1, "action": "idle", "face": "open_drool", "anatomy": "peni"},
+            {"start": 1, "end": 4, "action": "waddle", "face": "open_drool", "anatomy": "peni"},
+            {"start": 4, "end": 10, "action": "idle", "face": "flushed_tongue", "anatomy": "peni", "adultPose": "act"},
+            {"start": 10, "action": "shiawase", "face": "satisfied"}
+          ]
+        },
+        {
+          "model": "reimu",
+          "action": "idle",
+          "keyframes": [
+            {"at": 0, "position": [8, 0, 0], "yaw": 90},
+            {"at": 1, "position": [8, 0, 0], "yaw": 90},
+            {"at": 4, "position": [-5.4, 0, 0], "yaw": 90},
+            {"at": 12, "position": [-5.4, 0, 0], "yaw": 90}
+          ],
+          "phases": [
+            {"start": 0, "end": 1, "action": "idle", "face": "surprise"},
+            {"start": 1, "end": 4, "action": "flee", "face": "teary"},
+            {"start": 4, "end": 10, "action": "idle", "face": "squeezed_cry_tears", "anatomy": "mamu", "adultPose": "pinned"},
+            {"start": 10, "action": "droop", "face": "teary"}
+          ]
+        }
+      ],
+      "camera": {"azimuth": 0, "elevation": 0.25, "span": 20, "centerY": 2}
     }
   ]
 }

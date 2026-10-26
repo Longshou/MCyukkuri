@@ -39,7 +39,6 @@
     {"id":"hair-wounds-art","title":"头发覆盖区的伤口","category":"health","source":"standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md","reason":"需按当前毛发损伤、伤口遮罩和各品种馅料重新生成，旧图不能证明当前外观。"},
     {"id":"body-marks-art","title":"身体纹样","category":"health","source":"standards/yukkuri-library/drafts/body-marks/README.md","reason":"身体印记和中枢由运行状态驱动，旧分镜缺少与当前渲染代码的对应校验。"},
     {"id":"alice-appearance","title":"爱丽丝造型与蓝眼","category":"species","source":"standards/yukkuri-library/body-standard/features/alice-hakkei/README.md","reason":"旧外观对比包含历史方案；当前基础模型与表情可在角色目录查看，专项对照需重建。"},
-    {"id":"adult-agitation","title":"成体状态与爱丽丝失控","category":"family","source":"docs/ADULT_AGITATION.md","reason":"旧分镜没有与当前表情选用、姿态和客户端演出绑定，需按当前选用资源重新生成。"},
     {"id":"hat-motion","title":"真实抓握、翻帽与攀檐","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧独立网页内嵌场景数据，重建总入口不会刷新；完整帽船过程请在对应试玩入口观察。"},
     {"id":"house-ecology","title":"家油的一家","category":"house","source":"standards/yukkuri-library/ecology/house-nest/README.md","reason":"旧图的搬絮、护卵与孵化过程未随当前代码重建；当前家油模型和物品另列。"},
     {"id":"water","title":"帽船一家","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"出航与救援已有连续场景；帽内生活、储粮与天气互动尚未整合为连续演示。"},

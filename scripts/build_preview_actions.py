@@ -86,6 +86,10 @@ def normalise(raw: dict) -> list[dict]:
             if not isinstance(actor['model'], str) or not isinstance(actor['action'], str): raise ValueError(f'{ident}: actor model/action must be strings')
             for name in ('speed', 'timeOffset', 'maxTime'):
                 if name in actor and not isinstance(actor[name], (int, float)): raise ValueError(f'{ident}: actor.{name} must be numeric')
+            for variant in [actor, *actor.get('phases', [])]:
+                if variant.get('anatomy') not in (None, 'peni', 'mamu'): raise ValueError(f'{ident}: actor.anatomy must be peni or mamu')
+                if variant.get('adultPose') not in (None, 'pair_peni', 'pair_mamu', 'act', 'pinned'):
+                    raise ValueError(f'{ident}: unsupported actor.adultPose')
             if 'start' in actor and (not isinstance(actor['start'], (int, float)) or actor['start'] < 0): raise ValueError(f'{ident}: actor.start must be non-negative')
             if 'end' in actor and (not isinstance(actor['end'], (int, float)) or actor['end'] <= actor.get('start', 0)): raise ValueError(f'{ident}: actor.end must follow its start')
             if 'careTargetOffset' in actor and (not isinstance(actor['careTargetOffset'], list) or len(actor['careTargetOffset']) != 3 or not all(isinstance(value, (int, float)) for value in actor['careTargetOffset'])): raise ValueError(f'{ident}: actor.careTargetOffset must be [x,y,z] in scene model units')
@@ -152,7 +156,7 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
 
 def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
     digest = hashlib.sha256(json.dumps({'clip': clip, 'frames': frames}, ensure_ascii=False, sort_keys=True).encode())
-    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ASSETS/'yukkuri_presentation/hat_vessel.json', ASSETS/'yukkuri_presentation/hat_deck_layout.json', *sources]:
+    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/adult_states.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ASSETS/'yukkuri_presentation/hat_vessel.json', ASSETS/'yukkuri_presentation/hat_deck_layout.json', *sources]:
         digest.update(source.relative_to(ROOT).as_posix().encode()); digest.update(source.read_bytes())
     return digest.hexdigest()
 

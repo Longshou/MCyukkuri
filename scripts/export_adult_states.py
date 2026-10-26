@@ -50,6 +50,7 @@ def main():
     cues = (SOURCE / 'pose-cues.json').read_bytes()
     data = json.loads(cues)
     assert data['format'] == 1
+    assert 0 < data['mamu_rear_offset'] <= 4
     assert data['channels'] == ['pitch', 'yaw', 'roll', 'sx', 'sy', 'sz']
     for branch in ('heat', 'relief', 'act', 'pinned', 'rapem', 'pair_peni', 'pair_mamu'):
         keys = data[branch]

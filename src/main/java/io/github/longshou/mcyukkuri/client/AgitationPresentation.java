@@ -31,6 +31,7 @@ final class AgitationPresentation {
     private static final Set<String> VICTIM_FACE_IDS =
             Set.of("reimu", "marisa", "alice", "chen", "patchouli");
     private static Map<String, float[][]> cues = Map.of();
+    private static float mamuRearOffset;
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.
     private static final Map<YukkuriView, DisplayedPose> displayed = new WeakHashMap<>();
     private static WeakReference<Level> displayLevel = new WeakReference<>(null);
@@ -61,6 +62,10 @@ final class AgitationPresentation {
             var root = JsonParser.parseReader(reader);
             if (!root.isJsonObject()) throw new IllegalArgumentException("Invalid adult-state presentation");
             var data = root.getAsJsonObject();
+            if (!number(data.get("mamu_rear_offset")) || data.get("mamu_rear_offset").getAsDouble() <= 0
+                    || data.get("mamu_rear_offset").getAsDouble() > 4)
+                throw new IllegalArgumentException("Invalid reproductive mamu rear offset");
+            mamuRearOffset=data.get("mamu_rear_offset").getAsFloat();
             if (!number(data.get("format")) || data.get("format").getAsDouble() != 1)
                 throw new IllegalArgumentException("Unsupported adult-state presentation");
             if (!data.has("channels") || !data.get("channels").isJsonArray())
@@ -236,6 +241,8 @@ final class AgitationPresentation {
         pose.mulPose(Axis.XP.rotationDegrees(value[0]));
         pose.scale(value[3], value[4], value[5]);
     }
+
+    static float mamuRearOffset() { return mamuRearOffset; }
 
     static float[] sample(String branch,float progress) {
         float[][] keys=cues.get(branch);if(keys==null)return null;

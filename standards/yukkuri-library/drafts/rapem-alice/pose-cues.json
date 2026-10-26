@@ -1,5 +1,6 @@
 {
   "format": 1,
+  "mamu_rear_offset": 1.2,
   "channels": [
     "pitch",
     "yaw",

@@ -1020,6 +1020,11 @@ public final class YukkuriModel {
                     PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
                 }
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
+                if(layeredAnatomy&&part.anatomy.equals("mamu"))for(int corner=0;corner<3;corner++){
+                    // The birth outlet stays at the front. Only the reproductive layer turns the
+                    // same authored part to the rear, including its skin and mark.
+                    triangle[corner].x=-triangle[corner].x;triangle[corner].z=-triangle[corner].z+AgitationPresentation.mamuRearOffset();
+                }
                 if(curled!=null)for(int corner=0;corner<3;corner++)curled.transformPosition(triangle[corner]);
                 var lifted=cardNormals.get(part.name);
                 if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
@@ -1036,7 +1041,8 @@ public final class YukkuriModel {
                 // An affine, flat pair has the same source diagonal as a native quad.
                 // Keep nonlinear pregnancy/puff/delivery and damaged hats on their original triangles.
                 int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null?quadFourth[first]:-1;
-                if(fourth>=0){skin(fourth,fourthCorner);if(curled!=null)curled.transformPosition(fourthCorner);}
+                if(fourth>=0){skin(fourth,fourthCorner);if(curled!=null)curled.transformPosition(fourthCorner);
+                    if(layeredAnatomy&&part.anatomy.equals("mamu")){fourthCorner.x=-fourthCorner.x;fourthCorner.z=-fourthCorner.z+AgitationPresentation.mamuRearOffset();}}
                 int rotation=fourth>=0?quadRotation[first]:0;
                 for (int corner = 0; corner < 4; corner++) {
                     int index=fourth>=0?(rotation+corner)%3:Math.min(corner,2);
