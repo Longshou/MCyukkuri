@@ -375,7 +375,8 @@ add('first_toilet', 'family', '首餐后首便', '首餐后首便', '新生赤�
     yk('chen', 0, 0, 'mom', yaw=-90, **pair_ready()),
     yk('reimu', 3, 0, 'baby', stage='baby', nutrition=32, bladder=30, yaw=90, lead=True),
     f'yukkuri scenario kin {sel("mom")} {sel("baby")} true'], give=['minecraft:apple 3'], spot='first_toilet', vantage=(0, 10),
-    reads=[('读首餐与首便', f'data get entity {sel("baby")} YukkuriChildhood')])
+    reads=[('读首餐与首便', f'data get entity {sel("baby")} YukkuriChildhood'),
+           ('读亲代照护决定', f'yukkuri status {sel("mom")} raw')])
 
 add('hop', 'family', '学起跳', '学起跳', '子油先爬行试探，亲油示范起跳，子油跟着练到学会', '约 1–2 分钟', [
     yk('reimu', 0, 0, 'mom', yaw=-90, **pair_ready()),
@@ -886,7 +887,10 @@ add('house_eggs', 'house', '迁卵', '迁卵', '先建立真实卵生胎次，�
                        yk('house_reimu', -5, -1, 'b', yaw=180, **pair_ready()), HOUSE_ACTIVITY,
                        f'yukkuri scenario home {sel("a")} ~-5 ~ ~-2', f'yukkuri scenario home {sel("b")} ~-5 ~ ~-2',
                        f'yukkuri scenario eggs {sel("b")} {sel("a")}'],
-    env={'time': 'night'}, vantage=None, reads=[('读家油现状', 'yukkuri household status')],
+    env={'time': 'night'}, vantage=None, reads=[('读家油现状', 'yukkuri household status'),
+        ('读迁卵与亲代住所', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..18] raw'),
+        ('读原窝卵与迁卵记录', 'data get block ~-5 ~ ~-2'),
+        ('读新窝卵与接收记录', 'data get block ~5 ~ ~-2')],
     late=['execute if data block ~-5 ~ ~-2 EggSlots[{Present:1b}] run data merge block ~-5 ~ ~-2 {Dirt:8}'])
 
 # ====================================================================================================== town
