@@ -128,7 +128,7 @@ public final class FamilyLife {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt)
-                + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "} carry={" + carry.describe() + "}";
+                + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " care={" + careDecisions.describe() + "} feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "} carry={" + carry.describe() + "}";
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
     public String waterBirthDetail() { return delivery.waterBirthDetail(); }

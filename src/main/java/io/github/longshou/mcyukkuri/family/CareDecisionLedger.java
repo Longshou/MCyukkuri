@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -57,7 +58,24 @@ public final class CareDecisionLedger {
 
     /** A completed handoff or release ends this need's episode; a cancelled retry keeps its decision. */
     public void complete(YukkuriEntity child, Need need) {
-        if (child != null) decisions.remove(new Key(child.getUUID(), need));
+        if (child != null) complete(child.getUUID(), need);
+    }
+
+    /** Completes an active route that retained only the child's identity. */
+    public void complete(UUID child, Need need) {
+        if (child != null) decisions.remove(new Key(child, need));
+    }
+
+    /** Passive inspection only: no trim, decision, or random roll. */
+    public String describe() {
+        long now = now();
+        String active = decisions.entrySet().stream().filter(entry -> now < entry.getValue().until())
+                .sorted(Comparator.comparing((Map.Entry<Key, Decision> entry) -> entry.getKey().need().name())
+                        .thenComparing(entry -> entry.getKey().child().toString()))
+                .map(entry -> "need=" + entry.getKey().need().name().toLowerCase() + " child=" + entry.getKey().child()
+                        + " accepted=" + entry.getValue().accepted() + " remaining=" + (entry.getValue().until() - now))
+                .collect(Collectors.joining(";"));
+        return active.isEmpty() ? "none" : active;
     }
 
     CompoundTag save() {
