@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.life.InfantFood;
@@ -12,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -31,7 +30,10 @@ public final class HatFamilyCare {
     private ItemStack serving = ItemStack.EMPTY;
     private int ticks, deliveryTicks, mealWait, affectionWait, songWait, meals, comforts, songs;
     private int finishTicks, toiletTicks;
-    private final Map<UUID,Long> blocked=new HashMap<>();
+    /** A physical failure is route-local; the caregiver's decision remains in the parent ledger. */
+    private final Map<UUID,Long> retryUntil=new HashMap<>();
+    private CareDecisionLedger.Need decisionNeed;
+    private UUID decisionChild;
     private boolean bedtimeSung;
     private UUID grateful;
     private long gratefulUntil;
@@ -80,7 +82,7 @@ public final class HatFamilyCare {
         if (affectionWait > 0) affectionWait--;
         if (songWait > 0) songWait--;
         if (!level().isNight()) bedtimeSung = false;
-        blocked.entrySet().removeIf(entry -> entry.getValue() <= level().getGameTime());
+        retryUntil.entrySet().removeIf(entry -> entry.getValue() <= level().getGameTime());
         if (active() && (!(parent.getVehicle() instanceof HatBoatEntity boat) || !availableForContinuation(boat))) cancel();
         // A saved serving is recovered once; a partially completed interaction never grants its rewards on load.
         if (!active() && !serving.isEmpty()) refund();
@@ -107,13 +109,12 @@ public final class HatFamilyCare {
         return availableContext(boat)&&life.nutrition()>=15&&life.energy()>=15
                 &&(life.bladder()<90||life.constipated())&&life.wetness()<=40;
     }
-    /** A family-care need receives one friendliness-led choice; a refusal lasts one loaded minute. */
-    private boolean acceptsCare(YukkuriEntity young,boolean urgent) {
-        long now=level().getGameTime();
-        if(blocked.getOrDefault(young.getUUID(),0L)>now)return false;
-        if(parent.getRandom().nextFloat()<parent.life().personality().helpProbability(true,urgent))return true;
-        blocked.put(young.getUUID(),now+1200);
-        return false;
+    private boolean retryBlocked(YukkuriEntity young) {
+        return retryUntil.getOrDefault(young.getUUID(),0L)>level().getGameTime();
+    }
+    /** A family-care need reuses the parent's recorded result; this route never rolls by itself. */
+    private boolean acceptsCare(YukkuriEntity young,CareDecisionLedger.Need need,boolean urgent) {
+        return parent.family().careDecisions().decide(young,need,urgent).accepted();
     }
     /** Feeding has priority over affection. Bedtime singing begins only after reaching quiet water. */
     public boolean tend(HatBoatEntity boat, boolean bedtime) {
@@ -122,16 +123,16 @@ public final class HatFamilyCare {
         var children = children(boat);
         if (!active()) {
             var hungry = children.stream().filter(y -> y.life().nutrition() < 60 && y.life().canReceiveCareFood() && !y.life().isSleeping()&&
-                    blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
+                    !retryBlocked(y)&&!parent.family().careDecisions().refused(y,CareDecisionLedger.Need.FEED))
                     .min(Comparator.comparingDouble(y -> y.life().nutrition())).orElse(null);
             var toilet = children.stream().filter(y -> boat.young(y) && y.childhood().needsAssistedFirstToilet()&&y.life().nutrition()>=30
-                    &&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime()).max(Comparator.comparingDouble(y->y.life().bladder())).orElse(null);
-            if (toilet != null && (hungry==null||hungry.life().nutrition()>=30) && acceptsCare(toilet,toilet.life().bladder()>=70)) begin(Kind.FIRST_TOILET, toilet);
+                    &&!retryBlocked(y)&&!parent.family().careDecisions().refused(y,CareDecisionLedger.Need.FIRST_TOILET)).max(Comparator.comparingDouble(y->y.life().bladder())).orElse(null);
+            if (toilet != null && (hungry==null||hungry.life().nutrition()>=30) && acceptsCare(toilet,CareDecisionLedger.Need.FIRST_TOILET,toilet.life().bladder()>=70)) begin(Kind.FIRST_TOILET, toilet, CareDecisionLedger.Need.FIRST_TOILET);
             if (!active() && hungry != null && (mealWait == 0 || hungry.life().nutrition() < 25)) {
                 serving = boat.cargo().takeCareMeal(parent,hungry);
                 if(!serving.isEmpty())GameplayLog.event(parent,"aquatic","hat care portion reserved hat={} child={} item={} cargoRemaining={}",
                         boat.getUUID(),hungry.getUUID(),serving,boat.cargo().count());
-                if (!serving.isEmpty()&&acceptsCare(hungry,hungry.life().nutrition()<30)) begin(Kind.FEED, hungry);
+                if (!serving.isEmpty()&&acceptsCare(hungry,CareDecisionLedger.Need.FEED,hungry.life().nutrition()<30)) begin(Kind.FEED, hungry, CareDecisionLedger.Need.FEED);
                 else if(!serving.isEmpty()) refund();
             }
             if (!active()) {
@@ -142,19 +143,19 @@ public final class HatFamilyCare {
             if (grateful != null && level().getGameTime() > gratefulUntil) grateful = null;
             if (!active() && grateful != null) {
                 var rescued = children.stream().filter(boat::young).filter(y -> y.getUUID().equals(grateful) && y.life().mealTicks() == 0 && !y.life().isSleeping()).findFirst().orElse(null);
-                if (rescued != null) { grateful = null; if (acceptsCare(rescued,true)) begin(Kind.NUZZLE, rescued); }
+                if (rescued != null) { grateful = null; if (acceptsCare(rescued,CareDecisionLedger.Need.NUZZLE,true)) begin(Kind.NUZZLE, rescued, CareDecisionLedger.Need.NUZZLE); }
             }
             var familyChildren=children.stream().filter(boat::young).toList();
             if (!active() && bedtime && !bedtimeSung && songWait == 0 && !familyChildren.isEmpty()
                     && familyChildren.stream().anyMatch(y -> !y.life().isSleeping())
                     && familyChildren.stream().noneMatch(y -> y.life().nutrition() < 30 || y.life().mealTicks() > 0)) {
                 var listener = familyChildren.stream().filter(y -> !y.life().isSleeping()).findFirst().orElse(null);
-                if (listener != null && acceptsCare(listener,false)) begin(Kind.LULLABY, null);
+                if (listener != null && acceptsCare(listener,CareDecisionLedger.Need.LULLABY,false)) begin(Kind.LULLABY, null, listener, CareDecisionLedger.Need.LULLABY);
                 else songWait = 1200;
             }
             if (!active() && !bedtime && !level().isNight() && affectionWait == 0 && parent.life().nutrition() >= 35 && parent.life().energy() >= 25) {
                 var lonely = children.stream().filter(boat::young).filter(y -> y.life().mealTicks() == 0 && !y.life().isSleeping()
-                        && y.life().nutrition() >= 35 && y.dailyLife().affectionNeed() >= 35 && parent.distanceToSqr(y) <= 4&&blocked.getOrDefault(y.getUUID(),0L)<=level().getGameTime())
+                        && y.life().nutrition() >= 35 && y.dailyLife().affectionNeed() >= 35 && parent.distanceToSqr(y) <= 4&&!retryBlocked(y))
                         .max(Comparator.comparingInt(y -> y.dailyLife().affectionNeed())).orElse(null);
                 if (lonely != null) {
                     affectionWait = 600;
@@ -210,6 +211,7 @@ public final class HatFamilyCare {
                 }
                 GameplayLog.event(parent,"aquatic","hat care handed to meal child={} item={} mealTicks={} nutrition={}",
                         young.getUUID(),serving,young.life().mealTicks(),young.life().nutrition());
+                completeDecision();
                 serving = ItemStack.EMPTY; meals++; mealWait = 80;
                 parent.speak("share");
                 finishTicks=1; return true;
@@ -232,6 +234,7 @@ public final class HatFamilyCare {
             if (ToiletContact.hatOutlet(young, boat) == null) { toiletTicks = 0; if (ticks >= 640) fail("toilet_outlet_timeout"); return active(); }
             if (++toiletTicks < ToiletContact.RELEASE_TICKS) return true;
             if (!young.childhood().completeAssistedFirstToilet(parent)) { cancel(); return false; }
+            completeDecision();
             GameplayLog.event(parent,"aquatic","hat care first toilet complete child={} bladder={}",young.getUUID(),young.life().bladder());
             parent.speak("caregiver");
             finishTicks=1; return true;
@@ -259,6 +262,7 @@ public final class HatFamilyCare {
             parent.dailyLife().comfort(15); young.dailyLife().comfort(35); comforts++; affectionWait = 600;
             young.life().personality().relationshipChanged(parent.getUUID(), 3, -2);
             parent.life().personality().relationshipChanged(young.getUUID(), 3, -2);
+            completeDecision();
             finishTicks=1;
             GameplayLog.event(parent,"aquatic","hat care nuzzle complete child={} comforts={}",young.getUUID(),comforts);
         }
@@ -268,6 +272,7 @@ public final class HatFamilyCare {
             if (ticks == 80) {
                 for (var listener : children) { listener.dailyLife().comfort(10); listener.dailyLife().entertained(20); }
                 parent.dailyLife().entertained(15); songs++; songWait = 1200; bedtimeSung = true;
+                completeDecision();
                 GameplayLog.event(parent,"aquatic","hat care lullaby complete listeners={} songs={}",children.size(),songs);
             }
         }
@@ -283,8 +288,11 @@ public final class HatFamilyCare {
                 && toiletTicks >= ToiletContact.RELEASE_TICKS;
     }
 
-    private void begin(Kind next, YukkuriEntity young) {
+    private void begin(Kind next, YukkuriEntity young) { begin(next, young, null, null); }
+    private void begin(Kind next, YukkuriEntity young, CareDecisionLedger.Need need) { begin(next, young, young, need); }
+    private void begin(Kind next, YukkuriEntity young, YukkuriEntity decidingFor, CareDecisionLedger.Need need) {
         kind = next; child = young == null ? null : young.getUUID(); ticks = deliveryTicks = finishTicks = toiletTicks = 0;
+        decisionChild = decidingFor == null ? null : decidingFor.getUUID(); decisionNeed = need;
         parent.life().wakeInHat();
         if (young != null) young.life().wakeInHat();
         if (next == Kind.LULLABY && parent.getVehicle() instanceof HatBoatEntity boat)
@@ -293,19 +301,23 @@ public final class HatFamilyCare {
         parent.speak(next == Kind.LULLABY ? "song" : next == Kind.NUZZLE || next == Kind.COMFORT ? "nuzzle" : "caregiver");
         GameplayLog.limited(parent,"aquatic","care.begin."+next,200,"hat care started kind={} child={} item={}",kind,child,serving);
     }
+    private void completeDecision() {
+        if (decisionNeed != null && decisionChild != null) parent.family().careDecisions().complete(decisionChild, decisionNeed);
+        decisionChild = null; decisionNeed = null;
+    }
     public void cancel() {
         if(active())GameplayLog.limited(parent,"aquatic","care.stop."+kind,200,
                 "hat care stopped kind={} child={} ticks={} contactTicks={} finishTicks={} pendingItem={}",
                 kind,child,ticks,deliveryTicks,finishTicks,serving);
         if (kind == Kind.COMFORT && parent.woundComfort().licking()) parent.woundComfort().stop();
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
-        kind = Kind.NONE; child = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0; refund();
+        kind = Kind.NONE; child = decisionChild = null; decisionNeed = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0; refund();
     }
     private void fail(String reason){
         GameplayLog.limited(parent,"aquatic","care.failed."+reason,200,
                 "hat care failed kind={} child={} reason={} ticks={} contactTicks={} finishTicks={} toiletTicks={} retryTicks=100",
                 kind,child,reason,ticks,deliveryTicks,finishTicks,toiletTicks);
-        if(child!=null)blocked.put(child,level().getGameTime()+100);cancel();
+        if(child!=null)retryUntil.put(child,level().getGameTime()+100);cancel();
     }
     private void refund() {
         if (serving.isEmpty()) return;
@@ -322,18 +334,13 @@ public final class HatFamilyCare {
         tag.putInt("MealWait", mealWait); tag.putInt("AffectionWait", affectionWait); tag.putInt("SongWait", songWait);
         tag.putInt("Meals", meals); tag.putInt("Comforts", comforts); tag.putInt("Songs", songs); tag.putBoolean("BedtimeSung", bedtimeSung);
         if (!serving.isEmpty()) tag.put("Serving", serving.save(parent.registryAccess()));
-        var refusals=new ListTag();
-        blocked.forEach((id,until)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putLong("Until",until);refusals.add(entry);});
-        tag.put("CareRefusals",refusals);
         return tag;
     }
     public void load(CompoundTag tag) {
         if (child != null && parent.getVehicle() instanceof HatBoatEntity boat) boat.releaseCareSeat(child);
-        blocked.clear();
-        for(var raw:tag.getList("CareRefusals", Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry&&entry.hasUUID("Child"))
-            blocked.put(entry.getUUID("Child"),entry.getLong("Until"));
+        retryUntil.clear();
         grateful = null;
-        kind = Kind.NONE; child = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0;
+        kind = Kind.NONE; child = decisionChild = null; decisionNeed = null; ticks = deliveryTicks = finishTicks = toiletTicks = 0;
         mealWait = Math.clamp(tag.getInt("MealWait"), 0, 80); affectionWait = Math.clamp(tag.getInt("AffectionWait"), 0, 600);
         songWait = Math.clamp(tag.getInt("SongWait"), 0, 1200); bedtimeSung = tag.getBoolean("BedtimeSung");
         meals = Math.max(0, tag.getInt("Meals")); comforts = Math.max(0, tag.getInt("Comforts")); songs = Math.max(0, tag.getInt("Songs"));

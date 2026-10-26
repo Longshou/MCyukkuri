@@ -13,13 +13,8 @@ import io.github.longshou.mcyukkuri.settlement.PileContact;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
@@ -40,8 +35,6 @@ final class FamilyFeeding {
     private ForageClaims.Claim plantClaim;
     private int searchTicks, plantContact;
     private int careCarryTicks, careChewTicks, careOfferTicks, careFinishTicks;
-    /** A declined child must not turn the next goal poll into another willingness roll. */
-    private final Map<UUID, Long> careRefusedUntil=new HashMap<>();
 
     FamilyFeeding(FamilyLife o) { this.o=o; }
 
@@ -76,18 +69,12 @@ final class FamilyFeeding {
         if(!carrying.isEmpty())tag.put("CareFood",carrying.save(o.entity().registryAccess()));
         tag.putInt("CareFoodTicks",careCarryTicks);
         tag.putInt("CareChewTicks",careChewTicks);tag.putInt("CareOfferTicks",careOfferTicks);
-        var refusals=new ListTag();
-        careRefusedUntil.forEach((id,until)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putLong("Until",until);refusals.add(entry);});
-        tag.put("CareRefusals",refusals);
     }
     void load(CompoundTag tag) {
         carrying=tag.contains("CareFood")?ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY;
         if(carrying.getCount()!=1)carrying=ItemStack.EMPTY;
         careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
         careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,FamilyFeedingContact.REQUIRED_CONTACT_TICKS);
-        careRefusedUntil.clear();
-        for(var raw:tag.getList("CareRefusals", Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry&&entry.hasUUID("Child"))
-            careRefusedUntil.put(entry.getUUID("Child"),entry.getLong("Until"));
     }
 
     private boolean careContextReady() {
@@ -120,29 +107,23 @@ final class FamilyFeeding {
     }
 
     YukkuriEntity hungriestOwnChild() {
-        long now=o.level().getGameTime();careRefusedUntil.entrySet().removeIf(entry->entry.getValue()<=now);
         return o.level().getEntitiesOfClass(YukkuriEntity.class,o.entity().getBoundingBox().inflate(12),this::hungryOwnChild).stream()
-                .filter(child->careRefusedUntil.getOrDefault(child.getUUID(),0L)<=now)
+                .filter(child->!o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))
                 .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(o.entity()::distanceToSqr)).orElse(null);
     }
 
     /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
     private boolean acceptsCare(YukkuriEntity child) {
         boolean urgent=child.life().nutrition()<30;
-        float roll=o.entity().getRandom().nextFloat();
-        var probability=o.entity().life().personality().helpProbability(true,urgent);
-        boolean accepted=roll<probability;
-        GameplayLog.limited(o.entity(),"family","care.decision",200,
-                "feed decision child={} accepted={} probability={} roll={} urgent={} friendliness={} selfControl={}",child.getUUID(),accepted,probability,roll,urgent,
-                o.entity().life().personality().friendliness(),o.entity().life().personality().selfControl());
+        var decision=o.careDecisions().decide(child,CareDecisionLedger.Need.FEED,urgent);
+        if(!decision.newDecision())return decision.accepted();
+        boolean accepted=decision.accepted();
         o.entity().getLookControl().setLookAt(child,20,20);
         o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"mood_bad",80);
         child.showReaction(accepted?"happy":"cry",accepted?"caregiver":"hungry",80);
         BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
         if(!accepted)o.face(o.entity().getYRot()+180);
-        if(accepted)return true;
-        careRefusedUntil.put(child.getUUID(),o.level().getGameTime()+1200);
-        return false;
+        return accepted;
     }
 
     boolean startCare() {
@@ -210,7 +191,7 @@ final class FamilyFeeding {
         if(child==null||!hungryOwnChild(child))return false;
         if(o.task()==Task.FEED_CHILD&&o.target()==child&&careContinuationReady()
                 &&(!carrying.isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
-        if(!careReady()||careRefusedUntil.getOrDefault(child.getUUID(),0L)>o.level().getGameTime())return false;
+        if(!careReady()||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
         if(!carrying.isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
         var home=o.entity().habitat().shelter();var pile=home==null?null:home.pile();
         if(home!=null&&home.usable(o.entity())&&pile!=null&&home.hasFoodFor(o.entity(),child)
@@ -256,7 +237,6 @@ final class FamilyFeeding {
         if(carrying.isEmpty()) {
             searchTicks++;
             if(searchTicks>600){
-                careRefusedUntil.put(o.target().getUUID(),o.level().getGameTime()+200);
                 endCare("food_search_exhausted");return;
             }
             if(foodSource==null&&foodStore==null&&plantSource==null&&searchTicks%40==1)selectFoodSource();
@@ -335,6 +315,7 @@ final class FamilyFeeding {
             if(handed) {
                 GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
                         o.target().getUUID(),carrying,o.target().life().mealTicks(),o.target().life().nutrition());
+                o.careDecisions().complete(o.target(),CareDecisionLedger.Need.FEED);
                 carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;o.entity().showReaction("happy","share",80);
             }
             else endCare("meal_refused");return;

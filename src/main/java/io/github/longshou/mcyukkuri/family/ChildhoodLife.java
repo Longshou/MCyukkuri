@@ -6,12 +6,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
-import java.util.HashMap;
-import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -53,8 +49,6 @@ public final class ChildhoodLife {
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
     private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
-    /** A declined care request is a decision, not an invitation to reroll on the next goal poll. */
-    private final Map<UUID,Long> careRefusedUntil=new HashMap<>();
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -339,21 +333,13 @@ public final class ChildhoodLife {
     }
 
     private boolean careRefused(YukkuriEntity child) {
-        long now=((ServerLevel)entity.level()).getGameTime();
-        careRefusedUntil.entrySet().removeIf(entry->entry.getValue()<=now);
-        return careRefusedUntil.getOrDefault(child.getUUID(),0L)>now;
+        return entity.family().careDecisions().refused(child,CareDecisionLedger.Need.FIRST_TOILET);
     }
 
     /** First-toilet help is chosen exactly once after a real child and safe contact path are available. */
     private boolean acceptsCare(YukkuriEntity child) {
         boolean urgent=child.life().bladder()>=70;
-        float roll = entity.getRandom().nextFloat();
-        float chance = entity.life().personality().helpProbability(true,urgent);
-        GameplayLog.limited(entity, "childhood", "care.decision", 200,
-                "first toilet decision child={} urgent={} chance={} roll={} accepted={}", child.getUUID(), urgent, chance, roll, roll < chance);
-        if(roll<chance)return true;
-        careRefusedUntil.put(child.getUUID(),((ServerLevel)entity.level()).getGameTime()+1200);
-        return false;
+        return entity.family().careDecisions().decide(child,CareDecisionLedger.Need.FIRST_TOILET,urgent).accepted();
     }
 
     public boolean canContinue() {
@@ -462,6 +448,7 @@ public final class ChildhoodLife {
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
         if (!assistedReleaseReady(parent) || !entity.life().completeAssistedFirstToilet(parent)) return false;
         firstToiletDone = true;
+        parent.family().careDecisions().complete(entity,CareDecisionLedger.Need.FIRST_TOILET);
         GameplayLog.event(entity, "childhood", "first toilet completed parent={} bladder={}", parent.getUUID(), entity.life().bladder());
         BirthStaging.caption(parent, "赤油在吞咽首餐后排出了第一次便便，首便完成");
         entity.setPersistenceRequired();
@@ -558,9 +545,6 @@ public final class ChildhoodLife {
         tag.putBoolean("DemonstrationSeen", demonstrationSeen);
         tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
-        var refusals=new ListTag();
-        careRefusedUntil.forEach((id,until)->{var entry=new CompoundTag();entry.putUUID("Child",id);entry.putLong("Until",until);refusals.add(entry);});
-        tag.put("CareRefusals",refusals);
         return tag;
     }
 
@@ -568,7 +552,6 @@ public final class ChildhoodLife {
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;
-        careRefusedUntil.clear();
         if (!tag.contains("Version")) {
             newborn = false;
             landed = firstMealDone = firstToiletDone = crawled = jumped = true;
@@ -576,8 +559,6 @@ public final class ChildhoodLife {
             return;
         }
         newborn = tag.getBoolean("Newborn");
-        for(var raw:tag.getList("CareRefusals",Tag.TAG_COMPOUND))if(raw instanceof CompoundTag entry&&entry.hasUUID("Child"))
-            careRefusedUntil.put(entry.getUUID("Child"),entry.getLong("Until"));
         landed = tag.getBoolean("Landed");
         firstToiletDone = tag.getBoolean("FirstToiletDone");
         // Version 1 saved the first-toilet result but had no first-meal evidence. Preserve a completed

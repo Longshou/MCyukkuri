@@ -85,6 +85,7 @@ public final class FamilyLife {
     private Task task=Task.NONE;
     private YukkuriEntity target;
     private Vec3 searchAt;
+    private final CareDecisionLedger careDecisions;
     private final FamilyFeeding feeding;
     private final FamilySeparation separation;
     private final Courtship courtship;
@@ -94,6 +95,7 @@ public final class FamilyLife {
         this.entity=entity;
         crew=new CrewPort(entity);
         carry=new ParentCarry(entity);
+        careDecisions=new CareDecisionLedger(entity);
         feeding=new FamilyFeeding(this);
         separation=new FamilySeparation(this);
         flight=new FamilyFlight(this);
@@ -105,6 +107,8 @@ public final class FamilyLife {
     public CrewPort crew(){return crew;}
     /** Land transport of dependent babies (hat brim, tail or mouth); see {@link ParentCarry}. */
     public ParentCarry carry(){return carry;}
+    /** One persistent parent-side decision per child-care need, shared by land and hat routes. */
+    public CareDecisionLedger careDecisions(){return careDecisions;}
     FamilyFeeding feeding(){return feeding;}
     /** Where a retrieved baby is set down: its care nest, else its own shelter bed. */
     public BlockPos carryHome(){
@@ -1147,6 +1151,7 @@ public final class FamilyLife {
         catchHat.save(tag);
         flight.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
+        tag.put("CareDecisions",careDecisions.save());
         feeding.save(tag);
         separation.save(tag);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
@@ -1170,6 +1175,7 @@ public final class FamilyLife {
         flight.load(tag);
         // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
+        careDecisions.load(tag.getCompound("CareDecisions"));
         feeding.load(tag);
         separation.load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
