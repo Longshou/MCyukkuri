@@ -40,6 +40,7 @@ public final class DeckLayout {
         public boolean ordinary() { return purpose.isEmpty() && !leaseOnly && kind != Kind.LARDER; }
     }
     public record Edge(int a, int b, double length, double rise, boolean step, int classes) {}
+    /** {@code bank} is absent for a ground nest; only floating hulls export a water-climb hook. */
     public record Anchor(Vec3 outside, Vec3 bank, String fromWater, String fromBank) {}
     public record Entry(String id, Vec3 edge, double nx, double nz, Map<BodyClass, Anchor> anchors, int[] nearest) {}
     /** One larder tier: how many portions it holds, the zone it occupies and the seats it presses on. */
@@ -168,7 +169,9 @@ public final class DeckLayout {
             for (var a : e.getAsJsonObject("anchors").entrySet()) {
                 var v = a.getValue().getAsJsonObject();
                 var curves = v.getAsJsonObject("curves");
-                anchors.put(BodyClass.of(a.getKey()), new Anchor(vec(v.getAsJsonArray("outside")), vec(v.getAsJsonArray("bank")),
+                var bank = v.get("bank");
+                anchors.put(BodyClass.of(a.getKey()), new Anchor(vec(v.getAsJsonArray("outside")),
+                        bank == null || bank.isJsonNull() ? null : vec(bank.getAsJsonArray()),
                         curves.has("from_water") ? curves.get("from_water").getAsString() : "",
                         curves.has("from_bank") ? curves.get("from_bank").getAsString()
                                 : curves.has("from_ground") ? curves.get("from_ground").getAsString() : ""));

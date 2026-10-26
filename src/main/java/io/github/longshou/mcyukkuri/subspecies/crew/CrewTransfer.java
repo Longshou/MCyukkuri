@@ -319,6 +319,7 @@ public final class CrewTransfer {
                 entryId = entry.id();
                 var anchor = entry.anchors().get(cls);
                 if (anchor == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_anchor_for_class"));
+                if (anchor.bank() == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_water_anchor"));
                 curve = anchor.fromWater().isEmpty() ? "climb_rim" : anchor.fromWater();
                 var hook = b.toWorld(anchor.bank());
                 var rim = b.toWorld(entry.edge()).add(0, clearance, 0);
