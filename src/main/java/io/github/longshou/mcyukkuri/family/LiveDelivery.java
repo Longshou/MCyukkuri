@@ -450,6 +450,12 @@ final class LiveDelivery {
         if(boat==null&&brood.elapsed>=brood.duration-2&&o.catchAlone(brood)){hold="waiting_for_hat";return;}
         if(o.hatMoving()){hold="hat_move";return;}
         if(brood.elapsed>=brood.duration){
+            // Until the helper has placed a real hat, the movement goal owns the current meeting's position and yaw.
+            // Locking an earlier yaw here makes a reselected site wait forever for a turn that this tick undoes.
+            if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
+                    &&waitForCatcher(brood)){
+                deliveryYaw=Float.NaN;hold="waiting_for_catcher";return;
+            }
             o.entity().getNavigation().stop();
             if(Float.isNaN(deliveryYaw)){
                 var nest=FamilyNest.large(o.entity())?o.nestStand():null;
@@ -458,12 +464,6 @@ final class LiveDelivery {
                         ?SurfaceApproach.yaw(o.entity().position(),centre):o.entity().yBodyRot;
             }
             o.face(deliveryYaw);
-            // Let the real father finish walking over and placing his hat before the head emerges.
-            // Bounded and saved: an unreachable helper cannot hold a pregnancy forever or restart the wait on reload.
-            if(boat==null&&brood.elapsed<brood.duration+LiveBirthGeometry.emergenceStart(0)
-                    &&waitForCatcher(brood)){
-                hold="waiting_for_catcher";return;
-            }
             if(!LiveBirthGeometry.clear(o.entity(),brood.children.get(next),next)){hold="outlet_blocked";return;}
         }
         float nextBelly=LiveBirthGeometry.belly(Math.min(1,(brood.elapsed+1f)/brood.duration),brood.children.size()-brood.unborn(),brood.children.size());

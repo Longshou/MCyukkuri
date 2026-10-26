@@ -260,9 +260,9 @@ public final class FamilyLife {
         return switch(task) {
             case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD; case FOLLOW -> Behaviors.FOLLOW_PARENT;
             case WAIT_CHILD -> Behaviors.WAIT_CHILD; case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:Behaviors.SEARCH_FAMILY;
-            case MIDWIFE -> cradleEntity()!=null?Behaviors.aquatic(Behaviors.HAT_HOLD, aquatic):Behaviors.MIDWIFE;
+            case MIDWIFE -> catchHat.dutyActivity();
             case FEED_CHILD -> feeding.activity();
-            case FETCH_HAT -> Behaviors.MIDWIFE;
+            case FETCH_HAT -> Behaviors.IDLE;
             case STAY_HOME -> Behaviors.STAY_HOME; case RECOVER -> Behaviors.POSTPARTUM; default -> awaitingLanding?Behaviors.NEWBORN_FALL:Behaviors.IDLE;
         };
     }

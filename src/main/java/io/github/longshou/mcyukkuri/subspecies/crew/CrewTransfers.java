@@ -8,10 +8,12 @@ import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Mode;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Request;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Result;
 import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -241,6 +243,8 @@ public final class CrewTransfers {
         var young = new ArrayList<YukkuriEntity>();
         for (var rider : hat.getPassengers()) if (rider instanceof YukkuriEntity y && !y.getUUID().equals(hat.ownerYukkuri())) young.add(y);
         if (young.isEmpty()) return false;
+        // A pickup may follow a real crawl inside the hat. Never lift a rider off an unfinished walking route.
+        if (young.stream().anyMatch(y -> hat.deck().moving(y.getUUID()))) return true;
         var others = new ArrayList<double[]>();
         for (var adult : level.getEntitiesOfClass(YukkuriEntity.class, hat.getBoundingBox().inflate(4), y -> y.family().adult()))
             others.add(new double[]{adult.getX(), adult.getZ(), adult.getBbWidth() * .5});
@@ -269,9 +273,47 @@ public final class CrewTransfers {
                 var around = standingGround(level, taker.position().add(Math.cos(k * Math.PI / 4) * ring, 0, Math.sin(k * Math.PI / 4) * ring), child);
                 if (around != null) tries.add(around);
             }
-            for (var at : tries) if (land(child, taker, hat, at).ok()) return true;
+            boolean unreachable = false;
+            for (var at : tries) {
+                var result = land(child, taker, hat, at);
+                if (result.ok()) return true;
+                if (result.refusal() == CrewTransfer.Refusal.INCAPABLE || result.refusal() == CrewTransfer.Refusal.TRANSIENT) break;
+                unreachable |= result.reason().equals("no_reach") || result.reason().equals("known_impossible");
+            }
+            if (unreachable && approachPickup(hat, child, taker, tries)) return true;
         }
         return true;
+    }
+
+    /** An unreachable dependent rider crawls toward the waiting parent's side, along its existing step-free deck paths. */
+    private static boolean approachPickup(HatBoatEntity hat, YukkuriEntity child, YukkuriEntity taker, List<Vec3> landings) {
+        if (!hat.catches() || child.isPanicking() || child.family().crew().active()) return false;
+        var placed = hat.deck().get(child.getUUID());
+        if (placed == null || !placed.aboard() || placed.slot() < 0) return false;
+        var body = hat.bodyOf(child);
+        var seats = hat.deck().freeSeats(body, Purpose.BOARD, hat.toLocal(taker.position()));
+        seats.sort(Comparator.comparingDouble(s -> hat.toWorld(hat.deckLayout().slot(s).pos()).distanceToSqr(taker.position())));
+        for (int seat : seats) {
+            if (seat == placed.slot()) continue;
+            var path = hat.deckLayout().path(placed.slot(), seat, body.cls(), false, s -> hat.deck().occupant(s) != null);
+            if (path == null) continue;
+            boolean clear = true;
+            for (int step : path) if (step != placed.slot() && !seats.contains(step)) { clear = false; break; }
+            if (!clear) continue;
+            for (var ground : landings) {
+                if (!CrewTransfer.canLandFromSeat(child, taker, hat, seat, ground)) continue;
+                int from = placed.slot();
+                if (!hat.deck().moveWithin(body, seat, hat.toLocal(child.position()), false, Purpose.BOARD)) break;
+                child.life().wakeInHat();
+                hat.syncSeats();
+                GameplayLog.event(child, "family", "catch pickup approach started hat={} carrier={} from={} to={} landing={}",
+                        hat.getUUID(), taker.getUUID(), from, seat, ground);
+                return true;
+            }
+        }
+        GameplayLog.limited(child, "family", "catch.pickup_blocked", 200,
+                "catch pickup approach refused hat={} carrier={} seat={} reason=no_walkable_reachable_seat", hat.getUUID(), taker.getUUID(), placed.slot());
+        return false;
     }
 
     /** Standing room on the ground at a spot for this body, or null. */

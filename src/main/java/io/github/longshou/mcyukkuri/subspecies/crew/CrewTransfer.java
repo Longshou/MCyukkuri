@@ -264,9 +264,22 @@ public final class CrewTransfer {
     private record Built(Geometry geometry, Result failure) {}
 
     private Built geometry(YukkuriEntity body) {
+        return geometry(body, body.position());
+    }
+
+    /** The same lift plan, evaluated before a rider walks to a pickup seat; no claim, energy or ticket is changed. */
+    static boolean canLandFromSeat(YukkuriEntity body, YukkuriEntity carrier, HatBoatEntity hat, int seat, Vec3 ground) {
+        if (!(body.level() instanceof ServerLevel level) || !usable(body) || !carrierReady(carrier) || !CrewReach.canLift(carrier, body)) return false;
+        var request = new Request(Mode.LIFT, body, carrier, Anchor.berth(hat, seat), Anchor.ground(ground), Purpose.BOARD,
+                false, false, DeckLayout.NONE, "land_lift");
+        var preview = new CrewTransfer(level, request, hat.getId(), -1);
+        var built = preview.geometry(body, hat.toWorld(hat.deckLayout().slot(seat).pos()));
+        return built.failure() == null && preview.chooseStand(body, carrier, built.geometry()) != null;
+    }
+
+    private Built geometry(YukkuriEntity body, Vec3 start) {
         var a = hatA();
         var b = hatB();
-        Vec3 start = body.position();
         if (mode == Mode.HOP && from.kind() != Kind.BERTH && b != null) {
             var rim = b.toWorld(nearestEntry(b, start).edge());
             double reach = hopReach(body);

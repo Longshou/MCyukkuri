@@ -36,6 +36,9 @@ final class CatchHat {
     private enum HatMove { NONE, OFF, ON, OFF_SELF, ON_SELF }
     private HatMove hatMove=HatMove.NONE;
     private int hatTicks, cradleLinger, fetchTicks, hatApproach, releaseWait, dutyTicks;
+    private int fetchPassengers;
+    /** Presentation of the last executed duty phase, never a probe that starts or changes the duty. */
+    private String dutyActivity=Behaviors.IDLE;
     private float hatYaw;
     private HatPose hatTarget;
     private HatBoatEntity fetching;
@@ -67,9 +70,14 @@ final class CatchHat {
             +" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
     void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();clearDeliveryStation(); }
-    void resetApproach() { hatApproach=0; }
+    void resetApproach() { hatApproach=0;dutyActivity=Behaviors.IDLE; }
     void linger(int ticks) { cradleLinger=ticks; }
-    void tickLinger() { if(cradleLinger>0)cradleLinger--; }
+    void tickLinger() {
+        if(cradleLinger>0&&--cradleLinger==0){
+            var hat=cradleEntity();if(hat!=null)fetchHat(hat);
+        }
+    }
+    String dutyActivity() { return dutyActivity; }
     String activity(boolean aquatic) {
         return Behaviors.aquatic(switch(hatMove){case OFF->Behaviors.HAT_OFF;case ON->Behaviors.HAT_ON;case OFF_SELF->Behaviors.HAT_OFF_SELF;default->Behaviors.HAT_ON_SELF;}, aquatic);
     }
@@ -421,6 +429,12 @@ final class CatchHat {
         if(fetching==null){o.entity().getNavigation().stop();return;}
         if(fetching.isRemoved()||!fetching.catches()||o.entity().isPassenger()){fetching=null;return;}
         if(keepsCradle()||o.entity().isPanicking())return;
+        int passengers=fetching.getPassengers().size();
+        if(passengers<fetchPassengers){
+            GameplayLog.event(o.entity(),"family","catch cleanup advanced hat={} passengers={}->{}",fetching.getUUID(),fetchPassengers,passengers);
+            fetchTicks=0;releaseWait=14;
+        }
+        fetchPassengers=passengers;
         var stand=stand(poseOf(fetching),o.entity());fetchTicks++;
         if(fetchTicks>600){
             GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} reason=approach_or_release_timeout",fetching.getUUID(),fetching.getPassengers().size());
@@ -431,9 +445,9 @@ final class CatchHat {
         var role=fetching.role();var hat=fetching;
         if(!approachHatStand(stand))return;
         o.entity().getNavigation().stop();o.face(stand.yaw());
+        if(releaseWait>0){releaseWait--;return;}
         // Dependent newborns leave in the parent's braid; capable children hop out before the empty hat is retrieved.
         if(hat.releaseYoung(o.entity())){releaseWait=14;return;}
-        if(releaseWait>0){releaseWait--;return;}
         if(hat.retrieve(o.entity())){
             fetching=null;
             GameplayLog.event(o.entity(),"family","catch cleanup completed hat={} passengers=0",hat.getUUID());
@@ -452,7 +466,7 @@ final class CatchHat {
 
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
     void fetchHat(HatBoatEntity hat){if(hatMove==HatMove.NONE&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt){
-        fetching=hat;fetchTicks=0;
+        fetching=hat;fetchTicks=0;fetchPassengers=hat.getPassengers().size();releaseWait=0;
         GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={}",hat.getUUID(),hat.getPassengers().size());
     }}
 
@@ -492,6 +506,7 @@ final class CatchHat {
      *  in it, the family greets, the braid lifts the young out and the hat goes back on (tickHat). If he cannot get there in time
      *  or the hat cannot be set down, the delivery goes on without a cushion. Project original staging. */
     void tickMidwife(){
+        dutyActivity=Behaviors.IDLE;
         var mate=o.target();var b=mate==null?null:mate.family().brood();
         if(mate==null||!mate.isAlive()||b==null||b.cancelled||b.complete()||mate.family().boatHome()!=null){
             GameplayLog.event(o.entity(),"family","catch duty ended brood={} mother={} reason={}",dutyBrood,mate==null?null:mate.getUUID(),
@@ -510,7 +525,7 @@ final class CatchHat {
             var stand=stand(poseOf(hat),o.entity());
             if(!approachHatStand(stand))return;
             o.entity().getNavigation().stop();
-            o.face(stand.yaw());return;
+            o.face(stand.yaw());dutyActivity=Behaviors.aquatic(Behaviors.HAT_HOLD,o.entity().profile().aquatic());return;
         }
         boolean mayCatch=!dutyGaveUp&&catcher(mate,b)==o.entity();
         if(mayCatch&&dutyTicks>=APPROACH_LEAD+CATCH_WAIT){
@@ -560,7 +575,7 @@ final class CatchHat {
         // Without a hat to set (a shell Marisa, or no ground or water before the outlet) he cheers beside it.
         var spot=midwifeSpot(mate);var outlet=LiveBirthGeometry.position(mate,0);
         if(o.entity().distanceToSqr(spot)>.3) { if(dutyTicks%10==1)o.entity().life().navigate(BlockPos.containing(spot),.9,false); }
-        else o.entity().getNavigation().stop();
+        else {o.entity().getNavigation().stop();dutyActivity=Behaviors.MIDWIFE;}
         o.entity().getLookControl().setLookAt(outlet.x,outlet.y+.1,outlet.z,20,20);
     }
 

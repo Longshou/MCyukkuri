@@ -266,6 +266,12 @@ final class AfloatActivities {
         @Override public boolean wants(Context c) { return !c.owner() && c.boat().protects(entity); }
         @Override public boolean tick(Context c) {
             var boat = c.boat();
+            if (boat.catches() && boat.changingSeat(entity)) {
+                entity.childhood().stopHatPractice();
+                entity.life().wakeInHat();
+                c.show(boat.walkingInHat(entity) ? Behaviors.HAT_WALK : Behaviors.HAT_CRADLE);
+                return true;
+            }
             var captain = boat.getControllingPassenger() instanceof YukkuriEntity y ? y : null;
             String response = captain == null ? Behaviors.IDLE : captain.aquaticLife().care().response(entity);
             if (response.equals(Behaviors.IDLE) && captain != null) response = captain.aquaticLife().familyPaddle().response(entity);
