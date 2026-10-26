@@ -35,8 +35,10 @@ def standard_face_outputs(outputs):
             preset = json.loads((LIB / 'expressions/presets' / (name + '.json')).read_text(encoding='utf-8'))
             assert preset['status'] == 'accepted' and not preset.get('geometry_offsets'), \
                 'Requires geometry adaptation: ' + name
-            # PNG width/height, checked without altering image bytes (current atlases are 256px).
-            assert int.from_bytes(data[16:20], 'big') == 256 and int.from_bytes(data[20:24], 'big') == 256
+            # PNG width/height, checked without altering image bytes (current standard atlases are square).
+            width = int.from_bytes(data[16:20], 'big')
+            height = int.from_bytes(data[20:24], 'big')
+            assert width == height and width in (256, 512), 'Unexpected standard atlas size: ' + species
             outputs[SNAPSHOT / f'{species}_{name}.png'] = data
             outputs[ASSETS / 'textures/entity' / species / f'{name}.png'] = data
 
