@@ -134,11 +134,13 @@ public final class SettlementTicker {
                     Migration.observe(data, member.entity(), group, now);
                 Submission first = null, leader = null;
                 for (var member : migrants) if (migrationSample(batch, member)) {
-                    if (first == null) first = member;
+                    if (first == null && Migration.joins(member.entity(), group)) first = member;
                     if (leader == null && member.entity().getUUID().equals(group.leader)) leader = member;
                 }
-                // A timeout belongs to the first real caller; otherwise only the real leader can review/arrive.
-                var caller = Migration.moving(group) && Migration.expired(group, now) ? first : leader;
+                // A real participant advances the group's existing move even while its leader is unloaded.
+                // Only the leader reviews pressure and decides to begin a new move.
+                var caller = leader;
+                if (Migration.moving(group) && (caller == null || !Migration.joins(caller.entity(), group))) caller = first;
                 if (caller != null) Migration.advance(level, data, caller.entity(), group, now);
             }
         }

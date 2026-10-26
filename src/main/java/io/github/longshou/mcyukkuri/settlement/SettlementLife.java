@@ -226,9 +226,12 @@ public final class SettlementLife {
         if (group == null) return;
         SettlementTicker.submit(entity, group);
         driveSettling(group);
-        if(entity.tickCount%20==0&&!Migration.moving(group)&&!Migration.afloat(group)
-                &&entity.childhood().shouldStayWithParents()&&!settledAt(group.center))
-            settleWithMigratingParent(group,group.center);
+        if (entity.tickCount % 20 == 0 && !Migration.afloat(group) && entity.childhood().shouldStayWithParents()) {
+            BlockPos arrival = Migration.moving(group)
+                    ? Migration.phase(group, level().getGameTime()) == Migration.Phase.MARCH ? group.migrateTo : null
+                    : group.center;
+            if (arrival != null && !settledAt(arrival)) settleWithMigratingParent(group, arrival);
+        }
         if (entity.tickCount % 100 == 0) {
             if (CommunityRules.ruled(group)) patrol(group);
             // On the march a hungry migrant eats from the mouthful it carries rather than drop it.

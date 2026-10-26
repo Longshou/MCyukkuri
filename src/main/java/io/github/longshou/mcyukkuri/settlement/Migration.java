@@ -34,8 +34,7 @@ import java.util.Comparator;
 import net.minecraft.core.Direction;
 
 /**
- * Moving house (plan 3.4, reworked 2026-10-18 after the user's correction: "migration happens mainly when too many members
- * die or when the group's foraging keeps failing into a famine").
+ * Group-owned migration after member deaths or sustained foraging failure.
  *
  * <p>The leader weighs a <b>pressure</b> made of several causes ({@link #pressure}), each scored from 0 and summed:
  * <pre>
@@ -56,7 +55,7 @@ import net.minecraft.core.Direction;
  * ({@value #DISCUSS_TICKS} ticks: the leader pleads, the bold and the attached object, the rest agree); they
  * <b>prepare</b> ({@value #PREPARE_TICKS} ticks: every adult takes a mouthful of up to {@link Rations#FETCH_MAX} portions
  * from its own store, the leader of a cave community from the commons, see {@link SettlementLife}); they <b>march</b>
- * behind the leader to a site away from the danger, preferring one with meadows; and they <b>settle</b>: each finds or
+ * behind the vanguard to a site away from the danger, preferring one with meadows; and they <b>settle</b>: each finds or
  * digs a home and puts its mouthful on the new pile, the leader's food check, the death record and the counters start
  * afresh. What the mouths could not carry stays in the old burrows.
  *
@@ -208,6 +207,7 @@ final class Migration {
         if (!caller.profile().dangerToYukkuri() && !caller.profile().houseBody()) sight(data, caller, group, now);
     }
 
+    /** Called once per sampled group by its ticker; the caller supplies a real loaded participant. */
     static void advance(ServerLevel level, SettlementData data, YukkuriEntity caller, SettlementData.Group group, long now) {
         boolean leader = caller.getUUID().equals(group.leader);
         if (moving(group)) {
@@ -224,12 +224,9 @@ final class Migration {
                 LOGGED_PHASES.put(group,new LoggedPhase(group.migrateSince,phase));
             }
             if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
-            if (leader && phase == Phase.MARCH && arrived(level, group) && complete(data, group, caller, now)) return;
-            if (expired(group, now)) {
-                if (phase == Phase.MARCH && arrived(level, group)) {
-                    if (!complete(data, group, caller, now)) abandon(data, group, caller, now, "arrival_store_unavailable");
-                } else abandon(data, group, caller, now, "deadline");
-            }
+            boolean ready = phase == Phase.MARCH && arrived(level, group);
+            if (ready && complete(data, group, caller, now)) return;
+            if (expired(group, now)) abandon(data, group, caller, now, ready ? "arrival_store_unavailable" : "deadline");
             return;
         }
         if (leader) review(caller, group, now, true);
@@ -273,7 +270,7 @@ final class Migration {
         if (current != null && current.getHealth() >= .4f * current.getMaxHealth() && current.life().nutrition() >= 20) return;
         YukkuriEntity best = null;
         double bestScore = -1e9;
-        var area = new AABB(group.center).inflate(72);
+        var area = new AABB(group.center).minmax(new AABB(group.migrateTo)).inflate(72);
         for (var member : LoadedGroupMembers.query(level, group.id, area,
                 e -> e.isAlive() && group.id.equals(e.settlement().groupId()) && joins(e, group) && e.family().adult() && !e.isPassenger())) {
             double score = scoutScore(member, group);
@@ -283,10 +280,12 @@ final class Migration {
         }
         UUID chosen = best == null ? null : best.getUUID();
         if (Objects.equals(chosen, group.migrateVanguard)) return;
+        UUID previous = group.migrateVanguard;
         group.migrateVanguard = chosen;
+        SettlementData.get(level).setDirty();
         GameplayLog.world(level, "settlement", "migration vanguard group={} vanguard={} species={} score={} previous={} leader={}",
                 group.id, chosen, best == null ? null : best.getVariant().assetId(), String.format(Locale.ROOT, "%.1f", bestScore),
-                current == null ? null : current.getUUID(), group.leader);
+                previous, group.leader);
     }
 
     /** The vanguard (leader if none) standing at the destination, for the arrival test and the build-time extension. */
@@ -558,12 +557,13 @@ final class Migration {
         return moving(group) ? !e.settlement().settledAt(group.migrateTo) : e.settlement().straggler(group);
     }
 
-    /** The leader and at least half of the loaded settlers have reached the new water berth in real physical hats. */
+    /** Reads physical arrival and member-owned home handoffs without advancing either. */
     private static boolean arrived(ServerLevel level, SettlementData.Group group) {
         BlockPos arrival = afloat(group) ? group.migrateWater : group.migrateTo;
-        if (arrival == null || !(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
-                || !group.id.equals(chief.settlement().groupId())) return false;
+        if (arrival == null) return false;
         if (afloat(group)) {
+            if (group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
+                    || !group.id.equals(chief.settlement().groupId())) return false;
             var leaderHat = chief.habitat().waterHome();
             if (!waterArrived(leaderHat, level, arrival)) return false;
             int total = 0, there = 0;
@@ -575,7 +575,7 @@ final class Migration {
                 if (hat != null && hat.isAfloat() && hat.protects(e)
                         && hat.position().distanceToSqr(HatBoatRoute.surface(level, arrival)) <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
             }
-            return there * 2 >= total;
+            return total > 0 && there * 2 >= total;
         }
         // A frail leader may trail behind: the scout (or the leader when there is none) is the arrival pivot, and the leader
         // counts in the census like everyone else, then follows as a straggler if she is still on the way.
@@ -588,7 +588,7 @@ final class Migration {
             if (e.settlement().settledAt(group.migrateTo) || e.distanceToSqr(arrival.getX() + .5, arrival.getY(), arrival.getZ() + .5)
                     <= (ARRIVE_RANGE + 2) * (ARRIVE_RANGE + 2)) there++;
         }
-        return there * 2 >= total && dependentYoungSettled(level, group, arrival, travelledArea);
+        return total > 0 && there * 2 >= total && dependentYoungSettled(level, group, arrival, travelledArea);
     }
 
     /**
@@ -599,7 +599,7 @@ final class Migration {
     private static boolean dependentYoungSettled(ServerLevel level, SettlementData.Group group, BlockPos arrival, AABB travelledArea) {
         for (YukkuriEntity baby : LoadedGroupMembers.query(level, group.id, travelledArea,
                 e -> e.isAlive() && group.id.equals(e.settlement().groupId()) && e.childhood().shouldStayWithParents()))
-            if (!baby.settlement().settleWithMigratingParent(group, arrival)) return false;
+            if (!baby.settlement().settledAt(arrival)) return false;
         return true;
     }
 

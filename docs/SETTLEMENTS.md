@@ -254,6 +254,9 @@
 - 记录：`commons.deaths`（时间、死因，最多 24 条）、`pressure100 / pressureMain / pressureText`（上次评估）、`migrateReason`、`settledUntil`，日志 `migrate_decided`、`migrate_no_site`、`migrate_done`、`migrate_failed`。
 
 **过程**（`Group.migrateTo` / `migrateSince`，存档；阶段由经过时间决定）：
+
+`Migration` 统一推进群体阶段、先锋到达和完成／失败结算。`SettlementTicker` 每次采样由一名真实在场参与者推进已开始的迁徙，族长卸载时由其他参与者接续；发起新迁徙仍由族长决定。成员各自推进实际行军、认屋和幼体继承新窝，群体到达检查只读取已完成的交接。水上群落仍须族长原帽到达选定泊位后交接岸边公仓。
+
 1. **决定**：族长（已加载、成年、清醒、未惊慌）先选址，选不到就不宣布（两分钟后重试，日志 `migrate_no_site`）。选到后族长含泪（`migrate_discuss`），24 格内玩家收到按原因区分的文字（死亡 `message.mcyukkuri.settlement.migrate.deaths`、饥荒 `.famine`、捕食种 `.predators`，其余用原句），32 格内成员 `surprise/heard`、不安 +3。
 2. **议事**（600 tick）：成年参与者走到旧中心 6 格内听族长说（族长每约 15 秒 `migrate_discuss`）；大胆 ≥60 且依恋 ≥65 的成员反对（`angry/migrate_object`，不安 +2），其余含泪同意（`migrate_agree`）。反对不阻止迁徙。
 3. **准备**（600 tick）：每只成年参与者走到自家储粮堆前，叼起最多 4 份同种真实食物（`HabitatLife.packForMove`，`migrate_pack`）；天然洞穴聚落的族长从本窝（即公仓）叼走。一户的粮按人头各叼一口，叼不走的留在旧巢。
