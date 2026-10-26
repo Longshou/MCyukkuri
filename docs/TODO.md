@@ -12,14 +12,13 @@
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
-| 水生魔理沙模块重构（帽船、船长阶段机、席位、乘员转移、落水救助、试玩场） | `.worktrees/aquatic-rework` | `subspecies/`（帽船与水生全部）、`family/` 中帽船相关（`CatchHat`、`FamilyFlight` 出生抛射段、`LiveDelivery` 水上分娩段）、`entity/YukkuriSync` 与 `presentation/PresentationArbiter` 的转移接线、`life/WaterDistress.java`、`headwear/` 帽船托管、`command/ScenarioBoats`、`scripts/museum_scenarios.py` 池塘段、`docs/AQUATIC_MARISA_IMPLEMENTATION.md` |
-| 水生帽船美术与演出（席位表导出、木桨、托举／嘴叼／翻覆／自救片段、帽船客户端姿态层） | `.worktrees/aquatic-art` | `standards/yukkuri-library/interactions/marisa-hat-vessel/` 及相关动作制作源、`art/source/`、`art/runtime-sources.json`、帽船相关运行资源、`client/` 帽船与水生表现类 |
 
 ## 玩法待办
 
 ### 复测失败/待修复
 
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 出现幼油饿停、住所仍指旧窝、重复献身与批量死亡。统一修正行军资格、真实亲代运输、饥饿让位、觅食喂养和脱队寻回；新规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)及[子代移动边界](CHILDHOOD_LIFECYCLE.md#子代移动与亲代运输)。各运行版本、现象、现有接线与最短完成标准只在[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)维护（含 ac4ba87b 暴露的先锋、新址自建与途中卡住，已接入待试玩）；运输演出并入演出包。
+- **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩中下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；版本、现象与已定位原因只在[水生魔理沙模块（重构）](#水生魔理沙模块重构)维护。
 
 ### 家庭、繁殖与照护
 
@@ -194,12 +193,26 @@
 
 ### 水生魔理沙模块（重构）
 
-**状态：已接入待试玩。** 帽船、船长阶段机、席位、乘员转移、落水救助与试玩场已按[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)重做，尚无运行包试玩过，下列 P0 须在新运行包逐项确认；代码、CI 与助手检查不算验收。客户端姿态层已接线（每船一帧 `BoatPose`、乘员 `CrewPose`、接触点 `ContactTargets` 与演出看门狗，见[演出](AQUATIC_MARISA_IMPLEMENTATION.md#演出)），旧水 11、水 14（辫子抽动）的演出缺口按 P0-6／P0-8／P0-11 复看，复看前不算演出通过；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补。水 16 异种饰品另见上节。
+**状态：复测失败。** 帽船、船长阶段机、席位、乘员转移、落水救助与试玩场已按[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)重做；首轮运行包试玩主链多处阻塞（见下），下列 P0 修复后须在新运行包逐项确认；代码、CI 与助手检查不算验收。客户端姿态层已接线（每船一帧 `BoatPose`、乘员 `CrewPose`、接触点 `ContactTargets` 与演出看门狗，见[演出](AQUATIC_MARISA_IMPLEMENTATION.md#演出)），旧水 11、水 14（辫子抽动）的演出缺口按 P0-6／P0-8／P0-11 复看，复看前不算演出通过；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补。水 16 异种饰品另见上节。
 
 **重构前的失败证据（保留版本与现象的对应）**
 
 - [d5d88bb0](https://github.com/Longshou/MCyukkuri/commit/d5d88bb0ade41ddb3401d408da9fbbba07c83b24)（[CI 39455579956](https://github.com/Longshou/MCyukkuri/actions/runs/39455579956)，2026-10-21 00:48–00:54）：`sail`、`cargo_load` 提示“帽船没能生成”（拒绝原因被合并，无法定位）；魔理沙 `#25215` 落水溺亡；`afraid.png` 加载 `FileNotFoundException`；两轮 `hat_custody_burn` 如期 `accessory lost for good (burned)`（缺库存散落与幼体去向读数，不判通过）；stdout 停更而原生日志继续，查日志必须看原生日志。
 - [56b5e4f1](https://github.com/Longshou/MCyukkuri/commit/56b5e4f1d6155b89a078ded5b385a6585702b0bd)（[CI 39465772518](https://github.com/Longshou/MCyukkuri/actions/runs/39465772518)，01:46–01:52，复测失败）：收帽后赤油瞬移上岸（`recoverUnattended → landCrew`）；`cargo_load` 帽主 `#32155`、`shore` 帽主 `#33467` 在 `createAfloatAndBoard` 被 `path=afloat reason=hull_collision` 拒绝（`water=-160,63,300`，未区分方块或实体），建船失败后亲缘与幼体头饰修改未回滚，岸上赤油持续 `infant_ashore` 阻止出航；`sail` `#19357` 拾桨、取 3 份苹果、8 tick 后 `hull deployed path=bank` 成为乘员，仅证明单体出航接通。
+
+**重构后首轮复测失败**：运行 [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bdb14fd13ad923c85c8fbe9c1a596e3df9)（[CI 40380823130](https://github.com/Longshou/MCyukkuri/actions/runs/40380823130)，2026-10-27 03:21–03:31，池塘九个场景；原日志与 session 副本在 `.local/reports/aquatic-1325c6bd/`）。以下为现象与已定位原因，均未修；该次未开逐阶段细节，标“疑为”的待新日志确认。
+
+- **岸边下水必失败**（`birth_boat_caught` 两轮、`birth_boat_missed`）：放帽当刻 `voyage cancelled reason=berth_lost`，转收帽又 `stow_no_berth`，帽子漂走、人留岸；母油产程停在 5600/6000 `waiting_for_own_hat`，无一胎出生；漏接场父油放帽被漂走的母帽占位 `hull_does_not_fit`。原因：`VoyageController.moor()`／`stow()` 重算泊位时 `ShoreBerth.berthAt` 调 `HullFootprint.fits` 未排除刚放下的本船，自判 `hull_boat`；`berth_lost` 也未记具体拒绝。
+- **上岸后找不回帽**（`water_dock`、`shore_capsized`、`birth_boat_*`）：`ASHORE→RECOVER own_hull_in_reach` 与 `RECOVER→ASHORE recover_hull_gone` 每秒互切数十秒，伴随 `deck release boarding_done` 刷屏，人不去取帽，帽子最终 `sunk` 永久丢失。原因：岸上时 `AquaticSelfRescue.clock()` 每 tick `stop("left_water_or_mounted")`，空闲也清掉记住的帽子并释放座位，`recover()` 再查时被 20 tick 查找限频挡成空。
+- **成年帽扶不正**（`water_dock`、`self_rescue`、`shore_capsized`、`water_neighbours`、`shake_capsize`）：1.75 帽每次都在扶到一半 `righting_pose_refused`，三次打滑后转岸；0.4、0.72 帽能扶正爬回。`HullHazards.setSelfRighting` 多个条件无原因拒绝，疑为每 tick 位移上限 0.12 或碰撞随帽径放大；须先补拒绝原因。
+- **翻船后落在自己帽下几乎扶不正**（用户反馈）：`HullHazards.tickCapsize` 把乘员放回原座位只偏 0.035，释放时船长与帽同坐标、在倒扣帽檐下；`ownGripApproach` 在帽内时把“外侧”算成朝里，于是从帽底咬檐，身体与浮力顶帽致 `grip_moved`（本次 4 次在咬上 1 tick 后即滑）；流程缺“先游出帽檐”一步。
+- **从漂浮帽船跳出全部失败**：`land_hop` 34 次、`return_to_parent` 19 次均 `no_departure_seat`，0 成功（岸上登船、水中爬回自帽正常）。靠岸觅食／玩耍下不了船（`water_life`、`water_neighbours`）；危险召集时子油答应并已获亲帽座位却跳不过去，召集超时散去，亲帽还先扔 2 份粮腾位（`family_skiffs`）。原因：`HatStations.approachBoardingEdge` 首行拒绝在本船有转移记录的乘员，而跳船转移进入接近阶段即登记在本船，每 tick 被自己挡住，40 次后失败（日志固定约 2.1 秒一轮）。同场帽上亲油向岸托举赤油 `land_lift` 38 次 `no_reach`／`known_impossible`、赤油被留船 `no_way_found`，疑为亲油自己下不了船的连带，修跳船后复看。
+- **落水孩子在自帽与亲船间摇摆**（用户反馈，`family_skiffs`）：自救（游向自己翻覆的帽）与亲船临时避难指引两套控制无仲裁，亲油每次尝试定住孩子、被拒后又被拉回自帽；`WaterDistress.findEscape` 每 20 tick 重选，自帽即使翻覆且赤油无扶帽能力也优先，船／岸按距离加 4 的余量来回翻。0.4 帽子油 `#55102` 03:29:05 落水、03:29:26 溺亡，离亲船不到 2 格。
+- **亲油施救门槛过高**（用户反馈）：全场所有 `incident close` 均 `attempts=0`。亲船按船长身体距孩子 1.5 格即停（`HatFamilyAlarm.tickOwner`），而施救要孩子在上船口跳距内，大帽口仍够不着，亲船全程 `SAFETY HOLD`；会跳的孩子只走自爬 `rescue_climb`，`rim_out_of_reach` 记为等待、不计失败，亲油每 tick 重试 20 秒不改辫托；救否在落水约 1 秒时只抽一次（多为非紧急 0.76），之后力竭、受伤不重抽；翻船船长须先扶正自帽才救子，成年帽扶不正故从不触发，`push_to_brim` 仅一次 0.05 推力；岸上帮手只在 2.2 格内且不走近水边，生疏邻船 0.28。救否概率与重抽时机属规则调整，改前由用户定。
+- **救助角色误判**：兄弟姐妹按亲属计，赤油被判 `CAPTAIN_SELF`、兄姐船被判 `SAME_BOAT_PARENT` 参与抽签，占用每事件 10 条决定名额。
+- **未看完**：`shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸后入睡、翻船再落水后溺亡，未单独判断。
+
+修复后先复看 P0-2、P0-4、P0-6、P0-8、P0-9 及 `family_skiffs` 召集、`shore_capsized` 找回；试玩场默认开逐阶段细节日志（见[玩法日志](GAMEPLAY_LOGGING.md)）。
 
 **P0 验收（新运行包，场景 → 应观察）**
 

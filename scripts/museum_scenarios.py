@@ -747,7 +747,7 @@ pond('self_rescue', '落水自救', '落水自救', '戴帽子的小子油自己
     yk('marisa', 0, 0, 'a', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready()),
     yk('marisa', _dx, _dz, 'far', aquatic=True, yaw=-90, **pair_ready()),
     aboard('far', bank=_lane), swim('far', bank=_lane, near='nearest', dist=9, energy=3), swim('a')],
-    note='演示时可开 /yukkuri aqdiag on，在日志里看甩帽、咬缘、攀入各阶段。',
+    note='试玩场默认开启水生逐阶段日志（/yukkuri aqdiag off 可关），日志里看甩帽、咬缘、攀入各阶段。',
     reads=[('读小子油自救阶段与失败', f'yukkuri status {sel("a")} raw'),
            ('读远帽船主自救目标与阶段', f'yukkuri status {sel("far")} raw')])
 pond('shore_capsized', '翻船后上岸找回', '岸上返帽', '亲油体力很低；玩家用钻石剑打一下帽船使其翻覆。观察她落水后的自救或上岸，再实际走向帽子、下水扶正和重新登船，托管期间不因无帽持续悲伤',

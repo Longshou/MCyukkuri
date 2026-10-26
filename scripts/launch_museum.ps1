@@ -81,6 +81,7 @@ $arguments = @(
     ('"@' + (Join-Path $runtimeRoot 'clientRunClasspath.txt') + '"'),
     ('"@' + (Join-Path $runtimeRoot 'clientRunVmArgs.txt') + '"'),
     '-Xmx6G',
+    '-Dmcyukkuri.aqdiag=true',
     ('"-Dfml.modFolders=mcyukkuri%%' + (Join-Path $runtimeRoot 'mod') + '"'),
     'net.neoforged.devlaunch.Main',
     ('"@' + (Join-Path $runtimeRoot 'clientRunProgramArgs.txt') + '"'),

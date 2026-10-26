@@ -58,7 +58,7 @@
 
 | 入口 | 用途 |
 | --- | --- |
-| `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生逐阶段细节（`GameplayLog.detail`，前缀 `[aqdiag]`），默认关闭 |
+| `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生逐阶段细节（`GameplayLog.detail`，前缀 `[aqdiag]`）；试玩场启动器以 `-Dmcyukkuri.aqdiag=true` 默认开启，其他启动方式默认关闭 |
 | `/yukkuri status trace true` / `false` | 显式开启／关闭细密状态变化日志，默认关闭 |
 | `debug.entitySaveViews` | 完整实体保存调试视图，默认关闭 |
 | `render.woundPerfLog`（客户端配置 `mcyukkuri-client.toml`） | 约每 5 秒输出 `[render]` 伤口渲染耗时汇总（实体数、完整／简化数量、三角形、构建与帧耗时），默认关闭 |
