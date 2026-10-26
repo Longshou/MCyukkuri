@@ -413,9 +413,6 @@ public final class FamilyLife {
     public boolean travelFlight(){ return flight.travelFlight(); }
     /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
     private HatBoatEntity nearHat(double reach){ return flight.nearHat(reach); }
-    /** A falling stem fruit meets the hat: on the floor it settles there (or bounces to its place), off the brim it
-     *  bounces in. */
-    private boolean catchFalling(){ return flight.catchFalling(); }
     /** Aquatic mothers may give birth on a riverbank, which serves as a temporary nest. */
     boolean bankNest(){
         if(entity.subspecies().kind()!=SubspeciesLife.Kind.AQUATIC_MARISA)return false;
@@ -491,7 +488,6 @@ public final class FamilyLife {
         if(flight.hasArc())return;
         if(awaitingLanding&&!entity.onGround())airVy=entity.getDeltaMovement().y;
         if(freeFalling())entity.getNavigation().stop();
-        if(awaitingLanding&&!doomed&&!entity.isPassenger()&&catchFalling())return;
         if(handleLanding(true))return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
         if(delivery.welcoming())delivery.welcome();

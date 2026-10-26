@@ -14,7 +14,7 @@ import json
 import sys
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
+from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
 from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
@@ -321,7 +321,7 @@ NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BAB
 def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
     add(sid, 'family', title, hint, watch, '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0),
-        yk('reimu', 7, 0, 'mother', yaw=-90, lead=True, **pair_ready()),
+        yk_on_nest('reimu', 8, 0, 'mother', yaw=-90, lead=True, **pair_ready()),
         yk(father_kind, 4, 1, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
@@ -346,8 +346,7 @@ add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
     '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0, half=3),
         *large_nest(8, 0, 'mcyukkuri:large_yukkuri_nest'),
-        # Start above the collision shell and let gravity settle her before the deferred conception.
-        yk('reimu', 8.5, .5, 'mother', dy=.5, yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
+        yk_on_nest('reimu', 8, 0, 'mother', large=True, yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
         yk('marisa', 6, 2, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),

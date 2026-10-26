@@ -96,7 +96,8 @@ public final class SurfaceApproach {
     }
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
-        if (Math.abs(start.y-destination.y) > .25 || start.distanceToSqr(destination) > 2.25) return false;
+        double reach=Math.max(1.5,actor.getBbWidth()+.5),step=actor.maxUpStep();
+        if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double previous=start.y;
@@ -106,7 +107,7 @@ public final class SurfaceApproach {
             // Partly over an edge (a nest rim or step it is stepping down from): the top under part of the sole is enough
             // for this sample; requiring all four feet here stranded wide bodies on a rim above the floor they walk to.
             var surface=top(actor,sample);
-            if(surface==null||Math.abs(surface.y-previous)>.25||!supportedStep(actor,surface))return false;
+            if(surface==null||surface.y-previous>step||previous-surface.y>1||!supportedStep(actor,surface))return false;
             previous=surface.y;
         }
         return true;

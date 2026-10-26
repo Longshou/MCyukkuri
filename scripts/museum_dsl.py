@@ -11,6 +11,7 @@ their NBT; relationships, homes, conception and the like are set by ``yukkuri sc
 import hashlib
 import json
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 
@@ -148,6 +149,15 @@ def item(item_id, count, dx, dz, name='item', dy=.05):
 
 def block(dx, dy, dz, state):
     return f'setblock ~{dx} ~{dy} ~{dz} {state}'
+
+
+def yk_on_nest(kind, dx, dz, name, *, large=False, **kwargs):
+    """A real initial body on the authored cushion, centred on the placed blocks even at a fractional field anchor."""
+    source = Path(__file__).resolve().parents[1] / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
+    shape = json.loads(source.read_text(encoding='utf-8'))['large_yukkuri_nest' if large else 'yukkuri_nest']
+    height = max(b[4] for b in shape['boxes'] if b[0] <= 0 <= b[2] and b[1] <= 0 <= b[3]) / 16
+    offset = .5 if large else 0
+    return 'execute align xz run ' + yk(kind, dx + offset, dz + offset, name, dy=height, **kwargs)
 
 
 def large_nest(dx, dz, block):

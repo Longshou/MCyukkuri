@@ -214,9 +214,14 @@ public final class BraidRescueGeometry {
     /** Lowest feet height at which the posed body clears this hull: the underside is sampled on its real turned
      *  footprint rather than the world-aligned box (whose corners would overlap the hat at any oblique heading). */
     public static double poseClearance(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
+        return Math.max(feet.y,poseSupport(actor,feet,pitch,roll,yaw,hat,dip));
+    }
+    /** Hull support under this pose, independent of its current height; -infinity outside the hull.
+     *  A falling body uses this same surface to find first contact before moving through it. */
+    public static double poseSupport(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
         var boxes=boardingEnvelope(actor,feet,pitch,roll,yaw);
-        if(actor.getVariant()!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeClearance(boxes,hat,feet,dip);
-        double required=envelopeClearance(boxes.subList(1,boxes.size()),hat,feet,dip);
+        if(actor.getVariant()!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeSupport(boxes,hat,feet,dip);
+        double required=envelopeSupport(boxes.subList(1,boxes.size()),hat,feet,dip);
         var tilt=dip==null?hat.dip():dip;var bounds=bodyBounds(pitch,roll);
         for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
             var model=new Vec3(bounds[0].x+(bounds[1].x-bounds[0].x)*x/2,bounds[0].y,bounds[0].z+(bounds[1].z-bounds[0].z)*z/2);
@@ -336,7 +341,10 @@ public final class BraidRescueGeometry {
     }
     /** As above, with the hull's near rim lowered by this dip (null means the hat's current one). */
     public static double envelopeClearance(List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
-        var tilt=dip==null?hat.dip():dip;double required=feet.y;
+        return Math.max(feet.y,envelopeSupport(boxes,hat,feet,dip));
+    }
+    private static double envelopeSupport(List<AABB> boxes,HatBoatEntity hat,Vec3 feet,HatBoatEntity.Dip dip){
+        var tilt=dip==null?hat.dip():dip;double required=Double.NEGATIVE_INFINITY;
         for(var box:boxes){
             double offset=box.minY-feet.y;
             for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){

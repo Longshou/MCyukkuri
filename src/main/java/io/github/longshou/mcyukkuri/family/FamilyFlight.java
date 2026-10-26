@@ -2,11 +2,12 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.UUID;
@@ -158,7 +159,7 @@ final class FamilyFlight {
     /** Called from travel while a checked boarding trajectory or gravity-driven launch owns movement. */
     boolean travelFlight(){
         // No persistent gravity flag: completion/cancellation immediately returns control to vanilla.
-        if(flight==null)return false;
+        if(flight==null)return catchFalling();
         var hat=flight.hat()!=null&&o.level().getEntity(flight.hat()) instanceof HatBoatEntity h&&!h.isRemoved()?h:null;
         if(flight.seat()!=null&&(hat==null||hat.capsizing()||!hat.isAfloat()&&!hat.catches())){
             if(hat!=null)hat.cancelIncoming(o.entity());
@@ -173,6 +174,7 @@ final class FamilyFlight {
                     flight=null;return false;
         }
         var velocity=o.entity().getDeltaMovement();var before=o.entity().position();var wanted=before.add(velocity);
+        if(catchFalling())return true;
         if(!birthSweepClear(hat,before,wanted)){
             if(hat!=null)hat.cancelIncoming(o.entity());flightLog("sweep_blocked at tick "+flightTick+" from "+before+" to "+wanted+" because "+sweepWhy);flight=null;
             // A swept body contact stops this step. Returning to vanilla travel here would
@@ -187,20 +189,18 @@ final class FamilyFlight {
             if(hat!=null)hat.cancelIncoming(o.entity());flightLog("moved_short at tick "+flightTick+" wanted "+wanted+" got "+o.entity().position());flight=null;return true;
         }
         if(flightTick<f.ticks())return true;
-        flight=null;boolean newborn=newbornLaunch,land=landLaunch;newbornLaunch=false;landLaunch=false;
+        flight=null;boolean land=landLaunch;newbornLaunch=false;landLaunch=false;
         if(hat!=null) {
             if(hat.unsteadyMotion()){hat.cancelIncoming(o.entity());o.entity().setDeltaMovement(0,-.03,0);return true;}
-            // Only actual contact with the reserved seat permits boarding. External impulses,
-            // collision or a displaced hat can turn a planned catch into a real miss.
-            // A newborn leaves a body it overlaps and is pushed aside by it on the way; it counts as home when it is at the (moving) seat.
-            boolean contact=newborn?o.entity().position().distanceToSqr(hat.toWorld(f.seat()))<=.36&&velocity.y<=0
-                    :o.entity().position().distanceToSqr(to)<=.0025&&velocity.y<=0;
+            // Newborns board only at the swept surface contact above. Reaching the nominal arc's duration
+            // near a seat is not contact; a displaced or missed hat leaves the child falling normally.
+            boolean contact=!o.awaitingLanding()&&o.entity().position().distanceToSqr(to)<=.0025&&velocity.y<=0;
             boolean landed=contact&&(o.entity().getUUID().equals(hat.ownerYukkuri())?hat.board(o.entity()):hat.boardYoung(o.entity()));
             if(!landed)flightLog("not_landed contact="+contact+" dist="+Math.sqrt(o.entity().position().distanceToSqr(to))+" vy="+velocity.y+" to="+to+" at="+o.entity().position());
-            if(!landed&&land){
+            if(!landed&&(land||o.awaitingLanding())){
                 // The push missed its seat: whatever velocity is left carries on under ordinary physics, and contact decides the outcome.
                 hat.cancelIncoming(o.entity());o.entity().hasImpulse=true;
-            }else if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null,io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.FALL);o.entity().setDeltaMovement(0,-.03,0);}
+            }else if(!landed){hat.cancelIncoming(o.entity());o.entity().waterDistress().plunge(hat.getUUID(),null,WaterIncidents.Cause.FALL);o.entity().setDeltaMovement(0,-.03,0);}
         }
         return true;
     }
@@ -212,50 +212,93 @@ final class FamilyFlight {
                 .stream().min(Comparator.comparingDouble(b->b.distanceToSqr(o.entity()))).orElse(null);
     }
 
-    /** A falling stem fruit meets the hat: on the floor it settles there (or bounces to its place), off the brim it
-     *  bounces in. */
-    boolean catchFalling(){
-        if(flight!=null||o.entity().getDeltaMovement().y>0)return false;
-        double r=HatVessel.radius(o.entity().getBbWidth());
-        String miss=null;HatBoatEntity missed=null;
-        for(var hat:o.level().getEntitiesOfClass(HatBoatEntity.class,o.entity().getBoundingBox().inflate(3,4,3),b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(o.entity())
-                &&b.canMakeRoom(o.entity(),false))){
-            var l=hat.toLocal(o.entity().position());double h=HatVessel.footprint(hat.mode(),l.x,l.z,r/hat.unit());
-            if(Double.isNaN(h)){
-                if(o.entity().onGround()&&miss==null){miss="outside_footprint";missed=hat;}
-                continue;
+    private record Contact(HatBoatEntity hat,Vec3 feet){}
+
+    /** First downward contact along this tick's actual velocity, using the same body and hull as the sweep. */
+    private Vec3 fallingContact(HatBoatEntity hat,Vec3 from,Vec3 to){
+        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
+        double previous=0;
+        if(from.y<support(hat,from)-.002)return null; // Already below: never pull a missed child back up.
+        for(int i=1;i<=steps;i++){
+            double fraction=(double)i/steps;var at=from.lerp(to,fraction);
+            if(at.y<=support(hat,at)){
+                double low=previous,high=fraction;
+                for(int j=0;j<10;j++){
+                    double mid=(low+high)/2;var point=from.lerp(to,mid);
+                    if(point.y>support(hat,point))low=mid;else high=mid;
+                }
+                var contact=from.lerp(to,high);
+                // A horizontal entry below a ledge is a side collision, not a landing on its top.
+                return Math.abs(contact.y-support(hat,contact))<=.002?contact:null;
             }
-            // Swept: the floor height was crossed (or touched) between the last position and this one while the centre is over the hat.
-            var before=hat.toLocal(new Vec3(o.entity().xo,o.entity().yo,o.entity().zo));
-            boolean crossed=l.y<=h+1e-3&&before.y>=h-1e-3&&l.y>h-3/hat.unit();
-            if(!crossed&&(l.y>h+1e-3||l.y<h-.12/hat.unit()))continue;
-            if(!hat.makeRoom(o.entity(),false)){miss="no_room";missed=hat;continue;}
-            var seat=hat.reserve(o.entity(),l);  // where it came down, if free
-            if(seat==null){miss="no_seat";missed=hat;continue;}
-            var contact=hat.toWorld(new Vec3(l.x,h,l.z));
-            // Only blocks and the hat's own shape stop a falling fruit: the mother, the catcher at the far brim and the
-            // siblings already seated do not (the strict boarding envelope refused every fruit near them).
-            if(!birthSweepClear(hat,o.entity().position(),contact,true)){miss="sweep_blocked "+sweepWhy;missed=hat;hat.cancelIncoming(o.entity());continue;}
-            o.entity().move(MoverType.SELF,contact.subtract(o.entity().position()));
-            if(o.entity().position().distanceToSqr(contact)>.000001){miss="move_blocked";missed=hat;hat.cancelIncoming(o.entity());continue;}
-            o.entity().setDeltaMovement(Vec3.ZERO);
-            if(h<HatVessel.top(hat.mode())-1e-6&&Math.hypot(seat.x-l.x,seat.z-l.z)<=HatVessel.SETTLE)hat.boardYoung(o.entity());
-            else{
-                // An actual falling catch may settle only along a short, collision-free path.
-                var to=hat.toWorld(seat);int ticks=HatVessel.solve(contact,to,hat,r,HatVessel.HOP_TMIN);
-                if(contact.subtract(to).horizontalDistance()<=.5&&birthPathClear(hat,contact,to,ticks)){
-                    beginFlight(new Flight(hat.getUUID(),contact,seat,to,ticks));
-                }else{hat.cancelIncoming(o.entity());miss="settle_path "+String.format(java.util.Locale.ROOT,"%.2f",contact.subtract(to).horizontalDistance());missed=hat;continue;}
+            previous=fraction;
+        }
+        return null;
+    }
+    private double support(HatBoatEntity hat,Vec3 feet){
+        return BraidRescueGeometry.poseSupport(o.entity(),feet,0,0,o.entity().yBodyRot,hat,null);
+    }
+
+    /** Called before travel for both a birth arc and ordinary stem/free fall. A catch consumes only the movement
+     *  up to contact; ordinary Minecraft movement remains responsible for a miss. */
+    private boolean catchFalling(){
+        var child=o.entity();var velocity=child.getDeltaMovement();
+        if(!o.awaitingLanding()||o.doomed()||child.isNoAi()||child.isPassenger()||o.crew().active()
+                ||child.onGround()||child.isInWaterOrBubble()||velocity.y>=0)return false;
+        var from=child.position();var wanted=from.add(velocity);
+        var contacts=new ArrayList<Contact>();
+        for(var hat:o.level().getEntitiesOfClass(HatBoatEntity.class,child.getBoundingBox().expandTowards(velocity).inflate(3,1,3),
+                b->!b.unsteadyMotion()&&(b.catches()||b.isAfloat())&&b.young(child))){
+            var contact=fallingContact(hat,from,wanted);
+            if(contact!=null)contacts.add(new Contact(hat,contact));
+            else if(wanted.y<=hat.getY()&&!Double.isFinite(support(hat,wanted)))catchMiss(hat,"outside_footprint");
+        }
+        contacts.sort(Comparator.comparingDouble(c->from.distanceToSqr(c.feet())));
+        for(var hit:contacts){
+            var hat=hit.hat();var contact=hit.feet();var local=hat.toLocal(contact);
+            if(!birthSweepClear(hat,from,contact,true)){catchMiss(hat,"sweep_blocked "+sweepWhy);continue;}
+            if(!hat.makeRoom(child,false)){catchMiss(hat,"no_room");continue;}
+            var seat=hat.reserve(child,local);
+            if(seat==null){catchMiss(hat,"no_seat");continue;}
+            boolean settle=Math.hypot(seat.x-local.x,seat.z-local.z)<=HatVessel.SETTLE;
+            var to=hat.toWorld(seat);
+            to=new Vec3(to.x,Math.max(to.y,support(hat,to)),to.z);
+            int ticks=HatVessel.solve(contact,to,hat,HatVessel.radius(child.getBbWidth()),HatVessel.HOP_TMIN);
+            if(!hat.canBoard(child)){hat.cancelIncoming(child);catchMiss(hat,"admission_refused");continue;}
+            if(!settle&&contact.subtract(to).horizontalDistance()>.5){
+                hat.cancelIncoming(child);catchMiss(hat,"seat_beyond_settle_reach");continue;
             }
+            if(!settle&&!birthPathClear(hat,contact,to,ticks)){
+                hat.cancelIncoming(child);catchMiss(hat,"settle_path "+sweepWhy);continue;
+            }
+            if(flight!=null&&flight.hat()!=null&&!hat.getUUID().equals(flight.hat())&&o.level().getEntity(flight.hat()) instanceof HatBoatEntity previous)
+                previous.cancelIncoming(child);
+            flight=null;newbornLaunch=false;landLaunch=false;
+            child.move(MoverType.SELF,contact.subtract(from));
+            if(child.position().distanceToSqr(contact)>.000001){
+                hat.cancelIncoming(child);catchMiss(hat,"move_blocked");return true;
+            }
+            if(settle){
+                if(!hat.boardYoung(child)){
+                    hat.cancelIncoming(child);catchMiss(hat,"board_refused");
+                    child.move(MoverType.SELF,wanted.subtract(contact));
+                    child.setDeltaMovement(velocity.add(0,-HatVessel.GRAVITY/16,0));return true;
+                }
+                child.setDeltaMovement(Vec3.ZERO);
+            }else{
+                pendingNewbornLaunch=true;pendingLandLaunch=hat.catches();
+                beginFlight(new Flight(hat.getUUID(),contact,seat,to,ticks));
+            }
+            GameplayLog.event(child,"family","newborn hat contact hat={} at={} incomingVy={} result={} seat={}",
+                    hat.getUUID(),contact,velocity.y,settle?"boarded":"bounce",seat);
             return true;
         }
-        if(miss!=null&&o.entity().family().awaitingLanding()){
-            var l=missed.toLocal(o.entity().position());
-            GameplayLog.limited(o.entity(),"family","catch_fall_miss",40,"falling newborn not caught hat={} reason={} local=({}, {}, {}) hatAt={}",
-                    missed.getUUID(),miss,String.format(java.util.Locale.ROOT,"%.1f",l.x),String.format(java.util.Locale.ROOT,"%.1f",l.y),
-                    String.format(java.util.Locale.ROOT,"%.1f",l.z),missed.position());
-        }
         return false;
+    }
+    private void catchMiss(HatBoatEntity hat,String reason){
+        var local=hat.toLocal(o.entity().position());
+        GameplayLog.limited(o.entity(),"family","catch_fall_miss",40,"falling newborn not caught hat={} reason={} local={} hatAt={}",
+                hat.getUUID(),reason,local,hat.position());
     }
 
     static void putVector(CompoundTag tag,String key,Vec3 value) {

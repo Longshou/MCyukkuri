@@ -164,11 +164,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             }
             @Override public Node getStart(){
                 var start=super.getStart();
-                if(planningObstacle==null||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
+                if(!forceSearch||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
                 var nativeFeet=SurfaceApproach.floor(animal,new Vec3(start.x+entityWidth*.5,start.y,start.z+entityDepth*.5));
                 if(start.costMalus>=0&&nativeFeet!=null&&!crossesObstacle(mob.position(),nativeFeet,planningObstacle)
                         &&SurfaceApproach.clearLastStep(animal,nativeFeet))return start;
-                // A wide body's vanilla start can be offset across the partner. Enter the grid by a real short step.
+                // A wide body's vanilla start may sit on a soft rim or across a partner. Enter by a real short step.
                 double offset=entityWidth*.5;
                 int x=Mth.floor(mob.getX()-offset+.5),z=Mth.floor(mob.getZ()-offset+.5);
                 BlockPos best=null;double distance=Double.POSITIVE_INFINITY;

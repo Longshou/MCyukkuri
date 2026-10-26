@@ -722,8 +722,9 @@ public final class FamilyData extends SavedData {
         YukkuriWorldData.get(level).relate(child.id,brood.mother,30);YukkuriWorldData.get(level).relate(brood.mother,child.id,35);
         if(brood.father!=null){YukkuriWorldData.get(level).relate(child.id,brood.father,25);YukkuriWorldData.get(level).relate(brood.father,child.id,30);}
         setDirty();
-        GameplayLog.event(entity,"family","born brood={} index={} kind={} mother={} father={} hat={} flying={} unborn={}",
-                brood.id,index,brood.kind,brood.mother,brood.father,hat==null?null:hat.getUUID(),entity.family().flying(),brood.unborn());
+        GameplayLog.event(entity,"family","born brood={} index={} kind={} mother={} father={} hat={} flying={} unborn={} stage={} scale={} width={} height={}",
+                brood.id,index,brood.kind,brood.mother,brood.father,hat==null?null:hat.getUUID(),entity.family().flying(),brood.unborn(),
+                entity.family().stage(),entity.family().scale(),entity.getBbWidth(),entity.getBbHeight());
         return entity;
     }
     private void trackStemCompletion(Brood brood,ServerLevel level) {
