@@ -14,6 +14,8 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -57,7 +59,8 @@ final class CatchHat {
     boolean fetching() { return fetching!=null; }
     boolean cleanupPending() { return fetching!=null||hatMove==HatMove.ON||hatMove==HatMove.ON_SELF||cradleLinger>0&&cradleEntity()!=null; }
     String describe() { return "move="+hatMove+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
-            +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy(); }
+            +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy()+" dutyTicks="+dutyTicks+" gaveUp="+dutyGaveUp
+            +" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
     void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
@@ -168,7 +171,12 @@ final class CatchHat {
     }
 
     private boolean approachHatStand(Stand stand){
-        return SurfaceApproach.walk(o.entity(),stand.at(),.8);
+        boolean arrived=SurfaceApproach.walk(o.entity(),stand.at(),.8);
+        if(!arrived)GameplayLog.limited(o.entity(),"family","catch.approach",200,
+                "catch stand approaching brood={} mother={} from={} target={} pathDone={} horizontalCollision={}",
+                dutyBrood,o.target()==null?null:o.target().getUUID(),o.entity().position(),stand.at(),
+                o.entity().getNavigation().isDone(),o.entity().horizontalCollision);
+        return arrived;
     }
 
     FamilyLife.DeliveryStation rendezvous(YukkuriEntity mother,FamilyData.Brood brood) {
@@ -183,10 +191,11 @@ final class CatchHat {
         return new HatPose(at,pose.yaw()+turn,pose.mode(),pose.role());
     }
 
-    private boolean usableSite(YukkuriEntity mother,FamilyData.Brood brood,FamilyLife.DeliveryStation site) {
-        if(!SurfaceApproach.supported(mother,site.at()))return false;
+    private String siteRefusal(YukkuriEntity mother,FamilyData.Brood brood,FamilyLife.DeliveryStation site) {
+        if(!SurfaceApproach.supported(mother,site.at()))return "mother_support";
         var pose=atStation(mother,brood,site);var helper=stand(pose,o.entity());
-        if(!settles(pose)||!SurfaceApproach.supported(o.entity(),helper.at()))return false;
+        if(!settles(pose))return "hat_support";
+        if(!SurfaceApproach.supported(o.entity(),helper.at()))return "helper_support";
         // Check the whole visible brim, not just the centre block beneath the hat.
         double unit=HatVessel.hatScale(o.entity())*o.entity().getScale()/16;
         var brim=HatVessel.brim(pose.mode());double width=Math.max(brim[0],brim[1])*unit;
@@ -196,28 +205,65 @@ final class CatchHat {
         var helperBox=o.entity().getBoundingBox().move(helper.at().subtract(o.entity().position()));
         // A stem hat's near brim lip may lie under her front (stemClearance); a live catch keeps the whole brim clear of her.
         double motherGap=brood.kind==FamilyData.BirthKind.STEM?stemClearance(mother,o.entity())-.01:mother.getBbWidth()*.5+width;
-        return !motherBox.intersects(helperBox)
-                &&site.at().subtract(pose.at()).horizontalDistance()>motherGap
-                &&helper.at().subtract(pose.at()).horizontalDistance()>o.entity().getBbWidth()*.5+width
-                &&!o.level().getBlockCollisions(o.entity(),hatBox).iterator().hasNext();
+        if(motherBox.intersects(helperBox))return "parent_bodies_overlap";
+        if(site.at().subtract(pose.at()).horizontalDistance()<=motherGap)return "mother_brim_overlap";
+        if(helper.at().subtract(pose.at()).horizontalDistance()<=o.entity().getBbWidth()*.5+width)return "helper_brim_overlap";
+        return o.level().getBlockCollisions(o.entity(),hatBox).iterator().hasNext()?"hat_blocked":null;
     }
 
     private void findSite(YukkuriEntity mother,FamilyData.Brood brood) {
-        // Bounded local search; prefer the mother's current position, then nearby open floor.
-        int paths=0;
+        // Quarter turns preserve the same AABB overlap at a full belly. Include diagonals and prefer a near-side
+        // helper stand, so the vanilla block pathfinder is not asked to walk through the waiting mother.
+        int paths=0,checked=0;String reason="mother_floor";
         for(int radius=0;radius<=3;radius++)for(int side=0;side<(radius==0?1:8);side++) {
             double angle=side*Math.PI/4;
             var at=SurfaceApproach.floor(mother,mother.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
             if(at==null)continue;
-            for(float turn:new float[]{0,90,-90,180}) {
+            var candidates=new ArrayList<FamilyLife.DeliveryStation>();
+            for(float turn:new float[]{0,45,-45,90,-90,135,-135,180}) {
                 var site=new FamilyLife.DeliveryStation(at,mother.yBodyRot+turn);
-                if(!usableSite(mother,brood,site))continue;
-                if(++paths>8)return;
+                checked++;String refusal=siteRefusal(mother,brood,site);
+                if(refusal!=null){reason=refusal;continue;}
+                candidates.add(site);
+            }
+            candidates.sort(Comparator.comparingDouble(site->stand(atStation(mother,brood,site),o.entity()).at().distanceToSqr(o.entity().position())));
+            for(var site:candidates) {
                 var helper=stand(atStation(mother,brood,site),o.entity());
-                if(!mother.life().reachable(BlockPos.containing(at),false)||!o.entity().life().reachable(BlockPos.containing(helper.at()),false))continue;
-                rendezvous=site;return;
+                var motherBox=mother.getBoundingBox().move(site.at().subtract(mother.position()));
+                if(crossesBody(o.entity(),helper.at(),motherBox)||crossesBody(mother,at,o.entity().getBoundingBox())){
+                    reason="approach_crosses_parent";continue;
+                }
+                if(paths>=8){logSiteFailure(brood,checked,paths,"path_budget");return;}
+                paths++;
+                if(!canApproach(mother,at)){reason="mother_path";continue;}
+                if(!canApproach(o.entity(),helper.at())){reason="helper_path";continue;}
+                rendezvous=site;
+                GameplayLog.event(o.entity(),"family","catch site selected brood={} mother={} station={} yaw={} helper={} checked={} paths={}",
+                        brood.id,mother.getUUID(),site.at(),site.yaw(),helper.at(),checked,paths);
+                return;
             }
         }
+        logSiteFailure(brood,checked,paths,reason);
+    }
+
+    private static boolean canApproach(YukkuriEntity actor,Vec3 at){
+        return SurfaceApproach.arrived(actor,at)||SurfaceApproach.clearLastStep(actor,at)
+                ||actor.life().reachable(BlockPos.containing(at),false);
+    }
+
+    /** Project the actor's footprint along the approach, retaining the other parent's real body clearance. */
+    private static boolean crossesBody(YukkuriEntity actor,Vec3 to,AABB body){
+        var blocked=body.inflate(actor.getBbWidth()*.5+.03,0,actor.getBbWidth()*.5+.03);
+        double y=(body.minY+body.maxY)*.5;
+        var from=new Vec3(actor.getX(),y,actor.getZ());var end=new Vec3(to.x,y,to.z);
+        // An already touching parent may walk away, but cannot cross through the other's centre to the far side.
+        if(blocked.contains(from))return blocked.contains(end)||end.subtract(body.getCenter()).dot(from.subtract(body.getCenter()))<=0;
+        return blocked.contains(end)||blocked.clip(from,end).isPresent();
+    }
+
+    private void logSiteFailure(FamilyData.Brood brood,int checked,int paths,String reason){
+        GameplayLog.limited(o.entity(),"family","catch.site_failed",200,
+                "catch site search failed brood={} reason={} checked={} paths={} dutyTicks={}",brood.id,reason,checked,paths,dutyTicks);
     }
 
     private void seekMother(YukkuriEntity mother) {
@@ -447,12 +493,29 @@ final class CatchHat {
         }
         if(mayCatch&&!o.entity().profile().aquatic()) {
             if(o.entity().distanceToSqr(mate)>64){seekMother(mate);return;}
-            if(rendezvous!=null&&!usableSite(mate,b,rendezvous))rendezvous=null;
+            if(rendezvous!=null){
+                String reason=siteRefusal(mate,b,rendezvous);
+                if(reason!=null){
+                    GameplayLog.limited(o.entity(),"family","catch.site_lost",200,
+                            "catch site invalidated brood={} reason={} station={}",b.id,reason,rendezvous.at());
+                    rendezvous=null;
+                }
+            }
             if(rendezvous==null&&dutyTicks>=nextSiteSearch){nextSiteSearch=dutyTicks+100;findSite(mate,b);}
-            if(rendezvous==null){seekMother(mate);return;}
+            if(rendezvous==null){
+                // Already nearby: make room beside her while the bounded site search retries, never seek her feet.
+                var beside=SurfaceApproach.floor(o.entity(),midwifeSpot(mate));
+                if(beside!=null&&!crossesBody(o.entity(),beside,mate.getBoundingBox()))SurfaceApproach.walk(o.entity(),beside,.8);
+                else SurfaceApproach.halt(o.entity());
+                return;
+            }
             var station=rendezvous;
             if(!SurfaceApproach.arrived(mate,station.at())||Math.abs(Mth.wrapDegrees(mate.yBodyRot-station.yaw()))>3) {
-                approachHatStand(stand(atStation(mate,b,station),o.entity()));return;
+                SurfaceApproach.halt(o.entity());
+                GameplayLog.limited(o.entity(),"family","catch.mother_approach",200,
+                        "catch waiting for mother brood={} mother={} from={} station={} yaw={} targetYaw={}",
+                        b.id,mate.getUUID(),mate.position(),station.at(),mate.yBodyRot,station.yaw());
+                return;
             }
         }
         var pose=mayCatch?catchPose(mate,b,o.entity(),HatVessel.Role.HELPER):null;
