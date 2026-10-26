@@ -10,7 +10,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 接生摘帽闪退与头饰托管初始化 | `.worktrees/birth-crash-fix` | `life/YukkuriLife.java` 构造、`headwear/HatCustody.java` 构造、待办陆 25 崩溃证据；接生走位由 `birth-approach-fix` 处理 |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 水生魔理沙模块重构（帽船、船长阶段机、席位、乘员转移、落水救助、试玩场） | `.worktrees/aquatic-rework` | `subspecies/`（帽船与水生全部）、`family/` 中帽船相关（`CatchHat`、`FamilyFlight` 出生抛射段、`LiveDelivery` 水上分娩段）、`entity/YukkuriSync` 与 `presentation/PresentationArbiter` 的转移接线、`life/WaterDistress.java`、`headwear/` 帽船托管、`command/ScenarioBoats`、`scripts/museum_scenarios.py` 池塘段、`docs/AQUATIC_MARISA_IMPLEMENTATION.md` |
