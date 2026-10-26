@@ -19,8 +19,11 @@ import net.minecraft.world.phys.Vec3;
 public final class SurfaceApproach {
     private SurfaceApproach() {}
     private record Detour(UUID peer, Vec3 peerAt, Vec3 destination, Vec3 waypoint, long until) {}
+    private record Retry(BlockPos target, Vec3 from, long after) {}
+    private enum Step { ARRIVED, MOVING, BLOCKED }
     /** Short-lived physical waypoints only; each domain still owns its agreement, deadline and outcome. */
     private static final Map<YukkuriEntity,Detour> DETOURS=new WeakHashMap<>();
+    private static final Map<YukkuriEntity,Retry> RETRIES=new WeakHashMap<>();
 
     /** Resolve the real sole height on a low nest or adjacent floor, retaining its collision shell. */
     public static Vec3 floor(YukkuriEntity actor, Vec3 near) {
@@ -179,10 +182,9 @@ public final class SurfaceApproach {
 
     private static boolean walkLeg(YukkuriEntity actor,Vec3 at,Entity other,double speed){
         if(crossesBody(actor,at,other.getBoundingBox()))return false;
-        boolean close=clearLastStep(actor,at);
-        walk(actor,at,speed);
+        var step=walkStep(actor,at,speed);
         if(pathCrosses(actor,other.getBoundingBox())){halt(actor);return false;}
-        return close||arrived(actor,at)||!actor.getNavigation().isDone();
+        return step!=Step.BLOCKED;
     }
 
     /** Walk around the partner using real supported corners; no body relocation or successful-contact substitution. */
@@ -198,7 +200,6 @@ public final class SurfaceApproach {
         if(same&&route.waypoint()==null){halt(actor);return false;}
         if(same&&!arrived(actor,route.waypoint())&&walkLeg(actor,route.waypoint(),other,speed))return false;
         DETOURS.remove(actor);
-        actor.getNavigation().stop();
         if(walkLeg(actor,destination,other,speed)){
             rememberDetour(actor,new Detour(other.getUUID(),other.position(),destination,destination,now+40));
             return false;
@@ -215,7 +216,6 @@ public final class SurfaceApproach {
         }
         corners.sort(Comparator.comparingDouble(at->actor.position().distanceTo(at)+at.distanceTo(destination)));
         for(var at:corners){
-            actor.getNavigation().stop();
             if(!walkLeg(actor,at,other,speed))continue;
             rememberDetour(actor,new Detour(other.getUUID(),other.position(),destination,at,now+40));
             GameplayLog.limited(actor,"approach","detour",200,"partner detour peer={} destination={} waypoint={}",other.getUUID(),destination,at);
@@ -233,10 +233,27 @@ public final class SurfaceApproach {
 
     /** Never substitute a straight line for a route around a step or obstruction. */
     public static boolean walk(YukkuriEntity actor, Vec3 destination, double speed) {
-        if (TravelRange.keepBabyHome(actor) && !TravelRange.babyDestination(actor,BlockPos.containing(destination))) { halt(actor); return false; }
-        if (!Reactions.Weather.allowsStep(actor, BlockPos.containing(destination))) { halt(actor); return false; }
-        if (arrived(actor, destination)) { halt(actor); return true; }
+        return walkStep(actor,destination,speed)==Step.ARRIVED;
+    }
+
+    private static Step walkStep(YukkuriEntity actor,Vec3 destination,double speed){
+        long started=System.nanoTime();
+        try{return walkStepNow(actor,destination,speed);}
+        finally{
+            long millis=(System.nanoTime()-started)/1_000_000;
+            if(millis>=50)GameplayLog.limited(actor,"approach","slow",200,
+                    "slow surface approach target={} elapsedMs={} pathDone={} horizontalCollision={}",
+                    destination,millis,actor.getNavigation().isDone(),actor.horizontalCollision);
+        }
+    }
+
+    private static Step walkStepNow(YukkuriEntity actor,Vec3 destination,double speed){
+        var target=BlockPos.containing(destination);
+        if (TravelRange.keepBabyHome(actor) && !TravelRange.babyDestination(actor,target)) { halt(actor); return Step.BLOCKED; }
+        if (!Reactions.Weather.allowsStep(actor,target)) { halt(actor); return Step.BLOCKED; }
+        if (arrived(actor, destination)) { RETRIES.remove(actor);halt(actor);return Step.ARRIVED; }
         if (clearLastStep(actor, destination)) {
+            RETRIES.remove(actor);
             actor.getNavigation().stop();
             double remaining = actor.position().distanceTo(destination);
             // Mob.setSpeed also sets its forward input; ground travel multiplies that input by
@@ -245,10 +262,25 @@ public final class SurfaceApproach {
             double modifier = Math.sqrt(Math.min(.02, remaining*.20))/Math.max(.0001, movement);
             actor.getMoveControl().setWantedPosition(destination.x, destination.y, destination.z,
                     Math.min(speed, modifier));
-        } else if (actor.getNavigation().isDone() || actor.tickCount%10==0) {
-            actor.life().navigate(BlockPos.containing(destination), speed, false);
+            return Step.MOVING;
         }
-        return false;
+        var navigation=actor.getNavigation();
+        // Keep a real in-progress route. Rebuilding it periodically can restart the same coarse node near a nest rim.
+        if(!navigation.isDone()&&target.equals(navigation.getTargetPos()))return Step.MOVING;
+        long now=actor.level().getGameTime();var retry=RETRIES.get(actor);
+        // A failed path has isDone()==true too. It must not trigger another full search on every tick.
+        if(retry!=null&&target.equals(retry.target())&&actor.position().distanceToSqr(retry.from())<.0625&&now<retry.after()){
+            stopWalking(actor);return Step.BLOCKED;
+        }
+        navigation.stop();
+        boolean accepted=actor.life().navigate(target,speed,false);
+        if(RETRIES.size()>=256)RETRIES.clear();
+        RETRIES.put(actor,new Retry(target,actor.position(),now+10));
+        if(accepted)return Step.MOVING;
+        stopWalking(actor);
+        GameplayLog.limited(actor,"approach","path_failed",200,
+                "surface path unavailable target={} retryAfter={}",destination,now+10);
+        return Step.BLOCKED;
     }
 
     /** Cancel walking input without cancelling a real push (for example, a sumo exchange). */

@@ -350,7 +350,7 @@ final class LiveDelivery {
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(o.entity().getUUID()):null;
         if(bed==null)return false;
         if(leftNest)return false;
-        if(o.entity().distanceToSqr(Vec3.atBottomCenterOf(bed))>4&&o.supported()){leftNest=true;return false;}
+        if(o.entity().distanceToSqr(Vec3.atBottomCenterOf(bed))>4&&o.supported())return finishNestExit(brood,bed);
         if(landExit==null){
             for(var side:Direction.Plane.HORIZONTAL){
                 var at=SurfaceApproach.floor(o.entity(),Vec3.atBottomCenterOf(bed.relative(side,3)));
@@ -361,14 +361,29 @@ final class LiveDelivery {
             }
         }
         if(landExit==null){GameplayLog.limited(o.entity(),"family","nest_exit_blocked",200,"near-term nest exit blocked nest={}",bed);return false;}
-        if(SurfaceApproach.walk(o.entity(),landExit,.9)){leftNest=true;return false;}return true;
+        if(SurfaceApproach.walk(o.entity(),landExit,.9))return finishNestExit(brood,bed);
+        return true;
+    }
+    private boolean finishNestExit(FamilyData.Brood brood,BlockPos bed){
+        leftNest=true;
+        GameplayLog.event(o.entity(),"family","near-term nest exit reached brood={} nest={} target={} at={}",
+                brood.id,bed,landExit,o.entity().position());
+        return false;
     }
     boolean outOfNestForTerm(){return leftNest;}
+    /** A helper observes this handoff; only the mother's movement goal may finish the actual exit. */
+    boolean leavingNestForCatcher(FamilyData.Brood brood){
+        if(leftNest||brood==null||o.boatHome()!=null)return false;
+        var care=FamilyNest.care(o.entity());var shelter=o.entity().habitat().shelter();
+        return care!=null||shelter!=null&&shelter.bed(o.entity().getUUID())!=null;
+    }
     boolean placeForTerm(FamilyData.Brood brood,HatBoatEntity boat){
         var data=FamilyData.get(o.level());
         if(boat!=null)return data.relocate(brood,o.level(),boat.blockPosition());
         var station=o.deliveryStation(brood);
         if(station!=null)return o.deliveryStationReady(brood,station)&&data.relocate(brood,o.level(),BlockPos.containing(station.at()));
+        var meeting=o.catchRendezvous(brood);
+        if(meeting!=null)return SurfaceApproach.arrived(o.entity(),meeting.at())&&data.relocate(brood,o.level(),BlockPos.containing(meeting.at()));
         // A water mother may wait for a recoverable shore/launch retry, but never silently finish this brood on land.
         if(waterBirthRequired(brood)&&nearWaterBirthTerm(brood))return false;
         if(brood.elapsed<brood.duration-NEST_GRACE)return true;

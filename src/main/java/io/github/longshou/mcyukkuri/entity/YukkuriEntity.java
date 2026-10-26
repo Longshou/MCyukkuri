@@ -570,6 +570,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if(family==null||subspecies==null||variant==null)return super.getDefaultDimensions(pose);
         return LiveBirthGeometry.bodyDimensions(this,growthScale(),livePregnancyProgress());
     }
+    @Override public boolean fudgePositionAfterSizeChange(EntityDimensions previous) {
+        // Live gestation already checks the next body at these feet. Vanilla otherwise expands and unions every
+        // nearby collision box to search for a new position on each tiny swell, even when this one fits exactly.
+        if(level().noCollision(this,getBoundingBox()))return true;
+        long started=System.nanoTime();
+        boolean moved=super.fudgePositionAfterSizeChange(previous);
+        long millis=(System.nanoTime()-started)/1_000_000;
+        if(millis>=50)GameplayLog.limited(this,"move","resize_slow",200,
+                "slow body resize oldWidth={} width={} elapsedMs={} adjusted={}",previous.width(),getBbWidth(),millis,moved);
+        return moved;
+    }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         sync().onSyncedDataUpdated(key);

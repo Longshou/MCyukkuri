@@ -202,7 +202,11 @@ final class CatchHat {
         var brim=HatVessel.brim(pose.mode());double width=Math.max(brim[0],brim[1])*unit;
         var hatBox=new AABB(pose.at().x-width,pose.at().y+.01,pose.at().z-width,
                 pose.at().x+width,pose.at().y+.3,pose.at().z+width);
-        var motherBox=mother.getBoundingBox().move(site.at().subtract(mother.position()));
+        var motherBox=brood.kind==FamilyData.BirthKind.LIVE
+                ?LiveBirthGeometry.bodyDimensions(mother,mother.growthScale(),LiveBirthGeometry.belly(1,
+                        brood.children.size()-brood.unborn(),brood.children.size())).scale(mother.getScale()).makeBoundingBox(site.at())
+                :mother.getBoundingBox().move(site.at().subtract(mother.position()));
+        if(!o.level().noCollision(mother,motherBox))return "mother_belly_room";
         var helperBox=o.entity().getBoundingBox().move(helper.at().subtract(o.entity().position()));
         // A stem hat's near brim lip may lie under her front (stemClearance); a live catch keeps the whole brim clear of her.
         double motherGap=brood.kind==FamilyData.BirthKind.STEM?stemClearance(mother,o.entity())-.01:mother.getBbWidth()*.5+width;
@@ -479,6 +483,14 @@ final class CatchHat {
         }
         if(mayCatch&&!o.entity().profile().aquatic()) {
             if(o.entity().distanceToSqr(mate)>64){seekMother(mate);return;}
+            // Do not agree on the far side of a nest while her own goal is still taking her out the other side.
+            // The ordinary duty deadline above keeps a genuinely blocked exit from holding the helper forever.
+            if(mate.family().leavingNestForCatcher(b)){
+                rendezvous=null;SurfaceApproach.halt(o.entity());
+                GameplayLog.limited(o.entity(),"family","catch.mother_exit",200,
+                        "catch waiting for nest exit brood={} mother={} motherAt={} dutyTicks={}",b.id,mate.getUUID(),mate.position(),dutyTicks);
+                return;
+            }
             if(rendezvous!=null){
                 String reason=siteRefusal(mate,b,rendezvous);
                 if(reason!=null){

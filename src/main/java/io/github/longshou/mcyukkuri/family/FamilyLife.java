@@ -312,7 +312,7 @@ public final class FamilyLife {
         var helper=catcher(entity,brood);
         return helper==null||helper==entity?null:helper.family().catchHat.deliveryStation(entity,brood);
     }
-    private DeliveryStation catchRendezvous(FamilyData.Brood brood) {
+    DeliveryStation catchRendezvous(FamilyData.Brood brood) {
         if(brood==null||entity.profile().aquatic()||withholdsCushion())return null;
         var helper=catcher(entity,brood);
         return helper==null||helper==entity?null:helper.family().catchHat.rendezvous(entity,brood);
@@ -800,6 +800,7 @@ public final class FamilyLife {
     public BlockPos birthAnchor(){var nest=nestStand();var boat=boatHome();return nest!=null?nest:boat!=null?boat.blockPosition():entity.blockPosition();}
     /** Guards a parent must pass to take a duty at the birth: the same ones the family goal applies. */
     boolean dutyReady() { return catchHat.dutyReady(); }
+    boolean leavingNestForCatcher(FamilyData.Brood brood) { return delivery.leavingNestForCatcher(brood); }
     /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
     public void comfort(YukkuriEntity baby) { delivery.comfort(baby); }
     public boolean canUse() {
