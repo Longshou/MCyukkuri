@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 
@@ -32,7 +33,7 @@ public final class HatCustody {
     /** Project balance: an observed, empty, free-floating hat that stays 96 blocks away for one minute is no longer custody. */
     private int awayTicks;
 
-    public HatCustody(YukkuriEntity owner) { this.owner = owner; }
+    public HatCustody(YukkuriEntity owner) { this.owner = Objects.requireNonNull(owner, "Hat custody requires its entity owner"); }
 
     // ---------------------------------------------------------------- pure reads
     public State state() { return state; }

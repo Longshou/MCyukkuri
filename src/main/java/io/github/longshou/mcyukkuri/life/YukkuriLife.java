@@ -72,7 +72,7 @@ public final class YukkuriLife {
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private record RuleChoice(int until, boolean follows) {}
     private final EnumMap<PetSkill, RuleChoice> ruleChoices = new EnumMap<>(PetSkill.class);
-    private final LifeAccessory accessory = new LifeAccessory(this);
+    private final LifeAccessory accessory;
     private int socialWait;
     private float dryness;
     private int drinkTicks;
@@ -100,7 +100,14 @@ public final class YukkuriLife {
     private int thirstTicks;
     private boolean severeThirst;
 
-    public YukkuriLife(YukkuriEntity entity) { this.entity = entity; temperature = new TemperatureLife(entity); personality = new YukkuriPersonality(entity); hotFloor = new HotFloorEscape(entity); }
+    public YukkuriLife(YukkuriEntity entity) {
+        this.entity = entity;
+        // Hat custody captures the owner during construction, so bind the entity first.
+        accessory = new LifeAccessory(this);
+        temperature = new TemperatureLife(entity);
+        personality = new YukkuriPersonality(entity);
+        hotFloor = new HotFloorEscape(entity);
+    }
     public HotFloorEscape hotFloor() { return hotFloor; }
     /** Project design: equal food units, smaller daily needs for smaller life stages. */
     public float nutritionDemand() { return switch(entity.family().stage()) { case BABY -> .06f; case JUVENILE -> entity.family().subadult() ? .5f : .18f; case ADULT -> 1f; }; }
