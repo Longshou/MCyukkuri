@@ -9,8 +9,9 @@ Fields hold the terrain (museum_fields.py); each scenario names its field and th
 The ``TOPICS`` mapping at the end connects user concerns to scenarios; docs/TODO.md owns progress and completion criteria.
 Scenario definitions and readouts live here; docs/DEVELOPMENT.md covers navigation and shared operations.
 """
-import sys
 import re
+import json
+import sys
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
@@ -1650,20 +1651,54 @@ add('alice_chores', 'forage', '爱丽丝持家', '爱丽丝持家',
 COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 
 
-def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=()):
+def colony_loss_prompt(sid, members_read, rules_read):
+    """A player-chosen, real death after the colony has reached the phase being observed."""
+    x, z = BIOMES.spots['plains']
+    kill = f'/execute positioned {x} {FEET} {z} run kill @e[tag=scn_lead,distance=..140,limit=1,sort=nearest]'
+    controls = [
+        {'text': '要核验族长死亡后的交接，请先观察当前组织或行军阶段，再点 ', 'color': 'gray'},
+        {'text': '[杀死族长]', 'color': 'red', 'bold': True,
+         'clickEvent': {'action': 'run_command', 'value': kill}},
+        {'text': '；随后点 ', 'color': 'gray'},
+        {'text': '[读全体身份与实际Goal]', 'color': 'aqua',
+         'clickEvent': {'action': 'run_command', 'value': f'/function mcylab:read/{sid}_{members_read}'}},
+        {'text': ' 和 ', 'color': 'gray'},
+        {'text': '[读族规、公仓与继任]', 'color': 'gold',
+         'clickEvent': {'action': 'run_command', 'value': f'/function mcylab:read/{sid}_{rules_read}'}}
+    ]
+    if sid == 'colony_ration':
+        controls += [{'text': '。若当天已盘点，族长死亡后点 ', 'color': 'gray'},
+                     {'text': '[下一天同一时刻]', 'color': 'yellow',
+                      'clickEvent': {'action': 'run_command', 'value': '/time add 24000'}}]
+    return 'tellraw @s ' + json.dumps(controls, ensure_ascii=False, separators=(',', ':'))
+
+
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False):
+    reads = list(reads)
+    controls = []
+    if leader_loss:
+        indexes = []
+        for caption, command in [('读全体成员身份与实际Goal', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
+                                 ('读族规、公仓与继任', 'yukkuri settlement rules')]:
+            index = next((i for i, (_, existing) in enumerate(reads) if existing == command), None)
+            if index is None:
+                index = len(reads)
+                reads.append((caption, command))
+            indexes.append(index)
+        controls.append(colony_loss_prompt(sid, *indexes))
     add(sid, 'biomes', title, hint, watch, wait,
         [*BIOMES.plains_site(*BIOMES.spots['plains']), *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
-         'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead'],
-        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=list(reads), retry='先“清空本场地”再按一次')
+         'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead', *controls],
+        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次')
 
 
 colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
        '有族长（帕琪）的村落：2 秒后族长召集公共狩猎，集合→出发→每只割 6 株草→返回；收获一部分上缴公仓（狩猎 1/3、家庭觅食 1/5）',
        '约 2–3 分钟', [Retry('yukkuri settlement rules hunt', COLONY_LEAD)],
-       reads=[('读族规与公仓', 'yukkuri settlement rules')])
+       reads=[('读族规与公仓', 'yukkuri settlement rules')], leader_loss=True)
 colony('colony_ration', '族规·黄昏分粮', '黄昏分粮',
        '黄昏时族长清点公仓：只给自家粮堆不够一天的“短缺户”分粮，其余不分；读数里看 SHORT 户和分配记录',
-       '几秒', [Retry('yukkuri settlement rules ration', COLONY_LEAD)], env={'time': 'dusk'})
+       '几秒', [Retry('yukkuri settlement rules ration', COLONY_LEAD)], env={'time': 'dusk'}, leader_loss=True)
 _judge = []
 for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1):
     _judge += [f'tag @e[type=#mcylab:yukkuri,tag=!scn_lead,tag=!scn_picked,nbt={{YukkuriFamily:{{Stage:"ADULT"}}}},distance=..45,limit=1,sort=random] add scn_off{_i}',
@@ -1687,7 +1722,8 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
        reads=[('读迁徙与压力（含先锋）', 'yukkuri settlement rules'),
               ('读族长新住所', 'yukkuri status @e[tag=scn_lead,limit=1,sort=nearest] raw'),
               ('读全体成员安置', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
-              ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')])
+              ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')],
+       leader_loss=True)
 
 # The same real households and stores, with dependent crawling infants as an explicit initial condition.
 _migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'

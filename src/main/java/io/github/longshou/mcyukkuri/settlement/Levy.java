@@ -34,7 +34,7 @@ public final class Levy {
     public static float rate(YukkuriEntity payer, boolean hunt) {
         if (!(payer.level() instanceof ServerLevel level)) return 0;
         var group = payer.settlement().group();
-        if (!CommunityRules.ruled(group) || SettlementData.get(level).activeLeader(group) == null || CommonStore.piles(level, group).isEmpty()) return 0;
+        if (!CommunityRules.ruled(group) || CommonStore.piles(level, group).isEmpty()) return 0;
         if (!hunt) {
             var home = payer.habitat().shelter();
             if (home != null && Rations.isShort(level, group, home)) return 0;

@@ -73,6 +73,12 @@ public final class CommonsCommands {
         out.append("community ").append(id(group.id)).append(" center ").append(group.center.toShortString())
                 .append(" leader ").append(id(SettlementData.get(level).activeLeader(group))).append(" rules ").append(c.rulesText())
                 .append(" birthLimit ").append(c.birthLimit).append('\n');
+        out.append("leadership vacancy ").append(group.vacant()).append(" former ").append(id(group.formerLeader))
+                .append(" death ").append(group.leaderDied).append(" loss_at ").append(group.leaderLossAt)
+                .append(" candidate ").append(id(group.successor)).append(" witness ").append(id(group.successionWitness))
+                .append(" confirmed ").append(group.successionTicks).append('/').append(LeaderSuccession.DELAY_TICKS)
+                .append(" meeting ").append(group.successionAt == null ? "-" : group.successionAt.toShortString())
+                .append(" attempt_left ").append(Math.max(0, group.successionUntil - now)).append('\n');
         out.append("store ").append(CommonStore.stock(level, group)).append('/').append(CommonStore.capacity(level, group))
                 .append(" piles ").append(CommonStore.piles(level, group).size()).append(CommonStore.piles(level,
                         group).stream().map(p -> " " + p.getBlockPos().toShortString() + "=" + p.food()).reduce("", String::concat)).append(" famine ").append(c.famine)
@@ -90,11 +96,13 @@ public final class CommonsCommands {
                 .append(" own ").append(r.own).append(' ').append(r.note).append('\n'));
         var h = c.hunt;
         out.append("hunt ").append(h.phase.name().toLowerCase(Locale.ROOT)).append(" chief ").append(id(h.chief))
+                .append(" departed ").append(h.departed).append(" outcome ").append(h.outcome)
                 .append(" dest ").append(h.dest == null ? "-" : h.dest.toShortString()).append(" party ").append(h.party.size())
                 .append(" done ").append(h.done.size()).append(" levy ").append(h.delivered).append(" kept ").append(h.kept).append(" today ").append(h.today).append('\n');
         for (CompoundTag record : c.hunts) out.append("  hunt day ").append(record.getLong("Day")).append(" party ").append(record.getInt("Party"))
                 .append(" defied ").append(record.getInt("Defied")).append(" levy ").append(record.getInt("Delivered")).append(" kept ").append(record.getInt("Kept"))
                 .append(" radius ").append(record.getInt("Radius")).append(" dest ").append(record.getString("Dest"))
+                .append(" departed ").append(record.getBoolean("Departed"))
                 .append(" outcome ").append(record.getString("Outcome")).append(" ticks ").append(record.getLong("Ended") - record.getLong("Called")).append('\n');
         var pressure = Migration.pressure(level, group, leader(level, group));
         out.append("migration ").append(group.migrateTo == null ? "settled" : Migration.phase(group, now).name().toLowerCase(Locale.ROOT)

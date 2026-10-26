@@ -39,6 +39,7 @@ public final class SettlementData extends SavedData {
         public Role role, previousRole;
         public int rejections;
         public long nextObservation, rememberedUntil, assignedUntil;
+        public long knownLeaderLoss;
         public UUID observer, assignedBy;
         private Member(Role role) { this.role = this.previousRole = role; }
     }
@@ -52,6 +53,8 @@ public final class SettlementData extends SavedData {
         public UUID siteId;
         /** Bank-side real forage pile serving an afloat community; null for land communities and planned granaries. */
         public BlockPos waterCommons;
+        /** A natural community's actual public pile; the address survives its keeper. */
+        public BlockPos landCommons;
         /** Standing cell of the waste pit a natural-cave community chose (GroupPits); planned sites use their own pit. */
         public BlockPos pit;
         public UUID leader;
@@ -60,8 +63,15 @@ public final class SettlementData extends SavedData {
         /** Mirrors {@link #hasLeaderOffice} for the command report. */
         public boolean led;
         public long vacantSince;
+        /** The last real office departure; only a death produces local loss news. */
+        public UUID formerLeader;
+        public long leaderLossAt;
+        public boolean leaderDied;
         public UUID successor, successionWitness;
         public int successionTicks;
+        public BlockPos successionAt;
+        public long successionUntil;
+        long successionRetry;
         // Runtime sampling anchor is deliberately not persisted: no offline catch-up.
         long lastSuccessionSample = Long.MIN_VALUE;
         private final Map<UUID, Member> members = new HashMap<>();
@@ -82,8 +92,10 @@ public final class SettlementData extends SavedData {
         /** Actual calm-water berth selected for an afloat migration; the dry {@link #migrateTo} remains the bank anchor. */
         public BlockPos migrateWater;
         public long migrateSince;
-        /** The scout that walks ahead and is the arrival pivot of the current move; null when none is chosen. */
+        /** The walking scout or own-hat captain that anchors this move, independently of the leader's office. */
         public UUID migrateVanguard;
+        /** Transient throttle for choosing a replacement hull and verifying its destination. */
+        public long migrateGuideRetry;
         /** Game time when the vanguard (or the leader, if no vanguard) first stood at the destination; 0 until then. */
         public long migrateArrivedAt;
         public final Map<UUID, Long> sighted = new HashMap<>();
@@ -325,12 +337,20 @@ public final class SettlementData extends SavedData {
         var deadlines=group.assignmentsByIssuer.get(id);return deadlines!=null&&deadlines.lastKey()>now;
     }
 
-    private void vacate(Group group, long now) {
+    private void vacate(Group group, long now) { vacate(group, now, false); }
+
+    private void vacate(Group group, long now, boolean died) {
+        if (group.leader == null) return;
         var old = group.members.get(group.leader);
         if (old != null) {
             if (old.role == Role.LEADER) old.role = Role.MEMBER;
             if (old.previousRole == Role.LEADER) old.previousRole = Role.MEMBER;
         }
+        group.formerLeader = group.leader;
+        group.leaderLossAt = Math.max(group.leaderLossAt + 1, now);
+        group.leaderDied = died;
+        retain(group.formerLeader);
+        group.commons.note(now, "leader_lost", group.leader, died ? "death" : "departure");
         group.leader = null;
         group.vacancyConfirmed = group.kind == Kind.FOREST && group.hasLeaderOffice;
         group.vacantSince = group.vacancyConfirmed ? Math.max(1, now) : 0;
@@ -339,9 +359,11 @@ public final class SettlementData extends SavedData {
     }
 
     public void resetSuccession(Group group) {
-        if (group != null && (group.successor != null || group.successionWitness != null || group.successionTicks != 0)) {
+        if (group != null && (group.successor != null || group.successionWitness != null || group.successionTicks != 0 || group.successionAt != null)) {
             group.successor = group.successionWitness = null;
             group.successionTicks = 0;
+            group.successionAt = null;
+            group.successionUntil = 0;
             setDirty();
         }
     }
@@ -418,8 +440,13 @@ public final class SettlementData extends SavedData {
         if (group == null || group.leader == null) return;
         var person = FamilyData.get(level).person(group.leader);
         if (person != null && (person.status == FamilyData.Status.DEAD || person.status == FamilyData.Status.REMOVED)) {
-            vacate(group, level.getGameTime());
+            vacate(group, level.getGameTime(), person.status == FamilyData.Status.DEAD);
         }
+    }
+
+    /** Called by the entity's once-only death path while real witnesses can still see it. */
+    void leaderDied(Group group, UUID id, long now) {
+        if (group != null && id.equals(group.leader)) vacate(group, now, true);
     }
 
     /** Danger seen near the community; migration consumes the accumulated evidence. */
@@ -443,13 +470,19 @@ public final class SettlementData extends SavedData {
             value.putLong("Center", group.center.asLong());
             if (group.siteId != null) value.putUUID("Site", group.siteId);
             if (group.waterCommons != null) value.putLong("WaterCommons", group.waterCommons.asLong());
+            if (group.landCommons != null) value.putLong("LandCommons", group.landCommons.asLong());
             if (group.pit != null) value.putLong("Pit", group.pit.asLong());
             if (group.migrateWater != null) value.putLong("MigrateWater", group.migrateWater.asLong());
             if (group.leader != null) value.putUUID("Leader", group.leader);
             value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
             value.putBoolean("VacancyConfirmed", group.vacancyConfirmed);
             value.putLong("VacantSince", group.vacantSince);
+            if (group.formerLeader != null) value.putUUID("FormerLeader", group.formerLeader);
+            value.putLong("LeaderLossAt", group.leaderLossAt);
+            value.putBoolean("LeaderDied", group.leaderDied);
             value.putInt("SuccessionTicks", group.successionTicks);
+            if (group.successionAt != null) value.putLong("SuccessionAt", group.successionAt.asLong());
+            value.putLong("SuccessionUntil", group.successionUntil);
             if (group.successor != null) value.putUUID("Successor", group.successor);
             if (group.successionWitness != null) value.putUUID("SuccessionWitness", group.successionWitness);
             value.putInt("Threat", group.threat);
@@ -473,6 +506,7 @@ public final class SettlementData extends SavedData {
                 record.putLong("NextObservation", member.nextObservation);
                 record.putLong("RememberedUntil", member.rememberedUntil);
                 record.putLong("AssignedUntil", member.assignedUntil);
+                record.putLong("KnownLeaderLoss", member.knownLeaderLoss);
                 if (member.observer != null) record.putUUID("Observer", member.observer);
                 if (member.assignedBy != null) record.putUUID("AssignedBy", member.assignedBy);
                 members.add(record);
@@ -539,9 +573,14 @@ public final class SettlementData extends SavedData {
                 group.commons.retainWith(data::retain);data.retain(group.leader);
                 if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
                 if (value.contains("WaterCommons", Tag.TAG_LONG)) group.waterCommons = BlockPos.of(value.getLong("WaterCommons"));
+                if (value.contains("LandCommons", Tag.TAG_LONG)) group.landCommons = BlockPos.of(value.getLong("LandCommons"));
                 if (value.contains("Pit", Tag.TAG_LONG)) group.pit = BlockPos.of(value.getLong("Pit"));
                 if (value.contains("MigrateWater", Tag.TAG_LONG)) group.migrateWater = BlockPos.of(value.getLong("MigrateWater"));
                 loadOffice(value, group);
+                group.formerLeader = value.hasUUID("FormerLeader") ? value.getUUID("FormerLeader") : null;
+                group.leaderLossAt = value.getLong("LeaderLossAt");
+                group.leaderDied = value.getBoolean("LeaderDied");
+                data.retain(group.formerLeader);
                 data.loadMembers(value, group);
                 // Keep malformed communities rather than delete the group and strand a noncanonical site backlink.
                 if(ambiguousSites.contains(group.id)||siteOwners.containsKey(group.id)&&!siteOwners.get(group.id).equals(group.siteId))group.rosterTrusted=false;
@@ -551,6 +590,8 @@ public final class SettlementData extends SavedData {
                         group.successor = candidate;
                         group.successionWitness = witness;
                         group.successionTicks = Math.clamp(value.getInt("SuccessionTicks"), 0, LeaderSuccession.DELAY_TICKS - 1);
+                        if (value.contains("SuccessionAt", Tag.TAG_LONG)) group.successionAt = BlockPos.of(value.getLong("SuccessionAt"));
+                        group.successionUntil = value.getLong("SuccessionUntil");
                     }
                 }
                 data.retain(group.successor);data.retain(group.successionWitness);
@@ -603,6 +644,7 @@ public final class SettlementData extends SavedData {
             member.nextObservation = Math.max(0, record.getLong("NextObservation"));
             member.rememberedUntil = Math.max(0, record.getLong("RememberedUntil"));
             member.assignedUntil = Math.max(0, record.getLong("AssignedUntil"));
+            member.knownLeaderLoss = Math.max(0, record.getLong("KnownLeaderLoss"));
             member.observer = record.hasUUID("Observer") ? record.getUUID("Observer") : null;
             member.assignedBy = record.hasUUID("AssignedBy") ? record.getUUID("AssignedBy") : null;
             forgetAssignment(group,group.members.put(id,member));rememberAssignment(group,member);

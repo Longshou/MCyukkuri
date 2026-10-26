@@ -226,6 +226,40 @@ public final class Rations {
         dailyCheck(level, group, leader);
     }
 
+    /** A willing adult can organise relief while the incumbent is absent or unable; this grants no office or judgement. */
+    static void tickEmergency(ServerLevel level, SettlementData.Group group, List<YukkuriEntity> present) {
+        if (!CommunityRules.ruled(group) || Migration.moving(group)
+                || group.commons.checkDay == level.getDayTime() / 24000 || CommonStore.piles(level, group).isEmpty()) return;
+        var leader = CommunityRules.leader(level, group);
+        if (leader != null && available(leader)
+                && (SettlementSeasons.confined(leader) || leader.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 16 * 16)) return;
+        long time = level.getDayTime() % 24000;
+        boolean urgent = present.stream().anyMatch(m -> m.life().nutrition() < 30 && mouth(m, group, level.getGameTime()).weight() > 0);
+        if (!urgent && (time < START || time >= END)) return;
+        var helper = present.stream().filter(m -> m.family().adult() && SettlementSociety.accepted(m) && available(m)
+                        && SettlementEvents.unowned(m) && !m.profile().dangerToYukkuri() && !m.profile().houseBody()
+                        && Temperament.protects(m.life().personality()) && !Levy.greedy(m)
+                        && m.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 16 * 16)
+                .min(Comparator.comparingInt((YukkuriEntity m) -> -m.life().personality().friendliness())
+                        .thenComparing(m -> m.getUUID().toString())).orElse(null);
+        if (helper == null) return;
+        group.commons.note(level.getGameTime(), "relief_delegate", helper.getUUID(),
+                "leader " + group.leader + " urgent " + urgent);
+        dailyCheck(level, group, helper);
+    }
+
+    private static boolean available(YukkuriEntity member) {
+        return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.life().isSleeping()
+                && !member.life().hasUrgentNeed() && member.life().mealTicks() == 0
+                && !member.isCommandPlaying() && !member.operations().active()
+                && !member.family().active() && !member.family().hasHungryChild()
+                && !FamilyData.get((ServerLevel)member.level()).busyParent(member.getUUID())
+                && !member.forageTrip().outing() && !member.habitat().active() && member.habitat().carrying().isEmpty()
+                && !member.independence().active() && !member.independence().householdOuting()
+                && member.independence().carrying().isEmpty() && !member.groupInteraction().active()
+                && !member.settlement().duties().active();
+    }
+
     private static final class Household {
         final ShelterBlockEntity home;
         final List<YukkuriEntity> people = new ArrayList<>();
@@ -571,7 +605,10 @@ public final class Rations {
     /** One ration portion was eaten at the store. */
     public static void ateAllowance(YukkuriEntity entity) {
         var r = ration(entity);
-        if (r != null && r.left > 0) r.left--;
+        if (r != null && r.left > 0) {
+            r.left--;
+            SettlementData.get((ServerLevel)entity.level()).setDirty();
+        }
     }
 
     /**

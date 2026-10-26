@@ -150,6 +150,8 @@ public final class Commons {
     /** The hunt in progress. Transient (not saved): a restart cancels it, the members' trips end on their own. */
     public static final class Hunt {
         public HuntPhase phase = HuntPhase.IDLE;
+        /** Only a party that actually departed counts as an outing, even if it later loses its chief. */
+        public boolean departed;
         public UUID chief;
         public BlockPos muster, dest;
         public long calledAt, departAt, deadline;

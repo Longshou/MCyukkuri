@@ -67,6 +67,7 @@ public final class SettlementSociety {
         if (entity.tickCount % 100 != 0 || !available(entity)) return;
         var group = entity.settlement().group();
         if (group == null) return;
+        LeaderSuccession.observe(entity, group);
         var data = SettlementData.get(level());
         var record = data.member(group, entity.getUUID());
         long now = level().getGameTime();

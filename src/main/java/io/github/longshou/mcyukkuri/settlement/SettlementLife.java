@@ -54,6 +54,8 @@ public final class SettlementLife {
     private Result settlementResult;
     /** Walking to a migration site lifts the ordinary 48-block return leash. */
     private boolean marching;
+    /** The ordinary settlement Goal is attending a selected local succession meeting. */
+    private boolean successionMeeting;
     /** The centre from which this member actually began the current march; retained until it has a settled outcome. */
     private GlobalPos migrationDeparture;
     /** The move (its start time) this member has already heard out at the gathering, and packed its mouthful for. */
@@ -134,10 +136,12 @@ public final class SettlementLife {
         String phase = group == null ? "none" : Migration.phase(group, entity.level().getGameTime()).name().toLowerCase(Locale.ROOT);
         String retry = settlementResult == Result.DEFERRED ? "budget:" + wait
                 : settlementResult == Result.NOT_FOUND ? "home:" + wait : "none";
+        var member = group == null ? null : SettlementData.get(level()).existingMember(group, entity.getUUID());
         return "origin=" + position(origin) + " settlingAt=" + position(settlingAt) + " result="
                 + (settlementResult == null ? "none" : settlementResult.name().toLowerCase(Locale.ROOT))
                 + " retry=" + retry + " phase=" + phase + " vanguard=" + (group != null && Migration.isVanguard(entity, group)) + " migration_care=" + entity.family().migrationCareActive()
-                + " water_ration=" + waterRationDetail();
+                + " water_ration=" + waterRationDetail() + " succession_meeting=" + successionMeeting
+                + " leader_loss_known=" + (group != null && group.leaderDied && member != null && member.knownLeaderLoss >= group.leaderLossAt);
     }
     private static String position(GlobalPos value) {
         return value == null ? "none" : value.dimension().location() + "@" + value.pos().toShortString();
@@ -303,6 +307,13 @@ public final class SettlementLife {
         wait = 80;
         var group = group();
         clearCompletedDeparture(group);
+        var meeting = LeaderSuccession.meetingTarget(entity);
+        if (meeting != null) {
+            target = meeting;
+            elapsed = 0;
+            successionMeeting = true;
+            return true;
+        }
         if (Migration.moving(group) && !SettlementSeasons.confined(entity)) {
             if (waterRationFetch != null) abortWaterRation();
             return migrate(group);
@@ -575,9 +586,9 @@ public final class SettlementLife {
         if (group.migrateWater == null || !level().hasChunkAt(group.migrateWater)) return false;
         if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.isAfloat()
                 || !entity.getUUID().equals(boat.ownerYukkuri()) || !boat.protects(entity)) return false;
-        // The leader commits the public shore anchor. Every other real hull uses a distinct berth beside that anchor,
+        // The current vanguard commits the public shore anchor. Every other hull uses a distinct berth beside it,
         // so a full family flotilla cannot all claim one water cell and prevent its own arrival.
-        BlockPos berth = entity.getUUID().equals(group.leader) ? group.migrateWater
+        BlockPos berth = Migration.isVanguard(entity, group) ? group.migrateWater
                 : Migration.waterMemberBerth(level(), group.migrateTo, group.migrateWater, boat);
         if (berth == null) return false;
         return beginAfloatRoute(group, boat, group.migrateTo, berth, true);
@@ -690,7 +701,7 @@ public final class SettlementLife {
                 || !Migration.afloat(group) || entity.isPanicking() || entity.isCommandPlaying()) return false;
         if (Migration.moving(group)) {
             if (group.migrateWater == null) return false;
-            if (entity.getUUID().equals(group.leader)) {
+            if (Migration.isVanguard(entity, group)) {
                 if (!afloatTarget.equals(group.migrateWater)) return false;
             } else if (!Migration.waterMemberBerthValid(level(), group.migrateWater,
                     entity.getVehicle() instanceof HatBoatEntity boat ? boat : null, afloatTarget)) return false;
@@ -710,7 +721,7 @@ public final class SettlementLife {
         if (Migration.waterArrived(boat, level(), water)) { settleAfloat(bank, water); return; }
         // A different hat can reach this berth first.  Stop and retry a verified neighbouring surface rather than
         // accepting an overlapping hull or silently treating anchor proximity as arrival.
-        if (Migration.moving(group) && !entity.getUUID().equals(group.leader)
+        if (Migration.moving(group) && !Migration.isVanguard(entity, group)
                 && !Migration.waterMemberBerthValid(level(), group.migrateWater, boat, water)) {
             boat.helm().drift(entity, HullHelm.Purpose.ROUTINE);
             BlockPos alternate = Migration.waterMemberBerth(level(), bank, group.migrateWater, boat);
@@ -838,6 +849,7 @@ public final class SettlementLife {
         searchDestination=null;navigationRetry=0;
     }
     public boolean canContinue() {
+        if (successionMeeting) return target != null && target.equals(LeaderSuccession.meetingTarget(entity)) && elapsed < 400;
         if (waterRationFetch != null) return waterRationCanContinue();
         if (afloatTarget != null) return canContinueAfloat();
         if (staysInFamilyNest() && !Migration.underway(entity)) return false;
@@ -858,6 +870,10 @@ public final class SettlementLife {
 
     public void tickGoal() {
         elapsed++;
+        if (successionMeeting && target != null && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 2.25) {
+            entity.getNavigation().stop();
+            return;
+        }
         if (waterRationFetch != null) { tickWaterRation(); return; }
         if (afloatTarget != null) { tickAfloatRoute(); return; }
         if(target!=null&&(elapsed%20==1||entity.getNavigation().isDone())) {
@@ -878,6 +894,7 @@ public final class SettlementLife {
         target = null;
         afloatTarget = null;
         marching = false;
+        successionMeeting = false;
         wait = 100;
         entity.getNavigation().stop();
     }
@@ -906,6 +923,7 @@ public final class SettlementLife {
         target = null;
         afloatTarget = null;
         marching = false;
+        successionMeeting = false;
         wait = elapsed = 0;
         duties.load(tag.getCompound("Duties"));
         LoadedGroupMembers.changed(entity);

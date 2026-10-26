@@ -115,11 +115,14 @@ public final class SettlementTicker {
         var level = batch.level;
         var group = batch.group;
         var data = SettlementData.get(level);
-        long now = level.getGameTime(), previous = group.lastSuccessionSample;
+        long now = level.getGameTime();
         boolean succession = LeaderSuccession.due(group, now);
         boolean sampled = false;
         for (var member : members) if (member.sampled()) { sampled = true; break; }
-        if (succession || sampled) data.refreshLeader(level, group);
+        if (succession || sampled) {
+            CommonStore.remember(level, group);
+            data.refreshLeader(level, group);
+        }
 
         List<Submission> migrants = null;
         for (var member : members) if (migrationSample(batch, member)) {
@@ -162,13 +165,17 @@ public final class SettlementTicker {
         if (leaderSample(batch, data, leader)) CommunityRules.tickLeader(leader.entity(), group);
         if (leaderSample(batch, data, leader)) Rations.tickLeader(leader.entity(), group);
         if (leaderSample(batch, data, leader)) CommonHunt.tickLeader(leader.entity(), group);
+        if (sampled) {
+            CommonHunt.advance(level, group);
+            Rations.tickEmergency(level, group, members.stream().map(Submission::entity).toList());
+        }
 
         // Succession is eligible every tick with a real participant, independently of the 100-tick sample.
         boolean current = false;
         for (var member : members) if (current(level, group, member.entity())) { current = true; break; }
         if (succession && current) {
             group.lastSuccessionSample = now;
-            LeaderSuccession.sample(level, data, group, now, previous);
+            LeaderSuccession.sample(level, data, group, now);
         }
     }
 

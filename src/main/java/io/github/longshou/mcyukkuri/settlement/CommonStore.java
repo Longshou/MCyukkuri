@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 
 /**
  * The common store (公仓) of a led community: the granary piles of its planned site, or, for a community living in
- * natural caves, the store pile of the leader's own burrow (project design: the leader keeps what the hunt brings).
+ * natural caves, a remembered real pile initially entrusted to the leader's household.
  * Only real piles in loaded chunks count; nothing here creates food.
  */
 public final class CommonStore {
@@ -27,17 +27,33 @@ public final class CommonStore {
             out.addAll(StorePiles.atSite(level, site));
             if (!out.isEmpty()) return out;
         }
-        var leader = leaderHome(level, group);
-        if (leader != null) {
-            var pile = leader.pile();
-            if (pile != null && !pile.isRemoved()) out.add(pile);
-        }
+        if (group.landCommons != null && level.hasChunkAt(group.landCommons)
+                && level.getBlockEntity(group.landCommons) instanceof ForagePileBlockEntity pile && !pile.isRemoved()) out.add(pile);
         return out;
     }
 
-    /** The leader's burrow, only while the leader is loaded (its own store is the commons of a cave community). */
+    /** Called by the group clock, never by stock queries. A change of leader does not move the food. */
+    static void remember(ServerLevel level, SettlementData.Group group) {
+        if (!CommunityRules.ruled(group) || group.waterCommons != null || group.siteId != null) return;
+        if (group.landCommons != null) {
+            if (!level.hasChunkAt(group.landCommons)) return;
+            if (level.getBlockEntity(group.landCommons) instanceof ForagePileBlockEntity pile && !pile.isRemoved()) return;
+            group.commons.note(level.getGameTime(), "store_lost", null, group.landCommons.toShortString());
+            group.landCommons = null;
+            SettlementData.get(level).setDirty();
+        }
+        var home = leaderHome(level, group);
+        if (home == null || home.getBlockPos().distSqr(group.center) > 48 * 48) return;
+        var pile = home.pile();
+        if (pile == null || pile.isRemoved()) return;
+        group.landCommons = pile.getBlockPos().immutable();
+        group.commons.note(level.getGameTime(), "store_kept", group.leader, group.landCommons.toShortString());
+        SettlementData.get(level).setDirty();
+    }
+
+    /** Read the actual burrow while the keeper is present, including the final death notification. */
     static ShelterBlockEntity leaderHome(ServerLevel level, SettlementData.Group group) {
-        if (group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity leader) || !leader.isAlive()) return null;
+        if (group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity leader)) return null;
         return leader.habitat().shelter();
     }
 

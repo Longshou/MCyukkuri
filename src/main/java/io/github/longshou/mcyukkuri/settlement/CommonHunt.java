@@ -88,18 +88,44 @@ public final class CommonHunt {
         var hunt = group.commons.hunt;
         long now = level.getGameTime(), day = level.getDayTime() / 24000;
         if (hunt.day != day) { hunt.day = day; hunt.today = 0; }
-        switch (hunt.phase) {
-            case IDLE -> { if (now - hunt.calledAt >= RETRY_TICKS) call(leader, group, false); }
-            case MUSTER -> muster(level, group, leader, now);
-            case OUT, RETURN -> {
-                boolean over = true;
-                for (UUID id : hunt.party) {
-                    if (hunt.done.contains(id)) continue;
-                    if (level.getEntity(id) instanceof YukkuriEntity m && m.isAlive() && m.forageTrip() != null && m.forageTrip().hunting()) { over = false; break; }
-                }
-                if (over || now > hunt.deadline + 2400) finish(level, group, leader, over ? (hunt.outcome.isEmpty() ? "home" : hunt.outcome) : "overdue");
-            }
+        if (hunt.phase == Commons.HuntPhase.IDLE && now - hunt.calledAt >= RETRY_TICKS) call(leader, group, false);
+    }
+
+    /** The group keeps its real party and cargo accounting even when the caller of the hunt is lost. */
+    static void advance(ServerLevel level, SettlementData.Group group) {
+        var hunt = group.commons.hunt;
+        if (hunt.phase == Commons.HuntPhase.IDLE) return;
+        long now = level.getGameTime();
+        var chief = hunt.chief != null && level.getEntity(hunt.chief) instanceof YukkuriEntity y && y.isAlive() ? y : null;
+        var known = hunt.chief == null ? null : FamilyData.get(level).person(hunt.chief);
+        boolean lost = hunt.chief == null || known != null && (known.status == FamilyData.Status.DEAD || known.status == FamilyData.Status.REMOVED)
+                || chief != null && (!group.id.equals(chief.settlement().groupId()) || !hunt.chief.equals(group.leader));
+        boolean unable = chief != null && (chief.isNoAi() || chief.isPanicking() || chief.life().isSleeping()
+                || chief.life().hasUrgentNeed() || chief.isCommandPlaying() || chief.operations().active());
+        boolean missing = chief == null && now >= (hunt.phase == Commons.HuntPhase.MUSTER ? hunt.departAt : hunt.deadline);
+        if (hunt.phase != Commons.HuntPhase.RETURN && (lost || unable || missing || now >= hunt.deadline)) {
+            hunt.phase = Commons.HuntPhase.RETURN;
+            hunt.outcome = lost ? "leader_lost" : unable ? "leader_unable" : missing ? "leader_absent" : "late";
+            hunt.deadline = Math.min(hunt.deadline, now);
+            group.commons.note(now, "hunt_recall", hunt.chief, hunt.outcome + " party " + hunt.party.size());
+            SettlementData.get(level).setDirty();
         }
+        if (hunt.phase == Commons.HuntPhase.MUSTER) {
+            if (chief != null) muster(level, group, chief, now);
+            return;
+        }
+        boolean over = true;
+        for (UUID id : hunt.party) {
+            if (hunt.done.contains(id)) continue;
+            var person = FamilyData.get(level).person(id);
+            if (person != null && (person.status == FamilyData.Status.DEAD || person.status == FamilyData.Status.REMOVED)) continue;
+            // OUT may precede a drafted member's first Goal tick. Only its done report ends that participation.
+            // On recall an idle loaded member has no trip to return; an unloaded one may still carry food.
+            if (hunt.phase == Commons.HuntPhase.OUT || !(level.getEntity(id) instanceof YukkuriEntity member)
+                    || member.forageTrip().hunting()) { over = false; break; }
+        }
+        if (over || now > hunt.deadline + 2400)
+            finish(level, group, chief, over ? (hunt.outcome.isEmpty() ? "home" : hunt.outcome) : "return_overdue:" + hunt.outcome);
     }
 
     private static boolean able(YukkuriEntity m, int famine) {
@@ -178,6 +204,7 @@ public final class CommonHunt {
             return "no_hunters";
         }
         hunt.phase = Commons.HuntPhase.MUSTER;
+        hunt.departed = false;
         hunt.chief = leader.getUUID();
         hunt.muster = group.center;
         hunt.dest = dest;
@@ -208,6 +235,7 @@ public final class CommonHunt {
         hunt.party.retainAll(here);
         if (hunt.party.size() < 2 || !hunt.party.contains(hunt.chief)) { finish(level, group, leader, "too_few"); return; }
         hunt.phase = Commons.HuntPhase.OUT;
+        hunt.departed = true;
         hunt.deadline = now + HUNT_TICKS;
         group.commons.note(now, "hunt_depart", leader.getUUID(), "party " + hunt.party.size());
     }
@@ -226,10 +254,11 @@ public final class CommonHunt {
         record.putInt("Radius", hunt.radius);
         if (hunt.dest != null) record.putString("Dest", hunt.dest.toShortString());
         record.putString("Outcome", outcome);
+        record.putBoolean("Departed", hunt.departed);
         if (hunt.chief != null) record.putUUID("Chief", hunt.chief);
         group.commons.huntRecord(record);
         group.commons.note(now, "hunt_end", hunt.chief, "party " + hunt.party.size() + " levy " + hunt.delivered + " kept " + hunt.kept + " " + outcome);
-        if (!"too_few".equals(outcome)) {
+        if (hunt.departed) {
             hunt.today++;
             boolean fruitful = hunt.delivered + hunt.kept > 0;
             group.commons.outing(fruitful);

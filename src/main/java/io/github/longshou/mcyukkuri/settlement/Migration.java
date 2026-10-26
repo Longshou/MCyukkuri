@@ -25,6 +25,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
@@ -125,7 +126,7 @@ final class Migration {
 
     /** A member berth remains valid only while it stays on the anchor's real water area and no other hull occupies it. */
     static boolean waterMemberBerthValid(ServerLevel level, BlockPos anchor, HatBoatEntity boat, BlockPos berth) {
-        return anchor != null && berth != null && !berth.equals(anchor) && berth.distSqr(anchor) <= ARRIVE_RANGE * ARRIVE_RANGE
+        return boat != null && anchor != null && berth != null && !berth.equals(anchor) && berth.distSqr(anchor) <= ARRIVE_RANGE * ARRIVE_RANGE
                 && HatBoatRoute.calmSurface(level, berth) && waterHullFits(level, boat, berth);
     }
 
@@ -188,6 +189,10 @@ final class Migration {
         if (!(victim.level() instanceof ServerLevel level)) return;
         var group = victim.settlement().group();
         if (group == null || group.kind == SettlementData.Kind.BANDITS) return;
+        if (victim.getUUID().equals(group.leader)) {
+            CommonStore.remember(level, group);
+            LeaderSuccession.died(victim, group);
+        }
         String cause;
         if (source.getEntity() instanceof YukkuriEntity killer && killer.profile().dangerToYukkuri()) cause = "predator";
         else if (source.getEntity() instanceof YukkuriEntity killer && group.id.equals(killer.settlement().groupId())) cause = "kin";
@@ -216,7 +221,8 @@ final class Migration {
                 return;
             }
             var phase = phase(group, now);
-            if (!afloat(group)) trackPioneer(level, group, phase, now);
+            if (afloat(group)) refreshWaterVanguard(level, group, now);
+            else trackPioneer(level, group, phase, now);
             var logged=LOGGED_PHASES.get(group);
             if(logged==null||logged.startedAt()!=group.migrateSince||logged.phase()!=phase) {
                 GameplayLog.world(level,"settlement","migration phase={} group={} origin={} destination={} elapsed={}",
@@ -240,7 +246,7 @@ final class Migration {
 
     // ---- vanguard ---------------------------------------------------------------------------------------------------
 
-    /** The scout of the current land move if it is still a loaded, living, participating member. */
+    /** The scout or own-hat captain of the current move, still loaded, living and participating. */
     static YukkuriEntity vanguard(ServerLevel level, SettlementData.Group group) {
         if (group.migrateVanguard == null) return null;
         return level.getEntity(group.migrateVanguard) instanceof YukkuriEntity scout && scout.isAlive()
@@ -248,6 +254,42 @@ final class Migration {
     }
     static boolean isVanguard(YukkuriEntity entity, SettlementData.Group group) {
         return group.migrateVanguard != null && group.migrateVanguard.equals(entity.getUUID());
+    }
+
+    /** A physical captain can take the route, never another member's hat or the vacant office. */
+    private static boolean waterCaptain(YukkuriEntity member, SettlementData.Group group) {
+        var boat = waterBoat(member);
+        return member != null && member.isAlive() && member.family().adult() && joins(member, group)
+                && !member.isNoAi() && !member.isPanicking() && !member.life().hasUrgentNeed()
+                && !member.life().isSleeping() && !member.isCommandPlaying() && !member.operations().active()
+                && boat != null && !boat.unsteadyMotion() && boat.flooding() == 0 && !boat.landing() && !boat.hasIncoming();
+    }
+
+    private static void refreshWaterVanguard(ServerLevel level, SettlementData.Group group, long now) {
+        var current = vanguard(level, group);
+        if (current != null && waterCaptain(current, group)) return;
+        if (now < group.migrateGuideRetry || !level.hasChunkAt(group.migrateTo)) return;
+        group.migrateGuideRetry = now + 200;
+        var area = new AABB(group.center).minmax(new AABB(group.migrateTo)).inflate(72);
+        var captains = LoadedGroupMembers.query(level, group.id, area, member -> waterCaptain(member, group)).stream()
+                .sorted(Comparator.comparingDouble((YukkuriEntity member) -> member.distanceToSqr(Vec3.atCenterOf(group.migrateTo)))
+                        .thenComparing(member -> member.getUUID().toString())).toList();
+        if (captains.isEmpty()) return;
+        // Prefer a hull that fits the existing anchor; at most one new bank search per retry.
+        var captain = captains.stream().filter(member -> group.migrateWater != null
+                && HatBoatRoute.calmSurface(level, group.migrateWater)
+                && waterHullFits(level, waterBoat(member), group.migrateWater)).findFirst().orElse(captains.getFirst());
+        var boat = waterBoat(captain);
+        var water = group.migrateWater;
+        if (water == null || !HatBoatRoute.calmSurface(level, water) || !waterHullFits(level, boat, water))
+            water = waterDestination(level, group.migrateTo, boat);
+        if (water == null || waterCommons(level, group.migrateTo, water) == null) return;
+        UUID previous = group.migrateVanguard;
+        group.migrateVanguard = captain.getUUID();
+        group.migrateWater = water;
+        SettlementData.get(level).setDirty();
+        GameplayLog.event(captain, "settlement", "water migration handoff group={} previous={} captain={} boat={} anchor={}",
+                group.id, previous, captain.getUUID(), boat.getUUID(), water);
     }
 
     /** Marisa goes first (bold, sturdy, not frail); without one the sturdiest healthy adult; a frail Patchouli only if nobody else can. */
@@ -497,7 +539,8 @@ final class Migration {
         if (afloat(group) && (water == null || waterCommons(level, site, water) == null)) { releaseTarget(data, group, site); return Result.NOT_FOUND; }
         var c = group.commons;
         group.migrateTo = site; group.migrateWater = water; group.migrateSince = now;
-        group.migrateVanguard = null; group.migrateArrivedAt = 0;
+        group.migrateVanguard = afloat(group) ? leader.getUUID() : null; group.migrateArrivedAt = 0;
+        group.migrateGuideRetry = 0;
         c.migrateReason = reason;
         c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
         data.setDirty();
@@ -562,10 +605,8 @@ final class Migration {
         BlockPos arrival = afloat(group) ? group.migrateWater : group.migrateTo;
         if (arrival == null) return false;
         if (afloat(group)) {
-            if (group.leader == null || !(level.getEntity(group.leader) instanceof YukkuriEntity chief) || !chief.isAlive()
-                    || !group.id.equals(chief.settlement().groupId())) return false;
-            var leaderHat = chief.habitat().waterHome();
-            if (!waterArrived(leaderHat, level, arrival)) return false;
+            var captain = vanguard(level, group);
+            if (captain == null || !waterArrived(waterBoat(captain), level, arrival)) return false;
             int total = 0, there = 0;
             var travelledArea = new AABB(group.migrateTo).minmax(new AABB(group.center)).inflate(72);
             for (YukkuriEntity e : LoadedGroupMembers.query(level, group.id, travelledArea,
@@ -707,6 +748,7 @@ final class Migration {
         c.note(now, "migrate_done", caller.getUUID(), c.migrateReason + " at " + group.migrateTo.toShortString() + " after " + (now - group.migrateSince) + " ticks");
         LOGGED_PHASES.remove(group);
         group.center = group.migrateTo; group.migrateTo = null; group.migrateWater = null; group.migrateSince = 0;
+        group.landCommons = null;
         group.migrateVanguard = null; group.migrateArrivedAt = 0;
         group.threat = 0; group.threatPos = null; group.sighted.clear();
         group.gatherUntil = 0; group.snowing = false; group.migrateRetry = now + REVIEW_TICKS;
