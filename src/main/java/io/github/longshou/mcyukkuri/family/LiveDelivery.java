@@ -503,11 +503,13 @@ final class LiveDelivery {
         double near=(o.entity().getBbWidth()+baby.getBbWidth())*.5+.12;
         var away=o.entity().position().subtract(baby.position()).multiply(1,0,1);
         double gap=away.length();
-        var side=gap>1.0e-3?away.scale(1/gap):new Vec3(0,0,1);
-        if(gap>near+.2){
+        if(gap>near+.2||Math.abs(o.entity().getY()-baby.getY())>.35||!o.entity().hasLineOfSight(baby)
+                ||!o.supported()||!baby.family().supported()){
             comfortNear=0;
             o.entity().getLookControl().setLookAt(baby,20,20);
-            SurfaceApproach.walk(o.entity(),baby.position().add(side.scale(near)),1.1);
+            var stand=SurfaceApproach.beside(o.entity(),baby,near,.35);
+            if(stand==null)SurfaceApproach.halt(o.entity());
+            else SurfaceApproach.walkAround(o.entity(),stand,baby,1.1);
             return;
         }
         SurfaceApproach.halt(o.entity());

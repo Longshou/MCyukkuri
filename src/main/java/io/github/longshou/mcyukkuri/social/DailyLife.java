@@ -273,18 +273,17 @@ public final class DailyLife {
             boolean touching = entity.distanceToSqr(other) <= reach * reach
                     && Math.abs(entity.getY() - other.getY()) < .35;
             if (!touching) {
-                // Path nodes end up to ~0.55 block short of the target block centre, which is farther than body contact:
-                // the last stretch on a clear, level surface is steered directly, as in other close approaches.
-                double flat = Math.sqrt((entity.getX() - other.getX()) * (entity.getX() - other.getX())
-                        + (entity.getZ() - other.getZ()) * (entity.getZ() - other.getZ()));
-                if (flat < 2.0 && entity.onGround() && Math.abs(entity.getY() - other.getY()) < .35
-                        && SurfaceApproach.supported(entity, entity.position())) {
-                    entity.getNavigation().stop();
-                    entity.getMoveControl().setWantedPosition(other.getX(), entity.getY(), other.getZ(), .6);
-                } else if (current.elapsed % 10 == 0 && !entity.life().navigate(other.blockPosition(), .8, false)) { stop(); return; }
-                if (current.leader == entity) { current.contact = 0; current.elapsed++; }
+                // One member approaches the consenting partner. Two centre-seeking controllers otherwise push
+                // each other past their contact envelope, especially when their bodies meet diagonally.
+                if(current.leader==entity){
+                    var stand=SurfaceApproach.beside(entity,other,reach-.04,.35,reach);
+                    if(stand==null)SurfaceApproach.halt(entity);
+                    else SurfaceApproach.walkAround(entity,stand,other,.8);
+                    current.contact=0;current.elapsed++;
+                }else SurfaceApproach.halt(entity);
                 return;
             }
+            SurfaceApproach.halt(entity);
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();

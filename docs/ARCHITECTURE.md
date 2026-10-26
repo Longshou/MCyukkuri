@@ -50,7 +50,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 
 普通显示依次处理病态、水中、进食、睡眠／排泄、家庭持续状态、实际运行 Goal，最后是家庭／新生儿兜底。`Presentation` 选中后立即执行一次，不能预算全部候选而改变时序。命令、飞行等仍可覆盖动作。
 
-`RoamingGoal` 保存普通闲逛与子油探险的瞬态行程，仅真实运行时参与亲子会合半径与显示，不新增存档副本。`YukkuriGroundNavigation` 使用独立的64格路径预算，不改攻击感知属性；节点检查避雨偏好与赤油巢边范围，`SurfaceApproach` 的最后一步沿用相同约束。
+`RoamingGoal` 保存普通闲逛与子油探险的瞬态行程，仅真实运行时参与亲子会合半径与显示，不新增存档副本。`YukkuriGroundNavigation` 使用独立的64格路径预算，不改攻击感知属性；节点检查避雨偏好与赤油巢边范围，`SurfaceApproach` 的最后一步沿用相同约束；其接触站位与绕行接口同时检查互动对象的身体占位和路径节点，拐点只缓存短期物理行程，不保存、不持有业务阶段。调用方继续拥有接触判定、超时和结果；`walk`／`walkAround` 返回是否到位，不能将未到位当成路径失败。相扑等需保留外力的交接使用 `stopWalking` 清除行走输入，普通原地停止使用 `halt`。
 
 `PresentationGoals` 只筛同一已注册实例的 `WrappedGoal.isRunning()`，按真实 priority 与注册序排序；不调用 `canUse`、`canContinueToUse` 或 `plan`。计划或阶段残留不构成显示资格。真实等待可显示行为 ID 而不移动；ID 使用 `Behaviors`，动作使用 `YukkuriAction`。
 

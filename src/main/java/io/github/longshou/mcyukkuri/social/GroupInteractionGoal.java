@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -165,8 +166,12 @@ public final class GroupInteractionGoal extends Goal {
         entity.getLookControl().setLookAt(peer,30,30);
         double contact=(entity.getBbWidth()+peer.getBbWidth())*.5+.15;
         if(entity.distanceToSqr(peer)>contact*contact) {
-            if(current.ticks%10==0&&!entity.life().navigate(peer.blockPosition(),.8,false)){stop();return;}
-        } else entity.getNavigation().stop();
+            if(entity==current.first){
+                var stand=SurfaceApproach.beside(entity,peer,contact-.05,.25,contact);
+                if(stand==null)SurfaceApproach.halt(entity);
+                else SurfaceApproach.walkAround(entity,stand,peer,.8);
+            }else SurfaceApproach.stopWalking(entity);
+        } else SurfaceApproach.stopWalking(entity);
         if(entity!=current.first)return;
         current.ticks++;
         if(entity.distanceToSqr(peer)>contact*contact)return;

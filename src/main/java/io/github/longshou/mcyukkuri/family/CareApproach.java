@@ -87,7 +87,7 @@ public final class CareApproach {
         if (!waiting()) return;
         var session = incoming;
         if (session.places==null || owner.life().mealTicks()>0) SurfaceApproach.halt(owner);
-        else if (SurfaceApproach.walk(owner, session.places.child(), .65)) {
+        else if (SurfaceApproach.walkAround(owner, session.places.child(), session.owner, .65)) {
             float yaw = SurfaceApproach.yaw(owner.position(), session.owner.position());
             SurfaceApproach.face(owner, session.kind==Kind.REAR ? yaw+180 : yaw);
         }
@@ -148,7 +148,7 @@ public final class CareApproach {
         if (child.position().distanceToSqr(places.child())>16) return fail("child_left_meeting");
         boolean ready = SurfaceApproach.arrived(child, places.child());
         if (!ready) { SurfaceApproach.halt(owner); return Result.APPROACHING; }
-        if (!SurfaceApproach.walk(owner, places.parent(), .9)) return Result.APPROACHING;
+        if (!SurfaceApproach.walkAround(owner, places.parent(), child, .9)) return Result.APPROACHING;
         float towardChild = SurfaceApproach.yaw(owner.position(), child.position());
         SurfaceApproach.face(owner, towardChild);
         SurfaceApproach.face(child, kind==Kind.FEED ? towardChild+180 : towardChild);
@@ -198,7 +198,7 @@ public final class CareApproach {
             var at=SurfaceApproach.floor(child,Vec3.atBottomCenterOf(pos));
             if(at==null)continue;
             if (at.distanceToSqr(child.position())>12 || !child.childhood().canJump() && at.y>child.getY()+.1) continue;
-            if (SurfaceApproach.supported(child, at) && child.life().reachable(pos,false)) candidates.add(at);
+            if (SurfaceApproach.supported(child, at) && SurfaceApproach.canApproach(child,at)) candidates.add(at);
         }
         candidates.sort(Comparator.comparingDouble(at->at.distanceToSqr(child.position())));
         for (var at:candidates) { var plan=around(at); if (plan!=null) return plan; }
@@ -215,7 +215,7 @@ public final class CareApproach {
                 double mouthDelta=(at.y+owner.getBbHeight()*.5)-(childFeet.y+child.getBbHeight()*.5);
                 if (kind==Kind.FEED ? Math.abs(mouthDelta)>FamilyFeedingContact.MAX_MOUTH_HEIGHT_DELTA : Math.abs(at.y-childFeet.y)>.18) continue;
                 if (rejected.stream().anyMatch(old->old.distanceToSqr(at)<.04)) continue;
-                if (SurfaceApproach.supported(owner,at) && owner.life().reachable(BlockPos.containing(at),false)) candidates.add(at);
+                if (SurfaceApproach.supported(owner,at) && SurfaceApproach.canApproach(owner,at)) candidates.add(at);
             }
         }
         return candidates.stream().min(Comparator.comparingDouble(at->owner.position().distanceToSqr(at)))

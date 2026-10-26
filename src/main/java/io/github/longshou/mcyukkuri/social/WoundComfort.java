@@ -74,12 +74,13 @@ public final class WoundComfort {
     public boolean groundLicking() { return licking() && !session.afloat(); }
     public boolean groundReceiving() { return receiving() && !session.afloat(); }
     /** True while a comforting lick is touching the wounded one. */
-    public boolean inContact() { return active() && session.contact > 0; }
+    public boolean inContact() { return active() && session.contact > 0 && session.apart == 0; }
     /** Recently comforted: the cry gives way to a calmer face and the one is not licked again for a while. */
     public boolean soothed() { return relief > 0; }
     public int victimId() { return licking() ? session.victim.getId() : -1; }
-    public float contactProgress() { return licking() ? Math.min(1f, session.contact / 20f) : 0f; }
-    public String activity() { return !active() ? Behaviors.IDLE : licking() ? Behaviors.COMFORT_LICK : Behaviors.COMFORT_RECEIVE; }
+    public float contactProgress() { return licking() && inContact() ? Math.min(1f, session.contact / 20f) : 0f; }
+    public String activity() { return !active() ? Behaviors.IDLE : licking()
+            ? inContact()?Behaviors.COMFORT_LICK:Behaviors.CAREGIVER : Behaviors.COMFORT_RECEIVE; }
 
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
@@ -406,7 +407,8 @@ public final class WoundComfort {
         if (s.contact == 0 && !touching(s)) {
             if (s.elapsed > APPROACH_LIMIT) { failed(); return; }
             var spot = FamilyFeedingContact.approachSpot(entity, victim);
-            if (SurfaceApproach.walk(entity, spot, .9)
+            if(spot==null){SurfaceApproach.halt(entity);return;}
+            if (SurfaceApproach.walkAround(entity, spot, victim, .9)
                     || entity.position().subtract(victim.position()).multiply(1, 0, 1).length() < FamilyFeedingContact.mouthDistance(entity, victim) + .3) {
                 FamilyFeedingContact.faceEachOther(entity, victim);
             }

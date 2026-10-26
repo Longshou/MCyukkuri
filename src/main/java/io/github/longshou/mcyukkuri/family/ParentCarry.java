@@ -430,7 +430,12 @@ public final class ParentCarry {
         if (!inReach(child)) {
             lift = 0;
             lifting = null;
-            if (taskTicks % 10 == 1 && !carrier.life().navigate(child.blockPosition(), 1.1, false)) return Step.FAILED;
+            var stand=SurfaceApproach.beside(carrier,child,(carrier.getBbWidth()+child.getBbWidth())*.5+.15,1.2);
+            if(stand==null){
+                GameplayLog.limited(carrier,"family","carry.approach",200,"carry pickup refused child={} reason=no_supported_contact_stand",child.getUUID());
+                return Step.FAILED;
+            }
+            SurfaceApproach.walkAround(carrier,stand,child,1.1);
             return Step.WORKING;
         }
         carrier.getNavigation().stop();

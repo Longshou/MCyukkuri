@@ -63,7 +63,9 @@ public final class EcologyMovement {
         if (hat == null) {
             Vec3 at = target instanceof YukkuriEntity other
                     ? FamilyFeedingContact.approachSpot(actor, other) : target.position();
-            return !actor.isPassenger() && SurfaceApproach.walk(actor, at, speed);
+            if(at==null){SurfaceApproach.halt(actor);return false;}
+            return !actor.isPassenger() && (target instanceof YukkuriEntity
+                    ?SurfaceApproach.walkAround(actor,at,target,speed):SurfaceApproach.walk(actor,at,speed));
         }
         if (!supported(actor)) return false;
         if (target instanceof YukkuriEntity other && other.getVehicle() == hat) {

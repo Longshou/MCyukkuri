@@ -15,12 +15,10 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -227,7 +225,14 @@ public final class IndependenceLife extends Goal {
         }
         var stand = contactStand(parent);
         if (contact == 0 && (stand == null || elapsed > FAREWELL_LIMIT)) { leave(); stop(); return; }
-        if (contact == 0 && !SurfaceApproach.arrived(entity, stand)) { approach(stand); return; }
+        double reach=(entity.getBbWidth()+parent.getBbWidth())*.5+.2;
+        boolean close=entity.position().subtract(parent.position()).horizontalDistanceSqr()<=reach*reach
+                &&Math.abs(entity.getY()-parent.getY())<.35&&entity.hasLineOfSight(parent);
+        if(stand==null||contact==0&&!SurfaceApproach.arrived(entity,stand)||contact>0&&!close){
+            if(elapsed>FAREWELL_LIMIT){leave();stop();return;}
+            if(stand!=null)approach(stand,parent);else SurfaceApproach.halt(entity);
+            return;
+        }
         SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(parent, 25, 25);
         if (!parent.life().isSleeping()) parent.getLookControl().setLookAt(entity, 25, 25);
@@ -307,20 +312,14 @@ public final class IndependenceLife extends Goal {
             entity.settlement().establishHousehold(home);
     }
     private Vec3 contactStand(YukkuriEntity other) {
-        var candidates = new ArrayList<Vec3>();
         double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .15;
-        for (var direction : Direction.Plane.HORIZONTAL)
-            candidates.add(other.position().add(direction.getStepX() * reach, 0, direction.getStepZ() * reach));
-        candidates.sort(Comparator.comparingDouble(entity::distanceToSqr));
-        for (var stand : candidates) if (SurfaceApproach.supported(entity, stand) && entity.life().reachable(BlockPos.containing(stand), false)) return stand;
-        return null;
+        return SurfaceApproach.beside(entity,other,reach,.35);
     }
-    private void approach(Vec3 destination) {
+    private void approach(Vec3 destination,YukkuriEntity parent) {
         if (target == null || target.distanceToSqr(destination) > .0025) { target = destination; progress = entity.position(); stalled = 0; }
         if (progress == null || entity.position().distanceToSqr(progress) > .0036) { progress = entity.position(); stalled = 0; } else stalled++;
         if (stalled >= 120) { elapsed = FAREWELL_LIMIT; return; }
-        if (SurfaceApproach.clearLastStep(entity, destination)) { SurfaceApproach.walk(entity, destination, .8); return; }
-        if (entity.getNavigation().isDone() || entity.tickCount % 20 == 0) entity.life().navigate(BlockPos.containing(destination), .8, false);
+        SurfaceApproach.walkAround(entity,destination,parent,.8);
     }
     @Override public void stop() {
         // A farewell that was already heard by the parent is not taken back by an interruption: the leaving goes ahead.

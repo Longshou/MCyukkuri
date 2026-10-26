@@ -171,7 +171,8 @@ final class CatchHat {
     }
 
     private boolean approachHatStand(Stand stand){
-        boolean arrived=SurfaceApproach.walk(o.entity(),stand.at(),.8);
+        boolean arrived=o.target()!=null&&!o.entity().profile().aquatic()
+                ?SurfaceApproach.walkAround(o.entity(),stand.at(),o.target(),.8):SurfaceApproach.walk(o.entity(),stand.at(),.8);
         if(!arrived)GameplayLog.limited(o.entity(),"family","catch.approach",200,
                 "catch stand approaching brood={} mother={} from={} target={} pathDone={} horizontalCollision={}",
                 dutyBrood,o.target()==null?null:o.target().getUUID(),o.entity().position(),stand.at(),
@@ -229,14 +230,14 @@ final class CatchHat {
             candidates.sort(Comparator.comparingDouble(site->stand(atStation(mother,brood,site),o.entity()).at().distanceToSqr(o.entity().position())));
             for(var site:candidates) {
                 var helper=stand(atStation(mother,brood,site),o.entity());
-                var motherBox=mother.getBoundingBox().move(site.at().subtract(mother.position()));
-                if(crossesBody(o.entity(),helper.at(),motherBox)||crossesBody(mother,at,o.entity().getBoundingBox())){
+                // The helper can take a real detour after she settles; her initial walk must leave his body clear.
+                if(SurfaceApproach.crossesBody(mother,at,o.entity().getBoundingBox())){
                     reason="approach_crosses_parent";continue;
                 }
                 if(paths>=8){logSiteFailure(brood,checked,paths,"path_budget");return;}
                 paths++;
-                if(!canApproach(mother,at)){reason="mother_path";continue;}
-                if(!canApproach(o.entity(),helper.at())){reason="helper_path";continue;}
+                if(!SurfaceApproach.canApproach(mother,at)){reason="mother_path";continue;}
+                if(!SurfaceApproach.canApproach(o.entity(),helper.at())){reason="helper_path";continue;}
                 rendezvous=site;
                 GameplayLog.event(o.entity(),"family","catch site selected brood={} mother={} station={} yaw={} helper={} checked={} paths={}",
                         brood.id,mother.getUUID(),site.at(),site.yaw(),helper.at(),checked,paths);
@@ -244,21 +245,6 @@ final class CatchHat {
             }
         }
         logSiteFailure(brood,checked,paths,reason);
-    }
-
-    private static boolean canApproach(YukkuriEntity actor,Vec3 at){
-        return SurfaceApproach.arrived(actor,at)||SurfaceApproach.clearLastStep(actor,at)
-                ||actor.life().reachable(BlockPos.containing(at),false);
-    }
-
-    /** Project the actor's footprint along the approach, retaining the other parent's real body clearance. */
-    private static boolean crossesBody(YukkuriEntity actor,Vec3 to,AABB body){
-        var blocked=body.inflate(actor.getBbWidth()*.5+.03,0,actor.getBbWidth()*.5+.03);
-        double y=(body.minY+body.maxY)*.5;
-        var from=new Vec3(actor.getX(),y,actor.getZ());var end=new Vec3(to.x,y,to.z);
-        // An already touching parent may walk away, but cannot cross through the other's centre to the far side.
-        if(blocked.contains(from))return blocked.contains(end)||end.subtract(body.getCenter()).dot(from.subtract(body.getCenter()))<=0;
-        return blocked.contains(end)||blocked.clip(from,end).isPresent();
     }
 
     private void logSiteFailure(FamilyData.Brood brood,int checked,int paths,String reason){
@@ -505,7 +491,7 @@ final class CatchHat {
             if(rendezvous==null){
                 // Already nearby: make room beside her while the bounded site search retries, never seek her feet.
                 var beside=SurfaceApproach.floor(o.entity(),midwifeSpot(mate));
-                if(beside!=null&&!crossesBody(o.entity(),beside,mate.getBoundingBox()))SurfaceApproach.walk(o.entity(),beside,.8);
+                if(beside!=null)SurfaceApproach.walkAround(o.entity(),beside,mate,.8);
                 else SurfaceApproach.halt(o.entity());
                 return;
             }

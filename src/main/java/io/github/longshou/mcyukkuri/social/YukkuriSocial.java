@@ -249,8 +249,9 @@ public final class YukkuriSocial {
             if (elapsed < watchTicks) { EcologyMovement.halt(entity); return; }
         }
         if (entity.distanceToSqr(target) > 2.25) {
-            if (elapsed % 10 == 1 && !EcologyMovement.approach(entity, target, 1.0)
-                    && EcologyMovement.boat(entity)==null) stop();
+            // approach reports arrival, not path acceptance. A walking partner must keep its goal until contact,
+            // the existing duration limit or a real interruption, rather than abort on the first moving tick.
+            if (elapsed % 10 == 1) EcologyMovement.approach(entity, target, 1.0);
             return;
         }
         EcologyMovement.halt(entity);
@@ -300,6 +301,9 @@ public final class YukkuriSocial {
         observedDistance = entity.distanceTo(other);
     }
     public void stop() {
+        if(task==Task.PLAYER||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
+                "social contact ended target={} greeted={} retreat={} elapsed={}/{}",
+                target==null?null:target.getUUID(),greeted,retreat,elapsed,duration);
         if(task==Task.TEACH||task==Task.WAIT)GameplayLog.event(entity,"lesson",
                 "social lesson stopped task={} teacher={} elapsed={} duration={} segments={} knownWait={}",
                 task,target==null?null:target.getUUID(),elapsed,duration,task==Task.TEACH?lessonSegments:0,personality().knowsWait());
