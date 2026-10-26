@@ -4,7 +4,7 @@
   "entities": {
     "remilia": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
-      "selected_model_sha256": "0a27e0f9ccb0458c33f0ceeafe4b16e0203ad3cb4a3218a572a03f58abc4250c",
+      "selected_model_sha256": "abd0d9f323a9229f3d7d5550d4ee96857887afa4cfb9be76c22ffc78a77bd320",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
       "selected_rig_sha256": "3649e0e5e7cbe8c9063627afe56d607141336ea4333dce5c8d7ec4d6e43f36b9",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
@@ -12,7 +12,7 @@
       "snapshot": "art/source/standard-runtime/remilia/remilia.bbmodel",
       "rig": "art/source/standard-runtime/remilia/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "runtime_sha256": "91018f0b6723a9baec0d6526c75f52e7a92e9a9f086b9d598d76552a8c66f5e3",
+      "runtime_sha256": "21fa24a0bb0b7e89713da089e2df4fd648ff7aa48ec9781bad8a064a1180dc60",
       "geometry_identifier": "remilia",
       "bone_count": 266,
       "clips": [
@@ -113,7 +113,7 @@
     },
     "flandre": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
-      "selected_model_sha256": "c7ed9a3f1fa962f71f1717c26a9073b02f050ec46cc0a297548d0ee9fef5eb0f",
+      "selected_model_sha256": "4982b2c8710833fd6ca02b3a9ad836e2188b3fa2b5143b80dd33548e8f3dcbf4",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
       "selected_rig_sha256": "fa73f4d0938009eb40704d0f86e8a05cde6820181c0eb8d7885d44ae36a5a70e",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
@@ -121,7 +121,7 @@
       "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
       "rig": "art/source/standard-runtime/flandre/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "runtime_sha256": "2ea47eca3fe942b520ca48a123d12af3cc9856d622e8127d7ce0db4f623854f1",
+      "runtime_sha256": "39750152e2c3bf7810d24e3d32711f6f0816c3c42253b1ff43cd4790737cbcce",
       "geometry_identifier": "flandre",
       "bone_count": 274,
       "clips": [

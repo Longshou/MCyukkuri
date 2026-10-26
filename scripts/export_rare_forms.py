@@ -58,9 +58,20 @@ def styled(path, value, container=(), keys=()):
     original = json.loads(old)
     for ascii_only in (False, True):
         for style in STYLES:
-            for newline in (chr(10), ''):
-                if (json.dumps(original, ensure_ascii=ascii_only, **style) + newline).encode('utf-8') == old:
-                    return (json.dumps(value, ensure_ascii=ascii_only, **style) + newline).encode('utf-8')
+            for newline in (chr(10), '\r\n', ''):
+                rendered = json.dumps(original, ensure_ascii=ascii_only, **style) + newline
+                if newline == '\r\n': rendered = rendered.replace('\n', '\r\n')
+                if rendered.encode('utf-8') == old:
+                    result = json.dumps(value, ensure_ascii=ascii_only, **style) + newline
+                    if newline == '\r\n': result = result.replace('\n', '\r\n')
+                    return result.encode('utf-8')
+    if old.startswith((b'{\n', b'{\r\n')):
+        newline = '\r\n' if old.startswith(b'{\r\n') else '\n'
+        lines = old.splitlines()
+        indent = len(lines[1]) - len(lines[1].lstrip()) if len(lines) > 1 else 2
+        result = json.dumps(value, ensure_ascii=False, indent=indent) + newline
+        if newline == '\r\n': result = result.replace('\n', '\r\n')
+        return result.encode('utf-8')
     body = old.decode('utf-8')
     tail = body[len(body.rstrip()):]
     body = body.rstrip()
@@ -239,7 +250,12 @@ def outputs():
         if fit is not None:
             fit = copy.deepcopy(fit)
             fit['base_sha256'] = digest
-            fit['parts'] = [p for p in fit['parts'] if p['name'] not in changed]
+            part_indices = {p['name']: i for i, p in enumerate(model['parts'])}
+            fit['parts'] = [p for p in fit['parts'] if p['name'] not in changed and p['name'] in part_indices]
+            for part in fit['parts']:
+                part['part_index'] = part_indices[part['name']]
+                if len(part['indices']) != model['parts'][part['part_index']]['count']:
+                    part['inplace'] = False
             staged['placement_fit']['models'][form] = fit
         living = staged['living']['variants'][base] if base in staged['living']['variants'] else staged['subspecies'][base]
         living = dict(copy.deepcopy(living), selected_runtime=f'yukkuri/{form}.json')

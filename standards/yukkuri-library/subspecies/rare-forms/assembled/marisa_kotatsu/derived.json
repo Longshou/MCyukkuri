@@ -4,7 +4,7 @@
   "base_model": "marisa",
   "base_form": null,
   "base_runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
-  "runtime_sha256": "fecf2ba61b2e9b794c98f2a9d8ad2670a0adce73d2380907fb1c902c8f188c7b",
+  "runtime_sha256": "a5b227f161c00e0628f68848ef454e7583c766d2388c64241876ae692aa8580b",
   "vertices": 15066,
   "parts": 87,
   "status": "pending_confirmation",

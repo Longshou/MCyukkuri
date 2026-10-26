@@ -43,7 +43,7 @@ def body_mesh(profile,skin):
 
 
 def vertices(e,texture_size=128):
-    if e.get('type')!='mesh':return cube_vertices(e,texture_size)
+    if e.get('type')!='mesh' or 'vertices' not in e or any('vertices' not in f for f in e.get('faces',{}).values()):return cube_vertices(e,texture_size)
     out=[]
     for f in e['faces'].values():
         points=[e['vertices'][k] for k in f['vertices']];n=normal(points)

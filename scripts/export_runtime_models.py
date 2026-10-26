@@ -194,17 +194,24 @@ def export(species, is_house):
 
 
 def main():
-    if (ROOT/'art/source/rounded-runtime/manifest.json').exists():
+    house_only = '--house-only' in sys.argv
+    if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and not house_only:
         raise SystemExit('Rounded selection is active. Use export_rounded_runtime.py; this legacy seven-model exporter would overwrite selected geometry and snapshots.')
     catalog, records = {}, {}
-    for house in (False, True):
+    if house_only:
+        previous = (OUT/'preview-data.js').read_text(encoding='utf-8').removeprefix('const MODELS=').rstrip(';\n')
+        catalog = json.loads(previous)
+        records = read(OUT/'provenance.json')['entities']
+    for house in ((True,) if house_only else (False, True)):
         for species in (('reimu', 'marisa') if house else ('reimu', 'marisa', 'chen', 'alice', 'patchouli')):
             ident, model, textures, record = export(species, house)
             catalog[ident] = {'model': model, 'textures': textures}
             records[ident] = record
             print(ident, len(model['weights']), 'vertices;', len(model['clips']), 'clips')
     dependencies = [ROOT / 'scripts/runtime_animation.py', ROOT / 'scripts/runtime_house_interactions.py', OUT / 'carry-motion/recipe.json', ROOT / 'scripts/runtime_waddle.py', LIB / 'geometry.py', LIB / 'ecology/house-yukkuri/mesh_geometry.py', LIB / 'ecology/house-yukkuri/config.json']
-    save(OUT / 'provenance.json', {'exporter': relative(Path(__file__)), 'exporter_sha256': fingerprint(Path(__file__)),
+    provenance_record = read(OUT/'provenance.json') if house_only else {}
+    save(OUT / 'provenance.json', {**provenance_record,
+                                  'exporter': relative(Path(__file__)), 'exporter_sha256': fingerprint(Path(__file__)),
                                   'export_dependencies': {relative(p): fingerprint(p) for p in dependencies},
                                   'entities': records}, pretty=True)
     old = read(ROOT / 'art/runtime-sources.json')

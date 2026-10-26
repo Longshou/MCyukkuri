@@ -4,7 +4,7 @@
   "base_model": "chen",
   "base_form": null,
   "base_runtime_sha256": "77b1f923adbb1d4b1c0d522ddbb0d047e38d77d8e9ef391bd0e7b2299e7eeb3c",
-  "runtime_sha256": "9a767b7e7f6996c96e3cf7abd5e176b92949bd4eb03d6157de8d2a40974659dd",
+  "runtime_sha256": "8594682dcfa7aa71ee75bbecbf0c6b5ecc7bd53632b4c309b54b7231ef97f451",
   "vertices": 29376,
   "parts": 159,
   "status": "pending_confirmation",

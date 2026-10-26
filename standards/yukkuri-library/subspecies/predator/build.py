@@ -13,8 +13,9 @@ from PIL import Image, ImageDraw
 
 HERE = Path(__file__).resolve().parent
 LIB = HERE.parents[1]
+sys.path.insert(0, str(LIB/'ecology/house-yukkuri'))
 sys.path.insert(0, str(LIB))
-from geometry import vertices
+from mesh_geometry import vertices, poly_mesh
 
 
 def read(p):
@@ -446,6 +447,17 @@ def cap_parts(recipe, regions):
 
 # --------------------------------------------------------------------- export
 
+def merge_meshes(entries):
+    points, faces = [], {}
+    for e in entries:
+        offset = len(points)
+        points.extend(e['vertices'][k] for k in sorted(e['vertices'], key=int))
+        for key, face in e['faces'].items():
+            faces[str(len(faces))] = dict(face, vertices=[str(int(k) + offset) for k in face['vertices']],
+                                           uv={str(int(k) + offset): uv for k, uv in face['uv'].items()})
+    return dict(vertices={str(i): p for i, p in enumerate(points)}, faces=faces)
+
+
 def scale_element(e, scale):
     e = copy.deepcopy(e)
     for key in ('from', 'to', 'origin'):
@@ -687,12 +699,16 @@ def export(name, config, recipe):
         for e, n in zip(elements, groups):
             if n != b['name']:
                 continue
+            if e.get('type')=='mesh' and 'vertices' in e and all('vertices' in f for f in e.get('faces',{}).values()):
+                g.setdefault('_meshes',[]).append(e);continue
             c = dict(origin=e['from'], size=[y - x for x, y in zip(e['from'], e['to'])],
                      uv={k: dict(uv=f['uv'][:2], uv_size=[f['uv'][2] - f['uv'][0], f['uv'][3] - f['uv'][1]])
                          for k, f in e['faces'].items()})
             if any(e.get('rotation', [0, 0, 0])):
                 c.update(pivot=e['origin'], rotation=e['rotation'])
             g['cubes'].append(c)
+        meshes=g.pop('_meshes',None)
+        if meshes:g['poly_mesh']=poly_mesh(merge_meshes(meshes))
         geometry.append(g)
     save(out / f'{name}.geo.json', {'format_version': '1.12.0', 'minecraft:geometry': [{
         'description': dict(identifier='geometry.' + name, texture_width=size, texture_height=size,

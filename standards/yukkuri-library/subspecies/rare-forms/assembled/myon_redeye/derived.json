@@ -4,7 +4,7 @@
   "base_model": "alice",
   "base_form": "myon",
   "base_runtime_sha256": "f82f08d59f02cc0ea27aad223cd909f6d58ce31259022258a32551f56f229d25",
-  "runtime_sha256": "fdf17ead9270b3012028b504d4c6b58457301d3d243e7d6d3c29ed481543d728",
+  "runtime_sha256": "432ed86324d4cbe3a6d1cee3888a964801d953b2ecd62c10f0ff7ff2ac2946b8",
   "vertices": 27126,
   "parts": 114,
   "status": "pending_confirmation",

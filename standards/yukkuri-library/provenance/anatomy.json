@@ -1,10 +1,11 @@
 {
-  "status": "user_approved_standard",
-  "source": "User-approved modeling iteration in this task; promoted into current shared library",
+  "status": "pending_visual_review",
+  "source": "Previous approved anatomy baseline; current rounded shaft is a new visual candidate",
   "source_component": "../yukkuri-v1/components/marisa/contact-anatomy.json",
   "source_sha256": "08e4d639b837d18c675b0d202bf228df17d3f6947241c81ddbb604e9c0defd71",
   "shared_component": "components/common/anatomy.json",
-  "geometry_preserved": true,
+  "geometry_preserved": false,
+  "geometry_revision": "Continuous 8-ring, 10-side closed mesh authored by anatomy_shape.py; replaces the previous five stepped cuboids",
   "raw_game_pixels_in_package": false,
   "binding_change": "Front component follows a dedicated local skin anchor at its approved height.",
   "current_body_standard": {

@@ -127,7 +127,7 @@ def anatomy_geometry(e, group):
     # is curved to the lower front; its outer pigment lies 0.05 units above the skin
     # only at full extension. Peni retains the approved taper and tilt.
     cfg=CFG['anatomy']
-    e=copy.deepcopy(next(p for p in read(LIB/'components/common/anatomy.json')['elements'] if p['name']==e['name']))
+    e=copy.deepcopy(next(p for p in read(LIB/'components/common/anatomy.json')['elements'] if p['name']==('peni_taper_00' if group=='anatomy_peni' else e['name'])))
     def warp(p):
         x,y,z=p
         if group=='anatomy_mamu':
@@ -246,7 +246,7 @@ def export(ident):
     CFG['anatomy']['anus_atlas']=[palette_origin+12,palette_origin+12]
     elements = [skin,rump_mark()]
     for e, group in zip(bb['elements'], original_groups):
-        if e['name'] in body_names: continue
+        if e['name'] in body_names or group=='anatomy_peni' and e['name']!='peni_taper_00': continue
         item = anatomy_geometry(e,group) if group.startswith('anatomy_') else face_mesh(e) if e['name'].startswith('face_') else convert_cube(e)
         item['bone'] = group
         elements.append(item)
@@ -291,7 +291,7 @@ def export(ident):
         clip['tracks'][bone['name']] = {'position':pos,'rotation':rot}
     anatomy=copy.deepcopy(read(LIB/'behaviors/anatomy.json'))
     relative=lambda p:Path(os.path.relpath(p,out)).as_posix()
-    anatomy.update(id='anatomy.rounded_standard_body',status='user_approved_standard',component=relative(HERE/'components'/(ident+'.json')),rig=relative(HERE/'rigs'/(ident+'.json')),placement='mamu and peni share the same front lower skin site; anus remains at rear',reference=relative(LIB/'ANATOMY.md'))
+    anatomy.update(id='anatomy.rounded_standard_body',status='pending_visual_review',component=relative(HERE/'components'/(ident+'.json')),rig=relative(HERE/'rigs'/(ident+'.json')),placement='mamu and peni share the same front lower skin site; anus remains at rear',reference=relative(LIB/'ANATOMY.md'))
     anatomy['surface_site']=common_site()
     for part in anatomy['parts']:
         part['offset']=CFG['anatomy'][part['id']+'_travel']
