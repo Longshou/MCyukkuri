@@ -38,10 +38,13 @@ public final class HouseEggs {
         return null;
     }
     public static boolean belongs(Entry entry,HouseNestBlockEntity nest) {
-        if(entry==null||nest.getLevel()==null)return false;
+        return entry!=null&&nest.getLevel()!=null&&belongs(entry,GlobalPos.of(nest.getLevel().dimension(),nest.getBlockPos()),nest.identity());
+    }
+    /** A persisted transfer compares custody against its recorded endpoint without loading that endpoint. */
+    static boolean belongs(Entry entry,GlobalPos position,UUID identity) {
+        if(entry==null||position==null||identity==null)return false;
         var child=entry.child();
-        return child.eggManaged&&child.eggToken==null&&nest.identity().equals(child.eggNestId)
-                &&GlobalPos.of(nest.getLevel().dimension(),nest.getBlockPos()).equals(child.eggNest);
+        return child.eggManaged&&child.eggToken==null&&identity.equals(child.eggNestId)&&position.equals(child.eggNest);
     }
     public static Ref attachNew(FamilyData.Brood brood,FamilyData.Child child,HouseNestBlockEntity nest) {
         if(child.born||child.eggLost||child.eggManaged)return null;
@@ -62,6 +65,11 @@ public final class HouseEggs {
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         var entry=resolve(level,Ref.load(tag));
         return entry!=null&&tag.hasUUID("EggToken")&&tag.getUUID("EggToken").equals(entry.child().eggToken)?entry:null;
+    }
+    /** The source itinerary compares the same revocable ticket before it changes either nest's slots. */
+    public static boolean ticket(ServerLevel level,ItemStack stack,Ref ref) {
+        var entry=ticket(level,stack);
+        return entry!=null&&ref!=null&&entry.brood().id.equals(ref.brood())&&entry.child().id.equals(ref.child());
     }
     public static Ref insert(ServerLevel level,ItemStack stack,HouseNestBlockEntity nest) {
         var entry=ticket(level,stack);if(entry==null)return null;

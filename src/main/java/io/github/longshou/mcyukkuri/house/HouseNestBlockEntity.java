@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +44,9 @@ public final class HouseNestBlockEntity extends BlockEntity {
     private final float[] eggProgress=new float[EGG_CAP];
     private final boolean[] eggPresent=new boolean[EGG_CAP];
     private final int[] hatchAges={-1,-1,-1,-1};
+    /** The source owns the full-clutch itinerary; the target only retains a slot reservation for it. */
+    private HouseEggRelocation eggRelocation;
+    private HouseEggRelocation.Incoming incomingEggRelocation;
     private long clientSyncAt;
     private List<YukkuriEntity> nearby=List.of();
 
@@ -115,9 +119,312 @@ public final class HouseNestBlockEntity extends BlockEntity {
         return destroyed||dirt>=6||disturbedTicks>0||level instanceof ServerLevel server&&HouseholdProtection.protectedAt(server,worldPosition);
     }
     public boolean hasEggRoom(){
-        if(destroyed||!built())return false;
-        for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0)return true;
+        return eggRoom()>0;
+    }
+    public int eggRoom(){
+        return Math.max(0,rawEggRoom()-(incomingEggRelocation==null?0:incomingEggRelocation.remaining()));
+    }
+    private int rawEggRoom(){
+        if(destroyed||!built())return 0;
+        int room=0;
+        for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0)room++;
+        return room;
+    }
+
+    // ------------------------------------------------------------------------------------------------ moving a full clutch
+    HouseEggRelocation relocation(){return eggRelocation;}
+    /** Read-only progress for scenario logs: source owns remaining/in-flight/arrived counts until final household handoff. */
+    public String eggRelocationStatus(){return eggRelocation==null?"-":eggRelocation.status();}
+    boolean relocationTargets(HouseNestBlockEntity target){return eggRelocation!=null&&eggRelocation.targets(target);}
+    private int incomingReservationFor(HouseNestBlockEntity target){return relocationTargets(target)?eggRelocation.incomingReservation():-1;}
+    private void reconcileEggRelocation(ServerLevel server){
+        if(eggRelocation==null)return;
+        boolean changed=eggRelocation.reconcile(server,this);
+        var target=relocationTarget(server);
+        // The source alone releases the reservation, after both ticket and parent obligations have closed.
+        if(eggRelocation.readyToClose()&&(target!=null||relocationTargetGone(server))){finishEggRelocation(target);return;}
+        if(changed)changed();
+        if(eggRelocation.handoff()){
+            if(target!=null&&target.unfit()){
+                eggRelocation.startRollback();
+                restoreRollbackCarrier(target);
+                GameplayLog.world(server,"house","egg relocation rollback source={} destination={} reason=destination_unfit_handoff",worldPosition,target.worldPosition);
+                changed();
+            }else if(target!=null)advanceEggRelocationHandoff(target);
+            else if(relocationTargetGone(server)){
+                eggRelocation.startRollback();
+                restoreRollbackCarrier(null);
+                GameplayLog.world(server,"house","egg relocation rollback source={} destination={} reason=destination_destroyed_handoff",worldPosition,eggRelocation.target().pos());
+                changed();
+            }
+        }
+        // A target parent may load after the rollback began; keep restoring one runner until the real return legs start.
+        if(eggRelocation!=null&&eggRelocation.rollback()&&eggRelocation.movedCount()>0&&!eggRelocation.carrying())restoreRollbackCarrier(target);
+        if(eggRelocation!=null&&eggRelocation.rollbackHandoff()&&(target!=null||relocationTargetGone(server)))advanceEggRelocationRollbackHandoff(target);
+        else if(eggRelocation!=null&&eggRelocation.rollbackComplete()&&relocationTargetGone(server))finishEggRelocation(null);
+    }
+    private HouseNestBlockEntity relocationTarget(ServerLevel server){
+        if(eggRelocation==null||!eggRelocation.target().dimension().equals(server.dimension())||!server.hasChunkAt(eggRelocation.target().pos()))return null;
+        return server.getBlockEntity(eggRelocation.target().pos()) instanceof HouseNestBlockEntity found&&eggRelocation.targets(found)?found:null;
+    }
+    /** Only a loaded replacement or destroyed block is final; an unloaded target keeps the durable itinerary waiting. */
+    private boolean relocationTargetGone(ServerLevel server){
+        if(eggRelocation==null||!eggRelocation.target().dimension().equals(server.dimension())||!server.hasChunkAt(eggRelocation.target().pos()))return false;
+        return !(server.getBlockEntity(eggRelocation.target().pos()) instanceof HouseNestBlockEntity target)
+                ||!eggRelocation.targets(target)||target.destroyed();
+    }
+    /** Source-tick owner for the final family handoff: move each available recorded parent and retain unavailable ones for a later tick. */
+    boolean advanceEggRelocationHandoff(HouseNestBlockEntity target){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null||!eggRelocation.handoff()||target==null||!relocationTargets(target)||target.unfit())return false;
+        boolean changed=false;
+        var family=FamilyData.get(server);
+        for(var id:eggRelocation.parents()){
+            var person=family.person(id);
+            if(person!=null&&(person.status==FamilyData.Status.DEAD||person.status==FamilyData.Status.REMOVED||person.status==FamilyData.Status.LOST)){
+                if(eggRelocation.handoffParent(id)){
+                    GameplayLog.world(server,"house","egg relocation parent resolved source={} destination={} parent={} reason=terminal",worldPosition,target.worldPosition,id);
+                    changed=true;
+                }
+                continue;
+            }
+            if(!(server.getEntity(id) instanceof YukkuriEntity parent)||!parent.isAlive())continue;
+            if(parent.house().claims(target)){
+                if(eggRelocation.arrivedParent(id)){
+                    GameplayLog.event(parent,"house","egg relocation parent resolved source={} destination={} reason=already_arrived",worldPosition,target.worldPosition);
+                    changed=true;
+                }
+                continue;
+            }
+            // The source is loaded while this tick runs, so a non-source claim is a real change even if that new home chunk is absent.
+            if(!parent.house().claims(this)){
+                if(eggRelocation.handoffParent(id)){
+                    GameplayLog.event(parent,"house","egg relocation parent resolved source={} destination={} reason=home_changed",worldPosition,target.worldPosition);
+                    changed=true;
+                }
+                continue;
+            }
+            if(target.usable(parent)&&parent.life().reachable(target.entrance(),false)&&parent.house().choose(target)&&eggRelocation.arrivedParent(id)){
+                GameplayLog.event(parent,"house","egg relocation parent handoff source={} destination={}",worldPosition,target.worldPosition);
+                changed=true;
+            }
+        }
+        if(eggRelocation.parents().isEmpty()){
+            eggRelocation.completeHandoff();
+            var destination=target.worldPosition;
+            finishEggRelocation(target);
+            GameplayLog.world(server,"house","egg relocation parent handoff complete source={} destination={}",worldPosition,destination);
+            return true;
+        }
+        if(changed)changed();
         return false;
+    }
+    /** Keep one loaded target parent as the source-side runner before egg rollback begins; it remains on the durable return list. */
+    private void restoreRollbackCarrier(HouseNestBlockEntity target){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null||!eggRelocation.rollback())return;
+        for(var id:eggRelocation.arrivedParents()){
+            if(!(server.getEntity(id) instanceof YukkuriEntity parent)||!parent.isAlive()||parent.house().claims(this))continue;
+            boolean stillTarget=parent.house().claims(eggRelocation.target(),eggRelocation.targetIdentity());
+            boolean lostDestroyedHome=target==null&&!parent.house().hasHomeClaim();
+            if((stillTarget||lostDestroyedHome)&&usable(parent)&&parent.life().reachable(entrance(),false)&&parent.house().choose(this)){
+                GameplayLog.event(parent,"house","egg relocation rollback carrier restored source={} destination={}",worldPosition,eggRelocation.target().pos());
+                changed();
+                return;
+            }
+        }
+    }
+    /** Once every egg has physically returned, send only the parents that already reached the failed target back to this source. */
+    private boolean advanceEggRelocationRollbackHandoff(HouseNestBlockEntity target){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null||!eggRelocation.rollbackHandoff())return false;
+        boolean changed=false;
+        var family=FamilyData.get(server);
+        for(var id:eggRelocation.arrivedParents()){
+            var person=family.person(id);
+            if(person!=null&&(person.status==FamilyData.Status.DEAD||person.status==FamilyData.Status.REMOVED||person.status==FamilyData.Status.LOST)){
+                if(eggRelocation.returnedParent(id)){
+                    GameplayLog.world(server,"house","egg relocation rollback parent resolved source={} destination={} parent={} reason=terminal",worldPosition,eggRelocation.target().pos(),id);
+                    changed=true;
+                }
+                continue;
+            }
+            if(!(server.getEntity(id) instanceof YukkuriEntity parent)||!parent.isAlive())continue;
+            if(parent.house().claims(this)){
+                if(eggRelocation.returnedParent(id)){
+                    GameplayLog.event(parent,"house","egg relocation rollback parent resolved source={} destination={} reason=returned",worldPosition,eggRelocation.target().pos());
+                    changed=true;
+                }
+                continue;
+            }
+            if(!parent.house().claims(eggRelocation.target(),eggRelocation.targetIdentity())
+                    && !(target==null&&!parent.house().hasHomeClaim())){
+                if(eggRelocation.returnedParent(id)){
+                    GameplayLog.event(parent,"house","egg relocation rollback parent resolved source={} destination={} reason=home_changed",worldPosition,eggRelocation.target().pos());
+                    changed=true;
+                }
+                continue;
+            }
+            if(!usable(parent)){
+                if(eggRelocation.returnedParent(id)){
+                    GameplayLog.event(parent,"house","egg relocation rollback parent interrupted source={} destination={} reason=source_unusable",worldPosition,eggRelocation.target().pos());
+                    changed=true;
+                }
+                continue;
+            }
+            if(parent.life().reachable(entrance(),false)&&parent.house().choose(this)&&eggRelocation.returnedParent(id)){
+                GameplayLog.event(parent,"house","egg relocation rollback parent source={} destination={}",worldPosition,eggRelocation.target().pos());
+                changed=true;
+            }
+        }
+        if(eggRelocation.readyToClose()){
+            var destination=eggRelocation.target().pos();
+            finishEggRelocation(target);
+            GameplayLog.world(server,"house","egg relocation rollback parent handoff complete source={} destination={}",worldPosition,destination);
+            return true;
+        }
+        if(changed)changed();
+        return false;
+    }
+    boolean beginEggRelocation(HouseNestBlockEntity target){
+        if(!(level instanceof ServerLevel server)||target==null||target==this||target.level!=server||target.unfit()
+                ||eggRelocation!=null||incomingEggRelocation!=null)return false;
+        var refs=relocationEggs(server);
+        if(refs.isEmpty()||!target.reserveIncoming(this,refs.size()))return false;
+        eggRelocation=new HouseEggRelocation(GlobalPos.of(server.dimension(),target.getBlockPos()),target.identity(),refs,relocationParents(server,refs));
+        changed();return true;
+    }
+    private List<HouseEggs.Ref> relocationEggs(ServerLevel server){
+        syncEggs(server);
+        var refs=new ArrayList<HouseEggs.Ref>();
+        for(var ref:eggSlots)if(ref!=null&&HouseEggs.belongs(HouseEggs.resolve(server,ref),this))refs.add(ref);
+        return refs;
+    }
+    /** The brood ledger fixes the two parents that must complete the final home handoff; nearby residents are supplementary only. */
+    private List<UUID> relocationParents(ServerLevel server,List<HouseEggs.Ref> refs){
+        var parents=new ArrayList<UUID>();
+        for(var ref:refs){
+            var entry=HouseEggs.resolve(server,ref);var brood=entry==null?null:entry.brood();
+            if(brood==null)continue;
+            if(brood.mother!=null&&!parents.contains(brood.mother))parents.add(brood.mother);
+            if(brood.father!=null&&!parents.contains(brood.father))parents.add(brood.father);
+        }
+        return parents;
+    }
+    private boolean reserveIncoming(HouseNestBlockEntity source,int count){
+        if(!(level instanceof ServerLevel server)||source==null||source.level!=server||count<=0||incomingEggRelocation!=null||eggRelocation!=null
+                ||unfit()||rawEggRoom()<count)return false;
+        incomingEggRelocation=new HouseEggRelocation.Incoming(GlobalPos.of(server.dimension(),source.getBlockPos()),source.identity(),count);
+        changed();return true;
+    }
+    private boolean acceptsIncoming(HouseNestBlockEntity source){return incomingEggRelocation!=null&&incomingEggRelocation.from(source);}
+    private void consumeIncoming(HouseNestBlockEntity source){
+        if(!acceptsIncoming(source))return;
+        incomingEggRelocation=incomingEggRelocation.consumed();changed();
+    }
+    private void releaseIncoming(HouseNestBlockEntity source){
+        if(acceptsIncoming(source)){incomingEggRelocation=null;changed();}
+    }
+    /** Loaded source state is authoritative; an unloaded source may resume, but a removed or replaced one cannot keep a slot forever. */
+    private void reconcileIncoming(ServerLevel server){
+        if(incomingEggRelocation==null)return;
+        var sourcePos=incomingEggRelocation.source();
+        if(!sourcePos.dimension().equals(server.dimension())){incomingEggRelocation=null;changed();return;}
+        if(!server.hasChunkAt(sourcePos.pos()))return;
+        if(!(server.getBlockEntity(sourcePos.pos()) instanceof HouseNestBlockEntity source)
+                ||!incomingEggRelocation.sourceIdentity().equals(source.identity())){incomingEggRelocation=null;changed();return;}
+        source.reconcileEggRelocation(server);
+        int remaining=source.incomingReservationFor(this);
+        if(remaining<0){incomingEggRelocation=null;changed();return;}
+        if(incomingEggRelocation.remaining()!=remaining){incomingEggRelocation=incomingEggRelocation.remaining(remaining);changed();}
+    }
+    /** Lift one source-owned egg only after its source itinerary has named this carrier. */
+    ItemStack liftRelocationForward(YukkuriEntity entity){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null||!eggRelocation.forward()||!eggRelocation.readyFor(entity.getUUID())
+                ||entity.house().nest()!=this||!atEggs(entity))return ItemStack.EMPTY;
+        var ref=eggRelocation.nextForward();
+        if(ref==null)return ItemStack.EMPTY;
+        var egg=extractEgg(ref);
+        if(egg.isEmpty())return ItemStack.EMPTY;
+        if(eggRelocation.beginCarry(entity.getUUID(),ref,false)){changed();return egg;}
+        insertEgg(egg);return ItemStack.EMPTY;
+    }
+    /** The same carrier physically takes only this source's transferred egg back from its named target. */
+    ItemStack liftRelocationRollback(YukkuriEntity entity,HouseNestBlockEntity target){
+        if(!(level instanceof ServerLevel)||eggRelocation==null||!eggRelocation.rollback()||!eggRelocation.readyFor(entity.getUUID())
+                ||!relocationTargets(target))return ItemStack.EMPTY;
+        var ref=eggRelocation.nextRollback();
+        if(ref==null)return ItemStack.EMPTY;
+        var egg=target.extractIncomingEgg(entity,this,ref);
+        if(egg.isEmpty())return ItemStack.EMPTY;
+        if(eggRelocation.beginCarry(entity.getUUID(),ref,true)){changed();return egg;}
+        target.insertEgg(egg);return ItemStack.EMPTY;
+    }
+    private ItemStack extractIncomingEgg(YukkuriEntity entity,HouseNestBlockEntity source,HouseEggs.Ref ref){
+        if(!(level instanceof ServerLevel)||destroyed||!acceptsIncoming(source)||!atEggs(entity))return ItemStack.EMPTY;
+        return extractEgg(ref);
+    }
+    private ItemStack extractEgg(HouseEggs.Ref wanted){
+        if(!(level instanceof ServerLevel server)||destroyed||wanted==null)return ItemStack.EMPTY;
+        for(int slot=0;slot<EGG_CAP;slot++)if(wanted.equals(eggSlots[slot])){
+            var stack=HouseEggs.extract(server,wanted,this);
+            if(!stack.isEmpty()){eggSlots[slot]=null;syncEggs(server);changed();return stack;}
+        }
+        return ItemStack.EMPTY;
+    }
+    enum RelocationTransfer { REJECTED, MOVED, HANDOFF, ROLLED_BACK }
+    RelocationTransfer depositRelocation(YukkuriEntity entity,HouseNestBlockEntity target,ItemStack stack){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null||target!=null&&!relocationTargets(target))return RelocationTransfer.REJECTED;
+        var ref=eggRelocation.carryingRef();
+        if(!eggRelocation.ownedBy(entity.getUUID())||!HouseEggs.ticket(server,stack,ref))return RelocationTransfer.REJECTED;
+        if(eggRelocation.rollback()){
+            if(!insertEgg(stack))return RelocationTransfer.REJECTED;
+            boolean complete=eggRelocation.carryingBack()?eggRelocation.depositedRollback(entity.getUUID(),ref):returnForwardCarry();
+            if(target==null){eggRelocation=null;changed();return RelocationTransfer.ROLLED_BACK;}
+            if(complete&&eggRelocation.readyToClose())finishEggRelocation(target);
+            else changed();
+            return complete?RelocationTransfer.ROLLED_BACK:RelocationTransfer.MOVED;
+        }
+        if(target==null||!eggRelocation.forward()||!target.acceptsIncoming(this)||!target.insertIncomingEgg(stack,this))return RelocationTransfer.REJECTED;
+        if(!eggRelocation.depositedForward(entity.getUUID(),ref))return RelocationTransfer.REJECTED;
+        target.consumeIncoming(this);changed();
+        return eggRelocation.handoff()?RelocationTransfer.HANDOFF:RelocationTransfer.MOVED;
+    }
+    private boolean returnForwardCarry(){eggRelocation.returnedToOrigin();return eggRelocation.rollbackComplete();}
+    /** The ticket remains as one floor item when neither recorded nest can accept it; clear only the stale itinerary. */
+    boolean abandonRelocationCarry(YukkuriEntity entity,HouseNestBlockEntity target,ItemStack stack){
+        if(!(level instanceof ServerLevel server)||eggRelocation==null)return false;
+        var ref=eggRelocation.carryingRef();
+        if(!eggRelocation.ownedBy(entity.getUUID())||!HouseEggs.ticket(server,stack,ref))return false;
+        eggRelocation.returnedToOrigin();
+        abandonEggRelocation(target);return true;
+    }
+    boolean beginEggRelocationRollback(HouseNestBlockEntity target){
+        if(eggRelocation==null||target==null||!relocationTargets(target))return false;
+        eggRelocation.startRollback();
+        if(eggRelocation.readyToClose())finishEggRelocation(target);
+        else changed();
+        return true;
+    }
+    /** The target was confirmed replaced or destroyed.  Keep a carried real egg until it reaches this source, then clear the stale route. */
+    boolean beginEggRelocationRollback(){
+        if(eggRelocation==null)return false;
+        eggRelocation.startRollback();changed();return true;
+    }
+    boolean finishEggRelocation(HouseNestBlockEntity target){
+        if(eggRelocation==null||target!=null&&!relocationTargets(target))return false;
+        if(target!=null)target.releaseIncoming(this);
+        eggRelocation=null;changed();return true;
+    }
+    void abandonEggRelocation(HouseNestBlockEntity target){
+        if(eggRelocation==null)return;
+        if(target!=null&&relocationTargets(target))target.releaseIncoming(this);
+        eggRelocation=null;changed();
+    }
+    private void abandonEggRelocation(){
+        HouseNestBlockEntity target=null;
+        if(level!=null&&eggRelocation!=null&&eggRelocation.target().dimension().equals(level.dimension())
+                &&level.hasChunkAt(eggRelocation.target().pos())
+                &&level.getBlockEntity(eggRelocation.target().pos()) instanceof HouseNestBlockEntity found
+                && eggRelocation.targets(found))target=found;
+        abandonEggRelocation(target);
     }
     /**
      * Starts an ordinary house-egg brood and installs every child in this nest in one transaction.
@@ -138,7 +445,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         return false;
     }
     private boolean readyForNewClutch(){
-        return !unfit()&&built()&&food>=4&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)
+        return eggRelocation==null&&incomingEggRelocation==null&&!unfit()&&built()&&food>=4&&eggs()==0&&Arrays.stream(eggSlots).allMatch(Objects::isNull)
                 &&Arrays.stream(hatchAges).allMatch(age->age<0);
     }
     /** Atomically claims all members of a freshly recorded EGG brood; callers never see a partial clutch. */
@@ -192,10 +499,15 @@ public final class HouseNestBlockEntity extends BlockEntity {
         }
         return ItemStack.EMPTY;
     }
-    public boolean insertEgg(ItemStack stack){
+    public boolean insertEgg(ItemStack stack){return insertEgg(stack,null);}
+    private boolean insertIncomingEgg(ItemStack stack,HouseNestBlockEntity source){
+        return acceptsIncoming(source)&&insertEgg(stack,source);
+    }
+    private boolean insertEgg(ItemStack stack,HouseNestBlockEntity incomingSource){
         if(!(level instanceof ServerLevel server)||destroyed||!built()||!sheltered()
                 ||!level.getFluidState(entrance()).isEmpty()||!level.getFluidState(worldPosition).isEmpty())return false;
         syncEggs(server);
+        if(incomingSource==null&&eggRoom()==0)return false;
         for(int slot=0;slot<EGG_CAP;slot++)if(eggSlots[slot]==null&&hatchAges[slot]<0){
             var ref=HouseEggs.insert(server,stack,this);if(ref==null)return false;
             eggSlots[slot]=ref;syncEggs(server);changed();return true;
@@ -215,6 +527,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
     }
     public void tick(){
         if(!(level instanceof ServerLevel server)||destroyed)return;
+        reconcileEggRelocation(server);reconcileIncoming(server);
         boolean protectedHome=HouseholdProtection.protectedAt(server,worldPosition);
         ticks++;
         if(ticks%20==1)nearby=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(worldPosition).inflate(8),
@@ -309,6 +622,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
         Arrays.fill(hatchAges,-1);
         if(level instanceof ServerLevel server){
             if(dismantle){
+                abandonEggRelocation();
+                incomingEggRelocation=null;
                 removed+=materials+eggs();materials=0;
                 for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
                 Arrays.fill(eggSlots,null);Arrays.fill(hatchAges,-1);syncEggs(server);broodId=null;
@@ -321,16 +636,19 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(destroyed)return;
         int debris=materials+dirt+pendingDebris+(int)Arrays.stream(hatchAges).filter(age->age>=0).count();
         if(level instanceof ServerLevel server){
+            abandonEggRelocation();
+            incomingEggRelocation=null;
             syncEggs(server);debris+=eggs();
             for(var ref:eggSlots)HouseEggs.lose(server,ref,this);
         }
-        disturb(true);destroyed=true;
+        // Residents must drop an in-flight ticket instead of writing it back into a nest that is being removed.
+        destroyed=true;disturb(true);
         if(debris>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),debris));
         food=materials=dirt=pendingDebris=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
     }
     private void changed(){setChanged();if(level!=null&&!level.isClientSide)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
-        super.saveAdditional(tag,registries);tag.putInt("Version",2);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
+        super.saveAdditional(tag,registries);tag.putInt("Version",3);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
         tag.putString("Entrance",entranceDirection.getName());
         tag.putInt("Materials",materials);tag.putInt("Food",food);tag.putInt("Dirt",dirt);tag.putInt("Ticks",ticks);tag.putInt("ArrivalTicks",arrivalTicks);tag.putInt("Arrivals",arrivals);
         tag.putInt("PendingDebris",pendingDebris);tag.putBoolean("FounderReimu",founderReimu);
@@ -342,6 +660,8 @@ public final class HouseNestBlockEntity extends BlockEntity {
             data.putInt("Slot",slot);data.putBoolean("Present",eggPresent[slot]);data.putFloat("Progress",eggProgress[slot]);data.putInt("HatchAge",hatchAges[slot]);slots.add(data);
         }
         tag.put("EggSlots",slots);
+        if(eggRelocation!=null)tag.put("EggRelocation",eggRelocation.save());
+        if(incomingEggRelocation!=null)tag.put("IncomingEggRelocation",incomingEggRelocation.save());
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
@@ -359,6 +679,9 @@ public final class HouseNestBlockEntity extends BlockEntity {
             eggSlots[slot]=HouseEggs.Ref.load(data);eggPresent[slot]=data.getBoolean("Present");eggProgress[slot]=Math.clamp(data.getFloat("Progress"),0,1);
             hatchAges[slot]=Math.clamp(data.getInt("HatchAge"),-1,119);
         }
+        eggRelocation=tag.contains("EggRelocation",Tag.TAG_COMPOUND)?HouseEggRelocation.load(tag.getCompound("EggRelocation")):null;
+        incomingEggRelocation=tag.contains("IncomingEggRelocation",Tag.TAG_COMPOUND)
+                ?HouseEggRelocation.Incoming.load(tag.getCompound("IncomingEggRelocation")):null;
         clientSyncAt=level==null?0:level.getGameTime();
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries){return saveWithoutMetadata(registries);}
