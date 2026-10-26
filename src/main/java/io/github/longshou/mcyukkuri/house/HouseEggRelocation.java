@@ -128,12 +128,15 @@ final class HouseEggRelocation {
         if (moved.isEmpty() && carrying == null && !arrivedParents.isEmpty()) phase = Phase.ROLLBACK_HANDOFF;
     }
     void completeHandoff() { parents.clear(); arrivedParents.clear(); }
-    /** Source-owned close gate: do not release a target reservation while either parent list has live obligations. */
+    /** Source-owned close gate.  Each phase keeps only the obligations that can still require real world work. */
     boolean readyToClose() {
-        if (handoff() || rollbackHandoff() || carrying()) return false;
-        return (forward() && refs.isEmpty() || rollback() && moved.isEmpty()) && parents.isEmpty() && arrivedParents.isEmpty();
+        if (carrying()) return false;
+        if (handoff()) return parents.isEmpty();
+        if (rollback() || rollbackHandoff()) return moved.isEmpty() && arrivedParents.isEmpty();
+        // No ticket reached the target, so parent handoff never started and its original roster has no remaining work.
+        return forward() && refs.isEmpty() && moved.isEmpty();
     }
-    boolean rollbackComplete() { return rollback() && moved.isEmpty() && !carrying() && parents.isEmpty() && arrivedParents.isEmpty(); }
+    boolean rollbackComplete() { return (rollback() || rollbackHandoff()) && moved.isEmpty() && !carrying() && arrivedParents.isEmpty(); }
     int remainingAtSource() { return refs.size() - moved.size() - (carrying != null && !carryingBack ? 1 : 0); }
     int movedCount() { return moved.size(); }
     /** Slots still needed for this source's future forward legs, including the egg currently in its carrier's mouth. */

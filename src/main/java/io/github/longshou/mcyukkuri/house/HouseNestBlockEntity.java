@@ -376,11 +376,12 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(!eggRelocation.ownedBy(entity.getUUID())||!HouseEggs.ticket(server,stack,ref))return RelocationTransfer.REJECTED;
         if(eggRelocation.rollback()){
             if(!insertEgg(stack))return RelocationTransfer.REJECTED;
-            boolean complete=eggRelocation.carryingBack()?eggRelocation.depositedRollback(entity.getUUID(),ref):returnForwardCarry();
-            if(target==null){eggRelocation=null;changed();return RelocationTransfer.ROLLED_BACK;}
-            if(complete&&eggRelocation.readyToClose())finishEggRelocation(target);
+            if(eggRelocation.carryingBack())eggRelocation.depositedRollback(entity.getUUID(),ref);
+            else returnForwardCarry();
+            boolean closed=eggRelocation.readyToClose();
+            if(closed)finishEggRelocation(target);
             else changed();
-            return complete?RelocationTransfer.ROLLED_BACK:RelocationTransfer.MOVED;
+            return closed?RelocationTransfer.ROLLED_BACK:RelocationTransfer.MOVED;
         }
         if(target==null||!eggRelocation.forward()||!target.acceptsIncoming(this)||!target.insertIncomingEgg(stack,this))return RelocationTransfer.REJECTED;
         if(!eggRelocation.depositedForward(entity.getUUID(),ref))return RelocationTransfer.REJECTED;
