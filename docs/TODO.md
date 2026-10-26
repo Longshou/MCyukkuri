@@ -14,7 +14,6 @@
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 水生魔理沙模块重构（帽船、船长阶段机、席位、乘员转移、落水救助、试玩场） | `.worktrees/aquatic-rework` | `subspecies/`（帽船与水生全部）、`family/` 中帽船相关（`CatchHat`、`FamilyFlight` 出生抛射段、`LiveDelivery` 水上分娩段）、`entity/YukkuriSync` 与 `presentation/PresentationArbiter` 的转移接线、`life/WaterDistress.java`、`headwear/` 帽船托管、`command/ScenarioBoats`、`scripts/museum_scenarios.py` 池塘段、`docs/AQUATIC_MARISA_IMPLEMENTATION.md` |
 | 水生帽船美术与演出（席位表导出、木桨、托举／嘴叼／翻覆／自救片段、帽船客户端姿态层） | `.worktrees/aquatic-art` | `standards/yukkuri-library/interactions/marisa-hat-vessel/` 及相关动作制作源、`art/source/`、`art/runtime-sources.json`、帽船相关运行资源、`client/` 帽船与水生表现类 |
-| 生殖行为演出（普通配对、佩妮佩妮／马姆马姆、爱丽丝雷普魔） | `.worktrees/reproduction-performance` | `family/Courtship.java`、`life/AgitationLife.java`、`entity/YukkuriSync*`、`client/` 生殖表现类与模型器官层、`standards/yukkuri-library/drafts/rapem-alice/`、`scripts/museum_scenarios.py` 成体配对与爱丽丝场景、`docs/ADULT_AGITATION.md` |
 
 ## 玩法待办
 
