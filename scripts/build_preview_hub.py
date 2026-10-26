@@ -155,6 +155,9 @@ def main():
         (OUT/'_work/scene-media.json').write_text(json.dumps(sorted(current_media)), encoding='utf-8')
     elif scene_stamp.is_file() and scene_stamp.read_text() == scene_fingerprint:
         current_media = set(json.loads((OUT/'_work/scene-media.json').read_text()))
+    subprocess.run([sys.executable, str(ROOT/'art/props/family-life/preview_stem.py'),
+                    '--node', args.node, '--output', str(OUT/'stem-hanging')], check=True, cwd=ROOT)
+    current_media.add('stem-hanging/current.png')
     # Continuous previews share one authored timeline with GIF and seekable frames.
     scene_source = ROOT/'preview/hub/scenes.json'
     subprocess.run([sys.executable, str(ROOT/'scripts/build_preview_actions.py'),

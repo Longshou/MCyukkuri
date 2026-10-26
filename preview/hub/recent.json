@@ -2,6 +2,23 @@
   "title": "油库里场景预览",
   "chapters": [
     {
+      "id": "stem-hanging",
+      "label": "茎生竖直悬挂",
+      "title": "茎生：小茎从挂点竖直悬下",
+      "tag": "待试玩",
+      "summary": "当前制作配方与运行网格的静止状态离线预览；小茎没有固定左右斜伸，移动摆动与真实出生仍待试玩。",
+      "model": "reimu",
+      "points": [],
+      "steps": [],
+      "gallery": [
+        {
+          "src": "stem-hanging/current.png",
+          "label": "竖直悬挂的侧面与斜前方"
+        }
+      ],
+      "source": "art/props/family-life/README.md"
+    },
+    {
       "id": "aquatic-tools",
       "label": "水生辫子与嘴的动作",
       "title": "水生魔理沙：木棍划桨、辫兜、嘴咬、翻覆与自救",

@@ -10,9 +10,8 @@ fruit (at the size standard's full fruit size, docs/BEHAVIOR.md) hangs:
   hangs plumb: its hanging anchor (crown top when none is registered) lies directly below its socket;
 - apart from the other fruit front to back, so a fruit falling first never lands on one still
   hanging below it, and the hanging fruit read as separate in an oblique view;
-- hung from one curved pedicel each, reaching pedicel_reach out from its socket: on along the stalk
-  for a single fruit, else alternately to each side (pedicel_side, nearest fruit to the right), so
-  they do not bunch in an oblique view and the descending stalk passes beside the nearest one;
+- hung directly below each socket on a vertical pedicel; the current recipe has zero horizontal reach,
+  so spacing and maternal clearance must come from the sockets and main stalk instead of sideways twigs;
 - above the ground.
 
 Every stem-bearing mother and every child kind is checked, at the shortest individual variation

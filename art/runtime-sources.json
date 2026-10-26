@@ -57,6 +57,14 @@
   "schema_version": 2,
   "path_base": "repository_root",
   "automatic_promotion": false,
+  "family_stem": {
+    "source": "art/props/family-life/recipe.json",
+    "stem_source": "standards/yukkuri-v1/components/common/stem.json",
+    "exporter": "scripts/export_family_assets.py",
+    "manifest": "art/props/family-life/provenance.json",
+    "geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json",
+    "status": "pending_user_review"
+  },
   "shed_stem": {
     "source": "art/props/family-life/shed-stem.json",
     "exporter": "art/props/family-life/export_shed_stem.py",
