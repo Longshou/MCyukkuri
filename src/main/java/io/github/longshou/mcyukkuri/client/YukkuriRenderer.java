@@ -148,7 +148,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
-            if (entity.isCrawling()&&!hatCarrier&&!carried) {
+            if (entity.isCrawling()&&!hatCarrier&&!carried&&!controlledContact) {
                 behavior = Behaviors.HOUSE_CRAWL;
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }

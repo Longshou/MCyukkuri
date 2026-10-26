@@ -97,6 +97,7 @@ public final class CrewTransfer {
     private Contact contact = Contact.NONE;
     private int contactFrame;
     private Vec3 contactAt, contactPrev;
+    private Vec3 bodyAt, bodyPrev;
     private float bodyYaw, prevBodyYaw;
     private Geometry geometry;
     private Stand stand;
@@ -619,6 +620,7 @@ public final class CrewTransfer {
                 && (a != null && a.unsteadyMotion() || b != null && b.unsteadyMotion())) { slip("hull_shaken"); return; }
         holdHulls(carrier);
         if (now % 50 == 0) renewClaim(body);
+        prevBodyYaw = bodyYaw;
         switch (phase) {
             case CLAIM -> next(Phase.APPROACH);
             case APPROACH -> approach(body, carrier, now);
@@ -661,7 +663,19 @@ public final class CrewTransfer {
         phaseStart = level.getGameTime();
         bestProgress = Double.MAX_VALUE;
         bestProgressAt = phaseStart;
-        if (p == Phase.CONTACT) contactStart = phaseStart;
+        if (p == Phase.CONTACT) {
+            contactStart = phaseStart;
+            if (mode == Mode.LIFT) {
+                var body = body();
+                var carrier = carrier();
+                bodyYaw = prevBodyYaw = body.yBodyRot;
+                contact = stand != null && stand.mouth() ? Contact.MOUTH_BITE : Contact.BRAID_CRADLE;
+                updateLiftContact(body, carrier, 0);
+                GameplayLog.event(body, "aquatic", "transfer contact started mode={} contact={} body={} carrier={} frame={} feet={} at={}",
+                        mode, contact, bodyId, carrierId, contactFrame, GameplayLog.at(body.position()),
+                        GameplayLog.at(contactWorld(contactAt)));
+            }
+        }
         if (p == Phase.CONTACT && mode != Mode.HOP) bodyHeld = true;
         if (p == Phase.RELEASE) { contact = Contact.NONE; contactAt = null; }
         GameplayLog.detail(body(), "crew.phase." + id, 0, "-> " + p + " mode=" + mode);
@@ -843,7 +857,6 @@ public final class CrewTransfer {
         revertAt = -1;
         next(Phase.MOVE);
         bodyHeld = true;
-        contactPrev = null;
         var first = geometry.knots().getFirst();
         // The body belongs to the hull whose frame the curve starts in, from the first tick on.
         syncVehicle(body, 0, first.frame() == 0 ? -1 : (first.frame() == 1 ? boatA : boatB));
@@ -879,7 +892,6 @@ public final class CrewTransfer {
             }
         }
         // The body faces along its trip.
-        prevBodyYaw = bodyYaw;
         if (mode == Mode.LIFT && carrier != null) {
             float toCarrier = SurfaceApproach.yaw(body.position(), carrier.position());
             SurfaceApproach.face(body, toCarrier);
@@ -978,18 +990,31 @@ public final class CrewTransfer {
         contactFrame = frame;
     }
 
-    /** The braid tip (or mouth) target on the body, in the carrier's frame (her hull's, else the world's). */
+    /** Contact and feet are one sample pair in the body's frame, including the handoff out of a hull. */
     private void updateLiftContact(YukkuriEntity body, YukkuriEntity carrier, double u) {
         var anchor = stand != null && stand.mouth() ? CrewReach.mouthAt(carrier, carrier.position(), carrier.yBodyRot) : CrewReach.root(carrier);
         var target = CrewReach.contactOn(body, body.position(), anchor);
-        var hat = carrierHat(carrier);
+        var hat = body.getVehicle() instanceof HatBoatEntity h ? h : null;
         int frame = hat == null ? 0 : hat.getId() == boatA ? 1 : hat.getId() == boatB ? 2 : 0;
-        if (hat != null && frame == 0) frame = -1;
-        if (frame < 0) { contactFrame = 0; contactPrev = contactAt == null ? target : contactAt; contactAt = target; return; }
         var local = frame == 0 ? target : hat.toLocal(target);
-        contactPrev = contactAt == null ? local : (contactFrame == frame ? contactAt : local);
+        var feet = frame == 0 ? body.position() : hat.toLocal(body.position());
+        // Keep the preceding sample when mounting/dismounting, expressed in the new frame.
+        // Resetting it to the new position loses a tick of interpolation exactly at the rim.
+        var previousContact = contactWorld(contactAt);
+        var previousFeet = contactWorld(bodyAt);
+        contactPrev = contactAt == null ? local : contactFrame == frame ? contactAt
+                : frame == 0 ? previousContact : hat.toLocal(previousContact);
+        bodyPrev = bodyAt == null ? feet : contactFrame == frame ? bodyAt
+                : frame == 0 ? previousFeet : hat.toLocal(previousFeet);
         contactAt = local;
+        bodyAt = feet;
         contactFrame = frame;
+    }
+
+    private Vec3 contactWorld(Vec3 point) {
+        if (point == null || contactFrame == 0) return point;
+        var hat = contactFrame == 1 ? hatA() : hatB();
+        return hat.toWorld(point);
     }
 
     private boolean reachesNow(YukkuriEntity body, YukkuriEntity carrier, double u) {
@@ -1112,6 +1137,6 @@ public final class CrewTransfer {
         if (g == null) g = new Geometry(false, List.of(new CrewState.Knot(0, 0, 0, 0)), List.of(0.0), 1, "", "", Vec3.ZERO, Vec3.ZERO, 0);
         return new CrewState.Entry(id, mode, phase, body == null ? -1 : body.getId(), bodyId, carrier == null ? -1 : carrier.getId(), carrierId,
                 boatA, boatB, g.arc(), g.knots(), g.cumulative(), g.curve(), g.entryId(), slot, phaseStart, moveStart, g.moveTicks(), revertAt, revertFrom,
-                contact, contactFrame, contactAt, contactPrev, bodyYaw, prevBodyYaw, degraded);
+                contact, contactFrame, contactAt, contactPrev, bodyAt, bodyPrev, bodyYaw, prevBodyYaw, degraded);
     }
 }

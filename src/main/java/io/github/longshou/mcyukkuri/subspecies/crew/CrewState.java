@@ -16,8 +16,9 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The one transfer record a hull synchronizes (spec: {@code CrewState}): for every transfer touching the hull, its id, mode, body
  * and carrier, the anchor hulls, the curve (knots in the frame each belongs to, so a moving hull carries the body with it),
- * the clock, the phase, the contact kind with its target point in the carrier's frame (this tick and the previous one) and the
- * body's synced yaw. Server and client evaluate the same {@link Entry#position} from it; nothing else about a transfer is sent.
+ * the clock, the phase, the contact kind with its target and lifted feet in the body's frame (this tick and the previous one),
+ * and the body's synced yaw. Server and client evaluate the same {@link Entry#position} from it; lifted feet and contact are
+ * drawn from their paired samples so ordinary entity interpolation cannot separate the grip.
  *
  * <p>The server side keeps the live tickets ({@link CrewTransfer}) and publishes their entries; the client only parses.
  */
@@ -31,7 +32,7 @@ public final class CrewState {
     public record Entry(long id, CrewTransfer.Mode mode, CrewTransfer.Phase phase, int bodyId, UUID body, int carrierId, UUID carrier,
             int boatA, int boatB, boolean arc, List<Knot> knots, List<Double> cumulative, String curve, String entry, int slot,
             long phaseStart, long moveStart, int moveTicks, long revertAt, double revertFrom,
-            CrewTransfer.Contact contact, int contactFrame, Vec3 contactAt, Vec3 contactPrev, float bodyYaw, float prevBodyYaw,
+            CrewTransfer.Contact contact, int contactFrame, Vec3 contactAt, Vec3 contactPrev, Vec3 bodyAt, Vec3 bodyPrev, float bodyYaw, float prevBodyYaw,
             boolean degraded) {
 
         public boolean moving() { return phase == CrewTransfer.Phase.MOVE; }
@@ -96,7 +97,7 @@ public final class CrewState {
             return level.getEntity(id) instanceof HatBoatEntity boat ? boat.toWorld(knot.vec()) : null;
         }
 
-        /** The contact target in the world now (the carrier's hull frame moves it with the hull). */
+        /** The contact target in the world now (the body's hull frame moves it with the hull). */
         public Vec3 contactWorld(Level level, boolean previous) {
             var at = previous ? contactPrev : contactAt;
             if (at == null) return null;
@@ -139,6 +140,8 @@ public final class CrewState {
             tag.putInt("ContactFrame", contactFrame);
             if (contactAt != null) point(tag, "At", contactAt);
             if (contactPrev != null) point(tag, "Prev", contactPrev);
+            if (bodyAt != null) point(tag, "BodyAt", bodyAt);
+            if (bodyPrev != null) point(tag, "BodyPrev", bodyPrev);
             tag.putFloat("BodyYaw", bodyYaw);
             tag.putFloat("PrevBodyYaw", prevBodyYaw);
             tag.putBoolean("Degraded", degraded);
@@ -160,6 +163,7 @@ public final class CrewState {
                     tag.getLong("PhaseStart"), tag.getLong("MoveStart"), tag.getInt("MoveTicks"), tag.getLong("RevertAt"), tag.getDouble("RevertFrom"),
                     CrewTransfer.Contact.valueOf(tag.getString("Contact")), tag.getInt("ContactFrame"),
                     tag.contains("AtX") ? point(tag, "At") : null, tag.contains("PrevX") ? point(tag, "Prev") : null,
+                    tag.contains("BodyAtX") ? point(tag, "BodyAt") : null, tag.contains("BodyPrevX") ? point(tag, "BodyPrev") : null,
                     tag.getFloat("BodyYaw"), tag.getFloat("PrevBodyYaw"), tag.getBoolean("Degraded"));
         }
     }

@@ -12,9 +12,9 @@ import org.joml.Vector3f;
 /**
  * The one conversion of a transfer's contact into the carrier's model space. The server publishes the contact kind and its
  * target in the frame it belongs to (a hull's, else the world), this tick and the previous one; the target is interpolated in
- * that frame and placed through the same {@link BoatPose} the bodies are drawn with (tilted when it is on the hull or on a
- * body riding it), then taken through the inverse of the carrier's own model matrix. When the ticket ends the entry is gone
- * and so is the contact: nothing here keeps a braid stretched out.
+ * that frame and placed through the same {@link BoatPose} as the lifted feet, then taken through the inverse of the carrier's
+ * own model matrix. Both samples come from the ticket, even after dismount; ordinary entity lerp never offsets the grip.
+ * When the ticket ends the entry and the contact are gone: nothing here keeps a braid stretched out.
  */
 public final class ContactTargets {
     /** A contact this frame: its kind and the target in the carrier's model units. */
@@ -33,18 +33,22 @@ public final class ContactTargets {
 
     /** World position of the entry's contact this frame. */
     static Vec3 world(YukkuriView viewer, CrewState.Entry entry, float partial) {
-        var prev = entry.contactPrev() == null ? entry.contactAt() : entry.contactPrev();
-        var at = entry.contactAt();
-        var local = new Vec3(Mth.lerp(partial, prev.x, at.x), Mth.lerp(partial, prev.y, at.y), Mth.lerp(partial, prev.z, at.z));
-        if (entry.contactFrame() == 0) return local;
+        var frame = frame(viewer, entry, partial);
+        if (entry.contactFrame() != 0 && frame == null) return null;
+        return point(entry.contactPrev(), entry.contactAt(), frame, partial);
+    }
+
+    /** The contact and the lifted body's feet belong to this same synchronized frame, independent of mount packets. */
+    static BoatPose frame(YukkuriView viewer, CrewState.Entry entry, float partial) {
+        if (entry.contactFrame() == 0) return null;
         int id = entry.contactFrame() == 1 ? entry.boatA() : entry.boatB();
-        if (!(viewer.level().getEntity(id) instanceof HatBoatView hull)) return null;
-        var frame = BoatPose.of(hull, partial);
-        // A rim contact tilts with the hull; a contact on the lifted body tilts only once that body rides this hull.
-        boolean onBody = entry.mode() == CrewTransfer.Mode.LIFT;
-        boolean bodyAboard = viewer.level().getEntity(entry.bodyId()) instanceof YukkuriView body && body.vehicleHat() != null
-                && body.vehicleHat().getId() == id;
-        return !onBody || bodyAboard ? frame.toWorld(local) : frame.toWorldFlat(local);
+        return viewer.level().getEntity(id) instanceof HatBoatView hull ? BoatPose.of(hull, partial) : null;
+    }
+
+    static Vec3 point(Vec3 prev, Vec3 at, BoatPose frame, float partial) {
+        if (prev == null) prev = at;
+        var local = new Vec3(Mth.lerp(partial, prev.x, at.x), Mth.lerp(partial, prev.y, at.y), Mth.lerp(partial, prev.z, at.z));
+        return frame == null ? local : frame.toWorld(local);
     }
 
     /**

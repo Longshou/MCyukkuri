@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.body.WoundMigration;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
@@ -820,8 +821,12 @@ public final class YukkuriModel {
         if (ToiletPresentation.rearCare(behavior)) selected=Behaviors.FIRST_TOILET_ASSIST;
         else if (behavior.equals(Behaviors.LEAF_SWADDLE_HARVEST)) selected=Behaviors.NEST_HARVEST;
         else if (behavior.equals(Behaviors.LEAF_SWADDLE_FOLD)) selected=Behaviors.NEST_PRESS;
+        // A transfer already chose its clip and clock. The old carry pose folds both locks by 52 degrees
+        // (Marisa's left lock is ordinary hair) and tilts the child independently of the live contact.
+        boolean liftClip=action.equals(YukkuriAction.BRAID_CRADLE_LIFT.id())||action.equals(YukkuriAction.MOUTH_BITE_HOLD.id())
+                ||action.equals(YukkuriAction.BE_CRADLED.id());
         if(behavior.equals(Behaviors.HAT_WALK)||behavior.equals(Behaviors.LEARN_WATCH)||behavior.equals(Behaviors.CARE_FINISH)||
-                behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY)
+                !liftClip&&(behavior.equals(Behaviors.BOAT_CARRY_YOUNG)||behavior.equals(Behaviors.BOAT_BE_CARRIED)||behavior.equals(Behaviors.BOAT_PREPARE_CARRY)||behavior.equals(Behaviors.BOAT_RELEASE_CARRY))
                 ||behavior.equals(Behaviors.NEST_HARVEST)||behavior.equals(Behaviors.NEST_PLACE)||behavior.equals(Behaviors.NEST_SPREAD)||behavior.equals(Behaviors.NEST_PRESS))selected=behavior;
         if(carrying&&gripBones!=null&&(selected.equals("idle")||selected.equals("waddle")))selected="house_carry";
         gripping=carrying||selected.equals("house_pickup")||selected.equals("house_deposit")||selected.equals("house_carry");

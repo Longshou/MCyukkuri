@@ -20,6 +20,7 @@ public final class CrewPose {
     /** Rider compensation against the hull tilt, roll plus pitch (standards: total body tilt about 12 degrees). */
     public static final float BALANCE = 12;
 
+    /** Null for a lifted body whose synchronized sample is in world space. */
     public final BoatPose boat;
     /** World position of the body's support point (its feet) this frame. */
     public final Vec3 at;
@@ -34,13 +35,20 @@ public final class CrewPose {
         this.boat = boat; this.at = at; this.bodyYaw = bodyYaw; this.balanceRoll = balanceRoll; this.balancePitch = balancePitch; this.seat = seat;
     }
 
-    /** The body's pose in the hull it rides, or null when it rides none (it is then drawn by its own position and yaw). */
+    /** A lifted body's sampled pose (also after dismount), otherwise the pose in the hull it rides. */
     public static CrewPose of(YukkuriView body, float partial) {
+        var entry = transfer(body);
+        if (entry != null && entry.mode() == CrewTransfer.Mode.LIFT && body.getUUID().equals(entry.body()) && entry.bodyAt() != null) {
+            var frame = ContactTargets.frame(body, entry, partial);
+            if (entry.contactFrame() != 0 && frame == null) return null;
+            var at = ContactTargets.point(entry.bodyPrev(), entry.bodyAt(), frame, partial);
+            float yaw = Mth.rotLerp(partial, entry.prevBodyYaw(), entry.bodyYaw());
+            return new CrewPose(frame, at, yaw, 0, 0, null);
+        }
         HatBoatView hull = body.vehicleHat();
         if (hull == null) return null;
         var frame = BoatPose.of(hull, partial);
         var id = body.getUUID();
-        var entry = transfer(body);
         boolean held = entry != null && entry.phase().ordinal() >= CrewTransfer.Phase.CONTACT.ordinal()
                 && entry.phase().ordinal() <= CrewTransfer.Phase.SETTLE.ordinal();
         boolean moving = hull.visibleSeatMoving(id) || entry != null && entry.moving() && id.equals(entry.body());
@@ -88,6 +96,10 @@ public final class CrewPose {
      */
     public void apply(PoseStack pose, Vec3 drawnAt, float bodyYaw) {
         pose.translate(at.x - drawnAt.x, at.y - drawnAt.y, at.z - drawnAt.z);
+        if (boat == null) {
+            pose.mulPose(new Quaternionf().rotationY((180 - bodyYaw) * Mth.DEG_TO_RAD));
+            return;
+        }
         pose.mulPose(new Quaternionf().rotationY((180 - boat.yaw) * Mth.DEG_TO_RAD));
         pose.mulPose(boat.tilt());
         pose.mulPose(new Quaternionf().rotationZ(balanceRoll * Mth.DEG_TO_RAD).rotateX(balancePitch * Mth.DEG_TO_RAD));
