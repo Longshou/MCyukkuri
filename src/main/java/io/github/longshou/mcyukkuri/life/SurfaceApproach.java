@@ -1,29 +1,32 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Last-step steering is permitted only on a continuous, clear, supported surface. */
 public final class SurfaceApproach {
     private SurfaceApproach() {}
-    private record Detour(UUID peer, Vec3 peerAt, Vec3 destination, Vec3 waypoint, long until) {}
-    private record Retry(BlockPos target, Vec3 from, long after) {}
+    private record Route(Path path,double length) {}
+    private record Approach(UUID peer, AABB body, Vec3 destination, Path path, long retryAt, long touched) {}
     private enum Step { ARRIVED, MOVING, BLOCKED }
-    /** Short-lived physical waypoints only; each domain still owns its agreement, deadline and outcome. */
-    private static final Map<YukkuriEntity,Detour> DETOURS=new WeakHashMap<>();
-    private static final Map<YukkuriEntity,Retry> RETRIES=new WeakHashMap<>();
+    /** Transient physical routes only; each domain still owns its agreement, deadline and outcome. */
+    private static final Map<YukkuriEntity,Approach> APPROACHES=new WeakHashMap<>();
 
     /** Resolve the real sole height on a low nest or adjacent floor, retaining its collision shell. */
     public static Vec3 floor(YukkuriEntity actor, Vec3 near) {
@@ -68,8 +71,11 @@ public final class SurfaceApproach {
     }
 
     public static boolean clearLastStep(YukkuriEntity actor, Vec3 destination) {
-        Vec3 start = actor.position();
-        if (!actor.onGround() || Math.abs(start.y-destination.y) > .25 || start.distanceToSqr(destination) > 2.25) return false;
+        return actor.onGround()&&clearLastStep(actor,actor.position(),destination);
+    }
+
+    private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
+        if (Math.abs(start.y-destination.y) > .25 || start.distanceToSqr(destination) > 2.25) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double previous=start.y;
@@ -106,8 +112,13 @@ public final class SurfaceApproach {
     }
 
     public static boolean canApproach(YukkuriEntity actor, Vec3 destination) {
-        return arrived(actor,destination)||clearLastStep(actor,destination)
-                ||actor.life().reachable(BlockPos.containing(destination),false);
+        return Double.isFinite(routeLength(actor,destination,null));
+    }
+
+    /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */
+    public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle){
+        var route=plan(actor,destination,obstacle);
+        return route==null?Double.POSITIVE_INFINITY:route.length();
     }
 
     /** Physical contact uses square body boxes. A point on the centre-to-centre diagonal can be inside both bodies. */
@@ -117,9 +128,9 @@ public final class SurfaceApproach {
 
     /** Some callers use a spherical reach. A step-height difference must leave room inside that same envelope. */
     public static Vec3 beside(YukkuriEntity actor,Entity other,double distance,double maxHeight,double maxDistance){
-        var route=DETOURS.get(actor);
-        if(route!=null&&route.peer().equals(other.getUUID())&&route.peerAt().distanceToSqr(other.position())<.0004
-                &&actor.level().getGameTime()<route.until()){
+        var route=APPROACHES.get(actor);
+        if(route!=null&&Objects.equals(route.peer(),other.getUUID())&&sameBody(route.body(),other.getBoundingBox())
+                &&actor.level().getGameTime()-route.touched()<200){
             var at=route.destination();
             double flat=at.subtract(other.position()).horizontalDistance();
             double desired=Math.min(distance,Math.sqrt(Math.max(0,maxDistance*maxDistance-Math.pow(at.y-other.getY(),2)))-.025);
@@ -148,7 +159,7 @@ public final class SurfaceApproach {
             candidates.add(at);
         }
         candidates.sort(Comparator.comparingDouble(at->actor.position().distanceToSqr(at)));
-        for(var at:candidates)if(canApproach(actor,at))return at;
+        for(var at:candidates)if(Double.isFinite(routeLength(actor,at,other.getBoundingBox())))return at;
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} distance={} maxHeight={}",other.getUUID(),distance,maxHeight);
         return null;
     }
@@ -157,7 +168,7 @@ public final class SurfaceApproach {
         return crossesBody(actor,actor.position(),destination,body);
     }
 
-    private static boolean crossesBody(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){
+    public static boolean crossesBody(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){
         double half=actor.getBbWidth()*.5+.015;
         var blocked=new AABB(body.minX-half,body.minY-actor.getBbHeight()+.01,body.minZ-half,
                 body.maxX+half,body.maxY-.01,body.maxZ+half);
@@ -167,78 +178,64 @@ public final class SurfaceApproach {
         return blocked.contains(to)||blocked.clip(from,to).isPresent();
     }
 
-    /** Vanilla block paths ignore living partners. Check their swept body footprint as well as the final stand. */
-    private static boolean pathCrosses(YukkuriEntity actor,AABB body){
-        var path=actor.getNavigation().getPath();
-        if(path==null||path.isDone())return false;
-        Vec3 before=actor.position();
-        for(int i=path.getNextNodeIndex();i<path.getNodeCount();i++){
+    private static boolean clearOf(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){
+        return body==null||!crossesBody(actor,from,to,body);
+    }
+
+    private static boolean sameBody(AABB a,AABB b){
+        return a==null?b==null:b!=null&&a.getCenter().distanceToSqr(b.getCenter())<.0025
+                &&Math.abs(a.getXsize()-b.getXsize())<.02&&Math.abs(a.getYsize()-b.getYsize())<.02;
+    }
+
+    private static Route plan(YukkuriEntity actor,Vec3 destination,AABB body){
+        if(!supported(actor,destination)||TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,BlockPos.containing(destination)))return null;
+        if(clearOf(actor,actor.position(),destination,body)&&(arrived(actor,destination)||clearLastStep(actor,destination)))
+            return new Route(null,actor.position().distanceTo(destination));
+        // A containing block is not an exact stand. Offer only node centres with a clear, supported final segment.
+        double offset=Mth.floor(actor.getBbWidth()+1)*.5;
+        int x=Mth.floor(destination.x-offset+.5),z=Mth.floor(destination.z-offset+.5);
+        var targets=new LinkedHashSet<BlockPos>();
+        for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
+            var at=floor(actor,new Vec3(x+dx+offset,destination.y,z+dz+offset));
+            if(at!=null&&clearOf(actor,at,destination,body)&&clearLastStep(actor,at,destination))
+                targets.add(new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz));
+        }
+        if(targets.isEmpty())return null;
+        var navigation=actor.getNavigation();
+        var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body):navigation.createPath(targets,0);
+        if(path==null||!path.canReach()||path.getNodeCount()==0)return null;
+        var first=floor(actor,path.getEntityPosAtNode(actor,0));
+        if(first!=null&&actor.onGround()&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
+        Vec3 before=actor.position();double length=0;
+        for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
-            if(crossesBody(actor,before,next,body))return true;
-            before=next;
+            if(!actor.level().getFluidState(path.getNodePos(i)).isEmpty()||!clearOf(actor,before,next,body))return null;
+            length+=before.distanceTo(next);before=next;
         }
-        return false;
+        // Recheck the chosen endpoint: vanilla may return a partial route, or a node at a different height.
+        var end=floor(actor,before);
+        if(end==null||!clearOf(actor,end,destination,body)||!clearLastStep(actor,end,destination))return null;
+        return new Route(path,length+end.distanceTo(destination));
     }
 
-    private static boolean walkLeg(YukkuriEntity actor,Vec3 at,Entity other,double speed){
-        if(crossesBody(actor,at,other.getBoundingBox()))return false;
-        var step=walkStep(actor,at,speed);
-        if(pathCrosses(actor,other.getBoundingBox())){halt(actor);return false;}
-        return step!=Step.BLOCKED;
-    }
-
-    /** Walk around the partner using real supported corners; no body relocation or successful-contact substitution. */
+    /** Plan the complete route around blocks and the partner together; never alternate isolated greedy corners. */
     public static boolean walkAround(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
-        if(other==null||other==actor)return walk(actor,destination,speed);
-        if(arrived(actor,destination)){
-            DETOURS.remove(actor);halt(actor);return true;
-        }
-        long now=actor.level().getGameTime();
-        var route=DETOURS.get(actor);
-        boolean same=route!=null&&route.peer().equals(other.getUUID())&&route.destination().distanceToSqr(destination)<.0025
-                &&route.peerAt().distanceToSqr(other.position())<.01&&now<route.until();
-        if(same&&route.waypoint()==null){halt(actor);return false;}
-        if(same&&!arrived(actor,route.waypoint())&&walkLeg(actor,route.waypoint(),other,speed))return false;
-        DETOURS.remove(actor);
-        if(walkLeg(actor,destination,other,speed)){
-            rememberDetour(actor,new Detour(other.getUUID(),other.position(),destination,destination,now+40));
-            return false;
-        }
-        var body=other.getBoundingBox();
-        var corners=new ArrayList<Vec3>();
-        // The larger ring also keeps coarse path-node centres outside the partner's collision footprint.
-        for(double margin:new double[]{.12,.65}){
-            double half=actor.getBbWidth()*.5+margin;
-            for(double x:new double[]{body.minX-half,body.maxX+half})for(double z:new double[]{body.minZ-half,body.maxZ+half}){
-                var at=floor(actor,new Vec3(x,actor.getY(),z));
-                if(at!=null&&actor.position().distanceToSqr(at)>.01&&!crossesBody(actor,at,body))corners.add(at);
-            }
-        }
-        corners.sort(Comparator.comparingDouble(at->actor.position().distanceTo(at)+at.distanceTo(destination)));
-        for(var at:corners){
-            if(!walkLeg(actor,at,other,speed))continue;
-            rememberDetour(actor,new Detour(other.getUUID(),other.position(),destination,at,now+40));
-            GameplayLog.limited(actor,"approach","detour",200,"partner detour peer={} destination={} waypoint={}",other.getUUID(),destination,at);
-            return false;
-        }
-        halt(actor);rememberDetour(actor,new Detour(other.getUUID(),other.position(),destination,null,now+10));
-        GameplayLog.limited(actor,"approach","blocked",200,"partner approach blocked peer={} destination={} reason=no_supported_body_clear_route",other.getUUID(),destination);
-        return false;
+        return walkStep(actor,destination,other==actor?null:other,speed)==Step.ARRIVED;
     }
 
-    private static void rememberDetour(YukkuriEntity actor,Detour route){
-        if(DETOURS.size()>=256)DETOURS.clear();
-        DETOURS.put(actor,route);
+    private static void remember(YukkuriEntity actor,Approach route){
+        if(APPROACHES.size()>=256&&!APPROACHES.containsKey(actor))APPROACHES.clear();
+        APPROACHES.put(actor,route);
     }
 
     /** Never substitute a straight line for a route around a step or obstruction. */
     public static boolean walk(YukkuriEntity actor, Vec3 destination, double speed) {
-        return walkStep(actor,destination,speed)==Step.ARRIVED;
+        return walkStep(actor,destination,null,speed)==Step.ARRIVED;
     }
 
-    private static Step walkStep(YukkuriEntity actor,Vec3 destination,double speed){
+    private static Step walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
         long started=System.nanoTime();
-        try{return walkStepNow(actor,destination,speed);}
+        try{return walkStepNow(actor,destination,other,speed);}
         finally{
             long millis=(System.nanoTime()-started)/1_000_000;
             if(millis>=50)GameplayLog.limited(actor,"approach","slow",200,
@@ -247,40 +244,53 @@ public final class SurfaceApproach {
         }
     }
 
-    private static Step walkStepNow(YukkuriEntity actor,Vec3 destination,double speed){
+    private static Step walkStepNow(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
         var target=BlockPos.containing(destination);
         if (TravelRange.keepBabyHome(actor) && !TravelRange.babyDestination(actor,target)) { halt(actor); return Step.BLOCKED; }
         if (!Reactions.Weather.allowsStep(actor,target)) { halt(actor); return Step.BLOCKED; }
-        if (arrived(actor, destination)) { RETRIES.remove(actor);halt(actor);return Step.ARRIVED; }
-        if (clearLastStep(actor, destination)) {
-            RETRIES.remove(actor);
-            actor.getNavigation().stop();
-            double remaining = actor.position().distanceTo(destination);
-            // Mob.setSpeed also sets its forward input; ground travel multiplies that input by
-            // speed again. Linear modifiers made the last few centimetres quadratically slow.
-            double movement = actor.getAttributeValue(Attributes.MOVEMENT_SPEED);
-            double modifier = Math.sqrt(Math.min(.02, remaining*.20))/Math.max(.0001, movement);
-            actor.getMoveControl().setWantedPosition(destination.x, destination.y, destination.z,
-                    Math.min(speed, modifier));
-            return Step.MOVING;
+        var body=other==null?null:other.getBoundingBox();var peer=other==null?null:other.getUUID();
+        long now=actor.level().getGameTime();
+        if (arrived(actor, destination)) { APPROACHES.remove(actor);halt(actor);return Step.ARRIVED; }
+        if (clearOf(actor,actor.position(),destination,body)&&clearLastStep(actor, destination)) {
+            remember(actor,new Approach(peer,body,destination,null,now,now));
+            steer(actor,destination,speed);return Step.MOVING;
         }
         var navigation=actor.getNavigation();
-        // Keep a real in-progress route. Rebuilding it periodically can restart the same coarse node near a nest rim.
-        if(!navigation.isDone()&&target.equals(navigation.getTargetPos()))return Step.MOVING;
-        long now=actor.level().getGameTime();var retry=RETRIES.get(actor);
-        // A failed path has isDone()==true too. It must not trigger another full search on every tick.
-        if(retry!=null&&target.equals(retry.target())&&actor.position().distanceToSqr(retry.from())<.0625&&now<retry.after()){
-            stopWalking(actor);return Step.BLOCKED;
+        var cached=APPROACHES.get(actor);
+        boolean same=cached!=null&&Objects.equals(peer,cached.peer())&&sameBody(body,cached.body())
+                &&cached.destination().distanceToSqr(destination)<.0025&&now-cached.touched()<200;
+        if(same&&cached.path()==null&&now<cached.retryAt()){stopWalking(actor);return Step.BLOCKED;}
+        if(same&&cached.path()!=null&&(navigation.getPath()==cached.path()||cached.path().isDone()&&navigation.isDone())){
+            remember(actor,new Approach(cached.peer(),cached.body(),cached.destination(),cached.path(),now,now));
+            if(!navigation.isDone()){navigation.setSpeedModifier(speed);return Step.MOVING;}
+            // Vanilla finishes within its node tolerance; finish that node physically before the exact last step.
+            var end=floor(actor,cached.path().getEntityPosAtNode(actor,cached.path().getNodeCount()-1));
+            if(end!=null&&!arrived(actor,end)&&clearOf(actor,actor.position(),end,body)&&clearLastStep(actor,end)){
+                steer(actor,end,speed);
+                return Step.MOVING;
+            }
         }
-        navigation.stop();
-        boolean accepted=actor.life().navigate(target,speed,false);
-        if(RETRIES.size()>=256)RETRIES.clear();
-        RETRIES.put(actor,new Retry(target,actor.position(),now+10));
-        if(accepted)return Step.MOVING;
+        var route=plan(actor,destination,body);
+        if(route!=null&&route.path()!=null&&navigation.moveTo(route.path(),speed)){
+            remember(actor,new Approach(peer,body,destination,navigation.getPath(),now,now));
+            GameplayLog.limited(actor,"approach","route",200,
+                    "surface route started peer={} destination={} nodes={} length={}",peer,destination,route.path().getNodeCount(),route.length());
+            return Step.MOVING;
+        }
         stopWalking(actor);
+        remember(actor,new Approach(peer,body,destination,null,now+20,now));
         GameplayLog.limited(actor,"approach","path_failed",200,
-                "surface path unavailable target={} retryAfter={}",destination,now+10);
+                "surface path unavailable peer={} target={} reason=no_complete_surface_route retryAfter={}",peer,destination,now+20);
         return Step.BLOCKED;
+    }
+
+    private static void steer(YukkuriEntity actor,Vec3 destination,double speed){
+        actor.getNavigation().stop();
+        double remaining=actor.position().distanceTo(destination);
+        // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.
+        double movement=actor.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        double modifier=Math.sqrt(Math.min(.02,remaining*.20))/Math.max(.0001,movement);
+        actor.getMoveControl().setWantedPosition(destination.x,destination.y,destination.z,Math.min(speed,modifier));
     }
 
     /** Cancel walking input without cancelling a real push (for example, a sumo exchange). */

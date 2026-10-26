@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,16 +17,18 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.PathNavigationRegion;
 import net.minecraft.world.level.pathfinder.PathFinder;
+import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Dry-area routines may route around an exposed gap; hunger and danger can release the preference.
  * A walker that stops making progress with another yukkuri in front of it first steps aside, then re-plans around
  * that body, and finally asks an idle blocker to make room. Bodies never close the path finder for good.
  */
-final class YukkuriGroundNavigation extends GroundPathNavigation {
+public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private static final int WINDOW = 15, REPLAN_GAP = 60;
     private Vec3 sample;
     private long sampleTick, lastReplan;
@@ -33,11 +36,12 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
     private Set<BlockPos> avoidCells = Set.of();
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
     private PathFinder planner;
-    private record Query(int accuracy, int width, int height) {}
+    private record Query(int accuracy, int width, int height, AABB obstacle) {}
     private final Map<Path, Query> queries = new WeakHashMap<>();
     private BlockPos walkingTarget;
     private Query walkingQuery;
     private boolean forceSearch, stalled;
+    private AABB planningObstacle;
     private float searchMultiplier = 1;
 
     YukkuriGroundNavigation(YukkuriEntity animal, Level level) { super(animal, level); }
@@ -49,7 +53,8 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Planning must not change the installed route's target or reset its stuck clocks. Vanilla createPath does both. */
     @Override protected Path createPath(Set<BlockPos> targets, int margin, boolean above, int accuracy, float range) {
         if(targets.isEmpty()||mob.getY()<level.getMinBuildHeight()||!canUpdatePath())return null;
-        if(!forceSearch&&avoidCells.isEmpty()&&path!=null&&!path.isDone()&&path.canReach()
+        if(!forceSearch&&planningObstacle==null&&avoidCells.isEmpty()&&path!=null&&!path.isDone()&&path.canReach()
+                &&walkingQuery!=null&&walkingQuery.obstacle()==null
                 &&targets.contains(path.getTarget())&&fits(walkingQuery)&&accuracy>=walkingQuery.accuracy())return path;
         long started=System.nanoTime();
         level.getProfiler().push("pathfind");
@@ -71,7 +76,15 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
         return result;
     }
 
-    private Query query(int accuracy){return new Query(accuracy,Mth.floor(mob.getBbWidth()+1),Mth.floor(mob.getBbHeight()+1));}
+    /** Whole vanilla routes to physically usable last-step nodes, with the interaction partner treated as an obstacle. */
+    public Path createApproachPath(Set<BlockPos> targets,AABB obstacle){
+        var previous=planningObstacle;boolean forced=forceSearch;
+        planningObstacle=obstacle;forceSearch=true;
+        try{return createPath(targets,8,false,0);}
+        finally{planningObstacle=previous;forceSearch=forced;}
+    }
+
+    private Query query(int accuracy){return new Query(accuracy,Mth.floor(mob.getBbWidth()+1),Mth.floor(mob.getBbHeight()+1),planningObstacle);}
     private boolean fits(Query query){return query!=null&&query.width()==Mth.floor(mob.getBbWidth()+1)&&query.height()==Mth.floor(mob.getBbHeight()+1);}
     @Override public void setMaxVisitedNodesMultiplier(float multiplier){super.setMaxVisitedNodesMultiplier(multiplier);searchMultiplier=multiplier;}
     @Override public void resetMaxVisitedNodesMultiplier(){super.resetMaxVisitedNodesMultiplier();searchMultiplier=1;}
@@ -108,7 +121,8 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
         var target=walkingTarget;int accuracy=walkingQuery==null?0:walkingQuery.accuracy();
         Path replacement;
         forceSearch=true;
-        try{replacement=createPath(target,accuracy);}finally{forceSearch=false;}
+        planningObstacle=walkingQuery==null?null:walkingQuery.obstacle();
+        try{replacement=createPath(target,accuracy);}finally{forceSearch=false;planningObstacle=null;}
         timeLastRecompute=level.getGameTime();hasDelayedRecomputation=false;
         moveTo(replacement,speedModifier);
     }
@@ -122,6 +136,20 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
             GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={}",target,at);
         }
     }
+
+    @Override protected void followThePath(){
+        var active=path;int previous=active.getNextNodeIndex();
+        super.followThePath();
+        // Vanilla may advance within its generous node tolerance. Do not cut across a partner at that corner.
+        if(path==active&&!active.isDone()&&active.getNextNodeIndex()>previous&&walkingQuery!=null
+                &&crossesObstacle(mob.position(),active.getNextEntityPos(mob),walkingQuery.obstacle()))
+            active.setNextNodeIndex(previous);
+    }
+
+    private boolean crossesObstacle(Vec3 from,Vec3 to,AABB obstacle){
+        return obstacle!=null&&mob instanceof YukkuriEntity animal&&SurfaceApproach.crossesBody(animal,from,to,obstacle);
+    }
+
     @Override protected PathFinder createPathFinder(int nodes) {
         nodeEvaluator = new WalkNodeEvaluator() {
             private boolean keepDry, keepHome;
@@ -130,8 +158,26 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
                 keepDry = mob instanceof YukkuriEntity animal && Reactions.Weather.keepDry(animal);
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
             }
+            @Override public Node getStart(){
+                var start=super.getStart();
+                if(planningObstacle==null||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
+                // A wide body's vanilla start can be offset across the partner. Enter the grid by a real short step.
+                double offset=entityWidth*.5;
+                int x=Mth.floor(mob.getX()-offset+.5),z=Mth.floor(mob.getZ()-offset+.5);
+                BlockPos best=null;double distance=Double.POSITIVE_INFINITY;
+                for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
+                    var at=SurfaceApproach.floor(animal,new Vec3(x+dx+offset,mob.getY(),z+dz+offset));
+                    if(at==null||crossesObstacle(mob.position(),at,planningObstacle)||!SurfaceApproach.clearLastStep(animal,at))continue;
+                    var cell=new BlockPos(x+dx,Mth.floor(at.y+.5),z+dz);
+                    double travel=mob.position().distanceToSqr(at);
+                    if(travel<distance&&canStartAt(cell)){best=cell;distance=travel;}
+                }
+                return best==null?start:getStartNode(best);
+            }
             @Override protected PathType getCachedPathType(int x, int y, int z) {
                 PathType type = super.getCachedPathType(x, y, z);
+                if(planningObstacle!=null&&mob.getDimensions(mob.getPose()).makeBoundingBox(
+                        x+entityWidth*.5,y,z+entityDepth*.5).inflate(.02,0,.02).intersects(planningObstacle))return PathType.BLOCKED;
                 // A wide mob's node covers several cells, with its centre at node + width/2, not node + .5.
                 for(var cell:avoidCells)if(cell.getX()>=x&&cell.getX()<x+entityWidth&&cell.getY()>=y&&cell.getY()<y+entityHeight
                         &&cell.getZ()>=z&&cell.getZ()<z+entityDepth)return PathType.BLOCKED;
@@ -140,6 +186,18 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
                 if (keepDry && mob instanceof YukkuriEntity animal
                         && Reactions.Weather.rainAt(animal, new BlockPos(x, y, z))) return PathType.BLOCKED;
                 return type;
+            }
+            @Override public int getNeighbors(Node[] neighbors,Node node){
+                int count=super.getNeighbors(neighbors,node);
+                if(planningObstacle==null)return count;
+                var from=new Vec3(node.x+entityWidth*.5,node.y,node.z+entityDepth*.5);
+                int kept=0;
+                for(int i=0;i<count;i++){
+                    var next=neighbors[i];
+                    if(!crossesObstacle(from,new Vec3(next.x+entityWidth*.5,next.y,next.z+entityDepth*.5),planningObstacle))
+                        neighbors[kept++]=next;
+                }
+                return kept;
             }
         };
         nodeEvaluator.setCanPassDoors(true);
@@ -244,8 +302,9 @@ final class YukkuriGroundNavigation extends GroundPathNavigation {
         avoidCells = cells;
         Path detour;
         forceSearch=true;
+        planningObstacle=walkingQuery==null?null:walkingQuery.obstacle();
         try { detour = createPath(target, walkingQuery==null?0:walkingQuery.accuracy()); }
-        finally { avoidCells = Set.of();forceSearch=false; }
+        finally { avoidCells = Set.of();forceSearch=false;planningObstacle=null; }
         if (detour == null || !detour.canReach() || detour.sameAs(path)) return false;
         return moveTo(detour, speedModifier);
     }

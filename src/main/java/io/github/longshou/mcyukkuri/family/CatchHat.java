@@ -26,6 +26,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.pathfinder.Path;
 
 /** Catcher staging for one real hat; the owner retains the goal and pickup controllers. */
 final class CatchHat {
@@ -53,6 +54,12 @@ final class CatchHat {
     private FamilyLife.DeliveryStation rendezvous;
     private UUID dutyBrood;
     private int nextSiteSearch;
+    private record SiteCandidate(FamilyLife.DeliveryStation site,Vec3 helper,double lowerBound) {}
+    private record RejectedSite(Vec3 mother,Vec3 helper,int until) {}
+    private final List<RejectedSite> rejectedSites=new ArrayList<>();
+    private int siteSelectedAt,sitePhase,sitePhaseAt,siteProgressAt,siteNode;
+    private Path sitePath;
+    private double siteRemaining;
 
     CatchHat(FamilyLife o) { this.o=o; }
     boolean moving() { return hatMove!=HatMove.NONE; }
@@ -62,7 +69,7 @@ final class CatchHat {
             +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy()+" dutyTicks="+dutyTicks+" gaveUp="+dutyGaveUp
             +" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
-    void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;clearDeliveryStation(); }
+    void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();sitePath=null;clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
     void linger(int ticks) { cradleLinger=ticks; }
     void tickLinger() { if(cradleLinger>0)cradleLinger--; }
@@ -202,10 +209,7 @@ final class CatchHat {
         var brim=HatVessel.brim(pose.mode());double width=Math.max(brim[0],brim[1])*unit;
         var hatBox=new AABB(pose.at().x-width,pose.at().y+.01,pose.at().z-width,
                 pose.at().x+width,pose.at().y+.3,pose.at().z+width);
-        var motherBox=brood.kind==FamilyData.BirthKind.LIVE
-                ?LiveBirthGeometry.bodyDimensions(mother,mother.growthScale(),LiveBirthGeometry.belly(1,
-                        brood.children.size()-brood.unborn(),brood.children.size())).scale(mother.getScale()).makeBoundingBox(site.at())
-                :mother.getBoundingBox().move(site.at().subtract(mother.position()));
+        var motherBox=motherAt(mother,brood,site.at());
         if(!o.level().noCollision(mother,motherBox))return "mother_belly_room";
         var helperBox=o.entity().getBoundingBox().move(helper.at().subtract(o.entity().position()));
         // A stem hat's near brim lip may lie under her front (stemClearance); a live catch keeps the whole brim clear of her.
@@ -216,39 +220,83 @@ final class CatchHat {
         return o.level().getBlockCollisions(o.entity(),hatBox).iterator().hasNext()?"hat_blocked":null;
     }
 
+    private AABB motherAt(YukkuriEntity mother,FamilyData.Brood brood,Vec3 at){
+        return brood.kind==FamilyData.BirthKind.LIVE
+                ?LiveBirthGeometry.bodyDimensions(mother,mother.growthScale(),LiveBirthGeometry.belly(1,
+                        brood.children.size()-brood.unborn(),brood.children.size())).scale(mother.getScale()).makeBoundingBox(at)
+                :mother.getBoundingBox().move(at.subtract(mother.position()));
+    }
+
     private void findSite(YukkuriEntity mother,FamilyData.Brood brood) {
-        // Quarter turns preserve the same AABB overlap at a full belly. Include diagonals and prefer a near-side
-        // helper stand, so the vanilla block pathfinder is not asked to walk through the waiting mother.
+        // Compare the whole nearby area, not the first geometrically valid point beside the nest.
+        rejectedSites.removeIf(site->site.until()<=dutyTicks);
         int paths=0,checked=0;String reason="mother_floor";
+        var candidates=new ArrayList<SiteCandidate>();
         for(int radius=0;radius<=3;radius++)for(int side=0;side<(radius==0?1:8);side++) {
             double angle=side*Math.PI/4;
             var at=SurfaceApproach.floor(mother,mother.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
             if(at==null)continue;
-            var candidates=new ArrayList<FamilyLife.DeliveryStation>();
             for(float turn:new float[]{0,45,-45,90,-90,135,-135,180}) {
                 var site=new FamilyLife.DeliveryStation(at,mother.yBodyRot+turn);
                 checked++;String refusal=siteRefusal(mother,brood,site);
                 if(refusal!=null){reason=refusal;continue;}
-                candidates.add(site);
-            }
-            candidates.sort(Comparator.comparingDouble(site->stand(atStation(mother,brood,site),o.entity()).at().distanceToSqr(o.entity().position())));
-            for(var site:candidates) {
-                var helper=stand(atStation(mother,brood,site),o.entity());
-                // The helper can take a real detour after she settles; her initial walk must leave his body clear.
-                if(SurfaceApproach.crossesBody(mother,at,o.entity().getBoundingBox())){
-                    reason="approach_crosses_parent";continue;
-                }
-                if(paths>=8){logSiteFailure(brood,checked,paths,"path_budget");return;}
-                paths++;
-                if(!SurfaceApproach.canApproach(mother,at)){reason="mother_path";continue;}
-                if(!SurfaceApproach.canApproach(o.entity(),helper.at())){reason="helper_path";continue;}
-                rendezvous=site;
-                GameplayLog.event(o.entity(),"family","catch site selected brood={} mother={} station={} yaw={} helper={} checked={} paths={}",
-                        brood.id,mother.getUUID(),site.at(),site.yaw(),helper.at(),checked,paths);
-                return;
+                var helper=stand(atStation(mother,brood,site),o.entity()).at();
+                if(rejectedSites.stream().anyMatch(old->old.mother().distanceToSqr(at)<.5625&&old.helper().distanceToSqr(helper)<.5625))continue;
+                candidates.add(new SiteCandidate(site,helper,1.5*mother.position().distanceTo(at)+o.entity().position().distanceTo(helper)));
             }
         }
+        candidates.sort(Comparator.comparingDouble(SiteCandidate::lowerBound));
+        SiteCandidate best=null;double bestCost=Double.POSITIVE_INFINITY;
+        for(var candidate:candidates){
+            if(candidate.lowerBound()>=bestCost||paths>=12)break;
+            var site=candidate.site();paths++;
+            double motherRoute=SurfaceApproach.routeLength(mother,site.at(),o.entity().getBoundingBox());
+            double helperRoute=Double.isFinite(motherRoute)?SurfaceApproach.routeLength(o.entity(),candidate.helper(),motherAt(mother,brood,site.at())):Double.POSITIVE_INFINITY;
+            if(!Double.isFinite(helperRoute)){
+                reason=Double.isFinite(motherRoute)?"helper_route":"mother_route";
+                rejectSite(site.at(),candidate.helper(),400);continue;
+            }
+            double cost=1.5*motherRoute+helperRoute;
+            if(cost<bestCost){best=candidate;bestCost=cost;}
+        }
+        if(best!=null){
+            rendezvous=best.site();siteSelectedAt=dutyTicks;sitePhase=-1;sitePath=null;
+            GameplayLog.event(o.entity(),"family","catch site selected brood={} mother={} station={} yaw={} helper={} checked={} paths={} routeCost={}",
+                    brood.id,mother.getUUID(),rendezvous.at(),rendezvous.yaw(),best.helper(),checked,paths,bestCost);
+            return;
+        }
         logSiteFailure(brood,checked,paths,reason);
+    }
+
+    private void rejectSite(Vec3 mother,Vec3 helper,int ticks){
+        if(rejectedSites.size()>=32)rejectedSites.removeFirst();
+        rejectedSites.add(new RejectedSite(mother,helper,dutyTicks+ticks));
+    }
+
+    /** Observe actual progress on the current parent's route. A looping/replaced route cannot renew the site's deadline. */
+    private String siteStalled(YukkuriEntity mother,FamilyData.Brood brood){
+        boolean motherReady=SurfaceApproach.arrived(mother,rendezvous.at())&&Math.abs(Mth.wrapDegrees(mother.yBodyRot-rendezvous.yaw()))<=3;
+        int phase=motherReady?1:0;var actor=motherReady?o.entity():mother;
+        var destination=motherReady?stand(atStation(mother,brood,rendezvous),o.entity()).at():rendezvous.at();
+        if(sitePhase!=phase){sitePhase=phase;sitePhaseAt=siteProgressAt=dutyTicks;sitePath=null;siteRemaining=Double.POSITIVE_INFINITY;}
+        var path=actor.getNavigation().getPath();
+        int node=path==null||path.isDone()?-1:path.getNextNodeIndex();
+        double remaining=actor.position().distanceTo(node<0?destination:path.getNextEntityPos(actor));
+        if(path!=sitePath||node!=siteNode){
+            if(path==sitePath&&node>siteNode)siteProgressAt=dutyTicks;
+            sitePath=path;siteNode=node;siteRemaining=remaining;
+        }else if(remaining<siteRemaining-.1){siteRemaining=remaining;siteProgressAt=dutyTicks;}
+        if(dutyTicks-siteProgressAt>=80)return motherReady?"helper_no_progress":"mother_no_progress";
+        return dutyTicks-sitePhaseAt>=240||dutyTicks-siteSelectedAt>=400?"site_approach_timeout":null;
+    }
+
+    private void releaseSite(YukkuriEntity mother,FamilyData.Brood brood,String reason){
+        var helper=stand(atStation(mother,brood,rendezvous),o.entity()).at();
+        GameplayLog.event(o.entity(),"family","catch site released brood={} reason={} station={} helper={} motherAt={} helperAt={} ticks={}",
+                brood.id,reason,rendezvous.at(),helper,mother.position(),o.entity().position(),dutyTicks-siteSelectedAt);
+        rejectSite(rendezvous.at(),helper,400);rendezvous=null;sitePath=null;nextSiteSearch=dutyTicks+1;
+        SurfaceApproach.stopWalking(o.entity());
+        if(mother.family().task()==Task.BROOD)SurfaceApproach.stopWalking(mother);
     }
 
     private void logSiteFailure(FamilyData.Brood brood,int checked,int paths,String reason){
@@ -303,7 +351,7 @@ final class CatchHat {
     }
 
     void load(CompoundTag tag) {
-        dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;
+        dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;rejectedSites.clear();sitePath=null;
         clearDeliveryStation();
         if(!tag.hasUUID("CatchStationBrood")||!tag.hasUUID("CatchStationHat"))return;
         deliveryBrood=tag.getUUID("CatchStationBrood");deliveryHat=tag.getUUID("CatchStationHat");
@@ -493,11 +541,8 @@ final class CatchHat {
             }
             if(rendezvous!=null){
                 String reason=siteRefusal(mate,b,rendezvous);
-                if(reason!=null){
-                    GameplayLog.limited(o.entity(),"family","catch.site_lost",200,
-                            "catch site invalidated brood={} reason={} station={}",b.id,reason,rendezvous.at());
-                    rendezvous=null;
-                }
+                if(reason==null)reason=siteStalled(mate,b);
+                if(reason!=null)releaseSite(mate,b,reason);
             }
             if(rendezvous==null&&dutyTicks>=nextSiteSearch){nextSiteSearch=dutyTicks+100;findSite(mate,b);}
             if(rendezvous==null){

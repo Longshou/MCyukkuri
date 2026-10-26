@@ -1029,7 +1029,7 @@ public final class FamilyLife {
                 if(delivery.walkOutForCatcher(brood))return;
                 var meeting=catchRendezvous(brood);
                 if(meeting!=null) {
-                    if(SurfaceApproach.walk(entity,meeting.at(),1.05))face(meeting.yaw());
+                    if(SurfaceApproach.walkAround(entity,meeting.at(),catcher(entity,brood),1.05))face(meeting.yaw());
                     return;
                 }
                 // Hold a supported position once the father is near, so his site search does not chase a moving outlet.
