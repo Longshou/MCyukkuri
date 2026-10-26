@@ -346,11 +346,15 @@ add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
     '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0, half=3),
         *large_nest(8, 0, 'mcyukkuri:large_yukkuri_nest'),
-        yk('reimu', 8.5, .5, 'mother', yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
+        # Start above the collision shell and let gravity settle her before the deferred conception.
+        yk('reimu', 8.5, .5, 'mother', dy=.5, yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
         yk('marisa', 6, 2, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
-        f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth', vantage=(4, 12))
+        f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth', vantage=(4, 12),
+    reads=[('读母油产程与窝位', f'yukkuri status {sel("mother")} raw'),
+           ('读父油接生', f'yukkuri status {sel("father")} raw'),
+           ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 add('feed', 'family', '嚼糜喂食', '嚼糜喂食',
     '三家饥饿赤油：前排孩子在窝、后排亲油在窝、最右低友善对照。左侧16格外只有两份苹果，另有一株草；看接受后找粮、真实采食、嚼糜和窝内外交接。低友善仍可能接受；无粮须显示搜索结束原因，可手动补苹果再观察',

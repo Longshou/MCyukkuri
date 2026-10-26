@@ -571,14 +571,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return LiveBirthGeometry.bodyDimensions(this,growthScale(),livePregnancyProgress());
     }
     @Override public boolean fudgePositionAfterSizeChange(EntityDimensions previous) {
-        // Live gestation already checks the next body at these feet. Vanilla otherwise expands and unions every
-        // nearby collision box to search for a new position on each tiny swell, even when this one fits exactly.
+        // Live gestation normally checks the next body at these feet. Explicit scenario changes may still collide.
         if(level().noCollision(this,getBoundingBox()))return true;
+        Vec3 before=position();
+        GameplayLog.limited(this,"move","resize_started",200,
+                "body resize collision search started oldWidth={} width={} oldHeight={} height={} at={}",
+                previous.width(),getBbWidth(),previous.height(),getBbHeight(),before);
         long started=System.nanoTime();
-        boolean moved=super.fudgePositionAfterSizeChange(previous);
+        boolean moved=BodyResizeSpace.adjust(this,previous);
         long millis=(System.nanoTime()-started)/1_000_000;
-        if(millis>=50)GameplayLog.limited(this,"move","resize_slow",200,
-                "slow body resize oldWidth={} width={} elapsedMs={} adjusted={}",previous.width(),getBbWidth(),millis,moved);
+        GameplayLog.limited(this,"move","resize_result",200,
+                "body resize collision search finished oldWidth={} width={} elapsedMs={} adjusted={} from={} to={} reason={}",
+                previous.width(),getBbWidth(),millis,moved,before,position(),moved?"space_found":"no_free_position");
         return moved;
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
