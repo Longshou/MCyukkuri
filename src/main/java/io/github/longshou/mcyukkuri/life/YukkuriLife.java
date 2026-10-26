@@ -933,7 +933,8 @@ public final class YukkuriLife {
         return entity.getNavigation().moveTo(target.getX() + .5, target.getY(), target.getZ() + .5, speed);
     }
     public boolean navigate(BlockPos target, double speed, boolean escapeWater) {
-        Path path = path(target, escapeWater); return path != null && entity.getNavigation().moveTo(path, speed);
+        // This is a movement request, unlike reachable(): failure must not leave an earlier destination running.
+        return entity.getNavigation().moveTo(path(target, escapeWater), speed);
     }
     public void escapeWater() {
         entity.waterDistress().escapeTick();
