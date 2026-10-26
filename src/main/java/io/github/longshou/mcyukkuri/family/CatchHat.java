@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.level.pathfinder.Path;
 
 /** Catcher staging for one real hat; the owner retains the goal and pickup controllers. */
 final class CatchHat {
@@ -57,9 +56,7 @@ final class CatchHat {
     private record SiteCandidate(FamilyLife.DeliveryStation site,Vec3 helper,double lowerBound) {}
     private record RejectedSite(Vec3 mother,Vec3 helper,int until) {}
     private final List<RejectedSite> rejectedSites=new ArrayList<>();
-    private int siteSelectedAt,sitePhase,sitePhaseAt,siteProgressAt,siteNode;
-    private Path sitePath;
-    private double siteRemaining;
+    private int siteSelectedAt;
 
     CatchHat(FamilyLife o) { this.o=o; }
     boolean moving() { return hatMove!=HatMove.NONE; }
@@ -69,7 +66,7 @@ final class CatchHat {
             +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy()+" dutyTicks="+dutyTicks+" gaveUp="+dutyGaveUp
             +" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
-    void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();sitePath=null;clearDeliveryStation(); }
+    void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();clearDeliveryStation(); }
     void resetApproach() { hatApproach=0; }
     void linger(int ticks) { cradleLinger=ticks; }
     void tickLinger() { if(cradleLinger>0)cradleLinger--; }
@@ -260,7 +257,7 @@ final class CatchHat {
             if(cost<bestCost){best=candidate;bestCost=cost;}
         }
         if(best!=null){
-            rendezvous=best.site();siteSelectedAt=dutyTicks;sitePhase=-1;sitePath=null;
+            rendezvous=best.site();siteSelectedAt=dutyTicks;
             GameplayLog.event(o.entity(),"family","catch site selected brood={} mother={} station={} yaw={} helper={} checked={} paths={} routeCost={}",
                     brood.id,mother.getUUID(),rendezvous.at(),rendezvous.yaw(),best.helper(),checked,paths,bestCost);
             return;
@@ -273,28 +270,21 @@ final class CatchHat {
         rejectedSites.add(new RejectedSite(mother,helper,dutyTicks+ticks));
     }
 
-    /** Observe actual progress on the current parent's route. A looping/replaced route cannot renew the site's deadline. */
+    /** Routing owns movement failure; the family owns only the finite lifetime of this agreed site. */
     private String siteStalled(YukkuriEntity mother,FamilyData.Brood brood){
         boolean motherReady=SurfaceApproach.arrived(mother,rendezvous.at())&&Math.abs(Mth.wrapDegrees(mother.yBodyRot-rendezvous.yaw()))<=3;
-        int phase=motherReady?1:0;var actor=motherReady?o.entity():mother;
+        var actor=motherReady?o.entity():mother;
         var destination=motherReady?stand(atStation(mother,brood,rendezvous),o.entity()).at():rendezvous.at();
-        if(sitePhase!=phase){sitePhase=phase;sitePhaseAt=siteProgressAt=dutyTicks;sitePath=null;siteRemaining=Double.POSITIVE_INFINITY;}
-        var path=actor.getNavigation().getPath();
-        int node=path==null||path.isDone()?-1:path.getNextNodeIndex();
-        double remaining=actor.position().distanceTo(node<0?destination:path.getNextEntityPos(actor));
-        if(path!=sitePath||node!=siteNode){
-            if(path==sitePath&&node>siteNode)siteProgressAt=dutyTicks;
-            sitePath=path;siteNode=node;siteRemaining=remaining;
-        }else if(remaining<siteRemaining-.1){siteRemaining=remaining;siteProgressAt=dutyTicks;}
-        if(dutyTicks-siteProgressAt>=80)return motherReady?"helper_no_progress":"mother_no_progress";
-        return dutyTicks-sitePhaseAt>=240||dutyTicks-siteSelectedAt>=400?"site_approach_timeout":null;
+        if(SurfaceApproach.lastResult(actor,destination)==SurfaceApproach.Result.BLOCKED)
+            return motherReady?"helper_route_blocked":"mother_route_blocked";
+        return dutyTicks-siteSelectedAt>=400?"site_approach_timeout":null;
     }
 
     private void releaseSite(YukkuriEntity mother,FamilyData.Brood brood,String reason){
         var helper=stand(atStation(mother,brood,rendezvous),o.entity()).at();
         GameplayLog.event(o.entity(),"family","catch site released brood={} reason={} station={} helper={} motherAt={} helperAt={} ticks={}",
                 brood.id,reason,rendezvous.at(),helper,mother.position(),o.entity().position(),dutyTicks-siteSelectedAt);
-        rejectSite(rendezvous.at(),helper,400);rendezvous=null;sitePath=null;nextSiteSearch=dutyTicks+1;
+        rejectSite(rendezvous.at(),helper,400);rendezvous=null;nextSiteSearch=dutyTicks+1;
         SurfaceApproach.stopWalking(o.entity());
         if(mother.family().task()==Task.BROOD)SurfaceApproach.stopWalking(mother);
     }
@@ -351,7 +341,7 @@ final class CatchHat {
     }
 
     void load(CompoundTag tag) {
-        dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;rejectedSites.clear();sitePath=null;
+        dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;rejectedSites.clear();
         clearDeliveryStation();
         if(!tag.hasUUID("CatchStationBrood")||!tag.hasUUID("CatchStationHat"))return;
         deliveryBrood=tag.getUUID("CatchStationBrood");deliveryHat=tag.getUUID("CatchStationHat");

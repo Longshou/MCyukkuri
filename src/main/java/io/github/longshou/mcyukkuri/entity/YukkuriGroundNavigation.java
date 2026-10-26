@@ -42,6 +42,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private Query walkingQuery;
     private boolean forceSearch, stalled;
     private AABB planningObstacle;
+    private int followingNode=-1;
     private float searchMultiplier = 1;
 
     YukkuriGroundNavigation(YukkuriEntity animal, Level level) { super(animal, level); }
@@ -75,6 +76,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 targets.iterator().next(),targets.size(),accuracy,millis,result!=null&&result.canReach(),result==null?0:result.getNodeCount(),avoidCells.size());
         return result;
     }
+
+    /** Movement readiness is separate from a failed search; this does not calculate a path. */
+    public boolean canPlanApproach(){return canUpdatePath();}
 
     /** Whole vanilla routes to physically usable last-step nodes, with the interaction partner treated as an obstacle. */
     public Path createApproachPath(Set<BlockPos> targets,AABB obstacle){
@@ -128,6 +132,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override protected void doStuckDetection(Vec3 at){
+        // This hook runs after vanilla advances, but before it samples node progress and timeout.
+        if(path!=null&&!path.isDone()&&followingNode>=0&&path.getNextNodeIndex()>followingNode&&walkingQuery!=null
+                &&crossesObstacle(mob.position(),path.getNextEntityPos(mob),walkingQuery.obstacle()))
+            path.setNextNodeIndex(followingNode);
         boolean walking=!isDone();
         var target=walkingTarget;
         super.doStuckDetection(at);
@@ -138,12 +146,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override protected void followThePath(){
-        var active=path;int previous=active.getNextNodeIndex();
-        super.followThePath();
-        // Vanilla may advance within its generous node tolerance. Do not cut across a partner at that corner.
-        if(path==active&&!active.isDone()&&active.getNextNodeIndex()>previous&&walkingQuery!=null
-                &&crossesObstacle(mob.position(),active.getNextEntityPos(mob),walkingQuery.obstacle()))
-            active.setNextNodeIndex(previous);
+        followingNode=path.getNextNodeIndex();
+        try{super.followThePath();}finally{followingNode=-1;}
     }
 
     private boolean crossesObstacle(Vec3 from,Vec3 to,AABB obstacle){
@@ -161,6 +165,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             @Override public Node getStart(){
                 var start=super.getStart();
                 if(planningObstacle==null||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
+                var nativeFeet=SurfaceApproach.floor(animal,new Vec3(start.x+entityWidth*.5,start.y,start.z+entityDepth*.5));
+                if(start.costMalus>=0&&nativeFeet!=null&&!crossesObstacle(mob.position(),nativeFeet,planningObstacle)
+                        &&SurfaceApproach.clearLastStep(animal,nativeFeet))return start;
                 // A wide body's vanilla start can be offset across the partner. Enter the grid by a real short step.
                 double offset=entityWidth*.5;
                 int x=Mth.floor(mob.getX()-offset+.5),z=Mth.floor(mob.getZ()-offset+.5);

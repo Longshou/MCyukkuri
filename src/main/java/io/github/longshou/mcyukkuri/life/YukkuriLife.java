@@ -56,6 +56,7 @@ import net.minecraft.world.effect.MobEffects;
 public final class YukkuriLife {
     private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
     private final YukkuriEntity entity;
+    private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
     private YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, bladder, wetness;
@@ -109,6 +110,7 @@ public final class YukkuriLife {
         hotFloor = new HotFloorEscape(entity);
     }
     public HotFloorEscape hotFloor() { return hotFloor; }
+    SurfaceApproach approach() { return approach; }
     /** Project design: equal food units, smaller daily needs for smaller life stages. */
     public float nutritionDemand() { return switch(entity.family().stage()) { case BABY -> .06f; case JUVENILE -> entity.family().subadult() ? .5f : .18f; case ADULT -> 1f; }; }
     public int sleepDuration() { return 200 + 4 * personality.boldness(); }
