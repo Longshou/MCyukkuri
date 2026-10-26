@@ -127,6 +127,7 @@ public interface YukkuriView {
     boolean aftermathBurden();
     boolean aftermathWeak();
     CompoundTag agitationState();
+    CompoundTag courtshipState();
     /** The hull whose CrewState holds this body's transfer (entity id), or -1. */
     int crewBoat();
     CompoundTag aquaticSelfRescueState();

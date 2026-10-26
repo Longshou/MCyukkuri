@@ -42,6 +42,7 @@ const W=600,H=440,outDir=path.join(root,'.local/previews/rapem-alice/frames');fs
 const victimModel=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri/reimu.json'),'utf8'));
 const victimPose=new RuntimePose(victimModel,1,null,null);
 const victimTex=decode(path.join(root,'standards/yukkuri-library/assembled/reimu/textures/squeezed_cry_tears.png'));
+const victimMamuParts=victimModel.parts.filter(p=>p.anatomy==='mamu');
 const poseCues=JSON.parse(fs.readFileSync(path.join(__dirname,'pose-cues.json'),'utf8'));
 function sampleChannel(channel,progress){
  const keys=poseCues[channel];let i=0;
@@ -88,7 +89,10 @@ for(const branch of ['heat','relief','act','rapem']){
   let layers=[raster.renderModel(attacker,textures[face].data,W,H,cam.az,cam.el,cam.span,{centerY:4.8,textureSize:256})];
   if(branch==='act'){
    // The pinned reimu in front: same thrust clock, pressed face-forward.
-   const pinned=applyPose(Float64Array.from(victimPose.frame('idle',0)),samplePinned((frame%10)/10),ACT_CAM.victimX,ACT_CAM.victimZ);
+   const pinnedBody=Float64Array.from(victimPose.frame('idle',0));
+   const mamu=victimPose.frame('anatomy_mamu_extend',.24);
+   for(const part of victimMamuParts)pinnedBody.set(mamu.subarray(part.start*8,(part.start+part.count)*8),part.start*8);
+   const pinned=applyPose(pinnedBody,samplePinned((frame%10)/10),ACT_CAM.victimX,ACT_CAM.victimZ);
    layers.push(raster.renderModel(pinned,victimTex.data,W,H,cam.az,cam.el,cam.span,{centerY:4.8,textureSize:256}));
   }
   const canvas=Buffer.alloc(W*H*4);

@@ -13,16 +13,19 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 /** Mutual courtship reads one initiator clock; the owner keeps all durable family and goal state. */
 final class Courtship {
     private final FamilyLife o;
-    private int courtNearTicks, courtPathFailures, courtRequiredTicks;
-    private long courtStart=-1;
+    private int courtNearTicks, courtContactTicks, courtPathFailures, courtRequiredTicks;
+    private long courtStart=-1, courtContactStart=-1;
     private static final int COURT_ACCEPT_TICKS=28;
     /** Temporary arrangement and the owner-unpermitted courtship partner. */
     private UUID arranged, unauthorizedWith;
+    private boolean initiatorMother=true;
 
     Courtship(FamilyLife o) { this.o=o; }
     UUID arranged() { return arranged; }
@@ -48,10 +51,30 @@ final class Courtship {
 
     long courtAnimationStart() {
         var leader=presentingCourt();
-        return leader==null?-1:leader.courtship().courtStart+(leader.courtship().courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
+        if(leader==null)return -1;
+        var court=leader.courtship();
+        return court.courtContactTicks>0?court.courtContactStart:court.courtStart+(court.courtNearTicks<=COURT_ACCEPT_TICKS?0:COURT_ACCEPT_TICKS);
     }
 
-    void resetCourtProgress(){courtNearTicks=courtRequiredTicks=0;courtStart=-1;}
+    /** Display-only projection of the real court stage. No second client-side court state exists. */
+    CompoundTag state() {
+        var tag=new CompoundTag();
+        var leader=presentingCourt();if(leader==null)return tag;
+        var court=leader.courtship();
+        tag.putString("Phase",court.courtContactTicks>0?"CONTACT":court.courtNearTicks<=COURT_ACCEPT_TICKS?"ACCEPT":"ALIGN");
+        tag.putLong("Start",courtAnimationStart());
+        tag.putString("Role",o.entity()==court.mother(leader.entity(),leader.target())?"MAMU":"PENI");
+        tag.putInt("TargetId",o.target().getId());
+        return tag;
+    }
+
+    String describe() {
+        return "phase="+(courtStart<0?"idle":courtContactTicks>0?"contact":courtNearTicks<=COURT_ACCEPT_TICKS?"accept":"align")
+                +" nearTicks="+courtNearTicks+" contactTicks="+courtContactTicks+" requiredTicks="+courtRequiredTicks
+                +" mother="+(courtStart<0?"pending":initiatorMother?"initiator":"receiver")+" pathFailures="+courtPathFailures;
+    }
+
+    void resetCourtProgress(){courtNearTicks=courtContactTicks=courtRequiredTicks=0;courtStart=courtContactStart=-1;}
 
     void facePartner(){
         float yaw=(float)(Mth.atan2(o.target().getZ()-o.entity().getZ(),o.target().getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90;
@@ -134,6 +157,50 @@ final class Courtship {
         return a!=null&&b!=null&&a.distSqr(b)<=64&&(o.boatHome()!=null||other.family().boatHome()!=null||o.entity().life().reachable(other.blockPosition(),false));
     }
 
+    private YukkuriEntity mother(YukkuriEntity first,YukkuriEntity second) {
+        if(first.getVariant()==YukkuriVariant.MARISA&&second.getVariant()==YukkuriVariant.REIMU)return second;
+        if(first.getVariant()==YukkuriVariant.REIMU&&second.getVariant()==YukkuriVariant.MARISA)return first;
+        return initiatorMother?first:second;
+    }
+
+    private Vec3 rearStand(YukkuriEntity receiver,YukkuriEntity giver) {
+        var forward=Vec3.directionFromRotation(0,receiver.getYRot());
+        double spacing=(receiver.getBbWidth()+giver.getBbWidth())*.5*.9;
+        return receiver.position().subtract(forward.scale(spacing));
+    }
+
+    private boolean rearAligned(FamilyLife leader) {
+        var mother=mother(leader.entity(),leader.target());var father=mother==leader.entity()?leader.target():leader.entity();
+        return father.distanceToSqr(rearStand(mother,father))<=.36&&father.distanceToSqr(mother)<=2.25;
+    }
+
+    /** The receiver turns away and the father really walks behind her; neither side is teleported into contact. */
+    private void tickRearApproach(FamilyLife self,FamilyLife leader) {
+        var court=leader.courtship();var mother=mother(leader.entity(),leader.target());var father=mother==leader.entity()?leader.target():leader.entity();
+        if(self.entity()==mother) {
+            self.entity().getNavigation().stop();
+            float yaw=(float)(Mth.atan2(mother.getZ()-father.getZ(),mother.getX()-father.getX())*Mth.RAD_TO_DEG)-90;
+            self.face(Mth.approachDegrees(mother.getYRot(),yaw,8));
+        } else {
+            var rear=rearStand(mother,father);
+            float yaw=(float)(Mth.atan2(mother.getZ()-father.getZ(),mother.getX()-father.getX())*Mth.RAD_TO_DEG)-90;
+            self.face(Mth.approachDegrees(father.getYRot(),yaw,8));
+            if(father.distanceToSqr(rear)>.16&&leader.courtship().courtContactTicks==0) {
+                if(court.courtNearTicks%10==1) {
+                    if(father.life().navigate(net.minecraft.core.BlockPos.containing(rear),.8,false))court.courtPathFailures=0;
+                    else if(++court.courtPathFailures>=3){court.courtStopped("rear_path_failed");leader.stop();}
+                }
+            } else father.getNavigation().stop();
+        }
+    }
+
+    private void faceRearContact(FamilyLife self,FamilyLife leader) {
+        var mother=mother(leader.entity(),leader.target());var father=mother==leader.entity()?leader.target():leader.entity();
+        self.entity().getNavigation().stop();
+        float yaw=(float)(Mth.atan2(mother.getZ()-father.getZ(),mother.getX()-father.getX())*Mth.RAD_TO_DEG)-90;
+        self.face(Mth.approachDegrees(self.entity().getYRot(),yaw,8));
+    }
+
     void tickCourt() {
         if(!canReproduceWith(o.target())){
             courtStopped("pair_requirements_changed");o.stop();return;
@@ -154,21 +221,37 @@ final class Courtship {
             }
             return;
         }
-        o.entity().getNavigation().stop();facePartner();
         if(courtNearTicks==0){
             courtStart=o.level().getGameTime();courtRequiredTicks=o.sexDrive()>0?60:120;
-            GameplayLog.limited(o.entity(),"family","court.contact",200,
-                    "courtship contact started partner={} requiredTicks={}",o.target().getUUID(),courtRequiredTicks);
+            initiatorMother=!(o.entity().getVariant()==YukkuriVariant.MARISA&&o.target().getVariant()==YukkuriVariant.REIMU);
+            GameplayLog.limited(o.entity(),"family","court.accept",200,
+                    "courtship acceptance started partner={} requiredTicks={}",o.target().getUUID(),courtRequiredTicks);
         }
-        if(++courtNearTicks>=courtRequiredTicks) {
-            // A Reimu and Marisa couple: Reimu always carries the young and Marisa is the father.
-            YukkuriEntity peer=o.target(),mother=o.entity(),father=o.target();
-            if(o.entity().getVariant()==YukkuriVariant.MARISA&&o.target().getVariant()==YukkuriVariant.REIMU){mother=o.target();father=o.entity();}
-            boolean unauthorized=o.target().getUUID().equals(unauthorizedWith);
+        courtNearTicks++;
+        if(courtNearTicks<=COURT_ACCEPT_TICKS){o.entity().getNavigation().stop();facePartner();return;}
+        if(courtContactTicks==0) {
+            tickRearApproach(o,this);
+            if(o.task()==Task.COURT&&rearAligned(this)) {
+                courtContactTicks=1;courtContactStart=o.level().getGameTime();
+                GameplayLog.event(o.entity(),"family","courtship contact started partner={} requiredTicks={} mother={} father={}",
+                        o.target().getUUID(),courtRequiredTicks,mother(o.entity(),o.target()).getUUID(),
+                        (mother(o.entity(),o.target())==o.entity()?o.target():o.entity()).getUUID());
+            }
+            return;
+        }
+        if(!rearAligned(this)) {
+            GameplayLog.limited(o.entity(),"family","court.contact_lost",200,"courtship rear contact lost partner={} contactTicks={}",o.target().getUUID(),courtContactTicks);
+            courtContactTicks=0;courtContactStart=-1;tickRearApproach(o,this);return;
+        }
+        faceRearContact(o,this);
+        if(++courtContactTicks>=courtRequiredTicks) {
+            YukkuriEntity peer=o.target(),mother=mother(o.entity(),peer),father=mother==o.entity()?peer:o.entity();
+            ReproductionEffects.release(o.level(),mother);
+            boolean unauthorized=peer.getUUID().equals(unauthorizedWith);
             boolean motherHeat=mother.family().inBreedingPeriod(),fatherHeat=father.family().inBreedingPeriod();
             var brood=FamilyData.get(o.level()).conceive(mother,father,mother.family().naturalBirthKind(father),GlobalPos.of(o.level().dimension(),mother.family().birthAnchor()));
             GameplayLog.event(o.entity(),"family","courtship contact ended partner={} mother={} father={} ticks={} conceived={} unauthorized={}",
-                    peer.getUUID(),mother.getUUID(),father.getUUID(),courtNearTicks,brood!=null,unauthorized);
+                    peer.getUUID(),mother.getUUID(),father.getUUID(),courtContactTicks,brood!=null,unauthorized);
             if(brood!=null) {
                 // A partner resolving a heat period speaks the staged sukkiri beats instead of this line.
                 if(!motherHeat)mother.showReaction("happy","expecting",100);
@@ -185,13 +268,17 @@ final class Courtship {
 
     private void courtStopped(String reason){
         GameplayLog.limited(o.entity(),"family","court.stop."+reason,200,
-                "courtship stopped reason={} partner={} contactTicks={} requiredTicks={} pathFailures={}",
-                reason,o.target()==null?null:o.target().getUUID(),courtNearTicks,courtRequiredTicks,courtPathFailures);
+                "courtship stopped reason={} partner={} nearTicks={} contactTicks={} requiredTicks={} pathFailures={}",
+                reason,o.target()==null?null:o.target().getUUID(),courtNearTicks,courtContactTicks,courtRequiredTicks,courtPathFailures);
     }
 
     void tickReceiver() {
         if(o.target().family().task()!=Task.COURT||o.target().family().target()!=o.entity()||!canReproduceWith(o.target())){o.stop();return;}
-        o.entity().getNavigation().stop();o.entity().getLookControl().setLookAt(o.target(),20,20);
-        if(presentingCourt()!=null)facePartner();
+        var leader=o.target().family();
+        if(leader.courtship().courtNearTicks<COURT_ACCEPT_TICKS) {
+            o.entity().getNavigation().stop();o.entity().getLookControl().setLookAt(o.target(),20,20);return;
+        }
+        if(leader.courtship().courtContactTicks==0)tickRearApproach(o,leader);
+        else faceRearContact(o,leader);
     }
 }

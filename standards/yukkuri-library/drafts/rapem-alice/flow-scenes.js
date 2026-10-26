@@ -6,12 +6,14 @@ const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
 const mix=(a,b,t)=>a+(b-a)*smooth(t);
 const actor=(id,x,yaw,action,seconds,face,extra={})=>({id,x,z:0,yaw,action,seconds,face,adult:true,...extra});
 const SCENES={
- normal:{duration:11,title:'正常成体｜互相接纳 → 亲近 → 成功回应',samples:[0,2.7,4.2,5.7,7.8,10.5],phases:[
+ normal:{duration:14,title:'正常成体｜回应 → 蹭脸 → 后侧接触 → 收尾',samples:[0,2.7,4.2,6,8,10.5,13.5],phases:[
   {at:0,label:'接近 · 双方可选择是否接纳',note:'courtship；仍未接纳，不推进配对计时。'},
   {at:2,label:'双方接纳 · 同步问候',note:'pairing_accept：复用完整 greet，1.4秒。'},
-  {at:3.4,label:'双方亲近 · 同步动作',note:'pairing：复用 nuzzle，发情期内1.6秒；双方持续安全、可见并接纳。'},
-  {at:5,label:'成功 · 双方高兴回应',note:'仅对应 conceive 成功；双方复用 shiawase 2秒。'},
-  {at:7,label:'随后 · 正常早期茎生示例',note:'选取STEM结果示例；早期绿芽来自family.json。'}]},
+  {at:3.4,label:'擦脸前段 · 双方亲近',note:'沿用 nuzzle 的擦脸动作；参考 EH16-002，不另建受孕路径。'},
+  {at:5,label:'真实转位 · 父方绕到母方后方',note:'ALIGN 不计入有效接触；双方到位后才开始60／120 tick接触。'},
+  {at:7,label:'佩妮佩妮 × 马姆马姆 · 同步接触',note:'父方peni、母方mamu；双方同向，按同一时钟压扁与回弹。'},
+  {at:10,label:'收尾 · 收回器官，按账本结果显示反应',note:'粒子只表现释放；只有 conceive 成功才播放期待反应。'},
+  {at:12,label:'随后 · 正常早期茎生示例',note:'选取STEM结果示例；早期绿芽来自family.json。'}]},
  abnormal:{duration:25,title:'异常事后｜反应 → 茎生消耗 → 营养耗竭分支',samples:[0,3.1,8.3,11.8,13.8,16.5,18.5,21.5,24.5],phases:[
   {at:0,label:'正常对照 · 两位成体保持距离',note:'蓝眼配色适配1.12普通成体；专属异常原作形态尚未确认。'},
   {at:1.5,label:'异常接近 · 对方转开回避',note:'Alice前倾为项目状态改编；另一方转开并退后。'},
@@ -31,14 +33,18 @@ function sampleScene(name,t){
  let actors=[],card=false;
  if(name==='normal'){
   const x=t<2?mix(13,8.8,t/2):8.8;
-  const yaw=t<2?mix(0,45,t/2):t<5?45:mix(45,12,(t-5)/2);
+  const yaw=t<2?mix(0,45,t/2):45;
   let action='waddle',seconds=t,face='happy';
   if(t>=2&&t<3.4){action='greet';seconds=t-2;face=null;}
   else if(t>=3.4&&t<5){action='nuzzle';seconds=t-3.4;face=null;}
-  else if(t>=5&&t<7){action='shiawase';seconds=t-5;face=null;}
-  else if(t>=7){action='idle';seconds=0;face='satisfied';}
-  actors=[actor('alice',-x,-yaw,action,seconds,t<2?'breeding_period':face),actor('reimu',x,yaw,action,seconds,face)];
-  if(t>=7){actors[1].action='brood';actors[1].seconds=t-7;actors[1].face='closed_smile';actors[1].stemProgress=.08*smooth((t-7)/2.5);}
+  else if(t>=5&&t<7){action='waddle';seconds=t-5;face='closed_smile';}
+  else if(t>=7&&t<10){action='nuzzle';seconds=t-7;face=null;}
+  else if(t>=10&&t<12){action='shiawase';seconds=t-10;face=null;}
+  else if(t>=12){action='idle';seconds=0;face='satisfied';}
+  actors=[actor('marisa',-x,-yaw,action,seconds,face),actor('reimu',x,yaw,action,seconds,face)];
+  if(t>=5&&t<10){actors[0].x=-3.2;actors[1].x=3.2;}
+  if(t>=7&&t<10){actors[0].anatomy='peni';actors[1].anatomy='mamu';actors[0].face='flushed_tongue';actors[1].face='satisfied';}
+  if(t>=12){actors[1].action='brood';actors[1].seconds=t-12;actors[1].face='closed_smile';actors[1].stemProgress=.08*smooth((t-12)/2);}
  }else{
   if(t<1.5)actors=[actor('alice',-12,0,'idle',0,'breeding_period'),actor('reimu',9,0,'idle',0,'neutral')];
   else if(t<5.5){

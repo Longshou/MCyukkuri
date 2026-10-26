@@ -99,6 +99,10 @@ public final class YukkuriModel {
     private int hatFollowBone=-2,braidBone=-2;
     private final Vector3f crownLift=new Vector3f(),braidLift=new Vector3f();
     private LiveBirthRenderer.Delivery delivery;
+    private String reproductiveAnatomy;
+    private float reproductiveAmount;
+    /** An independent visible anatomy layer; it never selects or advances a business action. */
+    void setReproductiveAnatomy(String part,float amount){reproductiveAnatomy=part;reproductiveAmount=Mth.clamp(amount,0,1);}
     public void setPregnancy(float belly,float contraction){pregnancyBelly=belly;pregnancyContraction=contraction;}
     public void setDelivery(LiveBirthRenderer.Delivery value){delivery=value;}
     /** Current selected mesh, retaining the visible parts and UVs for the unborn child's emergence. */
@@ -830,6 +834,11 @@ public final class YukkuriModel {
         float adultTime = adultStatePose ? (anatomyAction ? elapsed : 0)
                 : selected.equals(action) ? elapsed : behaviorTicks/20f;
         clips.getOrDefault(selected, clips.get("idle")).sample(adultTime, pose);
+        if(reproductiveAnatomy!=null&&reproductiveAmount>0&&delivery==null) {
+            Clip extend=clips.get("anatomy_"+reproductiveAnatomy+"_extend");
+            if(extend!=null)for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
+                track.sample(extend.duration*reproductiveAmount,pose[track.bone]);
+        }
         if(carryLoad>0&&selected.equals("waddle")){
             // A carrier walks steadier: the same step with less sway, so riders are not flung about.
             float keep=1-CARRY_GAIT_DAMP*carryLoad;
@@ -982,7 +991,9 @@ public final class YukkuriModel {
             boolean hatPart=(hatDamageDraw.level()>0||hatDamageDraw.fit()<.999f)&&accessoryPart(part);
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
-            if (!part.anatomy.isEmpty() && (delivery!=null || !action.startsWith("anatomy_" + part.anatomy + "_"))) continue;
+            boolean explicitAnatomy=action.startsWith("anatomy_" + part.anatomy + "_");
+            boolean layeredAnatomy=part.anatomy.equals(reproductiveAnatomy)&&reproductiveAmount>.001f;
+            if (!part.anatomy.isEmpty() && (delivery!=null || !explicitAnatomy&&!layeredAnatomy)) continue;
             if (hatPart && hatDamageDraw.level() > 0) {
                 var source=parts.get(partIndex);
                 if(source.start==part.start&&source.count==part.count){
@@ -1110,6 +1121,7 @@ public final class YukkuriModel {
             drawingWoundedBody=false;
             String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
                     ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
+            expression=ReproductionPresentation.expression(entity,expression);
             setExpression(expression);
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
             var wounds=new ArrayList<>(entity.visibleWounds());
@@ -1143,7 +1155,7 @@ public final class YukkuriModel {
             hatDamageDraw.drawCaps(buffers);
         }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
-                setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");}
+                setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }
     /** The remains data a frame reads, derived once per synced snapshot (RemainsRenderer caches it per entity). */
     record RemainsInputs(List<BodyWound> wounds,UUID seed,int rotStage,int packedSigns,float fullness,int subspeciesFlags,boolean accessory,

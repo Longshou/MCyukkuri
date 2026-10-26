@@ -4,7 +4,7 @@
     "face_recipe": "standards/yukkuri-library/drafts/rapem-alice/face-design.json",
     "face_author": "standards/yukkuri-library/drafts/rapem-alice/build_faces.js",
     "flow_preview_source": "standards/yukkuri-library/drafts/rapem-alice/flow-scenes.js",
-    "pairing_motion_source": "standards/yukkuri-library/motions/variants/lore/recipe.json (greet, nuzzle, shiawase)",
+    "pairing_motion_source": "standards/yukkuri-library/motions/variants/lore/recipe.json (greet, nuzzle, shiawase) + standards/yukkuri-library/drafts/rapem-alice/pose-cues.json (pair_peni, pair_mamu)",
     "face_sources": [
       "standards/yukkuri-library/drafts/rapem-alice/variant/breeding_period.png",
       "standards/yukkuri-library/drafts/rapem-alice/variant/state_recover.png"
@@ -19,6 +19,11 @@
         "standards/yukkuri-library/assembled/alice/textures/open_drool.png",
         "standards/yukkuri-library/assembled/alice/textures/flushed_tongue.png",
         "standards/yukkuri-library/assembled/alice/textures/squeezed_cry_tears.png",
+        "standards/yukkuri-library/assembled/reimu/textures/flushed_tongue.png",
+        "standards/yukkuri-library/assembled/marisa/textures/flushed_tongue.png",
+        "standards/yukkuri-library/assembled/chen/textures/flushed_tongue.png",
+        "standards/yukkuri-library/assembled/patchouli/textures/flushed_tongue.png",
+        "standards/yukkuri-library/assembled/marisa_tsumuri/textures/flushed_tongue.png",
         "standards/yukkuri-library/assembled/reimu/textures/squeezed_cry_tears.png",
         "standards/yukkuri-library/assembled/marisa/textures/squeezed_cry_tears.png",
         "standards/yukkuri-library/assembled/chen/textures/squeezed_cry_tears.png",
@@ -28,9 +33,9 @@
     "exporter": "scripts/export_adult_states.py",
     "selected_snapshot": "art/source/adult-states",
     "runtime_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json",
-    "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{breeding_period,state_recover,open_drool,flushed_tongue,squeezed_cry_tears}.png + {reimu,marisa,chen,patchouli}/squeezed_cry_tears.png",
+    "runtime_faces": "src/main/resources/assets/mcyukkuri/textures/entity/alice/{breeding_period,state_recover,open_drool,flushed_tongue,squeezed_cry_tears}.png + {reimu,marisa,chen,patchouli,marisa_tsumuri}/{flushed_tongue,squeezed_cry_tears}.png",
     "status": "selected_for_runtime_pending_visual_feedback",
-    "note": "按用户提供的八景ver1.12包还原：行为骨架与台词取自 start.utf8.hsp 与 seima_serifu；状态脸仅 breeding_period/state_recover 保留1.12原帧合成；攻击魔演出表情改用标准确认表情；素鸡立动作与発情标记为原作 LR/rot 绿屏位图转换；受方 pinned 通道前倾 -48°压平随顶胯起伏；攻方器官在动作期保持 anatomy_peni_extend。",
+    "note": "按用户提供的八景ver1.12包还原：行为骨架与台词取自 start.utf8.hsp 与 seima_serifu；状态脸仅 breeding_period/state_recover 保留1.12原帧合成；攻击魔演出表情改用标准确认表情；素鸡立动作与発情标记为原作 LR/rot 绿屏位图转换；受方 pinned 通道前倾 -48°压平随顶胯起伏并显示马姆马姆；攻方器官在搜寻、追击和动作期保持显示。普通配对使用 pair_peni/pair_mamu 共享循环，父方佩妮佩妮、母方马姆马姆；Courtship 的真实绕后 ALIGN 与有效 CONTACT 分离。",
     "face_author_112": "standards/yukkuri-library/drafts/rapem-alice/build_faces_112.py",
     "overlay_converter": "standards/yukkuri-library/drafts/rapem-alice/build_overlays_112.py",
     "overlay_sources": [

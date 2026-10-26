@@ -61,6 +61,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Boolean> PREDATOR_FLIGHT = YukkuriEntity.defineSyncedValue( EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> SUBSPECIES = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> AGITATION = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<CompoundTag> COURTSHIP = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> WATER_DISTRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     /** The hull whose CrewState carries the transfer this body or carrier takes part in (entity id, -1 none); the transfer itself is on the hull. */
     private static final EntityDataAccessor<Integer> CREW_BOAT = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
@@ -99,6 +100,7 @@ final class YukkuriSync {
         if (!owner.level().isClientSide) owner.getEntityData().set(slot.accessor(), slot.copy(value));
     }
     CompoundTag agitationState() { return owner.getEntityData().get(AGITATION); }
+    CompoundTag courtshipState() { return owner.getEntityData().get(COURTSHIP); }
     boolean aftermathBurden() { return owner.getEntityData().get(AFTERMATH_STATE) > 0; }
     boolean aftermathWeak() { return owner.getEntityData().get(AFTERMATH_STATE) == 2; }
     String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
@@ -246,6 +248,7 @@ final class YukkuriSync {
     YukkuriVariant broodVariant(int index) { return YukkuriVariant.values()[(owner.getEntityData().get(BROOD_TYPES)>>(index*4))&15]; }
     void syncFamily() {
         if(owner.family()==null||owner.level().isClientSide)return;
+        setChanged(COURTSHIP,owner.family().courtshipState());
         setChanged(GROWTH_SCALE,owner.family().scale());setChanged(LIFE_STAGE,owner.family().stage().ordinal());
         var brood=owner.isAlive()?owner.family().brood():null;int count=owner.isAlive()?owner.family().spentStemCount():0,born=(1<<count)-1,
                 types=0;float progress=1,variation=owner.family().spentStemVariation();
@@ -371,6 +374,7 @@ final class YukkuriSync {
         builder.define(LIVE_PROGRESS,0f);builder.define(LIVE_DELIVERY,-1);builder.define(LIVE_CHILDREN,new CompoundTag());
         builder.define(WATER_DISTRESS,new CompoundTag());
         builder.define(AGITATION,new CompoundTag());
+        builder.define(COURTSHIP,new CompoundTag());
         builder.define(CREW_BOAT,-1);builder.define(AQUATIC_ALARM,new CompoundTag());
         builder.define(AQUATIC_SELF_RESCUE,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);

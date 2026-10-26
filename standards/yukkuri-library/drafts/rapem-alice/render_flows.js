@@ -14,7 +14,7 @@ const revisions=read(path.join(ASSET,'yukkuri_presentation/motion_corrections.js
 const fits=read(path.join(ASSET,'yukkuri_presentation/placement_fit.json')).models;
 const family=read(path.join(ASSET,'yukkuri_presentation/family.json'));
 const poses={},textures={};
-for(const id of ['alice','reimu']){
+for(const id of ['alice','reimu','marisa']){
  const model=read(path.join(ASSET,'yukkuri',id+'.json'));
  const pose=new RuntimePose(model,1,revisions[id],fits[id]);
  if(id==='alice')Object.assign(pose.clips,buildHeatClips(model,{variant:'alice_rapem'}));
@@ -111,6 +111,11 @@ function render(state,file,front=false){
   pose.expression(face);const posed=pose.frame(actor.action,actor.seconds),visible=[];
   for(const part of pose.model.parts)if(!part.anatomy&&!/^(peni_taper|mamu_)|tongue/.test(part.name)){
    for(let k=part.start*8;k<(part.start+part.count)*8;k++)visible.push(posed[k]);
+  }
+  if(actor.anatomy){
+   const anatomy=pose.frame('anatomy_'+actor.anatomy+'_extend',.24);
+   for(const part of pose.model.parts)if(part.anatomy===actor.anatomy)
+    for(let k=part.start*8;k<(part.start+part.count)*8;k++)visible.push(anatomy[k]);
   }
   let minY=Infinity;for(let i=1;i<visible.length;i+=8)minY=Math.min(minY,visible[i]);
   // RemainsRenderer uses idle(0), sleep and Y scale .65, with no family attachment.

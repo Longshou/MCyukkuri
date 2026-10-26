@@ -128,6 +128,7 @@ public final class FamilyLife {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
                 + " search=" + (searchAt == null ? "none" : searchAt)
+                + " court={" + courtship.describe() + "}"
                 + " separation={" + separation.describe() + "} nest={" + FamilyNest.describe(entity) + "}" + " radius=" + Math.sqrt(familyRadiusSqr()) + " care={" + careDecisions.describe() + "} feeding={" + feeding.describe() + "} catch={" + catchHat.describe() + "} carry={" + carry.describe() + "}";
     }
     /** Dedicated passive water-birth/partner-hull readout; generic family detail remains stable. */
@@ -197,6 +198,7 @@ public final class FamilyLife {
     public int careContactProgress() { return task == Task.FEED_CHILD ? feeding.offerTicks() : 0; }
     private String courtActivity() { return courtship.courtActivity(); }
     public long courtAnimationStart() { return courtship.courtAnimationStart(); }
+    public CompoundTag courtshipState() { return courtship.state(); }
     public boolean youngVoice() { return stage!=Stage.ADULT||juvenileVoice||babyTalk; }
     public boolean babyTalk(){return babyTalk;}
     public boolean applyBabyTalk(){if(!adult()||babyTalk)return false;babyTalk=true;entity.setPersistenceRequired();return true;}

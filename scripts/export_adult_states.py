@@ -13,10 +13,11 @@ LIB = ROOT / 'standards/yukkuri-library'
 # victim's squeezed tearful wail for every species carrying the standard atlas.
 STANDARD_FACES = {
     'alice': ('open_drool', 'flushed_tongue', 'squeezed_cry_tears'),
-    'reimu': ('squeezed_cry_tears',),
-    'marisa': ('squeezed_cry_tears',),
-    'chen': ('squeezed_cry_tears',),
-    'patchouli': ('squeezed_cry_tears',),
+    'reimu': ('flushed_tongue', 'squeezed_cry_tears'),
+    'marisa': ('flushed_tongue', 'squeezed_cry_tears'),
+    'chen': ('flushed_tongue', 'squeezed_cry_tears'),
+    'patchouli': ('flushed_tongue', 'squeezed_cry_tears'),
+    'marisa_tsumuri': ('flushed_tongue', 'squeezed_cry_tears'),
 }
 
 
@@ -48,7 +49,7 @@ def main():
     data = json.loads(cues)
     assert data['format'] == 1
     assert data['channels'] == ['pitch', 'yaw', 'roll', 'sx', 'sy', 'sz']
-    for branch in ('heat', 'relief', 'act', 'pinned', 'rapem'):
+    for branch in ('heat', 'relief', 'act', 'pinned', 'rapem', 'pair_peni', 'pair_mamu'):
         keys = data[branch]
         assert keys[0][0] == 0 and keys[-1][0] == 1
         assert all(len(key) == 7 for key in keys)
@@ -57,7 +58,7 @@ def main():
                all(-90 <= value <= 90 for key in keys for value in key[1:4]), branch
         assert all(.75 <= value <= 1.2 for key in keys for value in key[4:])
         # heat/relief/rapem return to neutral; the thrust and pinned cycles only close their loop.
-        if branch not in ('act', 'pinned'):
+        if branch not in ('act', 'pinned', 'pair_peni', 'pair_mamu'):
             assert keys[-1][1:] == [0, 0, 0, 1, 1, 1]
         assert keys[0][1:] == keys[-1][1:], branch
     outputs = {

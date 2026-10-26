@@ -14,6 +14,7 @@
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 | 水生魔理沙模块重构（帽船、船长阶段机、席位、乘员转移、落水救助、试玩场） | `.worktrees/aquatic-rework` | `subspecies/`（帽船与水生全部）、`family/` 中帽船相关（`CatchHat`、`FamilyFlight` 出生抛射段、`LiveDelivery` 水上分娩段）、`entity/YukkuriSync` 与 `presentation/PresentationArbiter` 的转移接线、`life/WaterDistress.java`、`headwear/` 帽船托管、`command/ScenarioBoats`、`scripts/museum_scenarios.py` 池塘段、`docs/AQUATIC_MARISA_IMPLEMENTATION.md` |
 | 水生帽船美术与演出（席位表导出、木桨、托举／嘴叼／翻覆／自救片段、帽船客户端姿态层） | `.worktrees/aquatic-art` | `standards/yukkuri-library/interactions/marisa-hat-vessel/` 及相关动作制作源、`art/source/`、`art/runtime-sources.json`、帽船相关运行资源、`client/` 帽船与水生表现类 |
+| 生殖行为演出（普通配对、佩妮佩妮／马姆马姆、爱丽丝雷普魔） | `.worktrees/reproduction-performance` | `family/Courtship.java`、`life/AgitationLife.java`、`entity/YukkuriSync*`、`client/` 生殖表现类与模型器官层、`standards/yukkuri-library/drafts/rapem-alice/`、`scripts/museum_scenarios.py` 成体配对与爱丽丝场景、`docs/ADULT_AGITATION.md` |
 
 ## 玩法待办
 
@@ -47,6 +48,7 @@
 未做演出最后与配音一起补；已有表现仍单列待试玩。机制各归所属任务，这里只登记演出交接，不能用表现代替实际成功。树叶襁褓的制作、穿戴和排便护理演出归本包统一制作，状态与完成标准只登记在[出生与成长](#出生与成长)的树叶襁褓条目。
 
 - **出生落点演出**：未做。随机弹道已接入（见“陆地出生随机弹道与落地结果”），缺飞出窝外的惊叫、落地扬尘与弹跳、碰帽檐弹进帽的声音、母油目送；`LiveDelivery` 欢迎字幕“新生儿落在地面（这一胎没有放帽）”与漏接字幕需按 `outcome`（窝垫、窝沿滚入、帽中、飞出窝外、落帽外）区分。
+- **生殖行为演出**：已接入待试玩。普通配对补擦脸前段、父方真实绕后、父方佩妮佩妮／母方马姆马姆、共享接触节拍与释放粒子；父母角色和有效接触仍由 `Courtship` 决定，未到位不推进受孕。爱丽丝在搜寻、追击和接触中保持佩妮佩妮，受方压制时显示马姆马姆；中断只收势，不回滚既有消耗或胎次。完成：`adult_pairing` 正面、侧面与背面看清回应、擦脸、绕后和双方接触，读双方 `home.family_state` 的 `court=`，确认 `align` 不计入有效接触、`contact` 后父母角色与账本一致；`alice_hunt` 看追击器官不消失、受方马姆马姆和共享节拍；`alice_interrupt` 用喷雾、受击或遮挡检查收势与无伪造成功反应。离线预览 `.local/previews/rapem-alice/`。
 - **食尸、伴侣与请吃了我演出**：部分接入。本轮要求丰富 `carrion` 食尸和伴侣反应、`offering` 请求献身的演出；拒食、护尸、攻击与献身演出只跟随实际数值决策。完成：能看清食尸吞咽、伴侣的实际选择，以及献身请求、回应和交付；与陆 24 分体统一收尾，数值判定另见对应待试玩条目，尚不标记数值通过。
 
 - **陆 14 雨天与雷暴演出**：未做。本轮要求补充与实际天气、不安和行为对应的表现：普通雨的不安、雷暴更强的不安、寻找掩体、干燥区恢复休闲／觅食，以及很饿时冒雨觅食；台词、表情和动作随真实状态，不能一直锁在躲雨等待表现。随演出统一收尾，机制复测另见待试玩的陆 14，尚不标记数值通过。

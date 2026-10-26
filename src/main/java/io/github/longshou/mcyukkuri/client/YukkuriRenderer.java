@@ -64,6 +64,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             expression=YukkuriModel.get(entity.assetId()).expressionFor(entity.getBehaviorId(),
                     Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick)/20f,entity.getExpressionId());
         expression=AgitationPresentation.expression(entity,expression);
+        expression=ReproductionPresentation.expression(entity,expression);
         return HairWoundAssets.texture(entity.assetId(),expression,HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
     }
 
@@ -165,6 +166,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             String action=carried?"idle":hatCarrier?HatCarry.carryAction(entity):entity.getAnimationId();
+            var anatomy=ReproductionPresentation.anatomy(entity);
+            model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
             model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
@@ -314,6 +317,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     private static void dailyMotion(YukkuriView entity,float partialTick,PoseStack pose) {
         AgitationPresentation.pose(entity,partialTick,pose);
+        ReproductionPresentation.pose(entity,partialTick,pose);
         String behavior=entity.getBehaviorId(),contact=entity.contactPose();
         boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
         float phaseTicks=Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick);

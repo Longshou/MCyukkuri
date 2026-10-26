@@ -74,7 +74,7 @@ final class AgitationPresentation {
                     throw new IllegalArgumentException("Unexpected adult-state channel order");
             }
             var loaded = new HashMap<String, float[][]>();
-            for (String branch : new String[]{"heat", "relief", "act", "pinned", "rapem"}) {
+            for (String branch : new String[]{"heat", "relief", "act", "pinned", "rapem", "pair_peni", "pair_mamu"}) {
                 if (!data.has(branch) || !data.get(branch).isJsonArray())
                     throw new IllegalArgumentException("Missing adult-state keyframes: " + branch);
                 var keys = data.getAsJsonArray(branch);
@@ -235,6 +235,15 @@ final class AgitationPresentation {
         pose.mulPose(Axis.YP.rotationDegrees(value[1]));
         pose.mulPose(Axis.XP.rotationDegrees(value[0]));
         pose.scale(value[3], value[4], value[5]);
+    }
+
+    static float[] sample(String branch,float progress) {
+        float[][] keys=cues.get(branch);if(keys==null)return null;
+        int i=0;while(i+2<keys.length&&progress>keys[i+1][0])i++;
+        float[] a=keys[i],b=keys[i+1],value=new float[6];
+        float mix=Mth.clamp((progress-a[0])/(b[0]-a[0]),0,1);mix=smooth(mix);
+        for(int k=0;k<6;k++)value[k]=Mth.lerp(mix,a[k+1],b[k+1]);
+        return value;
     }
 
     private static float smooth(float mix) { return mix*mix*(3-2*mix); }

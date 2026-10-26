@@ -1025,7 +1025,7 @@ def pairing_permission(partner):
 
 
 add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
-    '两只健康成体互相接纳，近距互见后同步回应1.4秒、亲近1.6秒再尝试受孕；双方均在发情期内时受孕改播三段素鸡立完成台词与弹动，未在期内才播普通期待反应。喷雾、带走或遮挡会重置配对', '约半分钟至数分钟', [
+    '两只健康成体互相接纳，近距互见后同步回应1.4秒、擦脸，再由父方真实绕到母方后方；到位后父方伸出佩妮佩妮、母方伸出马姆马姆，按同一时钟接触。发情期有效接触1.6秒，其他3秒；双方均在发情期内时受孕改播三段素鸡立完成台词与弹动，未在期内才播普通期待反应。喷雾、带走、遮挡或绕后失败会重置配对', '约半分钟至数分钟', [
         *shed(5, 0), *shed(5, 6),
         block(4, 0, 0, 'mcyukkuri:yukkuri_nest'), block(6, 0, 0, 'mcyukkuri:yukkuri_nest'),
         block(4, 0, 6, 'mcyukkuri:yukkuri_nest'), block(6, 0, 6, 'mcyukkuri:yukkuri_nest'),
@@ -1036,7 +1036,7 @@ add('adult_pairing', 'meadow', '成体配对与双方反应', '成体配对',
         f'yukkuri scenario mate {sel("mother")} {sel("father")}',
         home('mother', 5, 0), home('father', 5, 6)], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
-    reads=[('读繁殖状态', f'yukkuri status {sel("mother")}')])
+    reads=[('读母方配对阶段', f'yukkuri status {sel("mother")} raw'), ('读父方配对阶段', f'yukkuri status {sel("father")} raw')])
 
 _widow, _new_partner = (uid('widow_repair', slot) for slot in ('widow', 'new_partner'))
 add('widow_repair', 'meadow', '丧偶后自然再配对', '丧偶再配对',
@@ -1061,13 +1061,13 @@ add('widow_repair', 'meadow', '丧偶后自然再配对', '丧偶再配对',
     reads=[('读再配对状态', f'yukkuri status {sel("widow")}'), ('读候选状态', f'yukkuri status {sel("new_partner")}')])
 
 add('alice_hunt', 'meadow', '攻击素鸡立 · 完整流程', '攻击素鸡立',
-    '爱丽丝从搜寻宣言开始，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后双方贴身进入素鸡立：攻方前倾反复摩擦并伸出器官，受方挣扎喊叫；末尾三段完成台词、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
+    '爱丽丝从搜寻宣言开始伸出佩妮佩妮，锁定目标后追击；目标发现她会喊出警报台词并逃跑。接触后攻方佩妮佩妮与受方马姆马姆同时可见：攻方前倾反复摩擦，受方前趴挣扎喊叫；末尾三段完成台词与释放特效、可能结算茎生胎次，随后可能立刻寻找下一个目标', '约半分钟，可重复观察', [
         yk('alice', 0, 0, 'hunter', lead=True, extra=agitation_start('ALICE_WATCH'), **pair_ready()),
         yk('reimu', 4, 0, 'prey', extra=agitation_start('IDLE'), **pair_ready()),
         yk('marisa', 9, 3, 'witness', extra=agitation_start('IDLE'), **pair_ready()),
         *own('hunter'), *own('prey'), *own('witness')], env=DAY,
     give=['mcyukkuri:sleep_spray 2', 'mcyukkuri:yukkuri_carrier 1'],
-    reads=[('读攻击魔状态', f'yukkuri status {sel("hunter")}')])
+    reads=[('读攻击魔状态', f'yukkuri status {sel("hunter")} raw'), ('读受方状态', f'yukkuri status {sel("prey")} raw')])
 
 add('alice_interrupt', 'meadow', '攻击素鸡立 · 中断与怒火', '素鸡立中断',
     '同上预置接近与接触；玩家可在动作中用喷雾或攻击打断：攻方会喊出发情中断怒火台词并退入恢复，受方脱身后说出得救台词', '约半分钟', [

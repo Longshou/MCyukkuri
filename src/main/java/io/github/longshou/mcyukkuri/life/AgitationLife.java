@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.ReproductionEffects;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -454,7 +455,10 @@ public final class AgitationLife {
             entity.speak("heat_relief_1");
             target.agitation().climaxLine();
         }
-        if (phaseTicks == ACT_CLIMAX_SECOND) entity.speak("heat_relief_2");
+        if (phaseTicks == ACT_CLIMAX_SECOND) {
+            entity.speak("heat_relief_2");
+            if (entity.level() instanceof ServerLevel level && target != null) ReproductionEffects.release(level,target);
+        }
         if (phaseTicks == ACT_SETTLE) settle();
         if (phaseTicks >= ACT_TICKS) finishAct();
     }
