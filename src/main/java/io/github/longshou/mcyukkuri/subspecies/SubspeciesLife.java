@@ -96,6 +96,8 @@ public final class SubspeciesLife {
         return true;
     }
     private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0) | (youngHat()?YOUNG_HAT_FLAG:0)); }
+    /** Refresh derived stage flags after newborn initialization, before its first geometry/admission check. */
+    public void refreshStage() { if(!entity.level().isClientSide)sync(); }
     private boolean youngHat() {
         return kind == Kind.AQUATIC_MARISA && !boatExperienced && entity.family() != null && !entity.family().adult()
                 && entity.aquaticLife() != null && !entity.aquaticLife().firstVoyage().active();

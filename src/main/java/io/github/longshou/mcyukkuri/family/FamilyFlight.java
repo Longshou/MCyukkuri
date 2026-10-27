@@ -9,11 +9,9 @@ import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -83,16 +81,19 @@ final class FamilyFlight {
         }
         if(!hat.makeRoom(o.entity(),false)){flightLog("room_pending");birthRefusal(hat,"room_pending",null);return;}
         var seat=hat.reserve(o.entity(),prefer);if(seat==null){flightLog("no_seat");birthRefusal(hat,"no_seat",null);return;}
-        double r=HatVessel.radius(o.entity().getBbWidth());
         var from=o.entity().position();var to=hat.toWorld(seat);
-        int duration=HatVessel.solve(from,to,hat,r,tmin);
         boolean inReach=from.subtract(to).horizontalDistance()<=reach;
-        boolean clear=inReach&&birthPathClear(hat,from,to,duration);
-        if(!clear){birthRefusal(hat,inReach?"path_blocked:"+sweepWhy:"out_of_reach",to);cancelFlightAdmission(hat);return;}
+        int duration=inReach?BirthFlightPath.plan(BirthFlightPath.actual(o.entity()),hat,from,to,tmin):-1;
+        if(duration<0){
+            if(inReach)birthPathClear(hat,from,to,HatVessel.TMAX);
+            birthRefusal(hat,inReach?"path_blocked:"+sweepWhy:"out_of_reach",to);cancelFlightAdmission(hat);return;
+        }
         flightLog("flight "+duration+" ticks to "+to);
         pendingNewbornLaunch=o.awaitingLanding();
         pendingLandLaunch=land&&pendingNewbornLaunch;pendingPush=push;pendingYaw=yawDeg;
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
+        GameplayLog.event(o.entity(),"family","birth flight started hat={} ticks={} from={} target={} land={} push={} yaw={}",
+                hat.getUUID(),duration,from,to,land,push,yawDeg);
     }
     private void birthRefusal(HatBoatEntity hat,String why,Vec3 target){
         GameplayLog.limited(o.entity(),"family","birth.flight."+why.split(":",2)[0],100,
@@ -106,33 +107,8 @@ final class FamilyFlight {
     boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to){return birthSweepClear(hat,from,to,false);}
     /** {@code dropping}: a stem fruit falling into the hat set under it; the catcher holding the far brim is no obstacle either. */
     boolean birthSweepClear(HatBoatEntity hat,Vec3 from,Vec3 to,boolean dropping){
-        sweepWhy="";
-        var mother=o.entity().family().mother()!=null&&o.level().getEntity(o.entity().family().mother()) instanceof YukkuriEntity m?m:null;
-        int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
-        for(int i=1;i<=steps;i++){
-            var feet=from.lerp(to,(double)i/steps);
-            if(!o.level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))){sweepWhy="border";return false;}
-            for(var shape:BraidRescueGeometry.boardingEnvelope(o.entity(),feet,0,0,o.entity().yBodyRot)){
-                var box=shape.deflate(.002);
-                if(o.level().getBlockCollisions(o.entity(),box).iterator().hasNext()){sweepWhy="block at "+feet;return false;}
-                var nearby=new HashSet<Entity>(o.level().getEntities(o.entity(),box));
-                for(var other:nearby){
-                    // The mother (whose outlet this is) and the siblings already seated in the hat are not obstacles: the seat planner has
-                    // kept the seats apart, and the strict boarding envelope of a worn hat would refuse every newborn after the first.
-                    if(other==o.entity()||other==mother||other==hat||!other.isAlive()||other.isSpectator())continue;
-                    if(dropping&&hat!=null&&other.getUUID().equals(hat.ownerYukkuri()))continue;
-                    if(other instanceof YukkuriEntity y){
-                        if(hat!=null&&y.getVehicle()==hat)continue;
-                        for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part)){sweepWhy="yukkuri "+y.getId();return false;}
-                    }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox())){sweepWhy="entity "+other;return false;}
-                }
-            }
-            if(hat!=null){
-                double clearance=BraidRescueGeometry.poseClearance(o.entity(),feet,0,0,o.entity().yBodyRot,hat,null);
-                if(clearance>feet.y+.002){sweepWhy="hull clearance "+clearance+" > y "+feet.y;return false;}
-            }
-        }
-        return true;
+        sweepWhy=BirthFlightPath.sweep(BirthFlightPath.actual(o.entity()),hat,from,to,dropping);
+        return sweepWhy.isEmpty();
     }
 
     /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
@@ -147,13 +123,8 @@ final class FamilyFlight {
     }
 
     boolean birthPathClear(HatBoatEntity hat,Vec3 from,Vec3 to,int ticks){
-        Vec3 previous=from;
-        for(int i=1;i<=ticks*4;i++){
-            var at=HatVessel.arc(from,to,ticks,i/4.0);
-            if(!birthSweepClear(hat,previous,at))return false;
-            previous=at;
-        }
-        return true;
+        sweepWhy=BirthFlightPath.path(BirthFlightPath.actual(o.entity()),hat,from,to,ticks);
+        return sweepWhy.isEmpty();
     }
 
     void beginFlight(Flight next){
@@ -304,12 +275,13 @@ final class FamilyFlight {
             boolean settle=Math.hypot(seat.x-local.x,seat.z-local.z)<=HatVessel.SETTLE;
             var to=hat.toWorld(seat);
             to=new Vec3(to.x,Math.max(to.y,support(hat,to)),to.z);
-            int ticks=HatVessel.solve(contact,to,hat,HatVessel.radius(child.getBbWidth()),HatVessel.HOP_TMIN);
+            int ticks=settle?0:BirthFlightPath.plan(BirthFlightPath.actual(child),hat,contact,to,HatVessel.HOP_TMIN);
             if(!hat.canBoard(child)){cancelFlightAdmission(hat);catchMiss(hat,"admission_refused");continue;}
             if(!settle&&contact.subtract(to).horizontalDistance()>.5){
                 cancelFlightAdmission(hat);catchMiss(hat,"seat_beyond_settle_reach");continue;
             }
-            if(!settle&&!birthPathClear(hat,contact,to,ticks)){
+            if(!settle&&ticks<0){
+                birthPathClear(hat,contact,to,HatVessel.TMAX);
                 cancelFlightAdmission(hat);catchMiss(hat,"settle_path "+sweepWhy);continue;
             }
             if(flight!=null&&flight.hat()!=null&&!hat.getUUID().equals(flight.hat())&&o.level().getEntity(flight.hat()) instanceof HatBoatEntity previous)

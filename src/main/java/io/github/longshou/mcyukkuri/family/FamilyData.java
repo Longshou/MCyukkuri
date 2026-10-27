@@ -671,6 +671,7 @@ public final class FamilyData extends SavedData {
         if(!unprotected&&!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,level,"boat_cargo_space_pending");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
+        entity.subspecies().refreshStage();
         entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
         if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother){
             float facing=mother.yBodyRot;

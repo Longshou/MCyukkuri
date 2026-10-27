@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import net.minecraft.world.phys.Vec3;
@@ -105,11 +106,14 @@ public final class BraidRescueGeometry {
         return boardingPoint(actor,feet,model,pitch,roll,actor.yBodyRot);
     }
     private static Vec3 boardingPoint(YukkuriEntity actor,Vec3 feet,Vec3 model,double pitch,double roll,float yaw){
+        return boardingPoint(actor.growthScale()*actor.getScale(),feet,model,pitch,roll,yaw);
+    }
+    private static Vec3 boardingPoint(float scale,Vec3 feet,Vec3 model,double pitch,double roll,float yaw){
         var pivot=vector("root_pivot");
         var delta=model.subtract(pivot);var vector=new Vector3f((float)delta.x,(float)delta.y,(float)delta.z);
         new Quaternionf().rotationZYX((float)Math.toRadians(roll),0,(float)Math.toRadians(pitch)).transform(vector);
         var at=new Vec3(vector.x,vector.y,vector.z).add(pivot);
-        return feet.add(at.scale(actor.growthScale()*actor.getScale()/16).yRot((float)Math.toRadians(180-yaw)));
+        return feet.add(at.scale(scale/16).yRot((float)Math.toRadians(180-yaw)));
     }
     public static Vec3 boardingRoot(YukkuriEntity actor,Vec3 feet,double pitch,double roll){return boardingPoint(actor,feet,modelRoot(),pitch,roll);}
     /** The mouth of an upright body standing at these feet, turned to this body yaw. */
@@ -141,10 +145,13 @@ public final class BraidRescueGeometry {
         return boardingBox(actor,feet,min,max,pitch,roll,actor.yBodyRot);
     }
     private static AABB boardingBox(YukkuriEntity actor,Vec3 feet,Vec3 min,Vec3 max,double pitch,double roll,float yaw){
+        return boardingBox(actor.growthScale()*actor.getScale(),feet,min,max,pitch,roll,yaw);
+    }
+    private static AABB boardingBox(float scale,Vec3 feet,Vec3 min,Vec3 max,double pitch,double roll,float yaw){
         AABB box=null;
         for(int i=0;i<8;i++){
             var corner=new Vec3((i&1)==0?min.x:max.x,(i&2)==0?min.y:max.y,(i&4)==0?min.z:max.z);
-            var at=boardingPoint(actor,feet,corner,pitch,roll,yaw);var point=new AABB(at,at);box=box==null?point:box.minmax(point);
+            var at=boardingPoint(scale,feet,corner,pitch,roll,yaw);var point=new AABB(at,at);box=box==null?point:box.minmax(point);
         }
         return box;
     }
@@ -178,6 +185,23 @@ public final class BraidRescueGeometry {
                     new Vec3(HatVessel.BRIM[0]*multiplier,base+height,HatVessel.BRIM[1]*multiplier),pitch,roll,yaw));
         }
         return boxes;
+    }
+    /** Unborn upright body, without constructing an entity: the same selected body and newborn hat used after insertion. */
+    public static List<AABB> birthEnvelope(FamilyData.Child child,Vec3 feet,float yaw){
+        var size=LiveBirthGeometry.childDimensions(child,1);
+        if(child.variant!=YukkuriVariant.MARISA||!DATA.has("body_min"))return List.of(size.makeBoundingBox(feet));
+        float scale=GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child);
+        var body=bodyBounds(0,0);var boxes=new ArrayList<AABB>();
+        boxes.add(boardingBox(scale,feet,body[0],body[1],0,0,yaw));
+        double multiplier=HatVessel.hatMultiplier(child.subspeciesFlags|SubspeciesLife.YOUNG_HAT_FLAG);
+        double base=HatVessel.anchor().y,height=DATA.get("hat_height_model_units").getAsDouble()*multiplier;
+        boxes.add(boardingBox(scale,feet,new Vec3(-HatVessel.BRIM[0]*multiplier,base,-HatVessel.BRIM[1]*multiplier),
+                new Vec3(HatVessel.BRIM[0]*multiplier,base+height,HatVessel.BRIM[1]*multiplier),0,0,yaw));
+        return boxes;
+    }
+    public static double birthSupport(FamilyData.Child child,Vec3 feet,float yaw,HatBoatEntity hat){
+        return poseSupport(birthEnvelope(child,feet,yaw),child.variant,GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child),
+                feet,0,0,yaw,hat,null);
     }
     /** Model-space bounds {min,max} of the posed body, from the same exported pitch/roll table the envelope uses. */
     private static Vec3[] bodyBounds(double pitch,double roll){
@@ -220,12 +244,16 @@ public final class BraidRescueGeometry {
      *  A falling body uses this same surface to find first contact before moving through it. */
     public static double poseSupport(YukkuriEntity actor,Vec3 feet,double pitch,double roll,float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
         var boxes=boardingEnvelope(actor,feet,pitch,roll,yaw);
-        if(actor.getVariant()!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeSupport(boxes,hat,feet,dip);
+        return poseSupport(boxes,actor.getVariant(),actor.growthScale()*actor.getScale(),feet,pitch,roll,yaw,hat,dip);
+    }
+    private static double poseSupport(List<AABB> boxes,YukkuriVariant variant,float scale,Vec3 feet,double pitch,double roll,
+                                      float yaw,HatBoatEntity hat,HatBoatEntity.Dip dip){
+        if(variant!=YukkuriVariant.MARISA||!DATA.has("body_min"))return envelopeSupport(boxes,hat,feet,dip);
         double required=envelopeSupport(boxes.subList(1,boxes.size()),hat,feet,dip);
         var tilt=dip==null?hat.dip():dip;var bounds=bodyBounds(pitch,roll);
         for(int x=0;x<=2;x++)for(int z=0;z<=2;z++){
             var model=new Vec3(bounds[0].x+(bounds[1].x-bounds[0].x)*x/2,bounds[0].y,bounds[0].z+(bounds[1].z-bounds[0].z)*z/2);
-            var at=boardingPoint(actor,feet,model,0,0,yaw);var p=hat.toLocal(at);
+            var at=boardingPoint(scale,feet,model,0,0,yaw);var p=hat.toLocal(at);
             double floor=HatVessel.surface(hat.mode(),p.x,p.z);
             if(Double.isFinite(floor))required=Math.max(required,hat.toWorld(new Vec3(p.x,floor,p.z)).y-HatBoatEntity.rimLift(p,tilt,hat.unit())-(at.y-feet.y));
         }

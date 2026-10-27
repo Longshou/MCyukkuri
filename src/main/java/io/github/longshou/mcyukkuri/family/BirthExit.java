@@ -63,7 +63,7 @@ public final class BirthExit {
                 double candidate=zone.priority()*1000+turn+d*.1;
                 double bestHere=kind==null?score:Math.min(score,priority*1000+turn+distance*.1);
                 if(candidate>=bestHere)continue;
-                if(zone.hat()!=null&&!flightClear(mother,child,outlet,zone))continue;
+                if(zone.hat()!=null&&!flightClear(mother,child,yaw,outlet,zone))continue;
                 if(kind==null||zone.priority()<priority||zone.priority()==priority&&d<distance){kind=zone.kind();priority=zone.priority();distance=d;target=zone;}
             }
             if(kind==null){
@@ -111,7 +111,7 @@ public final class BirthExit {
         var outlet=LiveBirthGeometry.position(mother,index,yaw);
         return clearOutlet(mother,index,yaw)&&outlet.subtract(zone.position()).horizontalDistance()<=zone.reach()
                 &&(mother.family().boatHome()==null||Math.abs(outlet.y-zone.position().y)<=1)
-                &&(zone.hat()==null||flightClear(mother,child,outlet,zone));
+                &&(zone.hat()==null||flightClear(mother,child,yaw,outlet,zone));
     }
     private static boolean clearOutlet(YukkuriEntity mother,int index,float yaw){
         return clearOutlet(mother,index,yaw,false);
@@ -158,18 +158,9 @@ public final class BirthExit {
         var hit=mother.level().clip(new ClipContext(from,to,ClipContext.Block.COLLIDER,ClipContext.Fluid.ANY,mother));
         return hit.getType()==HitResult.Type.BLOCK&&mother.level().getFluidState(hit.getBlockPos()).isEmpty();
     }
-    private static boolean flightClear(YukkuriEntity mother,FamilyData.Child child,Vec3 outlet,Dropzone zone){
-        var size=LiveBirthGeometry.childDimensions(child,mother.getScale());
-        double radius=HatVessel.radius(size.width());
-        int ticks=HatVessel.solve(outlet,zone.position(),zone.hat(),radius,LiveBirthGeometry.CATCH_ARC_TICKS);
-        var points=new ArrayList<Vec3>();
-        int samples=Math.max(32,ticks*4);
-        for(int i=0;i<=samples;i++){
-            var at=HatVessel.arc(outlet,zone.position(),ticks,ticks*i/(double)samples);
-            points.add(at);
-            if(mother.level().getBlockCollisions(mother,size.makeBoundingBox(at).deflate(.001)).iterator().hasNext())return false;
-        }
-        return HatVessel.clears(points,zone.hat(),radius);
+    private static boolean flightClear(YukkuriEntity mother,FamilyData.Child child,float yaw,Vec3 outlet,Dropzone zone){
+        return BirthFlightPath.plan(BirthFlightPath.unborn(mother,child,yaw),zone.hat(),outlet,zone.position(),
+                Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS))>0;
     }
     private static Exit none(YukkuriEntity mother,int index,int candidates){
         return new Exit(mother.yBodyRot,LiveBirthGeometry.position(mother,index),"none","no_safe_exit",candidates,null);
