@@ -328,7 +328,8 @@ public final class PredatorLife implements EcologyRoutine {
             nestWait = result == Result.DEFERRED ? 1 : 400;
             if (result == Result.FOUND) naturalSpawn = false;
         }
-        if (animal.predatorFlying() && animal.tickCount % 20 == 0) animal.life().spendEnergy(1);
+        if (animal.predatorFlying() && animal.tickCount % 20 == 0)
+            animal.life().spendEnergy(Math.min(1, animal.life().energy()));
     }
     public boolean canFlyTo(BlockPos pos) {
         if (!level().hasChunkAt(pos) || !level().getFluidState(pos).isEmpty()) return false;
