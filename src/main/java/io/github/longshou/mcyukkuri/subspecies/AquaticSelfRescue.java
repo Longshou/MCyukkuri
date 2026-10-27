@@ -490,6 +490,7 @@ public final class AquaticSelfRescue {
             tag.putDouble("DeployX",deployment.position().x);tag.putDouble("DeployY",deployment.position().y);tag.putDouble("DeployZ",deployment.position().z);
             tag.putFloat("DeployYaw",deployment.yaw());
             tag.putFloat("RemovalYaw",deployment.path().bodyYaw());
+            tag.putDouble("RemovalHatUnit",deployment.path().hatUnit());
             vector(tag,"RemovalFeet",deployment.path().feet());
         }
         if(carriedPose!=null&&actor.life().hasAccessory()&&(phase==Phase.REMOVE_HAT||phase==Phase.SLIPPED)){

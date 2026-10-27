@@ -53,6 +53,7 @@ final class HatBoatLaunch {
         boat.state(State.RESCUED); boat.helm().stop("retired");
         GameplayLog.event(child,"headwear","reclaim handoff hat={} token={} owner={} cargo={} -> {} paddle={} -> {} accessory={}",
                 boat.getUUID(),token,child.getUUID(),cargo,boat.cargo().count(),paddle,boat.cargo().paddle(),child.life().hasAccessory());
+        child.aquaticLife().firstVoyage().hatRecovered(boat);
         return true;
     }
 

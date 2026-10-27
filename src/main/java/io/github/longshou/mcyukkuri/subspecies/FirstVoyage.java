@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -84,6 +85,21 @@ public final class FirstVoyage {
     /** True when the hat can take provisions bound to this token: nothing else is held, or it is the same hat. */
     boolean canRetainHat(UUID token){return child.life().custody().canRetain(token);}
     void retainHat(UUID token,CompoundTag cargo){child.life().custody().retain(token,cargo);}
+    /** Called only after this same physical hull has actually returned its accessory and cargo. */
+    void hatRecovered(HatBoatEntity boat){
+        var home=home();var father=person(mentor);
+        if(!returningToParent()||home==null||!WaterIncidents.settledAboard(child,home)
+                ||!child.getUUID().equals(boat.ownerYukkuri())||!child.life().hasAccessory())return;
+        child.showReaction("happy","hat_recovered",40);
+        if(reachedTurn&&healthy(father)&&!completed){
+            completed=true;set(Phase.CELEBRATE);child.dailyLife().comfort(25);father.dailyLife().comfort(15);
+            GameplayLog.event(child, "voyage", "lesson completed mentor={} homeHat={} recoveredHat={} elapsed={}",
+                    mentor, homeHat, boat.getUUID(), elapsed);
+            var data=YukkuriWorldData.get(level());data.relate(child.getUUID(),father.getUUID(),4);data.relate(father.getUUID(),child.getUUID(),4);
+            child.showReaction("happy",null,60);father.showReaction("happy",null,60);
+            level().sendParticles(ParticleTypes.HAPPY_VILLAGER,child.getX(),child.getY()+child.getBbHeight(),child.getZ(),5,.2,.1,.2,0);
+        }else finish("hat_recovered_without_new_lesson");
+    }
     public void restoreHatCargo(HatBoatEntity boat){
         var retainedCargo=child.life().custody().releaseCargo();
         if(retainedCargo!=null){boat.cargo().load(retainedCargo);boat.syncCargo(boat.cargo().save());}
@@ -340,18 +356,10 @@ public final class FirstVoyage {
         }
         if(returningToParent()&&home!=null&&child.getVehicle()==home){
             hatRecoveryTicks++;
-            // The parent has brought the hulls together; a few seconds of failed rim contact must not strand the hat.
-            if(boat.retrieveAfloat(child,home,hatRecoveryTicks>60)){
-                child.showReaction("happy","hat_recovered",40);
-                if(reachedTurn&&healthy(father)&&!completed){
-                    completed=true;set(Phase.CELEBRATE);child.dailyLife().comfort(25);father.dailyLife().comfort(15);
-                    GameplayLog.event(child, "voyage", "lesson completed mentor={} homeHat={} recoveredHat={} elapsed={}",
-                            mentor, homeHat, boat.getUUID(), elapsed);
-                    var data=YukkuriWorldData.get(level());data.relate(child.getUUID(),father.getUUID(),4);data.relate(father.getUUID(),child.getUUID(),4);
-                    child.showReaction("happy",null,60);father.showReaction("happy",null,60);
-                    level().sendParticles(ParticleTypes.HAPPY_VILLAGER,child.getX(),child.getY()+child.getBbHeight(),child.getZ(),5,.2,.1,.2,0);
-                }else finish("hat_recovered_without_new_lesson");
-            }else if(hatRecoveryTicks>180){child.showReaction("teary","hat_out_of_reach",40);finish("hat_recovery_timeout");}return;
+            // Either the pupil's real contact or the captain's braid completes the same physical-hat callback.
+            if(!boat.retrieveAfloat(child,home)&&hatRecoveryTicks>AquaticFamilyLife.HAT_RECOVERY_TICKS){
+                child.showReaction("teary","hat_out_of_reach",40);finish("hat_recovery_timeout");
+            }return;
         }
         if(child.getVehicle()!=boat){
             // A failed landing is now a real swimmer, not an endlessly restarted

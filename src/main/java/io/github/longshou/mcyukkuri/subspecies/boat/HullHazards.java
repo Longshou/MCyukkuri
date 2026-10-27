@@ -439,9 +439,14 @@ public final class HullHazards {
         actor.family().crew().beginHullSweep(boat);
         try { boat.move(MoverType.SELF, centre.subtract(boat.position())); }
         finally { actor.family().crew().endHullSweep(); }
-        if (boat.position().distanceToSqr(centre) > 1e-8) {
-            selfRightingRefusal = "swept_collision";
-            return false;
+        // Entity.move keeps sub-sqrt(1e-7) displacement at its current position. Match that quantization,
+        // retaining the actual centre; a real obstruction still rejects the step and is measured below.
+        if (boat.position().distanceToSqr(centre) > 1.0e-7) {
+            GameplayLog.limited(boat,"aquatic","righting.move_blocked",80,
+                    "self righting move blocked actor={} requested={} reached={} wanted={} actual={} remaining={} horizontal={} vertical={}",
+                    actor.getUUID(),reached,previous,GameplayLog.at(centre),GameplayLog.at(boat.position()),
+                    centre.subtract(boat.position()),boat.horizontalCollision,boat.verticalCollision);
+            return refuseSelfRighting(actor,"swept_collision",reached,previous,centre.subtract(boat.position()));
         }
         motion.putFloat("RightPrevious", previous);
         motion.putFloat("RightProgress", reached);
@@ -564,7 +569,7 @@ public final class HullHazards {
         var water = BlockPos.containing(plan.position().add(0, -.12, 0));
         boolean inside = level.getWorldBorder().isWithinBounds(water);
         boolean flat = Math.abs(HatBoatRoute.surface(level, water).y - plan.position().y) < .08;
-        var fit = HullFootprint.fits(level, actor, null, plan.position(), plan.yaw(), HatVessel.hatScale(actor) * actor.getScale(), 0);
+        var fit = HullFootprint.fits(level, actor, null, plan.position(), plan.yaw(), (float)(plan.path().hatUnit() * 16), 0);
         if (!(inside && flat && fit.ok())) GameplayLog.detail(actor, "self.spot." + actor.getId(), 40, "hat spot " + GameplayLog.at(plan.position()) + " bounds="
                 + inside + " level=" + flat + " fit=" + fit.reason() + " " + fit.detail());
         return inside && flat && fit.ok();
@@ -578,7 +583,7 @@ public final class HullHazards {
         if (!(actor.level() instanceof ServerLevel) || !selfRescueDeploymentReachable(actor, plan)) return null;
         var water = BlockPos.containing(plan.position().add(0, -.12, 0));
         var boat = HullFactory.boatOf(HullFactory.deploy(actor, new HullFactory.Spec(HullFactory.Origin.SWIMMING, plan.position(), plan.yaw(),
-                HatVessel.hatScale(actor) * actor.getScale(), water, null, 0)));
+                (float)(plan.path().hatUnit() * 16), water, null, 0)));
         if (boat == null) return null;
         // The held head hat has already turned and lowered to this exact upright pose. Never flip it a second time.
         boat.syncMotion(new CompoundTag());
@@ -607,13 +612,14 @@ public final class HullHazards {
             actor.family().crew().beginHullSweep(boat);
             try { boat.move(MoverType.SELF, centre.subtract(boat.position())); }
             finally { actor.family().crew().endHullSweep(); }
-            if (boat.position().distanceToSqr(centre) > 1e-8) {
+            if (boat.position().distanceToSqr(centre) > 1.0e-7) {
                 GameplayLog.limited(boat,"aquatic","self.carry.sweep",80,
                         "self rescue carry movement refused actor={} reason=hull_swept_collision wanted={} actual={}",
                         actor.getUUID(),GameplayLog.at(centre),GameplayLog.at(boat.position()));
                 return false;
             }
         }
+        HatBoatEntity.point(m, "HeldCentre", boat.position());
         boat.syncMotion(m);
         boat.setDeltaMovement(Vec3.ZERO);
         boat.helm().stop("capsize_reset");

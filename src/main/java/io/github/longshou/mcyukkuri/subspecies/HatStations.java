@@ -666,7 +666,8 @@ final class HatStations {
     }
 
     void releaseOwnBoardingSeat(YukkuriEntity actor) {
-        if (boat.level().isClientSide || !boat.ownsPhysicalHat(actor)) return;
+        if (boat.level().isClientSide || !boat.ownsPhysicalHat(actor) || !deck().hasLease(actor.getUUID(), Purpose.OWN)) return;
+        // An idle self-rescue stop is not authority to cancel a captain's current SERVICE errand.
         boardingEdgeUntil = 0;
         deck().release(actor.getUUID(), "boarding_done");
         boat.syncSeats();
@@ -674,6 +675,12 @@ final class HatStations {
 
     /** Move to the closest departure seat toward a world point along the seats' walking edges. */
     boolean approachBoardingEdge(YukkuriEntity rider, Vec3 towardWorld) { return approachBoardingEdge(null, rider, towardWorld); }
+
+    /** The captain is still using her actual edge station for a bounded physical errand. */
+    void holdBoardingEdge(YukkuriEntity rider) {
+        if (!boat.level().isClientSide && rider != null && rider.getVehicle() == boat
+                && deck().hasLease(rider.getUUID(), Purpose.SERVICE)) boardingEdgeUntil = now() + 40;
+    }
 
     /** A source-hull HOP ticket alone may walk its own body to the departure edge during APPROACH. */
     boolean approachBoardingEdge(CrewTransfer ticket, YukkuriEntity rider, Vec3 towardWorld) {

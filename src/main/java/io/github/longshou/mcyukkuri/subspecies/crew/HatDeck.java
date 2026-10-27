@@ -794,7 +794,9 @@ public final class HatDeck {
 
     private void afterArrival(Placement p) {
         if (p.home >= 0 && p.slot == p.home) {
-            p.home = DeckLayout.NONE;
+            // A voyage keeps this actual brim berth until the pupil returns or the voyage releases it.
+            // Reaching it is the departure prerequisite, not completion of a temporary service return.
+            if (!p.retained()) p.home = DeckLayout.NONE;
             p.returning = false;
             if (p.lease != null && (p.lease.purpose() == Purpose.SERVICE || p.lease.purpose() == Purpose.OWN || p.lease.purpose() == Purpose.RESCUE)) p.lease = null;
         }

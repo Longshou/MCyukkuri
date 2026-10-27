@@ -41,6 +41,7 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 
 /** Living family flotillas after the first lesson; ancestry and departure remain separate. */
 public final class AquaticFamilyLife {
+    public static final int HAT_RECOVERY_TICKS=320;
     private static final double FOLLOW_START=4.5, FOLLOW_STOP=3.8, WAIT_START=6, WAIT_STOP=4.2;
     private final YukkuriEntity entity;
     private final HatFamilyAlarm alarm;
@@ -596,13 +597,14 @@ public final class AquaticFamilyLife {
                 clearReclaimContact("target_changed");
                 recoveringHat = abandoned.getUUID(); recoveryStarted = level().getGameTime(); reclaimContactTicks = 0;
             }
-            if (level().getGameTime() - recoveryStarted > 320) {
+            if (level().getGameTime() - recoveryStarted > HAT_RECOVERY_TICKS) {
                 custody.reclaimExpired("approach_or_contact_timeout");
                 clearReclaimContact("approach_or_contact_timeout");
                 missedHat = abandoned.getUUID(); missedHatUntil = level().getGameTime() + 240; recoveringHat = null;
                 continue;
             }
             SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), abandoned.position()));
+            home.holdBoardingEdge(entity);
             if (home.changingSeat(entity)) { clearReclaimContact("seat_moving");home.helm().hold(entity, Purpose.CARE); return true; }
             var grip = abandoned.getUUID().equals(reclaimContactHat)?reclaimLocal:abandoned.hazards().reclaimGripLocal(entity);
             if (grip != null) {
@@ -628,8 +630,10 @@ public final class AquaticFamilyLife {
             }
             if(approachDriftingHat(child,home,abandoned))return true;
             GameplayLog.limited(entity, "headwear", "reclaim.approach", 100,
-                    "reclaim waiting hat={} owner={} claimant={} reason=no_reachable_contact elapsed={}",
-                    abandoned.getUUID(), child.getUUID(), entity.getUUID(), level().getGameTime() - recoveryStarted);
+                    "reclaim waiting hat={} owner={} claimant={} reason=no_reachable_contact elapsed={} feet={} root={} hull={} seatMoving={} deck={}",
+                    abandoned.getUUID(), child.getUUID(), entity.getUUID(), level().getGameTime() - recoveryStarted,
+                    GameplayLog.at(entity.position()),GameplayLog.at(CrewReach.root(entity)),GameplayLog.at(abandoned.position()),
+                    home.changingSeat(entity),home.deck().lastRefusal());
             // Keep this attempt's deadline even when path/seat planning refused. A refusal is never a fresh attempt.
             hold(home, Behaviors.BOAT_WAIT_YOUNG); return true;
         }
@@ -649,7 +653,9 @@ public final class AquaticFamilyLife {
         }
         double speed=BraidRescueGeometry.maximumReach(entity)/BraidRescueGeometry.ticks("reach");
         var next=braidTipStep(root,reclaimTip,point,speed);
-        if(!CrewReach.braidReaches(entity,root,next)||next.distanceTo(reclaimTip)>speed+1e-6
+        // The resting tip may hang beside the face. Work-facing was checked against the actual rim above;
+        // extension from rest still has to stay within the two physical segment lengths.
+        if(!BraidRescueGeometry.reachable(entity,root,next)||next.distanceTo(reclaimTip)>speed+1e-6
                 ||level().clip(new ClipContext(reclaimTip,next,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,entity)).getType()!=HitResult.Type.MISS){
             refuseReclaimContact(hat,"tip_path_blocked");return false;
         }
@@ -721,7 +727,7 @@ public final class AquaticFamilyLife {
             recoveringHat=abandoned.getUUID();recoveryStarted=now;
             child.showReaction("teary","hat_drifting",40);
         }
-        if(horizontal(home.position(),abandoned.position())>8||now-recoveryStarted>320){
+        if(horizontal(home.position(),abandoned.position())>8||now-recoveryStarted>HAT_RECOVERY_TICKS){
             missedHat=abandoned.getUUID();missedHatUntil=now+240;recoveringHat=null;
             child.life().custody().reclaimExpired("approach_timeout_or_distance");
             child.showReaction("teary","hat_out_of_reach",40);hold(home,Behaviors.BOAT_WAIT_YOUNG);return false;

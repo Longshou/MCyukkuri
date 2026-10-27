@@ -54,7 +54,8 @@ public final class SelfRescueHatGeometry {
             return new Mesh(List.copyOf(indices.keySet()),List.copyOf(faces),List.copyOf(edges.values()));
         }catch(IOException e){throw new UncheckedIOException(e);}
     }
-    public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw){}
+    /** The same physical hat keeps its unit after deployment records the owner's first boat experience. */
+    public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw,double hatUnit){}
     private static String lastFailure;
     public static String lastFailure(){return lastFailure==null?"none":lastFailure;}
     /** grip and tip are unused now (nothing grips the hat); they remain so the client can rebuild the same pose. */
@@ -102,7 +103,8 @@ public final class SelfRescueHatGeometry {
         var origin=point(state,"PrevHat").lerp(point(state,"Hat"),q);
         float squash=Mth.lerp(q,state.getFloat("PrevHatSquash"),state.getFloat("HatSquash"));
         var pose=new Pose(origin,rotation,squash,Vec3.ZERO,Vec3.ZERO,null);
-        return pose.wornMatrix(actor.getPosition(q),bodyYaw,bodyUnit(actor),hatUnit(actor));
+        double unit=state.contains("RemovalHatUnit")?state.getDouble("RemovalHatUnit"):hatUnit(actor);
+        return pose.wornMatrix(actor.getPosition(q),bodyYaw,bodyUnit(actor),unit);
     }
     private static Quaternionf rotation(CompoundTag state,String key) {
         return new Quaternionf(state.getFloat(key+"QX"),state.getFloat(key+"QY"),state.getFloat(key+"QZ"),state.getFloat(key+"QW")).normalize();
@@ -113,7 +115,7 @@ public final class SelfRescueHatGeometry {
     private static Quaternionf facing(float yaw){return new Quaternionf().rotationY((float)Math.toRadians(180-yaw));}
     private static Vec3 anchor(){var a=HatVessel.anchor();return new Vec3(a.x,a.y,a.z);}
     private static Vec3 wornOrigin(YukkuriView actor,Plan plan){return plan.feet().add(transform(facing(plan.bodyYaw()),anchor().scale(bodyUnit(actor))));}
-    private static Vec3 settledOrigin(YukkuriView actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*hatUnit(actor),0);}
+    private static Vec3 settledOrigin(YukkuriView actor,Plan plan){return plan.finalCentre().add(0,HatVessel.FREEBOARD*plan.hatUnit(),0);}
     /** The first spot in front of the face, along a small choice of headings, that the caller finds usable and the whole shake keeps clear. */
     public static Plan plan(YukkuriEntity actor,double waterY,Predicate<Plan> usable){
         double size=Math.min(1,actor.growthScale()*actor.getScale()),depth=HatVessel.BRIM[0]*hatUnit(actor),half=actor.getBbWidth()*.5;
@@ -121,7 +123,7 @@ public final class SelfRescueHatGeometry {
         for(float turn:new float[]{0,25,-25})for(double gap:new double[]{.05,.12,.22}){
             float yaw=actor.yBodyRot+turn;double radians=Math.toRadians(yaw),distance=half+depth+gap*Math.max(.3,size);
             var centre=new Vec3(actor.getX()-Math.sin(radians)*distance,waterY,actor.getZ()+Math.cos(radians)*distance);
-            var candidate=new Plan(actor.position(),yaw,centre,yaw-90);
+            var candidate=new Plan(actor.position(),yaw,centre,yaw-90,hatUnit(actor));
             if(!usable.test(candidate)){unusable++;continue;}
             lastFailure=null;
             if(validPath(actor,candidate))return candidate;
@@ -158,7 +160,7 @@ public final class SelfRescueHatGeometry {
         return clear(actor,plan,pose,previous);
     }
     private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
-        double unit=hatUnit(actor);
+        double unit=plan.hatUnit();
         return meshClear(actor,actor.position(),plan.bodyYaw(),p->pose.world(p,unit),
                 previous==null?null:p->previous.world(p,unit),true);
     }

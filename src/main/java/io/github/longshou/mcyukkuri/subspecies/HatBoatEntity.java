@@ -879,6 +879,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public void releaseOwnBoardingSeat(YukkuriEntity actor){ stations.releaseOwnBoardingSeat(actor); }
     /** Move to the closest departure seat along the deck's walking edges. */
     public boolean approachBoardingEdge(YukkuriEntity rider,Vec3 towardWorld){ return stations.approachBoardingEdge(rider, towardWorld); }
+    public void holdBoardingEdge(YukkuriEntity rider){ stations.holdBoardingEdge(rider); }
     /** Ticket-bound departure movement; only the current HOP body in APPROACH can bypass the hull's transfer exclusion. */
     public boolean approachBoardingEdge(CrewTransfer ticket,YukkuriEntity rider,Vec3 towardWorld){ return stations.approachBoardingEdge(ticket, rider, towardWorld); }
     /** The {@code limit} nearest free seats (hull-local), nearest first; read-only. */
