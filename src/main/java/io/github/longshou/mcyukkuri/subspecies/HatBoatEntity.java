@@ -192,6 +192,22 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             var plan=YukkuriLocomotion.hop(y,toWorld(from),toWorld(to),List.of(HatBoatEntity.this));
             return plan.ok()?new HatDeck.Hop(plan.ticks(),plan.points().stream().map(HatBoatEntity.this::toLocal).toList()):null;
         }
+        @Override public boolean arrived(UUID body, Vec3 localTarget) {
+            var rider = level() instanceof ServerLevel server ? server.getEntity(body) : null;
+            return rider != null && hasPassenger(rider) && rider.position().distanceToSqr(toWorld(localTarget)) <= .0004;
+        }
+        @Override public void moveFailed(UUID body, String reason) {
+            var rider = level() instanceof ServerLevel server ? server.getEntity(body) : null;
+            if (rider != null && hasPassenger(rider)) {
+                if (rider instanceof YukkuriEntity y) YukkuriLocomotion.detach(y);
+                else {
+                    var actual = rider.position();
+                    rider.stopRiding();
+                    rider.setPos(actual);
+                }
+            } else deck.leave(body, reason);
+            syncSeats();
+        }
         @Override public void event(String message, Object... values) { GameplayLog.event(HatBoatEntity.this, "aquatic", message, values); }
         @Override public void limited(String key, int ticks, String message, Object... values) {
             GameplayLog.limited(HatBoatEntity.this, "aquatic", key, ticks, message, values);
@@ -683,7 +699,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
         return points;
     }
-    public boolean changingSeat(Entity rider){var m=seatMove(rider);return m!=null&&level().getGameTime()-m.start()<m.ticks();}
+    public boolean changingSeat(Entity rider){return seatMove(rider)!=null;}
     /** On a rim seat (front brim, toilet rim, rescue rim): the deck's own seat kind, not a guess from height. */
     public boolean onBrim(Entity young){
         var kind = seatKind(young);
@@ -691,7 +707,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     public boolean walkingInHat(Entity rider){
         var move=seatMove(rider);
-        return move!=null&&!move.arc()&&!move.route().isEmpty()&&level().getGameTime()>=move.start()&&level().getGameTime()<move.start()+move.ticks();
+        return move!=null&&!move.arc()&&!move.route().isEmpty()&&level().getGameTime()>=move.start();
     }
     Vec3 walkingLocal(Entity rider,HatDeck.Move movement,double time){
         double gait=time-24*Math.sin(time*Math.PI/12)/(2*Math.PI);
@@ -1016,7 +1032,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             Vec3 from = toWorld(movement.from());
             at = movement.arc() ? toWorld(YukkuriLocomotion.sample(movement.route(),time/Math.max(1,movement.ticks()))) : movement.route().isEmpty() ? from : walkingPosition(passenger, movement, time);
         }
-        if(!level().isClientSide&&movement!=null&&movement.arc()&&passenger instanceof YukkuriEntity y)
+        if(!level().isClientSide&&movement!=null&&passenger instanceof YukkuriEntity y)
             YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y).maxHorizSpeed());
         else move.accept(passenger, at.x, at.y, at.z);
     }
