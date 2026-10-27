@@ -830,9 +830,7 @@ public final class HatDeck {
             if (p.move != null) {
                 long end = p.move.start() + p.move.ticks();
                 if (now >= end && p.target >= 0 && host.arrived(p.id, layout.slot(p.target).pos())) {
-                    if (p.target >= 0) { p.slot = p.target; p.seatedAt = now; p.target = DeckLayout.NONE; p.overflow = false; }
-                    p.move = null;
-                    afterArrival(p);
+                    arrived(p.id, p.target);
                 } else if (now > end + MOVE_SLACK_TICKS) {
                     host.event("deck release body={} reason=move_timeout target={} actual=preserved", p.id, p.target);
                     p.move = null;
