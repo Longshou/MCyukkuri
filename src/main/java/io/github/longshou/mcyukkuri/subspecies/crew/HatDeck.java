@@ -445,6 +445,19 @@ public final class HatDeck {
         return p.lease;
     }
 
+    /** The mount has reached real brim support, while the transfer still owns the walk to its promised seat. */
+    public void stageBoarding(Body b, Vec3 actual, int target) {
+        var p = placements.get(b.id());
+        if (p == null || p.aboard || p.target != target || target < 0) return;
+        p.update(b);
+        p.aboard = true;
+        p.slot = DeckLayout.NONE;
+        p.free = actual;
+        p.move = null;
+        p.overflow = false;
+        host.event("deck brim reached body={} actual={} target={} arrival=pending", b.id(), actual, layout().slot(target).id());
+    }
+
     /** The body is aboard now. A reserved seat becomes its seat; a body with no reservation is seated by {@link #register}. */
     public boolean commit(Body b, Vec3 actual) {
         ensureLayout();
@@ -458,6 +471,11 @@ public final class HatDeck {
         p.target = DeckLayout.NONE;
         p.move = null;
         p.overflow = false;
+        finishAdmission(p);
+        return true;
+    }
+
+    private void finishAdmission(Placement p) {
         var lease = p.lease;
         if (lease != null) switch (lease.purpose()) {
             case BOARD, RESCUE, REFUGE -> p.lease = null;
@@ -466,9 +484,8 @@ public final class HatDeck {
         }
         // A refuge reservation becomes a ward only by a completed mount, whichever lease finally carried the body aboard.
         if (p.pendingCaregiver != null) { p.caregiver = p.pendingCaregiver; p.pendingCaregiver = null; }
-        host.event("deck admit body={} class={} slot={} purpose={} load={}", b.id(), b.cls().id, layout.slot(p.slot).id(),
+        host.event("deck admit body={} class={} slot={} purpose={} load={}", p.id, p.cls.id, layout.slot(p.slot).id(),
                 lease == null ? "BOARD" : lease.purpose(), fmt(load()));
-        return true;
     }
 
     /** A body that is aboard without having booked: seat it nearest to where it actually is, or record it as overflow. */
@@ -757,12 +774,15 @@ public final class HatDeck {
     public boolean arrived(UUID id, int target) {
         var p = placements.get(id);
         if (p == null || !p.aboard || p.target != target || target < 0 || !host.arrived(id, layout.slot(target).pos())) return false;
+        boolean boarding = p.slot < 0;
         p.carried = false;
         p.slot = p.target;
         p.seatedAt = host.now();
         p.target = DeckLayout.NONE;
         p.move = null;
         p.overflow = false;
+        p.free = null;
+        if (boarding) finishAdmission(p);
         afterArrival(p);
         return true;
     }
@@ -1018,10 +1038,10 @@ public final class HatDeck {
         return new RoomPlan(solution[0], moves);
     }
 
-    /** A body left on no seat (overflow) is moved to where the crowd pushed it; it still holds no seat. */
+    /** Track actual feet without assigning a seat, including the supported walk after boarding the brim. */
     public void moveFree(UUID id, Vec3 local) {
         var p = placements.get(id);
-        if (p != null && p.overflow) p.free = local;
+        if (p != null && (p.overflow || p.aboard && p.slot < 0)) p.free = local;
     }
     /** Stop every move and lift where the bodies are, as a capsize does: they hold their actual place until they are released. */
     public void freeze(Map<UUID, Vec3> actual) {

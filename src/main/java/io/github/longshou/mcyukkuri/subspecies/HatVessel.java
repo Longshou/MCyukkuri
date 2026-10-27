@@ -200,7 +200,7 @@ public final class HatVessel {
     /** A young's round body radius from its collision width (same units). */
     public static double radius(double width){return YOUNG_RADIUS*width;}
     /** Walking raises the full body onto a tread before its shell enters the vertical riser. */
-    static double travelSupport(Mode mode,double x,double z,double radius){
+    public static double travelSupport(Mode mode,double x,double z,double radius){
         double halfWidth=radius/YOUNG_RADIUS*.5+.025,result=Double.NEGATIVE_INFINITY;
         for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++){
             double y=surface(mode,x+dx*halfWidth,z+dz*halfWidth);

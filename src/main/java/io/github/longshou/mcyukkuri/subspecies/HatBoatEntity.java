@@ -68,6 +68,8 @@ import net.minecraft.nbt.ListTag;
  *  Unloading never means rescue or death. */
 public final class HatBoatEntity extends Entity implements HatBoatView {
     private final CrewState crewState = new CrewState();
+    /** Scoped to one synchronous mount after a transfer has actually landed on the brim. */
+    private CrewTransfer boardingTransfer;
     /** Why the last care lift was refused, for failure reports. */
     String carryPlanDebug = "not planned";
     final HatStations stations = new HatStations(this);
@@ -229,6 +231,27 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         deck.holdActual(rider.getUUID(),local,reason);
         syncSeats();
         return true;
+    }
+    /** Admit feet already supported by this hull without consuming the transfer's final seat claim. */
+    public boolean stageBoarding(YukkuriEntity rider, CrewTransfer ticket) {
+        if (level().isClientSide || ticket == null || ticket != rider.family().crew().ticket() || ticket.finished()
+                || ticket.mode() != CrewTransfer.Mode.HOP || ticket.phase() != CrewTransfer.Phase.MOVE
+                || !ticket.bodyId().equals(rider.getUUID()) || ticket.to().kind() != CrewTransfer.Kind.BERTH
+                || ticket.to().boat() != getId() || capsizing() || unsteadyMotion() || !canBoard(rider)) return false;
+        var placed = deck.get(rider.getUUID());
+        if (placed == null || placed.target() != ticket.slot() || placed.lease() == null
+                || placed.lease().lapsed(level().getGameTime())) return false;
+        var local = toLocal(rider.position());
+        double support = HatVessel.travelSupport(mode(), local.x, local.z, radiusOf(rider));
+        if (!Double.isFinite(support) || Math.abs(local.y - support) * unit() > .025) return false;
+        if (hasPassenger(rider)) return placed.aboard();
+        if (rider.isPassenger()) return false;
+        boardingTransfer = ticket;
+        try {
+            return rider.startRiding(this, true) && deck.aboard(rider.getUUID());
+        } finally {
+            boardingTransfer = null;
+        }
     }
     public DeckLayout deckLayout() { return deck.layout(); }
     /** Portions that still fit in the larder: the deck's load and the seats a fuller larder would press on. */
@@ -702,7 +725,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         if (level().isClientSide || !(passenger instanceof YukkuriEntity y)) return;
-        deck.commit(bodyOf(y), toLocal(y.position()));
+        if (boardingTransfer != null && boardingTransfer.bodyId().equals(y.getUUID()))
+            deck.stageBoarding(bodyOf(y), toLocal(y.position()), boardingTransfer.slot());
+        else deck.commit(bodyOf(y), toLocal(y.position()));
         if (young(y)) crew.add(y.getUUID());
         syncSeats();
     }
