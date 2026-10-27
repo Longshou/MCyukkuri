@@ -1085,32 +1085,47 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         accessoryToken=null;state(State.RESCUED);helm.stop("retired");return true;
     }
     @Override public InteractionResult interact(Player player, InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND || player.distanceToSqr(this) > 36) return InteractionResult.PASS;
+        GameplayLog.detail(this,"hat.use."+getUUID()+"."+player.getUUID()+"."+hand,20,
+                "hat use received player="+player.getUUID()+" hand="+hand+" empty="+player.getItemInHand(hand).isEmpty()
+                        +" state="+state()+" distanceSqr="+player.distanceToSqr(this)+" spectator="+player.isSpectator());
+        if (hand != InteractionHand.MAIN_HAND)
+            return playerInteractionResult(player,hand,"off_hand",false,InteractionResult.PASS);
+        if (player.distanceToSqr(this) > 36)
+            return playerInteractionResult(player,hand,"out_of_reach",false,InteractionResult.PASS);
         var held = player.getItemInHand(hand);
         if (catches()) {
-            if (!held.isEmpty()) return InteractionResult.PASS;
+            if (!held.isEmpty()) return playerInteractionResult(player,hand,"cradle_requires_empty_hand",false,InteractionResult.PASS);
             if (!level().isClientSide) {
                 var keeper=owner();
                 player.displayClientMessage(Component.literal("接生帽：幼体 "+youngPassengers().size()+"；"
                         +(keeper==null?"帽主未在加载范围内":keeper.family().keepsCradle()?"正在接生或安置幼体":"等待帽主接回")),true);
             }
-            return InteractionResult.sidedSuccess(level().isClientSide);
+            return playerInteractionResult(player,hand,"cradle_status",true,InteractionResult.sidedSuccess(level().isClientSide));
         }
         if (held.is(YukkuriEntity.FOOD)) {
-            if (!level().isClientSide) storePlayerFood(player,held);
-            return InteractionResult.sidedSuccess(level().isClientSide);
+            if (level().isClientSide) return InteractionResult.SUCCESS;
+            boolean stored=storePlayerFood(player,held);
+            return playerInteractionResult(player,hand,"store_food",stored,InteractionResult.CONSUME);
         }
         if (level().isClientSide) return InteractionResult.SUCCESS;
         // Empty hands and non-food items only shove the hull; they never issue a behavior request.
-        shake(player,1);
-        return InteractionResult.CONSUME;
+        boolean shaken=shake(player,1);
+        return playerInteractionResult(player,hand,"shake",shaken,InteractionResult.CONSUME);
     }
-    private void storePlayerFood(Player player,ItemStack held){
+    /** Record the executed branch and its real result, including consumed clicks that produced no physical change. */
+    private InteractionResult playerInteractionResult(Player player,InteractionHand hand,String action,boolean applied,InteractionResult result){
+        if(!level().isClientSide)GameplayLog.limited(this,"interaction","hat_use."+hand,20,
+                "hat use result player={} hand={} action={} applied={} result={} state={} empty={} distanceSqr={} passengers={} incoming={} cargo={} rocking={}",
+                player.getUUID(),hand,action,applied,result,state(),player.getItemInHand(hand).isEmpty(),player.distanceToSqr(this),
+                getPassengers().size(),hasIncoming(),cargo.count(),rocking());
+        return result;
+    }
+    private boolean storePlayerFood(Player player,ItemStack held){
         var y=owner();
         String reason=!isAfloat()?"not_afloat":y==null?"owner_unavailable":!y.life().acceptsFood(held)?"not_accepted":null;
         if(reason==null&&!cargo.canStore(held))reason=cargoRoom()<=0?"full":"slots";
-        if(reason!=null){refusePlayerFood(player,held,reason);return;}
-        cargo.store(held,player.isShiftKeyDown()?8:1,player.getAbilities().instabuild);
+        if(reason!=null){refusePlayerFood(player,held,reason);return false;}
+        return cargo.store(held,player.isShiftKeyDown()?8:1,player.getAbilities().instabuild)>0;
     }
     private void refusePlayerFood(Player player,ItemStack held,String reason){
         var message="full".equals(reason)

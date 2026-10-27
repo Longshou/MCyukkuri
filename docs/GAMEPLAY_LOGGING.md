@@ -1,6 +1,6 @@
 # 玩法日志
 
-服务端日志入口、前缀和调试开关。具体字段以代码为准，问题与运行版本只记[待办](TODO.md)。
+服务端日志、客户端输入读数的入口、前缀和调试开关。具体字段以代码为准，问题与运行版本只记[待办](TODO.md)。
 
 ## 公共入口
 
@@ -33,7 +33,7 @@
 | `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、嗯嗯奴隶回坑／进食／被嫌恶、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、洞口结界拆除、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |
 | `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便与排泄物落块（落点、档位、溢出）、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |
-| `[interaction]` / `[transport]` / `[carrier]` / `[live-bag]` / `[freezer]` | 玩家操作结果、工具归还、喂食扣量、收容与释放、票据和放置拒绝 | 玩家、原实体 UUID、token、设施位置；[基础操作](CORE_GAMEPLAY.md)、[冷冻收容](CORE_GAMEPLAY.md#冷冻收容与观察手册) |
+| `[interaction]` / `[transport]` / `[carrier]` / `[live-bag]` / `[freezer]` | 玩家操作结果、帽子右键实际分支与是否产生效果、工具归还、喂食扣量、收容与释放、票据和放置拒绝 | 玩家、原实体 UUID、token、设施位置；[基础操作](CORE_GAMEPLAY.md)、[冷冻收容](CORE_GAMEPLAY.md#冷冻收容与观察手册) |
 | `[npc-care]` / `[human-trade]` / `[factory]` | 供餐治疗扣量、工厂工序和服役替补、真实材料／产出与交易 | NPC／玩家、工位、批次和个体；[人类世界](HUMAN_WORLD.md) |
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |
 | `[custody]` / `[badge]` / `[lesson]` / `[treasure]` | 归属与用途变化、死主清理、徽章变化、课程与技能学习、宝物转移 | 主人、目标、徽章序列 UUID；[归属](HUMAN_WORLD.md#店铺登记与饲主归属)、[宠物培育](PET_SHOP.md) |
@@ -59,6 +59,7 @@
 | 入口 | 用途 |
 | --- | --- |
 | `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生逐阶段细节（`GameplayLog.detail`，前缀 `[aqdiag]`）；试玩场启动器以 `-Dmcyukkuri.aqdiag=true` 默认开启，其他启动方式默认关闭 |
+| 客户端启动参数 `-Dmcyukkuri.aqdiag=true` | `[hat-input]` 只在实际右键输入时限频记录命中目标、模式、距离和附近帽子候选；候选不等于命中，不执行或重发交互。与服务端 `[aqdiag]` 的帽子交互接收记录及 `[interaction]` 处理结果按玩家／帽子 UUID 对照；试玩场启动器默认开启 |
 | `/yukkuri status trace true` / `false` | 显式开启／关闭细密状态变化日志，默认关闭 |
 | `debug.entitySaveViews` | 完整实体保存调试视图，默认关闭 |
 | `render.woundPerfLog`（客户端配置 `mcyukkuri-client.toml`） | 约每 5 秒输出 `[render]` 伤口渲染耗时汇总（实体数、完整／简化数量、三角形、构建与帧耗时），默认关闭 |
