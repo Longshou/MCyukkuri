@@ -95,16 +95,33 @@ public final class YukkuriLocomotion {
 
     /** A move is never replaced with setPos: collision or a speed cap leaves the real residual distance for the caller. */
     public static boolean step(YukkuriEntity body, Vec3 target, double maxSpeed) {
+        return advance(body, target, maxSpeed).arrived();
+    }
+
+    /** A speed-limited partial move is progress, not evidence of a collision. */
+    public record Step(boolean arrived, boolean blocked, double requested, double allowed, double moved, double remaining) {}
+    /** The support itself moves; this swept displacement is not muscular travel and cannot consume the walking budget. */
+    public static boolean carryWithHull(YukkuriEntity body, HatBoatEntity hull) {
+        var delta = body.family().crew().frameMotion(hull);
+        var target = body.position().add(delta);
+        if (delta.lengthSqr() > 1e-10) body.move(MoverType.SELF, delta);
+        return body.position().distanceToSqr(target) <= .0004;
+    }
+    public static Step advance(YukkuriEntity body, Vec3 target, double maxSpeed) {
         var before = body.position();
         var delta = target.subtract(before);
+        double requested = delta.length();
         var budget = body.family().crew();
         double speed = budget.motionAllowance(body.level().getGameTime(), Math.max(0, maxSpeed));
         if (delta.length() > speed) delta = delta.normalize().scale(speed);
         if (delta.lengthSqr() > 1e-10) body.move(MoverType.SELF, delta);
-        budget.moved(body.position().distanceTo(before));
+        double moved = body.position().distanceTo(before);
+        budget.moved(moved);
         body.setDeltaMovement(Vec3.ZERO);
         body.hasImpulse = true;
-        return body.position().distanceToSqr(target) <= .0004;
+        return new Step(body.position().distanceToSqr(target) <= .0004,
+                delta.lengthSqr() > 1e-10 && body.position().distanceToSqr(before.add(delta)) > 1e-8,
+                requested, delta.length(), moved, body.position().distanceTo(target));
     }
 
     /** Undo vanilla's automatic dismount placement; the body's subsequent trip still uses the swept executor. */

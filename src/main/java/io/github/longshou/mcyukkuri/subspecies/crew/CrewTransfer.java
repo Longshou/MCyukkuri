@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies.crew;
 
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.BraidCarry;
+import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
@@ -113,6 +114,8 @@ public final class CrewTransfer {
     private int slot = DeckLayout.NONE, approachTries, ticksTotal, standStarts;
     private double loadBefore, loadAfter, bestProgress = Double.MAX_VALUE;
     private double movedDistance;
+    private int departureSlot = DeckLayout.NONE, blockedMoveTicks;
+    private String geometryKey;
     private long bestProgressAt;
     private Vec3 plannedStart;
     private CrewState.Entry entry;
@@ -228,6 +231,7 @@ public final class CrewTransfer {
             if (!climbInReach(body, b)) return refuse(r, Refusal.TRANSIENT, "rim_out_of_reach", false);
         }
         var ticket = new CrewTransfer(level, r, a == null ? -1 : a.getId(), b == null ? -1 : b.getId());
+        ticket.geometryKey = key;
         // External boarding may have to feed, jettison or move another rider. Check the exact eventual seat and curve first.
         var preflight = ticket.preflightExternalBoarding();
         if (preflight != null) {
@@ -269,6 +273,15 @@ public final class CrewTransfer {
     }
     /** Jumping, climbing and pulling oneself up need a body that can and energy to spend. */
     public static boolean canStepOut(YukkuriEntity y) { return selfCapable(y, Mode.HOP); }
+    /** Read-only joint choice of ground and a reachable departure seat, before the voyage commits to a landing point. */
+    public static boolean canHopToGround(YukkuriEntity body, HatBoatEntity hull, Vec3 target) {
+        if (!(body.level() instanceof ServerLevel level) || !selfCapable(body, Mode.HOP) || body.getVehicle() != hull) return false;
+        var placed = hull.deck().get(body.getUUID());
+        if (placed == null) return false;
+        var request = new Request(Mode.HOP, body, null, Anchor.berth(hull, placed.slot()), Anchor.ground(target),
+                Purpose.BOARD, false, false, DeckLayout.NONE, "land_hop");
+        return new CrewTransfer(level, request, hull.getId(), -1, false).plan() == null;
+    }
     private static boolean selfCapable(YukkuriEntity y, Mode mode) {
         if (y.family().adult() || y.childhood().canJump()) return y.life().energy() >= 8 && !y.life().isSleeping() && y.family().stage() != FamilyLife.Stage.BABY;
         return false;
@@ -334,6 +347,22 @@ public final class CrewTransfer {
     public static LiftPreview previewLift(Request request) {
         if (!(request.body().level() instanceof ServerLevel level) || request.mode() != Mode.LIFT)
             return LiftPreview.refused(Refusal.TRANSIENT, "participants_unavailable");
+        if (!usable(request.body()) || request.carrier() != null && !carrierReady(request.carrier()))
+            return LiftPreview.refused(Refusal.TRANSIENT, "participant_not_ready");
+        if (request.body().family().crew().active() || request.carrier() != null && request.carrier().family().crew().active())
+            return LiftPreview.refused(Refusal.TRANSIENT, "busy");
+        if (request.carrier() == null || !CrewReach.canLift(request.carrier(), request.body()))
+            return LiftPreview.refused(Refusal.INCAPABLE, "lift_capacity");
+        if (request.from().kind() == Kind.BERTH && request.to().kind() == Kind.BERTH
+                && request.from().boat() == request.to().boat() && request.from().slot() == request.to().slot()
+                && request.to().slot() >= 0) return LiftPreview.refused(Refusal.GEOMETRY, "same_anchor");
+        for (var anchor : new Anchor[]{request.from(), request.to()}) if (anchor.kind() == Kind.BERTH) {
+            var hull = hat(level, anchor.boat());
+            if (hull == null) return LiftPreview.refused(Refusal.TRANSIENT, "hull_missing");
+            if (hull.isRemoved() || !(hull.isAfloat() || hull.catches() || hull.state() == HatBoatEntity.State.BEACHED)
+                    || hull.unsteadyMotion() || hull.flooding() > 0 || hull.capsizing())
+                return LiftPreview.refused(Refusal.TRANSIENT, "hull_unstable");
+        }
         var preview = new CrewTransfer(level, request, request.from().boat(), request.to().boat(), false);
         preview.slot = request.to().slot();
         var result = request.to().kind() == Kind.BERTH && request.from().boat() != request.to().boat()
@@ -433,17 +462,12 @@ public final class CrewTransfer {
         }
         Vec3 end = endPoint(b);
         if (end == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_end"));
-        // Before the ticket opens, include the real deck approach in the feasibility check. The jump is rebuilt at take-off.
+        // Keep the precise departure chosen by this preflight; APPROACH must walk to that same seat.
         if (mode == Mode.HOP && a != null && a.isAfloat() && plannedStart == null) {
-            var placed = a.deck().get(bodyId);
-            double best = start.distanceToSqr(end);
-            for (int seat : a.deck().freeSeats(a.bodyOf(body), Purpose.SERVICE, a.toLocal(end))) {
-                var candidate = a.toWorld(a.deckLayout().slot(seat).pos());
-                if (candidate.distanceToSqr(end) >= best || placed == null || placed.slot() < 0) continue;
-                if (a.deckLayout().path(placed.slot(), seat, a.bodyOf(body).cls(), false, null) == null
-                        && !YukkuriLocomotion.hop(body, body.position(), candidate, List.of(a)).ok()) continue;
-                start = candidate; best = candidate.distanceToSqr(end);
-            }
+            var departure = departure(body, a, b, end);
+            if (departure == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_capable_departure"));
+            departureSlot = departure.slot();
+            start = departure.position();
         }
         double scale = Math.min(1, body.growthScale() * body.getScale());
         double clearance = Math.max(.03, .02 + .12 * body.getBbHeight());
@@ -469,7 +493,15 @@ public final class CrewTransfer {
                 if (a != null) hulls.add(a);
                 if (b != null && b != a) hulls.add(b);
                 var hop = YukkuriLocomotion.hop(body, start, end, hulls);
-                if (!hop.ok()) return new Built(null, Result.refused(Refusal.GEOMETRY, hop.reason()));
+                if (!hop.ok()) {
+                    if(plannedStart!=null) {
+                        var limit=YukkuriLocomotion.limits(body);
+                        GameplayLog.limited(body,"aquatic","transfer.takeoff."+hop.reason(),100,
+                                "transfer takeoff refused reason={} from={} to={} departureSlot={} horizontal={} rise={} maxReach={} maxHeight={}",
+                                hop.reason(),start,end,departureSlot,start.subtract(end).horizontalDistance(),end.y-start.y,limit.maxHopReach(),limit.maxHopHeight());
+                    }
+                    return new Built(null, Result.refused(Refusal.GEOMETRY, hop.reason()));
+                }
                 worldKnots.addAll(hop.points());
                 for (int i = 0; i < hop.points().size(); i++) frames.add(i * 2 < hop.points().size() ? preFrame : postFrame);
                 moveTicks = hop.ticks();
@@ -487,8 +519,10 @@ public final class CrewTransfer {
                 if (anchor == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_anchor_for_class"));
                 if (anchor.bank() == null) return new Built(null, Result.refused(Refusal.GEOMETRY, "no_water_anchor"));
                 curve = anchor.fromWater().isEmpty() ? "climb_rim" : anchor.fromWater();
-                var hook = b.toWorld(anchor.bank());
-                var rim = b.toWorld(entry.edge()).add(0, clearance, 0);
+                var grip = climbGrip(body, b);
+                if (grip == null) return new Built(null, Result.refused(Refusal.TRANSIENT, "rim_out_of_reach"));
+                var rim = grip.add(0, clearance, 0);
+                var hook = new Vec3(start.x, rim.y, start.z);
                 if (rim.y - start.y > YukkuriLocomotion.limits(body).maxClimbRise())
                     return new Built(null, Result.refused(Refusal.GEOMETRY, "climb_exceeds_body"));
                 worldKnots.add(start);
@@ -497,6 +531,7 @@ public final class CrewTransfer {
                 frames.add(preFrame);
                 worldKnots.add(rim);
                 frames.add(postFrame);
+                if(end.y<rim.y-.01){worldKnots.add(new Vec3(end.x,rim.y,end.z));frames.add(postFrame);}
                 worldKnots.add(end);
                 frames.add(postFrame);
                 length = polyLength(worldKnots);
@@ -542,6 +577,25 @@ public final class CrewTransfer {
         if (swept != null) return new Built(null, Result.refused(Refusal.GEOMETRY, swept));
         if (to.kind() == Kind.GROUND && !SurfaceApproach.supported(body, end)) return new Built(null, Result.refused(Refusal.GEOMETRY, "landing_unsupported"));
         return new Built(geometry, null);
+    }
+
+    private record Departure(int slot, Vec3 position) {}
+    private Departure departure(YukkuriEntity body, HatBoatEntity source, HatBoatEntity destination, Vec3 end) {
+        var placed = source.deck().get(bodyId);
+        if (placed == null || !placed.aboard()) return null;
+        var hulls = destination == null || destination == source ? List.of(source) : List.of(source, destination);
+        if (YukkuriLocomotion.hop(body, body.position(), end, hulls).ok())
+            return new Departure(placed.slot(), body.position());
+        var view = source.bodyOf(body);
+        int tested = 0;
+        for (int seat : source.deck().freeSeats(view, Purpose.SERVICE, source.toLocal(end))) {
+            if (++tested > 24) break;
+            var candidate = source.toWorld(source.deckLayout().slot(seat).pos());
+            boolean walks = placed.slot() >= 0 && source.deckLayout().path(placed.slot(), seat, view.cls(), false, null) != null;
+            if (!walks && !YukkuriLocomotion.hop(body, body.position(), candidate, List.of(source)).ok()) continue;
+            if (YukkuriLocomotion.hop(body, candidate, end, hulls).ok()) return new Departure(seat, candidate);
+        }
+        return null;
     }
 
     private Vec3 endPoint(HatBoatEntity b) {
@@ -827,7 +881,7 @@ public final class CrewTransfer {
             case CLAIM -> CLAIM_TTL;
             case APPROACH -> mode == Mode.HOP ? 400 : mode == Mode.LIFT ? 260 : 120;
             case CONTACT -> CONTACT_TTL;
-            case MOVE -> (geometry == null ? 100 : geometry.moveTicks()) * (reverting ? 2 : 1) + MOVE_SLACK;
+            case MOVE -> (geometry == null ? 100 : geometry.moveTicks()) * 3 + STALL_TICKS;
             case SETTLE -> SETTLE_TTL;
             case RELEASE -> RELEASE_TTL;
         };
@@ -898,11 +952,21 @@ public final class CrewTransfer {
         if (a != null && a.isAfloat()) {
             var toward = endPoint(b);
             if (toward == null) { fail(Refusal.GEOMETRY, "no_end"); return; }
-            if (!a.approachBoardingEdge(this, body, toward)) {
-                if (++approachTries >= 40) fail(Refusal.GEOMETRY, "no_departure_seat");
+            if (a.changingSeat(body)) return;
+            var placed = a.deck().get(bodyId);
+            if (placed == null) { fail(Refusal.GEOMETRY, "no_departure_seat"); return; }
+            if (departureSlot >= 0 && placed.slot() != departureSlot) {
+                var view = a.bodyOf(body);
+                boolean walk = placed.slot() >= 0 && a.deckLayout().path(placed.slot(), departureSlot, view.cls(), false, null) != null;
+                if (!a.deck().moveWithin(view, departureSlot, a.toLocal(body.position()), !walk, Purpose.SERVICE)) {
+                    if (++approachTries >= 40) fail(Refusal.GEOMETRY, "departure_seat_unavailable");
+                } else {
+                    a.syncSeats();
+                    GameplayLog.event(body, "aquatic", "transfer departure hat={} slot={} world={} destination={}",
+                            a.getUUID(), departureSlot, a.toWorld(a.deckLayout().slot(departureSlot).pos()), toward);
+                }
                 return;
             }
-            if (a.changingSeat(body)) return;
         } else if (a == null) {
             // From the ground: walk to a take-off place within a hop of the rim, then face it.
             var rim = b.toWorld(nearestEntry(b, body.position()).edge());
@@ -929,17 +993,31 @@ public final class CrewTransfer {
 
     /** The decision layer uses the same real entry distance as opening and approaching a climb. */
     public static boolean climbInReach(YukkuriEntity body, HatBoatEntity hat) {
-        var entry = nearestEntry(hat, body.position());
-        if (entry == null) return false;
-        var rim = hat.toWorld(entry.edge());
-        return Math.hypot(body.getX() - rim.x, body.getZ() - rim.z) <= hopReach(body) + .12;
+        return climbGrip(body, hat) != null;
+    }
+
+    /** The same physical lip and mouth geometry used by self rescue; jumping range is irrelevant to a bite. */
+    public static Vec3 climbGrip(YukkuriEntity body, HatBoatEntity hat) {
+        Vec3 best = null;
+        double closest = Double.POSITIVE_INFINITY;
+        for (var local : HatBoatEntity.GripRim.points(hat.mode())) {
+            var lip = hat.toWorld(local);
+            float yaw = SurfaceApproach.yaw(body.position(), lip);
+            var mouth = CrewReach.mouthAt(body, body.position(), yaw);
+            double wall = Math.max(.01 * Math.min(1, body.growthScale() * body.getScale()), lip.y - hat.getY())
+                    + BraidRescueGeometry.biteAllowance(body);
+            double gap = BraidRescueGeometry.rimDistance(mouth, lip, wall);
+            if (gap < closest && BraidRescueGeometry.holds(body, mouth, lip, wall) && body.hasLineOfSight(hat)) {
+                closest = gap; best = lip;
+            }
+        }
+        return best;
     }
 
     private void approachClimb(YukkuriEntity body, long now) {
         var b = hatB();
-        var entry = nearestEntry(b, body.position());
-        var rim = b.toWorld(entry.edge());
-        if (!climbInReach(body, b)) {
+        var rim = climbGrip(body, b);
+        if (rim == null) {
             if (now - phaseStart > 60) fail(Refusal.GEOMETRY, "rim_out_of_reach");
             return;
         }
@@ -1022,8 +1100,9 @@ public final class CrewTransfer {
             var clip = CrewClips.of(CrewClips.WATER_HAT_CLIMB);
             contact = age >= clip.ticks("hook_contact", 15) ? Contact.BRAID_HOOK : Contact.MOUTH_BITE;
             var b = hatB();
-            var entry = nearestEntry(b, body.position());
-            setContact(b, entry.edge(), 2);
+            var grip = climbGrip(body, b);
+            if (grip == null) { slip("rim_lost"); return; }
+            setContact(b, b.toLocal(grip), 2);
         } else if (mode == Mode.LIFT) {
             contact = stand != null && stand.mouth() ? Contact.MOUTH_BITE : Contact.BRAID_CRADLE;
             updateLiftContact(body, carrier, 0);
@@ -1032,8 +1111,8 @@ public final class CrewTransfer {
         }
         if (mode == Mode.CLIMB) {
             var b = hatB();
-            var rim = b.toWorld(nearestEntry(b, body.position()).edge());
-            if (Math.hypot(body.getX() - rim.x, body.getZ() - rim.z) > hopReach(body) + .2) { slip("rim_lost"); return; }
+            var rim = climbGrip(body, b);
+            if (rim == null) { slip("rim_lost"); return; }
             float yaw = SurfaceApproach.yaw(body.position(), rim);
             SurfaceApproach.face(body, yaw);
         }
@@ -1067,17 +1146,17 @@ public final class CrewTransfer {
         revertAt = -1;
         next(Phase.MOVE);
         bodyHeld = true;
-        var first = geometry.knots().getFirst();
-        // The body belongs to the hull whose frame the curve starts in, from the first tick on.
-        syncVehicle(body, 0, first.frame() == 0 ? -1 : (first.frame() == 1 ? boatA : boatB));
+        // A frame describes geometry, not completed boarding. Keep the origin until the actual endpoint is reached.
+        if (body.getVehicle() instanceof HatBoatEntity hull) body.family().crew().rememberFrame(hull);
         if (mode == Mode.LIFT && boatA >= 0 && boatA == boatB) hatB().deck().lift(bodyId, true);
         if (!finished) {
             GameplayLog.detail(body, "crew.move." + id, 0, mode + " ticks=" + geometry.moveTicks() + " curve=" + geometry.curve() + " entry=" + geometry.entryId());
             var limits = YukkuriLocomotion.limits(mode == Mode.LIFT && carrier() != null ? carrier() : body);
             double peak = geometry.knots().stream().map(k -> world(k, hatA(), hatB())).filter(Objects::nonNull)
                     .mapToDouble(p -> p.y - geometry.start().y).max().orElse(0);
-            GameplayLog.event(body, "aquatic", "transfer motion mode={} ticks={} peak={} maxHopHeight={} maxHopReach={} maxSpeed={} body={} carrier={}",
-                    mode, geometry.moveTicks(), peak, limits.maxHopHeight(), limits.maxHopReach(), limits.maxHorizSpeed(), bodyId, carrierId);
+            GameplayLog.event(body, "aquatic", "transfer motion mode={} ticks={} peak={} maxHopHeight={} maxHopReach={} maxSpeed={} body={} carrier={} from={} to={} departureSlot={}",
+                    mode, geometry.moveTicks(), peak, limits.maxHopHeight(), limits.maxHopReach(), limits.maxHorizSpeed(), bodyId, carrierId,
+                    geometry.start(),geometry.end(),departureSlot);
         }
     }
 
@@ -1089,18 +1168,31 @@ public final class CrewTransfer {
         body.fallDistance = 0;
         body.getNavigation().stop();
         if (carrier != null) { carrier.getNavigation().stop(); carrier.setSpeed(0); }
-        int want = current.vehicleAt(u);
-        if (!syncVehicle(body, u, want)) return;
         var position = current.position(level, now);
         if (position == null) { fail(Refusal.TRANSIENT, "hull_unloaded"); return; }
         var actor = mode == Mode.LIFT && carrier != null ? carrier : body;
         double speed = YukkuriLocomotion.limits(actor).maxHorizSpeed();
+        if (body.getVehicle() instanceof HatBoatEntity hull) YukkuriLocomotion.carryWithHull(body, hull);
         var before = body.position();
-        boolean reached = YukkuriLocomotion.step(body, position, speed);
+        var step = YukkuriLocomotion.advance(body, position, speed);
         movedDistance += before.distanceTo(body.position());
-        if (!reached) {
-            if (reverting) finish(false, Refusal.GEOMETRY, "revert_blocked_or_body_limit:" + pendingReason);
-            else fail(Refusal.GEOMETRY, "move_blocked_or_body_limit");
+        if(mode==Mode.LIFT&&carrier!=null){
+            updateLiftContact(body,carrier,u);
+            if(!reverting&&!carrier.life().spendEnergy(.02f)){fail(Refusal.INCAPABLE,"energy_unavailable");return;}
+            if(!reverting&&!reachesNow(body,carrier,u)){slip("contact_lost");return;}
+        }else if(mode==Mode.CLIMB&&!reverting&&!body.life().spendEnergy(.04f)){
+            fail(Refusal.INCAPABLE,"energy_unavailable");return;
+        }
+        blockedMoveTicks = step.blocked() ? blockedMoveTicks + 1 : 0;
+        if (!step.arrived()) {
+            // Pause the synchronized curve clock while a real, speed-limited step catches up.
+            if (reverting) revertAt++; else moveStart++;
+            if (blockedMoveTicks >= 5) {
+                GameplayLog.event(body, "aquatic", "transfer collision mode={} phase={} actual={} target={} requested={} allowed={} moved={} remaining={} source={} destination={}",
+                        mode, reverting ? "REVERT" : "MOVE", body.position(), position, step.requested(), step.allowed(), step.moved(), step.remaining(), boatA, boatB);
+                if (reverting) finish(false, Refusal.GEOMETRY, "revert_collision:" + pendingReason);
+                else fail(Refusal.GEOMETRY, "move_collision");
+            }
             return;
         }
         // The body faces along its trip.
@@ -1112,18 +1204,14 @@ public final class CrewTransfer {
         }
         bodyYaw = body.yBodyRot;
         if (mode == Mode.LIFT && carrier != null) {
-            if (!reverting && !carrier.life().spendEnergy(.02f)) { fail(Refusal.INCAPABLE, "energy_unavailable"); return; }
-            updateLiftContact(body, carrier, u);
-            if (!reverting && !reachesNow(body, carrier, u)) { slip("contact_lost"); return; }
             SurfaceApproach.face(carrier, stand.yaw());
-        } else if (mode == Mode.CLIMB) {
-            if (!body.life().spendEnergy(.04f) && !reverting) { fail(Refusal.INCAPABLE, "energy_unavailable"); return; }
         }
         if (reverting) {
             if (u <= 1e-6) endRevert(body);
             return;
         }
         if (u >= 1 - 1e-9) {
+            if (!commitArrival(body)) return;
             next(Phase.SETTLE);
         }
     }
@@ -1148,21 +1236,26 @@ public final class CrewTransfer {
     }
 
     // ---------------------------------------------------------------- SETTLE / RELEASE
+    /** Commit while MOVE still owns rider positioning, so the next rider tick cannot restore the old seat. */
+    private boolean commitArrival(YukkuriEntity body) {
+        if (arrived) return true;
+        if (!syncVehicle(body, 1, to.kind() == Kind.BERTH ? boatB : -1)) return false;
+        if (to.kind() == Kind.BERTH) {
+            var b = hatB();
+            if (boatA >= 0 && boatA == boatB) { b.deck().arrived(bodyId); b.deck().lift(bodyId, false); }
+            b.syncSeats();
+            body.family().crew().rememberFrame(b);
+        } else if (to.kind() == Kind.WATER) {
+            body.waterDistress().plunge(hatA() == null ? null : hatA().getUUID(), null, WaterIncidents.Cause.ofWhy(why));
+        }
+        arrived = true;
+        return true;
+    }
     private void settle(YukkuriEntity body, YukkuriEntity carrier, long now) {
         long age = now - phaseStart;
         body.setDeltaMovement(Vec3.ZERO);
         body.fallDistance = 0;
-        if (!arrived) {
-            arrived = true;
-            if (to.kind() == Kind.BERTH) {
-                var b = hatB();
-                if (body.getVehicle() != b && !body.startRiding(b, true)) { fail(Refusal.GEOMETRY, "mount_refused"); return; }
-                if (boatA >= 0 && boatA == boatB) { b.deck().arrived(bodyId); b.deck().lift(bodyId, false); }
-                b.syncSeats();
-            } else if (to.kind() == Kind.WATER) {
-                body.waterDistress().plunge(boatA >= 0 ? level.getEntity(boatA).getUUID() : null, null, WaterIncidents.Cause.ofWhy(why));
-            }
-        }
+        if (!commitArrival(body)) return;
         holdsMove = false;
         if (mode == Mode.LIFT && carrier != null) {
             updateLiftContact(body, carrier, 1);
@@ -1290,13 +1383,17 @@ public final class CrewTransfer {
         var a = hatA();
         var b = hatB();
         if (body != null) {
+            if(!success&&refusal==Refusal.GEOMETRY&&geometryKey!=null)body.family().crew().rememberImpossible(geometryKey,now);
             // A failed/reversed curve must not fall back to a stale seat transform and snap across its obstruction.
-            if (!success && phase == Phase.MOVE && body.getVehicle() instanceof HatBoatEntity hat && !atOriginalSeat(body, hat))
+            if (!success && phase == Phase.MOVE && body.getVehicle() instanceof HatBoatEntity hat && !atOriginalSeat(body, hat)
+                    && !hat.preserveSupportedPassenger(body, reason)) {
+                GameplayLog.event(body, "aquatic", "transfer lost support hat={} actual={} reason={}", hat.getUUID(), body.position(), reason);
                 YukkuriLocomotion.detach(body);
+            }
             releaseClaim(body, success);
             body.fallDistance = 0;
             body.family().crew().drop(this, outcome);
-            if (success) body.family().crew().settled();
+            if (success) body.family().crew().settled(mode == Mode.LIFT);
         }
         if (carrier != null) {
             carrier.family().crew().drop(this, outcome);

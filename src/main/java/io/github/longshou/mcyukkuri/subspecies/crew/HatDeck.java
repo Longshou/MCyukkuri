@@ -739,6 +739,20 @@ public final class HatDeck {
             if (p.home >= 0 && p.slot == p.home) p.home = DeckLayout.NONE;
         }
     }
+    /** A blocked trip can end on the real supported deck point without inventing an arrived seat. */
+    public void holdActual(UUID id, Vec3 local, String reason) {
+        var p = placements.get(id);
+        if (p == null || !p.aboard) return;
+        p.slot = DeckLayout.NONE;
+        p.target = DeckLayout.NONE;
+        p.move = null;
+        p.free = local;
+        p.carried = false;
+        p.returning = false;
+        p.overflow = false;
+        if (p.lease != null && p.lease.purpose() == Purpose.SERVICE) p.lease = null;
+        host.event("deck stopped body={} reason={} actual={} seat=unassigned", id, reason, local);
+    }
 
     private void afterArrival(Placement p) {
         if (p.home >= 0 && p.slot == p.home) {
@@ -853,9 +867,9 @@ public final class HatDeck {
             boolean walk = p.slot >= 0 && layout.path(p.slot, to, p.cls, false, null) != null;
             boolean hop = !walk && (p.jumps || p.captain());
             if (p.slot < 0) {
-                p.slot = to;
-                p.free = null;
-                moved.add(p.id);
+                // An unassigned real position still needs a physical trip, never an immediate seat transform.
+                if (moveWithin(body(p), to, from, true, Purpose.BOARD)) moved.add(p.id);
+                else lifts.add(new Lift(p.id, DeckLayout.NONE, to));
             } else if (moveWithin(body(p), to, from, hop, Purpose.BOARD)) moved.add(p.id);
             else if (needsLift) lifts.add(new Lift(p.id, p.slot, to));
         }

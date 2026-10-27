@@ -135,6 +135,14 @@ public final class VoyageController {
         GameplayLog.event(entity, "aquatic", "voyage phase {} -> {} reason={} attempt={} hull={} bank={} water={} cooldown={}",
                 before, next, reason, attempt, hullId, bank, water, cooldown);
         var boat = hull();
+        if (attempt == 0 && (next == VoyagePhase.LOAD || next == VoyagePhase.DISEMBARK)) {
+            if (boat != null) for (var rider : boat.getPassengers())
+                if (rider instanceof YukkuriEntity child && !child.family().crew().active()) child.family().crew().braidSession(null);
+            if (next == VoyagePhase.LOAD) for (var id : manifest.keySet()) {
+                var child = child(id);
+                if (child != null && !child.family().crew().active()) child.family().crew().braidSession(null);
+            }
+        }
         if (boat != null) boat.syncVoyage(phase.ordinal());
     }
 
@@ -724,7 +732,8 @@ public final class VoyageController {
 
     private Vec3 dropPoint(YukkuriEntity actor, HatBoatEntity boat) {
         if (berth == null) return null;
-        for (var spot : berth.walkOff()) {
+        var landings = berth.walkOff().stream().sorted(Comparator.comparingDouble(actor::distanceToSqr)).toList();
+        for (var spot : landings) {
             var box = actor.getBoundingBox().move(spot.subtract(actor.position())).inflate(.03);
             if (used.stream().noneMatch(box::intersects) && HatDock.standable(actor, spot)) return spot;
         }
@@ -791,7 +800,9 @@ public final class VoyageController {
         if (captainSince == 0) { captainSince = now; respots = refusals = 0; captainSpot = null; }
         if (now - captainSince > CHILD_UNLOAD_TICKS) { fallbackLanding("captain_stuck"); return Behaviors.IDLE; }
         if (captainSpot == null) {
-            if (berth != null) captainSpot = berth.walkOff().stream().filter(s -> HatDock.standable(entity, s)).findFirst().orElse(null);
+            if (berth != null) captainSpot = berth.walkOff().stream().filter(s -> HatDock.standable(entity, s))
+                    .sorted(Comparator.comparingDouble(entity::distanceToSqr))
+                    .filter(s -> CrewTransfer.canHopToGround(entity, boat, s)).skip(respots).findFirst().orElse(null);
             if (captainSpot == null && berth != null) captainSpot = HatDock.spotFor(berth, entity, entity.position(), used, respots);
             if (captainSpot == null) { fallbackLanding("no_ground_for_captain"); return Behaviors.IDLE; }
         }

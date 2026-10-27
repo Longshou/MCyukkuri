@@ -436,7 +436,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public boolean canCollideWith(Entity other) {
         // During a checked rim transfer the detailed hat surface replaces its coarse entity box.
         return super.canCollideWith(other) && !(other instanceof HatBoatEntity hat
-                && family != null && family.boardingThrough(hat));
+                && family != null && (family.boardingThrough(hat) || family.crew().sweepingHull(hat)));
     }
     public ChildhoodLife childhood() { return childhood; }
     public CareApproach careApproach() { return careApproach; }

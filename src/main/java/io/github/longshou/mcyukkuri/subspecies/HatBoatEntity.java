@@ -199,7 +199,12 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         @Override public void moveFailed(UUID body, String reason) {
             var rider = level() instanceof ServerLevel server ? server.getEntity(body) : null;
             if (rider != null && hasPassenger(rider)) {
-                if (rider instanceof YukkuriEntity y) YukkuriLocomotion.detach(y);
+                if (rider instanceof YukkuriEntity y) {
+                    if (!preserveSupportedPassenger(y, reason)) {
+                        GameplayLog.event(y,"aquatic","deck movement lost support hat={} reason={} actual={}",getUUID(),reason,y.position());
+                        YukkuriLocomotion.detach(y);
+                    }
+                }
                 else {
                     var actual = rider.position();
                     rider.stopRiding();
@@ -215,6 +220,16 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     public HatCargo cargo() { return cargo; }
     public HatDeck deck() { return deck; }
+    /** Keep a failed mover only where the measured deck actually supports its feet; recovery still needs a real trip. */
+    public boolean preserveSupportedPassenger(YukkuriEntity rider, String reason) {
+        if(!hasPassenger(rider)||capsizing()||state()==State.CAPSIZED)return false;
+        var local=toLocal(rider.position());
+        double support=HatVessel.travelSupport(mode(),local.x,local.z,radiusOf(rider));
+        if(!Double.isFinite(support)||Math.abs(local.y-support)*unit()>.025)return false;
+        deck.holdActual(rider.getUUID(),local,reason);
+        syncSeats();
+        return true;
+    }
     public DeckLayout deckLayout() { return deck.layout(); }
     /** Portions that still fit in the larder: the deck's load and the seats a fuller larder would press on. */
     public int cargoRoom(){
@@ -367,13 +382,24 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Read-only real seat candidates, including the seat an allowed cargo relief would expose. */
     public List<Vec3> birthSeats(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency,Vec3 from) {
+        return birthSeatChoices(kind, child, emergency, from).stream().map(BirthSeat::position).toList();
+    }
+    public record BirthSeat(Vec3 position, int slot, NewbornAdmission admission) {}
+    public List<BirthSeat> birthSeatChoices(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency,Vec3 from) {
         if(!boardable()||unsteadyMotion())return List.of();
         var body=newbornProbe(GrowthSize.birth(kind,child),child.subspeciesFlags);
-        var seats=new ArrayList<Vec3>();
-        for(int slot:deck.freeSeats(body,Purpose.BOARD,toLocal(from)))seats.add(toWorld(deckLayout().slot(slot).pos()));
+        var seats=new ArrayList<BirthSeat>();
+        for(int slot:deck.freeSeats(body,Purpose.BOARD,toLocal(from)))
+            seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,NewbornAdmission.BOARD));
+        if(emergency)for(int slot:deck.freeSeats(body,Purpose.RESCUE,toLocal(from)))
+            if(seats.stream().noneMatch(seat->seat.slot()==slot))
+                seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,NewbornAdmission.RESCUE));
         if(seats.isEmpty()&&canMakeRoom(body,emergency,toLocal(from))){
-            int slot=deck.firstSeatAfterRelievingLarder(body,Purpose.BOARD,toLocal(from),emergency);
-            if(slot>=0)seats.add(toWorld(deckLayout().slot(slot).pos()));
+            for(var purpose:emergency?new Purpose[]{Purpose.BOARD,Purpose.RESCUE}:new Purpose[]{Purpose.BOARD}){
+                int slot=deck.firstSeatAfterRelievingLarder(body,purpose,toLocal(from),false);
+                if(slot>=0)seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,
+                        purpose==Purpose.BOARD?NewbornAdmission.BOARD:NewbornAdmission.RESCUE));
+            }
         }
         return seats;
     }
@@ -516,6 +542,18 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             }
             case NONE -> null;
         };
+    }
+    /** Claim only the physical seat selected by the outlet preflight. A changed deck must be planned again. */
+    public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission,Vec3 actualFrom,int slot) {
+        if(level().isClientSide||child==null||admission==NewbornAdmission.NONE||!boardable()||unsteadyMotion()
+                ||!admits(child)||actualFrom==null||slot<0||slot>=deckLayout().slots().size())return null;
+        var purpose=admission==NewbornAdmission.BOARD?Purpose.BOARD:Purpose.RESCUE;
+        if(admission==NewbornAdmission.RESCUE&&!canRequestEmergencyBerth(child,actualFrom))return null;
+        var seat=deck.claimAt(bodyOf(child),purpose,toLocal(actualFrom),slot,HatDeck.BOARD_TTL);
+        if(seat==null)return null;
+        if(admission==NewbornAdmission.RESCUE)crowding.emergency(child);
+        syncSeats();
+        return deckLayout().slot(slot).pos();
     }
     public boolean overcrowded(){return level().isClientSide?entityData.get(DECK).getBoolean("Overcrowded"):deck.anyOverflow();}
     /** Whether a close arrival can contest a rescue seat, without starting the crowding response. */
@@ -961,6 +999,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean catches() { return isCradle() || isMoored(); }
     // A catching hat never blocks a birth outlet or a walking parent.
     @Override public boolean canBeCollidedWith() { return !isRemoved() && state()!=State.RESCUED && !catches(); }
+    @Override public boolean canCollideWith(Entity other) {
+        return super.canCollideWith(other) && !(other instanceof YukkuriEntity y && y.family().crew().sweepingHull(this));
+    }
     @Override protected boolean canAddPassenger(Entity passenger) {
         if (state() == State.CAPSIZED || state() == State.RESCUED || !(passenger instanceof YukkuriEntity y)) return false;
         if (y.getUUID().equals(ownerYukkuri())) return !catches() && getPassengers().stream().noneMatch(p -> p.getUUID().equals(ownerYukkuri()));
@@ -1032,9 +1073,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             Vec3 from = toWorld(movement.from());
             at = movement.arc() ? toWorld(YukkuriLocomotion.sample(movement.route(),time/Math.max(1,movement.ticks()))) : movement.route().isEmpty() ? from : walkingPosition(passenger, movement, time);
         }
-        if(!level().isClientSide&&movement!=null&&passenger instanceof YukkuriEntity y)
-            YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y).maxHorizSpeed());
-        else move.accept(passenger, at.x, at.y, at.z);
+        if(!level().isClientSide&&passenger instanceof YukkuriEntity y){
+            if(movement!=null){
+                YukkuriLocomotion.carryWithHull(y,this);
+                YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y).maxHorizSpeed());
+            }else{
+                move.accept(passenger,at.x,at.y,at.z);
+                y.family().crew().rememberFrame(this);
+            }
+        }else move.accept(passenger,at.x,at.y,at.z);
     }
     public static HatBoatEntity find(YukkuriEntity y) { return HatBoatLaunch.find(y); }
     public static HatBoatEntity owned(YukkuriEntity y) { return HatBoatLaunch.owned(y); }

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.subspecies.crew;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.BraidCarry;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +25,27 @@ public final class CrewPort {
     private BraidCarry.Session braidSession;
     private long motionTick = Long.MIN_VALUE;
     private double motionDistance;
+    private HatBoatEntity sweptHull;
+    /** A single move whose exact hat surface was checked by the caller; never an entire behaviour phase. */
+    public void beginHullSweep(HatBoatEntity hull) { sweptHull = hull; }
+    public void endHullSweep() { sweptHull = null; }
+    public boolean sweepingHull(HatBoatEntity hull) { return sweptHull == hull; }
+    private int frameHull = -1;
+    private Vec3 frameOrigin;
+    private float frameTurn;
+    /** Inherit the carrier's real transform separately from the body's own motion allowance. */
+    public Vec3 frameMotion(HatBoatEntity hull) {
+        Vec3 delta = Vec3.ZERO;
+        if (frameHull == hull.getId() && frameOrigin != null) {
+            var local = entity.position().subtract(frameOrigin).yRot(-frameTurn);
+            delta = hull.position().add(local.yRot(hull.turn())).subtract(entity.position());
+        }
+        rememberFrame(hull);
+        return delta;
+    }
+    public void rememberFrame(HatBoatEntity hull) {
+        frameHull = hull.getId(); frameOrigin = hull.position(); frameTurn = hull.turn();
+    }
     private Outcome last;
     private final Map<String, Long> impossible = new HashMap<>();
     private WaterIncidents.Incident incident;
@@ -107,7 +129,8 @@ public final class CrewPort {
     }
     public int slips(long now) { return now - slipAt > SLIP_MEMORY ? 0 : slips; }
     /** The event is over (safe aboard or ashore): the budget starts afresh. */
-    void settled() { slips = 0; impossible.clear(); }
+    void settled() { settled(false); }
+    void settled(boolean carryContinues) { slips = 0; impossible.clear(); if (!carryContinues) braidSession = null; }
 
     Entity entity() { return entity; }
 }
