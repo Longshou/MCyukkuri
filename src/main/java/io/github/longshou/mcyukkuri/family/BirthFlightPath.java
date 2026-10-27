@@ -35,6 +35,8 @@ final class BirthFlightPath {
 
     /** Within the existing birth impulse budget; no valid duration is a refusal, never an unchecked maximum arc. */
     static int plan(Body body,HatBoatEntity hat,Vec3 from,Vec3 to,int minimum) {
+        minimum=Math.max(minimum,(int)Math.ceil(from.subtract(to).horizontalDistance()/(HatVessel.MAX_SPEED/16)));
+        if(minimum>HatVessel.TMAX)return -1;
         if(body.support(hat,to)>to.y+.002)return -1;
         int start=HatVessel.solve(from,to,hat,HatVessel.radius(body.width()),minimum);
         for(int ticks=start;ticks<=HatVessel.TMAX;ticks++)if(path(body,hat,from,to,ticks).isEmpty())return ticks;
