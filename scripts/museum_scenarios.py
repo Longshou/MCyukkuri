@@ -342,17 +342,17 @@ land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 
            '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，多数落进帽里或碰檐弹进去，少数落到帽外受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
            'land_caught')
 
-add('pet_birth', 'family', '宠物生产窝', '宠物生产窝',
-    '你的宠物母油（伴侣在旁）要生了：真实双亲大窝在棚下；母油临产自行出窝与魔理沙父油接生，之后观察赤油安置与同窝数值', '约 1–2 分钟临产，之后看照护', [
+add('pet_birth', 'family', '宠物大窝内生产', '大窝内生产',
+    '你的宠物母油与灵梦伴侣在棚下的大窝旁；没有戴帽接生者，母油应留在真实双亲大窝内分娩，之后观察赤油落点、照护与同窝数值', '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0, half=3),
         *large_nest(8, 0, 'mcyukkuri:large_yukkuri_nest'),
         yk_on_nest('reimu', 8, 0, 'mother', large=True, yaw=-90, lead=True, grade=1, **pair_ready()), *own('mother'),
-        yk('marisa', 6, 2, 'father', yaw=-90, **pair_ready()),
+        yk('reimu', 6, 2, 'father', yaw=-90, **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("father")}',
         home('mother', 8, 0),
         f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'], spot='pet_birth', vantage=(4, 12),
     reads=[('读母油产程与窝位', f'yukkuri status {sel("mother")} raw'),
-           ('读父油接生', f'yukkuri status {sel("father")} raw'),
+           ('读伴侣照护', f'yukkuri status {sel("father")} raw'),
            ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
 add('feed', 'family', '嚼糜喂食', '嚼糜喂食',
@@ -629,7 +629,9 @@ def captain(name='a', *, dx=0, dz=0, **kw):
 
 
 def pond(sid, title, hint, watch, wait, lines, note='', **kw):
-    add(sid, 'pond', title, hint, watch, wait, lines, env=DAY, note=note, vantage=(-6, 6, -90), **kw)
+    # Restore the entire shared field before actors spawn; specialised scenes may override it below.
+    add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
+        env=DAY, note=note, vantage=(-6, 6, -90), **kw)
 
 
 _cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
@@ -672,13 +674,13 @@ pond('afloat_family', '亲子自主出航', '亲子岸边', '亲油和真实赤�
     reads=[('读出航阶段与阻塞', f'yukkuri status {sel("a")} raw'),
            ('读初始赤油', f'yukkuri status {sel("k1")} raw'),
            ('读实际帽船', f'data get entity {_cargo_boat}')])
-pond('first_voyage', '第一次出航', '第一次出航', '岸上的亲油与已达体型门槛的小子油，现场有两根木棍和苹果；初航由规则自己开始：小子油在亲油的帽船上放下帽子、跳进自己的帽船、试坐，第一次划出去再回来',
+pond('first_voyage', '第一次出航', '第一次出航', '亲油帽船上已有达到体型门槛的小子油，孩子随身带一根木棍，亲船有桨和八份苹果；小子油应按普通规则放下帽子、跳进自己的帽船、试坐，第一次划出去再回来',
     '约 2–4 分钟', [
     captain(dx=-5, uuid=uid('first_voyage', 'a')),
     yk('marisa', -3, 1, 'kid', stage='child', aquatic=True, yaw=-90, uuid=uid('first_voyage', 'kid'),
        kin=f'Mother:{uuid_nbt(uid("first_voyage", "a"))}', **pair_ready()),
-    item('minecraft:stick', 1, -4, 0, 'paddle_supply'), item('minecraft:stick', 1, -4, 2, 'paddle_supply_kid'),
-    item('minecraft:apple', 3, -3, -1, 'food_supply')],
+    f'data modify entity {sel("kid")} YukkuriSubspecies.AquaticLife.StickItem set value {{id:"minecraft:stick",count:1}}',
+    aboard('a', sel('kid'), food=8)],
     note='不调用 tryStart：初航是否开始由小子油体型、桨与导师船的普通判定决定；没开始时读 water.launch 与初航阶段，保留现场。',
     reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
            ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
@@ -756,14 +758,6 @@ pond('shore_capsized', '翻船后上岸找回', '岸上返帽', '亲油体力很
     note='翻覆是玩家的真实一击，不由场景直接写入；她是否上岸取决于体力与实际路径，没有上岸时读 status 的自救阶段。',
     reads=[('读岸上返帽', f'yukkuri status {sel("a")} raw'),
            ('读实船状态', f'data get entity {_cargo_boat}')])
-pond('hat_custody_burn', '无人帽船·烧毁边界', '实船烧毁',
-    '亲油落水后把真实帽船留在水面，赤油在岸上；帽船受到一次火焰伤害，走正常烧毁结算：帽主失去原帽、库存只散落一次，不生成可回收的新帽',
-    '约 10 秒', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
-                 aboard('a'), swim('a', near='nearest', dist=3)],
-    late=[f'damage {_cargo_boat} 6 minecraft:in_fire'],
-    note='这次外力只设置真实起因，不固定后续状态。重复试前先清场；不可把普通卸载或清场当作烧毁。',
-    reads=[('读烧毁后的帽主', f'yukkuri status {sel("a")} raw'), ('读岸上赤油', f'yukkuri status {sel("kid")} raw'),
-           ('读剩余实船', f'data get entity {_cargo_boat}')])
 pond('family_skiffs', '亲子各自帽船', '亲子小船', '亲油、会操帽的小子油与达到独立门槛的亚成各有一船；观察小子油跟随、受惊返亲帽及复航，亚成则真实告别并驶离，亲缘保留', '约 1–3 分钟', [
     captain('mother'), yk('marisa', _dx, _dz, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()),
     yk('marisa', _teen_dx, _teen_dz, 'teen', fam=TEEN_FAMILY, aquatic=True, yaw=-90, **pair_ready()),
@@ -805,14 +799,14 @@ add('water_winter', 'pond', '水上冬季·暖处与储粮', '冬季避寒',
            ('读实船状态与冬粮', f'data get entity {_cargo_boat}')])
 
 pond('water_neighbours', '邻船·照料与接手', '邻船照料',
-    '两位相识成体各驾一船，亲帽内的子油有轻伤；先观察邻船招呼和亲子实际接触舔舐。随后可亲手杀死亲油，观察熟人是否愿意接手、真实转移与照料，遗体留在实际位置',
+    '两位相识成体在同一岸位附近各驾一船，每船有八份粮，亲帽内的子油有轻伤；先观察邻船招呼和亲子实际接触舔舐。随后可亲手杀死亲油，观察熟人是否愿意接手、真实转移与照料，遗体留在实际位置',
     '照料约 1–2 分钟；接手取决于意愿与可达性', [
         captain('mother', affection=95, social_wait=0),
         yk('marisa', _dx, _dz, 'neighbour', aquatic=True, yaw=-90, friendliness=95, affection=95, social_wait=0, **pair_ready()),
         yk('marisa', -2, 1, 'kid', aquatic=True, stage='child', **pair_ready()),
         f'yukkuri scenario bond {sel("mother")} {sel("neighbour")}',
         f'yukkuri scenario bond {sel("neighbour")} {sel("kid")}',
-        aboard('mother', sel('kid')), aboard('neighbour', bank=_lane)],
+        aboard('mother', sel('kid'), food=8), aboard('neighbour', food=8)],
     late=[set_status('kid', 'health.wound_at', 'front:tear:1')],
     give=['minecraft:diamond_sword', 'mcyukkuri:orange_juice 2'],
     note='接手不是自动收养，不能改写亲缘。没有合适照护者或接触路径时保留等待/拒绝读数。',
@@ -1875,7 +1869,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
-    'sail': 'A1', 'afloat_family': 'A2', 'first_voyage': 'A1', 'cargo': 'A1', 'shore_family': 'A1', 'hat_custody_burn': 'A2',
+    'sail': 'A1', 'afloat_family': 'A2', 'first_voyage': 'A1', 'cargo': 'A1', 'shore_family': 'A1',
     'water_life': 'A6', 'water_winter': 'A6', 'water_night': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
     'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'rescue_child': 'A4', 'rescue_infant_full': 'A4', 'shake_capsize': 'A4', 'self_rescue': 'A4', 'shore_capsized': 'A4', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',

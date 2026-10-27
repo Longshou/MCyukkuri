@@ -428,6 +428,10 @@ class Pond(Field):
                 out += self._column(x, *run)
         return out
 
+    def terrain(self):
+        # Clearing also removes the preceding winter scene's biome before another family arrives.
+        return super().terrain() + self.biome_commands()
+
     def _column(self, x, depth, z1, z2):
         if depth == 0:
             return []
