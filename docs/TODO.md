@@ -1,6 +1,6 @@
 # 待办
 
-只放未完成项，完成即删。“陆”“水”是原条目编号，只增不重排；括号内保留用户原编号。状态只用[约定](../AGENTS.md#试玩与完成标准)中的六种。更新日期 2026-10-27。
+只放未完成项，完成即删。“陆”“水”是原条目编号，只增不重排；括号内保留用户原编号。状态只用[约定](../AGENTS.md#试玩与完成标准)中的六种。更新日期 2026-10-28。
 
 **美术制作与修改统一交由 Opus。** 规则只在所属专题维护，待办登记工作范围、当前缺口与完成标准。已接入项集中在文末[待试玩清单](#待试玩清单)，原状态与运行证据保留；未提及的原任务继续保留。
 
@@ -11,10 +11,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
-| 出生水上复测修复与集成 | `.worktrees/birth-aquatic-repair` | 场景、表现仲裁、专题文档、集成核查 |
-| 帽船位移与碰撞复测修复 | `.worktrees/aquatic-physics-repair` | `YukkuriLocomotion`、`HatBoatEntity`、`HatVessel`、`subspecies/crew/`（除 `WaterIncidents`）、`VoyageController` |
-| 出生出口与辫子交接复核 | `.worktrees/birth-carry-repair` | `family/`（`BraidCarry`、`CatchHat`、出生与体型）、`HatHitResolver` |
-| 自救与救援议程复测修复 | `.worktrees/aquatic-handoff-repair` | `AquaticLife`、`AquaticSelfRescue`、`AquaticFamilyLife`、`WaterIncidents`、`HatFamilyAlarm`、`HullHazards`、`HullHelm`、`AfloatAgenda`、`HatCustody`、`predator/` |
 
 ## 玩法待办
 
@@ -26,7 +22,7 @@
 
 ### 家庭、繁殖与照护
 
-- **新生儿一律赤油、体型各异**：已接入待试玩。E8 茎生 `kind=STEM stage=JUVENILE scale=0.2`，明显大于胎生 `kind=LIVE stage=BABY scale=0.14`。当前胎生、茎生均以 BABY 出生，同胎独立体型在受孕时固定并保存；茎上、分离茎、显露阶段、出生实体、席位与搬运共用该值，规则见[体型规范](BEHAVIOR.md#体型规范)。完成：`birth_stem_caught` 与 `birth_land_caught` 每只新生儿日志都是 `stage=BABY`，同胎 `scale` 各异且在赤体区间；成熟实子落地不变大，孕期与出生后保存重载不重抽，喂糜沿赤油规则。
+- **新生儿一律赤油、体型各异**：已接入待试玩。E8 茎生 `kind=STEM stage=JUVENILE scale=0.2`，明显大于胎生 `kind=LIVE stage=BABY scale=0.14`；E9 未复测出生链。当前胎生、茎生均以 BABY 出生，同胎基础体型在受孕时固定并保存；茎上、分离茎、显露阶段、出生实体、席位与搬运均从该值和既有特殊形态倍率派生实际尺寸，规则见[体型规范](BEHAVIOR.md#体型规范)。完成：`birth_stem_caught` 与 `birth_land_caught` 每只新生儿日志都是 `stage=BABY`，同胎基础 `scale` 各异且在赤体区间；含特殊形态的成熟实子落地不变大，孕期与出生后保存重载不重抽，喂糜沿赤油规则。
 - **陆 27 繁衍剩余缺口核对**（43）：未做。保留对照 Wiki 补齐求偶到育儿全流程的要求，先列清真正未实现的环节。已接入生产、照护与成长继续待试玩；迁徙照护、宠物许可、树叶襁褓分别按已有条目处理，不重复开整套机制任务。
 
 ### 宠物、商店与人类关系
@@ -79,7 +75,7 @@
 - **洞口结界屏障外观**：已接入待试玩，外观待用户确认。野生灵梦封洞口的屏障方块 `mcyukkuri:den_barrier`（规则见[灵梦封洞口](WILD_SHELTERS.md#灵梦封洞口结界)）改为原生方块模型 `models/block/den_barrier.json` 与贴图 `textures/block/den_barrier.png`，占位渲染器已去掉；制作源 `standards/yukkuri-library/ecology/wild-shelters/den_barrier.py`（见[天然住所制作源](../standards/yukkuri-library/ecology/wild-shelters/README.md)），快照 `art/source/den-barrier/`。细枝插、靠、搭成一堆，格心一团落叶，枝缝塞叶、脚下散叶，不绑不编、有缝；方块无朝向，四面各一层。看：`den_barrier` 左洞灵梦封口后，从洞外近处与约 8 格外各看一次，再从洞内看背面；屏障不穿洞壁与洞顶，缝里能看到洞里的灵梦。完成：用户确认一眼读作封住的洞口、与野生巢细枝同风格后，用“保存 xx”把登记状态改为认可。
 
 - **水生表情与帽船外观**：已接入待试玩，外观待用户确认（含 `sad`／`afraid` 表情、帽船即家外观〔粮袋、乘员姿态、湿色带、破损〕与木棍 `paddle_stick`；场景观察并入[水生魔理沙模块](#水生魔理沙模块重构)的 P0-11）。新表情 `sad`（各模型自己的含泪脸去泪、上眼睑压低成垂眼）与 `afraid`（惊讶大眼加缩小的瞳孔、含泪脸的眉与抿嘴）由 `standards/yukkuri-library/expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合；帽船木棍 `paddle_stick`（棕色像素风方截面小木棍）与吃水湿色带 `marisa_hat_wetline` 由 `standards/yukkuri-library/interactions/aquatic-tools/build.py` 生成；帽船改为与戴着的帽子同算法显示破损方格，翻覆终态帽冠朝上、帽檐贴水。水生帽放大到 1.75 倍（席位容量见[帽船制作源](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md#席位表)）；储粮按实际库存种类绘制物品模型，放在船长肩前两侧帽壁边的侧窝、左右交替放入（总负责人 2026-10-26：前台阶坐着孩子时身前深窝里的粮从岸上看不见），帽檐上不放粮；离线审图（岸上 3／6 格、左右两岸）：右岸看左侧窝 1／2／3 档分得开，左岸看右侧窝 2、3 档差别小（右侧窝靠船长一段让给垂下的辫子，放得少），6 格只剩几个色点；湿色带改为冷色光泽加水线亮线；乘员姿态表 `crew`（`boat_rim_peek` 前台阶探头、`boat_nest_curl` 深窝挤睡、船长睡着时 `boat_cover_young`）由服务端按席位类型、体型与睡眠选择。水上压扁改为 0.55、前台阶浅到 0.6，初航前的水生幼体戴 1 倍帽（`young_hat_multiplier`），开始初航时换船用大帽。看：`cargo` 各档储粮（站在岸上 3 格与 6 格，左右两岸各能看到对岸侧窝里的粮、档位分得开，帽檐无粮、不高出帽口）、`afloat_family` 白天前台阶孩子探头与夜里船长盖窝、幼体小帽大小；`sail` 划船与停桨（左侧帽檐的木棍）、翻船后漂浮的帽子、破损帽子放成船；自救成功与警报安抚时的沮丧脸、受惊时的害怕脸。完成：用户确认后用“保存 xx”把表情写入标准登记，木棍、湿色带、粮袋与乘员姿态登记为认可。
-- **水中游泳动作**：未做。水中移动目前只播 `WATER_STRUGGLE` 并靠冲量平移，没有游动动作；落水自救、返岸、救援拖行都需要一套限速的游动片段。先在 `standards/yukkuri-library/interactions/braid-water-rescue`、`aquatic-tools` 中核对有没有已做好的动作，有就接入，没有就按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 中水里的个体有可见的划行动作，速度与动作节奏一致，用户确认观感。
+- **水中游泳动作**：未做。水中移动已接限速与碰撞扫掠，动作仍暂用 `WATER_STRUGGLE`；落水自救、返岸、救援拖行需要专用游动片段。先在 `standards/yukkuri-library/interactions/braid-water-rescue`、`aquatic-tools` 中核对有没有已做好的动作，有就接入，没有就按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 中水里的个体有可见的划行动作，速度与动作节奏一致，用户确认观感。
 
 ## 低优先级
 
@@ -93,9 +89,9 @@
 - 用户不提不开工（未做）：[DOS](RARE_FORMS.md#形态边界)、[捕食种误判危险](WILD_EVENTS_IMPLEMENTATION.md#可选的误判危险事件)、[村边纠纷](HUMAN_WORLD.md)、[饲主威胁线](PET_SHOP.md)、[网络包同步和可选兼容](ARCHITECTURE.md#调试与扩展)。部分接入、现状待核对：[工厂流水线与 NPC 态度关系](HUMAN_WORLD.md)。
 - 未做：[认屋成员脱离聚落、解除伴侣与强盗团离开消散](WILD_EVENTS_IMPLEMENTATION.md)；[运行资源瘦身](ARCHITECTURE.md#调试与扩展)（先测完整 Jar 大小与加载耗时）。
 
-## 运行证据索引（2026-10-21–27）
+## 运行证据索引（2026-10-21–28）
 
-下列编号只定位运行版本、用户反馈与原始证据；日志和一次桌面复测用于诊断，不代替用户试玩验收。下列条目以 E1–E8 引用。会话文件与启动日志位于 `.local/experimental-map/play-museum/`，原生日志位于 `.local/experimental-map/museum/logs/`。E1 的启动日志为 `20261021-211804-694.log`，跨午夜原生日志为 `2026-10-21-1.log.gz` 与 `latest.log`。
+下列编号只定位运行版本、用户反馈与原始证据；日志和一次桌面复测用于诊断，不代替用户试玩验收。下列条目以 E1–E9 引用。会话文件与启动日志位于 `.local/experimental-map/play-museum/`，原生日志位于 `.local/experimental-map/museum/logs/`。E1 的启动日志为 `20261021-211804-694.log`，跨午夜原生日志为 `2026-10-21-1.log.gz` 与 `latest.log`。
 
 | 编号 | 运行包与证据 | 已确认现象／边界 |
 | --- | --- | --- |
@@ -107,6 +103,7 @@
 | **E6** | 2026-10-25 16:08–16:09，[303d10d0](https://github.com/Longshou/MCyukkuri/commit/303d10d03dd7befcb4a2f87fae37e176360111f1)，[CI 40173988194](https://github.com/Longshou/MCyukkuri/actions/runs/40173988194)；`20261025-160041-330.session.json` 与原生日志。 | `core_exposed` 多只伤员同屏明显卡顿，服务端无落后记录；发面伤口处头发穿透／缺口。 |
 | **E7** | 2026-10-25 16:45–16:51，[b1b7d88f](https://github.com/Longshou/MCyukkuri/commit/b1b7d88f771b77702ec6da723296f7d70f89fbce)，[CI 40177589999](https://github.com/Longshou/MCyukkuri/actions/runs/40177589999)；原生日志与用户截图（截图未入库）。 | `core_exposed` 生成后全程严重卡顿，客户端帧耗时无日志；全身烧伤斑驳、侧边部件错位、泪痕浮出；前刘海爆裂伤洞口呈褐色污渍、断发参差；头顶深伤在刘海与头顶交界露出肤色细缝。 |
 | **E8** | 2026-10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfcabb6d5e3d51755aed8c744e930a46779)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203)；`20261027-215033-624.session.json` 与原生日志，18 份场景切片在 `.local/reports/birth-aquatic-fix/`。 | 出生与水上链路反馈；下面对应问题保留场景、失败现象与复测要求，代码和日志不代表试玩通过。 |
+| **E9** | 2026-10-28 00:15–00:20，[7e99a8bd](https://github.com/Longshou/MCyukkuri/commit/7e99a8bd539c3b5837fa8a06d0b30f9b3ea61980)，[CI 40536690947](https://github.com/Longshou/MCyukkuri/actions/runs/40536690947)；`20261028-001357-341.session.json` 与原生日志副本在 `.local/reports/birth-aquatic-fix/retest-7e99a8bd/`。 | 自救、扶正后登船、换船与返岸仍失败，具体见水生条目；满粮救援有真实拒绝抽签，不能算事件未触发；该次未复测出生链。 |
 
 ## 实时日志发现的问题
 
@@ -193,7 +190,7 @@
 
 ### 头饰、水生与远行
 
-- **摘帽后的持续情绪与表情**：已接入待试玩。E8 `birth_land_reunion` 取帽后哭脸一闪恢复，日志能确认 `WORN→LOST` 与操作开始，不能证明帧序列。当前服务端统一表情优先级，失饰由情绪层持续提供不安，客户端只显示同步结果。完成：陆地接生后的摘帽操作核对操作中、操作结束及还帽后的脸与 `mood.unease`／托管状态，不一闪恢复；有效托管放帽不被误判失饰。
+- **摘帽后的持续情绪与表情**：已接入待试玩。E8 `birth_land_reunion` 取帽后哭脸一闪恢复，日志能确认 `WORN→LOST` 与操作开始，不能证明帧序列。当前服务端统一表情优先级，失饰由情绪层持续提供不安，客户端只显示同步结果；戴着受损帽按实际不安积累变化，不直接判为失饰哭脸。完成：陆地接生后的摘帽操作核对操作中、操作结束及还帽后的脸与 `mood.unease`／托管状态，不一闪恢复；有效托管放帽不被误判失饰。
 - **陆 11 头饰认亲**（34）：已接入待试玩。此前反馈低智力亲油不嫌弃失饰子油；E1 22:45 已记录智力 40 亲油 `known=false`、亲近 30→27→24，但驱赶不明显。`hatless_kin` 改为同样凶悍、胆大、低自制的智力 40／80 亲油对照，不直接指定制裁。完成：低智力亲油自然鄙视并按概率升级为真实驱赶，孩子位置与 `accessory.sanction` 对应；高智力仍认亲，不参与失饰制裁。见[头饰](HEADWEAR.md)。
 - **陆 20 怪物判定与欺负反应**（35）：已接入待试玩。E1 22:46–22:49 按前后两处二级伤判断怪物，低血量样例制裁开始即退出；普通灵梦受咬扣血后只进入捕食种反击拒绝入口。现按本次要求改为失饰且面部活动伤口至少三处，或任意部位有三级严重伤；普通种受欺负及欺负者被反击均按自身状态选择反击或逃跑，低血量必逃。完成：`hatless_monster` 两种满足条件的初态均出现怪物读数；`hatless_boundary` 前后两处普通伤和低血量不算怪物；`hatless_sanction` 自然发起欺负，双方选择、真实伤害和逃跑位置可对应，低血量不继续追推。见[头饰](HEADWEAR.md)。
 - **远行活动范围**：已接入待试玩。远行搜索、地面导航与行程时限按[行为与成长](BEHAVIOR.md#属性与关系)接线；攻击、接触和感知距离不随之扩大。赤油离巢与迁徙运输改由陆 33 按新规则修正。完成：`rain_shelter`、`pred_range`、`forage`、`dig`、`marisa_explore` 与找岸／帽船觅食分别核对目标距离、实际 Goal、路径、位置、物资消耗和返回。只改搜索数字或显示读数不算通过。
@@ -212,18 +209,18 @@
 **重构后首轮复测失败**：运行 [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bdb14fd13ad923c85c8fbe9c1a596e3df9)（[CI 40380823130](https://github.com/Longshou/MCyukkuri/actions/runs/40380823130)，2026-10-27 03:21–03:31，池塘九个场景；原日志与 session 副本在 `.local/reports/aquatic-1325c6bd/`）。以下保留该版本的失败现象及当前修正；该次未开逐阶段细节，现场拒绝分支仍须以新日志确认。
 
 - **岸边下水必失败**（`birth_boat_caught` 两轮、`birth_boat_missed`）：放帽当刻 `voyage cancelled reason=berth_lost`，转收帽又 `stow_no_berth`，帽子漂走、人留岸；母油产程停在 5600/6000 `waiting_for_own_hat`，无一胎出生；漏接场父油放帽被漂走的母帽占位 `hull_does_not_fit`。已修正既有船的泊位查询：排除本船，保留其他船、方块及完整水域的检查；泊位拒绝记录实际原因。复看放帽、载幼、登船、产程与最后收帽。
-- **上岸后找不回帽**（`water_dock`、`shore_capsized`、`birth_boat_*`）：`ASHORE→RECOVER own_hull_in_reach` 与 `RECOVER→ASHORE recover_hull_gone` 每秒互切数十秒，伴随 `deck release boarding_done` 刷屏，人不去取帽，帽子最终 `sunk` 永久丢失。已取消空闲自救每 tick 清理，保留已加载且帽主、凭据均匹配的帽子线索；真实失效仍拒绝。复看稳定进入找回链，收帽后不再重复释放。 E8 `rescue_child` 在外部救援中断自救脱帽后留下倾覆原帽，已接入待试玩：原帽登记有期限回收请求，获救者自己或亲船船长实际靠近、够到帽檐并翻正后回收。完成：孩子被救回后继续见 `[headwear] reclaim requested/assigned/done`，核对同一帽 ID、托管令牌与库存；无法接触有真实到期原因。
-- **成年帽扶不正**（`water_dock`、`self_rescue`、`shore_capsized`、`water_neighbours`、`shake_capsize`）：1.75 帽每次扶到一半 `righting_pose_refused`，三次打滑后转岸；0.4、0.72 帽能扶正爬回。源码确认固定握点旋转既可能超过单 tick 位移上限，也会使船体中心跨水层，旧检查误用旋转中心寻找水面。已按实际可移动进度推进扶正，水面沿握住时的基准检查，旋转碰撞与浮起后的完整帽檐水域均保留；拒绝细分原因。复看成年帽各侧咬檐、扶正中受阻与中断，不能穿岸或跳过真实失败。
+- **上岸后找不回帽**（`water_dock`、`shore_capsized`、`birth_boat_*`）：`ASHORE→RECOVER own_hull_in_reach` 与 `RECOVER→ASHORE recover_hull_gone` 每秒互切数十秒，伴随 `deck release boarding_done` 刷屏，人不去取帽，帽子最终 `sunk` 永久丢失。已取消空闲自救每 tick 清理，保留已加载且帽主、凭据均匹配的帽子线索；真实失效仍拒绝。复看稳定进入找回链，收帽后不再重复释放。 E8 `rescue_child` 在外部救援中断自救脱帽后留下倾覆原帽，已接入待试玩：原帽登记有期限回收请求，孩子真实落稳后亲船才处理回收；船长真实靠近，辫梢有限移动到帽檐并持续握持，翻正后沿同一令牌交还。完成：孩子被救回后继续见 `[headwear] reclaim requested/assigned/done` 与实际 contact／handoff，核对同一帽 ID、托管令牌和库存只交接一次；无法接触有真实到期原因，帽回身观感仍待试玩。
+- **帽子扶正与登船受阻**（`water_dock`、`self_rescue`、`shore_capsized`、`water_neighbours`、`shake_capsize`）：已接入待试玩。1325c6bd 的 1.75 帽扶到一半 `righting_pose_refused`，三次打滑后转岸，0.4、0.72 帽曾能扶正爬回；E9 的满体力小帽自救仍被 `righting_swept_collision` 拒绝，`shore_capsized` 扶正后持续 `rim_out_of_reach` 至溺亡。当前扶正保持实际位移上限与握住时的水面基准；持帽身体用真实帽面／身体表面扫掠校验替代这一对实体的粗碰撞箱，其他船、身体与方块仍阻挡。自救接近、咬檐和转移攀爬共用实际接触几何。完成：各侧真实接近、咬檐、扶正、登船连续交接；看具体碰撞原因、握点、CLIMB 阶段与上浮耗时，真实受阻／力竭仍失败，不能穿岸。
 - **翻船后落在自己帽下几乎扶不正**（用户反馈）：乘员释放时只偏移 0.035，船长留在倒扣帽檐下；帽内的“外侧”方向算反，出现从帽底咬檐，4 次在咬上 1 tick 后 `grip_moved`。已从翻转帽檐几何取外侧，释放给有限向外速度，游到外侧后才准入握；持续握持沿同一实际握点。复看先游出帽檐、再咬住扶正，不能瞬移脱困。 E8 `shake_capsize`、`self_rescue` 仍见倾覆穿模与水中平移；当前释放改为限速的碰撞扫掠分离，倾覆帽保留碰撞，翻正后补上浮耗时／高度读数，已接入待试玩。完成：乘员真实从帽体外侧游近，扶正与上浮读数对应；没有上浮速度实测前不凭观感调整浮力。
-- **从漂浮帽船跳出全部失败**：`land_hop` 34 次、`return_to_parent` 19 次均 `no_departure_seat`，0 成功；`water_life`、`water_neighbours` 下不了船，`family_skiffs` 答应召集却跳不过去、超时散去，亲帽先扔 2 份粮腾位。已允许当前 HOP 票据在 APPROACH 阶段驱动自己的乘员走向离船沿，其他票据和阶段仍互斥；外部登船先预检几何再腾位。`land_lift` 38 次 `no_reach`／`known_impossible`、赤油被留船 `no_way_found` 尚须复看，不能由跳船修正推定通过；另检查登船接近中存读，临时预留应释放、船长回本位，初航保留位和收容资格仍在。 E8 `water_dock`、`shore_family` 跳弧过高过快，`self_rescue` 攀爬与 `rescue_infant_full` 满载托举偏快，`shore_family` 又出现同座位 `carry_within` 循环。当前按体型／体力／伤病限高限速，攀托考虑真实负载与片段窗口；下岸可先换可达出发位或重靠泊，中间搬运只有更接近且后续落地可行才允许，已接入待试玩。完成：上述场景真实到岸、无同座位成功，HOP 峰高不超 `maxHopHeight`，慢速托举不因旧时限误停，`[braid] LAND done` 只对应真实落地。
+- **换船、跳出与托幼下岸**：已接入待试玩。1325c6bd 的 `land_hop` 34 次、`return_to_parent` 19 次均 `no_departure_seat`，`land_lift` 38 次 `no_reach`／`known_impossible`，赤油被留船 `no_way_found`；`water_life`、`water_neighbours` 下不了船，`family_skiffs` 召集超时且亲帽先扔粮腾位。E8 `water_dock`、`shore_family` 跳弧过高过快，`self_rescue` 攀爬和 `rescue_infant_full` 满载托举偏快，`shore_family` 同座位 `carry_within` 循环。E9 `family_skiffs` 换船途中提前成为亲船乘员，亲船驶离，随后 `revert_blocked_or_body_limit` 落水；`water_life` 靠岸后走到与预检不同的出发座位，反复 `hop_exceeds_body`。当前联合校验落点和起跳席位，按实际距离选择可达近岸并原样交接预检席位，真实到达后才切换乘坐关系，限速剩余路程不再当作碰撞；中断后只保留实际受支撑的位置。攀托仍受体型、体力、伤病、负载与片段窗口约束；托幼预检候选扫描不连续花掉多次失败预算，中间换位必须使最终落地可行，不能同座位假成功。完成：上述场景真实到岸、换船落稳后才召回完成，HOP 峰高不超 `maxHopHeight`；对照出发席位、实际位置、碰撞／限速读数与 `[braid] LAND done`。登船途中存读释放临时预留，保留初航留位与收容资格，不能由跳船修正推定赤油下岸已通过。
 - **落水孩子在自帽与亲船间摇摆**（用户反馈，`family_skiffs`）：自救与亲船指引争抢移动，每 20 tick 重选，0.4 帽子油 `#55102` 03:29:05 落水、03:29:26 溺亡，离亲船不到 2 格。已由一次获准救援持有共同入口，暂停自救；转移票据接管后控制身体，救援停止续约或失败即交还自救。复看孩子不在两帽间反复改向，两亲不同时指挥，亲油离开、死亡或受阻后无永久等待。
-- **亲油施救门槛过高**（用户反馈）：全场所有 `incident close` 均 `attempts=0`，亲船长期 `SAFETY HOLD`；会跳的孩子反复 `rim_out_of_reach`，未转辫托。源码复核已有入口泊位计算，1.5 格停车只是后备路径；主要缺口是指引未接通、接近结果未收束，以及按会跳能力直接选自爬。现亲子和临时收容共用真实入口接近，够到才自爬，否则检查辫托／口含路径；持续无接触时换入口并累计有限物理失败。复看 `rescue_child`、`rescue_infant_full` 与翻船后救幼：日志区分靠近与已打开转移，真实完成才算救起。一次友善选择、力竭后不重抽、翻船船长先扶自帽、岸上帮手范围和邻船概率均保留；这些规则的调整仍须另定。
+- **亲油施救与完成交接**（用户反馈）：已接入待试玩。1325c6bd 全场 `incident close attempts=0`，亲船长期 `SAFETY HOLD`；会跳的孩子反复 `rim_out_of_reach`，未转辫托。E9 `family_skiffs`、`water_neighbours`、`rescue_child` 有实际 CLIMB 完成；`rescue_infant_full` 确实打开事故并按概率 0.8600001、抽值 0.937279 拒绝救援，不能判为事件未触发。当前亲子与临时收容共用真实入口接近，够到才自爬，否则检查辫托／口含；持续无接触换入口并累计有限物理失败。只有票据结束、实际落稳且受船保护才报救起，搬运中的保护不提前关闭事故或召回。完成：上述场景区分选择拒绝、物理受阻、接触与真实完成，对照保存的 chance／roll、转移阶段和 `incident close`；同一救助者不重抽，拒绝、力竭与真实危险仍有后果。
 - **救助角色误判**：兄弟姐妹按亲属计，赤油被判 `CAPTAIN_SELF`、兄姐船被判 `SAME_BOAT_PARENT`。已按真实亲子关系和事故来源帽船的凭据区分角色；决定不再因名额挤出而重抽，亲油优先保留。复看同一事件每救助者只有一次决定，拒绝者不腾位、不丢粮。 E8 `rescue_child` 的 APPROACH 因船舵与辫子托举抢朝向而反复摆头；当前搬运期间舵手让出朝向，已接入待试玩。完成：亲油实际转向并接触孩子，`[braid] approach/stall/done` 与转移阶段对应，失败仍保留原救助预算。
 - **未看完**：`shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸后入睡、翻船再落水后溺亡，未单独判断。
 
 修复后先复看 P0-2、P0-4、P0-6、P0-8、P0-9 及 `family_skiffs` 召集、`shore_capsized` 找回；试玩场默认开逐阶段细节日志（见[玩法日志](GAMEPLAY_LOGGING.md)）。
 
-- **船上分娩出口**：已接入待试玩。E8 `birth_boat_caught` 三只新生儿全部 `outcome=WATER`，本帽预约随即取消、父帽 `outside_footprint`。当前先按实际空座选择出口，母油真实转身后才预约和推出；无安全出口限时降级为真实无垫出生。完成：`birth_boat_caught` 观察 `birth exit selected` 后实际 `birth landed outcome=HAT`；仍可真实漏接，`none`／`birth flight refused` 能解释失败，重载不重抽体型或重复出生。
+- **船上分娩出口**：已接入待试玩。E8 `birth_boat_caught` 三只新生儿全部 `outcome=WATER`，本帽预约随即取消、父帽 `outside_footprint`；E9 未复测出生链。当前选择出口后保留具体帽、席位和准入用途，母油真实转身后按同一目标预约和推出，不再重新选座；无安全出口或持续无法转身受有限等待约束，降级无垫出生仍检查真实阻挡。完成：`birth_boat_caught` 对照 `birth exit selected`、`birth berth reserved` 的帽与席位，以及实际 `birth landed outcome=HAT`；仍可真实漏接，`none`／`birth flight refused` 能解释失败，重载不重抽体型或重复出生。
 - **亲子帽船动作反复中断**：已接入待试玩。E8 `family_skiffs` 的 idle/passenger 反复 `lapsed` 重启，子船被 `hull_boat` 挡住时周期重发航路。当前水上议程统一 Goal，陆上日常让位，短中断保留展示，船间阻挡 HOLD 退避。完成：同场景连续观察，实际 Goal 切换与 `[aqdiag]` 读数对应，不反复退回 IDLE；真实威胁、照护与亲船召回仍生效。
 - **水上捕食后的落地**：已接入待试玩。E8 `water_threat` 捕食种在 `no_dry_stand` 后关闭飞行而落水受伤。当前选择水上目标前核对可达干地，落地搜索失败扩大已加载岸地搜索并继续真实飞行返回。完成：该场景不再因局部找不到地面而主动坠水；身体失能或真正耗尽体力仍有后果，观察落点、飞行／落地阶段与体力。
 - **池塘场景初态与清场**：已接入待试玩。E8 `water_neighbours` 邻船先缺粮上岸、母油被低温打断；`first_voyage` 孩子尚在岸上，反复 `first_voyage_ineligible`，两场还受前一冬季群系影响。当前温和场景与清场都恢复群系；邻船相邻且有限物资充足，初航从亲帽乘员和真实随身木棍开始；删除水上烧帽演示，规则见[头饰](HEADWEAR.md)。完成：先冬季、清场、再邻船／初航，温度与真实初态恢复；自然触发照料接手或初航，不以准备成功算行为通过。
