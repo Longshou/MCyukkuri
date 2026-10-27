@@ -79,6 +79,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `VoyageController`／`AfloatAgenda`／`HullHelm`／`ShoreBerth`／`HullFootprint`／`HullFactory`（`subspecies/boat/`） | 船与船长的唯一决定者：`VoyageController` 是存档的船长阶段机，对外只有 `requestShore`；`AfloatAgenda` 是在航注册式活动，一次只跑一个；`HullHelm` 是船体运动与朝向的唯一写入者（租约＋指令）；`ShoreBerth` 是岸位唯一查询；`HullFootprint` 是“放得下”的唯一判定；`HullFactory` 是造船的唯一入口（一次预检、统一回滚）。规则见[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md) |
 | `HatCustody`（`headwear/`，挂在 `LifeAccessory`） | 帽子在哪的唯一记录：`WORN`／`DEPLOYED`／`HELD_BY_PARENT`／`ADRIFT`／`LOST`；读取是纯函数，转换只有命名的几种并各记一条日志；取代 `custodyBoat`、`custodyEnded`、临时托管、`SubspeciesLife.boat`、首航留帽令牌与旧档 8 格扫描 |
 | `ParentCarry`（`FamilyLife.carry()`） | 陆上亲代承托的唯一所有者：能力与座位判定、接起、放下原因与保留时间；孩子是亲油实体的真实乘客（`YukkuriEntity.canAddPassenger`／`positionRider` 委托），不另存副本；客户端经 `YukkuriView.carriedYukkuri()`／`carryMode()` 与静态座位函数读取，不读服务端组件 |
+| `LiveDelivery`／`CatchHat`／`FamilyFlight`（`family/`） | 母体拥有本胎接生期限，接生者只读取是否仍可放帽；摘放帽、收尾和安抚由 `FamilyLife` 的实际 Goal 执行，半动作绑定胎次、母体与站位，提交前复核。出生飞行只在物理移动入口推进，碰撞查询只观察；已抽定的出生冲量与飞行语义在落地前保存。规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩) |
 | `CareDecisionLedger`（`FamilyLife.careDecisions()`） | 亲代按孩子与需求保存照护决定；陆地喂养、首便和帽船照护共用接受／拒绝结果，执行路径只推进真实动作与物资交接，物理失败退让各自保存 |
 | `HouseEggRelocation` / `HouseEggs` | 原窝保存整批迁卵行程、在途卵与亲代迁居交接；目标窝只预约接收空位，单枚卵的身份和孵化进度仍由 `FamilyData` 持有，搬运经过真实取放 |
 | `Migration` / `SettlementTicker` | 聚落账本持有迁徙目标与阶段；族长发起，在场参与者接续推进，成员各自完成移动与新窝交接，群体到达统计只读结果 |

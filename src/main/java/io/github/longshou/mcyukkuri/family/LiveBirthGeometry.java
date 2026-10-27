@@ -238,13 +238,14 @@ public final class LiveBirthGeometry {
         var position=position(mother,index);
         // Afloat in her own hat boat the young are born into one of the parents' close hats.
         var boat=mother.family().boatHome();
-        // This unborn preflight uses the actual BABY load and geometric budget. FamilyData then reserves a seat for
+        // This unborn preflight uses the child's actual birth-size load and geometric budget. FamilyData then reserves a seat for
         // the concrete newborn before it is added, and FamilyFlight still performs the physical handoff into it.
-        if(boat!=null&&boat.isAfloat()&&boat.canAdmitNewborn())return true;
+        var kind=brood==null?FamilyData.BirthKind.LIVE:brood.kind;
+        if(boat!=null&&boat.isAfloat()&&boat.canMakeRoomForNewborn(kind,child.subspeciesFlags,true))return true;
         if(mother.family().waterBirthRequired()){
             if(brood!=null&&brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father){
                 var partner=father.family().boatHome();
-                if(partner!=null&&partner.canAdmitNewborn()
+                if(partner!=null&&partner.isAfloat()&&partner.canMakeRoomForNewborn(kind,child.subspeciesFlags,false)
                         &&partner.position().subtract(position).horizontalDistance()<=FamilyLife.SHARE_REACH+partner.getBbWidth()*.5)return true;
             }
             return false;
@@ -254,7 +255,7 @@ public final class LiveBirthGeometry {
         // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
         var floated=level.getEntitiesOfClass(HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
                 &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
-        if(floated!=null)return floated.canAdmitNewborn()&&level.noCollision(mother,box);
+        if(floated!=null)return floated.canAdmitNewborn(kind,child.subspeciesFlags,false)&&level.noCollision(mother,box);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.

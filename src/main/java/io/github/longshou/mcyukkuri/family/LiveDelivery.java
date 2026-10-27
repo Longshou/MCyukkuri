@@ -36,7 +36,8 @@ final class LiveDelivery {
     private Vec3 landExit;
     private boolean leftNest;
     private float deliveryYaw=Float.NaN;
-    private int catcherWait;
+    /** One maternal clock covers approach, placement and the final wait for this brood. */
+    private int catcherWait, catchWindowBudget;
     /** Saved bounded wait while the mother walks back to an already placed helper hat. */
     private int stationWait;
     /** Once a real helper station has failed, this brood must not silently use that hat as a cushion. */
@@ -61,7 +62,7 @@ final class LiveDelivery {
     LiveDelivery(FamilyLife o) { this.o=o; }
     int recoveryTicks() { return liveRecovery; }
     boolean comfortActive() { return comfortTicks>0; }
-    boolean nuzzling() { return comfortTicks>0&&comfortNear>=10; }
+    boolean nuzzling() { return o.task()==Task.COMFORT&&comfortTicks>0&&comfortNear>=10; }
     boolean bumping() { return bumpTicks>0; }
     boolean welcoming() { return welcomeTicks>0&&newborn!=null; }
     /** Passive detail for the two real partner hulls and the existing cross-hull cradle transfer. */
@@ -88,12 +89,13 @@ final class LiveDelivery {
                 +" incoming="+boat.hasIncoming()+" afloat="+boat.isAfloat()+" paddle="+boat.cargo().paddle();
     }
     void tickRecovery() { if(liveRecovery>0)liveRecovery--; }
-    void resetForConception() { landExit=null;leftNest=false;deliveryYaw=Float.NaN;catcherWait=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
-    void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForConception() { landExit=null;leftNest=false;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForAssistance() { deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void save(CompoundTag tag) {
         tag.putInt("LiveRecovery",liveRecovery);
         if(!Float.isNaN(deliveryYaw))tag.putFloat("DeliveryYaw",deliveryYaw);
         tag.putInt("CatcherWait",catcherWait);
+        tag.putInt("CatchWindowBudget",catchWindowBudget);
         tag.putInt("CatchStationWait",stationWait);
         if(catchStation!=CatchStationState.UNUSED)tag.putByte("CatchStationState",(byte)catchStation.ordinal());
         tag.putInt("DeliveryOutcome",deliveryOutcome);
@@ -102,7 +104,8 @@ final class LiveDelivery {
         landExit=null;leftNest=false;waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
         liveRecovery=Math.clamp(tag.getInt("LiveRecovery"),0,LiveBirthGeometry.RECOVERY);deliveryLast=null;
         deliveryYaw=tag.contains("DeliveryYaw")?tag.getFloat("DeliveryYaw"):Float.NaN;
-        catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,CatchHat.CATCH_WAIT);
+        catcherWait=Math.clamp(tag.getInt("CatcherWait"),0,CatchHat.APPROACH_LEAD+CatchHat.CATCH_WAIT);
+        catchWindowBudget=Math.clamp(tag.getInt("CatchWindowBudget"),0,CatchHat.APPROACH_LEAD+CatchHat.CATCH_WAIT);
         stationWait=Math.clamp(tag.getInt("CatchStationWait"),0,400);
         int savedStation=Math.clamp(tag.getByte("CatchStationState"),0,CatchStationState.values().length-1);
         catchStation=CatchStationState.values()[savedStation];
@@ -190,7 +193,7 @@ final class LiveDelivery {
         int lead=2;
         if(deliveryOutcome==1||deliveryOutcome==2){var helper=FamilyLife.catcher(o.entity(),pregnancy);if(helper!=null&&helper!=o.entity())lead=150;}
         o.resetCatchDuty();
-        pregnancy.elapsed=Math.max(0,pregnancy.duration-lead);deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=stationWait=0;catchStation=CatchStationState.UNUSED;
+        pregnancy.elapsed=Math.max(0,pregnancy.duration-lead);deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=0;catchStation=CatchStationState.UNUSED;
         FamilyData.get(o.level()).setDirty();return true;
     }
 
@@ -205,9 +208,46 @@ final class LiveDelivery {
 
     boolean catchStationAbandoned(){return catchStation==CatchStationState.ABANDONED;}
     void catchStationActivated(FamilyData.Brood brood){if(brood!=null&&brood==o.brood()&&catchStation==CatchStationState.UNUSED)catchStation=CatchStationState.ACTIVE;}
-    private void abandonCatchStation(FamilyData.Brood brood){
-        if(catchStation!=CatchStationState.ACTIVE)return;
-        catchStation=CatchStationState.ABANDONED;stationWait=0;o.abandonDeliveryStation(brood);
+    private void closeCatchWindow(FamilyData.Brood brood,String reason){
+        if(catchStation==CatchStationState.ABANDONED)return;
+        catchStation=CatchStationState.ABANDONED;stationWait=0;deliveryYaw=Float.NaN;
+        o.abandonDeliveryStation(brood);
+        GameplayLog.event(o.entity(),"family","catch window closed brood={} reason={} elapsed={}/{} waited={}/{}",
+                brood.id,reason,brood.elapsed,brood.duration,catcherWait,catchWindowBudget);
+    }
+
+    /** A pure admission check for a not-yet-placed hat; the mother alone closes this window. */
+    boolean acceptsCatch(FamilyData.Brood brood){
+        if(brood==null||brood!=o.brood()||brood.cancelled||brood.complete()||brood.kind==FamilyData.BirthKind.EGG
+                ||withholdsCushion()||o.boatHome()!=null||brood.children.stream().anyMatch(child->child.born))return false;
+        int release=brood.kind==FamilyData.BirthKind.LIVE?LiveBirthGeometry.emergenceStart(0):0;
+        return brood.elapsed<brood.duration+release&&(catchWindowBudget==0||catcherWait<catchWindowBudget);
+    }
+
+    /** Advance once per ready maternal tick, including a blocked nest exit or meeting route. */
+    void tickCatchWindow(FamilyData.Brood brood){
+        if(catchStation!=CatchStationState.UNUSED||withholdsCushion()||o.boatHome()!=null
+                ||brood.elapsed<Math.max(0,brood.duration-CatchHat.APPROACH_LEAD)||!o.dutyReady())return;
+        if(catchWindowBudget==0){
+            if(FamilyLife.catcher(o.entity(),brood)==null)return;
+            catchWindowBudget=Math.max(0,brood.duration-brood.elapsed)+CatchHat.CATCH_WAIT;
+            GameplayLog.event(o.entity(),"family","catch window opened brood={} budget={} elapsed={}/{}",
+                    brood.id,catchWindowBudget,brood.elapsed,brood.duration);
+        }
+        if(catcherWait<catchWindowBudget)catcherWait++;
+        if(catcherWait>=catchWindowBudget)closeCatchWindow(brood,"placement_timeout");
+    }
+
+    /** Live and stem deliveries wait for the same actual placed hat and bounded return to its outlet. */
+    boolean readyAtCatchStation(FamilyData.Brood brood){
+        var station=o.boatHome()==null?o.deliveryStation(brood):null;
+        if(catchStation==CatchStationState.ACTIVE&&station==null){closeCatchWindow(brood,"station_lost");return true;}
+        if(station==null)return true;
+        if(!o.deliveryStationReady(brood,station)){
+            if(++stationWait<=400)return false;
+            closeCatchWindow(brood,"station_timeout");return true;
+        }
+        stationWait=0;deliveryYaw=station.yaw();return true;
     }
 
     boolean bumped(){return bumped;}
@@ -422,23 +462,15 @@ final class LiveDelivery {
         // Between two births she may lift a fallen newborn: the clock waits for the braid to finish.
         if(o.rescuingYoung()){hold="rescuing_young";return;}
         if(!readyForDelivery()){hold="mother_not_ready";return;}
+        tickCatchWindow(brood);
         var boat=o.boatHome();
         if(boat==null&&waterBirthRequired(brood)&&nearWaterBirthTerm(brood)){
             // The family goal has yielded its MOVE flag to AquaticLife. There is no permanent delivery task here: a
             // missing shore, paddle or surface can be corrected and then the normal launch retries.
             hold="waiting_for_own_hat";return;
         }
-        // A helper's hat is placed for one outlet; a pause in the mother's route must not turn it into a birth elsewhere.
-        var station=boat==null?o.deliveryStation(brood):null;
-        if(catchStation==CatchStationState.ACTIVE&&station==null){abandonCatchStation(brood);deliveryYaw=Float.NaN;}
-        if(station!=null&&!o.deliveryStationReady(brood,station)){
-            if(++stationWait<=400){hold="waiting_for_catch_station";return;}
-            abandonCatchStation(brood);deliveryYaw=Float.NaN;station=null;
-        }
-        if(station!=null){
-            stationWait=0;deliveryYaw=station.yaw();
-            if(!FamilyData.get(o.level()).relocate(brood,o.level(),BlockPos.containing(station.at()))){hold="no_place_for_term";return;}
-        }else if(!placeForTerm(brood,boat)){hold="no_place_for_term";return;}
+        if(!readyAtCatchStation(brood)){hold="waiting_for_catch_station";return;}
+        if(!placeForTerm(brood,boat)){hold="no_place_for_term";return;}
         // On land the mother must hold still; afloat, drifting with the water does not stop a delivery.
         if(boat==null&&brood.elapsed>=brood.duration&&(before==null||before.distanceToSqr(deliveryLast)>.0004)){hold="mother_moving";return;}
         int next=0;while(next<brood.children.size()&&brood.children.get(next).born)next++;
@@ -447,7 +479,7 @@ final class LiveDelivery {
                 &&!FamilyData.get(o.level()).prepareWaterBirthCargoSpace(brood,boat,o.level(),LiveBirthGeometry.position(o.entity(),next))){
             hold="boat_cargo_space_pending";return;
         }
-        if(boat==null&&brood.elapsed>=brood.duration-2&&o.catchAlone(brood)){hold="waiting_for_hat";return;}
+        if(boat==null&&brood.elapsed>=brood.duration-2&&o.waitsForOwnHat(brood)){hold="waiting_for_hat";return;}
         if(o.hatMoving()){hold="hat_move";return;}
         if(brood.elapsed>=brood.duration){
             // Until the helper has placed a real hat, the movement goal owns the current meeting's position and yaw.
@@ -493,25 +525,26 @@ final class LiveDelivery {
         if(brood.complete())finishLive();
     }
 
-    /** Bounded, persisted patience for the real father; shared by live and stem deliveries. */
+    /** The same maternal window gates both the helper and the gestation clock. */
     boolean waitForCatcher(FamilyData.Brood brood) {
         var helper=FamilyLife.catcher(o.entity(),brood);
-        if(catcherWait>=CatchHat.CATCH_WAIT||withholdsCushion()||helper==null||helper==o.entity()
-                ||helper.family().catchDutyGaveUp()||helper.family().cradleEntity()!=null||!helper.family().dutyReady())return false;
-        catcherWait++;return true;
+        return acceptsCatch(brood)&&helper!=null&&helper!=o.entity()&&!helper.family().catchDutyGaveUp()
+                &&helper.family().cradleEntity()==null&&helper.family().dutyReady();
     }
 
     /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
     void comfort(YukkuriEntity baby){
         if(o.entity().level().isClientSide||baby==null||baby==o.entity()||!o.adult()||o.entity().isNoAi()||!o.entity().isAlive())return;
         comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
-        o.entity().getNavigation().stop();
         o.entity().mind().felt(EmotionEvent.FRIGHTENED); o.entity().showReaction("surprise","afraid",40);
-        BirthStaging.caption(o.entity(),"父油大惊，赶到哭泣的新生儿身边");
     }
 
+    void pauseComfort(){comfortNear=0;}
+
+    /** Only the COMFORT task may advance contact or steer; queued comfort waits for birth and hat care. */
     void tickComfort(){
-        if(o.task()==Task.MIDWIFE)return;
+        if(o.task()!=Task.COMFORT)return;
+        if(comfortTicks==COMFORT)BirthStaging.caption(o.entity(),"亲油走向哭泣的新生儿");
         comfortTicks--;
         var baby=comfortBaby!=null&&o.level().getEntity(comfortBaby) instanceof YukkuriEntity found&&found.isAlive()?found:null;
         if(baby==null||!o.dutyReady()||o.hatMoving()){comfortTicks=0;comfortNear=0;return;}
@@ -629,7 +662,7 @@ final class LiveDelivery {
         var completed=o.brood();
         if(o.cradleEntity()!=null)o.lingerCradle(LiveBirthGeometry.RECOVERY);
         o.clearGestation();liveRecovery=LiveBirthGeometry.RECOVERY;landExit=null;leftNest=false;
-        o.recovery(Math.max(o.recovery(),FamilyConfig.RECOVERY.get()));deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=stationWait=nestless=0;deliveryOutcome=0;catchStation=CatchStationState.UNUSED;
+        o.recovery(Math.max(o.recovery(),FamilyConfig.RECOVERY.get()));deliveryLast=null;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=nestless=0;deliveryOutcome=0;catchStation=CatchStationState.UNUSED;
         o.resetCatchDuty();
         o.stop();o.entity().getNavigation().stop();o.task(Task.RECOVER);o.waitTicks(0);
         GameplayLog.event(o.entity(),"family","delivery complete brood={} recovery={} newborn={}",

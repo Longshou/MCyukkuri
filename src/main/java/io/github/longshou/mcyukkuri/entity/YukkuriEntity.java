@@ -453,7 +453,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Bodies that move on their own may be shoved; carried, boarded or launched ones follow their own carrier. */
     boolean nudgeable() {
         return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()
-                &&!family.crew().holdsBody()&&!family.travelFlight()&&!family.freeFalling();
+                &&!family.crew().holdsBody()&&!family.hasFlightArc()&&!family.freeFalling();
     }
     private double bodyMass() { return getBbWidth()*getBbWidth()*getBbHeight(); }
     /**

@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullFactory;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,14 +34,19 @@ final class CatchHat {
     private static final double SEEK_RANGE_SQR=48*48;
     private final FamilyLife o;
     /** Marisa's braid takes off the real hat or puts it back on. */
-    private enum HatMove { NONE, OFF, ON, OFF_SELF, ON_SELF }
-    private HatMove hatMove=HatMove.NONE;
+    private enum HatMove { OFF, ON, OFF_SELF, ON_SELF }
+    /**
+     * One in-flight clip binds the delivery agreement that authorises a physical accessory transfer.
+     * It is deliberately transient: loading never resumes a
+     * half-finished braid clip, while an already placed hat remains in the existing station NBT.
+     */
+    private record HatAction(HatMove move,UUID brood,UUID mother,FamilyLife.DeliveryStation motherAt,
+                             FamilyLife.DeliveryStation meeting,HatPose pose,Stand stand) {}
+    private HatAction action;
     private int hatTicks, cradleLinger, fetchTicks, hatApproach, releaseWait, dutyTicks;
     private int fetchPassengers;
     /** Presentation of the last executed duty phase, never a probe that starts or changes the duty. */
     private String dutyActivity=Behaviors.IDLE;
-    private float hatYaw;
-    private HatPose hatTarget;
     private HatBoatEntity fetching;
     private boolean dutyGaveUp;
     private long fetchRetryAt;
@@ -48,10 +54,6 @@ final class CatchHat {
     private UUID deliveryBrood, deliveryHat;
     private Vec3 deliveryStation, deliveryHatAt;
     private float deliveryStationYaw, deliveryHatYaw;
-    /** The mother pose used to author the helper's in-progress hat placement. */
-    private UUID plannedDeliveryBrood;
-    private Vec3 plannedDeliveryStation;
-    private float plannedDeliveryYaw;
     /** Agreed before either hat or child is created; both parents walk to this same physical site. */
     private FamilyLife.DeliveryStation rendezvous;
     private UUID dutyBrood;
@@ -62,14 +64,14 @@ final class CatchHat {
     private int siteSelectedAt;
 
     CatchHat(FamilyLife o) { this.o=o; }
-    boolean moving() { return hatMove!=HatMove.NONE; }
+    boolean moving() { return action!=null; }
     boolean fetching() { return fetching!=null; }
-    boolean cleanupPending() { return fetching!=null||hatMove==HatMove.ON||hatMove==HatMove.ON_SELF||cradleLinger>0&&cradleEntity()!=null; }
-    String describe() { return "move="+hatMove+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
+    boolean cleanupPending() { return fetching!=null||action!=null&&(action.move()==HatMove.ON||action.move()==HatMove.ON_SELF)||cradleLinger>0&&cradleEntity()!=null; }
+    String describe() { return "move="+(action==null?"none":action.move())+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
             +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy()+" dutyTicks="+dutyTicks+" gaveUp="+dutyGaveUp
             +" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
-    void resetDuty() { dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();clearDeliveryStation(); }
+    void resetDuty() { stopAction("duty_reset");dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();clearDeliveryStation(); }
     void resetApproach() { hatApproach=0;dutyActivity=Behaviors.IDLE; }
     void linger(int ticks) { cradleLinger=ticks; }
     void tickLinger() {
@@ -79,7 +81,8 @@ final class CatchHat {
     }
     String dutyActivity() { return dutyActivity; }
     String activity(boolean aquatic) {
-        return Behaviors.aquatic(switch(hatMove){case OFF->Behaviors.HAT_OFF;case ON->Behaviors.HAT_ON;case OFF_SELF->Behaviors.HAT_OFF_SELF;default->Behaviors.HAT_ON_SELF;}, aquatic);
+        if(action==null)return Behaviors.IDLE;
+        return Behaviors.aquatic(switch(action.move()){case OFF->Behaviors.HAT_OFF;case ON->Behaviors.HAT_ON;case OFF_SELF->Behaviors.HAT_OFF_SELF;case ON_SELF->Behaviors.HAT_ON_SELF;}, aquatic);
     }
 
     private static boolean hatted(YukkuriEntity y) {
@@ -166,20 +169,105 @@ final class CatchHat {
     }
 
     /** Step onto the spot the braid clip is authored from and start it. */
-    private void beginHat(HatMove move,HatPose target,Stand stand){
+    private boolean beginHat(HatMove move,HatPose target,Stand stand){
+        var next=newAction(move,target,stand);
+        String refusal=actionRefusal(next,false);
+        if(refusal!=null)return false;
         // Place only from the authored stand; the bounded duty handles an unreachable spot.
         hatApproach++;
-        if(!approachHatStand(stand))return;
+        if(!approachHatStand(stand))return true;
+        // Navigation reaching the point has no yaw contract. Turn first, then bind the current maternal pose that
+        // authorised this clip; otherwise a normal arrival can be rejected before it gets to face the brim.
+        o.entity().getNavigation().stop();o.face(stand.yaw());
+        next=bindMotherAt(next);
+        refusal=actionRefusal(next,true);
+        if(refusal!=null)return false;
         hatApproach=0;
         BirthStaging.caption(o.entity(),switch(move){
             case OFF->"接生者走到出口前方，用辫子摘下自己的帽子（hat_off）";
             case OFF_SELF->"母油自己摘下帽子（hat_off_self）";
             case ON->"幼体已被放出，接生者用辫子把帽子戴回（hat_on）";
-            default->"接生者把帽子戴回头上（hat_on_self）";});
-        o.entity().getNavigation().stop();o.face(stand.yaw());
-        planDeliveryStation(move,target);
-        hatMove=move;hatYaw=stand.yaw();hatTarget=target;
+            case ON_SELF->"接生者把帽子戴回头上（hat_on_self）";});
+        action=next;
         hatTicks=(int)Math.round((move==HatMove.OFF_SELF||move==HatMove.ON_SELF?1.8:1.6)*20);
+        return true;
+    }
+
+    private HatAction newAction(HatMove move,HatPose pose,Stand stand){
+        if(move==HatMove.ON||move==HatMove.ON_SELF)return new HatAction(move,null,null,null,null,null,stand);
+        var mother=move==HatMove.OFF?o.target():o.entity();
+        var brood=mother==null?null:mother.family().brood();
+        if(brood==null||brood.id==null||pose==null||stand==null)return null;
+        var at=new FamilyLife.DeliveryStation(mother.position(),mother.yBodyRot);
+        return new HatAction(move,brood.id,mother.getUUID(),at,move==HatMove.OFF?rendezvous:null,pose,stand);
+    }
+
+    /** Refresh only the actual mother's settled pose after the helper walks in; her agreed brood, target and hat pose stay fixed. */
+    private HatAction bindMotherAt(HatAction candidate){
+        if(candidate==null||candidate.move()==HatMove.ON||candidate.move()==HatMove.ON_SELF
+                ||!(o.level().getEntity(candidate.mother()) instanceof YukkuriEntity mother))return candidate;
+        return new HatAction(candidate.move(),candidate.brood(),candidate.mother(),
+                new FamilyLife.DeliveryStation(mother.position(),mother.yBodyRot),candidate.meeting(),candidate.pose(),candidate.stand());
+    }
+
+    /**
+     * The same contract guards start, every animation beat and the irreversible accessory transfer. It must remain
+     * side-effect free: only the mother advances her finite acceptance window.
+     */
+    private String actionRefusal(HatAction candidate,boolean requireHelperStand){
+        if(candidate==null)return "missing_action";
+        if(candidate.move()==HatMove.ON||candidate.move()==HatMove.ON_SELF)
+            return actionOwnerReady()?null:"owner_unavailable";
+        if(!dutyReady())return "duty_unready";
+        if(!(o.level().getEntity(candidate.mother()) instanceof YukkuriEntity mother)||!mother.isAlive())return "mother_missing";
+        var brood=mother.family().brood();
+        if(brood==null||brood.cancelled||brood.complete()||brood.id==null||!brood.id.equals(candidate.brood()))return "brood_changed";
+        if(catcher(mother,brood)!=o.entity())return "catcher_changed";
+        if(!mother.family().acceptsCatch(brood))return "mother_window_closed";
+        if(!at(mother,candidate.motherAt()))return "mother_moved";
+        if(candidate.move()==HatMove.OFF){
+            if(o.task()!=Task.MIDWIFE||o.target()!=mother)return "midwife_handoff_changed";
+            // Land helpers share the negotiated outlet. Aquatic helpers use the actual bank-edge mother pose instead;
+            // their floated hat has no land rendezvous to validate.
+            if(!o.entity().profile().aquatic()){
+                if(candidate.meeting()==null||!candidate.meeting().equals(rendezvous)||!at(mother,candidate.meeting()))return "meeting_changed";
+                String site=siteRefusal(mother,brood,candidate.meeting());
+                if(site!=null)return "meeting_"+site;
+            }
+        }else if(o.task()!=Task.BROOD||mother!=o.entity())return "self_handoff_changed";
+        if(candidate.pose()==null||!settles(candidate.pose()))return "hat_support";
+        if(requireHelperStand&&!at(o.entity(),candidate.stand()))return "helper_moved";
+        return null;
+    }
+
+    /** Common interruption gate for either irreversible hat direction; OFF adds the adult birth-duty requirement below. */
+    private boolean actionOwnerReady(){
+        return o.entity().isAlive()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()
+                &&!o.entity().operations().active()&&!o.entity().life().isSleeping()&&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0
+                &&!o.awaitingLanding()&&!o.hasFlightArc()&&!o.crew().holdsBody();
+    }
+
+    private static boolean at(YukkuriEntity entity,FamilyLife.DeliveryStation station){
+        return station!=null&&SurfaceApproach.arrived(entity,station.at())
+                &&Math.abs(Mth.wrapDegrees(entity.yBodyRot-station.yaw()))<=3;
+    }
+
+    private static boolean at(YukkuriEntity entity,Stand stand){
+        return stand!=null&&SurfaceApproach.arrived(entity,stand.at())
+                &&Math.abs(Mth.wrapDegrees(entity.yBodyRot-stand.yaw()))<=3;
+    }
+
+    /** Interrupts only an uncommitted clip. A physical hat and its saved station are never removed here. */
+    void stopAction(String reason){
+        var stopped=action;
+        if(stopped==null)return;
+        action=null;hatTicks=0;
+        if(stopped.move()==HatMove.OFF||stopped.move()==HatMove.OFF_SELF){
+            if(stopped.meeting()!=null&&stopped.meeting().equals(rendezvous))rendezvous=null;
+            SurfaceApproach.stopWalking(o.entity());
+        }
+        GameplayLog.event(o.entity(),"family","catch hat action aborted move={} brood={} mother={} reason={}",
+                stopped.move(),stopped.brood(),stopped.mother(),reason);
     }
 
     private boolean approachHatStand(Stand stand){
@@ -333,10 +421,11 @@ final class CatchHat {
     }
 
     void abandonDeliveryStation(YukkuriEntity mother,FamilyData.Brood brood) {
-        if(mother!=null&&brood!=null&&brood.id!=null&&brood.id.equals(deliveryBrood)){
-            clearDeliveryStation();dutyGaveUp=true;
-            BirthStaging.caption(o.entity(),"母油无法回到接生帽前，这一胎改为无垫分娩");
-        }
+        if(mother==null||brood==null||brood.id==null||!brood.id.equals(dutyBrood))return;
+        if(brood.id.equals(deliveryBrood))clearDeliveryStation();
+        stopAction("mother_station_abandoned");
+        rendezvous=null;dutyGaveUp=true;
+        BirthStaging.caption(o.entity(),"母油无法回到接生帽前，这一胎改为无垫分娩");
     }
 
     void save(CompoundTag tag) {
@@ -349,6 +438,7 @@ final class CatchHat {
     }
 
     void load(CompoundTag tag) {
+        action=null;hatTicks=0;fetching=null;fetchTicks=fetchPassengers=releaseWait=0;fetchRetryAt=0;
         dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;rejectedSites.clear();
         clearDeliveryStation();
         if(!tag.hasUUID("CatchStationBrood")||!tag.hasUUID("CatchStationHat"))return;
@@ -360,24 +450,15 @@ final class CatchHat {
         dutyBrood=deliveryBrood;
     }
 
-    private void planDeliveryStation(HatMove move,HatPose pose) {
-        clearPlannedDeliveryStation();
-        if(move!=HatMove.OFF||pose.role()!=HatVessel.Role.HELPER||o.target()==null)return;
-        var brood=o.target().family().brood();
-        if(brood==null||brood.id==null||brood.kind==FamilyData.BirthKind.EGG)return;
-        plannedDeliveryBrood=brood.id;plannedDeliveryStation=o.target().position();plannedDeliveryYaw=o.target().yBodyRot;
-    }
-
-    private boolean rememberDeliveryStation(FamilyData.Brood brood,HatBoatEntity hat,HatPose pose) {
-        if(brood==null||brood.id==null||brood.kind==FamilyData.BirthKind.EGG||hat==null||!hat.isCradle()||pose.role()!=HatVessel.Role.HELPER
-                ||!brood.id.equals(plannedDeliveryBrood)||plannedDeliveryStation==null)return false;
-        deliveryBrood=brood.id;deliveryHat=hat.getUUID();deliveryStation=plannedDeliveryStation;deliveryStationYaw=plannedDeliveryYaw;
-        deliveryHatAt=pose.at();deliveryHatYaw=pose.yaw();clearPlannedDeliveryStation();
+    private boolean rememberDeliveryStation(HatAction committed,HatBoatEntity hat) {
+        if(committed==null||committed.move()!=HatMove.OFF||committed.brood()==null||committed.motherAt()==null||committed.pose()==null
+                ||hat==null||!hat.isCradle()||committed.pose().role()!=HatVessel.Role.HELPER)return false;
+        deliveryBrood=committed.brood();deliveryHat=hat.getUUID();deliveryStation=committed.motherAt().at();deliveryStationYaw=committed.motherAt().yaw();
+        deliveryHatAt=committed.pose().at();deliveryHatYaw=committed.pose().yaw();
         return true;
     }
 
-    private void clearDeliveryStation(){deliveryBrood=deliveryHat=null;deliveryStation=deliveryHatAt=null;deliveryStationYaw=deliveryHatYaw=0;clearPlannedDeliveryStation();}
-    private void clearPlannedDeliveryStation(){plannedDeliveryBrood=null;plannedDeliveryStation=null;plannedDeliveryYaw=0;}
+    private void clearDeliveryStation(){deliveryBrood=deliveryHat=null;deliveryStation=deliveryHatAt=null;deliveryStationYaw=deliveryHatYaw=0;}
 
     /** This Marisa's hat, set down nearby to catch. */
     HatBoatEntity cradleEntity() {
@@ -392,60 +473,116 @@ final class CatchHat {
         var pending=o.brood();return pending!=null&&!pending.cancelled&&!pending.complete();
     }
 
-    private List<YukkuriEntity> youngAround(double radius){
-        return o.level().getEntitiesOfClass(YukkuriEntity.class,o.entity().getBoundingBox().inflate(radius),y->!y.family().adult()
-                &&(Bonds.parentOf(o.entity(), y)));
+    private boolean ownsCradle(HatBoatEntity hat){
+        return hat!=null&&!hat.isRemoved()&&hat.catches()&&hat.ownsPhysicalHat(o.entity());
+    }
+
+    /** An absent owner is not a death report: only the saved family ledger may open this one-parent release duty. */
+    private boolean foreignDeadOwnerCradle(HatBoatEntity hat){
+        if(hat==null||hat.isRemoved()||!hat.catches()||hat.ownerYukkuri()==null||hat.ownerYukkuri().equals(o.entity().getUUID()))return false;
+        var owner=FamilyData.get(o.level()).person(hat.ownerYukkuri());
+        return owner!=null&&owner.status==FamilyData.Status.DEAD;
+    }
+
+    /** The survivor may release exactly their own live dependent riders, never adopt the dead owner's other riders. */
+    private boolean ownYoungAboard(HatBoatEntity hat){
+        return hat!=null&&hat.getPassengers().stream().anyMatch(rider->rider instanceof YukkuriEntity young
+                &&young.isAlive()&&!young.family().adult()&&Bonds.parentOf(o.entity(),young));
+    }
+
+    /**
+     * A surviving biological parent may only take the existing release duty for a loaded catch hat whose owner is
+     * recorded dead. It neither changes hull custody nor marks an absent owner dead; after a reload this is rediscovered
+     * from the same real hull and riders.
+     */
+    boolean claimParentCradle(){
+        if(o.entity().level().isClientSide||o.task()!=Task.NONE||o.brood()!=null||!dutyReady()||moving()||fetching!=null
+                ||o.level().getGameTime()<fetchRetryAt)return false;
+        var cradle=o.level().getEntitiesOfClass(HatBoatEntity.class,o.entity().getBoundingBox().inflate(48),
+                        hat->foreignDeadOwnerCradle(hat)&&ownYoungAboard(hat)).stream()
+                .min(Comparator.comparingDouble(o.entity()::distanceToSqr)).orElse(null);
+        if(cradle==null)return false;
+        fetchHat(cradle);
+        return fetching==cradle;
     }
 
     void tickHat(){
-        if(hatMove!=HatMove.NONE){
-            o.entity().getNavigation().stop();o.face(hatYaw);
-            if(--hatTicks<=0){
-                // The clip ends with the hat where it now lies: it becomes the set-down hat (the accessory leaves the head).
-                if((hatMove==HatMove.OFF||hatMove==HatMove.OFF_SELF)&&hatTarget!=null){
-                    var down=HullFactory.setDown(o.entity(),hatTarget.at(),hatTarget.yaw(),hatTarget.mode(),hatTarget.role());
-                    // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
-                    if(down==null){
-                        dutyGaveUp=true;clearDeliveryStation();BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");
-                        GameplayLog.event(o.entity(),"family","catch hat refused brood={} reason=set_down_unavailable move={}",dutyBrood,hatMove);
-                    }
-                    else {
-                        var brood=o.target()==null?null:o.target().family().brood();
-                        if(rememberDeliveryStation(brood,down,hatTarget))o.target().family().catchStationActivated(brood);
-                        BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
-                        GameplayLog.event(o.entity(),"family","catch hat placed brood={} hat={} mother={} kind={} at={} yaw={} motherAt={}",brood==null?null:brood.id,
-                                down.getUUID(),o.target()==null?null:o.target().getUUID(),brood==null?null:brood.kind,down.position(),
-                                String.format(java.util.Locale.ROOT,"%.1f",down.getYRot()),o.target()==null?null:o.target().position());
-                    }
-                }else if(hatMove==HatMove.ON||hatMove==HatMove.ON_SELF)BirthStaging.caption(o.entity(),"帽子已戴回头上");
-                hatMove=HatMove.NONE;hatTarget=null;
+        var running=action;
+        if(running==null)return;
+        String refusal=actionRefusal(running,true);
+        if(refusal!=null){stopAction(refusal);return;}
+        o.entity().getNavigation().stop();o.face(running.stand().yaw());
+        if(--hatTicks>0)return;
+        // The clip ends with the hat where it now lies: validate again immediately before the irreversible transfer.
+        refusal=actionRefusal(running,true);
+        if(refusal!=null){stopAction(refusal);return;}
+        if(running.move()==HatMove.OFF||running.move()==HatMove.OFF_SELF){
+            var down=HullFactory.setDown(o.entity(),running.pose().at(),running.pose().yaw(),running.pose().mode(),running.pose().role());
+            // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
+            if(down==null){
+                dutyGaveUp=true;
+                BirthStaging.caption(o.entity(),"帽子没能放下（落点不可用），这次改为无垫分娩");
+                GameplayLog.event(o.entity(),"family","catch hat refused brood={} reason=set_down_unavailable move={}",running.brood(),running.move());
+            } else {
+                var mother=running.mother()!=null&&o.level().getEntity(running.mother()) instanceof YukkuriEntity found?found:null;
+                var brood=mother==null?null:mother.family().brood();
+                if(rememberDeliveryStation(running,down)&&mother!=null&&brood!=null)mother.family().catchStationActivated(brood);
+                BirthStaging.caption(o.entity(),"帽子已翻面放在出口前（帽子离开了头顶，成为真实的帽实体），接生者扶住帽沿等待");
+                GameplayLog.event(o.entity(),"family","catch hat placed brood={} hat={} mother={} kind={} at={} yaw={} motherAt={}",brood==null?null:brood.id,
+                        down.getUUID(),mother==null?null:mother.getUUID(),brood==null?null:brood.kind,down.position(),
+                        String.format(java.util.Locale.ROOT,"%.1f",down.getYRot()),mother==null?null:mother.position());
             }
-            return;
-        }
+        }else BirthStaging.caption(o.entity(),"帽子已戴回头上");
+        action=null;hatTicks=0;
     }
 
     /** The birth goal owns MOVE throughout post-delivery collection; passive ticks never steer it. */
     void tickFetch(){
         if(fetching==null){o.entity().getNavigation().stop();return;}
         if(fetching.isRemoved()||!fetching.catches()||o.entity().isPassenger()){fetching=null;return;}
+        var hat=fetching;
+        boolean own=ownsCradle(hat),foreign=foreignDeadOwnerCradle(hat);
+        // A live/unknown original owner never grants a survivor any authority over this hat or its riders.
+        if(!own&&!foreign){
+            GameplayLog.event(o.entity(),"family","parent cradle duty released hat={} owner={} reason=owner_not_confirmed_dead",
+                    hat.getUUID(),hat.ownerYukkuri());
+            fetching=null;return;
+        }
+        // The last biological child already left the actual hull. Leave the dead owner's hat and other riders alone.
+        if(foreign&&!ownYoungAboard(hat)){
+            GameplayLog.event(o.entity(),"family","parent cradle release completed hat={} owner={} reason=own_young_ashore",
+                    hat.getUUID(),hat.ownerYukkuri());
+            fetching=null;return;
+        }
         if(keepsCradle()||o.entity().isPanicking())return;
-        int passengers=fetching.getPassengers().size();
+        int passengers=hat.getPassengers().size();
         if(passengers<fetchPassengers){
-            GameplayLog.event(o.entity(),"family","catch cleanup advanced hat={} passengers={}->{}",fetching.getUUID(),fetchPassengers,passengers);
+            GameplayLog.event(o.entity(),"family","catch cleanup advanced hat={} passengers={}->{}",hat.getUUID(),fetchPassengers,passengers);
             fetchTicks=0;releaseWait=14;
         }
         fetchPassengers=passengers;
-        var stand=stand(poseOf(fetching),o.entity());fetchTicks++;
+        var stand=stand(poseOf(hat),o.entity());fetchTicks++;
         if(fetchTicks>600){
-            GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} reason=approach_or_release_timeout",fetching.getUUID(),fetching.getPassengers().size());
+            GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} foreign={} reason=approach_or_release_timeout",
+                    hat.getUUID(),hat.getPassengers().size(),foreign);
             fetching=null;fetchRetryAt=o.level().getGameTime()+100;return;
         }
         if(o.entity().distanceToSqr(stand.at())>.36&&fetchTicks<200){if(fetchTicks%10==1)o.entity().life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
         if(o.entity().distanceToSqr(stand.at())>16)return;
-        var role=fetching.role();var hat=fetching;
+        var role=hat.role();
         if(!approachHatStand(stand))return;
         o.entity().getNavigation().stop();o.face(stand.yaw());
         if(releaseWait>0){releaseWait--;return;}
+        if(foreign){
+            // This is strictly a biological parent's one-at-a-time existing transfer, never a retrieve of the dead owner's hat.
+            if(CrewTransfers.releaseYoung(hat,o.entity(),true)){releaseWait=14;return;}
+            if(!ownYoungAboard(hat)){
+                GameplayLog.event(o.entity(),"family","parent cradle release completed hat={} owner={} reason=own_young_ashore",
+                        hat.getUUID(),hat.ownerYukkuri());
+                fetching=null;
+            }
+            return;
+        }
         // Dependent newborns leave in the parent's braid; capable children hop out before the empty hat is retrieved.
         if(hat.releaseYoung(o.entity())){releaseWait=14;return;}
         if(hat.retrieve(o.entity())){
@@ -455,40 +592,50 @@ final class CatchHat {
         }
     }
 
-    /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
-    boolean catchAlone(FamilyData.Brood brood){
-        if(hatMove!=HatMove.NONE)return true;
-        if(dutyGaveUp||o.withholdsCushion()||catcher(o.entity(),brood)!=o.entity()||cradleEntity()!=null)return false;
+    /**
+     * Pure maternal admission for the passive birth clock: it may wait for a real self-catch hat, but never starts
+     * navigation or an animation. The BROOD goal alone calls {@link #catchAlone(FamilyData.Brood)} to execute it.
+     */
+    boolean needsSelfCatch(FamilyData.Brood brood){
+        if(brood==null||dutyGaveUp||o.withholdsCushion()||!o.acceptsCatch(brood)||catcher(o.entity(),brood)!=o.entity()||cradleEntity()!=null)return false;
         var pose=catchPose(o.entity(),brood,o.entity(),HatVessel.Role.SELF);
-        if(!settles(pose))return false;
-        beginHat(HatMove.OFF_SELF,pose,stand(pose,o.entity()));return true;
+        return settles(pose);
     }
 
-    /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
-    void fetchHat(HatBoatEntity hat){if(hatMove==HatMove.NONE&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt){
+    /** A Marisa mother with nobody to catch for her sets her own hat before her outlet; only the BROOD goal executes it. */
+    boolean catchAlone(FamilyData.Brood brood){
+        if(moving())return true;
+        if(!needsSelfCatch(brood))return false;
+        var pose=catchPose(o.entity(),brood,o.entity(),HatVessel.Role.SELF);
+        return beginHat(HatMove.OFF_SELF,pose,stand(pose,o.entity()));
+    }
+
+    /** Called by the set-down hat when it is no longer needed: come back for it and put it on. A dead owner's hat is release-only. */
+    void fetchHat(HatBoatEntity hat){if(!moving()&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt
+            &&(ownsCradle(hat)||foreignDeadOwnerCradle(hat)&&ownYoungAboard(hat))){
         fetching=hat;fetchTicks=0;fetchPassengers=hat.getPassengers().size();releaseWait=0;
-        GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={}",hat.getUUID(),hat.getPassengers().size());
+        GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={} foreign={}",
+                hat.getUUID(),hat.getPassengers().size(),foreignDeadOwnerCradle(hat));
     }}
 
     /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
     boolean playHatOn(){
-        if(hatMove!=HatMove.NONE)return false;
-        hatMove=HatMove.ON_SELF;hatYaw=o.entity().yBodyRot;hatTarget=null;hatTicks=(int)Math.round(1.8*20);
-        o.entity().getNavigation().stop();return true;
+        if(moving())return false;
+        var stand=new Stand(o.entity().position(),o.entity().yBodyRot);
+        if(!beginHat(HatMove.ON_SELF,null,stand))return false;
+        return true;
     }
 
-    boolean hatOnPlaying(){return hatMove==HatMove.ON_SELF||hatMove==HatMove.ON;}
+    boolean hatOnPlaying(){return action!=null&&(action.move()==HatMove.ON_SELF||action.move()==HatMove.ON);}
 
     /** Guards a parent must pass to take a duty at the birth: the same ones the family goal applies. */
     boolean dutyReady(){
-        return o.adult()&&o.entity().isAlive()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()
-                &&!o.entity().operations().active()&&!o.entity().life().isSleeping()
-                &&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0&&!o.awaitingLanding()&&!o.hasFlightArc()&&!o.crew().holdsBody();
+        return o.adult()&&actionOwnerReady();
     }
 
     /** The father notices the labour on the server clock and takes the duty himself, so no goal arbitration leaves him idle. */
     void claimMidwife(){
-        if(o.partner()==null||o.task()==Task.MIDWIFE||o.comfortActive()||!dutyReady())return;
+        if(o.partner()==null||o.task()==Task.MIDWIFE||!dutyReady())return;
         var mate=mateInLabor();if(mate==null)return;
         if(o.brood()!=null)return;
         var brood=mate.family().brood();
@@ -514,7 +661,7 @@ final class CatchHat {
             if(cradleEntity()!=null)cradleLinger=120;
             dutyTicks=0;dutyGaveUp=false;o.stop();return;
         }
-        if(hatMove!=HatMove.NONE)return;
+        if(moving())return;
         if(dutyTicks++==0){
             o.entity().showReaction("surprise","caregiver",50);
             BirthStaging.caption(o.entity(),"父油察觉母油临产，走向她面前的出口");
@@ -527,17 +674,11 @@ final class CatchHat {
             o.entity().getNavigation().stop();
             o.face(stand.yaw());dutyActivity=Behaviors.aquatic(Behaviors.HAT_HOLD,o.entity().profile().aquatic());return;
         }
-        boolean mayCatch=!dutyGaveUp&&catcher(mate,b)==o.entity();
-        if(mayCatch&&dutyTicks>=APPROACH_LEAD+CATCH_WAIT){
-            dutyGaveUp=true;mayCatch=false;
-            rendezvous=null;
-            BirthStaging.caption(o.entity(),"父油没能及时赶到出口前，这一胎只能无垫分娩");
-            GameplayLog.event(o.entity(),"family","catch duty gave up brood={} mother={} reason=approach_timeout ticks={}",b.id,mate.getUUID(),dutyTicks);
-        }
+        boolean mayCatch=!dutyGaveUp&&catcher(mate,b)==o.entity()&&mate.family().acceptsCatch(b);
         if(mayCatch&&!o.entity().profile().aquatic()) {
             if(o.entity().distanceToSqr(mate)>64){seekMother(mate);return;}
             // Do not agree on the far side of a nest while her own goal is still taking her out the other side.
-            // The ordinary duty deadline above keeps a genuinely blocked exit from holding the helper forever.
+            // The mother's finite acceptance window, rather than a second helper timer, bounds a genuinely blocked exit.
             if(mate.family().leavingNestForCatcher(b)){
                 rendezvous=null;SurfaceApproach.halt(o.entity());
                 GameplayLog.limited(o.entity(),"family","catch.mother_exit",200,

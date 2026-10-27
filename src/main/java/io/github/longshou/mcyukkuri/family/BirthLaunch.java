@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.NestResting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -35,6 +37,42 @@ final class BirthLaunch {
 
     /** What was decided for one kit; {@code aim} is the planned landing point, {@code nominal} the unscaled horizontal speed. */
     record Plan(Target target,Vec3 start,Vec3 aim,double room,double nominal,double push,double yaw,Vec3 velocity){}
+
+    /** Persist the one already-randomized launch decision; loading never rolls a new impulse. */
+    static CompoundTag save(Plan plan){
+        var tag=new CompoundTag();
+        tag.putString("Target",plan.target().name());
+        putVector(tag,"Start",plan.start());putVector(tag,"Aim",plan.aim());putVector(tag,"Velocity",plan.velocity());
+        tag.putDouble("Room",plan.room());tag.putDouble("Nominal",plan.nominal());tag.putDouble("Push",plan.push());tag.putDouble("Yaw",plan.yaw());
+        return tag;
+    }
+
+    /** Invalid or incomplete saved data has no launch plan; callers keep the ordinary landing path. */
+    static Plan load(CompoundTag tag){
+        if(tag==null||!tag.contains("Target",Tag.TAG_STRING)||!tag.contains("Room",Tag.TAG_DOUBLE)
+                ||!tag.contains("Nominal",Tag.TAG_DOUBLE)||!tag.contains("Push",Tag.TAG_DOUBLE)||!tag.contains("Yaw",Tag.TAG_DOUBLE))return null;
+        Target target;
+        try { target=Target.valueOf(tag.getString("Target")); }
+        catch(IllegalArgumentException ignored){return null;}
+        var start=vector(tag,"Start");
+        var aim=vector(tag,"Aim");
+        var velocity=vector(tag,"Velocity");
+        double room=tag.getDouble("Room"),nominal=tag.getDouble("Nominal"),push=tag.getDouble("Push"),yaw=tag.getDouble("Yaw");
+        if(start==null||aim==null||velocity==null||(!Double.isFinite(room)&&!Double.isNaN(room))
+                ||!Double.isFinite(nominal)||!Double.isFinite(push)||!Double.isFinite(yaw))return null;
+        return new Plan(target,start,aim,room,nominal,push,yaw,velocity);
+    }
+
+    private static void putVector(CompoundTag tag,String key,Vec3 value){
+        var vector=new CompoundTag();vector.putDouble("X",value.x);vector.putDouble("Y",value.y);vector.putDouble("Z",value.z);tag.put(key,vector);
+    }
+    private static Vec3 vector(CompoundTag tag,String key){
+        if(!tag.contains(key,Tag.TAG_COMPOUND))return null;
+        var vector=tag.getCompound(key);
+        if(!vector.contains("X",Tag.TAG_DOUBLE)||!vector.contains("Y",Tag.TAG_DOUBLE)||!vector.contains("Z",Tag.TAG_DOUBLE))return null;
+        double x=vector.getDouble("X"),y=vector.getDouble("Y"),z=vector.getDouble("Z");
+        return Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)?new Vec3(x,y,z):null;
+    }
 
     static double push(RandomSource random){
         return Mth.clamp(Math.exp(PUSH_LOG_MEAN+random.nextGaussian()*PUSH_LOG_SIGMA),PUSH_MIN,PUSH_MAX);

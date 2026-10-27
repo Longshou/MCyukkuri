@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -44,7 +45,7 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
             FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT, CARRY }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, MIDWIFE, FEED_CHILD, STAY_HOME, RECOVER, FETCH_HAT, CARRY, COMFORT }
     private final YukkuriEntity entity;
     private Stage stage=Stage.ADULT;
     private long maturity=GrowthTiming.ADULT_START, age=maturity+1, nourishment=maturity,
@@ -72,7 +73,7 @@ public final class FamilyLife {
     private int rimRolls,rimRollWait;
     private static final int RIM_ROLLS=3;
     private static final double RIM_ROLL_SPEED=.07,RIM_ROLL_LIFT=.12;
-    /** The launch decided for this land birth (null for water and boat births) and, once down, how it ended. Not saved. */
+    /** The committed land-birth impulse is saved while airborne; settled readouts remain transient. */
     private BirthLaunch.Plan launch;
     private String landingOutcome="";
     private double landingFromAim=Double.NaN,landingImpactVy,airVy;
@@ -138,9 +139,9 @@ public final class FamilyLife {
     ServerLevel level() { return (ServerLevel)entity.level(); }
     YukkuriEntity entity() { return entity; }
     Courtship courtship() { return courtship; }
-    boolean hasFlightArc() { return flight.hasArc(); }
+    /** Observe movement ownership without advancing the physical birth flight. */
+    public boolean hasFlightArc() { return flight.hasArc(); }
     boolean rescuingYoung() { return crew.asCarrier(); }
-    boolean comfortActive() { return delivery.comfortActive(); }
     boolean hatMoving() { return catchHat.moving(); }
     boolean catchDutyGaveUp() { return catchHat.dutyGaveUp(); }
     void resetCatchDuty() { catchHat.resetDuty(); }
@@ -323,8 +324,10 @@ public final class FamilyLife {
                 ||entity.operations().active()||entity.life().hasUrgentNeed()||entity.life().mealTicks()>0||awaitingLanding||needsWaterBirthBoat())return false;
         var b=brood();
         return b!=null&&!b.cancelled&&!b.complete()&&b.kind!=FamilyData.BirthKind.EGG&&b.elapsed>=Math.max(0,b.duration-CatchHat.APPROACH_LEAD)
-                ||task==Task.MIDWIFE||catchHat.cleanupPending()||catchHat.mateInLabor()!=null;
+                ||task==Task.MIDWIFE||catchHat.cleanupPending()||catchHat.mateInLabor()!=null||delivery.comfortActive();
     }
+    /** A helper observes the mother's single placement window; it never advances her clock. */
+    boolean acceptsCatch(FamilyData.Brood brood){return delivery.acceptsCatch(brood);}
     void catchStationActivated(FamilyData.Brood brood){delivery.catchStationActivated(brood);}
     /** The helper still holds this exact hat, the mother is at its outlet and they can both see the delivery. */
     boolean deliveryStationReady(FamilyData.Brood brood,DeliveryStation station) {
@@ -336,10 +339,10 @@ public final class FamilyLife {
         var helper=catcher(entity,brood);
         if(helper!=null&&helper!=entity)helper.family().catchHat.abandonDeliveryStation(entity,brood);
     }
-    /** A Marisa mother with nobody to catch for her sets her own hat before her outlet (true while she is doing so). */
-    boolean catchAlone(FamilyData.Brood brood) {
+    /** The maternal clock waits while the BROOD goal prepares her own catching hat. */
+    boolean waitsForOwnHat(FamilyData.Brood brood) {
         if(boatHome()==null&&FamilyNest.large(entity)&&FamilyNest.atAssignedNest(entity)&&catcher(entity,brood)==entity)return false;
-        return catchHat.catchAlone(brood);
+        return catchHat.needsSelfCatch(brood);
     }
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
     public void fetchHat(HatBoatEntity hat) { catchHat.fetchHat(hat); }
@@ -453,6 +456,7 @@ public final class FamilyLife {
             gestation=null;stimulation=sexDrive=0;
         }
         if(entity.isNoAi()) {
+            catchHat.stopAction("ai_disabled");
             // Physics still lands a NoAI body. Confirm contact without advancing growth, flights or hat care.
             handleLanding(false);
             if(birthId!=null)FamilyData.get(level()).landed(entity);
@@ -482,7 +486,6 @@ public final class FamilyLife {
         }
         if(entity.tickCount%100==0)FamilyData.get(level()).register(entity);
         catchHat.tickLinger();
-        catchHat.tickHat();
         if(delivery.bumping())delivery.tickBump();
         if(crew.active())return;
         if(flight.hasArc())return;
@@ -500,7 +503,6 @@ public final class FamilyLife {
             if(entity.playLife().active())entity.playLife().stop();
         }
         catchHat.claimMidwife();
-        if(delivery.comfortActive())delivery.tickComfort();
         var brood=brood();
         // Labour wakes a sleeping mother (a night pregnancy used to wait until morning, or for ever in a hat).
         if(brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind!=FamilyData.BirthKind.EGG&&brood.elapsed>=brood.duration-60&&entity.life().isSleeping()){
@@ -732,9 +734,11 @@ public final class FamilyLife {
         if(entity.operations().active())return;
         if(entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()||entity.life().nutrition()<30||entity.body().condition().blocksBreedingApproach())return;
         var boat=boatHome();
+        delivery.tickCatchWindow(brood);
+        if(!delivery.readyAtCatchStation(brood))return;
         if(!delivery.placeForTerm(brood,boat))return;
         if(entity.life().mealTicks()>0||entity.life().isSleeping())return;
-        if(boat==null&&brood.elapsed>=brood.duration-200&&catchAlone(brood))return;
+        if(boat==null&&brood.elapsed>=brood.duration-200&&waitsForOwnHat(brood))return;
         if(boat==null&&brood.elapsed>=brood.duration-200&&delivery.waitForCatcher(brood))return;
         if(catchHat.moving())return;
         if(brood.elapsed<brood.duration+40)brood.elapsed++;
@@ -807,7 +811,7 @@ public final class FamilyLife {
         // real hat boat. A failed shore search simply retries through that controller; this goal remains idle meanwhile.
         if(needsWaterBirthBoat())return false;
         if(catchHat.cleanupPending()&&task!=Task.MIDWIFE&&task!=Task.BROOD&&task!=Task.RECOVER) {
-            if(task!=Task.FETCH_HAT){stop();task=Task.FETCH_HAT;taskTicks=0;}
+            if(task!=Task.FETCH_HAT){if(task!=Task.NONE)stop();task=Task.FETCH_HAT;taskTicks=0;}
             return true;
         }
         if(task!=Task.NONE)return true;
@@ -844,6 +848,8 @@ public final class FamilyLife {
         }
         catchHat.claimMidwife();
         if(task==Task.MIDWIFE)return true;
+        if(catchHat.claimParentCradle()){task=Task.FETCH_HAT;taskTicks=0;return true;}
+        if(delivery.comfortActive()){task=Task.COMFORT;taskTicks=0;return true;}
         // Finish collecting and depositing the real load before routine care can send the parent home again.
         if(entity.forageTrip()!=null&&entity.forageTrip().outing())return false;
         if(feeding.startCare())return true;
@@ -994,6 +1000,7 @@ public final class FamilyLife {
         if(entity.life().hasUrgentNeed())return false;
         if(task==Task.FETCH_HAT)return catchHat.cleanupPending();
         if(task==Task.RECOVER)return delivery.recoveryTicks()>0;
+        if(task==Task.COMFORT)return delivery.comfortActive();
         // Let the duty execute its completion/cancellation cleanup once when the brood disappears.
         if(task==Task.MIDWIFE)return target!=null&&target.level()==entity.level();
         if(task==Task.STAY_HOME) {
@@ -1010,7 +1017,7 @@ public final class FamilyLife {
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}taskTicks++;
-        if(catchHat.moving()){entity.getNavigation().stop();return;}
+        if(catchHat.moving()){catchHat.tickHat();return;}
         if(task==Task.SEARCH&&taskTicks==1)GameplayLog.limited(entity,"family","search.started",1200,
                 "family search started target={} lastKnownPosition={} mother={} father={} nutrition={} energy={}",
                 target==null?null:target.getUUID(),searchAt,mother,father,entity.life().nutrition(),entity.life().energy());
@@ -1032,6 +1039,8 @@ public final class FamilyLife {
                 var helper=brood==null?null:catcher(entity,brood);
                 if(prioritizesBirth()&&helper!=null&&helper!=entity&&helper.family().midwifeTarget()==entity
                         &&helper.distanceToSqr(entity)<=64&&supported()){SurfaceApproach.halt(entity);return;}
+                if(brood!=null&&boatHome()==null&&brood.elapsed>=brood.duration-(brood.kind==FamilyData.BirthKind.STEM?200:2)
+                        &&waitsForOwnHat(brood)){catchHat.catchAlone(brood);return;}
                 if(boatHome()!=null||laboring()){entity.getNavigation().stop();return;}
                 // Out of the nest for the birth (beside a cushion nest, or for the catcher): she stays out.
                 if(delivery.outOfNestForTerm()){SurfaceApproach.halt(entity);return;}
@@ -1083,6 +1092,7 @@ public final class FamilyLife {
             }
             case MIDWIFE -> catchHat.tickMidwife();
             case FETCH_HAT -> catchHat.tickFetch();
+            case COMFORT -> delivery.tickComfort();
             case CARRY -> { if(!carry.tickHome(taskTicks))stop(); }
             case SEARCH -> {
                 if(target!=null) {
@@ -1115,6 +1125,8 @@ public final class FamilyLife {
         return deliveryStationReady(brood,station);
     }
     public void stop() {
+        catchHat.stopAction("family_goal_stopped");
+        if(task==Task.COMFORT)delivery.pauseComfort();
         boolean recovered=task==Task.RECOVER&&delivery.recoveryTicks()<=0;
         if(task!=Task.NONE&&task!=Task.FOLLOW&&task!=Task.STAY_HOME&&task!=Task.WAIT_CHILD)GameplayLog.limited(entity,"family","task.stop."+task,200,
                 "task stopped task={} target={} ticks={} recovered={} carriedFood={}",
@@ -1146,6 +1158,7 @@ public final class FamilyLife {
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
         tag.putBoolean("BirthMiss",doomed);
+        if(awaitingLanding&&launch!=null)tag.put("BirthLaunch",BirthLaunch.save(launch));
         delivery.save(tag);
         catchHat.save(tag);
         flight.save(tag);
@@ -1169,6 +1182,8 @@ public final class FamilyLife {
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,BREEDING_PERIOD_TICKS);
         doomed=tag.getBoolean("BirthMiss")&&awaitingLanding;
+        launch=awaitingLanding&&tag.contains("BirthLaunch",Tag.TAG_COMPOUND)
+                ?BirthLaunch.load(tag.getCompound("BirthLaunch")):null;
         delivery.load(tag);
         catchHat.load(tag);
         flight.load(tag);

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies.crew;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Anchor;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Mode;
@@ -267,10 +268,21 @@ public final class CrewTransfers {
      * hull's single MOVE serializing them. True while any young is aboard or a transfer is under way, so the caller keeps waiting.
      */
     public static boolean releaseYoung(HatBoatEntity hat, YukkuriEntity taker) {
+        return releaseYoung(hat, taker, false);
+    }
+
+    /**
+     * Opens at most one existing real departure from {@code hat}.  With {@code onlyOwnYoung},
+     * the taker may lift only their live, non-adult recorded children; it neither grants custody
+     * of the hat nor authority over its other riders.
+     */
+    public static boolean releaseYoung(HatBoatEntity hat, YukkuriEntity taker, boolean onlyOwnYoung) {
         if (hat.level().isClientSide || !(hat.level() instanceof ServerLevel level)) return false;
+        if (onlyOwnYoung && !taker.isAlive()) return false;
         if (taker.family().crew().active() || hat.crew().busy()) return true;
         var young = new ArrayList<YukkuriEntity>();
-        for (var rider : hat.getPassengers()) if (rider instanceof YukkuriEntity y && !y.getUUID().equals(hat.ownerYukkuri())) young.add(y);
+        for (var rider : hat.getPassengers()) if (rider instanceof YukkuriEntity y && !y.getUUID().equals(hat.ownerYukkuri())
+                && (!onlyOwnYoung || y.isAlive() && !y.family().adult() && Bonds.parentOf(taker, y))) young.add(y);
         if (young.isEmpty()) return false;
         // A pickup may follow a real crawl inside the hat. Never lift a rider off an unfinished walking route.
         if (young.stream().anyMatch(y -> hat.deck().moving(y.getUUID()))) return true;

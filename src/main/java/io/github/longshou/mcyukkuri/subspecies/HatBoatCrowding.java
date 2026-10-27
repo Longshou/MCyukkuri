@@ -40,6 +40,8 @@ final class HatBoatCrowding {
     private Balance entry(Entity rider){return riders.computeIfAbsent(rider.getUUID(),id->{var b=new Balance();b.since=now()-Math.floorMod(id.hashCode(),13);dirty=true;return b;});}
     void emergency(YukkuriEntity child){entry(child).until=now()+100;dirty=true;}
     boolean emergency(UUID child){var b=riders.get(child);return b!=null&&b.until>now();}
+    /** A birth reservation failed before boarding; it must not leave a synthetic emergency contest behind. */
+    void cancelEmergency(UUID child){var b=child==null?null:riders.get(child);if(b!=null&&b.until!=0){b.until=0;dirty=true;}}
     boolean contesting(){return contesting;}
     private Balance display(Entity rider){
         if(!boat.level().isClientSide)return riders.get(rider.getUUID());

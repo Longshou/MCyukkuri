@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import io.github.longshou.mcyukkuri.subspecies.boat.ShoreBerth;
 import io.github.longshou.mcyukkuri.subspecies.crew.Admission;
 import io.github.longshou.mcyukkuri.subspecies.crew.Body;
-import io.github.longshou.mcyukkuri.subspecies.crew.BodyClass;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout.Kind;
 import io.github.longshou.mcyukkuri.subspecies.crew.HatDeck;
@@ -20,7 +19,9 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewState;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -147,8 +148,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Young born into the hat (water birth); kept after a capsize so a rescue can bring them ashore. */
     private final LinkedHashSet<UUID> crew = new LinkedHashSet<>();
     private final HatBoatCrowding crowding=new HatBoatCrowding(this);
-    /** The probe body of a newborn that has no identity yet: only used to ask the deck whether one would fit. */
+    /** The identity of an unborn birth-size probe used only for read-only deck questions. */
     private static final UUID NEWBORN_PROBE = new UUID(0L, 1L);
+    /** The only two birth berths. A water birth must keep the chosen purpose through its real reservation. */
+    public enum NewbornAdmission { NONE, BOARD, RESCUE }
     /** Last read-only planner outcome, for server failure reports; never persisted or used as state. */
     public String carePlanDebug(){ return stations.carePlanDebug(); }
 
@@ -313,6 +316,14 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public void cancelIncoming(YukkuriEntity child){
         if(!level().isClientSide&&child!=null&&!hasPassenger(child)&&deck.incoming(child.getUUID()))deck.release(child.getUUID(),"cancelled");
     }
+    /** Cancel a failed pre-boarding birth claim, including the rescue-only crowding flag created for that exact claim. */
+    public void cancelBirthAdmission(YukkuriEntity child){
+        if(level().isClientSide||child==null||hasPassenger(child))return;
+        boolean rescue=deck.hasLease(child.getUUID(),Purpose.RESCUE);
+        cancelIncoming(child);
+        if(rescue)crowding.cancelEmergency(child.getUUID());
+        syncSeats();
+    }
     /** Whether the hull is in a state to take a body aboard at all. */
     private boolean boardable() { return isAfloat() || state() == State.BEACHED || catches(); }
     public double maxLoad() { return deck.maxLoad(); }
@@ -323,7 +334,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean canMakeRoom(YukkuriEntity child, boolean jettison) {
         if(child==null||!admits(child)||!boardable())return false;
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
-        var body = bodyOf(child, true);
+        return canMakeRoom(bodyOf(child, true),jettison,toLocal(child.position()));
+    }
+    /** Read-only capacity preflight for this unborn child's actual birth scale, including birth kind and the Deibu multiplier. */
+    public boolean canMakeRoomForNewborn(FamilyData.BirthKind kind,int subspeciesFlags,boolean jettison) {
+        return boardable()&&canMakeRoom(newbornProbe(kind,subspeciesFlags),jettison,null);
+    }
+    private boolean canMakeRoom(Body body,boolean jettison,Vec3 near) {
         var a = deck.canAdmit(body, Purpose.BOARD);
         if (a.ok()) return true;
         if (jettison && deck.canAdmit(body, Purpose.RESCUE).ok()) return true;
@@ -331,7 +348,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             case UNITS_FULL -> { return jettison && cargo.count() > 0 && a.loadAfter() - cargo.count() * deckLayout().foodLoad <= deck.maxLoad() + 1e-9; }
             case CONFLICT_WITH -> {
                 if (a.detail().equals("larder")) return jettison && cargo.count() > 0;
-                return deck.planRoom(body, Purpose.BOARD, toLocal(child.position())) != null;
+                return deck.planRoom(body, Purpose.BOARD, near) != null;
             }
             default -> { return false; }
         }
@@ -344,9 +361,28 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
         return deck.canAdmit(bodyOf(child, true), Purpose.BOARD).ok();
     }
-    /** Would a newborn (not yet an entity) have a seat and load room here. */
-    public boolean canAdmitNewborn() {
-        return boardable() && deck.canAdmit(new Body(NEWBORN_PROBE, BodyClass.NEWBORN, false, true, 0), Purpose.BOARD).ok();
+    /** The deck class is relative to this hull's captain scale, exactly as {@link #bodyOf(YukkuriEntity, boolean)} computes it. */
+    private Body newbornProbe(FamilyData.BirthKind kind,int subspeciesFlags){
+        var layout=deckLayout();double captainGrowth=hullScale()/layout.hullRatio;
+        double birthScale=GrowthSize.birth(kind)*((subspeciesFlags&SubspeciesLife.DEIBU_FLAG)!=0?1.5:1);
+        double ratio=captainGrowth<=0?1:birthScale/captainGrowth;
+        return new Body(NEWBORN_PROBE,layout.classOf(ratio,false,false),false,true,0);
+    }
+    /** The concrete newborn must be the same deck body as the unborn probe before it can consume the selected berth. */
+    public NewbornAdmission newbornAdmission(YukkuriEntity child,boolean emergency) {
+        if(child==null||!admits(child)||!boardable())return NewbornAdmission.NONE;
+        var body=bodyOf(child,true);
+        return newbornAdmission(body,emergency);
+    }
+    private NewbornAdmission newbornAdmission(Body body,boolean emergency) {
+        if(deck.canAdmit(body,Purpose.BOARD).ok())return NewbornAdmission.BOARD;
+        return emergency&&deck.canAdmit(body,Purpose.RESCUE).ok()?NewbornAdmission.RESCUE:NewbornAdmission.NONE;
+    }
+    /** Would a newborn (not yet an entity) have an ordinary safe seat and load room here. */
+    public boolean canAdmitNewborn() { return canAdmitNewborn(FamilyData.BirthKind.LIVE,0,false); }
+    /** Unborn overload: uses the child record's exact birth scale instead of assuming a live standard-scale parent. */
+    public boolean canAdmitNewborn(FamilyData.BirthKind kind,int subspeciesFlags,boolean emergency) {
+        return boardable()&&newbornAdmission(newbornProbe(kind,subspeciesFlags),emergency)!=NewbornAdmission.NONE;
     }
     /** Short text of why the last admission was refused, for failure reports. */
     public String roomDebug(YukkuriEntity child){
@@ -368,11 +404,6 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** A rescue also takes the rescue rim when no ordinary seat can be freed. */
     private boolean rescueSeatFree(Body body) { return deck.canAdmit(body, Purpose.RESCUE).ok(); }
-    /** As {@link #makeRoom(YukkuriEntity, boolean)} for the newborn about to be born; a real birth is a reason to throw food over. */
-    public boolean makeRoomForNewborn(boolean jettison) {
-        if(level().isClientSide||!boardable())return false;
-        return makeRoom(new Body(NEWBORN_PROBE, BodyClass.NEWBORN, false, true, 0), jettison, null, "birth");
-    }
     private boolean makeRoom(Body body, boolean jettison, Vec3 near, String reason) {
         for (int guard = 0; guard <= HatCargo.LARDER_MAX + 2; guard++) {
             var a = deck.canAdmit(body, Purpose.BOARD, near, DeckLayout.NONE);
@@ -419,18 +450,43 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (any) syncSeats();
         return any || plan.moves().isEmpty();
     }
-    /** Atomically keep an ordinary safe seat for a newborn after it has received its real identity. */
-    public Vec3 reserveBirthAdmission(YukkuriEntity child) {
-        if (level().isClientSide || !isAfloat() || unsteadyMotion() || !canBoard(child)) return null;
-        var seat=reserve(child,null);
-        if (seat != null) syncSeats();
-        return seat;
+    /**
+     * Atomically claim exactly the purpose selected by the preflight. A rescue birth starts the existing crowding protection,
+     * then uses the explicit rescue claim rather than letting a generic emergency boarding call substitute an ordinary seat.
+     */
+    public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission) {
+        return reserveBirthAdmission(child,admission,child==null?null:child.position());
+    }
+    /** The recovered flight uses its measured contact point; initial delivery passes the real outlet position. */
+    public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission,Vec3 actualFrom) {
+        if(level().isClientSide||child==null||admission==NewbornAdmission.NONE||!isAfloat()||unsteadyMotion()
+                ||!admits(child)||actualFrom==null)return null;
+        return switch(admission){
+            case BOARD -> {
+                if(!canBoard(child))yield null;
+                var seat=reserve(child,toLocal(actualFrom));
+                if(seat==null||!deck.hasLease(child.getUUID(),Purpose.BOARD))yield null;
+                syncSeats();yield seat;
+            }
+            case RESCUE -> {
+                if(!requestEmergencyBerth(child,actualFrom))yield null;
+                var seat=stations.reserveRescueBrim(child,actualFrom);
+                if(seat==null||!deck.hasLease(child.getUUID(),Purpose.RESCUE)){
+                    crowding.cancelEmergency(child.getUUID());yield null;
+                }
+                yield seat;
+            }
+            case NONE -> null;
+        };
     }
     public boolean overcrowded(){return level().isClientSide?entityData.get(DECK).getBoolean("Overcrowded"):deck.anyOverflow();}
     /** Whether a close arrival can contest a rescue seat, without starting the crowding response. */
     public boolean canRequestEmergencyBerth(YukkuriEntity child){
-        if(level().isClientSide||child==null||!young(child)||!isAfloat()||capsizing()||!child.isAlive())return false;
-        var local=toLocal(child.position());double reach=radiusOf(child)+.25/unit();
+        return canRequestEmergencyBerth(child,child==null?null:child.position());
+    }
+    private boolean canRequestEmergencyBerth(YukkuriEntity child,Vec3 actualFrom){
+        if(level().isClientSide||child==null||actualFrom==null||!young(child)||!isAfloat()||capsizing()||!child.isAlive())return false;
+        var local=toLocal(actualFrom);double reach=radiusOf(child)+.25/unit();
         boolean footReach=Double.isFinite(HatVessel.footprint(mode(),local.x,local.z,reach))
                 &&Math.abs(local.y-HatVessel.freeboard(mode()))<=1.4/unit();
         if(!hasPassenger(child)&&(!(footReach||touchingOwnHat(child))||!child.hasLineOfSight(this)))return false;
@@ -439,7 +495,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Close arrivals may take a rescue seat when the ordinary ones are gone; the deck still refuses a conflicting one. */
     public boolean requestEmergencyBerth(YukkuriEntity child){
-        if(!canRequestEmergencyBerth(child))return false;
+        return requestEmergencyBerth(child,child==null?null:child.position());
+    }
+    private boolean requestEmergencyBerth(YukkuriEntity child,Vec3 actualFrom){
+        if(!canRequestEmergencyBerth(child,actualFrom))return false;
         crowding.emergency(child);
         return true;
     }

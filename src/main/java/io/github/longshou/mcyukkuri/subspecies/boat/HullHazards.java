@@ -191,7 +191,7 @@ public final class HullHazards {
      */
     private void custodyWatch() {
         var ownerId = boat.ownerYukkuri();
-        if (ownerId == null || ownerDied || boat.catches()) return;
+        if (ownerId == null || ownerDied) return;
         var owner = boat.owner();
         if (owner == null || !owner.isAlive()) {
             // A captain who is not in the world is not dead until the family ledger says so; one whose body has died is.
@@ -200,6 +200,9 @@ public final class HullHazards {
             if (dead) ownerDied(owner);
             return;
         }
+        // A cradle or moored catch hat never participates in voyage custody reconciliation, but its
+        // owner-death transition above must still run so it cannot retain a dead captain's custody.
+        if (boat.catches()) return;
         if (boat.launchToken() == null) return;
         var custody = owner.life().custody();
         if (!owner.life().matchesAccessory(boat.ownerYukkuri(), boat.launchToken())) return;
