@@ -242,7 +242,7 @@
       "hop_rim": {
         "method": "HOP",
         "contact": null,
-        "lore": "a parabola under Minecraft gravity (delivery.gravity) clearing the brim by delivery.clear, at least delivery.hop_tmin ticks"
+        "lore": "a body-limited sampled hop from YukkuriLocomotion; peak height and duration are solved separately, clearing the brim by delivery.clear only when the body's reach and height permit"
       },
       "climb_rim": {
         "method": "CLIMB",

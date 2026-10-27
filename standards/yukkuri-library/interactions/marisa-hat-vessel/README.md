@@ -49,7 +49,7 @@
 
 ## 孩子怎么进帽子
 
-`delivery.py` 给出孩子的路线，游戏（`HatVessel`、`FamilyLife` 的飞行）与出生场景预览用同一套规则。路线都是重力下的抛物线（重力取 Minecraft 的每刻 0.08 格），不是逐段插值。
+`delivery.py` 给出出生推出的路线，游戏（`HatVessel`、`FamilyLife` 的飞行）与出生场景预览用同一套规则。出生外力路线是重力下的抛物线（重力取 Minecraft 的每刻 0.08 格）；主动跳跃由 `YukkuriLocomotion` 按身体能力另行求解，规则见[乘员转移](../../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md#乘员转移)。
 
 - **胎生**：孩子从出口挤出后被推出去，划一道弧线越过近侧帽檐，落进自己的位置。弧线取最短且不碰帽子的时长：飞过帽檐、台阶时整个身体离帽面至少 0.35 格；落向内腔时只要求身体正下方不穿帽面。帮手接生时约 5 刻（0.25 秒），最高约 5 格；单亲母亲自己放的帽子更近，个别弧线高一些（5–6 刻，最高约 7 格）。新生大小按[体型规范](../../../../docs/BEHAVIOR.md#体型规范)：胎生 0.14、茎生 0.20。
 - **用力过猛**（原创 12%）：同一方向飞过整顶帽子，落到远侧帽檐外的地上或河里。
@@ -132,7 +132,7 @@
 **其余字段**：
 
 - `edges`：席位间步行边 `a`、`b`、`length`、`rise`（沿途最大台阶高差）、`step`（有台阶，不会跳的身体须被托举）、`classes`（通道宽度够的级别）；只保留不经过其他席位的直达边。船主的座位、照护位与如厕位另成一组。
-- `entries`：入舷点 `bow`、`port`、`starboard`，含帽檐外缘点 `edge`、外法线 `normal`、各级别的水面锚点 `outside`（y 为水线或地面）、岸侧锚点 `bank`（同一水平位置，y 取帽檐高，运行时换成真实岸高）、翻越曲线 `curves`（`from_water` / `from_bank`，地面模式为 `from_ground`），以及最近的四个席位 `nearest`。曲线定义在顶层 `curves`：`hop_rim`（重力抛物线，越过帽檐 `delivery.clear`）、`climb_rim`（嘴咬帽檐、辫子勾檐爬上，无辫种类只用嘴）、`lift`（亲油辫梢卷兜或嘴叼托起，被托者移动期间是船体乘客）。
+- `entries`：入舷点 `bow`、`port`、`starboard`，含帽檐外缘点 `edge`、外法线 `normal`、各级别的水面锚点 `outside`（y 为水线或地面）、岸侧锚点 `bank`（同一水平位置，y 取帽檐高，运行时换成真实岸高）、翻越曲线 `curves`（`from_water` / `from_bank`，地面模式为 `from_ground`），以及最近的四个席位 `nearest`。曲线定义在顶层 `curves`：`hop_rim`（身体能力内的采样跳弧，峰高与时长分别求解，能越檐才保留 `delivery.clear`）、`climb_rim`（嘴咬帽檐、辫子勾檐爬上，无辫种类只用嘴）、`lift`（亲油辫梢卷兜或嘴叼托起，被托者移动期间是船体乘客）。
 - `larder[档]`：0 档空，1–3、4–7、8–12 份分别为 1、2、3 档；`zone` 给出粮所在（冠底 `y`、高度、两个侧窝合起来的外接矩形 `bounds`），`excludes` 为被粮占到的席位与最小级别（船长自己的座位与照护站位不算：`cargo.py` 已按她的本体网格避开），`lip` 为嘴够得着最近一件粮的席位（子油自取粮）。占位取自 `hat_cargo_layout.json` 中放稳物品的逐格高度（平铺的叶托当作底面），不用外接圆柱；粮在两侧帽壁边，船长身前与身下的深窝留给幼体。
 - `fixtures.paddle_stow`：存放的木棍沿左侧帽檐外沿横放（船长辫子在右），`segment`、`radius` 与它占到的席位 `excludes`。
 - `care`：船长站位 `captain` 与幼体席位 `young` 的照护配对，`classes` 为嘴对嘴够得着、嘴高差与朝向满足 `FamilyFeedingContact`、转身后不碰船长的级别，`rear` 为高差小到可以辅助如厕的级别，`young_yaw` 为幼体转向船长时的朝向。取代 `HatCareGeometry` 三角网格与 `HatCareAnchor`。
