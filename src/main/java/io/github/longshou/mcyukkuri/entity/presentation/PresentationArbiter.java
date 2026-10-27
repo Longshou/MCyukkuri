@@ -205,7 +205,7 @@ public final class PresentationArbiter {
                 }
                 default -> {
                     behavior = Behaviors.HAT_BOARD_HOP;
-                    action = YukkuriAction.HAT_HOP_UP;
+                    action = ticket.airborne() ? YukkuriAction.HAT_HOP_UP : YukkuriAction.WADDLE;
                     expression = "neutral";
                     start = ticket.phaseStart();
                 }
@@ -247,6 +247,9 @@ public final class PresentationArbiter {
     private static Presentation waterDistress(PresentationAccess state, Motion m) {
         var e = state.owner();
         return new Presentation(() -> {
+            // The water clock still records immersion and damage. A returning flier uses its real wings,
+            // not the generic swimmer's hand bones (which are a predator's side locks).
+            if (presentPredatorFlight(state)) { state.expression("teary"); return; }
             String distress = e.waterDistress().thrown() ? Behaviors.BOAT_THROWN : e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
             state.behavior(distress);
             state.animation(EcologyPresentation.action(distress));
@@ -272,6 +275,7 @@ public final class PresentationArbiter {
     private static Presentation panic(PresentationAccess state, int panicTicks) {
         var e = state.owner();
         return new Presentation(() -> {
+            if (presentPredatorFlight(state)) { state.expression("surprise"); return; }
             boolean shell = e.shellRetraction().active();
             if (!shell) state.animation(e.isInWaterOrBubble()?YukkuriAction.WATER_STRUGGLE:e.shelteredInHat() ? YukkuriAction.BOAT_STEADY : panicTicks > 100 ? YukkuriAction.STARTLE : YukkuriAction.FLEE);
             // The frame retains the pre-decrement count used to choose the clip.
@@ -279,6 +283,16 @@ public final class PresentationArbiter {
             state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : e.shelteredInHat() ? Behaviors.BOAT_STEADY : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
             return;
         });
+    }
+
+    private static boolean presentPredatorFlight(PresentationAccess state) {
+        var e = state.owner();
+        if (!e.predatorFlying()) return false;
+        String animation = e.predator().animation();
+        if (animation == null) return false;
+        state.behavior(e.predator().activity());
+        if (!e.getAnimationId().equals(animation)) { state.animationId(animation); state.animationStart(e.level().getGameTime()); }
+        return true;
     }
 
     private static Presentation shell(PresentationAccess state, Motion m) {

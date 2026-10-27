@@ -176,7 +176,8 @@ final class YukkuriGoals {
     }
     private final class FleeGoal extends Goal {
         FleeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.grief().protecting() && !owner.shellRetracts() && !owner.shelteredInHat(); }
+        @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.predator().recoveringFlight()
+                && !owner.grief().protecting() && !owner.shellRetracts() && !owner.shelteredInHat(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
@@ -332,7 +333,8 @@ final class YukkuriGoals {
     }
     private final class EscapeWaterGoal extends Goal {
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
-        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath()) && !owner.family().crew().active(); }
+        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath())
+                && !owner.predatorFlying() && !owner.family().crew().active(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.waterDistress().escapeTick(); }
         @Override public void stop() { owner.directNavigation().stop(); }

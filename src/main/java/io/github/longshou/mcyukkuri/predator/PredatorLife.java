@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.body.BodyFood;
+import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
@@ -24,12 +25,16 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import java.util.ArrayList;
 import java.util.HashSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -40,6 +45,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -82,6 +88,10 @@ public final class PredatorLife implements EcologyRoutine {
     private String restReason = "";
     private boolean contactHold;
     private Vec3 withdrawGoal;
+    /** The current direct flight command, consumed by travel after the engine has updated its controls. */
+    private Vec3 flightGoal;
+    private double flightSpeed;
+    private int flightGoalTick = -1;
     private RemainsEntity eatRemains;
     private YukkuriEntity bittenPrey;
     private long bittenAt;
@@ -107,6 +117,7 @@ public final class PredatorLife implements EcologyRoutine {
         };
     }
     public String animation() {
+        if (task == Task.LAND && animal.predatorFlying()) return animal.isInWaterOrBubble() ? "predator_fly" : "predator_land";
         if (biteTicks > 0) return "predator_bite";
         if (!animal.predatorFlying()) return null;
         return task == Task.DIVE ? "predator_dive" : task == Task.LAND ? "predator_land" : "predator_fly";
@@ -170,7 +181,17 @@ public final class PredatorLife implements EcologyRoutine {
         return readyExceptMeal() && animal.life().mealTicks() == 0;
     }
     /** An eat pause (or the landing that leads into it) is the very meal, so a mouthful does not end it. */
-    private boolean runnable() { return task == Task.EAT || task == Task.LAND ? readyExceptMeal() : ready(); }
+    private boolean runnable() {
+        return task == Task.LAND && animal.predatorFlying() ? readyForLanding()
+                : task == Task.EAT ? readyExceptMeal() : ready();
+    }
+    /** An interrupted airborne hunt still owns its physical return; water and fright are reasons to land, not to stop flapping. */
+    public boolean recoveringFlight() { return task == Task.LAND && animal.predatorFlying() && readyForLanding(); }
+    private boolean readyForLanding() {
+        return EcologyRoutines.predator(animal) && canSustainFlight() && !animal.isNoAi()
+                && !animal.isCommandPlaying() && !animal.operations().active() && !animal.pet().busy()
+                && !animal.life().isSleeping() && !animal.family().active() && animal.family().brood() == null;
+    }
     private boolean readyExceptMeal() {
         return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
@@ -235,6 +256,12 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean safeHuntDestination(YukkuriEntity target) {
         if (target == null) return false;
         if (!waterbornePrey(target) && !target.isInWaterOrBubble()) return true;
+        if (biteApproach(target) == null) {
+            GameplayLog.limited(animal, "predator", "water_prey_no_contact", 200,
+                    "water prey refused target={} reason=mouth_below_clearance preyFeet={} preyHeight={} mouthReach={}",
+                    target.getUUID(), target.position(), target.getBbHeight(), mouthReach());
+            return false;
+        }
         BlockPos escape = findDryLanding(target.blockPosition(), 24);
         if (escape != null) return true;
         GameplayLog.limited(animal, "predator", "water_prey_no_landing", 200,
@@ -422,7 +449,9 @@ public final class PredatorLife implements EcologyRoutine {
                 data.getUUID("Identity"), data.hasUUID("Partner") ? data.getUUID("Partner") : null);
     }
     private void start() {
-        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = pendingRest = 0; contactHold = false; withdrawGoal = null;
+        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = 0;
+        if (task != Task.LAND) pendingRest = 0;
+        contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
         GameplayLog.event(animal,"predator","activity started; task={} prey={} food={} corpse={} retaliation={} nutrition={} energy={} destination={}",
                 task,prey==null?"none":prey.getUUID(),food==null?"none":food.getUUID(),corpse==null?"none":corpse.getUUID(),
@@ -433,14 +462,19 @@ public final class PredatorLife implements EcologyRoutine {
     /** A clear line within directRange squared is flown straight instead of by path nodes. */
     private void fly(Vec3 goal, double speed, double directRange) {
         if (!level().hasChunkAt(BlockPos.containing(goal))) { land(); return; }
+        if (recoveringFlight() && animal.isInWaterOrBubble()) {
+            // First lift the actual body clear. A diagonal path to a bank can scrape the water all the way there.
+            Vec3 rise = animal.position().add(0, Math.max(.6, flightFloor(animal.position()) - animal.getY() + .35), 0);
+            if (blockSweepClear(animal.position(), rise)) directFlight(rise, .85);
+            else GameplayLog.limited(animal, "predator", "water_exit_blocked", 100,
+                    "water exit blocked reason=ceiling feet={} wanted={} energy={}", animal.position(), rise, animal.life().energy());
+            return;
+        }
         // Path nodes end at block centers. Finish the last approach at the moving target's
         // exact position, otherwise the animal circles just outside bite or landing range.
-        if (animal.distanceToSqr(goal) < directRange && level().clip(new ClipContext(
-                animal.getEyePosition(), goal.add(0,.2,0), ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS) {
-            animal.getNavigation().stop();
+        if (animal.distanceToSqr(goal) < directRange && flightSweepClear(animal.position(), goal)) {
             // Only the final clear approach presses into the support surface. Pathfinding still targets the dry air cell.
-            animal.getMoveControl().setWantedPosition(goal.x, task == Task.LAND ? goal.y - .08 : goal.y, goal.z, speed);
+            directFlight(task == Task.LAND ? goal.add(0, -.08, 0) : goal, speed);
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
@@ -453,6 +487,65 @@ public final class PredatorLife implements EcologyRoutine {
             }
         }
     }
+    private void directFlight(Vec3 goal, double speed) {
+        animal.getNavigation().stop();
+        flightGoal = goal; flightSpeed = speed; flightGoalTick = animal.tickCount;
+        animal.getMoveControl().setWantedPosition(goal.x, goal.y, goal.z, speed);
+    }
+    /** Braking belongs to actual flight movement, after vanilla control acceleration, before the ordinary collision-resolved move. */
+    public Vec3 flightStep(Vec3 proposed) {
+        if (flightGoal == null || flightGoalTick != animal.tickCount || !canSustainFlight()) return proposed;
+        Vec3 delta = flightGoal.subtract(animal.position());
+        double distance = delta.length();
+        double maximum = animal.getAttributeValue(Attributes.FLYING_SPEED) * flightSpeed;
+        // Proportional approach starts braking before the mouth reaches its target. Acceleration stays finite,
+        // including after a knockback: this is steering, not an invisible collision with water or an immunity.
+        Vec3 desired = distance < 1e-6 ? Vec3.ZERO : delta.scale(Math.min(maximum, distance * .35) / distance);
+        Vec3 steering = desired.subtract(proposed);
+        double acceleration = .12 * Math.sqrt(Math.max(.1, animal.life().energy() / 100.0));
+        if (steering.lengthSqr() > acceleration * acceleration) steering = steering.normalize().scale(acceleration);
+        return proposed.add(steering);
+    }
+    private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())).deflate(.002); }
+    /** Required sole height over real water columns and the visible hat surface under the whole body footprint. */
+    private double flightFloor(Vec3 feet) {
+        AABB box = bodyAt(feet);
+        double floor = Double.NEGATIVE_INFINITY;
+        for (int x = Mth.floor(box.minX); x <= Mth.floor(box.maxX); x++)
+            for (int z = Mth.floor(box.minZ); z <= Mth.floor(box.maxZ); z++)
+                for (int y = Mth.floor(feet.y) - 1; y <= Mth.floor(box.maxY) + 1; y++) {
+                    BlockPos p = new BlockPos(x, y, z);
+                    if (!level().hasChunkAt(p)) continue;
+                    var fluid = level().getFluidState(p);
+                    if (fluid.is(FluidTags.WATER)) floor = Math.max(floor, y + fluid.getHeight(level(), p) + .04);
+                }
+        for (var hat : level().getEntitiesOfClass(HatBoatEntity.class, box.inflate(.1, 2, .1), h -> h.isAlive() && !h.deploying())) {
+            Vec3 local = hat.toLocal(feet);
+            double top = HatVessel.footprint(hat.mode(), local.x, local.z, animal.getBbWidth() * .5 / hat.unit());
+            if (Double.isFinite(top)) floor = Math.max(floor,
+                    hat.toWorld(new Vec3(local.x, top, local.z)).y + .04);
+        }
+        return floor;
+    }
+    private boolean blockSweepClear(Vec3 from, Vec3 to) {
+        int count = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .15));
+        for (int i = 1; i <= count; i++) {
+            Vec3 feet = from.lerp(to, (double)i / count);
+            if (!level().hasChunkAt(BlockPos.containing(feet)) || !level().getWorldBorder().isWithinBounds(BlockPos.containing(feet))
+                    || level().getBlockCollisions(animal, bodyAt(feet)).iterator().hasNext()) return false;
+        }
+        return true;
+    }
+    private boolean flightSweepClear(Vec3 from, Vec3 to) {
+        if (from.distanceToSqr(to) > 64) return false; // Longer trips belong to bounded path segments, never a remote body sweep.
+        if (!blockSweepClear(from, to)) return false;
+        int count = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .15));
+        for (int i = 1; i <= count; i++) {
+            Vec3 feet = from.lerp(to, (double)i / count);
+            if (feet.y < flightFloor(feet)) return false;
+        }
+        return true;
+    }
     /** A chase can cross the acquisition radius without ever asking vanilla's local pathfinder for an overlong route. */
     private Vec3 flightPathGoal(Vec3 goal) {
         Vec3 from = animal.position();
@@ -463,7 +556,11 @@ public final class PredatorLife implements EcologyRoutine {
     private void land() {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
-        if (task != Task.LAND) { nextLandingSearch = 0; landingSearchRadius = 8; }
+        if (task != Task.LAND) {
+            nextLandingSearch = 0; landingSearchRadius = 8;
+            animal.getNavigation().stop();
+            if (animal.predatorFlying() && !dryLanded()) directFlight(animal.position().add(0, .8, 0), .85);
+        }
         prey = null; food = null; corpse = null; mode(false, "landing"); task = Task.LAND;
         if (level().getGameTime() < nextLandingSearch) return;
         nextLandingSearch = level().getGameTime() + 40;
@@ -511,9 +608,7 @@ public final class PredatorLife implements EcologyRoutine {
         Vec3 next = lastDryStand != null ? Vec3.atBottomCenterOf(lastDryStand).add(0, 1, 0)
                 : animal.position().add(-Math.sin(yaw) * 4, .25, Math.cos(yaw) * 4);
         next = flightPathGoal(next);
-        if (level().hasChunkAt(BlockPos.containing(next)) && level().clip(new ClipContext(animal.getEyePosition(), next.add(0,.2,0),
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS)
-            animal.getMoveControl().setWantedPosition(next.x, next.y, next.z, .65);
+        if (level().hasChunkAt(BlockPos.containing(next))) fly(next, .65);
     }
     private void tickGoal() {
         ticks++;
@@ -584,7 +679,10 @@ public final class PredatorLife implements EcologyRoutine {
             if (destination == null) { stop(); return; }
             Task current = task;
             Vec3 goal = destination;
-            fly(goal, .85);
+            double across = animal.position().subtract(goal).horizontalDistanceSqr();
+            Vec3 approach = task == Task.LAND && across > .36
+                    ? new Vec3(goal.x, Math.max(goal.y + .65, flightFloor(animal.position()) + .65), goal.z) : goal;
+            fly(approach, .85);
             if (task != current || destination != goal) return;
             if (animal.position().distanceToSqr(goal) < .36) {
                 if (task == Task.LAND && !dryLanded()) return;
@@ -654,6 +752,44 @@ public final class PredatorLife implements EcologyRoutine {
         return Math.max(1.2, Math.min(SWOOP_HEIGHT, free + animal.getBbHeight() - .5));
     }
     private void setPass(Pass next) { pass = next; passTicks = 0; }
+    private double mouthReach() { return .10 * animal.getScale() * animal.growthScale() + .12 * animal.getBbWidth(); }
+    private Vec3 nearestBodyPoint(YukkuriEntity target, Vec3 point) {
+        AABB body = target.getBoundingBox();
+        return new Vec3(Math.clamp(point.x, body.minX, body.maxX), Math.clamp(point.y, body.minY, body.maxY),
+                Math.clamp(point.z, body.minZ, body.maxZ));
+    }
+    /** Aim the mouth at the upper body, then raise the sole only as far as the real water/hull requires. */
+    private Vec3 biteApproach(YukkuriEntity target) {
+        Vec3 toward = target.position().subtract(animal.position()).multiply(1, 0, 1);
+        if (toward.lengthSqr() < 1e-6) toward = MouthPlacement.outward(animal).multiply(1, 0, 1);
+        if (toward.lengthSqr() < 1e-6) return null;
+        toward = toward.normalize();
+        Vec3 mouthOffset = MouthPlacement.position(animal).subtract(animal.position());
+        Vec3 contact = new Vec3(target.getX(), target.getBoundingBox().maxY, target.getZ());
+        Vec3 goal = contact.subtract(toward.scale(mouthOffset.horizontalDistance())).add(0, -mouthOffset.y, 0);
+        double floor = flightFloor(goal);
+        // A small baby can be lower than the adult mouth. Keep the adult above the actual ground and
+        // let only its measured bite reach bridge that remaining gap; never aim its sole through the floor.
+        for (var shape : level().getBlockCollisions(animal, bodyAt(goal)))
+            if (!shape.isEmpty()) floor = Math.max(floor, shape.bounds().maxY + .04);
+        goal = new Vec3(goal.x, Math.max(goal.y, floor), goal.z);
+        Vec3 plannedMouth = goal.add(toward.scale(mouthOffset.horizontalDistance())).add(0, mouthOffset.y, 0);
+        return plannedMouth.distanceToSqr(nearestBodyPoint(target, plannedMouth)) <= mouthReach() * mouthReach() ? goal : null;
+    }
+    private boolean mouthTouches(YukkuriEntity target) {
+        Vec3 mouth = MouthPlacement.position(animal);
+        Vec3 contact = nearestBodyPoint(target, mouth);
+        Vec3 towards = target.getBoundingBox().getCenter().subtract(mouth).multiply(1, 0, 1);
+        return mouth.distanceToSqr(contact) <= mouthReach() * mouthReach()
+                && (towards.lengthSqr() < .0001 || MouthPlacement.outward(animal).dot(towards.normalize()) > .25)
+                && level().clip(new ClipContext(mouth, contact, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, animal)).getType() == HitResult.Type.MISS;
+    }
+    private void withdraw(String reason, YukkuriEntity target, Vec3 goal) {
+        contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW);
+        GameplayLog.limited(animal, "predator", "stoop." + reason, 100,
+                "stoop ended reason={} prey={} feet={} mouth={} contactGoal={} water={} energy={}", reason, target.getUUID(),
+                animal.position(), MouthPlacement.position(animal), goal, animal.isInWaterOrBubble(), animal.life().energy());
+    }
     /** Chase and attack as repeated runs: climb above the target, stoop, bite once, pull away, circle back. */
     private void swoop() {
         YukkuriEntity target = prey;
@@ -674,21 +810,29 @@ public final class PredatorLife implements EcologyRoutine {
             }
             case STOOP -> {
                 phase(Task.DIVE);
-                fly(at.add(0, .12, 0), 1.6, 49);
-                if (task != Task.DIVE || prey != target) return;
-                double reach = (animal.getBbWidth() + target.getBbWidth()) * .5 + .18;
-                if (animal.distanceToSqr(target) <= reach * reach && biteTicks == 0 && animal.hasLineOfSight(target)
+                Vec3 contact = biteApproach(target);
+                if (contact == null || !flightSweepClear(animal.position(), contact)) {
+                    withdraw(contact == null ? "mouth_below_clearance" : "body_path_blocked", target, contact);
+                    directFlight(animal.position().add(0, .8, 0), .85);
+                    return;
+                }
+                if (mouthTouches(target) && biteTicks == 0 && animal.hasLineOfSight(target)
                         && (retaliation || animal.life().canAcceptBodyFood())) {
                     if (hit(target)) return;
                     contactHold = true; withdrawGoal = null; setPass(Pass.WITHDRAW);
-                } else if (passTicks > STOOP_LIMIT || horizontal > 100) { contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW); }
+                } else if (passTicks > STOOP_LIMIT || horizontal > 100) {
+                    withdraw("contact_missed", target, contact);
+                    directFlight(animal.position().add(0, .8, 0), .85);
+                } else fly(contact, 1.6, 49);
             }
             case WITHDRAW -> {
                 if (contactHold && passTicks <= CONTACT_HOLD) {
                     // The run ends with the body still on the target for a moment: a close foe gets its answering blow here.
-                    phase(Task.DIVE);
-                    fly(at.add(0, .12, 0), .6, 49);
-                    return;
+                    Vec3 contact = biteApproach(target);
+                    if (contact != null && flightSweepClear(animal.position(), contact)) {
+                        phase(Task.DIVE); fly(contact, .6, 49); return;
+                    }
+                    contactHold = false;
                 }
                 phase(Task.CHASE);
                 if (withdrawGoal == null) {

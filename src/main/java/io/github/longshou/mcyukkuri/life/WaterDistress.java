@@ -44,7 +44,7 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    public boolean effort(){return entity.isInWaterOrBubble()&&burstTicks>0&&(!entity.family().flying()||entity.family().crew().climbing())&&!entity.family().crew().holdsBody()
+    public boolean effort(){return entity.isInWaterOrBubble()&&!entity.predatorFlying()&&burstTicks>0&&(!entity.family().flying()||entity.family().crew().climbing())&&!entity.family().crew().holdsBody()
             &&!entity.family().crew().gripping();}
     public UUID targetId(){return target;}
     public UUID sourceBoatId(){return sourceBoat;}
@@ -188,7 +188,7 @@ public final class WaterDistress {
         // live rendezvous target; stale controller IDs are removed at the top of every ordinary tick.
         if(rescueHat==null){target=null;destination=null;}else target=rescueHat;
         pendingPlunge=0;set(Phase.IMPACT);
-        if(!entity.isNoAi()){entity.life().wakeInHat();entity.getNavigation().stop();alertKin();}
+        if(!entity.isNoAi()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();alertKin();}
     }
     /** Entity-owned server clock, including disabled AI. YukkuriLife alone applies immersion damage. */
     public void tick(){
@@ -202,7 +202,7 @@ public final class WaterDistress {
         phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
-            if(!entity.family().crew().holdsBody()&&!entity.family().crew().gripping())surfaceBuoyancy();
+            if(!entity.predatorFlying()&&!entity.family().crew().holdsBody()&&!entity.family().crew().gripping())surfaceBuoyancy();
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             immersionTicks=Math.min(24000,immersionTicks+1);fatigue=Math.min(24000,fatigue+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
@@ -217,7 +217,7 @@ public final class WaterDistress {
         // An upward flight or airborne tumble is not a completed rescue.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
             if(entity.family().crew().busy()||entity.family().crew().climbing()){drySupportTicks=0;return;}
-            if(entity.family().flying()||!entity.onGround()&&!entity.shelteredInHat()){drySupportTicks=0;return;}
+            if(entity.predatorFlying()||entity.family().flying()||!entity.onGround()&&!entity.shelteredInHat()){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);shore=null;target=null;destination=null;
             if(!entity.isNoAi())entity.getNavigation().stop();
@@ -232,7 +232,7 @@ public final class WaterDistress {
     public boolean restingBreath(){
         return phase==Phase.RECOVER&&phaseTicks<32&&!entity.isNoAi()&&!entity.isCommandPlaying()
                 &&!entity.operations().active()&&!realThreat()
-                &&!entity.life().hasUrgentNeed()&&!entity.family().flying();
+                &&!entity.life().hasUrgentNeed()&&!entity.family().flying()&&!entity.predatorFlying();
     }
     /** Called by the existing highest-priority escape goal, replacing its perpetual jump command. */
     public void escapeTick(){
@@ -242,7 +242,7 @@ public final class WaterDistress {
             return;
         }
         if(entity.level().isClientSide||!entity.isInWaterOrBubble()||entity.isNoAi()
-                ||entity.isCommandPlaying()||entity.operations().active()||entity.family().flying()||entity.family().crew().holdsBody())return;
+                ||entity.isCommandPlaying()||entity.operations().active()||entity.predatorFlying()||entity.family().flying()||entity.family().crew().holdsBody())return;
         tick();
         if(phase==Phase.IMPACT){entity.getNavigation().stop();return;}
         // While a parent offers the dipped rim the child waits in the water (it still floats, bites and takes real water damage);

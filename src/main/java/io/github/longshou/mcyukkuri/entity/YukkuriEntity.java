@@ -363,6 +363,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
                 moveRelative(.1f, input);
+                if (!level().isClientSide) setDeltaMovement(predator.flightStep(getDeltaMovement()));
                 move(MoverType.SELF, getDeltaMovement());
                 setDeltaMovement(getDeltaMovement().scale(.91)); fallDistance = 0;
             }
