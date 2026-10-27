@@ -805,10 +805,10 @@ public final class CrewTransfer {
     private boolean a_withinBoat() { return boatA >= 0 && boatA == boatB; }
 
     /** A seat promised to a body that is still on its way stays promised while the ticket lives. */
-    private void renewClaim(YukkuriEntity body) {
+    private void renewClaim() {
         var b = hatB();
-        if (!claimed || b == null || a_withinBoat() || b.hasPassenger(body) || slot < 0) return;
-        b.deck().claim(b.bodyOf(body), purpose, null, slot, HatDeck.BOARD_TTL);
+        if (!claimed || arrived || b == null || slot < 0) return;
+        if (!b.deck().renewTarget(bodyId, slot, HatDeck.BOARD_TTL) && !reverting) fail(Refusal.TRANSIENT, "seat_claim_lost");
     }
 
     private void start() {
@@ -863,7 +863,8 @@ public final class CrewTransfer {
         if (phase.ordinal() >= Phase.CONTACT.ordinal() && phase.ordinal() <= Phase.MOVE.ordinal() && !reverting
                 && (a != null && a.unsteadyMotion() || b != null && b.unsteadyMotion())) { slip("hull_shaken"); return; }
         holdHulls(carrier);
-        if (now % 50 == 0) renewClaim(body);
+        if (now % 50 == 0) renewClaim();
+        if (finished) return;
         prevBodyYaw = bodyYaw;
         switch (phase) {
             case CLAIM -> next(Phase.APPROACH);
@@ -873,7 +874,10 @@ public final class CrewTransfer {
             case SETTLE -> settle(body, carrier, now);
             case RELEASE -> release(body, carrier, now);
         }
-        if (!finished) publish();
+        if (!finished) {
+            if (mode != Mode.LIFT && phase.ordinal() >= Phase.MOVE.ordinal()) sampleBody(body);
+            publish();
+        }
     }
 
     private int ttl() {
@@ -1239,10 +1243,29 @@ public final class CrewTransfer {
     /** Commit while MOVE still owns rider positioning, so the next rider tick cannot restore the old seat. */
     private boolean commitArrival(YukkuriEntity body) {
         if (arrived) return true;
+        var destination = to.kind() == Kind.BERTH ? hatB() : null;
+        if (to.kind() == Kind.BERTH) {
+            var placed = destination == null ? null : destination.deck().get(bodyId);
+            if (placed == null || slot < 0 || placed.target() != slot
+                    || body.position().distanceToSqr(destination.toWorld(destination.deckLayout().slot(slot).pos())) > .0004) {
+                fail(Refusal.TRANSIENT, "arrival_claim_or_contact_lost");
+                return false;
+            }
+        }
         if (!syncVehicle(body, 1, to.kind() == Kind.BERTH ? boatB : -1)) return false;
         if (to.kind() == Kind.BERTH) {
             var b = hatB();
-            if (boatA >= 0 && boatA == boatB) { b.deck().arrived(bodyId); b.deck().lift(bodyId, false); }
+            if (a_withinBoat() && !b.deck().arrived(bodyId, slot)) {
+                fail(Refusal.TRANSIENT, "arrival_commit_refused");
+                return false;
+            }
+            var placed = b.deck().get(bodyId);
+            if (placed == null || !placed.aboard() || placed.slot() != slot || placed.target() >= 0
+                    || body.position().distanceToSqr(b.toWorld(b.deckLayout().slot(slot).pos())) > .0004) {
+                finish(false, Refusal.TRANSIENT, "arrival_commit_lost");
+                return false;
+            }
+            b.deck().lift(bodyId, false);
             b.syncSeats();
             body.family().crew().rememberFrame(b);
         } else if (to.kind() == Kind.WATER) {
@@ -1287,6 +1310,15 @@ public final class CrewTransfer {
     }
 
     // ================================================================= contact points
+    /** Non-lift movement shares the contact frame without re-evaluating its planned curve for presentation. */
+    private void sampleBody(YukkuriEntity body) {
+        var hat = contactFrame == 1 ? hatA() : contactFrame == 2 ? hatB() : null;
+        var feet = hat == null ? body.position() : hat.toLocal(body.position());
+        bodyPrev = bodyAt == null ? feet : bodyAt;
+        bodyAt = feet;
+        bodyYaw = body.yBodyRot;
+    }
+
     private void setContact(HatBoatEntity frameHat, Vec3 local, int frame) {
         contactPrev = contactAt == null ? local : contactAt;
         contactAt = local;

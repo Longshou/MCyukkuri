@@ -343,6 +343,32 @@ public final class HatDeck {
         return Admission.no(Admission.Reason.CONFLICT_WITH, first, before, after);
     }
 
+    /** Read-only admission to one named seat; an available alternative never hides this seat's blocker. */
+    public Admission canAdmitAt(Body b, Purpose purpose, int seat) {
+        var admission = canAdmit(b, purpose, null, seat);
+        if (!admission.ok() && admission.reason() != Admission.Reason.CONFLICT_WITH) return admission;
+        if (seat < 0 || seat >= layout.slots().size() || !legal(b, purpose, layout.slot(seat)))
+            return Admission.no(Admission.Reason.NO_SLOT_FOR_CLASS, "", admission.loadBefore(), admission.loadAfter());
+        String why = blocker(b, seat, Set.of());
+        return why == null ? Admission.ok(seat, layout.slot(seat).id(), admission.loadBefore(), admission.loadAfter())
+                : Admission.no(Admission.Reason.CONFLICT_WITH, why, admission.loadBefore(), admission.loadAfter());
+    }
+
+    /** Seats that already-started real moves will clear. This promises no arrival and never frees an occupied seat. */
+    public List<Integer> seatsAfterMoves(Body body, Purpose purpose, Vec3 near) {
+        var admission = canAdmit(body, purpose, near, DeckLayout.NONE);
+        if (!admission.ok() && admission.reason() != Admission.Reason.CONFLICT_WITH) return List.of();
+        var out = new ArrayList<Integer>();
+        for (int seat : candidates(body, purpose, near, DeckLayout.NONE)) {
+            var movingAway = new HashSet<UUID>();
+            for (var placed : placements.values())
+                if (placed.move != null && placed.target >= 0 && placed.target != seat && placed.home != seat
+                        && !layout.conflict(seat, body.cls(), placed.target, placed.cls)) movingAway.add(placed.id);
+            if (!movingAway.isEmpty() && blocker(body, seat, Set.of()) != null && blocker(body, seat, movingAway) == null) out.add(seat);
+        }
+        return out;
+    }
+
     /** Whether the larder could hold this many portions without pressing on a body, and the load allows it. */
     public boolean heapFits(int portions) { return heapRefusal(portions) == null; }
     public String heapRefusal(int portions) {
@@ -380,6 +406,16 @@ public final class HatDeck {
         if (!a.ok()) { refuse(b, purpose, a); return null; }
         if (a.slot() != seat) return null;
         return takeClaim(b, purpose, a, ttl);
+    }
+
+    /** Keep this exact in-flight target and lease identity alive; a missing claim is never rebuilt on another seat. */
+    public boolean renewTarget(UUID id, int target, long ttl) {
+        var p = placements.get(id);
+        if (p == null || p.target != target || target < 0 || p.lease == null) return false;
+        var lease = p.lease;
+        if (lease.expiry() != Long.MAX_VALUE)
+            p.lease = new Lease(lease.id(), lease.purpose(), lease.holder(), Math.max(lease.expiry(), host.now() + ttl), lease.returnTo(), lease.caregiver());
+        return true;
     }
 
     private Lease takeClaim(Body b, Purpose purpose, Admission a, long ttl) {
@@ -705,6 +741,7 @@ public final class HatDeck {
         p.target = to;
         if (purpose == Purpose.SERVICE) {
             if (p.lease == null || p.lease.purpose() != Purpose.SERVICE) p.lease = new Lease(nextLease++, Purpose.SERVICE, b.id(), host.now() + SERVICE_TTL, p.slot, p.caregiver);
+            else renewTarget(b.id(), to, SERVICE_TTL);
             if (p.home < 0) p.home = p.slot;
             p.returning = false;
         }
@@ -717,9 +754,9 @@ public final class HatDeck {
     }
     public boolean carried(UUID id) { var p = placements.get(id); return p != null && p.carried; }
     /** A lifted body has been put down on its reserved seat. */
-    public void arrived(UUID id) {
+    public boolean arrived(UUID id, int target) {
         var p = placements.get(id);
-        if (p == null || p.target < 0) return;
+        if (p == null || !p.aboard || p.target != target || target < 0 || !host.arrived(id, layout.slot(target).pos())) return false;
         p.carried = false;
         p.slot = p.target;
         p.seatedAt = host.now();
@@ -727,6 +764,7 @@ public final class HatDeck {
         p.move = null;
         p.overflow = false;
         afterArrival(p);
+        return true;
     }
     /** A cancelled lift or move gives the reserved seat back; the body stays where it is. */
     public void abandon(UUID id, String reason) {

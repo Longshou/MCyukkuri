@@ -394,9 +394,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(emergency)for(int slot:deck.freeSeats(body,Purpose.RESCUE,toLocal(from)))
             if(seats.stream().noneMatch(seat->seat.slot()==slot))
                 seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,NewbornAdmission.RESCUE));
+        for(var purpose:emergency?new Purpose[]{Purpose.BOARD,Purpose.RESCUE}:new Purpose[]{Purpose.BOARD})
+            for(int slot:deck.seatsAfterMoves(body,purpose,toLocal(from)))
+                if(seats.stream().noneMatch(seat->seat.slot()==slot))
+                    seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,
+                            purpose==Purpose.BOARD?NewbornAdmission.BOARD:NewbornAdmission.RESCUE));
         if(seats.isEmpty()&&canMakeRoom(body,emergency,toLocal(from))){
             for(var purpose:emergency?new Purpose[]{Purpose.BOARD,Purpose.RESCUE}:new Purpose[]{Purpose.BOARD}){
-                int slot=deck.firstSeatAfterRelievingLarder(body,purpose,toLocal(from),false);
+                var room=deck.planRoom(body,purpose,toLocal(from));
+                int slot=room==null?deck.firstSeatAfterRelievingLarder(body,purpose,toLocal(from),false):room.slot();
                 if(slot>=0)seats.add(new BirthSeat(toWorld(deckLayout().slot(slot).pos()),slot,
                         purpose==Purpose.BOARD?NewbornAdmission.BOARD:NewbornAdmission.RESCUE));
             }
@@ -465,6 +471,27 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
         var body = bodyOf(child, true);
         return makeRoom(body, jettison, toLocal(child.position()), "make_room");
+    }
+    /** Prepare exactly the selected birth seat, waiting for real room-making moves before claiming it. */
+    public boolean makeRoom(YukkuriEntity child, boolean jettison, NewbornAdmission admission, int slot) {
+        if(level().isClientSide||child==null||!admits(child)||!boardable()||admission==NewbornAdmission.NONE)return false;
+        var body=bodyOf(child,true);
+        var purpose=admission==NewbornAdmission.BOARD?Purpose.BOARD:Purpose.RESCUE;
+        for(int guard=0;guard<=HatCargo.LARDER_MAX+2;guard++){
+            var check=deck.canAdmitAt(body,purpose,slot);
+            if(check.ok())return true;
+            switch(check.reason()){
+                case UNITS_FULL -> { if(!relieveLoad(jettison,"birth_room"))return false; }
+                case CONFLICT_WITH -> {
+                    if(check.detail().equals("larder")){if(!relieveLoad(jettison,"birth_room"))return false;continue;}
+                    var plan=deck.planSeat(body,purpose,slot);
+                    if(plan!=null&&!plan.moves().isEmpty())applyRoom(plan,null);
+                    return false;
+                }
+                default -> { return false; }
+            }
+        }
+        return false;
     }
     /** A rescue also takes the rescue rim when no ordinary seat can be freed. */
     private boolean rescueSeatFree(Body body) { return deck.canAdmit(body, Purpose.RESCUE).ok(); }
@@ -967,8 +994,18 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public HullHelm.State helmStatus() { return HullHelm.State.values()[Math.clamp(entityData.get(HELM_STATUS), 0, HullHelm.State.values().length - 1)]; }
     public HullHelm helm() { return helm; }
     public boolean protects(Entity rider) {
-        return hasPassenger(rider) && (isAfloat() || catches() || state() == State.BEACHED)
-                && !level().getFluidState(BlockPos.containing(getX(), getY()+.25, getZ())).is(FluidTags.WATER);
+        if(!hasPassenger(rider)||!(isAfloat()||catches()||state()==State.BEACHED)
+                ||level().getFluidState(BlockPos.containing(getX(),getY()+.25,getZ())).is(FluidTags.WATER))return false;
+        // A transfer keeps the source mount until actual arrival. That mount alone cannot keep an off-hull body dry.
+        var local=toLocal(rider.position());
+        var seat=seatOf(rider);
+        var movement=seatMove(rider);
+        // Authored seats fit the rounded body on the bowl; a square walking envelope may reach a higher tread beside it.
+        if((seat!=null&&rider.position().distanceToSqr(toWorld(seat))<=.000625
+                ||movement!=null&&rider.position().distanceToSqr(toWorld(movement.from()))<=.000625)
+                &&Double.isFinite(HatVessel.footprint(mode(),local.x,local.z,radiusOf(rider))))return true;
+        double support=HatVessel.travelSupport(mode(),local.x,local.z,radiusOf(rider));
+        return Double.isFinite(support)&&Math.abs(local.y-support)*unit()<=.025;
     }
     /** The separate deeper aquatic hat, retained even when the owner cannot be resolved. */
     public boolean aquaticHull() { return entityData.get(AQUATIC_HULL); }
@@ -1051,15 +1088,12 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     @Override protected void positionRider(Entity passenger, MoveFunction move) {
         if (!hasPassenger(passenger)) return;
-        // A transfer on this hull places the body from its curve; the frame the curve is in decides who is the vehicle.
+        // The transfer is the sole server executor. Clients observe its measured feet, including a paused or reversed step.
         var moving = CrewState.movingBody(crewEntries(), passenger.getUUID());
         if (moving != null) {
-            var at = moving.position(level(), level().getGameTime());
-            if(at!=null){
-                // CrewTransfer.tick is the sole server executor; rider repositioning must not move ahead of its sweep.
-                if(level().isClientSide)move.accept(passenger,at.x,at.y,at.z);
-                return;
-            }
+            var at = moving.bodyWorld(level(), false);
+            if(level().isClientSide&&at!=null)move.accept(passenger,at.x,at.y,at.z);
+            return;
         }
         // Each rider occupies its own deck seat, including the close but visible night gathering; a late sync waits.
         var local = seatOf(passenger);

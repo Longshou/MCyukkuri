@@ -106,6 +106,14 @@ public final class CrewState {
             return level.getEntity(id) instanceof HatBoatEntity boat ? boat.toWorld(at) : null;
         }
 
+        /** The measured feet, independently of a paused or reversed planning clock. */
+        public Vec3 bodyWorld(Level level, boolean previous) {
+            var at = previous ? bodyPrev : bodyAt;
+            if (at == null || contactFrame == 0) return at;
+            int id = contactFrame == 1 ? boatA : boatB;
+            return level.getEntity(id) instanceof HatBoatEntity boat ? boat.toWorld(at) : null;
+        }
+
         public CompoundTag save() {
             var tag = new CompoundTag();
             tag.putLong("Id", id);
