@@ -10,6 +10,10 @@ import io.github.longshou.mcyukkuri.life.CombatCourage;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.CareBlock;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
@@ -77,6 +81,7 @@ public final class PredatorLife implements EcologyRoutine {
     private ItemEntity food;
     private RemainsEntity corpse;
     private Vec3 destination;
+    private BlockPos landingStand;
     private BlockPos lastDryStand;
     private long nextLandingSearch;
     private int landingSearchRadius = 8;
@@ -262,7 +267,7 @@ public final class PredatorLife implements EcologyRoutine {
                     target.getUUID(), target.position(), target.getBbHeight(), mouthReach());
             return false;
         }
-        BlockPos escape = findDryLanding(target.blockPosition(), 24);
+        Landing escape = findDryLanding(target.blockPosition(), 24);
         if (escape != null) return true;
         GameplayLog.limited(animal, "predator", "water_prey_no_landing", 200,
                 "water prey refused target={} reason=no_reachable_dry_landing", target.getUUID());
@@ -389,7 +394,8 @@ public final class PredatorLife implements EcologyRoutine {
         var home = animal.life().homeStand();
         if (home != null && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
-            destination = Vec3.atBottomCenterOf(home); task = Task.RETURN; return true;
+            Vec3 feet = landingFeet(home);
+            if (feet != null) { destination = feet; task = Task.RETURN; return true; }
         }
         if (cooldown > 0 || animal.life().energy() < 20) return false;
         if (animal.life().canEat()) {
@@ -492,19 +498,31 @@ public final class PredatorLife implements EcologyRoutine {
         flightGoal = goal; flightSpeed = speed; flightGoalTick = animal.tickCount;
         animal.getMoveControl().setWantedPosition(goal.x, goal.y, goal.z, speed);
     }
-    /** Braking belongs to actual flight movement, after vanilla control acceleration, before the ordinary collision-resolved move. */
-    public Vec3 flightStep(Vec3 proposed) {
-        if (flightGoal == null || flightGoalTick != animal.tickCount || !canSustainFlight()) return proposed;
+    /** Null leaves path-node flight to vanilla. A direct command steers inertia instead of adding vanilla's forward thrust twice. */
+    public Vec3 flightStep(Vec3 inertia) {
+        if (flightGoal == null || flightGoalTick != animal.tickCount || !canSustainFlight()) return null;
         Vec3 delta = flightGoal.subtract(animal.position());
         double distance = delta.length();
         double maximum = animal.getAttributeValue(Attributes.FLYING_SPEED) * flightSpeed;
-        // Proportional approach starts braking before the mouth reaches its target. Acceleration stays finite,
-        // including after a knockback: this is steering, not an invisible collision with water or an immunity.
-        Vec3 desired = distance < 1e-6 ? Vec3.ZERO : delta.scale(Math.min(maximum, distance * .35) / distance);
-        Vec3 steering = desired.subtract(proposed);
         double acceleration = .12 * Math.sqrt(Math.max(.1, animal.life().energy() / 100.0));
-        if (steering.lengthSqr() > acceleration * acceleration) steering = steering.normalize().scale(acceleration);
-        return proposed.add(steering);
+        // Include the next tick's displacement in the braking envelope. Weak flight starts braking earlier;
+        // the ordinary .91 drag after travel only shortens this conservative no-drag stopping distance.
+        double speed = Math.min(maximum, Math.min(distance * .35, brakingSpeed(distance, acceleration)));
+        Vec3 desired = distance < 1e-6 ? Vec3.ZERO : delta.scale(speed / distance);
+        // The target may move sideways while the predator is descending. Horizontal range must not buy
+        // extra downward speed once the sole is close to its contact height. Spend braking effort here first.
+        double verticalLimit = brakingSpeed(Math.abs(delta.y), acceleration);
+        desired = new Vec3(desired.x, Math.clamp(desired.y, -verticalLimit, verticalLimit), desired.z);
+        double verticalChange = Math.clamp(desired.y - inertia.y, -acceleration, acceleration);
+        double horizontalBudget = Math.sqrt(Math.max(0, acceleration * acceleration - verticalChange * verticalChange));
+        Vec3 horizontalChange = new Vec3(desired.x - inertia.x, 0, desired.z - inertia.z);
+        if (horizontalChange.lengthSqr() > horizontalBudget * horizontalBudget)
+            horizontalChange = horizontalChange.normalize().scale(horizontalBudget);
+        return inertia.add(horizontalChange).add(0, verticalChange, 0);
+    }
+    /** Solve v + v²/(2a) <= distance: one full next step plus the remaining finite braking distance. */
+    private static double brakingSpeed(double distance, double acceleration) {
+        return Math.sqrt(acceleration * acceleration + 2 * acceleration * Math.max(0, distance)) - acceleration;
     }
     private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())).deflate(.002); }
     /** Required sole height over real water columns and the visible hat surface under the whole body footprint. */
@@ -565,18 +583,31 @@ public final class PredatorLife implements EcologyRoutine {
         if (level().getGameTime() < nextLandingSearch) return;
         nextLandingSearch = level().getGameTime() + 40;
         int searchedRadius = landingSearchRadius;
-        BlockPos stand = findDryLanding(animal.blockPosition(), searchedRadius);
+        Landing landing = findDryLanding(animal.blockPosition(), searchedRadius);
         landingSearchRadius = Math.min(32, landingSearchRadius * 2);
-        destination = stand == null ? null : Vec3.atBottomCenterOf(stand);
+        landingStand = landing == null ? null : landing.stand();
+        destination = landing == null ? null : landing.feet();
         if (destination == null) GameplayLog.limited(animal, "predator", "landing.search", 200,
                 "landing searching reason=no_dry_stand radius={} energy={} flying={}", searchedRadius, animal.life().energy(), animal.predatorFlying());
         else GameplayLog.limited(animal, "predator", "landing.route", 100,
-                "landing route selected stand={} energy={} flying={}", stand, animal.life().energy(), animal.predatorFlying());
+                "landing route selected stand={} feet={} energy={} flying={}", landingStand, destination, animal.life().energy(), animal.predatorFlying());
     }
     private boolean dryLanded() { return animal.onGround() && !animal.isInWaterOrBubble() && animal.life().dryStand(animal.blockPosition()); }
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
+    private record Landing(BlockPos stand, Vec3 feet) {}
+    /** The candidate and the final flight use the same supported feet, including a nest's pad and assigned rest offset. */
+    private Vec3 landingFeet(BlockPos stand) {
+        if (!level().hasChunkAt(stand) || !animal.life().dryStand(stand)) return null;
+        return level().getBlockEntity(stand) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.NEST
+                ? FamilyNest.restPosition(animal, care) : SurfaceApproach.restingFloor(animal, Vec3.atBottomCenterOf(stand));
+    }
+    private boolean currentLanding() {
+        if (landingStand == null || destination == null) return false;
+        Vec3 feet = landingFeet(landingStand);
+        return feet != null && feet.distanceToSqr(destination) < .0004;
+    }
     /** Loaded dry surfaces only, closest first; bounded path probes retain real collision and reachability. */
-    private BlockPos findDryLanding(BlockPos center, int radius) {
+    private Landing findDryLanding(BlockPos center, int radius) {
         var candidates = new HashSet<BlockPos>();
         if (lastDryStand != null && level().hasChunkAt(lastDryStand) && animal.life().dryStand(lastDryStand)) candidates.add(lastDryStand);
         var home = animal.life().homeStand();
@@ -597,7 +628,11 @@ public final class PredatorLife implements EcologyRoutine {
         }
         var ordered = new ArrayList<>(candidates);
         ordered.sort(Comparator.comparingDouble(p -> p.distSqr(center) + animal.distanceToSqr(Vec3.atBottomCenterOf(p)) * .1));
-        for (int i = 0; i < Math.min(8, ordered.size()); i++) if (canFlyTo(ordered.get(i))) return ordered.get(i);
+        for (int i = 0; i < Math.min(8, ordered.size()); i++) {
+            BlockPos stand = ordered.get(i);
+            Vec3 feet = landingFeet(stand);
+            if (feet != null && canFlyTo(BlockPos.containing(feet))) return new Landing(stand, feet);
+        }
         return null;
     }
     private void searchWhileFlying() {
@@ -673,7 +708,8 @@ public final class PredatorLife implements EcologyRoutine {
                 stop();
             }
         } else {
-            if (task == Task.LAND && (destination == null || !animal.life().dryStand(BlockPos.containing(destination)))) {
+            if (task == Task.LAND && !currentLanding()) {
+                destination = null; landingStand = null;
                 searchWhileFlying(); return;
             }
             if (destination == null) { stop(); return; }
