@@ -20,8 +20,8 @@ import net.minecraft.server.level.ServerLevel;
  * progress watchdog ({@link #STALL_TICKS} without progress ends it with {@code stalled} and a cooldown).
  */
 public final class AfloatAgenda {
-    public static final int STALL_TICKS = 200, STALL_COOLDOWN = 400, TIMEOUT_COOLDOWN = 200, LAPSE_TICKS = 3;
-    /** Priorities up to this are run by the priority-3 goal (incidents, threats, labor); the rest by the routine goal. */
+    public static final int STALL_TICKS = 200, STALL_COOLDOWN = 400, TIMEOUT_COOLDOWN = 200, LAPSE_TICKS = 12;
+    /** Priorities up to this interrupt first-voyage practice inside the single aquatic goal. */
     public static final double URGENT = 3.99;
 
     /** What an activity sees on each call. */
@@ -98,7 +98,7 @@ public final class AfloatAgenda {
     public boolean tick(HatBoatEntity boat, boolean owner, double cap) {
         if (!(entity.level() instanceof ServerLevel level)) return false;
         long now = level.getGameTime();
-        if (now == lastTick) return current != null;   // two goals asked in one tick: the first answer stands
+        if (now == lastTick) return current != null;
         if (current != null && now - lastTick > LAPSE_TICKS) {
             end(new Context(entity, boat, owner, now, ticks, now - startedAt, this), "lapsed", 0);
         }

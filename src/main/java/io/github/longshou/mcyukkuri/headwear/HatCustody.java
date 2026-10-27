@@ -32,6 +32,9 @@ public final class HatCustody {
     private CompoundTag cargo;
     /** Project balance: an observed, empty, free-floating hat that stays 96 blocks away for one minute is no longer custody. */
     private int awayTicks;
+    /** Finite claims of the existing physical hat; rebuilt from custody after loading, never a second hat ledger. */
+    private UUID reclaimHat, reclaimAssignee;
+    private long reclaimLease, reclaimRetry;
 
     public HatCustody(YukkuriEntity owner) { this.owner = Objects.requireNonNull(owner, "Hat custody requires its entity owner"); }
 
@@ -68,7 +71,40 @@ public final class HatCustody {
     /** The provisions of the last voyage, or null. */
     public CompoundTag retainedCargo() { return cargo; }
     public UUID retainedToken() { return state == State.HELD_BY_PARENT ? token : null; }
-    public String detail() { return "custody=" + state.name().toLowerCase(java.util.Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")") + " drifting=" + awayTicks; }
+    public String detail() { return "custody=" + state.name().toLowerCase(java.util.Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")") + " drifting=" + awayTicks
+            + " reclaim=" + reclaimHat + " claimant=" + reclaimAssignee; }
+
+    public void requestReclaim(String why) {
+        if (!owner.isAlive() || !custodied() || boat == null || boat.equals(reclaimHat)) return;
+        reclaimHat = boat; reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
+        GameplayLog.event(owner, "headwear", "reclaim requested hat={} owner={} reason={}", boat, owner.getUUID(), why);
+    }
+    public boolean reclaimPending() { return custodied() && boat != null && boat.equals(reclaimHat); }
+    public boolean claimReclaim(YukkuriEntity claimant) {
+        if (claimant == null || !claimant.isAlive() || !reclaimPending()) return false;
+        long now = owner.level().getGameTime();
+        boolean ownerHandedOver = owner.isPassenger() && owner.getUUID().equals(reclaimAssignee);
+        if (now < reclaimRetry || reclaimAssignee != null && !reclaimAssignee.equals(claimant.getUUID()) && now < reclaimLease && !ownerHandedOver) return false;
+        if (!claimant.getUUID().equals(reclaimAssignee)) {
+            reclaimAssignee = claimant.getUUID();
+            GameplayLog.event(owner, "headwear", "reclaim assigned hat={} owner={} claimant={}", boat, owner.getUUID(), reclaimAssignee);
+        }
+        reclaimLease = now + 100;
+        return true;
+    }
+    public boolean reclaimAssigned(UUID claimant) {
+        return reclaimPending() && claimant != null && claimant.equals(reclaimAssignee) && owner.level().getGameTime() < reclaimLease;
+    }
+    public void reclaimExpired(String why) {
+        if (reclaimAssignee == null) return;
+        GameplayLog.event(owner, "headwear", "reclaim expired hat={} owner={} claimant={} reason={}", reclaimHat, owner.getUUID(), reclaimAssignee, why);
+        reclaimAssignee = null; reclaimLease = 0; reclaimRetry = owner.level().getGameTime() + 240;
+    }
+    private void finishReclaim(String result, String why) {
+        if (reclaimHat != null) GameplayLog.event(owner, "headwear", "reclaim {} hat={} owner={} claimant={} reason={}",
+                result, reclaimHat, owner.getUUID(), reclaimAssignee, why);
+        reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
+    }
 
     // ---------------------------------------------------------------- transitions
     private void go(State next, String why) {
@@ -90,6 +126,7 @@ public final class HatCustody {
 
     /** The hat is back on the head (taken in, landed, or handed back): it keeps the token of its voyage. */
     public void reclaim(UUID tokenId, String why) {
+        finishReclaim("done", why);
         token = tokenId;
         boat = null;
         cause = "";
@@ -99,6 +136,7 @@ public final class HatCustody {
 
     /** The hat is worn as a new, plain hat (restored, replaced, handed over by a player). */
     public void wear(String why) {
+        finishReclaim("expired", why);
         token = null;
         boat = null;
         cargo = null;
@@ -138,6 +176,7 @@ public final class HatCustody {
         if (state != State.DEPLOYED) return;
         boat = hull;
         go(State.ADRIFT, why);
+        requestReclaim(why);
     }
 
     /** A real boarding of the hull the token belongs to reopens the custody, also after a loss by drifting. */
@@ -147,10 +186,12 @@ public final class HatCustody {
         cause = "";
         awayTicks = 0;
         go(State.DEPLOYED, why);
+        finishReclaim("done", why);
     }
 
     /** The custody ends. {@code keepToken} leaves a way back (a hat lost by drifting can still be boarded); a taken or destroyed hat has none. */
     public void lose(String why, boolean keepToken) {
+        finishReclaim("expired", why);
         cause = why;
         if (!keepToken) { token = null; boat = null; }
         awayTicks = 0;
@@ -188,6 +229,7 @@ public final class HatCustody {
         cargo = t.contains("Cargo") ? t.getCompound("Cargo").copy() : null;
         awayTicks = Math.clamp(t.getInt("Away"), 0, 1200);
         if (wornFlag != worn()) state = wornFlag ? State.WORN : (custodiedFallback() ? State.DEPLOYED : State.LOST);
+        reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
     }
 
     private boolean custodiedFallback() { return token != null && boat != null; }

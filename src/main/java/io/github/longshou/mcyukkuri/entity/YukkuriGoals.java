@@ -16,8 +16,13 @@ import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.Reactions;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransferGoal;
 import java.util.EnumSet;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -39,6 +44,7 @@ final class YukkuriGoals {
     private final GoalSelector goalSelector;
     private PresentationGoals presentationGoals;
     private RoamingGoal roaming;
+    private String observedRunning;
     RoamingGoal roaming() { return roaming; }
     YukkuriGoals(YukkuriEntity owner, GoalSelector goalSelector) {
         this.owner = owner;
@@ -63,10 +69,10 @@ final class YukkuriGoals {
         owner.createSanction();
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SANCTION, owner.sanction()));
         owner.createHeadwear();
-        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HEADWEAR, owner.headwear()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.HEADWEAR, owner.headwear()));
         goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.THREAT, new Reactions.ThreatGoal(owner)));
-        goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
-        goalSelector.addGoal(1, presentationGoals.bind(PresentationGoals.LIFE, new FatigueGoal()));
+        goalSelector.addGoal(2, landBinding(PresentationGoals.WEATHER, new Reactions.WeatherGoal(owner)));
+        goalSelector.addGoal(1, landBinding(PresentationGoals.LIFE, new FatigueGoal()));
         goalSelector.addGoal(1, new ShellGoal());
         goalSelector.addGoal(2, new HoldActionGoal());
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.FAMILY, new BirthGoal()));
@@ -77,50 +83,66 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
         owner.createAquaticLife();
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.AQUATIC, owner.aquaticLife()));
-        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
-        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.LIFE, new LifeGoal()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
+        goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
-        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
+        goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.FACTORY, new FactoryWorkGoal(owner)));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() { return !owner.isPassenger() && owner.life().canEat() && super.canUse() && owner.life().personality().fear(player.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT; }
             @Override public boolean canContinueToUse() { return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse(); }
         }));
-        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.FAMILY, new FamilyGoal()));
+        goalSelector.addGoal(5, landBinding(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
         goalSelector.addGoal(1, new AgitationLife.HeldGoal(owner));
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.HOUSE, new HouseGoal()));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.HOUSE, new HouseGoal()));
         owner.createForageTrip();
-        goalSelector.addGoal(ForageTrip.GOAL_PRIORITY, presentationGoals.bind(PresentationGoals.FORAGE_TRIP, owner.forageTrip()));
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.FORAGE, new ForageGoal(owner)));
+        goalSelector.addGoal(ForageTrip.GOAL_PRIORITY, landBinding(PresentationGoals.FORAGE_TRIP, owner.forageTrip()));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.FORAGE, new ForageGoal(owner)));
         owner.createTreasure();
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.TREASURE, owner.treasure()));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.TREASURE, owner.treasure()));
         owner.createCannibalism();
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.CANNIBALISM, owner.cannibalism()));
         owner.createOffering();
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SELF_OFFERING, owner.offering()));
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.HABITAT, new HabitatGoal()));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.HABITAT, new HabitatGoal()));
         owner.createIndependence();
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.INDEPENDENCE, owner.independence()));
-        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.DUTIES, new SettlementDutyGoal()));
-        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.SETTLEMENT, new SettlementGoal()));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.INDEPENDENCE, owner.independence()));
+        goalSelector.addGoal(6, landBinding(PresentationGoals.DUTIES, new SettlementDutyGoal()));
+        goalSelector.addGoal(6, landBinding(PresentationGoals.SETTLEMENT, new SettlementGoal()));
         // A migration (discussion, packing, march) outranks daily, social and family routines; the life needs (3) still come first.
-        goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.MIGRATION, new MigrationGoal()));
-        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.WILD_EVENT, new WildEventGoal(owner)));
+        goalSelector.addGoal(4, landBinding(PresentationGoals.MIGRATION, new MigrationGoal()));
+        goalSelector.addGoal(5, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
-        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.DAILY, new DailyGoal()));
-        goalSelector.addGoal(6, presentationGoals.bind(PresentationGoals.SOCIAL, new SocialGoal()));
-        goalSelector.addGoal(5, presentationGoals.bind(PresentationGoals.GROUP, new GroupGoal()));
-        goalSelector.addGoal(6,presentationGoals.bind(PresentationGoals.PLAY, new PlaygroundGoal()));
+        goalSelector.addGoal(5, landBinding(PresentationGoals.DAILY, new DailyGoal()));
+        goalSelector.addGoal(6, landBinding(PresentationGoals.SOCIAL, new SocialGoal()));
+        goalSelector.addGoal(5, landBinding(PresentationGoals.GROUP, new GroupGoal()));
+        goalSelector.addGoal(6,landBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
         owner.createWintering();
-        goalSelector.addGoal(7, presentationGoals.bind(PresentationGoals.WINTERING, owner.wintering()));
-        goalSelector.addGoal(8, presentationGoals.bind(PresentationGoals.AQUATIC, owner.aquaticLife().routineGoal()));
+        goalSelector.addGoal(7, landBinding(PresentationGoals.WINTERING, owner.wintering()));
         roaming = new RoamingGoal(owner);
-        goalSelector.addGoal(7, presentationGoals.bind(PresentationGoals.ROAMING, roaming));
-        goalSelector.addGoal(8, new LookAtPlayerGoal(owner, Player.class, 6.0F));
-        goalSelector.addGoal(9, new RandomLookAroundGoal(owner));
+        goalSelector.addGoal(7, landBinding(PresentationGoals.ROAMING, roaming));
+        goalSelector.addGoal(8, landGoal(new LookAtPlayerGoal(owner, Player.class, 6.0F)));
+        goalSelector.addGoal(9, landGoal(new RandomLookAroundGoal(owner)));
+    }
+    /** The bound wrapper retains its selector identity and delegates the real goal only in its land territory. */
+    private <G extends Goal> Goal landBinding(PresentationGoals.Source<G> source, G delegate) {
+        return presentationGoals.bind(source, landGoal(delegate), delegate);
+    }
+    private Goal landGoal(Goal delegate) {
+        return new Goal() {
+            { setFlags(delegate.getFlags()); }
+            @Override public boolean canUse() { return !AquaticLife.afloatOwnsRider(owner) && delegate.canUse(); }
+            @Override public boolean canContinueToUse() { return !AquaticLife.afloatOwnsRider(owner) && delegate.canContinueToUse(); }
+            @Override public boolean isInterruptable() { return delegate.isInterruptable(); }
+            @Override public boolean requiresUpdateEveryTick() { return delegate.requiresUpdateEveryTick(); }
+            @Override public void start() { delegate.start(); }
+            @Override public void tick() { delegate.tick(); }
+            @Override public void stop() { delegate.stop(); }
+            @Override public String toString() { return delegate.getClass().getSimpleName(); }
+        };
     }
     private final class ChildhoodGoal extends Goal {
         ChildhoodGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
@@ -360,6 +382,17 @@ final class YukkuriGoals {
         }
     }
     PresentationGoals.Running runningGoals() {
+        if (GameplayLog.detailEnabled() && owner.getVehicle() instanceof HatBoatEntity) {
+            String running = goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
+                    .sorted(Comparator.comparingInt(WrappedGoal::getPriority))
+                    .map(g -> g.getGoal().getClass().getSimpleName() + ":" + g.getGoal() + "@" + g.getPriority())
+                    .collect(Collectors.joining(","));
+            if (!running.equals(observedRunning)) {
+                GameplayLog.limited(owner, "aqdiag", "goals.switch", 40,
+                        "goal selection {} -> {} agenda={}", observedRunning, running, owner.aquaticLife().agenda().currentId());
+                observedRunning = running;
+            }
+        }
         return presentationGoals.running(goalSelector.getAvailableGoals());
     }
 }

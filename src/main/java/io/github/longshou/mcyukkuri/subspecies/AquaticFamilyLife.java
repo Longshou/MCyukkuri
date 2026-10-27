@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -51,6 +52,7 @@ public final class AquaticFamilyLife {
     private UUID rescueTarget;
     private UUID recoveringHat, missedHat;
     private long recoveryStarted, missedHatUntil;
+    private int reclaimContactTicks;
     private UUID swimmerWatch;
     private ServerLevel cacheLevel;
     private long cacheTick=Long.MIN_VALUE;
@@ -547,6 +549,7 @@ public final class AquaticFamilyLife {
             }else hold(boat,Behaviors.BOAT_WAIT_YOUNG);
             return true;
         }
+        if (recoverNearbyHat(boat)) return true;
         boolean sleep=children.stream().anyMatch(y->y.life().isSleeping());
         boolean separated=children.stream().anyMatch(y->horizontal(boat.position(),y.position())>WAIT_START);
         boolean missing=missingYoung.values().stream().anyMatch(ticks->ticks<=100);
@@ -567,29 +570,63 @@ public final class AquaticFamilyLife {
 
     /** After lifting a swimmer, collect its actual nearby hat before trying another launch. */
     private boolean recoverNearbyHat(HatBoatEntity home){
-        for(var child:loadedChildren()){
-            if(child.getVehicle()!=home||!home.protects(child)||child.family().flying()
+        for(var rider:home.getPassengers()){
+            if (!(rider instanceof YukkuriEntity child) || child == entity) continue;
+            if(child.getVehicle()!=home||!home.protects(child)||!home.young(child)||child.family().flying()
                     ||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent())continue;
             var abandoned=HatBoatEntity.owned(child);
-            if(abandoned==null||abandoned.unsteadyMotion()||abandoned.isVehicle()||abandoned.hasIncoming()
+            if(abandoned==null||abandoned.unsteadyMotion()&&!abandoned.selfRighting()||abandoned.isVehicle()||abandoned.hasIncoming()
                     ||!(abandoned.isAfloat()||abandoned.state()==HatBoatEntity.State.CAPSIZED||abandoned.state()==HatBoatEntity.State.BEACHED)
                     ||horizontal(home.position(),abandoned.position())>8)continue;
-            if(abandoned.retrieveAfloat(child,home)){
+            var custody = child.life().custody();
+            custody.requestReclaim("safe_aboard_captain");
+            if (!custody.claimReclaim(entity)) continue;
+            if (!abandoned.getUUID().equals(recoveringHat)) {
+                recoveringHat = abandoned.getUUID(); recoveryStarted = level().getGameTime(); reclaimContactTicks = 0;
+            }
+            if (level().getGameTime() - recoveryStarted > 320) {
+                custody.reclaimExpired("approach_or_contact_timeout");
+                missedHat = abandoned.getUUID(); missedHatUntil = level().getGameTime() + 240; recoveringHat = null;
+                continue;
+            }
+            SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), abandoned.position()));
+            if (home.changingSeat(entity)) { home.helm().hold(entity, Purpose.CARE); return true; }
+            var grip = abandoned.hazards().reclaimGripLocal(entity);
+            if (grip != null) {
+                home.helm().hold(entity, Purpose.CARE);
+                if (abandoned.state() == HatBoatEntity.State.CAPSIZED) {
+                    hold(home, Behaviors.WATER_HAT_RIGHT);
+                    if (!entity.life().spendEnergy(.025f)) { custody.reclaimExpired("righting_energy"); return false; }
+                    float requested = Math.min(1, abandoned.selfRightingProgress(1) + 1f / 120);
+                    if (abandoned.setSelfRighting(entity, requested, grip) && abandoned.selfRightingProgress(1) >= 1 - 1e-4)
+                        abandoned.finishSelfRighting(entity);
+                    return true;
+                }
+                hold(home, Behaviors.HAT_HOLD_AQ);
+                if (++reclaimContactTicks < 24) return true;
+            } else reclaimContactTicks = 0;
+            if(abandoned.state() != HatBoatEntity.State.CAPSIZED && (grip != null && HatBoatLaunch.retrieveForChild(abandoned,child,home,entity)
+                    || abandoned.retrieveAfloat(child,home))){
                 child.showReaction("happy","hat_recovered",40);recoveringHat=null;
                 hold(home,Behaviors.BOAT_RETURN_FAMILY);return true;
             }
             if(approachDriftingHat(child,home,abandoned))return true;
+            GameplayLog.limited(entity, "headwear", "reclaim.approach", 100,
+                    "reclaim waiting hat={} owner={} claimant={} reason=no_reachable_contact elapsed={}",
+                    abandoned.getUUID(), child.getUUID(), entity.getUUID(), level().getGameTime() - recoveryStarted);
+            // Keep this attempt's deadline even when path/seat planning refused. A refusal is never a fresh attempt.
+            hold(home, Behaviors.BOAT_WAIT_YOUNG); return true;
         }
         recoveringHat=null;
         return false;
     }
 
-    /** Move the occupied parent hat beside the real abandoned brim; only the child may reclaim it at contact. */
+    /** Move beside the original brim; its owner or the claimed captain must still make physical contact. */
     public boolean approachDriftingHat(YukkuriEntity child,HatBoatEntity home,HatBoatEntity abandoned){
         if(child==null||abandoned==null||child.aquaticLife().firstVoyage().active()&&!child.aquaticLife().firstVoyage().returningToParent()||
                 child.getVehicle()!=home||!home.protects(child)||!home.young(child)
                 ||!entity.getUUID().equals(home.ownerYukkuri())||entity.getVehicle()!=home
-                ||!home.protects(entity)||!entity.family().caresFor(child)||child.family().flying()
+                ||!home.protects(entity)||child.family().flying()
                 ||abandoned.isVehicle()||abandoned.hasIncoming()||abandoned.unsteadyMotion()
                 ||!(abandoned.isAfloat()||abandoned.state()==HatBoatEntity.State.CAPSIZED||abandoned.state()==HatBoatEntity.State.BEACHED)
                 ||entity.life().hasUrgentNeed()||entity.life().isSleeping()||entity.life().mealTicks()>0
@@ -601,11 +638,13 @@ public final class AquaticFamilyLife {
             recoveringHat=abandoned.getUUID();recoveryStarted=now;
             child.showReaction("teary","hat_drifting",40);
         }
-        if(horizontal(home.position(),abandoned.position())>8||now-recoveryStarted>160){
+        if(horizontal(home.position(),abandoned.position())>8||now-recoveryStarted>320){
             missedHat=abandoned.getUUID();missedHatUntil=now+240;recoveringHat=null;
+            child.life().custody().reclaimExpired("approach_timeout_or_distance");
             child.showReaction("teary","hat_out_of_reach",40);hold(home,Behaviors.BOAT_WAIT_YOUNG);return false;
         }
         home.approachBoardingEdge(child,abandoned.position());
+        if (abandoned.state() == HatBoatEntity.State.CAPSIZED) home.approachBoardingEdge(entity,abandoned.position());
         child.getLookControl().setLookAt(abandoned,30,30);
         if(abandoned.retrievalGrip(child)!=null){hold(home,Behaviors.BOAT_RETURN_FAMILY);return true;}
         var target=abandoned.retrievalApproach(home,child);

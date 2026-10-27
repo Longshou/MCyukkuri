@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import java.util.List;
@@ -113,6 +114,8 @@ public final class AquaticSelfRescue {
         if(!shoreRecoveryAvailable()){shoreRecoveryActivity=Behaviors.IDLE;return false;}
         var current=knownOwnHat();
         if(!shoreRecoverable(current)){shoreRecoveryActivity=Behaviors.IDLE;return false;}
+        actor.life().custody().requestReclaim("shore_recovery");
+        if (!actor.life().custody().claimReclaim(actor)) return false;
         if(!current.getUUID().equals(shoreHatId)){
             shoreHatId=current.getUUID();shoreBank=null;nextShoreRoute=0;
         }
@@ -174,6 +177,10 @@ public final class AquaticSelfRescue {
         if(actor.level().isClientSide)return;
         if(!enabled()){stop("actor_unavailable");return;}
         var current=hat();
+        if (ownsPhysicalHat(current) && actor.getVehicle() != current && !current.selfRescueHeld()) {
+            actor.life().custody().requestReclaim("owner_off_hull");
+            if (active() && !actor.isPassenger()) actor.life().custody().claimReclaim(actor);
+        }
         if(active()&&current!=null&&actor.getVehicle()==current&&current.protects(actor)){
             if(phase!=Phase.SAFE){
                 set(Phase.SAFE);current.releaseOwnBoardingSeat(actor);actor.showReaction("sad","self_rescue_safe",40);
@@ -256,7 +263,7 @@ public final class AquaticSelfRescue {
             removalProgress=elapsed/SelfRescueHatGeometry.REMOVE_TICKS;
             // Shaking the head loose: the body keeps its heading and stays afloat; water buoyancy/damage are never suspended.
             actor.yBodyRot=deployment.path().bodyYaw();actor.setYRot(actor.yBodyRot);actor.setYHeadRot(actor.yBodyRot);
-            var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.6,velocity.y,velocity.z*.6);
+            var velocity=actor.getDeltaMovement();YukkuriLocomotion.waterImpulse(actor, new Vec3(velocity.x*-.4,0,velocity.z*-.4));
             var next=SelfRescueHatGeometry.pose(actor,deployment.path(),elapsed);
             if(!SelfRescueHatGeometry.valid(actor,deployment.path(),next,carriedPose)){slip("carry_pose_blocked");return false;}
             pose(next);
@@ -320,7 +327,7 @@ public final class AquaticSelfRescue {
             if(roll<risk){slip("grip_roll",risk);return false;}
         }
         if(!actor.life().spendEnergy(.025f)){slip("grip_energy");return false;}
-        var velocity=actor.getDeltaMovement();actor.setDeltaMovement(velocity.x*.65,velocity.y,velocity.z*.65);
+        var velocity=actor.getDeltaMovement();YukkuriLocomotion.waterImpulse(actor, new Vec3(velocity.x*-.35,0,velocity.z*-.35));
         if(phase==Phase.GRIP){
             double wall=Math.max(.01*Math.min(1,actor.growthScale()*actor.getScale()),grip.y-current.getY())+BraidRescueGeometry.biteAllowance(actor);
             closeOnRim(grip,wall);
@@ -378,9 +385,7 @@ public final class AquaticSelfRescue {
         outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(rest);
         var gap=new Vec3(grip.x+outward.x-mouth.x,y-mouth.y,grip.z+outward.z-mouth.z);double length=gap.length();
         if(length<=.004)return;
-        var step=gap.scale(Math.min(1,.02/length));
-        if(level().getBlockCollisions(actor,actor.getBoundingBox().move(step)).iterator().hasNext())return;
-        var next=actor.position().add(step);actor.setPos(next.x,next.y,next.z);actor.hasImpulse=true;
+        YukkuriLocomotion.waterStep(actor, actor.position().add(gap), Math.min(.02, YukkuriLocomotion.limits(actor).swimSpeed()));
     }
     private static double smooth(double q){q=Math.clamp(q,0,1);return q*q*(3-2*q);}
     private boolean startClimb(HatBoatEntity current){
@@ -422,8 +427,7 @@ public final class AquaticSelfRescue {
         }
         var at=actor.position().add(direction.scale(.15));var water=BlockPos.containing(at.x,actor.getY(),at.z);
         if(!level().hasChunkAt(water)||!level().getWorldBorder().isWithinBounds(water))return;
-        var velocity=actor.getDeltaMovement();
-        if(velocity.horizontalDistanceSqr()<.08*.08){actor.setDeltaMovement(velocity.add(direction.scale(.010)));actor.hasImpulse=true;}
+        YukkuriLocomotion.swim(actor, actor.position().add(direction.scale(delta.horizontalDistance())), .08);
     }
     private void slip(String reason){slip(reason,Float.NaN);}
     private void slip(String reason,float probability){
@@ -442,7 +446,11 @@ public final class AquaticSelfRescue {
         if(active())GameplayLog.limited(actor,"aquatic","self.stop."+reason,200,
                 "self rescue stopped phase={} hat={} reason={}",phase,hatId,reason);
         var current=hat();boolean physical=ownsPhysicalHat(current);
-        if(physical){current.releaseSelfRescueCarry();if(!actor.family().crew().climbing())current.releaseOwnBoardingSeat(actor);}
+        if(physical){
+            current.releaseSelfRescueCarry();
+            if(!actor.family().crew().climbing())current.releaseOwnBoardingSeat(actor);
+            if (actor.getVehicle() != current) actor.life().custody().requestReclaim(reason);
+        }
         // A loaded mismatched hull is definitely stale; an unloaded one remains only a hint and is rechecked on use.
         if(current!=null&&!physical)hatId=null;
         phase=Phase.IDLE;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;deployment=null;removalProgress=0;

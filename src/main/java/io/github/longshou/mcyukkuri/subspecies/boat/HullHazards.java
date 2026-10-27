@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.GripRim;
@@ -15,10 +16,14 @@ import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewReach;
 import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +32,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
@@ -60,6 +66,10 @@ public final class HullHazards {
     private String cause = "unknown";
     /** The last rejected righting precondition, exposed only as a read-only diagnostic for the active swimmer. */
     private String selfRightingRefusal = "none";
+    private long rightedAt = -1;
+    private double rightedY;
+    private record Separation(Vec3 outward, long until) {}
+    private final Map<UUID, Separation> separating = new HashMap<>();
 
     public HullHazards(HatBoatEntity boat) { this.boat = boat; }
 
@@ -76,6 +86,11 @@ public final class HullHazards {
     // ================================================================= fire and sinking
     public boolean fireHit(DamageSource source, float amount) {
         if (!source.is(DamageTypeTags.IS_FIRE)) return false;
+        if ((boat.isAfloat() || boat.state() == State.CAPSIZED)
+                && boat.level().getFluidState(BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ())).is(FluidTags.WATER)) {
+            GameplayLog.limited(boat, "aquatic", "fire.quenched", 200, "hazard fire quenched state={} damage={} burned={}", boat.state(), amount, burned);
+            return true;
+        }
         burned = Math.min(BURN_DAMAGE, burned + amount);
         if (burned >= BURN_DAMAGE) destroy("burned");
         return true;
@@ -93,9 +108,8 @@ public final class HullHazards {
         boat.cargo().spillAt(boat.position());
         GameplayLog.event(boat, "aquatic", "hazard destroyed cause={} owner={} passengers={} flooding={} flooded={}", why, ownerId, boat.getPassengers().size(), flooding, flooded);
         for (var passenger : List.copyOf(boat.getPassengers())) {
-            var at = passenger.position();
-            passenger.stopRiding();
-            passenger.setPos(at);
+            if (passenger instanceof YukkuriEntity body) YukkuriLocomotion.detach(body);
+            else passenger.stopRiding();
             if (passenger instanceof YukkuriEntity y && y.isInWaterOrBubble()) y.waterDistress().plunge(boat.getUUID(), null, WaterIncidents.Cause.HULL_LOST);
         }
         if (ownerId != null && token != null) {
@@ -112,6 +126,8 @@ public final class HullHazards {
     /** Once per tick, first thing: waterlogging of a capsized hat, then (each second) the load's roll and the squeeze-out watch. */
     public void tick() {
         if (boat.isRemoved() || boat.state() == State.RESCUED || boat.state() == State.REMOVED) return;
+        separateSwimmers();
+        observeRise();
         var waterline = BlockPos.containing(boat.getX(), boat.getY() - .12, boat.getZ());
         if (boat.state() == State.CAPSIZED && boat.level().getFluidState(waterline).is(FluidTags.WATER)) flooded = Math.min(FLOOD_TICKS, flooded + 1);
         else flooded = 0;
@@ -214,6 +230,7 @@ public final class HullHazards {
         if (custody.state() == HatCustody.State.DEPLOYED && !phase.launching() && !phase.landing()
                 && (boat.state() == State.AFLOAT || boat.state() == State.CAPSIZED || boat.state() == State.BEACHED))
             custody.adrift(boat.getUUID(), "owner_off_hull");
+        if (custody.adrift()) custody.requestReclaim("observed_adrift");
     }
 
     /**
@@ -337,12 +354,12 @@ public final class HullHazards {
     public boolean setSelfRighting(YukkuriEntity actor, float progress, Vec3 localGrip) {
         selfRightingRefusal = "none";
         if (boat.level().isClientSide) return refuseSelfRighting(actor, "client", progress, 0, Vec3.ZERO);
-        if (!ownsPhysicalHat(actor)) return refuseSelfRighting(actor, "physical_hat_lost", progress, 0, Vec3.ZERO);
+        if (!ownsPhysicalHat(actor) && !mayReclaim(actor)) return refuseSelfRighting(actor, "physical_hat_lost", progress, 0, Vec3.ZERO);
         if (boat.state() != State.CAPSIZED) return refuseSelfRighting(actor, "not_capsized", progress, 0, Vec3.ZERO);
         if (!capsizeReleased) return refuseSelfRighting(actor, "release_pending", progress, 0, Vec3.ZERO);
         if (boat.isVehicle()) return refuseSelfRighting(actor, "passengers_aboard", progress, 0, Vec3.ZERO);
         if (boat.hasIncoming()) return refuseSelfRighting(actor, "boarding_in_progress", progress, 0, Vec3.ZERO);
-        if (selfRescueGrip(actor, localGrip) == null) return refuseSelfRighting(actor, "grip_lost", progress, 0, Vec3.ZERO);
+        if (!rightingGrip(actor, localGrip)) return refuseSelfRighting(actor, "grip_lost", progress, 0, Vec3.ZERO);
         var m = boat.motionData().copy();
         float previous = m.getFloat("RightProgress");
         float requested = Math.clamp(progress, 0, 1);
@@ -395,6 +412,8 @@ public final class HullHazards {
             return new RightingCandidate(false, "movement_cap", centre, movement);
         if (!boat.level().noCollision(boat, boat.getBoundingBox().move(movement)))
             return new RightingCandidate(false, "collision", centre, movement);
+        if (!boat.level().noCollision(boat, boat.getBoundingBox().expandTowards(movement)))
+            return new RightingCandidate(false, "swept_collision", centre, movement);
         // Rotation raises or submerges the entity centre around the wet grip. The water layer belongs to the initial
         // contact, not that moving centre; check the future floating footprint without moving the hull to it.
         var water = BlockPos.containing(centre.x, motion.getInt("RightWaterY"), centre.z);
@@ -408,13 +427,17 @@ public final class HullHazards {
     }
 
     private boolean applySelfRighting(CompoundTag motion, float previous, float reached, Vec3 centre) {
+        boat.move(MoverType.SELF, centre.subtract(boat.position()));
+        if (boat.position().distanceToSqr(centre) > 1e-8) {
+            selfRightingRefusal = "swept_collision";
+            return false;
+        }
         motion.putFloat("RightPrevious", previous);
         motion.putFloat("RightProgress", reached);
         motion.putLong("RightTouched", boat.level().getGameTime());
         boat.syncMotion(motion);
         // Rotating around the actually held rim translates the same boat centre.  The client gets this exact synced
         // progress and centre, so the visual grip and the server's collision-constrained grip remain one transform.
-        boat.setPos(centre);
         boat.setDeltaMovement(Vec3.ZERO);
         boat.helm().stop("capsize_reset");
         return true;
@@ -432,11 +455,11 @@ public final class HullHazards {
     public boolean finishSelfRighting(YukkuriEntity actor) {
         selfRightingRefusal = "none";
         if (boat.level().isClientSide) return refuseSelfRighting(actor, "client", 1, 0, Vec3.ZERO);
-        if (!ownsPhysicalHat(actor)) return refuseSelfRighting(actor, "physical_hat_lost", 1, 0, Vec3.ZERO);
+        if (!ownsPhysicalHat(actor) && !mayReclaim(actor)) return refuseSelfRighting(actor, "physical_hat_lost", 1, 0, Vec3.ZERO);
         if (!boat.selfRighting()) return refuseSelfRighting(actor, "righting_not_active", 1, 0, Vec3.ZERO);
         float progress = boat.motionData().getFloat("RightProgress");
         if (progress < 1 - RIGHT_PROGRESS_EPSILON) return refuseSelfRighting(actor, "progress_incomplete", 1, progress, Vec3.ZERO);
-        if (selfRescueGrip(actor, HatBoatEntity.point(boat.motionData(), "RightGrip")) == null)
+        if (!rightingGrip(actor, HatBoatEntity.point(boat.motionData(), "RightGrip")))
             return refuseSelfRighting(actor, "grip_lost", 1, progress, Vec3.ZERO);
         var motion = boat.motionData();
         var finalPose = rightingCandidate(actor, motion, HatBoatEntity.point(motion, "RightAnchor"), HatBoatEntity.point(motion, "RightGrip"), 1);
@@ -447,8 +470,48 @@ public final class HullHazards {
         boat.syncMotion(new CompoundTag());
         capsizeReleased = true;
         boat.helm().stop("righted");
+        rightedAt = boat.level().getGameTime(); rightedY = boat.getY();
         GameplayLog.event(boat, "aquatic", "hazard righted actor={} state=AFLOAT flooding=0 cause={}", actor.getUUID(), cause);
         return true;
+    }
+
+    private boolean mayReclaim(YukkuriEntity actor) {
+        var owner = boat.owner();
+        return actor != null && actor.isAlive() && owner != null && owner.isAlive()
+                && owner.life().custody().reclaimAssigned(actor.getUUID()) && boat.ownsPhysicalHat(owner)
+                && actor.getVehicle() instanceof HatBoatEntity home && home != boat && home.protects(actor)
+                && home.protects(owner) && home.young(owner) && actor.getUUID().equals(home.ownerYukkuri())
+                && !actor.family().crew().busy() && !actor.operations().active() && !actor.life().isSleeping()
+                && CrewReach.hasBraid(actor) && CrewReach.canLift(actor, owner);
+    }
+    private boolean rightingGrip(YukkuriEntity actor, Vec3 local) {
+        if (ownsPhysicalHat(actor)) return selfRescueGrip(actor, local) != null;
+        if (!mayReclaim(actor) || local == null || GripRim.points(boat.mode()).stream().noneMatch(p -> p.distanceToSqr(local) < 1e-8)) return false;
+        var root = CrewReach.root(actor);
+        var point = rimPoint(local);
+        return CrewReach.braidReaches(actor, root, point) && boat.level().clip(new ClipContext(root, point,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor)).getType() == HitResult.Type.MISS;
+    }
+    /** A claimed, empty child's hat is handled by the same bounded rim-pivot solver as self rescue. */
+    public Vec3 reclaimGripLocal(YukkuriEntity actor) {
+        if (!mayReclaim(actor) || boat.isVehicle() || boat.hasIncoming() || boat.capsizing() || boat.selfRescueHeld()) return null;
+        var motion = boat.motionData();
+        if (boat.selfRighting() && motion.contains("RightGripX")) {
+            var held = HatBoatEntity.point(motion, "RightGrip");
+            return rightingGrip(actor, held) ? held : null;
+        }
+        return GripRim.points(boat.mode()).stream().filter(local -> rightingGrip(actor, local))
+                .filter(local -> boat.state() != State.CAPSIZED || reclaimRightingSpace(actor, local))
+                .min(Comparator.comparingDouble(local -> CrewReach.root(actor).distanceToSqr(rimPoint(local)))).orElse(null);
+    }
+    private boolean reclaimRightingSpace(YukkuriEntity actor, Vec3 local) {
+        // A nearest-rim pivot may rotate the little hat into the parent's hull. Choose a reachable pivot whose final
+        // floating footprint is free; every intermediate step is still checked by the common righting solver.
+        Vec3 centre = rimPoint(local).subtract(boat.selfRightingOffset(local, 1)).add(0, boat.rimLift(local), 0);
+        var water = BlockPos.containing(centre.x, boat.getY() - .12 + boat.sinkBlocks(), centre.z);
+        if (!HatBoatRoute.calmSurface(boat.level(), water)) return false;
+        var afloat = new Vec3(centre.x, HatBoatRoute.surface(boat.level(), water).y - boat.sinkBlocks(), centre.z);
+        return HullFootprint.fits((ServerLevel) boat.level(), actor, boat, afloat, boat.getYRot(), boat.hullScale(), 0).ok();
     }
 
     public void tickSelfRighting() {
@@ -618,14 +681,18 @@ public final class HullHazards {
         var incidentCause = "shaken".equals(this.cause) ? WaterIncidents.Cause.SHAKEN : WaterIncidents.Cause.CAPSIZE;
         for (int i = 0; i < passengers.size(); i++) {
             var p = passengers.get(i);
-            // This is the rider's real transformed seat at the moment the hat turns over.  Do not place it at an
-            // invented farther water point; the finite outward impulse and later swimmer movement clear the rim.
+            // Leave the actual rider position through swept, speed-limited motion; never teleport beyond the hat.
             var at = positions.get(i);
             var outward = ejections.get(i);
-            p.stopRiding();
-            p.setPos(at.x, at.y, at.z);
-            p.setDeltaMovement(boat.getDeltaMovement().add(outward.scale(.055 + i * .009)).add(downhill.scale(.025))
-                    .add(along.scale((i - (passengers.size() - 1) * .5) * .018)).add(0, .025 - i * .006, 0));
+            if (p instanceof YukkuriEntity body) YukkuriLocomotion.detach(body);
+            else p.stopRiding();
+            var impulse = boat.getDeltaMovement().add(outward.scale(.055 + i * .009)).add(downhill.scale(.025))
+                    .add(along.scale((i - (passengers.size() - 1) * .5) * .018)).add(0, .025 - i * .006, 0);
+            if (p instanceof YukkuriEntity body) {
+                YukkuriLocomotion.waterStep(body, at, YukkuriLocomotion.limits(body).maxHorizSpeed());
+                YukkuriLocomotion.waterImpulse(body, impulse.subtract(body.getDeltaMovement()));
+                separating.put(body.getUUID(), new Separation(outward, boat.level().getGameTime() + 80));
+            } else p.setDeltaMovement(impulse);
             p.hasImpulse = true;
             GameplayLog.limited(boat, "aquatic", "capsize.release." + p.getId(), 200,
                     "capsize release rider={} local={} at={} outward={} cause={}", p.getUUID(), GameplayLog.at(boat.toLocal(at)),
@@ -670,6 +737,32 @@ public final class HullHazards {
         var outward = tiltedWorld(local.add(radial.normalize())).subtract(at).multiply(1, 0, 1);
         if (outward.horizontalDistanceSqr() < 1e-8) outward = radial.yRot(boat.turn()).multiply(1, 0, 1);
         return outward.normalize();
+    }
+
+    /** A finite separation response while the body still overlaps the overturned cloth hull. */
+    private void separateSwimmers() {
+        if (!(boat.level() instanceof ServerLevel server) || separating.isEmpty()) return;
+        long now = server.getGameTime();
+        separating.entrySet().removeIf(entry -> {
+            if (!(server.getEntity(entry.getKey()) instanceof YukkuriEntity body) || !body.isAlive() || body.isPassenger()
+                    || body.family().crew().busy() || now >= entry.getValue().until() || boat.state() != State.CAPSIZED
+                    || !body.getBoundingBox().intersects(boat.getBoundingBox().inflate(.02))) return true;
+            Vec3 toward = body.position().add(entry.getValue().outward());
+            YukkuriLocomotion.waterStep(body, toward, Math.min(.045, YukkuriLocomotion.limits(body).swimSpeed()));
+            return false;
+        });
+    }
+
+    private void observeRise() {
+        if (rightedAt < 0 || boat.level().isClientSide) return;
+        long elapsed = boat.level().getGameTime() - rightedAt;
+        var water = BlockPos.containing(boat.position().add(0, -.12 + boat.sinkBlocks(), 0));
+        double target = HatBoatRoute.surface(boat.level(), water).y - boat.sinkBlocks();
+        if (!boat.isAfloat() || Math.abs(boat.getY() - target) <= .04 || elapsed >= 200) {
+            GameplayLog.event(boat, "aquatic", "righting rise observed ticks={} startY={} currentY={} surfaceY={} settled={} state={}",
+                    elapsed, rightedY, boat.getY(), target, boat.isAfloat() && Math.abs(boat.getY() - target) <= .04, boat.state());
+            rightedAt = -1;
+        }
     }
 
     // ================================================================= persistence

@@ -44,13 +44,12 @@ import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 
 /**
- * The aquatic captain's side of her life: provisions and paddle, the shore-side goals and the two goal wrappers around the rest.
+ * The aquatic captain's side of her life: provisions and paddle, shore duties and a single afloat goal.
  * The lifecycle is {@link VoyageController}'s stored phase machine; what a rider does while afloat is the {@link AfloatAgenda}.
  * This class is the surface the other domains know (shore requests, food, paddle) and the hat-care errand ashore.
  *
- * <p>The priority-3 goal runs the transactional phases, the shore-side responses and the urgent afloat activities (incidents,
- * threats, labor); the priority-8 goal runs the rest of the agenda while the captain is AFLOAT, or a passenger rides. Neither goal
- * tears the other's work down: an activity that stops being ticked simply lapses.
+ * <p>The priority-3 goal owns both urgent and routine afloat activities. The agenda chooses the activity internally;
+ * short emergency interruptions retain its presentation until the activity is resumed or explicitly halted.
  */
 public final class AquaticLife extends Goal implements EcologyRoutine {
     private final YukkuriEntity entity;
@@ -77,9 +76,6 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private ItemEntity provisionSource;
     private String activity = Behaviors.IDLE;
     private long activityTick = Long.MIN_VALUE;
-    /** An urgent activity that wants the turn but never takes it must not hold the priority-3 goal against the routine one. */
-    private long urgentBlockedUntil;
-    private int urgentMisses;
     // Observations only: neither persisted nor consulted by gameplay decisions.
     private String launchCheck = "not_evaluated";
     private long launchCheckTick = -1;
@@ -96,7 +92,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
     /** What the presentation reads: the behaviour shown in the last few ticks, IDLE when none of her goals has run lately. */
-    public String activity() { return level().getGameTime() - activityTick > 2 ? Behaviors.IDLE : activity; }
+    public String activity() { return level().getGameTime() - activityTick > AfloatAgenda.LAPSE_TICKS ? Behaviors.IDLE : activity; }
     public boolean active() { return !activity().equals(Behaviors.IDLE); }
     private void show(String behavior) { activity = behavior; activityTick = level().getGameTime(); }
     public VoyageController voyage() { return voyage; }
@@ -383,11 +379,15 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     private boolean routineAfloat() {
         return available() && entity.getVehicle() instanceof HatBoatEntity boat && boat.protects(entity);
     }
+    /** Only the aquatic agenda may start ordinary movement/look duties on a protective physical hull. */
+    public static boolean afloatOwnsRider(YukkuriEntity rider) {
+        return rider.getVehicle() instanceof HatBoatEntity boat && boat.protects(rider);
+    }
     private HatBoatEntity ridden() { return entity.getVehicle() instanceof HatBoatEntity boat ? boat : null; }
     private boolean ownsRidden(HatBoatEntity boat) { return entity.getUUID().equals(boat.ownerYukkuri()); }
     /** An urgent thing is under way or wanted aboard (an incident, a threat, labor): the priority-3 goal takes the agenda. */
     private boolean urgentAboard() {
-        if (!routineAfloat() || level().getGameTime() < urgentBlockedUntil) return false;
+        if (!routineAfloat()) return false;
         var boat = ridden();
         boolean owner = ownsRidden(boat);
         if (owner && voyage.phase() != VoyagePhase.AFLOAT) return false;
@@ -397,32 +397,15 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (!routineAfloat() || firstVoyage.active()) return false;
         var boat = ridden();
         if (ownsRidden(boat) && voyage.phase() != VoyagePhase.AFLOAT) return false;
-        return !urgentAboard();
+        return true;
     }
-    /** The routine afloat goal (priority 8): the rest of the agenda, a separate selector identity over the same agenda. */
-    public Goal routineGoal() {
-        return new Goal() {
-            { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP)); }
-            @Override public boolean canUse() { return routineWanted(); }
-            @Override public boolean canContinueToUse() { return routineWanted(); }
-            @Override public boolean requiresUpdateEveryTick() { return true; }
-            @Override public void tick() { runAgenda(Double.MAX_VALUE); }
-        };
-    }
-    private void runAgenda(double cap) {
+    private void runAgenda() {
         var boat = ridden();
         if (boat == null) return;
         boolean owner = ownsRidden(boat);
         entity.getNavigation().stop();
         if (owner && !boat.isAfloat() && !boat.unsteadyMotion()) { show(Behaviors.IDLE); return; }
-        boolean took = agenda.tick(boat, owner, cap);
-        if (cap < Double.MAX_VALUE) {
-            if (took) urgentMisses = 0;
-            else if (++urgentMisses >= 20) {
-                urgentMisses = 0; urgentBlockedUntil = level().getGameTime() + 100;
-                GameplayLog.limited(entity, "aquatic", "urgent.idle", 400, "urgent activity wanted the turn but never took it; routine goal resumes");
-            }
-        }
+        boolean took = agenda.tick(boat, owner, Double.MAX_VALUE);
         String shown = agenda.shown(level().getGameTime());
         show(took ? (shown.equals(Behaviors.IDLE) ? Behaviors.BOAT_DRIFT : shown) : owner ? Behaviors.BOAT_DRIFT : Behaviors.IDLE);
     }
@@ -435,6 +418,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (urgentAboard()) return true;
         if (!available()) return refuseLaunch("unavailable");
         if (firstVoyage.tryStart()) return true;
+        if (routineWanted()) return true;
         if (entity.isPassenger()) return false;
         if (canTendHat()) { hatCareTicks = 0; return true; }
         if (!EcologyRoutines.aquaticVoyage(entity)) return false;
@@ -488,6 +472,7 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
         if (familyLife.alarm().shoreResponse()) return true;
         if (firstVoyage.active() && eventAvailable()) return true;
         if (urgentAboard()) return true;
+        if (routineWanted()) return true;
         if (canTendHat()) return hatCareTicks < 48;
         return false;
     }
@@ -496,12 +481,13 @@ public final class AquaticLife extends Goal implements EcologyRoutine {
     @Override public void tick() {
         if (voyage.phase().transactional()) { show(voyage.tick()); return; }
         if (familyLife.alarm().shoreResponse() && familyLife.alarm().tickResponse()) { show(familyLife.alarmActivity()); return; }
-        if (urgentAboard()) { runAgenda(AfloatAgenda.URGENT); return; }
+        if (urgentAboard()) { runAgenda(); return; }
         if (firstVoyage.active() || firstVoyage.tryStart()) {
             firstVoyage.tick();
             show(familyLife.alarm().responding() ? familyLife.alarmActivity() : firstVoyage.activity());
             return;
         }
+        if (routineWanted()) { runAgenda(); return; }
         if (canTendHat()) {
             show(Behaviors.AQUATIC_HAT_CARE); entity.getNavigation().stop();
             if (++hatCareTicks >= 48) { entity.life().applyEnvironment(-8,0,0); hatCareDue = false; }

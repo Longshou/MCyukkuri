@@ -27,6 +27,8 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.HashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -41,6 +43,7 @@ import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 /** A bounded, interruptible hunt. Movement uses the engine's flying paths and block collision. */
 public final class PredatorLife implements EcologyRoutine {
@@ -68,6 +71,9 @@ public final class PredatorLife implements EcologyRoutine {
     private ItemEntity food;
     private RemainsEntity corpse;
     private Vec3 destination;
+    private BlockPos lastDryStand;
+    private long nextLandingSearch;
+    private int landingSearchRadius = 8;
     private int ticks, cooldown, biteTicks, patrolWait = 160, nestWait, reactWait, restrainWait;
     /** Combat (true) is a continuous defensive fight that never feeds or depends on hunger; predation (false) is bite, then eat. */
     private boolean retaliation;
@@ -164,7 +170,7 @@ public final class PredatorLife implements EcologyRoutine {
         return readyExceptMeal() && animal.life().mealTicks() == 0;
     }
     /** An eat pause (or the landing that leads into it) is the very meal, so a mouthful does not end it. */
-    private boolean runnable() { return task == Task.EAT || task == Task.LAND && pendingRest > 0 ? readyExceptMeal() : ready(); }
+    private boolean runnable() { return task == Task.EAT || task == Task.LAND ? readyExceptMeal() : ready(); }
     private boolean readyExceptMeal() {
         return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
@@ -187,7 +193,7 @@ public final class PredatorLife implements EcologyRoutine {
         // Repeated hits from the same attacker acknowledge the existing defence without restarting its phase or deadline.
         if (retaliation && prey == attacker && retaliationReady()) return true;
         if (!retaliationReady() || !visibleHuntable(attacker, true)
-                || !waterbornePrey(attacker) && !canFlyTo(attacker.blockPosition())) {
+                || !waterbornePrey(attacker) && !canFlyTo(attacker.blockPosition()) || !safeHuntDestination(attacker)) {
             GameplayLog.limited(animal,"predator","retaliation_refused",200,
                     "retaliation refused; attacker={} health={}/{} energy={} order={} ready={}",
                     attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady());
@@ -225,7 +231,16 @@ public final class PredatorLife implements EcologyRoutine {
         if (!active() && cooldown > 0) return "cooldown";
         return "none";
     }
-    public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true); }
+    public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true) && safeHuntDestination(target); }
+    private boolean safeHuntDestination(YukkuriEntity target) {
+        if (target == null) return false;
+        if (!waterbornePrey(target) && !target.isInWaterOrBubble()) return true;
+        BlockPos escape = findDryLanding(target.blockPosition(), 24);
+        if (escape != null) return true;
+        GameplayLog.limited(animal, "predator", "water_prey_no_landing", 200,
+                "water prey refused target={} reason=no_reachable_dry_landing", target.getUUID());
+        return false;
+    }
     /** The yukkuri this predator is currently chasing or diving at, or null. */
     public YukkuriEntity prey() { return task == Task.CHASE || task == Task.DIVE ? prey : null; }
     public boolean pursuing(YukkuriEntity target) {
@@ -296,7 +311,17 @@ public final class PredatorLife implements EcologyRoutine {
         if (reactWait > 0) reactWait--;
         if (restrainWait > 0) restrainWait--;
         if (active() && !runnable()) stop();
-        if (animal.predatorFlying() && !active()) animal.setPredatorFlying(false);
+        if (dryLanded()) lastDryStand = animal.blockPosition();
+        if (animal.predatorFlying() && !active()) {
+            if (dryLanded() || !canSustainFlight()) animal.setPredatorFlying(false);
+            else land();
+        }
+        if (animal.predatorFlying() && !canSustainFlight()) {
+            GameplayLog.limited(animal, "predator", "flight_incapable", 200,
+                    "flight lost reason=body_or_energy energy={} health={}", animal.life().energy(), animal.getHealth());
+            animal.setPredatorFlying(false);
+            stop();
+        }
         if (animal.isNoAi()) { cancelNestSearch(); return; }
         if (naturalSpawn && nestWait == 0) {
             var result = findNest(true);
@@ -331,8 +356,8 @@ public final class PredatorLife implements EcologyRoutine {
         return result;
     }
     private boolean canUse() {
+        if (active()) return runnable();
         if (!ready()) return false;
-        if (active()) return true;
         var home = animal.life().homeStand();
         if (home != null && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
@@ -436,18 +461,61 @@ public final class PredatorLife implements EcologyRoutine {
     private void land() {
         if(task!=Task.LAND)GameplayLog.event(animal,"predator","landing started; previous_task={} prey={} elapsed={} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.life().energy());
+        if (task != Task.LAND) { nextLandingSearch = 0; landingSearchRadius = 8; }
         prey = null; food = null; corpse = null; mode(false, "landing"); task = Task.LAND;
-        destination = null;
-        for (int y = 0; y <= 8 && destination == null; y++) {
-            var base = animal.blockPosition().below(y);
-            for (var pos : BlockPos.betweenClosed(base.offset(-2,0,-2), base.offset(2,0,2)))
-                if (animal.life().dryStand(pos)) { destination = Vec3.atBottomCenterOf(pos); break; }
+        if (level().getGameTime() < nextLandingSearch) return;
+        nextLandingSearch = level().getGameTime() + 40;
+        int searchedRadius = landingSearchRadius;
+        BlockPos stand = findDryLanding(animal.blockPosition(), searchedRadius);
+        landingSearchRadius = Math.min(32, landingSearchRadius * 2);
+        destination = stand == null ? null : Vec3.atBottomCenterOf(stand);
+        if (destination == null) GameplayLog.limited(animal, "predator", "landing.search", 200,
+                "landing searching reason=no_dry_stand radius={} energy={} flying={}", searchedRadius, animal.life().energy(), animal.predatorFlying());
+        else GameplayLog.limited(animal, "predator", "landing.route", 100,
+                "landing route selected stand={} energy={} flying={}", stand, animal.life().energy(), animal.predatorFlying());
+    }
+    private boolean dryLanded() { return animal.onGround() && !animal.isInWaterOrBubble() && animal.life().dryStand(animal.blockPosition()); }
+    private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0 && !animal.isPassenger(); }
+    /** Loaded dry surfaces only, closest first; bounded path probes retain real collision and reachability. */
+    private BlockPos findDryLanding(BlockPos center, int radius) {
+        var candidates = new HashSet<BlockPos>();
+        if (lastDryStand != null && level().hasChunkAt(lastDryStand) && animal.life().dryStand(lastDryStand)) candidates.add(lastDryStand);
+        var home = animal.life().homeStand();
+        if (home != null && level().hasChunkAt(home) && animal.life().dryStand(home)) candidates.add(home);
+        for (int down = 0; down <= 8; down++)
+            for (var p : BlockPos.betweenClosed(center.offset(-2,-down,-2), center.offset(2,-down,2)))
+                if (level().hasChunkAt(p) && animal.life().dryStand(p)) candidates.add(p.immutable());
+        for (int ring = 1; ring <= radius; ring++) {
+            int stride = Math.max(1, ring / 8);
+            for (int side = -ring; side <= ring; side += stride) {
+                for (var p : new BlockPos[]{center.offset(side,0,-ring), center.offset(side,0,ring),
+                        center.offset(-ring,0,side), center.offset(ring,0,side)}) {
+                    if (!level().hasChunkAt(p) || !level().getWorldBorder().isWithinBounds(p)) continue;
+                    var surface = new BlockPos(p.getX(), level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getX(), p.getZ()), p.getZ());
+                    if (Math.abs(surface.getY() - animal.getY()) <= 16 && animal.life().dryStand(surface)) candidates.add(surface);
+                }
+            }
         }
-        if (destination == null) { GameplayLog.event(animal,"predator","landing failed; reason=no_dry_stand");stop(); }
+        var ordered = new ArrayList<>(candidates);
+        ordered.sort(Comparator.comparingDouble(p -> p.distSqr(center) + animal.distanceToSqr(Vec3.atBottomCenterOf(p)) * .1));
+        for (int i = 0; i < Math.min(8, ordered.size()); i++) if (canFlyTo(ordered.get(i))) return ordered.get(i);
+        return null;
+    }
+    private void searchWhileFlying() {
+        land();
+        if (destination != null || !animal.predatorFlying()) return;
+        // Continue searching a loaded, unobstructed sector while spending ordinary flight energy. No indefinite free hover.
+        double yaw = Math.toRadians(animal.getYRot() + (ticks / 80 % 4) * 90);
+        Vec3 next = lastDryStand != null ? Vec3.atBottomCenterOf(lastDryStand).add(0, 1, 0)
+                : animal.position().add(-Math.sin(yaw) * 4, .25, Math.cos(yaw) * 4);
+        next = flightPathGoal(next);
+        if (level().hasChunkAt(BlockPos.containing(next)) && level().clip(new ClipContext(animal.getEyePosition(), next.add(0,.2,0),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS)
+            animal.getMoveControl().setWantedPosition(next.x, next.y, next.z, .65);
     }
     private void tickGoal() {
         ticks++;
-        if (!runnable() || ticks > 800) {
+        if (!runnable() || ticks > 800 && task != Task.LAND) {
             GameplayLog.event(animal,"predator","activity cancelled; reason={} elapsed={}",ticks>800?"timeout":"not_ready",ticks);
             stop(); return;
         }
@@ -508,12 +576,16 @@ public final class PredatorLife implements EcologyRoutine {
                 stop();
             }
         } else {
+            if (task == Task.LAND && (destination == null || !animal.life().dryStand(BlockPos.containing(destination)))) {
+                searchWhileFlying(); return;
+            }
             if (destination == null) { stop(); return; }
             Task current = task;
             Vec3 goal = destination;
-            fly(goal, .85);
+            fly(task == Task.LAND ? goal.add(0,-.08,0) : goal, .85);
             if (task != current || destination != goal) return;
             if (animal.position().distanceToSqr(goal) < .36) {
+                if (task == Task.LAND && !dryLanded()) return;
                 if (task == Task.PATROL) land();
                 else if (task == Task.LAND && pendingRest > 0) beginRest(pendingRest, restReason);
                 else { stop(); if (order() == Order.RETURN) order = Order.PEACEFUL; }
@@ -663,6 +735,11 @@ public final class PredatorLife implements EcologyRoutine {
         task=next;
     }
     public void stop() {
+        if (animal.predatorFlying() && !dryLanded() && canSustainFlight()) {
+            cancelNestSearch();
+            if (task != Task.LAND) { pendingRest = 0; restTicks = 0; eatRemains = null; land(); }
+            return;
+        }
         if(task!=Task.NONE)GameplayLog.event(animal,"predator","activity stopped; task={} prey={} elapsed={} health={}/{} energy={}",
                 task,prey==null?"none":prey.getUUID(),ticks,animal.getHealth(),animal.getMaxHealth(),animal.life().energy());
         cancelNestSearch();

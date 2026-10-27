@@ -120,6 +120,11 @@ public final class PresentationGoals {
         bindings.put(goal, new Binding(source, () -> source.activity().apply(owner, goal)));
         return goal;
     }
+    /** A territory gate is the actual selector identity; its delegate retains the original typed source and activity. */
+    public <G extends Goal> Goal bind(Source<? super G> source, Goal selectorGoal, G delegate) {
+        bindings.put(selectorGoal, new Binding(source, () -> source.activity().apply(owner, delegate)));
+        return selectorGoal;
+    }
 
     /** One selector pass per ordinary arbitration. Sorting never invokes activity or eligibility. */
     public Running running(Iterable<WrappedGoal> available) {

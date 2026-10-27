@@ -33,8 +33,18 @@ final class HatBoatLaunch {
         if (boat.level().isClientSide || boat.capsizing() || !(boat.isAfloat() || boat.state()==State.CAPSIZED || boat.state()==State.BEACHED)
                 || boat.isVehicle() || boat.hasIncoming() || !child.getUUID().equals(boat.ownerYukkuri())
                 || !home.protects(child) || !home.young(child)
-                || retrievalGrip(boat, child)==null && !(reachFallback && boat.ownsPhysicalHat(child) && boat.distanceToSqr(child)<=25)
-                || !child.life().returnAccessory(boat.ownerYukkuri(),boat.launchToken(),null)) return false;
+                || retrievalGrip(boat, child)==null) return false;
+        return retireAfloat(boat, child);
+    }
+    /** A captain's accepted braid contact returns the same physical hat to its owner, never a remote replacement. */
+    static boolean retrieveForChild(HatBoatEntity boat, YukkuriEntity child, HatBoatEntity home, YukkuriEntity captain) {
+        if (boat.level().isClientSide || !(boat.isAfloat() || boat.state() == State.BEACHED) || boat.isVehicle() || boat.hasIncoming()
+                || captain.getVehicle() != home || child.getVehicle() != home || !home.protects(child)
+                || !home.young(child) || !boat.ownsPhysicalHat(child) || boat.hazards().reclaimGripLocal(captain) == null) return false;
+        return retireAfloat(boat, child);
+    }
+    private static boolean retireAfloat(HatBoatEntity boat, YukkuriEntity child) {
+        if (!child.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
         child.aquaticLife().firstVoyage().retainHat(boat.launchToken(),boat.cargo().save());
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());boat.launchToken(null);
         boat.state(State.RESCUED); boat.helm().stop("retired"); return true;

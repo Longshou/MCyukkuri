@@ -82,6 +82,8 @@ public final class HullHelm {
     private int syncedKind = -1, syncedState = -1;
     private double bestGap;
     private long lastProgress;
+    private long hullBackoffUntil;
+    private int hullBackoffCount;
 
     private static final class Active {
         final HelmLease lease; final HelmOrder order; final Kind kind; final long began; long expires; Status status;
@@ -274,21 +276,33 @@ public final class HullHelm {
     }
 
     private Vec3 arrived(Vec3 motion) {
+        hullBackoffCount = 0;
         end(active.lease, "arrived", Status.ARRIVED, false);
         return motion;
     }
     private Vec3 blocked(String reason, Vec3 motion) {
+        var lease = active.lease;
         end(active.lease, reason, Status.blocked(reason), true);
+        if ("hull_boat".equals(reason)) {
+            int delay = Math.min(400, 40 << hullBackoffCount);
+            hullBackoffCount = Math.min(3, hullBackoffCount + 1);
+            hullBackoffUntil = now() + delay;
+            accept(lease, new HelmOrder.Hold(), Kind.HOLD, delay, now(), Status.blocked("hull_boat_backoff"));
+            return new Vec3(motion.x * .2, motion.y, motion.z * .2);
+        }
         return motion;
     }
 
     private static void follow(YukkuriEntity captain, float yaw) {
+        if (captain.family().crew().busy() || captain.family().laboring()) return;
         captain.setYRot(yaw); captain.yBodyRot = yaw; captain.setYHeadRot(yaw);
     }
 
     // ---------------------------------------------------------------- accepting orders
 
     private Status travel(HelmLease lease, HelmOrder order, Kind kind, List<Vec3> path, double tolerance, long now) {
+        if (now < hullBackoffUntil && lease.purpose == Purpose.ROUTINE)
+            return accept(lease, new HelmOrder.Hold(), Kind.HOLD, (int) (hullBackoffUntil - now), now, Status.blocked("hull_boat_backoff"));
         String why = !boat.isAfloat() ? "not_afloat" : boat.unsteadyMotion() ? "unsteady" : kind == Kind.ROUTE && !boat.cargo().paddle() ? "no_paddle"
                 : path.isEmpty() ? "empty_route" : null;
         if (why != null) {
