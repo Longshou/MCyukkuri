@@ -11,9 +11,14 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.function.Predicate;
+import java.util.function.Function;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -29,19 +34,29 @@ import net.minecraft.util.Mth;
 public final class SelfRescueHatGeometry {
     /** Shaking loose, sliding off over the face while turning over, then settling on the water. */
     public static final int SHAKE=12, TURN=14, LOWER=10, REMOVE_TICKS=SHAKE+TURN+LOWER;
-    private record Mesh(List<Vec3> vertices){}
+    private record Mesh(List<Vec3> vertices,List<int[]> faces,List<int[]> edges){}
     private static final Mesh MESH=read();
+    private static final Map<String,AABB> SKIN_BOUNDS=new HashMap<>();
     private static Mesh read(){
         try(var stream=SelfRescueHatGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json")){
             if(stream==null)throw new IllegalStateException("Missing selected physical hat");
             var data=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
-            var raw=data.getAsJsonArray("vertices");var vertices=new ArrayList<Vec3>();
-            for(int i=0;i<raw.size();i+=8)vertices.add(new Vec3(raw.get(i).getAsDouble(),raw.get(i+1).getAsDouble(),raw.get(i+2).getAsDouble()));
-            return new Mesh(List.copyOf(vertices));
+            var raw=data.getAsJsonArray("vertices");var indices=new LinkedHashMap<Vec3,Integer>();
+            var faces=new ArrayList<int[]>();var edges=new LinkedHashMap<Long,int[]>();
+            for(int i=0;i<raw.size();i+=24){
+                var face=new int[3];
+                for(int j=0;j<3;j++){int at=i+j*8;var point=new Vec3(raw.get(at).getAsDouble(),raw.get(at+1).getAsDouble(),raw.get(at+2).getAsDouble());
+                    face[j]=indices.computeIfAbsent(point,p->indices.size());}
+                faces.add(face);
+                for(int j=0;j<3;j++){int a=Math.min(face[j],face[(j+1)%3]),b=Math.max(face[j],face[(j+1)%3]);
+                    edges.putIfAbsent(((long)a<<32)|b,new int[]{a,b});}
+            }
+            return new Mesh(List.copyOf(indices.keySet()),List.copyOf(faces),List.copyOf(edges.values()));
         }catch(IOException e){throw new UncheckedIOException(e);}
     }
     public record Plan(Vec3 feet,float bodyYaw,Vec3 finalCentre,float boatYaw){}
     private static String lastFailure;
+    public static String lastFailure(){return lastFailure==null?"none":lastFailure;}
     /** grip and tip are unused now (nothing grips the hat); they remain so the client can rebuild the same pose. */
     public record Pose(Vec3 origin,Quaternionf rotation,float squash,Vec3 grip,Vec3 tip,Vec3 joint){
         public Vec3 world(Vec3 local,double unit){
@@ -132,42 +147,118 @@ public final class SelfRescueHatGeometry {
     /** A complete shake is planned only once. At runtime validate just the swept interval. */
     private static boolean validPath(YukkuriEntity actor,Plan plan){
         Pose previous=null;
-        for(int tick=0;tick<=REMOVE_TICKS;tick+=2){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+
+        for(int tick=0;tick<=REMOVE_TICKS;tick++){var current=pose(actor,plan,tick);if(!clear(actor,plan,current,previous)){lastFailure="tick "+tick+" yaw="+
                 plan.bodyYaw()+": "+lastFailure;return false;}previous=current;}
         return true;
     }
     public static boolean valid(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
-        return plan!=null&&pose!=null&&Math.abs(Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw()))<=8&&clear(actor,plan,pose,previous);
+        lastFailure=null;
+        if(plan==null||pose==null){lastFailure="missing_pose";return false;}
+        if(Math.abs(Mth.wrapDegrees(actor.yBodyRot-plan.bodyYaw()))>8){lastFailure="body_yaw_changed";return false;}
+        return clear(actor,plan,pose,previous);
     }
     private static boolean clear(YukkuriEntity actor,Plan plan,Pose pose,Pose previous){
+        double unit=hatUnit(actor);
+        return meshClear(actor,actor.position(),plan.bodyYaw(),p->pose.world(p,unit),
+                previous==null?null:p->previous.world(p,unit),true);
+    }
+    /** Raw selected prop coordinates, with exactly the renderer's top translation and cloth squash. */
+    private static Vec3 hullLocal(HatBoatEntity hat,Vec3 raw){
+        return new Vec3(raw.x,HatVessel.top(hat.mode())+raw.y*hat.hullSquash(1),raw.z);
+    }
+    /** The body takes a bounded step past the broad hull box only after its real skin clears the rotated prop. */
+    public static boolean bodyStepClear(YukkuriEntity actor,HatBoatEntity hat,Vec3 destination){
+        var shift=destination.subtract(actor.position());
+        Function<Vec3,Vec3> at=p->hat.hazards().tiltedWorld(hullLocal(hat,p));
+        return meshClear(actor,destination,actor.yBodyRot,at,p->at.apply(p).add(shift),false);
+    }
+    /** Validate the actual rotating hat skin against the holder and blocks before moving the hull around its held rim. */
+    public static boolean rightingClear(YukkuriEntity actor,HatBoatEntity hat,Vec3 centre,float progress){
+        Function<Vec3,Vec3> before=p->hat.hazards().tiltedWorld(hullLocal(hat,p));
+        Function<Vec3,Vec3> after=p->centre.add(hat.selfRightingOffset(hullLocal(hat,p),progress));
+        return meshClear(actor,actor.position(),actor.yBodyRot,after,before,true);
+    }
+    private static boolean meshClear(YukkuriEntity actor,Vec3 feet,float yaw,Function<Vec3,Vec3> current,
+                                     Function<Vec3,Vec3> previous,boolean checkBlocks){
         WoundSurface skin;
         try{skin=WoundSurface.get(actor.subspecies().assetId());}catch(IllegalStateException unsupported){lastFailure="no skin "+unsupported.getMessage();return false;}
-        double body=bodyUnit(actor),unit=hatUnit(actor);
-        var inverse=facing(plan.bodyYaw()).conjugate();
+        double body=bodyUnit(actor);
+        var inverse=facing(yaw).conjugate();
         var verts=MESH.vertices();
-        for(int i=0;i<verts.size();i+=3){
-            var points=new Vector3f[3];
-            for(int j=0;j<3;j++){
-                var world=pose.world(verts.get(i+j),unit);
-                if(!actor.level().hasChunkAt(BlockPos.containing(world))){lastFailure="chunk";return false;}
-                if(previous!=null){
-                    var from=previous.world(verts.get(i+j),unit);
-                    if(actor.level().clip(new ClipContext(from,world,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,
-                            actor)).getType()!=HitResult.Type.MISS){lastFailure="block hit between "+from+" and "+world;return false;}
+        var bounds=SKIN_BOUNDS.computeIfAbsent(actor.subspecies().assetId(),id->{
+            AABB box=null;
+            for(int i=0;i<skin.skinCount;i++){
+                var p=skin.rest(i);var point=new Vec3(p.x,p.y,p.z);var at=new AABB(point,point);
+                box=box==null?at:box.minmax(at);
+            }
+            return box.inflate(.01);
+        });
+        var worldPoints=new Vec3[verts.size()];var oldWorld=new Vec3[verts.size()];AABB swept=null;
+        for(int i=0;i<verts.size();i++){
+            var at=current.apply(verts.get(i));var before=previous==null?at:previous.apply(verts.get(i));
+            worldPoints[i]=at;oldWorld[i]=before;var box=new AABB(at,before);swept=swept==null?box:swept.minmax(box);
+        }
+        boolean blocks=checkBlocks&&swept!=null&&actor.level().getBlockCollisions(actor,swept.inflate(.001)).iterator().hasNext();
+        var points=new Vector3f[verts.size()];var before=new Vector3f[verts.size()];
+        for(int i=0;i<verts.size();i++){
+            var world=worldPoints[i];var old=oldWorld[i];
+            if(!actor.level().hasChunkAt(BlockPos.containing(world))){lastFailure="chunk";return false;}
+            if(blocks&&old.distanceToSqr(world)>1e-12&&actor.level().clip(new ClipContext(old,world,
+                    ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,actor)).getType()!=HitResult.Type.MISS){lastFailure="block_sweep";return false;}
+            points[i]=bodyPoint(world,feet,inverse,body);before[i]=bodyPoint(old,feet,inverse,body);
+            if(previous!=null&&box(points[i],before[i]).intersects(bounds)&&crosses(skin,before[i],points[i])){
+                lastFailure="swept_hat_vertex_crosses_skin vertex="+i;return false;}
+        }
+        for(var edge:MESH.edges())if(box(points[edge[0]],points[edge[1]]).intersects(bounds)
+                &&crosses(skin,points[edge[0]],points[edge[1]])){lastFailure="hat_edge_crosses_skin";return false;}
+        // A small body may enter the middle of a large hat face without touching any hat edge. Query the existing skin BVH
+        // only in each swept face box, and test skin edges and reverse vertex sweeps against that exact face.
+        var oldToCurrent=previous==null?null:bodyTransform(current,feet,inverse,body)
+                .mul(bodyTransform(previous,feet,inverse,body).invert());
+        for(var face:MESH.faces()){
+            var a=points[face[0]];var b=points[face[1]];var c=points[face[2]];
+            var area=box(a,b).minmax(box(c,before[face[0]])).minmax(box(before[face[1]],before[face[2]])).inflate(.01);
+            if(!area.intersects(bounds))continue;
+            if(skin.anySkinTriangle((float)area.minX,(float)area.minY,(float)area.minZ,
+                    (float)area.maxX,(float)area.maxY,(float)area.maxZ,index->{
+                for(int j=0;j<3;j++){
+                    var at=skin.rest(index+j);var next=skin.rest(index+(j+1)%3);
+                    if(segmentHits(at,next,a,b,c)){lastFailure="skin_edge_crosses_hat_face";return true;}
+                    if(oldToCurrent!=null&&segmentHits(oldToCurrent.transformPosition(new Vector3f(at)),at,a,b,c)){
+                        lastFailure="swept_skin_vertex_crosses_hat_face";return true;}
                 }
-                var relative=world.subtract(actor.position());var p=new Vector3f((float)relative.x,(float)relative.y,(float)relative.z);inverse.transform(p).mul((float)(1/body));points[j]=p;
-            }
-            // The actual hat triangle edges must not cross the selected body skin. Cast both directions:
-            // WoundSurface intentionally uses front faces for wound hits, whereas custody needs both sides.
-            for(int j=0;j<3;j++){
-                var a=points[j];var b=points[(j+1)%3];var delta=new Vector3f(b).sub(a);float distance=delta.length();if(distance<1e-6)continue;delta.div(distance);
-                var hit=skin.ray(a,delta,null,List.of());if(hit!=null&&hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (front) tri="+
-                        (i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
-                hit=skin.ray(b,new Vector3f(delta).negate(),null,List.of());if(hit!=null&&
-                        hit.distance()<distance-.01){lastFailure="hat edge crosses the body skin (back) tri="+(i/3)+" d="+hit.distance()+"<"+distance+" a="+a+" b="+b;return false;}
-            }
+                return false;
+            }))return false;
         }
         return true;
+    }
+    private static Vector3f bodyPoint(Vec3 point,Vec3 feet,Quaternionf inverse,double unit){
+        var p=point.subtract(feet);return inverse.transform(new Vector3f((float)p.x,(float)p.y,(float)p.z)).mul((float)(1/unit));
+    }
+    private static AABB box(Vector3f a,Vector3f b){return new AABB(new Vec3(a.x,a.y,a.z),new Vec3(b.x,b.y,b.z));}
+    private static Matrix4f bodyTransform(Function<Vec3,Vec3> frame,Vec3 feet,Quaternionf inverse,double unit){
+        var o=bodyPoint(frame.apply(Vec3.ZERO),feet,inverse,unit);
+        var x=bodyPoint(frame.apply(new Vec3(1,0,0)),feet,inverse,unit).sub(o);
+        var y=bodyPoint(frame.apply(new Vec3(0,1,0)),feet,inverse,unit).sub(o);
+        var z=bodyPoint(frame.apply(new Vec3(0,0,1)),feet,inverse,unit).sub(o);
+        return new Matrix4f().m00(x.x).m01(x.y).m02(x.z).m10(y.x).m11(y.y).m12(y.z)
+                .m20(z.x).m21(z.y).m22(z.z).m30(o.x).m31(o.y).m32(o.z);
+    }
+    private static boolean segmentHits(Vector3f from,Vector3f to,Vector3f a,Vector3f b,Vector3f c){
+        var direction=new Vector3f(to).sub(from);float length=direction.length();if(length<=.02)return false;
+        var e=new Vector3f(b).sub(a);var f=new Vector3f(c).sub(a);var h=new Vector3f(direction).cross(f);
+        float det=e.dot(h);if(Math.abs(det)<1e-7)return false;
+        var s=new Vector3f(from).sub(a);float u=s.dot(h)/det;if(u<0||u>1)return false;
+        var q=s.cross(e);float v=direction.dot(q)/det;if(v<0||u+v>1)return false;
+        float t=f.dot(q)/det;return t>.01/length&&t<1-.01/length;
+    }
+    private static boolean crosses(WoundSurface skin,Vector3f a,Vector3f b){
+        var direction=new Vector3f(b).sub(a);float distance=direction.length();if(distance<=.02)return false;
+        direction.div(distance);
+        var hit=skin.ray(a,direction,null,List.of());
+        if(hit!=null&&hit.distance()>.01&&hit.distance()<distance-.01)return true;
+        hit=skin.ray(b,new Vector3f(direction).negate(),null,List.of());
+        return hit!=null&&hit.distance()>.01&&hit.distance()<distance-.01;
     }
     private SelfRescueHatGeometry(){}
 }

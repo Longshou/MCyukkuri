@@ -52,10 +52,10 @@ public final class HatFamilyAlarm {
     public long phaseStart(){return phaseAt;}
     public UUID sourceId(){return source;}
     public int rescueTargetId(){var child=person(rescueTarget);return active()&&child!=null?child.getId():-1;}
-    public boolean awaiting(YukkuriEntity child){return active()&&expected.getOrDefault(child.getUUID(),0L)>now()&&child.getVehicle()!=HatBoatEntity.owned(entity);}
+    public boolean awaiting(YukkuriEntity child){return active()&&expected.getOrDefault(child.getUUID(),0L)>now()&&!WaterIncidents.settledAboard(child,HatBoatEntity.owned(entity));}
     public boolean preventsOuting(){return active()||responding();}
     private List<YukkuriEntity> unreturnedChildren(List<YukkuriEntity> children,HatBoatEntity boat){
-        return children.stream().filter(child->child!=entity&&child.isAlive()&&(boat==null||child.getVehicle()!=boat)).toList();
+        return children.stream().filter(child->child!=entity&&child.isAlive()&&!WaterIncidents.settledAboard(child,boat)).toList();
     }
     private void set(String next){
         if(!phase.equals(next)){
@@ -101,7 +101,7 @@ public final class HatFamilyAlarm {
             var unreturned=unreturnedChildren(children,home);
             expected.entrySet().removeIf(e->{
                 var child=person(e.getKey());
-                String reason=e.getValue()<=now()?"deadline":child==null?"child_unavailable":home!=null&&child.getVehicle()==home?"aboard"
+                String reason=e.getValue()<=now()?"deadline":child==null?"child_unavailable":WaterIncidents.settledAboard(child,home)?"aboard"
                         :child.independence().independent()?"independent":child.aquaticLife().firstVoyage().independent()?"independent_voyage":null;
                 if(reason!=null)GameplayLog.event(entity,"family-alarm",
                         "child wait ended child={} reason={} event={} homeHat={}",e.getKey(),reason,began,home==null?null:home.getUUID());
@@ -137,7 +137,7 @@ public final class HatFamilyAlarm {
             var parent=person(caller);var boat=home();
             String reason=!responding()?"response_expired":parent==null?"parent_unavailable":boat==null?"hat_unavailable":!boat.young(entity)?"child_berth_lost":null;
             if(reason!=null){clearResponse(reason);return;}
-            if(entity.getVehicle()==boat&&answered){
+            if(WaterIncidents.settledAboard(entity,boat)&&answered){
                 var parentAlarm=parent.aquaticLife().familyLife().alarm();
                 if(parentAlarm.active())heardUntil=Math.max(heardUntil,parentAlarm.until);
                 else if(now()-heardAt>24){clearResponse("aboard_alarm_ended");return;}
@@ -150,7 +150,7 @@ public final class HatFamilyAlarm {
                             caller,calledHat,heardEvent,spoken,now()-heardAt);
                 }
             }
-            if(entity.getVehicle()==boat&&answered&&phase.equals(Behaviors.BOAT_RETURN_CALLED))boat.requestInnerRefuge(entity);
+            if(WaterIncidents.settledAboard(entity,boat)&&answered&&phase.equals(Behaviors.BOAT_RETURN_CALLED))boat.requestInnerRefuge(entity);
         }
         if(!pendingSpeech.isEmpty()&&now()>=speechRetryAt){
             if(now()>speechUntil||entity.speak(pendingSpeech))pendingSpeech="";
@@ -204,7 +204,7 @@ public final class HatFamilyAlarm {
     public boolean tickResponse(){
         if(!responding()||!controllable())return false;
         var boat=home();var parent=person(caller);if(boat==null||parent==null)return false;
-        if(entity.getVehicle()==boat){
+        if(WaterIncidents.settledAboard(entity,boat)){
             if(answered)boat.requestInnerRefuge(entity);
             entity.getLookControl().setLookAt(parent,30,30);return false;
         }

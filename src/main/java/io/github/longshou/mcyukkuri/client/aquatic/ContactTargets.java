@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewState;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import net.minecraft.util.Mth;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -23,12 +24,21 @@ public final class ContactTargets {
     /** The contact the carrier holds now, in its model space, or null. {@code start}: the pose at the entity's render origin. */
     public static Target forCarrier(YukkuriView carrier, float partial, Matrix4f start, Matrix4f model) {
         var entry = CrewPose.transfer(carrier);
-        if (entry == null || entry.contact() == CrewTransfer.Contact.NONE || entry.contactAt() == null) return null;
+        if (entry == null) {
+            var state=carrier.aquaticSelfRescueState();
+            if(state.getString("ReclaimPhase").isEmpty())return null;
+            var before=readPoint(state,"ReclaimPrevious");var tip=readPoint(state,"ReclaimTip");
+            return new Target(CrewTransfer.Contact.BRAID_HOOK,toModel(before.lerp(tip,partial),carrier.getPosition(partial),start,model));
+        }
+        if (entry.contact() == CrewTransfer.Contact.NONE || entry.contactAt() == null) return null;
         // A lift's contact is the carrier's braid or mouth on the body; a climb's is the climber's own bite and hook on the rim.
         var holder = entry.mode() == CrewTransfer.Mode.LIFT ? entry.carrier() : entry.body();
         if (!carrier.getUUID().equals(holder)) return null;
         var world = world(carrier, entry, partial);
         return world == null ? null : new Target(entry.contact(), toModel(world, carrier.getPosition(partial), start, model));
+    }
+    private static Vec3 readPoint(CompoundTag state,String key){
+        return new Vec3(state.getDouble(key+"X"),state.getDouble(key+"Y"),state.getDouble(key+"Z"));
     }
 
     /** World position of the entry's contact this frame. */

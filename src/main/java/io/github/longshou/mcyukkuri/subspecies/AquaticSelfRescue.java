@@ -265,7 +265,13 @@ public final class AquaticSelfRescue {
             actor.yBodyRot=deployment.path().bodyYaw();actor.setYRot(actor.yBodyRot);actor.setYHeadRot(actor.yBodyRot);
             var velocity=actor.getDeltaMovement();YukkuriLocomotion.waterImpulse(actor, new Vec3(velocity.x*-.4,0,velocity.z*-.4));
             var next=SelfRescueHatGeometry.pose(actor,deployment.path(),elapsed);
-            if(!SelfRescueHatGeometry.valid(actor,deployment.path(),next,carriedPose)){slip("carry_pose_blocked");return false;}
+            if(!SelfRescueHatGeometry.valid(actor,deployment.path(),next,carriedPose)){
+                GameplayLog.limited(actor,"aquatic","self.carry.geometry",80,
+                        "self rescue carry blocked elapsed={} reason={} plannedFeet={} actualFeet={} hatOrigin={}",
+                        elapsed,SelfRescueHatGeometry.lastFailure(),GameplayLog.at(deployment.path().feet()),
+                        GameplayLog.at(actor.position()),GameplayLog.at(next.origin()));
+                slip("carry_pose_blocked");return false;
+            }
             pose(next);
             if(elapsed>=SelfRescueHatGeometry.SHAKE){
                 // Once clear of the head the same unique hat becomes the real vessel and slides to the planned spot.
@@ -385,16 +391,19 @@ public final class AquaticSelfRescue {
         outward=outward.lengthSqr()<1e-8?Vec3.ZERO:outward.normalize().scale(rest);
         var gap=new Vec3(grip.x+outward.x-mouth.x,y-mouth.y,grip.z+outward.z-mouth.z);double length=gap.length();
         if(length<=.004)return;
-        YukkuriLocomotion.waterStep(actor, actor.position().add(gap), Math.min(.02, YukkuriLocomotion.limits(actor).swimSpeed()));
+        contactStep(hat(),actor.position().add(gap),Math.min(.02,YukkuriLocomotion.limits(actor).swimSpeed()));
     }
     private static double smooth(double q){q=Math.clamp(q,0,1);return q*q*(3-2*q);}
     private boolean startClimb(HatBoatEntity current){
         var climb=CrewTransfers.climb(actor,current,true);
         if(climb.ok()){set(Phase.CLIMB);actor.speak("self_rescue_climb");return true;}
-        GameplayLog.detail(actor,"self.climb."+actor.getId(),0,"climb refused: "+climb.refusal()+" "+climb.reason()+" hat="+GameplayLog.at(current.position())+" self="+GameplayLog.at(actor.position()));
-        // GEOMETRY never repeats as it is: this entry is struck off and she swims to another. TRANSIENT only waits with the teeth on the rim.
+        GameplayLog.detail(actor,"self.climb."+actor.getId(),40,"climb refused: "+climb.refusal()+" "+climb.reason()+" hat="+GameplayLog.at(current.position())+" self="+GameplayLog.at(actor.position()));
+        // A refused shape gets another entry; a lost contact must approach again instead of waiting forever on the old bite.
         if(climb.refusal()==CrewTransfer.Refusal.GEOMETRY)return refuseEntry(current,"climb_"+climb.reason());
-        if(climb.refusal()==CrewTransfer.Refusal.TRANSIENT)return true;
+        if(climb.refusal()==CrewTransfer.Refusal.TRANSIENT){
+            if("rim_out_of_reach".equals(climb.reason())){contact=0;lastGrip=lockedGripLocal=null;set(Phase.APPROACH);}
+            return true;
+        }
         slip("climb_"+climb.reason());return false;
     }
     /** Strikes the entry nearest her off for this incident; false when there is no incident to remember it on. */
@@ -420,14 +429,25 @@ public final class AquaticSelfRescue {
         var delta=target.subtract(actor.position()).multiply(1,0,1);
         if(delta.horizontalDistanceSqr()<.0001)return;
         var direction=delta.normalize();
-        var step=direction.scale(.10);var box=actor.getBoundingBox().move(step);
-        if(!level().noCollision(actor,box)){
+        double speed=Math.min(.08,YukkuriLocomotion.limits(actor).swimSpeed());
+        if(contactStep(current,actor.position().add(direction.scale(delta.horizontalDistance())),speed))return;
+        {
             var radial=actor.position().subtract(current.position()).multiply(1,0,1).normalize();
             direction=new Vec3(-radial.z,0,radial.x).scale((actor.getUUID().hashCode()&1)==0?1:-1);
         }
         var at=actor.position().add(direction.scale(.15));var water=BlockPos.containing(at.x,actor.getY(),at.z);
         if(!level().hasChunkAt(water)||!level().getWorldBorder().isWithinBounds(water))return;
-        YukkuriLocomotion.swim(actor, actor.position().add(direction.scale(delta.horizontalDistance())), .08);
+        contactStep(current,actor.position().add(direction.scale(speed)),speed);
+    }
+    /** Keep the regular hull collision except for this bounded step whose selected hat skin was checked explicitly. */
+    private boolean contactStep(HatBoatEntity current,Vec3 target,double speed){
+        if(!ownsPhysicalHat(current)||speed<=0)return false;
+        var delta=target.subtract(actor.position());
+        var destination=actor.position().add(delta.length()>speed?delta.normalize().scale(speed):delta);
+        if(!SelfRescueHatGeometry.bodyStepClear(actor,current,destination))return false;
+        actor.family().crew().beginHullSweep(current);
+        try { return YukkuriLocomotion.waterStep(actor,destination,speed); }
+        finally { actor.family().crew().endHullSweep(); }
     }
     private void slip(String reason){slip(reason,Float.NaN);}
     private void slip(String reason,float probability){
@@ -459,6 +479,7 @@ public final class AquaticSelfRescue {
     }
     public CompoundTag syncState(){
         var tag=new CompoundTag();tag.putString("Phase",phase.name());tag.putLong("Start",started);tag.putInt("HatId",targetHatId());
+        actor.aquaticLife().familyLife().writeReclaimState(tag);
         tag.putFloat("Grip",gripProgress());tag.putString("Activity",activity());
         tag.putBoolean("Planned",deployment!=null);
         tag.putFloat("RemovalProgress",removalProgress);tag.putInt("RemoveTicks",SelfRescueHatGeometry.REMOVE_TICKS);

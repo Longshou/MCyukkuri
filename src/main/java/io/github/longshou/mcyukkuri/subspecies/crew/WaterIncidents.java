@@ -127,6 +127,11 @@ public final class WaterIncidents {
         var incident = victim.family().crew().incident();
         return incident == null || incident.closed ? null : incident;
     }
+    /** A transfer may use a hull as a coordinate frame before arrival. Protection while held is not completion. */
+    public static boolean settledAboard(YukkuriEntity body,HatBoatEntity boat){
+        return boat!=null&&body.getVehicle()==boat&&boat.protects(body)
+                &&!body.family().crew().active()&&!body.family().flying();
+    }
 
     private static void close(YukkuriEntity victim, Incident incident, String outcome) {
         if (incident.closed) return;
@@ -157,7 +162,7 @@ public final class WaterIncidents {
         }
         // A ticket owns the body while it runs; a failed one lets the body fall again into this very incident.
         if (port.active()) return;
-        if (victim.getVehicle() instanceof HatBoatEntity) { close(victim, incident, "aboard"); return; }
+        if (victim.getVehicle() instanceof HatBoatEntity boat && settledAboard(victim,boat)) { close(victim, incident, "aboard"); return; }
         if (!water) {
             var distress = victim.waterDistress();
             if (distress.airbornePlunge() || victim.family().flying()) return;
@@ -269,6 +274,9 @@ public final class WaterIncidents {
         if (known == null) {
             known = decide(rescuer, victim, incident, role);
         }
+        if(known!=null&&!known.accepted())GameplayLog.limited(rescuer,"aquatic","incident.declined."+victim.getId(),200,
+                "incident rescue unavailable victim={} reason=choice_declined role={} chance={} roll={} decidedAt={} failures={}",
+                victim.getUUID(),known.role(),known.chance(),known.roll(),known.at(),incident.failuresOf(rescuer.getUUID()));
         var approach = incident.reaching.get(rescuer.getUUID());
         return known != null && known.accepted() && incident.failuresOf(rescuer.getUUID()) < MAX_FAILURES
                 && (approach == null || rescuer.level().getGameTime() >= approach.retryAt);

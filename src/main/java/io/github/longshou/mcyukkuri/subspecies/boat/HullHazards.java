@@ -379,7 +379,9 @@ public final class HullHazards {
             return refuseSelfRighting(actor, "grip_changed", requested, previous, Vec3.ZERO);
         var anchor = HatBoatEntity.point(m, "RightAnchor");
         var full = rightingCandidate(actor, m, anchor, localGrip, requested);
-        if (full.ok()) return applySelfRighting(m, previous, requested, full.centre());
+        if (full.ok()) return applySelfRighting(actor, m, previous, requested, full.centre());
+        if (!full.reason().equals("movement_cap"))
+            return refuseSelfRighting(actor, full.reason(), requested, previous, full.movement());
 
         // The cap is a real per-tick distance limit, not permission to teleport through it in several invisible substeps.
         // Find the furthest progress that can be reached from this exact centre in this tick; a collision leaves no partial gain.
@@ -387,9 +389,9 @@ public final class HullHazards {
         String limit = full.reason();
         for (int i = 0; i < 14 && high - low > RIGHT_PROGRESS_EPSILON; i++) {
             float probe = (low + high) * .5f;
-            var candidate = rightingCandidate(actor, m, anchor, localGrip, probe);
-            if (candidate.ok()) low = probe;
-            else { high = probe; limit = candidate.reason(); }
+            var centre = anchor.subtract(boat.selfRightingOffset(localGrip, probe)).add(0, boat.rimLift(localGrip), 0);
+            if (centre.distanceToSqr(boat.position()) <= SELF_RIGHT_STEP * SELF_RIGHT_STEP) low = probe;
+            else high = probe;
         }
         if (low <= previous + RIGHT_PROGRESS_EPSILON)
             return refuseSelfRighting(actor, limit, requested, previous, full.movement());
@@ -399,7 +401,7 @@ public final class HullHazards {
                 "self righting limited actor={} requested={} reached={} reason={} movement={} cap={}",
                 actor.getUUID(), requested, low, limit, GameplayLog.at(partial.movement()), SELF_RIGHT_STEP);
         selfRightingRefusal = "progress_limited";
-        return applySelfRighting(m, previous, low, partial.centre());
+        return applySelfRighting(actor, m, previous, low, partial.centre());
     }
 
     private record RightingCandidate(boolean ok, String reason, Vec3 centre, Vec3 movement) {}
@@ -410,10 +412,17 @@ public final class HullHazards {
         var movement = centre.subtract(boat.position());
         if (movement.lengthSqr() > SELF_RIGHT_STEP * SELF_RIGHT_STEP)
             return new RightingCandidate(false, "movement_cap", centre, movement);
-        if (!boat.level().noCollision(boat, boat.getBoundingBox().move(movement)))
-            return new RightingCandidate(false, "collision", centre, movement);
-        if (!boat.level().noCollision(boat, boat.getBoundingBox().expandTowards(movement)))
-            return new RightingCandidate(false, "swept_collision", centre, movement);
+        if (!SelfRescueHatGeometry.rightingClear(actor, boat, centre, progress))
+            return new RightingCandidate(false, "skin_" + SelfRescueHatGeometry.lastFailure(), centre, movement);
+        // The holding body's broad box extends beyond its face. Only this verified skin sweep may substitute for
+        // that one pair's broad collision; blocks, other bodies and other hats still obstruct the physical move.
+        actor.family().crew().beginHullSweep(boat);
+        try {
+            if (!boat.level().noCollision(boat, boat.getBoundingBox().move(movement)))
+                return new RightingCandidate(false, "collision", centre, movement);
+            if (!boat.level().noCollision(boat, boat.getBoundingBox().expandTowards(movement)))
+                return new RightingCandidate(false, "swept_collision", centre, movement);
+        } finally { actor.family().crew().endHullSweep(); }
         // Rotation raises or submerges the entity centre around the wet grip. The water layer belongs to the initial
         // contact, not that moving centre; check the future floating footprint without moving the hull to it.
         var water = BlockPos.containing(centre.x, motion.getInt("RightWaterY"), centre.z);
@@ -426,8 +435,10 @@ public final class HullHazards {
         return new RightingCandidate(true, "none", centre, movement);
     }
 
-    private boolean applySelfRighting(CompoundTag motion, float previous, float reached, Vec3 centre) {
-        boat.move(MoverType.SELF, centre.subtract(boat.position()));
+    private boolean applySelfRighting(YukkuriEntity actor, CompoundTag motion, float previous, float reached, Vec3 centre) {
+        actor.family().crew().beginHullSweep(boat);
+        try { boat.move(MoverType.SELF, centre.subtract(boat.position())); }
+        finally { actor.family().crew().endHullSweep(); }
         if (boat.position().distanceToSqr(centre) > 1e-8) {
             selfRightingRefusal = "swept_collision";
             return false;
@@ -479,17 +490,22 @@ public final class HullHazards {
         var owner = boat.owner();
         return actor != null && actor.isAlive() && owner != null && owner.isAlive()
                 && owner.life().custody().reclaimAssigned(actor.getUUID()) && boat.ownsPhysicalHat(owner)
-                && actor.getVehicle() instanceof HatBoatEntity home && home != boat && home.protects(actor)
-                && home.protects(owner) && home.young(owner) && actor.getUUID().equals(home.ownerYukkuri())
+                && actor.getVehicle() instanceof HatBoatEntity home && home != boat && WaterIncidents.settledAboard(actor,home)
+                && WaterIncidents.settledAboard(owner,home) && home.young(owner) && actor.getUUID().equals(home.ownerYukkuri())
                 && !actor.family().crew().busy() && !actor.operations().active() && !actor.life().isSleeping()
                 && CrewReach.hasBraid(actor) && CrewReach.canLift(actor, owner);
     }
     private boolean rightingGrip(YukkuriEntity actor, Vec3 local) {
         if (ownsPhysicalHat(actor)) return selfRescueGrip(actor, local) != null;
+        return reclaimReachable(actor,local)&&actor.aquaticLife().familyLife().reclaimContact(boat,local);
+    }
+    /** A geometric candidate for extending a braid, never proof that its tip is already there. */
+    public boolean reclaimReachable(YukkuriEntity actor,Vec3 local){
         if (!mayReclaim(actor) || local == null || GripRim.points(boat.mode()).stream().noneMatch(p -> p.distanceToSqr(local) < 1e-8)) return false;
         var root = CrewReach.root(actor);
         var point = rimPoint(local);
-        return CrewReach.braidReaches(actor, root, point) && boat.level().clip(new ClipContext(root, point,
+        double minimum=Math.abs(BraidRescueGeometry.firstLength(actor)-BraidRescueGeometry.secondLength(actor))+.001*actor.growthScale()*actor.getScale();
+        return root.distanceTo(point)>=minimum&&CrewReach.braidReaches(actor, root, point) && boat.level().clip(new ClipContext(root, point,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor)).getType() == HitResult.Type.MISS;
     }
     /** A claimed, empty child's hat is handled by the same bounded rim-pivot solver as self rescue. */
@@ -498,9 +514,9 @@ public final class HullHazards {
         var motion = boat.motionData();
         if (boat.selfRighting() && motion.contains("RightGripX")) {
             var held = HatBoatEntity.point(motion, "RightGrip");
-            return rightingGrip(actor, held) ? held : null;
+            return reclaimReachable(actor, held) ? held : null;
         }
-        return GripRim.points(boat.mode()).stream().filter(local -> rightingGrip(actor, local))
+        return GripRim.points(boat.mode()).stream().filter(local -> reclaimReachable(actor, local))
                 .filter(local -> boat.state() != State.CAPSIZED || reclaimRightingSpace(actor, local))
                 .min(Comparator.comparingDouble(local -> CrewReach.root(actor).distanceToSqr(rimPoint(local)))).orElse(null);
     }
@@ -573,7 +589,7 @@ public final class HullHazards {
 
     public boolean setSelfRescueCarryPose(YukkuriEntity actor, SelfRescueHatGeometry.Pose pose, float elapsed) {
         if (boat.level().isClientSide || !ownsPhysicalHat(actor) || boat.isVehicle() || boat.hasIncoming() || pose == null) return false;
-        double q = Math.clamp((elapsed - SelfRescueHatGeometry.SHAKE) / SelfRescueHatGeometry.TURN, 0, 1);
+        double q = Math.clamp((elapsed - SelfRescueHatGeometry.SHAKE - SelfRescueHatGeometry.TURN) / SelfRescueHatGeometry.LOWER, 0, 1);
         q = q * q * (3 - 2 * q);
         var offset = pose.rotation().transform(new Vector3f(0, (float) (HatVessel.freeboard(boat.mode()) * boat.unit()), 0));
         var centre = pose.origin().subtract(new Vec3(offset.x, offset.y, offset.z));
@@ -586,7 +602,18 @@ public final class HullHazards {
         m.putLong("HeldTouched", boat.level().getGameTime());
         HatBoatEntity.point(m, "PreviousCentre", m.contains("HeldCentreX") ? HatBoatEntity.point(m, "HeldCentre") : centre);
         HatBoatEntity.point(m, "HeldCentre", centre);
-        boat.setPos(centre);
+        if (!boat.selfRescueHeld()) boat.setPos(centre); // Initial placement of the newly created, already checked physical prop.
+        else {
+            actor.family().crew().beginHullSweep(boat);
+            try { boat.move(MoverType.SELF, centre.subtract(boat.position())); }
+            finally { actor.family().crew().endHullSweep(); }
+            if (boat.position().distanceToSqr(centre) > 1e-8) {
+                GameplayLog.limited(boat,"aquatic","self.carry.sweep",80,
+                        "self rescue carry movement refused actor={} reason=hull_swept_collision wanted={} actual={}",
+                        actor.getUUID(),GameplayLog.at(centre),GameplayLog.at(boat.position()));
+                return false;
+            }
+        }
         boat.syncMotion(m);
         boat.setDeltaMovement(Vec3.ZERO);
         boat.helm().stop("capsize_reset");

@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.subspecies;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.GripRim;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.State;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -30,24 +32,28 @@ final class HatBoatLaunch {
     }
 
     static boolean retrieveAfloat(HatBoatEntity boat, YukkuriEntity child, HatBoatEntity home, boolean reachFallback) {
-        if (boat.level().isClientSide || boat.capsizing() || !(boat.isAfloat() || boat.state()==State.CAPSIZED || boat.state()==State.BEACHED)
+        if (boat.level().isClientSide || boat.unsteadyMotion() || !(boat.isAfloat() || boat.state()==State.BEACHED)
                 || boat.isVehicle() || boat.hasIncoming() || !child.getUUID().equals(boat.ownerYukkuri())
-                || !home.protects(child) || !home.young(child)
+                || !WaterIncidents.settledAboard(child,home) || !home.young(child)
                 || retrievalGrip(boat, child)==null) return false;
         return retireAfloat(boat, child);
     }
     /** A captain's accepted braid contact returns the same physical hat to its owner, never a remote replacement. */
     static boolean retrieveForChild(HatBoatEntity boat, YukkuriEntity child, HatBoatEntity home, YukkuriEntity captain) {
         if (boat.level().isClientSide || !(boat.isAfloat() || boat.state() == State.BEACHED) || boat.isVehicle() || boat.hasIncoming()
-                || captain.getVehicle() != home || child.getVehicle() != home || !home.protects(child)
-                || !home.young(child) || !boat.ownsPhysicalHat(child) || boat.hazards().reclaimGripLocal(captain) == null) return false;
+                || !WaterIncidents.settledAboard(captain,home) || !WaterIncidents.settledAboard(child,home)
+                || !home.young(child) || !boat.ownsPhysicalHat(child) || !captain.aquaticLife().familyLife().reclaimHandoff(boat)) return false;
         return retireAfloat(boat, child);
     }
     private static boolean retireAfloat(HatBoatEntity boat, YukkuriEntity child) {
+        var token=boat.launchToken();int cargo=boat.cargo().count();boolean paddle=boat.cargo().paddle();
         if (!child.life().returnAccessory(boat.ownerYukkuri(), boat.launchToken(), null)) return false;
         child.aquaticLife().firstVoyage().retainHat(boat.launchToken(),boat.cargo().save());
         boat.cargo().load(new CompoundTag());boat.syncCargo(boat.cargo().save());boat.launchToken(null);
-        boat.state(State.RESCUED); boat.helm().stop("retired"); return true;
+        boat.state(State.RESCUED); boat.helm().stop("retired");
+        GameplayLog.event(child,"headwear","reclaim handoff hat={} token={} owner={} cargo={} -> {} paddle={} -> {} accessory={}",
+                boat.getUUID(),token,child.getUUID(),cargo,boat.cargo().count(),paddle,boat.cargo().paddle(),child.life().hasAccessory());
+        return true;
     }
 
     static Vec3 retrievalGrip(HatBoatEntity boat, YukkuriEntity actor){
