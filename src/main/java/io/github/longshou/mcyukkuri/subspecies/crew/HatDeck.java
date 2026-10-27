@@ -40,7 +40,7 @@ public final class HatDeck {
         /** True while the stick lies on its stowage (not in the captain's grip), where it blocks the seats it overlaps. */
         boolean paddleStowed();
         double extraLoad();
-        int arcTicks(UUID body, Vec3 fromLocal, Vec3 toLocal);
+        Hop hop(UUID body, Vec3 fromLocal, Vec3 toLocal);
         void event(String message, Object... values);
         void limited(String key, int ticks, String message, Object... values);
     }
@@ -49,6 +49,10 @@ public final class HatDeck {
     public record Move(Vec3 from, long start, int ticks, boolean arc, List<Vec3> route) {
         public Move { route = List.copyOf(route); }
         public boolean active(long now) { return now - start < ticks; }
+    }
+    /** Already bounded by the body's current ability; all curve points are in this hull's frame. */
+    public record Hop(int ticks, List<Vec3> route) {
+        public Hop { route = List.copyOf(route); }
     }
 
     /** One body's claim on the deck. Read it through the accessors; only the deck changes it. */
@@ -560,8 +564,13 @@ public final class HatDeck {
         int ticks;
         if (arc) {
             if (!b.jumps() && !b.captain()) return null;
-            route.add(seat.pos());
-            ticks = host.arcTicks(b.id(), fromLocal, seat.pos());
+            var hop = host.hop(b.id(), fromLocal, seat.pos());
+            if (hop == null || hop.ticks() <= 0 || hop.route().isEmpty()) {
+                remember("move refused " + seat.id() + " hop_exceeds_body");
+                return null;
+            }
+            route = new ArrayList<>(hop.route());
+            ticks = hop.ticks();
         } else {
             int[] path = null;
             if (p.slot >= 0) {

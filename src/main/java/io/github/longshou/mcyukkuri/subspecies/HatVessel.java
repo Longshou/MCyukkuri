@@ -249,6 +249,21 @@ public final class HatVessel {
         }
         return TMAX;
     }
+    /** A deliberately planned body curve must actually clear the hull; failing never grants a larger arc. */
+    public static boolean clears(List<Vec3> points,HatBoatEntity hat,double radius){
+        if(hat==null||points.isEmpty())return true;
+        Mode m=hat.mode();double rr=radius/hat.unit();
+        var a=hat.toLocal(points.getFirst());var b=hat.toLocal(points.getLast());
+        double ea=footprint(m,a.x,a.z,rr),eb=footprint(m,b.x,b.z,rr);
+        double top=Double.isNaN(ea)?eb:Double.isNaN(eb)?ea:Math.max(ea,eb);
+        for(int i=1;i<points.size()-1;i++){
+            var p=hat.toLocal(points.get(i));double h=footprint(m,p.x,p.z,rr);
+            if(Double.isNaN(h))continue;
+            double need=Double.isNaN(top)||h>top+1e-6?h+CLEAR:surface(m,p.x,p.z);
+            if(!Double.isNaN(need)&&p.y<need-1e-6)return false;
+        }
+        return true;
+    }
     /** Where an overstrained push sends a newborn aimed at b (world): on along the same line past the far brim, at the
      *  height of b's ground for the caller to settle. */
     public static Vec3 overshoot(Vec3 a,Vec3 b,HatBoatEntity hat,double r){

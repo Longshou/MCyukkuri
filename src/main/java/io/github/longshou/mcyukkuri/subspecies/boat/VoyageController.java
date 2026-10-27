@@ -86,6 +86,9 @@ public final class VoyageController {
     private boolean moorTried;
     private long captainSince, ashoreSince;
     private Vec3 captainSpot;
+    private ShoreBerth.Berth carryBerth;
+    private long carryBerthSince;
+    private int carryBerthTries;
 
     public VoyageController(YukkuriEntity entity, AquaticLife life) { this.entity = entity; this.life = life; }
 
@@ -126,6 +129,7 @@ public final class VoyageController {
         airSince = actorSince = 0;
         moorTried = false; captainSince = 0; ashoreSince = 0; captainSpot = null;
         queue.clear(); queued = false; kept.clear(); spots.clear(); used.clear();
+        carryBerth = null; carryBerthTries = 0;
         if (next == VoyagePhase.STOW) hatStage = false;
         if (before == VoyagePhase.AFLOAT) life.agenda().halt("phase_" + next);
         GameplayLog.event(entity, "aquatic", "voyage phase {} -> {} reason={} attempt={} hull={} bank={} water={} cooldown={}",
@@ -644,7 +648,8 @@ public final class VoyageController {
             if (outcome instanceof ShoreBerth.Berth found) berth = found;
             else noteBerthRefusal(outcome);
         }
-        if (berth != null && boat.isAfloat()) boat.helm().berth(entity, Purpose.LANDING, berth.center(), berth.yaw(), .05, 4f);
+        var requestedBerth = carryBerth != null ? carryBerth : berth;
+        if (requestedBerth != null && boat.isAfloat()) boat.helm().berth(entity, Purpose.LANDING, requestedBerth.center(), requestedBerth.yaw(), .025, 3f);
         if (boat.unsteadyMotion() || boat.capsizing()) { if (++hullWait > 200) fail("hull_unsteady"); return Behaviors.BOAT_STEADY; }
         hullWait = 0;
         if (!queued) {
@@ -659,6 +664,7 @@ public final class VoyageController {
                 current = queue.poll();
                 if (current == null) return captainOff(boat, now);
                 actorSince = now; respots = refusals = 0; airSince = 0;
+                carryBerth = null; carryBerthTries = 0;
             }
             crewOff(boat, now);
             return Behaviors.BOAT_LAND;
@@ -710,6 +716,7 @@ public final class VoyageController {
         if (hops) {
             var hop = CrewTransfers.land(actor, null, boat, spot);
             if (hop.ok()) return;
+            if (hop.refusal() == CrewTransfer.Refusal.GEOMETRY && liftInfant(boat, actor, spot)) return;
             GameplayLog.limited(entity, "aquatic", "disembark.refused", 100, "disembark child={} spot={} reason={}:{}", current, spot, hop.refusal(), hop.reason());
             if (++refusals >= 24) respot(actor);
         } else if (++refusals >= 2) respot(actor);
@@ -740,22 +747,40 @@ public final class VoyageController {
         current = null; respots = refusals = 0;
     }
 
-    /** One lift over the brim if the captain's reach allows, else first to the brim place nearest the bank. */
+    /** A failed lift requests a real nearer berth; shuffling to the same seat is never progress toward land. */
     private boolean liftInfant(HatBoatEntity boat, YukkuriEntity infant, Vec3 spot) {
+        if (carryBerth != null) {
+            var approach = boat.helm().berth(entity, Purpose.LANDING, carryBerth.center(), carryBerth.yaw(), .025, 3f);
+            if (approach.arrived()) {
+                berth = carryBerth; bank = berth.bank(); water = berth.water(); carryBerth = null;
+                spots.remove(infant.getUUID());
+                return true;
+            }
+            if (approach.blocked() || now() - carryBerthSince > 140) {
+                GameplayLog.event(entity, "braid", "failed intent=LAND carrier={} body={} outcome=GEOMETRY reason=redock_blocked attempts={}",
+                        entity.getUUID(), infant.getUUID(), carryBerthTries);
+                carryBerth = null;
+                return false;
+            }
+            return true;
+        }
         var direct = CrewTransfers.land(infant, entity, boat, spot);
         if (direct.ok()) return true;
-        if (boat.onBrim(infant)) return false;
-        var near = new ArrayList<>(boat.brimSeatsToward(infant, spot, 96));
-        near.sort(Comparator.comparingDouble(at -> { var w = boat.toWorld(at); return w.distanceTo(infant.position()) + w.distanceTo(spot); }));
-        var tried = new ArrayList<Vec3>();
-        for (var seat : near) {
-            if (tried.size() >= 6) break;
-            boolean far = false;
-            for (var kept : tried) if (Math.hypot(kept.x - seat.x, kept.z - seat.z) < 2.5) { far = true; break; }
-            if (far) continue;
-            tried.add(seat);
-            int slot = boat.deckLayout().slotAt(seat, .02);
-            if (slot >= 0 && CrewTransfers.carryWithin(infant, entity, boat, slot, DeckLayout.NONE).ok()) return true;
+        if (direct.refusal() == CrewTransfer.Refusal.TRANSIENT) return true;
+        GameplayLog.limited(entity, "aquatic", "disembark.lift", 100,
+                "disembark child={} spot={} reason={}:{} redocks={}", infant.getUUID(), spot, direct.refusal(), direct.reason(), carryBerthTries);
+        if (direct.refusal() == CrewTransfer.Refusal.GEOMETRY && carryBerthTries < 2) {
+            carryBerthTries++;
+            var query = new ShoreBerth.Query(entity, boat, boat.hullScale(), BlockPos.containing(spot), ShoreBerth.Purpose.LAND,
+                    BlockPos.containing(spot), 4, boat.getPassengers().size() - 1, p -> true);
+            var outcome = ShoreBerth.find(level(), query);
+            if (outcome instanceof ShoreBerth.Berth found && (found.center().distanceToSqr(boat.position()) > .0025
+                    || Math.abs(Mth.wrapDegrees(found.yaw() - boat.getYRot())) > 3)) {
+                carryBerth = found; carryBerthSince = now();
+                GameplayLog.event(entity, "braid", "approach intent=LAND carrier={} body={} reposition=hull from={} to={} attempts={}",
+                        entity.getUUID(), infant.getUUID(), boat.position(), found.center(), carryBerthTries);
+                return true;
+            }
         }
         return false;
     }

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.subspecies.crew;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -353,8 +355,7 @@ public final class WaterIncidents {
             var toward = boat.position().subtract(nearestBaby.position()).multiply(1, 0, 1);
             if (toward.lengthSqr() > 1e-6) {
                 var push = toward.normalize().scale(.05);
-                nearestBaby.setDeltaMovement(nearestBaby.getDeltaMovement().add(push.x, .02, push.z));
-                nearestBaby.hasImpulse = true;
+                YukkuriLocomotion.waterImpulse(nearestBaby, new Vec3(push.x, .02, push.z));
             }
             GameplayLog.event(captain, "aquatic", "incident captain push_to_brim baby={} hull={}", nearestBaby.getUUID(), boat.getUUID());
         }
@@ -383,7 +384,7 @@ public final class WaterIncidents {
         if (pick == null) return false;
         if (!guide(captain, pick, hat)) return false;
         captain.getNavigation().stop();
-        io.github.longshou.mcyukkuri.life.SurfaceApproach.face(captain, io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(captain.position(), pick.position()));
+        SurfaceApproach.face(captain, SurfaceApproach.yaw(captain.position(), pick.position()));
         var result = CrewTransfers.liftFromWater(pick, captain, hat);
         if (result.ok()) {
             pick.waterDistress().lifted();
@@ -403,13 +404,7 @@ public final class WaterIncidents {
     /** Water movement is a small impulse and consumes effort; it never teleports the swimmer to the child. */
     private static boolean swimToward(YukkuriEntity actor, Vec3 target) {
         if (!actor.life().spendEnergy(.018f)) return false;
-        var delta = target.subtract(actor.position()).multiply(1, 0, 1);
-        if (delta.horizontalDistanceSqr() < .0001) return true;
-        var direction = delta.normalize();
-        if (!actor.level().noCollision(actor, actor.getBoundingBox().move(direction.scale(.08)))) return false;
-        var velocity = actor.getDeltaMovement();
-        if (velocity.horizontalDistanceSqr() < .09 * .09) { actor.setDeltaMovement(velocity.add(direction.scale(.01))); actor.hasImpulse = true; }
-        return true;
+        return YukkuriLocomotion.swim(actor, target, .09);
     }
 
     /**

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies.crew;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.BraidCarry;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer.Anchor;
@@ -39,7 +40,8 @@ public final class CrewTransfers {
 
     public static Result open(Request request) {
         if (request.body().level().isClientSide || !(request.body().level() instanceof ServerLevel level)) return Result.refusedClient();
-        return CrewTransfer.open(level, request);
+        return request.mode() == Mode.LIFT && !request.body().family().crew().active()
+                ? BraidCarry.begin(request).tick(level, request) : CrewTransfer.open(level, request);
     }
 
     /** The captain steps from the bank onto the stern of her hat. */
@@ -358,7 +360,7 @@ public final class CrewTransfers {
     }
 
     /** Standing room on the ground at a spot for this body, or null. */
-    private static Vec3 standingGround(ServerLevel level, Vec3 spot, YukkuriEntity child) {
+    public static Vec3 standingGround(ServerLevel level, Vec3 spot, YukkuriEntity child) {
         var hit = level.clip(new ClipContext(spot.add(0, 1.2, 0), spot.add(0, -1.5, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, child));
         if (hit.getType() != HitResult.Type.BLOCK || !level.getFluidState(hit.getBlockPos()).isEmpty()) return null;
         var at = hit.getLocation();

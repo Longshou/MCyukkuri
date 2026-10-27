@@ -280,11 +280,10 @@ public final class WaterDistress {
                 }else{restTicks=60;if(!weak)return;}
             }else if(!weak)return;
         }
-        Vec3 velocity=entity.getDeltaMovement(),toward=direction();
+        Vec3 toward=direction();
         boolean canJump=entity.childhood().canJump();
         double speed=weak?.055:canJump?.13:.045;
-        Vec3 push=velocity.horizontalDistanceSqr()<speed*speed?toward.scale(weak?.005:canJump?.016:.006):Vec3.ZERO;
-        entity.setDeltaMovement(velocity.add(push.x,0,push.z));entity.hasImpulse=true;
+        YukkuriLocomotion.swim(entity,entity.position().add(toward),speed);
     }
     /** Five real water columns approximate displaced body volume, including shallow or flowing edges. */
     public static double submergedFraction(YukkuriEntity actor){

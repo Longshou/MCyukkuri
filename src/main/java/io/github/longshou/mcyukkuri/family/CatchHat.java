@@ -121,7 +121,11 @@ final class CatchHat {
             // whichever way puts the helper on the far side, facing her. (The whole brim used to be kept clear of her:
             // the opening then began past the nearer fruit, which all came down on the ground.)
             double sx=0,sz=0;int n=brood.children.size();
-            for(int i=0;i<n;i++){var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),brood.children.get(i).variant);sx+=c.x;sz+=c.z;}
+            for(int i=0;i<n;i++){
+                var child=brood.children.get(i);
+                var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),child.variant,GrowthSize.birth(brood.kind,child));
+                sx+=c.x;sz+=c.z;
+            }
             var under=FamilyGeometry.toWorld(mother,new Vec3(sx/Math.max(1,n),0,sz/Math.max(1,n)));
             double ahead=under.subtract(mother.position()).dot(forward),least=stemClearance(mother,catcher);
             var at=under.add(forward.scale(Math.max(0,least-ahead)));HatPose best=null;double far=-1;
@@ -329,8 +333,9 @@ final class CatchHat {
             double angle=side*Math.PI/4;
             var at=SurfaceApproach.floor(mother,mother.position().add(Math.cos(angle)*radius,0,Math.sin(angle)*radius));
             if(at==null)continue;
+            float heading=brood.kind==FamilyData.BirthKind.LIVE?BirthExit.yawToward(mother,0,o.entity().position()):mother.yBodyRot;
             for(float turn:new float[]{0,45,-45,90,-90,135,-135,180}) {
-                var site=new FamilyLife.DeliveryStation(at,mother.yBodyRot+turn);
+                var site=new FamilyLife.DeliveryStation(at,heading+turn);
                 checked++;String refusal=siteRefusal(mother,brood,site);
                 if(refusal!=null){reason=refusal;continue;}
                 var helper=stand(atStation(mother,brood,site),o.entity()).at();
@@ -567,11 +572,7 @@ final class CatchHat {
                     hat.getUUID(),hat.getPassengers().size(),foreign);
             fetching=null;fetchRetryAt=o.level().getGameTime()+100;return;
         }
-        if(o.entity().distanceToSqr(stand.at())>.36&&fetchTicks<200){if(fetchTicks%10==1)o.entity().life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
-        if(o.entity().distanceToSqr(stand.at())>16)return;
-        var role=hat.role();
-        if(!approachHatStand(stand))return;
-        o.entity().getNavigation().stop();o.face(stand.yaw());
+        if(o.entity().distanceToSqr(hat)>16){if(fetchTicks%10==1)o.entity().life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
         if(releaseWait>0){releaseWait--;return;}
         if(foreign){
             // This is strictly a biological parent's one-at-a-time existing transfer, never a retrieve of the dead owner's hat.
@@ -585,6 +586,10 @@ final class CatchHat {
         }
         // Dependent newborns leave in the parent's braid; capable children hop out before the empty hat is retrieved.
         if(hat.releaseYoung(o.entity())){releaseWait=14;return;}
+        // The placement clip's stand belongs to retrieving the empty hat. Carrying each child chooses its own reachable stand.
+        var role=hat.role();
+        if(!approachHatStand(stand))return;
+        o.entity().getNavigation().stop();o.face(stand.yaw());
         if(hat.retrieve(o.entity())){
             fetching=null;
             GameplayLog.event(o.entity(),"family","catch cleanup completed hat={} passengers=0",hat.getUUID());

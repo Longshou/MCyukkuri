@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies.crew;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.BraidCarry;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,9 @@ public final class CrewPort {
 
     private final YukkuriEntity entity;
     private CrewTransfer ticket;
+    private BraidCarry.Session braidSession;
+    private long motionTick = Long.MIN_VALUE;
+    private double motionDistance;
     private Outcome last;
     private final Map<String, Long> impossible = new HashMap<>();
     private WaterIncidents.Incident incident;
@@ -30,6 +34,14 @@ public final class CrewPort {
 
     // ---------------------------------------------------------------- the current ticket
     public CrewTransfer ticket() { return ticket; }
+    public BraidCarry.Session braidSession() { return braidSession; }
+    public void braidSession(BraidCarry.Session session) { braidSession = session; }
+    /** Per-tick execution budget shared by the transfer goal and passenger positioning. Never saved. */
+    public double motionAllowance(long tick, double speed) {
+        if (motionTick != tick) { motionTick = tick; motionDistance = 0; }
+        return Math.max(0, speed - motionDistance);
+    }
+    public void moved(double distance) { motionDistance += distance; }
     void take(CrewTransfer next) { ticket = next; }
     void drop(CrewTransfer finished, Outcome outcome) {
         if (ticket == finished) ticket = null;
@@ -81,7 +93,10 @@ public final class CrewPort {
         return true;
     }
     void rememberImpossible(String key, long now) {
-        if (impossible.size() > 16) impossible.values().removeIf(until -> until <= now);
+        if (impossible.size() >= 16) {
+            impossible.values().removeIf(until -> until <= now);
+            if (impossible.size() >= 16) impossible.remove(impossible.keySet().iterator().next());
+        }
         impossible.put(key, now + GEOMETRY_MEMORY);
     }
     /** Count a slip of the current event; false once the budget is spent. */
