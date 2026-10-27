@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
@@ -76,6 +77,19 @@ public final class WoundSurface {
             else{float a=(node.box[k]-origin)/direction,b=(node.box[k+3]-origin)/direction;low=Math.max(low,Math.min(a,b));high=Math.min(high,Math.max(a,b));if(low>high+.0001)return best;}}
         if(node.triangles==null)return restRay(node.right,o,d,restRay(node.left,o,d,best));
         for(int i:node.triangles){Hit hit=intersect(i,o,d,rest(i),rest(i+1),rest(i+2));if(hit!=null&&(best==null||hit.distance<best.distance))best=hit;}return best;
+    }
+    /** Read-only rest-skin broad phase. The predicate receives a triangle's first vertex index and may stop the query. */
+    public boolean anySkinTriangle(float minX,float minY,float minZ,float maxX,float maxY,float maxZ,IntPredicate hit){
+        return minX<=maxX&&minY<=maxY&&minZ<=maxZ
+                &&anySkinTriangle(tree,minX,minY,minZ,maxX,maxY,maxZ,hit);
+    }
+    private boolean anySkinTriangle(Node node,float minX,float minY,float minZ,float maxX,float maxY,float maxZ,IntPredicate hit){
+        var box=node.box;
+        if(box[3]<minX||box[4]<minY||box[5]<minZ||box[0]>maxX||box[1]>maxY||box[2]>maxZ)return false;
+        if(node.triangles==null)return anySkinTriangle(node.left,minX,minY,minZ,maxX,maxY,maxZ,hit)
+                ||anySkinTriangle(node.right,minX,minY,minZ,maxX,maxY,maxZ,hit);
+        for(int first:node.triangles)if(hit.test(first))return true;
+        return false;
     }
     private Hit intersect(int i,Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c){var e=b.sub(a);var f=c.sub(a);var h=
             new Vector3f(direction).cross(f);float det=e.dot(h);if(det<1e-7)return null;
