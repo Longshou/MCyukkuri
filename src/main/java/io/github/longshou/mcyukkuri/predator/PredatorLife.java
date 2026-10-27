@@ -438,7 +438,8 @@ public final class PredatorLife implements EcologyRoutine {
                 animal.getEyePosition(), goal.add(0,.2,0), ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE, animal)).getType() == HitResult.Type.MISS) {
             animal.getNavigation().stop();
-            animal.getMoveControl().setWantedPosition(goal.x,goal.y,goal.z,speed);
+            // Only the final clear approach presses into the support surface. Pathfinding still targets the dry air cell.
+            animal.getMoveControl().setWantedPosition(goal.x, task == Task.LAND ? goal.y - .08 : goal.y, goal.z, speed);
             return;
         }
         if (ticks % 10 == 1 || animal.getNavigation().isDone()) {
@@ -582,7 +583,7 @@ public final class PredatorLife implements EcologyRoutine {
             if (destination == null) { stop(); return; }
             Task current = task;
             Vec3 goal = destination;
-            fly(task == Task.LAND ? goal.add(0,-.08,0) : goal, .85);
+            fly(goal, .85);
             if (task != current || destination != goal) return;
             if (animal.position().distanceToSqr(goal) < .36) {
                 if (task == Task.LAND && !dryLanded()) return;
