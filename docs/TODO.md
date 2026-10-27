@@ -11,6 +11,10 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
+| 出生水上复测修复与集成 | `.worktrees/birth-aquatic-repair` | 场景、表现仲裁、专题文档、集成核查 |
+| 帽船位移与碰撞复测修复 | `.worktrees/aquatic-physics-repair` | `YukkuriLocomotion`、`HatBoatEntity`、`HatVessel`、`subspecies/crew/`（除 `WaterIncidents`）、`VoyageController` |
+| 出生出口与辫子交接复核 | `.worktrees/birth-carry-repair` | `family/`（`BraidCarry`、`CatchHat`、出生与体型）、`HatHitResolver` |
+| 自救与救援议程复测修复 | `.worktrees/aquatic-handoff-repair` | `AquaticLife`、`AquaticSelfRescue`、`AquaticFamilyLife`、`WaterIncidents`、`HatFamilyAlarm`、`HullHazards`、`HullHelm`、`AfloatAgenda`、`HatCustody`、`predator/` |
 
 ## 玩法待办
 
