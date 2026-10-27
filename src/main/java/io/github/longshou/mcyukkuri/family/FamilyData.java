@@ -597,7 +597,7 @@ public final class FamilyData extends SavedData {
             if(exit==null||exit.target()==null||exit.target().hat()==null||!BirthExit.valid(mother,index,exit))return null;
             var target=exit.target();var selected=target.hat();
             if(selected!=mine&&(fatherBusy(brood,level)||!Objects.equals(selected.ownerYukkuri(),brood.father)))return null;
-            if(prepareBirthAdmission(selected,child,selected==mine)==HatBoatEntity.NewbornAdmission.NONE)return null;
+            if(!selected.makeRoom(child,selected==mine,target.admission(),target.slot()))return null;
             var seat=selected.reserveBirthAdmission(child,target.admission(),child.position(),target.slot());
             if(seat==null)return null;
             if(selected.toWorld(seat).subtract(child.position()).horizontalDistance()>target.reach()){
@@ -691,7 +691,7 @@ public final class FamilyData extends SavedData {
             var exit=scene.family().selectedBirthExit(index);
             if(exit!=null&&exit.target()!=null&&exit.target().hat()!=null){
                 var target=exit.target();landHat=target.hat();
-                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,false)
+                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,false,target.admission(),target.slot())
                         ||landHat.reserveBirthAdmission(entity,target.admission(),position,target.slot())==null)
                     return refuse(brood,level,"catch_berth_unavailable");
                 GameplayLog.event(scene,"family","birth berth reserved child={} hat={} slot={} admission={} outlet={}",
