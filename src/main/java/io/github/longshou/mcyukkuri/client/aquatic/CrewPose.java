@@ -35,10 +35,10 @@ public final class CrewPose {
         this.boat = boat; this.at = at; this.bodyYaw = bodyYaw; this.balanceRoll = balanceRoll; this.balancePitch = balancePitch; this.seat = seat;
     }
 
-    /** A lifted body's sampled pose (also after dismount), otherwise the pose in the hull it rides. */
+    /** A transferring body's executed samples (also after dismount), otherwise the pose in the hull it rides. */
     public static CrewPose of(YukkuriView body, float partial) {
         var entry = transfer(body);
-        if (entry != null && entry.mode() == CrewTransfer.Mode.LIFT && body.getUUID().equals(entry.body()) && entry.bodyAt() != null) {
+        if (entry != null && body.getUUID().equals(entry.body()) && entry.bodyAt() != null) {
             var frame = ContactTargets.frame(body, entry, partial);
             if (entry.contactFrame() != 0 && frame == null) return null;
             var at = ContactTargets.point(entry.bodyPrev(), entry.bodyAt(), frame, partial);
