@@ -100,6 +100,7 @@ public final class CrewTransfer {
     private long phaseStart, lastTick = Long.MIN_VALUE, moveStart = -1, revertAt = -1, contactStart;
     private double revertFrom;
     private boolean finished, holdsMove, bodyHeld, reverting, degraded, mounted, claimed, arrived;
+    private long claimedLease = -1, carrierLease = -1;
     private Refusal pendingRefusal;
     private String pendingReason = "";
     private Contact contact = Contact.NONE;
@@ -699,7 +700,10 @@ public final class CrewTransfer {
         boolean within = a != null && a == b;
         if (within) {
             var bodyDeck = b.bodyOf(body);
+            var previousLease = b.deck().lease(bodyId);
             if (!b.deck().reserveLift(bodyDeck, to.slot(), Purpose.SERVICE)) return Result.refused(Refusal.TRANSIENT, "seat_refused:" + b.deck().lastRefusal());
+            var lease = b.deck().lease(bodyId);
+            if (lease != null && (previousLease == null || lease.id() != previousLease.id())) claimedLease = lease.id();
             slot = to.slot();
             claimed = true;
             loadAfter = b.capacityUsed();
@@ -736,6 +740,8 @@ public final class CrewTransfer {
         if (a_withinBoat()) {
             b.deck().abandon(body.getUUID(), "transfer_failed");
             b.deck().lift(body.getUUID(), false);
+            var lease = b.deck().lease(bodyId);
+            if (lease != null && lease.id() == claimedLease) b.deck().release(bodyId, "transfer_failed");
         } else if (!b.hasPassenger(body)) {
             b.cancelIncoming(body);
             if (purpose == Purpose.OWN) b.releaseOwnBoardingSeat(body);
@@ -952,10 +958,13 @@ public final class CrewTransfer {
             var placed = hat.deck().get(carrier.getUUID());
             if (placed == null || !placed.aboard()) { fail(Refusal.TRANSIENT, "carrier_not_seated"); return; }
             if (placed.slot() != stand.seat() && !hat.deck().moving(carrier.getUUID())) {
+                var previousLease = hat.deck().lease(carrierId);
                 if (!hat.deck().moveWithin(hat.bodyOf(carrier), stand.seat(), hat.toLocal(carrier.position()), false, Purpose.SERVICE)) {
                     if (++approachTries >= 12) fail(Refusal.GEOMETRY, "stand_unreachable:" + hat.deck().lastRefusal());
                     return;
                 }
+                var lease = hat.deck().lease(carrierId);
+                if (lease != null && (previousLease == null || lease.id() != previousLease.id())) carrierLease = lease.id();
                 hat.syncSeats();
                 return;
             }
@@ -1089,8 +1098,9 @@ public final class CrewTransfer {
         var before = body.position();
         boolean reached = YukkuriLocomotion.step(body, position, speed);
         movedDistance += before.distanceTo(body.position());
-        if (!reached && !reverting) {
-            fail(Refusal.GEOMETRY, "move_blocked_or_body_limit");
+        if (!reached) {
+            if (reverting) finish(false, Refusal.GEOMETRY, "revert_blocked_or_body_limit:" + pendingReason);
+            else fail(Refusal.GEOMETRY, "move_blocked_or_body_limit");
             return;
         }
         // The body faces along its trip.
@@ -1256,13 +1266,15 @@ public final class CrewTransfer {
     }
 
     private void endRevert(YukkuriEntity body) {
-        var ride = body.getVehicle();
-        // It stays on a hull only when it was riding that hull before the move began.
-        int origin = from.kind() == Kind.BERTH ? boatA : -1;
-        if (ride instanceof HatBoatEntity hat && hat.getId() != origin) {
-            YukkuriLocomotion.detach(body);
-        }
         finish(false, pendingRefusal == null ? Refusal.TRANSIENT : pendingRefusal, pendingReason);
+    }
+
+    /** Ordinary seat positioning may resume only if the body really returned to its source seat. */
+    private boolean atOriginalSeat(YukkuriEntity body, HatBoatEntity hat) {
+        if (from.kind() != Kind.BERTH || hat.getId() != boatA) return false;
+        var placed = hat.deck().get(bodyId);
+        return placed != null && placed.slot() >= 0
+                && body.position().distanceToSqr(hat.toWorld(hat.deckLayout().slot(placed.slot()).pos())) <= .0004;
     }
 
     private void finish(boolean success, Refusal refusal, String reason) {
@@ -1278,10 +1290,12 @@ public final class CrewTransfer {
         var a = hatA();
         var b = hatB();
         if (body != null) {
+            // A failed/reversed curve must not fall back to a stale seat transform and snap across its obstruction.
+            if (!success && phase == Phase.MOVE && body.getVehicle() instanceof HatBoatEntity hat && !atOriginalSeat(body, hat))
+                YukkuriLocomotion.detach(body);
             releaseClaim(body, success);
             body.fallDistance = 0;
             body.family().crew().drop(this, outcome);
-            if (!success && body.getVehicle() == null && body.isInWaterOrBubble()) body.setDeltaMovement(Vec3.ZERO);
             if (success) body.family().crew().settled();
         }
         if (carrier != null) {
@@ -1290,7 +1304,10 @@ public final class CrewTransfer {
             if (ch != null && carrier.getVehicle() == ch) {
                 if (success && carrierSlot >= 0 && ch.deck().aboard(carrier.getUUID()) && !ch.deck().moving(carrier.getUUID()))
                     ch.deck().moveWithin(ch.bodyOf(carrier), carrierSlot, ch.toLocal(carrier.position()), false, Purpose.SERVICE);
-                else ch.deck().release(carrier.getUUID(), "transfer_done");
+                else {
+                    var lease = ch.deck().lease(carrierId);
+                    if (lease != null && lease.id() == carrierLease) ch.deck().release(carrierId, "transfer_done");
+                }
                 ch.releaseRescueOwner(carrier);
                 ch.syncSeats();
             }

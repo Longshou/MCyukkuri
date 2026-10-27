@@ -41,6 +41,10 @@ public final class HatDeck {
         boolean paddleStowed();
         double extraLoad();
         Hop hop(UUID body, Vec3 fromLocal, Vec3 toLocal);
+        /** The body's actual feet reached this local point after swept movement. */
+        boolean arrived(UUID body, Vec3 localTarget);
+        /** Release a failed mover at its actual position; ordinary gravity and water take over. */
+        void moveFailed(UUID body, String reason);
         void event(String message, Object... values);
         void limited(String key, int ticks, String message, Object... values);
     }
@@ -166,7 +170,7 @@ public final class HatDeck {
         var p = placements.get(id);
         return p != null && p.pendingCaregiver != null && p.lease != null && !p.lease.lapsed(host.now());
     }
-    public boolean moving(UUID id) { var p = placements.get(id); return p != null && p.move != null && p.move.active(host.now()); }
+    public boolean moving(UUID id) { var p = placements.get(id); return p != null && p.move != null; }
     public Move moveOf(UUID id) { var p = placements.get(id); return p == null ? null : p.move; }
     public int seatOf(UUID id) { var p = placements.get(id); return p == null ? DeckLayout.NONE : p.seat(); }
     public DeckLayout.Slot slotOf(UUID id) { int s = seatOf(id); return s < 0 ? null : layout().slot(s); }
@@ -207,7 +211,7 @@ public final class HatDeck {
             if (p.home >= 0) out.append("(home ").append(layout().slot(p.home).id()).append(')');
             if (p.lease != null) out.append('[').append(p.lease.purpose()).append(']');
             if (!p.aboard) out.append("{ashore}");
-            if (p.move != null && p.move.active(now)) out.append("{moving}");
+            if (p.move != null) out.append("{moving}");
         }
         return out.isEmpty() ? "empty" : out.toString();
     }
@@ -514,7 +518,7 @@ public final class HatDeck {
         } else {
             boolean retained = lease != null && lease.purpose() == Purpose.RETAINED;
             p.lease = null;
-            if (p.target >= 0 && (p.move == null || !p.move.active(host.now()))) p.target = DeckLayout.NONE;
+            if (p.target >= 0 && p.move == null) p.target = DeckLayout.NONE;
             if (retained) { p.home = DeckLayout.NONE; p.returning = false; }
             else if (p.home >= 0) { if (p.slot == p.home) p.home = DeckLayout.NONE; else p.returning = true; }
         }
@@ -553,7 +557,7 @@ public final class HatDeck {
         needsLift = false;
         var p = placements.get(b.id());
         if (p == null || !p.aboard || to < 0 || p.slot == to) return null;
-        if (p.move != null && p.move.active(host.now())) return null;
+        if (p.move != null) return null;
         var seat = layout.slot(to);
         if (!legal(b, purpose, seat)) {
             remember("move refused " + seat.id() + " not legal for " + b.cls().id + " as " + purpose);
@@ -744,24 +748,25 @@ public final class HatDeck {
         }
     }
 
-    /** Finish moves that ran their time, retire lapsed leases, and put back moves that overran their slack. Once per tick. */
+    /** Commit actual arrivals, retire lapsed leases, and physically release movers that overrun their slack. Once per tick. */
     public void tick() {
         ensureLayout();
         long now = host.now();
         for (var p : List.copyOf(placements.values())) {
             if (p.move != null) {
                 long end = p.move.start() + p.move.ticks();
-                if (now >= end) {
+                if (now >= end && p.target >= 0 && host.arrived(p.id, layout.slot(p.target).pos())) {
                     if (p.target >= 0) { p.slot = p.target; p.seatedAt = now; p.target = DeckLayout.NONE; p.overflow = false; }
                     p.move = null;
                     afterArrival(p);
                 } else if (now > end + MOVE_SLACK_TICKS) {
-                    host.event("deck release body={} reason=move_timeout back={}", p.id, p.slot < 0 ? "free" : layout.slot(p.slot).id());
+                    host.event("deck release body={} reason=move_timeout target={} actual=preserved", p.id, p.target);
                     p.move = null;
                     p.target = DeckLayout.NONE;
+                    host.moveFailed(p.id, "move_timeout");
                 }
             }
-            if (p.lease != null && p.lease.lapsed(now) && !(p.move != null && p.move.active(now))) {
+            if (p.lease != null && p.lease.lapsed(now) && p.move == null) {
                 host.event("deck release body={} class={} purpose={} reason=lease_expired", p.id, p.cls.id, p.lease.purpose());
                 release(p.id, "expired");
             }
@@ -807,7 +812,7 @@ public final class HatDeck {
         long now = host.now();
         var illegal = new ArrayList<Placement>();
         for (var p : placements.values()) {
-            if (!p.aboard || (p.move != null && p.move.active(now)) || p.target >= 0 || p.returning) continue;
+            if (!p.aboard || p.move != null || p.target >= 0 || p.returning) continue;
             if (p.lease != null && p.lease.purpose() == Purpose.SERVICE) continue;
             if (p.overflow || p.slot < 0 || !seatLawful(p)) illegal.add(p);
         }
@@ -822,7 +827,7 @@ public final class HatDeck {
             Set<UUID> have = new HashSet<>();
             for (var n : needs) have.add(n.body.id());
             for (var p : placements.values())
-                if (p.aboard && !p.captain() && !have.contains(p.id) && p.slot >= 0 && p.lease == null && p.target < 0 && !(p.move != null && p.move.active(now)))
+                if (p.aboard && !p.captain() && !have.contains(p.id) && p.slot >= 0 && p.lease == null && p.target < 0 && p.move == null)
                     all.add(new Need(body(p), Purpose.BOARD, locals.get(p.id), p.slot, true, DeckLayout.NONE));
             solution = solve(all, MAX_DISPLACED + illegal.size());
             if (solution != null) needs = all;
@@ -932,7 +937,7 @@ public final class HatDeck {
         var needs = new ArrayList<Need>();
         needs.add(new Need(newcomer, purpose, near, DeckLayout.NONE, false, DeckLayout.NONE));
         for (var p : placements.values())
-            if (p.aboard && !p.captain() && p.slot >= 0 && p.lease == null && p.target < 0 && !(p.move != null && p.move.active(now)) && !p.id.equals(newcomer.id())
+            if (p.aboard && !p.captain() && p.slot >= 0 && p.lease == null && p.target < 0 && p.move == null && !p.id.equals(newcomer.id())
                     && (p.jumps || layout.path(p.slot, p.slot, p.cls, false, null) != null))
                 needs.add(new Need(body(p), Purpose.BOARD, null, p.slot, true, DeckLayout.NONE));
         var solution = solve(needs, MAX_DISPLACED);
@@ -950,7 +955,7 @@ public final class HatDeck {
         var needs = new ArrayList<Need>();
         needs.add(new Need(newcomer, purpose, null, DeckLayout.NONE, false, wanted));
         for (var p : placements.values())
-            if (p.aboard && !p.captain() && p.slot >= 0 && p.lease == null && p.target < 0 && !(p.move != null && p.move.active(now)) && !p.id.equals(newcomer.id()))
+            if (p.aboard && !p.captain() && p.slot >= 0 && p.lease == null && p.target < 0 && p.move == null && !p.id.equals(newcomer.id()))
                 needs.add(new Need(body(p), Purpose.BOARD, null, p.slot, true, DeckLayout.NONE));
         var solution = solve(needs, MAX_DISPLACED);
         if (solution == null) return null;
@@ -969,7 +974,7 @@ public final class HatDeck {
         long now = host.now();
         for (var p : placements.values()) {
             if (!p.aboard) continue;
-            boolean moving = p.move != null && p.move.active(now);
+            boolean moving = p.move != null;
             p.move = null;
             p.target = DeckLayout.NONE;
             p.lease = null;

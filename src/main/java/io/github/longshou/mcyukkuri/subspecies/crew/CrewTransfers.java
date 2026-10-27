@@ -304,9 +304,10 @@ public final class CrewTransfers {
             var child = young.get(i);
             if (child.family().crew().active()) continue;
             var spot = standingGround(level, spots.get(order[i]), child);
-            if (child.childhood().canJump()) {
-                if (spot != null && land(child, null, hat, spot).ok()) return true;
-                continue;
+            if (child.childhood().canJump() && spot != null) {
+                var hop = land(child, null, hat, spot);
+                if (hop.ok()) return true;
+                if (hop.refusal() == CrewTransfer.Refusal.TRANSIENT) continue;
             }
             // A dependent child is set down within the braid's reach of the one taking it: the planned spot first, then a ring around her.
             var tries = new ArrayList<Vec3>();
