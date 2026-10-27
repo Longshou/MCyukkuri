@@ -23,6 +23,7 @@
 
 ### 家庭、繁殖与照护
 
+- **新生儿一律赤油、体型各异**：未做。用户裁决：胎生和茎生的新生儿都必须是赤油（BABY），不能以子油出生；每只体型在赤体区间内各不相同（[体型规范](BEHAVIOR.md#体型规范)）。[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfcabb6d5e3d51755aed8c744e930a46779) 试玩：茎生 `kind=STEM stage=JUVENILE scale=0.2`，明显大于胎生 `kind=LIVE stage=BABY scale=0.14`。数值源在 `family/GrowthSize` 读取的出生配置；`DetachedStemBlockEntity`、`LiveBirthGeometry.BABY_SCALE`、`LiveBirthRenderer` 另有各自的比例，需统一改为读 `GrowthSize.birth(kind)`。完成：`birth_stem_caught` 与 `birth_land_caught` 每只新生儿日志都是 `stage=BABY`，同一胎的 `scale` 各不相同，且都在赤体区间内；茎上实子显示的大小与落地后的身体一致。
 - **陆 27 繁衍剩余缺口核对**（43）：未做。保留对照 Wiki 补齐求偶到育儿全流程的要求，先列清真正未实现的环节。已接入生产、照护与成长继续待试玩；迁徙照护、宠物许可、树叶襁褓分别按已有条目处理，不重复开整套机制任务。
 
 ### 宠物、商店与人类关系
@@ -75,6 +76,7 @@
 - **洞口结界屏障外观**：已接入待试玩，外观待用户确认。野生灵梦封洞口的屏障方块 `mcyukkuri:den_barrier`（规则见[灵梦封洞口](WILD_SHELTERS.md#灵梦封洞口结界)）改为原生方块模型 `models/block/den_barrier.json` 与贴图 `textures/block/den_barrier.png`，占位渲染器已去掉；制作源 `standards/yukkuri-library/ecology/wild-shelters/den_barrier.py`（见[天然住所制作源](../standards/yukkuri-library/ecology/wild-shelters/README.md)），快照 `art/source/den-barrier/`。细枝插、靠、搭成一堆，格心一团落叶，枝缝塞叶、脚下散叶，不绑不编、有缝；方块无朝向，四面各一层。看：`den_barrier` 左洞灵梦封口后，从洞外近处与约 8 格外各看一次，再从洞内看背面；屏障不穿洞壁与洞顶，缝里能看到洞里的灵梦。完成：用户确认一眼读作封住的洞口、与野生巢细枝同风格后，用“保存 xx”把登记状态改为认可。
 
 - **水生表情与帽船外观**：已接入待试玩，外观待用户确认（含 `sad`／`afraid` 表情、帽船即家外观〔粮袋、乘员姿态、湿色带、破损〕与木棍 `paddle_stick`；场景观察并入[水生魔理沙模块](#水生魔理沙模块重构)的 P0-11）。新表情 `sad`（各模型自己的含泪脸去泪、上眼睑压低成垂眼）与 `afraid`（惊讶大眼加缩小的瞳孔、含泪脸的眉与抿嘴）由 `standards/yukkuri-library/expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合；帽船木棍 `paddle_stick`（棕色像素风方截面小木棍）与吃水湿色带 `marisa_hat_wetline` 由 `standards/yukkuri-library/interactions/aquatic-tools/build.py` 生成；帽船改为与戴着的帽子同算法显示破损方格，翻覆终态帽冠朝上、帽檐贴水。水生帽放大到 1.75 倍（席位容量见[帽船制作源](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md#席位表)）；储粮按实际库存种类绘制物品模型，放在船长肩前两侧帽壁边的侧窝、左右交替放入（总负责人 2026-10-26：前台阶坐着孩子时身前深窝里的粮从岸上看不见），帽檐上不放粮；离线审图（岸上 3／6 格、左右两岸）：右岸看左侧窝 1／2／3 档分得开，左岸看右侧窝 2、3 档差别小（右侧窝靠船长一段让给垂下的辫子，放得少），6 格只剩几个色点；湿色带改为冷色光泽加水线亮线；乘员姿态表 `crew`（`boat_rim_peek` 前台阶探头、`boat_nest_curl` 深窝挤睡、船长睡着时 `boat_cover_young`）由服务端按席位类型、体型与睡眠选择。水上压扁改为 0.55、前台阶浅到 0.6，初航前的水生幼体戴 1 倍帽（`young_hat_multiplier`），开始初航时换船用大帽。看：`cargo` 各档储粮（站在岸上 3 格与 6 格，左右两岸各能看到对岸侧窝里的粮、档位分得开，帽檐无粮、不高出帽口）、`afloat_family` 白天前台阶孩子探头与夜里船长盖窝、幼体小帽大小；`sail` 划船与停桨（左侧帽檐的木棍）、翻船后漂浮的帽子、破损帽子放成船；自救成功与警报安抚时的沮丧脸、受惊时的害怕脸。完成：用户确认后用“保存 xx”把表情写入标准登记，木棍、湿色带、粮袋与乘员姿态登记为认可。
+- **水中游泳动作**：未做。水中移动目前只播 `WATER_STRUGGLE` 并靠冲量平移，没有游动动作；落水自救、返岸、救援拖行都需要一套限速的游动片段。先在 `standards/yukkuri-library/interactions/braid-water-rescue`、`aquatic-tools` 中核对有没有已做好的动作，有就接入，没有就按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 中水里的个体有可见的划行动作，速度与动作节奏一致，用户确认观感。
 
 ## 低优先级
 
