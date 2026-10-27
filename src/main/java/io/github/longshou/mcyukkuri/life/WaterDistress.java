@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import net.minecraft.util.Mth;
 /** Real immersion, finite escape efforts and the breath after reaching safety; never damage immunity. */
 public final class WaterDistress {
     public enum Phase { IDLE, IMPACT, STRUGGLE, EXHAUSTED, RECOVER }
+    private static final int RESCUE_GUIDE_TICKS=20;
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, fatigue, burstTicks, restTicks, searchWait, callWait, pendingPlunge, boardWait, liftWait, drySupportTicks;
@@ -72,29 +74,51 @@ public final class WaterDistress {
     public boolean canBeLifted(){return liftWait==0;}
     /** A nearby parent has selected this stable hat, before the braid actually reaches the child. */
     public boolean receivingWaterRescue(){return rescueHat!=null;}
-    public void guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
-        if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()&&hat.young(entity)){
+    /** A current rendezvous belongs to one rescuer until its controller stops renewing it. */
+    public boolean availableForWaterRescue(YukkuriEntity rescuer){
+        clearInactiveWaterRescue();
+        return waterRescueParent==null||waterRescueParent.equals(rescuer.getUUID());
+    }
+    public boolean guideToWaterRescue(YukkuriEntity parent,HatBoatEntity hat){
+        if(parent!=null&&hat!=null&&parent.isAlive()&&hat.isAlive()&&hat.isAfloat()&&!hat.unsteadyMotion()
+                &&hat.young(entity)&&acceptGuide(parent,hat)){
             boolean changed = !parent.getUUID().equals(waterRescueParent) || !hat.getUUID().equals(rescueHat);
             temporaryRefugeGuide=false;waterRescueParent=parent.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+            waterRescueHoldTick=level().getGameTime();
             if (changed) GameplayLog.limited(entity, "water", "rescue.guide", 200,
                     "rescue guidance assigned parent={} hat={} phase={} immersion={}", waterRescueParent, rescueHat, phase, immersionTicks);
+            return true;
         }
+        return false;
     }
     /**
      * A selected adult may provide a finite physical refuge without becoming a parent.
      * The temporary boarding permit remains the single source of authority and is checked
      * every tick; this method only points the swimmer at that already-authorized hull.
      */
-    public void guideToTemporaryRefuge(YukkuriEntity caregiver,HatBoatEntity hat){
+    public boolean guideToTemporaryRefuge(YukkuriEntity caregiver,HatBoatEntity hat){
         if(caregiver==null||hat==null||!caregiver.isAlive()||!hat.isAlive()||!hat.isAfloat()
                 ||hat.unsteadyMotion()||hat.flooding()>0||!caregiver.getUUID().equals(hat.ownerYukkuri())
-                ||caregiver.getVehicle()!=hat||!hat.protects(caregiver)||!hat.admits(entity))return;
+                ||!refugeCaptain(caregiver,hat)||!hat.admits(entity)||!acceptGuide(caregiver,hat))return false;
         boolean changed=!temporaryRefugeGuide||!caregiver.getUUID().equals(waterRescueParent)||!hat.getUUID().equals(rescueHat);
         temporaryRefugeGuide=true;waterRescueParent=caregiver.getUUID();rescueHat=target=hat.getUUID();shore=null;destination=hat.position();searchWait=20;
+        waterRescueHoldTick=level().getGameTime();
         if(changed)GameplayLog.event(entity,"water","temporary refuge guidance assigned caregiver={} hat={} phase={} immersion={}",
                 waterRescueParent,rescueHat,phase,immersionTicks);
+        return true;
     }
-    /** The controller calls this after real contact, and on every later hold/lift tick. */
+    private boolean refugeCaptain(YukkuriEntity caregiver,HatBoatEntity hat){
+        return caregiver.getVehicle()==hat&&hat.protects(caregiver)
+                ||caregiver.isInWaterOrBubble()&&hat.ownsPhysicalHat(caregiver);
+    }
+    private boolean acceptGuide(YukkuriEntity rescuer,HatBoatEntity hat){
+        clearInactiveWaterRescue();
+        if(!WaterIncidents.guiding(rescuer,entity))return false;
+        if(rescueHat!=null&&(!hat.getUUID().equals(rescueHat)||!rescuer.getUUID().equals(waterRescueParent)))return false;
+        if(entity.family().crew().active())return false;
+        if(entity.aquaticLife().selfRescue().active())entity.aquaticLife().selfRescue().stop();
+        return true;
+    }
     /** The child is in a lifting braid right now: its own buoyancy and escape work stand aside. */
     public boolean heldByWaterRescue(){
         return !entity.level().isClientSide&&waterRescueParent!=null&&entity.family().crew().holdsBody();
@@ -117,10 +141,16 @@ public final class WaterDistress {
         if(!(level().getEntity(waterRescueParent) instanceof YukkuriEntity parent)||!parent.isAlive()){
             clearWaterRescue();return;
         }
+        var ticket=entity.family().crew().ticket();
+        boolean transferring=ticket!=null&&!ticket.finished()&&entity.getUUID().equals(ticket.bodyId())
+                &&parent.getUUID().equals(ticket.carrierId());
+        if(!transferring&&(level().getGameTime()-waterRescueHoldTick>RESCUE_GUIDE_TICKS||!WaterIncidents.guiding(parent,entity))){
+            clearWaterRescue();return;
+        }
         if(temporaryRefugeGuide){
             var hat=rescueHat!=null&&level().getEntity(rescueHat) instanceof HatBoatEntity candidate?candidate:null;
             if(hat==null||!hat.isAlive()||!hat.isAfloat()||hat.unsteadyMotion()||hat.flooding()>0
-                    ||!parent.getUUID().equals(hat.ownerYukkuri())||parent.getVehicle()!=hat||!hat.protects(parent)||!hat.admits(entity))
+                    ||!parent.getUUID().equals(hat.ownerYukkuri())||!refugeCaptain(parent,hat)||!hat.admits(entity))
                 clearWaterRescue();
             return;
         }
@@ -152,7 +182,8 @@ public final class WaterDistress {
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
     }
     private void enterWater(){
-        immersionTicks=0;burstTicks=restTicks=searchWait=0;shore=null;waterRescueHoldTick=Long.MIN_VALUE;
+        immersionTicks=0;burstTicks=restTicks=searchWait=0;shore=null;
+        if(rescueHat==null)waterRescueHoldTick=Long.MIN_VALUE;
         // A current parent controller may have selected this child just before its first water tick.  Keep only that
         // live rendezvous target; stale controller IDs are removed at the top of every ordinary tick.
         if(rescueHat==null){target=null;destination=null;}else target=rescueHat;
@@ -217,16 +248,21 @@ public final class WaterDistress {
         // While a parent offers the dipped rim the child waits in the water (it still floats, bites and takes real water damage);
         // its own swimming bursts resume at once if the rescue fails and cancels.
         if(entity.family().crew().busy()){burstTicks=0;entity.getNavigation().stop();return;}
-        if(entity.family().crew().climbing()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
+        // One valid rescue rendezvous owns the swimming target until it expires or the real ticket takes over.
+        if(receivingWaterRescue()){
+            if(entity.aquaticLife().selfRescue().active())entity.aquaticLife().selfRescue().stop();
+        }else if(entity.family().crew().climbing()||entity.aquaticLife().selfRescue().escapeTick()){burstTicks=0;return;}
         if(searchWait==0){findEscape();searchWait=20;}
         if(target!=null&&level().getEntity(target) instanceof HatBoatEntity hat){
             boolean own=safeOwnHat(hat);
             boolean guided=target.equals(rescueHat)&&safeRescueHat(hat);
             if(!own&&!guided&&!safeHat(hat)){target=null;destination=null;searchWait=0;}
             else{
-                destination=hat.position();entity.getLookControl().setLookAt(hat,30,30);
+                var parent=waterRescueParent!=null&&level().getEntity(waterRescueParent) instanceof YukkuriEntity y?y:null;
+                var entry=guided?CrewTransfers.entryApproach(hat,entity,null,parent==null?null:WaterIncidents.rescueEntry(parent,entity)):null;
+                destination=entry==null?hat.position():entry;entity.getLookControl().setLookAt(hat,30,30);
                 // An untrained赤油 is lifted by its parent. It never grants itself a jump.
-                if(!own&&boardWait==0&&entity.childhood().canJump()&&entity.aquaticLife().familyLife().tryWaterBoard(hat)){
+                if(!own&&!guided&&boardWait==0&&entity.childhood().canJump()&&entity.aquaticLife().familyLife().tryWaterBoard(hat)){
                     boardWait=80;burstTicks=0;return;
                 }
             }

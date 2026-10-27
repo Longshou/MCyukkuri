@@ -468,8 +468,8 @@ public final class VoyageController {
             boat.syncVoyage(phase.ordinal());
         }
         if (berth == null) {
-            var outcome = ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAUNCH);
-            if (!(outcome instanceof ShoreBerth.Berth found)) { cancelTrip("berth_lost"); return Behaviors.IDLE; }
+            var outcome = ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAUNCH, boat);
+            if (!(outcome instanceof ShoreBerth.Berth found)) { noteBerthRefusal(outcome); cancelTrip("berth_lost"); return Behaviors.IDLE; }
             berth = found;
         }
         var status = boat.helm().berth(entity, Purpose.MOORING, berth.center(), berth.yaw(), .06, 4f);
@@ -562,9 +562,10 @@ public final class VoyageController {
 
     private boolean refreshBerth(HatBoatEntity boat) {
         var outcome = bank != null && water != null
-                ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND) : null;
+                ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND, boat) : null;
         if (!(outcome instanceof ShoreBerth.Berth)) outcome = berthFor(boat, null);
         if (outcome instanceof ShoreBerth.Berth found) { berth = found; bank = found.bank(); water = found.water(); return true; }
+        noteBerthRefusal(outcome);
         fallbackLanding("no_berth");
         return false;
     }
@@ -638,8 +639,10 @@ public final class VoyageController {
         if (boat == null || boat.isRemoved()) { toAshore("disembark_hull_gone", 0); return Behaviors.IDLE; }
         boolean captainAboard = entity.getVehicle() == boat;
         if (!captainAboard && berth == null) {
-            var outcome = bank != null && water != null ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND) : null;
+            var outcome = bank != null && water != null
+                    ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND, boat) : null;
             if (outcome instanceof ShoreBerth.Berth found) berth = found;
+            else noteBerthRefusal(outcome);
         }
         if (berth != null && boat.isAfloat()) boat.helm().berth(entity, Purpose.LANDING, berth.center(), berth.yaw(), .05, 4f);
         if (boat.unsteadyMotion() || boat.capsizing()) { if (++hullWait > 200) fail("hull_unsteady"); return Behaviors.BOAT_STEADY; }
@@ -791,8 +794,10 @@ public final class VoyageController {
         long now = now();
         if (boat == null) { toAshore("stow_hull_gone", 0); return Behaviors.IDLE; }
         if (berth == null) {
-            var outcome = bank != null && water != null ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND) : null;
+            var outcome = bank != null && water != null
+                    ? ShoreBerth.berthAt(level(), entity, boat.hullScale(), bank, water, ShoreBerth.Purpose.LAND, boat) : null;
             if (outcome instanceof ShoreBerth.Berth found) berth = found;
+            else noteBerthRefusal(outcome);
         }
         if (berth == null) { stowFailed("stow_no_berth"); return Behaviors.IDLE; }
         if (boat.isAfloat()) boat.helm().berth(entity, Purpose.LANDING, berth.center(), berth.yaw(), .05, 4f);
@@ -816,6 +821,12 @@ public final class VoyageController {
         entity.family().playHatOn();
         GameplayLog.event(entity, "aquatic", "landing complete hat={} duration={} hatReturned=true", boat.getUUID(), now - since);
         return Behaviors.AQUATIC_HAT_CARE;
+    }
+
+    private void noteBerthRefusal(ShoreBerth.Outcome outcome) {
+        String detail = outcome instanceof ShoreBerth.Refusal refused ? refused.describe() : "bank_or_water_missing";
+        GameplayLog.limited(entity, "aquatic", "voyage.berth." + phase, 100,
+                "voyage berth refused phase={} hat={} bank={} water={} detail={}", phase, hullId, bank, water, detail);
     }
 
     /** The hat could not be put away: it stays on the water, the captain ashore, and the area is left alone for a while. */

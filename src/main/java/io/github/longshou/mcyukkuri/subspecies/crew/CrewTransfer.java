@@ -69,12 +69,18 @@ public final class CrewTransfer {
         public static Result refusedClient() { return new Result(null, Refusal.TRANSIENT, "client"); }
     }
 
+    /** A read-only answer to whether the current water-to-hat lift can be planned; opening the real ticket rechecks and claims its seat. */
+    public record LiftPreview(boolean ok, Refusal refusal, String reason) {
+        private static LiftPreview ready() { return new LiftPreview(true, null, ""); }
+        private static LiftPreview refused(Refusal refusal, String reason) { return new LiftPreview(false, refusal, reason); }
+    }
+
     /** Phase time limits in ticks (APPROACH differs by mode; MOVE adds its own length). */
     private static final int CLAIM_TTL = 40, CONTACT_TTL = 260, SETTLE_TTL = 80, RELEASE_TTL = 60, STALL_TICKS = 200, MOVE_SLACK = 60;
     private static final AtomicLong IDS = new AtomicLong(1);
 
     // ---------------------------------------------------------------- identity
-    private final long id = IDS.getAndIncrement();
+    private final long id;
     private final ServerLevel level;
     private final Mode mode;
     private final UUID bodyId;
@@ -113,7 +119,11 @@ public final class CrewTransfer {
     /** Where a carrier stands (a seat for a boat carrier, her feet otherwise) and the heading from which her reach closes. */
     private record Stand(int seat, Vec3 feet, float yaw, boolean mouth) {}
 
-    private CrewTransfer(ServerLevel level, Request r, int boatA, int boatB) {
+    private CrewTransfer(ServerLevel level, Request r, int boatA, int boatB) { this(level, r, boatA, boatB, true); }
+
+    /** A planning-only transfer has no observable id and must never be attached, published or driven. */
+    private CrewTransfer(ServerLevel level, Request r, int boatA, int boatB, boolean allocateId) {
+        this.id = allocateId ? IDS.getAndIncrement() : 0;
         this.level = level;
         this.mode = r.mode();
         this.bodyId = r.body().getUUID();
@@ -153,6 +163,15 @@ public final class CrewTransfer {
     public Anchor from() { return from; }
     public Anchor to() { return to; }
     public boolean rescue() { return rescue; }
+
+    /**
+     * The one exception to a hull's transfer exclusion: this ticket's own HOP body may walk to its departure edge while it is still
+     * in APPROACH. Every other participant, phase and mode remains excluded.
+     */
+    public boolean allowsDepartureApproach(HatBoatEntity source, YukkuriEntity rider) {
+        return !finished && source != null && rider != null && phase == Phase.APPROACH && mode == Mode.HOP
+                && bodyId.equals(rider.getUUID()) && from.kind() == Kind.BERTH && boatA == source.getId() && rider.getVehicle() == source;
+    }
 
     private YukkuriEntity body() { return level.getEntity(bodyId) instanceof YukkuriEntity y ? y : null; }
     private YukkuriEntity carrier() { return carrierId != null && level.getEntity(carrierId) instanceof YukkuriEntity y ? y : null; }
@@ -199,10 +218,15 @@ public final class CrewTransfer {
                     || hat.flooding() > 0 || hat.capsizing()) return refuse(r, Refusal.TRANSIENT, "hull_unstable", false);
         }
         if (r.mode() == Mode.CLIMB && b != null) {
-            var rim = b.toWorld(nearestEntry(b, body.position()).edge());
-            if (Math.hypot(body.getX() - rim.x, body.getZ() - rim.z) > hopReach(body) + .12) return refuse(r, Refusal.TRANSIENT, "rim_out_of_reach", false);
+            if (!climbInReach(body, b)) return refuse(r, Refusal.TRANSIENT, "rim_out_of_reach", false);
         }
         var ticket = new CrewTransfer(level, r, a == null ? -1 : a.getId(), b == null ? -1 : b.getId());
+        // External boarding may have to feed, jettison or move another rider. Check the exact eventual seat and curve first.
+        var preflight = ticket.preflightExternalBoarding();
+        if (preflight != null) {
+            if (preflight.refusal() == Refusal.GEOMETRY) port.rememberImpossible(key, now);
+            return refuse(r, preflight.refusal(), preflight.reason(), false);
+        }
         var claim = ticket.claim();
         if (claim != null) return refuse(r, claim.refusal(), claim.reason(), false);
         // The plan is checked now (strength, reach, block sweep); the curve is built again from the real positions at MOVE.
@@ -272,9 +296,108 @@ public final class CrewTransfer {
         if (!(body.level() instanceof ServerLevel level) || !usable(body) || !carrierReady(carrier) || !CrewReach.canLift(carrier, body)) return false;
         var request = new Request(Mode.LIFT, body, carrier, Anchor.berth(hat, seat), Anchor.ground(ground), Purpose.BOARD,
                 false, false, DeckLayout.NONE, "land_lift");
-        var preview = new CrewTransfer(level, request, hat.getId(), -1);
+        var preview = new CrewTransfer(level, request, hat.getId(), -1, false);
         var built = preview.geometry(body, hat.toWorld(hat.deckLayout().slot(seat).pos()));
         return built.failure() == null && preview.chooseStand(body, carrier, built.geometry()) != null;
+    }
+
+    /**
+     * Plans a possible rescue lift without reserving a seat, moving a rider, changing an incident or spending resources.
+     * Deck searches retain their bounded-search diagnostics. The actual transfer rechecks the selected seat after any approach.
+     */
+    public static LiftPreview previewLiftAboard(YukkuriEntity body, YukkuriEntity carrier, HatBoatEntity hat) {
+        if (body == null || carrier == null || hat == null || !(body.level() instanceof ServerLevel level)
+                || carrier.level() != body.level() || hat.level() != body.level()) return LiftPreview.refused(Refusal.TRANSIENT, "participants_unavailable");
+        if (!usable(body) || !carrierReady(carrier) || carrier.getVehicle() != hat || hat.isRemoved() || !hat.isAfloat() || hat.unsteadyMotion())
+            return LiftPreview.refused(Refusal.TRANSIENT, "participants_not_ready");
+        if (body.isPassenger() || !body.isInWaterOrBubble() || !body.waterDistress().canBeLifted())
+            return LiftPreview.refused(Refusal.TRANSIENT, "body_not_liftable");
+        if (body.distanceToSqr(hat) > 9) return LiftPreview.refused(Refusal.GEOMETRY, "approach_required");
+        if (!carrier.hasLineOfSight(body)) return LiftPreview.refused(Refusal.TRANSIENT, "line_of_sight_required");
+        if (!CrewReach.canLift(carrier, body)) return LiftPreview.refused(Refusal.INCAPABLE, "lift_capacity");
+        if (!hat.admits(body)) return LiftPreview.refused(Refusal.INCAPABLE, "not_admitted");
+        var request = new Request(Mode.LIFT, body, carrier, Anchor.water(body.position()), Anchor.berth(hat, DeckLayout.NONE), Purpose.RESCUE,
+                true, true, DeckLayout.NONE, "rescue_lift_preview");
+        var preview = new CrewTransfer(level, request, -1, hat.getId(), false);
+        var result = preview.preflightExternalBoarding();
+        return result == null ? LiftPreview.ready() : LiftPreview.refused(result.refusal(), result.reason());
+    }
+
+    private static Refusal admissionRefusal(Admission admission) {
+        return switch (admission.reason()) {
+            case UNITS_FULL, NOT_ADMITTED -> Refusal.INCAPABLE;
+            case NO_SLOT_FOR_CLASS -> Refusal.GEOMETRY;
+            default -> Refusal.TRANSIENT;
+        };
+    }
+
+    private record BoardingSlot(int slot, Result failure) {
+        private static BoardingSlot at(int slot) { return new BoardingSlot(slot, null); }
+        private static BoardingSlot refused(Refusal refusal, String reason) { return new BoardingSlot(DeckLayout.NONE, Result.refused(refusal, reason)); }
+    }
+
+    /**
+     * The external-boarder preflight shares the real ticket's geometry and stand selection, but chooses the same eventual seat
+     * without taking it. When room-making must lower the larder tier, the exact candidate is projected before food is changed;
+     * when it must move riders, the room plan's own destination is used. {@link #claim()} then requires that exact seat.
+     */
+    private Result preflightExternalBoarding() {
+        if (to.kind() != Kind.BERTH || a_withinBoat()) return null;
+        var body = body();
+        var b = hatB();
+        if (body == null || b == null) return Result.refused(Refusal.TRANSIENT, "participants_unavailable");
+        // Every external destination helper requires a floating hull. BOARD/RESCUE also refuse while a hull is being landed;
+        // establish that before makeRoom can consume provisions or start another rider's move.
+        if (!b.isAfloat()) return Result.refused(Refusal.TRANSIENT, "destination_not_afloat");
+        if ((purpose == Purpose.BOARD || purpose == Purpose.RESCUE) && b.landing())
+            return Result.refused(Refusal.TRANSIENT, "destination_landing");
+        var placed = b.deck().get(bodyId);
+        boolean retainedReturn = purpose == Purpose.RETAINED && placed != null && !placed.aboard() && placed.lease() != null
+                && placed.lease().purpose() == Purpose.RETAINED && placed.home() >= 0;
+        // Boarders contesting a rescue berth must already be close enough to do so. A valid retained return does not contest
+        // one at all; its existing berth is reclaimed below.
+        if (emergency && b.young(body) && (purpose == Purpose.BOARD || purpose == Purpose.RETAINED && !retainedReturn)
+                && !b.canRequestEmergencyBerth(body)) return Result.refused(Refusal.TRANSIENT, "emergency_berth_unreachable");
+        var selected = externalBoardingSlot(body, b);
+        if (selected.failure() != null) return selected.failure();
+        slot = selected.slot();
+        return plan();
+    }
+
+    /** Pick the target consumed by the real destination claim, without placing or moving anybody. */
+    private BoardingSlot externalBoardingSlot(YukkuriEntity body, HatBoatEntity b) {
+        var deck = b.deck();
+        var placed = deck.get(bodyId);
+        var bodyView = b.bodyOf(body);
+        var entry = nearestEntry(b, body.position());
+        var near = entry == null ? b.toLocal(body.position()) : entry.edge();
+
+        if (purpose == Purpose.OWN) {
+            var own = deck.canAdmit(bodyView, Purpose.OWN, near, DeckLayout.NONE);
+            return own.ok() ? BoardingSlot.at(own.slot()) : BoardingSlot.refused(admissionRefusal(own), "seat:" + own.text());
+        }
+        if (purpose == Purpose.RETAINED && placed != null && !placed.aboard() && placed.lease() != null
+                && placed.lease().purpose() == Purpose.RETAINED && placed.home() >= 0) return BoardingSlot.at(placed.home());
+        // Boarding and rescue reservations are renewed by the destination helper, rather than creating a second claim.
+        if (placed != null && !placed.aboard() && placed.target() >= 0) return BoardingSlot.at(placed.target());
+
+        Purpose primary = purpose == Purpose.RESCUE ? Purpose.RESCUE : Purpose.BOARD;
+        var direct = deck.canAdmit(bodyView, primary, near, DeckLayout.NONE);
+        if (direct.ok()) return BoardingSlot.at(direct.slot());
+        if (primary == Purpose.BOARD && (emergency || rescue)) {
+            var rescueSeat = deck.canAdmit(bodyView, Purpose.RESCUE, near, DeckLayout.NONE);
+            if (rescueSeat.ok()) return BoardingSlot.at(rescueSeat.slot());
+        }
+        if (!b.canMakeRoom(body, emergency || rescue)) return BoardingSlot.refused(Refusal.TRANSIENT, "no_room:" + b.lastDeckRefusal());
+
+        // makeRoom uses this exact plan when other riders must move, so its target remains valid when those moves finish.
+        var room = deck.planRoom(bodyView, Purpose.BOARD, b.toLocal(body.position()));
+        if (room != null) return BoardingSlot.at(room.slot());
+
+        // Only provision relief remains. Use the first seat that the real one-at-a-time relief loop will free, so it cannot
+        // spend food and then fail because an earlier seat was still under a larger larder tier.
+        int relieved = deck.firstSeatAfterRelievingLarder(bodyView, primary, near, emergency || rescue);
+        return relieved < 0 ? BoardingSlot.refused(Refusal.TRANSIENT, "no_room:" + b.lastDeckRefusal()) : BoardingSlot.at(relieved);
     }
 
     private Built geometry(YukkuriEntity body, Vec3 start) {
@@ -539,10 +662,10 @@ public final class CrewTransfer {
         boolean owner = body.getUUID().equals(b.ownerYukkuri());
         if (!owner && !b.makeRoom(body, emergency || rescue)) return Result.refused(Refusal.TRANSIENT, "no_room:" + b.lastDeckRefusal());
         seatLocal = switch (purpose) {
-            case OWN -> b.reserveOwnBoardingSeat(body, near);
-            case RETAINED -> b.returnSeat(body, emergency);
-            case RESCUE -> b.reserveRescueBrim(body, near);
-            default -> b.reserveBoardingSeat(body, near, emergency);
+            case OWN -> b.reserveOwnBoardingSeat(body, near, at -> true, slot);
+            case RETAINED -> b.returnSeat(body, emergency, slot);
+            case RESCUE -> b.reserveRescueBrim(body, near, slot);
+            default -> b.reserveBoardingSeat(body, near, emergency, slot);
         };
         if (seatLocal == null) {
             var a2 = b.admission(body, purpose == Purpose.OWN ? Purpose.OWN : Purpose.BOARD);
@@ -717,7 +840,7 @@ public final class CrewTransfer {
         if (a != null && a.isAfloat()) {
             var toward = endPoint(b);
             if (toward == null) { fail(Refusal.GEOMETRY, "no_end"); return; }
-            if (!a.approachBoardingEdge(body, toward)) {
+            if (!a.approachBoardingEdge(this, body, toward)) {
                 if (++approachTries >= 40) fail(Refusal.GEOMETRY, "no_departure_seat");
                 return;
             }
@@ -746,12 +869,19 @@ public final class CrewTransfer {
         return .45 * Math.min(1, body.growthScale() * body.getScale()) + 2 * HatVessel.radius(body.getBbWidth());
     }
 
+    /** The decision layer uses the same real entry distance as opening and approaching a climb. */
+    public static boolean climbInReach(YukkuriEntity body, HatBoatEntity hat) {
+        var entry = nearestEntry(hat, body.position());
+        if (entry == null) return false;
+        var rim = hat.toWorld(entry.edge());
+        return Math.hypot(body.getX() - rim.x, body.getZ() - rim.z) <= hopReach(body) + .12;
+    }
+
     private void approachClimb(YukkuriEntity body, long now) {
         var b = hatB();
         var entry = nearestEntry(b, body.position());
         var rim = b.toWorld(entry.edge());
-        double away = Math.hypot(body.getX() - rim.x, body.getZ() - rim.z);
-        if (away > hopReach(body) + .12) {
+        if (!climbInReach(body, b)) {
             if (now - phaseStart > 60) fail(Refusal.GEOMETRY, "rim_out_of_reach");
             return;
         }

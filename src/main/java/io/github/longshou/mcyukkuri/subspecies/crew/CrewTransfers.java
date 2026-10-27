@@ -70,15 +70,34 @@ public final class CrewTransfers {
         if (body.isPassenger() || body.family().flying() || !swimming && !body.onGround() || swimming && !body.waterDistress().canBeLifted()
                 || body.distanceToSqr(hat) > 9 || !carrier.hasLineOfSight(body) || !hat.admits(body))
             return Result.refused(CrewTransfer.Refusal.TRANSIENT, "preconditions");
-        boolean reservedRefuge = !hat.young(body) && !hat.temporaryCaregiver(body) && hat.admits(body);
-        if (swimming && !reservedRefuge && !WaterIncidents.permits(carrier, body)) return Result.refused(CrewTransfer.Refusal.TRANSIENT, "declined");
+        if (body.family().crew().active() || carrier.family().crew().active()) return Result.refused(CrewTransfer.Refusal.TRANSIENT, "busy");
+        if (swimming && !WaterIncidents.guide(carrier, body, hat)) return Result.refused(CrewTransfer.Refusal.TRANSIENT, "rescue_unavailable");
         // A water emergency may sacrifice provisions for the seat; ordinary dry boarding only puts them aside.
         boolean emergency = swimming || body.isPanicking() || carrier.aquaticLife().familyLife().alarm().active();
-        boolean bites = body.childhood().canJump() && body.family().stage() != FamilyLife.Stage.BABY && swimming;
-        var result = bites ? open(new Request(Mode.CLIMB, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, true, DeckLayout.NONE, "rescue_climb"))
-                : open(new Request(Mode.LIFT, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, swimming, DeckLayout.NONE,
-                        swimming ? "rescue_lift" : "board_lift"));
-        if (swimming) WaterIncidents.attempted(carrier, body, bites ? "rescue_climb" : "rescue_lift", result);
+        boolean bites = swimming && CrewTransfer.canStepOut(body) && CrewTransfer.climbInReach(body, hat);
+        String how = bites ? "rescue_climb" : swimming ? "rescue_lift" : "board_lift";
+        Result result;
+        if (bites) {
+            result = open(new Request(Mode.CLIMB, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, true, DeckLayout.NONE, how));
+            if (result.ok() || result.refusal() == CrewTransfer.Refusal.TRANSIENT) {
+                WaterIncidents.attempted(carrier, body, how, result);
+                return result;
+            }
+            // A capable swimmer can still have an unreachable climbing curve. The same rescuer may carry it instead.
+            how = "rescue_lift";
+        }
+        if (swimming) {
+            var preview = CrewTransfer.previewLiftAboard(body, carrier, hat);
+            if (!preview.ok()) {
+                // Planning a rendezvous is not a physical lift attempt and must not spend its seats, food or failure budget.
+                result = Result.refused(preview.refusal() == CrewTransfer.Refusal.GEOMETRY ? CrewTransfer.Refusal.TRANSIENT : preview.refusal(),
+                        "rescue_approach:" + preview.reason());
+                WaterIncidents.attempted(carrier, body, how, result);
+                return result;
+            }
+        }
+        result = open(new Request(Mode.LIFT, body, carrier, world(body), anySeat(hat), Purpose.RESCUE, emergency, swimming, DeckLayout.NONE, how));
+        if (swimming) WaterIncidents.attempted(carrier, body, how, result);
         return result;
     }
 
@@ -162,6 +181,10 @@ public final class CrewTransfers {
      * (null when every entry is refused). The hull does not move.
      */
     public static Vec3 entryApproach(HatBoatEntity hat, YukkuriEntity body, WaterIncidents.Incident incident) {
+        return entryApproach(hat, body, incident, null);
+    }
+
+    public static Vec3 entryApproach(HatBoatEntity hat, YukkuriEntity body, WaterIncidents.Incident incident, String selected) {
         var cls = hat.bodyOf(body).cls();
         var local = hat.toLocal(body.position());
         DeckLayout.Entry best = null;
@@ -169,6 +192,7 @@ public final class CrewTransfers {
         for (var entry : hat.deckLayout().entries()) {
             var anchor = entry.anchors().get(cls);
             if (anchor == null || incident != null && incident.refused(entry.id())) continue;
+            if (selected != null && !selected.equals(hat.getUUID() + ":" + entry.id())) continue;
             double d = Math.hypot(anchor.outside().x - local.x, anchor.outside().z - local.z);
             if (d < cost) { cost = d; best = entry; }
         }
@@ -214,22 +238,27 @@ public final class CrewTransfers {
 
     /** The hull centre at which the entry nearest a swimmer lies where a body of its size would float: the berth the helm brings the hull to. */
     public static Vec3 berthFor(HatBoatEntity hat, YukkuriEntity body) {
+        var berths = rescueBerths(hat, body);
+        return berths.isEmpty() ? null : berths.getFirst().center();
+    }
+
+    public record RescueBerth(String entry, Vec3 center) {}
+
+    /** Alternative real entrances, nearest first. The incident keeps the selected entrance until it fails or completes. */
+    public static List<RescueBerth> rescueBerths(HatBoatEntity hat, YukkuriEntity body) {
         var layout = hat.deckLayout();
         var cls = hat.bodyOf(body).cls();
-        var local = hat.toLocal(body.position());
-        DeckLayout.Entry best = null;
-        double cost = Double.MAX_VALUE;
+        var berths = new ArrayList<RescueBerth>();
         for (var entry : layout.entries()) {
             var anchor = entry.anchors().get(cls);
             if (anchor == null) continue;
-            double d = Math.hypot(anchor.outside().x - local.x, anchor.outside().z - local.z);
-            if (d < cost) { cost = d; best = entry; }
+            var outside = anchor.outside();
+            var offset = hat.toWorld(new Vec3(outside.x, 0, outside.z)).subtract(hat.position());
+            var center = new Vec3(body.getX() - offset.x, hat.getY(), body.getZ() - offset.z);
+            berths.add(new RescueBerth(hat.getUUID() + ":" + entry.id(), center));
         }
-        if (best == null) return null;
-        var outside = best.anchors().get(cls).outside();
-        // Put the hull where that entry's outside point lies on the swimmer: the hull centre is the swimmer minus that offset.
-        var offset = hat.toWorld(new Vec3(outside.x, 0, outside.z)).subtract(hat.position());
-        return new Vec3(body.getX() - offset.x, hat.getY(), body.getZ() - offset.z);
+        berths.sort(Comparator.comparingDouble(berth -> berth.center().distanceToSqr(hat.position())));
+        return berths;
     }
 
     /**

@@ -267,19 +267,29 @@ public final class ShoreBerth {
     private static void count(Map<String, Integer> counts, String key) { counts.merge(key, 1, Integer::sum); }
 
     /**
-     * Whether the specific bank/water pair is a berth for this hull, used when a caller has already chosen both (a captain
-     * standing at the bank cell she walked to). Returns the same Berth or Refusal as {@link #find}.
+     * Whether the specific bank/water pair is a berth for a hull about to be deployed, used when a caller has already chosen both
+     * (a captain standing at the bank cell she walked to). Returns the same Berth or Refusal as {@link #find}.
      */
     public static Outcome berthAt(ServerLevel level, YukkuriEntity captain, float hullScale, BlockPos stand, BlockPos water, Purpose purpose) {
+        return berthAt(level, captain, hullScale, stand, water, purpose, null);
+    }
+
+    /**
+     * As {@link #berthAt(ServerLevel, YukkuriEntity, float, BlockPos, BlockPos, Purpose)}, for an existing hull being held or
+     * moved to the berth. That hull is excluded from its own collision query; every other hull, block, entity and water column
+     * remains part of the fit check.
+     */
+    public static Outcome berthAt(ServerLevel level, YukkuriEntity captain, float hullScale, BlockPos stand, BlockPos water, Purpose purpose,
+                                  HatBoatEntity self) {
         var counts = new LinkedHashMap<String, Integer>();
         var toWater = Direction.fromDelta(water.getX() - stand.getX(), 0, water.getZ() - stand.getZ());
         if (toWater == null || water.getY() != stand.getY() - 1)
             return new Refusal("bank_water_not_adjacent", "bank " + stand.toShortString() + " water " + water.toShortString(), counts);
         if (!HatBoatRoute.calmSurface(level, water))
             return new Refusal("water_not_calm", "water " + water.toShortString(), counts);
-        var q = new Query(captain, hullScale, stand, purpose, stand);
+        var q = new Query(captain, self, hullScale, stand, purpose, stand, defaultRange(purpose), 0, p -> true);
         var c = candidate(level, q, water, stand, toWater);
-        var fit = HullFootprint.fits(level, captain, null, c.center(), c.yaw(), hullScale, 0);
+        var fit = HullFootprint.fits(level, self != null ? self : captain, self, c.center(), c.yaw(), hullScale, 0);
         if (!fit.ok()) { count(counts, fit.reason()); return new Refusal("hull_does_not_fit", fit.detail(), counts); }
         return new Berth(stand, water, toWater, c.standFeet(), c.center(), c.yaw(), c.inland(), c.along(), c.cost(), List.of());
     }

@@ -230,7 +230,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Synchronized load, for the client's waterline and the cargo readout. */
     public float hullLoad() { return entityData.get(LOAD); }
     /** The waterline drop at the current load, in blocks: fuller hulls ride lower, together with every seat. */
-    private double sinkBlocks() { return sinkNow; }
+    /** Current load-derived waterline drop, shared by buoyancy and righting's floating-footprint check. */
+    public double sinkBlocks() { return sinkNow; }
     /** Roll and flooding sensitivity at the current load, 1 when empty (project design, ecology A3). */
     public double rollFactor() { return deckLayout().rollFactor(loadNow); }
     private void tickLoad() {
@@ -426,14 +427,19 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return seat;
     }
     public boolean overcrowded(){return level().isClientSide?entityData.get(DECK).getBoolean("Overcrowded"):deck.anyOverflow();}
-    /** Close arrivals may take a rescue seat when the ordinary ones are gone; the deck still refuses a conflicting one. */
-    public boolean requestEmergencyBerth(YukkuriEntity child){
+    /** Whether a close arrival can contest a rescue seat, without starting the crowding response. */
+    public boolean canRequestEmergencyBerth(YukkuriEntity child){
         if(level().isClientSide||child==null||!young(child)||!isAfloat()||capsizing()||!child.isAlive())return false;
         var local=toLocal(child.position());double reach=radiusOf(child)+.25/unit();
         boolean footReach=Double.isFinite(HatVessel.footprint(mode(),local.x,local.z,reach))
                 &&Math.abs(local.y-HatVessel.freeboard(mode()))<=1.4/unit();
         if(!hasPassenger(child)&&(!(footReach||touchingOwnHat(child))||!child.hasLineOfSight(this)))return false;
         if(!hasPassenger(child)&&!deck.incoming(child.getUUID())&&!deck.canAdmit(bodyOf(child),Purpose.RESCUE).ok())return false;
+        return true;
+    }
+    /** Close arrivals may take a rescue seat when the ordinary ones are gone; the deck still refuses a conflicting one. */
+    public boolean requestEmergencyBerth(YukkuriEntity child){
+        if(!canRequestEmergencyBerth(child))return false;
         crowding.emergency(child);
         return true;
     }
@@ -693,16 +699,26 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public Vec3 peekSeat(YukkuriEntity child) { return stations.peekSeat(child); }
     /** A physical braid lift reserves the seat nearest the entry the child comes up at. */
     public Vec3 reserveRescueBrim(YukkuriEntity child,Vec3 actualFrom){ return stations.reserveRescueBrim(child, actualFrom); }
+    /** Reserve the seat chosen by a transfer preflight; a changed deck refuses instead of substituting another destination. */
+    public Vec3 reserveRescueBrim(YukkuriEntity child,Vec3 actualFrom,int preferred){ return stations.reserveRescueBrim(child, actualFrom, preferred); }
     /** Choose a real close landing, instead of reusing a far retained berth after jump limits tighten. */
     public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency){ return stations.reserveBoardingSeat(child, actualFrom, emergency); }
+    /** Reserve the seat chosen by a transfer preflight; a changed deck refuses instead of substituting another destination. */
+    public Vec3 reserveBoardingSeat(YukkuriEntity child,Vec3 actualFrom,boolean emergency,int preferred){ return stations.reserveBoardingSeat(child, actualFrom, emergency, preferred); }
     /** The place a returning pupil takes in this hull: the berth kept for it while its own hat was away, else a close place. */
     public Vec3 returnSeat(YukkuriEntity child,boolean emergency){ return stations.returnSeat(child, emergency); }
+    /** Reclaim or reserve exactly the seat chosen by a transfer preflight. */
+    public Vec3 returnSeat(YukkuriEntity child,boolean emergency,int preferred){ return stations.returnSeat(child, emergency, preferred); }
     /** A wet owner first reaches a nearby supported seat, then walks to the stern after settling. */
     public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom){ return reserveOwnBoardingSeat(actor,actualFrom,at->true); }
     public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom,Predicate<Vec3> reachable){ return stations.reserveOwnBoardingSeat(actor, actualFrom, reachable); }
+    /** Recheck the preflighted owner seat's reach without selecting another seat. */
+    public Vec3 reserveOwnBoardingSeat(YukkuriEntity actor,Vec3 actualFrom,Predicate<Vec3> reachable,int preferred){ return stations.reserveOwnBoardingSeat(actor, actualFrom, reachable, preferred); }
     public void releaseOwnBoardingSeat(YukkuriEntity actor){ stations.releaseOwnBoardingSeat(actor); }
     /** Move to the closest departure seat along the deck's walking edges. */
     public boolean approachBoardingEdge(YukkuriEntity rider,Vec3 towardWorld){ return stations.approachBoardingEdge(rider, towardWorld); }
+    /** Ticket-bound departure movement; only the current HOP body in APPROACH can bypass the hull's transfer exclusion. */
+    public boolean approachBoardingEdge(CrewTransfer ticket,YukkuriEntity rider,Vec3 towardWorld){ return stations.approachBoardingEdge(ticket, rider, towardWorld); }
     /** The {@code limit} nearest free seats (hull-local), nearest first; read-only. */
     public List<Vec3> brimSeatsToward(YukkuriEntity child,Vec3 towardWorld,int limit){ return stations.brimSeatsToward(child, towardWorld, limit); }
 
@@ -957,6 +973,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public Vec3 ownGripApproach(YukkuriEntity actor){ return hazards.ownGripApproach(actor); }
     /** Empty, already-spilled capsizes can be physically righted without replacing their token or cargo. */
     public boolean setSelfRighting(YukkuriEntity actor,float progress,Vec3 localGrip){ return hazards.setSelfRighting(actor, progress, localGrip); }
+    public String selfRightingRefusal(){ return hazards.selfRightingRefusal(); }
+    public Vec3 selfRightingOffset(Vec3 local,float progress){ return hullMotion.selfRightingOffset(local, progress); }
     public boolean finishSelfRighting(YukkuriEntity actor){ return hazards.finishSelfRighting(actor); }
     void tickSelfRighting(){ hazards.tickSelfRighting(); }
     public record SelfRescueDeployment(Vec3 position,float yaw,SelfRescueHatGeometry.Plan path){}

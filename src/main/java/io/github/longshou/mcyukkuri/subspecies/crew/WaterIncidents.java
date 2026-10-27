@@ -56,7 +56,16 @@ public final class WaterIncidents {
     public static final int MAX_FAILURES = 3;
     /** Slips of the swimmer's own climbs on one incident; the approach limit is for the swim to the hull. */
     public static final int SELF_SLIPS = 3, APPROACH_LIMIT = 600;
-    private static final int SCAN_EVERY = 10, MAX_DECISIONS = 10, BANK_ATTEMPT_EVERY = 20, REACH_LIMIT = 300;
+    private static final int SCAN_EVERY = 10, MAX_DECISIONS = 10, BANK_ATTEMPT_EVERY = 20, REACH_LIMIT = 300, REACH_STALL = 60;
+
+    /** A physical approach belongs to the same incident as its decision and failures, never to a caller's retry loop. */
+    private static final class Approach {
+        long started, progressed, observed = Long.MIN_VALUE, retryAt, failedAt = Long.MIN_VALUE;
+        double bestGap = Double.POSITIVE_INFINITY;
+        String entry = "";
+        final Set<String> refused = new LinkedHashSet<>();
+        Approach(long now) { started = progressed = now; }
+    }
 
     public static final class Incident {
         private final UUID victim;
@@ -65,7 +74,7 @@ public final class WaterIncidents {
         private final long opened;
         private final Map<UUID, Decision> decisions = new LinkedHashMap<>();
         private final Map<UUID, Integer> failures = new HashMap<>();
-        private final Map<UUID, Integer> reaching = new HashMap<>();
+        private final Map<UUID, Approach> reaching = new HashMap<>();
         private final Set<String> refusedEntries = new LinkedHashSet<>();
         private int slips, approachTicks, attempts;
         private boolean shoreDrift, closed;
@@ -163,7 +172,8 @@ public final class WaterIncidents {
         var near = new ArrayList<YukkuriEntity>();
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, victim.getBoundingBox().inflate(16, 6, 16), y -> y != victim && y.isAlive() && !y.isNoAi()))
             near.add(y);
-        near.sort(Comparator.comparingDouble(victim::distanceToSqr));
+        near.sort(Comparator.<YukkuriEntity>comparingInt(y -> Bonds.parentOf(y, victim) ? 0 : 1)
+                .thenComparingDouble(victim::distanceToSqr));
         int considered = 0;
         for (var y : near) {
             if (considered >= 12) break;
@@ -177,6 +187,7 @@ public final class WaterIncidents {
             for (var y : near) {
                 var d = incident.decisions.get(y.getUUID());
                 if (d == null || d.role() != Role.BANK || !d.accepted() || incident.failuresOf(y.getUUID()) >= MAX_FAILURES) continue;
+                if (roleOf(y, victim) != Role.BANK || !permits(y, victim)) continue;
                 if (y.family().crew().active() || victim.family().crew().active() || !victim.waterDistress().canBeLifted()) continue;
                 incident.nextAttempt = now + BANK_ATTEMPT_EVERY;
                 var result = CrewTransfers.pullToBank(victim, y);
@@ -189,14 +200,19 @@ public final class WaterIncidents {
     // ================================================================= who may help, and the one decision
     /** The part a yukkuri could play in this swimmer's incident from where she is now, or null. */
     private static Role roleOf(YukkuriEntity y, YukkuriEntity victim) {
-        if (!y.life().canRecognize(victim)) return null;
+        if (y == victim || !y.isAlive() || y.isNoAi() || y.isCommandPlaying() || y.operations().active()
+                || y.level() != victim.level() || !y.life().canRecognize(victim)) return null;
         if (y.getVehicle() instanceof HatBoatEntity hat && hat.isAfloat() && y.getUUID().equals(hat.ownerYukkuri()) && y.profile().aquatic()) {
-            if (victim.family().adult() && !Bonds.careKin(y, victim)) return null;
-            return Bonds.careKin(y, victim) ? Role.SAME_BOAT_PARENT : Role.NEIGHBOUR;
+            if (victim.family().adult() && !Bonds.parentOf(y, victim)) return null;
+            return Bonds.parentOf(y, victim) ? Role.SAME_BOAT_PARENT : Role.NEIGHBOUR;
         }
         if (y.isInWaterOrBubble()) {
-            // The capsized captain is a swimmer herself; she decides for the kin she can lift.
-            return y.profile().aquatic() && Bonds.careKin(y, victim) && !victim.family().adult() ? Role.CAPTAIN_SELF : null;
+            var incident = of(victim);
+            var source = incident != null && incident.boat != null && y.level() instanceof ServerLevel server
+                    && server.getEntity(incident.boat) instanceof HatBoatEntity hat ? hat : null;
+            // Kinship alone never makes a sibling or a baby the captain of the boat that threw this swimmer.
+            return y.profile().aquatic() && source != null && source.ownsPhysicalHat(y) && !victim.family().adult()
+                    ? Role.CAPTAIN_SELF : null;
         }
         if (y.isPassenger() || !y.onGround() || y.profile().dangerToYukkuri() || y.isPanicking()) return null;
         double dx = victim.getX() - y.getX(), dz = victim.getZ() - y.getZ();
@@ -208,6 +224,12 @@ public final class WaterIncidents {
     public static Decision decide(YukkuriEntity rescuer, YukkuriEntity victim, Incident incident, Role role) {
         var known = incident.decisions.get(rescuer.getUUID());
         if (known != null) return known;
+        // Keep every draw for the whole incident. The two recorded parents retain room even after nearby bystanders arrive.
+        if (incident.decisions.size() >= MAX_DECISIONS && !Bonds.parentOf(rescuer, victim)) {
+            GameplayLog.limited(victim, "aquatic", "incident.decisions_full", 200,
+                    "incident decision deferred rescuer={} reason=decision_capacity", rescuer.getUUID());
+            return null;
+        }
         long now = rescuer.level().getGameTime();
         boolean familiar = Bonds.careKin(rescuer, victim)
                 || YukkuriWorldData.get((ServerLevel) rescuer.level()).affinity(rescuer.getUUID(), victim.getUUID()) >= BondLevels.AFFINITY_FAMILIAR;
@@ -216,7 +238,6 @@ public final class WaterIncidents {
         float chance = rescuer.life().personality().helpProbability(familiar, urgent);
         float roll = rescuer.getRandom().nextFloat();
         var decision = new Decision(role, roll < chance, chance, roll, familiar, urgent, now);
-        if (incident.decisions.size() >= MAX_DECISIONS) incident.decisions.remove(incident.decisions.keySet().iterator().next());
         incident.decisions.put(rescuer.getUUID(), decision);
         GameplayLog.event(rescuer, "aquatic", "incident decide victim={} rescuer={} role={} familiar={} urgent={} chance={} roll={} accepted={}",
                 victim.getUUID(), rescuer.getUUID(), role, familiar, urgent, chance, roll, decision.accepted());
@@ -240,13 +261,15 @@ public final class WaterIncidents {
             if (!victim.isInWaterOrBubble()) return true;
             incident = open(victim, null, null, Cause.OTHER);
         }
+        var role = roleOf(rescuer, victim);
+        if (role == null) return false;
         var known = incident.decisions.get(rescuer.getUUID());
         if (known == null) {
-            var role = roleOf(rescuer, victim);
-            if (role == null) role = rescuer.isInWaterOrBubble() ? Role.CAPTAIN_SELF : rescuer.getVehicle() instanceof HatBoatEntity ? Role.SAME_BOAT_PARENT : Role.BANK;
             known = decide(rescuer, victim, incident, role);
         }
-        return known.accepted() && incident.failuresOf(rescuer.getUUID()) < MAX_FAILURES;
+        var approach = incident.reaching.get(rescuer.getUUID());
+        return known != null && known.accepted() && incident.failuresOf(rescuer.getUUID()) < MAX_FAILURES
+                && (approach == null || rescuer.level().getGameTime() >= approach.retryAt);
     }
 
     /** The swimmer's decision for this rescuer, or null while none has been drawn. */
@@ -261,6 +284,7 @@ public final class WaterIncidents {
         var incident = of(victim);
         if (incident == null) return;
         if (result.ok()) {
+            incident.reaching.remove(rescuer.getUUID());
             incident.attempts++;
             GameplayLog.event(rescuer, "aquatic", "incident attempt victim={} rescuer={} how={} n={} opened=true", victim.getUUID(), rescuer.getUUID(), how, incident.attempts);
             return;
@@ -282,6 +306,16 @@ public final class WaterIncidents {
     }
 
     private static void failed(YukkuriEntity rescuer, YukkuriEntity victim, Incident incident, String how, String why) {
+        long now = rescuer.level().getGameTime();
+        var approach = incident.reaching.computeIfAbsent(rescuer.getUUID(), id -> new Approach(now));
+        // Opening a ticket can fail synchronously and also notify its caller. That is one physical failure.
+        if (approach.failedAt == now) return;
+        approach.failedAt = now;
+        approach.retryAt = now + BANK_ATTEMPT_EVERY;
+        approach.started = approach.progressed = now;
+        approach.bestGap = Double.POSITIVE_INFINITY;
+        if (!approach.entry.isEmpty()) approach.refused.add(approach.entry);
+        approach.entry = "";
         int n = incident.failures.merge(rescuer.getUUID(), 1, Integer::sum);
         incident.lastFailure = why;
         GameplayLog.event(rescuer, "aquatic", "incident attempt failed victim={} rescuer={} how={} reason={} failures={}/{}{}",
@@ -306,7 +340,7 @@ public final class WaterIncidents {
             var incident = of(victim);
             if (incident == null) continue;
             var decision = decide(captain, victim, incident, Role.CAPTAIN_SELF);
-            if (!decision.accepted()) continue;
+            if (decision == null || !decision.accepted()) continue;
             anyAccepted = true;
             if (!victim.childhood().canJump() && (nearestBaby == null || captain.distanceToSqr(victim) < captain.distanceToSqr(nearestBaby))) nearestBaby = victim;
         }
@@ -342,11 +376,12 @@ public final class WaterIncidents {
             if (incident == null) continue;
             var d = incident.decisions.get(captain.getUUID());
             if (d == null || !d.accepted() || incident.failuresOf(captain.getUUID()) >= MAX_FAILURES) continue;
+            if (!permits(captain, y) || !y.waterDistress().availableForWaterRescue(captain)) continue;
             if (!CrewReach.canLift(captain, y)) continue;
             if (pick == null || y.getHealth() < pick.getHealth()) { pick = y; pickIncident = incident; }
         }
         if (pick == null) return false;
-        pick.waterDistress().guideToWaterRescue(captain, hat);
+        if (!guide(captain, pick, hat)) return false;
         captain.getNavigation().stop();
         io.github.longshou.mcyukkuri.life.SurfaceApproach.face(captain, io.github.longshou.mcyukkuri.life.SurfaceApproach.yaw(captain.position(), pick.position()));
         var result = CrewTransfers.liftFromWater(pick, captain, hat);
@@ -356,12 +391,7 @@ public final class WaterIncidents {
             return true;
         }
         if (result.refusal() == CrewTransfer.Refusal.INCAPABLE) { failed(captain, pick, pickIncident, "captain_lift", "INCAPABLE:" + result.reason()); return false; }
-        int waited = pickIncident.reaching.merge(captain.getUUID(), 1, Integer::sum);
-        if (waited > REACH_LIMIT) {
-            pickIncident.reaching.remove(captain.getUUID());
-            failed(captain, pick, pickIncident, "captain_reach", result.refusal() + ":" + result.reason());
-            return false;
-        }
+        if (!approaching(captain, pick, captain.distanceTo(pick), result.reason())) return false;
         // Not in reach yet: a small swimming impulse toward the swimmer; the lift refuses until the braid reaches.
         if (!swimToward(captain, pick.position())) {
             failed(captain, pick, pickIncident, "captain_reach", "energy");
@@ -400,7 +430,50 @@ public final class WaterIncidents {
         var incident = of(victim);
         if (incident == null) return false;
         var d = incident.decisions.get(captain.getUUID());
-        return d != null && d.accepted() && d.role() == Role.CAPTAIN_SELF && incident.failuresOf(captain.getUUID()) < MAX_FAILURES;
+        var approach = incident.reaching.get(captain.getUUID());
+        return d != null && d.accepted() && roleOf(captain, victim) != null && incident.failuresOf(captain.getUUID()) < MAX_FAILURES
+                && (approach == null || captain.level().getGameTime() >= approach.retryAt);
+    }
+
+    /** A willing, currently eligible rescuer may renew one actual rendezvous; another live guide keeps ownership. */
+    public static boolean guide(YukkuriEntity rescuer, YukkuriEntity victim, HatBoatEntity hat) {
+        if (!permits(rescuer, victim)) return false;
+        return hat.young(victim) ? victim.waterDistress().guideToWaterRescue(rescuer, hat)
+                : victim.waterDistress().guideToTemporaryRefuge(rescuer, hat);
+    }
+
+    /** Keep one entry while approaching. Failed entries of this physical rescue are not immediately retried. */
+    public static String approachEntry(YukkuriEntity rescuer, YukkuriEntity victim, List<String> entries) {
+        var incident = of(victim);
+        if (incident == null || !guiding(rescuer, victim)) return null;
+        var approach = incident.reaching.computeIfAbsent(rescuer.getUUID(), id -> new Approach(rescuer.level().getGameTime()));
+        if (entries.contains(approach.entry) && !approach.refused.contains(approach.entry)) return approach.entry;
+        approach.entry = entries.stream().filter(id -> !approach.refused.contains(id)).findFirst().orElse("");
+        approach.bestGap = Double.POSITIVE_INFINITY;
+        if (!approach.entry.isEmpty()) GameplayLog.event(rescuer, "aquatic",
+                "incident approach victim={} rescuer={} entry={} failures={}", victim.getUUID(), rescuer.getUUID(), approach.entry, incident.failuresOf(rescuer.getUUID()));
+        return approach.entry.isEmpty() ? null : approach.entry;
+    }
+
+    /** The swimmer reads the entry its rescuer is already approaching; it never selects a competing entrance. */
+    public static String rescueEntry(YukkuriEntity rescuer, YukkuriEntity victim) {
+        var incident = of(victim);
+        var approach = incident == null ? null : incident.reaching.get(rescuer.getUUID());
+        return approach == null || approach.entry.isEmpty() ? null : approach.entry;
+    }
+
+    /** Observe real progress toward contact, including refused helm moves; repeated calls cannot renew the deadline. */
+    public static boolean approaching(YukkuriEntity rescuer, YukkuriEntity victim, double gap, String reason) {
+        var incident = of(victim);
+        if (incident == null || !guiding(rescuer, victim)) return false;
+        long now = rescuer.level().getGameTime();
+        var approach = incident.reaching.computeIfAbsent(rescuer.getUUID(), id -> new Approach(now));
+        if (approach.observed == now) return true;
+        approach.observed = now;
+        if (Double.isFinite(gap) && gap < approach.bestGap - .04) { approach.bestGap = gap; approach.progressed = now; }
+        if (now - approach.started < REACH_LIMIT && now - approach.progressed < REACH_STALL) return true;
+        failed(rescuer, victim, incident, "approach", "no_contact:" + reason);
+        return false;
     }
 
     // ================================================================= the swimmer's own efforts

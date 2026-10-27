@@ -1,6 +1,9 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfers;
+import io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullFootprint;
+import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm.Purpose;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -242,6 +245,7 @@ public final class HatFamilyAlarm {
         if(boat.unsteadyMotion()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
         var returning=unreturnedChildren(children,boat).stream().filter(y->awaiting(y)||y.family().flying()||y.family().crew().busy()
                 ||!y.isPassenger()&&y.isInWaterOrBubble()&&entity.distanceToSqr(y)<=144)
+                .filter(y->y.isPassenger()||!y.isInWaterOrBubble()||y.family().crew().busy()||canRescueSwimmer(y))
                 .sorted(Comparator.<YukkuriEntity>comparingInt(y->y.family().crew().busy()?0:y.isInWaterOrBubble()&&!y.isPassenger()?1:2)
                         .thenComparingDouble(entity::distanceToSqr)).toList();
         boolean swimmer=returning.stream().anyMatch(y->!y.isPassenger()&&y.isInWaterOrBubble());
@@ -253,13 +257,12 @@ public final class HatFamilyAlarm {
             if(!child.isInWaterOrBubble())set(Behaviors.BOAT_ALARM_WAIT);else if(!boat.paddling())set(Behaviors.BOAT_RESCUE_YOUNG);
             entity.getLookControl().setLookAt(child,35,35);
             if(child.family().flying()||child.family().crew().busy()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
-            if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
-                boat.makeRoom(child,true);
+            if(!child.isPassenger()&&child.isInWaterOrBubble())return rescueSwimmer(boat,child);
             if(!child.isPassenger()&&CrewTransfers.liftAboard(child,boat).ok()){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             if(child.aquaticLife().firstVoyage().returningToParent()&&entity.distanceToSqr(child)<=64){boat.helm().hold(entity, Purpose.SAFETY);return true;}
             // Approach a swimmer or the child's actual shore rendezvous through navigable water.
             var braidApproach=!child.isPassenger()?CrewTransfers.berthFor(boat,child):null;
-            if(braidApproach!=null){approachExact(boat,braidApproach);rescueApproachPose(boat,child);return true;}
+            if(braidApproach!=null){approachExact(boat,braidApproach,Purpose.SAFETY);rescueApproachPose(boat,child);return true;}
             Vec3 target=child.aquaticLife().familyLife().alarm().meetingPoint();boolean shore=target!=null;
             if(target==null)target=child.position();
             if(entity.distanceToSqr(child)>2.25)approach(boat,target,shore);else boat.helm().hold(entity, Purpose.SAFETY);
@@ -326,25 +329,47 @@ public final class HatFamilyAlarm {
         }
         return true;
     }
-    private void approachExact(HatBoatEntity boat,Vec3 berth){
+    private HullHelm.Status approachExact(HatBoatEntity boat,Vec3 berth,Purpose purpose){
         // The last stretch is a bounded kinematic drive (it follows a swimmer's drift every tick); paddle routes only bring the hull near.
         if(boat.isAfloat()&&!boat.unsteadyMotion()&&boat.position().subtract(berth).horizontalDistanceSqr()<=6.25){
-            boat.helm().berth(entity, Purpose.SAFETY, berth,boat.getYRot(),.06,3f);return;
+            var gap=berth.subtract(boat.position()).multiply(1,0,1);
+            var step=boat.position().add(gap.lengthSqr()>.0036?gap.normalize().scale(.06):gap);
+            var fit=HullFootprint.fits(level(),boat,boat,step,boat.getYRot(),boat.hullScale(),0);
+            if(!fit.ok()||!entity.aquaticLife().familyLife().allowsDestination(boat,step)){
+                boat.helm().hold(entity,purpose);return HullHelm.Status.blocked(fit.ok()?"family_boundary":fit.reason());
+            }
+            return boat.helm().berth(entity,purpose,berth,boat.getYRot(),.06,3f);
         }
-        if(now()<nextRoute)return;nextRoute=now()+20;
-        if(!boat.cargo().paddle()||entity.life().energy()<10){boat.helm().hold(entity, Purpose.SAFETY);return;}
-        if(boat.position().subtract(berth).horizontalDistanceSqr()<=.0009){boat.helm().hold(entity, Purpose.SAFETY);return;}
+        if(now()<nextRoute)return boat.helm().status();nextRoute=now()+20;
+        if(!boat.cargo().paddle()||entity.life().energy()<10){
+            boat.helm().hold(entity,purpose);return HullHelm.Status.blocked(!boat.cargo().paddle()?"no_paddle":"energy");
+        }
         var path=new ArrayList<>(HatBoatRoute.find(boat,berth,point->entity.aquaticLife().familyLife().allowsDestination(boat,point)));
         Vec3 from=path.isEmpty()?boat.position():path.getLast();
-        if(finalApproachClear(boat,from,berth)){path.add(berth);boat.helm().route(entity, Purpose.SAFETY, path,.0009);}
-        else if(!path.isEmpty())boat.helm().route(entity, Purpose.SAFETY, path);
-        else boat.helm().hold(entity, Purpose.SAFETY);
+        boolean exact=finalApproachClear(boat,from,berth);
+        if(exact)path.add(berth);
+        if(!path.isEmpty())return boat.helm().request(HullHelm.HelmLease.of(entity,purpose),new HullHelm.HelmOrder.Route(path,exact?.0009:.12));
+        boat.helm().hold(entity,purpose);return HullHelm.Status.blocked("no_water_route");
     }
-    public boolean approachRescue(HatBoatEntity boat,YukkuriEntity child){
-        if(!child.isPassenger()&&child.isInWaterOrBubble()&&entity.distanceToSqr(child)<=9&&entity.hasLineOfSight(child))
-            boat.makeRoom(child,true);
-        var berth=CrewTransfers.berthFor(boat,child);if(berth==null)return false;
-        approachExact(boat,berth);return true;
+    public boolean canRescueSwimmer(YukkuriEntity child){
+        return child.waterDistress().availableForWaterRescue(entity)&&WaterIncidents.permits(entity,child);
+    }
+    /** One incident decision drives the rendezvous, contact and transfer for every aboard-parent rescue. */
+    public boolean rescueSwimmer(HatBoatEntity boat,YukkuriEntity child){
+        if(!controllable()||entity.getVehicle()!=boat||child.isPassenger()||!child.isInWaterOrBubble()
+                ||!WaterIncidents.guide(entity,child,boat))return false;
+        var result=CrewTransfers.liftAboard(child,boat);
+        if(result.ok()){boat.helm().hold(entity,Purpose.RESCUE);set(Behaviors.BOAT_RESCUE_YOUNG);return true;}
+        if(!WaterIncidents.guiding(entity,child))return false;
+        var berths=CrewTransfers.rescueBerths(boat,child);
+        var entry=WaterIncidents.approachEntry(entity,child,berths.stream().map(CrewTransfers.RescueBerth::entry).toList());
+        var berth=berths.stream().filter(option->option.entry().equals(entry)).findFirst().orElse(null);
+        var status=berth==null?HullHelm.Status.blocked("no_rescue_entry"):approachExact(boat,berth.center(),Purpose.RESCUE);
+        double gap=berth==null?Double.POSITIVE_INFINITY:boat.position().subtract(berth.center()).horizontalDistance();
+        if(!WaterIncidents.approaching(entity,child,gap,status.blocked()?status.reason():result.reason())){
+            boat.helm().release(entity.getUUID());child.waterDistress().clearRescueHat(boat);return false;
+        }
+        rescueApproachPose(boat,child);return true;
     }
     private void rescueApproachPose(HatBoatEntity boat,YukkuriEntity child){
         if(!boat.paddling()){set(Behaviors.BOAT_RESCUE_YOUNG);return;}

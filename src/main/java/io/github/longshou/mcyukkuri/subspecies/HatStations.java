@@ -5,9 +5,11 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.boat.HullHelm;
 import io.github.longshou.mcyukkuri.subspecies.crew.Body;
+import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransfer;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout.Kind;
 import io.github.longshou.mcyukkuri.subspecies.crew.HatDeck;
+import io.github.longshou.mcyukkuri.subspecies.crew.Lease;
 import io.github.longshou.mcyukkuri.subspecies.crew.Purpose;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -597,47 +599,70 @@ final class HatStations {
 
 
     /** A physical braid lift reserves the seat nearest the entry the child comes up at. */
-    Vec3 reserveRescueBrim(YukkuriEntity child, Vec3 actualFrom) { return reserveBoardingSeat(child, actualFrom, false, true); }
+    Vec3 reserveRescueBrim(YukkuriEntity child, Vec3 actualFrom) { return reserveRescueBrim(child, actualFrom, DeckLayout.NONE); }
+    /** Reserve the preflighted rescue seat; no alternate seat is silently substituted. */
+    Vec3 reserveRescueBrim(YukkuriEntity child, Vec3 actualFrom, int preferred) { return reserveBoardingSeat(child, actualFrom, false, true, preferred); }
 
-    Vec3 reserveBoardingSeat(YukkuriEntity child, Vec3 actualFrom, boolean emergency) { return reserveBoardingSeat(child, actualFrom, emergency, false); }
+    Vec3 reserveBoardingSeat(YukkuriEntity child, Vec3 actualFrom, boolean emergency) { return reserveBoardingSeat(child, actualFrom, emergency, DeckLayout.NONE); }
+    /** Reserve the preflighted boarding seat; no alternate seat is silently substituted. */
+    Vec3 reserveBoardingSeat(YukkuriEntity child, Vec3 actualFrom, boolean emergency, int preferred) {
+        return reserveBoardingSeat(child, actualFrom, emergency, false, preferred);
+    }
 
-    private Vec3 reserveBoardingSeat(YukkuriEntity child, Vec3 actualFrom, boolean emergency, boolean rescue) {
+    private Vec3 reserveBoardingSeat(YukkuriEntity child, Vec3 actualFrom, boolean emergency, boolean rescue, int preferred) {
         if (boat.level().isClientSide || boat.landing() || child == null || actualFrom == null || !boat.admits(child) || !boat.isAfloat() || boat.unsteadyMotion()) return null;
         if (emergency && boat.young(child) && !boat.requestEmergencyBerth(child)) return null;
         var have = incomingPos(child.getUUID());
         if (have != null) return have;
         var cb = body(child);
         var near = entryNear(actualFrom);
-        var lease = rescue ? deck().claim(cb, Purpose.RESCUE, near, DeckLayout.NONE, HatDeck.BOARD_TTL) : deck().claim(cb, Purpose.BOARD, near, DeckLayout.NONE, HatDeck.BOARD_TTL);
-        if (lease == null && (emergency || rescue)) lease = deck().claim(cb, Purpose.RESCUE, near, DeckLayout.NONE, HatDeck.BOARD_TTL);
+        var lease = rescue ? claimAt(cb, Purpose.RESCUE, near, preferred, HatDeck.BOARD_TTL) : claimAt(cb, Purpose.BOARD, near, preferred, HatDeck.BOARD_TTL);
+        if (lease == null && (emergency || rescue)) lease = claimAt(cb, Purpose.RESCUE, near, preferred, HatDeck.BOARD_TTL);
         if (lease == null) return null;
         boat.syncSeats();
         return incomingPos(child.getUUID());
     }
 
     /** The place a returning pupil takes in this hull: the berth kept for it while its own hat was away, else a close place. */
-    Vec3 returnSeat(YukkuriEntity child, boolean emergency) {
+    Vec3 returnSeat(YukkuriEntity child, boolean emergency) { return returnSeat(child, emergency, DeckLayout.NONE); }
+    /** Reclaim the preflighted voyage berth, or reserve exactly the fallback boarding seat. */
+    Vec3 returnSeat(YukkuriEntity child, boolean emergency, int preferred) {
         if (boat.level().isClientSide || child == null || !boat.young(child) || !boat.isAfloat() || boat.unsteadyMotion()) return null;
         var cb = body(child);
-        if (deck().reclaimRetained(cb)) { boat.syncSeats(); return incomingPos(child.getUUID()); }
-        return reserveBoardingSeat(child, child.position(), emergency, false);
+        if (deck().reclaimRetained(cb)) {
+            var target = incomingPos(child.getUUID());
+            if (preferred >= 0 && (target == null || deck().get(child.getUUID()).target() != preferred)) return null;
+            boat.syncSeats();
+            return target;
+        }
+        return reserveBoardingSeat(child, child.position(), emergency, false, preferred);
     }
 
     /** A wet owner first reaches a nearby supported seat, then walks to the stern after settling. */
     Vec3 reserveOwnBoardingSeat(YukkuriEntity actor, Vec3 actualFrom, Predicate<Vec3> reachable) {
+        return reserveOwnBoardingSeat(actor, actualFrom, reachable, DeckLayout.NONE);
+    }
+    /** Reserve exactly the preflighted owner seat after rechecking its physical approach. */
+    Vec3 reserveOwnBoardingSeat(YukkuriEntity actor, Vec3 actualFrom, Predicate<Vec3> reachable, int preferred) {
         if (boat.level().isClientSide || !boat.ownsPhysicalHat(actor) || actor.getVehicle() == boat || !boat.isAfloat() || boat.unsteadyMotion() || actualFrom == null) return null;
         var pb = body(actor);
         var near = entryNear(actualFrom);
         for (int seat : deck().freeSeats(pb, Purpose.OWN, near)) {
+            if (preferred >= 0 && seat != preferred) continue;
             var pos = slotPos(seat);
             if (!reachable.test(pos)) continue;
-            var lease = deck().claim(pb, Purpose.OWN, near, seat, HatDeck.OWN_TTL);
+            var lease = claimAt(pb, Purpose.OWN, near, seat, HatDeck.OWN_TTL);
             if (lease == null) continue;
             boardingEdgeUntil = now() + 80;
             boat.syncSeats();
             return pos;
         }
         return null;
+    }
+
+    private Lease claimAt(Body body, Purpose purpose, Vec3 near, int preferred, long ttl) {
+        return preferred >= 0 ? deck().claimAt(body, purpose, near, preferred, ttl)
+                : deck().claim(body, purpose, near, DeckLayout.NONE, ttl);
     }
 
     void releaseOwnBoardingSeat(YukkuriEntity actor) {
@@ -648,9 +673,14 @@ final class HatStations {
     }
 
     /** Move to the closest departure seat toward a world point along the seats' walking edges. */
-    boolean approachBoardingEdge(YukkuriEntity rider, Vec3 towardWorld) {
+    boolean approachBoardingEdge(YukkuriEntity rider, Vec3 towardWorld) { return approachBoardingEdge(null, rider, towardWorld); }
+
+    /** A source-hull HOP ticket alone may walk its own body to the departure edge during APPROACH. */
+    boolean approachBoardingEdge(CrewTransfer ticket, YukkuriEntity rider, Vec3 towardWorld) {
+        boolean ownDeparture = ticket != null && rider != null && rider.family().crew().ticket() == ticket
+                && ticket.allowsDepartureApproach(boat, rider);
         if (boat.level().isClientSide || rider == null || towardWorld == null || rider.getVehicle() != boat || !boat.protects(rider) || !boat.isAfloat()
-                || boat.unsteadyMotion() || boat.transportingInHat(rider)) return false;
+                || boat.unsteadyMotion() || boat.transportingInHat(rider) && !ownDeparture) return false;
         boardingEdgeUntil = now() + 40;
         if (boat.changingSeat(rider)) return true;
         var rb = body(rider);

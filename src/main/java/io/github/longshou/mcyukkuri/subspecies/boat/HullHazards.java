@@ -47,6 +47,8 @@ import static io.github.longshou.mcyukkuri.subspecies.HatBoatEntity.CAPSIZE_RELE
  */
 public final class HullHazards {
     private static final float BURN_DAMAGE = 6;
+    /** The largest physical hull translation a single self-righting tick may make. */
+    private static final double SELF_RIGHT_STEP = .12, RIGHT_PROGRESS_EPSILON = 1e-4;
     /** A capsized cloth hull has thirty seconds to be righted before waterlogging overcomes its buoyancy. */
     public static final int FLOOD_TICKS = 600, SUBMERGED_TICKS = 200, RIM_FLOOD_LIMIT = 60, SQUEEZE_GRACE = 200;
     private final HatBoatEntity boat;
@@ -56,6 +58,8 @@ public final class HullHazards {
     private double floodFraction;
     private boolean capsizeReleased, ownerDied;
     private String cause = "unknown";
+    /** The last rejected righting precondition, exposed only as a read-only diagnostic for the active swimmer. */
+    private String selfRightingRefusal = "none";
 
     public HullHazards(HatBoatEntity boat) { this.boat = boat; }
 
@@ -64,6 +68,7 @@ public final class HullHazards {
     public int flooding() { return flooding; }
     public boolean capsizeReleased() { return capsizeReleased; }
     public void capsizeReleased(boolean released) { capsizeReleased = released; }
+    public String selfRightingRefusal() { return selfRightingRefusal; }
     /** The capsized hat has taken on water for good: it sinks. */
     public boolean sinking() { return boat.state() == State.CAPSIZED && flooded >= FLOOD_TICKS; }
     public String detail() { return "flooding=" + flooding + " flooded=" + flooded + " submerged=" + submerged + " burned=" + burned + " overflow=" + overflow + " cause=" + cause; }
@@ -237,13 +242,18 @@ public final class HullHazards {
     public Vec3 rimPoint(Vec3 local) { return tiltedWorld(local).subtract(0, boat.rimLift(local), 0); }
 
     public Vec3 nearestGrip(YukkuriEntity actor) {
+        var local = nearestGripLocal(actor);
+        return local == null ? null : rimPoint(local);
+    }
+
+    private Vec3 nearestGripLocal(YukkuriEntity actor) {
         if (actor == null || !(ownsPhysicalHat(actor) || boat.young(actor)) || !(boat.isAfloat() || boat.state() == State.CAPSIZED) || boat.capsizing() || boat.deploying()) return null;
         Vec3 best = null;
         double score = Double.POSITIVE_INFINITY;
         for (var local : GripRim.points(boat.mode())) {
             var point = rimPoint(local);
             double gap = actor.getBoundingBox().getCenter().distanceToSqr(point);
-            if (gap < score) { score = gap; best = point; }
+            if (gap < score) { score = gap; best = local; }
         }
         return best;
     }
@@ -258,7 +268,18 @@ public final class HullHazards {
     public Vec3 selfRescueGrip(YukkuriEntity actor, Vec3 localGrip) {
         if (localGrip == null || GripRim.points(boat.mode()).stream().noneMatch(p -> p.distanceToSqr(localGrip) < 1e-8)
                 || !(ownsPhysicalHat(actor) || boat.young(actor)) || boat.capsizing() || boat.deploying()) return null;
-        return reachableGrip(actor, rimPoint(localGrip));
+        var grip = rimPoint(localGrip);
+        // Requiring the water-facing side prevents a first bite through the overturned crown.  Once this exact rim
+        // point is the synchronized righting hold, rotation necessarily takes its outward normal through the swimmer;
+        // ongoing contact is instead checked by reachableGrip below.
+        if (boat.state() == State.CAPSIZED && !lockedRightGrip(localGrip) && !outsideCapsizedRim(actor, localGrip, grip)) return null;
+        return reachableGrip(actor, grip);
+    }
+
+    private boolean lockedRightGrip(Vec3 localGrip) {
+        var motion = boat.motionData();
+        return boat.selfRighting() && motion.contains("RightGripX")
+                && HatBoatEntity.point(motion, "RightGrip").distanceToSqr(localGrip) <= 1e-8;
     }
 
     public Vec3 selfRescueGrip(YukkuriEntity actor) {
@@ -268,6 +289,7 @@ public final class HullHazards {
         var mouth = BraidRescueGeometry.mouthPoint(actor, actor.position(), actor.yBodyRot);
         for (var local : GripRim.points(boat.mode())) {
             var grip = rimPoint(local);
+            if (boat.state() == State.CAPSIZED && !outsideCapsizedRim(actor, local, grip)) continue;
             if (reachableGrip(actor, grip) == null) continue;
             double distance = mouth.distanceToSqr(grip);
             if (distance < score) { best = grip; score = distance; }
@@ -282,45 +304,140 @@ public final class HullHazards {
     }
 
     public Vec3 ownGripApproach(YukkuriEntity actor) {
-        var grip = nearestGrip(actor);
-        if (grip == null) return null;
-        var out = actor.position().subtract(grip).multiply(1, 0, 1).normalize();
-        if (out.horizontalDistanceSqr() < .01) out = grip.subtract(boat.position()).multiply(1, 0, 1).normalize();
+        var local = nearestGripLocal(actor);
+        if (local == null) return null;
+        var grip = rimPoint(local);
+        var out = brimOutward(local, grip);
         return new Vec3(grip.x + out.x * (actor.getBbWidth() * .5 + .03), actor.getY(), grip.z + out.z * (actor.getBbWidth() * .5 + .03));
+    }
+
+    /**
+     * The swimmer approaches the outward side of the actual tilted brim.  Actor-to-grip is deliberately not used:
+     * after a capsize the actor can be below the crown, where that vector points back into the overturned hat.
+     */
+    private Vec3 brimOutward(Vec3 local, Vec3 grip) {
+        var radial = new Vec3(local.x, 0, local.z);
+        if (radial.horizontalDistanceSqr() < 1e-8) radial = new Vec3(0, 0, -1);
+        var transformed = tiltedWorld(local.add(radial.normalize())).subtract(grip).multiply(1, 0, 1);
+        if (transformed.horizontalDistanceSqr() < 1e-8) transformed = radial.yRot(boat.turn()).multiply(1, 0, 1);
+        return transformed.normalize();
+    }
+
+    /** A capsized swimmer must reach the water-facing side of the brim before it can bite; no under-crown grip is valid. */
+    private boolean outsideCapsizedRim(YukkuriEntity actor, Vec3 local, Vec3 grip) {
+        if (actor == null) return false;
+        var fromRim = actor.position().subtract(grip).multiply(1, 0, 1);
+        return fromRim.dot(brimOutward(local, grip)) >= -.01;
     }
 
     /** One step of righting: the mouth holds the brim at {@code localGrip} and flips it while the braid pushes the far side. */
     public boolean setSelfRighting(YukkuriEntity actor, float progress, Vec3 localGrip) {
-        if (boat.level().isClientSide || !ownsPhysicalHat(actor) || boat.state() != State.CAPSIZED || !capsizeReleased || boat.isVehicle() || boat.hasIncoming()
-                || selfRescueGrip(actor, localGrip) == null || !HatBoatRoute.calmSurface(boat.level(), BlockPos.containing(boat.position().add(0, -.12, 0)))) return false;
+        selfRightingRefusal = "none";
+        if (boat.level().isClientSide) return refuseSelfRighting(actor, "client", progress, 0, Vec3.ZERO);
+        if (!ownsPhysicalHat(actor)) return refuseSelfRighting(actor, "physical_hat_lost", progress, 0, Vec3.ZERO);
+        if (boat.state() != State.CAPSIZED) return refuseSelfRighting(actor, "not_capsized", progress, 0, Vec3.ZERO);
+        if (!capsizeReleased) return refuseSelfRighting(actor, "release_pending", progress, 0, Vec3.ZERO);
+        if (boat.isVehicle()) return refuseSelfRighting(actor, "passengers_aboard", progress, 0, Vec3.ZERO);
+        if (boat.hasIncoming()) return refuseSelfRighting(actor, "boarding_in_progress", progress, 0, Vec3.ZERO);
+        if (selfRescueGrip(actor, localGrip) == null) return refuseSelfRighting(actor, "grip_lost", progress, 0, Vec3.ZERO);
         var m = boat.motionData().copy();
         float previous = m.getFloat("RightProgress");
+        float requested = Math.clamp(progress, 0, 1);
+        if (requested + RIGHT_PROGRESS_EPSILON < previous)
+            return refuseSelfRighting(actor, "progress_reversed", requested, previous, Vec3.ZERO);
         if (!m.contains("RightGripX")) {
+            var water = BlockPos.containing(boat.position().add(0, -.12 + boat.sinkBlocks(), 0));
+            if (!HatBoatRoute.calmSurface(boat.level(), water))
+                return refuseSelfRighting(actor, "surface_unsteady", progress, previous, Vec3.ZERO);
             HatBoatEntity.point(m, "RightGrip", localGrip);
-            HatBoatEntity.point(m, "RightAnchor", tiltedWorld(localGrip));
+            HatBoatEntity.point(m, "RightAnchor", rimPoint(localGrip));
+            m.putInt("RightWaterY", water.getY());
+            m.putDouble("RightSurfaceY", HatBoatRoute.surface(boat.level(), water).y);
             // A previously dropped hat has finished its free tumble before a new real grip is accepted.
             m.remove("LooseAt"); m.remove("LoosePitch"); m.remove("LooseSquash");
-        } else if (HatBoatEntity.point(m, "RightGrip").distanceToSqr(localGrip) > 1e-8) return false;
-        m.putFloat("RightPrevious", previous);
-        m.putFloat("RightProgress", Math.clamp(progress, 0, 1));
-        m.putLong("RightTouched", boat.level().getGameTime());
-        var before = boat.motionData();
-        boat.syncMotion(m);
-        var offset = tiltedWorld(localGrip).subtract(boat.position());
-        var centre = HatBoatEntity.point(m, "RightAnchor").subtract(offset);
+        } else if (HatBoatEntity.point(m, "RightGrip").distanceToSqr(localGrip) > 1e-8)
+            return refuseSelfRighting(actor, "grip_changed", requested, previous, Vec3.ZERO);
+        var anchor = HatBoatEntity.point(m, "RightAnchor");
+        var full = rightingCandidate(actor, m, anchor, localGrip, requested);
+        if (full.ok()) return applySelfRighting(m, previous, requested, full.centre());
+
+        // The cap is a real per-tick distance limit, not permission to teleport through it in several invisible substeps.
+        // Find the furthest progress that can be reached from this exact centre in this tick; a collision leaves no partial gain.
+        float low = previous, high = requested;
+        String limit = full.reason();
+        for (int i = 0; i < 14 && high - low > RIGHT_PROGRESS_EPSILON; i++) {
+            float probe = (low + high) * .5f;
+            var candidate = rightingCandidate(actor, m, anchor, localGrip, probe);
+            if (candidate.ok()) low = probe;
+            else { high = probe; limit = candidate.reason(); }
+        }
+        if (low <= previous + RIGHT_PROGRESS_EPSILON)
+            return refuseSelfRighting(actor, limit, requested, previous, full.movement());
+        var partial = rightingCandidate(actor, m, anchor, localGrip, low);
+        if (!partial.ok()) return refuseSelfRighting(actor, partial.reason(), requested, previous, partial.movement());
+        GameplayLog.limited(boat, "aquatic", "righting.limited." + limit, 200,
+                "self righting limited actor={} requested={} reached={} reason={} movement={} cap={}",
+                actor.getUUID(), requested, low, limit, GameplayLog.at(partial.movement()), SELF_RIGHT_STEP);
+        selfRightingRefusal = "progress_limited";
+        return applySelfRighting(m, previous, low, partial.centre());
+    }
+
+    private record RightingCandidate(boolean ok, String reason, Vec3 centre, Vec3 movement) {}
+
+    private RightingCandidate rightingCandidate(YukkuriEntity actor, CompoundTag motion, Vec3 anchor, Vec3 localGrip, float progress) {
+        var heldOffset = boat.selfRightingOffset(localGrip, progress).subtract(0, boat.rimLift(localGrip), 0);
+        var centre = anchor.subtract(heldOffset);
         var movement = centre.subtract(boat.position());
-        if (movement.lengthSqr() > .12 * .12 || !boat.level().noCollision(boat, boat.getBoundingBox().move(movement))) { boat.syncMotion(before); return false; }
-        // Rotating around the actually held rim translates the same boat centre. Clients apply
-        // motionRoll/Pitch at that synced centre, yielding exactly this world-space grasp pivot.
+        if (movement.lengthSqr() > SELF_RIGHT_STEP * SELF_RIGHT_STEP)
+            return new RightingCandidate(false, "movement_cap", centre, movement);
+        if (!boat.level().noCollision(boat, boat.getBoundingBox().move(movement)))
+            return new RightingCandidate(false, "collision", centre, movement);
+        // Rotation raises or submerges the entity centre around the wet grip. The water layer belongs to the initial
+        // contact, not that moving centre; check the future floating footprint without moving the hull to it.
+        var water = BlockPos.containing(centre.x, motion.getInt("RightWaterY"), centre.z);
+        if (!HatBoatRoute.calmSurface(boat.level(), water)
+                || Math.abs(HatBoatRoute.surface(boat.level(), water).y - motion.getDouble("RightSurfaceY")) > .08)
+            return new RightingCandidate(false, "righting_surface", centre, movement);
+        var afloat = new Vec3(centre.x, motion.getDouble("RightSurfaceY") - boat.sinkBlocks(), centre.z);
+        var fit = HullFootprint.fits((ServerLevel) boat.level(), actor, boat, afloat, boat.getYRot(), boat.hullScale(), 0);
+        if (!fit.ok()) return new RightingCandidate(false, fit.reason(), centre, movement);
+        return new RightingCandidate(true, "none", centre, movement);
+    }
+
+    private boolean applySelfRighting(CompoundTag motion, float previous, float reached, Vec3 centre) {
+        motion.putFloat("RightPrevious", previous);
+        motion.putFloat("RightProgress", reached);
+        motion.putLong("RightTouched", boat.level().getGameTime());
+        boat.syncMotion(motion);
+        // Rotating around the actually held rim translates the same boat centre.  The client gets this exact synced
+        // progress and centre, so the visual grip and the server's collision-constrained grip remain one transform.
         boat.setPos(centre);
         boat.setDeltaMovement(Vec3.ZERO);
         boat.helm().stop("capsize_reset");
         return true;
     }
 
+    private boolean refuseSelfRighting(YukkuriEntity actor, String reason, float requested, float reached, Vec3 movement) {
+        selfRightingRefusal = reason;
+        if (!boat.level().isClientSide) GameplayLog.limited(boat, "aquatic", "righting.refused." + reason, 200,
+                "self righting refused actor={} reason={} requested={} reached={} movement={} cap={} state={} released={} passengers={} incoming={}",
+                actor == null ? null : actor.getUUID(), reason, requested, reached, GameplayLog.at(movement), SELF_RIGHT_STEP,
+                boat.state(), capsizeReleased, boat.getPassengers().size(), boat.hasIncoming());
+        return false;
+    }
+
     public boolean finishSelfRighting(YukkuriEntity actor) {
-        if (boat.level().isClientSide || !ownsPhysicalHat(actor) || !boat.selfRighting() || boat.motionData().getFloat("RightProgress") < 1
-                || selfRescueGrip(actor, HatBoatEntity.point(boat.motionData(), "RightGrip")) == null) return false;
+        selfRightingRefusal = "none";
+        if (boat.level().isClientSide) return refuseSelfRighting(actor, "client", 1, 0, Vec3.ZERO);
+        if (!ownsPhysicalHat(actor)) return refuseSelfRighting(actor, "physical_hat_lost", 1, 0, Vec3.ZERO);
+        if (!boat.selfRighting()) return refuseSelfRighting(actor, "righting_not_active", 1, 0, Vec3.ZERO);
+        float progress = boat.motionData().getFloat("RightProgress");
+        if (progress < 1 - RIGHT_PROGRESS_EPSILON) return refuseSelfRighting(actor, "progress_incomplete", 1, progress, Vec3.ZERO);
+        if (selfRescueGrip(actor, HatBoatEntity.point(boat.motionData(), "RightGrip")) == null)
+            return refuseSelfRighting(actor, "grip_lost", 1, progress, Vec3.ZERO);
+        var motion = boat.motionData();
+        var finalPose = rightingCandidate(actor, motion, HatBoatEntity.point(motion, "RightAnchor"), HatBoatEntity.point(motion, "RightGrip"), 1);
+        if (!finalPose.ok()) return refuseSelfRighting(actor, finalPose.reason(), 1, progress, finalPose.movement());
         boat.state(State.AFLOAT);
         flooding = 0;
         flooded = 0;
@@ -338,9 +455,12 @@ public final class HullHazards {
         float progress = m.getFloat("RightProgress");
         copy.putFloat("RightPrevious", progress);
         copy.putFloat("RightProgress", Math.max(0, progress - .04f));
+        // The held pivot is valid only while a swimmer renews it.  Free rollback does not translate the centre around
+        // that grip, so drop every dependent anchor before clients return to ordinary entity interpolation.
+        copy.remove("RightWaterY"); copy.remove("RightSurfaceY");
+        for (var axis : new String[]{"X", "Y", "Z"}) { copy.remove("RightGrip" + axis); copy.remove("RightAnchor" + axis); }
         if (progress <= .04) {
             copy.remove("RightProgress"); copy.remove("RightPrevious"); copy.remove("RightTouched");
-            for (var axis : new String[]{"X", "Y", "Z"}) { copy.remove("RightGrip" + axis); copy.remove("RightAnchor" + axis); }
         }
         boat.syncMotion(copy);
     }
@@ -484,18 +604,29 @@ public final class HullHazards {
         var along = new Vec3(0, 0, 1).yRot(boat.turn());
         var passengers = List.copyOf(boat.getPassengers());
         var positions = new ArrayList<Vec3>();
+        var ejections = new ArrayList<Vec3>();
         var thrown = new ArrayList<YukkuriEntity>();
         var releasedYoung = new ArrayList<UUID>();
-        for (var p : passengers) positions.add(tiltedWorld(boat.toLocal(p.position())));
+        for (var p : passengers) {
+            var local = boat.toLocal(p.position());
+            positions.add(tiltedWorld(local));
+            ejections.add(capsizeEjection(local, side));
+        }
         var incidentCause = "shaken".equals(this.cause) ? WaterIncidents.Cause.SHAKEN : WaterIncidents.Cause.CAPSIZE;
         for (int i = 0; i < passengers.size(); i++) {
             var p = passengers.get(i);
-            var at = positions.get(i).add(downhill.scale(.035 + i * .008));
+            // This is the rider's real transformed seat at the moment the hat turns over.  Do not place it at an
+            // invented farther water point; the finite outward impulse and later swimmer movement clear the rim.
+            var at = positions.get(i);
+            var outward = ejections.get(i);
             p.stopRiding();
             p.setPos(at.x, at.y, at.z);
-            p.setDeltaMovement(boat.getDeltaMovement().add(downhill.scale(.07 + i * .013))
+            p.setDeltaMovement(boat.getDeltaMovement().add(outward.scale(.055 + i * .009)).add(downhill.scale(.025))
                     .add(along.scale((i - (passengers.size() - 1) * .5) * .018)).add(0, .025 - i * .006, 0));
             p.hasImpulse = true;
+            GameplayLog.limited(boat, "aquatic", "capsize.release." + p.getId(), 200,
+                    "capsize release rider={} local={} at={} outward={} cause={}", p.getUUID(), GameplayLog.at(boat.toLocal(at)),
+                    GameplayLog.at(at), GameplayLog.at(outward), this.cause);
             if (p instanceof YukkuriEntity y) {
                 y.waterDistress().plunge(boat.getUUID(), null, incidentCause);
                 thrown.add(y);
@@ -526,6 +657,16 @@ public final class HullHazards {
         }
         GameplayLog.event(boat, "aquatic", "hazard released cause={} owner={} passengers={} young={} cargoDropAttempts={} paddle={} cargoNow={}",
                 this.cause, boat.ownerYukkuri(), passengers.size(), releasedYoung, drops.size(), !paddle.isEmpty(), boat.cargo().count());
+    }
+
+    /** A capsized rider leaves from its real seat with a small outward impulse, never by being repositioned beyond the hat. */
+    private Vec3 capsizeEjection(Vec3 local, int side) {
+        var radial = new Vec3(local.x, 0, local.z);
+        if (radial.horizontalDistanceSqr() < 1e-8) radial = new Vec3(-side, 0, 0);
+        var at = tiltedWorld(local);
+        var outward = tiltedWorld(local.add(radial.normalize())).subtract(at).multiply(1, 0, 1);
+        if (outward.horizontalDistanceSqr() < 1e-8) outward = radial.yRot(boat.turn()).multiply(1, 0, 1);
+        return outward.normalize();
     }
 
     // ================================================================= persistence

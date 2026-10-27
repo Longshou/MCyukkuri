@@ -290,6 +290,15 @@ public final class HatDeck {
 
     /** Which seat holds this one up: an occupant or promise on it, a conflicting body, the larder or the stick; null if free. */
     private String blocker(Body b, int slot, Set<UUID> ignore) {
+        return blocker(b, slot, ignore, DeckLayout.tierFor((int) Math.ceil(host.portions())));
+    }
+
+    /** As {@link #blocker}, with the larder projected at a specified future portion count. */
+    private String blockerAtPortions(Body b, int slot, Set<UUID> ignore, int portions) {
+        return blocker(b, slot, ignore, DeckLayout.tierFor(portions));
+    }
+
+    private String blocker(Body b, int slot, Set<UUID> ignore, int larderTier) {
         for (var p : placements.values()) {
             if (p.id.equals(b.id()) || ignore.contains(p.id)) continue;
             if (p.holds(slot)) return layout.slot(slot).id();
@@ -297,7 +306,7 @@ public final class HatDeck {
             p.physical(s -> { if (found[0] == null && layout.conflict(slot, b.cls(), s, p.cls)) found[0] = layout.slot(s).id(); });
             if (found[0] != null) return found[0];
         }
-        if (layout.larderExcludes(DeckLayout.tierFor((int) Math.ceil(host.portions())), slot, b.cls())) return "larder";
+        if (larderTier >= 0 && layout.larderExcludes(larderTier, slot, b.cls())) return "larder";
         if (host.paddleStowed() && layout.stowExcludes(slot, b.cls())) return "paddle_stow";
         return null;
     }
@@ -354,6 +363,18 @@ public final class HatDeck {
         }
         var a = canAdmit(b, purpose, near, prefer);
         if (!a.ok()) { refuse(b, purpose, a); return null; }
+        return takeClaim(b, purpose, a, ttl);
+    }
+
+    /** Book exactly this seat, or leave the deck untouched when the seat is no longer the legal choice. */
+    public Lease claimAt(Body b, Purpose purpose, Vec3 near, int seat, long ttl) {
+        var a = canAdmit(b, purpose, near, seat);
+        if (!a.ok()) { refuse(b, purpose, a); return null; }
+        if (a.slot() != seat) return null;
+        return takeClaim(b, purpose, a, ttl);
+    }
+
+    private Lease takeClaim(Body b, Purpose purpose, Admission a, long ttl) {
         var p = placements.computeIfAbsent(b.id(), id -> new Placement(b));
         p.update(b);
         if (b.captain() && p.home < 0) p.home = homeFor(b.cls());
@@ -628,6 +649,28 @@ public final class HatDeck {
         if (!host.stable()) return out;
         for (int i : candidates(b, purpose, near, DeckLayout.NONE)) if (blocker(b, i, Set.of()) == null) out.add(i);
         return out;
+    }
+
+    /**
+     * The first seat the real one-portion-at-a-time relief loop will make admissible, without changing provisions or placements.
+     * This keeps a preflight's geometry tied to the exact seat it will later claim, rather than to a seat that would need more
+     * relief than the live loop actually performs.
+     */
+    public int firstSeatAfterRelievingLarder(Body b, Purpose purpose, Vec3 near, boolean allowRescue) {
+        ensureLayout();
+        if (!host.stable()) return DeckLayout.NONE;
+        var self = placements.get(b.id());
+        int current = (int) Math.ceil(host.portions());
+        double after = load() - (self == null ? 0 : self.load(layout)) + loadOf(b);
+        var purposes = purpose == Purpose.BOARD && allowRescue ? new Purpose[]{Purpose.BOARD, Purpose.RESCUE} : new Purpose[]{purpose};
+        for (int portions = current - 1; portions >= 0; portions--) {
+            double relieved = after - (current - portions) * layout.foodLoad;
+            if (!b.captain() && relieved > layout.maxLoad + 1e-9) continue;
+            for (var candidatePurpose : purposes)
+                for (int i : candidates(b, candidatePurpose, near, DeckLayout.NONE))
+                    if (blockerAtPortions(b, i, Set.of(), portions) == null) return i;
+        }
+        return DeckLayout.NONE;
     }
 
     /** Bodies queue so none walks through another: a new move starts when the last one ends (the named bodies excepted). */
@@ -1070,6 +1113,18 @@ public final class HatDeck {
                     p.lease = new Lease(nextLease++, Purpose.valueOf(lease.getString("Purpose")), p.id, left < 0 ? Long.MAX_VALUE : now + left,
                             layout.index(lease.getString("ReturnTo")), lease.hasUUID("Caregiver") ? lease.getUUID("Caregiver") : null);
                 } catch (IllegalArgumentException invalid) { p.lease = null; }
+            }
+            // Transfer tickets are not rehydrated with the hull, so a noncaptain's unboarded BOARD/RESCUE claim cannot survive a reload.
+            // A captain remains known to her own hull, even if an unusual external boarding request held this kind of lease.
+            if (!p.aboard && p.lease != null && (p.lease.purpose() == Purpose.BOARD || p.lease.purpose() == Purpose.RESCUE)) {
+                if (!p.captain()) continue;
+                p.lease = null;
+                p.target = p.home;
+            }
+            // The captain keeps her home placement, but an OWN transfer ticket is not resumed after a reload.
+            if (!p.aboard && p.lease != null && p.lease.purpose() == Purpose.OWN) {
+                p.lease = null;
+                p.target = p.home;
             }
             // A move interrupted by a save is not resumed: the body stays on the seat it left.
             if (p.aboard && p.slot < 0 && !p.overflow) p.overflow = true;

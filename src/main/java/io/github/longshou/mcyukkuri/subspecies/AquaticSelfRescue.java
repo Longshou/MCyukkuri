@@ -74,6 +74,9 @@ public final class AquaticSelfRescue {
         if(!actor.profile().aquatic())return null;
         var current=hat();
         if(ownsPhysicalHat(current))return current;
+        // A loaded mismatched hull is proof that this saved hint expired (lost, replaced or a different launch token).
+        // Leave only an unloaded UUID for the later custody-hint lookup; it has no authority by itself.
+        if(current!=null)hatId=null;
         if(now()<nextHatLookup)return null;
         nextHatLookup=now()+20;
         // A hat lost by drifting still names its hull as a way back; only a real boarding reopens the custody.
@@ -177,7 +180,9 @@ public final class AquaticSelfRescue {
                 GameplayLog.event(actor,"aquatic","self rescue safe hat={} health={} energy={}",current.getUUID(),actor.getHealth(),actor.life().energy());
             }
             if(GameplayLog.detailEnabled())GameplayLog.detail(actor,"self.aboard."+actor.getId(),0,"local="+current.toLocal(actor.position())+" ownerSeat="+current.ownerSeat(actor));
-            if(now()-started>=40){phase=Phase.IDLE;hatId=null;deployment=null;removalProgress=0;}return;
+            // IDLE ends the active action, not the token-checked physical-hat memory: shore RECOVER may need the
+            // same loaded hull on the next ordinary tick.  knownOwnHat revalidates it before any use.
+            if(now()-started>=40){phase=Phase.IDLE;deployment=null;removalProgress=0;}return;
         }
         if(phase==Phase.CLIMB){
             if(actor.family().crew().climbing())return;
@@ -340,13 +345,24 @@ public final class AquaticSelfRescue {
                 if(slot==0)actor.speak("self_rescue_climb");
             }
             double progress=(slot+(within<PUSH_ON?smooth((double)within/PUSH_ON):1))/PUSHES;
-            if(!current.setSelfRighting(actor,(float)progress,lockedGripLocal)){slip("righting_pose_refused");return false;}
+            if(!current.setSelfRighting(actor,(float)progress,lockedGripLocal)){
+                slip("righting_"+current.selfRightingRefusal());return false;
+            }
+            float reached=current.selfRightingProgress(1);
+            // A wide adult brim can need more than one tick to cover the next eased increment.  The hull accepted only
+            // the collision-safe fraction bounded by .12; hold this logical push until its actual synced progress gets
+            // there instead of skipping it or charging its opening effort again.
+            if(reached+1e-4<progress){
+                GameplayLog.limited(actor,"aquatic","self.righting_limited",200,
+                        "self rescue righting limited requested={} reached={} push={} tick={}",progress,reached,slot,rightTicks);
+                return true;
+            }
             if(++rightTicks>=PUSHES*PUSH_TICKS){
                 if(current.finishSelfRighting(actor)){
                     contact=rightTicks=0;lastGrip=lockedGripLocal=null;set(Phase.APPROACH);
                     return true;
                 }
-                slip("righting_finish_refused");return false;
+                slip("righting_"+current.selfRightingRefusal());return false;
             }
         }
         return true;
@@ -425,8 +441,11 @@ public final class AquaticSelfRescue {
     private void stop(String reason){
         if(active())GameplayLog.limited(actor,"aquatic","self.stop."+reason,200,
                 "self rescue stopped phase={} hat={} reason={}",phase,hatId,reason);
-        var current=hat();if(current!=null){current.releaseSelfRescueCarry();if(!actor.family().crew().climbing())current.releaseOwnBoardingSeat(actor);}
-        phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;deployment=null;removalProgress=0;
+        var current=hat();boolean physical=ownsPhysicalHat(current);
+        if(physical){current.releaseSelfRescueCarry();if(!actor.family().crew().climbing())current.releaseOwnBoardingSeat(actor);}
+        // A loaded mismatched hull is definitely stale; an unloaded one remains only a hint and is rechecked on use.
+        if(current!=null&&!physical)hatId=null;
+        phase=Phase.IDLE;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;deployment=null;removalProgress=0;
         carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;
     }
@@ -463,8 +482,9 @@ public final class AquaticSelfRescue {
     }
     public CompoundTag save(){var tag=new CompoundTag();if(hatId!=null)tag.putUUID("Hat",hatId);tag.putLong("RetryAt",nextAttempt);return tag;}
     public void load(CompoundTag tag){
-        // Reload never reconstructs a grip or replays removal; the persisted physical hat/token remain authoritative.
-        phase=Phase.IDLE;hatId=null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;lastEscape=Long.MIN_VALUE;
+        // Reload never reconstructs a grip or replays removal.  It does retain the last physical-hat hint for shore
+        // recovery; knownOwnHat verifies owner and launch token before it can become an action target.
+        phase=Phase.IDLE;hatId=tag.hasUUID("Hat")?tag.getUUID("Hat"):null;contact=rightTicks=attemptTicks=0;lastGrip=lockedGripLocal=null;lastEscape=Long.MIN_VALUE;
         deployment=null;removalProgress=0;
         carriedPose=previousCarriedPose=null;poseTick=Long.MIN_VALUE;
         poseYaw=previousPoseYaw=Float.NaN;

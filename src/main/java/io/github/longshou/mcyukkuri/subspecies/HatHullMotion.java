@@ -44,8 +44,18 @@ final class HatHullMotion {
 
     Vec3 motionPosition(float partial){
         var m=boat.motionData();
-        return (selfRescueHeld()||m.contains("LooseAt")&&motionAge(m,"LooseAt",partial)<14)&&m.contains("HeldCentreX")
-                ?HatBoatEntity.point(m,"PreviousCentre").lerp(HatBoatEntity.point(m,"HeldCentre"),partial):boat.getPosition(partial);
+        if((selfRescueHeld()||m.contains("LooseAt")&&motionAge(m,"LooseAt",partial)<14)&&m.contains("HeldCentreX"))
+            return HatBoatEntity.point(m,"PreviousCentre").lerp(HatBoatEntity.point(m,"HeldCentre"),partial);
+        if(selfRighting()&&m.contains("RightGripX")&&m.contains("RightAnchorX")){
+            // The q interpolation is eased, so interpolating the two hull centres would make the rendered brim slide
+            // past the swimmer's fixed bite between ticks.  Rebuild it from the one synced real pivot instead.
+            var grip=HatBoatEntity.point(m,"RightGrip");
+            var offset=selfRightingOffset(grip,selfRightingProgress(partial),interpolatedTurn(partial)).subtract(0,boat.rimLift(grip),0);
+            return HatBoatEntity.point(m,"RightAnchor").subtract(offset);
+        }
+        // A saved in-flight righting has no persistent grip/anchor.  It immediately relaxes through the existing
+        // lifecycle, and must retain ordinary entity interpolation until a new real grip writes one.
+        return boat.getPosition(partial);
     }
 
     float hullSquash(float partial){
@@ -61,6 +71,34 @@ final class HatHullMotion {
     boolean selfRighting(){return boat.state()==State.CAPSIZED&&boat.motionData().contains("RightProgress");}
 
     float selfRightingProgress(float partial){var m=boat.motionData();return Mth.lerp(partial,m.getFloat("RightPrevious"),m.getFloat("RightProgress"));}
+
+    /**
+     * The same yaw * roll * pitch offset used by the renderer while a swimmer rights the hull.  Hazard handling uses
+     * this instead of reproducing the easing or transform, so its fixed brim anchor remains the rendered brim anchor.
+     */
+    Vec3 selfRightingOffset(Vec3 local,float progress){
+        return selfRightingOffset(local,progress,boat.turn());
+    }
+
+    private Vec3 selfRightingOffset(Vec3 local,float progress,float turn){
+        int side=boat.motionData().getInt("Side")<0?-1:1;
+        double t=Math.clamp(progress,0,1);
+        return yawRollPitchOffset(local,selfRightingRoll(side,t),selfRightingPitch(t),turn);
+    }
+
+    private float interpolatedTurn(float partial){return (float)Math.toRadians(180-Mth.rotLerp(partial,boat.previousYaw(),boat.getYRot()));}
+
+    private static double ease(double t){t=Math.clamp(t,0,1);return t*t*(3-t*2);}
+
+    private static float selfRightingRoll(int side,double progress){return (float)(side*CAPSIZED_ROLL*(1-ease(progress)));}
+
+    private static float selfRightingPitch(double progress){return (float)(7*Math.sin(progress*Math.PI));}
+
+    private Vec3 yawRollPitchOffset(Vec3 local,float rollDegrees,float pitchDegrees,float turn){
+        var p=local.scale(boat.unit());double roll=Math.toRadians(rollDegrees),pitch=Math.toRadians(pitchDegrees);
+        double py=p.y*Math.cos(pitch)-p.z*Math.sin(pitch),pz=p.y*Math.sin(pitch)+p.z*Math.cos(pitch);
+        return new Vec3(p.x*Math.cos(roll)-py*Math.sin(roll),p.x*Math.sin(roll)+py*Math.cos(roll),pz).yRot(turn);
+    }
 
     boolean unsteadyMotion(){return rocking()||capsizing()||deploying()||selfRighting()||selfRescueHeld();}
 
@@ -146,7 +184,7 @@ final class HatHullMotion {
         }
         if(deploying()||selfRighting()){
             double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
-            return (float)(side*CAPSIZED_ROLL*(1-t*t*(3-2*t)));
+            return selfRighting()?selfRightingRoll(side,t):(float)(side*CAPSIZED_ROLL*(1-ease(t)));
         }
         if(boat.state()==State.CAPSIZED){
             double t=m.contains("CapAt")?Math.clamp(motionAge(m,"CapAt",partial)/CAPSIZE_TICKS,0,1):1;
@@ -165,7 +203,7 @@ final class HatHullMotion {
         }
         if(deploying()||selfRighting()){
             double t=deploying()?Math.clamp(motionAge(m,"DeployAt",partial)/20,0,1):Math.clamp(selfRightingProgress(partial),0,1);
-            return (float)(7*Math.sin(t*Math.PI));
+            return selfRighting()?selfRightingPitch(t):(float)(7*Math.sin(t*Math.PI));
         }
         if(boat.state()==State.CAPSIZED){
             if(!m.contains("CapAt"))return 0;
