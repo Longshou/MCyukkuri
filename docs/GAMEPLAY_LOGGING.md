@@ -26,6 +26,7 @@
 | `[predator]` / `[myon]` | 目标与追击阶段、因洞口结界拒绝目标（限频）、攻击是否接受、生命变化、战斗停止、拾取／失去武器 | 双方 UUID；[捕食种](PREDATOR_IMPLEMENTATION.md)、[妖梦](RARE_FORMS.md) |
 | `[family]` / `[childhood]` / `[growth]` / `[independence]` | 配对受孕、出生、取粮与喂食交接、首餐首便、运动学习、成长、离家与新家；树叶襁褓的采叶、折叠、包裹、解开、辅助排便、清理、包回、积便／溢出、脱落和限频等待；亲代运输的开始抬起、接起、放下（附原因与实际位置）、重载续接和拒绝（限频） | brood、亲子 UUID、物资来源；[生命周期](CHILDHOOD_LIFECYCLE.md)、[成长](BEHAVIOR.md) |
 | `[approach]` | 接触站位不可用、绕行拐点、路径失败与接近计算耗时异常（限频）；不代表接触或业务成功 | 双方 UUID、目标与拐点；[移动接口](ARCHITECTURE.md#显示与客户端) |
+| `[braid]` | 辫子搬运会话的开始、接近、停滞、成功与失败；重复拒绝限频，成功仅在真实转移完成后记录 | 搬运者、被搬者、意图、站位与锚点；[乘员转移](AQUATIC_MARISA_IMPLEMENTATION.md#乘员转移) |
 | `[care]` | 照护会合、拒绝、重新选位、真实接起／放下和停止 | 双方 UUID、会合种类；[照护](CHILDHOOD_LIFECYCLE.md) |
 | `[offering]` / `[grief]` / `[cannibal]` | 献身与护子意愿、阻塞、阶段、中断、亲属临终反应、遗体食用交餐 | 亲子、捕食者、遗体 UUID；[献身与遗体](INJURIES_AND_REMAINS.md) |
 | `[aquatic]` / `[water]` / `[voyage]` / `[boarding]` / `[cradle]` | 出航、建船、翻船、自救／救子、返岸、初航、登船与抱持、岸上工作、孤幼接手、帽船席位表的订座／入座／释放／拒绝（`deck claim／admit／release／refuse`：席位、体型级别、载重前后与原因；重复拒绝按体和原因限频，扫描与步行细节不逐次记）、乘员转移（`transfer done／failed／refused`：方式、锚点、席位、载重前后、接触类型、拒绝类别与原因；每个结局一条，进行中的阶段只在 `/yukkuri aqdiag` 下逐阶段记）、落水事件（`incident open／decide／attempt／close`：原因、救助者角色、概率与掷值、物理失败计数、自救打滑与被拒入舷点；每个事件每位救助者只一条 decide）、船体灾害（`hazard capsize／released／righted／squeeze_out／overload_roll／owner_died／destroyed`：真实原因、载重、乘员数）、演出回退（`clip fallback／expression fallback`：来源、模型、原 ID 与回退 ID；`presentation expired`：来源、原因、片段；按 ID 或来源限频） | 行动者、帽船、子代 UUID；[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)；帽子托管转换记在 `[headwear] custody A -> B`，读数 `water.incidents`、`water.hull` |
@@ -37,7 +38,7 @@
 | `[npc-care]` / `[human-trade]` / `[factory]` | 供餐治疗扣量、工厂工序和服役替补、真实材料／产出与交易 | NPC／玩家、工位、批次和个体；[人类世界](HUMAN_WORLD.md) |
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |
 | `[custody]` / `[badge]` / `[lesson]` / `[treasure]` | 归属与用途变化、死主清理、徽章变化、课程与技能学习、宝物转移 | 主人、目标、徽章序列 UUID；[归属](HUMAN_WORLD.md#店铺登记与饲主归属)、[宠物培育](PET_SHOP.md) |
-| `[contempt]` / `[sanction]` / `[headwear]` | 失饰识别与反应、制裁受理与实际动作、头饰损坏／修补／换主 | 双方 UUID、饰品种类／数量、实体头饰 token；[头饰](HEADWEAR.md) |
+| `[contempt]` / `[sanction]` / `[headwear]` | 失饰识别与反应、制裁受理与实际动作、头饰损坏／修补／换主、原帽回收的请求／认领／完成／到期 | 双方 UUID、饰品种类／数量、实体头饰 token；[头饰](HEADWEAR.md) |
 | `[winter]` / `[temperature]` / `[weather]` / `[threat]` / `[urgency]` | 冬居、冷热与天气避难、危险响应（含灵梦封洞口开始／完成／中止）、紧急移速及睡眠交接 | 实体、住所、掩体或危险来源；[季节生活](SEASONAL_LIFE.md) |
 | `[forage]` 记录寻粮开始与发现；`[explore]` | 子油魔理沙探险的已执行抽签、开始、返程、结束或中断 | 个体数值、概率与抽取结果、起点／目标、范围和真实结果；不记录每 tick 位置 |
 | `[move]` | 行走停滞且被另一只油库里挡路时的侧步、绕行重算与请挡路者让位，原版卡住检测终止路线，以及地面寻路耗时异常、体型刷新碰撞空位搜索的开始／结果与耗时（限频，不记录每 tick 位置） | 双方 UUID、动作、目标；[行为](BEHAVIOR.md) |
@@ -58,7 +59,7 @@
 
 | 入口 | 用途 |
 | --- | --- |
-| `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生逐阶段细节（`GameplayLog.detail`，前缀 `[aqdiag]`）；试玩场启动器以 `-Dmcyukkuri.aqdiag=true` 默认开启，其他启动方式默认关闭 |
+| `/yukkuri aqdiag on` / `off` | 显式开启／关闭水生逐阶段细节与实际 Goal 切换诊断（`GameplayLog.detail`，前缀 `[aqdiag]`）；试玩场启动器以 `-Dmcyukkuri.aqdiag=true` 默认开启，其他启动方式默认关闭 |
 | 客户端启动参数 `-Dmcyukkuri.aqdiag=true` | `[hat-input]` 只在实际右键输入时限频记录命中目标、模式、距离和附近帽子候选；候选不等于命中，不执行或重发交互。与服务端 `[aqdiag]` 的帽子交互接收记录及 `[interaction]` 处理结果按玩家／帽子 UUID 对照；试玩场启动器默认开启 |
 | `/yukkuri status trace true` / `false` | 显式开启／关闭细密状态变化日志，默认关闭 |
 | `debug.entitySaveViews` | 完整实体保存调试视图，默认关闭 |

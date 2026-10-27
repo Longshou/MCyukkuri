@@ -81,7 +81,7 @@ entitySaveViews = false
 
 `YukkuriControl` 负责惊慌／命令时钟、缩壳导航控制和固定接管判定。`PresentationArbiter` 读取本 tick 的接管快照；普通路径依次处理病态、水中、进食和家庭持续状态，再选择运行中的 Goal，最后使用家庭兜底表现。
 
-`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情，命令等可覆盖动作。调试视图记录本 tick 选中的来源，客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值。
+`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情，命令等可覆盖动作。表情由服务端 `PresentationArbiter` 按操作姿态、实际反应、伤病或哭泣、情绪、兜底顺序选择；帽子归属不改变兜底表情，失饰压力由情绪层持续提供。调试视图记录本 tick 选中的来源，客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值，不再另行叠加操作、躁动或繁殖表情。
 
 ## 5. 脏污、伤痕与橙汁粒子
 

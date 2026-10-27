@@ -30,7 +30,7 @@
 
 母体可再等待最多 600 tick 让父油放帽；已放帽后的母体归位上限为 400 tick。父油累计接生行动超过 1800 tick 仍未放帽，则退回无垫分娩。已放帽仍按真实帽子、父方和胎次关联锁住出口位置与朝向；胎生和茎生共用会合站位。已有幼体或障碍挡住出口、实体加入失败时，服务端保持当前产出帧，不把后续幼体的演出时间累积跳过。临产朝向、接生等待、实际帽子站位和恢复进度随存档保留；尚未放帽的候选站位重载后重选。客户端只绘制形变与显露，不决定出生。水生母油仍走自己的帽船分娩流程。
 
-LIVE 与 STEM 新生儿都为 BABY，体型每只各不相同（[体型规范](BEHAVIOR.md#体型规范)；当前胎生固定 0.14、茎生为 0.20 子油，未实现，见[待办](TODO.md#家庭繁殖与照护)），出生朝向继承显露阶段，先落地再启用新生反应。陆地出生的推出方式见下文“陆地出生的随机弹道”；前方仍被占用时继续暂停下一只。重载和收纳恢复保留固定胎次，卸载不偷跑；母体死亡取消未出生部分，已出生孩子不重抽或重复生成。实际母父信息供亚种出生处理使用，制造投药不伪造父方；工厂所属、聚落和栖息地的继承沿用已有接口。
+LIVE 与 STEM 新生儿都为 BABY，同胎体型每只各不相同，抽定与保存见[体型规范](BEHAVIOR.md#体型规范)；出生朝向继承显露阶段，先落地再启用新生反应。陆地出生的推出方式见下文“陆地出生的随机弹道”；前方仍被占用时继续暂停下一只。重载和收纳恢复保留固定胎次，卸载不偷跑；母体死亡取消未出生部分，已出生孩子不重抽或重复生成。实际母父信息供亚种出生处理使用，制造投药不伪造父方；工厂所属、聚落和栖息地的继承沿用已有接口。
 
 孩子的 `subspeciesFlags` 随胎次保存，显露模型与出生后的实体使用同一结果，不在出生时根据变化后的父母状态重抽。豆油的高度同时用于出生前空间检查、实体加入世界时的碰撞箱和后续成长检查。成功加入世界并登记后才调用新生认知，加入失败不通知母体。
 
@@ -81,7 +81,7 @@ LIVE 与 STEM 新生儿都为 BABY，体型每只各不相同（[体型规范](B
 
 `FamilyLife.nestStand()` 是家庭代码问“窝在哪”的唯一入口（转到 `life().homeStand()`，窝内休息点由 `FamilyNest` 按真实支撑和体型选择）。`FamilyLife.birthAnchor()` 给出人口预算用的锚点：窝，否则船，否则站立处。
 
-产程被什么卡住，可以直接问：`/yukkuri status <母> raw` 里 `reproduction.birth_block`（`StatusKey.BIRTH_BLOCK`）会给出原因（`mother_not_ready`、`no_place_for_term`、`mother_moving`、`waiting_for_hat`、`waiting_for_catcher`、`outlet_blocked`、`no_room_for_belly`，或账本拒绝的 `boat_has_no_room`、`population_limit`、`newborn_space_blocked` 等）。
+产程被什么卡住，可以直接问：`/yukkuri status <母> raw` 里 `reproduction.birth_block`（`StatusKey.BIRTH_BLOCK`）会给出原因（`mother_not_ready`、`no_place_for_term`、`mother_moving`、`waiting_for_hat`、`waiting_for_catcher`、`no_safe_exit`、`outlet_blocked`、`no_room_for_belly`，或账本拒绝的 `boat_has_no_room`、`population_limit`、`newborn_space_blocked` 等）。
 
 场景代码要让一对油库里“马上自然开始生产”：见 `FamilyLife.prepareBirthScene` 的做法，把 LIVE 胎次 `elapsed` 提前到 `duration-2`（接生场景用 `duration-150`），双亲 AI 启用、母体脚下稳固不动、不睡眠不进食；陆上父油须是戴帽的魔理沙并认识母油。
 
@@ -91,8 +91,9 @@ LIVE 与 STEM 新生儿都为 BABY，体型每只各不相同（[体型规范](B
 
 水生魔理沙乘在自己浮起的帽船里生产，**不需要伴侣，也不需要靠岸**。没有临时靠岸这一步；`bankNest` 只在她恰好已经在岸边时才算临时窝。
 
+- 每只胎生显露前由 `BirthExit` 只读检查候选出口与真实落区，水上优先本帽可接纳座位，其次伴侣帽；陆地共用出口评分，优先接生帽或窝，再选有支撑的干地。按实际幼体大小检查出口、路径与帽体，在可用方向中选择转身最少者，母油真实转身后才预留与出生。没有安全出口记 `no_safe_exit`，等待沿用临产宽限，耗尽后采用无垫分娩的真实冲量；方块碰撞、摔伤和落水仍结算，不直接入席或永久停产。
 - 新生儿从出口落进她身前的帽内。清口与容量预检按该子代的出生方式、体型判断是否能腾位；实际出生时再为同一幼体腾位并预约普通席位或避难席位，随后由 `FamilyLife.launchInto` 推出。母船可按原有规则让座、抛出粮食并使用避难席；伙伴船只提供普通席位，不抛弃其粮食。预约或出生失败释放对应预约，实际飞到帽面才算入帽。无人接生也照常生。
-- **有伴侣时**：伴侣的帽船在最后一段产程里自己划到她的船边（`FamilyLife.tickWaterPartner`，间距 `STATION_GAP=2.1` 格，只用 `paddleTo/holdPosition`），之后新生儿隔一只送一只到伴侣的帽里（`FamilyData.waterCradle`，自己的帽满了则其余全送过去；最远横越 `FamilyLife.SHARE_REACH=3.2` 格，伴侣的座位够不着就留在母亲帽里）。伴侣不必在岸上，也不必在附近的陆地。
+- **有伴侣时**：伴侣的帽船在最后一段产程里自己划到她的船边（`FamilyLife.tickWaterPartner`，间距 `STATION_GAP=2.1` 格，只用 `paddleTo/holdPosition`）。`FamilyData.waterCradle` 优先本帽预约，本帽无法接纳时才尝试伴侣帽（最远横越 `FamilyLife.SHARE_REACH=3.2` 格）；预约必须从实际出口够得着。产后分担另由母油的真实托举处理，见[水上家庭](AQUATIC_MARISA_IMPLEMENTATION.md#家庭照护与初航)。伴侣不必在岸上，也不必在附近的陆地。
 - **漏接 = 落水**：`overstrain`、`missed` 和自然 12%（`FamilyLife.missesDelivery`）使新生儿飞过帽沿落水，进入溺水规则（`WaterDistress.plunge`，不会游，每秒扣血，亲油辫子救援及时才能活）。陆地漏接仍是摔伤。
 - 水上产程的几条约束：新生儿席位不要求避开主人的整个身体投影；`LiveBirthGeometry.clear` 与出生前容量检查共用只读腾位判断，真实出生时才移动乘员、消耗物资或预约。新生儿起跳的扫描不把母亲、同胞当成障碍；飞行中新生儿 `isPushable=false`，不被母亲体重碰撞挤开；`boardingThrough` 包括飞向这顶帽的新生儿，帽子碰撞盒不挡井口；浮帽随波移动时跟随移动的座位并放宽接触判定，不因漂移超过 5 厘米放弃。
 
