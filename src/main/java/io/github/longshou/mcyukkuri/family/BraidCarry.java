@@ -36,7 +36,7 @@ public final class BraidCarry {
 
         private Session(CrewTransfer.Request request) {
             this.request = request;
-            intent = intent(request);
+            intent = BraidCarry.intent(request);
             carrier = request.carrier() == null ? null : request.carrier().getUUID();
             originHull = request.from().boat(); destinationHull = request.to().boat();
             started = request.body().level().getGameTime();
@@ -44,7 +44,7 @@ public final class BraidCarry {
                     "begin intent={} carrier={} body={} from={} to={}", intent, carrier, request.body().getUUID(), request.from().key(), request.to().key());
         }
         private boolean matches(CrewTransfer.Request next) {
-            return intent == intent(next) && Objects.equals(carrier, next.carrier() == null ? null : next.carrier().getUUID())
+            return intent == BraidCarry.intent(next) && Objects.equals(carrier, next.carrier() == null ? null : next.carrier().getUUID())
                     && originHull == next.from().boat() && destinationHull == next.to().boat()
                     && next.body().level().getGameTime() - started <= 1200;
         }
