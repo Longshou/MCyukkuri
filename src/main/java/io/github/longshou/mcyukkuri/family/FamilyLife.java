@@ -749,7 +749,7 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();
         for(int i=0;i<brood.children.size();i++) {
             if(brood.children.get(i).born||brood.elapsed<brood.duration+i*8)continue;
-            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,entity.growthScale(),brood.variation,entity.getVariant(),brood.children.get(i).variant,GrowthSize.birth(brood.kind,brood.children.get(i)));
+            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,entity.growthScale(),brood.variation,entity.getVariant(),brood.children.get(i).variant,GrowthSize.physicalBirth(brood.kind,brood.children.get(i)));
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
@@ -786,6 +786,7 @@ public final class FamilyLife {
     /** The demonstrated miss: no hat is set down for this delivery. */
     public boolean withholdsCushion() { return delivery.withholdsCushion(); }
     public boolean unprotectedBirthExit(){return delivery.unprotectedExit();}
+    public BirthExit.Exit selectedBirthExit(int index){return delivery.selectedExit(index);}
     public boolean bumped() { return delivery.bumped(); }
     /** Birth duties that come before first-stool licking and mash feeding: the hat is still down or being taken back,
      *  a hurt newborn is being comforted, or the mother is still recovering. */

@@ -123,7 +123,7 @@ final class CatchHat {
             double sx=0,sz=0;int n=brood.children.size();
             for(int i=0;i<n;i++){
                 var child=brood.children.get(i);
-                var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),child.variant,GrowthSize.birth(brood.kind,child));
+                var c=FamilyGeometry.childBase(n,i,1,mother.growthScale(),brood.variation,mother.getVariant(),child.variant,GrowthSize.physicalBirth(brood.kind,child));
                 sx+=c.x;sz+=c.z;
             }
             var under=FamilyGeometry.toWorld(mother,new Vec3(sx/Math.max(1,n),0,sz/Math.max(1,n)));

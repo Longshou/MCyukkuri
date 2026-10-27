@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.phys.Vec3;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,7 +31,8 @@ public final class DetachedStemGeometry {
         // Reserve the mature envelope, including mixed-species children. The transform stays fixed
         // while fruit grows or detaches, and is identical in placement, rendering and actual birth.
         for(int index=0;index<count;index++)for(var child:YukkuriVariant.values()){
-            double bottom=FamilyGeometry.childBase(count,index,1,1,variation,parent,child,GrowthSize.largestBirth(FamilyData.BirthKind.STEM)).y-root.y;
+            float largest=GrowthSize.physicalBirth(GrowthSize.largestBirth(FamilyData.BirthKind.STEM),SubspeciesLife.DEIBU_FLAG);
+            double bottom=FamilyGeometry.childBase(count,index,1,1,variation,parent,child,largest).y-root.y;
             height=Math.max(height,CHILD_FLOOR_CLEARANCE-bottom);
         }
         return new Vec3(0,height,0).subtract(root);

@@ -37,8 +37,12 @@ final class LiveDelivery {
     private boolean leftNest;
     private float deliveryYaw=Float.NaN;
     private int exitChild=-1,exitWait;
+    private int exitTurnTicks;
+    /** A transient geometric choice, never a second seat lease. Loading must revalidate it before continuing. */
+    private BirthExit.Exit selectedExit;
     private boolean unprotectedExit;
     boolean unprotectedExit(){return unprotectedExit;}
+    BirthExit.Exit selectedExit(int index){return index==exitChild?selectedExit:null;}
     /** One maternal clock covers approach, placement and the final wait for this brood. */
     private int catcherWait, catchWindowBudget;
     /** Saved bounded wait while the mother walks back to an already placed helper hat. */
@@ -92,8 +96,8 @@ final class LiveDelivery {
                 +" incoming="+boat.hasIncoming()+" afloat="+boat.isAfloat()+" paddle="+boat.cargo().paddle();
     }
     void tickRecovery() { if(liveRecovery>0)liveRecovery--; }
-    void resetForConception() { exitChild=-1;exitWait=0;landExit=null;leftNest=false;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
-    void resetForAssistance() { exitChild=-1;exitWait=0;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForConception() { selectedExit=null;unprotectedExit=false;exitChild=-1;exitWait=exitTurnTicks=0;landExit=null;leftNest=false;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=deliveryOutcome=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
+    void resetForAssistance() { selectedExit=null;unprotectedExit=false;exitChild=-1;exitWait=exitTurnTicks=0;deliveryYaw=Float.NaN;catcherWait=catchWindowBudget=stationWait=0;waterPartnerChild=null;catchStation=CatchStationState.UNUSED; }
     void save(CompoundTag tag) {
         tag.putInt("LiveRecovery",liveRecovery);
         if(!Float.isNaN(deliveryYaw))tag.putFloat("DeliveryYaw",deliveryYaw);
@@ -106,6 +110,7 @@ final class LiveDelivery {
         tag.putBoolean("BirthExitUnprotected",unprotectedExit);
     }
     void load(CompoundTag tag) {
+        selectedExit=null;exitTurnTicks=0;
         exitChild=tag.contains("BirthExitChild")?tag.getInt("BirthExitChild"):-1;exitWait=Math.clamp(tag.getInt("BirthExitWait"),0,NEST_GRACE+1);
         unprotectedExit=tag.getBoolean("BirthExitUnprotected");
         landExit=null;leftNest=false;waterPartnerChild=null;nextWaterPartnerScan=nextWaterPartnerRoute=0;
@@ -492,9 +497,13 @@ final class LiveDelivery {
                 deliveryYaw=Float.NaN;hold="waiting_for_catcher";return;
             }
             o.entity().getNavigation().stop();
-            if(exitChild!=next){deliveryYaw=Float.NaN;exitWait=0;unprotectedExit=false;exitChild=next;}
+            if(exitChild!=next){deliveryYaw=Float.NaN;selectedExit=null;exitWait=exitTurnTicks=0;unprotectedExit=false;exitChild=next;}
+            if(selectedExit==null||unprotectedExit&&!BirthExit.unobstructed(o.entity(),next))deliveryYaw=Float.NaN;
+            if(!unprotectedExit&&!Float.isNaN(deliveryYaw)&&(selectedExit==null||!BirthExit.valid(o.entity(),next,selectedExit))){
+                deliveryYaw=Float.NaN;selectedExit=null;exitWait++;
+            }
             if(Float.isNaN(deliveryYaw)){
-                var exit=BirthExit.choose(o.entity(),next);
+                var exit=exitWait>NEST_GRACE?BirthExit.unprotected(o.entity(),next):BirthExit.choose(o.entity(),next);
                 if(!exit.safe()&&++exitWait<=NEST_GRACE){
                     hold="no_safe_exit";
                     GameplayLog.limited(o.entity(),"family","birth.exit.none",100,
@@ -506,14 +515,20 @@ final class LiveDelivery {
                     if(!exit.safe()){hold="outlet_blocked";return;}
                     unprotectedExit=true;
                 }
-                deliveryYaw=exit.yaw();
-                GameplayLog.event(o.entity(),"family","birth exit selected child={} yaw={} target={} candidates={} reason={}",
-                        next,exit.yaw(),exit.targetKind(),exit.candidates(),unprotectedExit?"no_safe_exit_timeout":"safe");
+                unprotectedExit|=exit.targetKind().equals("unprotected");
+                selectedExit=exit;deliveryYaw=exit.yaw();exitTurnTicks=0;
+                GameplayLog.event(o.entity(),"family","birth exit selected child={} yaw={} target={} hat={} slot={} admission={} candidates={} reason={}",
+                        next,exit.yaw(),exit.targetKind(),exit.target()==null||exit.target().hat()==null?null:exit.target().hat().getUUID(),
+                        exit.target()==null?-1:exit.target().slot(),exit.target()==null?"none":exit.target().admission(),exit.candidates(),unprotectedExit?"no_safe_exit_timeout":"safe");
             }
             SurfaceApproach.face(o.entity(),deliveryYaw);
-            if(Math.abs(Mth.wrapDegrees(o.entity().yBodyRot-deliveryYaw))>1.5f){hold="turning_to_exit";return;}
+            if(Math.abs(Mth.wrapDegrees(o.entity().yBodyRot-deliveryYaw))>1.5f){
+                if(++exitTurnTicks>=40){exitWait+=exitTurnTicks;exitTurnTicks=0;deliveryYaw=Float.NaN;selectedExit=null;}
+                hold="turning_to_exit";return;
+            }
+            exitTurnTicks=0;
             if(!unprotectedExit&&!LiveBirthGeometry.clear(o.entity(),brood.children.get(next),next)){
-                deliveryYaw=Float.NaN;hold="outlet_blocked";return;
+                deliveryYaw=Float.NaN;selectedExit=null;exitWait++;hold="outlet_blocked";return;
             }
         }
         float nextBelly=LiveBirthGeometry.belly(Math.min(1,(brood.elapsed+1f)/brood.duration),brood.children.size()-brood.unborn(),brood.children.size());
@@ -537,7 +552,7 @@ final class LiveDelivery {
                     o.entity().showReaction(next>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST);
                     if(brood.father!=null&&o.level().getEntity(brood.father) instanceof YukkuriEntity helper&&helper.family().midwifeTarget()==o.entity())
                         helper.showReaction("happy","caregiver",LiveBirthGeometry.REST);
-                }
+                }else if(++exitWait>NEST_GRACE){deliveryYaw=Float.NaN;selectedExit=null;}
             }
         }
         if(brood.complete())finishLive();

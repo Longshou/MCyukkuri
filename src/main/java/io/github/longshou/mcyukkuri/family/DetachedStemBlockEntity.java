@@ -82,8 +82,9 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         }
         for(int i=0;i<brood.children.size();i++)for(float progress:new float[]{brood.progress(),1}){
             var child=brood.children.get(i);if(child.born)continue;
-            var point=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,parent,child.variant,bottled,GrowthSize.birth(brood.kind,child)));
-            var box=LiveBirthGeometry.childDimensions(child,1).scale(GrowthSize.fruit(progress,GrowthSize.birth(brood.kind,child))/GrowthSize.birth(brood.kind,child)).makeBoundingBox(point).inflate(.04);
+            float physical=GrowthSize.physicalBirth(brood.kind,child);
+            var point=Vec3.atBottomCenterOf(center).add(DetachedStemGeometry.childBase(brood.children.size(),i,progress,brood.variation,parent,child.variant,bottled,physical));
+            var box=LiveBirthGeometry.childDimensions(child,1).scale(GrowthSize.fruit(progress,physical)/physical).makeBoundingBox(point).inflate(.04);
             if(!clearBox(level,box))return false;
         }
         return true;
@@ -111,7 +112,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         }
         for(int i=0;i<brood.children.size();i++){
             Vec3 position=Vec3.atBottomCenterOf(worldPosition).add(DetachedStemGeometry.childBase(brood.children.size(),i,brood.progress(),brood.variation,source,
-                    brood.children.get(i).variant,bottled(),GrowthSize.birth(brood.kind,brood.children.get(i))));
+                    brood.children.get(i).variant,bottled(),GrowthSize.physicalBirth(brood.kind,brood.children.get(i))));
             FamilyData.get(server).birth(brood,i,server,position);
         }
         if(brood.complete()||exposure%20==0||bottled()&&server.getGameTime()%20==0)sync();
@@ -126,23 +127,30 @@ public final class DetachedStemBlockEntity extends BlockEntity {
                 brood.id,brood.kind,brood.mother,unborn,reason,worldPosition);
     }
     private int[] birthScales=new int[0];
-    public float birthChildScale(int index){return index>=0&&index<birthScales.length?birthScales[index]/10000f:GrowthSize.STEM;}
+    private int[] birthMorphs=new int[0];
+    public float birthChildScale(int index){
+        float base=index>=0&&index<birthScales.length?birthScales[index]/10000f:GrowthSize.STEM;
+        return GrowthSize.physicalBirth(base,index>=0&&index<birthMorphs.length?birthMorphs[index]:0);
+    }
     private void sync(){
         var brood=brood();if(brood!=null){count=brood.children.size();born=types=0;progress=brood.progress();variation=brood.variation;
             for(int i=0;i<count;i++){if(brood.children.get(i).born||brood.cancelled)born|=1<<i;types|=brood.children.get(i).variant.ordinal()<<(i*4);}}
-        if(brood!=null)birthScales=brood.children.stream().mapToInt(c->Math.round(GrowthSize.birth(brood.kind,c)*10000)).toArray();
+        if(brood!=null){
+            birthScales=brood.children.stream().mapToInt(c->Math.round(GrowthSize.birth(brood.kind,c)*10000)).toArray();
+            birthMorphs=brood.children.stream().mapToInt(c->c.subspeciesFlags).toArray();
+        }
         changed();
     }
     private void changed(){setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.saveAdditional(tag,registries);tag.putUUID("Identity",identity);if(broodId!=null)tag.putUUID("Brood",broodId);
         tag.putInt("Sugar",sugar);tag.putInt("Fuel",fuel);tag.putInt("Exposure",exposure);tag.putInt("Count",count);tag.putInt("Born",born);tag.putInt("Types",types);
-        tag.putIntArray("BirthScales",birthScales);tag.putInt("TypeBits",4);tag.putFloat("Progress",progress);tag.putFloat("Variation",variation);tag.putString("Source",source.name());
+        tag.putIntArray("BirthScales",birthScales);tag.putIntArray("BirthMorphs",birthMorphs);tag.putInt("TypeBits",4);tag.putFloat("Progress",progress);tag.putFloat("Variation",variation);tag.putString("Source",source.name());
     }
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){
         super.loadAdditional(tag,registries);if(tag.hasUUID("Identity"))identity=tag.getUUID("Identity");broodId=tag.hasUUID("Brood")?tag.getUUID("Brood"):null;
         sugar=Math.clamp(tag.getInt("Sugar"),0,16);fuel=Math.clamp(tag.getInt("Fuel"),0,200);exposure=Math.clamp(tag.getInt("Exposure"),0,2400);
-        birthScales=tag.getIntArray("BirthScales");
+        birthScales=tag.getIntArray("BirthScales");birthMorphs=tag.getIntArray("BirthMorphs");
         count=Math.clamp(tag.getInt("Count"),0,5);born=tag.getInt("Born");types=tag.getInt("Types");progress=Math.clamp(tag.getFloat("Progress"),0,1);
                 variation=Math.clamp(tag.getFloat("Variation"),.85f,1.15f);
         try{source=YukkuriVariant.valueOf(tag.getString("Source"));}catch(IllegalArgumentException ignored){source=YukkuriVariant.REIMU;}

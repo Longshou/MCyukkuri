@@ -237,7 +237,8 @@ final class YukkuriSync {
     float livePregnancyProgress() { return owner.getEntityData().get(LIVE_PROGRESS); }
     int liveDeliveryTicks() { return owner.getEntityData().get(LIVE_DELIVERY); }
     float birthChildScale(int index) {
-        float size=liveChildrenSync().scaleAt(index);return size>0?size:GrowthSize.LIVE;
+        float size=liveChildrenSync().scaleAt(index);
+        return GrowthSize.physicalBirth(size>0?size:GrowthSize.LIVE,liveChildrenSync().morphAt(index));
     }
     int liveChildCount() { return liveChildrenSync().count().value(); }
     int liveBornMask() { return liveChildrenSync().born().value(); }

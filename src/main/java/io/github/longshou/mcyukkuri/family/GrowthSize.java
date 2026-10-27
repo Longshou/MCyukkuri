@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.util.Mth;
 import java.util.HashSet;
 import java.util.Random;
@@ -32,6 +33,13 @@ public final class GrowthSize {
     public static float birth(FamilyData.BirthKind kind){return kind==FamilyData.BirthKind.STEM?STEM:kind==FamilyData.BirthKind.LIVE?LIVE:EGG;}
     public static float birth(FamilyData.BirthKind kind,FamilyData.Child child){
         return child!=null&&child.birthScale>0?child.birthScale:birth(kind);
+    }
+    /** Physical preview scale; the ledger and FamilyLife persist only the unmultiplied individual birth size. */
+    public static float physicalBirth(FamilyData.BirthKind kind,FamilyData.Child child){
+        return physicalBirth(birth(kind,child),child==null?0:child.subspeciesFlags);
+    }
+    public static float physicalBirth(float birthScale,int flags){
+        return birthScale*((flags&SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1);
     }
     public static float largestBirth(FamilyData.BirthKind kind){
         return kind==FamilyData.BirthKind.EGG?EGG:BIRTH.getAsJsonObject(kind==FamilyData.BirthKind.STEM?"stem":"live").get("max_scale").getAsFloat();

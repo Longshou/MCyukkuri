@@ -171,7 +171,7 @@ public final class LiveBirthGeometry {
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
-        return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.birth(FamilyData.BirthKind.LIVE,child)*globalScale);
+        return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child)*globalScale);
     }
     public static Vector3f modelOutlet(YukkuriView mother,float belly,float contraction){
         var anchor=OUTLETS.computeIfAbsent(mother.assetId(),id->{
