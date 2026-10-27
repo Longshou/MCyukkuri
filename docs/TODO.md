@@ -19,6 +19,11 @@
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈的运行版本待核实；E8 陆地接生射线命中帽实体并返回 `cradle_status`，赤油被帽子选取范围遮住。当前按实际命中解析乘员并转交完整交互，空白帽面保留帽子自己的状态／储粮／晃动处理。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮和推晃。对照 `[hat-input]`、`hat use received/result` 与乘员交互对象，物资只扣一次，拿帽仍受真实托管和乘员条件限制。
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 出现幼油饿停、住所仍指旧窝、重复献身与批量死亡。统一修正行军资格、真实亲代运输、饥饿让位、觅食喂养和脱队寻回；新规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)及[子代移动边界](CHILDHOOD_LIFECYCLE.md#子代移动与亲代运输)。各运行版本、现象、现有接线与最短完成标准只在[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)维护（含 ac4ba87b 暴露的先锋、新址自建与途中卡住，已接入待试玩）；运输演出并入演出包。
 - **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩中下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；版本、现象与已定位原因只在[水生魔理沙模块（重构）](#水生魔理沙模块重构)维护。
+- **接生收尾、入窝与赤油取食（E11）**：复测失败。
+  1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`，赤油随即恢复为帽上乘员，父油按 TRANSIENT 重试；搬运者、赤油自身的乘员活动和帽位租约各自判定“孩子在不在帽里”，失败结果没有落定。
+  2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿就算到窝并直接入睡，看起来浮在窝上。`SurfaceApproach.top()` 取足迹下最高的碰撞面，`supported()` 四个脚点只要碰到窝沿就成立；`NestResting` 的足迹规则只在认窝时使用，入睡和保暖避险（`TemperatureLife` 离格心 0.2）各自另判。
+  3. 赤油极饿自行取食一卡一卡：`04-infant-feed` 03:28:13–03:28:46 每 100 tick 一次 `ground path stopped reason=no_progress`，每次只走约 0.1 格；`food found` 在 elapsed=601、1201 重复出现，说明目标被放弃后又重找。原因待补读数：需要目标实体的 Goal 切换和逐 tick 位置。
+  完成：`birth_land_caught` 每只赤油被放下后不再回到帽里；宠物窝场景中，身体足迹没有落在窝内底面时不入睡；`infant_feed`（赤油取食边界）里极饿的赤油连续走到食物，途中没有 `no_progress`。
 
 ### 家庭、繁殖与照护
 
@@ -105,6 +110,7 @@
 | **E8** | 2026-10-27 21:50–22:37，[ce9c0bfc](https://github.com/Longshou/MCyukkuri/commit/ce9c0bfcabb6d5e3d51755aed8c744e930a46779)，[CI 40465587203](https://github.com/Longshou/MCyukkuri/actions/runs/40465587203)；`20261027-215033-624.session.json` 与原生日志，18 份场景切片在 `.local/reports/birth-aquatic-fix/`。 | 出生与水上链路反馈；下面对应问题保留场景、失败现象与复测要求，代码和日志不代表试玩通过。 |
 | **E9** | 2026-10-28 00:15–00:20，[7e99a8bd](https://github.com/Longshou/MCyukkuri/commit/7e99a8bd539c3b5837fa8a06d0b30f9b3ea61980)，[CI 40536690947](https://github.com/Longshou/MCyukkuri/actions/runs/40536690947)；`20261028-001357-341.session.json` 与原生日志副本在 `.local/reports/birth-aquatic-fix/retest-7e99a8bd/`。 | 自救、扶正后登船、换船与返岸仍失败，具体见水生条目；满粮救援有真实拒绝抽签，不能算事件未触发；该次未复测出生链。 |
 | **E10** | 2026-10-28 01:52–02:02，[98038210](https://github.com/Longshou/MCyukkuri/commit/98038210b43c1a013396fd9bebbf670f55dcc969)，[CI 40550269285](https://github.com/Longshou/MCyukkuri/actions/runs/40550269285)；`20261028-013818-728.session.json` 与原生日志副本在 `.local/reports/birth-aquatic-fix/retest-98038210/`，用户录像为“屏幕录制 2026-10-28 020258.mp4”，对应抽帧在 `.local/screenshots/birth-aquatic-20261028-020258/`。 | 本轮出生、水上与动作细节复测；下文时间为录像偏移。玩家交互与自主行为分开核对，日志成功不替代动作验收。 |
+| **E11** | 2026-10-28 03:22–03:37，[2715d9c1](https://github.com/Longshou/MCyukkuri/commit/2715d9c107e245f938c909af630d5bc9e69c16af)，CI 待核实；用户复测并口述现象，原生日志 `museum/logs/latest.log` | 陆地接生收尾、宠物窝入睡、赤油取食与水上自救、帽子归属回归，见下文 E11 条目 |
 
 ## 实时日志发现的问题
 
@@ -203,6 +209,15 @@
 **状态：复测失败。** 帽船、船长阶段机、席位、乘员转移、落水救助与试玩场已按[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)重做；首轮运行包试玩主链多处阻塞（见下），当前修正须在新运行包按下列 P0 逐项确认；代码、CI 与助手检查不算验收。客户端姿态层已接线（每船一帧 `BoatPose`、乘员 `CrewPose`、接触点 `ContactTargets` 与演出看门狗，见[演出](AQUATIC_MARISA_IMPLEMENTATION.md#演出)），旧水 11、水 14（辫子抽动）的演出缺口按 P0-6／P0-8／P0-11 复看，复看前不算演出通过；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补。水 16 异种饰品另见上节。
 
 **重构前的失败证据（保留版本与现象的对应）**
+
+**E11 复测（[2715d9c1](https://github.com/Longshou/MCyukkuri/commit/2715d9c107e245f938c909af630d5bc9e69c16af)）**：仍失败。根因是缺少共享能力，不能再逐个场景加衔接代码，结构方案见 `.local/reports/aquatic-refactor/PLAN.md`。
+- 岸上翻帽后，个体一直泡在水里，头与帽檐重合，反复播挣扎动作；用户挪开它后再上船、再弄翻，偶尔帽子留在头上浮不上来而卡死。`self_giveup … slips=3` 之后回到 IDLE，没有后续办法。
+- 落水自救演示（帽子戴在头上）：自救后帽子瞬间变大。展开时用 `HatVessel.hatScale`（成体 1.75），戴在头上用 `SelfRescueHatGeometry` / `PropItemRenderer`，两套比例不同源。
+- 有木棍却不划船：`HullHelm:240,306` 只认帽内储物里的木棍（`paddle=false`），叼着的木棍在展开或上船时从不放入帽内。
+- 初航和其他动作结束后，子油不捡回自己的帽子：找回帽子只在单个动作内处理（`FirstVoyage:360-368` 超时即 `finish`），没有归主人负责到底的帽子收尾。
+- 帽船推不动：`HatBoatEntity` 没有重写 `isPushable`（默认 false），只有 `canBeCollidedWith=true`，对油库里是一堵挡路的墙；油库里与帽体之间没有分离推力，所以水中个体会和帽子重叠。
+- 帽船不会自己浮上来，导致自救时丢帽：浮力只在 `HatBoatEntity:1394-1411` 一个分支里，依赖块位置是水，`sinking()` 时向下漂；叼着或戴着的帽子速度被清零。
+- 完成：`self_rescue`、`capsize_shore` 中翻覆的帽子会浮起，可被推开、被扶正；个体不与帽体重叠，自救有后续办法；帽子大小在戴着和展开之间一致；带着木棍的个体会划船；任何动作结束后，主人都会找回或明确放弃自己的帽子（日志 `reclaim done` 或带原因的 `expired`）。
 
 - [d5d88bb0](https://github.com/Longshou/MCyukkuri/commit/d5d88bb0ade41ddb3401d408da9fbbba07c83b24)（[CI 39455579956](https://github.com/Longshou/MCyukkuri/actions/runs/39455579956)，2026-10-21 00:48–00:54）：`sail`、`cargo_load` 提示“帽船没能生成”（拒绝原因被合并，无法定位）；魔理沙 `#25215` 落水溺亡；`afraid.png` 加载 `FileNotFoundException`；stdout 停更而原生日志继续，查日志必须看原生日志。
 - [56b5e4f1](https://github.com/Longshou/MCyukkuri/commit/56b5e4f1d6155b89a078ded5b385a6585702b0bd)（[CI 39465772518](https://github.com/Longshou/MCyukkuri/actions/runs/39465772518)，01:46–01:52，复测失败）：收帽后赤油瞬移上岸（`recoverUnattended → landCrew`）；`cargo_load` 帽主 `#32155`、`shore` 帽主 `#33467` 在 `createAfloatAndBoard` 被 `path=afloat reason=hull_collision` 拒绝（`water=-160,63,300`，未区分方块或实体），建船失败后亲缘与幼体头饰修改未回滚，岸上赤油持续 `infant_ashore` 阻止出航；`sail` `#19357` 拾桨、取 3 份苹果、8 tick 后 `hull deployed path=bank` 成为乘员，仅证明单体出航接通。
