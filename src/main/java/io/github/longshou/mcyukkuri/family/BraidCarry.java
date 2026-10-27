@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewPort;
 import io.github.longshou.mcyukkuri.subspecies.crew.CrewReach;
@@ -194,8 +195,10 @@ public final class BraidCarry {
     public static void approach(YukkuriEntity body, YukkuriEntity carrier, Vec3 stand, float yaw, String reason) {
         var session = body.family().crew().braidSession();
         GameplayLog.limited(body, "braid", "approach." + reason, 100,
-                "approach intent={} carrier={} body={} stand={} yawError={} reason={}", session == null ? "unknown" : session.intent(),
-                carrier.getUUID(), body.getUUID(), stand, Mth.wrapDegrees(yaw - carrier.yBodyRot), reason);
+                "approach intent={} carrier={} body={} stand={} yawError={} reason={} actual={} distance={} route={} pathDone={} horizontalCollision={} onGround={}",
+                session == null ? "unknown" : session.intent(), carrier.getUUID(), body.getUUID(), stand,
+                Mth.wrapDegrees(yaw - carrier.yBodyRot), reason, carrier.position(), carrier.position().distanceTo(stand),
+                SurfaceApproach.lastResult(carrier, stand), carrier.getNavigation().isDone(), carrier.horizontalCollision, carrier.onGround());
     }
     public static void finished(YukkuriEntity body, YukkuriEntity carrier, CrewTransfer ticket, CrewPort.Outcome outcome) {
         var session = body.family().crew().braidSession();
@@ -203,8 +206,11 @@ public final class BraidCarry {
     }
     public static void stalled(YukkuriEntity body, YukkuriEntity carrier, Vec3 stand, float yaw, String phase) {
         GameplayLog.limited(body, "braid", "stall." + phase, 200,
-                "stall carrier={} body={} phase={} stand={} yawError={}", carrier == null ? null : carrier.getUUID(), body.getUUID(), phase,
-                stand, carrier == null ? 0 : Mth.wrapDegrees(yaw - carrier.yBodyRot));
+                "stall carrier={} body={} phase={} stand={} yawError={} actual={} route={} pathDone={} horizontalCollision={}",
+                carrier == null ? null : carrier.getUUID(), body.getUUID(), phase, stand,
+                carrier == null ? 0 : Mth.wrapDegrees(yaw - carrier.yBodyRot), carrier == null ? null : carrier.position(),
+                carrier == null || stand == null ? null : SurfaceApproach.lastResult(carrier, stand),
+                carrier == null || carrier.getNavigation().isDone(), carrier != null && carrier.horizontalCollision);
     }
     private static Intent intent(CrewTransfer.Request request) {
         if (request.rescue()) return Intent.RESCUE;

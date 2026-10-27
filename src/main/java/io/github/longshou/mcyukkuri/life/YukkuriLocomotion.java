@@ -49,7 +49,8 @@ public final class YukkuriLocomotion {
         double radius = HatVessel.radius(body.getBbWidth());
         double available = limits.maxHopHeight() - Math.max(0, to.y - from.y);
         for (int attempt = 1; attempt <= 20; attempt++) {
-            double rise = available * attempt / 20;
+            double naturalRise = Math.min(available, .12 * Math.sqrt(body.growthScale() * body.getScale()) + flat * .10);
+            double rise = naturalRise + (available - naturalRise) * (attempt - 1) / 19;
             var points = new ArrayList<Vec3>();
             for (int i = 0; i <= 32; i++) {
                 double u = i / 32.0;
@@ -58,7 +59,11 @@ public final class YukkuriLocomotion {
             boolean clear = true;
             for (var hull : hulls) if (!HatVessel.clears(points, hull, radius)) { clear = false; break; }
             if (!clear || !clearBlocks(body, points)) continue;
-            int ticks = Math.max(12, (int) Math.ceil(length(points) * 1.7 / Math.max(.003, limits.maxHorizSpeed())));
+            // Uniform flight time keeps take-off decisive and preserves the parabola's vertical acceleration.
+            // Budget the largest real step, rather than stretching the whole jump with walking ease-in/out.
+            double largestStep = 0;
+            for (int i = 1; i < points.size(); i++) largestStep = Math.max(largestStep, points.get(i).distanceTo(points.get(i - 1)));
+            int ticks = Math.max(6, (int) Math.ceil(largestStep * 32 / Math.max(.003, limits.maxHorizSpeed())));
             return new Plan(Kind.HOP, points, ticks, YukkuriAction.HAT_HOP_UP, limits.maxHorizSpeed(), "");
         }
         return refused(Kind.HOP, "hop_clearance_exceeds_body");
@@ -79,14 +84,9 @@ public final class YukkuriLocomotion {
     public static Vec3 sample(List<Vec3> points, double progress) {
         if (points.isEmpty()) return Vec3.ZERO;
         double u = Math.clamp(progress, 0, 1);
-        double distance = length(points) * u * u * (3 - 2 * u);
-        for (int i = 1; i < points.size(); i++) {
-            double segment = points.get(i - 1).distanceTo(points.get(i));
-            if (distance <= segment || i == points.size() - 1)
-                return points.get(i - 1).lerp(points.get(i), segment < 1e-9 ? 1 : Math.clamp(distance / segment, 0, 1));
-            distance -= segment;
-        }
-        return points.getLast();
+        double at = u * (points.size() - 1);
+        int index = Math.min(points.size() - 1, (int) at);
+        return index + 1 >= points.size() ? points.getLast() : points.get(index).lerp(points.get(index + 1), at - index);
     }
 
     public static boolean step(YukkuriEntity body, Plan plan, double tick) {

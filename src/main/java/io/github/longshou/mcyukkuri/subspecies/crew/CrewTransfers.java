@@ -331,7 +331,7 @@ public final class CrewTransfers {
 
     /** An unreachable dependent rider crawls toward the waiting parent's side, along its existing step-free deck paths. */
     private static boolean approachPickup(HatBoatEntity hat, YukkuriEntity child, YukkuriEntity taker, List<Vec3> landings) {
-        if (!hat.catches() || child.isPanicking() || child.family().crew().active()) return false;
+        if ((!hat.catches() && !hat.landing()) || child.isPanicking() || child.family().crew().active()) return false;
         var placed = hat.deck().get(child.getUUID());
         if (placed == null || !placed.aboard() || placed.slot() < 0) return false;
         var body = hat.bodyOf(child);

@@ -9,7 +9,8 @@ import net.minecraft.world.phys.Vec3;
  * Who can lift whom, and what a braid or a mouth can reach: the one capability rule of {@link CrewTransfer}.
  * Strength is {@link BraidRescueGeometry#canLift} (body volume against the carrier's volume and energy). The braid reaches a point
  * when it lies in the capsule shell between the shortest and longest extension of the two authored segments around the carrier's
- * <em>current</em> braid root; a mouth reaches a point within its hold reach of the mouth point. Nothing here scans the hull.
+ * <em>current</em> braid root; a mouth reaches a point within its hold reach of the mouth point. Both require the contact to be
+ * in front of, or to the forward side of, the carrier's actual heading. Nothing here scans the hull.
  */
 public final class CrewReach {
     /** The single lift-capacity rule, for the braid and for the mouth alike. */
@@ -32,9 +33,13 @@ public final class CrewReach {
         return BraidRescueGeometry.rootAtYaw(carrier, feet, yaw);
     }
 
-    /** The braid capsule rule: a contact point is in reach of a root. */
+    /** The braid capsule and facing rules at the carrier's current pose. */
     public static boolean braidReaches(YukkuriEntity carrier, Vec3 root, Vec3 contact) {
-        return BraidRescueGeometry.reachable(carrier, root, contact);
+        return braidReaches(carrier, carrier.position(), carrier.yBodyRot, root, contact);
+    }
+
+    public static boolean braidReaches(YukkuriEntity carrier, Vec3 feet, float yaw, Vec3 root, Vec3 contact) {
+        return BraidRescueGeometry.reachableAt(carrier, feet, yaw, root, contact);
     }
 
     /** The mouth point if the carrier stood at {@code feet} facing {@code yaw} (degrees). */
@@ -42,9 +47,14 @@ public final class CrewReach {
         return BraidRescueGeometry.mouthPoint(carrier, feet, yaw);
     }
 
-    /** The mouth rule: the contact point is within the hold reach of the mouth. */
+    /** The mouth reach and facing rules at the carrier's current pose. */
     public static boolean mouthReaches(YukkuriEntity carrier, Vec3 mouth, Vec3 contact) {
-        return mouth.distanceTo(contact) <= BraidRescueGeometry.holdReach(carrier);
+        return mouthReaches(carrier, carrier.position(), carrier.yBodyRot, mouth, contact);
+    }
+
+    public static boolean mouthReaches(YukkuriEntity carrier, Vec3 feet, float yaw, Vec3 mouth, Vec3 contact) {
+        return BraidRescueGeometry.workFacing(feet, yaw, contact)
+                && mouth.distanceTo(contact) <= BraidRescueGeometry.holdReach(carrier);
     }
 
     /** The point of the body the carrier takes hold of, nearest her root or mouth. */

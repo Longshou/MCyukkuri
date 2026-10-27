@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
+import io.github.longshou.mcyukkuri.subspecies.boat.VoyagePhase;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -30,8 +32,8 @@ import org.joml.Vector3f;
  */
 public final class ParentCarry {
     public enum Mode { HAT, MOUTH, TAIL }
-    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, MANUAL }
-    enum Step { WORKING, DONE, FAILED }
+    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, MANUAL, BOAT_BOARD }
+    public enum Step { WORKING, DONE, FAILED }
     /** Ticks the parent stands over the child before it is lifted. */
     static final int LIFT_TICKS = 14;
     /** Pause before the same child is picked up again after an interruption; feeding gets longer. */
@@ -229,7 +231,7 @@ public final class ParentCarry {
         if (!carrier.isAlive() || !child.isAlive()) return "dead";
         if (carrier.level() != child.level()) return "level";
         if (!carrier.family().adult() || child.family().adult()) return "stage";
-        if (carrier.profile().aquatic() || carrier.profile().houseBody() || carrier.profile().dangerToYukkuri()) return "carrier_kind";
+        if (carrier.profile().aquatic() && !boatBoarding(carrier, child) || carrier.profile().houseBody() || carrier.profile().dangerToYukkuri()) return "carrier_kind";
         if (carrier.isPassenger()) return "carrier_boarded";
         if (child.isVehicle()) return "child_carrying";
         if (child.isPassenger() && child.getVehicle() != carrier) return "child_boarded";
@@ -268,6 +270,22 @@ public final class ParentCarry {
         return capacityProblem(carrier, child, false, true) == null && !carrier.isInWaterOrBubble() && !child.isInWaterOrBubble()
                 && !carrier.operations().active() && !child.operations().active();
     }
+    /** A shore transport belongs to this live loading manifest; aquatic life still owns its destination and timeout. */
+    private static boolean boatBoarding(YukkuriEntity parent, YukkuriEntity child) {
+        return parent.aquaticLife().voyage().phase() == VoyagePhase.LOAD
+                && parent.aquaticLife().voyage().awaiting(child.getUUID()) && Bonds.parentOf(parent, child);
+    }
+    private boolean boardingReady(YukkuriEntity child) {
+        return boatBoarding(carrier, child) && carrier.isAlive() && !carrier.isNoAi() && !carrier.isPassenger()
+                && !carrier.isInWaterOrBubble() && !carrier.isCommandPlaying() && !carrier.operations().active()
+                && !carrier.family().laboring() && !carrier.family().birthDuty() && !carrier.family().crew().busy()
+                && !carrier.isPanicking() && !carrier.isOnFire() && !carrier.life().isSleeping()
+                && carrier.life().mealTicks() == 0 && !carrier.life().hasUrgentNeed();
+    }
+    /** Reuse the real land pickup and passenger presentation before the final stationary braid lift into a hat. */
+    public Step tickBoardingPickup(YukkuriEntity child) { return tickPickup(child, Purpose.BOAT_BOARD); }
+    public boolean boardingPickupActive() { return lifting != null && purpose == Purpose.BOAT_BOARD; }
+
     /** The carrier is not busy with something that needs its body, mouth or attention right now. */
     private boolean ready() {
         var life = carrier.life();
@@ -420,11 +438,13 @@ public final class ParentCarry {
     /** Standing over a child and counting down its lift (shown as the lean-down of carry_lift). */
     boolean lifting() { return lifting != null; }
     /** One tick of walking to the child, standing over it and lifting it. */
-    Step tickPickup(YukkuriEntity child, int taskTicks) {
+    Step tickPickup(YukkuriEntity child, int taskTicks) { return tickPickup(child, purposeFor(child)); }
+    private Step tickPickup(YukkuriEntity child, Purpose intent) {
         var why = capacityProblem(carrier, child, false, true);
-        if (why != null || !ready()) {
+        boolean ready = intent == Purpose.BOAT_BOARD ? boardingReady(child) : ready();
+        if (why != null || !ready) {
             GameplayLog.limited(carrier, "family", "carry.refused", 400, "carry pickup refused child={} reason={} ready={}", child.getUUID(),
-                    why == null ? "carrier_busy" : why, ready());
+                    why == null ? "carrier_busy" : why, ready);
             return Step.FAILED;
         }
         if (!inReach(child)) {
@@ -440,20 +460,25 @@ public final class ParentCarry {
         }
         carrier.getNavigation().stop();
         carrier.getLookControl().setLookAt(child, 30, 30);
+        if (intent == Purpose.BOAT_BOARD) {
+            float yaw = SurfaceApproach.yaw(carrier.position(), child.position());
+            SurfaceApproach.face(carrier, yaw);
+            if (Math.abs(Mth.wrapDegrees(yaw - carrier.yBodyRot)) > 3) return Step.WORKING;
+        }
         if (child.life().mealTicks() > 0 || child.isPanicking() || child.isInWaterOrBubble() || child.operations().active()) return Step.WORKING;
         if (!child.getUUID().equals(lifting)) {
             lifting = child.getUUID();
             lift = 0;
+            if (intent == Purpose.BOAT_BOARD) purpose = intent;
             GameplayLog.event(carrier, "family", "carry lift started mode={} purpose={} child={} childPos={} carrierPos={} nutrition={}",
-                    mode(carrier, child), purposeFor(child), child.getUUID(), child.blockPosition().toShortString(),
+                    mode(carrier, child), intent, child.getUUID(), child.blockPosition().toShortString(),
                     carrier.blockPosition().toShortString(), child.life().nutrition());
         }
         if (++lift < LIFT_TICKS) return Step.WORKING;
-        return board(child) ? Step.DONE : Step.FAILED;
+        return board(child, intent) ? Step.DONE : Step.FAILED;
     }
 
-    private boolean board(YukkuriEntity child) {
-        var intent = purposeFor(child);
+    private boolean board(YukkuriEntity child, Purpose intent) {
         var rim = intent == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
         var mode = mode(carrier, child);
         Vec3 before = child.position();
@@ -472,7 +497,7 @@ public final class ParentCarry {
         lifting = null;
         lift = 0;
         // A further baby joins the carry already under way; the first one set the purpose and the clock.
-        if (purpose == null) {
+        if (purpose == null || intent == Purpose.BOAT_BOARD) {
             purpose = intent == null ? Purpose.RETRIEVE : intent;
             since = carrier.level().getGameTime();
             arrivedAt = 0;
@@ -494,7 +519,10 @@ public final class ParentCarry {
     void tick() {
         var all = riders();
         if (all.isEmpty()) {
-            if (purpose != null) purpose = null;
+            if (purpose == Purpose.BOAT_BOARD && carrier.aquaticLife().voyage().phase() != VoyagePhase.LOAD) {
+                lifting = null; lift = 0;
+            }
+            if (purpose != null && lifting == null) purpose = null;
             return;
         }
         long now = carrier.level().getGameTime();
@@ -541,6 +569,7 @@ public final class ParentCarry {
         }
         if (carrier.operations().active()) return "operation";
         if (now - since > MAX_CARRY_TICKS) return "timeout";
+        if (purpose == Purpose.BOAT_BOARD && !boatBoarding(carrier, first)) return "boarding_ended";
         if (purpose == Purpose.MIGRATE) {
             boolean landed = carrier.settlement().migrationLanded();
             if (landed && arrivedAt == 0) {
@@ -619,6 +648,19 @@ public final class ParentCarry {
         return true;
     }
 
+    public boolean putDownForBoarding(YukkuriEntity child) {
+        if (purpose != Purpose.BOAT_BOARD || !carrier.hasPassenger(child)) return false;
+        var feet = child.position(); var ground = SurfaceApproach.floor(child, feet);
+        if (ground == null || feet.y < ground.y - .002 || feet.y - ground.y > .25) return false;
+        // Ordinary stopRiding chooses a new side cell. Keep these measured hanging feet and let the short drop settle naturally.
+        YukkuriLocomotion.detach(child);
+        child.setDeltaMovement(Vec3.ZERO); child.fallDistance = 0;
+        GameplayLog.event(carrier, "family", "carry put down reason=boarding_near_bank mode={} purpose=BOAT_BOARD child={} before={} after={} floor={} carriedTicks={}",
+                mode(carrier, child), child.getUUID(), feet, child.position(), ground, carrier.level().getGameTime() - since);
+        purpose = null; lifting = null; lift = 0;
+        return true;
+    }
+
     /** Set every rider down where it is (see {@link #putDown(YukkuriEntity, String, int)}). Returns false when nothing was carried. */
     public boolean putDown(String reason, int holdTicks) {
         var all = riders();
@@ -631,9 +673,9 @@ public final class ParentCarry {
         if (!carrier.hasPassenger(child) || !(carrier.level() instanceof ServerLevel)) return false;
         var mode = mode(carrier, child);
         Vec3 before = child.position();
-        child.stopRiding();
+        if (purpose == Purpose.BOAT_BOARD) YukkuriLocomotion.detach(child); else child.stopRiding();
         String method = "in_place";
-        if (carrier.level().getBlockCollisions(child, child.getBoundingBox()).iterator().hasNext()) {
+        if (purpose != Purpose.BOAT_BOARD && carrier.level().getBlockCollisions(child, child.getBoundingBox()).iterator().hasNext()) {
             var landing = HatCarry.landing(carrier, child);
             if (landing != null) {
                 child.moveTo(landing.x, landing.y, landing.z, carrier.getYRot(), 0);

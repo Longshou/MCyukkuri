@@ -50,7 +50,7 @@ public final class CrewState {
         /** Frame (0 world, 1/2 a hull) of the knot position that carries the body at this progress. */
         public int frameAt(double u) {
             if (arc) return u < .5 ? knots.getFirst().frame() : knots.getLast().frame();
-            double e = ease(u);
+            double e = mode == CrewTransfer.Mode.HOP ? Math.clamp(u, 0, 1) : ease(u);
             for (int i = 0; i + 1 < knots.size(); i++) {
                 double a = cumulative.get(i), b = cumulative.get(i + 1);
                 if (e <= b || i + 2 == knots.size()) {
@@ -78,7 +78,7 @@ public final class CrewState {
                 if (from == null || to == null) return null;
                 return HatVessel.arc(from, to, moveTicks, Math.clamp(u, 0, 1) * moveTicks);
             }
-            double e = ease(u);
+            double e = mode == CrewTransfer.Mode.HOP ? Math.clamp(u, 0, 1) : ease(u);
             for (int i = 0; i + 1 < knots.size(); i++) {
                 double a = cumulative.get(i), b = cumulative.get(i + 1);
                 if (e <= b || i + 2 == knots.size()) {
@@ -89,6 +89,12 @@ public final class CrewState {
                 }
             }
             return world(level, knots.getFirst());
+        }
+
+        /** First 33 knots are uniform flight samples; later hop_board knots are supported walking. */
+        public boolean airborne(double now) {
+            return moving() && (mode != CrewTransfer.Mode.HOP || !curve.equals("hop_board")
+                    || cumulative.size() <= 32 || progress(now) < cumulative.get(32));
         }
 
         public Vec3 world(Level level, Knot knot) {

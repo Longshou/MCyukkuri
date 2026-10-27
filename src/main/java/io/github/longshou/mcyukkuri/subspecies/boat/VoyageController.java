@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.subspecies.boat;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
@@ -89,6 +90,11 @@ public final class VoyageController {
     private ShoreBerth.Berth carryBerth;
     private long carryBerthSince;
     private int carryBerthTries;
+    private UUID bankCarried;
+    private Vec3 bankCarryStand;
+    private float bankCarryYaw;
+    private boolean bankPickedUp;
+    private final Set<UUID> bankTransported = new HashSet<>();
 
     public VoyageController(YukkuriEntity entity, AquaticLife life) { this.entity = entity; this.life = life; }
 
@@ -121,6 +127,12 @@ public final class VoyageController {
     private void enter(VoyagePhase next, String reason) {
         if (next == phase) return;
         var before = phase;
+        if (before == VoyagePhase.LOAD && next != VoyagePhase.LOAD) {
+            if (entity.family().carry().purpose() == ParentCarry.Purpose.BOAT_BOARD)
+                entity.family().carry().putDown("boarding_ended", 0);
+            bankCarried = null; bankCarryStand = null; bankPickedUp = false;
+        }
+        if (next == VoyagePhase.LOAD) bankTransported.clear();
         phase = next;
         since = now();
         stageSince = since;
@@ -498,6 +510,7 @@ public final class VoyageController {
         if (boat.unsteadyMotion()) { if (++hullWait > 120) cancelTrip("hull_unsteady"); return Behaviors.BOAT_STEADY; }
         hullWait = 0;
         if (entity.family().crew().active() || boat.crew().busy()) return Behaviors.BOAT_LAUNCH;
+        if (bankCarried != null) return carryToBank(boat, now);
         // Jumpers first, dependents second; whoever is not yet aboard.
         YukkuriEntity next = null;
         boolean anyLeft = false;
@@ -526,8 +539,17 @@ public final class VoyageController {
             if (tries.merge(id, 1, Integer::sum) > 8) cancelTrip("young_unloadable:no_room");
             return Behaviors.BOAT_LAUNCH;
         }
-        var result = next.childhood().canJump() && next.family().stage() != io.github.longshou.mcyukkuri.family.FamilyLife.Stage.BABY
-                ? CrewTransfers.boardFromShore(next, boat, false) : CrewTransfers.loadFromBank(next, entity, boat);
+        boolean jumper = CrewTransfer.canStepOut(next);
+        if (!jumper && !bankTransported.contains(id)) {
+            var preview = CrewTransfer.previewBankLoadingAt(next, entity, boat, next.position());
+            if (!preview.ok() && preview.refusal() == CrewTransfer.Refusal.GEOMETRY) {
+                bankCarried = id; bankCarryStand = null; bankPickedUp = false; bankTransported.add(id);
+                GameplayLog.event(entity, "aquatic", "load shore transport started child={} hat={} actual={} reason={}",
+                        id, boat.getUUID(), next.position(), preview.reason());
+                return carryToBank(boat, now);
+            }
+        }
+        var result = jumper ? CrewTransfers.boardFromShore(next, boat, false) : CrewTransfers.loadFromBank(next, entity, boat);
         if (result.ok()) {
             GameplayLog.limited(entity, "aquatic", "load.start", 100, "load child={} mode={} hat={}", id, result.ticket().mode(), boat.getUUID());
             return Behaviors.BOAT_LAUNCH;
@@ -538,6 +560,67 @@ public final class VoyageController {
         if (result.refusal() == CrewTransfer.Refusal.GEOMETRY && n % 2 == 0) life.gatherAtBank(next, bank);
         if (n > 12 || result.refusal() == CrewTransfer.Refusal.INCAPABLE && n > 4) cancelTrip("young_unloadable:" + result.reason());
         return Behaviors.BOAT_LAUNCH;
+    }
+
+    /** Carry a distant dependent to one checked dry handoff, then let the ordinary braid ticket board it. */
+    private String carryToBank(HatBoatEntity boat, long now) {
+        var young = child(bankCarried); var carry = entity.family().carry();
+        if (young == null || !young.isAlive()) { bankCarried = null; return Behaviors.BOAT_LAUNCH; }
+        long first = childSince.computeIfAbsent(bankCarried, id -> now);
+        if (now - first > CHILD_LOAD_TICKS) { cancelTrip("shore_transport_timeout"); return Behaviors.IDLE; }
+        if (!bankPickedUp) {
+            var result = carry.tickBoardingPickup(young);
+            if (result == ParentCarry.Step.FAILED) { cancelTrip("shore_pickup_refused"); return Behaviors.IDLE; }
+            if (result == ParentCarry.Step.DONE) { bankPickedUp = true; return Behaviors.BOAT_CARRY_YOUNG; }
+            return carry.boardingPickupActive() ? Behaviors.CARRY_LIFT : Behaviors.BOAT_WAIT_YOUNG;
+        }
+        if (!entity.hasPassenger(young)) { cancelTrip("shore_transport_interrupted"); return Behaviors.IDLE; }
+        if (bankCarryStand == null && !chooseBankHandoff(boat, young)) {
+            cancelTrip("no_dry_boarding_handoff"); return Behaviors.IDLE;
+        }
+        if (!SurfaceApproach.walk(entity, bankCarryStand, .8)) {
+            if (SurfaceApproach.lastResult(entity, bankCarryStand) == SurfaceApproach.Result.BLOCKED) {
+                GameplayLog.limited(entity, "aquatic", "load.transport_blocked", 100,
+                        "load shore transport blocked child={} actual={} stand={}", young.getUUID(), entity.position(), bankCarryStand);
+            }
+            return Behaviors.BOAT_CARRY_YOUNG;
+        }
+        SurfaceApproach.halt(entity); SurfaceApproach.face(entity, bankCarryYaw);
+        if (Math.abs(Mth.wrapDegrees(entity.yBodyRot - bankCarryYaw)) > 3) return Behaviors.BOAT_CARRY_YOUNG;
+        var ground = SurfaceApproach.floor(young, young.position());
+        if (ground == null || !CrewTransfer.previewBankLoadingAt(young, entity, boat, ground).ok()) {
+            cancelTrip("boarding_handoff_changed"); return Behaviors.IDLE;
+        }
+        if (!carry.putDownForBoarding(young)) return Behaviors.BOAT_CARRY_YOUNG;
+        GameplayLog.event(entity, "aquatic", "load shore transport reached child={} hat={} actual={} ground={}",
+                young.getUUID(), boat.getUUID(), young.position(), ground);
+        bankCarried = null; bankCarryStand = null; bankPickedUp = false;
+        return Behaviors.BOAT_LAUNCH;
+    }
+
+    private boolean chooseBankHandoff(HatBoatEntity boat, YukkuriEntity young) {
+        if (bank == null) return false;
+        var points = new ArrayList<Vec3>(); var center = Vec3.atBottomCenterOf(bank);
+        for (double x : new double[]{-.4, -.2, 0, .2, .4}) for (double z : new double[]{-.4, -.2, 0, .2, .4}) {
+            var stand = SurfaceApproach.floor(entity, center.add(x, 0, z));
+            if (stand != null) points.add(stand);
+        }
+        points.sort(Comparator.comparingDouble(boat::distanceToSqr));
+        var currentOffset = ParentCarry.rawSeat(entity, young, 1).subtract(entity.position());
+        int tested = 0;
+        for (var stand : points) {
+            float yaw = SurfaceApproach.yaw(stand, boat.position());
+            var offset = currentOffset.yRot((entity.yBodyRot - yaw) * Mth.DEG_TO_RAD);
+            var hanging = stand.add(offset); var ground = SurfaceApproach.floor(young, hanging);
+            if (ground == null || hanging.y < ground.y - .002 || hanging.y - ground.y > .25) continue;
+            if (++tested > 8) break;
+            if (!SurfaceApproach.canApproach(entity, stand) || !CrewTransfer.previewBankLoadingAt(young, entity, boat, ground).ok()) continue;
+            bankCarryStand = stand; bankCarryYaw = yaw;
+            GameplayLog.event(entity, "aquatic", "load shore handoff planned child={} stand={} yaw={} hanging={} ground={}",
+                    young.getUUID(), stand, yaw, hanging, ground);
+            return true;
+        }
+        return false;
     }
 
     // ---- EMBARK
@@ -732,17 +815,21 @@ public final class VoyageController {
 
     private Vec3 dropPoint(YukkuriEntity actor, HatBoatEntity boat) {
         if (berth == null) return null;
-        var landings = berth.walkOff().stream().sorted(Comparator.comparingDouble(actor::distanceToSqr)).toList();
-        for (var spot : landings) {
-            var box = actor.getBoundingBox().move(spot.subtract(actor.position())).inflate(.03);
-            if (used.stream().noneMatch(box::intersects) && HatDock.standable(actor, spot)) return spot;
-        }
         boolean hops = CrewTransfer.canStepOut(actor);
-        if (hops) return HatDock.spotFor(berth, actor, actor.position(), used, respots);
         var taken = new ArrayList<AABB>(used);
         for (var other : level().getEntitiesOfClass(YukkuriEntity.class, boat.getBoundingBox().inflate(3)))
             if (other != actor && !other.isPassenger()) taken.add(other.getBoundingBox());
-        return HatDock.spotFor(berth, actor, respots % 2 == 0 ? entity.position() : actor.position(), taken, respots / 2);
+        // Berth.walkOff was sized for the captain. A baby can be set on its own small, fully dry footprint much nearer the wall.
+        if (!hops) {
+            var close = HatDock.spotFor(berth, actor, actor.position(), taken, respots);
+            if (close != null) return close;
+        }
+        var landings = berth.walkOff().stream().sorted(Comparator.comparingDouble(actor::distanceToSqr)).toList();
+        for (var spot : landings) {
+            var box = actor.getBoundingBox().move(spot.subtract(actor.position())).inflate(.03);
+            if (taken.stream().noneMatch(box::intersects) && HatDock.standable(actor, spot)) return spot;
+        }
+        return HatDock.spotFor(berth, actor, actor.position(), taken, respots);
     }
 
     private void respot(YukkuriEntity actor) {

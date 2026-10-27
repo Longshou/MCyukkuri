@@ -262,6 +262,18 @@ public final class BraidRescueGeometry {
     public static boolean reachable(YukkuriEntity parent,Vec3 root,Vec3 tip){
         double reach=root.distanceTo(tip);return reach>=minimumReach(parent)&&reach<=maximumReach(parent);
     }
+    /** Work stays in the visible front/side-front sector; a finite braid is not a joint through the back of the body. */
+    public static boolean workFacing(Vec3 feet,float yaw,Vec3 target){
+        var toward=target.subtract(feet).multiply(1,0,1);
+        if(toward.lengthSqr()<1e-8)return true;
+        double radians=Math.toRadians(yaw);
+        var forward=new Vec3(-Math.sin(radians),0,Math.cos(radians));
+        return forward.dot(toward.normalize())>=Math.cos(Math.toRadians(80));
+    }
+    /** Planning and actual contact use the same current body heading as well as the authored segment lengths. */
+    public static boolean reachableAt(YukkuriEntity parent,Vec3 feet,float yaw,Vec3 root,Vec3 tip){
+        return workFacing(feet,yaw,tip)&&reachable(parent,root,tip);
+    }
     /** Two real existing rigid bone lengths meet at this joint; flex never extends either segment. */
     public static Vec3 joint(YukkuriEntity parent,Vec3 root,Vec3 tip,Vec3 bendHint){
         double distance=root.distanceTo(tip),a=firstLength(parent),b=secondLength(parent);

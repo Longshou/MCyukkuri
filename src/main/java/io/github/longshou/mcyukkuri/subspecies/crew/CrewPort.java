@@ -85,7 +85,7 @@ public final class CrewPort {
     /** The teeth are on the rim. */
     public boolean gripping() { return climbing() && ticket.holdsBody(); }
     /** Body in a HOP or climb that left the ground: it has no footing of its own. */
-    public boolean flying() { return asBody() && ticket.mode() != CrewTransfer.Mode.LIFT && ticket.phase() == CrewTransfer.Phase.MOVE; }
+    public boolean flying() { return asBody() && ticket.airborne(); }
     /** The entity's own ticket passes through this hull (the hull must not collide with it). */
     public boolean passesThrough(HatBoatEntity hat) {
         return active() && ticket.touches(hat) && (ticket.phase().ordinal() >= CrewTransfer.Phase.CONTACT.ordinal() || ticket.mode() == CrewTransfer.Mode.HOP);
