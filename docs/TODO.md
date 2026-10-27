@@ -11,7 +11,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 伤口渲染降级、累计伤级与受击反馈 | `.worktrees/wound-lod` | `client/HairWoundRenderer.java`、`client/WoundRenderer.java`、`client/YukkuriModel.java`（伤口相关段）、客户端配置、`body/BodyLife.java`、`body/BodyWound.java`、`body/InjuryModel.java` |
-| 佩妮佩妮圆润模型与预览 | `.worktrees/peni-rounded` | `standards/yukkuri-library/components/common/anatomy*`、`standards/yukkuri-library/body-standard/anatomy*`、相关角色组装与运行模型、`.local/previews/`（仅本地输出） |
 | 窝边台阶、推入弹跳与出生抛物线 | `.worktrees/birth-arc` | `family/`（分娩、出生落点、接生）、实体移动／台阶相关、`scripts/museum_scenarios.py` 生产场景、`docs/CONSUMABLES_AND_BIRTH.md`、`docs/CHILDHOOD_LIFECYCLE.md` |
 
 ## 玩法待办
