@@ -81,17 +81,22 @@ final class FamilyFlight {
         if(!o.awaitingLanding()||o.entity().onGround()||o.entity().isInWaterOrBubble()){
             CrewTransfers.boardFromShore(o.entity(),hat,false);return;
         }
-        if(!hat.makeRoom(o.entity(),false)){flightLog("room_pending");return;}
-        var seat=hat.reserve(o.entity(),prefer);if(seat==null){flightLog("no_seat");return;}
+        if(!hat.makeRoom(o.entity(),false)){flightLog("room_pending");birthRefusal(hat,"room_pending",null);return;}
+        var seat=hat.reserve(o.entity(),prefer);if(seat==null){flightLog("no_seat");birthRefusal(hat,"no_seat",null);return;}
         double r=HatVessel.radius(o.entity().getBbWidth());
         var from=o.entity().position();var to=hat.toWorld(seat);
         int duration=HatVessel.solve(from,to,hat,r,tmin);
-        if(from.subtract(to).horizontalDistance()>reach||!birthPathClear(hat,from,to,duration)){flightLog("refused dist="+from.subtract(to).horizontalDistance()+" clear="
-                +birthPathClear(hat,from,to,duration)+" from="+from+" to="+to);cancelFlightAdmission(hat);return;}
+        boolean inReach=from.subtract(to).horizontalDistance()<=reach;
+        boolean clear=inReach&&birthPathClear(hat,from,to,duration);
+        if(!clear){birthRefusal(hat,inReach?"path_blocked:"+sweepWhy:"out_of_reach",to);cancelFlightAdmission(hat);return;}
         flightLog("flight "+duration+" ticks to "+to);
         pendingNewbornLaunch=o.awaitingLanding();
         pendingLandLaunch=land&&pendingNewbornLaunch;pendingPush=push;pendingYaw=yawDeg;
         beginFlight(new Flight(hat.getUUID(),from,seat,to,duration));
+    }
+    private void birthRefusal(HatBoatEntity hat,String why,Vec3 target){
+        GameplayLog.limited(o.entity(),"family","birth.flight."+why.split(":",2)[0],100,
+                "birth flight refused hat={} reason={} from={} target={}",hat.getUUID(),why,o.entity().position(),target);
     }
 
     boolean newbornLaunching(){return newbornLaunch;}

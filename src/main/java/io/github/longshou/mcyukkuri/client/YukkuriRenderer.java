@@ -57,14 +57,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
-        float elapsed = Math.max(0,(entity.level().getGameTime()-entity.getAnimationStartTick()+partialTick)/20f);
-        // Clip and face are the server's (PresentationArbiter); the clip's own face timeline may show over the face.
-        String expression = YukkuriModel.get(entity.assetId()).expressionFor(entity.getAnimationId(),elapsed,entity.getExpressionId());
-        if (ToiletPresentation.authored(entity.getBehaviorId()))
-            expression=YukkuriModel.get(entity.assetId()).expressionFor(entity.getBehaviorId(),
-                    Math.max(0,entity.level().getGameTime()-entity.getBehaviorStartTick()+partialTick)/20f,entity.getExpressionId());
-        expression=AgitationPresentation.expression(entity,expression);
-        expression=ReproductionPresentation.expression(entity,expression);
+        String expression=entity.getExpressionId();
         return HairWoundAssets.texture(entity.assetId(),expression,HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
     }
 

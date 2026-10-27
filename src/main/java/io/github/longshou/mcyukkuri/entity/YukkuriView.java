@@ -147,6 +147,7 @@ public interface YukkuriView {
     float livePregnancyProgress();
     int liveDeliveryTicks();
     int liveChildCount();
+    float birthChildScale(int index);
     int liveBornMask();
     YukkuriVariant liveChildVariant(int index);
     String liveChildAssetId(int index);

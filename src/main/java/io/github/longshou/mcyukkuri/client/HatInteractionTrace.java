@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatHitResolver;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -59,6 +60,10 @@ public final class HatInteractionTrace {
             return "MISS(point=" + hit.getLocation() + ",playerDistance=" + playerDistance + ")";
         if (hit instanceof EntityHitResult entityHit) {
             Entity entity = entityHit.getEntity();
+            if(entity instanceof HatBoatEntity hat&&Minecraft.getInstance().player!=null){
+                var passenger=HatHitResolver.resolve(hat,Minecraft.getInstance().player,hit.getLocation());
+                if(passenger!=null)return "ENTITY(point="+hit.getLocation()+",target="+entityId(hat)+",passenger="+entityId(passenger.passenger())+",passengerPoint="+passenger.point()+")";
+            }
             return "ENTITY(point=" + hit.getLocation() + ",playerDistance=" + playerDistance + ",target=" + entityId(entity) + ")";
         }
         if (hit instanceof BlockHitResult blockHit) {

@@ -171,7 +171,7 @@ public final class LiveBirthGeometry {
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
-        return selectedDimensions(child.variant,child.subspeciesFlags).scale(BABY_SCALE*globalScale);
+        return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.birth(FamilyData.BirthKind.LIVE,child)*globalScale);
     }
     public static Vector3f modelOutlet(YukkuriView mother,float belly,float contraction){
         var anchor=OUTLETS.computeIfAbsent(mother.assetId(),id->{
@@ -195,7 +195,7 @@ public final class LiveBirthGeometry {
             if(mother.level().isClientSide){
                 if(index>=0&&index<mother.liveChildCount()){
                     String id=mother.liveChildAssetId(index);
-                    width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*BABY_SCALE;
+                    width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*mother.birthChildScale(index);
                 }
             }else{
                 var brood=mother.family().brood();
@@ -211,7 +211,7 @@ public final class LiveBirthGeometry {
             float width=.8f*BABY_SCALE;
             if(index>=0&&index<mother.liveChildCount()){
                 String id=mother.liveChildAssetId(index);
-                width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*BABY_SCALE;
+                width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*mother.birthChildScale(index);
             }
             return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
         }
@@ -231,7 +231,10 @@ public final class LiveBirthGeometry {
         float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.6f*BABY_SCALE;
         return new Vec3(0,Math.max(.015,outlet.y-height*.5),-front);
     }
-    public static Vec3 position(YukkuriEntity mother,int index){return FamilyGeometry.toWorld(mother,releasePose(mother,localExit(mother,index)));}
+    public static Vec3 position(YukkuriEntity mother,int index){return position(mother,index,mother.yBodyRot);}
+    public static Vec3 position(YukkuriEntity mother,int index,float yaw){
+        return mother.position().add(releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale()));
+    }
     public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){
         if(!(mother.level() instanceof ServerLevel level))return false;
         var brood=mother.family().brood();
@@ -241,11 +244,11 @@ public final class LiveBirthGeometry {
         // This unborn preflight uses the child's actual birth-size load and geometric budget. FamilyData then reserves a seat for
         // the concrete newborn before it is added, and FamilyFlight still performs the physical handoff into it.
         var kind=brood==null?FamilyData.BirthKind.LIVE:brood.kind;
-        if(boat!=null&&boat.isAfloat()&&boat.canMakeRoomForNewborn(kind,child.subspeciesFlags,true))return true;
+        if(boat!=null&&boat.isAfloat()&&boat.canMakeRoomForNewborn(kind,child,true))return true;
         if(mother.family().waterBirthRequired()){
             if(brood!=null&&brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father){
                 var partner=father.family().boatHome();
-                if(partner!=null&&partner.isAfloat()&&partner.canMakeRoomForNewborn(kind,child.subspeciesFlags,false)
+                if(partner!=null&&partner.isAfloat()&&partner.canMakeRoomForNewborn(kind,child,false)
                         &&partner.position().subtract(position).horizontalDistance()<=FamilyLife.SHARE_REACH+partner.getBbWidth()*.5)return true;
             }
             return false;
@@ -255,7 +258,7 @@ public final class LiveBirthGeometry {
         // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
         var floated=level.getEntitiesOfClass(HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
                 &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
-        if(floated!=null)return floated.canAdmitNewborn(kind,child.subspeciesFlags,false)&&level.noCollision(mother,box);
+        if(floated!=null)return floated.canAdmitNewborn(kind,child,false)&&level.noCollision(mother,box);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.

@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
+import java.util.function.IntFunction;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -31,11 +33,11 @@ final class FamilyRenderer {
         int types=0;for(int i=0;i<count;i++)types|=mother.broodVariant(i).ordinal()<<(i*4);
         Vec3 travel=mother.position().subtract(mother.getPosition(0));
         renderStem(count,progress,scale,variation,mother.getVariant(),mother.broodBornMask(),types,mother.hasSpentStem(),
-                mother.ageTicks()+partialTick,travel,1,pose,buffers,light);
+                mother.ageTicks()+partialTick,travel,1,mother::birthChildScale,pose,buffers,light);
     }
     /** {@code sway} scales the motion pendulum (0 keeps a planted stem plumb); {@code travel} is the mother's last tick of movement. */
     static void renderStem(int count,float progress,float scale,float variation,YukkuriVariant parent,int born,int types,boolean spent,
-                           float ticks,Vec3 travel,float sway,PoseStack pose,MultiBufferSource buffers,int light){
+                           float ticks,Vec3 travel,float sway,IntFunction<Float> birthSizes,PoseStack pose,MultiBufferSource buffers,int light){
         if(count<1||!Float.isFinite(progress)||!spent&&progress<=0)return;
         // The visible stem grows only from actual gestation progress, never from a fresh reservation.
         float growth=spent?1:Math.clamp(progress/.15f,0,1);growth=growth*growth*(3-2*growth);
@@ -49,11 +51,11 @@ final class FamilyRenderer {
         for(int i=0;i<count;i++) {
             if((born&(1<<i))!=0)continue;
             var variants=YukkuriVariant.values();
-            var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];float childScale=FamilyGeometry.fruitScale(progress);
-            Vec3 socket=FamilyGeometry.socket(count,i,scale,variation,parent),anchor=FamilyGeometry.hangingAnchor(progress,child);
+            var child=variants[Math.min(variants.length-1,(types>>(i*4))&15)];float birthScale=birthSizes.apply(i),childScale=GrowthSize.fruit(progress,birthScale);
+            Vec3 socket=FamilyGeometry.socket(count,i,scale,variation,parent),anchor=FamilyGeometry.hangingAnchor(progress,child,birthScale);
             Vec3 hangPoint=socket.add(FamilyGeometry.hangOffset(count,i,scale));
             // The lower part hangs along world gravity (swung by sway and lag), whatever tilt the mother's root carries.
-            Vector3f down=hang(linear,ticks,travel,i,sway);double length=FamilyGeometry.pedicel(progress,scale,child);
+            Vector3f down=hang(linear,ticks,travel,i,sway);double length=FamilyGeometry.pedicel(progress,scale,child,birthScale);
             Vec3 hanging=new Vec3(down.x,down.y,down.z),head=hangPoint.add(hanging.scale(length));
             double radius=Math.min(.0075*scale,FamilyGeometry.radius(count,(i+.5)/count,variation)*scale*.6);
             // Keep the twig visibly load-bearing: never thinner than a third of the stalk where it leaves.

@@ -54,6 +54,7 @@ public final class FamilyLife {
     private UUID mother, father, birthId, gestation;
     /** Legacy entity mirror only; migrated server relationships belong to FamilyData.Person. */
     private UUID partner;
+    private float birthScale;
     private int conceptions, recovery, wait, taskTicks, spentStemCount;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
@@ -574,7 +575,7 @@ public final class FamilyLife {
     /** Stage changes only follow the fixed loaded-time clock. Nourishment only controls how far that stage can grow. */
     private boolean grow(boolean slept) {
         // The size standard (GrowthSize): one curve over nourishment, capped by the time stage reached, never shrinking.
-        float desired=Math.max(scale,GrowthSize.scale(stage,nourishment,maturity,adultScale,entity.profile().houseBody()));
+        float desired=Math.max(scale,GrowthSize.scale(stage,nourishment,maturity,adultScale,entity.profile().houseBody(),birthScale));
         if(Math.abs(desired-scale)<=.001f)return false;
         var box=LiveBirthGeometry.bodyDimensions(entity,desired*entity.subspecies().formScale(),liveBelly()).scale(entity.getScale()).makeBoundingBox(entity.position());
         if(!level().noCollision(entity,box))return false;
@@ -597,7 +598,7 @@ public final class FamilyLife {
     public void initializeGrowthAge(long value) {
         initialized=true;maturity=GrowthTiming.ADULT_START;lifespan=GrowthTiming.LIFESPAN;
         age=Math.clamp(value,0,GrowthTiming.LIFESPAN-1);stage=stageForAge(age);
-        scale=GrowthSize.scale(stage,nourishment,maturity,adultScale,entity.profile().houseBody());
+        scale=GrowthSize.scale(stage,nourishment,maturity,adultScale,entity.profile().houseBody(),birthScale);
         entity.syncFamily();
     }
     private static final int GROW_INTERVAL=100;
@@ -623,8 +624,8 @@ public final class FamilyLife {
     public void newborn(FamilyData.Child child,FamilyData.Brood brood) {
         initialized=true;mother=brood.mother;father=brood.father;birthId=brood.id;adultScale=child.adultScale;lifespan=GrowthTiming.LIFESPAN;
         maturity=GrowthTiming.ADULT_START;
-        age=brood.kind==FamilyData.BirthKind.STEM?GrowthTiming.BABY_END:0;nourishment=0;stage=stageForAge(age);
-        scale=GrowthSize.birth(brood.kind);
+        age=0;nourishment=0;stage=GrowthSize.birthStage(brood.kind);
+        birthScale=GrowthSize.birth(brood.kind,child);scale=birthScale;
         awaitingLanding=brood.kind!=FamilyData.BirthKind.EGG;
         juvenileVoice=new Random(child.id.getLeastSignificantBits()).nextInt(10)==0;
         entity.childhood().newborn();
@@ -748,7 +749,7 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();
         for(int i=0;i<brood.children.size();i++) {
             if(brood.children.get(i).born||brood.elapsed<brood.duration+i*8)continue;
-            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,entity.growthScale(),brood.variation,entity.getVariant(),brood.children.get(i).variant);
+            Vec3 local=FamilyGeometry.childBase(brood.children.size(),i,1,entity.growthScale(),brood.variation,entity.getVariant(),brood.children.get(i).variant,GrowthSize.birth(brood.kind,brood.children.get(i)));
             Vec3 world=FamilyGeometry.toWorld(entity,local);
             // A blocked attachment delays birth; it does not spawn through the ceiling or into a wall.
             var child=FamilyData.get(level()).birth(brood,i,level(),world);
@@ -784,6 +785,7 @@ public final class FamilyLife {
     public boolean sceneRequested() { return delivery.sceneRequested(); }
     /** The demonstrated miss: no hat is set down for this delivery. */
     public boolean withholdsCushion() { return delivery.withholdsCushion(); }
+    public boolean unprotectedBirthExit(){return delivery.unprotectedExit();}
     public boolean bumped() { return delivery.bumped(); }
     /** Birth duties that come before first-stool licking and mash feeding: the hat is still down or being taken back,
      *  a hurt newborn is being comforted, or the mother is still recovering. */
@@ -1153,7 +1155,7 @@ public final class FamilyLife {
     }
     public CompoundTag save() {
         CompoundTag tag=new CompoundTag();tag.putInt("Version",3);tag.putLong("Maturity",GrowthTiming.ADULT_START);tag.putString("Stage",stage.name());tag.putLong("Age",age);tag.putLong("Nourishment",nourishment);
-        tag.putLong("Lifespan",GrowthTiming.LIFESPAN);tag.putFloat("AdultScale",adultScale);tag.putFloat("Scale",scale);tag.putInt("Conceptions",conceptions);tag.putInt("Recovery",recovery);
+        tag.putLong("Lifespan",GrowthTiming.LIFESPAN);tag.putFloat("AdultScale",adultScale);tag.putFloat("Scale",scale);tag.putFloat("BirthScale",birthScale);tag.putInt("Conceptions",conceptions);tag.putInt("Recovery",recovery);
         tag.putBoolean("Initialized",initialized);tag.putBoolean("AwaitingLanding",awaitingLanding);tag.putBoolean("JuvenileVoice",juvenileVoice);
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
@@ -1176,7 +1178,7 @@ public final class FamilyLife {
         crew.cancel("loaded");
         lifespan=GrowthTiming.LIFESPAN;age=Math.clamp(tag.getLong("Age"),0,GrowthTiming.LIFESPAN);nourishment=Math.max(0,tag.getLong("Nourishment"));
         maturity=GrowthTiming.ADULT_START;stage=stageForAge(age);
-        adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.1f,1.2f);
+        birthScale=tag.getFloat("BirthScale");adultScale=Math.clamp(tag.getFloat("AdultScale"),.8f,1.2f);scale=Math.clamp(tag.getFloat("Scale"),.1f,1.2f);
         conceptions=Math.max(0,tag.getInt("Conceptions"));recovery=Math.max(0,tag.getInt("Recovery"));initialized=tag.getBoolean("Initialized");
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);

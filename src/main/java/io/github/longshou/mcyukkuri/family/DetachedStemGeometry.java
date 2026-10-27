@@ -30,13 +30,16 @@ public final class DetachedStemGeometry {
         // Reserve the mature envelope, including mixed-species children. The transform stays fixed
         // while fruit grows or detaches, and is identical in placement, rendering and actual birth.
         for(int index=0;index<count;index++)for(var child:YukkuriVariant.values()){
-            double bottom=FamilyGeometry.childBase(count,index,1,1,variation,parent,child).y-root.y;
+            double bottom=FamilyGeometry.childBase(count,index,1,1,variation,parent,child,GrowthSize.largestBirth(FamilyData.BirthKind.STEM)).y-root.y;
             height=Math.max(height,CHILD_FLOOR_CLEARANCE-bottom);
         }
         return new Vec3(0,height,0).subtract(root);
     }
     public static Vec3 childBase(int count,int index,float progress,float variation,YukkuriVariant parent,YukkuriVariant child,boolean bottle){
-        return FamilyGeometry.childBase(count,index,progress,1,variation,parent,child).add(offset(count,variation,parent,bottle));
+        return childBase(count,index,progress,variation,parent,child,bottle,GrowthSize.STEM);
+    }
+    public static Vec3 childBase(int count,int index,float progress,float variation,YukkuriVariant parent,YukkuriVariant child,boolean bottle,float birthScale){
+        return FamilyGeometry.childBase(count,index,progress,1,variation,parent,child,birthScale).add(offset(count,variation,parent,bottle));
     }
     private DetachedStemGeometry(){}
 }

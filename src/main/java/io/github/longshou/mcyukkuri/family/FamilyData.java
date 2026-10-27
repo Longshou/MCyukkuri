@@ -82,6 +82,7 @@ public final class FamilyData extends SavedData {
         public YukkuriVariant variant;
         public int subspeciesFlags;
         public float adultScale;
+        public float birthScale;
         /** Fixed five-axis heredity, selected while both ancestry and visible form are known. */
         public YukkuriPersonality.BirthProfile birthProfile;
         public boolean born;
@@ -432,6 +433,7 @@ public final class FamilyData extends SavedData {
                     person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
         }
+        GrowthSize.assignBirthSizes(brood);
         broods.put(brood.id,brood);mother.life().spendNutrition(cost);father.life().spendNutrition(5);
         mother.family().conceived(brood.id,father.getUUID());father.family().partnerConceived(mother.getUUID());
         var custody=Custody.view(mother);
@@ -488,6 +490,7 @@ public final class FamilyData extends SavedData {
             person.mother=brood.mother;person.incidentSource=brood.incidentSource;person.brood=brood.id;person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;
             putPerson(person);
         }
+        GrowthSize.assignBirthSizes(brood);
         broods.put(brood.id,brood);
         victim.family().receiveAftermath(brood.id);
         victim.life().spendNutrition(Math.min(2,victim.life().nutrition()));
@@ -527,6 +530,7 @@ public final class FamilyData extends SavedData {
             brood.children.add(child);var person=new Person(child.id,child.variant.assetId(),brood.anchor);person.mother=brood.mother;person.brood=brood.id;
                     person.status=Status.UNBORN;person.partnerState=PartnerState.SINGLE;putPerson(person);
         }
+        GrowthSize.assignBirthSizes(brood);
         broods.put(brood.id,brood);mother.life().spendNutrition(10+count*2);mother.family().assisted(brood.id);setDirty();
         GameplayLog.event(mother,"family","assisted conception brood={} kind={} children={} nutritionCost={}",brood.id,brood.kind,count,10+count*2);
         return brood;
@@ -556,12 +560,13 @@ public final class FamilyData extends SavedData {
         if(mine==null)return true;
         // The unborn probe has the same birth-size class/load as the concrete child admitted below, but this phase never changes
         // cargo or deck state. Only the mother's own hull may nominate the rescue rim.
-        int newbornFlags=nextUnbornFlags(brood);
-        if(mine.canMakeRoomForNewborn(brood.kind,newbornFlags,true))return true;
+        var newborn=brood.children.stream().filter(c->!c.born&&!c.eggLost).findFirst().orElse(null);
+        if(newborn==null)return true;
+        if(mine.canMakeRoomForNewborn(brood.kind,newborn,true))return true;
         var other=waterBirthPartner(brood,mine,level,position);
         if(other==null)return false;
         if(fatherBusy(brood,level))return false;
-        return other.canMakeRoomForNewborn(brood.kind,newbornFlags,false);
+        return other.canMakeRoomForNewborn(brood.kind,newborn,false);
     }
 
     private int nextUnbornFlags(Brood brood){
@@ -645,7 +650,8 @@ public final class FamilyData extends SavedData {
         // land insertion. Keeping the ledger child unborn lets the same confirmed brood retry when the real own hat exists.
         if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother
                 &&mother.family().waterBirthRequired()&&boat==null)return refuse(brood,level,"waiting_for_own_hat");
-        if(!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,level,"boat_cargo_space_pending");
+        boolean unprotected=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m&&m.family().unprotectedBirthExit();
+        if(!unprotected&&!prepareWaterBirthCargoSpace(brood,boat,level,position))return refuse(brood,level,"boat_cargo_space_pending");
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
         entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
@@ -657,10 +663,11 @@ public final class FamilyData extends SavedData {
         entity.setPersistenceRequired();
         // An aquatic mother afloat gives birth into her hat boat: the newborn boards it instead of landing.
         HatBoatEntity waterHat=null;
-        if(boat!=null){
+        if(boat!=null&&!unprotected){
             waterHat=waterCradle(brood,boat,entity,level);
             if(waterHat==null)return refuse(brood,level,"boat_has_no_room");
-        }else if(!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
+        }else if(unprotected?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
+                :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
         spawning.add(child.id);boolean added=false;
         try { added=level.addFreshEntity(entity); }
         finally {
@@ -675,7 +682,7 @@ public final class FamilyData extends SavedData {
         // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
         // A demonstrated miss withholds the cushion; a requested catch with no hat down at the moment of birth also fails visibly.
         YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
-        boolean noCushion=scene!=null&&scene.family().withholdsCushion();
+        boolean noCushion=unprotected||scene!=null&&scene.family().withholdsCushion();
         var hat=waterHat!=null?waterHat:brood.kind==BirthKind.LIVE&&!noCushion?level.getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(2,1,2),
                 cradle->cradle.catches()&&cradle.young(entity)&&cradle.newbornAdmission(entity,false)!=HatBoatEntity.NewbornAdmission.NONE)
                 .stream().min(Comparator.comparingDouble(cradle->cradle.distanceToSqr(entity))).orElse(null):null;
@@ -709,7 +716,7 @@ public final class FamilyData extends SavedData {
             // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
             if(waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
                 entity.family().launchInto(boat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
-        } else if(landBirth)entity.family().launched(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
+        } else if((landBirth||unprotected)&&scene!=null)entity.family().launched(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
@@ -867,7 +874,7 @@ public final class FamilyData extends SavedData {
             if(brood.detachedHolder!=null)value.putUUID("DetachedHolder",brood.detachedHolder);
             value.putFloat("Variation",brood.variation);value.putBoolean("Cancelled",brood.cancelled);ListTag children=new ListTag();
             for(Child child:brood.children) {
-                CompoundTag c=new CompoundTag();c.putUUID("Id",child.id);c.putString("Variant",child.variant.name());c.putFloat("AdultScale",child.adultScale);
+                CompoundTag c=new CompoundTag();c.putUUID("Id",child.id);c.putString("Variant",child.variant.name());c.putFloat("AdultScale",child.adultScale);c.putFloat("BirthScale",child.birthScale);
                 c.putInt("SubspeciesFlags",child.subspeciesFlags);
                 if(child.eggManaged){
                     c.putBoolean("EggManaged",true);c.putBoolean("EggLost",child.eggLost);c.putInt("EggElapsed",child.eggElapsed);
@@ -922,7 +929,7 @@ public final class FamilyData extends SavedData {
                     child.eggElapsed=Math.clamp(c.getInt("EggElapsed"),0,brood.duration+600);
                     child.eggNest=position(c,"EggNest");child.eggNestId=c.hasUUID("EggNestId")?c.getUUID("EggNestId"):null;
                     child.eggToken=c.hasUUID("EggToken")?c.getUUID("EggToken"):null;
-                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.birthProfile=YukkuriPersonality.BirthProfile.fromInnateValues(c.getIntArray("BirthProfile"));
+                    child.adultScale=Math.clamp(c.getFloat("AdultScale"),.8f,1.2f);child.birthScale=c.getFloat("BirthScale");child.birthProfile=YukkuriPersonality.BirthProfile.fromInnateValues(c.getIntArray("BirthProfile"));
                             child.born=c.getBoolean("Born");child.landed=child.born&&c.getBoolean("Landed");child.landing=child.landed?c.getString("Landing"):"";
                     if(!data.people.containsKey(child.id))throw new IllegalArgumentException("Incomplete child record");
                     brood.children.add(child);

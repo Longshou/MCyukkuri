@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -84,7 +85,7 @@ final class LiveBirthRenderer {
             // The saved server clock owns both pushes and the breath between them. Never advance
             // this with render time: a blocked outlet must hold the child and the mother's effort.
             float progress=unborn?LiveBirthGeometry.emergenceProgress(mother.liveDeliveryTicks(),next):1;visible=unborn&&elapsed>0;
-            float scale=LiveBirthGeometry.BABY_SCALE/mother.growthScale();
+            float scale=(unborn?mother.birthChildScale(next):GrowthSize.LIVE)/mother.growthScale();
             float[] newborn=unborn?CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false)):new float[0];
             float minZ=0,maxZ=0;for(int i=2;i<newborn.length;i+=8){minZ=Math.min(minZ,newborn[i]*scale);maxZ=Math.max(maxZ,newborn[i]*scale);}
             float endZ=unborn?-(float)LiveBirthGeometry.visibleExitFront(mother,next)*16/mother.growthScale():plane;

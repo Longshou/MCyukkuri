@@ -45,12 +45,40 @@ public final class PresentationArbiter {
 
     private void publish(String id, Presentation result) {
         result.publish();
+        state.expression(expression());
         watchdog.check(id);
         if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
             lastSource = id;
             lastEntityTick = state.owner().tickCount;
             lastGameTick = state.owner().level().getGameTime();
         }
+    }
+
+    /** Physical operation, reaction, injury/crying, emotion, then the selected behavior and authored face. */
+    private String expression(){
+        var e=state.owner();
+        if(e.operations().active())return switch(e.operations().pose()){
+            case HAT_REMOVE->"teary";
+            case HAT_RETURN,RUB->"closed_smile";
+            case GRIP,PIN,FIXED,HOOK,RUMP,VIBRATE,ASSIST->"cry";
+            default->"surprise";
+        };
+        if(state.reactionTicks()>0)return state.reactionExpression();
+        if(e.body().dying())return "blank_cry";
+        if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        if(e.body().weak()||e.settlement().society().dejected())return "teary";
+        String mood=e.mind().face("neutral");
+        if(!mood.equals("neutral"))return mood;
+        var court=e.family().courtshipState();
+        if(court.getString("Phase").equals("CONTACT")&&e.getBehaviorId().equals(Behaviors.PAIRING))
+            return court.getString("Role").equals("PENI")?"flushed_tongue":"satisfied";
+        if(e.aftermathBurden()&&(e.getBehaviorId().equals(Behaviors.IDLE)||e.getBehaviorId().equals(Behaviors.TEND_BROOD)))return "teary";
+        String clip=e.getAnimationId();long start=e.getAnimationStartTick();
+        switch(e.getBehaviorId()){
+            case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
+                 Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
+        }
+        return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,e.getExpressionId());
     }
 
     /**
@@ -323,7 +351,7 @@ public final class PresentationArbiter {
         if (behavior.equals(Behaviors.BOAT_RESCUE_APPROACH) && e.aquaticRescueTargetId() >= 0) { state.expression("teary"); return; }
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
                 state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
-                        e.settlement().society().dejected() ? "teary" : e.life().hasAccessory() || e.life().accessoryCustodied() ? "neutral" : "surprise")));
+                        e.settlement().society().dejected() ? "teary" : "neutral")));
     }
 
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */

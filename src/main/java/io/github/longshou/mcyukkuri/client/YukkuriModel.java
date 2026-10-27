@@ -1130,9 +1130,7 @@ public final class YukkuriModel {
                         LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
             drawingWoundedBody=false;
-            String expression=AgitationPresentation.expression(entity,expressionFor(ToiletPresentation.authored(behavior)?behavior:action,
-                    ToiletPresentation.authored(behavior)?behaviorTicks/20f:elapsed,entity.getExpressionId()));
-            expression=ReproductionPresentation.expression(entity,expression);
+            String expression=entity.getExpressionId();
             setExpression(expression);
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
             var wounds=new ArrayList<>(entity.visibleWounds());

@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -235,6 +236,9 @@ final class YukkuriSync {
     boolean hasSpentStem() { return owner.getEntityData().get(SPENT_STEM); }
     float livePregnancyProgress() { return owner.getEntityData().get(LIVE_PROGRESS); }
     int liveDeliveryTicks() { return owner.getEntityData().get(LIVE_DELIVERY); }
+    float birthChildScale(int index) {
+        float size=liveChildrenSync().scaleAt(index);return size>0?size:GrowthSize.LIVE;
+    }
     int liveChildCount() { return liveChildrenSync().count().value(); }
     int liveBornMask() { return liveChildrenSync().born().value(); }
     YukkuriVariant liveChildVariant(int index) {
@@ -262,7 +266,7 @@ final class YukkuriSync {
         setChanged(BROOD_PROGRESS,progress);setChanged(BROOD_VARIATION,variation);setChanged(SPENT_STEM,owner.isAlive()&&owner.family().spentStemCount()>0);
         boolean activeLive=brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.LIVE;
         int delivery=-1;
-        if (activeLive) {
+        if (activeLive||brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) {
             int liveCount=brood.children.size(),liveBorn=0,liveTypes=0;
             boolean changed=sentLiveChildren==null||!sentLiveChildren.count().present()
                     ||sentLiveChildren.count().value()!=liveCount;
@@ -270,16 +274,17 @@ final class YukkuriSync {
                 var child=brood.children.get(i);
                 if(child.born)liveBorn|=1<<i;
                 liveTypes|=child.variant.ordinal()<<(i*4);
-                if(!changed&&sentLiveChildren.morphAt(i)!=child.subspeciesFlags)changed=true;
+                if(!changed&&(sentLiveChildren.morphAt(i)!=child.subspeciesFlags||sentLiveChildren.scaleAt(i)!=child.birthScale))changed=true;
             }
             if(changed||sentLiveChildren.born().value()!=liveBorn||sentLiveChildren.types().value()!=liveTypes){
                 var morphs=new ArrayList<Integer>(liveCount);
                 for(var child:brood.children)morphs.add(child.subspeciesFlags);
-                var live=YukkuriSyncState.LiveChildren.active(liveCount,morphs,liveBorn,liveTypes);
+                var sizes=brood.children.stream().map(c->Math.round(c.birthScale*10000)).toList();
+                var live=YukkuriSyncState.LiveChildren.active(liveCount,morphs,liveBorn,liveTypes,sizes);
                 setChanged(LIVE_CHILDREN,live.encode());
                 sentLiveChildren=live;
             }
-            delivery=Math.max(-1,brood.elapsed-brood.duration);
+            if(activeLive)delivery=Math.max(-1,brood.elapsed-brood.duration);
         } else if(sentLiveChildren==null||sentLiveChildren.count().present()){
             var live=YukkuriSyncState.LiveChildren.inactive();
             setChanged(LIVE_CHILDREN,live.encode());

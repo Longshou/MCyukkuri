@@ -561,6 +561,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public float livePregnancyProgress() { return sync().livePregnancyProgress(); }
     public int liveDeliveryTicks() { return sync().liveDeliveryTicks(); }
     public int liveChildCount() { return sync().liveChildCount(); }
+    public float birthChildScale(int index) { return sync().birthChildScale(index); }
     public int liveBornMask() { return sync().liveBornMask(); }
     public YukkuriVariant liveChildVariant(int index) { return sync().liveChildVariant(index); }
     public String liveChildAssetId(int index) { return sync().liveChildAssetId(index); }

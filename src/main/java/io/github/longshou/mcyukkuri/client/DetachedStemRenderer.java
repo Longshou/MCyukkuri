@@ -35,7 +35,7 @@ public final class DetachedStemRenderer implements BlockEntityRenderer<DetachedS
             pose.translate(offset.x,offset.y,offset.z);
             // A planted or bottled stem stands still: its fruit hang plumb without sway.
             FamilyRenderer.renderStem(stem.count(),stem.progress(),1,stem.variation(),stem.source(),stem.born(),stem.types(),
-                    stem.born()==(1<<stem.count())-1,0,Vec3.ZERO,0,pose,buffers,light);
+                    stem.born()==(1<<stem.count())-1,0,Vec3.ZERO,0,stem::birthChildScale,pose,buffers,light);
         }
         pose.popPose();
     }

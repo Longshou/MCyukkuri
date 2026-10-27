@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.family;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.util.Mth;
+import java.util.HashSet;
+import java.util.Random;
 
 /** The life-stage size standard (family.json "growth", from standards/yukkuri-v1/profiles/growth.json): sizes relative
  *  to the variant's standard adult. Size follows nourishment along one continuous curve, from the live-birth size
@@ -13,9 +15,9 @@ public final class GrowthSize {
     private static final Span[] ORDINARY=spans(DATA.getAsJsonArray("stages"),DATA.getAsJsonArray("stages")),
             HOUSE=spans(DATA.getAsJsonObject("house").getAsJsonArray("stages"),DATA.getAsJsonArray("stages"));
     private static final JsonObject BIRTH=DATA.getAsJsonObject("birth"),FRUIT=DATA.getAsJsonObject("fruit");
-    /** Born alive, dropped from the stem (already a juvenile), hatched (house, relative to the house adult). */
+    /** Default preview sizes; concrete children use their persisted individual birth size. */
     public static final float LIVE=birth("live"),STEM=birth("stem"),EGG=birth("egg");
-    private static final float FRUIT_FROM=FRUIT.get("from").getAsFloat(),FRUIT_TO=FRUIT.get("to").getAsFloat(),
+    private static final float FRUIT_FROM=FRUIT.get("from").getAsFloat(),
             FRUIT_VISIBLE=FRUIT.get("visible_from").getAsFloat(),FRUIT_FULL=FRUIT.get("full_at").getAsFloat();
     private static float birth(String kind){return BIRTH.getAsJsonObject(kind).get("scale").getAsFloat();}
     /** Each stage's size range with the nourishment span (in maturity times) of the ordinary stages. */
@@ -28,19 +30,45 @@ public final class GrowthSize {
         return out;
     }
     public static float birth(FamilyData.BirthKind kind){return kind==FamilyData.BirthKind.STEM?STEM:kind==FamilyData.BirthKind.LIVE?LIVE:EGG;}
+    public static float birth(FamilyData.BirthKind kind,FamilyData.Child child){
+        return child!=null&&child.birthScale>0?child.birthScale:birth(kind);
+    }
+    public static float largestBirth(FamilyData.BirthKind kind){
+        return kind==FamilyData.BirthKind.EGG?EGG:BIRTH.getAsJsonObject(kind==FamilyData.BirthKind.STEM?"stem":"live").get("max_scale").getAsFloat();
+    }
+    /** Project design: UUID-seeded 0.0001 steps inside the baby span, without duplicates in a litter. */
+    public static void assignBirthSizes(FamilyData.Brood brood){
+        var used=new HashSet<Integer>();
+        var range=BIRTH.getAsJsonObject(brood.kind==FamilyData.BirthKind.STEM?"stem":"live");
+        int first=Math.round(range.get("min_scale").getAsFloat()*10000),last=Math.round(range.get("max_scale").getAsFloat()*10000);
+        for(var child:brood.children){
+            if(brood.kind==FamilyData.BirthKind.EGG){child.birthScale=EGG;continue;}
+            var random=new Random(brood.id.getMostSignificantBits()^brood.id.getLeastSignificantBits()
+                    ^child.id.getMostSignificantBits()^Long.rotateLeft(child.id.getLeastSignificantBits(),17));
+            int value=first+random.nextInt(last-first+1);
+            while(!used.add(value))value=value==last?first:value+1;
+            child.birthScale=value/10000f;
+        }
+    }
     public static FamilyLife.Stage birthStage(FamilyData.BirthKind kind){
         String key=kind==FamilyData.BirthKind.STEM?"stem":kind==FamilyData.BirthKind.LIVE?"live":"egg";
         return "juvenile".equals(BIRTH.getAsJsonObject(key).get("stage").getAsString())?FamilyLife.Stage.JUVENILE:FamilyLife.Stage.BABY;
     }
     /** A fruit on the stem at this gestation progress (0-1): visible from FRUIT_VISIBLE, full grown at FRUIT_FULL. */
     public static float fruit(float progress){
-        return Mth.lerp(Math.clamp((progress-FRUIT_VISIBLE)/(FRUIT_FULL-FRUIT_VISIBLE),0,1),FRUIT_FROM,FRUIT_TO);
+        return fruit(progress,STEM);
+    }
+    public static float fruit(float progress,float birthScale){
+        return Mth.lerp(Math.clamp((progress-FRUIT_VISIBLE)/(FRUIT_FULL-FRUIT_VISIBLE),0,1),Math.min(FRUIT_FROM,birthScale),birthScale);
     }
     /** The size for this nourishment (ticks) and maturity: along the curve, capped by the stage reached; an adult is at
      *  least the adult minimum and grows on to its own target. */
     public static float scale(FamilyLife.Stage stage,long nourishment,long maturity,float adultScale,boolean house){
+        return scale(stage,nourishment,maturity,adultScale,house,house?EGG:LIVE);
+    }
+    public static float scale(FamilyLife.Stage stage,long nourishment,long maturity,float adultScale,boolean house,float birthScale){
         var s=house?HOUSE:ORDINARY;float q=nourishment/(float)Math.max(1,maturity);
-        float start=house?EGG:LIVE,size;
+        float start=birthScale>0?birthScale:house?EGG:LIVE,size;
         if(q<=s[0].to())size=Mth.lerp(q/Math.max(1e-6f,s[0].to()),start,s[0].max());
         else if(q<=s[1].to())size=Mth.lerp((q-s[1].from())/(s[1].to()-s[1].from()),s[1].min(),s[1].max());
         else size=Mth.lerp(Math.min(1,(q-s[2].from())/(s[2].to()-s[2].from())),s[2].min(),house?s[2].max():adultScale);

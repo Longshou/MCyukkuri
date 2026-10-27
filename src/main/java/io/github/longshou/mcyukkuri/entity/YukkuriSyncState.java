@@ -155,21 +155,26 @@ public final class YukkuriSyncState {
 
     /** List.copyOf prevents callers from changing a cached child's morph flags. */
     public record LiveChildren(Field<Integer> count, Field<List<Integer>> morphs,
-                               Field<Integer> born, Field<Integer> types) {
+                               Field<Integer> born, Field<Integer> types, Field<List<Integer>> scales) {
         public LiveChildren {
             morphs = new Field<>(morphs.present(), List.copyOf(morphs.value()));
+            scales = new Field<>(scales.present(), List.copyOf(scales.value()));
         }
         public static LiveChildren read(CompoundTag tag) {
             return new LiveChildren(integer(tag, "Count"),
                     new Field<>(tag.contains("Morphs"), Arrays.stream(tag.getIntArray("Morphs")).boxed().toList()),
-                    integer(tag, "Born"), integer(tag, "Types"));
+                    integer(tag, "Born"), integer(tag, "Types"),
+                    new Field<>(tag.contains("Scales"),Arrays.stream(tag.getIntArray("Scales")).boxed().toList()));
         }
-        public static LiveChildren active(int count, List<Integer> morphs, int born, int types) {
-            return new LiveChildren(Field.of(count), Field.of(morphs), Field.of(born), Field.of(types));
+        public static LiveChildren active(int count, List<Integer> morphs, int born, int types,List<Integer> scales) {
+            return new LiveChildren(Field.of(count), Field.of(morphs), Field.of(born), Field.of(types),Field.of(scales));
         }
         public static LiveChildren inactive() {
             return new LiveChildren(new Field<>(false, 0), new Field<>(false, List.of()),
-                    new Field<>(false, 0), new Field<>(false, 0));
+                    new Field<>(false, 0), new Field<>(false, 0),new Field<>(false,List.of()));
+        }
+        public float scaleAt(int index) {
+            return index>=0&&index<scales.value().size()?scales.value().get(index)/10000f:0;
         }
         public int morphAt(int index) {
             return index >= 0 && index < morphs.value().size() ? morphs.value().get(index) : 0;
@@ -180,6 +185,7 @@ public final class YukkuriSyncState {
             if (morphs.present()) tag.putIntArray("Morphs", morphs.value().stream().mapToInt(Integer::intValue).toArray());
             if (born.present()) tag.putInt("Born", born.value());
             if (types.present()) tag.putInt("Types", types.value());
+            if(scales.present())tag.putIntArray("Scales",scales.value().stream().mapToInt(Integer::intValue).toArray());
             return tag;
         }
     }

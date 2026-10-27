@@ -171,6 +171,7 @@ public final class MindLife {
     public String face(String fallback) {
         if (course == Course.FRENZY) return "dazed";
         if (course == Course.WITHERING) return "blank_cry";
+        if(entity.headwear().uneasePerMinute()>0)return "teary";
         if (unease >= SWEETENED && "neutral".equals(fallback)) return "teary";
         return fallback;
     }

@@ -42,6 +42,8 @@ import java.util.Optional;
 import java.util.List;
 import java.util.UUID;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
+import net.neoforged.neoforge.common.CommonHooks;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -184,10 +186,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         @Override public boolean paddleAboard() { return cargo.paddle(); }
         @Override public boolean paddleStowed() { return cargo.paddle() && !paddling(); }
         @Override public double extraLoad() { return carriedPaddleLoad(); }
-        @Override public int arcTicks(UUID body, Vec3 from, Vec3 to) {
-            var rider = level() instanceof ServerLevel server ? server.getEntity(body) : null;
-            double radius = HatVessel.radius(rider == null ? .3 : rider.getBbWidth());
-            return HatVessel.solve(toWorld(from), toWorld(to), HatBoatEntity.this, radius, HatVessel.HOP_TMIN);
+        @Override public HatDeck.Hop hop(UUID body,Vec3 from,Vec3 to){
+            var rider=level() instanceof ServerLevel server?server.getEntity(body):null;
+            if(!(rider instanceof YukkuriEntity y))return null;
+            var plan=YukkuriLocomotion.hop(y,toWorld(from),toWorld(to),List.of(HatBoatEntity.this));
+            return plan.ok()?new HatDeck.Hop(plan.ticks(),plan.points().stream().map(HatBoatEntity.this::toLocal).toList()):null;
         }
         @Override public void event(String message, Object... values) { GameplayLog.event(HatBoatEntity.this, "aquatic", message, values); }
         @Override public void limited(String key, int ticks, String message, Object... values) {
@@ -340,6 +343,24 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public boolean canMakeRoomForNewborn(FamilyData.BirthKind kind,int subspeciesFlags,boolean jettison) {
         return boardable()&&canMakeRoom(newbornProbe(kind,subspeciesFlags),jettison,null);
     }
+    public boolean canMakeRoomForNewborn(FamilyData.BirthKind kind,FamilyData.Child child,boolean jettison) {
+        return boardable()&&canMakeRoom(newbornProbe(GrowthSize.birth(kind,child),child.subspeciesFlags),jettison,null);
+    }
+    public boolean canAdmitNewborn(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency) {
+        return boardable()&&newbornAdmission(newbornProbe(GrowthSize.birth(kind,child),child.subspeciesFlags),emergency)!=NewbornAdmission.NONE;
+    }
+    /** Read-only real seat candidates, including the seat an allowed cargo relief would expose. */
+    public List<Vec3> birthSeats(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency,Vec3 from) {
+        if(!boardable()||unsteadyMotion())return List.of();
+        var body=newbornProbe(GrowthSize.birth(kind,child),child.subspeciesFlags);
+        var seats=new ArrayList<Vec3>();
+        for(int slot:deck.freeSeats(body,Purpose.BOARD,toLocal(from)))seats.add(toWorld(deckLayout().slot(slot).pos()));
+        if(seats.isEmpty()&&canMakeRoom(body,emergency,toLocal(from))){
+            int slot=deck.firstSeatAfterRelievingLarder(body,Purpose.BOARD,toLocal(from),emergency);
+            if(slot>=0)seats.add(toWorld(deckLayout().slot(slot).pos()));
+        }
+        return seats;
+    }
     private boolean canMakeRoom(Body body,boolean jettison,Vec3 near) {
         var a = deck.canAdmit(body, Purpose.BOARD);
         if (a.ok()) return true;
@@ -362,9 +383,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return deck.canAdmit(bodyOf(child, true), Purpose.BOARD).ok();
     }
     /** The deck class is relative to this hull's captain scale, exactly as {@link #bodyOf(YukkuriEntity, boolean)} computes it. */
-    private Body newbornProbe(FamilyData.BirthKind kind,int subspeciesFlags){
+    private Body newbornProbe(FamilyData.BirthKind kind,int subspeciesFlags){return newbornProbe(GrowthSize.birth(kind),subspeciesFlags);}
+    private Body newbornProbe(float scale,int subspeciesFlags){
         var layout=deckLayout();double captainGrowth=hullScale()/layout.hullRatio;
-        double birthScale=GrowthSize.birth(kind)*((subspeciesFlags&SubspeciesLife.DEIBU_FLAG)!=0?1.5:1);
+        double birthScale=scale*((subspeciesFlags&SubspeciesLife.DEIBU_FLAG)!=0?1.5:1);
         double ratio=captainGrowth<=0?1:birthScale/captainGrowth;
         return new Body(NEWBORN_PROBE,layout.classOf(ratio,false,false),false,true,0);
     }
@@ -916,13 +938,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public void state(State next) { entityData.set(STATE, next.ordinal()); }
     @Override public boolean isPickable() { return !isRemoved(); }
     /** The hull box is a thin slab at the waterline; a wider pick margin lets a player aim at the brim past the riders to shake it. */
-    @Override public float getPickRadius() { return .4f; }
+    @Override public float getPickRadius() { return catches()&&isVehicle()?0:.4f; }
     public boolean isCradle() { return state() == State.CRADLE; }
     public boolean isMoored() { return state() == State.MOORED; }
     /** Set down by its owner to catch young, on the ground or floated at a bank. */
     public boolean catches() { return isCradle() || isMoored(); }
     // A catching hat never blocks a birth outlet or a walking parent.
-    @Override public boolean canBeCollidedWith() { return !isRemoved() && state()!=State.CAPSIZED && state()!=State.RESCUED && !catches(); }
+    @Override public boolean canBeCollidedWith() { return !isRemoved() && state()!=State.RESCUED && !catches(); }
     @Override protected boolean canAddPassenger(Entity passenger) {
         if (state() == State.CAPSIZED || state() == State.RESCUED || !(passenger instanceof YukkuriEntity y)) return false;
         if (y.getUUID().equals(ownerYukkuri())) return !catches() && getPassengers().stream().noneMatch(p -> p.getUUID().equals(ownerYukkuri()));
@@ -976,7 +998,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         var moving = CrewState.movingBody(crewEntries(), passenger.getUUID());
         if (moving != null) {
             var at = moving.position(level(), level().getGameTime());
-            if (at != null) { move.accept(passenger, at.x, at.y, at.z); return; }
+            if(at!=null){
+                // CrewTransfer.tick is the sole server executor; rider repositioning must not move ahead of its sweep.
+                if(level().isClientSide)move.accept(passenger,at.x,at.y,at.z);
+                return;
+            }
         }
         // Each rider occupies its own deck seat, including the close but visible night gathering; a late sync waits.
         var local = seatOf(passenger);
@@ -988,15 +1014,17 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         if (movement != null) {
             double time = Math.clamp(level().getGameTime()-movement.start(), 0, movement.ticks());
             Vec3 from = toWorld(movement.from());
-            at = movement.arc() ? HatVessel.arc(from, at, movement.ticks(), time) : movement.route().isEmpty() ? from : walkingPosition(passenger, movement, time);
+            at = movement.arc() ? toWorld(YukkuriLocomotion.sample(movement.route(),time/Math.max(1,movement.ticks()))) : movement.route().isEmpty() ? from : walkingPosition(passenger, movement, time);
         }
-        move.accept(passenger, at.x, at.y, at.z);
+        if(!level().isClientSide&&movement!=null&&movement.arc()&&passenger instanceof YukkuriEntity y)
+            YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y).maxHorizSpeed());
+        else move.accept(passenger, at.x, at.y, at.z);
     }
     public static HatBoatEntity find(YukkuriEntity y) { return HatBoatLaunch.find(y); }
     public static HatBoatEntity owned(YukkuriEntity y) { return HatBoatLaunch.owned(y); }
     /** Reclaim the same empty hat after its young is safe aboard a parent, including a rescued capsize. */
     public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home) { return HatBoatLaunch.retrieveAfloat(this, child, home); }
-    /** {@code reachFallback} lifts the rim-contact requirement for an empty hat still within a short, bounded distance. */
+    /** Compatibility overload; recovery still requires the same real rim or braid contact. */
     public boolean retrieveAfloat(YukkuriEntity child, HatBoatEntity home, boolean reachFallback) { return HatBoatLaunch.retrieveAfloat(this, child, home, reachFallback); }
     /** Same finite physical contact for a floating or stranded empty hat; ownership is not remote reach. */
     public Vec3 retrievalGrip(YukkuriEntity actor){ return HatBoatLaunch.retrievalGrip(this, actor); }
@@ -1083,6 +1111,22 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
                 ||!owner.life().returnAccessory(ownerYukkuri(),accessoryToken,rescuer))return false;
         crew.clear();cargo.unload(owner,accessoryToken);owner.aquaticLife().landed();
         accessoryToken=null;state(State.RESCUED);helm.stop("retired");return true;
+    }
+    @Override public InteractionResult interactAt(Player player,Vec3 localHit,InteractionHand hand){
+        if(player.isSpectator()||player.distanceToSqr(this)>36)return InteractionResult.PASS;
+        var hit=position().add(localHit);
+        var target=HatHitResolver.resolve(this,player,hit);
+        if(target==null)return interact(player,hand);
+        var child=target.passenger();var relative=target.point().subtract(child.position());
+        var result=CommonHooks.onInteractEntityAt(player,child,relative,hand);
+        if(result==null){
+            result=child.interactAt(player,relative,hand);
+            if(!result.consumesAction())result=player.interactOn(child,hand);
+        }
+        if(!level().isClientSide)GameplayLog.limited(this,"interaction","hat_passenger."+player.getUUID(),20,
+                "hat passenger use player={} hand={} passenger={} hit={} result={}",player.getUUID(),hand,child.getUUID(),hit,result);
+        // The click selected this child; its PASS must not subsequently shake or feed the surrounding hull.
+        return InteractionResult.sidedSuccess(level().isClientSide);
     }
     @Override public InteractionResult interact(Player player, InteractionHand hand) {
         GameplayLog.detail(this,"hat.use."+getUUID()+"."+player.getUUID()+"."+hand,20,

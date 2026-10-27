@@ -235,7 +235,7 @@
           0.0,
           0.25
         ],
-        "note": "胎生新生 0.14 出生，约 10 分钟长到 0.20；茎上实子从 0.10 长到 0.20，在茎上完成赤体期"
+        "note": "胎生与茎生均以个体固定赤体大小出生；茎上实子长到该只出生大小，落地不跳变"
       },
       {
         "id": "juvenile",
@@ -246,7 +246,7 @@
           0.25,
           1.0
         ],
-        "note": "茎生落地即子体，从 0.20 起；营养和个体差异影响成长速度"
+        "note": "赤体成长后进入子体；营养和个体差异影响成长速度"
       },
       {
         "id": "adult",
@@ -263,13 +263,17 @@
     "birth": {
       "live": {
         "stage": "baby",
-        "scale": 0.14,
-        "note": "胎生新生，约 3.4 cm，比乒乓球略小"
+        "scale": 0.145,
+        "note": "项目设计：以胎次与孩子 UUID 固定取 0.10–0.19，步长 0.0001，同胎不重复；在胎次存档保存，出生为赤油",
+        "min_scale": 0.1,
+        "max_scale": 0.19
       },
       "stem": {
-        "stage": "juvenile",
-        "scale": 0.2,
-        "note": "茎生落地即子体，约 4.8 cm，乒乓球大小"
+        "stage": "baby",
+        "scale": 0.145,
+        "note": "项目设计：以胎次与孩子 UUID 固定取 0.10–0.19，步长 0.0001，同胎不重复；在胎次存档保存，出生为赤油",
+        "min_scale": 0.1,
+        "max_scale": 0.19
       },
       "egg": {
         "stage": "baby",
@@ -282,7 +286,7 @@
       "to": 0.2,
       "visible_from": 0.15,
       "full_at": 0.95,
-      "note": "茎上实子随孕程（0–1）长大：0.15 起可见，0.95 长足，落下即茎生出生大小"
+      "note": "茎上实子随孕程长大，成熟大小采用该孩子已保存的 BirthScale"
     },
     "house": {
       "stages": [
@@ -501,27 +505,6 @@
         0.35
       ]
     },
-    "flandre": {
-      "root": [
-        0,
-        8.8,
-        -4.9
-      ],
-      "crown_height": 9.6,
-      "depth_clearance": 3.6,
-      "clearance_rise": 1,
-      "hang_clearance_height": 11.4,
-      "hanging_anchor": [
-        0,
-        11.35,
-        0.35
-      ]
-      "hanging_anchor": [
-        0,
-        11.35,
-        0.35
-      ]
-    },
     "myon": {
       "root": [
         -1.53,
@@ -536,6 +519,22 @@
         0,
         10.35,
         -4.1
+      ]
+    },
+    "flandre": {
+      "root": [
+        0,
+        8.8,
+        -4.9
+      ],
+      "crown_height": 9.6,
+      "depth_clearance": 3.6,
+      "clearance_rise": 1,
+      "hang_clearance_height": 11.4,
+      "hanging_anchor": [
+        0,
+        11.35,
+        0.35
       ]
     }
   }
