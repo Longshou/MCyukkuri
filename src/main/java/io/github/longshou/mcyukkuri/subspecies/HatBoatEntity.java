@@ -901,8 +901,10 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     /** Writes the rider table's sync slot at most once a tick, and only when a spot changed. */
     private void syncRiders() {
         if (!riders.dirty()) return;
-        entityData.set(RIDERS, riders.syncTag(this::riderEntityId));
-        riders.clearDirty();
+        var tag = riders.syncTag(this::riderEntityId);
+        entityData.set(RIDERS, tag);
+        // A spot whose body is not attached yet stays dirty, so it is sent once the passenger link exists.
+        if (tag.size() == riders.size()) riders.clearDirty();
     }
     private Integer riderEntityId(UUID id) {
         for (var p : getPassengers()) if (p.getUUID().equals(id)) return p.getId();
