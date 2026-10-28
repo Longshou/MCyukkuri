@@ -10,7 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 重构 WP2（新生儿发射、转身与小动作、Walk 与 E11-3） | `.worktrees/wp2-*`（pi 团队，总负责人合入） | `motor/action/`、`family/FamilyFlight`、`family/BirthFlightPath`、`family/FamilyData`、`family/FamilyLife`、`family/LiveDelivery`、`entity/YukkuriEntity`、赤油取食路径 |
+| 重构 WP3（意图框架完整版、LiveBirth 编排、摘放帽动作） | `.worktrees/wp3-*`（pi 团队，总负责人合入） | `intent/`、`motor/action/`、`family/CatchHat`、`family/LiveDelivery`、`family/FamilyData`、`family/FamilyLife`、`subspecies/HatProp` |
 
 ## 玩法待办
 
@@ -19,12 +19,12 @@
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈的运行版本待核实；E8 陆地接生射线命中帽实体并返回 `cradle_status`，赤油被帽子选取范围遮住。当前按实际命中解析乘员并转交完整交互，空白帽面保留帽子自己的状态／储粮／晃动处理。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮和推晃。对照 `[hat-input]`、`hat use received/result` 与乘员交互对象，物资只扣一次，拿帽仍受真实托管和乘员条件限制。
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 出现幼油饿停、住所仍指旧窝、重复献身与批量死亡。统一修正行军资格、真实亲代运输、饥饿让位、觅食喂养和脱队寻回；新规则见[迁徙](SETTLEMENTS.md#运输补给与掉队)及[子代移动边界](CHILDHOOD_LIFECYCLE.md#子代移动与亲代运输)。各运行版本、现象、现有接线与最短完成标准只在[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)维护（含 ac4ba87b 暴露的先锋、新址自建与途中卡住，已接入待试玩）；运输演出并入演出包。
 - **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩中下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；版本、现象与已定位原因只在[水生魔理沙模块（重构）](#水生魔理沙模块重构)维护。
-- **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 复测失败，归 WP2（先补 Walk 看门狗读数）。重构细则见[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)。
+- **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。重构细则见[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)。
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`，赤油随即恢复为帽上乘员，父油按 TRANSIENT 重试；搬运者、赤油自身的乘员活动和帽位租约各自判定“孩子在不在帽里”，失败结果没有落定。
   2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿就算到窝并直接入睡，看起来浮在窝上。`SurfaceApproach.top()` 取足迹下最高的碰撞面，`supported()` 四个脚点只要碰到窝沿就成立；`NestResting` 的足迹规则只在认窝时使用，入睡和保暖避险（`TemperatureLife` 离格心 0.2）各自另判。
   3. 赤油极饿自行取食一卡一卡：`04-infant-feed` 03:28:13–03:28:46 每 100 tick 一次 `ground path stopped reason=no_progress`，每次只走约 0.1 格；`food found` 在 elapsed=601、1201 重复出现，说明目标被放弃后又重找。原因待补读数：需要目标实体的 Goal 切换和逐 tick 位置。
-  当前：1 由接生者的 Unload 意图收尾，会跳的赤油自己跳出，不会跳的被叼到帽外支撑地面后原地放下，失败只换落点、不回帽；2 入睡、到窝与保暖避险只认窝内底支撑（窝沿压入范围沿用 `NestResting`），站在窝沿上先走到分配位置。
-  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或会跳的 `[action] start id=hop … owner=leave_host`），之后同一只不再出现 `[body] mount host=<接生帽>`，全部离帽后才收帽；宠物窝场景中，入睡日志 `[sleep] begin … occupancy=INSIDE_SUPPORTED`，站在窝沿上的个体先走进去再睡；`infant_feed`（赤油取食边界）里极饿的赤油连续走到食物，途中没有 `no_progress`。
+  当前：3 的“一卡一卡”来自原版卡住检测按走路速度判定爬行（赤油爬行每 100 tick 约 0.05 格，低于原版约 0.10 格的门槛），现按身体自己的爬行步态判定；觅食预约到期不再丢弃目标重找。1 由接生者的 Unload 意图收尾，会跳的赤油自己跳出，不会跳的被叼到帽外支撑地面后原地放下，失败只换落点、不回帽；2 入睡、到窝与保暖避险只认窝内底支撑（窝沿压入范围沿用 `NestResting`），站在窝沿上先走到分配位置。
+  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或会跳的 `[action] start id=hop … owner=leave_host`），之后同一只不再出现 `[body] mount host=<接生帽>`，全部离帽后才收帽；宠物窝场景中，入睡日志 `[sleep] begin … occupancy=INSIDE_SUPPORTED`，站在窝沿上的个体先走进去再睡；`infant_feed`（赤油取食边界）里极饿的赤油连续走到食物，途中没有 `no_progress`，`food found` 不再每 600 tick 重复；开细节日志时 `[walk] … sample layer=approach … crawl=true` 的 `metric` 持续下降。
 
 ### 家庭、繁殖与照护
 
