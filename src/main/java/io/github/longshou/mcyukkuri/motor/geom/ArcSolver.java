@@ -19,8 +19,8 @@ public final class ArcSolver {
     /** Budget that blocked the arc; motor/ maps these onto its own Reason. */
     public enum Kind { TOO_FAR, TOO_HIGH }
 
-    /** Apex step, and how far above the budget the apex is probed only to report the shortfall. */
-    private static final double STEP=.05,REPORT_RISE=1;
+    /** Apex step, how far above the budget the apex is probed only to report the shortfall, and the lowest clearance per unit body scale. */
+    private static final double STEP=.05,REPORT_RISE=1,MIN_CLEAR=.08;
 
     private ArcSolver(){}
 
@@ -31,7 +31,7 @@ public final class ArcSolver {
         if(dx>hopReach)return new Blocked(Kind.TOO_FAR,dx-hopReach);
         if(dy>hopHeight)return new Blocked(Kind.TOO_HIGH,dy-hopHeight);
         Vec dir=dx<1e-9?new Vec(1,0,0):new Vec(d.x()/dx,0,d.z()/dx);
-        for(double c=Math.max(dy,0)+Ballistic.GRAVITY*scale;;c+=STEP){
+        for(double c=Math.max(dy,0)+MIN_CLEAR*scale;;c+=STEP){
             double apex=Math.min(c,hopHeight);
             Plan plan=attempt(apex,dy,dx,dir,clearance);
             if(plan!=null)return plan;
