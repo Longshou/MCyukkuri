@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -56,6 +57,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(0, new EscapeWaterGoal());
         // A crew transfer holds both its body and its carrier (priority 1, MOVE|JUMP|LOOK); the decision layers below stand aside.
         goalSelector.addGoal(1, new CrewTransferGoal(owner));
+        // A young the catch hat is unloading leaves on its own (walk to the brim or hop out); the taker's own goal only signals it.
+        goalSelector.addGoal(2, new LeaveHostGoal(owner));
         goalSelector.addGoal(0, new HotFloorGoal());
         goalSelector.addGoal(0, presentationGoals.bind(PresentationGoals.HURT_CRY, new HurtCryGoal()));
         goalSelector.addGoal(0, new HouseExitGoal());

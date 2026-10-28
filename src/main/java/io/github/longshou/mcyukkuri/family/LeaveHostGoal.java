@@ -1,0 +1,66 @@
+package io.github.longshou.mcyukkuri.family;
+
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
+import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.AttachState;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import java.util.EnumSet;
+import java.util.Set;
+import net.minecraft.world.entity.ai.goal.Goal;
+
+/**
+ * A young on a host that asks to be unloaded leaves it on its own (spec 14 WP1 step 7 point 3). The trigger is the host's
+ * {@code unloadRequested()}, which is derived from the taker's running intent (spec 6); nothing is stored.
+ *
+ * <p>The whole body of the goal is one {@link GetTo} run, and the goal only releases the body once that intent has ended:
+ * a young that is grabbed mid-step therefore ends its own intent DONE instead of being reported as interrupted.
+ */
+public final class LeaveHostGoal extends Goal {
+    private final YukkuriEntity child;
+    private IntentRunner runner;
+
+    public LeaveHostGoal(YukkuriEntity child) {
+        this.child = child;
+        setFlags(EnumSet.of(Flag.MOVE));
+    }
+
+    /** The host this young rides that wants its young off, or null. */
+    private SurfaceHost unloadHost() {
+        if (child.life().isSleeping() || child.body().condition().dying()) return null;
+        if (!(Attach.of(child) instanceof AttachState.OnHost on)) return null;
+        return on.host().unloadRequested() ? on.host() : null;
+    }
+
+    @Override public boolean canUse() { return unloadHost() != null; }
+
+    /**
+     * Runs exactly as long as its intent: the host only has to ask once. The ask is derived from the taker's running intent,
+     * and the taker is between two body actions for the tick in which it hands the work to its own {@code Fetch}, so a
+     * single unanswered tick must not read as a withdrawal. The young's own intent is bounded by its deadline and its one wait.
+     */
+    @Override public boolean canContinueToUse() {
+        return runner != null && runner.result() == IntentRunner.Result.RUNNING;
+    }
+
+    @Override public boolean requiresUpdateEveryTick() { return true; }
+
+    @Override public void start() {
+        var host = unloadHost();
+        if (host == null) return;
+        runner = new IntentRunner(child, new GetTo(child, host), "leave_host")
+                .target(() -> new IntentRunner.Target(child.position(), host.entity().position(), Set.of()));
+        runner.start();
+    }
+
+    @Override public void tick() {
+        if (runner != null) runner.tick();
+    }
+
+    @Override public void stop() {
+        if (runner != null) {
+            runner.stop("leave_host_stop");
+            runner = null;
+        }
+    }
+}

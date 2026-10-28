@@ -13,6 +13,9 @@ import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout.Kind;
 import io.github.longshou.mcyukkuri.subspecies.crew.HatDeck;
 import io.github.longshou.mcyukkuri.subspecies.crew.Purpose;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.intent.HostIntent;
+import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.surface.Container;
@@ -160,6 +163,9 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     private Container container;
     private HatVessel.Mode containerMode;
     private double containerUnit;
+    /** {@link #unloadRequested()} cached for one game tick: the answer is derived from the running intents, never stored. */
+    private long unloadTick = Long.MIN_VALUE;
+    private boolean unloadWanted;
     private final HullHelm helm = new HullHelm(this);
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
@@ -879,8 +885,25 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     }
     @Override public Riders riders() { return riders; }
     @Override public boolean steady() { return state() != State.CAPSIZED && state() != State.RESCUED && !unsteadyMotion(); }
+    /** How far (blocks) a running unload is looked for when {@link #unloadRequested()} derives its answer. */
+    private static final double UNLOAD_RANGE = 16;
     @Override public boolean unloadRequested() {
-        return false; // derived from the owner's running Unload intent; wired with the Unload intent
+        // A deck host keeps the deck flow until WP6; only the cradle's young are asked to leave by intent (spec 14 WP1).
+        if (level().isClientSide || usesDeck()) return false;
+        long now = level().getGameTime();
+        if (unloadTick != now) { unloadTick = now; unloadWanted = unloading(); }
+        return unloadWanted;
+    }
+    /** Some yukkuri this near runs a {@code HostIntent} for this hat, outer or innermost (spec 6: derived, never stored). */
+    private boolean unloading() {
+        for (var body : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(UNLOAD_RANGE))) {
+            if (!(body.motor().owner() instanceof IntentRunner runner) || !runner.active()) continue;
+            if (runsOn(runner.intent()) || runsOn(runner.innermost().intent())) return true;
+        }
+        return false;
+    }
+    private boolean runsOn(Intent intent) {
+        return intent instanceof HostIntent onHost && onHost.host().entity() == this;
     }
     /** Transition (WP1-WP3): a cradle - the land catch hat - never uses the deck; water modes keep it until WP4. */
     public boolean usesDeck() { return mode() != HatVessel.Mode.NEST; }

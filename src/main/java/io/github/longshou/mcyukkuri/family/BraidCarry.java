@@ -215,7 +215,9 @@ public final class BraidCarry {
     private static Intent intent(CrewTransfer.Request request) {
         if (request.rescue()) return Intent.RESCUE;
         if (request.to().kind() == CrewTransfer.Kind.GROUND) {
-            if (request.body().getVehicle() instanceof HatBoatEntity hat && hat.catches()) return Intent.TAKE_DOWN_FROM_HAT;
+            // Only a deck hat is left by a braid take-down; a cradle's young leave by the Unload intent (spec 14 WP1 删除).
+            if (request.body().getVehicle() instanceof HatBoatEntity hat && hat.catches() && hat.usesDeck())
+                return Intent.TAKE_DOWN_FROM_HAT;
             return Intent.LAND;
         }
         return request.from().boat() >= 0 && request.from().boat() == request.to().boat() ? Intent.CARRY_WITHIN : Intent.BOARD;

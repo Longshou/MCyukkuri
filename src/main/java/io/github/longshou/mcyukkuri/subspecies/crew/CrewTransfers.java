@@ -280,6 +280,8 @@ public final class CrewTransfers {
      */
     public static boolean releaseYoung(HatBoatEntity hat, YukkuriEntity taker, boolean onlyOwnYoung) {
         if (hat.level().isClientSide || !(hat.level() instanceof ServerLevel level)) return false;
+        // A cradle's young leave through the Unload intent (spec 14 WP1 step 7): no deck seat, no deck walk, no braid lift.
+        if (!hat.usesDeck()) return false;
         if (onlyOwnYoung && !taker.isAlive()) return false;
         if (taker.family().crew().active() || hat.crew().busy()) return true;
         var young = new ArrayList<YukkuriEntity>();

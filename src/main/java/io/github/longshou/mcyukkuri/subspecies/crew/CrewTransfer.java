@@ -239,6 +239,9 @@ public final class CrewTransfer {
         String key = r.mode() + ">" + r.from().key() + ">" + r.to().key() + "|" + where(carrier) + where(a) + where(b);
         if (port.knownImpossible(key, now)) return refuse(r, Refusal.GEOMETRY, "known_impossible", false);
         if (r.from().kind() == Kind.BERTH && a == null || r.to().kind() == Kind.BERTH && b == null) return refuse(r, Refusal.GEOMETRY, "hull_missing", false);
+        // A cradle has no deck seat, so a braid lift to or from it is not a route any more (spec 14 WP1 删除; WP5 deletes the mode).
+        if (r.mode() == Mode.LIFT && (a != null && !a.usesDeck() || b != null && !b.usesDeck()))
+            return refuse(r, Refusal.GEOMETRY, "nest_no_deck", false);
         // A hull is not needed to pull a swimmer up onto the bank: the carrier's braid or mouth is the whole of that trip.
         boolean bankPull = r.mode() == Mode.LIFT && r.from().kind() != Kind.BERTH && r.to().kind() == Kind.GROUND;
         if (a == null && b == null && !bankPull) return refuse(r, Refusal.GEOMETRY, "no_hull", false);
@@ -1598,7 +1601,9 @@ public final class CrewTransfer {
             return;
         }
         // Inside a hull's frame the curve is run backwards to its start (no teleport); anywhere else the body is let go where it is.
-        if (phase == Phase.MOVE && !reverting && body != null && body.getVehicle() instanceof HatBoatEntity && entry != null) {
+        // A cradle has no seat transform to return to, so it never reverses into one.
+        if (phase == Phase.MOVE && !reverting && body != null && body.getVehicle() instanceof HatBoatEntity hull
+                && hull.usesDeck() && entry != null) {
             double u = entry.progress(level.getGameTime());
             if (u > 1e-6) {
                 reverting = true;
@@ -1619,7 +1624,7 @@ public final class CrewTransfer {
 
     /** Ordinary seat positioning may resume only if the body really returned to its source seat. */
     private boolean atOriginalSeat(YukkuriEntity body, HatBoatEntity hat) {
-        if (from.kind() != Kind.BERTH || hat.getId() != boatA) return false;
+        if (from.kind() != Kind.BERTH || hat.getId() != boatA || !hat.usesDeck()) return false;
         var placed = hat.deck().get(bodyId);
         return placed != null && placed.slot() >= 0
                 && body.position().distanceToSqr(hat.toWorld(hat.deckLayout().slot(placed.slot()).pos())) <= .0004;

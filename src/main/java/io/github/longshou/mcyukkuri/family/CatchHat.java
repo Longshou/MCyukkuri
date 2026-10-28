@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife.HatPose;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stand;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
@@ -18,6 +19,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -44,10 +46,13 @@ final class CatchHat {
                              FamilyLife.DeliveryStation meeting,HatPose pose,Stand stand) {}
     private HatAction action;
     private int hatTicks, cradleLinger, fetchTicks, hatApproach, releaseWait, dutyTicks;
-    private int fetchPassengers;
+    private int fetchPassengers, retrieveTicks;
     /** Presentation of the last executed duty phase, never a probe that starts or changes the duty. */
     private String dutyActivity=Behaviors.IDLE;
     private HatBoatEntity fetching;
+    /** The NEST unload of {@link #fetching}, recreated after a reload and never saved (spec 11.2, 12). */
+    private IntentRunner runner;
+    private HatBoatEntity runnerHat;
     private boolean dutyGaveUp;
     private long fetchRetryAt;
     /** The helper's confirmed land hat and the mother pose it was placed for. */
@@ -69,7 +74,7 @@ final class CatchHat {
     boolean cleanupPending() { return fetching!=null||action!=null&&(action.move()==HatMove.ON||action.move()==HatMove.ON_SELF)||cradleLinger>0&&cradleEntity()!=null; }
     String describe() { return "move="+(action==null?"none":action.move())+" linger="+cradleLinger+" fetch="+(fetching==null?"none":fetching.getUUID())
             +" fetchTicks="+fetchTicks+" pickup="+o.crew().busy()+" dutyTicks="+dutyTicks+" gaveUp="+dutyGaveUp
-            +" rendezvous="+rendezvous+" approach="+hatApproach; }
+            +" intent="+(runner==null?"none":runner.intent().id()+":"+runner.result())+" rendezvous="+rendezvous+" approach="+hatApproach; }
     boolean dutyGaveUp() { return dutyGaveUp; }
     void resetDuty() { stopAction("duty_reset");dutyTicks=nextSiteSearch=0;dutyGaveUp=false;dutyBrood=null;rendezvous=null;rejectedSites.clear();clearDeliveryStation(); }
     void resetApproach() { hatApproach=0;dutyActivity=Behaviors.IDLE; }
@@ -261,8 +266,9 @@ final class CatchHat {
                 &&Math.abs(Mth.wrapDegrees(entity.yBodyRot-stand.yaw()))<=3;
     }
 
-    /** Interrupts only an uncommitted clip. A physical hat and its saved station are never removed here. */
+    /** Interrupts only an uncommitted clip or the running unload intent. A physical hat and its saved station are never removed here. */
     void stopAction(String reason){
+        if(runner!=null){runner.stop(reason);runner=null;runnerHat=null;}
         var stopped=action;
         if(stopped==null)return;
         action=null;hatTicks=0;
@@ -443,7 +449,7 @@ final class CatchHat {
     }
 
     void load(CompoundTag tag) {
-        action=null;hatTicks=0;fetching=null;fetchTicks=fetchPassengers=releaseWait=0;fetchRetryAt=0;
+        action=null;hatTicks=0;fetching=null;fetchTicks=fetchPassengers=releaseWait=0;fetchRetryAt=0;retrieveTicks=0;runner=null;runnerHat=null;
         dutyBrood=null;rendezvous=null;dutyTicks=nextSiteSearch=0;dutyGaveUp=false;rejectedSites.clear();
         clearDeliveryStation();
         if(!tag.hasUUID("CatchStationBrood")||!tag.hasUUID("CatchStationHat"))return;
@@ -544,22 +550,24 @@ final class CatchHat {
     /** The birth goal owns MOVE throughout post-delivery collection; passive ticks never steer it. */
     void tickFetch(){
         if(fetching==null){o.entity().getNavigation().stop();return;}
-        if(fetching.isRemoved()||!fetching.catches()||o.entity().isPassenger()){fetching=null;return;}
+        if(fetching.isRemoved()||!fetching.catches()||o.entity().isPassenger()){endFetch("hat_or_taker_changed");return;}
         var hat=fetching;
         boolean own=ownsCradle(hat),foreign=foreignDeadOwnerCradle(hat);
         // A live/unknown original owner never grants a survivor any authority over this hat or its riders.
         if(!own&&!foreign){
             GameplayLog.event(o.entity(),"family","parent cradle duty released hat={} owner={} reason=owner_not_confirmed_dead",
                     hat.getUUID(),hat.ownerYukkuri());
-            fetching=null;return;
+            endFetch("owner_not_confirmed_dead");return;
         }
         // The last biological child already left the actual hull. Leave the dead owner's hat and other riders alone.
         if(foreign&&!ownYoungAboard(hat)){
             GameplayLog.event(o.entity(),"family","parent cradle release completed hat={} owner={} reason=own_young_ashore",
                     hat.getUUID(),hat.ownerYukkuri());
-            fetching=null;return;
+            endFetch("own_young_ashore");return;
         }
         if(keepsCradle()||o.entity().isPanicking())return;
+        // A NEST catch hat unloads through the Unload intent (spec 14 WP1 step 7); the water catch hat keeps the deck flow.
+        if(!hat.usesDeck()){unload(hat,foreign);return;}
         int passengers=hat.getPassengers().size();
         if(passengers<fetchPassengers){
             GameplayLog.event(o.entity(),"family","catch cleanup advanced hat={} passengers={}->{}",hat.getUUID(),fetchPassengers,passengers);
@@ -570,7 +578,7 @@ final class CatchHat {
         if(fetchTicks>600){
             GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} foreign={} reason=approach_or_release_timeout",
                     hat.getUUID(),hat.getPassengers().size(),foreign);
-            fetching=null;fetchRetryAt=o.level().getGameTime()+100;return;
+            endFetch("approach_or_release_timeout");fetchRetryAt=o.level().getGameTime()+100;return;
         }
         if(o.entity().distanceToSqr(hat)>16){if(fetchTicks%10==1)o.entity().life().navigate(BlockPos.containing(stand.at()),.9,false);return;}
         if(releaseWait>0){releaseWait--;return;}
@@ -580,21 +588,60 @@ final class CatchHat {
             if(!ownYoungAboard(hat)){
                 GameplayLog.event(o.entity(),"family","parent cradle release completed hat={} owner={} reason=own_young_ashore",
                         hat.getUUID(),hat.ownerYukkuri());
-                fetching=null;
+                endFetch("own_young_ashore");
             }
             return;
         }
         // Dependent newborns leave in the parent's braid; capable children hop out before the empty hat is retrieved.
         if(hat.releaseYoung(o.entity())){releaseWait=14;return;}
+        retrieve(hat,stand);
+    }
+
+    /**
+     * The NEST cleanup: every young this taker must unload leaves through the {@link Unload} intent, then the empty hat goes
+     * back on with the authored clip. The intent's own deadline, attempt budget and {@code [intent]}/{@code [method]} lines
+     * replace the per-rider counter, the release pause and the fixed timeout the deck flow still uses.
+     */
+    private void unload(HatBoatEntity hat,boolean onlyOwnYoung){
+        if(runner==null||runnerHat!=hat){
+            runner=new IntentRunner(o.entity(),new Unload(hat,o.entity(),onlyOwnYoung),"unload")
+                    .target(()->new IntentRunner.Target(o.entity().position(),hat.position(),Set.of()));
+            runnerHat=hat;runner.start();
+        }
+        if(runner.result()==IntentRunner.Result.RUNNING)runner.tick();
+        if(runner.result()==IntentRunner.Result.RUNNING)return;
+        if(runner.result()!=IntentRunner.Result.DONE){
+            // The intent already logged its end with every reason; the duty simply ends and is taken up again after the pause.
+            GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} foreign={} result={}",
+                    hat.getUUID(),hat.getPassengers().size(),onlyOwnYoung,runner.result());
+            endFetch("intent_"+runner.result());fetchRetryAt=o.level().getGameTime()+100;return;
+        }
+        // Every young is off the hat: take the empty hat back from the stand the placement clip was authored from.
+        retrieve(hat,stand(poseOf(hat),o.entity()));
+    }
+
+    /** Walk to the placement stand and take the empty hat back; a stand that cannot be reached is given the same finite window. */
+    private void retrieve(HatBoatEntity hat,Stand stand){
+        if(++retrieveTicks>Unload.DEADLINE_TICKS){
+            GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} reason=retrieve_timeout",
+                    hat.getUUID(),hat.getPassengers().size());
+            endFetch("retrieve_timeout");fetchRetryAt=o.level().getGameTime()+100;return;
+        }
         // The placement clip's stand belongs to retrieving the empty hat. Carrying each child chooses its own reachable stand.
-        var role=hat.role();
         if(!approachHatStand(stand))return;
+        var role=hat.role();
         o.entity().getNavigation().stop();o.face(stand.yaw());
         if(hat.retrieve(o.entity())){
-            fetching=null;
             GameplayLog.event(o.entity(),"family","catch cleanup completed hat={} passengers=0",hat.getUUID());
+            endFetch("completed");
             beginHat(role==HatVessel.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
         }
+    }
+
+    /** Ends the fetch duty: the runner (if any) is stopped here and never resumed; the next duty builds a new one. */
+    private void endFetch(String why){
+        if(runner!=null){runner.stop(why);runner=null;}
+        runnerHat=null;fetching=null;fetchTicks=0;fetchPassengers=0;releaseWait=0;retrieveTicks=0;
     }
 
     /**
@@ -618,7 +665,7 @@ final class CatchHat {
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. A dead owner's hat is release-only. */
     void fetchHat(HatBoatEntity hat){if(!moving()&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt
             &&(ownsCradle(hat)||foreignDeadOwnerCradle(hat)&&ownYoungAboard(hat))){
-        fetching=hat;fetchTicks=0;fetchPassengers=hat.getPassengers().size();releaseWait=0;
+        fetching=hat;fetchTicks=0;fetchPassengers=hat.getPassengers().size();releaseWait=0;retrieveTicks=0;runner=null;runnerHat=null;
         GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={} foreign={}",
                 hat.getUUID(),hat.getPassengers().size(),foreignDeadOwnerCradle(hat));
     }}
