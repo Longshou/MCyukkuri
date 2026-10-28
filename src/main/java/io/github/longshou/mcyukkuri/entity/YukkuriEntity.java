@@ -357,6 +357,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public float careContactProgress() { return sync().careContactProgress(); }
     public boolean isCrawling() { return sync().isCrawling(); }
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
+    /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */
+    public double crawlSpeed() { return HouseCrawlMotion.TRAVEL_UNITS / 16 / HouseCrawlMotion.PERIOD_TICKS * crawlScale(); }
+    private double crawlScale() {
+        return getScale() * growthScale() * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED));
+    }
     public boolean canCrawlNow() {
         return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&
                 !isNoAi() && !isPassenger() && !isCommandPlaying()
@@ -383,9 +388,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 setDeltaMovement(getDeltaMovement().scale(.91)); fallDistance = 0;
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
-            double distance = HouseCrawlMotion.advance(
-                    level().getGameTime()-getCrawlStartTick()) * getScale() * growthScale()
-                    * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED));
+            double distance = HouseCrawlMotion.advance(level().getGameTime()-getCrawlStartTick()) * crawlScale();
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;

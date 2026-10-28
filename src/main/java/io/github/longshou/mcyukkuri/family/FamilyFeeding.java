@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
@@ -139,6 +141,12 @@ final class FamilyFeeding {
                 .min(Comparator.comparingDouble((YukkuriEntity child)->child.life().nutrition()).thenComparingDouble(o.entity()::distanceToSqr)).orElse(null);
     }
 
+    /** Owner of the refusal turn: it only lasts as long as that Face, which ends at its own 3 degree arrival. */
+    private static final MotorOwner REFUSAL_TURN=new MotorOwner(){
+        @Override public String ownerId(){return "feed_refusal";}
+        @Override public boolean active(){return true;}
+    };
+
     /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
     private boolean acceptsCare(YukkuriEntity child) {
         boolean urgent=child.life().nutrition()<30;
@@ -149,7 +157,8 @@ final class FamilyFeeding {
         o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"mood_bad",80);
         child.showReaction(accepted?"happy":"cry",accepted?"caregiver":"hungry",80);
         BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
-        if(!accepted)o.face(o.entity().getYRot()+180);
+        // The refusal is a whole visible turn away at the body's own turn rate (a Face action), not one bounded step.
+        if(!accepted)o.entity().motor().run(REFUSAL_TURN,new Face(o.entity().getYRot()+180));
         return accepted;
     }
 

@@ -41,6 +41,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private BlockPos walkingTarget;
     private Query walkingQuery;
     private boolean forceSearch, stalled;
+    /** Crawl progress window (ticks, as vanilla) and the share of the gait's own travel below which a crawler counts as stuck. */
+    private static final int CRAWL_WINDOW=100;
+    private static final double CRAWL_SHARE=.25;
+    private long crawlCheckTick;
+    private Vec3 crawlCheckPos;
     private AABB planningObstacle;
     private int followingNode=-1;
     private float searchMultiplier = 1;
@@ -138,11 +143,30 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             path.setNextNodeIndex(followingNode);
         boolean walking=!isDone();
         var target=walkingTarget;
+        if(mob instanceof YukkuriEntity crawler&&crawler.isCrawling()){crawlStuckDetection(crawler,at,walking,target);return;}
+        crawlCheckPos=null;
         super.doStuckDetection(at);
         if(walking&&isDone()){
             stalled=true;
             GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={}",target,at);
         }
+    }
+
+    /**
+     * Vanilla judges progress (and node timeouts) from the attribute speed of a walking body; a crawl covers a small fraction of
+     * that, so a steady crawl was stopped as stuck every 100 ticks (E11-3). A crawler is judged against its own gait instead:
+     * stuck when it covered less than a quarter of what its stroke would have carried it in the same window.
+     */
+    private void crawlStuckDetection(YukkuriEntity crawler,Vec3 at,boolean walking,BlockPos target){
+        long now=level.getGameTime();
+        if(crawlCheckPos!=null&&now-crawlCheckTick<=CRAWL_WINDOW)return;
+        if(walking&&crawlCheckPos!=null&&at.distanceTo(crawlCheckPos)<crawler.crawlSpeed()*(now-crawlCheckTick)*CRAWL_SHARE){
+            stop();stalled=true;
+            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait=crawl target={} at={} moved={} expected={}",
+                    target,at,String.format(java.util.Locale.ROOT,"%.3f",at.distanceTo(crawlCheckPos)),
+                    String.format(java.util.Locale.ROOT,"%.3f",crawler.crawlSpeed()*(now-crawlCheckTick)));
+        }
+        crawlCheckTick=now;crawlCheckPos=at;
     }
 
     @Override protected void followThePath(){
