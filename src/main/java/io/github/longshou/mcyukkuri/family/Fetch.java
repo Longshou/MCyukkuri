@@ -154,7 +154,8 @@ public final class Fetch implements HostIntent {
 
     /**
      * Lets the young walk to the brim on the taker's side by itself (its own {@link GetTo}) and then does the same carry.
-     * When the taker already holds the young, the wait is skipped: the carry only has to be walked out and released.
+     * The wait is the retry gate, not a movement test: it also ends once the young has stopped walking, which is the
+     * normal way it stands at the brim. When the taker already holds the young, the wait is skipped.
      */
     private final class WaitThenRetry implements Method {
         private int state = -1;
@@ -180,7 +181,8 @@ public final class Fetch implements HostIntent {
                 if (state == 0) {
                     childAt = child.position();
                     hatAt = hat.position();
-                    return new Step.Wait(this::moved, RETRY_WAIT_TICKS, "child_to_edge");
+                    return new Step.Wait(() -> moved() || !(child.motor().current() instanceof Walk),
+                            RETRY_WAIT_TICKS, "child_to_edge");
                 }
             }
             return carry(state++);

@@ -215,10 +215,21 @@ public final class IntentRunner implements MotorOwner {
         switch (c.result()) {
             case RUNNING -> { }
             case DONE -> advance(now);
-            case EXHAUSTED -> failed(Reason.NO_PROGRESS, 0, now);
+            case EXHAUSTED -> failAsChild(c, now);
             case LOST -> end(Result.LOST);
             case INTERRUPTED -> end(Result.INTERRUPTED);
         }
+    }
+
+    /**
+     * A child that ran out of attempts fails the parent with the child's own last counted reason and shortfall: the one
+     * physical failure is counted once in the parent, not recorded again as a fresh {@code NO_PROGRESS:0}.
+     */
+    private void failAsChild(IntentRunner c, long now) {
+        var reasons = c.reasons();
+        Attempts.Failure last = reasons.isEmpty() ? null : reasons.get(reasons.size() - 1);
+        if (last == null) failed(Reason.NO_PROGRESS, 0, now);
+        else failed(last.reason(), last.shortfall(), now);
     }
 
     private void read(Outcome outcome, long now) {

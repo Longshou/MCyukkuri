@@ -22,8 +22,8 @@ import net.minecraft.world.phys.Vec3;
  * No consequence (fall damage, drowning) is decided here.
  */
 public final class ContactResolver {
-    /** A landed body's host and its local spot in hat units. */
-    public record Contact(SurfaceHost host, Vec3 local) {}
+    /** A landed body's host and its local spot in hat units; {@code refused} is a mount the host would not take. */
+    public record Contact(SurfaceHost host, Vec3 local, boolean refused) {}
 
     /** How far from the segment a host may be looked for (blocks). */
     private static final double SEARCH = 3;
@@ -34,7 +34,8 @@ public final class ContactResolver {
 
     /**
      * Resolves this tick's flight segment for {@code body}: a valid landing is performed here (move, mount, riders spot,
-     * velocity zero) and returned; a brim hit bounces the horizontal speed and returns null.
+     * velocity zero) and returned; a brim hit bounces the horizontal speed and returns null. A mount the host refuses is
+     * returned with {@link Contact#refused()} set, so the flight can end with {@code NO_ROOM} where physics left it.
      */
     public static Contact resolve(YukkuriEntity body) {
         if (body == null || body.level().isClientSide) return null;
@@ -49,7 +50,7 @@ public final class ContactResolver {
             if (hit.contact() == null) brim = true;
             else if (hit.at() < landingAt) { landing = hit.contact(); landingAt = hit.at(); }
         }
-        if (landing != null) { land(body, landing); return landing; }
+        if (landing != null) return land(body, landing);
         if (brim) { bounce(body); return null; }
         return null;
     }
@@ -93,7 +94,7 @@ public final class ContactResolver {
                 Vec3 spot = frame.toLocal(contact);
                 boolean fits = Occupancy.at(host.container(), contact, body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED
                         && host.room(body, spot);
-                return new Hit(at, fits ? new Contact(host, spot) : null);
+                return new Hit(at, fits ? new Contact(host, spot, false) : null);
             }
             if (under) return new Hit(share, null);
             previous = local;
@@ -108,16 +109,21 @@ public final class ContactResolver {
         return height.isPresent() ? height.getAsDouble() : Double.NaN;
     }
 
-    /** Airborne → OnHost (spec 5.2): move to the contact point, mount, write the local spot, zero the velocity. */
-    private static void land(YukkuriEntity body, Contact contact) {
+    /**
+     * Airborne → OnHost (spec 5.2): move to the contact point, mount, write the local spot, zero the velocity. A refused
+     * mount settles the body where the move left it and answers with the refusal, so no later host is tried.
+     */
+    private static Contact land(YukkuriEntity body, Contact contact) {
         Vec3 at = contact.host().frame().toWorld(contact.local());
         Motor.move(body, at.subtract(body.position()), "hop_contact");
         if (!Motor.mount(body, contact.host().entity(), "hop_contact")) {
             Motor.warn(body, "contact refused host={}", contact.host().entity().getUUID());
-            return;
+            Attach.settle(body, "hop_contact_refused");
+            return new Contact(contact.host(), contact.local(), true);
         }
         contact.host().riders().put(body.getUUID(), contact.local(), localYaw(body, contact.host()));
         Motor.velocity(body, Vec3.ZERO, "hop_contact");
+        return contact;
     }
 
     /** The body's own facing in the host's frame, which is what the rider table stores. */

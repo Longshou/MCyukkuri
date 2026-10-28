@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
+import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -19,6 +20,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
 public final class LeaveHostGoal extends Goal {
     private final YukkuriEntity child;
     private IntentRunner runner;
+    private SurfaceHost host;
+    /** The world a run ended under with any result but DONE; the same world may not start the same intent again. */
+    private WorldSignature ended;
 
     public LeaveHostGoal(YukkuriEntity child) {
         this.child = child;
@@ -32,7 +36,18 @@ public final class LeaveHostGoal extends Goal {
         return on.host().unloadRequested() ? on.host() : null;
     }
 
-    @Override public boolean canUse() { return unloadHost() != null; }
+    /**
+     * A run that ended without finishing keeps its world: the same signature is not started again (spec 11.2). The
+     * signature's own 200 tick bucket expires the memory, so no timer is added here.
+     */
+    @Override public boolean canUse() {
+        SurfaceHost host = unloadHost();
+        return host != null && !signature(host).equals(ended);
+    }
+
+    private WorldSignature signature(SurfaceHost host) {
+        return WorldSignature.of(child.position(), host.entity().position(), Set.of(), child.level().getGameTime());
+    }
 
     /**
      * Runs exactly as long as its intent: the host only has to ask once. The ask is derived from the taker's running intent,
@@ -48,6 +63,7 @@ public final class LeaveHostGoal extends Goal {
     @Override public void start() {
         var host = unloadHost();
         if (host == null) return;
+        this.host = host;
         runner = new IntentRunner(child, new GetTo(child, host), "leave_host")
                 .target(() -> new IntentRunner.Target(child.position(), host.entity().position(), Set.of()));
         runner.start();
@@ -58,9 +74,10 @@ public final class LeaveHostGoal extends Goal {
     }
 
     @Override public void stop() {
-        if (runner != null) {
-            runner.stop("leave_host_stop");
-            runner = null;
-        }
+        if (runner == null) return;
+        runner.stop("leave_host_stop");
+        ended = runner.result() == IntentRunner.Result.DONE || host == null ? null : signature(host);
+        runner = null;
+        host = null;
     }
 }

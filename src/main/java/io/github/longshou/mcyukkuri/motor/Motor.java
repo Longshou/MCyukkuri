@@ -50,11 +50,13 @@ public final class Motor {
         body.setYHeadRot(yaw);
     }
 
-    /** Rides the host; records {@code [body] mount} only after vanilla accepted it. */
+    /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body (spec 12). */
     public static boolean mount(YukkuriEntity body, Entity host, String cause) {
         if (body == null || host == null || host == body) return false;
         if (!body.startRiding(host, true)) return false;
         GameplayLog.event(body, "body", "mount host={} cause={}", host.getUUID(), cause);
+        // The mount is the transition: the moved body's own attach slot and nudge-out run here, once (settle never mounts).
+        Attach.settle(body, cause);
         return true;
     }
 
@@ -78,6 +80,8 @@ public final class Motor {
             invariant(body, "I4", String.format(Locale.ROOT,
                     "dismount moved %.3f blocks (max %.2f) cause=%s", moved, DISMOUNT_MAX, cause));
         }
+        // The dismount is the transition: the moved body's own attach slot and nudge-out run here, once (settle never dismounts).
+        Attach.settle(body, cause);
     }
 
     /** Pushes a body out of a collision by at most {@link #NUDGE_MAX}; anything longer is refused and logged. */

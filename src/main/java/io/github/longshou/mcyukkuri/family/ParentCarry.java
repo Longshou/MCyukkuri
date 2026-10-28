@@ -84,8 +84,6 @@ public final class ParentCarry {
     private long since, arrivedAt;
     private int homeFailures;
     private UUID lifting;
-    /** The purpose the current lift was started for; {@code purposeFor} returns null once the child is aboard. */
-    private Purpose liftingWhy;
     /** The carry task as the motor owner: active while a lift or a carry is under way. */
     private final MotorOwner owner = new MotorOwner() {
         @Override public String ownerId() { return "family_carry"; }
@@ -455,10 +453,8 @@ public final class ParentCarry {
         if (child.getUUID().equals(lifting)) {
             // This carrier's own Grab is the pickup: still lifting, or finished with an outcome to read here.
             if (carrier.motor().current() instanceof Grab) return Step.WORKING;
-            var why = liftingWhy;
             lifting = null;
-            liftingWhy = null;
-            return grabOutcome(child, why);
+            return grabOutcome(child);
         }
         var problem = capacityProblem(carrier, child, false, true);
         boolean ready = intent == Purpose.BOAT_BOARD ? boardingReady(child) : ready();
@@ -492,14 +488,13 @@ public final class ParentCarry {
             return Step.WORKING;
         }
         lifting = child.getUUID();
-        liftingWhy = intent;
         // The lift commits the carry: the purpose and its clock start with the Grab, so the passive tick cannot re-adopt it.
         if (purpose == null || intent == Purpose.BOAT_BOARD) begin(intent, child);
         GameplayLog.event(carrier, "family", "carry lift started mode={} purpose={} child={} childPos={} carrierPos={} nutrition={}",
                 mode(carrier, child), intent, child.getUUID(), child.blockPosition().toShortString(),
                 carrier.blockPosition().toShortString(), child.life().nutrition());
         // A lift another owner's action refuses this tick is retried on the next one; the task budget bounds it.
-        if (!carrier.motor().run(owner, grab)) { lifting = null; liftingWhy = null; }
+        if (!carrier.motor().run(owner, grab)) { lifting = null; }
         return Step.WORKING;
     }
 
@@ -515,9 +510,9 @@ public final class ParentCarry {
     }
 
     /** The outcome of this carrier's own Grab: a moved or slipped target is approached again, anything else ends the task. */
-    private Step grabOutcome(YukkuriEntity child, Purpose intent) {
+    private Step grabOutcome(YukkuriEntity child) {
         var outcome = carrier.motor().last();
-        var why = intent == null ? purpose : intent;
+        var why = purpose;
         if (outcome instanceof Outcome.Done && carrier.hasPassenger(child)) return aboard(child, why) ? Step.DONE : Step.FAILED;
         var reason = outcome == null ? null : outcome.reason();
         if (reason == Reason.NO_CONTACT || reason == Reason.TARGET_MOVED) {
@@ -546,8 +541,8 @@ public final class ParentCarry {
         child.setPersistenceRequired();
         child.fallDistance = 0;
         lifting = null;
-        // A further baby joins the carry already under way; the first one set the purpose and the clock.
-        if (carrier.getPassengers().size() <= 1 || intent == Purpose.BOAT_BOARD) begin(intent, child);
+        // The purpose already started with the Grab; only a carry without one (or a boarding reload) begins it here.
+        if (purpose == null || intent == Purpose.BOAT_BOARD) begin(intent, child);
         holds.remove(child.getUUID());
         GameplayLog.event(carrier, "family", "carry pickup mode={} purpose={} child={} childStage={} seat={} nutrition={} volume={}/{} aboard={}",
                 mode, purpose, child.getUUID(), child.family().stage(), child.position(), child.life().nutrition(),

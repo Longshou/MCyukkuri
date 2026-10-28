@@ -107,7 +107,9 @@ public final class Hop implements Action {
         }
         air++;
         peak = Math.max(peak, body.getY() - from.y);
-        if (ContactResolver.resolve(body) != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
+        ContactResolver.Contact contact = ContactResolver.resolve(body);
+        if (contact != null && contact.refused()) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
+        if (contact != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
         if (body.isInWater()) return new Outcome.Done("water at=" + GameplayLog.at(body.position()));
         if (body.onGround()) return new Outcome.Done("landed at=" + GameplayLog.at(body.position()));
         if (air > plan.ticks() + SETTLE) return new Outcome.Done("settled at=" + GameplayLog.at(body.position()));
