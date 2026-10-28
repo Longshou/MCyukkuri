@@ -38,7 +38,7 @@ public final class Hop implements Action {
     /** Used when the exported clip data does not author {@code takeoff}; none does today (see the WP1 report). */
     private static final int TAKEOFF_FALLBACK = 4;
     /** Air ticks allowed past the solved arc before the hop settles where it actually is. */
-    private static final int SETTLE = 10;
+    static final int SETTLE = 10;
     /** Feet this far under a host surface still count as level with it. */
     private static final double TOUCH = .05;
 
@@ -82,8 +82,11 @@ public final class Hop implements Action {
                 target.y - from.y, ability.hopHeight(), ability.hopReach()));
     }
 
+    /** The clip's take-off marker in ticks: the crouch a hop and a small hop share before their one impulse. */
+    static int takeoffTicks() { return ClipMarkers.of(CLIP).ticks("takeoff", TAKEOFF_FALLBACK); }
+
     @Override public void start(YukkuriEntity body) {
-        takeoff = ClipMarkers.of(CLIP).ticks("takeoff", TAKEOFF_FALLBACK);
+        takeoff = takeoffTicks();
         crouch = 0;
         air = 0;
         peak = 0;

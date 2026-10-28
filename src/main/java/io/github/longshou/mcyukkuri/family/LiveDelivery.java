@@ -11,6 +11,10 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -65,6 +69,15 @@ final class LiveDelivery {
     private static final int NEST_GRACE=400, NEST_PATIENCE=100;
     private static final double STATION_GAP=2.1;
     private String hold="";
+    /**
+     * The recovery and comfort beats as a motor owner: both run inside the family goal's decision tick, so they may ask for a
+     * {@link Face} (spec 9.4). Active exactly while a beat that wants to turn is running, so the driver drops the turn when the
+     * beat ends.
+     */
+    private final MotorOwner beats=new MotorOwner() {
+        @Override public String ownerId() { return "family_birth_beats"; }
+        @Override public boolean active() { return liveRecovery>0||comfortTicks>0; }
+    };
 
     LiveDelivery(FamilyLife o) { this.o=o; }
     int recoveryTicks() { return liveRecovery; }
@@ -521,7 +534,8 @@ final class LiveDelivery {
                         next,exit.yaw(),exit.targetKind(),exit.target()==null||exit.target().hat()==null?null:exit.target().hat().getUUID(),
                         exit.target()==null?-1:exit.target().slot(),exit.target()==null?"none":exit.target().admission(),exit.candidates(),unprotectedExit?"no_safe_exit_timeout":"safe");
             }
-            SurfaceApproach.face(o.entity(),deliveryYaw);
+            // A passive clock may not start an action: this is the same bounded step (ability turn rate) FamilyLife.face uses.
+            o.face(deliveryYaw);
             if(Math.abs(Mth.wrapDegrees(o.entity().yBodyRot-deliveryYaw))>1.5f){
                 if(++exitTurnTicks>=40){exitWait+=exitTurnTicks;exitTurnTicks=0;deliveryYaw=Float.NaN;selectedExit=null;}
                 hold="turning_to_exit";return;
@@ -594,7 +608,7 @@ final class LiveDelivery {
             return;
         }
         SurfaceApproach.halt(o.entity());
-        o.face((float)(Mth.atan2(baby.getZ()-o.entity().getZ(),baby.getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90);
+        turnTo(o.entity(),(float)(Mth.atan2(baby.getZ()-o.entity().getZ(),baby.getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90);
         comfortNear++;
         if(comfortNear==10){o.entity().showReaction("closed_smile","nuzzle",60);BirthStaging.affection(o.entity());BirthStaging.caption(o.entity(),"蹭脸安抚");}
         if(comfortNear==70){o.entity().showReaction("open_smile","",40);BirthStaging.affection(o.entity());BirthStaging.caption(o.entity(),"轻轻舔舐安抚");}
@@ -606,7 +620,13 @@ final class LiveDelivery {
     void bump(){
         bumped=true;bumpTicks=140;
         BirthStaging.thud(o.entity());BirthStaging.whimper(o.entity());
-        var motion=o.entity().getDeltaMovement();o.entity().setDeltaMovement(motion.x,.2,motion.z);o.entity().hasImpulse=true;
+        // A real fall leaves a small bounce, sized by this body's own small hop (spec 9.4 Gesture HOP_SMALL). The landing tick
+        // runs on a passive clock, so this is the impulse the gesture would apply, never a started action.
+        double lift=Gesture.smallHopImpulse(o.entity());
+        if(lift>0){
+            var motion=o.entity().getDeltaMovement();
+            Motor.velocity(o.entity(),new Vec3(motion.x,lift,motion.z),"birth_impact");
+        }
         // A real fall injury through the ordinary damage path (wound record, infection and care rules), never lethal.
         float lost=Math.min(2f,o.entity().getHealth()-1f),healthBefore=o.entity().getHealth();
         if(lost>0)o.entity().hurt(o.level().damageSources().fall(),lost);
@@ -660,8 +680,9 @@ final class LiveDelivery {
             other.getLookControl().setLookAt(baby,20,20);
             if(welcomeTicks==WELCOME-30&&other.onGround()&&!other.isPassenger()&&!other.family().flying()){
                 if(hurt){other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",50);BirthStaging.sweat(other);continue;}
-                // A small hop and a greeting for the newcomer.
-                other.setDeltaMovement(other.getDeltaMovement().add(0,.2,0));
+                // A small hop and a greeting for the newcomer, with the same impulse Gesture HOP_SMALL applies to this body.
+                double lift=Gesture.smallHopImpulse(other);
+                if(lift>0)Motor.velocity(other,other.getDeltaMovement().add(0,lift,0),"birth_welcome");
                 other.showReaction("happy","caregiver",40);BirthStaging.affection(other);
             }
         }
@@ -677,9 +698,9 @@ final class LiveDelivery {
         if(baby==null)return;
         if(age>=24&&age<=150){
             o.entity().getLookControl().setLookAt(baby,20,20);
-            // Turn the body toward the baby a few degrees a tick; the clip adds its own head turn on top.
+            // Turn the body toward the baby at the ability's turn rate; the clip adds its own head turn on top.
             float yaw=(float)(Mth.atan2(baby.getZ()-o.entity().getZ(),baby.getX()-o.entity().getX())*Mth.RAD_TO_DEG)-90;
-            if(age>=40)o.face(Mth.approachDegrees(o.entity().getYRot(),yaw,5));
+            if(age>=40)turnTo(o.entity(),yaw);
         }
         if(age==24&&baby.family().bumped()){
             o.entity().mind().felt(EmotionEvent.FRIGHTENED); o.entity().showReaction("surprise","afraid",50);BirthStaging.sweat(o.entity());BirthStaging.caption(o.entity(),"母油见孩子摔伤，惊慌地转向它");
@@ -689,6 +710,19 @@ final class LiveDelivery {
             if(baby.family().bumped())BirthStaging.caption(o.entity(),"母油蹭脸安抚摔伤的孩子，随后轻舔");
         }
         if(age==116){o.entity().showReaction("open_smile","",30);BirthStaging.affection(o.entity());}
+    }
+
+    /**
+     * Asks the motor for one bounded turn toward {@code yaw} (spec 9.4 Face), from a decision tick only. A turn already running
+     * is left alone, and a body already inside the action's own arrival angle starts nothing, so a beat that repeats every tick
+     * produces one turn instead of one action per tick.
+     */
+    private void turnTo(YukkuriEntity body,float yaw){
+        var motor=body.motor();
+        var running=motor.owner();
+        if(motor.current() instanceof Face&&running!=null&&beats.ownerId().equals(running.ownerId()))return;
+        if(Math.abs(Mth.wrapDegrees(yaw-body.getYRot()))<=Face.FACE_ARRIVED)return;
+        motor.run(beats,new Face(yaw));
     }
 
     void finishLive(){

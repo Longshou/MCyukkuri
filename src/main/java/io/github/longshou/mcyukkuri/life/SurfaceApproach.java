@@ -20,6 +20,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
+    /** Ticks between two {@code walk.sample} detail lines (spec 13.1). */
+    private static final int SAMPLE_TICKS = 20;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -253,13 +255,32 @@ public final class SurfaceApproach {
 
     private Result walkStep(YukkuriEntity actor,Vec3 destination,Entity other,double speed){
         long started=System.nanoTime();
-        try{return walkStepNow(actor,destination,other,speed);}
-        finally{
-            long millis=(System.nanoTime()-started)/1_000_000;
-            if(millis>=50)GameplayLog.limited(actor,"approach","slow",200,
-                    "slow surface approach target={} elapsedMs={} pathDone={} horizontalCollision={}",
-                    destination,millis,actor.getNavigation().isDone(),actor.horizontalCollision);
-        }
+        Result result=walkStepNow(actor,destination,other,speed);
+        long millis=(System.nanoTime()-started)/1_000_000;
+        if(millis>=50)GameplayLog.limited(actor,"approach","slow",200,
+                "slow surface approach target={} elapsedMs={} pathDone={} horizontalCollision={}",
+                destination,millis,actor.getNavigation().isDone(),actor.horizontalCollision);
+        sample(actor,destination,result);
+        return result;
+    }
+
+    /**
+     * {@code walk.sample} (spec 13.1) for every ground approach, not only for the Walk action: the infant feeding path asks
+     * this shared layer directly. Position, destination, navigation state, nodes left, installed target and whether the body is
+     * being driven or held up, every 20 ticks with the detail switch on (E11-3).
+     */
+    private static void sample(YukkuriEntity actor,Vec3 destination,Result result){
+        if(!GameplayLog.detailEnabled())return;
+        var navigation=actor.getNavigation();
+        var path=navigation.getPath();
+        int nodes=path==null?0:Math.max(0,path.getNodeCount()-path.getNextNodeIndex());
+        var owner=actor.motor().owner();
+        GameplayLog.limited(actor,"walk","sample",SAMPLE_TICKS,
+                "sample layer=approach at={} dest={} pathTarget={} navDone={} nodesLeft={} metric={} speed={} collided={} crawl={} owner={} result={}",
+                GameplayLog.at(actor.position()),GameplayLog.at(destination),navigation.getTargetPos(),navigation.isDone(),nodes,
+                String.format(java.util.Locale.ROOT,"%.2f",actor.position().distanceTo(destination)),
+                String.format(java.util.Locale.ROOT,"%.3f",actor.getSpeed()),actor.horizontalCollision,actor.isCrawling(),
+                owner==null?"none":owner.ownerId(),result);
     }
 
     private Result walkStepNow(YukkuriEntity actor,Vec3 destination,Entity other,double speed){

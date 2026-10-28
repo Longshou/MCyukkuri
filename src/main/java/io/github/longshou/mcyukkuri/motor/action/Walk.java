@@ -28,6 +28,10 @@ import net.minecraft.world.phys.Vec3;
  * the host's own height field and room rule and written into {@code riders()}, which {@code positionRider} turns into the
  * world position. Nowhere here picks a distance or a duration: they come from {@link BodyAbility}, and the carrying scale
  * is the one the spec's Carry row names.
+ *
+ * <p>The ground watchdog metric is the route still ahead of the body (the installed path's remaining nodes plus the last
+ * leg, or the straight distance when no path is installed), and {@code walk.sample} prints it every 20 ticks with the
+ * detail switch on, so a playtest log can tell a bad route from a body that is not being driven (spec 13.1, E11-3).
  */
 public final class Walk implements Action {
     public static final String ID = "walk";
@@ -44,20 +48,22 @@ public final class Walk implements Action {
     private final SurfaceHost host;
     private final Vec3 local;
     private final double speed;
-    private final boolean stand;
+    private final double arrive;
     private double pace;
     private Vec3 from;
+    private boolean navDone;
+    private int nodesLeft;
 
     /** Walks to a world point, arrived when {@link SurfaceApproach#arrived}. */
     public Walk(Vec3 target) {
-        this(target, SPEED, false);
+        this(target, SPEED, 0);
     }
 
-    private Walk(Vec3 target, double speed, boolean stand) {
+    private Walk(Vec3 target, double speed, double arrive) {
         if (target == null) throw new IllegalArgumentException("Walk needs a target");
         this.target = target;
         this.speed = speed;
-        this.stand = stand;
+        this.arrive = Math.max(0, arrive);
         this.host = null;
         this.local = null;
     }
@@ -67,7 +73,7 @@ public final class Walk implements Action {
      * (the stand's height need not equal the other body's).
      */
     public static Walk stand(Vec3 target, double speed) {
-        return new Walk(target, speed, true);
+        return new Walk(target, speed, STAND_ARRIVED);
     }
 
     /** Walks to a target on {@code host}, in hat units of that host's frame. */
@@ -77,12 +83,13 @@ public final class Walk implements Action {
         this.local = local;
         this.target = null;
         this.speed = SPEED;
-        this.stand = false;
+        this.arrive = 0;
     }
 
     @Override public String id() { return ID; }
 
     @Override public Feasibility check(YukkuriEntity body) {
+        from = body.position();
         if (host != null) {
             if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host)
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
@@ -112,15 +119,26 @@ public final class Walk implements Action {
 
     @Override public MotionPose pose() { return MotionPose.NONE; }
 
+    @Override public String startDetail() {
+        return String.format(Locale.ROOT, "from=%s to=%s arrive=%.2f",
+                GameplayLog.at(from), GameplayLog.at(host == null ? target : host.frame().toWorld(local)), arrive);
+    }
+
+    /** Spec 13.1's walk end line: whether navigation had finished and how many nodes were left, next to the outcome. */
+    @Override public String endDetail(Outcome outcome) {
+        if (host != null) return "";
+        return String.format(Locale.ROOT, "navDone=%b nodesLeft=%d", navDone, nodesLeft);
+    }
+
     private Progress groundTick(YukkuriEntity body) {
         boolean arrived = SurfaceApproach.walk(body, target, speed * carrying(body));
         double flat = body.position().subtract(target).horizontalDistance();
-        if (arrived || stand && flat <= STAND_ARRIVED) {
+        double left = remaining(body);
+        readNavigation(body);
+        if (arrived || arrive > 0 && flat <= arrive) {
             if (!arrived) SurfaceApproach.halt(body);
-            return new Outcome.Done(String.format(Locale.ROOT, "at=%s flat=%.2f stand=%b",
-                    GameplayLog.at(body.position()), flat, stand));
+            return new Outcome.Done(String.format(Locale.ROOT, "at=%s flat=%.2f", GameplayLog.at(body.position()), flat));
         }
-        double left = body.position().distanceTo(target);
         if (SurfaceApproach.lastResult(body, target) == SurfaceApproach.Result.BLOCKED)
             return Outcome.of(Reason.NO_PATH, left, String.format(Locale.ROOT, "left=%.2f route=blocked", left));
         return new Running(left, TravelMode.PASS);
@@ -144,6 +162,27 @@ public final class Walk implements Action {
         return new Running(left, TravelMode.CONSUMED);
     }
 
+    /** The route still ahead: the installed path's remaining nodes plus the last leg, or the straight line without one. */
+    private double remaining(YukkuriEntity body) {
+        Vec3 at = body.position();
+        var path = body.getNavigation().getPath();
+        if (path == null || path.isDone() || path.getNodeCount() <= 0) return at.distanceTo(target);
+        double left = 0;
+        for (int i = Math.max(0, path.getNextNodeIndex()); i < path.getNodeCount(); i++) {
+            Vec3 node = path.getEntityPosAtNode(body, i);
+            left += at.distanceTo(node);
+            at = node;
+        }
+        return left + at.distanceTo(target);
+    }
+
+    private void readNavigation(YukkuriEntity body) {
+        var navigation = body.getNavigation();
+        var path = navigation.getPath();
+        navDone = navigation.isDone();
+        nodesLeft = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
+    }
+
     /** Spec 9.4 Carry row: carrying a Held body scales the speed by {@code 1 - .5 * heldWidth / carrierWidth}. */
     private static double carrying(YukkuriEntity body) {
         for (var passenger : body.getPassengers())
@@ -157,7 +196,7 @@ public final class Walk implements Action {
         return Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad()));
     }
 
-    /** {@code walk.sample} (spec 13.1): position, navigation state, nodes left and owner, only with the detail switch on. */
+    /** {@code walk.sample} (spec 13.1): position, navigation state, nodes left, owner and the metric, only with detail on. */
     private void sample(YukkuriEntity body) {
         if (!GameplayLog.detailEnabled()) return;
         var navigation = body.getNavigation();
@@ -165,10 +204,11 @@ public final class Walk implements Action {
         int nodes = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
         var owner = body.motor().owner();
         GameplayLog.limited(body, "walk", "sample", SAMPLE_TICKS,
-                "sample at={} from={} target={} host={} navDone={} nodesLeft={} owner={}",
+                "sample at={} from={} target={} host={} navDone={} nodesLeft={} owner={} metric={}",
                 GameplayLog.at(body.position()), GameplayLog.at(from),
                 GameplayLog.at(host == null ? target : host.frame().toWorld(local)),
                 host == null ? "ground" : host.entity().getUUID(),
-                navigation.isDone(), nodes, owner == null ? "none" : owner.ownerId());
+                navigation.isDone(), nodes, owner == null ? "none" : owner.ownerId(),
+                host == null ? String.format(Locale.ROOT, "%.2f", remaining(body)) : "-");
     }
 }

@@ -75,4 +75,15 @@ class ArcSolverTest {
             assertTrue(plan.apex()<=HOP_HEIGHT&&plan.apex()>=dy,"dy="+dy);
         }
     }
+
+    /** {@link ArcSolver#vyFor} is what a one-impulse gesture uses: the smallest speed whose discrete peak reaches the apex. */
+    @Test void vyForIsTheSmallestSpeedThatReachesTheApex(){
+        for(double apex:new double[]{.05,.25,.80}){
+            double vy=ArcSolver.vyFor(apex);
+            assertTrue(Ballistic.peak(vy)>=apex-1e-9,"apex="+apex+" peak="+Ballistic.peak(vy));
+            assertTrue(Ballistic.peak(vy)<=apex+.02,"apex="+apex+" peak="+Ballistic.peak(vy));
+            assertTrue(Ballistic.peak(vy-1e-6)<apex,"vy="+vy+" is not the smallest speed for apex="+apex);
+        }
+        assertEquals(0,ArcSolver.vyFor(0),0);
+    }
 }

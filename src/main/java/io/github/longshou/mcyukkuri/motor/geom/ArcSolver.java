@@ -48,8 +48,11 @@ public final class ArcSolver {
         return clearance.clear(Ballistic.samples(new Vec(vh*dir.x(),vy,vh*dir.z()),n))?new Plan(vy,vh,dir,n,apex):null;
     }
 
-    /** Smallest upward speed whose discrete trajectory peaks at {@code apex}. */
-    static double vyFor(double apex){
+    /**
+     * Smallest upward speed whose discrete trajectory peaks at {@code apex}, bisected on {@link Ballistic#peak}. Pure, so a
+     * one-impulse gesture (spec 9.4 HOP_SMALL) reads the same arc model as a solved hop instead of naming a speed.
+     */
+    public static double vyFor(double apex){
         if(apex<=0)return 0;
         double lo=0,hi=Math.max(apex,.01);
         while(Ballistic.peak(hi)<apex)hi*=2;

@@ -9,6 +9,9 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -73,7 +76,6 @@ public final class FamilyLife {
     /** A kit that came down on a nest's soft rim tumbles inward up to RIM_ROLLS times (transient, from the landing tick). */
     private int rimRolls,rimRollWait;
     private static final int RIM_ROLLS=3;
-    private static final double RIM_ROLL_SPEED=.07,RIM_ROLL_LIFT=.12;
     /** The committed land-birth impulse is saved while airborne; settled readouts remain transient. */
     private BirthLaunch.Plan launch;
     private String landingOutcome="";
@@ -303,7 +305,12 @@ public final class FamilyLife {
     public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role) { return CatchHat.catchPose(mother,brood,catcher,role); }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     public static Stand stand(HatPose pose,YukkuriEntity catcher) { return CatchHat.stand(pose,catcher); }
-    void face(float yaw){entity.setYRot(yaw);entity.yBodyRot=yaw;entity.yBodyRotO=yaw;entity.setYHeadRot(yaw);entity.yHeadRotO=yaw;}
+    /**
+     * Turns toward {@code yaw} by at most the body's own turn rate (spec 8.1 / 9.4 Face). The remaining callers of this run on
+     * the passive component clock or inside a move step, where spec 9.3 forbids starting an action, so a goal that can decide
+     * asks the motor for {@code Face} instead and this stays the bounded fallback.
+     */
+    void face(float yaw){Motor.face(entity,Mth.approachDegrees(entity.getYRot(),yaw,(float)BodyAbility.of(entity).turnRate()));}
     /** This Marisa's hat, set down nearby to catch. */
     public HatBoatEntity cradleEntity() { return catchHat.cradleEntity(); }
     /** The hat stays down while the young are coming and a little after, while they wake in it. */
@@ -525,13 +532,14 @@ public final class FamilyLife {
         boolean pad=FamilyNest.cushions(entity);
         var rim=entity.getVehicle()==null&&!entity.isInWaterOrBubble()&&!pad?FamilyNest.rimCentre(entity):null;
         if(rim!=null&&rimRolls<RIM_ROLLS){
-            // Come down on the soft rim or bolster: it tumbles down the inner slope toward the floor, a small real hop
-            // (project design); the next contact decides again.
-            var inward=rim.subtract(entity.position()).multiply(1,0,1);double reach=inward.length();
-            var step=reach>1e-4?inward.scale(RIM_ROLL_SPEED/reach):Vec3.ZERO;
+            // Come down on the soft rim or bolster: it tumbles down the inner slope toward the floor, a small real roll
+            // (project design); the next contact decides again. The landing tick runs on a passive clock, so this applies
+            // Gesture ROLL_IN's own collision-resolved step toward the nest centre instead of starting the action.
             rimRolls++;rimRollWait=3;
-            entity.setDeltaMovement(step.x,RIM_ROLL_LIFT,step.z);entity.hasImpulse=true;entity.fallDistance=0;
-            GameplayLog.event(entity,"family","newborn on nest rim rolls inward roll={} at={} centre={}",rimRolls,entity.position(),rim);
+            double moved=Gesture.roll(entity,rim,Gesture.ROLL_REACH/RIM_ROLLS);
+            entity.fallDistance=0;
+            GameplayLog.event(entity,"family","newborn on nest rim rolls inward roll={} moved={} at={} centre={}",
+                    rimRolls,String.format(java.util.Locale.ROOT,"%.2f",moved),entity.position(),rim);
             return true;
         }
         awaitingLanding=false;

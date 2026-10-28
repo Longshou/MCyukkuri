@@ -131,8 +131,14 @@ public final class ForageGoal extends Goal {
     @Override public void tick() {
         elapsed++;
         if (!canContinueToUse()) { stop(); return; }
-        if (target != null && (!ForageClaims.owns(level(), target, claim) || !edible(target))) {
+        if (target != null && !edible(target)) {
             ForageClaims.release(claim); claim = null; target = null;
+        } else if (target != null && !ForageClaims.owns(level(), target, claim)) {
+            // A soft reservation expiring is not a lost target: re-take the same plant while it is still free, so the walk
+            // continues instead of dropping the target and re-finding it on every claim expiry (E11-3 food-found churn).
+            ForageClaims.release(claim);
+            claim = ForageClaims.claim(level(), target, entity.getUUID());
+            if (claim == null) target = null;
         }
         if (target == null) {
             scanFood();
