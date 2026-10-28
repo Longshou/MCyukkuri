@@ -42,7 +42,7 @@ public final class Conductor {
     /** Restores the ceremony saved under {@link #key}; the factory builds the domain's choreography from that tag. */
     public void load(CompoundTag parent, Function<CompoundTag, Choreography> factory) {
         running = null;
-        LIVE.remove(owner.getUUID(), this);
+        LIVE.remove(owner.getUUID()); // a reloaded body is a new object: drop the stale entry of its UUID
         if (!parent.contains(key, Tag.TAG_COMPOUND)) return;
         var tag = parent.getCompound(key);
         var restored = factory.apply(tag);

@@ -101,6 +101,8 @@ public final class FamilyLife {
     private static final int COMFORT=200;
     private PlacedHatEntity choreHat;
     private IntentRunner chore;
+    /** A failed hat errand waits this long before the same body tries again (bounded retries, never a busy loop). */
+    private long choreRetry;
     public FamilyLife(YukkuriEntity entity) {
         this.entity=entity;
         carry=new ParentCarry(entity);
@@ -425,6 +427,8 @@ public final class FamilyLife {
         if(expecting&&brood.incidentSource==null&&entity.tickCount%60==0)
             level().sendParticles(ParticleTypes.HEART,entity.getX(),entity.getY()+entity.getBbHeight()+.15,entity.getZ(),1,.12,.04,.12,0);
         // The gestation clock runs wherever she is; its last APPROACH_LEAD ticks are the birth's, which the conductor advances.
+        // A birth still running for an older brood never holds a new one back: it ends, and its hat goes to the hat errand.
+        if(expecting&&liveBirth() instanceof LiveBirth old&&!brood.id.equals(old.broodId()))birth.stop("brood_replaced");
         if(expecting&&!birth.active()){
             if(brood.elapsed>=brood.duration-LiveBirth.APPROACH_LEAD)birth.start(LiveBirth.cast(this,brood));
             else gestate(brood,true);
@@ -574,7 +578,7 @@ public final class FamilyLife {
     }
     /** A catch hat this body set down that no running birth uses any more, or a dead owner's hat with this body's own young aboard. */
     private PlacedHatEntity hatChore(){
-        if(Conductor.roleOf(entity)!=null)return null;
+        if(Conductor.roleOf(entity)!=null||level().getGameTime()<choreRetry)return null;
         var own=PlacedHatEntity.find(entity);
         if(own!=null&&own.catches())return own;
         return level().getEntitiesOfClass(PlacedHatEntity.class,entity.getBoundingBox().inflate(48),hat->hat.catches()&&hat.ownerYukkuri()!=null&&!hat.ownerYukkuri().equals(entity.getUUID())
@@ -599,7 +603,7 @@ public final class FamilyLife {
         var ended=chore;chore=null;
         GameplayLog.event(entity,"family","catch cleanup {} hat={} passengers={} foreign={} step={} result={}",ended.result()==IntentRunner.Result.DONE?"advanced":"interrupted",
                 hat.getUUID(),hat.getPassengers().size(),!own,ended.intent().id(),ended.result());
-        if(ended.result()!=IntentRunner.Result.DONE)stop();
+        if(ended.result()!=IntentRunner.Result.DONE){choreRetry=level().getGameTime()+600;stop();}
     }
     /** The nest bed whose real supported floor carries this body (spec 7: INSIDE_SUPPORTED), or null on bare ground. */
     private BedContainer carryingBed(){
@@ -1043,7 +1047,7 @@ public final class FamilyLife {
         }
     }
     public void stop() {
-        if(chore!=null){chore.stop("family_goal_stopped");chore=null;}
+        if(chore!=null){chore.stop("family_goal_stopped");chore=null;if(task==Task.FETCH_HAT)choreRetry=level().getGameTime()+600;}
         choreHat=null;
         if(task==Task.COMFORT)comfortNear=0;
         if(task!=Task.NONE&&task!=Task.FOLLOW&&task!=Task.STAY_HOME&&task!=Task.WAIT_CHILD)GameplayLog.limited(entity,"family","task.stop."+task,200,

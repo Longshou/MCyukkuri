@@ -63,7 +63,7 @@ public abstract class Choreography {
         return table = beats;
     }
 
-    /** The beat a lost role goes to: null ends the ceremony, the current beat carries on without the role. */
+    /** The beat a lost role goes to (called before it is unbound): null ends the ceremony, the current beat carries on without it. */
     protected String onRoleLost(String role) { return null; }
 
     /** The ceremony's own clock (labour, births): domain data only, never a body (design red line 8). */
@@ -134,9 +134,9 @@ public abstract class Choreography {
             UUID body = roles.get(role);
             String why = body == null ? null : lost(body);
             if (why == null) continue;
+            String next = onRoleLost(role); // still bound here, so the branch can read what the role left behind
             roles.remove(role);
             intents.remove(role);
-            String next = onRoleLost(role);
             log("role_lost id={} role={} reason={} next={}", id, role, why, next == null ? "end" : next);
             if (!beat.equals(next)) enter(next, new Report(role, "", Report.Verdict.LOST, why), "role_lost");
             return;

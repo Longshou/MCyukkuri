@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
+import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
@@ -364,6 +365,7 @@ final class YukkuriGoals {
      */
     private final class BirthGoal extends Goal {
         private IntentRunner runner;
+        private Conductor.Role runnerRole;
         BirthGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
         @Override public boolean canUse() { return owner.family().birthRole()!=null||owner.family().prioritizesBirth()&&owner.family().canUse(); }
         @Override public boolean canContinueToUse() { return owner.family().birthRole()!=null||owner.family().prioritizesBirth()&&owner.family().canContinue(); }
@@ -376,12 +378,13 @@ final class YukkuriGoals {
             var intent=role.choreography().intentFor(owner.getUUID());
             if(runner!=null&&runner.intent()!=intent) release("beat_changed");
             if(intent==null){ owner.family().holdBirthRole(role); return; }
-            if(runner==null){ runner=new IntentRunner(owner,intent,"birth_"+role.role()); runner.start(); owner.family().birthIntentStarted(role,intent); }
+            if(runner==null){ runner=new IntentRunner(owner,intent,"birth_"+role.role()); runnerRole=role; runner.start(); owner.family().birthIntentStarted(role,intent); }
             runner.tick();
             if(runner.result()!=IntentRunner.Result.RUNNING){ role.choreography().report(owner.getUUID(),intent,runner.result()); runner=null; }
         }
         @Override public void stop() { release("birth_goal_stop"); owner.family().stopBirthGoal(); }
-        private void release(String why) { if(runner!=null){ runner.stop(why); runner=null; } }
+        // A runner cut off (the body panics, is carried, the goal yields) reports INTERRUPTED, so its beat branches at once; a stale one is ignored.
+        private void release(String why) { if(runner!=null){ runner.stop(why); runnerRole.choreography().report(owner.getUUID(),runner.intent(),runner.result()); runner=null; } }
     }
     void saveDebugGoals(CompoundTag tag) {
         if (EcologyRoutines.house(owner)) {
