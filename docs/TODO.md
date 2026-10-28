@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 重构 WP3b（LiveBirth／茎生编排，删除旧接生协商与预约） | `.worktrees/wp3b-birth` | `family/`（`CatchHat`、`LiveDelivery`、`FamilyData`、`FamilyLife`、`BirthExit`、`BirthStaging`、`LiveBirthGeometry`、`BirthLaunch`、`BirthFlightPath`）、`headwear/HatProp`、`intent/`、`entity/YukkuriGoals`、`scripts/museum_scenarios.py` 出生场景 |
 
 ## 玩法待办
 
@@ -164,26 +163,17 @@
 
 - **陆 23 走散寻回、分离不安与母油放弃（反馈 1）**：已接入待试玩。演示距离 30 格、搜索 48 格；母油按孩子数和性格的搜寻计时、单向放弃；重载保留计时与解除方向。完成：`family_search` 真实重逢，`family_search_blocked` 受阻计时与双向认亲差异；`home.family_state` 读搜索、时限、dismissed 与当前窝。
 - **成长标签与数值展示（反馈 2）**：已接入待试玩。用户反馈标签老旧；现读实际行为，区分赤油、子油、亚成体、成体、老年，补生命、不安、距换阶段秒数。完成：`growth`、`balance_growth`、亲子与接生场景标签随阶段更新，数值与 `/yukkuri status` 一致。
-- **陆 25 陆上接生后的幼体安置与收帽（反馈 3）**：复测失败。用户看到赤油留帽中无收尾、父油舍帽离开、赤油不能脱离、帽子不能互动。
-  - E1 23:45:12–23:45:26 三只赤油入同一接生帽，只证明入帽。
-  - [9b048506](https://github.com/Longshou/MCyukkuri/commit/9b048506)（[CI 40243107688](https://github.com/Longshou/MCyukkuri/actions/runs/40243107688)，10-26 22:54–22:56）`birth_land_caught` 父油持续挤母油、未放帽，产程 5921/6000。
-  - [6024c7f5](https://github.com/Longshou/MCyukkuri/commit/6024c7f5)（[CI 40352456908](https://github.com/Longshou/MCyukkuri/actions/runs/40352456908)，10-27 00:40–00:42）两轮未放帽：母油先出窝再折返会合点，产程 5860/6000 `no_room_for_belly`，服务端 2–21 秒落后；00:45:04 `birth_stem_caught` 放帽闪退（`HatCustody` owner 为空）。
-  - [cadc7e6c](https://github.com/Longshou/MCyukkuri/commit/cadc7e6c)（[CI 40369586424](https://github.com/Longshou/MCyukkuri/actions/runs/40369586424)，10-27 01:42:29–01:43:59）`birth_land_caught` 父油在窝柱间反复掉头；两次陆上放帽后闪退（`DeckLayout` 对 `NEST` 布局 `bank: null` 强转数组，重进存档同样报错）。
-  - [a0300e75](https://github.com/Longshou/MCyukkuri/commit/a0300e75)（[CI 40376399575](https://github.com/Longshou/MCyukkuri/actions/runs/40376399575)，10-27 02:24–02:29）离帽时普通侧发被当第二条辫子、被抓赤油抽搐错位；母油初始嵌窝 `no_complete_surface_route`；一胎四只中两只帽内落点被 `hull clearance` 拒绝摔伤，茎生三只穿帽面后被同检查拒绝。
-  - [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)（[CI 40380823130](https://github.com/Longshou/MCyukkuri/actions/runs/40380823130)，10-27 03:08–03:11）放下一只后另一只持续 `no_reach`，收尾超时帽内仍有乘员；`birth_land_reunion` 换点后母油朝向 152.65°、目标 107.65°，父油静止俯身。
-  - E8 `birth_stem_caught` 固定站位 `no_reach → no_walkable_reachable_seat → known_impossible` 至收尾超时。
-  - E10 06:42–07:28 茎生三只自主搬下并收帽，但取幼时身体面朝外、辫子伸向身后；08:34–09:58 胎生最后一只两次 `stalled_approach` 各约 12 秒，玩家抱起后才收帽，不记自主收尾。
-
-  完成：取幼前身体真实转向作业区；`[braid] done` 次数等于接下的赤油数；够不到的赤油先帽内移位（`catch pickup approach started`）再 `land_lift`，乘员逐只归零后戴回同一顶帽，无路线仍拒绝，不瞬移或拉长辫子；离帽只用唯一辫子（够不到改嘴叼），赤油不抽搐回跳；`newborn hat contact result=boarded/bounce`、`birth landed outcome=HAT/GROUND`，帽内接触不穿落地面受伤，帽外漏接仍摔伤；摘帽→放帽→出生→安置→收帽无异常，重进仍加载地面帽与乘员；`birth_land_caught`、`birth_land_reunion` 依次 `near-term nest exit reached` → `catch site selected` → `catch hat placed` → `delivery labor started`，母油不嵌窝、无需推动即出窝，窝柱间父油连续绕行，换点有 `catch site released` 原因，产程越过 6000 后真实出生；`birth_land_missed` 核对产程结束→亲油接管→赤油离帽→收帽的交接与中断恢复，父油不遗弃仍困赤油的帽；父油死亡后存活母油只接自己的幼体；水上席位不足时真实腾位或用避难席；不靠瞬移或清空乘员收尾。
-- **普通窝容量、大窝与围产期同居（反馈 4）**：复测失败（[规则](CHILDHOOD_LIFECYCLE.md#大巢小巢与洞穴是不同的东西)）。
+- **陆 25 陆上接生后的幼体安置与收帽（反馈 3）**：已接入待试玩（WP3b 重写，9a3830ba）。旧实现反例：用户见赤油留帽中无收尾、父油舍帽离开；[9b048506](https://github.com/Longshou/MCyukkuri/commit/9b048506) 父油挤母油未放帽；[6024c7f5](https://github.com/Longshou/MCyukkuri/commit/6024c7f5) 两轮未放帽；[cadc7e6c](https://github.com/Longshou/MCyukkuri/commit/cadc7e6c) 父油在窝柱间反复掉头；[a0300e75](https://github.com/Longshou/MCyukkuri/commit/a0300e75) 侧发被当辫子；[1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd) 另一只持续 `no_reach` 至收尾超时；E8 茎生固定站位 `known_impossible`；E10 取幼时身体朝外、`stalled_approach`。
+  完成：`birth_land_caught`、`birth_land_reunion`、`birth_stem_caught` 的 `[choreo] beat id=live_birth|stem_birth` 依次走到 `placed`、产程（茎生 `drop`）、`linger`、`unload`、`take_hat`、结束；`catch site selected`、`catch hat placed`、每只赤油一条 `[body] dismount cause=release`（会跳的自己跳出），之后不再回帽；`catch cleanup completed` 后戴回同一顶帽（`帽子已戴回头上`）；收尾受阻时有 `catch cleanup gave up reason=` 并由帽主随后收帽，不永久停在帽边；`birth_land_reunion` 父油从约 10 格外走来，会合失败有 `next=regroup` 与第二次选点。
+- **普通窝容量、大窝与围产期同居（反馈 4）**：已接入待试玩（产地节拍由 WP3b 重写，9a3830ba；以下为旧版现象）（[规则](CHILDHOOD_LIFECYCLE.md#大巢小巢与洞穴是不同的东西)）。
   - ac4ba87b（CI 40196337976）`birth_nest_safe` 临产母油停在窝外约 2 格长期 `no_place_for_term`，推入后才生产，推入窝时高跳。
   - [dd75d650](https://github.com/Longshou/MCyukkuri/commit/dd75d650)（CI 40200352271，10-25 22:24–22:38）`birth_nest_safe` 母油走到野生大窝窝沿上悬着不再行动（`no_place_for_term` 约 36 秒），手推才生产，首只赤油落窝沿顶仍记 CUSHION 且不动；伴侣反复 `nest claim refused reason=no_supported_body_space bodyWidth=0.80`；陆地接生足月母油（`bodyWidth=1.169`）被软垫窝拒收；`pet_birth` 22:38:41 受孕后卡死。用户改判：伴侣拒收不再作真实后果，宁可少量穿模也要放得下、判定稳。
   - a0300e75（CI 40376399575，10-27 02:30:15）`pet_birth` 受孕后卡死（均无线程栈）。
   - E8 `pet_birth` 母油出窝是场景放了魔理沙接生者（`leave nest reason=catcher`）；场景已改灵梦伴侣，待试玩。
 
   完成：`pet_birth` 反复清场重开，初态落地、临产后游戏响应、母油留在大窝内生产；`birth_nest_safe` 母油不跳地走进窝、不停窝沿，无长时间 `no_place_for_term`，到位后才 `delivery labor started`，落窝沿的赤油 `newborn on nest rim rolls inward` 后 `outcome=CUSHION`，伴侣 `assigned kind=care` 认领同窝；`birth_land_missed`、`birth_land_reunion` 不再 `nest no longer fits stage/body`，`near-term leave nest reason=…` 后在窝外生产。1.2 倍足月孕母配 1.05 倍以上伴侣仍认窝失败是保留的空间上限。两种新窝模型待用户确认。
-- **窝内外寻路与接触交接（反馈 5）**：复测失败。用户反复看到途经窝时被卡住；陆地接生仍停走、未放帽、窝柱间反复掉头（见反馈 3）。完成：`feed`、`first_toilet`、`hurt`／`hurt_kin`、`meet`、`marisa_sumo`、`birth_land_caught`／`birth_land_missed`、`family_search`、`indep_near` 覆盖斜向接近、双方窝内／外、远侧站位、途中亲油移动；读 Goal、路径、接触距离与阻塞原因，途中探路不换当前目标，窝柱夹缝走完整绕路或换可达接生点，真实进出并完成交接；不用瞬移或强制留守。
-- **陆地出生随机弹道与落地结果**：复测失败（[规则](CONSUMABLES_AND_BIRTH.md#陆地出生的随机弹道)；水上帽船出生与无母油分离茎块暂不变）。
+- **窝内外寻路与接触交接（反馈 5）**：复测失败。用户反复看到途经窝时被卡住；陆地接生部分已由 WP3b 重写（见陆 25），其余场景未改。完成：`feed`、`first_toilet`、`hurt`／`hurt_kin`、`meet`、`marisa_sumo`、`birth_land_caught`／`birth_land_missed`、`family_search`、`indep_near` 覆盖斜向接近、双方窝内／外、远侧站位、途中亲油移动；读 Goal、路径、接触距离与阻塞原因，途中探路不换当前目标，窝柱夹缝走完整绕路或换可达接生点，真实进出并完成交接；不用瞬移或强制留守。
+- **陆地出生随机弹道与落地结果**：已接入待试玩（WP2 发射只触发一次、WP3b 接收者按真实接触落定，9a3830ba；无安全出口时强制出生 `birth forced reason=no_safe_exit`）（[规则](CONSUMABLES_AND_BIRTH.md#陆地出生的随机弹道)；水上帽船出生与无母油分离茎块暂不变）。
   - ac4ba87b（CI 40196337976）胎生出射固定，落窝外不受伤，帽接与茎生按预抽 12% 定漏接。
   - dd75d650（CI 40200352271）`birth_stem_caught` 两轮 7 只实子全 `outcome=GROUND` 并 `birth impact injury`，接生帽 `passengers=0`，实子穿帽掉出（多数落点在帽范围内）。
   - E10 05:09 大窝内胎生仍 `outcome=GROUND`、赤油摔伤 2 点；05:50 大窝茎生两只均 `CUSHION` 无摔伤，两种路径分别验收。
@@ -219,7 +209,7 @@
   - 帽船可被推动；
   - 帽内挤不下时，孩子可以被挤落水。
 - 设计与工作包 WP1–WP7 见[整体设计](REFACTOR_DESIGN.md)与[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)（范围含出生链，出生链同样冻结）；各工作包的进度与复测现象只登记在本条。
-- 进度：WP1、WP2 已接入待试玩，运行 [ba5d5832](https://github.com/Longshou/MCyukkuri/commit/ba5d5832)（含发射只触发一次与赤油爬行加快）；复测看 E11 条目与 `birth_land_caught`／`birth_land_missed`（落帽率与摔伤表现同旧版分布）、`hop`、`infant_feed`。WP3a 已合入（[12794e04](https://github.com/Longshou/MCyukkuri/commit/12794e04)）：旧水生实现下线，池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽改为 `headwear/PlacedHatEntity`；陆地玩法应不变，复测看 F1 出生场景与 E11。编排框架已合入（[b8bbfeff](https://github.com/Longshou/MCyukkuri/commit/b8bbfeff)），WP3b 出生编排进行中；出生链经试玩认可后才开 WP4，WP4 前须先确认统一帽子尺寸预览。
+- 进度：WP1、WP2、WP3a、WP3b 已接入待试玩，运行 [9a3830ba](https://github.com/Longshou/MCyukkuri/commit/9a3830ba)。WP3a 下线旧水生（池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽为 `headwear/PlacedHatEntity`）；WP3b 把陆地胎生、茎生改为 LiveBirth 编排（规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩)）。**试玩检查点**：F1 出生场景与 E11 认可后才开 WP4；WP4 前还须确认统一帽子尺寸（预览 `.local/previews/hat-scale/index.html`，负责人建议 1.4 倍）。
 - 完成：各工作包按设计稿的展台与行为场景验收。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[玩法日志](GAMEPLAY_LOGGING.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。
