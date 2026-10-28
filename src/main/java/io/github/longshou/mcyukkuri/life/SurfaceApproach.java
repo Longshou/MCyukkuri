@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -271,6 +272,8 @@ public final class SurfaceApproach {
      */
     private static void sample(YukkuriEntity actor,Vec3 destination,Result result){
         if(!GameplayLog.detailEnabled())return;
+        // The Walk action prints its own walk.sample for the same ticks.
+        if(actor.motor().current() instanceof Walk)return;
         var navigation=actor.getNavigation();
         var path=navigation.getPath();
         int nodes=path==null?0:Math.max(0,path.getNodeCount()-path.getNextNodeIndex());

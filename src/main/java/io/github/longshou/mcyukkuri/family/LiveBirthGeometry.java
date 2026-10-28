@@ -242,7 +242,7 @@ public final class LiveBirthGeometry {
         // Afloat in her own hat boat the young are born into one of the parents' close hats.
         var boat=mother.family().boatHome();
         // This unborn preflight uses the child's actual birth-size load and geometric budget. FamilyData then reserves a seat for
-        // the concrete newborn before it is added, and FamilyFlight still performs the physical handoff into it.
+        // the concrete newborn before it is added, and the newborn's own Launch then hands it into it by contact.
         var kind=brood==null?FamilyData.BirthKind.LIVE:brood.kind;
         if(boat!=null&&boat.isAfloat()&&boat.canMakeRoomForNewborn(kind,child,true))return true;
         if(mother.family().waterBirthRequired()){

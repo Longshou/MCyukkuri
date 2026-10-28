@@ -41,14 +41,20 @@ public final class BirthLaunch {
     private static final double GRAVITY=.08, VERTICAL_DRAG=.98, AIR_DRAG=.91;
     /** The longest aim any birth launch is given: a partner hull across the water. */
     private static final double MAX_AIM=FamilyLife.SHARE_REACH;
+    /** Highest hat target above the launch point the arc lift is bounded for (blocks). */
+    private static final double HAT_RISE=3;
     /**
-     * The fastest impulse the draw can produce (blocks per tick), used by {@code Launch.check} as its ceiling: the longest aim
-     * at the shortest air time (the lowest lift) and the strongest push, plus the fastest lift upward.
+     * The fastest impulse the draw can produce (blocks per tick), used by {@code Launch.check} as its ceiling: either the live
+     * draw (longest aim at the lowest lift, strongest push) or the hat arc (the hull's top speed over its shortest flight with
+     * the air-drag compensation, strongest push, and the lift of its longest flight), whichever is larger.
      */
     public static final double MAX_SPEED;
     static {
         double low=LIFT*(1-LIFT_SPREAD),high=LIFT*(1+LIFT_SPREAD);
-        MAX_SPEED=Math.hypot(speedFor(MAX_AIM,low)*PUSH_MAX,high);
+        double live=Math.hypot(speedFor(MAX_AIM,low)*PUSH_MAX,high);
+        double hatHorizontal=HatVessel.MAX_SPEED/16*Ballistic.speedFor(1,HatVessel.TMIN)*HatVessel.TMIN*PUSH_MAX;
+        double hatLift=HAT_RISE/HatVessel.TMAX+HatVessel.GRAVITY/16/2*(HatVessel.TMAX-1);
+        MAX_SPEED=Math.max(live,Math.hypot(hatHorizontal,hatLift));
     }
 
     enum Target { HAT, NEST, GROUND }

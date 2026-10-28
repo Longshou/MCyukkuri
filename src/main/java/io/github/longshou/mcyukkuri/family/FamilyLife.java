@@ -84,6 +84,7 @@ public final class FamilyLife {
     private static final int RIM_ROLLS=3;
     /** The committed land-birth impulse is saved while airborne; settled readouts remain transient. */
     private BirthLaunch.Plan launch;
+    private boolean launched;
     private String landingOutcome="";
     private double landingFromAim=Double.NaN,landingImpactVy,airVy;
     /** This body's handle on the one crew transfer it is part of (as body or as carrier). */
@@ -385,6 +386,7 @@ public final class FamilyLife {
      */
     void launch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
         this.launch=plan;
+        this.launched=false;
         logLaunch(plan,brood,index,hat);
     }
     /**
@@ -393,8 +395,13 @@ public final class FamilyLife {
      * "pending" state, so a reload mid-flight resumes the same impulse instead of rolling a new one.
      */
     public boolean startBirthLaunch(){
-        if(launch==null||launchInFlight()||!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()||entity.isPassenger())return false;
-        if(!entity.motor().run(BIRTH_LAUNCH,new Launch(launch.velocity(),"birth")))return false;
+        if(launch==null||launched||launchInFlight()||!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()||entity.isPassenger())return false;
+        launched=true;
+        if(!entity.motor().run(BIRTH_LAUNCH,new Launch(launch.velocity(),"birth"))){
+            var refusal=entity.motor().last();
+            GameplayLog.event(entity,"family","birth launch refused lastReason={} shortfall={}; the body drops where it is",refusal==null?"n/a":refusal.reason(),refusal==null?0:refusal.shortfall());
+            return false;
+        }
         entity.getNavigation().stop();
         return true;
     }
@@ -1187,6 +1194,7 @@ public final class FamilyLife {
         tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
         tag.putBoolean("BirthMiss",doomed);
         if(awaitingLanding&&launch!=null)tag.put("BirthLaunch",BirthLaunch.save(launch));
+        if(awaitingLanding&&launch!=null&&launched)tag.putBoolean("BirthLaunched",true);
         delivery.save(tag);
         catchHat.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
@@ -1211,6 +1219,7 @@ public final class FamilyLife {
         doomed=tag.getBoolean("BirthMiss")&&awaitingLanding;
         launch=awaitingLanding&&tag.contains("BirthLaunch",Tag.TAG_COMPOUND)
                 ?BirthLaunch.load(tag.getCompound("BirthLaunch")):null;
+        launched=launch!=null&&tag.getBoolean("BirthLaunched");
         delivery.load(tag);
         catchHat.load(tag);
         // Dry stems are no longer kept on the body.

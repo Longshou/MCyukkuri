@@ -109,7 +109,11 @@ public final class AbilityTable extends SimpleJsonResourceReloadListener {
     }
 
     private static double number(JsonObject source, String key, double fallback) {
-        return source.has(key) ? GsonHelper.convertToDouble(source.get(key), key) : fallback;
+        if (!source.has(key)) return fallback;
+        double value = GsonHelper.convertToDouble(source.get(key), key);
+        if (Double.isFinite(value) && value >= 0) return value;
+        MCYukkuri.LOGGER.warn("[body] ability data rejected coefficient {}={}; using default {}", key, value, fallback);
+        return fallback;
     }
 
     /** The canonical string a fingerprint is taken over: sorted keys, so key order in the file does not matter. */

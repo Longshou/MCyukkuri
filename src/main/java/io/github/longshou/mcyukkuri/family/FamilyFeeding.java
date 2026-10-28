@@ -142,10 +142,12 @@ final class FamilyFeeding {
     }
 
     /** Owner of the refusal turn: it only lasts as long as that Face, which ends at its own 3 degree arrival. */
-    private static final MotorOwner REFUSAL_TURN=new MotorOwner(){
-        @Override public String ownerId(){return "feed_refusal";}
-        @Override public boolean active(){return true;}
-    };
+    private static MotorOwner refusalTurn(YukkuriEntity body,Face turn){
+        return new MotorOwner(){
+            @Override public String ownerId(){return "feed_refusal";}
+            @Override public boolean active(){return body.motor().current()==turn;}
+        };
+    }
 
     /** A parent chooses once per viable child-care opportunity; attachment never enters this choice. */
     private boolean acceptsCare(YukkuriEntity child) {
@@ -158,7 +160,11 @@ final class FamilyFeeding {
         child.showReaction(accepted?"happy":"cry",accepted?"caregiver":"hungry",80);
         BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
         // The refusal is a whole visible turn away at the body's own turn rate (a Face action), not one bounded step.
-        if(!accepted)o.entity().motor().run(REFUSAL_TURN,new Face(o.entity().getYRot()+180));
+        if(!accepted){
+            var turn=new Face(o.entity().getYRot()+180);
+            // A refused turn is skipped: the parent just stays facing the child and the choice stands.
+            o.entity().motor().run(refusalTurn(o.entity(),turn),turn);
+        }
         return accepted;
     }
 

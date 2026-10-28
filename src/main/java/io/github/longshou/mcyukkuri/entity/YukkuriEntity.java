@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
 import io.github.longshou.mcyukkuri.house.YukkuriJumpControl;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.house.HouseCrawlMotion;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -359,8 +360,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */
     public double crawlSpeed() { return HouseCrawlMotion.TRAVEL_UNITS / 16 / HouseCrawlMotion.PERIOD_TICKS * crawlScale(); }
+    /** The crawl does not shrink with growth (a newborn covers about .2 blocks per second); only the body scale and the non-growth speed factors (wounds, weakness, soles) change it. */
     private double crawlScale() {
-        return getScale() * growthScale() * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED));
+        double growth = GrowthSize.movement(family.stage(), family.scale(), SpeciesProfile.of(variant).houseBody());
+        return getScale() * Math.max(1, growthScale()) * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * growth);
     }
     public boolean canCrawlNow() {
         return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&

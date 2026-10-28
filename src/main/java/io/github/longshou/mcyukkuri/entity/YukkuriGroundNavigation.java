@@ -113,14 +113,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // Vanilla sameAs compares nodes only, not the requested target or search accuracy.
         path=null;
         if(!super.moveTo(requested,speed)){stop();return false;}
-        walkingTarget=requested.getTarget();walkingQuery=planned==null?query(0):planned;
+        walkingTarget=requested.getTarget();walkingQuery=planned==null?query(0):planned;crawlCheckPos=null;crawlCheckTick=0;
         timeoutCachedNode=Vec3i.ZERO;timeoutTimer=0;timeoutLimit=0;lastTimeoutCheck=level.getGameTime();
         hasDelayedRecomputation=false;stalled=false;resetBlock();
         return true;
     }
 
     @Override public void stop(){
-        super.stop();walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
+        super.stop();crawlCheckPos=null;crawlCheckTick=0;walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
     }
 
     /** Rebuild the installed destination, never the last point inspected by a different goal. */
