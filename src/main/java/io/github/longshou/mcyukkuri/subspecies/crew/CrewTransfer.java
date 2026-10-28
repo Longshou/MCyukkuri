@@ -87,6 +87,10 @@ public final class CrewTransfer {
     /** Phase time limits in ticks (APPROACH differs by mode; MOVE adds its own length). */
     private static final int CLAIM_TTL = 40, CONTACT_TTL = 260, SETTLE_TTL = 80, RELEASE_TTL = 60, STALL_TICKS = 200, MOVE_SLACK = 60;
     private static final AtomicLong IDS = new AtomicLong(1);
+    /** Limits with the deck load of the hull the body rides (what YukkuriLocomotion used to read itself). */
+    private static YukkuriLocomotion.Limits limitsOf(YukkuriEntity body) {
+        return YukkuriLocomotion.limits(body, body.getVehicle() instanceof HatBoatEntity hull ? hull.deck().load() : 0);
+    }
 
     // ---------------------------------------------------------------- identity
     private final long id;
@@ -545,7 +549,7 @@ public final class CrewTransfer {
                 var hop = YukkuriLocomotion.hop(body, start, hopEnd, hulls);
                 if (!hop.ok()) {
                     if(plannedStart!=null) {
-                        var limit=YukkuriLocomotion.limits(body);
+                        var limit=limitsOf(body);
                         GameplayLog.limited(body,"aquatic","transfer.takeoff."+hop.reason(),100,
                                 "transfer takeoff refused reason={} from={} to={} departureSlot={} horizontal={} rise={} maxReach={} maxHeight={}",
                                 hop.reason(),start,end,departureSlot,start.subtract(end).horizontalDistance(),end.y-start.y,limit.maxHopReach(),limit.maxHopHeight());
@@ -564,7 +568,7 @@ public final class CrewTransfer {
                     entryId = boarding.entry();
                     for (int i = 1; i < boarding.walk().size(); i++) {
                         var at = boarding.walk().get(i);
-                        time += at.distanceTo(worldKnots.getLast()) / Math.max(.003, YukkuriLocomotion.limits(body).maxHorizSpeed() * .65);
+                        time += at.distanceTo(worldKnots.getLast()) / Math.max(.003, limitsOf(body).maxHorizSpeed() * .65);
                         worldKnots.add(at); frames.add(postFrame); times.add(time);
                     }
                 }
@@ -586,7 +590,7 @@ public final class CrewTransfer {
                 if (grip == null) return new Built(null, Result.refused(Refusal.TRANSIENT, "rim_out_of_reach"));
                 var rim = grip.add(0, clearance, 0);
                 var hook = new Vec3(start.x, rim.y, start.z);
-                if (rim.y - start.y > YukkuriLocomotion.limits(body).maxClimbRise())
+                if (rim.y - start.y > limitsOf(body).maxClimbRise())
                     return new Built(null, Result.refused(Refusal.GEOMETRY, "climb_exceeds_body"));
                 worldKnots.add(start);
                 frames.add(preFrame);
@@ -1186,7 +1190,7 @@ public final class CrewTransfer {
     }
 
     private static double hopReach(YukkuriEntity body) {
-        return YukkuriLocomotion.limits(body).maxHopReach();
+        return limitsOf(body).maxHopReach();
     }
 
     /** The decision layer uses the same real entry distance as opening and approaching a climb. */
@@ -1364,7 +1368,7 @@ public final class CrewTransfer {
         if (mode == Mode.LIFT && boatA >= 0 && boatA == boatB) hatB().deck().lift(bodyId, true);
         if (!finished) {
             GameplayLog.detail(body, "crew.move." + id, 0, mode + " ticks=" + geometry.moveTicks() + " curve=" + geometry.curve() + " entry=" + geometry.entryId());
-            var limits = YukkuriLocomotion.limits(mode == Mode.LIFT && carrier() != null ? carrier() : body);
+            var limits = limitsOf(mode == Mode.LIFT && carrier() != null ? carrier() : body);
             double peak = geometry.knots().stream().map(k -> world(k, hatA(), hatB())).filter(Objects::nonNull)
                     .mapToDouble(p -> p.y - geometry.start().y).max().orElse(0);
             GameplayLog.event(body, "aquatic", "transfer motion mode={} ticks={} peak={} maxHopHeight={} maxHopReach={} maxSpeed={} body={} carrier={} from={} to={} departureSlot={}",
@@ -1384,7 +1388,7 @@ public final class CrewTransfer {
         var position = current.position(level, now);
         if (position == null) { fail(Refusal.TRANSIENT, "hull_unloaded"); return; }
         var actor = mode == Mode.LIFT && carrier != null ? carrier : body;
-        double speed = YukkuriLocomotion.limits(actor).maxHorizSpeed();
+        double speed = limitsOf(actor).maxHorizSpeed();
         if (body.getVehicle() instanceof HatBoatEntity hull) YukkuriLocomotion.carryWithHull(body, hull);
         var before = body.position();
         var step = YukkuriLocomotion.advance(body, position, speed);
