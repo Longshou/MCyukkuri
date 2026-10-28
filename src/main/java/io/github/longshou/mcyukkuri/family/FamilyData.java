@@ -43,7 +43,6 @@ import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.settlement.Homes;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -616,13 +615,24 @@ public final class FamilyData extends SavedData {
         return null;
     }
 
+    /**
+     * Where this kit would get next on the hull, read only: the aim of its drawn launch. Never kept for it, and the actual
+     * landing is still decided by its first real contact with the surface.
+     */
+    private static Vec3 launchPlace(HatBoatEntity hat,YukkuriEntity child){
+        var place=hat.peekSeat(child);
+        if(place!=null)return place;
+        var centre=hat.spots().get("centre");
+        return centre==null?Vec3.ZERO:centre;
+    }
+
     /** The concrete newborn is now known: only this step may free room, and its chosen purpose remains fixed for reservation. */
     private HatBoatEntity.NewbornAdmission prepareBirthAdmission(HatBoatEntity boat,YukkuriEntity child,boolean emergency){
         if(boat==null||!boat.isAfloat()||boat.unsteadyMotion()||!boat.makeRoom(child,emergency))return HatBoatEntity.NewbornAdmission.NONE;
         return boat.newbornAdmission(child,emergency);
     }
 
-    /** Reserve the exact physical berth before the newborn is inserted; FamilyFlight consumes this reservation on contact. */
+    /** Reserve the exact physical berth before the newborn is inserted; the physical launch no longer follows a kept seat. */
     private boolean reserveBirth(HatBoatEntity boat,YukkuriEntity child,double reach,HatBoatEntity.NewbornAdmission admission){
         if(admission==HatBoatEntity.NewbornAdmission.NONE)return false;
         var seat=boat.reserveBirthAdmission(child,admission);
@@ -692,11 +702,9 @@ public final class FamilyData extends SavedData {
             var exit=scene.family().selectedBirthExit(index);
             if(exit!=null&&exit.target()!=null&&exit.target().hat()!=null){
                 var target=exit.target();landHat=target.hat();
-                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,false,target.admission(),target.slot())
-                        ||landHat.reserveBirthAdmission(entity,target.admission(),position,target.slot())==null)
+                // The outlet preflight chooses the receiver; the berth itself is not kept, the first real contact decides.
+                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,false,target.admission(),target.slot()))
                     return refuse(brood,level,"catch_berth_unavailable");
-                GameplayLog.event(scene,"family","birth berth reserved child={} hat={} slot={} admission={} outlet={}",
-                        entity.getUUID(),landHat.getUUID(),target.slot(),target.admission(),position);
             }
         }
         spawning.add(child.id);boolean added=false;
@@ -709,42 +717,30 @@ public final class FamilyData extends SavedData {
             if(!added&&landHat!=null)landHat.cancelBirthAdmission(entity);
         }
         if(!added)return refuse(brood,level,"entity_rejected");
-        // Born into a hat: the mother's boat, or a Marisa's hat set down at the outlet (lying, or floated at a bank).
-        // An overstrained push can send the newborn past it [original 12%]: into the river, or hard onto the ground.
-        // Pushed out, it flies on a parabola over the near brim into its own place in the hat (HatVessel, delivery.py).
-        // A demonstrated miss withholds the cushion; a requested catch with no hat down at the moment of birth also fails visibly.
+        // One drawn impulse, then physics: the receiver is the hat at the outlet, the mother's own hull, the nest she lies in or
+        // the bare ground; where the kit comes down is decided by its first real contact, never by a kept seat.
         var hat=waterHat!=null?waterHat:landHat;
         boolean landBirth=boat==null&&waterHat==null&&scene!=null;
-        if(hat!=null&&landBirth) {
-            // On land the push is random, not a preset catch or miss: a strong or crooked one carries the kit past the seat.
+        if(hat!=null&&landBirth){
+            // On land the push is random, not a preset catch or miss: a strong or crooked one carries the kit past the hat.
             boolean overstrain=scene.family().missesDelivery(false);
             double push=overstrain?BirthLaunch.OVERSTRAIN_PUSH:BirthLaunch.push(level.random),yaw=BirthLaunch.yaw(level.random);
-            var start=entity.position();
-            entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25,push,yaw,true);
-            if(entity.family().flying())entity.family().launchedIntoHat(entity.family().flightDestination(),start,push,yaw,brood,index,hat);
-            else{
-                // The seat could not be reserved or the arc was refused: the kit is pushed out on the ground instead.
-                hat.cancelIncoming(entity);
-                entity.family().launched(BirthLaunch.live(level.random,scene,entity,start),brood,index,null);
-            }
-        } else if(hat!=null) {
+            entity.family().launch(BirthLaunch.intoHat(entity,hat,hat.toWorld(launchPlace(hat,entity)),push,yaw),brood,index,hat);
+        } else if(hat!=null){
             boolean miss=level.random.nextFloat()<.12f;
             if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity parent)miss=parent.family().missesDelivery(miss);
-            if(miss) {
+            var aim=hat.toWorld(launchPlace(hat,entity));
+            if(miss){
                 if(waterHat!=null)waterHat.cancelBirthAdmission(entity);else hat.cancelIncoming(entity);
-                entity.family().doom();entity.family().launchPast(hat);
-                // A missed catch over water is the newborn's water incident from the first moment: the mother decides for it once.
+                entity.family().doom();
+                // The drawn overstrain goes on past the far brim instead of into the hull; the water incident is opened at once.
+                entity.family().launch(BirthLaunch.past(entity,hat,aim),brood,index,null);
                 if(waterHat!=null)io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.open(entity,waterHat.getUUID(),null,
                         io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.Cause.BIRTH_MISS);
             }
-            else entity.family().launchInto(hat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,
-                    waterHat!=null&&waterHat!=boat?FamilyLife.SHARE_REACH:1.25);
-            // A refused birth flight owns no future seat, including failures before the generic flight planner reserves again.
-            if(waterHat!=null&&!entity.family().flying())waterHat.cancelBirthAdmission(entity);
-            // The partner's hat was out of that flight's reach after all: the mother's own hat takes it.
-            if(brood.kind!=BirthKind.LIVE&&waterHat!=null&&waterHat!=boat&&!entity.family().flying()&&boat!=null)
-                entity.family().launchInto(boat,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS),null,1.25);
-        } else if((landBirth||unprotected)&&scene!=null)entity.family().launched(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
+            else entity.family().launch(BirthLaunch.intoHat(entity,hat,aim,1,0),brood,index,hat);
+        } else if((landBirth||unprotected)&&scene!=null)
+            entity.family().launch(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);

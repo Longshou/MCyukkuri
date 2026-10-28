@@ -253,7 +253,7 @@ final class CatchHat {
     private boolean actionOwnerReady(){
         return o.entity().isAlive()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()
                 &&!o.entity().operations().active()&&!o.entity().life().isSleeping()&&!o.entity().life().hasUrgentNeed()&&o.entity().life().mealTicks()==0
-                &&!o.awaitingLanding()&&!o.hasFlightArc()&&!o.crew().holdsBody();
+                &&!o.awaitingLanding()&&!o.crew().holdsBody();
     }
 
     private static boolean at(YukkuriEntity entity,FamilyLife.DeliveryStation station){

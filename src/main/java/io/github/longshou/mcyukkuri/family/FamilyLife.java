@@ -12,6 +12,12 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
+import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.AttachState;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Launch;
+import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
@@ -80,7 +86,6 @@ public final class FamilyLife {
     private BirthLaunch.Plan launch;
     private String landingOutcome="";
     private double landingFromAim=Double.NaN,landingImpactVy,airVy;
-    private final FamilyFlight flight;
     /** This body's handle on the one crew transfer it is part of (as body or as carrier). */
     private final CrewPort crew;
     private final ParentCarry carry;
@@ -102,7 +107,6 @@ public final class FamilyLife {
         careDecisions=new CareDecisionLedger(entity);
         feeding=new FamilyFeeding(this);
         separation=new FamilySeparation(this);
-        flight=new FamilyFlight(this);
         courtship=new Courtship(this);
         catchHat=new CatchHat(this);
         delivery=new LiveDelivery(this);
@@ -142,8 +146,8 @@ public final class FamilyLife {
     ServerLevel level() { return (ServerLevel)entity.level(); }
     YukkuriEntity entity() { return entity; }
     Courtship courtship() { return courtship; }
-    /** Observe movement ownership without advancing the physical birth flight. */
-    public boolean hasFlightArc() { return flight.hasArc(); }
+    /** Observe movement ownership without advancing the drawn birth launch. */
+    public boolean launchInFlight(){ return entity.motor().current() instanceof Launch; }
     boolean rescuingYoung() { return crew.asCarrier(); }
     boolean hatMoving() { return catchHat.moving(); }
     boolean catchDutyGaveUp() { return catchHat.dutyGaveUp(); }
@@ -244,7 +248,7 @@ public final class FamilyLife {
     public boolean elder() { return age>=GrowthTiming.ELDER_START; }
     /** The final child interval is internally still {@link Stage#JUVENILE}; it is a separate age qualification. */
     public boolean subadult() { return age>=GrowthTiming.SUBADULT_START&&age<GrowthTiming.ADULT_START; }
-    public boolean active() { return crew.active()||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||flight.hasArc()
+    public boolean active() { return crew.active()||task!=Task.NONE||laboring()||delivery.recoveryTicks()>0||catchHat.moving()||catchHat.fetching()||launchInFlight()
             ||delivery.comfortActive(); }
     /**
      * An everyday family errand (waiting for, following or looking for a child, staying near the nest) gives way to comforting a hurt kin
@@ -252,7 +256,7 @@ public final class FamilyLife {
      * Before this the parent's standing "wait for the child" errand lasted as long as the child wandered, and the parent never noticed the wound.
      */
     public boolean yieldsToComfort() {
-        return !crew.active()&&!laboring()&&delivery.recoveryTicks()==0&&!catchHat.moving()&&!catchHat.fetching()&&!flight.hasArc()&&!delivery.comfortActive()
+        return !crew.active()&&!laboring()&&delivery.recoveryTicks()==0&&!catchHat.moving()&&!catchHat.fetching()&&!launchInFlight()&&!delivery.comfortActive()
                 &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH);
     }
     public String activity() {
@@ -356,34 +360,47 @@ public final class FamilyLife {
     public void fetchHat(HatBoatEntity hat) { catchHat.fetchHat(hat); }
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
-    /** In a hop, climb or lift (a crew transfer), or a launch arc: the body is not on its own feet. */
-    public boolean flying(){return flight.hasArc()||crew.active();}
-    /** The hat does not collide with its own incoming passenger: a transfer through its rim, or a newborn's launch into it (it must reach seats inside the well). */
+    /** In a hop, climb or lift (a crew transfer), or a drawn birth launch: the body is not on its own feet. */
+    public boolean flying(){return launchInFlight()||crew.active();}
+    /** The hat does not collide with its own incoming passenger: a transfer through its rim, or a newborn launched into it. */
     public boolean boardingThrough(HatBoatEntity hat){
-        return crew.passesThrough(hat)||flight.targets(hat);
+        return crew.passesThrough(hat)||awaitingLanding&&launch!=null&&hat!=null&&hat.getUUID().equals(launch.hat());
     }
     /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
     public boolean playHatOn() { return catchHat.playHatOn(); }
     public boolean hatOnPlaying() { return catchHat.hatOnPlaying(); }
     /** The transfer ticket of this body ends now (death, loading, a decision withdrawn): bodies stay where they physically are. */
     public void cancelCrew(){crew.cancel("external_or_context_lost");}
-    /** Into a free place in the hat (kept for it now; nearest prefer, in hat units, or the usual one), over the brim on
-     *  a parabola. */
     /** How far a newborn may be sent across the water from its mother's outlet into a partner's hat boat alongside. */
     public static final double SHARE_REACH=3.2;
-    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer){ flight.launchInto(hat,tmin,prefer); }
-    static final boolean FLIGHT_DEBUG=false;
-    public void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach){ flight.launchInto(hat,tmin,prefer,reach); }
-    void launchInto(HatBoatEntity hat,int tmin,Vec3 prefer,double reach,double push,double yawDeg,boolean land){ flight.launchInto(hat,tmin,prefer,reach,push,yawDeg,land); }
-    public boolean newbornLaunching(){ return flight.newbornLaunching()||freeFalling(); }
-    /** A newborn between the outlet (or stem) and its first contact: nothing steers or shoves it. */
-    public boolean freeFalling(){ return awaitingLanding&&!entity.onGround()&&!entity.isPassenger()&&!entity.isInWaterOrBubble(); }
-    /** Randomized land launch (live push or stem toss) decided for this newborn; logged once. */
-    void launched(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
-        launch=plan;
-        entity.setDeltaMovement(plan.velocity());entity.hasImpulse=true;entity.getNavigation().stop();
+    /** The newborn's own owner of the drawn birth launch; it stays active until that action ends. */
+    private static final MotorOwner BIRTH_LAUNCH=new MotorOwner(){
+        @Override public String ownerId(){return "birth_launch";}
+        @Override public boolean active(){return true;}
+    };
+    /**
+     * The one birth launch: the caller has already drawn the impulse into {@code plan}, which is kept (and saved) exactly as it was
+     * drawn. The body itself leaves the outlet on its first decision tick, so the action is started from {@link #startBirthLaunch()}
+     * and never from a passive clock; nothing here moves it.
+     */
+    void launch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
+        this.launch=plan;
         logLaunch(plan,brood,index,hat);
     }
+    /**
+     * The pending drawn impulse leaves the body now (called from the newborn's own decision tick, {@code travel}). True means this
+     * tick belongs to the launch: vanilla must not move the body before the first contact check. The stored plan is the only
+     * "pending" state, so a reload mid-flight resumes the same impulse instead of rolling a new one.
+     */
+    public boolean startBirthLaunch(){
+        if(launch==null||launchInFlight()||!awaitingLanding||entity.onGround()||entity.isInWaterOrBubble()||entity.isPassenger())return false;
+        if(!entity.motor().run(BIRTH_LAUNCH,new Launch(launch.velocity(),"birth")))return false;
+        entity.getNavigation().stop();
+        return true;
+    }
+    public boolean newbornLaunching(){ return freeFalling()||launchInFlight(); }
+    /** A newborn between the outlet (or stem) and its first contact: nothing steers or shoves it. */
+    public boolean freeFalling(){ return awaitingLanding&&!entity.onGround()&&!entity.isPassenger()&&!entity.isInWaterOrBubble(); }
     /** A stem fruit comes away with a small random toss; the hat held under the stem, a large nest or the bare ground take it by contact. */
     void tossStem(FamilyData.Brood brood,int index){
         var start=entity.position();
@@ -393,15 +410,8 @@ public final class FamilyLife {
         var centre=mom==null?null:FamilyNest.largeCentre(mom);
         double half=io.github.longshou.mcyukkuri.life.NestResting.LARGE.half();
         var target=hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(start.x-centre.x)<half&&Math.abs(start.z-centre.z)<half?BirthLaunch.Target.NEST:BirthLaunch.Target.GROUND;
-        launched(BirthLaunch.stem(level().random,start,target),brood,index,hat);
+        launch(BirthLaunch.stem(level().random,start,target),brood,index,hat);
     }
-    /** A flight to a hat was started with its own randomized impulse. */
-    void launchedIntoHat(Vec3 aim,Vec3 start,double push,double yaw,FamilyData.Brood brood,int index,HatBoatEntity hat){
-        var velocity=entity.getDeltaMovement();
-        var plan=new BirthLaunch.Plan(BirthLaunch.Target.HAT,start,aim,Double.NaN,Math.hypot(velocity.x,velocity.z)/push,push,yaw,velocity);
-        launch=plan;logLaunch(plan,brood,index,hat);
-    }
-    Vec3 flightDestination(){ return flight.destination(); }
     private void logLaunch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
         GameplayLog.event(entity,"family","birth launch brood={} index={} kind={} target={} hat={} aim={} start={} room={} nominal={} push={} yaw={} velocity={}",
                 brood.id,index,brood.kind,plan.target(),hat==null?null:hat.getUUID(),plan.aim(),plan.start(),
@@ -418,12 +428,6 @@ public final class FamilyLife {
         return landingOutcome+" push="+(launch==null?"n/a":String.format(java.util.Locale.ROOT,"%.2f",launch.push()))
                 +" fromAim="+(Double.isNaN(landingFromAim)?"n/a":String.format(java.util.Locale.ROOT,"%.2f",landingFromAim));
     }
-    /** Pushed too hard: on along the same line past the hat's far brim, down where it comes to the ground or the water. */
-    public void launchPast(HatBoatEntity hat){ flight.launchPast(hat); }
-    /** Called from travel while a checked boarding trajectory or gravity-driven launch owns movement. */
-    public boolean travelFlight(){ return flight.travelFlight(); }
-    /** The own parents' hat (set down to catch, or afloat) with room for this young, within reach. */
-    private HatBoatEntity nearHat(double reach){ return flight.nearHat(reach); }
     /** Aquatic mothers may give birth on a riverbank, which serves as a temporary nest. */
     boolean bankNest(){
         if(entity.subspecies().kind()!=SubspeciesLife.Kind.AQUATIC_MARISA)return false;
@@ -496,8 +500,8 @@ public final class FamilyLife {
         catchHat.tickLinger();
         if(delivery.bumping())delivery.tickBump();
         if(crew.active())return;
-        if(flight.hasArc())return;
         if(awaitingLanding&&!entity.onGround())airVy=entity.getDeltaMovement().y;
+        if(launchInFlight())return;
         if(freeFalling())entity.getNavigation().stop();
         if(handleLanding(true))return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
@@ -525,7 +529,7 @@ public final class FamilyLife {
     }
     /** Pure contact confirmation also runs with AI disabled; optional hat seeking remains an AI behavior. */
     private boolean handleLanding(boolean hopIntoHat) {
-        if(!awaitingLanding||flight.hasArc())return false;
+        if(!awaitingLanding||launchInFlight())return false;
         if(rimRollWait>0){rimRollWait--;return true;}
         if(!(entity.onGround()||entity.isInWaterOrBubble()||entity.getVehicle() instanceof HatBoatEntity))return false;
         // Only real contact decides: the hat, the water, the nest cushion, a nest's soft rim, or the bare ground.
@@ -543,7 +547,10 @@ public final class FamilyLife {
             return true;
         }
         awaitingLanding=false;
-        String outcome=entity.getVehicle() instanceof HatBoatEntity?"HAT":entity.isInWaterOrBubble()?"WATER":pad?"CUSHION":rim!=null?"RIM":"GROUND";
+        // The launch is over: classify only by where the body actually is. The hat it rode, the water it fell into, a nest
+        // bed whose supported floor carries it, a nest's soft rim, or the bare ground.
+        var bed=entity.getVehicle()==null&&!entity.isInWaterOrBubble()?carryingBed():null;
+        String outcome=Attach.of(entity) instanceof AttachState.OnHost?"HAT":entity.isInWaterOrBubble()?"WATER":pad||bed!=null?"CUSHION":rim!=null?"RIM":"GROUND";
         boolean randomized=launch!=null||doomed;
         landingOutcome=outcome;landingImpactVy=airVy;
         landingFromAim=launch==null||launch.aim()==null?Double.NaN:Math.hypot(entity.getX()-launch.aim().x,entity.getZ()-launch.aim().z);
@@ -574,6 +581,16 @@ public final class FamilyLife {
         }
         // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick.
         entity.showReactionDelayed("happy","newborn",100,24);return false;
+    }
+    /** The nest bed whose real supported floor carries this body (spec 7: INSIDE_SUPPORTED), or null on bare ground. */
+    private BedContainer carryingBed(){
+        if(!entity.onGround()||entity.isInWaterOrBubble())return null;
+        var box=entity.getBoundingBox();
+        for(var pos:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY-.01,box.minZ),BlockPos.containing(box.maxX,box.maxY,box.maxZ))){
+            var bed=BedContainer.of(entity,pos);
+            if(bed!=null&&Occupancy.of(entity,bed)==Occupancy.INSIDE_SUPPORTED)return bed;
+        }
+        return null;
     }
     /** Called once when a real sleep completes. Neither observation nor time-of-day commands grow the entity. */
     public boolean woke() {
@@ -1172,7 +1189,6 @@ public final class FamilyLife {
         if(awaitingLanding&&launch!=null)tag.put("BirthLaunch",BirthLaunch.save(launch));
         delivery.save(tag);
         catchHat.save(tag);
-        flight.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
         tag.put("CareDecisions",careDecisions.save());
         feeding.save(tag);
@@ -1197,7 +1213,6 @@ public final class FamilyLife {
                 ?BirthLaunch.load(tag.getCompound("BirthLaunch")):null;
         delivery.load(tag);
         catchHat.load(tag);
-        flight.load(tag);
         // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
         careDecisions.load(tag.getCompound("CareDecisions"));
