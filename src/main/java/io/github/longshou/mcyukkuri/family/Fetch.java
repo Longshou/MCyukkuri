@@ -14,7 +14,7 @@ import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -42,12 +42,12 @@ public final class Fetch implements HostIntent {
 
     private final YukkuriEntity child;
     private final YukkuriEntity taker;
-    private final HatBoatEntity hat;
+    private final PlacedHatEntity hat;
     private final long started;
     /** Landings this young already failed to be released at; the next method goes somewhere else. */
     private final List<Vec3> tried = new ArrayList<>();
 
-    public Fetch(YukkuriEntity child, YukkuriEntity taker, HatBoatEntity hat) {
+    public Fetch(YukkuriEntity child, YukkuriEntity taker, PlacedHatEntity hat) {
         this.child = child;
         this.taker = taker;
         this.hat = hat;

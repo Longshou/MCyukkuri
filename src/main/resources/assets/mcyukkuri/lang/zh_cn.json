@@ -648,7 +648,6 @@
   "badge.mcyukkuri.help.12": "仅主人可指挥有章、教育达标的捕食种；归巢需要已登记巢穴。",
   "badge.mcyukkuri.action.13": "返回巢穴",
   "badge.mcyukkuri.help.13": "仅主人可指挥有章、教育达标的捕食种；归巢需要已登记巢穴。",
-  "entity.mcyukkuri.hat_boat": "帽船",
   "subspecies.mcyukkuri.kind.normal": "普通形态",
   "subspecies.mcyukkuri.kind.shell_marisa": "螺壳魔理沙",
   "subspecies.mcyukkuri.kind.aquatic_marisa": "水生魔理沙",
@@ -6393,5 +6392,6 @@
   "block.mcyukkuri.large_yukkuri_nest": "油库里大编织软窝",
   "item.mcyukkuri.large_yukkuri_nest": "油库里大编织软窝",
   "block.mcyukkuri.large_wild_nest": "野生大草窝",
-  "item.mcyukkuri.large_wild_nest": "野生大草窝"
+  "item.mcyukkuri.large_wild_nest": "野生大草窝",
+  "entity.mcyukkuri.placed_hat": "放下的帽子"
 }

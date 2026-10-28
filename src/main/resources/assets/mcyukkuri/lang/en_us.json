@@ -648,7 +648,6 @@
   "badge.mcyukkuri.help.12": "Owner command; requires a badge and sufficient education. Returning needs a registered nest.",
   "badge.mcyukkuri.action.13": "Return to nest",
   "badge.mcyukkuri.help.13": "Owner command; requires a badge and sufficient education. Returning needs a registered nest.",
-  "entity.mcyukkuri.hat_boat": "Hat boat",
   "subspecies.mcyukkuri.kind.normal": "Ordinary form",
   "subspecies.mcyukkuri.kind.shell_marisa": "Shell Marisa",
   "subspecies.mcyukkuri.kind.aquatic_marisa": "Aquatic Marisa",
@@ -6395,5 +6394,6 @@
   "block.mcyukkuri.large_yukkuri_nest": "Large Woven Yukkuri Nest",
   "item.mcyukkuri.large_yukkuri_nest": "Large Woven Yukkuri Nest",
   "block.mcyukkuri.large_wild_nest": "Large Wild Grass Nest",
-  "item.mcyukkuri.large_wild_nest": "Large Wild Grass Nest"
+  "item.mcyukkuri.large_wild_nest": "Large Wild Grass Nest",
+  "entity.mcyukkuri.placed_hat": "Placed hat"
 }

@@ -11,8 +11,8 @@ import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,10 +47,10 @@ final class CatchHat {
     private int fetchPassengers, retrieveTicks;
     /** Presentation of the last executed duty phase, never a probe that starts or changes the duty. */
     private String dutyActivity=Behaviors.IDLE;
-    private HatBoatEntity fetching;
+    private PlacedHatEntity fetching;
     /** The NEST unload of {@link #fetching}, recreated after a reload and never saved (spec 11.2, 12). */
     private IntentRunner runner;
-    private HatBoatEntity runnerHat;
+    private PlacedHatEntity runnerHat;
     private boolean dutyGaveUp;
     private long fetchRetryAt;
     /** The helper's confirmed land hat and the mother pose it was placed for. */
@@ -105,11 +105,11 @@ final class CatchHat {
 
     /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it upside down
      *  before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it). */
-    static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role){
-        var place=HatVessel.placement(role);
-        double k=HatVessel.hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
+    static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatGeometry.Role role){
+        var place=HatGeometry.placement(role);
+        double k=HatGeometry.hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
         var forward=Vec3.directionFromRotation(0,mother.yBodyRot);float yaw=mother.yBodyRot+place.hatYawInMother();
-        if(role==HatVessel.Role.SELF){
+        if(role==HatGeometry.Role.SELF){
             var at=FamilyGeometry.toWorld(mother,place.offset().scale(mother.growthScale()/16));
             return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,role);
         }
@@ -137,7 +137,7 @@ final class CatchHat {
         if(brood.kind==FamilyData.BirthKind.LIVE)while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
         // The long axis across her, the near brim just beyond the live exit and the newborn's round body: she pushes it
         // out over the brim into the hat.
-        double r=HatVessel.radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
+        double r=HatGeometry.radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
         var at=LiveBirthGeometry.position(mother,next).add(forward.scale(r+place.gap()*body+place.nearBrim()*k));
         return new HatPose(new Vec3(at.x,mother.getY(),at.z),yaw,role);
     }
@@ -145,19 +145,19 @@ final class CatchHat {
     /** Least distance from the mother's centre to a stem catch hat's centre: her body's half width and the opening's half
      *  length along the hat, so the fruit falls into the opening rather than onto her; the brim lip may lie under her. */
     static double stemClearance(YukkuriEntity mother,YukkuriEntity catcher){
-        double k=HatVessel.hatScale(catcher)*catcher.getScale()/16;
-        return mother.getBbWidth()*.5+HatVessel.opening()[3]*k;
+        double k=HatGeometry.hatScale(catcher)*catcher.getScale()/16;
+        return mother.getBbWidth()*.5+HatGeometry.opening()[3]*k;
     }
 
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     static Stand stand(HatPose pose,YukkuriEntity catcher){
-        var place=HatVessel.placement(pose.role());float yaw=pose.yaw()-place.yaw();
+        var place=HatGeometry.placement(pose.role());float yaw=pose.yaw()-place.yaw();
         var offset=new Vec3(place.offset().x,0,place.offset().z).scale(catcher.growthScale()*catcher.getScale()/16);
         var at=pose.at().subtract(offset.yRot((float)Math.toRadians(180-yaw)));
         return new Stand(new Vec3(at.x,pose.at().y,at.z),yaw);
     }
 
-    private static HatPose poseOf(HatBoatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.role());}
+    private static HatPose poseOf(PlacedHatEntity hat){return new HatPose(hat.position(),hat.getYRot(),hat.role());}
 
     /** The ground where the hat would go takes it. */
     private boolean settles(HatPose pose){
@@ -281,7 +281,7 @@ final class CatchHat {
     }
 
     private HatPose atStation(YukkuriEntity mother,FamilyData.Brood brood,FamilyLife.DeliveryStation site) {
-        var pose=catchPose(mother,brood,o.entity(),HatVessel.Role.HELPER);
+        var pose=catchPose(mother,brood,o.entity(),HatGeometry.Role.HELPER);
         float turn=site.yaw()-mother.yBodyRot;
         var at=site.at().add(pose.at().subtract(mother.position()).yRot((float)Math.toRadians(-turn)));
         return new HatPose(at,pose.yaw()+turn,pose.role());
@@ -293,8 +293,8 @@ final class CatchHat {
         if(!settles(pose))return "hat_support";
         if(!SurfaceApproach.supported(o.entity(),helper.at()))return "helper_support";
         // Check the whole visible brim, not just the centre block beneath the hat.
-        double unit=HatVessel.hatScale(o.entity())*o.entity().getScale()/16;
-        var brim=HatVessel.brim();double width=Math.max(brim[0],brim[1])*unit;
+        double unit=HatGeometry.hatScale(o.entity())*o.entity().getScale()/16;
+        var brim=HatGeometry.brim();double width=Math.max(brim[0],brim[1])*unit;
         var hatBox=new AABB(pose.at().x-width,pose.at().y+.01,pose.at().z-width,
                 pose.at().x+width,pose.at().y+.3,pose.at().z+width);
         var motherBox=motherAt(mother,brood,site.at());
@@ -404,8 +404,8 @@ final class CatchHat {
     FamilyLife.DeliveryStation deliveryStation(YukkuriEntity mother,FamilyData.Brood brood) {
         if(mother==null||brood==null||brood.id==null||!brood.id.equals(deliveryBrood)||deliveryHat==null||deliveryStation==null||deliveryHatAt==null
                 ||!o.entity().getUUID().equals(brood.father)||!mother.getUUID().equals(brood.mother)||!o.dutyReady())return null;
-        if(!(o.level().getEntity(deliveryHat) instanceof HatBoatEntity hat)||hat.isRemoved()||!hat.isCradle()||!hat.catches()
-                ||hat.role()!=HatVessel.Role.HELPER||!o.entity().getUUID().equals(hat.ownerYukkuri())){
+        if(!(o.level().getEntity(deliveryHat) instanceof PlacedHatEntity hat)||hat.isRemoved()||!hat.isCradle()||!hat.catches()
+                ||hat.role()!=HatGeometry.Role.HELPER||!o.entity().getUUID().equals(hat.ownerYukkuri())){
             clearDeliveryStation();return null;
         }
         var moved=hat.position().subtract(deliveryHatAt);float turned=Mth.wrapDegrees(hat.getYRot()-deliveryHatYaw);
@@ -446,9 +446,9 @@ final class CatchHat {
         dutyBrood=deliveryBrood;
     }
 
-    private boolean rememberDeliveryStation(HatAction committed,HatBoatEntity hat) {
+    private boolean rememberDeliveryStation(HatAction committed,PlacedHatEntity hat) {
         if(committed==null||committed.move()!=HatMove.OFF||committed.brood()==null||committed.motherAt()==null||committed.pose()==null
-                ||hat==null||!hat.isCradle()||committed.pose().role()!=HatVessel.Role.HELPER)return false;
+                ||hat==null||!hat.isCradle()||committed.pose().role()!=HatGeometry.Role.HELPER)return false;
         deliveryBrood=committed.brood();deliveryHat=hat.getUUID();deliveryStation=committed.motherAt().at();deliveryStationYaw=committed.motherAt().yaw();
         deliveryHatAt=committed.pose().at();deliveryHatYaw=committed.pose().yaw();
         return true;
@@ -457,9 +457,9 @@ final class CatchHat {
     private void clearDeliveryStation(){deliveryBrood=deliveryHat=null;deliveryStation=deliveryHatAt=null;deliveryStationYaw=deliveryHatYaw=0;}
 
     /** This Marisa's hat, set down nearby to catch. */
-    HatBoatEntity cradleEntity() {
+    PlacedHatEntity cradleEntity() {
         if(o.entity().level().isClientSide)return null;
-        return o.level().getEntitiesOfClass(HatBoatEntity.class,o.entity().getBoundingBox().inflate(16),b->b.catches()&&o.entity().getUUID().equals(b.ownerYukkuri()))
+        return o.level().getEntitiesOfClass(PlacedHatEntity.class,o.entity().getBoundingBox().inflate(16),b->b.catches()&&o.entity().getUUID().equals(b.ownerYukkuri()))
                 .stream().findFirst().orElse(null);
     }
 
@@ -469,19 +469,19 @@ final class CatchHat {
         var pending=o.brood();return pending!=null&&!pending.cancelled&&!pending.complete();
     }
 
-    private boolean ownsCradle(HatBoatEntity hat){
+    private boolean ownsCradle(PlacedHatEntity hat){
         return hat!=null&&!hat.isRemoved()&&hat.catches()&&hat.ownsPhysicalHat(o.entity());
     }
 
     /** An absent owner is not a death report: only the saved family ledger may open this one-parent release duty. */
-    private boolean foreignDeadOwnerCradle(HatBoatEntity hat){
+    private boolean foreignDeadOwnerCradle(PlacedHatEntity hat){
         if(hat==null||hat.isRemoved()||!hat.catches()||hat.ownerYukkuri()==null||hat.ownerYukkuri().equals(o.entity().getUUID()))return false;
         var owner=FamilyData.get(o.level()).person(hat.ownerYukkuri());
         return owner!=null&&owner.status==FamilyData.Status.DEAD;
     }
 
     /** The survivor may release exactly their own live dependent riders, never adopt the dead owner's other riders. */
-    private boolean ownYoungAboard(HatBoatEntity hat){
+    private boolean ownYoungAboard(PlacedHatEntity hat){
         return hat!=null&&hat.getPassengers().stream().anyMatch(rider->rider instanceof YukkuriEntity young
                 &&young.isAlive()&&!young.family().adult()&&Bonds.parentOf(o.entity(),young));
     }
@@ -494,7 +494,7 @@ final class CatchHat {
     boolean claimParentCradle(){
         if(o.entity().level().isClientSide||o.task()!=Task.NONE||o.brood()!=null||!dutyReady()||moving()||fetching!=null
                 ||o.level().getGameTime()<fetchRetryAt)return false;
-        var cradle=o.level().getEntitiesOfClass(HatBoatEntity.class,o.entity().getBoundingBox().inflate(48),
+        var cradle=o.level().getEntitiesOfClass(PlacedHatEntity.class,o.entity().getBoundingBox().inflate(48),
                         hat->foreignDeadOwnerCradle(hat)&&ownYoungAboard(hat)).stream()
                 .min(Comparator.comparingDouble(o.entity()::distanceToSqr)).orElse(null);
         if(cradle==null)return false;
@@ -513,7 +513,7 @@ final class CatchHat {
         refusal=actionRefusal(running,true);
         if(refusal!=null){stopAction(refusal);return;}
         if(running.move()==HatMove.OFF||running.move()==HatMove.OFF_SELF){
-            var down=HatBoatEntity.setDown(o.entity(),running.pose().at(),running.pose().yaw(),running.pose().role());
+            var down=PlacedHatEntity.setDown(o.entity(),running.pose().at(),running.pose().yaw(),running.pose().role());
             // A hat that cannot be set down is a failed catch, not a clip to repeat for ever.
             if(down==null){
                 dutyGaveUp=true;
@@ -560,7 +560,7 @@ final class CatchHat {
      * back on with the authored clip. The intent's own deadline, attempt budget and {@code [intent]}/{@code [method]} lines
      * replace the per-rider counter, the release pause and the fixed timeout the deck flow still uses.
      */
-    private void unload(HatBoatEntity hat,boolean onlyOwnYoung){
+    private void unload(PlacedHatEntity hat,boolean onlyOwnYoung){
         if(runner==null||runnerHat!=hat){
             runner=new IntentRunner(o.entity(),new Unload(hat,o.entity(),onlyOwnYoung),"unload")
                     .target(()->new IntentRunner.Target(o.entity().position(),hat.position(),Set.of()));
@@ -579,7 +579,7 @@ final class CatchHat {
     }
 
     /** Walk to the placement stand and take the empty hat back; a stand that cannot be reached is given the same finite window. */
-    private void retrieve(HatBoatEntity hat,Stand stand){
+    private void retrieve(PlacedHatEntity hat,Stand stand){
         if(++retrieveTicks>Unload.DEADLINE_TICKS){
             GameplayLog.event(o.entity(),"family","catch cleanup interrupted hat={} passengers={} reason=retrieve_timeout",
                     hat.getUUID(),hat.getPassengers().size());
@@ -592,7 +592,7 @@ final class CatchHat {
         if(hat.retrieve(o.entity())){
             GameplayLog.event(o.entity(),"family","catch cleanup completed hat={} passengers=0",hat.getUUID());
             endFetch("completed");
-            beginHat(role==HatVessel.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
+            beginHat(role==HatGeometry.Role.SELF?HatMove.ON_SELF:HatMove.ON,null,stand);
         }
     }
 
@@ -608,7 +608,7 @@ final class CatchHat {
      */
     boolean needsSelfCatch(FamilyData.Brood brood){
         if(brood==null||dutyGaveUp||o.withholdsCushion()||!o.acceptsCatch(brood)||catcher(o.entity(),brood)!=o.entity()||cradleEntity()!=null)return false;
-        var pose=catchPose(o.entity(),brood,o.entity(),HatVessel.Role.SELF);
+        var pose=catchPose(o.entity(),brood,o.entity(),HatGeometry.Role.SELF);
         return settles(pose);
     }
 
@@ -616,12 +616,12 @@ final class CatchHat {
     boolean catchAlone(FamilyData.Brood brood){
         if(moving())return true;
         if(!needsSelfCatch(brood))return false;
-        var pose=catchPose(o.entity(),brood,o.entity(),HatVessel.Role.SELF);
+        var pose=catchPose(o.entity(),brood,o.entity(),HatGeometry.Role.SELF);
         return beginHat(HatMove.OFF_SELF,pose,stand(pose,o.entity()));
     }
 
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. A dead owner's hat is release-only. */
-    void fetchHat(HatBoatEntity hat){if(!moving()&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt
+    void fetchHat(PlacedHatEntity hat){if(!moving()&&fetching==null&&!o.entity().isPassenger()&&o.level().getGameTime()>=fetchRetryAt
             &&(ownsCradle(hat)||foreignDeadOwnerCradle(hat)&&ownYoungAboard(hat))){
         fetching=hat;fetchTicks=0;fetchPassengers=hat.getPassengers().size();releaseWait=0;retrieveTicks=0;runner=null;runnerHat=null;
         GameplayLog.limited(o.entity(),"family","catch.cleanup",200,"catch cleanup started hat={} passengers={} foreign={}",
@@ -717,7 +717,7 @@ final class CatchHat {
                 return;
             }
         }
-        var pose=mayCatch?catchPose(mate,b,o.entity(),HatVessel.Role.HELPER):null;
+        var pose=mayCatch?catchPose(mate,b,o.entity(),HatGeometry.Role.HELPER):null;
         if(pose!=null&&settles(pose)){
             // Walk to the place beside the outlet; the braid takes the hat off and sets it down there.
             beginHat(HatMove.OFF,pose,stand(pose,o.entity()));

@@ -826,7 +826,6 @@
   "item.mcyukkuri.reproductive_filling": "生殖用の餡",
   "human.mcyukkuri.line_status.6": "作業場の一部が未読み込み",
   "human.mcyukkuri.line_status.7": "トレーが未読み込み",
-  "entity.mcyukkuri.hat_boat": "帽子船",
   "subspecies.mcyukkuri.kind.normal": "通常の姿",
   "subspecies.mcyukkuri.kind.shell_marisa": "つむりまりさ",
   "subspecies.mcyukkuri.kind.aquatic_marisa": "水生まりさ",
@@ -6337,5 +6336,6 @@
   "shop.mcyukkuri.consult.stress": "現在のストレス：%s",
   "shop.mcyukkuri.consult.exam_tasks": "試験は習得した技能と実際の課題達成で判定します。",
   "exam.mcyukkuri.profile.traits": "知能 %s・友善 %s・自制 %s",
-  "item.mcyukkuri.marisa_aquatic_hat": "水上まりさのぼうし"
+  "item.mcyukkuri.marisa_aquatic_hat": "水上まりさのぼうし",
+  "entity.mcyukkuri.placed_hat": "置いた帽子"
 }

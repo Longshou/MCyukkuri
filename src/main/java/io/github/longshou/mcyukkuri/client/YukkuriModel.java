@@ -18,7 +18,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1086,7 +1086,7 @@ public final class YukkuriModel {
             }
             if(bone.parent<0)matrix.set(local);else matrix.set(world[bone.parent]).mul(local);
             if(hatScale!=1&&i==hatFollowBone()){
-                var a=HatVessel.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
+                var a=HatGeometry.anchor();matrix.translate(a).scale(hatScale).translate(a.negate());
             }
             if(i==hatFollowBone()&&selfHatPose!=null)matrix.set(selfHatPose);
         }
@@ -1138,7 +1138,7 @@ public final class YukkuriModel {
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
-            hatScale=HatVessel.hatMultiplier(entity.subspeciesFlags());
+            hatScale=HatGeometry.hatMultiplier(entity.subspeciesFlags());
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
@@ -1196,7 +1196,7 @@ public final class YukkuriModel {
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
-        hatScale=HatVessel.hatMultiplier(in.subspeciesFlags());
+        hatScale=HatGeometry.hatMultiplier(in.subspeciesFlags());
         boolean accessory=in.accessory();
         int headwear=in.headwear();hatDamageDraw.visual(headwear);
         try{

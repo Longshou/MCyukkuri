@@ -42,7 +42,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.settlement.Homes;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -561,7 +561,7 @@ public final class FamilyData extends SavedData {
      * Where this kit would get next on the hat, read only: the aim of its drawn launch. Never kept for it, and the actual
      * landing is still decided by its first real contact with the surface.
      */
-    private static Vec3 launchPlace(HatBoatEntity hat,YukkuriEntity child){
+    private static Vec3 launchPlace(PlacedHatEntity hat,YukkuriEntity child){
         var place=hat.birthPlace(child);
         if(place!=null)return place;
         var centre=hat.spots().get("centre");
@@ -613,7 +613,7 @@ public final class FamilyData extends SavedData {
         entity.setPersistenceRequired();
         YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
         boolean noCushion=unprotected||scene!=null&&scene.family().withholdsCushion();
-        HatBoatEntity landHat=null;
+        PlacedHatEntity landHat=null;
         if(unprotected?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
                 :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
         if(scene!=null&&!noCushion){

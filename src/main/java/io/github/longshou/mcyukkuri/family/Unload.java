@@ -11,7 +11,7 @@ import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,13 +32,13 @@ public final class Unload implements HostIntent {
     /** Ticks a capable young gets to hop off by itself before the taker fetches it. */
     static final int HOP_WAIT_TICKS = 100;
 
-    private final HatBoatEntity hat;
+    private final PlacedHatEntity hat;
     private final YukkuriEntity taker;
     private final boolean onlyOwnYoung;
     private final long started;
 
     /** @param onlyOwnYoung a surviving parent of a dead owner's hat may unload exactly their own dependent young */
-    public Unload(HatBoatEntity hat, YukkuriEntity taker, boolean onlyOwnYoung) {
+    public Unload(PlacedHatEntity hat, YukkuriEntity taker, boolean onlyOwnYoung) {
         this.hat = hat;
         this.taker = taker;
         this.onlyOwnYoung = onlyOwnYoung;

@@ -7,31 +7,24 @@ import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 
 /**
- * Where one individual's hat is: the single record that replaces the four places (accessory custody index, subspecies boat id,
- * first-voyage retained token, the boat's own token) that used to be kept in step by hand. Every read is a pure function of this
- * record; every change is one of the named transitions, each logged once as {@code [headwear] custody A -> B}.
+ * Where one individual's hat is: the single record of the hat's own token while it is on the head, the real entity it became when
+ * set down, and its end. Every read is a pure function of this record; every change is one of the named transitions, each logged
+ * once as {@code [headwear] custody A -> B}.
  *
  * <pre>
- *  WORN            on the head (the token of its last voyage is kept so the same hat keeps its identity)
- *  DEPLOYED        the hat is a hull the owner sails or has moored; boat + token
- *  HELD_BY_PARENT  on the head again but carrying the token and provisions of its last voyage (a child's hat taken in by the
- *                  parent's hull, any captain's hat stowed ashore); they go back into the hull when it is set down again
- *  ADRIFT          the owner is not aboard her own afloat hull (thrown out, or not yet back); boat + since
- *  LOST            no longer in her custody; cause says why. A hat lost by drifting keeps its token and hull as a way back in:
- *                  only a real boarding reopens it.
+ *  WORN            on the head; the token of the hat now set down is kept so the same physical hat keeps its identity
+ *  DEPLOYED        the hat is the real entity the owner set down; placed entity + token
+ *  LOST            no longer in her custody; cause says why.
  * </pre>
  */
 public final class HatCustody {
-    public enum State { WORN, DEPLOYED, HELD_BY_PARENT, ADRIFT, LOST }
+    public enum State { WORN, DEPLOYED, LOST }
 
     private final YukkuriEntity owner;
     private State state = State.WORN;
     private UUID token, boat;
     private long since;
     private String cause = "";
-    private CompoundTag cargo;
-    /** Project balance: an observed, empty, free-floating hat that stays 96 blocks away for one minute is no longer custody. */
-    private int awayTicks;
     /** Finite claims of the existing physical hat; rebuilt from custody after loading, never a second hat ledger. */
     private UUID reclaimHat, reclaimAssignee;
     private long reclaimLease, reclaimRetry;
@@ -40,38 +33,19 @@ public final class HatCustody {
 
     // ---------------------------------------------------------------- pure reads
     public State state() { return state; }
-    /** The hat is on the head (possibly with the provisions of its last voyage). */
-    public boolean worn() { return state == State.WORN || state == State.HELD_BY_PARENT; }
-    /** A physical hull is the hat: deployed or adrift. */
-    public boolean custodied() { return state == State.DEPLOYED || state == State.ADRIFT; }
-    public boolean adrift() { return state == State.ADRIFT; }
+    /** The hat is on the head. */
+    public boolean worn() { return state == State.WORN; }
+    /** The real placed hat is the hat. */
+    public boolean custodied() { return state == State.DEPLOYED; }
     public boolean lost() { return state == State.LOST; }
     public UUID token() { return token; }
-    /** The hull while it is the hat, else null. */
+    /** The placed hat while it is the hat, else null. */
     public UUID boat() { return custodied() ? boat : null; }
-    /** The hull last known, also after the custody ended: where to look, never a grant of ownership. */
-    public UUID boatHint() { return boat; }
     public long since() { return since; }
     public String cause() { return cause; }
     /** This owner and token name the hat that is off the head. */
     public boolean matches(UUID ownerId, UUID tokenId) { return !worn() && owner.getUUID().equals(ownerId) && token != null && token.equals(tokenId); }
-    /** As {@link #matches} for a custody that has not ended and, when a hull is recorded, is that hull. */
-    public boolean matchesBoat(UUID boatId, UUID ownerId, UUID tokenId) {
-        return state != State.LOST && matches(ownerId, tokenId) && (boat == null || boat.equals(boatId));
-    }
-    public int retainedFoodCount() {
-        if (cargo == null) return 0;
-        int count = 0;
-        for (var raw : cargo.getList("Food", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
-            var stack = net.minecraft.world.item.ItemStack.parseOptional(owner.registryAccess(), (CompoundTag) raw);
-            count += stack.getCount();
-        }
-        return count;
-    }
-    /** The provisions of the last voyage, or null. */
-    public CompoundTag retainedCargo() { return cargo; }
-    public UUID retainedToken() { return state == State.HELD_BY_PARENT ? token : null; }
-    public String detail() { return "custody=" + state.name().toLowerCase(java.util.Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")") + " drifting=" + awayTicks
+    public String detail() { return "custody=" + state.name().toLowerCase(java.util.Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
             + " reclaim=" + reclaimHat + " claimant=" + reclaimAssignee; }
 
     public void requestReclaim(String why) {
@@ -119,7 +93,6 @@ public final class HatCustody {
         if (token == null) token = UUID.randomUUID();
         boat = hull;
         cause = "";
-        awayTicks = 0;
         go(State.DEPLOYED, "deploy");
         return token;
     }
@@ -130,8 +103,7 @@ public final class HatCustody {
         token = tokenId;
         boat = null;
         cause = "";
-        awayTicks = 0;
-        go(cargo != null ? State.HELD_BY_PARENT : State.WORN, why);
+        go(State.WORN, why);
     }
 
     /** The hat is worn as a new, plain hat (restored, replaced, handed over by a player). */
@@ -139,71 +111,16 @@ public final class HatCustody {
         finishReclaim("expired", why);
         token = null;
         boat = null;
-        cargo = null;
         cause = "";
-        awayTicks = 0;
         go(State.WORN, why);
     }
 
-    /** The provisions of the hat's last voyage ride with it until it is set down again. */
-    public void retain(UUID tokenId, CompoundTag provisions) {
-        if (!worn()) return;
-        token = tokenId;
-        cargo = provisions.copy();
-        go(State.HELD_BY_PARENT, "retain");
-    }
-
-    /** Whether new provisions can be kept under this token: nothing is held, or it is the same hat. */
-    public boolean canRetain(UUID tokenId) { return cargo == null || tokenId.equals(token); }
-
-    /** The provisions go back into the hull the hat was just set down as. */
-    public CompoundTag releaseCargo() {
-        var kept = cargo;
-        cargo = null;
-        return kept;
-    }
-
-    /** The provisions are dropped (death, landing, the hat taken away). */
-    public CompoundTag dropCargo() {
-        var kept = cargo;
-        cargo = null;
-        if (state == State.HELD_BY_PARENT) go(State.WORN, "cargo_dropped");
-        return kept;
-    }
-
-    /** The owner is not aboard her own afloat hull: thrown out, or fallen in. */
-    public void adrift(UUID hull, String why) {
-        if (state != State.DEPLOYED) return;
-        boat = hull;
-        go(State.ADRIFT, why);
-        requestReclaim(why);
-    }
-
-    /** A real boarding of the hull the token belongs to reopens the custody, also after a loss by drifting. */
-    public void board(UUID hull, String why) {
-        if (worn() || token == null || state == State.DEPLOYED && hull.equals(boat)) return;
-        boat = hull;
-        cause = "";
-        awayTicks = 0;
-        go(State.DEPLOYED, why);
-        finishReclaim("done", why);
-    }
-
-    /** The custody ends. {@code keepToken} leaves a way back (a hat lost by drifting can still be boarded); a taken or destroyed hat has none. */
+    /** The custody ends. {@code keepToken} leaves a way back through the same physical hat; a taken or destroyed hat has none. */
     public void lose(String why, boolean keepToken) {
         finishReclaim("expired", why);
         cause = why;
         if (!keepToken) { token = null; boat = null; }
-        awayTicks = 0;
         go(State.LOST, why);
-    }
-
-    // ---------------------------------------------------------------- drifting away
-    /** Observed evidence only: an empty free-floating hull more than 96 blocks away for a minute. */
-    public void away(boolean farAndEmpty, int ticks) {
-        if (!farAndEmpty) { awayTicks = 0; return; }
-        awayTicks += ticks;
-        if (awayTicks >= 1200 && custodied()) lose("drifted_away", true);
     }
 
     // ---------------------------------------------------------------- persistence
@@ -214,8 +131,6 @@ public final class HatCustody {
         if (boat != null) t.putUUID("Boat", boat);
         t.putLong("Since", since);
         if (!cause.isEmpty()) t.putString("Cause", cause);
-        if (cargo != null) t.put("Cargo", cargo.copy());
-        if (awayTicks > 0) t.putInt("Away", awayTicks);
         tag.put("HatCustody", t);
     }
 
@@ -226,8 +141,6 @@ public final class HatCustody {
         boat = t.hasUUID("Boat") ? t.getUUID("Boat") : null;
         since = t.getLong("Since");
         cause = t.getString("Cause");
-        cargo = t.contains("Cargo") ? t.getCompound("Cargo").copy() : null;
-        awayTicks = Math.clamp(t.getInt("Away"), 0, 1200);
         if (wornFlag != worn()) state = wornFlag ? State.WORN : (custodiedFallback() ? State.DEPLOYED : State.LOST);
         reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
     }

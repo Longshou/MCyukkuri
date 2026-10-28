@@ -2,8 +2,8 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -15,8 +15,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Read-only outlet selection. Admission and the eventual birth remain real, separate transactions. */
 public final class BirthExit {
-    public record Dropzone(Vec3 position,String kind,double reach,int priority,HatBoatEntity hat,int slot,HatBoatEntity.NewbornAdmission admission){
-        public Dropzone(Vec3 position,String kind,double reach,int priority){this(position,kind,reach,priority,null,-1,HatBoatEntity.NewbornAdmission.NONE);}
+    public record Dropzone(Vec3 position,String kind,double reach,int priority,PlacedHatEntity hat,int slot,PlacedHatEntity.NewbornAdmission admission){
+        public Dropzone(Vec3 position,String kind,double reach,int priority){this(position,kind,reach,priority,null,-1,PlacedHatEntity.NewbornAdmission.NONE);}
     }
     public record Exit(float yaw,Vec3 outletPos,String targetKind,String reason,int candidates,Dropzone target){
         public boolean safe(){return reason.isEmpty();}
@@ -25,7 +25,7 @@ public final class BirthExit {
         var brood=mother.family().brood();
         if(brood==null||index<0||index>=brood.children.size())return none(mother,index,0);
         var child=brood.children.get(index);var zones=new ArrayList<Dropzone>();
-        for(var hat:mother.level().getEntitiesOfClass(HatBoatEntity.class,mother.getBoundingBox().inflate(3),h->h.catches()
+        for(var hat:mother.level().getEntitiesOfClass(PlacedHatEntity.class,mother.getBoundingBox().inflate(3),h->h.catches()
                 &&(mother.getUUID().equals(h.ownerYukkuri())||brood.father!=null&&brood.father.equals(h.ownerYukkuri()))))
             addSeats(zones,hat,brood,child,mother.position(),"catch_hat",1.25,0);
         var nest=FamilyNest.largeCentre(mother);
@@ -63,7 +63,7 @@ public final class BirthExit {
         }
         return best==null?none(mother,index,angles.size()):best;
     }
-    private static void addSeats(List<Dropzone> zones,HatBoatEntity hat,FamilyData.Brood brood,FamilyData.Child child,
+    private static void addSeats(List<Dropzone> zones,PlacedHatEntity hat,FamilyData.Brood brood,FamilyData.Child child,
                                  Vec3 from,String kind,double reach,int priority){
         for(var seat:hat.birthSeatChoices(brood.kind,child,from))
             zones.add(new Dropzone(seat.position(),kind,reach,priority,hat,seat.slot(),seat.admission()));
@@ -143,7 +143,7 @@ public final class BirthExit {
     }
     private static boolean flightClear(YukkuriEntity mother,FamilyData.Child child,float yaw,Vec3 outlet,Dropzone zone){
         return BirthFlightPath.plan(BirthFlightPath.unborn(mother,child,yaw),zone.hat(),outlet,zone.position(),
-                Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS))>0;
+                Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS))>0;
     }
     private static Exit none(YukkuriEntity mother,int index,int candidates){
         return new Exit(mother.yBodyRot,LiveBirthGeometry.position(mother,index),"none","no_safe_exit",candidates,null);

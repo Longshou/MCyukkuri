@@ -10,7 +10,7 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;

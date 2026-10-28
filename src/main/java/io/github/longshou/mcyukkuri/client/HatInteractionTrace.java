@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -71,7 +71,7 @@ public final class HatInteractionTrace {
     private static String nearbyHats(Entity player, Vec3 cameraPosition, Vec3 view, double reach) {
         Vec3 end = cameraPosition.add(view.scale(reach));
         AABB corridor = new AABB(cameraPosition, end).inflate(1.25);
-        List<HatBoatEntity> hats = player.level().getEntitiesOfClass(HatBoatEntity.class, corridor,
+        List<PlacedHatEntity> hats = player.level().getEntitiesOfClass(PlacedHatEntity.class, corridor,
                 hat -> !hat.isRemoved()).stream()
                 .sorted(Comparator.comparingDouble(hat -> rayDistance(cameraPosition, view, reach, hat.position())))
                 .limit(3)

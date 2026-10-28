@@ -11,7 +11,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
@@ -483,7 +483,7 @@ final class LiveDelivery {
                 &&!other.isNoAi()&&!other.isPanicking()&&!other.life().isSleeping()&&!other.family().awaitingLanding()
                 &&(other.getUUID().equals(o.partner())||o.entity().getUUID().equals(other.family().mother())));
         boolean hurt=baby.family().bumped();
-        if(welcomeTicks==WELCOME-20&&!hurt)BirthStaging.caption(o.entity(),baby.getVehicle() instanceof HatBoatEntity?"新生儿落进帽中，被稳稳接住":"新生儿落在地面（这一胎没有放帽）");
+        if(welcomeTicks==WELCOME-20&&!hurt)BirthStaging.caption(o.entity(),baby.getVehicle() instanceof PlacedHatEntity?"新生儿落进帽中，被稳稳接住":"新生儿落在地面（这一胎没有放帽）");
         // The father hurries to a newborn that fell hard, wherever he is standing.
         if(hurt&&welcomeTicks==WELCOME-6&&o.partner()!=null&&o.level().getEntity(o.partner()) instanceof YukkuriEntity mate&&mate.isAlive()&&mate.distanceToSqr(baby)<256)mate.family().comfort(baby);
         int shown=0;

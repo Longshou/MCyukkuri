@@ -2,8 +2,8 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -19,7 +19,7 @@ final class BirthFlightPath {
         /** The unborn body's own box at this point: its real birth size and form. */
         List<AABB> envelope(Vec3 feet) { return List.of(LiveBirthGeometry.childDimensions(unborn,1).makeBoundingBox(feet)); }
         /** The hat surface under those feet (blocks), or no support at all when the body is off the hat. */
-        double support(HatBoatEntity hat,Vec3 feet) {
+        double support(PlacedHatEntity hat,Vec3 feet) {
             return hat==null?Double.NEGATIVE_INFINITY
                     :hat.support(hat.toLocal(feet),Occupancy.FOOT*width()).orElse(Double.NEGATIVE_INFINITY);
         }
@@ -31,27 +31,27 @@ final class BirthFlightPath {
     }
 
     /** Within the existing birth impulse budget; no valid duration is a refusal, never an unchecked maximum arc. */
-    static int plan(Body body,HatBoatEntity hat,Vec3 from,Vec3 to,int minimum) {
-        minimum=Math.max(minimum,(int)Math.ceil(from.subtract(to).horizontalDistance()/(HatVessel.MAX_SPEED/16)));
-        if(minimum>HatVessel.TMAX)return -1;
+    static int plan(Body body,PlacedHatEntity hat,Vec3 from,Vec3 to,int minimum) {
+        minimum=Math.max(minimum,(int)Math.ceil(from.subtract(to).horizontalDistance()/(HatGeometry.MAX_SPEED/16)));
+        if(minimum>HatGeometry.TMAX)return -1;
         if(body.support(hat,to)>to.y+.002)return -1;
-        int start=HatVessel.solve(from,to,hat,HatVessel.radius(body.width()),minimum);
-        for(int ticks=start;ticks<=HatVessel.TMAX;ticks++)if(path(body,hat,from,to,ticks).isEmpty())return ticks;
+        int start=HatGeometry.solve(from,to,hat,HatGeometry.radius(body.width()),minimum);
+        for(int ticks=start;ticks<=HatGeometry.TMAX;ticks++)if(path(body,hat,from,to,ticks).isEmpty())return ticks;
         return -1;
     }
-    static String path(Body body,HatBoatEntity hat,Vec3 from,Vec3 to,int ticks) {
+    static String path(Body body,PlacedHatEntity hat,Vec3 from,Vec3 to,int ticks) {
         Vec3 previous=from;
         // Actual travel integrates one straight segment per tick between these parabola points.
         // Sweep those same chords; checking only the ideal sub-tick curve misses their lower clearance.
         for(int tick=1;tick<=ticks;tick++) {
-            var at=HatVessel.arc(from,to,ticks,tick);
+            var at=HatGeometry.arc(from,to,ticks,tick);
             String refusal=sweep(body,hat,previous,at);
             if(!refusal.isEmpty())return refusal;
             previous=at;
         }
         return "";
     }
-    static String sweep(Body body,HatBoatEntity hat,Vec3 from,Vec3 to) {
+    static String sweep(Body body,PlacedHatEntity hat,Vec3 from,Vec3 to) {
         var level=body.context().level();
         int steps=Math.max(1,(int)Math.ceil(from.distanceTo(to)/.025));
         for(int i=1;i<=steps;i++) {

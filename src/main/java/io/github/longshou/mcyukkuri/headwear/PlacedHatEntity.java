@@ -1,4 +1,4 @@
-package io.github.longshou.mcyukkuri.subspecies;
+package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
@@ -48,20 +48,20 @@ import java.util.LinkedHashMap;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
-/** One real hat (her own hat turned upside down, its soft crown pressed down: HatVessel) set down on the ground by its Marisa
+/** One real hat (her own hat turned upside down, its soft crown pressed down: HatGeometry) set down on the ground by its Marisa
  *  owner to catch her young. Every body aboard keeps its own supported spot in the {@link Riders} table; there are no seats,
  *  no leases and no load. A cradle that has been taken back leaves the world. */
-public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceHost {
+public final class PlacedHatEntity extends Entity implements PlacedHatView, SurfaceHost {
     /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young.
      *  RESCUED: taken back onto its owner's head. Ordinals are synced: append only. */
     public enum State { CRADLE, RESCUED }
-    private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     /** The deployed hat's own wear (headwear damage 0 intact, 1 frayed, 2 torn), drawn on the hull like a worn hat. */
-    private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.INT);
     /** Every rider's local spot (hat units) keyed by rider entity id: the client's {@code positionRider} input, written once a tick when it changed. */
-    private static final EntityDataAccessor<CompoundTag> RIDERS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    private static final EntityDataAccessor<CompoundTag> RIDERS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The one rider table of this host: local spot and yaw per body (spec 5.1, 6). */
     private final Riders riders = new Riders();
     /** Cached cavity of {@link #container()}; rebuilt when the hat size changes. */
@@ -72,7 +72,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     private boolean unloadWanted;
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
-    private HatVessel.Role role = HatVessel.Role.HELPER;
+    private HatGeometry.Role role = HatGeometry.Role.HELPER;
     private double lerpX, lerpY, lerpZ;
     private float lerpYaw, lerpPitch;
     private int lerpSteps;
@@ -81,7 +81,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     /** The one birth berth a cradle grants: an ordinary supported place in the cavity. */
     public enum NewbornAdmission { NONE, BOARD }
 
-    public HatBoatEntity(EntityType<? extends HatBoatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
+    public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0);
@@ -91,15 +91,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
         if (SCALE.equals(data)) refreshDimensions();
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
-        return super.getDimensions(pose).scale(hullScale()/HatVessel.AQUATIC_SCALE);
+        return super.getDimensions(pose).scale(hullScale()/HatGeometry.AQUATIC_SCALE);
     }
 
     public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
     public void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
     public UUID launchToken() { return accessoryToken; }
     public void launchToken(UUID token) { accessoryToken = token; }
-    public void launchRole(HatVessel.Role next) { role = next; }
-    public HatVessel.Role role() { return role; }
+    public void launchRole(HatGeometry.Role next) { role = next; }
+    public HatGeometry.Role role() { return role; }
     public float previousYaw() { return yRotO; }
 
     // ---------------------------------------------------------------- the host (SurfaceHost, spec 6)
@@ -118,7 +118,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     /** Hat-surface height (hat units) under a foot radius {@code r} in blocks; empty off the hat. */
     @Override public OptionalDouble support(Vec3 local, double r) {
         if (local == null) return OptionalDouble.empty();
-        double height = HatVessel.travelSupport(local.x, local.z, r / unit());
+        double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
     /** No other rider's foot circle overlaps this one: radius 0.42 of the body width, slack 0.02 (spec 6). */
@@ -136,11 +136,11 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     /** The brim's top edge in 24 directions, through the current frame so a placed yaw is included. */
     @Override public List<Vec3> rim() {
         var pose = frame();
-        double top = HatVessel.top();
+        double top = HatGeometry.top();
         var out = new ArrayList<Vec3>(RIM_POINTS);
         for (int i = 0; i < RIM_POINTS; i++) {
             double angle = i * 2 * Math.PI / RIM_POINTS, dx = Math.cos(angle), dz = Math.sin(angle);
-            double reach = HatVessel.extent(0, 0, dx, dz, 0);
+            double reach = HatGeometry.extent(0, 0, dx, dz, 0);
             out.add(pose.toWorld(new Vec3(dx * reach, top, dz * reach)));
         }
         return List.copyOf(out);
@@ -148,8 +148,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     /** Named places, hat units: the middle of the cavity, and the brim edge on the owner's side. Targets only. */
     @Override public Map<String, Vec3> spots() {
         var out = new LinkedHashMap<String, Vec3>();
-        double middle = HatVessel.surface(0, 0);
-        out.put("centre", new Vec3(0, Double.isFinite(middle) ? middle : HatVessel.floor(), 0));
+        double middle = HatGeometry.surface(0, 0);
+        out.put("centre", new Vec3(0, Double.isFinite(middle) ? middle : HatGeometry.floor(), 0));
         double dx = 0, dz = -1;
         var owner = owner();
         if (owner != null) {
@@ -157,15 +157,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
             double length = Math.hypot(local.x, local.z);
             if (length > 1e-6) { dx = local.x / length; dz = local.z / length; }
         }
-        double reach = Math.max(0, HatVessel.extent(0, 0, dx, dz, 0) - .125);
-        out.put("exit", new Vec3(dx * reach, HatVessel.top(), dz * reach));
+        double reach = Math.max(0, HatGeometry.extent(0, 0, dx, dz, 0) - .125);
+        out.put("exit", new Vec3(dx * reach, HatGeometry.top(), dz * reach));
         return Map.copyOf(out);
     }
     /** The cavity's own floor and brim heights (hat units) and, as its radius, the authored brim extent (spec 7). */
     @Override public Container container() {
         if (container == null || containerUnit != unit()) {
-            double radius = Math.min(HatVessel.extent(0, 0, 1, 0, 0), HatVessel.extent(0, 0, 0, 1, 0)) * unit();
-            container = new HostContainer(this, new FloorShape.Circle(radius), HatVessel.floor(), HatVessel.top());
+            double radius = Math.min(HatGeometry.extent(0, 0, 1, 0, 0), HatGeometry.extent(0, 0, 0, 1, 0)) * unit();
+            container = new HostContainer(this, new FloorShape.Circle(radius), HatGeometry.floor(), HatGeometry.top());
             containerUnit = unit();
         }
         return container;
@@ -389,16 +389,16 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
     }
 
     // ---------------------------------------------------------------- custody
-    /** The hull this owner rides or has deployed; a pure read of her {@code HatCustody}. */
-    public static HatBoatEntity find(YukkuriEntity y) {
-        if (y.getVehicle() instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y)) return boat;
+    /** The placed hat this owner rides or has set down; a pure read of her {@code HatCustody}. */
+    public static PlacedHatEntity find(YukkuriEntity y) {
+        if (y.getVehicle() instanceof PlacedHatEntity placed && placed.ownsPhysicalHat(y)) return placed;
         return owned(y);
     }
-    /** The hull her custody names while the hat is set down, if it is loaded; no scan, no side effect. */
-    private static HatBoatEntity owned(YukkuriEntity y) {
+    /** The hat her custody names while it is set down, if it is loaded; no scan, no side effect. */
+    private static PlacedHatEntity owned(YukkuriEntity y) {
         if (!(y.level() instanceof ServerLevel server)) return null;
         UUID id = y.life().custody().boat();
-        return id != null && server.getEntity(id) instanceof HatBoatEntity boat && boat.ownsPhysicalHat(y) ? boat : null;
+        return id != null && server.getEntity(id) instanceof PlacedHatEntity placed && placed.ownsPhysicalHat(y) ? placed : null;
     }
     public boolean ownsPhysicalHat(YukkuriEntity actor){
         return actor != null && actor.getUUID().equals(ownerYukkuri()) && actor.life().matchesAccessory(ownerYukkuri(),accessoryToken);
@@ -414,7 +414,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
      * The one way a catching hat comes into the world: an empty upside-down hat set down by its Marisa owner's braid on dry
      * ground. Every failure is logged with its real reason and leaves the hat on her head, so the delivery goes on without it.
      */
-    public static HatBoatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatVessel.Role role) {
+    public static PlacedHatEntity setDown(YukkuriEntity owner, Vec3 at, float yaw, HatGeometry.Role role) {
         if (!(owner.level() instanceof ServerLevel level)) return null;
         if (owner.getVariant() != YukkuriVariant.MARISA) return refusePlacement(owner, at, "not_marisa", "");
         if (!owner.isAlive()) return refusePlacement(owner, at, "not_alive", "");
@@ -426,7 +426,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
         if (!level.getFluidState(spot).isEmpty()) return refusePlacement(owner, at, "spot_in_fluid", spot.toShortString());
         if (!level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
-        var hat = ModEntities.HAT_BOAT.get().create(level);
+        var hat = ModEntities.PLACED_HAT.get().create(level);
         if (hat == null) return refusePlacement(owner, at, "entity_creation_failed", "");
         hat.setPos(at.x, spot.getY(), at.z);
         hat.setYRot(yaw);
@@ -445,7 +445,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
                 owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), role);
         return hat;
     }
-    private static HatBoatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
+    private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
         GameplayLog.limited(owner, "headwear", "hat.refused." + reason, 200,
                 "hat refused reason={} detail={} at={} distanceSquared={} accessory={} custody={}",
                 reason, detail, at, owner.distanceToSqr(at), owner.life().hasAccessory(), owner.life().custody().state());
@@ -454,7 +454,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
 
     // ---------------------------------------------------------------- identity and wear
     public void syncAccessoryIdentity(YukkuriEntity owner) {
-        entityData.set(SCALE,HatVessel.hatScale(owner));
+        entityData.set(SCALE,HatGeometry.hatScale(owner));
         entityData.set(HULL_DAMAGE,Math.clamp(owner.headwear().damage(),0,2));
     }
     public int hullDamage() { return entityData.get(HULL_DAMAGE); }
@@ -530,7 +530,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
         accessoryToken=tag.hasUUID("AccessoryToken")?tag.getUUID("AccessoryToken"):null;
         try{state(State.valueOf(tag.getString("State")));}catch(IllegalArgumentException invalid){state(State.CRADLE);}
         entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
-        role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
+        role="SELF".equals(tag.getString("Role"))?HatGeometry.Role.SELF:HatGeometry.Role.HELPER;
         riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
     }
 }

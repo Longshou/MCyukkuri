@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.nbt.CompoundTag;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 
 /**
  * The one recognition test (docs/HEADWEAR.md). A yukkuri knows another by its accessory (komicolle 40720 No.11518847).
@@ -36,7 +36,7 @@ public final class Recognition {
 
     /** A set-down or ridden physical hat is visible to other yukkuri; unresolved custody only calms its owner. */
     private static boolean custodiedInOwnHat(YukkuriEntity target) {
-        var hat = HatBoatEntity.find(target);
+        var hat = PlacedHatEntity.find(target);
         return hat != null && target.distanceToSqr(hat) <= 64;
     }
     /** {@code observer} knows {@code target} as a yukkuri (and as itself, so kin as kin). */

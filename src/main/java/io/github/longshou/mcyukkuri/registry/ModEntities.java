@@ -16,7 +16,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import io.github.longshou.mcyukkuri.entity.MaterialDrop;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.tags.BlockTags;
@@ -25,10 +25,10 @@ import net.minecraft.world.phys.AABB;
 public final class ModEntities {
     public static final DeferredRegister<EntityType<?>> TYPES =
             DeferredRegister.create(Registries.ENTITY_TYPE, MCYukkuri.MOD_ID);
-    public static final DeferredHolder<EntityType<?>, EntityType<HatBoatEntity>> HAT_BOAT =
-            TYPES.register("hat_boat", () -> EntityType.Builder.<HatBoatEntity>of(
-                    HatBoatEntity::new, MobCategory.MISC)
-                    .sized(1.05f, .20f).clientTrackingRange(8).updateInterval(2).build(MCYukkuri.id("hat_boat").toString()));
+    public static final DeferredHolder<EntityType<?>, EntityType<PlacedHatEntity>> PLACED_HAT =
+            TYPES.register("placed_hat", () -> EntityType.Builder.<PlacedHatEntity>of(
+                    PlacedHatEntity::new, MobCategory.MISC)
+                    .sized(1.05f, .20f).clientTrackingRange(8).updateInterval(2).build(MCYukkuri.id("placed_hat").toString()));
     public static final DeferredHolder<EntityType<?>,EntityType<MaterialDrop>> MATERIAL_DROP=TYPES.register("material_drop",
             ()->EntityType.Builder.<MaterialDrop>of(MaterialDrop::new,MobCategory.MISC)
                     .sized(.25f,.25f).clientTrackingRange(6).updateInterval(20).build(MCYukkuri.id("material_drop").toString()));

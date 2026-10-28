@@ -1,8 +1,9 @@
-package io.github.longshou.mcyukkuri.subspecies;
+package io.github.longshou.mcyukkuri.headwear;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.phys.Vec3;
@@ -15,8 +16,8 @@ import org.joml.Vector3f;
 
 /** Marisa's own hat turned upside down, its soft crown pressed down (interactions/marisa-hat-vessel, hat_vessel.json):
  *  on the ground until it stands on the squashed crown, and how a newborn gets in (delivery.py): on a parabola under
- *  gravity over the brim, each young in its own place. Hat units are the prop's, unscaled (HatBoatEntity.unit() blocks each). */
-public final class HatVessel {
+ *  gravity over the brim, each young in its own place. Hat units are the prop's, unscaled (PlacedHatEntity.unit() blocks each). */
+public final class HatGeometry {
     /** The authored hat shape. */
     private static final class Profile {
         final JsonObject data,delivery;
@@ -26,7 +27,7 @@ public final class HatVessel {
         final List<CavitySection> cavity;
 
         Profile(String resource){
-            try(var stream=HatVessel.class.getResourceAsStream(resource)){
+            try(var stream=HatGeometry.class.getResourceAsStream(resource)){
                 if(stream==null)throw new IllegalStateException("Missing hat vessel metrics "+resource);
                 data=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
             }catch(IOException ex){throw new UncheckedIOException(ex);}
@@ -161,7 +162,7 @@ public final class HatVessel {
     /** The fewest ticks (from tmin, and no faster across than MAX_SPEED) for which a body of radius r (blocks) flying
      *  from a to b keeps clear above the hat: over the brim and the ledge by CLEAR, never below the surface it takes off
      *  from or lands on: the whole body over any part higher than both ends, its centre over the rest. */
-    public static int solve(Vec3 a,Vec3 b,HatBoatEntity hat,double r,int tmin){
+    public static int solve(Vec3 a,Vec3 b,PlacedHatEntity hat,double r,int tmin){
         double rr=r/hat.unit();var la=hat.toLocal(a);var lb=hat.toLocal(b);
         tmin=Math.max(tmin,(int)Math.ceil(Math.hypot(b.x-a.x,b.z-a.z)/(MAX_SPEED/16)));
         double ea=footprint(la.x,la.z,rr),eb=footprint(lb.x,lb.z,rr);
@@ -180,7 +181,7 @@ public final class HatVessel {
         return TMAX;
     }
     /** A deliberately planned body curve must actually clear the hull; failing never grants a larger arc. */
-    public static boolean clears(List<Vec3> points,HatBoatEntity hat,double radius){
+    public static boolean clears(List<Vec3> points,PlacedHatEntity hat,double radius){
         if(hat==null||points.isEmpty())return true;
         double rr=radius/hat.unit();
         var a=hat.toLocal(points.getFirst());var b=hat.toLocal(points.getLast());
@@ -196,7 +197,7 @@ public final class HatVessel {
     }
     /** Where an overstrained push sends a newborn aimed at b (world): on along the same line past the far brim, at the
      *  height of b's ground for the caller to settle. */
-    public static Vec3 overshoot(Vec3 a,Vec3 b,HatBoatEntity hat,double r){
+    public static Vec3 overshoot(Vec3 a,Vec3 b,PlacedHatEntity hat,double r){
         var d=new Vec3(b.x-a.x,0,b.z-a.z);d=d.lengthSqr()<1e-9?new Vec3(0,0,1):d.normalize();
         var lb=hat.toLocal(b);var ld=hat.toLocal(hat.position().add(d)).multiply(1,0,1).normalize();
         double beyond=extent(lb.x,lb.z,ld.x,ld.z,r/hat.unit())*hat.unit()+r+OVERSHOOT/16;
@@ -216,5 +217,5 @@ public final class HatVessel {
             permute(froms,tos,i+1,cur,used,cost+(f.x-t.x)*(f.x-t.x)+(f.z-t.z)*(f.z-t.z),best,bestCost);used[j]=false;
         }
     }
-    private HatVessel(){}
+    private HatGeometry(){}
 }

@@ -22,8 +22,8 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -71,7 +71,7 @@ public final class FamilyLife {
     private int sexDrive;
     private boolean babyTalk;
     /** A hat set down to catch young: where, facing (entity yaw) and how it lies, and who set it. */
-    public record HatPose(Vec3 at, float yaw, HatVessel.Role role) {}
+    public record HatPose(Vec3 at, float yaw, HatGeometry.Role role) {}
     /** Where a catcher stands, and her yaw, to set down, hold or take back a hat at a pose. */
     public record Stand(Vec3 at, float yaw) {}
     /** The mother's land-delivery position after a helper has placed a real catching hat. */
@@ -282,7 +282,7 @@ public final class FamilyLife {
     public static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood) { return CatchHat.catcher(mother,brood); }
     /** Where the hat goes to catch (hat_vessel.json, the end pose of the braid clips). A land Marisa presses it upside down
      *  before the outlet, the live exit just inside its opening (a mother on her own sets it where her own clip puts it). */
-    public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatVessel.Role role) { return CatchHat.catchPose(mother,brood,catcher,role); }
+    public static HatPose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,HatGeometry.Role role) { return CatchHat.catchPose(mother,brood,catcher,role); }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     public static Stand stand(HatPose pose,YukkuriEntity catcher) { return CatchHat.stand(pose,catcher); }
     /**
@@ -292,7 +292,7 @@ public final class FamilyLife {
      */
     void face(float yaw){Motor.face(entity,Mth.approachDegrees(entity.getYRot(),yaw,(float)BodyAbility.of(entity).turnRate()));}
     /** This Marisa's hat, set down nearby to catch. */
-    public HatBoatEntity cradleEntity() { return catchHat.cradleEntity(); }
+    public PlacedHatEntity cradleEntity() { return catchHat.cradleEntity(); }
     /** The hat stays down while the young are coming and a little after, while they wake in it. */
     public boolean keepsCradle() { return catchHat.keepsCradle(); }
     /** A helper's landed hat brings the mother back to the outlet position used when it was set down. */
@@ -333,13 +333,13 @@ public final class FamilyLife {
         return catchHat.needsSelfCatch(brood);
     }
     /** Called by the set-down hat when it is no longer needed: come back for it and put it on. */
-    public void fetchHat(HatBoatEntity hat) { catchHat.fetchHat(hat); }
+    public void fetchHat(PlacedHatEntity hat) { catchHat.fetchHat(hat); }
     public void doom(){doomed=true;}
     public boolean doomed(){return doomed;}
     /** In a drawn birth launch: the body is not on its own feet. */
     public boolean flying(){return launchInFlight();}
     /** The hat does not collide with its own incoming passenger: a newborn launched into it. */
-    public boolean boardingThrough(HatBoatEntity hat){
+    public boolean boardingThrough(PlacedHatEntity hat){
         return awaitingLanding&&launch!=null&&hat!=null&&hat.getUUID().equals(launch.hat());
     }
     /** The captain's hat goes back on (the authored hat_on_self clip) once the token has been returned to her. */
@@ -355,7 +355,7 @@ public final class FamilyLife {
      * drawn. The body itself leaves the outlet on its first decision tick, so the action is started from {@link #startBirthLaunch()}
      * and never from a passive clock; nothing here moves it.
      */
-    void launch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
+    void launch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,PlacedHatEntity hat){
         this.launch=plan;
         this.launched=false;
         logLaunch(plan,brood,index,hat);
@@ -382,15 +382,15 @@ public final class FamilyLife {
     /** A stem fruit comes away with a small random toss; the hat held under the stem, a large nest or the bare ground take it by contact. */
     void tossStem(FamilyData.Brood brood,int index){
         var start=entity.position();
-        var hats=level().getEntitiesOfClass(HatBoatEntity.class,entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity));
-        HatBoatEntity hat=hats.isEmpty()?null:hats.get(0);
+        var hats=level().getEntitiesOfClass(PlacedHatEntity.class,entity.getBoundingBox().inflate(1.2,3,1.2),cradle->cradle.catches()&&cradle.young(entity));
+        PlacedHatEntity hat=hats.isEmpty()?null:hats.get(0);
         var mom=mother!=null&&level().getEntity(mother) instanceof YukkuriEntity parent?parent:null;
         var centre=mom==null?null:FamilyNest.largeCentre(mom);
         double half=io.github.longshou.mcyukkuri.life.NestResting.LARGE.half();
         var target=hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(start.x-centre.x)<half&&Math.abs(start.z-centre.z)<half?BirthLaunch.Target.NEST:BirthLaunch.Target.GROUND;
         launch(BirthLaunch.stem(level().random,start,target),brood,index,hat);
     }
-    private void logLaunch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,HatBoatEntity hat){
+    private void logLaunch(BirthLaunch.Plan plan,FamilyData.Brood brood,int index,PlacedHatEntity hat){
         GameplayLog.event(entity,"family","birth launch brood={} index={} kind={} target={} hat={} aim={} start={} room={} nominal={} push={} yaw={} velocity={}",
                 brood.id,index,brood.kind,plan.target(),hat==null?null:hat.getUUID(),plan.aim(),plan.start(),
                 Double.isNaN(plan.room())?"n/a":String.format(java.util.Locale.ROOT,"%.2f",plan.room()),

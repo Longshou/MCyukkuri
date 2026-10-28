@@ -3,8 +3,8 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -52,8 +52,8 @@ public final class BirthLaunch {
     static {
         double low=LIFT*(1-LIFT_SPREAD),high=LIFT*(1+LIFT_SPREAD);
         double live=Math.hypot(speedFor(MAX_AIM,low)*PUSH_MAX,high);
-        double hatHorizontal=HatVessel.MAX_SPEED/16*Ballistic.speedFor(1,HatVessel.TMIN)*HatVessel.TMIN*PUSH_MAX;
-        double hatLift=HAT_RISE/HatVessel.TMAX+HatVessel.GRAVITY/16/2*(HatVessel.TMAX-1);
+        double hatHorizontal=HatGeometry.MAX_SPEED/16*Ballistic.speedFor(1,HatGeometry.TMIN)*HatGeometry.TMIN*PUSH_MAX;
+        double hatLift=HAT_RISE/HatGeometry.TMAX+HatGeometry.GRAVITY/16/2*(HatGeometry.TMAX-1);
         MAX_SPEED=Math.max(live,Math.hypot(hatHorizontal,hatLift));
     }
 
@@ -173,10 +173,10 @@ public final class BirthLaunch {
      * solve asks for), and the horizontal speed is solved for the aim under vanilla air motion. The drawn push scales and the
      * drawn yaw turns only the horizontal part, exactly as the old nominal arc was scaled; nothing here moves the body.
      */
-    static Plan intoHat(YukkuriEntity kit,HatBoatEntity hat,Vec3 aim,double push,double yawDeg){
+    static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aim,double push,double yawDeg){
         var start=kit.position();
-        double radius=HatVessel.radius(kit.getBbWidth());
-        int ticks=HatVessel.solve(start,aim,hat,radius,Math.max(HatVessel.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
+        double radius=HatGeometry.radius(kit.getBbWidth());
+        int ticks=HatGeometry.solve(start,aim,hat,radius,Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
         return towards(Target.HAT,hat.getUUID(),start,aim,lift(start,aim,ticks),ticks,push,yawDeg);
     }
 
@@ -184,18 +184,18 @@ public final class BirthLaunch {
      * A push that misses the hat on purpose (the drawn overstrain afloat): on along the same line past the far brim, at the real
      * ground or water there. Only the aim changes; the impulse is the ordinary nominal arc toward it.
      */
-    static Plan past(YukkuriEntity kit,HatBoatEntity hat,Vec3 aimedAt){
+    static Plan past(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aimedAt){
         var start=kit.position();
-        double radius=HatVessel.radius(kit.getBbWidth());
-        var far=HatVessel.overshoot(start,aimedAt,hat,radius);
+        double radius=HatGeometry.radius(kit.getBbWidth());
+        var far=HatGeometry.overshoot(start,aimedAt,hat,radius);
         var hit=kit.level().clip(new ClipContext(far.add(0,1.5,0),far.add(0,-3,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.ANY,kit));
         var aim=hit.getType()==HitResult.Type.MISS?new Vec3(far.x,hat.getY(),far.z):hit.getLocation();
-        int ticks=HatVessel.solve(start,aim,hat,radius,HatVessel.TMIN);
+        int ticks=HatGeometry.solve(start,aim,hat,radius,HatGeometry.TMIN);
         return towards(Target.GROUND,null,start,aim,lift(start,aim,ticks),ticks,1,0);
     }
 
     /** The vertical part of the nominal arc's first impulse (blocks per tick), the value the old flight started with. */
-    private static double lift(Vec3 start,Vec3 aim,int ticks){return HatVessel.arc(start,aim,ticks,1).y-start.y;}
+    private static double lift(Vec3 start,Vec3 aim,int ticks){return HatGeometry.arc(start,aim,ticks,1).y-start.y;}
 
     /**
      * One plan from a start, an aim and the nominal lift; the horizontal speed is what vanilla air drag needs to cover the same

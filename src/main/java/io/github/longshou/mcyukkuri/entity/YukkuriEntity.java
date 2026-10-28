@@ -70,7 +70,7 @@ import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.status.StatusLife;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
@@ -427,7 +427,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public FamilyLife family() { return family; }
     @Override public boolean canCollideWith(Entity other) {
         // During a checked rim transfer the detailed hat surface replaces its coarse entity box.
-        return super.canCollideWith(other) && !(other instanceof HatBoatEntity hat
+        return super.canCollideWith(other) && !(other instanceof PlacedHatEntity hat
                 && family != null && family.boardingThrough(hat));
     }
     public ChildhoodLife childhood() { return childhood; }

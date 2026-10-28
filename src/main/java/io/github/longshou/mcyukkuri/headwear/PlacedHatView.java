@@ -1,11 +1,11 @@
-package io.github.longshou.mcyukkuri.subspecies;
+package io.github.longshou.mcyukkuri.headwear;
 
 import java.util.UUID;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /** Synchronized presentation of one hat its owner has set down to catch young. Read only; no server state is exposed. */
-public interface HatBoatView {
+public interface PlacedHatView {
     int getId();
     UUID getUUID();
     Level level();
@@ -14,7 +14,7 @@ public interface HatBoatView {
     float getYRot();
     float previousYaw();
     UUID ownerYukkuri();
-    HatBoatEntity.State state();
+    PlacedHatEntity.State state();
     boolean isCradle();
     boolean catches();
     /** The hat's size: its owner's growth, larger for the aquatic Marisa. */

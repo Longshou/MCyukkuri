@@ -24,13 +24,13 @@ public final class ClientRegistration {
     public ClientRegistration(IEventBus modBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, "mcyukkuri-client.toml");
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, ClientEvents::registerRenderers);
-        modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, HatBoatRenderer::register);
+        modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, PlacedHatRenderer::register);
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, HumanRenderer.Events::renderers);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientReloadListenersEvent.class, ClientEvents::registerReloadListeners);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, ClientEvents::registerItemExtensions);
-        modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, HatBoatRenderer::items);
+        modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, PlacedHatRenderer::items);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterMenuScreensEvent.class, ClientEvents::registerScreens);
         modBus.addListener(EventPriority.NORMAL, false, RegisterMenuScreensEvent.class, HumanRenderer.Events::screens);
