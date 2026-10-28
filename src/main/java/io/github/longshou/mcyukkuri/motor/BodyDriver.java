@@ -183,7 +183,9 @@ public final class BodyDriver {
         interruptedWhy = "";
         if (!action.id().equals(body.componentData(MOTOR_ACTION))) body.syncComponentData(MOTOR_ACTION, action.id());
         if (body.componentData(MOTOR_START) != startTick) body.syncComponentData(MOTOR_START, startTick);
-        GameplayLog.event(body, "action", "start id={} owner={}", action.id(), candidate.ownerId());
+        String detail = action.startDetail();
+        GameplayLog.event(body, "action", detail.isEmpty() ? "start id={} owner={}" : "start id={} owner={} {}",
+                action.id(), candidate.ownerId(), detail);
         action.start(body);
     }
 
@@ -199,7 +201,9 @@ public final class BodyDriver {
         last = outcome;
         lastTick = now();
         Attach.settle(body, "action_end:" + outcome.label());
-        GameplayLog.event(body, "action", "end id={} outcome={} {}", action.id(), outcome.label(), fields(outcome));
+        String detail = action.endDetail(outcome);
+        GameplayLog.event(body, "action", detail.isEmpty() ? "end id={} outcome={} {}" : "end id={} outcome={} {} {}",
+                action.id(), outcome.label(), fields(outcome), detail);
         if (!body.componentData(MOTOR_ACTION).isEmpty()) body.syncComponentData(MOTOR_ACTION, "");
     }
 

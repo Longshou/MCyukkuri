@@ -13,8 +13,17 @@ public enum Occupancy {
 
     public static Occupancy of(YukkuriEntity body, Container c) {
         if (body == null || c == null) return OUTSIDE;
-        Vec3 p = c.toPlane(body.position());
-        return switch (OccupancyMath.classify(p.x, p.z, p.y, FOOT * body.getBbWidth(), c.floor(), c.floorY(), c.rimY(), c.supports(body))) {
+        return at(c, body.position(), body.getBbWidth(), c.supports(body));
+    }
+
+    /**
+     * Where a body of width {@code bbWidth} would be with its feet at {@code feet}: the pure probe an airborne contact
+     * evaluates before the body is moved. {@code supported} says whether something would carry it there.
+     */
+    public static Occupancy at(Container c, Vec3 feet, double bbWidth, boolean supported) {
+        if (c == null || feet == null) return OUTSIDE;
+        Vec3 p = c.toPlane(feet);
+        return switch (OccupancyMath.classify(p.x, p.z, p.y, FOOT * bbWidth, c.floor(), c.floorY(), c.rimY(), supported)) {
             case INSIDE_SUPPORTED -> INSIDE_SUPPORTED;
             case ON_RIM -> ON_RIM;
             case PARTIAL -> PARTIAL;

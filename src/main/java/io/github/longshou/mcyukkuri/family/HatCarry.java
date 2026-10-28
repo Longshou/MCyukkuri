@@ -9,8 +9,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -211,17 +209,6 @@ public final class HatCarry {
         }
         var box=new AABB(world[0],world[1],world[2],world[3],world[4],world[5]);
         return !carrier.level().getBlockCollisions(child,box).iterator().hasNext()&&!carrier.level().containsAnyLiquid(box);
-    }
-    static Vec3 landing(YukkuriEntity carrier,YukkuriEntity child){
-        for(int i=0;i<12;i++)for(int dy=1;dy>=-2;dy--){
-            double angle=i*Math.PI/6,radius=(carrier.getBbWidth()+child.getBbWidth())/2+.3;
-            var pos=BlockPos.containing(carrier.getX()+Math.cos(angle)*radius,carrier.getY()+dy,carrier.getZ()+Math.sin(angle)*radius);
-            var support=pos.below();var state=carrier.level().getBlockState(support);
-            if(!state.isFaceSturdy(carrier.level(),support,Direction.UP)||!carrier.level().getFluidState(pos).isEmpty())continue;
-            Vec3 target=Vec3.atBottomCenterOf(pos);var box=child.getBoundingBox().move(target.subtract(child.position()));
-            if(carrier.level().noCollision(child,box)&&!carrier.level().containsAnyLiquid(box))return target;
-        }
-        return null;
     }
     public static boolean putDown(YukkuriEntity carrier){
         // Every rider is set down where it sits (in place, nudged clear of blocks only if needed), then logged by ParentCarry.

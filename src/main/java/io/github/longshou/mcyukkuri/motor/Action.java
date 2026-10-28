@@ -25,6 +25,12 @@ public interface Action {
 
     MotionPose pose();
 
+    /** Extra fields for the {@code [action] start} line (spec 13.1); empty when the action has none to add. */
+    default String startDetail() { return ""; }
+
+    /** Extra fields for the {@code [action] end} line (spec 13.1); empty when the action has none to add. */
+    default String endDetail(Outcome outcome) { return ""; }
+
     /** Watchdog window in ticks: {@code metric} must drop by {@link #progressEpsilon()} within this many ticks. */
     default int progressWindow() { return 40; }
 
