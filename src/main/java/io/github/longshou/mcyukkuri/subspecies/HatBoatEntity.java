@@ -12,6 +12,15 @@ import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout.Kind;
 import io.github.longshou.mcyukkuri.subspecies.crew.HatDeck;
 import io.github.longshou.mcyukkuri.subspecies.crew.Purpose;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.geom.Disc;
+import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
+import io.github.longshou.mcyukkuri.motor.surface.Container;
+import io.github.longshou.mcyukkuri.motor.surface.HostContainer;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.motor.surface.Riders;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.world.item.ItemStack;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -39,7 +48,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriLocomotion;
@@ -66,7 +77,7 @@ import net.minecraft.nbt.ListTag;
  *  the aquatic Marisa's boat: she rests in its opening at the stern and her young ride in its dry inside, close before her at night.
  *  Every seat on it is a {@link HatDeck} seat and every temporary need a deck lease; the larder holds food only in the crown.
  *  Unloading never means rescue or death. */
-public final class HatBoatEntity extends Entity implements HatBoatView {
+public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceHost {
     private final CrewState crewState = new CrewState();
     /** Scoped to one synchronous mount after a transfer has actually landed on the brim. */
     private CrewTransfer boardingTransfer;
@@ -115,6 +126,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     private static final EntityDataAccessor<CompoundTag> DECK = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** Every transfer that touches this hull: the one CrewState record (id, mode, body, carrier, curve, clock, phase, contact). */
     private static final EntityDataAccessor<CompoundTag> CREW = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    /** Every rider's local spot (hat units) keyed by rider entity id: the client's {@code positionRider} input, written once a tick when it changed. */
+    private static final EntityDataAccessor<CompoundTag> RIDERS = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> CARGO = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The hull's load in units (bodies, food, the stick): the client rides the waterline lower the fuller she is. */
     private static final EntityDataAccessor<Float> LOAD = SynchedEntityData.defineId(HatBoatEntity.class, EntityDataSerializers.FLOAT);
@@ -141,6 +154,12 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public record Dip(float degrees,float yaw){ public static final Dip NONE=new Dip(0,0); }
     private final HatCargo cargo = new HatCargo(this);
     private final HatDeck deck = new HatDeck(new DeckHost());
+    /** The one rider table of this host: local spot and yaw per body (spec 5.1, 6). A cradle keeps every rider here. */
+    private final Riders riders = new Riders();
+    /** Cached cavity of {@link #container()}; rebuilt when the mode or the hat size changes. */
+    private Container container;
+    private HatVessel.Mode containerMode;
+    private double containerUnit;
     private final HullHelm helm = new HullHelm(this);
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
@@ -164,7 +183,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         builder.define(STATE, State.AFLOAT.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         // Every pre-Water-15 hat boat is an aquatic Marisa vessel.  This preserves its identity until a loaded owner refreshes it.
         builder.define(AQUATIC_HULL, true); builder.define(ACCESSORY_STAGE, FamilyLife.Stage.ADULT.ordinal()); builder.define(DECK, new CompoundTag());
-        builder.define(CARGO, new CompoundTag()); builder.define(CREW, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
+        builder.define(CARGO, new CompoundTag()); builder.define(CREW, new CompoundTag()); builder.define(RIDERS, new CompoundTag()); builder.define(PADDLING, false); builder.define(MOTION,new CompoundTag()); builder.define(DIP,new CompoundTag());
         builder.define(STROKE_START, 0L); builder.define(CURRENT, 0f); builder.define(HELM_KIND, 0); builder.define(HELM_STATUS, 0); builder.define(VOYAGE_PHASE, 0); builder.define(HULL_DAMAGE, 0);
         builder.define(LOAD, 0f); builder.define(STICK, Stick.NONE.ordinal());
     }
@@ -224,6 +243,15 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public HatDeck deck() { return deck; }
     /** Keep a failed mover only where the measured deck actually supports its feet; recovery still needs a real trip. */
     public boolean preserveSupportedPassenger(YukkuriEntity rider, String reason) {
+        if (!usesDeck()) {
+            // A NEST body stays at its measured supported feet: the table records that spot, no body is moved or dropped.
+            if (!hasPassenger(rider) || capsizing()) return false;
+            var local = frame().toLocal(rider.position());
+            var height = support(local, Occupancy.FOOT * rider.getBbWidth());
+            if (height.isEmpty()) return false;
+            riders.put(rider.getUUID(), new Vec3(local.x, height.getAsDouble(), local.z), Mth.wrapDegrees(rider.getYRot() - getYRot()));
+            return true;
+        }
         if(!hasPassenger(rider)||capsizing()||state()==State.CAPSIZED)return false;
         var local=toLocal(rider.position());
         double support=HatVessel.travelSupport(mode(),local.x,local.z,radiusOf(rider));
@@ -234,6 +262,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Admit feet already supported by this hull without consuming the transfer's final seat claim. */
     public boolean stageBoarding(YukkuriEntity rider, CrewTransfer ticket) {
+        if (!usesDeck()) return false; // a NEST host admits through room(), never a deck ticket
         if (level().isClientSide || ticket == null || ticket != rider.family().crew().ticket() || ticket.finished()
                 || ticket.mode() != CrewTransfer.Mode.HOP || ticket.phase() != CrewTransfer.Phase.MOVE
                 || !ticket.bodyId().equals(rider.getUUID()) || ticket.to().kind() != CrewTransfer.Kind.BERTH
@@ -389,6 +418,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public String lastDeckRefusal() { return deck.lastRefusal(); }
     /** Read-only twin of {@link #makeRoom}: could the decision layer seat this child by moving idle children, and (when allowed) a portion? */
     public boolean canMakeRoom(YukkuriEntity child, boolean jettison) {
+        if (!usesDeck()) return !level().isClientSide && nestHasSpace(child);
         if(child==null||!admits(child)||!boardable())return false;
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
         return canMakeRoom(bodyOf(child, true),jettison,toLocal(child.position()));
@@ -446,9 +476,17 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
     }
     /** The deck's answer for this child and purpose, with its reason; read only. */
-    public Admission admission(YukkuriEntity child, Purpose purpose) { return deck.canAdmit(bodyOf(child), purpose); }
+    public Admission admission(YukkuriEntity child, Purpose purpose) {
+        if (!usesDeck()) {
+            // A NEST host has no seats and no load: the answer is whether the body fits on the surface now.
+            boolean fits = child != null && (hasPassenger(child) || nestPlace(child, null) != null || nestHasSpace(child));
+            return new Admission(fits, DeckLayout.NONE, "", fits ? Admission.Reason.OK : Admission.Reason.NO_SLOT_FOR_CLASS, "nest", 0, 0);
+        }
+        return deck.canAdmit(bodyOf(child), purpose);
+    }
     /** One admission predicate: aboard already, or booked, or a legal seat is free for it and the load fits. */
     public boolean canBoard(YukkuriEntity child) {
+        if (!usesDeck()) return child != null && admits(child) && (hasPassenger(child) || nestPlace(child, null) != null || nestHasSpace(child));
         if(child==null||!admits(child)||!boardable())return false;
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
         return deck.canAdmit(bodyOf(child, true), Purpose.BOARD).ok();
@@ -479,6 +517,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Short text of why the last admission was refused, for failure reports. */
     public String roomDebug(YukkuriEntity child){
+        if (!usesDeck()) return "admission=" + admission(child, Purpose.BOARD).text() + " mode=" + mode() + " riders=" + riders.size();
         var a = admission(child, Purpose.BOARD);
         return "admission=" + a.text() + " load=" + String.format(Locale.ROOT, "%.1f/%.1f", a.loadBefore(), deck.maxLoad())
                 + " last=" + deck.lastRefusal() + " mode=" + mode() + " assignment=" + deck.assignmentText();
@@ -490,6 +529,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
      * overboard as a real, recollectable loss. Returns true when the child has a seat now; false while moves are under way.
      */
     public boolean makeRoom(YukkuriEntity child, boolean jettison) {
+        if (!usesDeck()) return !level().isClientSide && nestHasSpace(child);
         if(level().isClientSide||child==null||!admits(child)||!boardable())return false;
         if(hasPassenger(child)||deck.incoming(child.getUUID())||deck.hasLease(child.getUUID(),Purpose.RETAINED))return true;
         var body = bodyOf(child, true);
@@ -497,6 +537,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Prepare exactly the selected birth seat, waiting for real room-making moves before claiming it. */
     public boolean makeRoom(YukkuriEntity child, boolean jettison, NewbornAdmission admission, int slot) {
+        if (!usesDeck()) return !level().isClientSide && admission != NewbornAdmission.NONE && nestHasSpace(child);
         if(level().isClientSide||child==null||!admits(child)||!boardable()||admission==NewbornAdmission.NONE)return false;
         var body=bodyOf(child,true);
         var purpose=admission==NewbornAdmission.BOARD?Purpose.BOARD:Purpose.RESCUE;
@@ -548,6 +589,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Start the walks or hops that a room plan asks of idle bodies; the named set receives who moved. */
     boolean applyRoom(HatDeck.RoomPlan plan, Set<UUID> moved) {
+        if (!usesDeck()) return false;
         boolean any = false;
         if (!(level() instanceof ServerLevel server)) return false;
         for (var entry : plan.moves().entrySet()) {
@@ -573,6 +615,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** The recovered flight uses its measured contact point; initial delivery passes the real outlet position. */
     public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission,Vec3 actualFrom) {
+        if (!usesDeck()) return admission == NewbornAdmission.NONE ? null : nestSpace(child);
         if(level().isClientSide||child==null||admission==NewbornAdmission.NONE||!isAfloat()||unsteadyMotion()
                 ||!admits(child)||actualFrom==null)return null;
         return switch(admission){
@@ -595,6 +638,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** Claim only the physical seat selected by the outlet preflight. A changed deck must be planned again. */
     public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission,Vec3 actualFrom,int slot) {
+        if (!usesDeck()) return admission == NewbornAdmission.NONE ? null : nestSpace(child);
         if(level().isClientSide||child==null||admission==NewbornAdmission.NONE||!boardable()||unsteadyMotion()
                 ||!admits(child)||actualFrom==null||slot<0||slot>=deckLayout().slots().size())return null;
         var purpose=admission==NewbornAdmission.BOARD?Purpose.BOARD:Purpose.RESCUE;
@@ -698,6 +742,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return crowdFall(child,local,direction,pusher,WaterIncidents.Cause.FALL);
     }
     boolean crowdFall(YukkuriEntity child,Vec3 local,Vec3 direction,UUID pusher,WaterIncidents.Cause cause){
+        if(!usesDeck())return false; // the crowd is the deck's; a NEST host answers with room()
         var out=direction.multiply(1,0,1).normalize().yRot(turn());
         if(!crowdPosition(child,local))return false;
         child.stopRiding();
@@ -708,6 +753,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return true;
     }
     @Override public Vec3 getDismountLocationForPassenger(LivingEntity passenger){
+        // Motor.dismount keeps the body where its feet actually are; vanilla's relocation to the hull centre would teleport it.
+        if (Motor.DISMOUNTING.get()) return passenger.position();
         // Both the held child's lift and active rim boarding start at the actual feet.
         // Vanilla's relocation to the hull centre would invalidate the checked trajectory.
         if(passenger instanceof YukkuriEntity child&&child.family().crew().passesThrough(this))return child.position();
@@ -715,7 +762,13 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     }
     /** A newborn delivered in the hat stays aboard with its mother. */
     public boolean boardYoung(YukkuriEntity child) {
-        if (level().isClientSide || unsteadyMotion()&&!crowding.emergency(child.getUUID()) || !admits(child) || !canBoard(child)) return false;
+        if (level().isClientSide || child == null || !admits(child)) return false;
+        if (!usesDeck()) {
+            if (hasPassenger(child)) return true;
+            if (!room(child, frame().toLocal(child.position()))) return false;
+            return Motor.mount(child, this, "board_young");
+        }
+        if (unsteadyMotion()&&!crowding.emergency(child.getUUID()) || !canBoard(child)) return false;
         boolean booked = deck.incoming(child.getUUID()) || deck.hasLease(child.getUUID(), Purpose.RETAINED) || hasPassenger(child);
         if (!booked && deck.claim(bodyOf(child), Purpose.BOARD, toLocal(child.position()), DeckLayout.NONE, HatDeck.BOARD_TTL) == null) return false;
         if (child.startRiding(this, true)) return true;
@@ -725,6 +778,14 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         if (level().isClientSide || !(passenger instanceof YukkuriEntity y)) return;
+        if (!usesDeck()) {
+            // NEST: the riders table is the only place a body has aboard (spec 5.1); a spot loaded from NBT is kept as saved.
+            if (!riders.contains(y.getUUID()))
+                riders.put(y.getUUID(), snapped(frame().toLocal(y.position()), y), Mth.wrapDegrees(y.getYRot() - getYRot()));
+            if (young(y)) crew.add(y.getUUID());
+            checkRiders(y);
+            return;
+        }
         if (boardingTransfer != null && boardingTransfer.bodyId().equals(y.getUUID()))
             deck.stageBoarding(bodyOf(y), toLocal(y.position()), boardingTransfer.slot());
         else deck.commit(bodyOf(y), toLocal(y.position()));
@@ -734,6 +795,8 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     @Override protected void removePassenger(Entity passenger) {
         super.removePassenger(passenger);
         if (level().isClientSide) return;
+        riders.remove(passenger.getUUID());
+        if (!usesDeck()) { checkRiders(passenger instanceof YukkuriEntity y ? y : null); return; }
         stations.onLeft(passenger.getUUID());
         deck.leave(passenger.getUUID(), "removed");
         syncSeats();
@@ -748,6 +811,141 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     public Vec3 toWorld(Vec3 local) { return position().add(local.scale(unit()).yRot(turn())); }
     public Vec3 toLocal(Vec3 world) { return world.subtract(position()).yRot(-turn()).scale(1/unit()); }
     double radiusOf(Entity young) { return HatVessel.radius(young.getBbWidth())/unit(); }
+
+    // ---------------------------------------------------------------- the host (SurfaceHost, spec 6)
+    private static final int RIM_POINTS = 24;
+    /** How much two foot circles must overlap before they conflict (spec 6). */
+    private static final double ROOM_SLACK = .02;
+
+    @Override public Entity entity() { return this; }
+    /** The pose the deck already uses: origin, hat unit, yaw and the drawn tilt (yaw . roll . pitch). */
+    @Override public HostFrame frame() { return new HostFrame(position(), unit(), turn(), motionRoll(1), motionPitch(1)); }
+    /** Hat-surface height (hat units) under a foot radius {@code r} in blocks; empty off the hat. */
+    @Override public OptionalDouble support(Vec3 local, double r) {
+        if (local == null) return OptionalDouble.empty();
+        double height = HatVessel.travelSupport(mode(), local.x, local.z, r / unit());
+        return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
+    }
+    /** No other rider's foot circle overlaps this one: radius 0.42 of the body width, slack 0.02 (spec 6). */
+    @Override public boolean room(YukkuriEntity body, Vec3 local) {
+        if (body == null || local == null) return false;
+        var foot = new Disc(local.x, local.z, Occupancy.FOOT * body.getBbWidth() / unit());
+        for (var other : getPassengers()) {
+            if (other == body || !(other instanceof YukkuriEntity y)) continue;
+            var spot = riders.spot(y.getUUID());
+            var at = spot != null ? spot.local() : toLocal(y.position());
+            if (foot.overlaps(new Disc(at.x, at.z, Occupancy.FOOT * y.getBbWidth() / unit()), ROOM_SLACK)) return false;
+        }
+        return true;
+    }
+    /** The brim's top edge in 24 directions, through the current frame so tilt is included. */
+    @Override public List<Vec3> rim() {
+        var m = mode(); var pose = frame();
+        double top = HatVessel.top(m);
+        var out = new ArrayList<Vec3>(RIM_POINTS);
+        for (int i = 0; i < RIM_POINTS; i++) {
+            double angle = i * 2 * Math.PI / RIM_POINTS, dx = Math.cos(angle), dz = Math.sin(angle);
+            double reach = HatVessel.extent(m, 0, 0, dx, dz, 0);
+            out.add(pose.toWorld(new Vec3(dx * reach, top, dz * reach)));
+        }
+        return List.copyOf(out);
+    }
+    /** Named places, hat units: the middle of the cavity, and the brim edge on the owner's side. Targets only. */
+    @Override public Map<String, Vec3> spots() {
+        var m = mode();
+        var out = new LinkedHashMap<String, Vec3>();
+        double middle = HatVessel.surface(m, 0, 0);
+        out.put("centre", new Vec3(0, Double.isFinite(middle) ? middle : HatVessel.floor(m), 0));
+        double dx = 0, dz = -1;
+        var owner = owner();
+        if (owner != null) {
+            var local = toLocal(owner.position());
+            double length = Math.hypot(local.x, local.z);
+            if (length > 1e-6) { dx = local.x / length; dz = local.z / length; }
+        }
+        double reach = Math.max(0, HatVessel.extent(m, 0, 0, dx, dz, 0) - .125);
+        out.put("exit", new Vec3(dx * reach, HatVessel.top(m), dz * reach));
+        return Map.copyOf(out);
+    }
+    /** The cavity's own floor and brim heights (hat units) and, as its radius, the authored brim extent (spec 7). */
+    @Override public Container container() {
+        var m = mode();
+        if (container == null || containerMode != m || containerUnit != unit()) {
+            double radius = Math.min(HatVessel.extent(m, 0, 0, 1, 0, 0), HatVessel.extent(m, 0, 0, 0, 1, 0)) * unit();
+            container = new HostContainer(this, new FloorShape.Circle(radius), HatVessel.floor(m), HatVessel.top(m));
+            containerMode = m; containerUnit = unit();
+        }
+        return container;
+    }
+    @Override public Riders riders() { return riders; }
+    @Override public boolean steady() { return state() != State.CAPSIZED && state() != State.RESCUED && !unsteadyMotion(); }
+    @Override public boolean unloadRequested() {
+        return false; // derived from the owner's running Unload intent; wired with the Unload intent
+    }
+    /** Transition (WP1-WP3): a cradle - the land catch hat - never uses the deck; water modes keep it until WP4. */
+    public boolean usesDeck() { return mode() != HatVessel.Mode.NEST; }
+    /** The local spot with its height set to the hat surface under this body's feet, when there is one. */
+    private Vec3 snapped(Vec3 local, YukkuriEntity body) {
+        var height = support(local, Occupancy.FOOT * body.getBbWidth());
+        return height.isPresent() ? new Vec3(local.x, height.getAsDouble(), local.z) : local;
+    }
+    /** The spot this rider stands on (hat units), or null when there is none: the server table, the client sync slot. */
+    private Vec3 riderPlace(Entity passenger) {
+        if (!level().isClientSide) {
+            var spot = riders.spot(passenger.getUUID());
+            return spot == null ? null : spot.local();
+        }
+        var spot = Riders.readSync(entityData.get(RIDERS)).get(passenger.getId());
+        return spot == null ? null : spot.local();
+    }
+    /** Writes the rider table's sync slot at most once a tick, and only when a spot changed. */
+    private void syncRiders() {
+        if (!riders.dirty()) return;
+        entityData.set(RIDERS, riders.syncTag(this::riderEntityId));
+        riders.clearDirty();
+    }
+    private Integer riderEntityId(UUID id) {
+        for (var p : getPassengers()) if (p.getUUID().equals(id)) return p.getId();
+        return null;
+    }
+    /** The supported, free spot near {@code prefer} this young may take now; nothing is kept (spec 5.1: no second store). */
+    private Vec3 nestPlace(YukkuriEntity child, Vec3 prefer) {
+        if (child == null || !admits(child)) return null;
+        var local = prefer != null ? prefer : frame().toLocal(child.position());
+        if (support(local, Occupancy.FOOT * child.getBbWidth()).isEmpty()) return null;
+        var spot = snapped(local, child);
+        return room(child, spot) ? spot : null;
+    }
+    /** Whether this young would find a free supported spot at all: the cavity middle, then one footprint around it. */
+    private boolean nestHasSpace(YukkuriEntity child) { return nestSpace(child) != null; }
+    /** NEST: the first free supported place on the hat, or null; a place is asked for, never kept (no seats, no leases). */
+    private Vec3 nestSpace(YukkuriEntity child) {
+        if (child == null) return null;
+        var centre = spots().get("centre");
+        if (centre == null) return null;
+        var middle = nestPlace(child, centre);
+        if (middle != null) return middle;
+        double step = Occupancy.FOOT * child.getBbWidth() / unit();
+        for (int i = 0; i < 4; i++) {
+            double angle = i * Math.PI / 2;
+            var place = nestPlace(child, new Vec3(centre.x + Math.cos(angle) * step, centre.y, centre.z + Math.sin(angle) * step));
+            if (place != null) return place;
+        }
+        return null;
+    }
+    /** I2: the rider table's keys are this host's passengers. A mismatch is reported, never "fixed" by moving a body. */
+    private void checkRiders(YukkuriEntity subject) {
+        if (level().isClientSide || usesDeck()) return;
+        var keys = riders.keys();
+        for (var p : getPassengers()) if (!keys.contains(p.getUUID())) {
+            if (p instanceof YukkuriEntity y) Motor.invariant(y, "I2", "rider spot missing for passenger " + p.getUUID());
+            return;
+        }
+        for (var id : keys) if (getPassengers().stream().noneMatch(p -> p.getUUID().equals(id))) {
+            Motor.invariant(subject, "I2", "rider spot without passenger " + id);
+            return;
+        }
+    }
     public List<Entity> youngPassengers() { return getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).toList(); }
     /** The owner's stern seat (hull-local): the high stern seat from late pregnancy. */
     public Vec3 ownerSeat(YukkuriEntity owner) {
@@ -821,6 +1019,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         return new Vec3(tag.getDouble(key+"X"),tag.getDouble(key+"Y"),tag.getDouble(key+"Z"));
     }
     public void syncSeats() {
+        if (!usesDeck()) return; // a NEST host writes no seat data; its riders are synchronized by RIDERS
         var tag = deck.snapshot(ownerYukkuri());
         tag.put("Crowding", crowding.save());
         tag.putBoolean("Overcrowded", deck.anyOverflow());
@@ -881,9 +1080,18 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
 
     // ---------------------------------------------------------------- boarding from outside
     /** A place for this young (nearest prefer, hat units; null for the usual one) that it can reach from where it is, kept for it until it boards. */
-    public Vec3 reserve(YukkuriEntity child, Vec3 prefer) { return stations.reserve(child, prefer); }
+    public Vec3 reserve(YukkuriEntity child, Vec3 prefer) {
+        if (!usesDeck()) {
+            var here = nestPlace(child, prefer);
+            return here != null ? here : nestSpace(child);
+        }
+        return stations.reserve(child, prefer);
+    }
     /** The place a young would get next, without keeping it. */
-    public Vec3 peekSeat(YukkuriEntity child) { return stations.peekSeat(child); }
+    public Vec3 peekSeat(YukkuriEntity child) {
+        if (!usesDeck()) return nestSpace(child);
+        return stations.peekSeat(child);
+    }
     /** A physical braid lift reserves the seat nearest the entry the child comes up at. */
     public Vec3 reserveRescueBrim(YukkuriEntity child,Vec3 actualFrom){ return stations.reserveRescueBrim(child, actualFrom); }
     /** Reserve the seat chosen by a transfer preflight; a changed deck refuses instead of substituting another destination. */
@@ -1074,6 +1282,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
     /** Server: young aboard without a place (after loading) get one; afloat, a body whose seat became unlawful (it grew, night fell,
      *  the captain grew heavy) is moved, and every errand that ended sends its rider home. Nobody else is touched. */
     private void tendSeats() {
+        if (!usesDeck()) return; // a NEST host has no deck to tend: every body already has its riders spot
         stations.tendRescueOwner();
         var owner = owner();
         if (owner != null && !catches()) deck.setCaptain(bodyOf(owner));
@@ -1122,6 +1331,14 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
             return;
         }
         // Each rider occupies its own deck seat, including the close but visible night gathering; a late sync waits.
+        if (!usesDeck()) {
+            // NEST: the riders table is the only place. No seat, no walk, no curve; a missing spot does not move the body.
+            var place = riderPlace(passenger);
+            if (place == null) return;
+            var at = frame().toWorld(place);
+            move.accept(passenger, at.x, at.y, at.z);
+            return;
+        }
         var local = seatOf(passenger);
         if (local == null) {
             if (passenger.getUUID().equals(ownerYukkuri()) && passenger instanceof YukkuriEntity y) local = ownerSeat(y);
@@ -1366,6 +1583,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         }
         syncSeats();
         syncCrew();
+        syncRiders();
         if (catches()) {
             if (isCradle()) {  // resting on the ground
                 var fall = new Vec3(0, Math.max(-.2, getDeltaMovement().y - .04), 0); setDeltaMovement(fall); move(MoverType.SELF, fall);
@@ -1445,6 +1663,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         tag.put("Cargo", cargo.save());
         tag.put("Crowding",crowding.save());
         tag.put("Deck",deck.save());
+        tag.put("Riders",riders.save());
         var young=new ListTag();for(var id:crew)young.add(NbtUtils.createUUID(id));tag.put("Crew",young);
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {
@@ -1460,6 +1679,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView {
         role="SELF".equals(tag.getString("Role"))?HatVessel.Role.SELF:HatVessel.Role.HELPER;
         cargo.load(tag.getCompound("Cargo")); syncCargo(cargo.save());
         deck.load(tag.getCompound("Deck"));
+        riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
         var motion=new CompoundTag();motion.putInt("Side",tag.getInt("MotionSide")<0?-1:1);
         hazards.capsizeReleased(state()==State.CAPSIZED);
         if(state()==State.CAPSIZED&&tag.contains("CapsizeAge")){

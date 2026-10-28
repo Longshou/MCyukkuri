@@ -9,8 +9,10 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Action
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.subspecies.crew.DeckLayout;
 import java.util.Locale;
@@ -402,6 +404,12 @@ public final class PresentationArbiter {
         if (boat.rocking() || boat.capsizing() || !boat.protects(e)) return null;
         var table = CrewPoseTable.get();
         var seat = boat.seatKind(e);
+        if (seat == null && !boat.usesDeck()) {
+            // A NEST host keeps no deck seat: the resting row comes from the height this body's feet are supported at.
+            var support = boat.support(boat.frame().toLocal(e.position()), Occupancy.FOOT * e.getBbWidth());
+            if (support.isEmpty()) return null;
+            seat = support.getAsDouble() >= HatVessel.top(boat.mode()) - 1e-6 ? DeckLayout.Kind.BRIM : DeckLayout.Kind.NEST_HOLLOW;
+        }
         boolean asleep = e.life().isSleeping();
         if (e.getUUID().equals(boat.ownerYukkuri())) {
             boolean high = seat == DeckLayout.Kind.CAPTAIN_HIGH;
@@ -417,7 +425,7 @@ public final class PresentationArbiter {
             if (action != YukkuriAction.BOAT_DRIFT && action != YukkuriAction.BOAT_SLEEP) return null;
             return table.captain(high, asleep, youngBefore, threat);
         }
-        if (seat == null || boat.changingSeat(e)) return null;
+        if (boat.changingSeat(e)) return null;
         if (action != YukkuriAction.HAT_CRADLE && action != YukkuriAction.HAT_BRIM && action != YukkuriAction.SLEEP) return null;
         return table.young(seat, boat.bodyOf(e).cls(), asleep);
     }

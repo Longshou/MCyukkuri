@@ -59,6 +59,7 @@ final class HatStations {
     private long now() { return boat.level().getGameTime(); }
     /** The body sits on that seat and is not moving. */
     private boolean settled(UUID id, int slot) {
+        if (!boat.usesDeck()) return false;
         var p = deck().get(id);
         return p != null && p.aboard() && p.slot() == slot && !deck().moving(id);
     }
@@ -98,6 +99,7 @@ final class HatStations {
 
     /** Once a second: a booking whose body is no longer coming, a lapsed refuge, a berth the pupil no longer keeps, a station nobody uses. */
     void tickLeases() {
+        if (!boat.usesDeck()) return;
         if (!(boat.level() instanceof ServerLevel server)) return;
         for (var p : List.copyOf(deck().all())) {
             var lease = p.lease();
@@ -171,7 +173,7 @@ final class HatStations {
     boolean prepareRearCareSeat(YukkuriEntity child, YukkuriEntity parent) { return prepareServiceSeat(child, parent, true); }
 
     boolean prepareServiceSeat(YukkuriEntity child, YukkuriEntity parent, boolean rear) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || child == null || parent == null || parent != boat.owner() || child.getVehicle() != boat
+        if (!boat.usesDeck() || boat.level().isClientSide || boat.unsteadyMotion() || child == null || parent == null || parent != boat.owner() || child.getVehicle() != boat
                 || parent.getVehicle() != boat || !boat.careRecipient(child) || !boat.protects(parent) || !boat.protects(child)
                 || !boat.isAfloat() || boat.flooding() != 0 || boat.hasIncoming() || ownerToiletSlot >= 0 || departurePreparing()
                 || deck().hasLease(child.getUUID(), Purpose.RETAINED)) return false;
@@ -292,6 +294,7 @@ final class HatStations {
 
     /** The captain is off her stern seat, moving, or at a toilet rim. */
     boolean ownerSeatBusy() {
+        if (!boat.usesDeck()) return false;
         var owner = boat.ownerYukkuri();
         var p = owner == null ? null : deck().get(owner);
         return ownerToiletSlot >= 0 || p != null && p.aboard() && (deck().moving(owner) || p.home() >= 0 && p.slot() != p.home());
@@ -368,7 +371,7 @@ final class HatStations {
 
     /** Send bodies that finished an errand back to the seat they left. Called every few ticks. */
     void tendReturns() {
-        if (boat.crew().busy()) return;
+        if (!boat.usesDeck() || boat.crew().busy()) return;
         long now = now();
         for (var p : List.copyOf(deck().all())) {
             if (!p.aboard() || !p.returning() || deck().moving(p.id())) continue;
@@ -488,7 +491,7 @@ final class HatStations {
 
     /** The pupil takes the front brim berth for its departure; idle siblings that stand in its way are moved first. */
     boolean keepDepartureBerth(YukkuriEntity child) {
-        if (boat.level().isClientSide || boat.unsteadyMotion() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || hasServiceSeats()
+        if (!boat.usesDeck() || boat.level().isClientSide || boat.unsteadyMotion() || !boat.young(child) || !boat.protects(child) || boat.hasIncoming() || hasServiceSeats()
                 || hasReturningSeats() || boat.hasCarryTrip() || ownerSeatBusy() || departureChild != null && !child.getUUID().equals(departureChild)) return false;
         if (preparingDepartureBerth(child)) return true;
         var id = child.getUUID();
@@ -530,7 +533,7 @@ final class HatStations {
 
     /** APPROACH waits for the siblings' real walk, then books the pupil's berth. */
     boolean advanceDepartureBerth(YukkuriEntity child) {
-        if (!preparingDepartureBerth(child)) return false;
+        if (!boat.usesDeck() || !preparingDepartureBerth(child)) return false;
         if (now() > departureUntil) { departureDebug = "yield expired"; clearDeparture(); return false; }
         for (var id : yielders) if (deck().moving(id)) return true;
         int brim = departureSlot;
@@ -554,7 +557,7 @@ final class HatStations {
     }
 
     boolean onVoyageBerth(YukkuriEntity child) {
-        if (child == null) return false;
+        if (!boat.usesDeck() || child == null) return false;
         var p = deck().get(child.getUUID());
         return p != null && p.aboard() && p.lease() != null && p.lease().purpose() == Purpose.RETAINED && p.home() >= 0 && p.slot() == p.home()
                 && !deck().moving(child.getUUID()) && boat.deckLayout().slot(p.slot()).kind() == Kind.BRIM;
