@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.settlement.Rations;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -381,6 +382,13 @@ public enum StatusKey {
         if (reason.isEmpty()) return "need a reason";
         return Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
     }),
+    // ---- body driver (refactor WP1, spec 13.2) ----------------------------------------------------------------
+    /** Attachment derived from the vanilla vehicle relation plus the host's riders: free, airborne, on_host or held. */
+    BODY_ATTACH("body", "attach", 0, y -> Attach.describe(Attach.of(y)), null),
+    /** The action that currently drives the body and the behaviour that owns it. */
+    BODY_ACTION("body", "action", 0, y -> y.motor().detail(), null),
+    /** The last outcome of an action with its reason and shortfall. */
+    BODY_LAST("body", "last", 0, y -> y.motor().lastDetail(), null),
     // ---- five behavior axes and recognition -------------------------------------------------------------------
     INTELLIGENCE("personality", "intelligence", 5, y -> y.life().personality().intelligence(), trait(Trait.INTELLIGENCE)),
     FRIENDLINESS("personality", "friendliness", 5, y -> y.life().personality().friendliness(), trait(Trait.FRIENDLINESS)),

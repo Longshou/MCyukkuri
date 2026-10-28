@@ -42,6 +42,7 @@ import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.life.SurfaceLife;
@@ -107,6 +108,8 @@ public final class YukkuriComponents {
     public static final ComponentKey<ForageTrip> FORAGE_TRIP = new ComponentKey<>("forageTrip", ForageTrip.class);
     public static final ComponentKey<CareApproach> CARE_APPROACH = new ComponentKey<>("careApproach", CareApproach.class);
     public static final ComponentKey<WinteringLife> WINTERING = new ComponentKey<>("wintering", WinteringLife.class);
+    /** The one action driver of a body (refactor WP1); never saved, interrupts stop the running action. */
+    public static final ComponentKey<BodyDriver> MOTOR = new ComponentKey<>("motor", BodyDriver.class);
     public static final ComponentKey<ShellRetraction> SHELL_RETRACTION = new ComponentKey<>("shellRetraction", ShellRetraction.class);
     public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
@@ -316,6 +319,19 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
+        // Body driver (refactor WP1, docs/REFACTOR_TECH_SPEC.md 9.3): no passive tick, no save; the interrupts stop the
+        // running action and the three sync slots feed YukkuriView.motorAction/motorStart/attachKind.
+        ComponentSpec.ready(MOTOR, YukkuriEntity::motor)
+                .sync(BodyDriver.MOTOR_ACTION)
+                .sync(BodyDriver.MOTOR_START)
+                .sync(BodyDriver.ATTACH_KIND)
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("fright"))
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("command"))
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("pet_lock"))
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("burning"))
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 5, (c, ctx) -> c.interrupt("hurt"))
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 5, (c, ctx) -> c.interrupt("death"))
+                .build(),
         // Leaf swaddle and swaddled-child bowel care (docs/CHILDHOOD_LIFECYCLE.md): the parent's Goal sits with the other priority-3 care goals.
         ComponentSpec.ready(LEAF_SWADDLE, LeafSwaddle::new)
                 .goal(3, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (swaddle, entity) -> new Goal() {

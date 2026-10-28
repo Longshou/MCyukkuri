@@ -91,6 +91,12 @@ public interface YukkuriView {
 
     String getAnimationId();
     long getAnimationStartTick();
+    /** Synchronized current action id of the body driver ("" when idle); never read from the server component. */
+    String motorAction();
+    /** Synchronized start tick of the current action (clip phase). */
+    long motorStart();
+    /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
+    byte attachKind();
     String getExpressionId();
     String getBehaviorId();
     long getBehaviorStartTick();

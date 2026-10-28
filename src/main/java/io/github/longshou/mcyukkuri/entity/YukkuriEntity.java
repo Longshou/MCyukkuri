@@ -46,6 +46,9 @@ import io.github.longshou.mcyukkuri.life.SurfaceLife;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.motor.BodyDriver;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.play.PlayLife;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
@@ -126,6 +129,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private final YukkuriVariant variant;
     private final PredatorLife predator = new PredatorLife(this);
+    /** The one action driver of this body (refactor WP1, spec 9.3); a READY component, constructed before any peer is read. */
+    private final BodyDriver motor = new BodyDriver(this);
+    public BodyDriver motor() { return motor; }
 
     private final SubspeciesLife subspecies = new SubspeciesLife(this);
     private AquaticLife aquaticLife;
@@ -249,6 +255,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public <T> T componentData(SyncSlot<T> slot) { return sync().componentData(slot); }
     public <T> void syncComponentData(SyncSlot<T> slot, T value) { sync().syncComponentData(slot, value); }
 
+    /** Synchronized current action id ("" when idle); clients read it through YukkuriView. */
+    public String motorAction() { return componentData(BodyDriver.MOTOR_ACTION); }
+    /** Synchronized start tick of the current action (clip phase). */
+    public long motorStart() { return componentData(BodyDriver.MOTOR_START); }
+    /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
+    public byte attachKind() { return componentData(BodyDriver.ATTACH_KIND); }
+
     public YukkuriVariant getVariant() { return variant; }
     public SpeciesProfile profile() { return SpeciesProfile.of(variant, subspeciesKind()); }
     public float bodyYaw() { return yBodyRot; }
@@ -358,6 +371,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     @Override public void travel(Vec3 input) {
+        if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
         if (!level().isClientSide && family.crew().holdsBody()) return;
         if (!level().isClientSide && family.travelFlight()) return;
         if (predatorFlying()) {
@@ -380,6 +394,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
         } else super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
     }
+
+    /** While {@link Motor#dismount} runs the passenger stays where it actually stands; vanilla must not move it to the carrier centre. */
+    @Override public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
+        if (Motor.DISMOUNTING.get()) return passenger.position();
+        return super.getDismountLocationForPassenger(passenger);
+    }
+
     public String getDialogueKey() { return sync().getDialogueKey(); }
     public long speechStart() { return sync().speechStart(); }
     public long speechEnd() { return sync().speechEnd(); }
@@ -670,7 +691,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
         if (!isCrawling()) crawlNudgeX = crawlNudgeZ = 0;
         double movementX = getX(), movementZ = getZ();
-        super.aiStep();
+        boolean wasDeciding = BodyDriver.deciding();
+        BodyDriver.deciding(true);
+        try { super.aiStep(); } finally { BodyDriver.deciding(wasDeciding); }
         double travelledX = getX() - movementX, travelledZ = getZ() - movementZ;
         if (level().isClientSide) return;
         if (!isAlive()) return;
