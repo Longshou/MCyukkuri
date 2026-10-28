@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -49,6 +50,8 @@ public final class Walk implements Action {
     private final Vec3 local;
     private final double speed;
     private final double arrive;
+    /** A body the route must go around instead of through, or null (the shared {@code SurfaceApproach.walkAround}). */
+    private final Entity avoid;
     private double pace;
     private Vec3 from;
     private boolean navDone;
@@ -56,16 +59,30 @@ public final class Walk implements Action {
 
     /** Walks to a world point, arrived when {@link SurfaceApproach#arrived}. */
     public Walk(Vec3 target) {
-        this(target, SPEED, 0);
+        this(target, SPEED, 0, null);
     }
 
     private Walk(Vec3 target, double speed, double arrive) {
+        this(target, speed, arrive, null);
+    }
+
+    private Walk(Vec3 target, double speed, double arrive, Entity avoid) {
         if (target == null) throw new IllegalArgumentException("Walk needs a target");
         this.target = target;
         this.speed = speed;
         this.arrive = Math.max(0, arrive);
+        this.avoid = avoid;
         this.host = null;
         this.local = null;
+    }
+
+    /**
+     * Walks to a world point around another body (a partner at a rendezvous): the shared
+     * {@link SurfaceApproach#walkAround} plans the route around it instead of through it. Arrived when
+     * {@link SurfaceApproach#arrived}.
+     */
+    public static Walk around(Vec3 target, Entity other) {
+        return new Walk(target, SPEED, 0, other);
     }
 
     /**
@@ -84,6 +101,7 @@ public final class Walk implements Action {
         this.target = null;
         this.speed = SPEED;
         this.arrive = 0;
+        this.avoid = null;
     }
 
     @Override public String id() { return ID; }
@@ -131,7 +149,10 @@ public final class Walk implements Action {
     }
 
     private Progress groundTick(YukkuriEntity body) {
-        boolean arrived = SurfaceApproach.walk(body, target, speed * carrying(body));
+        double paceNow = speed * carrying(body);
+        boolean arrived = avoid == null
+                ? SurfaceApproach.walk(body, target, paceNow)
+                : SurfaceApproach.walkAround(body, target, avoid, paceNow);
         double flat = body.position().subtract(target).horizontalDistance();
         double left = remaining(body);
         readNavigation(body);
