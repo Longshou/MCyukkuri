@@ -8,8 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 重构 WP3a（水生旧实现下线，接生帽移入 `headwear/PlacedHatEntity`） | `.worktrees/wp3a-cut` | `subspecies/`、`client/aquatic/`、底座各包的水生分支、`family/` 出生链水上分支、`command/` 与 `scripts/museum_scenarios.py` 的池塘场景、水生相关专题文档 |
-| 重构 WP3b 框架（已裁剪，等 WP3a 合入后合入） | `.worktrees/wp3b-framework` | `intent/`、`motor/action/`、`motor/Prop` |
+| 重构 WP3b（LiveBirth／茎生编排，删除旧接生协商与预约） | `.worktrees/wp3b-birth` | `family/`（`CatchHat`、`LiveDelivery`、`FamilyData`、`FamilyLife`、`BirthExit`、`BirthStaging`、`LiveBirthGeometry`、`BirthLaunch`、`BirthFlightPath`）、`headwear/HatProp`、`intent/`、`entity/YukkuriGoals`、`scripts/museum_scenarios.py` 出生场景 |
 
 ## 玩法待办
 
@@ -220,7 +219,7 @@
   - 帽船可被推动；
   - 帽内挤不下时，孩子可以被挤落水。
 - 设计与工作包 WP1–WP7 见[整体设计](REFACTOR_DESIGN.md)与[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)（范围含出生链，出生链同样冻结）；各工作包的进度与复测现象只登记在本条。
-- 进度：WP1、WP2 已接入待试玩，运行 [edc3fd98](https://github.com/Longshou/MCyukkuri/commit/edc3fd98)（含发射只触发一次与赤油爬行加快）；复测看 E11 条目与 `birth_land_caught`／`birth_land_missed`（落帽率与摔伤表现同旧版分布）、`hop`、`infant_feed`。计划已改为旧水生整体下线后重建（[整体设计第 11 节](REFACTOR_DESIGN.md#11生产计划)）：WP3a 下线进行中，WP3b 出生编排随后；出生链经试玩认可后才开 WP4，WP4 前须先确认统一帽子尺寸预览。
+- 进度：WP1、WP2 已接入待试玩，运行 [ba5d5832](https://github.com/Longshou/MCyukkuri/commit/ba5d5832)（含发射只触发一次与赤油爬行加快）；复测看 E11 条目与 `birth_land_caught`／`birth_land_missed`（落帽率与摔伤表现同旧版分布）、`hop`、`infant_feed`。WP3a 已合入（[12794e04](https://github.com/Longshou/MCyukkuri/commit/12794e04)）：旧水生实现下线，池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽改为 `headwear/PlacedHatEntity`；陆地玩法应不变，复测看 F1 出生场景与 E11。编排框架已合入（[b8bbfeff](https://github.com/Longshou/MCyukkuri/commit/b8bbfeff)），WP3b 出生编排进行中；出生链经试玩认可后才开 WP4，WP4 前须先确认统一帽子尺寸预览。
 - 完成：各工作包按设计稿的展台与行为场景验收。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[玩法日志](GAMEPLAY_LOGGING.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。
