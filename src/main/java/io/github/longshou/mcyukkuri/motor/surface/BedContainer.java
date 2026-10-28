@@ -41,7 +41,7 @@ public final class BedContainer implements Container {
             var hollow=care.bed();
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
-            return new BedContainer(centre,new FloorShape.RoundedRect(hollow.half(),hollow.corner()),floorY,
+            return new BedContainer(centre,lying(hollow),floorY,
                     Math.max(floorY,base+shellTop(level,origin,care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
@@ -50,7 +50,17 @@ public final class BedContainer implements Container {
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE_BED:NestResting.LEAF_BED;
         var centre=Vec3.atBottomCenterOf(bed);
         double floorY=floorAt(e,centre,centre.y);
-        return new BedContainer(centre,new FloorShape.RoundedRect(hollow.half(),hollow.corner()),floorY,floorY);
+        return new BedContainer(centre,lying(hollow),floorY,floorY);
+    }
+
+    /**
+     * The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS},
+     * capped by the collision box as NestResting caps it), so every place NestResting assigns is inside. Standing on the rim
+     * top is still excluded by the floor-height test.
+     */
+    private static FloorShape lying(NestResting.Bed bed){
+        double half=Math.min(bed.half()+NestResting.RIM_PRESS,bed.box()+(bed.softBox()?NestResting.RIM_PRESS:0));
+        return new FloorShape.RoundedRect(half,Math.min(half,bed.corner()+NestResting.RIM_PRESS));
     }
 
     /** Whether a body of {@code width} standing on the level floor at plane point (x,z) is fully supported inside the hollow. */
