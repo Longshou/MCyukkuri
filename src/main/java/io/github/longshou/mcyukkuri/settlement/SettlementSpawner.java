@@ -104,14 +104,19 @@ public final class SettlementSpawner {
         if (seedLeader) members.add(seed);
         for (var household : composition.households()) {
             List<YukkuriEntity> family = new ArrayList<>();
+            // An aquatic marisa seeds an aquatic family: the species only pairs with its own kind (species fact, no boats here).
+            boolean aquaticFamily = members.isEmpty() && seed != null && seed.profile().aquatic();
             // Most two-parent households are a Reimu mother and a Marisa father [original 4/5]; the rest stay mixed.
             boolean couple = household.parents() == 2 && level.random.nextInt(5) != 0;
             for (int i = 0; i < household.size(); i++) {
-                YukkuriVariant variant = i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU
+                YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA
+                        : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU
                         : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[level.random.nextInt(COMMON.length)]
                         : family.get(level.random.nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
+                if (aquaticFamily && member != seed && i < household.parents())
+                    member.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
                 family.add(member); members.add(member);
             }
             households.add(family);

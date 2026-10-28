@@ -42,7 +42,6 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.Random;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.tags.FluidTags;
 
 /** Individual growth and interruptible family goals; durable births live in FamilyData. */
 public final class FamilyLife {
@@ -1029,6 +1028,7 @@ public final class FamilyLife {
             case RECEIVE_COURT -> courtship.tickReceiver();
             case FOLLOW -> {
                 if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<familyRadiusSqr()){stop();return;}
+                entity.getLookControl().setLookAt(target,20,20);
                 if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
             }
             case STAY_HOME -> {

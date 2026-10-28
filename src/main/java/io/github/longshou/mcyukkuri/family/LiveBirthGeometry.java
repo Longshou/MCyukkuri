@@ -230,7 +230,8 @@ public final class LiveBirthGeometry {
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.
         // Siblings already caught in a hat cradle at the outlet do not block the next one.
         if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()
-                &&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;        var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
+                &&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;
+        var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;
         for(double dx:new double[]{-dimensions.width()*.4,dimensions.width()*.4})for(double dz:new double[]{-dimensions.width()*.4,dimensions.width()*.4}){

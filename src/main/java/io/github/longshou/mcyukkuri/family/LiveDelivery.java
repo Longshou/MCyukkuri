@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
 
-import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 

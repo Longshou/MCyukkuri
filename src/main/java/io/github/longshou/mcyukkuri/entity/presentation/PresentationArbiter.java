@@ -11,7 +11,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;
 
@@ -225,6 +225,7 @@ public final class PresentationArbiter {
         var e = state.owner();
         if (behavior.equals(Behaviors.BOAT_TOILET)) behavior = Behaviors.SEEK_TOILET;
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
+                : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()
                 ? YukkuriAction.WADDLE
@@ -259,6 +260,29 @@ public final class PresentationArbiter {
         state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
                 state.reactionTicks() > 0 ? state.reactionExpression() : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
                         e.settlement().society().dejected() ? "teary" : "neutral")));
+    }
+
+    /**
+     * A young riding the placed catch hat: real sleep and meals win over a lingering newborn reaction, then cradle or brim by
+     * where its feet are actually supported. The hat's owner never rides a cradle.
+     */
+    private static YukkuriAction hatRiderAction(PresentationAccess state, PlacedHatEntity hat, String behavior) {
+        var e = state.owner();
+        if (behavior.equals(Behaviors.HAT_WALK)) return EcologyPresentation.action(behavior);
+        if (e.life().isSleeping()) return YukkuriAction.SLEEP;
+        if (e.life().mealTicks() > 0) return EcologyPresentation.action(behavior);
+        // Crawling, hopping and the first-toilet beats keep their own clips inside the hat.
+        if (behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP) || behavior.equals(Behaviors.BOAT_TOILET)
+                || behavior.equals(Behaviors.FIRST_TOILET_WAIT) || behavior.equals(Behaviors.FIRST_TOILET_STIMULATED))
+            return EcologyPresentation.action(behavior);
+        if (onBrim(hat, e)) return YukkuriAction.HAT_BRIM;
+        if (state.reactionTicks() > 0 && state.reactionEvent().equals("newborn")) return YukkuriAction.FIRST_WAKE;
+        return YukkuriAction.HAT_CRADLE;
+    }
+    /** The rider's feet are supported at the brim's top edge rather than down in the cavity. */
+    private static boolean onBrim(PlacedHatEntity hat, YukkuriEntity e) {
+        var support = hat.support(hat.frame().toLocal(e.position()), Occupancy.FOOT * e.getBbWidth());
+        return support.isPresent() && support.getAsDouble() >= HatGeometry.top() - 1e-6;
     }
 
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */

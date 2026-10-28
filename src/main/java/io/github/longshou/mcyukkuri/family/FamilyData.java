@@ -621,7 +621,7 @@ public final class FamilyData extends SavedData {
             if(exit!=null&&exit.target()!=null&&exit.target().hat()!=null){
                 var target=exit.target();landHat=target.hat();
                 // The outlet preflight chooses the receiver; the place itself is not kept, the first real contact decides.
-                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,false,target.admission()))
+                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,target.admission()))
                     return refuse(brood,level,"catch_berth_unavailable");
             }
         }

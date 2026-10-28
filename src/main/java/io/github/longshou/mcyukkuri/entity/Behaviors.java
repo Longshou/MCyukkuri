@@ -55,19 +55,12 @@ public final class Behaviors {
     public static final String BOAT_SEEK_BANK = "boat_seek_bank";
     public static final String BOAT_SEEK_REST = "boat_seek_rest";
     public static final String BOAT_SLEEP = "boat_sleep";
-    public static final String BOAT_THROWN = "boat_thrown";
     public static final String BOAT_STEADY = "boat_steady";
     public static final String BOAT_TOILET = "boat_toilet";
     public static final String BOAT_WAIT_YOUNG = "boat_wait_young";
     public static final String BOAT_WEDGE_BERTH = "boat_wedge_berth";
     public static final String BOAT_PUSH_OFF = "boat_push_off";
     public static final String BOAT_COVER_YOUNG = "boat_cover_young";
-    public static final String BRAID_BE_RESCUED = "braid_be_rescued";
-    public static final String BRAID_RESCUE_HOLD = "braid_rescue_hold";
-    public static final String BRAID_RESCUE_OFFER = "braid_rescue_offer";
-    public static final String BRAID_RESCUE_PUSH = "braid_rescue_push";
-    public static final String BRAID_RESCUE_REACH = "braid_rescue_reach";
-    public static final String BRAID_RESCUE_SETTLE = "braid_rescue_settle";
     public static final String BREEDING_PERIOD = "breeding_period";
     public static final String BULLY_PEER = "bully_peer";
     public static final String SELF_DEFENSE = "self_defense";
@@ -95,16 +88,10 @@ public final class Behaviors {
     public static final String FLEE = "flee";
     public static final String FOLLOW_PARENT = "follow_parent";
     public static final String GROUND_TOILET = "ground_toilet";
-    public static final String HAT_BOARD_ALIGN = "hat_board_align";
-    public static final String HAT_BOARD_GRIP = "hat_board_grip";
-    public static final String HAT_BOARD_HOP = "hat_board_hop";
-    public static final String HAT_BOARD_LIFT = "hat_board_lift";
-    public static final String HAT_BOARD_SETTLE = "hat_board_settle";
     public static final String HAT_BRIM = "hat_brim";
     public static final String HAT_CRADLE = "hat_cradle";
     public static final String HAT_HOLD = "hat_hold";
     public static final String HAT_HOLD_AQ = "hat_hold_aq";
-    public static final String HAT_JOSTLE = "hat_jostle";
     public static final String HAT_OFF = "hat_off";
     public static final String HAT_OFF_AQ = "hat_off_aq";
     public static final String HAT_OFF_SELF = "hat_off_self";
@@ -113,9 +100,7 @@ public final class Behaviors {
     public static final String HAT_ON_AQ = "hat_on_aq";
     public static final String HAT_ON_SELF = "hat_on_self";
     public static final String HAT_ON_SELF_AQ = "hat_on_self_aq";
-    public static final String HAT_SCRAMBLE = "hat_scramble";
     public static final String HAT_SLIPPING = "hat_slipping";
-    public static final String HAT_STUMBLE = "hat_stumble";
     public static final String HAT_WALK = "hat_walk";
     public static final String HEAT_RELIEF = "heat_relief";
     public static final String HEAT_UNMET = "heat_unmet";
@@ -254,13 +239,6 @@ public final class Behaviors {
     public static final String WAKE = "wake";
     public static final String WARM_UP = "warm_up";
     public static final String WATER_EXHAUSTED = "water_exhausted";
-    public static final String WATER_HAT_CLIMB = "water_hat_climb";
-    public static final String WATER_HAT_GRIP = "water_hat_grip";
-    public static final String WATER_HAT_REACH = "water_hat_reach";
-    public static final String WATER_HAT_REMOVE = "water_hat_remove";
-    public static final String WATER_HAT_RIGHT = "water_hat_right";
-    public static final String WATER_HAT_SAFE = "water_hat_safe";
-    public static final String WATER_HAT_SLIP = "water_hat_slip";
     public static final String WATER_IMPACT = "water_impact";
     public static final String WATER_RECOVER = "water_recover";
     public static final String WATER_STRUGGLE = "water_struggle";
@@ -268,16 +246,13 @@ public final class Behaviors {
     public static final String WINTER_STAY = "winter_stay";
 
     // Prefixes are also used by existing presentation selectors.
-    public static final String HAT_BOARD_PREFIX = "hat_board_";
     public static final String EVENT_PREFIX = "event_";
     public static final String EVENT_BADGE_PREFIX = "event_badge_";
-    public static final String BRAID_RESCUE_PREFIX = "braid_rescue_";
     public static final String WATER_HAT_PREFIX = "water_hat_";
     public static final String BOAT_RESCUE_PREFIX = "boat_rescue_";
     public static final String AQUATIC_SUFFIX = "_aq";
 
     /** Inputs retain their existing normalization at the caller. */
-    public static String hatBoard(String phase) { return HAT_BOARD_PREFIX + phase; }
     public static String event(String card) { return EVENT_PREFIX + card; }
     public static String eventBadge(String card) { return EVENT_BADGE_PREFIX + card; }
     public static String aquatic(String id) { return id + AQUATIC_SUFFIX; }
@@ -287,7 +262,6 @@ public final class Behaviors {
     public static final String HOUSE_PREFIX = "house_";
     public static final String NEST_PREFIX = "nest_";
     public static final String INDEPENDENCE_PREFIX = "independence_";
-    public static final String BOAT_ALARM_PREFIX = "boat_alarm_";
 
     // E4 phase observations; these names do not opt into specialized client renderer prefixes.
     public static final String CANNIBAL_AVOID = "cannibal_avoid";

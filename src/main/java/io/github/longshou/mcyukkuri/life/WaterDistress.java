@@ -185,17 +185,6 @@ public final class WaterDistress {
                 best=distance;shore=pos.immutable();
             }
         }
-        if(shore==null){
-            // Nothing dry within six blocks: look farther along sixteen headings, a few rings, nearest first.
-            outer:for(int ring=8;ring<=16;ring+=4)for(int k=0;k<16;k++){
-                double angle=k*Math.PI/8;
-                var pos=BlockPos.containing(entity.getX()+Math.cos(angle)*ring,entity.getY(),entity.getZ()+Math.sin(angle)*ring);
-                for(int dy=-1;dy<=2;dy++){
-                    var probe=pos.above(dy);
-                    if(level().hasChunkAt(probe)&&entity.life().dryStand(probe)&&entity.life().reachable(probe,true)){shore=probe.immutable();break outer;}
-                }
-            }
-        }
         if(shore!=null)destination=Vec3.atBottomCenterOf(shore);
     }
     public CompoundTag save(){

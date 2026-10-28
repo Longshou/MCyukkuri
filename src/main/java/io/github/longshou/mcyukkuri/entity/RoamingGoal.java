@@ -71,7 +71,6 @@ public final class RoamingGoal extends Goal {
         return destination != null;
     }
     private BlockPos choose() {
-        BlockPos fallback = null;
         boolean baby = animal.family().stage() == Stage.BABY;
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
@@ -88,10 +87,9 @@ public final class RoamingGoal extends Goal {
             if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) continue;
             if (++paths > 4) break;
             if (!animal.life().reachable(pos,false)) continue;
-            if (fallback == null) fallback = pos.immutable();
             return pos.immutable();
         }
-        return fallback;
+        return null;
     }
     @Override public void start() {
         active = true; result = "outbound";

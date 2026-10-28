@@ -323,6 +323,8 @@ public final class ShopMenu extends AbstractContainerMenu {
         if(reason!=null)return refused(p,"buy_live",reason);
         int price = quotes.get(idx).price;
         if (count(p, Items.EMERALD) < price)return refused(p,"buy_live","insufficient_emeralds");
+        // A carried animal is not standing where the clerk can hand it over; the refusal is logged like the other gates.
+        if (animal.isPassenger()) return refused(p,"buy_live","passenger");
         if (!ShopTrade.begin(level, target, animal, p.getUUID(), price)) return false;
         debit(p, Items.EMERALD, price);
         GameplayLog.event(p,"shop","action=buy_live result=debited shop={} target={} emeralds_used={} delivery=pending",target.getUUID(),animal.getUUID(),price);

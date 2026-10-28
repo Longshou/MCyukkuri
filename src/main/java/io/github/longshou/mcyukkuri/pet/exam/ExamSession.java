@@ -73,10 +73,9 @@ public final class ExamSession implements ExamContext {
         return !level.getEntitiesOfClass(YukkuriEntity.class, p.getBoundingBox().inflate(32), y -> y.isAlive() && y.pet().owned(p) && y.pet().isPet() && y.pet().neglect() >= 60).isEmpty();
     }
 
-    /** Why this subject may not sit this exam now (a REASONS entry), or null if it may. Reissue (REISSUE) is checked here too. */
-    public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) { return refusal(examiner,p,y,type,type==REISSUE); }
-    /** Preview remains read-only. */
-    private static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type,boolean requireDryFeet) {
+    /** Why this subject may not sit this exam now (a REASONS entry), or null if it may. Reissue (REISSUE) is checked here too.
+     *  Preview and the commit point read the same answer; nothing here moves or changes the candidate. */
+    public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) {
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
         if (active(examiner)) return "busy";
@@ -85,12 +84,13 @@ public final class ExamSession implements ExamContext {
             if (pet.owner() != null || !WildEvents.canAdopt(y, p)) return "not_owned";
             if (type != SIMPLE) return "wild_simple_only";
         }
-        if (y.isPassenger() && requireDryFeet) return "not_ready";
+        // A carried candidate has no feet to sit an exam with.
+        if (y.isPassenger()) return "not_ready";
         if (pet.busy() || y.isNoAi()) return "not_ready";
         if (type == REISSUE) return pet.grade() == BadgeGrade.NONE ? "need_badge" : emeralds(p) < fee(type) ? "no_fee" : null;
         if (y.isPanicking() || y.hurtTime > 0 || y.operations().active()) return "not_ready";
         if (pet.cooldown() > 0) return "cooldown";
-        if (!y.life().hasAccessory() && requireDryFeet) return "no_accessory";
+        if (!y.life().hasAccessory()) return "no_accessory";
         var grade = pet.grade();
         switch (type) {
             case SIMPLE -> { if (grade != BadgeGrade.NONE) return "already_badged"; if (unmanaged(p)) return "no_management"; }
@@ -109,7 +109,7 @@ public final class ExamSession implements ExamContext {
     public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
         if (!(examiner.level() instanceof ServerLevel level) || type < SIMPLE || type > RENEWAL) return "busy";
         // A button press is the one commit point.  Check all current requirements first.
-        var why = refusal(examiner, owner, candidate, type, false);
+        var why = refusal(examiner, owner, candidate, type);
         if (why != null && !(why.equals("no_fee") && !charge)) {
             GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason={}",owner.getUUID(),candidate==null?null:candidate.getUUID(),type,why);
             return why;
@@ -119,7 +119,7 @@ public final class ExamSession implements ExamContext {
     /** Revalidates full current eligibility just before lock/debit. */
     private static String startOnLand(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
         var level=(ServerLevel)examiner.level();
-        var why = refusal(examiner, owner, candidate, type, true);
+        var why = refusal(examiner, owner, candidate, type);
         if (why != null && !(why.equals("no_fee") && !charge)) {
             GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason={}",owner.getUUID(),candidate==null?null:candidate.getUUID(),type,why);
             return why;

@@ -21,6 +21,8 @@ import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
@@ -526,6 +528,12 @@ public final class PredatorLife implements EcologyRoutine {
                     var fluid = level().getFluidState(p);
                     if (fluid.is(FluidTags.WATER)) floor = Math.max(floor, y + fluid.getHeight(level(), p) + .04);
                 }
+        // A placed catch hat is a real surface too: a low approach clears its cap instead of slicing through it.
+        for (var hat : level().getEntitiesOfClass(PlacedHatEntity.class, box.inflate(.1, 2, .1), h -> h.isAlive())) {
+            Vec3 local = hat.toLocal(feet);
+            double top = HatGeometry.footprint(local.x, local.z, animal.getBbWidth() * .5 / hat.unit());
+            if (Double.isFinite(top)) floor = Math.max(floor, hat.toWorld(new Vec3(local.x, top, local.z)).y + .04);
+        }
         return floor;
     }
     private boolean blockSweepClear(Vec3 from, Vec3 to) {

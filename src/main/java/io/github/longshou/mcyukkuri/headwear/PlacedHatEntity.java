@@ -39,7 +39,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -282,21 +281,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Physical boarding authority: the birth family of the owner. A cradle grants no other relation. */
     public boolean admits(YukkuriEntity child) { return child != null && !child.family().adult() && young(child); }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
-    /** Cancel a failed pre-boarding birth claim; nothing was kept, so only a body already aboard is left alone. */
-    public void cancelBirthAdmission(YukkuriEntity child) {
-        if (level().isClientSide || child == null || hasPassenger(child)) return;
-    }    /** Read-only twin of {@link #makeRoom}: could this young take a supported place now. */
-    public boolean canMakeRoom(YukkuriEntity child, boolean jettison) { return !level().isClientSide && nestHasSpace(child); }
     /** The foot radius (hat units) of an unborn body of this birth size. */
     private double newbornFoot(FamilyData.BirthKind kind,FamilyData.Child child) {
         return Occupancy.FOOT*LiveBirthGeometry.unbornDimensions(kind,child).width()/unit();
-    }
-    public boolean canAdmitNewborn(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency) {
-        return catches() && newbornAdmission(kind, child) != NewbornAdmission.NONE;
-    }
-    /** Read-only real place candidates for a newborn, including the place an allowed room-making move would expose. */
-    public List<Vec3> birthSeats(FamilyData.BirthKind kind,FamilyData.Child child,boolean emergency,Vec3 from) {
-        return birthSeatChoices(kind, child, from).stream().map(BirthSeat::position).toList();
     }
     public record BirthSeat(Vec3 position, int slot, NewbornAdmission admission) {}
     public List<BirthSeat> birthSeatChoices(FamilyData.BirthKind kind,FamilyData.Child child,Vec3 from) {
@@ -307,35 +294,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (first != null) seats.add(new BirthSeat(toWorld(first), -1, NewbornAdmission.BOARD));
         return seats;
     }
-    /** The decision layer's explicit "make room" call: a cradle only answers whether a supported place exists. */
-    public boolean makeRoom(YukkuriEntity child, boolean jettison) { return !level().isClientSide && nestHasSpace(child); }
-    /** Prepare exactly the selected birth place; a cradle keeps no seat, so this is the same question. */
-    public boolean makeRoom(YukkuriEntity child, boolean jettison, NewbornAdmission admission) {
+    /** Prepare exactly the selected birth place: a cradle keeps no seat, so this only answers whether a supported place exists. */
+    public boolean makeRoom(YukkuriEntity child, NewbornAdmission admission) {
         return !level().isClientSide && admission != NewbornAdmission.NONE && nestHasSpace(child);
-    }
-    /** Claim the one birth place this cradle has: a supported, empty spot in its cavity. */
-    public Vec3 reserveBirthAdmission(YukkuriEntity child,NewbornAdmission admission) {
-        return admission == NewbornAdmission.NONE || child == null ? null : nestSpace(child);
-    }
-    /** The concrete newborn must be the same body the unborn probe asked for before it can take the place. */
-    public NewbornAdmission newbornAdmission(YukkuriEntity child,boolean emergency) {
-        return child != null && admits(child) && catches() && nestHasSpace(child) ? NewbornAdmission.BOARD : NewbornAdmission.NONE;
-    }
-    private NewbornAdmission newbornAdmission(FamilyData.BirthKind kind,FamilyData.Child child) {
-        return nestSpace(newbornFoot(kind, child)) != null ? NewbornAdmission.BOARD : NewbornAdmission.NONE;
-    }
-    /** Would a newborn (not yet an entity) have an ordinary safe place here. */
-    public boolean canAdmitNewborn() { return canAdmitNewborn(FamilyData.BirthKind.LIVE,(FamilyData.Child)null,false); }
-    /** Short text of why the last admission was refused, for failure reports. */
-    public String roomDebug(YukkuriEntity child){
-        return "admission=" + (child != null && nestSpace(child) != null ? "board" : "none") + " riders=" + riders.size();
-    }
-    /** A newborn delivered in the hat stays aboard with its mother. */
-    public boolean boardYoung(YukkuriEntity child) {
-        if (level().isClientSide || !admits(child)) return false;
-        if (hasPassenger(child)) return true;
-        if (!room(child, frame().toLocal(child.position()))) return false;
-        return Motor.mount(child, this, "board_young");
     }
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
