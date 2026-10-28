@@ -23,9 +23,6 @@ import net.minecraft.world.phys.Vec3;
  * centre. Nothing here names a height, a distance or a duration: the hop apex is {@code min(0.25·S, hopHeight)} resolved
  * through {@link ArcSolver#vyFor}, the roll is bounded by {@link #ROLL_REACH} of the spec's own 0.3 blocks, and every pose
  * length comes from {@link ClipMarkers}.
- *
- * <p>The same helpers serve the birth staging that runs on a passive clock and therefore may not start an action: it applies
- * the very impulse or roll step this action would, so there is one implementation of each number.
  */
 public final class Gesture implements Action {
     public static final String ID = "gesture";
@@ -80,8 +77,8 @@ public final class Gesture implements Action {
     }
 
     /**
-     * The single upward impulse of a small hop, from the discrete arc model. Zero for a body that cannot jump, so a passive
-     * caller (a landing bounce, a greeting) gets no hop rather than a made-up height.
+     * The single upward impulse of a small hop, from the discrete arc model. Zero for a body that cannot jump, so a landing
+     * bounce sized by it gets no hop rather than a made-up height.
      */
     public static double smallHopImpulse(YukkuriEntity body) {
         return smallHopImpulse(BodyAbility.of(body));
@@ -93,7 +90,7 @@ public final class Gesture implements Action {
 
     /**
      * Moves {@code body} toward {@code center} by at most {@code budget} blocks with collision, and reports the distance it
-     * actually covered. Shared with the nest-rim tumble, which lands on a passive tick and so cannot run the action.
+     * actually covered.
      */
     public static double roll(YukkuriEntity body, Vec3 center, double budget) {
         if (body == null || center == null || budget <= 0) return 0;
@@ -162,7 +159,8 @@ public final class Gesture implements Action {
         if (rolled >= ROLL_REACH - 1E-6 || ticks >= length)
             return new Outcome.Done(String.format(Locale.ROOT, "clip=%s moved=%.2f toward=%s", clip, rolled,
                     GameplayLog.at(toward)));
-        return new Running(length - ticks, TravelMode.CONSUMED);
+        // A tumble off a soft rim falls as it rolls: vanilla travel keeps gravity (PASS), the roll step is the only push.
+        return new Running(length - ticks, TravelMode.PASS);
     }
 
     /** Before a small hop takes off it can be abandoned; after the impulse the physics owns the body. */

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -356,15 +357,31 @@ final class YukkuriGoals {
         @Override public void tick() { owner.family().tickGoal(); }
         @Override public void stop() { owner.family().stop(); }
     }
+    /**
+     * Both roles of a running birth (spec 14 WP3b): while the current beat casts this body, it runs the beat's intent for it with
+     * its own IntentRunner and reports the end to the choreography; a role with nothing to run holds still and plays its beat.
+     * Otherwise the birth-priority family duty (comforting a hurt newborn).
+     */
     private final class BirthGoal extends Goal {
+        private IntentRunner runner;
         BirthGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
-        @Override public boolean canUse() { return owner.family().prioritizesBirth()&&owner.family().canUse(); }
-        @Override public boolean canContinueToUse() { return owner.family().prioritizesBirth()&&owner.family().canContinue(); }
+        @Override public boolean canUse() { return owner.family().birthRole()!=null||owner.family().prioritizesBirth()&&owner.family().canUse(); }
+        @Override public boolean canContinueToUse() { return owner.family().birthRole()!=null||owner.family().prioritizesBirth()&&owner.family().canContinue(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         // The displaced ordinary family goal may have stopped after canUse; reacquire the same birth duty.
-        @Override public void start() { owner.family().canUse(); }
-        @Override public void tick() { owner.family().tickGoal(); }
-        @Override public void stop() { owner.family().stop(); }
+        @Override public void start() { if(owner.family().birthRole()==null)owner.family().canUse(); }
+        @Override public void tick() {
+            var role=owner.family().birthRole();
+            if(role==null){ release("role_ended"); owner.family().tickGoal(); return; }
+            var intent=role.choreography().intentFor(owner.getUUID());
+            if(runner!=null&&runner.intent()!=intent) release("beat_changed");
+            if(intent==null){ owner.family().holdBirthRole(role); return; }
+            if(runner==null){ runner=new IntentRunner(owner,intent,"birth_"+role.role()); runner.start(); owner.family().birthIntentStarted(role,intent); }
+            runner.tick();
+            if(runner.result()!=IntentRunner.Result.RUNNING){ role.choreography().report(owner.getUUID(),intent,runner.result()); runner=null; }
+        }
+        @Override public void stop() { release("birth_goal_stop"); owner.family().stopBirthGoal(); }
+        private void release(String why) { if(runner!=null){ runner.stop(why); runner=null; } }
     }
     void saveDebugGoals(CompoundTag tag) {
         if (EcologyRoutines.house(owner)) {

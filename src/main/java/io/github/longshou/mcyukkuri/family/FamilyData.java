@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -552,26 +553,19 @@ public final class FamilyData extends SavedData {
     }
     /** Why the last birth attempt of this brood was refused (diagnostic; empty when none or since succeeded). */
     public String birthBlock(Brood brood){return brood==null?"":refusals.getOrDefault(brood.id,"");}
-    private int nextUnbornFlags(Brood brood){
-        for(var child:brood.children)if(!child.born&&!child.eggLost)return child.subspeciesFlags;
-        return 0;
-    }
-
-    /**
-     * Where this kit would get next on the hat, read only: the aim of its drawn launch. Never kept for it, and the actual
-     * landing is still decided by its first real contact with the surface.
-     */
+    /** Where this kit would get next on the hat (else its middle), read only: the aim of its drawn launch, never kept. */
     private static Vec3 launchPlace(PlacedHatEntity hat,YukkuriEntity child){
-        var place=hat.birthPlace(child);
-        if(place!=null)return place;
-        var centre=hat.spots().get("centre");
-        return centre==null?Vec3.ZERO:centre;
+        var place=hat.birthPlace(child);var centre=hat.spots().get("centre");
+        return place!=null?place:centre==null?Vec3.ZERO:centre;
     }
+    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,false); }
 
-    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) {
+    /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
+     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid (spec 14 WP3b). */
+    public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, boolean unprotected) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
-        if(brood.detachedHolder==null&&brood.kind!=BirthKind.EGG
-                &&level.getEntity(brood.mother) instanceof YukkuriEntity mother&&!mother.subspecies().canReproduce()) {
+        var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
+        if(mother!=null&&!mother.subspecies().canReproduce()) {
             cancel(brood,mother,"mother_cannot_reproduce");return null;
         }
         Child child=brood.children.get(index);if(child.born||child.eggLost)return null;
@@ -583,11 +577,7 @@ public final class FamilyData extends SavedData {
                 ||!(level.getBlockEntity(child.eggNest.pos()) instanceof HouseNestBlockEntity nest)
                 ||!nest.identity().equals(child.eggNestId)))return null;
         if(brood.kind==BirthKind.LIVE){
-            if(!(level.getEntity(brood.mother) instanceof YukkuriEntity mother)||mother.family().brood()!=brood)return refuse(brood,level,"mother_missing");
-            if(!mother.family().readyForDelivery())return refuse(brood,level,"mother_not_ready");
-            if(position.distanceToSqr(LiveBirthGeometry.position(mother,index))>.0001)return refuse(brood,level,"outlet_moved");
-            if(mother.family().unprotectedBirthExit()?!BirthExit.unobstructed(mother,index):!LiveBirthGeometry.clear(mother,child,index))
-                return refuse(brood,level,"outlet_blocked");
+            if(mother==null)return refuse(brood,level,"mother_missing");
             for(int earlier=0;earlier<index;earlier++)if(!brood.children.get(earlier).born)return refuse(brood,level,"earlier_sibling_unborn");
         }
         for(ServerLevel dimension:level.getServer().getAllLevels())if(dimension.getEntity(child.id) instanceof YukkuriEntity existing) {
@@ -600,46 +590,31 @@ public final class FamilyData extends SavedData {
         if(brood.kind!=BirthKind.EGG||!child.eggManaged) {
             if(!relocate(brood,level,BlockPos.containing(position)))return refuse(brood,level,"population_limit");
         }
-        boolean unprotected=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m&&m.family().unprotectedBirthExit();
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
         entity.subspecies().refreshStage();
         entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
-        if(brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity mother){
+        if(brood.kind==BirthKind.LIVE){
             float facing=mother.yBodyRot;
             entity.setYRot(facing);entity.yRotO=facing;entity.yBodyRot=entity.yBodyRotO=facing;entity.setYHeadRot(facing);entity.yHeadRotO=facing;
         }
         if(brood.detachedHolder!=null){entity.setYRot(180);entity.yRotO=180;entity.yBodyRot=entity.yBodyRotO=180;entity.setYHeadRot(180);entity.yHeadRotO=180;}
         entity.setPersistenceRequired();
-        YukkuriEntity scene=brood.kind==BirthKind.LIVE&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
-        boolean noCushion=unprotected||scene!=null&&scene.family().withholdsCushion();
-        PlacedHatEntity landHat=null;
         if(unprotected?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
                 :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");
-        if(scene!=null&&!noCushion){
-            var exit=scene.family().selectedBirthExit(index);
-            if(exit!=null&&exit.target()!=null&&exit.target().hat()!=null){
-                var target=exit.target();landHat=target.hat();
-                // The outlet preflight chooses the receiver; the place itself is not kept, the first real contact decides.
-                if(!BirthExit.valid(scene,index,exit)||!landHat.catches()||!landHat.makeRoom(entity,target.admission()))
-                    return refuse(brood,level,"catch_berth_unavailable");
-            }
-        }
         spawning.add(child.id);boolean added=false;
         try { added=level.addFreshEntity(entity); }
         finally { spawning.remove(child.id); }
         if(!added)return refuse(brood,level,"entity_rejected");
-        // One drawn impulse, then physics: the receiver is the hat at the outlet, the nest she lies in or the bare ground;
-        // where the kit comes down is decided by its first real contact, never by a kept place.
-        var hat=landHat;
-        boolean landBirth=scene!=null;
-        if(hat!=null&&landBirth){
-            // On land the push is random, not a preset catch or miss: a strong or crooked one carries the kit past the hat.
-            boolean overstrain=scene.family().missesDelivery(false);
-            double push=overstrain?BirthLaunch.OVERSTRAIN_PUSH:BirthLaunch.push(level.random),yaw=BirthLaunch.yaw(level.random);
-            entity.family().launch(BirthLaunch.intoHat(entity,hat,hat.toWorld(launchPlace(hat,entity)),push,yaw),brood,index,hat);
-        } else if((landBirth||unprotected)&&scene!=null)
-            entity.family().launch(BirthLaunch.live(level.random,scene,entity,entity.position()),brood,index,null);
+        // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
+        if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
+                ?BirthLaunch.intoHat(entity,hat,hat.toWorld(launchPlace(hat,entity)),BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
+                :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
+        else if(mother!=null&&brood.kind==BirthKind.STEM){
+            var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();
+            entity.family().launch(BirthLaunch.stem(level.random,position,hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(position.x-centre.x)<half
+                    &&Math.abs(position.z-centre.z)<half?BirthLaunch.Target.NEST:BirthLaunch.Target.GROUND),brood,index,hat);
+        }
         YukkuriEntity actualMother=level.getEntity(brood.mother) instanceof YukkuriEntity parent?parent:null;
         YukkuriEntity actualFather=brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity parent?parent:null;
         if(actualMother!=null)HumanCommerce.inheritFactoryChild(entity,actualMother);
@@ -672,7 +647,7 @@ public final class FamilyData extends SavedData {
     public void landed(YukkuriEntity entity) {
         var brood=brood(entity.family().birthId());
         if(brood==null||!entity.isAlive()||entity.family().awaitingLanding()||entity.family().flying()
-                ||!(entity.onGround()||entity.isInWaterOrBubble()))return;
+                ||!(entity.onGround()||entity.isInWaterOrBubble()||entity.isPassenger()))return;
         for(var child:brood.children)if(child.id.equals(entity.getUUID())&&child.born&&!child.landed){
             child.landed=true;child.landing=entity.family().landingOutcome();setDirty();
             double fromAim=entity.family().landingFromAim();

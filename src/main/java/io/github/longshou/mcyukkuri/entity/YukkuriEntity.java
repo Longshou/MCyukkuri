@@ -342,7 +342,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override public void travel(Vec3 input) {
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
-        if (!level().isClientSide && family.startBirthLaunch()) return;
+        if (!level().isClientSide && family.birthTravel()) return;
         if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
                 Vec3 controlled = level().isClientSide ? null : predator.flightStep(getDeltaMovement());

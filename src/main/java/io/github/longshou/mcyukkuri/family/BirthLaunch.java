@@ -10,8 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -33,8 +31,6 @@ public final class BirthLaunch {
     static final double NEST_REACH=.7, NEST_MIN_REACH=.2;
     /** Planned reach of a kit pushed out with neither hat nor nest (blocks). 项目设计 */
     static final double GROUND_REACH=.35;
-    /** Fixed push of the demonstrated overstrain on land. 项目设计 */
-    static final double OVERSTRAIN_PUSH=1.8;
     /** Stem fruit toss: horizontal speed = clamp(STEM_MEDIAN * exp(N(0, STEM_SIGMA)), 0, STEM_MAX) in a random direction, then a gentle fall. 项目设计 */
     static final double STEM_MEDIAN=.055, STEM_SIGMA=.9, STEM_MAX=.25, STEM_DROP=-.015;
     /** Vanilla gravity and drag the launch is solved against (LivingEntity: y = (y - .08) * .98, horizontal * .91 in the air). */
@@ -64,7 +60,6 @@ public final class BirthLaunch {
      * {@code hat} the hull it was aimed at (null for a nest/ground aim and for a push past the brim).
      */
     record Plan(Target target,UUID hat,Vec3 start,Vec3 aim,double room,double nominal,double push,double yaw,Vec3 velocity){}
-
     /** Persist the one already-randomized launch decision; loading never rolls a new impulse. */
     static CompoundTag save(Plan plan){
         var tag=new CompoundTag();
@@ -74,7 +69,6 @@ public final class BirthLaunch {
         tag.putDouble("Room",plan.room());tag.putDouble("Nominal",plan.nominal());tag.putDouble("Push",plan.push());tag.putDouble("Yaw",plan.yaw());
         return tag;
     }
-
     /** Invalid or incomplete saved data has no launch plan; callers keep the ordinary landing path. */
     static Plan load(CompoundTag tag){
         if(tag==null||!tag.contains("Target",Tag.TAG_STRING)||!tag.contains("Room",Tag.TAG_DOUBLE)
@@ -91,7 +85,6 @@ public final class BirthLaunch {
                 ||!Double.isFinite(nominal)||!Double.isFinite(push)||!Double.isFinite(yaw))return null;
         return new Plan(target,hat,start,aim,room,nominal,push,yaw,velocity);
     }
-
     private static void putVector(CompoundTag tag,String key,Vec3 value){
         var vector=new CompoundTag();vector.putDouble("X",value.x);vector.putDouble("Y",value.y);vector.putDouble("Z",value.z);tag.put(key,vector);
     }
@@ -102,27 +95,18 @@ public final class BirthLaunch {
         double x=vector.getDouble("X"),y=vector.getDouble("Y"),z=vector.getDouble("Z");
         return Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)?new Vec3(x,y,z):null;
     }
-
-    static double push(RandomSource random){
-        return Mth.clamp(Math.exp(PUSH_LOG_MEAN+random.nextGaussian()*PUSH_LOG_SIGMA),PUSH_MIN,PUSH_MAX);
-    }
-
-    static double yaw(RandomSource random){
-        return Mth.clamp(random.nextGaussian()*YAW_SIGMA,-YAW_MAX,YAW_MAX);
-    }
-
+    static double push(RandomSource random){return Mth.clamp(Math.exp(PUSH_LOG_MEAN+random.nextGaussian()*PUSH_LOG_SIGMA),PUSH_MIN,PUSH_MAX);}
+    static double yaw(RandomSource random){return Mth.clamp(random.nextGaussian()*YAW_SIGMA,-YAW_MAX,YAW_MAX);}
     /** Ticks a body launched upward at {@code vy} spends in the air before it is back at its launch height. */
     static int airTicks(double vy){
         double y=0,v=vy;int n=0;
         do{y+=v;v=(v-GRAVITY)*VERTICAL_DRAG;n++;}while(y>0&&n<80);
         return n;
     }
-
     /** Horizontal launch speed that covers {@code distance} in the air against vanilla air drag. */
     static double speedFor(double distance,double vy){
         return distance*(1-AIR_DRAG)/(1-Math.pow(AIR_DRAG,airTicks(vy)));
     }
-
     /** The first impulse of a push out of the outlet toward {@code direction} (unit, horizontal) for a planned reach. */
     private static Vec3 impulse(RandomSource random,Vec3 direction,double distance,double push,double yawDeg){
         double vy=LIFT*(1-LIFT_SPREAD+random.nextDouble()*2*LIFT_SPREAD);
@@ -130,7 +114,6 @@ public final class BirthLaunch {
         double vh=speedFor(distance,vy)*push;
         return new Vec3(heading.x*vh,vy,heading.z*vh);
     }
-
     /** A live kit pushed out with no hat: into the large nest the mother lies in, otherwise a short hop onto the ground. */
     static Plan live(RandomSource random,YukkuriEntity mother,YukkuriEntity kit,Vec3 start){
         double push=push(random),yaw=yaw(random);
@@ -159,7 +142,6 @@ public final class BirthLaunch {
         var velocity=impulse(random,direction,GROUND_REACH,push,yaw);
         return new Plan(Target.GROUND,null,start,start.add(direction.scale(GROUND_REACH)),Double.NaN,Math.hypot(velocity.x,velocity.z)/push,push,yaw,velocity);
     }
-
     /** A stem fruit coming away: a small toss in a random direction while it drops; where it lands is left to physics. */
     static Plan stem(RandomSource random,Vec3 start,Target target){
         double angle=random.nextDouble()*Math.PI*2;
@@ -167,43 +149,16 @@ public final class BirthLaunch {
         var velocity=new Vec3(Math.cos(angle)*speed,STEM_DROP,Math.sin(angle)*speed);
         return new Plan(target,null,start,start,Double.NaN,speed,1,0,velocity);
     }
-
     /**
-     * A live kit pushed out toward a hat: the authored nominal arc keeps its own lift (the tick count the hull's clearance
-     * solve asks for), and the horizontal speed is solved for the aim under vanilla air motion. The drawn push scales and the
-     * drawn yaw turns only the horizontal part, exactly as the old nominal arc was scaled; nothing here moves the body.
+     * A live kit pushed out toward a hat: the authored nominal arc keeps its own lift (its first impulse over the tick count the
+     * hull's clearance solve asks for), and the horizontal speed is what vanilla air drag needs to cover the aim in the same air
+     * time (an aim never crossed while falling keeps the arc's own duration). The drawn push scales and the drawn yaw turns only
+     * the horizontal part; nothing here moves the body.
      */
     static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aim,double push,double yawDeg){
         var start=kit.position();
-        double radius=HatGeometry.radius(kit.getBbWidth());
-        int ticks=HatGeometry.solve(start,aim,hat,radius,Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
-        return towards(Target.HAT,hat.getUUID(),start,aim,lift(start,aim,ticks),ticks,push,yawDeg);
-    }
-
-    /**
-     * A push that misses the hat on purpose (the drawn overstrain afloat): on along the same line past the far brim, at the real
-     * ground or water there. Only the aim changes; the impulse is the ordinary nominal arc toward it.
-     */
-    static Plan past(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aimedAt){
-        var start=kit.position();
-        double radius=HatGeometry.radius(kit.getBbWidth());
-        var far=HatGeometry.overshoot(start,aimedAt,hat,radius);
-        var hit=kit.level().clip(new ClipContext(far.add(0,1.5,0),far.add(0,-3,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.ANY,kit));
-        var aim=hit.getType()==HitResult.Type.MISS?new Vec3(far.x,hat.getY(),far.z):hit.getLocation();
-        int ticks=HatGeometry.solve(start,aim,hat,radius,HatGeometry.TMIN);
-        return towards(Target.GROUND,null,start,aim,lift(start,aim,ticks),ticks,1,0);
-    }
-
-    /** The vertical part of the nominal arc's first impulse (blocks per tick), the value the old flight started with. */
-    private static double lift(Vec3 start,Vec3 aim,int ticks){return HatGeometry.arc(start,aim,ticks,1).y-start.y;}
-
-    /**
-     * One plan from a start, an aim and the nominal lift; the horizontal speed is what vanilla air drag needs to cover the same
-     * aim in the same air time. An aim at or above the launch point is never crossed while falling, so it keeps the nominal arc's
-     * own duration.
-     */
-    private static Plan towards(Target target,UUID hat,Vec3 start,Vec3 aim,double lift,int nominalTicks,double push,double yawDeg){
-        double dx=Math.hypot(aim.x-start.x,aim.z-start.z);
+        int nominalTicks=HatGeometry.solve(start,aim,hat,HatGeometry.radius(kit.getBbWidth()),Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
+        double lift=HatGeometry.arc(start,aim,nominalTicks,1).y-start.y,dx=Math.hypot(aim.x-start.x,aim.z-start.z);
         double air=Ballistic.airTicks(lift,aim.y-start.y);
         // The scan limit is what airTicks reports when the fall never passes the aim; the nominal arc's duration is then honest.
         if(air<=0||air>=Ballistic.airTicks(lift,-Double.MAX_VALUE))air=nominalTicks;
@@ -213,9 +168,8 @@ public final class BirthLaunch {
         var heading=forward.lengthSqr()<1e-9?new Vec3(0,0,1):forward.normalize();
         heading=heading.yRot((float)Math.toRadians(yawDeg));
         double vh=nominal*push;
-        return new Plan(target,hat,start,aim,Double.NaN,nominal,push,yawDeg,new Vec3(heading.x*vh,lift,heading.z*vh));
+        return new Plan(Target.HAT,hat.getUUID(),start,aim,Double.NaN,nominal,push,yawDeg,new Vec3(heading.x*vh,lift,heading.z*vh));
     }
-
     /** Distance from {@code from} to the inner wall of the square nest along a horizontal unit direction. */
     static double roomAlong(Vec3 from,Vec3 centre,double half,Vec3 direction){
         double best=Double.MAX_VALUE;

@@ -119,15 +119,15 @@ final class ScenarioSetup {
     }
 
     /**
-     * A real LIVE conception for an adult pair, then the brood is brought to the end of its term. {@code caught}: the
-     * hatted father (if the pair has one) has time to take off his hat; {@code missed}: nobody cushions the newborn;
-     * {@code natural}: the usual branch; {@code stem}: a real STEM conception brought to 400 ticks before term (the hat, if the father
-     * has one, is set under the stem by the ordinary rules).
+     * A real LIVE conception for an adult pair, then the brood is brought to the end of its term. {@code caught}: a Marisa
+     * father (if the pair has one) has time to come over and take off his hat; {@code natural}: two ticks before term. Who
+     * catches, and whether there is a hat or a nest, comes from the real pair and their home (decision R5), never from here.
+     * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
-        if (!Set.of("natural", "caught", "missed", "stem").contains(outcome)) return "结果必须为 natural、caught、missed 或 stem。";
+        if (!Set.of("natural", "caught", "stem").contains(outcome)) return "结果必须为 natural、caught 或 stem。";
         boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
@@ -152,8 +152,6 @@ final class ScenarioSetup {
         if (stem) {
             brood.elapsed = Math.max(0, brood.duration - 400);
             data.setDirty();
-        } else if (outcome.equals("missed")) {
-            if (!mother.family().prepareBirthScene(brood, "missed")) return "胎次已建立，但不能提前临产。";
         } else {
             var helper = FamilyLife.catcher(mother, brood);
             int lead = helper != null && helper != mother ? 150 : 2;

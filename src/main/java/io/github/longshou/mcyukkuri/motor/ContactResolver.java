@@ -37,7 +37,10 @@ public final class ContactResolver {
      * velocity zero) and returned; a brim hit bounces the horizontal speed and returns null. A mount the host refuses is
      * returned with {@link Contact#refused()} set, so the flight can end with {@code NO_ROOM} where physics left it.
      */
-    public static Contact resolve(YukkuriEntity body) {
+    public static Contact resolve(YukkuriEntity body) { return resolve(body, null); }
+
+    /** As {@link #resolve(YukkuriEntity)} with the body's real envelope: the lowest box decides where it first meets a host. */
+    public static Contact resolve(YukkuriEntity body, Envelope envelope) {
         if (body == null || body.level().isClientSide) return null;
         Vec3 feet = body.position();
         Vec3 next = feet.add(body.getDeltaMovement());
@@ -45,7 +48,7 @@ public final class ContactResolver {
         double landingAt = Double.MAX_VALUE;
         boolean brim = false;
         for (SurfaceHost host : hosts(body, feet, next)) {
-            Hit hit = hit(body, host, feet, next);
+            Hit hit = hit(body, host, feet, next, envelope);
             if (hit == null) continue;
             if (hit.contact() == null) brim = true;
             else if (hit.at() < landingAt) { landing = hit.contact(); landingAt = hit.at(); }
@@ -70,19 +73,19 @@ public final class ContactResolver {
      * Walks the segment in host-local units. A downward crossing of the support height is a landing when the footprint
      * there is inside the hollow with room, and a brim hit otherwise; entering the hat under its surface is the brim wall.
      */
-    private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next) {
+    private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         HostFrame frame = host.frame();
         double footRadius = Occupancy.FOOT * body.getBbWidth();
         // The height field is in hat units, so the tolerance in blocks has to be expressed in the same units.
         double touch = TOUCH / Math.max(1E-6, frame.unit());
         int steps = Math.max(2, (int) Math.ceil(feet.distanceTo(next) / STEP));
         Vec3 previous = frame.toLocal(feet);
-        double previousHeight = surface(host, previous, footRadius);
+        double previousHeight = surface(body, host, feet, footRadius, envelope);
         for (int i = 1; i <= steps; i++) {
             double share = i / (double) steps;
             Vec3 world = feet.lerp(next, share);
             Vec3 local = frame.toLocal(world);
-            double height = surface(host, local, footRadius);
+            double height = surface(body, host, world, footRadius, envelope);
             boolean above = Double.isFinite(previousHeight) && previous.y >= previousHeight - touch;
             boolean under = Double.isFinite(height) && local.y < height - touch;
             if (under && above) {
@@ -103,8 +106,28 @@ public final class ContactResolver {
         return null;
     }
 
-    /** The hat surface height (hat units) at {@code local}, or NaN when the hat is not under the feet there. */
-    private static double surface(SurfaceHost host, Vec3 local, double footRadius) {
+    /** A body's collision boxes at a feet position: its own body and what it wears (the birth launch passes one). */
+    @FunctionalInterface
+    public interface Envelope { List<AABB> at(YukkuriEntity body, Vec3 feet); }
+
+    /**
+     * The feet height (hat units) at which the body meets the host at {@code feet}, or NaN off the host: the surface under
+     * the foot circle, or with an envelope every box's underside sampled 3x3 and lifted by its height above the feet, so a
+     * worn brim that reaches the host first decides the contact (pose-aware support).
+     */
+    private static double surface(YukkuriEntity body, SurfaceHost host, Vec3 feet, double footRadius, Envelope envelope) {
+        HostFrame frame = host.frame();
+        if (envelope == null) return height(host, frame.toLocal(feet), footRadius);
+        double need = Double.NaN;
+        for (AABB box : envelope.at(body, feet)) for (int x = 0; x <= 2; x++) for (int z = 0; z <= 2; z++) {
+            Vec3 under = new Vec3(Mth.lerp(x / 2.0, box.minX, box.maxX), feet.y, Mth.lerp(z / 2.0, box.minZ, box.maxZ));
+            double h = height(host, frame.toLocal(under), 0) - (box.minY - feet.y) / frame.unit();
+            if (Double.isFinite(h) && !(h <= need)) need = h;
+        }
+        return need;
+    }
+
+    private static double height(SurfaceHost host, Vec3 local, double footRadius) {
         OptionalDouble height = host.support(local, footRadius);
         return height.isPresent() ? height.getAsDouble() : Double.NaN;
     }

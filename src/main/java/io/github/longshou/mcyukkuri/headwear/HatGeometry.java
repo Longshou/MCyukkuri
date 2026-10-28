@@ -3,9 +3,15 @@ package io.github.longshou.mcyukkuri.headwear;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyGeometry;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -57,7 +63,7 @@ public final class HatGeometry {
     private static final float[] ANCHOR=LAND.anchor;
     private static final JsonObject DELIVERY=LAND.delivery;
     /** Minecraft's gravity in model units per tick squared; the fewest and most ticks of a flight; clearance over the brim. */
-    public static final double GRAVITY=num("gravity"), CLEAR=num("clear"), OVERSHOOT=num("overshoot"), MAX_SPEED=num("max_speed");
+    public static final double GRAVITY=num("gravity"), CLEAR=num("clear"), MAX_SPEED=num("max_speed");
     public static final int TMIN=(int)num("tmin"), TMAX=(int)num("tmax");
     /** A young's round body (radius, part of its collision width); how close a landing must be to its place to settle. */
     private static final double YOUNG_RADIUS=num("young_radius");
@@ -168,27 +174,79 @@ public final class HatGeometry {
         }
         return TMAX;
     }
-    /** Where an overstrained push sends a newborn aimed at b (world): on along the same line past the far brim, at the
-     *  height of b's ground for the caller to settle. */
-    public static Vec3 overshoot(Vec3 a,Vec3 b,PlacedHatEntity hat,double r){
-        var d=new Vec3(b.x-a.x,0,b.z-a.z);d=d.lengthSqr()<1e-9?new Vec3(0,0,1):d.normalize();
-        var lb=hat.toLocal(b);var ld=hat.toLocal(hat.position().add(d)).multiply(1,0,1).normalize();
-        double beyond=extent(lb.x,lb.z,ld.x,ld.z,r/hat.unit())*hat.unit()+r+OVERSHOOT/16;
-        return b.add(d.scale(beyond));
-    }
-    /** Which of tos each of froms goes to, the pairing with the least total squared distance across (at most a handful),
-     *  so young moving together do not cross one another's way. */
-    public static int[] match(List<Vec3> froms,List<Vec3> tos){
-        int n=froms.size();int[] best=new int[n],cur=new int[n];double[] bestCost={Double.MAX_VALUE};
-        permute(froms,tos,0,cur,new boolean[tos.size()],0,best,bestCost);return best;
-    }
-    private static void permute(List<Vec3> froms,List<Vec3> tos,int i,int[] cur,boolean[] used,double cost,int[] best,double[] bestCost){
-        if(cost>=bestCost[0])return;
-        if(i==froms.size()){bestCost[0]=cost;System.arraycopy(cur,0,best,0,cur.length);return;}
-        for(int j=0;j<tos.size();j++)if(!used[j]){
-            var f=froms.get(i);var t=tos.get(j);used[j]=true;cur[i]=j;
-            permute(froms,tos,i+1,cur,used,cost+(f.x-t.x)*(f.x-t.x)+(f.z-t.z)*(f.z-t.z),best,bestCost);used[j]=false;
+    // ---------------------------------------------------------------- the catch (world, blocks)
+    /** A hat set down to catch: where, facing (entity yaw), and who set it. */
+    public record Pose(Vec3 at,float yaw,Role role){}
+    /** Where a catcher stands, and her yaw, to set down or take back a hat at a pose. */
+    public record Stand(Vec3 at,float yaw){}
+    /** Where the hat goes for a mother standing at {@code at} turned to {@code yaw} (hat_vessel.json, the end pose of the braid
+     *  clips): a helper presses it upside down just beyond the live outlet, or under the stem's fruit with the opening clear of
+     *  her body and the helper on the far side; a mother on her own sets it where her own clip puts it. */
+    public static Pose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,Role role,Vec3 at,float yaw){
+        var place=placement(role);
+        double k=hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
+        var forward=Vec3.directionFromRotation(0,yaw);float hatYaw=yaw+place.hatYawInMother();
+        if(role==Role.SELF)return new Pose(flat(turned(at,yaw,place.offset().scale(mother.growthScale()/16),mother.getScale()),at),hatYaw,role);
+        if(brood.kind==FamilyData.BirthKind.STEM){
+            double sx=0,sz=0;int n=Math.max(1,brood.children.size());
+            for(int i=0;i<brood.children.size();i++){
+                var child=brood.children.get(i);
+                var c=FamilyGeometry.childBase(brood.children.size(),i,1,mother.growthScale(),brood.variation,mother.getVariant(),child.variant,GrowthSize.physicalBirth(brood.kind,child));
+                sx+=c.x;sz+=c.z;
+            }
+            var under=turned(at,yaw,new Vec3(sx/n,0,sz/n),mother.getScale());
+            var p=flat(under.add(forward.scale(Math.max(0,stemClearance(mother,catcher)-under.subtract(at).dot(forward)))),at);
+            var ahead=new Pose(p,yaw,role);var behind=new Pose(p,yaw+180,role);
+            return stand(ahead,catcher).at().distanceToSqr(at)>=stand(behind,catcher).at().distanceToSqr(at)?ahead:behind;
         }
+        int next=0;while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
+        double r=radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
+        var outlet=LiveBirthGeometry.position(mother,next,yaw).subtract(mother.position()).add(at);
+        return new Pose(flat(outlet.add(forward.scale(r+place.gap()*body+place.nearBrim()*k)),at),hatYaw,role);
+    }
+    /** Least distance from the mother's centre to a stem catch hat's centre: her half width and the opening's half length. */
+    public static double stemClearance(YukkuriEntity mother,YukkuriEntity catcher){
+        return mother.getBbWidth()*.5+opening()[3]*hatScale(catcher)*catcher.getScale()/16;
+    }
+    /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
+    public static Stand stand(Pose pose,YukkuriEntity catcher){
+        var place=placement(pose.role());float yaw=pose.yaw()-place.yaw();
+        var offset=new Vec3(place.offset().x,0,place.offset().z).scale(catcher.growthScale()*catcher.getScale()/16);
+        return new Stand(flat(pose.at().subtract(offset.yRot((float)Math.toRadians(180-yaw))),pose.at()),yaw);
+    }
+    public static Pose poseOf(PlacedHatEntity hat){return new Pose(hat.position(),hat.getYRot(),hat.role());}
+    private static Vec3 turned(Vec3 at,float yaw,Vec3 local,float scale){return at.add(local.yRot((float)Math.toRadians(180-yaw)).scale(scale));}
+    private static Vec3 flat(Vec3 p,Vec3 floor){return new Vec3(p.x,floor.y,p.z);}
+
+    /** A body's real envelope (braid_rescue.json): a Marisa's model body bounds turned to her yaw and, while she wears it, her
+     *  hat's brim box; anyone else's collision box. The birth launch's first contact and its preview sweep use it. */
+    public static List<AABB> envelope(YukkuriEntity y,Vec3 feet){
+        var own=y.getBoundingBox().move(feet.subtract(y.position()));
+        if(y.getVariant()!=YukkuriVariant.MARISA)return List.of(own);
+        double unit=y.growthScale()*y.getScale()/16;
+        var out=new ArrayList<AABB>(2);
+        out.add(box(feet,y.yBodyRot,vector("body_min").scale(unit),vector("body_max").scale(unit)));
+        if(y.life().hasAccessory()){
+            double k=hatScale(y)*y.getScale()/16,base=ANCHOR[1]*unit,height=BODY.get("hat_height_model_units").getAsDouble()*k;
+            out.add(box(feet,y.yBodyRot,new Vec3(-LAND.brim[0]*k,base,-LAND.brim[1]*k),new Vec3(LAND.brim[0]*k,base+height,LAND.brim[1]*k)));
+        }
+        return out;
+    }
+    private static final JsonObject BODY=read("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json");
+    private static Vec3 vector(String key){var p=BODY.getAsJsonArray(key);return new Vec3(p.get(0).getAsDouble(),p.get(1).getAsDouble(),p.get(2).getAsDouble());}
+    private static AABB box(Vec3 feet,float yaw,Vec3 min,Vec3 max){
+        AABB out=null;
+        for(int i=0;i<8;i++){
+            var p=feet.add(new Vec3((i&1)==0?min.x:max.x,(i&2)==0?min.y:max.y,(i&4)==0?min.z:max.z).yRot((float)Math.toRadians(180-yaw)));
+            out=out==null?new AABB(p,p):out.minmax(new AABB(p,p));
+        }
+        return out;
+    }
+    private static JsonObject read(String resource){
+        try(var stream=HatGeometry.class.getResourceAsStream(resource)){
+            if(stream==null)throw new IllegalStateException("Missing "+resource);
+            return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject();
+        }catch(IOException ex){throw new UncheckedIOException(ex);}
     }
     private HatGeometry(){}
 }

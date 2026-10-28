@@ -75,10 +75,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private double lerpX, lerpY, lerpZ;
     private float lerpYaw, lerpPitch;
     private int lerpSteps;
-    /** The identity of an unborn birth-size probe used only for read-only room questions. */
-    private static final UUID NEWBORN_PROBE = new UUID(0L, 1L);
-    /** The one birth berth a cradle grants: an ordinary supported place in the cavity. */
-    public enum NewbornAdmission { NONE, BOARD }
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -285,18 +281,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private double newbornFoot(FamilyData.BirthKind kind,FamilyData.Child child) {
         return Occupancy.FOOT*LiveBirthGeometry.unbornDimensions(kind,child).width()/unit();
     }
-    public record BirthSeat(Vec3 position, int slot, NewbornAdmission admission) {}
-    public List<BirthSeat> birthSeatChoices(FamilyData.BirthKind kind,FamilyData.Child child,Vec3 from) {
-        if (!catches() || level().isClientSide) return List.of();
-        var foot = newbornFoot(kind, child);
-        var seats = new ArrayList<BirthSeat>();
-        var first = nestSpace(foot);
-        if (first != null) seats.add(new BirthSeat(toWorld(first), -1, NewbornAdmission.BOARD));
-        return seats;
-    }
-    /** Prepare exactly the selected birth place: a cradle keeps no seat, so this only answers whether a supported place exists. */
-    public boolean makeRoom(YukkuriEntity child, NewbornAdmission admission) {
-        return !level().isClientSide && admission != NewbornAdmission.NONE && nestHasSpace(child);
+    /** The supported free place an unborn child of this size would get now (world), or null: an aim, never kept. */
+    public Vec3 birthPlace(FamilyData.BirthKind kind,FamilyData.Child child) {
+        var place = catches() && !level().isClientSide ? nestSpace(newbornFoot(kind, child)) : null;
+        return place == null ? null : toWorld(place);
     }
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
@@ -440,7 +428,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (!level().isClientSide) {
             var keeper=owner();
             player.displayClientMessage(Component.literal("接生帽：幼体 "+youngPassengers().size()+"；"
-                    +(keeper==null?"帽主未在加载范围内":keeper.family().keepsCradle()?"正在接生或安置幼体":"等待帽主接回")),true);
+                    +(keeper==null?"帽主未在加载范围内":keeper.family().birthDuty()?"正在接生或安置幼体":"等待帽主接回")),true);
         }
         return playerInteractionResult(player,hand,"cradle_status",true,InteractionResult.sidedSuccess(level().isClientSide));
     }

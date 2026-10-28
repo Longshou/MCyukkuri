@@ -166,7 +166,7 @@ public final class ScenarioCommands {
                 .then(Commands.literal("birth").then(Commands.argument("mother", EntityArgument.entity())
                         .then(Commands.argument("father", EntityArgument.entity())
                                 .then(Commands.argument("outcome", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "missed", "stem"}, b))
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "stem"}, b))
                                         .executes(c -> {
                                             var mother = yukkuri(c, "mother"); var father = yukkuri(c, "father");
                                             if (mother == null || father == null) return 0;

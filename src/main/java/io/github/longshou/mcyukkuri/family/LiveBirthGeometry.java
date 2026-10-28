@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Direction;
 import org.joml.Quaternionf;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import net.minecraft.util.Mth;
 
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
 public final class LiveBirthGeometry {
@@ -190,25 +191,15 @@ public final class LiveBirthGeometry {
         // Client family state has no brood ledger; museum actors intentionally have no real brood either.
         return new Vec3(modelOutlet(mother,mother.livePregnancyProgress(),0)).scale(1/16d);
     }
-    /** How far ahead of her origin the newborn comes out (blocks, before scale): on the ground the full newborn must
-     *  clear the maternal collision volume before becoming an entity (LiveBirthRenderer draws the emergence up to it). */
-    public static double exitFront(YukkuriEntity mother,int index){
-        return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
-    }
-    /** Client emergence reads the synchronized child preview, never the server brood ledger. */
+    /** How far ahead of her origin the newborn comes out (blocks, before scale): on the ground the full newborn must clear the
+     *  maternal collision volume before becoming an entity; the client draws the emergence up to it from the synchronized view. */
     public static double visibleExitFront(YukkuriView mother,int index){
         return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
-    }
-    /** How far her body reaches behind its origin (blocks, before scale): her back against the hat boat's stern. */
-    public static double back(YukkuriEntity y){
-        var id=y.subspecies().assetId();float b=y.livePregnancyProgress();
-        double z=BODY.has(id)?BODY.getAsJsonObject(id).getAsJsonArray("bounds").get(2).getAsJsonArray().get(1).getAsDouble():5.9;
-        return z/16*y.growthScale()*(1+SWELL*b)*(1+LOW_DEEP*b);
     }
     public static Vec3 localExit(YukkuriEntity mother,int index){
         float size=mother.growthScale();
         var outlet=outlet(mother).scale(size);
-        double front=exitFront(mother,index);
+        double front=visibleExitFront(mother,index);
         var brood=mother.family().brood();
         float height=brood!=null&&index>=0&&index<brood.children.size()?childDimensions(brood.children.get(index),1).height():.6f*BABY_SCALE;
         return new Vec3(0,Math.max(.015,outlet.y-height*.5),-front);
@@ -217,20 +208,25 @@ public final class LiveBirthGeometry {
     public static Vec3 position(YukkuriEntity mother,int index,float yaw){
         return mother.position().add(releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale()));
     }
-    public static boolean clear(YukkuriEntity mother,FamilyData.Child child,int index){
-        if(!(mother.level() instanceof ServerLevel level))return false;
+    /**
+     * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
+     * free of blocks, and no wall between her and it. A protected outlet also keeps out liquid, other bodies (siblings
+     * already caught in a hat aside, never layered at the outlet) and needs the full newborn footprint on a floor below;
+     * an unprotected one (the safety wait ran out) gives birth onto whatever is there, never through a wall.
+     */
+    public static boolean clear(YukkuriEntity mother,int index,float yaw,boolean unprotected){
         var brood=mother.family().brood();
-        var position=position(mother,index);
-        // This unborn preflight uses the child's actual birth size. FamilyData then reserves a place for the concrete
-        // newborn before it is added, and the newborn's own Launch then hands it into it by contact.
-        var dimensions=childDimensions(child,mother.getScale());
+        if(!(mother.level() instanceof ServerLevel level)||brood==null||index<0||index>=brood.children.size())return false;
+        var position=position(mother,index,yaw);
+        var dimensions=childDimensions(brood.children.get(index),mother.getScale());
         var box=dimensions.makeBoundingBox(position);
+        var origin=mother.position().add(0,Math.max(.05,position.y-mother.getY()),0);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
-                ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
-        // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.
-        // Siblings already caught in a hat cradle at the outlet do not block the next one.
-        if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()
-                &&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;
+                ||level.getBlockCollisions(mother,box).iterator().hasNext()
+                ||level.clip(new ClipContext(origin,position,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()!=HitResult.Type.MISS)return false;
+        if(unprotected)return true;
+        if(!level.noCollision(mother,box)||level.containsAnyLiquid(box)||!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),
+                other->other!=mother&&other.isAlive()&&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;
@@ -239,9 +235,28 @@ public final class LiveBirthGeometry {
             var support=level.clip(new ClipContext(foot,foot.add(0,-.08,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
             if(support.getType()!=HitResult.Type.BLOCK||Math.abs(support.getLocation().y-y)>.03)return false;
         }
-        // Prevent a wall between the front outlet and the checked destination.
-        var origin=FamilyGeometry.toWorld(mother,releasePose(mother,outlet(mother).scale(mother.growthScale())));
-        return level.clip(new ClipContext(origin,position.add(0,dimensions.height()*.5,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()==HitResult.Type.MISS;
+        return true;
+    }
+
+    /**
+     * The outlet yaw for child {@code index} (read only): of the sixteen headings from her own and the one straight at {@code aim},
+     * the clear outlet that brings the child within {@code reach} of the receiver's aim with the least turn, else the clear one
+     * with the least turn (the ground). NaN when none is clear.
+     */
+    public static float exitYaw(YukkuriEntity mother,int index,Vec3 aim,double reach,boolean unprotected){
+        float best=Float.NaN;double score=Double.MAX_VALUE;
+        for(int i=0;i<=16;i++){
+            float yaw=i<16?Mth.wrapDegrees(mother.yBodyRot+i*22.5f):aim==null?mother.yBodyRot:SurfaceApproach.yaw(mother.position(),aim);
+            if(!clear(mother,index,yaw,unprotected))continue;
+            double turn=Math.abs(Mth.wrapDegrees(yaw-mother.yBodyRot)),candidate=(aims(mother,index,yaw,aim,reach)?0:1000)+turn;
+            if(candidate<score){score=candidate;best=yaw;}
+        }
+        return best;
+    }
+
+    /** The outlet at this yaw brings the child within {@code reach} of the aim. */
+    public static boolean aims(YukkuriEntity mother,int index,float yaw,Vec3 aim,double reach){
+        return aim!=null&&position(mother,index,yaw).subtract(aim).horizontalDistance()<=reach;
     }
     private LiveBirthGeometry(){}
 }
