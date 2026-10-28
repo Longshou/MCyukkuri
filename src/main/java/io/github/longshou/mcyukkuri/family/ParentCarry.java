@@ -86,10 +86,10 @@ public final class ParentCarry {
     private UUID lifting;
     /** The purpose the current lift was started for; {@code purposeFor} returns null once the child is aboard. */
     private Purpose liftingWhy;
-    /** The carry task as the motor owner: active while a lift, a carry or a queued Release is under way. */
+    /** The carry task as the motor owner: active while a lift or a carry is under way. */
     private final MotorOwner owner = new MotorOwner() {
         @Override public String ownerId() { return "family_carry"; }
-        @Override public boolean active() { return purpose != null || lifting != null || carrier.motor().current() instanceof Release; }
+        @Override public boolean active() { return purpose != null || lifting != null; }
     };
     /** NEST_RIM: the nest whose rim the child lay on, and the free cushion spot being walked to. */
     private BlockPos rimNest;
@@ -722,13 +722,16 @@ public final class ParentCarry {
         Vec3 before = child.position();
         boolean deciding = BodyDriver.deciding();
         if (deciding) {
-            Release release = new Release(child);
-            if (!release.check(carrier).ok() || !carrier.motor().run(owner, release)) {
+            // Release is instantaneous: judged by its own check, then applied now so the carry bookkeeping below sees the real state
+            // (and several riders of one carrier are each set down, instead of one queued Release replacing the other).
+            var room = new Release(child).check(carrier);
+            if (!room.ok()) {
                 GameplayLog.limited(carrier, "family", "carry.put_down.refused", 100,
-                        "carry put down refused reason={} mode={} child={} at={}", reason, mode, child.getUUID(), GameplayLog.at(before));
+                        "carry put down refused reason={} why={} mode={} child={} at={}", reason, room.reason(), mode, child.getUUID(), GameplayLog.at(before));
                 return false;
             }
-        } else Motor.dismount(child, child.position(), Vec3.ZERO, "carry_" + reason);
+        }
+        Motor.dismount(child, child.position(), Vec3.ZERO, deciding ? "release" : "carry_" + reason);
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
