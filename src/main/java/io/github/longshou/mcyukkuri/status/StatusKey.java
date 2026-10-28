@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.settlement.Rations;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -389,6 +390,12 @@ public enum StatusKey {
     BODY_ACTION("body", "action", 0, y -> y.motor().detail(), null),
     /** The last outcome of an action with its reason and shortfall. */
     BODY_LAST("body", "last", 0, y -> y.motor().lastDetail(), null),
+    /** The intent the running owner is executing and its result (the innermost Sub runner). */
+    BODY_INTENT("body", "intent", 0, y -> IntentRunner.intentStatus(y), null),
+    /** The method the current intent is using. */
+    BODY_METHOD("body", "method", 0, y -> IntentRunner.methodStatus(y), null),
+    /** The switch budget of the current intent: used, left, and every counted reason with its shortfall. */
+    BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
     // ---- five behavior axes and recognition -------------------------------------------------------------------
     INTELLIGENCE("personality", "intelligence", 5, y -> y.life().personality().intelligence(), trait(Trait.INTELLIGENCE)),
     FRIENDLINESS("personality", "friendliness", 5, y -> y.life().personality().friendliness(), trait(Trait.FRIENDLINESS)),
