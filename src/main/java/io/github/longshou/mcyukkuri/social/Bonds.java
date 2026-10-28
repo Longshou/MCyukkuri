@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,12 +87,6 @@ public final class Bonds {
         }
         if (offender.family().partner() != null) relatives.add(offender.family().partner());
         return relatives;
-    }
-    public static boolean closeAffectionPeer(YukkuriEntity a, YukkuriEntity b) {
-        var data = YukkuriWorldData.get((ServerLevel) a.level());
-        int first = data.affinity(a.getUUID(), b.getUUID()), second = data.affinity(b.getUUID(), a.getUUID());
-        return first >= BondLevels.AFFINITY_NEUTRAL && second >= BondLevels.AFFINITY_NEUTRAL
-                && (first >= BondLevels.AFFINITY_CLOSE && second >= BondLevels.AFFINITY_CLOSE || careKin(a, b));
     }
     public static boolean trustedPlayer(YukkuriEntity y, UUID player) {
         var p = y.life().personality();

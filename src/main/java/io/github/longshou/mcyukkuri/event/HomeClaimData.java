@@ -75,7 +75,6 @@ public final class HomeClaimData extends SavedData {
         return (((long)(site.pos().getX()>>6))<<32) ^ ((site.pos().getZ()>>6) & 0xFFFFFFFFL) ^ (site.dimension().location().hashCode() * 31L);
     }
     public boolean regionBlocked(GlobalPos site, long now) { return regions.active(RegionKey.cell(site,64),now) || legacyRegions.active(legacyRegion(site),now); }
-    public void blockRegion(GlobalPos site, long until) { regions.extend(RegionKey.cell(site,64),until); setDirty(); }
     public boolean cooling(UUID member, long now) { return cooldowns.active(member,now); }
     public Claim start(List<UUID> members, GlobalPos site, UUID player) {
         if (members.isEmpty() || members.size()>6 || new HashSet<>(members).size()!=members.size()

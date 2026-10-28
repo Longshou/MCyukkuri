@@ -44,9 +44,6 @@ public final class BadgeSocial {
         if (budget == null) budget = new BadgeBudget(() -> clock, settings());
         return budget;
     }
-    /** Checks swap in a budget with their own clock and limits; reset() restores the configured one. */
-    public static void installBudget(BadgeBudget replacement) { budget = replacement; }
-    public static void tickClock(long now) { clock = now; }
     public static void reset() {
         VIEWS.clear(); budget = null; BadgeArcs.reset(); BadgePraise.reset();
     }

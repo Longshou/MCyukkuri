@@ -119,7 +119,6 @@ public final class StatusLife {
                     10, entity.getBbWidth() * .4, entity.getBbHeight() * .3, entity.getBbWidth() * .4, 0);
         }
     }
-    public boolean glowing() { return glow > 0; }
 
     private void glowTick() {
         glow--;

@@ -26,7 +26,6 @@ import net.minecraft.world.item.ItemStack;
 public final class BadgeMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
-        public static final int MIN = 0;
         public static final int DETACH = 5;
         public static final int NEXT_SUBJECT = 8;
         public static final int ATTACH = 10;

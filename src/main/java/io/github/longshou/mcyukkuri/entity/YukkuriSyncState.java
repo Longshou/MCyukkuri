@@ -105,9 +105,6 @@ public final class YukkuriSyncState {
     private static Field<Integer> integer(CompoundTag tag, String key) {
         return new Field<>(tag.contains(key), tag.getInt(key));
     }
-    private static Field<Float> floating(CompoundTag tag, String key) {
-        return new Field<>(tag.contains(key), tag.getFloat(key));
-    }
     private static Field<Double> decimal(CompoundTag tag, String key) {
         return new Field<>(tag.contains(key), tag.getDouble(key));
     }

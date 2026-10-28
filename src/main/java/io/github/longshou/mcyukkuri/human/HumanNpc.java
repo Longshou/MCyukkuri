@@ -72,7 +72,6 @@ public final class HumanNpc extends PathfinderMob {
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }
     /** Starts the outing now (leash on, strolling near home); false when the pet is busy, away or cannot wear the lead. */
     public boolean beginWalk() { return walk().begin(); }
-    public long walksDone() { return walk().walks(); }
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
         super(type, level); this.look = look;

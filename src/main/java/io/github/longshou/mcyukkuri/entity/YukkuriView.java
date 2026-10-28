@@ -83,7 +83,6 @@ public interface YukkuriView {
     /** COLLIDER/NONE block ray using this actor's original collision context. */
     boolean clearColliderPath(Vec3 from, Vec3 to);
     default YukkuriView yukkuriView(int id) { return level().getEntity(id) instanceof YukkuriView view ? view : null; }
-    default double distanceSquaredTo(YukkuriView other) { return position().distanceToSqr(other.position()); }
     default double distanceToSqr(Vec3 at) { return position().distanceToSqr(at); }
 
     String getAnimationId();

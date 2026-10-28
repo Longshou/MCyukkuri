@@ -1,10 +1,13 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -34,7 +37,7 @@ final class ReproductionPresentation {
         if(phase.equals("HELD"))return "mamu";
         var court=entity.courtshipState();
         return court.getString("Phase").equals("CONTACT")&&entity.getBehaviorId().equals(Behaviors.PAIRING)
-                ?court.getString("Role").toLowerCase(java.util.Locale.ROOT):null;
+                ?court.getString("Role").toLowerCase(Locale.ROOT):null;
     }
 
     static Anatomy anatomy(YukkuriView entity) {
@@ -45,11 +48,11 @@ final class ReproductionPresentation {
             TRACKS.remove(entity);return null;
         }
         if(old==null)old=new Track(wanted,wanted,0,tick,tick);
-        if(!java.util.Objects.equals(old.target,wanted)) {
+        if(!Objects.equals(old.target,wanted)) {
             old.from=sample(old,tick);old.target=wanted;old.changed=tick;
         }
         float amount=sample(old,tick);
-        if(amount<=.0001f&&old.part!=null&&!java.util.Objects.equals(old.part,old.target)) {
+        if(amount<=.0001f&&old.part!=null&&!Objects.equals(old.part,old.target)) {
             old=new Track(old.target,old.target,0,tick,tick);amount=0;
         }
         old.seen=tick;
@@ -78,9 +81,9 @@ final class ReproductionPresentation {
         if(value==null)return;
         var model=YukkuriModel.get(entity.assetId());
         pose.translate(0,model.presentationLift(value,entity.hasVisibleAccessory(),entity.visibleHairLoss())*entity.growthScale(),0);
-        pose.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(value[2]));
-        pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(value[1]));
-        pose.mulPose(com.mojang.math.Axis.XP.rotationDegrees(value[0]));
+        pose.mulPose(Axis.ZP.rotationDegrees(value[2]));
+        pose.mulPose(Axis.YP.rotationDegrees(value[1]));
+        pose.mulPose(Axis.XP.rotationDegrees(value[0]));
         pose.scale(value[3],value[4],value[5]);
     }
 

@@ -3,10 +3,8 @@ package io.github.longshou.mcyukkuri.house;
 /** Shared server/client clock; matching model metadata is checked by the asset validator. */
 public final class HouseCrawlMotion {
     public static final int PERIOD_TICKS = 12;
-    public static final int REACH_TICK = 4;
     public static final int GATHER_TICK = 5;
     public static final int SETTLE_TICK = 10;
-    public static final double STROKE_UNITS = .20;
     public static final double TRAVEL_UNITS = 1.92;
     public static final double DRAG_SHARE = .60;
 

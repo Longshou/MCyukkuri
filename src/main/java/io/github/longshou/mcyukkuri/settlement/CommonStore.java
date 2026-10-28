@@ -68,12 +68,6 @@ public final class CommonStore {
         return StorePiles.nearest(piles(level, group), from, ok);
     }
 
-    /** True when {@code pile} belongs to the commons of {@code group}. */
-    public static boolean isCommon(ServerLevel level, SettlementData.Group group, ForagePileBlockEntity pile) {
-        if (pile == null) return false;
-        for (var p : piles(level, group)) if (p.getBlockPos().equals(pile.getBlockPos())) return true;
-        return false;
-    }
 
     private CommonStore() {}
 }

@@ -32,7 +32,6 @@ final class HumanWalk {
     UUID petId() { return petId; }
     boolean walking() { return walking; }
     boolean returning() { return returning; }
-    long walks() { return walked; }
 
     YukkuriEntity pet() {
         return petId != null && npc.level() instanceof ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;

@@ -3,17 +3,10 @@ import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.particles.ParticleTypes;
 
 /** Bell, then use the toilet (approx. 8-12 s). It passes only if the concrete toilet skill is known. */
 public final class SocialToiletItem extends Scene {

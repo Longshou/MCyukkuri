@@ -28,7 +28,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.phys.Vec3;
 
 /** Vanilla health is the sole live-body resource; wounds and the one-time death snapshot belong here. */
 public final class BodyLife {
@@ -538,8 +537,6 @@ public final class BodyLife {
     /** Light enough for sugar-water saliva to close: anything short of a deep wound (komicolle 11518838; C2: 重伤治不了). */
     public static boolean lickable(BodyWound w){return injury(w)&&!severe(w);}
     public boolean canLickMend(){return wounds.stream().anyMatch(BodyLife::lickable);}
-    /** True while an injury is too severe for a lick to help. */
-    public boolean hasUnlickable(){return wounds.stream().anyMatch(BodyLife::severe);}
     /** A finished lick: the oldest mild wound closes one level and a little health returns. Deep wounds are left alone. */
     public boolean lickMend(){
         if(entity.level().isClientSide||!entity.isAlive())return false;

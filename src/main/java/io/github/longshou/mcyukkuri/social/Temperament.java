@@ -19,21 +19,15 @@ public final class Temperament {
         return personality.friendliness() >= PROTECT_FRIENDLINESS;
     }
 
-    public static final int ATTACHMENT_AT_40 = 40;
     public static final int ATTACHMENT_AT_55 = 55;
-    public static final int ATTACHMENT_AT_60 = 60;
     public static final int ATTACHMENT_AT_65 = 65;
     public static final int BOLDNESS_AT_35 = 35;
     public static final int BOLDNESS_AT_40 = 40;
     public static final int BOLDNESS_AT_55 = 55;
     public static final int BOLDNESS_AT_60 = 60;
     public static final int BOLDNESS_AT_65 = 65;
-    public static final int BOLDNESS_AT_70 = 70;
-    public static final int CARE_AT_55 = 55;
     public static final int CARE_AT_60 = 60;
-    public static final int SELF_CONTROL_AT_30 = 30;
     public static final int SELF_CONTROL_AT_35 = 35;
-    public static final int SELF_CONTROL_AT_40 = 40;
     public static final int SELF_CONTROL_AT_45 = 45;
     public static final int SELF_CONTROL_AT_50 = 50;
     public static final int SELF_CONTROL_AT_60 = 60;

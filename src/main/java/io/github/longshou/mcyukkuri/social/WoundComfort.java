@@ -136,7 +136,6 @@ public final class WoundComfort {
         return null;
     }
 
-    private static boolean ablePartner(YukkuriEntity licker) { return unableReason(licker) == null; }
 
     /** A visible wound, not a newborn (the birth staging already comforts a fallen newborn), nobody licking it yet. */
     private static String victimReason(YukkuriEntity victim) {
@@ -148,7 +147,6 @@ public final class WoundComfort {
         return busy == null ? null : "victim_" + busy;
     }
 
-    private static boolean needsComfort(YukkuriEntity victim) { return victimReason(victim) == null; }
 
     /**
      * Mate (mutual), parent or child, who does not dislike it and actually recognises it: without its accessory a

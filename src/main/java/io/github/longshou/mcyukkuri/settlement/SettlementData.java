@@ -139,8 +139,8 @@ public final class SettlementData extends SavedData {
         public UUID group;
         /** Accumulated empty ticks from observed, fully loaded upkeep passes; never an absolute world timestamp. */
         public long emptySince;
-        /** Transient pacing (not saved): next claim attempt and last upkeep pass. */
-        public long retryAt, lastCheck;
+        /** Transient pacing (not saved): next claim attempt. */
+        public long retryAt;
         private SitePlan plan;
         /** Standing level of each part, as built (the layout itself never depends on the terrain, the levels do). Null for old saves. */
         public int[] levels;
@@ -251,7 +251,6 @@ public final class SettlementData extends SavedData {
         if (cachedSites == null) cachedSites = List.copyOf(sites.values());
         return cachedSites;
     }
-    public Site siteOf(Group group) { return group == null ? null : site(group.siteId); }
     /** The site registered for this plaza column, if any. */
     public Site siteAt(int x, int z) {
         for (Site site : sites.values()) if (site.origin.getX() == x && site.origin.getZ() == z) return site;

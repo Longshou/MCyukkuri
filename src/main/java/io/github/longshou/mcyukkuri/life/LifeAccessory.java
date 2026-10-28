@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import java.util.UUID;

@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.season.SeasonCalendar;
 import io.github.longshou.mcyukkuri.settlement.HouseholdStores;
 import io.github.longshou.mcyukkuri.settlement.SettlementObservation;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

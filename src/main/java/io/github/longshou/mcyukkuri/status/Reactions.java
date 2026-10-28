@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
-import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;

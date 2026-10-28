@@ -6,12 +6,8 @@ import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import io.github.longshou.mcyukkuri.registry.ModItems;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 
 /** "Stay quiet and you get a snack" (approx. 9-12 s). The trainee is served first. 100 waits and is served; 0 protests ずるい, cries, hops, no snack. */
 public final class WitsPromiseItem extends Scene {

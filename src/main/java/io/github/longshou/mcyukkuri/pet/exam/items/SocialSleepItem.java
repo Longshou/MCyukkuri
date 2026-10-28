@@ -3,17 +3,9 @@ import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import io.github.longshou.mcyukkuri.registry.ModItems;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.particles.ParticleTypes;
 
 /** Lights out, then sleep on the nests for about 5 s (approx. 11 s). Fail: keep hopping and singing; a trainee wakes up angry. */
 public final class SocialSleepItem extends Scene {

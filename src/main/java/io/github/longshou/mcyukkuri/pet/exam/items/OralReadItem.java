@@ -1,18 +1,12 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.pet.exam.ExamTaskArea;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Congenital;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 
 /** Read one simple word aloud (approx. 8-10 s). It passes only when the concrete reading skill is known. */
 public final class OralReadItem extends Scene {

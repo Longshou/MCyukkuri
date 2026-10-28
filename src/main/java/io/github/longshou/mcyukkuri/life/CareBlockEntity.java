@@ -31,7 +31,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 
 public final class CareBlockEntity extends BlockEntity implements Container {
-    public static final int WASTE_CAPACITY = 8;
     private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
     private final LinkedHashMap<UUID,Integer> residents=new LinkedHashMap<>();
     private final LinkedHashMap<UUID,NestResting.Place> resting=new LinkedHashMap<>();

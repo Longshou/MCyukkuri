@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.human;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
-import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.*;
 import net.minecraft.core.*;

@@ -37,6 +37,7 @@ import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.event.WildCards;
+import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
@@ -95,7 +96,6 @@ public final class YukkuriLife {
     private static final int THIRST_INTERVAL = 1200;
     private static final float SEVERE_THIRST = 90;
     private int thirstTicks;
-    private boolean severeThirst;
 
     public YukkuriLife(YukkuriEntity entity) {
         this.entity = entity;
@@ -162,7 +162,6 @@ public final class YukkuriLife {
     YukkuriEntity entity() { return entity; }
     HomeProvider homeProvider() { return HomeProvider.forEntity(entity); }
     void emptyBladder() { bladder = 0; }
-    void relieveBladder(float amount) { bladder -= amount; }
     LifeDoses doses() { return doses; }
     void addNutrition(float amount) {
         float before = nutrition; nutrition = Math.min(100, nutrition + amount);
@@ -486,7 +485,7 @@ public final class YukkuriLife {
     public void wearAccessory(){ accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
     /** Where the hat is: the one record every read of its whereabouts goes through. */
-    public io.github.longshou.mcyukkuri.headwear.HatCustody custody(){ return accessory.custody(); }
+    public HatCustody custody(){ return accessory.custody(); }
     /** A stowed, token-matched physical hat is still this individual's accessory. */
     public boolean accessoryCustodied(){ return accessory.custodied(); }
     public boolean relinquishCustody(UUID owner,UUID token,UUID player,String cause){ return accessory.relinquishCustody(owner, token, player, cause); }
@@ -891,13 +890,6 @@ public final class YukkuriLife {
     private BlockPos nearestDrink(){ return home.nearestDrink(); }
     /** The shallow pool of a planned site: within 32 blocks the whole community drinks there. */
     private BlockPos siteWater(){ return home.siteWater(); }
-    private boolean navigateNear(BlockPos target, double speed) {
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            BlockPos stand = target.relative(direction);
-            if (dryStand(stand) && navigate(stand, speed, false)) return true;
-        }
-        return false;
-    }
     private Path path(BlockPos target, boolean escapeWater) {
         // A nest occupies the feet cell with a fractional-height floor. Vanilla's walk node
         // sits at floor(y + collisionShape.max(Y) + .5), which for a low nest is the nest cell itself.

@@ -48,23 +48,6 @@ public final class YukkuriWorldData extends SavedData {
         public static final Relation NONE = new Relation(0, 0, 0, 0);
         public int strength() { return Math.abs(closeness) + fear; }
     }
-    /** Actual completed interactions. Callers must not emit one for animation-only or interrupted actions. */
-    public enum RelationEvent {
-        FEED(8, -5),
-        GENTLE_TALK(3, -2),
-        TREATMENT(4, -3),
-        ACCESSORY_RETURN(6, -6),
-        RESCUE(10, -8),
-        ATTACK(-20, 25),
-        ACCESSORY_TAKEN(-10, 12),
-        TREASURE_TAKEN(-10, 14),
-        CONFISCATED(-6, 8);
-
-        private final int closeness, fear;
-        RelationEvent(int closeness, int fear) { this.closeness = closeness; this.fear = fear; }
-        public int closeness() { return closeness; }
-        public int fear() { return fear; }
-    }
     public static final int MAX_RELATIONS_PER_SOURCE = 64;
     /** A one-shot physical-loss notice; the owner's matching token decides whether it still applies. */
     public record AccessoryLoss(UUID token, UUID player, String destroyedBy) {}
@@ -191,9 +174,6 @@ public final class YukkuriWorldData extends SavedData {
     }
     /** Existing closeness-only entry point. New behavior should use {@link #interact}. */
     public void relate(UUID from, UUID to, int change) { interact(from, to, change, 0); }
-    public Relation interact(UUID from, UUID to, RelationEvent event) {
-        return event == null ? relation(from, to) : interact(from, to, event.closeness(), event.fear());
-    }
     /**
      * Applies one completed directed interaction. A source remembers at most 64 targets:
      * owner and active targets are protected; otherwise the least-recent, weakest memory is forgotten.
@@ -254,14 +234,6 @@ public final class YukkuriWorldData extends SavedData {
         }
         return removed != null;
     }
-    /** Every directed closeness score held by {@code from}, for compatibility status views. */
-    public Map<UUID, Integer> affinitiesFrom(UUID from) {
-        if (relationsIndexDirty) rebuildRelationsIndex();
-        Map<UUID, Integer> result = new LinkedHashMap<>();
-        var outgoing = relationsBySource.get(from);
-        if (outgoing != null) outgoing.forEach((to, score) -> { if (score.closeness() != 0) result.put(to, score.closeness()); });
-        return result;
-    }
     /** Every directed full relation held by {@code from}; values are immutable snapshots. */
     public Map<UUID, Relation> relationsFrom(UUID from) {
         if (relationsIndexDirty) rebuildRelationsIndex();
@@ -269,10 +241,6 @@ public final class YukkuriWorldData extends SavedData {
         return outgoing == null ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(outgoing));
     }
     public boolean isCaptured(UUID entity) { return captives.values().stream().anyMatch(c -> c.entity.equals(entity)); }
-    public void accessoryDestroyed(UUID owner, UUID token, String cause) {
-        if (owner == null || token == null || cause == null || cause.isEmpty()) return;
-        accessoryConfiscations.put(owner, new AccessoryLoss(token, null, cause)); setDirty();
-    }
     public AccessoryLoss consumeAccessoryLoss(UUID owner, UUID token) {
         var event = accessoryConfiscations.get(owner);
         if (event == null || !event.token.equals(token)) return null;
@@ -280,11 +248,6 @@ public final class YukkuriWorldData extends SavedData {
     }
     public void clearAccessoryConfiscation(UUID owner) {
         if (accessoryConfiscations.remove(owner) != null) setDirty();
-    }
-    /** Persist the hand-off for an unloaded source owner; the matching old token is retired on its first server tick. */
-    public void accessoryTransferred(UUID owner,UUID token,UUID recipient) {
-        if(owner==null||token==null||recipient==null||owner.equals(recipient))return;
-        accessoryTransfers.put(owner,new AccessoryTransfer(token,recipient));setDirty();
     }
     public UUID consumeAccessoryTransfer(UUID owner,UUID token) {
         var transfer=accessoryTransfers.get(owner);

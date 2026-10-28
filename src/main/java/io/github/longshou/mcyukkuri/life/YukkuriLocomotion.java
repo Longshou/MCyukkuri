@@ -11,7 +11,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Physical limits and the swept executor shared by deliberate water and carried movement. */
 public final class YukkuriLocomotion {
-    public enum Kind { HOP, CLIMB, LIFT, SWIM, TOW }
+    public enum Kind { HOP, CLIMB, LIFT }
     /** Heights/reaches are blocks; speeds are blocks per server tick. No client state owns these limits. */
     public record Limits(double maxHopHeight, double maxHopReach, double maxHorizSpeed,
                          double maxClimbRise, double swimSpeed, double towSpeed) {}
@@ -117,13 +117,6 @@ public final class YukkuriLocomotion {
         body.setPos(at);
     }
 
-    /** Water contact/separation retains the previous float and current velocity after the collision sweep. */
-    public static boolean waterStep(YukkuriEntity body, Vec3 target, double maxSpeed) {
-        var velocity = body.getDeltaMovement();
-        boolean arrived = step(body, target, Math.min(maxSpeed, limits(body).swimSpeed()));
-        waterImpulse(body, velocity);
-        return arrived;
-    }
 
     /** Swim effort changes bounded horizontal velocity; vanilla fluid physics retains responsibility for buoyancy. */
     public static boolean swim(YukkuriEntity body, Vec3 target, double requestedSpeed) {
@@ -140,15 +133,6 @@ public final class YukkuriLocomotion {
         return true;
     }
 
-    /** A real push remains an impulse, but cannot stack unbounded horizontal speed on a swimmer. */
-    public static void waterImpulse(YukkuriEntity body, Vec3 impulse) {
-        var next = body.getDeltaMovement().add(impulse);
-        double speed = limits(body).swimSpeed();
-        var horizontal = new Vec3(next.x, 0, next.z);
-        if (horizontal.length() > speed) horizontal = horizontal.normalize().scale(speed);
-        body.setDeltaMovement(horizontal.x, next.y, horizontal.z);
-        body.hasImpulse = true;
-    }
 
     public static double length(List<Vec3> points) {
         double length = 0;

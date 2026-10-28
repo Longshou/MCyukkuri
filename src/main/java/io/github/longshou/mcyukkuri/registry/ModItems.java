@@ -127,7 +127,6 @@ public final class ModItems {
         SPAWN_EGGS.put(variant, holder);
         return holder;
     }
-    public static DeferredSpawnEggItem spawnEggFor(YukkuriVariant variant) { return SPAWN_EGGS.get(variant).get(); }
     public static Item accessoryFor(YukkuriVariant variant) { return ACCESSORIES.get(variant.accessory()).get(); }
     public static Item accessoryFor(YukkuriEntity entity) {
         var kind = entity.subspecies().kind();

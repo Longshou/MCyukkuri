@@ -52,11 +52,6 @@ public final class HatGeometry {
     public enum Role { HELPER, SELF }
     /** The aquatic Marisa's hat is authored larger than the shared prop; worn, set down and left as remains use it. */
     public static final float AQUATIC_SCALE=DATA.get("aquatic_scale").getAsFloat();
-    /** The hat turned over: the opening and the well below it (x0, x1, z0, z1), the brim's half extents (X across, Z along). */
-    public static final float[] OPENING=LAND.opening, WELL=LAND.well, BRIM=LAND.brim;
-    /** How far the crown is pressed along the hat's axis: the brim then stands NEST_HEIGHT up. */
-    public static final float SQUASH_NEST=LAND.squashNest;
-    public static final float NEST_HEIGHT=LAND.nestHeight;
     private static final float LEDGE=LAND.ledge, FLOOR=LAND.floor;
     private record CavitySection(float[] rect,double depth,float[][] outline){}
     private static final float[] ANCHOR=LAND.anchor;
@@ -95,13 +90,6 @@ public final class HatGeometry {
     public static double top(){return LAND.nestHeight;}
     public static double squash(){return LAND.squashNest;}
     public static double floor(){return top()-LAND.floor*squash();}
-    /** Largest adjacent tread rise; a deeper multi-tier well must not allow skipping the intervening steps. */
-    public static double maxSurfaceStep(){
-        if(LAND.cavity.isEmpty())return Math.max(LAND.ledge,LAND.floor-LAND.ledge)*squash();
-        double previous=0,largest=0;
-        for(var section:LAND.cavity){largest=Math.max(largest,section.depth()-previous);previous=section.depth();}
-        return largest*squash();
-    }
     private static boolean in(float[] r,double x,double z){return r[0]<=x&&x<=r[1]&&r[2]<=z&&z<=r[3];}
     /** The exported outlines are convex and anticlockwise. Boundary contact stays inside. */
     private static boolean inside(float[][] outline,double x,double z){
@@ -179,21 +167,6 @@ public final class HatGeometry {
             if(ok)return T;
         }
         return TMAX;
-    }
-    /** A deliberately planned body curve must actually clear the hull; failing never grants a larger arc. */
-    public static boolean clears(List<Vec3> points,PlacedHatEntity hat,double radius){
-        if(hat==null||points.isEmpty())return true;
-        double rr=radius/hat.unit();
-        var a=hat.toLocal(points.getFirst());var b=hat.toLocal(points.getLast());
-        double ea=footprint(a.x,a.z,rr),eb=footprint(b.x,b.z,rr);
-        double top=Double.isNaN(ea)?eb:Double.isNaN(eb)?ea:Math.max(ea,eb);
-        for(int i=1;i<points.size()-1;i++){
-            var p=hat.toLocal(points.get(i));double h=footprint(p.x,p.z,rr);
-            if(Double.isNaN(h))continue;
-            double need=Double.isNaN(top)||h>top+1e-6?h+CLEAR:surface(p.x,p.z);
-            if(!Double.isNaN(need)&&p.y<need-1e-6)return false;
-        }
-        return true;
     }
     /** Where an overstrained push sends a newborn aimed at b (world): on along the same line past the far brim, at the
      *  height of b's ground for the caller to settle. */

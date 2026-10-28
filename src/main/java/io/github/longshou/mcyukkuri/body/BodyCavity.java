@@ -110,15 +110,6 @@ public final class BodyCavity {
         var point=mesh.anchor(skinHit);
         return opening.front(point)&&opening.contains(opening.x(point)/CORE_HIT_ZONE_SCALE,opening.y(point)/CORE_HIT_ZONE_SCALE);
     }
-    /** Both sides are solid, matching the non-culling cavity material. */
-    static float intersection(Vector3f origin,Vector3f direction,Vector3f a,Vector3f b,Vector3f c) {
-        var ab=new Vector3f(b).sub(a);var ac=new Vector3f(c).sub(a);var h=new Vector3f(direction).cross(ac);float determinant=ab.dot(h);
-        if(Math.abs(determinant)<1e-8f)return Float.POSITIVE_INFINITY;
-        float inverse=1/determinant;var s=new Vector3f(origin).sub(a);float u=s.dot(h)*inverse;
-        if(u<0||u>1)return Float.POSITIVE_INFINITY;
-        var q=s.cross(ab);float v=direction.dot(q)*inverse;if(v<0||u+v>1)return Float.POSITIVE_INFINITY;
-        float distance=ac.dot(q)*inverse;return distance>=0?distance:Float.POSITIVE_INFINITY;
-    }
 
     /** Bounded immutable geometry cache; no cache or extra wound state is saved. */
     public static synchronized Opening opening(WoundSurface mesh, BodyWound wound) {
@@ -193,9 +184,6 @@ public final class BodyCavity {
         public boolean contains(Vector3f point) { return front(point) && contains(x(point), y(point)); }
         public boolean contains(float x, float y) {
             return contains(polygon,x,y);
-        }
-        public boolean containsHair(Vector3f point) {
-            return front(point) && Math.abs(new Vector3f(point).sub(anchor).dot(normal))<projectionDepth && contains(hairPolygon,x(point),y(point));
         }
         private static boolean contains(float[][] polygon,float x,float y) {
             boolean inside = false;

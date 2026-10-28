@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -507,19 +506,6 @@ public final class HouseholdEcology {
         }
         return result;
     }
-    /** Nearest open, supported floor cell within the radius (lower or higher by a couple of blocks), or null. Reads loaded chunks only. */
-    public static BlockPos groundNear(ServerLevel level,BlockPos origin,int radius){
-        BlockPos best=null;double bestDistance=Double.MAX_VALUE;
-        for(int dx=-radius;dx<=radius;dx++)for(int dz=-radius;dz<=radius;dz++)for(int dy=-2;dy<=1;dy++){
-            var pos=origin.offset(dx,dy,dz);
-            if(!walkable(level,pos)||!clear(level,pos.above())||HouseholdProtection.protectedAt(level,pos))continue;
-            double distance=pos.distSqr(origin);
-            if(distance<bestDistance){best=pos.immutable();bestDistance=distance;}
-        }
-        return best;
-    }
-    /** True when a loose item in this cell lies on a visible, reachable floor rather than inside or under solid blocks. */
-    public static boolean openFloor(ServerLevel level,BlockPos pos){return walkable(level,pos);}
     private static boolean walkable(ServerLevel level,BlockPos pos){return clear(level,pos)&&SupplyPiles.supported(level,pos);}
     private static boolean clear(ServerLevel level,BlockPos pos){
         return level.isInWorldBounds(pos)&&level.hasChunkAt(pos)&&level.getFluidState(pos).isEmpty()

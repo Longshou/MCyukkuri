@@ -59,17 +59,12 @@ public final class ExamMenu extends AbstractContainerMenu {
         public static final int HALL_MASK = 14;
         public static final int EMERALDS = 15;
         public static final int SPECIES = 16;
-        public static final int RESERVED_TASK_0 = 17;
-        public static final int RESERVED_TASK_1 = 18;
-        public static final int RESERVED_TASK_2 = 19;
-        public static final int RESERVED_TASK_3 = 20;
         public static final int LAST_OUTCOME = 21;
         public static final int LAST_TYPE = 22;
         public static final int LAST_GRADE = 23;
         public static final int HAS_NOTES = 24;
         public static final int UNAUTHORIZED_BIRTHS = 25;
         public static final int REFUSAL_BASE = 26;
-        public static final int RESERVED_31 = 31;
         private Data() {}
     }
     public static final int HALL_FOUND = 16, HALL_TASK_AREAS = 7;

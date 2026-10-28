@@ -180,7 +180,6 @@ public final class PetCare {
     private ServerLevel level() { return (ServerLevel) animal.level(); }
 
     // habit praise: after the pet used its bowl, toilet or bed on its own, a short window where gentle care teaches manners
-    public int habitsToday() { rollDay(); return habits; }
     public boolean habitWindow() { return habitLeft > 0; }
     /** PetLife.routineCompleted: 0 bowl, 1 toilet, 2 bed. Opens the praise window when the owner is watching. */
     public void habit(int kind) {

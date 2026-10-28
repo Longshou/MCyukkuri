@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -163,8 +164,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if(walking&&crawlCheckPos!=null&&at.distanceTo(crawlCheckPos)<crawler.crawlSpeed()*(now-crawlCheckTick)*CRAWL_SHARE){
             stop();stalled=true;
             GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait=crawl target={} at={} moved={} expected={}",
-                    target,at,String.format(java.util.Locale.ROOT,"%.3f",at.distanceTo(crawlCheckPos)),
-                    String.format(java.util.Locale.ROOT,"%.3f",crawler.crawlSpeed()*(now-crawlCheckTick)));
+                    target,at,String.format(Locale.ROOT,"%.3f",at.distanceTo(crawlCheckPos)),
+                    String.format(Locale.ROOT,"%.3f",crawler.crawlSpeed()*(now-crawlCheckTick)));
         }
         crawlCheckTick=now;crawlCheckPos=at;
     }

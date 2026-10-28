@@ -40,7 +40,7 @@ final class CareWearRenderer {
     /** Lowest edge of every shell, as a fraction of the body height. */
     private static final float CUP_BASE = .015f;
     /** Nothing worn rises above this height fraction at the front, so the mouth stays free; a front bow is centred no higher than BOW_AT. */
-    private static final float MOUTH_GUARD = .22f, BOW_AT = .11f;
+    private static final float BOW_AT = .11f;
     /** Height window (fraction of the body height) of radiusNear's fallback, and the height below which radiusLow does without it. */
     private static final float NEAR_WINDOW = .05f, LOW = .1f;
     /** Fabric texels per model unit (16 units per block), the same density as the placed care props; every fabric tile is 16 texels. */

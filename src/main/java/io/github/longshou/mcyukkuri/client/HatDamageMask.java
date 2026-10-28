@@ -23,8 +23,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
  */
 public final class HatDamageMask {
     public static final byte HIDDEN = 0, DRAW = 1, EDGE = 2;
-    /** Kept for source compatibility with the old triangle mask; no caller should use it. */
-    @Deprecated public static final byte FRAYED = EDGE;
 
     private static HatDamageGeometry.Pattern pattern=HatDamageGeometry.defaults();
     private static Map<String, int[]> tints = Map.of();

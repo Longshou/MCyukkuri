@@ -17,7 +17,7 @@ public final class BadgeLedger {
     /** Impression moves one step toward 0 per game day; an entry unseen for five days is forgotten. */
     public static final long DECAY_TICKS = 24000L, STALE_TICKS = 5 * 24000L;
     public static final int ADMIRED = 1, ENVIED = 2, FED_BY = 4, HELPED = 8, SNUBBED = 16, MOCKED = 32, ROBBED_BY = 64, ROBBED = 128,
-            PLEADED_OWNER = 256, TOLD_ON = 512, WARY = 1024;
+            PLEADED_OWNER = 256, WARY = 1024;
 
     public static final class Entry {
         public final UUID subject;
@@ -92,10 +92,6 @@ public final class BadgeLedger {
     public void flag(UUID subject, int flags, long now) {
         var e = get(subject, now);
         if (e != null) e.flags |= flags;
-    }
-    public void unflag(UUID subject, int flags, long now) {
-        var e = get(subject, now);
-        if (e != null) e.flags &= ~flags;
     }
     public void arc(UUID subject, String arcId, long now) {
         var e = get(subject, now);

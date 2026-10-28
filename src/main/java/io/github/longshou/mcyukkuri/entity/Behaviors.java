@@ -8,56 +8,31 @@ public final class Behaviors {
     public static final String ALICE_ACT = "alice_act";
     public static final String ALICE_APPROACH = "alice_approach";
     public static final String ALICE_WATCH = "alice_watch";
-    public static final String AQUATIC_ANSWER_FAMILY = "aquatic_answer_family";
     public static final String AQUATIC_HAT_CARE = "aquatic_hat_care";
-    public static final String AQUATIC_IMITATE_PADDLE = "aquatic_imitate_paddle";
-    public static final String AQUATIC_PADDLE_PRACTICE = "aquatic_paddle_practice";
-    public static final String AQUATIC_WATCH_PARENT = "aquatic_watch_parent";
     public static final String BOAT_ALARM_CALL = "boat_alarm_call";
     public static final String BOAT_ALARM_WAIT = "boat_alarm_wait";
     public static final String BOAT_ANSWER_CALL = "boat_answer_call";
     public static final String BOAT_BE_CARRIED = "boat_be_carried";
-    public static final String BOAT_BEG = "boat_beg";
     public static final String BOAT_BOARD = "boat_board";
     public static final String BOAT_CALL = "boat_call";
     public static final String BOAT_CALM = "boat_calm";
-    public static final String BOAT_CAPSIZING = "boat_capsizing";
     public static final String BOAT_CARRY_YOUNG = "boat_carry_young";
-    public static final String BOAT_CROWD_GUARD = "boat_crowd_guard";
     public static final String BOAT_DRIFT = "boat_drift";
     public static final String BOAT_DRINK = "boat_drink";
     public static final String BOAT_EAT = "boat_eat";
     public static final String BOAT_FEED_YOUNG = "boat_feed_young";
-    public static final String BOAT_FIND_PADDLE = "boat_find_paddle";
     public static final String BOAT_FLEE = "boat_flee";
-    public static final String BOAT_FOLLOW_FAMILY = "boat_follow_family";
     public static final String BOAT_GATHER = "boat_gather";
-    public static final String BOAT_GIVE_PADDLE = "boat_give_paddle";
-    public static final String BOAT_GUARD_YOUNG = "boat_guard_young";
-    public static final String BOAT_LAND = "boat_land";
-    public static final String BOAT_LAUNCH = "boat_launch";
-    public static final String BOAT_LISTEN = "boat_listen";
     public static final String BOAT_LULLABY = "boat_lullaby";
     public static final String BOAT_NUZZLE = "boat_nuzzle";
     public static final String BOAT_PADDLE = "boat_paddle";
     public static final String BOAT_PREPARE_CARRY = "boat_prepare_carry";
-    public static final String BOAT_PROVISION = "boat_provision";
     public static final String BOAT_REASSURE = "boat_reassure";
-    public static final String BOAT_RECEIVE_CARE = "boat_receive_care";
-    public static final String BOAT_RECEIVE_PADDLE = "boat_receive_paddle";
     public static final String BOAT_RELEASE_CARRY = "boat_release_carry";
-    public static final String BOAT_RESCUE_APPROACH = "boat_rescue_approach";
-    public static final String BOAT_RESCUE_YOUNG = "boat_rescue_young";
-    public static final String BOAT_RETURN_CALLED = "boat_return_called";
-    public static final String BOAT_RETURN_FAMILY = "boat_return_family";
     public static final String BOAT_ROCK_STARTLE = "boat_rock_startle";
-    public static final String BOAT_ROCKED = "boat_rocked";
-    public static final String BOAT_SEEK_BANK = "boat_seek_bank";
-    public static final String BOAT_SEEK_REST = "boat_seek_rest";
     public static final String BOAT_SLEEP = "boat_sleep";
     public static final String BOAT_STEADY = "boat_steady";
     public static final String BOAT_TOILET = "boat_toilet";
-    public static final String BOAT_WAIT_YOUNG = "boat_wait_young";
     public static final String BOAT_WEDGE_BERTH = "boat_wedge_berth";
     public static final String BOAT_PUSH_OFF = "boat_push_off";
     public static final String BOAT_COVER_YOUNG = "boat_cover_young";
@@ -76,7 +51,6 @@ public final class Behaviors {
     public static final String COURTSHIP = "courtship";
     public static final String DRINK = "drink";
     public static final String ESCAPE_WATER = "escape_water";
-    public static final String EVENT_RIVER = "event_river";
     public static final String EVENT_SEPARATED = "event_separated";
     public static final String EXERCISE_WATCH = "exercise_watch";
     public static final String FAMILY_CHEW = "family_chew";
@@ -224,16 +198,6 @@ public final class Behaviors {
     public static final String TRAMPOLINE = "trampoline";
     public static final String TUNNEL = "tunnel";
     public static final String UNUN_EXERCISE = "unun_exercise";
-    public static final String VOYAGE_BALANCE = "voyage_balance";
-    public static final String VOYAGE_BOARD = "voyage_board";
-    public static final String VOYAGE_LAUNCH = "voyage_launch";
-    public static final String VOYAGE_OUT = "voyage_out";
-    public static final String VOYAGE_PRAISE = "voyage_praise";
-    public static final String VOYAGE_PREPARE = "voyage_prepare";
-    public static final String VOYAGE_PROUD = "voyage_proud";
-    public static final String VOYAGE_RETURN = "voyage_return";
-    public static final String VOYAGE_WAIT_PARENT = "voyage_wait_parent";
-    public static final String VOYAGE_WATCH = "voyage_watch";
     public static final String WAIT = "wait";
     public static final String WAIT_CHILD = "wait_child";
     public static final String WAKE = "wake";
@@ -248,15 +212,10 @@ public final class Behaviors {
     // Prefixes are also used by existing presentation selectors.
     public static final String EVENT_PREFIX = "event_";
     public static final String EVENT_BADGE_PREFIX = "event_badge_";
-    public static final String WATER_HAT_PREFIX = "water_hat_";
-    public static final String BOAT_RESCUE_PREFIX = "boat_rescue_";
-    public static final String AQUATIC_SUFFIX = "_aq";
 
     /** Inputs retain their existing normalization at the caller. */
     public static String event(String card) { return EVENT_PREFIX + card; }
     public static String eventBadge(String card) { return EVENT_BADGE_PREFIX + card; }
-    public static String aquatic(String id) { return id + AQUATIC_SUFFIX; }
-    public static String aquatic(String id, boolean enabled) { return enabled ? aquatic(id) : id; }
 
     public static final String HOUSE_CRAWL = "house_crawl";
     public static final String HOUSE_PREFIX = "house_";

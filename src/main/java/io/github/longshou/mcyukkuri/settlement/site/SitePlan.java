@@ -15,7 +15,7 @@ import net.minecraft.core.Direction;
 /**
  * The finished layout of one site in world coordinates. Pure data: it is computed once from (tier, seed, rotation, origin,
  * profile, ground samples) and can be re-derived at any time. The layout itself never depends on the terrain; what the
- * terrain decides is the standing level of every part ({@link #levelOf}) and which parts the ground allows. Those levels are
+ * terrain decides is the standing level of every part ({@link #levelAt}) and which parts the ground allows. Those levels are
  * the only terrain data that has to be stored with a site.
  */
 public final class SitePlan {
@@ -53,8 +53,6 @@ public final class SitePlan {
     public SiteProfile profile() { return SiteProfile.byOrdinal(palette); }
     public BlockPos center() { return new BlockPos(ox, level, oz); }
     public Part plaza() { for (var part : parts) if (part.kind() == Kind.PLAZA) return part; return null; }
-    /** Standing level of the part: the first free block above its ground (a burrow door's floor is this level). */
-    public int levelOf(Part part) { int i = parts.indexOf(part); return i < 0 ? level : levels[i]; }
     public int levelAt(int index) { return levels[index]; }
     public boolean used(int index) { return levels[index] != SiteGeom.SKIP; }
     /** A copy of the stored levels (one per part, {@link SiteGeom#SKIP} for parts the ground did not allow). */

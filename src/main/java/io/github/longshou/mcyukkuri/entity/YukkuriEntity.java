@@ -28,7 +28,6 @@ import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -384,14 +383,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean isCommandPlaying() { return requestedAction != null; }
     public YukkuriLife life() { return life; }
     public PetLife pet() { return pet; }
-    public void sayBadge(String event) {
-        if (level().isClientSide || !isAlive()) return;
-        long now = level().getGameTime();
-        if (!speechTiming.admit(now, 80, 2)) return;
-        sync().dialogue("badge.mcyukkuri.speech." + event);
-        sync().speechStart(now); sync().speechEnd(speechTiming.end());
-        sync().speechSequence(speechSequence() + 1);
-    }
     public DailyLife dailyLife() { return dailyLife; }
     /** Species profile: behaviour coefficients, retching, speech hooks (worldview package 4). */
     public SpeciesLife species() { return species; }
@@ -901,7 +892,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     // These hooks expose the inherited field/base operation, never a recursively dispatched facade.
     PathNavigation directNavigation() { return navigation; }
     float lastHurtValue() { return lastHurt; }
-    void rememberHit(float incoming) { lastHurt = Math.max(lastHurt, incoming); }
     int panicTicksValue() { return panicTicks; }
     void setPanicTicks(int ticks) { panicTicks = ticks; }
     /** Project design: a hurt newborn (BABY stage) does not flee; it stays put and cries until the cry lapses. */

@@ -37,35 +37,6 @@ public final class Homes {
     public static HabitatLife.Residence residence(YukkuriEntity entity) { return entity.habitat().residence(); }
     public static boolean vagrant(YukkuriEntity entity) { return entity.habitat().vagrant(); }
 
-    /** The cell this individual sleeps in (family nest cell for the young and for parents, own cell once it has a small nest), or null. */
-    public static BlockPos nestCell(YukkuriEntity entity) {
-        var home = of(entity);
-        return home == null ? null : home.bed(entity.getUUID());
-    }
-    /** All cells of the nest this individual sleeps in: the whole family nest, or the single cell of a personal nest. */
-    public static List<BlockPos> nestCells(YukkuriEntity entity) {
-        var home = of(entity);
-        if (home == null) return List.of();
-        var bed = home.bed(entity.getUUID());
-        if (bed == null) return List.of();
-        return home.privateNest(entity.getUUID()) ? List.of(bed) : home.sharedBeds();
-    }
-    /**
-     * The nest identification for birth care: true when {@code pos} is one of the cells of the nest this individual belongs to.
-     * A mother is "at her nest" when she stands on one of these cells; a parent that has left it (no home, wrong home, or
-     * a cell of another family) does not recognise the place.
-     */
-    public static boolean isOwnNest(YukkuriEntity entity, BlockPos pos) { return nestCells(entity).contains(pos); }
-    /**
-     * Where a land mother gives birth: the cell of her own family nest, if her home is usable and has room for the young
-     * ({@link ShelterBlockEntity#suitableForYoung}); null otherwise (the family code then falls back to her hat boat, or to
-     * no nest). It never creates or moves a nest.
-     */
-    public static BlockPos birthNest(YukkuriEntity mother, int young) {
-        var home = of(mother);
-        if (home == null || !home.usable(mother) || home.privateNest(mother.getUUID()) || !home.suitableForYoung(young)) return null;
-        return home.bed(mother.getUUID());
-    }
 
     /**
      * Pets and other kept mothers sleep on a care-prop pet bed (one block, {@code CareBlock.Kind.NEST}). Giving birth needs a bigger bed:

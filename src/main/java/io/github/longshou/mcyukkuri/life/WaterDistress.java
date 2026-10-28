@@ -37,11 +37,6 @@ public final class WaterDistress {
         return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" fatigue="+fatigue
                 +" burst="+burstTicks+" rest="+restTicks;
     }
-    /** The swimmer's call for help. */
-    public void callForHelp(){
-        if(entity.level().isClientSide||!entity.isAlive())return;
-        if(callWait==0){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
-    }
     /** Called where a body really falls in: it shows the plunge pose until it touches the water. */
     public void plunge(){
         if(entity.level().isClientSide)return;

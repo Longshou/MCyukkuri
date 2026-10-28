@@ -233,11 +233,6 @@ final class WoundRenderer {
         private static float offset(int material){return switch(material){case 21->.02f;case 22->.026f;case 23->.032f;case 24->.045f;case 25->.05f;
                 case 26->.055f;case 27->.06f;case 28->.065f;case 29->.026f;case 30->.02f;default->.02f;};}
         private static float side(float[] a,float[] b,float[] p){return (b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0]);}
-        float[] diskPoint(SkinDecal w,float cx,float cy,float rx,float ry,float radius,int j){double a=j*Math.PI*2/24,rough=1+.09*Math.sin(a*7+
-                w.id().toString().length())+.04*Math.cos(a*13);return new float[]{cx+rx*radius*(float)(Math.cos(a)*rough),cy+ry*radius*(float)(Math.sin(a)*rough)};}
-        void disk(SkinDecal w,float cx,float cy,float rx,float ry,int material,float inner){for(int r=0;r<4;r++)for(int j=0;j<24;j++){float a=inner+
-                (1-inner)*r/4,b=inner+(1-inner)*(r+1)/4;var p=diskPoint(w,cx,cy,rx,ry,a,j);var q=diskPoint(w,cx,cy,rx,ry,b,j);var v=diskPoint(w,cx,cy,
-                rx,ry,b,j+1);var t=diskPoint(w,cx,cy,rx,ry,a,j+1);mark(w,p,q,v,material);mark(w,p,v,t,material);}}
         void line(SkinDecal w,float ax,float ay,float bx,float by,float width,int mat){float len=(float)Math.hypot(bx-ax,by-ay),nx=
                 -(by-ay)/len*width/2,ny=(bx-ax)/len*width/2;int steps=Math.max(1,(int)Math.ceil(len/.12));
             for(int i=0;i<steps;i++){float x=ax+(bx-ax)*i/steps,y=ay+(by-ay)*i/steps,xx=ax+(bx-ax)*(i+1)/steps,yy=ay+(by-ay)*(i+1)/steps;mark(w,

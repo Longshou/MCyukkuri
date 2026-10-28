@@ -23,7 +23,7 @@ import net.minecraft.world.level.saveddata.SavedData;
  * renewed, or was bought (so a pet that waits in a carrier or at home still counts). Bronze is kept for good, silver and gold until their expiry.
  */
 public final class PetPrivileges extends SavedData {
-    public static final int HARNESS = 1, BREEDING = 1, PREMIUM = 2, MATCHMAKING = 2;
+    public static final int HARNESS = 1, BREEDING = 1, MATCHMAKING = 2;
     private static final String NAME = "mcyukkuri_pet_privileges";
     private static final long NONE = Long.MIN_VALUE, PERMANENT = -1;
     /** Per player and grade (bronze, silver, gold): none, permanent, or the game time until which the record counts. */

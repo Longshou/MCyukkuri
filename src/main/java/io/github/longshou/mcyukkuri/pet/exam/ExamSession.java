@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.human.Custody;
-import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -432,7 +431,6 @@ public final class ExamSession implements ExamContext {
         if ((type == PROMOTION || type == RENEWAL) && outcome != 2) candidate.getPersistentData().putInt("ExamUnauthBase", pet.unauthorizedBirths());
     }
     private void settle() { applyGrade(); release(); }
-    private Vec3 headOf(Entity e) { return e.position().add(0, e.getBbHeight() + .35, 0); }
     private void ceremony() {
         if (rs == 0) {
             boolean near = examiner.distanceToSqr(candidate) <= 9 && (walker.goal == null || arrived() || pt > 60);

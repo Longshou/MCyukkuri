@@ -140,15 +140,6 @@ public final class YukkuriPersonality {
         }
     }
 
-    /** Scenario/setup write; the current form boundary is applied immediately. */
-    public boolean setInnate(Trait trait, int value) {
-        if (trait == null) return false;
-        int bounded = bounds().clamp(trait, value);
-        boolean changed = innate[trait.ordinal()] != bounded;
-        innate[trait.ordinal()] = bounded;
-        constrainToForm();
-        return changed;
-    }
 
     /** Scenario/setup write of an effective axis; returns false for an unavailable axis. */
     public boolean setTrait(Trait trait, int target) {
@@ -259,7 +250,6 @@ public final class YukkuriPersonality {
     public float threatDistance(int objectFear) {
         return Math.max(0, 9 - .05f * boldness() + Math.max(0, objectFear - 30) * .05f);
     }
-    public float foodRecognitionProbability() { return Math.clamp(.35f + .006f * intelligence(), .35f, .95f); }
 
     public int trust(UUID object) { return relation(object).closeness(); }
     public int fear(UUID object) { return relation(object).fear(); }

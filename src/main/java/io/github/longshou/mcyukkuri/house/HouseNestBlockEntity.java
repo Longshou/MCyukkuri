@@ -21,7 +21,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -117,9 +116,6 @@ public final class HouseNestBlockEntity extends BlockEntity {
     /** Too dirty, being disturbed, or covered by a repellent: parents would move the clutch if they could. */
     public boolean unfit(){
         return destroyed||dirt>=6||disturbedTicks>0||level instanceof ServerLevel server&&HouseholdProtection.protectedAt(server,worldPosition);
-    }
-    public boolean hasEggRoom(){
-        return eggRoom()>0;
     }
     public int eggRoom(){
         return Math.max(0,rawEggRoom()-(incomingEggRelocation==null?0:incomingEggRelocation.remaining()));

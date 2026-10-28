@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -281,8 +282,8 @@ public final class SurfaceApproach {
         GameplayLog.limited(actor,"walk","sample",SAMPLE_TICKS,
                 "sample layer=approach at={} dest={} pathTarget={} navDone={} nodesLeft={} metric={} speed={} collided={} crawl={} owner={} result={}",
                 GameplayLog.at(actor.position()),GameplayLog.at(destination),navigation.getTargetPos(),navigation.isDone(),nodes,
-                String.format(java.util.Locale.ROOT,"%.2f",actor.position().distanceTo(destination)),
-                String.format(java.util.Locale.ROOT,"%.3f",actor.getSpeed()),actor.horizontalCollision,actor.isCrawling(),
+                String.format(Locale.ROOT,"%.2f",actor.position().distanceTo(destination)),
+                String.format(Locale.ROOT,"%.3f",actor.getSpeed()),actor.horizontalCollision,actor.isCrawling(),
                 owner==null?"none":owner.ownerId(),result);
     }
 

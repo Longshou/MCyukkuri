@@ -12,8 +12,6 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
-import io.github.longshou.mcyukkuri.life.CareBlock;
-import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -23,13 +21,11 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import java.util.*;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -41,7 +37,6 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Shopkeeper UI with four tabs. Rows and subjects are fixed server-side; button packets never carry an animal id.
@@ -60,9 +55,6 @@ public final class ShopMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
         public static final int LIVE_TAB = 0;
-        public static final int GOODS_TAB = 1;
-        public static final int BUYBACK_TAB = 2;
-        public static final int CONSULT_TAB = 3;
         public static final int BUY_LIVE_BASE = 4;
         public static final int BUY_LIVE_LAST = 7;
         public static final int LOCATE_BASE = 8;
@@ -105,10 +97,6 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int SUBJECT_RESERVED = 20;
         public static final int ADVICE_BASE = 26;
         public static final int PRICE = 29;
-        public static final int FORECAST_BRONZE = 30;
-        public static final int FORECAST_SILVER = 31;
-        public static final int FORECAST_GOLD = 32;
-        public static final int FORECAST_BOUGHT = 33;
         public static final int BUYBACK_REFUSAL = 34;
         public static final int SUBJECT_TAGS = 35;
         public static final int TITLE = 36;
@@ -151,8 +139,6 @@ public final class ShopMenu extends AbstractContainerMenu {
     public static int goodsCategory(int page) { return ShopCatalog.category(page); }
     public static ItemStack goodsStack(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? ItemStack.EMPTY : good.stack(); }
     public static int goodsPrice(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? 0 : good.price(); }
-    /** Badge needed for the good in this row (0 none, 1 bronze, 2 silver). */
-    public static int goodsUnlock(int page, int row) { var good = ShopCatalog.at(ShopCatalog.index(page, row)); return good == null ? 0 : good.unlock(); }
 
     private final HumanNpc target;
     private final Player viewer;

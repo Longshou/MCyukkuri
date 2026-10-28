@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -29,7 +29,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +72,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         return place!=null;
     }
     /** A place counts only where that body's whole footprint would stand inside the bed (spec 7), not merely on a top. */
-    private static java.util.function.BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
+    private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
         return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }
     private final Map<BlockPos,Integer> largeBedWork=new LinkedHashMap<>();

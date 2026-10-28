@@ -29,7 +29,6 @@ public final class PetWalk {
     /** Whether the pet is currently on a lead held by its owner. */
     public static boolean walking(YukkuriEntity pet) { return pet.pet().care().walk().walking(); }
     public boolean walking() { return moving; }
-    public int unitsToday() { return units; }
     public double carry() { return carry; }
 
     void newDay() { units = 0; }

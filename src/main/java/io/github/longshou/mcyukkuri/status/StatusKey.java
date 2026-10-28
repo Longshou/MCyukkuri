@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyLife;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Function;

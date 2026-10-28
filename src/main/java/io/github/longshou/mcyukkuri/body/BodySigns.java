@@ -19,8 +19,6 @@ import net.minecraft.nbt.CompoundTag;
  */
 public final class BodySigns {
     public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64, FACE_MARKS = 128;
-    /** The legacy 0-12 display value at which a deep wound can show the centre (30% health, rounded up). */
-    public static final int CORE_SHOWS = 4;
     private static final Map<WoundSurface, int[]> SOLE_SITES = new ConcurrentHashMap<>();
 
     private BodySigns() {}

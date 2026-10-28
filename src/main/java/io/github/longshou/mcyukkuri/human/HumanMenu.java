@@ -21,9 +21,6 @@ public final class HumanMenu extends AbstractContainerMenu {
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
     public static final class ButtonId {
         public static final int SUPPLY_FIRST = 0;
-        public static final int SUPPLY_SECOND = 1;
-        public static final int SUPPLY_THIRD = 2;
-        public static final int SUPPLY_LAST = 3;
         public static final int SUPPLY_END = 4;
         public static final int DELIVER_INPUT = 8;
         public static final int ACCEPT_QUEST = 9;

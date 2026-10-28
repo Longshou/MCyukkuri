@@ -32,8 +32,6 @@ public final class Sweets {
     public static float nutrition(ItemStack stack) { return candy(stack) ? 6 : pudding(stack) ? 15 : 10; }
     /** Thirst added by one sweet. */
     public static int dryness(ItemStack stack) { return candy(stack) ? 10 : pudding(stack) ? 0 : 15; }
-    /** Multiplier of the lesson reward gain: pudding is a proper prize. */
-    public static float rewardFactor(ItemStack stack) { return pudding(stack) ? 1.5f : 1f; }
 
     /** Premium grain is the pet shop's better grade: it never leaves the pet thirsty, calms it a little and restores health. */
     public static boolean premium(ItemStack stack) { return stack.is(ModItems.GRAIN_PREMIUM.get()); }

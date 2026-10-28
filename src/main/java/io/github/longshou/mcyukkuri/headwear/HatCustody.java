@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
@@ -45,35 +46,9 @@ public final class HatCustody {
     public String cause() { return cause; }
     /** This owner and token name the hat that is off the head. */
     public boolean matches(UUID ownerId, UUID tokenId) { return !worn() && owner.getUUID().equals(ownerId) && token != null && token.equals(tokenId); }
-    public String detail() { return "custody=" + state.name().toLowerCase(java.util.Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
+    public String detail() { return "custody=" + state.name().toLowerCase(Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
             + " reclaim=" + reclaimHat + " claimant=" + reclaimAssignee; }
 
-    public void requestReclaim(String why) {
-        if (!owner.isAlive() || !custodied() || boat == null || boat.equals(reclaimHat)) return;
-        reclaimHat = boat; reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
-        GameplayLog.event(owner, "headwear", "reclaim requested hat={} owner={} reason={}", boat, owner.getUUID(), why);
-    }
-    public boolean reclaimPending() { return custodied() && boat != null && boat.equals(reclaimHat); }
-    public boolean claimReclaim(YukkuriEntity claimant) {
-        if (claimant == null || !claimant.isAlive() || !reclaimPending()) return false;
-        long now = owner.level().getGameTime();
-        boolean ownerHandedOver = owner.isPassenger() && owner.getUUID().equals(reclaimAssignee);
-        if (now < reclaimRetry || reclaimAssignee != null && !reclaimAssignee.equals(claimant.getUUID()) && now < reclaimLease && !ownerHandedOver) return false;
-        if (!claimant.getUUID().equals(reclaimAssignee)) {
-            reclaimAssignee = claimant.getUUID();
-            GameplayLog.event(owner, "headwear", "reclaim assigned hat={} owner={} claimant={}", boat, owner.getUUID(), reclaimAssignee);
-        }
-        reclaimLease = now + 100;
-        return true;
-    }
-    public boolean reclaimAssigned(UUID claimant) {
-        return reclaimPending() && claimant != null && claimant.equals(reclaimAssignee) && owner.level().getGameTime() < reclaimLease;
-    }
-    public void reclaimExpired(String why) {
-        if (reclaimAssignee == null) return;
-        GameplayLog.event(owner, "headwear", "reclaim expired hat={} owner={} claimant={} reason={}", reclaimHat, owner.getUUID(), reclaimAssignee, why);
-        reclaimAssignee = null; reclaimLease = 0; reclaimRetry = owner.level().getGameTime() + 240;
-    }
     private void finishReclaim(String result, String why) {
         if (reclaimHat != null) GameplayLog.event(owner, "headwear", "reclaim {} hat={} owner={} claimant={} reason={}",
                 result, reclaimHat, owner.getUUID(), reclaimAssignee, why);

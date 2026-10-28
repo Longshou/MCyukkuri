@@ -47,8 +47,6 @@ public final class SubspeciesLife {
     public SubspeciesLife(YukkuriEntity entity) { this.entity = entity; }
     public Kind kind() { return entity.level().isClientSide ? Kind.values()[Math.min(Kind.values().length-1, entity.subspeciesFlags() & 15)] : kind; }
     public Congenital congenital() { return entity.level().isClientSide ? Congenital.values()[Math.min(3, (entity.subspeciesFlags() >> 4) & 15)] : congenital; }
-    /** She has sailed her hat at least once. */
-    public void noteBoatExperience() { boatExperienced = true; }
     public boolean boatExperienced() { return boatExperienced; }
     public boolean deibu() { return entity.level().isClientSide ? (entity.subspeciesFlags()&DEIBU_FLAG)!=0 : deibu; }
     public float formScale() { return deibu()?1.5f:1; }

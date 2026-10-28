@@ -8,7 +8,6 @@ public final class BondLevels {
     public static final int AFFINITY_DISLIKED = -10;
     public static final int AFFINITY_NEUTRAL = 0;
     public static final int AFFINITY_ACQUAINTED = 4;
-    public static final int AFFINITY_FAMILIAR = 8;
     public static final int AFFINITY_CLOSE = 10;
     public static final int AFFINITY_COOPERATIVE = 12;
     public static final int AFFINITY_ATTACHED = 15;

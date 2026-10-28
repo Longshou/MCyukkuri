@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.house.SupplyPileBlockEntity;
 import io.github.longshou.mcyukkuri.house.SupplyPiles;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

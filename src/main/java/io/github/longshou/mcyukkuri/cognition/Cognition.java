@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.cognition;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
-import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
  * saved score, inheritance snapshot, or teaching counter.</p>
  */
 public final class Cognition {
-    public enum TeachingResult { APPLIED, DUPLICATE, INELIGIBLE }
+    public enum TeachingResult { APPLIED, INELIGIBLE }
 
     private Cognition() {}
 
@@ -33,11 +32,6 @@ public final class Cognition {
                 && WildEvents.friendly(teacher, student) && intelligence(teacher) > intelligence(student);
     }
 
-    /** A qualified teacher chooses to offer a lesson once; friendliness affects that choice, not a lesson already under way. */
-    public static boolean initiatesTeaching(YukkuriEntity teacher, YukkuriEntity student, double roll) {
-        return canTeach(teacher, student) && Double.isFinite(roll) && roll >= 0 && roll < 1
-                && roll < teacher.life().personality().helpProbability(Bonds.careKin(teacher, student), false);
-    }
 
     /** One valid lesson has one probability draw, supplied by the event's real completion point. */
     public static boolean learningSucceeds(YukkuriEntity student, double roll) {

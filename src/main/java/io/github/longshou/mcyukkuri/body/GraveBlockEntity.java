@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.body;
 
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -14,9 +13,6 @@ public final class GraveBlockEntity extends BlockEntity {
     private CompoundTag remains=new CompoundTag();
     public GraveBlockEntity(BlockPos pos,BlockState state){super(ModBlocks.GRAVE_ENTITY.get(),pos,state);}
     public float sourceScale(){float value=remains.contains("SourceScale")?remains.getFloat("SourceScale"):1;return Float.isFinite(value)?Math.clamp(value,.05f,4f):1;}
-    /** Who lies here (null for an unidentified burial) and a copy of the buried data (kin read the partner from it). */
-    public UUID buried(){return remains.hasUUID("Identity")?remains.getUUID("Identity"):null;}
-    public CompoundTag buriedData(){return remains.copy();}
     public void bury(CompoundTag data){remains=data.copy();setChanged();if(level!=null)level.sendBlockUpdated(worldPosition,getBlockState(),getBlockState(),3);}
     @Override protected void saveAdditional(CompoundTag tag,HolderLookup.Provider registries){super.saveAdditional(tag,registries);tag.put("Remains",remains.copy());}
     @Override protected void loadAdditional(CompoundTag tag,HolderLookup.Provider registries){super.loadAdditional(tag,registries);remains=tag.getCompound("Remains").copy();}

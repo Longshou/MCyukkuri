@@ -39,12 +39,10 @@ import net.minecraft.world.item.Items;
  *   <li>Bravery: a healthy Myon does not bolt when hit or when a predator or attacker comes; it turns on the attacker and
  *       strikes with the stick (1.5 damage, 1 bare-mouthed), protecting kin. Its courage sets willingness and the retreat health fraction.
  * </ul>
- * Physique (14 health, 0.20 speed) is in {@link #attributes}; lower innate cognition and quicker foraging are applied by
- * {@code cognition/Cognition} and {@code settlement/ForageGoal} through {@link #cognitionScale} and {@link #forageScale}.
+ * Physique (14 health, 0.20 speed) is in {@link #attributes}; quicker foraging is applied by
+ * {@code settlement/ForageGoal} through {@link #forageScale}.
  */
 public final class MyonLife {
-    /** Innate cognition of a natural Myon is this fraction of the usual draw ("智能也比較低"; project number). */
-    public static final double COGNITION_SCALE = .6;
     /** Forage searches come this much sooner and reach this much farther (plan 4.2 "采集效率更高"; project number). */
     public static final double FORAGE_SCALE = 1.5;
     // Real contact and attack recovery leave room for both combatants to respond.
@@ -64,7 +62,6 @@ public final class MyonLife {
         if (variant == YukkuriVariant.MYON) builder.add(Attributes.MAX_HEALTH, 14.0).add(Attributes.MOVEMENT_SPEED, .20);
         return builder;
     }
-    public static double cognitionScale(YukkuriEntity entity) { return entity.getVariant() == YukkuriVariant.MYON ? COGNITION_SCALE : 1; }
     public static double forageScale(YukkuriEntity entity) { return entity.getVariant() == YukkuriVariant.MYON ? FORAGE_SCALE : 1; }
 
     private boolean myon() { return entity.getVariant() == YukkuriVariant.MYON; }

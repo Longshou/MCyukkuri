@@ -166,11 +166,6 @@ public final class YukkuriModel {
     void setBraidRescueContact(Vector3f point){braidPose.setBraidRescueContact(point);}
     void setBraidRescueGrip(boolean active){braidPose.setBraidRescueGrip(active);}
     void setBraidRescueJoint(Vector3f point){braidPose.setBraidRescueJoint(point);}
-    /** A transfer contact for the braid tip only (client/aquatic ContactTargets): the joint is solved on the authored segments. */
-    void setBraidContactTip(Vector3f tip,boolean grip){braidPose.setContactTip(tip,grip);}
-    /** The mouth holds a transfer contact: the care-contact lean brings the lips to the target set by setCareContact. */
-    private boolean mouthBite;
-    void setMouthBite(boolean value){mouthBite=value;}
     /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
     void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
         boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
@@ -250,14 +245,6 @@ public final class YukkuriModel {
         return base*(1-e[3]*hold*(float)(.5-.5*Math.cos(2*Math.PI*e[4]*(time-e[0]))));
     }
 
-    public String expressionFor(String action, float elapsed, String fallback) {
-        Clip clip = clips.get(action);
-        if (clip == null || expressionYields.getOrDefault(action, Set.of()).contains(fallback)) return fallback;
-        float time = clip.loop ? elapsed % clip.duration : Math.min(elapsed, clip.duration);
-        for (ExpressionSpan span : actionExpressions.getOrDefault(action, List.of()))
-            if (time >= span.start && time < span.end) return span.expression;
-        return fallback;
-    }
     // Rendering is serial on the render thread; these buffers are not entity state.
     private final Matrix4f[] world;
     private final float[][] pose;
@@ -389,28 +376,6 @@ public final class YukkuriModel {
     }
     /** True when the model or its motion corrections ship this clip; otherwise rendering falls back to idle. */
     public boolean hasClip(String name) { return clips.containsKey(name); }
-    public float clipDuration(String name) { var clip = clips.get(name); return clip == null ? 0 : clip.duration(); }
-    /** A named second of the clip (its markers), or the fallback when the clip does not author it. */
-    public float clipMarker(String clip, String marker, float fallback) {
-        var markers = clipMarkers.get(clip); return markers == null ? fallback : markers.getOrDefault(marker, fallback);
-    }
-    public boolean clipHasProp(String clip, String slot) { var props = clipProps.get(clip); return props != null && props.containsKey(slot); }
-    /** The clip-keyed prop socket frame in the last posed render, in block units like paddlePose; null when the clip has none. */
-    public Matrix4f propPose(String clip, String slot, float seconds) {
-        var props = clipProps.get(clip); var track = props == null ? null : props.get(slot); var owner = clips.get(clip);
-        if (track == null || owner == null) return null;
-        float time = owner.loop() ? Math.max(0, seconds) % owner.duration() : Math.clamp(seconds, 0f, owner.duration());
-        float[][] keys = track.keys(); int low = 0, high = keys.length - 1;
-        while (high - low > 1) { int middle = (low + high) >>> 1; if (keys[middle][0] <= time) low = middle; else high = middle; }
-        float[] a = keys[low], b = keys[Math.min(low + 1, keys.length - 1)];
-        float q = b[0] == a[0] ? 0 : Math.clamp((time - a[0]) / (b[0] - a[0]), 0f, 1f);
-        float[] v = new float[6]; for (int i = 0; i < 6; i++) v[i] = a[i + 1] + (b[i + 1] - a[i + 1]) * q;
-        Bone bone = bones[track.bone()];
-        var matrix = new Matrix4f(world[track.bone()]).translate(bone.x() + v[0], bone.y() + v[1], bone.z() + v[2])
-                .rotateZYX(v[5] * DEGREES, v[4] * DEGREES, v[3] * DEGREES);
-        matrix.m30(matrix.m30() / 16); matrix.m31(matrix.m31() / 16); matrix.m32(matrix.m32() / 16);
-        return matrix;
-    }
     private int rootBone = -1;
     private int rootBone() {
         if (rootBone < 0) { rootBone = 0; for (int i = 0; i < bones.length; i++) if (bones[i].name().equals("root")) { rootBone = i; break; } }
@@ -419,15 +384,6 @@ public final class YukkuriModel {
     /** Root bone transform of the last posed render, in model units (16 per block). Attachments drawn
      *  outside the skinned mesh (held food, stem, delivery) follow it so whole-body motion does not detach them. */
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
-    /** A bone's posed frame at its pivot in the last render, in block units like propPose; null when the model has no such bone. */
-    public Matrix4f boneFrame(String name) {
-        for (int i = 0; i < bones.length; i++) if (bones[i].name().equals(name)) {
-            var matrix = new Matrix4f(world[i]).translate(bones[i].x(), bones[i].y(), bones[i].z());
-            matrix.m30(matrix.m30() / 16); matrix.m31(matrix.m31() / 16); matrix.m32(matrix.m32() / 16);
-            return matrix;
-        }
-        return null;
-    }
     /** Captured from the rendered lip surface before its expression patch is restored. */
     public Matrix4f mouthAttachmentPose() { return new Matrix4f(mouthAttachment); }
     private void captureMouthAttachment() {
@@ -446,15 +402,6 @@ public final class YukkuriModel {
         }
         // A rigid object turns with the mouth, but lip closing must not squash that object.
         mouthAttachment.translationRotate(center,rotation);
-    }
-    /** The actual braid-tip bone in the current pose, in block units, for a real rowing stick. */
-    public Matrix4f paddlePose() {
-        for (int i=0; i<bones.length; i++) if (bones[i].name().equals("hand_right_tip")) {
-            var matrix = new Matrix4f(world[i]).translate(bones[i].x(), bones[i].y(), bones[i].z());
-            matrix.m30(matrix.m30()/16); matrix.m31(matrix.m31()/16); matrix.m32(matrix.m32()/16);
-            return matrix;
-        }
-        return null;
     }
     /** Idle face distance from the root, measured from the selected mesh in blocks. */
     public float faceDepth() {
@@ -489,10 +436,6 @@ public final class YukkuriModel {
         return model;
     }
 
-    /** Attach to the actual posed skin; call directly after rendering this same body. */
-    public void renderWound(PoseStack target,MultiBufferSource buffers,int light,int overlay,int severity) {
-        renderSurfaceProp("wound_patch",Math.min(8,severity),1,target,buffers,light,overlay);
-    }
     public void renderSurfaceProp(String name,int units,float scale,PoseStack target,MultiBufferSource buffers,int light,int overlay) {
         locateSurface();
         if(woundTriangle<0)return;
@@ -886,7 +829,7 @@ public final class YukkuriModel {
             var root=pose[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;
             root[2]+=hat.get("forward").getAsFloat()*forward;
         }
-        boolean careContact=Float.isFinite(careTargetMouthY)&&(mouthBite||behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
+        boolean careContact=Float.isFinite(careTargetMouthY)&&(behavior.equals(Behaviors.FEED_CHILD)||behavior.equals(Behaviors.BOAT_FEED_YOUNG)||ToiletPresentation.rearCare(behavior));
         if(Float.isFinite(boardingPitch)){
             // The server owns position, pitch, roll and squash; only a small authored yaw wriggle may show.
             var root=pose[rootBone()];
@@ -1402,7 +1345,6 @@ public final class YukkuriModel {
         return woundAccessoryVertices[vertex];
     }
     boolean woundDamagedHat(Part part){return hatDamageDraw.level()>0&&accessoryPart(part);}
-    HatDamageFaces.Face[] woundHatFaces(Part part){return hatDamageDraw.hatFaces(parts.indexOf(part));}
     void woundHatQuad(int[] corners,float u,float v,Vector3f target){
         for(int i=0;i<4;i++){skin(corners[i],woundHatCorners[i]);if(hatDamageDraw.fit()<.999f)
             woundHatCorners[i].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());}

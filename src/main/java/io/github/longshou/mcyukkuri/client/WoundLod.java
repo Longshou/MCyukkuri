@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ final class WoundLod {
             for (int i = 0; i < FRAME_STAGE.length; i++) { STAGE[i] += FRAME_STAGE[i]; total += FRAME_STAGE[i]; }
             maxNanos = Math.max(maxNanos, total);
         }
-        frameDrawn = frameFull = framePatch = frameLayer = frameCavity = 0; java.util.Arrays.fill(FRAME_STAGE, 0);
+        frameDrawn = frameFull = framePatch = frameLayer = frameCavity = 0; Arrays.fill(FRAME_STAGE, 0);
         if (now - windowStart >= REPORT_NANOS) {
             if (frames > 0) LOGGER.info("[render] wound frames={} drawn/frame={} full/frame={} simple/frame={} tris/frame patch={} layer={} cavity={} max={} "
                             + "ms/frame prepare={} body={} surface={} display={} total={} max={} builds full={} simple={} buildMs={}",
@@ -64,14 +65,14 @@ final class WoundLod {
                     fmt((STAGE[PREPARE] + STAGE[BODY] + STAGE[SURFACE] + STAGE[DISPLAY]) / 1e6 / frames), fmt(maxNanos / 1e6),
                     buildsFull, buildsSimple, fmt(buildNanos / 1e6));
             frames = drawn = fullDrawn = simpleDrawn = 0; patchTriangles = layerTriangles = cavityTriangles = maxNanos = buildNanos = 0;
-            java.util.Arrays.fill(STAGE, 0);
+            Arrays.fill(STAGE, 0);
             maxTriangles = buildsFull = buildsSimple = 0; windowStart = now;
         }
     }
     private static String fmt(double value) { return String.format("%.2f", value); }
 
     private static void select() {
-        java.util.Arrays.fill(FULL, null);
+        Arrays.fill(FULL, null);
         for (var seen : SEEN) {
             if (seen.distanceSquared > FULL_RANGE * FULL_RANGE) continue;
             int slot = -1;

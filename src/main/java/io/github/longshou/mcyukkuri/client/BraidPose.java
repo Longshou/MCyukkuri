@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.client;
 import static io.github.longshou.mcyukkuri.client.YukkuriModel.DEGREES;
 import io.github.longshou.mcyukkuri.client.YukkuriModel.Bone;
 import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -14,10 +17,10 @@ final class BraidPose {
     private static Vector3f readTip(){
         try(var stream=BraidPose.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
             if(stream==null)return new Vector3f();
-            var point=JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8))
+            var point=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8))
                     .getAsJsonObject().getAsJsonArray("braid_tip");
             return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());
-        }catch(java.io.IOException|RuntimeException unreadable){return new Vector3f();}
+        }catch(IOException|RuntimeException unreadable){return new Vector3f();}
     }
     private final YukkuriModel o;
     private final Vector3f rescueTip=new Vector3f(),rescueJoint=new Vector3f();
@@ -34,10 +37,6 @@ final class BraidPose {
     void setBraidRescueJoint(Vector3f point){rescueJointActive=point!=null;if(point!=null)rescueJoint.set(point);solveJoint=false;}
     /** Only the tip is given: the joint is solved on the two authored segment lengths, bending the way the clip bends them. */
     private boolean solveJoint;
-    void setContactTip(Vector3f tip,boolean grip){
-        rescueContact=tip!=null;solveJoint=tip!=null;rescueJointActive=false;rescueGrip=grip;braidCarryContact=grip;
-        if(tip!=null)rescueTip.set(tip);
-    }
 
     /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
     void poseRescueBraid(){

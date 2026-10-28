@@ -12,10 +12,8 @@ public final class SearchBudget {
     // enclosed includes one stand entry (2 probes); survey <= 3 initial enclosed + 2 stands + 121 enclosed.
     static final Cost SURVEY = new Cost(250, 1, 0);
     static final Cost CAN_PLACE = SURVEY.times(2).plus(new Cost(20, 0, 0));
-    static final Cost PLACE = SURVEY.times(3).plus(new Cost(40, 0, 0));
     // At most five sound() calls through claim, assignNaturalHome, independence and establishHousehold;
     // each has <= 20 beds + centre. Reserve slack for candidate/stand probes as well.
-    static final Cost CHOOSE = new Cost(512, 0, 2);
     static final Cost NAVIGATE = new Cost(126, 0, 13);
     /** One cavity cell, including its four facings and the enclosing check (4535 logical units). */
     static final Cost HOME_SEARCH_SLICE = CAN_PLACE.plus(SURVEY).times(4).plus(new Cost(3, 0, 0));

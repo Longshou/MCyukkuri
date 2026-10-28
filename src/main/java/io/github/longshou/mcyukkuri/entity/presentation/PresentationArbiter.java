@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
-import java.util.Locale;
 import net.minecraft.nbt.CompoundTag;
 
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
