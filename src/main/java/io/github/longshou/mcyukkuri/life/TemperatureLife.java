@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.season.SeasonClimate;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
@@ -305,22 +307,35 @@ public final class TemperatureLife {
             if (taskTicks % 20 == 1 && !EcologyMovement.navigate(entity, point, 1)) { stop(); return false; }
             return true;
         }
-        if (entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= .2) {
-            entity.getNavigation().stop(); restTicks++;
+        var occupancy = FamilyNest.bedOccupancy(entity, target);
+        if (reached(target, occupancy)) {
+            if (occupancy != null) SurfaceApproach.halt(entity); else entity.getNavigation().stop();
+            restTicks++;
             // A short pause consumes no supplies and grants neither sleep growth nor free hydration.
             return true;
         }
         restTicks = 0;
+        // A nest refuge admits only a whole footprint inside it: the last two blocks go onto the place its claim assigned.
+        if (occupancy != null && entity.distanceToSqr(Vec3.atBottomCenterOf(target)) <= 4) {
+            var place = FamilyNest.restPosition(entity, target);
+            SurfaceApproach.walk(entity, place != null ? place : Vec3.atBottomCenterOf(target), 1.15);
+            return true;
+        }
         if (taskTicks % 20 == 1) {
             var path = safePath(target);
             if (path == null || !entity.getNavigation().moveTo(path, 1)) { stop(); return false; }
         }
         return true;
     }
+    /** A refuge is reached on a real bed only inside it (spec 7); a place without a bed keeps the off-centre tolerance. */
+    private boolean reached(BlockPos site, Occupancy occupancy) {
+        return occupancy != null ? occupancy == Occupancy.INSIDE_SUPPORTED
+                : entity.distanceToSqr(Vec3.atBottomCenterOf(site)) <= .2;
+    }
     /** Transfers only a physically reached safe place, never home ownership or elapsed sleep. */
     public boolean beginSleepAtRefuge() {
         if (!active() || restTicks < 20 || !available() || waterTakesPriority()
-                || entity.distanceToSqr(Vec3.atBottomCenterOf(target)) > .2 || !safeStand(target) || !mayUse(target)
+                || !reached(target, FamilyNest.bedOccupancy(entity, target)) || !safeStand(target) || !mayUse(target)
                 || level().isRainingAt(target)) return false;
         current = sample(entity.blockPosition());
         if (!refuge(current)) return false;
@@ -333,7 +348,7 @@ public final class TemperatureLife {
     public boolean hasTemporarySleepSite() { return temporarySleepSite != null; }
     public boolean canSleepAtRefuge() {
         return temporarySleepSite != null && available()
-                && entity.distanceToSqr(Vec3.atBottomCenterOf(temporarySleepSite)) <= .2
+                && reached(temporarySleepSite, FamilyNest.bedOccupancy(entity, temporarySleepSite))
                 && safeStand(temporarySleepSite) && mayUse(temporarySleepSite)
                 && !level().isRainingAt(temporarySleepSite) && comfortable(current.felt())
                 && (sampleTicks != 0 || !waterTakesPriority());

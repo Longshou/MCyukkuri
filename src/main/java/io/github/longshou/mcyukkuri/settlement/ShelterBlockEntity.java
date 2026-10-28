@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -67,11 +67,14 @@ public final class ShelterBlockEntity extends BlockEntity {
         var at=bed(entity.getUUID());if(at==null)return false;
         var peers=new LinkedHashMap<UUID,NestResting.Place>();
         resting.forEach((id,place)->{if(at.equals(bed(id)))peers.put(id,place);});
-        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE_BED:NestResting.LEAF_BED,peers,(id,p)->!(level instanceof ServerLevel server)
-                ||!(server.getEntity(id) instanceof YukkuriEntity actor)
-                ||SurfaceApproach.restingFloor(actor,Vec3.atBottomCenterOf(at).add(p.offset()))!=null,CareBlockEntity.expecting(entity));
+        var place=NestResting.choose(entity,largeBed(entity.getUUID())?NestResting.LARGE_BED:NestResting.LEAF_BED,peers,
+                standingInside(BedContainer.of(entity,at)),CareBlockEntity.expecting(entity));
         if(place!=null){peers.put(entity.getUUID(),place);if(peers.entrySet().stream().anyMatch(e->!e.getValue().equals(resting.get(e.getKey())))){resting.putAll(peers);setChanged();}}
         return place!=null;
+    }
+    /** A place counts only where that body's whole footprint would stand inside the bed (spec 7), not merely on a top. */
+    private static java.util.function.BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
+        return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }
     private final Map<BlockPos,Integer> largeBedWork=new LinkedHashMap<>();
     private static final class NestProject {

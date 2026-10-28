@@ -7,6 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.LinkedHashMap;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -49,7 +51,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     /** Ground centre of the bed: this block's centre, or for a 2x2 nest the shared corner of its four cells. */
     public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(worldPosition).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
     /** The level floor and visible hollow that resting bodies must fit (sizes in NestResting). */
-    private NestResting.Bed bed(){return largeNest()?NestResting.LARGE:getBlockState().is(ModBlocks.PREDATOR_NEST.get())?NestResting.LEDGE:NestResting.CUSHION;}
+    public NestResting.Bed bed(){return largeNest()?NestResting.LARGE:getBlockState().is(ModBlocks.PREDATOR_NEST.get())?NestResting.LEDGE:NestResting.CUSHION;}
     public boolean canClaim(YukkuriEntity entity){
         var current=new LinkedHashMap<UUID,Integer>();
         residents.forEach((id,stage)->{
@@ -87,8 +89,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
         resting.keySet().retainAll(residents.keySet());
         var before=new LinkedHashMap<>(resting);
-        var place=NestResting.choose(entity,bed(),resting,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
-                ||SurfaceApproach.restingFloor(actor,centre().add(p.offset()))!=null,expecting(entity));
+        var container=BedContainer.of(entity,worldPosition);
+        var place=NestResting.choose(entity,bed(),resting,standingInside(container),expecting(entity));
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
                 worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
         resting.put(id,place);if(!resting.equals(before))changed();
@@ -99,11 +101,15 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public Vec3 freeSpot(YukkuriEntity baby){
         if(!(level instanceof ServerLevel server)||kind()!=CareBlock.Kind.NEST)return null;
         var trial=new LinkedHashMap<>(resting);
-        var place=NestResting.choose(baby,bed(),trial,(member,p)->!(server.getEntity(member) instanceof YukkuriEntity actor)
-                ||SurfaceApproach.restingFloor(actor,centre().add(p.offset()))!=null,false);
+        var container=BedContainer.of(baby,worldPosition);
+        var place=NestResting.choose(baby,bed(),trial,standingInside(container),false);
         if(place==null)return null;
         for(var entry:resting.entrySet())if(!entry.getKey().equals(baby.getUUID())&&!entry.getValue().equals(trial.get(entry.getKey())))return null;
         return centre().add(place.x(),0,place.z());
+    }
+    /** A place is supported only where that body's whole footprint would stand inside the bed (spec 7), not merely on a top. */
+    private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
+        return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }
     /** A mother carrying an unfinished brood lies in the middle of her bed (she gives birth there). */
     public static boolean expecting(YukkuriEntity entity){var brood=entity.family().brood();return brood!=null&&!brood.cancelled&&!brood.complete();}

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -605,7 +606,10 @@ public final class YukkuriLife {
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
             targetBlock = penned ? null : homeStand();
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
-            if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition()))) { task = Task.HOME; pursuitTicks = 0; return true; }
+            // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first (spec 7).
+            var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
+            if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
+                    || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
             if (targetBlock != null || energy <= 10 || entity.family().needsMash() && entity.childhood().landed()
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; sleepTicks = 0; return true; }
         }
@@ -700,13 +704,25 @@ public final class YukkuriLife {
             case FOOD -> seekFood();
             case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
-                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || pursuitTicks > 600 || nutrition < 30) { stopGoal(); homeWait = 0; return; }
+                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || nutrition < 30) { stopGoal(); homeWait = 0; return; }
+                var nestOccupancy = FamilyNest.bedOccupancy(entity, targetBlock);
+                boolean inside = nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED;
+                // The same pursuit budget ends a walk that never gets the whole footprint into the bed (no new wait).
+                if (pursuitTicks > 600) {
+                    if (!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
+                            "home walk stopped reason=nest_not_inside nest={} occupancy={} pursuitTicks={}", targetBlock, nestOccupancy, pursuitTicks);
+                    stopGoal(); homeWait = 0; return;
+                }
                 // Vanilla pathing ends up to ~0.55 block short of the last node, so the final step is steered
                 // on the supported surface; otherwise the 0.4-block arrival test below could never be met.
                 Vec3 bedCentre = FamilyNest.restPosition(entity,targetBlock);
-                if(bedCentre==null){stopGoal();return;}
-                if (entity.distanceToSqr(bedCentre) >= .16) SurfaceApproach.walk(entity, bedCentre, 1.15);
-                if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition())) {
+                if(bedCentre==null){
+                    if(!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
+                            "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
+                    stopGoal();return;
+                }
+                if (entity.distanceToSqr(bedCentre) >= .16 || !inside) SurfaceApproach.walk(entity, bedCentre, 1.15);
+                if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition()) && inside) {
                     SurfaceApproach.halt(entity);
                     if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; sleepTicks = 0; }
                     // Awake arrival ends the trip, even while rain continues above the roof.
@@ -765,9 +781,20 @@ public final class YukkuriLife {
                 if(level().isRainingAt(entity.blockPosition())){doses.clearDrugSleep();stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
                 if(drugSleep()>0){doses.tickDrugSleep();sleepTicks=Math.min(sleepTicks,600);}
+                // A nest admits only a whole footprint inside it: rolling or being pushed onto the rim ends the sleep (spec 7).
+                // Sampled once a second, not every tick, so a sleeping body costs no geometry work per tick.
+                var site = targetBlock != null ? targetBlock : entity.blockPosition();
+                var nestOccupancy = sleepTicks % 20 == 0 ? FamilyNest.bedOccupancy(entity, site) : null;
+                if (nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED) {
+                    GameplayLog.limited(entity, "home", "nest_not_inside", 200,
+                            "sleep stopped reason=nest_not_inside nest={} occupancy={} ticks={}", site, nestOccupancy, sleepTicks);
+                    stopGoal(); break;
+                }
                 if (sleepTicks == 20) {
                     entity.speak("sleep");
-                    GameplayLog.event(entity,"sleep","begin source=life energy={} nutrition={} drugTicks={}",energy,nutrition,drugSleep());
+                    GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={}",
+                            nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
+                            energy,nutrition,drugSleep());
                 }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep()==0 && sleepTicks >= sleepDuration() && (energy >= 95 || nutrition < 15

@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -58,12 +60,19 @@ public final class FamilyNest {
         var home=e.habitat().shelter();
         return home!=null&&bed.equals(home.bed(e.getUUID()))?Vec3.atBottomCenterOf(bed).add(home.restOffset(e.getUUID())):Vec3.atBottomCenterOf(bed);
     }
-    /** Feet on the level floor of the assigned 2x2 nest, inside its rim (not standing on the rim or its entrance shoulders). */
+    /** Feet fully inside the assigned large bed, not on its rim or entrance shoulders (one rule for every nest arrival). */
     public static boolean onLargeFloor(YukkuriEntity e){
-        var centre=largeCentre(e);
-        if(centre==null)return false;
-        double reach=NestResting.LARGE.box()-e.getBbWidth()*.5+NestResting.RIM_PRESS;
-        return Math.abs(e.getX()-centre.x)<=reach&&Math.abs(e.getZ()-centre.z)<=reach&&e.getY()<centre.y+FLOOR_TOP;
+        var c=care(e);
+        if(c!=null)return c.largeNest()&&bedOccupancy(e,c.getBlockPos())==Occupancy.INSIDE_SUPPORTED;
+        var shelter=e.habitat().shelter();
+        if(shelter==null||!shelter.largeBed(e.getUUID()))return false;
+        var bed=shelter.bed(e.getUUID());
+        return bed!=null&&bedOccupancy(e,bed)==Occupancy.INSIDE_SUPPORTED;
+    }
+    /** The body's occupancy of the nest bed at this block; null when the block is not a nest bed (covered ground, house entrance). */
+    public static Occupancy bedOccupancy(YukkuriEntity e,BlockPos bed){
+        var container=BedContainer.of(e,bed);
+        return container==null?null:Occupancy.of(e,container);
     }
     /** Above the highest pad or floor of a nest bed (woven pad and hem 1.75-2.0, pet cushion pad 1.75, wild leaf floor 0.5)
      *  and below every rim or bolster top (wild pressed rim 2.6, its entrance shoulders 2.3, woven wall, pet bolster). */
