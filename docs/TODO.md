@@ -10,6 +10,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 重构 WP1（依附、容器、跳、陆地叼搬放） | `.worktrees/wp1-*`（pi 团队，总负责人合入） | 新建 `motor/`、`intent/`；`YukkuriEntity`、`YukkuriComponents`、`HatBoatEntity`、`family/ParentCarry`、`family/CatchHat`、`life/NestResting`、`build.gradle` |
 
 ## 玩法待办
 
