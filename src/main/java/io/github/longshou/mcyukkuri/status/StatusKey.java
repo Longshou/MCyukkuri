@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.settlement.Rations;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
@@ -384,6 +385,8 @@ public enum StatusKey {
         return Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
     }),
     // ---- body driver (refactor WP1, spec 13.2) ----------------------------------------------------------------
+    /** Every ability value of spec 8.1 and the fingerprint of the ability data it was read with. */
+    BODY_ABILITY("body", "ability", 0, y -> BodyAbility.of(y).detail(), null),
     /** Attachment derived from the vanilla vehicle relation plus the host's riders: free, airborne, on_host or held. */
     BODY_ATTACH("body", "attach", 0, y -> Attach.describe(Attach.of(y)), null),
     /** The action that currently drives the body and the behaviour that owns it. */

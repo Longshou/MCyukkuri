@@ -1,0 +1,26 @@
+{
+  "coefficients": {
+    "hop_height": 0.80,
+    "hop_reach": 1.00,
+    "step_up": 0.60,
+    "walk_speed": 0.10,
+    "turn_rate": 12.0,
+    "turn_floor": 0.60,
+    "swim_speed": 0.055,
+    "climb_rise": 0.75,
+    "climb_floor": 0.65,
+    "energy_ref": 80.0,
+    "min_jump_energy": 8.0,
+    "pain_weight": 0.18,
+    "burn_penalty": 0.30,
+    "load_ref": 12.0,
+    "size_min": 0.06,
+    "size_max": 1.50,
+    "fitness_floor": 0.35
+  },
+  "modifiers": {
+    "aquatic_marisa": {
+      "swim_speed": 2.0
+    }
+  }
+}

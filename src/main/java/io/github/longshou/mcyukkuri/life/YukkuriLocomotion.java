@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
@@ -21,19 +22,18 @@ public final class YukkuriLocomotion {
         public boolean ok() { return reason.isEmpty(); }
     }
 
-    public static Limits limits(YukkuriEntity body) {
-        double size = Math.sqrt(Math.clamp(body.growthScale() * body.getScale(), .06, 1.5));
-        double energy = Math.clamp(body.life().energy() / 80.0, 0, 1);
-        var condition = body.body().condition();
-        double health = Math.clamp(body.getHealth() / Math.max(1, body.getMaxHealth()), .1, 1);
-        double injury = 1 / (1 + .18 * condition.painSeverity() + (condition.footBurned() ? .3 : 0));
-        double load = body.getVehicle() instanceof HatBoatEntity hat ? 1 / (1 + hat.deck().load() / 12.0) : 1;
-        double fitness = (.35 + .65 * energy) * Math.sqrt(health) * injury;
-        boolean jumps = (body.family().adult() || body.childhood().canJump()) && body.life().energy() >= 8
-                && !condition.dying() && !body.life().isSleeping();
-        double swim = .055 * size * fitness * load;
-        return new Limits(jumps ? .70 * size * fitness : 0, jumps ? 1.8 * size * fitness : 0,
-                .10 * size * fitness * load, .75 * size * (.65 + .35 * fitness), swim, swim * .65);
+    /** Nothing carried: the host load factor L of spec 8.1 is 1. */
+    public static Limits limits(YukkuriEntity body) { return limits(body, 0); }
+
+    /**
+     * The body's limits from {@link BodyAbility}. {@code load} is the host's deck load, supplied by the caller that knows
+     * the hull: this class never reads a host, so {@code life/} stays free of hull state (spec 8.1 L, WP2 step 1).
+     */
+    public static Limits limits(YukkuriEntity body, double load) {
+        var ability = BodyAbility.of(body, load);
+        double swim = ability.swimSpeed();
+        return new Limits(ability.hopHeight(), ability.hopReach(), ability.walkSpeed(), ability.climbRise(),
+                swim, swim * .65);
     }
 
     public static double towSpeed(YukkuriEntity carrier, YukkuriEntity body) {

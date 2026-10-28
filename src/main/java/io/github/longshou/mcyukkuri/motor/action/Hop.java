@@ -120,9 +120,9 @@ public final class Hop implements Action {
 
     @Override public String startDetail() {
         if (plan == null || ability == null || from == null) return "";
-        return String.format(Locale.ROOT, "from=%s to=%s apex=%.2f vy=%.2f vh=%.2f ticks=%.0f ability=h%.2f/r%.2f/s%.2f",
+        return String.format(Locale.ROOT, "from=%s to=%s apex=%.2f vy=%.2f vh=%.2f ticks=%.0f ability=h%.2f/r%.2f/s%.2f fp=%s",
                 GameplayLog.at(from), GameplayLog.at(target), plan.apex(), plan.vy(), plan.vh(), plan.ticks(),
-                ability.hopHeight(), ability.hopReach(), ability.stepUp());
+                ability.hopHeight(), ability.hopReach(), ability.stepUp(), ability.fingerprint());
     }
 
     @Override public String endDetail(Outcome outcome) {

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.Naming;
+import io.github.longshou.mcyukkuri.motor.AbilityTable;
 import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
 import io.github.longshou.mcyukkuri.network.BodyEffectNetworking;
 import io.github.longshou.mcyukkuri.pet.LeashGuard;
@@ -38,6 +39,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -151,6 +153,10 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopCourier::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopPerformance::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, SearchBudgetEvents::stopped);
+
+        // Ability data (spec 8.2): reload before any action reads it, and let /reload swap the numbers.
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
+                event -> event.addListener(new AbilityTable()));
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Load.class, ShelterIndexEvents::loaded);
 
