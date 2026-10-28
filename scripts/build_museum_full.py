@@ -1,6 +1,6 @@
 """Build the MCyukkuri playground (试玩场), the single in-game test world (Minecraft 1.21.1, NeoForge, Python 3.11+).
 
-Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
+Open fields of real ground (meadow, town, house, hill with caves, woods, snow, settlement meadow,
 motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every mod
 entity and dropped item in the field's box (and those marked as having stood in it), makes the world records forget what
@@ -57,10 +57,10 @@ ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
 SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
 SPRINTS = (('1分钟', 1200), ('5分钟', 6000), ('20分钟', 24000))
 CLIP_ACTORS = ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'house_reimu', 'house_marisa')
-# categories played by the motion-clip corner; family, hat and aquatic actions are driven by real behaviour in the scenarios
+# categories played by the motion-clip corner; family and hat actions are driven by real behaviour in the scenarios
 CLIP_CATEGORIES = ('身体与移动', '日常生活', '交流与情绪', '宠物店与表情', '运输与篮子')
-BEHAVIOUR_PLACES = {'家庭与照料': '陆地与船上的接生场景、嚼糜与首便、学起跳', '帽子与水边': '池塘场地的帽船与接生场景',
-                    '水上日常与亲子': '池塘场地的帽船场景', '初航与帽檐': '池塘场地：第一次出航', '落水与救援': '池塘场地：落水救援',
+BEHAVIOUR_PLACES = {'家庭与照料': '接生帽、窝与地面的接生场景、嚼糜与首便、学起跳',
+                    '帽子与头饰': '放下的帽子、帽子损坏与拼回',
                     '特殊身体': '仅目录'}
 
 
@@ -133,9 +133,9 @@ def book_command(shown):
             for s in f.scenarios:
                 lines.append(f'· {s.title}' + (f'（{s.tag}）' if s.tag else ''))
             pages.append('\n'.join(lines))
-    pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、持有帽船……），之后全由普通 AI 接手。\n'
+    pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、放下的帽子……），之后全由普通 AI 接手。\n'
                  '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
-                 '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（水上、洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
+                 '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
             pages.append(group + ' · 动作目录\n\n' + '\n'.join(('● ' if a in shown else '○ ') + name for a, name in entries[start:start + 7]) + '\n\n● 动作片段区播放  ○ 仅目录／由真实行为触发')
@@ -171,9 +171,6 @@ PROBE_COMMANDS = {
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario eggs': 'yukkuri scenario eggs @s @s',
-    'scenario aquatic_colony': 'yukkuri scenario aquatic_colony @s 0 0 0',
-    'scenario aboard': 'yukkuri scenario aboard @s @s 0 0 0 food=2 paddle=1', 'scenario swim': 'yukkuri scenario swim @s 0 0 0 near=nearest dist=4 energy=3',
-    'scenario shore': 'yukkuri scenario shore @s',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0 fld_probe',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',
@@ -229,8 +226,6 @@ def build_pack(world):
                 cancel.append(f'schedule clear {NS}:scn/{scenario.id}_late')
                 for ri, retry in enumerate(r for r in scenario.late if not isinstance(r, str)):
                     cancel += [f'schedule clear {NS}:scn/{scenario.id}_retry{ri}_{k}' for k in range(retry.tries)]
-        if f.id == 'pond':
-            cancel.append(f'schedule clear {NS}:util/shore_call')
         if f.id == 'clips':
             cancel += [f'schedule clear {NS}:clip/{ci}/{i}' for ci, (_, seq) in enumerate(clip_chains()) for i in range(len(seq) + 1)]
             cancel.append(f'schedule clear {NS}:clip/rest')
@@ -247,7 +242,7 @@ def build_pack(world):
                  f'function {NS}:field/{f.id}/terrain',
                  clear_entities]  # Replacing nests and containers can create fresh drops after the first sweep.
         fn(f'field/{f.id}/clear', sweep + ([f'function {NS}:clip/cast'] if f.id == 'clips' else [])
-           + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、帽船、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
+           + [f'tellraw {near_field(f)} ' + _text(f'{f.title}：已清空（本场地所有油库里、遗骸、放下的帽子、掉落物和走出场地的个体，家族与认知等记录，地形已恢复）。', 'green')])
         # Keep manual diagnostic functions available without putting readout buttons on the deck.
         fn(f'read/{f.id}/lead', [f'execute positioned {f.cx} {FEET} {f.cz} run yukkuri readout yukkuri status @e[tag=scn_lead,limit=1,sort=nearest,distance=..140] raw'])
     for s in museum_scenarios.S:
@@ -320,7 +315,6 @@ def build_pack(world):
     fn('clip/cast', ['kill @e[tag=scn_clip_actor]'] + cast)
 
     # ---------------------------------------------------------------- utilities
-    fn('util/shore_call', ['execute as @e[tag=scn_a] run yukkuri scenario shore @s'])
     for tag_, command, text in (('dawn', 'time set 100', '清晨'), ('noon', 'time set noon', '正午'), ('dusk', 'time set 12500', '黄昏'), ('night', 'time set midnight', '夜晚')):
         fn(f'util/time_{tag_}', [command, 'tellraw @a ' + _text(f'时间：{text}。', 'gray')])
     fn('util/weather_clear', ['weather clear', 'tellraw @a ' + _text('天气：晴。', 'gray')])

@@ -1,10 +1,10 @@
-# 亚种、先天形态与帽船
+# 亚种、先天形态与水生魔理沙
 
-形态边界、出生遗传和灵胖判定的规则见[行为数值与成长设计](BEHAVIOR.md)；本页记录亚种、模型与帽船的规则和实现入口。
+形态边界、出生遗传和灵胖判定的规则见[行为数值与成长设计](BEHAVIOR.md)；本页记录亚种、模型与水生魔理沙物种约定的规则和实现入口。
 
 亚种与先天形态是实体上的两个独立标记：亚种（`SubspeciesLife.Kind`）决定螺壳、多毛、水生等整套外观与习性，先天形态（`Congenital`）决定灵梦／魔理沙的不足油外观；二者共用资格检查、出生抽取与模型选用。
 
-代码：`subspecies/SubspeciesLife`、`subspecies/SubspeciesAssets`、`subspecies/ShellRetraction`、`subspecies/HatBoatEntity`（及 `Hat*`、`Aquatic*` 系列）、`entity/YukkuriVariant`、`entity/YukkuriEntity`
+代码：`subspecies/SubspeciesLife`、`subspecies/SubspeciesAssets`、`subspecies/ShellRetraction`、`headwear/PlacedHatEntity`（放下的接生帽，水生扩展待 WP4–6）、`entity/YukkuriVariant`、`entity/YukkuriEntity`
 
 ## 形态与模型
 
@@ -16,12 +16,12 @@
 
 ## 取得与保存
 
-`SubspeciesLife` 将 `Kind`、`Congenital`、灵胖成年结果和帽船经历分开保存；客户端同步前两项及灵胖标记（`subspeciesFlags`：低4位 `Kind`、高4位 `Congenital`、位8为灵胖）。先天形态决定五项先天属性的合法区间，但不从后天伤口、关系、压力或技能推导遗传。
+`SubspeciesLife` 将 `Kind`、`Congenital` 与灵胖成年结果分开保存；客户端同步前两项及灵胖标记（`subspeciesFlags`：低4位 `Kind`、高4位 `Congenital`、位8为灵胖）。先天形态决定五项先天属性的合法区间，但不从后天伤口、关系、压力或技能推导遗传。
 
 自然生成和出生按实体 UUID 抽取一次，存读或再次调用出生接口不会重抽。参数（模组参数，非作品统计）：
 
 - 螺壳魔理沙／多毛灵梦：通常 1/160；任一亲本为同亚种时 1/4。
-- 水生魔理沙：附近 6 格内有开阔水面的自然生成中 1/4；亲本一方为水生时子代 1/2（先判定螺壳）。
+- 水生魔理沙：亲本一方为水生时子代 1/2（先判定螺壳）；旧水生实现下线期间暂停其自然生成，物种事实照旧。
 - 先天不足：普通灵梦／魔理沙为 1/200，稀疏毛发、面部不足、豆形三种等概率。
 
 出生链路用 `birthFlags(UUID, variant, parentA, parentB)` 提前选定并保存后代形态，以 `initializeBirth(flags)` 在碰撞判定前初始化；随后由 `YukkuriPersonality.inheritBirth` 生成一次五项先天属性。自然生成与各类出生共用同一形态边界。静态 `assetId(variant, flags)` 供未出生幼体选用相同模型。
@@ -61,15 +61,15 @@
 
 半伤要求真实壳、有效缩壳控制或玩家壳命令，以及动作每轮 1.2–3.8 秒的内部姿态；仅残留动画名称不产生保护；处于水或火中、火焰与溺水伤害标签均不减半。保护范围是外伤白名单：玩家／生物近身攻击、弹射物、爆炸、跌落、飞行撞墙、落物、石笋、仙人掌／浆果丛刺伤，以及已有的表面擦伤。冻伤、饥饿、刺激物及未知／通用伤害（含口干与经 `BodyLife` 的器官内伤）均不减半，也没有新增耐寒、抗饥饿或抗口干效果。白名单与半伤数值是项目原创。
 
-## 帽船（水生魔理沙）
+## 水生魔理沙（未实现）
 
-帽船只属于水生魔理沙；陆生魔理沙不放帽乘船，落水不会凭空生成帽船。投放、出航、翻覆救援、水上居住与生育、亲子初航、储粮与桨、争位和靠岸回帽等玩法见[水边生活实现](AQUATIC_MARISA_IMPLEMENTATION.md)。本页只保留亚种层面的约定：
+帽船只属于水生魔理沙；陆生魔理沙不放帽乘船，落水不会凭空生成帽船。投放、出航、翻覆救援、水上居住与生育、亲子初航、储粮与桨、争位和靠岸回帽等玩法见[水上生活](AQUATIC_MARISA_IMPLEMENTATION.md)，当前按 WP4–6 重建。本页只保留亚种层面的约定：
 
-- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大（原创 1.75 倍），戴着时也按这个大小绘制。船体 `HatBoatEntity` 记录 `AFLOAT`、`BEACHED`、`CAPSIZED`、`RESCUED` 状态；实际乘员数由总载荷和真实座位共同限制，临时避难席位不建立亲缘，规则见[水边生活](AQUATIC_MARISA_IMPLEMENTATION.md)。
-- 同一实体还有两种接生用状态。**地上的帽子**（`CRADLE`）：陆生魔理沙用辫子把帽子倒过来按在出口前的地上，帽冠压扁贴地，不可碰撞，不挡出生通道，幼体坐在帽内底部。**浮在岸边**（`MOORED`）：水生魔理沙在靠岸分娩时把帽子翻过来按在岸边水面上浮着，保持原位不漂走，孩子落进帽里。孩子进帽、跳出帽子都按重力下的抛物线运动（`HatVessel`、`FamilyLife` 的飞行）；不再需要时，主人回到摘帽位置，幼体先跳出帽子，再用辫子取回戴上。
-- 水生魔理沙只与水生魔理沙配对。帽船上的动作（漂流、稳船、向岸呼唤、帽船安胎、帽船分娩、夜里睡觉与帽中幼体）见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)。
-- `HatBoatEntity.find`、`createFor`、`board`、`boardYoung`、`capsize`、`rescue` 供野外事件和家庭使用；调用方以实际返回值和乘员关系判断阶段。查不到卸载区块中的实体不等于死亡或获救，不能生成替身船。`REMOVED` 保留给外部状态对接，正常收束走 `RESCUED` 后移除。
-- 美术：帽船为魔理沙本人的帽子倒过来、帽冠压扁（`marisa_hat_turned`，陆地与水上压扁程度不同）；实体名 `hat_boat` 沿用。
+- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大（原创 1.75 倍），戴着时也按这个大小绘制。水上的船体状态与帽内位置随 WP4–6 重建。
+- 陆地接生用的**地上的帽子**属于底座：魔理沙用辫子把帽子倒过来按在出口前的地上，帽冠压扁贴地，不挡出生通道，幼体坐在帽内底部；孩子进帽、跳出帽子都按重力下的抛物线运动；不再需要时，主人回到摘帽位置，幼体先跳出帽子，再用辫子取回戴上。实现为 `headwear/PlacedHatEntity`（实体 ID `placed_hat`）与 `headwear/HatGeometry`。
+- 水生魔理沙只与水生魔理沙配对。水上动作（漂流、稳船、向岸呼唤、帽船安胎、帽船分娩、夜里睡觉与帽中幼体）见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)，随 WP4–6 恢复。
+- 查不到卸载区块中的实体不等于死亡或获救，不能生成替身帽；放下的帽子被收回后走 `RESCUED` 再移除。
+- 美术：倒置帽形为魔理沙本人的帽子翻转、帽冠压扁（`marisa_hat_turned`）；实体名 `placed_hat`。
 
 ## 美术接入
 

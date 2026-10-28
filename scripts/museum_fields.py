@@ -22,7 +22,7 @@ DECK_DEPTH = 16        # five rows with three-block spacing, common controls nea
 
 # theme groups, in lobby order: (id, title)
 GROUPS = [('wild', '野生与住所'), ('biome', '群系聚落'), ('family', '家庭与成长'), ('react', '天气、伤病与头饰'),
-          ('aqua', '水生魔理沙'), ('house', '家油'), ('human', '人类社会'), ('misc', '物种与动作')]
+          ('house', '家油'), ('human', '人类社会'), ('misc', '物种与动作')]
 
 
 def fill(x1, y1, z1, x2, y2, z2, block, mode=''):
@@ -387,57 +387,6 @@ class Species(Field):
                 + fillbiome_boxes(kx - 12, kz - 12, kx + 12, kz + 12, 'minecraft:plains'))
 
 
-class Pond(Field):
-    """A pond with a gently sloping shore on its west side. Water blocks are source blocks on the ground layer (y=63) or deeper,
-    so a standing yukkuri on the bank (feet y=64) is exactly one block above the water surface cell."""
-    RX, RZ = 15, 11
-
-    def __init__(self, *args, **kw):
-        super().__init__(*args, **kw)
-        self.px, self.pz = self.cx + 4, self.cz
-        # Three common control rows and four rows of scenarios, with three-block spacing.
-        x1, z1, x2, z2 = self.deck
-        self.deck = (x1, z1 - 6, x2, z2)
-        # first water cell on the row z=pz, scanned from the west
-        x = self.px - self.RX - 3
-        while self.depth(x, self.pz) == 0:
-            x += 1
-        self.water = (x, GROUND, self.pz)
-        self.bank = (x - 1, FEET, self.pz)
-        self.anchor = (self.bank[0], self.bank[2])
-
-    def depth(self, x, z):
-        d = ((x - self.px) / self.RX) ** 2 + ((z - self.pz) / self.RZ) ** 2
-        if d >= 1:
-            return 0
-        return 1 + int(3 * (1 - d) ** .5)      # 1 at the rim .. 4 in the middle
-
-    def features(self):
-        out = []
-        for x in range(self.px - self.RX - 2, self.px + self.RX + 3):
-            run = None
-            for z in range(self.pz - self.RZ - 2, self.pz + self.RZ + 3):
-                depth = self.depth(x, z)
-                if run and run[0] == depth:
-                    run[2] = z
-                    continue
-                if run:
-                    out += self._column(x, *run)
-                run = [depth, z, z]
-            if run:
-                out += self._column(x, *run)
-        return out
-
-    def terrain(self):
-        # Clearing also removes the preceding winter scene's biome before another family arrives.
-        return super().terrain() + self.biome_commands()
-
-    def _column(self, x, depth, z1, z2):
-        if depth == 0:
-            return []
-        return [fill(x, GROUND - depth + 1, z1, x, GROUND, z2, 'minecraft:water')]
-
-
 class House(Field):
     """A human house with life in it: a bed, kitchen, table, a sheep pen and two hidden corners (walls on two sides, furniture on the
     third, open on the fourth). The whole interior lies inside one aligned 16x16x8 activity cell (see HOUSE_ECOLOGY): x and z are chosen
@@ -531,7 +480,6 @@ FIELDS = [
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
     Open('body', '伤病与遗体', 'react', -150, 500, 36, 28, 'minecraft:plains', deck_depth=19, blurb='受击部位、中枢外露与濒死、遗体腐败、食尸、临终遗言、请吃了我'),
     Open('headwear', '头饰与认知', 'react', 0, 500, 28, 24, 'minecraft:plains', blurb='头饰损坏自愈、碎裂拼回、失饰者认不出、鄙视、怪物、欺负'),
-    Pond('pond', '池塘与河湾', 'aqua', -150, 300, 36, 28, 'minecraft:plains', blurb='水生魔理沙：帽船、出航、落水救援、船上接生'),
     House('house', '家油人类屋', 'house', 8, 296, 22, 18, 'minecraft:plains', blurb='有人类活动的屋子：隐蔽墙角、搬入、筑巢、迁卵'),
     Town('town', '街道', 'human', -900, 700, 36, 28, 'minecraft:plains', blurb='牵宠散步、喂野生油、鬼威惨、徽章、考试、相亲、运输'),
     Lot('shop', '商店', 'human', -750, 700, 26, 22, 'minecraft:plains', blurb='整座商店：店主、货架、银章爱丽丝'),

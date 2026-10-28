@@ -11,8 +11,8 @@ Generates the pack into a scratch directory below .local/experimental-map and th
   * the lobby holds teleport buttons only (and the guide book): no time, weather, speed, spawn, clear or scenario control;
   * relayed readings (``yukkuri relay ...``) wrap a command that exists; no retired item (nest lint, food scrap) or retired command is used;
   * scenario functions never fix, freeze or protect an individual (NoAI, Invulnerable, pm_actor, pm_live);
-  * the field layout: no overlap between fields, decks and gates, anchors inside their field, pond bank and water agree with the
-    terrain, every den has a free doorway cell under a roof and an open notch;
+  * the field layout: no overlap between fields, decks and gates, anchors inside their field,
+    every den has a free doorway cell under a roof and an open notch;
   * every button survives the later fills, stands on a full block and has nothing on top; deck landings have a floor;
   * every board and label fits (CJK-aware width and line counts).
 
@@ -323,7 +323,7 @@ def block_id(value):
 
 # ---------------------------------------------------------------------------- checks
 def check_geometry(findings):
-    """Fields do not overlap each other or any deck; every anchor lies inside its field; the pond's bank and water agree; the cave mouths are free."""
+    """Fields do not overlap each other or any deck; every anchor lies inside its field; the cave mouths are free."""
     fields = museum.FIELDS
     for i, a in enumerate(fields):
         ax1, az1, ax2, az2 = a.rect()
@@ -341,18 +341,6 @@ def check_geometry(findings):
             x, z = s.anchor
             if not (a.x1 <= x <= a.x2 and a.z1 <= z <= a.z2):
                 findings.append(f'scenario {s.id}: anchor {x},{z} outside field {a.id}')
-    pond = museum.BY_ID['pond']
-    bx, by, bz = pond.bank
-    wx, wy, wz = pond.water
-    if (bx + 1, bz) != (wx, wz) or by != wy + 1 or pond.depth(wx, wz) < 1 or pond.depth(bx, bz) != 0:
-        findings.append(f'pond: bank {pond.bank} and water {pond.water} do not match')
-    if pond.anchor != (bx, bz):
-        findings.append('pond anchor is not the bank cell')
-    # open water for the boat: a 9x5 patch of calm source cells east of the bank
-    for dx in range(1, 10):
-        for dz in range(-2, 3):
-            if pond.depth(wx + dx - 1, wz + dz) < 1:
-                findings.append(f'pond: no open water at {wx + dx - 1},{wz + dz}')
     dens = museum.BY_ID['den']
     solid = set()
     for c in dens.cave_cmds:

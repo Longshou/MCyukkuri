@@ -2,7 +2,7 @@
 
     python scripts/render_museum_map.py [output.png]      # default: .local/previews/museum/map.png in the main checkout
 
-The lobby plaza, every field with its scenario anchors, its observation deck and the pond / cave details.
+The lobby plaza, every field with its scenario anchors, its observation deck and the cave details.
 """
 from pathlib import Path
 import sys
@@ -16,7 +16,7 @@ import build_museum_full as museum  # noqa: E402
 import museum_fields  # noqa: E402
 
 FONT = 'C:/Windows/Fonts/msyh.ttc'
-GROUP_COLORS = {'wild': '#b08a5a', 'biome': '#3fa05a', 'family': '#6fe06f', 'react': '#9bd0ff', 'aqua': '#6fb7ff', 'house': '#ffb36b', 'human': '#c9c9a0', 'misc': '#c08aff'}
+GROUP_COLORS = {'wild': '#b08a5a', 'biome': '#3fa05a', 'family': '#6fe06f', 'react': '#9bd0ff', 'house': '#ffb36b', 'human': '#c9c9a0', 'misc': '#c08aff'}
 
 
 def font(size):
@@ -61,12 +61,6 @@ def main():
             ax, az = s.anchor
             r = 1.2
             d.ellipse([px(ax - r, az - r), px(ax + r, az + r)], fill=color)
-        if f.id == 'pond':
-            for x in range(f.px - f.RX - 1, f.px + f.RX + 2):
-                for z in range(f.pz - f.RZ - 1, f.pz + f.RZ + 2):
-                    if f.depth(x, z):
-                        rect(x, z, x, z, fill='#2d6fbf')
-            rect(f.bank[0], f.bank[2], f.bank[0], f.bank[2], fill='#ffd36b')
         if f.id == 'den':
             for name, (x, y, z) in f.doorways.items():
                 rect(x - 2, z - 6, x + 2, z + 1, fill='#6b4f33', outline='#b08a5a')

@@ -27,7 +27,7 @@
 - 普通种共用 0.75 × 0.53 格身体碰撞箱；帽饰、蝴蝶结、双尾等属显示几何，不计入碰撞箱。捕食种 0.80 × 0.60，家油 0.27 × 0.23875。尺寸与眼高一律以 `YukkuriVariant` 为准。
 - 家油与对应的普通种共享饰品物品；螺壳魔理沙由 `ModItems.accessoryFor(entity)` 的亚种检查优先返回独立的 `marisa_shell`，不是单独的种族。
 - 实体属性：最大生命 10、移动速度 0.18、跨步高度 1 格（`YukkuriEntity` 属性构建；妖梦的属性经 `rare/MyonLife.attributes(variant)` 统一构建）。生物分类 `CREATURE`，客户端追踪范围 8。
-- 十个种族之外，`hat_boat`、`material_drop`、`yukkuri_remains` 是非油实体，不进 `YukkuriVariant`。
+- 十个种族之外，`placed_hat`、`material_drop`、`yukkuri_remains` 是非油实体，不进 `YukkuriVariant`。
 
 ## 注册结构
 

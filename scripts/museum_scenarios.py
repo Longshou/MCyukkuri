@@ -2,7 +2,7 @@
 
 A scenario is a list of commands run positioned at the scenario's anchor block (see museum_dsl). It only creates the
 individuals and props and sets their real starting state (hunger, tiredness, life stage, kin, home, conception, a
-wound, a hat boat afloat ...). After that nothing is scripted, fixed or invulnerable: the observer watches, speeds the
+wound, a hat set down ...). After that nothing is scripted, fixed or invulnerable: the observer watches, speeds the
 clock up, flies to the lead, or clears the field and starts again.
 
 Fields hold the terrain (museum_fields.py); each scenario names its field and the spot of that field it stands around.
@@ -23,7 +23,7 @@ CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,Firs
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
-LATE_COMMANDS = ('yukkuri scenario aquatic_colony', 'yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario aboard', 'yukkuri scenario swim', 'yukkuri scenario shore')
+LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
 
@@ -514,7 +514,7 @@ add('infant_starvation', 'family', '赤油取食边界', '赤油极饿取食',
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨躲雨', '下雨躲雨', '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease',
     '约 30 秒', [
-        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', aquatic=True, yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
+        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
     env={'time': 'noon', 'weather': 'rain'}, spot='shelter', vantage=(0, 14),
     reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')])
 
@@ -553,11 +553,11 @@ add('forage_empty','weather','无粮主动搜索','无粮寻食',
     '约30秒后丢食物',[yk('reimu',0,0,'seeker',nutrition=18,energy=90,lead=True)],
     env=DAY,spot='pred',give=['minecraft:apple 3'],reads=[('读主动寻粮',f'yukkuri status {sel("seeker")} raw')])
 
-add('shared_body','weather','普通、水生与捕食种身体对照','身体结构对照',
-    '普通魔理沙、水生魔理沙、蕾米莉亚、弗兰共用身体结构。绕到背面看油菊；按钮对照佩妮佩妮和马姆马姆伸缩，再看通用行走。伸缩仍互斥，默认收回；动作片段只验素材，不代表行为成功',
+add('shared_body','weather','普通与捕食种身体对照','身体结构对照',
+    '普通魔理沙、蕾米莉亚、弗兰共用身体结构。绕到背面看油菊；按钮对照佩妮佩妮和马姆马姆伸缩，再看通用行走。伸缩仍互斥，默认收回；动作片段只验素材，不代表行为成功',
     '手动切换观察',[
         yk('marisa',-9,0,'ordinary',nutrition=100,also=('sharedbody',),lead=True),
-        yk('marisa',-3,0,'aquatic',aquatic=True,nutrition=100,also=('sharedbody',)),
+        yk('marisa',-3,0,'second',nutrition=100,also=('sharedbody',)),
         yk('remilia',3,0,'remilia',nutrition=100,also=('sharedbody',)),
         yk('flandre',9,0,'flandre',nutrition=100,also=('sharedbody',))],env=DAY,vantage=(0,12),
     reads=[(label,f'yukkuri action @e[tag=scn_sharedbody] {action}') for label,action in
@@ -566,12 +566,12 @@ add('shared_body','weather','普通、水生与捕食种身体对照','身体结
             ('行走片段','waddle'),('结束片段','idle')]])
 
 add('rain_damage','weather','满湿伤害与耐雨','满湿雨伤',
-    '普通种湿度97、水生种98.5起步；下雨每秒分别+3与+1.5，满100才伤害。无屋顶，观察搜索、生命、湿度，伤害不弹起不横移；可手动晴天观察干燥后停止雨伤',
+    '两只湿度分别97与98.5起步；下雨每秒+3，满100才伤害。无屋顶，观察搜索、生命、湿度，伤害不弹起不横移；可手动晴天观察干燥后停止雨伤',
     '约30秒',[yk('reimu',-3,0,'wet_ordinary',nutrition=90,energy=90,lead=True),
-    yk('marisa',3,0,'wet_aquatic',aquatic=True,nutrition=90,energy=90),
-    set_status('wet_ordinary','needs.wetness',97),set_status('wet_aquatic','needs.wetness',98.5)],
+    yk('marisa',3,0,'wet_control',nutrition=90,energy=90),
+    set_status('wet_ordinary','needs.wetness',97),set_status('wet_control','needs.wetness',98.5)],
     env={'time':'noon','weather':'rain'},spot='open',
-    reads=[('读普通雨伤',f'yukkuri status {sel("wet_ordinary")} raw'),('读水生雨伤',f'yukkuri status {sel("wet_aquatic")} raw')])
+    reads=[('读满湿雨伤',f'yukkuri status {sel("wet_ordinary")} raw'),('读对照雨伤',f'yukkuri status {sel("wet_control")} raw')])
 
 # Sheltered actors are a legitimate start for testing activity after the run has ended.
 _rain_life = []
@@ -606,264 +606,6 @@ add('marks', 'weather', '脏污与伤痕', '脏污伤痕', '前三只是干净�
     reads=[('读轻伤留疤', f'yukkuri status {sel("light_tear")} raw'),
            ('读二级伤留疤', f'yukkuri status {sel("heavy_tear")} raw'),
            ('读预置疤痕', f'yukkuri status {sel("scarred")} raw')])
-
-# ====================================================================================================== pond (anchor: the bank cell; the hull's water is searched near it)
-BANK = '~ ~ ~'
-
-
-def aboard(parent, crew=None, *, bank=BANK, food=None, paddle=None):
-    """`scenario aboard`: the parent's real hat boat on open water that ShoreBerth finds beside the bank, the crew aboard.
-    The whole preparation is rolled back with the exact obstruction if anything fails; kin is written only on success."""
-    opts = ''.join(f' {k}={v}' for k, v in (('food', food), ('paddle', paddle)) if v is not None)
-    return f'yukkuri scenario aboard {sel(parent)} {crew or sel(parent)} {bank}{opts}'
-
-
-def swim(actor, *, bank=BANK, near=None, dist=None, energy=None):
-    """`scenario swim`: one individual put into searched open water and really plunged (near the nearest hat boat when asked)."""
-    opts = ''.join(f' {k}={v}' for k, v in (('near', near), ('dist', dist), ('energy', energy)) if v is not None)
-    return f'yukkuri scenario swim {sel(actor)} {bank}{opts}'
-
-
-def captain(name='a', *, dx=0, dz=0, **kw):
-    return yk('marisa', dx, dz, name, aquatic=True, yaw=-90, lead=True, **pair_ready(), **kw)
-
-
-def pond(sid, title, hint, watch, wait, lines, note='', **kw):
-    # Restore the entire shared field before actors spawn; specialised scenes may override it below.
-    add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
-        env=DAY, note=note, vantage=(-6, 6, -90), **kw)
-
-
-_cargo_boat = '@e[type=mcyukkuri:hat_boat,distance=..48,limit=1,sort=nearest]'
-_FOODS = ['minecraft:apple 8', 'minecraft:carrot 8', 'minecraft:cookie 1', 'minecraft:bread 1', 'minecraft:melon_slice 1']
-
-
-def shore_supplies(dx=-4, dz=0):
-    # Finite real stacks on dry ground. Ordinary pickup/provision goals must acquire them.
-    return [item('minecraft:stick', 1, dx, dz, 'paddle_supply'),
-            item('minecraft:apple', 3, dx + 1, dz - 1, 'food_supply')]
-
-
-def bank_dx(dz):
-    """x offset (from the anchor bank cell) of the bank cell on the row dz south of it: the pond's shore is not straight."""
-    pond_ = BY_ID['pond']
-    z = pond_.pz + dz
-    x = pond_.px - pond_.RX - 3
-    while pond_.depth(x, z) == 0:
-        x += 1
-    return x - 1 - pond_.bank[0]
-
-
-_dz = 4
-_dx = bank_dx(_dz)
-_lane = f'~{_dx} ~ ~{_dz}'
-_teen_dx, _teen_dz = bank_dx(-4), -4
-_teen_lane = f'~{_teen_dx} ~ ~{_teen_dz}'
-
-pond('sail', '备粮划桨', '自主出航', '成体从干岸自主拾桨、备粮、找放船位置、放帽并登船；现场只有一根木棍和三份苹果，不预先造船或指定动作', '约 1–3 分钟',
-    [captain(dx=-5), *shore_supplies()],
-    note='动机沿用水生种回水上生活的普通规则。没有出航时读 water.launch 的最近判定（含岸位拒绝原因）和实际阶段；失败保留现场。',
-    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
-           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
-pond('afloat_family', '亲子自主出航', '亲子岸边', '亲油和真实赤油从岸边开始，观察照护与出航如何衔接；现场有木棍和苹果，不强行放船或把孩子塞入帽中', '约 1–3 分钟', [
-    captain(dx=-5, uuid=uid('afloat_family', 'a')),
-    yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, uuid=uid('afloat_family', 'k1'), childhood=CHILDHOOD_CRAWLING_READY,
-       kin=f'Mother:{uuid_nbt(uid("afloat_family", "a"))}', **pair_ready()),
-    *shore_supplies()],
-    note='赤油已实际完成首餐、首便与爬行，仍不能跳；亲油应从干岸取桨和粮，放帽后让赤油走到岸边，再以辫子实际接上船。读 water.launch 与双方状态，不把等待算作出航成功。',
-    reads=[('读出航阶段与阻塞', f'yukkuri status {sel("a")} raw'),
-           ('读初始赤油', f'yukkuri status {sel("k1")} raw'),
-           ('读实际帽船', f'data get entity {_cargo_boat}')])
-pond('first_voyage', '第一次出航', '第一次出航', '亲油帽船上已有达到体型门槛的小子油，孩子随身带一根木棍，亲船有桨和八份苹果；小子油应按普通规则放下帽子、跳进自己的帽船、试坐，第一次划出去再回来',
-    '约 2–4 分钟', [
-    captain(dx=-5, uuid=uid('first_voyage', 'a')),
-    yk('marisa', -3, 1, 'kid', stage='child', aquatic=True, yaw=-90, uuid=uid('first_voyage', 'kid'),
-       kin=f'Mother:{uuid_nbt(uid("first_voyage", "a"))}', **pair_ready()),
-    f'data modify entity {sel("kid")} YukkuriSubspecies.AquaticLife.StickItem set value {{id:"minecraft:stick",count:1}}',
-    aboard('a', sel('kid'), food=8)],
-    note='不调用 tryStart：初航是否开始由小子油体型、桨与导师船的普通判定决定；没开始时读 water.launch 与初航阶段，保留现场。',
-    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
-           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
-           ('读实际帽船', f'data get entity {_cargo_boat}')])
-add('water_night', 'pond', '水上夜宿·无绳夜泊', '夜泊',
-    '黄昏时亲油在岸边，带着两只赤油：观察先载幼体出航（赤油由辫子从岸上放进系泊的帽里），入夜后船头楔进岸凹、船长俯身盖住孩子并哼摇篮曲；夜里若漂离泊位 3 格以上她会醒来重新靠泊，最多两次，之后在静水中漂着睡；天亮醒来并把船推离岸边',
-    '约 3–6 分钟，可倍速', [
-    captain(dx=-5, uuid=uid('water_night', 'a')),
-    yk('marisa', -3, 1, 'k1', stage='baby', aquatic=True, uuid=uid('water_night', 'k1'), childhood=CHILDHOOD_CRAWLING_READY,
-       kin=f'Mother:{uuid_nbt(uid("water_night", "a"))}', **pair_ready()),
-    yk('marisa', -3, -1, 'k2', stage='baby', aquatic=True, uuid=uid('water_night', 'k2'), childhood=CHILDHOOD_CRAWLING_READY,
-       kin=f'Mother:{uuid_nbt(uid("water_night", "a"))}', **pair_ready()),
-    *shore_supplies()],
-    env={'time': 'dusk'}, vantage=(-6, 6, -90),
-    note='不调用出航或夜泊：出航由普通判定开始，夜泊由天色、静水与岸凹的真实条件决定。读 water.launch 看阶段（MUSTER／LOAD／AFLOAT）、最近拒绝与夜泊判定；找不到岸凹时她就近静水漂睡，并留下原因。',
-    reads=[('读出航阶段与夜泊判定', f'yukkuri status {sel("a")} raw'),
-           ('读两只赤油', f'yukkuri status {sel("k1")} raw'),
-           ('读实际帽船', f'data get entity {_cargo_boat}')])
-pond('cargo', '帽内粮堆', '粮堆容量', '亲油的帽船里有一只赤油（载重 2）和一根桨（载重 1），没有粮；持食物右击船体逐份存入（每份 0.5 载重）直到粮袋 12 份，种类已满或粮袋已满只提示、不晃船；吃水线随载重下沉，粮只在帽冠袋底，不会碰到赤油座位（会压到座位时拒收，日志写 CONFLICT_WITH）',
-    '随意', [captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()), aboard('a', sel('kid'), food=0)],
-    give=_FOODS,
-    note='“读船粮”可看真实库存；读档检查请重进当前世界，不要重新生成场景。先各存 1 份四种食物，再用西瓜片验证种类已满提示；潜行右击一次最多存入 8 份。食物右击船体只入储粮，空手或非食物右击才晃船。',
-    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
-           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
-           ('读船粮与实物桨', f'data get entity {_cargo_boat} Cargo')])
-pond('shore_family', '缺粮返岸·带孩子上岸', '需求返岸', '船上有一只子油和一只赤油，只剩 1 份粮，亲油饿了：观察返岸由需求引发——子油自己跳上岸，赤油由亲油用辫子放到岸上，然后收帽',
-    '约 1–3 分钟', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, also=('young',), **pair_ready()),
-    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, yaw=-90, also=('young',), **pair_ready()),
-    aboard('a', sel_all('young'), food=1),
-    'fill ~-7 ~ ~-4 ~-3 ~ ~4 minecraft:short_grass replace minecraft:air',
-    block(-2, -1, -3, 'minecraft:farmland[moisture=7]'), block(-2, 0, -3, 'minecraft:carrots[age=7]')],
-    late=[set_status('a', 'needs.nutrition', 35)],
-    note='不调用返岸命令：是否返岸由饥饿、缺粮与岸边作物的普通判定决定；没有返岸时读 water.launch／status 的拒绝原因。',
-    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
-           ('读子油', f'yukkuri status {sel("kid")} raw'),
-           ('读赤油', f'yukkuri status {sel("k2")} raw'),
-           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
-pond('rescue_child', '落水·亲油救援', '亲油救援', '孩子掉进水里，亲油伸出辫子托起孩子放回帽中（孩子留在船上）', '约 30–90 秒', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()),
-    aboard('a', sel('kid')), swim('kid', near='nearest', dist=1.4)],
-    reads=[('读亲油救援与自救', f'yukkuri status {sel("a")} raw'),
-           ('读落水幼体', f'yukkuri status {sel("kid")} raw')])
-pond('rescue_infant_full', '满粮帽船·弃粮救援', '满粮救援', '亲油带着 11 份口粮与一根桨，赤油真实落水；亲油主动抛下挡住救援的粮食，腾出位置再接回孩子，船桨保留', '约 30–90 秒', [
-    captain(), yk('marisa', -2, 1, 'kid', stage='baby', aquatic=True, yaw=-90, **pair_ready()),
-    aboard('a', sel('kid'), food=11), swim('kid', near='nearest', dist=1.4)],
-    note='看真实食物落到水里、库存随之减少；观察孩子接回后能否安稳留在帽内，不应立即捡粮重新挡住它。辫子托举的表现（水 14）看这里。',
-    reads=[('读船主与容量', f'yukkuri status {sel("a")} raw'),
-           ('读幼体与初航', f'yukkuri status {sel("kid")} raw'),
-           ('读实船库存', f'data get entity {_cargo_boat} Cargo')])
-pond('shake_capsize', '摇船·翻船救援', '摇船翻船', '玩家空手右击摇船：有孩子的船长聚拢孩子并逃离；连续摇动或用钻石剑打一下帽船会真实翻船，落水的孩子由亲油按友善作一次救子决策。两排各一个家庭：A 排高友善，B 排低友善',
-    '约 1–2 分钟', [
-    captain('a', friendliness=90, attachment=60),
-    yk('marisa', -2, 1, 'k1', stage='baby', aquatic=True, also=('young', 'young_a'), **pair_ready()),
-    yk('marisa', -2, -1, 'k2', stage='baby', aquatic=True, also=('young', 'young_a'), **pair_ready()),
-    aboard('a', sel_all('young_a')),
-    yk('marisa', _dx, _dz, 'b', aquatic=True, yaw=-90, friendliness=10, attachment=60, **pair_ready()),
-    yk('marisa', _dx - 2, _dz + 1, 'k3', stage='baby', aquatic=True, also=('young', 'young_b'), **pair_ready()),
-    aboard('b', sel_all('young_b'), bank=_lane)],
-    give=['minecraft:diamond_sword'],
-    note='外因只来自玩家的真实动作：空手右击是摇动，钻石剑一击才会翻船；不保证每次翻船或救援成功。对比有孩子与没有孩子的船长（孩子数为 0 时只是普通惊吓）。',
-    reads=[('读 A 排亲油', f'yukkuri status {sel("a")} raw'), ('读 B 排亲油', f'yukkuri status {sel("b")} raw'),
-           ('读全部赤油', f'yukkuri status {sel_all("young")} raw')])
-pond('self_rescue', '落水自救', '落水自救', '戴帽子的小子油自己落水：抖落帽子、顶正、爬回帽上；另一排的船主被放在离自己帽船九格的水中且只有 3 点体力，观察向同一顶帽子弱漂、抓缘与失败重试，不保证获救',
-    '约 1–2 分钟', [
-    yk('marisa', 0, 0, 'a', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready()),
-    yk('marisa', _dx, _dz, 'far', aquatic=True, yaw=-90, **pair_ready()),
-    aboard('far', bank=_lane), swim('far', bank=_lane, near='nearest', dist=9, energy=3), swim('a')],
-    note='试玩场默认开启水生逐阶段日志（/yukkuri aqdiag off 可关），日志里看甩帽、咬缘、攀入各阶段。',
-    reads=[('读小子油自救阶段与失败', f'yukkuri status {sel("a")} raw'),
-           ('读远帽船主自救目标与阶段', f'yukkuri status {sel("far")} raw')])
-pond('shore_capsized', '翻船后上岸找回', '岸上返帽', '亲油体力很低；玩家用钻石剑打一下帽船使其翻覆。观察她落水后的自救或上岸，再实际走向帽子、下水扶正和重新登船，托管期间不因无帽持续悲伤',
-    '约 1–3 分钟', [captain(), aboard('a')], give=['minecraft:diamond_sword'],
-    late=[set_status('a', 'needs.energy', 20)],
-    note='翻覆是玩家的真实一击，不由场景直接写入；她是否上岸取决于体力与实际路径，没有上岸时读 status 的自救阶段。',
-    reads=[('读岸上返帽', f'yukkuri status {sel("a")} raw'),
-           ('读实船状态', f'data get entity {_cargo_boat}')])
-pond('family_skiffs', '亲子各自帽船', '亲子小船', '亲油、会操帽的小子油与达到独立门槛的亚成各有一船；观察小子油跟随、受惊返亲帽及复航，亚成则真实告别并驶离，亲缘保留', '约 1–3 分钟', [
-    captain('mother'), yk('marisa', _dx, _dz, 'kid', stage='child', aquatic=True, yaw=-90, **pair_ready()),
-    yk('marisa', _teen_dx, _teen_dz, 'teen', fam=TEEN_FAMILY, aquatic=True, yaw=-90, **pair_ready()),
-    f'data modify entity {sel("kid")} YukkuriSubspecies.AquaticLife.FirstVoyage.Completed set value 1b',
-    f'data modify entity {sel("teen")} YukkuriSubspecies.AquaticLife.FirstVoyage.Completed set value 1b',
-    f'yukkuri scenario kin {sel("mother")} {sel("kid")} false',
-    f'yukkuri scenario kin {sel("mother")} {sel("teen")} false',
-    aboard('mother'), aboard('kid', bank=_lane), aboard('teen', bank=_teen_lane)],
-    note='两位子代初始均学会初航、均未独立。亚成的年龄和营养成长是初态，独立标记只能由实际离船距离与原有能力判定写入。',
-    reads=[('读亲油与亲船', f'yukkuri status {sel("mother")} raw'),
-           ('读子油与小船', f'yukkuri status {sel("kid")} raw'),
-           ('读亚成告别与独立', f'yukkuri status {sel("teen")} raw'),
-           ('读三艘实船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
-
-
-# The ecology scenes combine related transitions; weather/time controls reuse the same live individuals.
-pond('water_life', '水上日常·采集与午休', '采集与午休',
-    '空粮船从水上开始，岸边只有真实草和成熟作物；观察岸缘采食、缺粮靠岸、携粮复航。夏日午间体力下降后在阴凉处休息，夜晚继续读同一家庭的睡眠与库存',
-    '约 2–4 分钟，可切换昼夜', [
-        captain(), aboard('a', food=0),
-        'fillbiome ~-12 56 ~-10 ~16 82 ~10 minecraft:jungle',
-        'fill ~4 ~3 ~-3 ~9 ~3 ~3 minecraft:oak_planks',
-        'fill ~-7 ~ ~-4 ~-3 ~ ~4 minecraft:short_grass replace minecraft:air',
-        block(-2, -1, -3, 'minecraft:farmland[moisture=7]'), block(-2, 0, -3, 'minecraft:carrots[age=7]')],
-    late=[set_status('a', 'needs.nutrition', 50), set_status('a', 'needs.energy', 72)],
-    note='棚顶只有遮阳避雨作用，不会生成食物或保温奖励。清场会还原地形、群系与世界账本。',
-    reads=[('读生活、温度与岸上工作', f'yukkuri status {sel("a")} raw'),
-           ('读实际库存与腐坏计时', f'data get entity {_cargo_boat} Cargo')])
-
-add('water_winter', 'pond', '水上冬季·暖处与储粮', '冬季避寒',
-    '雪地中的真实帽船起初有粮，岸边棚下有篝火；观察寻找暖水面或正常返岸取暖。可下雪、等待结冰，核对睡眠会因冷暖中断、帽船搁浅后走真实脱困',
-    '约 1–4 分钟，结冰由世界决定', [
-        captain(), aboard('a'),
-        'fillbiome ~-12 56 ~-10 ~16 82 ~10 minecraft:snowy_plains',
-        *shed(-4, 0, half=2), block(-4, 0, 0, 'minecraft:campfire[lit=true]'),
-        item('minecraft:apple', 6, -6, 2)], env={'time': 'night', 'weather': 'rain'},
-    vantage=(-6, 6, -90), note='没有锁定天气后果；暖处不可达时读实际拒绝原因，不能以无伤害或不下雪推断通过。',
-    reads=[('读温度、暴露与返岸', f'yukkuri status {sel("a")} raw'),
-           ('读实船状态与冬粮', f'data get entity {_cargo_boat}')])
-
-pond('water_neighbours', '邻船·照料与接手', '邻船照料',
-    '两位相识成体在同一岸位附近各驾一船，每船有八份粮，亲帽内的子油有轻伤；先观察邻船招呼和亲子实际接触舔舐。随后可亲手杀死亲油，观察熟人是否愿意接手、真实转移与照料，遗体留在实际位置',
-    '照料约 1–2 分钟；接手取决于意愿与可达性', [
-        captain('mother', affection=95, social_wait=0),
-        yk('marisa', _dx, _dz, 'neighbour', aquatic=True, yaw=-90, friendliness=95, affection=95, social_wait=0, **pair_ready()),
-        yk('marisa', -2, 1, 'kid', aquatic=True, stage='child', **pair_ready()),
-        f'yukkuri scenario bond {sel("mother")} {sel("neighbour")}',
-        f'yukkuri scenario bond {sel("neighbour")} {sel("kid")}',
-        aboard('mother', sel('kid'), food=8), aboard('neighbour', food=8)],
-    late=[set_status('kid', 'health.wound_at', 'front:tear:1')],
-    give=['minecraft:diamond_sword', 'mcyukkuri:orange_juice 2'],
-    note='接手不是自动收养，不能改写亲缘。没有合适照护者或接触路径时保留等待/拒绝读数。',
-    reads=[('读亲体社交与照料', f'yukkuri status {sel("mother")} raw'),
-           ('读邻船接手', f'yukkuri status {sel("neighbour")} raw'),
-           ('读孩子伤势与监护', f'yukkuri status {sel("kid")} raw')])
-
-pond('water_threat', '水上捕食·避险', '水上捕食',
-    '真实亲子帽船旁出现饥饿芙兰；观察猎物选择、船长停止睡眠或社交、护子与逃离。飞行追击和咬击仍要实际到达目标',
-    '约 1–2 分钟', [captain('mother'),
-        yk('marisa', -2, 1, 'kid', aquatic=True, stage='child', **pair_ready()),
-        aboard('mother', sel('kid'))],
-    late=[yk('flandre', -5, 5, 'hunter', nutrition=10, energy=100, yaw=-90)],
-    reads=[('读船长避险', f'yukkuri status {sel("mother")} raw'),
-           ('读捕食目标', f'yukkuri status {sel("hunter")} raw')])
-
-pond('water_colony', '水边聚落·公仓与迁居', '水边聚落',
-    '初始化真实水生家庭、岸边公仓与领袖职位；成员按自然生成规则建立各自帽船后，观察公仓配给、同船家庭粮食只计一次、岸上会议与正常迁居',
-    '约 3–6 分钟；迁居由资源与群体决策触发', [
-        captain('founder', dx=-5),
-        f'yukkuri scenario aquatic_colony {sel("founder")} ~ ~ ~',
-        item('minecraft:stick', 8, -3, 0), item('minecraft:apple', 12, -4, -2),
-        'fill ~-8 ~ ~-6 ~-2 ~ ~6 minecraft:short_grass replace minecraft:air'],
-    note='岸边是公仓与集会地点，水生家庭实际住所是各自帽船。初始资源有限，不直接指定航路、角色行为或迁居结果。',
-    reads=[('读领袖、公仓与迁居', f'yukkuri status {sel("founder")} raw'),
-           ('读各家庭实际帽船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
-
-pond('water_dock', '宠物返岸·课程与考试', '宠物返岸',
-    '玩家拥有的水生魔理沙从帽船上开始；在岸上考官处报名，观察先真实靠岸再参加原有考试。也可用原有照护/训练菜单发起课程，离船不等于已经完成课程',
-    '手动报名后约 2–3 分钟', [captain('pet'), *own('pet'), aboard('pet'),
-        block(-5, 0, 0, 'mcyukkuri:exam_podium[facing=east]'),
-        block(-9, 0, 0, 'mcyukkuri:exam_hide_box[facing=east]'),
-        block(-1, 0, -3, 'minecraft:lectern[facing=west]'),
-        human('caretaker_brother', -2, -3, 'judge', 3, yaw=90, label='岸边考官')],
-    give=['minecraft:emerald 12', 'minecraft:apple 4', 'mcyukkuri:pet_harness 1', 'minecraft:lead 1'],
-    reads=[('读返岸、课程、考试与牵引', f'yukkuri status {sel("pet")} raw')])
-
-
-def boat_birth(sid, title, hint, outcome, watch, note=''):
-    pond(sid, title, hint, watch, '约 1–3 分钟准备与分娩，之后看照护', [
-        captain('mother'), yk('marisa', -2, 1, 'father', aquatic=True, yaw=-90, **pair_ready()),
-        f'yukkuri scenario bond {sel("mother")} {sel("father")}',
-        item('minecraft:stick', 1, 0, 0, name='mother_paddle'),
-        item('minecraft:stick', 1, -2, 1, name='father_paddle'),
-        item('minecraft:apple', 6, -1, -1, name='birth_food'),
-        f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'],
-        note=note, give=['minecraft:apple 8'], reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'),
-                          ('读父油与陪护', f'yukkuri status {sel("father")} raw'),
-                          ('读两艘接生帽船', 'execute as @e[type=mcyukkuri:hat_boat,distance=..48] run data get entity @s')])
-
-
-boat_birth('birth_boat_caught', '船上接生·接住', '船上接住', 'caught',
-           '双亲在干岸受孕，临产母油走向水面、放下自己的帽船；父油放船陪护，孩子按两船余量接生与转移，之后继续照护',
-           note='出生后持苹果右击母船补粮，让母船比父船更重；保留父船余量，观察父船靠近、母油把赤油连续托到父帽。两船同样满或转移不能减小负载差时不应搬运。')
-boat_birth('birth_boat_missed', '船上接生·漏接', '船上漏接', 'missed',
-           '双亲在干岸受孕后各自准备帽船；本胎预置漏接，新生儿实际落水，观察双亲能否靠近救回。水生与普通魔理沙子代都要救，结局取决于实际距离、体力与余量',
-           note='一胎可能不止一只；落水的新生儿不一定都救得及，每只的结局以现场为准。')
 
 # ====================================================================================================== house (anchor: the middle of the room)
 def house_pair():
@@ -1463,24 +1205,6 @@ add('hat_shatter', 'headwear', '头饰碎裂与拼回', '头饰碎裂',
     env=DAY, late=[set_status('owner', 'accessory.state', 'shatter')], note=NEW, vantage=(0, 8),
     reads=[('读头饰', f'yukkuri status {sel("owner")} raw')])
 
-add('hat_swap', 'headwear', '饰品通用、堆叠与转交', '同种饰品转交',
-    '摘取前排完好或受损帽，交给同种缺帽个体，子油也可接收；异种拒绝。相同状态的同种饰品与同种碎片可堆叠。后排两只碎饰者会自行拾取兼容碎片，也可手动逐片交还，凑齐后仍须慢慢长合',
-    '手动操作；拼回继续观察原修补过程', [
-        yk('marisa', -5, 0, 'donor', aquatic=True, label='水生成体·受损帽', extra=hat(2), yaw=180, lead=True, **pair_ready()),
-        yk('marisa', -1, 0, 'receiver', aquatic=True, accessory=False, label='水生成体·接收', yaw=180, **pair_ready()),
-        yk('marisa', 3, 0, 'land', accessory=False, label='普通成体', yaw=180, **pair_ready()),
-        yk('marisa', 6, 0, 'young', aquatic=True, stage='child', accessory=False, label='水生子油', yaw=180, **pair_ready()),
-        yk('reimu', 6, -4, 'other_species', accessory=False, label='异种灵梦', yaw=180, **pair_ready()),
-        yk('marisa', -3, -4, 'pieces_a', aquatic=True, label='碎片甲', yaw=180, **pair_ready()),
-        yk('marisa', 2, -4, 'pieces_b', aquatic=True, label='碎片乙', yaw=180, **pair_ready())],
-    env=DAY, vantage=(0, 9), late=[set_status('pieces_a', 'accessory.state', 'shatter'),
-                                               set_status('pieces_b', 'accessory.state', 'shatter')],
-    note='本场是无水空地，水生仍应正常走向碎片。摘下受损帽后缺口保留；同种碎片合堆、每次只耗一片。读 accessory.detail 的 gatherCheck、candidates、reachable 和 accessory.shards。',
-    reads=[('读来源身份', f'yukkuri status {sel("donor")} raw'),
-           ('读接收身份', f'yukkuri status {sel("receiver")} raw'),
-           ('读碎片甲', f'yukkuri status {sel("pieces_a")} raw'),
-           ('读碎片乙', f'yukkuri status {sel("pieces_b")} raw')])
-
 add('hatless_kin', 'headwear', '失饰的孩子·亲油认不出', '亲油认不出',
     '两位亲油都凶悍、胆大且低自制，北边智力 40、南边 80。前者认不出失饰子油，鄙视后可能发起欺负和驱赶；后者仍认亲。读 known、last、accessory.sanction 与孩子位置，亲缘不豁免识别',
     '首次鄙视约 10–30 秒；自然升级有概率，可观察 1–3 分钟', [
@@ -1869,16 +1593,13 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
-    'sail': 'A1', 'afloat_family': 'A2', 'first_voyage': 'A1', 'cargo': 'A1', 'shore_family': 'A1',
-    'water_life': 'A6', 'water_winter': 'A6', 'water_night': 'A6', 'water_colony': 'A8', 'water_neighbours': 'A7', 'water_threat': 'A7', 'water_dock': 'A8',
-    'birth_boat_caught': 'A3', 'birth_boat_missed': 'A3', 'rescue_child': 'A4', 'rescue_infant_full': 'A4', 'shake_capsize': 'A4', 'self_rescue': 'A4', 'shore_capsized': 'A4', 'family_skiffs': 'A5',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'swaddle_styles': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

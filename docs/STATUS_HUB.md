@@ -27,7 +27,7 @@
 
 `Identity` 由 `YukkuriStatus.identity` 按顺序推导：家油 `HOUSE` → 宠物 `PET` → 有主 `OWNED` → `HabitatLife.Residence.VAGRANT` 的流浪 `STRAY` → 有聚落记录的 `SETTLER` → 其余按住所记忆、生活住处、帽船家庭住处或依亲 `DEPENDENT` 判 `WILD` / `STRAY`。聚落成员表中查不到某 UUID 时，该个体的聚落角色为 `FREE`；未加载或移除不等于死亡，不能据此清理成员记录。
 
-住所种类查询包括 `cardboard`、`burrow`、`shelter`、`house_nest`、`cover`、`nest`、`hat_boat`、`digging`、`none`，由现有领域状态推导，不在状态中枢维护第二份地址。
+住所种类查询包括 `cardboard`、`burrow`、`shelter`、`house_nest`、`cover`、`nest`、`digging`、`none`，由现有领域状态推导，不在状态中枢维护第二份地址。
 
 ## 2. 查询、受控写入与调试
 
@@ -81,7 +81,7 @@ entitySaveViews = false
 
 `YukkuriControl` 负责惊慌／命令时钟、缩壳导航控制和固定接管判定。`PresentationArbiter` 读取本 tick 的接管快照；普通路径依次处理病态、水中、进食和家庭持续状态，再选择运行中的 Goal，最后使用家庭兜底表现。
 
-`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情，命令等可覆盖动作。表情由服务端 `PresentationArbiter` 按操作姿态、实际反应、伤病或哭泣、情绪、兜底顺序选择；帽子归属不改变兜底表情，失饰压力由情绪层持续提供。调试视图记录本 tick 选中的来源，客户端通过 `YukkuriView` / `HatBoatView` 读取同步展示值，不再另行叠加操作、躁动或繁殖表情。
+`EcologyPresentation` 为 `threat_*`、`rain_*` 提供动作和表情，命令等可覆盖动作。表情由服务端 `PresentationArbiter` 按操作姿态、实际反应、伤病或哭泣、情绪、兜底顺序选择；帽子归属不改变兜底表情，失饰压力由情绪层持续提供。调试视图记录本 tick 选中的来源，客户端通过 `YukkuriView` / `PlacedHatView` 读取同步展示值，不再另行叠加操作、躁动或繁殖表情。
 
 ## 5. 脏污、伤痕与橙汁粒子
 
