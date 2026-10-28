@@ -9,7 +9,6 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Something a body can stand on (spec 6). Today only {@code HatBoatEntity} implements it.
- * {@code container()} is deliberately absent until the Container work package adds it.
  */
 public interface SurfaceHost {
     Entity entity();
@@ -17,7 +16,7 @@ public interface SurfaceHost {
     /** The host's pose for this tick: origin, hat unit, yaw and tilt. */
     HostFrame frame();
 
-    /** Hat-surface height field in host-local units at {@code local} with foot radius {@code r}; empty when nothing supports it. */
+    /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);
 
     /** The foot circle at {@code local} overlaps no other rider (nor, from WP4, stored provisions). */
@@ -28,6 +27,9 @@ public interface SurfaceHost {
 
     /** Named places on the host, as targets only. */
     Map<String, Vec3> spots();
+
+    /** The hollow riders stand in; "in the hat" is OnHost of this host plus Occupancy INSIDE_SUPPORTED here. */
+    Container container();
 
     /** UUID to local spot and yaw; the persisted and synchronized rider table. */
     Riders riders();
