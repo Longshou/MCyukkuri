@@ -96,8 +96,6 @@ def normalise(raw: dict) -> list[dict]:
             if 'from' in actor and (not isinstance(actor['from'], list) or len(actor['from']) != 3): raise ValueError(f'{ident}: actor.from must be [x,y,z]')
             if 'to' in actor and (not isinstance(actor['to'], list) or len(actor['to']) != 3): raise ValueError(f'{ident}: actor.to must be [x,y,z]')
             validate_keyframes(ident, 'actor', actor.get('keyframes'))
-            if 'boatSeat' in actor and (not isinstance(actor['boatSeat'], dict) or not isinstance(actor['boatSeat'].get('prop'), int) or not isinstance(actor['boatSeat'].get('slot'), str)):
-                raise ValueError(f'{ident}: actor.boatSeat needs a prop index and named slot')
             if 'contactFollow' in actor:
                 follow = actor['contactFollow']
                 if (not isinstance(follow, dict) or not isinstance(follow.get('actor'), int)
@@ -156,7 +154,7 @@ def prepared_textures(clips: list[dict], work: Path) -> tuple[dict, list[Path]]:
 
 def fingerprint(clip: dict, sources: list[Path], frames: int) -> str:
     digest = hashlib.sha256(json.dumps({'clip': clip, 'frames': frames}, ensure_ascii=False, sort_keys=True).encode())
-    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/adult_states.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ASSETS/'yukkuri_presentation/hat_vessel.json', ASSETS/'yukkuri_presentation/hat_deck_layout.json', *sources]:
+    for source in [ROOT/'scripts/build_preview_actions.py', ROOT/'scripts/render_preview_actions.cjs', ROOT/'preview/review/pose.js', ROOT/'standards/yukkuri-library/runtime/render.js', ASSETS/'yukkuri_presentation/living.json', ASSETS/'yukkuri_presentation/adult_states.json', ASSETS/'yukkuri_presentation/motion_corrections.json', ASSETS/'yukkuri_presentation/placement_fit.json', ASSETS/'yukkuri_presentation/hat_vessel.json', *sources]:
         digest.update(source.relative_to(ROOT).as_posix().encode()); digest.update(source.read_bytes())
     return digest.hexdigest()
 

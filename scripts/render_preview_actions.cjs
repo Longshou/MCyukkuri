@@ -14,7 +14,6 @@ const adultStates=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const poses=new Map(),models=new Map(),textures=new Map();
 const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
-const deckLayout=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json');
 function readJson(relative){return JSON.parse(fs.readFileSync(path.join(root,relative),'utf8'));}
 function poseFor(id){
  if(poses.has(id))return poses.get(id);
@@ -43,13 +42,7 @@ function keyed(track,time,name,fallback){
 function actorState(actor,q,time,clip){
  const position=keyed(actor.keyframes,time,'position',interpolate(actor.from||[actor.x||0,actor.y||0,actor.z||0],actor.to,q));
  let yaw=keyed(actor.keyframes,time,'yaw',actor.yaw||0);
- if(!actor.boatSeat)return {position,yaw,scale:keyed(actor.keyframes,time,'scale',actor.scale===undefined?1:actor.scale)};
- const prop=clip?.props?.[actor.boatSeat.prop];if(!prop?.boat)throw Error('boatSeat needs a boat prop index');
- const slot=deckLayout.modes.AQUATIC_FLOAT.slots.find(item=>item.id===actor.boatSeat.slot);
- if(!slot)throw Error('Unknown aquatic boat seat '+actor.boatSeat.slot);
- const hull=propState(prop,q,time),turn=hull.yaw*Math.PI/180;
- const [x,z]=rotateXZ(slot.pos[0]*vessel.aquatic_scale,slot.pos[2]*vessel.aquatic_scale,turn);
- return {position:[hull.position[0]+x,hull.position[1]+slot.pos[1]*vessel.aquatic_scale,hull.position[2]+z],yaw:hull.yaw+slot.yaw,scale:keyed(actor.keyframes,time,'scale',actor.scale===undefined?1:actor.scale)};
+ return {position,yaw,scale:keyed(actor.keyframes,time,'scale',actor.scale===undefined?1:actor.scale)};
 }
 function propState(prop,q,time){
  const position=keyed(prop.keyframes,time,'position',interpolate(prop.from||[prop.x||0,prop.y||0,prop.z||0],prop.to,q));
@@ -201,9 +194,6 @@ function propVertices(prop,tile,q,time){
   // vessel transform so an offline water scene shows a real supporting bowl,
   // rather than a loose hat or a generic platform.
   const k=vessel.aquatic_scale,squash=vessel.squash.bowl;
-  // New scene manifests anchor a hull at its actual waterline origin and place
-  // riders by named `hat_deck_layout` slots. The older action manifests keep
-  // their captain-relative transform for compatibility with prior previews.
   const seat=prop.boatAnchor==='hull'?[0,0,0]:[0,vessel.bowl.owner_y*k,vessel.opening[3]*k-5.9];
   base=Float64Array.from(base);
   for(let i=0;i<base.length;i+=8){
