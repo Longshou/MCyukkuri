@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.life.ToiletContact;
 import io.github.longshou.mcyukkuri.settlement.PlantBedding;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -156,15 +155,14 @@ public final class LeafSwaddle {
         life.releaseIntoWrap(); life.changeHygiene(-10);
         entity.mind().add(8, "soiled_swaddle");
         entity.showReaction("teary", "leak", 80);
-        GameplayLog.event(entity, "family", "leaf swaddle overflowed cause={} soil={} bladder={} -> {} hygiene={} -> {} dropped=1 hat={}",
-                cause, soil, bladder, life.bladder(), hygiene, life.hygiene(), entity.getVehicle() instanceof HatBoatEntity);
+        GameplayLog.event(entity, "family", "leaf swaddle overflowed cause={} soil={} bladder={} -> {} hygiene={} -> {} dropped=1",
+                cause, soil, bladder, life.bladder(), hygiene, life.hygiene());
         return true;
     }
 
-    /** One real stool from this child: over the hat's brim when riding a hat (overflow only), else from the anus, else just above the feet. */
+    /** One real stool from this child: from the anus, else just above the feet. */
     private boolean dropStool(boolean overflow) {
-        Vec3 outlet = overflow && entity.getVehicle() instanceof HatBoatEntity boat ? boat.toiletDropPosition(entity) : null;
-        if (outlet == null) outlet = ToiletContact.anus(entity, 0);
+        Vec3 outlet = ToiletContact.anus(entity, 0);
         return ToiletContact.drop(entity, outlet) || ToiletContact.drop(entity, entity.position().add(0, .05, 0));
     }
 
@@ -298,7 +296,7 @@ public final class LeafSwaddle {
     private boolean dependentInRange() {
         return !entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(SEARCH_RADIUS),
                 child -> entity.family().caresFor(child) && swaddleAge(child) && !child.pet().care().swaddled()
-                        && !child.profile().aquatic() && !child.profile().houseBody() && !child.profile().dangerToYukkuri()).isEmpty();
+                        && !child.profile().houseBody() && !child.profile().dangerToYukkuri()).isEmpty();
     }
 
     /** Only a baby (赤油) or a young child (子油) wears the leaf: a subadult or an adult does not, whether or not it lives on its own yet. */
@@ -310,7 +308,7 @@ public final class LeafSwaddle {
     private static boolean wrapCandidate(YukkuriEntity child) {
         return !child.leafSwaddle().worn && swaddleAge(child)
                 && child.childhood().landed() && child.childhood().firstToiletDone() && child.getVehicle() == null
-                && !child.pet().care().swaddled() && !child.profile().aquatic() && !child.profile().houseBody()
+                && !child.pet().care().swaddled() && !child.profile().houseBody()
                 && !child.profile().dangerToYukkuri() && child.life().bladder() < CARE_URGE;
     }
 

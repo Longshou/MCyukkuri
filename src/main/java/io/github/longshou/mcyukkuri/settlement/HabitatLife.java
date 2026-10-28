@@ -26,7 +26,6 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 
 /** A real resident, never a hidden duplicate: carries one resource, maintains stores and clears waste. */
 public final class HabitatLife {
@@ -55,7 +54,7 @@ public final class HabitatLife {
     private final HabitatHomes homes;
     private final HabitatSeasonal seasonal;
     /** What this individual's address is. Derived from the world each time; the only stored fact is the shelter it belongs to. */
-    public enum Residence { HOUSED, AFLOAT, VAGRANT, DEPENDENT, ELSEWHERE }
+    public enum Residence { HOUSED, VAGRANT, DEPENDENT, ELSEWHERE }
     public HabitatLife(YukkuriEntity entity) {
         this.entity=entity;this.plants=new PlantBedding(entity);this.contact=new PileContact(entity);
         this.homes=new HabitatHomes(this);this.seasonal=new HabitatSeasonal(this);
@@ -119,33 +118,13 @@ public final class HabitatLife {
                 &&human.wild();
     }
     boolean grownEnough() { return entity.family().adult()||entity.independence().independent()||entity.childhood().canLiveIndependently(); }
-    /** HOUSED: belongs to a recognised land home. AFLOAT: owns and rides a real afloat hat. VAGRANT: a grown wild individual with none
+    /** HOUSED: belongs to a recognised land home. VAGRANT: a grown wild individual with none
      * (it looks for one or digs its own). DEPENDENT: a young one following its parents. ELSEWHERE: not a wild home-dweller. */
     public Residence residence() {
-        if (entity.profile().aquatic()) return aquaticResidence();
         if(!wildLiver())return Residence.ELSEWHERE;
         if(home!=null)return Residence.HOUSED;
         return grownEnough()?Residence.VAGRANT:Residence.DEPENDENT;
     }
-    /** A water address is only the physical vessel presently carrying its owner or her dependent child; it is never saved as a land HomePos. */
-    private Residence aquaticResidence() {
-        if (entity.getVehicle() instanceof HatBoatEntity boat && boat.isAfloat() && boat.protects(entity)) {
-            if (entity.getUUID().equals(boat.ownerYukkuri())) return Residence.AFLOAT;
-            if (boat.young(entity) && !entity.aquaticLife().firstVoyage().independent()
-                    && !entity.independence().independent()) return Residence.DEPENDENT;
-        }
-        return Residence.ELSEWHERE;
-    }
-    /** The current physical vessel of an aquatic owner or dependent child. This read deliberately does not repair custody or search nearby hulls. */
-    public HatBoatEntity waterHome() {
-        if (!entity.profile().aquatic() || !(entity.level() instanceof ServerLevel level)) return null;
-        // A child aboard a parent hat has the same physical address for food and status, even though it owns no boat token.
-        if (entity.getVehicle() instanceof HatBoatEntity ridden && ridden.protects(entity)
-                && (entity.getUUID().equals(ridden.ownerYukkuri()) || ridden.young(entity))) return ridden;
-        return HatBoatEntity.owned(entity);
-    }
-    /** Only a rider protected by her own afloat hull has an afloat residence. A grounded owner may retain a physical hat without a fake position. */
-    public boolean afloatResidence() { return residence() == Residence.AFLOAT; }
     public boolean vagrant() { return residence()==Residence.VAGRANT; }
     /** Share of the hollow in progress that is already dug, 0 when none. */
     public int digProgress() { return homes.digProgress(); }

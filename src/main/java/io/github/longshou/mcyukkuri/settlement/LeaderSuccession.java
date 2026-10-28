@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.UUID;
@@ -55,9 +54,7 @@ public final class LeaderSuccession {
         // This also ends an already-running ordinary Goal when food, child care or sleep takes priority; the selected
         // pair and its accumulated strict time remain in the group record for the later retry.
         if (!strictAvailable(level, data, group, member, point, now)) return null;
-        // A hat captain must not abandon an owned calm hull for a land-navigation request. Two such captains can still
-        // fulfil the same strict recognition rule as soon as their real hulls are alongside one another.
-        return member.profile().aquatic() ? null : point;
+        return point;
     }
 
     static void sample(ServerLevel level, SettlementData data, SettlementData.Group group, long now) {
@@ -169,10 +166,9 @@ public final class LeaderSuccession {
                 : member.distanceToSqr(Vec3.atBottomCenterOf(point)) <= CENTER_RADIUS * CENTER_RADIUS;
     }
 
-    /** Land candidates can see one another locally before they walk together; stable water hulls need the closer real contact. */
+    /** Candidates see one another locally before they walk together. */
     private static boolean canStartTogether(YukkuriEntity candidate, YukkuriEntity witness) {
-        int radius = candidate.profile().aquatic() || witness.profile().aquatic() ? WITNESS_RADIUS : CENTER_RADIUS;
-        return candidate.distanceToSqr(witness) <= radius * radius
+        return candidate.distanceToSqr(witness) <= CENTER_RADIUS * CENTER_RADIUS
                 && candidate.hasLineOfSight(witness) && witness.hasLineOfSight(candidate)
                 && candidate.life().canRecognize(witness) && witness.life().canRecognize(candidate);
     }
@@ -195,11 +191,10 @@ public final class LeaderSuccession {
     /** Strict samples additionally require a nearby, settled, undistracted pair with mutual recognition. */
     private static boolean strictAvailable(ServerLevel level, SettlementData data, SettlementData.Group group, YukkuriEntity member,
                                            BlockPos point, long now) {
-        boolean aquatic = member.profile().aquatic();
         return coreEligible(level, data, group, member) && atMeeting(member, group, point, now)
-                && Custody.view(member).wild() && (aquatic ? afloatAtAnchor(member) : member.life().home() == null || member.life().naturalHome())
+                && Custody.view(member).wild() && (member.life().home() == null || member.life().naturalHome())
                 && !member.isPanicking() && !member.isCommandPlaying() && !member.operations().active()
-                && (aquatic || !member.isPassenger()) && !member.isLeashed() && !member.isInWaterOrBubble() && !member.isOnFire()
+                && !member.isPassenger() && !member.isLeashed() && !member.isInWaterOrBubble() && !member.isOnFire()
                 && !member.life().hasUrgentNeed() && Behaviors.IDLE.equals(member.life().activity()) && !member.social().active()
                 && !member.life().isSleeping() && member.life().mealTicks() == 0 && !member.family().active() && member.family().recovery() == 0
                 && !FamilyData.get(level).busyParent(member.getUUID()) && !member.family().hasHungryChild()
@@ -214,14 +209,6 @@ public final class LeaderSuccession {
         return first != second && first.distanceToSqr(second) <= WITNESS_RADIUS * WITNESS_RADIUS
                 && first.hasLineOfSight(second) && second.hasLineOfSight(first)
                 && first.life().canRecognize(second) && second.life().canRecognize(first);
-    }
-
-    /** A water member can fill a vacant office only while her own calm hull is physically alongside the shared anchor. */
-    private static boolean afloatAtAnchor(YukkuriEntity member) {
-        if (!(member.getVehicle() instanceof HatBoatEntity boat)) return false;
-        return member.getUUID().equals(boat.ownerYukkuri()) && boat.isAfloat() && boat.protects(member)
-                && !boat.unsteadyMotion() && boat.flooding() == 0 && !boat.paddling()
-                && !boat.landing() && !boat.hasIncoming();
     }
 
     /** Called from the once-only terminal death path before the living entity leaves the local scene. */

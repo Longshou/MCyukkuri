@@ -69,10 +69,8 @@ import io.github.longshou.mcyukkuri.social.WoundComfort;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.status.StatusLife;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.ShellRetraction;
+import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +133,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public BodyDriver motor() { return motor; }
 
     private final SubspeciesLife subspecies = new SubspeciesLife(this);
-    private AquaticLife aquaticLife;
     private final YukkuriLife life;
     private final AgitationLife agitation = new AgitationLife(this);
 
@@ -220,7 +217,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         this.childhood = new ChildhoodLife(this);
         if (independence == null) independence = new IndependenceLife(this);
         if (wintering == null) wintering = new WinteringLife(this);
-        if (aquaticLife == null) aquaticLife = new AquaticLife(this);
         this.settlement = new SettlementLife(this);
         this.habitat = new HabitatLife(this);
         this.house = new HouseLife(this);
@@ -280,9 +276,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return out;
     }
     public YukkuriView carriedYukkuri() { return getFirstPassenger() instanceof YukkuriView view ? view : null; }
-    public HatBoatView vehicleHat() {
-        return getVehicle() instanceof HatBoatView view ? view : null;
-    }
     public boolean hasPassengerId(UUID passenger) {
         return getPassengers().stream().anyMatch(rider -> rider.getUUID().equals(passenger));
     }
@@ -293,7 +286,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
     }
-    public AquaticLife aquaticLife() { return aquaticLife; }
     public WaterDistress waterDistress() { return waterDistress; }
     public AgitationLife agitation() { return agitation; }
     public CompoundTag agitationState() { return sync().agitationState(); }
@@ -304,38 +296,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long waterDistressStartTick() { return sync().waterDistressStartTick(); }
     public boolean waterDistressEffort() { return sync().waterDistressEffort(); }
     // Compatibility views return the actual whole synchronized tag, without re-encoding snapshots.
-    public int crewBoat() { return sync().crewBoat(); }
-    public CompoundTag aquaticSelfRescueState() { return sync().aquaticSelfRescueState(); }
-    public int aquaticRescueTargetId() { return sync().aquaticRescueTargetId(); }
-    public String aquaticAlarmActivity() { return sync().aquaticAlarmActivity(); }
-    public long aquaticAlarmStartTick() { return sync().aquaticAlarmStartTick(); }
-    public int aquaticAlarmSourceId() { return sync().aquaticAlarmSourceId(); }
 
     public YukkuriSyncState.Agitation agitationSync() { return sync().agitationSync(); }
     public YukkuriSyncState.WaterDistress waterDistressSync() { return sync().waterDistressSync(); }
-    public YukkuriSyncState.AquaticAlarm aquaticAlarmSync() { return sync().aquaticAlarmSync(); }
-    public YukkuriSyncState.SelfRescue selfRescueSync() { return sync().selfRescueSync(); }
     public YukkuriSyncState.LiveChildren liveChildrenSync() { return sync().liveChildrenSync(); }
 
-    void syncAquaticInteraction() { sync().syncAquaticInteraction(); }
     void syncWaterDistress() { sync().syncWaterDistress(); }
-    /** Only an upright, unsubmerged hat keeps its actual passengers dry. No innate water immunity. */
-    public boolean shelteredInHat() {
-        return getVehicle() instanceof HatBoatEntity boat && boat.protects(this);
-    }
-    @Override public boolean isInWater() { return !shelteredInHat() && super.isInWater(); }
-    @Override public boolean isInWaterOrBubble() { return !shelteredInHat() && super.isInWaterOrBubble(); }
-    @Override public boolean isEyeInFluid(TagKey<Fluid> fluid) {
-        return !(fluid == FluidTags.WATER && shelteredInHat()) && super.isEyeInFluid(fluid);
-    }
-    /** NeoForge breathes through its fluid-type hook rather than the vanilla eye-fluid predicate. */
-    public static void breatheInHat(LivingBreatheEvent event) {
-        if (event.getEntity() instanceof YukkuriEntity y && y.shelteredInHat()
-                && y.getEyeInFluidType() == NeoForgeMod.WATER_TYPE.value()) {
-            event.setCanBreathe(true);
-            event.setRefillAirAmount(y.getMaxAirSupply());
-        }
-    }
     public PredatorLife predator() { return predator; }
     public boolean predatorFlying() { return sync().predatorFlying(); }
     public void setPredatorFlying(boolean flying) {
@@ -380,7 +346,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override public void travel(Vec3 input) {
         if (!level().isClientSide && motor.tickTravel(input) == TravelMode.CONSUMED) return;
-        if (!level().isClientSide && family.crew().holdsBody()) return;
         if (!level().isClientSide && family.startBirthLaunch()) return;
         if (predatorFlying()) {
             if (isControlledByLocalInstance()) {
@@ -415,8 +380,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public BodyFood.Bite getMouthBodyFood() { return sync().getMouthBodyFood(); }
     /** Synchronizes a transient non-item mouthful after the server has committed its bite. */
     public void syncMouthBodyFood(BodyFood.Bite bite) { sync().syncMouthBodyFood(bite); }
-    public ItemStack aquaticServing() { return sync().aquaticServing(); }
-    public int aquaticChildId() { return sync().aquaticChildId(); }
     public int visibleMedal() { return sync().visibleMedal(); }
     public boolean hasVisibleAccessory() { return sync().hasVisibleAccessory(); }
     public boolean isPanicking() { return panicTicks > 0 && (body == null || !body.dying()); } // a dying body no longer bolts
@@ -465,7 +428,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public boolean canCollideWith(Entity other) {
         // During a checked rim transfer the detailed hat surface replaces its coarse entity box.
         return super.canCollideWith(other) && !(other instanceof HatBoatEntity hat
-                && family != null && (family.boardingThrough(hat) || family.crew().sweepingHull(hat)));
+                && family != null && family.boardingThrough(hat));
     }
     public ChildhoodLife childhood() { return childhood; }
     public CareApproach careApproach() { return careApproach; }
@@ -481,8 +444,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     /** Bodies that move on their own may be shoved; carried, boarded or launched ones follow their own carrier. */
     boolean nudgeable() {
-        return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()
-                &&!family.crew().holdsBody()&&!family.freeFalling();
+        return isPushable()&&!isPassenger()&&!isVehicle()&&!predatorFlying()&&!family.freeFalling();
     }
     private double bodyMass() { return getBbWidth()*getBbWidth()*getBbHeight(); }
     /**
@@ -987,7 +949,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void createMyon() { myon = new MyonLife(this); }
     void createSanction() { sanction = new Sanction(this); }
     void createHeadwear() { headwear = new Headwear(this); }
-    void createAquaticLife() { aquaticLife = new AquaticLife(this); }
     void createForageTrip() { forageTrip = new ForageTrip(this); }
     void createTreasure() { treasure = new TreasureLife(this); }
     void createCannibalism() { cannibalism = new Cannibalism(this); }

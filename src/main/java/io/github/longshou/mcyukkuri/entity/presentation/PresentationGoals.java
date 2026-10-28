@@ -72,7 +72,6 @@ public final class PresentationGoals {
     public static final Source<Goal> HEADWEAR = state("headwear", e -> e.headwear().active() ? e.headwear().activity() : null);
     public static final Source<Goal> PREDATOR = new Source<>("predator",
             (e, g) -> e.predator().active() ? e.predator().activity() : null, Actions.PREDATOR);
-    public static final Source<Goal> AQUATIC = state("aquatic", e -> e.aquaticLife().active() ? e.aquaticLife().activity() : null);
     public static final Source<Goal> CHILDHOOD = state("childhood", e -> nonIdle(e.childhood().activity()));
     public static final Source<Goal> TEMPT = state("food_in_hand", e -> Behaviors.SEEK_FOOD);
     public static final Source<Goal> LIFE = state("life", e -> nonIdle(e.life().activity()));

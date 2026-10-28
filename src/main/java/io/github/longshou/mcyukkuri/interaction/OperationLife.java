@@ -17,7 +17,6 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -73,14 +72,7 @@ public final class OperationLife {
     public void damaged(DamageSource source){if(active()&&!ownDamage)end();}
     public boolean canStart(Player player,CareAction action){
         return InteractionDispatch.validCare(player,entity)&&!active()&&inserted.isEmpty()&&cooldown==0
-                &&!deployedHatRemoval(action)&&(action.tool==null||player.getMainHandItem().is(action.tool.item()));
-    }
-    private boolean deployedHatRemoval(CareAction action){
-        return switch(action){
-            case TAKE_ACCESSORY,CONFISCATE,CUT_ACCESSORY -> entity.profile().aquatic()
-                    &&(entity.getVehicle() instanceof HatBoatEntity||entity.isInWaterOrBubble());
-            default -> false;
-        };
+                &&(action.tool==null||player.getMainHandItem().is(action.tool.item()));
     }
     public boolean perform(Player player,CareAction action){
         if(entity.level().isClientSide)return false;
@@ -89,11 +81,6 @@ public final class OperationLife {
             return false;
         }
         if(action==CareAction.RELEASE)return active()||!inserted.isEmpty()?end():false;
-        if(deployedHatRemoval(action)){
-            GameplayLog.limited(entity,"interaction","deployed_hat:"+action,20,
-                    "care refused; player={} action={} reason=aquatic_hat_in_use_on_water",player.getUUID(),action);
-            return false;
-        }
         if(!canStart(player,action)){
             GameplayLog.limited(entity,"interaction","start_refused:"+action,20,
                     "care refused; player={} action={} active={} pending_item={} cooldown={} tool={}",

@@ -2,13 +2,23 @@ package io.github.longshou.mcyukkuri.client;
 
 import static io.github.longshou.mcyukkuri.client.YukkuriModel.DEGREES;
 import io.github.longshou.mcyukkuri.client.YukkuriModel.Bone;
-import io.github.longshou.mcyukkuri.family.BraidRescueGeometry;
+import com.google.gson.JsonParser;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /** Finite braid rescue pose and its per-render contact inputs. */
 final class BraidPose {
+    /** The authored braid tip in model units (braid_rescue.json), the rest shape both braid segments are posed against. */
+    private static final Vector3f MODEL_TIP=readTip();
+    private static Vector3f readTip(){
+        try(var stream=BraidPose.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
+            if(stream==null)return new Vector3f();
+            var point=JsonParser.parseReader(new java.io.InputStreamReader(stream,java.nio.charset.StandardCharsets.UTF_8))
+                    .getAsJsonObject().getAsJsonArray("braid_tip");
+            return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());
+        }catch(java.io.IOException|RuntimeException unreadable){return new Vector3f();}
+    }
     private final YukkuriModel o;
     private final Vector3f rescueTip=new Vector3f(),rescueJoint=new Vector3f();
     private boolean rescueContact,rescueJointActive,rescueGrip;
@@ -42,7 +52,7 @@ final class BraidPose {
         Matrix4f parent=world[base.parent()];
         if(solveJoint)solveJoint(world[joint],world[tip],base,end);
         var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(rescueJointActive?rescueJoint:rescueTip)).sub(base.x(),base.y(),base.z());
-        var authored=BraidRescueGeometry.modelTip();
+        var authored=MODEL_TIP;
         var rest=rescueJointActive?new Vector3f(end.x()-base.x(),end.y()-base.y(),end.z()-base.z())
                 :new Vector3f((float)authored.x-base.x(),(float)authored.y-base.y(),(float)authored.z-base.z());
         if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
@@ -81,7 +91,7 @@ final class BraidPose {
 
     /** Two-segment reach in model space: segment lengths as posed, the bend kept on the clip's own side, never stretched. */
     private void solveJoint(Matrix4f upper,Matrix4f lower,Bone base,Bone end){
-        var authored=BraidRescueGeometry.modelTip();
+        var authored=MODEL_TIP;
         var root=upper.transformPosition(new Vector3f(base.x(),base.y(),base.z()));
         var elbow=upper.transformPosition(new Vector3f(end.x(),end.y(),end.z()));
         var tipNow=lower.transformPosition(new Vector3f((float)authored.x,(float)authored.y,(float)authored.z));

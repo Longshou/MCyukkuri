@@ -51,7 +51,7 @@ public final class LiveBirthGeometry {
         if(!POSES.has(id))return local;
         var data=POSES.getAsJsonObject(id);var pivot=data.getAsJsonArray("pivot");
         var clips=data.getAsJsonObject("clips");
-        var clip=clips.getAsJsonObject(mother.family().boatHome()!=null&&clips.has("boat_labor")?"boat_labor":"labor");
+        var clip=clips.getAsJsonObject("labor");
         float seconds=(STRAIN+EMERGENCE)/20f;
         var position=sample(clip.getAsJsonArray("position"),seconds,new Vector3f());
         var rotation=sample(clip.getAsJsonArray("rotation"),seconds,new Vector3f()).mul((float)Math.PI/180);
@@ -171,7 +171,11 @@ public final class LiveBirthGeometry {
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
     }
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
-        return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child)*globalScale);
+        return unbornDimensions(FamilyData.BirthKind.LIVE,child).scale(globalScale);
+    }
+    /** The size of one unborn body at its own birth scale and form, before the mother's render scale. */
+    public static EntityDimensions unbornDimensions(FamilyData.BirthKind kind,FamilyData.Child child){
+        return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.physicalBirth(kind,child));
     }
     public static Vector3f modelOutlet(YukkuriView mother,float belly,float contraction){
         var anchor=OUTLETS.computeIfAbsent(mother.assetId(),id->{
@@ -186,35 +190,13 @@ public final class LiveBirthGeometry {
         // Client family state has no brood ledger; museum actors intentionally have no real brood either.
         return new Vec3(modelOutlet(mother,mother.livePregnancyProgress(),0)).scale(1/16d);
     }
-    /** How far ahead of her origin the newborn comes out (blocks, before scale). On the ground the full newborn must
-     *  clear the maternal collision volume before becoming an entity; afloat in her hat boat it comes just out of her
-     *  swollen front, into the hat before her. Both sides (LiveBirthRenderer draws the emergence up to it). */
+    /** How far ahead of her origin the newborn comes out (blocks, before scale): on the ground the full newborn must
+     *  clear the maternal collision volume before becoming an entity (LiveBirthRenderer draws the emergence up to it). */
     public static double exitFront(YukkuriEntity mother,int index){
-        if(mother.getVehicle() instanceof HatBoatEntity){
-            float width=.8f*BABY_SCALE;
-            if(mother.level().isClientSide){
-                if(index>=0&&index<mother.liveChildCount()){
-                    String id=mother.liveChildAssetId(index);
-                    width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*mother.birthChildScale(index);
-                }
-            }else{
-                var brood=mother.family().brood();
-                if(brood!=null&&index>=0&&index<brood.children.size())width=childDimensions(brood.children.get(index),1).width();
-            }
-            return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
-        }
         return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
     }
     /** Client emergence reads the synchronized child preview, never the server brood ledger. */
     public static double visibleExitFront(YukkuriView mother,int index){
-        if(mother.vehicleHat()!=null){
-            float width=.8f*BABY_SCALE;
-            if(index>=0&&index<mother.liveChildCount()){
-                String id=mother.liveChildAssetId(index);
-                width=selectedDimensions(mother.liveChildVariant(index),id,id.endsWith("_bean")).width()*mother.birthChildScale(index);
-            }
-            return -modelOutlet(mother,mother.livePregnancyProgress(),0).z/16*mother.growthScale()+width*.5+.02;
-        }
         return Math.max(-outlet(mother).z*mother.growthScale()+.15,mother.getBbWidth()/mother.getScale()*.5+.15);
     }
     /** How far her body reaches behind its origin (blocks, before scale): her back against the hat boat's stern. */
@@ -239,33 +221,16 @@ public final class LiveBirthGeometry {
         if(!(mother.level() instanceof ServerLevel level))return false;
         var brood=mother.family().brood();
         var position=position(mother,index);
-        // Afloat in her own hat boat the young are born into one of the parents' close hats.
-        var boat=mother.family().boatHome();
-        // This unborn preflight uses the child's actual birth-size load and geometric budget. FamilyData then reserves a seat for
-        // the concrete newborn before it is added, and the newborn's own Launch then hands it into it by contact.
-        var kind=brood==null?FamilyData.BirthKind.LIVE:brood.kind;
-        if(boat!=null&&boat.isAfloat()&&boat.canMakeRoomForNewborn(kind,child,true))return true;
-        if(mother.family().waterBirthRequired()){
-            if(brood!=null&&brood.father!=null&&level.getEntity(brood.father) instanceof YukkuriEntity father){
-                var partner=father.family().boatHome();
-                if(partner!=null&&partner.isAfloat()&&partner.canMakeRoomForNewborn(kind,child,false)
-                        &&partner.position().subtract(position).horizontalDistance()<=FamilyLife.SHARE_REACH+partner.getBbWidth()*.5)return true;
-            }
-            return false;
-        }
+        // This unborn preflight uses the child's actual birth size. FamilyData then reserves a place for the concrete
+        // newborn before it is added, and the newborn's own Launch then hands it into it by contact.
         var dimensions=childDimensions(child,mother.getScale());
         var box=dimensions.makeBoundingBox(position);
-        // At a bank the newborn comes out over the hat floated at the water's edge: a free seat in it is the room needed.
-        var floated=level.getEntitiesOfClass(HatBoatEntity.class,box.inflate(.9),hat->hat.isMoored()&&brood!=null
-                &&(mother.getUUID().equals(hat.ownerYukkuri())||hat.ownerYukkuri()!=null&&hat.ownerYukkuri().equals(brood.father))).stream().findFirst().orElse(null);
-        if(floated!=null)return floated.canAdmitNewborn(kind,child,false)&&level.noCollision(mother,box);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         // Non-collidable mobs still occupy delivery space; never layer siblings at the outlet.
         // Siblings already caught in a hat cradle at the outlet do not block the next one.
         if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),other->other!=mother&&other.isAlive()
-                &&!(other.getVehicle() instanceof HatBoatEntity)).isEmpty())return false;
-        var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
+                &&!(other.getVehicle() instanceof HatBoatEntity)).isEmpty())return false;        var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;
         for(double dx:new double[]{-dimensions.width()*.4,dimensions.width()*.4})for(double dz:new double[]{-dimensions.width()*.4,dimensions.width()*.4}){

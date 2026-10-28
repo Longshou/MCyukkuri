@@ -102,7 +102,7 @@ final class Courtship {
                 &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()
                 &&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=65&&o.entity().life().energy()>=50&&o.entity().life().hygiene()>=40
                 &&o.entity().getHealth()>=o.entity().getMaxHealth()*.8&&o.entity().body().condition().readyForReproduction()&&o.entity().life().mealTicks()==0&&(!needHome
-                        ||o.nestStand()!=null||o.boatHome()!=null||o.shoreCourtStand());
+                        ||o.nestStand()!=null);
     }
 
     void arrange(UUID other){arranged=other;}
@@ -148,13 +148,8 @@ final class Courtship {
                 other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),
                         o.entity().getUUID())<BondLevels.AFFINITY_COOPERATIVE))return false;
         if(arr)return true;
-        // Afloat in her own hat boat the boat is the nest: neither a shore nor a claimed nest is needed.
         var a=o.nestStand();var b=other.family().nestStand();
-        if(a==null&&o.boatHome()!=null)a=o.entity().blockPosition();
-        if(b==null&&other.family().boatHome()!=null)b=other.blockPosition();
-        if(a==null&&o.shoreCourtStand())a=o.entity().blockPosition();
-        if(b==null&&other.family().shoreCourtStand())b=other.blockPosition();
-        return a!=null&&b!=null&&a.distSqr(b)<=64&&(o.boatHome()!=null||other.family().boatHome()!=null||o.entity().life().reachable(other.blockPosition(),false));
+        return a!=null&&b!=null&&a.distSqr(b)<=64&&o.entity().life().reachable(other.blockPosition(),false);
     }
 
     private YukkuriEntity mother(YukkuriEntity first,YukkuriEntity second) {

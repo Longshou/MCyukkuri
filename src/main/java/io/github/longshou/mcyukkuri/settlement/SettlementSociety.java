@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,16 +41,9 @@ public final class SettlementSociety {
     private static boolean available(YukkuriEntity member) {
         return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.isCommandPlaying()
                 && !member.operations().active() && !member.life().isSleeping() && !member.life().hasUrgentNeed()
-                && member.life().mealTicks() == 0 && !member.family().active() && (!member.isPassenger() || steadyAfloat(member));
+                && member.life().mealTicks() == 0 && !member.family().active() && !member.isPassenger();
     }
-    /** Boat riders observe only from a stable own hull; passengers, crossings and rescues never create a remote social event. */
-    private static boolean steadyAfloat(YukkuriEntity member) {
-        if (!member.profile().aquatic() || !(member.getVehicle() instanceof HatBoatEntity boat)) return false;
-        return member.getUUID().equals(boat.ownerYukkuri()) && boat.isAfloat() && boat.protects(member)
-                && !boat.unsteadyMotion() && boat.flooding() == 0 && !boat.paddling()
-                && !boat.landing() && !boat.hasIncoming();
-    }
-    /** Recognition past a missing hat is the observer's intellect (headwear.Recognition); a working own hat boat still counts as the hat. */
+    /** Recognition past a missing hat is the observer's intellect (headwear.Recognition). */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
         return sameGroup(observer, target) && accepted(observer) && harsh(observer)
                 && !observer.life().canRecognize(target);

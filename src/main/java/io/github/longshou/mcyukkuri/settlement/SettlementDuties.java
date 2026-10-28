@@ -4,12 +4,10 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,10 +36,6 @@ public final class SettlementDuties {
     private long pendingCheckAt;
     private boolean pending;
     private int elapsed, wait;
-    /** A waterborne worker has accepted only a shore visit, never a remote toilet or item operation. */
-    private boolean shorePending;
-    private BlockPos shoreCenter;
-    private long shoreDeadline;
     public SettlementDuties(YukkuriEntity entity) { this.entity = entity; pit = new PitSlave(entity); }
     public PitSlave pit() { return pit; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -51,14 +45,12 @@ public final class SettlementDuties {
     public void clock() {
         if (wait > 0) wait--;
         if (entity.tickCount % 100 == 0 && !carrying.isEmpty() && assigner() == null) dropCarrying();
-        if (shorePending) tickShorePending();
     }
 
-    private boolean ready(boolean allowSupportedAfloat) {
+    private boolean ready() {
         var brood = entity.family().brood();
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
-                && !entity.operations().active() && (!entity.isPassenger() || allowSupportedAfloat && entity.profile().aquatic()
-                        && EcologyMovement.captain(entity) && EcologyMovement.supported(entity))
+                && !entity.operations().active() && !entity.isPassenger()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !(active() ? entity.life().nutrition() < 15 || entity.life().energy() < 15 : entity.life().hasUrgentNeed())
                 && entity.life().nutrition() >= (active() ? 15 : 40) && entity.life().energy() >= (active() ? 15 : 35)
@@ -66,9 +58,8 @@ public final class SettlementDuties {
                 && (brood == null || brood.cancelled || brood.complete()) && !entity.dailyLife().active()
                 && !entity.groupInteraction().active() && !entity.playLife().active()
                 && !entity.independence().householdOuting() && !entity.wintering().active()
-                && !SettlementEvents.reserved(entity);
+                && !SettlementEvents.reserved(entity) && entity.onGround();
     }
-    private boolean ready() { return ready(false) && entity.onGround(); }
     private YukkuriEntity assigner() {
         if (!entity.family().adult() && !entity.family().readyForOwnNest()) return null;
         if (entity.settlement().society().role() != SettlementData.Role.UNUN_SLAVE) return null;
@@ -86,16 +77,13 @@ public final class SettlementDuties {
     private boolean workArea(BlockPos pos) {
         return workCenter != null && local(pos) && pos.distSqr(workCenter) <= 6 * 6;
     }
-    /** Land households work around their assigner's real shelter; afloat groups work around the public bank pile. */
+    /** Land households work around their assigner's real shelter. */
     private BlockPos workCenter(YukkuriEntity assigner) {
-        var home = assigner == null ? null : assigner.life().homeStand();
-        if (home != null) return home;
-        var group = entity.settlement().group();
-        return group != null && group.waterCommons != null ? group.waterCommons : null;
+        return assigner == null ? null : assigner.life().homeStand();
     }
 
-    /** There must be a real cleanup source on the bank before an aquatic captain requests a landing. */
-    private boolean shoreWorkAvailable(BlockPos center) {
+    /** There must be a real cleanup source near the working centre before a duty is taken up. */
+    private boolean workAvailable(BlockPos center) {
         if (center == null || !local(center)) return false;
         if (!carrying.isEmpty()) return true;
         for (var waste : level().getEntitiesOfClass(ItemEntity.class, new AABB(center).inflate(6, 2, 6), candidate -> candidate.isAlive()
@@ -122,68 +110,14 @@ public final class SettlementDuties {
         pendingCheckAt = now + 40;
         var assigner = assigner();
         var center = workCenter(assigner);
-        pending = (!carrying.isEmpty() || assigner != null && center != null && local(center) && shoreWorkAvailable(center))
+        pending = (!carrying.isEmpty() || assigner != null && center != null && local(center) && workAvailable(center))
                 && assigner != null && entity.life().nutrition() >= 40 && entity.life().energy() >= 35 && !entity.life().hasUrgentNeed()
                 && EventHooks.canEntityGrief(level(), entity);
         return pending;
     }
 
-    /** Reserve a normal boat landing only when this captain can then walk to a real cleanup source. */
-    private boolean requestShoreDuty() {
-        var assigner = assigner();
-        var center = workCenter(assigner);
-        var boat = EcologyMovement.boat(entity);
-        if (assigner == null || center == null || boat == null || !EcologyMovement.captain(entity)
-                || !EcologyMovement.supported(entity) || boat.nearestBank() == null
-                || boat.nearestBank().distSqr(center) > 48 * 48 || !shoreWorkAvailable(center)
-                || !EventHooks.canEntityGrief(level(), entity)
-                || !entity.aquaticLife().requestShoreWork(ShoreWork.SETTLEMENT)) return false;
-        shorePending = true;
-        shoreCenter = center.immutable();
-        shoreDeadline = level().getGameTime() + 1200;
-        GameplayLog.event(entity, "settlement", "shore duty requested assigner={} center={} deadline={}",
-                assigner.getUUID(), center, shoreDeadline);
-        return true;
-    }
-
-    /** Pending means only that a physical landing has been requested; the work itself is selected after the ground recheck. */
-    private void tickShorePending() {
-        long now = level().getGameTime();
-        var assigner = assigner();
-        if (!ready(true) || assigner == null || now >= shoreDeadline || shoreCenter == null || !shoreCenter.equals(workCenter(assigner))
-                || entity.distanceToSqr(net.minecraft.world.phys.Vec3.atBottomCenterOf(shoreCenter)) > 48 * 48) {
-            cancelShorePending("timeout_or_state");
-            return;
-        }
-        if (entity.isPassenger()) {
-            if (!entity.aquaticLife().shoreVisitRequested()) { cancelShorePending("landing_unavailable"); return; }
-            entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
-            return;
-        }
-        if (!entity.onGround() || entity.aquaticLife().shoreVisitRequested()) return;
-        shorePending = false;
-        shoreCenter = null;
-        // Keep the boat grounded until the ordinary duty goal can choose a reachable source on this actual bank.
-        entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
-        GameplayLog.event(entity, "settlement", "shore duty landed");
-    }
-
-    private void cancelShorePending(String reason) {
-        boolean pending = shorePending;
-        if (pending) GameplayLog.event(entity, "settlement", "shore duty cancelled reason={}", reason);
-        shorePending = false;
-        shoreCenter = null;
-        shoreDeadline = 0;
-        entity.aquaticLife().releaseShoreWork(ShoreWork.SETTLEMENT);
-        if (pending) wait = Math.max(wait, 100);
-    }
     public boolean canUse() {
-        if (shorePending || wait > 0) return false;
-        if (entity.isPassenger()) {
-            if (!ready(true)) return false;
-            requestShoreDuty();
-            return false;
-        }
+        if (wait > 0) return false;
         if (!ready()) return false;
         wait = 80;
         var record = entity.settlement().society().record();
@@ -282,7 +216,6 @@ public final class SettlementDuties {
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
-        entity.aquaticLife().holdShoreWork(ShoreWork.SETTLEMENT);
         elapsed++;
         if (task == Task.RETREAT) { if (approach(destination)) stop(); return; }
         if (task == Task.PICKUP) {
@@ -345,11 +278,9 @@ public final class SettlementDuties {
         drop.setPickUpDelay(100); drop.getPersistentData().putLong("YukkuriClearedUntil", level().getGameTime() + 1200);
         carrying = ItemStack.EMPTY; return true;
     }
-    public void cancelAssignment() { if (active()) stop(); else cancelShorePending("assignment_cancelled"); dropCarrying(); }
+    public void cancelAssignment() { if (active()) stop(); dropCarrying(); }
     public void stop() {
         task = Task.NONE; item = null; toilet = destination = workCenter = heap = null; elapsed = 0; wait = 80;
-        cancelShorePending("stopped");
-        entity.aquaticLife().releaseShoreWork(ShoreWork.SETTLEMENT);
         entity.getNavigation().stop();
     }
     public CompoundTag save() {
@@ -359,7 +290,6 @@ public final class SettlementDuties {
     }
     public void load(CompoundTag tag) {
         carrying = tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY;
-        task = Task.NONE; item = null; toilet = destination = workCenter = shoreCenter = null; elapsed = 0; wait = 80;
-        shorePending = false; shoreDeadline = 0;
+        task = Task.NONE; item = null; toilet = destination = workCenter = null; elapsed = 0; wait = 80;
     }
 }

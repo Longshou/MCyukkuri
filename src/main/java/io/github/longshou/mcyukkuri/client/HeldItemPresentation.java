@@ -16,7 +16,7 @@ final class HeldItemPresentation {
 
     /** The stick is shown while the mouth is free: not while eating, feeding, carrying by mouth or asleep. */
     static boolean kanroken(YukkuriView entity,String behavior) {
-        return entity.visibleKanroken()&&!ParentCarry.mouthCarrying(entity)&&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&entity.getCarriedItem().isEmpty()&&entity.aquaticServing().isEmpty()
+        return entity.visibleKanroken()&&!ParentCarry.mouthCarrying(entity)&&entity.getMouthItem().isEmpty()&&entity.getMouthBodyFood().isEmpty()&&entity.getCarriedItem().isEmpty()
                 &&!behavior.startsWith(Behaviors.SLEEP)&&!behavior.equals(Behaviors.WAKE)&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!behavior.equals(Behaviors.FEED_CHILD)
                 &&!behavior.equals(Behaviors.BOAT_FEED_YOUNG)&&PropModels.has("kanroken");
     }

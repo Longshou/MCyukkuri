@@ -3,10 +3,9 @@ package io.github.longshou.mcyukkuri.motor.surface;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * One rigid pose of a host for one tick. Matrix order is {@code yaw . roll(Z) . pitch(X)}, the same order and the
- * same sign conventions as {@code HatBoatEntity.turn() / motionRoll() / motionPitch()} (which the client's
- * {@code BoatPose} draws). {@code origin} is {@code HatBoatEntity.position()}, {@code unit} is blocks per hat unit,
- * {@code yawRad} is {@code HatBoatEntity.turn()}; roll and pitch are in degrees.
+ * One rigid pose of a host for one tick. Matrix order is {@code yaw . roll(Z) . pitch(X)};
+ * {@code origin} is the host's position, {@code unit} is blocks per hat unit, {@code yawRad} is the
+ * host's turn; roll and pitch are in degrees.
  */
 public record HostFrame(Vec3 origin, double unit, float yawRad, float rollDeg, float pitchDeg) {
 

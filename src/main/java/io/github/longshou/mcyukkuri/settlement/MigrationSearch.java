@@ -29,7 +29,7 @@ final class MigrationSearch {
     private final WeakReference<ServerLevel> world;
     private final BlockPos from, danger;
     private final UUID oldSite;
-    private final boolean fleeing, hungry, afloat;
+    private final boolean fleeing, hungry;
     private final int min, max;
     private final long generation = generation();
     final String reason;
@@ -50,7 +50,6 @@ final class MigrationSearch {
         owner = new WeakReference<>(leader); world = new WeakReference<>(level);
         from = group.center.immutable(); danger = group.threatPos == null ? null : group.threatPos.immutable();
         oldSite = group.siteId; fleeing = danger != null && group.threat > 0;
-        afloat = Migration.afloat(group);
         min = YukkuriConfig.MIGRATE_MIN_DISTANCE.get(); max = Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
         this.forced = forced; this.reason = reason;
         hungry = "famine".equals(reason) || "worn_out".equals(reason);
@@ -62,7 +61,6 @@ final class MigrationSearch {
         return world.get() == level && ownedBy(leader) && from.equals(group.center)
                 && Objects.equals(danger, group.threatPos) && Objects.equals(oldSite, group.siteId)
                 && fleeing == (group.threatPos != null && group.threat > 0)
-                && afloat == Migration.afloat(group)
                 && min == YukkuriConfig.MIGRATE_MIN_DISTANCE.get()
                 && max == Math.max(min, YukkuriConfig.MIGRATE_MAX_DISTANCE.get() * 2);
     }
@@ -151,13 +149,12 @@ final class MigrationSearch {
         if (site == null || !site.vacant() || site.id.equals(oldSite)) return null;
         var plaza = SiteLife.anchor(site, SiteSlot.Kind.PLAZA); var plan = site.plan();
         if (plaza == null || plan == null || plaza.distSqr(from) < 24 * 24 || plaza.distSqr(from) > 80 * 80
-                || nearDanger(plaza) || !SiteBuilder.loaded(level, plan) || afloat && !Migration.waterBankReady(level, plaza, owner.get())) return null;
+                || nearDanger(plaza) || !SiteBuilder.loaded(level, plan)) return null;
         return plaza;
     }
     private boolean suitable(ServerLevel level, YukkuriEntity leader, BlockPos spot) {
         SearchBudget.probe(level);
         if (!level.hasChunkAt(spot) || nearDanger(spot) || !leader.life().dryStand(spot)) return false;
-        if (afloat) return Migration.waterBankReady(level, spot, leader);
         // The colony makes its own homes, so a ready cave is not required: three natural hollow cells within reach, or soft
         // soil where the members can really scrape a hollow with their own bodies (Burrowing), is enough.
         int found = 0;

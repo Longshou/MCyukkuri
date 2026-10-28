@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The hollow of a host (catch hat, hat boat), read through the host's frame so tilt is included. The host supplies
+ * The hollow of a host (the catch hat), read through the host's frame so tilt is included. The host supplies
  * the inner floor outline in blocks and the floor and rim heights in hat units; nothing here knows the hat model.
  */
 public record HostContainer(SurfaceHost host, FloorShape floor, double floorLocal, double rimLocal) implements Container {

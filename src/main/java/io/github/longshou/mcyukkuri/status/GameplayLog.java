@@ -22,7 +22,7 @@ public final class GameplayLog {
 
     private GameplayLog() {}
 
-    /** Detail switch for per-phase aquatic sampling ("[aqdiag]"); off by default: {@code /yukkuri aqdiag on|off} or -Dmcyukkuri.aqdiag=true. */
+    /** Detail switch for per-frame sampling ("[aqdiag]"); off by default: {@code /yukkuri aqdiag on|off} or -Dmcyukkuri.aqdiag=true. */
     private static volatile boolean detail = Boolean.getBoolean("mcyukkuri.aqdiag");
     private static final Map<String, Long> DETAIL_LAST = new HashMap<>();
 

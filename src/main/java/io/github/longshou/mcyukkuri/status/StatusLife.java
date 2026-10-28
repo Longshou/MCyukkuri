@@ -64,7 +64,6 @@ public final class StatusLife {
         double y = entity.getY();
         var family = entity.family();
         if (entity.profile().ecology() == Ecology.PREDATOR || entity.isPassenger() || entity.isInWaterOrBubble() || entity.waterDistress().active()
-                || family.crew().busy() || family.crew().climbing()
                 || family.laboring() || family.birthDuty() || family.awaitingLanding()) {
             // A carried or rescued body starts a new observation after release; do not inherit the lift's height.
             airborneKnown = airborneRose = airborneSpoken = false;

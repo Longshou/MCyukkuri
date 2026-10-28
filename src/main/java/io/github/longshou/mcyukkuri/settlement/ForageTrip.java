@@ -2,8 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -277,12 +276,7 @@ public final class ForageTrip extends Goal {
     @Override public boolean canUse() {
         if (!(entity.level() instanceof ServerLevel)) return false;
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
-        if (entity.profile().aquatic() && entity.getVehicle() instanceof HatBoatEntity boat) {
-            // Water-side picking is tried by AquaticLife first. A real shore request survives until landing.
-            return false;
-        }
         if (!body()) return false;
-        if (entity.profile().aquatic()) return aquaticPlan();
         if (recoveringNeeds) {
             if (entity.life().nutrition() < 30 || entity.life().energy() < 30) return false;
             recoveringNeeds = false;
@@ -336,41 +330,9 @@ public final class ForageTrip extends Goal {
         begin(who, target, r, who == Role.FATHER ? (shortage >= 2 ? "father_short" : "father_routine") : (fatherAway(home) ? "mother_father_away" : "mother_empty"));
         return true;
     }
-    /** The same finite outing and levy, with the remembered landing bank instead of a burrow door. */
-    private boolean aquaticPlan() {
-        if (!entity.life().hasAccessory() || entity.life().mealTicks() != 0 || urgent()) return false;
-        if (phase != Phase.NONE) {
-            entity.aquaticLife().holdShoreWork(ShoreWork.FORAGE);
-            return true;
-        }
-        if (!load.isEmpty()) {
-            begin(Role.MOTHER, entity.blockPosition(), 0, "aquatic_leftover");
-            phase = Phase.BACK; return true;
-        }
-        if (entity.aquaticLife().availableFood() >= entity.aquaticLife().stockTarget() || !fair()
-                || entity.life().energy() < 35 || entity.life().nutrition() < 30) return false;
-        if (level().getGameTime() - lastTrip < 200) return false;
-        entity.aquaticLife().holdShoreWork(ShoreWork.FORAGE);
-        if (!SearchBudget.take(level(), entity, Purpose.FORAGE_TRIP)) return false;
-        var bank = entity.aquaticLife().boardingBank();
-        if (bank == null) bank = entity.blockPosition();
-        var meadow = nearbyMeadow(bank);
-        if (meadow == null) meadow = destinationFrom(bank, 16);
-        if (meadow == null) {
-            lastTrip = level().getGameTime();
-            entity.aquaticLife().releaseShoreWork(ShoreWork.FORAGE);
-            GameplayLog.limited(entity, "forage", "aquatic.no_meadow", 600,
-                    "start refused reason=no_meadow bank={} food={} target={}", bank,
-                    entity.aquaticLife().availableFood(), entity.aquaticLife().stockTarget());
-            return false;
-        }
-        begin(Role.MOTHER, meadow, 16, "aquatic_stores");
-        return true;
-    }
     private void begin(Role who, BlockPos target, int r, String why) {
         var home = shelter();
-        this.role = who; this.dest = target; this.radius = r; this.home = entity.profile().aquatic() && entity.aquaticLife().boardingBank() != null
-                ? entity.aquaticLife().boardingBank() : home == null ? entity.blockPosition() : home.getBlockPos();
+        this.role = who; this.dest = target; this.radius = r; this.home = home == null ? entity.blockPosition() : home.getBlockPos();
         this.phase = Phase.OUT; this.reason = why; this.startedAt = level().getGameTime();
         this.deadline = startedAt + (who == Role.FATHER ? FATHER_MAX_TICKS : MOTHER_MAX_TICKS);
         this.ticks = failures = barren = watchdog = far = 0; this.watchBest = Double.MAX_VALUE; trips++;
@@ -419,7 +381,6 @@ public final class ForageTrip extends Goal {
             var group = entity.settlement().group();
             if (group != null && (gathered > 0 || FAILED.contains(reason))) group.commons.outing(gathered > 0);
         }
-        entity.aquaticLife().releaseShoreWork(ShoreWork.FORAGE);
         gathered = 0; levy = -1;
         storeAim = null;
         if (ok) lastTrip = level().getGameTime();
@@ -441,10 +402,9 @@ public final class ForageTrip extends Goal {
     @Override public void tick() {
         if (phase == Phase.NONE) return;
         ticks++;
-        if (entity.profile().aquatic()) entity.aquaticLife().holdShoreWork(ShoreWork.FORAGE);
         var level = level(); long now = level.getGameTime();
         var home = shelter();
-        if (!hunting && !entity.profile().aquatic() && (home == null || !home.getBlockPos().equals(this.home))) { giveUp("home_lost"); return; }
+        if (!hunting && (home == null || !home.getBlockPos().equals(this.home))) { giveUp("home_lost"); return; }
         far = (int) Math.max(far, Math.sqrt(entity.blockPosition().distSqr(this.home)));
         if (hunting) {
             var hunt = CommonHunt.of(entity);
@@ -473,7 +433,7 @@ public final class ForageTrip extends Goal {
                 travel(dest);
             }
             case GATHER -> gather(home);
-            case BACK -> { if (hunting) backToStore(); else if (entity.profile().aquatic()) backToHat(); else back(home); }
+            case BACK -> { if (hunting) backToStore(); else back(home); }
             default -> { }
         }
         watchdog();
@@ -519,7 +479,6 @@ public final class ForageTrip extends Goal {
     private void gather(ShelterBlockEntity home) {
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
         int cap = (role == Role.MOTHER ? MOTHER_LOAD : FATHER_LOAD) + (entity.species().cheekCapacity() - 1) * 2;
-        if (entity.profile().aquatic()) cap = Math.max(1, Math.min(cap, entity.aquaticLife().stockTarget() - entity.aquaticLife().availableFood()));
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;
@@ -537,18 +496,6 @@ public final class ForageTrip extends Goal {
         if (entity.life().nutrition() < 55 && entity.life().canEat() && entity.life().acceptsFood(grass) && entity.life().beginMeal(grass, null, false)) return;
         if (load.isEmpty()) load = portion.copy(); else load.grow(1);
         gathered++;
-    }
-    private void backToHat() {
-        if (!load.isEmpty() && levy < 0) levy = Levy.portions(load.getCount(), Levy.rate(entity, false));
-        if (levy > 0 && !load.isEmpty() && payLevy(null)) return;
-        if (horizontal(this.home) > 2) { travel(this.home); return; }
-        int moved = entity.aquaticLife().receiveProvisions(load, load.getCount());
-        Levy.kept(entity, moved);
-        GameplayLog.event(entity, "forage", "returned to bank={} stored={} carried={} reserve={}",
-                this.home, moved, load.getCount(), entity.aquaticLife().availableFood());
-        delivered++;
-        if (!load.isEmpty()) dropLoad();
-        finish(true);
     }
     private void back(ShelterBlockEntity home) {
         if (!load.isEmpty() && levy < 0) levy = Levy.portions(load.getCount(), Levy.rate(entity, false));

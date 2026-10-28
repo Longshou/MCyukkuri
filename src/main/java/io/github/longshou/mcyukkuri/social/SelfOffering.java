@@ -77,7 +77,7 @@ public final class SelfOffering extends Goal {
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()
                 && !entity.profile().dangerToYukkuri() && !entity.profile().houseBody() && !entity.life().isSleeping() && !entity.body().dying()
-                && (!entity.isPassenger() || EcologyMovement.captain(entity) && EcologyMovement.supported(entity))
+                && !entity.isPassenger()
                 && !entity.operations().active() && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
     private boolean mine(YukkuriEntity other) {
@@ -85,7 +85,6 @@ public final class SelfOffering extends Goal {
     }
     /** A real current meal, never merely an item that happens to be nearby. */
     private boolean foodAvailable(YukkuriEntity target) {
-        if (target.profile().aquatic() && target.aquaticLife().availableFood() > 0) return true;
         if (!target.life().canEat()) return false;
         var carried=target.habitat().carrying();
         if (!carried.isEmpty() && carried.is(YukkuriEntity.FOOD) && target.life().acceptsFood(carried)) return true;
@@ -232,8 +231,7 @@ public final class SelfOffering extends Goal {
         }
         EcologyMovement.halt(entity); EcologyMovement.halt(child);
         child.getLookControl().setLookAt(entity, 30, 30);
-        if ((EcologyMovement.boat(entity) != null || EcologyMovement.boat(child) != null)
-                && (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child))) {
+        if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
             phase = Phase.APPROACH; phaseTicks = 0; lastReason = "recipient_moved"; return;
         }
         phaseTicks++;

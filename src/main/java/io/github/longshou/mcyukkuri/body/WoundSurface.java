@@ -17,7 +17,6 @@ import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 
 /** Immutable selected skin geometry, shared by server hit tests and client attachments. No client classes. */
 public final class WoundSurface {
@@ -245,16 +244,12 @@ public final class WoundSurface {
         return new AttachmentLifts(PregnancyAttachments.crownLift(assetId,belly,hat<0?null:values[hat]),
                 PregnancyAttachments.braidLift(root,belly,braid<0?null:values[braid]));
     }
-    public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,1,"",0,null);}
-    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase){return pose(action,elapsed,hatScale,hatMotion,hatPhase,null);}
-    public Matrix4f[] pose(String action,float elapsed,float hatScale,String hatMotion,float hatPhase,Matrix4f selfHatPose){
+    public Matrix4f[] pose(String action,float elapsed){return pose(action,elapsed,"",0);}
+    public Matrix4f[] pose(String action,float elapsed,String hatMotion,float hatPhase){
         var values=poseValues(action,elapsed,hatMotion,hatPhase);var world=new Matrix4f[bones.size()];
         for(int i=0;i<world.length;i++){var b=bones.get(i).getAsJsonObject();var p=floats(b.getAsJsonArray("pivot"));int parent=
                 b.get("parent").getAsInt();var v=values[i];world[i]=parent<0?new Matrix4f():new Matrix4f(world[parent]);world[i].translate(p[0]+v[0],
                 p[1]+v[1],p[2]+v[2]).rotateZYX(v[5]*(float)Math.PI/180,v[4]*(float)Math.PI/180,v[3]*(float)Math.PI/180).scale(v[6],v[7],v[8]).translate(-p[0],-p[1],-p[2]);
-            if(hatScale!=1&&b.get("name").getAsString().equals("hat_follow")){
-                var anchor=HatVessel.anchor();world[i].translate(anchor).scale(hatScale).translate(anchor.negate());}
-            if(selfHatPose!=null&&b.get("name").getAsString().equals("hat_follow"))world[i].set(selfHatPose);
         }return world;
     }
     /** Compose an authored stable root track on the selected common-side skeleton. */

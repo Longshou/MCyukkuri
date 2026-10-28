@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -14,7 +13,6 @@ import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.item.SwaddleStyle;
 import io.github.longshou.mcyukkuri.life.CareBlock;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -164,8 +162,6 @@ public final class ShopMenu extends AbstractContainerMenu {
     private int tab, page, selected, shopCount, focus = -1, standing, standingClock;
     private boolean penOk, custom;
     private final Set<UUID> locating = new HashSet<>();
-    private final Set<UUID> shorePurchases = new HashSet<>();
-    private final Set<UUID> shoreSales = new HashSet<>();
 
     public ShopMenu(int id, Inventory inventory, int entityId) { this(id, inventory, entityId, null); }
     /** Server side only passes a focus animal (opened by clicking it): the menu starts on the LIVE page that lists it with its row highlighted (slot 56). */
@@ -248,7 +244,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         return level.getEntity(quotes.get(index).id) instanceof YukkuriEntity y && y.isAlive() && target.distanceToSqr(y) <= 48 * 48 && stockOf(y, target.getUUID()) ? y : null;
     }
     private boolean mayHandle(YukkuriEntity y, Player p) {
-        return y != null && y.isAlive() && y.pet().ownedBy(p.getUUID()) && !y.pet().busy() && (!y.isPassenger() || EcologyMovement.captain(y) && EcologyMovement.supported(y)) && y.distanceToSqr(p) <= 64;
+        return y != null && y.isAlive() && y.pet().ownedBy(p.getUUID()) && !y.pet().busy() && !y.isPassenger() && y.distanceToSqr(p) <= 64;
     }
     private YukkuriEntity subject() {
         if (mine.isEmpty() || !(viewer.level() instanceof ServerLevel level)) return null;
@@ -327,46 +323,9 @@ public final class ShopMenu extends AbstractContainerMenu {
         if(reason!=null)return refused(p,"buy_live",reason);
         int price = quotes.get(idx).price;
         if (count(p, Items.EMERALD) < price)return refused(p,"buy_live","insufficient_emeralds");
-        if (animal.isPassenger()) return purchaseAfterLanding(level, p, animal, price);
         if (!ShopTrade.begin(level, target, animal, p.getUUID(), price)) return false;
         debit(p, Items.EMERALD, price);
         GameplayLog.event(p,"shop","action=buy_live result=debited shop={} target={} emeralds_used={} delivery=pending",target.getUUID(),animal.getUUID(),price);
-        return true;
-    }
-    /** Preserve one submitted quote while the stock's real captain returns to land; no payment or ownership changes yet. */
-    private boolean purchaseAfterLanding(ServerLevel level, Player player, YukkuriEntity animal, int price) {
-        UUID id = animal.getUUID();
-        if (shorePurchases.contains(id)) { custom = true; return true; }
-        if (shorePurchases.size() >= STOCK_CAPACITY || !animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN))
-            return refused(player, "buy_live", "shore_unavailable");
-        var clerk = target;
-        shorePurchases.add(id); custom = true;
-        player.displayClientMessage(Component.translatable("aquatic.mcyukkuri.shore_pending"), true);
-        GameplayLog.event(player, "shop", "action=buy_live result=shore_pending shop={} target={} quoted_price={}", clerk.getUUID(), id, price);
-        ShopPerformance.schedule(level, age -> {
-            var current = level.getEntity(id) instanceof YukkuriEntity y ? y : null;
-            String reason = current == null || !current.isAlive() ? "target_unavailable"
-                    : !clerk.isAlive() || !stockOf(current, clerk.getUUID()) ? "stock_changed"
-                    : !player.isAlive() || level.getServer().getPlayerList().getPlayer(player.getUUID()) != player
-                    || player.level() != level || player.distanceToSqr(clerk) > 64 ? "buyer_unavailable"
-                    : age >= 600 ? "landing_timeout" : current.pet().busy() ? "busy" : null;
-            if (reason == null && current.isPassenger()) {
-                if (current.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) return false;
-                reason = "shore_unavailable";
-            }
-            if (reason == null && (!current.onGround() || current.aquaticLife().shoreVisitRequested())) return false;
-            if (reason == null && (!room(player) || count(player, Items.EMERALD) < price)) reason = "payment_or_inventory_changed";
-            if (reason == null && !ShopTrade.begin(level, clerk, current, player.getUUID(), price)) reason = "sale_refused";
-            if (reason == null) {
-                debit(player, Items.EMERALD, price);
-                GameplayLog.event(player, "shop", "action=buy_live result=debited_after_landing shop={} target={} emeralds_used={}", clerk.getUUID(), id, price);
-            } else {
-                GameplayLog.event(player, "shop", "action=buy_live result=shore_cancelled target={} reason={} emeralds_used=0", id, reason);
-                player.displayClientMessage(Component.translatable("human.mcyukkuri.unavailable"), true);
-            }
-            if (current != null) current.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-            shorePurchases.remove(id); return true;
-        });
         return true;
     }
     private boolean refused(Player p,String action,String reason){
@@ -441,8 +400,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if (shopCount >= STOCK_CAPACITY) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.full"), true); custom = true; return refused(p,"sell_live","stock_full"); }
         BlockPos pen = ShopPens.freePen(level, target, a);
         if (pen == null) { p.displayClientMessage(Component.translatable("shop.mcyukkuri.no_pen"), true); custom = true; return refused(p,"sell_live","no_pen"); }
-        if (a.isPassenger()) return saleAfterLanding(level, p, a);
-        if (!a.onGround() || a.aquaticLife().shoreVisitRequested()) return refused(p,"sell_live","landing_incomplete");
+        if (!a.onGround()) return refused(p,"sell_live","landing_incomplete");
         if (!a.pet().lock("sale", p.getUUID())) return refused(p,"sell_live","busy");
         var reservation = ShopPerformance.reserve(level, pen);
         if (reservation == null) { a.pet().unlock("sale"); return refused(p,"sell_live","pen_reserved"); }
@@ -485,37 +443,6 @@ public final class ShopMenu extends AbstractContainerMenu {
             return true;
         });
         rescan(); return true;
-    }
-    private boolean saleAfterLanding(ServerLevel level, Player player, YukkuriEntity animal) {
-        UUID id = animal.getUUID();
-        if (shoreSales.contains(id)) { custom = true; return true; }
-        if (shoreSales.size() >= STOCK_CAPACITY || !animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN))
-            return refused(player, "sell_live", "shore_unavailable");
-        int quotedPrice = ShopPricing.buyback(animal);
-        shoreSales.add(id); custom = true;
-        player.displayClientMessage(Component.translatable("aquatic.mcyukkuri.shore_pending"), true);
-        GameplayLog.event(player, "shop", "action=sell_live result=shore_pending target={} quoted_price={}", id, quotedPrice);
-        ShopPerformance.schedule(level, age -> {
-            var current = level.getEntity(id) instanceof YukkuriEntity y ? y : null;
-            String reason = current == null || !current.isAlive() ? "target_unavailable"
-                    : !target.isAlive() || !player.isAlive() || level.getServer().getPlayerList().getPlayer(player.getUUID()) != player
-                    || player.level() != level || player.distanceToSqr(target) > 64 ? "trader_unavailable"
-                    : age >= 600 ? "landing_timeout" : !current.pet().owned(player) || current.pet().busy() ? "ownership_or_activity_changed" : null;
-            if (reason == null && current.isPassenger()) {
-                if (current.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) return false;
-                reason = "shore_unavailable";
-            }
-            if (reason == null && (!current.onGround() || current.aquaticLife().shoreVisitRequested())) return false;
-            if (reason == null && ShopPricing.buyback(current) != quotedPrice) reason = "quote_changed";
-            if (reason == null && !sell(player, current)) reason = "sale_refused";
-            if (reason != null) {
-                GameplayLog.event(player, "shop", "action=sell_live result=shore_cancelled target={} reason={} emeralds_received=0", id, reason);
-                player.displayClientMessage(Component.translatable("human.mcyukkuri.unavailable"), true);
-            }
-            if (current != null) current.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-            shoreSales.remove(id); return true;
-        });
-        return true;
     }
     /** A shop must not turn skills into a synthetic badge result. Exams record only actual tasks. */
     private boolean forecast(Player p) { return false; }

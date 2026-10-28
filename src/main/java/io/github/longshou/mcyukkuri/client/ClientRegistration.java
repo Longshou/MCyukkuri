@@ -47,10 +47,8 @@ public final class ClientRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, InputEvent.InteractionKeyMappingTriggered.class, HatInteractionTrace::trace);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, false, RenderLevelStageEvent.class, WoundLod::stage);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, HatWaterMaskPass::renderStage);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, BodyEffectsRenderer::renderStage);
 
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, HatWaterMaskPass::unload);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, BodyEffectsRenderer::unload);
     }
 }

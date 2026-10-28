@@ -40,7 +40,7 @@ public final class AccessoryItem extends Item {
         }
         return InteractionResult.sidedSuccess(player.level().isClientSide);
     }
-    /** Loose accessories are interchangeable physical items; boat custody still uses its own unique token. */
+    /** Loose accessories are interchangeable physical items. */
     public static boolean matches(YukkuriEntity entity,ItemStack stack){
         return matchesRecipient(entity,stack)&&entity.life().accessoryReceiptRefusalReason()==null;
     }

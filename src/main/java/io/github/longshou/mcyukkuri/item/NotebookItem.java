@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.settlement.HouseholdStores;
 import io.github.longshou.mcyukkuri.settlement.SettlementObservation;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -128,11 +127,6 @@ public final class NotebookItem extends Item {
                         life.spicyTicks()/20,life.sprayDelay()/20,life.drugSleep()/20,entity.family().sexDrive()/20,entity.family().babyTalk()?"✓":"—"),
                 Component.translatable("notebook.mcyukkuri.house",entity.house().nestPosition()==null?"—":entity.house().nestPosition().toShortString(),
                         entity.house().carrying().isEmpty()?"—":entity.house().carrying().getHoverName())));
-        if (entity.profile().aquatic()
-                || entity.getVehicle() instanceof HatBoatEntity) {
-            pages.add(1, NotebookGuide.aquatic(entity));
-            pages.add(2, NotebookGuide.aquaticFamily(entity));
-        }
         Component claim = HomeClaim.page(entity);
         if (claim != null) pages.add(claim);
         return List.copyOf(pages);

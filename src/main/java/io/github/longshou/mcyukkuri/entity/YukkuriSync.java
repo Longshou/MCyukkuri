@@ -43,8 +43,6 @@ final class YukkuriSync {
     private static final EntityDataAccessor<ItemStack> MOUTH = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
     /** A body-food bite is display-only transport, deliberately separate from real mouth items. */
     private static final EntityDataAccessor<CompoundTag> MOUTH_BODY_FOOD = YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<ItemStack> AQUATIC_SERVING = YukkuriEntity.defineSyncedValue( EntityDataSerializers.ITEM_STACK);
-    private static final EntityDataAccessor<Integer> AQUATIC_CHILD = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> MEDAL = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> ACCESSORY = YukkuriEntity.defineSyncedValue( EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> GROWTH_SCALE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
@@ -64,10 +62,6 @@ final class YukkuriSync {
     private static final EntityDataAccessor<CompoundTag> AGITATION = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> COURTSHIP = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<CompoundTag> WATER_DISTRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
-    /** The hull whose CrewState carries the transfer this body or carrier takes part in (entity id, -1 none); the transfer itself is on the hull. */
-    private static final EntityDataAccessor<Integer> CREW_BOAT = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
-    private static final EntityDataAccessor<CompoundTag> AQUATIC_ALARM = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
-    private static final EntityDataAccessor<CompoundTag> AQUATIC_SELF_RESCUE = YukkuriEntity.defineSyncedValue( EntityDataSerializers.COMPOUND_TAG);
     private static final EntityDataAccessor<Integer> HEADWEAR = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
     private static final EntityDataAccessor<CompoundTag> MARKS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.COMPOUND_TAG);
     private List<BodyWound> marksCache=List.of();
@@ -83,8 +77,6 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Boolean> KANROKEN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
-    private YukkuriSyncState.AquaticAlarm aquaticAlarmSnapshot;
-    private YukkuriSyncState.SelfRescue selfRescueSnapshot;
     private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
     private List<BodyWound> woundsSnapshot;
     private List<BodyWound> sentWounds;
@@ -107,13 +99,6 @@ final class YukkuriSync {
     String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
     long waterDistressStartTick() { return waterDistressSync().start().value(); }
     boolean waterDistressEffort() { return waterDistressSync().effort().value(); }
-    /** The hull whose CrewState holds this body's transfer (entity id), or -1; contacts and the synced body yaw are read there. */
-    int crewBoat() { return owner.getEntityData().get(CREW_BOAT); }
-    CompoundTag aquaticSelfRescueState() { return owner.getEntityData().get(AQUATIC_SELF_RESCUE); }
-    int aquaticRescueTargetId() { return aquaticAlarmSync().rescueTargetId().orElse(-1); }
-    String aquaticAlarmActivity() { return aquaticAlarmSync().activity().orElse("idle"); }
-    long aquaticAlarmStartTick() { return aquaticAlarmSync().start().value(); }
-    int aquaticAlarmSourceId() { return aquaticAlarmSync().sourceId().orElse(-1); }
     YukkuriSyncState.Agitation agitationSync() {
         if (agitationSnapshot == null) agitationSnapshot = YukkuriSyncState.Agitation.read(owner.getEntityData().get(AGITATION));
         return agitationSnapshot;
@@ -122,29 +107,9 @@ final class YukkuriSync {
         if (waterDistressSnapshot == null) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(owner.getEntityData().get(WATER_DISTRESS));
         return waterDistressSnapshot;
     }
-    YukkuriSyncState.AquaticAlarm aquaticAlarmSync() {
-        if (aquaticAlarmSnapshot == null) aquaticAlarmSnapshot = YukkuriSyncState.AquaticAlarm.read(owner.getEntityData().get(AQUATIC_ALARM));
-        return aquaticAlarmSnapshot;
-    }
-    YukkuriSyncState.SelfRescue selfRescueSync() {
-        if (selfRescueSnapshot == null) selfRescueSnapshot = YukkuriSyncState.SelfRescue.read(owner.getEntityData().get(AQUATIC_SELF_RESCUE));
-        return selfRescueSnapshot;
-    }
     YukkuriSyncState.LiveChildren liveChildrenSync() {
         if (liveChildrenSnapshot == null) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(owner.getEntityData().get(LIVE_CHILDREN));
         return liveChildrenSnapshot;
-    }
-    void syncAquaticInteraction() {
-        int boat=owner.family().crew().boatId();
-        if(boat!=owner.getEntityData().get(CREW_BOAT))owner.getEntityData().set(CREW_BOAT,boat);
-        var selfRescue=owner.aquaticLife().selfRescue().syncState();
-        if(!selfRescue.equals(owner.getEntityData().get(AQUATIC_SELF_RESCUE)))owner.getEntityData().set(AQUATIC_SELF_RESCUE,selfRescue);
-        var controller=owner.aquaticLife().familyLife();
-        String activity=controller.alarmActivity();
-        var alarm = activity.equals(Behaviors.IDLE) ? YukkuriSyncState.NO_AQUATIC_ALARM
-                : new YukkuriSyncState.AquaticAlarm(Field.of(activity), Field.of(controller.alarmPhaseStart()),
-                        Field.of(controller.alarmSourceId()), Field.of(controller.rescueTargetId()));
-        setChanged(AQUATIC_ALARM, alarm.encode());
     }
     void syncWaterDistress() {
         YukkuriSyncState.WaterDistress water;
@@ -185,8 +150,6 @@ final class YukkuriSync {
         var value = bite == null || bite.isEmpty() ? new CompoundTag() : bite.save();
         setChanged(MOUTH_BODY_FOOD, value);
     }
-    ItemStack aquaticServing() { return owner.getEntityData().get(AQUATIC_SERVING); }
-    int aquaticChildId() { return owner.getEntityData().get(AQUATIC_CHILD); }
     int visibleMedal() { return owner.getEntityData().get(MEDAL); }
     boolean hasVisibleAccessory() { return owner.getEntityData().get(ACCESSORY); }
     boolean visibleKanroken() { return owner.getEntityData().get(KANROKEN); }
@@ -310,19 +273,13 @@ final class YukkuriSync {
     void syncAgitation() { owner.getEntityData().set(AGITATION, owner.agitation().state()); }
     void syncHairLoss() { owner.getEntityData().set(HAIR_LOSS, owner.body().hairLoss()); }
     void syncCarryingAndCare() {
-        var familyPaddle=owner.aquaticLife().familyPaddle().carried();
         owner.getEntityData().set(CARRYING,
-                (!familyPaddle.isEmpty()?familyPaddle:!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
+                (!owner.family().carrying().isEmpty()?owner.family().carrying():!owner.independence().carrying().isEmpty()
                         ?owner.independence().carrying():!owner.settlement().duties().carrying().isEmpty()?owner.settlement().duties().carrying()
                         :!owner.leafSwaddle().carried().isEmpty()?owner.leafSwaddle().carried():EcologyRoutines.carryingFallback(owner)).copy());
         owner.getEntityData().set(NUZZLE_PARTNER,owner.dailyLife().nuzzlePartnerId());
         int careTarget = owner.family().careTargetId();
         float careProgress = owner.family().careContactProgress() / 20f;
-        if (owner.aquaticLife().care().active()) {
-            careTarget = owner.aquaticLife().care().childId();
-            careProgress = owner.aquaticLife().care().contactProgress() / (owner.aquaticLife().care().activity().equals(Behaviors.FIRST_TOILET_ASSIST)
-                    ? (float) ChildhoodLife.FIRST_TOILET_CONTACT_TICKS : 20f);
-        }
         if (owner.childhood().active() && owner.childhood().careTargetId() != null) {
             var partner = ((ServerLevel) owner.level()).getEntity(owner.childhood().careTargetId());
             careTarget = partner == null ? -1 : partner.getId();
@@ -336,9 +293,6 @@ final class YukkuriSync {
         if (owner.woundComfort().licking()) { careTarget = owner.woundComfort().victimId(); careProgress = owner.woundComfort().contactProgress(); }
         owner.getEntityData().set(CARE_PARTNER, careTarget);
         owner.getEntityData().set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
-        if (!ItemStack.matches(owner.getEntityData().get(AQUATIC_SERVING),owner.aquaticLife().care().serving()))
-            owner.getEntityData().set(AQUATIC_SERVING,owner.aquaticLife().care().serving().copy());
-        owner.getEntityData().set(AQUATIC_CHILD,owner.aquaticLife().care().childId());
     }
     void syncAppearance() {
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), owner.life().mouth())) owner.getEntityData().set(MOUTH, owner.life().mouth().copy());
@@ -368,7 +322,6 @@ final class YukkuriSync {
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);
         builder.define(MEDAL, 0); builder.define(MOUTH, ItemStack.EMPTY); builder.define(MOUTH_BODY_FOOD, new CompoundTag()); builder.define(ACCESSORY, true);
-        builder.define(AQUATIC_SERVING,ItemStack.EMPTY); builder.define(AQUATIC_CHILD,-1);
         builder.define(CARRYING,ItemStack.EMPTY);
         builder.define(WOUND,0);
         builder.define(WOUNDS,new CompoundTag());builder.define(BODY_SIGNS,0);
@@ -381,16 +334,12 @@ final class YukkuriSync {
         builder.define(WATER_DISTRESS,new CompoundTag());
         builder.define(AGITATION,new CompoundTag());
         builder.define(COURTSHIP,new CompoundTag());
-        builder.define(CREW_BOAT,-1);builder.define(AQUATIC_ALARM,new CompoundTag());
-        builder.define(AQUATIC_SELF_RESCUE,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         // set() calls this on the server too. Replace only this accessor's decoded value.
         if (AGITATION.equals(key)) agitationSnapshot = YukkuriSyncState.Agitation.read(owner.getEntityData().get(AGITATION));
         else if (WATER_DISTRESS.equals(key)) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(owner.getEntityData().get(WATER_DISTRESS));
-        else if (AQUATIC_ALARM.equals(key)) aquaticAlarmSnapshot = YukkuriSyncState.AquaticAlarm.read(owner.getEntityData().get(AQUATIC_ALARM));
-        else if (AQUATIC_SELF_RESCUE.equals(key)) selfRescueSnapshot = YukkuriSyncState.SelfRescue.read(owner.getEntityData().get(AQUATIC_SELF_RESCUE));
         else if (LIVE_CHILDREN.equals(key)) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(owner.getEntityData().get(LIVE_CHILDREN));
         else if (WOUNDS.equals(key)) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
         else if (MARKS.equals(key)) marksCache=Marks.read(owner.getEntityData().get(MARKS));

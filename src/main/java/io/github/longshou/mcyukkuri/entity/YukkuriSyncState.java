@@ -16,7 +16,6 @@ public final class YukkuriSyncState {
     private YukkuriSyncState() {}
 
     public static final WaterDistress NO_WATER_DISTRESS = WaterDistress.read(new CompoundTag());
-    public static final AquaticAlarm NO_AQUATIC_ALARM = AquaticAlarm.read(new CompoundTag());
 
     public record Field<T>(boolean present, T value) {
         public T orElse(T fallback) { return present ? value : fallback; }
@@ -61,99 +60,6 @@ public final class YukkuriSyncState {
         }
     }
 
-    public record AquaticAlarm(
-            Field<String> activity,
-            Field<Long> start,
-            Field<Integer> sourceId,
-            Field<Integer> rescueTargetId) {
-        public static AquaticAlarm read(CompoundTag tag) {
-            return new AquaticAlarm(
-                    text(tag, "Activity"),
-                    longValue(tag, "Start"),
-                    integer(tag, "SourceId"),
-                    integer(tag, "RescueTargetId"));
-        }
-        public CompoundTag encode() {
-            var tag = new CompoundTag();
-            if (activity.present()) tag.putString("Activity", activity.value());
-            if (start.present()) tag.putLong("Start", start.value());
-            if (sourceId.present()) tag.putInt("SourceId", sourceId.value());
-            if (rescueTargetId.present()) tag.putInt("RescueTargetId", rescueTargetId.value());
-            return tag;
-        }
-    }
-
-    public record SelfRescue(
-            Field<String> phase,
-            Field<Long> start,
-            Field<Integer> hatId,
-            Field<Float> grip,
-            Field<String> activity,
-            Field<Boolean> planned,
-            Field<Float> removalProgress,
-            Field<Integer> removeTicks,
-            Field<Integer> pushIndex,
-            Field<Boolean> pushing,
-            Field<Boolean> bite,
-            Point deploy,
-            Field<Float> deployYaw,
-            Field<Float> removalYaw,
-            Point removalFeet,
-            Field<Boolean> hatPose,
-            Point hat,
-            Field<Float> hatQX,
-            Field<Float> hatQY,
-            Field<Float> hatQZ,
-            Field<Float> hatQW,
-            Field<Float> hatSquash,
-            Point prevHat,
-            Field<Float> prevHatQX,
-            Field<Float> prevHatQY,
-            Field<Float> prevHatQZ,
-            Field<Float> prevHatQW,
-            Field<Float> prevHatSquash,
-            Field<Float> bodyYaw,
-            Field<Float> prevBodyYaw,
-            Field<Boolean> locked,
-            Point gripLocal) {
-        public static SelfRescue read(CompoundTag tag) {
-            return new SelfRescue(
-                    text(tag, "Phase"),
-                    longValue(tag, "Start"),
-                    integer(tag, "HatId"),
-                    floating(tag, "Grip"),
-                    text(tag, "Activity"),
-                    bool(tag, "Planned"),
-                    floating(tag, "RemovalProgress"),
-                    integer(tag, "RemoveTicks"),
-                    integer(tag, "PushIndex"),
-                    bool(tag, "Pushing"),
-                    bool(tag, "Bite"),
-                    Point.read(tag, "Deploy"),
-                    floating(tag, "DeployYaw"),
-                    floating(tag, "RemovalYaw"),
-                    Point.read(tag, "RemovalFeet"),
-                    bool(tag, "HatPose"),
-                    Point.read(tag, "Hat"),
-                    floating(tag, "HatQX"),
-                    floating(tag, "HatQY"),
-                    floating(tag, "HatQZ"),
-                    floating(tag, "HatQW"),
-                    floating(tag, "HatSquash"),
-                    Point.read(tag, "PrevHat"),
-                    floating(tag, "PrevHatQX"),
-                    floating(tag, "PrevHatQY"),
-                    floating(tag, "PrevHatQZ"),
-                    floating(tag, "PrevHatQW"),
-                    floating(tag, "PrevHatSquash"),
-                    floating(tag, "BodyYaw"),
-                    floating(tag, "PrevBodyYaw"),
-                    bool(tag, "Locked"),
-                    Point.read(tag, "GripLocal"));
-        }
-    }
-
-    /** List.copyOf prevents callers from changing a cached child's morph flags. */
     public record LiveChildren(Field<Integer> count, Field<List<Integer>> morphs,
                                Field<Integer> born, Field<Integer> types, Field<List<Integer>> scales) {
         public LiveChildren {

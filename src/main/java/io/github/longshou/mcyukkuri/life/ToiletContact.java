@@ -15,7 +15,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.io.IOException;
 import java.util.List;
 import java.io.InputStreamReader;
@@ -62,14 +61,6 @@ public final class ToiletContact {
 
     public static Vec3 rear(YukkuriEntity actor) {
         return FamilyFeedingContact.rearPoint(actor);
-    }
-
-    /** The supported brim outlet must also be behind the actor's current body, after turning. */
-    public static Vec3 hatOutlet(YukkuriEntity actor, HatBoatEntity boat) {
-        var outlet = boat.toiletDropPosition(actor);
-        if (outlet == null) return null;
-        var outward = outlet.subtract(actor.position()).multiply(1, 0, 1).normalize();
-        return Vec3.directionFromRotation(0, actor.getYRot()).dot(outward) <= -.98 ? outlet : null;
     }
 
     /** A blocked rear outlet never falls back to the body's centre. */

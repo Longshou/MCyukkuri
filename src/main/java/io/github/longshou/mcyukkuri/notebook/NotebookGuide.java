@@ -14,16 +14,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
-import io.github.longshou.mcyukkuri.subspecies.AquaticShore;
-import io.github.longshou.mcyukkuri.subspecies.FirstVoyage;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Locale;
 
 /** Short vanilla book pages: controls, real recipes and separate implementation status. */
 public final class NotebookGuide {
     public static List<Component> pages(ItemStack notebook) {
         List<Component> pages = new ArrayList<>();
-        for (String chapter : List.of("start", "route", "discovery", "care", "water", "aquatic", "aquatic_family", "social", "home", "family", "birth",
+        for (String chapter : List.of("start", "route", "discovery", "care", "water", "social", "home", "family", "birth",
                 "childhood", "house", "house_start", "house_supplies", "house_cleanup", "house_guard", "body", "tools", "play", "storage", "retrieval",
                 "commerce", "progress", "status", "accessories", "community", "season"))
             pages.add(chapter.equals("house_guard")?Component.translatable("notebook.mcyukkuri.chapter.house_guard",
@@ -55,14 +52,12 @@ public final class NotebookGuide {
         });
     }
     public static Component form(YukkuriEntity entity) {
-        var shape=entity.subspecies();var boat=HatBoatEntity.find(entity);
+        var shape=entity.subspecies();
         return Component.translatable("notebook.mcyukkuri.chapter.form",
                 shape.deibu()?Component.translatable("subspecies.mcyukkuri.acquired.deibu").append(" / ").append(Component
                         .translatable("subspecies.mcyukkuri.kind."+shape.kind().name().toLowerCase(Locale.ROOT))):Component
                         .translatable("subspecies.mcyukkuri.kind."+shape.kind().name().toLowerCase(Locale.ROOT)),
-                Component.translatable("subspecies.mcyukkuri.congenital."+shape.congenital().name().toLowerCase(Locale.ROOT)),
-                Component.translatable(boat==null?"notebook.mcyukkuri.chapter.no_boat":"subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(Locale.ROOT)),
-                shape.boatExperienced()?"✓":"—");
+                Component.translatable("subspecies.mcyukkuri.congenital."+shape.congenital().name().toLowerCase(Locale.ROOT)));
     }
     public static Component pregnancy(YukkuriEntity entity) {
         var brood = entity.family().brood();
@@ -88,28 +83,6 @@ public final class NotebookGuide {
                         entity.childhood().firstToiletDone()?"✓":"—", entity.childhood().canJump()?"✓":"—",
                         entity.childhood().canExercise()?"✓":"—", entity.childhood().canLearn()?"✓":"—",
                         entity.childhood().canLiveIndependently()?"✓":"—"));
-    }
-    public static Component aquatic(YukkuriEntity entity) {
-        var boat=HatBoatEntity.find(entity);
-        if(boat==null)return Component.translatable("notebook.mcyukkuri.chapter.aquatic");
-        return Component.translatable("notebook.mcyukkuri.aquatic_status",
-                Component.translatable("subspecies.mcyukkuri.boat."+boat.state().name().toLowerCase(Locale.ROOT)),
-                boat.cargo().paddle()?"✓":"—",String.format(Locale.ROOT,"%.1f",boat.capacityUsed()),String.format(Locale.ROOT,"%.0f",boat.maxLoad()),
-                boat.youngAboard(),Component.translatable("notebook.mcyukkuri.hat_space."+
-                        (boat.overcrowded()?"crowded":boat.canAdmitNewborn()?"available":"full")),
-                Component.translatable("activity.mcyukkuri."+entity.getBehaviorId()));
-    }
-    public static Component aquaticFamily(YukkuriEntity entity) {
-        var owner = entity.getVehicle() instanceof HatBoatEntity boat
-                && boat.getControllingPassenger() instanceof YukkuriEntity parent ? parent : entity;
-        var life = owner.aquaticLife(); var care = life.care();
-        return Component.translatable("notebook.mcyukkuri.aquatic_family",life.provisions(),care.meals(),care.comforts(),care.songs(),
-                care.serving().isEmpty()?Component.translatable("notebook.mcyukkuri.empty_mouth"):care.serving().getHoverName())
-                .append(Component.translatable("notebook.mcyukkuri.first_voyage",
-                        Math.round(entity.family().scale()*100),Math.round(FirstVoyage.MIN_SCALE*100),
-                        Component.translatable("notebook.mcyukkuri.first_voyage."+entity.aquaticLife().firstVoyage().status())))
-                .append(Component.translatable("notebook.mcyukkuri.aquatic_shore",entity.aquaticLife().shore().landTicks()/20,
-                        AquaticShore.VISIT_TICKS/20));
     }
     private NotebookGuide() {}
 }

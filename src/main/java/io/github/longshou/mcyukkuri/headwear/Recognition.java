@@ -34,12 +34,10 @@ public final class Recognition {
         return observer.profile().aquatic() || intellect(observer) >= THRESHOLD;
     }
 
-    /** Only a nearby, loaded physical hat is visible to other yukkuri; unresolved custody only calms its owner. */
+    /** A set-down or ridden physical hat is visible to other yukkuri; unresolved custody only calms its owner. */
     private static boolean custodiedInOwnHat(YukkuriEntity target) {
-        if (target.getVehicle() instanceof HatBoatEntity riding && target.getUUID().equals(riding.ownerYukkuri())
-                && riding.protects(target)) return true;
-        var boat = HatBoatEntity.owned(target);
-        return boat != null && target.distanceToSqr(boat) <= 64;
+        var hat = HatBoatEntity.find(target);
+        return hat != null && target.distanceToSqr(hat) <= 64;
     }
     /** {@code observer} knows {@code target} as a yukkuri (and as itself, so kin as kin). */
     public static boolean recognizes(YukkuriEntity observer, YukkuriEntity target) {

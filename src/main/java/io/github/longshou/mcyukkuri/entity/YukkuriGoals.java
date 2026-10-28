@@ -18,9 +18,6 @@ import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.crew.CrewTransferGoal;
 import java.util.EnumSet;
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -45,7 +42,6 @@ final class YukkuriGoals {
     private final GoalSelector goalSelector;
     private PresentationGoals presentationGoals;
     private RoamingGoal roaming;
-    private String observedRunning;
     RoamingGoal roaming() { return roaming; }
     YukkuriGoals(YukkuriEntity owner, GoalSelector goalSelector) {
         this.owner = owner;
@@ -55,8 +51,6 @@ final class YukkuriGoals {
         owner.initializeComponents();
         presentationGoals = new PresentationGoals(owner);
         goalSelector.addGoal(0, new EscapeWaterGoal());
-        // A crew transfer holds both its body and its carrier (priority 1, MOVE|JUMP|LOOK); the decision layers below stand aside.
-        goalSelector.addGoal(1, new CrewTransferGoal(owner));
         // A young the catch hat is unloading leaves on its own (walk to the brim or hop out); the taker's own goal only signals it.
         goalSelector.addGoal(2, new LeaveHostGoal(owner));
         goalSelector.addGoal(0, new HotFloorGoal());
@@ -84,8 +78,6 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.COMFORT_RECEIVER, new ComfortReceiverGoal()));
         goalSelector.addGoal(2, new PetLife.SessionGoal(owner));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
-        owner.createAquaticLife();
-        goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.AQUATIC, owner.aquaticLife()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
@@ -137,8 +129,8 @@ final class YukkuriGoals {
     private Goal landGoal(Goal delegate) {
         return new Goal() {
             { setFlags(delegate.getFlags()); }
-            @Override public boolean canUse() { return !AquaticLife.afloatOwnsRider(owner) && delegate.canUse(); }
-            @Override public boolean canContinueToUse() { return !AquaticLife.afloatOwnsRider(owner) && delegate.canContinueToUse(); }
+            @Override public boolean canUse() { return delegate.canUse(); }
+            @Override public boolean canContinueToUse() { return delegate.canContinueToUse(); }
             @Override public boolean isInterruptable() { return delegate.isInterruptable(); }
             @Override public boolean requiresUpdateEveryTick() { return delegate.requiresUpdateEveryTick(); }
             @Override public void start() { delegate.start(); }
@@ -180,7 +172,7 @@ final class YukkuriGoals {
     private final class FleeGoal extends Goal {
         FleeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return owner.panicTicksValue() > 0 && !owner.predator().recoveringFlight()
-                && !owner.grief().protecting() && !owner.shellRetracts() && !owner.shelteredInHat(); }
+                && !owner.grief().protecting() && !owner.shellRetracts(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
@@ -337,7 +329,7 @@ final class YukkuriGoals {
     private final class EscapeWaterGoal extends Goal {
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
         @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath())
-                && !owner.predatorFlying() && !owner.family().crew().active(); }
+                && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() { owner.waterDistress().escapeTick(); }
         @Override public void stop() { owner.directNavigation().stop(); }
@@ -387,17 +379,6 @@ final class YukkuriGoals {
         }
     }
     PresentationGoals.Running runningGoals() {
-        if (GameplayLog.detailEnabled() && owner.getVehicle() instanceof HatBoatEntity) {
-            String running = goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning)
-                    .sorted(Comparator.comparingInt(WrappedGoal::getPriority))
-                    .map(g -> g.getGoal().getClass().getSimpleName() + ":" + g.getGoal() + "@" + g.getPriority())
-                    .collect(Collectors.joining(","));
-            if (!running.equals(observedRunning)) {
-                GameplayLog.limited(owner, "aqdiag", "goals.switch", 40,
-                        "goal selection {} -> {} agenda={}", observedRunning, running, owner.aquaticLife().agenda().currentId());
-                observedRunning = running;
-            }
-        }
         return presentationGoals.running(goalSelector.getAvailableGoals());
     }
 }

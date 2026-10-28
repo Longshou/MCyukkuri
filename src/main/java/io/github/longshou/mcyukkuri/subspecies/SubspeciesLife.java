@@ -15,7 +15,6 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
@@ -38,9 +37,6 @@ public final class SubspeciesLife {
     private boolean initialized;
     private boolean boatExperienced;
     public static final int DEIBU_FLAG=256;
-    /** An aquatic young that has not yet started its first voyage still wears the land-size hat (hat_deck_layout.json
-     *  young_hat_multiplier, project design); the boat-size hat comes with that voyage. */
-    public static final int YOUNG_HAT_FLAG=512;
     /** One full loaded game-day at the end of subadulthood. */
     private static final int DEIBU_EXPOSURE_TICKS=24_000, DEIBU_MAX_SPACE_ATTEMPTS=3;
     private boolean deibu;
@@ -95,32 +91,16 @@ public final class SubspeciesLife {
         if(entity.life()!=null)entity.life().personality().constrainToForm();
         return true;
     }
-    private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0) | (youngHat()?YOUNG_HAT_FLAG:0)); }
+    private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0)); }
     /** Refresh derived stage flags after newborn initialization, before its first geometry/admission check. */
     public void refreshStage() { if(!entity.level().isClientSide)sync(); }
-    private boolean youngHat() {
-        return kind == Kind.AQUATIC_MARISA && !boatExperienced && entity.family() != null && !entity.family().adult()
-                && entity.aquaticLife() != null && !entity.aquaticLife().firstVoyage().active();
-    }
     public void onNaturalSpawn(MobSpawnType reason) {
         if (initialized || reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return;
         roll(null, null);
-        // Marisa that appear by open water are often the aquatic kind [original rate].
-        if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()
-                && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
-            set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
-        // Her life is on the water: once spawned she is put into her own hat boat instead of standing on the bank.
-        if (kind == Kind.AQUATIC_MARISA) entity.aquaticLife().requestNaturalAfloatSpawn();
+        // The aquatic kind is not drawn by a natural spawn while the old aquatic life is offline: it remains a form that an
+        // aquatic parent passes on (birthFlags), and a keep-command or a saved individual keeps it.
         entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
                 congenital!=Congenital.NORMAL,kind));
-        // A loaded-world spawn joins already aboard; chunk generation cannot place entities and falls back to her first ticks.
-        if (kind == Kind.AQUATIC_MARISA && reason == MobSpawnType.NATURAL) entity.aquaticLife().attemptAfloatSpawn();
-    }
-    private boolean nearOpenWater() {
-        var origin = entity.blockPosition();
-        for (var p : BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
-            if (entity.level().getFluidState(p).is(FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
-        return false;
     }
     private void roll(YukkuriEntity a, YukkuriEntity b) {
         if (initialized) return;
@@ -191,7 +171,6 @@ public final class SubspeciesLife {
             if (kind == Kind.SHELL_MARISA && !speed.hasModifier(id)) speed.addTransientModifier(new AttributeModifier(id, -.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
             else if (kind != Kind.SHELL_MARISA) speed.removeModifier(id);
         }
-        // Shore selection and departures belong to AquaticLife's exclusive server goal.
     }
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Kind", kind.name()); tag.putString("Congenital", congenital.name());
@@ -199,7 +178,6 @@ public final class SubspeciesLife {
         tag.putBoolean("Deibu",deibu);tag.putInt("DeibuExposure",deibuExposure);tag.putBoolean("DeibuAdultResolved",deibuAdultResolved);
         tag.putBoolean("DeibuPending",deibuPending);tag.putInt("DeibuSpaceAttempts",deibuSpaceAttempts);tag.putLong("DeibuRetryAt",deibuRetryAt);
         tag.putLong("DeibuSpaceSignature",deibuSpaceSignature);if(deibuCheckedAt!=null)tag.putLong("DeibuCheckedAt",deibuCheckedAt.asLong());
-        tag.put("AquaticLife", entity.aquaticLife().save());
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -209,7 +187,6 @@ public final class SubspeciesLife {
         if (kind != Kind.NORMAL || entity.getVariant() != YukkuriVariant.REIMU && entity.getVariant() != YukkuriVariant.MARISA) congenital = Congenital.NORMAL;
         initialized = tag.getBoolean("Initialized"); boatExperienced = tag.getBoolean("BoatExperienced");
         sync();
-        entity.aquaticLife().load(tag.getCompound("AquaticLife"));
         deibu=tag.getBoolean("Deibu")&&deibuCandidate();
         deibuExposure=Math.clamp(tag.getInt("DeibuExposure"),0,DEIBU_EXPOSURE_TICKS);
         deibuAdultResolved=tag.getBoolean("DeibuAdultResolved")||deibu;
@@ -240,7 +217,7 @@ public final class SubspeciesLife {
     }
     private boolean safeForDeibuChange() {
         return entity.onGround()&&!entity.isPassenger()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
-                &&!entity.family().flying()&&!entity.family().crew().busy()&&!entity.careApproach().waiting()
+                &&!entity.family().flying()&&!entity.careApproach().waiting()
                 &&!entity.operations().active()&&!entity.family().active()&&entity.family().brood()==null&&!entity.groupInteraction().active()
                 &&!entity.social().active()&&!entity.dailyLife().active()&&!entity.playLife().active()&&!entity.house().active()&&!entity.habitat().active()
                 &&!entity.pet().busy()&&!entity.predator().active()&&!WildEvents.reserved(entity);

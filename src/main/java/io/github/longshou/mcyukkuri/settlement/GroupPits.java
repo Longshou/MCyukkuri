@@ -39,7 +39,7 @@ public final class GroupPits {
 
     /** The standing cells of the group's pit, or empty when the group has none. */
     public static List<BlockPos> cells(ServerLevel level, SettlementData.Group group) {
-        if (group == null || group.waterCommons != null) return List.of();
+        if (group == null) return List.of();
         var site = SiteLife.of(level, group);
         if (site != null) return SiteLife.pit(site);
         if (group.kind != SettlementData.Kind.FOREST) return List.of();

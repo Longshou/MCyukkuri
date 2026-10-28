@@ -16,9 +16,6 @@ public final class EcologyRoutines {
         return entity.profile().ecology() == SpeciesProfile.Ecology.PREDATOR;
     }
 
-    /** The old kind-only capability. It does not gate ordinary passengers' safety or care. */
-    public static boolean aquaticVoyage(YukkuriEntity entity) { return entity.profile().aquatic(); }
-
     public static void tick(EcologyRoutine routine) {
         if (routine.supportsPassiveTick()) routine.passiveTick();
     }
@@ -28,7 +25,7 @@ public final class EcologyRoutines {
         else entity.settlement().naturalSpawn();
     }
 
-    /** Used only after family paddle, family, independence and settlement-duty carrying have failed. */
+    /** Used only after family, independence and settlement-duty carrying have failed. */
     public static ItemStack carryingFallback(YukkuriEntity entity) {
         return house(entity) ? entity.house().carrying() : entity.habitat().carrying();
     }

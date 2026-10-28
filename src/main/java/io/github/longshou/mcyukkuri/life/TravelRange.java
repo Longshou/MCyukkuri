@@ -24,7 +24,7 @@ public final class TravelRange {
     public static boolean keepBabyHome(YukkuriEntity animal) {
         return animal.family().stage() == Stage.BABY && !animal.family().emergencyForaging() && animal.life().homeStand() != null
                 && babyDestination(animal,animal.blockPosition()) && !animal.family().familyTravelling() && !BehaviorContinuity.emergency(animal)
-                && !animal.family().crew().holdsBody() && !animal.isPassenger();
+                && !animal.isPassenger();
     }
     /** A home limits voluntary baby errands, never escape, carrying or the family's march. */
     public static boolean babyDestination(YukkuriEntity animal, BlockPos destination) {

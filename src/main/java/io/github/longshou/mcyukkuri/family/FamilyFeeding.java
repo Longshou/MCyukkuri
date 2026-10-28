@@ -108,7 +108,7 @@ final class FamilyFeeding {
 
     private boolean careContextReady() {
         return o.adult()&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()&&!o.entity().profile().dangerToYukkuri()
-                &&!o.entity().profile().aquatic()&&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
+                &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&o.entity().life().mealTicks()==0&&!o.entity().independence().active()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()

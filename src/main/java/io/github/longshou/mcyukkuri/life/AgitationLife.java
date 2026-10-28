@@ -227,7 +227,7 @@ public final class AgitationLife {
                     || phase == Phase.HEAT_RELIEVED && brood.incidentSource == null && brood.elapsed == 0)
                 && !entity.careApproach().waiting() && !entity.childhood().active()
                 && !entity.house().active() && !entity.woundComfort().active()
-                && !entity.aquaticLife().active() && !entity.independence().active()
+                && !entity.independence().active()
                 && !entity.habitat().active() && !entity.settlement().duties().active()
                 && !entity.dailyLife().active() && !entity.groupInteraction().active() && !entity.playLife().active()
                 && !WildEvents.reserved(entity)
@@ -338,7 +338,7 @@ public final class AgitationLife {
                 && !other.body().dying() && other.body().coreIntact()
                 && !other.profile().dangerToYukkuri() && !other.isNoAi() && !other.isPassenger() && !other.isVehicle()
                 && !other.isCommandPlaying() && !other.operations().active() && !other.pet().busy()
-                && !other.family().laboring() && !other.family().birthDuty() && !other.family().crew().busy()
+                && !other.family().laboring() && !other.family().birthDuty()
                 && !other.life().sedated() && !other.life().isSleeping() && !other.isInWaterOrBubble()
                 && !other.isOnFire() && !other.agitation().agitated() && !other.agitation().held()
                 && entity.distanceToSqr(other) <= 144;

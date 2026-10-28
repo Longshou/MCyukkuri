@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Authored clip timing, generalised from {@code subspecies/crew/CrewClips}: a clip's own markers are the server clock, so
+ * Authored clip timing: a clip's own markers are the server clock, so
  * an action and the drawn clip agree without the client deciding anything (spec 8.4 / 9.4).
  *
  * <p>The exported clip data ({@code /assets/mcyukkuri/yukkuri_presentation/motion_corrections.json}) is streamed once;

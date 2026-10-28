@@ -8,16 +8,16 @@ import java.util.Locale;
  * What one body can do right now (spec 8.1): the S/E/H/I/F formulas of {@code AbilityMath} with the coefficients of
  * {@link AbilityTable} and the species factors of {@link AbilityModifier}.
  *
- * <p>The host load factor L is the deck load a caller knows about (WP1 callers pass none, so L is 1). WP4 lets a host
+ * <p>The host load factor L is the load a caller knows about (WP1 callers pass none, so L is 1). WP4 lets a host
  * supply it; nothing here reads {@code subspecies/}.
  */
 public record BodyAbility(boolean canJump, double hopHeight, double hopReach, double stepUp, double walkSpeed,
                           double turnRate, double swimSpeed, double climbRise, double grip, double scale) {
-    /** A body that carries nothing: the deck load factor L stays 1. */
+    /** A body that carries nothing: the host load factor L stays 1. */
     public static BodyAbility of(YukkuriEntity body) { return of(body, 0); }
 
     /**
-     * Reads the ability of {@code body}, where {@code load} is the host's deck load in the units of spec 8.1 L. The
+     * Reads the ability of {@code body}, where {@code load} is the host's load in the units of spec 8.1 L. The
      * {@code scale} is S, which the arc solver uses for its minimum clearance.
      */
     public static BodyAbility of(YukkuriEntity body, double load) {

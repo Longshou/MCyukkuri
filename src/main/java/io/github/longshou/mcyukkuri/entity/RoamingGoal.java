@@ -89,7 +89,7 @@ public final class RoamingGoal extends Goal {
             if (++paths > 4) break;
             if (!animal.life().reachable(pos,false)) continue;
             if (fallback == null) fallback = pos.immutable();
-            if (!animal.profile().aquatic() || animal.aquaticLife().shore().coastal(pos)) return pos.immutable();
+            return pos.immutable();
         }
         return fallback;
     }

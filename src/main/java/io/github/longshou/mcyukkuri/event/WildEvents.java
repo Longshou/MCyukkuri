@@ -151,7 +151,6 @@ public final class WildEvents {
         if(Math.floorMod(e.tickCount+e.getId(),100)!=0 || !available(e))return;
         var data=WildEventData.get(level);
         if(!data.canStart(GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),level.getGameTime()))return;
-        if(RiverEncounter.discover(e))return;
         if(HomeClaim.discover(e))return;
         List<YukkuriEntity> peers=nearby(e);if(peers.isEmpty())return;
         Player player=level.getNearestPlayer(e,8);
@@ -187,7 +186,6 @@ public final class WildEvents {
     }
     public static void advance(ServerLevel level, Scene s) {
         if(!s.active())return;
-        if(s.kind==Kind.RIVER){RiverEncounter.advance(level,s);return;}
         var data=WildEventData.get(level);var family=FamilyData.get(level);var custody=YukkuriWorldData.get(level);
         List<YukkuriEntity> loaded=new ArrayList<>(); boolean separated=false;
         for(UUID id:s.members) {

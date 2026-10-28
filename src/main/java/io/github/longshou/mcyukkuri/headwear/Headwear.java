@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -145,7 +144,7 @@ public final class Headwear extends Goal {
     void recordContact(YukkuriEntity other, boolean monster) {
         lastContact = (monster ? "monster" : "scorn") + ":#" + other.getId() + "@" + entity.level().getGameTime();
     }
-    /** Lasting pressure on the mind, per minute (MindLife.sample). An owner afloat in its own hat boat still has its hat. */
+    /** Lasting pressure on the mind, per minute (MindLife.sample). */
     public float uneasePerMinute() {
         return switch (state()) {
             case WORN -> damage >= TORN ? 1f : damage == 1 ? .5f : 0f;
@@ -232,7 +231,6 @@ public final class Headwear extends Goal {
     public void shatter(String why, boolean burned) {
         if (entity.level().isClientSide || !entity.life().hasAccessory()) return;
         if (entity.isVehicle() && HatCarry.hasHat(entity)) HatCarry.putDown(entity);
-        entity.aquaticLife().firstVoyage().dropStoredCargo();
         var item = new ItemStack(ModItems.accessoryFor(entity));
         entity.life().removeAccessory();
         damage = 0; mend = 0; reassembly = 0; shardsHeld = 0; cause = why;
@@ -267,7 +265,7 @@ public final class Headwear extends Goal {
         if (!(entity.level() instanceof ServerLevel) || transferredShardRefusalReason(stack) != null) return false;
         if (state() != State.SHATTERED) {
             State previous = state();
-            // Retire a genuinely lost boat's old return capability only after accepting replacement material.
+            // Retire a genuinely lost hat's old return capability only after accepting replacement material.
             // A still-custodied hat is rejected above; scanning never alters ownership or repair state.
             entity.life().removeAccessory();
             shattered = true; lost = false;
@@ -408,10 +406,6 @@ public final class Headwear extends Goal {
         if (worn) {
             if (fit < body && feeling > 0 && entity.tickCount % 20 == 0) fit = Math.min(body, fit + GROWTH_PER_SECOND * feeling * Math.max(.3f, body));
             mendStep(feeling, "worn");
-        } else if (entity.life().custody().state() == HatCustody.State.DEPLOYED && entity.getVehicle() instanceof HatBoatEntity hull
-                && hull.ownsPhysicalHat(entity)) {
-            // Project design (ecology A8): an owner aboard her own hull mends the hat at half the worn rate, so repairing needs no shore trip.
-            if ((entity.tickCount & 1) == 0) mendStep(feeling, "aboard_hull");
         } else if (state() == State.REASSEMBLING) {
             // Kept close and knitting even while miserable; only a broken mind stops it (recovery is not meant to be cruel).
             if (!entity.mind().nonYukkuri() && (reassembly += Math.max(1, feeling)) >= REASSEMBLE) restore();
@@ -453,8 +447,8 @@ public final class Headwear extends Goal {
         }
         gatherCheck=target!=null?"target_selected":candidates.isEmpty()?"no_compatible_fragments":"no_reachable_fragments";
         if(target==null&&!candidates.isEmpty())GameplayLog.limited(entity,"headwear","shard_scan_no_path",200,
-                "shard scan blocked reason=no_reachable_fragments candidates={} sampleDrop={} samplePosition={} aquatic={} held={} total={}",
-                gatherCandidates,candidates.getFirst().getUUID(),candidates.getFirst().blockPosition(),entity.profile().aquatic(),shardsHeld,shardsTotal);
+                "shard scan blocked reason=no_reachable_fragments candidates={} sampleDrop={} samplePosition={} held={} total={}",
+                gatherCandidates,candidates.getFirst().getUUID(),candidates.getFirst().blockPosition(),shardsHeld,shardsTotal);
         elapsed = lickTicks = 0;
         return target != null;
     }

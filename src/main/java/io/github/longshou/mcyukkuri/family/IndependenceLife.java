@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Temperament;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public final class IndependenceLife extends Goal {
     private final YukkuriEntity entity;
     /** The parents' home that was left; the leaver never moves back into it. */
     private GlobalPos origin;
-    private boolean independent, armed, household, afloatDeparture;
+    private boolean independent, armed, household;
     private UUID visitor;
     private Task task = Task.NONE;
     private int wait = CHECK_INTERVAL, elapsed, contact, loadGrace, parentWaits, visits;
@@ -58,8 +57,6 @@ public final class IndependenceLife extends Goal {
     public boolean building() { return false; }
     /** The child has left its parents. It stays true for life, whether it already has a new home or is still looking for one. */
     public boolean independent() { return independent; }
-    /** The individual left the parent flotilla from its own real afloat hat, so it has no land-home origin. */
-    public boolean afloatDeparture() { return afloatDeparture; }
     public ItemStack carrying() { return ItemStack.EMPTY; }
     public int work() { return 0; }
     public int visits() { return visits; }
@@ -77,7 +74,6 @@ public final class IndependenceLife extends Goal {
     private boolean wild() {
         var human = Custody.view(entity);
         return !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
-                && !entity.profile().aquatic()
                 && human.wild();
     }
     /** Unknown/unloaded living children are conservatively treated as dependent. */
@@ -94,7 +90,6 @@ public final class IndependenceLife extends Goal {
     /** Why the individual is not leaving yet ("ok" when it would); for the notebook and the playground. */
     public String why() {
         if (independent) return "left";
-        if (entity.profile().aquatic()) return afloatWhy();
         if (!wild()) return "not_wild";
         if (!entity.childhood().canLiveIndependently()) return "not_capable";
         if (entity.family().elder()) return "elder";
@@ -111,28 +106,6 @@ public final class IndependenceLife extends Goal {
         if (block != null) return "not_ready:" + block;
         if (!member()) return "not_member";
         return "ok";
-    }
-    /** Read-only departure diagnosis for a child whose residence is a real hat rather than a land shelter. */
-    private String afloatWhy() {
-        var voyage = entity.aquaticLife().firstVoyage();
-        if (!Custody.view(entity).wild()) return "not_wild";
-        if (voyage.independent()) return "left";
-        if (voyage.active()) return "voyage_" + voyage.status();
-        if (!voyage.completed()) return "voyage_incomplete";
-        if (!entity.childhood().canLiveIndependently()) return "not_capable";
-        if (entity.family().elder()) return "elder";
-        if (entity.family().partner() != null) return "partnered";
-        if (entity.family().recovery() > 0) return "recovering";
-        if (hasDependents()) return "dependents";
-        if (!member()) return "not_member";
-        var boat = entity.habitat().waterHome();
-        if (boat == null) return "no_hat";
-        if (!boat.isAfloat()) return "hat_not_afloat";
-        if (entity.getVehicle() != boat) return "not_aboard";
-        if (!entity.getUUID().equals(boat.ownerYukkuri())) return "not_captain";
-        if (!boat.protects(entity)) return "hat_not_protecting";
-        if (!boat.cargo().paddle()) return "paddle_missing";
-        return "afloat_ready";
     }
     /** A capable late juvenile (or an adult still at home) that has a usable bed in a home its parent owns. */
     public boolean eligible() {
@@ -270,37 +243,6 @@ public final class IndependenceLife extends Goal {
                 origin, visitor, contact, elapsed, parentWaits);
     }
 
-    /**
-     * Commits an aquatic child's departure only after it has exchanged a real farewell with a parent and sailed its own
-     * protected hat clear of the parent vessel.  Water is deliberately not saved as a {@link GlobalPos}: the vessel is
-     * the residence, and a later landing must not restore a fictitious water home.
-     */
-    public boolean completeAfloatDeparture(YukkuriEntity parent, HatBoatEntity boat) {
-        if (entity.level().isClientSide || independent || !entity.profile().aquatic() || parent == null || boat == null
-                || parent.level() != entity.level() || !entity.isAlive() || !parent.isAlive() || !Custody.view(entity).wild()
-                || !entity.childhood().canLiveIndependently() || entity.family().elder() || entity.family().partner() != null
-                || entity.family().recovery() != 0 || hasDependents() || !member() || !Bonds.parentOf(parent, entity)) return false;
-        var parentHat = parent.habitat().waterHome();
-        if (entity.getVehicle() != boat || !boat.isAfloat() || !boat.protects(entity) || !entity.getUUID().equals(boat.ownerYukkuri())
-                || boat.unsteadyMotion() || boat.flooding() > 0 || !boat.cargo().paddle()
-                || parentHat == null || parent.getVehicle() != parentHat || !parentHat.isAfloat() || !parentHat.protects(parent)
-                || parentHat.unsteadyMotion() || parentHat.flooding() > 0
-                || !entity.life().canRecognize(parent) || !parent.life().canRecognize(entity)
-                || boat.position().subtract(parentHat.position()).horizontalDistanceSqr() < 64) return false;
-        independent = true; afloatDeparture = true; armed = false; household = false; visits++;
-        // Clear only a stale legacy land claim. The actual hat and its cargo remain intact.
-        entity.habitat().release();
-        entity.life().releaseHome();
-        var relations = YukkuriWorldData.get(level());
-        relations.relate(entity.getUUID(), parent.getUUID(), 2);
-        relations.relate(parent.getUUID(), entity.getUUID(), 2);
-        entity.setPersistenceRequired();
-        GameplayLog.event(entity, "independence", "afloat departed parent={} boat={} parentBoat={} separation={} food={} paddle={}",
-                parent.getUUID(), boat.getUUID(), parentHat.getUUID(),
-                Math.round(Math.sqrt(boat.position().subtract(parentHat.position()).horizontalDistanceSqr()) * 10) / 10f,
-                boat.cargo().count(), boat.cargo().paddle());
-        return true;
-    }
     /** Called by the habitat when the leaver has taken a home of its own: a loose family group gets a household of its own. */
     public void settled(ShelterBlockEntity home) {
         if (!independent || household || home == null) return;
@@ -333,7 +275,7 @@ public final class IndependenceLife extends Goal {
     /** Nothing is held across a departure any more; kept for the entity's death and reload hooks. */
     public void abandon() { stop(); wait = CHECK_INTERVAL; }
     public Component observation() {
-        String status = independent ? household || afloatDeparture ? "independent" : "vagrant" : task == Task.FAREWELL ? "farewell" : eligible() ? "eligible" : "family";
+        String status = independent ? household ? "independent" : "vagrant" : task == Task.FAREWELL ? "farewell" : eligible() ? "eligible" : "family";
         var shelter = entity.habitat().shelter();
         return Component.translatable("notebook.mcyukkuri.independence", Component.translatable("independence.mcyukkuri." + status),
                 origin == null ? "—" : origin.pos().toShortString(),
@@ -342,7 +284,7 @@ public final class IndependenceLife extends Goal {
     public CompoundTag save() {
         var tag = new CompoundTag(); FamilyData.putPosition(tag, "Origin", origin);
         tag.putString("Why", why()); tag.putBoolean("Force", armed); tag.putBoolean("Independent", independent); tag.putBoolean("Household",
-                household); tag.putBoolean("AfloatDeparture", afloatDeparture); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
+                household); tag.putInt("Wait", wait); tag.putInt("Visits", visits);
         return tag;
     }
     public void load(CompoundTag tag) {
@@ -350,7 +292,6 @@ public final class IndependenceLife extends Goal {
         // Saves of the old construction project that had finished a new home count as left; unfinished projects are dropped.
         independent = tag.getBoolean("Independent") || tag.contains("EstablishedHome");
         household = tag.getBoolean("Household") || tag.contains("EstablishedHome");
-        afloatDeparture = tag.getBoolean("AfloatDeparture");
         armed = tag.getBoolean("Force");
         wait = tag.contains("Wait") ? Math.clamp(tag.getInt("Wait"), 0, CHECK_INTERVAL) : CHECK_INTERVAL;
         if (armed) wait = 0;

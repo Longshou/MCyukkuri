@@ -32,7 +32,6 @@ import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
 import io.github.longshou.mcyukkuri.shop.ShopCourier;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
 import io.github.longshou.mcyukkuri.world.SearchBudgetEvents;
 import java.util.function.Consumer;
 import net.neoforged.bus.api.EventPriority;
@@ -123,7 +122,6 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, HouseholdEcology::sheared);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, LeashGuard::interact);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, AquaticLife::deliverStick);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.ItemCraftedEvent.class, HouseholdEcology::crafted);
 
@@ -131,7 +129,6 @@ public final class CommonRegistration {
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, HouseholdEcology::purgeInventory);
 
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LivingBreatheEvent.class, YukkuriEntity::breatheInHat);
 
 
         // Commerce already ran at the end of YukkuriEntity.tick; carrying precedes discovery.

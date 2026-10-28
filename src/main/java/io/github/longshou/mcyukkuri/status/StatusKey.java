@@ -308,13 +308,7 @@ public enum StatusKey {
     SETTLEMENT_HUNT("identity", "settlement_hunt", 0, y -> y.forageTrip() == null || !y.forageTrip().hunting() ? "none"
             : y.forageTrip().role().name().toLowerCase(Locale.ROOT) + "/" + y.forageTrip().phase().name().toLowerCase(Locale.ROOT), null),
     // ---- water ------------------------------------------------------------------------------------------------
-    WATER_CARGO("water", "cargo", 0, y -> y.aquaticLife().cargoDetail(), null),
     WATER_DISTRESS("water", "distress", 0, y -> y.waterDistress().statusDetail(), null),
-    WATER_SELF_RESCUE("water", "self_rescue", 0, y -> y.aquaticLife().selfRescue().statusDetail(), null),
-    WATER_INCIDENTS("water", "incidents", 0, y -> io.github.longshou.mcyukkuri.subspecies.crew.WaterIncidents.listing(y), null),
-    WATER_HULL("water", "hull", 0, y -> y.getVehicle() instanceof io.github.longshou.mcyukkuri.subspecies.HatBoatEntity h ? h.hazards().detail() + " " + y.life().custody().detail() : y.life().custody().detail(), null),
-    WATER_LAUNCH("water", "launch", 0, y -> y.aquaticLife().waterBirthDetail(), null),
-    WATER_BIRTH("water", "birth", 0, y -> y.family().waterBirthDetail(), null),
     // ---- home -------------------------------------------------------------------------------------------------
     HOME_KIND("home", "kind", 0, YukkuriStatus::homeKind, null),
     HOME_POS("home", "pos", 0, YukkuriStatus::homePos, null),
@@ -357,7 +351,7 @@ public enum StatusKey {
     }),
     TREASURE_STATE("home", "treasure_state", 0, y -> y.treasure().describe(), null),
     // ---- accessory as a second life (worldview package 6, headwear.Headwear) and the sanction ----------------------
-    /** worn | off (taken or afloat as a hat boat) | shattered | reassembling | lost. Write shatter, burn, lose, gather, knit or restore. */
+    /** worn | off (taken) | shattered | reassembling | lost. Write shatter, burn, lose, gather, knit or restore. */
     ACCESSORY_STATE("accessory", "state", 0, y -> y.headwear().stateId(), (y, raw) -> y.headwear().force(raw.trim().toLowerCase(Locale.ROOT))),
     /** Worn damage 0 intact, 1 frayed, 2 torn; write 3 to shatter it. */
     ACCESSORY_DAMAGE("accessory", "damage", 0, y -> y.headwear().damage(), (y, raw) -> {

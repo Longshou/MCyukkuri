@@ -15,17 +15,16 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public final class LeashGuard {
     private LeashGuard() {}
 
-
     public static void interact(PlayerInteractEvent.EntityInteract event) {
         if (event.getLevel().isClientSide() || !(event.getTarget() instanceof YukkuriEntity animal) || !event.getItemStack().is(Items.LEAD) || animal.isLeashed()) return;
         var player = event.getEntity();
         String why = animal.pet().care().leashRefusal(player);
         if (why == null && animal.isPassenger()) {
-            boolean pending = animal.pet().care().walk().requestLeadOnShore(player, event.getHand());
+            // A carried animal has no lead of its own: the carrier holds it, not the owner.
             event.setCanceled(true);
-            event.setCancellationResult(pending ? InteractionResult.SUCCESS : InteractionResult.FAIL);
-            if (!pending) GameplayLog.limited(animal, "interaction", "leash.shore_unavailable", 200,
-                    "leash refused player={} reason=shore_unavailable", player.getUUID());
+            event.setCancellationResult(InteractionResult.FAIL);
+            GameplayLog.limited(animal, "interaction", "leash.carried", 200,
+                    "leash refused player={} reason=carried", player.getUUID());
             return;
         }
         if (why == null) return; // the owner with a harnessed pet: vanilla ties the lead

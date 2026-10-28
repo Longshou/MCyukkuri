@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
@@ -74,7 +73,6 @@ import io.github.longshou.mcyukkuri.human.Custody;
 public final class YukkuriComponents {
     public static final int SAVE_VERSION = 1;
     public static final ComponentKey<SubspeciesLife> SUBSPECIES = new ComponentKey<>("subspecies", SubspeciesLife.class);
-    public static final ComponentKey<AquaticLife> AQUATIC_LIFE = new ComponentKey<>("aquaticLife", AquaticLife.class);
     public static final ComponentKey<YukkuriLife> LIFE = new ComponentKey<>("life", YukkuriLife.class);
     public static final ComponentKey<WaterDistress> WATER_DISTRESS = new ComponentKey<>("waterDistress", WaterDistress.class);
     public static final ComponentKey<PetLife> PET = new ComponentKey<>("pet", PetLife.class);
@@ -115,16 +113,13 @@ public final class YukkuriComponents {
     private static final ComponentKey<YukkuriEntity> HOOKS = new ComponentKey<>("entityHooks", YukkuriEntity.class);
 
     // Numeric orders follow the lifecycle baseline, with gaps for explicit insertions.
-    // Wintering is saved/loaded by Life; AquaticLife by Subspecies. Neither is persisted twice.
+    // Wintering is saved/loaded by Life; the subspecies has one owner and is not persisted twice.
     // Cannibalism cooldown and Sanction respite already have their own persistence owners.
     private static final List<ComponentSpec<?>> SPECS = List.of(
         ComponentSpec.ready(SUBSPECIES, YukkuriEntity::subspecies)
                 .tick(10, SubspeciesLife::tick)
                 .save(40, (c, tag) -> tag.put("YukkuriSubspecies", c.save()))
                 .load(10, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriSubspecies"))).build(),
-        ComponentSpec.ready(AQUATIC_LIFE, YukkuriEntity::aquaticLife)
-                .tick(20, EcologyRoutines::tick)
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 10, (c, ctx) -> c.dropStick()).build(),
         ComponentSpec.ready(LIFE, YukkuriEntity::life)
                 .tick(30, YukkuriLife::tick)
                 .save(10, (c, tag) -> tag.put("YukkuriLife", c.save()))
@@ -170,7 +165,6 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 75, (c, ctx) -> c.carryInterrupted("burning"))
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 25, (c, ctx) -> c.carryInterrupted("hurt"))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 55, (c, ctx) -> c.carryInterrupted("death"))
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 60, (c, ctx) -> c.cancelCrew())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died()).build(),
         ComponentSpec.ready(CHILDHOOD, YukkuriEntity::childhood)
                 .tick(100, ChildhoodLife::tick)
@@ -357,7 +351,6 @@ public final class YukkuriComponents {
                 .tick(TickPhase.BEFORE_ALIVE_CHECK, 0, Custody::tick)
                 .tick(50, YukkuriEntity::syncWaterDistress)
                 .tick(240, YukkuriEntity::syncFamily)
-                .tick(250, YukkuriEntity::syncAquaticInteraction)
                 .tick(290, YukkuriEntity::syncKanroken)
                 .tick(300, RareForms::tick)
                 .tick(320, YukkuriEntity::syncAgitation)

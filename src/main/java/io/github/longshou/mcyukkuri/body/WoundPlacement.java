@@ -3,8 +3,6 @@ package io.github.longshou.mcyukkuri.body;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
-import io.github.longshou.mcyukkuri.subspecies.SelfRescueHatGeometry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,8 +40,7 @@ public final class WoundPlacement {
     }
     /** Model units to an entity-relative world vector; keep world translation in double precision. */
     private static float bodyYaw(YukkuriEntity e) {
-        var state=e.aquaticSelfRescueState();
-        return e.getBehaviorId().startsWith(Behaviors.WATER_HAT_PREFIX)&&state.contains("BodyYaw")?state.getFloat("BodyYaw"):e.yBodyRot;
+        return e.yBodyRot;
     }
     public static Matrix4f transform(YukkuriEntity e){float scale=e.getScale()*e.growthScale();var m=new Matrix4f().rotateY((float)Math.toRadians(180-bodyYaw(e))).scale(scale);
         if(angle(e)!=0)m.translate(0,lift(e),0).rotateX((float)Math.toRadians(angle(e)));
@@ -60,13 +57,10 @@ public final class WoundPlacement {
     private static PoseFrame poseFrame(YukkuriEntity e) {
         boolean operated=!e.contactPose().equals("NONE")&&!e.contactPose().equals("SLIDE");
         if(operated)return new PoseFrame("idle",0);
-        var rescue=SelfRescueHatGeometry.motion(e,0);
-        if(rescue!=null&&WoundSurface.get(e.subspecies().assetId()).hasClip(rescue.clip()))return new PoseFrame(rescue.clip(),rescue.seconds());
         return new PoseFrame(e.getAnimationId(),Math.max(0,(e.level().getGameTime()-e.getAnimationStartTick())/20f));
     }
     public static Matrix4f[] pose(YukkuriEntity e){var frame=poseFrame(e);
-            return WoundSurface.get(e.subspecies().assetId()).pose(frame.action(),frame.seconds(),
-                    HatVessel.hatMultiplier(e.subspeciesFlags()),e.contactPose(),e.contactTurn(),SelfRescueHatGeometry.wornMatrix(e,1,bodyYaw(e)));}
+            return WoundSurface.get(e.subspecies().assetId()).pose(frame.action(),frame.seconds());}
     public static WoundSurface.AttachmentLifts pregnancyLifts(YukkuriEntity e) {
         var frame=poseFrame(e);
         return WoundSurface.get(e.subspecies().assetId()).pregnancyLifts(frame.action(),frame.seconds(),e.contactPose(),e.contactTurn(),e.livePregnancyProgress());

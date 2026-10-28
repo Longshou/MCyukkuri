@@ -1155,7 +1155,7 @@ public final class YukkuriModel {
             if(woundDisplay!=null)WoundLod.time(WoundLod.BODY,bodyStart);
             // The shared per-asset model keeps the last capture; every mouth-held prop, including a Myon's
             // free-mouth stick sword, must refresh it or it renders at a stale/root origin under the body.
-            if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()||!entity.aquaticServing().isEmpty()
+            if(!entity.getMouthItem().isEmpty()||!entity.getMouthBodyFood().isEmpty()||!entity.getCarriedItem().isEmpty()
                     ||entity.visibleKanroken()||mouthHolding)captureMouthAttachment();
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             if(drawingSurfaceMarks)WoundRenderer.render(entity,expression,world,stack,buffer,buffers,light,overlay);

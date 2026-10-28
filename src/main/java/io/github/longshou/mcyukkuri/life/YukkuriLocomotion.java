@@ -3,15 +3,13 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 
-/** Physical limits and the swept executor shared by deliberate water, deck and carried movement. */
+/** Physical limits and the swept executor shared by deliberate water and carried movement. */
 public final class YukkuriLocomotion {
     public enum Kind { HOP, CLIMB, LIFT, SWIM, TOW }
     /** Heights/reaches are blocks; speeds are blocks per server tick. No client state owns these limits. */
@@ -26,8 +24,8 @@ public final class YukkuriLocomotion {
     public static Limits limits(YukkuriEntity body) { return limits(body, 0); }
 
     /**
-     * The body's limits from {@link BodyAbility}. {@code load} is the host's deck load, supplied by the caller that knows
-     * the hull: this class never reads a host, so {@code life/} stays free of hull state (spec 8.1 L, WP2 step 1).
+     * The body's limits from {@link BodyAbility}. {@code load} is the host's load factor, supplied by the caller that knows
+     * the host: this class never reads a host, so {@code life/} stays free of host state (spec 8.1 L, WP2 step 1).
      */
     public static Limits limits(YukkuriEntity body, double load) {
         var ability = BodyAbility.of(body, load);
@@ -41,12 +39,11 @@ public final class YukkuriLocomotion {
     }
 
     /** Duration is independent of arc height: going slowly can never buy a higher jump. */
-    public static Plan hop(YukkuriEntity body, Vec3 from, Vec3 to, List<HatBoatEntity> hulls) {
+    public static Plan hop(YukkuriEntity body, Vec3 from, Vec3 to) {
         var limits = limits(body);
         double flat = from.subtract(to).horizontalDistance();
         if (limits.maxHopHeight() <= 0 || flat > limits.maxHopReach() || Math.abs(to.y - from.y) > limits.maxHopHeight())
             return refused(Kind.HOP, "hop_exceeds_body");
-        double radius = HatVessel.radius(body.getBbWidth());
         double available = limits.maxHopHeight() - Math.max(0, to.y - from.y);
         for (int attempt = 1; attempt <= 20; attempt++) {
             double naturalRise = Math.min(available, .12 * Math.sqrt(body.growthScale() * body.getScale()) + flat * .10);
@@ -56,9 +53,7 @@ public final class YukkuriLocomotion {
                 double u = i / 32.0;
                 points.add(from.lerp(to, u).add(0, 4 * rise * u * (1 - u), 0));
             }
-            boolean clear = true;
-            for (var hull : hulls) if (!HatVessel.clears(points, hull, radius)) { clear = false; break; }
-            if (!clear || !clearBlocks(body, points)) continue;
+            if (!clearBlocks(body, points)) continue;
             // Uniform flight time keeps take-off decisive and preserves the parabola's vertical acceleration.
             // Budget the largest real step, rather than stretching the whole jump with walking ease-in/out.
             double largestStep = 0;
@@ -100,23 +95,14 @@ public final class YukkuriLocomotion {
 
     /** A speed-limited partial move is progress, not evidence of a collision. */
     public record Step(boolean arrived, boolean blocked, double requested, double allowed, double moved, double remaining) {}
-    /** The support itself moves; this swept displacement is not muscular travel and cannot consume the walking budget. */
-    public static boolean carryWithHull(YukkuriEntity body, HatBoatEntity hull) {
-        var delta = body.family().crew().frameMotion(hull);
-        var target = body.position().add(delta);
-        if (delta.lengthSqr() > 1e-10) body.move(MoverType.SELF, delta);
-        return body.position().distanceToSqr(target) <= .0004;
-    }
     public static Step advance(YukkuriEntity body, Vec3 target, double maxSpeed) {
         var before = body.position();
         var delta = target.subtract(before);
         double requested = delta.length();
-        var budget = body.family().crew();
-        double speed = budget.motionAllowance(body.level().getGameTime(), Math.max(0, maxSpeed));
+        double speed = Math.max(0, maxSpeed);
         if (delta.length() > speed) delta = delta.normalize().scale(speed);
         if (delta.lengthSqr() > 1e-10) body.move(MoverType.SELF, delta);
         double moved = body.position().distanceTo(before);
-        budget.moved(moved);
         body.setDeltaMovement(Vec3.ZERO);
         body.hasImpulse = true;
         return new Step(body.position().distanceToSqr(target) <= .0004,

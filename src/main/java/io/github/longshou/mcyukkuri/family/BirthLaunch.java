@@ -39,8 +39,8 @@ public final class BirthLaunch {
     static final double STEM_MEDIAN=.055, STEM_SIGMA=.9, STEM_MAX=.25, STEM_DROP=-.015;
     /** Vanilla gravity and drag the launch is solved against (LivingEntity: y = (y - .08) * .98, horizontal * .91 in the air). */
     private static final double GRAVITY=.08, VERTICAL_DRAG=.98, AIR_DRAG=.91;
-    /** The longest aim any birth launch is given: a partner hull across the water. */
-    private static final double MAX_AIM=FamilyLife.SHARE_REACH;
+    /** The longest aim any birth launch is given: a catching hat's catchment reach, the same 1.25 blocks a hat zone is chosen within. */
+    private static final double MAX_AIM=1.25;
     /** Highest hat target above the launch point the arc lift is bounded for (blocks). */
     private static final double HAT_RISE=3;
     /**

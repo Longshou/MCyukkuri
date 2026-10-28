@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -39,9 +38,6 @@ public final class ChildhoodLife {
     private UUID careTarget;
     private BlockPos practiceTarget;
     private Vec3 lastPosition;
-    private Vec3 lastHatPosition;
-    private UUID practiceBoat;
-    private boolean hatPractice;
     private double crawlDistance;
     private int careTicks, taskTicks;
     private boolean newborn, landed, firstMealDone = true, firstToiletDone = true, crawled, jumped;
@@ -82,8 +78,6 @@ public final class ChildhoodLife {
     public void tick() {
         if (entity.level().isClientSide || !newborn) return;
         if(practiceRest>0)practiceRest--;
-        if (hatPractice && (!(entity.getVehicle() instanceof HatBoatEntity boat)
-                || !boat.getUUID().equals(practiceBoat) || !boat.protects(entity) || !safePracticeState())) stopHatPractice();
         if (!landed && settled()) {
             landed = true;
             GameplayLog.event(entity, "childhood", "birth settled vehicle={}", entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
@@ -99,20 +93,18 @@ public final class ChildhoodLife {
 
     private boolean settled() {
         if (entity.family().awaitingLanding()) return false;
-        // A protected hat is the aquatic family's home, including newborn care and practice.
-        return entity.onGround() || entity.isPassenger() || entity.getVehicle() instanceof HatBoatEntity;
+        return entity.onGround() || entity.isPassenger();
     }
 
     private void observeMovement() {
-        if (hatPractice) { observeHatMovement(); return; }
         Vec3 here = entity.position();
         if (task == Task.CRAWL && lastPosition != null && !entity.isPassenger() && entity.onGround() && safePracticeState()) {
             double moved = here.subtract(lastPosition).horizontalDistance();
-            // A teleport, a boat ride or a stationary timer is not crawling practice.
+            // A teleport or a stationary timer is not crawling practice.
             if (moved > 1.0e-6 && moved <= .20) {
                 int before=(int)(crawlDistance/.25);
                 crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
-                if((int)(crawlDistance/.25)>before&&!hatPractice){practiceRest=20;stop();}
+                if((int)(crawlDistance/.25)>before){practiceRest=20;stop();}
                 completeCrawl();
             }
         }
@@ -125,70 +117,6 @@ public final class ChildhoodLife {
         lastPosition = here;
     }
 
-    private void observeHatMovement() {
-        if (!(entity.getVehicle() instanceof HatBoatEntity boat) || !boat.getUUID().equals(practiceBoat)) return;
-        Vec3 here = boat.toLocal(entity.position());
-        if (lastHatPosition != null && task == Task.CRAWL && safePracticeState()) {
-            double moved = here.subtract(lastHatPosition).horizontalDistance() * boat.unit();
-            if (moved > .001 && moved <= .20) {
-                crawlDistance = Math.min(CRAWL_DISTANCE_REQUIRED, crawlDistance + moved);
-                completeCrawl();
-            }
-        }
-        if (task == Task.JUMP && jumpLaunched && safePracticeState()) {
-            double above = (here.y - launchY) * boat.unit();
-            if (above > .02) jumpAirborne = true;
-            if (jumpAirborne && !boat.practisingMove(entity) && Math.abs(above) < .04) finishPracticeJump();
-        }
-        lastHatPosition = here;
-    }
-
-    /** The aquatic goal calls this while the child is dry and supported; boat drift grants no skill. */
-    public boolean practiseInHat(HatBoatEntity boat) {
-        if (hatPractice) observeHatMovement();
-        if(practiceRest>0&&!hatPractice)return false;
-        if (!newborn || !landed || !firstToiletDone || movementReady() || !boat.protects(entity)
-                || !safePracticeState() || boat.flooding() > 0) {
-            stopHatPractice(); return false;
-        }
-        var parent = boat.getControllingPassenger() instanceof YukkuriEntity y ? y : null;
-        if (parent == null || parent.aquaticLife().care().active() || parent.family().laboring()
-                || parent.life().isSleeping() || parent.isPanicking()) { stopHatPractice(); return false; }
-        if (hatPractice) {
-            if (++taskTicks > 240 || !boat.getUUID().equals(practiceBoat)) { stopHatPractice(); return false; }
-            if (!boat.practisingMove(entity) && task == Task.JUMP && jumpLaunched && !jumpAirborne) {
-                // A reservation can end without an actual takeoff. Retire that failed attempt
-                // immediately; waiting for airborne evidence from an already finished move can
-                // never succeed. No landing or skill is awarded by this recovery.
-                stopHatPractice(); practiceRest=24; return false;
-            }
-            if (!boat.practisingMove(entity) && (task != Task.JUMP || !jumpLaunched) && boat.completePracticeMove(entity)) {
-                // Movement evidence was observed from the actual rider, before retiring the service berth.
-                hatPractice = false; practiceBoat = null; lastHatPosition = null;
-                task = Task.NONE; jumpLaunched = jumpAirborne = false; taskTicks = 0;
-            }
-            return true;
-        }
-        boolean hop = crawled && !shellForm();
-        if (boat.changingSeat(entity) || !boat.beginPracticeMove(entity, hop)) return false;
-        if (!boat.practisingMove(entity)) {
-            // Accept a live physical move, not only a successful destination reservation.
-            boat.cancelPracticeMove(entity); practiceRest=24; return false;
-        }
-        hatPractice = true; practiceBoat = boat.getUUID(); task = hop ? Task.JUMP : Task.CRAWL; taskTicks = 0;
-        lastHatPosition = boat.toLocal(entity.position()); launchY = lastHatPosition.y;
-        jumpLaunched = hop; jumpAirborne = false;
-        if (hop) entity.life().spendEnergy(.25f);
-        return true;
-    }
-
-    public void stopHatPractice() {
-        if (!hatPractice) return;
-        if (entity.getVehicle() instanceof HatBoatEntity boat && boat.getUUID().equals(practiceBoat)) boat.cancelPracticeMove(entity);
-        hatPractice = false; practiceBoat = null; lastHatPosition = null;
-        task = Task.NONE; taskTicks = 0; jumpLaunched = jumpAirborne = false;
-    }
-
     /** True only for a newborn introduced through the current birth path. */
     public boolean isNewborn() { return newborn; }
     public boolean landed() { return landed; }
@@ -197,9 +125,7 @@ public final class ChildhoodLife {
     public boolean active() { return task != Task.NONE; }
     public CompoundTag debug() {
         var tag=save();tag.putString("Task",task.name());tag.putInt("TaskTicks",taskTicks);
-        tag.putBoolean("HatPractice",hatPractice);tag.putBoolean("JumpLaunched",jumpLaunched);tag.putBoolean("JumpAirborne",jumpAirborne);
-        if(practiceBoat!=null)tag.putUUID("PracticeBoat",practiceBoat);
-        if(lastHatPosition!=null)tag.putString("LastHatPosition",lastHatPosition.toString());
+        tag.putBoolean("JumpLaunched",jumpLaunched);tag.putBoolean("JumpAirborne",jumpAirborne);
         return tag;
     }
     /** Current parent being sought or providing care; null outside a live care action. */
@@ -259,7 +185,7 @@ public final class ChildhoodLife {
 
     /** Family-follow and the shared childhood bed apply until the child has this independent capability. */
     public boolean shouldStayWithParents() { return !entity.family().adult() && !canLiveIndependently()
-            && !entity.independence().independent() && !entity.aquaticLife().firstVoyage().independent(); }
+            && !entity.independence().independent(); }
 
     /** Only a real current action surfaces as activity; identity/state never masks other systems. */
     public String activity() {
@@ -398,7 +324,6 @@ public final class ChildhoodLife {
     public void stop() {
         if (task == Task.FIRST_TOILET) GameplayLog.limited(entity, "childhood", "care.stop", 200,
                 "first toilet goal stopped child={} contact={} elapsed={}", careTarget, careTicks, taskTicks);
-        stopHatPractice();
         if (task == Task.FIRST_TOILET) entity.careApproach().cancel();
         if (task != Task.NONE) entity.getNavigation().stop();
         task = Task.NONE;
@@ -433,17 +358,13 @@ public final class ChildhoodLife {
         return FamilyFeedingContact.rearContact(parent, child);
     }
 
-    /** Only a successful physical drop retires the first-toilet contract, ashore or in a dry hat. */
+    /** Only a successful physical drop retires the first-toilet contract. */
     public boolean assistedReleaseReady(YukkuriEntity parent) {
-        boolean hatAssistance = entity.getVehicle() instanceof HatBoatEntity boat && parent != null && parent.getVehicle() == boat
-                && boat.protects(parent) && boat.protects(entity) && boat.toiletAssistanceValidated(entity) && boat.toiletSeatReady(entity)
-                && parent.aquaticLife().care().firstToiletReleaseReady(entity);
-        if (!needsAssistedFirstToilet() || !childAvailable(entity) || !parentAvailable(parent)
-                || !parent.family().caresFor(entity) || !(hatAssistance || parent.childhood().task == Task.FIRST_TOILET
-                    && entity.getUUID().equals(parent.childhood().careTarget)
-                    && parent.childhood().careTicks >= FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS
-                    && toiletContact(parent, entity))) return false;
-        return true;
+        return needsAssistedFirstToilet() && childAvailable(entity) && parentAvailable(parent)
+                && parent.family().caresFor(entity) && parent.childhood().task == Task.FIRST_TOILET
+                && entity.getUUID().equals(parent.childhood().careTarget)
+                && parent.childhood().careTicks >= FIRST_TOILET_CONTACT_TICKS + ToiletContact.RELEASE_TICKS
+                && toiletContact(parent, entity);
     }
 
     public boolean completeAssistedFirstToilet(YukkuriEntity parent) {
@@ -479,13 +400,13 @@ public final class ChildhoodLife {
         boolean wasJumped = jumped;
         jumpLandings++;jumped=jumpLandings>=(demonstrationSeen?3:5);
         if (!wasJumped && jumped) GameplayLog.event(entity, "childhood",
-                "jump learned landings={} demonstrationSeen={} boat={}", jumpLandings, demonstrationSeen, practiceBoat);
+                "jump learned landings={} demonstrationSeen={}", jumpLandings, demonstrationSeen);
         jumpLaunched=jumpAirborne=false;practiceRest=24;entity.setPersistenceRequired();
-        if(!hatPractice)stop();
+        stop();
     }
     private void completeCrawl() {
         if (crawlDistance < CRAWL_DISTANCE_REQUIRED) return;
-        if (!crawled) GameplayLog.event(entity, "childhood", "crawl learned distance={} boat={}", crawlDistance, practiceBoat);
+        if (!crawled) GameplayLog.event(entity, "childhood", "crawl learned distance={}", crawlDistance);
         crawled = true;
     }
 

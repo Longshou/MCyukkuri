@@ -55,7 +55,7 @@ public final class YukkuriSocial {
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
-        if(!entity.childhood().canExercise()||entity.level().isClientSide||EcologyMovement.boat(entity)!=null||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
+        if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
                 ||entity.distanceToSqr(toy)>36||!entity.hasLineOfSight(toy)||entity.isPanicking()||entity.life().hasUrgentNeed()
                 ||entity.isCommandPlaying()||entity.dailyLife().active()||entity.operations().active()||(entity.groupInteraction().active()||
                         entity.playLife().active())||entity.life().mealTicks()>0)return false;
@@ -129,15 +129,14 @@ public final class YukkuriSocial {
         if (entity.life().socialWait() > 0) return false;
         entity.life().deferSocial(240 - personality().attachment());
         var level = entity.level();
-        // A hat passenger has no safe deck route to a dropped item or toy.  Conversation may
-        // still use the actual hull's movement/contact path below.
-        if(EcologyMovement.boat(entity)==null&&!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
+        // A hatless owner looks for the pieces of its own accessory first; a hat on the head or in custody has none.
+        if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
                     &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }
-        if (EcologyMovement.boat(entity)==null&&entity.getRandom().nextFloat() < .5f) {
+        if (entity.getRandom().nextFloat() < .5f) {
             target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
@@ -236,7 +235,7 @@ public final class YukkuriSocial {
                     entity.showReaction("surprise", personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15 ? "afraid" : "shy", 80); }
             if (elapsed % 10 == 1) {
                 Vec3 away = DefaultRandomPos.getPosAway(entity, 5, 2, target.position());
-                if (away != null && EcologyMovement.boat(entity)==null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
+                if (away != null) entity.life().navigate(BlockPos.containing(away), 1.1, false);
             }
             return;
         }

@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import java.util.Comparator;
 import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
@@ -109,15 +108,6 @@ final class LifeMeal {
                 || !FamilyFeedingContact.mouthsMeet(caregiver, o.entity())) return false;
         return o.entity().family().needsMash()
                 && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
-                && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
-    }
-
-    boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared) {
-        if (caregiver == null || caregiver.level() != o.entity().level() || !caregiver.family().caresFor(o.entity())
-                || !(caregiver.getVehicle() instanceof HatBoatEntity boat)
-                || o.entity().getVehicle() != boat || !boat.protects(caregiver) || !boat.protects(o.entity())
-                || !FamilyFeedingContact.mouthsMeet(caregiver, o.entity())) return false;
-        return o.entity().family().needsMash() && canReceiveCareFood(prepared) && InfantFood.isMash(prepared) && prepared.getCount() == 1
                 && startMeal(prepared, caregiver.getUUID(), true, "receive_mash");
     }
 

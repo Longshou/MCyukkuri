@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.exam;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -31,7 +30,6 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.AbandonLog;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 
 /** One running exam (docs/PET_SHOP.md section 3): gather, then every question in turn, then the result ceremony. One session per examiner.
  *  Types follow ExamRecord: 3 simple, 4 judgment, 5 promotion, 6 renewal. Everything here runs on the server thread. Transient: a restart mid-exam drops it (locks are not saved). */
@@ -42,10 +40,7 @@ public final class ExamSession implements ExamContext {
     public static final List<String> REASONS = List.of("", "busy", "night", "no_hall", "far", "not_owned", "wild_simple_only", "not_ready", "cooldown", "no_accessory",
             "already_badged", "need_badge", "max_grade", "need_silver", "not_needed", "no_section", "no_fee", "no_management");
     private static final Map<UUID, ExamSession> ACTIVE = new HashMap<>();
-    /** Submitted while afloat: it owns only a finite shore request, never a fee, lock or in-progress exam. */
-    private record ShorePending(ServerLevel level,UUID examiner,UUID owner,UUID candidate,int type,boolean charge,long until) {}
-    private static final Map<UUID, ShorePending> SHORE_PENDING = new HashMap<>();
-    public static void reset() { ACTIVE.clear(); SHORE_PENDING.clear(); }
+    public static void reset() { ACTIVE.clear(); }
     /** Identity matters: a reloaded candidate cannot resume a session holding its old instance. */
     public static boolean running(YukkuriEntity candidate) {
         return ACTIVE.values().stream().anyMatch(s -> !s.done && s.candidate == candidate);
@@ -80,24 +75,22 @@ public final class ExamSession implements ExamContext {
 
     /** Why this subject may not sit this exam now (a REASONS entry), or null if it may. Reissue (REISSUE) is checked here too. */
     public static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type) { return refusal(examiner,p,y,type,type==REISSUE); }
-    /** Preview remains read-only; only a submitted action may ask an aquatic passenger to land. */
+    /** Preview remains read-only. */
     private static String refusal(HumanNpc examiner, Player p, YukkuriEntity y, int type,boolean requireDryFeet) {
         if (y == null || !y.isAlive() || y.level() != p.level() || y.distanceToSqr(p) > 64) return "far";
         if (!examiner.level().isDay()) return "night";
-        if (active(examiner) || SHORE_PENDING.containsKey(examiner.getUUID())) return "busy";
+        if (active(examiner)) return "busy";
         var pet = y.pet(); boolean mine = pet.owned(p);
         if (!mine) {
             if (pet.owner() != null || !WildEvents.canAdopt(y, p)) return "not_owned";
             if (type != SIMPLE) return "wild_simple_only";
         }
-        boolean recoverableHat = EcologyMovement.captain(y)
-                && EcologyMovement.supported(y) && y.life().accessoryCustodied();
-        if (y.isPassenger() && (requireDryFeet || !recoverableHat)) return "not_ready";
+        if (y.isPassenger() && requireDryFeet) return "not_ready";
         if (pet.busy() || y.isNoAi()) return "not_ready";
         if (type == REISSUE) return pet.grade() == BadgeGrade.NONE ? "need_badge" : emeralds(p) < fee(type) ? "no_fee" : null;
         if (y.isPanicking() || y.hurtTime > 0 || y.operations().active()) return "not_ready";
         if (pet.cooldown() > 0) return "cooldown";
-        if (!y.life().hasAccessory() && (requireDryFeet || !recoverableHat)) return "no_accessory";
+        if (!y.life().hasAccessory() && requireDryFeet) return "no_accessory";
         var grade = pet.grade();
         switch (type) {
             case SIMPLE -> { if (grade != BadgeGrade.NONE) return "already_badged"; if (unmanaged(p)) return "no_management"; }
@@ -115,22 +108,15 @@ public final class ExamSession implements ExamContext {
     /** Begin an exam. Returns null when started, else the refusal reason. charge=false skips the fee (tests). Wild animals with trust &gt;= 10 are registered as the player's pet first. */
     public static String start(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
         if (!(examiner.level() instanceof ServerLevel level) || type < SIMPLE || type > RENEWAL) return "busy";
-        // A button press is the one commit point that can ask a captain to make shore.  Check all
-        // other current requirements first; charging and locking still happen only after landing.
+        // A button press is the one commit point.  Check all current requirements first.
         var why = refusal(examiner, owner, candidate, type, false);
         if (why != null && !(why.equals("no_fee") && !charge)) {
             GameplayLog.event(examiner,"exam","action=start result=refused owner={} candidate={} type={} reason={}",owner.getUUID(),candidate==null?null:candidate.getUUID(),type,why);
             return why;
         }
-        if(candidate.isPassenger()){
-            if(!candidate.aquaticLife().requestShoreWork(ShoreWork.HUMAN))return "not_ready";
-            SHORE_PENDING.put(examiner.getUUID(),new ShorePending(level,examiner.getUUID(),owner.getUUID(),candidate.getUUID(),type,charge,level.getGameTime()+600));
-            GameplayLog.event(candidate,"exam","action=start result=shore_pending examiner={} owner={} type={} until={}",examiner.getUUID(),owner.getUUID(),type,level.getGameTime()+600);
-            return null;
-        }
         return startOnLand(examiner,owner,candidate,type,charge);
     }
-    /** Revalidates full current eligibility just before lock/debit; called both directly and after a real landing. */
+    /** Revalidates full current eligibility just before lock/debit. */
     private static String startOnLand(HumanNpc examiner, Player owner, YukkuriEntity candidate, int type, boolean charge) {
         var level=(ServerLevel)examiner.level();
         var why = refusal(examiner, owner, candidate, type, true);
@@ -154,54 +140,17 @@ public final class ExamSession implements ExamContext {
         var s = new ExamSession(level, examiner, owner, candidate, type, hall, plan, fee);
         ACTIVE.put(examiner.getUUID(), s);
         candidate.pet().direct(s.walker);
-        candidate.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         GameplayLog.event(candidate,"exam","action=start result=accepted examiner={} owner={} type={} grade={} emeralds_used={} tasks={}",examiner.getUUID(),owner.getUUID(),type,before,fee,plan.size());
         owner.displayClientMessage(Component.translatable("exam.mcyukkuri.started", candidate.getDisplayName()), true);
         return null;
     }
 
     public static void tick(ServerTickEvent.Post event) {
-        tickShorePending(event);
         if (ACTIVE.isEmpty()) return;
         for (var s : List.copyOf(ACTIVE.values())) {
             if (s.level.getServer() != event.getServer()) { ACTIVE.values().remove(s); continue; }
             try { s.tick(); } catch (RuntimeException e) { MCYukkuri.LOGGER.warn("Exam session failed", e); s.interrupt("error"); }
             if (s.done) ACTIVE.values().remove(s);
-        }
-    }
-    private static void tickShorePending(ServerTickEvent.Post event){
-        if(SHORE_PENDING.isEmpty())return;
-        for(var pending:List.copyOf(SHORE_PENDING.values())){
-            if(pending.level().getServer()!=event.getServer())continue;
-            var examiner=pending.level().getEntity(pending.examiner()) instanceof HumanNpc npc&&npc.isAlive()?npc:null;
-            var owner=pending.level().getServer().getPlayerList().getPlayer(pending.owner());
-            var candidate=pending.level().getEntity(pending.candidate()) instanceof YukkuriEntity y&&y.isAlive()?y:null;
-            String cancelled=examiner==null?"examiner_unavailable":owner==null?"owner_unavailable":candidate==null?"candidate_unavailable"
-                    :pending.level().getGameTime()>=pending.until()?"landing_timeout":null;
-            if(cancelled!=null){
-                SHORE_PENDING.remove(pending.examiner());
-                if(candidate!=null)candidate.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-                if(owner!=null)owner.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse.not_ready"),true);
-                if(examiner!=null)GameplayLog.event(examiner,"exam","action=shore_pending result=cancelled examiner={} owner={} candidate={} type={} reason={}",
-                        pending.examiner(),pending.owner(),pending.candidate(),pending.type(),cancelled);
-                else if(candidate!=null)GameplayLog.event(candidate,"exam","action=shore_pending result=cancelled examiner={} owner={} candidate={} type={} reason={}",
-                        pending.examiner(),pending.owner(),pending.candidate(),pending.type(),cancelled);
-                continue;
-            }
-            if(candidate.isPassenger()){
-                if(!candidate.aquaticLife().requestShoreWork(ShoreWork.HUMAN)){
-                    SHORE_PENDING.remove(pending.examiner());candidate.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-                    owner.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse.not_ready"),true);
-                }
-                continue;
-            }
-            if (!candidate.onGround() || candidate.aquaticLife().shoreVisitRequested()) continue;
-            SHORE_PENDING.remove(pending.examiner());
-            var reason=startOnLand(examiner,owner,candidate,pending.type(),pending.charge());
-            if(reason!=null){
-                candidate.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-                owner.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse."+reason),true);
-            }
         }
     }
 
@@ -329,7 +278,6 @@ public final class ExamSession implements ExamContext {
     }
     private void tick() {
         if (done) return;
-        candidate.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
         if (phase == Phase.RESULT) { if (!candidate.isAlive() || candidate.isRemoved() || !examiner.isAlive()) { settle(); return; } }
         else { var why = interruption(); if (why != null) { interrupt(why); return; } }
         if (walkGoal != null) { if (!examinerAt(walkGoal)) { if (examiner.tickCount % 10 == 0) examiner.getNavigation().moveTo(walkGoal.getX() + .5,
@@ -395,7 +343,6 @@ public final class ExamSession implements ExamContext {
         candidate.pet().unlock(LOCK);
         candidate.pet().hideBadge(false);
         candidate.pet().finishWildExam();
-        candidate.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
         for (var y : extras) y.pet().unlock(LOCK_EXTRA);
         if (examiner.isAlive()) examiner.getNavigation().stop();
         ACTIVE.remove(examiner.getUUID());

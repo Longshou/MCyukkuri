@@ -11,7 +11,7 @@ import java.util.Map;
 public final class AbilityMath {
     /**
      * What the body is right now. {@code size} is {@code growthScale * scale} (the S source before the clamp),
-     * {@code energy} is the raw need value, {@code load} is the host's deck load in the units of spec 8.1 L.
+     * {@code energy} is the raw need value, {@code load} is the host's load in the units of spec 8.1 L.
      */
     public record Inputs(double size, double energy, double health, double maxHealth, double painSeverity,
                          boolean footBurned, boolean adultOrCanJump, boolean dying, boolean sleeping, double load) {

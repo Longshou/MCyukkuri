@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 
 /** Stateless home and rest policies. Resolve from the current profile at each entry;
  * addresses, search order and persistence still belong to LifeHome. Aquatic residents
- * use the ordinary land-home policy here; their boat is not a second saved HomePos.
+ * use the ordinary land-home policy here.
  */
 enum HomeProvider {
     ORDINARY,

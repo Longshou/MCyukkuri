@@ -51,8 +51,6 @@ public final class SettlementData extends SavedData {
         public BlockPos center;
         /** The planned site this community lives on (plaza, granaries, pool...); null for groups on natural caves. */
         public UUID siteId;
-        /** Bank-side real forage pile serving an afloat community; null for land communities and planned granaries. */
-        public BlockPos waterCommons;
         /** A natural community's actual public pile; the address survives its keeper. */
         public BlockPos landCommons;
         /** Standing cell of the waste pit a natural-cave community chose (GroupPits); planned sites use their own pit. */
@@ -89,13 +87,9 @@ public final class SettlementData extends SavedData {
         public BlockPos threatPos;
         public long threatTime;
         public BlockPos migrateTo;
-        /** Actual calm-water berth selected for an afloat migration; the dry {@link #migrateTo} remains the bank anchor. */
-        public BlockPos migrateWater;
         public long migrateSince;
-        /** The walking scout or own-hat captain that anchors this move, independently of the leader's office. */
+        /** The walking scout that anchors this move, independently of the leader's office. */
         public UUID migrateVanguard;
-        /** Transient throttle for choosing a replacement hull and verifying its destination. */
-        public long migrateGuideRetry;
         /** Game time when the vanguard (or the leader, if no vanguard) first stood at the destination; 0 until then. */
         public long migrateArrivedAt;
         public final Map<UUID, Long> sighted = new HashMap<>();
@@ -469,10 +463,8 @@ public final class SettlementData extends SavedData {
             value.putBoolean("RosterTrusted",group.rosterTrusted);
             value.putLong("Center", group.center.asLong());
             if (group.siteId != null) value.putUUID("Site", group.siteId);
-            if (group.waterCommons != null) value.putLong("WaterCommons", group.waterCommons.asLong());
             if (group.landCommons != null) value.putLong("LandCommons", group.landCommons.asLong());
             if (group.pit != null) value.putLong("Pit", group.pit.asLong());
-            if (group.migrateWater != null) value.putLong("MigrateWater", group.migrateWater.asLong());
             if (group.leader != null) value.putUUID("Leader", group.leader);
             value.putBoolean("HasLeaderOffice", group.hasLeaderOffice);
             value.putBoolean("VacancyConfirmed", group.vacancyConfirmed);
@@ -572,10 +564,8 @@ public final class SettlementData extends SavedData {
                         value.hasUUID("Leader") ? value.getUUID("Leader") : null);
                 group.commons.retainWith(data::retain);data.retain(group.leader);
                 if (value.hasUUID("Site")) group.siteId = value.getUUID("Site");
-                if (value.contains("WaterCommons", Tag.TAG_LONG)) group.waterCommons = BlockPos.of(value.getLong("WaterCommons"));
                 if (value.contains("LandCommons", Tag.TAG_LONG)) group.landCommons = BlockPos.of(value.getLong("LandCommons"));
                 if (value.contains("Pit", Tag.TAG_LONG)) group.pit = BlockPos.of(value.getLong("Pit"));
-                if (value.contains("MigrateWater", Tag.TAG_LONG)) group.migrateWater = BlockPos.of(value.getLong("MigrateWater"));
                 loadOffice(value, group);
                 group.formerLeader = value.hasUUID("FormerLeader") ? value.getUUID("FormerLeader") : null;
                 group.leaderLossAt = value.getLong("LeaderLossAt");

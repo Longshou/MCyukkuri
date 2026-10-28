@@ -1,12 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
-import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.UUID;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.Items;
-import net.minecraft.network.chat.Component;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
@@ -29,9 +23,6 @@ public final class PetWalk {
     private boolean moving;
     private double carry;
     private int units, tugWait;
-    private UUID shoreOwner;
-    private InteractionHand shoreHand;
-    private long shoreUntil;
 
     public PetWalk(YukkuriEntity animal) { this.animal = animal; }
 
@@ -43,49 +34,12 @@ public final class PetWalk {
 
     void newDay() { units = 0; }
 
-    /** One actual lead interaction reserves landing; the lead remains in the owner's hand until attachment. */
-    public boolean requestLeadOnShore(Player player, InteractionHand hand) {
-        if (!animal.isPassenger() || animal.pet().care().leashRefusal(player) != null
-                || !player.getItemInHand(hand).is(Items.LEAD) || !animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) return false;
-        if (shoreOwner == null) {
-            shoreOwner = player.getUUID(); shoreHand = hand; shoreUntil = animal.level().getGameTime() + 600;
-            GameplayLog.event(animal, "pet-walk", "lead shore pending owner={} until={}", shoreOwner, shoreUntil);
-        }
-        player.displayClientMessage(Component.translatable("aquatic.mcyukkuri.shore_pending"), true);
-        return true;
-    }
-    private void tickShoreLead() {
-        if (shoreOwner == null || !(animal.level() instanceof ServerLevel level)) return;
-        var player = level.getPlayerByUUID(shoreOwner);
-        String why = player == null || !player.isAlive() ? "owner_unavailable"
-                : level.getGameTime() >= shoreUntil ? "landing_timeout"
-                : animal.pet().care().leashRefusal(player) != null ? "ownership_or_harness_changed"
-                : !player.getItemInHand(shoreHand).is(Items.LEAD) ? "lead_not_held"
-                : animal.distanceToSqr(player) > 64 ? "owner_far" : animal.isLeashed() ? "already_leashed" : null;
-        if (why == null && animal.isPassenger()) {
-            if (animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN)) return;
-            why = "landing_unavailable";
-        }
-        if (why == null && (!animal.onGround() || animal.aquaticLife().shoreVisitRequested())) return;
-        if (why == null) {
-            animal.setLeashedTo(player, true);
-            if (!player.getAbilities().instabuild) player.getItemInHand(shoreHand).shrink(1);
-            GameplayLog.event(animal, "pet-walk", "lead attached after landing owner={}", shoreOwner);
-        } else GameplayLog.event(animal, "pet-walk", "lead shore cancelled owner={} reason={}", shoreOwner, why);
-        shoreOwner = null; shoreHand = null; shoreUntil = 0;
-        animal.aquaticLife().releaseShoreWork(ShoreWork.HUMAN);
-    }
     public void tick() {
-        tickShoreLead();
         var holder = animal.getLeashHolder();
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
         if (!(holder instanceof Player || holder instanceof HumanNpc) || !animal.pet().isPet() || !animal.pet().ownedBy(holder.getUUID()) || holder.level() != animal.level()) { last = null; lastPet = null; moving = false; return; }
         var owner = (LivingEntity) holder;
-        if (animal.isPassenger()) {
-            animal.aquaticLife().requestShoreWork(ShoreWork.HUMAN); last = null; lastPet = null; moving = false; return;
-        }
-        if (!animal.onGround() || animal.aquaticLife().shoreVisitRequested()) { last = null; lastPet = null; moving = false; return; }
-        animal.aquaticLife().holdShoreWork(ShoreWork.HUMAN);
+        if (!animal.onGround() || animal.isPassenger()) { last = null; lastPet = null; moving = false; return; }
         var now = owner.position();
         var petNow = animal.position();
         moving = false;

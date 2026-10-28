@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
@@ -29,8 +28,7 @@ public final class DailyLife {
         final Entity companion;
         final Kind kind;
         int elapsed, contact;
-        boolean ended, shorePending;
-        long shoreDeadline;
+        boolean ended;
         Session(YukkuriEntity leader, Entity companion, Kind kind) {
             this.leader = leader; this.companion = companion; this.kind = kind;
         }
@@ -50,7 +48,7 @@ public final class DailyLife {
     public boolean active() { return session != null && !session.ended; }
     public boolean inContact() { return active() && session.contact > 0; }
     public String detail() {
-        return !active() ? "idle" : "kind=" + session.kind + " shorePending=" + session.shorePending
+        return !active() ? "idle" : "kind=" + session.kind
                 + " contact=" + session.contact + " elapsed=" + session.elapsed;
     }
     public int nuzzlePartnerId() {
@@ -64,7 +62,7 @@ public final class DailyLife {
     /** Ephemeral identity only; events must not serialize or recreate a daily session from it. */
     public Object songSessionToken() { return active() && session.leader == entity && session.kind == Kind.SING ? session : null; }
     public String activity() {
-        if (!active() || session.shorePending) return Behaviors.IDLE;
+        if (!active()) return Behaviors.IDLE;
         return switch (session.kind) {
             case NUZZLE -> inContact() ? Behaviors.NUZZLE : Behaviors.SEEK_AFFECTION;
             case SING -> session.leader == entity ? Behaviors.SING : Behaviors.LISTEN_SONG;
@@ -88,13 +86,11 @@ public final class DailyLife {
                 boredom = Math.min(100, boredom + 1);
             }
         }
-        if (active() && session.shorePending) {
-            if (session.leader == entity) tickShoreInvitation();
-        } else if (active() && !valid()) stop();
+        if (active() && !valid()) stop();
     }
     private static boolean available(YukkuriEntity e) { return available(e, false); }
     private static boolean available(YukkuriEntity e, boolean continuing) {
-        return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && (e.onGround() && !e.isPassenger() || EcologyMovement.boat(e) != null && EcologyMovement.supported(e) && !e.life().temperature().unsafeSleep())
+        return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi() && (e.onGround() && !e.isPassenger())
                 && !e.isPanicking() && !e.isCommandPlaying() && !e.operations().active() && !e.predator().active() && !e.social().holdingStill()
                 && !(continuing ? e.life().nutrition() < 15 || e.life().energy() < 15
                     || e.isOnFire() || e.isInWaterOrBubble() : e.life().hasUrgentNeed())
@@ -141,12 +137,7 @@ public final class DailyLife {
         if (entity.level().isClientSide || !available(entity) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
-        boolean needsShore = kind != Kind.SING && (entity.isPassenger()
-                || companion instanceof YukkuriEntity peer && peer.isPassenger());
-        if (needsShore && (!canJoinOnShore(entity)
-                || companion instanceof YukkuriEntity peer && !canJoinOnShore(peer))) return false;
-        if (!needsShore && kind != Kind.NUZZLE && !room()
-                && !(kind == Kind.SING && EcologyMovement.boat(entity) != null && EcologyMovement.supported(entity))) return false;
+        if (kind != Kind.NUZZLE && !room()) return false;
         entity.social().stop();
         session = new Session(entity, companion, kind); cooldown = 600;
         if (companion != null) entity.life().personality().protectRelation(companion.getUUID());
@@ -154,62 +145,12 @@ public final class DailyLife {
             peer.social().stop(); peer.life().personality().protectRelation(entity.getUUID()); peer.dailyLife().session = session; peer.dailyLife().cooldown = 600;
         }
         entity.setPersistenceRequired();
-        if (needsShore) {
-            session.shorePending = true; session.shoreDeadline = level().getGameTime() + 1200;
-            requestPlayShore(entity);
-            if (companion instanceof YukkuriEntity peer) requestPlayShore(peer);
-            GameplayLog.event(entity, "daily", "shore invitation accepted kind={} companion={} deadline={}",
-                    kind, companion == null ? null : companion.getUUID(), session.shoreDeadline);
-        }
         if (kind == Kind.NUZZLE) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         GameplayLog.limited(entity,"daily","started."+kind,1200,
-                "session reserved kind={} companion={} shorePending={} affectionNeed={} boredom={}",
-                kind,companion==null?null:companion.getUUID(),session.shorePending,affection,boredom);
+                "session reserved kind={} companion={} affectionNeed={} boredom={}",
+                kind,companion==null?null:companion.getUUID(),affection,boredom);
         return true;
-    }
-    private static boolean canJoinOnShore(YukkuriEntity e) {
-        if (!e.isPassenger()) return e.onGround();
-        var boat = EcologyMovement.boat(e);
-        return boat != null && EcologyMovement.captain(e) && EcologyMovement.supported(e) && boat.nearestBank() != null;
-    }
-    private static void requestPlayShore(YukkuriEntity e) {
-        if (e.isPassenger()) e.aquaticLife().requestShoreWork(ShoreWork.PLAY);
-        else e.aquaticLife().holdShoreWork(ShoreWork.PLAY);
-    }
-    private static boolean waitingSafe(YukkuriEntity e) {
-        return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isOnFire()
-                && !e.isInWaterOrBubble() && !e.isCommandPlaying() && !e.operations().active()
-                && e.life().nutrition() >= 15 && e.life().energy() >= 15 && !e.life().isSleeping();
-    }
-    private static boolean onShore(YukkuriEntity e) {
-        return !e.isPassenger() && e.onGround() && !e.aquaticLife().shoreVisitRequested();
-    }
-    /** A shared accepted invitation waits for actual landing, without running the ground interaction at sea. */
-    private void tickShoreInvitation() {
-        var current = session;
-        var other = current.companion;
-        boolean safe = waitingSafe(entity) && level().getGameTime() < current.shoreDeadline;
-        if (other != null) safe &= other.isAlive() && other.level() == entity.level()
-                && entity.distanceToSqr(other) <= 256 && (!(other instanceof YukkuriEntity peer) || waitingSafe(peer));
-        if (!safe) {
-            GameplayLog.event(entity, "daily", "shore invitation cancelled kind={} reason=timeout_or_state", current.kind);
-            stop(); return;
-        }
-        entity.aquaticLife().holdShoreWork(ShoreWork.PLAY);
-        if (other instanceof YukkuriEntity peer) peer.aquaticLife().holdShoreWork(ShoreWork.PLAY);
-        if (!onShore(entity) || other instanceof YukkuriEntity peer && !onShore(peer)) return;
-        boolean accepted = available(entity) && (current.kind == Kind.NUZZLE || room());
-        if (other != null) accepted &= entity.distanceToSqr(other) <= 36 && entity.hasLineOfSight(other);
-        if (other instanceof YukkuriEntity peer) accepted &= available(peer) && closePeer(peer);
-        else if (other instanceof Player player) accepted &= trusted(player);
-        if (!accepted) {
-            GameplayLog.event(entity, "daily", "shore invitation cancelled kind={} reason=landing_recheck", current.kind);
-            stop(); return;
-        }
-        current.shorePending = false;
-        GameplayLog.event(entity, "daily", "shore invitation resumed kind={} companion={}",
-                current.kind, other == null ? null : other.getUUID());
     }
     private boolean room() {
         var pos = entity.blockPosition();
@@ -218,7 +159,7 @@ public final class DailyLife {
         return true;
     }
     public boolean plan() {
-        if (active()) return !session.shorePending && valid();
+        if (active()) return valid();
         if (scanWait > 0 || cooldown > 0 || entity.social().active() || !available(entity)) return false;
         scanWait = 100;
         if (boredom < 45 && affection < entity.life().personality().affectionThreshold()
@@ -241,16 +182,16 @@ public final class DailyLife {
         if (entity.life().constipated() && entity.childhood().canExercise()) {
             if (companion != null && companion.family().adult()
                     && companion.getRandom().nextFloat() >= companion.life().personality().helpProbability(true, false)) companion = null;
-            return begin(Kind.EXERCISE, companion) && !session.shorePending;
+            return begin(Kind.EXERCISE, companion);
         }
-        if (companion != null && affection >= entity.life().personality().affectionThreshold() && nuzzle(companion)) return !session.shorePending;
+        if (companion != null && affection >= entity.life().personality().affectionThreshold() && nuzzle(companion)) return true;
         float song = 2 * entity.species().traits().song();
         Kind kind = !entity.childhood().canExercise() || entity.getRandom().nextFloat() * (song + 1) >= 1 ? Kind.SING : Kind.EXERCISE;
-        return begin(kind, companion) && !session.shorePending;
+        return begin(kind, companion);
     }
 
     public boolean valid() {
-        if (!active() || session.shorePending || !available(session.leader, true) || session.elapsed >= 320) return false;
+        if (!active() || !available(session.leader, true) || session.elapsed >= 320) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
         var other = session.companion;
@@ -287,7 +228,6 @@ public final class DailyLife {
         }
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
-        if (current.kind != Kind.SING) entity.aquaticLife().holdShoreWork(ShoreWork.PLAY);
         if (other != null && current.kind == Kind.NUZZLE) {
             float yaw=(float)(Math.atan2(other.getZ()-entity.getZ(),other.getX()-entity.getX())*180/Math.PI)-90;
             entity.setYRot(yaw);entity.setYHeadRot(yaw);entity.yBodyRot=yaw;
@@ -329,8 +269,6 @@ public final class DailyLife {
         var current = session; session = null;
         if (current == null || current.ended) return;
         current.ended = true;
-        current.leader.aquaticLife().releaseShoreWork(ShoreWork.PLAY);
-        if (current.companion instanceof YukkuriEntity peer) peer.aquaticLife().releaseShoreWork(ShoreWork.PLAY);
         if(log)GameplayLog.limited(current.leader,"daily","stopped."+current.kind,1200,
                 "session stopped kind={} companion={} elapsed={} contactTicks={}",
                 current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,current.contact);

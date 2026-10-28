@@ -138,7 +138,7 @@ public final class Fetch implements HostIntent {
             case 2:
                 return new Step.Do(new Grab(child));
             case 3: {
-                // The braid lift this replaces woke the young it took out of the hat (CrewTransfer); a carried young wakes too.
+                // Lifting a young out of the hat wakes it; a carried young wakes too.
                 child.life().wakeInHat();
                 var at = landing();
                 if (at == null) return null;

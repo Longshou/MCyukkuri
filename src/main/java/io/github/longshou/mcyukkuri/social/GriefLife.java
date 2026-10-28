@@ -81,8 +81,7 @@ public final class GriefLife {
             if (n++ >= 4) break;
             other.mind().add(6, "kin_dying");
             other.showReactionDelayed("teary", "kin_dying", 100, 50 + n * 6);
-            // A passenger can witness and grieve across the hull, but may never ask
-            // its land navigator to reach a dying body through open water.
+            // A carried one can witness and grieve, but never walks off on its own to reach the dying body.
             if (other.distanceToSqr(dying) > 6 && !other.isPassenger() && !dying.isPassenger())
                 other.getNavigation().moveTo(dying, 1.1);
         }

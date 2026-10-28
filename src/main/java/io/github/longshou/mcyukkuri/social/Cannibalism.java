@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -107,7 +106,7 @@ public final class Cannibalism extends Goal {
     private boolean eligible() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()
                 && !entity.profile().dangerToYukkuri() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()
-                && (!entity.isPassenger() || EcologyMovement.supported(entity))
+                && !entity.isPassenger()
                 && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();
     }
 
@@ -232,8 +231,7 @@ public final class Cannibalism extends Goal {
         if (smellWait == 0 && nutrition >= 8) {
             var source = RemainsRot.source(level(), entity.position());
             if (source != null) {
-                var spot = EcologyMovement.boat(entity) == null ? DefaultRandomPos.getPosAway(entity, 14, 6, source.position()) : waterAway(source.position());
-                if (spot == null && EcologyMovement.boat(entity) != null) { smellWait = 100; return false; }
+                var spot = DefaultRandomPos.getPosAway(entity, 14, 6, source.position());
                 if (spot == null) {
                     // No random spot fitted the navigation: walk straight away from the smell instead.
                     var dir = entity.position().subtract(source.position()).multiply(1, 0, 1);
@@ -247,23 +245,11 @@ public final class Cannibalism extends Goal {
         if (decision.equals("none")) lastReason = "nothing to do";
         return false;
     }
-    /** Water routes and nearby supported contact replace land navigation only for an actual hat rider. */
+    /** Only a target on the ground is reached by walking; nothing is bitten from across a gap. */
     private boolean reachable(Entity target) {
-        return EcologyMovement.reachable(entity, target.blockPosition())
-                || EcologyMovement.boat(entity) != null && entity.distanceToSqr(target) <= 4 && entity.hasLineOfSight(target);
+        return EcologyMovement.reachable(entity, target.blockPosition());
     }
-    private Vec3 waterAway(Vec3 source) {
-        var boat = EcologyMovement.boat(entity);
-        if (boat == null || !EcologyMovement.captain(entity)) return null;
-        Vec3 direction = boat.position().subtract(source).multiply(1, 0, 1);
-        direction = direction.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : direction.normalize();
-        for (float angle : new float[]{0, .7854f, -.7854f, 1.5708f, -1.5708f}) {
-            Vec3 point = boat.position().add(direction.yRot(angle).scale(8));
-            if (EcologyMovement.reachable(entity, BlockPos.containing(point))) return point;
-        }
-        return null;
-    }
-    /** The same authored mouth used for held food must meet the target's real body before a water-side bite. */
+    /** The mouth must meet the target's real body. */
     private boolean mouthTouches(Entity target) {
         Vec3 toward = target.position().subtract(entity.position());
         SurfaceApproach.face(entity, (float)(Math.toDegrees(Math.atan2(toward.z, toward.x)) - 90));
@@ -279,7 +265,6 @@ public final class Cannibalism extends Goal {
         return true;
     }
     private boolean ordinaryFoodAvailable() {
-        if (entity.profile().aquatic() && entity.aquaticLife().availableFood() > 0) return true;
         var carried = entity.habitat().carrying();
         if (!carried.isEmpty() && entity.life().acceptsFood(carried)) return true;
         var home = entity.habitat().shelter();
@@ -297,7 +282,7 @@ public final class Cannibalism extends Goal {
     private YukkuriEntity findPrey() {
         return level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10, 3, 10), y -> y != entity && y.isAlive()
                         && !y.profile().dangerToYukkuri() && !y.profile().houseBody() && y.family().adult()
-                        && Headwear.fairGame(entity, y) && (!y.isPassenger() || EcologyMovement.boat(y) != null) && !y.body().dying()
+                        && Headwear.fairGame(entity, y) && !y.isPassenger() && !y.body().dying()
                         && !Recognition.grotesque(y)
                         && y.getScale() * y.growthScale() <= entity.getScale() * entity.growthScale() * 1.25f
                         && entity.hasLineOfSight(y) && reachable(y)).stream()
@@ -340,8 +325,7 @@ public final class Cannibalism extends Goal {
     }
     private void carrion() {
         entity.getLookControl().setLookAt(body, 30, 30);
-        if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()
-                || EcologyMovement.boat(entity) != null && !mouthTouches(body)) {
+        if (entity.distanceToSqr(body) > 1.6 + body.getBbWidth() * body.getBbWidth()) {
             if (!EcologyMovement.approach(entity, body, 1)) lastReason = "approaching_contact";
             return;
         }
@@ -381,8 +365,7 @@ public final class Cannibalism extends Goal {
         }
         if (!intruding) { EcologyMovement.halt(entity); lastReason = "guard_driven_out"; return; }
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .18;
-        if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)
-                || (EcologyMovement.boat(entity) != null || EcologyMovement.boat(prey) != null) && !mouthTouches(prey)) {
+        if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)) {
             EcologyMovement.approach(entity, prey, 1.2);
             lastReason = "guard_approach";
             return;
@@ -403,15 +386,12 @@ public final class Cannibalism extends Goal {
         entity.getLookControl().setLookAt(prey, 30, 30);
         double reach = (entity.getBbWidth() + prey.getBbWidth()) * .5 + .18;
         if (entity.life().mealTicks() > 0) return;
-        boolean afloat = EcologyMovement.boat(entity) != null || EcologyMovement.boat(prey) != null;
-        if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey) || afloat && !mouthTouches(prey)) {
-            if (afloat) { EcologyMovement.approach(entity, prey, 1.25); return; }
+        if (entity.distanceToSqr(prey) > reach * reach || !entity.hasLineOfSight(prey)) {
             // The last blocks are walked straight at the target: path navigation ends beside it, still out of biting range.
             if (entity.distanceToSqr(prey) < 16) entity.getMoveControl().setWantedPosition(prey.getX(), prey.getY(), prey.getZ(), 1.25);
             else if (elapsed % 8 == 1) entity.getNavigation().moveTo(prey, 1.25);
             return;
         }
-        if (afloat) EcologyMovement.halt(entity);
         if (biteClock > 0) return;
         if (!entity.life().canAcceptBodyFood()) return;
         float healthBefore = prey.getHealth();

@@ -152,8 +152,7 @@ public final class ExamMenu extends AbstractContainerMenu {
             return true;
         }
         int type = id + 1; var why = ExamSession.refusal(target, p, y, type);
-        // The displayed preview is intentionally inert. A real click may queue one bounded shore
-        // transfer and will repeat every eligibility and fee check after the passenger disembarks.
+        // The displayed preview is intentionally inert. A real click repeats every eligibility and fee check.
         if (why != null) { p.displayClientMessage(Component.translatable("exam.mcyukkuri.refuse." + why), true); broadcastChanges(); return false; }
         if (type == ExamSession.REISSUE) {
             var token = y.pet().reissueToken(); if (token.isEmpty()) return false;

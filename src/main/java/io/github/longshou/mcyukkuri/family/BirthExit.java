@@ -25,29 +25,17 @@ public final class BirthExit {
         var brood=mother.family().brood();
         if(brood==null||index<0||index>=brood.children.size())return none(mother,index,0);
         var child=brood.children.get(index);var zones=new ArrayList<Dropzone>();
-        var mine=mother.family().boatHome();
-        if(mine!=null&&mine.isAfloat()){
-            addSeats(zones,mine,brood,child,mother.position(),true,"own_hat",1.25,0);
-            if(brood.father!=null&&mother.level() instanceof ServerLevel level&&level.getEntity(brood.father) instanceof YukkuriEntity father){
-                var partner=father.family().boatHome();
-                if(partner!=null&&partner!=mine&&partner.isAfloat()&&!father.family().tiedToLabor()&&!father.life().isSleeping()
-                        &&!father.isNoAi()&&!father.isCommandPlaying()&&!father.operations().active()&&father.life().mealTicks()==0)
-                    addSeats(zones,partner,brood,child,mother.position(),false,"partner_hat",FamilyLife.SHARE_REACH,1);
-            }
-        }else{
-            for(var hat:mother.level().getEntitiesOfClass(HatBoatEntity.class,mother.getBoundingBox().inflate(3),h->h.catches()
-                    &&(mother.getUUID().equals(h.ownerYukkuri())||brood.father!=null&&brood.father.equals(h.ownerYukkuri()))))
-                addSeats(zones,hat,brood,child,mother.position(),false,"catch_hat",1.25,0);
-            var nest=FamilyNest.largeCentre(mother);
-            if(nest!=null)zones.add(new Dropzone(nest,"nest",.8,1));
-        }
+        for(var hat:mother.level().getEntitiesOfClass(HatBoatEntity.class,mother.getBoundingBox().inflate(3),h->h.catches()
+                &&(mother.getUUID().equals(h.ownerYukkuri())||brood.father!=null&&brood.father.equals(h.ownerYukkuri()))))
+            addSeats(zones,hat,brood,child,mother.position(),"catch_hat",1.25,0);
+        var nest=FamilyNest.largeCentre(mother);
+        if(nest!=null)zones.add(new Dropzone(nest,"nest",.8,1));
         return choose(mother,index,zones);
     }
     public static Exit choose(YukkuriEntity mother,int index,List<Dropzone> zones){
         var brood=mother.family().brood();
         if(!(mother.level() instanceof ServerLevel level)||brood==null||index<0||index>=brood.children.size())return none(mother,index,0);
         var child=brood.children.get(index);var angles=angles(mother,zones);Exit best=null;double score=Double.MAX_VALUE;
-        boolean afloat=mother.family().boatHome()!=null;
         for(float yaw:angles){
             double turn=Math.abs(Mth.wrapDegrees(yaw-mother.yBodyRot));
             var outlet=LiveBirthGeometry.position(mother,index,yaw);
@@ -59,7 +47,7 @@ public final class BirthExit {
             String kind=null;int priority=3;double distance=0;Dropzone target=null;
             for(var zone:zones){
                 double d=outlet.subtract(zone.position()).horizontalDistance();
-                if(d>zone.reach()||afloat&&Math.abs(outlet.y-zone.position().y)>1)continue;
+                if(d>zone.reach())continue;
                 double candidate=zone.priority()*1000+turn+d*.1;
                 double bestHere=kind==null?score:Math.min(score,priority*1000+turn+distance*.1);
                 if(candidate>=bestHere)continue;
@@ -67,7 +55,7 @@ public final class BirthExit {
                 if(kind==null||zone.priority()<priority||zone.priority()==priority&&d<distance){kind=zone.kind();priority=zone.priority();distance=d;target=zone;}
             }
             if(kind==null){
-                if(afloat||!drySupport(mother,outlet))continue;
+                if(!drySupport(mother,outlet))continue;
                 kind="ground";priority=3;
             }
             double candidate=priority*1000+turn+distance*.1;
@@ -76,8 +64,8 @@ public final class BirthExit {
         return best==null?none(mother,index,angles.size()):best;
     }
     private static void addSeats(List<Dropzone> zones,HatBoatEntity hat,FamilyData.Brood brood,FamilyData.Child child,
-                                 Vec3 from,boolean emergency,String kind,double reach,int priority){
-        for(var seat:hat.birthSeatChoices(brood.kind,child,emergency,from))
+                                 Vec3 from,String kind,double reach,int priority){
+        for(var seat:hat.birthSeatChoices(brood.kind,child,from))
             zones.add(new Dropzone(seat.position(),kind,reach,priority,hat,seat.slot(),seat.admission()));
     }
     /** Keep the selected real berth, but recheck its current transform and admission before every delivery tick. */
@@ -93,13 +81,9 @@ public final class BirthExit {
         }
         var hat=target.hat();
         if(hat.isRemoved()||!mother.getUUID().equals(hat.ownerYukkuri())&&(brood.father==null||!brood.father.equals(hat.ownerYukkuri())))return false;
-        if(target.kind().equals("partner_hat")&&(!(mother.level() instanceof ServerLevel level)
-                ||!(level.getEntity(brood.father) instanceof YukkuriEntity father)||father.family().boatHome()!=hat
-                ||!father.isAlive()||father.isNoAi()||father.isCommandPlaying()||father.operations().active()
-                ||father.life().isSleeping()||father.life().mealTicks()>0||father.family().tiedToLabor()))return false;
         if(target.slot()<0)return !hat.isRemoved()&&hat.catches()&&chooseAt(mother,index,selected.yaw(),
                 new Dropzone(hat.position(),target.kind(),target.reach(),target.priority(),hat,-1,target.admission()));
-        for(var seat:hat.birthSeatChoices(brood.kind,brood.children.get(index),target.kind().equals("own_hat"),mother.position())){
+        for(var seat:hat.birthSeatChoices(brood.kind,brood.children.get(index),mother.position())){
             if(seat.slot()!=target.slot()||seat.admission()!=target.admission())continue;
             var now=new Dropzone(seat.position(),target.kind(),target.reach(),target.priority(),hat,seat.slot(),seat.admission());
             return chooseAt(mother,index,selected.yaw(),now);
@@ -110,7 +94,6 @@ public final class BirthExit {
         var child=mother.family().brood().children.get(index);
         var outlet=LiveBirthGeometry.position(mother,index,yaw);
         return clearOutlet(mother,index,yaw)&&outlet.subtract(zone.position()).horizontalDistance()<=zone.reach()
-                &&(mother.family().boatHome()==null||Math.abs(outlet.y-zone.position().y)<=1)
                 &&(zone.hat()==null||flightClear(mother,child,yaw,outlet,zone));
     }
     private static boolean clearOutlet(YukkuriEntity mother,int index,float yaw){

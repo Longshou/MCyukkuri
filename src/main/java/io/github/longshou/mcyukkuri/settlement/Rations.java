@@ -18,7 +18,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 
 /**
  * The leader's evening food check and relief from the common store by the number of mouths (按饅數分取所需, komicolle
@@ -51,8 +50,6 @@ public final class Rations {
     public static final float PER_MOUTH = 2f;
     public static final int FETCH_MAX = 4;
     static final int FETCH_HOLD = 1200;
-    /** A landing can take longer than a land errand; the same one-hat household remains exclusive throughout it. */
-    static final int WATER_FETCH_HOLD = 3200;
     static final int START = 11000, END = 13000;
     /** Days of current community need the common store aims at; hunts stop and the levy pauses at that target. */
     static final int STORE_DAYS = 3;
@@ -70,8 +67,6 @@ public final class Rations {
     public static Commons.Ration ration(YukkuriEntity entity) {
         var group = entity.settlement().group();
         if (group == null) return null;
-        var boat = entity.habitat().waterHome();
-        if (boat != null) return group.commons.waterRations.get(boat.getUUID());
         var home = entity.habitat().shelter();
         return home == null ? null : group.commons.rations.get(key(home));
     }
@@ -136,55 +131,11 @@ public final class Rations {
         if (weight <= 0) return false;
         return home.food() < Math.ceil(weight * PER_MOUTH) * minimumDays(level, group);
     }
-    /**
-     * An afloat family has one food inventory: the actual hat cargo.  Do not turn every passenger into a household,
-     * otherwise the same cargo is counted once per child and a full hat can be judged as famine.
-     */
-    public static boolean isShort(YukkuriEntity entity) {
-        if (!(entity.level() instanceof ServerLevel level)) return false;
-        var group = entity.settlement().group();
-        var boat = entity.habitat().waterHome();
-        if (group == null || boat == null) return false;
-        var household = waterHouseholds(level, group).get(boat.getUUID());
-        return household != null && household.own < Math.ceil(household.weight * PER_MOUTH) * minimumDays(level, group);
-    }
     private static boolean onCommons(List<ForagePileBlockEntity> common, ShelterBlockEntity home) {
         var pile = home.pile();
         if (pile == null) return false;
         for (var p : common) if (p.getBlockPos().equals(pile.getBlockPos())) return true;
         return false;
-    }
-
-    /** Runtime-only family address for a physical hat.  The boat UUID is the key, never a derived land position. */
-    private static final class WaterHousehold {
-        final HatBoatEntity boat;
-        final List<YukkuriEntity> people = new ArrayList<>();
-        float weight, priority;
-        int need, minimum, own;
-        boolean leaders;
-        WaterHousehold(HatBoatEntity boat) { this.boat = boat; }
-    }
-
-    /** All loaded members presently addressed by a physical hat, with cargo recorded exactly once per hat. */
-    private static Map<UUID, WaterHousehold> waterHouseholds(ServerLevel level, SettlementData.Group group) {
-        long now = level.getGameTime();
-        Map<UUID, WaterHousehold> homes = new LinkedHashMap<>();
-        for (var m : members(level, group)) {
-            var boat = m.habitat().waterHome();
-            var mouth = mouth(m, group, now);
-            if (boat == null || mouth.weight() <= 0) continue;
-            var home = homes.computeIfAbsent(boat.getUUID(), id -> new WaterHousehold(boat));
-            home.people.add(m); home.weight += mouth.weight(); home.priority += mouth.priority();
-            if (m.getUUID().equals(group.leader)) home.leaders = true;
-        }
-        for (var home : homes.values()) {
-            // availableFood has one cargo count per observer.  Only its non-cargo remainder belongs to that observer.
-            int cargo = home.boat.cargo().count();
-            int personal = 0;
-            for (var person : home.people) personal += Math.max(0, person.aquaticLife().availableFood() - cargo);
-            home.own = cargo + personal;
-        }
-        return homes;
     }
 
     /** Report lines (operator command): each loaded household with its pile, food, minimum and whether it is short. */
@@ -207,11 +158,6 @@ public final class Rations {
             out.add("household " + h.home.getBlockPos().toShortString() + " pile " + (pile == null ? "-" : pile.getBlockPos().toShortString())
                     + " people " + h.people.size() + " food " + h.home.food() + " minimum " + minimum
                     + (onCommons(commonPiles, h.home) ? " commons" : h.home.food() < minimum ? " SHORT" : ""));
-        }
-        for (var h : waterHouseholds(level, group).values()) {
-            int minimum = (int)Math.ceil(h.weight * PER_MOUTH) * days;
-            out.add("household hat " + h.boat.getUUID() + " people " + h.people.size() + " food " + h.own + " minimum " + minimum
-                    + (h.own < minimum ? " SHORT" : ""));
         }
         return out;
     }
@@ -268,23 +214,19 @@ public final class Rations {
         boolean leaders, common;
         Household(ShelterBlockEntity home) { this.home = home; }
     }
-    /** One distribution target, with either a land pile or one physical afloat hat as its address. */
+    /** One distribution target, with one land pile as its address. */
     private static final class ReliefTarget {
         final Household land;
-        final WaterHousehold water;
         final List<YukkuriEntity> people;
         final float weight, priority;
         final boolean leaders;
         int want, quota;
         ReliefTarget(Household home) {
-            land = home; water = null; people = home.people; weight = home.weight; priority = home.priority; leaders = home.leaders;
+            land = home; people = home.people; weight = home.weight; priority = home.priority; leaders = home.leaders;
         }
-        ReliefTarget(WaterHousehold home) {
-            land = null; water = home; people = home.people; weight = home.weight; priority = home.priority; leaders = home.leaders;
-        }
-        int own() { return land != null ? land.own : water.own; }
-        int minimum() { return land != null ? land.minimum : water.minimum; }
-        boolean common() { return land != null && land.common; }
+        int own() { return land.own; }
+        int minimum() { return land.minimum; }
+        boolean common() { return land.common; }
     }
 
     /**
@@ -297,7 +239,6 @@ public final class Rations {
         var members = members(level, group);
         var commonPiles = CommonStore.piles(level, group);
         Map<Long, Household> homes = new LinkedHashMap<>();
-        var waterHomes = waterHouseholds(level, group);
         int hungry = 0, minDays = minimumDays(level, group);
         float totalWeight = 0;
         for (var m : members) {
@@ -319,13 +260,6 @@ public final class Rations {
             h.common = onCommons(commonPiles, h.home);
             if (!h.common) held += h.own;
         }
-        int waterShortHomes = 0, waterShortWant = 0;
-        for (var h : waterHomes.values()) {
-            h.need = (int)Math.ceil(h.weight * PER_MOUTH);
-            h.minimum = h.need * minDays;
-            held += h.own;
-            if (h.own < h.minimum) { waterShortHomes++; waterShortWant += h.minimum - h.own; }
-        }
         int need = (int)Math.ceil(totalWeight * PER_MOUTH);
 
         // Foraging since the last check: every outing empty is one more failed day; no outing at all changes nothing.
@@ -334,7 +268,7 @@ public final class Rations {
         commons.outings = commons.fruitful = commons.levyToday = commons.keptToday = 0;
 
         float days = need <= 0 ? 99 : (stock + held) / (float)need;
-        int shortHomes = waterShortHomes, shortWant = waterShortWant;
+        int shortHomes = 0, shortWant = 0;
         for (var h : homes.values()) if (!h.common && h.own < h.minimum) { shortHomes++; shortWant += h.minimum - h.own; }
         int before = commons.famine, famine;
         if (commons.famineOverride >= 0) famine = commons.famineOverride;
@@ -359,7 +293,7 @@ public final class Rations {
             commons.note(now, "famine_over", leader == null ? null : leader.getUUID(), "days " + daysText);
             for (var m : members) m.mind().add(-3, "famine_over");
         }
-        String relief = CommunityRules.rule(group, Commons.SHARE_BY_MOUTH) ? relieve(level, group, leader, homes, waterHomes, stock) : "no share rule";
+        String relief = CommunityRules.rule(group, Commons.SHARE_BY_MOUTH) ? relieve(level, group, leader, homes, stock) : "no share rule";
         String summary = "day " + day + " food " + daysText + " days (store " + stock + " homes " + held + " need " + need + ")"
                 + " outings " + fruitful + "/" + outings + " failDays " + commons.failDays + " levy " + levy + " kept " + kept
                 + " famine " + famine + " short " + shortHomes + "; " + relief;
@@ -370,7 +304,7 @@ public final class Rations {
 
     /** Relief for the short households only, out of the common store. */
     private static String relieve(ServerLevel level, SettlementData.Group group, YukkuriEntity leader,
-                                  Map<Long, Household> homes, Map<UUID, WaterHousehold> waterHomes, int stock) {
+                                  Map<Long, Household> homes, int stock) {
         var commons = group.commons;
         long now = level.getGameTime(), day = level.getDayTime() / 24000;
         boolean winter = Seasons.on(level, group.center, Season.WINTER);
@@ -381,12 +315,6 @@ public final class Rations {
         for (var h : homes.values()) {
             var target = new ReliefTarget(h);
             target.want = target.common() ? 0 : Math.max(0, target.minimum() - target.own());
-            if (unfair && target.leaders && target.want > 0) target.want = (int)Math.ceil(target.want * 1.5);
-            if (target.want > 0) { wanted += target.want; list.add(target); }
-        }
-        for (var h : waterHomes.values()) {
-            var target = new ReliefTarget(h);
-            target.want = Math.max(0, target.minimum() - target.own());
             if (unfair && target.leaders && target.want > 0) target.want = (int)Math.ceil(target.want * 1.5);
             if (target.want > 0) { wanted += target.want; list.add(target); }
         }
@@ -423,15 +351,13 @@ public final class Rations {
             var r = new Commons.Ration();
             r.mouths = h.people.size(); r.weight = Math.round(h.weight * 100) / 100f; r.allotted = r.left = h.quota; r.own = h.own();
             r.note = h.quota < h.want ? "short" : "relieved";
-            if (h.land != null) commons.rations.put(key(h.land.home), r);
-            else commons.waterRations.put(h.water.boat.getUUID(), r);
+            commons.rations.put(key(h.land.home), r);
             given += h.quota;
         }
         commons.rationDay = day; commons.rationTime = now; commons.rationGiven = given;
         if (leader != null && given > 0) leader.showReaction("happy", "ration_give", 80);
         for (var h : list) if (h.quota > 0) for (var m : h.people) m.mind().add(-2, "ration");
         if (unfair) for (var h : homes.values()) if (!h.leaders) for (var m : h.people) if (m.family().adult()) m.mind().add(3, "unfair_ration");
-        if (unfair) for (var h : waterHomes.values()) if (!h.leaders) for (var m : h.people) if (m.family().adult()) m.mind().add(3, "unfair_ration");
         String summary = "relief " + given + "/" + wanted + " to " + list.size() + " short households"
                 + (winter ? " winter" : "") + (unfair ? " unfair" : "");
         commons.note(now, "ration", leader == null ? null : leader.getUUID(), summary);
@@ -521,81 +447,6 @@ public final class Rations {
     }
 
     public static void fetchAbort(Fetch fetch) { if(fetch!=null)fetch.group.commons.releaseRation(fetch); }
-
-    /** A water-household fetch begun by the actual owner while aboard its actual afloat hat. */
-    public static final class WaterFetch {
-        final ServerLevel level;
-        final SettlementData.Group group;
-        final UUID boatId;
-        final ForagePileBlockEntity pile;
-        final Commons.Ration ration;
-        final UUID fetcher;
-        private WaterFetch(ServerLevel level, SettlementData.Group group, UUID boatId, ForagePileBlockEntity pile,
-                           Commons.Ration ration, UUID fetcher) {
-            this.level=level;this.group=group;this.boatId=boatId;this.pile=pile;this.ration=ration;this.fetcher=fetcher;
-        }
-        public ForagePileBlockEntity pile() { return pile; }
-    }
-
-    /**
-     * Reserves one afloat household's allocation before it asks its own captain to land. The bound hat must really be
-     * afloat, carrying this exact adult owner, and protecting it at the moment of the request; after landing the same
-     * transient token carries that verified address through the dry-bank contact rather than inventing a land home.
-     */
-    public static WaterFetch waterFetchStart(YukkuriEntity entity) {
-        if (!(entity.level() instanceof ServerLevel level) || !entity.family().adult() || !governs(entity)) return null;
-        var group = entity.settlement().group();
-        var boat = entity.habitat().waterHome();
-        if (group == null || boat == null || entity.getVehicle()!=boat || !boat.isAfloat()
-                || !entity.getUUID().equals(boat.ownerYukkuri()) || !boat.protects(entity)) return null;
-        var r = group.commons.waterRations.get(boat.getUUID());
-        long now = level.getGameTime();
-        if (r == null || r.left <= 0 || !group.commons.waterRationFree(boat.getUUID(), now)) return null;
-        var pile = CommonStore.nearest(level, group, entity.blockPosition(), p -> !p.peek(stack -> entity.life().acceptsFood(stack)).isEmpty());
-        if (pile == null) return null;
-        var fetch = new WaterFetch(level, group, boat.getUUID(), pile, r, entity.getUUID());
-        if (!group.commons.claimWaterRation(fetch, now)) return null;
-        SettlementData.get(level).setDirty();
-        return fetch;
-    }
-
-    /** The transient landing hand-off may wait through a dismount, but it may never act after its lease expired. */
-    static boolean waterFetchActive(WaterFetch fetch) {
-        return fetch != null && fetch.group.commons.ownsWaterRation(fetch, fetch.level.getGameTime());
-    }
-
-    /**
-     * At the real common pile after the landing contact: take one physical stack, carry only what the still-owned
-     * aquatic provisions slot can accept, and put the remainder back before reducing the allocation. The boat identity
-     * was checked before landing; this method deliberately requires an actual dry-bank actor instead of a hidden cargo
-     * transfer.
-     */
-    public static int waterFetchTake(YukkuriEntity entity, ForagePileBlockEntity pile, WaterFetch fetch) {
-        if (fetch==null || entity.level()!=fetch.level || entity.settlement().group()!=fetch.group || pile!=fetch.pile
-                || !entity.getUUID().equals(fetch.fetcher) || !fetch.group.commons.ownsWaterRation(fetch,fetch.level.getGameTime())
-                || !entity.profile().aquatic() || entity.isPassenger() || !entity.onGround()
-                || !fetch.level.hasChunkAt(pile.getBlockPos()) || fetch.level.getBlockEntity(pile.getBlockPos())!=pile
-                || !CommonStore.isCommon(fetch.level,fetch.group,pile) || fetch.ration.left<=0) return 0;
-        var first = pile.take(stack -> entity.life().acceptsFood(stack));
-        if (first.isEmpty()) return 0;
-        int want = Math.min(fetch.ration.left, FETCH_MAX);
-        while (first.getCount() < want) {
-            var more = pile.take(stack -> ItemStack.isSameItemSameComponents(stack, first));
-            if (more.isEmpty()) break;
-            first.grow(more.getCount());
-        }
-        int moved = entity.aquaticLife().receiveProvisions(first, first.getCount());
-        if (!first.isEmpty()) pile.returnFood(first);
-        if (moved > 0) fetch.ration.left -= moved;
-        fetch.group.commons.releaseWaterRation(fetch);
-        fetch.group.commons.note(fetch.level.getGameTime(), moved > 0 ? "ration_water_fetched" : "ration_water_unloaded",
-                entity.getUUID(), "hat " + fetch.boatId + " moved " + moved + " left " + fetch.ration.left);
-        SettlementData.get(fetch.level).setDirty();
-        if (moved > 0) entity.showReaction("happy", "ration_get", 60);
-        return moved;
-    }
-
-    public static void waterFetchAbort(WaterFetch fetch) { if(fetch!=null)fetch.group.commons.releaseWaterRation(fetch); }
 
     /** True when eating one portion at the store is this household's ration; false means it would be theft. */
     public static boolean allowance(YukkuriEntity entity) {

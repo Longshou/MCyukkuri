@@ -5,8 +5,6 @@ import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.season.Season;
-import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -43,8 +41,6 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.rare.RareForms;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatRoute;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -88,7 +84,6 @@ public final class YukkuriLife {
     private int pitEdgeTicks;
     /** A pit trip may cross the whole site; a trip to nearby ground gives up much sooner. */
     private static final int PIT_TRIP_TICKS = 900, GROUND_TRIP_TICKS = 240;
-    private final HatToilet hatToilet = new HatToilet(this);
     private final HotFloorEscape hotFloor;
     private int starvingTicks, fatigueTicks, fatigueLength;
     private boolean observedNeedSlowness;
@@ -225,7 +220,17 @@ public final class YukkuriLife {
     /** A newborn's first stool is already stored at birth; only the assisted contact below may retire it. */
     public void primeFirstStool() { bladder = Math.max(bladder, 12); }
     /** Only the completed newborn-care contact may retire this first bowel load. */
-    public boolean completeAssistedFirstToilet(YukkuriEntity parent){ return hatToilet.completeAssistedFirstToilet(parent); }
+    public boolean completeAssistedFirstToilet(YukkuriEntity parent){
+        if (!(entity.level() instanceof ServerLevel) || !entity.childhood().assistedReleaseReady(parent)
+                || bladder < 10 || !entity.isAlive() || entity.isPanicking() || entity.isOnFire()
+                || entity.isInWaterOrBubble() || isSleeping() || mealTicks() > 0) return false;
+        var rear = ToiletContact.anus(entity, 0);
+        if (rear == null) return false;
+        if (!ToiletContact.drop(entity, rear)) return false;
+        emptyBladder(); personality().relieveFear();
+        entity.showReaction("happy", "toilet_done", 60);
+        return true;
+    }
     /** Leaf swaddle (family/LeafSwaddle): one load goes into the closed wrap, with the same bladder and hygiene cost as a leak. */
     public void releaseIntoWrap() { leaked(); }
     /** Leaf swaddle care: after the parent's verified rear contact the opened child drops one real load from its anus. */
@@ -239,9 +244,6 @@ public final class YukkuriLife {
     }
     /** A real cleaning or soiling of the body surface, bounded like every other hygiene change. */
     public void changeHygiene(float delta) { if (Float.isFinite(delta)) hygiene = Math.clamp(hygiene + delta, 0, 100); }
-    public boolean hatToiletReleasing(){ return hatToilet.hatToiletReleasing(); }
-    /** Supported hat passengers can relieve themselves without turning a bodily need into a shore trip. */
-    public boolean toiletInHat(HatBoatEntity boat){ return hatToilet.toiletInHat(boat); }
     public float wetness() { return wetness; }
     public float dryness(){return dryness;}
     void addDryness(float amount) { if (Float.isFinite(amount) && amount > 0) dryness = Math.min(100, dryness + amount); }
@@ -320,29 +322,6 @@ public final class YukkuriLife {
         if (!entity.level().isClientSide && entity.house().sleeping() && !entity.isPanicking()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && mealTicks() == 0) energy = Math.min(100, energy + .5f);
     }
-    /** Hat sleep uses the same physiology and completed-sleep growth as a terrestrial nest. */
-    public void restInHat(HatBoatEntity boat) {
-        if (!boat.protects(entity) || entity.isPanicking() || entity.life().mealTicks() > 0
-                || boat.flooding() > 0 || temperature.unsafeSleep()
-                || HatBoatRoute.exposedWeather(level(), entity.blockPosition())) { wakeInHat(); return; }
-        if (!level().isNight() && energy > restThreshold() && !wantsHatNap() && task != Task.SLEEP) return;
-        if (task != Task.SLEEP) { task = Task.SLEEP; sleepTicks = 0; targetBlock = null; targetFood = null; }
-        sleepTicks = Math.min(600, sleepTicks+1);
-        if (sleepTicks == 20) {
-            entity.speak("sleep");
-            GameplayLog.event(entity,"sleep","begin source=hat boat={} energy={} nutrition={} drugTicks={}",boat.getUUID(),energy,nutrition,drugSleep());
-        }
-        if (sleepTicks >= 20) energy = Math.min(100, energy+.5f);
-        doses.tickDrugSleep();
-        if (drugSleep() == 0 && sleepTicks >= sleepDuration() && (nutrition < 15 || energy >= 95)) wakeInHat();
-    }
-    /** A summer noon rest uses the existing biome season, physiology and sleep cooldown. */
-    public boolean wantsHatNap() {
-        return restWait == 0 && energy < 85 && !temperature.unsafeSleep()
-                && Seasons.noon(level())
-                && Seasons.on(level(), entity.blockPosition(),
-                        Season.SUMMER);
-    }
     public void wakeInHat() {
         if (task != Task.SLEEP) return;
         boolean rested = sleepTicks >= 220;
@@ -380,7 +359,7 @@ public final class YukkuriLife {
 
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
-        // Body contact with water hurts every species, even with AI disabled. A dry hat is not immersion.
+        // Body contact with water hurts every species, even with AI disabled.
         // The soak timer only clears after 40 continuous dry ticks, so the dry ticks of a climb cannot cancel drowning damage.
         if (!entity.isInWaterOrBubble()) { if (++dryTicks >= DRY_RESET_TICKS) immersionTicks = 0; }
         else {
@@ -462,8 +441,6 @@ public final class YukkuriLife {
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     /** A biological parent must physically reach the child before transferring its prepared serving. */
     public boolean beginParentMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginParentMeal(caregiver, prepared); }
-    /** A hat passenger receives the serving through the same real mouth contact as a child ashore. */
-    public boolean beginBraidMeal(YukkuriEntity caregiver, ItemStack prepared){ return meal.beginBraidMeal(caregiver, prepared); }
     private boolean startMeal(ItemStack transferred, UUID fromPlayer, boolean alreadyShared, String reaction){ return meal.startMeal(transferred, fromPlayer, alreadyShared, reaction); }
     /** Badge social (B4): a hungry peer is begging at this serving, so the bite waits mid-chew for up to {@code ticks}. False unless a bite is really in the mouth. */
     public boolean holdMeal(int ticks){ return meal.holdMeal(ticks); }
@@ -486,8 +463,7 @@ public final class YukkuriLife {
                 sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire());
         meal.clearInterrupted(); doses.clearReturnBottle();
         doses.stopSedation();drinkTicks=0;
-        sleepTicks = toiletTicks = 0; hatToilet.interrupt(); task = Task.NONE; targetFood = null; targetBlock = null;
-        if (entity.getVehicle() instanceof HatBoatEntity boat) boat.releaseToiletSeat(entity);
+        sleepTicks = toiletTicks = 0; task = Task.NONE; targetFood = null; targetBlock = null;
         planWait = 20; entity.getNavigation().stop();
     }
     public boolean wash(UUID player) {
@@ -495,9 +471,9 @@ public final class YukkuriLife {
         hygiene = Math.min(100, hygiene + 40); wetness = Math.min(100, wetness + 5);
         personality.washed(player); entity.showReaction("happy", "washed", 60); return true;
     }
+    /** The worn hat leaves the head as the placed hat {@code hat}; returns the custody token it carries. */
+    public UUID stowAccessory(UUID hat){ return accessory.stowAccessory(hat); }
     public UUID takeAccessory(UUID player){ return accessory.takeAccessory(player); }
-    /** Voluntarily using one's own hat as a vessel is not an accessory theft: the worn hat becomes the hull {@code boat}. */
-    public UUID stowAccessory(UUID boat){ return accessory.stowAccessory(boat); }
     public UUID takeAccessory(UUID player,UUID token){ return accessory.takeAccessory(player, token); }
     public boolean returnAccessory(UUID owner, UUID token, UUID player){ return accessory.returnAccessory(owner, token, player); }
     /** Receive a compatible loose physical accessory and its repair progress after releasing any held fragments. */
@@ -509,14 +485,11 @@ public final class YukkuriLife {
     /** Its own accessory is whole on its head again (pieces knit together, headwear.Headwear): no token was involved. */
     public void wearAccessory(){ accessory.wearAccessory(); }
     public boolean matchesAccessory(UUID owner,UUID token){ return accessory.matchesAccessory(owner, token); }
-    public boolean matchesCustody(UUID boat,UUID owner,UUID token){ return accessory.matchesCustody(boat, owner, token); }
-    /** A real boarding of the hull this token belongs to reopens the custody. */
-    public void boardCustody(UUID boat,UUID owner,UUID token){ accessory.boardCustody(boat, owner, token); }
     /** Where the hat is: the one record every read of its whereabouts goes through. */
     public io.github.longshou.mcyukkuri.headwear.HatCustody custody(){ return accessory.custody(); }
     /** A stowed, token-matched physical hat is still this individual's accessory. */
     public boolean accessoryCustodied(){ return accessory.custodied(); }
-    public boolean relinquishCustody(UUID boat,UUID owner,UUID token,UUID player,String cause){ return accessory.relinquishCustody(boat, owner, token, player, cause); }
+    public boolean relinquishCustody(UUID owner,UUID token,UUID player,String cause){ return accessory.relinquishCustody(owner, token, player, cause); }
 
     public boolean protectsStep() {
         return mealTicks() > 0 || task == Task.SLEEP || toiletTicks > 0 || task == Task.DRINK && drinkTicks > 0;
@@ -527,7 +500,6 @@ public final class YukkuriLife {
 
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
-        if (entity.shelteredInHat()) return false;
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks() > 0) return true;
@@ -981,7 +953,6 @@ public final class YukkuriLife {
         tag.putInt("HungerProgress", metabolismTicks); tag.putInt("EnergyProgress", energyTicks); tag.putInt("HygieneProgress", hygieneTicks);
         tag.putInt("StarvingTicks", starvingTicks);
         tag.putInt("RestWait", restWait); tag.putInt("SocialWait", socialWait);
-        if (entity.shelteredInHat() && task == Task.SLEEP) tag.putInt("HatSleepTicks", sleepTicks);
         meal.save(tag);
         home.save(tag);
         accessory.save(tag);
@@ -994,7 +965,6 @@ public final class YukkuriLife {
     /** Aquatic Marisa still drowns, but takes three ordinary immersion intervals to lose each health point. */
     private int immersionInterval() { return entity.profile().aquatic() ? 60 : 20; }
     public void load(CompoundTag tag) {
-        hatToilet.load();
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         bladder = bounded(tag,"Bladder",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
         // Old saves recorded a 0..19 phase of the universal twenty-tick clock.  Keep that phase intact while
@@ -1013,6 +983,5 @@ public final class YukkuriLife {
         home.load(tag); accessory.load(tag);
         personality=new YukkuriPersonality(entity); personality.load(tag.getCompound("Personality"));
         task=Task.NONE; targetFood=null; targetBlock=null; sleepTicks=toiletTicks=0; homeWait=20; planWait=0;
-        if (tag.contains("HatSleepTicks")) { task=Task.SLEEP; sleepTicks=Math.clamp(tag.getInt("HatSleepTicks"),0,600); }
     }
 }

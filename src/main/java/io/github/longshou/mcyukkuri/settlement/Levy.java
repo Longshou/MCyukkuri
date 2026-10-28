@@ -38,7 +38,6 @@ public final class Levy {
         if (!hunt) {
             var home = payer.habitat().shelter();
             if (home != null && Rations.isShort(level, group, home)) return 0;
-            if (home == null && Rations.isShort(payer)) return 0;
         }
         if (CommonStore.stock(level, group) >= Rations.storeTarget(level, group)) return 0;
         float rate = hunt ? HUNT_RATE : TRIP_RATE;

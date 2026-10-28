@@ -6,9 +6,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.subspecies.AquaticLife.ShoreWork;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -28,8 +26,7 @@ public final class GroupInteractionGoal extends Goal {
         final Kind kind;
         YukkuriEntity protectedPeer;
         int ticks, contactTicks;
-        boolean ended, shorePending;
-        long shoreDeadline;
+        boolean ended;
         Bout(YukkuriEntity first, YukkuriEntity second, Kind kind) { this.first=first;this.second=second;this.kind=kind; }
     }
     private final YukkuriEntity entity;
@@ -42,17 +39,16 @@ public final class GroupInteractionGoal extends Goal {
     public void interrupt() { stop(); defense.stop(); }
     public boolean active() { return bout!=null&&!bout.ended; }
     public String activity() {
-            return !active()||bout.shorePending?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
+            return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }
     public String detail() {
-        return (!active()?"idle":"kind="+bout.kind+" shorePending="+bout.shorePending
+        return (!active()?"idle":"kind="+bout.kind
                 +" contact="+bout.contactTicks+" elapsed="+bout.ticks) + " " + defense.detail();
     }
     public void clock() {
         defense.clock();
         if(cooldown>0)cooldown--;if(scanWait>0)scanWait--;
-        if(active()&&bout.shorePending){if(bout.first==entity)tickShoreChallenge();}
-        else if(active()&&!valid())stop();
+        if(active()&&!valid())stop();
     }
     public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }
     public void load(CompoundTag tag) { interrupt();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
@@ -71,38 +67,7 @@ public final class GroupInteractionGoal extends Goal {
         return true;
     }
     private static boolean challengeSpace(YukkuriEntity e) {
-        if(!e.isPassenger())return space(e);
-        var boat=EcologyMovement.boat(e);
-        return boat!=null&&EcologyMovement.captain(e)&&EcologyMovement.supported(e)&&boat.nearestBank()!=null;
-    }
-    private static void requestPlayShore(YukkuriEntity e) {
-        if(e.isPassenger())e.aquaticLife().requestShoreWork(ShoreWork.PLAY);
-        else e.aquaticLife().holdShoreWork(ShoreWork.PLAY);
-    }
-    private static boolean waitingSafe(YukkuriEntity e) {
-        return e.isAlive()&&!e.isRemoved()&&!e.isNoAi()&&!e.isPanicking()&&!e.isOnFire()
-                &&!e.isInWaterOrBubble()&&!e.isCommandPlaying()&&!e.operations().active()
-                &&e.life().nutrition()>=15&&e.life().energy()>=15&&!e.life().isSleeping();
-    }
-    private void tickShoreChallenge() {
-        var current=bout;var peer=current.second;
-        if(level().getGameTime()>=current.shoreDeadline||peer.level()!=entity.level()
-                ||!waitingSafe(entity)||!waitingSafe(peer)||entity.distanceToSqr(peer)>256){
-            GameplayLog.event(entity,"social","shore challenge cancelled peer={} reason=timeout_or_state",peer.getUUID());
-            stop();return;
-        }
-        entity.aquaticLife().holdShoreWork(ShoreWork.PLAY);peer.aquaticLife().holdShoreWork(ShoreWork.PLAY);
-        if(entity.isPassenger()||peer.isPassenger()||!entity.onGround()||!peer.onGround()
-                ||entity.aquaticLife().shoreVisitRequested()||peer.aquaticLife().shoreVisitRequested())return;
-        var relations=YukkuriWorldData.get(level());
-        if(!available(entity)||!available(peer)||!space(entity)||!space(peer)||entity.distanceToSqr(peer)>36
-                ||!entity.hasLineOfSight(peer)||relations.affinity(entity.getUUID(),peer.getUUID())<BondLevels.AFFINITY_ACQUAINTED
-                ||relations.affinity(peer.getUUID(),entity.getUUID())<BondLevels.AFFINITY_ACQUAINTED){
-            GameplayLog.event(entity,"social","shore challenge cancelled peer={} reason=landing_recheck",peer.getUUID());
-            stop();return;
-        }
-        current.shorePending=false;
-        GameplayLog.event(entity,"social","shore challenge resumed peer={}",peer.getUUID());
+        return !e.isPassenger()&&space(e);
     }
     public boolean challenge(YukkuriEntity peer) {
         if(peer==entity||peer.level()!=entity.level()||cooldown>0||peer.groupInteraction().cooldown>0||active()||peer.groupInteraction().active()
@@ -118,22 +83,17 @@ public final class GroupInteractionGoal extends Goal {
         bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
         entity.life().personality().protectRelation(peer.getUUID());peer.life().personality().protectRelation(entity.getUUID());
         cooldown=peer.groupInteraction().cooldown=2400;
-        if(kind==Kind.SUMO&&(entity.isPassenger()||peer.isPassenger())){
-            bout.shorePending=true;bout.shoreDeadline=level().getGameTime()+1200;
-            requestPlayShore(entity);requestPlayShore(peer);
-            GameplayLog.event(entity,"social","shore challenge accepted peer={} deadline={}",peer.getUUID(),bout.shoreDeadline);
-        }
         entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
         if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
     }
     @Override public boolean canUse() {
-        if(active())return !bout.shorePending&&valid();
+        if(active())return valid();
         if(scanWait>0||cooldown>0||!available(entity)||entity.isNoAi())return false;
         scanWait=160;
         for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.isNoAi())) {
-            if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return !bout.shorePending;
+            if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
             if(personality.friendliness()<40&&available(peer)&&!peer.groupInteraction().active()
@@ -152,7 +112,7 @@ public final class GroupInteractionGoal extends Goal {
     }
     private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&available(e); }
     private boolean valid() {
-        if(!active()||bout.shorePending||bout.first.isPassenger()||bout.second.isPassenger()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;
+        if(!active()||bout.first.isPassenger()||bout.second.isPassenger()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;
         if(bout.protectedPeer!=null&&(!bout.protectedPeer.isAlive()||bout.protectedPeer.isRemoved()||bout.protectedPeer.level()!=entity.level()
                 ||level().getEntity(bout.protectedPeer.getUUID())!=bout.protectedPeer||bout.first.distanceToSqr(bout.protectedPeer)>64))return false;
         return bout.first.hasLineOfSight(bout.second)&&bout.first.groupInteraction().bout==bout&&bout.second.groupInteraction().bout==bout;
@@ -162,7 +122,6 @@ public final class GroupInteractionGoal extends Goal {
     @Override public void tick() {
         if(!valid()){stop();return;}
         var current=bout;var peer=entity==current.first?current.second:current.first;
-        entity.aquaticLife().holdShoreWork(ShoreWork.PLAY);
         entity.getLookControl().setLookAt(peer,30,30);
         double contact=(entity.getBbWidth()+peer.getBbWidth())*.5+.15;
         if(entity.distanceToSqr(peer)>contact*contact) {
@@ -247,7 +206,6 @@ public final class GroupInteractionGoal extends Goal {
                     current.kind, current.second.getUUID(), current.ticks, current.contactTicks,
                     current.protectedPeer == null ? null : current.protectedPeer.getUUID());
             for(var e:List.of(current.first,current.second)) {
-            e.aquaticLife().releaseShoreWork(ShoreWork.PLAY);
             e.life().personality().releaseRelation((e == current.first ? current.second : current.first).getUUID());
             e.groupInteraction().bout=null;e.groupInteraction().defending=false;e.getNavigation().stop();
         }}

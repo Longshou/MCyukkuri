@@ -11,8 +11,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
-import io.github.longshou.mcyukkuri.settlement.SettlementSpawner;
-import java.util.ArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -53,11 +51,6 @@ public final class ScenarioCommands {
 
     private static YukkuriEntity yukkuri(CommandContext<CommandSourceStack> c, String name) throws CommandSyntaxException {
         return EntityArgument.getEntity(c, name) instanceof YukkuriEntity y ? y : null;
-    }
-
-    private static int requestShore(CommandSourceStack source,YukkuriEntity parent){
-        return parent.aquaticLife().requestShoreVisit()?1
-                : refused(source,parent,"返岸","亲油现在不能返岸：要在自己的船上、船在水面、八格内有干岸、没有别的任务（最近答复："+parent.aquaticLife().voyage().lastRefusal()+"）。");
     }
 
     private static BadgeGrade badgeGrade(String id) {
@@ -184,41 +177,6 @@ public final class ScenarioCommands {
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))
-                .then(Commands.literal("aquatic_colony").then(Commands.argument("seed", EntityArgument.entity())
-                        .then(Commands.argument("bank", BlockPosArgument.blockPos()).executes(c -> {
-                            var founder = yukkuri(c, "seed");
-                            if (founder == null) return 0;
-                            var members = SettlementSpawner.spawnAquaticColony(c.getSource().getLevel(),
-                                    BlockPosArgument.getLoadedBlockPos(c, "bank"), founder);
-                            if (members.isEmpty())
-                                return refused(c.getSource(), founder, "水族聚落", SettlementSpawner.lastFailure());
-                            tell(c.getSource().getLevel(), founder.position(), "[试玩场] 已建立真实水族家庭与岸边公仓；帽船、亲缘和觅食均由普通行为启动。",
-                                    ChatFormatting.GOLD);
-                            return done(c.getSource(), "水族聚落已建立：" + members.size() + " 名成员、真实岸边公仓；之后不强制角色或路线。");
-                        }))))
-                .then(Commands.literal("aboard").then(Commands.argument("parent", EntityArgument.entity())
-                        .then(Commands.argument("crew", EntityArgument.entities())
-                                .then(Commands.argument("bank", BlockPosArgument.blockPos())
-                                        .executes(c -> aboard(c, ""))
-                                        .then(Commands.argument("options", StringArgumentType.greedyString()).executes(c -> aboard(c, StringArgumentType.getString(c, "options"))))))))
-                .then(Commands.literal("swim").then(Commands.argument("actor", EntityArgument.entity())
-                        .then(Commands.argument("anchor", BlockPosArgument.blockPos())
-                                .executes(c -> swim(c, ""))
-                                .then(Commands.argument("options", StringArgumentType.greedyString()).executes(c -> swim(c, StringArgumentType.getString(c, "options")))))))
-                .then(Commands.literal("shore")
-                        .then(Commands.argument("parent", EntityArgument.entity()).executes(c -> {
-                            var parent = yukkuri(c, "parent");
-                            if (parent == null) return 0;
-                            return requestShore(c.getSource(),parent);
-                        }))
-                        .then(Commands.literal("id").then(Commands.argument("entityId",IntegerArgumentType.integer(0)).executes(c -> {
-                            int id=IntegerArgumentType.getInteger(c,"entityId");
-                            if(!(c.getSource().getLevel().getEntity(id) instanceof YukkuriEntity parent)){
-                                c.getSource().sendFailure(Component.literal("数字 ID #"+id+" 没有对应当前已加载的油库里。"));
-                                return 0;
-                            }
-                            return requestShore(c.getSource(),parent);
-                        }))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
@@ -230,29 +188,6 @@ public final class ScenarioCommands {
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
-    }
-
-    /** {@code scenario aboard <parent> <crew> <bank> [food=N] [paddle=0|1]}: the parent's hat boat on searched open water, the crew aboard. */
-    private static int aboard(CommandContext<CommandSourceStack> c, String options) throws CommandSyntaxException {
-        var parent = yukkuri(c, "parent");
-        if (parent == null) return 0;
-        var crew = new ArrayList<YukkuriEntity>();
-        for (var selected : EntityArgument.getEntities(c, "crew")) {
-            if (selected == parent) continue;
-            if (selected instanceof YukkuriEntity other) crew.add(other);
-        }
-        String reason = ScenarioBoats.aboard(parent, crew, BlockPosArgument.getLoadedBlockPos(c, "bank"), options);
-        if (reason != null) return refused(c.getSource(), parent, "水上场景 aboard", reason);
-        return done(c.getSource(), "水上场景 aboard 已设置初始条件；之后由普通行为接管。");
-    }
-
-    /** {@code scenario swim <actor> <anchor> [near=nearest|uuid] [dist=D] [energy=E]}: put one individual into searched open water and plunge it. */
-    private static int swim(CommandContext<CommandSourceStack> c, String options) throws CommandSyntaxException {
-        var actor = yukkuri(c, "actor");
-        if (actor == null) return 0;
-        String reason = ScenarioBoats.swim(actor, BlockPosArgument.getLoadedBlockPos(c, "anchor"), options);
-        if (reason != null) return refused(c.getSource(), actor, "水上场景 swim", reason);
-        return done(c.getSource(), "水上场景 swim：已落水；之后由普通行为接管。");
     }
 
     /**
@@ -287,7 +222,6 @@ public final class ScenarioCommands {
                     return done(c.getSource(), "观察标签已关闭，名字已恢复。");
                 }));
     }
-
 
     /**
      * {@code /yukkuri speed rate <20..400>} and {@code speed sprint <ticks>}: the playground's speed buttons. Vanilla {@code /tick}

@@ -84,7 +84,7 @@ public final class Reactions {
 
     // ---- shared predicates -------------------------------------------------------------------------------------
 
-    /** An ordinary free-living or kept individual: not a predator, not a house yukkuri, not an aquatic crew member. */
+    /** An ordinary free-living or kept individual: not a predator, not a house yukkuri. */
     static boolean prey(YukkuriEntity y) {
         return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
                 && !y.isNoAi() && !y.isPassenger();
@@ -93,7 +93,7 @@ public final class Reactions {
     static boolean free(YukkuriEntity y) {
         return prey(y) && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.waterDistress().active()
-                && !y.family().laboring() && !y.family().birthDuty() && !y.family().crew().busy()
+                && !y.family().laboring() && !y.family().birthDuty()
                 && !y.family().awaitingLanding() && y.life().mealTicks() == 0;
     }
     /** Feeding does not hide danger; sleeping individuals do not perceive approaching predators. */
@@ -347,7 +347,7 @@ public final class Reactions {
         public static boolean keepDry(YukkuriEntity animal) {
             return prey(animal) && animal.level().isRaining() && animal.life().nutrition() >= 20
                     && !rainAt(animal, animal.blockPosition()) && !BehaviorContinuity.emergency(animal)
-                    && !animal.family().birthDuty() && !animal.family().crew().busy();
+                    && !animal.family().birthDuty();
         }
         public static boolean allowsStep(YukkuriEntity animal, BlockPos destination) {
             return !keepDry(animal) || !rainAt(animal, destination);

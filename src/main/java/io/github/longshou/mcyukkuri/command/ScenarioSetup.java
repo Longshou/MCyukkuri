@@ -131,19 +131,10 @@ final class ScenarioSetup {
         boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
-        var boat = mother.family().boatHome();
         var home = mother.life().homeStand();
-        boolean aquatic = mother.profile().aquatic();
-        if (stem && aquatic) return "茎生场景只用于陆生双亲。";
-        if (aquatic) {
-            if (mother.isPassenger() || father.isPassenger() || !mother.onGround() || !father.onGround()
-                    || !mother.life().dryStand(mother.blockPosition()) || !father.life().dryStand(father.blockPosition()))
-                return "水生双亲要先在干岸相聚受孕，再由母油下水进入自己的帽船。";
-            home = mother.blockPosition();
-        }
-        if (boat == null && home == null) return "母油需要两格内可用的窝位。";
+        if (home == null) return "母油需要两格内可用的窝位。";
         var data = FamilyData.get(level);
-        var anchor = GlobalPos.of(level.dimension(), boat == null ? home : boat.blockPosition());
+        var anchor = GlobalPos.of(level.dimension(), home);
         FamilyData.Brood brood;
         // Skip courtship only: fertility, food, health, kinship, population and the ledger all still apply.
         mother.family().arrange(father.getUUID());
@@ -163,13 +154,12 @@ final class ScenarioSetup {
             data.setDirty();
         } else if (outcome.equals("missed")) {
             if (!mother.family().prepareBirthScene(brood, "missed")) return "胎次已建立，但不能提前临产。";
-            if (aquatic) { brood.elapsed = Math.max(0, brood.duration - 400); data.setDirty(); }
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = aquatic ? 400 : helper != null && helper != mother ? 150 : 2;
+            int lead = helper != null && helper != mother ? 150 : 2;
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
-            if (!aquatic && outcome.equals("caught") && helper == null)
+            if (outcome.equals("caught") && helper == null)
                 return "已进入临产，但没有人能接：父油要是戴帽的魔理沙、认识母油并在十六格内；这一胎会按普通规则发生。";
         }
         mother.setNoAi(false); father.setNoAi(false);

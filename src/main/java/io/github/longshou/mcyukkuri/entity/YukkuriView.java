@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.UUID;
@@ -78,14 +77,12 @@ public interface YukkuriView {
     List<YukkuriView> passengerViews();
     /** How this actor holds the baby riding on it (brim, mouth, tail), or null; derived from synchronized size and form. */
     default ParentCarry.Mode carryMode() { return ParentCarry.carryMode(this); }
-    HatBoatView vehicleHat();
     boolean hasPassengerId(UUID passenger);
     /** Native line-of-sight query, without exposing the entity behind another view. */
     boolean hasSightTo(YukkuriView other);
     /** COLLIDER/NONE block ray using this actor's original collision context. */
     boolean clearColliderPath(Vec3 from, Vec3 to);
     default YukkuriView yukkuriView(int id) { return level().getEntity(id) instanceof YukkuriView view ? view : null; }
-    default HatBoatView hatBoatView(int id) { return level().getEntity(id) instanceof HatBoatView view ? view : null; }
     default double distanceSquaredTo(YukkuriView other) { return position().distanceToSqr(other.position()); }
     default double distanceToSqr(Vec3 at) { return position().distanceToSqr(at); }
 
@@ -108,11 +105,9 @@ public interface YukkuriView {
     /** A transient, non-item mouthful from a successful body-food bite. */
     BodyFood.Bite getMouthBodyFood();
     ItemStack getCarriedItem();
-    ItemStack aquaticServing();
     int nuzzlePartnerId();
     int carePartnerId();
     float careContactProgress();
-    int aquaticChildId();
     boolean isCrawling();
     long getCrawlStartTick();
     boolean predatorFlying();
@@ -134,16 +129,9 @@ public interface YukkuriView {
     boolean aftermathWeak();
     CompoundTag agitationState();
     CompoundTag courtshipState();
-    /** The hull whose CrewState holds this body's transfer (entity id), or -1. */
-    int crewBoat();
-    CompoundTag aquaticSelfRescueState();
     String waterDistressPhase();
     long waterDistressStartTick();
     boolean waterDistressEffort();
-    int aquaticRescueTargetId();
-    String aquaticAlarmActivity();
-    long aquaticAlarmStartTick();
-    int aquaticAlarmSourceId();
     int broodCount();
     int broodBornMask();
     float broodProgress();

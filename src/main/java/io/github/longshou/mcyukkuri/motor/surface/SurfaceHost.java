@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Something a body can stand on (spec 6). Today only {@code HatBoatEntity} implements it.
+ * Something a body can stand on (spec 6).
  */
 public interface SurfaceHost {
     Entity entity();
@@ -34,7 +34,7 @@ public interface SurfaceHost {
     /** UUID to local spot and yaw; the persisted and synchronized rider table. */
     Riders riders();
 
-    /** False while the host shakes or is capsized; no jump landing may be planned onto it then. */
+    /** False while the host shakes; no jump landing may be planned onto it then. */
     boolean steady();
 
     /** True while the owner's running intent is Unload or taking the hat back; derived from the intent, never stored. */

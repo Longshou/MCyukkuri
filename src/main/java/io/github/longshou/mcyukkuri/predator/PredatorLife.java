@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.life.CombatCourage;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
-import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -29,8 +28,6 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
-import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
-import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.UUID;
@@ -219,7 +216,7 @@ public final class PredatorLife implements EcologyRoutine {
         // Repeated hits from the same attacker acknowledge the existing defence without restarting its phase or deadline.
         if (retaliation && prey == attacker && retaliationReady()) return true;
         if (!retaliationReady() || !visibleHuntable(attacker, true)
-                || !waterbornePrey(attacker) && !canFlyTo(attacker.blockPosition()) || !safeHuntDestination(attacker)) {
+                || !canFlyTo(attacker.blockPosition()) || !safeHuntDestination(attacker)) {
             GameplayLog.limited(animal,"predator","retaliation_refused",200,
                     "retaliation refused; attacker={} health={}/{} energy={} order={} ready={}",
                     attacker==null?"none":attacker.getUUID(),animal.getHealth(),animal.getMaxHealth(),animal.life().energy(),order(),retaliationReady());
@@ -260,7 +257,7 @@ public final class PredatorLife implements EcologyRoutine {
     public boolean mayHunt(YukkuriEntity target) { return visibleHuntable(target, true) && safeHuntDestination(target); }
     private boolean safeHuntDestination(YukkuriEntity target) {
         if (target == null) return false;
-        if (!waterbornePrey(target) && !target.isInWaterOrBubble()) return true;
+        if (!target.isInWaterOrBubble()) return true;
         if (biteApproach(target) == null) {
             GameplayLog.limited(animal, "predator", "water_prey_no_contact", 200,
                     "water prey refused target={} reason=mouth_below_clearance preyFeet={} preyHeight={} mouthReach={}",
@@ -299,7 +296,7 @@ public final class PredatorLife implements EcologyRoutine {
     /** Whether the target remains legally huntable; respect=false ignores the protection an educated predator honours. */
     private boolean huntable(YukkuriEntity target, boolean respect) {
         if (target == animal || !target.isAlive() || target.body().dying() || target.isInvulnerable() || EcologyRoutines.predator(target)
-                || EcologyRoutines.house(target) || target.isPassenger() && !waterbornePrey(target) || target.operations().active()
+                || EcologyRoutines.house(target) || target.isPassenger() || target.operations().active()
                 || target.getScale() * target.growthScale() > animal.getScale() * animal.growthScale() * 1.35) return false;
         if (target.mind().foulFilling() && animal.life().nutrition() >= 15) return false;
         // Educated animals respect protected pets; uneducated ones retain the wild risk after purchase.
@@ -315,14 +312,6 @@ public final class PredatorLife implements EcologyRoutine {
             return false;
         }
         return true;
-    }
-    /** A protected passenger may be hunted only while its actual hat is steady and afloat.
-     * Loading, a service-seat move, or a temporary captain transfer does not make the hull's
-     * visible passenger immune.  Those states govern what the passenger may initiate; the
-     * predator still has to satisfy sight and its later physical attack checks. */
-    private boolean waterbornePrey(YukkuriEntity target) {
-        var hat = target == null ? null : EcologyMovement.boat(target);
-        return hat != null && hat.isAfloat() && !hat.unsteadyMotion() && hat.flooding() == 0;
     }
     /** New hunts require sight in the local search radius; an active hunt deliberately does not. */
     private boolean visibleHuntable(YukkuriEntity target, boolean respect) {
@@ -525,7 +514,7 @@ public final class PredatorLife implements EcologyRoutine {
         return Math.sqrt(acceleration * acceleration + 2 * acceleration * Math.max(0, distance)) - acceleration;
     }
     private AABB bodyAt(Vec3 feet) { return animal.getBoundingBox().move(feet.subtract(animal.position())).deflate(.002); }
-    /** Required sole height over real water columns and the visible hat surface under the whole body footprint. */
+    /** Required sole height over real water columns under the whole body footprint. */
     private double flightFloor(Vec3 feet) {
         AABB box = bodyAt(feet);
         double floor = Double.NEGATIVE_INFINITY;
@@ -537,12 +526,6 @@ public final class PredatorLife implements EcologyRoutine {
                     var fluid = level().getFluidState(p);
                     if (fluid.is(FluidTags.WATER)) floor = Math.max(floor, y + fluid.getHeight(level(), p) + .04);
                 }
-        for (var hat : level().getEntitiesOfClass(HatBoatEntity.class, box.inflate(.1, 2, .1), h -> h.isAlive() && !h.deploying())) {
-            Vec3 local = hat.toLocal(feet);
-            double top = HatVessel.footprint(hat.mode(), local.x, local.z, animal.getBbWidth() * .5 / hat.unit());
-            if (Double.isFinite(top)) floor = Math.max(floor,
-                    hat.toWorld(new Vec3(local.x, top, local.z)).y + .04);
-        }
         return floor;
     }
     private boolean blockSweepClear(Vec3 from, Vec3 to) {
@@ -664,9 +647,6 @@ public final class PredatorLife implements EcologyRoutine {
                 return;
             }
             if (ticks % 20 == 1) alertPrey();
-            // A genuine visible predator is the danger that wakes a crew.  The hat's alarm retains
-            // the actual escape route; this merely prevents a sleeping passenger from ignoring it.
-            if (waterbornePrey(prey)) prey.life().wakeInHat();
             if (task == Task.TAKEOFF) {
                 YukkuriEntity target = prey;
                 fly(animal.position().add(0, 1.2, 0), 1);
@@ -794,7 +774,7 @@ public final class PredatorLife implements EcologyRoutine {
         return new Vec3(Math.clamp(point.x, body.minX, body.maxX), Math.clamp(point.y, body.minY, body.maxY),
                 Math.clamp(point.z, body.minZ, body.maxZ));
     }
-    /** Aim the mouth at the upper body, then raise the sole only as far as the real water/hull requires. */
+    /** Aim the mouth at the upper body, then raise the sole only as far as the real water requires. */
     private Vec3 biteApproach(YukkuriEntity target) {
         Vec3 toward = target.position().subtract(animal.position()).multiply(1, 0, 1);
         if (toward.lengthSqr() < 1e-6) toward = MouthPlacement.outward(animal).multiply(1, 0, 1);

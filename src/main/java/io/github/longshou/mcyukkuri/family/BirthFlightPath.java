@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.subspecies.HatBoatEntity;
 import io.github.longshou.mcyukkuri.subspecies.HatVessel;
 import java.util.List;
@@ -15,8 +16,13 @@ import net.minecraft.world.phys.Vec3;
  */
 final class BirthFlightPath {
     record Body(YukkuriEntity context,UUID id,YukkuriEntity mother,FamilyData.Child unborn,float yaw) {
-        List<AABB> envelope(Vec3 feet) { return BraidRescueGeometry.birthEnvelope(unborn,feet,yaw); }
-        double support(HatBoatEntity hat,Vec3 feet) { return BraidRescueGeometry.birthSupport(unborn,feet,yaw,hat); }
+        /** The unborn body's own box at this point: its real birth size and form. */
+        List<AABB> envelope(Vec3 feet) { return List.of(LiveBirthGeometry.childDimensions(unborn,1).makeBoundingBox(feet)); }
+        /** The hat surface under those feet (blocks), or no support at all when the body is off the hat. */
+        double support(HatBoatEntity hat,Vec3 feet) {
+            return hat==null?Double.NEGATIVE_INFINITY
+                    :hat.support(hat.toLocal(feet),Occupancy.FOOT*width()).orElse(Double.NEGATIVE_INFINITY);
+        }
         double width() { return LiveBirthGeometry.childDimensions(unborn,1).width(); }
     }
 
@@ -62,9 +68,9 @@ final class BirthFlightPath {
                 for(var other:level.getEntities(body.context(),box)) {
                     if(other.getUUID().equals(body.id())||other==body.mother()||other==hat||!other.isAlive()||other.isSpectator())continue;
                     if(other instanceof YukkuriEntity y) {
-                        // Existing seat admission separates siblings; the mother's body contains the real outlet.
+                        // A body already carried in the hat does not block the next arrival; the mother's body contains the real outlet.
                         if(hat!=null&&y.getVehicle()==hat)continue;
-                        for(var part:BraidRescueGeometry.envelope(y,y.position()))if(box.intersects(part))return "yukkuri "+y.getId();
+                        if(box.intersects(y.getBoundingBox()))return "yukkuri "+y.getId();
                     }else if(other.canBeCollidedWith()&&box.intersects(other.getBoundingBox()))return "entity "+other.getId();
                 }
             }
