@@ -32,7 +32,8 @@
 |---|---|
 | 游戏与加载器 | Minecraft 1.21.1；NeoForge 21.1.250；ModDevGradle 2.0.146；Java 21 |
 | 权威 | 服务端拥有全部业务状态与决策。客户端只经 `YukkuriView` / `HatBoatView` 读同步数据，禁止推导业务 |
-| 构建 | 本机不编译。远端 CI 执行 `./gradlew build`，其中包含 `test` 任务，会运行 `src/test/java` 下的单元测试 |
+| 构建 | 本机不跑 Gradle。远端 CI 执行 `./gradlew build`，其中包含 `test` 任务，会运行 `src/test/java` 下的单元测试 |
+| 本机检查 | 提交前跑 `bash scripts/javac_check.sh <工作树>`：直接用 javac 编译主源码并运行纯 Java 单元测试（约 20 秒），不经 Gradle，不算验收 |
 | 验收 | 只有用户在试玩场认可才算完成。单元测试与 CI 不改变待办状态 |
 | 存档 | 当前试玩场的数据结构调整不做旧存档迁移；但已有 NBT 的路径、类型和写入时机，只能在本文明确列出的地方改变 |
 | 组件 | 新组件沿用 `YukkuriComponents` / `ComponentSpec`。`registerGoals` 内赋值的字段不得带初始化器（含 `= null`） |
@@ -51,7 +52,7 @@ ServerLevel 实体循环（非乘客实体）
                          navigation / moveControl / jumpControl
            travel(input):
              ★ BodyDriver.tickTravel(input)        ④ 当前动作执行；返回 CONSUMED 时跳过原版 travel
-             （遗留钩子：crew().holdsBody()、family().travelFlight()，分别在 WP5、WP2 删除）
+             （遗留钩子 crew().holdsBody() 随 WP3a 删除）
              原版 travel                            ⑤ PASS 时由原版积分：move → 重力 0.08 → 垂直 ×0.98、空中水平 ×0.91
       b. components.tick(BEFORE / AFTER_ALIVE_CHECK) ⑥ 被动时钟：只改本组件自己拥有的数据
       c. presentation.tick(YukkuriControl.advance())  ⑦ 读取动作姿态、依附与编排节拍并发布
@@ -80,13 +81,15 @@ motor/                        L1 + L2（可依赖 entity/、life/ 导航、原�
                               OccupancyMath  HeightGrid  GridPath
 intent/                       可依赖 motor/
   Intent  Method  Step  Attempts  WorldSignature  IntentRunner  MotorOwner
-  Ask  AskLedger  Drive  Desire  Commitment          （WP3）
-  Choreography  Beat  Role  Conductor                （WP3）
+  Choreography  Beat  Conductor  Rendezvous  GoTo    （WP3b）
+  Drive  Desire  Commitment  Ask  AskLedger          （WP6，随第一个消费者加入）
+headwear/                     PlacedHatEntity implements SurfaceHost（接生帽，WP3a 起）、HatGeometry、HatProp
 领域包（family/ life/ settlement/ …）       具体意图、方法、编排、后果规则
-subspecies/                   HatBoatEntity implements SurfaceHost；物种修正；水上意图（WP4–6）
+subspecies/                   只留通用亚种（不足形态、灵胖、螺壳）
+aquatic/、client/aquatic/     水生 DLC（WP4 起新建）：放下的帽子的水上行为、水中动作修正、水上意图
 ```
 
-- **底座不引用 DLC**：除 `subspecies/`、`client/aquatic/` 与注册入口外，任何包禁止 import `subspecies.*`。WP1–WP6 期间，已有引用只允许减少。
+- **底座不引用 DLC**：除 `aquatic/`、`client/aquatic/` 与注册入口外，任何包禁止 import `aquatic.*`。WP3a 之后底座里不再有 `boatHome()`、`ShoreWork`、`HatBoatEntity.protects` 一类水生分支；DLC 需要底座让位时，经底座声明的接口（`SurfaceHost`、`AbilityModifier`、领域 Goal、后果规则）表达。
 - **`geom/` 保持纯 Java**：只用 `java.*` 与本包的 record，保证单元测试不需要 Minecraft 引导。
 
 ---
@@ -202,16 +205,16 @@ public record HostFrame(Vec3 origin, double unit, float yawRad, float rollDeg, f
 }
 ```
 
-| 方法 | 实现要点（`HatBoatEntity`） |
+| 方法 | 实现要点（`PlacedHatEntity`；WP3a 前为 `HatBoatEntity`） |
 |---|---|
-| `frame()` | `origin=position()`、`unit=unit()`、`yawRad=turn()`、`roll=motionRoll(1)`、`pitch=motionPitch(1)` |
-| `support` | `HatVessel.travelSupport(mode(), local.x, local.z, r/unit)`；结果为 NaN 时返回 empty |
+| `frame()` | `origin=position()`、`unit=unit()`、`yawRad=turn()`、`roll`／`pitch`：陆地为 0，水上由 WP4 的漂浮行为提供 |
+| `support` | `HatGeometry.travelSupport(local.x, local.z, r/unit)`（原 `HatVessel` NEST 几何）；结果为 NaN 时返回 empty |
 | `room` | 脚圆半径 = `0.42·bbWidth/unit`；与其他乘员（及 WP4 起的储粮圆）的圆心距小于 `r1+r2-0.02` 即为重叠 |
 | `rim` | 对 24 个方向 θ，取 `HatVessel.extent(mode,0,0,cosθ,sinθ,0)` 处的帽檐顶点，经 `frame().toWorld` 变换 |
 | `riders` | 存在宿主上：NBT 键 `Riders`，同步槽 `RIDERS`（第 12 节） |
 
 - **positionRider 新路径**：`at = frame().toWorld(riders.local(p))`，`move.accept(p, at)`。宿主先移动、乘员后定位由原版保证（第 2 节①②），所以不另写平台携带。
-- **过渡（WP1–WP3）**：`HatBoatEntity.usesDeck()` 在 `mode()==NEST`（接生帽）时为 false，NEST 的乘员全部走新路径，不进 `HatDeck`。水上模式仍走 `HatDeck`，到 WP4 删除 `usesDeck()` 与全部座位路径。
+- **过渡已结束**：WP1 用 `usesDeck()` 把接生帽的乘员切到新路径；WP3a 删除 `HatDeck` 与全部座位路径，`usesDeck()` 随之删除，所有乘员只走 `Riders`。
 - **帽内寻路（WP4）**：
   - 在局部平面上建 `HeightGrid`，格距 0.25 格（换算成帽单位），每格高度取 `support`。
   - 相邻格高差不超过 `stepUp/unit` 才连边。
@@ -429,8 +432,8 @@ public interface MotorOwner { String ownerId(); boolean active(); }  // Goal 包
 | **Grab** | 目标身体 | `canCarry`；目标不是 Airborne；目标未被他人 Held；嘴在 `reach` 内（`ContactGeometry.mouthGap ≤ reach`） | `LIFT_TICKS`（沿用 `ParentCarry`）的抬起姿态 → `Motor.mount(target, carrier)` | 成功 → Done；抬起期间目标移动 > 0.3 → `TARGET_MOVED`；挂载被拒 → `NO_CONTACT` |
 | **Carry** | — | — | 不单独实现：持有 Held 时的 Walk / Swim 速度乘 `(1 − 0.5·被搬宽/搬运者宽)` | — |
 | **Release** | 被搬身体 | 当前座位处的 AABB 无方块碰撞；下方 1.5 格内有支撑或水 | `Motor.dismount(child, child.position(), ZERO)` | 立即 Done。check 失败 → `NO_ROOM`，由方法转身或挪步；禁止 `moveTo` 落点 |
-| **PlaceProp** | 帽 → 站位（世界坐标与朝向） | `HullFootprint` 放得下；托管为 `WORN` | 播 `hat_off`／`hat_off_self`，到 `release` 标记时调用 `HullFactory.setDown`；`HatCustody` 改为 `DEPLOYED` | 成功 → Done；放不下 → `NO_ROOM` |
-| **TakeProp** | 自己的帽 | 帽的 `riders` 为空；嘴或辫在 `reach` 内；托管为 `DEPLOYED` | 播 `hat_on`／`hat_on_self`，到 `release` 标记时收回实体并改为 `WORN` | 成功 → Done；仍有乘员 → `NO_ROOM` |
+| **PlaceProp** | 帽 → 站位（世界坐标与朝向） | 站位放得下帽体足迹；帽戴在头上 | 播 `hat_off`／`hat_off_self`，到 `release` 标记时生成 `PlacedHatEntity`，头饰改为已放下 | 成功 → Done；放不下 → `NO_ROOM` |
+| **TakeProp** | 自己放下的帽 | 帽的 `riders` 为空；嘴或辫在 `reach` 内 | 播 `hat_on`／`hat_on_self`，到 `release` 标记时移除实体并戴回 | 成功 → Done；仍有乘员 → `NO_ROOM` |
 
 水中动作（WP5）：
 
@@ -438,9 +441,9 @@ public interface MotorOwner { String ownerId(); boolean active(); }  // Goal 包
 |---|---|
 | **Swim** | 在水中每 tick `Motor.velocity`：水平分量朝目标、大小为 `swimSpeed`，竖直分量沿用 `WaterDistress` 的上浮模型；体力不足时 → `EXHAUSTED` |
 | **Climb** | 需要 `ContactGeometry.canGrip(body, rimPoint)`，且高差 ≤ `climbRise`。分两段：先抓住（读 `grip` 标记）；再上拉，在 `pull` 标记时长内用 `Motor.move` 扫掠到帽檐内侧，到达后 `Motor.mount(host)` 并写入局部坐标。宿主倾角超过 `gripAngle(grip)`，或宿主速度大于 0.1 → `SLIPPED` |
-| **Push** | 对目标调用 `push(dir·pushForce/质量比)`，质量取包围盒体积；帽船走 `HatBoatEntity.push` |
-| **Right** | 需要与翻覆帽的帽檐接触；每 tick 扶正进度增加 `pushForce·k`，满 1 时帽改为 AFLOAT；期间执行者 Hold |
-| **Paddle** | 需要 `OnHost(hull)`，且持有木棍（`Held` 槽位或储粮中的木棍）；调用 `HullHelm.thrust(vec, yawTorque)`，`HullHelm` 只做积分 |
+| **Push** | 对目标调用 `push(dir·pushForce/质量比)`，质量取包围盒体积；帽子走 `PlacedHatEntity.push` |
+| **Right** | 需要与翻覆帽的帽檐接触；每 tick 扶正进度增加 `pushForce·k`，满 1 时帽改为漂浮；期间执行者 Hold |
+| **Paddle** | 需要 `OnHost(帽)`，且持有木棍（嘴里叼着或帽腔储物里的木棍都算）；向帽子的漂浮行为提交推力与转矩，漂浮行为只做积分 |
 
 ---
 
@@ -449,16 +452,14 @@ public interface MotorOwner { String ownerId(); boolean active(); }  // Goal 包
 ```java
 public final class ContactGeometry {
     public static Vec3 mouth(YukkuriEntity b);                 // 嘴尖世界坐标（ParentCarry 嘴道同源）
-    public static Vec3 braidTip(YukkuriEntity b);              // 辫梢（BraidRescueGeometry 同源，WP5 并入）
+    public static Vec3 braidTip(YukkuriEntity b);              // 辫梢（WP5 新增；WP3a 删除的 BraidRescueGeometry 可从 Git 历史参考）
     public static double mouthGap(YukkuriEntity b, Entity t);  // 嘴尖到目标包络的距离
     public static Optional<Vec3> nearestRim(YukkuriEntity b, SurfaceHost h); // 来自 h.rim()，已含倾斜
     public static boolean canGrip(YukkuriEntity b, Vec3 rimPoint);           // 距离 ≤ reach，且嘴或辫梢与帽檐点之间无方块遮挡
 }
 ```
 
-- **唯一来源**：所有够得着、咬得住、托得起的判定只调用这里。
-- **WP5 合并对象**：`HullHazards.rimPoint/bites`、`CrewTransfer` 的 `holds` 与帽檐判定、`BraidRescueGeometry`、`CatchHat` 接触点。
-- **客户端**：`ContactTargets` 读同步来的同一组点。
+- **唯一来源**：所有够得着、咬得住、托得起的判定只调用这里；陆地出生链（WP3b）与水中动作（WP5）都不另写接触几何。
 
 ---
 
@@ -509,12 +510,13 @@ tick():
 - **WorldSignature**：目标位置量化到 0.5 格，宿主位置量化到 0.5 格，加阻挡实体 id 集合，加时间桶（200 tick）。签名变化后，被排除的方法可以重选。
 - **结束后**：交给领域后果规则，`[intent] end` 记录全部原因与差额。
 
-### 11.3 Ask（WP3）
+### 11.3 Ask（WP6）
 
-- **记录**：`Ask(requester, helper, intentFactory, incidentId)`。`AskLedger` 按 `(incidentId, helper)` 只抽一次，保存 chance、roll、accepted。不存档；事件对象自身需要存档的部分保留在 `WaterIncidents` 等原有位置。
+- **记录**：`Ask(requester, helper, intentFactory, incidentId)`。`AskLedger` 按 `(incidentId, helper)` 只抽一次，保存 chance、roll、accepted；只淘汰已结算的条目，事件结束时由事件所有者 `settle`。不存档；事件对象自身需要存档的部分由事件所有者保存。
+- **起点**：WP3 分支提交 f30c0969 有一版实现，评审发现无人调用 `decide`／`settle`、淘汰会导致重抽；WP6 加入时按本节修正。
 - **执行**：帮手的领域 Goal 发现自己接受了请求，就以 `Commitment.SOFT` 运行对应意图。请求方用 `Wait` 等待结果，等待有上限。
 
-### 11.4 Drive（WP3 起）
+### 11.4 Drive（WP6）
 
 ```
 score(i) = clamp(desire(i), 0, 100) · weight(i) − costEstimate(i)
@@ -524,9 +526,9 @@ Commitment：NONE 正常切换；SOFT 需要 2 倍余量；HARD 只允许 DANGER
 权重：data/mcyukkuri/drive/<domain>.json（热重载，同 8.2）
 ```
 
-每个领域只注册一个 Goal（C4）。`[intent]` 选择日志记录前三名的得分。
+每个领域只注册一个 Goal（C4）。`[intent]` 选择日志记录前三名的得分。意图因 Blocked／Exhausted 结束后，在 `WorldSignature` 变化前不再参评（与 11.2 的排除规则相同），避免同一 tick 重选。
 
-### 11.5 Choreography（WP3）
+### 11.5 Choreography（WP3b）
 
 ```java
 public abstract class Choreography {
@@ -546,7 +548,9 @@ public abstract class Choreography {
 | `Branch(outcome → beat)` | 按结果选下一个节拍 |
 
 - **指挥者**：拥有编排实例的组件。LiveBirth 的指挥者是母油的 `FamilyLife`。
-- **角色重绑**：每个节拍开始前复核角色存活、同维度、距离 ≤ 48 格。角色失效时进入编排声明的分支。
+- **角色重绑**：每个 tick 复核当前节拍涉及的角色存活、同维度、距离 ≤ 48 格（读档后的第一个 tick 同样复核）。角色失效时进入编排声明的分支。
+- **期限**：`Perform` 也带最长 tick 与超时分支；编排的任何节拍都不能无限等待。
+- **回报配对**：`report` 只接受当前 Perform 节拍发出的那个意图实例的结果；被替换的旧意图迟到的回报丢弃。
 - **存档**：只保存节拍 id、角色 UUID 和领域规则要求的数据（第 12 节）。读档后，Perform 节拍从头运行该角色的意图。
 
 ---
@@ -555,7 +559,7 @@ public abstract class Choreography {
 
 | 数据 | 位置 | 格式 | 起始 WP |
 |---|---|---|---|
-| 宿主乘员局部坐标 | `HatBoatEntity` NBT `Riders` | ListTag `{UUID:int[4], X:double, Y:double, Z:double, Yaw:float}`（帽单位） | WP1（NEST），WP4（全部）；同时删除 `Deck` |
+| 宿主乘员局部坐标 | `PlacedHatEntity` NBT `Riders`（WP3a 前在 `HatBoatEntity`） | ListTag `{UUID:int[4], X:double, Y:double, Z:double, Yaw:float}`（帽单位） | WP1；`Deck` 随 WP3a 删除 |
 | 动作、意图、Attempts | 不存档 | — | — |
 | LiveBirth 编排 | `YukkuriFamily` 下的 `Birth` | `{Beat:string, Roles:{Mother,Catcher:int[4]}, Receiver:{Kind:string, Host:int[4]}, Born:int}`；已抽定冲量沿用 `BirthLaunch.save` | WP3 |
 | 能力、欲望参数 | 数据包 | 第 8.2、11.4 节 | WP2、WP3 |
@@ -564,7 +568,7 @@ public abstract class Choreography {
 
 | 槽 | 所属 | 类型 | 用途 |
 |---|---|---|---|
-| `RIDERS` | `HatBoatEntity` entityData | CompoundTag（同 NBT 格式，键为乘员 entityId） | 客户端 `positionRider` 读取局部坐标；只在变化时写，每 tick 至多一次 |
+| `RIDERS` | `PlacedHatEntity` entityData | CompoundTag（同 NBT 格式，键为乘员 entityId） | 客户端 `positionRider` 读取局部坐标；只在变化时写，每 tick 至多一次 |
 | `MOTOR_ACTION` | MOTOR 组件 SyncSlot | String | 当前动作 id |
 | `MOTOR_START` | MOTOR 组件 SyncSlot | Long | 动作起始 tick（片段相位） |
 | `ATTACH_KIND` | MOTOR 组件 SyncSlot | Byte | 0 Free、1 Airborne、2 OnHost、3 Held |
@@ -616,7 +620,7 @@ public abstract class Choreography {
 | 规则 | 内容 |
 |---|---|
 | `BODY_WRITE` | `motor/` 以外，对 `YukkuriEntity` 类型的接收者调用第 4 节所列写方法 |
-| `BASE_IMPORTS_DLC` | `subspecies/`、`client/aquatic/`、`registry/`、`CommonRegistration` 以外的包 import `subspecies.` |
+| `BASE_IMPORTS_DLC` | `aquatic/`、`client/aquatic/`、`registry/`、`CommonRegistration` 以外的包 import `aquatic.` |
 | `GEOM_PURE` | `motor/geom/` import `net.minecraft.` |
 
 ---
@@ -624,137 +628,91 @@ public abstract class Choreography {
 ## 14　工作包实施细则
 
 > 通用规则：
-> - **登记与独占**：开工在待办“进行中”登记工作树 `.worktrees/wpN`；核心文件（`YukkuriEntity`、`HatBoatEntity`、`motor/`）同时只允许一个工作包修改。
+> - **登记与独占**：开工在待办“进行中”登记工作树 `.worktrees/<名字>`；核心文件（`YukkuriEntity`、`PlacedHatEntity`、`motor/`）同时只允许一个工作包修改。
 > - **删除**：删除栏必须在本包内完成。
-> - **提交说明**：写清新增、删除、过渡、实际做过的检查、受影响场景与观察点。
-> - **待办**：改为“已接入待试玩”。
-> - **规模**：净行数应下降（WP1 因为新建框架，允许持平）。
+> - **提交说明**：写清新增、删除、实际做过的检查（含 `scripts/javac_check.sh` 结果）、净行数、受影响场景与观察点。
+> - **待办**：只在合入时更新一次，改为“已接入待试玩”。
+> - **规模**：除 WP4 新建包外，净行数必须下降。
 
-### WP1　依附、容器、跳、陆地叼搬放（E11-1、E11-2）
+WP1（依附、容器、跳、陆地叼搬放）与 WP2（能力表、Walk／Face／Gesture／Launch、新生儿发射）已合入，实现以代码为准；复测观察点在[待办](TODO.md#水生魔理沙模块重构)。WP2 遗留的 `BirthFlightPath` 扫掠并入 `ContactResolver`／`Launch.preview` 一项转入 WP3b。
+
+### WP3a　水生旧实现下线，接生帽移入底座
 
 **步骤**
-1. **盘点**：用 grep 列出以下调用点，写进提交说明，作为改接清单。
-   - “在帽里”判定：`getPassengers()`、`hasPassenger(`、`ownYoungAboard`、`deck().moving`、`placed.aboard`、`HatBoatEntity.protects`、`catches()`；
-   - “在窝里”判定：`NestResting`、`homeStand`、`TemperatureLife` 的离格心判定、入睡起始条件。
-2. **新建 `motor/` 基础**：`Motor`、`Attach`、`AttachState`、`Outcome`、`Reason`、`Feasibility`、`Progress`、`MotionPose`、`BodyDriver`。
-   - 在 `YukkuriComponents` 登记组件 `MOTOR`（READY）：带打断桥接与同步槽。
-   - 在 `YukkuriEntity.travel` 开头接入 `tickTravel`。
-3. **新建 `intent/` 核心**：`Intent`、`Method`、`Step`、`Attempts`、`WorldSignature`、`IntentRunner`、`MotorOwner`。
-4. **容器判定**：`geom/FloorShape`、`geom/OccupancyMath`，以及 `surface/Container`、`Occupancy`、`BedContainer`、`HostContainer`。单元测试见 14.8。
-5. **宿主**：`surface/SurfaceHost`、`HostFrame`、`Riders`；`HatBoatEntity implements SurfaceHost`。
-   - 加入 `usesDeck()`：NEST 为 false。
-   - NEST 走 `Riders` 存档与 `RIDERS` 同步，`positionRider` 走新路径。
-   - `addPassenger`／`removePassenger` 维护 `Riders`。
-   - NEST 的 `boardYoung`／`reserve`／`makeRoom` 改为 `room()` 加 `Riders`，不调用 `deck`。
-6. **动作**：Grab、Release、Face（最小版，限速转身）、Hop（地面与宿主之间）。
-   - Hop 需要 `geom/Ballistic`、`geom/ArcSolver`、`ContactResolver`、`ClipMarkers`（泛化 `CrewClips`），以及最小版 `BodyAbility`：只有代码默认值，采用 Q1 系数，JSON 留到 WP2。
-   - 把 `ParentCarry.tickPickup` 的抬起部分改为 Grab，把 `putDown` 改为 Release。
-   - 删除 `putDown` 中的 `moveTo(HatCarry.landing)`；碰撞时 Release 返回 `NO_ROOM`。
-   - 打断时 `interrupted` 改为 Release 并在实际位置落定。
-7. **改接收尾**：接生帽收尾改成意图 `Unload(hat)`，由接生者现有的 FETCH_HAT 任务所在 Goal 运行。逐只处理：
-   - 会跳的孩子：由孩子自己的领域 Goal 发起 `GetTo(ground)`，执行 Hop。触发条件是读取宿主的 `unloadRequested()`，它由帽主当前运行的意图推导而来，不另存标记；
-   - 不会跳的孩子：执行 `Fetch(child → ground)`，方法顺序为：
-     1. 走到 `SurfaceApproach.beside` 站位 → Grab → 走到最近的可支撑地面 → Release；
-     2. 让孩子沿帽内路径走到靠接生者一侧的边缘（沿用用户设计），再执行 1；
-     3. 在 `Wait`（期限 200）之后重试 1。
-   - 所有孩子离帽后，沿用现有收帽逻辑（WP3 换成 TakeProp）。
-8. **入窝**：入睡、保暖避险、到窝都改为要求 `INSIDE_SUPPORTED`；否则先 Walk（WP1 用 `SurfaceApproach.walk`）到 `NestResting.choose` 给出的休息点。
-9. **日志与读数**：接入 `[action]`、`[intent]`、`[body]`，以及 `body.attach`／`action`／`last`。
-10. **测试依赖**：`build.gradle` 加 JUnit（14.8）。
+1. **删除旧水生实现**：`subspecies/` 下除 `SubspeciesLife`、`ShellRetraction`、`SubspeciesAssets` 以外的全部类，以及 `subspecies/boat/`、`subspecies/crew/`、`client/aquatic/`；只为帽船存在的类（如 `family/BraidCarry`、`family/BraidRescueGeometry`、`command/ScenarioBoats`、帽船专用的客户端渲染与姿态）。判断标准：删掉后陆地调用点是否还需要它。
+2. **删除底座里的水生分支**：`boatHome()`、`profile().aquatic()` 的行为分支、`AquaticLife.ShoreWork` 让位、`HatBoatEntity.protects`／`isAfloat`、`crew()` 组件与其同步槽、`YukkuriEntity.travel` 的 `crew().holdsBody()` 钩子、`HullHelm.Purpose`、`[aqdiag]` 读数与命令。
+   - **保留物种事实**：水生只与水生配对、水伤数值、`aquatic_marisa` 变种本身（模型、贴图、创造栏）。下线期间暂停其自然生成，其余按普通魔理沙生活。
+3. **接生帽入底座**：`HatBoatEntity` 只留 NEST（接生帽）用到的部分，改名并移到 `headwear/PlacedHatEntity`；`HatVessel` 的 NEST 几何移到 `headwear/HatGeometry`；`HatBoatView` 改为 `PlacedHatView`。
+   - 保留：`SurfaceHost`、`HostContainer`、`Riders` 与 `RIDERS` 同步、出生接触用的查询、主人与托管、收回。
+   - 删除：`usesDeck()`、`Deck` NBT、漂浮／系泊／翻覆状态、储粮、桨、舵、席位。
+   - 实体注册 ID 改为 `placed_hat`，语言键与渲染器同步；当前试玩场的旧帽实体随之丢弃，不做迁移。
+4. **出生链里的水上分支**：删除 `waterCradle`、`prepareWaterBirthCargoSpace`、`waterBirthPartner`、`tickWaterPartner`、`needsWaterBirthBoat`、水上出口区与 `boat_labor` 片段选择。陆地行为不变。
+5. **试玩场**：删除池塘场景与“清空本场地”里的帽船初态（场景源 `scripts/museum_scenarios.py`、`command/` 中的水生场景），并重建受影响的生成物。
+6. **资源**：只删被删代码独占的运行登记（实体、物品、语言键）；美术、音频与制作源不删。
+7. **文档**：[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)只留玩法规则，开头标明“未实现，按重构 WP4–6 重建”，删除旧实现的类名、租约与席位描述；[架构](ARCHITECTURE.md)、[亚种](SUBSPECIES_IMPLEMENTATION.md)、[玩法日志](GAMEPLAY_LOGGING.md)、[开发指南](DEVELOPMENT.md)删去已不存在的组件、前缀和池塘操作。
 
-**删除**
-- `CatchHat.tickFetch` 循环与按乘员计数推进的逻辑；
-- NEST 宿主上的 `CrewTransfers.releaseYoung` 调用；`CrewTransfer` LIFT 与倒放回座在 NEST 宿主上不再可达，加 `usesDeck()` 守卫，代码随 WP5 整体删除；
-- 陆地 `BraidCarry` 会话的调用；
-- `ParentCarry.putDown` 的 `HatCarry.landing` 瞬移；
-- 第 1 步盘点出的重复“在窝里”判定。
+**禁止**：为陆地保留“以防万一”的水生代码；用新的物种分支替代被删的水生分支；借机改动陆地玩法规则。
 
-**过渡**：`usesDeck()`，WP4 删除。
+**完成定义**：`src/main/java` 中 `HatBoatEntity`、`boatHome`、`ShoreWork`、`HatVessel` 无匹配；`subspecies.` 的引用只剩上述三个通用类；本机 javac 与单元测试通过；净行数约 −1.8 万。
 
-**禁止**：
-- 为 NEST 另写座位或预约；
-- Release 失败时把孩子放回帽里；
-- 在 `Unload` 里判断场景名。
+**复测**：F1 出生场景（`birth_land_caught`、`birth_stem_caught` 的接生帽，`birth_nest_safe` 的窝，`birth_land_missed` 的地面）与 E11 观察点照旧；陆地日常、迁徙、宠物与商店不受影响。
 
-**复测**：
+### WP3b　编排框架与 LiveBirth／茎生编排
 
-| 场景 | 观察点 |
-|---|---|
-| `birth_land_caught` 收尾 | 每只赤油各有一条 `[body] dismount cause=release`；之后不再出现 `mount host=<接生帽>`；全部离帽后才收帽 |
-| 宠物窝入睡 | 入睡日志带 `occupancy=INSIDE_SUPPORTED`；站在窝沿上的个体先走进去再睡 |
-
-### WP2　能力表数据化与运动统一（E11-3）
-
-1. **能力表**：`BodyAbility` 数据化，加 `AbilityTable`（JSON 加热重载）和 `AbilityModifier`；`YukkuriLocomotion.limits` 改为转调 `BodyAbility`，并移除其参数和函数体中的 `HatBoatEntity`（载重系数由调用方传入）。
-2. **动作**：Walk（地面，带看门狗与 `walk.sample`）、Face（完整版）、Launch、Gesture；Hop 改读数据化的能力表。
-3. **改接新生儿飞行**：`FamilyData.birth` 按 `BirthLaunch` 的计划执行 Launch。
-   - 删除 `FamilyFlight` 的 `beginFlight`、`travelFlight`、`catchFalling`、`launchPast`、`pending*`、`restoredFlight`、`cancelFlightAdmission`、`rebuildBirthAdmission`；
-   - `BirthFlightPath` 的扫掠并入 `ContactResolver` 与 `Launch.preview`。
-4. **改接小动作与转身**：
-   - `LiveDelivery` 的 `bump` 与迎接小跳、`FamilyLife` 的窝沿滚动 → Gesture；
-   - `FamilyLife.face`、`recoveryBeats` 的 5°/tick 转身、`advanceLiveTick` 的转身预算 → Face。
-5. **E11-3**：先用 `walk.sample` 读数定位争抢移动的 Goal 或寻路原因，再在 Walk 或所属层修复。
-
-**复测**：`birth_land_caught`／`birth_land_missed`（落帽率、摔伤表现与旧版分布一致）；`hop`；`infant_feed`（途中无 `NO_PROGRESS`）。
-
-### WP3　意图框架完整版与 LiveBirth 编排
-
-1. **框架**：`intent/` 补齐 Ask、AskLedger、Drive、Desire、Commitment、Choreography、Beat、Role、Conductor；新增动作 PlaceProp、TakeProp；新增共享方法 `Rendezvous(a, b, siteSelector)`，即双方 `GetTo`+`Face`，只有一个期限。
-2. **LiveBirth 编排**：节拍见整体设计第 7 节；接收者为 `Receiver` 接口，实现有 `PlacedHat`、`OwnHull`（WP6 接入）、`Nest`、`Ground`。
-   - 母油与接生者都由 `BirthGoal` 承担角色（priority 2；`canUse` 条件为“在某个进行中的 LiveBirth 中有角色”）。
-   - 产程时钟由母油的 `FamilyLife` 指挥者推进。
+1. **框架**：合入 WP3 分支提交 f30c0969 中的 `Choreography`、`Beat`、`Conductor`、`Rendezvous`、`GoTo`、`Prop`、`PlaceProp`、`TakeProp`、`HatProp`（移到 `headwear/`，改接 `PlacedHatEntity`）及 `Walk`／`IntentRunner`／`Step` 的改动；不合入 `Ask`、`AskLedger`、`Drive`、`Desire`、`DriveMath`、`DriveWeights`、`Step.AskFor` 与 `DriveMathTest`（R3）。
+   - 合入时按 11.5 修正：Perform 带期限；每 tick 复核角色；`report` 只认当前意图实例；`Conductor` 注册表先删后插、优先淘汰已移除的仪式，`start`／`stop`／`load` 时让角色缓存失效；角色丢失引起的跳转不计入分支环路上限。
+2. **LiveBirth 编排**：节拍见整体设计第 7 节；接收者为 `Receiver` 接口，实现 `PlacedHat`、`Nest`、`Ground`（`OwnHull` 在 WP6 加入）。
+   - 母油与接生者都由 `BirthGoal`（priority 2，`canUse` 为“在某个进行中的 LiveBirth 中有角色”）承担角色；产程时钟由母油的 `FamilyLife` 指挥者推进，只改编排数据。
+   - **会合只有一个期限**：剩余孕期 + 600 tick。站位失效时 `Rendezvous` 在世界签名变化后重选；超时进入“无接生者”分支。接生站被放弃同样显式进入该分支。
+   - **自接**：母油自己放帽时，接生者角色绑定母油本身，跳过会合节拍。
+   - **放帽**只在 PlaceProp 开始和 `release` 标记处各检查一次，不逐 tick 复验。
+   - **出口转身**用 Face，由母油的角色意图执行；欢迎小跳、摔落冲击、窝沿滚动走 Gesture／Launch。产程时钟不再调用 `SurfaceApproach.face` 或停导航。
+   - **茎生**用同一编排类的另一张节拍表（无产程节拍），接收者相同。
+   - 清空前的停留（活胎 160、茎生 120 tick）是 Present 节拍；会跳孩子自己离帽前的 100 tick 是 Await。
+   - 出生计数记在母油的 Brood 账本；冲量计划与“已发射”标志留在新生儿身上。
+   - 删除场景开关 `DeliveryOutcome`（R5）：`birth_land_missed` 等场景改由真实初态（非魔理沙父亲、无窝）得到对应分支。
 3. **删除**：
-   - `CatchHat` 的会合协商、站位桥接、逐 tick 复验与 `seekMother`；
-   - `LiveDelivery` 的接生窗口与出窝握手；
-   - `FamilyData` 的出生预约（`reserveBirthAdmission`、`waterCradle`、`prepareWaterBirthCargoSpace`），四条发射分支合为一条；
-   - BROOD Goal 的分支；
-   - `exitWait`、`stationWait`、`catchWindowBudget`、`rejectSite`、`siteStalled`、取帽 600+100、`releaseWait`、`cradleLinger`；
-   - 陆地路径上的 `boatHome()` 分支（水上分支保留到 WP6）。
+   - `CatchHat` 的会合协商、站位桥接、逐 tick 复验与 `seekMother`；`LiveDelivery` 的接生窗口与出窝握手；
+   - `FamilyData` 的陆地帽位预约（`reserveBirthAdmission`／`cancelBirthAdmission`），发射分支合为一条；
+   - BROOD Goal 的分支；`exitWait`、`exitTurnTicks`、`stationWait`、`catchWindowBudget`、`rejectSite`、`siteStalled`、取帽 600+100、`releaseWait`、`cradleLinger`；
+   - `BirthFlightPath`：扫掠并入 `ContactResolver` 与 `Launch.preview`。
+4. **存档**：第 12 节的 `Birth` 标签；旧的接生站、窗口与等待键删除。
 
-**复测**：F1 全部出生场景（`birth_land_caught`、`birth_land_reunion`、`birth_land_missed`、`birth_nest_safe`、`birth_nest_stem`、`birth_stem_caught`）；观察 `[choreo]` 节拍链与分支。
+**复测**：F1 全部出生场景（`birth_land_caught`、`birth_land_reunion`、`birth_land_missed`、`birth_nest_safe`、`birth_nest_stem`、`birth_stem_caught`）；观察 `[choreo]` 节拍链与分支。合入后是**试玩检查点**：用户认可前不开 WP4。
 
-### WP4　帽船宿主化（前置：用户确认 HatScale 预览）
+### WP4　水生重建一：放下的帽子会漂（前置：用户确认 HatScale 预览）
 
-1. 所有模式走 `Riders`；删除 `usesDeck()` 与 `positionRider` 的座位路径。
-2. 宿主上的 Walk 改用 `HeightGrid` 加 `GridPath`（14.8 有测试）；`room` 计入储粮圆；挤不下时沿坡度滑向帽檐，越过帽檐就 `dismount` 加 Launch（Q6）。
-3. **物理**：
-   - 删除 `tickServer` 中 `selfRescueHeld` 与 `selfRighting` 分支的速度清零和提前 return，浮力无条件执行；
-   - `isPushable()=true`，被推时按质量比位移（Q5）；
-   - 水中身体与帽外盒子之间做分离。
-4. **尺寸**：`HatScale.of(owner)` 统一四种形态的尺寸（Q3）；`HatVessel.hatScale` 与 `SelfRescueHatGeometry` 都改读它。
-5. **姿态**：`CrewPoseTable` 改为按地名或支撑高度取姿态。
-6. **删除**：`HatDeck` 的席位、租约、冲突与对账；`DeckLayout` 座位表与冲突矩阵；`HatStations`；`HatBoatCrowding`；`CrewState` 的座位移动；`CrewTransfer` HOP；`Deck` NBT。
+1. **行为插槽**：`PlacedHatEntity` 提供 `PlacedHatBehavior`（tick、受推、帽面倾斜与 `frame()` 的 roll／pitch）；底座默认陆地行为，`aquatic/` 注册水上行为。底座不 import `aquatic.*`。
+2. **水上行为**：浮力在任何形态下无条件生效；漂移；`isPushable()=true`，被推时按质量比位移（Q5）；翻覆只由真实外因引起；水中身体与帽外盒子分离。
+3. **尺寸**：`HatScale.of(owner)` 统一戴着、托着、展开、翻覆四种形态（Q3）。
+4. **帽内**：宿主上的 Walk 用 `HeightGrid` 加 `GridPath`（14.8）；`room` 计入储粮圆；挤不下时沿坡度滑向帽檐，越过帽檐就 `dismount` 加 Launch（Q6）。
+5. **姿态**：按身体在帽内的实际位置、帽面倾斜和地名选取。
+6. **生成**：恢复水生魔理沙的自然生成，第 0 tick 就在自己的帽上（P0-1）。
 
-**复测**：`hat_swap`、`cargo`、`sail` 登船段，以及推船和挤落水。
+**复测**：恢复所需的池塘场景，看 `hat_swap`、`cargo`、登船段、推船与挤落水。
 
-### WP5　水中动作
+### WP5　水生重建二：水中动作
 
-1. 新增 Swim、Climb、Push、Right、Paddle；`ContactGeometry` 合并四处帽檐几何。
-2. **删除**：
-   - `AquaticSelfRescue` 的移动与阶段机（后果规则保留）；
-   - `WaterDistress` 的重复推进；
-   - `HullHazards` 的释放脚本（改为 `dismount` 加 Launch）；
-   - `CrewTransfer`、`CrewTransfers`、`CrewPort`、`CrewTransferGoal`、`CrewState`、`BraidCarry` 整体删除；
-   - `YukkuriEntity.travel` 中的 `crew().holdsBody()` 钩子。
+1. 在 `motor/action/` 新增 Swim、Climb、Push、Right、Paddle；水生种只经 `AbilityModifier` 改系数（Q2）。
+2. 自救、扶正和登船都由这些动作组合；后果规则（浸水伤害、溺亡）沿用底座。
 
 **复测**：`self_rescue`、`shore_capsized`、`shake_capsize`。
 
-### WP6　水上意图
+### WP6　水生重建三：水上意图
 
-1. **意图**：单一 `AquaticGoal`（Drive 在其内部运作），加 `drive/aquatic.json`。意图包括出航、上岸、夜泊、补给、照料、`ResolveOwnHat`、救援、初航、送赤油到父船。出航与上岸为 `Commitment.HARD`。
-2. **帽船分娩**：接入 LiveBirth 的 `OwnHull` 接收者；删除水上的 `boatHome()` 分支。
-3. **删除**：`VoyageController`、`VoyagePhase`、`AfloatAgenda`、`AfloatActivities`、`HatFamilyAlarm` 的 SAFETY HOLD 分支、`FirstVoyage` 阶段机、`HullHelm` 租约、`WaterIncidents` 的移动部分。
+1. **框架**：加入 `Drive`、`Desire`、`Commitment`、`Ask`、`AskLedger`（11.3、11.4）；可参考 f30c0969 的实现并修正其评审问题。
+2. **意图**：单一 `AquaticGoal`（Drive 在其内部运作），加 `drive/aquatic.json`。意图包括出航、上岸、夜泊、补给、照料、`ResolveOwnHat`、救援、送赤油到父船；出航与上岸为 `Commitment.HARD`。
+3. **帽船分娩**：LiveBirth 加入 `OwnHull` 接收者。
 
-**复测**：A1–A8 全部场景，以及待办中的 P0 观察点。
+**复测**：P0-1…P0-12 全部观察点。
 
 ### WP7　收口
 
 - 写入 13.3 的三条守卫规则，并清零基线；
 - 删除 `PresentationArbiter` 中被动作层取代的接管来源；
-- 改写 ARCHITECTURE 相关行与[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)；
-- 删去整体设计中已成为现行规则的内容。
+- 第 4–13 节的稳定契约写进[代码架构](ARCHITECTURE.md)，本文只留未完成部分；整体设计删去已成为现行规则的内容。
 
-**复测**：E8–E11 全量复测。
+**复测**：E8–E11 与 F1 全量复测。
 
 ### 14.8 单元测试
 

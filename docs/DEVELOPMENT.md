@@ -1,6 +1,6 @@
 # 开发与试玩
 
-本机不编译；远端 CI 构建，用户在唯一试玩场确认玩法。代码架构见 [ARCHITECTURE.md](ARCHITECTURE.md)，导出与检查脚本见 [scripts/](../scripts/README.md)。
+本机不跑 Gradle；提交前用 `bash scripts/javac_check.sh <工作树>` 做 javac 与纯函数测试自查，正式构建在远端 CI，用户在唯一试玩场确认玩法。代码架构见 [ARCHITECTURE.md](ARCHITECTURE.md)，导出与检查脚本见 [scripts/](../scripts/README.md)。
 
 ## 环境与构建
 

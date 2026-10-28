@@ -10,7 +10,8 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 重构 WP3（意图框架完整版、LiveBirth 编排、摘放帽动作） | `.worktrees/wp3-*`（pi 团队，总负责人合入） | `intent/`、`motor/action/`、`family/CatchHat`、`family/LiveDelivery`、`family/FamilyData`、`family/FamilyLife`、`subspecies/HatProp` |
+| 重构 WP3a（水生旧实现下线，接生帽移入 `headwear/PlacedHatEntity`） | `.worktrees/wp3a-cut` | `subspecies/`、`client/aquatic/`、底座各包的水生分支、`family/` 出生链水上分支、`command/` 与 `scripts/museum_scenarios.py` 的池塘场景、水生相关专题文档 |
+| 重构 WP3b 框架（已提交，等 WP3a 合入后裁剪合入） | `.worktrees/wp3-framework` | `intent/`、`motor/action/`、`motor/Prop` |
 
 ## 玩法待办
 
@@ -219,7 +220,7 @@
   - 帽船可被推动；
   - 帽内挤不下时，孩子可以被挤落水。
 - 设计与工作包 WP1–WP7 见[整体设计](REFACTOR_DESIGN.md)与[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)（范围含出生链，出生链同样冻结）；各工作包的进度与复测现象只登记在本条。
-- 进度：WP1（依附、容器、跳、陆地叼搬放）与 WP2（能力表数据化、新生儿发射、转身与小动作、Walk）已接入待试玩，运行 [9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)；复测看 E11 条目与 `birth_land_caught`／`birth_land_missed`（落帽率与摔伤表现同旧版分布）、`hop`、`infant_feed`。陆地接生不再预约帽位，帽满时按真实接触弹开或落地。WP3 进行中；WP4 前须先确认统一帽子尺寸预览。
+- 进度：WP1、WP2 已接入待试玩，运行 [edc3fd98](https://github.com/Longshou/MCyukkuri/commit/edc3fd98)（含发射只触发一次与赤油爬行加快）；复测看 E11 条目与 `birth_land_caught`／`birth_land_missed`（落帽率与摔伤表现同旧版分布）、`hop`、`infant_feed`。计划已改为旧水生整体下线后重建（[整体设计第 11 节](REFACTOR_DESIGN.md#11生产计划)）：WP3a 下线进行中，WP3b 出生编排随后；出生链经试玩认可后才开 WP4，WP4 前须先确认统一帽子尺寸预览。
 - 完成：各工作包按设计稿的展台与行为场景验收。
 
 **重构前的失败证据（保留版本与现象的对应）**
