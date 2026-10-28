@@ -1355,7 +1355,7 @@ public final class HatBoatEntity extends Entity implements HatBoatView, SurfaceH
         if(!level().isClientSide&&passenger instanceof YukkuriEntity y){
             if(movement!=null){
                 YukkuriLocomotion.carryWithHull(y,this);
-                YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y).maxHorizSpeed());
+                YukkuriLocomotion.step(y,at,YukkuriLocomotion.limits(y,deck.load()).maxHorizSpeed());
             }else{
                 move.accept(passenger,at.x,at.y,at.z);
                 y.family().crew().rememberFrame(this);
