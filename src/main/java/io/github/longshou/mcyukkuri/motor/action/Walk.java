@@ -13,9 +13,12 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -25,10 +28,11 @@ import net.minecraft.world.phys.Vec3;
  * Walk to a world target on the ground, or to a host-local target on a {@link SurfaceHost} (spec 9.4).
  *
  * <p>On the ground the shared {@link SurfaceApproach} owns the route and the last step, and vanilla travel integrates it.
- * On a host the body moves in local coordinates only: at most {@code walkSpeed / unit} hat units per tick, checked against
- * the host's own height field and room rule and written into {@code riders()}, which {@code positionRider} turns into the
- * world position. Nowhere here picks a distance or a duration: they come from {@link BodyAbility}, and the carrying scale
- * is the one the spec's Carry row names.
+ * On a host the body moves in local coordinates only: its route is planned once on the host's walk grid ({@link GridPath}:
+ * steps up to its {@code stepUp}, a rim penalty), then followed at most {@code walkSpeed / unit} hat units per tick (with the
+ * host's load in the ability), each step checked against the host's height field and room rule and written into
+ * {@code riders()}, which {@code positionRider} turns into the world position. Nowhere here picks a distance or a duration:
+ * they come from {@link BodyAbility}, and the carrying scale is the one the spec's Carry row names.
  *
  * <p>The ground watchdog metric is the route still ahead of the body (the installed path's remaining nodes plus the last
  * leg, or the straight distance when no path is installed), and {@code walk.sample} prints it every 20 ticks with the
@@ -44,6 +48,8 @@ public final class Walk implements Action {
     private static final double STAND_ARRIVED = .1;
     /** Ticks between two {@code walk.sample} detail lines (spec 13.1). */
     private static final int SAMPLE_TICKS = 20;
+    /** What entering a cell beside the brim costs on a host route, in cells (spec 6: the rim penalty). */
+    private static final double RIM_WEIGHT = 1;
 
     private final Vec3 target;
     private final SurfaceHost host;
@@ -56,6 +62,9 @@ public final class Walk implements Action {
     private Vec3 from;
     private boolean navDone;
     private int nodesLeft;
+    /** The host route's waypoints (hat units, the target last) and the one being walked to. */
+    private List<double[]> route = List.of();
+    private int leg;
 
     /** Walks to a world point, arrived when {@link SurfaceApproach#arrived}. */
     public Walk(Vec3 target) {
@@ -113,14 +122,14 @@ public final class Walk implements Action {
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
             if (host.support(local, Occupancy.FOOT * body.getBbWidth()).isEmpty())
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
-            return Feasibility.pass();
+            return plan(body);
         }
         return SurfaceApproach.canApproach(body, target)
                 ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_route");
     }
 
     @Override public void start(YukkuriEntity body) {
-        pace = BodyAbility.of(body).walkSpeed() * carrying(body);
+        pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * carrying(body);
         from = body.position();
     }
 
@@ -144,7 +153,7 @@ public final class Walk implements Action {
 
     /** Spec 13.1's walk end line: whether navigation had finished and how many nodes were left, next to the outcome. */
     @Override public String endDetail(Outcome outcome) {
-        if (host != null) return "";
+        if (host != null) return String.format(Locale.ROOT, "leg=%d/%d", Math.min(leg + 1, route.size()), route.size());
         return String.format(Locale.ROOT, "navDone=%b nodesLeft=%d", navDone, nodesLeft);
     }
 
@@ -165,22 +174,63 @@ public final class Walk implements Action {
         return new Running(left, TravelMode.PASS);
     }
 
+    /**
+     * Plans the host route on its walk grid from the cell the body stands on to the target's (each snapped to the nearest
+     * supported cell around it): the start cell's centre may lie behind the body and the goal cell's is replaced by the
+     * target itself. No route is {@code NO_PATH} with the straight distance (blocks) as its shortfall.
+     */
+    private Feasibility plan(YukkuriEntity body) {
+        var spot = host.riders().local(body.getUUID());
+        double unit = Math.max(1E-6, host.frame().unit());
+        var grid = host.walkGrid(Occupancy.FOOT * body.getBbWidth());
+        int[] start = grid.nearest(spot.x, spot.z), goal = grid.nearest(local.x, local.z);
+        var path = start == null || goal == null ? List.<double[]>of()
+                : GridPath.find(grid, grid.centreX(start[0]), grid.centreZ(start[1]), grid.centreX(goal[0]), grid.centreZ(goal[1]),
+                        BodyAbility.of(body, host.load()).stepUp() / unit, RIM_WEIGHT);
+        if (path.isEmpty()) {
+            double distance = Math.hypot(local.x - spot.x, local.z - spot.z) * unit;
+            String detail = String.format(Locale.ROOT, "no_grid_path distance=%.2f from=%s to=%s grid=%dx%d", distance, spot, local,
+                    grid.nx(), grid.nz());
+            // Observation only: the refusal line of the driver carries no distance.
+            GameplayLog.limited(body, "action", "walk.no_path", 100, "walk refused host={} {}", host.entity().getUUID(), detail);
+            return Feasibility.of(Reason.NO_PATH, distance, detail);
+        }
+        var legs = new ArrayList<>(path.subList(1, path.size()));
+        if (!legs.isEmpty()) legs.removeLast();
+        legs.add(new double[]{local.x, local.z});
+        route = legs;
+        leg = 0;
+        return Feasibility.pass();
+    }
+
     private Progress hostTick(YukkuriEntity body) {
         // The body left the host (grabbed, put down, host gone): the walk is over and must not write a rider spot it no
         // longer has (that spot is the host's only key set, spec 5.3 I2).
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return new Outcome.Done("left_host");
         Vec3 spot = host.riders().local(body.getUUID());
-        double dx = local.x - spot.x, dz = local.z - spot.z, left = Math.hypot(dx, dz);
-        if (left <= HOST_ARRIVED) return new Outcome.Done(String.format(Locale.ROOT, "local=%s", local));
-        double unit = Math.max(1E-6, host.frame().unit());
-        double step = Math.min(pace / unit, left);
-        Vec3 next = new Vec3(spot.x + dx / left * step, 0, spot.z + dz / left * step);
+        if (Math.hypot(local.x - spot.x, local.z - spot.z) <= HOST_ARRIVED) return new Outcome.Done(String.format(Locale.ROOT, "local=%s", local));
+        double[] aim = route.isEmpty() ? new double[]{local.x, local.z} : route.get(leg);
+        double dx = aim[0] - spot.x, dz = aim[1] - spot.z, d = Math.hypot(dx, dz);
+        double step = Math.min(pace / Math.max(1E-6, host.frame().unit()), d);
+        if (d <= step && leg < route.size() - 1) leg++;
+        Vec3 next = d < 1E-9 ? spot : new Vec3(spot.x + dx / d * step, 0, spot.z + dz / d * step);
         var height = host.support(next, Occupancy.FOOT * body.getBbWidth());
         if (height.isEmpty()) return Outcome.of(Reason.NO_SUPPORT, 0, "off_surface");
         next = new Vec3(next.x, height.getAsDouble(), next.z);
         if (!host.room(body, next)) return Outcome.of(Reason.NO_ROOM, 0, "occupied");
         host.riders().put(body.getUUID(), next, localYaw(body, host));
-        return new Running(left, TravelMode.CONSUMED);
+        return new Running(routeLeft(next), TravelMode.CONSUMED);
+    }
+
+    /** The host route still ahead of a local spot (hat units): to the current waypoint, then waypoint to waypoint. */
+    private double routeLeft(Vec3 at) {
+        double left = 0, x = at.x, z = at.z;
+        for (int i = leg; i < route.size(); i++) {
+            left += Math.hypot(route.get(i)[0] - x, route.get(i)[1] - z);
+            x = route.get(i)[0];
+            z = route.get(i)[1];
+        }
+        return left;
     }
 
     /** The route still ahead: the installed path's remaining nodes plus the last leg, or the straight line without one. */
@@ -230,6 +280,6 @@ public final class Walk implements Action {
                 GameplayLog.at(host == null ? target : host.frame().toWorld(local)),
                 host == null ? "ground" : host.entity().getUUID(),
                 navigation.isDone(), nodes, owner == null ? "none" : owner.ownerId(),
-                host == null ? String.format(Locale.ROOT, "%.2f", remaining(body)) : "-");
+                String.format(Locale.ROOT, "%.2f", host == null ? remaining(body) : routeLeft(host.riders().local(body.getUUID()))));
     }
 }

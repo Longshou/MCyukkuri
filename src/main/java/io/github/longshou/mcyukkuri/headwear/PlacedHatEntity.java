@@ -1,9 +1,12 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
+import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.geom.Squeeze;
 import io.github.longshou.mcyukkuri.motor.surface.Container;
 import io.github.longshou.mcyukkuri.motor.surface.HostContainer;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
@@ -41,11 +44,13 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
@@ -66,6 +71,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The hull's tilt in degrees (HostFrame roll and pitch), written by its behaviour: riders and the drawn hull share it. */
     private static final EntityDataAccessor<Float> ROLL = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
+    /** What its behaviour keeps in the hollow besides riders (an add-on's stores), written by that behaviour, for drawing only. */
+    private static final EntityDataAccessor<CompoundTag> CONTENTS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The one rider table of this host: local spot and yaw per body (spec 5.1, 6). */
     private final Riders riders = new Riders();
     /** Cached cavity of {@link #container()}; rebuilt when the hat size changes. */
@@ -83,17 +90,21 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The behaviour running this hat and its provider (null: on the ground), picked once a tick; this hat's one instance of
      *  each provider's behaviour; the saved motion until the instance it belongs to exists; the tilt one tick ago. */
     private PlacedHatBehavior behavior = PlacedHatBehavior.LAND;
-    private PlacedHatBehavior.Provider provider;
+    private PlacedHatBehavior.Provider provider, lastProvider;
     private final Map<PlacedHatBehavior.Provider, PlacedHatBehavior> instances = new LinkedHashMap<>();
     private CompoundTag savedMotion;
     private int behaviorTick = -1;
     private boolean behaviorPicked;
     private float rollO, pitchO;
+    /** The walk grids of this floor by foot radius, and the floor they were sampled from (size, turned over, what it holds). */
+    private final Map<Double, HeightGrid> grids = new HashMap<>();
+    private List<Object> gridFloor = List.of();
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
+        builder.define(CONTENTS, new CompoundTag());
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -133,6 +144,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (roll != roll()) entityData.set(ROLL, roll);
         if (pitch != pitch()) entityData.set(PITCH, pitch);
     }
+    /** Its behaviour's synced stores: drawing only. */
+    @Override public CompoundTag contents() { return entityData.get(CONTENTS); }
+    public void contents(CompoundTag tag) { entityData.set(CONTENTS, tag); }
     /** Turned crown up: the hollow faces the water and nothing stands in it. */
     public boolean upsideDown() { return Buoyancy.up(roll(), pitch()) < 0; }
     /** The behaviour running this hat now: the first registered provider that applies, else the land one (once a tick). */
@@ -151,6 +165,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 return made;
             });
             provider = next;
+            if (next != null) lastProvider = next;
             behaviorPicked = true;
         }
         return behavior;
@@ -163,17 +178,40 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
-    /** No other rider's foot circle overlaps this one: radius 0.42 of the body width, slack 0.02 (spec 6). */
+    /** No other rider's foot circle overlaps this one: radius 0.42 of the body width, slack 0.02 (spec 6), nor what lies in
+     *  the hollow. */
     @Override public boolean room(YukkuriEntity body, Vec3 local) {
-        if (body == null || local == null) return false;
-        var foot = new Disc(local.x, local.z, Occupancy.FOOT * body.getBbWidth() / unit());
+        return body != null && local != null && clear(new Disc(local.x, local.z, footOf(body)), body);
+    }
+    /** No rider's foot circle but {@code except}'s, nor anything the behaviour keeps on the floor, overlaps this one (hat units). */
+    public boolean clear(Disc foot, Entity except) {
         for (var other : getPassengers()) {
-            if (other == body || !(other instanceof YukkuriEntity y)) continue;
+            if (other == except || !(other instanceof YukkuriEntity y)) continue;
             var spot = riders.spot(y.getUUID());
             var at = spot != null ? spot.local() : toLocal(y.position());
-            if (foot.overlaps(new Disc(at.x, at.z, Occupancy.FOOT * y.getBbWidth() / unit()), ROOM_SLACK)) return false;
+            if (foot.overlaps(new Disc(at.x, at.z, footOf(y)), ROOM_SLACK)) return false;
         }
+        for (var held : behavior().obstacles(this)) if (foot.overlaps(held, ROOM_SLACK)) return false;
         return true;
+    }
+    @Override public double load() { return behavior().load(this); }
+    /** Spec 6's walk grid, centred on the hat over its brim's reach; rebuilt when the floor it was sampled from changed. */
+    @Override public HeightGrid walkGrid(double r) {
+        var held = behavior().obstacles(this);
+        List<Object> floor = List.of(unit(), upsideDown(), held);
+        if (!floor.equals(gridFloor) || grids.size() > 8) { grids.clear(); gridFloor = floor; }
+        return grids.computeIfAbsent(Math.round(r * 1000) / 1000.0, foot -> {
+            double cell = GRID_CELL / unit(), feet = foot / unit();
+            float[] brim = HatGeometry.brim();
+            int nx = (int) Math.ceil(2 * brim[0] / cell), nz = (int) Math.ceil(2 * brim[1] / cell);
+            double x0 = -nx * cell / 2, z0 = -nz * cell / 2;
+            return new HeightGrid(x0, z0, x0 + (nx - .5) * cell, z0 + (nz - .5) * cell, cell, (x, z) -> {
+                var disc = new Disc(x, z, feet);
+                for (var thing : held) if (disc.overlaps(thing, ROOM_SLACK)) return Double.NaN;
+                var height = support(new Vec3(x, 0, z), foot);
+                return height.isPresent() ? height.getAsDouble() : Double.NaN;
+            });
+        });
     }
     /** The brim's top edge in 24 directions, through the current frame so a placed yaw is included. */
     @Override public List<Vec3> rim() {
@@ -273,17 +311,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var spot = snapped(prefer, footRadius * unit());
         return room(footRadius, spot) ? spot : null;
     }
-    /** No other rider's foot circle overlaps a body of this foot radius (hat units). */
+    /** No rider's foot circle nor what lies in the hollow overlaps a body of this foot radius (hat units). */
     private boolean room(double footRadius, Vec3 local) {
-        if (local == null) return false;
-        var foot = new Disc(local.x, local.z, footRadius);
-        for (var other : getPassengers()) {
-            if (!(other instanceof YukkuriEntity y)) continue;
-            var spot = riders.spot(y.getUUID());
-            var at = spot != null ? spot.local() : toLocal(y.position());
-            if (foot.overlaps(new Disc(at.x, at.z, footOf(y)), ROOM_SLACK)) return false;
-        }
-        return true;
+        return local != null && clear(new Disc(local.x, local.z, footRadius), null);
     }
     /** The supported, free spot near {@code prefer} this young may take now; nothing is kept (spec 5.1: no second store). */
     private Vec3 nestPlace(YukkuriEntity child, Vec3 prefer) {
@@ -480,10 +510,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return playerInteractionResult(player,hand,"off_hand",false,InteractionResult.PASS);
         if (player.distanceToSqr(this) > 36)
             return playerInteractionResult(player,hand,"out_of_reach",false,InteractionResult.PASS);
-        if (!player.getItemInHand(hand).isEmpty())
-            return playerInteractionResult(player,hand,"cradle_requires_empty_hand",false,InteractionResult.PASS);
+        var held = player.getItemInHand(hand);
+        // Food goes into the hollow (or is refused with its reason); empty hands and anything else rock a hat that rocks.
+        if (!held.isEmpty() && behavior().store(this, held, player))
+            return playerInteractionResult(player,hand,"store",true,InteractionResult.sidedSuccess(level().isClientSide));
         if (behavior().shake(this, player))
             return playerInteractionResult(player,hand,"shake",true,InteractionResult.sidedSuccess(level().isClientSide));
+        if (!held.isEmpty())
+            return playerInteractionResult(player,hand,"cradle_requires_empty_hand",false,InteractionResult.PASS);
         if (!level().isClientSide) {
             var keeper=owner();
             player.displayClientMessage(Component.literal("接生帽：幼体 "+youngPassengers().size()+"；"
@@ -521,6 +555,52 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         syncRiders();
         behavior().tick(this);
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
+        squeeze();
+    }
+    /**
+     * Q6: riders whose foot circles overlap (one landed among the others, they grew) part in the hat's own plane through
+     * {@link Squeeze}: the lighter one, and on a tilted floor the lower one, yields more; what the hollow holds never moves.
+     * Each moves at most its walk pace a tick, its height the floor under it. One pushed with its centre past the rim leaves
+     * where it stands, sliding as it was pushed ({@code Motor.dismount}); the rest is physics. Only rider spots are written.
+     */
+    private void squeeze() {
+        var held = behavior().obstacles(this);
+        if (upsideDown() || getPassengers().size() < (held.isEmpty() ? 2 : 1)) return;
+        var bodies = new ArrayList<YukkuriEntity>();
+        var feet = new ArrayList<Squeeze.Body>();
+        double load = load(), unit = unit();
+        for (var p : getPassengers()) if (p instanceof YukkuriEntity y && riders.contains(y.getUUID())) {
+            var at = riders.local(y.getUUID());
+            bodies.add(y);
+            feet.add(new Squeeze.Body(at.x, at.z, footOf(y), y.getBbWidth() * y.getBbWidth() * y.getBbHeight(),
+                    BodyAbility.of(y, load).walkSpeed() / unit));
+        }
+        var pose = frame();
+        var down = pose.toLocal(position().add(0, -1, 0)).scale(unit);
+        var moves = Squeeze.separate(feet, held, ROOM_SLACK, down.x, down.z);
+        int moved = 0;
+        YukkuriEntity most = null;
+        double mostStep = 0;
+        for (int i = 0; i < bodies.size(); i++) {
+            double mx = moves[i][0], mz = moves[i][1], step = Math.hypot(mx, mz);
+            if (step < 1e-6) continue;
+            var y = bodies.get(i);
+            var spot = riders.spot(y.getUUID());
+            var next = new Vec3(spot.local().x + mx, 0, spot.local().z + mz);
+            moved++;
+            if (step > mostStep) { mostStep = step; most = y; }
+            if (support(next, 0).isEmpty()) {
+                var slide = pose.toWorld(next).subtract(pose.toWorld(spot.local())).add(getDeltaMovement());
+                Motor.dismount(y, y.position(), slide, "squeezed");
+                GameplayLog.event(this, "hat", "squeezed off rider={} at={} slide={} riders={} held={} tilt={}/{}", y.getUUID(),
+                        GameplayLog.at(y.position()), GameplayLog.at(slide), getPassengers().size(), held.size(), roll(), pitch());
+                continue;
+            }
+            riders.put(y.getUUID(), snapped(next, footOf(y) * unit), spot.yaw());
+        }
+        if (moved > 0) GameplayLog.limited(this, "hat", "squeeze", 100, "squeeze moved={} most={} step={} riders={} held={} tilt={}/{}",
+                moved, most == null ? "none" : most.getUUID(), String.format(Locale.ROOT, "%.3f", mostStep), bodies.size(), held.size(),
+                roll(), pitch());
     }
     /** Yaw and pitch ease over the same steps as the position, so riders do not judder on each packet. */
     @Override public void lerpTo(double x,double y,double z,float yaw,float pitch,int steps) {
@@ -533,7 +613,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.putString("Role",role.name());
         tag.put("Riders",riders.save());
         tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
-        if(provider!=null){var motion=behavior.save();motion.putString("Kind",provider.id());tag.put("Motion",motion);}
+        // The behaviour it last floated with keeps its state (stores included) while it lies on the ground.
+        if(lastProvider!=null){var motion=instances.get(lastProvider).save();motion.putString("Kind",lastProvider.id());tag.put("Motion",motion);}
         else if(savedMotion!=null)tag.put("Motion",savedMotion.copy());
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {

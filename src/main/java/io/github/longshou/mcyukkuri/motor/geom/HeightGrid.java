@@ -34,4 +34,18 @@ public final class HeightGrid {
     public int cellZ(double z) { return Math.min(nz - 1, Math.max(0, (int) Math.floor((z - minZ) / cell))); }
     public double centreX(int i) { return minX + (i + .5) * cell; }
     public double centreZ(int j) { return minZ + (j + .5) * cell; }
+
+    /** The supported cell nearest (x, z) among its own cell and the eight around it, as {@code {i, j}}; null when none is:
+     *  a body standing between cell centres starts and ends its route on the floor it is really on. */
+    public int[] nearest(double x, double z) {
+        int ci = cellX(x), cj = cellZ(z);
+        int[] best = null;
+        double bestDistance = Double.POSITIVE_INFINITY;
+        for (int j = cj - 1; j <= cj + 1; j++)
+            for (int i = ci - 1; i <= ci + 1; i++) {
+                double d = Math.hypot(centreX(i) - x, centreZ(j) - z);
+                if (supported(i, j) && d < bestDistance) { bestDistance = d; best = new int[]{i, j}; }
+            }
+        return best;
+    }
 }

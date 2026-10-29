@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -22,8 +24,19 @@ public interface PlacedHatBehavior {
     /** Whether bodies and players may push it (vanilla {@code isPushable}). */
     default boolean pushable(PlacedHatEntity hat) { return false; }
 
-    /** A player's empty-hand click: true when it rocked the hat (both sides answer; only the server moves it). */
+    /** A player's click with an empty hand or with something not stored: true when it rocked the hat (both sides answer;
+     *  only the server moves it). */
     default boolean shake(PlacedHatEntity hat, Player by) { return false; }
+
+    /** Puts {@code stack} into the hollow for {@code by} (a player's click; null: a scenario's starting stock): true when it is
+     *  something this hat stores, taken from the stack or refused with its real reason; false leaves the click to the shake. */
+    default boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return false; }
+
+    /** What lies on the hollow's floor besides riders, as circles (hat units) no foot may overlap; they never move. */
+    default List<Disc> obstacles(PlacedHatEntity hat) { return List.of(); }
+
+    /** What it carries besides riders, in the ability's load units (spec 8.1 L): its riders' pace. */
+    default double load(PlacedHatEntity hat) { return 0; }
 
     /** False while it shakes hard or turns over: no jump landing may be planned onto it. Synced facts only. */
     default boolean steady(PlacedHatEntity hat) { return true; }

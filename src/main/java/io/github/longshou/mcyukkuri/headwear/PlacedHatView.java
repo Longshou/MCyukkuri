@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import java.util.UUID;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -24,4 +25,6 @@ public interface PlacedHatView {
     float pitch(float partial);
     /** Synchronized headwear damage of the deployed hat (0..2), drawn as on a worn hat. */
     int hullDamage();
+    /** What its behaviour keeps in the hollow besides riders (an add-on's stores), as that behaviour synced it. */
+    CompoundTag contents();
 }

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.UUID;
@@ -71,6 +72,8 @@ public interface YukkuriView {
     /** -1 when there is no vehicle; entity IDs are used only within this view's world. */
     int vehicleId();
     YukkuriView vehicleYukkuri();
+    /** The set-down hat this body rides, or null: its synced pose is the floor the body stands on. */
+    PlacedHatView vehicleHat();
     /** The yukkuri riding this one (a carried baby), or null. */
     YukkuriView carriedYukkuri();
     /** The yukkuri riding this one, in seat (boarding) order; several carried babies are laid out from this list. */

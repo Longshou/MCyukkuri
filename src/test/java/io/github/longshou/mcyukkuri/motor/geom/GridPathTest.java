@@ -65,4 +65,14 @@ class GridPathTest {
         for (double[] w : pen) inner |= w[1] > 1 && w[1] < 6 && w[0] > 1 && w[0] < 6;
         assertTrue(inner);
     }
+
+    @Test
+    void nearestSnapsToASupportedNeighbour() {
+        HeightGrid g = grid(5, (x, z) -> x < 1 ? Double.NaN : 0);
+        int[] at = g.nearest(.9, 2.5);
+        assertEquals(1, at[0]);
+        assertEquals(2, at[1]);
+        HeightGrid none = grid(5, (x, z) -> x > 3 ? 0 : Double.NaN);
+        assertEquals(null, none.nearest(.5, .5));
+    }
 }

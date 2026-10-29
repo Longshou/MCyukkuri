@@ -79,6 +79,13 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     float headYaw=Mth.rotLerp(partialTick,entity.previousHeadYaw(),entity.getYHeadRot());
                     bodyYaw+=Mth.clamp(Mth.wrapDegrees(headYaw-bodyYaw),-35,35);
                 }
+                // A rider stands on the hat's floor: it leans with the hull's synced tilt, about its own feet.
+                var host=entity.vehicleHat();
+                if(host!=null){
+                    float hostYaw=180-Mth.rotLerp(partialTick,host.previousYaw(),host.getYRot());
+                    pose.mulPose(Axis.YP.rotationDegrees(hostYaw));pose.mulPose(Axis.ZP.rotationDegrees(host.roll(partialTick)));
+                    pose.mulPose(Axis.XP.rotationDegrees(host.pitch(partialTick)));pose.mulPose(Axis.YP.rotationDegrees(-hostYaw));
+                }
                 pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
                 renderedBodyYaw=bodyYaw;
             }

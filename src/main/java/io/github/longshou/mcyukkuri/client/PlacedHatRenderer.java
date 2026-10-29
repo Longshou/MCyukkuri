@@ -18,9 +18,16 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.joml.Quaternionf;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
     private static final String HULL="marisa_hat_turned";
+    /** Something an add-on draws with the hat (its stores in the hollow), in the hull's frame: blocks, origin at its bottom. */
+    @FunctionalInterface public interface Layer { void render(PlacedHatView hat,float partial,PoseStack pose,MultiBufferSource buffers,int light); }
+    private static final List<Layer> LAYERS=new CopyOnWriteArrayList<>();
+    /** The client registration entry adds an add-on's layer; the base never names it. */
+    public static void layer(Layer layer){LAYERS.add(layer);}
     public PlacedHatRenderer(EntityRendererProvider.Context context) { super(context); shadowRadius=.45f; }
     public static void register(EntityRenderersEvent.RegisterRenderers event) { event.registerEntityRenderer(ModEntities.PLACED_HAT.get(),PlacedHatRenderer::new); }
     public static void items(RegisterClientExtensionsEvent event) {
@@ -42,6 +49,7 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         pose.translate(at.x-source.getX(),at.y-source.getY(),at.z-source.getZ());
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
                 .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
+        for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
         pose.translate(0,HatGeometry.top()*unit,0);
         pose.scale(scale,scale*(float)HatGeometry.squash(),scale);
         // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.
