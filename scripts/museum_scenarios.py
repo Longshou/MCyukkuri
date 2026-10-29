@@ -339,7 +339,7 @@ land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', '
 land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'natural', 'reimu',
            '灵梦父油没有帽子、不接生，单人软垫窝也接不住新生儿：母油临产先走出软垫窝，新生儿直接落地，摔伤哭泣，父母赶来安抚；伤口按普通规则处理。[choreo] 节拍为 site → term → exit → push → linger，没有 meet／place', 'land_missed')
 land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 'marisa',
-           '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，多数落进帽里或碰檐弹进去，少数落到帽外受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
+           '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，落在帽上的都坐上帽子、不会穿过帽子掉到帽下地面：落在帽檐上的先坐上帽檐再滚进帽腔（日志 [body] contact … occupancy=ON_RIM、newborn on hat rim rolls inward、[action] start id=gesture … brim=into_hollow），帽腔挤满时从帽檐外侧滚落、落地摔伤；只有落到帽外（或只擦到帽檐外缘）的才受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
            'land_caught')
 
 add('pet_birth', 'family', '宠物大窝内生产', '大窝内生产',
@@ -1652,10 +1652,10 @@ pond('hat_push', '推动帽子', '推动帽子',
             ('读帽子', f'data get entity {_HAT}')])
 
 pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
-     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主游回帽边，咬住帽檐分几次推正帽子，再爬回帽里；两只赤油不会攀爬，只能朝岸挣扎',
+     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主慢慢游回帽边（很弱的挣扎前进），咬住帽檐分几次推正帽子（播咬檐推帽的扶正动作，不是挣扎），再爬回帽里；泡水伤照常扣血但不打断游、扶正与爬；两只赤油不会攀爬，只能朝岸挣扎',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
+     note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb，其间没有 [action] end … why=hurt（溺水伤记 [action] kept … through damage=drown）。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
@@ -1674,7 +1674,7 @@ pond('self_rescue_far', '落水自救·远处的帽子', '远处帽子',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('shore_capsized', '岸边翻覆的帽子·扶正爬回', '扶正帽子',
-     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按片段节拍分几次把帽子推正（每次推的进度来自她的游速与两者的体积比），帽子正过来后再爬进去',
+     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按片段节拍分几次把帽子推正（每次推的进度来自她的游速与两者的体积比），帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f}}', shoved('a')],
@@ -1688,8 +1688,15 @@ pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
      note='底座路径（不认识帽子）。日志：[water] phase IMPACT → STRUGGLE，[intent] start id=escape_water → [method] pick method=bank → [action] end id=swim … detail=grip → [action] start id=climb … onto=bank → [intent] end result=DONE。岸太高够不着时看 method=struggle。',
      reads=[('读灵梦', f'yukkuri status {sel("r")} raw')])
 
+pond('worn_hat_boat', '戴着的帽子当船·落水自救', '帽子当船',
+     '戴着帽子的水生魔理沙子油被推下岸落水：她先把自己的帽子摘下放到身旁的开阔水面上，帽子展开漂着，再游到帽檐、咬住爬进帽里坐好；在帽里不再算落水。泡水伤照常扣血，但不打断摘帽、游与爬',
+     '约 30 秒',
+     [yk('marisa', bank_dx(0), 0, 'c', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready())], late=[shoved('c')],
+     note='谁会这样做由能力数据 hat_boat 决定（只有水生魔理沙），还要戴着帽子、会攀爬。日志：[intent] start id=escape_water → [method] pick method=hat_boat → [action] start id=place_prop … prop=hat → [hat] placed … water=true → [action] start id=climb → [body] mount cause=climb → [intent] end result=DONE；其间没有 [action] end … why=hurt。身旁没有开阔水面时看 [method] 的 no_open_water_beside，转向岸边。',
+     reads=[('读子油', f'yukkuri status {sel("c")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
 pond('cargo', '帽内储粮', '帽内储粮',
-     '船主坐在水面的帽里。手持食物右击帽子放进一份，潜行右击一次最多八份：每份粮是立在帽腔里的小件实物（草料堆、食屑或油粮小袋），各占一块帽底，只在帽腔、不上帽檐，hat.draft 的吃水随之加深；超过四种，或帽底没有空位时拒绝：动作栏说明原因，船主鼓腮，帽子不晃。空手或拿非食物右击才摇晃，摇到翻覆时粮散成水面上可捡的物品',
+     '船主坐在水面的帽里，跨在帽口上方的帽檐高处。手持食物右击帽子放进一份，潜行右击一次最多八份：每份粮是立在帽腔里的小件实物（草料堆、食屑或油粮小袋，高约 0.06 格），各占一块帽底，只在帽腔、不上帽檐，可以放在船主身下的帽底（空帽载着船主约能放 8 份），hat.draft 的吃水随之加深；超过四种，或帽底没有空位时拒绝：动作栏说明原因，船主鼓腮，帽子不晃。空手或拿非食物右击才摇晃，摇到翻覆时粮散成水面上可捡的物品',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3))],
      give=['minecraft:apple 8', 'minecraft:bread 4', 'minecraft:carrot 4', 'minecraft:sweet_berries 4', 'minecraft:cookie 2'],
@@ -1697,7 +1704,7 @@ pond('cargo', '帽内储粮', '帽内储粮',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_crowd', '帽内挤动', '帽内挤动',
-     '帽腔四角已有四份粮，五只子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水（真实危险，WP5 前不会自救）',
+     '帽腔四角已有四份粮，五只子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水后按落水自救（戴着自己帽子的子油先把帽子放到水面再爬上去）；帽腔底的粮和船主不同高度，不互相挤',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_children((1, -1, 2, -2, 3)), afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, middle=True)],
      note='日志 [hat] squeeze（限频）记被挤动的个体与步长，[hat] squeezed off 与 [body] dismount cause=squeezed 记落水；读 hat.tilt 看挤动后的倾斜。也可再空手摇晃帽子看倾斜时谁让得多。',
@@ -1803,7 +1810,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'water_night': 'A6',
-    'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

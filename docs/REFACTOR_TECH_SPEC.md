@@ -191,7 +191,9 @@ public interface SurfaceHost {
     Entity entity();
     HostFrame frame();                              // 当前 tick 位姿
     OptionalDouble support(Vec3 local, double r);   // 帽面高度场，局部单位；无支撑返回 empty
-    boolean room(YukkuriEntity body, Vec3 local);   // 与其他乘员、储粮的脚圆不重叠
+    boolean room(YukkuriEntity body, Vec3 local);   // 与其他乘员、储粮的脚圆在同一高度不重叠（竖直范围相交才算）
+    boolean room(YukkuriEntity body, Vec3 local, double top); // 同上，身体的竖直范围至少延到 top（下落接触用）
+    boolean bears(YukkuriEntity body);              // 允许它站上来（乘坐）；不承载的身体只会擦边
     List<Vec3> rim();                               // 帽檐采样点，世界坐标，含倾斜，24 个
     Container container();                          // 帽腔内底
     Map<String, Vec3> spots();                      // 地名，只作目标
@@ -209,7 +211,7 @@ public record HostFrame(Vec3 origin, double unit, float yawRad, float rollDeg, f
 |---|---|
 | `frame()` | `origin=position()`、`unit=unit()`、`yawRad=turn()`、`roll`／`pitch`：陆地为 0，水上由 WP4 的漂浮行为提供 |
 | `support` | `HatGeometry.travelSupport(local.x, local.z, r/unit)`（原 `HatVessel` NEST 几何）；结果为 NaN 时返回 empty |
-| `room` | 脚圆半径 = `(0.5·bbWidth+0.02)/unit`（`Occupancy.foot`，即可见身体半宽加边距）；与其他乘员（及 WP4 起的储粮圆）的圆心距小于 `r1+r2-0.02` 即为重叠 |
+| `room` | 脚圆半径 = `(0.5·bbWidth+0.02)/unit`（`Occupancy.foot`，即可见身体半宽加边距）；与其他乘员（及 WP4 起的储粮圆）的圆心距小于 `r1+r2-0.02`，且竖直范围（乘员脚底到身顶，储粮约 0.06 格高；下落接触时向上延到本 tick 起点）相交，才为重叠（`geom/Disc`） |
 | `rim` | 对 24 个方向 θ，取 `HatVessel.extent(mode,0,0,cosθ,sinθ,0)` 处的帽檐顶点，经 `frame().toWorld` 变换 |
 | `riders` | 存在宿主上：NBT 键 `Riders`，同步槽 `RIDERS`（第 12 节） |
 
@@ -280,7 +282,7 @@ hopReach  = canJump ? 1.00·S·F : 0          （Q1：成体满体况 1.0 格）
 stepUp    = 0.6 · S                         （与原版 maxUpStep 对齐的起点值，展台定稿）
 walkSpeed = 0.10·S·F·L                      格/tick
 turnRate  = 12° · (0.6 + 0.4F)              每 tick
-swimSpeed = 0.055·S·F·L                     底座值；水生种由 AbilityModifier 修正（Q2）
+swimSpeed = 0.03·S·F·L                      底座值（很弱的挣扎前进，Q2）；水生种由 AbilityModifier 修正（×1.5）
 climbRise = 0.75·S·(.65 + .35F)
 grip      = F                               0..1，与倾角阈值比较（WP4）
 reach     = 嘴：沿用 ParentCarry.inReach 的现行距离；魔理沙辫梢：沿用 BraidRescueGeometry 的现行范围（WP5 合并）
@@ -291,7 +293,7 @@ canCarry(o) = ParentCarry.capacityProblem(self, o, …) == null   （沿用现�
 
 ### 8.2 数据与热重载
 
-- **文件**：`src/main/resources/data/mcyukkuri/body/ability.json`，格式为 `{ "coefficients": { "hop_height": 0.80, ... }, "modifiers": { "aquatic_marisa": { "swim_speed": 2.0 } } }`。
+- **文件**：`src/main/resources/data/mcyukkuri/body/ability.json`，格式为 `{ "coefficients": { "hop_height": 0.80, ... }, "modifiers": { "aquatic_marisa": { "swim_speed": 1.5, "hat_boat": 1 } } }`；修正器里不是系数的键是能力开关（`AbilityModifier.FLAGS`，如 `hat_boat`：能把戴着的帽子放到水面当船）。
 - **加载**：
   - 在 `CommonRegistration` 的 `AddReloadListenerEvent` 注册 `AbilityTable`（`SimpleJsonResourceReloadListener`）。
   - 加载时计算 8 位十六进制指纹，供 `[action]` 日志使用。
@@ -338,9 +340,9 @@ return Blocked(TOO_HIGH, 最小可行 c − hopHeight)      // 越不过障碍�
 每个空中 tick 在原版 move **之前**执行：
 
 1. **找候选宿主**：`seg = [feet, feet+v]`。在 `seg` 扩张 3 格的范围内，找 `steady()` 的宿主。
-2. **算交点**：对每个宿主，在局部坐标下求 `seg` 与 `support` 曲面的**向下**交点。若交点的足迹满足 `Occupancy` 为 `INSIDE_SUPPORTED`，且 `room` 为真，就是有效接触。
-3. **最近有效接触**：`Motor.move` 到接触点；`Motor.mount(host)`；`riders.put(local)`；速度清零；`Done`。
-4. **只碰到帽檐**（`seg` 穿过帽檐壁，帽面高度陡升处）：水平速度乘以 −0.3，竖直速度保留，记 `[body] rim_bounce`；本 tick 交给原版。接生帽 `canBeCollidedWith=false`，所以帽檐反弹只能在这里做。
+2. **算交点**：对每个宿主，在局部坐标下求 `seg` 与 `support` 曲面的**向下**交点。身体中心在帽上（`support(local, 0)` 有值）且宿主承载它（`bears`）时一律是接触，帽腔与帽檐都算，不会穿过帽面落到帽下。
+3. **最近接触**：交点处 `room`（含本 tick 下落经过的竖直范围）为真就落在交点；否则最多偏一次到周围最近的空处（半径不超过自身脚圆加帽上最大脚圆）；近处没有空处就落在交点，由挤动分开。然后 `Motor.move`；`Motor.mount(host)`；`riders.put(local)`；速度清零；`Done`；记 `[body] contact occupancy= room=`。落在帽檐上之后的去向是下一个动作：出生链由 `Gesture ROLL_IN` 滚进帽腔（沿途有空位）或从帽檐外侧滚落。
+4. **擦边与帽檐壁**（身体中心不在帽上、只有侧面碰到帽檐外缘，宿主不承载它，或从帽外在帽面以下进入）：朝帽心运动时水平速度乘以 −0.3，竖直速度保留，记 `[body] rim_bounce`；朝外运动不改速度；本 tick 交给原版。接生帽 `canBeCollidedWith=false`，所以帽檐反弹只能在这里做；已在帽面下的身体由宿主的接触段（地上为 `PlacedHatEntity.clearUnder`，水上为漂浮行为）推出。
 5. **其余情况**：交给原版。`onGround` 或入水后，由 `Attach.settle` 产生 `Free`，原因分别为 `landed` 或 `water`。
 
 - **溺水与摔伤**：都由各自规则根据实际结果触发（落地摔伤、`WaterIncidents`）。`ContactResolver` 不判后果。
@@ -414,7 +416,7 @@ public interface MotorOwner { String ownerId(); boolean active(); }  // Goal 包
   2. 调用 `tick`。
   3. 看门狗：`metric` 在 `progressWindow` 内下降不足 `progressEpsilon`，就以 `Blocked(NO_PROGRESS)` 结束。
   4. 得到 Outcome 时：`Attach.settle`，保存 `last`，记 `[action] end`。
-- **打断桥接**：`ComponentSpec` 中 MOTOR 的打断 FRIGHT、HURT、COMMAND、PET_LOCK、BURNING、DEATH。可中断动作立即 abort；不可中断的空中段继续由物理完成，落地后以 `Interrupted` 结束。
+- **打断桥接**：`ComponentSpec` 中 MOTOR 的打断 FRIGHT、HURT、COMMAND、PET_LOCK、BURNING、DEATH。可中断动作立即 abort；不可中断的空中段继续由物理完成，落地后以 `Interrupted` 结束。HURT 来自溺水／浸水伤害（`DamageTypes.DROWN`）时不打断任何动作（`BodyDriver.hurt`）：水中的游、爬、扶正、推、划与其间的等待正是对它的应对；真实攻击照常打断。
 - **存档**：不保存。读档后 `current=null`，依附由事实推导，所有者 Goal 重新决策。
 - **被动时钟禁止调用 `run`**：`YukkuriEntity.aiStep` 在调用 `super.aiStep()` 期间置位 `BodyDriver.DECIDING`（Goal 决策与 travel 都在其中），`run` 在标志未置位时一律拒绝并记 WARN。被动时钟、交互回调和命令只能改需求或数据，由 Goal 在下一次决策时发起动作。
 
@@ -426,7 +428,7 @@ public interface MotorOwner { String ownerId(); boolean active(); }  // Goal 包
 | **Face** | 目标朝向 | 无 | 每 tick 转动 ≤ `turnRate`，经 `Motor.face`；CONSUMED（不移动） | 角差 ≤ 3° → Done |
 | **Hop** | 落点 | `ArcSolver.lowest` | 蓄力 → 冲量 → PASS → `ContactResolver` | 接触 → Done；空中超过 `n+10` tick → 按实际位置 settle 后 Done |
 | **Launch** | 冲量（调用方预算内） | 冲量有限；`preview` 扫掠仅作日志 | 立即 `Motor.velocity`；PASS；`ContactResolver` | 同 Hop；不可中断 |
-| **Gesture** | `HOP_SMALL` / `SQUASH` / `ROLL_IN` / `LEAN` | `HOP_SMALL` 需要 `canJump`；`ROLL_IN` 位移 ≤ 0.3 格且朝向容器中心 | `HOP_SMALL`：竖直冲量满足顶点 ≤ min(0.25·S, hopHeight)。`ROLL_IN`：`Motor.move` 加碰撞。其余只改姿态 | 片段时长到 → Done |
+| **Gesture** | `HOP_SMALL` / `SQUASH` / `ROLL_IN` / `LEAN` | `HOP_SMALL` 需要 `canJump`；`ROLL_IN` 位移 ≤ 0.3 格且朝向容器中心 | `HOP_SMALL`：竖直冲量满足顶点 ≤ min(0.25·S, hopHeight)。`ROLL_IN`：`Motor.move` 加碰撞；在宿主帽檐上沿帽面写 `riders.put`：帽腔沿途有空位就滚进去，否则从帽檐外侧滚，脚下没有帽面时在该处 `Motor.dismount` 落下。其余只改姿态 | 片段时长到 → Done；滚进途中被占 → Done（blocked） |
 | **Hold** | 时长或条件 | 无 | 站稳；WP4 起检查坡度是否超过 `grip` | 条件满足 → Done；坡度超限 → `SLIPPED` |
 | **Await** | 条件、最长 tick、等待姿态 | 最长 tick 必须 > 0 | 不移动 | 条件满足 → Done；超时 → `Blocked(NO_PROGRESS)` |
 | **Grab** | 目标身体 | `canCarry`；目标不是 Airborne；目标未被他人 Held；嘴在 `reach` 内（`ContactGeometry.mouthGap ≤ reach`） | `LIFT_TICKS`（沿用 `ParentCarry`）的抬起姿态 → `Motor.mount(target, carrier)` | 成功 → Done；抬起期间目标移动 > 0.3 → `TARGET_MOVED`；挂载被拒 → `NO_CONTACT` |
