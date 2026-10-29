@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -11,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,7 +29,8 @@ import net.minecraft.world.phys.Vec3;
  * The food a floating hat holds (design 8.2, refactor WP4b). Every portion is one real item lying on its own floor circle in
  * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot at
  * its height may share its floor (a body standing higher over the hollow may stand over it), and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
- * and drawn from the hat's synced contents. Nothing eats from it yet (WP6).
+ * and drawn from the hat's synced contents. A body aboard takes a portion with its mouth ({@link #portion}, the shared Pick):
+ * to eat it, to feed it to a young, or to tip it overboard for room (refactor WP6b).
  */
 public final class HullLarder {
     private static final JsonObject DATA = HatGeometry.data().getAsJsonObject("afloat");
@@ -54,6 +59,49 @@ public final class HullLarder {
     private int changes, discChanges = -1;
 
     List<Portion> portions() { return portions; }
+
+    /** The hold of a hat afloat, or null. */
+    static HullLarder of(PlacedHatEntity hat) { return hat != null && hat.behavior() instanceof HullAfloat afloat ? afloat.larder() : null; }
+
+    boolean has(Predicate<ItemStack> wanted) { return portions.stream().anyMatch(p -> wanted.test(p.item())); }
+
+    /**
+     * A stored portion as the mouth's pick (Pick.Source): of those {@code wanted} accepts, the one nearest {@code from} (world),
+     * or with {@code cheapest} the one that feeds least (the first to go overboard); null when none is wanted. Its reach is the
+     * shared mouth rule against the portion's own floor circle; taking it frees its floor.
+     */
+    Pick.Source portion(PlacedHatEntity hat, Predicate<ItemStack> wanted, Vec3 from, boolean cheapest) {
+        Portion best = null;
+        double score = Double.MAX_VALUE;
+        for (var p : portions) {
+            if (!wanted.test(p.item())) continue;
+            double s = cheapest ? nutrition(p.item()) : hat.frame().toWorld(new Vec3(p.x(), p.y(), p.z())).distanceToSqr(from);
+            if (s < score) { score = s; best = p; }
+        }
+        if (best == null) return null;
+        var p = best;
+        return new Pick.Source() {
+            @Override public ItemStack item() { return portions.contains(p) ? p.item() : ItemStack.EMPTY; }
+            @Override public Vec3 at() { return hat.frame().toWorld(new Vec3(p.x(), p.y(), p.z())); }
+            @Override public double gap(YukkuriEntity body) {
+                var d = at().subtract(body.position());
+                return Math.abs(d.y) >= ContactGeometry.GRAB_HEIGHT ? Double.MAX_VALUE
+                        : Math.hypot(d.x, d.z) - body.getBbWidth() / 2 - RADIUS - ContactGeometry.GRAB_MARGIN;
+            }
+            @Override public void take() {
+                if (!portions.remove(p)) return;
+                dirty = true;
+                changes++;
+                GameplayLog.event(hat, "hat", "portion taken item={} portions={} load={}", p.item().getItem(), portions.size(), fmt(load()));
+            }
+        };
+    }
+
+    /** What a portion feeds (its food value; 0 when it has none). */
+    static int nutrition(ItemStack stack) {
+        var food = stack.get(DataComponents.FOOD);
+        return food == null ? 0 : food.nutrition();
+    }
     boolean empty() { return portions.isEmpty(); }
     double load() { return portions.size() * LOAD; }
 
@@ -106,6 +154,25 @@ public final class HullLarder {
                 }), true);
         return true;
     }
+
+    /** One portion a body aboard brings in (forage): the same floor and kinds rules as a click, the refusal logged with its reason. */
+    boolean keep(PlacedHatEntity hat, ItemStack one, YukkuriEntity by) {
+        String stop = hat.upsideDown() ? "upside_down" : newKind(one) && kinds() >= KINDS ? "kinds" : null;
+        var spot = stop == null ? spot(hat) : null;
+        if (stop == null && spot == null) stop = "no_room";
+        if (stop != null) {
+            GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={}", by.getUUID(), one.getItem(), stop, portions.size());
+            return false;
+        }
+        portions.add(new Portion(one.copyWithCount(1), spot.x, spot.y, spot.z));
+        dirty = true;
+        changes++;
+        GameplayLog.event(hat, "hat", "stored by={} item={} taken=1 portions={} kinds={} load={}", by.getUUID(), one.getItem(), portions.size(), kinds(), fmt(load()));
+        return true;
+    }
+
+    /** There is floor for one more portion. */
+    boolean room(PlacedHatEntity hat) { return !hat.upsideDown() && spot(hat) != null; }
 
     /** Turned over, taken back, beached or destroyed: every portion falls out where it lies as a real item, moving as the hull
      *  carried it there. */

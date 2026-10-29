@@ -1,10 +1,12 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
@@ -72,10 +74,18 @@ final class Ferry {
         return () -> { var at = Waters.ashore(body); return at == null ? null : act(new Hop(at)); };
     }
 
-    /** Aboard with the young in the mouth: face the hollow's middle, let the hat settle, put it down where it hangs (it drops in). */
+    /** Aboard with the young held: turn the hold (the mouth, or the braid side) to the hollow's middle, let the hat settle, put it
+     *  down where it hangs (it drops in). */
     static List<Supplier<Step>> releaseAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        return List.of(() -> act(new Face(SurfaceApproach.yaw(carrier.position(), hat.position()))),
+        return List.of(() -> act(new Face(ParentCarry.hold(carrier, child).reach() == ContactGeometry.Reach.BRAID
+                        ? ContactGeometry.braidYaw(carrier, hat) : SurfaceApproach.yaw(carrier.position(), hat.position()))),
                 () -> hat.steady() ? null : new Step.Wait(hat::steady, 60, "hat_settles"),
-                () -> act(new Release(child)));
+                () -> act(new Release(child)), landed(child));
+    }
+
+    /** After a let-go: until the released body has come down somewhere (a hat, the ground, the water), so the next step reads
+     *  where it is rather than where it falls through. */
+    static Supplier<Step> landed(YukkuriEntity child) {
+        return () -> new Step.Wait(() -> !child.isAlive() || child.isPassenger() || child.onGround() || child.isInWaterOrBubble(), 40, "landing");
     }
 }

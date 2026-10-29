@@ -102,6 +102,15 @@ public final class AquaticLife {
         return null;
     }
 
+    /** Its two parents while they are loaded and alive, near or far. */
+    static List<YukkuriEntity> parents(YukkuriEntity young) {
+        var out = new ArrayList<YukkuriEntity>(2);
+        if (!(young.level() instanceof ServerLevel level)) return out;
+        for (UUID id : new UUID[]{young.family().mother(), young.family().father()})
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity p && p.isAlive()) out.add(p);
+        return out;
+    }
+
     /** From dusk to the end of the night (vanilla's sleep window): the hours a hat moors. */
     static boolean dusk(Level level) {
         long t = Math.floorMod(level.getDayTime(), 24000L);
@@ -111,7 +120,11 @@ public final class AquaticLife {
     static boolean rain(YukkuriEntity y) { return y.level().isRainingAt(y.blockPosition().above()) || y.level().isThundering(); }
 
     /** The supported spot (hat units) inside the hollow nearest its middle where this body has room, or null. */
-    static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) {
+    static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) { return spot(hat, body, true, Vec3.ZERO); }
+
+    /** The supported spot (hat units) where this body has room nearest {@code near} (hat units): inside the hollow only, or
+     *  anywhere on the hat (the brim too); null when there is none. */
+    static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) {
         var grid = hat.walkGrid(body, true);
         double foot = Occupancy.foot(body.getBbWidth());
         Vec3 best = null;
@@ -120,11 +133,19 @@ public final class AquaticLife {
             var height = grid.supported(i, j) ? hat.support(local, foot) : null;
             if (height == null || height.isEmpty()) continue;
             var spot = new Vec3(local.x, height.getAsDouble(), local.z);
-            if (Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
+            if (inside && Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
                     || !hat.room(body, spot)) continue;
-            if (best == null || Math.hypot(spot.x, spot.z) < Math.hypot(best.x, best.z)) best = spot;
+            if (best == null || Math.hypot(spot.x - near.x, spot.z - near.z) < Math.hypot(best.x - near.x, best.z - near.z)) best = spot;
         }
         return best;
+    }
+
+    /** The hat this body rides while it floats upright (its own, or its parent's), or null. */
+    static PlacedHatEntity riding(YukkuriEntity y) { return y.getVehicle() instanceof PlacedHatEntity hat && afloat(hat) ? hat : null; }
+
+    /** The parent this young body was born to or claimed by: one of its two. */
+    static boolean parentOf(YukkuriEntity parent, YukkuriEntity young) {
+        return parent.getUUID().equals(young.family().mother()) || parent.getUUID().equals(young.family().father());
     }
 
     // ---------------------------------------------------------------- natural spawn (P0-1)

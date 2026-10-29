@@ -66,6 +66,12 @@ public final class Drive {
         return drives(body).stream().anyMatch(d -> d.failed(intentId));
     }
 
+    /** The intent {@code body}'s drive of {@code domain} runs now (between two of its actions too), or null; another body reads it. */
+    public static Intent running(YukkuriEntity body, String domain) {
+        for (var d : drives(body)) if (d.domain.equals(domain) && d.runner != null) return d.runner.intent();
+        return null;
+    }
+
     /** Evaluate on the next tick whatever the stagger (water entry, a hit, a fright, an ended intent). */
     public void urgent() { urgent = true; }
 

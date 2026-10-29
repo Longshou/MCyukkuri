@@ -182,6 +182,13 @@ public final class FamilyLife {
     /** Late-child gate for a personal nest; stem-born juveniles still start at age and nourishment zero. */
     public boolean readyForOwnNest() { return !awaitingLanding&&stage==Stage.JUVENILE&&age>=maturity/2&&nourishment>=maturity*3/8&&entity.childhood().canLearn(); }
     public ItemStack carrying() { return feeding.carrying(); }
+    /** Care food from elsewhere (a stored portion of her hat): held, saved and shown like the feeding's own (false: one is held). */
+    public boolean holdCareFood(ItemStack one) { return feeding.hold(one); }
+    /** The held care food chewed for {@code child} (mash when it needs mash); the chewing time is the caller's ({@link #CHEW_TICKS}). */
+    public void chewCareFood(YukkuriEntity child) { feeding.chew(child); }
+    /** The held care food into {@code child}'s meal; the caller has seen their mouths meet (FamilyFeedingContact). */
+    public boolean handCareFood(YukkuriEntity child) { return feeding.hand(child); }
+    public static final int CHEW_TICKS = FamilyFeeding.CHEW_TICKS;
     public int careChewTicks() { return feeding.chewTicks(); }
     /** Client-sync source: the child a land caregiver is currently approaching, or {@code -1}. */
     public int careTargetId() { return task == Task.FEED_CHILD && target != null ? target.getId() : -1; }
@@ -284,7 +291,7 @@ public final class FamilyLife {
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
     /** Danger, commands, operations, urgent needs and meals still come before any birth duty. */
     private boolean birthFree() {
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.isPassenger()
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||onHost())
                 &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
     }
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost. */
@@ -463,7 +470,7 @@ public final class FamilyLife {
         var running=entity.level().isClientSide?null:liveBirth();return running==null?0:.22f*running.recoveryLeft()/LiveBirthGeometry.RECOVERY;
     }
     public boolean readyForDelivery(){
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&supported()&&!entity.operations().active()&&!entity.dailyLife().active()
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&(supported()||onHost())&&!entity.operations().active()&&!entity.dailyLife().active()
                 &&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
                 &&entity.body().condition().readyForDelivery();
     }
@@ -774,6 +781,8 @@ public final class FamilyLife {
     }
     /** Birth duties that come before first-stool licking and mash feeding: a part in a running birth, or a hurt newborn to comfort. */
     public boolean birthDuty(){return inBirthBeat()||comfortTicks>0;}
+    /** Standing on a host (her own boat): its surface carries her as a floor does, for labour and the birth roles (never for courtship). */
+    private boolean onHost(){return Attach.of(entity) instanceof AttachState.OnHost;}
     boolean supported(){
         // A zero-displacement physics step can clear onGround for one tick while the sole still touches a block.
         return entity.onGround()||Math.abs(entity.getDeltaMovement().y)<.09

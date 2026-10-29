@@ -82,6 +82,12 @@ final class Waters {
         return new Vec3(p.getX() + .5, p.getY() + level.getFluidState(p).getHeight(level, p), p.getZ() + .5);
     }
 
+    /** The calm cell a floating body or point is in (just under it, or the one above), or null. */
+    static BlockPos cell(Level level, Vec3 at) {
+        var p = BlockPos.containing(at.x, at.y - .2, at.z);
+        return calm(level, p) ? p : calm(level, p.above()) ? p.above() : null;
+    }
+
     /** The calm cell a hat floats in (its origin rides at the surface), or null. */
     static BlockPos cell(PlacedHatEntity hat) {
         var p = BlockPos.containing(hat.getX(), hat.getY() - .2, hat.getZ());
@@ -277,6 +283,50 @@ final class Waters {
         for (int i = 0; i < sticks.size() && i < 3; i++) {
             var at = SurfaceApproach.floor(body, sticks.get(i).position());
             if (at != null && (!walk || SurfaceApproach.canApproach(body, at))) return sticks.get(i);
+        }
+        return null;
+    }
+
+    /**
+     * Food to fetch from the hat (AQUATIC 补给: 先寻找可达漂浮食物和岸缘食源): an item {@code body} would eat, afloat in calm water or
+     * lying at the edge of it, within {@code range} of the hat, whose water the hat can be paddled to; nearest first, or null.
+     */
+    static ItemEntity food(PlacedHatEntity hat, YukkuriEntity body, int range) {
+        var level = hat.level();
+        var from = cell(hat);
+        UUID id = kept(level, key(level, "food", from == null ? hat.blockPosition() : from, range), () -> {
+            var found = findFood(hat, body, range);
+            return found == null ? null : found.getUUID();
+        });
+        return id != null && level instanceof ServerLevel server && server.getEntity(id) instanceof ItemEntity item && item.isAlive()
+                && !item.getItem().isEmpty() ? item : null;
+    }
+
+    private static ItemEntity findFood(PlacedHatEntity hat, YukkuriEntity body, int range) {
+        var level = hat.level();
+        var from = cell(hat);
+        var items = level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range),
+                item -> item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD) && body.life().acceptsFood(item.getItem()));
+        items.sort(Comparator.comparingDouble(hat::distanceToSqr));
+        int asked = 0;
+        for (var item : items) {
+            var water = foodCell(level, item);
+            if (water == null) continue;
+            if (asked++ >= ASKED) break;
+            if (water.equals(from) || !route(hat, water).isEmpty()) return item;
+        }
+        return null;
+    }
+
+    /** The calm cell a food item floats in, or one beside the dry stand it lies on; null when it is nowhere near calm water. */
+    static BlockPos foodCell(Level level, ItemEntity item) {
+        var p = item.blockPosition();
+        if (calm(level, p)) return p;
+        if (calm(level, p.below())) return p.below();
+        for (var d : Direction.Plane.HORIZONTAL) {
+            var q = p.relative(d);
+            if (calm(level, q)) return q;
+            if (calm(level, q.below())) return q.below();
         }
         return null;
     }

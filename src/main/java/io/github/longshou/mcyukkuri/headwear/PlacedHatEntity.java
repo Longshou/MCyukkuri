@@ -49,6 +49,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -399,8 +400,37 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         }
         return null;
     }
-    /** The place this young would get next, without keeping it: the aim of its drawn launch. */
-    public Vec3 birthPlace(YukkuriEntity child) { return child == null ? null : nestSpace(footOf(child), tallOf(child)); }
+    /** How far ahead of the outlet (blocks, along the push) a birth into a boat aims its hollow place, so the drawn push carries
+     *  a newborn short of it, onto it, or past the brim (project design). */
+    public static final double BIRTH_LEAD = .2;
+    /** The place this young would get next, without keeping it: the aim of its drawn launch. A cradle fills from its middle; a
+     *  boat its mother rides takes it at the free hollow place nearest {@link #BIRTH_LEAD} ahead of where it comes out. */
+    public Vec3 birthPlace(YukkuriEntity child) {
+        if (child == null) return null;
+        if (catches()) return nestSpace(footOf(child), tallOf(child));
+        var near = toLocal(child.position().add(Vec3.directionFromRotation(0, child.getYRot()).multiply(1, 0, 1).normalize().scale(BIRTH_LEAD)));
+        return hollow(footOf(child), tallOf(child), child.getBbWidth()).stream()
+                .min(Comparator.comparingDouble(p -> Math.hypot(p.x - near.x, p.z - near.z))).orElse(null);
+    }
+    /** Every free supported place inside the hollow (world) for an unborn child of this size: where a birth into the boat its
+     *  mother rides may aim; asked for, never kept. */
+    public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
+        if (level().isClientSide) return List.of();
+        var size = LiveBirthGeometry.unbornDimensions(kind, child);
+        return hollow(Occupancy.foot(size.width()) / unit(), size.height() / unit(), size.width()).stream().map(this::toWorld).toList();
+    }
+    /** The free places (hat units) inside the hollow, INSIDE_SUPPORTED and clear at their height, a foot apart. */
+    private List<Vec3> hollow(double foot, double tall, double width) {
+        float[] o = HatGeometry.opening();
+        double step = Math.max(.5, foot);
+        var out = new ArrayList<Vec3>();
+        for (double x = o[0] + foot; x <= o[1] - foot; x += step)
+            for (double z = o[2] + foot; z <= o[3] - foot; z += step) {
+                var place = nestPlace(foot, tall, new Vec3(x, 0, z));
+                if (place != null && Occupancy.at(container(), frame().toWorld(place), width, true) == Occupancy.INSIDE_SUPPORTED) out.add(place);
+            }
+        return out;
+    }
     /** I2: the rider table's keys are this host's passengers. A mismatch is reported, never "fixed" by moving a body. */
     private void checkRiders(YukkuriEntity subject) {
         if (level().isClientSide) return;

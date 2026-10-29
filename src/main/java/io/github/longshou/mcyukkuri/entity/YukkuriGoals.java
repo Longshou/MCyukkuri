@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.WorldSignature;
@@ -333,16 +334,20 @@ final class YukkuriGoals {
     }
     /** In water the body works its way out through the EscapeWater intent; a run that ran out of ways before its deadline is not
      *  started again until the world changed (spec 11.2), one that reached its deadline is at once. Out of the water it holds still
-     *  for the breath. The edges whose climb failed are remembered here across runs. */
+     *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident (spec 11.3): opened
+     *  on its first tick in the water, so helpers near decide once each, and settled once the body is out (aboard, held, ashore). */
     private final class EscapeWaterGoal extends Goal {
         private final Map<BlockPos, Long> avoid = new HashMap<>();
         private IntentRunner runner;
         private WorldSignature ended;
+        private String incident;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
         @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath())
                 && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
+            if (incident == null && owner.isInWaterOrBubble()) incident = AskLedger.server().open(owner, "water",
+                    "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
             if (!owner.waterDistress().struggles()) { halt("water_pause"); owner.getNavigation().stop(); return; }
             if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
                 boolean outOfWays = runner.result() == IntentRunner.Result.EXHAUSTED && owner.level().getGameTime() <= runner.intent().deadline();
@@ -360,7 +365,13 @@ final class YukkuriGoals {
             return WorldSignature.of(at.at(), at.host(), at.blockers(), owner.level().getGameTime());
         }
         private void halt(String why) { if (runner != null) runner.stop(why); runner = null; }
-        @Override public void stop() { halt("escape_stop"); owner.directNavigation().stop(); }
+        @Override public void stop() {
+            halt("escape_stop");
+            owner.directNavigation().stop();
+            if (incident == null || owner.isInWaterOrBubble()) return;
+            AskLedger.server().settle(incident, owner.getVehicle() instanceof YukkuriEntity ? "held" : owner.isPassenger() ? "aboard" : "ashore");
+            incident = null;
+        }
     }
     private final class HouseExitGoal extends Goal {
         HouseExitGoal(){setFlags(EnumSet.of(Flag.MOVE));}

@@ -33,6 +33,8 @@ import net.neoforged.neoforge.event.EventHooks;
 /** Real parent food reservation, mouth preparation and handoff. The owner retains the goal state. */
 final class FamilyFeeding {
     private static final int RETRY_TICKS = 200, MAX_RETRIES = 64;
+    /** How long a parent chews a portion into mash (ticks). */
+    static final int CHEW_TICKS = 40;
     private final FamilyLife o;
     /** A single real portion survives interruption and reload. */
     private ItemStack carrying=ItemStack.EMPTY;
@@ -345,10 +347,7 @@ final class FamilyFeeding {
         }
         if(o.target().family().needsMash()&&!InfantFood.isMash(carrying)) {
             o.entity().getNavigation().stop();
-            if(++careChewTicks >= 40) {
-                carrying=InfantFood.mash(carrying,o.entity().getUUID());careOfferTicks=0;
-                GameplayLog.event(o.entity(),"family","feed mash prepared child={} item={}",o.target().getUUID(),carrying);
-            }
+            if(++careChewTicks >= CHEW_TICKS)chew(o.target());
             return;
         }
         var approach=o.entity().careApproach().tick(o.target(),CareApproach.Kind.FEED);
@@ -356,16 +355,32 @@ final class FamilyFeeding {
         if(approach==CareApproach.Result.CONTACT) {
             o.entity().getNavigation().stop();
             if(++careOfferTicks<FamilyFeedingContact.REQUIRED_CONTACT_TICKS)return;
-            boolean handed=o.target().family().needsMash() ? o.target().life().beginParentMeal(o.entity(),carrying) : o.target().life().beginMeal(carrying,o.entity().getUUID(),true);
-            if(handed) {
-                GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
-                        o.target().getUUID(),carrying,o.target().life().mealTicks(),o.target().life().nutrition());
-                o.careDecisions().complete(o.target(),CareDecisionLedger.Need.FEED);
-                carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;careFinishTicks=1;o.entity().showReaction("happy","share",80);
-            }
+            if(hand(o.target()))careFinishTicks=1;
             else endCare("meal_refused");return;
         }
         careOfferTicks=0;
+    }
+    /** A portion taken from somewhere else (a hat's hold) becomes the held care food; false while one is held already. */
+    boolean hold(ItemStack one) {
+        if(!carrying.isEmpty()||one.isEmpty())return false;
+        carrying=one.copyWithCount(1);careChewTicks=careOfferTicks=careCarryTicks=0;return true;
+    }
+    /** The held portion chewed for {@code child}: mash when it needs mash (the chewing only changes its form, spec CHILDHOOD). */
+    void chew(YukkuriEntity child) {
+        if(carrying.isEmpty()||!child.family().needsMash()||InfantFood.isMash(carrying))return;
+        carrying=InfantFood.mash(carrying,o.entity().getUUID());careOfferTicks=0;
+        GameplayLog.event(o.entity(),"family","feed mash prepared child={} item={}",child.getUUID(),carrying);
+    }
+    /** The held portion passes into {@code child}'s meal (mash to one that needs it); its care need is complete once taken. */
+    boolean hand(YukkuriEntity child) {
+        if(carrying.isEmpty())return false;
+        boolean handed=child.family().needsMash() ? child.life().beginParentMeal(o.entity(),carrying) : child.life().beginMeal(carrying,o.entity().getUUID(),true);
+        if(!handed)return false;
+        GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
+                child.getUUID(),carrying,child.life().mealTicks(),child.life().nutrition());
+        o.careDecisions().complete(child,CareDecisionLedger.Need.FEED);
+        carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=0;o.entity().showReaction("happy","share",80);
+        return true;
     }
     private void endCare(String reason) {
         GameplayLog.limited(o.entity(),"family","care.end."+reason,200,

@@ -84,6 +84,11 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private HullAfloat(PlacedHatEntity hat) { this.hat = hat; }
 
+    HullLarder larder() { return larder; }
+
+    /** The hull's mass with its riders and stores this tick (the draft's), for how heavy one hat sits against another. */
+    static double mass(PlacedHatEntity hat) { return hat != null && hat.behavior() instanceof HullAfloat afloat ? afloat.mass : 0; }
+
     private static double num(String key) { return DATA.get(key).getAsDouble(); }
 
     /** The registration entry calls this once: a hat whose hull reaches into water runs this behaviour, and keeps it until

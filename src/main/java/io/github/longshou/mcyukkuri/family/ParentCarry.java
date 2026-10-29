@@ -405,7 +405,8 @@ public final class ParentCarry {
         if (carrier.level() != child.level()) return "level";
         if (!carrier.family().adult() || child.family().adult()) return "stage";
         if (carrier.profile().houseBody() || carrier.profile().dangerToYukkuri()) return "carrier_kind";
-        if (carrier.isPassenger()) return "carrier_boarded";
+        // A carrier standing on a host (her own boat) holds as on the ground; one carried or riding anything else does not.
+        if (carrier.isPassenger() && !(carrier.getVehicle() instanceof SurfaceHost)) return "carrier_boarded";
         if (child.isVehicle()) return "child_carrying";
         // A body standing on a host (the placed catch hat) is lifted straight off it (spec 5.2 OnHost -> Held).
         if (child.isPassenger() && child.getVehicle() != carrier && !(child.getVehicle() instanceof SurfaceHost)) return "child_boarded";
@@ -754,7 +755,9 @@ public final class ParentCarry {
                 : carrier.isPanicking() ? "carrier_panic" : carrier.operations().active() ? "operation" : null;
         if (hard != null) { carrier.motor().interrupt(hard); return; }
         for (var child : all) {
-            String childHard = !child.isAlive() ? "died" : child.isInWaterOrBubble() ? "water" : child.operations().active() ? "operation" : null;
+            // In the water is where its hold is wet: one just lifted out of the water hangs at a dry seat.
+            String childHard = !child.isAlive() ? "died" : child.isInWaterOrBubble() && seat(carrier, child) == null ? "water"
+                    : child.operations().active() ? "operation" : null;
             if (childHard != null) child.motor().interrupt(childHard);
         }
         if (!ours.isEmpty() && (purpose == Purpose.RETRIEVE || purpose == Purpose.NEST_RIM)) carrier.family().beginCarry();
