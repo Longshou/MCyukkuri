@@ -17,9 +17,11 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
@@ -60,6 +62,27 @@ public final class Hop implements Action {
     }
 
     @Override public String id() { return ID; }
+
+    /** How many of the nearest free hollow spots {@link #onto} asks the arc solver about. */
+    private static final int ONTO_TRIES = 6;
+
+    /** The free spot in {@code host}'s hollow nearest the body that a hop lands on from here (world), or null: the host's walk
+     *  grid cells that are inside its container with room, nearest first, the first the arc solver accepts. */
+    public static Vec3 onto(YukkuriEntity body, SurfaceHost host) {
+        var grid = host.walkGrid(body, true);
+        var frame = host.frame();
+        double foot = Occupancy.FOOT * body.getBbWidth();
+        var spots = new ArrayList<Vec3>();
+        for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
+            var height = grid.supported(i, j) ? host.support(new Vec3(grid.centreX(i), 0, grid.centreZ(j)), foot) : null;
+            if (height == null || height.isEmpty()) continue;
+            var at = frame.toWorld(new Vec3(grid.centreX(i), height.getAsDouble(), grid.centreZ(j)));
+            if (Occupancy.at(host.container(), at, body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED) spots.add(at);
+        }
+        spots.sort(Comparator.comparingDouble(p -> p.distanceToSqr(body.position())));
+        for (int k = 0; k < spots.size() && k < ONTO_TRIES; k++) if (new Hop(spots.get(k)).check(body).ok()) return spots.get(k);
+        return null;
+    }
 
     /** Pure: solves the arc over the block and host sweep. The plan is kept for {@link #start}. */
     @Override public Feasibility check(YukkuriEntity body) {

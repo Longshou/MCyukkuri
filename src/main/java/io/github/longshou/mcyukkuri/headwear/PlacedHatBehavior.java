@@ -9,6 +9,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -74,11 +75,19 @@ public interface PlacedHatBehavior {
         String id();
         boolean applies(PlacedHatEntity hat, PlacedHatBehavior current);
         PlacedHatBehavior create(PlacedHatEntity hat);
+        /** A hat set down at {@code at} would be carried by this behaviour (a water surface for one that floats). */
+        default boolean carries(Level level, Vec3 at) { return false; }
     }
 
     List<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
 
     static void register(Provider provider) { PROVIDERS.add(provider); }
+
+    /** Some registered behaviour would carry a hat set down at {@code at} (HatProp's water placement asks this). */
+    static boolean carried(Level level, Vec3 at) {
+        for (var provider : PROVIDERS) if (provider.carries(level, at)) return true;
+        return false;
+    }
 
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */
     PlacedHatBehavior LAND = hat -> {

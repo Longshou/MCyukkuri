@@ -78,6 +78,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.FAMILY, new BirthGoal()));
         // Component goals retain the CareReceiver insertion point; EARLY factories may only retain the owner here.
         owner.registerComponentGoals(goalSelector, presentationGoals);
+        // Add-on domain goals (the aquatic life): registered by the registration entry, never named here.
+        DomainHooks.addGoals(owner, goalSelector, presentationGoals);
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.COMFORT_RECEIVER, new ComfortReceiverGoal()));
         goalSelector.addGoal(2, new PetLife.SessionGoal(owner));
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));

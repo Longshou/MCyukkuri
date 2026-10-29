@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.command;
 
+import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import net.minecraft.world.entity.MobSpawnType;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -220,7 +225,7 @@ final class ScenarioSetup {
      * young already sit there (a crowd the hat then squeezes apart). Kinship is written once every one sits aboard: a setup
      * that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards is physics.
      */
-    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle) {
+    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
             return "目标格 " + water.toShortString() + " 不是水面（要是水，且上方不是水）。";
@@ -236,6 +241,7 @@ final class ScenarioSetup {
             if (!hat.behavior().store(hat, stock, null) || stock.getCount() == food)
                 return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] refused），帽子已收回。");
         }
+        if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
         var riders = new ArrayList<YukkuriEntity>(young);
         var spots = new ArrayList<Vec3>();
         var taken = new ArrayList<Disc>(hat.behavior().obstacles(hat));
@@ -264,6 +270,26 @@ final class ScenarioSetup {
         for (var child : young) kin(owner, child, false);
         GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={}",
                 hat.getUUID(), water.toShortString(), aboard, young.size(), middle ? "middle" : "front", food);
+        return null;
+    }
+
+    /**
+     * {@code count} adult aquatic marisa join the world beside {@code at} (two blocks apart along z) the way a natural spawn places
+     * them: an ordinary creation, then the natural-spawn hook ({@code DomainHooks.spawned}, cause natural) before they are added,
+     * so one by calm water rides her own hat from her first tick and one with no water near stays ashore and logs why. The
+     * settlement discovery a vanilla natural spawn can also start is not part of it.
+     */
+    static String spawn(ServerLevel level, BlockPos at, int count) {
+        for (int i = 0; i < count; i++) {
+            var pos = at.offset(0, 0, 2 * i);
+            // vanilla's creation places and initialises it (as /summon does); the kind is set the way a settlement sets an aquatic family's
+            if (!(ModEntities.forVariant(YukkuriVariant.MARISA).create(level, null, pos, MobSpawnType.COMMAND, false, false) instanceof YukkuriEntity body))
+                return "实体没能创建。";
+            body.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
+            body.addTag("scn");
+            DomainHooks.spawned(body, "natural");
+            level.addFreshEntityWithPassengers(body);
+        }
         return null;
     }
 

@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.settlement.Rations;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
@@ -393,6 +394,8 @@ public enum StatusKey {
     BODY_METHOD("body", "method", 0, y -> IntentRunner.methodStatus(y), null),
     /** The switch budget of the current intent: used, left, and every counted reason with its shortfall. */
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
+    /** Every desire of the body's drives with its score and the facts it came from, the current intent and the failed ones. */
+    AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
     // ---- the set-down hat this body rides or has set down (refactor WP4a) ----------------------------------------
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */
     HAT_TILT("hat", "tilt", 0, y -> hat(y, h -> String.format(Locale.ROOT, "roll=%.1f pitch=%.1f upside_down=%s steady=%s",

@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
@@ -19,8 +20,9 @@ import net.minecraft.world.entity.Entity;
 /**
  * Take a prop back onto the body (spec 9.4 {@code TakeProp}): play the prop's own clip and make the one irreversible
  * transfer at the clip's {@code release} marker. Refuses {@code NO_ROOM} while riders remain, and {@code NO_CONTACT}
- * while the prop is outside the shared mouth reach ({@link ContactGeometry}), so a method can walk closer or clear the
- * prop first instead of retrying the same clip.
+ * while neither the mouth reaches the prop nor, for a prop one stands on (a hat), mouth or braid grips its nearest brim
+ * ({@link ContactGeometry}, spec 9.4 "嘴或辫在 reach 内"), so a method can walk closer or clear the prop first instead of
+ * retrying the same clip.
  */
 public final class TakeProp implements Action {
     public static final String ID = "take_prop";
@@ -41,7 +43,8 @@ public final class TakeProp implements Action {
         if (prop.riders()) return Feasibility.of(Reason.NO_ROOM, 0, "riders_aboard");
         Entity deployed = prop.entity();
         if (deployed == null) return Feasibility.of(Reason.TARGET_GONE, 0, "prop_gone");
-        if (!ContactGeometry.inMouthReach(body, deployed)) {
+        boolean brim = deployed instanceof SurfaceHost host && ContactGeometry.nearestRim(body, host).filter(rim -> ContactGeometry.canGrip(body, rim)).isPresent();
+        if (!brim && !ContactGeometry.inMouthReach(body, deployed)) {
             double gap = Math.max(0, ContactGeometry.mouthGap(body, deployed) - ContactGeometry.GRAB_MARGIN);
             return Feasibility.of(Reason.NO_CONTACT, gap, "prop_out_of_reach");
         }

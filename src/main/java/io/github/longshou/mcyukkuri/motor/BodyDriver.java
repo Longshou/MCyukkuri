@@ -116,9 +116,16 @@ public final class BodyDriver {
      */
     public TravelMode tickTravel(Vec3 input) {
         if (body.level().isClientSide) return TravelMode.PASS;
-        TravelMode mode = current == null ? TravelMode.PASS : drive();
+        TravelMode mode = current == null ? fall() : drive();
         if (mode == TravelMode.PASS && body.isAlive() && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
         return mode;
+    }
+
+    /** No action and falling free (put down over a hollow, stepped off a bank): it lands on a host it meets the way a flight does. */
+    private TravelMode fall() {
+        if (body.isAlive() && !body.isPassenger() && !body.onGround() && !body.isInWaterOrBubble() && body.getDeltaMovement().y < 0)
+            ContactResolver.resolve(body);
+        return TravelMode.PASS;
     }
 
     /** The water's lift ({@link Buoyancy#bodyLift}) for the share of the body's height under water over five columns of its box:

@@ -97,6 +97,8 @@ public final class HullAfloat implements PlacedHatBehavior {
                 return water >= low - (current instanceof HullAfloat ? LEAVE_MARGIN : 0);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
+            /** A calm open water surface (Waters.calm): a hat set down there floats. */
+            @Override public boolean carries(Level level, Vec3 at) { return Waters.calm(level, BlockPos.containing(at)); }
         });
     }
 
@@ -257,6 +259,7 @@ public final class HullAfloat implements PlacedHatBehavior {
             thrown.add(y.getUUID().toString());
         }
         larder.spill(hat, why, at -> carried(hat, at));
+        hat.dropKit(hat.position().add(0, HatGeometry.top() * hat.unit(), 0), carried(hat, hat.position()), "capsized");
         GameplayLog.event(hat, "hat", "capsized cause={} tilt={}/{} flood={}/{} ratio={} draft={} freeboard={} owner={} thrown={} riders={}",
                 why, fmt(roll), fmt(pitch), fmt(floodRoll), fmt(floodPitch), fmt(ratio), fmt(draft), fmt(freeboard),
                 hat.ownerYukkuri(), thrown.size(), thrown);

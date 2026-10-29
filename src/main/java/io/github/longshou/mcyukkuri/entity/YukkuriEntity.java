@@ -500,6 +500,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         subspecies.onNaturalSpawn(reason);
         if (reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) {
             EcologyRoutines.naturalSpawn(this);
+            DomainHooks.spawned(this, reason == MobSpawnType.NATURAL ? "natural" : "chunk_generation");
         }
         return result;
     }

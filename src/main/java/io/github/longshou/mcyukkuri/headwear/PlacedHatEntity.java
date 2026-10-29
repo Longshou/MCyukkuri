@@ -42,7 +42,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
@@ -111,6 +113,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      *  seat them here again. Transient: not saved, bounded by the riders and the cooldown. */
     private final Map<UUID, Integer> crowding = new HashMap<>();
     private final Map<UUID, Long> reseat = new HashMap<>();
+    /** The stick this hat keeps for its owner (HatCustody's kit while worn); one place at a time. */
+    private ItemStack kit = ItemStack.EMPTY;
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -288,7 +292,25 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean capsized() { return upsideDown(); }
     @Override public boolean right(YukkuriEntity by, double progress, String cause) { return behavior().right(this, by, progress, cause); }
     @Override public boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return behavior().thrust(this, by, drive, turn); }
-    @Override public boolean holds(Item item) { return behavior().holds(this, item); }
+    @Override public boolean holds(Item item) { return kit.is(item) || behavior().holds(this, item); }
+    /** The stick it keeps, or empty. */
+    public ItemStack kit() { return kit; }
+    /** Keeps one stick (picked up by its owner): true when it had none. */
+    public boolean stow(ItemStack one) {
+        if (!kit.isEmpty() || one.isEmpty() || level().isClientSide) return false;
+        kit = one.copyWithCount(1);
+        GameplayLog.event(this, "hat", "kit stowed item={} owner={}", kit.getItem(), ownerYukkuri());
+        return true;
+    }
+    /** Turned over or destroyed: the stick falls out where it lies, a real floating item. */
+    public void dropKit(Vec3 at, Vec3 v, String cause) {
+        if (kit.isEmpty() || level().isClientSide) return;
+        var drop = new ItemEntity(level(), at.x, at.y, at.z, kit);
+        drop.setDeltaMovement(v);
+        drop.setDefaultPickUpDelay();
+        kit = ItemStack.EMPTY;
+        GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned={}", cause, GameplayLog.at(at), level().addFreshEntity(drop));
+    }
     @Override public boolean isPushable() { return !isRemoved() && behavior().pushable(this); }
     /** No vanilla soft push: afloat the behaviour's own contact pass is the one place bodies and the hull are separated. */
     @Override public void push(Entity other) {}
@@ -411,15 +433,21 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         super.addPassenger(passenger);
         if (level().isClientSide || !(passenger instanceof YukkuriEntity y)) return;
         // The riders table is the only place a body has aboard (spec 5.1); a spot loaded from NBT is kept as saved.
-        if (!riders.contains(y.getUUID()))
+        // A spot already in the table is a rider read back from the save, not one that just boarded.
+        boolean boarded = !riders.contains(y.getUUID());
+        if (boarded)
             riders.put(y.getUUID(), snapped(frame().toLocal(y.position()), footOf(y) * unit()), Mth.wrapDegrees(y.getYRot() - getYRot()));
         checkRiders(y);
+        if (boarded) GameplayLog.event(this, "hat", "boarded rider={} own={} riders={} owner={}", y.getUUID(), y.getUUID().equals(ownerYukkuri()),
+                getPassengers().size(), ownerYukkuri());
     }
     @Override protected void removePassenger(Entity passenger) {
         super.removePassenger(passenger);
         if (level().isClientSide) return;
         riders.remove(passenger.getUUID());
         checkRiders(passenger instanceof YukkuriEntity y ? y : null);
+        if (!isRemoved() && !passenger.isRemoved()) GameplayLog.event(this, "hat", "left rider={} at={} riders={} owner={}", passenger.getUUID(),
+                GameplayLog.at(passenger.position()), getPassengers().size(), ownerYukkuri());
     }
 
     // ---------------------------------------------------------------- riders and the surface
@@ -480,6 +508,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return false;
         if (!getPassengers().isEmpty()) return false;
         if (!owner.life().returnAccessory(ownerYukkuri(), accessoryToken, null)) return false;
+        if (owner.life().custody().stow(kit)) kit = ItemStack.EMPTY;
         release("retrieved");
         state(State.RESCUED); return true;
     }
@@ -489,7 +518,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** Destroyed (killed or discarded, a taken-back hat included) it drops what it held; unloaded to its chunk it keeps it saved. */
     @Override public void remove(RemovalReason reason) {
-        if (!level().isClientSide && reason.shouldDestroy()) release("removed");
+        if (!level().isClientSide && reason.shouldDestroy()) { release("removed"); dropKit(position(), getDeltaMovement(), "removed"); }
         super.remove(reason);
     }
 
@@ -520,14 +549,17 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         hat.syncAccessoryIdentity(owner);
         hat.state(State.CRADLE);
         if (!level.addFreshEntity(hat)) return refusePlacement(owner, at, "entity_add_failed", "");
+        var kit = owner.life().custody().takeKit();
         hat.launchToken(owner.life().stowAccessory(hat.getUUID()));
         if (hat.launchToken() == null) {
             owner.life().returnAccessory(owner.getUUID(), null, null);
+            owner.life().custody().stow(kit);
             hat.discard();
             return refusePlacement(owner, at, "accessory_transfer_failed", "");
         }
-        GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} role={} water={}",
-                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), role, water);
+        hat.kit = kit;
+        GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} role={} water={} kit={}",
+                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), role, water, hat.kit.getItem());
         return hat;
     }
     private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
@@ -753,6 +785,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.putString("Role",role.name());
         tag.put("Riders",riders.save());
         tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
+        if(!kit.isEmpty())tag.put("Kit",kit.save(registryAccess()));
         // The behaviour it last floated with keeps its state (stores included) while it lies on the ground.
         if(lastProvider!=null){var motion=instances.get(lastProvider).save();motion.putString("Kind",lastProvider.id());tag.put("Motion",motion);}
         else if(savedMotion!=null)tag.put("Motion",savedMotion.copy());
@@ -766,6 +799,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
         pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
         rollO=roll();pitchO=pitch();
+        kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;
     }
 }

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.registry;
 
+import io.github.longshou.mcyukkuri.aquatic.AquaticLife;
 import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
 import io.github.longshou.mcyukkuri.command.PlaygroundTools;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
@@ -17,6 +18,7 @@ import io.github.longshou.mcyukkuri.house.HouseholdEcology;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.intent.Conductor;
+import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.motor.AbilityTable;
@@ -64,8 +66,9 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 /** Explicit common event wiring; callback order is declared here. */
 public final class CommonRegistration {
     public static void register(IEventBus modBus, Consumer<FMLCommonSetupEvent> commonSetup) {
-        // The aquatic add-on: a set-down hat in water floats (the base never names it).
+        // The aquatic add-on: a set-down hat in water floats, the aquatic life's goal and natural spawn (the base never names them).
         HullAfloat.register();
+        AquaticLife.register();
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, HumanWorld::attributes);
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, ModEntities::registerAttributes);
 
@@ -157,6 +160,9 @@ public final class CommonRegistration {
         // Ability data (spec 8.2): reload before any action reads it, and let /reload swap the numbers.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
                 event -> event.addListener(new AbilityTable()));
+        // Desire data (spec 11.4), the same way.
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
+                event -> event.addListener(new DriveWeights()));
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ChunkEvent.Load.class, ShelterIndexEvents::loaded);
 

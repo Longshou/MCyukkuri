@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import java.util.Random;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
@@ -95,10 +96,19 @@ public final class SubspeciesLife {
     public void onNaturalSpawn(MobSpawnType reason) {
         if (initialized || reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return;
         roll(null, null);
-        // The aquatic kind is not drawn by a natural spawn while the old aquatic life is offline: it remains a form that an
-        // aquatic parent passes on (birthFlags), and a keep-command or a saved individual keeps it.
+        // Marisa that appear by open water are often the aquatic kind [original rate]; where she joins the world (her hat afloat)
+        // is the add-on's natural-spawn hook (entity.DomainHooks).
+        if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()
+                && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
+            set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
                 congenital!=Congenital.NORMAL,kind));
+    }
+    private boolean nearOpenWater() {
+        var origin = entity.blockPosition();
+        for (var p : BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
+            if (entity.level().getFluidState(p).is(FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
+        return false;
     }
     private void roll(YukkuriEntity a, YukkuriEntity b) {
         if (initialized) return;

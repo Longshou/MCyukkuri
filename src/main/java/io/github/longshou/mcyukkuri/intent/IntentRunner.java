@@ -73,11 +73,15 @@ public final class IntentRunner implements MotorOwner {
     }
 
     /** Called from the Goal's {@code start()}; logs {@code [intent] start}. */
-    public void start() {
+    public void start() { start(""); }
+
+    /** As {@link #start()}, with what chose it on the same line (a drive's {@code source= top=}). */
+    public void start(String why) {
         if (active) return;
         active = true;
         result = Result.RUNNING;
-        GameplayLog.event(body, "intent", "start id={} deadline=+{}", intent.id(), intent.deadline() - now());
+        GameplayLog.event(body, "intent", "start id={} deadline=+{} commitment={} {}", intent.id(), intent.deadline() - now(),
+                intent.commitment(), why);
     }
 
     /** Called by the owning Goal once per decision tick, inside {@link BodyDriver#deciding()}. */

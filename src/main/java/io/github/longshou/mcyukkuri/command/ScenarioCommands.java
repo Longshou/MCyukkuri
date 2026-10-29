@@ -182,13 +182,27 @@ public final class ScenarioCommands {
                                         })))))
                 .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
                         .then(Commands.argument("water", BlockPosArgument.blockPos())
-                                .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false))
+                                .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false, false))
                                         .then(Commands.argument("crew", EntityArgument.entities())
-                                                .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), 0, false))
+                                                .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), 0, false, false))
                                                 .then(Commands.argument("food", IntegerArgumentType.integer(0, 64))
-                                                        .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), IntegerArgumentType.getInteger(c, "food"), false))
+                                                        .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), IntegerArgumentType.getInteger(c, "food"), false, false))
                                                         .then(Commands.literal("middle").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
-                                                                IntegerArgumentType.getInteger(c, "food"), true)))))))))
+                                                                IntegerArgumentType.getInteger(c, "food"), true, false)))
+                                                        .then(Commands.literal("stick").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
+                                                                IntegerArgumentType.getInteger(c, "food"), false, true)))))))))
+                .then(Commands.literal("spawn").then(Commands.argument("at", BlockPosArgument.blockPos())
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 8)).executes(c -> {
+                            var at = BlockPosArgument.getLoadedBlockPos(c, "at");
+                            String reason = ScenarioSetup.spawn(c.getSource().getLevel(), at, IntegerArgumentType.getInteger(c, "count"));
+                            if (reason != null) {
+                                tell(c.getSource().getLevel(), Vec3.atCenterOf(at), "[试玩场] 自然生成没有成功：" + reason, ChatFormatting.RED);
+                                return 0;
+                            }
+                            tell(c.getSource().getLevel(), Vec3.atCenterOf(at), "[试玩场] 水生魔理沙按自然生成的方式加入世界：水边的坐在自己放在水面的帽子上，没有水面的留在岸上（日志 [aquatic] spawn）。",
+                                    ChatFormatting.GOLD);
+                            return 1;
+                        }))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
@@ -203,17 +217,18 @@ public final class ScenarioCommands {
     }
 
     /** {@code scenario afloat}: the owner's real hat set down on water with {@code food} apples stored in it, the listed young and
-     *  the owner aboard (ScenarioSetup.afloat); {@code middle} seats the young in the middle of the hollow instead of the front. */
-    private static int afloat(CommandContext<CommandSourceStack> c, Collection<? extends Entity> crew, int food, boolean middle)
+     *  the owner aboard (ScenarioSetup.afloat); {@code middle} seats the young in the middle of the hollow instead of the front,
+     *  {@code stick} gives the hat one real stick to paddle with. */
+    private static int afloat(CommandContext<CommandSourceStack> c, Collection<? extends Entity> crew, int food, boolean middle, boolean stick)
             throws CommandSyntaxException {
         var owner = yukkuri(c, "owner");
         if (owner == null) return 0;
         var young = new ArrayList<YukkuriEntity>();
         for (var entity : crew) if (entity instanceof YukkuriEntity y && y != owner) young.add(y);
         String reason = ScenarioSetup.afloat(owner, BlockPosArgument.getLoadedBlockPos(c, "water"), BoolArgumentType.getBool(c, "aboard"), young,
-                food, middle);
+                food, middle, stick);
         if (reason != null) return refused(c.getSource(), owner, "帽子入水场景", reason);
-        tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (food > 0 ? "，帽里有粮" : "")
+        tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (food > 0 ? "，帽里有粮" : "") + (stick ? "，帽里有一根木棍" : "")
                 + (young.isEmpty() ? "" : "，幼体在帽里") + "；之后的漂浮、挤动、推动、摇晃与翻覆按普通物理发生。", ChatFormatting.GOLD);
         return 1;
     }

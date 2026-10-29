@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Where one individual's hat is: the single record of the hat's own token while it is on the head, the real entity it became when
@@ -17,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
  *  DEPLOYED        the hat is the real entity the owner set down; placed entity + token
  *  LOST            no longer in her custody; cause says why.
  * </pre>
+ * The worn hat also keeps her kit, the one stick tucked into it (project design: the paddle travels with the hat); set down,
+ * the placed hat carries it instead ({@link PlacedHatEntity#kit()}), so the stick has one place at a time.
  */
 public final class HatCustody {
     public enum State { WORN, DEPLOYED, LOST }
@@ -29,6 +32,7 @@ public final class HatCustody {
     /** Finite claims of the existing physical hat; rebuilt from custody after loading, never a second hat ledger. */
     private UUID reclaimHat, reclaimAssignee;
     private long reclaimLease, reclaimRetry;
+    private ItemStack kit = ItemStack.EMPTY;
 
     public HatCustody(YukkuriEntity owner) { this.owner = Objects.requireNonNull(owner, "Hat custody requires its entity owner"); }
 
@@ -44,6 +48,17 @@ public final class HatCustody {
     public UUID boat() { return custodied() ? boat : null; }
     public long since() { return since; }
     public String cause() { return cause; }
+    /** The stick the worn hat keeps, or empty. */
+    public ItemStack kit() { return kit; }
+    /** Tucks one stick into the worn hat: true when it is kept (worn, nothing kept yet). */
+    public boolean stow(ItemStack one) {
+        if (!worn() || !kit.isEmpty() || one.isEmpty()) return false;
+        kit = one.copyWithCount(1);
+        GameplayLog.event(owner, "headwear", "kit stowed item={} custody={}", kit.getItem(), state);
+        return true;
+    }
+    /** The kit leaves the worn hat (it goes with the hat being set down). */
+    public ItemStack takeKit() { var out = kit; kit = ItemStack.EMPTY; return out; }
     /** This owner and token name the hat that is off the head. */
     public boolean matches(UUID ownerId, UUID tokenId) { return !worn() && owner.getUUID().equals(ownerId) && token != null && token.equals(tokenId); }
     public String detail() { return "custody=" + state.name().toLowerCase(Locale.ROOT) + (cause.isEmpty() ? "" : "(" + cause + ")")
@@ -106,6 +121,7 @@ public final class HatCustody {
         if (boat != null) t.putUUID("Boat", boat);
         t.putLong("Since", since);
         if (!cause.isEmpty()) t.putString("Cause", cause);
+        if (!kit.isEmpty()) t.put("Kit", kit.save(owner.registryAccess()));
         tag.put("HatCustody", t);
     }
 
@@ -116,6 +132,7 @@ public final class HatCustody {
         boat = t.hasUUID("Boat") ? t.getUUID("Boat") : null;
         since = t.getLong("Since");
         cause = t.getString("Cause");
+        kit = ItemStack.parseOptional(owner.registryAccess(), t.getCompound("Kit"));
         if (wornFlag != worn()) state = wornFlag ? State.WORN : (custodiedFallback() ? State.DEPLOYED : State.LOST);
         reclaimHat = reclaimAssignee = null; reclaimLease = reclaimRetry = 0;
     }

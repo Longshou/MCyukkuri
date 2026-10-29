@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
@@ -66,10 +67,16 @@ public final class SettlementSpawner {
     public static List<YukkuriEntity> spawnAtSite(ServerLevel level, SettlementData.Site site, SettlementComposition composition, boolean forced) {
         var plaza = site.first(SiteSlot.Kind.PLAZA);
         if (plaza == null || !site.vacant()) return fail("the site has no plaza or is already occupied");
-        return spawn(level, plaza.anchor(), composition.leader() ? Preset.FOREST_LED : Preset.FOREST, null, site, composition, forced);
+        return seated(spawn(level, plaza.anchor(), composition.leader() ? Preset.FOREST_LED : Preset.FOREST, null, site, composition, forced), null);
     }
     private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed) {
-        return spawn(level, origin, preset, seed, null, null, false);
+        return seated(spawn(level, origin, preset, seed, null, null, false), seed);
+    }
+    /** A generated member joins the world by nature too: an add-on may seat it at home, parents before their young (the order of
+     *  the members); the seed already had its own natural spawn. */
+    private static List<YukkuriEntity> seated(List<YukkuriEntity> members, YukkuriEntity seed) {
+        for (var member : members) if (member != seed) DomainHooks.spawned(member, "settlement");
+        return members;
     }
     private static List<YukkuriEntity> spawn(ServerLevel level, BlockPos origin, Preset preset, YukkuriEntity seed,
                                              SettlementData.Site site, SettlementComposition fixed, boolean forced) {

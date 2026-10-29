@@ -19,12 +19,16 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class HatProp implements Prop {
     private final YukkuriEntity owner;
-    /** Placed by the owner before her own outlet (the self clips and role) rather than by a helper beside it. */
-    private final boolean self;
+    /** Placed by the owner before her own outlet (the self clips and role) rather than by a helper beside it; set down on a
+     *  water surface a hat behaviour carries (and taken back from the water) rather than on dry ground. */
+    private final boolean self, water;
 
-    public HatProp(YukkuriEntity owner, boolean self) {
+    public HatProp(YukkuriEntity owner, boolean self) { this(owner, self, false); }
+
+    public HatProp(YukkuriEntity owner, boolean self, boolean water) {
         this.owner = owner;
         this.self = self;
+        this.water = water;
     }
 
     /** A Marisa who wears her hat, or has it set down: the only bodies that catch with one (a kotatsu or a shell is no hat). */
@@ -46,8 +50,8 @@ public final class HatProp implements Prop {
 
     @Override public Entity entity() { return PlacedHatEntity.find(owner); }
 
-    /** A dry spot on a sturdy floor, checked again at the release marker: a catch never sets the hat on water, though
-     *  {@link PlacedHatEntity#setDown} would let it float there. */
+    /** A dry spot on a sturdy floor, checked again at the release marker (a catch never sets the hat on water); in water mode
+     *  a surface some hat behaviour carries ({@link PlacedHatBehavior#carried}). */
     @Override public Feasibility fits(Vec3 at, float yaw) {
         if (owner.getVariant() != YukkuriVariant.MARISA) return Feasibility.of(Reason.NO_TOOL, 0, "not_marisa");
         if (owner.isPassenger()) return Feasibility.of(Reason.NO_ROOM, 0, "passenger");
@@ -55,6 +59,7 @@ public final class HatProp implements Prop {
         var level = owner.level();
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot)) return Feasibility.of(Reason.NO_ROOM, 0, "chunk_unloaded");
+        if (water) return PlacedHatBehavior.carried(level, at) ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_carried_water");
         if (!level.getFluidState(spot).isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "spot_in_fluid");
         if (!level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
             return Feasibility.of(Reason.NO_ROOM, 0, "no_sturdy_floor");
@@ -68,6 +73,7 @@ public final class HatProp implements Prop {
     @Override public boolean takeBack() { return entity() instanceof PlacedHatEntity hat && hat.retrieve(owner); }
 
     @Override public String clip(boolean on) {
+        if (water) return on ? self ? Behaviors.HAT_ON_SELF_AQ : Behaviors.HAT_ON_AQ : self ? Behaviors.HAT_OFF_SELF_AQ : Behaviors.HAT_OFF_AQ;
         if (on) return self ? Behaviors.HAT_ON_SELF : Behaviors.HAT_ON;
         return self ? Behaviors.HAT_OFF_SELF : Behaviors.HAT_OFF;
     }
