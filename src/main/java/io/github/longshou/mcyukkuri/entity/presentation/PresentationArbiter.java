@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Action
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -170,8 +171,12 @@ public final class PresentationArbiter {
             if (presentPredatorFlight(state)) { state.expression("teary"); return; }
             String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
             state.behavior(distress);
-            state.animation(EcologyPresentation.action(distress));
-            state.animationStart(e.waterDistressStartTick());
+            // A water action that plays its own authored clip (righting biting the brim, setting the hat down) shows it, from its phase.
+            var action = e.motor().current();
+            var pose = action == null ? MotionPose.NONE : action.pose();
+            var own = YukkuriAction.byId(pose.clip()).orElse(null);
+            state.animation(own != null ? own : EcologyPresentation.action(distress));
+            state.animationStart(own != null ? pose.startTick() : e.waterDistressStartTick());
             state.expression(e.waterDistress().phase() == WaterDistress.Phase.IMPACT ? "cry" : "teary");
             return;
         });

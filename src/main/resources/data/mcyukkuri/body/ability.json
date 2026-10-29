@@ -6,7 +6,7 @@
     "walk_speed": 0.10,
     "turn_rate": 12.0,
     "turn_floor": 0.60,
-    "swim_speed": 0.055,
+    "swim_speed": 0.03,
     "climb_rise": 0.75,
     "climb_floor": 0.65,
     "energy_ref": 80.0,
@@ -20,7 +20,8 @@
   },
   "modifiers": {
     "aquatic_marisa": {
-      "swim_speed": 2.0
+      "swim_speed": 1.5,
+      "hat_boat": 1
     }
   }
 }

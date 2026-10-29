@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -33,6 +34,7 @@ public final class Right implements Action {
     private final String cause;
     private double progress, step, reach;
     private int t, pushStart, pushEnd, length;
+    private long startTick;
 
     public Right(SurfaceHost host, String cause) { this.host = host; this.cause = cause; }
 
@@ -53,7 +55,11 @@ public final class Right implements Action {
         length = clip.length();
         pushStart = clip.ticks("push_start", 14);
         pushEnd = clip.ticks("push_end", 24);
+        startTick = body.level().getGameTime();
     }
+
+    /** The righting clip (bite the brim, flip, push), started again with every push cycle so it stays on the push windows. */
+    @Override public MotionPose pose() { return new MotionPose(CLIP, startTick + (long) t / Math.max(1, length) * length, false); }
 
     @Override public Progress tick(YukkuriEntity body) {
         if (host.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");

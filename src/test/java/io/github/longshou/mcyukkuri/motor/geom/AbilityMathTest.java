@@ -35,7 +35,7 @@ class AbilityMathTest {
         assertEquals(.60, v.stepUp(), EPS);
         assertEquals(.10, v.walkSpeed(), EPS);
         assertEquals(12, v.turnRate(), EPS);
-        assertEquals(.055, v.swimSpeed(), EPS);
+        assertEquals(.03, v.swimSpeed(), EPS);
         assertEquals(.75, v.climbRise(), EPS);
         assertEquals(1, v.grip(), EPS);
     }
@@ -94,7 +94,7 @@ class AbilityMathTest {
         var free = adult(AbilityMath.Inputs.ADULT);
         assertEquals(.5, loaded.load(), EPS);
         assertEquals(.05, loaded.walkSpeed(), EPS);
-        assertEquals(.0275, loaded.swimSpeed(), EPS);
+        assertEquals(.015, loaded.swimSpeed(), EPS);
         assertEquals(free.hopHeight(), loaded.hopHeight(), EPS);
         assertEquals(free.hopReach(), loaded.hopReach(), EPS);
         assertEquals(free.stepUp(), loaded.stepUp(), EPS);
@@ -104,10 +104,12 @@ class AbilityMathTest {
 
     @Test void speciesMultipliersApplyPerCoefficient() {
         var aquatic = AbilityMath.compute(AbilityMath.Inputs.ADULT, C,
-                new AbilityMath.Multipliers(Map.of("swim_speed", 2.0)));
-        assertEquals(.11, aquatic.swimSpeed(), EPS);
+                new AbilityMath.Multipliers(Map.of("swim_speed", 1.5, "hat_boat", 1.0)));
+        assertEquals(.045, aquatic.swimSpeed(), EPS);
         assertEquals(.10, aquatic.walkSpeed(), EPS);
         assertEquals(.80, aquatic.hopHeight(), EPS);
+        assertTrue(new AbilityMath.Multipliers(Map.of("hat_boat", 1.0)).flag("hat_boat"), "a species flag is on when authored above 0");
+        assertFalse(AbilityMath.Multipliers.IDENTITY.flag("hat_boat"), "and off where the data authors none");
         assertEquals(.75, aquatic.climbRise(), EPS);
 
         var climber = AbilityMath.compute(AbilityMath.Inputs.ADULT, C,

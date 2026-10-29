@@ -25,7 +25,7 @@ public final class AbilityMath {
                                double energyRef, double minJumpEnergy, double painWeight, double burnPenalty,
                                double loadRef, double sizeMin, double sizeMax, double fitnessFloor) {
         /** The Q1 numbers of spec 8.1; also the fallback when {@code body/ability.json} is missing or broken. */
-        public static final Coefficients DEFAULTS = new Coefficients(.80, 1.00, .6, .10, 12, .6, .055, .75, .65,
+        public static final Coefficients DEFAULTS = new Coefficients(.80, 1.00, .6, .10, 12, .6, .03, .75, .65,
                 80, 8, .18, .3, 12, .06, 1.5, .35);
 
         /** The named view a data file or readout needs; insertion order is the spec's order. */
@@ -52,7 +52,8 @@ public final class AbilityMath {
         }
     }
 
-    /** Per-coefficient factors (spec 8.2 modifiers): a species doubles {@code swim_speed} by putting 2.0 here. */
+    /** Per-coefficient factors (spec 8.2 modifiers): a species swims half again as fast by putting {@code swim_speed} 1.5 here;
+     *  a key that is no coefficient is a capability {@link #flag}. */
     public record Multipliers(Map<String, Double> factors) {
         /** No species modifier: every coefficient is used as the data file gives it. */
         public static final Multipliers IDENTITY = new Multipliers(Map.of());
@@ -60,6 +61,9 @@ public final class AbilityMath {
         public Multipliers { factors = Map.copyOf(factors); }
 
         public double factor(String key) { return factors.getOrDefault(key, 1.0); }
+
+        /** A species capability the data switches on (authored above 0), off where it authors none: {@code hat_boat}. */
+        public boolean flag(String key) { return factors.getOrDefault(key, 0.0) > 0; }
 
         public boolean identity() { return factors.isEmpty(); }
 

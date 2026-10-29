@@ -1,16 +1,23 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatProp;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.motor.AbilityModifier;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
+import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import java.util.ArrayList;
@@ -24,11 +31,13 @@ import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Out of the water by one's own means (refactor WP5, design 8.3), the ways in order: its own hat floating upright in reach (swim
- * to the brim, climb in); its own hat lying capsized (swim, right it, let it settle, climb in); the nearest bank edge it can climb
+ * to the brim, climb in); its own hat lying capsized (swim, right it, let it settle, climb in); its own hat still worn, for a
+ * species that uses its hat as a boat (set it down on the open water beside it, climb in); the nearest bank edge it can climb
  * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
@@ -79,6 +88,7 @@ public final class EscapeWater implements Intent {
     @Override public List<Method> methods() {
         remember();
         var hat = PlacedHatEntity.find(body);
+        Vec3 boat = boatSpot();
         Edge bank = climbable();
         BlockPos near = nearest();
         Step toRim = new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
@@ -90,6 +100,13 @@ public final class EscapeWater implements Intent {
                     case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
                     case 3 -> new Step.Do(Climb.onto(hat));
                     default -> null;
+                }),
+                new Way("hat_boat", boat == null ? boatRefusal() : Feasibility.pass(), AT_HAT, i -> {
+                    var placed = i == 0 ? null : PlacedHatEntity.find(body);
+                    return i == 0 ? new Step.Do(new PlaceProp(new Afloat(body), boat, body.getYRot()))
+                            : placed == null ? null
+                            : i == 1 ? new Step.Do(Swim.to(() -> placed.isRemoved() ? null : ContactGeometry.nearestRim(body, placed).orElse(null), HAT_SWIM))
+                            : i == 2 ? new Step.Do(Climb.onto(placed)) : null;
                 }),
                 new Way("bank", bank == null ? Feasibility.of(Reason.TOO_HIGH, 0, "no_climbable_edge") : Feasibility.pass(), AT_BANK, i -> switch (i) {
                     case 0 -> { tried.add(bank.stand()); yield new Step.Do(Swim.to(bank::front, 0)); }
@@ -129,7 +146,8 @@ public final class EscapeWater implements Intent {
 
     /** A press gives way when a way not tried in this run has opened: its own hat in reach, or another climbable edge. */
     private boolean better(PlacedHatEntity hat) {
-        if (!tried.contains("own_hat") && hat(hat, false).ok() || !tried.contains("right_own_hat") && hat(hat, true).ok()) return true;
+        if (!tried.contains("own_hat") && hat(hat, false).ok() || !tried.contains("right_own_hat") && hat(hat, true).ok()
+                || !tried.contains("hat_boat") && boatSpot() != null) return true;
         Edge edge = climbable();
         return edge != null && !tried.contains(edge.stand());
     }
@@ -149,6 +167,60 @@ public final class EscapeWater implements Intent {
         if (hat == null || hat.isRemoved() || hat.capsized() != capsized) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_hat");
         double far = hat.distanceTo(body) - HAT_RANGE;
         return far > 0 ? Feasibility.of(Reason.TOO_FAR, far, "hat_far") : Feasibility.pass();
+    }
+
+    /** Where its worn hat would lie on the open water beside it, set down to climb aboard, or null: a species that uses its hat
+     *  as a boat (the {@code hat_boat} ability), the hat worn, able to climb; the spot as far out as the hat reaches, so they do
+     *  not overlap, in front of it first and then round it. */
+    private Vec3 boatSpot() {
+        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.life().custody().worn() || BodyAbility.of(body).climbRise() <= 0)
+            return null;
+        float[] brim = HatGeometry.brim();
+        double apart = body.getBbWidth() / 2 + Math.max(brim[0], brim[1]) * HatScale.of(body) / 16 + CLEAR;
+        var hat = new Afloat(body);
+        for (int i = 0; i < 8; i++) {
+            double yaw = Math.toRadians(body.getYRot() + i * 45);
+            double x = body.getX() - Math.sin(yaw) * apart, z = body.getZ() + Math.cos(yaw) * apart;
+            for (int dy : new int[]{0, 1, -1}) {
+                var at = new Vec3(x, body.getBlockY() + dy + .5, z);
+                if (hat.fits(at, body.getYRot()).ok()) return at;
+            }
+        }
+        return null;
+    }
+
+    /** Why its worn hat is no boat here, in the order {@link #boatSpot} asks. */
+    private Feasibility boatRefusal() {
+        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT)) return Feasibility.of(Reason.NO_TOOL, 0, "no_hat_boat");
+        if (!body.life().custody().worn()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
+        if (BodyAbility.of(body).climbRise() <= 0) return Feasibility.of(Reason.TOO_HIGH, 0, "cannot_climb");
+        return Feasibility.of(Reason.NO_ROOM, 0, "no_open_water_beside");
+    }
+
+    /** Its own worn hat set down on the open water beside it, where {@link PlacedHatEntity#setDown} floats it: the hat prop in
+     *  every read and in the transfer, its stand an open water surface, the aquatic set-down clip. */
+    private record Afloat(YukkuriEntity owner, HatProp hat) implements Prop {
+        Afloat(YukkuriEntity owner) { this(owner, new HatProp(owner, false)); }
+        @Override public String id() { return hat.id(); }
+        @Override public boolean worn() { return hat.worn(); }
+        @Override public boolean deployed() { return hat.deployed(); }
+        @Override public boolean riders() { return hat.riders(); }
+        @Override public boolean empty() { return hat.empty(); }
+        @Override public Entity entity() { return hat.entity(); }
+        @Override public Feasibility fits(Vec3 at, float yaw) {
+            if (!worn() || deployed()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
+            if (owner.isPassenger()) return Feasibility.of(Reason.NO_ROOM, 0, "passenger");
+            var level = owner.level();
+            var spot = BlockPos.containing(at);
+            if (!level.hasChunkAt(spot)) return Feasibility.of(Reason.NO_ROOM, 0, "chunk_unloaded");
+            if (!level.getFluidState(spot).is(FluidTags.WATER) || !level.getFluidState(spot.above()).isEmpty()
+                    || !level.getBlockState(spot.above()).getCollisionShape(level, spot.above()).isEmpty())
+                return Feasibility.of(Reason.NO_SUPPORT, 0, "not_open_water " + spot.toShortString());
+            return Feasibility.pass();
+        }
+        @Override public Entity setDown(Vec3 at, float yaw) { return hat.setDown(at, yaw); }
+        @Override public boolean takeBack() { return hat.takeBack(); }
+        @Override public String clip(boolean on) { return on ? Behaviors.HAT_ON_SELF_AQ : Behaviors.HAT_OFF_SELF_AQ; }
     }
 
     /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */

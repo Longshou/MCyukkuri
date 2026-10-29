@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -192,6 +194,20 @@ public final class BodyDriver {
         }
         interrupted = true;
         interruptedWhy = why == null ? "interrupted" : why;
+    }
+
+    /**
+     * The HURT bridge: the water's own damage (drowning, the immersion damage every body takes in water) is what the body in the
+     * water is already answering, so it stops nothing it does there (Swim, Climb, Right, Push, Paddle and the waits between
+     * them); a real hit interrupts as {@link #interrupt}.
+     */
+    public void hurt(DamageSource source) {
+        if (source != null && source.is(DamageTypes.DROWN)) {
+            if (current != null) GameplayLog.limited(body, "action", "kept_through_water", REFUSED_WINDOW,
+                    "kept id={} owner={} through damage={}", current.id(), owner.ownerId(), source.getMsgId());
+            return;
+        }
+        interrupt("hurt");
     }
 
     /** {@code body.action} status: the current id and the owner, or idle. */

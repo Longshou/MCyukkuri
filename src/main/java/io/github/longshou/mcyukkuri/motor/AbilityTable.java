@@ -94,7 +94,10 @@ public final class AbilityTable extends SimpleJsonResourceReloadListener {
                 if (!entry.getValue().isJsonObject()) throw new IllegalArgumentException("modifiers." + entry.getKey());
                 var factors = new TreeMap<String, Double>();
                 for (var factor : GsonHelper.convertToJsonObject(entry.getValue(), entry.getKey()).entrySet()) {
-                    if (!known.contains(factor.getKey())) { unknown.add(entry.getKey() + "." + factor.getKey()); continue; }
+                    if (!known.contains(factor.getKey()) && !AbilityModifier.FLAGS.contains(factor.getKey())) {
+                        unknown.add(entry.getKey() + "." + factor.getKey());
+                        continue;
+                    }
                     factors.put(factor.getKey(), GsonHelper.convertToDouble(factor.getValue(), factor.getKey()));
                 }
                 modifiers.put(entry.getKey(), new AbilityMath.Multipliers(factors));
