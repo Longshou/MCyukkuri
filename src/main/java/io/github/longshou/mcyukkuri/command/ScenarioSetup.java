@@ -215,9 +215,9 @@ final class ScenarioSetup {
 
     /**
      * The owner's real hat set down on the surface of {@code water} through the one placement path, the owner aboard when asked
-     * and every young (made her kin when it is not yet) on its own free supported spot nearest the hat's front. Every spot is
-     * found before anything else is written: a hat that cannot take them all is taken back with the reason and no kin is
-     * written. The floating, pushes and any capsize afterwards are physics.
+     * and every young on its own free supported spot nearest the hat's front, made her kin once every one sits aboard. Every
+     * spot is found first and kinship is written last: a setup that fails takes the hat back with the reason and leaves
+     * nothing half built. The floating, pushes and any capsize afterwards are physics.
      */
     static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
@@ -242,16 +242,16 @@ final class ScenarioSetup {
             spots.add(spot);
             taken.add(new Disc(spot.x, spot.z, foot));
         }
-        for (var child : young) kin(owner, child, false);
         for (int i = 0; i < riders.size(); i++) {
             var body = riders.get(i);
             if (!Motor.mount(body, hat, "scenario_afloat")) {
                 for (var aboardNow : List.copyOf(hat.getPassengers()))
                     if (aboardNow instanceof YukkuriEntity y) Motor.dismount(y, y.position(), Vec3.ZERO, "scenario_undo");
-                return takeBack(owner, hat, body.getName().getString() + " 没能坐上帽子，帽子已收回（亲缘已建立）。");
+                return takeBack(owner, hat, body.getName().getString() + " 没能坐上帽子，帽子已收回。");
             }
             hat.riders().put(body.getUUID(), spots.get(i), 0);
         }
+        for (var child : young) kin(owner, child, false);
         GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={}",
                 hat.getUUID(), water.toShortString(), aboard, young.size());
         return null;

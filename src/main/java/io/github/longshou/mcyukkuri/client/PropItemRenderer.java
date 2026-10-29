@@ -49,8 +49,10 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(!gui&&(stack.getItem() instanceof ShelterItem||stack.getItem() instanceof PlayItem))scale=12/Math.max(1,PropModels.extent(name));
         if(!gui&&(stack.getItem() instanceof AccessoryItem||name.equals("yukkuri_waste"))){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):
-                    stack.is(ModItems.AQUATIC_MARISA_HAT.get())?HatScale.factor(SubspeciesLife.Kind.AQUATIC_MARISA):1;
+            float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;
+            // A held or dropped hat is drawn at the one hat size of its kind (HatScale), like the worn and set-down hat.
+            if(stack.getItem() instanceof AccessoryItem)
+                size=HatScale.of(size,(stack.is(ModItems.AQUATIC_MARISA_HAT.get())?SubspeciesLife.Kind.AQUATIC_MARISA:SubspeciesLife.Kind.NORMAL).ordinal());
             if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);

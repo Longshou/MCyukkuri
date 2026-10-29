@@ -7,10 +7,9 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * One size for a Marisa's hat in every form, worn, held, set down or capsized (design Q3, decision R6): her growth, times
- * the hat's own fit (a hat smaller than its head grows while worn, drawn no smaller than its seat allows: Headwear, HatSeat),
- * times the factor of her kind in hat_vessel.json {@code scale} (aquatic_marisa 1.4, every other kind 1). It reads only
- * synced facts (kind flags, growth, the visible headwear), so the hat drawn on the client and the hat entity agree.
+ * One size for a Marisa's hat in every form, worn, held, set down or capsized (design Q3, decision R6): her growth times the
+ * factor of her kind in hat_vessel.json {@code scale} (aquatic_marisa 1.4, every other kind 1), the multiplier the aquatic
+ * hat always had. It reads only synced facts (kind flags, growth), so the hat drawn on the client and the hat entity agree.
  */
 public final class HatScale {
     private static final Map<SubspeciesLife.Kind, Float> FACTORS = read();
@@ -37,8 +36,8 @@ public final class HatScale {
     }
 
     /** The hat's size relative to the worn standard of a full-grown ordinary Marisa. */
-    public static float of(YukkuriView owner) {
-        float fit = HatSeat.fit(owner.assetId(), Headwear.visualFit(owner.visibleHeadwear()));
-        return owner.growthScale() * fit * factor(owner.subspeciesFlags());
-    }
+    public static float of(YukkuriView owner) { return of(owner.growthScale(), owner.subspeciesFlags()); }
+
+    /** The same for a hat away from its owner (an item): the size it was taken at and the kind it belongs to. */
+    public static float of(float growth, int subspeciesFlags) { return growth * factor(subspeciesFlags); }
 }

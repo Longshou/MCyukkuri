@@ -38,7 +38,7 @@ public final class HullWaterMask {
             if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved() || hat.upsideDown()
                     || hat.state() == PlacedHatEntity.State.RESCUED || hat.distanceToSqr(camera) > RANGE * RANGE) continue;
             var at = hat.getPosition(partial);
-            double water = HullAfloat.surface(level, at);
+            double water = HullAfloat.surface(level, at.x, at.y - .5, at.z);
             if (!Double.isFinite(water) || water <= at.y) continue;  // its hollow is not below the waterline
             if (mask == null) { buffers.endBatch(); mask = buffers.getBuffer(RenderType.waterMask()); }
             var frame = new Matrix4f().rotationY((180 - Mth.rotLerp(partial, hat.previousYaw(), hat.getYRot())) * Mth.DEG_TO_RAD)

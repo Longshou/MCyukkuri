@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -38,8 +39,9 @@ public final class HullAfloat implements PlacedHatBehavior {
             SHAKE = num("shake"), PUSH_HEEL = num("push_heel"), BUMP_TILT = num("bump_tilt"), CAPSIZE_HARD = num("capsize_hard"),
             FLIP_RATE = num("flip_rate"), UNSTEADY_RATE = num("unsteady_rate");
     private static final int CAPSIZE_TICKS = (int) num("capsize_ticks");
-    /** How far below the hull bottom water still floats it; one contact may move a body at most this far a tick (blocks). */
-    private static final double WATER_BELOW = .5, CONTACT_STEP = .25;
+    /** Afloat it stays afloat until the water is this far below its lowest point; one contact moves a body at most this far a
+     *  tick; a thrown rider leaves no faster than this (blocks, blocks per tick). */
+    private static final double LEAVE_MARGIN = .2, CONTACT_STEP = .25, MAX_THROW = .6;
     /** An outside cause this recent (ticks) is the one a capsize is put down to. */
     private static final int CAUSE_TICKS = 40;
     /** The brim's reach from the centre (hat units) in 24 directions from local +x toward +z; the hull's outer outline. */
@@ -64,18 +66,27 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private static double num(String key) { return DATA.get(key).getAsDouble(); }
 
-    /** The registration entry calls this once: any hat whose hull is in water runs this behaviour. */
+    /** The registration entry calls this once: a hat whose hull reaches into water runs this behaviour, and keeps it until
+     *  the water is clearly below the hull (no flicker at a bank's edge). */
     public static void register() {
         PlacedHatBehavior.register(new Provider() {
             @Override public String id() { return "afloat"; }
-            @Override public boolean applies(PlacedHatEntity hat) { return Double.isFinite(surface(hat.level(), hat.position())); }
+            @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
+                double low = lowest(hat), water = surface(hat.level(), hat.getX(), low - LEAVE_MARGIN, hat.getZ());
+                return water > low - (current instanceof HullAfloat ? LEAVE_MARGIN : 0);
+            }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(); }
         });
     }
 
-    /** The water surface over the hull's column, or NaN when no water reaches its bottom (it lies on the ground). */
-    public static double surface(Level level, Vec3 at) {
-        var pos = BlockPos.containing(at.x, at.y - WATER_BELOW, at.z).mutable();
+    /** The hull's lowest point: its bottom upright, its brim crown up. */
+    private static double lowest(PlacedHatEntity hat) {
+        return hat.getY() + Math.min(0, HatGeometry.top() * hat.unit() * Buoyancy.up(hat.roll(), hat.pitch()));
+    }
+
+    /** The top of the first water in the column at x, z from height {@code from} up (a few blocks), or NaN when there is none. */
+    public static double surface(Level level, double x, double from, double z) {
+        var pos = BlockPos.containing(x, from, z).mutable();
         double top = Double.NaN;
         for (int i = 0; i < 4 && level.hasChunkAt(pos); i++, pos.move(0, 1, 0)) {
             var fluid = level.getFluidState(pos);
@@ -87,7 +98,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private double surface(PlacedHatEntity hat) {
         long now = hat.level().getGameTime();
-        if (sampled != now) { sampled = now; surface = surface(hat.level(), hat.position()); }
+        if (sampled != now) { sampled = now; surface = surface(hat.level(), hat.getX(), lowest(hat) - LEAVE_MARGIN, hat.getZ()); }
         return surface;
     }
 
@@ -132,7 +143,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (hat.horizontalCollision) bump(hat, motion, hat.position().subtract(from));
         var reach = MAX_REACH * unit + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach, top + .5, reach), e -> e instanceof LivingEntity))
-            push(hat, other);
+            contact(hat, other);
     }
 
     /** A block it ran into took this much speed: the hull tips its leading side down. */
@@ -146,9 +157,10 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     // ---------------------------------------------------------------- contact: bodies and the hull never overlap
-    /** Separates an entity overlapping the brim outline: each side yields by the other's share of the mass. A yukkuri body
-     *  yields through Motor; anything else the hull may not move (a player, another mob) and the hull yields alone. */
-    @Override public void push(PlacedHatEntity hat, Entity other) {
+    /** Separates an entity overlapping the brim outline, once a tick from the hull's own pass (vanilla's push is off): each
+     *  side yields by the other's share of the mass. A yukkuri body yields through Motor; anything else the hull may not move
+     *  (a player, another mob) and the hull yields alone. */
+    private void contact(PlacedHatEntity hat, Entity other) {
         if (other == hat || !(other instanceof LivingEntity) || other.isSpectator() || other.noPhysics || other.isPassenger()
                 || other.isPassengerOfSameVehicle(hat)) return;
         if (other instanceof YukkuriEntity y && Attach.of(y) instanceof AttachState.Airborne) return;  // a jump lands by contact
@@ -219,14 +231,33 @@ public final class HullAfloat implements PlacedHatBehavior {
     private Vec3 carried(PlacedHatEntity hat, Vec3 point) {
         double yaw = hat.turn(), r = Math.toRadians(rollRate), p = Math.toRadians(pitchRate);
         var omega = new Vec3(Math.cos(yaw) * p + Math.sin(yaw) * r, 0, -Math.sin(yaw) * p + Math.cos(yaw) * r);
-        return hat.getDeltaMovement().add(omega.cross(point.subtract(hat.position())));
+        var v = hat.getDeltaMovement().add(omega.cross(point.subtract(hat.position())));
+        return v.length() > MAX_THROW ? v.normalize().scale(MAX_THROW) : v;
     }
 
     // ---------------------------------------------------------------- what the base asks
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
-    @Override public boolean steady(PlacedHatEntity hat) {
-        return flip == 0 && !hat.upsideDown() && Math.max(Math.abs(rollRate), Math.abs(pitchRate)) <= UNSTEADY_RATE;
+    /** From the synced pose only, so the client agrees: upright and its tilt barely changing (a turn over moves it fast). */
+    @Override public boolean steady(PlacedHatEntity hat) { return !hat.upsideDown() && hat.tiltRate() <= UNSTEADY_RATE; }
+    /** Upright and empty its owner may take it back from the water in reach; crown up it must be righted first (WP5). */
+    @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
+        return flip == 0 && !hat.upsideDown() && hat.getPassengers().isEmpty();
+    }
+    @Override public CompoundTag save() {
+        var tag = new CompoundTag();
+        tag.putDouble("RollRate", rollRate); tag.putDouble("PitchRate", pitchRate); tag.putInt("Flip", flip); tag.putInt("Over", over);
+        tag.putString("Cause", cause);
+        if (causeTick != Long.MIN_VALUE) tag.putLong("CauseAt", causeTick);
+        return tag;
+    }
+    @Override public void load(CompoundTag tag) {
+        rollRate = Mth.clamp(tag.getDouble("RollRate"), -FLIP_RATE, FLIP_RATE);
+        pitchRate = Mth.clamp(tag.getDouble("PitchRate"), -FLIP_RATE, FLIP_RATE);
+        flip = Mth.clamp(tag.getInt("Flip"), -2, 2);
+        over = Math.max(0, tag.getInt("Over"));
+        cause = tag.contains("Cause") ? tag.getString("Cause") : cause;
+        causeTick = tag.contains("CauseAt") ? tag.getLong("CauseAt") : Long.MIN_VALUE;
     }
     /** Dry while the whole brim stands above the water and the rider's feet are supported in the hat. */
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
