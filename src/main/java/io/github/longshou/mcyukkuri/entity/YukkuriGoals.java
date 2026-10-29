@@ -22,6 +22,8 @@ import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -327,9 +329,11 @@ final class YukkuriGoals {
         @Override public void tick() { owner.social().tickGoal(); }
         @Override public void stop() { owner.social().stop(); }
     }
-    /** In water the body works its way out through the EscapeWater intent; a run that used up its ways is not started again
-     *  until the world changed (spec 11.2). Out of the water it holds still for the breath. */
+    /** In water the body works its way out through the EscapeWater intent; a run that ran out of ways before its deadline is not
+     *  started again until the world changed (spec 11.2), one that reached its deadline is at once. Out of the water it holds still
+     *  for the breath. The edges whose climb failed are remembered here across runs. */
     private final class EscapeWaterGoal extends Goal {
+        private final Map<BlockPos, Long> avoid = new HashMap<>();
         private IntentRunner runner;
         private WorldSignature ended;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
@@ -339,11 +343,12 @@ final class YukkuriGoals {
         @Override public void tick() {
             if (!owner.waterDistress().struggles()) { halt("water_pause"); owner.getNavigation().stop(); return; }
             if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
-                ended = runner.result() == IntentRunner.Result.EXHAUSTED ? signature() : null;
+                boolean outOfWays = runner.result() == IntentRunner.Result.EXHAUSTED && owner.level().getGameTime() <= runner.intent().deadline();
+                ended = outOfWays ? signature() : null;
                 runner = null;
             }
             if (runner == null && !signature().equals(ended)) {
-                runner = new IntentRunner(owner, new EscapeWater(owner), "escape_water").target(() -> EscapeWater.target(owner));
+                runner = new IntentRunner(owner, new EscapeWater(owner, avoid), "escape_water").target(() -> EscapeWater.target(owner));
                 runner.start();
             }
             if (runner != null) runner.tick();

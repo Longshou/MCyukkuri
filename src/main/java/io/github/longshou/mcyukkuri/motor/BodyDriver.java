@@ -34,7 +34,7 @@ public final class BodyDriver {
     private final YukkuriEntity body;
     private Action current;
     private MotorOwner owner;
-    private Outcome last;
+    private Outcome last, refusal;
     private long lastTick;
     private long startTick;
     private double bestMetric = Double.POSITIVE_INFINITY;
@@ -62,6 +62,7 @@ public final class BodyDriver {
      * or another owner while the current action is interruptible and its owner is no longer active.
      */
     public boolean run(MotorOwner candidate, Action action) {
+        refusal = null;
         if (action == null || candidate == null || body.level().isClientSide) return false;
         if (!deciding()) {
             Motor.warn(body, "action refused id={} owner={} reason=not_deciding", action.id(), candidate.ownerId());
@@ -69,7 +70,7 @@ public final class BodyDriver {
         }
         Feasibility feasibility = action.check(body);
         if (feasibility != null && !feasibility.ok()) {
-            last = Outcome.of(feasibility.reason(), feasibility.shortfall(), feasibility.detail());
+            last = refusal = Outcome.of(feasibility.reason(), feasibility.shortfall(), feasibility.detail());
             lastTick = now();
             refused(action, "infeasible:" + feasibility.reason());
             return false;
@@ -101,6 +102,10 @@ public final class BodyDriver {
 
     public Outcome last() { return last; }
 
+    /** Why the latest {@link #run} call refused its action by the action's own check, or null (accepted, or refused by the
+     *  acceptance rules, which name no reason of the action's). */
+    public Outcome refusal() { return refusal; }
+
     public long lastTick() { return lastTick; }
 
     public MotorOwner owner() { return owner; }
@@ -112,7 +117,7 @@ public final class BodyDriver {
     public TravelMode tickTravel(Vec3 input) {
         if (body.level().isClientSide) return TravelMode.PASS;
         TravelMode mode = current == null ? TravelMode.PASS : drive();
-        if (mode == TravelMode.PASS && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
+        if (mode == TravelMode.PASS && body.isAlive() && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
         return mode;
     }
 
@@ -219,7 +224,7 @@ public final class BodyDriver {
     private void finish(Outcome raw) {
         Action action = current;
         if (action == null) return;
-        Outcome outcome = raw == null ? new Outcome.Incapable(Reason.NO_PROGRESS, "no outcome") : raw;
+        Outcome outcome = raw == null ? Outcome.of(Reason.NO_PROGRESS, 0, "no outcome") : raw;
         if (interrupted && !(outcome instanceof Outcome.Interrupted)) outcome = new Outcome.Interrupted(interruptedWhy);
         current = null;
         owner = null;

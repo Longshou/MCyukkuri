@@ -23,8 +23,9 @@ import net.minecraft.world.phys.Vec3;
  * Swim toward a target (spec 9.4, Q2: a weak struggle; an aquatic body is stronger only through its ability): horizontal effort
  * at the ability's swim speed, turning at its turn rate; the vertical is the water's lift ({@code BodyDriver}). Never a jump.
  * Paid in the struggle's rhythm: a burst for its energy, then a rest; an exhausted body pays less per cycle and keeps paddling
- * weakly through the rest. No energy is {@code EXHAUSTED}. {@link #to} ends with the target in grip reach, {@link #toward}
- * presses on until strength or progress gives out; out of the water both are done.
+ * weakly through the rest, and one with nothing left to pay keeps that weak paddling unpaid (it never stops for energy alone).
+ * {@link #to} ends with the target in grip reach; {@link #toward} presses on for its ticks, without a progress watchdog, so a
+ * body pressed against a bank keeps pushing; out of the water both are done.
  */
 public final class Swim implements Action {
     public static final String ID = "swim";
@@ -37,14 +38,15 @@ public final class Swim implements Action {
     private final int maxTicks;
     private double speed, turnRate, paid;
     private int ticks, cycle, burst;
+    private boolean unpaid;
 
     private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
 
     /** Until the (moving) target is in grip reach; past {@code maxTicks} (0: never) it is {@code TOO_FAR}. */
     public static Swim to(Supplier<Vec3> target, int maxTicks) { return new Swim(target, true, maxTicks); }
 
-    /** Pressing toward a point until strength or progress gives out. */
-    public static Swim toward(Vec3 point) { return new Swim(() -> point, false, 0); }
+    /** Pressing toward a point for {@code ticks}, then done (the caller may aim again). */
+    public static Swim toward(Vec3 point, int ticks) { return new Swim(() -> point, false, ticks); }
 
     /** In a paid burst (the presentation's effort flag). */
     public boolean pushing() { return burst > 0; }
@@ -53,15 +55,11 @@ public final class Swim implements Action {
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (target.get() == null) return Feasibility.of(Reason.TARGET_GONE, 0, "no_target");
-        if (!body.isInWaterOrBubble()) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_in_water");
-        return body.life().energy() < cost(body) ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
+        ability(body);
+        return body.isInWaterOrBubble() ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_in_water");
     }
 
-    @Override public void start(YukkuriEntity body) {
-        var ability = BodyAbility.of(body);
-        speed = ability.swimSpeed() * BodyAbility.carrying(body);
-        turnRate = ability.turnRate();
-    }
+    @Override public void start(YukkuriEntity body) {}
 
     @Override public Progress tick(YukkuriEntity body) {
         Vec3 at = target.get();
@@ -70,27 +68,37 @@ public final class Swim implements Action {
         if (grip && ContactGeometry.canGrip(body, at)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
         Vec3 to = at.subtract(body.position()).multiply(1, 0, 1);
         double distance = to.length();
-        if (maxTicks > 0 && ++ticks > maxTicks) return Outcome.of(Reason.TOO_FAR, distance, "swum=" + maxTicks);
+        if (maxTicks > 0 && ++ticks > maxTicks)
+            return grip ? Outcome.of(Reason.TOO_FAR, distance, "swum=" + maxTicks) : new Outcome.Done("pressed ticks=" + maxTicks);
         boolean weak = body.waterDistress().phase() == WaterDistress.Phase.EXHAUSTED;
         if (--cycle < 0) {
-            if (!body.life().spendEnergy(cost(body))) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
-            paid += cost(body);
-            burst = weak ? WEAK_BURST : BURST;
-            cycle = burst + (weak ? WEAK_REST : REST) - 1;
+            ability(body);
+            float cost = weak ? WEAK_COST : COST;
+            unpaid = !body.life().spendEnergy(cost);
+            if (!unpaid) paid += cost;
+            burst = unpaid ? 0 : weak ? WEAK_BURST : BURST;
+            cycle = (weak || unpaid ? WEAK_BURST + WEAK_REST : BURST + REST) - 1;
         }
         if (distance > 1E-4) {
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate));
             Vec3 v = to.scale(Math.min(speed, distance) / distance);
-            if (burst-- > 0 || weak) Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
+            if (burst-- > 0 || weak || unpaid) Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
         }
         return new Running(distance, TravelMode.PASS);
     }
+
+    /** Pressing on has no progress watchdog: its own ticks end it. */
+    @Override public int progressWindow() { return grip ? Action.super.progressWindow() : Integer.MAX_VALUE; }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "to=%s swim=%.3f turn=%.1f grip=%b max=%d", GameplayLog.at(target.get()), speed, turnRate, grip, maxTicks);
     }
 
-    @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "paid=%.2f", paid); }
+    @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "paid=%.2f unpaid=%b", paid, unpaid); }
 
-    private static float cost(YukkuriEntity body) { return body.waterDistress().phase() == WaterDistress.Phase.EXHAUSTED ? WEAK_COST : COST; }
+    private void ability(YukkuriEntity body) {
+        var ability = BodyAbility.of(body);
+        speed = ability.swimSpeed() * BodyAbility.carrying(body);
+        turnRate = ability.turnRate();
+    }
 }

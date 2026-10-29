@@ -20,9 +20,9 @@ import net.minecraft.world.entity.Entity;
 /**
  * Turn a capsized host back over (spec 9.4): holding its brim ({@link ContactGeometry#canGrip}) the body pushes through the
  * clip's push window, each push tick turning it {@link Effort#righting} further (its pace and its share of the two box
- * volumes over half a round of the brim). The host's behaviour holds it there and, once it is full, turns it the rest of the
- * way; the action ends when it lies steady. The body holds still meanwhile. Off the brim, or a host faster than 0.1 block a
- * tick, is {@code SLIPPED}; letting go leaves the host to its own physics.
+ * volumes over half a round of the brim). The host's behaviour holds it there; past the quarter turn it is no longer capsized
+ * and the behaviour turns it the rest of the way, so the action is done. The body holds still meanwhile. Off the brim, or a
+ * host faster than 0.1 block a tick, is {@code SLIPPED}; letting go earlier leaves the host to its own physics.
  */
 public final class Right implements Action {
     public static final String ID = "right";
@@ -58,7 +58,7 @@ public final class Right implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         if (host.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         double tilt = Math.max(Math.abs(host.frame().rollDeg()), Math.abs(host.frame().pitchDeg()));
-        if (!host.capsized() && (t == 0 || progress >= 1 && host.steady())) return new Outcome.Done(String.format(Locale.ROOT, "upright tilt=%.1f", tilt));
+        if (!host.capsized()) return new Outcome.Done(String.format(Locale.ROOT, "past_upright tilt=%.1f", tilt));
         double off = body.position().subtract(host.entity().position()).horizontalDistance() - reach - body.getBbWidth() / 2;
         double speed = host.entity().getDeltaMovement().horizontalDistance();
         if (off > ContactGeometry.GRAB_MARGIN || speed > HOST_SPEED)
@@ -66,6 +66,7 @@ public final class Right implements Action {
         if (progress < 1 && !host.right(body, progress = Math.min(1, progress + step * Effort.stroke(t, pushStart, pushEnd, length)), cause))
             return Outcome.of(Reason.NO_SUPPORT, 0, "cannot_right");
         t++;
+        // pushed full, the hull turns on its own toward upright: the tilt still falls every tick, so the watchdog stays quiet
         return new Running(1 - progress + tilt / 180, TravelMode.CONSUMED);
     }
 

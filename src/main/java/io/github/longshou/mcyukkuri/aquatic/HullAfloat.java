@@ -140,6 +140,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         draft = Buoyancy.draft(mass, plane);
         double freeboard = top - draft, roll = hat.roll(), pitch = hat.pitch();
         boolean down = hat.upsideDown(), righting = righting(hat);
+        if (righting && !down) rightProgress = 1;  // past the quarter turn the held hull falls the rest of the way upright
         // tilt: a damped spring back to the riders' heel (plus this tick's shoves), flat crown up once over
         double restRoll = flip == 1 || flip == -1 ? 180 * flip : Buoyancy.rest(roll, down ? 0 : Buoyancy.rollHeel(moX, plane) + heelRoll);
         double restPitch = flip == 2 || flip == -2 ? 90 * flip : Buoyancy.rest(pitch, down ? 0 : Buoyancy.pitchHeel(moZ, plane) + heelPitch);
@@ -271,7 +272,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     // ---------------------------------------------------------------- righting and paddling (WP5)
     /** A righter holds the turned-over hull {@code progress} of the way back, about the axis it lies over on; pushed all the way,
-     *  it finishes turning upright on its own ({@link #righted}). */
+     *  or past the quarter turn, it finishes turning upright on its own ({@link #righted}). */
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
         boolean held = righting(hat);
         if (flip != 0 || !held && !hat.upsideDown()) return false;

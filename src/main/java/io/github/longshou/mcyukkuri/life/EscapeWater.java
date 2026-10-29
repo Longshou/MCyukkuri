@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
-import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
@@ -16,32 +15,53 @@ import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
+import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Out of the water by one's own means (refactor WP5, design 8.3), the ways in order: its own hat floating upright in reach (swim
- * to the brim, climb in); its own hat lying capsized (swim, right it, climb in); the nearest bank edge within its climb rise
- * (swim, climb); else pressing toward the nearest bank until strength or progress gives out. Satisfied once the body is out of
- * the water, standing or aboard; a failed escape costs what the water costs (immersion damage, drowning).
+ * to the brim, climb in); its own hat lying capsized (swim, right it, let it settle, climb in); the nearest bank edge it can climb
+ * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then
+ * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
+ * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
+ * another. Satisfied once the body is out of the water, standing or aboard; failing costs what the water costs.
  */
 public final class EscapeWater implements Intent {
-    /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); the old shore search box (blocks
-     *  out, down, up) and how many of its stands are route-checked; how far (blocks) the own hat is swum to. */
-    private static final int DEADLINE = 1200, HAT_SWIM = 600, OUT = 6, DOWN = 1, UP = 3, ROUTES = 8;
-    private static final double HAT_RANGE = 16;
-    private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT), AT_BANK = Set.of(Reason.TOO_FAR,
-            Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), PRESSING = Set.of(Reason.TOO_HIGH, Reason.NO_ROOM);
+    /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); how long one press lasts before it
+     *  aims again; how long an edge that failed a climb is avoided; the old shore search box (blocks out, down, up). */
+    private static final int DEADLINE = 1200, HAT_SWIM = 600, PRESS = 100, AVOID_TICKS = 400, OUT = 6, DOWN = 1, UP = 3;
+    /** How far (blocks) its own hat is swum to; clearance (blocks) of the landing box. */
+    private static final double HAT_RANGE = 16, CLEAR = .05;
+    private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
+            Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM), PRESSING = Set.of(Reason.TOO_HIGH);
+
+    /** A bank edge: its stand, the middle of the stand's face toward open water, the water point in front of it, the landing. */
+    private record Edge(BlockPos stand, Vec3 edge, Vec3 front, Vec3 land) {}
 
     private final YukkuriEntity body;
     private final long started;
+    /** Edges whose climb ended SLIPPED or NO_ROOM, until when (game tick); kept by the escape goal across runs. */
+    private final Map<BlockPos, Long> avoid;
+    /** Water routes already asked of the pathfinder in this run, and the stands scanned this tick. */
+    private final Map<BlockPos, Boolean> routes = new HashMap<>();
+    private List<BlockPos> stands = List.of();
+    private long scanned = Long.MIN_VALUE;
+    private Edge climbing;
+    /** The hat ways and bank edges this run has already begun: a press gives way only to one not tried yet. */
+    private final Set<Object> tried = new HashSet<>();
 
-    public EscapeWater(YukkuriEntity body) {
+    public EscapeWater(YukkuriEntity body, Map<BlockPos, Long> avoid) {
         this.body = body;
         this.started = body.level().getGameTime();
+        this.avoid = avoid;
     }
 
     /** The world its runs are keyed on: where the body and its own hat are. */
@@ -57,28 +77,41 @@ public final class EscapeWater implements Intent {
     @Override public long deadline() { return started + DEADLINE; }
 
     @Override public List<Method> methods() {
+        remember();
         var hat = PlacedHatEntity.find(body);
-        var stands = stands();
-        BlockPos climbable = nearest(stands, true), any = climbable != null ? climbable : nearest(stands, false);
-        Supplier<Action> toRim = () -> Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM);
+        Edge bank = climbable();
+        BlockPos near = nearest();
+        Step toRim = new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
         return List.of(
-                new Way("own_hat", hat(hat, false), AT_HAT, toRim, () -> Climb.onto(hat)),
-                new Way("right_own_hat", hat(hat, true), AT_HAT, toRim, () -> new Right(hat, "self_rescue"), () -> Climb.onto(hat)),
-                new Way("bank", climbable == null ? Feasibility.of(Reason.TOO_HIGH, 0, "no_climbable_bank") : Feasibility.pass(), AT_BANK,
-                        () -> Swim.to(() -> edge(climbable), 0), () -> Climb.onto(edge(climbable), onto(climbable))),
-                new Way("struggle", any == null ? Feasibility.of(Reason.NO_PATH, 0, "no_bank") : Feasibility.pass(), PRESSING,
-                        () -> Swim.toward(Vec3.atBottomCenterOf(any))));
+                new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? toRim : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
+                new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i) {
+                    case 0 -> toRim;
+                    case 1 -> new Step.Do(new Right(hat, "self_rescue"));
+                    case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
+                    case 3 -> new Step.Do(Climb.onto(hat));
+                    default -> null;
+                }),
+                new Way("bank", bank == null ? Feasibility.of(Reason.TOO_HIGH, 0, "no_climbable_edge") : Feasibility.pass(), AT_BANK, i -> switch (i) {
+                    case 0 -> { tried.add(bank.stand()); yield new Step.Do(Swim.to(bank::front, 0)); }
+                    case 1 -> new Step.Do(Swim.to(bank::edge, 0));
+                    case 2 -> new Step.Do(Climb.onto((climbing = bank).edge(), bank.land()));
+                    default -> null;
+                }),
+                new Way("struggle", near == null ? Feasibility.of(Reason.NO_PATH, 0, "no_bank") : Feasibility.pass(), PRESSING, i -> {
+                    BlockPos to = i == 0 ? near : better(hat) ? null : nearest();
+                    return to == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(to), PRESS));
+                }));
     }
 
-    /** One way out: whether it applies, what it shrinks, and its actions in order. */
-    private static final class Way implements Method {
+    /** One way out: whether it applies, what it shrinks, and its i-th step (null once it has no more). */
+    private final class Way implements Method {
         private final String id;
         private final Feasibility applicable;
         private final Set<Reason> reduces;
-        private final Supplier<Action>[] steps;
+        private final IntFunction<Step> steps;
         private int next;
 
-        @SafeVarargs private Way(String id, Feasibility applicable, Set<Reason> reduces, Supplier<Action>... steps) {
+        private Way(String id, Feasibility applicable, Set<Reason> reduces, IntFunction<Step> steps) {
             this.id = id;
             this.applicable = applicable;
             this.reduces = reduces;
@@ -88,7 +121,28 @@ public final class EscapeWater implements Intent {
         @Override public String id() { return id; }
         @Override public Feasibility applicable() { return applicable; }
         @Override public Set<Reason> reduces() { return reduces; }
-        @Override public Step next() { return next < steps.length ? new Step.Do(steps[next++].get()) : null; }
+        @Override public Step next() {
+            if (next == 0 && !id.equals("bank")) tried.add(id);
+            return steps.apply(next++);
+        }
+    }
+
+    /** A press gives way when a way not tried in this run has opened: its own hat in reach, or another climbable edge. */
+    private boolean better(PlacedHatEntity hat) {
+        if (!tried.contains("own_hat") && hat(hat, false).ok() || !tried.contains("right_own_hat") && hat(hat, true).ok()) return true;
+        Edge edge = climbable();
+        return edge != null && !tried.contains(edge.stand());
+    }
+
+    /** The edge of the last climb, avoided for a while when that climb slipped or found no room. */
+    private void remember() {
+        long now = body.level().getGameTime();
+        avoid.values().removeIf(until -> until <= now);
+        var last = body.motor().last();
+        if (climbing != null && body.motor().current() == null && last != null
+                && (last.reason() == Reason.SLIPPED || last.reason() == Reason.NO_ROOM) && avoid.size() < 16)
+            avoid.put(climbing.stand(), now + AVOID_TICKS);
+        climbing = null;
     }
 
     private Feasibility hat(PlacedHatEntity hat, boolean capsized) {
@@ -97,37 +151,55 @@ public final class EscapeWater implements Intent {
         return far > 0 ? Feasibility.of(Reason.TOO_FAR, far, "hat_far") : Feasibility.pass();
     }
 
-    /** The nearest stand the pathfinder reaches through the water; for a climb only one within the body's climb rise. */
-    private BlockPos nearest(List<BlockPos> stands, boolean climb) {
+    /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */
+    private Edge climbable() {
         double rise = BodyAbility.of(body).climbRise();
-        int routes = 0;
-        for (var pos : stands) {
-            if (climb && pos.getY() - body.getY() > rise) continue;
-            if (routes++ >= ROUTES) break;
-            if (body.life().reachable(pos, true)) return pos;
+        for (var pos : stands()) {
+            if (pos.getY() - body.getY() > rise || avoid.containsKey(pos)) continue;
+            Edge edge = edge(pos);
+            if (edge != null && route(pos)) return edge;
         }
         return null;
     }
 
-    /** Every dry stand of the search box, nearest first. */
+    /** The nearest stand reached through the water, climbable or not, an avoided one last: where a struggle presses toward. */
+    private BlockPos nearest() {
+        BlockPos fallback = null;
+        for (var pos : stands()) {
+            if (!route(pos)) continue;
+            if (!avoid.containsKey(pos)) return pos;
+            if (fallback == null) fallback = pos;
+        }
+        return fallback;
+    }
+
+    private boolean route(BlockPos pos) { return routes.computeIfAbsent(pos, p -> body.life().reachable(p, true)); }
+
+    /** The stand's face toward open water nearest the body, with room to land behind it, or null. */
+    private Edge edge(BlockPos stand) {
+        Edge best = null;
+        var level = body.level();
+        for (Direction d : Direction.Plane.HORIZONTAL) {
+            BlockPos out = stand.relative(d);
+            if (!level.getFluidState(out.below()).is(FluidTags.WATER) || !level.getBlockState(out).getCollisionShape(level, out).isEmpty()) continue;
+            Vec3 n = new Vec3(d.getStepX(), 0, d.getStepZ()), edge = Vec3.atBottomCenterOf(stand).add(n.scale(.5));
+            Vec3 front = edge.add(n.scale(body.getBbWidth() / 2 + .2)), land = edge.subtract(n.scale(body.getBbWidth() / 2 + .05));
+            if (!level.noCollision(body, body.getBoundingBox().move(land.subtract(body.position()).add(0, CLEAR, 0)))) continue;
+            if (best == null || front.distanceToSqr(body.position()) < best.front().distanceToSqr(body.position())) best = new Edge(stand, edge, front, land);
+        }
+        return best;
+    }
+
+    /** Every dry stand of the search box, nearest first; scanned once a tick. */
     private List<BlockPos> stands() {
+        long now = body.level().getGameTime();
+        if (scanned == now) return stands;
+        scanned = now;
         var out = new ArrayList<BlockPos>();
         var at = body.blockPosition();
         for (var pos : BlockPos.betweenClosed(at.offset(-OUT, -DOWN, -OUT), at.offset(OUT, UP, OUT)))
             if (body.level().hasChunkAt(pos) && body.life().dryStand(pos)) out.add(pos.immutable());
         out.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))));
-        return out;
-    }
-
-    /** The point of the stand's top face nearest the body: the edge it holds. */
-    private Vec3 edge(BlockPos stand) {
-        return new Vec3(Math.clamp(body.getX(), stand.getX(), stand.getX() + 1), stand.getY(), Math.clamp(body.getZ(), stand.getZ(), stand.getZ() + 1));
-    }
-
-    /** Where it stands once over: in from the edge by its half width, toward the stand's middle. */
-    private Vec3 onto(BlockPos stand) {
-        Vec3 edge = edge(stand), in = Vec3.atBottomCenterOf(stand).subtract(edge);
-        double length = in.length();
-        return length < 1E-6 ? edge : edge.add(in.scale(Math.min(length, body.getBbWidth() / 2 + .05) / length));
+        return stands = out;
     }
 }
