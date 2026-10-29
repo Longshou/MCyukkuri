@@ -32,7 +32,7 @@ public final class BirthLaunch {
     /** Planned reach of a kit pushed out with neither hat nor nest (blocks). 项目设计 */
     static final double GROUND_REACH=.35;
     /** Stem fruit toss: horizontal speed = clamp(STEM_MEDIAN * exp(N(0, STEM_SIGMA)), 0, STEM_MAX) in a random direction, then a gentle fall. 项目设计 */
-    static final double STEM_MEDIAN=.055, STEM_SIGMA=.9, STEM_MAX=.25, STEM_DROP=-.015;
+    static final double STEM_MEDIAN=.012, STEM_SIGMA=.9, STEM_MAX=.06, STEM_DROP=-.015;
     /** Vanilla gravity and drag the launch is solved against (LivingEntity: y = (y - .08) * .98, horizontal * .91 in the air). */
     private static final double GRAVITY=.08, VERTICAL_DRAG=.98, AIR_DRAG=.91;
     /** The longest aim any birth launch is given: a catching hat's catchment reach, the same 1.25 blocks a hat zone is chosen within. */

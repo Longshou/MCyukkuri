@@ -197,21 +197,23 @@ public final class HatGeometry {
     /** Where a catcher stands, and her yaw, to set down or take back a hat at a pose. */
     public record Stand(Vec3 at,float yaw){}
     /** Where the hat goes for a mother standing at {@code at} turned to {@code yaw} (hat_vessel.json, the end pose of the braid
-     *  clips): a helper presses it upside down just beyond the live outlet, or under the stem's fruit with the opening clear of
-     *  her body and the helper on the far side; a mother on her own sets it where her own clip puts it. */
+     *  clips): a helper presses it upside down just beyond the live outlet, or under the stem's fruit with the opening spanning
+     *  every fruit and clear of her body and the helper on the far side; a mother on her own sets it where her own clip puts it. */
     public static Pose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,Role role,Vec3 at,float yaw){
         var place=placement(role);
         double k=hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
         var forward=Vec3.directionFromRotation(0,yaw);float hatYaw=yaw+place.hatYawInMother();
         if(role==Role.SELF)return new Pose(flat(turned(at,yaw,place.offset().scale(mother.growthScale()/16),mother.getScale()),at),hatYaw,role);
         if(brood.kind==FamilyData.BirthKind.STEM){
-            double sx=0,sz=0;int n=Math.max(1,brood.children.size());
+            // Every fruit's nominal drop point is straight below its socket, whose only fact used here is where it hangs:
+            // the hat's long axis follows the stem, so one opening spans the whole line and not merely its mean.
+            double low=Double.MAX_VALUE,high=-Double.MAX_VALUE,side=0;int n=Math.max(1,brood.children.size());
             for(int i=0;i<brood.children.size();i++){
                 var child=brood.children.get(i);
                 var c=FamilyGeometry.childBase(brood.children.size(),i,1,mother.growthScale(),brood.variation,mother.getVariant(),child.variant,GrowthSize.physicalBirth(brood.kind,child));
-                sx+=c.x;sz+=c.z;
+                low=Math.min(low,c.z);high=Math.max(high,c.z);side+=c.x;
             }
-            var under=turned(at,yaw,new Vec3(sx/n,0,sz/n),mother.getScale());
+            var under=turned(at,yaw,new Vec3(side/n,0,(low+high)/2),mother.getScale());
             var p=flat(under.add(forward.scale(Math.max(0,stemClearance(mother,catcher)-under.subtract(at).dot(forward)))),at);
             var ahead=new Pose(p,yaw,role);var behind=new Pose(p,yaw+180,role);
             return stand(ahead,catcher).at().distanceToSqr(at)>=stand(behind,catcher).at().distanceToSqr(at)?ahead:behind;
@@ -221,9 +223,12 @@ public final class HatGeometry {
         var outlet=LiveBirthGeometry.position(mother,next,yaw).subtract(mother.position()).add(at);
         return new Pose(flat(outlet.add(forward.scale(r+place.gap()*body+place.nearBrim()*k)),at),hatYaw,role);
     }
-    /** Least distance from the mother's centre to a stem catch hat's centre: her half width and the opening's half length. */
+    /** Least distance from the mother's centre to a stem catch hat's centre: the front of her visible body (its model bound is
+     *  4.83 of 16 units, 0.4 of her collision width; the rim stays below her widest section) and the opening's near half length
+     *  (the hat's long axis follows the stem, so its local z ends are the lips that face her). Her collision box may therefore
+     *  overlap the near rim, which the stem catch allows: the coloured brim may lie under her front, the hollow may not. */
     public static double stemClearance(YukkuriEntity mother,YukkuriEntity catcher){
-        return mother.getBbWidth()*.5+opening()[3]*hatScale(catcher)*catcher.getScale()/16;
+        return mother.getBbWidth()*.4+opening()[3]*hatScale(catcher)*catcher.getScale()/16;
     }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
     public static Stand stand(Pose pose,YukkuriEntity catcher){

@@ -4,11 +4,11 @@
   "growth_source": "standards/yukkuri-v1/profiles/growth.json",
   "action_source": "standards/yukkuri-v1/behaviors/stem-birth.json",
   "count_length_scale": [
-    0.71,
-    1.24,
-    1.77,
-    2.29,
-    2.82
+    0.6,
+    0.75,
+    0.98,
+    1.22,
+    1.46
   ],
   "count_radius_scale": [
     0.85,
@@ -152,7 +152,7 @@
       ]
     }
   },
-  "note": "Keep the single forward arched stalk topology; every pedicel hangs vertically from its socket. Count spacing fits the current ripe fruit size and selected tall-hat children. The anchor follows maternal scale; stalk extent has a scale-1 floor because fruit size is independent of maternal scale. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. Source character meshes are unchanged; the revised hanging layout awaits user review.",
+  "note": "Keep the single forward arched stalk topology; every pedicel hangs vertically from its socket. Count spacing is one fruit apart at the ripe size (about 1.1 times the largest fruit); the selected tall-hat children still clear the mother and the ground, and a full litter's hang points stay over one catch hat's opening. The anchor follows maternal scale; stalk extent has a scale-1 floor because fruit size is independent of maternal scale. Early depth clearance reaches full travel after one scaled model unit of actual vertical rise, before the maternal brim. Source character meshes are unchanged; the revised hanging layout awaits user review.",
   "rounded_source": "art/source/rounded-runtime/attachments.json",
   "placement_fit_note": "marisa and chen hanging anchors follow the hat/cap of art/source/placement-fit (hat -1.5, cap -0.0839); alice anchor lies in the band centre (Hakkei revision: band worn at the hairline)."
 }

@@ -85,7 +85,11 @@ final class LiveBirthRenderer {
             // The saved server clock owns both pushes and the breath between them. Never advance
             // this with render time: a blocked outlet must hold the child and the mother's effort.
             float progress=unborn?LiveBirthGeometry.emergenceProgress(mother.liveDeliveryTicks(),next):1;visible=unborn&&elapsed>0;
-            float scale=(unborn?mother.birthChildScale(next):GrowthSize.LIVE)/mother.growthScale();
+            // One newborn size: this body is the entity that will spawn — its own birth size times its form scale
+            // (GrowthSize.physicalBirth, which is what its growth scale comes to). Her growth scale only turns that
+            // size into her model units, so a small or large mother never draws the child at another size.
+            float newbornSize=unborn?mother.birthChildScale(next):GrowthSize.LIVE;
+            float scale=newbornSize/Math.max(.001f,mother.growthScale());
             float[] newborn=unborn?CHILDREN.computeIfAbsent(YukkuriModel.get(childId),key->key.deliveryVertices(false)):new float[0];
             float minZ=0,maxZ=0;for(int i=2;i<newborn.length;i+=8){minZ=Math.min(minZ,newborn[i]*scale);maxZ=Math.max(maxZ,newborn[i]*scale);}
             float endZ=unborn?-(float)LiveBirthGeometry.visibleExitFront(mother,next)*16/mother.growthScale():plane;
