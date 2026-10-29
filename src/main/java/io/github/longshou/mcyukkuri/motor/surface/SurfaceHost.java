@@ -24,8 +24,18 @@ public interface SurfaceHost {
     /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);
 
-    /** The foot circle at {@code local} overlaps no other rider nor anything the host holds on its floor (stores). */
-    boolean room(YukkuriEntity body, Vec3 local);
+    /** The foot circle at {@code local} overlaps no other rider nor anything the host holds on its floor (stores) at the same
+     *  height: footprints conflict only where their heights (feet to top) overlap too. */
+    default boolean room(YukkuriEntity body, Vec3 local) {
+        return body != null && local != null && room(body, local, local.y + body.getBbHeight() / frame().unit());
+    }
+
+    /** As {@link #room(YukkuriEntity, Vec3)} with the body's height reaching at least up to {@code top} (hat units): a body
+     *  coming down onto {@code local} needs the column it falls through free as well. */
+    boolean room(YukkuriEntity body, Vec3 local, double top);
+
+    /** It lets this body stand on it (ride it): a body it does not bear meets it only as an edge to glance off. */
+    default boolean bears(YukkuriEntity body) { return true; }
 
     /** Brim sample points in world coordinates, tilt included (24 of them). */
     List<Vec3> rim();

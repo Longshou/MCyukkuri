@@ -15,11 +15,14 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The one contact test of a flight (spec 8.5), shared by Hop and Launch: run each airborne tick before vanilla integrates,
- * it decides whether this tick's segment meets a host's surface, meets only the brim wall, or meets nothing.
+ * it decides whether this tick's segment comes down onto a host's surface, only glances off its edge, or meets nothing.
  *
- * <p>Only a landing inside the hollow ({@link Occupancy#INSIDE_SUPPORTED} for the host's container) with room for the
- * body counts as contact; everything else is left to vanilla, except a brim hit, which bounces the horizontal speed.
- * No consequence (fall damage, drowning) is decided here.
+ * <p>Nothing falls through a hat: a downward crossing of the surface with the body's middle over the hat is always a contact,
+ * in the hollow or on the brim alike. A spot another body or store already takes at that height (and in the column it came
+ * down through) deflects the body once to the nearest free spot around it; with none in reach it comes down where it fell and
+ * the host's squeeze parts them. What happens on a brim afterwards (a tumble in or off) is the body's next action. Only a body
+ * whose middle misses the hat (its side meets the brim's outer edge), one the host does not bear, or one entering under the
+ * surface from beside it, glances off; vanilla moves it on. No consequence (fall damage, drowning) is decided here.
  */
 public final class ContactResolver {
     /** A landed body's host and its local spot in hat units; {@code refused} is a mount the host would not take. */
@@ -29,12 +32,16 @@ public final class ContactResolver {
     private static final double SEARCH = 3;
     /** Sample step along the segment (blocks) and how far feet may sit under a surface before it counts as inside it. */
     private static final double STEP = .05, TOUCH = .05;
-    /** Share of the horizontal speed left, negated, after the body hits the brim wall. */
+    /** Share of the horizontal speed left, negated, after the body hits the brim wall moving in. */
     private static final double RIM_BOUNCE = -.3;
+    /** Rings and directions of the one deflection off an occupied spot, nearest ring first, and how far past the two feet it
+     *  looks (the twelve directions miss the free side's nearest point by up to this share). */
+    private static final int RINGS = 5, AROUND = 12;
+    private static final double DEFLECT_MARGIN = 1.25;
 
     /**
-     * Resolves this tick's flight segment for {@code body}: a valid landing is performed here (move, mount, riders spot,
-     * velocity zero) and returned; a brim hit bounces the horizontal speed and returns null. A mount the host refuses is
+     * Resolves this tick's flight segment for {@code body}: a contact is performed here (move, mount, riders spot, velocity
+     * zero) and returned; a glance off the edge bounces the horizontal speed and returns null. A mount the host refuses is
      * returned with {@link Contact#refused()} set, so the flight can end with {@code NO_ROOM} where physics left it.
      */
     public static Contact resolve(YukkuriEntity body) { return resolve(body, null); }
@@ -44,17 +51,16 @@ public final class ContactResolver {
         if (body == null || body.level().isClientSide) return null;
         Vec3 feet = body.position();
         Vec3 next = feet.add(body.getDeltaMovement());
-        Contact landing = null;
-        double landingAt = Double.MAX_VALUE;
-        boolean brim = false;
+        Hit landing = null;
+        SurfaceHost edge = null;
         for (SurfaceHost host : hosts(body, feet, next)) {
             Hit hit = hit(body, host, feet, next, envelope);
             if (hit == null) continue;
-            if (hit.contact() == null) brim = true;
-            else if (hit.at() < landingAt) { landing = hit.contact(); landingAt = hit.at(); }
+            if (hit.spot() == null) { if (edge == null) edge = host; }
+            else if (landing == null || hit.at() < landing.at()) landing = hit;
         }
-        if (landing != null) return land(body, landing);
-        if (brim) { bounce(body); return null; }
+        if (landing != null) return land(body, landing, feet);
+        if (edge != null) glance(body, edge);
         return null;
     }
 
@@ -66,12 +72,12 @@ public final class ContactResolver {
         return out;
     }
 
-    /** One host's answer: a landing at {@code at} along the segment, or a brim hit when {@code contact} is null. */
-    private record Hit(double at, Contact contact) {}
+    /** One host's answer: a contact at {@code at} along the segment on {@code spot} (hat units), or an edge when it is null. */
+    private record Hit(SurfaceHost host, double at, Vec3 spot) {}
 
     /**
-     * Walks the segment in host-local units. A downward crossing of the support height is a landing when the footprint
-     * there is inside the hollow with room, and a brim hit otherwise; entering the hat under its surface is the brim wall.
+     * Walks the segment in host-local units. A downward crossing of the support height is a contact when the body's middle is
+     * over the hat and the host bears it, and an edge otherwise; entering under the surface from beside the hat is the wall.
      */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         HostFrame frame = host.frame();
@@ -93,13 +99,12 @@ public final class ContactResolver {
                 double drop = previous.y - previousHeight, fall = height - local.y;
                 double inside = drop + fall < 1E-9 ? 1 : Math.clamp(drop / (drop + fall), 0, 1);
                 double at = (i - 1 + inside) / steps;
-                Vec3 contact = feet.lerp(next, at);
-                Vec3 spot = frame.toLocal(contact);
-                boolean fits = Occupancy.at(host.container(), contact, body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED
-                        && host.room(body, spot);
-                return new Hit(at, fits ? new Contact(host, spot, false) : null);
+                Vec3 spot = frame.toLocal(feet.lerp(next, at));
+                boolean stands = host.support(spot, 0).isPresent() && host.bears(body);
+                return new Hit(host, at, stands ? spot : null);
             }
-            if (under) return new Hit(share, null);
+            // Only coming in from beside the hat under its surface is the wall; a body already under it is left to the host.
+            if (under && !Double.isFinite(previousHeight)) return new Hit(host, share, null);
             previous = local;
             previousHeight = height;
         }
@@ -133,20 +138,51 @@ public final class ContactResolver {
     }
 
     /**
-     * Airborne → OnHost (spec 5.2): move to the contact point, mount, write the local spot, zero the velocity. A refused
-     * mount settles the body where the move left it and answers with the refusal, so no later host is tried.
+     * Airborne → OnHost (spec 5.2): on the crossing spot when it is free at the body's height and in the column it came down
+     * through this tick, else once onto the nearest free spot around it, else where it fell; move there, mount, write the
+     * local spot, zero the velocity. A refused mount settles the body where the move left it and answers with the refusal.
      */
-    private static Contact land(YukkuriEntity body, Contact contact) {
-        Vec3 at = contact.host().frame().toWorld(contact.local());
+    private static Contact land(YukkuriEntity body, Hit hit, Vec3 feet) {
+        SurfaceHost host = hit.host();
+        HostFrame frame = host.frame();
+        Vec3 spot = hit.spot();
+        double top = frame.toLocal(feet).y + body.getBbHeight() / Math.max(1E-6, frame.unit());
+        boolean free = host.room(body, spot, top);
+        Vec3 aside = free ? null : deflect(body, host, spot, top);
+        Vec3 local = aside != null ? aside : spot;
+        Vec3 at = frame.toWorld(local);
+        GameplayLog.event(body, "body", "contact host={} at={} occupancy={} room={}{}", host.entity().getUUID(), GameplayLog.at(at),
+                Occupancy.at(host.container(), at, body.getBbWidth(), true), free,
+                free ? "" : aside == null ? " deflected=none" : " deflected_from=" + GameplayLog.at(frame.toWorld(spot)));
         Motor.move(body, at.subtract(body.position()), "hop_contact");
-        if (!Motor.mount(body, contact.host().entity(), "hop_contact")) {
-            Motor.warn(body, "contact refused host={}", contact.host().entity().getUUID());
+        if (!Motor.mount(body, host.entity(), "hop_contact")) {
+            Motor.warn(body, "contact refused host={}", host.entity().getUUID());
             Attach.settle(body, "hop_contact_refused");
-            return new Contact(contact.host(), contact.local(), true);
+            return new Contact(host, local, true);
         }
-        contact.host().riders().put(body.getUUID(), contact.local(), localYaw(body, contact.host()));
+        host.riders().put(body.getUUID(), local, localYaw(body, host));
         Motor.velocity(body, Vec3.ZERO, "hop_contact");
-        return contact;
+        return new Contact(host, local, false);
+    }
+
+    /**
+     * The one deflection off an occupied spot: the nearest spot on the hat (its middle over it) within the body's foot plus the
+     * widest foot aboard (its own at least), the distance that clears a body it fell onto the middle of, of {@code spot} where
+     * it has room at its height up to {@code top}, or null.
+     */
+    private static Vec3 deflect(YukkuriEntity body, SurfaceHost host, Vec3 spot, double top) {
+        double unit = Math.max(1E-6, host.frame().unit()), foot = Occupancy.foot(body.getBbWidth()), widest = foot;
+        for (Entity rider : host.entity().getPassengers()) widest = Math.max(widest, Occupancy.foot(rider.getBbWidth()));
+        double reach = DEFLECT_MARGIN * (foot + widest) / unit;
+        for (int ring = 1; ring <= RINGS; ring++) for (int i = 0; i < AROUND; i++) {
+            double d = reach * ring / RINGS, angle = i * 2 * Math.PI / AROUND;
+            Vec3 place = new Vec3(spot.x + Math.cos(angle) * d, 0, spot.z + Math.sin(angle) * d);
+            OptionalDouble height = host.support(place, foot);
+            if (height.isEmpty() || host.support(place, 0).isEmpty()) continue;
+            Vec3 candidate = new Vec3(place.x, height.getAsDouble(), place.z);
+            if (host.room(body, candidate, top)) return candidate;
+        }
+        return null;
     }
 
     /** The body's own facing in the host's frame, which is what the rider table stores. */
@@ -154,9 +190,10 @@ public final class ContactResolver {
         return Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad()));
     }
 
-    /** Only the brim was hit: keep the fall, reverse and damp the horizontal push, and let vanilla move. */
-    private static void bounce(YukkuriEntity body) {
-        Vec3 velocity = body.getDeltaMovement();
+    /** It met only the brim's edge or wall: moving in, its horizontal push reverses and damps; moving out it passes on. */
+    private static void glance(YukkuriEntity body, SurfaceHost host) {
+        Vec3 velocity = body.getDeltaMovement(), in = host.entity().position().subtract(body.position());
+        if (velocity.x * in.x + velocity.z * in.z <= 0) return;
         Motor.velocity(body, new Vec3(velocity.x * RIM_BOUNCE, velocity.y, velocity.z * RIM_BOUNCE), "rim_bounce");
         GameplayLog.event(body, "body", "rim_bounce at={} v={}",
                 GameplayLog.at(body.position()), GameplayLog.at(body.getDeltaMovement()));

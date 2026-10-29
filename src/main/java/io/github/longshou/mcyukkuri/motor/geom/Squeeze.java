@@ -6,7 +6,8 @@ import java.util.List;
  * Bodies whose foot circles overlap on a host part (design Q6, refactor WP4b): each overlapping pair moves apart along the line
  * of their centres by a quarter of the overlap a tick (a crowd eases apart, it is not thrown), the lighter body yielding more and, on a tilted floor, the lower one more than the upper;
  * fixed circles (what the hollow holds) never move and push a body out alone. A body moves at most its own step a tick, and
- * a pair parts only as fast as its slower yielder allows, so the two keep their mass ratio. Plane units are the caller's; no
+ * a pair parts only as fast as its slower yielder allows, so the two keep their mass ratio. Only footprints that share some height
+ * press on each other ({@link Disc#level}): a body standing high over another's top does not. Plane units are the caller's; no
  * Minecraft types.
  */
 public final class Squeeze {
@@ -17,8 +18,13 @@ public final class Squeeze {
     /** The share of an overlap undone in one tick. */
     private static final double GENTLE = .25;
 
-    /** One body: centre, foot radius, mass and the most it moves in one tick. */
-    public record Body(double x, double z, double r, double mass, double step) {}
+    /** One body: centre, foot radius, mass, the most it moves in one tick, and the heights it takes (feet to top). */
+    public record Body(double x, double z, double r, double mass, double step, double bottom, double top) {
+        /** A body that takes every height. */
+        public Body(double x, double z, double r, double mass, double step) {
+            this(x, z, r, mass, step, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        }
+    }
 
     private Squeeze() {}
 
@@ -39,6 +45,7 @@ public final class Squeeze {
             var a = bodies.get(i);
             for (int j = i + 1; j < n; j++) {
                 var b = bodies.get(j);
+                if (!Disc.level(a.bottom(), a.top(), b.bottom(), b.top())) continue;
                 double dx = b.x() - a.x(), dz = b.z() - a.z(), d = Math.hypot(dx, dz), depth = a.r() + b.r() - slack - d;
                 if (depth <= TOUCH) continue;
                 out[i][2] = Math.max(out[i][2], depth);
@@ -55,6 +62,7 @@ public final class Squeeze {
                 out[j][1] += nz * apart * (1 - yieldA);
             }
             for (var c : fixed) {
+                if (!Disc.level(a.bottom(), a.top(), c.bottom(), c.top())) continue;
                 double dx = a.x() - c.x(), dz = a.z() - c.z(), d = Math.hypot(dx, dz), depth = a.r() + c.r() - slack - d;
                 if (depth <= TOUCH) continue;
                 out[i][2] = Math.max(out[i][2], depth);

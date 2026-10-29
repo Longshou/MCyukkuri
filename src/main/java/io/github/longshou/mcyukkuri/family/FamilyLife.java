@@ -492,12 +492,13 @@ public final class FamilyLife {
     }
     /** The first real contact decides (spec 8.5): the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {
-        boolean pad=FamilyNest.cushions(entity);
-        var rim=entity.getVehicle()==null&&!entity.isInWaterOrBubble()&&!pad?FamilyNest.rimCentre(entity):null;
+        boolean pad=FamilyNest.cushions(entity),hat=entity.getVehicle()!=null;
+        var rim=entity.isInWaterOrBubble()||pad?null:hat?Occupancy.hollow(entity):FamilyNest.rimCentre(entity);
         if(rim!=null&&rimRolls<RIM_ROLLS){
-            // On the soft rim or bolster it tumbles down the inner slope toward the floor (project design); the next contact decides again.
+            // On the soft rim or bolster it tumbles down the inner slope toward the floor (project design); on a hat's brim it tumbles
+            // into the hollow when there is room, else off the outer side (Gesture ROLL_IN); the next contact decides again.
             rimRolls++;entity.fallDistance=0;
-            GameplayLog.event(entity,"family","newborn on nest rim rolls inward roll={} at={} centre={}",rimRolls,entity.position(),rim);
+            GameplayLog.event(entity,"family","newborn on {} rim rolls inward roll={} at={} centre={}",hat?"hat":"nest",rimRolls,entity.position(),rim);
             entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.ROLL_IN,rim));return;
         }
         awaitingLanding=false;

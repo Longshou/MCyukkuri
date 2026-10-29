@@ -103,8 +103,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private int behaviorTick = -1;
     private boolean behaviorPicked;
     private float rollO, pitchO;
-    /** The walk grids of this floor by foot radius, and the floor they were sampled from (size, turned over, what it holds, tilt). */
-    private final Map<Double, HeightGrid> grids = new HashMap<>();
+    /** The walk grids of this floor by foot radius and height, and the floor they were sampled from (size, turned over, what it
+     *  holds, tilt). */
+    private final Map<List<Double>, HeightGrid> grids = new HashMap<>();
     private List<Object> gridFloor = List.of();
     /** The behaviour that ran last tick and its provider's id: what it keeps is released when another takes over. */
     private PlacedHatBehavior ran;
@@ -194,12 +195,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
-    /** No other rider's foot circle overlaps this one: radius half the body width plus 0.02 ({@link Occupancy#foot}), slack 0.02 (spec 6), nor what lies in
-     *  the hollow. */
-    @Override public boolean room(YukkuriEntity body, Vec3 local) {
-        return body != null && local != null && !cooling(body) && clear(new Disc(local.x, local.z, footOf(body)), body);
+    /** No other rider's footprint overlaps this one: radius half the body width plus 0.02 ({@link Occupancy#foot}), slack 0.02 (spec 6),
+     *  over its height from the feet up (to {@code top} at least), nor what lies in the hollow; a store or a newborn low in the
+     *  hollow under a body standing higher over it does not overlap it. */
+    @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
+        return body != null && local != null
+                && clear(new Disc(local.x, local.z, footOf(body), local.y, Math.max(top, local.y + tallOf(body))), body);
     }
-    /** Squeezed off this hat a moment ago: no contact seats it here again yet. */
+    /** Squeezed off this hat a moment ago: it does not bear it again yet, so no contact seats it here. */
     private boolean cooling(YukkuriEntity body) {
         Long until = reseat.get(body.getUUID());
         if (until == null) return false;
@@ -207,13 +210,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         reseat.remove(body.getUUID());
         return false;
     }
-    /** No rider's foot circle but {@code except}'s, nor anything the behaviour keeps on the floor, overlaps this one (hat units). */
+    /** No rider's footprint but {@code except}'s, nor anything the behaviour keeps on the floor, overlaps this one (hat units,
+     *  circles and heights). */
     public boolean clear(Disc foot, Entity except) {
         for (var other : getPassengers()) {
             if (other == except || !(other instanceof YukkuriEntity y)) continue;
             var spot = riders.spot(y.getUUID());
-            var at = spot != null ? spot.local() : toLocal(y.position());
-            if (foot.overlaps(new Disc(at.x, at.z, footOf(y)), ROOM_SLACK)) return false;
+            if (foot.overlaps(footprint(y, spot != null ? spot.local() : toLocal(y.position())), ROOM_SLACK)) return false;
         }
         for (var held : behavior().obstacles(this)) if (foot.overlaps(held, ROOM_SLACK)) return false;
         return true;
@@ -224,28 +227,31 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Spec 6's walk grid, centred on the hat over its brim's reach; the floor-only grid is kept per foot radius until the floor
      *  it was sampled from changed (size, turned over, what it holds, tilt step). */
     @Override public HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders) {
-        double foot = Occupancy.foot(walker.getBbWidth());
+        double foot = Occupancy.foot(walker.getBbWidth()), tall = tallOf(walker);
         var held = behavior().obstacles(this);
         float roll = Math.round(roll() / GRID_TILT) * GRID_TILT, pitch = Math.round(pitch() / GRID_TILT) * GRID_TILT;
-        if (aroundRiders) return sampleGrid(foot, held, roll, pitch, walker);
+        if (aroundRiders) return sampleGrid(foot, tall, held, roll, pitch, walker);
         List<Object> floor = List.of(unit(), upsideDown(), held, roll, pitch);
         if (!floor.equals(gridFloor) || grids.size() > 8) { grids.clear(); gridFloor = floor; }
-        return grids.computeIfAbsent(Math.round(foot * 1000) / 1000.0, r -> sampleGrid(r, held, roll, pitch, null));
+        return grids.computeIfAbsent(List.of(Math.round(foot * 1000) / 1000.0, Math.round(tall * 100) / 100.0),
+                key -> sampleGrid(key.get(0), key.get(1), held, roll, pitch, null));
     }
     /** Cells of min(GRID_CELL, the foot radius) in hat units and at least 8 across the opening; each cell's height is the floor
      *  under that foot raised to world-up at this tilt, so a slope counts toward the step a walker can take. Cells where the
-     *  foot would overlap what the floor holds (or, around riders, another rider than the walker) are unsupported. */
-    private HeightGrid sampleGrid(double foot, List<Disc> held, float roll, float pitch, YukkuriEntity walker) {
+     *  walker's footprint (its {@code tall} height up from that floor) would overlap what the floor holds (or, around riders,
+     *  another rider than the walker) are unsupported. */
+    private HeightGrid sampleGrid(double foot, double tall, List<Disc> held, float roll, float pitch, YukkuriEntity walker) {
         float[] o = HatGeometry.opening(), brim = HatGeometry.brim();
         double feet = foot / unit(), cell = Math.min(Math.min(GRID_CELL / unit(), feet), Math.min(o[1] - o[0], o[3] - o[2]) / 8);
         var tilt = new HostFrame(Vec3.ZERO, 1, 0, roll, pitch);
         int nx = (int) Math.ceil(2 * brim[0] / cell), nz = (int) Math.ceil(2 * brim[1] / cell);
         double x0 = -nx * cell / 2, z0 = -nz * cell / 2;
         return new HeightGrid(x0, z0, x0 + (nx - .5) * cell, z0 + (nz - .5) * cell, cell, (x, z) -> {
-            var disc = new Disc(x, z, feet);
-            if (walker != null ? !clear(disc, walker) : held.stream().anyMatch(thing -> disc.overlaps(thing, ROOM_SLACK))) return Double.NaN;
             var height = support(new Vec3(x, 0, z), foot);
-            return height.isPresent() ? tilt.toWorld(new Vec3(x, height.getAsDouble(), z)).y : Double.NaN;
+            if (height.isEmpty()) return Double.NaN;
+            var disc = new Disc(x, z, feet, height.getAsDouble(), height.getAsDouble() + tall);
+            if (walker != null ? !clear(disc, walker) : held.stream().anyMatch(thing -> disc.overlaps(thing, ROOM_SLACK))) return Double.NaN;
+            return tilt.toWorld(new Vec3(x, height.getAsDouble(), z)).y;
         });
     }
     /** The brim's top edge in 24 directions, through the current frame so a placed yaw is included. */
@@ -340,6 +346,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return height.isPresent() ? new Vec3(local.x, height.getAsDouble(), local.z) : local;
     }
     private double footOf(YukkuriEntity body) { return Occupancy.foot(body.getBbWidth()) / unit(); }
+    /** The body's height in hat units. */
+    private double tallOf(Entity body) { return body.getBbHeight() / unit(); }
+    /** A rider's footprint on this hat (hat units): its foot circle at {@code local}, from its feet there up its own height. */
+    private Disc footprint(YukkuriEntity body, Vec3 local) {
+        return new Disc(local.x, local.z, footOf(body), local.y, local.y + tallOf(body));
+    }
     /** The spot this rider stands on (hat units), or null when there is none: the server table, the client sync slot. */
     private Vec3 riderPlace(Entity passenger) {
         if (!level().isClientSide) {
@@ -361,26 +373,19 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         for (var p : getPassengers()) if (p.getUUID().equals(id)) return p.getId();
         return null;
     }
-    /** The supported, free spot near {@code prefer} for a body of this foot radius; nothing is kept (spec 5.1: no second store). */
-    private Vec3 nestPlace(double footRadius, Vec3 prefer) {
+    /** The supported, free spot near {@code prefer} for a body of this foot radius and height (hat units); nothing is kept
+     *  (spec 5.1: no second store). */
+    private Vec3 nestPlace(double footRadius, double tall, Vec3 prefer) {
         if (prefer == null) return null;
         if (support(prefer, footRadius * unit()).isEmpty()) return null;
         var spot = snapped(prefer, footRadius * unit());
-        return room(footRadius, spot) ? spot : null;
-    }
-    /** No rider's foot circle nor what lies in the hollow overlaps a body of this foot radius (hat units). */
-    private boolean room(double footRadius, Vec3 local) {
-        return local != null && clear(new Disc(local.x, local.z, footRadius), null);
-    }
-    /** The supported, free spot near {@code prefer} this young may take now; nothing is kept (spec 5.1: no second store). */
-    private Vec3 nestPlace(YukkuriEntity child, Vec3 prefer) {
-        return child == null || !admits(child) ? null : nestPlace(footOf(child), prefer != null ? prefer : frame().toLocal(child.position()));
+        return clear(new Disc(spot.x, spot.z, footRadius, spot.y, spot.y + tall), null) ? spot : null;
     }
     /** The first free supported place on the hat, or null; a place is asked for, never kept (no seats, no leases). */
-    private Vec3 nestSpace(double footRadius) {
+    private Vec3 nestSpace(double footRadius, double tall) {
         var centre = spots().get("centre");
         if (centre == null) return null;
-        var middle = nestPlace(footRadius, centre);
+        var middle = nestPlace(footRadius, tall, centre);
         if (middle != null) return middle;
         // Rings out from the middle, a foot radius apart: a body standing over the middle leaves the nearest free floor or brim spot.
         double reach = Math.hypot(HatGeometry.brim()[0], HatGeometry.brim()[1]);
@@ -388,16 +393,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             int around = Math.max(8, (int) Math.ceil(2 * Math.PI * ring / footRadius));
             for (int i = 0; i < around; i++) {
                 double angle = i * 2 * Math.PI / around;
-                var place = nestPlace(footRadius, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
+                var place = nestPlace(footRadius, tall, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
                 if (place != null) return place;
             }
         }
         return null;
     }
-    private Vec3 nestSpace(YukkuriEntity child) { return child == null ? null : nestSpace(footOf(child)); }
     /** The place this young would get next, without keeping it: the aim of its drawn launch. */
-    public Vec3 birthPlace(YukkuriEntity child) { return nestSpace(child); }
-    private boolean nestHasSpace(YukkuriEntity child) { return nestSpace(child) != null; }
+    public Vec3 birthPlace(YukkuriEntity child) { return child == null ? null : nestSpace(footOf(child), tallOf(child)); }
     /** I2: the rider table's keys are this host's passengers. A mismatch is reported, never "fixed" by moving a body. */
     private void checkRiders(YukkuriEntity subject) {
         if (level().isClientSide) return;
@@ -420,13 +423,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Physical boarding authority: the birth family of the owner. A cradle grants no other relation. */
     public boolean admits(YukkuriEntity child) { return child != null && !child.family().adult() && young(child); }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
-    /** The foot radius (hat units) of an unborn body of this birth size. */
-    private double newbornFoot(FamilyData.BirthKind kind,FamilyData.Child child) {
-        return Occupancy.foot(LiveBirthGeometry.unbornDimensions(kind,child).width())/unit();
-    }
-    /** The supported free place an unborn child of this size would get now (world), or null: an aim, never kept. */
+    /** The supported free place an unborn child of this size (foot radius and height) would get now (world), or null: an aim,
+     *  never kept. */
     public Vec3 birthPlace(FamilyData.BirthKind kind,FamilyData.Child child) {
-        var place = catches() && !level().isClientSide ? nestSpace(newbornFoot(kind, child)) : null;
+        var size = LiveBirthGeometry.unbornDimensions(kind,child);
+        var place = catches() && !level().isClientSide ? nestSpace(Occupancy.foot(size.width())/unit(), size.height()/unit()) : null;
         return place == null ? null : toWorld(place);
     }
     @Override protected void addPassenger(Entity passenger) {
@@ -464,15 +465,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public boolean isCradle() { return state() == State.CRADLE; }
     /** Set down by its owner to catch young, on the ground; afloat it is her boat (PlacedHatBehavior.catches). */
     public boolean catches() { return isCradle() && behavior().catches(this); }
-    @Override protected boolean canAddPassenger(Entity passenger) {
-        if (state() == State.RESCUED || !(passenger instanceof YukkuriEntity y)) return false;
-        if (y.getUUID().equals(ownerYukkuri()))
-            return !catches() && !upsideDown() && getPassengers().stream().noneMatch(p -> p.getUUID().equals(ownerYukkuri()));
-        return admits(y) && canBoard(y);
-    }
-    /** One admission predicate: aboard already, or a legal supported place is free for it. */
-    public boolean canBoard(YukkuriEntity child) {
-        return child != null && admits(child) && (hasPassenger(child) || nestPlace(child, null) != null || nestHasSpace(child));
+    @Override protected boolean canAddPassenger(Entity passenger) { return passenger instanceof YukkuriEntity y && bears(y); }
+    /** One admission predicate: its owner's own young, and the owner herself on her boat (not on the catch she sets down, not
+     *  while it lies crown up), none squeezed off it a moment ago. Where it stands and whether that spot is free is the
+     *  contact's, the climb's or the squeeze's. */
+    @Override public boolean bears(YukkuriEntity y) {
+        if (state() == State.RESCUED || y == null || cooling(y)) return false;
+        return y.getUUID().equals(ownerYukkuri()) ? !catches() && !upsideDown() : admits(y);
     }
     @Override public LivingEntity getControllingPassenger() {
         for (var p : getPassengers()) if (p instanceof YukkuriEntity y && y.getUUID().equals(ownerYukkuri())) return y;
@@ -651,7 +650,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final int SQUEEZE_OFF_TICKS = 20, RESEAT_TICKS = 40;
     private static final double CLEAR_SPEED = .1, PRESSED = .1;
     /**
-     * Q6: riders whose foot circles overlap (one landed among the others, they grew) ease apart in the hat's own plane through
+     * Q6: riders whose footprints overlap at a shared height (one landed among the others, they grew; a newborn low in the hollow
+     * under the owner standing over it does not) ease apart in the hat's own plane through
      * {@link Squeeze}: a quarter of the overlap a tick at most, the lighter one, and on a tilted floor the lower one, yielding
      * more (the owner too); what the hollow holds never moves; each moves at most its walk pace, its height the floor under it.
      * Only bodies standing on this hat take part (not one being lifted out by a grab). A rider pressed toward the rim stops at
@@ -673,7 +673,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             var at = riders.local(y.getUUID());
             bodies.add(y);
             feet.add(new Squeeze.Body(at.x, at.z, footOf(y), y.getBbWidth() * y.getBbWidth() * y.getBbHeight(),
-                    BodyAbility.of(y, load).walkSpeed() / unit));
+                    BodyAbility.of(y, load).walkSpeed() / unit, at.y, at.y + tallOf(y)));
         }
         var pose = frame();
         var down = pose.toLocal(position().add(0, -1, 0)).scale(unit);
@@ -682,7 +682,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var walls = new ArrayList<>(held);
         for (int i = 0; i < bodies.size(); i++) if (toRim(feet.get(i), moves[i], footOf(bodies.get(i)) * unit)) {
             atRim[i] = true;
-            walls.add(new Disc(feet.get(i).x(), feet.get(i).z(), feet.get(i).r()));
+            var f = feet.get(i);
+            walls.add(new Disc(f.x(), f.z(), f.r(), f.bottom(), f.top()));
         }
         if (walls.size() > held.size()) {
             // The ones held at the rim stay; the others part from them as from a wall.
@@ -758,21 +759,53 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         GameplayLog.event(this, "hat", "squeezed off rider={} at={} slide={} pressed_ticks={} riders={} held={} tilt={}/{}", y.getUUID(),
                 GameplayLog.at(at), GameplayLog.at(slide), ticks, getPassengers().size(), held, roll(), pitch());
     }
-    /** Whether two riders' foot circles, or one and what the floor holds, press on each other now (the per-tick test, no
-     *  allocation). */
+    /** How far (blocks) under a hat's surface feet must be to count as under the hat. */
+    private static final double UNDER = .05;
+    /**
+     * Nobody stays under a hat lying on the ground (it has no collision): a free body whose middle lies inside the hat's outline
+     * with its feet under the hat's surface there is eased out along the line from the hat's middle until its middle clears the
+     * outline, by {@link Squeeze}'s rule with the outline as a fixed circle (a quarter of the way a tick, at most its walk pace),
+     * through Motor. A body whose middle is outside (the mother the near brim reaches under) is left alone, and so is one in
+     * flight (its contact is the flight's). The land behaviour's contact pass; afloat the hull's own pass keeps bodies out.
+     */
+    public void clearUnder() {
+        if (level().isClientSide) return;
+        var pose = frame();
+        double unit = unit(), reach = Math.hypot(HatGeometry.brim()[0], HatGeometry.brim()[1]) * unit;
+        for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(reach, 1, reach))) {
+            if (y.isPassenger() || !y.isAlive() || Attach.of(y) instanceof AttachState.Airborne) continue;
+            var local = pose.toLocal(y.position());
+            var surface = support(local, Occupancy.foot(y.getBbWidth()));
+            if (support(local, 0).isEmpty() || surface.isEmpty() || local.y >= surface.getAsDouble() - UNDER / unit) continue;
+            double d = Math.hypot(local.x, local.z), dx = d > 1e-6 ? local.x / d : 1, dz = d > 1e-6 ? local.z / d : 0;
+            // the outline in its direction, one sampling step beyond, so the quarter steps carry its middle past it
+            double edge = HatGeometry.extent(0, 0, dx, dz, 0) + .125, foot = footOf(y);
+            var move = Squeeze.separate(List.of(new Squeeze.Body(local.x, local.z, foot, 1, BodyAbility.of(y).walkSpeed() / unit)),
+                    List.of(new Disc(0, 0, edge - foot + ROOM_SLACK)), ROOM_SLACK, 0, 0)[0];
+            var step = pose.toWorld(new Vec3(local.x + move[0], local.y, local.z + move[1])).subtract(y.position()).multiply(1, 0, 1);
+            var moved = Motor.move(y, step, "hat_under");
+            GameplayLog.limited(this, "hat", "under." + y.getUUID(), 100, "eased out from under body={} at={} step={} moved={} owner={}",
+                    y.getUUID(), GameplayLog.at(y.position()), GameplayLog.at(step), GameplayLog.at(moved), ownerYukkuri());
+        }
+    }
+    /** Whether two riders' footprints, or one and what the floor holds, press on each other now at a shared height (the
+     *  per-tick test, no allocation). */
     private boolean crowded(List<Disc> held) {
         var aboard = getPassengers();
         for (int i = 0; i < aboard.size(); i++) {
             if (!(aboard.get(i) instanceof YukkuriEntity a) || riders.spot(a.getUUID()) == null) continue;
             var p = riders.spot(a.getUUID()).local();
-            double r = footOf(a);
+            double r = footOf(a), top = p.y + tallOf(a);
             for (int j = i + 1; j < aboard.size(); j++) {
                 if (!(aboard.get(j) instanceof YukkuriEntity b) || riders.spot(b.getUUID()) == null) continue;
                 var q = riders.spot(b.getUUID()).local();
-                if (Squeeze.presses(p.x, p.z, r, q.x, q.z, footOf(b), ROOM_SLACK)) return true;
+                if (Disc.level(p.y, top, q.y, q.y + tallOf(b)) && Squeeze.presses(p.x, p.z, r, q.x, q.z, footOf(b), ROOM_SLACK)) return true;
             }
-            for (int k = 0; k < held.size(); k++)
-                if (Squeeze.presses(p.x, p.z, r, held.get(k).x(), held.get(k).z(), held.get(k).r(), ROOM_SLACK)) return true;
+            for (int k = 0; k < held.size(); k++) {
+                var thing = held.get(k);
+                if (Disc.level(p.y, top, thing.bottom(), thing.top()) && Squeeze.presses(p.x, p.z, r, thing.x(), thing.z(), thing.r(), ROOM_SLACK))
+                    return true;
+            }
         }
         return false;
     }

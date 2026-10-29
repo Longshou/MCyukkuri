@@ -45,10 +45,12 @@ public final class HullLarderRenderer {
             int units = prop.equals("forage_pile") ? HEAP : 8;
             var box = PropModels.bounds(prop, units);
             float scale = (float) (2 * HullLarder.RADIUS / Math.max(box.getXsize(), box.getZsize()));
+            // no taller than the height its footprint takes on the server (a tall pouch is drawn squat)
+            float lift = (float) Math.min(scale, HullLarder.HEIGHT / Math.max(1E-6, box.getYsize()));
             pose.pushPose();
             pose.translate(portion.at().x * unit, portion.at().y * unit, portion.at().z * unit);
             pose.mulPose(Axis.YP.rotationDegrees(i * 137.5f));
-            pose.scale(scale, scale, scale);
+            pose.scale(scale, lift, scale);
             PropModels.center(prop, pose, true);
             PropModels.render(prop, units, pose, buffers, light, OverlayTexture.NO_OVERLAY);
             pose.popPose();

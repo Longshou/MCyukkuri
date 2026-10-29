@@ -95,5 +95,7 @@ public interface PlacedHatBehavior {
         hat.setDeltaMovement(fall);
         hat.move(MoverType.SELF, fall);
         hat.pose(hat.upsideDown() ? 180 : 0, 0);
+        // its one contact pass: nobody stays under it
+        hat.clearUnder();
     };
 }

@@ -23,8 +23,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The food a floating hat holds (design 8.2, refactor WP4b). Every portion is one real item lying on its own floor circle in
- * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot may
- * share its floor, and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
+ * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot at
+ * its height may share its floor (a body standing higher over the hollow may stand over it), and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
  * and drawn from the hat's synced contents. Nothing eats from it yet (WP6).
  */
 public final class HullLarder {
@@ -33,6 +33,9 @@ public final class HullLarder {
      *  (blocks) and its ability load. */
     public static final int KINDS = DATA.get("kinds").getAsInt();
     public static final double RADIUS = DATA.get("portion_radius").getAsDouble(), LOAD = DATA.get("portion_load").getAsDouble();
+    /** How high one portion stands on the floor (blocks): its footprint takes the floor up to here, so it can lie under a body
+     *  standing higher over the hollow; its drawn prop is no taller. */
+    public static final double HEIGHT = .06;
     /** A portion weighs on the hull as a round lump of a yukkuri body's density. */
     static final double MASS = Buoyancy.bodyMass(2 * RADIUS, 2 * RADIUS, Buoyancy.BODY_DENSITY);
     /** A sneaking click hands over up to this many portions (AQUATIC_MARISA_IMPLEMENTATION); the floor is searched on this
@@ -54,11 +57,11 @@ public final class HullLarder {
     boolean empty() { return portions.isEmpty(); }
     double load() { return portions.size() * LOAD; }
 
-    /** Each portion's floor circle in hat units at this hat's size. */
+    /** Each portion's footprint in hat units at this hat's size: its floor circle, from the floor it lies on up its height. */
     List<Disc> discs(PlacedHatEntity hat) {
         if (discUnit != hat.unit() || discChanges != changes) {
-            double r = RADIUS / hat.unit();
-            discs = portions.stream().map(p -> new Disc(p.x(), p.z(), r)).toList();
+            double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit();
+            discs = portions.stream().map(p -> new Disc(p.x(), p.z(), r, p.y(), p.y() + tall)).toList();
             discUnit = hat.unit();
             discChanges = changes;
         }
@@ -173,17 +176,19 @@ public final class HullLarder {
 
     /**
      * The free floor spot for one more portion, or null: in the hollow (its whole circle below the brim), clear of every foot
-     * and portion, as far from the middle as it goes (against the hat's wall), the two sides in turn.
+     * and portion at its height (under a body standing higher over the hollow is free), as far from the middle as it goes
+     * (against the hat's wall), the two sides in turn.
      */
     private Vec3 spot(PlacedHatEntity hat) {
-        double r = RADIUS / hat.unit(), top = HatGeometry.top(), best = -1;
+        double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit(), top = HatGeometry.top(), best = -1;
         float[] o = HatGeometry.opening();
         int side = portions.size() % 2 == 0 ? 1 : -1;
         Vec3 out = null;
         for (double x = o[0] + r; x <= o[1] - r; x += LATTICE)
             for (double z = o[2] + r; z <= o[3] - r; z += LATTICE) {
                 var floor = hat.support(new Vec3(x, 0, z), RADIUS);
-                if (floor.isEmpty() || floor.getAsDouble() >= top - 1e-6 || !hat.clear(new Disc(x, z, r), null)) continue;
+                if (floor.isEmpty() || floor.getAsDouble() >= top - 1e-6
+                        || !hat.clear(new Disc(x, z, r, floor.getAsDouble(), floor.getAsDouble() + tall), null)) continue;
                 double score = (x * side > 0 ? 1000 : 0) + Math.hypot(x, z);
                 if (score > best) { best = score; out = new Vec3(x, floor.getAsDouble(), z); }
             }
