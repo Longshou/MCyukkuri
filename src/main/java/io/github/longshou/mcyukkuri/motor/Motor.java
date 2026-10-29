@@ -53,7 +53,12 @@ public final class Motor {
     /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body (spec 12). */
     public static boolean mount(YukkuriEntity body, Entity host, String cause) {
         if (body == null || host == null || host == body) return false;
-        if (!body.startRiding(host, true)) return false;
+        // Moving from one vehicle to another (a grab off the placed hat) leaves the old one where the body stands.
+        boolean previous = DISMOUNTING.get();
+        DISMOUNTING.set(true);
+        boolean mounted;
+        try { mounted = body.startRiding(host, true); } finally { DISMOUNTING.set(previous); }
+        if (!mounted) return false;
         GameplayLog.event(body, "body", "mount host={} cause={}", host.getUUID(), cause);
         // The mount is the transition: the moved body's own attach slot and nudge-out run here, once (settle never mounts).
         Attach.settle(body, cause);

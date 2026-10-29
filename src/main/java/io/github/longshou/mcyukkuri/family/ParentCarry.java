@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -245,7 +246,8 @@ public final class ParentCarry {
         if (carrier.profile().houseBody() || carrier.profile().dangerToYukkuri()) return "carrier_kind";
         if (carrier.isPassenger()) return "carrier_boarded";
         if (child.isVehicle()) return "child_carrying";
-        if (child.isPassenger() && child.getVehicle() != carrier) return "child_boarded";
+        // A body standing on a host (the placed catch hat) is lifted straight off it (spec 5.2 OnHost -> Held).
+        if (child.isPassenger() && child.getVehicle() != carrier && !(child.getVehicle() instanceof SurfaceHost)) return "child_boarded";
         if (carrier.livePregnancyProgress() > 0) return "pregnant";
         var seat = resolve(carrier, child);
         double ratio = volume(child) / Math.max(1e-6, volume(carrier));
