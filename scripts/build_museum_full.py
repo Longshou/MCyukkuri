@@ -171,7 +171,7 @@ PROBE_COMMANDS = {
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario eggs': 'yukkuri scenario eggs @s @s',
-    'scenario afloat': 'yukkuri scenario afloat @s 0 0 0 true',
+    'scenario afloat': 'yukkuri scenario afloat @s 0 0 0 true', 'scenario spawn': 'yukkuri scenario spawn 0 0 0 1',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0 fld_probe',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',

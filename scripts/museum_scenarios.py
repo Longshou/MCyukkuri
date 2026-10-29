@@ -1609,10 +1609,11 @@ def water_at(dz, out):
     return f'~{bank_dx(dz) + out} ~-1 ~{dz}'
 
 
-def afloat(owner, water, aboard=True, crew=None, food=0, middle=False):
-    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples stored in it;
-    the crew sit at its front (or, with ``middle``, its middle) and, with ``aboard``, she climbs in last into its middle."""
-    tail = f' {food}' + (' middle' if middle else '') if food or middle else ''
+def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False):
+    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples stored in it
+    (and, with ``stick``, one real stick to paddle with); the crew sit at its front (or, with ``middle``, its middle) and, with
+    ``aboard``, she climbs in last into its middle. A stick needs a crew argument (the owner's own selector when she is alone)."""
+    tail = f' {food}' + (' middle' if middle else ' stick' if stick else '') if food or middle or stick else ''
     return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '') + tail
 
 
@@ -1638,7 +1639,7 @@ pond('hat_float', '帽子漂浮·吃水与倾斜', '漂浮吃水',
      '初态已摆好：成体水生魔理沙的帽子放在静水上，她坐在帽中央，两只新生赤油坐在帽前。帽子浮在水线上，吃水由载员决定，并向赤油所坐的前方略微前倾；乘员不湿身、不陷进帽体，岸边与水中的身体不与帽体重叠',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。水上还没有让乘员自己换位置的意图（WP6），本场乘员不会自己走动。场景准备失败时聊天栏给出原因。',
+     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。帽里没有木棍，船主只在水上漂着歇（aquatic.desire 的 cruise），乘员不会自己换位置。场景准备失败时聊天栏给出原因。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_push', '推动帽子', '推动帽子',
@@ -1692,7 +1693,7 @@ pond('cargo', '帽内储粮', '帽内储粮',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3))],
      give=['minecraft:apple 8', 'minecraft:bread 4', 'minecraft:carrot 4', 'minecraft:sweet_berries 4', 'minecraft:cookie 2'],
-     note='第五种（曲奇）用来看“种类已满”。读 hat.draft 的 portions 与 draft 对照放粮前后，读帽子数据看 Motion.Portions 存档；翻覆散落是真实损失。吃粮随水上意图（WP6），本场没有。',
+     note='第五种（曲奇）用来看“种类已满”。读 hat.draft 的 portions 与 draft 对照放粮前后，读帽子数据看 Motion.Portions 存档；翻覆散落是真实损失。帽内吃粮随 WP6b，本场没有。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_crowd', '帽内挤动', '帽内挤动',
@@ -1710,8 +1711,78 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
       yk('marisa', bank_dx(-3), -3, 'land_owner', yaw=-90, label='陆地·放下', **pair_ready()),
       yk('marisa', bank_dx(3), 3, 'aqua_owner', aquatic=True, yaw=-90, label='水生·放下', **pair_ready()),
       afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False)],
-     note='两顶空帽相距 6 格，各在岸边 3 格外。可空手右击空帽摇晃至翻覆，对照倒扣后的大小。',
+     note='两顶空帽相距 6 格，各在岸边 3 格外。可空手右击空帽摇晃至翻覆，对照倒扣后的大小。水生放帽者想找回漂在外面的帽子（resolve_own_hat）：够不着就等它漂近，仍不行就下水游过去爬进去；陆地魔理沙没有这个欲望。',
      reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')])
+
+
+# ---- daily life on the water (refactor WP6a): one aquatic goal runs one drive over real desires; no scene names a goal or an intent.
+_DESIRE_NOTE = '读 aquatic.desire 看每个欲望的得分与来由、正在做的意图和刚失败的意图；[intent] start 行带 top=[前三名] 与 why=。'
+
+
+def _aquatic_young(sid, slot, dx, dz, stage, parent, **kw):
+    """A young of ``parent`` (kin written into NBT): a child that hops, or a crawling newborn (baby) that has to be carried."""
+    extra = dict(childhood=CHILDHOOD_CRAWLING_READY) if stage == 'baby' else {}
+    return yk('marisa', dx, dz, slot, stage=stage, aquatic=True, yaw=-90, uuid=uid(sid, slot),
+              kin=f'Mother:{uuid_nbt(uid(sid, parent))}', **extra, **pair_ready(), **kw)
+
+
+pond('water_colony', '自然生成·坐在自己的帽子上', '自然生成',
+     '四只成体水生魔理沙按自然生成的方式加入世界：水边的三只第 0 tick 就坐在自己放在身旁静水上的帽子里漂着（不先站在岸上、没有延迟的上船）；离水 5 格以外的第四只没有水面可放帽，留在岸上并在日志里说明原因。帽里没有木棍和粮，她们之后在水上漂着歇息',
+     '约 30 秒',
+     [*[f'yukkuri scenario spawn ~{bank_dx(dz)} ~ ~{dz} 1' for dz in (-4, 0, 4)], 'yukkuri scenario spawn ~-6 ~ ~0 1'],
+     note='日志：[aquatic] spawn afloat hat=… own=true cause=natural，[hat] placed … water=true，[hat] boarded … own=true；第四只 [aquatic] spawn refused reason=no_water。'
+          '自然生成只放帽并坐上，不另生成聚落；场景按自然生成路径调用同一钩子。' + _DESIRE_NOTE,
+     reads=[('读最近的水生魔理沙', 'yukkuri status @e[type=mcyukkuri:marisa,distance=..24,limit=1,sort=nearest] raw'),
+            ('读最近的帽子', f'data get entity {_HAT}')])
+
+pond('sail', '单体出航·划船·饿了返岸', '单体航程',
+     '成体水生魔理沙在岸上，几格外有一根木棍，没有粮：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里又没粮，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上，木棍跟着帽子回来',
+     '约 2–3 分钟（可倍速）',
+     [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=56, energy=100, hygiene=100),
+      item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
+     note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
+          '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
+          '[action] end id=take_prop outcome=DONE。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('afloat_family', '带孩子出航', '亲子出航',
+     '亲油在岸上，身边有会跳的子油和还不会跳的赤油，岸上有一根木棍：她取棍、走到岸边放帽；先后由欲望决定——护幼高时先把赤油叼在嘴里跳上帽子、放进帽腔，再在帽里等全家；子油看见亲油在岸边放帽出航就自己跳进去；全家都在帽上才算出航成功。赤油睡着时她不出航，等不来就整次失败、按欲望返岸',
+     '约 1–2 分钟',
+     [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
+      _aquatic_young('afloat_family', 'c1', bank_dx(0) - 4, 1, 'child', 'a'),
+      _aquatic_young('afloat_family', 'k1', bank_dx(0) - 4, -1, 'baby', 'a'),
+      item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
+     note='日志：[intent] start id=set_out → [action] start id=grab（赤油）→ [action] start id=hop … → [body] mount cause=hop_contact → [action] start id=release → '
+          '赤油 [body] mount cause=hop_contact（落进帽腔）；子油 [intent] start id=board_parent → [action] start id=hop；最后 [intent] end id=set_out result=DONE。'
+          '亲油依恋低时先自己上船、再回岸接赤油（protect_young 对 water_life，数据在 drive/aquatic.json）。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
+            ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('shore_family', '饿了带孩子返岸', '亲子返岸',
+     '亲油、会跳的子油和赤油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；靠岸后子油自己跳上岸，赤油由亲油叼着跳上岸、放在干地上，等孩子都下了船，亲油从岸边把空帽子收回戴上',
+     '约 1 分钟',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=35, energy=100, hygiene=100),
+      yk('marisa', bank_dx(1), 1, 'c1', stage='child', aquatic=True, yaw=-90, also=('crew',), **pair_ready()),
+      yk('marisa', bank_dx(-1), -1, 'k1', stage='baby', aquatic=True, yaw=-90, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready()),
+      afloat('a', water_at(0, 3), True, sel_all('crew'), stick=True)],
+     note='日志：[intent] start id=come_ashore（why 中 hunger 与 food_aboard=false）→ [aquatic] route purpose=come_ashore → [action] start id=paddle … → '
+          '子油 [intent] start id=follow_ashore → [action] start id=hop；亲油 [action] start id=grab → [action] start id=hop → [action] start id=release → '
+          '[action] start id=take_prop → [intent] end id=come_ashore result=DONE。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
+            ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+add('water_night', 'pond', '夜泊·岸凹里过夜', '夜泊',
+    '黄昏，亲油和两只赤油在离岸 3 格的帽子上，帽里有木棍：她划进南边有树叶遮顶的岸凹，让岸卡住帽子；赤油自己挪进帽腔，亲油俯身盖住它们睡下。约每 10 秒看一眼，漂离泊位就醒来用桨划回去（最多两次），之后就地漂睡；天亮醒来',
+    '约 9 分钟（请倍速）',
+    [*BY_ID['pond'].biome_commands(),
+     yk('marisa', bank_dx(4), 4, 'a', aquatic=True, yaw=-90, lead=True, **pair_ready()),
+     yk('marisa', bank_dx(5), 5, 'k1', stage='baby', aquatic=True, yaw=-90, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready()),
+     yk('marisa', bank_dx(3), 3, 'k2', stage='baby', aquatic=True, yaw=-90, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready()),
+     afloat('a', water_at(4, 3), True, sel_all('crew'), stick=True)],
+    env={'time': 'dusk'}, vantage=(-6, 6, -90),
+    note='日志：[intent] start id=moor → [aquatic] moor berth=… sheltered=4 → [aquatic] route purpose=moor → [action] start id=paddle；赤油 [intent] start id=nestle；'
+         '漂离时 [aquatic] moor restation；天亮 [aquatic] boat_wake。没有岸凹或木棍时 drift_sleep=true，就地漂睡。' + _DESIRE_NOTE,
+    reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
@@ -1731,6 +1802,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'water_night': 'A6',
     'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

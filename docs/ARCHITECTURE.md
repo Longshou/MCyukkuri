@@ -9,7 +9,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `MCYukkuri` | 安装聚落事件桥，接入模块资源、SERVER 配置与公共事件 |
 | `registry/` | 注册实体、方块、物品、菜单、创造栏和声音；`ModSounds` 读取打包的 `sounds.json` |
 | 各模块 `register` | 在构造期绑定一次 `DeferredRegister`；重复绑定会报错 |
-| `CommonRegistration` | 公共 mod bus／NeoForge bus 接线，声明回调顺序、优先级与取消策略 |
+| `CommonRegistration` | 公共 mod bus／NeoForge bus 接线，声明回调顺序、优先级与取消策略；登记附加模块（水生）的帽子行为、领域 Goal 与自然生成钩子，以及能力表与欲望数据的重载监听 |
 | `ClientRegistration` | 客户端专用的渲染、界面、声音与生命周期接线 |
 
 回调留在领域类；移动接线须保留上述顺序与策略。实体入场恢复考试布置；`HumanCommerce` 在完整 `super.tick()` 后执行，Post 事件再依次处理帽上乘客和野外事件发现。该顺序不保证第三方监听器的交错。
@@ -23,7 +23,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | 部分 | 职责 |
 | --- | --- |
 | `YukkuriComponents` | 唯一组件登记与实例容器，执行 tick、存读、打断和可选 Goal 绑定 |
-| `YukkuriGoals` | 构造、注册实际 Goal，绑定其显示身份 |
+| `YukkuriGoals` | 构造、注册实际 Goal，绑定其显示身份；附加模块的领域 Goal 经 `entity/DomainHooks` 加入（底座不点名） |
 | `YukkuriSync` / `YukkuriSyncState` | 实体同步与同步状态访问 |
 | `YukkuriDamage` | `BodyHit` / `HurtResult` 受击事务，区分攻击、咬击、相扑、内部消耗和终结；先结算再死亡交接 |
 | `YukkuriInteractions` | 服务端交互分派 |
@@ -71,8 +71,10 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `SpeciesProfile` / `EcologyRoutines` | 不可变物种能力（含水生种的物种事实），以及按家油／捕食种分派的被动时钟 |
 | `HomeProvider` / `LifeHome` | 住所、休息、地址、搜索与保存 |
 | `WaterDistress` / `EscapeWater`（`life/`） | 落水阶段、浸水、呼救与离水喘息归 `WaterDistress`，它不写身体：水中身体的浮力由 `BodyDriver.tickTravel` 在交给原版积分前施加（`motor/geom/Buoyancy.bodyLift`），脱困是优先级 0 的 `EscapeWaterGoal` 经 `IntentRunner` 运行的 `EscapeWater` 意图，手段只调用 `Swim`／`Climb`／`Right`，够得着只问 `ContactGeometry.canGrip`；规则见[基础生活](CORE_GAMEPLAY.md)与[落水自救](AQUATIC_MARISA_IMPLEMENTATION.md#落水救助与靠岸) |
-| `HatCustody`（`headwear/`，挂在 `LifeAccessory`） | 帽子在哪的唯一记录：`WORN`／`DEPLOYED`／`HELD_BY_PARENT`／`LOST`；读取是纯函数，转换只有命名的几种并各记一条日志；放下的帽子的托管由 `PlacedHatEntity` 以同一令牌匹配；重载从真实托管重建。水上漂走、翻正与首航留帽随 WP4–6 重建 |
+| `HatCustody`（`headwear/`，挂在 `LifeAccessory`） | 帽子在哪的唯一记录：`WORN`／`DEPLOYED`／`HELD_BY_PARENT`／`LOST`；读取是纯函数，转换只有命名的几种并各记一条日志；放下的帽子的托管由 `PlacedHatEntity` 以同一令牌匹配；重载从真实托管重建。戴着时还保管夹在帽里的木棍（存档 `HatCustody.Kit`），帽子放下时木棍随帽交给 `PlacedHatEntity`（存档 `Kit`），收回时回到托管，任何时刻只有一处 |
 | `ParentCarry`（`FamilyLife.carry()`） | 陆上亲代承托的唯一所有者：能力与座位判定、接起、放下原因与保留时间；孩子是亲油实体的真实乘客（`YukkuriEntity.canAddPassenger`／`positionRider` 委托），不另存副本；客户端经 `YukkuriView.carriedYukkuri()`／`carryMode()` 与静态座位函数读取，不读服务端组件 |
+| `Drive`／`DriveWeights`／`Desire`（`intent/`） | 一个领域的欲望竞争（技术规格 11.4）：领域 Goal 每 tick 调 `Drive.tick()`，它持有该领域唯一的 `IntentRunner`，每 10 tick（按实体 id 错开、意图结束后立即）按 `data/mcyukkuri/drive/<领域>.json` 的权重打分，承诺与持续 10 次评估的切换规则在纯函数 `DriveMath`；以 EXHAUSTED／LOST 结束的意图在领域世界签名变化前不再参评；不存档。读数 `aquatic.desire` 读 `Drive.status` |
+| `aquatic/AquaticGoal`、`AquaticLife` | 水生的唯一领域 Goal（优先级 3）与共用读取：一个 `Drive` 运行出航 `SetOut`、上岸与找回帽子 `Ashore`、夜泊 `Moor`、水上 `Cruise`、孩子随行 `Follow`；手段由 `Plan` 按现场事实逐段给出（不存阶段），身体动作只调用共享动作（`Ferry` 汇集叼起、跳上跳下、放下），水面寻路在 `Waters`（`motor/geom/GridPath` 一格一单元）；自然生成钩子经 `DomainHooks.spawn` 让水生个体第 0 tick 坐在自己的帽上 |
 | `LiveBirth`（`family/`，基于 `intent/Choreography`、`Conductor`） | 近产的胎生／茎生是母油 `FamilyLife` 指挥的一场编排：被动时钟只推进胎次账本与节拍数据（孕程、产程、出生、落地问候时刻），不写身体、不调 `run`、不停导航。母油与接生者由优先级 2 的 `BirthGoal` 用各自的 `IntentRunner` 执行当前节拍给自己的意图（`Rendezvous`／`GoTo` 会合、经 `headwear/HatProp` 的 `PlaceProp`／`TakeProp` 放帽收帽、`Face` 转向出口、`Unload` 清空）并把结果回报给编排；角色只登记在编排里，`Conductor.roleOf` 按距离查找。接收者为放下的帽、窝或地面；存档只有 `Birth` 的节拍、角色与接收者，其余重载后按真实世界重选。`GrowthSize.birth(kind, child)` 读取受孕时保存的个体基础体型，`physicalBirth` 按既有形态倍率派生实际尺寸，茎上、出生显示与碰撞共用该尺寸，客户端只读同步视图。已抽定的出生冲量与“已发射”标志存在新生儿身上；发射、首次接触与落定、窝沿滚动和落地弹跳都在它自己的 `travel` 决策 tick 里经 `Launch`／`Gesture` 执行，首次接触用 `HatGeometry.envelope`（魔理沙的身体盒与帽檐盒）。规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩) |
 | `CareDecisionLedger`（`FamilyLife.careDecisions()`） | 亲代按孩子与需求保存照护决定；陆地喂养和首便共用接受／拒绝结果，执行路径只推进真实动作与物资交接，物理失败退让各自保存 |
 | `HouseEggRelocation` / `HouseEggs` | 原窝保存整批迁卵行程、在途卵与亲代迁居交接；目标窝只预约接收空位，单枚卵的身份和孵化进度仍由 `FamilyData` 持有，搬运经过真实取放 |
@@ -82,7 +84,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `Custody` / `CustodyData` | 饲主、角色、分配、释放与已确认 NPC 死亡；未加载或 UNKNOWN 不算死亡 |
 | `FamilyData` / `YukkuriWorldData` / `SettlementData` | 家谱、对象关系／收纳、聚落账本，负责死亡、离场、过期和停止时清理。FamilyData 的 DismissedChildren 只解除记录者对孩子的照料认领；生物血缘和孩子的亲代字段保留，Bonds 的照护判断按观察者方向查询 |
 
-`headwear/PlacedHatEntity`（实体 ID `placed_hat`）保持放下的帽子的实体交接与同步时机：乘员的局部位置与朝向存于 `Riders` 并同步到 `RIDERS`，存档走同一路径；帽体几何由 `headwear/HatGeometry` 提供，四种形态的尺寸统一由 `headwear/HatScale`（成长 × 种类系数，戴帽渲染、帽实体与物品同读）给出。帽子怎么动由行为插槽 `headwear/PlacedHatBehavior` 决定：每 tick 取第一个适用的已登记提供者，否则用陆地行为（原版重力与方块碰撞、不可推、帽面水平）。行为只移动帽子本身，经 `pose` 写同步的 roll／pitch（`frame()`、乘员定位与渲染共用，存档键 `Roll`／`Pitch`），并回答 `pushable`／`push`、空手或非储存物右击 `shake`、手持物右击 `store`、帽底占位 `obstacles`、载重 `load`、帽子离开该行为／被收回／被销毁时掉出所持物的 `release`、`steady`、`catches`（不是接生帽时帽主可乘坐）、`shelters`，以及经 `SurfaceHost` 转来的扶正 `right`、划桨 `thrust` 与帽内物品 `holds`；行为要画的帽内物品写进同步槽 `CONTENTS`，客户端经 `PlacedHatView.contents()` 与 `PlacedHatRenderer.layer` 登记的图层绘制；翻覆甩出乘员只经 `Motor.dismount`。`SurfaceHost.room` 计入 `obstacles`，`load()` 进入乘员能力的载重系数 L，`walkGrid` 给宿主上 `Walk` 的 `GridPath` 规划（按帽底与倾斜档缓存）；帽子每 tick 用 `motor/geom/Squeeze` 分开脚圆重叠的乘员，只写 `Riders`，挤出帽檐的经 `Motor.dismount`，短时间内不再接纳其接触落定。`SurfaceHost.shelters` 为真时 `YukkuriEntity` 的入水与溺水判定视该乘员为干燥。水生扩展的帽体在水里即生效：`aquatic/HullAfloat` 由 `CommonRegistration` 登记，客户端遮水 `client/aquatic/HullWaterMask` 由 `ClientRegistration` 接入，纯浮力与倾斜计算在 `motor/geom/Buoyancy`；储粮为 `aquatic/HullLarder`（存于帽子 `Motion` 的 `Portions`），绘制为 `client/aquatic/HullLarderRenderer`；其余底座包不 import `aquatic`。`Paddle` 动作已接 `thrust`，水上意图随 WP6。
+`headwear/PlacedHatEntity`（实体 ID `placed_hat`）保持放下的帽子的实体交接与同步时机：乘员的局部位置与朝向存于 `Riders` 并同步到 `RIDERS`，存档走同一路径；帽体几何由 `headwear/HatGeometry` 提供，四种形态的尺寸统一由 `headwear/HatScale`（成长 × 种类系数，戴帽渲染、帽实体与物品同读）给出。帽子怎么动由行为插槽 `headwear/PlacedHatBehavior` 决定：每 tick 取第一个适用的已登记提供者，否则用陆地行为（原版重力与方块碰撞、不可推、帽面水平）。行为只移动帽子本身，经 `pose` 写同步的 roll／pitch（`frame()`、乘员定位与渲染共用，存档键 `Roll`／`Pitch`），并回答 `pushable`／`push`、空手或非储存物右击 `shake`、手持物右击 `store`、帽底占位 `obstacles`、载重 `load`、帽子离开该行为／被收回／被销毁时掉出所持物的 `release`、`steady`、`catches`（不是接生帽时帽主可乘坐）、`shelters`，以及经 `SurfaceHost` 转来的扶正 `right`、划桨 `thrust` 与帽内物品 `holds`；行为要画的帽内物品写进同步槽 `CONTENTS`，客户端经 `PlacedHatView.contents()` 与 `PlacedHatRenderer.layer` 登记的图层绘制；翻覆甩出乘员只经 `Motor.dismount`。`SurfaceHost.room` 计入 `obstacles`，`load()` 进入乘员能力的载重系数 L，`walkGrid` 给宿主上 `Walk` 的 `GridPath` 规划（按帽底与倾斜档缓存）；帽子每 tick 用 `motor/geom/Squeeze` 分开脚圆重叠的乘员，只写 `Riders`，挤出帽檐的经 `Motor.dismount`，短时间内不再接纳其接触落定。`SurfaceHost.shelters` 为真时 `YukkuriEntity` 的入水与溺水判定视该乘员为干燥。水生扩展的帽体在水里即生效：`aquatic/HullAfloat` 由 `CommonRegistration` 登记，客户端遮水 `client/aquatic/HullWaterMask` 由 `ClientRegistration` 接入，纯浮力与倾斜计算在 `motor/geom/Buoyancy`；储粮为 `aquatic/HullLarder`（存于帽子 `Motion` 的 `Portions`），绘制为 `client/aquatic/HullLarderRenderer`；其余底座包不 import `aquatic`。`Paddle` 动作已接 `thrust`；`HatProp` 的水面模式问行为插槽 `PlacedHatBehavior.carried`（提供者的 `carries`）决定能否把帽子放在水面上，`TakeProp` 嘴够到帽体或嘴／辫够到帽檐即可收回。没有动作、自由下落的身体每 tick 用 `ContactResolver` 判定是否落进宿主（被放下的孩子落进帽腔）。水上日常意图见上表 `aquatic/AquaticGoal`。
 
 `MindLife` 接收 `EmotionEvent`，业务效果不依赖对白播放；五属性由实体性格组件保存，`Cognition` 只查询规则。饲主查询正规化与成功入场后的世界清理分开，回滚保留未知字段。掉落拾取先复制要转交的一份，进食接纳后才缩减并写回剩余堆叠，不能转交已清空的引用。
 

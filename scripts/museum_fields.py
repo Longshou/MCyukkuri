@@ -412,8 +412,22 @@ class Pond(Field):
             return 0
         return 1 + int(3 * (1 - d) ** .5)      # 1 at the rim .. 4 in the middle
 
+    # A sheltered notch in the west bank for a hat moored overnight (water_night): two by two calm cells cut into the bank, under a
+    # leaf overhang two blocks above the water, so it is the one place along the shore with land on two sides and a roof.
+    COVE_DZ = 7
+
+    def cove(self):
+        """(x1, z1, x2, z2) of the cove's water cells: the two bank cells west of the first water on rows COVE_DZ and COVE_DZ + 1."""
+        z = self.pz + self.COVE_DZ
+        x = self.px - self.RX - 3
+        while self.depth(x, z) == 0 or self.depth(x, z + 1) == 0:
+            x += 1
+        return x - 2, z, x - 1, z + 1
+
     def features(self):
-        out = []
+        x1, z1, x2, z2 = self.cove()
+        out = [fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:water'),
+               fill(x1 - 1, FEET + 2, z1 - 1, x2 + 1, FEET + 2, z2 + 1, 'minecraft:oak_leaves[persistent=true]')]
         for x in range(self.px - self.RX - 2, self.px + self.RX + 3):
             run = None
             for z in range(self.pz - self.RZ - 2, self.pz + self.RZ + 3):
