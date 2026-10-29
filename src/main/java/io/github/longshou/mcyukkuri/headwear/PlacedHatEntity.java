@@ -190,7 +190,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
-    /** No other rider's foot circle overlaps this one: radius 0.42 of the body width, slack 0.02 (spec 6), nor what lies in
+    /** No other rider's foot circle overlaps this one: radius half the body width plus 0.02 ({@link Occupancy#foot}), slack 0.02 (spec 6), nor what lies in
      *  the hollow. */
     @Override public boolean room(YukkuriEntity body, Vec3 local) {
         return body != null && local != null && !cooling(body) && clear(new Disc(local.x, local.z, footOf(body)), body);
@@ -220,7 +220,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Spec 6's walk grid, centred on the hat over its brim's reach; the floor-only grid is kept per foot radius until the floor
      *  it was sampled from changed (size, turned over, what it holds, tilt step). */
     @Override public HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders) {
-        double foot = Occupancy.FOOT * walker.getBbWidth();
+        double foot = Occupancy.foot(walker.getBbWidth());
         var held = behavior().obstacles(this);
         float roll = Math.round(roll() / GRID_TILT) * GRID_TILT, pitch = Math.round(pitch() / GRID_TILT) * GRID_TILT;
         if (aroundRiders) return sampleGrid(foot, held, roll, pitch, walker);
@@ -317,7 +317,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var height = support(local, footRadius);
         return height.isPresent() ? new Vec3(local.x, height.getAsDouble(), local.z) : local;
     }
-    private double footOf(YukkuriEntity body) { return Occupancy.FOOT * body.getBbWidth() / unit(); }
+    private double footOf(YukkuriEntity body) { return Occupancy.foot(body.getBbWidth()) / unit(); }
     /** The spot this rider stands on (hat units), or null when there is none: the server table, the client sync slot. */
     private Vec3 riderPlace(Entity passenger) {
         if (!level().isClientSide) {
@@ -360,11 +360,15 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (centre == null) return null;
         var middle = nestPlace(footRadius, centre);
         if (middle != null) return middle;
-        double step = footRadius;
-        for (int i = 0; i < 4; i++) {
-            double angle = i * Math.PI / 2;
-            var place = nestPlace(footRadius, new Vec3(centre.x + Math.cos(angle) * step, centre.y, centre.z + Math.sin(angle) * step));
-            if (place != null) return place;
+        // Rings out from the middle, a foot radius apart: a body standing over the middle leaves the nearest free floor or brim spot.
+        double reach = Math.hypot(HatGeometry.brim()[0], HatGeometry.brim()[1]);
+        for (double ring = footRadius; ring <= reach; ring += footRadius) {
+            int around = Math.max(8, (int) Math.ceil(2 * Math.PI * ring / footRadius));
+            for (int i = 0; i < around; i++) {
+                double angle = i * 2 * Math.PI / around;
+                var place = nestPlace(footRadius, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
+                if (place != null) return place;
+            }
         }
         return null;
     }
@@ -396,7 +400,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
     /** The foot radius (hat units) of an unborn body of this birth size. */
     private double newbornFoot(FamilyData.BirthKind kind,FamilyData.Child child) {
-        return Occupancy.FOOT*LiveBirthGeometry.unbornDimensions(kind,child).width()/unit();
+        return Occupancy.foot(LiveBirthGeometry.unbornDimensions(kind,child).width())/unit();
     }
     /** The supported free place an unborn child of this size would get now (world), or null: an aim, never kept. */
     public Vec3 birthPlace(FamilyData.BirthKind kind,FamilyData.Child child) {

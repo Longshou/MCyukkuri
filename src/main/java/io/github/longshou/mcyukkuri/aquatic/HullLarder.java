@@ -23,14 +23,15 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The food a floating hat holds (design 8.2, refactor WP4b). Every portion is one real item lying on its own floor circle in
- * the hollow, never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot may
+ * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot may
  * share its floor, and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
  * and drawn from the hat's synced contents. Nothing eats from it yet (WP6).
  */
 public final class HullLarder {
     private static final JsonObject DATA = HatGeometry.data().getAsJsonObject("afloat");
-    /** At most this many portions of at most this many kinds; one portion's floor circle (blocks) and its ability load. */
-    public static final int MAX = DATA.get("portions").getAsInt(), KINDS = DATA.get("kinds").getAsInt();
+    /** At most this many kinds of food; the portions themselves are limited only by the free floor. One portion's floor circle
+     *  (blocks) and its ability load. */
+    public static final int KINDS = DATA.get("kinds").getAsInt();
     public static final double RADIUS = DATA.get("portion_radius").getAsDouble(), LOAD = DATA.get("portion_load").getAsDouble();
     /** A portion weighs on the hull as a round lump of a yukkuri body's density. */
     static final double MASS = Buoyancy.bodyMass(2 * RADIUS, 2 * RADIUS, Buoyancy.BODY_DENSITY);
@@ -77,7 +78,7 @@ public final class HullLarder {
         var item = stack.getItem();
         String stop = null;
         while (taken < want && stop == null) {
-            stop = hat.upsideDown() ? "upside_down" : portions.size() >= MAX ? "full" : newKind(stack) && kinds() >= KINDS ? "kinds" : null;
+            stop = hat.upsideDown() ? "upside_down" : newKind(stack) && kinds() >= KINDS ? "kinds" : null;
             var spot = stop == null ? spot(hat) : null;
             if (stop == null && spot == null) stop = "no_room";
             if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x, spot.y, spot.z)); taken++; changes++; }
@@ -89,14 +90,13 @@ public final class HullLarder {
                     by == null ? "scenario" : by.getUUID(), item, taken, want, before, portions.size(), kinds(), fmt(load()),
                     stop == null ? "none" : stop);
         } else {
-            GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={}/{} kinds={}/{} owner={}",
-                    by == null ? "scenario" : by.getUUID(), item, stop, portions.size(), MAX, kinds(), KINDS, hat.ownerYukkuri());
+            GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={} kinds={}/{} owner={}",
+                    by == null ? "scenario" : by.getUUID(), item, stop, portions.size(), kinds(), KINDS, hat.ownerYukkuri());
             var owner = hat.owner();
             if (owner != null) owner.showReaction("cheek_puff", "refuse", 40);
         }
-        if (by != null) by.displayClientMessage(Component.literal(taken > 0 ? "帽内储粮 " + portions.size() + "/" + MAX
+        if (by != null) by.displayClientMessage(Component.literal(taken > 0 ? "帽内储粮 " + portions.size() + " 份"
                 : switch (stop) {
-                    case "full" -> "帽里的粮已经满了（" + MAX + " 份）";
                     case "kinds" -> "帽里的粮已有 " + KINDS + " 种，放不下新的种类";
                     case "upside_down" -> "帽子倒扣着，放不进粮";
                     default -> "帽底没有空位放这份粮";

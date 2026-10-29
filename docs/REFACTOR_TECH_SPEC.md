@@ -209,7 +209,7 @@ public record HostFrame(Vec3 origin, double unit, float yawRad, float rollDeg, f
 |---|---|
 | `frame()` | `origin=position()`、`unit=unit()`、`yawRad=turn()`、`roll`／`pitch`：陆地为 0，水上由 WP4 的漂浮行为提供 |
 | `support` | `HatGeometry.travelSupport(local.x, local.z, r/unit)`（原 `HatVessel` NEST 几何）；结果为 NaN 时返回 empty |
-| `room` | 脚圆半径 = `0.42·bbWidth/unit`；与其他乘员（及 WP4 起的储粮圆）的圆心距小于 `r1+r2-0.02` 即为重叠 |
+| `room` | 脚圆半径 = `(0.5·bbWidth+0.02)/unit`（`Occupancy.foot`，即可见身体半宽加边距）；与其他乘员（及 WP4 起的储粮圆）的圆心距小于 `r1+r2-0.02` 即为重叠 |
 | `rim` | 对 24 个方向 θ，取 `HatVessel.extent(mode,0,0,cosθ,sinθ,0)` 处的帽檐顶点，经 `frame().toWorld` 变换 |
 | `riders` | 存在宿主上：NBT 键 `Riders`，同步槽 `RIDERS`（第 12 节） |
 
@@ -238,7 +238,7 @@ public enum Occupancy { INSIDE_SUPPORTED, ON_RIM, PARTIAL, OUTSIDE;
 
 **判定算法**（`OccupancyMath.classify`，纯函数）：
 
-- **输入**：脚点平面坐标 `(x,z)`、脚高 `y`、足迹半径 `r = 0.42·bbWidth`、`FloorShape`、`floorY`、`rimY`、`supported`（脚下是否有碰撞支撑）。
+- **输入**：脚点平面坐标 `(x,z)`、脚高 `y`、足迹半径 `r = 0.5·bbWidth+0.02`、`FloorShape`、`floorY`、`rimY`、`supported`（脚下是否有碰撞支撑）。
 - **探针**：圆心，加上半径为 `r` 的圆周上 8 个点，共 9 个。
 
 | 结果 | 条件 |

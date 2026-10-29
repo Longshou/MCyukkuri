@@ -75,7 +75,7 @@ public final class ContactResolver {
      */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         HostFrame frame = host.frame();
-        double footRadius = Occupancy.FOOT * body.getBbWidth();
+        double footRadius = Occupancy.foot(body.getBbWidth());
         // The height field is in hat units, so the tolerance in blocks has to be expressed in the same units.
         double touch = TOUCH / Math.max(1E-6, frame.unit());
         int steps = Math.max(2, (int) Math.ceil(feet.distanceTo(next) / STEP));

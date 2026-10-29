@@ -240,14 +240,14 @@ final class ScenarioSetup {
         var spots = new ArrayList<Vec3>();
         var taken = new ArrayList<Disc>(hat.behavior().obstacles(hat));
         for (var body : riders) {
-            double foot = Occupancy.FOOT * body.getBbWidth() / hat.unit();
+            double foot = Occupancy.foot(body.getBbWidth()) / hat.unit();
             var spot = freeSpot(hat, foot, middle ? 0 : HatGeometry.opening()[3] * .75, taken);
             if (spot == null) return takeBack(owner, hat, body.getName().getString() + " 在帽子上没有放得下的位置，帽子已收回。");
             spots.add(spot);
             taken.add(new Disc(spot.x, spot.z, foot));
         }
         if (aboard) {
-            var middleHeight = hat.support(Vec3.ZERO, Occupancy.FOOT * owner.getBbWidth());
+            var middleHeight = hat.support(Vec3.ZERO, Occupancy.foot(owner.getBbWidth()));
             if (middleHeight.isEmpty()) return takeBack(owner, hat, "帽子中央没有支撑，帽子已收回。");
             riders.add(owner);
             spots.add(new Vec3(0, middleHeight.getAsDouble(), 0));

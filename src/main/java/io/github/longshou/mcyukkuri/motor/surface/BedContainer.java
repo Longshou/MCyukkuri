@@ -65,7 +65,7 @@ public final class BedContainer implements Container {
 
     /** Whether a body of {@code width} standing on the level floor at plane point (x,z) is fully supported inside the hollow. */
     public boolean standsInside(double x,double z,float width){
-        return OccupancyMath.classify(x,z,floorY,Occupancy.FOOT*width,floor,floorY,rimY,true)==OccupancyMath.Result.INSIDE_SUPPORTED;
+        return OccupancyMath.classify(x,z,floorY,Occupancy.foot(width),floor,floorY,rimY,true)==OccupancyMath.Result.INSIDE_SUPPORTED;
     }
 
     @Override public FloorShape floor(){return floor;}

@@ -121,7 +121,7 @@ public final class GetTo implements Intent {
             var rim = edgePoint();
             if (rim.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_rim");
             var inside = new Vec3(rim.get().x * EDGE_INSIDE, 0, rim.get().z * EDGE_INSIDE);
-            var height = host.support(inside, Occupancy.FOOT * child.getBbWidth());
+            var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
             if (height.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
             edge = new Vec3(inside.x, height.getAsDouble(), inside.z);
             return Feasibility.pass();

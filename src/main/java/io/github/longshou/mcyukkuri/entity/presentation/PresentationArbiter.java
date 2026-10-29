@@ -280,7 +280,7 @@ public final class PresentationArbiter {
     }
     /** The rider's feet are supported at the brim's top edge rather than down in the cavity. */
     private static boolean onBrim(PlacedHatEntity hat, YukkuriEntity e) {
-        var support = hat.support(hat.frame().toLocal(e.position()), Occupancy.FOOT * e.getBbWidth());
+        var support = hat.support(hat.frame().toLocal(e.position()), Occupancy.foot(e.getBbWidth()));
         return support.isPresent() && support.getAsDouble() >= HatGeometry.top() - 1e-6;
     }
 

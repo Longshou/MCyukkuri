@@ -119,7 +119,7 @@ public final class Climb implements Action {
 
     /** The supported spot with room nearest the middle on the line in from the gripped brim (hat units), or null. */
     private Vec3 inside(YukkuriEntity body) {
-        double reach = Math.hypot(edge.x, edge.z), foot = Occupancy.FOOT * body.getBbWidth();
+        double reach = Math.hypot(edge.x, edge.z), foot = Occupancy.foot(body.getBbWidth());
         for (double r = 0; r <= reach - foot / host.frame().unit(); r += .5) {
             var height = host.support(new Vec3(edge.x / reach * r, 0, edge.z / reach * r), foot);
             if (height.isPresent() && host.room(body, new Vec3(edge.x / reach * r, height.getAsDouble(), edge.z / reach * r)))

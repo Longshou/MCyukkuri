@@ -121,7 +121,7 @@ public final class Walk implements Action {
         if (host != null) {
             if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host)
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
-            if (host.support(local, Occupancy.FOOT * body.getBbWidth()).isEmpty())
+            if (host.support(local, Occupancy.foot(body.getBbWidth())).isEmpty())
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
             return plan(body, false);
         }
@@ -212,7 +212,7 @@ public final class Walk implements Action {
         double step = Math.min(pace / Math.max(1E-6, host.frame().unit()), d);
         if (d <= step && leg < route.size() - 1) leg++;
         Vec3 next = d < 1E-9 ? spot : new Vec3(spot.x + dx / d * step, 0, spot.z + dz / d * step);
-        var height = host.support(next, Occupancy.FOOT * body.getBbWidth());
+        var height = host.support(next, Occupancy.foot(body.getBbWidth()));
         if (height.isEmpty()) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_SUPPORT, 0, "off_surface");
         next = new Vec3(next.x, height.getAsDouble(), next.z);
         if (!host.room(body, next)) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_ROOM, 0, "occupied");

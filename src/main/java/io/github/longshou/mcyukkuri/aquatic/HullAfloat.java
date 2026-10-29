@@ -359,12 +359,12 @@ public final class HullAfloat implements PlacedHatBehavior {
                 dry = frame.toWorld(new Vec3(Math.cos(a) * REACH[i], top, Math.sin(a) * REACH[i])).y > water;
             }
         }
-        return dry && hat.support(hat.frame().toLocal(rider.position()), Occupancy.FOOT * rider.getBbWidth()).isPresent();
+        return dry && hat.support(hat.frame().toLocal(rider.position()), Occupancy.foot(rider.getBbWidth())).isPresent();
     }
     @Override public String detail(PlacedHatEntity hat) {
         double top = HatGeometry.top() * hat.unit();
-        return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s portions=%d/%d",
-                draft, top - draft, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size(), HullLarder.MAX);
+        return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s portions=%d",
+                draft, top - draft, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size());
     }
 
     // ---------------------------------------------------------------- measures
