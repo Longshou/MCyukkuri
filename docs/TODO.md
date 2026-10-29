@@ -8,6 +8,10 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 重构 WP6a（Drive 与水上日常：出航、上岸、夜泊、找回帽子，恢复自然生成） | `.worktrees/wp6a-afloat` | `intent/`（Drive）、`aquatic/`（储粮除外）、`entity/YukkuriGoals`、`headwear/HatProp`、`data/mcyukkuri/drive/`、`scripts/museum_scenarios.py` 池塘场景 |
+| 重构 WP8（搬运统一：嘴叼与辫子抓） | `.worktrees/wp8-carry` | `family/ParentCarry`、`HatCarry`、`Fetch`、`motor/action/Grab`、`motor/ContactGeometry`、`client/ParentCarryPresentation`、`client/BraidPose` |
+| 试玩修复：占地圈等于可见身体、储粮改为立体粮堆 | `.worktrees/fix-occupancy` | `motor/surface/Occupancy`、`headwear/PlacedHatEntity`（占位、挤动、落点）、`aquatic/HullLarder*` 与其渲染 |
+| 试玩修复：茎缩短、抛出减小、接生站位外移、出生显示尺寸一致 | `.worktrees/fix-stem` | `family.json`、`family/BirthLaunch`、`hat_vessel.json`、`client/LiveBirthRenderer` |
 
 ## 玩法待办
 
