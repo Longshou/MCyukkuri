@@ -372,13 +372,22 @@ final class LiveBirth extends Choreography {
         }
         return null;
     }
-    /** Walk up to the empty hat, face it and put it back on (the hat_on clip); shared with the orphan-hat errand. */
+    /**
+     * Walk to the hat's own stand (where the hat_on clip's braid finds it: the inverse of the clip's placement), face its yaw
+     * and put it back on; the errand ends once the clip has carried the hat to the head. Without a floor there, beside the hat
+     * facing it. Shared with the orphan-hat errand.
+     */
     static Intent takeHat(YukkuriEntity c,PlacedHatEntity hat,long deadline){
         if(c==null||hat==null)return null;
         var prop=new HatProp(c,hat.role()==HatGeometry.Role.SELF);
-        var away=c.position().subtract(hat.position()).multiply(1,0,1);var dir=away.lengthSqr()<1E-6?new Vec3(0,0,1):away.normalize();
-        var near=SurfaceApproach.floor(c,hat.position().add(dir.scale((hat.getBbWidth()+c.getBbWidth())*.5+.2)));var at=near==null?c.position():near;
-        return new GoTo("take_hat",c,at,deadline).facing(SurfaceApproach.yaw(at,hat.position())).until(()->!prop.deployed()).then(()->new TakeProp(prop));
+        var stand=HatGeometry.stand(HatGeometry.poseOf(hat),c);var at=SurfaceApproach.floor(c,stand.at());float yaw=stand.yaw();
+        if(at==null){
+            var away=c.position().subtract(hat.position()).multiply(1,0,1);var dir=away.lengthSqr()<1E-6?new Vec3(0,0,1):away.normalize();
+            var near=SurfaceApproach.floor(c,hat.position().add(dir.scale((hat.getBbWidth()+c.getBbWidth())*.5+.2)));
+            at=near==null?c.position():near;yaw=SurfaceApproach.yaw(at,hat.position());
+        }
+        return new GoTo("take_hat",c,at,deadline).facing(yaw).until(()->!prop.deployed()&&!(c.motor().current() instanceof TakeProp))
+                .then(()->new TakeProp(prop));
     }
     /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear (spec 14 WP3b). */
     private final class Deliver implements Intent, Method {

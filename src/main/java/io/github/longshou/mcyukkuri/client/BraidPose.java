@@ -31,14 +31,24 @@ final class BraidPose {
     /** Bend the braid so its tip lies at {@code point} (model units) with this share of the clip's braid; null lets it go. */
     void reach(Vector3f point,float share){weight=point==null?0:Math.clamp(share,0,1);if(point!=null)tip.set(point);}
 
+    private int bone(String name){var bones=o.bones();for(int i=0;i<bones.length;i++)if(bones[i].name().equals(name))return i;return -1;}
+
+    /** Carry the hat (bone {@code hat} and every bone under it) so its braid grip lies on the braid tip, by this share. */
+    void holdHat(int hat,float share,Vector3f grip){
+        var bones=o.bones();var world=o.world();int lower=bone("hand_right_tip");
+        if(hat<0||lower<0||share<=0)return;
+        var move=new Matrix4f().translation(world[lower].transformPosition(new Vector3f(MODEL_TIP))
+                .sub(world[hat].transformPosition(new Vector3f(grip))).mul(share));
+        for(int i=0;i<bones.length;i++){
+            boolean under=i==hat;for(int at=bones[i].parent();!under&&at>=0;at=bones[at].parent())under=at==hat;
+            if(under)world[i].set(new Matrix4f(move).mul(world[i]));
+        }
+    }
+
     /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
     void pose(){
         var bones=o.bones();var world=o.world();var pose=o.pose();
-        int upper=-1,lower=-1;
-        for(int i=0;i<bones.length;i++){
-            if(bones[i].name().equals("hand_right"))upper=i;
-            if(bones[i].name().equals("hand_right_tip"))lower=i;
-        }
+        int upper=bone("hand_right"),lower=bone("hand_right_tip");
         if(upper<0||lower<0||bones[upper].parent()<0)return;
         var base=bones[upper];var end=bones[lower];
         Matrix4f parent=world[base.parent()];

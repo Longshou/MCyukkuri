@@ -97,11 +97,12 @@ public final class BodyDriver {
         return true;
     }
 
-    /** Ends the current action at the owner's request, keeping the physical state. */
+    /** Ends the current action at the owner's request, keeping the physical state; an uninterruptible stretch (a flight, a
+     *  hat in the braid) finishes first and then ends {@link Outcome.Interrupted}, as the interrupt bridge does. */
     public void cancel(MotorOwner candidate, String why) {
         if (current == null || owner == null || candidate == null) return;
         if (candidate.ownerId() == null || !candidate.ownerId().equals(owner.ownerId())) return;
-        abortNow(why == null ? "cancelled" : why);
+        interrupt(why == null ? "cancelled" : why);
     }
 
     public Action current() { return current; }

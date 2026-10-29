@@ -164,6 +164,9 @@ public final class YukkuriModel {
     private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
     /** Bend a Marisa's braid to {@code tip} (model units) with this share of the clip's braid, for this render; null lets it go. */
     void setBraidReach(Vector3f tip,float share){braidPose.reach(tip,share);}
+    /** The hat hangs from the braid tip by its grip (model units) with this share, for this render (the hat_off / hat_on clips). */
+    private float hatInBraid;private Vector3f hatGrip;
+    void setHatInBraid(float share,Vector3f grip){hatInBraid=Math.clamp(share,0,1);hatGrip=grip;}
     /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
     void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
         boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
@@ -862,6 +865,7 @@ public final class YukkuriModel {
             float lowered=bodyMinimumY();if(lowered<floor)raiseWorld(floor-lowered);
         }
         if(braidPose.active())braidPose.pose();
+        if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
@@ -1092,7 +1096,7 @@ public final class YukkuriModel {
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
-        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=hatInBraid=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }

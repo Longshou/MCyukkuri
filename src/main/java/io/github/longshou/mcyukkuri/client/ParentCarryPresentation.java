@@ -4,10 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
+import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
+import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -97,7 +100,17 @@ final class ParentCarryPresentation {
         } else if (held != null) {
             model.setBraidReach(modelPoint(carrier, scruff(held, ParentCarry.rawSeat(carrier, held, partial), yaw(carrier, partial)), partial), 1);
         }
-        boolean lifting = reaching == null && carrier.motorAction().equals(Grab.ID);
+        String action = carrier.motorAction();
+        if (action.equals(TakeProp.ID) || action.equals(PlaceProp.ID)) {
+            // The hat rides the braid tip between the clip's grip and release; at those two ends it lies where the clip
+            // puts it (the placed hat, the head), so it is never in two places and never jumps.
+            String id = carrier.getAnimationId();
+            var clip = ClipMarkers.of(id);
+            int grip = clip.ticks(TakeProp.GRIP_MARKER, 0), release = clip.ticks(TakeProp.RELEASE_MARKER, clip.length() - 1);
+            float q = (now - carrier.motorStart() - grip) / Math.max(1, release - grip);
+            model.setHatInBraid(ease(q * 4) * ease((1 - q) * 4), HatGeometry.gripWorn(id.endsWith("_aq"), id.contains("_self")));
+        }
+        boolean lifting = reaching == null && action.equals(Grab.ID);
         var state = CARRIERS.get(carrier.getId());
         if (state == null && !carrier.isVehicle() && !lifting) return;
         if (state == null) { prune(CARRIERS, now); CARRIERS.put(carrier.getId(), state = new Carrier()); }

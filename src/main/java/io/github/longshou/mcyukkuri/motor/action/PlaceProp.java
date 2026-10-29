@@ -18,9 +18,11 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Set a prop down at a stand (spec 9.4 {@code PlaceProp}): play the prop's own clip and make the one irreversible
- * transfer at the clip's {@code release} marker (fallback: the clip's last tick). Feasibility is checked once, before the
- * action starts ({@link #check}); the body then commits to the clip instead of re-validating every tick, and a world that
- * changed underneath is the prop's own refusal at the marker ({@code NO_ROOM}).
+ * transfer at the clip's {@code release} marker (fallback: the clip's last tick). From the {@code grip} marker (fallback:
+ * the first tick) the braid holds the prop and the clip carries it to the stand, a stretch that cannot be cut short, so the
+ * hat never snaps back to the head. Feasibility is checked once, before the action starts ({@link #check}); the body then
+ * commits to the clip instead of re-validating every tick, and a world that changed underneath is the prop's own refusal
+ * at the marker ({@code NO_ROOM}).
  *
  * <p>The action never moves the body: the stand and yaw are the role's own aim, and playing the clip is a presentation.
  * The prop supplies everything species-specific (clip ids, self variant, land or floating mode); the motor layer stays
@@ -35,6 +37,7 @@ public final class PlaceProp implements Action {
     private final Vec3 at;
     private final float yaw;
     private long startTick;
+    private boolean holding;
 
     public PlaceProp(Prop prop, Vec3 at, float yaw) {
         if (prop == null) throw new IllegalArgumentException("PlaceProp needs the prop");
@@ -58,6 +61,7 @@ public final class PlaceProp implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         int release = releaseTicks();
         long elapsed = body.level().getGameTime() - startTick;
+        holding = elapsed >= ClipMarkers.of(clip()).ticks(TakeProp.GRIP_MARKER, 0);
         if (elapsed < release) return new Running(release - elapsed, TravelMode.PASS);
         // The world may have changed during the clip: the same refusal the start check gives, before the one transfer.
         Feasibility still = check(body);
@@ -66,6 +70,9 @@ public final class PlaceProp implements Action {
         if (placed == null) return Outcome.of(Reason.NO_ROOM, 0, "set_down_refused");
         return new Outcome.Done("prop=" + prop.id() + " entity=" + placed.getUUID() + " at=" + GameplayLog.at(at));
     }
+
+    /** Once the braid holds the prop the clip runs on to the stand; before that any request may replace it. */
+    @Override public boolean interruptible() { return !holding; }
 
     @Override public MotionPose pose() { return new MotionPose(clip(), startTick, false); }
 

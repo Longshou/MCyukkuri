@@ -332,7 +332,7 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
-           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后逐只取出幼体（嘴够得着就叼，够不着的转身伸辫卷起，日志 [action] start id=grab reach=mouth／braid）、放到帽外地面，再戴回帽子', 'land_caught')
+           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后逐只取出幼体（嘴够得着就叼，够不着的转身伸辫卷起，日志 [action] start id=grab reach=mouth／braid）、放到帽外地面，再走回放帽站位戴回帽子（摘帽、戴帽时帽子挂在辫梢随动作移动，地上的帽在辫子托起时消失、放下时出现，不重复、不瞬移）', 'land_caught')
 land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', 'caught', 'marisa',
            '父油从母油十余格外出发，先寻母、双方走到共同选定的安全位置，再摘帽放好；观察途中不会被普通觅食或闲逛抢走，母油对准真实帽子后生产',
            'land_caught', father_x=-10)

@@ -76,6 +76,12 @@ public final class HatGeometry {
     public static float[] brim(){return LAND.brim;}
     /** The authored hat data (hat_vessel.json): its scale table and the afloat physics. */
     public static JsonObject data(){return DATA;}
+    /** Where the braid holds the worn hat in a placement mode (hat_vessel.json grip_worn, model units): the hat hangs from the
+     *  braid tip by this point while the hat_off / hat_on clips carry it. */
+    public static Vector3f gripWorn(boolean aquatic,boolean self){
+        var g=floats(DATA.getAsJsonObject("placements").getAsJsonObject(aquatic?"aquatic":"land").getAsJsonObject(self?"self":"helper").getAsJsonArray("grip_worn"));
+        return new Vector3f(g[0],g[1],g[2]);
+    }
     /** The worn hat and the forms that sit near it (hat_interactions.json): take-off motion per hatted form, boxes per form. */
     private static final JsonObject WORN=read("/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json");
     /** The worn hat of a hatted form (bone, lift and forward of its take-off motion), or null for a form without one. */
