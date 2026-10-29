@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.DomainHooks;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
-import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -101,7 +100,7 @@ public final class AquaticLife {
     /** The supported spot (hat units) inside the hollow nearest its middle where this body has room, or null. */
     static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) {
         var grid = hat.walkGrid(body, true);
-        double foot = Occupancy.FOOT * body.getBbWidth();
+        double foot = Occupancy.foot(body.getBbWidth());
         Vec3 best = null;
         for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
             var local = new Vec3(grid.centreX(i), 0, grid.centreZ(j));
@@ -121,7 +120,8 @@ public final class AquaticLife {
 
     /**
      * P0-1: an aquatic marisa joining the world by nature does so riding her own hat afloat on calm water beside her (a young one
-     * aboard its parent's hat), seated before her first tick; with no such water she stays ashore and says why.
+     * aboard its parent's hat), riding it from before her first tick (the hat places her on its own first tick, as it places
+     * every rider); with no such water she stays ashore and says why.
      */
     static void spawned(YukkuriEntity body, String cause) {
         if (body.level().isClientSide || !body.profile().aquatic() || body.isPassenger()) return;
@@ -140,11 +140,9 @@ public final class AquaticLife {
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
         var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().findFirst().orElse(null);
         if (water == null) return "no_water";
-        double reach = HatGeometry.brim()[0] * HatScale.of(body) / 16;
-        var at = water.onWater(reach + .05);
-        var hat = PlacedHatEntity.setDown(body, at, water.yaw() + 90, HatGeometry.Role.SELF);
+        var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
-        var middle = hat.support(Vec3.ZERO, Occupancy.FOOT * body.getBbWidth());
+        var middle = hat.support(Vec3.ZERO, Occupancy.foot(body.getBbWidth()));
         return middle.isEmpty() ? "no_floor" : board(body, hat, new Vec3(0, middle.getAsDouble(), 0), cause, true);
     }
 
@@ -154,7 +152,6 @@ public final class AquaticLife {
             return "mount_refused";
         }
         hat.riders().put(body.getUUID(), spot, 0);
-        hat.positionRider(body);
         GameplayLog.event(body, "aquatic", "spawn afloat hat={} own={} at={} local={} cause={}", hat.getUUID(), own,
                 GameplayLog.at(hat.position()), GameplayLog.at(spot), cause);
         return null;

@@ -71,7 +71,7 @@ public final class Hop implements Action {
     public static Vec3 onto(YukkuriEntity body, SurfaceHost host) {
         var grid = host.walkGrid(body, true);
         var frame = host.frame();
-        double foot = Occupancy.FOOT * body.getBbWidth();
+        double foot = Occupancy.foot(body.getBbWidth());
         var spots = new ArrayList<Vec3>();
         for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
             var height = grid.supported(i, j) ? host.support(new Vec3(grid.centreX(i), 0, grid.centreZ(j)), foot) : null;

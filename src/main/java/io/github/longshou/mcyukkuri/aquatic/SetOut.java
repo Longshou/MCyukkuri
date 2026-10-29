@@ -2,9 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
-import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Drive;
@@ -94,11 +92,10 @@ final class SetOut implements Intent {
         }
         var edge = berth;
         var stand = edge.stand(owner.getBbWidth());
-        double reach = HatGeometry.brim()[0] * HatScale.of(owner) / 16;
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                 () -> new Step.Do(new Face(edge.yaw())),
-                // the hat's short axis toward the bank: its near brim reaches the edge
-                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), edge.onWater(reach + .05), edge.yaw() + 90)));
+                // the hat's short axis toward the bank, its near brim over the edge
+                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + 90)));
     }
 
     /** Walk beside the stick, face it, pick it up into her hat. */

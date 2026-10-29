@@ -46,9 +46,9 @@ final class Ferry {
                     var frame = hat.frame();
                     var mine = frame.toLocal(carrier.position()); var theirs = frame.toLocal(child.position());
                     var away = mine.subtract(theirs).multiply(1, 0, 1);
-                    double gap = Occupancy.FOOT * (carrier.getBbWidth() + child.getBbWidth()) / hat.unit() + .5;
+                    double gap = (Occupancy.foot(carrier.getBbWidth()) + Occupancy.foot(child.getBbWidth())) / hat.unit() + .5;
                     var to = away.lengthSqr() < 1e-6 ? theirs : theirs.add(away.normalize().scale(gap));
-                    var height = hat.support(to, Occupancy.FOOT * carrier.getBbWidth());
+                    var height = hat.support(to, Occupancy.foot(carrier.getBbWidth()));
                     return height.isEmpty() ? null : act(new Walk(hat, new Vec3(to.x, height.getAsDouble(), to.z)));
                 },
                 () -> act(new Face(SurfaceApproach.yaw(carrier.position(), child.position()))),
