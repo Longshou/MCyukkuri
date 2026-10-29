@@ -140,6 +140,7 @@ public final class AskLedger {
                     i.body.level().getGameTime() - i.opened, i.offered.size(), helpers.append(']'));
         }
         i.body = null;
+        i.offered.clear();
         trim();
     }
 

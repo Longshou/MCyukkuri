@@ -143,11 +143,6 @@ public final class AquaticLife {
     /** The hat this body rides while it floats upright (its own, or its parent's), or null. */
     static PlacedHatEntity riding(YukkuriEntity y) { return y.getVehicle() instanceof PlacedHatEntity hat && afloat(hat) ? hat : null; }
 
-    /** The parent this young body was born to or claimed by: one of its two. */
-    static boolean parentOf(YukkuriEntity parent, YukkuriEntity young) {
-        return parent.getUUID().equals(young.family().mother()) || parent.getUUID().equals(young.family().father());
-    }
-
     // ---------------------------------------------------------------- natural spawn (P0-1)
     /** Where a calm cell is looked for around a body joining the world (blocks). */
     private static final int SPAWN_REACH = 5;

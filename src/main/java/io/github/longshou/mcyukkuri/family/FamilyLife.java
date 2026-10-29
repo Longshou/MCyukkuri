@@ -33,6 +33,7 @@ import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -188,6 +189,8 @@ public final class FamilyLife {
     public void chewCareFood(YukkuriEntity child) { feeding.chew(child); }
     /** The held care food into {@code child}'s meal; the caller has seen their mouths meet (FamilyFeedingContact). */
     public boolean handCareFood(YukkuriEntity child) { return feeding.hand(child); }
+    /** The held care food back where {@code into} keeps it (a hat's hold); false when it is refused and stays held. */
+    public boolean putBackCareFood(Predicate<ItemStack> into) { return feeding.putBack(into); }
     public static final int CHEW_TICKS = FamilyFeeding.CHEW_TICKS;
     public int careChewTicks() { return feeding.chewTicks(); }
     /** Client-sync source: the child a land caregiver is currently approaching, or {@code -1}. */

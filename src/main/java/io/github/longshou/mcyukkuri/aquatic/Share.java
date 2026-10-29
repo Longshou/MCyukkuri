@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Ask;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -66,12 +65,14 @@ final class Share implements Intent {
                 new Plan("carry_across_again", this::near, reduces, this::carry));
     }
 
-    /** Both hulls afloat upright, within the two brims and a hold's reach of each other. */
+    /** Both hulls afloat upright, their brims (each toward the other) within a hold's reach of each other. */
     static boolean close(PlacedHatEntity a, PlacedHatEntity b) {
         if (!AquaticLife.afloat(a) || !AquaticLife.afloat(b) || a == b) return false;
-        double reach = HatGeometry.brim()[0] * (a.unit() + b.unit()) + ACROSS;
-        return a.position().subtract(b.position()).horizontalDistance() <= reach;
+        return a.position().subtract(b.position()).horizontalDistance() <= touching(a, b) + ACROSS;
     }
+
+    /** The middles' distance at which the two brims meet along the line between them. */
+    static double touching(PlacedHatEntity a, PlacedHatEntity b) { return HullAfloat.brimToward(a, b.position()) + HullAfloat.brimToward(b, a.position()); }
 
     private boolean close() { return close(AquaticLife.hat(mother), AquaticLife.hat(father)); }
 
@@ -146,7 +147,8 @@ final class Share implements Intent {
      */
     static final class Alongside implements Intent {
         private static final int DEADLINE = 900;
-        private static final double GAP = .15, IN = .3;
+        /** Within this (blocks) of the point where the brims meet the paddling stops: inside Share's side-by-side reach. */
+        private static final double IN = .3;
         private final YukkuriEntity father, mother;
         private final String incident;
         private final long started;
@@ -170,7 +172,7 @@ final class Share implements Intent {
             if (!AquaticLife.stick(father)) return List.of(() -> new Step.Wait(this::satisfied, 200, Behaviors.BOAT_DRIFT));
             var away = mine.position().subtract(hers.position()).multiply(1, 0, 1);
             var dir = away.lengthSqr() < 1E-6 ? new Vec3(1, 0, 0) : away.normalize();
-            var beside = hers.position().add(dir.scale(HatGeometry.brim()[0] * (mine.unit() + hers.unit()) + GAP));
+            var beside = hers.position().add(dir.scale(touching(mine, hers)));
             var water = Waters.cell(father.level(), beside);
             var route = water == null ? List.<Vec3>of() : Waters.route(mine, water);
             Waters.log(mine, father, water, route, id());

@@ -86,8 +86,11 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     HullLarder larder() { return larder; }
 
-    /** The hull's mass with its riders and stores this tick (the draft's), for how heavy one hat sits against another. */
-    static double mass(PlacedHatEntity hat) { return hat != null && hat.behavior() instanceof HullAfloat afloat ? afloat.mass : 0; }
+    /** How far (blocks) this hull's brim reaches from its middle toward a world point, at its yaw: where another hull meets it. */
+    static double brimToward(PlacedHatEntity hat, Vec3 at) {
+        var d = local(hat, at.x - hat.getX(), at.z - hat.getZ());
+        return reach(Math.atan2(d[1], d[0])) * hat.unit();
+    }
 
     private static double num(String key) { return DATA.get(key).getAsDouble(); }
 

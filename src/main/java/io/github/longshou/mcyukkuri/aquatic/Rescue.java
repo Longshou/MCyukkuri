@@ -101,21 +101,21 @@ final class Rescue implements Intent {
         if (!faller.isInWaterOrBubble()) return null;
         var larder = HullLarder.of(hat);
         if (dumped < ROOM && AquaticLife.freeSpot(hat, faller) == null && larder != null && !larder.portions().isEmpty()) return room(hat, larder);
-        var grab = new Grab(faller);
+        var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         var spot = AquaticLife.spot(hat, helper, false, hat.frame().toLocal(faller.position()));
         var here = hat.frame().toLocal(helper.position());
         if (spot != null && spot.subtract(here).horizontalDistance() >= .1)
             return List.of(() -> act(new Walk(hat, spot)), () -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))));
         // near: the faller just off the brim at its widest, where a walk to that side brings it within the mouth's reach
-        double near = HatGeometry.brim()[1] * hat.unit() + faller.getBbWidth() / 2 + .05;
+        double near = HullAfloat.brimToward(hat, faller.position()) + faller.getBbWidth() / 2 + .05;
         var water = Waters.cell(faller.level(), faller.position());
         if (water != null && AquaticLife.stick(helper) && hat.position().subtract(faller.position()).horizontalDistance() > near) {
             var route = Waters.route(hat, water);
             Waters.log(hat, helper, water, route, id());
             if (!route.isEmpty()) return List.of(() -> act(new Paddle(route.size() > 1 ? Waters.leg(route) : faller.position(), near)));
         }
-        return List.of(() -> new Step.Wait(() -> new Grab(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
+        return List.of(() -> new Step.Wait(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
     }
 
     /** No floor in the hollow for it: the portion that feeds least is tipped over the side first (a real, floating loss). */
@@ -149,7 +149,7 @@ final class Rescue implements Intent {
                     () -> act(new Face(at.yaw() + 180)), () -> act(new Release(faller)), Ferry.landed(faller));
         }
         if (!faller.isInWaterOrBubble()) return null;
-        var grab = new Grab(faller);
+        var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         if (edge == null || edge.edge().distanceTo(faller.position()) > 1.5) edge = Waters.edges(helper, faller.position(), 2, false).stream()
                 .filter(e -> SurfaceApproach.arrived(helper, e.stand(helper.getBbWidth())) || SurfaceApproach.canApproach(helper, e.stand(helper.getBbWidth())))
@@ -158,7 +158,7 @@ final class Rescue implements Intent {
         var stand = edge.stand(helper.getBbWidth());
         if (!SurfaceApproach.arrived(helper, stand)) return List.of(() -> act(Walk.stand(stand, 1.1)));
         return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))),
-                () -> new Step.Wait(() -> new Grab(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
+                () -> new Step.Wait(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
     }
 
     @Override public void ended(IntentRunner.Result result) {

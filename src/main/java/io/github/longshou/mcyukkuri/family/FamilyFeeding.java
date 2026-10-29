@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -364,6 +365,11 @@ final class FamilyFeeding {
     boolean hold(ItemStack one) {
         if(!carrying.isEmpty()||one.isEmpty())return false;
         carrying=one.copyWithCount(1);careChewTicks=careOfferTicks=careCarryTicks=0;return true;
+    }
+    /** The held care food leaves her mouth for {@code into} (a hat's hold); kept when it refuses it. */
+    boolean putBack(Predicate<ItemStack> into) {
+        if(carrying.isEmpty()||!into.test(carrying.copy()))return false;
+        carrying=ItemStack.EMPTY;careChewTicks=careOfferTicks=careCarryTicks=0;return true;
     }
     /** The held portion chewed for {@code child}: mash when it needs mash (the chewing only changes its form, spec CHILDHOOD). */
     void chew(YukkuriEntity child) {

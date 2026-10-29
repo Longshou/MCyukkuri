@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
@@ -93,6 +94,16 @@ final class Care implements Intent {
             return List.of(() -> new Step.Wait(this::chewed, FamilyLife.CHEW_TICKS + 5, Behaviors.FAMILY_CHEW));
         }
         return mouthToMouth(hat, Behaviors.BOAT_FEED_YOUNG, CONTACT, this::handed);
+    }
+
+    /** A feeding that did not hand the food over puts the portion she took back into her hold, where there is floor for it. */
+    @Override public void ended(IntentRunner.Result result) {
+        if (!feed || done) return;
+        var hat = AquaticLife.riding(parent);
+        var larder = HullLarder.of(hat);
+        var held = parent.family().carrying();
+        if (larder != null && !held.isEmpty() && parent.family().putBackCareFood(one -> larder.keep(hat, one, parent)))
+            GameplayLog.event(parent, "aquatic", "feed_young put back item={} child={} result={}", held.getItem(), child.getUUID(), result);
     }
 
     /** Chewing done: the held portion becomes mash (its form only). */

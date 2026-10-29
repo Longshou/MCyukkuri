@@ -42,15 +42,21 @@ public final class Grab implements Action {
     private double gap;
     private Face turn;
     private Vec3 at;
-    /** The target was in the water when the lift began (a rescue lifts it out); otherwise going in meanwhile ends the grab. */
-    private boolean wet;
+    /** A lift out of the water (a rescue): a target in the water is taken; any other grab ends when the target is in the water. */
+    private final boolean outOfWater;
     private int ticks, lift;
     private long startTick;
 
-    public Grab(YukkuriEntity target) {
+    public Grab(YukkuriEntity target) { this(target, false); }
+
+    private Grab(YukkuriEntity target, boolean outOfWater) {
         if (target == null) throw new IllegalArgumentException("Grab needs a target");
         this.target = target;
+        this.outOfWater = outOfWater;
     }
+
+    /** The same grab of a body in the water, lifting it out (the caller has decided to rescue it). */
+    public static Grab outOfWater(YukkuriEntity target) { return new Grab(target, true); }
 
     @Override public String id() { return ID; }
 
@@ -95,7 +101,6 @@ public final class Grab implements Action {
 
     @Override public void start(YukkuriEntity carrier) {
         at = target.position();
-        wet = target.isInWaterOrBubble();
         ticks = 0;
         startTick = carrier.level().getGameTime();
         turn = hold.reach() == Reach.BRAID ? new Face(ContactGeometry.braidYaw(carrier, target)) : null;
@@ -112,7 +117,7 @@ public final class Grab implements Action {
         double angle = turn != null && turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle, TravelMode.CONSUMED);
         // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
-        if (!wet && target.isInWaterOrBubble() || target.operations().active())
+        if (!outOfWater && target.isInWaterOrBubble() || target.operations().active())
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;

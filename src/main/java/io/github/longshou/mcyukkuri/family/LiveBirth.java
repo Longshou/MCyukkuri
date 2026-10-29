@@ -94,12 +94,12 @@ final class LiveBirth extends Choreography {
         return birth;
     }
     /** Binds the catcher and picks the receiver: the boat she rides (no catcher), else the catcher's hat (already down, or to be set
-     *  down; a hat out as a boat catches nothing), else the large nest or the ground. */
+     *  down; one whose hat is out as a boat catches nothing and is not cast), else the large nest or the ground. */
     private void recast(YukkuriEntity catcher){
         var mother=o.entity();var hull=ownHull(mother);
         if(hull!=null){bind(CATCHER,null);receiver=new OwnHull(hull.getUUID());return;}
         var hat=catcher==null?null:PlacedHatEntity.find(catcher);boolean boat=hat!=null&&!hat.catches();
-        bind(CATCHER,catcher==null||boat&&catcher==mother?null:catcher.getUUID());
+        bind(CATCHER,catcher==null||boat?null:catcher.getUUID());
         if(catcher!=null&&!boat&&HatProp.usable(catcher)&&!(catcher==mother&&FamilyNest.large(mother)))receiver=new PlacedHat(hat==null?null:hat.getUUID());
         else receiver=FamilyNest.large(mother)?new Nest():new Ground();
     }

@@ -294,7 +294,7 @@ final class Waters {
     static ItemEntity food(PlacedHatEntity hat, YukkuriEntity body, int range) {
         var level = hat.level();
         var from = cell(hat);
-        UUID id = kept(level, key(level, "food", from == null ? hat.blockPosition() : from, range), () -> {
+        UUID id = kept(level, key(level, "food", body.getUUID(), from == null ? hat.blockPosition() : from, range), () -> {
             var found = findFood(hat, body, range);
             return found == null ? null : found.getUUID();
         });

@@ -348,6 +348,8 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             boolean struggles = owner.waterDistress().struggles();
+            // out (standing, aboard, held): the fall is over, and a fall during the breath is a new incident
+            if (incident != null && !owner.isInWaterOrBubble() && (owner.onGround() || owner.isPassenger())) settle();
             // past the plunge's impact (a wade through a puddle opens none)
             if (incident == null && struggles) incident = AskLedger.server().open(owner, "water",
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
@@ -371,7 +373,9 @@ final class YukkuriGoals {
         @Override public void stop() {
             halt("escape_stop");
             owner.directNavigation().stop();
-            if (incident == null || owner.isInWaterOrBubble()) return;
+            if (incident != null && !owner.isInWaterOrBubble()) settle();
+        }
+        private void settle() {
             AskLedger.server().settle(incident, owner.getVehicle() instanceof YukkuriEntity ? "held" : owner.isPassenger() ? "aboard" : "ashore");
             incident = null;
         }

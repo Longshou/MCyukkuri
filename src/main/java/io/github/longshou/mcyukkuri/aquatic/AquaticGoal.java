@@ -215,7 +215,7 @@ final class AquaticGoal extends Goal {
             ledger.decide(ask, body.life().personality().helpProbability(true, true), body.getRandom()::nextDouble, body);
             if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
         }
-        for (var ask : ledger.offered(body.getUUID())) {
+        for (var ask : AquaticLife.riding(body) == AquaticLife.hat(body) && AquaticLife.riding(body) != null ? ledger.offered(body.getUUID()) : List.<Ask>of()) {
             ledger.decide(ask, body.life().personality().helpProbability(true, false), body.getRandom()::nextDouble, body);
             if (!ledger.helping(ask.incidentId(), body.getUUID())) continue;
             out.add(Desire.of("come_alongside", floor(num("alongside_want", 70)), List.of(ask.incidentId()), () -> "incident=" + ask.incidentId(),
