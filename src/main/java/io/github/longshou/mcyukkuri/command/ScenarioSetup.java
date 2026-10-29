@@ -214,12 +214,13 @@ final class ScenarioSetup {
     }
 
     /**
-     * The owner's real hat set down on the surface of {@code water} through the one placement path, the owner aboard when asked
-     * and every young on its own free supported spot nearest the hat's front, made her kin once every one sits aboard. Every
-     * spot is found first and kinship is written last: a setup that fails takes the hat back with the reason and leaves
-     * nothing half built. The floating, pushes and any capsize afterwards are physics.
+     * The owner's real hat set down on the surface of {@code water} through the one placement path, {@code food} apples stored
+     * in it through the same storing a player's click uses, every young on its own free supported spot nearest the hat's
+     * front (or its middle), then, when asked, the owner climbing in last into the middle of her own hat whether or not her
+     * young already sit there (a crowd the hat then squeezes apart). Kinship is written once every one sits aboard: a setup
+     * that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards is physics.
      */
-    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young) {
+    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
             return "目标格 " + water.toShortString() + " 不是水面（要是水，且上方不是水）。";
@@ -230,17 +231,26 @@ final class ScenarioSetup {
         }
         var hat = PlacedHatEntity.setDown(owner, Vec3.atBottomCenterOf(water), owner.getYRot(), HatGeometry.Role.HELPER);
         if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
-        var riders = new ArrayList<YukkuriEntity>();
-        if (aboard) riders.add(owner);
-        riders.addAll(young);
+        if (food > 0) {
+            var stock = new ItemStack(Items.APPLE, food);
+            if (!hat.behavior().store(hat, stock, null) || stock.getCount() == food)
+                return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] refused），帽子已收回。");
+        }
+        var riders = new ArrayList<YukkuriEntity>(young);
         var spots = new ArrayList<Vec3>();
-        var taken = new ArrayList<Disc>();
+        var taken = new ArrayList<Disc>(hat.behavior().obstacles(hat));
         for (var body : riders) {
             double foot = Occupancy.FOOT * body.getBbWidth() / hat.unit();
-            var spot = freeSpot(hat, foot, body == owner ? 0 : HatGeometry.opening()[3] * .75, taken);
+            var spot = freeSpot(hat, foot, middle ? 0 : HatGeometry.opening()[3] * .75, taken);
             if (spot == null) return takeBack(owner, hat, body.getName().getString() + " 在帽子上没有放得下的位置，帽子已收回。");
             spots.add(spot);
             taken.add(new Disc(spot.x, spot.z, foot));
+        }
+        if (aboard) {
+            var middleHeight = hat.support(Vec3.ZERO, Occupancy.FOOT * owner.getBbWidth());
+            if (middleHeight.isEmpty()) return takeBack(owner, hat, "帽子中央没有支撑，帽子已收回。");
+            riders.add(owner);
+            spots.add(new Vec3(0, middleHeight.getAsDouble(), 0));
         }
         for (int i = 0; i < riders.size(); i++) {
             var body = riders.get(i);
@@ -252,8 +262,8 @@ final class ScenarioSetup {
             hat.riders().put(body.getUUID(), spots.get(i), 0);
         }
         for (var child : young) kin(owner, child, false);
-        GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={}",
-                hat.getUUID(), water.toShortString(), aboard, young.size());
+        GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={}",
+                hat.getUUID(), water.toShortString(), aboard, young.size(), middle ? "middle" : "front", food);
         return null;
     }
 

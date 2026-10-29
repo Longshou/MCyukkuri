@@ -354,7 +354,7 @@
     "lore": "LiveBirthGeometry.deform; used for the live exit (the body's half width at a full belly)"
   },
   "afloat": {
-    "lore": "Project design (refactor WP4a): the set-down hat floats on any water. Buoyancy holds its axis at the draft the load sinks it to (riders as round bodies of the WaterDistress density, a cloth hull of hull_mass per scale squared), with a spring and damper (spring, damping, max_rise); the old hull rode the surface with gain 0.35 clamped to 0.12. Horizontally vanilla water flow pushes it and drag keeps that much speed per tick (the old drift's 0.88). Tilt springs back toward the riders' heel (tilt_spring, tilt_damping); an empty-hand click rocks it by shake deg/tick, pumping a swing already going; a shove heels it push_heel deg per block/tick it is moved; a block it runs into tips it bump_tilt deg/tick per block/tick lost. Past the angle where the brim edge meets the water it capsizes when it stays there capsize_ticks or goes capsize_hard times past it, turning over at flip_rate deg/tick and throwing its riders. Above unsteady_rate deg/tick it is not steady.",
+    "lore": "Project design (refactor WP4a): the set-down hat floats on any water. Buoyancy holds its axis at the draft the load sinks it to (riders as round bodies of the WaterDistress density, a cloth hull of hull_mass per scale squared), with a spring and damper (spring, damping, max_rise); the old hull rode the surface with gain 0.35 clamped to 0.12. Horizontally vanilla water flow pushes it and drag keeps that much speed per tick (the old drift's 0.88). Tilt springs back toward the riders' heel (tilt_spring, tilt_damping); an empty-hand click rocks it by shake deg/tick, pumping a swing already going; a shove heels it push_heel deg per block/tick it is moved; a block it runs into tips it bump_tilt deg/tick per block/tick lost. Past the angle where the brim edge meets the water it capsizes when it stays there capsize_ticks or goes capsize_hard times past it, turning over at flip_rate deg/tick and throwing its riders. Above unsteady_rate deg/tick it is not steady. Food lies in the hollow as portions (refactor WP4b): at most portions of at most kinds, each a real item on its own floor circle of portion_radius blocks, weighing as a round lump of the body density on the draft and heel and portion_load on its riders' pace (the old larder's 0.5 a portion, ability load_ref 12).",
     "hull_mass": 0.004,
     "spring": 0.12,
     "damping": 0.3,
@@ -368,6 +368,10 @@
     "capsize_ticks": 4,
     "capsize_hard": 1.5,
     "flip_rate": 15.0,
-    "unsteady_rate": 1.0
+    "unsteady_rate": 1.0,
+    "portions": 12,
+    "kinds": 4,
+    "portion_radius": 0.06,
+    "portion_load": 0.5
   }
 }

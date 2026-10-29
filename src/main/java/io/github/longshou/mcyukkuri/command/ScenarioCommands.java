@@ -182,9 +182,13 @@ public final class ScenarioCommands {
                                         })))))
                 .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
                         .then(Commands.argument("water", BlockPosArgument.blockPos())
-                                .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of()))
+                                .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false))
                                         .then(Commands.argument("crew", EntityArgument.entities())
-                                                .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"))))))))
+                                                .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), 0, false))
+                                                .then(Commands.argument("food", IntegerArgumentType.integer(0, 64))
+                                                        .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), IntegerArgumentType.getInteger(c, "food"), false))
+                                                        .then(Commands.literal("middle").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
+                                                                IntegerArgumentType.getInteger(c, "food"), true)))))))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
@@ -198,16 +202,19 @@ public final class ScenarioCommands {
                                 })))));
     }
 
-    /** {@code scenario afloat}: the owner's real hat set down on water, the owner and the listed young aboard (ScenarioSetup.afloat). */
-    private static int afloat(CommandContext<CommandSourceStack> c, Collection<? extends Entity> crew) throws CommandSyntaxException {
+    /** {@code scenario afloat}: the owner's real hat set down on water with {@code food} apples stored in it, the listed young and
+     *  the owner aboard (ScenarioSetup.afloat); {@code middle} seats the young in the middle of the hollow instead of the front. */
+    private static int afloat(CommandContext<CommandSourceStack> c, Collection<? extends Entity> crew, int food, boolean middle)
+            throws CommandSyntaxException {
         var owner = yukkuri(c, "owner");
         if (owner == null) return 0;
         var young = new ArrayList<YukkuriEntity>();
         for (var entity : crew) if (entity instanceof YukkuriEntity y && y != owner) young.add(y);
-        String reason = ScenarioSetup.afloat(owner, BlockPosArgument.getLoadedBlockPos(c, "water"), BoolArgumentType.getBool(c, "aboard"), young);
+        String reason = ScenarioSetup.afloat(owner, BlockPosArgument.getLoadedBlockPos(c, "water"), BoolArgumentType.getBool(c, "aboard"), young,
+                food, middle);
         if (reason != null) return refused(c.getSource(), owner, "帽子入水场景", reason);
-        tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (young.isEmpty() ? "" : "，幼体在帽里")
-                + "；之后的漂浮、推动、摇晃与翻覆按普通物理发生。", ChatFormatting.GOLD);
+        tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (food > 0 ? "，帽里有粮" : "")
+                + (young.isEmpty() ? "" : "，幼体在帽里") + "；之后的漂浮、挤动、推动、摇晃与翻覆按普通物理发生。", ChatFormatting.GOLD);
         return 1;
     }
 

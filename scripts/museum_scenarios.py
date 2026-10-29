@@ -1609,9 +1609,11 @@ def water_at(dz, out):
     return f'~{bank_dx(dz) + out} ~-1 ~{dz}'
 
 
-def afloat(owner, water, aboard=True, crew=None):
-    """`scenario afloat`: the owner sets her real hat down on the surface of that water block; with ``aboard`` she and the crew ride it."""
-    return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '')
+def afloat(owner, water, aboard=True, crew=None, food=0, middle=False):
+    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples stored in it;
+    the crew sit at its front (or, with ``middle``, its middle) and, with ``aboard``, she climbs in last into its middle."""
+    tail = f' {food}' + (' middle' if middle else '') if food or middle else ''
+    return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '') + tail
 
 
 _HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
@@ -1622,11 +1624,16 @@ def _babies():
             for name, dz in (('k1', 1), ('k2', -1))]
 
 
+def _children(rows):
+    return [yk('marisa', bank_dx(dz), dz, f'c{n}', stage='child', aquatic=True, also=('crew',), **pair_ready())
+            for n, dz in enumerate(rows, 1)]
+
+
 pond('hat_float', '帽子漂浮·吃水与倾斜', '漂浮吃水',
      '初态已摆好：成体水生魔理沙的帽子放在静水上，她坐在帽中央，两只新生赤油坐在帽前。帽子浮在水线上，吃水由载员决定，并向赤油所坐的前方略微前倾；乘员不湿身、不陷进帽体，岸边与水中的身体不与帽体重叠',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。帽内走动在后续工作包（WP4b），本场乘员不会自己换位置。场景准备失败时聊天栏给出原因。',
+     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。水上还没有让乘员自己换位置的意图（WP6），本场乘员不会自己走动。场景准备失败时聊天栏给出原因。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_push', '推动帽子', '推动帽子',
@@ -1645,6 +1652,21 @@ pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
      note='扶正与游泳要等后续工作包（WP5）：被甩出的个体可能溺水，这是真实后果。读 hat.tilt 看摇晃累积，读帽子数据看倒扣状态。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('cargo', '帽内储粮', '帽内储粮',
+     '船主坐在水面的帽里。手持食物右击帽子放进一份，潜行右击一次最多八份：每份粮是帽腔里的一件真实物品，各占一块帽底，只在帽腔、不上帽檐，hat.draft 的吃水随之加深；满十二份、超过四种，或帽底没有空位时拒绝：动作栏说明原因，船主鼓腮，帽子不晃。空手或拿非食物右击才摇晃，摇到翻覆时粮散成水面上可捡的物品',
+     '约 1 分钟',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3))],
+     give=['minecraft:apple 8', 'minecraft:bread 4', 'minecraft:carrot 4', 'minecraft:sweet_berries 4', 'minecraft:cookie 2'],
+     note='第五种（曲奇）用来看“种类已满”。读 hat.draft 的 portions 与 draft 对照放粮前后，读帽子数据看 Motion.Portions 存档；翻覆散落是真实损失。吃粮随水上意图（WP6），本场没有。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('hat_crowd', '帽内挤动', '帽内挤动',
+     '帽腔四角已有四份粮，五只子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面被挤开，轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，挤出帽檐的带着被推的速度落水（真实危险，WP5 前不会自救）',
+     '约 30 秒',
+     [captain(dx=bank_dx(0)), *_children((1, -1, 2, -2, 3)), afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, middle=True)],
+     note='日志 [hat] squeeze（限频）记被挤动的个体与步长，[hat] squeezed off 与 [body] dismount cause=squeezed 记落水；读 hat.tilt 看挤动后的倾斜。也可再空手摇晃帽子看倾斜时谁让得多。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读子油一', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_swap', '帽子大小对照', '帽子大小',
      '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；摇晃空帽翻覆后倒扣的形态大小不变',
@@ -1674,7 +1696,7 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_float': 'A1', 'hat_push': 'A1', 'shake_capsize': 'A4', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
