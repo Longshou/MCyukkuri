@@ -1,15 +1,21 @@
 package io.github.longshou.mcyukkuri.motor;
 
+import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The one place that answers "can this body reach that" (spec 10). WP1 keeps only the mouth and the brim; the braid tip
- * and the grip test belong to WP5, which also folds the four existing brim geometries into this class.
+ * The one place that answers "can this body reach that" (spec 10): the mouth, the braid tip, the brim, and the grip test
+ * every water action uses ({@link #canGrip}).
  */
 public final class ContactGeometry {
     /** The reach beyond the two body envelopes; the margin {@code ParentCarry.inReach} used, unchanged. */
@@ -49,6 +55,44 @@ public final class ContactGeometry {
             if (distance < best) { best = distance; nearest = point; }
         }
         return Optional.ofNullable(nearest);
+    }
+
+    /** A Marisa's braid in model units (braid_rescue.json): its root and where its tip rests. */
+    private static final Vec3[] BRAID = new Vec3[2];
+    static {
+        try (var in = new InputStreamReader(ContactGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json"),
+                StandardCharsets.UTF_8)) {
+            var data = JsonParser.parseReader(in).getAsJsonObject();
+            for (int i = 0; i < 2; i++) {
+                var p = data.getAsJsonArray(i == 0 ? "braid_root" : "braid_tip");
+                BRAID[i] = new Vec3(p.get(0).getAsDouble(), p.get(1).getAsDouble(), p.get(2).getAsDouble());
+            }
+        } catch (Exception broken) { throw new IllegalStateException("braid_rescue.json unreadable", broken); }
+    }
+
+    /** The braid tip at rest in world coordinates, or null for a body without a braid (only a Marisa has one). */
+    public static Vec3 braidTip(YukkuriEntity body) { return braid(body, BRAID[1]); }
+
+    /** Whether the body holds {@code point} (a brim or a bank edge): the only reach rule of the water actions. */
+    public static boolean canGrip(YukkuriEntity body, Vec3 point) { return gripGap(body, point) <= 0; }
+
+    /** How much farther {@code point} lies than mouth or braid holds (blocks, 0 or less in grip): the mouth tip within
+     *  {@link #GRAB_MARGIN}, or the braid swung about its root within its length, each with no block in between. */
+    public static double gripGap(YukkuriEntity body, Vec3 point) {
+        if (body == null || point == null) return Double.POSITIVE_INFINITY;
+        Vec3 mouth = mouth(body), root = braid(body, BRAID[0]);
+        double gap = sight(body, mouth, point) ? mouth.distanceTo(point) - GRAB_MARGIN : Double.POSITIVE_INFINITY;
+        return root != null && sight(body, root, point) ? Math.min(gap, root.distanceTo(point) - root.distanceTo(braidTip(body))) : gap;
+    }
+
+    private static boolean sight(YukkuriEntity body, Vec3 from, Vec3 to) {
+        var hit = body.level().clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, body));
+        return hit.getType() == HitResult.Type.MISS || hit.getLocation().distanceToSqr(to) < 1E-2;
+    }
+
+    private static Vec3 braid(YukkuriEntity body, Vec3 model) {
+        return body == null || body.getVariant() != YukkuriVariant.MARISA ? null : body.position()
+                .add(model.scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - body.yBodyRot)));
     }
 
     private ContactGeometry() {}

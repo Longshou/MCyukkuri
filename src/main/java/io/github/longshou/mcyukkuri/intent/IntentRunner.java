@@ -283,15 +283,12 @@ public final class IntentRunner implements MotorOwner {
         begin(to, now);
     }
 
-    /** The driver refused the action: its stored refusal if it was written this tick, else NO_PROGRESS. */
+    /** The driver refused the action: its stored refusal, in its own class, if it was written this tick, else NO_PROGRESS. */
     private void refused(long now) {
         BodyDriver driver = driver();
         Outcome refusal = driver.last();
-        if (refusal instanceof Outcome.Blocked blocked && driver.lastTick() >= now) {
-            failed(blocked.reason(), blocked.shortfall(), now);
-            return;
-        }
-        failed(Reason.NO_PROGRESS, 0, now);
+        if (refusal != null && !(refusal instanceof Outcome.Done) && driver.lastTick() >= now) read(refusal, now);
+        else failed(Reason.NO_PROGRESS, 0, now);
     }
 
     private void clearStep() {

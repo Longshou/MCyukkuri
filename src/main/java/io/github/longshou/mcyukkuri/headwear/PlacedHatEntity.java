@@ -42,6 +42,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
@@ -284,6 +285,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean steady() { return state() != State.RESCUED && behavior().steady(this); }
     /** A rider the hull keeps dry (the behaviour decides: afloat, upright, its brim above the water). */
     @Override public boolean shelters(YukkuriEntity body) { return hasPassenger(body) && !upsideDown() && behavior().shelters(this, body); }
+    @Override public boolean capsized() { return upsideDown(); }
+    @Override public boolean right(YukkuriEntity by, double progress, String cause) { return behavior().right(this, by, progress, cause); }
+    @Override public boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return behavior().thrust(this, by, drive, turn); }
+    @Override public boolean holds(Item item) { return behavior().holds(this, item); }
     @Override public boolean isPushable() { return !isRemoved() && behavior().pushable(this); }
     /** No vanilla soft push: afloat the behaviour's own contact pass is the one place bodies and the hull are separated. */
     @Override public void push(Entity other) {}

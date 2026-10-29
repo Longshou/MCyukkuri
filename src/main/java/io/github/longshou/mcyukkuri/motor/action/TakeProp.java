@@ -63,11 +63,6 @@ public final class TakeProp implements Action {
         return new Outcome.Done("prop=" + prop.id() + " worn=" + prop.worn());
     }
 
-    @Override public boolean interruptible() { return true; }
-
-    /** Nothing to undo: before the marker the prop is still deployed, after it the action has already ended. */
-    @Override public void abort(YukkuriEntity body, String why) {}
-
     @Override public MotionPose pose() { return new MotionPose(clip(), startTick, false); }
 
     @Override public String startDetail() {

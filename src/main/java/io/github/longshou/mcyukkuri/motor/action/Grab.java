@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -72,13 +71,6 @@ public final class Grab implements Action {
         target.fallDistance = 0;
         return new Outcome.Done("mounted target=" + target.getUUID());
     }
-
-    /** The lift pose moves nothing, so the grab can be abandoned until the mount actually happens. */
-    @Override public boolean interruptible() { return true; }
-
-    @Override public void abort(YukkuriEntity carrier, String why) {}
-
-    @Override public MotionPose pose() { return MotionPose.NONE; }
 
     /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes of spec 9.2. */
     private static Feasibility refusal(String problem) {

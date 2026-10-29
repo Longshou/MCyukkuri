@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -131,7 +130,7 @@ public final class Walk implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
-        pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * carrying(body);
+        pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * BodyAbility.carrying(body);
         from = body.position();
     }
 
@@ -140,13 +139,9 @@ public final class Walk implements Action {
         return host != null ? hostTick(body) : groundTick(body);
     }
 
-    @Override public boolean interruptible() { return true; }
-
     @Override public void abort(YukkuriEntity body, String why) {
         if (host == null) SurfaceApproach.halt(body);
     }
-
-    @Override public MotionPose pose() { return MotionPose.NONE; }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "from=%s to=%s arrive=%.2f",
@@ -160,7 +155,7 @@ public final class Walk implements Action {
     }
 
     private Progress groundTick(YukkuriEntity body) {
-        double paceNow = speed * carrying(body);
+        double paceNow = speed * BodyAbility.carrying(body);
         boolean arrived = avoid == null
                 ? SurfaceApproach.walk(body, target, paceNow)
                 : SurfaceApproach.walkAround(body, target, avoid, paceNow);
@@ -262,14 +257,6 @@ public final class Walk implements Action {
         var path = navigation.getPath();
         navDone = navigation.isDone();
         nodesLeft = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
-    }
-
-    /** Spec 9.4 Carry row: carrying a Held body scales the speed by {@code 1 - .5 * heldWidth / carrierWidth}. */
-    private static double carrying(YukkuriEntity body) {
-        for (var passenger : body.getPassengers())
-            if (passenger instanceof YukkuriEntity held)
-                return 1 - .5 * held.getBbWidth() / Math.max(1E-6, body.getBbWidth());
-        return 1;
     }
 
     /** The rider table's yaw convention: the body's own yaw relative to the host frame (spec 12). */

@@ -53,10 +53,6 @@ public final class Await implements Action {
         return new Running(maxTicks - ticks, TravelMode.PASS);
     }
 
-    @Override public boolean interruptible() { return true; }
-
-    @Override public void abort(YukkuriEntity body, String why) {}
-
     @Override public MotionPose pose() { return new MotionPose(clip, startTick, true); }
 
     @Override public int progressWindow() { return Integer.MAX_VALUE; }

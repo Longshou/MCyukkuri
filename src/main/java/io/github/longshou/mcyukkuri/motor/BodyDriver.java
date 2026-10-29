@@ -2,9 +2,13 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -102,12 +106,35 @@ public final class BodyDriver {
     public MotorOwner owner() { return owner; }
 
     /**
-     * Spec 2 step 4: the action's tick, run from {@code YukkuriEntity.travel} before vanilla integrates anything.
-     * With no current action this returns {@link TravelMode#PASS} and touches nothing.
+     * Spec 2 step 4: the action's tick, run from {@code YukkuriEntity.travel} before vanilla integrates anything. When vanilla
+     * then moves the body ({@link TravelMode#PASS}) and it is in water, the water's lift is added here, for every body.
      */
     public TravelMode tickTravel(Vec3 input) {
-        if (current == null) return TravelMode.PASS;
         if (body.level().isClientSide) return TravelMode.PASS;
+        TravelMode mode = current == null ? TravelMode.PASS : drive();
+        if (mode == TravelMode.PASS && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
+        return mode;
+    }
+
+    /** The water's lift ({@link Buoyancy#bodyLift}) for the share of the body's height under water over five columns of its box:
+     *  it floats about half under, whatever it does; an upward push never takes it past 0.085 block a tick. */
+    private void buoy() {
+        var box = body.getBoundingBox();
+        double d = body.getBbWidth() * .35, under = 0;
+        for (double[] c : new double[][]{{0, 0}, {-d, -d}, {d, -d}, {-d, d}, {d, d}})
+            for (int y = Mth.floor(box.minY); y <= Mth.floor(box.maxY); y++) {
+                var at = BlockPos.containing(body.getX() + c[0], y, body.getZ() + c[1]);
+                var fluid = body.level().hasChunkAt(at) ? body.level().getFluidState(at) : null;
+                if (fluid != null && fluid.is(FluidTags.WATER)) under += Math.max(0, Math.min(box.maxY, y + fluid.getHeight(body.level(), at)) - Math.max(box.minY, y));
+            }
+        double fraction = box.getYsize() <= 0 ? 0 : Math.clamp(under / (5 * box.getYsize()), 0, 1);
+        if (fraction <= 0) return;
+        Vec3 v = body.getDeltaMovement();
+        double lift = Buoyancy.bodyLift(fraction, v.y);
+        Motor.velocity(body, v.add(0, lift > 0 ? Math.max(0, Math.min(lift, .085 - v.y)) : lift, 0), "buoyancy");
+    }
+
+    private TravelMode drive() {
         Action action = current;
         if ((owner == null || !owner.active()) && action.interruptible()) {
             abortNow("owner_inactive");
@@ -119,7 +146,7 @@ public final class BodyDriver {
             return TravelMode.PASS;
         }
         if (!(progress instanceof Running running)) {
-            finish(new Outcome.Incapable(Reason.NO_PROGRESS, "tick returned no progress"));
+            finish(Outcome.of(Reason.NO_PROGRESS, 0, "tick returned no progress"));
             return TravelMode.PASS;
         }
         long tick = now();

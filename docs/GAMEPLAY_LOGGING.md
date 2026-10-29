@@ -29,7 +29,7 @@
 | `[approach]` | 接触站位不可用、绕行拐点、路径失败与接近计算耗时异常（限频）；不代表接触或业务成功 | 双方 UUID、目标与拐点；[移动接口](ARCHITECTURE.md#显示与客户端) |
 | `[care]` | 照护会合、拒绝、重新选位、真实接起／放下和停止 | 双方 UUID、会合种类；[照护](CHILDHOOD_LIFECYCLE.md) |
 | `[offering]` / `[grief]` / `[cannibal]` | 献身与护子意愿、阻塞、阶段、中断、亲属临终反应、遗体食用交餐 | 亲子、捕食者、遗体 UUID；[献身与遗体](INJURIES_AND_REMAINS.md) |
-| `[water]` | 真实入水（落水原因、浸水与阶段）、向岸自救的起点与阶段；不代表获救 | 实体 UUID、水源与实际位置；[基础生活](CORE_GAMEPLAY.md) |
+| `[water]` | 真实入水（落水原因、浸水与阶段）；自救是 `[intent] escape_water` 与其 `[method]`、`[action]`（`swim`、`climb`、`right`，带能力数值与差额）；不代表获救 | 实体 UUID、水源与实际位置；[基础生活](CORE_GAMEPLAY.md) |
 | `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、嗯嗯奴隶回坑／进食／被嫌恶、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、洞口结界拆除、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |
 | `[meal]` / `[sleep]` / `[needs]` | 实际吞咽／口服剂结果、餐程中断与退料、睡醒、饮水、排便与排泄物落块（落点、档位、溢出）、营养跨阈值 | 实体、喂食者 UUID、实际物品；[基础生活](CORE_GAMEPLAY.md) |
@@ -37,7 +37,7 @@
 | `[npc-care]` / `[human-trade]` / `[factory]` | 供餐治疗扣量、工厂工序和服役替补、真实材料／产出与交易 | NPC／玩家、工位、批次和个体；[人类世界](HUMAN_WORLD.md) |
 | `[shop]` / `[delivery]` / `[courier]` / `[exam]` | 扣款／交付／退款、配送／召回、考试受理／题目／结果／中断 | 商店、订单、token、被检实体 UUID；[宠物店](PET_SHOP.md) |
 | `[custody]` / `[badge]` / `[lesson]` / `[treasure]` | 归属与用途变化、死主清理、徽章变化、课程与技能学习、宝物转移 | 主人、目标、徽章序列 UUID；[归属](HUMAN_WORLD.md#店铺登记与饲主归属)、[宠物培育](PET_SHOP.md) |
-| `[hat]` | 放下帽子（主人、位置、尺寸、是否在水面）、在地面与水上之间切换、翻覆（原因、倾角、阈值、吃水、被甩出的乘员；乘员另记 `[body] dismount cause=thrown`）、被推（限频）、空手摇晃（限频）、储粮放入（`stored`：放入者、物品、份数前后、停止原因）、拒绝（`refused`：实际原因，限频）与掉出（`spilled`：翻覆、收回、离开水面或移除）、帽内挤动（`squeeze`，限频）与挤出帽檐（`squeezed off`；乘员另记 `[body] dismount cause=squeezed`）、场景直接摆好的水上帽子；读数 `hat.tilt`／`hat.draft`（含 `portions`） | 帽子与帽主 UUID；[水上的帽子](AQUATIC_MARISA_IMPLEMENTATION.md#放下的帽子在水上) |
+| `[hat]` | 放下帽子（主人、位置、尺寸、是否在水面）、在地面与水上之间切换、翻覆（原因、倾角、阈值、吃水、被甩出的乘员；乘员另记 `[body] dismount cause=thrown`）、被推（限频）、空手摇晃（限频）、储粮放入（`stored`：放入者、物品、份数前后、停止原因）、拒绝（`refused`：实际原因，限频）与掉出（`spilled`：翻覆、收回、离开水面或移除）、扶正（`righted cause=`：扶正者与吃水）、帽内挤动（`squeeze`，限频）与挤出帽檐（`squeezed off`；乘员另记 `[body] dismount cause=squeezed`）、场景直接摆好的水上帽子；读数 `hat.tilt`／`hat.draft`（含 `portions`） | 帽子与帽主 UUID；[水上的帽子](AQUATIC_MARISA_IMPLEMENTATION.md#放下的帽子在水上) |
 | `[contempt]` / `[sanction]` / `[headwear]` | 失饰识别与反应、制裁受理与实际动作、头饰损坏／修补／换主、原帽回收的请求／认领／完成／到期 | 双方 UUID、饰品种类／数量、实体头饰 token；[头饰](HEADWEAR.md) |
 | `[winter]` / `[temperature]` / `[weather]` / `[threat]` / `[urgency]` | 冬居、冷热与天气避难、危险响应（含灵梦封洞口开始／完成／中止）、紧急移速及睡眠交接 | 实体、住所、掩体或危险来源；[季节生活](SEASONAL_LIFE.md) |
 | `[forage]` 记录寻粮开始与发现；`[explore]` | 子油魔理沙探险的已执行抽签、开始、返程、结束或中断 | 个体数值、概率与抽取结果、起点／目标、范围和真实结果；不记录每 tick 位置 |

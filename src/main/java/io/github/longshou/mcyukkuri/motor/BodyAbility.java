@@ -28,6 +28,16 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
                 ability.size());
     }
 
+    /** The pace it presses or swims with (blocks a tick): its swim speed in water, its walk speed out of it. */
+    public double pace(boolean inWater) { return inWater ? swimSpeed : walkSpeed; }
+
+    /** Spec 9.4 Carry row: holding a body scales Walk and Swim by {@code 1 - .5 * heldWidth / carrierWidth}. */
+    public static double carrying(YukkuriEntity body) {
+        for (var passenger : body.getPassengers())
+            if (passenger instanceof YukkuriEntity held) return 1 - .5 * held.getBbWidth() / Math.max(1E-6, body.getBbWidth());
+        return 1;
+    }
+
     /** The parameter fingerprint of the loaded ability data, for the {@code body.ability} readout. */
     public String fingerprint() { return AbilityTable.fingerprint(); }
 

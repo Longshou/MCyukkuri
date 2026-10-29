@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.family.BirthLaunch;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -103,10 +102,6 @@ public final class Launch implements Action {
 
     /** A thrown body cannot be called back: it flies until it touches something. */
     @Override public boolean interruptible() { return false; }
-
-    @Override public void abort(YukkuriEntity body, String why) {}
-
-    @Override public MotionPose pose() { return MotionPose.NONE; }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "v=%s preview=%s cause=%s", GameplayLog.at(velocity), preview, cause);

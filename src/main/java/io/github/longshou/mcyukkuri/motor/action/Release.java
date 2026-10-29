@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.motor.action;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -48,12 +47,6 @@ public final class Release implements Action {
         Motor.dismount(child, child.position(), Vec3.ZERO, "release");
         return new Outcome.Done("released");
     }
-
-    @Override public boolean interruptible() { return true; }
-
-    @Override public void abort(YukkuriEntity carrier, String why) {}
-
-    @Override public MotionPose pose() { return MotionPose.NONE; }
 
     /** Whether support or water is within {@link #DROP} below the carried feet: the released body lands or falls into water. */
     private static boolean ground(YukkuriEntity child) {

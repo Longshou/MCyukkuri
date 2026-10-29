@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -56,12 +55,6 @@ public final class Face implements Action {
         // The remaining angle is the progress: a body whose turn rate is zero never reports progress and the watchdog ends it.
         return new Running(Math.abs(left), TravelMode.CONSUMED);
     }
-
-    @Override public boolean interruptible() { return true; }
-
-    @Override public void abort(YukkuriEntity body, String why) {}
-
-    @Override public MotionPose pose() { return MotionPose.NONE; }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "to=%.1f turnRate=%.1f", yaw, turnRate);

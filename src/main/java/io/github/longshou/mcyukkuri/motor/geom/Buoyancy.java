@@ -5,7 +5,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
  * ticks. Roll lifts the +x side and pitch lowers the +z side, as in {@code HostFrame}. No Minecraft types.
  */
 public final class Buoyancy {
-    /** A yukkuri body relative to water: a ball floats neutral with 56% of its height under (life/WaterDistress), d²(3-2d). */
+    /** A yukkuri body relative to water: a ball floats neutral with 56% of its height under ({@link #bodyLift}), d²(3-2d). */
     public static final double BODY_DENSITY=.56*.56*(3-2*.56);
 
     private Buoyancy(){}
@@ -15,6 +15,12 @@ public final class Buoyancy {
         public static Plane rect(double width,double length){
             return new Plane(width*length,length*width*width*width/12,width*length*length*length/12);
         }
+    }
+
+    /** A body's lift per tick at this immersed share and vertical speed: neutral near 56% against water gravity, damped; effort
+     *  and fatigue never take it away (formerly life/WaterDistress). */
+    public static double bodyLift(double fraction,double verticalVelocity){
+        return Math.clamp(.005+.045*(fraction-.56)-.08*verticalVelocity,-.018,.032);
     }
 
     /** The mass of a round body inscribed in its {@code width}² × {@code height} box. */

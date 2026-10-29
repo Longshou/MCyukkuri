@@ -83,7 +83,8 @@ public final class AbilityMath {
                          double stepUp, double walkSpeed, double turnRate, double swimSpeed, double climbRise,
                          double grip) {}
 
-    /** Spec 8.1, verbatim: S, E, H, I, F, L and every derived limit. */
+    /** Spec 8.1: S, E, H, I, F, L and every derived limit; a body that cannot jump cannot pull itself over an edge either
+     *  (refactor WP5: a crawling young is lifted out, AQUATIC_MARISA_IMPLEMENTATION), so its climb rise is 0. */
     public static Values compute(Inputs in, Coefficients coefficients, Multipliers modifiers) {
         Coefficients c = (modifiers == null ? Multipliers.IDENTITY : modifiers)
                 .apply(coefficients == null ? Coefficients.DEFAULTS : coefficients);
@@ -99,7 +100,7 @@ public final class AbilityMath {
                 c.stepUp() * size, c.walkSpeed() * size * fitness * load,
                 c.turnRate() * (c.turnFloor() + (1 - c.turnFloor()) * fitness),
                 c.swimSpeed() * size * fitness * load,
-                c.climbRise() * size * (c.climbFloor() + (1 - c.climbFloor()) * fitness), fitness);
+                jumps ? c.climbRise() * size * (c.climbFloor() + (1 - c.climbFloor()) * fitness) : 0, fitness);
     }
 
     private AbilityMath() {}

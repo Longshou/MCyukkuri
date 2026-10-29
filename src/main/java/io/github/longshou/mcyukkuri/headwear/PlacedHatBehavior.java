@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
@@ -41,6 +42,11 @@ public interface PlacedHatBehavior {
     /** What it keeps belongs to the hat: when the hat leaves this behaviour, is taken back or is destroyed, it falls out where
      *  it lies as real items ({@code cause} says which). A chunk unload saves it instead. */
     default void release(PlacedHatEntity hat, String cause) {}
+
+    /** {@code SurfaceHost.right}, {@code thrust} and {@code holds}: a hat lying here cannot be righted or paddled. */
+    default boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) { return false; }
+    default boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 drive, float turn) { return false; }
+    default boolean holds(PlacedHatEntity hat, Item item) { return false; }
 
     /** False while it shakes hard or turns over: no jump landing may be planned onto it. Synced facts only. */
     default boolean steady(PlacedHatEntity hat) { return true; }

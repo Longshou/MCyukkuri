@@ -929,9 +929,6 @@ public final class YukkuriLife {
         // This is a movement request, unlike reachable(): failure must not leave an earlier destination running.
         return entity.getNavigation().moveTo(path(target, escapeWater), speed);
     }
-    public void escapeWater() {
-        entity.waterDistress().escapeTick();
-    }
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag(); tag.putInt("Version", 1);

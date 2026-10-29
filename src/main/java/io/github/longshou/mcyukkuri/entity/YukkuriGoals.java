@@ -10,8 +10,10 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
+import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
+import io.github.longshou.mcyukkuri.life.EscapeWater;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
@@ -325,13 +327,33 @@ final class YukkuriGoals {
         @Override public void tick() { owner.social().tickGoal(); }
         @Override public void stop() { owner.social().stop(); }
     }
+    /** In water the body works its way out through the EscapeWater intent; a run that used up its ways is not started again
+     *  until the world changed (spec 11.2). Out of the water it holds still for the breath. */
     private final class EscapeWaterGoal extends Goal {
+        private IntentRunner runner;
+        private WorldSignature ended;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
         @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath())
                 && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
-        @Override public void tick() { owner.waterDistress().escapeTick(); }
-        @Override public void stop() { owner.directNavigation().stop(); }
+        @Override public void tick() {
+            if (!owner.waterDistress().struggles()) { halt("water_pause"); owner.getNavigation().stop(); return; }
+            if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
+                ended = runner.result() == IntentRunner.Result.EXHAUSTED ? signature() : null;
+                runner = null;
+            }
+            if (runner == null && !signature().equals(ended)) {
+                runner = new IntentRunner(owner, new EscapeWater(owner), "escape_water").target(() -> EscapeWater.target(owner));
+                runner.start();
+            }
+            if (runner != null) runner.tick();
+        }
+        private WorldSignature signature() {
+            var at = EscapeWater.target(owner);
+            return WorldSignature.of(at.at(), at.host(), at.blockers(), owner.level().getGameTime());
+        }
+        private void halt(String why) { if (runner != null) runner.stop(why); runner = null; }
+        @Override public void stop() { halt("escape_stop"); owner.directNavigation().stop(); }
     }
     private final class HouseExitGoal extends Goal {
         HouseExitGoal(){setFlags(EnumSet.of(Flag.MOVE));}

@@ -8,7 +8,9 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
+import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -24,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -63,6 +66,15 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private double rollRate, pitchRate, heelRoll, heelPitch, mass, draft;
     private int over, flip;
+    /** A righter's hold (WP5): how far back, about which axis (±1 roll, ±2 pitch), last held when, by whom and why; and a rider's
+     *  paddle stroke for the next tick, the water velocity it drives and the yaw it turns. */
+    private double rightProgress;
+    private int rightAxis;
+    private long rightTick = Long.MIN_VALUE;
+    private YukkuriEntity righter, paddler;
+    private String rightCause = "";
+    private Vec3 drive = Vec3.ZERO;
+    private float turnBy;
     private String cause = "load";
     private long causeTick = Long.MIN_VALUE, sampled = Long.MIN_VALUE, dryTick = Long.MIN_VALUE;
     private boolean dry;
@@ -127,26 +139,34 @@ public final class HullAfloat implements PlacedHatBehavior {
         larder.sync(hat);
         draft = Buoyancy.draft(mass, plane);
         double freeboard = top - draft, roll = hat.roll(), pitch = hat.pitch();
-        boolean down = hat.upsideDown();
+        boolean down = hat.upsideDown(), righting = righting(hat);
         // tilt: a damped spring back to the riders' heel (plus this tick's shoves), flat crown up once over
         double restRoll = flip == 1 || flip == -1 ? 180 * flip : Buoyancy.rest(roll, down ? 0 : Buoyancy.rollHeel(moX, plane) + heelRoll);
         double restPitch = flip == 2 || flip == -2 ? 90 * flip : Buoyancy.rest(pitch, down ? 0 : Buoyancy.pitchHeel(moZ, plane) + heelPitch);
         heelRoll = heelPitch = 0;
         rollRate = Buoyancy.spring(Buoyancy.wrap(restRoll - roll), rollRate, TILT_SPRING, TILT_DAMPING);
         pitchRate = Buoyancy.spring(Buoyancy.wrap(restPitch - pitch), pitchRate, TILT_SPRING, TILT_DAMPING);
+        // held by a righter: the hull turns back as far as it has pushed, no faster than a capsize turns it over
+        if (righting) {
+            double held = Math.signum(rightAxis) * 180 * (1 - rightProgress);
+            if (rightAxis % 2 != 0) rollRate = Mth.clamp(Buoyancy.wrap(held - roll), -FLIP_RATE, FLIP_RATE);
+            else pitchRate = Mth.clamp(Buoyancy.wrap(held - pitch), -FLIP_RATE, FLIP_RATE);
+        }
         if (flip != 0) { rollRate = flip % 2 != 0 ? flip * FLIP_RATE : rollRate; pitchRate = flip % 2 == 0 ? flip / 2 * FLIP_RATE : pitchRate; }
         roll = Buoyancy.wrap(roll + rollRate);
         pitch = Buoyancy.wrap(pitch + pitchRate);
         if (flip != 0 && Math.abs(flip % 2 != 0 ? roll : pitch) > 90) flip = 0;
         hat.pose((float) roll, (float) pitch);
+        if (righting && rightProgress >= 1 && Math.abs(roll) < .5 && Math.abs(pitch) < .5) righted(hat);
         double floodRoll = Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit);
         double floodPitch = Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit);
-        double ratio = down || flip != 0 ? 0 : Buoyancy.floodRatio(roll, pitch, floodRoll, floodPitch);
+        double ratio = down || flip != 0 || righting ? 0 : Buoyancy.floodRatio(roll, pitch, floodRoll, floodPitch);
         over = ratio >= 1 ? over + 1 : 0;
         if (ratio >= CAPSIZE_HARD || over >= CAPSIZE_TICKS) capsize(hat, roll, pitch, floodRoll, floodPitch, ratio, freeboard);
         // buoyancy: a spring and damper holds the hull at its draft; vanilla flow pushed it already this tick, drag slows it
         double target = water + Buoyancy.rise(Buoyancy.up(roll, pitch), draft, top);
         var v = hat.getDeltaMovement();
+        v = v.add(stroke(hat));
         var motion = new Vec3(v.x * DRAG, Mth.clamp(Buoyancy.spring(target - hat.getY(), v.y, SPRING, DAMPING), -MAX_RISE, MAX_RISE), v.z * DRAG);
         hat.setDeltaMovement(motion);
         var from = hat.position();
@@ -174,7 +194,9 @@ public final class HullAfloat implements PlacedHatBehavior {
     private void contact(PlacedHatEntity hat, Entity other) {
         if (other == hat || !(other instanceof LivingEntity) || other.isSpectator() || other.noPhysics || other.isPassenger()
                 || other.isPassengerOfSameVehicle(hat)) return;
-        if (other instanceof YukkuriEntity y && Attach.of(y) instanceof AttachState.Airborne) return;  // a jump lands by contact
+        // a jump lands by contact; a climber pulls itself over the brim
+        if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
+                || y.motor().current() instanceof Climb climb && climb.host() == hat)) return;
         double unit = hat.unit(), up = HatGeometry.top() * unit * Buoyancy.up(hat.roll(), hat.pitch());
         var box = other.getBoundingBox();
         if (box.minY >= hat.getY() + Math.max(0, up) || box.maxY <= hat.getY() + Math.min(0, up)) return;
@@ -246,6 +268,50 @@ public final class HullAfloat implements PlacedHatBehavior {
         var v = hat.getDeltaMovement().add(omega.cross(point.subtract(hat.position())));
         return v.length() > MAX_THROW ? v.normalize().scale(MAX_THROW) : v;
     }
+
+    // ---------------------------------------------------------------- righting and paddling (WP5)
+    /** A righter holds the turned-over hull {@code progress} of the way back, about the axis it lies over on; pushed all the way,
+     *  it finishes turning upright on its own ({@link #righted}). */
+    @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
+        boolean held = righting(hat);
+        if (flip != 0 || !held && !hat.upsideDown()) return false;
+        boolean byRoll = Math.abs(hat.roll()) >= Math.abs(hat.pitch());
+        if (!held) rightAxis = (byRoll ? 1 : 2) * ((byRoll ? hat.roll() : hat.pitch()) < 0 ? -1 : 1);
+        rightProgress = Mth.clamp(progress, 0, 1);
+        rightTick = hat.level().getGameTime();
+        righter = by;
+        rightCause = cause;
+        return true;
+    }
+
+    private boolean righting(PlacedHatEntity hat) {
+        return rightTick != Long.MIN_VALUE && (rightTick >= hat.level().getGameTime() - 1 || rightProgress >= 1);
+    }
+
+    private void righted(PlacedHatEntity hat) {
+        rightTick = Long.MIN_VALUE;
+        rightProgress = rollRate = pitchRate = 0;
+        GameplayLog.event(hat, "hat", "righted cause={} by={} owner={} draft={}", rightCause, righter.getUUID(), hat.ownerYukkuri(), fmt(draft));
+    }
+
+    /** A rider's stroke, integrated next tick by its share of the hull's mass against the drag ({@link Effort#drive}). */
+    @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
+        if (hat.upsideDown() || flip != 0) return false;
+        drive = water;
+        turnBy = turn;
+        paddler = by;
+        return true;
+    }
+
+    private Vec3 stroke(PlacedHatEntity hat) {
+        if (paddler == null) return Vec3.ZERO;
+        double share = mass(paddler) / Math.max(mass, 1e-6), pace = drive.horizontalDistance();
+        hat.setYRot(hat.getYRot() + (float) (turnBy * share));
+        paddler = null;
+        return pace < 1e-9 ? Vec3.ZERO : drive.scale(Effort.drive(pace, share, DRAG) / pace);
+    }
+
+    @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.portions().stream().anyMatch(p -> p.item().is(item)); }
 
     // ---------------------------------------------------------------- what the base asks
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }

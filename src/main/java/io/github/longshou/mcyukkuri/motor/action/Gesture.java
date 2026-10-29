@@ -166,8 +166,6 @@ public final class Gesture implements Action {
     /** Before a small hop takes off it can be abandoned; after the impulse the physics owns the body. */
     @Override public boolean interruptible() { return !launched; }
 
-    @Override public void abort(YukkuriEntity body, String why) {}
-
     @Override public MotionPose pose() { return new MotionPose(clip, startTick, false); }
 
     @Override public String startDetail() {

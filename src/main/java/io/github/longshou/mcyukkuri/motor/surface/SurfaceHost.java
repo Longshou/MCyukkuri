@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -49,6 +50,18 @@ public interface SurfaceHost {
 
     /** What the host carries besides its riders, in the load units of the ability factor L (spec 8.1): its riders' pace. */
     default double load() { return 0; }
+
+    /** Turned over: no surface and no container until righted. */
+    default boolean capsized() { return false; }
+
+    /** {@code by} holding the brim has turned it {@code progress} (0..1) back upright (Right); false when it cannot be righted. */
+    default boolean right(YukkuriEntity by, double progress, String cause) { return false; }
+
+    /** A rider's paddle stroke: the water velocity it drives and the yaw it turns (Paddle); false when it cannot be paddled. */
+    default boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return false; }
+
+    /** It keeps such an item where a rider can use it (a stick to paddle with). */
+    default boolean holds(Item item) { return false; }
 
     /** The height field {@code walker} plans a walk on: cells of at most {@link #GRID_CELL} in host units and no wider than its
      *  foot, heights from {@link #support} at the host's tilt, cells where its foot would overlap what the floor holds (and with

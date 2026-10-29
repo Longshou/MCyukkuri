@@ -1619,6 +1619,11 @@ def afloat(owner, water, aboard=True, crew=None, food=0, middle=False):
 _HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
 
 
+def shoved(name):
+    """A late shove off the bank into the pond (vanilla Motion, east): the body really falls in."""
+    return f'data merge entity {sel(name)} {{Motion:[0.35d,0.3d,0.0d]}}'
+
+
 def _babies():
     return [yk('marisa', bank_dx(dz), dz, name, stage='baby', aquatic=True, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready())
             for name, dz in (('k1', 1), ('k2', -1))]
@@ -1646,12 +1651,41 @@ pond('hat_push', '推动帽子', '推动帽子',
             ('读帽子', f'data get entity {_HAT}')])
 
 pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
-     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）',
+     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主游回帽边，咬住帽檐分几次推正帽子，再爬回帽里；两只赤油不会攀爬，只能朝岸挣扎',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='扶正与游泳要等后续工作包（WP5）：被甩出的个体可能溺水，这是真实后果。读 hat.tilt 看摇晃累积，读帽子数据看倒扣状态。',
+     note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('self_rescue', '落水自救·游回帽子', '游回帽子',
+     '水生魔理沙把帽子放在离岸 3 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
+     '约 30 秒',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)], late=[shoved('a')],
+     note='日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读帽子看吃水。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('self_rescue_far', '落水自救·远处的帽子', '远处帽子',
+     '帽子漂在离岸 12 格的水面，船主在岸边被推下水：岸就在身边，她仍先游向自己的帽子再爬进去；朝帽子游超过 600 tick 或打滑用尽办法才转向岸边爬上去',
+     '约 1 分钟',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 12), False)], late=[shoved('a')],
+     note='长距离游动会累：浸水约 8 秒后转为疲惫节奏（每 3 tick 用力、更省体力）；读 water.distress 与 body.last。转向岸时看 [method] switch … to=bank。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('shore_capsized', '岸边翻覆的帽子·扶正爬回', '扶正帽子',
+     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按片段节拍分几次把帽子推正（每次推的进度来自她的游速与两者的体积比），帽子正过来后再爬进去',
+     '约 30–60 秒',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)],
+     late=[f'data merge entity {_HAT} {{Roll:180f}}', shoved('a')],
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[method] pick method=right_own_hat → [action] start id=right … step= reach= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；扶不动或打滑会转去岸边（method=bank）。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
+     '岸边的普通灵梦被推进池塘：落水冲击后挣扎着游向最近的岸边，嘴够到岸沿就咬住，按片段节拍把自己拉上岸；浸水伤害照常',
+     '约 20 秒',
+     [yk('reimu', bank_dx(0), 0, 'r', yaw=-90, extra='Motion:[0.35d,0.3d,0.0d]', **pair_ready())],
+     note='底座路径（不认识帽子）。日志：[water] phase IMPACT → STRUGGLE，[intent] start id=escape_water → [method] pick method=bank → [action] end id=swim … detail=grip → [action] start id=climb … onto=bank → [intent] end result=DONE。岸太高够不着时看 method=struggle。',
+     reads=[('读灵梦', f'yukkuri status {sel("r")} raw')])
 
 pond('cargo', '帽内储粮', '帽内储粮',
      '船主坐在水面的帽里。手持食物右击帽子放进一份，潜行右击一次最多八份：每份粮是帽腔里的一件真实物品，各占一块帽底，只在帽腔、不上帽檐，hat.draft 的吃水随之加深；满十二份、超过四种，或帽底没有空位时拒绝：动作栏说明原因，船主鼓腮，帽子不晃。空手或拿非食物右击才摇晃，摇到翻覆时粮散成水面上可捡的物品',
@@ -1696,7 +1730,8 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
+    'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

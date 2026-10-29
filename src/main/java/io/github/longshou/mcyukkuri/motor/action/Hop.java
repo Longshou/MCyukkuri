@@ -119,8 +119,6 @@ public final class Hop implements Action {
     /** Before take-off the action can be abandoned with no physical consequence; after it, the flight owns the body. */
     @Override public boolean interruptible() { return !launched; }
 
-    @Override public void abort(YukkuriEntity body, String why) {}
-
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
 
     @Override public String startDetail() {

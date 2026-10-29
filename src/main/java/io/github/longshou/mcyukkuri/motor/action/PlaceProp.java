@@ -67,11 +67,6 @@ public final class PlaceProp implements Action {
         return new Outcome.Done("prop=" + prop.id() + " entity=" + placed.getUUID() + " at=" + GameplayLog.at(at));
     }
 
-    @Override public boolean interruptible() { return true; }
-
-    /** Nothing to undo: before the marker the prop is still worn, after it the clip has already ended the action. */
-    @Override public void abort(YukkuriEntity body, String why) {}
-
     @Override public MotionPose pose() { return new MotionPose(clip(), startTick, false); }
 
     @Override public String startDetail() {

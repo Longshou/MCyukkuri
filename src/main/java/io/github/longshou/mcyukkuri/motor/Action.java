@@ -18,12 +18,14 @@ public interface Action {
     /** Called from {@link BodyDriver#tickTravel}; every tick until it returns an {@link Outcome}. */
     Progress tick(YukkuriEntity body);
 
-    boolean interruptible();
+    /** Whether another request may end it now; most actions can be let go of at any tick. */
+    default boolean interruptible() { return true; }
 
-    /** Keep the physical state and {@link Attach#settle}; never roll back, re-seat or teleport. */
-    void abort(YukkuriEntity body, String why);
+    /** Keep the physical state ({@link BodyDriver} then settles it); never roll back, re-seat or teleport. */
+    default void abort(YukkuriEntity body, String why) {}
 
-    MotionPose pose();
+    /** The clip it plays; nothing for an action that animates nothing. */
+    default MotionPose pose() { return MotionPose.NONE; }
 
     /** Extra fields for the {@code [action] start} line (spec 13.1); empty when the action has none to add. */
     default String startDetail() { return ""; }
