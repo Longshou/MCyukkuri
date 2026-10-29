@@ -2,12 +2,14 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.HostIntent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
@@ -15,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -66,6 +69,19 @@ public final class Fetch implements HostIntent {
     }
 
     @Override public long deadline() { return started + DEADLINE_TICKS; }
+
+    /**
+     * The intent ended without the young down — stopped by its parent, interrupted, out of time or out of attempts — while
+     * the taker still carries it. Left alone it would ride on into the next beat and end up on the hat as it goes back on
+     * a head, so it is set down where it actually stands, through the shared motor path (spec 5.2 "搬运被打断").
+     */
+    @Override public void ended(IntentRunner.Result result) {
+        if (result == IntentRunner.Result.DONE || !held()) return;
+        Vec3 at = child.position();
+        Motor.dismount(child, at, Vec3.ZERO, "fetch_ended");
+        GameplayLog.event(taker, "family", "fetch release child={} uuid={} at={} result={} cause=fetch_ended",
+                child.getId(), child.getUUID(), GameplayLog.at(at), result);
+    }
 
     @Override public List<Method> methods() {
         return List.of(new GrabCarryRelease(), new WaitThenRetry());

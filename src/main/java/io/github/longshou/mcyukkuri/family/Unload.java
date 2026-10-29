@@ -22,15 +22,20 @@ import java.util.Set;
  * The catch hat's cleanup as one intent (spec 14 WP1 step 7, E11-1): every young this taker must unload leaves the hat,
  * then the empty hat is taken back by the caller. Run by the taker's existing FETCH_HAT duty.
  *
- * <p>Satisfaction is the vehicle fact (spec 5.1): no live rider of this hat is left that this taker must unload. A capable
- * young is expected to hop off by itself ({@link GetTo}, triggered by the host's derived {@code unloadRequested()}); a
- * dependent one is fetched by {@link Fetch}, which carries it to supported ground outside the brim.
+ * <p>Satisfaction is the vehicle fact (spec 5.1): no live rider of this hat is left that this taker must unload, and the
+ * taker holds no young either — a young grabbed out of the hat leaves the rider list while it is still in the taker's
+ * mouth, so the hold is the second half of the same fact (spec 5.2: {@code Held → Free} only by {@code Release}). A
+ * capable young is expected to hop off by itself ({@link GetTo}, triggered by the host's derived
+ * {@code unloadRequested()}); a dependent one is fetched by {@link Fetch}, which carries it to supported ground outside
+ * the brim.
  */
 public final class Unload implements HostIntent {
     /** The whole duty, from the first decision to the last young off; the caller ends the duty when it passes. */
     public static final int DEADLINE_TICKS = 1200;
     /** Ticks a capable young gets to hop off by itself before the taker fetches it. */
     static final int HOP_WAIT_TICKS = 100;
+    /** Ticks the last carried young gets to be set down before waiting for it counts as no progress. */
+    static final int SET_DOWN_WAIT_TICKS = 60;
 
     private final PlacedHatEntity hat;
     private final YukkuriEntity taker;
@@ -49,7 +54,7 @@ public final class Unload implements HostIntent {
 
     @Override public SurfaceHost host() { return hat; }
 
-    @Override public boolean satisfied() { return riders().isEmpty(); }
+    @Override public boolean satisfied() { return riders().isEmpty() && !carrying(); }
 
     @Override public long deadline() { return started + DEADLINE_TICKS; }
 
@@ -79,6 +84,17 @@ public final class Unload implements HostIntent {
         return all.isEmpty() ? null : all.get(0);
     }
 
+    /**
+     * A live young in the taker's mouth is not unloaded yet: read from the vanilla passenger relation ({@code Attach.of}
+     * is {@code Held} exactly when this holds), never from a stored flag.
+     */
+    private boolean carrying() {
+        for (var passenger : taker.getPassengers()) {
+            if (passenger instanceof YukkuriEntity young && young.isAlive()) return true;
+        }
+        return false;
+    }
+
     /** {@code Attach.of(child)} is {@code OnHost(host)}: the vehicle fact, not a counter. */
     static boolean onHost(YukkuriEntity child, SurfaceHost host) {
         return Attach.of(child) instanceof AttachState.OnHost on && on.host() == host;
@@ -91,7 +107,9 @@ public final class Unload implements HostIntent {
     private abstract class Riders implements Method {
         @Override public Step next() {
             var child = nearest();
-            if (child == null) return null;
+            // The last young leaves the rider list the moment it is grabbed, while the taker still carries it: wait for it
+            // to be set down instead of reporting no progress, and the runner's own satisfaction check ends this intent.
+            if (child == null) return new Step.Wait(Unload.this::satisfied, SET_DOWN_WAIT_TICKS, "young_set_down");
             return stepFor(child);
         }
 

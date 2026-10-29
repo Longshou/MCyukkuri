@@ -304,6 +304,7 @@ public final class IntentRunner implements MotorOwner {
         if (c != null && c.active()) c.stop("parent_" + outcome.name().toLowerCase(Locale.ROOT));
         clearStep();
         GameplayLog.event(body, "intent", "end id={} result={} reasons={}", intent.id(), outcome, attempts.describe());
+        intent.ended(outcome);
     }
 
     private void switchLog(Method from, Reason reason, double shortfall, Method to) {

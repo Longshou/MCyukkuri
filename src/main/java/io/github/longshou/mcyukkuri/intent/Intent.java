@@ -20,4 +20,11 @@ public interface Intent {
     List<Method> methods();
 
     default Commitment commitment() { return Commitment.NONE; }
+
+    /**
+     * Called once by the {@link IntentRunner} when this intent ends, whatever the result (spec 11.2 "结束后"): the one
+     * place a domain rule can leave the world consistent again, e.g. setting down what an unfinished carry still holds.
+     * Read-only apart from that consequence; it must not start new work.
+     */
+    default void ended(IntentRunner.Result result) {}
 }
