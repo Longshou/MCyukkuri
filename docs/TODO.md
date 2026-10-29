@@ -8,6 +8,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 重构 WP4a（放下的帽子漂浮、可推、翻覆，帽子统一尺寸，池塘场地） | `.worktrees/wp4a-hull` | 新建 `aquatic/`、`client/aquatic/`；`headwear/`（`PlacedHatEntity`、`HatGeometry`、`HatScale`）、`client/YukkuriModel` 戴帽比例、`registry/`、`scripts/museum_*.py` 池塘场地 |
+| 重构 WP4b 前置：帽内高度场与寻路纯函数 | `.worktrees/wp4-geom` | `motor/geom/HeightGrid`、`GridPath` 与测试 |
+| 重构 WP7 前置：架构守卫规则 | `.worktrees/wp7-guards` | `scripts/check_architecture.py`、`scripts/architecture_exceptions.json`、`scripts/README.md` |
 
 ## 玩法待办
 
@@ -209,7 +212,7 @@
   - 帽船可被推动；
   - 帽内挤不下时，孩子可以被挤落水。
 - 设计与工作包 WP1–WP7 见[整体设计](REFACTOR_DESIGN.md)与[技术规格](REFACTOR_TECH_SPEC.md#14工作包实施细则)（范围含出生链，出生链同样冻结）；各工作包的进度与复测现象只登记在本条。
-- 进度：WP1、WP2、WP3a、WP3b 已接入待试玩，运行 [9a3830ba](https://github.com/Longshou/MCyukkuri/commit/9a3830ba)。WP3a 下线旧水生（池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽为 `headwear/PlacedHatEntity`）；WP3b 把陆地胎生、茎生改为 LiveBirth 编排（规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩)）。**试玩检查点**：F1 出生场景与 E11 认可后才开 WP4；WP4 前还须确认统一帽子尺寸（预览 `.local/previews/hat-scale/index.html`，负责人建议 1.4 倍）。
+- 进度：WP1、WP2、WP3a、WP3b 已接入待试玩，运行 [9a3830ba](https://github.com/Longshou/MCyukkuri/commit/9a3830ba)。WP3a 下线旧水生（池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽为 `headwear/PlacedHatEntity`）；WP3b 把陆地胎生、茎生改为 LiveBirth 编排（规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩)）。**试玩检查点**：F1 出生场景与 E11 与 WP4 并行（R7）。帽子统一尺寸按预览代定 1.4 倍（R6，预览 `.local/previews/hat-scale/index.html`），WP4a 进行中。
 - 完成：各工作包按设计稿的展台与行为场景验收。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[玩法日志](GAMEPLAY_LOGGING.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。

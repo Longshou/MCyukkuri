@@ -628,7 +628,7 @@ public abstract class Choreography {
 ## 14　工作包实施细则
 
 > 通用规则：
-> - **登记与独占**：开工在待办“进行中”登记工作树 `.worktrees/<名字>`；核心文件（`YukkuriEntity`、`PlacedHatEntity`、`motor/`）同时只允许一个工作包修改。
+> - **登记与独占**：开工在待办“进行中”登记工作树 `.worktrees/<名字>`；核心文件（`YukkuriEntity`、`PlacedHatEntity`、`motor/` 除纯函数 `geom/`）同时只允许一个工作包修改。
 > - **删除**：删除栏必须在本包内完成。
 > - **提交说明**：写清新增、删除、实际做过的检查（含 `scripts/javac_check.sh` 结果）、净行数、受影响场景与观察点。
 > - **待办**：只在合入时更新一次，改为“已接入待试玩”。
@@ -680,29 +680,40 @@ WP1（依附、容器、跳、陆地叼搬放）与 WP2（能力表、Walk／Fac
 
 **复测**：F1 全部出生场景（`birth_land_caught`、`birth_land_reunion`、`birth_land_missed`、`birth_nest_safe`、`birth_nest_stem`、`birth_stem_caught`）；观察 `[choreo]` 节拍链与分支。合入后是**试玩检查点**：用户认可前不开 WP4。
 
-### WP4　水生重建一：放下的帽子会漂（前置：用户确认 HatScale 预览）
+### WP4a　水生重建一：放下的帽子会漂
 
-1. **行为插槽**：`PlacedHatEntity` 提供 `PlacedHatBehavior`（tick、受推、帽面倾斜与 `frame()` 的 roll／pitch）；底座默认陆地行为，`aquatic/` 注册水上行为。底座不 import `aquatic.*`。
-2. **水上行为**：浮力在任何形态下无条件生效；漂移；`isPushable()=true`，被推时按质量比位移（Q5）；翻覆只由真实外因引起；水中身体与帽外盒子分离。
-3. **尺寸**：`HatScale.of(owner)` 统一戴着、托着、展开、翻覆四种形态（Q3）。
-4. **帽内**：宿主上的 Walk 用 `HeightGrid` 加 `GridPath`（14.8）；`room` 计入储粮圆；挤不下时沿坡度滑向帽檐，越过帽檐就 `dismount` 加 Launch（Q6）。
-5. **姿态**：按身体在帽内的实际位置、帽面倾斜和地名选取。
-6. **生成**：恢复水生魔理沙的自然生成，第 0 tick 就在自己的帽上（P0-1）。
+1. **行为插槽**：`PlacedHatEntity` 提供 `PlacedHatBehavior`（tick、受推、帽面倾斜与 `frame()` 的 roll／pitch、`steady()`）；底座默认陆地行为（重力落定、不可推、帽面水平），`aquatic/` 在注册入口登记水上行为，帽体浸水时生效（任何主人的帽都会浮）。底座不 import `aquatic.*`。
+2. **水上行为**：浮力在任何形态（正放、翻覆）下无条件生效，吃水随乘员与储物载重变化；随原版水流漂移并有阻尼；`isPushable()=true`，被推时按质量比位移（Q5）；水中身体与帽外盒子分离，不重叠。
+3. **倾斜与翻覆**：倾角来自乘员重心偏移、玩家空手点帽的摇晃、碰撞与推挤，并回弹；超过阈值才翻覆（只由真实外因引起）。翻覆时乘员按实际位置 `dismount` 并带倾斜方向的真实速度落水，帽子倒扣漂浮、不再是容器；扶正留给 WP5。剧烈晃动或翻覆中 `steady()` 为 false。
+4. **在帽里不算落水**：宿主声明 `shelters(body)` 时（帽腔高于水面、身体在腔内），身体不按入水处理；不再另写帽内特判。
+5. **尺寸**：`HatScale.of(owner)` 统一戴着、托着、展开、翻覆四种形态（Q3、R6），戴帽渲染、放下的帽实体与托着的道具都读它；删除单独的 `aquatic_scale`。
+6. **场景**：从 Git 历史恢复池塘场地；新增或恢复 `hat_float`（帽上已有成体与两只赤油）、`hat_push`、`shake_capsize`、`hat_swap`，初态只给真实起点。
+7. **日志**：`[hat]` 记放下、入水、翻覆、扶正、被推（限频）；读数 `hat.tilt`／`hat.draft`。
 
-**复测**：恢复所需的池塘场景，看 `hat_swap`、`cargo`、登船段、推船与挤落水。
+**复测**：`hat_float` 吃水与倾斜随乘员位置变化、不重叠、不穿模；`hat_push` 玩家与油库里能推动；`shake_capsize` 连续空手摇晃后才翻，乘员被甩进水里（WP5 前不会自救，溺水属正常后果）；`hat_swap` 水生帽比普通魔理沙帽大且四种形态一致。
 
-### WP5　水生重建二：水中动作
+### WP4b　水生重建二：帽内生活
+
+1. **帽内走动**：宿主上的 Walk 用 `HeightGrid` 加 `GridPath`（14.8）。
+2. **储物**：粮食是帽腔里的真实物体，占地面圆、算载重；玩家拿食物右击帽体逐份放入（潜行最多 8 份），放不下给出实际原因。
+3. **挤落**：`room` 计入储物圆；挤不下时沿坡度滑向帽檐，越过帽檐就 `dismount` 加 Launch（Q6）。
+4. **姿态**：按身体在帽内的实际位置、帽面倾斜和地名选取。
+
+**复测**：`cargo` 放粮、吃水与满载提示；多只赤油挤在帽里时有个体被挤到帽檐乃至落水。
+
+### WP5　水生重建三：水中动作
 
 1. 在 `motor/action/` 新增 Swim、Climb、Push、Right、Paddle；水生种只经 `AbilityModifier` 改系数（Q2）。
 2. 自救、扶正和登船都由这些动作组合；后果规则（浸水伤害、溺亡）沿用底座。
 
 **复测**：`self_rescue`、`shore_capsized`、`shake_capsize`。
 
-### WP6　水生重建三：水上意图
+### WP6　水生重建四：水上意图
 
 1. **框架**：加入 `Drive`、`Desire`、`Commitment`、`Ask`、`AskLedger`（11.3、11.4）；可参考 f30c0969 的实现并修正其评审问题。
 2. **意图**：单一 `AquaticGoal`（Drive 在其内部运作），加 `drive/aquatic.json`。意图包括出航、上岸、夜泊、补给、照料、`ResolveOwnHat`、救援、送赤油到父船；出航与上岸为 `Commitment.HARD`。
 3. **帽船分娩**：LiveBirth 加入 `OwnHull` 接收者。
+4. **自然生成**：恢复水生魔理沙的自然生成，第 0 tick 就在自己的帽上（P0-1）；水上意图就绪前不开，以免在帽上饿死。
 
 **复测**：P0-1…P0-12 全部观察点。
 
