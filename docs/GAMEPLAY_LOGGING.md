@@ -29,7 +29,7 @@
 | `[approach]` | 接触站位不可用、绕行拐点、路径失败与接近计算耗时异常（限频）；不代表接触或业务成功 | 双方 UUID、目标与拐点；[移动接口](ARCHITECTURE.md#显示与客户端) |
 | `[care]` | 照护会合、拒绝、重新选位、真实接起／放下和停止 | 双方 UUID、会合种类；[照护](CHILDHOOD_LIFECYCLE.md) |
 | `[offering]` / `[grief]` / `[cannibal]` | 献身与护子意愿、阻塞、阶段、中断、亲属临终反应、遗体食用交餐 | 亲子、捕食者、遗体 UUID；[献身与遗体](INJURIES_AND_REMAINS.md) |
-| `[incident]` | 求助事件：开启（`open id= cause=water|share_young subject= at=`，落水者入水的第一 tick，或母油请父油划近时）、每个帮手的一次决定（`decide id= helper= requester= chance= roll= accepted=`）与关闭（`close id= reason=held|aboard|ashore|owner_died|… ticks= offered= decided=[帮手:accepted/refused/结局]`）；事件中的救援与划近记 `[intent]` 与 `[aquatic]` | 落水者、帮手 UUID；[落水救援](AQUATIC_MARISA_IMPLEMENTATION.md#补给照料救援与帽船分娩已接入待试玩) |
+| `[incident]` | 求助事件：开启（`open id= cause=water|share_young subject= at=`，落水者落水冲击过去开始自救时，或母油请父油划近时）、每个帮手的一次决定（`decide id= helper= requester= chance= roll= accepted=`）与关闭（`close id= reason=held|aboard|ashore|owner_died|… ticks= offered= decided=[帮手:accepted/refused/结局]`）；事件中的救援与划近记 `[intent]` 与 `[aquatic]` | 落水者、帮手 UUID；[落水救援](AQUATIC_MARISA_IMPLEMENTATION.md#补给照料救援与帽船分娩已接入待试玩) |
 | `[water]` | 真实入水（落水原因、浸水与阶段）；自救是 `[intent] escape_water` 与其 `[method]`、`[action]`（`swim`、`climb`、`right`、把戴着的帽子放成船的 `place_prop`，带能力数值与差额；溺水伤害不打断时记 `[action] kept … through damage=`，限频）；不代表获救 | 实体 UUID、水源与实际位置；[基础生活](CORE_GAMEPLAY.md) |
 | `[settlement]` / `[forage]` | 聚落账本事件、迁徙／安置、嗯嗯坑选址与清运、嗯嗯奴隶回坑／进食／被嫌恶、采集／回家／上缴、真实路线获准和停止 | 聚落、家庭、行动者 UUID；[聚落](SETTLEMENTS.md) |
 | `[habitat]` / `[home]` / `[house]` / `[home-claim]` | 认领／释放住所、挖穴／扩容、搬粮入库、洞口结界拆除、家油巢卵、住所宣称起止 | 住所位置、claim 与成员 UUID；[住所](WILD_SHELTERS.md)、[家油](HOUSE_ECOLOGY.md)、[野外事件](WILD_EVENTS_IMPLEMENTATION.md) |

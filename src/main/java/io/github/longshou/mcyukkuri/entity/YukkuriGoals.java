@@ -335,7 +335,8 @@ final class YukkuriGoals {
     /** In water the body works its way out through the EscapeWater intent; a run that ran out of ways before its deadline is not
      *  started again until the world changed (spec 11.2), one that reached its deadline is at once. Out of the water it holds still
      *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident (spec 11.3): opened
-     *  on its first tick in the water, so helpers near decide once each, and settled once the body is out (aboard, held, ashore). */
+     *  once the plunge's impact is over and the body works its way out, so helpers near decide once each, and settled once the body
+     *  is out (aboard, held, ashore). */
     private final class EscapeWaterGoal extends Goal {
         private final Map<BlockPos, Long> avoid = new HashMap<>();
         private IntentRunner runner;
@@ -346,9 +347,11 @@ final class YukkuriGoals {
                 && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
-            if (incident == null && owner.isInWaterOrBubble()) incident = AskLedger.server().open(owner, "water",
+            boolean struggles = owner.waterDistress().struggles();
+            // past the plunge's impact (a wade through a puddle opens none)
+            if (incident == null && struggles) incident = AskLedger.server().open(owner, "water",
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
-            if (!owner.waterDistress().struggles()) { halt("water_pause"); owner.getNavigation().stop(); return; }
+            if (!struggles) { halt("water_pause"); owner.getNavigation().stop(); return; }
             if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
                 boolean outOfWays = runner.result() == IntentRunner.Result.EXHAUSTED && owner.level().getGameTime() <= runner.intent().deadline();
                 ended = outOfWays ? signature() : null;
