@@ -508,7 +508,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return false;
         if (!getPassengers().isEmpty()) return false;
         if (!owner.life().returnAccessory(ownerYukkuri(), accessoryToken, null)) return false;
-        if (owner.life().custody().stow(kit)) kit = ItemStack.EMPTY;
+        // the stick goes back into the worn hat; a hat already keeping one drops this one at her feet
+        if (!kit.isEmpty() && !owner.life().custody().stow(kit)) dropKit(owner.position(), Vec3.ZERO, "retrieve_full");
+        kit = ItemStack.EMPTY;
         release("retrieved");
         state(State.RESCUED); return true;
     }

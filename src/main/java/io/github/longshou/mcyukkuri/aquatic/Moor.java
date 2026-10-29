@@ -53,21 +53,27 @@ final class Moor implements Intent {
         }
         double off = hat.position().subtract(berth).horizontalDistance();
         arrived |= off <= IN;
-        if (notch != null && off > (arrived ? DRIFTED : IN) && restations <= RESTATIONS && AquaticLife.stick(owner)) {
-            var route = Waters.route(hat, notch);
+        if (notch != null && off > (arrived ? DRIFTED : IN)) {
+            var route = AquaticLife.stick(owner) && (!arrived || restations < RESTATIONS) ? Waters.route(hat, notch) : List.<Vec3>of();
             Waters.log(hat, owner, notch, route, "moor");
             if (!route.isEmpty()) {
                 if (arrived) {
                     restations++;
                     GameplayLog.event(owner, "aquatic", "moor restation off={} count={}/{}", Math.round(off * 10) / 10.0, restations, RESTATIONS);
                 }
-                if (restations <= RESTATIONS) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), IN)));
+                return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), IN)));
             }
+            // no way back in (no stick, no route, the restations spent): she sleeps where she drifted
+            GameplayLog.event(owner, "aquatic", "moor drift_sleep off={} restations={}/{} stick={}", Math.round(off * 10) / 10.0, restations,
+                    RESTATIONS, AquaticLife.stick(owner));
+            notch = null;
+            berth = hat.position();
         }
         long until = owner.level().getGameTime() + LOOK;
-        boolean young = AquaticLife.young(owner).stream().anyMatch(y -> AquaticLife.aboard(y, hat));
+        boolean young = AquaticLife.young(owner).stream().anyMatch(y -> AquaticLife.aboard(y, hat)), watch = notch != null;
+        var at = berth;
         return List.of(() -> new Step.Wait(() -> satisfied() || owner.level().getGameTime() >= until
-                || notch != null && hat.position().subtract(berth).horizontalDistance() > DRIFTED, LOOK + 20,
+                || watch && hat.position().subtract(at).horizontalDistance() > DRIFTED, LOOK + 20,
                 young ? Behaviors.BOAT_COVER_YOUNG : Behaviors.BOAT_SLEEP));
     }
 

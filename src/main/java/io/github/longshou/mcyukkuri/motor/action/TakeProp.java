@@ -20,8 +20,8 @@ import net.minecraft.world.entity.Entity;
 /**
  * Take a prop back onto the body (spec 9.4 {@code TakeProp}): play the prop's own clip and make the one irreversible
  * transfer at the clip's {@code release} marker. Refuses {@code NO_ROOM} while riders remain, and {@code NO_CONTACT}
- * while neither the mouth reaches the prop nor, for a prop one stands on (a hat), mouth or braid grips its nearest brim
- * ({@link ContactGeometry}, spec 9.4 "嘴或辫在 reach 内"), so a method can walk closer or clear the prop first instead of
+ * while the mouth does not reach the prop (nor, for a prop taken back by its brim, a hat afloat, mouth or braid grips its nearest
+ * brim: {@link ContactGeometry}, spec 9.4 "嘴或辫在 reach 内"), so a method can walk closer or clear the prop first instead of
  * retrying the same clip.
  */
 public final class TakeProp implements Action {
@@ -43,7 +43,7 @@ public final class TakeProp implements Action {
         if (prop.riders()) return Feasibility.of(Reason.NO_ROOM, 0, "riders_aboard");
         Entity deployed = prop.entity();
         if (deployed == null) return Feasibility.of(Reason.TARGET_GONE, 0, "prop_gone");
-        boolean brim = deployed instanceof SurfaceHost host && ContactGeometry.nearestRim(body, host).filter(rim -> ContactGeometry.canGrip(body, rim)).isPresent();
+        boolean brim = prop.byBrim() && deployed instanceof SurfaceHost host && ContactGeometry.nearestRim(body, host).filter(rim -> ContactGeometry.canGrip(body, rim)).isPresent();
         if (!brim && !ContactGeometry.inMouthReach(body, deployed)) {
             double gap = Math.max(0, ContactGeometry.mouthGap(body, deployed) - ContactGeometry.GRAB_MARGIN);
             return Feasibility.of(Reason.NO_CONTACT, gap, "prop_out_of_reach");

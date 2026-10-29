@@ -7,20 +7,27 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Setting out (refactor WP6a, design 8.3 出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
@@ -28,8 +35,10 @@ import net.minecraft.world.entity.item.ItemEntity;
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
  * {@code board_parent} desire, one that cannot is carried in her mouth, hopped aboard with and put down in the hollow; she hops
  * aboard herself. Whether she carries the young before boarding first follows from the {@code protect_young} desire against
- * {@code water_life} (Q4: nothing fixes the captain last). Done once she rides her own hat afloat with every young of hers near
- * aboard and nothing in her mouth. A step that fails fails the intent; the hat left out is then her {@code resolve_own_hat}.
+ * {@code water_life} (Q4: nothing fixes the captain last). Done once she rides her own hat afloat with nothing in her mouth and
+ * every young of hers near aboard, or asleep, in the water, not fetched (the same carry failed twice) or not come aboard (the
+ * same call failed twice): who stayed and why is logged and reported to the goal. Otherwise a step that fails twice fails the
+ * intent; the hat left out is then her {@code resolve_own_hat}.
  */
 final class SetOut implements Intent {
     /** The whole setting out (ticks), and the longest call for the young to come aboard. */
@@ -41,10 +50,18 @@ final class SetOut implements Intent {
     private Waters.Edge berth;
     /** She has been aboard in this setting out: from then on a young left ashore is fetched, never a reason to board first. */
     private boolean boarded;
+    /** How often a carry of each young was begun (a grab, a hop ashore to fetch it) and the call for the young was made: a second
+     *  of the same means the first failed, and that young stays. */
+    private final Map<UUID, Integer> grabs = new HashMap<>(), landings = new HashMap<>();
+    private int calls;
+    /** Young she sets out without, with the reason. */
+    private final Map<UUID, String> excused = new LinkedHashMap<>();
+    private final Consumer<Map<UUID, String>> left;
 
-    SetOut(YukkuriEntity owner) {
+    SetOut(YukkuriEntity owner, Consumer<Map<UUID, String>> left) {
         this.owner = owner;
         this.started = owner.level().getGameTime();
+        this.left = left;
     }
 
     @Override public String id() { return "set_out"; }
@@ -54,10 +71,32 @@ final class SetOut implements Intent {
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
         return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat) && AquaticLife.carried(owner) == null
-                && AquaticLife.young(owner).stream().allMatch(y -> AquaticLife.aboard(y, hat));
+                && AquaticLife.young(owner).stream().allMatch(y -> AquaticLife.aboard(y, hat) || staying(y) != null);
     }
 
-    @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
+    /** Why this young stays ashore now, or null: asleep, in the water, or a carry or call that failed twice. */
+    private String staying(YukkuriEntity y) {
+        return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
+    }
+
+    /** The same way twice: a failed step leaves the first, and the second goes on without the young it failed for. */
+    @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive), Plan.of("launch_leaving", this::derive)); }
+
+    @Override public void ended(IntentRunner.Result result) {
+        var held = AquaticLife.carried(owner);
+        if (result != IntentRunner.Result.DONE && held != null) {
+            // what an unfinished carry still holds is put down where it hangs (as Fetch does)
+            Motor.dismount(held, held.position(), Vec3.ZERO, "set_out_ended");
+            GameplayLog.event(owner, "aquatic", "set_out release child={} at={} result={}", held.getUUID(), GameplayLog.at(held.position()), result);
+        }
+        if (result != IntentRunner.Result.DONE) return;
+        var hat = AquaticLife.hat(owner);
+        var stayed = new LinkedHashMap<UUID, String>();
+        for (var y : AquaticLife.young(owner)) if (!AquaticLife.aboard(y, hat)) stayed.put(y.getUUID(), String.valueOf(staying(y)));
+        if (stayed.isEmpty()) return;
+        GameplayLog.event(owner, "aquatic", "set_out left_ashore={}", stayed);
+        left.accept(stayed);
+    }
 
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(owner);
@@ -69,10 +108,18 @@ final class SetOut implements Intent {
         if (held != null) return aboard ? Ferry.releaseAboard(owner, hat, held) : Ferry.hopAboard(owner, hat);
         var dependent = dependentAshore(hat);
         if (dependent != null) {
+            var id = dependent.getUUID();
+            if (aboard ? landings.merge(id, 1, Integer::sum) > 1 : (boarded || youngFirst()) && grabs.merge(id, 1, Integer::sum) > 1) {
+                excused.put(id, aboard ? "unreachable" : "not_fetched");
+                return derive();
+            }
             if (aboard) return List.of(Ferry.hopAshore(owner));
             if (boarded || youngFirst()) return Ferry.grabAshore(owner, dependent);
         }
         if (!aboard) return Ferry.hopAboard(owner, hat);
+        // a second call means the first went unanswered: those not aboard by now stay
+        if (calls++ > 0) for (var y : AquaticLife.young(owner))
+            if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");
         return List.of(() -> new Step.Wait(this::satisfied, WAIT_YOUNG, Behaviors.BOAT_CALL));
     }
 
@@ -111,7 +158,7 @@ final class SetOut implements Intent {
     /** Her nearest young ashore that cannot get aboard by itself: it cannot hop, or its own hop aboard just failed. */
     private YukkuriEntity dependentAshore(PlacedHatEntity hat) {
         for (var y : AquaticLife.young(owner))
-            if ((!AquaticLife.jumper(y) || Drive.failed(y, "board_parent")) && AquaticLife.ashore(y) && !y.life().isSleeping()
+            if ((!AquaticLife.jumper(y) || Drive.failed(y, "board_parent")) && AquaticLife.ashore(y) && staying(y) == null
                     && !AquaticLife.aboard(y, hat)) return y;
         return null;
     }

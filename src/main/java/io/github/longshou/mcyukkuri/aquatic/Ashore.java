@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
@@ -54,8 +55,9 @@ final class Ashore implements Intent {
     private final boolean reclaim;
     private final long started;
     private Waters.Edge landing;
-    /** Landings already paddled in against without a hop ashore coming in reach: the next one is another. */
+    /** Landings already paddled in against without a hop ashore coming in reach: the next one is another, at most this many. */
     private final Set<BlockPos> tried = new HashSet<>();
+    private static final int LANDINGS = 3;
 
     private Ashore(YukkuriEntity owner, boolean reclaim) {
         this.owner = owner;
@@ -103,6 +105,7 @@ final class Ashore implements Intent {
     /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water; with no stick, drift until one is. */
     private List<Supplier<Step>> paddle(PlacedHatEntity hat) {
         if (!AquaticLife.stick(owner)) return List.of(() -> new Step.Wait(() -> Waters.ashore(owner) != null, WAIT, Behaviors.BOAT_DRIFT));
+        if (landing == null && tried.size() >= LANDINGS) return null;
         if (landing == null) landing = Waters.landing(hat, owner, tried);
         var route = landing == null ? List.<Vec3>of() : Waters.route(hat, landing.water());
         Waters.log(hat, owner, landing == null ? null : landing.water(), route, id());
@@ -178,6 +181,12 @@ final class Ashore implements Intent {
     }
 
     @Override public void ended(IntentRunner.Result result) {
+        var held = AquaticLife.carried(owner);
+        if (result != IntentRunner.Result.DONE && held != null) {
+            // what an unfinished carry still holds is put down where it hangs (as Fetch does)
+            Motor.dismount(held, held.position(), Vec3.ZERO, id() + "_ended");
+            GameplayLog.event(owner, "aquatic", "{} release child={} at={} result={}", id(), held.getUUID(), GameplayLog.at(held.position()), result);
+        }
         if (!reclaim) return;
         var hat = AquaticLife.hat(owner);
         if (result == IntentRunner.Result.DONE) {

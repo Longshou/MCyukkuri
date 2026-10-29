@@ -43,4 +43,7 @@ public interface Prop {
 
     /** The clip that plays the move: {@code on} true for taking it back, false for setting it down. */
     String clip(boolean on);
+
+    /** Taken back by its brim (a hat afloat): mouth or braid holding the brim reaches it too. */
+    default boolean byBrim() { return false; }
 }

@@ -111,6 +111,8 @@ public final class CommonRegistration {
         // Restore staging before cognition mirrors the entity's saved state.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, Staging::joining);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityJoinLevelEvent.class, GroupMemberEvents::joining);
+        // Last, after every listener that may refuse the join: a naturally spawned aquatic marisa is seated on her hat.
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, false, EntityJoinLevelEvent.class, AquaticLife::joined);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, FamilyData::leaving);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityLeaveLevelEvent.class, HouseEggs::leaving);

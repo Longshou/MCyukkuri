@@ -72,6 +72,9 @@ public final class HatProp implements Prop {
 
     @Override public boolean takeBack() { return entity() instanceof PlacedHatEntity hat && hat.retrieve(owner); }
 
+    /** On the water the hat is taken back by its brim, from the bank or the water (TakeProp). */
+    @Override public boolean byBrim() { return water; }
+
     @Override public String clip(boolean on) {
         if (water) return on ? self ? Behaviors.HAT_ON_SELF_AQ : Behaviors.HAT_ON_AQ : self ? Behaviors.HAT_OFF_SELF_AQ : Behaviors.HAT_OFF_AQ;
         if (on) return self ? Behaviors.HAT_ON_SELF : Behaviors.HAT_ON;

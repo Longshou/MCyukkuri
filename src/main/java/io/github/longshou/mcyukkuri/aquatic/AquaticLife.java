@@ -10,9 +10,13 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -67,13 +71,22 @@ public final class AquaticLife {
         return null;
     }
 
-    /** Her own young (not grown up) within the family range, nearest first. */
+    /** One tick's answer of {@link #young} per parent (weak keys: a removed parent takes its entry with it). */
+    private record Young(long tick, List<YukkuriEntity> list) {}
+    private static final Map<YukkuriEntity, Young> YOUNG = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /** Her own young (not grown up) within the family range, nearest first; looked up once a tick. */
     static List<YukkuriEntity> young(YukkuriEntity parent) {
+        long now = parent.level().getGameTime();
+        var kept = YOUNG.get(parent);
+        if (kept != null && kept.tick() == now) return kept.list();
         var id = parent.getUUID();
         var out = new ArrayList<>(parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FAMILY_RANGE),
                 y -> y != parent && y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))));
         out.sort(Comparator.comparingDouble(parent::distanceToSqr));
-        return out;
+        var list = List.copyOf(out);
+        YOUNG.put(parent, new Young(now, list));
+        return list;
     }
 
     /** A young that hops by itself (the others are carried). */
@@ -118,15 +131,37 @@ public final class AquaticLife {
     /** Where a calm cell is looked for around a body joining the world (blocks). */
     private static final int SPAWN_REACH = 5;
 
+    /** A natural spawn's cause handed over to the body's own join (weak: a body whose join is cancelled leaves, nothing placed). */
+    private static final Map<YukkuriEntity, String> JOINING = Collections.synchronizedMap(new WeakHashMap<>());
+
     /**
      * P0-1: an aquatic marisa joining the world by nature does so riding her own hat afloat on calm water beside her (a young one
-     * aboard its parent's hat), riding it from before her first tick (the hat places her on its own first tick, as it places
-     * every rider); with no such water she stays ashore and says why.
+     * aboard its parent's hat); with no such water she stays ashore and says why. A body handed over before it joined the level
+     * (a natural spawn from finalizeSpawn) is seated in its own join, after every listener that may refuse it; one that already
+     * joined (a generated settlement member) at once. Either way it rides from its first tick (the hat places it on its own first
+     * tick, as it places every rider).
      */
     static void spawned(YukkuriEntity body, String cause) {
         if (body.level().isClientSide || !body.profile().aquatic() || body.isPassenger()) return;
-        String refused = cause.equals("chunk_generation") ? "chunk_generation" : seat(body, cause);
-        if (refused != null) GameplayLog.event(body, "aquatic", "spawn refused reason={} cause={} at={}", refused, cause, GameplayLog.at(body.position()));
+        if (cause.equals("chunk_generation")) refuse(body, "chunk_generation", cause);
+        else if (body.isAddedToLevel()) place(body, cause);
+        else JOINING.put(body, cause);
+    }
+
+    /** The lowest-priority join listener (registration entry): a fresh body handed over by {@link #spawned} is seated now. */
+    public static void joined(EntityJoinLevelEvent event) {
+        if (event.loadedFromDisk() || event.getLevel().isClientSide() || !(event.getEntity() instanceof YukkuriEntity body)) return;
+        var cause = JOINING.remove(body);
+        if (cause != null) place(body, cause);
+    }
+
+    private static void place(YukkuriEntity body, String cause) {
+        String refused = seat(body, cause);
+        if (refused != null) refuse(body, refused, cause);
+    }
+
+    private static void refuse(YukkuriEntity body, String reason, String cause) {
+        GameplayLog.event(body, "aquatic", "spawn refused reason={} cause={} at={}", reason, cause, GameplayLog.at(body.position()));
     }
 
     private static String seat(YukkuriEntity body, String cause) {

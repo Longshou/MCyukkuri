@@ -11,10 +11,15 @@ import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -34,7 +39,35 @@ final class Waters {
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
 
+    /** How long (ticks) an answer is kept for the same question from the same cell; how many answers are kept. */
+    private static final int KEEP = 20, KEPT = 256;
+    private record Kept(long tick, Object value) {}
+    /** Recent answers by question (purpose, dimension, cells, sizes): bounded, never saved, no entity kept (sticks by UUID). */
+    private static final Map<List<Object>, Kept> CACHE = new LinkedHashMap<>(64, .75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<List<Object>, Kept> eldest) { return size() > KEPT; }
+    };
+
     private Waters() {}
+
+    /** The answer to {@code key} asked within {@link #KEEP} ticks, else {@code compute}'s (null answers are kept too). */
+    @SuppressWarnings("unchecked")
+    private static <T> T kept(Level level, List<Object> key, Supplier<T> compute) {
+        long now = level.getGameTime();
+        synchronized (CACHE) {
+            var k = CACHE.get(key);
+            if (k != null && now >= k.tick() && now - k.tick() < KEEP) return (T) k.value();
+        }
+        T value = compute.get();
+        synchronized (CACHE) { CACHE.put(key, new Kept(now, value)); }
+        return value;
+    }
+
+    private static List<Object> key(Level level, Object... parts) {
+        var out = new ArrayList<Object>(parts.length + 1);
+        out.add(level.dimension());
+        out.addAll(List.of(parts));
+        return out;
+    }
 
     /** Loaded still water open to the sky above: a source cell with no flow (no rapids), nothing solid or wet over it. */
     static boolean calm(Level level, BlockPos p) {
@@ -64,6 +97,10 @@ final class Waters {
         var level = hat.level();
         var from = cell(hat);
         if (from == null || goal == null || goal.getY() != from.getY() || !calm(level, goal)) return List.of();
+        return kept(level, key(level, "route", from, goal.immutable()), () -> plan(level, from, goal));
+    }
+
+    private static List<Vec3> plan(Level level, BlockPos from, BlockPos goal) {
         if (from.equals(goal)) return List.of(surface(level, goal));
         int y = from.getY();
         double x0 = from.getX() - RANGE, z0 = from.getZ() - RANGE;
@@ -72,7 +109,7 @@ final class Waters {
         var path = GridPath.find(grid, from.getX() + .5, from.getZ() + .5, goal.getX() + .5, goal.getZ() + .5, .5, SHORE_COST);
         var out = new ArrayList<Vec3>();
         for (int i = 1; i < path.size(); i++) out.add(surface(level, BlockPos.containing(path.get(i)[0], y, path.get(i)[1])));
-        return out;
+        return List.copyOf(out);
     }
 
     /** The next leg a paddler aims at: a few cells along the route (a straight stretch), the last one at the end. */
@@ -116,6 +153,10 @@ final class Waters {
 
     /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (spec 14 WP6a SetOut), or null. */
     static Edge berth(YukkuriEntity body) {
+        return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth()), () -> findBerth(body));
+    }
+
+    private static Edge findBerth(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 8, true)) {
             if (asked++ >= ASKED) break;
@@ -126,6 +167,10 @@ final class Waters {
 
     /** The bank edge nearest the hat a body ashore can walk to (to reach over to it from the bank), or null. */
     static Edge beside(PlacedHatEntity hat, YukkuriEntity body) {
+        return kept(body.level(), key(body.level(), "beside", hat.blockPosition(), body.blockPosition(), body.getBbWidth()), () -> findBeside(hat, body));
+    }
+
+    private static Edge findBeside(PlacedHatEntity hat, YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, hat.position(), 4, false)) {
             if (asked++ >= ASKED) break;
@@ -138,6 +183,12 @@ final class Waters {
     /** The bank edge nearest the hat whose calm cell in front the hat can be paddled to, not one of {@code tried}, or null (a
      *  landing, spec WP6a ComeAshore). */
     static Edge landing(PlacedHatEntity hat, YukkuriEntity owner, Set<BlockPos> tried) {
+        var from = cell(hat);
+        return kept(owner.level(), key(owner.level(), "landing", from == null ? hat.blockPosition() : from, Set.copyOf(tried)),
+                () -> findLanding(hat, owner, tried));
+    }
+
+    private static Edge findLanding(PlacedHatEntity hat, YukkuriEntity owner, Set<BlockPos> tried) {
         int asked = 0;
         for (var e : edges(owner, hat.position(), 12, false)) {
             if (tried.contains(e.stand())) continue;
@@ -149,6 +200,12 @@ final class Waters {
 
     /** A dry stand by the edges near {@code body} that a hop from where it is lands on (world), or null. */
     static Vec3 ashore(YukkuriEntity body) {
+        var at = body.position();
+        return kept(body.level(), key(body.level(), "ashore", Math.round(at.x * 4), Math.round(at.y * 4), Math.round(at.z * 4), body.getBbWidth()),
+                () -> findAshore(body));
+    }
+
+    private static Vec3 findAshore(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 2, false)) {
             if (asked++ >= ASKED) break;
@@ -166,6 +223,11 @@ final class Waters {
         var level = hat.level();
         var from = cell(hat);
         if (from == null) return null;
+        return kept(level, key(level, "notch", from), () -> findNotch(hat, from));
+    }
+
+    private static BlockPos findNotch(PlacedHatEntity hat, BlockPos from) {
+        var level = hat.level();
         var found = new ArrayList<BlockPos>();
         for (var p : BlockPos.betweenClosed(from.offset(-16, 0, -16), from.offset(16, 0, 16)))
             if (calm(level, p) && shelter(level, p) >= 2) found.add(p.immutable());
@@ -200,6 +262,15 @@ final class Waters {
 
     /** The loose stick nearest {@code body} within {@code range} on dry ground; with {@code walk}, one it can walk to now. */
     static ItemEntity stick(YukkuriEntity body, double range, boolean walk) {
+        UUID id = kept(body.level(), key(body.level(), "stick", body.blockPosition(), range, walk), () -> {
+            var found = findStick(body, range, walk);
+            return found == null ? null : found.getUUID();
+        });
+        return id != null && body.level() instanceof ServerLevel server && server.getEntity(id) instanceof ItemEntity item && item.isAlive()
+                && !item.getItem().isEmpty() ? item : null;
+    }
+
+    private static ItemEntity findStick(YukkuriEntity body, double range, boolean walk) {
         var sticks = body.level().getEntitiesOfClass(ItemEntity.class, new AABB(body.blockPosition()).inflate(range),
                 item -> item.isAlive() && item.getItem().is(Items.STICK) && !item.isInWater());
         sticks.sort(Comparator.comparingDouble(body::distanceToSqr));
@@ -218,9 +289,10 @@ final class Waters {
 
     /** {@code [aquatic] route} once a leg is planned (limited) or refused. */
     static void log(PlacedHatEntity hat, YukkuriEntity owner, BlockPos goal, List<Vec3> route, String purpose) {
+        var from = hat.blockPosition();
         if (route.isEmpty()) GameplayLog.limited(owner, "aquatic", "route.none." + purpose, 200, "route none purpose={} from={} to={} reason=no_calm_water_path",
-                purpose, GameplayLog.at(hat.position()), goal == null ? "none" : goal.toShortString());
+                purpose, from, goal == null ? "none" : goal);
         else GameplayLog.limited(owner, "aquatic", "route." + purpose, 100, "route purpose={} from={} to={} cells={} leg={}", purpose,
-                GameplayLog.at(hat.position()), goal.toShortString(), route.size(), GameplayLog.at(leg(route)));
+                from, goal, route.size(), leg(route));
     }
 }

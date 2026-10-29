@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
@@ -121,9 +122,14 @@ public final class BodyDriver {
         return mode;
     }
 
-    /** No action and falling free (put down over a hollow, stepped off a bank): it lands on a host it meets the way a flight does. */
+    /** How near (blocks) a host must be before a free fall is tested against it. */
+    private static final double FALL_HOST = 3;
+
+    /** No action and falling free (put down over a hollow, stepped off a bank): it lands on a host it meets the way a flight
+     *  does; only asked when a host is that near (a small box query), never while riding. */
     private TravelMode fall() {
-        if (body.isAlive() && !body.isPassenger() && !body.onGround() && !body.isInWaterOrBubble() && body.getDeltaMovement().y < 0)
+        if (body.isAlive() && !body.isPassenger() && !body.onGround() && !body.isInWaterOrBubble() && body.getDeltaMovement().y < 0
+                && !body.level().getEntities(body, body.getBoundingBox().inflate(FALL_HOST), e -> e instanceof SurfaceHost).isEmpty())
             ContactResolver.resolve(body);
         return TravelMode.PASS;
     }

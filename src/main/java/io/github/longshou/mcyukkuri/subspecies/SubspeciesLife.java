@@ -97,8 +97,9 @@ public final class SubspeciesLife {
         if (initialized || reason != MobSpawnType.NATURAL && reason != MobSpawnType.CHUNK_GENERATION) return;
         roll(null, null);
         // Marisa that appear by open water are often the aquatic kind [original rate]; where she joins the world (her hat afloat)
-        // is the add-on's natural-spawn hook (entity.DomainHooks).
-        if (kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA && nearOpenWater()
+        // is the add-on's natural-spawn hook (entity.DomainHooks). Not during chunk generation: no reads into neighbour chunks then.
+        if (reason == MobSpawnType.NATURAL && kind == Kind.NORMAL && congenital == Congenital.NORMAL && entity.getVariant() == YukkuriVariant.MARISA
+                && nearOpenWater()
                 && new Random(entity.getUUID().getMostSignificantBits() ^ 0x41515541L).nextInt(4) == 0)
             set(Kind.AQUATIC_MARISA, Congenital.NORMAL);
         entity.life().personality().applyBirthProfile(YukkuriPersonality.inheritBirth(entity.getUUID(),null,null,
@@ -106,8 +107,9 @@ public final class SubspeciesLife {
     }
     private boolean nearOpenWater() {
         var origin = entity.blockPosition();
+        var level = entity.level();
         for (var p : BlockPos.betweenClosed(origin.offset(-6, -2, -6), origin.offset(6, 1, 6)))
-            if (entity.level().getFluidState(p).is(FluidTags.WATER) && entity.level().getFluidState(p.above()).isEmpty()) return true;
+            if (level.hasChunkAt(p) && level.getFluidState(p).is(FluidTags.WATER) && level.getFluidState(p.above()).isEmpty()) return true;
         return false;
     }
     private void roll(YukkuriEntity a, YukkuriEntity b) {
