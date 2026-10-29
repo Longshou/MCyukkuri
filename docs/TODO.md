@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 重构 WP6b（补给、照料、救援 Ask、帽船分娩与送赤油到父船） | `.worktrees/wp6b-care` | `intent/`（Ask、AskLedger）、`aquatic/`、`family/LiveBirth`（`OwnHull` 接收者）、`scripts/museum_scenarios.py` 池塘场景 |
 | 试玩修复：茎缩短、抛出减小、接生站位外移、出生显示尺寸一致 | `.worktrees/fix-stem` | `family.json`、`family/BirthLaunch`、`hat_vessel.json`、`client/LiveBirthRenderer` |
 
 ## 玩法待办
