@@ -5,7 +5,7 @@ import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.DetachedStemBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem.Tool;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
@@ -154,8 +154,6 @@ public final class OperationLife {
             case CUT_STEM,BOTTLE_STEM -> DetachedStemBlockEntity.cut(entity,player,action==CareAction.BOTTLE_STEM);
             case TAKE_ACCESSORY,CONFISCATE -> takeAccessory(player,action==CareAction.CONFISCATE);
             case HANG_ACCESSORY -> AccessoryItem.suspend(player,entity,player.getMainHandItem());
-            case HAT_CARRY_CHILD -> HatCarry.pickUp(entity,player);
-            case HAT_PUT_DOWN_CHILD -> HatCarry.putDown(entity);
             case COLLECT_NEAREST -> collect(player);
             case ASK -> entity.pet().care().ask(player);
             case REMOVE_HARNESS -> entity.pet().care().takeOffHarness(player);
@@ -270,7 +268,6 @@ public final class OperationLife {
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
-        if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         AccessoryItem.markSource(stack,entity);
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
@@ -278,12 +275,11 @@ public final class OperationLife {
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
     }
     public void animateHat(Player player,boolean returning){
-        if(!HatCarry.hasHat(entity))return;
+        if(HatGeometry.worn(entity.assetId())==null)return;
         if(pose==Pose.HAT_REMOVE||pose==Pose.HAT_RETURN)end();
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
-        if(entity.isVehicle()&&!HatCarry.putDown(entity))return false;
         if(!entity.life().hasAccessory()&&!entity.headwear().reassembling())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));

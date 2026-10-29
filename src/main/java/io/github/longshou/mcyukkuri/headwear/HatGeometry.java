@@ -10,6 +10,8 @@ import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.google.gson.JsonParser;
@@ -74,6 +76,20 @@ public final class HatGeometry {
     public static float[] brim(){return LAND.brim;}
     /** The authored hat data (hat_vessel.json): its scale table and the afloat physics. */
     public static JsonObject data(){return DATA;}
+    /** The worn hat and the forms that sit near it (hat_interactions.json): take-off motion per hatted form, boxes per form. */
+    private static final JsonObject WORN=read("/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json");
+    /** The worn hat of a hatted form (bone, lift and forward of its take-off motion), or null for a form without one. */
+    public static JsonObject worn(String assetId){return WORN.getAsJsonObject("variants").getAsJsonObject(assetId);}
+    private static final Map<String,Double> HALF_WIDTHS=new ConcurrentHashMap<>();
+    /** Half width of a form's authored boxes, hair and ribbons included (model units); Reimu's when the form has none. */
+    public static double formHalfWidth(String assetId){
+        return HALF_WIDTHS.computeIfAbsent(assetId,id->{
+            var forms=WORN.getAsJsonObject("children");var form=forms.has(id)?forms.getAsJsonObject(id):forms.getAsJsonObject("reimu");
+            double half=0;
+            for(var part:form.getAsJsonArray("parts")){var b=floats(part.getAsJsonArray());half=Math.max(half,Math.max(Math.abs(b[0]),Math.abs(b[3])));}
+            return half;
+        });
+    }
     /** This Marisa's hat size in every form (HatScale). */
     public static float hatScale(YukkuriEntity y){return HatScale.of(y);}
     /** Where a catcher's braid clips set the hat, relative to the catcher, and where it lies before the mother:

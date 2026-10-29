@@ -48,6 +48,17 @@ public final class Release implements Action {
         return new Outcome.Done("released");
     }
 
+    /**
+     * The same release at once, for a carrier that sets several riders down in one decision, or for an interruption, a death
+     * or an ended intent ({@code forced}: there is no decision left to turn or step in, so the room check is skipped and the
+     * body comes down where it hangs, spec 5.4). Returns the check that applied; nothing moves when it refused.
+     */
+    public static Feasibility now(YukkuriEntity carrier, YukkuriEntity child, boolean forced, String cause) {
+        var room = forced ? Feasibility.pass() : new Release(child).check(carrier);
+        if (room.ok() && child.getVehicle() == carrier) Motor.dismount(child, child.position(), Vec3.ZERO, cause);
+        return room;
+    }
+
     /** Whether support or water is within {@link #DROP} below the carried feet: the released body lands or falls into water. */
     private static boolean ground(YukkuriEntity child) {
         Vec3 feet = child.position();

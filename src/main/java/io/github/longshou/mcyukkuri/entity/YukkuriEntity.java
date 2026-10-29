@@ -257,6 +257,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long motorStart() { return componentData(BodyDriver.MOTOR_START); }
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     public byte attachKind() { return componentData(BodyDriver.ATTACH_KIND); }
+    /** Synchronized braid slot ({@link BodyDriver#BRAID}). */
+    public int braidHold() { return componentData(BodyDriver.BRAID); }
 
     public YukkuriVariant getVariant() { return variant; }
     public SpeciesProfile profile() { return SpeciesProfile.of(variant, subspeciesKind()); }
@@ -275,7 +277,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         for (var rider : getPassengers()) if (rider instanceof YukkuriView view) out.add(view);
         return out;
     }
-    public YukkuriView carriedYukkuri() { return getFirstPassenger() instanceof YukkuriView view ? view : null; }
     public boolean hasPassengerId(UUID passenger) {
         return getPassengers().stream().anyMatch(rider -> rider.getUUID().equals(passenger));
     }

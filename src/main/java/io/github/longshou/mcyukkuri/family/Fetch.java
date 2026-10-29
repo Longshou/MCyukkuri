@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
@@ -78,7 +77,7 @@ public final class Fetch implements HostIntent {
     @Override public void ended(IntentRunner.Result result) {
         if (result == IntentRunner.Result.DONE || !held()) return;
         Vec3 at = child.position();
-        Motor.dismount(child, at, Vec3.ZERO, "fetch_ended");
+        Release.now(taker, child, true, "fetch_ended");
         GameplayLog.event(taker, "family", "fetch release child={} uuid={} at={} result={} cause=fetch_ended",
                 child.getId(), child.getUUID(), GameplayLog.at(at), result);
     }

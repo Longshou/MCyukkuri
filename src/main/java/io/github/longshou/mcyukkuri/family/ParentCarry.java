@@ -4,22 +4,25 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
-import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -30,51 +33,39 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 /**
- * A parent carries a dependent baby over land with a real passenger (the same custody as the hat brim): brim for hat
- * Marisa (as many as physically fit the brim, then one in the mouth), one per tail for Chen (two), mouth for everyone else (one;
- * Reimu holds several, within a volume budget). Pick-up needs reach, capacity and a free carrier;
- * the child rides until it is put down at its own position (never copied, never teleported to a goal) for a real reason.
- * Client code reads only {@link #mode} / {@link #rawSeat} / {@link #mouthLane}; the drawn pose follows the live carrier
- * model in client ParentCarryPresentation.
+ * A parent carries a dependent baby over land as a real passenger, held the way the shared Grab took it (spec 9.4): in the
+ * mouth (one; Reimu several within a volume budget), and a Marisa one more baby at her braid tip. The walk home is the
+ * shared Walk and the put-down the shared Release, at the child's own position for a real reason (never copied, never
+ * teleported to a goal). Client code reads only the synced riders and braid slot through {@link #rawSeat} /
+ * {@link #mouthLane}; the drawn pose follows the live carrier model in client ParentCarryPresentation.
  */
 public final class ParentCarry {
-    public enum Mode { HAT, MOUTH, TAIL }
-    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, MANUAL }
+    public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM }
     public enum Step { WORKING, DONE, FAILED }
-    /** Ticks the parent stands over the child before it is lifted; the Grab action's own lift pose (spec 9.4). */
-    public static final int LIFT_TICKS = 14;
     /** Pause before the same child is picked up again after an interruption; feeding gets longer. */
     static final int HOLD_TICKS = 100, FEED_HOLD_TICKS = 200;
     /** After the carrier has settled at the destination the child is kept at most this long while it inherits the home. */
     static final int ARRIVE_GRACE_TICKS = 600;
     private static final int MAX_CARRY_TICKS = 12000;
+    /** One mouth or braid hold takes a child up to this share of the carrier's volume, scaled by strength (project design). */
+    static final double HOLD_FRACTION = .20;
     /** Reimu holds several babies in her mouth (project design): their summed volume stays within this fraction of her own, scaled by strength. */
     static final double MOUTH_LOAD_FRACTION = .45;
     static final int MAX_MOUTH_BABIES = 4;
-    /** Chen's tails: one baby per tail, each up to this fraction of her volume times strength (project design). */
-    static final int TAIL_COUNT = 2;
-    static final double TAIL_BABY_FRACTION = .26;
-    /** Tail seat: the shelf of the curled tail behind and beside the body (model units, idle pose, full curl). */
-    private record Tail(double x, double y, double z) {}
-    /** One seat per tail (left, right), model units; matches the curl drawn by ParentCarryPresentation (the client follows the live tail). */
-    private static final Map<String, Tail[]> TAILS = Map.of(
-            "chen", new Tail[]{new Tail(-3.09, 6.46, 8.6), new Tail(3.09, 6.46, 8.6)},
-            "chen_longtail", new Tail[]{new Tail(-2.93, 6.82, 9.05), new Tail(2.93, 6.82, 9.05)},
-            "chen_roundtail", new Tail[]{new Tail(-2.95, 4.99, 8.78), new Tail(2.95, 4.99, 8.78)});
     /**
-     * Mouth lanes (project design): children hang side by side across the lips in seat order, each gripped at the top-rear of
-     * its head; the closed lips stretch a little for each extra child, and a child whose lane lies past them is held by its
-     * inner side lock instead (lower on the head, so it rides a little higher and fans outward). Carrier model units.
+     * Mouth lanes (project design): children hang side by side across the lips in boarding order, each gripped at the
+     * top-rear of its head; the closed lips stretch a little for each extra child, and a child whose lane lies past them is
+     * held by its inner side lock instead (lower on the head, so it rides a little higher and fans outward). Carrier model units.
      */
     static final double LANE_GAP = .12, MOUTH_HALF = 1.6, LIP_STRETCH = .25, GRIP_SIDE = 5.2, GRIP_DROP = 3.2, LANE_FAN = 12;
-    /** The grip on a child's head (child model units): top-rear of the head, the scruff. */
+    /** The grip on a child's head (child model units): top-rear of the head, the scruff; the braid tip closes there too. */
     public static final double GRIP_Y = 8.2, GRIP_Z = 4.0;
     /** The bite sits this far in front of the lip plane (carrier model units), so the hanging back clears the face; lanes
      *  out at the cheeks come forward a little more (per squared lane offset) to clear the side locks. */
     public static final double LIP_GAP = .8, LANE_FORWARD = .035;
     /** Forward offset of a lane's bite from the lip plane (carrier model units). */
     public static double biteForward(MouthLane lane) { return LIP_GAP + LANE_FORWARD * lane.side() * lane.side(); }
-    /** The lowest a mouth-held child's feet hang above the carrier's feet (carrier model units). */
+    /** The lowest a held child's feet hang above the carrier's feet (carrier model units). */
     public static final double MOUTH_FLOOR = .2;
     private record Hold(long until, String reason) {}
 
@@ -82,12 +73,14 @@ public final class ParentCarry {
     private final Map<UUID, Hold> holds = new HashMap<>();
     private Purpose purpose;
     private long since, arrivedAt;
-    private int homeFailures;
+    private int homeFailures, walkFailures;
     private UUID lifting;
-    /** The carry task as the motor owner: active while a lift or a carry is under way. */
+    /** Where the carry's own Walk was last sent. */
+    private Vec3 walkTo;
+    /** The carry as the motor owner: active while a lift runs, or while the family carry task walks the child home. */
     private final MotorOwner owner = new MotorOwner() {
         @Override public String ownerId() { return "family_carry"; }
-        @Override public boolean active() { return purpose != null || lifting != null; }
+        @Override public boolean active() { return lifting != null || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
     };
     /** NEST_RIM: the nest whose rim the child lay on, and the free cushion spot being walked to. */
     private BlockPos rimNest;
@@ -97,98 +90,59 @@ public final class ParentCarry {
 
     // ------------------------------------------------------------------------------------------ shared geometry
 
-    /** Where one carried child sits: the hold, its place within that hold, how many share it, and the brim offset. */
-    public record Seat(Mode mode, int lane, int lanes, double dz) {}
-
-    /**
-     * Seat of this child, from synchronized size and form only, so both sides agree. Riders are placed in boarding order
-     * (a child not yet aboard comes last): on a hatted Marisa's brim while real brim room is left, otherwise on Chen's
-     * tails or in the mouth.
-     */
-    public static Seat resolve(YukkuriView carrier, YukkuriView child) {
-        var all = new ArrayList<>(carrier.passengerViews());
-        int me = -1;
-        for (int i = 0; i < all.size(); i++) if (all.get(i).getUUID().equals(child.getUUID())) me = i;
-        if (me < 0) { all.add(child); me = all.size() - 1; }
-        int n = all.size();
-        boolean brim = HatCarry.hasHat(carrier) && carrier.hasVisibleAccessory();
-        double[] dz = null;
-        if (brim) {
-            var ids = new ArrayList<String>();
-            var ratios = new ArrayList<Double>();
-            for (var rider : all) { ids.add(rider.assetId()); ratios.add(size(rider) / size(carrier)); }
-            dz = HatCarry.layout(carrier.assetId(), ids, ratios);
-        }
-        boolean chen = carrier.getVariant() == YukkuriVariant.CHEN;
-        Mode[] modes = new Mode[n];
-        int[] lane = new int[n], used = new int[3];
-        for (int i = 0; i < n; i++) {
-            modes[i] = brim && !Double.isNaN(dz[i]) ? Mode.HAT : chen ? Mode.TAIL : Mode.MOUTH;
-            lane[i] = used[modes[i].ordinal()]++;
-        }
-        return new Seat(modes[me], lane[me], used[modes[me].ordinal()], modes[me] == Mode.HAT ? dz[me] : 0);
+    /** How this carrier holds this rider: at the braid tip when its synced braid slot names it, else in the mouth. */
+    public static Reach reach(YukkuriView carrier, YukkuriView child) {
+        return BodyDriver.braidBody(carrier.braidHold()) == child.getId() ? Reach.BRAID : Reach.MOUTH;
     }
-    /** How this carrier holds this child (see {@link #resolve}). */
-    public static Mode mode(YukkuriView carrier, YukkuriView child) {
-        return carrier == null || child == null ? null : resolve(carrier, child).mode();
+    /** The rider at this carrier's braid tip, or null. */
+    public static YukkuriView braidRider(YukkuriView carrier) {
+        for (var rider : carrier.passengerViews()) if (reach(carrier, rider) == Reach.BRAID) return rider;
+        return null;
     }
-    /** What the carrier is doing with its riders: the brim if any rider is on it, else its first rider's hold; null when empty. */
-    public static Mode carryMode(YukkuriView carrier) {
-        if (!carrier.isVehicle()) return null;
-        Mode first = null;
-        for (var rider : carrier.passengerViews()) {
-            var mode = mode(carrier, rider);
-            if (mode == Mode.HAT) return mode;
-            if (first == null) first = mode;
-        }
-        return first;
+    /** The riders held in the mouth, in boarding order. */
+    static List<YukkuriView> mouthRiders(YukkuriView carrier) {
+        var out = new ArrayList<YukkuriView>();
+        for (var rider : carrier.passengerViews()) if (reach(carrier, rider) == Reach.MOUTH) out.add(rider);
+        return out;
     }
-    /** True while the child is a passenger of this carrier. */
-    public static boolean visibleCarried(YukkuriView carrier, YukkuriView child) { return carrier.hasPassengerId(child.getUUID()); }
     public static boolean riding(YukkuriEntity carrier, Entity child) { return child instanceof YukkuriEntity && carrier.hasPassenger(child); }
     private static double size(YukkuriView v) { return v.growthScale() * v.getScale(); }
     /** Reimu carries babies in her mouth, several at once; every other mouth carrier holds one. */
     public static boolean multi(YukkuriView carrier) { return carrier.getVariant() == YukkuriVariant.REIMU; }
 
-    /** Feet of the carried child before any collision adjustment (also what the client draws for the brim). */
+    /** Feet of the carried child before any collision adjustment: under its mouth lane's grip, or at the braid tip, just off the ground. */
     public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
-        var seat = resolve(carrier, child);
-        if (seat.mode() == Mode.HAT) return HatCarry.seatWorld(carrier, partial, seat.dz());
         float scale = (float) size(carrier);
         float yaw = carrier.level().isClientSide ? Mth.rotLerp(partial, carrier.previousBodyYaw(), carrier.bodyYaw()) : carrier.bodyYaw();
-        float turn = (180 - yaw) * Mth.DEG_TO_RAD;
         var base = carrier.level().isClientSide ? carrier.getPosition(partial) : carrier.position();
-        if (seat.mode() == Mode.TAIL) {
-            var tails = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"));
-            var tail = tails[Math.min(seat.lane(), tails.length - 1)];
-            var point = new Vector3f((float) tail.x(), (float) tail.y(), (float) tail.z()).mul(scale / 16).rotateY(turn);
-            return base.add(point.x, point.y, point.z);
+        Vector3f feet;
+        if (reach(carrier, child) == Reach.BRAID) {
+            // The braid tip's rest spot beside the body; the client bends the braid down to the child's scruff.
+            var tip = ContactGeometry.braidTipModel();
+            feet = new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z);
+        } else {
+            // Feet under the lane's grip at rest: the client hangs the child from the live lip (ParentCarryPresentation).
+            var lane = mouthLane(carrier, child);
+            var mouth = MouthPlacement.anchor(carrier);
+            double rho = size(child) / Math.max(1e-6, size(carrier));
+            // The anchor lies about .35 in front of the lip plane the client grips at.
+            feet = new Vector3f((float) lane.side(), (float) Math.max(MOUTH_FLOOR, mouth.y - lane.gripY() * rho),
+                    (float) (mouth.z + .35 - biteForward(lane) - lane.gripZ() * rho));
         }
-        // Feet under the lane's grip at rest: the client hangs the child from the live lip (ParentCarryPresentation).
-        var lane = mouthLane(carrier, child);
-        var mouth = MouthPlacement.anchor(carrier);
-        double rho = size(child) / Math.max(1e-6, size(carrier));
-        // The anchor lies about .35 in front of the lip plane the client grips at.
-        var feet = new Vector3f((float) lane.side(), (float) Math.max(MOUTH_FLOOR, mouth.y - lane.gripY() * rho),
-                (float) (mouth.z + .35 - biteForward(lane) - lane.gripZ() * rho)).mul(scale / 16).rotateY(turn);
+        feet.mul(scale / 16).rotateY((180 - yaw) * Mth.DEG_TO_RAD);
         return base.add(feet.x, feet.y, feet.z);
     }
     /** Where one mouth-held child hangs: lane centre across the lips, grip on its head, outward fan and side tilt (degrees). */
     public record MouthLane(double side, double gripX, double gripY, double gripZ, float fan, float roll) {}
-    /** The lane of this child among the carrier's mouth-held riders (seat order; a child not yet aboard comes last). */
+    /** The lane of this child among the carrier's mouth-held riders (boarding order; a child not yet aboard comes last). */
     public static MouthLane mouthLane(YukkuriView carrier, YukkuriView child) {
-        var riders = new ArrayList<YukkuriView>();
-        boolean found = false;
-        for (var rider : carrier.passengerViews()) {
-            if (rider.getUUID().equals(child.getUUID())) { riders.add(rider); found = true; }
-            else if (mode(carrier, rider) == Mode.MOUTH) riders.add(rider);
-        }
-        if (!found) riders.add(child);
+        var riders = mouthRiders(carrier);
+        if (riders.stream().noneMatch(rider -> rider.getUUID().equals(child.getUUID()))) riders.add(child);
         int n = riders.size(), me = 0;
         double carrierSize = Math.max(1e-6, size(carrier)), width = (n - 1) * LANE_GAP;
         double[] half = new double[n];
         for (int i = 0; i < n; i++) {
-            half[i] = HatCarry.childHalfWidth(riders.get(i).assetId()) * size(riders.get(i)) / carrierSize;
+            half[i] = HatGeometry.formHalfWidth(riders.get(i).assetId()) * size(riders.get(i)) / carrierSize;
             width += half[i] * 2;
             if (riders.get(i).getUUID().equals(child.getUUID())) me = i;
         }
@@ -200,27 +154,18 @@ public final class ParentCarry {
         return new MouthLane(side, grip, GRIP_Y - GRIP_DROP * edge * edge, GRIP_Z - .8 * edge * edge, fan, (float) (edge * 3));
     }
     /** Mouth carry closes the carrier's mouth on the child. */
-    public static boolean mouthCarrying(YukkuriView carrier) {
-        if (!carrier.isVehicle()) return false;
-        for (var rider : carrier.passengerViews()) if (mode(carrier, rider) == Mode.MOUTH) return true;
-        return false;
-    }
+    public static boolean mouthCarrying(YukkuriView carrier) { return carrier.isVehicle() && !mouthRiders(carrier).isEmpty(); }
 
     /** Seat used by the passenger position update: the raw seat pulled toward the carrier's own cell until the child fits. */
     public static Vec3 seat(YukkuriEntity carrier, YukkuriEntity child) {
-        var mode = mode(carrier, child);
         // The client has already moved the carrier this tick: use its current pose (partial 1) so the child does not trail it.
-        var raw = rawSeat(carrier, child, mode == Mode.HAT ? 0 : 1);
-        if (mode == Mode.HAT) return raw;
+        var raw = rawSeat(carrier, child, 1);
         for (double t : new double[]{0, .35, .7, 1}) {
             var at = new Vec3(Mth.lerp(t, raw.x, carrier.getX()), raw.y, Mth.lerp(t, raw.z, carrier.getZ()));
-            if (clear(carrier, child, at)) return at;
+            var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
+            if (!carrier.level().getBlockCollisions(child, box).iterator().hasNext() && !carrier.level().containsAnyLiquid(box)) return at;
         }
         return null;
-    }
-    private static boolean clear(YukkuriEntity carrier, YukkuriEntity child, Vec3 at) {
-        var box = child.getDimensions(child.getPose()).makeBoundingBox(at).deflate(.02);
-        return !carrier.level().getBlockCollisions(child, box).iterator().hasNext() && !carrier.level().containsAnyLiquid(box);
     }
 
     // ------------------------------------------------------------------------------------------ capacity and rules
@@ -230,15 +175,19 @@ public final class ParentCarry {
         return child.isAlive() && !child.family().adult() && !child.family().awaitingLanding() && child.childhood().shouldStayWithParents()
                 && (child.family().stage() == FamilyLife.Stage.BABY || child.canCrawlNow());
     }
-    private static double volume(YukkuriEntity e) { return e.getBbWidth() * e.getBbWidth() * e.getBbHeight(); }
+    private static double volume(YukkuriView e) { return e.getBbWidth() * e.getBbWidth() * e.getBbHeight(); }
     private static double strength(YukkuriEntity carrier) {
         return Math.clamp((carrier.life().energy() - 8) / 60.0, .2, 1) * Math.clamp(carrier.species().traits().might(), .8, 1.5);
     }
     private static boolean mouthFree(YukkuriEntity carrier) {
         return carrier.getMouthItem().isEmpty() && carrier.getMouthBodyFood().isEmpty() && carrier.habitat().carrying().isEmpty();
     }
-    /** Why this carrier could not hold this child at all (size, form, an occupied seat, wrong stage); null when it can. */
-    public static String capacityProblem(YukkuriEntity carrier, YukkuriEntity child, boolean ongoing, boolean full) {
+    /**
+     * Why this carrier could not hold this child with {@code reach} (size, form, stage, a taken hold); null when it can. The
+     * braid is a Marisa's and takes one baby; the mouth takes one, a Reimu several within her volume budget. For a rider
+     * already held ({@code ongoing}) only the riders ahead of it in the same hold count.
+     */
+    public static String holdProblem(YukkuriEntity carrier, YukkuriEntity child, Reach reach, boolean ongoing) {
         if (carrier == child) return "self";
         if (!carrier.isAlive() || !child.isAlive()) return "dead";
         if (carrier.level() != child.level()) return "level";
@@ -249,39 +198,37 @@ public final class ParentCarry {
         // A body standing on a host (the placed catch hat) is lifted straight off it (spec 5.2 OnHost -> Held).
         if (child.isPassenger() && child.getVehicle() != carrier && !(child.getVehicle() instanceof SurfaceHost)) return "child_boarded";
         if (carrier.livePregnancyProgress() > 0) return "pregnant";
-        var seat = resolve(carrier, child);
-        double ratio = volume(child) / Math.max(1e-6, volume(carrier));
-        switch (seat.mode()) {
-            case HAT -> { if (!ongoing && full && !HatCarry.canSeat(carrier, child)) return "hat_seat"; }
-            case TAIL -> {
-                // Two tails, one baby each; each tail takes a baby up to this share of the carrier's volume (project design).
-                if (seat.lane() >= TAIL_COUNT) return "occupied";
-                if (ratio > TAIL_BABY_FRACTION * strength(carrier)) return "too_big";
-            }
-            case MOUTH -> {
-                if (ratio > .20 * strength(carrier)) return "too_big";
-                if (!mouthFree(carrier)) return "mouth_full";
-                if (!multi(carrier)) { if (seat.lane() >= 1) return "occupied"; }
-                else {
-                    // Babies already aboard (for a rider: those ahead of it in seat order) share the budget.
-                    double load = volume(child);
-                    int count = 1;
-                    for (var rider : carrier.getPassengers()) {
-                        if (rider == child) { if (ongoing) break; continue; }
-                        if (rider instanceof YukkuriEntity other) { load += volume(other); count++; }
-                    }
-                    if (count > MAX_MOUTH_BABIES) return "occupied";
-                    if (load > MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier)) return "mouth_load";
-                }
-            }
+        if (volume(child) / Math.max(1e-6, volume(carrier)) > HOLD_FRACTION * strength(carrier)) return "too_big";
+        if (reach == Reach.BRAID) {
+            if (!ContactGeometry.braided(carrier)) return "no_braid";
+            if (child.family().stage() != FamilyLife.Stage.BABY) return "not_baby";
+            var held = braidRider(carrier);
+            return held != null && held != child ? "occupied" : null;
         }
-        return null;
+        if (!mouthFree(carrier)) return "mouth_full";
+        // Babies already in the mouth (for a rider: those ahead of it) share it.
+        double load = volume(child);
+        int count = 1;
+        for (var rider : mouthRiders(carrier)) {
+            if (rider == child) { if (ongoing) break; continue; }
+            load += volume(rider);
+            count++;
+        }
+        if (!multi(carrier)) return count > 1 ? "occupied" : null;
+        if (count > MAX_MOUTH_BABIES) return "occupied";
+        return load > MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier) ? "mouth_load" : null;
+    }
+    /** Why neither hold could take this child now (the mouth's reason, the braid's beside it for a Marisa); null when one can. */
+    public static String capacityProblem(YukkuriEntity carrier, YukkuriEntity child) {
+        var mouth = holdProblem(carrier, child, Reach.MOUTH, false);
+        if (mouth == null) return null;
+        var braid = holdProblem(carrier, child, Reach.BRAID, false);
+        return braid == null ? null : !ContactGeometry.braided(carrier) || braid.equals(mouth) ? mouth : mouth + "/" + braid;
     }
     /** Vanilla seat acceptance for forced and unforced boarding (YukkuriEntity.canAddPassenger). */
     public static boolean canSeat(YukkuriEntity carrier, Entity passenger) {
-        if (!(passenger instanceof YukkuriEntity child)) return false;
-        return capacityProblem(carrier, child, false, true) == null && !carrier.isInWaterOrBubble() && !child.isInWaterOrBubble()
-                && !carrier.operations().active() && !child.operations().active();
+        return passenger instanceof YukkuriEntity child && capacityProblem(carrier, child) == null && !carrier.isInWaterOrBubble()
+                && !child.isInWaterOrBubble() && !carrier.operations().active() && !child.operations().active();
     }
 
     /** The carrier is not busy with something that needs its body, mouth or attention right now. */
@@ -290,8 +237,8 @@ public final class ParentCarry {
         return FamilyLife.ordinaryLandFree(carrier) && !carrier.isPanicking() && !carrier.isOnFire() && !life.isSleeping()
                 && life.mealTicks() == 0 && (!life.hasUrgentNeed() || carrier.settlement().marchTiredOnly());
     }
-    /** Structural ability only (size, form, free seat); the child waits for such a carrier instead of walking off. */
-    public boolean capable(YukkuriEntity child) { return capacityProblem(carrier, child, false, false) == null; }
+    /** Structural ability only (size, form, a free hold); the child waits for such a carrier instead of walking off. */
+    public boolean capable(YukkuriEntity child) { return capacityProblem(carrier, child) == null; }
 
     /** A dependent baby waits for a parent who can carry it while the family travels, instead of crawling after it. */
     public static boolean awaitsCarrier(YukkuriEntity child) {
@@ -312,14 +259,15 @@ public final class ParentCarry {
         return needsCarry(child) ? parent.family().carry().room(child) : 0;
     }
     /**
-     * A mouth-carrier with babies to carry keeps the mouth for them and packs no food: the mother always does; the father
-     * only when the mother cannot take them all (project design, so one parent still brings the rations).
+     * A mouth-carrier with babies to carry keeps the mouth for them and packs no food: the mother always does, unless her
+     * braid alone takes them; the father only when the mother cannot take them all (project design, so one parent still
+     * brings the rations).
      */
     public static boolean reservesMouth(YukkuriEntity parent) {
         if (!parent.family().adult() || !(parent.level() instanceof ServerLevel level)) return false;
         var kids = level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                 c -> c != parent && needsCarry(c) && Bonds.parentOf(parent, c));
-        if (kids.stream().noneMatch(c -> mode(parent, c) == Mode.MOUTH)) return false;
+        if (kids.size() <= parent.family().carry().braidSeats(kids)) return false;
         if (kids.stream().anyMatch(c -> parent.getUUID().equals(c.family().mother()))) return true;
         var first = kids.get(0);
         var mother = first.family().mother() != null && level.getEntity(first.family().mother()) instanceof YukkuriEntity m && m.isAlive()
@@ -327,59 +275,35 @@ public final class ParentCarry {
         return kids.size() > (mother == null ? 0 : mother.family().carry().seatsFor(kids));
     }
 
+    /** Whether this carrier holds {@code kid} with {@code reach} already, or could take it there from now. */
+    private boolean fits(YukkuriEntity kid, Reach reach) {
+        return carrier.hasPassenger(kid) ? reach(carrier, kid) == reach : holdProblem(carrier, kid, reach, false) == null;
+    }
     /** Babies like {@code child} this carrier could take from now on, this one included: 0 if it cannot take it. */
     int room(YukkuriEntity child) {
-        if (!capable(child)) return 0;
-        var seat = resolve(carrier, child);
-        switch (seat.mode()) {
-            case TAIL: return Math.max(0, TAIL_COUNT - seat.lane());
-            case HAT: {
-                // Add copies of this baby behind the current riders until the brim has no more room.
-                var ids = new ArrayList<String>();
-                var ratios = new ArrayList<Double>();
-                for (var rider : carrier.passengerViews()) { ids.add(rider.assetId()); ratios.add(size(rider) / size(carrier)); }
-                int base = ids.size();
-                for (int k = 0; k < 6; k++) { ids.add(child.assetId()); ratios.add(size(child) / size(carrier)); }
-                var dz = HatCarry.layout(carrier.assetId(), ids, ratios);
-                int fit = 0;
-                for (int i = base; i < dz.length; i++) if (!Double.isNaN(dz[i])) fit++;
-                // A baby that does not fit the brim can still take the free mouth.
-                return Math.max(1, fit);
-            }
-            default: {
-                if (!multi(carrier)) return 1;
-                double load = 0;
-                for (var rider : carrier.getPassengers()) if (rider instanceof YukkuriEntity other) load += volume(other);
-                double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier);
-                int byVolume = (int) Math.floor((budget - load) / Math.max(1e-6, volume(child)));
-                return Math.max(1, Math.min(byVolume, MAX_MOUTH_BABIES - carrier.getPassengers().size()));
-            }
-        }
+        int braid = holdProblem(carrier, child, Reach.BRAID, false) == null ? 1 : 0;
+        if (holdProblem(carrier, child, Reach.MOUTH, false) != null) return braid;
+        if (!multi(carrier)) return 1 + braid;
+        double load = 0;
+        var riders = mouthRiders(carrier);
+        for (var rider : riders) load += volume(rider);
+        int byVolume = (int) Math.floor((MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier) - load) / Math.max(1e-6, volume(child)));
+        return Math.max(1, Math.min(byVolume, MAX_MOUTH_BABIES - riders.size())) + braid;
     }
+    /** How many of these babies the braid alone could hold (one, for a Marisa who has a baby it fits). */
+    int braidSeats(List<YukkuriEntity> kids) { return kids.stream().anyMatch(kid -> fits(kid, Reach.BRAID)) ? 1 : 0; }
 
     /** How many of these babies this carrier could hold at once from empty (father's share of carrying is what is left). */
     int seatsFor(List<YukkuriEntity> kids) {
-        if (multi(carrier)) {
-            double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier), load = 0;
-            int count = 0;
-            for (var kid : kids) {
-                if (count >= MAX_MOUTH_BABIES || !capable(kid) && !carrier.hasPassenger(kid)) continue;
-                if (load + volume(kid) > budget) continue;
-                load += volume(kid);
-                count++;
-            }
-            return count;
+        if (!multi(carrier)) return Math.min(kids.size(), braidSeats(kids) + (kids.stream().anyMatch(kid -> fits(kid, Reach.MOUTH)) ? 1 : 0));
+        double budget = MOUTH_LOAD_FRACTION * strength(carrier) * volume(carrier), load = 0;
+        int count = 0;
+        for (var kid : kids) {
+            if (count >= MAX_MOUTH_BABIES || !fits(kid, Reach.MOUTH) || load + volume(kid) > budget) continue;
+            load += volume(kid);
+            count++;
         }
-        if (carrier.getVariant() == YukkuriVariant.CHEN) return Math.min(TAIL_COUNT, (int) kids.stream().filter(this::capable).count());
-        if (HatCarry.hasHat(carrier) && carrier.hasVisibleAccessory()) {
-            var ids = new ArrayList<String>();
-            var ratios = new ArrayList<Double>();
-            for (var kid : kids) { ids.add(kid.assetId()); ratios.add(size(kid) / size(carrier)); }
-            int fit = 0;
-            for (double z : HatCarry.layout(carrier.assetId(), ids, ratios)) if (!Double.isNaN(z)) fit++;
-            return fit + (fit < kids.size() && mouthFree(carrier) ? 1 : 0);
-        }
-        return kids.stream().anyMatch(this::capable) ? 1 : 0;
+        return count;
     }
 
     // ------------------------------------------------------------------------------------------ pick-up (server)
@@ -388,7 +312,7 @@ public final class ParentCarry {
     public YukkuriEntity carried() { return carrier.getFirstPassenger() instanceof YukkuriEntity y ? y : null; }
     public boolean carrying() { return carried() != null; }
     public Purpose purpose() { return purpose; }
-    /** Every yukkuri riding this carrier (more than one only for Reimu). */
+    /** Every yukkuri riding this carrier (more than one for a Reimu's mouth or a Marisa's mouth and braid). */
     public List<YukkuriEntity> riders() {
         var out = new ArrayList<YukkuriEntity>();
         for (var rider : carrier.getPassengers()) if (rider instanceof YukkuriEntity y) out.add(y);
@@ -427,42 +351,39 @@ public final class ParentCarry {
         return (why == Purpose.MIGRATE || why == Purpose.NEST_RIM) && capable(child) && ready();
     }
 
-    private boolean inReach(YukkuriEntity child) {
-        return ContactGeometry.inMouthReach(carrier, child);
-    }
-
-    /** Standing over a child and counting down its lift (shown as the lean-down of carry_lift). */
+    /** Standing over a child and counting down its lift (shown as the lean-down of carry_lift, or the braid's reach). */
     boolean lifting() { return lifting != null; }
-    /** One tick of walking to the child, standing over it and lifting it. */
-    Step tickPickup(YukkuriEntity child, int taskTicks) { return tickPickup(child, purposeFor(child)); }
-    private Step tickPickup(YukkuriEntity child, Purpose intent) {
+    /** One tick of walking to the child, standing over it and lifting it with the shared Grab (mouth or braid). */
+    Step tickPickup(YukkuriEntity child, int taskTicks) {
+        var intent = purposeFor(child);
         if (child.getUUID().equals(lifting)) {
             // This carrier's own Grab is the pickup: still lifting, or finished with an outcome to read here.
             if (carrier.motor().current() instanceof Grab) return Step.WORKING;
             lifting = null;
             return grabOutcome(child);
         }
-        var problem = capacityProblem(carrier, child, false, true);
+        var problem = capacityProblem(carrier, child);
         boolean ready = ready();
         if (problem != null || !ready) {
             GameplayLog.limited(carrier, "family", "carry.refused", 400, "carry pickup refused child={} reason={} ready={}", child.getUUID(),
                     problem == null ? "carrier_busy" : problem, ready);
             return Step.FAILED;
         }
-        if (!inReach(child)) {
-            var stand=SurfaceApproach.beside(carrier,child,(carrier.getBbWidth()+child.getBbWidth())*.5+.15,1.2);
-            if(stand==null){
-                GameplayLog.limited(carrier,"family","carry.approach",200,"carry pickup refused child={} reason=no_supported_contact_stand",child.getUUID());
+        var grab = new Grab(child);
+        var feasibility = grab.check(carrier);
+        if (feasibility.reason() == Reason.NO_CONTACT) {
+            // Neither mouth nor braid reaches yet: the stand beside the child (the braid turns its side to it on the lift).
+            var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) * .5 + .15, 1.2);
+            if (stand == null) {
+                GameplayLog.limited(carrier, "family", "carry.approach", 200, "carry pickup refused child={} reason=no_supported_contact_stand", child.getUUID());
                 return Step.FAILED;
             }
-            SurfaceApproach.walkAround(carrier,stand,child,1.1);
+            SurfaceApproach.walkAround(carrier, stand, child, 1.1);
             return Step.WORKING;
         }
         carrier.getNavigation().stop();
         carrier.getLookControl().setLookAt(child, 30, 30);
         if (child.life().mealTicks() > 0 || child.isPanicking() || child.isInWaterOrBubble() || child.operations().active()) return Step.WORKING;
-        Grab grab = new Grab(child);
-        var feasibility = grab.check(carrier);
         if (!feasibility.ok()) {
             GameplayLog.limited(carrier, "family", "carry.grab", 100, "carry grab refused child={} reason={} {}",
                     child.getUUID(), feasibility.reason(), feasibility.detail());
@@ -471,8 +392,8 @@ public final class ParentCarry {
         lifting = child.getUUID();
         // The lift commits the carry: the purpose and its clock start with the Grab, so the passive tick cannot re-adopt it.
         if (purpose == null) begin(intent, child);
-        GameplayLog.event(carrier, "family", "carry lift started mode={} purpose={} child={} childPos={} carrierPos={} nutrition={}",
-                mode(carrier, child), intent, child.getUUID(), child.blockPosition().toShortString(),
+        GameplayLog.event(carrier, "family", "carry lift started reach={} purpose={} child={} childPos={} carrierPos={} nutrition={}",
+                name(grab.reach()), intent, child.getUUID(), child.blockPosition().toShortString(),
                 carrier.blockPosition().toShortString(), child.life().nutrition());
         // A lift another owner's action refuses this tick is retried on the next one; the task budget bounds it.
         if (!carrier.motor().run(owner, grab)) { lifting = null; }
@@ -484,8 +405,8 @@ public final class ParentCarry {
         purpose = intent == null ? Purpose.RETRIEVE : intent;
         since = carrier.level().getGameTime();
         arrivedAt = 0;
-        homeFailures = 0;
-        rimSpot = null;
+        homeFailures = walkFailures = 0;
+        walkTo = rimSpot = null;
         var rim = purpose == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
         rimNest = rim == null ? null : rim.getBlockPos();
     }
@@ -493,8 +414,7 @@ public final class ParentCarry {
     /** The outcome of this carrier's own Grab: a moved or slipped target is approached again, anything else ends the task. */
     private Step grabOutcome(YukkuriEntity child) {
         var outcome = carrier.motor().last();
-        var why = purpose;
-        if (outcome instanceof Outcome.Done && carrier.hasPassenger(child)) return aboard(child, why) ? Step.DONE : Step.FAILED;
+        if (outcome instanceof Outcome.Done && carrier.hasPassenger(child)) return aboard(child) ? Step.DONE : Step.FAILED;
         var reason = outcome == null ? null : outcome.reason();
         if (reason == Reason.NO_CONTACT || reason == Reason.TARGET_MOVED) {
             GameplayLog.limited(carrier, "family", "carry.grab.retry", 40, "carry grab retry child={} reason={} shortfall={}",
@@ -507,12 +427,7 @@ public final class ParentCarry {
     }
 
     /** Called once Grab has mounted the child: the child's own tasks stop and the carry bookkeeping starts. */
-    private boolean aboard(YukkuriEntity child, Purpose intent) {
-        var mode = mode(carrier, child);
-        if (!carrier.hasPassenger(child)) {
-            GameplayLog.event(carrier, "family", "carry pickup failed child={} reason=not_a_passenger", child.getUUID());
-            return false;
-        }
+    private boolean aboard(YukkuriEntity child) {
         child.life().interrupt();
         child.family().stop();
         child.social().stop();
@@ -522,15 +437,16 @@ public final class ParentCarry {
         child.setPersistenceRequired();
         child.fallDistance = 0;
         lifting = null;
-        // The purpose already started with the Grab; only a carry without one begins it here.
-        if (purpose == null) begin(intent, child);
+        // The purpose already started with the Grab; only a carry that lost it meanwhile begins it here.
+        if (purpose == null) begin(null, child);
         holds.remove(child.getUUID());
-        GameplayLog.event(carrier, "family", "carry pickup mode={} purpose={} child={} childStage={} seat={} nutrition={} volume={}/{} aboard={}",
-                mode, purpose, child.getUUID(), child.family().stage(), child.position(), child.life().nutrition(),
-                String.format("%.3f", volume(child)), String.format("%.3f", volume(carrier)), carrier.getPassengers().size());
+        GameplayLog.event(carrier, "family", "carry pickup reach={} purpose={} child={} childStage={} seat={} nutrition={} volume={}/{} aboard={}",
+                name(reach(carrier, child)), purpose, child.getUUID(), child.family().stage(), child.position(), child.life().nutrition(),
+                String.format(Locale.ROOT, "%.3f", volume(child)), String.format(Locale.ROOT, "%.3f", volume(carrier)), carrier.getPassengers().size());
         carrier.showReaction("happy", "gentle", 40);
         return true;
     }
+    private static String name(Reach reach) { return reach.name().toLowerCase(Locale.ROOT); }
 
     // ------------------------------------------------------------------------------------------ carrying (server)
 
@@ -543,10 +459,10 @@ public final class ParentCarry {
         }
         long now = carrier.level().getGameTime();
         if (purpose == null) adopt(all.get(0), now);
-        String why = carrierReason(all.get(0), now);
+        String why = carrierReason(now);
         if (why != null) { putDown(why, HOLD_TICKS); return; }
         for (var child : all) {
-            // A pickup whose Grab has just mounted waits for its outcome on the next decision; do not judge its seat yet.
+            // A pickup whose Grab has just mounted waits for its outcome on the next decision; do not judge its hold yet.
             if (child.getUUID().equals(lifting)) continue;
             String childWhy = childReason(child, now);
             if (childWhy != null) putDown(child, childWhy, childWhy.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS);
@@ -554,37 +470,27 @@ public final class ParentCarry {
         if (carrying() && (purpose == Purpose.RETRIEVE || purpose == Purpose.NEST_RIM)) carrier.family().beginCarry();
     }
 
-    /** A player-ordered hat carry: it stays until a safety reason or the player puts the child down. */
-    void manual(YukkuriEntity child) {
-        purpose = Purpose.MANUAL;
-        since = carrier.level().getGameTime();
-        holds.remove(child.getUUID());
-        GameplayLog.event(carrier, "family", "carry pickup mode={} purpose=MANUAL child={} seat={}", mode(carrier, child), child.getUUID(), child.position());
-    }
-
-    /** A passenger found without live state (reloaded save, other pick-up path): carry on with the rule that applies now. */
+    /** A passenger found without live state (reloaded save, another pick-up such as the hat unload): carry on with the rule that applies now. */
     private void adopt(YukkuriEntity child, long now) {
-        purpose = carrier.settlement().familyMarching() ? Purpose.MIGRATE
-                : needsCarry(child) && child.family().carryHome() != null ? Purpose.RETRIEVE : Purpose.MANUAL;
+        purpose = carrier.settlement().familyMarching() ? Purpose.MIGRATE : Purpose.RETRIEVE;
         since = now;
         arrivedAt = 0;
-        homeFailures = 0;
-        GameplayLog.event(carrier, "family", "carry resumed mode={} purpose={} child={}", mode(carrier, child), purpose, child.getUUID());
+        homeFailures = walkFailures = 0;
+        walkTo = null;
+        GameplayLog.event(carrier, "family", "carry resumed reach={} purpose={} child={}", name(reach(carrier, child)), purpose, child.getUUID());
         if (purpose == Purpose.RETRIEVE) carrier.family().beginCarry();
     }
 
     /** Reasons that end the whole carry (the carrier's own state, or the shared destination rule). */
-    private String carrierReason(YukkuriEntity first, long now) {
+    private String carrierReason(long now) {
         if (!carrier.isAlive()) return "carrier_died";
         if (carrier.isInWaterOrBubble()) return "water";
         var life = carrier.life();
         if (carrier.isOnFire()) return "carrier_burning";
         if (carrier.isPanicking()) return "carrier_panic";
-        if (purpose != Purpose.MANUAL) {
-            if (life.isSleeping()) return "carrier_sleeping";
-            if (life.mealTicks() > 0 && mouthBusy()) return "carrier_eating";
-            if (life.hasUrgentNeed() && !carrier.settlement().marchTiredOnly()) return "carrier_need";
-        }
+        if (life.isSleeping()) return "carrier_sleeping";
+        if (life.mealTicks() > 0 && mouthBusy()) return "carrier_eating";
+        if (life.hasUrgentNeed() && !carrier.settlement().marchTiredOnly()) return "carrier_need";
         if (carrier.operations().active()) return "operation";
         if (now - since > MAX_CARRY_TICKS) return "timeout";
         if (purpose == Purpose.MIGRATE) {
@@ -609,28 +515,27 @@ public final class ParentCarry {
     /** Reasons that end the ride of one child only. */
     private String childReason(YukkuriEntity child, long now) {
         if (!child.isAlive()) return "child_died";
-        var problem = capacityProblem(carrier, child, true, false);
+        var problem = holdProblem(carrier, child, reach(carrier, child), true);
         if (problem != null) return problem;
         if (child.isInWaterOrBubble()) return "water";
         if (child.operations().active()) return "operation";
-        if (now % 5 == 0 && mode(carrier, child) != Mode.HAT && seat(carrier, child) == null) return "seat_blocked";
-        if (purpose != Purpose.MANUAL && child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
+        if (now % 5 == 0 && seat(carrier, child) == null) return "seat_blocked";
+        if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
         return null;
     }
 
-    /** Walk home with the child (retrieval); false once the walk is over. */
+    /** Walk home with the child (retrieval) on the shared Walk; false once the walk is over. */
     boolean tickHome(int taskTicks) {
         var child = carried();
         if (child == null) return false;
         if (purpose == Purpose.NEST_RIM) return tickRim(child, taskTicks);
         var home = child.family().carryHome();
         if (home == null) { putDown("no_home", HOLD_TICKS); return false; }
-        if (carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 2.5 * 2.5) { putDown("arrived_home", 0); return false; }
-        if (taskTicks % 10 == 1 && !carrier.life().navigate(home, 1.0, false)) {
-            if (++homeFailures >= 3) { putDown("home_unreachable", HOLD_TICKS); return false; }
-        }
-        return true;
+        var centre = Vec3.atBottomCenterOf(home);
+        if (carrier.distanceToSqr(centre) <= 2.5 * 2.5) { putDown("arrived_home", 0); return false; }
+        var floor = SurfaceApproach.restingFloor(carrier, centre.add(0, .1, 0));
+        return walk(floor == null ? centre : floor, taskTicks, "home_unreachable");
     }
 
     /** Carry a baby that lay on the nest rim onto the cushion and set it down at a free spot by the nest's own placement (never moved by teleport). */
@@ -657,11 +562,24 @@ public final class ParentCarry {
         var at = floor == null ? rimSpot : floor;
         double dx = at.x - carrier.getX(), dz = at.z - carrier.getZ(), near = dx * dx + dz * dz;
         if (near <= .45 * .45 || near <= .9 * .9 && FamilyNest.cushions(carrier)) {
-            SurfaceApproach.halt(carrier);
             putDown("nest_rim_to_cushion", HOLD_TICKS);
             return false;
         }
-        SurfaceApproach.walk(carrier, at, 1.0);
+        return walk(at, taskTicks, "nest_unreachable");
+    }
+
+    /**
+     * The carry's Walk to {@code at} (spec 9.4 Carry: the shared Walk, slowed by the load). A walk that ended short of the
+     * same spot, or would not start, is tried again every ten ticks; the third such try ends the carry where the child is.
+     */
+    private boolean walk(Vec3 at, int taskTicks, String failure) {
+        var motor = carrier.motor();
+        boolean same = walkTo != null && at.distanceToSqr(walkTo) < .0625;
+        if (same && motor.current() instanceof Walk && motor.owner() == owner) return true;
+        if (same && taskTicks % 10 != 1) return true;
+        if (same && ++walkFailures >= 3) { putDown(failure, HOLD_TICKS); return false; }
+        walkTo = at;
+        motor.run(owner, new Walk(at));
         return true;
     }
 
@@ -674,34 +592,30 @@ public final class ParentCarry {
 
     /**
      * Set one child down where it actually hangs; the others keep riding. Inside a decision the put-down is the
-     * {@link Release} action, so no room means the carrier keeps carrying and turns or steps first; on a passive tick,
-     * an interrupt or a death the body is set down at once, because there is no decision left to turn or step in.
+     * {@link Release} action's own check, so no room means the carrier keeps carrying and turns or steps first; on a passive
+     * tick, an interrupt or a death the body is set down at once, because there is no decision left to turn or step in.
      */
     public boolean putDown(YukkuriEntity child, String reason, int holdTicks) {
         if (!carrier.hasPassenger(child) || !(carrier.level() instanceof ServerLevel)) return false;
-        var mode = mode(carrier, child);
+        var reach = reach(carrier, child);
         Vec3 before = child.position();
         boolean deciding = BodyDriver.deciding();
-        if (deciding) {
-            // Release is instantaneous: judged by its own check, then applied now so the carry bookkeeping below sees the real state
-            // (and several riders of one carrier are each set down, instead of one queued Release replacing the other).
-            var room = new Release(child).check(carrier);
-            if (!room.ok()) {
-                GameplayLog.limited(carrier, "family", "carry.put_down.refused", 100,
-                        "carry put down refused reason={} why={} mode={} child={} at={}", reason, room.reason(), mode, child.getUUID(), GameplayLog.at(before));
-                return false;
-            }
+        var room = Release.now(carrier, child, !deciding, deciding ? "release" : "carry_" + reason);
+        if (!room.ok()) {
+            GameplayLog.limited(carrier, "family", "carry.put_down.refused", 100,
+                    "carry put down refused reason={} why={} reach={} child={} at={}", reason, room.reason(), name(reach), child.getUUID(), GameplayLog.at(before));
+            return false;
         }
-        Motor.dismount(child, child.position(), Vec3.ZERO, deciding ? "release" : "carry_" + reason);
         if (child.getUUID().equals(lifting)) lifting = null;
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
         if (holdTicks > 0) holds.put(child.getUUID(), new Hold(now + holdTicks, reason));
-        GameplayLog.event(carrier, "family", "carry put down reason={} mode={} purpose={} method={} child={} before={} after={} carriedTicks={} nutrition={} hold={} remaining={}",
-                reason, mode, purpose, deciding ? "release" : "in_place", child.getUUID(), before, child.position(), now - since,
+        GameplayLog.event(carrier, "family", "carry put down reason={} reach={} purpose={} method={} child={} before={} after={} carriedTicks={} nutrition={} hold={} remaining={}",
+                reason, name(reach), purpose, deciding ? "release" : "in_place", child.getUUID(), before, child.position(), now - since,
                 child.life().nutrition(), holdTicks, carrier.getPassengers().size());
         if (!carrying()) {
             purpose = null;
+            if (carrier.motor().current() instanceof Walk) carrier.motor().cancel(owner, "carry_ended");
             carrier.family().endCarry();
         }
         return true;
@@ -720,12 +634,12 @@ public final class ParentCarry {
         var all = riders();
         if (!all.isEmpty()) {
             var ids = new StringBuilder();
-            for (var child : all) ids.append(ids.length() == 0 ? "" : ",").append(child.getUUID());
-            return "carrying count=" + all.size() + " children=" + ids + " mode=" + mode(carrier, all.get(0)) + " purpose=" + purpose + " ticks="
+            for (var child : all) ids.append(ids.length() == 0 ? "" : ",").append(child.getUUID()).append('/').append(name(reach(carrier, child)));
+            return "carrying count=" + all.size() + " children=" + ids + " purpose=" + purpose + " ticks="
                     + (carrier.level().getGameTime() - since) + " landed=" + carrier.settlement().migrationLanded();
         }
         if (carrier.getVehicle() instanceof YukkuriEntity parent && riding(parent, carrier))
-            return "carried_by=" + parent.getUUID() + " mode=" + mode(parent, carrier);
+            return "carried_by=" + parent.getUUID() + " reach=" + name(reach(parent, carrier));
         return "none holds=" + holds.size();
     }
 }

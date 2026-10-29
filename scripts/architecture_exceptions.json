@@ -1394,7 +1394,7 @@
       "rule": "BODY_WRITE",
       "path": "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java",
       "signature": "OperationLife#perform ( Player player , CareAction action )",
-      "token_hash": "70e7f58dbf40776a31f46b9596d3240d7f521d21e03c6b9e1897a5d5860e16f6",
+      "token_hash": "7635724c879860f2984713e0ff2f0ec8ff1a2d16178f3c59a8a2b572b12fa661",
       "subjects": {
         "setDeltaMovement": 1
       },

@@ -4,41 +4,44 @@ import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The one place that answers "can this body reach that" (spec 10): the mouth, the braid tip, the brim, and the grip test
- * every water action uses ({@link #canGrip}).
+ * The one place that answers "can this body reach that" (spec 10): the mouth and the braid tip a Grab holds with, the brim,
+ * and the grip test every water action uses ({@link #canGrip}).
  */
 public final class ContactGeometry {
-    /** The reach beyond the two body envelopes; the margin {@code ParentCarry.inReach} used, unchanged. */
+    /** The mouth's reach beyond the two body envelopes (blocks). */
     public static final double GRAB_MARGIN = .35;
     /** The height window of the grab rule, in blocks of difference between the two bodies. */
     public static final double GRAB_HEIGHT = 1.2;
+
+    /** The two ways one body holds another (spec 9.4 Grab): in the mouth, or at a Marisa's braid tip. */
+    public enum Reach { MOUTH, BRAID }
 
     /** The mouth tip in world coordinates: the point the mouth pose hangs a held body from. */
     public static Vec3 mouth(YukkuriEntity body) {
         return MouthPlacement.position(body);
     }
 
-    /**
-     * The grab gap: the horizontal distance left between the two bodies' envelopes, so 0 means they touch. The full rule
-     * (height window and sight included) is {@link #inMouthReach}, and it reproduces {@code ParentCarry.inReach} exactly.
-     */
+    /** The grab gap: the horizontal distance left between the two bodies' envelopes, so 0 means they touch; the full rule
+     *  (height window and sight included) is {@link #inMouthReach}. */
     public static double mouthGap(YukkuriEntity body, Entity target) {
         if (body == null || target == null) return Double.POSITIVE_INFINITY;
         double dx = target.getX() - body.getX(), dz = target.getZ() - body.getZ();
         return Math.max(0, Math.hypot(dx, dz) - (body.getBbWidth() + target.getBbWidth()) / 2);
     }
 
-    /** Whether the mouth can reach the target now: {@code ParentCarry.inReach}, moved here so there is one copy. */
+    /** Whether the mouth can reach the target now. */
     public static boolean inMouthReach(YukkuriEntity body, Entity target) {
         return body != null && target != null && mouthGap(body, target) <= GRAB_MARGIN
                 && Math.abs(target.getY() - body.getY()) < GRAB_HEIGHT && body.hasLineOfSight(target);
@@ -57,21 +60,55 @@ public final class ContactGeometry {
         return Optional.ofNullable(nearest);
     }
 
-    /** A Marisa's braid in model units (braid_rescue.json): its root and where its tip rests. */
-    private static final Vec3[] BRAID = new Vec3[2];
+    /** A Marisa's braid in model units (braid_rescue.json): its root, where its tip rests, and its root in the low lean. */
+    private static final Vec3[] BRAID = new Vec3[3];
     static {
         try (var in = new InputStreamReader(ContactGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json"),
                 StandardCharsets.UTF_8)) {
             var data = JsonParser.parseReader(in).getAsJsonObject();
-            for (int i = 0; i < 2; i++) {
-                var p = data.getAsJsonArray(i == 0 ? "braid_root" : "braid_tip");
+            String[] keys = {"braid_root", "braid_tip", "reach_lean_root"};
+            for (int i = 0; i < 3; i++) {
+                var p = data.getAsJsonArray(keys[i]);
                 BRAID[i] = new Vec3(p.get(0).getAsDouble(), p.get(1).getAsDouble(), p.get(2).getAsDouble());
             }
         } catch (Exception broken) { throw new IllegalStateException("braid_rescue.json unreadable", broken); }
     }
 
-    /** The braid tip at rest in world coordinates, or null for a body without a braid (only a Marisa has one). */
+    /** Only a Marisa has a braid to reach with. */
+    public static boolean braided(YukkuriView body) { return body != null && body.getVariant() == YukkuriVariant.MARISA; }
+
+    /** The braid tip at rest in world coordinates, or null for a body without a braid. */
     public static Vec3 braidTip(YukkuriEntity body) { return braid(body, BRAID[1]); }
+
+    /** The braid tip at rest in model units (x the braid side, -z the face): where a braid-held body hangs. */
+    public static Vec3 braidTipModel() { return BRAID[1]; }
+
+    /**
+     * How much farther {@code target} lies than the braid holds (blocks; 0 or less is in reach): the braid swung about its
+     * root, or about the root of the low lean ({@code lean}, clip braid_reach_low), within its own length, once the body has
+     * turned its braid side to the target ({@link #braidYaw}), with no block in between. Infinite without a braid.
+     */
+    public static double braidGap(YukkuriEntity body, Entity target, boolean lean) {
+        if (body == null || target == null || !braided(body)) return Double.POSITIVE_INFINITY;
+        Vec3 model = BRAID[lean ? 2 : 0];
+        double s = body.growthScale() * body.getScale() / 16, dx = target.getX() - body.getX(), dz = target.getZ() - body.getZ();
+        double d = Math.max(1E-6, Math.hypot(dx, dz)), r = Math.hypot(model.x, model.z) * s;
+        Vec3 root = body.position().add(dx / d * r, model.y * s, dz / d * r);
+        var box = target.getBoundingBox();
+        Vec3 near = new Vec3(Mth.clamp(root.x, box.minX, box.maxX), Mth.clamp(root.y, box.minY, box.maxY), Mth.clamp(root.z, box.minZ, box.maxZ));
+        return sight(body, root, near) ? root.distanceTo(near) - BRAID[1].distanceTo(BRAID[0]) * s : Double.POSITIVE_INFINITY;
+    }
+
+    /** Whether the braid reaches the target from where the body stands, upright or in the low lean. */
+    public static boolean inBraidReach(YukkuriEntity body, Entity target) {
+        return braidGap(body, target, false) <= 0 || braidGap(body, target, true) <= 0;
+    }
+
+    /** The yaw that turns the braid side to {@code target}: the bearing to it less the braid root's own angle off the face. */
+    public static float braidYaw(YukkuriEntity body, Entity target) {
+        return (float) (Math.toDegrees(Math.atan2(target.getZ() - body.getZ(), target.getX() - body.getX())) - 90
+                - Math.toDegrees(Math.atan2(BRAID[0].x, -BRAID[0].z)));
+    }
 
     /** Whether the body holds {@code point} (a brim or a bank edge): the only reach rule of the water actions. */
     public static boolean canGrip(YukkuriEntity body, Vec3 point) { return gripGap(body, point) <= 0; }
@@ -91,7 +128,7 @@ public final class ContactGeometry {
     }
 
     private static Vec3 braid(YukkuriEntity body, Vec3 model) {
-        return body == null || body.getVariant() != YukkuriVariant.MARISA ? null : body.position()
+        return !braided(body) ? null : body.position()
                 .add(model.scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - body.yBodyRot)));
     }
 

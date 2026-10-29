@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
@@ -74,12 +73,8 @@ public interface YukkuriView {
     YukkuriView vehicleYukkuri();
     /** The set-down hat this body rides, or null: its synced pose is the floor the body stands on. */
     PlacedHatView vehicleHat();
-    /** The yukkuri riding this one (a carried baby), or null. */
-    YukkuriView carriedYukkuri();
-    /** The yukkuri riding this one, in seat (boarding) order; several carried babies are laid out from this list. */
+    /** The yukkuri riding this one, in boarding order; several carried babies are laid out from this list. */
     List<YukkuriView> passengerViews();
-    /** How this actor holds the baby riding on it (brim, mouth, tail), or null; derived from synchronized size and form. */
-    default ParentCarry.Mode carryMode() { return ParentCarry.carryMode(this); }
     boolean hasPassengerId(UUID passenger);
     /** Native line-of-sight query, without exposing the entity behind another view. */
     boolean hasSightTo(YukkuriView other);
@@ -96,6 +91,8 @@ public interface YukkuriView {
     long motorStart();
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     byte attachKind();
+    /** Synchronized braid slot: the body a Marisa's braid reaches for or holds (BodyDriver.BRAID). */
+    int braidHold();
     String getExpressionId();
     String getBehaviorId();
     long getBehaviorStartTick();

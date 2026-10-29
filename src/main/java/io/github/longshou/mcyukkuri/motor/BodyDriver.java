@@ -28,6 +28,9 @@ public final class BodyDriver {
     public static final SyncSlot<Long> MOTOR_START = new SyncSlot<>(EntityDataSerializers.LONG, () -> 0L);
     /** 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     public static final SyncSlot<Byte> ATTACH_KIND = new SyncSlot<>(EntityDataSerializers.BYTE, () -> (byte) 0);
+    /** The body a Marisa's braid was last put on by a Grab (reaching for it, then holding it): its entity id times two, plus
+     *  one in the low lean; -1 for none. It holds that body only while the body is a passenger (or the current Grab's target). */
+    public static final SyncSlot<Integer> BRAID = new SyncSlot<>(EntityDataSerializers.INT, () -> -1);
 
     /** Ticks between two {@code [action] refused} lines for the same entity and reason. */
     private static final int REFUSED_WINDOW = 200;
@@ -224,6 +227,18 @@ public final class BodyDriver {
     String settled() { return settled; }
 
     void settled(String text) { settled = text == null ? "" : text; }
+
+    /** Puts the braid on {@code on} (a Grab's braid reach), or takes it off when null; written only when it changed. */
+    public void braid(YukkuriEntity on, boolean lean) {
+        int value = on == null ? -1 : on.getId() * 2 + (lean ? 1 : 0);
+        if (body.componentData(BRAID) != value) body.syncComponentData(BRAID, value);
+    }
+
+    /** The entity id a {@link #BRAID} value names, or -1. */
+    public static int braidBody(int value) { return value < 0 ? -1 : value / 2; }
+
+    /** Whether a {@link #BRAID} value reaches in the low lean. */
+    public static boolean braidLean(int value) { return value >= 0 && value % 2 == 1; }
 
     /** Writes {@code ATTACH_KIND} only when the kind changed. */
     void syncAttach(byte kind) {

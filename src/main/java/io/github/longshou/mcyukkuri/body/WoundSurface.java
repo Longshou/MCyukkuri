@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import io.github.longshou.mcyukkuri.family.HatCarry;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 
@@ -228,7 +228,7 @@ public final class WoundSurface {
     private float[][] poseValues(String action,float elapsed,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.getAsJsonObject("idle"),0,values);
         sample(clips.has(action)?clips.getAsJsonObject(action):clips.getAsJsonObject("idle"),elapsed,values);
         if(hatMotion.equals("HAT_REMOVE")||hatMotion.equals("HAT_RETURN")){
-            var hat=HatCarry.shape(assetId);if(hat!=null){float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
+            var hat=HatGeometry.worn(assetId);if(hat!=null){float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
                 float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
                 float forward=Math.max(0,(q-.4f)/.6f);forward=forward*forward*(3-2*forward);
                 var root=values[hat.get("bone").getAsInt()];root[1]+=hat.get("lift").getAsFloat()*rise;root[2]+=hat.get("forward").getAsFloat()*forward;}

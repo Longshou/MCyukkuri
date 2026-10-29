@@ -15,7 +15,6 @@ import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
-import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -162,11 +161,9 @@ public final class YukkuriModel {
      */
     private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
     private final BraidPose braidPose=new BraidPose(this);
-    void setBraidCarryContact(boolean active){braidPose.setBraidCarryContact(active);}
     private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
-    void setBraidRescueContact(Vector3f point){braidPose.setBraidRescueContact(point);}
-    void setBraidRescueGrip(boolean active){braidPose.setBraidRescueGrip(active);}
-    void setBraidRescueJoint(Vector3f point){braidPose.setBraidRescueJoint(point);}
+    /** Bend a Marisa's braid to {@code tip} (model units) with this share of the clip's braid, for this render; null lets it go. */
+    void setBraidReach(Vector3f tip,float share){braidPose.reach(tip,share);}
     /** Server-owned body angle and squash (1 = none); yawBlend lets the clip's own yaw wriggle show (0..1). */
     void setBoardingPose(float pitch,float roll,float squash,float yawBlend){
         boardingPitch=pitch;boardingRoll=roll;boardingSquash=Float.isFinite(squash)?Math.clamp(squash,.7f,1.3f):1;boardingYaw=Math.clamp(yawBlend,0,1);
@@ -180,20 +177,13 @@ public final class YukkuriModel {
     void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
     public void setMouthHolding(boolean value){mouthHolding=value;}
-    /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails. */
-    private float carryLoad,carryLean,carryCurlLeft,carryCurlRight;
-    private CarryTailCurl tailCurl;private boolean tailCurlChecked;
+    /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1). */
+    private float carryLoad,carryLean;
     /** Walking under a load keeps this share less of the authored sway (project design). */
     private static final float CARRY_GAIT_DAMP=.3f;
     /** Full pick-up / put-down bow, degrees of forward pitch about the root (within the 12 degree body budget). */
     private static final float CARRY_LEAN_DEGREES=9;
-    void setCarryPose(float load,float lean,float curlLeft,float curlRight){
-        carryLoad=Math.clamp(load,0,1);carryLean=Math.clamp(lean,0,1);carryCurlLeft=Math.clamp(curlLeft,0,1);carryCurlRight=Math.clamp(curlRight,0,1);
-    }
-    /** The posed hat bone of the last render (model units), or null for a hatless form. */
-    Matrix4f hatFollowPose(){int bone=hatFollowBone();return bone<0?null:new Matrix4f(world[bone]);}
-    /** The seat on one curled tail in the last render (model units), or null. */
-    Matrix4f carryCradle(int side){return tailCurl==null?null:tailCurl.cradle(side);}
+    void setCarryPose(float load,float lean){carryLoad=Math.clamp(load,0,1);carryLean=Math.clamp(lean,0,1);}
     void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
         careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
         careBlend=Math.clamp(progress,0,1);
@@ -822,7 +812,7 @@ public final class YukkuriModel {
         else if(mouthHolding){
             for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=.45f;
         }
-        var hat=HatCarry.shape(id);
+        var hat=HatGeometry.worn(id);
         if(hat!=null&&!hatMotion.isEmpty()){
             float q=Math.clamp(hatPhase,0,1);if(hatMotion.equals("HAT_RETURN"))q=1-q;
             float rise=Math.min(1,q/.55f);rise=rise*rise*(3-2*rise);
@@ -871,9 +861,7 @@ public final class YukkuriModel {
             float floor=bodyMinimumY();pose[rootBone()][3]-=carryLean*CARRY_LEAN_DEGREES;composeWorld();
             float lowered=bodyMinimumY();if(lowered<floor)raiseWorld(floor-lowered);
         }
-        if(!tailCurlChecked){tailCurlChecked=true;tailCurl=CarryTailCurl.of(this);}
-        if(tailCurl!=null){if(carryCurlLeft>0||carryCurlRight>0)tailCurl.pose(world,carryCurlLeft,carryCurlRight);else tailCurl.clear();}
-        if(braidPose.active())braidPose.poseRescueBraid();
+        if(braidPose.active())braidPose.pose();
         if(pregnancyBelly>.001f)rigidLifts();
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
@@ -952,7 +940,6 @@ public final class YukkuriModel {
                 }
             }
             int tint=woundDisplay==null?0xFFFFFF:woundDisplay.tint(part.name);
-            var curled=tailCurl==null?null:tailCurl.part(partIndex);
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
                 // House expression cards overlap on the curved face. Their opaque
@@ -974,7 +961,6 @@ public final class YukkuriModel {
                     // same authored part to the rear, including its skin and mark.
                     triangle[corner].x=-triangle[corner].x;triangle[corner].z=-triangle[corner].z+AgitationPresentation.mamuRearOffset();
                 }
-                if(curled!=null)for(int corner=0;corner<3;corner++)curled.transformPosition(triangle[corner]);
                 var lifted=cardNormals.get(part.name);
                 if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
                 if(hatPart&&hatDamageDraw.fit()<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
@@ -990,7 +976,7 @@ public final class YukkuriModel {
                 // An affine, flat pair has the same source diagonal as a native quad.
                 // Keep nonlinear pregnancy/puff/delivery and damaged hats on their original triangles.
                 int fourth=pregnancyBelly<=0&&puffAmount<=0&&delivery==null&&!hatPart&&woundDisplay==null?quadFourth[first]:-1;
-                if(fourth>=0){skin(fourth,fourthCorner);if(curled!=null)curled.transformPosition(fourthCorner);
+                if(fourth>=0){skin(fourth,fourthCorner);
                     if(layeredAnatomy&&part.anatomy.equals("mamu")){fourthCorner.x=-fourthCorner.x;fourthCorner.z=-fourthCorner.z+AgitationPresentation.mamuRearOffset();}}
                 int rotation=fourth>=0?quadRotation[first]:0;
                 for (int corner = 0; corner < 4; corner++) {
@@ -1106,8 +1092,8 @@ public final class YukkuriModel {
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
-        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
-                Float.NaN,0,0);setBraidRescueContact(null);setBraidRescueJoint(null);setBraidRescueGrip(false);setBraidCarryContact(false);
+        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+                Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }
     /** The remains data a frame reads, derived once per synced snapshot (RemainsRenderer caches it per entity). */

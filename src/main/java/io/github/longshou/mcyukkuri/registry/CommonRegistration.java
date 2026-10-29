@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.event.EventReservations;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.RelationshipCleanup;
 import io.github.longshou.mcyukkuri.family.ShedStemDrops;
 import io.github.longshou.mcyukkuri.freezer.FreezerModule;
@@ -139,7 +138,6 @@ public final class CommonRegistration {
 
 
         // Commerce already ran at the end of YukkuriEntity.tick; carrying precedes discovery.
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, HatCarry::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, EntityTickEvent.Post.class, WildEvents::discover);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStartingEvent.class, SceneReset::started);

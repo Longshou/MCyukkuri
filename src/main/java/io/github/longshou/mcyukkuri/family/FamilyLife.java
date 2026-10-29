@@ -112,7 +112,7 @@ public final class FamilyLife {
         courtship=new Courtship(this);
         birth=new Conductor(entity,"Birth");
     }
-    /** Land transport of dependent babies (hat brim, tail or mouth); see {@link ParentCarry}. */
+    /** Land transport of dependent babies (mouth or braid); see {@link ParentCarry}. */
     public ParentCarry carry(){return carry;}
     /** One persistent parent-side decision per child-care need, shared by land and hat routes. */
     public CareDecisionLedger careDecisions(){return careDecisions;}

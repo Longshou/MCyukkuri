@@ -42,7 +42,7 @@ public final class Behaviors {
     public static final String CARE_FINISH = "care_finish";
     public static final String CARE_WAIT = "care_wait";
     public static final String CAREGIVER = "caregiver";
-    /** A parent standing over a child it is about to carry (ParentCarry lift countdown); the client leans it down. */
+    /** A parent standing over a child it is lifting with its Grab (the client bows it, or plays the braid reach, from the synced action). */
     public static final String CARRY_LIFT = "carry_lift";
     public static final String CHEW = "chew";
     public static final String COMFORT_LICK = "comfort_lick";

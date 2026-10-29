@@ -28,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.InjuryModel;
-import io.github.longshou.mcyukkuri.family.HatCarry;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 /**
@@ -230,7 +229,6 @@ public final class Headwear extends Goal {
     /** The hat breaks apart: two or three pieces fall around the owner, who is now a stranger to everyone. */
     public void shatter(String why, boolean burned) {
         if (entity.level().isClientSide || !entity.life().hasAccessory()) return;
-        if (entity.isVehicle() && HatCarry.hasHat(entity)) HatCarry.putDown(entity);
         var item = new ItemStack(ModItems.accessoryFor(entity));
         entity.life().removeAccessory();
         damage = 0; mend = 0; reassembly = 0; shardsHeld = 0; cause = why;
