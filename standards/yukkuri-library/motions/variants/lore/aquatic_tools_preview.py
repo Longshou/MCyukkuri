@@ -22,7 +22,7 @@ MEDIA = ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hul
 BG = HM.BG
 DATA = json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
 VESSEL = json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
-K = VESSEL['aquatic_scale']; SQ = VESSEL['squash']['bowl']; FREE = VESSEL['bowl']['freeboard']
+K = VESSEL['scale']['aquatic_marisa']; SQ = VESSEL['squash']['bowl']; FREE = VESSEL['bowl']['freeboard']
 WATER = -VESSEL['bowl']['owner_y']*K  # the captain's model space: water plane height above her seat
 
 

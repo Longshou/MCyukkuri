@@ -1,6 +1,6 @@
 """Build the MCyukkuri playground (试玩场), the single in-game test world (Minecraft 1.21.1, NeoForge, Python 3.11+).
 
-Open fields of real ground (meadow, town, house, hill with caves, woods, snow, settlement meadow,
+Open fields of real ground (meadow, town, pond, house, hill with caves, woods, snow, settlement meadow,
 motion-clip corner), each with a raised observation deck. A lobby lists every field and scenario by name. Every scenario
 creates real individuals with ordinary AI and only sets their real starting state; "clear this field" removes every mod
 entity and dropped item in the field's box (and those marked as having stood in it), makes the world records forget what
@@ -171,6 +171,7 @@ PROBE_COMMANDS = {
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
     'scenario eggs': 'yukkuri scenario eggs @s @s',
+    'scenario afloat': 'yukkuri scenario afloat @s 0 0 0 true',
     'scenario independence': 'yukkuri scenario independence @s @s 0 0 0', 'clear': 'yukkuri clear 0 0 0 0 0 0 fld_probe',
     'observe': 'yukkuri observe on', 'action': 'yukkuri action @s idle',
     'settlement spawn': 'yukkuri settlement spawn band 0 0 0',

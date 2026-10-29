@@ -46,7 +46,8 @@ public final class HatProp implements Prop {
 
     @Override public Entity entity() { return PlacedHatEntity.find(owner); }
 
-    /** A dry spot on a sturdy floor: what {@link PlacedHatEntity#setDown} enforces at the release marker too. */
+    /** A dry spot on a sturdy floor, checked again at the release marker: a catch never sets the hat on water, though
+     *  {@link PlacedHatEntity#setDown} would let it float there. */
     @Override public Feasibility fits(Vec3 at, float yaw) {
         if (owner.getVariant() != YukkuriVariant.MARISA) return Feasibility.of(Reason.NO_TOOL, 0, "not_marisa");
         if (owner.isPassenger()) return Feasibility.of(Reason.NO_ROOM, 0, "passenger");

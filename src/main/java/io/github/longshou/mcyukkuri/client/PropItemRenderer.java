@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -49,7 +50,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(!gui&&(stack.getItem() instanceof AccessoryItem||name.equals("yukkuri_waste"))){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):
-                    stack.is(ModItems.AQUATIC_MARISA_HAT.get())?HatGeometry.AQUATIC_SCALE:1;
+                    stack.is(ModItems.AQUATIC_MARISA_HAT.get())?HatScale.factor(SubspeciesLife.Kind.AQUATIC_MARISA):1;
             if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);

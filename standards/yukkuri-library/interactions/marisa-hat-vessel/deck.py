@@ -148,7 +148,7 @@ class Hull:
 class Deck:
     def __init__(self, name, spec, V, body, cargo, pile, D, pregnancy, stick=None):
         self.name, self.spec, self.V, self.D = name, spec, V, D
-        self.ratio = V['aquatic_scale'] if spec['hull_ratio'] == 'aquatic_scale' else spec['hull_ratio']
+        self.ratio = V['scale']['aquatic_marisa'] if spec['hull_ratio'] == 'aquatic_scale' else spec['hull_ratio']
         self.hull = Hull(V, spec['surface'])
         self.env = {c: Envelope(c, s, self.ratio, body, V, pregnancy, D.get('young_hat_multiplier')) for c, s in D['classes'].items()}
         self.block = 16/self.ratio  # hat units per block for a standard (growth 1) owner
@@ -674,7 +674,7 @@ def frames(V, F):
                 'water mask, the self-rescue hat matrix and the Python previews read it instead of deriving it again.',
         'prop': V['prop'], 'units_per_block': 16,
         'worn': {'frame': 'body model units at growth 1: +Y up, the face toward -Z, the braid on +X',
-                 'anchor': a, 'multiplier': {'land': 1.0, 'aquatic': V['aquatic_scale']},
+                 'anchor': a, 'multiplier': {'land': 1.0, 'aquatic': V['scale']['aquatic_marisa']},
                  'rule': 'a worn hat point p sits at anchor + multiplier * (p - anchor); the body growth then scales the model'},
         'turned': {'frame': 'prop and hull: origin at the opening centre on the brim face, +Y out of the opening, the long brim axis on Z, the worn front (bow) on +X',
                    'from_worn': [[0, 0, -1, a[2]], [0, -1, 0, a[1]], [-1, 0, 0, a[0]], [0, 0, 0, 1]],
@@ -683,7 +683,7 @@ def frames(V, F):
         'modes': {
             'nest': {'hull_mode': 'NEST', 'squash': V['squash']['nest'], 'top': V['nest']['height'], 'hull_ratio': 1.0, 'ground_y': 0.0},
             'float': afloat('FLOAT', 1.0),
-            'aquatic': afloat('AQUATIC_FLOAT', V['aquatic_scale'])},
+            'aquatic': afloat('AQUATIC_FLOAT', V['scale']['aquatic_marisa'])},
         'hull': {'unit': 'blocks per hat unit = hullScale / 16, hullScale = hat fit * hull_ratio',
                  'prop_to_hull': 'hull = (x, top + y * squash, z) for a prop point (x, y, z); afloat, top is the freeboard at the current load',
                  'hull_to_world': 'world = entity position + rotateY(180 - entity yaw) * (hull * unit)',

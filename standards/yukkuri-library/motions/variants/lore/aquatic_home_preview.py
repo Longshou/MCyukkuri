@@ -57,7 +57,7 @@ class Resources:
 
 class Home:
     def __init__(self, res):
-        self.res = res; self.V = res.json('yukkuri_presentation/hat_vessel.json'); self.k = self.V['aquatic_scale']
+        self.res = res; self.V = res.json('yukkuri_presentation/hat_vessel.json'); self.k = self.V['scale']['aquatic_marisa']
         self.deck = res.json('yukkuri_presentation/hat_deck_layout.json'); self.mode = self.deck['modes']['AQUATIC_FLOAT']
         self.frames = res.json('yukkuri_presentation/hat_frames.json')['modes']['aquatic']
         self.cargo = res.json('yukkuri_presentation/hat_cargo_layout.json')

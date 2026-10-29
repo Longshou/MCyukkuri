@@ -170,8 +170,8 @@ class Owner:
         for part in model['parts']:
             if part['name'].startswith(skip): continue
             (body if part['name'].startswith(('rounded_', 'face_')) else hair).append(raw[part['start']:part['start'] + part['count']])
-        body = np.concatenate(body).reshape(-1, 3, 3) / V['aquatic_scale']
-        hair = np.concatenate(hair).reshape(-1, 3, 3) / V['aquatic_scale']
+        body = np.concatenate(body).reshape(-1, 3, 3) / V['scale']['aquatic_marisa']
+        hair = np.concatenate(hair).reshape(-1, 3, 3) / V['scale']['aquatic_marisa']
         brim = V['bowl']['freeboard']
         seats = [(0., V['bowl']['owner_y'], None)]
         if DECK_PATH.is_file():

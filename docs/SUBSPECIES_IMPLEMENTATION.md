@@ -65,7 +65,7 @@
 
 帽船只属于水生魔理沙；陆生魔理沙不放帽乘船，落水不会凭空生成帽船。投放、出航、翻覆救援、水上居住与生育、亲子初航、储粮与桨、争位和靠岸回帽等玩法见[水上生活](AQUATIC_MARISA_IMPLEMENTATION.md)，当前按 WP4–6 重建。本页只保留亚种层面的约定：
 
-- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大（原创 1.75 倍），戴着时也按这个大小绘制。水上的船体状态与帽内位置随 WP4–6 重建。
+- 帽船就是她自己的帽子倒过来放：帽冠略压扁、沉在水下，帽檐高出水面（参考 EH22，见[帽子翻过来](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md)），帽里是干的；水生魔理沙的帽子比陆生大，四种形态同一尺寸（见[水上生活](AQUATIC_MARISA_IMPLEMENTATION.md#帽船与日常)）。放下的帽子在水上漂浮、被推和翻覆已接入待试玩（WP4a），帽内生活与水上行为随 WP4b–6 重建。
 - 陆地接生用的**地上的帽子**属于底座：魔理沙用辫子把帽子倒过来按在出口前的地上，帽冠压扁贴地，不挡出生通道，幼体坐在帽内底部；孩子进帽、跳出帽子都按重力下的抛物线运动；不再需要时，主人回到摘帽位置，幼体先跳出帽子，再用辫子取回戴上。实现为 `headwear/PlacedHatEntity`（实体 ID `placed_hat`）与 `headwear/HatGeometry`。
 - 水生魔理沙只与水生魔理沙配对。水上动作（漂流、稳船、向岸呼唤、帽船安胎、帽船分娩、夜里睡觉与帽中幼体）见[世界观动作](../standards/yukkuri-library/motions/variants/lore/README.md)，随 WP4–6 恢复。
 - 查不到卸载区块中的实体不等于死亡或获救，不能生成替身帽；放下的帽子被收回后走 `RESCUED` 再移除。

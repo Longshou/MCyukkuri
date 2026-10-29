@@ -193,7 +193,7 @@ function propVertices(prop,tile,q,time){
   // HatBoatEntity keeps the turned hat fixed under a seated owner.  Reuse that
   // vessel transform so an offline water scene shows a real supporting bowl,
   // rather than a loose hat or a generic platform.
-  const k=vessel.aquatic_scale,squash=vessel.squash.bowl;
+  const k=vessel.scale.aquatic_marisa,squash=vessel.squash.bowl;
   const seat=prop.boatAnchor==='hull'?[0,0,0]:[0,vessel.bowl.owner_y*k,vessel.opening[3]*k-5.9];
   base=Float64Array.from(base);
   for(let i=0;i<base.length;i+=8){
@@ -260,8 +260,8 @@ function waterAroundHull(all,clip,time,x0,z0,x1,z1,y,color){
  const hull=(clip.props||[]).find(prop=>prop.boat&&prop.boatAnchor==='hull');
  if(!hull){append(all,solidQuad(x0,z0,x1,z1,y,color));return;}
  const state=propState(hull,clip.duration?time/clip.duration:0,time);
- const halfX=Math.abs(vessel.opening[1])*vessel.aquatic_scale+.6;
- const halfZ=Math.abs(vessel.opening[3])*vessel.aquatic_scale+.6;
+ const halfX=Math.abs(vessel.opening[1])*vessel.scale.aquatic_marisa+.6;
+ const halfZ=Math.abs(vessel.opening[3])*vessel.scale.aquatic_marisa+.6;
  const hx0=Math.max(x0,state.position[0]-halfX),hx1=Math.min(x1,state.position[0]+halfX);
  const hz0=Math.max(z0,state.position[2]-halfZ),hz1=Math.min(z1,state.position[2]+halfZ);
  if(hx0>=hx1||hz0>=hz1){append(all,solidQuad(x0,z0,x1,z1,y,color));return;}

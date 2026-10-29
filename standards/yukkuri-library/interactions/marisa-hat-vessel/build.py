@@ -358,7 +358,7 @@ def main():
     def before_exit(gap, k):  # the near brim this far past the live exit, beyond the newborn's round body
         return lambda yaw_rel: np.array([0., 0., -(exit_front+r_live+gap+near(yaw_rel, k))])
     placements = {}
-    for variant, k in (('land', 1.), ('aquatic', R['aquatic_scale'])):
+    for variant, k in (('land', 1.), ('aquatic', R['hat_scale']['aquatic_marisa'])):
         if variant == 'land':
             kind, land_from = 'nest', -99.
             helper_at = before_exit(D['gap']['helper'], k)
@@ -379,7 +379,7 @@ def main():
         placements[variant] = dict(scale=k, helper=helper, self=mine, mother_half=round(half, 4), exit_front=round(exit_front, 4))
     metrics = {
         'note': __doc__.splitlines()[0], 'source_model': MODEL.relative_to(ROOT).as_posix(), 'source_model_sha256': sha(MODEL.read_bytes()),
-        'prop': 'marisa_hat_turned', 'aquatic_scale': R['aquatic_scale'], 'anchor_worn': rnd(anchor),
+        'prop': 'marisa_hat_turned', 'scale': R['hat_scale'], 'anchor_worn': rnd(anchor),
         # turned over, the crown (keel deep) is pressed toward the brim along the hat's axis: on land until it rests on the ground
         'keel': round(t.keel, 4), 'squash': {'nest': round(sn, 4), 'bowl': round(sw, 4)},
         'opening': rnd(t.opening), 'well': rnd(t.well), 'brim': rnd(t.brim), 'floor': round(t.floor, 4), 'ledge': round(t.ledge, 4),
@@ -389,7 +389,7 @@ def main():
         'bowl': {'freeboard': fb, 'owner_y': round(fb-t.ledge*sw, 4), 'mask': [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]},
         'brim_rects': t.brim_rects, 'braid': {'root': rnd(model_root), 'length': round(length, 4)},
         'delivery': {k: v for k, v in D.items() if k not in ('gap', 'gap_lore', 'self_reach')},
-        'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy']}
+        'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy'], 'afloat': R['afloat']}
     texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
     # the discrete deck and the one transform contract, from these same measures (deck.py)
     decks, modes = DK.export(metrics, body, json.loads(CARGO.read_text(encoding='utf-8')), R['deck'], R['pregnancy'],

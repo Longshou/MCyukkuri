@@ -6,8 +6,8 @@
   "wall": 0.55,
   "cavity_tiers": ["hat_base", "hat_taper_1", "hat_taper_2"],
   "front_tread": {"depth": 0.6, "inner_z": -4.0, "note": "Keep solid cloth inside the original base tier at the front; a shallow child foothold connected to the crown wall, above the deep central well. Project design 2026-10-26 (aquatic deck): 2.01 hat units deep (was 1.66) so a 0.40 child sits on it before the owner by night; 0.6 below the brim (was 1.1) so a baby there shows its face over the bow rim from the bank (lead review of the shore view)."},
-  "aquatic_scale": 1.75,
-  "aquatic_scale_lore": "the aquatic Marisa's hat is larger than a land Marisa's so it carries her young and food as a small dry boat (user, 2026-10-14)",
+  "hat_scale": {"aquatic_marisa": 1.4},
+  "hat_scale_lore": "one hat size in every form, worn, held, set down and capsized (design Q3); the aquatic Marisa's hat is larger than a land Marisa's so it carries her young as a small dry boat (user, 2026-10-14) and 1.4x was chosen from the preview (decision R6, 2026-10-29); the user may change this one value in playtest",
   "nest": {
     "height": 3.2,
     "lore": "on the ground the crown is pressed until the turned-over hat stands this high on it, low enough that a newborn pushed out of the live exit clears the near brim on a short arc"
@@ -630,5 +630,22 @@
         }
       ]
     }
+  },
+  "afloat": {
+      "lore": "Project design (refactor WP4a): the set-down hat floats on any water. Buoyancy holds its axis at the draft the load sinks it to (riders as round bodies of the WaterDistress density, a cloth hull of hull_mass per scale squared), with a spring and damper (spring, damping, max_rise); the old hull rode the surface with gain 0.35 clamped to 0.12. Horizontally vanilla water flow pushes it and drag keeps that much speed per tick (the old drift's 0.88). Tilt springs back toward the riders' heel (tilt_spring, tilt_damping); an empty-hand click rocks it by shake deg/tick, pumping a swing already going; a shove heels it push_heel deg per block/tick it is moved; a block it runs into tips it bump_tilt deg/tick per block/tick lost. Past the angle where the brim edge meets the water it capsizes when it stays there capsize_ticks or goes capsize_hard times past it, turning over at flip_rate deg/tick and throwing its riders. Above unsteady_rate deg/tick it is not steady.",
+      "hull_mass": 0.004,
+      "spring": 0.12,
+      "damping": 0.3,
+      "max_rise": 0.12,
+      "drag": 0.88,
+      "tilt_spring": 0.1,
+      "tilt_damping": 0.08,
+      "shake": 2.5,
+      "push_heel": 20.0,
+      "bump_tilt": 25.0,
+      "capsize_ticks": 4,
+      "capsize_hard": 1.5,
+      "flip_rate": 15.0,
+      "unsteady_rate": 1.0
   }
 }

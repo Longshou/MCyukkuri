@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -392,6 +393,12 @@ public enum StatusKey {
     BODY_METHOD("body", "method", 0, y -> IntentRunner.methodStatus(y), null),
     /** The switch budget of the current intent: used, left, and every counted reason with its shortfall. */
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
+    // ---- the set-down hat this body rides or has set down (refactor WP4a) ----------------------------------------
+    /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */
+    HAT_TILT("hat", "tilt", 0, y -> hat(y, h -> String.format(Locale.ROOT, "roll=%.1f pitch=%.1f upside_down=%s steady=%s",
+            h.roll(), h.pitch(), h.upsideDown(), h.steady())), null),
+    /** What carries it: the ground, or the water with its draft, freeboard, load and rocking. */
+    HAT_DRAFT("hat", "draft", 0, y -> hat(y, h -> h.behavior().detail(h)), null),
     // ---- five behavior axes and recognition -------------------------------------------------------------------
     INTELLIGENCE("personality", "intelligence", 5, y -> y.life().personality().intelligence(), trait(Trait.INTELLIGENCE)),
     FRIENDLINESS("personality", "friendliness", 5, y -> y.life().personality().friendliness(), trait(Trait.FRIENDLINESS)),
@@ -451,6 +458,10 @@ public enum StatusKey {
     }
 
     private static String uuid(UUID id) { return id == null ? "" : id.toString(); }
+    private static String hat(YukkuriEntity y, Function<PlacedHatEntity, String> read) {
+        var hat = y.getVehicle() instanceof PlacedHatEntity riding ? riding : PlacedHatEntity.find(y);
+        return hat == null ? "none" : read.apply(hat);
+    }
     private static Float number(String raw) {
         try { float v = Float.parseFloat(raw.trim()); return Float.isFinite(v) ? v : null; } catch (NumberFormatException ex) { return null; }
     }

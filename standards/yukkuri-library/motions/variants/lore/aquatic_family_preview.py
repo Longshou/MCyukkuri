@@ -41,9 +41,9 @@ def main():
     vessel = json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
     dl = runpy.run_path(str(P.ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/delivery.py'))
     parent = P.Posed('marisa', resource, True)
-    shore = P.Posed('marisa', resource, worn_hat_scale=vessel['aquatic_scale'])
-    child = P.Posed('marisa', resource, worn_hat_scale=vessel['aquatic_scale'])
-    size, k = .32, vessel['aquatic_scale']
+    shore = P.Posed('marisa', resource, worn_hat_scale=vessel['scale']['aquatic_marisa'])
+    child = P.Posed('marisa', resource, worn_hat_scale=vessel['scale']['aquatic_marisa'])
+    size, k = .32, vessel['scale']['aquatic_marisa']
     owner_seat = np.array([0, vessel['bowl']['owner_y']*k, vessel['opening'][3]*k-5.9])
     radius = dl['radius'](vessel['delivery'], .8*16*size)/k
     hat = dl['Hat'](vessel, 'bowl')

@@ -90,7 +90,7 @@ def registry():
                 'cuff_left' if '-1' in n else 'cuff_right' if 'cuff' in n else n) for n in ornaments})
     hat=json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
     return dict(format='mcyukkuri.wound-species.v1',runtime_selected=False,models=models,
-        aliases={'aquatic_marisa':dict(model='marisa',label='水生魔理沙',accessory_scale=hat['aquatic_scale'],accessory_anchor=hat['anchor_worn'])},
+        aliases={'aquatic_marisa':dict(model='marisa',label='水生魔理沙',accessory_scale=hat['scale']['aquatic_marisa'],accessory_anchor=hat['anchor_worn'])},
         growth=json.loads((ASSETS/'yukkuri_presentation/family.json').read_text(encoding='utf-8'))['growth'])
 
 if __name__=='__main__':

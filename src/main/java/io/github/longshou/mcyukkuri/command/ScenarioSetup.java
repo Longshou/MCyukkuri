@@ -18,8 +18,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.Homes;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.geom.Disc;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.tags.FluidTags;
 
 /**
  * Starting conditions of the playground scenarios that cannot be written into entity NBT: relationships, a claimed
@@ -203,6 +211,76 @@ final class ScenarioSetup {
         }
         teen.independence().arm();
         return null;
+    }
+
+    /**
+     * The owner's real hat set down on the surface of {@code water} through the one placement path, the owner aboard when asked
+     * and every young (made her kin when it is not yet) on its own free supported spot nearest the hat's front. Every spot is
+     * found before anything else is written: a hat that cannot take them all is taken back with the reason and no kin is
+     * written. The floating, pushes and any capsize afterwards are physics.
+     */
+    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young) {
+        if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
+        if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
+            return "目标格 " + water.toShortString() + " 不是水面（要是水，且上方不是水）。";
+        for (var child : young) {
+            if (child == owner || child.isPassenger() || child.isVehicle()) return child.getName().getString() + " 已经在乘坐或背着别的个体。";
+            String refusal = kinRefusal(owner, child, false);
+            if (refusal != null) return refusal;
+        }
+        var hat = PlacedHatEntity.setDown(owner, Vec3.atBottomCenterOf(water), owner.getYRot(), HatGeometry.Role.HELPER);
+        if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
+        var riders = new ArrayList<YukkuriEntity>();
+        if (aboard) riders.add(owner);
+        riders.addAll(young);
+        var spots = new ArrayList<Vec3>();
+        var taken = new ArrayList<Disc>();
+        for (var body : riders) {
+            double foot = Occupancy.FOOT * body.getBbWidth() / hat.unit();
+            var spot = freeSpot(hat, foot, body == owner ? 0 : HatGeometry.opening()[3] * .75, taken);
+            if (spot == null) return takeBack(owner, hat, body.getName().getString() + " 在帽子上没有放得下的位置，帽子已收回。");
+            spots.add(spot);
+            taken.add(new Disc(spot.x, spot.z, foot));
+        }
+        for (var child : young) kin(owner, child, false);
+        for (int i = 0; i < riders.size(); i++) {
+            var body = riders.get(i);
+            if (!Motor.mount(body, hat, "scenario_afloat")) {
+                for (var aboardNow : List.copyOf(hat.getPassengers()))
+                    if (aboardNow instanceof YukkuriEntity y) Motor.dismount(y, y.position(), Vec3.ZERO, "scenario_undo");
+                return takeBack(owner, hat, body.getName().getString() + " 没能坐上帽子，帽子已收回（亲缘已建立）。");
+            }
+            hat.riders().put(body.getUUID(), spots.get(i), 0);
+        }
+        GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={}",
+                hat.getUUID(), water.toShortString(), aboard, young.size());
+        return null;
+    }
+
+    private static String takeBack(YukkuriEntity owner, PlacedHatEntity hat, String reason) {
+        owner.life().returnAccessory(owner.getUUID(), hat.launchToken(), null);
+        hat.state(PlacedHatEntity.State.RESCUED);
+        return reason;
+    }
+
+    /** The supported spot (hat units, surface height) nearest {@code z} along the hat's axis whose foot circle of radius
+     *  {@code foot} (hat units) overlaps none already {@code taken}; null when there is none. */
+    private static Vec3 freeSpot(PlacedHatEntity hat, double foot, double z, List<Disc> taken) {
+        float[] brim = HatGeometry.brim();
+        Vec3 best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (double x = -brim[0]; x <= brim[0]; x += .5)
+            for (double lz = -brim[1]; lz <= brim[1]; lz += .5) {
+                double distance = Math.hypot(x, lz - z);
+                if (distance >= bestDistance) continue;
+                var disc = new Disc(x, lz, foot);
+                if (taken.stream().anyMatch(other -> disc.overlaps(other, .02))) continue;
+                var height = hat.support(new Vec3(x, 0, lz), foot * hat.unit());
+                if (height.isEmpty()) continue;
+                best = new Vec3(x, height.getAsDouble(), lz);
+                bestDistance = distance;
+            }
+        return best;
     }
 
     private ScenarioSetup() {}

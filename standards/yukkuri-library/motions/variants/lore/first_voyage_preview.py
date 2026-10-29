@@ -28,7 +28,7 @@ def main():
     data=json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
     V=json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
     dl=runpy.run_path(str(P.ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/delivery.py'))
-    hat=dl['Hat'](V,'bowl'); k=V['aquatic_scale']; D=V['delivery']
+    hat=dl['Hat'](V,'bowl'); k=V['scale']['aquatic_marisa']; D=V['delivery']
     body=json.loads((P.ASSETS/'yukkuri_presentation/body_geometry.json').read_text(encoding='utf-8'))['variants']['marisa']
     width=body['bounds'][0][1]-body['bounds'][0][0]
     parent=P.Posed('marisa',data,True)

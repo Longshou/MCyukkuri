@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.surface.Container;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +49,9 @@ import java.util.LinkedHashMap;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
-/** One real hat (her own hat turned upside down, its soft crown pressed down: HatGeometry) set down on the ground by its Marisa
- *  owner to catch her young. Every body aboard keeps its own supported spot in the {@link Riders} table; there are no seats,
- *  no leases and no load. A cradle that has been taken back leaves the world. */
+/** One real hat (her own hat turned upside down, its soft crown pressed down: HatGeometry) set down by its Marisa owner: on
+ *  the ground to catch her young, or on water where it floats ({@link PlacedHatBehavior}). Every body aboard keeps its own
+ *  supported spot in the {@link Riders} table; there are no seats and no leases. A cradle taken back leaves the world. */
 public final class PlacedHatEntity extends Entity implements PlacedHatView, SurfaceHost {
     /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young.
      *  RESCUED: taken back onto its owner's head. Ordinals are synced: append only. */
@@ -61,6 +63,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.INT);
     /** Every rider's local spot (hat units) keyed by rider entity id: the client's {@code positionRider} input, written once a tick when it changed. */
     private static final EntityDataAccessor<CompoundTag> RIDERS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    /** The hull's tilt in degrees (HostFrame roll and pitch), written by its behaviour: riders and the drawn hull share it. */
+    private static final EntityDataAccessor<Float> ROLL = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     /** The one rider table of this host: local spot and yaw per body (spec 5.1, 6). */
     private final Riders riders = new Riders();
     /** Cached cavity of {@link #container()}; rebuilt when the hat size changes. */
@@ -75,18 +80,24 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private double lerpX, lerpY, lerpZ;
     private float lerpYaw, lerpPitch;
     private int lerpSteps;
+    /** The behaviour running this hat and its provider (null: on the ground), picked once a tick; the client tilt one tick ago. */
+    private PlacedHatBehavior behavior = PlacedHatBehavior.LAND;
+    private PlacedHatBehavior.Provider provider;
+    private int behaviorTick = -1;
+    private boolean behaviorPicked;
+    private float rollO, pitchO;
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
-        builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0);
+        builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
         if (SCALE.equals(data)) refreshDimensions();
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
-        return super.getDimensions(pose).scale(hullScale()/HatGeometry.AQUATIC_SCALE);
+        return super.getDimensions(pose).scale(hullScale());
     }
 
     public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
@@ -109,10 +120,37 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public Vec3 toLocal(Vec3 world) { return world.subtract(position()).yRot(-turn()).scale(1/unit()); }
 
     @Override public Entity entity() { return this; }
-    @Override public HostFrame frame() { return new HostFrame(position(), unit(), turn(), 0, 0); }
-    /** Hat-surface height (hat units) under a foot radius {@code r} in blocks; empty off the hat. */
+    @Override public HostFrame frame() { return new HostFrame(position(), unit(), turn(), roll(), pitch()); }
+    public float roll() { return entityData.get(ROLL); }
+    public float pitch() { return entityData.get(PITCH); }
+    @Override public float roll(float partial) { return Mth.rotLerp(partial, rollO, roll()); }
+    @Override public float pitch(float partial) { return Mth.rotLerp(partial, pitchO, pitch()); }
+    /** The behaviour's pose for this tick (degrees); written only when it changed. */
+    public void pose(float roll, float pitch) {
+        if (roll != roll()) entityData.set(ROLL, roll);
+        if (pitch != pitch()) entityData.set(PITCH, pitch);
+    }
+    /** Turned crown up: the hollow faces the water and nothing stands in it. */
+    public boolean upsideDown() { return Buoyancy.up(roll(), pitch()) < 0; }
+    /** The behaviour running this hat now: the first registered provider that applies, else the land one (once a tick). */
+    public PlacedHatBehavior behavior() {
+        if (behaviorTick == tickCount) return behavior;
+        behaviorTick = tickCount;
+        PlacedHatBehavior.Provider next = null;
+        for (var candidate : PlacedHatBehavior.PROVIDERS) if (candidate.applies(this)) { next = candidate; break; }
+        if (next != provider || !behaviorPicked) {
+            if (behaviorPicked) GameplayLog.event(this, "hat", "entered {} from {} riders={} owner={} roll={} pitch={}",
+                    next == null ? "ground" : next.id(), provider == null ? "ground" : provider.id(), getPassengers().size(), ownerYukkuri(),
+                    roll(), pitch());
+            behavior = next == null ? PlacedHatBehavior.LAND : next.create(this);
+            provider = next;
+            behaviorPicked = true;
+        }
+        return behavior;
+    }
+    /** Hat-surface height (hat units) under a foot radius {@code r} in blocks; empty off the hat and while it lies crown up. */
     @Override public OptionalDouble support(Vec3 local, double r) {
-        if (local == null) return OptionalDouble.empty();
+        if (local == null || upsideDown()) return OptionalDouble.empty();
         double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
@@ -166,7 +204,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return container;
     }
     @Override public Riders riders() { return riders; }
-    @Override public boolean steady() { return state() != State.RESCUED; }
+    @Override public boolean steady() { return state() != State.RESCUED && behavior().steady(this); }
+    /** A rider the hull keeps dry (the behaviour decides: afloat, upright, its brim above the water). */
+    @Override public boolean shelters(YukkuriEntity body) { return hasPassenger(body) && !upsideDown() && behavior().shelters(this, body); }
+    @Override public boolean isPushable() { return !isRemoved() && behavior().pushable(this); }
+    /** Vanilla's push from an overlapping body or player goes to the behaviour (on the ground nothing pushes it). */
+    @Override public void push(Entity other) { if (!level().isClientSide && !isPassengerOfSameVehicle(other)) behavior().push(this, other); }
     /** How far (blocks) a running unload is looked for when {@link #unloadRequested()} derives its answer. */
     private static final double UNLOAD_RANGE = 16;
     @Override public boolean unloadRequested() {
@@ -313,11 +356,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The thin hull box is a narrow aim target; a full body aboard hides it from a click. */
     @Override public float getPickRadius() { return catches()&&isVehicle()?0:.4f; }
     public boolean isCradle() { return state() == State.CRADLE; }
-    /** Set down by its owner to catch young, on the ground. */
-    public boolean catches() { return isCradle(); }
+    /** Set down by its owner to catch young, on the ground; afloat it is her boat (PlacedHatBehavior.catches). */
+    public boolean catches() { return isCradle() && behavior().catches(this); }
     @Override protected boolean canAddPassenger(Entity passenger) {
         if (state() == State.RESCUED || !(passenger instanceof YukkuriEntity y)) return false;
-        if (y.getUUID().equals(ownerYukkuri())) return !catches() && getPassengers().stream().noneMatch(p -> p.getUUID().equals(ownerYukkuri()));
+        if (y.getUUID().equals(ownerYukkuri()))
+            return !catches() && !upsideDown() && getPassengers().stream().noneMatch(p -> p.getUUID().equals(ownerYukkuri()));
         return admits(y) && canBoard(y);
     }
     /** One admission predicate: aboard already, or a legal supported place is free for it. */
@@ -372,12 +416,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (owner.life().custody().custodied()) return refusePlacement(owner, at, "existing_hat", "");
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot)) return refusePlacement(owner, at, "spot_unloaded", spot.toShortString());
-        if (!level.getFluidState(spot).isEmpty()) return refusePlacement(owner, at, "spot_in_fluid", spot.toShortString());
-        if (!level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
+        // Open water carries a hat set down on it (it floats, PlacedHatBehavior); a catch on land asks HatProp.fits for dry ground.
+        boolean water = level.getFluidState(spot).is(FluidTags.WATER) && level.getFluidState(spot.above()).isEmpty();
+        if (!water && !level.getFluidState(spot).isEmpty()) return refusePlacement(owner, at, "spot_in_fluid", spot.toShortString());
+        if (!water && !level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
         var hat = ModEntities.PLACED_HAT.get().create(level);
         if (hat == null) return refusePlacement(owner, at, "entity_creation_failed", "");
-        hat.setPos(at.x, spot.getY(), at.z);
+        hat.setPos(at.x, water ? spot.getY() + level.getFluidState(spot).getHeight(level, spot) : spot.getY(), at.z);
         hat.setYRot(yaw);
         hat.launchRole(role);
         hat.syncOwner(Optional.of(owner.getUUID()));
@@ -390,8 +436,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             hat.discard();
             return refusePlacement(owner, at, "accessory_transfer_failed", "");
         }
-        GameplayLog.event(owner, "headwear", "hat placed owner={} hat={} at={} yaw={} scale={} role={}",
-                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), role);
+        GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} role={} water={}",
+                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), role, water);
         return hat;
     }
     private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
@@ -403,13 +449,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     // ---------------------------------------------------------------- identity and wear
     public void syncAccessoryIdentity(YukkuriEntity owner) {
-        entityData.set(SCALE,HatGeometry.hatScale(owner));
+        entityData.set(SCALE,HatScale.of(owner));
         entityData.set(HULL_DAMAGE,Math.clamp(owner.headwear().damage(),0,2));
     }
     public int hullDamage() { return entityData.get(HULL_DAMAGE); }
     public State state() { return State.values()[Mth.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
     public void state(State next) { entityData.set(STATE, next.ordinal()); }
-    /** The hat's size: its owner's growth, larger for the aquatic Marisa. */
+    /** The hat's size, the same in every form (HatScale). */
     public float hullScale() { return entityData.get(SCALE); }
     public YukkuriEntity owner() {
         return ownerYukkuri() != null && level() instanceof ServerLevel server && server.getEntity(ownerYukkuri()) instanceof YukkuriEntity y ? y : null;
@@ -425,6 +471,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return playerInteractionResult(player,hand,"out_of_reach",false,InteractionResult.PASS);
         if (!player.getItemInHand(hand).isEmpty())
             return playerInteractionResult(player,hand,"cradle_requires_empty_hand",false,InteractionResult.PASS);
+        if (behavior().shake(this, player))
+            return playerInteractionResult(player,hand,"shake",true,InteractionResult.sidedSuccess(level().isClientSide));
         if (!level().isClientSide) {
             var keeper=owner();
             player.displayClientMessage(Component.literal("接生帽：幼体 "+youngPassengers().size()+"；"
@@ -444,6 +492,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public void tick() {
         super.tick();
         if (level().isClientSide) {
+            rollO = roll(); pitchO = pitch();
             if (lerpSteps > 0) {
                 setPos(getX()+(lerpX-getX())/lerpSteps,getY()+(lerpY-getY())/lerpSteps,getZ()+(lerpZ-getZ())/lerpSteps);
                 setYRot(getYRot()+Mth.wrapDegrees(lerpYaw-getYRot())/lerpSteps);setXRot(getXRot()+(lerpPitch-getXRot())/lerpSteps);
@@ -459,8 +508,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if(accessoryOwner!=null)syncAccessoryIdentity(accessoryOwner);
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
         syncRiders();
-        // Resting on the ground: the hat stays where it was set down.
-        var fall = new Vec3(0, Math.max(-.2, getDeltaMovement().y - .04), 0); setDeltaMovement(fall); move(MoverType.SELF, fall);
+        behavior().tick(this);
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
     }
     /** Yaw and pitch ease over the same steps as the position, so riders do not judder on each packet. */
@@ -473,6 +521,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.putString("State",state().name());tag.putFloat("HullScale",hullScale());
         tag.putString("Role",role.name());
         tag.put("Riders",riders.save());
+        tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
     }
     @Override protected void readAdditionalSaveData(CompoundTag tag) {
         entityData.set(OWNER,tag.hasUUID("OwnerYukkuri")?Optional.of(tag.getUUID("OwnerYukkuri")):Optional.empty());
@@ -481,5 +530,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
         role="SELF".equals(tag.getString("Role"))?HatGeometry.Role.SELF:HatGeometry.Role.HELPER;
         riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
+        pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
     }
 }

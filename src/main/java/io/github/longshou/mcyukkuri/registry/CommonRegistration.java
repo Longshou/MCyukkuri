@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.registry;
 
+import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
 import io.github.longshou.mcyukkuri.command.PlaygroundTools;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -63,6 +64,8 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 /** Explicit common event wiring; callback order is declared here. */
 public final class CommonRegistration {
     public static void register(IEventBus modBus, Consumer<FMLCommonSetupEvent> commonSetup) {
+        // The aquatic add-on: a set-down hat in water floats (the base never names it).
+        HullAfloat.register();
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, HumanWorld::attributes);
         modBus.addListener(EventPriority.NORMAL, false, EntityAttributeCreationEvent.class, ModEntities::registerAttributes);
 

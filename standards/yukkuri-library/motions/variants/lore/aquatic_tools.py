@@ -296,7 +296,7 @@ def bone_index(model, name):
 
 def hull_frame():
     """The captain's model space around her seat in the floating aquatic hull (water plane, brim top, outer side edge)."""
-    V = json.loads(VESSEL.read_text(encoding='utf-8')); k = V['aquatic_scale']; bowl = V['bowl']
+    V = json.loads(VESSEL.read_text(encoding='utf-8')); k = V['scale']['aquatic_marisa']; bowl = V['bowl']
     seat_z = V['opening'][3]*k-5.9
     outer = max(r[1] for r in V['brim_rects'])
     return dict(water=-bowl['owner_y']*k, brim_top=(bowl['freeboard']-bowl['owner_y'])*k, brim_x=outer*k,

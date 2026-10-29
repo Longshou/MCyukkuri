@@ -73,7 +73,7 @@ class Posed:
         if aquatic:
             # Her own hat as the boat (marisa_hat_turned at the aquatic size, its crown pressed as afloat, hat_vessel.json): static,
             # its brim a freeboard over the water line, the rider on the ledge at the stern as HatBoatEntity seats her. Same atlas.
-            vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8')); k = vessel['aquatic_scale']
+            vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8')); k = vessel['scale']['aquatic_marisa']
             prop = json.loads((ASSETS/'yukkuri_props/marisa_hat_turned.json').read_text(encoding='utf-8'))
             B = np.array(prop['vertices']).reshape(-1, 8); bowl = vessel['bowl']; sq = vessel['squash']['bowl']
             seat = np.array([0, bowl['owner_y']*k, vessel['opening'][3]*k-5.9])

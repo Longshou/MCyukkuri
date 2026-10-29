@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.family.HatCarry;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1081,7 +1082,7 @@ public final class YukkuriModel {
             adultStatePose=AgitationPresentation.selected(entity);
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
-            hatScale=HatGeometry.hatMultiplier(entity.subspeciesFlags());
+            hatScale=HatScale.factor(entity.subspeciesFlags());
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
@@ -1139,7 +1140,7 @@ public final class YukkuriModel {
         drawingSurfaceMarks=(!wounds.isEmpty()||!signs.isEmpty())&&woundGeometryCompatible();
         drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
-        hatScale=HatGeometry.hatMultiplier(in.subspeciesFlags());
+        hatScale=HatScale.factor(in.subspeciesFlags());
         boolean accessory=in.accessory();
         int headwear=in.headwear();hatDamageDraw.visual(headwear);
         try{

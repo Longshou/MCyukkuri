@@ -17,8 +17,11 @@ public interface PlacedHatView {
     PlacedHatEntity.State state();
     boolean isCradle();
     boolean catches();
-    /** The hat's size: its owner's growth, larger for the aquatic Marisa. */
+    /** The hat's size, the same in every form (HatScale). */
     float hullScale();
+    /** The hull's tilt (degrees, HostFrame roll and pitch) between the last two ticks. */
+    float roll(float partial);
+    float pitch(float partial);
     /** Synchronized headwear damage of the deployed hat (0..2), drawn as on a worn hat. */
     int hullDamage();
 }

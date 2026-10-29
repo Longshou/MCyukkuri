@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.world.phys.AABB;
@@ -56,8 +55,6 @@ public final class HatGeometry {
     private static final JsonObject DATA=LAND.data;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     public enum Role { HELPER, SELF }
-    /** The aquatic Marisa's hat is authored larger than the shared prop; worn, set down and left as remains use it. */
-    public static final float AQUATIC_SCALE=DATA.get("aquatic_scale").getAsFloat();
     private static final float LEDGE=LAND.ledge, FLOOR=LAND.floor;
     private record CavitySection(float[] rect,double depth,float[][] outline){}
     private static final float[] ANCHOR=LAND.anchor;
@@ -75,12 +72,10 @@ public final class HatGeometry {
     public static Vector3f anchor(){return new Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
     public static float[] opening(){return LAND.opening;}
     public static float[] brim(){return LAND.brim;}
-    /** Ancestry determines hat size in life and in saved remains; no state ever changes it. */
-    public static float hatMultiplier(int subspeciesFlags){
-        return (subspeciesFlags&15)!=SubspeciesLife.Kind.AQUATIC_MARISA.ordinal()?1:AQUATIC_SCALE;
-    }
-    /** The size of this Marisa's hat relative to the worn standard. */
-    public static float hatScale(YukkuriEntity y){return y.growthScale()*hatMultiplier(y.subspeciesFlags());}
+    /** The authored hat data (hat_vessel.json): its scale table and the afloat physics. */
+    public static JsonObject data(){return DATA;}
+    /** This Marisa's hat size in every form (HatScale). */
+    public static float hatScale(YukkuriEntity y){return HatScale.of(y);}
     /** Where a catcher's braid clips set the hat, relative to the catcher, and where it lies before the mother:
      *  how far beyond the live exit its near brim lies (gap, model units) and how far that brim reaches from it. */
     public record Placement(Vec3 offset,float yaw,Vec3 hatInMother,float hatYawInMother,double gap,double nearBrim){}

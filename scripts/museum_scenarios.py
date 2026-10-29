@@ -23,7 +23,7 @@ CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,Firs
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
-LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs')
+LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario afloat')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 
 
@@ -1583,6 +1583,81 @@ add('balance_deibu', 'family', '灵胖成年锁定', '灵胖锁定',
     note='累计23999 tick为明确设置的边界起点；完整持续一天可另在亚成期用倍速观察，未用脚本代替成长结算。',
     reads=[('读灵胖锁定与空间状态', 'yukkuri status @e[tag=scn,type=mcyukkuri:reimu,distance=..40] raw')])
 
+# ====================================================================================================== pond (anchor: the bank cell at feet level; water is one row down)
+def captain(name='a', *, dx=0, dz=0, **kw):
+    return yk('marisa', dx, dz, name, aquatic=True, yaw=-90, lead=True, **pair_ready(), **kw)
+
+
+def pond(sid, title, hint, watch, wait, lines, note='', **kw):
+    # Restore the entire shared field before actors spawn; specialised scenes may override it below.
+    add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
+        env=DAY, note=note, vantage=(-6, 6, -90), **kw)
+
+
+def bank_dx(dz):
+    """x offset (from the anchor bank cell) of the bank cell on the row dz south of it: the pond's shore is not straight."""
+    pond_ = BY_ID['pond']
+    z = pond_.pz + dz
+    x = pond_.px - pond_.RX - 3
+    while pond_.depth(x, z) == 0:
+        x += 1
+    return x - 1 - pond_.bank[0]
+
+
+def water_at(dz, out):
+    """Relative coordinates of the water block ``out`` cells east of the bank cell on row dz (one row below the bank's feet)."""
+    return f'~{bank_dx(dz) + out} ~-1 ~{dz}'
+
+
+def afloat(owner, water, aboard=True, crew=None):
+    """`scenario afloat`: the owner sets her real hat down on the surface of that water block; with ``aboard`` she and the crew ride it."""
+    return f'yukkuri scenario afloat {sel(owner)} {water} {"true" if aboard else "false"}' + (f' {crew}' if crew else '')
+
+
+_HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
+
+
+def _babies():
+    return [yk('marisa', bank_dx(dz), dz, name, stage='baby', aquatic=True, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready())
+            for name, dz in (('k1', 1), ('k2', -1))]
+
+
+pond('hat_float', '帽子漂浮·吃水与倾斜', '漂浮吃水',
+     '初态已摆好：成体水生魔理沙的帽子放在静水上，她坐在帽中央，两只新生赤油坐在帽前。帽子浮在水线上，吃水由载员决定，并向赤油所坐的前方略微前倾；乘员不湿身、不陷进帽体，岸边与水中的身体不与帽体重叠',
+     '约 30 秒',
+     [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
+     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。帽内走动在后续工作包（WP4b），本场乘员不会自己换位置。场景准备失败时聊天栏给出原因。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('hat_push', '推动帽子', '推动帽子',
+     '船主坐在水面的帽里；帽子另一侧的水里有一只灵梦（真实落水，会受水伤），它游回岸边的普通路线要经过帽子。你也可以下水走向帽子。推动按质量比移动帽子：越重的身体推得越远，载员多的帽子动得少；帽子被推时略向前方倾斜后回弹，谁都不与帽体重叠',
+     '约 30–60 秒',
+     [captain(dx=bank_dx(0)), yk('reimu', bank_dx(0) + 6, 0, 'swimmer', dy=-1, yaw=-90, **pair_ready()),
+      afloat('a', water_at(0, 3))],
+     note='灵梦不会游泳，在水里是真实的危险（会受水伤害）；本场不保证它得救。水深约 2 格，下水的玩家同样会推动帽子。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读水中灵梦', f'yukkuri status {sel("swimmer")} raw'),
+            ('读帽子', f'data get entity {_HAT}')])
+
+pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
+     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）',
+     '约 1 分钟',
+     [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
+     note='扶正与游泳要等后续工作包（WP5）：被甩出的个体可能溺水，这是真实后果。读 hat.tilt 看摇晃累积，读帽子数据看倒扣状态。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
+            ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')])
+
+pond('hat_swap', '帽子大小对照', '帽子大小',
+     '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；摇晃空帽翻覆后倒扣的形态大小不变',
+     '约 30 秒',
+     [yk('marisa', -4, -1, 'land_worn', yaw=-90, lead=True, label='陆地·戴着', **pair_ready()),
+      yk('marisa', -4, 1, 'aqua_worn', aquatic=True, yaw=-90, label='水生·戴着', **pair_ready()),
+      yk('marisa', bank_dx(-3), -3, 'land_owner', yaw=-90, label='陆地·放下', **pair_ready()),
+      yk('marisa', bank_dx(3), 3, 'aqua_owner', aquatic=True, yaw=-90, label='水生·放下', **pair_ready()),
+      afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False)],
+     note='两顶空帽相距 6 格，各在岸边 3 格外。可空手右击空帽摇晃至翻覆，对照倒扣后的大小。',
+     reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')])
+
+
 # Topic codes are shared by the scene buttons, signs, and readouts.
 TOPICS = {
     'balance_traits': 'N1', 'balance_growth': 'N1', 'balance_relation': 'N1', 'balance_first_contact': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
@@ -1599,7 +1674,7 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
+    'hat_float': 'A1', 'hat_push': 'A1', 'shake_capsize': 'A4', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
     'cheek_forage': 'S3', 'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',

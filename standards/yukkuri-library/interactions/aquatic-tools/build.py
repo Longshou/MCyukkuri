@@ -102,7 +102,7 @@ def stick(cfg):
         quads.append((p, [(u, 24/32), (u+.5, 24/32), (u+.5, 1), (u, 1)], (0, sign, 0)))
     v = orient(tris(quads)); P = np.array(v).reshape(-1, 8)[:, :3]
     anchor = cfg['stow_hull']; mid = (top+(top-length))/2
-    sc = round(1/json.loads(VESSEL.read_text(encoding='utf-8'))['aquatic_scale'], 4)  # the braid's stick, undoing the hull's size
+    sc = round(1/json.loads(VESSEL.read_text(encoding='utf-8'))['scale']['aquatic_marisa'], 4)  # the braid's stick, undoing the hull's size
     # Place the socket so the stick's middle sits at the anchor centre along the hull's Z.
     centre = np.array(anchor['centre'], float); yaw = math.radians(anchor['yaw'])
     axis = np.array([math.sin(yaw), 0, math.cos(yaw)])  # stick +Y after Rx(90) then Ry(yaw)

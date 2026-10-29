@@ -30,8 +30,9 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         },ModItems.MARISA_SHELL.get());
     }
     @Override public ResourceLocation getTextureLocation(PlacedHatEntity hat) { return MCYukkuri.id("textures/entity/marisa/neutral.png"); }
-    /** Marisa's own shared hat turned upside down (larger for aquatic Marisa), its soft crown pressed along the hat's axis:
-     *  on the ground until the brim stands on the squashed crown. The braid clips end with the worn hat in this same pose. */
+    /** Marisa's own shared hat turned upside down (HatScale: one size in every form), its soft crown pressed along the hat's
+     *  axis: on the ground until the brim stands on the squashed crown. The braid clips end with the worn hat in this same pose.
+     *  The hull is drawn in its synced frame (yaw, roll, pitch about its bottom), the frame its riders stand in. */
     @Override public void render(PlacedHatEntity source,float yaw,float partial,PoseStack pose,MultiBufferSource buffers,int light) {
         PlacedHatView hat=source;
         if(hat.state()==PlacedHatEntity.State.RESCUED)return;  // back on its owner's head (the braid clip carries it there)
@@ -39,7 +40,8 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         var at=hat.getPosition(partial);
         pose.pushPose();
         pose.translate(at.x-source.getX(),at.y-source.getY(),at.z-source.getZ());
-        pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD));
+        pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
+                .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
         pose.translate(0,HatGeometry.top()*unit,0);
         pose.scale(scale,scale*(float)HatGeometry.squash(),scale);
         // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.

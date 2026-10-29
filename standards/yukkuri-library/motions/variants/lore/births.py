@@ -111,7 +111,7 @@ def birth_seconds(name): return int(re.search(r'\b'+name+r'=(\d+)', _birth_sourc
 PREP, STRAIN, EMERGE, REST, RECOVERY, STRAIN_LATER = (birth_seconds(n) for n in ('PREPARATION','STRAIN','EMERGENCE','REST','RECOVERY','STRAIN_LATER'))
 INTERVAL = STRAIN+EMERGE+REST
 INTERVAL_LATER = STRAIN_LATER+EMERGE+REST  # later children strain for less (project original)
-AQ = VESSEL['aquatic_scale']
+AQ = VESSEL['scale']['aquatic_marisa']
 D = VESSEL['delivery']; G = D['gravity']
 BIRTH_POSE = json.loads((PRESENT/'live_birth_pose.json').read_text(encoding='utf-8'))
 BODY = json.loads((PRESENT/'body_geometry.json').read_text(encoding='utf-8'))['variants']['reimu']

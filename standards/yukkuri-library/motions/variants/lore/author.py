@@ -701,7 +701,7 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
     rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
     pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
     anchor = np.array(metrics['anchor_worn'])
-    brim = anchor+metrics['aquatic_scale']*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
+    brim = anchor+metrics['scale']['aquatic_marisa']*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
     rows = {name: [] for name in ('position', 'rotation', 'scale', 'tip_rotation', 'tip_scale')}
     previous = None
     for i, t in enumerate(samples):

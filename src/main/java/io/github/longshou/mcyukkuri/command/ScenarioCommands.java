@@ -23,6 +23,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import net.minecraft.commands.CommandSource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Operator tools of the playground (试玩场): scenario starting conditions that need code, forced field clearing and the
@@ -177,6 +180,11 @@ public final class ScenarioCommands {
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))
+                .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
+                        .then(Commands.argument("water", BlockPosArgument.blockPos())
+                                .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of()))
+                                        .then(Commands.argument("crew", EntityArgument.entities())
+                                                .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"))))))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
@@ -188,6 +196,19 @@ public final class ScenarioCommands {
                                             ChatFormatting.GOLD);
                                     return 1;
                                 })))));
+    }
+
+    /** {@code scenario afloat}: the owner's real hat set down on water, the owner and the listed young aboard (ScenarioSetup.afloat). */
+    private static int afloat(CommandContext<CommandSourceStack> c, Collection<? extends Entity> crew) throws CommandSyntaxException {
+        var owner = yukkuri(c, "owner");
+        if (owner == null) return 0;
+        var young = new ArrayList<YukkuriEntity>();
+        for (var entity : crew) if (entity instanceof YukkuriEntity y && y != owner) young.add(y);
+        String reason = ScenarioSetup.afloat(owner, BlockPosArgument.getLoadedBlockPos(c, "water"), BoolArgumentType.getBool(c, "aboard"), young);
+        if (reason != null) return refused(c.getSource(), owner, "帽子入水场景", reason);
+        tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (young.isEmpty() ? "" : "，幼体在帽里")
+                + "；之后的漂浮、推动、摇晃与翻覆按普通物理发生。", ChatFormatting.GOLD);
+        return 1;
     }
 
     /**

@@ -110,7 +110,7 @@ def make():
             assert zone['z']+zone['radius'] <= floor_rect[3]-.025
     metrics['cargo_delta'] = cargo_delta.tolist()
     geometry = {key: metrics[key] for key in ('anchor_worn', 'opening', 'well', 'floor', 'ledge', 'brim',
-                'brim_rects', 'keel', 'cavity_sections', 'squash', 'aquatic_scale', 'bowl', 'cargo_delta')}
+                'brim_rects', 'keel', 'cavity_sections', 'squash', 'scale', 'bowl', 'cargo_delta')}
     verify_geometry(B, boxes, boat, metrics, layout)
     geometry.update(status='pending_user_review', units='unsquashed_hat_units',
                     source='recipe.json', cargo_tiers=layout['tiers'])
@@ -177,7 +177,7 @@ def verify_geometry(B, boxes, boat, metrics, layout):
         points = raw[part['start']:part['start']+part['count'], :3] + metrics['cargo_delta']
         assert all(y >= surface(metrics, x, z)+.024 for x, y, z in points), part['name']
     body = read(ASSETS/'yukkuri_presentation/body_geometry.json')['variants']['marisa']
-    half = (body['bounds'][0][1]-body['bounds'][0][0])/2/metrics['aquatic_scale']
+    half = (body['bounds'][0][1]-body['bounds'][0][0])/2/metrics['scale']['aquatic_marisa']
     rear = max(0, metrics['opening'][3]-half-.05)
     support = max(surface(metrics, dx*(half+.025), rear+dz*(half+.025)) for dx in (-1, 0, 1) for dz in (-1, 0, 1))
     top, squash = metrics['bowl']['freeboard'], metrics['squash']['bowl']
@@ -268,7 +268,7 @@ def preview(candidate, boat, metrics, out):
         mesh[:, 3:5] = atlas.uv('marisa', texture, mesh[:, 3:5])
         return mesh
     def actor(changed=False, aquatic=False):
-        posed = H.SelectedPosed('marisa', corrections, aquatic, worn_hat_scale=metrics['aquatic_scale'])
+        posed = H.SelectedPosed('marisa', corrections, aquatic, worn_hat_scale=metrics['scale']['aquatic_marisa'])
         if changed:
             offset = 0
             for part in posed.model['parts']:
@@ -281,8 +281,8 @@ def preview(candidate, boat, metrics, out):
         mesh = np.concatenate((pos, uv, np.repeat(normal[:, None, :], 3, axis=1)), axis=2).reshape(-1, 8)
         if aquatic:
             mesh = mesh[:-posed.boat]
-            mesh[:, :3] /= metrics['aquatic_scale']
-            mesh[:, :3] += [0, metrics['bowl']['owner_y'], max(0, metrics['opening'][3]-6.4/metrics['aquatic_scale']-.05)]
+            mesh[:, :3] /= metrics['scale']['aquatic_marisa']
+            mesh[:, :3] += [0, metrics['bowl']['owner_y'], max(0, metrics['opening'][3]-6.4/metrics['scale']['aquatic_marisa']-.05)]
         return textured(mesh)
     def hull(data):
         mesh = textured(np.array(data['vertices']).reshape(-1, 8))
