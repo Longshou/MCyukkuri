@@ -522,7 +522,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override protected void positionRider(Entity passenger,MoveFunction move){
         if(passenger instanceof YukkuriEntity child&&ParentCarry.riding(this,child)){
             var point=ParentCarry.seat(this,child);
-            if(point==null)point=position();
+            // No clear seat this tick: the child stays where it last was clear, never inside the carrier's own body.
+            if(point==null)point=child.position();
             move.accept(passenger,point.x,point.y,point.z);
         }else super.positionRider(passenger,move);
     }

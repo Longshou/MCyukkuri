@@ -268,10 +268,11 @@ public final class OperationLife {
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
-        if(entity.isVehicle())entity.family().carry().dropAll("operation");
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         AccessoryItem.markSource(stack,entity);
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
+        // The hat really came off: its children come down through the motor's interrupt bridge, where they are.
+        if(entity.isVehicle())entity.motor().interrupt("hat_taken");
         if(confiscated)entity.life().personality().confiscated(player.getUUID());
         if(!player.getInventory().add(stack))player.drop(stack,false);animateHat(player,false);return true;
     }
@@ -281,7 +282,6 @@ public final class OperationLife {
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
-        if(entity.isVehicle())entity.family().carry().dropAll("operation");
         if(!entity.life().hasAccessory()&&!entity.headwear().reassembling())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
@@ -290,6 +290,7 @@ public final class OperationLife {
         var item=new ItemEntity(entity.level(),entity.getX(),entity.getY(),entity.getZ(),stack);item.setDefaultPickUpDelay();
         if(!entity.level().addFreshEntity(item))return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}
+        if(entity.isVehicle())entity.motor().interrupt("hat_taken");
         entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
     }
     private boolean collect(Player player){

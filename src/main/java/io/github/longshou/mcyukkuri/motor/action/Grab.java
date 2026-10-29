@@ -62,8 +62,8 @@ public final class Grab implements Action {
         if (!target.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
         if (target.level() != carrier.level()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_level");
         AttachState attach = Attach.of(target);
-        if (attach instanceof AttachState.Held held && held.carrier() != carrier)
-            return Feasibility.of(Reason.NO_ROOM, 0, "target_held");
+        if (attach instanceof AttachState.Held held)
+            return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
         var holds = ParentCarry.holdsFor(carrier, target);
         if (holds.isEmpty()) return refusal(ParentCarry.capacityProblem(carrier, target));
@@ -108,6 +108,9 @@ public final class Grab implements Action {
         // The braid side turns to the target while the braid reaches out; the lift ends once both are done.
         double angle = turn != null && turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle, TravelMode.CONSUMED);
+        // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
+        if (target.isInWaterOrBubble() || target.operations().active())
+            return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
         return new Outcome.Done("mounted target=" + target.getUUID());

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -42,7 +43,7 @@ public final class BodyDriver {
     private long startTick;
     private double bestMetric = Double.POSITIVE_INFINITY;
     private long windowStart;
-    private boolean interrupted;
+    private boolean interrupted, refusedBusy;
     private String interruptedWhy = "";
     private String settled = "";
     private byte attachKind = -1;
@@ -66,6 +67,7 @@ public final class BodyDriver {
      */
     public boolean run(MotorOwner candidate, Action action) {
         refusal = null;
+        refusedBusy = false;
         if (action == null || candidate == null || body.level().isClientSide) return false;
         if (!deciding()) {
             Motor.warn(body, "action refused id={} owner={} reason=not_deciding", action.id(), candidate.ownerId());
@@ -81,6 +83,7 @@ public final class BodyDriver {
         if (current != null) {
             boolean sameOwner = candidate.ownerId() != null && candidate.ownerId().equals(owner.ownerId());
             if (!current.interruptible()) {
+                refusedBusy = true;
                 refused(action, "not_interruptible");
                 return false;
             }
@@ -99,8 +102,11 @@ public final class BodyDriver {
     public void cancel(MotorOwner candidate, String why) {
         if (current == null || owner == null || candidate == null) return;
         if (candidate.ownerId() == null || !candidate.ownerId().equals(owner.ownerId())) return;
-        interrupt(why == null ? "cancelled" : why);
+        stop(why == null ? "cancelled" : why);
     }
+
+    /** The latest {@link #run} was refused only because the current action is in an uninterruptible stretch: try again after it. */
+    public boolean refusedBusy() { return refusedBusy; }
 
     public Action current() { return current; }
 
@@ -184,10 +190,17 @@ public final class BodyDriver {
     }
 
     /**
-     * The interrupt bridge (FRIGHT, HURT, COMMAND, PET_LOCK, BURNING, DEATH). An interruptible action stops now; an
-     * uninterruptible one finishes its flight and the outcome becomes {@link Outcome.Interrupted}.
+     * The interrupt bridge (FRIGHT, HURT, COMMAND, PET_LOCK, BURNING, DEATH, and the hard carry reasons a passive clock may
+     * only report: water, fire, panic, an operation, a lost hat). An interruptible action stops now; an uninterruptible one
+     * finishes its flight and the outcome becomes {@link Outcome.Interrupted}. A carrier lets its children go where they are,
+     * and a held child lets go of its carrier (spec 5.4, {@link Release#interrupted}).
      */
     public void interrupt(String why) {
+        stop(why);
+        Release.interrupted(body, why == null ? "interrupted" : why);
+    }
+
+    private void stop(String why) {
         if (current == null) return;
         if (current.interruptible()) {
             abortNow(why == null ? "interrupted" : why);

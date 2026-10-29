@@ -229,9 +229,10 @@ public final class Headwear extends Goal {
     /** The hat breaks apart: two or three pieces fall around the owner, who is now a stranger to everyone. */
     public void shatter(String why, boolean burned) {
         if (entity.level().isClientSide || !entity.life().hasAccessory()) return;
-        if (entity.isVehicle() && HatGeometry.worn(entity.assetId()) != null) entity.family().carry().dropAll("hat_shattered");
         var item = new ItemStack(ModItems.accessoryFor(entity));
         entity.life().removeAccessory();
+        // The hat is gone: its children come down through the motor's interrupt bridge, where they are.
+        if (entity.isVehicle()) entity.motor().interrupt("hat_shattered");
         damage = 0; mend = 0; reassembly = 0; shardsHeld = 0; cause = why;
         lastProgress = entity.level().getGameTime();
         shattered = !burned; lost = burned;

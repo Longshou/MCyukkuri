@@ -47,6 +47,7 @@ public final class IntentRunner implements MotorOwner {
     private Action currentAction;
     private IntentRunner child;
     private long stepStartTick;
+    private boolean deferred;
 
     public IntentRunner(YukkuriEntity body, Intent intent, String ownerId) {
         this(body, intent, ownerId, Attempts.DEFAULT_MAX_SWITCHES);
@@ -195,6 +196,14 @@ public final class IntentRunner implements MotorOwner {
     }
 
     private void readStep(long now) {
+        if (deferred) {
+            // Refused only while the body was in an uninterruptible stretch (a flight, a hat in the braid): run it once that ends.
+            if (driver().current() != null && !driver().current().interruptible()) return;
+            deferred = false;
+            stepStartTick = now;
+            if (!driver().run(this, currentAction)) refused(now);
+            return;
+        }
         if (step instanceof Step.Sub) {
             readSub(now);
             return;
@@ -287,14 +296,17 @@ public final class IntentRunner implements MotorOwner {
         begin(to, now);
     }
 
-    /** The driver refused the action: the refusal that very run() call stored, in its own class, else NO_PROGRESS. */
+    /** The driver refused the action: the refusal that very run() call stored, in its own class, else NO_PROGRESS; a body
+     *  busy with an uninterruptible stretch is no failure of the method, and the same step runs once the stretch ends. */
     private void refused(long now) {
+        if (driver().refusedBusy()) { deferred = true; return; }
         Outcome refusal = driver().refusal();
         if (refusal != null) read(refusal, now);
         else failed(Reason.NO_PROGRESS, 0, now);
     }
 
     private void clearStep() {
+        deferred = false;
         step = null;
         currentAction = null;
         child = null;

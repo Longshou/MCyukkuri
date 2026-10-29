@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -46,6 +47,8 @@ public final class TakeProp implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         if (!prop.deployed()) return Feasibility.of(Reason.NO_TOOL, 0, "prop_not_deployed");
         if (prop.riders()) return Feasibility.of(Reason.NO_ROOM, 0, "riders_aboard");
+        // The braid that would carry the hat holds a child.
+        if (ParentCarry.braidBusy(body)) return Feasibility.of(Reason.NO_ROOM, 0, "carrying");
         Entity deployed = prop.entity();
         if (deployed == null) return Feasibility.of(Reason.TARGET_GONE, 0, "prop_gone");
         boolean brim = prop.byBrim() && deployed instanceof SurfaceHost host && ContactGeometry.nearestRim(body, host).filter(rim -> ContactGeometry.canGrip(body, rim)).isPresent();

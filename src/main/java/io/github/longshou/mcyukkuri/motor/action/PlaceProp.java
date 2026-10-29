@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
@@ -51,6 +52,8 @@ public final class PlaceProp implements Action {
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (!prop.worn()) return Feasibility.of(Reason.NO_TOOL, 0, "prop_not_worn");
+        // The hat never moves with children on its brim or in the braid that would carry it.
+        if (ParentCarry.braidBusy(body)) return Feasibility.of(Reason.NO_ROOM, 0, "carrying");
         return prop.fits(at, yaw);
     }
 

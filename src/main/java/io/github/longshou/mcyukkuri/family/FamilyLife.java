@@ -126,11 +126,6 @@ public final class FamilyLife {
     /** The carrier walks the carried baby home (retrieval); marching carriers keep to the settlement walk instead. */
     void beginCarry(){if(task==Task.NONE){task=Task.CARRY;target=carry.carried();taskTicks=0;}}
     void endCarry(){if(task==Task.CARRY)stop();}
-    public void carryInterrupted(String why){
-        boolean childSide=entity.isPassenger()&&!carry.carrying();
-        if(childSide&&(why.equals("fright")))return;
-        carry.interrupted(why,childSide);
-    }
     public String describe() {
         return "task=" + task + " ticks=" + taskTicks
                 + " target=" + (target == null ? "none" : "#" + target.getId())
@@ -364,7 +359,7 @@ public final class FamilyLife {
     public void tick() {
         if(entity.level().isClientSide)return;
         FamilyData.get(level()).importPartner(entity);
-        if(!entity.isAlive()){carry.dropAll("carrier_dead");return;}
+        if(!entity.isAlive()){if(entity.isVehicle())entity.motor().interrupt("carrier_dead");return;}
         carry.tick();
         if(!entity.isNoAi())tickAftermathBurden();
         var finished=brood();
