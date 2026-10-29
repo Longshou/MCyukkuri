@@ -9,8 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 重构 WP4a（放下的帽子漂浮、可推、翻覆，帽子统一尺寸，池塘场地） | `.worktrees/wp4a-hull` | 新建 `aquatic/`、`client/aquatic/`；`headwear/`（`PlacedHatEntity`、`HatGeometry`、`HatScale`）、`client/YukkuriModel` 戴帽比例、`registry/`、`scripts/museum_*.py` 池塘场地 |
-| 重构 WP4b 前置：帽内高度场与寻路纯函数 | `.worktrees/wp4-geom` | `motor/geom/HeightGrid`、`GridPath` 与测试 |
-| 重构 WP7 前置：架构守卫规则 | `.worktrees/wp7-guards` | `scripts/check_architecture.py`、`scripts/architecture_exceptions.json`、`scripts/README.md` |
 
 ## 玩法待办
 
