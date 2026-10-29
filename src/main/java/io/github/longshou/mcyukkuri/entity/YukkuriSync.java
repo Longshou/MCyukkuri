@@ -199,9 +199,11 @@ final class YukkuriSync {
     boolean hasSpentStem() { return owner.getEntityData().get(SPENT_STEM); }
     float livePregnancyProgress() { return owner.getEntityData().get(LIVE_PROGRESS); }
     int liveDeliveryTicks() { return owner.getEntityData().get(LIVE_DELIVERY); }
+    /** Each unborn child's own physical birth size, as packed into {@code LIVE_DELIVERY}'s litter: its birth size times its
+     *  form scale, the size its entity will have, so an emerging body is never drawn at the shared default. */
     float birthChildScale(int index) {
         float size=liveChildrenSync().scaleAt(index);
-        return GrowthSize.physicalBirth(size>0?size:GrowthSize.LIVE,liveChildrenSync().morphAt(index));
+        return size>0?size:GrowthSize.LIVE;
     }
     int liveChildCount() { return liveChildrenSync().count().value(); }
     int liveBornMask() { return liveChildrenSync().born().value(); }
@@ -232,18 +234,19 @@ final class YukkuriSync {
         int delivery=-1;
         if (activeLive||brood!=null&&!brood.cancelled&&!brood.complete()&&brood.kind==FamilyData.BirthKind.STEM) {
             int liveCount=brood.children.size(),liveBorn=0,liveTypes=0;
+            // The litter carries each child's physical birth size (birth size times form scale), not its raw one.
+            var sizes=brood.children.stream().map(c->Math.round(GrowthSize.physicalBirth(brood.kind,c)*10000)).toList();
             boolean changed=sentLiveChildren==null||!sentLiveChildren.count().present()
                     ||sentLiveChildren.count().value()!=liveCount;
             for(int i=0;i<liveCount;i++){
                 var child=brood.children.get(i);
                 if(child.born)liveBorn|=1<<i;
                 liveTypes|=child.variant.ordinal()<<(i*4);
-                if(!changed&&(sentLiveChildren.morphAt(i)!=child.subspeciesFlags||sentLiveChildren.scaleAt(i)!=child.birthScale))changed=true;
+                if(!changed&&(sentLiveChildren.morphAt(i)!=child.subspeciesFlags||sentLiveChildren.scaleAt(i)!=sizes.get(i)/10000f))changed=true;
             }
             if(changed||sentLiveChildren.born().value()!=liveBorn||sentLiveChildren.types().value()!=liveTypes){
                 var morphs=new ArrayList<Integer>(liveCount);
                 for(var child:brood.children)morphs.add(child.subspeciesFlags);
-                var sizes=brood.children.stream().map(c->Math.round(c.birthScale*10000)).toList();
                 var live=YukkuriSyncState.LiveChildren.active(liveCount,morphs,liveBorn,liveTypes,sizes);
                 setChanged(LIVE_CHILDREN,live.encode());
                 sentLiveChildren=live;

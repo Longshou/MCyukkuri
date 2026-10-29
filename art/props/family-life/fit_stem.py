@@ -15,9 +15,15 @@ fruit (at the size standard's full fruit size, docs/BEHAVIOR.md) hangs:
 - above the ground.
 
 Every stem-bearing mother and every child kind is checked, at the shortest individual variation
-(brood.variation). The fruit sockets are spread evenly front to back along the outer part of the
-arc, the farthest where Hakkei U hangs its farthest fruit. The canonical three sockets sat close
-to the root on a long stem; shortening it moves the near ones outward (project adaptation).
+(brood.variation). The fruit sockets keep one fruit's spacing front to back along the outer part of the
+arc: the farthest where Hakkei U hangs its farthest fruit, the nearest never past the Hakkei near
+socket. The canonical three sockets sat close to the root on a long stem; shortening it moves the near
+ones outward (project adaptation).
+
+Spacing is one fruit apart at the drawn size: the standard's full fruit (0.20) is the largest a fruit
+can be, so its bodies may overlap by up to `fruit_gap` in the fit while the real birth sizes (0.10-0.19)
+just touch. The mother clearance measures her silhouette only where the fruit hangs (her own height
+band), so a fruit that hangs over her hat brim is not mistaken for one inside her face.
 
 Writes count_length_scale to recipe.json, and socket_layouts and capacity_scale (the old preview's
 copy of the lengths) to the stem component; then run scripts/export_family_assets.py.
@@ -36,7 +42,7 @@ GROWTH = ROOT/'standards/yukkuri-v1/profiles/growth.json'
 MODELS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri'
 MOTHERS = ['reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre']
 SPACING = ['reimu', 'marisa']  # the young measured for spacing; tails and wings of other kinds are soft
-FIT = {'mother_clear': 0.8, 'fruit_gap': 1.0, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.7,
+FIT = {'mother_clear': -0.5, 'fruit_gap': -1.0, 'ground_clear': 1.0, 'variation_min': 0.93, 'min_length': 0.6,
        'far_socket': [-1.28, 1.89]}
 
 
@@ -89,11 +95,15 @@ def fruit_boxes(recipe, size):
 _FRONT = {}
 
 
-def mother_front(mother, x0, x1):
-    """The mother's foremost point in the column a fruit falls through (x0..x1), model units."""
-    key = (mother, round(x0, 3), round(x1, 3))
+def mother_front(mother, x0, x1, y0, y1):
+    """The mother's foremost point where a fruit hangs: her vertices inside the fruit's own column (x0..x1) and height
+    band (y0..y1), model units. A fruit above her body meets only what reaches that height (hair or hat), never her face;
+    an empty band falls back to the whole column."""
+    key = (mother, round(x0, 3), round(x1, 3), round(y0, 2), round(y1, 2))
     if key not in _FRONT:
-        V = bounds(mother); col = V[(V[:, 0] >= x0) & (V[:, 0] <= x1)]
+        V = bounds(mother)
+        col = V[(V[:, 0] >= x0) & (V[:, 0] <= x1) & (V[:, 1] >= y0) & (V[:, 1] <= y1)]
+        if not len(col): col = V[(V[:, 0] >= x0) & (V[:, 0] <= x1)]
         _FRONT[key] = float(col[:, 2].min()) if len(col) else float(V[:, 2].min())
     return _FRONT[key]
 
@@ -118,7 +128,7 @@ def fits(stem, fruits, length, layout, mothers, spacing_kinds):
             for index, sk in enumerate(sockets):  # the pedicel tip hangs plumb: the anchor sits right under its hang point
                 reach = hang_offset(stem.r, len(sockets), index)
                 base = sk+[reach[0]-f['anchor'][0], -pend-f['crown'], reach[2]-f['anchor'][2]]
-                front_z = mother_front(mother, base[0]-f['half'], base[0]+f['half'])
+                front_z = mother_front(mother, base[0]-f['half'], base[0]+f['half'], base[1], base[1]+f['height'])
                 worst['mother'] = min(worst['mother'], front_z-(base[2]+f['back']))
                 worst['ground'] = min(worst['ground'], base[1])
         for a, b in zip(sockets, sockets[1:]):  # far to near: the nearer fruit's front behind the farther one's back
@@ -134,15 +144,16 @@ def on_arc(stem, z_ref):
 
 
 def solve(stem, fruits, count, mothers, spacing_kinds):
-    """The shortest stem on which count fruit hang clear: the farthest where Hakkei U hangs it, the rest evenly spaced
-    front to back toward the mother."""
+    """The shortest stem on which count fruit hang clear: the farthest where Hakkei U hangs it, the rest one fruit apart
+    front to back toward the mother but never past the Hakkei near socket."""
     back = max(fruits[k]['back'] for k in spacing_kinds); front = max(-fruits[k]['front'] for k in spacing_kinds)
-    far = FIT['far_socket']
+    far = FIT['far_socket']; near = stem.s['reference_sockets'][2]
+    span = (near[0]-far[0])/(count-1) if count > 1 else math.inf  # the authored arc the sockets may use
     for length in np.arange(FIT['min_length'], 4.0, .01):
         L = length*FIT['variation_min']
-        step = (back+front+FIT['fruit_gap']+.05)/(stem.s['reference_units_to_model']*L)  # reference z between sockets
+        one_fruit = (back+front+FIT['fruit_gap']+.05)/(stem.s['reference_units_to_model']*L)  # reference z between sockets
+        step = min(one_fruit, span)
         layout = [on_arc(stem, far[0]+i*step) for i in range(count)]
-        if count > 1 and far[0]+(count-1)*step > 0: continue
         ok, worst = fits(stem, fruits, L, layout, mothers, spacing_kinds)
         if ok: return round(float(length), 2), layout, worst
     raise SystemExit(f'no stem fits {count} fruit')
@@ -159,17 +170,21 @@ def main():
         lengths.append(length); layouts[str(count)] = [[round(float(v), 4) for v in zy] for zy in layout]
         print(count, 'length', length, 'sockets', layouts[str(count)], {k: round(v, 2) for k, v in worst.items()})
     new_recipe = dict(recipe, count_length_scale=lengths)
-    text = STEM.read_text(encoding='utf-8')  # keep the component's hand layout: replace only these two entries
+    recipe_text = RECIPE.read_text(encoding='utf-8')  # keep each source's own layout: replace only the fitted entries
+    i = recipe_text.index('  "count_length_scale": ['); j = recipe_text.index('  ],', i)+4
+    recipe_text = recipe_text[:i]+'  "count_length_scale": [\n'+',\n'.join(f'    {v}' for v in lengths)+'\n  ],'+recipe_text[j:]
+    assert json.loads(recipe_text)['count_length_scale'] == lengths
+    text = STEM.read_text(encoding='utf-8')
     i = text.index('  "socket_layouts": {'); j = text.index('  },', i)+4
     rows = ',\n'.join(f'    "{k}": [' + ', '.join(f'[{z}, {y}]' for z, y in v) + ']' for k, v in layouts.items())
     text = text[:i]+'  "socket_layouts": {\n'+rows+'\n  },'+text[j:]
     i = text.index('  "capacity_scale": {'); j = text.index('},', i)+2
     text = text[:i]+'  "capacity_scale": {'+', '.join(f'"{k+1}": {v}' for k, v in enumerate(lengths))+'},'+text[j:]
     assert json.loads(text)['socket_layouts'] == layouts
-    texts = {RECIPE: json.dumps(new_recipe, ensure_ascii=False, indent=2)+'\n', STEM: text}
+    texts = {RECIPE: recipe_text, STEM: text}
     for path, text in texts.items():
         if args.check: assert path.read_text(encoding='utf-8') == text, f'stale {path}'
-        else: path.write_text(text, encoding='utf-8')
+        else: path.write_text(text, encoding='utf-8', newline=chr(10))
     print('stem fit', 'checked' if args.check else 'written', lengths)
 
 

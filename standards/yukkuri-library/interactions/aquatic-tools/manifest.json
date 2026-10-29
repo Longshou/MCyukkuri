@@ -1,13 +1,13 @@
 {
   "recipe": "standards/yukkuri-library/interactions/aquatic-tools/recipe.json",
   "recipe_sha256": "fcbb53703dd71f82df16a2637f8a21e7125f810ad6d755908c245f559955d7bd",
-  "builder_sha256": "52de60bacf3ec57b573c431673fa62dd037a4d37c375e4076494aa52ec6ed215",
+  "builder_sha256": "7fecfb4bfb87b482aa0e4c6d5c9fcd32cb465248ad49eb5bae188c5aae3c846a",
   "inputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "61685d6be173ac803a3a54c2cd4bc132923a103a4f24ff68fe1c7442c82a20e1",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "a6164e2fb22801d8d6929dc6762c48a5e10016fc0d58930dd9df1cc1e9d0b200"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "a42546fbe1d31282f0f32ffe194381ec0c8635b08d54e59bc91fb556a422a789"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json": "15f6cc65ee28e6cd3167ba6481370245347adac6486173c3303cd172a22a6675",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json": "166d93e77546af6dbdd37046f5f4de4d214d10a72a59a67d1a38f4a366880ac2",
     "src/main/resources/assets/mcyukkuri/textures/props/paddle_stick.png": "cfe65a4cfa44438b58dd201bf2c2380c7c466109b99c7151a66470d0d09f0fa5",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_wetline.json": "8dc084aafd34ca79eba0746aba7e458296e818034238bce716209f4b0f8ab78f",
     "src/main/resources/assets/mcyukkuri/textures/props/marisa_hat_wetline.png": "e56d2e1b4b82d42b9933c52d0db631eb2ba823537d13825aeefa34d2921b7eec"

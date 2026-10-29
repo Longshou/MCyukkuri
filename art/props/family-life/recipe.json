@@ -5,10 +5,10 @@
   "action_source": "standards/yukkuri-v1/behaviors/stem-birth.json",
   "count_length_scale": [
     0.6,
-    0.75,
-    0.98,
-    1.22,
-    1.46
+    0.7,
+    0.96,
+    1.21,
+    1.47
   ],
   "count_radius_scale": [
     0.85,
