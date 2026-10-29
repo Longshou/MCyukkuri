@@ -44,6 +44,10 @@ public final class HullLarder {
 
     private final List<Portion> portions = new ArrayList<>();
     private boolean dirty = true;
+    /** The floor circles, kept until the portions or the hat's size change. */
+    private List<Disc> discs = List.of();
+    private double discUnit = -1;
+    private int changes, discChanges = -1;
 
     List<Portion> portions() { return portions; }
     boolean empty() { return portions.isEmpty(); }
@@ -51,8 +55,13 @@ public final class HullLarder {
 
     /** Each portion's floor circle in hat units at this hat's size. */
     List<Disc> discs(PlacedHatEntity hat) {
-        double r = RADIUS / hat.unit();
-        return portions.stream().map(p -> new Disc(p.x(), p.z(), r)).toList();
+        if (discUnit != hat.unit() || discChanges != changes) {
+            double r = RADIUS / hat.unit();
+            discs = portions.stream().map(p -> new Disc(p.x(), p.z(), r)).toList();
+            discUnit = hat.unit();
+            discChanges = changes;
+        }
+        return discs;
     }
 
     /**
@@ -71,7 +80,7 @@ public final class HullLarder {
             stop = hat.upsideDown() ? "upside_down" : portions.size() >= MAX ? "full" : newKind(stack) && kinds() >= KINDS ? "kinds" : null;
             var spot = stop == null ? spot(hat) : null;
             if (stop == null && spot == null) stop = "no_room";
-            if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x, spot.y, spot.z)); taken++; }
+            if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x, spot.y, spot.z)); taken++; changes++; }
         }
         if (taken > 0) {
             if (by == null || !by.getAbilities().instabuild) stack.shrink(taken);
@@ -95,7 +104,8 @@ public final class HullLarder {
         return true;
     }
 
-    /** The hat turned over: every portion falls out where it lies as a real floating item, moving as the hull carried it there. */
+    /** Turned over, taken back, beached or destroyed: every portion falls out where it lies as a real item, moving as the hull
+     *  carried it there. */
     void spill(PlacedHatEntity hat, String cause, Function<Vec3, Vec3> carried) {
         if (portions.isEmpty()) return;
         var frame = hat.frame();
@@ -111,6 +121,7 @@ public final class HullLarder {
         }
         portions.clear();
         dirty = true;
+        changes++;
         GameplayLog.event(hat, "hat", "spilled cause={} portions={} spawned={} items={}", cause, count, spawned, items);
     }
 
@@ -142,6 +153,7 @@ public final class HullLarder {
             if (!item.isEmpty()) portions.add(new Portion(item.copyWithCount(1), tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z")));
         }
         dirty = true;
+        changes++;
     }
 
     /** A portion as synced: its item and spot (hat units). */

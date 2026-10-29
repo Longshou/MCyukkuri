@@ -81,6 +81,7 @@ public final class HullAfloat implements PlacedHatBehavior {
             @Override public String id() { return "afloat"; }
             @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
                 double low = lowest(hat), water = surface(hat.level(), hat.getX(), low - LEAVE_MARGIN, hat.getZ());
+                // At the hull's lowest point counts: a hat set down on the water's surface floats at once.
                 return water >= low - (current instanceof HullAfloat ? LEAVE_MARGIN : 0);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
@@ -251,13 +252,15 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }
     @Override public List<Disc> obstacles(PlacedHatEntity hat) { return larder.discs(hat); }
     @Override public double load(PlacedHatEntity hat) { return larder.load(); }
+    /** Taken back, beached or destroyed: the food falls out where it lies, moving with the hull. */
+    @Override public void release(PlacedHatEntity hat, String cause) { larder.spill(hat, cause, at -> hat.getDeltaMovement()); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
     /** From the synced pose only, so the client agrees: upright and its tilt barely changing (a turn over moves it fast). */
     @Override public boolean steady(PlacedHatEntity hat) { return !hat.upsideDown() && hat.tiltRate() <= UNSTEADY_RATE; }
-    /** Upright and empty (no rider, no food) its owner may take it back from the water in reach; crown up it must be righted
-     *  first (WP5). */
+    /** Upright and without riders its owner may take it back from the water in reach (its food falls out then); crown up it must
+     *  be righted first (WP5). */
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
-        return flip == 0 && !hat.upsideDown() && hat.getPassengers().isEmpty() && larder.empty();
+        return flip == 0 && !hat.upsideDown() && hat.getPassengers().isEmpty();
     }
     @Override public CompoundTag save() {
         var tag = new CompoundTag();

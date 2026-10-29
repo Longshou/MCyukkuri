@@ -65,6 +65,8 @@ public final class Walk implements Action {
     /** The host route's waypoints (hat units, the target last) and the one being walked to. */
     private List<double[]> route = List.of();
     private int leg;
+    /** A host walk replans once, around the other riders, when a step leaves the surface or meets a body. */
+    private boolean replanned;
 
     /** Walks to a world point, arrived when {@link SurfaceApproach#arrived}. */
     public Walk(Vec3 target) {
@@ -122,7 +124,7 @@ public final class Walk implements Action {
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
             if (host.support(local, Occupancy.FOOT * body.getBbWidth()).isEmpty())
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
-            return plan(body);
+            return plan(body, false);
         }
         return SurfaceApproach.canApproach(body, target)
                 ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_route");
@@ -177,12 +179,13 @@ public final class Walk implements Action {
     /**
      * Plans the host route on its walk grid from the cell the body stands on to the target's (each snapped to the nearest
      * supported cell around it): the start cell's centre may lie behind the body and the goal cell's is replaced by the
-     * target itself. No route is {@code NO_PATH} with the straight distance (blocks) as its shortfall.
+     * target itself. No route is {@code NO_PATH} with the straight distance (blocks) as its shortfall. A replan also keeps off
+     * the other riders' feet.
      */
-    private Feasibility plan(YukkuriEntity body) {
+    private Feasibility plan(YukkuriEntity body, boolean aroundRiders) {
         var spot = host.riders().local(body.getUUID());
         double unit = Math.max(1E-6, host.frame().unit());
-        var grid = host.walkGrid(Occupancy.FOOT * body.getBbWidth());
+        var grid = host.walkGrid(body, aroundRiders);
         int[] start = grid.nearest(spot.x, spot.z), goal = grid.nearest(local.x, local.z);
         var path = start == null || goal == null ? List.<double[]>of()
                 : GridPath.find(grid, grid.centreX(start[0]), grid.centreZ(start[1]), grid.centreX(goal[0]), grid.centreZ(goal[1]),
@@ -209,17 +212,24 @@ public final class Walk implements Action {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return new Outcome.Done("left_host");
         Vec3 spot = host.riders().local(body.getUUID());
         if (Math.hypot(local.x - spot.x, local.z - spot.z) <= HOST_ARRIVED) return new Outcome.Done(String.format(Locale.ROOT, "local=%s", local));
-        double[] aim = route.isEmpty() ? new double[]{local.x, local.z} : route.get(leg);
+        double[] aim = route.get(leg);
         double dx = aim[0] - spot.x, dz = aim[1] - spot.z, d = Math.hypot(dx, dz);
         double step = Math.min(pace / Math.max(1E-6, host.frame().unit()), d);
         if (d <= step && leg < route.size() - 1) leg++;
         Vec3 next = d < 1E-9 ? spot : new Vec3(spot.x + dx / d * step, 0, spot.z + dz / d * step);
         var height = host.support(next, Occupancy.FOOT * body.getBbWidth());
-        if (height.isEmpty()) return Outcome.of(Reason.NO_SUPPORT, 0, "off_surface");
+        if (height.isEmpty()) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_SUPPORT, 0, "off_surface");
         next = new Vec3(next.x, height.getAsDouble(), next.z);
-        if (!host.room(body, next)) return Outcome.of(Reason.NO_ROOM, 0, "occupied");
+        if (!host.room(body, next)) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_ROOM, 0, "occupied");
         host.riders().put(body.getUUID(), next, localYaw(body, host));
         return new Running(routeLeft(next), TravelMode.CONSUMED);
+    }
+
+    /** The one replan of a host walk, around the other riders' feet: true when it found a route to go on with. */
+    private boolean replan(YukkuriEntity body, Vec3 spot) {
+        if (replanned) return false;
+        replanned = true;
+        return plan(body, true).ok();
     }
 
     /** The host route still ahead of a local spot (hat units): to the current waypoint, then waypoint to waypoint. */

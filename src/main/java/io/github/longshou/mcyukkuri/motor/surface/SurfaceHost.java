@@ -50,7 +50,8 @@ public interface SurfaceHost {
     /** What the host carries besides its riders, in the load units of the ability factor L (spec 8.1): its riders' pace. */
     default double load() { return 0; }
 
-    /** The height field a body of foot radius {@code r} (blocks) walks on: {@link #GRID_CELL} cells in host units, heights from
-     *  {@link #support}, cells where that foot would overlap what the floor holds unsupported. Kept until the floor changes. */
-    HeightGrid walkGrid(double r);
+    /** The height field {@code walker} plans a walk on: cells of at most {@link #GRID_CELL} in host units and no wider than its
+     *  foot, heights from {@link #support} at the host's tilt, cells where its foot would overlap what the floor holds (and with
+     *  {@code aroundRiders} another rider) unsupported. The floor-only grid is kept until the floor or its tilt changes. */
+    HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders);
 }

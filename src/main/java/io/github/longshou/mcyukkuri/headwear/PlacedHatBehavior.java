@@ -38,6 +38,10 @@ public interface PlacedHatBehavior {
     /** What it carries besides riders, in the ability's load units (spec 8.1 L): its riders' pace. */
     default double load(PlacedHatEntity hat) { return 0; }
 
+    /** What it keeps belongs to the hat: when the hat leaves this behaviour, is taken back or is destroyed, it falls out where
+     *  it lies as real items ({@code cause} says which). A chunk unload saves it instead. */
+    default void release(PlacedHatEntity hat, String cause) {}
+
     /** False while it shakes hard or turns over: no jump landing may be planned onto it. Synced facts only. */
     default boolean steady(PlacedHatEntity hat) { return true; }
 

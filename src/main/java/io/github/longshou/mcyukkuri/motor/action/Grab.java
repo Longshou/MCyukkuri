@@ -39,6 +39,9 @@ public final class Grab implements Action {
 
     @Override public String id() { return ID; }
 
+    /** The body being lifted: until it is mounted, a host leaves it where it is. */
+    public YukkuriEntity target() { return target; }
+
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!target.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
         if (target.level() != carrier.level()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_level");
