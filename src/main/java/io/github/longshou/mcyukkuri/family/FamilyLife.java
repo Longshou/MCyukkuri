@@ -112,7 +112,7 @@ public final class FamilyLife {
         courtship=new Courtship(this);
         birth=new Conductor(entity,"Birth");
     }
-    /** Land transport of dependent babies (mouth or braid); see {@link ParentCarry}. */
+    /** Land transport of dependent babies (mouth, brim, tails or braid); see {@link ParentCarry}. */
     public ParentCarry carry(){return carry;}
     /** One persistent parent-side decision per child-care need, shared by land and hat routes. */
     public CareDecisionLedger careDecisions(){return careDecisions;}
@@ -1082,7 +1082,7 @@ public final class FamilyLife {
         if(awaitingLanding&&launch!=null&&launched)tag.putBoolean("BirthLaunched",true);
         birth.save(tag);
         tag.putInt("SpentStemCount",spentStemCount);tag.putFloat("SpentStemVariation",spentStemVariation);
-        tag.put("CareDecisions",careDecisions.save());
+        tag.put("CareDecisions",careDecisions.save());tag.put("Carry",carry.save());
         feeding.save(tag);
         separation.save(tag);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
@@ -1104,7 +1104,7 @@ public final class FamilyLife {
         launched=launch!=null&&tag.getBoolean("BirthLaunched");
         // Dry stems are no longer kept on the body.
         spentStemCount=0;spentStemVariation=Math.clamp(tag.getFloat("SpentStemVariation"),.85f,1.15f);
-        careDecisions.load(tag.getCompound("CareDecisions"));
+        careDecisions.load(tag.getCompound("CareDecisions"));carry.load(tag.getCompound("Carry"));
         feeding.load(tag);
         separation.load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;

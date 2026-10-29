@@ -1,21 +1,24 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.Running;
+import io.github.longshou.mcyukkuri.motor.TravelMode;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Put a carried body down where it actually hangs (spec 9.4 and 5.4): the one-tick dismount that keeps the measured feet
- * and hands the rest to vanilla physics. Never moves the body to a landing spot; when there is no room the caller turns
- * or steps and tries again.
+ * Put a carried body down (spec 9.4 and 5.4): a child on the brim or a tail is first lowered to the ground with the braid or
+ * the tail ({@code ParentCarry.lower}), then the dismount keeps the measured feet and hands the rest to vanilla physics.
+ * Never moves the body to a landing spot; when there is no room the caller turns or steps and tries again.
  */
 public final class Release implements Action {
     public static final String ID = "release";
@@ -40,10 +43,12 @@ public final class Release implements Action {
         return Feasibility.pass();
     }
 
-    @Override public void start(YukkuriEntity carrier) {}
+    @Override public void start(YukkuriEntity carrier) { ParentCarry.lower(carrier, child); }
 
     @Override public Progress tick(YukkuriEntity carrier) {
         if (child.getVehicle() != carrier) return new Outcome.Done("already_free");
+        float down = ParentCarry.lowering(carrier, child, 0);
+        if (down >= 0 && down < 1) return new Running(1 - down, TravelMode.CONSUMED);
         Motor.dismount(child, child.position(), Vec3.ZERO, "release");
         return new Outcome.Done("released");
     }

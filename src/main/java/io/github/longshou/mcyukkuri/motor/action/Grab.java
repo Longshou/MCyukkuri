@@ -2,10 +2,10 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
-import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
@@ -21,11 +21,11 @@ import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Take a body into the carrier's hold (spec 9.4) with whichever reach gets it: the mouth when it reaches (preferred), else
- * a Marisa's braid tip, upright or in the low lean. The carrier must be able to hold it in that reach at all
- * ({@code ParentCarry.holdProblem}), and it must not be in the air or in someone else's hold. The braid first turns its
- * side to the target; after the lift the target becomes a real passenger, and the vanilla passenger relation hangs it at
- * the reach ({@code ParentCarry.seat}). The braid reach is synced ({@link BodyDriver#BRAID}) for the client pose.
+ * Take a body into one of the carrier's holds (spec 9.4): the carrier's rules ({@code ParentCarry.holdsFor}) give the holds
+ * that can take it (brim, tail, mouth, braid tip), and the Grab takes the first one whose reach gets it: the mouth's rule,
+ * or the braid swung out upright or in the low lean. It must not be in the air or in someone else's hold. The braid first
+ * turns its side to the target; after the lift the target becomes a real passenger, placed by its hold ({@code ParentCarry.seat}).
+ * The hold is recorded at the start ({@code ParentCarry.plan}), which is also what the client's reach pose reads.
  */
 public final class Grab implements Action {
     public static final String ID = "grab";
@@ -37,7 +37,7 @@ public final class Grab implements Action {
     private static final double DRIFT = .3;
 
     private final YukkuriEntity target;
-    private Reach reach = Reach.MOUTH;
+    private Hold hold = Hold.MOUTH;
     private boolean lean;
     private double gap;
     private Face turn;
@@ -55,8 +55,8 @@ public final class Grab implements Action {
     /** The body being lifted: until it is mounted, a host leaves it where it is. */
     public YukkuriEntity target() { return target; }
 
-    /** The reach the last {@link #check} chose. */
-    public Reach reach() { return reach; }
+    /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
+    public Hold hold() { return hold; }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!target.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
@@ -65,24 +65,29 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Held held && held.carrier() != carrier)
             return Feasibility.of(Reason.NO_ROOM, 0, "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
-        String mouth = ParentCarry.holdProblem(carrier, target, Reach.MOUTH, false);
-        String braid = ParentCarry.holdProblem(carrier, target, Reach.BRAID, false);
-        if (mouth != null && braid != null) return refusal(mouth, braid);
+        var holds = ParentCarry.holdsFor(carrier, target);
+        if (holds.isEmpty()) return refusal(ParentCarry.capacityProblem(carrier, target));
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
-        double low = ContactGeometry.braidGap(carrier, target, true);
-        if (mouth == null && ContactGeometry.inMouthReach(carrier, target)) return chosen(Reach.MOUTH, false, mouthGap);
-        if (braid == null && Math.min(upright, low) <= 0) return chosen(Reach.BRAID, upright > 0, Math.min(upright, low));
-        double shortfall = Math.min(mouth == null ? Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN) : Double.POSITIVE_INFINITY,
-                braid == null ? Math.min(upright, low) : Double.POSITIVE_INFINITY);
+        double low = ContactGeometry.braidGap(carrier, target, true), shortfall = Double.POSITIVE_INFINITY;
+        // The hold that reaches first, in the carrier's order (a hatless Marisa's mouth before her braid tip).
+        for (var candidate : holds) {
+            if (candidate.reach() == Reach.MOUTH) {
+                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(candidate, false, mouthGap);
+                shortfall = Math.min(shortfall, Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN));
+            } else {
+                if (Math.min(upright, low) <= 0) return chosen(candidate, upright > 0, Math.min(upright, low));
+                shortfall = Math.min(shortfall, Math.min(upright, low));
+            }
+        }
         return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(shortfall) ? shortfall : 0,
-                String.format(Locale.ROOT, "mouth_gap=%.2f braid_gap=%.2f", mouthGap, Math.min(upright, low)));
+                String.format(Locale.ROOT, "holds=%s mouth_gap=%.2f braid_gap=%.2f", holds, mouthGap, Math.min(upright, low)));
     }
 
-    private Feasibility chosen(Reach reach, boolean lean, double gap) {
-        this.reach = reach;
+    private Feasibility chosen(Hold hold, boolean lean, double gap) {
+        this.hold = hold;
         this.lean = lean;
         this.gap = gap;
-        lift = reach == Reach.BRAID ? ClipMarkers.of(BRAID_LIFT).ticks("lift_end", LIFT_TICKS) : LIFT_TICKS;
+        lift = hold.reach() == Reach.BRAID ? ClipMarkers.of(BRAID_LIFT).ticks("lift_end", LIFT_TICKS) : LIFT_TICKS;
         return Feasibility.pass();
     }
 
@@ -90,12 +95,10 @@ public final class Grab implements Action {
         at = target.position();
         ticks = 0;
         startTick = carrier.level().getGameTime();
-        boolean braid = reach == Reach.BRAID;
-        turn = braid ? new Face(ContactGeometry.braidYaw(carrier, target)) : null;
+        turn = hold.reach() == Reach.BRAID ? new Face(ContactGeometry.braidYaw(carrier, target)) : null;
         if (turn != null) { turn.check(carrier); turn.start(carrier); }
-        // The braid takes the target; a mouth grab clears a braid slot that holds nobody now (the target among them).
-        if (braid) carrier.motor().braid(target, lean);
-        else if (ParentCarry.braidRider(carrier) == null) carrier.motor().braid(null, false);
+        // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
+        ParentCarry.plan(carrier, target, hold, lean);
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
@@ -111,24 +114,24 @@ public final class Grab implements Action {
     }
 
     @Override public MotionPose pose() {
-        return new MotionPose(reach == Reach.MOUTH ? "" : lean ? BRAID_LEAN : BRAID_LIFT, startTick, false);
+        return new MotionPose(hold.reach() == Reach.MOUTH ? "" : lean ? BRAID_LEAN : BRAID_LIFT, startTick, false);
     }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "reach=%s gap=%.2f lean=%b lift=%d target=%s", reach.name().toLowerCase(Locale.ROOT),
-                gap, lean, lift, target.getUUID());
+        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
+                hold.key(), gap, lean, lift, target.getUUID());
     }
 
-    @Override public String endDetail(Outcome outcome) { return "reach=" + reach.name().toLowerCase(Locale.ROOT); }
+    @Override public String endDetail(Outcome outcome) { return "reach=" + hold.reach().name().toLowerCase(Locale.ROOT) + " hold=" + hold.key(); }
 
-    /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes of spec 9.2 by the mouth's
-     *  reason (the braid's stands beside it). */
-    private static Feasibility refusal(String mouth, String braid) {
-        Reason reason = switch (mouth) {
+    /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes of spec 9.2 by its first
+     *  hold's reason. */
+    private static Feasibility refusal(String problem) {
+        Reason reason = switch (problem.split("/")[0]) {
             case "dead", "level" -> Reason.TARGET_GONE;
             case "too_big", "stage", "carrier_kind", "pregnant", "not_baby" -> Reason.TOO_HEAVY;
             default -> Reason.NO_ROOM;
         };
-        return Feasibility.of(reason, 0, mouth.equals(braid) ? mouth : "mouth=" + mouth + " braid=" + braid);
+        return Feasibility.of(reason, 0, problem);
     }
 }

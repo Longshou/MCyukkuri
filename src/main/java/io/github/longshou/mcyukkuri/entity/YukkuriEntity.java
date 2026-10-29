@@ -257,8 +257,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long motorStart() { return componentData(BodyDriver.MOTOR_START); }
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     public byte attachKind() { return componentData(BodyDriver.ATTACH_KIND); }
-    /** Synchronized braid slot ({@link BodyDriver#BRAID}). */
-    public int braidHold() { return componentData(BodyDriver.BRAID); }
+    /** Synchronized carry record: which hold each carried child is in ({@link ParentCarry#HOLDS}). */
+    public CompoundTag carryHolds() { return componentData(ParentCarry.HOLDS); }
 
     public YukkuriVariant getVariant() { return variant; }
     public SpeciesProfile profile() { return SpeciesProfile.of(variant, subspeciesKind()); }

@@ -268,6 +268,7 @@ public final class OperationLife {
         entity.syncOperation(Pose.NONE.name(),0);entity.getNavigation().stop();return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
+        if(entity.isVehicle())entity.family().carry().dropAll("operation");
         var stack=new ItemStack(ModItems.accessoryFor(entity));
         AccessoryItem.markSource(stack,entity);
         var token=entity.life().takeAccessory(player.getUUID());if(token==null)return false;
@@ -280,6 +281,7 @@ public final class OperationLife {
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
+        if(entity.isVehicle())entity.family().carry().dropAll("operation");
         if(!entity.life().hasAccessory()&&!entity.headwear().reassembling())return false;
         var token=UUID.randomUUID();var stack=new ItemStack(ModItems.accessoryFor(entity));
         stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));

@@ -1449,7 +1449,7 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
 # The same real households and stores, with dependent crawling infants as an explicit initial condition.
 _migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
-       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、叼起（灵梦口含多只，其余叼在嘴里一只；魔理沙另用辫子卷起一只赤油），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
+       '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙用辫子托上帽檐，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
        '约3–6分钟', [
            'tag @e[type=#mcylab:yukkuri,nbt={YukkuriFamily:{Stage:"JUVENILE"}},distance=..45] add scn_migrant_baby',
            f'yukkuri status set {_migrant_babies} growth.age_ticks 36000',
@@ -1459,7 +1459,7 @@ colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
            f'yukkuri status set {_migrant_babies} needs.nutrition 40',
            Retry('yukkuri settlement migrate', COLONY_LEAD)],
        lines=_migration_site,
-       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup reach=mouth／braid purpose=MIGRATE，[action] start id=grab reach=），行军中赤油悬在亲油嘴前或魔理沙辫梢、朝向随亲油，灵梦口含多只，其他种类一只，魔理沙嘴里一只、辫子再卷一只，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲照常备粮，只有一只孩子的魔理沙母亲用辫子抓孩子、嘴照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：亲油叼起前俯身再直起；魔理沙用辫子时先转身让辫子一侧对着孩子，辫子伸出卷住孩子再托起，孩子悬在辫梢；灵梦口含多只沿嘴前横排、离地悬挂；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落。',
+       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，帽檐和尾巴上的先 carry lowering 放到身旁地面，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦口含多只沿嘴前横排、离地悬挂，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
        reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),

@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
@@ -156,6 +157,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 30, (c, ctx) -> c.end())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 60, (c, ctx) -> c.end()).build(),
         ComponentSpec.ready(FAMILY, YukkuriEntity::family)
+                .sync(ParentCarry.HOLDS)
                 .tick(90, FamilyLife::tick)
                 .save(150, (c, tag) -> tag.put("YukkuriFamily", c.save()))
                 .load(170, (c, ctx) -> { if (ctx.root().contains("YukkuriFamily")) c.load(ctx.root().getCompound("YukkuriFamily")); })
@@ -314,12 +316,11 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
         // Body driver (refactor WP1, docs/REFACTOR_TECH_SPEC.md 9.3): no passive tick, no save; the interrupts stop the
-        // running action and the four sync slots feed YukkuriView.motorAction/motorStart/attachKind/braidHold.
+        // running action and the three sync slots feed YukkuriView.motorAction/motorStart/attachKind.
         ComponentSpec.ready(MOTOR, YukkuriEntity::motor)
                 .sync(BodyDriver.MOTOR_ACTION)
                 .sync(BodyDriver.MOTOR_START)
                 .sync(BodyDriver.ATTACH_KIND)
-                .sync(BodyDriver.BRAID)
                 .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("fright"))
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("command"))
                 .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("pet_lock"))

@@ -91,8 +91,8 @@ public interface YukkuriView {
     long motorStart();
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     byte attachKind();
-    /** Synchronized braid slot: the body a Marisa's braid reaches for or holds (BodyDriver.BRAID). */
-    int braidHold();
+    /** Synchronized carry record: which hold each carried child is in (ParentCarry.HOLDS). */
+    CompoundTag carryHolds();
     String getExpressionId();
     String getBehaviorId();
     long getBehaviorStartTick();

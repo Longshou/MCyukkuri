@@ -7,7 +7,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
+import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
@@ -66,8 +66,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.pushPose();
             var parent=entity.vehicleYukkuri();
             boolean carried=parent!=null&&parent.hasPassengerId(entity.getUUID());
+            boolean hatCarrier=ParentCarry.brimCarrying(entity);
             float renderedBodyYaw=Mth.rotLerp(partialTick,entity.previousBodyYaw(),entity.bodyYaw());
-            // A carried child is drawn on the carrier's live lips or braid; a child just set down eases to the ground.
+            // A carried child is drawn on the carrier's live lips, brim, tail or braid; a child just set down eases to the ground.
             if(carried)renderedBodyYaw=ParentCarryPresentation.place(entity,parent,pose,partialTick);
             else {
                 ParentCarryPresentation.settle(entity,pose,partialTick);
@@ -90,7 +91,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if (entity.deathTicks() > 0) pose.mulPose(Axis.ZP.rotationDegrees(Math.min(90, (entity.deathTicks() + partialTick) * 4.5f)));
             pose.scale(entity.getScale(),entity.getScale(),entity.getScale());
             // Keep the body, badges, carried items and stem family under the same daily-motion transform.
-            if(!carried)dailyMotion(entity,partialTick,pose);
+            if(!hatCarrier&&!carried)dailyMotion(entity,partialTick,pose);
             pose.pushPose();pose.scale(entity.growthScale(),entity.growthScale(),entity.growthScale());
             var model=YukkuriModel.get(entity.assetId());
             String contact=entity.contactPose();boolean operated=!contact.equals("NONE")&&!contact.equals("SLIDE");
@@ -116,7 +117,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
-            String behavior = carried?Behaviors.IDLE:entity.getBehaviorId();
+            String behavior = hatCarrier||carried?Behaviors.IDLE:entity.getBehaviorId();
             if(behavior.equals(Behaviors.SLIDE_DOWN)){
                 var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==PlayBlock.Kind.SLIDE){
@@ -128,7 +129,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 }
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
-            if (entity.isCrawling()&&!carried) {
+            if (entity.isCrawling()&&!hatCarrier&&!carried) {
                 behavior = Behaviors.HOUSE_CRAWL;
                 phaseTicks = Math.max(0, entity.level().getGameTime()-entity.getCrawlStartTick()+partialTick);
             }
@@ -144,16 +145,16 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var delivery=LiveBirthRenderer.prepare(entity,model,partialTick);
             model.setPregnancy(entity.livePregnancyProgress(),LiveBirthRenderer.contraction(entity,partialTick));model.setDelivery(delivery);
             // A braid-held child is cradled; a carrier whose braid reaches plays the braid clip on its Grab's clock.
-            boolean cradled=carried&&ParentCarry.reach(parent,entity)==Reach.BRAID;
+            boolean cradled=carried&&ParentCarry.hold(parent,entity)==Hold.BRAID;
             String braidClip=carried?null:ParentCarryPresentation.liftClip(entity);
-            String action=braidClip!=null?braidClip:cradled?"be_cradled":carried?"idle":entity.getAnimationId();
+            String action=braidClip!=null?braidClip:cradled?"be_cradled":carried?"idle":hatCarrier?ParentCarry.carryAction(entity):entity.getAnimationId();
             float clock=braidClip!=null?Math.max(0,(entity.level().getGameTime()-entity.motorStart()+partialTick)/20f)
                     :cradled?(entity.level().getGameTime()+partialTick)/20f:carried?0:elapsed;
             var anatomy=ReproductionPresentation.anatomy(entity);
             model.setReproductiveAnatomy(anatomy==null?null:anatomy.part(),anatomy==null?0:anatomy.amount());
             if(!carried)ParentCarryPresentation.configure(entity,model,partialTick);
             // The worn wrap lies under the hair; the model lifts the hair over it as it draws (CareWearRenderer.clearHair).
-            model.setWear(!carried?entity.visibleWear():0);
+            model.setWear(!hatCarrier&&!carried?entity.visibleWear():0);
             model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,buffers);
             // Captured before anything else poses this shared model (stem fruits reuse it).
@@ -162,7 +163,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             ToiletPresentation.renderStool(entity,behavior,phaseTicks,model,pose,buffers,packedLight);
             var root=model.rootPose();
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
-            if(entity.visibleWear()!=0&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
+            if(entity.visibleWear()!=0&&!hatCarrier&&!carried)CareWearRenderer.render(model,entity.visibleWear(),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
             if(!entity.getMouthBodyFood().isEmpty()) {
                 pose.pushPose();
