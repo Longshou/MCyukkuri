@@ -1184,6 +1184,833 @@
           "ordinal": 1
         }
       ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
+      "signature": "YukkuriEntity#setPredatorFlying ( boolean flying )",
+      "token_hash": "26b1771d5cd91d1e25f1e5aed758346e09973369d9c20855f6d396924b1fed8b",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
+      "signature": "YukkuriEntity#travel ( Vec3 input )",
+      "token_hash": "fcbe8df351e09a14720d4799b355877ef08324f549aba9a1ced9046083fda1c8",
+      "subjects": {
+        "setDeltaMovement": 3,
+        "move": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write move at migration start.",
+          "ordinal": 2
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 3
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 4
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
+      "signature": "YukkuriEntity#hurtBase ( DamageSource source , float amount )",
+      "token_hash": "48e45735d903977787d868cbd59d825f889e6639f2b7678df2f0d0c8a31826f6",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/family/ChildhoodLife.java",
+      "signature": "ChildhoodLife#tickGoal ( )",
+      "token_hash": "ab21c7ab49624f40130e85f8d690b1538f9de0c13d3a44445b08bf8cfd2677bb",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/family/ChildhoodLife.java",
+      "signature": "ChildhoodLife#tickJump ( )",
+      "token_hash": "9820cf3ccf5fb31bcf3bc066be42194278ce0574b939003f0d3dfa5d402519cc",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/family/FamilyData.java",
+      "signature": "FamilyData#birth ( Brood brood , int index , ServerLevel level , Vec3 position , PlacedHatEntity hat , boolean unprotected )",
+      "token_hash": "683a5c5fa360545fb8ca9ceddf65d1e848e615e0ff95a990508cdff5ebff32a6",
+      "subjects": {
+        "moveTo": 1,
+        "setYRot": 2,
+        "setYHeadRot": 2
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 2
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 3
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 4
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 5
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/house/HouseLife.java",
+      "signature": "HouseLife#faceContact ( )",
+      "token_hash": "43ff7fa5e4f60bfa603c9bc655d312ab1c620174393f5b1316e42f065b38182e",
+      "subjects": {
+        "setYRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/house/HouseLife.java",
+      "signature": "HouseLife#tickInteraction ( HouseNestBlockEntity value )",
+      "token_hash": "c63c28bdee38a8fdd951b2bf17b58042b91ea64225768ab13c67327c0a34e785",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java",
+      "signature": "OperationLife#perform ( Player player , CareAction action )",
+      "token_hash": "70e7f58dbf40776a31f46b9596d3240d7f521d21e03c6b9e1897a5d5860e16f6",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java",
+      "signature": "OperationLife#tick ( )",
+      "token_hash": "02476ad23b5a78bb9e8a4c85dcaa4cdc63371557b9f5af6f8365f49f6ff030c5",
+      "subjects": {
+        "setDeltaMovement": 1,
+        "setYRot": 2,
+        "setYHeadRot": 2,
+        "move": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 2
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 3
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write move at migration start.",
+          "ordinal": 4
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 5
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 6
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/interaction/OperationLife.java",
+      "signature": "OperationLife#moveTo ( Vec3 desired )",
+      "token_hash": "a39283711821aa218b9ef0a5f0bc6e80f8a7950815ed8fc3c243a8546bd990d5",
+      "subjects": {
+        "setDeltaMovement": 1,
+        "move": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write move at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/AgitationLife.java",
+      "signature": "AgitationLife#beginAct ( )",
+      "token_hash": "d1103ec0637de0621b0edae4b7e676166208550bd2d807358836b22e2d949df0",
+      "subjects": {
+        "teleportTo": 1,
+        "setYRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write teleportTo at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/AgitationLife.java",
+      "signature": "AgitationLife#act ( )",
+      "token_hash": "2e8db38be437f7a21532eef215a495eb27827b1e945265251623a52d9df69cde",
+      "subjects": {
+        "setYRot": 1,
+        "teleportTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write teleportTo at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/HotFloorEscape.java",
+      "signature": "HotFloorEscape#burned ( )",
+      "token_hash": "90c4ff02f0dcd3bc6c6467c5fd08ed7c63e03a337b4cdef0785f82d61f01e464",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/HotFloorEscape.java",
+      "signature": "HotFloorEscape#tick ( )",
+      "token_hash": "b31261a59feb655edccaf7127b6965c9987d9f86fbc934d5d946a5b117fcd2e1",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/SurfaceApproach.java",
+      "signature": "SurfaceApproach#haltInput ( YukkuriEntity actor )",
+      "token_hash": "fae803e14877779023db598c0cc32a2bc96766768d5c63df859748c5c42a8d29",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/SurfaceApproach.java",
+      "signature": "SurfaceApproach#face ( YukkuriEntity actor , float yaw )",
+      "token_hash": "e59e48745f3d83c96c897fcac87a9e1ecbc4753bdd39910c63e9a5f7973ab758",
+      "subjects": {
+        "setYRot": 1,
+        "setYHeadRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/WaterDistress.java",
+      "signature": "WaterDistress#surfaceBuoyancy ( )",
+      "token_hash": "86723b4b0d69000678a72ed55daa29a20a831c8ec5b9350cd81cd1dfdccc2558",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriLocomotion.java",
+      "signature": "YukkuriLocomotion#advance ( YukkuriEntity body , Vec3 target , double maxSpeed )",
+      "token_hash": "c0a8ff1e78ac8846e3bb721f1f68e828f3db0271645e2609499e67f4033c9609",
+      "subjects": {
+        "move": 1,
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write move at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriLocomotion.java",
+      "signature": "YukkuriLocomotion#detach ( YukkuriEntity body )",
+      "token_hash": "4f40aba4ad9d2164e5971a1e25e9fa4dfca012ed8b6c5cee1f95a565aaa29369",
+      "subjects": {
+        "stopRiding": 1,
+        "setPos": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write stopRiding at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setPos at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriLocomotion.java",
+      "signature": "YukkuriLocomotion#swim ( YukkuriEntity body , Vec3 target , double requestedSpeed )",
+      "token_hash": "8a07b37fd54fe2d91126b95af57911de128f4d2696367665d4ae17a2620ae51e",
+      "subjects": {
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/life/YukkuriWorldData.java",
+      "signature": "YukkuriWorldData#release ( UUID token , ServerLevel level , Vec3 position , float yaw )",
+      "token_hash": "98eb6372d222c52cd2aca7f56323c731865bffdc8023722090a352825de3c9dd",
+      "subjects": {
+        "moveTo": 1,
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/ExamSession.java",
+      "signature": "ExamSession#ceremony ( )",
+      "token_hash": "9499d76ea36a25c16a62157d12d6a17f340b0d5375481af841482cdcdf290834",
+      "subjects": {
+        "setYRot": 1,
+        "setYHeadRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/pet/exam/items/Scene.java",
+      "signature": "Scene.Act#tick ( YukkuriEntity y )",
+      "token_hash": "9f7a12b5147d8acedf71c80e06b95ede2b4f62d59b1586ad3313d846d9266b32",
+      "subjects": {
+        "setYRot": 1,
+        "setYHeadRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/play/PlayLife.java",
+      "signature": "PlayLife#tickGoal ( )",
+      "token_hash": "bfa41e62603eec41e36d42ac0eb2fb7c7f6de547034b3d4358325e927a0ac5ff",
+      "subjects": {
+        "setDeltaMovement": 3
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 2
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 3
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/play/PlayLife.java",
+      "signature": "PlayLife#face ( Vec3 direction )",
+      "token_hash": "02405b236a8460cda470772a4474e37d072cc05134c367872e15df6bb8b16ac7",
+      "subjects": {
+        "setYRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementSpawner.java",
+      "signature": "SettlementSpawner#spawn ( ServerLevel level , BlockPos origin , Preset preset , YukkuriEntity seed , SettlementData . Site site , SettlementComposition fixed , boolean forced )",
+      "token_hash": "68fbd2b1dae212fb04cc5dd44f6f8579dd7e7daf32dc6101a01c86264f3f5bc9",
+      "subjects": {
+        "moveTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementSpawner.java",
+      "signature": "SettlementSpawner#spawnBandits ( ServerLevel level , BlockPos origin , YukkuriEntity seed )",
+      "token_hash": "a0afb0cd86dade39c92de4125543623a0e71ffef8444c463e6d92b2bf1ccfa65",
+      "subjects": {
+        "moveTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/settlement/SettlementSpawner.java",
+      "signature": "SettlementSpawner#plans ( YukkuriEntity probe , BlockPos origin , List < Integer > units , int radius , ShelterBlock . Kind kind )",
+      "token_hash": "8d0fff7b00e81aecf38e441aa6249d62dba735e39a356871f33ddf55c7932604",
+      "subjects": {
+        "moveTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopCourier.java",
+      "signature": "ShopCourier#settle ( ServerLevel level , HumanNpc keeper , Job job , YukkuriEntity y , boolean atPen , boolean direct )",
+      "token_hash": "167020995bb41f36e82e0aca06c8f66e3d714fe1fa4e4f4e8e99c5e6adc52094",
+      "subjects": {
+        "moveTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopDate.java",
+      "signature": "ShopDate#teleport ( YukkuriEntity y , Vec3 to )",
+      "token_hash": "d44faa97b2611ec81c24ef50976dda75d2a56aed29d1b7b52dd2bb268a0e1c95",
+      "subjects": {
+        "moveTo": 1,
+        "setDeltaMovement": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setDeltaMovement at migration start.",
+          "ordinal": 2
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/shop/ShopKeeping.java",
+      "signature": "ShopKeeping#train ( HumanNpc keeper , ServerLevel level , YukkuriEntity y )",
+      "token_hash": "e8c85bdf3499971cbe5efb3f500b05db7dff34e58aa93e75e59edb9585f10e6f",
+      "subjects": {
+        "moveTo": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write moveTo at migration start.",
+          "ordinal": 1
+        }
+      ]
+    },
+    {
+      "rule": "BODY_WRITE",
+      "path": "src/main/java/io/github/longshou/mcyukkuri/social/DailyLife.java",
+      "signature": "DailyLife#tickGoal ( )",
+      "token_hash": "1a70d3fda03e64e1c88915b09f1d5d267a663de5fe7c691cce8c1b59a27cb873",
+      "subjects": {
+        "setYRot": 1,
+        "setYHeadRot": 1
+      },
+      "reason": "Migration baseline (REFACTOR_TECH_SPEC section 4 exception two): direct body write outside motor/ awaiting its work package; the baseline may only shrink.",
+      "receiver": "YukkuriEntity (lexically typed); see accesses in source order.",
+      "keys": [],
+      "accesses": [
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYRot at migration start.",
+          "ordinal": 1
+        },
+        {
+          "receiver": "YukkuriEntity",
+          "keys": [],
+          "reason": "Baseline body write setYHeadRot at migration start.",
+          "ordinal": 2
+        }
+      ]
     }
   ],
   "component_return_types": {

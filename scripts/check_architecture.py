@@ -19,7 +19,12 @@ import sys
 JAVA_ROOT = Path("src/main/java")
 OWNER_ROOT = "io/github/longshou/mcyukkuri/"
 SERVER_TYPES = {"YukkuriEntity", "HatBoatEntity"}
-RULES = {"CLIENT_COMPONENT", "PERSISTENT_DATA", "SPECIES_FLAG", "INLINE_FQN"}
+RULES = {"CLIENT_COMPONENT", "PERSISTENT_DATA", "SPECIES_FLAG", "INLINE_FQN", "BODY_WRITE",
+         "BASE_IMPORTS_DLC", "GEOM_PURE"}
+BODY_WRITES = {"setPos", "moveTo", "teleportTo", "setDeltaMovement", "addDeltaMovement", "move",
+               "startRiding", "stopRiding", "setYRot", "setYBodyRot", "setYHeadRot"}
+PACKAGE = "io.github.longshou.mcyukkuri."
+
 OPERATORS = tuple(sorted((">>>=", ">>=", "<<=", ">>>", "...", "::", "->", "++", "--", "==", "<=",
                           ">=", "!=", "&&", "||", "+=", "-=", "*=", "/=", "&=", "|=", "^=", "%=", "<<", ">>"),
                          key=len, reverse=True))
@@ -160,6 +165,7 @@ class JavaSource:
         self.package = ""
         self.imports = {}
         self.import_roots = set()
+        self.import_names = []  # (token index, dotted import text)
         for i, value in enumerate(self.values):
             if value not in ("package", "import"):
                 continue
@@ -174,6 +180,8 @@ class JavaSource:
                 imported = [p for p in parts if p != "static"]
                 if imported:
                     self.import_roots.add(imported[0])
+                if value == "import":
+                    self.import_names.append((i, "".join(imported)))
                 if parts[-1] != "*":
                     full = "".join(imported)
                     self.imports[full.rsplit(".", 1)[-1]] = full
@@ -336,6 +344,50 @@ def receiver_type(java: JavaSource, i: int) -> str | None:
     return resolve(receiver, i, fields_only)
 
 
+def body_write_receiver(java: JavaSource, i: int, name: str) -> str | None:
+    """Receiver type of a body-write call; None when unknown or not a write."""
+    v = java.values
+    if name == "move" and v[i + 2:i + 3] != ["MoverType"]:
+        return None
+    own = java.path.endswith("/entity/YukkuriEntity.java") and (
+        [c.signature for c in java.classes if c.start < i < c.end][-1:] == ["YukkuriEntity"])
+    operator = access_operator(java, i)
+    if operator is None:
+        return "YukkuriEntity" if own and (i == 0 or v[i - 1] not in (".", "::")) else None
+    if operator >= 1 and v[operator - 1] in ("this", "super") and v[operator] == ".":
+        return "YukkuriEntity" if own else None
+    return receiver_type(java, i) if v[operator] == "." else None
+
+
+def forwards_to_driver(java: JavaSource, i: int) -> bool:
+    """Spec section 4 exception one: a YukkuriEntity override that only forwards to BodyDriver."""
+    method = java.method(i)
+    if method is None or not java.path.endswith("/entity/YukkuriEntity.java"):
+        return False
+    name_at = next((k for k in range(method.start, method.end)
+                    if k in java.declarations and java.values[k + 1] == "("), None)
+    if name_at is None or java.values[name_at] not in BODY_WRITES:
+        return False
+    body = java.values[name_at:method.end + 1]
+    return "BodyDriver" in body or "motor" in body
+
+
+def file_rules(java: JavaSource) -> list[Finding]:
+    """File-level import rules; they have no owning method, so no permission scope."""
+    found = []
+    path = "/" + java.path
+    for i, name in java.import_names:
+        token = java.tokens[i]
+        if name.startswith(PACKAGE + "aquatic.") and "/aquatic/" not in path and "/registry/" not in path:
+            found.append(Finding(java.path, token.line, token.column, "BASE_IMPORTS_DLC",
+                                 "import of aquatic outside aquatic/, client/aquatic/, registry/: " + name,
+                                 subject=name))
+        if "/motor/geom/" in path and name.startswith("net.minecraft."):
+            found.append(Finding(java.path, token.line, token.column, "GEOM_PURE",
+                                 "motor/geom/ must stay Minecraft-free: " + name, subject=name))
+    return found
+
+
 def scan(java: JavaSource, getters: dict[str, list[str]], roots: set[str]) -> list[Finding]:
     findings = []
     v = java.values
@@ -349,6 +401,10 @@ def scan(java: JavaSource, getters: dict[str, list[str]], roots: set[str]) -> li
         ref = operator is not None and v[operator] == "::"
         if value == "getPersistentData" and (call or ref):
             findings.append(java.finding(i, "PERSISTENT_DATA", "raw persistent-data access", value))
+        if call and value in BODY_WRITES and "/motor/" not in java.path:
+            if body_write_receiver(java, i, value) == "YukkuriEntity" and not forwards_to_driver(java, i):
+                findings.append(java.finding(i, "BODY_WRITE", "YukkuriEntity body write outside motor/: " + value,
+                                             value))
         zero_args = call and i + 2 < len(v) and v[i + 2] == ")"
         if value in {"isHouse", "isPredator"} and (zero_args or ref):
             typ = receiver_type(java, i)
@@ -394,6 +450,7 @@ def scan(java: JavaSource, getters: dict[str, list[str]], roots: set[str]) -> li
             # explicit, reviewed scope representation.
             findings.append(Finding(f.path, f.line, f.column, "COVERAGE",
                                     f"cannot locate method ownership for {f.rule}", coverage=True))
+    findings.extend(file_rules(java))
     return findings
 
 
