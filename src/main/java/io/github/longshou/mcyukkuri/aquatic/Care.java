@@ -185,7 +185,8 @@ final class Care implements Intent {
         }
     }
 
-    /** The supported spot with room for her (hat units) at the feeding's standing distance from the young, nearest where she is. */
+    /** The supported spot with room for her (hat units) at the feeding's standing distance from the young, where the hull stays
+     *  upright with her there, nearest where she is. */
     private Vec3 stand(PlacedHatEntity hat) {
         var frame = hat.frame();
         var at = frame.toLocal(child.position());
@@ -198,7 +199,7 @@ final class Care implements Intent {
             var height = hat.support(foot, Occupancy.foot(parent.getBbWidth()));
             if (height.isEmpty()) continue;
             var spot = new Vec3(foot.x, height.getAsDouble(), foot.z);
-            if (hat.room(parent, spot) && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;
+            if (hat.room(parent, spot) && HullAfloat.keeps(hat, parent, spot) && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;
         }
         return best;
     }

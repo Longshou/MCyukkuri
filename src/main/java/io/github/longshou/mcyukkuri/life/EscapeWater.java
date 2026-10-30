@@ -41,7 +41,9 @@ import net.minecraft.world.phys.Vec3;
  * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
- * another. Satisfied once the body is out of the water, standing or aboard; failing costs what the water costs.
+ * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
+ * voyage came back); one that does not only struggles and waits for its parent to lift it out. Satisfied once the body is out of
+ * the water, standing or aboard; failing costs what the water costs.
  */
 public final class EscapeWater implements Intent {
     /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); how long one press lasts before it
@@ -165,6 +167,7 @@ public final class EscapeWater implements Intent {
 
     private Feasibility hat(PlacedHatEntity hat, boolean capsized) {
         if (hat == null || hat.isRemoved() || hat.capsized() != capsized) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_hat");
+        if (!body.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
         double far = hat.distanceTo(body) - HAT_RANGE;
         return far > 0 ? Feasibility.of(Reason.TOO_FAR, far, "hat_far") : Feasibility.pass();
     }
@@ -173,8 +176,8 @@ public final class EscapeWater implements Intent {
      *  as a boat (the {@code hat_boat} ability), the hat worn, able to climb; the spot as far out as the hat reaches, so they do
      *  not overlap, in front of it first and then round it. */
     private Vec3 boatSpot() {
-        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.life().custody().worn() || BodyAbility.of(body).climbRise() <= 0)
-            return null;
+        if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.childhood().canSail() || !body.life().custody().worn()
+                || BodyAbility.of(body).climbRise() <= 0) return null;
         float[] brim = HatGeometry.brim();
         double apart = body.getBbWidth() / 2 + Math.max(brim[0], brim[1]) * HatScale.of(body) / 16 + CLEAR;
         var hat = new Afloat(body);
@@ -192,6 +195,7 @@ public final class EscapeWater implements Intent {
     /** Why its worn hat is no boat here, in the order {@link #boatSpot} asks. */
     private Feasibility boatRefusal() {
         if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT)) return Feasibility.of(Reason.NO_TOOL, 0, "no_hat_boat");
+        if (!body.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
         if (!body.life().custody().worn()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
         if (BodyAbility.of(body).climbRise() <= 0) return Feasibility.of(Reason.TOO_HIGH, 0, "cannot_climb");
         return Feasibility.of(Reason.NO_ROOM, 0, "no_open_water_beside");

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -157,7 +158,8 @@ final class Waters {
         return out;
     }
 
-    /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (SetOut), or null. */
+    /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (SetOut), where no other hat already floats on
+     *  the water the hat would take, or null. */
     static Edge berth(YukkuriEntity body) {
         return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth()), () -> findBerth(body));
     }
@@ -165,6 +167,7 @@ final class Waters {
     private static Edge findBerth(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 8, true)) {
+            if (hatOver(body, hatAt(e, body), HatGeometry.brim()[1] * HatScale.of(body) / 16)) continue;
             if (asked++ >= ASKED) break;
             if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
         }
@@ -204,7 +207,7 @@ final class Waters {
         return null;
     }
 
-    /** A dry stand by the edges near {@code body} that a hop from where it is lands on (world), or null. */
+    /** A dry stand by the edges near {@code body}, under no other hat's brim, that a hop from where it is lands on (world), or null. */
     static Vec3 ashore(YukkuriEntity body) {
         var at = body.position();
         return kept(body.level(), key(body.level(), "ashore", Math.round(at.x * 4), Math.round(at.y * 4), Math.round(at.z * 4), body.getBbWidth()),
@@ -214,11 +217,19 @@ final class Waters {
     private static Vec3 findAshore(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 2, false)) {
-            if (asked++ >= ASKED) break;
             var at = e.stand(body.getBbWidth());
+            if (hatOver(body, at, 0)) continue;
+            if (asked++ >= ASKED) break;
             if (new Hop(at).check(body).ok()) return at;
         }
         return null;
+    }
+
+    /** Some set-down hat other than the one {@code body} rides has its brim over {@code at}, or within {@code margin} of it: a hop
+     *  there comes down on that hat, a hat set down there would lie in it. */
+    private static boolean hatOver(YukkuriEntity body, Vec3 at, double margin) {
+        return !body.level().getEntitiesOfClass(PlacedHatEntity.class, new AABB(at, at).inflate(2 + margin), h -> h != body.getVehicle()
+                && h.position().subtract(at).horizontalDistance() < HullAfloat.brimToward(h, at) + margin).isEmpty();
     }
 
     /**

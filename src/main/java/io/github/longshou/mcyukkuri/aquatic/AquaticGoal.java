@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.motor.action.Await;
+import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -44,7 +45,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
  * its incident ({@code rescue}, a danger desire) and sends a young over to its father's boat when hers holds far more
  * ({@code share_young}); a father paddles over to his mate's boat when she asks it ({@code come_alongside}) or when she is near
  * her time ({@code attend_mate}). A young follows its parent's hat on or off ({@code board_parent}, {@code follow_ashore}), eats
- * from the hollow it rides ({@code eat_aboard}) and creeps into the hollow toward its parent at night ({@code nestle}). Who goes
+ * from the hollow it rides ({@code eat_aboard}), creeps into the hollow toward its parent at night ({@code nestle}), once able
+ * tries its own hat as a boat by its parent's on a calm day ({@code first_voyage}), and back from its own hat comes ashore and
+ * takes it back ({@code come_ashore}, {@code resolve_own_hat}). Who goes
  * first between bodies follows only from these desires (P11, Q4). Every number is in
  * {@code data/mcyukkuri/drive/aquatic.json}. While an intent runs afloat, or a committed one ashore, only an emergency takes the
  * body (the land goals cannot steer a body on the water); with no intent running any goal may.
@@ -112,7 +115,7 @@ final class AquaticGoal extends Goal {
     /** What the presentation shows: the paddle stroke, or the boat clip a wait plays (sleep, covering the young, calling, drifting). */
     private String activity() {
         var action = body.motor().current();
-        if (action instanceof Paddle) return Behaviors.BOAT_PADDLE;
+        if (action instanceof Paddle || action instanceof Beckon) return Behaviors.BOAT_PADDLE;
         return action instanceof Await && SHOWN.contains(action.pose().clip()) ? action.pose().clip() : null;
     }
 
@@ -189,7 +192,8 @@ final class AquaticGoal extends Goal {
         care(out, hat, young, at);
         share(out, hat, young, at);
         attend(out, hat, at);
-        long ashore = young.stream().filter(y -> !AquaticLife.aboard(y, hat) && !leftBehind(y)).count();
+        // a young on dry ground that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
+        long ashore = young.stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
         // no stick aboard pulls her ashore only when one lies there to be had; hunger only with nothing aboard or afloat she can eat
         boolean toHave = !stick && Waters.stick(body, 12, false) != null;
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
@@ -321,6 +325,13 @@ final class AquaticGoal extends Goal {
     }
 
     private void young(List<Desire> out) {
+        // back from its own hat: ashore with it, or the hat taken back
+        var own = AquaticLife.hat(body);
+        if (own != null && AquaticLife.aboard(body, own) && AquaticLife.afloat(own))
+            out.add(Desire.of("come_ashore", floor(num("young_return", 60)), List.of(cell(own)), () -> "own_hat=afloat", () -> Ashore.come(body)));
+        else if (own != null && AquaticLife.ashore(body))
+            out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(own), form(own), body.blockPosition()), () -> "hat=" + form(own),
+                    () -> Ashore.reclaim(body)));
         var ride = AquaticLife.riding(body);
         var larder = HullLarder.of(ride);
         double eat = eat(body);
@@ -340,6 +351,7 @@ final class AquaticGoal extends Goal {
         Supplier<String> why = () -> "parent=" + parent.getUUID() + " parent_aboard=" + parentOn
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
+        voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut))
             out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
@@ -349,6 +361,26 @@ final class AquaticGoal extends Goal {
         if (on && (AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || body.life().temperature().cold())
                 && Occupancy.of(body, hat.container()) != Occupancy.INSIDE_SUPPORTED && AquaticLife.freeSpot(hat, body) != null)
             out.add(Desire.of("nestle", num("nestle_want", 40), world, why, () -> Follow.nestle(body, hat)));
+    }
+
+    /**
+     * A young able to handle its own hat that has not yet (solid food, hopping, learning, a fifth of an adult's size), wearing it
+     * with a stick for it (tucked in it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the
+     * bank or aboard her hat by one: it wants to try (first_voyage), the bolder the more. Kept while it runs.
+     */
+    private void voyage(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat) {
+        var life = body.life();
+        var child = body.childhood();
+        boolean running = drive().runner() != null && drive().runner().intent() instanceof FirstVoyage;
+        if (!running && (child.canSail() || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
+                || body.family().scale() < num("voyage_scale", .2) || !HatProp.usable(body) || !life.custody().worn()
+                || life.energy() < num("voyage_energy", 30) || AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || !AquaticLife.aboard(parent, hat)
+                || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat) && !Waters.edges(body, body.position(), 2, false).isEmpty())
+                || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
+        out.add(Desire.of("first_voyage", floor(num("first_voyage_want", 40) + life.personality().boldness() * num("first_voyage_bold", .4)),
+                List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
+                () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " scale=" + body.family().scale(),
+                () -> new FirstVoyage(body, parent)));
     }
 
     /** The hat's form for the reclaim line: upright afloat, turned over, on the ground. */

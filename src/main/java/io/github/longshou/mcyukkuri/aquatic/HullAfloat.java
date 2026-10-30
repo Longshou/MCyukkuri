@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -12,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -46,6 +49,12 @@ public final class HullAfloat implements PlacedHatBehavior {
             SHAKE = num("shake"), PUSH_HEEL = num("push_heel"), BUMP_TILT = num("bump_tilt"), CAPSIZE_HARD = num("capsize_hard"),
             FLIP_RATE = num("flip_rate"), UNSTEADY_RATE = num("unsteady_rate");
     private static final int CAPSIZE_TICKS = (int) num("capsize_ticks");
+    /** The largest static heel (a share of the flooding angle) a rider may give the hull where it stands: a step there overshoots by
+     *  the tilt spring's own overshoot (damping ratio ζ = damping / 2√spring), which must stay short of flooding. */
+    private static final double STEADY = steady();
+    /** The authored brim plate's thickness (hat units; marisa.json's brim parts span 10.49..11.31): the brim rides up onto a bank
+     *  no higher than this above its underside and lies on it; a higher one is a wall the brim stops at. */
+    private static final double BRIM_LIP = .8;
     /** Afloat it stays afloat until the water is this far below its lowest point; one contact moves a body at most this far a
      *  tick; a thrown rider leaves no faster than this (blocks, blocks per tick). */
     private static final double LEAVE_MARGIN = .2, CONTACT_STEP = .25, MAX_THROW = .6;
@@ -77,7 +86,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     private float turnBy;
     private String cause = "load";
     private long causeTick = Long.MIN_VALUE, sampled = Long.MIN_VALUE, dryTick = Long.MIN_VALUE;
-    private boolean dry;
+    private boolean dry, beached, moored;
     private double surface = Double.NaN;
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
@@ -138,14 +147,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         double water = surface(hat), unit = hat.unit(), top = HatGeometry.top() * unit;
         if (!Double.isFinite(water)) return;
         var plane = plane(hat);
-        double moX = 0, moZ = 0;
-        mass = HULL_MASS * hat.hullScale() * hat.hullScale();
-        for (var p : hat.getPassengers()) if (p instanceof YukkuriEntity y) {
-            double m = mass(y);
-            var local = hat.riders().local(y.getUUID());
-            mass += m; moX += m * local.x * unit; moZ += m * local.z * unit;
-        }
-        for (var p : larder.portions()) { mass += HullLarder.MASS; moX += HullLarder.MASS * p.x() * unit; moZ += HullLarder.MASS * p.z() * unit; }
+        var load = load(hat, larder, null, null);
+        double moX = load.x(), moZ = load.z();
+        mass = load.mass();
         larder.sync(hat);
         draft = Buoyancy.draft(mass, plane);
         double freeboard = top - draft, roll = hat.roll(), pitch = hat.pitch();
@@ -179,13 +183,136 @@ public final class HullAfloat implements PlacedHatBehavior {
         var v = hat.getDeltaMovement();
         v = v.add(stroke(hat));
         var motion = new Vec3(v.x * DRAG, Mth.clamp(Buoyancy.spring(target - hat.getY(), v.y, SPRING, DAMPING), -MAX_RISE, MAX_RISE), v.z * DRAG);
-        hat.setDeltaMovement(motion);
+        var free = clear(hat, motion);
+        hat.setDeltaMovement(free);
         var from = hat.position();
-        hat.move(MoverType.SELF, motion);
-        if (hat.horizontalCollision) bump(hat, motion, hat.position().subtract(from));
+        hat.move(MoverType.SELF, free);
+        bump(hat, motion, hat.position().subtract(from));
+        rest(hat);
         var reach = MAX_REACH * unit + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach, top + .5, reach), e -> e instanceof LivingEntity))
             contact(hat, other);
+        boolean against = hat.level().getBlockCollisions(hat, hat.getBoundingBox().inflate(.05, 0, .05)).iterator().hasNext();
+        if (against && !moored) GameplayLog.limited(hat, "hat", "moored", 100, "moored at={} speed={} riders={} owner={} beached={}",
+                GameplayLog.at(hat.position()), fmt(hat.getDeltaMovement().horizontalDistance()), hat.getPassengers().size(), hat.ownerYukkuri(), beached);
+        moored = against;
+    }
+
+    /** Everything aboard: its mass and moment (mass · blocks, hull frame): the hull, the riders where they stand ({@code moved}
+     *  at {@code at} instead, aboard or not yet), the food in the hollow. */
+    private record Load(double mass, double x, double z) {}
+
+    private static Load load(PlacedHatEntity hat, HullLarder larder, YukkuriEntity moved, Vec3 at) {
+        double unit = hat.unit(), m = HULL_MASS * hat.hullScale() * hat.hullScale(), mx = 0, mz = 0;
+        for (var p : hat.getPassengers()) if (p instanceof YukkuriEntity y && y != moved) {
+            double w = mass(y);
+            var local = hat.riders().local(y.getUUID());
+            m += w; mx += w * local.x * unit; mz += w * local.z * unit;
+        }
+        if (moved != null) { double w = mass(moved); m += w; mx += w * at.x * unit; mz += w * at.z * unit; }
+        for (var p : larder.portions()) { m += HullLarder.MASS; mx += HullLarder.MASS * p.x() * unit; mz += HullLarder.MASS * p.z() * unit; }
+        return new Load(m, mx, mz);
+    }
+
+    /**
+     * Whether the hull stays upright with {@code body} standing at {@code local} (hat units) and every other load where it is: the
+     * static heel it would take there keeps within {@link #STEADY} of its flooding angle at that load. A hat not afloat bears it.
+     * Where on her own hat a body may walk to without turning it over (AQUATIC 帽内走动: only a real outside cause capsizes it).
+     */
+    static boolean keeps(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) {
+        if (!(hat.behavior() instanceof HullAfloat hull)) return true;
+        var load = load(hat, hull.larder, body, local);
+        var plane = plane(hat);
+        double unit = hat.unit(), freeboard = HatGeometry.top() * unit - Buoyancy.draft(load.mass(), plane);
+        return Buoyancy.floodRatio(Buoyancy.rollHeel(load.x(), plane), Buoyancy.pitchHeel(load.z(), plane),
+                Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit), Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit)) <= STEADY;
+    }
+
+    private static double steady() {
+        double zeta = TILT_DAMPING / (2 * Math.sqrt(TILT_SPRING));
+        return 1 / (1 + Math.exp(-Math.PI * zeta / Math.sqrt(1 - zeta * zeta)));
+    }
+
+    // ---------------------------------------------------------------- the brim against the bank
+    /** The brim's top edge, sample {@code i} of {@link #REACH}, for a pose. */
+    private static Vec3 rim(HostFrame frame, int i) {
+        double a = i * 2 * Math.PI / REACH.length;
+        return frame.toWorld(new Vec3(Math.cos(a) * REACH[i], HatGeometry.top(), Math.sin(a) * REACH[i]));
+    }
+
+    /** The highest top at x, z of the block collision boxes reaching into heights {@code low}..{@code high}, or NaN. */
+    private static double bank(Level level, double x, double low, double high, double z) {
+        double best = Double.NaN;
+        for (int y = Mth.floor(low); y <= Mth.floor(high); y++) {
+            var p = BlockPos.containing(x, y, z);
+            var shape = level.getBlockState(p).getCollisionShape(level, p);
+            if (shape.isEmpty()) continue;
+            for (var box : shape.toAabbs()) {
+                double top = p.getY() + box.maxY;
+                if (x < p.getX() + box.minX || x > p.getX() + box.maxX || z < p.getZ() + box.minZ || z > p.getZ() + box.maxZ
+                        || top <= low || p.getY() + box.minY >= high) continue;
+                if (Double.isNaN(best) || top > best) best = top;
+            }
+        }
+        return best;
+    }
+
+    /** Turned over (the brim lies in the water then), or no block near the brim's ring (blocks out to {@code more} past it):
+     *  nothing for the brim to meet. */
+    private static boolean open(PlacedHatEntity hat, double more) {
+        if (hat.upsideDown()) return true;
+        double r = MAX_REACH * hat.unit() + more, top = HatGeometry.top() * hat.unit();
+        return !hat.level().getBlockCollisions(hat, new AABB(hat.getX() - r, hat.getY() - top, hat.getZ() - r, hat.getX() + r, hat.getY() + 2 * top, hat.getZ() + r))
+                .iterator().hasNext();
+    }
+
+    /** A brim point of {@code frame} moved by {@code dx, dz} would end inside a bank reaching above the brim's top (one it cannot
+     *  ride onto); {@code leading} counts only the points on the side it moves toward (it may always back out of a bank). */
+    private static boolean walled(PlacedHatEntity hat, HostFrame frame, double dx, double dz, boolean leading, HostFrame before) {
+        double lip = BRIM_LIP * hat.unit();
+        for (int i = 0; i < REACH.length; i++) {
+            var at = rim(frame, i);
+            if (leading && (at.x - hat.getX()) * dx + (at.z - hat.getZ()) * dz <= 0) continue;
+            if (!(bank(hat.level(), at.x + dx, at.y - lip, at.y, at.z + dz) > at.y)) continue;
+            if (before == null) return true;
+            var was = rim(before, i);
+            if (!(bank(hat.level(), was.x, was.y - lip, was.y, was.z) > was.y)) return true;
+        }
+        return false;
+    }
+
+    /** The horizontal part of {@code motion} the brim can make: a way into a bank it cannot ride onto stops, the other slides on
+     *  (the hull's box itself is vanilla's). */
+    private static Vec3 clear(PlacedHatEntity hat, Vec3 motion) {
+        double dx = motion.x, dz = motion.z;
+        if (dx * dx + dz * dz < 1e-10 || open(hat, Math.hypot(dx, dz))) return motion;
+        var frame = hat.frame();
+        if (!walled(hat, frame, dx, dz, true, null)) return motion;
+        boolean x = !walled(hat, frame, dx, 0, true, null), z = !walled(hat, frame, 0, dz, true, null);
+        if (x && z) { if (Math.abs(dx) >= Math.abs(dz)) z = false; else x = false; }
+        return new Vec3(x ? dx : 0, motion.y, z ? dz : 0);
+    }
+
+    /** Where the brim overhangs a bank lower than its plate is thick it lies on the bank's top instead of sinking into it (近帽檐搭到
+     *  岸上): the hull is held up by the deepest such overlap, the bank bearing that much. */
+    private void rest(PlacedHatEntity hat) {
+        double lift = 0, lip = BRIM_LIP * hat.unit();
+        if (!open(hat, 0)) {
+            var frame = hat.frame();
+            for (int i = 0; i < REACH.length; i++) {
+                var at = rim(frame, i);
+                double top = bank(hat.level(), at.x, at.y - lip, at.y, at.z);
+                if (top <= at.y + 1e-6) lift = Math.max(lift, top - (at.y - lip));
+            }
+        }
+        boolean was = beached;
+        beached = lift > 1e-4;
+        if (!beached) return;
+        hat.setPos(hat.getX(), hat.getY() + lift, hat.getZ());
+        var v = hat.getDeltaMovement();
+        if (v.y < 0) hat.setDeltaMovement(v.x, 0, v.z);
+        if (!was) GameplayLog.limited(hat, "hat", "beached", 100, "beached cause=brim_on_bank lift={} at={} riders={} owner={}",
+                fmt(lift), GameplayLog.at(hat.position()), hat.getPassengers().size(), hat.ownerYukkuri());
     }
 
     /** A block it ran into took this much speed: the hull tips its leading side down. */
@@ -219,11 +346,13 @@ public final class HullAfloat implements PlacedHatBehavior {
         double theirs = mass(other), mine = Math.max(mass, HULL_MASS);
         double share = other instanceof YukkuriEntity ? theirs / (theirs + mine) : 1;
         double nx = dx / distance, nz = dz / distance, moved = depth * share;
-        var shove = new Vec3(-nx * moved, 0, -nz * moved);
-        hat.move(MoverType.SELF, shove);
+        hat.move(MoverType.SELF, clear(hat, new Vec3(-nx * moved, 0, -nz * moved)));
+        // it takes the other's own way into it, by its share: a body that only stands against it (landed on the bank by it)
+        // parts from it and leaves it lying there, one that keeps coming pushes it along
         var v = hat.getDeltaMovement();
-        double along = -(v.x * nx + v.z * nz);
-        if (along < moved) hat.setDeltaMovement(v.add(shove.scale((moved - Math.max(0, along)) / moved)));
+        var ov = other.getDeltaMovement();
+        double along = -(v.x * nx + v.z * nz), toward = -(ov.x * nx + ov.z * nz) * share;
+        if (toward > along) hat.setDeltaMovement(v.add(-nx * (toward - along), 0, -nz * (toward - along)));
         if (other instanceof YukkuriEntity body && share < 1)
             Motor.move(body, new Vec3(nx * depth * (1 - share), 0, nz * depth * (1 - share)), "hull_contact");
         // the shove heels it: its far side goes down this tick
@@ -317,8 +446,12 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private Vec3 stroke(PlacedHatEntity hat) {
         if (paddler == null) return Vec3.ZERO;
-        double share = mass(paddler) / Math.max(mass, 1e-6), pace = drive.horizontalDistance();
-        hat.setYRot(hat.getYRot() + (float) (turnBy * share));
+        // the stroker's share of itself and what it moves: aboard it is part of the hull's mass, from the bank (Beckon) it is not
+        double m = mass(paddler), share = Effort.share(m, paddler.getVehicle() == hat ? mass - m : mass), pace = drive.horizontalDistance();
+        float yaw = hat.getYRot() + (float) (turnBy * share);
+        // the brim does not swing into a bank it cannot ride onto
+        if (turnBy != 0 && (open(hat, 0) || !walled(hat, new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), hat.roll(), hat.pitch()),
+                0, 0, false, hat.frame()))) hat.setYRot(yaw);
         paddler = null;
         return pace < 1e-9 ? Vec3.ZERO : drive.scale(Effort.drive(pace, share, DRAG) / pace);
     }
@@ -384,10 +517,19 @@ public final class HullAfloat implements PlacedHatBehavior {
         float[] o = HatGeometry.opening();
         return Buoyancy.Plane.rect((o[1] - o[0]) * hat.unit(), (o[3] - o[2]) * hat.unit());
     }
-    /** A yukkuri as a round body of the WaterDistress density; anything else as its box of water. */
+    /** A yukkuri as a round body of the WaterDistress density, a mother as her own body and the young she carries (her swell is
+     *  her belly stretched round them, not more of her); anything else as its box of water. */
     private static double mass(Entity e) {
-        return e instanceof YukkuriEntity ? Buoyancy.bodyMass(e.getBbWidth(), e.getBbHeight(), Buoyancy.BODY_DENSITY)
-                : e.getBbWidth() * e.getBbWidth() * e.getBbHeight();
+        if (!(e instanceof YukkuriEntity y)) return e.getBbWidth() * e.getBbWidth() * e.getBbHeight();
+        var brood = y.livePregnancyProgress() > 0 ? y.family().brood() : null;
+        if (brood == null) return Buoyancy.bodyMass(y.getBbWidth(), y.getBbHeight(), Buoyancy.BODY_DENSITY);
+        var own = LiveBirthGeometry.bodyDimensions(y, y.growthScale(), 0).scale(y.getScale());
+        double m = Buoyancy.bodyMass(own.width(), own.height(), Buoyancy.BODY_DENSITY);
+        for (var child : brood.children) if (!child.born && !child.eggLost) {
+            var d = LiveBirthGeometry.childDimensions(child, y.getScale());
+            m += Buoyancy.bodyMass(d.width(), d.height(), Buoyancy.BODY_DENSITY);
+        }
+        return m;
     }
     /** A world direction in the hull's own x, z (yaw only). */
     private static double[] local(PlacedHatEntity hat, double x, double z) {

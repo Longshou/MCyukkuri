@@ -98,18 +98,32 @@ public final class ContactGeometry {
 
     private static double braidGap(YukkuriEntity body, Vec3 at, Entity target, boolean lean, boolean sighted) {
         if (!braided(body)) return Double.POSITIVE_INFINITY;
-        Vec3 model = BRAID[lean ? 2 : 0];
-        double s = body.growthScale() * body.getScale() / 16, dx = target.getX() - at.x, dz = target.getZ() - at.z;
-        double d = Math.max(1E-6, Math.hypot(dx, dz)), r = Math.hypot(model.x, model.z) * s;
-        return gap(body, at.add(dx / d * r, model.y * s, dz / d * r), target, sighted);
+        return gap(body, root(body, at, target.position(), lean), target, sighted);
     }
 
     private static double gap(YukkuriEntity body, Vec3 root, Entity target, boolean sighted) {
-        double s = body.growthScale() * body.getScale() / 16;
         var box = target.getBoundingBox();
         Vec3 near = new Vec3(Mth.clamp(root.x, box.minX, box.maxX), Mth.clamp(root.y, box.minY, box.maxY), Mth.clamp(root.z, box.minZ, box.maxZ));
-        return !sighted || sight(body, root, near) ? root.distanceTo(near) - BRAID[1].distanceTo(BRAID[0]) * s : Double.POSITIVE_INFINITY;
+        return !sighted || sight(body, root, near) ? root.distanceTo(near) - braidLength(body) : Double.POSITIVE_INFINITY;
     }
+
+    /** How much farther {@code point} (a water surface, a brim) lies than the braid holds from where the body stands, upright or
+     *  in the low lean ({@code lean}), sight free (blocks, 0 or less in reach). */
+    public static double braidGap(YukkuriEntity body, Vec3 point, boolean lean) {
+        if (!braided(body) || point == null) return Double.POSITIVE_INFINITY;
+        Vec3 root = root(body, body.position(), point, lean);
+        return sight(body, root, point) ? root.distanceTo(point) - braidLength(body) : Double.POSITIVE_INFINITY;
+    }
+
+    /** The braid's root swung toward {@code toward} for a body standing at {@code at}, upright or in the low lean. */
+    private static Vec3 root(YukkuriEntity body, Vec3 at, Vec3 toward, boolean lean) {
+        Vec3 model = BRAID[lean ? 2 : 0];
+        double s = body.growthScale() * body.getScale() / 16, dx = toward.x - at.x, dz = toward.z - at.z;
+        double d = Math.max(1E-6, Math.hypot(dx, dz)), r = Math.hypot(model.x, model.z) * s;
+        return at.add(dx / d * r, model.y * s, dz / d * r);
+    }
+
+    private static double braidLength(YukkuriEntity body) { return braidLength() * body.growthScale() * body.getScale() / 16; }
 
     /** Whether the mouth or the braid would reach {@code target} from a planned stand {@code at} (the grab checks sight itself). */
     public static boolean reachesFrom(YukkuriEntity body, Vec3 at, Entity target) {

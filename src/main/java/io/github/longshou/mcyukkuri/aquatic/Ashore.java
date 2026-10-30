@@ -40,9 +40,11 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code resolve_own_hat} (HEADWEAR; SOFT): her hat out in a form she did not choose (left afloat, turned over,
  *       beached) while she is ashore: the same unloading and taking back from the bank, righting it from the bank when it lies crown
  *       up, waiting a while for it to drift in reach; else she goes into the water after it (the escape then swims to her own hat
- *       and climbs aboard). Done once it is worn or ridden. It ends with {@code [headwear] reclaim done} or
+ *       and climbs aboard; only one that sails). Done once it is worn or ridden. It ends with {@code [headwear] reclaim done} or
  *       {@code reclaim expired reason=}.</li>
  * </ul>
+ * Either way her own hat afloat out of reach of the bank edge, within a braid stroke, is drawn in against the bank first
+ * ({@code Beckon}). A young back from its own hat comes ashore and takes it back the same way.
  */
 final class Ashore implements Intent {
     /** The whole landing; the whole reclaim; the longest wait for young to hop off or for the hat to drift into reach (ticks). */
@@ -117,18 +119,20 @@ final class Ashore implements Intent {
         return List.of(() -> new Step.Do(new Paddle(edge.edge(), AGAINST)));
     }
 
-    /** From the bank edge nearest the hat: walk there, face the hat, then the closing steps; with no edge near it, wait for drift. */
+    /** From the bank edge nearest the hat: walk there, face the hat, then the closing steps; afloat out of reach from there, it is
+     *  drawn in to the bank with the braid first (Beckon); too far for that, or with no edge near it, she waits for drift. */
     @SafeVarargs
     private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Step>... then) {
         var edge = Waters.beside(hat, owner);
         if (edge == null && !AquaticLife.afloat(hat) && !hat.upsideDown()) return beached(hat, then);
-        if (edge == null || !near(hat, edge))
-            return List.of(() -> new Step.Wait(() -> { var e = Waters.beside(hat, owner); return e != null && near(hat, e); }, WAIT, Behaviors.BOAT_CALL));
+        Supplier<Step> drift = () -> new Step.Wait(() -> { var e = Waters.beside(hat, owner); return e != null && near(hat, e); }, WAIT, Behaviors.BOAT_CALL);
+        if (edge == null || !near(hat, edge) && !AquaticLife.afloat(hat)) return List.of(drift);
         var stand = edge.stand(owner.getBbWidth());
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)));
         steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
-        steps.addAll(List.of(then));
+        if (!near(hat, edge)) steps.add(() -> { var in = Ferry.beckon(owner, hat); return in != null ? in : drift.get(); });
+        else steps.addAll(List.of(then));
         return steps;
     }
 
@@ -150,9 +154,11 @@ final class Ashore implements Intent {
         return steps;
     }
 
-    /** Her hat afloat within the escape's own-hat range of a bank edge she can reach: going in after it is a way. */
+    /** Her hat afloat within the escape's own-hat range of a bank edge she can reach: going in after it is a way, for one that sails
+     *  (one that does not could only struggle in the water). */
     private Feasibility swimmable() {
         var hat = AquaticLife.hat(owner);
+        if (!owner.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
         if (hat == null || hat.distanceTo(owner) > 16 || !AquaticLife.ashore(owner)) return Feasibility.of(Reason.TOO_FAR, 0, "hat_out_of_range");
         return Waters.beside(hat, owner) != null || Waters.berth(owner) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
     }

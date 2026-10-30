@@ -122,8 +122,8 @@ public final class AquaticLife {
     /** The supported spot (hat units) inside the hollow nearest its middle where this body has room, or null. */
     static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) { return spot(hat, body, true, Vec3.ZERO); }
 
-    /** The supported spot (hat units) where this body has room nearest {@code near} (hat units): inside the hollow only, or
-     *  anywhere on the hat (the brim too); null when there is none. */
+    /** The supported spot (hat units) where this body has room and the hull stays upright with it there ({@link HullAfloat#keeps})
+     *  nearest {@code near} (hat units): inside the hollow only, or anywhere on the hat (the brim too); null when there is none. */
     static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) {
         var grid = hat.walkGrid(body, true);
         double foot = Occupancy.foot(body.getBbWidth());
@@ -134,7 +134,7 @@ public final class AquaticLife {
             if (height == null || height.isEmpty()) continue;
             var spot = new Vec3(local.x, height.getAsDouble(), local.z);
             if (inside && Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
-                    || !hat.room(body, spot)) continue;
+                    || !hat.room(body, spot) || !HullAfloat.keeps(hat, body, spot)) continue;
             if (best == null || Math.hypot(spot.x - near.x, spot.z - near.z) < Math.hypot(best.x - near.x, best.z - near.z)) best = spot;
         }
         return best;

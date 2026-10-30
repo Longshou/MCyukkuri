@@ -16,6 +16,7 @@
   "attend_mate": 1,
   "share_young": 1,
   "be_fed": 1,
+  "first_voyage": 1,
   "floor": 20,
   "water_life": 60,
   "night_pull": 60,
@@ -51,5 +52,10 @@
   "share_want": 45,
   "be_fed_want": 75,
   "comfort_again": 600,
-  "rescue_tries": 3
+  "rescue_tries": 3,
+  "first_voyage_want": 40,
+  "first_voyage_bold": 0.4,
+  "voyage_scale": 0.2,
+  "voyage_energy": 30,
+  "young_return": 60
 }

@@ -222,11 +222,12 @@ final class ScenarioSetup {
     }
 
     /**
-     * The owner's real hat set down on the surface of {@code water} through the one placement path, {@code food} apples stored
-     * in it through the same storing a player's click uses, every young on its own free supported spot nearest the hat's
-     * front (or its middle), then, when asked, the owner climbing in last into the middle of her own hat whether or not her
-     * young already sit there (a crowd the hat then squeezes apart). Kinship is written once every one sits aboard: a setup
-     * that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards is physics.
+     * The owner's real hat set down on the surface of {@code water} through the one placement path, every young on its own free
+     * supported spot nearest the hat's front (or its middle), then, when asked, the owner climbing in last into the middle of her
+     * own hat whether or not her young already sit there (a crowd the hat then squeezes apart), and last {@code food} apples
+     * stored in it through the same storing a player's click uses, each on floor no one stands on. Kinship is written once every
+     * one sits aboard: a setup that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards
+     * is physics.
      */
     static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
@@ -239,11 +240,6 @@ final class ScenarioSetup {
         }
         var hat = PlacedHatEntity.setDown(owner, Vec3.atBottomCenterOf(water), owner.getYRot(), HatGeometry.Role.HELPER);
         if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
-        if (food > 0) {
-            var stock = new ItemStack(Items.APPLE, food);
-            if (!hat.behavior().store(hat, stock, null) || stock.getCount() == food)
-                return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] refused），帽子已收回。");
-        }
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
         var riders = new ArrayList<YukkuriEntity>(young);
         var spots = new ArrayList<Vec3>();
@@ -269,6 +265,14 @@ final class ScenarioSetup {
                 return takeBack(owner, hat, body.getName().getString() + " 没能坐上帽子，帽子已收回。");
             }
             hat.riders().put(body.getUUID(), spots.get(i), 0);
+        }
+        if (food > 0) {
+            var stock = new ItemStack(Items.APPLE, food);
+            if (!hat.behavior().store(hat, stock, null) || stock.getCount() == food) {
+                for (var aboardNow : List.copyOf(hat.getPassengers()))
+                    if (aboardNow instanceof YukkuriEntity y) Motor.dismount(y, y.position(), Vec3.ZERO, "scenario_undo");
+                return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] refused），帽子已收回。");
+            }
         }
         for (var child : young) kin(owner, child, false);
         GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={}",

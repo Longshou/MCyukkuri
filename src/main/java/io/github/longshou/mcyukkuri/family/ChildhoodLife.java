@@ -49,6 +49,8 @@ public final class ChildhoodLife {
     private int careTicks, taskTicks;
     private boolean newborn, landed, firstMealDone = true, firstToiletDone = true, crawled, jumped;
     private boolean jumpLaunched, jumpAirborne, demonstrationSeen;
+    /** It handled its own hat on the water once (a first voyage that came back): sailing is a learned skill, see {@link #canSail}. */
+    private boolean sailed;
     private double launchY;
     private int jumpLandings,practiceRest,watchedTicks;
     private boolean demonstrationLaunched,demonstrationAirborne,demonstrationWitnessed;
@@ -68,7 +70,7 @@ public final class ChildhoodLife {
         firstToiletDone = false;
         crawled = false;
         jumped = false;
-        jumpLaunched = jumpAirborne = demonstrationSeen = false;
+        jumpLaunched = jumpAirborne = demonstrationSeen = sailed = false;
         jumpLandings=practiceRest=watchedTicks=0;
         crawlDistance = 0;
         careTicks = taskTicks = 0;
@@ -177,6 +179,18 @@ public final class ChildhoodLife {
 
     /** Wandering and lessons are deferred until the same safe early movement boundary. */
     public boolean canLearn() { return canExercise(); }
+
+    /** It sails its own hat: an adult does, a young once its first voyage came back (AQUATIC 初航; the own-hat ways out of the
+     *  water need it). */
+    public boolean canSail() { return sailed || entity.family().adult(); }
+
+    /** Its first voyage came back: from now on it sails. */
+    public void learnSailing(String how) {
+        if (sailed) return;
+        sailed = true;
+        GameplayLog.event(entity, "childhood", "sailing learned how={} scale={}", how, entity.family().scale());
+        entity.setPersistenceRequired();
+    }
 
     /**
      * A JUVENILE becomes a capable subadult without changing the persisted stage enum. Adults stay
@@ -474,6 +488,7 @@ public final class ChildhoodLife {
         tag.putBoolean("Crawled", crawled);
         tag.putBoolean("Jumped", jumped);
         tag.putBoolean("DemonstrationSeen", demonstrationSeen);
+        tag.putBoolean("Sailed", sailed);
         tag.putInt("JumpLandings",jumpLandings);tag.putInt("PracticeRest",practiceRest);
         tag.putDouble("CrawlDistance", crawlDistance);
         return tag;
@@ -483,6 +498,7 @@ public final class ChildhoodLife {
     public void load(CompoundTag tag) {
         stop();
         lastPosition = null;
+        sailed = tag.getBoolean("Sailed");
         if (!tag.contains("Version")) {
             newborn = false;
             landed = firstMealDone = firstToiletDone = crawled = jumped = true;
