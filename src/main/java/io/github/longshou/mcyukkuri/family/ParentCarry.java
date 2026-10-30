@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -66,14 +67,17 @@ public final class ParentCarry {
         /** What reaches the child for this hold: the braid for the brim and the braid tip, the mouth's rule for the rest. */
         public Reach reach() { return this == BRIM || this == BRAID ? Reach.BRAID : Reach.MOUTH; }
         public boolean tail() { return this == TAIL_LEFT || this == TAIL_RIGHT; }
-        /** A brim or tail child is lowered to the ground before it is let go; mouth and braid let go where it hangs. */
-        public boolean lowered() { return this == BRIM || tail(); }
+        /** A brim, braid-tip or tail child is set down before it is let go (a braid-tip one is already on the ground: the
+         *  braid only opens); a mouth lets go where it hangs. */
+        public boolean lowered() { return this != MOUTH; }
         public String key() { return name().toLowerCase(Locale.ROOT); }
     }
     /**
      * The one record of how each carried child is held, keyed by child UUID: {@code H} the hold, {@code X}/{@code Z} its spot
-     * on the brim, {@code D} the tick its set-down began (with the reason {@code R} and re-lift pause {@code P}), and for a
-     * Grab's target still being lifted its entity id {@code I} and low lean {@code L}. Synced, and saved with the family.
+     * on the brim (a braid-tip child's set-down beside the carrier), {@code D} the tick its set-down began (with the reason
+     * {@code R} and re-lift pause {@code P}), and for a Grab's target still being lifted its entity id {@code I} and low lean
+     * {@code L}; a braid-tip child's way out ({@link #braided}) adds {@code T}, {@code PX}/{@code PY}/{@code PZ} and {@code PH}.
+     * Synced, and saved with the family.
      */
     public static final SyncSlot<CompoundTag> HOLDS = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     /** Pause before the same child is picked up again after an interruption; feeding gets longer. */
@@ -212,6 +216,8 @@ public final class ParentCarry {
         var clip = ClipMarkers.of(Grab.BRAID_LIFT);
         return Math.max(1, clip.ticks("release", 46) - clip.ticks("place", 38));
     }
+    /** The tick a lowered child's set-down began, or -1 when it is not being set down. */
+    public static long setDownTick(YukkuriView carrier, YukkuriView child) { var e = entry(carrier, child.getUUID()); return e.contains("D") ? e.getLong("D") : -1; }
     /** How far a lowered child has come down (0 seated .. 1 on the ground), or -1 when it is not being set down. */
     public static float lowering(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
@@ -234,6 +240,16 @@ public final class ParentCarry {
         var base = carrier.level().isClientSide ? carrier.getPosition(partial) : carrier.position();
         return base.add(model.x, model.y, model.z);
     }
+    /** The same with the carrier turned to {@code yaw} (server, the point left unchanged). */
+    private static Vec3 worldAt(YukkuriEntity carrier, float yaw, Vector3f model) {
+        var at = new Vector3f(model).mul((float) size(carrier) / 16).rotateY((180 - yaw) * Mth.DEG_TO_RAD);
+        return carrier.position().add(at.x, at.y, at.z);
+    }
+    /** A world point in the carrier's model units with it turned to {@code yaw}. */
+    private static Vector3f modelAt(YukkuriEntity carrier, float yaw, Vec3 world) {
+        var d = world.subtract(carrier.position());
+        return new Vector3f((float) d.x, (float) d.y, (float) d.z).rotateY(-(180 - yaw) * Mth.DEG_TO_RAD).mul(16 / (float) size(carrier));
+    }
 
     /** Feet of the carried child before any collision adjustment, by its hold; a child being set down on its way to the ground. */
     public static Vec3 rawSeat(YukkuriView carrier, YukkuriView child, float partial) {
@@ -242,10 +258,10 @@ public final class ParentCarry {
         switch (hold) {
             case BRIM -> {
                 var seat = brimSeat(carrier, child);
-                model = seat == null ? ground(carrier, hold) : hatPose(carrier, partial).transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
+                model = seat == null ? ground(carrier, child, hold) : hatPose(carrier, partial).transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
             }
             case TAIL_LEFT, TAIL_RIGHT -> model = tail(carrier, hold);
-            case BRAID -> { var tip = ContactGeometry.braidTipModel(); model = new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z); }
+            case BRAID -> model = braidWay(carrier, entry(carrier, child.getUUID()), partial);
             default -> {
                 // Feet under the lane's grip at rest: the client hangs the child from the live lip (ParentCarryPresentation).
                 var lane = mouthLane(carrier, child);
@@ -257,16 +273,121 @@ public final class ParentCarry {
             }
         }
         float down = lowering(carrier, child, partial);
-        if (down >= 0) model.lerp(ground(carrier, hold), ease(down));
+        if (down >= 0) model.lerp(ground(carrier, child, hold), ease(down));
         var at = world(carrier, partial, model);
         return new Vec3(at.x, pinned(carrier, child, at), at.z);
     }
-    /** Where a lowered child is let go (model units): on the ground under the braid tip beside the body, or under its tail. */
-    private static Vector3f ground(YukkuriView carrier, Hold hold) {
+    /** Where a lowered child is let go (model units): on the ground under the braid tip beside the body (a braid-tip child's
+     *  own set-down), or under its tail. */
+    private static Vector3f ground(YukkuriView carrier, YukkuriView child, Hold hold) {
         if (hold.tail()) return tail(carrier, hold).mul(1, 0, 1);
-        var tip = ContactGeometry.braidTipModel();
-        return new Vector3f((float) tip.x, 0, (float) tip.z);
+        return (hold == Hold.BRAID ? setDown(entry(carrier, child.getUUID())) : restTip()).mul(1, 0, 1);
     }
+    private static Vector3f restTip() { var tip = ContactGeometry.braidTipModel(); return new Vector3f((float) tip.x, (float) MOUTH_FLOOR, (float) tip.z); }
+    private static Vector3f setDown(CompoundTag e) { return e.contains("X") ? new Vector3f(e.getFloat("X"), (float) MOUTH_FLOOR, e.getFloat("Z")) : restTip(); }
+
+    // ---- the braid tip: the least turn, a set-down clear of the host and of the body, and the way there
+
+    /** Degrees of one step of the least braid turn; share of the braid's length the set-down search keeps for the scruff's offset. */
+    private static final float TURN_STEP = 5, REACH_KEEP = .95f;
+    /**
+     * The yaw a Grab turns the carrier to before its braid reaches for {@code child}: from where it faces toward the bearing that
+     * puts the braid side on the child, the least turn at which the real braid root (upright, or in the low lean) reaches it and,
+     * when the child is lifted off a host, a set-down beside the carrier clears that host ({@link #braidSeat}); else the least
+     * turn with the reach; else that full bearing. The carrier turns only as much as the braid needs, and never turns away after.
+     */
+    public static float braidTurn(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
+        float from = carrier.getYRot(), span = Mth.wrapDegrees(ContactGeometry.braidYaw(carrier, child) - from), reach = Float.NaN;
+        boolean onHost = Attach.of(child) instanceof AttachState.OnHost;
+        for (float turn = 0; ; turn = Math.min(Math.abs(span), turn + TURN_STEP)) {
+            float yaw = from + Math.copySign(turn, span);
+            if (ContactGeometry.braidGap(carrier, yaw, child, lean) <= 0) {
+                if (!onHost || braidSeat(carrier, child, yaw, lean) != null) return yaw;
+                if (Float.isNaN(reach)) reach = yaw;
+            }
+            if (turn >= Math.abs(span)) return Float.isNaN(reach) ? from + span : reach;
+        }
+    }
+    /**
+     * Where the braid sets a held child down with the carrier turned to {@code yaw} (carrier model units, feet at MOUTH_FLOOR),
+     * or null: of the rest tip and points round the braid root within the braid's reach at the child's scruff, the one nearest the
+     * rest tip whose footprint clears the carrier's own, the brim of the hat it is lifted off (the stand rule,
+     * {@code HatGeometry.overlaps}) and every block.
+     */
+    static Vector3f braidSeat(YukkuriEntity carrier, YukkuriEntity child, float yaw, boolean lean) {
+        var root = ContactGeometry.braidRootModel(lean);
+        double s = size(carrier), lift = root.y - MOUTH_FLOOR - GRIP_Y * size(child) / s, length = ContactGeometry.braidLength() * REACH_KEEP;
+        double reach = lift < length ? Math.sqrt(length * length - lift * lift) : 0;
+        double apart = (Occupancy.foot(carrier.getBbWidth()) + Occupancy.foot(child.getBbWidth())) * 16 / s;
+        var host = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
+        var hat = host instanceof PlacedHatEntity on ? on : null;
+        var tip = restTip();
+        var out = new ArrayList<Vector3f>();
+        out.add(tip);
+        for (int ring = 1; ring <= 3; ring++) for (int k = 0; k < 24; k++) {
+            double a = k * Math.PI / 12, r = reach * ring / 3;
+            out.add(new Vector3f((float) (root.x + r * Math.cos(a)), (float) MOUTH_FLOOR, (float) (root.z + r * Math.sin(a))));
+        }
+        out.removeIf(p -> Math.hypot(p.x - root.x, p.z - root.z) > reach + 1e-4 || Math.hypot(p.x, p.z) < apart
+                || hat != null && HatGeometry.overlaps(HatGeometry.poseOf(hat), hat.unit(), worldAt(carrier, yaw, p), Occupancy.foot(child.getBbWidth())));
+        out.sort(Comparator.comparingDouble(p -> p.distanceSquared(tip)));
+        for (var p : out) if (clear(carrier, child, worldAt(carrier, yaw, p))) return p;
+        return null;
+    }
+    /**
+     * The braid has closed on {@code child} (just before it is mounted): its way out is recorded from here. It starts where the
+     * child is, rises clear of the host under the way, swings round the braid root on the side away from the body to the
+     * set-down ({@link #braidSeat}, else the rest tip) and comes down onto it, over the lift_start..place stretch of the braid clip.
+     */
+    public static void braided(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
+        var e = entry(carrier, child.getUUID()).copy();
+        float yaw = carrier.getYRot();
+        var found = braidSeat(carrier, child, yaw, lean);
+        var seat = found == null ? restTip() : found;
+        var from = modelAt(carrier, yaw, child.position());
+        e.putFloat("X", seat.x); e.putFloat("Z", seat.z);
+        e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
+        e.putLong("T", carrier.level().getGameTime());
+        // High enough to pass over the host on the whole way, lifted a child's height above it (clearly up over the brim).
+        var host = carryHost(carrier, child);
+        float high = Math.max(from.y, seat.y);
+        for (int i = 0; host != null && i <= 8; i++) {
+            double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, yaw, swing(e, i / 8f, high)).add(0, 1, 0));
+            if (top > carrier.getY()) high = Math.max(high, (float) ((top - carrier.getY()) * 16 / size(carrier)));
+        }
+        e.putFloat("PH", high + (float) (child.getBbHeight() * 16 / size(carrier)));
+        write(carrier, child.getUUID(), e);
+        GameplayLog.event(carrier, "family", "braid way child={} from={} setDown={} clear={} high={}", child.getUUID(), GameplayLog.at(child.position()),
+                GameplayLog.at(worldAt(carrier, yaw, seat)), found != null, String.format(Locale.ROOT, "%.2f", high));
+    }
+    /** A braid-tip child's place (carrier model units) on its way out ({@link #braided}), then at its set-down. */
+    private static Vector3f braidWay(YukkuriView carrier, CompoundTag e, float partial) {
+        var seat = setDown(e);
+        if (!e.contains("T")) return seat;
+        var clip = ClipMarkers.of(Grab.BRAID_LIFT);
+        int start = clip.ticks("lift_start", 21), up = Math.max(1, clip.ticks("lift_end", 30) - start), over = Math.max(1, clip.ticks("place", 38) - start - up);
+        float t = carrier.level().getGameTime() - e.getLong("T") + partial, high = e.getFloat("PH");
+        if (t >= up + over) return seat;
+        if (t < up) return new Vector3f(e.getFloat("PX"), Mth.lerp(ease(t / up), e.getFloat("PY"), high), e.getFloat("PZ"));
+        float u = (t - up) / over;
+        var at = swing(e, ease(u / .7f), high);
+        at.y = Mth.lerp(ease((u - .6f) / .4f), high, seat.y);
+        return at;
+    }
+    /** A point of the swing from above the pickup to above the set-down (share {@code q}): round the braid root, the way that keeps
+     *  off the body, its distance from the root eased between the two ends, at {@code high}. */
+    private static Vector3f swing(CompoundTag e, float q, float high) {
+        var root = ContactGeometry.braidRootModel(e.getBoolean("L"));
+        float fx = e.getFloat("PX") - (float) root.x, fz = e.getFloat("PZ") - (float) root.z, tx = e.getFloat("X") - (float) root.x, tz = e.getFloat("Z") - (float) root.z;
+        float a = (float) Math.atan2(fz, fx), turn = Mth.wrapDegrees((float) Math.toDegrees(Math.atan2(tz, tx) - a)) * Mth.DEG_TO_RAD;
+        float r0 = Mth.sqrt(fx * fx + fz * fz), r1 = Mth.sqrt(tx * tx + tz * tz), mid = (r0 + r1) / 2;
+        // The other way round when the short way's middle passes nearer the body (the root sits at its side).
+        float other = turn - Math.copySign(Mth.TWO_PI, turn);
+        if (offBody(root, a + other / 2, mid) > offBody(root, a + turn / 2, mid)) turn = other;
+        float angle = a + turn * q, r = Mth.lerp(q, r0, r1);
+        return new Vector3f((float) root.x + r * Mth.cos(angle), high, (float) root.z + r * Mth.sin(angle));
+    }
+    private static double offBody(Vec3 root, float angle, float r) { return Math.hypot(root.x + r * Math.cos(angle), root.z + r * Math.sin(angle)); }
     private static Vector3f tail(YukkuriView carrier, Hold hold) {
         var tail = TAILS.getOrDefault(carrier.assetId(), TAILS.get("chen"))[hold == Hold.TAIL_LEFT ? 0 : 1];
         return new Vector3f(tail.x(), tail.y(), tail.z());
@@ -974,13 +1095,13 @@ public final class ParentCarry {
         return true;
     }
 
-    /** Where this child would be let go: on the ground under the braid tip or the tail for a brim or tail hold, else where it hangs. */
+    /** Where this child would be let go: on the ground under the braid tip (a braid-tip child's set-down) or the tail, else where it hangs. */
     public static Vec3 letGoPoint(YukkuriEntity carrier, YukkuriEntity child) {
         var hold = hold(carrier, child);
-        return hold.lowered() ? world(carrier, 1, ground(carrier, hold)) : child.position();
+        return hold.lowered() ? world(carrier, 1, ground(carrier, child, hold)) : child.position();
     }
 
-    /** The Release action's start: a brim or tail child begins coming down with the braid or the tail (the action waits for it). */
+    /** The Release action's start: a brim or tail child begins coming down with the braid or the tail, a braid-tip one's braid opens (the action waits for it). */
     public static void lower(YukkuriEntity carrier, YukkuriEntity child) {
         var e = entry(carrier, child.getUUID());
         if (!holdOf(e).lowered() || e.contains("D")) return;

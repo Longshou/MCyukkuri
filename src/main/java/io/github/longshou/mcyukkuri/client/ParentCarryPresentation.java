@@ -103,10 +103,12 @@ final class ParentCarryPresentation {
             model.setBraidReach(modelPoint(carrier, scruff(reaching, reaching.getPosition(partial), yaw(reaching, partial)), partial),
                     ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact_closed", clip.length()))));
         } else if (carrier.isVehicle()) for (var rider : carrier.passengerViews()) {
-            // The braid holds its own child, and a brim child on its way down.
+            // The braid holds its own child all the way out and opens off it as it lets go, and lowers a brim child.
             var hold = ParentCarry.hold(carrier, rider);
-            if (hold != Hold.BRAID && (hold != Hold.BRIM || ParentCarry.lowering(carrier, rider, partial) < 0)) continue;
-            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial), 1);
+            float down = ParentCarry.lowering(carrier, rider, partial);
+            if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0)) continue;
+            model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial),
+                    hold == Hold.BRAID && down >= 0 ? 1 - ease(down) : 1);
             break;
         }
         if (action.equals(TakeProp.ID) || action.equals(PlaceProp.ID)) {
@@ -256,9 +258,10 @@ final class ParentCarryPresentation {
         feet.y = (float) (ParentCarry.pinned(carrier, child, origin.add(feet.x, feet.y, feet.z)) - origin.y);
         // Taken up: from where the child stood. Off a host it first rises clear of the brim, crosses above it and comes down to
         // the seat; otherwise the mouth draws it in along the ground and then lifts it to the lips, a brim child is swung round
-        // the brim edge and down onto its spot, and a tail or braid child is scooped up in a small arc.
+        // the brim edge and down onto its spot, and a tail child is scooped up in a small arc.
+        // A braid-tip child already follows the braid's own way out (ParentCarry.rawSeat), the same on the server.
         float q = (now - me.boardAt) / LIFT_TICKS;
-        if (q < 1 && me.liftFrom != null) {
+        if (q < 1 && me.liftFrom != null && hold != Hold.BRAID) {
             var from = me.liftFrom.subtract(origin);
             var start = new Vector3f((float) from.x, (float) from.y, (float) from.z);
             float over = over(ParentCarry.carryHost(carrier, child), child, origin, start, feet);

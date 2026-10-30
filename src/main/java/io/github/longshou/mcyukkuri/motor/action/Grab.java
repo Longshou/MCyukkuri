@@ -21,12 +21,19 @@ import java.util.Comparator;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
-/** Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach gets it, then seats it as a real passenger. */
+/**
+ * Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach
+ * gets it, then seats it as a real passenger. The carrier first turns at its turn rate only as far as the hold needs (the mouth
+ * to the target, the braid side by {@code ParentCarry.braidTurn}). A braid-tip child is mounted once the braid has closed on it
+ * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it, swings it aside and sets it down beside
+ * the carrier ({@code ParentCarry.braided}); the carrier never turns away with it.
+ */
 public final class Grab implements Action {
     public static final String ID = "grab";
     /** The mouth lift (ticks): the parent stands over the child and closes on it. */
     public static final int LIFT_TICKS = 14;
-    /** The braid's clips: it reaches, curls round the child and lifts it by {@code lift_end}; the low lean reaches lower and farther. */
+    /** The braid's clips: it reaches, closes on the child by {@code lift_start}, lifts it by {@code lift_end} and sets it down by
+     *  {@code place}; the low lean reaches lower and farther. */
     public static final String BRAID_LIFT = "braid_cradle_lift", BRAID_LEAN = "braid_reach_low";
     /** How far the target may drift during the lift before the grab gives up (blocks). */
     private static final double DRIFT = .3;
@@ -34,12 +41,15 @@ public final class Grab implements Action {
     private final YukkuriEntity target;
     private Hold hold = Hold.MOUTH;
     private boolean lean;
+    /** The yaw the carrier turns to before the lift (the last {@link #check}'s). */
+    private float facing;
     private double gap;
     private Face turn;
     private Vec3 at;
     /** A lift out of the water (a rescue): a target in the water is taken; any other grab ends when the target is in the water. */
     private final boolean outOfWater;
-    private int ticks, lift;
+    private int ticks, lift, way, held;
+    private boolean mounted;
     private long startTick;
 
     public Grab(YukkuriEntity target) { this(target, false); }
@@ -80,10 +90,10 @@ public final class Grab implements Action {
         // The hold that reaches first, in the carrier's order (a hatless Marisa's mouth before her braid tip).
         for (var candidate : holds) {
             if (candidate.reach() == Reach.MOUTH) {
-                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(candidate, false, mouthGap);
+                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(carrier, candidate, false, mouthGap);
                 shortfall = Math.min(shortfall, Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN));
             } else {
-                if (Math.min(upright, low) <= 0) return chosen(candidate, upright > 0, Math.min(upright, low));
+                if (Math.min(upright, low) <= 0) return chosen(carrier, candidate, upright > 0, Math.min(upright, low));
                 shortfall = Math.min(shortfall, Math.min(upright, low));
             }
         }
@@ -91,37 +101,49 @@ public final class Grab implements Action {
                 String.format(Locale.ROOT, "holds=%s mouth_gap=%.2f braid_gap=%.2f", holds, mouthGap, Math.min(upright, low)));
     }
 
-    private Feasibility chosen(Hold hold, boolean lean, double gap) {
+    private Feasibility chosen(YukkuriEntity carrier, Hold hold, boolean lean, double gap) {
         this.hold = hold;
         this.lean = lean;
         this.gap = gap;
-        lift = hold.reach() == Reach.BRAID ? ClipMarkers.of(BRAID_LIFT).ticks("lift_end", LIFT_TICKS) : LIFT_TICKS;
+        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
+                : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
+        var clip = ClipMarkers.of(BRAID_LIFT);
+        boolean tip = hold == Hold.BRAID;
+        lift = hold.reach() != Reach.BRAID ? LIFT_TICKS : clip.ticks(tip ? "lift_start" : "lift_end", LIFT_TICKS);
+        way = tip ? Math.max(0, clip.ticks("place", lift) - lift) : 0;
         return Feasibility.pass();
     }
 
     @Override public void start(YukkuriEntity carrier) {
         at = target.position();
-        ticks = 0;
+        ticks = held = 0;
+        mounted = false;
         startTick = carrier.level().getGameTime();
-        turn = hold.reach() == Reach.BRAID ? new Face(ContactGeometry.braidYaw(carrier, target)) : null;
-        if (turn != null) { turn.check(carrier); turn.start(carrier); }
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean);
+        turn = new Face(facing);
+        turn.check(carrier);
+        turn.start(carrier);
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
+        // Held, a braid-tip child is on its way out with the braid: the Grab ends once it is set down beside the carrier.
+        if (mounted) return target.getVehicle() != carrier ? Outcome.of(Reason.DROPPED, 0, "let_go")
+                : ++held < way ? new Running(way - held, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
         double moved = target.position().distanceTo(at);
         if (moved > DRIFT) return Outcome.of(Reason.TARGET_MOVED, moved, String.format(Locale.ROOT, "moved=%.2f", moved));
         ticks++;
-        // The braid side turns to the target while the braid reaches out; the lift ends once both are done.
-        double angle = turn != null && turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
-        if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle, TravelMode.CONSUMED);
+        // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
+        double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
+        if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
         if (!outOfWater && target.isInWaterOrBubble() || target.operations().active())
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
+        if (way > 0) ParentCarry.braided(carrier, target, lean);
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
-        return new Outcome.Done("mounted target=" + target.getUUID());
+        mounted = true;
+        return way > 0 ? new Running(way, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
     }
 
     @Override public MotionPose pose() {
@@ -129,8 +151,8 @@ public final class Grab implements Action {
     }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
-                hold.key(), gap, lean, lift, target.getUUID());
+        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d way=%d turn=%.1f target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
+                hold.key(), gap, lean, lift, way, facing, target.getUUID());
     }
 
     @Override public String endDetail(Outcome outcome) { return "reach=" + hold.reach().name().toLowerCase(Locale.ROOT) + " hold=" + hold.key(); }

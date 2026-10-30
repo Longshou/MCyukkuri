@@ -3,6 +3,9 @@ package io.github.longshou.mcyukkuri.motor.action;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
@@ -15,7 +18,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Put a carried body down: a child is first lowered with the braid or the tail ({@code ParentCarry.lower}), then the dismount keeps the measured feet and hands the rest to physics. */
+/** Put a carried body down: a child is first lowered with the braid or the tail ({@code ParentCarry.lower}; a braid-tip child, already on the ground, is let go as the braid opens), then the dismount keeps the measured feet and hands the rest to physics. */
 public final class Release implements Action {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
@@ -55,6 +58,13 @@ public final class Release implements Action {
         if (down >= 0 && down < 1) return new Running(1 - down, TravelMode.CONSUMED);
         let(carrier, child, "release");
         return new Outcome.Done("released");
+    }
+
+    /** A child set down with the braid plays the braid clip's own set-down (place to release): the braid lowers it, opens and comes back. */
+    @Override public MotionPose pose() {
+        long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
+        return since < 0 || ParentCarry.hold(carrier, child).reach() != Reach.BRAID ? MotionPose.NONE
+                : new MotionPose(Grab.BRAID_LIFT, since - ClipMarkers.of(Grab.BRAID_LIFT).ticks("place", 38), false);
     }
 
     /** A child on its way down with the braid or the tail is not put back: the lowering runs to the ground. */

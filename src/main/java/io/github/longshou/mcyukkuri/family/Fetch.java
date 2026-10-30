@@ -12,7 +12,6 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
@@ -25,9 +24,10 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * One dependent young off a host and down to supported ground outside the host's brim: walk to a stand outside the brim on
- * its side, grab it (the braid first: it comes up over the brim), turn away from the host so it hangs clear of the brim and
- * release it there. Never puts it back into the hat, never moves it to a landing spot, and a refused step ends the method with
- * its reason so the runner picks the other method.
+ * its side, grab it (the braid first: the carrier turns only as far as the braid needs, the braid lifts the young over the brim
+ * and swings it aside onto the ground beside the carrier, clear of the brim) and release it there. The carrier never turns away
+ * with it; never puts it back into the hat, never moves it to a landing spot, and a refused step ends the method with its
+ * reason so the runner picks the other method.
  */
 public final class Fetch implements HostIntent {
     /** One young; the parent intent's own deadline bounds the whole unload. */
@@ -123,25 +123,22 @@ public final class Fetch implements HostIntent {
         }
 
         @Override public Step next() {
-            if (state == 0 && held()) state = 3;
+            if (state == 0 && held()) state = 2;
             return carry(state++, stand);
         }
     }
 
-    /** The five steps of one carry-out: walk to the stand, face the young, grab it, turn away from the host, release it. */
+    /** The three steps of one carry-out: walk to the stand, grab it (the turn, the lift and the set-down beside the taker are
+     *  the Grab's), release it. */
     private Step carry(int state, Vec3 stand) {
         switch (state) {
             case 0:
                 return stand == null ? null : new Step.Do(Walk.stand(stand, STAND_SPEED));
             case 1:
-                return new Step.Do(new Face(SurfaceApproach.yaw(taker.position(), child.position())));
-            case 2:
                 return new Step.Do(new Grab(child));
-            case 3:
-                // Lifting a young out of the hat wakes it; turned away from the host it hangs clear of the brim, over the ground.
+            case 2:
+                // Lifting a young out of the hat wakes it.
                 child.life().wakeInHat();
-                return new Step.Do(new Face(SurfaceApproach.yaw(hat.position(), taker.position())));
-            case 4:
                 return new Step.Do(new Release(child));
             default:
                 return null;
@@ -173,7 +170,7 @@ public final class Fetch implements HostIntent {
 
         @Override public Step next() {
             if (state < 0) {
-                state = held() ? 3 : 0;
+                state = held() ? 2 : 0;
                 if (state == 0) {
                     markAt = child.position();
                     hatAt = hat.position();

@@ -79,9 +79,21 @@ public final class ContactGeometry {
     /** The braid tip at rest in model units (x the braid side, -z the face): where a braid-held body hangs. */
     public static Vec3 braidTipModel() { return BRAID[1]; }
 
+    /** The braid root in model units, upright or in the low lean. */
+    public static Vec3 braidRootModel(boolean lean) { return BRAID[lean ? 2 : 0]; }
+
+    /** The braid's length in model units (root to the rest tip; its two sections never stretch). */
+    public static double braidLength() { return BRAID[1].distanceTo(BRAID[0]); }
+
     /** How much farther {@code target} lies than the braid holds (blocks, 0 or less in reach): the braid swung about its root or the low lean's ({@code lean}) within its length. */
     public static double braidGap(YukkuriEntity body, Entity target, boolean lean) {
         return body == null || target == null ? Double.POSITIVE_INFINITY : braidGap(body, body.position(), target, lean, true);
+    }
+
+    /** The same with the body turned to {@code yaw}: its real braid root there, not one swung onto the target's bearing. */
+    public static double braidGap(YukkuriEntity body, float yaw, Entity target, boolean lean) {
+        return body == null || target == null || !braided(body) ? Double.POSITIVE_INFINITY
+                : gap(body, body.position().add(BRAID[lean ? 2 : 0].scale(body.growthScale() * body.getScale() / 16).yRot((float) Math.toRadians(180 - yaw))), target, true);
     }
 
     private static double braidGap(YukkuriEntity body, Vec3 at, Entity target, boolean lean, boolean sighted) {
@@ -89,7 +101,11 @@ public final class ContactGeometry {
         Vec3 model = BRAID[lean ? 2 : 0];
         double s = body.growthScale() * body.getScale() / 16, dx = target.getX() - at.x, dz = target.getZ() - at.z;
         double d = Math.max(1E-6, Math.hypot(dx, dz)), r = Math.hypot(model.x, model.z) * s;
-        Vec3 root = at.add(dx / d * r, model.y * s, dz / d * r);
+        return gap(body, at.add(dx / d * r, model.y * s, dz / d * r), target, sighted);
+    }
+
+    private static double gap(YukkuriEntity body, Vec3 root, Entity target, boolean sighted) {
+        double s = body.growthScale() * body.getScale() / 16;
         var box = target.getBoundingBox();
         Vec3 near = new Vec3(Mth.clamp(root.x, box.minX, box.maxX), Mth.clamp(root.y, box.minY, box.maxY), Mth.clamp(root.z, box.minZ, box.maxZ));
         return !sighted || sight(body, root, near) ? root.distanceTo(near) - BRAID[1].distanceTo(BRAID[0]) * s : Double.POSITIVE_INFINITY;
