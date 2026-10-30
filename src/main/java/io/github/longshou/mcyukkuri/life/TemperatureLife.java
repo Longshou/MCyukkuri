@@ -283,7 +283,7 @@ public final class TemperatureLife {
         }
         return true;
     }
-    /** A refuge is reached on a real bed only inside it (spec 7); a place without a bed keeps the off-centre tolerance. */
+    /** A refuge is reached on a real bed only inside it; a place without a bed keeps the off-centre tolerance. */
     private boolean reached(BlockPos site, Occupancy occupancy) {
         return occupancy != null ? occupancy == Occupancy.INSIDE_SUPPORTED
                 : entity.distanceToSqr(Vec3.atBottomCenterOf(site)) <= .2;

@@ -32,7 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A set-down hat on water (refactor WP4a, design 8.2), whoever owns it. It floats at the draft its load sinks it to, drifts
+ * A set-down hat on water, whoever owns it. It floats at the draft its load sinks it to, drifts
  * with the water's flow, yields to what runs into it by mass ratio and leans toward where its riders sit, springing back.
  * Only real causes (the riders' weight, a player's rocking, shoves and knocks) carry it past the angle where its brim
  * meets the water; then every rider is thrown off along the tilt by the turning hull and it floats crown up, no container.
@@ -66,7 +66,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private double rollRate, pitchRate, heelRoll, heelPitch, mass, draft;
     private int over, flip;
-    /** A righter's hold (WP5): how far back, about which axis (±1 roll, ±2 pitch), last held when, by whom and why; and a rider's
+    /** A righter's hold: how far back, about which axis (±1 roll, ±2 pitch), last held when, by whom and why; and a rider's
      *  paddle stroke for the next tick, the water velocity it drives and the yaw it turns. */
     private double rightProgress;
     private int rightAxis;
@@ -253,7 +253,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     // ---------------------------------------------------------------- turning over
     /** Past the flooding angle for good: it turns over about the axis that went furthest, toward its low side, and every rider
-     *  leaves where it stands with the velocity the turning hull gives it there (spec 5.2: thrown, then physics). */
+     *  leaves where it stands with the velocity the turning hull gives it there (thrown, then physics). */
     private void capsize(PlacedHatEntity hat, double roll, double pitch, double floodRoll, double floodPitch, double ratio, double freeboard) {
         boolean byRoll = Math.abs(roll) * Math.max(floodPitch, 1e-6) >= Math.abs(pitch) * Math.max(floodRoll, 1e-6);
         int side = (byRoll ? roll : pitch) < 0 ? -1 : 1;
@@ -281,7 +281,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         return v.length() > MAX_THROW ? v.normalize().scale(MAX_THROW) : v;
     }
 
-    // ---------------------------------------------------------------- righting and paddling (WP5)
+    // ---------------------------------------------------------------- righting and paddling
     /** A righter holds the turned-over hull {@code progress} of the way back, about the axis it lies over on; pushed all the way,
      *  or past the quarter turn, it finishes turning upright on its own ({@link #righted}). */
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
@@ -336,7 +336,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** From the synced pose only, so the client agrees: upright and its tilt barely changing (a turn over moves it fast). */
     @Override public boolean steady(PlacedHatEntity hat) { return !hat.upsideDown() && hat.tiltRate() <= UNSTEADY_RATE; }
     /** Upright and without riders its owner may take it back from the water in reach (its food falls out then); crown up it must
-     *  be righted first (WP5). */
+     *  be righted first. */
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
         return flip == 0 && !hat.upsideDown() && hat.getPassengers().isEmpty();
     }

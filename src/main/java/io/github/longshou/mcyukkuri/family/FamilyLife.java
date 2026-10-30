@@ -93,7 +93,7 @@ public final class FamilyLife {
     private final FamilyFeeding feeding;
     private final FamilySeparation separation;
     private final Courtship courtship;
-    /** The near-term birth this mother conducts (spec 11.5, saved as {@code Birth}). */
+    /** The near-term birth this mother conducts (saved as {@code Birth}). */
     private final Conductor birth;
     /** A hurt newborn's fall (bump), a parent's comfort of it, and the hat errand of an orphaned catch hat; all transient. */
     private boolean bumped;
@@ -288,7 +288,7 @@ public final class FamilyLife {
     }
     /** A Marisa father near enough to notice (hatted, or hatless only to cheer), else a hatted Marisa mother herself. */
     public static YukkuriEntity catcher(YukkuriEntity mother,FamilyData.Brood brood) { return LiveBirth.catcher(mother,brood); }
-    /** Turns toward {@code yaw} by at most the body's own turn rate (spec 8.1 / 9.4 Face); courtship's step-wise fallback. */
+    /** Turns toward {@code yaw} by at most the body's own turn rate (Face); courtship's step-wise fallback. */
     void face(float yaw){Motor.face(entity,Mth.approachDegrees(entity.getYRot(),yaw,(float)BodyAbility.of(entity).turnRate()));}
     /** The birth this mother conducts, while it runs. */
     LiveBirth liveBirth() { return birth.choreography() instanceof LiveBirth running?running:null; }
@@ -325,7 +325,7 @@ public final class FamilyLife {
                 Double.isNaN(plan.room())?"n/a":String.format(Locale.ROOT,"%.2f",plan.room()),String.format(Locale.ROOT,"%.3f",plan.nominal()),
                 String.format(Locale.ROOT,"%.2f",plan.push()),String.format(Locale.ROOT,"%.1f",plan.yaw()),plan.velocity());
     }
-    /** The body's own decision tick for its birth (from {@code travel}, spec 9.3): the drawn launch leaves once, the first real contact
+    /** The body's own decision tick for its birth (from {@code travel}): the drawn launch leaves once, the first real contact
      *  is judged (a rim roll is Gesture ROLL_IN, a ground bounce Launch), a relative hops to greet a newborn. True: the tick is the launch's. */
     public boolean birthTravel(){
         if(entity.level().isClientSide||entity.motor().current()!=null)return false;
@@ -440,7 +440,7 @@ public final class FamilyLife {
         } else if(gestation!=null&&(brood==null||brood.cancelled||brood.complete()&&brood.kind!=FamilyData.BirthKind.STEM))gestation=null;
         birth.tick();
     }
-    /** One loaded tick of gestation (the brood's own clock, spec 15: no body writes): "" when it ran, else why it waits. */
+    /** One loaded tick of gestation (the brood's own clock: no body writes): "" when it ran, else why it waits. */
     String gestate(FamilyData.Brood b,boolean sited){
         boolean stem=b.kind==FamilyData.BirthKind.STEM;
         if(stem?entity.operations().active()||entity.isPanicking()||entity.isOnFire()||entity.isInWaterOrBubble()||entity.isCommandPlaying()
@@ -495,7 +495,7 @@ public final class FamilyLife {
         if(hurt){entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);}
         else{entity.showReaction("happy","caregiver",40);BirthStaging.affection(entity);}
     }
-    /** The first real contact decides (spec 8.5): the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
+    /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {
         boolean pad=FamilyNest.cushions(entity),hat=entity.getVehicle()!=null;
         var rim=entity.isInWaterOrBubble()||pad?null:hat?Occupancy.hollow(entity):FamilyNest.rimCentre(entity);
@@ -552,7 +552,7 @@ public final class FamilyLife {
         if(age==88){entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚摔伤的孩子，随后轻舔");}
         if(age==116){entity.showReaction("open_smile","",30);BirthStaging.affection(entity);}
     }
-    /** One bounded turn toward the baby (spec 9.4 Face) from a decision tick; a running turn of these beats is left alone. */
+    /** One bounded turn toward the baby (Face) from a decision tick; a running turn of these beats is left alone. */
     private void turnTo(YukkuriEntity baby){
         float yaw=(float)(Mth.atan2(baby.getZ()-entity.getZ(),baby.getX()-entity.getX())*Mth.RAD_TO_DEG)-90;var motor=entity.motor();
         if(motor.current() instanceof Face&&motor.owner()!=null&&beats.ownerId().equals(motor.owner().ownerId())||Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))<=Face.FACE_ARRIVED)return;
@@ -611,7 +611,7 @@ public final class FamilyLife {
                 hat.getUUID(),hat.getPassengers().size(),!own,ended.intent().id(),ended.result());
         if(ended.result()!=IntentRunner.Result.DONE){choreRetry=level().getGameTime()+600;stop();}
     }
-    /** The nest bed whose real supported floor carries this body (spec 7: INSIDE_SUPPORTED), or null on bare ground. */
+    /** The nest bed whose real supported floor carries this body (INSIDE_SUPPORTED), or null on bare ground. */
     private BedContainer carryingBed(){
         if(!entity.onGround()||entity.isInWaterOrBubble())return null;
         var box=entity.getBoundingBox();

@@ -29,7 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The water a hat lives on (refactor WP6a, AQUATIC rules "沿已加载的平静水面航行，不穿岸、不走急流"): calm loaded surface cells,
+ * The water a hat lives on (AQUATIC rules "沿已加载的平静水面航行，不穿岸、不走急流"): calm loaded surface cells,
  * the route a paddled hat takes over them, the bank edges beside them (where a hat is set down from or landed at, a sheltered
  * notch to moor in), a dry stand in hop reach, and a loose stick near a body. World reads only; nothing is kept.
  */
@@ -122,7 +122,7 @@ final class Waters {
     static Vec3 leg(List<Vec3> route) { return route.get(Math.min(route.size() - 1, 2)); }
 
     /**
-     * A bank edge (refactor WP6a): a dry stand, the middle of its face toward calm water, the outward normal, and the calm cell
+     * A bank edge: a dry stand, the middle of its face toward calm water, the outward normal, and the calm cell
      * in front. {@code stand(w)} is where a body of width {@code w} stands at the edge; {@code out(d)} is {@code d} blocks out
      * over the water from the edge.
      */
@@ -157,7 +157,7 @@ final class Waters {
         return out;
     }
 
-    /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (spec 14 WP6a SetOut), or null. */
+    /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (SetOut), or null. */
     static Edge berth(YukkuriEntity body) {
         return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth()), () -> findBerth(body));
     }
@@ -187,7 +187,7 @@ final class Waters {
     }
 
     /** The bank edge nearest the hat whose calm cell in front the hat can be paddled to, not one of {@code tried}, or null (a
-     *  landing, spec WP6a ComeAshore). */
+     *  landing, ComeAshore). */
     static Edge landing(PlacedHatEntity hat, YukkuriEntity owner, Set<BlockPos> tried) {
         var from = cell(hat);
         return kept(owner.level(), key(owner.level(), "landing", from == null ? hat.blockPosition() : from, Set.copyOf(tried)),

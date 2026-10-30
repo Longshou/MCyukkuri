@@ -35,7 +35,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Out of the water by one's own means (refactor WP5, design 8.3), the ways in order: its own hat floating upright in reach (swim
+ * Out of the water by one's own means, the ways in order: its own hat floating upright in reach (swim
  * to the brim, climb in); its own hat lying capsized (swim, right it, let it settle, climb in); its own hat still worn, for a
  * species that uses its hat as a boat (set it down on the open water beside it, climb in); the nearest bank edge it can climb
  * (rise within its climb rise, an open landing, open water in front), approached head-on (swim out in front of the edge, then

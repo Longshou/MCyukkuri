@@ -25,7 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A parent's care aboard (refactor WP6b; design 8.3 照料; CHILDHOOD_LIFECYCLE 新生喂糜, 帽船采用自身的移动、口部接触条件相同): on her
+ * A parent's care aboard (照料; CHILDHOOD_LIFECYCLE 新生喂糜, 帽船采用自身的移动、口部接触条件相同): on her
  * hat afloat she walks on its surface to a young of hers that needs her and does what the care on land does, by its rules:
  * <ul>
  *   <li>{@code feed_young}: a hungry young that cannot eat by itself, her care decision accepted: she takes a stored portion with her

@@ -34,12 +34,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
- * The aquatic life's one goal (refactor WP6a, spec 14 WP6a, design C4): below the escape from water (0) and the birth roles (2),
+ * The aquatic life's one goal: below the escape from water (0) and the birth roles (2),
  * above the daily life, it runs one {@link Drive} over the desires read from this body's real state. An owner ashore wants the
  * water (a constant preference less what pulls her ashore, dusk and rain: {@code set_out}) or her hat back
  * ({@code resolve_own_hat}); afloat she wants the bank (hunger with nothing aboard or afloat to eat, no stick, wet weather, a mate,
  * young left ashore: {@code come_ashore}), a sheltered mooring at dusk or in rain ({@code moor}) or just to be out on the water
- * ({@code cruise}); hungry she eats from the hollow ({@code eat_aboard}) or fishes food up ({@code forage}, WP6b); she feeds and
+ * ({@code cruise}); hungry she eats from the hollow ({@code eat_aboard}) or fishes food up ({@code forage}); she feeds and
  * comforts her young aboard ({@code feed_young}, {@code comfort_young}), lifts a young of hers out of the water once she accepted
  * its incident ({@code rescue}, a danger desire) and sends a young over to its father's boat when hers holds far more
  * ({@code share_young}); a father paddles over to his mate's boat when she asks it ({@code come_alongside}) or when she is near
@@ -168,7 +168,7 @@ final class AquaticGoal extends Goal {
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b",
                     pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep), () -> new SetOut(body, this::leftAshore)));
-            // Her hat out and no wish (or no way) to sail on it now: she wants it back (design 8.1, HEADWEAR).
+            // Her hat out and no wish (or no way) to sail on it now: she wants it back (HEADWEAR).
             if (hat != null && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
@@ -208,7 +208,7 @@ final class AquaticGoal extends Goal {
         return y.life().canEat() ? Math.max(0, num("eat_from", 70) - y.life().nutrition()) * num("eat_slope", 3) : 0;
     }
 
-    /** Her decided help: a young of hers in the water whose incident she accepted (one decision each, spec 11.3; a rescue under way
+    /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
      *  keeps its desire), and her mate's ask to paddle over that she accepted. */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
@@ -291,7 +291,7 @@ final class AquaticGoal extends Goal {
         return AquaticLife.afloat(his) && AquaticLife.aboard(mate, his) && his.distanceTo(body) <= AquaticLife.FAMILY_RANGE ? mate : null;
     }
 
-    /** Her hat holds far more of their young that cannot hop than his: the one nearest his hat goes over (design 7). */
+    /** Her hat holds far more of their young that cannot hop than his: the one nearest his hat goes over. */
     private void share(List<Desire> out, PlacedHatEntity hat, List<YukkuriEntity> young, Object at) {
         var mate = mateAfloat();
         var his = mate == null ? null : AquaticLife.hat(mate);

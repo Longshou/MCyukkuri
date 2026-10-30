@@ -577,7 +577,7 @@ public final class YukkuriLife {
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
             targetBlock = penned ? null : homeStand();
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
-            // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first (spec 7).
+            // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first.
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);
             if (targetBlock != null && (entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) > .16 || !restable(entity.blockPosition())
                     || nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED)) { task = Task.HOME; pursuitTicks = 0; return true; }
@@ -752,7 +752,7 @@ public final class YukkuriLife {
                 if(level().isRainingAt(entity.blockPosition())){doses.clearDrugSleep();stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
                 if(drugSleep()>0){doses.tickDrugSleep();sleepTicks=Math.min(sleepTicks,600);}
-                // A nest admits only a whole footprint inside it: rolling or being pushed onto the rim ends the sleep (spec 7).
+                // A nest admits only a whole footprint inside it: rolling or being pushed onto the rim ends the sleep.
                 // Sampled once a second, not every tick, so a sleeping body costs no geometry work per tick.
                 var site = targetBlock != null ? targetBlock : entity.blockPosition();
                 var nestOccupancy = sleepTicks % 20 == 0 ? FamilyNest.bedOccupancy(entity, site) : null;

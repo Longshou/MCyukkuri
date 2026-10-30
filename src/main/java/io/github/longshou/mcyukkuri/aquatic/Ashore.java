@@ -31,13 +31,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Off the water with her hat (refactor WP6a), in two forms that share one way:
+ * Off the water with her hat, in two forms that share one way:
  * <ul>
- *   <li>{@code come_ashore} (design 8.3 上岸; HARD): from aboard, paddle over calm water to a bank edge (no stick: drift until a bank
+ *   <li>{@code come_ashore} (上岸; HARD): from aboard, paddle over calm water to a bank edge (no stick: drift until a bank
  *       is in hop reach), carry each young that cannot hop off in her mouth and hop ashore with it, hop ashore herself (a young
  *       that hops follows by its own {@code follow_ashore}), and take the empty hat back ({@code TakeProp}, {@code hat_on_self_aq}).
  *       Done once she stands ashore wearing it.</li>
- *   <li>{@code resolve_own_hat} (design 8.1, HEADWEAR; SOFT): her hat out in a form she did not choose (left afloat, turned over,
+ *   <li>{@code resolve_own_hat} (HEADWEAR; SOFT): her hat out in a form she did not choose (left afloat, turned over,
  *       beached) while she is ashore: the same unloading and taking back from the bank, righting it from the bank when it lies crown
  *       up, waiting a while for it to drift in reach; else she goes into the water after it (the escape then swims to her own hat
  *       and climbs aboard). Done once it is worn or ridden. It ends with {@code [headwear] reclaim done} or

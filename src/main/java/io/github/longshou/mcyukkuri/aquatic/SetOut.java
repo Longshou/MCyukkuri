@@ -30,7 +30,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Setting out (refactor WP6a, design 8.3 出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
+ * Setting out (出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
  * one picked up nearby) she walks to a bank edge beside calm water with room for the hull, sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
  * {@code board_parent} desire, one that cannot is carried in her mouth, hopped aboard with and put down in the hollow; she hops

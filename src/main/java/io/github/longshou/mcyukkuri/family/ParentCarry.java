@@ -46,7 +46,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * A parent carries a dependent baby over land as a real passenger, in the hold the shared Grab chose for it (spec 9.4):
+ * A parent carries a dependent baby over land as a real passenger, in the hold the shared Grab chose for it:
  * a hatted Marisa's braid lifts it onto her brim while the brim has free room, then one more goes in her mouth; Chen holds
  * one on each tail; Reimu holds several in her mouth within a volume budget; a hatless Marisa takes one in her mouth or at
  * her braid tip; everyone else one in the mouth (project design). The walk home is the shared Walk; the put-down is the
@@ -408,7 +408,7 @@ public final class ParentCarry {
         // A carrier standing on a host (her own boat) holds as on the ground; one carried or riding anything else does not.
         if (carrier.isPassenger() && !(carrier.getVehicle() instanceof SurfaceHost)) return "carrier_boarded";
         if (child.isVehicle()) return "child_carrying";
-        // A body standing on a host (the placed catch hat) is lifted straight off it (spec 5.2 OnHost -> Held).
+        // A body standing on a host (the placed catch hat) is lifted straight off it (OnHost -> Held).
         if (child.isPassenger() && child.getVehicle() != carrier && !(child.getVehicle() instanceof SurfaceHost)) return "child_boarded";
         if (carrier.livePregnancyProgress() > 0) return "pregnant";
         return null;
@@ -937,7 +937,7 @@ public final class ParentCarry {
     }
 
     /**
-     * The carry's Walk to {@code at} (spec 9.4 Carry: the shared Walk, slowed by the load). A walk that ended short of the
+     * The carry's Walk to {@code at} (Carry: the shared Walk, slowed by the load). A walk that ended short of the
      * same spot, or would not start, is tried again every ten ticks; the third such try ends the carry where the child is.
      */
     private boolean walk(Vec3 at, int taskTicks, String failure) {

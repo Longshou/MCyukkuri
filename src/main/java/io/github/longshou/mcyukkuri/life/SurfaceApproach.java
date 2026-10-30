@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
-    /** Ticks between two {@code walk.sample} detail lines (spec 13.1). */
+    /** Ticks between two {@code walk.sample} detail lines. */
     private static final int SAMPLE_TICKS = 20;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
@@ -268,7 +268,7 @@ public final class SurfaceApproach {
     }
 
     /**
-     * {@code walk.sample} (spec 13.1) for every ground approach, not only for the Walk action: the infant feeding path asks
+     * {@code walk.sample} for every ground approach, not only for the Walk action: the infant feeding path asks
      * this shared layer directly. Position, destination, navigation state, nodes left, installed target and whether the body is
      * being driven or held up, every 20 ticks with the detail switch on (E11-3).
      */

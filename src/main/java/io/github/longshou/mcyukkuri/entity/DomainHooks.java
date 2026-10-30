@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
 
 /**
- * What an add-on gives every body without the base naming it (design 4.2: a domain Goal, C4): its goals with their selector
+ * What an add-on gives every body without the base naming it (a domain Goal): its goals with their selector
  * priority, and where a body that joins the world by nature first is (a natural spawn, a generated settlement member).
  * Registered once from the registration entry. A goal factory runs inside the entity's constructor: it may keep the body and
  * bind the goal to the presentation, but must not read the variant or a component yet.

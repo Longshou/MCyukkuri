@@ -29,8 +29,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Lifting a young of hers out of the water (refactor WP6b; design 8.3 落水他救; AQUATIC 落水、救助与靠岸), the intent of a helper who
- * accepted the young's incident (spec 11.3: one decision per helper and incident, SOFT). The faller keeps working its own way out
+ * Lifting a young of hers out of the water (落水他救; AQUATIC 落水、救助与靠岸), the intent of a helper who
+ * accepted the young's incident (one decision per helper and incident, SOFT). The faller keeps working its own way out
  * until it is held; only the one who holds it moves it (a held body takes no second grab). Her ways:
  * <ul>
  *   <li>from her own hat afloat ({@code lift}): paddle near (with her stick; without one she waits for it to drift or swim near), walk

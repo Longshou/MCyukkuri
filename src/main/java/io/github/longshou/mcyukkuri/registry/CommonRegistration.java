@@ -158,10 +158,10 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, ShopPerformance::stopped);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerStoppedEvent.class, SearchBudgetEvents::stopped);
 
-        // Ability data (spec 8.2): reload before any action reads it, and let /reload swap the numbers.
+        // Ability data: reload before any action reads it, and let /reload swap the numbers.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
                 event -> event.addListener(new AbilityTable()));
-        // Desire data (spec 11.4), the same way.
+        // Desire data, the same way.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AddReloadListenerEvent.class,
                 event -> event.addListener(new DriveWeights()));
 

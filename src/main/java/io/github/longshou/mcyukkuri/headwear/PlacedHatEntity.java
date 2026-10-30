@@ -81,7 +81,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     /** What its behaviour keeps in the hollow besides riders (an add-on's stores), written by that behaviour, for drawing only. */
     private static final EntityDataAccessor<CompoundTag> CONTENTS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
-    /** The one rider table of this host: local spot and yaw per body (spec 5.1, 6). */
+    /** The one rider table of this host: local spot and yaw per body. */
     private final Riders riders = new Riders();
     /** Cached cavity of {@link #container()}; rebuilt when the hat size changes. */
     private Container container;
@@ -140,9 +140,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public HatGeometry.Role role() { return role; }
     public float previousYaw() { return yRotO; }
 
-    // ---------------------------------------------------------------- the host (SurfaceHost, spec 6)
+    // ---------------------------------------------------------------- the host (SurfaceHost)
     private static final int RIM_POINTS = 24;
-    /** How much two foot circles must overlap before they conflict (spec 6). */
+    /** How much two foot circles must overlap before they conflict. */
     private static final double ROOM_SLACK = .02;
 
     /** Blocks per hat unit (the prop's units at this hat's size). */
@@ -196,7 +196,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double height = HatGeometry.travelSupport(local.x, local.z, r / unit());
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
-    /** No other rider's footprint overlaps this one: radius half the body width plus 0.02 ({@link Occupancy#foot}), slack 0.02 (spec 6),
+    /** No other rider's footprint overlaps this one: radius half the body width plus 0.02 ({@link Occupancy#foot}), slack 0.02,
      *  over its height from the feet up (to {@code top} at least), nor what lies in the hollow; a store or a newborn low in the
      *  hollow under a body standing higher over it does not overlap it. */
     @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
@@ -283,7 +283,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         out.put("exit", new Vec3(dx * reach, HatGeometry.top(), dz * reach));
         return Map.copyOf(out);
     }
-    /** The cavity's own floor and brim heights (hat units) and, as its radius, the authored brim extent (spec 7). */
+    /** The cavity's own floor and brim heights (hat units) and, as its radius, the authored brim extent. */
     @Override public Container container() {
         if (container == null || containerUnit != unit()) {
             double radius = Math.min(HatGeometry.extent(0, 0, 1, 0, 0), HatGeometry.extent(0, 0, 0, 1, 0)) * unit();
@@ -324,13 +324,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** How far (blocks) a running unload is looked for when {@link #unloadRequested()} derives its answer. */
     private static final double UNLOAD_RANGE = 16;
     @Override public boolean unloadRequested() {
-        // Only the cradle's young are asked to leave by intent (spec 14 WP1).
+        // Only the cradle's young are asked to leave by intent.
         if (level().isClientSide) return false;
         long now = level().getGameTime();
         if (unloadTick != now) { unloadTick = now; unloadWanted = unloading(); }
         return unloadWanted;
     }
-    /** Some yukkuri this near runs a {@code HostIntent} for this hat, outer or innermost (spec 6: derived, never stored). */
+    /** Some yukkuri this near runs a {@code HostIntent} for this hat, outer or innermost (derived, never stored). */
     private boolean unloading() {
         for (var body : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(UNLOAD_RANGE))) {
             if (!(body.motor().owner() instanceof IntentRunner runner) || !runner.active()) continue;
@@ -375,7 +375,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return null;
     }
     /** The supported, free spot near {@code prefer} for a body of this foot radius and height (hat units); nothing is kept
-     *  (spec 5.1: no second store). */
+     *  (no second store). */
     private Vec3 nestPlace(double footRadius, double tall, Vec3 prefer) {
         if (prefer == null) return null;
         if (support(prefer, footRadius * unit()).isEmpty()) return null;
@@ -463,7 +463,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         if (level().isClientSide || !(passenger instanceof YukkuriEntity y)) return;
-        // The riders table is the only place a body has aboard (spec 5.1); a spot loaded from NBT is kept as saved.
+        // The riders table is the only place a body has aboard; a spot loaded from NBT is kept as saved.
         // A spot already in the table is a rider read back from the save, not one that just boarded.
         boolean boarded = !riders.contains(y.getUUID());
         if (boarded)

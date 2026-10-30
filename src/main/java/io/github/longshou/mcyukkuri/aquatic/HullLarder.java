@@ -26,11 +26,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The food a floating hat holds (design 8.2, refactor WP4b). Every portion is one real item lying on its own floor circle in
+ * The food a floating hat holds. Every portion is one real item lying on its own floor circle in
  * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot at
  * its height may share its floor (a body standing higher over the hollow may stand over it), and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
  * and drawn from the hat's synced contents. A body aboard takes a portion with its mouth ({@link #portion}, the shared Pick):
- * to eat it, to feed it to a young, or to tip it overboard for room (refactor WP6b).
+ * to eat it, to feed it to a young, or to tip it overboard for room.
  */
 public final class HullLarder {
     private static final JsonObject DATA = HatGeometry.data().getAsJsonObject("afloat");

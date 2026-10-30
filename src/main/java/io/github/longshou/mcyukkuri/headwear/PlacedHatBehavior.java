@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * How a set-down hat behaves where it lies (refactor WP4a). Each tick the hat runs the behaviour of the first registered
+ * How a set-down hat behaves where it lies. Each tick the hat runs the behaviour of the first registered
  * {@link Provider} that applies to it, otherwise {@link #LAND}. A behaviour moves only the hat and writes its pose through
  * {@link PlacedHatEntity#pose}; the base never names who registered it (an add-on does, through the registration entry).
  * Each hat keeps one instance per provider, so its motion state survives a change of behaviour and a reload.
@@ -37,7 +37,7 @@ public interface PlacedHatBehavior {
     /** What lies on the hollow's floor besides riders, as circles (hat units) no foot may overlap; they never move. */
     default List<Disc> obstacles(PlacedHatEntity hat) { return List.of(); }
 
-    /** What it carries besides riders, in the ability's load units (spec 8.1 L): its riders' pace. */
+    /** What it carries besides riders, in the ability's load units: its riders' pace. */
     default double load(PlacedHatEntity hat) { return 0; }
 
     /** What it keeps belongs to the hat: when the hat leaves this behaviour, is taken back or is destroyed, it falls out where

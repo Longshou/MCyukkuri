@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The night (or rain) at a mooring with no rope (refactor WP6a, AQUATIC 无绳夜泊, project design): she paddles into a sheltered
+ * The night (or rain) at a mooring with no rope (AQUATIC 无绳夜泊, project design): she paddles into a sheltered
  * calm cell (a bank notch, a covered spot) and lets the bank hold the hull; her young creep into the hollow by their own
  * {@code nestle} desire while she leans over them ({@code boat_cover_young}), or she sleeps ({@code boat_sleep}). She looks up every
  * 200 ticks; drifted off the berth she wakes and paddles back in small strokes, at most twice, then sleeps adrift in the calm

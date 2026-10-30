@@ -106,7 +106,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         for(var entry:resting.entrySet())if(!entry.getKey().equals(baby.getUUID())&&!entry.getValue().equals(trial.get(entry.getKey())))return null;
         return centre().add(place.x(),0,place.z());
     }
-    /** A place is supported only where that body's whole footprint would stand inside the bed (spec 7), not merely on a top. */
+    /** A place is supported only where that body's whole footprint would stand inside the bed, not merely on a top. */
     private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
         return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }

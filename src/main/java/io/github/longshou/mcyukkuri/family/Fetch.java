@@ -24,7 +24,7 @@ import java.util.Set;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * One dependent young off a host and down to supported ground outside the host's brim (spec 14 WP1 step 7): walk to the
+ * One dependent young off a host and down to supported ground outside the host's brim: walk to the
  * stand beside it, grab it, carry it out and release it there. Never puts it back into the hat, never moves it to a
  * landing spot, and a refused {@code Release} ends the method with that reason so the runner picks the other method.
  */
@@ -35,7 +35,7 @@ public final class Fetch implements HostIntent {
     private static final double STAND_SPEED = 1.1;
     /** How far the young (or its host) has to move before "let it come to the edge first" counts as satisfied. */
     private static final double MOVED = .25;
-    /** The spec 11.2 signature quantises a host to 0.5 blocks; the wait watches the same fact. */
+    /** The signature quantises a host to 0.5 blocks; the wait watches the same fact. */
     private static final double HOST_MOVED = .5;
     /** Longest single wait for the young to move closer, and it is the only wait in the intent. */
     static final int RETRY_WAIT_TICKS = 200;
@@ -72,7 +72,7 @@ public final class Fetch implements HostIntent {
     /**
      * The intent ended without the young down — stopped by its parent, interrupted, out of time or out of attempts — while
      * the taker still carries it. Left alone it would ride on into the next beat and end up on the hat as it goes back on
-     * a head, so it is set down where it actually stands, through the shared motor path (spec 5.2 "搬运被打断").
+     * a head, so it is set down where it actually stands, through the shared motor path ("搬运被打断").
      */
     @Override public void ended(IntentRunner.Result result) {
         if (result == IntentRunner.Result.DONE || !held()) return;
@@ -86,7 +86,7 @@ public final class Fetch implements HostIntent {
         return List.of(new GrabCarryRelease(), new WaitThenRetry());
     }
 
-    /** Where the taker stands to reach the young: the same stand rule the family pickup uses (spec 9.4 Grab). */
+    /** Where the taker stands to reach the young: the same stand rule the family pickup uses (Grab). */
     private Vec3 stand() {
         return SurfaceApproach.beside(taker, child, (taker.getBbWidth() + child.getBbWidth()) * .5 + .15, 1.2);
     }

@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 /**
- * One way to an aquatic intent whose steps are read off the world (refactor WP6a): when its queue is empty it asks
+ * One way to an aquatic intent whose steps are read off the world: when its queue is empty it asks
  * {@code derive} for the next short run of steps (walk to the stand, face, grab ...), each built only when it is due so it
  * aims at where things are then; a step builder that answers null is not needed now and is skipped. {@code derive} answering
  * null or nothing is "no way on" ({@code NO_PROGRESS}); a step that ends blocked fails the way, and the runner counts it.

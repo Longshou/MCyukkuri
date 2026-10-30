@@ -24,7 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The aquatic life on the water (refactor WP6a, design 8.3): registers the one aquatic goal and the natural-spawn hook with the
+ * The aquatic life on the water: registers the one aquatic goal and the natural-spawn hook with the
  * base, and holds the reads every aquatic intent shares (her own hat afloat, aboard, her stick, her young and their parent, dusk
  * and rain). Reads only, apart from the spawn seating.
  */

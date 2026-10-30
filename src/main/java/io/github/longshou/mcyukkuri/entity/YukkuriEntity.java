@@ -126,7 +126,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private final YukkuriVariant variant;
     private final PredatorLife predator = new PredatorLife(this);
-    /** The one action driver of this body (refactor WP1, spec 9.3); a READY component, constructed before any peer is read. */
+    /** The one action driver of this body; a READY component, constructed before any peer is read. */
     private final BodyDriver motor = new BodyDriver(this);
     public BodyDriver motor() { return motor; }
 

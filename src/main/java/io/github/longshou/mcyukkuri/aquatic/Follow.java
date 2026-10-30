@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.function.Supplier;
 
 /**
- * A young going where its family's hat goes (refactor WP6a): {@code board_parent} hops from the bank into the hollow of its
+ * A young going where its family's hat goes: {@code board_parent} hops from the bank into the hollow of its
  * parent's hat (walking first to the bank edge nearest it), {@code follow_ashore} hops off it onto the nearest dry stand in
  * reach, {@code nestle} walks into the hollow at dusk or in rain, toward its parent when she is aboard (the free spot nearest her,
  * so she leans over it). Only a young that can hop boards or leaves by itself; the others

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A Marisa's own hat as the motor's {@link Prop} (spec 9.4): PlaceProp sets it down as a {@link PlacedHatEntity} and
+ * A Marisa's own hat as the motor's {@link Prop}: PlaceProp sets it down as a {@link PlacedHatEntity} and
  * TakeProp puts it back on. Every read comes from the single owners (her {@code HatCustody}, the placed hat and its riders)
  * and the two irreversible moves are {@link PlacedHatEntity#setDown} and {@link PlacedHatEntity#retrieve}; nothing is kept here.
  */

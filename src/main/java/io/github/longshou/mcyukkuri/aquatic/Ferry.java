@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions the aquatic intents put a body through to get itself, or a young it carries, on and off a hat
- * (refactor WP6a; spec 9.4 Grab, Walk, Hop, Release; the young is carried in the mouth as {@code Fetch} carries it): every target
+ * (Grab, Walk, Hop, Release; the young is carried in the mouth as {@code Fetch} carries it): every target
  * is read when its step is due. A step that cannot be done ends blocked and the intent's runner counts it; nothing here retries.
  */
 final class Ferry {

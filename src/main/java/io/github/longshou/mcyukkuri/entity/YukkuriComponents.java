@@ -107,7 +107,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<ForageTrip> FORAGE_TRIP = new ComponentKey<>("forageTrip", ForageTrip.class);
     public static final ComponentKey<CareApproach> CARE_APPROACH = new ComponentKey<>("careApproach", CareApproach.class);
     public static final ComponentKey<WinteringLife> WINTERING = new ComponentKey<>("wintering", WinteringLife.class);
-    /** The one action driver of a body (refactor WP1); never saved, interrupts stop the running action. */
+    /** The one action driver of a body; never saved, interrupts stop the running action. */
     public static final ComponentKey<BodyDriver> MOTOR = new ComponentKey<>("motor", BodyDriver.class);
     public static final ComponentKey<ShellRetraction> SHELL_RETRACTION = new ComponentKey<>("shellRetraction", ShellRetraction.class);
     public static final ComponentKey<LeafSwaddle> LEAF_SWADDLE = new ComponentKey<>("leafSwaddle", LeafSwaddle.class);
@@ -311,7 +311,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 30, (c, ctx) -> c.cancelIncoming())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
-        // Body driver (refactor WP1, docs/REFACTOR_TECH_SPEC.md 9.3): no passive tick, no save; the interrupts stop the
+        // Body driver: no passive tick, no save; the interrupts stop the
         // running action and the three sync slots feed YukkuriView.motorAction/motorStart/attachKind.
         ComponentSpec.ready(MOTOR, YukkuriEntity::motor)
                 .sync(BodyDriver.MOTOR_ACTION)

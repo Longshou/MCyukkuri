@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A young sent over to its father's boat (refactor WP6b; design 7 帽船分娩: 产后把孩子送到父船，是意图，手段依次为等两船靠近、请父油划近、
+ * A young sent over to its father's boat (帽船分娩: 产后把孩子送到父船，是意图，手段依次为等两船靠近、请父油划近、
  * 叼着越船; AQUATIC 家庭、照护: 母亲嫌自己一侧明显更重时): the mother's {@code share_young} for a young of hers that cannot hop. Her ways,
  * in order: wait a while for the boats to drift together; ask him to paddle over (an ask of an incident she owns: he decides
  * once, a refusal is his); with the hulls side by side, take it in her mouth or braid, walk to her side nearest his hat, turn the
@@ -150,7 +150,7 @@ final class Share implements Intent {
     }
 
     /**
-     * Paddling his hat up beside another (refactor WP6b): {@code come_alongside} when the mother asked it and he accepted, or
+     * Paddling his hat up beside another: {@code come_alongside} when the mother asked it and he accepted, or
      * {@code attend_mate} on his own, his mate near her time on her boat (AQUATIC 有伴侣时，对方可自行划到船边陪护). Route legs over the
      * calm water to the point beside her hull, then in against it; with no stick he only drifts and waits. Done once side by side.
      */

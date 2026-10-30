@@ -562,7 +562,7 @@ public final class FamilyData extends SavedData {
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,false); }
 
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
-     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid (spec 14 WP3b). */
+     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, boolean unprotected) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;

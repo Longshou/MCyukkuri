@@ -36,7 +36,7 @@ public final class ChildhoodLife {
     private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP }
 
     private final YukkuriEntity entity;
-    /** The goal's own claim on the body: the demonstration and practice hops are real actions (spec 9.4 Launch). */
+    /** The goal's own claim on the body: the demonstration and practice hops are real actions (Launch). */
     private static final MotorOwner PRACTICE = new MotorOwner() {
         @Override public String ownerId() { return "childhood_practice"; }
         @Override public boolean active() { return true; }

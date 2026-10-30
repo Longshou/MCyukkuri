@@ -15,7 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The food in a floating hat's hollow (refactor WP4b): each synced portion drawn as a small 3D prop standing on the floor where it
+ * The food in a floating hat's hollow: each synced portion drawn as a small 3D prop standing on the floor where it
  * really is (its spot in the hat's frame), as wide as its floor circle and with its own height, turned a little each so a heap
  * reads as separate pieces: a crumb for food scraps, a pouch for the grain pouches, a small forage heap for any other food.
  * Never on the brim, since the server only puts portions in the hollow. It reads the hat's synced contents and nothing of the server.

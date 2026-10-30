@@ -19,12 +19,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The catch hat's cleanup as one intent (spec 14 WP1 step 7, E11-1): every young this taker must unload leaves the hat,
+ * The catch hat's cleanup as one intent (E11-1): every young this taker must unload leaves the hat,
  * then the empty hat is taken back by the caller. Run by the taker's existing FETCH_HAT duty.
  *
- * <p>Satisfaction is the vehicle fact (spec 5.1): no live rider of this hat is left that this taker must unload, and the
+ * <p>Satisfaction is the vehicle fact: no live rider of this hat is left that this taker must unload, and the
  * taker holds no young either — a young grabbed out of the hat leaves the rider list while it is still in the taker's
- * mouth, so the hold is the second half of the same fact (spec 5.2: {@code Held → Free} only by {@code Release}). A
+ * mouth, so the hold is the second half of the same fact ({@code Held → Free} only by {@code Release}). A
  * capable young is expected to hop off by itself ({@link GetTo}, triggered by the host's derived
  * {@code unloadRequested()}); a dependent one is fetched by {@link Fetch}, which carries it to supported ground outside
  * the brim.
@@ -122,7 +122,7 @@ public final class Unload implements HostIntent {
         @Override public Set<Reason> reduces() { return Set.of(Reason.NO_CONTACT, Reason.NO_PROGRESS); }
     }
 
-    /** Lets the capable young hop off by themselves (spec 14 WP1 step 7 point 3), then the next young. */
+    /** Lets the capable young hop off by themselves, then the next young. */
     private final class WaitForHops extends Riders {
         @Override public String id() { return "wait_child_hops"; }
 

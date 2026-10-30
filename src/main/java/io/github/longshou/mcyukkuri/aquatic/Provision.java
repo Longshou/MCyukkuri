@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Food on the water (refactor WP6b; design 8.3 补给; AQUATIC: 帽内家庭按正常进食结算，缺粮时先寻找可达漂浮食物和岸缘食源):
+ * Food on the water (补给; AQUATIC: 帽内家庭按正常进食结算，缺粮时先寻找可达漂浮食物和岸缘食源):
  * <ul>
  *   <li>{@code eat_aboard}: a hungry body riding a hat afloat walks on it within mouth reach of a stored portion it would eat, takes
  *       it with the mouth ({@code Pick} from the hat's hold) into its own meal and chews it where it stands ({@code boat_eat}). Done

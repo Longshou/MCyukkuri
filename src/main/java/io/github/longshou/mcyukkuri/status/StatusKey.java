@@ -379,8 +379,8 @@ public enum StatusKey {
         if (reason.isEmpty()) return "need a reason";
         return Sanction.request(y, reason, null) ? null : "no executor (disabled, protected, respite, or no harsh adult in sight that may take part)";
     }),
-    // ---- body driver (refactor WP1, spec 13.2) ----------------------------------------------------------------
-    /** Every ability value of spec 8.1 and the fingerprint of the ability data it was read with. */
+    // ---- body driver ------------------------------------------------------------------------------------------
+    /** Every ability value and the fingerprint of the ability data it was read with. */
     BODY_ABILITY("body", "ability", 0, y -> BodyAbility.of(y).detail(), null),
     /** Attachment derived from the vanilla vehicle relation plus the host's riders: free, airborne, on_host or held. */
     BODY_ATTACH("body", "attach", 0, y -> Attach.describe(Attach.of(y)), null),
@@ -396,7 +396,7 @@ public enum StatusKey {
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
     /** Every desire of the body's drives with its score and the facts it came from, the current intent and the failed ones. */
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
-    // ---- the set-down hat this body rides or has set down (refactor WP4a) ----------------------------------------
+    // ---- the set-down hat this body rides or has set down -----------------------------------------------------
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */
     HAT_TILT("hat", "tilt", 0, y -> hat(y, h -> String.format(Locale.ROOT, "roll=%.1f pitch=%.1f upside_down=%s steady=%s",
             h.roll(), h.pitch(), h.upsideDown(), h.steady())), null),

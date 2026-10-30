@@ -11,8 +11,8 @@ import java.util.Set;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
- * A young on a host that asks to be unloaded leaves it on its own (spec 14 WP1 step 7 point 3). The trigger is the host's
- * {@code unloadRequested()}, which is derived from the taker's running intent (spec 6); nothing is stored.
+ * A young on a host that asks to be unloaded leaves it on its own. The trigger is the host's
+ * {@code unloadRequested()}, which is derived from the taker's running intent; nothing is stored.
  *
  * <p>The whole body of the goal is one {@link GetTo} run, and the goal only releases the body once that intent has ended:
  * a young that is grabbed mid-step therefore ends its own intent DONE instead of being reported as interrupted.
@@ -37,7 +37,7 @@ public final class LeaveHostGoal extends Goal {
     }
 
     /**
-     * A run that ended without finishing keeps its world: the same signature is not started again (spec 11.2). The
+     * A run that ended without finishing keeps its world: the same signature is not started again. The
      * signature's own 200 tick bucket expires the memory, so no timer is added here.
      */
     @Override public boolean canUse() {

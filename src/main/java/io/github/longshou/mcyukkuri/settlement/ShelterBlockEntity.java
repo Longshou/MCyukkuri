@@ -71,7 +71,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if(place!=null){peers.put(entity.getUUID(),place);if(peers.entrySet().stream().anyMatch(e->!e.getValue().equals(resting.get(e.getKey())))){resting.putAll(peers);setChanged();}}
         return place!=null;
     }
-    /** A place counts only where that body's whole footprint would stand inside the bed (spec 7), not merely on a top. */
+    /** A place counts only where that body's whole footprint would stand inside the bed, not merely on a top. */
     private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
         return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());
     }

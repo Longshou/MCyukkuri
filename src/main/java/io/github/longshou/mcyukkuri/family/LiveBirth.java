@@ -38,7 +38,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The birth as one choreography (design 7, spec 14 WP3b/WP6b), conducted by the mother's {@link FamilyLife} over the last
+ * The birth as one choreography, conducted by the mother's {@link FamilyLife} over the last
  * {@value #APPROACH_LEAD} ticks of a LIVE or STEM gestation. Roles: the mother, and the catcher (a Marisa father nearby,
  * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest, the ground,
  * or the boat she rides ({@link OwnHull}: her own hat afloat, no catcher, no hat to set down or take back; the outlet turns to
@@ -56,10 +56,10 @@ final class LiveBirth extends Choreography {
     private static final double HULL_REACH=.6;
     private static final float[] TURNS={0,45,-45,90,-90,135,-135,180};
     private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
-    /** Where the newborns are meant to come down (spec 12 {@code Receiver}); a placed hat's host is set once it is down. */
+    /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Nest, Ground, OwnHull { default String kind(){return getClass().getSimpleName();} }
     record PlacedHat(UUID host) implements Receiver {}
-    /** The boat the mother rides, her own hat afloat (design 7 帽船分娩). */
+    /** The boat the mother rides, her own hat afloat (帽船分娩). */
     record OwnHull(UUID host) implements Receiver {}
     record Nest() implements Receiver {}
     record Ground() implements Receiver {}
@@ -76,7 +76,7 @@ final class LiveBirth extends Choreography {
     private record Excluded(Vec3 mother,Vec3 helper,long until){}
     private final List<Excluded> excluded=new ArrayList<>();
     private long windowEnd,cleanupEnd;
-    /** Sticky once upgraded: any clear outlet (liquid allowed), and then (forced) no outlet check at all (spec decision 3). */
+    /** Sticky once upgraded: any clear outlet (liquid allowed), and then (forced) no outlet check at all. */
     private boolean unprotected,forced;
     private int pushing,welcomed,unloads,takes;
     private Welcome welcome;
@@ -423,7 +423,7 @@ final class LiveBirth extends Choreography {
         return new GoTo("take_hat",c,at,deadline).facing(yaw).until(()->!prop.deployed()&&!(c.motor().current() instanceof TakeProp))
                 .then(()->new TakeProp(prop));
     }
-    /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear (spec 14 WP3b). */
+    /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear. */
     private final class Deliver implements Intent, Method {
         private final boolean any;
         private final long deadline;

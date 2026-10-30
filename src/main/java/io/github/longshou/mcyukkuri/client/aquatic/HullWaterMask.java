@@ -12,7 +12,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * Keeps the world's water surface out of a floating hat's dry hollow (refactor WP4a): after the entities are drawn and
+ * Keeps the world's water surface out of a floating hat's dry hollow: after the entities are drawn and
  * before the translucent water, a depth-only quad over the opening at the waterline of every upright hat afloat (the vanilla
  * boat's water mask). It reads the synced hat pose and the client's own world, nothing of the server.
  */

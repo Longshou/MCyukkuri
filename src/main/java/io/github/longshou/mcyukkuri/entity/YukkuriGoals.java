@@ -333,8 +333,8 @@ final class YukkuriGoals {
         @Override public void stop() { owner.social().stop(); }
     }
     /** In water the body works its way out through the EscapeWater intent; a run that ran out of ways before its deadline is not
-     *  started again until the world changed (spec 11.2), one that reached its deadline is at once. Out of the water it holds still
-     *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident (spec 11.3): opened
+     *  started again until the world changed, one that reached its deadline is at once. Out of the water it holds still
+     *  for the breath. The edges whose climb failed are remembered here across runs. It owns the fall's incident: opened
      *  once the plunge's impact is over and the body works its way out, so helpers near decide once each, and settled once the body
      *  is out (aboard, held, ashore). */
     private final class EscapeWaterGoal extends Goal {
@@ -408,7 +408,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.family().stop(); }
     }
     /**
-     * Both roles of a running birth (spec 14 WP3b): while the current beat casts this body, it runs the beat's intent for it with
+     * Both roles of a running birth: while the current beat casts this body, it runs the beat's intent for it with
      * its own IntentRunner and reports the end to the choreography; a role with nothing to run holds still and plays its beat.
      * Otherwise the birth-priority family duty (comforting a hurt newborn).
      */

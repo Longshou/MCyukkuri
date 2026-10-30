@@ -23,7 +23,7 @@ import java.util.Set;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A young's own way off a host that asks to be unloaded (spec 14 WP1 step 7 point 3): a capable young hops out over the
+ * A young's own way off a host that asks to be unloaded: a capable young hops out over the
  * brim, a dependent one walks to the brim on the taker's side and waits to be fetched from there.
  *
  * <p>Off the host is what this intent promises: once the young is grabbed, put down or has hopped away, the rest is the
