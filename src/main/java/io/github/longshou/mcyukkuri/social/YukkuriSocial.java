@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
 public final class YukkuriSocial {
-    private enum Task { NONE, PLAYER, PEER, TOY, TEACH, WAIT, ACCESSORY }
+    private enum Task { NONE, PLAYER, PEER, TOY, TEACH, WAIT, ACCESSORY, ANSWER }
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
     private Entity target;
@@ -44,10 +44,18 @@ public final class YukkuriSocial {
     private record ContactWait(int until, long lastInteraction) {}
     private final Map<UUID, ContactWait> contactWaits = new HashMap<>();
     private int toyContact, toyTouches;
+    /** Greeting memory (runtime only): last contact per peer, the pending morning greeting and the answer a greeted peer owes. Project design. */
+    private static final int REUNION_GAP = 6000, ANSWER_BASE = 20, ANSWER_SPREAD = 11, ANSWER_HOLD = 40, ANSWER_EXPIRY = 200;
+    private final Map<UUID, Long> lastContact = new HashMap<>();
+    private boolean wasSleeping, morningPending;
+    private long morningDay = -1, answerUntil;
+    private String greetWhy, answerWhy;
+    private boolean answerScorn;
+    private int answerDelay;
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
     private YukkuriPersonality personality() { return entity.life().personality(); }
     public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER -> Behaviors.PLAYER; case PEER -> Behaviors.PEER;
-            case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; }; }
+            case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; }; }
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
     public int toyTouches() { return toyTouches; }
@@ -115,7 +123,14 @@ public final class YukkuriSocial {
                 "social lesson refused player={} reason={} cooldown={}",player.getUUID(),reason,teachingWait);
     }
     public boolean canUse() {
+        if (task == Task.ANSWER && entity.level().getGameTime() > answerUntil) { stop(); return false; }
         if (task != Task.NONE) return canContinue();
+        if (entity.life().isSleeping()) wasSleeping = true;
+        else if (wasSleeping) {
+            wasSleeping = false;
+            long day = entity.level().getDayTime() / 24000L;
+            if (entity.level().isDay() && day != morningDay) { morningPending = true; morningDay = day; }
+        }
         if (!entity.childhood().canLearn()) return false;
         if(task==Task.NONE && WildEvents.reserved(entity))return false;
         if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() ||
@@ -133,6 +148,14 @@ public final class YukkuriSocial {
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }
+        if (morningPending) {
+            morningPending = false;
+            target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()
+                    && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.social().active() && Bonds.careKin(entity, peer)
+                    && entity.hasLineOfSight(peer) && !SettlementSociety.avoids(entity, peer))
+                    .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+            if (target != null) { task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = "morning"; chooseApproach(target); return true; }
+        }
         if (entity.getRandom().nextFloat() < .5f) {
             target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
@@ -147,7 +170,7 @@ public final class YukkuriSocial {
                     && (!Recognition.unrecognizedHatless(entity, peer) || entity.headwear().readyForHatlessContact(peer)))
                     .stream().sorted(Comparator.comparingInt((YukkuriEntity peer) -> personality().trust(peer.getUUID())).reversed()
                             .thenComparingDouble(entity::distanceToSqr)).findFirst().orElse(null);
-            if (target != null) { task = Task.PEER; duration = 200; elapsed = 0; greeted = false; chooseApproach(target); return true; }
+            if (target != null) { task = Task.PEER; duration = 200; elapsed = 0; greeted = false; greetWhy = null; chooseApproach(target); return true; }
         }
         target = level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(6),
                 person -> (person instanceof Player player && !player.isSpectator() || person instanceof HumanNpc)
@@ -172,6 +195,14 @@ public final class YukkuriSocial {
         if (!canContinue()) { stop(); return; }
         elapsed++;
         entity.getLookControl().setLookAt(target, 25, 25);
+        if (task == Task.ANSWER) {
+            EcologyMovement.halt(entity);
+            if (elapsed == answerDelay && target instanceof YukkuriEntity other) {
+                if (answerScorn) Contempt.react((ServerLevel) entity.level(), entity, other);
+                else { entity.showReaction("happy", "hello", 80); logGreet(other, answerWhy); }
+            }
+            return;
+        }
         if(task==Task.TOY&&target instanceof ItemEntity toy) {
             var lease=toy.getPersistentData();
             if(!Facilities.toy(toy.getItem())||!lease.hasUUID("YukkuriPlayOwner")||!lease.getUUID("YukkuriPlayOwner").equals(entity.getUUID())
@@ -260,7 +291,16 @@ public final class YukkuriSocial {
                     if (relations.affinity(entity.getUUID(),peer.getUUID()) < BondLevels.AFFINITY_NEUTRAL) {
                         entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("angry","unrecognized",60);stop();return;
                     }
-                    if (!entity.pet().reactTo(peer)) {
+                    String why = greetReason(peer, relations);
+                    if (why != null && Recognition.unrecognizedHatless(peer, entity)) peer.social().receiveGreeting(entity, true, why);
+                    else if (why != null) {
+                        entity.showReaction("happy", "hello", 80); logGreet(peer, why);
+                        peer.social().receiveGreeting(entity, false, why);
+                        relations.relate(entity.getUUID(), peer.getUUID(), 2);
+                        if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
+                            relations.relate(peer.getUUID(), entity.getUUID(), 1);
+                    }
+                    else if (!entity.pet().reactTo(peer)) {
                         entity.showReaction("happy", relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                         // A greeting is met by the other party: otherwise bonds only grow one way and mutual affinity for nuzzling stalls.
@@ -275,6 +315,30 @@ public final class YukkuriSocial {
                 } else { entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("surprise", "unrecognized", 80); }
             } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", 100); }
         }
+    }
+    /** Why this arrival is a greeting, or null: a first meeting, a return after a real separation, or the first morning contact of a kin. */
+    private String greetReason(YukkuriEntity peer, YukkuriWorldData relations) {
+        long now = entity.level().getGameTime();
+        if (lastContact.size() >= 64) lastContact.remove(lastContact.keySet().iterator().next());
+        Long last = lastContact.put(peer.getUUID(), now);
+        String why = greetWhy; greetWhy = null;
+        if ("morning".equals(why)) return last == null || last / 24000L != now / 24000L ? why : null;
+        if (last == null) return relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED ? "reunion" : "first_meet";
+        return now - last >= REUNION_GAP ? "reunion" : null;
+    }
+    private void logGreet(YukkuriEntity other, String why) {
+        GameplayLog.limited(entity, "social", "greet." + other.getUUID(), 200, "greet from={} to={} why={}", entity.getUUID(), other.getUUID(), why);
+    }
+    /** A greeted peer turns to the greeter and answers about a second later, from its own social goal; hatless greeters get scorn instead. */
+    public boolean receiveGreeting(YukkuriEntity from, boolean scorn, String why) {
+        if (task != Task.NONE || entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || entity.life().isSleeping() || entity.isPanicking()
+                || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0 || entity.isCommandPlaying() || entity.operations().active()
+                || entity.dailyLife().active() || entity.groupInteraction().active() || entity.playLife().active() || entity.family().laboring()
+                || !entity.hasLineOfSight(from)) return false;
+        task = Task.ANSWER; target = from; elapsed = 0; greeted = true; answerScorn = scorn; answerWhy = why;
+        answerDelay = ANSWER_BASE + entity.getRandom().nextInt(ANSWER_SPREAD); duration = answerDelay + ANSWER_HOLD;
+        answerUntil = entity.level().getGameTime() + ANSWER_EXPIRY;
+        return true;
     }
     private boolean urgent() {
         return entity.life().nutrition() < 15 || entity.life().energy() < 15 || entity.isInWaterOrBubble()
@@ -315,7 +379,7 @@ public final class YukkuriSocial {
             contactWaits.put(target.getUUID(), new ContactWait(entity.tickCount + 600, personality().lastInteraction(target.getUUID())));
         }
         if (protectedContact != null) { personality().releaseRelation(protectedContact); protectedContact = null; }
-        task = Task.NONE; target = null; elapsed = 0; greeted = false; retreat = false; cautious = false;
+        task = Task.NONE; target = null; elapsed = 0; greeted = false; retreat = false; cautious = false; greetWhy = null;
         entity.getNavigation().stop();
     }
 }
