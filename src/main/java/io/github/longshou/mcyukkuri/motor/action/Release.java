@@ -15,12 +15,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Put a carried body down (spec 9.4 and 5.4): a child on the brim or a tail is first lowered to the ground with the braid or
- * the tail ({@code ParentCarry.lower}, a stretch that is not cut short), then the dismount keeps the measured feet and hands
- * the rest to vanilla physics. Never moves the body to a landing spot; the check is made where it would be let go, and when
- * there is no room the caller turns or steps and tries again. Every dismount ends in {@code ParentCarry.released}.
- */
+/** Put a carried body down: a child is first lowered with the braid or the tail ({@code ParentCarry.lower}), then the dismount keeps the measured feet and hands the rest to physics. */
 public final class Release implements Action {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
@@ -65,21 +60,14 @@ public final class Release implements Action {
     /** A child on its way down with the braid or the tail is not put back: the lowering runs to the ground. */
     @Override public boolean interruptible() { return carrier == null || ParentCarry.lowering(carrier, child, 0) < 0; }
 
-    /**
-     * The same release at once, for an interruption, a death or an ended intent ({@code forced}: there is no decision left to
-     * turn or step in, so the room check is skipped and the body comes down where it is, spec 5.4). Returns the check that
-     * applied; nothing moves when it refused.
-     */
+    /** The same release at once, for an interruption, a death or an ended intent ({@code forced}: the room check is skipped and the body comes down where it is). Returns that check. */
     public static Feasibility now(YukkuriEntity carrier, YukkuriEntity child, boolean forced, String cause) {
         var room = forced ? Feasibility.pass() : new Release(child).check(carrier);
         if (room.ok() && child.getVehicle() == carrier) let(carrier, child, cause);
         return room;
     }
 
-    /**
-     * The carry side of the MOTOR interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted
-     * held child (anything but a fright) lets go of its carrier.
-     */
+    /** The carry side of the interrupt bridge: an interrupted carrier lets every child go where it is, and an interrupted held child (bar a fright) lets go of its carrier. */
     public static void interrupted(YukkuriEntity body, String why) {
         for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child) let(body, child, "carry_" + why);
         if (!why.equals("fright") && body.getVehicle() instanceof YukkuriEntity carrier) let(carrier, body, "carry_child_" + why);

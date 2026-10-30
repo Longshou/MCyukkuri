@@ -13,15 +13,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 
-/**
- * A ritual script (spec 11.5, design P13): which beat runs, who takes part and what is presented. It never moves a body
- * and never calls {@code BodyDriver.run}: a role's own goal reads {@link #intentFor} / {@link #present} and runs the
- * intent with its own {@link IntentRunner}, then {@link #report}s how it ended. The conductor's passive clock calls
- * {@link #conduct()}, which advances the domain data ({@link #conductData}) and the time beats, and re-checks every role
- * of the current beat each tick (alive, this level, within {@value #ROLE_RADIUS} blocks); a lost role goes to
- * {@link #onRoleLost}. Roles live only here (design red line 9). Saving keeps the beat, the roles and the domain data;
- * a reloaded beat starts again from the top on the first tick after the load.
- */
+/** A ritual script: which beat runs, who takes part and what is presented. It never moves a body: a role's goal reads {@link #intentFor} and {@link #report}s how it ended. */
 public abstract class Choreography {
     public static final int ROLE_RADIUS = 48;
     /** Bounds an immediate Branch chain, so a wrong table ends the ceremony instead of spinning. */
@@ -66,7 +58,7 @@ public abstract class Choreography {
     /** The beat a lost role goes to (called before it is unbound): null ends the ceremony, the current beat carries on without it. */
     protected String onRoleLost(String role) { return null; }
 
-    /** The ceremony's own clock (labour, births): domain data only, never a body (design red line 8). */
+    /** The ceremony's own clock (labour, births): domain data only, never a body. */
     protected void conductData(long now) {}
 
     /** Called once each time a beat (not a Branch) starts, before its tick window and intents are built; it may {@link #jump}. */
@@ -175,7 +167,7 @@ public abstract class Choreography {
 
     final void begin() { enter(start, Report.NONE, "start"); }
 
-    /** {@code {Beat, Roles:{<Role>:int[4]}, ...domain data}} (spec 12). */
+    /** {@code {Beat, Roles:{<Role>:int[4]}, ...domain data}}. */
     public final CompoundTag save() {
         var tag = new CompoundTag();
         if (beat != null) tag.putString("Beat", beat);

@@ -20,12 +20,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Paddle the host one rides toward a point (spec 9.4): on the host, with a stick in the mouth or kept by the host. In the
- * {@code boat_paddle} clip's power stroke it drives the water toward the point at its swim pace and turns the hull at its turn
- * rate; the host's behaviour integrates both against the hull's mass and drag ({@link Effort#drive}). Each stroke costs energy;
- * none left is {@code EXHAUSTED}. Done once the host is within {@code arrive} of the point.
- */
+/** Paddle the host one rides toward a point: in the {@code boat_paddle} power stroke it drives the water at its swim pace and turns the hull at its turn rate, paid in energy. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
     private static final String CLIP = "boat_paddle";

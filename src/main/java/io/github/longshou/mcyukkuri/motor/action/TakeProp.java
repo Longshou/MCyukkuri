@@ -18,15 +18,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
-/**
- * Take a prop back onto the body (spec 9.4 {@code TakeProp}): play the prop's own clip; at its {@code grip} marker (fallback:
- * the first tick) the braid takes the prop and the one irreversible transfer happens, so the placed prop leaves the world as
- * the clip lifts it, and the clip carries it in the braid to the head by {@code release}. That held stretch cannot be cut
- * short, so the hat is never dropped back or left in mid-air. Refuses {@code NO_ROOM} while riders remain, and
- * {@code NO_CONTACT} while neither mouth nor braid reaches the prop (nor, for a prop taken back by its brim, a hat afloat,
- * grips its nearest brim: {@link ContactGeometry}, spec 9.4 "嘴或辫在 reach 内"), so a method can walk closer or clear the
- * prop first instead of retrying the same clip.
- */
+/** Take a prop back onto the body: at the clip's {@code grip} marker the braid takes it and the one transfer happens; the clip then carries it to the head by {@code release}. */
 public final class TakeProp implements Action {
     public static final String ID = "take_prop";
     public static final String RELEASE_MARKER = "release";
@@ -90,7 +82,7 @@ public final class TakeProp implements Action {
                 prop.entity() == null ? "none" : GameplayLog.at(prop.entity().position()), gripTicks(), releaseTicks());
     }
 
-    /** The clip's {@code release} marker in ticks, or its last tick when the clip authors none (spec 9.4). */
+    /** The clip's {@code release} marker in ticks, or its last tick when the clip authors none. */
     public int releaseTicks() {
         ClipMarkers.Clip clip = ClipMarkers.of(clip());
         return clip.ticks(RELEASE_MARKER, Math.max(0, clip.length() - 1));

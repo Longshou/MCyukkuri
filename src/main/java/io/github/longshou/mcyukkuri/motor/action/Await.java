@@ -11,11 +11,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import java.util.function.BooleanSupplier;
 
-/**
- * Wait until a condition holds, with a hard deadline (spec 9.4): never moves the body, never waits forever.
- * The pose clip is the waiting animation. The watchdog never fires here, because the metric is the ticks left
- * and the action has its own, shorter deadline.
- */
+/** Wait until a condition holds, with a hard deadline: it never moves the body and never waits forever. The pose clip is the waiting animation; the metric is the ticks left. */
 public final class Await implements Action {
     public static final String ID = "await";
 

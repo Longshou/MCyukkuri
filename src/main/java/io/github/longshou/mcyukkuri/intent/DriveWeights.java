@@ -15,11 +15,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-/**
- * The desire data of spec 11.4: {@code data/mcyukkuri/drive/<domain>.json} maps names to numbers, the weight of each intent id
- * and the domain's own desire terms, so {@code /reload} retunes what a domain wants (like {@code AbilityTable} for the body).
- * A missing file or name reads as the caller's fallback; the 8-hex fingerprint names the data a log line ran with.
- */
+/** The desire data ({@code drive/<domain>.json}): names to numbers, each intent id's weight and the domain's own terms, so {@code /reload} retunes what a domain wants. */
 public final class DriveWeights extends SimpleJsonResourceReloadListener {
     public static final String DIRECTORY = "drive";
     private static final Gson GSON = new Gson();

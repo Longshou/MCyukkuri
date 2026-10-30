@@ -9,18 +9,13 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
-import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
-/**
- * A nest bed as a container (spec 7): the rounded hollow a body may lie in, the level floor it stands on and the rim a
- * footprint may rest on by accident. Pet cushion, woven and wild 2x2 nests and the drawn bedding of a burrow count; covered
- * ground, a house nest entrance and a shelter cell without a bed do not (they are no container, so their own rule stands).
- */
+/** A nest bed as a container: the rounded hollow a body may lie in, its floor and the rim a footprint may rest on by accident; a shelter cell without a bed is no container. */
 public final class BedContainer implements Container {
     private final Vec3 centre;
     private final FloorShape floor;
@@ -53,11 +48,7 @@ public final class BedContainer implements Container {
         return new BedContainer(centre,lying(hollow),floorY,floorY);
     }
 
-    /**
-     * The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS},
-     * capped by the collision box as NestResting caps it), so every place NestResting assigns is inside. Standing on the rim
-     * top is still excluded by the floor-height test.
-     */
+    /** The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS}), so every place NestResting assigns is inside. */
     private static FloorShape lying(NestResting.Bed bed){
         double half=Math.min(bed.half()+NestResting.RIM_PRESS,bed.box()+(bed.softBox()?NestResting.RIM_PRESS:0));
         return new FloorShape.RoundedRect(half,Math.min(half,bed.corner()+NestResting.RIM_PRESS));

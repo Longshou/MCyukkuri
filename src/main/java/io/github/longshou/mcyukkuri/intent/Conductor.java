@@ -9,11 +9,7 @@ import java.util.function.Function;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
-/**
- * The owner of one choreography (spec 11.5): the component that conducts the ceremony embeds this, ticks it from its passive
- * clock and saves it under one key. {@link #roleOf} is how a role's goal finds its ceremony: it scans the live conductors
- * near the body, so nothing is stored on the role body. The registry is server-only, bounded and never saved.
- */
+/** The owner of one choreography: the conducting component embeds this, ticks it from its passive clock and saves it under one key; the registry is server-only and bounded. */
 public final class Conductor {
     private static final Map<UUID, Conductor> LIVE = new LinkedHashMap<>();
     private static final int MAX = 256;

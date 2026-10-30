@@ -1,8 +1,8 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** Container occupancy from nine footprint probes (spec 7) as a pure function. */
+/** Container occupancy from nine footprint probes as a pure function. */
 public final class OccupancyMath {
-    /** Occupancy of one body footprint in one container, in the order the spec evaluates it. */
+    /** Occupancy of one body footprint in one container. */
     public enum Result { INSIDE_SUPPORTED, ON_RIM, PARTIAL, OUTSIDE }
 
     /** Vertical slack to the floor, slack below the rim, and the width of the rim ring outside the floor. */

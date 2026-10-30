@@ -19,14 +19,7 @@ import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Swim toward a target (spec 9.4, Q2: a weak struggle; an aquatic body is stronger only through its ability): horizontal effort
- * at the ability's swim speed, turning at its turn rate; the vertical is the water's lift ({@code BodyDriver}). Never a jump.
- * Paid in the struggle's rhythm: a burst for its energy, then a rest; an exhausted body pays less per cycle and keeps paddling
- * weakly through the rest, and one with nothing left to pay keeps that weak paddling unpaid (it never stops for energy alone).
- * {@link #to} ends with the target in grip reach; {@link #toward} presses on for its ticks, without a progress watchdog, so a
- * body pressed against a bank keeps pushing; out of the water both are done.
- */
+/** Swim toward a target: effort at the ability's swim speed, the vertical left to the water's lift, paid in bursts and rests; {@link #toward} has no progress watchdog. */
 public final class Swim implements Action {
     public static final String ID = "swim";
     /** The water_struggle rhythm (ticks; the cycle is its 1.6 s clip) and its energy, rested and exhausted. */

@@ -5,12 +5,7 @@ import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Which species modifiers a body gets (spec 8.1/8.2, Q2). The key is the body's own stable form id: the subspecies kind
- * in lower snake case ({@code aquatic_marisa}), or the variant asset id ({@code marisa}, {@code house_marisa}) for the
- * ordinary form. Both are read through {@code YukkuriEntity}'s own accessors, so {@code motor/} never imports
- * {@code subspecies/}. Besides coefficient factors a species may switch on a capability flag ({@link #FLAGS}).
- */
+/** Which species modifiers a body gets, by its own stable form id: the subspecies kind in snake case or the variant asset id. A species may also switch on a flag ({@link #FLAGS}). */
 public final class AbilityModifier {
     /** It can set its own worn hat down on the water and use it as a boat. */
     public static final String HAT_BOAT = "hat_boat";

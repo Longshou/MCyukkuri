@@ -4,10 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Where a body is, derived from facts only: the vanilla vehicle relation plus the host's {@link Riders}.
- * Never stored as a second fact (spec 5.1). The records are nested so each one can be public in this file.
- */
+/** Where a body is, derived from facts only: the vanilla vehicle relation plus the host's {@link Riders}, never stored as a second fact. */
 public sealed interface AttachState
         permits AttachState.Free, AttachState.Airborne, AttachState.OnHost, AttachState.Held {
 

@@ -17,12 +17,7 @@ import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Push a body or a hat away for one {@code push} clip (spec 9.4, Q5): touching it (mouth reach beyond the two envelopes), each
- * tick it gains the pusher's pace times the pusher's share of the two box volumes, along the line between them. A body takes it
- * through {@link Motor}; anything else only when it is pushable (a hat afloat, whose behaviour integrates it), else
- * {@code TOO_HEAVY}.
- */
+/** Push a body, or a hat afloat, away for one {@code push} clip: each tick it gains the pusher's pace times its share of the two box volumes, else {@code TOO_HEAVY}. */
 public final class Push implements Action {
     public static final String ID = "push";
 

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-/** The pure scoring and switching rule of spec 11.4; no Minecraft type is touched here. */
+/** The pure scoring and switching rule; no Minecraft type is touched here. */
 class DriveMathTest {
 
     @Test

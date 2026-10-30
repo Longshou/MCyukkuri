@@ -2,14 +2,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.List;
 
-/**
- * Bodies whose foot circles overlap on a host part (design Q6, refactor WP4b): each overlapping pair moves apart along the line
- * of their centres by a quarter of the overlap a tick (a crowd eases apart, it is not thrown), the lighter body yielding more and, on a tilted floor, the lower one more than the upper;
- * fixed circles (what the hollow holds) never move and push a body out alone. A body moves at most its own step a tick, and
- * a pair parts only as fast as its slower yielder allows, so the two keep their mass ratio. Only footprints that share some height
- * press on each other ({@link Disc#level}): a body standing high over another's top does not. Plane units are the caller's; no
- * Minecraft types.
- */
+/** Bodies whose foot circles overlap on a host part: each pair moves apart along their centres, the lighter yielding more and, on a tilt, the lower one; fixed circles push alone. */
 public final class Squeeze {
     /** Stacked centres part along a distinct axis per pair (the golden angle, radians). */
     private static final double GOLDEN = 2.399963;
@@ -33,11 +26,8 @@ public final class Squeeze {
         return ar + br - slack - Math.hypot(bx - ax, bz - az) > TOUCH;
     }
 
-    /**
-     * How far each body moves to part from the others, {@code {x, z, deepest}} per body: the move (zero for one that overlaps
-     * nothing) and the deepest overlap it is in before moving. Circles overlap when their centres are nearer than {@code r1 + r2 - slack}. {@code downX, downZ} is the floor's downhill
-     * direction scaled by the sine of its tilt (zero on a level floor): the pair's lower body yields that much more.
-     */
+    /** How far each body moves to part from the others, {@code {x, z, deepest}}: the move and the deepest overlap before moving; {@code downX, downZ}
+     *  is the floor's downhill direction, so its lower body yields more. */
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ) {
         int n = bodies.size();
         double[][] out = new double[n][3];

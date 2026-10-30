@@ -4,7 +4,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-/** One step of a {@link Method} (spec 11.1). {@code AskFor} joins this list in WP3; nothing here waits forever. */
+/** One step of a {@link Method}; nothing here waits forever. */
 public sealed interface Step permits Step.Do, Step.Wait, Step.Sub {
     /** One body action, run through the {@code BodyDriver} by the owning {@link IntentRunner}. */
     record Do(Action action) implements Step {
@@ -22,7 +22,7 @@ public sealed interface Step permits Step.Do, Step.Wait, Step.Sub {
         }
     }
 
-    /** Runs a child intent; its result maps onto this intent's next step (spec 11.2). */
+    /** Runs a child intent; its result maps onto this intent's next step. */
     record Sub(Intent intent) implements Step {
         public Sub {
             Objects.requireNonNull(intent, "intent");

@@ -15,11 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Get to a stand (spec 14 WP3b): walk there (around a partner body when one is named), turn to the stand's yaw, then do at
- * most one closing action there (set the hat down, take it back, wait for the partner). Arrival is the shared
- * {@link SurfaceApproach#arrived} fact and facing is {@link Face#FACE_ARRIVED}; the deadline is absolute and the caller's.
- */
+/** Get to a stand: walk there (around a partner body when named), turn to the stand's yaw, then one closing action; arrival and facing are shared facts, the deadline the caller's. */
 public final class GoTo implements Intent {
     private final String id;
     private final YukkuriEntity body;

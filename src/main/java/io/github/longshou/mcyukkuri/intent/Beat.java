@@ -8,12 +8,7 @@ import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
-/**
- * One beat of a {@link Choreography} (spec 11.5). Every beat names its successors; a null successor ends the ceremony.
- * {@code cast} is the roles the beat engages, in order: a role with an intent supplier runs that intent in its own goal,
- * a role mapped to null is held still for the beat. The first role of a {@link Perform} is its lead: the lead's report
- * ends the beat, the other roles' intents are side jobs. Every beat but a {@link Branch} is finite.
- */
+/** One beat of a {@link Choreography}: it names its successors (null ends the ceremony) and the roles it engages, the first of a {@link Perform} being its lead, who ends it. */
 public sealed interface Beat permits Beat.Perform, Beat.Present, Beat.Await, Beat.Branch {
     default Map<String, Supplier<Intent>> cast() { return Map.of(); }
 

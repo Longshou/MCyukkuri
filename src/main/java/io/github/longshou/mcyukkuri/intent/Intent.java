@@ -2,10 +2,7 @@ package io.github.longshou.mcyukkuri.intent;
 
 import java.util.List;
 
-/**
- * The result a behaviour wants to be true (spec 11.1). Read-only in every method: satisfaction is a physical fact,
- * the deadline is absolute and finite, and the method order may come from data.
- */
+/** The result a behaviour wants to be true. Read-only in every method: satisfaction is a physical fact, the deadline is absolute and finite, and the method order may come from data. */
 public interface Intent {
     /** Lower-case with underscores, e.g. {@code fetch}, {@code get_onto}. */
     String id();
@@ -21,10 +18,6 @@ public interface Intent {
 
     default Commitment commitment() { return Commitment.NONE; }
 
-    /**
-     * Called once by the {@link IntentRunner} when this intent ends, whatever the result (spec 11.2 "结束后"): the one
-     * place a domain rule can leave the world consistent again, e.g. setting down what an unfinished carry still holds.
-     * Read-only apart from that consequence; it must not start new work.
-     */
+    /** Called once by the {@link IntentRunner} when this intent ends, whatever the result: the one place a domain rule can leave the world consistent again, e.g. a held carry. */
     default void ended(IntentRunner.Result result) {}
 }

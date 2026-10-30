@@ -3,11 +3,7 @@ package io.github.longshou.mcyukkuri.intent;
 import java.util.Set;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The world facts a method choice is keyed on (spec 11.2): target and host quantised to 0.5 blocks, the blocking
- * entity ids, and a 200 tick time bucket. A method excluded under one signature becomes selectable again once the
- * signature changes. A value: equal signatures exclude the same methods.
- */
+/** The world facts a method choice is keyed on: target and host quantised, the blocking entity ids and a time bucket; a method excluded under one signature returns once it changes. */
 public record WorldSignature(long targetX, long targetY, long targetZ, long hostX, long hostY, long hostZ,
                              Set<Integer> blockers, long bucket) {
     /** Ticks per signature bucket. */

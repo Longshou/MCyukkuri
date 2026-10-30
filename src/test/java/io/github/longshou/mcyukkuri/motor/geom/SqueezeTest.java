@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Q6 squeezing: who yields, by how much, and that fixed circles never move. */
+/** Squeezing: who yields, by how much, and that fixed circles never move. */
 class SqueezeTest {
     private static final double SLACK = .02;
 

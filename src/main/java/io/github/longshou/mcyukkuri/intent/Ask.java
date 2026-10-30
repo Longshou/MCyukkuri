@@ -5,12 +5,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
-/**
- * One request for help inside one incident (spec 11.3): {@code requester} wants {@code helper} to run the intent the factory
- * builds for the helper's own body. {@link AskLedger} draws the one chance that decides it for the pair
- * {@code (incidentId, helper)}; the helper's domain goal runs the intent when it accepted, the requester waits with a bounded
- * wait in its own intent.
- */
+/** One request for help in one incident: {@code requester} wants {@code helper} to run the intent built for its body; {@link AskLedger} draws the one chance that decides the pair. */
 public record Ask(UUID requester, UUID helper, Function<YukkuriEntity, Intent> intentFactory, String incidentId) {
     public Ask {
         Objects.requireNonNull(requester, "requester");

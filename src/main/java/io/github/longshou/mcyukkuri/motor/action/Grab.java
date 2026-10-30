@@ -20,13 +20,7 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Take a body into one of the carrier's holds (spec 9.4): the carrier's rules ({@code ParentCarry.holdsFor}) give the holds
- * that can take it (brim, tail, mouth, braid tip), and the Grab takes the first one whose reach gets it: the mouth's rule,
- * or the braid swung out upright or in the low lean. It must not be in the air or in someone else's hold. The braid first
- * turns its side to the target; after the lift the target becomes a real passenger, placed by its hold ({@code ParentCarry.seat}).
- * The hold is recorded at the start ({@code ParentCarry.plan}), which is also what the client's reach pose reads.
- */
+/** Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach gets it, then seats it as a real passenger. */
 public final class Grab implements Action {
     public static final String ID = "grab";
     /** The mouth lift (ticks): the parent stands over the child and closes on it. */
@@ -138,8 +132,7 @@ public final class Grab implements Action {
 
     @Override public String endDetail(Outcome outcome) { return "reach=" + hold.reach().name().toLowerCase(Locale.ROOT) + " hold=" + hold.key(); }
 
-    /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes of spec 9.2 by its first
-     *  hold's reason. */
+    /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes by its first word. */
     private static Feasibility refusal(String problem) {
         Reason reason = switch (problem.split("/")[0]) {
             case "dead", "level" -> Reason.TARGET_GONE;

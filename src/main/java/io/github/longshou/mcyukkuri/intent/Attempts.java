@@ -10,10 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * The switch budget of one intent (spec 11.2): a method that failed under a signature is not chosen again under that
- * signature, a method out of this body's ability stays excluded, and one failure is counted once. Never saved.
- */
+/** The switch budget of one intent: a method that failed under a signature is not chosen again under it, a method out of the body's ability stays excluded, one failure counts once. */
 public final class Attempts {
     public static final int DEFAULT_MAX_SWITCHES = 6;
 
@@ -86,7 +83,7 @@ public final class Attempts {
         return out.append(']').toString();
     }
 
-    /** A shortfall without trailing zeros, so the log reads {@code 0} and {@code 0.3} as in spec 13.1. */
+    /** A shortfall without trailing zeros, so the log reads {@code 0} and {@code 0.3}. */
     public static String amount(double value) {
         String text = String.format(Locale.ROOT, "%.2f", value);
         while (text.endsWith("0")) text = text.substring(0, text.length() - 1);

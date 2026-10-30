@@ -20,19 +20,11 @@ import java.util.Locale;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Climb out of the water over a host's brim or a bank's edge (spec 9.4): the mouth or braid holds the edge
- * ({@link ContactGeometry#canGrip}) and the rise from the feet is within {@code climbRise}. It grips until the clip's
- * {@code pull_start}, then by {@code pull_end} pulls up, over and down onto its stand with collision-resolved moves, in the
- * host's frame so a drifting host carries it; onto a host it then mounts at the free spot nearest the middle (an edge seat would
- * heel a light hull over), onto a bank it stands on the block. A host tilting past what the grip holds, moving faster than 0.1
- * block a tick or turning over, or a pull that loses the edge, is {@code SLIPPED}: the body stays where it slipped.
- */
+/** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. */
 public final class Climb implements Action {
     public static final String ID = "climb";
     private static final String CLIP = "water_hat_climb";
-    /** Blocks a tick a held host may move; degrees of tilt a full grip holds; blocks of clearance over the edge; blocks a pull
-     *  may lag its path before it has lost the edge. */
+    /** Blocks a tick a held host may move; degrees of tilt a full grip holds; blocks of clearance over the edge; blocks a pull may lag its path before it has lost the edge. */
     private static final double HOST_SPEED = .1, GRIP_ANGLE = 45, CLEAR = .05, HOLD = .3;
 
     private final SurfaceHost host;

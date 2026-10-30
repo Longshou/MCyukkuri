@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** The switch budget counts one failure once and excludes a method only under the same signature (spec 11.2). */
+/** The switch budget counts one failure once and excludes a method only under the same signature. */
 class AttemptsTest {
     private static Method method(String id) {
         return new Method() {

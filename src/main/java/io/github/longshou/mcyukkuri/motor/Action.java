@@ -2,10 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 
-/**
- * One body execution (L2). The only writer of a {@link YukkuriEntity}'s position, velocity, rotation and
- * riding is {@link Motor}, and the only caller of an action is {@link BodyDriver}.
- */
+/** One body execution. Only {@link Motor} writes a body, and only {@link BodyDriver} starts an action. */
 public interface Action {
     /** Lower-case with underscores; used by logs, the sync slot and Behaviors. */
     String id();
@@ -27,10 +24,10 @@ public interface Action {
     /** The clip it plays; nothing for an action that animates nothing. */
     default MotionPose pose() { return MotionPose.NONE; }
 
-    /** Extra fields for the {@code [action] start} line (spec 13.1); empty when the action has none to add. */
+    /** Extra fields for the {@code [action] start} line; empty when the action has none to add. */
     default String startDetail() { return ""; }
 
-    /** Extra fields for the {@code [action] end} line (spec 13.1); empty when the action has none to add. */
+    /** Extra fields for the {@code [action] end} line; empty when the action has none to add. */
     default String endDetail(Outcome outcome) { return ""; }
 
     /** Watchdog window in ticks: {@code metric} must drop by {@link #progressEpsilon()} within this many ticks. */

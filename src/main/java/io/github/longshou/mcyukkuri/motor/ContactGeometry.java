@@ -15,17 +15,14 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The one place that answers "can this body reach that" (spec 10): the mouth and the braid tip a Grab holds with, the brim,
- * and the grip test every water action uses ({@link #canGrip}).
- */
+/** The one place that answers "can this body reach that": the mouth and the braid tip a Grab holds with, the brim, and the grip test every water action uses ({@link #canGrip}). */
 public final class ContactGeometry {
     /** The mouth's reach beyond the two body envelopes (blocks). */
     public static final double GRAB_MARGIN = .35;
     /** The height window of the grab rule, in blocks of difference between the two bodies. */
     public static final double GRAB_HEIGHT = 1.2;
 
-    /** The two ways one body holds another (spec 9.4 Grab): in the mouth, or at a Marisa's braid tip. */
+    /** The two ways one body holds another: in the mouth, or at a Marisa's braid tip. */
     public enum Reach { MOUTH, BRAID }
 
     /** The mouth tip in world coordinates: the point the mouth pose hangs a held body from. */
@@ -33,8 +30,7 @@ public final class ContactGeometry {
         return MouthPlacement.position(body);
     }
 
-    /** The grab gap: the horizontal distance left between the two bodies' envelopes, so 0 means they touch; the full rule
-     *  (height window and sight included) is {@link #inMouthReach}. */
+    /** The grab gap: the horizontal distance left between the two bodies' envelopes, so 0 means they touch; the full rule is {@link #inMouthReach}. */
     public static double mouthGap(YukkuriEntity body, Entity target) {
         if (body == null || target == null) return Double.POSITIVE_INFINITY;
         double dx = target.getX() - body.getX(), dz = target.getZ() - body.getZ();
@@ -83,11 +79,7 @@ public final class ContactGeometry {
     /** The braid tip at rest in model units (x the braid side, -z the face): where a braid-held body hangs. */
     public static Vec3 braidTipModel() { return BRAID[1]; }
 
-    /**
-     * How much farther {@code target} lies than the braid holds (blocks; 0 or less is in reach): the braid swung about its
-     * root, or about the root of the low lean ({@code lean}, clip braid_reach_low), within its own length, once the body has
-     * turned its braid side to the target ({@link #braidYaw}), with no block in between. Infinite without a braid.
-     */
+    /** How much farther {@code target} lies than the braid holds (blocks, 0 or less in reach): the braid swung about its root or the low lean's ({@code lean}) within its length. */
     public static double braidGap(YukkuriEntity body, Entity target, boolean lean) {
         if (body == null || target == null || !braided(body)) return Double.POSITIVE_INFINITY;
         Vec3 model = BRAID[lean ? 2 : 0];
@@ -113,8 +105,7 @@ public final class ContactGeometry {
     /** Whether the body holds {@code point} (a brim or a bank edge): the only reach rule of the water actions. */
     public static boolean canGrip(YukkuriEntity body, Vec3 point) { return gripGap(body, point) <= 0; }
 
-    /** How much farther {@code point} lies than mouth or braid holds (blocks, 0 or less in grip): the mouth tip within
-     *  {@link #GRAB_MARGIN}, or the braid swung about its root within its length, each with no block in between. */
+    /** How much farther {@code point} lies than mouth or braid holds (blocks, 0 or less in grip): the mouth within {@link #GRAB_MARGIN} or the braid within its length, sight free. */
     public static double gripGap(YukkuriEntity body, Vec3 point) {
         if (body == null || point == null) return Double.POSITIVE_INFINITY;
         Vec3 mouth = mouth(body), root = braid(body, BRAID[0]);

@@ -8,21 +8,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The single doorway to writing a body (spec 4): velocity, position, facing and riding of a {@link YukkuriEntity}
- * may only be written from here (plus the entity's own overrides that forward to {@link BodyDriver}).
- * Nothing here decides anything: it writes what an action decided and records the transition.
- */
+/** The single doorway to writing a body: velocity, position, facing and riding are only written here. It decides nothing: it writes what an action decided, and records it. */
 public final class Motor {
     /** No nudge may move a body further than this in one call (blocks). */
     public static final double NUDGE_MAX = 0.25;
     /** Invariant I4: a dismount may not move the body further than this on either side of the vehicle relation (blocks). */
     public static final double DISMOUNT_MAX = 0.25;
 
-    /**
-     * True only while {@link #dismount} runs. A host's {@code getDismountLocationForPassenger} then returns the
-     * passenger's own position, so vanilla cannot relocate it to the vehicle centre.
-     */
+    /** True only while {@link #dismount} runs: a host's {@code getDismountLocationForPassenger} then returns the passenger's own position, so vanilla cannot move it to the vehicle. */
     public static final ThreadLocal<Boolean> DISMOUNTING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private Motor() {}
@@ -50,11 +43,7 @@ public final class Motor {
         body.setYHeadRot(yaw);
     }
 
-    /**
-     * Places a body the system itself moves: a delivery, a scripted ceremony, a released captive, a new body before it joins
-     * the world. Sets the position and the whole facing, clears the velocity and records the transition. This is never a way
-     * to finish a movement that failed (design P6/P8): a body that could not get somewhere keeps the place physics gave it.
-     */
+    /** Places a body the system itself moves: a delivery, a ceremony, a released captive, a new body. Never a way to finish a movement that failed. */
     public static void relocate(YukkuriEntity body, Vec3 at, float yaw, String cause) {
         if (body == null || at == null) return;
         Vec3 from = body.position();
@@ -68,7 +57,7 @@ public final class Motor {
                 GameplayLog.at(body.position()));
     }
 
-    /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body (spec 12). */
+    /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body. */
     public static boolean mount(YukkuriEntity body, Entity host, String cause) {
         if (body == null || host == null || host == body) return false;
         // Moving from one vehicle to another (a grab off the placed hat) leaves the old one where the body stands.
@@ -83,10 +72,7 @@ public final class Motor {
         return true;
     }
 
-    /**
-     * Leaves the vehicle where the body actually stands: the position stays {@code at} (or where it is when null),
-     * the velocity becomes {@code v}. Never re-seats, never rolls back.
-     */
+    /** Leaves the vehicle where the body actually stands: the position stays {@code at} (or where it is when null), the velocity becomes {@code v}. Never re-seats, never rolls back. */
     public static void dismount(YukkuriEntity body, Vec3 at, Vec3 v, String cause) {
         if (body == null) return;
         Vec3 before = body.position();
@@ -119,7 +105,7 @@ public final class Motor {
         return true;
     }
 
-    /** Records a violated invariant (spec 5.3) as a WARN; the state is never "corrected" here. */
+    /** Records a violated invariant as a WARN; the state is never "corrected" here. */
     public static void invariant(YukkuriEntity body, String id, String detail) {
         warn(body, "invariant id={} detail={}", id, detail);
     }

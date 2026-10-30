@@ -1,9 +1,6 @@
 package io.github.longshou.mcyukkuri.motor;
 
-/**
- * The end of an action. The failure classes are fixed by {@link Reason#kind()} and can only be built through
- * {@link #of}, so a caller can never record a blocked action as incapable, or the reverse (spec 9.2 / 12.5).
- */
+/** The end of an action. The failure classes are fixed by {@link Reason#kind()} and only built through {@link #of}, so a blocked action cannot be recorded as incapable. */
 public sealed interface Outcome extends Progress
         permits Outcome.Done, Outcome.Blocked, Outcome.Incapable, Outcome.Interrupted, Outcome.Lost {
 

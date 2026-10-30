@@ -18,13 +18,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
-/**
- * Turn a capsized host back over (spec 9.4): holding its brim ({@link ContactGeometry#canGrip}) the body pushes through the
- * clip's push window, each push tick turning it {@link Effort#righting} further (its pace and its share of the two box
- * volumes over half a round of the brim). The host's behaviour holds it there; past the quarter turn it is no longer capsized
- * and the behaviour turns it the rest of the way, so the action is done. The body holds still meanwhile. Off the brim, or a
- * host faster than 0.1 block a tick, is {@code SLIPPED}; letting go earlier leaves the host to its own physics.
- */
+/** Turn a capsized host back over: holding its brim it pushes through the clip's push window, turning the hull {@link Effort#righting} each tick; losing the brim is {@code SLIPPED}. */
 public final class Right implements Action {
     public static final String ID = "right";
     private static final String CLIP = "water_hat_right";

@@ -17,13 +17,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Pick one item up with the mouth (spec 9.4 style), from a loose stack or from a {@link Source} a host keeps (a hat's stored
- * portion): it must lie in the shared mouth reach ({@link ContactGeometry}); at the {@code boat_cargo_fetch} clip's {@code bite}
- * marker one of it is handed to {@code into}, which keeps it where the caller says (a hat's stick, a meal, the care food), and only
- * then leaves where it lay. Out of reach is {@code NO_CONTACT} with the gap, so a method walks closer; the item gone is
- * {@code TARGET_GONE}; {@code into} refusing it leaves it where it is ({@code NO_ROOM}). Never moves the body.
- */
+/** Pick one item up with the mouth, from a loose stack or a {@link Source} a host keeps: at the clip's {@code bite} marker it is handed to {@code into}, then leaves where it lay. */
 public final class Pick implements Action {
     public static final String ID = "pick";
     private static final String CLIP = "boat_cargo_fetch";

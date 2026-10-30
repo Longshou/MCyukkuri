@@ -14,14 +14,7 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
-/**
- * The one desire competition of one domain (spec 11.4, design C4): the domain's Goal calls {@link #tick()} and this class owns
- * the domain's single {@link IntentRunner}. Every {@link DriveMath#EVALUATE_EVERY} ticks (staggered by entity id, at once after an
- * intent ends) it scores the desires with the data pack weights, starts the best one with a score above zero, and switches only
- * when a candidate clears the current commitment's margin for ten evaluations running (a danger desire at once). An intent that
- * ended EXHAUSTED or LOST does not compete again until the stable facts its desire was read from ({@link Desire#world()}) or the
- * {@link WorldSignature} time bucket changed, so a failure is never chosen again on the same facts. Nothing is saved.
- */
+/** The one desire competition of one domain: it scores the desires with the data weights, starts the best and switches only when a candidate clears the commitment margin ten times. */
 public final class Drive {
     /** The live drives by body, for the readout only: weak keys and weak values, so neither keeps a removed body. */
     private static final Map<YukkuriEntity, List<WeakReference<Drive>>> LIVE = new WeakHashMap<>();
@@ -44,7 +37,7 @@ public final class Drive {
     private Desire current;
     private boolean urgent = true;
 
-    /** {@code target} keys the runner's own method exclusion (spec 11.2); the drive's failure exclusion uses each desire's world. */
+    /** {@code target} keys the runner's own method exclusion; the drive's failure exclusion uses each desire's world. */
     public Drive(YukkuriEntity body, String domain, Supplier<List<Desire>> desires, Supplier<IntentRunner.Target> target) {
         this.body = body;
         this.domain = domain;
@@ -110,10 +103,10 @@ public final class Drive {
         urgent = true;
     }
 
-    /** The data weight of the intent id multiplies the desire (spec 11.4). */
+    /** The data weight of the intent id multiplies the desire. */
     public double scoreOf(Desire d) { return DriveMath.score(d.desire(), DriveWeights.of(domain, d.intentId()), d.costEstimate()); }
 
-    // ---- one evaluation ----------------------------------------------------------------------------------------------
+    // ---- one evaluation ----
 
     /** The desires scored above zero, best first, without the failed ones whose facts still hold; recomputed when due. */
     private List<Scored> rank() {
@@ -178,7 +171,7 @@ public final class Drive {
         return null;
     }
 
-    /** {@code [a:72, b:40, c:12]}: the top three scores (spec 13.1). */
+    /** {@code [a:72, b:40, c:12]}: the top three scores. */
     private static String describe(List<Scored> list) {
         var out = new StringBuilder("[");
         for (int i = 0; i < list.size() && i < 3; i++) {

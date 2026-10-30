@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** WP5 water effort: push shares, the paddle's stroke, thrust and turn, righting, and the body's lift. */
+/** Water effort: push shares, the paddle's stroke, thrust and turn, righting, and the body's lift. */
 class EffortTest {
     @Test void theLighterOneMovesMore() {
         assertEquals(.75, Effort.share(.3, .1), 1e-12);

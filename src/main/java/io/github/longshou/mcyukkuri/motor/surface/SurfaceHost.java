@@ -9,11 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Something a body can stand on (spec 6).
- */
+/** Something a body can stand on. */
 public interface SurfaceHost {
-    /** Blocks per cell of the grid a body plans its walk on (spec 6: 0.25 block, in host units). */
+    /** Blocks per cell of the grid a body plans its walk on (in host units). */
     double GRID_CELL = .25;
 
     Entity entity();
@@ -24,14 +22,12 @@ public interface SurfaceHost {
     /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);
 
-    /** The foot circle at {@code local} overlaps no other rider nor anything the host holds on its floor (stores) at the same
-     *  height: footprints conflict only where their heights (feet to top) overlap too. */
+    /** The foot circle at {@code local} overlaps no other rider nor anything the host holds on its floor at the same height: footprints conflict only where their heights overlap. */
     default boolean room(YukkuriEntity body, Vec3 local) {
         return body != null && local != null && room(body, local, local.y + body.getBbHeight() / frame().unit());
     }
 
-    /** As {@link #room(YukkuriEntity, Vec3)} with the body's height reaching at least up to {@code top} (hat units): a body
-     *  coming down onto {@code local} needs the column it falls through free as well. */
+    /** As {@link #room(YukkuriEntity, Vec3)} with the body reaching up to {@code top} (hat units): a body coming down needs the column it falls through free as well. */
     boolean room(YukkuriEntity body, Vec3 local, double top);
 
     /** It lets this body stand on it (ride it): a body it does not bear meets it only as an edge to glance off. */
@@ -58,7 +54,7 @@ public interface SurfaceHost {
     /** This rider is kept out of the water by the host (a dry hull above the waterline): its water checks treat it as dry. */
     default boolean shelters(YukkuriEntity body) { return false; }
 
-    /** What the host carries besides its riders, in the load units of the ability factor L (spec 8.1): its riders' pace. */
+    /** What the host carries besides its riders, in the load units of the ability factor L: its riders' pace. */
     default double load() { return 0; }
 
     /** Turned over: no surface and no container until righted. */
@@ -73,8 +69,6 @@ public interface SurfaceHost {
     /** It keeps such an item where a rider can use it (a stick to paddle with). */
     default boolean holds(Item item) { return false; }
 
-    /** The height field {@code walker} plans a walk on: cells of at most {@link #GRID_CELL} in host units and no wider than its
-     *  foot, heights from {@link #support} at the host's tilt, cells where its foot would overlap what the floor holds (and with
-     *  {@code aroundRiders} another rider) unsupported. The floor-only grid is kept until the floor or its tilt changes. */
+    /** The height field {@code walker} plans a walk on: cells of at most {@link #GRID_CELL} hat units and no wider than its foot, unsupported where a store or a rider is in the way. */
     HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders);
 }

@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.List;
 
-/** Lowest hop arc that clears the sweep and stays inside the hop budget (spec 8.4); pure Java. */
+/** Lowest hop arc that clears the sweep and stays inside the hop budget; pure Java. */
 public final class ArcSolver {
     /** Sweep check for one candidate arc; true when every sampled point is clear. */
     public interface Clearance { boolean clear(List<Vec> points); }
@@ -48,10 +48,7 @@ public final class ArcSolver {
         return clearance.clear(Ballistic.samples(new Vec(vh*dir.x(),vy,vh*dir.z()),n))?new Plan(vy,vh,dir,n,apex):null;
     }
 
-    /**
-     * Smallest upward speed whose discrete trajectory peaks at {@code apex}, bisected on {@link Ballistic#peak}. Pure, so a
-     * one-impulse gesture (spec 9.4 HOP_SMALL) reads the same arc model as a solved hop instead of naming a speed.
-     */
+    /** Smallest upward speed whose discrete trajectory peaks at {@code apex}, bisected on {@link Ballistic#peak}, so a one-impulse gesture reads the same arc model as a solved hop. */
     public static double vyFor(double apex){
         if(apex<=0)return 0;
         double lo=0,hi=Math.max(apex,.01);

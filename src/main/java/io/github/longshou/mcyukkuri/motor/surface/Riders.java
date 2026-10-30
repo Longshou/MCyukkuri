@@ -11,13 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The host side of a body's attachment: rider UUID to local spot (hat units) and yaw. This is one of the two facts
- * that make up an attachment (the vanilla vehicle relation is the other); there is no other stored copy (spec 5.1).
- *
- * <p>NBT is the {@code Riders} list of spec 12: {@code {UUID:int[4], X, Y, Z, Yaw}}. The sync form is one compound keyed
- * by rider entity id, with the same fields and no UUID, because the client knows the entity the id names.
- */
+/** The host side of a body's attachment: rider UUID to local spot (hat units) and yaw, the other fact being the vanilla vehicle relation; NBT is the {@code Riders} list. */
 public final class Riders {
     /** One rider's place on the host: local hat units and yaw relative to the host frame. */
     public record Spot(Vec3 local, float yaw) {
@@ -78,7 +72,7 @@ public final class Riders {
 
     public void clearDirty() { dirty = false; }
 
-    /** The {@code Riders} list of spec 12. */
+    /** The {@code Riders} list. */
     public ListTag save() {
         ListTag list = new ListTag();
         for (var entry : spots.entrySet()) {

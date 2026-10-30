@@ -28,16 +28,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Jump from where the body stands to a foot target (spec 8.4): solve the lowest arc that clears the sweep, crouch until
- * the clip's take-off marker, apply the one impulse and let vanilla physics fly it, resolving host contact every tick.
- * Nothing here picks a height or a duration: they come from {@link BodyAbility}, the solver and {@link ClipMarkers}.
- */
+/** Jump to a foot target: solve the lowest arc that clears the sweep, crouch to the take-off marker, apply one impulse and let vanilla fly it, resolving host contact each tick. */
 public final class Hop implements Action {
     public static final String ID = "hop";
     /** The clip whose take-off marker starts the flight. */
     private static final String CLIP = "hop";
-    /** Used when the exported clip data does not author {@code takeoff}; none does today (see the WP1 report). */
+    /** Used when the exported clip data does not author {@code takeoff}. */
     private static final int TAKEOFF_FALLBACK = 4;
     /** Air ticks allowed past the solved arc before the hop settles where it actually is. */
     static final int SETTLE = 10;
@@ -66,8 +62,7 @@ public final class Hop implements Action {
     /** How many of the nearest free hollow spots {@link #onto} asks the arc solver about. */
     private static final int ONTO_TRIES = 6;
 
-    /** The free spot in {@code host}'s hollow nearest the body that a hop lands on from here (world), or null: the host's walk
-     *  grid cells that are inside its container with room, nearest first, the first the arc solver accepts. */
+    /** The free spot in {@code host}'s hollow nearest the body that a hop lands on from here (world), or null: the inside cells with room, nearest first, the first the solver takes. */
     public static Vec3 onto(YukkuriEntity body, SurfaceHost host) {
         var grid = host.walkGrid(body, true);
         var frame = host.frame();
@@ -167,11 +162,7 @@ public final class Hop implements Action {
         return new AABB(from, target).inflate(reach);
     }
 
-    /**
-     * The clearance sweep: every tick sample's body box must be free of block collisions and must not pass under a host
-     * surface. The surface is read at the feet (a point probe); the footprint is tested once, at the contact, by
-     * {@link ContactResolver}.
-     */
+    /** The clearance sweep: every tick sample's body box must be free of blocks and must not pass under a host surface; the footprint is tested once, at the contact. */
     private boolean clear(YukkuriEntity body, List<Vec> points) {
         AABB base = body.getBoundingBox();
         Vec3 origin = body.position();

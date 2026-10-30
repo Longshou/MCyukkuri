@@ -9,14 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Authored clip timing: a clip's own markers are the server clock, so
- * an action and the drawn clip agree without the client deciding anything (spec 8.4 / 9.4).
- *
- * <p>The exported clip data ({@code /assets/mcyukkuri/yukkuri_presentation/motion_corrections.json}) is streamed once;
- * only durations and markers are kept, and the result is cached per clip name. Every model shares the same clip data
- * except {@code waddle}, so the first model that authors a clip name defines it.
- */
+/** Authored clip timing: a clip's own markers are the server clock, so an action and the drawn clip agree. Durations and markers are read once and kept per clip name. */
 public final class ClipMarkers {
     /** One clip: its authored length in seconds and its named markers in seconds. */
     public record Clip(float seconds, Map<String, Float> markers) {

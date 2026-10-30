@@ -10,9 +10,6 @@ public record Vec(double x,double y,double z){
 
     public Vec scale(double f){return new Vec(x*f,y*f,z*f);}
 
-    /** Length including Y. */
-    public double len(){return Math.sqrt(x*x+y*y+z*z);}
-
     /** Length in the XZ plane. */
     public double hlen(){return Math.sqrt(x*x+z*z);}
 }

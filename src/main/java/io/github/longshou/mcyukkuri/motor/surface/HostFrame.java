@@ -2,11 +2,7 @@ package io.github.longshou.mcyukkuri.motor.surface;
 
 import net.minecraft.world.phys.Vec3;
 
-/**
- * One rigid pose of a host for one tick. Matrix order is {@code yaw . roll(Z) . pitch(X)};
- * {@code origin} is the host's position, {@code unit} is blocks per hat unit, {@code yawRad} is the
- * host's turn; roll and pitch are in degrees.
- */
+/** One rigid pose of a host for one tick. Matrix order is {@code yaw . roll(Z) . pitch(X)}; {@code unit} is blocks per hat unit, {@code yawRad} the turn, roll and pitch in degrees. */
 public record HostFrame(Vec3 origin, double unit, float yawRad, float rollDeg, float pitchDeg) {
 
     /** A host-local point (hat units) in world coordinates. */

@@ -12,14 +12,7 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import java.util.Locale;
 import net.minecraft.util.Mth;
 
-/**
- * Turn on the spot until the body faces {@code yaw} (spec 9.4): at most the ability's turn rate per tick, through
- * {@link Motor#face}, so no caller keeps its own turn budget. The whole body turns and the action is done inside 3°.
- *
- * <p>Take-off/execution beats are physics' job: this action never moves, so it returns {@link TravelMode#CONSUMED} and the
- * watchdog sees only the remaining angle. Any owner may replace it, which is what makes it usable from a domain goal that
- * re-aims every tick.
- */
+/** Turn on the spot to face {@code yaw}: at most the ability's turn rate a tick through {@link Motor#face}, so no caller keeps a turn budget, and any owner may replace it. */
 public final class Face implements Action {
     public static final String ID = "face";
     /** The remaining angle that counts as arrived (degrees); a caller re-aiming must use the same threshold. */

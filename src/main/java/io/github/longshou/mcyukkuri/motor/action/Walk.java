@@ -23,20 +23,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Walk to a world target on the ground, or to a host-local target on a {@link SurfaceHost} (spec 9.4).
- *
- * <p>On the ground the shared {@link SurfaceApproach} owns the route and the last step, and vanilla travel integrates it.
- * On a host the body moves in local coordinates only: its route is planned once on the host's walk grid ({@link GridPath}:
- * steps up to its {@code stepUp}, a rim penalty), then followed at most {@code walkSpeed / unit} hat units per tick (with the
- * host's load in the ability), each step checked against the host's height field and room rule and written into
- * {@code riders()}, which {@code positionRider} turns into the world position. Nowhere here picks a distance or a duration:
- * they come from {@link BodyAbility}, and the carrying scale is the one the spec's Carry row names.
- *
- * <p>The ground watchdog metric is the route still ahead of the body (the installed path's remaining nodes plus the last
- * leg, or the straight distance when no path is installed), and {@code walk.sample} prints it every 20 ticks with the
- * detail switch on, so a playtest log can tell a bad route from a body that is not being driven (spec 13.1, E11-3).
- */
+/** Walk to a world target, or a host-local one: on the ground {@link SurfaceApproach} routes it, on a host a {@link GridPath} route is walked step by step against support and room. */
 public final class Walk implements Action {
     public static final String ID = "walk";
     /** Navigation coefficient for a walk that names none. */
@@ -45,9 +32,9 @@ public final class Walk implements Action {
     private static final double HOST_ARRIVED = .05;
     /** Horizontal distance (blocks) that counts as arrived at a stand beside another body. */
     private static final double STAND_ARRIVED = .1;
-    /** Ticks between two {@code walk.sample} detail lines (spec 13.1). */
+    /** Ticks between two {@code walk.sample} detail lines. */
     private static final int SAMPLE_TICKS = 20;
-    /** What entering a cell beside the brim costs on a host route, in cells (spec 6: the rim penalty). */
+    /** What entering a cell beside the brim costs on a host route, in cells (the rim penalty). */
     private static final double RIM_WEIGHT = 1;
 
     private final Vec3 target;
@@ -86,19 +73,12 @@ public final class Walk implements Action {
         this.local = null;
     }
 
-    /**
-     * Walks to a world point around another body (a partner at a rendezvous): the shared
-     * {@link SurfaceApproach#walkAround} plans the route around it instead of through it. Arrived when
-     * {@link SurfaceApproach#arrived}.
-     */
+    /** Walks to a world point around another body (a partner at a rendezvous): the shared {@link SurfaceApproach#walkAround} plans the route around it instead of through it. */
     public static Walk around(Vec3 target, Entity other) {
         return new Walk(target, SPEED, 0, other);
     }
 
-    /**
-     * Walks to a stand beside another body: a supported floor point, so the last 0.1 blocks horizontally count as arrived
-     * (the stand's height need not equal the other body's).
-     */
+    /** Walks to a stand beside another body: a supported floor point, so the last 0.1 blocks horizontally count as arrived (the stand's height need not equal the other body's). */
     public static Walk stand(Vec3 target, double speed) {
         return new Walk(target, speed, STAND_ARRIVED);
     }
@@ -148,7 +128,7 @@ public final class Walk implements Action {
                 GameplayLog.at(from), GameplayLog.at(host == null ? target : host.frame().toWorld(local)), arrive);
     }
 
-    /** Spec 13.1's walk end line: whether navigation had finished and how many nodes were left, next to the outcome. */
+    /** The ground walk's end line: whether navigation had finished and how many nodes were left, next to the outcome. */
     @Override public String endDetail(Outcome outcome) {
         if (host != null) return String.format(Locale.ROOT, "leg=%d/%d", Math.min(leg + 1, route.size()), route.size());
         return String.format(Locale.ROOT, "navDone=%b nodesLeft=%d", navDone, nodesLeft);
@@ -171,12 +151,7 @@ public final class Walk implements Action {
         return new Running(left, TravelMode.PASS);
     }
 
-    /**
-     * Plans the host route on its walk grid from the cell the body stands on to the target's (each snapped to the nearest
-     * supported cell around it): the start cell's centre may lie behind the body and the goal cell's is replaced by the
-     * target itself. No route is {@code NO_PATH} with the straight distance (blocks) as its shortfall. A replan also keeps off
-     * the other riders' feet.
-     */
+    /** Plans the host route on its walk grid, both ends snapped to a supported cell: no route is {@code NO_PATH} with the straight distance; a replan keeps off other riders. */
     private Feasibility plan(YukkuriEntity body, boolean aroundRiders) {
         var spot = host.riders().local(body.getUUID());
         double unit = Math.max(1E-6, host.frame().unit());
@@ -202,8 +177,7 @@ public final class Walk implements Action {
     }
 
     private Progress hostTick(YukkuriEntity body) {
-        // The body left the host (grabbed, put down, host gone): the walk is over and must not write a rider spot it no
-        // longer has (that spot is the host's only key set, spec 5.3 I2).
+        // The body left the host (grabbed, put down, host gone): the walk is over and must not write a rider spot it no longer has.
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return new Outcome.Done("left_host");
         Vec3 spot = host.riders().local(body.getUUID());
         if (Math.hypot(local.x - spot.x, local.z - spot.z) <= HOST_ARRIVED) return new Outcome.Done(String.format(Locale.ROOT, "local=%s", local));
@@ -259,12 +233,12 @@ public final class Walk implements Action {
         nodesLeft = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
     }
 
-    /** The rider table's yaw convention: the body's own yaw relative to the host frame (spec 12). */
+    /** The rider table's yaw convention: the body's own yaw relative to the host frame. */
     private static float localYaw(YukkuriEntity body, SurfaceHost host) {
         return Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad()));
     }
 
-    /** {@code walk.sample} (spec 13.1): position, navigation state, nodes left, owner and the metric, only with detail on. */
+    /** {@code walk.sample}: position, navigation state, nodes left, owner and the metric, only with the detail switch on. */
     private void sample(YukkuriEntity body) {
         if (!GameplayLog.detailEnabled()) return;
         var navigation = body.getNavigation();

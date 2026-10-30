@@ -3,32 +3,25 @@ package io.github.longshou.mcyukkuri.motor.geom;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * The ability formulas of spec 8.1 as pure functions: size S, energy E, health H, injury I, condition F and the host
- * load factor L, then every limit an action may read. The numbers come from {@link Coefficients} (the data file) with
- * per-species {@link Multipliers} applied; nothing here knows about entities, worlds or Minecraft.
- */
+/** The ability formulas as pure functions: S, E, H, I, F and L, then every limit an action reads. The numbers come from {@link Coefficients} with per-species {@link Multipliers}. */
 public final class AbilityMath {
-    /**
-     * What the body is right now. {@code size} is {@code growthScale * scale} (the S source before the clamp),
-     * {@code energy} is the raw need value, {@code load} is the host's load in the units of spec 8.1 L.
-     */
+    /** What the body is right now: {@code size} is {@code growthScale * scale} (S before the clamp), {@code energy} the raw need value, {@code load} the host's load in L. */
     public record Inputs(double size, double energy, double health, double maxHealth, double painSeverity,
                          boolean footBurned, boolean adultOrCanJump, boolean dying, boolean sleeping, double load) {
-        /** A resting, uninjured adult at full energy: the reference body of spec 8.1 and {@code AbilityFormulaTest}. */
+        /** A resting, uninjured adult at full energy: the reference body. */
         public static final Inputs ADULT = new Inputs(1, 80, 20, 20, 0, false, true, false, false, 0);
     }
 
-    /** Every coefficient of spec 8.1, in data-file key order. Its names are the JSON keys of {@code ability.json}. */
+    /** Every coefficient, in data-file key order. Its names are the JSON keys of {@code ability.json}. */
     public record Coefficients(double hopHeight, double hopReach, double stepUp, double walkSpeed, double turnRate,
                                double turnFloor, double swimSpeed, double climbRise, double climbFloor,
                                double energyRef, double minJumpEnergy, double painWeight, double burnPenalty,
                                double loadRef, double sizeMin, double sizeMax, double fitnessFloor) {
-        /** The Q1 numbers of spec 8.1; also the fallback when {@code body/ability.json} is missing or broken. */
+        /** The default numbers; also the fallback when {@code body/ability.json} is missing or broken. */
         public static final Coefficients DEFAULTS = new Coefficients(.80, 1.00, .6, .10, 12, .6, .03, .75, .65,
                 80, 8, .18, .3, 12, .06, 1.5, .35);
 
-        /** The named view a data file or readout needs; insertion order is the spec's order. */
+        /** The named view a data file or readout needs; insertion order is {@link Coefficients}' own order. */
         public Map<String, Double> asMap() {
             var out = new LinkedHashMap<String, Double>();
             out.put("hop_height", hopHeight);
@@ -52,8 +45,7 @@ public final class AbilityMath {
         }
     }
 
-    /** Per-coefficient factors (spec 8.2 modifiers): a species swims half again as fast by putting {@code swim_speed} 1.5 here;
-     *  a key that is no coefficient is a capability {@link #flag}. */
+    /** Per-coefficient factors: a species swims half again as fast by putting {@code swim_speed} 1.5 here; a key that is no coefficient is a capability {@link #flag}. */
     public record Multipliers(Map<String, Double> factors) {
         /** No species modifier: every coefficient is used as the data file gives it. */
         public static final Multipliers IDENTITY = new Multipliers(Map.of());
@@ -87,8 +79,7 @@ public final class AbilityMath {
                          double stepUp, double walkSpeed, double turnRate, double swimSpeed, double climbRise,
                          double grip) {}
 
-    /** Spec 8.1: S, E, H, I, F, L and every derived limit. A young not yet old enough to jump cannot pull itself over an edge
-     *  either (refactor WP5: a crawling young is lifted out), so its climb rise is 0; energy only lowers it to its floor. */
+    /** S, E, H, I, F, L and every derived limit. A young too young to jump cannot pull itself over an edge either, so its climb rise is 0; energy only lowers it to its floor. */
     public static Values compute(Inputs in, Coefficients coefficients, Multipliers modifiers) {
         Coefficients c = (modifiers == null ? Multipliers.IDENTITY : modifiers)
                 .apply(coefficients == null ? Coefficients.DEFAULTS : coefficients);

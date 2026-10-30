@@ -1,10 +1,10 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** The water actions' effort maths (refactor WP5): push shares, paddle strokes and turns, righting. No Minecraft types. */
+/** The water actions' effort maths: push shares, paddle strokes and turns, righting. No Minecraft types. */
 public final class Effort {
     private Effort() {}
 
-    /** The share of a push that moves the other one: the pusher's mass over both (box volumes, spec 9.4). */
+    /** The share of a push that moves the other one: the pusher's mass over both (box volumes). */
     public static double share(double pusher, double other) { return pusher + other <= 0 ? 0 : pusher / (pusher + other); }
 
     /** 1 inside the power stroke {@code [start, end)} of a {@code length}-tick clip cycle, else 0. */

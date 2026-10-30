@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Spec 6 and 14.8 ({@code GridPathTest}): linking, detours, disconnection and the rim penalty. */
+/** Linking, detours, disconnection and the rim penalty. */
 class GridPathTest {
     private static final double STEP = .3;
 

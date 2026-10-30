@@ -3,16 +3,7 @@ package io.github.longshou.mcyukkuri.motor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * A prop a body carries, sets down and takes back (spec 9.4 {@code PlaceProp} / {@code TakeProp}): the hat, seen through
- * the one interface the motor layer may know. {@code motor/} must not import {@code subspecies/} (design P9), so the
- * a subspecies adapter implements this over the hull, hat custody and accessory transfers.
- *
- * <p>Every method is a read except {@link #setDown} and {@link #takeBack}: those are the irreversible accessory moves the
- * actions call once, at the clip's {@code release} marker. A prop knows its own placement mode (land {@code nest} or
- * floating) and whether it is being placed by its owner ({@code self}) or by a helper, because both decide the clip and
- * the role of the hull that appears.
- */
+/** A prop a body carries, sets down and takes back: the hat, through the one interface the motor layer may know. Every method reads except {@link #setDown} and {@link #takeBack}. */
 public interface Prop {
     /** Lower-case with underscores; the {@code prop=} log field. */
     String id();

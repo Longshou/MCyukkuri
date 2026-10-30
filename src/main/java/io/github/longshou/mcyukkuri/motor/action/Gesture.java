@@ -22,21 +22,15 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * A short body gesture (spec 9.4): a small hop in place, a squash or lean that only poses, or a tumble toward a container
- * centre. On a host's brim the tumble goes into the hollow when the hollow has room on the way, else off the brim's outer
- * side, so a body that fell onto a brim does not stay balanced there. Nothing here names a height, a distance or a duration:
- * the hop apex is {@code min(0.25·S, hopHeight)} resolved through {@link ArcSolver#vyFor}, the roll is bounded by
- * {@link #ROLL_REACH} of the spec's own 0.3 blocks, and every pose length comes from {@link ClipMarkers}.
- */
+/** A short body gesture: a hop in place, a squash or lean that only poses, or a tumble toward a container centre. A brim tumble goes into the hollow with room, else off the edge. */
 public final class Gesture implements Action {
     public static final String ID = "gesture";
-    /** The gesture kinds of spec 9.4; only {@link Kind#ROLL_IN} carries a target. */
+    /** The gesture kinds; only {@link Kind#ROLL_IN} carries a target. */
     public enum Kind { HOP_SMALL, SQUASH, LEAN, ROLL_IN }
 
-    /** A small hop rises at most this fraction of the body's own size S (spec 9.4 Gesture HOP_SMALL). */
+    /** A small hop rises at most this fraction of the body's own size S. */
     private static final double SMALL = .25;
-    /** The most a ROLL_IN travels toward the container centre (spec 9.4: at most 0.3 blocks in total). */
+    /** The most a ROLL_IN travels toward the container centre (blocks). */
     public static final double ROLL_REACH = .3;
 
     private final Kind kind;
@@ -79,15 +73,12 @@ public final class Gesture implements Action {
         };
     }
 
-    /** The apex of the smallest hop this body can make (spec 9.4): {@code min(0.25·S, hopHeight)}, zero when it cannot jump. */
+    /** The apex of the smallest hop this body can make: {@code min(0.25·S, hopHeight)}, zero when it cannot jump. */
     public static double smallHopApex(BodyAbility ability) {
         return Math.min(SMALL * ability.scale(), ability.hopHeight());
     }
 
-    /**
-     * The single upward impulse of a small hop, from the discrete arc model. Zero for a body that cannot jump, so a landing
-     * bounce sized by it gets no hop rather than a made-up height.
-     */
+    /** The single upward impulse of a small hop, from the discrete arc model. Zero for a body that cannot jump, so a bounce sized by it gets no made-up height. */
     public static double smallHopImpulse(YukkuriEntity body) {
         return smallHopImpulse(BodyAbility.of(body));
     }
@@ -96,10 +87,7 @@ public final class Gesture implements Action {
         return ability.canJump() ? ArcSolver.vyFor(smallHopApex(ability)) : 0;
     }
 
-    /**
-     * Moves {@code body} toward {@code center} by at most {@code budget} blocks with collision, and reports the distance it
-     * actually covered.
-     */
+    /** Moves {@code body} toward {@code center} by at most {@code budget} blocks with collision, and reports the distance actually covered. */
     public static double roll(YukkuriEntity body, Vec3 center, double budget) {
         if (body == null || center == null || budget <= 0) return 0;
         Vec3 flat = center.subtract(body.position()).multiply(1, 0, 1);
@@ -182,10 +170,7 @@ public final class Gesture implements Action {
         return host != null && Attach.of(body) instanceof AttachState.OnHost on && on.host() == host;
     }
 
-    /**
-     * Whether the host's hollow has a free spot for this body on the way in from where it lies to the hollow's middle: inside
-     * the hollow ({@link Occupancy#INSIDE_SUPPORTED}) with room at its height.
-     */
+    /** Whether the host's hollow has a free spot for this body on the way in from where it lies: inside the hollow ({@link Occupancy#INSIDE_SUPPORTED}) with room at its height. */
     private boolean hollowAhead(YukkuriEntity body) {
         var frame = host.frame();
         double unit = Math.max(1E-6, frame.unit()), foot = Occupancy.foot(body.getBbWidth());
@@ -203,12 +188,7 @@ public final class Gesture implements Action {
         return false;
     }
 
-    /**
-     * One tick of a tumble on the host's brim (blocks covered): toward the hollow's middle when {@link #hollowAhead} found room,
-     * else away from it down the brim's outer side. The spot moves along the surface (the host carries the body there); a step
-     * the way in that another body or store takes stops the tumble, a step out with no surface left under the body leaves the
-     * host there, moving that way, and it falls from the brim.
-     */
+    /** One tick of a tumble on the host's brim (blocks covered): toward the hollow when {@link #hollowAhead} found room, else down the outer side; another body's step stops it. */
     private double hostRoll(YukkuriEntity body, double budget) {
         var frame = host.frame();
         double unit = Math.max(1E-6, frame.unit()), foot = Occupancy.foot(body.getBbWidth());

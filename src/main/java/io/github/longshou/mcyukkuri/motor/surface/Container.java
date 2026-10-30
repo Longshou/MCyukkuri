@@ -4,10 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * A hollow a body can be inside (spec 7): nest beds and the catch hat. Plane coordinates are blocks,
- * centred on the container; heights are in the same plane frame (world heights for an unrotated container).
- */
+/** A hollow a body can be inside: nest beds and the catch hat. Plane coordinates are blocks, centred on the container; heights are in the same plane frame. */
 public interface Container {
     /** Inner bottom outline in plane coordinates. */
     FloorShape floor();

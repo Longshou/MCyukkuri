@@ -1,9 +1,6 @@
 package io.github.longshou.mcyukkuri.motor;
 
-/**
- * Why a body could not do something. The class of the failure is fixed here and cannot be recorded as
- * something else by a caller (spec 9.2); only the shortfall is measured at the call site.
- */
+/** Why a body could not do something. The class of the failure is fixed here and cannot be recorded as something else by a caller; only the shortfall is measured at the call site. */
 public enum Reason {
     TOO_HIGH(Kind.BLOCKED),
     TOO_FAR(Kind.BLOCKED),

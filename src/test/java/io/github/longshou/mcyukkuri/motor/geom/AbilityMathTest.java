@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Spec 8.1 and 14.8 ({@code AbilityFormulaTest}): the numbers come from the coefficients, not from call sites. */
+/** The numbers come from the coefficients, not from call sites. */
 class AbilityMathTest {
     private static final double EPS = 1e-9;
     private static final AbilityMath.Coefficients C = AbilityMath.Coefficients.DEFAULTS;
@@ -17,7 +17,7 @@ class AbilityMathTest {
         return AbilityMath.compute(in, C, NONE);
     }
 
-    /** The reference adult of spec 8.1 with one field replaced. */
+    /** The reference adult with one field replaced. */
     private static AbilityMath.Inputs adultWith(double size, double energy, double health, double pain,
                                                  boolean burned, boolean canJump, boolean dying, boolean sleeping,
                                                  double load) {

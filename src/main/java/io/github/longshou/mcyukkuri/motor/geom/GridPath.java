@@ -6,14 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
-/** A* over a {@link HeightGrid} (spec 6): 8-way, edges need two supported cells within {@code stepUp}. */
+/** A* over a {@link HeightGrid}: 8-way, edges need two supported cells within {@code stepUp}. */
 public final class GridPath {
     private GridPath() {}
 
-    /**
-     * Waypoints {@code {x,z}} from the start cell centre to the goal cell centre, empty when unreachable.
-     * Cost is distance in cells; entering a rim cell (supported, with an unsupported 8-neighbour) adds {@code rimWeight}.
-     */
+    /** Waypoints {@code {x,z}} from the start cell centre to the goal cell centre, empty when unreachable. Cost is distance in cells; a rim cell adds {@code rimWeight}. */
     public static List<double[]> find(HeightGrid g, double sx, double sz, double gx, double gz, double stepUp, double rimWeight) {
         int nx = g.nx(), n = nx * g.nz();
         int s = g.cellZ(sz) * nx + g.cellX(sx), t = g.cellZ(gz) * nx + g.cellX(gx);

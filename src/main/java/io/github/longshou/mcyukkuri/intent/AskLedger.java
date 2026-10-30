@@ -11,16 +11,7 @@ import java.util.UUID;
 import java.util.function.DoubleSupplier;
 import net.minecraft.world.entity.Entity;
 
-/**
- * Who helps whom in one incident (spec 11.3). The incident's owner opens it ({@link #open}: a body that fell into the water, a
- * mother asking her mate's boat over) and settles it when it is over ({@link #settle}). Each helper decides once per incident:
- * the first {@link #decide} of an {@code (incident, helper)} draws one roll against the chance and keeps chance, roll and the
- * answer, so every later call (another evaluation, the helper back on its hat) reads the same decision; a refusal stays a
- * refusal. A helper whose run of the asked intent is over is {@link #ended}: it does not take the incident up again. Open
- * incidents (few) are kept apart from the settled ones (a bounded ring whose decisions still answer late reads, oldest evicted
- * first), so no pair is ever drawn twice and a read scans only what is open; an owner that died or left the world settles its
- * incident on the next read. Server-wide, never saved; cleared when the server stops.
- */
+/** Who helps whom in one incident: the owner opens and settles it, and each helper decides once, chance, roll and answer kept, so no pair is drawn twice and a refusal stays one. */
 public final class AskLedger {
     /** Settled incidents kept before the oldest is evicted. */
     static final int KEEP = 128;
@@ -89,11 +80,7 @@ public final class AskLedger {
         return out;
     }
 
-    /**
-     * The one decision of {@code ask.helper()} for its incident: drawn now when there is none ({@code roll} gives a uniform
-     * 0..1, accepted when below {@code chance}) and logged against {@code at}, else the kept one. Null when the incident is
-     * unknown, or settled before this helper ever decided (an incident over is not decided any more).
-     */
+    /** The one decision of {@code ask.helper()} for its incident: drawn now when there is none ({@code roll} uniform 0..1, accepted below {@code chance}), else the kept one. */
     public Decision decide(Ask ask, double chance, DoubleSupplier roll, Entity at) {
         prune();
         var i = open.get(ask.incidentId());

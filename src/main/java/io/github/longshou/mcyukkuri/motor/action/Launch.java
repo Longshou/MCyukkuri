@@ -23,13 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * A body thrown by someone else: a newborn pushed out of the outlet, out of a hat or off a host. The caller has already drawn
- * the impulse (spec 9.4 Launch, design 5.2 "no wind-up, straight to physics"), so this action only applies it once and lets
- * vanilla travel integrate it; every airborne tick first resolves host contact (spec 8.5) with the body's envelope. Nothing
- * is corrected, re-aimed or re-drawn here, so where the body comes down is decided by the first real contact. The preview
- * sweeps the same envelope along the predicted arc for the start line only.
- */
+/** A body thrown by someone else: the caller drew the impulse, so this only applies it once and lets vanilla travel integrate it, resolving host contact each airborne tick. */
 public final class Launch implements Action {
     public static final String ID = "launch";
     /** Air ticks allowed past the previewed flight before the body settles where it actually is (same allowance as Hop). */
@@ -83,7 +77,7 @@ public final class Launch implements Action {
     @Override public void start(YukkuriEntity body) {
         air = 0;
         peak = 0;
-        // No wind-up (design 5.2): the already-drawn impulse is written at once; vanilla travel integrates it from here on.
+        // No wind-up: the already-drawn impulse is written at once; vanilla travel integrates it from here on.
         Motor.velocity(body, velocity, "launch_" + cause);
     }
 
@@ -91,7 +85,7 @@ public final class Launch implements Action {
         air++;
         peak = Math.max(peak, body.getY() - from.y);
         ContactResolver.Contact contact = ContactResolver.resolve(body, envelope);
-        // A host that refuses the mount ends the flight where physics left the body (spec 8.5); the landing rules judge the rest.
+        // A host that refuses the mount ends the flight where physics left the body; the landing rules judge the rest.
         if (contact != null && contact.refused()) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
         if (contact != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
         if (body.isInWater()) return new Outcome.Done("water at=" + GameplayLog.at(body.position()));
@@ -114,11 +108,7 @@ public final class Launch implements Action {
     /** Ticks left before the launch ends on its own; it only ever drops, so the watchdog never fires on a long throw. */
     private double metric() { return horizon + SETTLE - air; }
 
-    /**
-     * Where the impulse would come down if nothing interfered, and the first thing its envelope meets on the way (log only):
-     * a block, the border or another body's envelope. Hosts are the contact test's; a host's riders and a body already
-     * touching this one at the launch point (the mother around her outlet) do not count.
-     */
+    /** Where the impulse would come down if nothing interfered, and the first thing its envelope meets on the way (log only); hosts are the contact test's. */
     private String previewText(YukkuriEntity body, double dy) {
         List<Vec> path = Ballistic.samples(new Vec(velocity.x, velocity.y, velocity.z), horizon);
         AABB start = body.getBoundingBox();

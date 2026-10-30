@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** A footprint circle in the plane, centre (x,z) and radius r, over the heights it takes from its bottom to its top (a body from
- *  its feet up its own height, a stored portion up its pile). Two footprints conflict only where both the circles and the
- *  heights overlap, so what lies low in a hollow can sit under a body standing higher over it. */
+/** A footprint circle in the plane, centre (x,z) and radius r, over the heights it takes; two footprints conflict only where both the circles and the heights overlap. */
 public record Disc(double x,double z,double r,double bottom,double top){
     /** A footprint that takes every height: it meets any other wherever the circles overlap. */
     public Disc(double x,double z,double r){this(x,z,r,Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);}

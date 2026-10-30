@@ -18,15 +18,9 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-/**
- * The ability data of spec 8.2: {@code data/mcyukkuri/body/ability.json} with every coefficient of spec 8.1 and the
- * per-species modifiers of {@link AbilityModifier}. Loaded through the vanilla resource reload so {@code /reload} is the
- * only way numbers change; the 8-hex fingerprint lets a log line name the parameter set it ran with.
- *
- * <p>Missing or broken data is not fatal: one WARN and the code defaults ({@link AbilityMath.Coefficients#DEFAULTS}).
- */
+/** The ability data ({@code body/ability.json}), read on the vanilla resource reload so {@code /reload} is the only way numbers change; broken data is one WARN and the defaults. */
 public final class AbilityTable extends SimpleJsonResourceReloadListener {
-    /** Spec 8.2 path: {@code data/<namespace>/body/ability.json}. */
+    /** The data path: {@code data/<namespace>/body/ability.json}. */
     public static final String DIRECTORY = "body", FILE = "ability";
     private static final Gson GSON = new Gson();
     private static volatile AbilityMath.Coefficients coefficients = AbilityMath.Coefficients.DEFAULTS;
@@ -38,7 +32,7 @@ public final class AbilityTable extends SimpleJsonResourceReloadListener {
     /** The coefficients in force, read by every {@link BodyAbility#of}. */
     public static AbilityMath.Coefficients current() { return coefficients; }
 
-    /** 8 hex digits over the parsed data; the same file always yields the same value (spec 13.1 {@code fp=}). */
+    /** 8 hex digits over the parsed data; the same file always yields the same value. */
     public static String fingerprint() { return fingerprint; }
 
     /** The species' factors, {@link AbilityMath.Multipliers#IDENTITY} when the data authors none for that key. */

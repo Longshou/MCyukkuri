@@ -1,9 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/**
- * A floating hull's statics and its damped return to them (refactor WP4a): blocks, masses in block³ of water, degrees and
- * ticks. Roll lifts the +x side and pitch lowers the +z side, as in {@code HostFrame}. No Minecraft types.
- */
+/** A floating hull's statics and its damped return to them: blocks, masses in block³ of water, degrees and ticks. Roll lifts +x, pitch lowers +z. No Minecraft types. */
 public final class Buoyancy {
     /** A yukkuri body relative to water: a ball floats neutral with 56% of its height under ({@link #bodyLift}), d²(3-2d). */
     public static final double BODY_DENSITY=.56*.56*(3-2*.56);
@@ -17,8 +14,7 @@ public final class Buoyancy {
         }
     }
 
-    /** A body's lift per tick at this immersed share and vertical speed: neutral near 56% against water gravity, damped; effort
-     *  and fatigue never take it away (formerly life/WaterDistress). */
+    /** A body's lift per tick at this immersed share and vertical speed: neutral near 56% against water gravity, damped; effort and fatigue never take it away. */
     public static double bodyLift(double fraction,double verticalVelocity){
         return Math.clamp(.005+.045*(fraction-.56)-.08*verticalVelocity,-.018,.032);
     }
@@ -50,8 +46,7 @@ public final class Buoyancy {
     /** What a tilt springs back to: the load's heel while upright, flat upside down once past a quarter turn. */
     public static double rest(double angle,double heel){return Math.abs(angle)>90?Math.copySign(180,angle):heel;}
 
-    /** The hull bottom's height over the water surface that floats it: its axis sits {@code draft} deep, or upside down its
-     *  brim {@code top} out does. Continuous through the quarter turn. */
+    /** The hull bottom's height over the water surface that floats it: its axis sits {@code draft} deep, or upside down its brim {@code top} out does. */
     public static double rise(double up,double draft,double top){return -(up>=0?draft:top-draft)*up;}
 
     /** One tick of a damped spring: the new velocity for an offset {@code toRest} from where it rests. */

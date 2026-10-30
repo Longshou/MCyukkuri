@@ -17,21 +17,10 @@ import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Set a prop down at a stand (spec 9.4 {@code PlaceProp}): play the prop's own clip and make the one irreversible
- * transfer at the clip's {@code release} marker (fallback: the clip's last tick). From the {@code grip} marker (fallback:
- * the first tick) the braid holds the prop and the clip carries it to the stand, a stretch that cannot be cut short, so the
- * hat never snaps back to the head. Feasibility is checked once, before the action starts ({@link #check}); the body then
- * commits to the clip instead of re-validating every tick, and a world that changed underneath is the prop's own refusal
- * at the marker ({@code NO_ROOM}).
- *
- * <p>The action never moves the body: the stand and yaw are the role's own aim, and playing the clip is a presentation.
- * The prop supplies everything species-specific (clip ids, self variant, land or floating mode); the motor layer stays
- * free of {@code subspecies/}.
- */
+/** Set a prop down at a stand: play the prop's own clip and make the one irreversible transfer at its {@code release} marker, the braid carrying it from the {@code grip} marker. */
 public final class PlaceProp implements Action {
     public static final String ID = "place_prop";
-    /** The clip marker the transfer happens at (spec 9.4); a clip without it uses its last tick. */
+    /** The clip marker the transfer happens at; a clip without it uses its last tick. */
     public static final String RELEASE_MARKER = "release";
 
     private final Prop prop;
@@ -84,7 +73,7 @@ public final class PlaceProp implements Action {
                 releaseTicks());
     }
 
-    /** The clip's {@code release} marker in ticks, or its last tick when the clip authors none (spec 9.4). */
+    /** The clip's {@code release} marker in ticks, or its last tick when the clip authors none. */
     public int releaseTicks() {
         ClipMarkers.Clip clip = ClipMarkers.of(clip());
         return clip.ticks(RELEASE_MARKER, Math.max(0, clip.length() - 1));

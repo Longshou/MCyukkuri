@@ -4,10 +4,7 @@ import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import java.util.Set;
 
-/**
- * One way to reach an {@link Intent} (spec 11.1). A method that is applicable shrinks the reasons it declares, so a
- * blocked step switches to a method whose {@link #reduces()} contains that reason.
- */
+/** One way to reach an {@link Intent}. A method that is applicable shrinks the reasons it declares, so a blocked step switches to a method whose {@link #reduces()} holds it. */
 public interface Method {
     String id();
 

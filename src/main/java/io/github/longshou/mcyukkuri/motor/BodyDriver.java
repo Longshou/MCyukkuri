@@ -15,13 +15,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The MOTOR component (spec 9.3): exactly one action drives a body at a time, and every request to move goes
- * through it. Server only, never saved, never driven by a passive clock.
- *
- * <p>Per tick: the owner check, the action's own tick, the progress watchdog, and on an {@link Outcome} the
- * {@link Attach#settle}, the {@code last} record and the {@code [action] end} line.
- */
+/** The MOTOR component: exactly one action drives a body at a time and every request to move goes through it. Server only, never saved, never driven by a passive clock. */
 public final class BodyDriver {
     /** Current action id, empty when idle. */
     public static final SyncSlot<String> MOTOR_ACTION = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
@@ -52,19 +46,12 @@ public final class BodyDriver {
         this.body = body;
     }
 
-    /**
-     * True while {@code YukkuriEntity.aiStep} runs {@code super.aiStep()}, i.e. inside the goal decisions and the
-     * travel pass. {@link #run} refuses outside it, so a passive clock or a callback cannot start an action.
-     */
+    /** True while {@code YukkuriEntity.aiStep} runs the goal decisions and the travel pass; {@link #run} refuses outside it, so a passive clock or a callback cannot start an action. */
     public static boolean deciding() { return DECIDING.get(); }
 
     public static void deciding(boolean on) { DECIDING.set(on); }
 
-    /**
-     * Asks for {@code action} to become the body's action. True when accepted and started.
-     * Acceptance follows spec 9.3: nothing running, or the same owner while the current action is interruptible,
-     * or another owner while the current action is interruptible and its owner is no longer active.
-     */
+    /** Asks for {@code action} to become the body's action: true when accepted and started, refused while an uninterruptible action or an active owner's action holds it. */
     public boolean run(MotorOwner candidate, Action action) {
         refusal = null;
         refusedBusy = false;
@@ -97,8 +84,7 @@ public final class BodyDriver {
         return true;
     }
 
-    /** Ends the current action at the owner's request, keeping the physical state; an uninterruptible stretch (a flight, a
-     *  hat in the braid) finishes first and then ends {@link Outcome.Interrupted}, as the interrupt bridge does. */
+    /** Ends the current action at the owner's request, keeping the physical state; an uninterruptible stretch (a flight) finishes first, then ends {@link Outcome.Interrupted}. */
     public void cancel(MotorOwner candidate, String why) {
         if (current == null || owner == null || candidate == null) return;
         if (candidate.ownerId() == null || !candidate.ownerId().equals(owner.ownerId())) return;
@@ -112,18 +98,14 @@ public final class BodyDriver {
 
     public Outcome last() { return last; }
 
-    /** Why the latest {@link #run} call refused its action by the action's own check, or null (accepted, or refused by the
-     *  acceptance rules, which name no reason of the action's). */
+    /** Why the latest {@link #run} call refused its action by the action's own check, or null (accepted, or refused by the acceptance rules, which name no reason of the action's). */
     public Outcome refusal() { return refusal; }
 
     public long lastTick() { return lastTick; }
 
     public MotorOwner owner() { return owner; }
 
-    /**
-     * Spec 2 step 4: the action's tick, run from {@code YukkuriEntity.travel} before vanilla integrates anything. When vanilla
-     * then moves the body ({@link TravelMode#PASS}) and it is in water, the water's lift is added here, for every body.
-     */
+    /** The action's tick, run from {@code YukkuriEntity.travel} before vanilla integrates anything; the water's lift is added here afterwards, for every body in water. */
     public TravelMode tickTravel(Vec3 input) {
         if (body.level().isClientSide) return TravelMode.PASS;
         TravelMode mode = current == null ? fall() : drive();
@@ -134,8 +116,7 @@ public final class BodyDriver {
     /** How near (blocks) a host must be before a free fall is tested against it. */
     private static final double FALL_HOST = 3;
 
-    /** No action and falling free (put down over a hollow, stepped off a bank): it lands on a host it meets the way a flight
-     *  does; only asked when a host is that near (a small box query), never while riding. */
+    /** No action and falling free (put down over a hollow, stepped off a bank): it lands on a host the way a flight does, only when one is near, never while riding. */
     private TravelMode fall() {
         if (body.isAlive() && !body.isPassenger() && !body.onGround() && !body.isInWaterOrBubble() && body.getDeltaMovement().y < 0
                 && !body.level().getEntities(body, body.getBoundingBox().inflate(FALL_HOST), e -> e instanceof SurfaceHost).isEmpty())
@@ -143,8 +124,7 @@ public final class BodyDriver {
         return TravelMode.PASS;
     }
 
-    /** The water's lift ({@link Buoyancy#bodyLift}) for the share of the body's height under water over five columns of its box:
-     *  it floats about half under, whatever it does; an upward push never takes it past 0.085 block a tick. */
+    /** The water's lift ({@link Buoyancy#bodyLift}) for the share of the body under water over five columns of its box: it floats about half under, lift capped at 0.085. */
     private void buoy() {
         var box = body.getBoundingBox();
         double d = body.getBbWidth() * .35, under = 0;
@@ -189,12 +169,7 @@ public final class BodyDriver {
         return running.travel();
     }
 
-    /**
-     * The interrupt bridge (FRIGHT, HURT, COMMAND, PET_LOCK, BURNING, DEATH, and the hard carry reasons a passive clock may
-     * only report: water, fire, panic, an operation, a lost hat). An interruptible action stops now; an uninterruptible one
-     * finishes its flight and the outcome becomes {@link Outcome.Interrupted}. A carrier lets its children go where they are,
-     * and a held child lets go of its carrier (spec 5.4, {@link Release#interrupted}).
-     */
+    /** The interrupt bridge (fright, hurt, death, water, panic, a lost hat): an interruptible action stops now, an uninterruptible one finishes and ends {@link Outcome.Interrupted}. */
     public void interrupt(String why) {
         stop(why);
         Release.interrupted(body, why == null ? "interrupted" : why);
@@ -210,11 +185,7 @@ public final class BodyDriver {
         interruptedWhy = why == null ? "interrupted" : why;
     }
 
-    /**
-     * The HURT bridge: the water's own damage (drowning, the immersion damage every body takes in water) is what the body in the
-     * water is already answering, so it stops nothing it does there (Swim, Climb, Right, Push, Paddle and the waits between
-     * them); a real hit interrupts as {@link #interrupt}.
-     */
+    /** The HURT bridge: the water's own damage (drowning) is what a body in the water is already answering, so it stops nothing done there; a real hit interrupts. */
     public void hurt(DamageSource source) {
         if (source != null && source.is(DamageTypes.DROWN)) {
             if (current != null) GameplayLog.limited(body, "action", "kept_through_water", REFUSED_WINDOW,

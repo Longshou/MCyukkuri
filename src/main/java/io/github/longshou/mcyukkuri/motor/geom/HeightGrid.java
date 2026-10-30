@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** Square grid of support heights over a host's local plane (spec 6); NaN marks a cell with no support. */
+/** Square grid of support heights over a host's local plane; NaN marks a cell with no support. */
 public final class HeightGrid {
     /** Support height at a local point, NaN when there is none. */
     @FunctionalInterface
@@ -35,8 +35,7 @@ public final class HeightGrid {
     public double centreX(int i) { return minX + (i + .5) * cell; }
     public double centreZ(int j) { return minZ + (j + .5) * cell; }
 
-    /** The supported cell nearest (x, z) among its own cell and the eight around it, as {@code {i, j}}; null when none is:
-     *  a body standing between cell centres starts and ends its route on the floor it is really on. */
+    /** The supported cell nearest (x, z) among itself and the eight around it, as {@code {i, j}}, or null: a body between cell centres starts and ends on its real floor. */
     public int[] nearest(double x, double z) {
         int ci = cellX(x), cj = cellZ(z);
         int[] best = null;

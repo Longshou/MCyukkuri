@@ -8,10 +8,7 @@ import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Where a body is, read from facts and re-derived every time (spec 5). The only storage is the vanilla vehicle
- * relation plus the host's {@link Riders}; nothing caches "in the hat" or "being carried".
- */
+/** Where a body is, read from facts and re-derived every time: the vanilla vehicle relation plus the host's {@link Riders}, and nothing caches "in the hat". */
 public final class Attach {
     /** The clips that put a body in the air; used only to name the {@link AttachState.Airborne} state. */
     private static final String HOP = "hop";
@@ -37,10 +34,7 @@ public final class Attach {
         return new AttachState.Free(body.isInWater());
     }
 
-    /**
-     * Re-derives the state after a transition, records a change, keeps the sync slot current, and pushes a body that
-     * ended up inside a block collision out by at most {@link Motor#NUDGE_MAX}. Never decides where to go.
-     */
+    /** Re-derives the state after a transition, records the change, keeps the sync slot current, and nudges a body out of a block collision by at most {@link Motor#NUDGE_MAX}. */
     public static AttachState settle(YukkuriEntity body, String cause) {
         AttachState state = of(body);
         if (body == null || body.level().isClientSide) return state;
@@ -68,8 +62,7 @@ public final class Attach {
         return "held:" + held.carrier().getUUID();
     }
 
-    /** Small pushes out of a block collision; every attempt is undone before the next, and a body that still
-     *  collides afterwards is reported instead of being moved further. */
+    /** Small pushes out of a block collision; every attempt is undone before the next, and a body that still collides afterwards is reported instead of being moved further. */
     private static void nudgeOut(YukkuriEntity body) {
         Vec3[] tries = {
                 new Vec3(0, Motor.NUDGE_MAX, 0),

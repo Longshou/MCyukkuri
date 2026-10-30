@@ -4,12 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The meeting of two bodies on one deadline (spec 14 WP3b): each gets a {@link GoTo} to its own stand and yaw, around the
- * other, and waits there for the partner (walking back first if pushed off). Satisfied when both stand at their stands,
- * turned to their yaws, and see each other; the domain chose the stands. The pair is a value built when the beat starts;
- * nothing is stored on either body.
- */
+/** The meeting of two bodies on one deadline: each gets a {@link GoTo} to its stand and yaw, around the other, and waits; satisfied when both stand turned and see each other. */
 public final class Rendezvous {
     /** Where the two bodies stand and which way each faces. */
     public record Site(Vec3 a, float yawA, Vec3 b, float yawB) {}

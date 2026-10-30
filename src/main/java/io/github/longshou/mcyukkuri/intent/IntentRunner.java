@@ -15,15 +15,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Runs one {@link Intent} for one body (spec 11.2). The owning Goal builds it in {@code start()}, calls {@link #tick()}
- * once per decision tick (inside {@link BodyDriver#deciding()}) and {@link #stop(String)} in {@code stop()}. Every step
- * goes through the {@link BodyDriver}, so this class never writes a position, velocity or ride. Server only, never saved.
- */
+/** Runs one {@link Intent} for one body: the owning Goal builds, ticks and stops it, and every step goes through the {@link BodyDriver}, so nothing writes a position here. */
 public final class IntentRunner implements MotorOwner {
     public enum Result { RUNNING, DONE, EXHAUSTED, LOST, INTERRUPTED }
 
-    /** The world facts a signature is keyed on (spec 11.2); a runner without one only follows the tick bucket. */
+    /** The world facts a signature is keyed on; a runner without one only follows the tick bucket. */
     public record Target(Vec3 at, Vec3 host, Set<Integer> blockers) {
         public Target {
             blockers = blockers == null ? Set.of() : Set.copyOf(blockers);
@@ -123,7 +119,7 @@ public final class IntentRunner implements MotorOwner {
 
     public Result result() { return result; }
 
-    /** Every counted reason with its shortfall (spec 11.2: the end line records all of them). */
+    /** Every counted reason with its shortfall (the end line records all of them). */
     public List<Attempts.Failure> reasons() { return attempts.reasons(); }
 
     /** The innermost running child ({@code Sub}) runner; status reads this one. */
@@ -133,7 +129,7 @@ public final class IntentRunner implements MotorOwner {
         return r;
     }
 
-    // ---- one decision ------------------------------------------------------------------------------------------
+    // ---- one decision ----
 
     private void choose(long now) {
         WorldSignature signature = signature(now);
@@ -234,10 +230,7 @@ public final class IntentRunner implements MotorOwner {
         }
     }
 
-    /**
-     * A child that ran out of attempts fails the parent with the child's own last counted reason and shortfall: the one
-     * physical failure is counted once in the parent, not recorded again as a fresh {@code NO_PROGRESS:0}.
-     */
+    /** A child that ran out of attempts fails the parent with the child's own last counted reason and shortfall: one failure is counted once, not as a fresh {@code NO_PROGRESS:0}. */
     private void failAsChild(IntentRunner c, long now) {
         var reasons = c.reasons();
         Attempts.Failure last = reasons.isEmpty() ? null : reasons.get(reasons.size() - 1);
@@ -296,8 +289,7 @@ public final class IntentRunner implements MotorOwner {
         begin(to, now);
     }
 
-    /** The driver refused the action: the refusal that very run() call stored, in its own class, else NO_PROGRESS; a body
-     *  busy with an uninterruptible stretch is no failure of the method, and the same step runs once the stretch ends. */
+    /** The driver refused the action: the refusal that very run() stored, else NO_PROGRESS; a body busy with an uninterruptible stretch is no failure, and the step runs then. */
     private void refused(long now) {
         if (driver().refusedBusy()) { deferred = true; return; }
         Outcome refusal = driver().refusal();
@@ -340,7 +332,7 @@ public final class IntentRunner implements MotorOwner {
 
     private long now() { return body.level().getGameTime(); }
 
-    // ---- status (spec 13.2: read the owner, never keep a second copy) --------------------------------------------
+    // ---- status: read the owner, never keep a second copy ----
 
     /** The innermost running runner owning this body, or null. */
     public static IntentRunner running(YukkuriEntity body) {
