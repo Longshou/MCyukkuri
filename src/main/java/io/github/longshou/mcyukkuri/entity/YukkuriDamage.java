@@ -65,7 +65,7 @@ final class YukkuriDamage {
             current=transaction;
             boolean accepted=owner.hurtBase(source,amount);
             if(accepted && source.is(DamageTypes.HOT_FLOOR))owner.life().hotFloor().burned();
-            boolean physicalHit=accepted&&transaction.hit.physical()&&!YukkuriLife.isSoaking(source);
+            boolean physicalHit=accepted&&transaction.hit.physical()&&!YukkuriLife.isWaterDamage(source);
             boolean notify=physicalHit&&owner.isAlive();
             var interruption=InterruptContext.hurt(source);
             if(notify) {

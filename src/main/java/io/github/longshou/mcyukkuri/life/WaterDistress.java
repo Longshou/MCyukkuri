@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.nbt.CompoundTag;
@@ -107,11 +108,13 @@ public final class WaterDistress {
      * carrier or host moves it). Updates the phases first.
      */
     public boolean struggles(){
-        if(entity.level().isClientSide||!entity.isInWaterOrBubble()||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
+        if(entity.level().isClientSide||!(entity.isInWaterOrBubble()||climbing())||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
                 ||entity.operations().active()||entity.predatorFlying()||entity.family().flying())return false;
         tick();
         return phase!=Phase.IMPACT;
     }
+    /** Mid-climb out of the water: lifting the body clear of it does not end the escape, the climb does. */
+    public boolean climbing(){return entity.motor().current() instanceof Climb;}
     private boolean realThreat(){
         if(entity.isOnFire())return true;
         var attacker=entity.getLastHurtByMob();

@@ -42,6 +42,7 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.rare.RareForms;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -349,6 +350,8 @@ public final class YukkuriLife {
     public static final ResourceKey<DamageType> SOAKING =
             ResourceKey.create(Registries.DAMAGE_TYPE, MCYukkuri.id("soaking"));
     public static boolean isSoaking(DamageSource source) { return source.typeHolder().is(SOAKING); }
+    /** Damage that comes from being in water (drowning, soaking): it only takes health, it never interrupts, startles or pushes anything. */
+    public static boolean isWaterDamage(DamageSource source) { return source.is(DamageTypeTags.IS_DROWNING); }
     private DamageSource soaking() {
         return new DamageSource(entity.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(SOAKING));
     }

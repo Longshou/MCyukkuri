@@ -23,6 +23,10 @@ public final class Right implements Action {
     public static final String ID = "right";
     private static final String CLIP = "water_hat_right";
     private static final double HOST_SPEED = .1;
+    /** The share of a floating hull's weight the body must turn: the water carries the rest. */
+    private static final double FLOAT_WEIGHT = .5;
+    /** How far past a firm hold (blocks) the brim may drift from the mouth before the hold is lost; the check admits a hold up to the margin, so the slack sits on top of it. */
+    private static final double SLACK = .25;
 
     private final SurfaceHost host;
     private final String cause;
@@ -40,7 +44,7 @@ public final class Right implements Action {
         double gap = ContactGeometry.gripGap(body, rim);
         if (rim == null || gap > 0) return Feasibility.of(Reason.NO_CONTACT, rim == null ? 0 : gap, "rim=" + GameplayLog.at(rim));
         reach = rim.subtract(host.entity().position()).horizontalDistance();
-        step = Effort.righting(BodyAbility.of(body).pace(body.isInWaterOrBubble()), Effort.share(mass(body), mass(host.entity())), reach);
+        step = Effort.righting(BodyAbility.of(body).pace(body.isInWaterOrBubble()), Effort.share(mass(body), mass(host.entity()) * FLOAT_WEIGHT), reach);
         return Feasibility.pass();
     }
 
@@ -59,16 +63,20 @@ public final class Right implements Action {
         if (host.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         double tilt = Math.max(Math.abs(host.frame().rollDeg()), Math.abs(host.frame().pitchDeg()));
         if (!host.capsized()) return new Outcome.Done(String.format(Locale.ROOT, "past_upright tilt=%.1f", tilt));
-        double off = body.position().subtract(host.entity().position()).horizontalDistance() - reach - body.getBbWidth() / 2;
+        var rim = ContactGeometry.nearestRim(body, host).orElse(null);
+        double off = rim == null ? Double.POSITIVE_INFINITY : ContactGeometry.gripGap(body, rim);
         double speed = host.entity().getDeltaMovement().horizontalDistance();
-        if (off > ContactGeometry.GRAB_MARGIN || speed > HOST_SPEED)
-            return Outcome.of(Reason.SLIPPED, Math.max(0, off), String.format(Locale.ROOT, "off=%.2f host_speed=%.3f", off, speed));
+        if (off > SLACK || speed > HOST_SPEED)
+            return Outcome.of(Reason.SLIPPED, Math.clamp(off, 0, 9), String.format(Locale.ROOT, "off=%.2f host_speed=%.3f", off, speed));
         if (progress < 1 && !host.right(body, progress = Math.min(1, progress + step * Effort.stroke(t, pushStart, pushEnd, length)), cause))
             return Outcome.of(Reason.NO_SUPPORT, 0, "cannot_right");
         t++;
         // pushed full, the hull turns on its own toward upright: the tilt still falls every tick, so the watchdog stays quiet
         return new Running(1 - progress + tilt / 180, TravelMode.CONSUMED);
     }
+
+    /** Two clip cycles: between pushes the hull rests and the tilt may swing back, so a window shorter than a cycle reads a working righter as stuck. */
+    @Override public int progressWindow() { return Math.max(40, 2 * length); }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "host=%s step=%.3f reach=%.2f push=%d..%d/%d cause=%s", host.entity().getUUID(), step, reach,

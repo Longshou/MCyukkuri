@@ -343,7 +343,7 @@ final class YukkuriGoals {
         private WorldSignature ended;
         private String incident;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
-        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath())
+        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath() || owner.waterDistress().climbing())
                 && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {

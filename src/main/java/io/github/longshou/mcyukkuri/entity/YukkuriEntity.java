@@ -931,12 +931,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         int previousHurt = hurtTime, previousDuration = hurtDuration;
         Vec3 previousMotion = getDeltaMovement();
         boolean accepted = super.hurt(source, amount);
-        if (YukkuriLife.isSoaking(source)) Motor.velocity(this, previousMotion, "soaking_hurt");
-        if (source.is(DamageTypes.STARVE)) { hurtTime = previousHurt; hurtDuration = previousDuration; }
+        if (YukkuriLife.isWaterDamage(source)) Motor.velocity(this, previousMotion, "water_hurt");
+        if (source.is(DamageTypes.STARVE) || YukkuriLife.isWaterDamage(source)) { hurtTime = previousHurt; hurtDuration = previousDuration; }
         return accepted;
     }
     @Override public void handleDamageEvent(DamageSource source) {
-        if (!source.is(DamageTypes.STARVE)) super.handleDamageEvent(source);
+        if (!source.is(DamageTypes.STARVE) && !YukkuriLife.isWaterDamage(source)) super.handleDamageEvent(source);
     }
     @Override protected void playHurtSound(DamageSource source) {
         if (!source.is(DamageTypes.STARVE)) super.playHurtSound(source);

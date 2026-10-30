@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -12,7 +13,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.phys.Vec3;
 
 /** The MOTOR component: exactly one action drives a body at a time and every request to move goes through it. Server only, never saved, never driven by a passive clock. */
@@ -187,9 +187,9 @@ public final class BodyDriver {
         interruptedWhy = why == null ? "interrupted" : why;
     }
 
-    /** The HURT bridge: the water's own damage (drowning) is what a body in the water is already answering, so it stops nothing done there; a real hit interrupts. */
+    /** The HURT bridge: water damage (drowning, soaking) only takes health and stops nothing; a real hit interrupts. */
     public void hurt(DamageSource source) {
-        if (source != null && source.is(DamageTypes.DROWN)) {
+        if (source != null && YukkuriLife.isWaterDamage(source)) {
             if (current != null) GameplayLog.limited(body, "action", "kept_through_water", REFUSED_WINDOW,
                     "kept id={} owner={} through damage={}", current.id(), owner.ownerId(), source.getMsgId());
             return;
@@ -231,10 +231,10 @@ public final class BodyDriver {
         interruptedWhy = "";
         if (!action.id().equals(body.componentData(MOTOR_ACTION))) body.syncComponentData(MOTOR_ACTION, action.id());
         if (body.componentData(MOTOR_START) != startTick) body.syncComponentData(MOTOR_START, startTick);
+        action.start(body);
         String detail = action.startDetail();
         GameplayLog.event(body, "action", detail.isEmpty() ? "start id={} owner={}" : "start id={} owner={} {}",
                 action.id(), candidate.ownerId(), detail);
-        action.start(body);
     }
 
     private void finish(Outcome raw) {
