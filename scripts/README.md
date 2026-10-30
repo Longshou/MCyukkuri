@@ -10,7 +10,7 @@
 
 ## 架构建议检查
 
-检查客户端读取服务端组件、未许可的 `getPersistentData`、原始 `isHouse/isPredator` 和内联全限定类型名；覆盖调用、方法引用、跨空白与显式泛型调用，排除注释、字符串、字符、text block 和 package/import。同步视图与快照不因组件词根而禁止。另有三条重构守卫：`BODY_WRITE`（`motor/` 以外对可确定为 `YukkuriEntity` 的接收者调用 `setPos`、`moveTo`、`teleportTo`、`setDeltaMovement`、`addDeltaMovement`、`move(MoverType…)`、`startRiding`、`stopRiding`、`setYRot`／`setYBodyRot`／`setYHeadRot`，仅转调 `BodyDriver` 的覆写除外）、`BASE_IMPORTS_DLC`（`aquatic/`、`client/aquatic/`、`registry/` 以外 import `aquatic` 包）、`GEOM_PURE`（`motor/geom/` import `net.minecraft`）。现有 `BODY_WRITE` 写入作为迁移基线按上述精确许可登记，只减不增。
+检查客户端读取服务端组件、未许可的 `getPersistentData`、原始 `isHouse/isPredator` 和内联全限定类型名；覆盖调用、方法引用、跨空白与显式泛型调用，排除注释、字符串、字符、text block 和 package/import。同步视图与快照不因组件词根而禁止。另有三条重构守卫：`BODY_WRITE`（`motor/` 以外对可确定为 `YukkuriEntity` 的接收者调用 `setPos`、`moveTo`、`teleportTo`、`setDeltaMovement`、`addDeltaMovement`、`move(MoverType…)`、`startRiding`、`stopRiding`、`setYRot`／`setYBodyRot`／`setYHeadRot`，仅转调 `BodyDriver` 的覆写除外）、`BASE_IMPORTS_DLC`（`aquatic/`、`client/aquatic/`、`registry/` 以外 import `aquatic` 包）、`GEOM_PURE`（`motor/geom/` import `net.minecraft`）。现有 `BODY_WRITE` 迁移基线已清零，许可条目为空；新的写入只能出现在 `motor/` 内，或经 `BodyDriver`／`Motor` 门面。
 
 `architecture_exceptions.json` 按精确文件／方法签名、归一化 token SHA-256、出现次数和源码顺序记录许可；每个入口列 receiver、键读写方向与理由。方法代码、字面量、签名或次数变化须复核；注释和字面量外排版不改变 hash。两个方法外键常量 `GroupCards.BAR`、`Cannibalism.HUNT_COOLDOWN` 也按 token 锁定。没有目录／类级豁免或自动刷新基线命令，不能只换 hash 消除诊断。
 

@@ -110,12 +110,16 @@ public final class Motor {
     public static void dismount(YukkuriEntity body, Vec3 at, Vec3 v, String cause);
     /** 仅供 settle 推出碰撞时使用，|delta| 不得超过 0.25 格，超过即拒绝并记日志。 */
     public static boolean nudge(YukkuriEntity body, Vec3 delta, String cause);
+    /** 系统自己安放身体（送货落位、脚本仪式、取出关押、加入世界前的生成）：设位置与整体朝向、清零速度，记 [body] relocate。 */
+    public static void relocate(YukkuriEntity body, Vec3 at, float yaw, String cause);
 }
 ```
 
 - **写入范围（必须）**：对 `YukkuriEntity` 的 `setPos`、`moveTo`、`teleportTo`、`setDeltaMovement`、`addDeltaMovement`、`move(...)`、`startRiding`、`stopRiding` 和朝向写入，只能出现在 `motor/` 内。
   - 例外一：`YukkuriEntity` 对原版方法的覆写，只能转调 `BodyDriver`。
-  - 例外二：迁移期的基线清单（第 13 节）只减不增。
+  - 例外二已用尽：WP7 把迁移基线清零，`BODY_WRITE` 不再有任何许可条目。
+- **安放与失败**：`Motor.relocate` 只用于系统有意安放身体（送货落位、手术台摆位、取出关押的个体、脚本仪式、加入世界前的新生身体）；它绝不用来结束一次失败的行动，走不到就保留物理给出的位置。
+- **被动时钟**：组件的被动 tick 与交互回调不调用 `BodyDriver.run`；它们只改数据，身体的移动由拥有该行为的 Goal 发起。
 - **卸下位置**：`Motor.dismount` 置位线程局部标志 `Motor.DISMOUNTING`。`YukkuriEntity` 与 `HatBoatEntity` 的 `getDismountLocationForPassenger` 在标志置位时返回 `passenger.position()`，以阻止原版把乘客搬到载具中心。
 - **禁止**：`moveTo` 到“落点”、把孩子放回座位、为了接住而修正速度。
 
