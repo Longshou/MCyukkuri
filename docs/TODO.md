@@ -8,6 +8,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水上生活：场景初态、上岸与辫子拨水引帽、首航与航行能力 | `.worktrees/w1-water-life` | `aquatic/`、`life/EscapeWater`、`motor/action/Beckon`、童年技能、`scripts/museum_scenarios.py` |
+| 水中受伤不打断、扶正与攀爬成功率 | `.worktrees/w2-water-damage` | `motor/BodyDriver`、`motor/action/Right`／`Climb`／`Swim`、`life/WaterDistress` |
+| 水生帽新形态（先出对比预览） | `.worktrees/w4-hat-form` | `standards/yukkuri-library/drafts/aquatic-hat/` |
 | 接生演出：母油产程保持朝向、辫子抓取动作、父油表情冲突、打招呼 | `.worktrees/fix-birth-motion` | `family/LiveBirth`、`FamilyLife`、`motor/action/Grab`、`client/BraidPose`、辫子动作制作源、对白 |
 
 ## 玩法待办
@@ -212,7 +215,7 @@
   - 帽内挤不下时，孩子可以被挤落水。
 - 契约与设计原则见[代码架构](ARCHITECTURE.md#身体动作与意图层)；各工作包的复测现象只登记在本条。
 - 进度：WP1–WP8 全部已接入待试玩，运行 [8ceba8a8](https://github.com/Longshou/MCyukkuri/commit/8ceba8a8) 起（身体层：依附、能力表、走／转身／跳／抛／小动作、抓取与放下、游／爬／推／扶正／划；意图、欲望竞争、请求与编排；陆地胎生与茎生编排；放下的帽子在陆地当接生帽、在水上当船；搬运统一为嘴叼、辫子、帽檐、尾托与多只口含；`motor/` 之外不再直接写身体）。帽子统一尺寸按 1.4 倍代定（R6），试玩时可改。
-- 重建后的复测记录（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）`cargo` 空帽也提示帽底无空间；落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
+- 重建后的复测记录：[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813，10-30 22:35–23:02） 复测失败（用户反馈）：`birth_boat_caught`／`birth_boat_missed` 初态失败（帽船翻覆、母油在岸上）；`rescue_child` 生成时亲油也落水；`family_skiffs` 两只亲油都上岸，没有送赤油的动作，上岸时帽檐与岸穿模、上岸后帽船不在岸边无法交互；落水自救仍很难成功，扶正帽子再爬上去做不到；魔理沙辫子只有上段会弯、中段到末端僵直；亲子出航与“赤油长成子油后用自己的帽船试航、成功后才具备航行与自救能力、途中由亲油救援”的设计无关；储粮应为一张覆盖帽底、随数量变化的贴图；帽船上的油库里像浮着；空帽船摇几下应变成可拾取物品并掉出食物。用户决定：陆地魔理沙与水生魔理沙是两个物种，帽子不混用；水生帽的新形态由负责人先出对比预览再定。以下为更早一轮（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）`cargo` 空帽也提示帽底无空间；落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
 - 完成（用户全量复测）：陆地出生 `birth_land_caught`／`birth_land_reunion`／`birth_land_missed`／`birth_stem_caught`／`birth_nest_safe`／`birth_nest_stem`／`pet_birth`；赤油 `infant_starvation`、`colony_migrate_babies`；帽子 `hat_float`／`hat_push`／`shake_capsize`／`cargo`／`hat_crowd`／`hat_swap`；落水 `self_rescue`／`self_rescue_far`／`shore_capsized`／`fall_in_pond`／`worn_hat_boat`；水上生活 `water_colony`／`sail`／`afloat_family`／`shore_family`／`water_night`；家庭 `rescue_child`／`rescue_infant_full`／`birth_boat_caught`／`birth_boat_missed`／`family_skiffs`。各场景的看点在场景说明里，下列 P0 观察点为水上部分的验收标准。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[玩法日志](GAMEPLAY_LOGGING.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。
