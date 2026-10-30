@@ -177,7 +177,7 @@ def main():
     if args.models:return
     inputs=[HERE/n for n in ['adapt.py','species.py','species.cjs','species.json','author.cjs','thermal.cjs','dry_face.py','recipe.json','materials.py','export.cjs','build.py','grading.py','sources.json']]+[HERE.parent/'surface.cjs',HERE.parent/'cavity.cjs',HERE.parent/'recipe.json',ROOT/'preview/review/pose.js']
     inputs += [ASSETS/'yukkuri_presentation'/n for n in ['living.json','subspecies.json','family.json','placement_fit.json','hat_vessel.json']]
-    inputs += [ROOT/'src/main/java/io/github/longshou/mcyukkuri'/n for n in ['rare/MyonLife.java','entity/YukkuriEntity.java','subspecies/SubspeciesAssets.java','subspecies/HatVessel.java','family/GrowthSize.java','body/BodyConstants.java','body/BodyLife.java','body/InjuryModel.java','body/BodySigns.java']]
+    inputs += [ROOT/'src/main/java/io/github/longshou/mcyukkuri'/n for n in ['rare/MyonLife.java','entity/YukkuriEntity.java','subspecies/SubspeciesAssets.java','headwear/HatGeometry.java','family/GrowthSize.java','body/BodyConstants.java','body/BodyLife.java','body/InjuryModel.java','body/BodySigns.java']]
     inputs += list((ASSETS/'yukkuri').glob('*.json'))
     inputs += [p for m in MODELS for p in (ASSETS/f'textures/entity/{m}').glob('*.png')]
     outputs={p.relative_to(OUT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for m in MODELS for p in (OUT/m).iterdir()}

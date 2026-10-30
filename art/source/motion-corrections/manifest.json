@@ -14,7 +14,7 @@
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
-  "hat_vessel_sha256": "a42546fbe1d31282f0f32ffe194381ec0c8635b08d54e59bc91fb556a422a789",
+  "hat_vessel_sha256": "337603fd8e20c5ceb93e7aed35c7392a358cfb83f068741ab7a9bdd51587c98d",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6dc5cdbf0a7638da388b028b08cb7dd462734d7892bab1f9b74dcf2bf8ec6a30",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",

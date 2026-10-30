@@ -28,7 +28,6 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import delivery as DL
-import deck as DK
 ROOT = HERE.parents[3]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 MODEL = ASSETS/'yukkuri/marisa.json'
@@ -36,11 +35,6 @@ BODY = ASSETS/'yukkuri_presentation/body_geometry.json'
 PROP = ASSETS/'yukkuri_props/marisa_hat_turned.json'
 OLD_PROPS = [ASSETS/'yukkuri_props/marisa_hat_nest.json', ASSETS/'yukkuri_props/marisa_hat_vessel.json']
 METRICS = ASSETS/'yukkuri_presentation/hat_vessel.json'
-DECK = ASSETS/'yukkuri_presentation/hat_deck_layout.json'
-FRAMES = ASSETS/'yukkuri_presentation/hat_frames.json'
-CARGO = ASSETS/'yukkuri_presentation/hat_cargo_layout.json'
-PROVISIONS = ASSETS/'yukkuri_props/hat_provisions.json'
-STICK = ASSETS/'yukkuri_props/paddle_stick.json'
 INDEX = ASSETS/'yukkuri_props/subspecies-index.json'
 TEXTURE = 'mcyukkuri:textures/entity/marisa/neutral.png'
 GROWTH = json.loads((ASSETS/'yukkuri_presentation/family.json').read_text(encoding='utf-8'))['growth']
@@ -391,16 +385,10 @@ def main():
         'delivery': {k: v for k, v in D.items() if k not in ('gap', 'gap_lore', 'self_reach')},
         'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy'], 'afloat': R['afloat']}
     texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
-    # the discrete deck and the one transform contract, from these same measures (deck.py)
-    decks, modes = DK.export(metrics, body, json.loads(CARGO.read_text(encoding='utf-8')), R['deck'], R['pregnancy'],
-                             json.loads(STICK.read_text(encoding='utf-8')) if STICK.is_file() else None)
-    layout = deck_layout(modes, texts[METRICS])
-    texts[DECK] = json.dumps(layout, ensure_ascii=False, separators=(',', ':'))+'\n'
-    texts[FRAMES] = json.dumps(DK.frames(metrics, R['deck']), ensure_ascii=False, indent=2)+'\n'
     index = json.loads(INDEX.read_text(encoding='utf-8'))
     for name in ('marisa_hat_vessel', 'marisa_hat_nest', 'hat_boat'): index.pop(name, None)  # earlier props, deleted
     index.setdefault('marisa_hat_turned', {}); texts[INDEX] = json.dumps(index, separators=(',', ':'))
-    manifest = {'note': 'Runtime outputs of build.py', 'recipe_sha256': sha((HERE/'recipe.json').read_bytes()), 'build_sha256': sha(Path(__file__).read_bytes()), 'deck_sha256': sha((HERE/'deck.py').read_bytes()),
+    manifest = {'note': 'Runtime outputs of build.py', 'recipe_sha256': sha((HERE/'recipe.json').read_bytes()), 'build_sha256': sha(Path(__file__).read_bytes()),
                 'growth_sha256': sha(json.dumps(GROWTH, sort_keys=True).encode()),
                 'outputs': {p.relative_to(ROOT).as_posix(): sha(t.encode()) for p, t in texts.items()}}
     texts[HERE/'manifest.json'] = json.dumps(manifest, ensure_ascii=False, indent=2)+'\n'
@@ -416,27 +404,6 @@ def main():
     for variant, p in placements.items():
         print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn', 'gap') if k in p[r]} for r in ('helper', 'self')})
     report(metrics, body)
-    for name, deck in layout['modes'].items():
-        kinds = {}
-        for s in deck['slots']: kinds[s['kind']] = kinds.get(s['kind'], 0)+1
-        print('deck', name, len(deck['slots']), 'slots', kinds, len(deck['edges']), 'edges', len(deck['care']), 'care pairs')
-        print('  most of one class (owner aboard, stick stowed), day-night per larder tier:',
-              {c: ' '.join(f"{row[f'day_{t}']}-{row[f'night_{t}']}" for t in range(len(row)//2)) for c, row in deck['capacity'].items()})
-    for name, load, state, got in DK.verify(decks, R['deck']):
-        print('  load', name, load, state, got)
-
-
-def deck_layout(modes, metrics_text):
-    """hat_deck_layout.json: per hull mode the discrete seats and their measured relations (README: the deck)."""
-    D = R['deck']
-    src = {p.relative_to(ROOT).as_posix(): sha(p.read_bytes()) for p in (BODY, CARGO, PROVISIONS, STICK) if p.is_file()}
-    src[METRICS.relative_to(ROOT).as_posix()] = sha(metrics_text.encode())
-    return {'format': 1, 'status': 'pending_user_review', 'source': 'standards/yukkuri-library/interactions/marisa-hat-vessel/build.py',
-            'note': 'Discrete seats of the turned hat per hull mode. Hull-local hat units: x across (owner braid +X), z along the '
-                    'brim (stern +Z, bow -Z), y up from the water line or the ground; one unit is hullScale/16 blocks; a seat '
-                    'yaw r faces (sin r, -cos r) and adds to the hull entity yaw.',
-            'sources': src, 'classes': {c: D['classes'][c] for c in DK.ORDER}, 'jumps': D['jumps'], 'load': D['load'],
-            'curves': D['curves'], 'crew': D['crew'], 'young_hat_multiplier': D['young_hat_multiplier'], 'modes': modes}
 
 
 def report(V, body):

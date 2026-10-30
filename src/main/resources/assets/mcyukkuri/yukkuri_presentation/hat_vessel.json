@@ -144,7 +144,7 @@
     "hop_tmin": 4,
     "clear": 0.35,
     "overshoot": 3.0,
-    "young_radius": 0.5,
+    "young_radius": 0.42,
     "overlap": 1.1,
     "ledge_cost": 4.0,
     "path_cost": 30.0,

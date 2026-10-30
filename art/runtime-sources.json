@@ -121,14 +121,6 @@
   },
   "care_props": {
     "source": "standards/yukkuri-library/drafts/care-props",
-    "hat_cargo": {
-      "source_prop": "forage_pile",
-      "recipe": "standards/yukkuri-library/drafts/care-props/cargo.py",
-      "snapshot": "art/props/runtime-peripheral/selected/hat_provisions",
-      "runtime_model": "src/main/resources/assets/mcyukkuri/yukkuri_props/hat_provisions.json",
-      "shared_layout": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_cargo_layout.json",
-      "note": "Larder of the aquatic hat boat (project design, ecology design D 3.3; user 2026-10-26: no food on the brim; lead decision 2026-10-26: the two side wells before the captain's shoulders, filled alternately, readable from either bank): hat_provisions holds only the forage-pile leaf beds of tiers 1-3; the stored items are drawn client-side with their own item models at the places cargo.py set offline clear of the captain's own mesh (hat_cargo_layout.json larder: ordered item places, quaternions, sides, kind clusters, occupancy cells read by the deck exporter). Previewed from the bank by motions/variants/lore/aquatic_home_preview.py."
-    },
     "builder": "standards/yukkuri-library/drafts/care-props/build.py",
     "palette": "art/props/palette.json",
     "readme": "standards/yukkuri-library/drafts/care-props/README.md",
@@ -152,7 +144,6 @@
       "food_bowl_wheat",
       "food_bowl_forage",
       "forage_pile",
-      "hat_provisions",
       "yukkuri_nest",
       "predator_nest",
       "oil_grain_budget",
@@ -4066,16 +4057,12 @@
     "recipe": "standards/yukkuri-library/interactions/marisa-hat-vessel/recipe.json",
     "builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
     "preview_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_cabin.py",
-    "deck_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/deck.py",
-    "deck_preview": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py",
     "geometry_check": "standards/yukkuri-library/interactions/marisa-hat-vessel/check_cabin.py",
-    "cabin_revision": "Aquatic hat 1.75x the land hat (project design: at 1.5 an adult captain nearly filled the opening). Afloat the crown is pressed to 0.55 (was 0.75) and the front tread is 0.6 deep so the larder and the young read from the bank; young still in the mother's hat wear a x1.0 hat (young_hat_multiplier). Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. The discrete deck (seats per hull mode with day/night preference, conflicts, walking edges, entry points, crown-larder tiers, care pairs, load check, the crew pose table) is exported as hat_deck_layout.json and the worn/turned/hull transform contract as hat_frames.json; no provisions on the brim (user 2026-10-26). Offline preview only, awaiting game verification.",
+    "cabin_revision": "Aquatic hat 1.4x the land hat (project design: 1.5 filled the opening with an adult captain and 1.4 was chosen from the preview). Afloat the crown is pressed to 0.55 and the front tread is 0.6 deep so the young read from the bank. Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. Offline preview only, awaiting game verification.",
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [
       "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_frames.json"
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json"
     ],
     "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
     "manifest": "standards/yukkuri-library/interactions/marisa-hat-vessel/manifest.json",
@@ -4563,15 +4550,6 @@
     "scope": "Den-mouth screen block (settlement/DenBarrierBlock, collision 14x16x14, no facing): native cuboid block model of twigs wedged into the soil, leaned along each side or tipped inward against the opposite side, a few fallen at 45 degrees, two forked shoots, a crossed loose wad of leaf litter in the middle, leaves pushed into gaps and scattered at the foot; nothing tied, knotted or woven; uneven tops and visible gaps. Hand-painted 64x64 texture from the wild_kit ramps. Project design (user request); no user visual acceptance yet."
   },
   "aquatic_tools": {
-    "source": "standards/yukkuri-library/interactions/aquatic-tools/recipe.json",
-    "exporter": "standards/yukkuri-library/interactions/aquatic-tools/build.py",
-    "manifest": "standards/yukkuri-library/interactions/aquatic-tools/manifest.json",
-    "runtime": [
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/paddle_stick.json",
-      "src/main/resources/assets/mcyukkuri/textures/props/paddle_stick.png",
-      "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_wetline.json",
-      "src/main/resources/assets/mcyukkuri/textures/props/marisa_hat_wetline.png"
-    ],
     "clips": {
       "author": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
       "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic",
@@ -4580,7 +4558,7 @@
     "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py",
     "home_preview": "standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py",
     "status": "pending_user_review",
-    "scope": "Plain picked-up stick held in the braid tuft (props.paddle clip keys) or stowed on the left brim (stow scale 1/aquatic_scale); translucent waterline wet band derived from marisa_hat_turned, drawn as a cool sheen with a bright waterline thread so it shows on the near-black felt; braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips, and the crew clips boat_rim_peek and boat_nest_curl (project original / ecology design D 3.4)."
+    "scope": "Braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips (project original / ecology design D 3.4). The `paddle_stick` and `marisa_hat_wetline` props are withdrawn from the export: no code draws them, so their runtime meshes, textures and index rows are gone until a paddle or waterline look the game uses is authored; `build.py` only guards that they stay out."
   },
   "derived_faces": {
     "exporter": "standards/yukkuri-library/expressions/derived/faces.py",

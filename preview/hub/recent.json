@@ -248,27 +248,6 @@
       "source": "standards/yukkuri-library/interactions/marisa-hat-vessel/README.md"
     },
     {
-      "id": "hat-deck",
-      "label": "帽船离散席位表",
-      "title": "水生帽船的席位、冲突、入舷点、粮袋档位与载荷核对",
-      "tag": "美术与玩法·数据导出",
-      "summary": "帽船上所有可给身体的位置离线算成一张表：船长常座与临产高座、船头浅台、窝凹、前帽檐、如厕檐、救援檐、船长照护位与冠底粮袋；含一组冲突、文档载荷的实际分配和中线剖面。由导出资源离线绘制，非游戏截图，游戏代码尚未读取该表。",
-      "model": "marisa",
-      "points": [
-        "俯视全部席位、左舷外沿的木棍、入舷点和粮袋三档；船头浅台另附放大图。",
-        "四幅载荷分配：4 赤油＋3 粮、子油＋7 粮、2 赤油＋9 粮、临产高座＋3 新生。",
-        "剖面看帽口以上露出的部分：孩子上半身与帽子露出，粮袋整体低于帽口。"
-      ],
-      "steps": [],
-      "gallery": [
-        {
-          "src": "hat-deck/hat-deck.png",
-          "label": "帽船离散席位表与载荷核对"
-        }
-      ],
-      "source": "standards/yukkuri-library/interactions/marisa-hat-vessel/README.md"
-    },
-    {
       "id": "care-props-vanilla",
       "label": "照料设施基础网格",
       "title": "食盆、巢穴与厕所基础网格",

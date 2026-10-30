@@ -1,5 +1,5 @@
 """Shared look of everything wild yukkuri gather themselves: the self-built nests (wild.py), the 2x2 wild nest and the forage
-pile with its hat-boat copy (designs.py, cargo.py).
+pile (designs.py).
 
 One hand-drawn 128x128 atlas of 16x16 tiles and sprites in the manner of supplies.py: light from the top left, each material
 its own hue-shifted ramp (shadows toward olive / red-brown, lights toward pale yellow), the darkest step of a material as its

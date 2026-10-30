@@ -1,4 +1,4 @@
-"""Care-prop designs: the forage pile (wild nest stock, reused whole by the hat-boat provisions in cargo.py). The placed
+"""Care-prop designs: the forage pile (wild nest stock). The placed
 food bowl and its fills are vanilla-style voxel props in vanilla_props.py.
 
 The forage pile shares the hand-drawn wild_kit atlas and shapes with the self-built nests (wild.py), so a nest and its

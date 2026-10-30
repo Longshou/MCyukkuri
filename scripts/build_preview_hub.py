@@ -132,10 +132,6 @@ def main():
         aquatic = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py'
         subprocess.run([sys.executable, str(aquatic)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
         current_media |= {f'aquatic-tools/{name}.png' for name in ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')}
-        # hat boat deck: interactions/marisa-hat-vessel/preview_deck.py redraws the seat table from the exported runtime data
-        deck = ROOT / 'standards/yukkuri-library/interactions/marisa-hat-vessel/preview_deck.py'
-        subprocess.run([sys.executable, str(deck)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
-        current_media |= {'hat-deck/hat-deck.png'}
         # the hat boat as a home seen from the bank (side-well larder, crew): lore/aquatic_home_preview.py, runtime data only
         home = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py'
         subprocess.run([sys.executable, str(home)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})

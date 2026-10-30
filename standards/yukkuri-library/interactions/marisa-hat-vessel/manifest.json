@@ -1,14 +1,11 @@
 {
   "note": "Runtime outputs of build.py",
-  "recipe_sha256": "c741c0f56b8109ead0ac2480bff8d45c4783e03f786aa9b0e2d4617f1d1a54c4",
-  "build_sha256": "08ff3a24bed74d70aa46fb27ba481df2b9bc16fc9a0ecdc972964824bc95d465",
-  "deck_sha256": "9f1c5c7771241896cfaa845f4e145b606df48b12137e771e4b3ad180a9519cac",
+  "recipe_sha256": "e923e8b341dc1bdfc6028575b4d9e73e064d453313b6cd2865f93d603d34e2cf",
+  "build_sha256": "2188319b931db0a55258706f1afd7fdf039659f6ce837e9e20af20ada6e81fbf",
   "growth_sha256": "09eb94d82a17dad69dbf00da0048bb0a49dde637b9020b9e51587b5633166ca1",
   "outputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "83145279a480a7986e9f45d417fc00ea33b8dbae7aa7814e08fdf5484e3d8918",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "389d14fc61c23f8d92edf8e36f45d1c026e3ab95a83925c315e7c37685bf6b98",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_deck_layout.json": "6aeb12ef1c7606ac5ef27b2a46c0f1c815ff3ad5544ce2cf9e3dbe621cd9f5ac",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_frames.json": "eb82a99b304d4e39ca47431d8398bc3869c937be8dc6f15f02206e81e66c2f29",
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "867d4cfa74ea85badd1b72506642a970542cf39086a8bdc7faa87a74627fb39c"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "a9cee77486d4ce03169b9c50865782b561afd7fd233da03a3ce81c13a7de8d0f",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "cfdf3c27cc72997e0d70483306e4dd80a2e9090734acc47cd2701152b04b9263"
   }
 }

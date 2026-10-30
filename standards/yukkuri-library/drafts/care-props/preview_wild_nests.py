@@ -1,7 +1,6 @@
 """Offline current-model preview of the wild nest family (local only, nothing shipped): shared leaf bed, personal leaf nest
 stages and the carried bundle, the 2x2 wild nest and the forage pile stages, with adult and child yukkuri for scale.
-Reads the runtime meshes and textures; no game or browser. The hat-boat crown larder is previewed by
-motions/variants/lore/aquatic_home_preview.py.
+Reads the runtime meshes and textures; no game or browser.
 
 Output: <MCYUKKURI_PREVIEWS or .local/previews>/wild-nests/{nests.png, stages.png, forage.png, index.html}."""
 import os, sys

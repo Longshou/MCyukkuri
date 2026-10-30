@@ -74,7 +74,7 @@
 - **面粉糊、橙汁与饲料颗粒重做**：五件改 16×16 物品图标（[图标](../art/props/supply-icons/README.md)），“饲料颗粒”按三档油粮。看 `treatment_care`、`treatment_severe`、`treatment_scars`、`marks` 的发放物品与 NPC 持药，商店陈列，手持与展示框。
 - **嗯嗯方块分档外观**：`yukkuri_poop` `tier` 1–4 对应 1–2／3–4／5–6／7–8 份（[规则](ECOLOGY_DAILY_LIFE.md#排泄修正)）；制作源 `drafts/care-props/poop_block.py`，快照 `art/source/poop-block/`；离线预览远处 1、2 档较小。看 `settle_pit` 随份数换档、`settle_pit_slave` 取食后降档，远处、坑底与平地各看；四档远处一眼可分、读作排泄物。
 - **洞口结界屏障外观**：`mcyukkuri:den_barrier`（[规则](WILD_SHELTERS.md#灵梦封洞口结界)）细枝插靠成堆、格心落叶、有缝；制作源 `ecology/wild-shelters/den_barrier.py`，快照 `art/source/den-barrier/`。看 `den_barrier` 左洞灵梦封口后洞外近处与约 8 格外、洞内背面；不穿洞壁洞顶，缝里能看到灵梦。
-- **水生表情与帽船外观**（`sad`／`afraid` 表情、帽船即家外观〔粮袋、乘员姿态、湿色带、破损〕、木棍 `paddle_stick`；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合；水生帽 1.75 倍（[席位](../standards/yukkuri-library/interactions/marisa-hat-vessel/README.md#席位表)）。离线审图：左岸看右侧窝 2、3 档差别小，6 格只剩色点。看 `cargo` 各档储粮（岸上 3 与 6 格，帽檐无粮）、`afloat_family` 孩子探头与夜里船长盖窝、幼体小帽；`sail` 停桨木棍、翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。确认后表情写入标准登记，木棍、湿色带、粮袋与乘员姿态登记认可。
+- **水生表情与帽冠外观**（`sad`／`afraid` 表情、破损帽外观；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合。看 `afloat_family` 孩子探头与夜里船长盖窝、幼体小帽；`sail` 翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。完成：表情写入标准登记，破损外观登记认可。
 - **水中游泳动作**：未做。水中移动已接限速与碰撞扫掠，动作仍暂用 `WATER_STRUGGLE`；落水自救、返岸、救援拖行需专用游动片段。先在 `interactions/braid-water-rescue`、`aquatic-tools` 核对已有动作，有则接入，无则按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 水里个体有可见划行动作，速度与节奏一致，用户确认。
 
 ## 低优先级
