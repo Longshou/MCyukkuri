@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -36,6 +37,7 @@ public final class Paddle implements Action {
     private SurfaceHost host;
     private double pace, turnRate;
     private int t, start, end, length;
+    private long startTick;
 
     public Paddle(Vec3 target, double arrive) { this.target = target; this.arrive = arrive; }
 
@@ -48,7 +50,10 @@ public final class Paddle implements Action {
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
+    @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
+
     @Override public void start(YukkuriEntity body) {
+        startTick = body.level().getGameTime();
         var ability = BodyAbility.of(body, host.load());
         pace = ability.swimSpeed();
         turnRate = ability.turnRate();

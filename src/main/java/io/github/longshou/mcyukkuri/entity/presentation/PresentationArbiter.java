@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals.Action
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -171,12 +170,10 @@ public final class PresentationArbiter {
             if (presentPredatorFlight(state)) { state.expression("teary"); return; }
             String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
             state.behavior(distress);
-            // A water action that plays its own authored clip (righting biting the brim, setting the hat down) shows it, from its phase.
-            var action = e.motor().current();
-            var pose = action == null ? MotionPose.NONE : action.pose();
-            var own = YukkuriAction.byId(pose.clip()).orElse(null);
-            state.animation(own != null ? own : EcologyPresentation.action(distress));
-            state.animationStart(own != null ? pose.startTick() : e.waterDistressStartTick());
+            // A running water action (righting, climbing) shows its own clip from its phase; otherwise the distress phase's clip.
+            var pose = actionPose(e);
+            state.animation(pose != null ? pose.action() : EcologyPresentation.action(distress));
+            state.animationStart(pose != null ? pose.startTick() : e.waterDistressStartTick());
             state.expression(e.waterDistress().phase() == WaterDistress.Phase.IMPACT ? "cry" : "teary");
             return;
         });
@@ -228,20 +225,24 @@ public final class PresentationArbiter {
     private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions) {
         var e = state.owner();
         if (behavior.equals(Behaviors.BOAT_TOILET)) behavior = Behaviors.SEEK_TOILET;
+        // Priority: command clip, then the running motor action's pose, then the behavior-derived clips.
+        var pose = state.requestedAction() == null ? actionPose(e) : null;
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
+                : pose != null ? pose.action()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()
                 ? YukkuriAction.WADDLE
                 : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
                 : stationaryAction(state, behavior, actions);
-        String flightAnimation = state.requestedAction() == null ? predatorAnimation(e, actions) : null;
+        String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;
         if (flightAnimation != null) {
             // The old raw flight write has the reverse order of setAnimation: ID, then start.
             if (!e.getAnimationId().equals(flightAnimation)) { state.animationId(flightAnimation); state.animationStart(e.level().getGameTime()); }
         } else {
             state.animation(action);
-            if(behavior.equals(Behaviors.PAIRING_ACCEPT)&&action==YukkuriAction.GREET
+            if (pose != null) state.animationStart(pose.startTick());
+            else if(behavior.equals(Behaviors.PAIRING_ACCEPT)&&action==YukkuriAction.GREET
                     ||behavior.equals(Behaviors.PAIRING)&&action==YukkuriAction.NUZZLE) {
                 long start=e.family().courtAnimationStart();
                 if(start>=0&&e.getAnimationStartTick()!=start)state.animationStart(start);
@@ -287,6 +288,15 @@ public final class PresentationArbiter {
     private static boolean onBrim(PlacedHatEntity hat, YukkuriEntity e) {
         var support = hat.support(hat.frame().toLocal(e.position()), Occupancy.foot(e.getBbWidth()));
         return support.isPresent() && support.getAsDouble() >= HatGeometry.top() - 1e-6;
+    }
+
+    /** The running motor action's own clip as a known action; the single source of action clips and phases. */
+    private record ActionPose(YukkuriAction action, long startTick) {}
+    private static ActionPose actionPose(YukkuriEntity e) {
+        var current = e.motor().current();
+        if (current == null) return null;
+        var pose = current.pose();
+        return YukkuriAction.byId(pose.clip()).map(a -> new ActionPose(a, pose.startTick())).orElse(null);
     }
 
     /** Losing a hunt is not ownership, but real flight and the existing post-contact bite clock persist. */

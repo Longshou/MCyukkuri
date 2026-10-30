@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -38,6 +39,7 @@ public final class Climb implements Action {
     private BodyAbility ability;
     private Vec3 edge, stand, from;
     private int t, pullStart, pullEnd;
+    private long startTick;
     private double rise, top;
 
     private Climb(SurfaceHost host, Vec3 edge, Vec3 stand) { this.host = host; this.edge = edge; this.stand = stand; }
@@ -75,7 +77,10 @@ public final class Climb implements Action {
                 ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "stand=" + GameplayLog.at(stand));
     }
 
+    @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
+
     @Override public void start(YukkuriEntity body) {
+        startTick = body.level().getGameTime();
         var clip = ClipMarkers.of(CLIP);
         pullStart = clip.ticks("pull_start", 17);
         pullEnd = Math.max(pullStart + 1, clip.ticks("pull_end", 31));
