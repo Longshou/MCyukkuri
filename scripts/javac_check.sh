@@ -26,8 +26,8 @@ if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   "$JAVAC" -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
   TRC=${PIPESTATUS[0]}
   echo "test javac exit=$TRC"
-  # Only the pure-Java packages run here; anything that needs a Minecraft bootstrap is left to CI.
-  [ "$TRC" = 0 ] && "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$M/build/moddev/artifacts/neoforge-21.1.250-merged.jar" \
+  # Tests run WITHOUT Minecraft on the classpath, like CI: a test that loads a Minecraft class fails here too.
+  [ "$TRC" = 0 ] && "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test")" \
     --select-package io.github.longshou.mcyukkuri.motor.geom --select-package io.github.longshou.mcyukkuri.intent \
     --details=tree --disable-banner --disable-ansi-colors 2>&1 | grep -aE "tests (successful|failed|found)|✘|\[X\]|expected|Exception" | head -30
 fi
