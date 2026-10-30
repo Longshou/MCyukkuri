@@ -8,8 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 重构 WP7：美术管线去掉旧座位系统 | `.worktrees/wp7-artpipe` | `standards/yukkuri-library/interactions/marisa-hat-vessel/`、`aquatic-tools`、`drafts/body-marks/hair-wounds/`、对应运行资源 |
-| 鬓发在落水动作中被当成手摆动 | `.worktrees/fix-sidehair` | `standards/yukkuri-library/motions/variants/lore/`、`motion_corrections.json` |
 
 ## 玩法待办
 
