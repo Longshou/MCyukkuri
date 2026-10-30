@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import java.util.Comparator;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
@@ -72,6 +73,8 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
         var holds = ParentCarry.holdsFor(carrier, target);
         if (holds.isEmpty()) return refusal(ParentCarry.capacityProblem(carrier, target));
+        // A body lifted off a host is taken by the braid when it reaches: it comes up over the brim from above.
+        if (attach instanceof AttachState.OnHost) holds = holds.stream().sorted(Comparator.comparing(h -> h.reach() != Reach.BRAID)).toList();
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
         double low = ContactGeometry.braidGap(carrier, target, true), shortfall = Double.POSITIVE_INFINITY;
         // The hold that reaches first, in the carrier's order (a hatless Marisa's mouth before her braid tip).

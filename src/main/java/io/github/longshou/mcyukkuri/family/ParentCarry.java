@@ -236,7 +236,10 @@ public final class ParentCarry {
         }
         float down = lowering(carrier, child, partial);
         if (down >= 0) model.lerp(ground(carrier, hold), ease(down));
-        return world(carrier, partial, model);
+        // Over a host (the hat it was lifted from) it is held up to that surface: over the brim, never through it.
+        var at = world(carrier, partial, model);
+        double host = Occupancy.hostFloor(carrier.level(), child.getBbWidth(), at);
+        return host > at.y ? new Vec3(at.x, host, at.z) : at;
     }
     /** Where a lowered child is let go (model units): on the ground under the braid tip beside the body, or under its tail. */
     private static Vector3f ground(YukkuriView carrier, Hold hold) {

@@ -37,7 +37,7 @@ public final class GetTo implements Intent {
     static final int AWAIT_FETCH_TICKS = 200;
     /** How far inside the brim the walk stops, as a fraction of the brim reach (just inside, so a hop or a grab reaches). */
     private static final double EDGE_INSIDE = .85;
-    /** Bounded landing scan over the brim directions, nearest to the young first. */
+    /** Bounded landing scan over the brim directions, nearest to the young first; the same bound for a free place at the edge. */
     private static final int LANDING_TRIES = 8;
 
     private final YukkuriEntity child;
@@ -109,7 +109,7 @@ public final class GetTo implements Intent {
         @Override public Step next() { return landing == null ? null : new Step.Do(new Hop(landing)); }
     }
 
-    /** Walk to the brim on the taker's side and wait there: a dependent young is carried out from that edge. */
+    /** Walk (a crawler crawls) to the brim on the taker's side and wait there: a dependent young is carried out from that edge. */
     private final class WalkToEdge implements Method {
         private int state;
         private Vec3 edge;
@@ -118,13 +118,20 @@ public final class GetTo implements Intent {
 
         @Override public Feasibility applicable() {
             edge = null;
-            var rim = edgePoint();
-            if (rim.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_rim");
-            var inside = new Vec3(rim.get().x * EDGE_INSIDE, 0, rim.get().z * EDGE_INSIDE);
-            var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
-            if (height.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
-            edge = new Vec3(inside.x, height.getAsDouble(), inside.z);
-            return Feasibility.pass();
+            var exit = edgePoint();
+            if (exit.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_rim");
+            // Just inside the brim on the taker's side, or the free place nearest it along the brim (the siblings wait there too).
+            var frame = host.frame();
+            var aim = frame.toWorld(exit.get());
+            for (var rim : host.rim().stream().sorted(Comparator.comparingDouble(p -> p.distanceToSqr(aim))).limit(LANDING_TRIES).toList()) {
+                var local = frame.toLocal(rim);
+                var inside = new Vec3(local.x * EDGE_INSIDE, 0, local.z * EDGE_INSIDE);
+                var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
+                if (height.isEmpty()) continue;
+                var at = new Vec3(inside.x, height.getAsDouble(), inside.z);
+                if (host.room(child, at)) { edge = at; return Feasibility.pass(); }
+            }
+            return Feasibility.of(Reason.NO_ROOM, 0, "edge_taken");
         }
 
         @Override public Set<Reason> reduces() { return Set.of(Reason.NO_ROOM, Reason.NO_CONTACT); }

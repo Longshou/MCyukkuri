@@ -29,9 +29,9 @@ public final class LeaveHostGoal extends Goal {
         setFlags(EnumSet.of(Flag.MOVE));
     }
 
-    /** The host this young rides that wants its young off, or null. */
+    /** The host this young rides that wants its young off, or null; a newborn first wakes (first_wake) where it landed. */
     private SurfaceHost unloadHost() {
-        if (child.life().isSleeping() || child.body().condition().dying()) return null;
+        if (child.life().isSleeping() || child.body().condition().dying() || child.firstWaking()) return null;
         if (!(Attach.of(child) instanceof AttachState.OnHost on)) return null;
         return on.host().unloadRequested() ? on.host() : null;
     }

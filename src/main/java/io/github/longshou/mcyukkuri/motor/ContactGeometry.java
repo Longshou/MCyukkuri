@@ -81,14 +81,25 @@ public final class ContactGeometry {
 
     /** How much farther {@code target} lies than the braid holds (blocks, 0 or less in reach): the braid swung about its root or the low lean's ({@code lean}) within its length. */
     public static double braidGap(YukkuriEntity body, Entity target, boolean lean) {
-        if (body == null || target == null || !braided(body)) return Double.POSITIVE_INFINITY;
+        return body == null || target == null ? Double.POSITIVE_INFINITY : braidGap(body, body.position(), target, lean, true);
+    }
+
+    private static double braidGap(YukkuriEntity body, Vec3 at, Entity target, boolean lean, boolean sighted) {
+        if (!braided(body)) return Double.POSITIVE_INFINITY;
         Vec3 model = BRAID[lean ? 2 : 0];
-        double s = body.growthScale() * body.getScale() / 16, dx = target.getX() - body.getX(), dz = target.getZ() - body.getZ();
+        double s = body.growthScale() * body.getScale() / 16, dx = target.getX() - at.x, dz = target.getZ() - at.z;
         double d = Math.max(1E-6, Math.hypot(dx, dz)), r = Math.hypot(model.x, model.z) * s;
-        Vec3 root = body.position().add(dx / d * r, model.y * s, dz / d * r);
+        Vec3 root = at.add(dx / d * r, model.y * s, dz / d * r);
         var box = target.getBoundingBox();
         Vec3 near = new Vec3(Mth.clamp(root.x, box.minX, box.maxX), Mth.clamp(root.y, box.minY, box.maxY), Mth.clamp(root.z, box.minZ, box.maxZ));
-        return sight(body, root, near) ? root.distanceTo(near) - BRAID[1].distanceTo(BRAID[0]) * s : Double.POSITIVE_INFINITY;
+        return !sighted || sight(body, root, near) ? root.distanceTo(near) - BRAID[1].distanceTo(BRAID[0]) * s : Double.POSITIVE_INFINITY;
+    }
+
+    /** Whether the mouth or the braid would reach {@code target} from a planned stand {@code at} (the grab checks sight itself). */
+    public static boolean reachesFrom(YukkuriEntity body, Vec3 at, Entity target) {
+        double gap = Math.hypot(target.getX() - at.x, target.getZ() - at.z) - (body.getBbWidth() + target.getBbWidth()) / 2;
+        return gap <= GRAB_MARGIN && Math.abs(target.getY() - at.y) < GRAB_HEIGHT
+                || braidGap(body, at, target, false, false) <= 0 || braidGap(body, at, target, true, false) <= 0;
     }
 
     /** Whether the braid reaches the target from where the body stands, upright or in the low lean. */

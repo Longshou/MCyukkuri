@@ -40,7 +40,8 @@ public final class HouseCrawlControl extends MoveControl {
         boolean crawl = wanted && operation != Operation.JUMPING && entity.onGround()
                 && entity.canCrawlNow()
                 && (!entity.childhood().canJump() || entity.body().footBurned() || entity.house().wantsCrawl() || entity.life().wantsCrawl());
-        entity.syncCrawl(crawl);
+        // On a host's surface the host walk owns the crawl (Walk); here only the ground gait.
+        if (!entity.isPassenger()) entity.syncCrawl(crawl);
         if (crawl) entity.yBodyRot = entity.getYRot();
     }
 }

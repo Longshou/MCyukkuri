@@ -106,9 +106,10 @@ public abstract class Choreography {
         return role == null ? null : intents.get(role);
     }
 
-    /** The clip of the current Present for this body, or null. */
+    /** The clip of the current Present for this body when it plays the Present's lead (the rest of its cast runs intents), or null. */
     public final String present(UUID body) {
-        return beat != null && beats().get(beat) instanceof Beat.Present p && engaged(body) != null ? p.clip() : null;
+        return beat != null && beats().get(beat) instanceof Beat.Present p && !p.cast().isEmpty()
+                && p.cast().keySet().iterator().next().equals(engaged(body)) ? p.clip() : null;
     }
 
     public final void conduct() {

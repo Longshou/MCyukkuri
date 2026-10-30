@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
@@ -244,6 +245,8 @@ public final class FamilyLife {
     public boolean active() { return task!=Task.NONE||laboring()||inBirthBeat()||launchInFlight()||comfortTicks>0; }
     /** The current beat of a running birth casts this body (its other beats leave it free). */
     private boolean inBirthBeat() { var role=Conductor.roleOf(entity);return role!=null&&role.engaged(entity); }
+    /** Her birth's current beat casts her as the mother: she keeps her place (a stem hat's near brim may lie under her front). */
+    public boolean holdsBirthStation() { var role=Conductor.roleOf(entity);return role!=null&&LiveBirth.MOTHER.equals(role.role())&&role.engaged(entity); }
     /**
      * An everyday family errand (waiting for, following or looking for a child, staying near the nest) gives way to comforting a hurt kin
      * ({@link io.github.longshou.mcyukkuri.social.WoundComfort}); births, feeding, courtship, brooding and recovery do not.
@@ -263,7 +266,7 @@ public final class FamilyLife {
             String clip=role.choreography().present(entity.getUUID());
             if(clip!=null&&!clip.isEmpty())return clip;
             // The catcher holding the brim of the hat she set down, or (no hat) cheering beside the outlet, once she stands there.
-            if(LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&action==null&&role.choreography() instanceof LiveBirth b&&b.attending())
+            if(LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&!(action instanceof Walk)&&role.choreography() instanceof LiveBirth b&&b.attending())
                 return PlacedHatEntity.find(entity)!=null?Behaviors.HAT_HOLD:Behaviors.MIDWIFE;
             if(LiveBirth.MOTHER.equals(role.role())&&brood()!=null)return Behaviors.TEND_BROOD;
         }
@@ -297,13 +300,27 @@ public final class FamilyLife {
         return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||onHost())
                 &&!entity.operations().active()&&!entity.life().hasUrgentNeed()&&entity.life().mealTicks()==0&&!awaitingLanding;
     }
-    /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost. */
-    public Conductor.Role birthRole() { var role=birthFree()?Conductor.roleOf(entity):null;return role!=null&&role.engaged(entity)?role:null; }
-    /** BirthGoal's tick for a role with nothing to run: hold still; the mother's postpartum beats, the catcher's eyes on the outlet. */
+    /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
+     *  A catcher watching the young yields only to danger, a hunger emergency (birthFree) or a young needing care it can give:
+     *  a hurt newborn to comfort, an urgently hungry young of its own. */
+    public Conductor.Role birthRole() {
+        var role=birthFree()?Conductor.roleOf(entity):null;
+        if(role==null||!role.engaged(entity))return null;
+        return LiveBirth.CATCHER.equals(role.role())&&role.choreography().host()!=entity&&role.choreography() instanceof LiveBirth b&&b.watching()
+                &&(comfortTicks>0||hasUrgentlyHungryChild())?null:role;
+    }
+    /** BirthGoal's tick for a role with nothing to run: hold still; the mother's postpartum beats, the catcher's eyes on the birth. */
     public void holdBirthRole(Conductor.Role role) {
-        entity.getNavigation().stop();var mom=role.choreography().host();
+        entity.getNavigation().stop();
         if(LiveBirth.MOTHER.equals(role.role())&&"linger".equals(role.choreography().beat()))recoveryBeats((int)(level().getGameTime()-role.choreography().beatTick()));
-        else if(mom!=entity){var outlet=LiveBirthGeometry.position(mom,0);entity.getLookControl().setLookAt(outlet.x,outlet.y+.1,outlet.z,20,20);}
+        else watchBirth(role);
+    }
+    /** The catcher's eyes while it watches: on the outlet through the labour, then on the young in the hat. */
+    public void watchBirth(Conductor.Role role) {
+        var mom=role.choreography().host();
+        if(mom==entity||!(role.choreography() instanceof LiveBirth b)||!b.watching())return;
+        var hat=b.attending()?null:b.placedHat();var at=hat!=null?hat.position():LiveBirthGeometry.position(mom,0);
+        entity.getLookControl().setLookAt(at.x,at.y+.1,at.z,20,20);
     }
     /** A role's intent starts in BirthGoal: the father who notices the labour shows it (project original staging). */
     public void birthIntentStarted(Conductor.Role role,Intent intent) { if(LiveBirth.CATCHER.equals(role.role())&&"rendezvous".equals(intent.id()))entity.showReaction("surprise","caregiver",50); }
@@ -330,9 +347,8 @@ public final class FamilyLife {
     public boolean birthTravel(){
         if(entity.level().isClientSide||entity.motor().current()!=null)return false;
         if(!awaitingLanding){
-            var hello=greeting();
-            if(hello!=null&&level().getGameTime()-hello.tick()==30&&entity.onGround()&&!entity.isPassenger()&&Gesture.smallHopImpulse(entity)>0
-                    &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&!baby.family().bumped())entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
+            var hello=greetHop();
+            if(hello!=null&&level().getGameTime()-hello.tick()==30)entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
             return false;
         }
         if(launch!=null&&!launched&&!entity.onGround()&&!entity.isInWaterOrBubble()&&!entity.isPassenger()){
@@ -484,7 +500,14 @@ public final class FamilyLife {
                 &&!hello.baby().equals(entity.getUUID()))return hello;
         return null;
     }
-    /** The father and the older siblings turn to a landed newborn and greet it; a hurt one frightens them and the mate comes to comfort it. */
+    /** The newborn this relative greets with a small hop, from 30 ticks after its landing for 10 ticks (unhurt, this body on its feet). */
+    LiveBirth.Welcome greetHop(){
+        var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
+        return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&Gesture.smallHopImpulse(entity)>0
+                &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&!baby.family().bumped()?hello:null;
+    }
+    /** The father and the older siblings turn to a landed newborn and answer its first greeting with the classic one (L36: a
+     *  heard ゆっくりしていってね is echoed); a hurt one frightens them and the mate comes to comfort it. */
     private void greet(){
         if(!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
         long since=level().getGameTime()-hello.tick();boolean hurt=baby.family().bumped(),mate=partner()!=null&&partner().equals(baby.family().mother());
@@ -493,7 +516,7 @@ public final class FamilyLife {
         if(since==6&&mate&&hurt&&entity.distanceToSqr(baby)<256)comfort(baby);
         if(since!=30||!entity.onGround()||entity.isPassenger()||flying())return;
         if(hurt){entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);}
-        else{entity.showReaction("happy","caregiver",40);BirthStaging.affection(entity);}
+        else{entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {

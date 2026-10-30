@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -46,6 +47,8 @@ public final class Walk implements Action {
     /** A body the route must go around instead of through, or null (the shared {@code SurfaceApproach.walkAround}). */
     private final Entity avoid;
     private double pace;
+    /** A crawler on a host goes at its crawl gait and stroke clock, not the walk pace. */
+    private boolean crawl;
     private Vec3 from;
     /** Replans that may restart the watchdog window in one walk; after them NO_PROGRESS fires as usual. */
     private static final int REPLAN_RESETS = 3;
@@ -121,15 +124,21 @@ public final class Walk implements Action {
         from = body.position();
         if (goal == null) goal = target;
         replans = replans(body);
+        crawl = host != null && body.crawler();
+        if (crawl) body.syncCrawl(true);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
         sample(body);
-        return host != null ? hostTick(body) : groundTick(body);
+        if (host == null) return groundTick(body);
+        var progress = hostTick(body);
+        if (crawl && progress instanceof Outcome) body.syncCrawl(false);
+        return progress;
     }
 
     @Override public void abort(YukkuriEntity body, String why) {
         if (host == null) SurfaceApproach.halt(body);
+        else if (crawl) body.syncCrawl(false);
     }
 
     @Override public String startDetail() {
@@ -204,13 +213,16 @@ public final class Walk implements Action {
         if (Math.hypot(local.x - spot.x, local.z - spot.z) <= HOST_ARRIVED) return new Outcome.Done(String.format(Locale.ROOT, "local=%s", local));
         double[] aim = route.get(leg);
         double dx = aim[0] - spot.x, dz = aim[1] - spot.z, d = Math.hypot(dx, dz);
-        double step = Math.min(pace / Math.max(1E-6, host.frame().unit()), d);
+        double step = Math.min((crawl ? body.crawlStep() : pace) / Math.max(1E-6, host.frame().unit()), d);
         if (d <= step && leg < route.size() - 1) leg++;
         Vec3 next = d < 1E-9 ? spot : new Vec3(spot.x + dx / d * step, 0, spot.z + dz / d * step);
         var height = host.support(next, Occupancy.foot(body.getBbWidth()));
         if (height.isEmpty()) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_SUPPORT, 0, "off_surface");
         next = new Vec3(next.x, height.getAsDouble(), next.z);
         if (!host.room(body, next)) return replan(body, spot) ? new Running(routeLeft(spot), TravelMode.CONSUMED) : Outcome.of(Reason.NO_ROOM, 0, "occupied");
+        // The body turns toward where it goes, at its own turn rate.
+        if (d > 1E-9) Motor.face(body, Mth.approachDegrees(body.getYRot(), SurfaceApproach.yaw(host.frame().toWorld(spot), host.frame().toWorld(next)),
+                (float) BodyAbility.of(body).turnRate()));
         host.riders().put(body.getUUID(), next, localYaw(body, host));
         return new Running(routeLeft(next), TravelMode.CONSUMED);
     }

@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Direction;
 import org.joml.Quaternionf;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import net.minecraft.util.Mth;
 
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
@@ -170,6 +171,11 @@ public final class LiveBirthGeometry {
     public static EntityDimensions bodyDimensions(YukkuriEntity entity,float growth,float belly){
         var size=selectedDimensions(entity.getVariant(),entity.subspeciesFlags());
         return size.scale(growth*(1+SWELL*belly)*(1+LOW_WIDE*belly),growth*(1+SWELL*belly));
+    }
+    /** Her footprint radius (blocks) at this belly: the shared foot rule over her farthest reach, the swollen lower front (deform). */
+    public static double footprint(YukkuriEntity mother,float belly){
+        return Occupancy.foot(selectedDimensions(mother.getVariant(),mother.subspeciesFlags()).width()*mother.growthScale()
+                *(1+SWELL*belly)*(1+(LOW_DEEP+LOW_FRONT)*belly)*mother.getScale());
     }
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
         return unbornDimensions(FamilyData.BirthKind.LIVE,child).scale(globalScale);

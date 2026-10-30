@@ -792,11 +792,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** How far (blocks) under a hat's surface feet must be to count as under the hat. */
     private static final double UNDER = .05;
     /**
-     * Nobody stays under a hat lying on the ground (it has no collision): a free body whose middle lies inside the hat's outline
-     * with its feet under the hat's surface there is eased out along the line from the hat's middle until its middle clears the
-     * outline, by {@link Squeeze}'s rule with the outline as a fixed circle (a quarter of the way a tick, at most its walk pace),
-     * through Motor. A body whose middle is outside (the mother the near brim reaches under) is left alone, and so is one in
-     * flight (its contact is the flight's). The land behaviour's contact pass; afloat the hull's own pass keeps bodies out.
+     * Nobody stays under a hat lying on the ground (it has no collision): a free body whose footprint ({@link Occupancy#foot})
+     * overlaps the hat's outline with its feet under the hat's surface there is eased out along the line from the hat's middle
+     * until its footprint clears the outline, by {@link Squeeze}'s rule with the outline as a fixed circle (a quarter of the way a
+     * tick, at most its walk pace), through Motor. A mother holding her birth place is moved only once her middle is under it (a
+     * stem hat's near brim may lie under her front), and one in flight is left alone (its contact is the flight's). The land
+     * behaviour's contact pass; afloat the hull's own pass keeps bodies out.
      */
     public void clearUnder() {
         if (level().isClientSide) return;
@@ -805,11 +806,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(reach, 1, reach))) {
             if (y.isPassenger() || !y.isAlive() || Attach.of(y) instanceof AttachState.Airborne) continue;
             var local = pose.toLocal(y.position());
-            var surface = support(local, Occupancy.foot(y.getBbWidth()));
-            if (support(local, 0).isEmpty() || surface.isEmpty() || local.y >= surface.getAsDouble() - UNDER / unit) continue;
+            double foot = footOf(y), surface = HatGeometry.footprint(local.x, local.z, foot);
+            if (Double.isNaN(surface) || local.y >= surface - UNDER / unit) continue;
+            if (Double.isNaN(HatGeometry.surface(local.x, local.z)) && y.family().holdsBirthStation()) continue;
             double d = Math.hypot(local.x, local.z), dx = d > 1e-6 ? local.x / d : 1, dz = d > 1e-6 ? local.z / d : 0;
-            // the outline in its direction, one sampling step beyond, so the quarter steps carry its middle past it
-            double edge = HatGeometry.extent(0, 0, dx, dz, 0) + .125, foot = footOf(y);
+            // the outline its footprint clears in its direction, one sampling step beyond, so the quarter steps carry it past
+            double edge = HatGeometry.extent(0, 0, dx, dz, foot) + .125;
             var move = Squeeze.separate(List.of(new Squeeze.Body(local.x, local.z, foot, 1, BodyAbility.of(y).walkSpeed() / unit)),
                     List.of(new Disc(0, 0, edge - foot + ROOM_SLACK)), ROOM_SLACK, 0, 0)[0];
             var step = pose.toWorld(new Vec3(local.x + move[0], local.y, local.z + move[1])).subtract(y.position()).multiply(1, 0, 1);

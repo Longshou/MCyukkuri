@@ -135,7 +135,7 @@ final class YukkuriSync {
     long getCrawlStartTick() { return owner.getEntityData().get(CRAWL_START); }
     void syncCrawl(boolean active) {
         if (owner.level().isClientSide) return;
-        active &= owner.canCrawlNow();
+        active &= owner.crawler();
         if (active && !isCrawling()) owner.getEntityData().set(CRAWL_START, owner.level().getGameTime());
         owner.getEntityData().set(CRAWLING, active);
     }

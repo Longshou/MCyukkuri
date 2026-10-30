@@ -48,7 +48,7 @@ public interface SurfaceHost {
     /** False while the host shakes; no jump landing may be planned onto it then. */
     boolean steady();
 
-    /** True while the owner's running intent is Unload or taking the hat back; derived from the intent, never stored. */
+    /** True while a body near runs an intent on this host (unload it, take it back, attend its young); derived, never stored. */
     boolean unloadRequested();
 
     /** This rider is kept out of the water by the host (a dry hull above the waterline): its water checks treat it as dry. */

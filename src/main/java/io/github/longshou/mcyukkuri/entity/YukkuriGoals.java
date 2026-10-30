@@ -429,6 +429,7 @@ final class YukkuriGoals {
             if(intent==null){ owner.family().holdBirthRole(role); return; }
             if(runner==null){ runner=new IntentRunner(owner,intent,"birth_"+role.role()); runnerRole=role; runner.start(); owner.family().birthIntentStarted(role,intent); }
             runner.tick();
+            owner.family().watchBirth(role);
             if(runner.result()!=IntentRunner.Result.RUNNING){ role.choreography().report(owner.getUUID(),intent,runner.result()); runner=null; }
         }
         @Override public void stop() { release("birth_goal_stop"); owner.family().stopBirthGoal(); }

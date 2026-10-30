@@ -326,14 +326,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public long getCrawlStartTick() { return sync().getCrawlStartTick(); }
     /** Blocks the crawl gait covers per tick on average: one stroke's travel spread over its period, at this body's size and speed. */
     public double crawlSpeed() { return HouseCrawlMotion.TRAVEL_UNITS / 16 / HouseCrawlMotion.PERIOD_TICKS * crawlScale(); }
+    /** Blocks the crawl gait covers this tick, on its own stroke clock from the crawl's start. */
+    public double crawlStep() { return HouseCrawlMotion.advance(level().getGameTime()-getCrawlStartTick()) * crawlScale(); }
     /** The crawl does not shrink with growth (a newborn covers about .2 blocks per second); only the body scale and the non-growth speed factors (wounds, weakness, soles) change it. */
     private double crawlScale() {
         double growth = GrowthSize.movement(family.stage(), family.scale(), SpeciesProfile.of(variant).houseBody());
         return getScale() * Math.max(1, growthScale()) * getAttributeValue(Attributes.MOVEMENT_SPEED) / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * growth);
     }
-    public boolean canCrawlNow() {
+    public boolean canCrawlNow() { return !isPassenger() && crawler(); }
+    /** The crawl is this body's gait now: on the ground, or riding a host's surface (a hat floor), where the host walk drives it. */
+    public boolean crawler() {
         return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&
-                !isNoAi() && !isPassenger() && !isCommandPlaying()
+                !isNoAi() && (!isPassenger() || getVehicle() instanceof SurfaceHost) && !isCommandPlaying()
                 && !isPanicking() && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }
@@ -356,7 +360,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 Motor.velocity(this, getDeltaMovement().scale(.91), "predator_drag"); fallDistance = 0;
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
-            double distance = HouseCrawlMotion.advance(level().getGameTime()-getCrawlStartTick()) * crawlScale();
+            double distance = crawlStep();
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
@@ -654,7 +658,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void aiStep() {
-        if (!level().isClientSide && !canCrawlNow()) syncCrawl(false);
+        if (!level().isClientSide && !crawler()) syncCrawl(false);
         if (!isCrawling()) crawlNudgeX = crawlNudgeZ = 0;
         double movementX = getX(), movementZ = getZ();
         boolean wasDeciding = BodyDriver.deciding();
@@ -697,6 +701,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public boolean hasReaction() { return reactionTicks > 0; }
+    /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
+    public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     public void showReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
         reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;

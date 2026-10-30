@@ -56,10 +56,12 @@ final class LifeAccessory {
                     "return refused reason=owner_or_token_mismatch owner={} token={} player={}", owner, token, player);
             return false;
         }
-        custody.reclaim(token, "returned"); clearConfiscation(); o.personality().accessoryReturned(player);
+        custody.reclaim(token, "returned"); clearConfiscation();
         o.entity().settlement().society().restored();
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
-        o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); return true;
+        // Taken back by its own braid (no player) the hat was never lost: the おかざり回収 line and relief are for one given back.
+        if (player != null) { o.personality().accessoryReturned(player); o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); }
+        return true;
     }
     /** Transfer a compatible loose physical accessory. */
     boolean receiveAccessory(ItemStack stack,UUID player) {

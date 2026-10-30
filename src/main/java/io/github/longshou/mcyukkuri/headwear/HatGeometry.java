@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -201,7 +202,7 @@ public final class HatGeometry {
      *  every fruit and clear of her body and the helper on the far side; a mother on her own sets it where her own clip puts it. */
     public static Pose catchPose(YukkuriEntity mother,FamilyData.Brood brood,YukkuriEntity catcher,Role role,Vec3 at,float yaw){
         var place=placement(role);
-        double k=hatScale(catcher)*catcher.getScale()/16,body=mother.growthScale()*mother.getScale()/16;
+        double k=unit(catcher),body=mother.growthScale()*mother.getScale()/16;
         var forward=Vec3.directionFromRotation(0,yaw);float hatYaw=yaw+place.hatYawInMother();
         if(role==Role.SELF)return new Pose(flat(turned(at,yaw,place.offset().scale(mother.growthScale()/16),mother.getScale()),at),hatYaw,role);
         if(brood.kind==FamilyData.BirthKind.STEM){
@@ -228,14 +229,48 @@ public final class HatGeometry {
      *  (the hat's long axis follows the stem, so its local z ends are the lips that face her). Her collision box may therefore
      *  overlap the near rim, which the stem catch allows: the coloured brim may lie under her front, the hollow may not. */
     public static double stemClearance(YukkuriEntity mother,YukkuriEntity catcher){
-        return mother.getBbWidth()*.4+opening()[3]*hatScale(catcher)*catcher.getScale()/16;
+        return mother.getBbWidth()*.4+opening()[3]*unit(catcher);
     }
-    /** The catcher's place for a hat at this pose: the inverse of the clip's placement. */
+    /** Blocks a stand beside a hat keeps clear of its brim beyond the body's own footprint. */
+    private static final double STAND_MARGIN=.05;
+    /** The catcher's place for a hat at this pose: the inverse of the clip's placement, moved out along the same bearing until
+     *  her footprint ({@link Occupancy#foot}) clears the real brim (brim x HatScale) by {@link #STAND_MARGIN}. */
     public static Stand stand(Pose pose,YukkuriEntity catcher){
+        var authored=authored(pose,catcher);
+        return new Stand(outside(pose,unit(catcher),catcher,authored.at(),authored.at().subtract(pose.at()).horizontalDistance()),authored.yaw());
+    }
+    private static Stand authored(Pose pose,YukkuriEntity catcher){
         var place=placement(pose.role());float yaw=pose.yaw()-place.yaw();
         var offset=new Vec3(place.offset().x,0,place.offset().z).scale(catcher.growthScale()*catcher.getScale()/16);
         return new Stand(flat(pose.at().subtract(offset.yRot((float)Math.toRadians(180-yaw))),pose.at()),yaw);
     }
+    /** The stands for taking a placed hat back: the clip's own stand turned about the hat in eighths (the hat then lies where
+     *  the braid reaches for it), each moved out of the brim; index 0 is the clip's own. */
+    public static List<Stand> stands(PlacedHatEntity hat,YukkuriEntity catcher){
+        var pose=poseOf(hat);var out=new ArrayList<Stand>(8);
+        for(int i=0;i<8;i++){
+            var turned=authored(new Pose(pose.at(),pose.yaw()+i*45,pose.role()),catcher);
+            out.add(new Stand(outside(pose,hat.unit(),catcher,turned.at(),turned.at().subtract(pose.at()).horizontalDistance()),turned.yaw()));
+        }
+        return out;
+    }
+    /** Beside a hat lying at this pose: from its middle toward {@code toward}, at least {@code least} blocks out and far enough
+     *  that the body's footprint clears the brim by {@link #STAND_MARGIN} (blocks, at the hat's base height). */
+    public static Vec3 outside(Pose pose,double unit,YukkuriEntity body,Vec3 toward,double least){
+        var away=toward.subtract(pose.at()).multiply(1,0,1);
+        if(away.lengthSqr()<1e-8)away=body.position().subtract(pose.at()).multiply(1,0,1);
+        var dir=away.lengthSqr()<1e-8?new Vec3(0,0,1):away.normalize();var local=dir.yRot((float)-Math.toRadians(180-pose.yaw()));
+        double clear=extent(0,0,local.x,local.z,Occupancy.foot(body.getBbWidth())/unit)*unit+STAND_MARGIN;
+        return pose.at().add(dir.scale(Math.max(least,clear)));
+    }
+    public static Vec3 outside(PlacedHatEntity hat,YukkuriEntity body,Vec3 toward,double least){return outside(poseOf(hat),hat.unit(),body,toward,least);}
+    /** A round footprint of {@code radius} blocks at these feet overlaps a hat lying at this pose. */
+    public static boolean overlaps(Pose pose,double unit,Vec3 feet,double radius){
+        var local=feet.subtract(pose.at()).yRot((float)-Math.toRadians(180-pose.yaw())).scale(1/unit);
+        return !Double.isNaN(footprint(local.x,local.z,(radius+STAND_MARGIN)/unit));
+    }
+    /** Blocks per hat unit of this Marisa's own hat (HatScale), as it lies set down. */
+    public static double unit(YukkuriEntity owner){return hatScale(owner)*owner.getScale()/16;}
     public static Pose poseOf(PlacedHatEntity hat){return new Pose(hat.position(),hat.getYRot(),hat.role());}
     private static Vec3 turned(Vec3 at,float yaw,Vec3 local,float scale){return at.add(local.yRot((float)Math.toRadians(180-yaw)).scale(scale));}
     private static Vec3 flat(Vec3 p,Vec3 floor){return new Vec3(p.x,floor.y,p.z);}

@@ -17,7 +17,7 @@ public sealed interface Beat permits Beat.Perform, Beat.Present, Beat.Await, Bea
         public Perform { if (cast.isEmpty()) throw new IllegalArgumentException("A Perform needs a lead role"); }
     }
 
-    /** The cast plays {@code clip} (on their own bodies, through their own goals) for {@code ticks}. */
+    /** The lead plays {@code clip} (on its own body, through its own goal) for {@code ticks}; the rest of the cast runs its intents. */
     record Present(Map<String, Supplier<Intent>> cast, String clip, int ticks, String next) implements Beat {
         public Present { if (ticks <= 0) throw new IllegalArgumentException("Present needs a positive ticks"); }
     }
