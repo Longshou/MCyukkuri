@@ -20,6 +20,8 @@ from museum_fields import BY_ID, FEET  # noqa: E402
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
 # A real infant ready to follow its parent to the bank: it has already eaten, relieved itself and crawled, but cannot jump.
 CHILDHOOD_CRAWLING_READY = 'Version:1,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
+# A young that has already sailed its own hat (its first voyage came back): it may climb, right and boat its own hat out of the water.
+CHILDHOOD_SAILED = 'Version:2,Newborn:0b,Sailed:1b'
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
@@ -1632,7 +1634,7 @@ def _babies():
 
 
 def _children(rows):
-    return [yk('marisa', bank_dx(dz), dz, f'c{n}', stage='child', aquatic=True, also=('crew',), **pair_ready())
+    return [yk('marisa', bank_dx(dz), dz, f'c{n}', stage='child', aquatic=True, childhood=CHILDHOOD_SAILED, also=('crew',), **pair_ready())
             for n, dz in enumerate(rows, 1)]
 
 
@@ -1690,10 +1692,10 @@ pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
      reads=[('读灵梦', f'yukkuri status {sel("r")} raw')])
 
 pond('worn_hat_boat', '戴着的帽子当船·落水自救', '帽子当船',
-     '戴着帽子的水生魔理沙子油被推下岸落水：她先把自己的帽子摘下放到身旁的开阔水面上，帽子展开漂着，再游到帽檐、咬住爬进帽里坐好；在帽里不再算落水。泡水伤照常扣血，但不打断摘帽、游与爬',
+     '戴着帽子、已经初航过的水生魔理沙子油被推下岸落水：她先把自己的帽子摘下放到身旁的开阔水面上，帽子展开漂着，再游到帽檐、咬住爬进帽里坐好；在帽里不再算落水。泡水伤照常扣血，但不打断摘帽、游与爬',
      '约 30 秒',
-     [yk('marisa', bank_dx(0), 0, 'c', stage='child', aquatic=True, yaw=-90, lead=True, **pair_ready())], late=[shoved('c')],
-     note='谁会这样做由能力数据 hat_boat 决定（只有水生魔理沙），还要戴着帽子、会攀爬。日志：[intent] start id=escape_water → [method] pick method=hat_boat → [action] start id=place_prop … prop=hat → [hat] placed … water=true → [action] start id=climb → [body] mount cause=climb → [intent] end result=DONE；其间没有 [action] end … why=hurt。身旁没有开阔水面时看 [method] 的 no_open_water_beside，转向岸边。',
+     [yk('marisa', bank_dx(0), 0, 'c', stage='child', aquatic=True, yaw=-90, lead=True, childhood=CHILDHOOD_SAILED, **pair_ready())], late=[shoved('c')],
+     note='谁会这样做由能力数据 hat_boat 决定（只有水生魔理沙），还要戴着帽子、会攀爬、已会操帽（成体，或初航回来的子油；没初航过的只会挣扎，own_hat 与 hat_boat 记 cannot_sail）。日志：[intent] start id=escape_water → [method] pick method=hat_boat → [action] start id=place_prop … prop=hat → [hat] placed … water=true → [action] start id=climb → [body] mount cause=climb → [intent] end result=DONE；其间没有 [action] end … why=hurt。身旁没有开阔水面时看 [method] 的 no_open_water_beside，转向岸边。',
      reads=[('读子油', f'yukkuri status {sel("c")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('cargo', '帽内储粮·船主取粮吃', '帽内储粮',
@@ -1706,7 +1708,7 @@ pond('cargo', '帽内储粮·船主取粮吃', '帽内储粮',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('hat_crowd', '帽内挤动', '帽内挤动',
-     '帽腔四角已有四份粮，五只子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水后按落水自救（戴着自己帽子的子油先把帽子放到水面再爬上去）；帽腔底的粮和船主不同高度，不互相挤',
+     '帽腔四角已有四份粮，五只已经初航过、会操帽的子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水后按落水自救（戴着自己帽子的子油先把帽子放到水面再爬上去）；帽腔底的粮和船主不同高度，不互相挤',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_children((1, -1, 2, -2, 3)), afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, middle=True)],
      note='日志 [hat] squeeze（限频）记被挤动的个体与步长，[hat] squeezed off 与 [body] dismount cause=squeezed 记落水；读 hat.tilt 看挤动后的倾斜。也可再空手摇晃帽子看倾斜时谁让得多。',
@@ -1807,7 +1809,7 @@ def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):
 
 
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
-     '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳的子油在岸边被推下水：它爬不上帽也爬不上岸，只能挣扎。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
+     '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳、也没初航过的子油在岸边被推下水（只有它落水）：它爬不上帽也爬不上岸，只能挣扎。孩子在岸上时亲油会想上岸接它、先往岸边划；救人时她只在帽子中央附近走动（走到帽檐会把帽子压翻），用嘴或辫梢够。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', childhood=CHILDHOOD_CRAWLING_READY),
@@ -1818,7 +1820,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
-     '亲油的帽腔里堆满了粮，帽底没有空位，帽里有木棍；岸边的赤油被推下水。亲油接受救援后先划近，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），再用嘴或辫梢把赤油提出水面放进帽腔。被提着的赤油随帽子晃动，不抽动',
+     '亲油的帽腔里堆满了粮（粮在她坐进帽子之后才放进去，避开她的脚下，开场不挤动、不翻船），帽底没有空位，帽里有木棍；岸边的赤油被推下水（只有它落水）。亲油接受救援后先划近，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），再用嘴或辫梢把赤油提出水面放进帽腔。被提着的赤油随帽子晃动，不抽动',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
       _aquatic_young('rescue_infant_full', 'k1', bank_dx(1), 1, 'baby', 'a'),
@@ -1837,7 +1839,8 @@ def boat_birth(sid, title, hint, watch, food, note):
           afloat('mother', water_at(0, 3), True, sel('mother'), food=food, stick=True),
           afloat('father', water_at(4, 3), True, sel('father'), stick=True),
           f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'],
-         note=note,
+         note='开场：母油坐在自己正放、浮着的帽子里临产（不翻船、不在岸上；临产孕体按她自己的身子加腹中胎儿计重，读帽子 hat.draft 的 load 与普通成体相近，'
+              '不应有 [hat] capsized cause=overload），父油在自己的船上。' + note,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
 
@@ -1852,21 +1855,45 @@ boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏�
            16, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE)
 
+# Parents of a brood just born are in their recovery after it (FamilyLife Recovery, reproductionRecoveryTicks): not ready to breed.
+_JUST_BORN = 'Recovery:12000'
+
 pond('family_skiffs', '把赤油送到父船', '送到父船',
-     '母油的帽子里有三只赤油，父油在五格外自己的帽子里，两船都有木棍，两只是伴侣：母船明显更重，母油先等两船漂近，等不来就请父油划过来（父油对这次请求只决定一次，拒绝是真实的）；两船并舷后母油在帽里叼起或用辫梢卷起一只赤油，走到靠父船的一侧，转身把它放到父船上。够不到父船就放回自己的帽腔，同一只两次够不到就留在母船；两边差得不多时不再送',
+     '母油的帽子里有三只刚出生不久的赤油，父油在五格外自己的帽子里，两船都有木棍，两只是伴侣、都还在产后恢复期（不想繁殖，不会为此上岸）；赤油都在母船上，不算留在岸上：母船明显更重，母油先等两船漂近，等不来就请父油划过来（父油对这次请求只决定一次，拒绝是真实的）；两船并舷后母油在帽里叼起或用辫梢卷起一只赤油，走到靠父船的一侧，转身把它放到父船上。够不到父船就放回自己的帽腔，同一只两次够不到就留在母船；两边差得不多时不再送',
      '约 1–3 分钟',
-     [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, uuid=uid('family_skiffs', 'mother'), **pair_ready()),
-      yk('marisa', bank_dx(5), 5, 'father', aquatic=True, yaw=-90, uuid=uid('family_skiffs', 'father'), **pair_ready()),
+     [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, uuid=uid('family_skiffs', 'mother'), kin=_JUST_BORN, **pair_ready()),
+      yk('marisa', bank_dx(5), 5, 'father', aquatic=True, yaw=-90, uuid=uid('family_skiffs', 'father'), kin=_JUST_BORN, **pair_ready()),
       *[_kin_young('family_skiffs', k, bank_dx(dz), dz, 'baby', 'mother', 'father') for k, dz in (('k1', 1), ('k2', -1), ('k3', 2))],
       f'yukkuri scenario mate {sel("mother")} {sel("father")}',
       afloat('mother', water_at(0, 3), True, sel_all('kids'), stick=True),
       afloat('father', water_at(5, 4), True, sel('father'), stick=True)],
-     note='日志：[intent] start id=share_young → [method] pick method=wait_close → （等不来）[method] switch … to=ask_father → [incident] open id=share_young#… → '
+     note='开场两只都留在自己船上：母油 aquatic.desire 里 share_young 领先、come_ashore 为 0；父油没有 young_ashore 与 breed 的上岸拉力。'
+          '日志：[intent] start id=share_young → [method] pick method=wait_close → （等不来）[method] switch … to=ask_father → [incident] open id=share_young#… → '
           '父油 [incident] decide … accepted= → [intent] start id=come_alongside → [aquatic] route purpose=come_alongside → 母油 [method] pick method=carry_across → '
           '[action] start id=grab → [action] start id=release → 赤油 [body] mount … → [aquatic] share_young end result=DONE → [incident] close。'
           '够不到时 [aquatic] share refused … reason=hold_not_over_his_hull。' + _DESIRE_NOTE,
      reads=[('读母油', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
             ('读赤油', f'yukkuri status {sel_all("kids")} raw')])
+
+
+pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
+     '亲油坐在紧靠岸边的自己的帽子里（帽里没有木棍，她在岸边漂着歇），帽前坐着她的子油：能自己吃、会跳，戴着自己的帽子，帽里夹着一根木棍，'
+     '还没自己操过帽。晴天静水里，子油想试试自己的帽子（越大胆越想）：先在亲船上挪到靠岸一侧、跳上岸，走到有静水和船位的岸边把自己的帽子放到水面上、'
+     '跳进去，用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；回到岸上戴好帽子才算学会操帽，之后落水能自己爬回、'
+     '扶正帽子。路上翻帽或滑落是真实的：没学会的子油爬不上自己的帽子，只能在水里挣扎，等亲油决定救不救、把它提出水面，这次初航失败',
+     '约 2–4 分钟（可倍速）',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), **pair_ready()),
+      _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', kit='minecraft:stick', boldness=75),
+      afloat('a', water_at(0, 1), True, sel('c1'))],
+     note='初态：子油 childhood 无 Sailed（读子油 childhood 看 Sailed）；亲油没有木棍，cruise 只漂不划，留在岸边。'
+          '日志：子油 [intent] start id=first_voyage（why 中 boldness、scale）→ [aquatic] first_voyage start … from=parent_hat → [action] start id=walk / hop（上岸）→ '
+          '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '
+          '[action] start id=paddle → [aquatic] first_voyage rounded → [intent] start id=come_ashore → [action] start id=hop → [action] start id=take_prop → '
+          '[aquatic] first_voyage success → [childhood] sailing learned how=first_voyage。帽子漂离岸沿时子油或亲油在岸边俯身用辫子划水把帽子招回：[action] start id=beckon … → '
+          '[action] end id=beckon outcome=DONE detail=against_bank；帽子靠岸记 [hat] moored，帽檐搭上岸沿记 [hat] beached。'
+          '落水时：[incident] open → 子油 [method] pick method=struggle（own_hat 记 cannot_sail）→ 亲油 [incident] decide … → [intent] start id=rescue；'
+          '初航记 [aquatic] first_voyage fail … in_water=true。' + _INCIDENT_NOTE + _DESIRE_NOTE,
+     reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')])
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
@@ -1887,7 +1914,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'water_night': 'A6',
-    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'family_skiffs': 'A6',
+    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'family_skiffs': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

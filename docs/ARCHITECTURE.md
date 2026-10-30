@@ -96,7 +96,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | 包 | 内容 |
 | --- | --- |
 | `motor/` | `Motor`、`BodyDriver`、`Attach`／`AttachState`、`BodyAbility`／`AbilityTable`／`AbilityModifier`、`Action`／`Outcome`／`Reason`／`Feasibility`、`ContactResolver`／`ContactGeometry`、`ClipMarkers` |
-| `motor/action/` | 共享动作：`Walk` `Face` `Hop` `Launch` `Gesture` `Await` `Grab` `Release` `Pick` `PlaceProp` `TakeProp`，水中 `Swim` `Climb` `Push` `Right` `Paddle` |
+| `motor/action/` | 共享动作：`Walk` `Face` `Hop` `Launch` `Gesture` `Await` `Grab` `Release` `Pick` `PlaceProp` `TakeProp`，水中 `Swim` `Climb` `Push` `Right` `Paddle`，岸边 `Beckon` |
 | `motor/surface/` | `SurfaceHost` `HostFrame` `Riders` `Container` `Occupancy` `BedContainer` `HostContainer` |
 | `motor/geom/` | 纯 Java 几何与数学（弧线、弹道、足迹、高度场、网格寻路、绕行、浮力、挤开），单元测试在 `src/test/java` |
 | `intent/` | `Intent` `Method` `Step` `IntentRunner` `Attempts` `WorldSignature`；`Choreography` `Beat` `Conductor` `Rendezvous` `GoTo`；`Drive` `Desire` `Commitment` `Ask` `AskLedger` |
