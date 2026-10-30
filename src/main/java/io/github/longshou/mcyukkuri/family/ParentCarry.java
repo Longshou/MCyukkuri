@@ -481,10 +481,12 @@ public final class ParentCarry {
         String first = holdProblem(carrier, child, order[0], false), last = holdProblem(carrier, child, order[order.length - 1], false);
         return first.equals(last) || last.equals("no_braid") ? first : first + "/" + last;
     }
-    /** Vanilla seat acceptance for forced and unforced boarding (YukkuriEntity.canAddPassenger). */
+    /** Vanilla seat acceptance for forced and unforced boarding (YukkuriEntity.canAddPassenger): a child in the water only by the
+     *  lift out of the water this carrier is running for it (a rescue's {@code Grab.outOfWater}, read from its action). */
     public static boolean canSeat(YukkuriEntity carrier, Entity passenger) {
         return passenger instanceof YukkuriEntity child && capacityProblem(carrier, child) == null && !carrier.isInWaterOrBubble()
-                && !child.isInWaterOrBubble() && !carrier.operations().active() && !child.operations().active();
+                && (!child.isInWaterOrBubble() || carrier.motor().current() instanceof Grab grab && grab.target() == child && grab.outOfWater())
+                && !carrier.operations().active() && !child.operations().active();
     }
 
     /** The carrier is not busy with something that needs its body, mouth or attention right now. */

@@ -76,7 +76,7 @@ final class Care implements Intent {
     @Override public String id() { return feed ? "feed_young" : "comfort_young"; }
     @Override public long deadline() { return started + (feed ? FEED : COMFORT); }
     @Override public boolean satisfied() { return done; }
-    @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive), Plan.of(id() + "_again", this::derive)); }
+    @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
 
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.riding(parent);

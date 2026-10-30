@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -21,9 +20,9 @@ import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -41,24 +40,29 @@ import net.minecraft.world.phys.Vec3;
  *   <li>from the bank ({@code from_bank}, ashore): only a faller within reach of an edge she can stand at: walk there, take it, step
  *       back from the water and put it down on the dry ground; she does not go into the water.</li>
  * </ul>
- * Each way is tried three times (a lift that slipped or drifted off is tried again from where things are then); a helper that has
- * tried them all, or gives up, lets go where it holds it and is done with the incident.
+ * A run that tried its way and still ended without the faller out lets go where it holds it and counts one failure for this
+ * helper on this incident (the goal ends her part after three, AQUATIC 同一救助者三次后不再尝试); a run that found no way to try
+ * keeps her decision open, so she takes the incident up again once she has a way (boards her hat, reaches a bank edge).
  */
 final class Rescue implements Intent {
-    /** The longest rescue (ticks), the longest wait for the faller to come within reach, and the tries of each way. */
-    private static final int DEADLINE = 1200, WAIT = 60, TRIES = 3, ROOM = 2;
+    /** The longest rescue (ticks), the longest wait for the faller to come within reach, the portions tipped out for room. */
+    private static final int DEADLINE = 1200, WAIT = 60, ROOM = 2;
 
     private final YukkuriEntity helper, faller;
     private final String incident;
+    private final Consumer<String> failed;
     private final long started;
+    /** Some way gave a step to take in this run (so an exhausted run is a real failure, not a run with no way). */
+    private boolean acted;
     private Waters.Edge edge;
     /** Portions tipped over the side for its room in this rescue (at most {@link #ROOM}: more food is not what fills the hollow). */
     private int dumped;
 
-    Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
+    Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident, Consumer<String> failed) {
         this.helper = helper;
         this.faller = faller;
         this.incident = incident;
+        this.failed = failed;
         this.started = helper.level().getGameTime();
     }
 
@@ -75,10 +79,13 @@ final class Rescue implements Intent {
     }
 
     @Override public List<Method> methods() {
-        var out = new ArrayList<Method>();
-        for (int i = 1; i <= TRIES; i++) out.add(new Plan("lift_" + i, this::aboard, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR, Reason.TARGET_MOVED), this::lift));
-        for (int i = 1; i <= TRIES; i++) out.add(new Plan("from_bank_" + i, this::ashore, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TARGET_MOVED), this::fromBank));
-        return out;
+        return List.of(new Plan("lift", this::aboard, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR, Reason.TARGET_MOVED), () -> acting(lift())),
+                new Plan("from_bank", this::ashore, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TARGET_MOVED), () -> acting(fromBank())));
+    }
+
+    private List<Supplier<Step>> acting(List<Supplier<Step>> steps) {
+        acted |= steps != null && !steps.isEmpty();
+        return steps;
     }
 
     private Feasibility aboard() {
@@ -128,7 +135,7 @@ final class Rescue implements Intent {
     private boolean overboard(PlacedHatEntity hat, ItemStack one) {
         var out = faller.position().subtract(hat.position()).multiply(1, 0, 1);
         var dir = out.lengthSqr() < 1E-6 ? new Vec3(1, 0, 0) : out.normalize();
-        var at = hat.position().add(dir.scale(HatGeometry.brim()[1] * hat.unit() + .15)).add(0, .3, 0);
+        var at = hat.position().add(dir.scale(HullAfloat.brimToward(hat, faller.position()) + .15)).add(0, .3, 0);
         var item = new ItemEntity(hat.level(), at.x, at.y, at.z, one.copy());
         item.setDeltaMovement(dir.scale(.08));
         item.setDefaultPickUpDelay();
@@ -163,7 +170,8 @@ final class Rescue implements Intent {
 
     @Override public void ended(IntentRunner.Result result) {
         if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
-        if (result != IntentRunner.Result.INTERRUPTED) AskLedger.server().ended(incident, helper.getUUID(), result.name());
+        if (result == IntentRunner.Result.DONE || result == IntentRunner.Result.LOST) AskLedger.server().ended(incident, helper.getUUID(), result.name());
+        else if (result == IntentRunner.Result.EXHAUSTED && acted) failed.accept(incident);
         GameplayLog.event(helper, "aquatic", "rescue end result={} faller={} incident={} faller_alive={} in_water={} at={}", result, faller.getUUID(),
                 incident, faller.isAlive(), faller.isInWaterOrBubble(), GameplayLog.at(faller.position()));
     }

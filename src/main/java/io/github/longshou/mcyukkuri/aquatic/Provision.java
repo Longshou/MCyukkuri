@@ -52,8 +52,7 @@ final class Provision implements Intent {
     @Override public String id() { return food == null ? "eat_aboard" : "forage"; }
     @Override public long deadline() { return started + (food == null ? EAT : FORAGE); }
     @Override public boolean satisfied() { return taken && (food != null || body.life().mealTicks() == 0); }
-    /** A pick that failed (the portion or the item moved off) is tried once more from where things are then. */
-    @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive), Plan.of(id() + "_again", this::derive)); }
+    @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
 
     private static Step act(Action action) { return new Step.Do(action); }
 

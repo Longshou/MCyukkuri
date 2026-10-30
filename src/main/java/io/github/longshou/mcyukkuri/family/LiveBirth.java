@@ -80,10 +80,14 @@ final class LiveBirth extends Choreography {
     private boolean unprotected,forced;
     private int pushing,welcomed,unloads,takes;
     private Welcome welcome;
-    /** The free places of her boat's hollow for the child being pushed, read once a tick (the outlet choice asks for many yaws). */
+    /** Her boat's hollow read for the child being pushed: its free places and the outlet yaw chosen from them, kept HULL_KEEP
+     *  ticks or until the hull's cell or yaw, its riders or stores, her spot on it or the child change (never saved). */
+    private static final int HULL_KEEP=20;
     private List<Vec3> places=List.of();
-    private long placesTick=-1;
-    private int placesFor=-1;
+    private List<Object> hullKey=List.of();
+    private long hullRead=Long.MIN_VALUE;
+    private float hullYaw=Float.NaN;
+    private boolean hullChosen;
     private Vec3 last;
     private String hold="";
     LiveBirth(FamilyLife o,UUID broodId,boolean live){super(live?"live_birth":"stem_birth","site");this.o=o;this.broodId=broodId;this.live=live;}
@@ -455,20 +459,33 @@ final class LiveBirth extends Choreography {
     private Vec3 hullAim(PlacedHatEntity hull,float yaw){
         var m=o.entity();var b=brood();
         if(b==null||!LiveBirthGeometry.clear(m,pushing,yaw,true))return null;
-        long now=now();
-        if(placesTick!=now||placesFor!=pushing){placesTick=now;placesFor=pushing;places=hull.hollowPlaces(b.kind,b.children.get(pushing));}
+        readHull(hull,b);
         var out=LiveBirthGeometry.position(m,pushing,yaw);var ahead=out.add(Vec3.directionFromRotation(0,yaw).multiply(1,0,1).normalize().scale(PlacedHatEntity.BIRTH_LEAD));
         var aim=places.stream().min(Comparator.comparingDouble(p->p.subtract(ahead).horizontalDistanceSqr())).orElse(null);
         return aim!=null&&LiveBirthGeometry.aims(m,pushing,yaw,aim,HULL_REACH)?aim:null;
     }
-    /** Of the sixteen headings from her own, the one with the least turn whose outlet aims into her boat's hollow; NaN when none. */
+    /** Of the sixteen headings from her own, the one with the least turn whose outlet aims into her boat's hollow; NaN when none.
+     *  Chosen once per hull reading (the wait for a safe exit asks every tick). */
     private float hullYaw(PlacedHatEntity hull){
-        var m=o.entity();
-        for(int i=0;i<=8;i++)for(int side:i==0||i==8?new int[]{1}:new int[]{1,-1}){
+        var m=o.entity();var b=brood();
+        if(b==null)return Float.NaN;
+        readHull(hull,b);
+        if(hullChosen)return hullYaw;
+        hullChosen=true;hullYaw=Float.NaN;
+        for(int i=0;i<=8&&Float.isNaN(hullYaw);i++)for(int side:i==0||i==8?new int[]{1}:new int[]{1,-1}){
             float yaw=Mth.wrapDegrees(m.yBodyRot+side*i*22.5f);
-            if(hullAim(hull,yaw)!=null)return yaw;
+            if(hullAim(hull,yaw)!=null){hullYaw=yaw;break;}
         }
-        return Float.NaN;
+        return hullYaw;
+    }
+    /** Reads the hollow again when the kept reading is stale or the hull's state changed (see {@link #places}). */
+    private void readHull(PlacedHatEntity hull,FamilyData.Brood b){
+        var spot=hull.riders().local(o.entity().getUUID());
+        List<Object> key=List.of(hull.blockPosition(),Math.round(hull.getYRot()/10),hull.getPassengers().size(),hull.load(),pushing,
+                Math.round(spot.x*2),Math.round(spot.z*2));
+        long now=now();
+        if(now-hullRead<HULL_KEEP&&key.equals(hullKey))return;
+        hullKey=key;hullRead=now;hullChosen=false;places=hull.hollowPlaces(b.kind,b.children.get(pushing));
     }
     /** The hat the outlet aims at now: the catch hat set down, or the boat she rides. */
     private PlacedHatEntity receiverHat(){

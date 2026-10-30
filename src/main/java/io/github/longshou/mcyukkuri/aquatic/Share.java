@@ -32,24 +32,30 @@ import net.minecraft.world.phys.Vec3;
  * in order: wait a while for the boats to drift together; ask him to paddle over (an ask of an incident she owns: he decides
  * once, a refusal is his); with the hulls side by side, take it in her mouth or braid, walk to her side nearest his hat, turn the
  * hold over his hull and let it go, so it comes down on his hat. A hold that does not reach over his hull puts the young back in
- * her own hollow; two such refusals keep it with her ({@code [aquatic] share refused}). Done once it rides his hat.
+ * her own hollow ({@code [aquatic] share refused}); after two such refusals of this young the carry is no way any more (the
+ * goal keeps the count across sendings) and it stays with her. Done once it rides his hat.
  */
 final class Share implements Intent {
-    /** The whole sending, the wait for drift, the wait for his answer and paddling (ticks). */
-    private static final int DEADLINE = 1600, DRIFT = 200, ASK = 500;
+    /** The whole sending, the wait for drift, the wait for his answer and paddling (his paddle over's own deadline), and the
+     *  refusals that keep the young with her. */
+    private static final int DEADLINE = 1600, DRIFT = 200, ASK = 900, REFUSALS = 2;
     /** How far past the two brims the hulls may lie to count as side by side (blocks): what a hold reaches across. */
     private static final double ACROSS = .35;
 
     private final YukkuriEntity mother, father, child;
+    private final Runnable refused;
     private final long started;
     private String incident;
     private boolean putBack;
+    /** This young's refusals so far, the ones before this sending included (the goal keeps them). */
     private int refusals;
 
-    Share(YukkuriEntity mother, YukkuriEntity father, YukkuriEntity child) {
+    Share(YukkuriEntity mother, YukkuriEntity father, YukkuriEntity child, int refusals, Runnable refused) {
         this.mother = mother;
         this.father = father;
         this.child = child;
+        this.refusals = refusals;
+        this.refused = refused;
         this.started = mother.level().getGameTime();
     }
 
@@ -61,8 +67,7 @@ final class Share implements Intent {
         Set<Reason> reduces = Set.of(Reason.NO_PROGRESS, Reason.TOO_FAR);
         return List.of(new Plan("wait_close", () -> apart("boats_close"), reduces, () -> waitFor(DRIFT)),
                 new Plan("ask_father", () -> apart("boats_close"), reduces, this::ask),
-                new Plan("carry_across", this::near, reduces, this::carry),
-                new Plan("carry_across_again", this::near, reduces, this::carry));
+                new Plan("carry_across", this::near, reduces, this::carry));
     }
 
     /** Both hulls afloat upright, their brims (each toward the other) within a hold's reach of each other. */
@@ -78,13 +83,17 @@ final class Share implements Intent {
 
     private Feasibility apart(String why) { return close() ? Feasibility.of(Reason.NO_PROGRESS, 0, why) : Feasibility.pass(); }
 
-    private Feasibility near() { return close() ? Feasibility.pass() : Feasibility.of(Reason.TOO_FAR, 0, "boats_apart"); }
+    private Feasibility near() {
+        if (refusals >= REFUSALS) return Feasibility.of(Reason.NO_ROOM, 0, "refused_twice");
+        return close() ? Feasibility.pass() : Feasibility.of(Reason.TOO_FAR, 0, "boats_apart");
+    }
 
     private List<Supplier<Step>> waitFor(int ticks) {
         return close() ? carry() : List.of(() -> new Step.Wait(this::close, ticks, Behaviors.BOAT_CALL));
     }
 
-    /** Ask him once (an incident of hers, one offered ask); wait for him, unless he refused or his run is over. */
+    /** Ask him once (an incident of hers, one offered ask); wait for him while he has not answered or his yes still runs (each
+     *  wait bounded); his refusal or his run over without bringing his hat ends this way. */
     private List<Supplier<Step>> ask() {
         if (close()) return carry();
         var ledger = AskLedger.server();
@@ -92,9 +101,8 @@ final class Share implements Intent {
             incident = ledger.open(mother, "share_young", "helper=" + father.getUUID() + " child=" + child.getUUID());
             var id = incident;
             ledger.offer(new Ask(mother.getUUID(), father.getUUID(), f -> new Alongside(f, mother, id), id));
-            return List.of(() -> new Step.Wait(() -> close() || answered(), ASK, Behaviors.BOAT_CALL));
         }
-        return null;
+        return answered() ? null : List.of(() -> new Step.Wait(() -> close() || answered(), ASK, Behaviors.BOAT_CALL));
     }
 
     /** He refused, or his run is over without bringing his hat over. */
@@ -106,10 +114,11 @@ final class Share implements Intent {
     private List<Supplier<Step>> carry() {
         var hat = AquaticLife.riding(mother);
         var his = AquaticLife.hat(father);
-        if (hat == null || his == null || child.getVehicle() == his || !child.isAlive()) return null;
+        if (refusals >= REFUSALS || hat == null || his == null || child.getVehicle() == his || !child.isAlive()) return null;
         if (child.getVehicle() != mother) {
             if (putBack) {
                 putBack = false;
+                refused.run();
                 GameplayLog.event(mother, "aquatic", "share refused child={} reason=hold_not_over_his_hull count={}", child.getUUID(), ++refusals);
                 return null;
             }

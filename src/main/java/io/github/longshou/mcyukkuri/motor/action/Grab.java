@@ -63,6 +63,9 @@ public final class Grab implements Action {
     /** The body being lifted: until it is mounted, a host leaves it where it is. */
     public YukkuriEntity target() { return target; }
 
+    /** It lifts its target out of the water (a rescue). */
+    public boolean outOfWater() { return outOfWater; }
+
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
     public Hold hold() { return hold; }
 

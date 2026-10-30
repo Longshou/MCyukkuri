@@ -50,5 +50,6 @@
   "share_gap": 2,
   "share_want": 45,
   "be_fed_want": 75,
-  "comfort_again": 600
+  "comfort_again": 600,
+  "rescue_tries": 3
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -63,6 +64,10 @@ final class AquaticGoal extends Goal {
     private Map<UUID, Long> left;
     /** Young she comforted, until when (ticks): a young still cold or gasping is comforted again only after a while. */
     private Map<UUID, Long> comforted;
+    /** Rescue runs that tried a way and failed, by incident (three and she is done with it); refusals of each young she tried to
+     *  set on its father's boat (two keep it with her). Bounded, never saved. */
+    private Map<String, Integer> rescueFailures;
+    private Map<UUID, Integer> shareRefusals;
 
     private AquaticGoal(YukkuriEntity body) {
         this.body = body;
@@ -211,7 +216,7 @@ final class AquaticGoal extends Goal {
         else for (var y : AquaticLife.young(body)) {
             String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
             if (id == null) continue;
-            var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
+            var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id, this::rescueFailed), id);
             ledger.decide(ask, body.life().personality().helpProbability(true, true), body.getRandom()::nextDouble, body);
             if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
         }
@@ -224,10 +229,25 @@ final class AquaticGoal extends Goal {
         }
     }
 
+    /** The world a failed rescue waits on: the incident, whether she rides her hat, where the faller is. */
     private Desire rescue(YukkuriEntity faller, String incident, Ask ask) {
-        return new Desire("rescue", num("rescue_want", 95), 0, true, List.of(incident), () -> "faller=" + faller.getUUID() + " incident=" + incident,
-                () -> ask == null ? null : ask.intent(body));
+        return new Desire("rescue", num("rescue_want", 95), 0, true, List.of(incident, AquaticLife.riding(body) != null, faller.blockPosition()),
+                () -> "faller=" + faller.getUUID() + " incident=" + incident, () -> ask == null ? null : ask.intent(body));
     }
+
+    /** A rescue run that tried and failed: after {@code rescue_tries} of them she is done with this incident. */
+    private void rescueFailed(String incident) {
+        if (rescueFailures == null) rescueFailures = new LinkedHashMap<>();
+        int failures = rescueFailures.merge(incident, 1, Integer::sum);
+        GameplayLog.event(body, "aquatic", "rescue failed incident={} failures={}", incident, failures);
+        if (failures >= num("rescue_tries", 3)) {
+            rescueFailures.remove(incident);
+            AskLedger.server().ended(incident, body.getUUID(), "EXHAUSTED");
+        }
+        while (rescueFailures.size() > LEFT_MAX) rescueFailures.remove(rescueFailures.keySet().iterator().next());
+    }
+
+    private int shareRefusals(YukkuriEntity young) { return shareRefusals == null ? 0 : shareRefusals.getOrDefault(young.getUUID(), 0); }
 
     /** Care for her young aboard: the hungriest that cannot eat by itself and has food aboard for it, her decision accepted (the
      *  care ledger's one draw, kept 1200 ticks); one gasping after the water or cold. */
@@ -277,10 +297,16 @@ final class AquaticGoal extends Goal {
         var his = mate == null ? null : AquaticLife.hat(mate);
         if (his == null || his == hat) return;
         long mine = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y)).count(), theirs = young.stream().filter(y -> y.getVehicle() == his).count();
-        var child = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y)).min(Comparator.comparingDouble(his::distanceToSqr)).orElse(null);
+        var child = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y) && shareRefusals(y) < 2)
+                .min(Comparator.comparingDouble(his::distanceToSqr)).orElse(null);
         if (child == null || mine - theirs < num("share_gap", 2)) return;
+        Runnable refused = () -> {
+            if (shareRefusals == null) shareRefusals = new LinkedHashMap<>();
+            shareRefusals.merge(child.getUUID(), 1, Integer::sum);
+            while (shareRefusals.size() > LEFT_MAX) shareRefusals.remove(shareRefusals.keySet().iterator().next());
+        };
         out.add(Desire.of("share_young", floor(num("share_want", 45)), List.of(at, cell(his), child.getUUID()),
-                () -> "mine=" + mine + " his=" + theirs + " child=" + child.getUUID(), () -> new Share(body, mate, child)));
+                () -> "mine=" + mine + " his=" + theirs + " child=" + child.getUUID(), () -> new Share(body, mate, child, shareRefusals(child), refused)));
     }
 
     /** His mate near her time (or in labour) on her own boat, not yet beside his: he paddles over (his own desire). */
