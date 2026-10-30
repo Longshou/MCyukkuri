@@ -299,6 +299,24 @@
       ],
       "source": "docs/DIALOGUE_IMPLEMENTATION.md",
       "gallery": []
+    },
+    {
+      "id": "aquatic-hat",
+      "label": "水生魔理沙帽：造型与乘员布局",
+      "title": "水生魔理沙帽：外圆台阶帽冠、内圆盆，谁坐在哪里",
+      "tag": "待确认",
+      "summary": "制作源离线预览与计算：戴着、放下浮在水上、帽腔，以及按载重规则摆放新生、赤油、子油和临产帽主（白天、夜里俯身，储粮 0/12/24），附辫托与横倾读数；未导出运行资源。",
+      "model": "marisa",
+      "points": [],
+      "steps": [],
+      "category": "water",
+      "gallery": [
+        {
+          "src": "aquatic-hat/sheet.png",
+          "label": "造型与布局对照"
+        }
+      ],
+      "source": "standards/yukkuri-library/interactions/aquatic-marisa-hat/README.md"
     }
   ]
 }

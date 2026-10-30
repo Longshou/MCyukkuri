@@ -151,6 +151,13 @@ def main():
         (OUT/'_work/scene-media.json').write_text(json.dumps(sorted(current_media)), encoding='utf-8')
     elif scene_stamp.is_file() and scene_stamp.read_text() == scene_fingerprint:
         current_media = set(json.loads((OUT/'_work/scene-media.json').read_text()))
+    # the aquatic hat study (slow: layout.py then preview.py by hand) is published while its make-source inputs are unchanged
+    hat = ROOT/'standards/yukkuri-library/interactions/aquatic-marisa-hat'
+    hat_stamp = OUT/'aquatic-hat/source.sha256'
+    if hat_stamp.is_file():
+        sys.path.insert(0, str(hat))
+        import build as hat_build
+        if hat_stamp.read_text(encoding='utf-8') == hat_build.source_digest(): current_media.add('aquatic-hat/sheet.png')
     subprocess.run([sys.executable, str(ROOT/'art/props/family-life/preview_stem.py'),
                     '--node', args.node, '--output', str(OUT/'stem-hanging')], check=True, cwd=ROOT)
     current_media.add('stem-hanging/current.png')
