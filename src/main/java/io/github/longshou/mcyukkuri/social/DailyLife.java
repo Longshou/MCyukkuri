@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -228,7 +229,7 @@ public final class DailyLife {
         else entity.getNavigation().stop();
         if (other != null && current.kind == Kind.NUZZLE) {
             float yaw=(float)(Math.atan2(other.getZ()-entity.getZ(),other.getX()-entity.getX())*180/Math.PI)-90;
-            entity.setYRot(yaw);entity.setYHeadRot(yaw);entity.yBodyRot=yaw;
+            Motor.face(entity, yaw);
         }
         if (current.leader != entity) return;
         current.elapsed++;

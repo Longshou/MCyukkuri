@@ -4,6 +4,9 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -14,6 +17,11 @@ import net.minecraft.world.phys.Vec3;
 /** Interruptible physical routes. No route teleports the body or advances while unloaded. */
 public final class PlayLife {
     private final YukkuriEntity entity;
+    /** The facility session's own claim on the body: the mat's bounce is a real Launch, not a written velocity. */
+    private static final MotorOwner PLAY = new MotorOwner() {
+        @Override public String ownerId() { return "play_facility"; }
+        @Override public boolean active() { return true; }
+    };
     private PlayBlockEntity facility;
     private List<Vec3> route=List.of();
     private int cooldown,scanWait,elapsed,waypoint,bounces,bounceWait,stalled,bounceLimit;
@@ -77,10 +85,12 @@ public final class PlayLife {
             // Let the client's position interpolation settle on the mat before the next launch.
             if(bouncing){bouncing=false;bounceWait=6;return;}
             if(bounces<bounceLimit){
-                if(bounceWait==0){
+                if(bounceWait==0&&entity.motor().current()==null){
                     if(!entity.life().spendEnergy(2)){stop();return;}
-                    entity.setDeltaMovement(0,.48,0);entity.hasImpulse=true;entity.hurtMarked=true;entity.fallDistance=0;
-                    bounces++;bouncing=true;bounceWait=12;entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",45);
+                    if(entity.motor().run(PLAY,new Launch(new Vec3(0,.48,0),"trampoline_bounce"))){
+                        entity.fallDistance=0;
+                        bounces++;bouncing=true;bounceWait=12;entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",45);
+                    }
                 }
                 return;
             }
@@ -97,14 +107,15 @@ public final class PlayLife {
         if(facility.kind()==PlayBlock.Kind.SLIDE&&waypoint==6){
             entity.getNavigation().stop();Vec3 direction=target.subtract(entity.position()).multiply(1,0,1).normalize();
             face(direction);
-            entity.setDeltaMovement(direction.x*.13,entity.getDeltaMovement().y,direction.z*.13);entity.hurtMarked=true;
+            Motor.velocity(entity,new Vec3(direction.x*.13,entity.getDeltaMovement().y,direction.z*.13),"slide_momentum");
         }else if(distance<2.5){
             entity.getNavigation().stop();entity.getMoveControl().setWantedPosition(entity.getX(),entity.getY(),entity.getZ(),0);
             // Vanilla MoveControl interprets the roof in a hollow cell as a step and jumps into it.
             // For the short authored route, drive horizontal motion; collision and gravity still resolve each step.
             Vec3 direction=target.subtract(entity.position()).multiply(1,0,1).normalize();
             face(direction);
-            entity.setDeltaMovement(direction.x*.065,entity.getDeltaMovement().y,direction.z*.065);entity.hurtMarked=true;
+            // Authored short-route speed: the facility route carries the body at its own pace, not the walk ability's.
+            Motor.velocity(entity,new Vec3(direction.x*.065,entity.getDeltaMovement().y,direction.z*.065),"play_route");
         }else if(elapsed%10==1&&!entity.getNavigation().moveTo(target.x,target.y,target.z,.8)){stop();}
     }
     public void stop(){stop(true);}
@@ -117,7 +128,7 @@ public final class PlayLife {
         }
         facility=null;route=List.of();entity.getNavigation().stop();
     }
-    private void face(Vec3 direction){entity.setYRot((float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));entity.yBodyRot=entity.getYRot();}
+    private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}
     public void load(CompoundTag tag){stop(false);cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000);completed=false;}
 }

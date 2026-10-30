@@ -11,6 +11,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.action.Launch;
 import java.util.Comparator;
 
 /**
@@ -34,6 +36,11 @@ public final class ChildhoodLife {
     private enum Task { NONE, FIRST_TOILET, WAIT_CARE, DEMONSTRATE, WATCH, CRAWL, JUMP }
 
     private final YukkuriEntity entity;
+    /** The goal's own claim on the body: the demonstration and practice hops are real actions (spec 9.4 Launch). */
+    private static final MotorOwner PRACTICE = new MotorOwner() {
+        @Override public String ownerId() { return "childhood_practice"; }
+        @Override public boolean active() { return true; }
+    };
     private Task task = Task.NONE;
     private UUID careTarget;
     private BlockPos practiceTarget;
@@ -296,9 +303,9 @@ public final class ChildhoodLife {
                         &&child.getLookAngle().multiply(1,0,1).normalize().dot(entity.position().subtract(child.position()).multiply(1,0,1).normalize())>.8;
                 if(watches)watchedTicks++;
                 else if(!demonstrationLaunched)watchedTicks=0;
-                if(!demonstrationLaunched&&watches&&watchedTicks>=10&&entity.onGround()){
+                if(!demonstrationLaunched&&watches&&watchedTicks>=10&&entity.onGround()
+                        &&entity.motor().run(PRACTICE,new Launch(new Vec3(0,.24,0),"childhood_demonstrate"))){
                     launchY=entity.getY();demonstrationLaunched=demonstrationWitnessed=true;
-                    entity.setDeltaMovement(0,.24,0);entity.hasImpulse=true;
                 }
                 if(demonstrationLaunched&&!watches)demonstrationWitnessed=false;
                 if(demonstrationLaunched&&!entity.onGround()&&entity.getY()>launchY+.04){
@@ -386,13 +393,15 @@ public final class ChildhoodLife {
     private void tickJump() {
         if (!entity.onGround()) return;
         entity.getNavigation().stop();
-        if (!jumpLaunched && taskTicks >= 10 && entity.life().spendEnergy(.25f)) {
+        if (!jumpLaunched && taskTicks >= 10 && entity.motor().current() == null && entity.life().spendEnergy(.25f)) {
             // The pre-jump gate in YukkuriEntity deliberately rejects normal jumps. This is a small
-            // physical practice impulse; observeMovement grants the ability only after a real takeoff.
-            jumpLaunched = true; jumpAirborne = false; launchY = entity.getY();
+            // physical practice impulse, run as the same Launch action a thrown body uses; observeMovement
+            // grants the ability only after a real takeoff.
             Vec3 velocity = entity.getDeltaMovement();
-            entity.setDeltaMovement(velocity.x, Math.max(velocity.y, .16+.025*Math.min(3,jumpLandings)), velocity.z);
-            entity.hasImpulse = true;
+            if (entity.motor().run(PRACTICE, new Launch(new Vec3(velocity.x,
+                    Math.max(velocity.y, .16+.025*Math.min(3,jumpLandings)), velocity.z), "childhood_practice_jump"))) {
+                jumpLaunched = true; jumpAirborne = false; launchY = entity.getY();
+            }
         }
     }
 

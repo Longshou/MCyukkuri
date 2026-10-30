@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.ExamRecord;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -468,7 +469,7 @@ public final class ExamSession implements ExamContext {
                 candidate.playAction("sulk"); candidate.showReaction("teary", "", 80);
                 var p = owner(); double dx = p == null ? 0 : candidate.getX() - p.getX(), dz = p == null ? 1 : candidate.getZ() - p.getZ();
                 float yaw = (float)(Math.atan2(dz, dx) * 57.29578) - 90f;
-                walker.look = null; walker.lookPos = null; candidate.setYRot(yaw); candidate.yBodyRot = yaw; candidate.setYHeadRot(yaw);
+                walker.look = null; walker.lookPos = null; Motor.relocate(candidate, candidate.position(), yaw, "exam_sulk_turn");
             }
             if (c >= 140) finish();
         }

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -69,7 +70,7 @@ public final class ShopDate implements IntPredicate {
 
     private YukkuriEntity animal(UUID id) { return level.getEntity(id) instanceof YukkuriEntity y && y.isAlive() ? y : null; }
     private void next() { phase++; pt = 0; }
-    private static void teleport(YukkuriEntity y, Vec3 to) { y.getNavigation().stop(); y.moveTo(to.x, to.y, to.z, y.getYRot(), 0); y.setDeltaMovement(Vec3.ZERO); }
+    private static void teleport(YukkuriEntity y, Vec3 to) { y.getNavigation().stop(); Motor.relocate(y, to, y.getYRot(), "date_teleport"); }
     private static void face(YukkuriEntity a, YukkuriEntity b) { a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30); }
     private void hold(HumanNpc k, boolean on) {
         if (on && !held && k != null) {

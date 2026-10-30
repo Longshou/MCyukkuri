@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
 import net.minecraft.core.BlockPos;
@@ -289,7 +290,7 @@ public final class ShopCourier {
     }
     private static boolean settle(ServerLevel level, HumanNpc keeper, Job job, YukkuriEntity y, boolean atPen, boolean direct) {
         y.pet().unlock("sale"); y.pet().unlock("courier");
-        if (atPen) { y.getNavigation().stop(); y.moveTo(job.pen.getX() + .5, job.pen.getY() + .12, job.pen.getZ() + .5, y.getYRot(), 0); }
+        if (atPen) { y.getNavigation().stop(); Motor.relocate(y, new Vec3(job.pen.getX() + .5, job.pen.getY() + .12, job.pen.getZ() + .5), y.getYRot(), "courier_settle"); }
         if (direct) level.sendParticles(ParticleTypes.POOF, y.getX(), y.getY() + .3, y.getZ(), 8, .25, .15, .25, .02);
         if (keeper != null) {
             if (keeper.getMainHandItem().is(ModItems.CARRIER.get())) keeper.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);

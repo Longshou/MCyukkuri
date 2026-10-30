@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ReproductionEffects;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
@@ -385,12 +386,10 @@ public final class AgitationLife {
         entity.getNavigation().stop();
         // Align exactly behind the pinned body, both facing the same way.
         var rear = rearStand(target);
-        if (entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
-            entity.teleportTo(rear.x, rear.y, rear.z);
         float yaw = target.getYRot();
-        entity.setYRot(yaw);
-        entity.yBodyRot = yaw;
-        entity.yHeadRot = yaw;
+        if (entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
+            Motor.relocate(entity, rear, yaw, "agitation_pin");
+        else Motor.face(entity, yaw);
         entity.speak("rapem_act");
         target.agitation().holdBy(entity);
         encounterDescription = "已从背后压制目标，素鸡立进行中";
@@ -442,12 +441,10 @@ public final class AgitationLife {
         entity.getNavigation().stop();
         // Stay glued behind the pinned body: same facing, no drift from collision pushes.
         float yaw = target.getYRot();
-        entity.setYRot(yaw);
-        entity.yBodyRot = yaw;
-        entity.yHeadRot = yaw;
         var rear = rearStand(target);
         if (entity.position().distanceToSqr(rear) > .09 && entity.level().noCollision(entity, entity.getBoundingBox().move(rear.subtract(entity.position()))))
-            entity.teleportTo(rear.x, rear.y, rear.z);
+            Motor.relocate(entity, rear, yaw, "agitation_pin_hold");
+        else Motor.face(entity, yaw);
         // 1.12 spends 体力200 across the act; exhaustion death is checked at completion.
         if (phaseTicks % 20 == 0) entity.life().spendEnergy(1.5f);
         if (phaseTicks == 60 || phaseTicks == 120) entity.speak("rapem_moan");

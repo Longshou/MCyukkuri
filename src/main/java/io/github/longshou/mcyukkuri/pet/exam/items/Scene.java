@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.exam.items;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.exam.ExamContext;
 import io.github.longshou.mcyukkuri.pet.exam.ExamItem;
@@ -28,7 +29,7 @@ abstract class Scene implements ExamItem {
         BlockPos goal; Entity look; Vec3 lookAt; Float lockYaw; double speed = 1.0;
         @Override public void tick(YukkuriEntity y) {
             if (goal != null && Staging.walkTo(y, goal, speed)) goal = null;
-            if (lockYaw != null) { float w = lockYaw; y.setYRot(w); y.yBodyRot = w; y.yBodyRotO = w; y.setYHeadRot(w); return; }
+            if (lockYaw != null) { float w = lockYaw; Motor.face(y, w); return; }
             if (look != null) y.getLookControl().setLookAt(look, 30, 30);
             else if (lookAt != null) y.getLookControl().setLookAt(lookAt.x, lookAt.y, lookAt.z);
         }

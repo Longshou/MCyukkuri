@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
@@ -593,12 +594,11 @@ public final class FamilyData extends SavedData {
         YukkuriEntity entity=ModEntities.forVariant(child.variant).create(level);if(entity==null)return null;
         entity.setUUID(child.id);entity.subspecies().initializeBirth(child.subspeciesFlags);entity.family().newborn(child,brood);
         entity.subspecies().refreshStage();
-        entity.life().personality().applyBirthProfile(child.birthProfile);entity.moveTo(position.x,position.y,position.z,0,0);
-        if(brood.kind==BirthKind.LIVE){
-            float facing=mother.yBodyRot;
-            entity.setYRot(facing);entity.yRotO=facing;entity.yBodyRot=entity.yBodyRotO=facing;entity.setYHeadRot(facing);entity.yHeadRotO=facing;
-        }
-        if(brood.detachedHolder!=null){entity.setYRot(180);entity.yRotO=180;entity.yBodyRot=entity.yBodyRotO=180;entity.setYHeadRot(180);entity.yHeadRotO=180;}
+        entity.life().personality().applyBirthProfile(child.birthProfile);
+        // The newborn joins the world where the birth put it; its facing comes from the birth kind, never from a walk.
+        float facing = brood.detachedHolder != null ? 180 : brood.kind == BirthKind.LIVE ? mother.yBodyRot : 0;
+        Motor.relocate(entity, position, facing, "birth_spawn");
+        entity.yRotO = facing; entity.yBodyRotO = facing; entity.yHeadRotO = facing;
         entity.setPersistenceRequired();
         if(unprotected?level.getBlockCollisions(entity,entity.getBoundingBox()).iterator().hasNext()
                 :!level.noCollision(entity)||level.containsAnyLiquid(entity.getBoundingBox()))return refuse(brood,level,"newborn_space_blocked");

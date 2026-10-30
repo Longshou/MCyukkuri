@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -143,7 +144,7 @@ public final class SettlementSpawner {
             YukkuriEntity member = members.get(i);
             if (member == seed) continue;
             BlockPos start = sites.get(i);
-            member.moveTo(Vec3.atBottomCenterOf(start)); member.setOnGround(true);
+            Motor.relocate(member, Vec3.atBottomCenterOf(start), member.getYRot(), "settlement_spawn"); member.setOnGround(true);
             member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
             if (!level.noCollision(member) || !level.addFreshEntity(member)) {
                 trace("Member collision at "+start);
@@ -220,7 +221,7 @@ public final class SettlementSpawner {
             YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(COMMON[level.random.nextInt(COMMON.length)]).create(level);
             if (member == null) { added.forEach(YukkuriEntity::discard); return List.of(); }
             if (member != seed) {
-                member.moveTo(Vec3.atBottomCenterOf(sites.get(i))); member.setOnGround(true);
+                Motor.relocate(member, Vec3.atBottomCenterOf(sites.get(i)), member.getYRot(), "settlement_bandit_spawn"); member.setOnGround(true);
             member.tickCount = level.random.nextInt(200); // spread every "tickCount % N" job over the colony
                 if (!level.noCollision(member) || !level.addFreshEntity(member)) { added.forEach(YukkuriEntity::discard); return List.of(); }
                 added.add(member);
@@ -271,7 +272,7 @@ public final class SettlementSpawner {
                     for(var from:sources) {
                         if(from.distSqr(plan.entrance(level))>16*16||failedPaths.contains(List.of(from,plan.entrance(level))))continue;
                         if(++alternatives>4)break;
-                        probe.moveTo(Vec3.atBottomCenterOf(from));probe.setOnGround(true);
+                        Motor.relocate(probe, Vec3.atBottomCenterOf(from), probe.getYRot(), "settlement_probe");probe.setOnGround(true);
                         if(++paths>128){trace("Path budget after "+result.size()+" homes");return List.of();}
                         if(probe.life().reachable(plan.entrance(level),false)){selected=plan;break;}
                         failedPaths.add(List.of(from,plan.entrance(level)));

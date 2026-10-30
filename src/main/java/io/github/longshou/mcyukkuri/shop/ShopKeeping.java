@@ -6,9 +6,11 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.Comparator;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 /** Keeper duties: every three game days the studs breed if the shop has room, and grown nursery young are put on sale. */
 public final class ShopKeeping {
@@ -82,7 +84,7 @@ public final class ShopKeeping {
         if (!ShopCourier.graduate(level, keeper, shop, y, pen)) {
             var reservation = ShopPerformance.reserve(level, pen);
             if (reservation == null) return;
-            try { y.getNavigation().stop(); y.moveTo(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5, y.getYRot(), 0); }
+            try { y.getNavigation().stop(); Motor.relocate(y, new Vec3(pen.getX() + .5, pen.getY() + .12, pen.getZ() + .5), y.getYRot(), "graduate_pen_placement"); }
             finally { ShopPerformance.release(reservation); }
         }
     }

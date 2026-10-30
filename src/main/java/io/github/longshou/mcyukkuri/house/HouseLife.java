@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -962,11 +963,11 @@ public final class HouseLife implements EcologyRoutine {
     private void faceContact() {
         if (contactTarget == null) return;
         var delta = contactTarget.subtract(entity.position()); float yaw = (float) (Math.atan2(-delta.x, delta.z) * 180 / Math.PI);
-        entity.setYRot(yaw); entity.yBodyRot = yaw; entity.yHeadRot = yaw;
+        Motor.face(entity, yaw);
         entity.getLookControl().setLookAt(contactTarget.x, entity.getEyeY(), contactTarget.z, 180, 180);
     }
     private void tickInteraction(HouseNestBlockEntity value) {
-        entity.getNavigation().stop(); entity.setDeltaMovement(0, entity.getDeltaMovement().y, 0); faceContact(); interactionTicks++;
+        entity.getNavigation().stop(); Motor.velocity(entity, new Vec3(0, entity.getDeltaMovement().y, 0), "house_contact"); faceContact(); interactionTicks++;
         if (interactionTicks == 13) {
             if (!mayTransfer()) { stop(); return; }
             if (interaction == 1) {

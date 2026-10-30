@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
@@ -24,8 +25,7 @@ public final class HotFloorEscape {
         var velocity = entity.getDeltaMovement();
         var heading = destination == null ? Vec3.ZERO : destination.subtract(entity.position()).multiply(1, 0, 1).normalize().scale(.30);
         // Vanilla gravity/drag: .475 rises about half as high as the previous .70 impulse.
-        entity.setDeltaMovement(heading.x, Math.max(.475, velocity.y), heading.z);
-        entity.hasImpulse = true;
+        Motor.velocity(entity, new Vec3(heading.x, Math.max(.475, velocity.y), heading.z), "hot_floor_jump");
         GameplayLog.event(entity, "body", "hot floor jump escape={} verticalSpeed={} health={}", destination, entity.getDeltaMovement().y, entity.getHealth());
     }
 
@@ -77,8 +77,7 @@ public final class HotFloorEscape {
         var heading = destination.subtract(entity.position()).multiply(1, 0, 1);
         if (heading.lengthSqr() > .01) {
             heading = heading.normalize().scale(.30);
-            entity.setDeltaMovement(heading.x, entity.getDeltaMovement().y, heading.z);
-            entity.hasImpulse = true;
+            Motor.velocity(entity, new Vec3(heading.x, entity.getDeltaMovement().y, heading.z), "hot_floor_steer");
         }
     }
 }

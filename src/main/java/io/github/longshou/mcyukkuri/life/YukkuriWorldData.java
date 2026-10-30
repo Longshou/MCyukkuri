@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -327,8 +328,7 @@ public final class YukkuriWorldData extends SavedData {
         if (Custody.normalizeSnapshot(level, held.data)) setDirty();
         Entity loaded = EntityType.loadEntityRecursive(held.data.copy(), level, entity -> entity);
         if (!(loaded instanceof YukkuriEntity entity) || !entity.isAlive()) return releaseRefused(token,level,position,"snapshot_not_live_yukkuri");
-        entity.moveTo(position.x, position.y, position.z, yaw, 0);
-        entity.setDeltaMovement(Vec3.ZERO); entity.fallDistance = 0; entity.setPersistenceRequired();
+        Motor.relocate(entity, position, yaw, "release"); entity.fallDistance = 0; entity.setPersistenceRequired();
         if (!level.noCollision(entity)) return releaseRefused(token,level,position,"collision");
         if (level.containsAnyLiquid(entity.getBoundingBox())) return releaseRefused(token,level,position,"liquid");
         releasing.add(entity.getUUID());

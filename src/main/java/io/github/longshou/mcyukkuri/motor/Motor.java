@@ -50,6 +50,24 @@ public final class Motor {
         body.setYHeadRot(yaw);
     }
 
+    /**
+     * Places a body the system itself moves: a delivery, a scripted ceremony, a released captive, a new body before it joins
+     * the world. Sets the position and the whole facing, clears the velocity and records the transition. This is never a way
+     * to finish a movement that failed (design P6/P8): a body that could not get somewhere keeps the place physics gave it.
+     */
+    public static void relocate(YukkuriEntity body, Vec3 at, float yaw, String cause) {
+        if (body == null || at == null) return;
+        Vec3 from = body.position();
+        body.setPos(at.x, at.y, at.z);
+        face(body, yaw);
+        body.setDeltaMovement(Vec3.ZERO);
+        body.hasImpulse = true;
+        // The same previous-position snapshot vanilla's moveTo takes, so the renderer does not glide the body across the gap.
+        body.setOldPosAndRot();
+        GameplayLog.event(body, "body", "relocate cause={} from={} to={}", cause, GameplayLog.at(from),
+                GameplayLog.at(body.position()));
+    }
+
     /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body (spec 12). */
     public static boolean mount(YukkuriEntity body, Entity host, String cause) {
         if (body == null || host == null || host == body) return false;

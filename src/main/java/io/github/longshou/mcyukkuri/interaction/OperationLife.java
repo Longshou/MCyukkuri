@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -28,7 +29,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -116,7 +116,7 @@ public final class OperationLife {
                 float damage=action==CareAction.PUNCH?2:action==CareAction.FLICK?.5f:1;
                 if(!strike(player,damage,WoundShape.BLUNT))yield false;
                 var away=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
-                entity.setDeltaMovement(away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0));
+                Motor.velocity(entity, away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0), "care_knockback");
                 if(entity.isAlive())begin(player,Pose.SLIDE,30,null);yield true;
             }
             case ROLL -> entity.onGround()&&begin(player,Pose.ROLL,50,null);
@@ -204,9 +204,9 @@ public final class OperationLife {
         if(pose==Pose.ASSIST){
             if(player.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
                     ||!entity.family().readyForAssistance()){end();return;}
-            entity.getNavigation().stop();entity.setDeltaMovement(entity.getDeltaMovement().multiply(0,1,0));
+            entity.getNavigation().stop();Motor.velocity(entity, entity.getDeltaMovement().multiply(0,1,0), "operation_hold");
             // Show the rear to the caregiver; birth later uses a separate front outlet.
-            entity.setYRot(player.getYRot());entity.yBodyRot=player.getYRot();entity.setYHeadRot(player.getYRot());
+            Motor.face(entity, player.getYRot());
             if(elapsed==40){
                 var brood=FamilyData.get((ServerLevel)entity.level()).assist(entity);
                 if(brood!=null){inserted=ItemStack.EMPTY;entity.showReaction("happy","expecting",100);}
@@ -230,9 +230,9 @@ public final class OperationLife {
             if(pose==Pose.BOX&&elapsed%80==0){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",80); }
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
-            entity.move(MoverType.SELF,forward.scale(.045).add(0,-.04,0));
+            Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
         }else if(pose==Pose.RUMP){
-            entity.setYRot(player.getYRot());entity.yBodyRot=player.getYRot();entity.setYHeadRot(player.getYRot());
+            Motor.face(entity, player.getYRot());
         }
         double moved=entity.position().subtract(last).horizontalDistance();
         // Neither still restraint nor suspension causes ground abrasion. Large loads/teleports are excluded.
@@ -249,7 +249,8 @@ public final class OperationLife {
         var delta=desired.subtract(entity.position());
         if(delta.lengthSqr()>9){end();return;}
         if(delta.lengthSqr()>.09)delta=delta.normalize().scale(.3);
-        entity.setDeltaMovement(Vec3.ZERO);if(delta.lengthSqr()>1e-10)entity.move(MoverType.SELF,delta);
+        Motor.velocity(entity, Vec3.ZERO, "operation_place");
+        if(delta.lengthSqr()>1e-10)Motor.move(entity,delta,"operation_place");
     }
     /** A failed world insertion leaves the binding in this entity's durable pending-return slot. */
     private boolean returnInserted(){

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -377,13 +378,15 @@ public final class SurfaceApproach {
         stopInput(actor);
         if (actor.onGround()) {
             Vec3 velocity = actor.getDeltaMovement();
-            actor.setDeltaMovement(0, velocity.y, 0);
+            // Only a real horizontal motion needs the write; a standing body would otherwise mark an impulse every tick.
+            if (velocity.x * velocity.x + velocity.z * velocity.z > 1E-8)
+                Motor.velocity(actor, new Vec3(0, velocity.y, 0), "halt");
         }
     }
 
     public static void face(YukkuriEntity actor, float yaw) {
         float turn = Mth.approachDegrees(actor.getYRot(), yaw, 12);
-        actor.setYRot(turn); actor.yBodyRot = turn; actor.setYHeadRot(turn);
+        Motor.face(actor, turn);
     }
 
     public static float yaw(Vec3 from, Vec3 to) {

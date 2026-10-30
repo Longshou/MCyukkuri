@@ -98,7 +98,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -313,7 +312,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 : new YukkuriGroundNavigation(this, level());
         moveControl = flying ? new FlyingMoveControl(this, 30, true)
                 : new HouseCrawlControl(this);
-        setDeltaMovement(getDeltaMovement().scale(.25));
+        Motor.velocity(this, getDeltaMovement().scale(.25), "predator_takeoff");
     }
     public String getAnimationId() { return sync().getAnimationId(); }
     public long getAnimationStartTick() { return sync().getAnimationStartTick(); }
@@ -352,16 +351,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             if (isControlledByLocalInstance()) {
                 Vec3 controlled = level().isClientSide ? null : predator.flightStep(getDeltaMovement());
                 if (controlled == null) moveRelative(.1f, input);
-                else setDeltaMovement(controlled);
-                move(MoverType.SELF, getDeltaMovement());
-                setDeltaMovement(getDeltaMovement().scale(.91)); fallDistance = 0;
+                else Motor.velocity(this, controlled, "predator_flight");
+                Motor.move(this, getDeltaMovement(), "predator_flight");
+                Motor.velocity(this, getDeltaMovement().scale(.91), "predator_drag"); fallDistance = 0;
             }
         } else if (!level().isClientSide && isCrawling() && canCrawlNow() && onGround()) {
             double distance = HouseCrawlMotion.advance(level().getGameTime()-getCrawlStartTick()) * crawlScale();
             double dx = moveControl.getWantedX()-getX(), dz = moveControl.getWantedZ()-getZ();
             double remaining = Math.hypot(dx,dz);
             double fraction = remaining > 1e-6 ? Math.min(distance, remaining)/remaining : 0;
-            setDeltaMovement(dx*fraction+crawlNudgeX, getDeltaMovement().y, dz*fraction+crawlNudgeZ);
+            Motor.velocity(this, new Vec3(dx*fraction+crawlNudgeX, getDeltaMovement().y, dz*fraction+crawlNudgeZ), "crawl");
             crawlNudgeX*=.546;crawlNudgeZ*=.546;
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
         } else super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
@@ -926,7 +925,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         int previousHurt = hurtTime, previousDuration = hurtDuration;
         Vec3 previousMotion = getDeltaMovement();
         boolean accepted = super.hurt(source, amount);
-        if (YukkuriLife.isSoaking(source)) setDeltaMovement(previousMotion);
+        if (YukkuriLife.isSoaking(source)) Motor.velocity(this, previousMotion, "soaking_hurt");
         if (source.is(DamageTypes.STARVE)) { hurtTime = previousHurt; hurtDuration = previousDuration; }
         return accepted;
     }
