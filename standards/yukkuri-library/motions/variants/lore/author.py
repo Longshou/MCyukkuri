@@ -4,8 +4,10 @@ Each clip is a whole-body root transform sampled every `sample_seconds`: scale, 
 (degrees, composed Rz*Ry*Rx as in the game), lift above the landed pose and an x/z shift,
 both in model units. The caller lands every sample on the lowest visible point, so a lean
 pivots on the floor instead of sinking into it. Forward is -Z (the face side); a negative
-X rotation leans the head forward. Flourishes add rotation tracks to hand bones that carry
-hair; the hat clips (hat.py) move Marisa's braid and hat as well: Marisa's braid waves, Reimu's sideburns flick, locks tremble in labor. Each clip
+X rotation leans the head forward. Flourishes add rotation tracks to hand bones that carry the
+braid (its strokes in the water and while straining); a hand that carries plain side hair only
+follows the body. The hat clips (hat.py) move Marisa's braid and hat as well: Marisa's braid
+waves, Reimu's sideburns flick, locks tremble in labor. Each clip
 carries an expression timeline, resolved per model against its textures, and is compiled
 only into the models its `applies` group names. See README.md and recipe.json.
 """
@@ -588,17 +590,26 @@ def carried(model, bone):
     return hand, parts
 
 
+def braid_carried(model, bone):
+    """Hand bone index and the braid parts it carries. Only the braid is a tool: plain side hair rides the
+    same bones on other variants (and on Marisa's other side), so it never gets a gesture of its own."""
+    hand, parts = carried(model, bone)
+    return hand, [p for p in parts if p['name'].startswith('braid_lock_')]
+
+
 def braid_length(model, hand, parts):
     pivot = model['bones'][hand]['pivot']; V = model['vertices']
     return max(math.dist(V[i*8:i*8+3], pivot) for p in parts for i in range(p['start'], p['start']+p['count']))
 
 
 def flourish_tracks(model, action, samples, cfg, c):
+    """Rotation flourishes on the hand bones that carry a braid. Side hair, front locks and a ponytail sit on
+    the same bones on other variants and only follow the body: a hair lock never paddles, lifts or flaps."""
     tracks = []
     if action in ('hat_stumble','hat_jostle','water_plunge','water_struggle','water_gasp','water_recover','water_held_breath','boat_reassure'):
         for bone,side in (('hand_right',1),('hand_left',-1)):
-            hand,parts=carried(model,bone)
-            if not parts:continue
+            hand,braid=braid_carried(model,bone)
+            if not braid:continue
             def gesture(t):
                 if action=='water_struggle':
                     at=max(0,t-(.11 if side<0 else 0))
@@ -626,8 +637,8 @@ def flourish_tracks(model, action, samples, cfg, c):
         def lunge(t):return bump((t-.22)/.3)
         def shaker(t):return smooth(t/.15)*(1-smooth((t-1.0)/.2))*math.sin(2*math.pi*2.5*t)
         for bone,side in (('hand_right',1),('hand_left',-1)):
-            hand,parts=carried(model,bone)
-            if not parts:continue
+            hand,braid=braid_carried(model,bone)
+            if not braid:continue
             def gesture(t):
                 if paddle:  # the right braid keeps holding the paddle out over the brim (aquatic hull 1.75); the other rests
                     return [4,0,43+2*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]

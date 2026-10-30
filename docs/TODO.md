@@ -231,7 +231,7 @@
 - `shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸入睡、翻船再落水溺亡 — 未单独判断。
 - `birth_boat_caught` — 船上分娩出口：E8 三只新生儿全部 `outcome=WATER`，本帽预约随即取消、父帽 `outside_footprint`；E10 04:20 第一只出口预检 `safe` 且席位已预留，实际推出被帽体净空拒绝，继而 `seat_beyond_settle_reach`、`outcome=WATER`，04:27 第二只实际 `HAT`；E9 未复测出生链（复测失败）。
 - `family_skiffs` — 亲子帽船动作反复中断：E8 idle/passenger 反复 `lapsed` 重启，子船被 `hull_boat` 挡住时周期重发航路（已接入待试玩）。
-- `water_threat` — 水上捕食后的落地：E8 捕食种 `no_dry_stand` 后关闭飞行而落水受伤；E10 02:24 俯冲入水，返岸被 `not_ready` 取消，02:39 上岸血量 10→7，再次俯冲入水降至 6；落水期间被 `water_struggle` 覆盖，驱动鬓发所用 `hand` 骨而非翼骨，鬓发扑动翅膀不动（复测失败）。
+- `water_threat` — 水上捕食后的落地：E8 捕食种 `no_dry_stand` 后关闭飞行而落水受伤；E10 02:24 俯冲入水，返岸被 `not_ready` 取消，02:39 上岸血量 10→7，再次俯冲入水降至 6；落水期间被 `water_struggle` 覆盖，鬓发曾由 `hand` 骨带动而翼骨不动，侧发现只随身体、翼仍无动作（复测失败）。
 - `afloat_family`、`first_voyage` — 亲子出航与初航交接：E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`（复测失败）。
 - `water_neighbours`、`first_voyage` — 池塘场景初态：E8 邻船先缺粮上岸、母油被低温打断；孩子尚在岸上反复 `first_voyage_ineligible`；两场受前一冬季群系影响；已改温和场景、清场恢复群系、删水上烧帽演示（[头饰](HEADWEAR.md)）（已接入待试玩）。
 
@@ -306,6 +306,7 @@
 
 ### 演出与表现复测
 
+- **落水与挣扎时的侧发**：已接入待试玩。[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（用户反馈）魔理沙 `water_struggle` 的侧发随 `hand` 骨整片扇动像多了一只手，捕食种侧发同样装作翅膀。现只驱动承载辫子的 `hand` 骨，散侧发／前发／马尾只随身体（[动作规则](../standards/yukkuri-library/motions/variants/lore/README.md)）。完成：`water_threat`、`water_struggle` 近看魔理沙两侧侧发都不扇水、辫子仍有小幅扑水；灵梦、爱丽丝侧发静止。
 - **走散寻回与放弃演出**：已接入待试玩。分离／搜寻用不安表情和呼唤，真实重逢回应与亲昵粒子，搜索超时放弃和单向断亲有表情、字幕与服务端日志。完成：与 `family_search`／`family_search_blocked` 阶段和关系读数一致，不以演出代替寻回。
 - **亲油接受／拒绝赤油喂食请求**：已接入待试玩。接受／拒绝均按已执行决策回应，拒绝转身与孩子哭泣。完成：`feed` 双方回应和实际决定一致；没有物资不演成喂食成功。
 - **陆 16 亲油挡捕食种**：部分接入。噗咕挑衅动作、转怒与亲子分支字幕已接，行为仍待复测；配音留最后统一补。

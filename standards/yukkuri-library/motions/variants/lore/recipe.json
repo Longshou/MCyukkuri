@@ -1,5 +1,5 @@
 {
-  "version": 16,
+  "version": 17,
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
@@ -215,7 +215,7 @@
           "cry"
         ]
       ],
-      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity. v14: pitch limited to 10, roll 6; effort is squash and braid strokes.",
+      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity. v14: pitch limited to 10, roll 6; effort is squash and braid strokes. v17: only a braid-carrying hand bone strokes; plain side hair (hand_left on Marisa) only follows the body.",
       "triggers": [
         "water_struggle with synchronized effort"
       ]
@@ -4801,5 +4801,5 @@
     "comfort_lick",
     "boat_rim_peek"
   ],
-  "revision": 16
+  "revision": 17
 }
