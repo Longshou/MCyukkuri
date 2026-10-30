@@ -6,9 +6,12 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 
@@ -19,7 +22,9 @@ import net.minecraft.core.BlockPos;
  * {@code set_out}), paddles out round a point of open water by its parent's boat, comes back to the bank and takes its hat back
  * (its own {@code come_ashore}). Back ashore wearing it, it sails from then on ({@code ChildhoodLife.learnSailing}). A fall into the
  * water on the way is real: it cannot climb its own hat yet, so it struggles until its parent lifts it out, and the voyage has
- * failed. HARD, a short commitment only danger breaks; whether it is tried at all is the young's desire (P11).
+ * failed. HARD, a short commitment only danger breaks; whether it is tried at all is the young's desire (P11). Its one way is
+ * tried once: a step that fails, or no way on from where things are, ends the voyage (no re-entry), and the goal lets the young
+ * try again only the next day.
  */
 final class FirstVoyage implements Intent {
     /** The whole voyage (ticks); how far from the parent's boat (blocks) the point it rounds lies; within how far of it it counts as rounded. */
@@ -27,13 +32,18 @@ final class FirstVoyage implements Intent {
     private static final double ARRIVE = .8;
 
     private final YukkuriEntity young, parent;
+    private final Supplier<IntentRunner> runner;
+    private final Runnable failed;
     private final long started;
     private BlockPos turn;
-    private boolean rounded, begun;
+    private boolean rounded, begun, stuck;
 
-    FirstVoyage(YukkuriEntity young, YukkuriEntity parent) {
+    /** {@code runner}: the run this voyage is the intent of (its counted failures); {@code failed}: told once it ends unfinished. */
+    FirstVoyage(YukkuriEntity young, YukkuriEntity parent, Supplier<IntentRunner> runner, Runnable failed) {
         this.young = young;
         this.parent = parent;
+        this.runner = runner;
+        this.failed = failed;
         this.started = young.level().getGameTime();
     }
 
@@ -41,7 +51,10 @@ final class FirstVoyage implements Intent {
     @Override public long deadline() { return started + DEADLINE; }
     @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public boolean satisfied() { return rounded && young.life().custody().worn() && AquaticLife.ashore(young); }
-    @Override public List<Method> methods() { return List.of(Plan.of("own_hat", this::derive)); }
+    @Override public List<Method> methods() {
+        return List.of(new Plan("own_hat", () -> stuck ? Feasibility.of(Reason.NO_PROGRESS, 0, "voyage_failed") : Feasibility.pass(),
+                Set.of(Reason.NO_PROGRESS), () -> { var steps = derive(); stuck |= steps == null; return steps; }));
+    }
 
     private List<Supplier<Step>> derive() {
         if (!begun) {
@@ -50,7 +63,8 @@ final class FirstVoyage implements Intent {
             GameplayLog.event(young, "aquatic", "first_voyage start parent={} parent_hat={} scale={} stick={} from={}", parent.getUUID(),
                     home == null ? "none" : home.getUUID(), young.family().scale(), AquaticLife.stick(young), AquaticLife.ashore(young) ? "bank" : "parent_hat");
         }
-        if (young.isInWaterOrBubble()) return null;
+        var run = runner.get();
+        if (young.isInWaterOrBubble() || run != null && run.attempts().used() > 0) return null;
         var own = AquaticLife.hat(young);
         if (own == null) {
             if (rounded) return null;
@@ -85,5 +99,6 @@ final class FirstVoyage implements Intent {
         }
         GameplayLog.event(young, "aquatic", "first_voyage fail result={} rounded={} in_water={} own_hat={} at={}", result, rounded,
                 young.isInWaterOrBubble(), own == null ? young.life().custody().worn() ? "worn" : "none" : AquaticGoal.form(own), GameplayLog.at(young.position()));
+        failed.run();
     }
 }

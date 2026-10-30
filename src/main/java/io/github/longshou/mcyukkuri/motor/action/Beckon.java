@@ -26,8 +26,9 @@ import net.minecraft.world.phys.Vec3;
  * Draw a floating host in to the bank from the bank (招帽): standing on dry ground at the water's edge, facing it, the body leans
  * over and strokes the water with its braid toward itself ({@code boat_paddle}, its power stroke); each stroke drives the host
  * toward the stroke through {@link SurfaceHost#thrust} at the braid's share of its swim pace (AQUATIC 无桨手划: about 35% of a
- * stick's, twice its energy). Done once the host lies against the bank; a host farther than {@link #REACH}, no water within the
- * leaning braid's reach in front, no braid, or no energy is refused; still out after {@link #STROKES} strokes it is {@code TOO_FAR}.
+ * stick's, twice its energy). Done once the host has come in to the bank on her side (its brim over, or within {@link #AT} of, the
+ * water she strokes) after at least one stroke; a host there already, farther than {@link #REACH}, no water within the leaning
+ * braid's reach in front, no braid, or no energy is refused; still out after {@link #STROKES} strokes it is {@code TOO_FAR}.
  */
 public final class Beckon implements Action {
     public static final String ID = "beckon";
@@ -38,14 +39,16 @@ public final class Beckon implements Action {
     /** The braid's share of a stick's stroke; a stroke's energy (twice a stick's, Paddle's .4). */
     private static final double BRAID = .35;
     private static final float COST = .8f;
-    /** How near (blocks) the host's side comes to a block to lie against the bank; how far past the body's front the braid strokes. */
-    private static final double AGAINST = .05, AHEAD = .05;
+    /** How near (blocks) the host's brim comes to the water she strokes to lie at the bank on her side; how far past the body's
+     *  front the braid strokes. */
+    private static final double AT = .1, AHEAD = .05;
 
     private final SurfaceHost host;
     private Vec3 water;
     private double pace;
     private int t, start, end, length;
     private long startTick;
+    private boolean drawn;
 
     public Beckon(SurfaceHost host) {
         if (host == null) throw new IllegalArgumentException("Beckon needs a host");
@@ -64,6 +67,7 @@ public final class Beckon implements Action {
         water = water(body);
         double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, water, true);
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(gap) ? gap : 0, water == null ? "no_water_ahead" : "water_out_of_reach");
+        if (gap() <= AT) return Feasibility.of(Reason.NO_PROGRESS, 0, "at_bank_already");
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
@@ -94,21 +98,31 @@ public final class Beckon implements Action {
         if (hull.isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         Vec3 to = water.subtract(hull.position()).multiply(1, 0, 1);
         double distance = to.length();
-        if (against()) return new Outcome.Done(String.format(Locale.ROOT, "against_bank strokes=%d at=%s", t / Math.max(1, length), GameplayLog.at(hull.position())));
+        double gap = gap();
+        if (gap <= AT) {
+            if (t == 0) return Outcome.of(Reason.NO_PROGRESS, 0, "at_bank_before_a_stroke");
+            drawn = true;
+            return new Outcome.Done(String.format(Locale.ROOT, "at_bank strokes=%d at=%s", 1 + (t - 1) / Math.max(1, length), GameplayLog.at(hull.position())));
+        }
         if (t % Math.max(1, length) == 0) {
-            if (t / Math.max(1, length) >= STROKES) return Outcome.of(Reason.TOO_FAR, distance, "strokes=" + STROKES);
+            if (t / Math.max(1, length) >= STROKES) return Outcome.of(Reason.TOO_FAR, gap, "strokes=" + STROKES);
             if (!body.life().spendEnergy(COST)) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
         }
         double power = Effort.stroke(t++, start, end, length);
         if (power > 0 && distance > 1E-4 && !host.thrust(body, to.scale(pace * power / distance), 0)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
-        return new Running(distance, TravelMode.CONSUMED);
+        return new Running(gap, TravelMode.CONSUMED);
     }
 
-    /** The host's side lies against a block (a bank) or nearly. */
-    private boolean against() {
-        var hull = host.entity();
-        return hull.level().getBlockCollisions(hull, hull.getBoundingBox().inflate(AGAINST, 0, AGAINST)).iterator().hasNext();
+    /** How far (blocks) the host's brim lies from the water she strokes: 0 once its surface is over it. */
+    private double gap() {
+        if (host.support(host.frame().toLocal(water), 0).isPresent()) return 0;
+        double best = Double.POSITIVE_INFINITY;
+        for (var p : host.rim()) best = Math.min(best, Math.hypot(p.x - water.x, p.z - water.z));
+        return best;
     }
+
+    /** It ended with the host at the bank on her side after at least one stroke (the caller's one try at beckoning succeeded). */
+    public boolean drawn() { return drawn; }
 
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
 
@@ -117,5 +131,5 @@ public final class Beckon implements Action {
                 host.entity().position().distanceTo(water), GameplayLog.at(water), pace, STROKES);
     }
 
-    @Override public String endDetail(Outcome outcome) { return "strokes=" + t / Math.max(1, length); }
+    @Override public String endDetail(Outcome outcome) { return "strokes=" + (t == 0 ? 0 : 1 + (t - 1) / Math.max(1, length)); }
 }

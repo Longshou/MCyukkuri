@@ -51,7 +51,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     private static final int CAPSIZE_TICKS = (int) num("capsize_ticks");
     /** The largest static heel (a share of the flooding angle) a rider may give the hull where it stands: a step there overshoots by
      *  the tilt spring's own overshoot (damping ratio ζ = damping / 2√spring), which must stay short of flooding. */
-    private static final double STEADY = steady();
+    static final double STEADY = steady();
     /** The authored brim plate's thickness (hat units; marisa.json's brim parts span 10.49..11.31): the brim rides up onto a bank
      *  no higher than this above its underside and lies on it; a higher one is a wall the brim stops at. */
     private static final double BRIM_LIP = .8;
@@ -86,7 +86,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     private float turnBy;
     private String cause = "load";
     private long causeTick = Long.MIN_VALUE, sampled = Long.MIN_VALUE, dryTick = Long.MIN_VALUE;
-    private boolean dry, beached, moored;
+    private boolean dry, beached, moored, pressing;
     private double surface = Double.NaN;
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
@@ -184,10 +184,14 @@ public final class HullAfloat implements PlacedHatBehavior {
         v = v.add(stroke(hat));
         var motion = new Vec3(v.x * DRAG, Mth.clamp(Buoyancy.spring(target - hat.getY(), v.y, SPRING, DAMPING), -MAX_RISE, MAX_RISE), v.z * DRAG);
         var free = clear(hat, motion);
+        boolean walled = free.x != motion.x || free.z != motion.z;
         hat.setDeltaMovement(free);
         var from = hat.position();
         hat.move(MoverType.SELF, free);
-        bump(hat, motion, hat.position().subtract(from));
+        // what vanilla's collision took is a knock; the brim meeting a bank wall knocks once, not every tick it lies pressed on it
+        if (hat.horizontalCollision) bump(hat, free, hat.position().subtract(from));
+        if (walled && !pressing) bump(hat, motion, free);
+        pressing = walled;
         rest(hat);
         var reach = MAX_REACH * unit + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach, top + .5, reach), e -> e instanceof LivingEntity))
@@ -219,13 +223,17 @@ public final class HullAfloat implements PlacedHatBehavior {
      * static heel it would take there keeps within {@link #STEADY} of its flooding angle at that load. A hat not afloat bears it.
      * Where on her own hat a body may walk to without turning it over (AQUATIC 帽内走动: only a real outside cause capsizes it).
      */
-    static boolean keeps(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) {
-        if (!(hat.behavior() instanceof HullAfloat hull)) return true;
+    static boolean keeps(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) { return heel(hat, body, local) <= STEADY; }
+
+    /** The static heel the hull would take with {@code body} at {@code local}, as a share of its flooding angle (1 floods; 0 for a
+     *  hat not afloat). */
+    static double heel(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) {
+        if (!(hat.behavior() instanceof HullAfloat hull)) return 0;
         var load = load(hat, hull.larder, body, local);
         var plane = plane(hat);
         double unit = hat.unit(), freeboard = HatGeometry.top() * unit - Buoyancy.draft(load.mass(), plane);
         return Buoyancy.floodRatio(Buoyancy.rollHeel(load.x(), plane), Buoyancy.pitchHeel(load.z(), plane),
-                Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit), Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit)) <= STEADY;
+                Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit), Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit));
     }
 
     private static double steady() {

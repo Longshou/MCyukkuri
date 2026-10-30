@@ -55,7 +55,7 @@ final class Follow implements Intent {
     private List<Supplier<Step>> derive() {
         if (hat.isRemoved()) return null;
         return switch (kind) {
-            case BOARD -> Ferry.hopAboard(young, hat);
+            case BOARD -> Ferry.hopAboard(young, hat, null);
             case ASHORE -> List.of(Ferry.hopAshore(young));
             case NESTLE -> {
                 var parent = AquaticLife.parent(young);

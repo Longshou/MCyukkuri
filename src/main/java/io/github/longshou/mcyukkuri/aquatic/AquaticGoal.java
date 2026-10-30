@@ -71,6 +71,8 @@ final class AquaticGoal extends Goal {
      *  set on its father's boat (two keep it with her). Bounded, never saved. */
     private Map<String, Integer> rescueFailures;
     private Map<UUID, Integer> shareRefusals;
+    /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
+    private long voyageAfter;
 
     private AquaticGoal(YukkuriEntity body) {
         this.body = body;
@@ -372,7 +374,7 @@ final class AquaticGoal extends Goal {
         var life = body.life();
         var child = body.childhood();
         boolean running = drive().runner() != null && drive().runner().intent() instanceof FirstVoyage;
-        if (!running && (child.canSail() || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
+        if (!running && (child.canSail() || body.level().getGameTime() < voyageAfter || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
                 || body.family().scale() < num("voyage_scale", .2) || !HatProp.usable(body) || !life.custody().worn()
                 || life.energy() < num("voyage_energy", 30) || AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || !AquaticLife.aboard(parent, hat)
                 || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat) && !Waters.edges(body, body.position(), 2, false).isEmpty())
@@ -380,7 +382,14 @@ final class AquaticGoal extends Goal {
         out.add(Desire.of("first_voyage", floor(num("first_voyage_want", 40) + life.personality().boldness() * num("first_voyage_bold", .4)),
                 List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
                 () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " scale=" + body.family().scale(),
-                () -> new FirstVoyage(body, parent)));
+                () -> new FirstVoyage(body, parent, () -> drive().runner(), this::voyageFailed)));
+    }
+
+    /** An unfinished first voyage: the young tries again from the next morning. */
+    private void voyageFailed() {
+        long day = Math.floorMod(body.level().getDayTime(), 24000L);
+        voyageAfter = body.level().getGameTime() + 24000 - day;
+        GameplayLog.event(body, "aquatic", "first_voyage cooldown until={} in={}", voyageAfter, 24000 - day);
     }
 
     /** The hat's form for the reclaim line: upright afloat, turned over, on the ground. */

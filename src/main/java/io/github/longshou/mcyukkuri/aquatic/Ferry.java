@@ -57,34 +57,44 @@ final class Ferry {
     }
 
     /** Onto the hat's hollow by a hop from here, walking first to the bank edge nearest it when no landing is in reach now; its own
-     *  hat floating out of a hop from there is drawn in to the bank first. */
-    static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat) {
+     *  hat floating out of a hop from there is drawn in to the bank first, by the run's {@code beckoning} (null: never). */
+    static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
         return List.of(() -> {
                     if (Hop.onto(body, hat) != null) return null;
                     var edge = Waters.beside(hat, body);
                     return edge == null || SurfaceApproach.arrived(body, edge.stand(body.getBbWidth())) ? null : act(Walk.stand(edge.stand(body.getBbWidth()), 1));
                 },
                 () -> Hop.onto(body, hat) != null ? null : act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> Hop.onto(body, hat) != null || new Hop(hat.position()).check(body).ok() ? null : beckon(body, hat),
+                () -> beckoning == null || Hop.onto(body, hat) != null || new Hop(hat.position()).check(body).ok() ? null : beckoning.step(body, hat),
                 // No landing even now: the hop at the hat's middle is refused with its real shortfall (TOO_FAR, TOO_HIGH).
                 () -> { var at = Hop.onto(body, hat); return act(new Hop(at == null ? hat.position() : at)); });
     }
 
-    /** Its own hat afloat within a braid stroke of the bank where it stands: stroke it in against the bank (Beckon); null else. */
-    static Step beckon(YukkuriEntity body, PlacedHatEntity hat) {
-        return PlacedHatEntity.find(body) != hat || !AquaticLife.afloat(hat) || !AquaticLife.ashore(body)
-                || hat.position().subtract(body.position()).horizontalDistance() > Beckon.REACH ? null : act(new Beckon(hat));
+    /** One intent run's beckoning: its own hat afloat within a braid stroke of the bank where it stands is stroked in (Beckon), and
+     *  once one such try failed (too far still, out of energy, nothing to draw) the run does not beckon again but waits for drift
+     *  or takes another way: no strokes paid over and over. */
+    static final class Beckoning {
+        private Beckon tried;
+
+        /** The beckon step, or null when it does not apply or this run's last one failed. */
+        Step step(YukkuriEntity body, PlacedHatEntity hat) {
+            if (failed() || PlacedHatEntity.find(body) != hat || !AquaticLife.afloat(hat) || !AquaticLife.ashore(body)
+                    || hat.position().subtract(body.position()).horizontalDistance() > Beckon.REACH) return null;
+            return act(tried = new Beckon(hat));
+        }
+
+        boolean failed() { return tried != null && !tried.drawn(); }
     }
 
     /** Off the hat onto the nearest dry stand a hop from here lands on; with none, aboard by a bank, first a walk on the hat to its
-     *  side nearest the bank (as far as the hull stays upright with it there; the next step hops from there); else no way on. */
+     *  side nearest the bank (a step off is always allowed, heel or not; the next step hops from there); else no way on. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
             var at = Waters.ashore(body);
             if (at != null) return act(new Hop(at));
             var hat = AquaticLife.riding(body);
             var edge = hat == null ? null : Waters.edges(body, body.position(), 2, false).stream().findFirst().orElse(null);
-            var spot = edge == null ? null : AquaticLife.spot(hat, body, false, hat.frame().toLocal(edge.edge()));
+            var spot = edge == null ? null : AquaticLife.spot(hat, body, false, hat.frame().toLocal(edge.edge()), false);
             return spot == null || spot.subtract(hat.frame().toLocal(body.position())).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
         };
     }

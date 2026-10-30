@@ -1890,9 +1890,9 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
           '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '
           '[action] start id=paddle → [aquatic] first_voyage rounded → [intent] start id=come_ashore → [action] start id=hop → [action] start id=take_prop → '
           '[aquatic] first_voyage success → [childhood] sailing learned how=first_voyage。帽子漂离岸沿时子油或亲油在岸边俯身用辫子划水把帽子招回：[action] start id=beckon … → '
-          '[action] end id=beckon outcome=DONE detail=against_bank；帽子靠岸记 [hat] moored，帽檐搭上岸沿记 [hat] beached。'
+          '[action] end id=beckon outcome=DONE detail=at_bank（招失败后同一次不再招，改等漂近）；帽子靠岸记 [hat] moored，帽檐搭上岸沿记 [hat] beached。'
           '落水时：[incident] open → 子油 [method] pick method=struggle（own_hat 记 cannot_sail）→ 亲油 [incident] decide … → [intent] start id=rescue；'
-          '初航记 [aquatic] first_voyage fail … in_water=true。' + _INCIDENT_NOTE + _DESIRE_NOTE,
+          '初航记 [aquatic] first_voyage fail … in_water=true 与 first_voyage cooldown（第二天早上前不再试）。' + _INCIDENT_NOTE + _DESIRE_NOTE,
      reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')])
 
 

@@ -54,6 +54,7 @@ final class SetOut implements Intent {
      *  of the same means the first failed, and that young stays. */
     private final Map<UUID, Integer> grabs = new HashMap<>(), landings = new HashMap<>();
     private int calls;
+    private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
     private final Consumer<Map<UUID, String>> left;
@@ -105,7 +106,7 @@ final class SetOut implements Intent {
         boolean aboard = AquaticLife.aboard(owner, hat);
         boarded |= aboard;
         var held = AquaticLife.carried(owner);
-        if (held != null) return aboard ? Ferry.releaseAboard(owner, hat, held) : Ferry.hopAboard(owner, hat);
+        if (held != null) return aboard ? Ferry.releaseAboard(owner, hat, held) : Ferry.hopAboard(owner, hat, beckoning);
         var dependent = dependentAshore(hat);
         if (dependent != null) {
             var id = dependent.getUUID();
@@ -116,7 +117,7 @@ final class SetOut implements Intent {
             if (aboard) return List.of(Ferry.hopAshore(owner));
             if (boarded || youngFirst()) return Ferry.grabAshore(owner, dependent);
         }
-        if (!aboard) return Ferry.hopAboard(owner, hat);
+        if (!aboard) return Ferry.hopAboard(owner, hat, beckoning);
         // a second call means the first went unanswered: those not aboard by now stay
         if (calls++ > 0) for (var y : AquaticLife.young(owner))
             if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");

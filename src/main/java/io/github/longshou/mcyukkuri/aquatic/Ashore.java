@@ -60,6 +60,7 @@ final class Ashore implements Intent {
     /** Landings already paddled in against without a hop ashore coming in reach: the next one is another, at most this many. */
     private final Set<BlockPos> tried = new HashSet<>();
     private static final int LANDINGS = 3;
+    private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
 
     private Ashore(YukkuriEntity owner, boolean reclaim) {
         this.owner = owner;
@@ -99,7 +100,7 @@ final class Ashore implements Intent {
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
         if (hat.upsideDown()) return fromBank(hat, () -> new Step.Do(new Right(hat, "reclaim")), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
-        if (AquaticLife.afloat(hat) && dependentAboard(hat) != null) return Ferry.hopAboard(owner, hat);
+        if (AquaticLife.afloat(hat) && dependentAboard(hat) != null) return Ferry.hopAboard(owner, hat, beckoning);
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new Step.Do(new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat)))));
     }
@@ -131,7 +132,7 @@ final class Ashore implements Intent {
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)));
         steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
-        if (!near(hat, edge)) steps.add(() -> { var in = Ferry.beckon(owner, hat); return in != null ? in : drift.get(); });
+        if (!near(hat, edge)) steps.add(() -> { var in = beckoning.step(owner, hat); return in != null ? in : drift.get(); });
         else steps.addAll(List.of(then));
         return steps;
     }
