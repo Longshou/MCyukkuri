@@ -671,7 +671,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!isAlive()) return;
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
-            if (speak(pendingSpeech) && pendingSpeech.equals("newborn")) BirthStaging.greeting(this);
+            // A newborn's first words are its kind's classic greeting in the childish wording (hello, young tier:
+            // ゆっくち しちぇいっちぇにぇ！), else its newborn line.
+            boolean first = pendingSpeech.equals("newborn");
+            if (first ? speak("hello", "young") || speak(pendingSpeech) : speak(pendingSpeech)) { if (first) BirthStaging.greeting(this); }
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
@@ -732,7 +735,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return event != null && speak(event);
     }
 
-    public boolean speak(String event) {
+    public boolean speak(String event) { return speak(event, speechTier()); }
+
+    /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
+    public boolean speak(String event, String tier) {
         if (level().isClientSide || !isAlive()) return false;
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             long now = level().getGameTime();
@@ -744,7 +750,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         }
         event = mind.voice(event); // a broken mind can only scream
         String species = variant.dialogueSpecies();
-        var line = NativeDialogue.select(species, speechTier(), myon.quirk(), event, speechRandom);
+        var line = NativeDialogue.select(species, tier, myon.quirk(), event, speechRandom);
         long now = level().getGameTime();
         if (line == null || !speechTiming.admit(this, now, line.ticks(), NativeDialogue.priority(event))) return false;
         sync().dialogue(line.key());

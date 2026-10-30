@@ -84,6 +84,8 @@ public final class FamilyLife {
     /** The committed land-birth impulse is saved while airborne; settled readouts remain transient. */
     private BirthLaunch.Plan launch;
     private boolean launched;
+    /** The waking newborn has turned to its kin for its first words (transient). */
+    private boolean greetFaced;
     private String landingOutcome="";
     private double landingFromAim=Double.NaN,landingImpactVy,airVy;
     private final ParentCarry carry;
@@ -353,6 +355,10 @@ public final class FamilyLife {
             // A catcher in its birth role hops from its own Attend instead: one owner of that hop.
             var hello=greetHop();
             if(hello!=null&&level().getGameTime()-hello.tick()==30&&birthRole()==null)entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
+            else if(greetee() instanceof YukkuriEntity other){
+                float yaw=SurfaceApproach.yaw(entity.position(),other.position());
+                if(Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))>Face.FACE_ARRIVED)entity.motor().run(BIRTH_BODY,new Face(yaw));
+            }
             return false;
         }
         if(launch!=null&&!launched&&!entity.onGround()&&!entity.isInWaterOrBubble()&&!entity.isPassenger()){
@@ -511,6 +517,19 @@ public final class FamilyLife {
         return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&!flying()&&!entity.life().isSleeping()
                 &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?hello:null;
     }
+    /** Whom this body turns to for a birth greeting, or null: a waking newborn its nearest parent or sibling (once, before its
+     *  first words), a relative on its own feet with no birth role the unhurt newborn it is about to answer. */
+    private YukkuriEntity greetee(){
+        if(entity.firstWaking()){
+            if(greetFaced)return null;
+            greetFaced=true;return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity
+                &&other.isAlive()&&(other.getUUID().equals(mother)||other.getUUID().equals(father)||mother!=null&&mother.equals(other.family().mother())))
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+        }
+        var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
+        return since>0&&since<30&&entity.onGround()&&!entity.isPassenger()&&birthRole()==null&&level().getEntity(hello.baby()) instanceof YukkuriEntity baby
+                &&baby.isAlive()&&!baby.family().bumped()?baby:null;
+    }
     /** The newborn this relative greets with its small hop (answering, and the body can hop), or null. */
     LiveBirth.Welcome greetHop(){return Gesture.smallHopImpulse(entity)>0?answering():null;}
     /** The father and the older siblings turn to a landed newborn and answer its first greeting with the classic one (L36: a
@@ -563,8 +582,9 @@ public final class FamilyLife {
             entity.mind().felt(EmotionEvent.WOUND_DISTRESS);entity.showReaction("cry","wounded",140);
             BirthStaging.caption(parent,"漏接：新生儿重重摔在地上，弹了一下，受了摔伤哭了起来（进入伤势系统，不致命，可照料）");return;
         }
-        // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick.
-        entity.showReactionDelayed("happy","newborn",100,24);
+        // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick;
+        // meanwhile it turns to its nearest kin (birthTravel).
+        greetFaced=false;entity.showReactionDelayed("happy","newborn",100,24);
     }
     public boolean bumped() { return bumped; }
     /** Postpartum and comfort turns as a motor owner, active only while one of those beats runs. */
