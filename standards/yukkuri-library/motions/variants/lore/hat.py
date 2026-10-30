@@ -2,16 +2,19 @@
 
 Compiled into the Marisa model by author.compile_clips for the recipe's clips with a `hat` block.
 The hat (hat_follow, which carries the hat and its bow) moves as one rigid body hooked to the
-braid at one brim point (hat_vessel.json `grip_worn`). The braid (hand_right) aims its tip joint
-at that point, stretching along its length, and the tuft (hand_right_tip) curls round the brim.
+braid at one brim point (hat_vessel.json `grip_worn`). The braid chain (hand_right and its inner
+joints) curves its tail joint onto that point, stretching along its length only beyond its reach,
+and the tuft (hand_right_tip) curls round the brim.
 The hat ends where the game puts the cradle (hat_vessel.json `placements`): beside the helper
 when a Marisa catches for her mate, or before her own outlet when a mother catches alone. The
 aquatic variants carry her larger hat; the game scales the hat bone about `anchor_worn`, so the
 track here places the unscaled hat with its anchor where the larger cradle's anchor lies.
 """
 from pathlib import Path
-import json, math
+import json, math, sys
 import numpy as np
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'contact-safe'))
+import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
 METRICS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
@@ -94,6 +97,8 @@ class Rig:
         B = model['bones']; self.pivot = lambda i: np.array(B[i]['pivot'], float)
         self.hat = self.names['hat_follow']; self.braid = self.names['hand_right']
         self.tips = [self.names[n] for n in ('hand_right_tip', 'hand_right_ribbon') if n in self.names]
+        chain = braid_chain.chain(self.names) or [self.braid, self.tips[0]]
+        self.inner = chain[1:-1]; self.joints = np.array([B[i]['pivot'] for i in chain], float)
         assert B[self.hat]['parent'] == B[self.braid]['parent']
         self.parent = B[self.hat]['parent']
         V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
@@ -166,13 +171,26 @@ def braid_to(inv, target, pv_braid, v0):
     return aim(np.array([v0[0], v0[1]*sy, v0[2]]), dl), sy
 
 
+def chain_to(inv, target, rig, offset=np.zeros(3)):
+    """Rotations of hand_right and each inner chain bone that put the tail joint on `target`, and the braid's
+    stretch: within its length the braid curves onto the point (braid_chain.arc, lengths kept); beyond it the
+    straight braid stretches along its length as before."""
+    rest = rig.joints+offset; local = (inv@np.r_[target, 1])[:3]
+    if np.linalg.norm(local-rest[0]) <= np.linalg.norm(np.diff(rest, axis=0), axis=1).sum():
+        return braid_chain.rotations(rest, braid_chain.arc(rest, local)), 1.
+    R, sy = braid_to(inv, target, rest[0], rest[-1]-rest[0])
+    return [R]+[np.eye(3)]*(len(rest)-2), sy
+
+
 class Keys:
     NAMES = ('root_p', 'root_r', 'root_s', 'hat_p', 'hat_r', 'hat_s', 'braid_r', 'braid_s', 'tip_r', 'tip_s')
 
     def __init__(self): self.keys = {k: [] for k in self.NAMES}; self.prev = {}
 
-    def add(self, t, **vals):
+    def add(self, t, inner=(), **vals):
+        vals.update({f'inner_{i}_r': v for i, v in enumerate(inner)})
         for key, val in vals.items():
+            self.keys.setdefault(key, [])
             val = [float(x) for x in val]
             if key.endswith('_r') and key in self.prev:  # keep Euler angles continuous between samples
                 val = [v+360*round((p-v)/360) for v, p in zip(val, self.prev[key])]
@@ -183,6 +201,7 @@ class Keys:
         out = [{'bone': root, 'channel': c, 'keys': k['root_'+c[0]]} for c in ('position', 'rotation', 'scale')]
         out += [{'bone': rig.hat, 'channel': c, 'keys': k['hat_'+c[0]]} for c in ('position', 'rotation', 'scale')]
         out += [{'bone': rig.braid, 'channel': 'rotation', 'keys': k['braid_r']}, {'bone': rig.braid, 'channel': 'scale', 'keys': k['braid_s']}]
+        out += [{'bone': b, 'channel': 'rotation', 'keys': k[f'inner_{i}_r']} for i, b in enumerate(rig.inner)]
         for tip in rig.tips:
             out += [{'bone': tip, 'channel': 'rotation', 'keys': k['tip_r']}, {'bone': tip, 'channel': 'scale', 'keys': k['tip_s']}]
         return out
@@ -263,8 +282,8 @@ def compile_hat(model, cfg, root, ground, height, name, c):
         Gs = squashed(G, anchor, sq)
         hp, hr, hs = bone_track(inv, Gs, pv_hat, sq)
         target, w = braid_target(t, G, sq)
-        Ra, sy = braid_to(inv, target, pv_braid, v0)
-        Rb = slerp(np.eye(3), Ra, w); sb = 1+(sy-1)*w
+        Ra, sy = chain_to(inv, target, rig)
+        Rb = [braid_chain.partial(R, w) for R in Ra]; sb = 1+(sy-1)*w
         worst['stretch'] = [min(worst['stretch'][0], sb), max(worst['stretch'][1], sb)]
         if P['lift'][1] <= t:  # the hat off the head: clear of the catcher's head and of the mother
             pts = (Gs[:3, :3]@(anchor+k*(rig.hat_points-anchor)).T).T+Gs[:3, 3]
@@ -274,8 +293,8 @@ def compile_hat(model, cfg, root, ground, height, name, c):
             worst['clear'] = min(worst['clear'], float(-depth.max()))
             if t < P['settle'][0]:  # set down, the near brim tucks under the mother's belly by design
                 worst['mother'] = min(worst['mother'], mother_clearance(metrics, variant, role, pts))
-        keys.add(out_t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Rb), braid_s=[1., sb, 1.],
-                 tip_r=[0., 0., c['curl']*w], tip_s=[1., 1/sb, 1.])
+        keys.add(out_t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Rb[0]), braid_s=[1., sb, 1.],
+                 tip_r=[0., 0., c['curl']*w], tip_s=[1., 1/sb, 1.], inner=[to_euler(R) for R in Rb[1:]])
     return keys.tracks(root, rig), worst
 
 
@@ -294,8 +313,8 @@ def compile_hold(model, cfg, root, ground, height, c):
         pos = [0., ground(s, r)+lift, 0.]
         parent = rig.chain((pos, r, s)); inv = np.linalg.inv(parent)
         hp, hr, hs = bone_track(inv, Gs, pv_hat, sigma)  # (in the game the set-down hat is its own entity)
-        Ra, sy = braid_to(inv, rim, pv_braid, v0)
+        Ra, sy = chain_to(inv, rim, rig)
         worst['stretch'] = [min(worst['stretch'][0], sy), max(worst['stretch'][1], sy)]
-        keys.add(t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Ra), braid_s=[1., sy, 1.],
-                 tip_r=[0., 0., c['curl']], tip_s=[1., 1/sy, 1.])
+        keys.add(t, root_p=pos, root_r=r, root_s=s, hat_p=hp, hat_r=hr, hat_s=hs, braid_r=to_euler(Ra[0]), braid_s=[1., sy, 1.],
+                 tip_r=[0., 0., c['curl']], tip_s=[1., 1/sy, 1.], inner=[to_euler(R) for R in Ra[1:]])
     return keys.tracks(root, rig), worst

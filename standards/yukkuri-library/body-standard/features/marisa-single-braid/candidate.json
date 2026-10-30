@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-14T06:59:41+00:00",
+  "created_at": "2026-10-30T20:50:28+00:00",
   "status": "pending_confirmation",
   "scope": [
     "Marisa side hair: one thick braid on her own left (+X, hand_right), a short loose lock on the right (-X, hand_left)",
@@ -21,6 +21,11 @@
     "braid_lock_bow_tail_in",
     "braid_lock_bow_tail_out",
     "braid_lock_core",
+    "braid_lock_core_1",
+    "braid_lock_core_2",
+    "braid_lock_core_3",
+    "braid_lock_core_4",
+    "braid_lock_core_5",
     "braid_lock_lobe_0",
     "braid_lock_lobe_1",
     "braid_lock_lobe_2",
@@ -39,61 +44,61 @@
     "side_hair_loose_tip_1"
   ],
   "sources": {
-    "standards/yukkuri-library/body-standard/features/marisa-single-braid/author.py": "2b2793c45f5c724da34cf5bec1c6761e957c9021abd8a6c4f0915a45545ab0a9",
-    "standards/yukkuri-library/body-standard/features/marisa-single-braid/sync_inputs.py": "3a76ca390c5a85de4897538c5c876365adb7a97b13cd02c0c27acf80636ef134",
-    "standards/yukkuri-library/body-standard/features/marisa-single-braid/export_house_runtime.py": "910851c7543dec6e928c0d99a5f8c41e30b3dcd97d3ca1f62838ae69c688b4c8",
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/author.py": "6d63ad064ee9d5c67d4d34df1fce83b6d30316f084b407f4e23c6a95d6a387d0",
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/sync_inputs.py": "29290539f7b049def8bdc56cf6b5892fc3fa5751702155cd960235346ffb02d6",
+    "standards/yukkuri-library/body-standard/features/marisa-single-braid/export_house_runtime.py": "fb24a2ec7416fae5c95b71e6fb9e8a325d341e3b723a87815f7976f1b04bedf0",
     "standards/yukkuri-library/components/marisa/hand-left.json": "14bfaf38ab8fbba422a8936260fbf9252d2a97f0e65c230ff70dbbfa0a82be8d",
-    "standards/yukkuri-library/components/marisa/hand-right.json": "ecbaf0992ef5e0985b8b5786e259abf8a638ea8f411a409c722754e7eae6d9e2",
-    "standards/yukkuri-library/rigs/marisa.json": "6c2ec265d24fd93cb1d647b1f5eec518fc7ef647a88f8c00daf289ebc42b1c4b",
+    "standards/yukkuri-library/components/marisa/hand-right.json": "4948c93ab72bad7e2ba2a59fc4ad4454ae76cee7ee614239154402bd055718ec",
+    "standards/yukkuri-library/rigs/marisa.json": "c619587400dd619f1978f170678c0b9529d920bf755bda8d652aefcb2a1b28d8",
     "standards/yukkuri-library/subspecies/deficient/rounded-marisa/recipe.json": "5ea97ff5bfd1ba7475ab5ada8c0c7966058e5e0ad821bdd7c9e5db05caa80503",
     "standards/yukkuri-library/subspecies/deficient/recipes.json": "19e354d399e742502e442987da524bfb0dcd23354868b09002d43669c6cde764",
-    "standards/yukkuri-library/subspecies/deficient/bean_hair.py": "25cae5f4660aaa2af8145e0808628374c26c7253bea5219ff7985b0f8be25c6c",
-    "scripts/export_marisa_deficient_rounded.py": "7104a14f779f7f57c75fcb8e9a80624a7ccb95b9930705f90401ad2de84ce84c",
-    "scripts/runtime_house_interactions.py": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
-    "standards/yukkuri-library/subspecies/reimu-dos/build.py": "948d8c24f1015160c739df8ccd2490d7111de79a9d847f935f682d66140503fb",
-    "standards/yukkuri-library/presentation/placement-fit/recipe.json": "035e8ce0b0e77c322ed9d076f0030cab28653d063e7f64528f526cc0d669534f"
+    "standards/yukkuri-library/subspecies/deficient/bean_hair.py": "6f75a3364f41dbe1f65ce5b2b66129d89edddfcd7f4500d100251e9f825ac50a",
+    "scripts/export_marisa_deficient_rounded.py": "6e9fb96ae241c8ae8236ec86b1f47a7121de61f28a00bff534ac37ca7e7092fd",
+    "scripts/runtime_house_interactions.py": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
+    "standards/yukkuri-library/subspecies/reimu-dos/build.py": "961a322c5db976a98a86829988360fb178cfd671a2530a739e81b83ff0ce6d1f",
+    "standards/yukkuri-library/presentation/placement-fit/recipe.json": "8ded4b74df9c27f51da1a4e2fd6da92ac6796ca542d88b9d76f989b30068efc3"
   },
-  "frozen_inputs_manifest_sha256": "aeda89425c0b2a8f28afca4f40baf7f5c69e87a65ef23b16af8f447a39ec62b0",
+  "frozen_inputs_manifest_sha256": "4b8a11a712a7c1ec19bebfe6a79892fee10cfc483240873513e9ad52894bafe4",
   "models": {
     "marisa": {
       "model": "standards/yukkuri-library/assembled/marisa/marisa.bbmodel",
-      "model_sha256": "a40e93ecf7f5c52b2be62b22516b28fe6413626f9151b26c7c89355f34fb9474",
+      "model_sha256": "176dcfad947880acd15f3bdbff4b7547ef1818948e85fabfe772fc8a95e004a1",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "runtime_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a"
+      "runtime_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917"
     },
     "marisa_tsumuri": {
       "model": "standards/yukkuri-library/assembled/marisa_tsumuri/marisa_tsumuri.bbmodel",
-      "model_sha256": "816dc612d3db5548e8022e31f76db5d4e6b95b4871c913590c2c47bd6756b989",
+      "model_sha256": "0f393986a549844c0ecd8d87d631a655181387b685fecc7c5e9f3ab932590e06",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "runtime_sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2"
+      "runtime_sha256": "054d49f96492c35530076912fde8056e5808f3b0b529bae34d56255fef799388"
     },
     "marisa_sparse": {
       "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_sparse/marisa_sparse.bbmodel",
-      "model_sha256": "ebd0d101bf63503602dcedc45e0b435d464e4720a7f049143e3ba9051208ba84",
+      "model_sha256": "1e1323948b772f78336030f45a9bb66b666d230ac7c12185f747c97813e6e89f",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "runtime_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb"
+      "runtime_sha256": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66"
     },
     "marisa_face": {
       "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_face/marisa_face.bbmodel",
-      "model_sha256": "8fe872e73fa23214e1bef3bddd38abb8e9d2a005692b0312f0b7796d0c36b1e8",
+      "model_sha256": "b0ace6616fd96855e82481ef24fea59fd0ae4918b328090df882eb0a72043ae2",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "runtime_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e"
+      "runtime_sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940"
     },
     "marisa_bean": {
       "model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
-      "model_sha256": "cfc68ff8d53099ebbbbeac5c5e51f362ef3e1377e76afcc07748e18e5b7b06fa",
+      "model_sha256": "b9e90addb3a384da1e2e768fef1137ab02618004bc8c6bdd5eb053560500b1cc",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "runtime_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe"
+      "runtime_sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869"
     },
     "house_marisa": {
       "model": "standards/yukkuri-library/ecology/house-yukkuri/assembled/house_marisa.bbmodel",
-      "model_sha256": "93323e7bed258ff8ef9673d95b9f70b6139a751b9a7105af4ca8182e627f68f4",
+      "model_sha256": "03fed7f599fbec0908e258587c8ba1d3217b98047ba8d1cb0c0696250398345e",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "runtime_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92"
+      "runtime_sha256": "71a7143442eb346c8e0dbe6c6fb3d9d170b9ce6967c18309e060124c8f7e012f"
     },
     "marisa_dos": {
       "model": "standards/yukkuri-library/subspecies/reimu-dos/assembled/marisa_dos/marisa_dos.bbmodel",
-      "model_sha256": "d31832121bacfb1714cd17f3529c7efd8016f73240726361ccabcdc4a1020a92"
+      "model_sha256": "1cf75b334105b528d3ef69f9fede2ba21fe05f3ce711aed6690caab4e1fa8ab9"
     }
   },
   "motions": {
@@ -102,11 +107,11 @@
     "house_carry": "both grip points on the braid tip",
     "interactions": "interactions/marisa-braids v2",
     "sources": {
-      "standards/yukkuri-library/motions/variants/contact-safe/recipe.json": "3dea4eb7da86a3de0a5aceae6f261bd0adf9aa8eeb1b4e385e1ec4b2dc4b829e",
-      "standards/yukkuri-library/motions/variants/contact-safe/author.py": "c9ac11ea2a3144924d69fbc37497197062711315b39b45675df1915f2e292872",
+      "standards/yukkuri-library/motions/variants/contact-safe/recipe.json": "9b6a025331af952d6fbc2a5862eba461e95bc399921e3a9260020ff042cb980b",
+      "standards/yukkuri-library/motions/variants/contact-safe/author.py": "00ff0b0a8955455f4959a2b8184a7620ee561a27284f7109a930853b4a85abd8",
       "standards/yukkuri-library/motions/variants/marisa-tsumuri/shell_retract.json": "71887902e5252520a10633b0a1f0fcce39388651f4150d1fb8f232a8e2161e0e",
-      "scripts/runtime_house_interactions.py": "c27cbae760e86468507d015750b919117042f674dd10e9af4f048e5f9286c65f",
-      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "a8ae24ebdbd164a6c1f16dba2e846553cc7869b6db5e649fbd305bb9ecbfbc36"
+      "scripts/runtime_house_interactions.py": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "167a5585d1788f83a55a6091e16f8dc6777bb494bd0ce223849bac760251b1a1"
     }
   },
   "game_acceptance": "not_performed"

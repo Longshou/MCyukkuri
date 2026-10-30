@@ -1,7 +1,7 @@
 """Author ordinary Marisa's side hair: one thick braid and one loose side lock.
 
 Writes the cube-era sources that the frozen body-standard inputs were assembled from:
-components/marisa/hand-left.json, hand-right.json and the braid sub-bones in rigs/marisa.json.
+components/marisa/hand-left.json, hand-right.json and the braid chain bones in rigs/marisa.json.
 Then run sync_inputs.py (re-assembles inputs/marisa and inputs/marisa_tsumuri) and
 body-standard/build.py. Textures are untouched: only existing UV cells are used.
 
@@ -9,6 +9,11 @@ The braid hangs on Marisa's own left: +X, bone hand_right, which the library vie
 Minecraft show on the right of the front view (hand_* names follow that front view).
 Its woven body is thicker than Reimu's tied lock (1.00 x 1.30, cuff 1.24-1.50 x 1.60-1.82)
 in both directions.
+
+The braid bends along its whole length: hand_right carries the root lock and the first lobe,
+hand_right_braid_1..5 one woven lobe each (joints in the middle of the lobe overlaps, the dark
+core cut at the same joints), the last also the tie and bow, and hand_right_tip the loose tail.
+At rest every bone is identity, so the shape is the approved one.
 """
 from pathlib import Path
 import argparse, json
@@ -25,6 +30,12 @@ LOBE_TOP, LOBE_PITCH, LOBE_HEIGHT, LOBES = 7.25, 0.80, 0.94, 6
 LOBE_TILT = 17          # alternating weave tilt, degrees about Z
 CORE = (1.78, 1.74)     # dark inner strands seen between lobes
 RIBBON_Y = (2.02, 2.66)
+CHAIN = LOBES-1         # inner joints hand_<side>_braid_1..5, one between each pair of lobes
+
+
+def joint_y(i):
+    """Height of chain joint i (1..CHAIN): the middle of the overlap of lobes i-1 and i."""
+    return LOBE_TOP-(LOBE_HEIGHT+(2*i-1)*LOBE_PITCH)/2
 
 
 def element(name, lo, hi, material, bone, rotation=(0, 0, 0), origin=None):
@@ -47,22 +58,25 @@ def box(name, sign, x, y, z, size, material, bone, tilt=0):
 
 
 def braid(side):
-    s = -1 if side == 'left' else 1; bone = 'hand_'+side
+    s = -1 if side == 'left' else 1; hand = 'hand_'+side
+    bone = lambda i: hand if i == 0 else f'{hand}_braid_{i}'
+    core = [LOBE_TOP+.15]+[joint_y(i) for i in range(1, CHAIN+1)]+[RIBBON_Y[1]-.15]
     out = [
         # Side hair gathered under the hat into the braid root.
-        box('braid_lock_root', s, 6.80, 7.92, BRAID_Z-.05, (1.80, 1.12, 1.96), 'hair', bone),
-        box('braid_lock_root_outer', s, 7.12, 7.42, BRAID_Z, (1.92, .74, 2.12), 'hair', bone),
-        # Dark inner strands; only visible in the notches between lobes.
-        box('braid_lock_core', s, BRAID_X, (LOBE_TOP+RIBBON_Y[1])/2, BRAID_Z,
-            (CORE[0], LOBE_TOP-RIBBON_Y[1]+.30, CORE[1]), 'hair_dark', bone),
+        box('braid_lock_root', s, 6.80, 7.92, BRAID_Z-.05, (1.80, 1.12, 1.96), 'hair', hand),
+        box('braid_lock_root_outer', s, 7.12, 7.42, BRAID_Z, (1.92, .74, 2.12), 'hair', hand),
     ]
+    # Dark inner strands, cut at the chain joints; only visible in the notches between lobes.
+    for i in range(LOBES):
+        out.append(box('braid_lock_core'+(f'_{i}' if i else ''), s, BRAID_X, (core[i]+core[i+1])/2, BRAID_Z,
+                       (CORE[0], core[i]-core[i+1], CORE[1]), 'hair_dark', bone(i)))
     for i in range(LOBES):
         y = LOBE_TOP - LOBE_HEIGHT/2 - i*LOBE_PITCH
         w, d = LOBE_SIZE[0]-i*LOBE_TAPER, LOBE_SIZE[1]-i*LOBE_TAPER
         sway = .14 if i % 2 else -.14
         out.append(box(f'braid_lock_lobe_{i}', s, BRAID_X+sway, y, BRAID_Z, (w, LOBE_HEIGHT, d),
-                       'hair_light' if i % 2 else 'hair', bone, LOBE_TILT if i % 2 else -LOBE_TILT))
-    ribbon = 'hand_'+side+'_ribbon'; tip = 'hand_'+side+'_tip'
+                       'hair_light' if i % 2 else 'hair', bone(i), LOBE_TILT if i % 2 else -LOBE_TILT))
+    ribbon = bone(CHAIN); tip = hand+'_tip'
     y0, y1 = RIBBON_Y; ym = (y0+y1)/2; zf = BRAID_Z-LOBE_SIZE[1]/2
     out += [
         # White tie wraps the braid; the bow faces forward on the outer half so it reads from the front.
@@ -96,21 +110,21 @@ def component(side, elements, bones):
             'attachment': 'see skeleton attachments; independent hands are not bound to skin slices'}
 
 
+def chain_bones(side):
+    return ['hand_'+side]+[f'hand_{side}_braid_{i}' for i in range(1, CHAIN+1)]+['hand_'+side+'_tip']
+
+
 def update_rig(braid_side, loose):
-    """Only the braid side keeps tie/tuft sub-bones; pivots follow the new tie and tuft."""
+    """Only the braid side keeps a bone chain; its joints follow the lobe overlaps and the tie."""
     p = R/'rigs/marisa.json'; rig = json.loads(p.read_text(encoding='utf-8'))
-    s = 1 if braid_side == 'right' else -1; bones = []
-    for b in rig['bones']:
-        if b['name'] in ('hand_'+loose+'_tip', 'hand_'+loose+'_ribbon'): continue
-        bones.append(b)
-        if b['name'] == 'hand_'+braid_side:
-            hand = b
-    subs = {'hand_'+braid_side+'_tip': [s*BRAID_X, 2.02, BRAID_Z], 'hand_'+braid_side+'_ribbon': [s*BRAID_X, 2.34, BRAID_Z]}
-    for name, pivot in subs.items():
-        b = next((b for b in bones if b['name'] == name), None)
-        if b is None:
-            b = {'name': name}; bones.insert(next(i for i, x in enumerate(bones) if x['name'].startswith('puff_left_')), b)
-        b.update(parent=hand['name'], pivot=pivot)
+    s = 1 if braid_side == 'right' else -1
+    sub = lambda n: n.startswith(('hand_left_', 'hand_right_'))
+    hand = next(b for b in rig['bones'] if b['name'] == 'hand_'+braid_side)
+    at = next(i for i, b in enumerate(rig['bones']) if sub(b['name']) or b['name'].startswith('puff_left_'))
+    bones = [b for b in rig['bones'] if not sub(b['name'])]
+    chain = chain_bones(braid_side)
+    pivots = [[s*BRAID_X, round(joint_y(i), 6), BRAID_Z] for i in range(1, CHAIN+1)]+[[s*BRAID_X, RIBBON_Y[0], BRAID_Z]]
+    bones[at:at] = [{'name': name, 'parent': parent, 'pivot': pivot} for name, parent, pivot in zip(chain[1:], chain, pivots)]
     rig['bones'] = bones
     p.write_text(json.dumps(rig, indent=2), encoding='utf-8')
     print('updated', p)
@@ -126,8 +140,7 @@ def main():
     if a.out == R/'components/marisa':
         update_rig(a.braid_side, loose)
     a.out.mkdir(parents=True, exist_ok=True)
-    for side, data in [(a.braid_side, component(a.braid_side, braid(a.braid_side),
-                                                ['hand_'+a.braid_side, 'hand_'+a.braid_side+'_ribbon', 'hand_'+a.braid_side+'_tip'])),
+    for side, data in [(a.braid_side, component(a.braid_side, braid(a.braid_side), chain_bones(a.braid_side))),
                        (loose, component(loose, loose_lock(loose), ['hand_'+loose]))]:
         p = a.out/f'hand-{side}.json'
         p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')

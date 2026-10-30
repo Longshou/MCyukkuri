@@ -5,7 +5,6 @@
   "root_bone": "root",
   "braid_bone": "hand_right",
   "tip_bone": "hand_right_tip",
-  "ribbon_bone": "hand_right_ribbon",
   "contact_part": "braid_lock_tuft_point_out",
   "contact_rule": "farthest_existing_vertex_from_braid_root",
   "root_pitch_degrees": 0,

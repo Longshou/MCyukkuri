@@ -82,6 +82,30 @@ def binding(y, names):
     return [names[f'soft_head_slice_{lo}_bend'], names[f'soft_head_slice_{hi}_bend'], round(q - lo, 7)]
 
 
+def fit_braid_chain(rig, bb):
+    """Pivots of Marisa's braid chain on a refitted braid (house): each joint midway between the two lobes it joins,
+    the tail joint at the tie's lower edge. Returns the chain bone names top to tail and a function giving the chain
+    bone for a height on the braid (the house core is sliced along its length, not cut at the joints)."""
+    names = [b['name'] for b in rig['bones']]
+    chain = ['hand_right']+[f'hand_right_braid_{k}' for k in range(1, 99) if f'hand_right_braid_{k}' in names]+['hand_right_tip']
+    if len(chain) < 3 or chain[-1] not in names:
+        return None, None
+    box = {}
+    for element in bb['elements']:
+        name = re.sub(r'_house_fit_\d+$', '', element['name']); vv = vertices(element, bb['resolution']['width'])
+        lo, hi = [min(vv[k::8]) for k in range(3)], [max(vv[k::8]) for k in range(3)]
+        old = box.get(name); box[name] = (lo, hi) if old is None else ([min(a, b) for a, b in zip(old[0], lo)], [max(a, b) for a, b in zip(old[1], hi)])
+    centre = lambda n: [(a+b)/2 for a, b in zip(*box[n])]
+    bones = {b['name']: b for b in rig['bones']}
+    for k, name in enumerate(chain[1:-1], 1):
+        upper, lower = f'braid_lock_lobe_{k-1}', f'braid_lock_lobe_{k}'
+        x, _, z = [(a+b)/2 for a, b in zip(centre(upper), centre(lower))]
+        bones[name]['pivot'] = [round(x, 7), round((box[upper][0][1]+box[lower][1][1])/2, 7), round(z, 7)]
+    x, _, z = centre('braid_lock_ribbon_band'); bones[chain[-1]]['pivot'] = [round(x, 7), round(box['braid_lock_ribbon_band'][0][1], 7), round(z, 7)]
+    joints = [bones[n]['pivot'][1] for n in chain[1:]]
+    return chain, lambda y: chain[sum(y < j for j in joints)]
+
+
 def export(species, is_house):
     ident = ('house_' if is_house else '') + species
     directory = HOUSE if is_house else LIB / 'assembled' / species
@@ -91,6 +115,7 @@ def export(species, is_house):
     standard_bb = read(LIB / 'assembled' / species / (species + '.bbmodel'))
     standard = read(LIB / 'assembled' / species / 'animation-rig.json')
     rig = house_rig(standard, original) if is_house else copy.deepcopy(original)
+    braid, along = fit_braid_chain(rig, bb) if is_house else (None, None)
     names = {b['name']: i for i, b in enumerate(rig['bones'])}
     source_groups = {e['name']: g for e, g in zip(standard_bb['elements'], standard['groups'])}
     # Server navigation owns planar travel and heading during flight.
@@ -115,6 +140,8 @@ def export(species, is_house):
         if is_house:
             name = re.sub(r'_house_fit_\d+$', '', element['name'])
             target = source_groups.get(name)
+            if braid and name.startswith('braid_lock_core'):
+                target = along(sum(vv[1::8])/(len(vv)//8))  # its own chain segment
             # Every fitted scalp piece follows the same continuous body field.
             # Mixing a skinned wrap with rigid bangs/crown tears their overlap
             # apart during side bends. Hats and side locks keep their own rigs.

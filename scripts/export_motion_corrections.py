@@ -137,7 +137,7 @@ def main():
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
-    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__)]
+    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', SOURCE/'braid_chain.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__)]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
@@ -190,6 +190,7 @@ def main():
                 'geometry_note': 'Base selected models and their fingerprints are unchanged; the whole-body puff is a root transform clip, the derived cheek_puff face adds only a mouth patch to the motion resource.',
                 'recipe': rel(SOURCE/'recipe.json'), 'recipe_sha256': sha(SOURCE/'recipe.json'),
                 'author': rel(SOURCE/'author.py'), 'author_sha256': sha(SOURCE/'author.py'),
+                'braid_chain': rel(SOURCE/'braid_chain.py'), 'braid_chain_sha256': sha(SOURCE/'braid_chain.py'),
                 'lore_recipe': rel(LORE/'recipe.json'), 'lore_recipe_sha256': sha(LORE/'recipe.json'),
                 'lore_author': rel(LORE/'author.py'), 'lore_author_sha256': sha(LORE/'author.py'),
                 'lore_hat': rel(LORE/'hat.py'), 'lore_hat_sha256': sha(LORE/'hat.py'),

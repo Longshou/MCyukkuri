@@ -17,27 +17,37 @@ def profile(y, r):
     return 6*r['lower_width']*radius,back,front
 
 
-def standard_braid(base, r, cfg, spec):
+def standard_braid(base, r, cfg, spec, rig):
     """Marisa's shared side hair (one braid, one loose lock) at bean head scale.
 
     Uses the same head transform as the other bean head parts, then moves each
-    piece so its lock axis follows the bean side contour at that height.
+    piece so its lock axis follows the bean side contour at that height. The braid
+    keeps its bone chain (marisa-single-braid/author.py), each joint moved with the
+    pieces at its height, so it bends like the standard braid; the loose lock rides the skin.
     """
     lib=Path(__file__).resolve().parents[2];s=r['head_scale'];out=[]
+    def shift(y, sign, braid):
+        x=profile(y-cfg['surface_lift'],r)[0]+cfg['clearance']
+        return sign*(x+(spec['axis_offset'] if braid else spec['loose_offset']))-sign*(spec['braid_axis'] if braid else spec['loose_axis'])*s
     for side in ('left','right'):
         for src in json.loads((lib/spec['source']/f'hand-{side}.json').read_text(encoding='utf-8'))['elements']:
-            e=copy.deepcopy(src);e.pop('bone',None)
+            e=copy.deepcopy(src);bone=e.pop('bone')
             for key in ('from','to','origin'):
                 e[key]=[e[key][0]*s,e[key][1]*s+r['head_raise'],e[key][2]*r['depth']]
             braid=e['name'].startswith('braid_lock_')
             sign=1 if e['from'][0]+e['to'][0]>0 else -1
-            y=(e['from'][1]+e['to'][1])/2;x=profile(y-cfg['surface_lift'],r)[0]+cfg['clearance']
-            axis=(spec['braid_axis'] if braid else spec['loose_axis'])*s
-            dx=sign*(x+(spec['axis_offset'] if braid else spec['loose_offset']))-sign*axis
+            dx=shift((e['from'][1]+e['to'][1])/2,sign,braid)
             for key in ('from','to','origin'):e[key][0]+=dx
             if not any(e.get('rotation',[0,0,0])):e['origin']=[0.0,0.0,0.0]
             e['uuid']=str(uuid.uuid5(uuid.NAMESPACE_URL,base+'/'+e['name']))
-            out.append((e,'body_stretch'))
+            out.append((e,bone if braid else 'body_stretch'))
+    chain=[b for b in json.loads((lib/'rigs/marisa.json').read_text(encoding='utf-8'))['bones'] if b['name'].startswith(('hand_left_','hand_right_'))]
+    bones=[b for b in rig['bones'] if not b['name'].startswith(('hand_left_','hand_right_'))]
+    at=next(i for i,b in enumerate(bones) if b['name']=='hand_right')+1
+    for b in chain:
+        x,y,z=b['pivot'];y=y*s+r['head_raise'];sign=1 if x>0 else -1
+        b['pivot']=[round(x*s+shift(y,sign,True),6),round(y,6),round(z*r['depth'],6)]
+    bones[at:at]=chain;rig['bones']=bones
     return out
 
 
@@ -101,7 +111,7 @@ def author(pairs, rig, base, r):
         new.append((surface('bean_bang_'+str(i),rows,closed=True),'body_stretch'))
     # Marisa shares the standard single braid; Reimu keeps the twisted pair with cuffs.
     spec=cfg.get('marisa_braid') if base=='marisa' else None
-    if spec:new.extend(standard_braid(base,r,cfg,spec))
+    if spec:new.extend(standard_braid(base,r,cfg,spec,rig))
     for sign in ([] if spec else [-1,1]):
         # Two closed intertwined strands expose a real round silhouette from the side.
         for strand in [0,1]:

@@ -14,9 +14,11 @@ injury (`expression_yield`) win over the timeline.
 The v7 cheek-lobe morph (refined skin, blush carriers, side-lock swing) was
 retired in v10; its lumpy jowls read as tumours, not as a pout.
 """
-import json, math, runpy
+import json, math, runpy, sys
 from pathlib import Path
 import numpy as np
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import braid_chain
 
 LIBRARY = Path(__file__).resolve().parents[3]
 TEXTURES = LIBRARY.parents[1]/'src/main/resources/assets/mcyukkuri/textures/entity'
@@ -165,6 +167,9 @@ def compile_revision(model, cfg, face):
         result.update(lore['compile_clips'](model, lore_cfg, root, ground, height))
         cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=cfg['braid_follow']['actions']+lore_cfg['braid_follow']))
     result.update(braid_follow(model, cfg, result))
+    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
+    if chain:  # the braid swing runs down the chain in every clip that moves it
+        result = {k: braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in result.items()}
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'expression_aliases': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}
@@ -182,7 +187,8 @@ def braid_follow(model, cfg, corrected=None):
     braid takes the body twist at its own height (rotation about Y), then the smallest
     outward splay about Z that keeps it no deeper in the skin than at rest and its tip
     above the floor. Clips already corrected here (side bends) are extended, not
-    replaced. Peaks are held, then blurred, wrapping for looping clips."""
+    replaced. Peaks are held (also while the chain's lag passes the twist down the
+    braid), then blurred, wrapping for looping clips."""
     spec = cfg.get('braid_follow')
     names = {b['name']: i for i, b in enumerate(model['bones'])}
     braid = [i for p in model['parts'] if p['name'].startswith('braid_lock_') for i in range(p['start'], p['start']+p['count'])]
@@ -192,7 +198,9 @@ def braid_follow(model, cfg, corrected=None):
     hand = names['hand_right']; parent = model['bones'][hand]['parent']; pivot = np.array(model['bones'][hand]['pivot'])
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
     # Only a braid carried by the hand bone swings; skin-following braids (sparse, bean) move with the body.
-    carried = {hand} | {i for i, b in enumerate(model['bones']) if b['parent'] == hand}
+    carried = {hand}
+    for i, b in enumerate(model['bones']):  # the whole braid chain under the hand bone
+        if b['parent'] in carried: carried.add(i)
     braid = [i for i in braid if int(W[i][0]) in carried]
     if not braid:
         return {}
@@ -266,7 +274,9 @@ def braid_follow(model, cfg, corrected=None):
             ys.append(y); zs.append(z)
         if max(zs) < 1 and max(abs(v) for v in ys) < 1:
             continue
-        k = max(1, round(spec['smooth_seconds']/spec['sample_seconds']))
+        # The splay is held while the lagging braid chain (braid_chain.follow) passes the same twist.
+        chain = braid_chain.chain(names); lag = cfg['braid_chain']['lag_seconds']*(len(chain)-1) if chain else 0
+        k = max(1, round((spec['smooth_seconds']+lag)/spec['sample_seconds']))
         def held(values):
             v = np.array(values); m = len(v)
             idx = lambda j: j % (m-1) if clip['loop'] else min(max(j, 0), m-1)

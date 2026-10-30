@@ -51,7 +51,7 @@ def export_textures(ident, base, textures, resolution, stage=False, check=False)
         records[expr]={'source':rel(source),'sha256':sha(source),'snapshot':rel(snapshot),
                        'runtime':rel(runtime),'width':resolution['width'],'height':resolution['height']}
     return records
-def all_points(element): return [element[k] for k in ('from','to','origin') if k in element]
+def all_points(element): return [element[k] for k in ('from','to','origin') if k in element]+(list(element['vertices'].values()) if element.get('type')=='mesh' else [])
 
 def affine(element, scale, shift=(0,0,0)):
     for point in all_points(element):

@@ -4,23 +4,25 @@
   "runtime_morph_geometry_modified": false,
   "geometry_note": "Base selected models and their fingerprints are unchanged; the whole-body puff is a root transform clip, the derived cheek_puff face adds only a mouth patch to the motion resource.",
   "recipe": "standards/yukkuri-library/motions/variants/contact-safe/recipe.json",
-  "recipe_sha256": "31819fde0514bb9a9dd1534a4a452162ab30dc4a26a23c34a5c4ae7eeebda3c2",
+  "recipe_sha256": "9b6a025331af952d6fbc2a5862eba461e95bc399921e3a9260020ff042cb980b",
   "author": "standards/yukkuri-library/motions/variants/contact-safe/author.py",
-  "author_sha256": "7d885b8c9b972c42336ad2c13b57c66d413eb9348821e0b55416429910f3e611",
+  "author_sha256": "00ff0b0a8955455f4959a2b8184a7620ee561a27284f7109a930853b4a85abd8",
+  "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
+  "braid_chain_sha256": "86636f6425e02055a928d49579d976ed930cf663f69fa12b85deb42a0c8a4ce0",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "7db7403c61db47579d9eb4607b3c392e929036a4b433c6fc1608a13ef7c22fc8",
+  "lore_recipe_sha256": "ef48d08d7879f1fbe49064fb36422054a628e14ad11dac202d5a458943454a19",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "b62a6d3857655b012daf82a3f3d76914eb02cea919df08ff76738a422b209004",
+  "lore_author_sha256": "fb2dc7267cf479a3127f633631630cecfbf3d33b868cf139cb3e7b9d65c82cb6",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
-  "lore_hat_sha256": "3d28d0e9d04de39afa8f5c134c6bcdd5dcb7303cc79c37d8535220c17beaae53",
+  "lore_hat_sha256": "2f68efc73ea101d55b728874c37e2a222bc0a6062e33d7dfb758b378f3390b3a",
   "hat_vessel": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json",
   "hat_vessel_sha256": "a9cee77486d4ce03169b9c50865782b561afd7fd233da03a3ce81c13a7de8d0f",
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "6dc5cdbf0a7638da388b028b08cb7dd462734d7892bab1f9b74dcf2bf8ec6a30",
+  "exporter_sha256": "794c0d9952eeeb11a6c4a1ea28f3681c86c606442f5c690943773b160544a19c",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "e8de6f77d95fde571707cbdc095529649bc9e01544ebdae6912e1bb36a5fa199",
+  "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "7389effed5fbedadd26270eee3bb97789c6e8c6b41412ebdd646b20de43a0532",
+  "runtime_sha256": "9f8318a4eef0ab048cbc33ddc3d92f7e8206fc7691ff6bf8cbd03225975b198a",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -103,7 +105,7 @@
     },
     "house_marisa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "sha256": "ba199f40dcf661c7bfe39532166011dfaacb8da6fc0b0ee97508fa5ab9747422",
+      "sha256": "71a7143442eb346c8e0dbe6c6fb3d9d170b9ce6967c18309e060124c8f7e012f",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/angry.png",
@@ -133,7 +135,7 @@
     },
     "marisa": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "sha256": "d3bdf932b1aee14674f1c23c6aa358855d763d0fb30a33fe4968df40f8796eb5",
+      "sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/angry.png",
@@ -149,7 +151,7 @@
     },
     "marisa_bean": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "sha256": "6fe3374554ae42f14798186e64b1166c063c107ab1739f7a49bdbc9b55f3b060",
+      "sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/angry.png",
@@ -164,7 +166,7 @@
     },
     "marisa_face": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "sha256": "b5a3fbed8405636b881cf66069350378d88acb3ca50c1f443e07f3a28bf213d7",
+      "sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/angry.png",
@@ -180,7 +182,7 @@
     },
     "marisa_kotatsu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "sha256": "a5b227f161c00e0628f68848ef454e7583c766d2388c64241876ae692aa8580b",
+      "sha256": "6d7731e2a647640258d77a0d0869db063fae802241b62b3b772cd137f030c1d3",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/angry.png",
@@ -196,7 +198,7 @@
     },
     "marisa_sparse": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "sha256": "15ffdead7d76a412b51851c94e322b949ac3800c77e813f50523257bbc26d425",
+      "sha256": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/angry.png",
@@ -212,7 +214,7 @@
     },
     "marisa_tsumuri": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "sha256": "699a36c2a847023423a5291365521def5c0d9cb16958e80be81bf9b84dcdf015",
+      "sha256": "054d49f96492c35530076912fde8056e5808f3b0b529bae34d56255fef799388",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/angry.png",

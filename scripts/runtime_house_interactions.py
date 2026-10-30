@@ -5,7 +5,10 @@ untouched. Angles follow the client Rz Ry Rx convention. Model units are 1/16 bl
 """
 import math
 import json
+import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'standards/yukkuri-library/motions/variants/contact-safe'))
+import braid_chain
 
 
 HOP_UNITS = .10
@@ -44,7 +47,10 @@ def add_house_interactions(rig, species):
     # Marisa carries with her single braid alone: both grip entries name its tip, so
     # the item (held at the midpoint of the two grip points) follows the braid.
     single = species == 'marisa'
-    grip = {'bones': ['hand_right', 'hand_right'] if single else ['hand_left', 'hand_right'],
+    # Her braid is a bone chain: the item rides its tail bone and the whole braid bends to carry it.
+    chain = braid_chain.chain({b['name']: b['name'] for b in rig['bones']}) if single else None
+    hold = chain[-1] if chain else 'hand_right'
+    grip = {'bones': [hold, hold] if single else ['hand_left', 'hand_right'],
             'points': [tips[1], tips[1]] if single else tips,
             'contact_seconds': .65, 'release_seconds': .65}
     rig['grip'] = grip
@@ -91,10 +97,17 @@ def add_house_interactions(rig, species):
             if remaining < 0:
                 raise ValueError('Short lock cannot reach the authored grip height')
             destination[2] = root_world[2]-math.sqrt(remaining)
+            reach = transform([v-p for v, p in zip(destination, root_world)], -angle, [0, 0, 0], [0, 0, 0])
             destination = [p+(v-p)*close for p, v in zip(tip_world, destination)]
             # Undo the upper-body rotation before aiming each short lock.
             relative = [v-p for v, p in zip(destination, root_world)]
             local = transform(relative, -angle, [0, 0, 0], [0, 0, 0])
+            if side == 'right' and chain:  # bent toward the full grip point, closed as far as the clip has
+                rest = [bones[n]['pivot'] for n in chain]+[tip]
+                bent = braid_chain.arc(rest, [r+v for r, v in zip(root, reach)])
+                for n, R in zip(chain, braid_chain.rotations(braid_chain.np.array(rest, float), bent)):
+                    tracks[n] = {'rotation': braid_chain.to_euler(braid_chain.partial(R, close))}
+                continue
             tracks[name] = {'rotation': aim(source, local)}
         return tracks
 

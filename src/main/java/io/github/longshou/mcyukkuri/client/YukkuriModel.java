@@ -727,6 +727,8 @@ public final class YukkuriModel {
     Bone[] bones(){return bones;}
     Matrix4f[] world(){return world;}
     float[][] pose(){return pose;}
+    /** Whether {@code bone} is {@code ancestor} or hangs under it. */
+    boolean descends(int bone,int ancestor){for(int at=bone;at>=0;at=bones[at].parent())if(at==ancestor)return true;return false;}
     static float[] floats(JsonArray values) {
         float[] result = new float[values.size()];
         for (int i = 0; i < result.length; i++) {
@@ -1289,7 +1291,7 @@ public final class YukkuriModel {
             rigidGroups=new byte[bindings.length];var prefixes=LivingPresentation.variants.get(id).accessoryPrefixes();
             for(var part:parts){
                 byte group=prefixes.stream().anyMatch(part.name::startsWith)?(byte)1:part.name.startsWith("braid_lock")&&braid>=0
-                        &&(bindings[part.start].first==braid||bones[bindings[part.start].first].parent==braid)?(byte)2:0;
+                        &&descends(bindings[part.start].first,braid)?(byte)2:0;
                 for(int i=part.start;i<part.start+part.count;i++)rigidGroups[i]=group;
             }
         }

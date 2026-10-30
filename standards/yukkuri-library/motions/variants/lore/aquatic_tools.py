@@ -15,13 +15,16 @@ for a young, or hooks over a brim. Whole-body pitch plus roll stays within about
 stretch, small shifts, yaw and the face.
 """
 from pathlib import Path
-import json, math
+import json, math, sys
 import numpy as np
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'contact-safe'))
+import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 VESSEL = ASSETS/'yukkuri_presentation/hat_vessel.json'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
+FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
 PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
@@ -319,9 +322,16 @@ def paddle_targets(action, t, c, env):
 
 
 def paddle_tracks(model, action, samples, tracks, c):
-    """Aim the tuft along the twig and key the twig in the tuft's frame. Returns (tip track, prop block, clearance report)."""
+    """Aim the tuft along the twig and key the twig in the tuft's frame. Returns (tip track, prop block, clearance report,
+    inner chain tracks): the braid stroke runs down its chain first (braid_chain.follow), so the tuft and twig are laid
+    from where the bent braid really carries them."""
     p = c['paddle']; env = hull_frame()
     braid, tip = bone_index(model, 'hand_right'), bone_index(model, 'hand_right_tip')
+    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])}); inner = []
+    if chain:
+        spec = dict(FOLLOW, drag_seconds=p.get('braid_drag_seconds', 0.))  # the twig loads the braid in the water
+        followed = braid_chain.follow(chain, {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks}, spec)
+        inner = [t for t in followed['tracks'] if t['bone'] in chain[1:-1]]; tracks = tracks+inner; braid = chain[-2]
     geometry = json.loads(BRAID.read_text(encoding='utf-8'))
     joint_rest = np.array(model['bones'][tip]['pivot'], float); tip_rest = np.array(geometry['braid_tip'], float)
     reach = p['grip_offset']+p['blade_length']
@@ -357,7 +367,7 @@ def paddle_tracks(model, action, samples, tracks, c):
     track = {'bone': tip, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in row]] for t, row in zip(samples, tip_rows)]}
     prop = {'prop': 'paddle_stick', 'bone': 'hand_right_tip',
             'keys': [[round(t, 8), *[round(float(v), 5) for v in row]] for t, row in zip(samples, prop_rows)]}
-    return track, prop, (worst, where)
+    return track, prop, (worst, where), inner
 
 
 def extras(model, action, samples, tracks, c):
@@ -368,8 +378,8 @@ def extras(model, action, samples, tracks, c):
     if 'base_pose' in c: fields['base_pose'] = c['base_pose']  # where the presentation watchdog falls back to
     if 'contacts' in c: fields['contacts'] = json.loads(json.dumps(c['contacts']))
     if action in PADDLE_CLIPS and 'hand_right_tip' in names and 'paddle' in c:
-        track, prop, (worst, where) = paddle_tracks(model, action, samples, tracks, c)
-        more.append(track); fields['props'] = {'paddle': prop}
+        track, prop, (worst, where), inner = paddle_tracks(model, action, samples, tracks, c)
+        more += [track]+inner; fields['props'] = {'paddle': prop}
         fields.setdefault('markers', {})
         if worst < c['paddle']['min_clearance']:
             raise ValueError(f'{model["id"]} {action}: the stick passes {-worst:.2f} units inside the brim (t, along, point, joint) {where}')

@@ -584,7 +584,9 @@ def carried(model, bone):
     names = {b['name']: i for i, b in enumerate(model['bones'])}
     if bone not in names:
         return None, []
-    hand = names[bone]; group = {hand} | {i for i, b in enumerate(model['bones']) if b['parent'] == hand}
+    hand = names[bone]; group = {hand}
+    for i, b in enumerate(model['bones']):  # the whole chain under the hand (Marisa's braid hangs through several bones)
+        if b['parent'] in group: group.add(i)
     parts = [p for p in model['parts'] if 'body_surface' not in p['name'] and not p.get('anatomy')
              and any(int(model['weights'][i][0]) in group for i in range(p['start'], p['start']+p['count']))]
     return hand, parts
@@ -710,7 +712,6 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
                 for i,b in enumerate(model['bones']) if b['name'] in ('hand_left','hand_right')]
     if action != 'aquatic_hat_care': return []
     rig = hat['Rig'](model, root); metrics = json.loads(hat['METRICS'].read_text(encoding='utf-8'))
-    pivot = rig.pivot(rig.braid); tip = rig.pivot(rig.tips[0]); v0 = tip-pivot
     anchor = np.array(metrics['anchor_worn'])
     brim = anchor+metrics['scale']['aquatic_marisa']*(np.array(metrics['placements']['aquatic']['self']['grip_worn'])-anchor)
     rows = {name: [] for name in ('position', 'rotation', 'scale', 'tip_rotation', 'tip_scale')}
@@ -718,17 +719,17 @@ def family_braid_tracks(model, action, samples, keys, root, hat, c):
     for i, t in enumerate(samples):
         a = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
         chain = rig.chain(tuple(keys[ch][i][1:] for ch in ('position', 'rotation', 'scale')))
-        start = (chain@np.r_[tip, 1])[:3]
         target = (chain@np.r_[brim, 1])[:3]
         offset = np.array(c.get('braid_root_offset', [0, 0, 0]))*a
-        R, sy = hat['braid_to'](np.linalg.inv(chain), start+(target-start)*a, pivot+offset, v0)
-        rotation = hat['to_euler'](R)
-        if previous is not None: rotation = [v+360*round((p-v)/360) for v, p in zip(rotation, previous)]
+        R, sy = hat['chain_to'](np.linalg.inv(chain), target, rig, offset)  # curved onto the brim, taken as far as the reach
+        sy = 1+(sy-1)*a; rotation = [hat['to_euler'](hat['braid_chain'].partial(r, a)) for r in R]
+        if previous is not None: rotation = [[v+360*round((p-v)/360) for v, p in zip(r, q)] for r, q in zip(rotation, previous)]
         previous = rotation
-        values = {'position': offset, 'rotation': rotation, 'scale': [1, sy, 1],
-                  'tip_rotation': [0, 0, 25*a], 'tip_scale': [1, 1/sy, 1]}
-        for channel, values_at in values.items(): rows[channel].append([round(t, 8), *[round(float(v), 6) for v in values_at]])
+        values = {'position': offset, 'rotation': rotation[0], 'scale': [1, sy, 1],
+                  'tip_rotation': [0, 0, 25*a], 'tip_scale': [1, 1/sy, 1], **{f'inner_{k}': r for k, r in enumerate(rotation[1:])}}
+        for channel, values_at in values.items(): rows.setdefault(channel, []).append([round(t, 8), *[round(float(v), 6) for v in values_at]])
     out = [{'bone': rig.braid, 'channel': channel, 'keys': rows[channel]} for channel in ('position', 'rotation', 'scale')]
+    out += [{'bone': b, 'channel': 'rotation', 'keys': rows[f'inner_{k}']} for k, b in enumerate(rig.inner)]
     for bone in rig.tips:
         for channel in ('rotation', 'scale'): out.append({'bone': bone, 'channel': channel, 'keys': rows['tip_'+channel]})
     return out

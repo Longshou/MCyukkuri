@@ -15,6 +15,9 @@ def export():
     model=placement_fit.fitted(path,placement_fit.load())
     bones={b['name']:b for b in model['bones']}
     pivot=np.array(bones[recipe['root_bone']]['pivot']);base=np.array(bones[recipe['braid_bone']]['pivot']);joint=np.array(bones[recipe['tip_bone']]['pivot'])
+    # The braid's bone chain (marisa-single-braid/author.py): its rest joints and its length root to tip along them.
+    chain=[recipe['braid_bone']]+[f"{recipe['braid_bone']}_braid_{k}" for k in range(1,99) if f"{recipe['braid_bone']}_braid_{k}" in bones]+[recipe['tip_bone']]
+    joints=np.array([bones[n]['pivot'] for n in chain])
     raw=np.array(model['vertices']).reshape(-1,8)
     part=next(p for p in model['parts'] if p['name']==recipe['contact_part'])
     tuft=raw[part['start']:part['start']+part['count'],:3]
@@ -61,6 +64,7 @@ def export():
             'grip_height':recipe['grip_height_ratio'],'mouth_root':mouth_root,'mouth_reach':recipe['mouth_reach_blocks'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
             'braid_length':float(np.linalg.norm(tip-base)),'root_lift':lift,
             'braid_first_length':float(np.linalg.norm(joint-base)),'braid_second_length':float(np.linalg.norm(tip-joint)),
+            'braid_chain':chain,'braid_joints':joints.tolist(),'braid_chain_length':float(np.linalg.norm(np.diff(np.vstack([joints,tip]),axis=0),axis=1).sum()),
             'posed_body_min':posed_body.min(axis=0).tolist(),'posed_body_max':posed_body.max(axis=0).tolist(),
             'body_min':body.min(axis=0).tolist(),'body_max':body.max(axis=0).tolist(),
             'root_support_samples':support,

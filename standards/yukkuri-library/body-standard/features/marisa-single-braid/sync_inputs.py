@@ -30,11 +30,22 @@ def assemble(name, c):
         for b in ready: ordered.append(b); done.add(b['name']); pending.remove(b)
     elements = [copy.deepcopy(e) for ref in c['components'] for e in read(ref)['elements']]
     groups = [e.pop('bone') for e in elements]
+    # Rounded-era shared meshes (the peni) are read by body-standard/build.py from their component;
+    # the cube-era inputs keep the parts they were frozen with on those bones.
+    meshed = {g for e, g in zip(elements, groups) if e.get('type') == 'mesh'}
+    frozen = list(zip(read(f'{INPUTS}/{name}/{name}.bbmodel')['elements'], read(f'{INPUTS}/{name}/animation-rig.json')['groups']))
+    kept = []
+    for e, g in zip(elements, groups):
+        if g not in meshed: kept.append((e, g))
+        elif all(k != g for _, k in kept): kept += [(copy.deepcopy(f), k) for f, k in frozen if k == g]
+    elements, groups = [e for e, _ in kept], [g for _, g in kept]
     assert set(groups) <= done, (name, set(groups)-done)
     # Face UVs come from the existing binding; edited parts must not take over its texels.
     binding = read(c['expression_binding'])['uv']
     def cells(uv):
-        u, v, U, V = uv
+        if isinstance(uv, dict):  # mesh face: per-vertex UVs
+            us, vs = [p[0] for p in uv.values()], [p[1] for p in uv.values()]; u, v, U, V = min(us), min(vs), max(us), max(vs)
+        else: u, v, U, V = uv
         return {(x, y) for x in range(math.floor(min(u, U)), math.ceil(max(u, U))) for y in range(math.floor(min(v, V)), math.ceil(max(v, V)))}
     used = set()
     for e in elements:

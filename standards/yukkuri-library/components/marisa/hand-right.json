@@ -174,7 +174,7 @@
       "type": "cube",
       "from": [
         6.16,
-        2.51,
+        6.38,
         -4.02
       ],
       "to": [
@@ -252,6 +252,426 @@
         }
       },
       "bone": "hand_right"
+    },
+    {
+      "name": "braid_lock_core_1",
+      "type": "cube",
+      "from": [
+        6.16,
+        5.58,
+        -4.02
+      ],
+      "to": [
+        7.94,
+        6.38,
+        -2.28
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right_braid_1"
+    },
+    {
+      "name": "braid_lock_core_2",
+      "type": "cube",
+      "from": [
+        6.16,
+        4.78,
+        -4.02
+      ],
+      "to": [
+        7.94,
+        5.58,
+        -2.28
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right_braid_2"
+    },
+    {
+      "name": "braid_lock_core_3",
+      "type": "cube",
+      "from": [
+        6.16,
+        3.98,
+        -4.02
+      ],
+      "to": [
+        7.94,
+        4.78,
+        -2.28
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right_braid_3"
+    },
+    {
+      "name": "braid_lock_core_4",
+      "type": "cube",
+      "from": [
+        6.16,
+        3.18,
+        -4.02
+      ],
+      "to": [
+        7.94,
+        3.98,
+        -2.28
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right_braid_4"
+    },
+    {
+      "name": "braid_lock_core_5",
+      "type": "cube",
+      "from": [
+        6.16,
+        2.51,
+        -4.02
+      ],
+      "to": [
+        7.94,
+        3.18,
+        -2.28
+      ],
+      "origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "box_uv": false,
+      "rescale": false,
+      "autouv": 0,
+      "faces": {
+        "north": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "east": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "south": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "west": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "up": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        },
+        "down": {
+          "uv": [
+            48.0,
+            48.0,
+            64.0,
+            64.0
+          ],
+          "texture": 0
+        }
+      },
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_lobe_0",
@@ -419,7 +839,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right"
+      "bone": "hand_right_braid_1"
     },
     {
       "name": "braid_lock_lobe_2",
@@ -503,7 +923,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right"
+      "bone": "hand_right_braid_2"
     },
     {
       "name": "braid_lock_lobe_3",
@@ -587,7 +1007,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right"
+      "bone": "hand_right_braid_3"
     },
     {
       "name": "braid_lock_lobe_4",
@@ -671,7 +1091,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right"
+      "bone": "hand_right_braid_4"
     },
     {
       "name": "braid_lock_lobe_5",
@@ -755,7 +1175,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_ribbon_band",
@@ -839,7 +1259,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_bow_knot",
@@ -923,7 +1343,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_bow_loop_out",
@@ -1007,7 +1427,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_bow_loop_in",
@@ -1091,7 +1511,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_bow_tail_out",
@@ -1175,7 +1595,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_bow_tail_in",
@@ -1259,7 +1679,7 @@
           "texture": 0
         }
       },
-      "bone": "hand_right_ribbon"
+      "bone": "hand_right_braid_5"
     },
     {
       "name": "braid_lock_tuft_0",
@@ -1600,7 +2020,11 @@
   ],
   "owned_bones": [
     "hand_right",
-    "hand_right_ribbon",
+    "hand_right_braid_1",
+    "hand_right_braid_2",
+    "hand_right_braid_3",
+    "hand_right_braid_4",
+    "hand_right_braid_5",
     "hand_right_tip"
   ],
   "attachment": "see skeleton attachments; independent hands are not bound to skin slices"

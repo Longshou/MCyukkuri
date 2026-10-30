@@ -36,7 +36,7 @@
   "mutually_exclusive": true,
   "switch_policy": "retract current completely before revealing selected part",
   "schema_version": 1,
-  "status": "user_approved_standard",
+  "status": "pending_visual_review",
   "component": {
     "reimu": "components/reimu.json",
     "marisa": "components/marisa.json",

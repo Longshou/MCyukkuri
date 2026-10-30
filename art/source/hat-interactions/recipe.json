@@ -12,14 +12,14 @@
   "exporter": "scripts/export_hat_interactions.py",
   "exporter_sha256": "24265ded4d7d2f98e0c823512325a6113ff897316b409b2f99351520cb0b3cf1",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "4143dd82d4d02733a2cdfab70f2eaad1971416281e1cbfb1683db99a8847f15b",
+  "runtime_sha256": "39594677709bcd45cf3d7db83a0098b812750bb113223a59f1e9ce90422c4419",
   "sources": {
-    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb"
+    "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "71a7143442eb346c8e0dbe6c6fb3d9d170b9ce6967c18309e060124c8f7e012f",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66"
   },
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "ab60e7eb9ea577152b5c219c88a2550a5688fb36a40ce94ac8967d76fd4c2eb2"
+  "placement_fit_sha256": "d604809be58228b00dbef50649c9a6a8682dc3b378911496d85b3332c7a622ba"
 }

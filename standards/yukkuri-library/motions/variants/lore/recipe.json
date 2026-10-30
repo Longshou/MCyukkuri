@@ -755,6 +755,7 @@
       "braid_out": 42,
       "braid_raise": 12,
       "paddle": {
+        "braid_drag_seconds": 0.3,
         "grip_offset": 1.6,
         "top_length": 1.6,
         "blade_length": 10.4,

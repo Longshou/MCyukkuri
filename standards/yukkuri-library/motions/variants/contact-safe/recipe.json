@@ -98,5 +98,11 @@
     "floor_clearance": 0.03,
     "near": 1.2,
     "smooth_seconds": 0.12
+  },
+  "braid_chain": {
+    "note": "Project design: every clip that swings Marisa's braid root passes the swing down the bone chain, each joint lag_seconds behind the one above and eased under max_bend_degrees against it (the root leads, the tail trails), so strokes and sways bend along the length; once clips let the lag settle over their last seconds.",
+    "lag_seconds": 0.09,
+    "max_bend_degrees": 14,
+    "settle_seconds": 0.3
   }
 }

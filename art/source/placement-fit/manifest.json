@@ -792,7 +792,7 @@
     },
     "marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "base_sha256": "d3bdf932b1aee14674f1c23c6aa358855d763d0fb30a33fe4968df40f8796eb5",
+      "base_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
       "parts": [
         "crown",
         "back_hair",
@@ -812,6 +812,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1",
         "braid_lock_lobe_2",
@@ -864,6 +865,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1"
       ],
@@ -871,8 +873,7 @@
         "hat_follow",
         "hat",
         "bow",
-        "hand_right_tip",
-        "hand_right_ribbon"
+        "hand_right_tip"
       ],
       "log": [
         {
@@ -889,7 +890,7 @@
     },
     "marisa_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "base_sha256": "b5a3fbed8405636b881cf66069350378d88acb3ca50c1f443e07f3a28bf213d7",
+      "base_sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
       "parts": [
         "back_hair",
         "bang_0",
@@ -908,6 +909,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1",
         "braid_lock_lobe_2",
@@ -959,6 +961,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1"
       ],
@@ -966,8 +969,7 @@
         "hat_follow",
         "hat",
         "bow",
-        "hand_right_tip",
-        "hand_right_ribbon"
+        "hand_right_tip"
       ],
       "log": [
         {
@@ -984,12 +986,12 @@
     },
     "marisa_sparse": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "base_sha256": "15ffdead7d76a412b51851c94e322b949ac3800c77e813f50523257bbc26d425",
+      "base_sha256": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66",
       "unchanged": "The exporter seats the hat onto the bare head (brim just above the brows; rounded-marisa recipe sparse_hat_seat), so no runtime hat offset is added."
     },
     "marisa_tsumuri": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "base_sha256": "699a36c2a847023423a5291365521def5c0d9cb16958e80be81bf9b84dcdf015",
+      "base_sha256": "054d49f96492c35530076912fde8056e5808f3b0b529bae34d56255fef799388",
       "parts": [
         "crown",
         "back_hair",
@@ -1009,6 +1011,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1",
         "braid_lock_lobe_2"
@@ -1030,6 +1033,7 @@
         "braid_lock_root",
         "braid_lock_root_outer",
         "braid_lock_core",
+        "braid_lock_core_1",
         "braid_lock_lobe_0",
         "braid_lock_lobe_1"
       ],
@@ -1049,7 +1053,7 @@
     },
     "marisa_bean": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "base_sha256": "6fe3374554ae42f14798186e64b1166c063c107ab1739f7a49bdbc9b55f3b060",
+      "base_sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
       "unchanged": "Hat was lowered 0.62 onto the bean hair top in the bean-braid revision and validated in game."
     },
     "house_marisa": {
@@ -1374,5 +1378,5 @@
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     }
   },
-  "runtime_sha256": "b4a7e52fc3949cead5a749f4b606a94edabde49ae7d55db115dcbde22b7cf286"
+  "runtime_sha256": "d604809be58228b00dbef50649c9a6a8682dc3b378911496d85b3332c7a622ba"
 }

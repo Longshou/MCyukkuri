@@ -23,9 +23,9 @@
       "diameter": 0.11875
     },
     "marisa": {
-      "model_sha256": "7f1768e500635a6693e96de6a76406486bcde00ea6db9c45887c9d1e45b1852a",
+      "model_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
       "part": "hat_band",
-      "triangle": 13905,
+      "triangle": 14085,
       "weights": [
         0.4994450610432867,
         0.3703298585708615,
@@ -191,9 +191,9 @@
       "diameter": 0.1
     },
     "marisa_tsumuri": {
-      "model_sha256": "b20beac9cd2155b60e1732eaeffaa399858603f1a3b380733ef54146cabb63a2",
+      "model_sha256": "054d49f96492c35530076912fde8056e5808f3b0b529bae34d56255fef799388",
       "part": "shell_coil_0_3_0_1",
-      "triangle": 21258,
+      "triangle": 21726,
       "weights": [
         0.7849096993231605,
         0,
@@ -317,7 +317,7 @@
       "diameter": 0.11875
     },
     "marisa_sparse": {
-      "model_sha256": "45c78803933a2b384d759ebe2d0b04f180f7ede2be9cbe777635f8a5f911ccdb",
+      "model_sha256": "a6c6afd32490cbd9a72529f883678424862608bf40e33fee8c57e7a63ab17b66",
       "part": "hat_band",
       "triangle": 4413,
       "weights": [
@@ -338,9 +338,9 @@
       "diameter": 0.11875
     },
     "marisa_face": {
-      "model_sha256": "b6d7b051173a0f7d8e17e978e32147636dcd21653c2eb040f83b327eb681860e",
+      "model_sha256": "f04fd3f1b5182dd855bdd5272ac57afbe4d1715d94f74aec5d865a1929251940",
       "part": "hat_band",
-      "triangle": 13869,
+      "triangle": 14049,
       "weights": [
         0.4994450610432867,
         0.3703298585708615,
@@ -485,9 +485,9 @@
       "diameter": 0.09375
     },
     "marisa_kotatsu": {
-      "model_sha256": "a5b227f161c00e0628f68848ef454e7583c766d2388c64241876ae692aa8580b",
+      "model_sha256": "6d7731e2a647640258d77a0d0869db063fae802241b62b3b772cd137f030c1d3",
       "part": "brim_front",
-      "triangle": 13797,
+      "triangle": 13977,
       "weights": [
         0.22571428571428573,
         0.6923076923076923,

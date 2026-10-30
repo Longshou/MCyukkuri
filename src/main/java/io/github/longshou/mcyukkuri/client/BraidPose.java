@@ -1,29 +1,23 @@
 package io.github.longshou.mcyukkuri.client;
 
 import static io.github.longshou.mcyukkuri.client.YukkuriModel.DEGREES;
-import io.github.longshou.mcyukkuri.client.YukkuriModel.Bone;
-import com.google.gson.JsonParser;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import io.github.longshou.mcyukkuri.motor.geom.BraidChain;
+import java.util.ArrayList;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-/** A Marisa's braid bent to one point per render (a Grab's reach and hold, ParentCarryPresentation), over the clip's own braid. */
+/**
+ * A Marisa's braid bent along its whole chain (hand_right, hand_right_braid_1.., the tail hand_right_tip) to one point
+ * per render (a Grab's reach and hold, ParentCarryPresentation), over the clip's own braid, and the hat it carries.
+ * The solve is {@link BraidChain}: every segment keeps its posed length, so the braid never stretches or loses its tip.
+ */
 final class BraidPose {
-    /** The authored braid tip in model units (braid_rescue.json), the rest shape both braid segments are posed against. */
-    private static final Vector3f MODEL_TIP=readTip();
-    private static Vector3f readTip(){
-        try(var stream=BraidPose.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json")){
-            if(stream==null)return new Vector3f();
-            var point=JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8))
-                    .getAsJsonObject().getAsJsonArray("braid_tip");
-            return new Vector3f(point.get(0).getAsFloat(),point.get(1).getAsFloat(),point.get(2).getAsFloat());
-        }catch(IOException|RuntimeException unreadable){return new Vector3f();}
-    }
     private final YukkuriModel o;
-    private final Vector3f tip=new Vector3f(),joint=new Vector3f();
+    /** Chain bones root to tail (empty without a braid) and their rest joints, then the rest tuft end, in model units. */
+    private int[] chain;
+    private float[] rest;
+    private final Vector3f tip=new Vector3f();
     /** How much of the reach replaces the clip's braid (0 none, 1 all of it). */
     private float weight;
     BraidPose(YukkuriModel owner){o=owner;}
@@ -33,71 +27,64 @@ final class BraidPose {
 
     private int bone(String name){var bones=o.bones();for(int i=0;i<bones.length;i++)if(bones[i].name().equals(name))return i;return -1;}
 
+    /** Finds the chain once: its joints are the bone pivots, its end the tuft vertex farthest from the root (the contact point). */
+    private boolean resolve(){
+        if(chain!=null)return chain.length>0;
+        var found=new ArrayList<Integer>();found.add(bone("hand_right"));
+        for(int k=1,b;(b=bone("hand_right_braid_"+k))>=0;k++)found.add(b);
+        found.add(bone("hand_right_tip"));
+        var bones=o.bones();var vertices=o.restVertices();float best=-1,ex=0,ey=0,ez=0;
+        var root=bones[Math.max(0,found.get(0))];
+        for(var part:o.parts())if(part.name().startsWith("braid_lock_tuft"))for(int v=part.start();v<part.start()+part.count();v++){
+            float x=vertices[v*8]-root.x(),y=vertices[v*8+1]-root.y(),z=vertices[v*8+2]-root.z(),d=x*x+y*y+z*z;
+            if(d>best){best=d;ex=vertices[v*8];ey=vertices[v*8+1];ez=vertices[v*8+2];}
+        }
+        if(found.size()<3||found.contains(-1)||best<0){chain=new int[0];return false;}
+        chain=found.stream().mapToInt(Integer::intValue).toArray();rest=new float[3*chain.length+3];
+        for(int i=0;i<chain.length;i++){var b=bones[chain[i]];rest[3*i]=b.x();rest[3*i+1]=b.y();rest[3*i+2]=b.z();}
+        rest[3*chain.length]=ex;rest[3*chain.length+1]=ey;rest[3*chain.length+2]=ez;
+        return true;
+    }
+
     /** Carry the hat (bone {@code hat} and every bone under it) so its braid grip lies on the braid tip, by this share. */
     void holdHat(int hat,float share,Vector3f grip){
-        var bones=o.bones();var world=o.world();int lower=bone("hand_right_tip");
-        if(hat<0||lower<0||share<=0)return;
-        var move=new Matrix4f().translation(world[lower].transformPosition(new Vector3f(MODEL_TIP))
+        if(hat<0||share<=0||!resolve())return;
+        var bones=o.bones();var world=o.world();int n=chain.length;
+        var move=new Matrix4f().translation(world[chain[n-1]].transformPosition(new Vector3f(rest[3*n],rest[3*n+1],rest[3*n+2]))
                 .sub(world[hat].transformPosition(new Vector3f(grip))).mul(share));
-        for(int i=0;i<bones.length;i++){
-            boolean under=i==hat;for(int at=bones[i].parent();!under&&at>=0;at=bones[at].parent())under=at==hat;
-            if(under)world[i].set(new Matrix4f(move).mul(world[i]));
-        }
+        for(int i=0;i<bones.length;i++)if(o.descends(i,hat))world[i].set(new Matrix4f(move).mul(world[i]));
     }
 
-    /** Bend the two existing braid sections about their real pivots; no stretching or detached tip. */
+    /** Bend the posed chain toward the tip point: each segment turns about its posed joint, shared out by the weight. */
     void pose(){
-        var bones=o.bones();var world=o.world();var pose=o.pose();
-        int upper=bone("hand_right"),lower=bone("hand_right_tip");
-        if(upper<0||lower<0||bones[upper].parent()<0)return;
-        var base=bones[upper];var end=bones[lower];
-        Matrix4f parent=world[base.parent()];
-        if(!solveJoint(world[upper],world[lower],base,end))return;
-        var desired=new Matrix4f(parent).invert().transformPosition(new Vector3f(joint)).sub(base.x(),base.y(),base.z());
-        var rest=new Vector3f(end.x()-base.x(),end.y()-base.y(),end.z()-base.z());
-        if(desired.lengthSquared()<1e-10f||rest.lengthSquared()<1e-10f)return;
-        var held=new Quaternionf().rotateZYX(pose[upper][5]*DEGREES,pose[upper][4]*DEGREES,pose[upper][3]*DEGREES);
-        var rotation=held.slerp(new Quaternionf().rotationTo(rest.normalize(),desired.normalize()),weight);
-        world[upper].set(parent).translate(base.x(),base.y(),base.z()).rotate(rotation).translate(-base.x(),-base.y(),-base.z());
-        for(int i=upper+1;i<bones.length;i++){
-            boolean follows=false;for(int at=bones[i].parent();at>=0;at=bones[at].parent())if(at==upper){follows=true;break;}
-            if(!follows)continue;
-            Bone bone=bones[i];float[] v=pose[i];
-            if(i==lower){
-                Matrix4f above=world[bone.parent()];
-                var distal=new Vector3f(MODEL_TIP.x-end.x(),MODEL_TIP.y-end.y(),MODEL_TIP.z-end.z());
-                var toward=new Matrix4f(above).invert().transformPosition(new Vector3f(tip)).sub(end.x(),end.y(),end.z());
-                world[i].set(above);
-                if(distal.lengthSquared()>1e-10f&&toward.lengthSquared()>1e-10f)world[i].translate(end.x(),end.y(),end.z())
-                        .rotate(new Quaternionf().slerp(new Quaternionf().rotationTo(distal.normalize(),toward.normalize()),weight))
-                        .translate(-end.x(),-end.y(),-end.z());
-                continue;
-            }
-            if(bone.name().equals("hand_right_ribbon")){world[i].set(world[lower]);continue;}
-            world[i].set(world[bone.parent()]).translate(bone.x()+v[0],bone.y()+v[1],bone.z()+v[2])
-                    .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
+        if(!resolve())return;
+        var bones=o.bones();var world=o.world();var pose=o.pose();int n=chain.length;
+        double[] joints=new double[3*n+3];var p=new Vector3f();
+        for(int i=0;i<=n;i++){
+            world[chain[Math.min(i,n-1)]].transformPosition(p.set(rest[3*i],rest[3*i+1],rest[3*i+2]));
+            joints[3*i]=p.x;joints[3*i+1]=p.y;joints[3*i+2]=p.z;
+        }
+        double[] solved=BraidChain.reach(joints,tip.x,tip.y,tip.z);
+        var at=new Vector3f((float)joints[0],(float)joints[1],(float)joints[2]);Vector3f from=new Vector3f(),to=new Vector3f();
+        // Each segment swings from where the one above carried it, so the lobes never twist against each other.
+        Quaternionf turn=new Quaternionf(),full=new Quaternionf(),above=new Quaternionf();var dir=new Vector3f();
+        for(int i=0;i<n;i++){
+            from.set((float)(joints[3*i+3]-joints[3*i]),(float)(joints[3*i+4]-joints[3*i+1]),(float)(joints[3*i+5]-joints[3*i+2]));
+            to.set((float)(solved[3*i+3]-solved[3*i]),(float)(solved[3*i+4]-solved[3*i+1]),(float)(solved[3*i+5]-solved[3*i+2]));
+            above.transform(dir.set(from));
+            if(dir.lengthSquared()>1e-10f&&to.lengthSquared()>1e-10f)above.set(full.rotationTo(dir.x,dir.y,dir.z,to.x,to.y,to.z).mul(above));
+            turn.identity().slerp(above,weight);
+            world[chain[i]].set(new Matrix4f().translation(at).rotate(turn).translate((float)-joints[3*i],(float)-joints[3*i+1],(float)-joints[3*i+2])
+                    .mul(world[chain[i]]));
+            at.add(turn.transform(from));
+        }
+        // Any other bone under the chain (none on the authored rigs) follows its re-posed parent.
+        for(int i=0;i<bones.length;i++){
+            var bone=bones[i];if(bone.parent()<0||!o.descends(i,chain[0]))continue;
+            boolean inChain=false;for(int c:chain)inChain|=c==i;if(inChain)continue;
+            float[] v=pose[i];
+            world[i].set(world[bone.parent()]).translate(bone.x()+v[0],bone.y()+v[1],bone.z()+v[2]).rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES)
                     .scale(v[6],v[7],v[8]).translate(-bone.x(),-bone.y(),-bone.z());
         }
-        // The ribbon can be a sibling before the tip in the authored bone list.
-        for(int i=upper+1;i<bones.length;i++)if(bones[i].name().equals("hand_right_ribbon"))world[i].set(world[lower]);
-    }
-
-    /** Two-segment reach in model space: segment lengths as posed, the bend kept on the clip's own side, never stretched. */
-    private boolean solveJoint(Matrix4f upper,Matrix4f lower,Bone base,Bone end){
-        var root=upper.transformPosition(new Vector3f(base.x(),base.y(),base.z()));
-        var elbow=upper.transformPosition(new Vector3f(end.x(),end.y(),end.z()));
-        var tipNow=lower.transformPosition(new Vector3f(MODEL_TIP));
-        float first=elbow.distance(root),second=tipNow.distance(elbow);
-        var toward=new Vector3f(tip).sub(root);float reach=toward.length();
-        if(first<1e-4f||second<1e-4f||reach<1e-4f)return false;
-        toward.div(reach);
-        float d=Math.clamp(reach,Math.abs(first-second)+1e-3f,first+second-1e-3f);
-        var pole=new Vector3f(elbow).sub(root);pole.sub(new Vector3f(toward).mul(pole.dot(toward)));
-        if(pole.lengthSquared()<1e-8f)pole.set(0,1,0).sub(new Vector3f(toward).mul(toward.y));
-        if(pole.lengthSquared()<1e-8f)pole.set(1,0,0);
-        pole.normalize();
-        float along=(first*first-second*second+d*d)/(2*d),side=(float)Math.sqrt(Math.max(0,first*first-along*along));
-        joint.set(root).add(new Vector3f(toward).mul(along)).add(pole.mul(side));
-        return true;
     }
 }
