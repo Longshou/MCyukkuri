@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 重构 WP6b（补给、照料、救援 Ask、帽船分娩与送赤油到父船） | `.worktrees/wp6b-care` | `intent/`（Ask、AskLedger）、`aquatic/`、`family/LiveBirth`（`OwnHull` 接收者）、`scripts/museum_scenarios.py` 池塘场景 |
-| 试玩修复：茎缩短、抛出减小、接生站位外移、出生显示尺寸一致 | `.worktrees/fix-stem` | `family.json`、`family/BirthLaunch`、`hat_vessel.json`、`client/LiveBirthRenderer` |
 
 ## 玩法待办
 
@@ -175,7 +174,7 @@
 
   完成：`pet_birth` 反复清场重开，初态落地、临产后游戏响应、母油留在大窝内生产；`birth_nest_safe` 母油不跳地走进窝、不停窝沿，无长时间 `no_place_for_term`，到位后才 `delivery labor started`，落窝沿的赤油 `newborn on nest rim rolls inward` 后 `outcome=CUSHION`，伴侣 `assigned kind=care` 认领同窝；`birth_land_missed`、`birth_land_reunion` 不再 `nest no longer fits stage/body`，`near-term leave nest reason=…` 后在窝外生产。1.2 倍足月孕母配 1.05 倍以上伴侣仍认窝失败是保留的空间上限。两种新窝模型待用户确认。
 - **窝内外寻路与接触交接（反馈 5）**：复测失败。用户反复看到途经窝时被卡住；陆地接生部分已由 WP3b 重写（见陆 25），其余场景未改。完成：`feed`、`first_toilet`、`hurt`／`hurt_kin`、`meet`、`marisa_sumo`、`birth_land_caught`／`birth_land_missed`、`family_search`、`indep_near` 覆盖斜向接近、双方窝内／外、远侧站位、途中亲油移动；读 Goal、路径、接触距离与阻塞原因，途中探路不换当前目标，窝柱夹缝走完整绕路或换可达接生点，真实进出并完成交接；不用瞬移或强制留守。
-- **陆地出生随机弹道与落地结果**：复测失败。[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46） 茎生仍难接住（该版尚未含茎缩短）。更早 [405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34） `birth_stem_caught` 两轮共 7 只实子仅 2 只落帽：茎过长、实子间距过大。（[规则](CONSUMABLES_AND_BIRTH.md#陆地出生的随机弹道)；水上帽船出生与无母油分离茎块暂不变）。
+- **陆地出生随机弹道与落地结果**：复测失败。[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46） 茎生仍难接住（该版尚未含茎缩短）。已改待试玩（[f94dfb2e](https://github.com/Longshou/MCyukkuri/commit/f94dfb2e) 前后两提交）：茎缩短到实子间距约一个实子、脱落横向力减小、帽口覆盖每只实子的垂点、接生站位外移，新生儿娩出时显示尺寸与本体一致；看 `birth_stem_caught` 多数落帽。更早 [405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34） `birth_stem_caught` 两轮共 7 只实子仅 2 只落帽：茎过长、实子间距过大。（[规则](CONSUMABLES_AND_BIRTH.md#陆地出生的随机弹道)；水上帽船出生与无母油分离茎块暂不变）。
   - ac4ba87b（CI 40196337976）胎生出射固定，落窝外不受伤，帽接与茎生按预抽 12% 定漏接。
   - dd75d650（CI 40200352271）`birth_stem_caught` 两轮 7 只实子全 `outcome=GROUND` 并 `birth impact injury`，接生帽 `passengers=0`，实子穿帽掉出（多数落点在帽范围内）。
   - E10 05:09 大窝内胎生仍 `outcome=GROUND`、赤油摔伤 2 点；05:50 大窝茎生两只均 `CUSHION` 无摔伤，两种路径分别验收。

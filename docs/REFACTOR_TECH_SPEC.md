@@ -729,6 +729,7 @@ WP1（依附、容器、跳、陆地叼搬放）与 WP2（能力表、Walk／Fac
 ### WP7　收口
 
 - 写入 13.3 的三条守卫规则，并清零基线；
+- 美术管线去掉旧座位系统：`standards/yukkuri-library/interactions/marisa-hat-vessel/build.py` 不再生成 `hat_deck_layout`／`hat_frames`／`hat_cargo_layout` 与旧甲板容量校验；`aquatic-tools` 的 `paddle_stick`、`marisa_hat_wetline` 道具要么接入划船与吃水线演出、要么从导出中删除；`drafts/body-marks/hair-wounds/adapt.py` 改读 `headwear/HatGeometry`；`motor/` 与 `intent/` 收紧到 6000 行以内或在设计中如实改写上限；
 - 删除 `PresentationArbiter` 中被动作层取代的接管来源；
 - 第 4–13 节的稳定契约写进[代码架构](ARCHITECTURE.md)，本文只留未完成部分；整体设计删去已成为现行规则的内容。
 
