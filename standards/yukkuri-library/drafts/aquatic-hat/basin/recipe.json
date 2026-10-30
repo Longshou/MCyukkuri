@@ -1,0 +1,20 @@
+{
+  "label": "圆冠盆",
+  "summary": "a soft round crown; set down, the crown sags into a round basin: a flat floor and a rounded wall up to the brim, no steps and no corners",
+  "kind": "smooth",
+  "worn": {
+    "height": 10.4,
+    "rings": 12,
+    "power": 1.3,
+    "lean_z": 0.9,
+    "droop": {"from": 0.62, "x": 3.4, "y": -1.2},
+    "note": "outer radius crown_base*(1-t)^power over the height; from t=droop.from the tip leans over to +x and hangs (the soft bent tip)"
+  },
+  "afloat": {
+    "floor_depth": 2.75,
+    "floor_radius": 4.6,
+    "dimple": 0.2,
+    "wall_rings": 5,
+    "note": "hat units below the brim face that sat on the head; the wall is a quarter ellipse from the opening (vertical at the brim) to the floor (level), the upper crown lies flat on the floor as concentric rings; the pressed tip leaves a shallow dimple"
+  }
+}

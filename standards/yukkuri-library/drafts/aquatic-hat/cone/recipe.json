@@ -1,0 +1,19 @@
+{
+  "label": "尖锥帽",
+  "summary": "the land hat's stepped cone made round; set down, the crown is pressed as the current boat (0.55) and the cone stays a deep stepped funnel",
+  "kind": "tiers",
+  "tiers": [
+    {"r": 7.0, "h": 1.9, "cell": "light", "squash": 0.55, "lean": [0.0, 0.0]},
+    {"r": 5.75, "h": 2.5, "cell": "cloth", "squash": 0.55, "lean": [0.0, 0.3]},
+    {"r": 4.45, "h": 2.3, "cell": "cloth", "squash": 0.55, "lean": [0.15, 0.55]},
+    {"r": 3.15, "h": 2.0, "cell": "light", "squash": 0.55, "lean": [0.45, 0.8]}
+  ],
+  "hook": {
+    "note": "the bent tip as the land hat's tip_bend, tip and tip_end: a tube from inside the top tier, over to +x and hanging down; offsets from the top tier's top centre",
+    "path": [[0.0, -0.2, 0.0], [0.1, 0.8, 0.1], [1.4, 1.4, 0.15], [3.6, 0.5, 0.2], [5.0, -0.5, 0.25]],
+    "radius": [1.9, 1.6, 1.15, 0.8, 0.5],
+    "squash": 0.55,
+    "afloat_radius": 0.12
+  },
+  "afloat_bend": 0.4
+}
