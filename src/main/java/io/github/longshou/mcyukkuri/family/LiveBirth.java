@@ -102,6 +102,8 @@ final class LiveBirth extends Choreography {
     private boolean hullChosen;
     private Vec3 last;
     private String hold="";
+    /** The yaw she faces the catch hat with, chosen before the first push and kept for every one after (never saved). */
+    private float labourYaw=Float.NaN;
     LiveBirth(FamilyLife o,UUID broodId,boolean live){super(live?"live_birth":"stem_birth","site");this.o=o;this.broodId=broodId;this.live=live;}
     /** Casts a new birth: who catches, and so what receives (a hat, else her large nest, else the ground). */
     static LiveBirth cast(FamilyLife o,FamilyData.Brood brood){
@@ -543,7 +545,9 @@ final class LiveBirth extends Choreography {
             }
         }
     }
-    /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear. */
+    /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear. Facing a catch hat she turns
+     *  once, straight at it (else to the clear outlet nearest that), and keeps that yaw for every child: each one leaves along
+     *  her real facing, so it lands where her outlet points. */
     private final class Deliver implements Intent, Method {
         private final boolean any;
         private final long deadline;
@@ -552,9 +556,16 @@ final class LiveBirth extends Choreography {
         private float choose(){
             var b=brood();var hull=any||!(receiver instanceof OwnHull)?null:receiverHat();
             if(hull!=null)return yaw=hullYaw(hull);
-            var hat=any?null:placedHat();
-            Vec3 aim=b==null?null:hat!=null?hat.birthPlace(b.kind,b.children.get(pushing)):receiver instanceof Nest?FamilyNest.largeCentre(o.entity()):null;
-            return yaw=LiveBirthGeometry.exitYaw(o.entity(),pushing,aim,hat!=null?HAT_REACH:NEST_REACH,any);
+            var hat=any?null:placedHat();var m=o.entity();
+            if(hat!=null&&!Float.isNaN(labourYaw))return yaw=labourYaw;
+            float straight=hat==null?Float.NaN:SurfaceApproach.yaw(m.position(),hat.position());
+            boolean clear=hat!=null&&LiveBirthGeometry.clear(m,pushing,straight,false);
+            Vec3 aim=b==null?null:hat!=null?hat.position():receiver instanceof Nest?FamilyNest.largeCentre(m):null;
+            yaw=clear?straight:LiveBirthGeometry.exitYaw(m,pushing,aim,hat!=null?HAT_REACH:NEST_REACH,any);
+            if(hat!=null&&!Float.isNaN(yaw))GameplayLog.event(m,"family","birth outlet kept yaw={} straight={} turn={} hat={}",String.format(Locale.ROOT,"%.1f",yaw),
+                    clear,String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(yaw-m.yBodyRot)),hat.getUUID());
+            if(hat!=null)labourYaw=yaw;
+            return yaw;
         }
         @Override public String id(){return any?"turn_to_any_exit":"turn_to_exit";}
         @Override public boolean satisfied(){var m=o.entity();return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees(yaw-m.yBodyRot))<=Face.FACE_ARRIVED&&outletClear(m.yBodyRot,any);}

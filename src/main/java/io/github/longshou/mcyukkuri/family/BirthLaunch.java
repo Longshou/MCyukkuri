@@ -152,10 +152,11 @@ public final class BirthLaunch {
     /**
      * A live kit pushed out toward a hat: the authored nominal arc keeps its own lift (its first impulse over the tick count the
      * hull's clearance solve asks for), and the horizontal speed is what vanilla air drag needs to cover the aim in the same air
-     * time (an aim never crossed while falling keeps the arc's own duration). The drawn push scales and the drawn yaw turns only
-     * the horizontal part; nothing here moves the body.
+     * time (an aim never crossed while falling keeps the arc's own duration). It leaves along the mother's real facing
+     * ({@code facing}, her outlet's direction), never bent toward the aim: an outlet that points past the hat sends it past.
+     * The drawn push scales and the drawn yaw turns only the horizontal part; nothing here moves the body.
      */
-    static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aim,double push,double yawDeg){
+    static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aim,float facing,double push,double yawDeg){
         var start=kit.position();
         int nominalTicks=HatGeometry.solve(start,aim,hat,HatGeometry.radius(kit.getBbWidth()),Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
         double lift=HatGeometry.arc(start,aim,nominalTicks,1).y-start.y,dx=Math.hypot(aim.x-start.x,aim.z-start.z);
@@ -164,9 +165,7 @@ public final class BirthLaunch {
         if(air<=0||air>=Ballistic.airTicks(lift,-Double.MAX_VALUE))air=nominalTicks;
         air=Math.max(1,air);
         double nominal=Ballistic.speedFor(dx,air);
-        var forward=new Vec3(aim.x-start.x,0,aim.z-start.z);
-        var heading=forward.lengthSqr()<1e-9?new Vec3(0,0,1):forward.normalize();
-        heading=heading.yRot((float)Math.toRadians(yawDeg));
+        var heading=Vec3.directionFromRotation(0,facing).multiply(1,0,1).normalize().yRot((float)Math.toRadians(yawDeg));
         double vh=nominal*push;
         return new Plan(Target.HAT,hat.getUUID(),start,aim,Double.NaN,nominal,push,yawDeg,new Vec3(heading.x*vh,lift,heading.z*vh));
     }

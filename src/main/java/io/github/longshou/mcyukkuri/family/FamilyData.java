@@ -608,7 +608,7 @@ public final class FamilyData extends SavedData {
         if(!added)return refuse(brood,level,"entity_rejected");
         // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
         if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
-                ?BirthLaunch.intoHat(entity,hat,hat.toWorld(launchPlace(hat,entity)),BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
+                ?BirthLaunch.intoHat(entity,hat,hat.toWorld(launchPlace(hat,entity)),mother.yBodyRot,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
                 :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();
