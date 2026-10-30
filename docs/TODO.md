@@ -199,7 +199,7 @@
 
 **状态：复测失败。** 帽船、船长阶段机、席位、乘员转移、落水救助与试玩场已按[水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md)重做，首轮运行包试玩主链多处阻塞。该实现已冻结，将由 WP3a 下线、WP4–6 重建（用户裁决 2026-10-28），不再在旧代码上补丁；下列现象作为重建反例与三级复测对照，代码、CI 与助手检查不算验收。旧水 11、水 14（辫子抽动）演出缺口按 P0-6／P0-8／P0-11 复看；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补。水 16 异种饰品见上节。
 
-**重构方向（用户裁决 2026-10-28）**：部分接入。水生魔理沙按“底座加 DLC”整体重构，不再补丁式修复。
+**重构方向（用户裁决 2026-10-28）**：已接入待试玩。水生魔理沙按“底座加 DLC”整体重构，不再补丁式修复；旧实现已下线，在新底座上重建。
 - 原则：动作由身体能力和物理决定；每个能力只实现一次、全模块复用；行为只声明目标，做不到就换手段；任何限制都要配满足它的办法；帽船当作会漂、会倾斜、会翻的小陆地，取消座位表与乘客钉位；一切行为由多种欲望的真实竞争驱动，想要的演出通过调整欲望强度和优先级得到，不硬编码顺序和门槛。
 - 裁决：
   - 成体最高跳 0.8 格、最远 1.0 格，搬运不设质量数值，按体型大小判断；
@@ -208,9 +208,10 @@
   - “先载幼体、船长最后上船”不做硬规定；
   - 帽船可被推动；
   - 帽内挤不下时，孩子可以被挤落水。
-- 契约与设计原则见[代码架构](ARCHITECTURE.md#身体动作与意图层)（范围含出生链，出生链同样冻结）；各工作包的进度与复测现象只登记在本条。
-- 进度：WP1、WP2、WP3a、WP3b 已接入待试玩，运行 [9a3830ba](https://github.com/Longshou/MCyukkuri/commit/9a3830ba)。WP3a 下线旧水生（池塘场景暂时下架，水生魔理沙按普通魔理沙生活，接生帽为 `headwear/PlacedHatEntity`）；WP3b 把陆地胎生、茎生改为 LiveBirth 编排（规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩)）。**试玩检查点**：F1 出生场景与 E11 与 WP4 并行（R7）。帽子统一尺寸按预览代定 1.4 倍（R6，预览 `.local/previews/hat-scale/index.html`），WP4a 已接入待试玩（[926cdc95](https://github.com/Longshou/MCyukkuri/commit/926cdc95)）：池塘场地恢复，`hat_float` 看吃水与倾斜随乘员位置变化、不重叠，`hat_push` 玩家与油库里推得动，`shake_capsize` 连续空手点帽才翻、乘员被甩进水（WP5 前不会自救，溺水是真实后果），`hat_swap` 水生帽为 1.4 倍且戴着与放下一致。WP4–5 复测失败：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46） `cargo` 空帽也提示帽底无空间；落水后游得太快，扶正帽子被泡水伤反复打断、一卡一卡且未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船，直接游回岸。更早（[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34））：`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图、看不出与赤油争位置（已改：占地圈等于可见身体，储粮为立体粮堆、按帽底剩余空间限量，[487706f7](https://github.com/Longshou/MCyukkuri/commit/487706f7)）；落水后不先扶正自己的帽子再爬上去，而是直接游向岸边，上岸常失败、卡在岸边挣扎（该版仍是旧落水逻辑，WP5 重做）。WP4b 原记录：已接入待试玩（[971848f4](https://github.com/Longshou/MCyukkuri/commit/971848f4)）：`cargo` 拿食物右击漂浮的帽子逐份放入（潜行一次最多 8 份），粮食出现在帽腔里、吃水变深，放不下时主人鼓腮且帽不晃；`hat_crowd` 赤油被挤向帽腔边缘或帽檐，持续挤压才会被挤落水；帽子收回、上岸或翻覆时粮食掉成真实物品。WP6b 已接入待试玩（[343a8d72](https://github.com/Longshou/MCyukkuri/commit/343a8d72)）：吃帽内储粮、捞取漂浮食物、喂食与安抚幼体、落水救援（每个救助者对每次落水只决定一次，目前只有亲代施救）、帽船分娩（用力过猛越过帽檐落水进入救援）、送赤油到父船；看 `cargo`（P0-5）、`rescue_child`／`rescue_infant_full`（P0-6）、`birth_boat_caught`／`birth_boat_missed`（P0-9）、`family_skiffs`。WP6a 已接入待试玩（[ae6fdbfd](https://github.com/Longshou/MCyukkuri/commit/ae6fdbfd)）：水生魔理沙恢复自然生成（第 0 tick 在自己帽上），出航、上岸、夜泊、巡游与找回帽子由欲望竞争驱动；看 `water_colony`（P0-1）、`sail`（P0-2）、`afloat_family`（P0-3）、`shore_family`（P0-4）、`water_night`（P0-10）。补给、救援、帽船分娩属 WP6b。WP5 已接入待试玩（[4e312349](https://github.com/Longshou/MCyukkuri/commit/4e312349)）：落水后先找自己的帽子（翻覆先扶正再爬上），否则选能爬上的岸边正面爬上，失败的岸口换别处；所有油库里共用同一套游、爬、扶正；看 `self_rescue`、`self_rescue_far`、`shore_capsized`、`shake_capsize`、`fall_in_pond`。
-- 完成：各工作包按设计稿的展台与行为场景验收。
+- 契约与设计原则见[代码架构](ARCHITECTURE.md#身体动作与意图层)；各工作包的复测现象只登记在本条。
+- 进度：WP1–WP8 全部已接入待试玩，运行 [8ceba8a8](https://github.com/Longshou/MCyukkuri/commit/8ceba8a8) 起（身体层：依附、能力表、走／转身／跳／抛／小动作、抓取与放下、游／爬／推／扶正／划；意图、欲望竞争、请求与编排；陆地胎生与茎生编排；放下的帽子在陆地当接生帽、在水上当船；搬运统一为嘴叼、辫子、帽檐、尾托与多只口含；`motor/` 之外不再直接写身体）。帽子统一尺寸按 1.4 倍代定（R6），试玩时可改。
+- 重建后的复测记录（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）`cargo` 空帽也提示帽底无空间；落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
+- 完成（用户全量复测）：陆地出生 `birth_land_caught`／`birth_land_reunion`／`birth_land_missed`／`birth_stem_caught`／`birth_nest_safe`／`birth_nest_stem`／`pet_birth`；赤油 `infant_starvation`、`colony_migrate_babies`；帽子 `hat_float`／`hat_push`／`shake_capsize`／`cargo`／`hat_crowd`／`hat_swap`；落水 `self_rescue`／`self_rescue_far`／`shore_capsized`／`fall_in_pond`／`worn_hat_boat`；水上生活 `water_colony`／`sail`／`afloat_family`／`shore_family`／`water_night`；家庭 `rescue_child`／`rescue_infant_full`／`birth_boat_caught`／`birth_boat_missed`／`family_skiffs`。各场景的看点在场景说明里，下列 P0 观察点为水上部分的验收标准。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[玩法日志](GAMEPLAY_LOGGING.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。
 
