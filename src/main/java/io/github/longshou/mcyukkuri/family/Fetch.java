@@ -34,12 +34,11 @@ public final class Fetch implements HostIntent {
     static final int DEADLINE_TICKS = 600;
     /** The family pickup's navigation coefficient, so the taker walks at the speed its other pickups use. */
     private static final double STAND_SPEED = 1.1;
-    /** How far the young (or its host) has to move before "let it come to the edge first" counts as satisfied. */
-    private static final double MOVED = .25;
     /** The signature quantises a host to 0.5 blocks; the wait watches the same fact. */
     private static final double HOST_MOVED = .5;
-    /** Longest single wait for the young to move closer, and it is the only wait in the intent. */
-    static final int RETRY_WAIT_TICKS = 200;
+    /** While the young comes to the edge: the least it moves (blocks) to count as still coming, within this many ticks. */
+    private static final double STEP = .02;
+    private static final int STALL_TICKS = 40;
     /** Bearings round the brim tried for a stand: the young's own first, then eighths either side. */
     private static final int STAND_TRIES = 8;
 
@@ -150,13 +149,15 @@ public final class Fetch implements HostIntent {
     }
 
     /**
-     * Lets the young walk to the brim on the taker's side by itself (its own {@link GetTo}) and then does the same carry from
-     * the stand on its new bearing. The wait is the retry gate, not a movement test: it also ends once the young has stopped
-     * walking, which is the normal way it stands at the brim. When the taker already holds the young, the wait is skipped.
+     * Lets the young crawl to the brim on the taker's side by itself (its own {@link GetTo}) and then does the same carry from
+     * the stand on its new bearing. The wait ends once the young is in reach from outside the brim (it came to the edge), has
+     * stopped getting closer for {@link #STALL_TICKS}, or the host moved; the intent's deadline bounds it. When the taker
+     * already holds the young, the wait is skipped.
      */
     private final class WaitThenRetry implements Method {
         private int state = -1;
-        private Vec3 childAt, hatAt;
+        private Vec3 markAt, hatAt;
+        private long markTick;
 
         @Override public String id() { return "wait_then_retry"; }
 
@@ -174,18 +175,20 @@ public final class Fetch implements HostIntent {
             if (state < 0) {
                 state = held() ? 3 : 0;
                 if (state == 0) {
-                    childAt = child.position();
+                    markAt = child.position();
                     hatAt = hat.position();
-                    return new Step.Wait(() -> moved() || !(child.motor().current() instanceof Walk),
-                            RETRY_WAIT_TICKS, "child_to_edge");
+                    markTick = hat.level().getGameTime();
+                    return new Step.Wait(this::edged, (int) Math.max(1, deadline() - markTick), "child_to_edge");
                 }
             }
             return carry(state, state++ == 0 ? stand() : null);
         }
 
-        /** The young walked closer, or the host itself moved: the same world the attempt failed in no longer holds. */
-        private boolean moved() {
-            return child.position().distanceTo(childAt) >= MOVED || hat.position().distanceTo(hatAt) >= HOST_MOVED;
+        private boolean edged() {
+            long now = hat.level().getGameTime();
+            if (child.position().distanceTo(markAt) >= STEP) { markAt = child.position(); markTick = now; }
+            return ContactGeometry.reachesFrom(taker, HatGeometry.outside(hat, taker, child.position(), 0), child)
+                    || now - markTick >= STALL_TICKS || hat.position().distanceTo(hatAt) >= HOST_MOVED;
         }
     }
 }

@@ -33,7 +33,7 @@ public final class Walk implements Action {
     /** Local distance (hat units) that counts as arrived on a host. */
     private static final double HOST_ARRIVED = .05;
     /** Horizontal distance (blocks) that counts as arrived at a stand beside another body. */
-    private static final double STAND_ARRIVED = .1;
+    public static final double STAND_ARRIVED = .1;
     /** Ticks between two {@code walk.sample} detail lines. */
     private static final int SAMPLE_TICKS = 20;
     /** What entering a cell beside the brim costs on a host route, in cells (the rim penalty). */

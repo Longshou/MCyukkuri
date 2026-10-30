@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -252,8 +253,7 @@ final class ParentCarryPresentation {
             turnTo.rotateX(pitch * Mth.DEG_TO_RAD).rotateZ(roll * Mth.DEG_TO_RAD);
         }
         // Held over a host (the hat it came from) the feet stay on or above its surface, as the server seat does.
-        double host = Occupancy.hostFloor(carrier.level(), child.getBbWidth(), origin.add(feet.x, feet.y, feet.z)) - origin.y;
-        if (host > feet.y) feet.y = (float) host;
+        feet.y = (float) (ParentCarry.pinned(carrier, child, origin.add(feet.x, feet.y, feet.z)) - origin.y);
         // Taken up: from where the child stood. Off a host it first rises clear of the brim, crosses above it and comes down to
         // the seat; otherwise the mouth draws it in along the ground and then lifts it to the lips, a brim child is swung round
         // the brim edge and down onto its spot, and a tail or braid child is scooped up in a small arc.
@@ -261,7 +261,7 @@ final class ParentCarryPresentation {
         if (q < 1 && me.liftFrom != null) {
             var from = me.liftFrom.subtract(origin);
             var start = new Vector3f((float) from.x, (float) from.y, (float) from.z);
-            float over = over(child, origin, start, feet);
+            float over = over(ParentCarry.carryHost(carrier, child), child, origin, start, feet);
             if (over > Math.max(start.y, feet.y)) {
                 float rise = ease(q / .35f), across = ease((q - .35f) / .4f), drop = ease((q - .75f) / .25f);
                 feet.set(Mth.lerp(across, start.x, feet.x), Mth.lerp(drop, Mth.lerp(rise, start.y, over), feet.y), Mth.lerp(across, start.z, feet.z));
@@ -298,12 +298,12 @@ final class ParentCarryPresentation {
         pose.mulPose(turnTo);
         return yaw;
     }
-    /** The highest host surface (above {@code origin}) the child's footprint passes over on the straight way from {@code start}
-     *  to {@code end}, a little clearance added; -infinity when no host lies under that way. */
-    private static float over(YukkuriView child, Vec3 origin, Vector3f start, Vector3f end) {
+    /** The highest surface of the carry's host (above {@code origin}) the child's footprint passes over on the straight way
+     *  from {@code start} to {@code end}, a little clearance added; -infinity without a host or off it all the way. */
+    private static float over(SurfaceHost host, YukkuriView child, Vec3 origin, Vector3f start, Vector3f end) {
         float top = Float.NEGATIVE_INFINITY;
-        for (int i = 0; i <= 6; i++) {
-            double y = Occupancy.hostFloor(child.level(), child.getBbWidth(),
+        for (int i = 0; host != null && i <= 6; i++) {
+            double y = Occupancy.surfaceUnder(host, child.getBbWidth(),
                     origin.add(Mth.lerp(i / 6f, start.x, end.x), Math.max(start.y, end.y), Mth.lerp(i / 6f, start.z, end.z))) - origin.y + .02;
             if (y > top) top = (float) y;
         }

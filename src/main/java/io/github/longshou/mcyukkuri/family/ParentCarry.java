@@ -11,6 +11,8 @@ import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -153,7 +155,27 @@ public final class ParentCarry {
         if (lean) e.putBoolean("L", true);
         var spot = hold == Hold.BRIM ? freeBrimSpot(carrier, child, brimDiscs(carrier, child)) : null;
         if (spot != null) { e.putFloat("X", spot[0]); e.putFloat("Z", spot[1]); }
+        // The host the child is lifted off (or the one beside it then), kept for this carry: its surface holds the child up.
+        var on = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host().entity() : null;
+        var host = on != null ? on : carrier.level().getEntities(child, child.getBoundingBox().inflate(2, 1, 2), near -> near instanceof SurfaceHost)
+                .stream().min(Comparator.comparingDouble(child::distanceToSqr)).orElse(null);
+        if (host != null) { e.putInt("S", host.getId()); if (on != null) e.putBoolean("SO", true); }
         write(carrier, child.getUUID(), e);
+    }
+    /** How far (blocks) under the carry's host surface held feet are still pinned to it when the carry did not begin on it. */
+    private static final double PIN = .3;
+    /** The lowest a held child's feet may be here: on its carry host's surface under them (Occupancy.surfaceUnder), always for
+     *  the host it was lifted off, within {@link #PIN} for the one beside it then, so it goes over a brim, never through it. */
+    public static double pinned(YukkuriView carrier, YukkuriView child, Vec3 feet) {
+        var e = entry(carrier, child.getUUID());
+        if (!e.contains("S") || !(carrier.level().getEntity(e.getInt("S")) instanceof SurfaceHost host)) return feet.y;
+        double top = Occupancy.surfaceUnder(host, child.getBbWidth(), feet);
+        return top > feet.y && (e.getBoolean("SO") || top - feet.y <= PIN) ? top : feet.y;
+    }
+    /** The host this carry began on or beside, while it is in the world (the client's lift path reads its surface). */
+    public static SurfaceHost carryHost(YukkuriView carrier, YukkuriView child) {
+        var e = entry(carrier, child.getUUID());
+        return e.contains("S") && carrier.level().getEntity(e.getInt("S")) instanceof SurfaceHost host ? host : null;
     }
     /** The riders in one hold, in boarding order. */
     static List<YukkuriView> riders(YukkuriView carrier, Hold hold) {
@@ -236,10 +258,8 @@ public final class ParentCarry {
         }
         float down = lowering(carrier, child, partial);
         if (down >= 0) model.lerp(ground(carrier, hold), ease(down));
-        // Over a host (the hat it was lifted from) it is held up to that surface: over the brim, never through it.
         var at = world(carrier, partial, model);
-        double host = Occupancy.hostFloor(carrier.level(), child.getBbWidth(), at);
-        return host > at.y ? new Vec3(at.x, host, at.z) : at;
+        return new Vec3(at.x, pinned(carrier, child, at), at.z);
     }
     /** Where a lowered child is let go (model units): on the ground under the braid tip beside the body, or under its tail. */
     private static Vector3f ground(YukkuriView carrier, Hold hold) {
@@ -998,7 +1018,12 @@ public final class ParentCarry {
 
     /** The hold record with the family save, so a reload keeps every child in its hold. */
     CompoundTag save() { return carrier.carryHolds().copy(); }
-    void load(CompoundTag tag) { carrier.syncComponentData(HOLDS, tag.copy()); }
+    /** Entity ids do not survive a reload: the carry's host is left out of what comes back. */
+    void load(CompoundTag tag) {
+        var all = tag.copy();
+        for (var key : all.getAllKeys()) { all.getCompound(key).remove("S"); all.getCompound(key).remove("SO"); }
+        carrier.syncComponentData(HOLDS, all);
+    }
 
     String describe() {
         var all = riders();

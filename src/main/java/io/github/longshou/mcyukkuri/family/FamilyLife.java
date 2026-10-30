@@ -347,8 +347,9 @@ public final class FamilyLife {
     public boolean birthTravel(){
         if(entity.level().isClientSide||entity.motor().current()!=null)return false;
         if(!awaitingLanding){
+            // A catcher in its birth role hops from its own Attend instead: one owner of that hop.
             var hello=greetHop();
-            if(hello!=null&&level().getGameTime()-hello.tick()==30)entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
+            if(hello!=null&&level().getGameTime()-hello.tick()==30&&birthRole()==null)entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
             return false;
         }
         if(launch!=null&&!launched&&!entity.onGround()&&!entity.isInWaterOrBubble()&&!entity.isPassenger()){
@@ -500,12 +501,15 @@ public final class FamilyLife {
                 &&!hello.baby().equals(entity.getUUID()))return hello;
         return null;
     }
-    /** The newborn this relative greets with a small hop, from 30 ticks after its landing for 10 ticks (unhurt, this body on its feet). */
-    LiveBirth.Welcome greetHop(){
+    /** The newborn this relative answers, from 30 ticks after its landing for 10 ticks: alive and unhurt, this body awake on its own
+     *  feet; null otherwise. The answering line and the greeting hop both read it, so a hurt newborn gets neither. */
+    private LiveBirth.Welcome answering(){
         var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
-        return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&Gesture.smallHopImpulse(entity)>0
-                &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&!baby.family().bumped()?hello:null;
+        return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&!flying()&&!entity.life().isSleeping()
+                &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?hello:null;
     }
+    /** The newborn this relative greets with its small hop (answering, and the body can hop), or null. */
+    LiveBirth.Welcome greetHop(){return Gesture.smallHopImpulse(entity)>0?answering():null;}
     /** The father and the older siblings turn to a landed newborn and answer its first greeting with the classic one (L36: a
      *  heard ゆっくりしていってね is echoed); a hurt one frightens them and the mate comes to comfort it. */
     private void greet(){
@@ -514,9 +518,9 @@ public final class FamilyLife {
         entity.getLookControl().setLookAt(baby,20,20);
         if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",LiveBirthGeometry.REST);
         if(since==6&&mate&&hurt&&entity.distanceToSqr(baby)<256)comfort(baby);
-        if(since!=30||!entity.onGround()||entity.isPassenger()||flying())return;
-        if(hurt){entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);}
-        else{entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
+        if(since!=30)return;
+        if(hurt&&entity.onGround()&&!entity.isPassenger()&&!flying()){entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);}
+        else if(answering()!=null){entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {

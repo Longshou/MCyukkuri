@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.intent.Rendezvous;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -61,7 +62,9 @@ final class LiveBirth extends Choreography {
     private static final double HAT_REACH=1.25, NEST_REACH=.8;
     /** How near the outlet a free place in her boat's hollow must lie for the push to carry the child into it (blocks). */
     private static final double HULL_REACH=.6;
-    private static final float[] TURNS={0,45,-45,90,-90,135,-135,180};
+    /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
+     *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
+    private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
     private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Nest, Ground, OwnHull { default String kind(){return getClass().getSimpleName();} }
@@ -436,40 +439,63 @@ final class LiveBirth extends Choreography {
         return null;
     }
     /**
-     * The catcher with the hat from the first birth until it goes back on (项目设计): at a stand outside its brim (the clip's own
-     * through the labour, then where it is or the nearest one), turned to the young, watching, its greeting hop included. It
-     * runs on the hat, so the hat asks its young to the brim on this side; never satisfied, the beat ends it.
+     * The catcher with the hat from the first birth until it goes back on (项目设计): at a stand outside its brim, turned to the
+     * young, watching, its greeting hop included (the hop's one owner). Through the labour the clip's own stand first, then the
+     * other stands round the hat (HatGeometry.stands) off her side of it; after the labour where it stands (outside the brim
+     * and near), then the nearest ones. A stand it cannot get to is not chosen again in the same world, so the next one is. It
+     * only attends the young ({@code unloads()} false): the crawlers gather at its side, nobody is asked off. Never satisfied,
+     * the beat ends it.
      */
-    private final class Attend implements HostIntent, Method {
+    private final class Attend implements HostIntent {
         /** How far out (blocks from the hat's middle) a catcher already outside the brim may stay where it is. */
         private static final double WATCH_REACH=1.5;
         private final PlacedHatEntity hat;
         private final YukkuriEntity c;
         private final boolean labour=attending();
         private final long until=now()+2400;
-        private final Vec3 at;
-        private final float yaw;
+        private final List<Method> stands=new ArrayList<>();
         private Welcome hopped;
         private Attend(PlacedHatEntity hat,YukkuriEntity c){
-            this.hat=hat;this.c=c;
-            var stand=labour?HatGeometry.stand(HatGeometry.poseOf(hat),c):null;
-            var floor=SurfaceApproach.floor(c,stand!=null?stand.at():HatGeometry.outside(hat,c,c.position(),Math.min(WATCH_REACH,c.position().subtract(hat.position()).horizontalDistance())));
-            at=floor==null?c.position():floor;yaw=stand!=null?stand.yaw():SurfaceApproach.yaw(at,hat.position());
+            this.hat=hat;this.c=c;var m=o.entity();
+            var own=HatGeometry.stand(HatGeometry.poseOf(hat),c);
+            var here=HatGeometry.outside(hat,c,c.position(),Math.min(WATCH_REACH,c.position().subtract(hat.position()).horizontalDistance()));
+            var first=labour?new Watch("clip",own.at(),own.yaw()):new Watch("here",here,SurfaceApproach.yaw(here,hat.position()));
+            var all=HatGeometry.stands(hat,c);
+            for(int i=0;i<all.size();i++){
+                var s=all.get(i);
+                // Through the labour none between her and the hat, where the newborns come over the near brim.
+                if(labour&&s.at().distanceToSqr(m.position())<hat.position().distanceToSqr(m.position()))continue;
+                stands.add(new Watch("stand_"+i,s.at(),labour?s.yaw():SurfaceApproach.yaw(s.at(),hat.position())));
+            }
+            stands.sort(Comparator.comparingDouble(w->((Watch)w).stand.distanceToSqr(c.position())));
+            stands.addFirst(first);
         }
         @Override public String id(){return "attend_hat";}
         @Override public SurfaceHost host(){return hat;}
+        @Override public boolean unloads(){return false;}
         @Override public boolean satisfied(){return false;}
         @Override public long deadline(){return until;}
-        @Override public List<Method> methods(){return List.of(this);}
-        @Override public Feasibility applicable(){return hat.isRemoved()||!hat.catches()?Feasibility.of(Reason.TARGET_GONE,0,"hat_gone"):Feasibility.pass();}
-        @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PATH,Reason.NO_PROGRESS);}
-        @Override public Step next(){
-            if(!SurfaceApproach.arrived(c,at))return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
-            if(Math.abs(Mth.wrapDegrees(yaw-c.getYRot()))>Face.FACE_ARRIVED)return new Step.Do(new Face(yaw));
-            var hello=c.family().greetHop();
-            if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}
-            long end=Math.min(until,now()+20);
-            return new Step.Wait(()->now()>=end||!SurfaceApproach.arrived(c,at)||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(end-now())+2,"attend");
+        @Override public List<Method> methods(){return stands;}
+        private final class Watch implements Method {
+            private final String id;
+            private final Vec3 stand;
+            private final float yaw;
+            private Vec3 at;
+            private Watch(String id,Vec3 stand,float yaw){this.id=id;this.stand=stand;this.yaw=yaw;}
+            @Override public String id(){return id;}
+            @Override public Feasibility applicable(){
+                if(hat.isRemoved()||!hat.catches())return Feasibility.of(Reason.TARGET_GONE,0,"hat_gone");
+                return (at=SurfaceApproach.floor(c,stand))==null?Feasibility.of(Reason.NO_SUPPORT,0,"no_floor"):Feasibility.pass();
+            }
+            @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PATH,Reason.NO_PROGRESS,Reason.NO_SUPPORT);}
+            @Override public Step next(){
+                if(!SurfaceApproach.arrived(c,at))return new Step.Do(labour?Walk.around(at,o.entity()):new Walk(at));
+                if(Math.abs(Mth.wrapDegrees(yaw-c.getYRot()))>Face.FACE_ARRIVED)return new Step.Do(new Face(yaw));
+                var hello=c.family().greetHop();
+                if(hello!=null&&!hello.equals(hopped)){hopped=hello;return new Step.Do(new Gesture(Gesture.Kind.HOP_SMALL));}
+                long end=Math.min(until,now()+20);
+                return new Step.Wait(()->now()>=end||!SurfaceApproach.arrived(c,at)||c.family().greetHop() instanceof Welcome w&&!w.equals(hopped),(int)(end-now())+2,"attend");
+            }
         }
     }
     /** Put the hat back on (shared with the orphan-hat errand). */
@@ -503,7 +529,11 @@ final class LiveBirth extends Choreography {
             private boolean acted;
             private From(int index,HatGeometry.Stand stand){this.index=index;this.stand=stand;}
             @Override public String id(){return "stand_"+index;}
-            @Override public Feasibility applicable(){return (at=SurfaceApproach.floor(c,stand.at()))==null?Feasibility.of(Reason.NO_SUPPORT,0,"no_floor"):Feasibility.pass();}
+            @Override public Feasibility applicable(){
+                if((at=SurfaceApproach.floor(c,stand.at()))==null)return Feasibility.of(Reason.NO_SUPPORT,0,"no_floor");
+                // Only a stand the braid or the mouth reaches the hat from (TakeProp asks the same of the body there).
+                return ContactGeometry.reachesFrom(c,at,hat)?Feasibility.pass():Feasibility.of(Reason.NO_CONTACT,0,"out_of_reach");
+            }
             @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PATH,Reason.NO_PROGRESS,Reason.NO_CONTACT,Reason.NO_SUPPORT);}
             @Override public Step next(){
                 if(!SurfaceApproach.arrived(c,at)){acted=false;return new Step.Do(new Walk(at));}

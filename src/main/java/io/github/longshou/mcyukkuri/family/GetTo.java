@@ -23,12 +23,11 @@ import java.util.Set;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * A young's own way off a host that asks to be unloaded: a capable young hops out over the
- * brim, a dependent one walks to the brim on the taker's side and waits to be fetched from there.
- *
- * <p>Off the host is what this intent promises: once the young is grabbed, put down or has hopped away, the rest is the
- * taker's ({@link Fetch}) or vanilla physics. Nothing here names a height or a duration; they come from {@link BodyAbility}
- * and the arc solver.
+ * A young's own way on a host. Asked off ({@code leave}, the host's unload ask): a capable young hops out over the brim, a
+ * dependent one walks to the brim on the taker's side and waits to be fetched from there; off the host is what it promises,
+ * the rest is the taker's ({@link Fetch}) or vanilla physics. Attended ({@code attended()}, a catcher watching): a crawler
+ * crawls to a free place at the brim on the attendant's side, out of the hollow's landing zone, and stays there; nobody hops
+ * off. Nothing here names a height or a duration; they come from {@link BodyAbility} and the arc solver.
  */
 public final class GetTo implements Intent {
     /** A hop, or a short walk to the brim and a wait for the taker. */
@@ -39,28 +38,53 @@ public final class GetTo implements Intent {
     private static final double EDGE_INSIDE = .85;
     /** Bounded landing scan over the brim directions, nearest to the young first; the same bound for a free place at the edge. */
     private static final int LANDING_TRIES = 8;
+    /** The edge places tried along each brim direction, as fractions of the brim reach. */
+    private static final double[] EDGE_FRACTIONS = {EDGE_INSIDE, .7};
+    /** The hollow's landing zone, where the next newborn comes down (a catch hat fills from its middle): a waiting crawler keeps
+     *  this many of its own foot radii from the middle (the next one's foot, its own, one of spread; project design). */
+    private static final double LANDING_KEEP = 3;
+    /** How far round from the attendant's side (degrees) a place still counts as its side of the brim. */
+    private static final double SIDE = 60;
 
     private final YukkuriEntity child;
     private final SurfaceHost host;
+    private final boolean leave;
     private final long started;
 
-    public GetTo(YukkuriEntity child, SurfaceHost host) {
+    /** @param leave asked off the host (its unload ask), else gathering at the attendant's side */
+    public GetTo(YukkuriEntity child, SurfaceHost host, boolean leave) {
         this.child = child;
         this.host = host;
+        this.leave = leave;
         this.started = child.level().getGameTime();
     }
 
-    @Override public String id() { return "get_to"; }
+    @Override public String id() { return leave ? "get_to" : "gather_at_edge"; }
 
-    /** Not riding this host any more: hopped off, fetched, or set down by someone else. */
+    /** Not riding this host any more (hopped off, fetched, set down by someone else), or, gathering, waiting at the brim. */
     @Override public boolean satisfied() {
-        return !(Attach.of(child) instanceof AttachState.OnHost on && on.host() == host);
+        return !(Attach.of(child) instanceof AttachState.OnHost on && on.host() == host) || !leave && gathered(child, host);
     }
 
     @Override public long deadline() { return started + DEADLINE_TICKS; }
 
     @Override public List<Method> methods() {
-        return List.of(new HopOff(), new WalkToEdge());
+        return leave ? List.of(new HopOff(), new WalkToEdge()) : List.of(new WalkToEdge());
+    }
+
+    /** Its place on the host lies at the brim on the side of the host's exit (its owner's side), out of the landing zone. */
+    static boolean gathered(YukkuriEntity child, SurfaceHost host) {
+        var exit = edgePoint(child, host);
+        return Attach.of(child) instanceof AttachState.OnHost on && on.host() == host && exit.isPresent()
+                && edge(child, host, host.riders().local(child.getUUID()), exit.get());
+    }
+
+    /** A place (hat units) out of the landing zone round the middle and within {@link #SIDE} of the exit's bearing. */
+    private static boolean edge(YukkuriEntity child, SurfaceHost host, Vec3 at, Vec3 exit) {
+        var centre = host.spots().getOrDefault("centre", Vec3.ZERO);
+        double ax = at.x - centre.x, az = at.z - centre.z, ex = exit.x - centre.x, ez = exit.z - centre.z;
+        double keep = LANDING_KEEP * Occupancy.foot(child.getBbWidth()) / host.frame().unit(), r = Math.hypot(ax, az);
+        return r >= keep && (ax * ex + az * ez) >= Math.cos(Math.toRadians(SIDE)) * r * Math.hypot(ex, ez);
     }
 
     /** Ground points just outside the brim, nearest to the young first (the brim samples already carry the tilt). */
@@ -118,18 +142,21 @@ public final class GetTo implements Intent {
 
         @Override public Feasibility applicable() {
             edge = null;
-            var exit = edgePoint();
+            var exit = edgePoint(child, host);
             if (exit.isEmpty()) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_rim");
-            // Just inside the brim on the taker's side, or the free place nearest it along the brim (the siblings wait there too).
+            // Just inside the brim on the taker's side, or the free place nearest it along the brim (the siblings wait there too),
+            // never in the hollow's landing zone.
             var frame = host.frame();
             var aim = frame.toWorld(exit.get());
             for (var rim : host.rim().stream().sorted(Comparator.comparingDouble(p -> p.distanceToSqr(aim))).limit(LANDING_TRIES).toList()) {
                 var local = frame.toLocal(rim);
-                var inside = new Vec3(local.x * EDGE_INSIDE, 0, local.z * EDGE_INSIDE);
-                var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
-                if (height.isEmpty()) continue;
-                var at = new Vec3(inside.x, height.getAsDouble(), inside.z);
-                if (host.room(child, at)) { edge = at; return Feasibility.pass(); }
+                for (double share : EDGE_FRACTIONS) {
+                    var inside = new Vec3(local.x * share, 0, local.z * share);
+                    var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
+                    if (height.isEmpty() || !edge(child, host, inside, exit.get())) continue;
+                    var at = new Vec3(inside.x, height.getAsDouble(), inside.z);
+                    if (host.room(child, at)) { edge = at; return Feasibility.pass(); }
+                }
             }
             return Feasibility.of(Reason.NO_ROOM, 0, "edge_taken");
         }
@@ -139,7 +166,8 @@ public final class GetTo implements Intent {
         @Override public Step next() {
             if (edge == null) return null;
             if (state++ == 0) return new Step.Do(new Walk(host, edge));
-            return new Step.Wait(() -> !Unload.onHost(child, host), AWAIT_FETCH_TICKS, "await_fetch");
+            // Gathering ends at the edge (satisfied); asked off, it waits there to be fetched.
+            return leave ? new Step.Wait(() -> !Unload.onHost(child, host), AWAIT_FETCH_TICKS, "await_fetch") : null;
         }
     }
 
@@ -147,7 +175,7 @@ public final class GetTo implements Intent {
      * The brim point on the taker's side, in hat units: the host names it as {@code exit} (the brim edge toward its owner,
      * which is the taker besides a catch hat); a host without one falls back to the brim nearest the young.
      */
-    private Optional<Vec3> edgePoint() {
+    private static Optional<Vec3> edgePoint(YukkuriEntity child, SurfaceHost host) {
         var exit = host.spots().get("exit");
         if (exit != null) return Optional.of(exit);
         return ContactGeometry.nearestRim(child, host).map(host.frame()::toLocal);

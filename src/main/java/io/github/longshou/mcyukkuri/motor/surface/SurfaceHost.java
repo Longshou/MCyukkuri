@@ -48,8 +48,11 @@ public interface SurfaceHost {
     /** False while the host shakes; no jump landing may be planned onto it then. */
     boolean steady();
 
-    /** True while a body near runs an intent on this host (unload it, take it back, attend its young); derived, never stored. */
+    /** True while a body near runs an intent on this host that asks its young off (unload it, take it back); derived, never stored. */
     boolean unloadRequested();
+
+    /** True while a body near only attends its young (a catcher watching): crawlers gather at the brim on its side; derived. */
+    default boolean attended() { return false; }
 
     /** This rider is kept out of the water by the host (a dry hull above the waterline): its water checks treat it as dry. */
     default boolean shelters(YukkuriEntity body) { return false; }

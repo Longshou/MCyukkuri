@@ -88,7 +88,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private double containerUnit;
     /** {@link #unloadRequested()} cached for one game tick: the answer is derived from the running intents, never stored. */
     private long unloadTick = Long.MIN_VALUE;
-    private boolean unloadWanted;
+    private boolean unloadWanted, attendWanted;
     private UUID accessoryToken;
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     private HatGeometry.Role role = HatGeometry.Role.HELPER;
@@ -323,23 +323,23 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public void push(Entity other) {}
     /** How far (blocks) a running unload is looked for when {@link #unloadRequested()} derives its answer. */
     private static final double UNLOAD_RANGE = 16;
-    @Override public boolean unloadRequested() {
-        // Only the cradle's young are asked to leave by intent.
-        if (level().isClientSide) return false;
+    @Override public boolean unloadRequested() { asked(); return unloadWanted; }
+    @Override public boolean attended() { asked(); return attendWanted; }
+    /** What the yukkuri this near run on this hat now, outer or innermost {@code HostIntent}: an unload ask, or only attending
+     *  its young; read once a tick (derived, never stored). Only the cradle's young are asked by intent. */
+    private void asked() {
         long now = level().getGameTime();
-        if (unloadTick != now) { unloadTick = now; unloadWanted = unloading(); }
-        return unloadWanted;
-    }
-    /** Some yukkuri this near runs a {@code HostIntent} for this hat, outer or innermost (derived, never stored). */
-    private boolean unloading() {
+        if (unloadTick == now) return;
+        unloadTick = now;
+        unloadWanted = attendWanted = false;
+        if (level().isClientSide) return;
         for (var body : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(UNLOAD_RANGE))) {
             if (!(body.motor().owner() instanceof IntentRunner runner) || !runner.active()) continue;
-            if (runsOn(runner.intent()) || runsOn(runner.innermost().intent())) return true;
+            for (var intent : new Intent[]{runner.intent(), runner.innermost().intent()})
+                if (intent instanceof HostIntent onHost && onHost.host().entity() == this) {
+                    if (onHost.unloads()) unloadWanted = true; else attendWanted = true;
+                }
         }
-        return false;
-    }
-    private boolean runsOn(Intent intent) {
-        return intent instanceof HostIntent onHost && onHost.host().entity() == this;
     }
     /** The local spot with its height set to the hat surface under these feet, when there is one. */
     private Vec3 snapped(Vec3 local, double footRadius) {
@@ -793,11 +793,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final double UNDER = .05;
     /**
      * Nobody stays under a hat lying on the ground (it has no collision): a free body whose footprint ({@link Occupancy#foot})
-     * overlaps the hat's outline with its feet under the hat's surface there is eased out along the line from the hat's middle
-     * until its footprint clears the outline, by {@link Squeeze}'s rule with the outline as a fixed circle (a quarter of the way a
-     * tick, at most its walk pace), through Motor. A mother holding her birth place is moved only once her middle is under it (a
-     * stem hat's near brim may lie under her front), and one in flight is left alone (its contact is the flight's). The land
-     * behaviour's contact pass; afloat the hull's own pass keeps bodies out.
+     * overlaps the brim ({@link HatGeometry#clearance}, the rule the stands beside a hat keep their margin from) with its feet
+     * under the hat's top is eased out along the line from the hat's middle until its footprint clears the brim, by
+     * {@link Squeeze}'s rule with the brim as a fixed circle (a quarter of the way a tick, at most its walk pace), through Motor.
+     * A mother holding her birth place is moved only once her middle is over the brim (a stem hat's near brim may lie under her
+     * front), and one in flight is left alone (its contact is the flight's). The land behaviour's contact pass; afloat the
+     * hull's own pass keeps bodies out.
      */
     public void clearUnder() {
         if (level().isClientSide) return;
@@ -806,12 +807,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         for (var y : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(reach, 1, reach))) {
             if (y.isPassenger() || !y.isAlive() || Attach.of(y) instanceof AttachState.Airborne) continue;
             var local = pose.toLocal(y.position());
-            double foot = footOf(y), surface = HatGeometry.footprint(local.x, local.z, foot);
-            if (Double.isNaN(surface) || local.y >= surface - UNDER / unit) continue;
-            if (Double.isNaN(HatGeometry.surface(local.x, local.z)) && y.family().holdsBirthStation()) continue;
+            double foot = footOf(y), clearance = HatGeometry.clearance(local.x, local.z);
+            if (clearance >= foot || local.y >= HatGeometry.top() - UNDER / unit) continue;
+            if (clearance > 0 && y.family().holdsBirthStation()) continue;
             double d = Math.hypot(local.x, local.z), dx = d > 1e-6 ? local.x / d : 1, dz = d > 1e-6 ? local.z / d : 0;
-            // the outline its footprint clears in its direction, one sampling step beyond, so the quarter steps carry it past
-            double edge = HatGeometry.extent(0, 0, dx, dz, foot) + .125;
+            // where its footprint clears the brim in its direction, a little beyond, so the quarter steps carry it past
+            double edge = HatGeometry.clear(dx, dz, foot) + .125;
             var move = Squeeze.separate(List.of(new Squeeze.Body(local.x, local.z, foot, 1, BodyAbility.of(y).walkSpeed() / unit)),
                     List.of(new Disc(0, 0, edge - foot + ROOM_SLACK)), ROOM_SLACK, 0, 0)[0];
             var step = pose.toWorld(new Vec3(local.x + move[0], local.y, local.z + move[1])).subtract(y.position()).multiply(1, 0, 1);

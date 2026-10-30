@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyGeometry;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,9 +233,19 @@ public final class HatGeometry {
         return mother.getBbWidth()*.4+opening()[3]*unit(catcher);
     }
     /** Blocks a stand beside a hat keeps clear of its brim beyond the body's own footprint. */
-    private static final double STAND_MARGIN=.05;
+    public static final double STAND_MARGIN=Walk.STAND_ARRIVED+.03;
+    /** How far (hat units) a point lies outside the brim (its rectangle, brim x HatScale in blocks), 0 on or over it: a round
+     *  footprint of radius r overlaps the hat while this is under r. Stands keep r plus {@link #STAND_MARGIN}; the ground hat
+     *  eases out a body under r (PlacedHatEntity.clearUnder), so a body within Walk's arrival of its stand is never pushed. */
+    public static double clearance(double x,double z){return Math.hypot(Math.max(Math.abs(x)-LAND.brim[0],0),Math.max(Math.abs(z)-LAND.brim[1],0));}
+    /** The least distance (hat units) from the middle along the unit direction dx, dz at which the clearance reaches r. */
+    public static double clear(double dx,double dz,double r){
+        double lo=0,hi=(Math.max(LAND.brim[0],LAND.brim[1])+r)/Math.max(Math.abs(dx),Math.abs(dz));
+        for(int i=0;i<30;i++){double mid=(lo+hi)/2;if(clearance(dx*mid,dz*mid)>=r)hi=mid;else lo=mid;}
+        return hi;
+    }
     /** The catcher's place for a hat at this pose: the inverse of the clip's placement, moved out along the same bearing until
-     *  her footprint ({@link Occupancy#foot}) clears the real brim (brim x HatScale) by {@link #STAND_MARGIN}. */
+     *  her footprint ({@link Occupancy#foot}) clears the real brim by {@link #STAND_MARGIN}. */
     public static Stand stand(Pose pose,YukkuriEntity catcher){
         var authored=authored(pose,catcher);
         return new Stand(outside(pose,unit(catcher),catcher,authored.at(),authored.at().subtract(pose.at()).horizontalDistance()),authored.yaw());
@@ -260,14 +271,13 @@ public final class HatGeometry {
         var away=toward.subtract(pose.at()).multiply(1,0,1);
         if(away.lengthSqr()<1e-8)away=body.position().subtract(pose.at()).multiply(1,0,1);
         var dir=away.lengthSqr()<1e-8?new Vec3(0,0,1):away.normalize();var local=dir.yRot((float)-Math.toRadians(180-pose.yaw()));
-        double clear=extent(0,0,local.x,local.z,Occupancy.foot(body.getBbWidth())/unit)*unit+STAND_MARGIN;
-        return pose.at().add(dir.scale(Math.max(least,clear)));
+        return pose.at().add(dir.scale(Math.max(least,clear(local.x,local.z,(Occupancy.foot(body.getBbWidth())+STAND_MARGIN)/unit)*unit)));
     }
     public static Vec3 outside(PlacedHatEntity hat,YukkuriEntity body,Vec3 toward,double least){return outside(poseOf(hat),hat.unit(),body,toward,least);}
     /** A round footprint of {@code radius} blocks at these feet overlaps a hat lying at this pose. */
     public static boolean overlaps(Pose pose,double unit,Vec3 feet,double radius){
         var local=feet.subtract(pose.at()).yRot((float)-Math.toRadians(180-pose.yaw())).scale(1/unit);
-        return !Double.isNaN(footprint(local.x,local.z,(radius+STAND_MARGIN)/unit));
+        return clearance(local.x,local.z)<(radius+STAND_MARGIN)/unit;
     }
     /** Blocks per hat unit of this Marisa's own hat (HatScale), as it lies set down. */
     public static double unit(YukkuriEntity owner){return hatScale(owner)*owner.getScale()/16;}
