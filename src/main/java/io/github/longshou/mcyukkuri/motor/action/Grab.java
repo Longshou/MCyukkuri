@@ -41,7 +41,7 @@ public final class Grab implements Action {
     private final YukkuriEntity target;
     private Hold hold = Hold.MOUTH;
     private boolean lean;
-    /** The yaw the carrier turns to before the lift (the last {@link #check}'s). */
+    /** The yaw the carrier turns to before the lift (worked out at start). */
     private float facing;
     private double gap;
     private Face turn;
@@ -87,26 +87,28 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.OnHost) holds = holds.stream().sorted(Comparator.comparing(h -> h.reach() != Reach.BRAID)).toList();
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
         double low = ContactGeometry.braidGap(carrier, target, true), shortfall = Double.POSITIVE_INFINITY;
+        boolean noWay = false;
         // The hold that reaches first, in the carrier's order (a hatless Marisa's mouth before her braid tip).
         for (var candidate : holds) {
             if (candidate.reach() == Reach.MOUTH) {
-                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(carrier, candidate, false, mouthGap);
+                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(candidate, false, mouthGap);
                 shortfall = Math.min(shortfall, Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN));
-            } else {
-                if (Math.min(upright, low) <= 0) return chosen(carrier, candidate, upright > 0, Math.min(upright, low));
-                shortfall = Math.min(shortfall, Math.min(upright, low));
-            }
+            } else if (Math.min(upright, low) <= 0) {
+                // A braid-tip child off a host needs a way out to the ground beside the carrier; else the next hold.
+                if (candidate != Hold.BRAID || ParentCarry.braidCanSetDown(carrier, target, upright > 0))
+                    return chosen(candidate, upright > 0, Math.min(upright, low));
+                noWay = true;
+            } else shortfall = Math.min(shortfall, Math.min(upright, low));
         }
+        if (noWay) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
         return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(shortfall) ? shortfall : 0,
                 String.format(Locale.ROOT, "holds=%s mouth_gap=%.2f braid_gap=%.2f", holds, mouthGap, Math.min(upright, low)));
     }
 
-    private Feasibility chosen(YukkuriEntity carrier, Hold hold, boolean lean, double gap) {
+    private Feasibility chosen(Hold hold, boolean lean, double gap) {
         this.hold = hold;
         this.lean = lean;
         this.gap = gap;
-        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
-                : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         var clip = ClipMarkers.of(BRAID_LIFT);
         boolean tip = hold == Hold.BRAID;
         lift = hold.reach() != Reach.BRAID ? LIFT_TICKS : clip.ticks(tip ? "lift_start" : "lift_end", LIFT_TICKS);
@@ -121,6 +123,8 @@ public final class Grab implements Action {
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean);
+        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
+                : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         turn = new Face(facing);
         turn.check(carrier);
         turn.start(carrier);
@@ -139,7 +143,8 @@ public final class Grab implements Action {
         // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
         if (!outOfWater && target.isInWaterOrBubble() || target.operations().active())
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
-        if (way > 0) ParentCarry.braided(carrier, target, lean);
+        // The world may have changed since check: with no way out left the braid lets go of it before lifting.
+        if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
         mounted = true;
@@ -151,11 +156,13 @@ public final class Grab implements Action {
     }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d way=%d turn=%.1f target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
-                hold.key(), gap, lean, lift, way, facing, target.getUUID());
+        return String.format(Locale.ROOT, "reach=%s hold=%s gap=%.2f lean=%b lift=%d way=%d target=%s", hold.reach().name().toLowerCase(Locale.ROOT),
+                hold.key(), gap, lean, lift, way, target.getUUID());
     }
 
-    @Override public String endDetail(Outcome outcome) { return "reach=" + hold.reach().name().toLowerCase(Locale.ROOT) + " hold=" + hold.key(); }
+    @Override public String endDetail(Outcome outcome) {
+        return String.format(Locale.ROOT, "reach=%s hold=%s facing=%.1f", hold.reach().name().toLowerCase(Locale.ROOT), hold.key(), facing);
+    }
 
     /** The structural refusal vocabulary of {@code ParentCarry}, mapped onto the fixed outcome classes by its first word. */
     private static Feasibility refusal(String problem) {

@@ -56,6 +56,8 @@ public final class NativeDialogue {
         }
         return null;
     }
+    /** Whether this exact tier (no fallback) has a line for the event. */
+    public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }
     public static int priority(String event) {
         return switch (event) {
             case "family_alarm_call", "family_alarm_answer" -> 4;

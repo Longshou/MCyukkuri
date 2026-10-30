@@ -247,7 +247,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     /** Single-phase reasons only; HURT and DEATH use explicit contexts and call-site phases. */
     public void interrupt(Interrupt reason) { interrupt(InterruptContext.of(reason), InterruptPhase.MAIN); }
-    public void interrupt(InterruptContext context, InterruptPhase phase) { components.interrupt(context, phase); }
+    public void interrupt(InterruptContext context, InterruptPhase phase) {
+        // Pain and danger end a held reaction: whatever they show next is not dropped.
+        if (context.reason() == Interrupt.FRIGHT || context.reason() == Interrupt.HURT || context.reason() == Interrupt.BURNING
+                || context.reason() == Interrupt.DEATH) reactionHeld = false;
+        components.interrupt(context, phase);
+    }
 
     public <T> T componentData(SyncSlot<T> slot) { return sync().componentData(slot); }
     public <T> void syncComponentData(SyncSlot<T> slot, T value) { sync().syncComponentData(slot, value); }
@@ -671,10 +676,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!isAlive()) return;
         if (reactionTicks > 0) reactionTicks--;
         if (pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
-            // A newborn's first words are its kind's classic greeting in the childish wording (hello, young tier:
-            // ゆっくち しちぇいっちぇにぇ！), else its newborn line.
+            // A newborn's first words: its kind's childish hello when it has one, else its newborn line (FamilyLife.firstWords).
             boolean first = pendingSpeech.equals("newborn");
-            if (first ? speak("hello", "young") || speak(pendingSpeech) : speak(pendingSpeech)) { if (first) BirthStaging.greeting(this); }
+            String words = first ? family.firstWords() : pendingSpeech;
+            if (speak(words, first && words.equals("hello") ? "young" : speechTier()) && first) BirthStaging.greeting(this);
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
@@ -700,7 +705,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A reaction whose line is spoken after a delay, when the clip reaches its face (the newborn's first
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
-        if (level().isClientSide || held()) return;
+        if (level().isClientSide || held() && !urgent(event)) return;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = event == null ? "" : event;
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
@@ -708,18 +713,27 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean hasReaction() { return reactionTicks > 0; }
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
+    /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}). */
     public void showReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide || held()) return;
+        if (level().isClientSide || held() && !urgent(dialogue)) return;
+        forceReaction(expression, dialogue, ticks);
+    }
+    /** A reaction that ends any held one (pain, danger, panic); its line is spoken. */
+    public void forceReaction(String expression, String dialogue, int ticks) {
+        if (level().isClientSide) return;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(dialogue);
     }
-    /** The same reaction, held for all its ticks: any other reaction shown meanwhile is dropped, so the face cannot flip back and forth. */
+    /** The same reaction, held for all its ticks: any reaction but pain or danger shown meanwhile is dropped, so the face cannot
+     *  flip back and forth. */
     public void holdReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide || held()) return;
-        showReaction(expression, dialogue, ticks);
+        forceReaction(expression, dialogue, ticks);
         reactionHeld = true;
     }
     private boolean held() { return reactionHeld && reactionTicks > 0; }
+    /** Pain and danger, the reactions a held one gives way to: the hurt line and the urgent speech classes (wounds, fright, loss). */
+    private static boolean urgent(String event) { return event != null && (event.equals("hurt") || NativeDialogue.priority(event) >= 3); }
 
     /** Dialogue tier from the life stage: baby, juvenile and adult; an adult kept childish by voice flags stays "young". */
     public String speechTier() {

@@ -274,6 +274,11 @@ public final class HatGeometry {
         return pose.at().add(dir.scale(Math.max(least,clear(local.x,local.z,(Occupancy.foot(body.getBbWidth())+STAND_MARGIN)/unit)*unit)));
     }
     public static Vec3 outside(PlacedHatEntity hat,YukkuriEntity body,Vec3 toward,double least){return outside(poseOf(hat),hat.unit(),body,toward,least);}
+    /** A point (world) lies over the opening of a hat lying at this pose. */
+    public static boolean inOpening(Pose pose,double unit,Vec3 at){
+        var local=at.subtract(pose.at()).yRot((float)-Math.toRadians(180-pose.yaw())).scale(1/unit);
+        return in(LAND.opening,local.x,local.z);
+    }
     /** A round footprint of {@code radius} blocks at these feet overlaps a hat lying at this pose. */
     public static boolean overlaps(Pose pose,double unit,Vec3 feet,double radius){
         var local=feet.subtract(pose.at()).yRot((float)-Math.toRadians(180-pose.yaw())).scale(1/unit);

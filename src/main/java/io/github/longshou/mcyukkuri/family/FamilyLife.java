@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
+import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
@@ -105,6 +106,8 @@ public final class FamilyLife {
     private static final int COMFORT=200;
     /** Ticks a relative's startle at a newborn's hard landing is held before anything else shows (project design). */
     private static final int MISS_SHOCK=50;
+    /** Degrees a greeting turn waits for before it starts (no turn per tick for a newborn shifting in the hat). */
+    private static final float GREET_TURN=10;
     private PlacedHatEntity choreHat;
     private IntentRunner chore;
     /** A failed hat errand waits this long before the same body tries again (bounded retries, never a busy loop). */
@@ -356,8 +359,9 @@ public final class FamilyLife {
             var hello=greetHop();
             if(hello!=null&&level().getGameTime()-hello.tick()==30&&birthRole()==null)entity.motor().run(BIRTH_BODY,new Gesture(Gesture.Kind.HOP_SMALL));
             else if(greetee() instanceof YukkuriEntity other){
+                // Only on an idle motor (a running Face is left to finish), and only once it is off by more than GREET_TURN.
                 float yaw=SurfaceApproach.yaw(entity.position(),other.position());
-                if(Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))>Face.FACE_ARRIVED)entity.motor().run(BIRTH_BODY,new Face(yaw));
+                if(Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))>GREET_TURN)entity.motor().run(BIRTH_BODY,new Face(yaw));
             }
             return false;
         }
@@ -517,18 +521,23 @@ public final class FamilyLife {
         return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&!flying()&&!entity.life().isSleeping()
                 &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?hello:null;
     }
-    /** Whom this body turns to for a birth greeting, or null: a waking newborn its nearest parent or sibling (once, before its
-     *  first words), a relative on its own feet with no birth role the unhurt newborn it is about to answer. */
+    /** Whom this body turns to for a birth greeting, or null: a waking newborn its nearest awake parent or sibling (once, before
+     *  its first words), an awake relative on its own feet with no birth role the unhurt newborn it is about to answer. */
     private YukkuriEntity greetee(){
         if(entity.firstWaking()){
             if(greetFaced)return null;
             greetFaced=true;return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity
-                &&other.isAlive()&&(other.getUUID().equals(mother)||other.getUUID().equals(father)||mother!=null&&mother.equals(other.family().mother())))
+                &&other.isAlive()&&!other.life().isSleeping()&&(other.getUUID().equals(mother)||other.getUUID().equals(father)||mother!=null&&mother.equals(other.family().mother())))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         }
         var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
-        return since>0&&since<30&&entity.onGround()&&!entity.isPassenger()&&birthRole()==null&&level().getEntity(hello.baby()) instanceof YukkuriEntity baby
-                &&baby.isAlive()&&!baby.family().bumped()?baby:null;
+        return since>0&&since<30&&!entity.life().isSleeping()&&entity.onGround()&&!entity.isPassenger()&&birthRole()==null
+                &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?baby:null;
+    }
+    /** A newborn's first words: its kind's hello in the childish (young) tier when that tier has one, else its newborn line.
+     *  Its relatives answer once, in kind: the hello echoed, or the newborn reply. */
+    public String firstWords(){
+        return NativeDialogue.has(entity.getVariant().dialogueSpecies(),"young",entity.myon().quirk(),"hello")?"hello":"newborn";
     }
     /** The newborn this relative greets with its small hop (answering, and the body can hop), or null. */
     LiveBirth.Welcome greetHop(){return Gesture.smallHopImpulse(entity)>0?answering():null;}
@@ -544,7 +553,7 @@ public final class FamilyLife {
             entity.mind().felt(EmotionEvent.FRIGHTENED);entity.holdReaction("surprise","afraid",MISS_SHOCK);BirthStaging.sweat(entity);
         }
         if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
-        if(since==30&&!hurt&&answering()!=null){entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
+        if(since==30&&!hurt&&answering()!=null){entity.showReaction("happy","",40);entity.speak(baby.family().firstWords());BirthStaging.affection(entity);}
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {

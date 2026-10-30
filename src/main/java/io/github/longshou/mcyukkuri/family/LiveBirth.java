@@ -102,8 +102,14 @@ final class LiveBirth extends Choreography {
     private boolean hullChosen;
     private Vec3 last;
     private String hold="";
-    /** The yaw she faces the catch hat with, chosen before the first push and kept for every one after (never saved). */
+    /** The yaw she faces the catch hat with, kept from child to child while it is the same hat, she has not moved more than
+     *  LABOUR_MOVE since and the yaw still sends the next child into the opening; else chosen again (never saved). */
     private float labourYaw=Float.NaN;
+    private UUID labourHat;
+    private Vec3 labourAt;
+    private static final double LABOUR_MOVE=.3;
+    /** Steps (degrees) and the widest turn either side of straight at the hat the kept facing is searched over. */
+    private static final float LABOUR_STEP=5,LABOUR_SPAN=45;
     LiveBirth(FamilyLife o,UUID broodId,boolean live){super(live?"live_birth":"stem_birth","site");this.o=o;this.broodId=broodId;this.live=live;}
     /** Casts a new birth: who catches, and so what receives (a hat, else her large nest, else the ground). */
     static LiveBirth cast(FamilyLife o,FamilyData.Brood brood){
@@ -546,8 +552,8 @@ final class LiveBirth extends Choreography {
         }
     }
     /** Turn the outlet to the receiver (or any clear floor) with Face, then hold until it is clear. Facing a catch hat she turns
-     *  once, straight at it (else to the clear outlet nearest that), and keeps that yaw for every child: each one leaves along
-     *  her real facing, so it lands where her outlet points. */
+     *  straight at it, or to the clear outlet nearest that whose straight flight still ends in the opening, and keeps that yaw
+     *  while it holds ({@link #labourYaw}): each child leaves along her real facing and lands where her outlet points. */
     private final class Deliver implements Intent, Method {
         private final boolean any;
         private final long deadline;
@@ -557,15 +563,36 @@ final class LiveBirth extends Choreography {
             var b=brood();var hull=any||!(receiver instanceof OwnHull)?null:receiverHat();
             if(hull!=null)return yaw=hullYaw(hull);
             var hat=any?null:placedHat();var m=o.entity();
-            if(hat!=null&&!Float.isNaN(labourYaw))return yaw=labourYaw;
-            float straight=hat==null?Float.NaN:SurfaceApproach.yaw(m.position(),hat.position());
-            boolean clear=hat!=null&&LiveBirthGeometry.clear(m,pushing,straight,false);
+            if(hat!=null){
+                if(!hat.getUUID().equals(labourHat)||labourAt==null||m.position().distanceToSqr(labourAt)>LABOUR_MOVE*LABOUR_MOVE)labourYaw=Float.NaN;
+                if(Float.isNaN(labourYaw)||!landsIn(hat,labourYaw)){
+                    labourYaw=hatYaw(hat);labourHat=hat.getUUID();labourAt=m.position();
+                    if(!Float.isNaN(labourYaw))GameplayLog.event(m,"family","birth outlet faces hat yaw={} turn={} child={} hat={}",String.format(Locale.ROOT,"%.1f",labourYaw),
+                            String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(labourYaw-m.yBodyRot)),pushing,hat.getUUID());
+                }
+                if(!Float.isNaN(labourYaw))return yaw=labourYaw;
+            }
             Vec3 aim=b==null?null:hat!=null?hat.position():receiver instanceof Nest?FamilyNest.largeCentre(m):null;
-            yaw=clear?straight:LiveBirthGeometry.exitYaw(m,pushing,aim,hat!=null?HAT_REACH:NEST_REACH,any);
-            if(hat!=null&&!Float.isNaN(yaw))GameplayLog.event(m,"family","birth outlet kept yaw={} straight={} turn={} hat={}",String.format(Locale.ROOT,"%.1f",yaw),
-                    clear,String.format(Locale.ROOT,"%.1f",Mth.wrapDegrees(yaw-m.yBodyRot)),hat.getUUID());
-            if(hat!=null)labourYaw=yaw;
-            return yaw;
+            return yaw=LiveBirthGeometry.exitYaw(m,pushing,aim,hat!=null?HAT_REACH:NEST_REACH,any);
+        }
+        /** Straight at the hat, then LABOUR_STEP either side up to LABOUR_SPAN: the first clear outlet whose flight ends in the
+         *  opening; NaN when none (the ordinary least-turn outlet is used and the drawn launch decides). */
+        private float hatYaw(PlacedHatEntity hat){
+            float straight=SurfaceApproach.yaw(o.entity().position(),hat.position());
+            for(float turn=0;turn<=LABOUR_SPAN;turn+=LABOUR_STEP)for(int side:turn==0?new int[]{1}:new int[]{1,-1}){
+                float yaw=straight+side*turn;
+                if(LiveBirthGeometry.clear(o.entity(),pushing,yaw,false)&&landsIn(hat,yaw))return yaw;
+            }
+            return Float.NaN;
+        }
+        /** This child's straight flight from the outlet along {@code yaw}, as far as its place in the hat lies from the outlet,
+         *  ends inside the hat's opening (the drawn yaw jitter still makes real misses). */
+        private boolean landsIn(PlacedHatEntity hat,float yaw){
+            var b=brood();var m=o.entity();
+            var place=b==null?null:hat.birthPlace(b.kind,b.children.get(pushing));var aim=place!=null?place:hat.position();
+            var out=LiveBirthGeometry.position(m,pushing,yaw);
+            var end=out.add(Vec3.directionFromRotation(0,yaw).multiply(1,0,1).normalize().scale(Math.hypot(aim.x-out.x,aim.z-out.z)));
+            return HatGeometry.inOpening(HatGeometry.poseOf(hat),hat.unit(),end);
         }
         @Override public String id(){return any?"turn_to_any_exit":"turn_to_exit";}
         @Override public boolean satisfied(){var m=o.entity();return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees(yaw-m.yBodyRot))<=Face.FACE_ARRIVED&&outletClear(m.yBodyRot,any);}
