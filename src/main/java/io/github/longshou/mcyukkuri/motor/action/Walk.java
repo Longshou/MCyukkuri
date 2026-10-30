@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -46,8 +47,10 @@ public final class Walk implements Action {
     private final Entity avoid;
     private double pace;
     private Vec3 from;
+    /** Where the ground walk actually goes (the target, or moved clear of a hat's brim), and the navigation's replans seen so far. */
+    private Vec3 goal;
     private boolean navDone;
-    private int nodesLeft;
+    private int nodesLeft, replans;
     /** The host route's waypoints (hat units, the target last) and the one being walked to. */
     private List<double[]> route = List.of();
     private int leg;
@@ -112,6 +115,8 @@ public final class Walk implements Action {
     @Override public void start(YukkuriEntity body) {
         pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * BodyAbility.carrying(body);
         from = body.position();
+        goal = target;
+        replans = replans(body);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -131,7 +136,8 @@ public final class Walk implements Action {
     /** The ground walk's end line: whether navigation had finished and how many nodes were left, next to the outcome. */
     @Override public String endDetail(Outcome outcome) {
         if (host != null) return String.format(Locale.ROOT, "leg=%d/%d", Math.min(leg + 1, route.size()), route.size());
-        return String.format(Locale.ROOT, "navDone=%b nodesLeft=%d", navDone, nodesLeft);
+        return String.format(Locale.ROOT, "navDone=%b nodesLeft=%d", navDone, nodesLeft)
+                + (goal == null || goal.equals(target) ? "" : " snapped=" + GameplayLog.at(goal));
     }
 
     private Progress groundTick(YukkuriEntity body) {
@@ -139,7 +145,9 @@ public final class Walk implements Action {
         boolean arrived = avoid == null
                 ? SurfaceApproach.walk(body, target, paceNow)
                 : SurfaceApproach.walkAround(body, target, avoid, paceNow);
-        double flat = body.position().subtract(target).horizontalDistance();
+        var moved = SurfaceApproach.goal(body, target);
+        if (moved != null) goal = moved;
+        double flat = body.position().subtract(goal).horizontalDistance();
         double left = remaining(body);
         readNavigation(body);
         if (arrived || arrive > 0 && flat <= arrive) {
@@ -148,7 +156,15 @@ public final class Walk implements Action {
         }
         if (SurfaceApproach.lastResult(body, target) == SurfaceApproach.Result.BLOCKED)
             return Outcome.of(Reason.NO_PATH, left, String.format(Locale.ROOT, "left=%.2f route=blocked", left));
-        return new Running(left, TravelMode.PASS);
+        // A route planned round what held the body up is a new way, measured from here (each blocker once).
+        int seen = replans(body);
+        boolean fresh = seen != replans;
+        replans = seen;
+        return new Running(left, TravelMode.PASS, fresh);
+    }
+
+    private static int replans(YukkuriEntity body) {
+        return body.getNavigation() instanceof YukkuriGroundNavigation ground ? ground.replans() : 0;
     }
 
     /** Plans the host route on its walk grid, both ends snapped to a supported cell: no route is {@code NO_PATH} with the straight distance; a replan keeps off other riders. */
@@ -216,14 +232,18 @@ public final class Walk implements Action {
     private double remaining(YukkuriEntity body) {
         Vec3 at = body.position();
         var path = body.getNavigation().getPath();
-        if (path == null || path.isDone() || path.getNodeCount() <= 0) return at.distanceTo(target);
+        if (path == null || path.isDone() || path.getNodeCount() <= 0) {
+            // steering round a footprint, the way round is what is left, not the straight line
+            double way = body.getNavigation() instanceof YukkuriGroundNavigation ground ? ground.way(goal) : Double.NaN;
+            return Double.isFinite(way) ? way : at.distanceTo(goal);
+        }
         double left = 0;
         for (int i = Math.max(0, path.getNextNodeIndex()); i < path.getNodeCount(); i++) {
             Vec3 node = path.getEntityPosAtNode(body, i);
             left += at.distanceTo(node);
             at = node;
         }
-        return left + at.distanceTo(target);
+        return left + at.distanceTo(goal);
     }
 
     private void readNavigation(YukkuriEntity body) {

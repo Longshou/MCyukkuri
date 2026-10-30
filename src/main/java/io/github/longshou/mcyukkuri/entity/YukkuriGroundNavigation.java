@@ -1,10 +1,16 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.geom.Detour;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +19,7 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.level.Level;
@@ -26,15 +33,27 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * Dry-area routines may route around an exposed gap; hunger and danger can release the preference.
- * A walker that stops making progress with another yukkuri in front of it first steps aside, then re-plans around
- * that body, and finally asks an idle blocker to make room. Bodies never close the path finder for good.
+ * Placed hats and standing bodies are footprints ({@link Detour}): a search keeps the foot off a hat's brim and prefers to
+ * miss standing bodies; every step heads round the first footprint on the way, on the side it took. A walker that stops
+ * making progress against one plans round it once (solid for a while), then asks an idle body to make room.
+ * Bodies never close the path finder for good.
  */
 public final class YukkuriGroundNavigation extends GroundPathNavigation {
-    private static final int WINDOW = 15, REPLAN_GAP = 60;
-    private Vec3 sample;
-    private long sampleTick, lastReplan;
-    private int blockedWindows;
-    private Set<BlockPos> avoidCells = Set.of();
+    /** Stall sample window (ticks); how close (blocks) to where it heads a body counts as arriving, not held up. */
+    private static final int WINDOW = 15;
+    private static final double ARRIVING = .3;
+    /** How long (ticks) a blocker stays solid for planning, how many at once, and the widest stretch (blocks) a search looks for footprints over. */
+    private static final int SOLID_TICKS = 100, SOLID_MAX = 8, PLAN_SPAN = 48;
+    /** A footprint a walker keeps its foot off: plane box, the height it stands at, the hat or body, and whether nothing may stand in it. */
+    public record Obstacle(Entity entity, Detour.Box box, double y, boolean solid) {}
+    private record Blocker(Obstacle obstacle, long until) {}
+    private Vec3 sample, aimed;
+    /** The length of the way round to where the last step was aimed. */
+    private double way;
+    private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000;
+    private int blockedWindows, turnSide, replans;
+    private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
+    private List<Obstacle> planning = List.of();
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
     private PathFinder planner;
     private record Query(int accuracy, int width, int height, AABB obstacle) {}
@@ -60,7 +79,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Planning must not change the installed route's target or reset its stuck clocks. Vanilla createPath does both. */
     @Override protected Path createPath(Set<BlockPos> targets, int margin, boolean above, int accuracy, float range) {
         if(targets.isEmpty()||mob.getY()<level.getMinBuildHeight()||!canUpdatePath())return null;
-        if(!forceSearch&&planningObstacle==null&&avoidCells.isEmpty()&&path!=null&&!path.isDone()&&path.canReach()
+        if(!forceSearch&&planningObstacle==null&&path!=null&&!path.isDone()&&path.canReach()
                 &&walkingQuery!=null&&walkingQuery.obstacle()==null
                 &&targets.contains(path.getTarget())&&fits(walkingQuery)&&accuracy>=walkingQuery.accuracy())return path;
         long started=System.nanoTime();
@@ -70,16 +89,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var centre=above?mob.blockPosition().above():mob.blockPosition();
             int span=(int)(range+margin);
             var region=new PathNavigationRegion(level,centre.offset(-span,-span,-span),centre.offset(span,span,span));
+            planning=planned(targets);
             result=planner.findPath(region,mob,targets,range,accuracy,searchMultiplier);
-        } finally { level.getProfiler().pop(); }
+        } finally { planning=List.of();level.getProfiler().pop(); }
         if(result!=null){
             if(queries.size()>=128)queries.clear();
             queries.put(result,query(accuracy));
         }
         long millis=(System.nanoTime()-started)/1_000_000;
         if(millis>=50)GameplayLog.limited(mob,"move","path_slow",200,
-                "slow ground path search sampleTarget={} candidates={} accuracy={} elapsedMs={} reached={} nodes={} avoiding={}",
-                targets.iterator().next(),targets.size(),accuracy,millis,result!=null&&result.canReach(),result==null?0:result.getNodeCount(),avoidCells.size());
+                "slow ground path search sampleTarget={} candidates={} accuracy={} elapsedMs={} reached={} nodes={} solid={}",
+                targets.iterator().next(),targets.size(),accuracy,millis,result!=null&&result.canReach(),result==null?0:result.getNodeCount(),blockers.size());
         return result;
     }
 
@@ -210,9 +230,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 PathType type = super.getCachedPathType(x, y, z);
                 if(planningObstacle!=null&&mob.getDimensions(mob.getPose()).makeBoundingBox(
                         x+entityWidth*.5,y,z+entityDepth*.5).inflate(.02,0,.02).intersects(planningObstacle))return PathType.BLOCKED;
-                // A wide mob's node covers several cells, with its centre at node + width/2, not node + .5.
-                for(var cell:avoidCells)if(cell.getX()>=x&&cell.getX()<x+entityWidth&&cell.getY()>=y&&cell.getY()<y+entityHeight
-                        &&cell.getZ()>=z&&cell.getZ()<z+entityDepth)return PathType.BLOCKED;
+                // A wide mob's node covers several cells, with its centre at node + width/2, not node + .5: a foot there over a
+                // solid footprint (a hat's brim, a blocker) is blocked, over a standing body it costs as a danger.
+                if(!planning.isEmpty()&&type!=PathType.OPEN&&mob.getPathfindingMalus(type)>=0){
+                    double cx=x+entityWidth*.5,cz=z+entityDepth*.5,clear=Occupancy.foot(mob.getBbWidth());
+                    boolean costly=false;
+                    for(var o:planning)if(o.y()>=y-.5&&o.y()<y+1&&o.box().gap(cx,cz)<clear){
+                        if(o.solid())return PathType.BLOCKED;
+                        costly=true;
+                    }
+                    if(costly&&type==PathType.WALKABLE)type=PathType.DANGER_OTHER;
+                }
                 if (keepHome && mob instanceof YukkuriEntity animal
                         && !TravelRange.babyDestination(animal,new BlockPos(x,y,z))) return PathType.BLOCKED;
                 if (keepDry && mob instanceof YukkuriEntity animal
@@ -248,16 +276,89 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var next = path.getNextNodePos();
             if (Reactions.Weather.rainAt(animal, next)) stop();
         }
-        if (mob instanceof YukkuriEntity animal && !animal.level().isClientSide) watchBodyBlock(animal);
+        if (mob instanceof YukkuriEntity animal && !animal.level().isClientSide) watch(animal);
         super.tick();
+        // The route knew the footprints as they were when it was planned: each step to the next node heads round them now,
+        // where the way round stands on supported, open ground (never off a ledge or into a wall).
+        var control = mob.getMoveControl();
+        if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
+            var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
+            var aim = aim(wanted, true);
+            if (aim != wanted && SurfaceApproach.supported(walker, aim)) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
+        }
     }
+
+    /** Placed hats (their brims, solid) and, unless {@code hatsOnly}, other free bodies (their boxes) in {@code area}, standing within a block of height {@code y} (NaN: any). */
+    public static List<Obstacle> obstacles(YukkuriEntity walker, AABB area, double y, boolean hatsOnly) {
+        var out = new ArrayList<Obstacle>();
+        for (var e : walker.level().getEntities(walker, area.inflate(1), x -> x instanceof PlacedHatEntity || !hatsOnly && x instanceof YukkuriEntity)) {
+            if (!e.isAlive() || e.isPassenger() || walker.getVehicle() == e || Math.abs(e.getY() - y) >= 1) continue;
+            if (e instanceof PlacedHatEntity hat) {
+                float[] brim = HatGeometry.brim();
+                double unit = hat.unit(), turn = hat.turn();
+                out.add(new Obstacle(e, new Detour.Box(e.getId(), e.getX(), e.getZ(), brim[0] * unit, brim[1] * unit, Math.cos(turn), -Math.sin(turn)), e.getY(), true));
+            } else {
+                var box = e.getBoundingBox();
+                out.add(new Obstacle(e, Detour.Box.aligned(e.getId(), box.minX, box.minZ, box.maxX, box.maxZ), e.getY(), false));
+            }
+        }
+        return out;
+    }
+
+    /** What a search plans round: the hats and standing bodies between the walker and its targets, and the blockers it was held up by lately (solid). */
+    private List<Obstacle> planned(Set<BlockPos> targets) {
+        if (!(mob instanceof YukkuriEntity walker)) return List.of();
+        var area = new AABB(mob.blockPosition());
+        for (var target : targets) area = area.minmax(new AABB(target));
+        if (area.getXsize() > PLAN_SPAN || area.getZsize() > PLAN_SPAN) area = mob.getBoundingBox().inflate(PLAN_SPAN / 2.0);
+        var out = new ArrayList<Obstacle>();
+        for (var o : obstacles(walker, area.inflate(2), Double.NaN, false))
+            if (o.solid() || o.entity().getDeltaMovement().horizontalDistanceSqr() < 1e-4) out.add(o);
+        long now = level.getGameTime();
+        blockers.values().removeIf(s -> s.until() <= now);
+        for (var s : blockers.values()) out.add(s.obstacle());
+        return out;
+    }
+
+    /** Where to head now on the way to {@code to}: past the first footprint the straight line crosses, on the side kept ({@link Detour}). {@code moving}: the step is being taken (it keeps the side and counts for the stall watch); otherwise only a look. */
+    public Vec3 aim(Vec3 to, boolean moving) {
+        if (!(mob instanceof YukkuriEntity walker)) return to;
+        var at = mob.position();
+        long now = level.getGameTime();
+        if (moving) { steerTick = now; aimed = to; way = at.distanceTo(to); }
+        double clear = Occupancy.foot(mob.getBbWidth());
+        var near = obstacles(walker, new AABB(at, to).inflate(clear + .5), at.y, false);
+        if (near.isEmpty()) return to;
+        var turn = Detour.steer(at.x, at.z, to.x, to.z, clear, near.stream().map(Obstacle::box).toList(), turnId, turnSide);
+        if (turn.side() == 0) return to;
+        if (moving) {
+            way = turn.way();
+            if (turn.id() != turnId || turn.side() != turnSide) near.stream().filter(o -> o.box().id() == turn.id()).findFirst().ifPresent(o ->
+                    GameplayLog.limited(mob, "move", "detour", 100, "walking round {} {} #{} side={} at={} to={}", kind(o),
+                            o.entity().getUUID(), o.entity().getId(), turn.side(), GameplayLog.at(at), GameplayLog.at(to)));
+            turnId = turn.id(); turnSide = turn.side(); turnTick = now;
+        }
+        return new Vec3(turn.x(), to.y, turn.z());
+    }
+
+    /** A direct steer stalled against a footprint just now: the surface approach then plans a route round it. */
+    public boolean takeStall() { boolean recent = level.getGameTime() - stallTick <= 2; stallTick = -1000; return recent; }
+
+    /** The way left to {@code to} by the turn just taken (a walk's honest metric while it steers round a footprint), or NaN when it is not being steered there. */
+    public double way(Vec3 to) { return aimed != null && aimed.distanceToSqr(to) < 1e-6 && level.getGameTime() - steerTick <= 2 ? way : Double.NaN; }
+
+    /** How many times a stall made this walker plan round a blocker: a walk that sees it grow measures progress anew. */
+    public int replans() { return replans; }
+
+    private static String kind(Obstacle o) { return o.entity() instanceof PlacedHatEntity ? "hat" : "yukkuri"; }
 
     private void resetBlock() { sample = null; blockedWindows = 0; }
 
-    /** Samples progress every WINDOW ticks; only a stalled walker with a body ahead escalates, so nothing runs per tick. */
-    private void watchBodyBlock(YukkuriEntity animal) {
+    /** Samples progress every WINDOW ticks while walking (a path or a direct steer); only a walker held up by a footprint ahead escalates, so nothing runs per tick. */
+    private void watch(YukkuriEntity animal) {
         long now = animal.level().getGameTime();
-        if (path == null || path.isDone() || !animal.onGround() || animal.isPassenger() || animal.isCommandPlaying()) {
+        boolean walking = path != null && !path.isDone() || now - steerTick <= 2;
+        if (!walking || !animal.onGround() || animal.isPassenger() || animal.isCommandPlaying()) {
             resetBlock();
             return;
         }
@@ -265,81 +366,54 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (now - sampleTick < WINDOW) return;
         double moved = Math.hypot(animal.getX() - sample.x, animal.getZ() - sample.z);
         sample = animal.position(); sampleTick = now;
-        if (moved >= (animal.isCrawling() ? .02 : .12)) { blockedWindows = 0; return; }
-        Vec3 heading = heading(animal);
-        YukkuriEntity blocker = bodyAhead(animal, heading);
+        if (moved >= (animal.isCrawling() ? .02 : .12) || aimed == null || animal.position().distanceTo(aimed) < ARRIVING) { blockedWindows = 0; return; }
+        Vec3 heading = new Vec3(aimed.x - animal.getX(), 0, aimed.z - animal.getZ()).normalize();
+        var blocker = blocker(animal, heading, now);
         if (blocker == null) { blockedWindows = 0; return; }
         int stage = ++blockedWindows;
-        String action;
-        if (stage == 1 || stage == 4) action = sidestep(animal, blocker, heading) ? "sidestep" : "no_room";
-        else if (stage == 2) action = replan(animal, blocker, now) ? "replanned" : "no_alternative";
-        else action = yieldRequest(animal, blocker, heading) ? "blocker_yields" : "blocker_busy";
-        if (stage >= 4) blockedWindows = 0;
+        String action = stage == 1 ? replan(blocker, now) ? "replanned" : "no_alternative"
+                : stage == 2 && blocker.entity() instanceof YukkuriEntity other ? yieldRequest(animal, other, heading) ? "blocker_yields" : "blocker_busy"
+                : "waiting";
         GameplayLog.limited(animal, "move", "body_block_" + action, 100,
-                "blocked by yukkuri {} #{} action={} window={} target={}",
-                blocker.getUUID(), blocker.getId(), action, stage, getTargetPos());
+                "blocked by {} {} #{} action={} window={} to={}", kind(blocker),
+                blocker.entity().getUUID(), blocker.entity().getId(), action, stage, GameplayLog.at(aimed));
     }
 
-    private Vec3 heading(YukkuriEntity animal) {
-        Vec3 next = path.getNextEntityPos(animal);
-        Vec3 flat = new Vec3(next.x - animal.getX(), 0, next.z - animal.getZ());
-        if (flat.lengthSqr() < 1e-4) flat = new Vec3(animal.getLookAngle().x, 0, animal.getLookAngle().z);
-        return flat.lengthSqr() < 1e-4 ? new Vec3(0, 0, 1) : flat.normalize();
-    }
-
-    /** The nearest touching body ahead; a final path node is not evidence that every nearby body is the target. */
-    private YukkuriEntity bodyAhead(YukkuriEntity animal, Vec3 heading) {
-        YukkuriEntity best = null;
-        double bestDistance = Double.MAX_VALUE;
-        for (YukkuriEntity other : animal.level().getEntitiesOfClass(YukkuriEntity.class,
-                animal.getBoundingBox().inflate(.6, .1, .6),
-                o -> o != animal && o.isAlive() && !o.isPassenger() && !animal.isPassengerOfSameVehicle(o))) {
-            if (animal.careApproach().cooperatingWith(other)) continue;
-            if (!animal.getBoundingBox().inflate(.08,.05,.08).intersects(other.getBoundingBox())) continue;
-            double dx = other.getX() - animal.getX(), dz = other.getZ() - animal.getZ(), distance = Math.hypot(dx, dz);
-            double touching = (animal.getBbWidth() + other.getBbWidth()) * .5;
-            boolean ahead = distance < touching * .5 || (dx * heading.x + dz * heading.z) / Math.max(distance, 1e-4) > .25;
-            if (ahead && distance < touching + .5 && distance < bestDistance) { best = other; bestDistance = distance; }
+    /** What holds the walker up: the footprint it was turning round, if still touching, else the nearest touching one ahead; never a body it is meeting. */
+    private Obstacle blocker(YukkuriEntity animal, Vec3 heading, long now) {
+        double clear = Occupancy.foot(animal.getBbWidth()), nearest = Double.MAX_VALUE;
+        Obstacle best = null;
+        for (var o : obstacles(animal, animal.getBoundingBox().inflate(.6), animal.getY(), false)) {
+            if (o.entity() instanceof YukkuriEntity other && animal.careApproach().cooperatingWith(other)) continue;
+            var b = o.box();
+            double gap = b.gap(animal.getX(), animal.getZ());
+            boolean ahead = gap < 0 || b.id() == turnId && now - turnTick <= WINDOW
+                    || (b.x() - animal.getX()) * heading.x + (b.z() - animal.getZ()) * heading.z > 0;
+            if (gap <= clear + .1 && ahead && gap < nearest) { best = o; nearest = gap; }
         }
         return best;
     }
 
-    private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
-
-    /** One short walking step to the freer side (own right first, so opposing traffic parts instead of mirroring). */
-    private boolean sidestep(YukkuriEntity animal, YukkuriEntity blocker, Vec3 heading) {
-        Vec3 right = right(heading);
-        double span = (animal.getBbWidth() + blocker.getBbWidth()) * .6;
-        for (int sign : new int[]{1, -1}) {
-            Vec3 shift = right.scale(sign * span);
-            var box = animal.getBoundingBox().move(shift.x, 0, shift.z);
-            if (!animal.level().noCollision(animal, box)) continue;
-            if (!isStableDestination(BlockPos.containing(animal.getX() + shift.x, animal.getY(), animal.getZ() + shift.z))) continue;
-            animal.nudge(right.x * sign * .1, right.z * sign * .1);
-            return true;
-        }
-        return false;
-    }
-
-    /** Rebuilds the route with the blocker's cells closed; the old route is kept when no other one reaches. */
-    private boolean replan(YukkuriEntity animal, YukkuriEntity blocker, long now) {
+    /** Plans round the blocker once, solid for a while: false when it was planned round already or no other route reaches. A direct steer leaves the route to the surface approach. */
+    private boolean replan(Obstacle blocker, long now) {
+        blockers.values().removeIf(s -> s.until() <= now);
+        long id = blocker.box().id();
+        if (blockers.containsKey(id) || blockers.size() >= SOLID_MAX) return false;
+        blockers.put(id, new Blocker(new Obstacle(blocker.entity(), blocker.box(), blocker.y(), true), now + SOLID_TICKS));
+        if (path == null || path.isDone()) { stallTick = now; replans++; return true; }
         BlockPos target = getTargetPos();
-        if (target == null || now - lastReplan < REPLAN_GAP) return false;
-        lastReplan = now;
-        var box = blocker.getBoundingBox();
-        Set<BlockPos> cells = new HashSet<>();
-        for (BlockPos cell : BlockPos.betweenClosed(BlockPos.containing(box.minX+.001, box.minY+.001, box.minZ+.001),
-                BlockPos.containing(box.maxX-.001, box.maxY-.001, box.maxZ-.001))) cells.add(cell.immutable());
-        cells.remove(animal.blockPosition());
-        avoidCells = cells;
+        if (target == null) return false;
         Path detour;
         forceSearch=true;
         planningObstacle=walkingQuery==null?null:walkingQuery.obstacle();
         try { detour = createPath(target, walkingQuery==null?0:walkingQuery.accuracy()); }
-        finally { avoidCells = Set.of();forceSearch=false;planningObstacle=null; }
-        if (detour == null || !detour.canReach() || detour.sameAs(path)) return false;
-        return moveTo(detour, speedModifier);
+        finally { forceSearch=false;planningObstacle=null; }
+        if (detour == null || !detour.canReach() || detour.sameAs(path) || !moveTo(detour, speedModifier)) return false;
+        replans++;
+        return true;
     }
+
+    private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
 
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */
     private boolean yieldRequest(YukkuriEntity animal, YukkuriEntity blocker, Vec3 heading) {

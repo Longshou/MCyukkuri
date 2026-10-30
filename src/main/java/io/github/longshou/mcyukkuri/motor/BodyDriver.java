@@ -157,7 +157,7 @@ public final class BodyDriver {
             return TravelMode.PASS;
         }
         long tick = now();
-        if (running.metric() < bestMetric - action.progressEpsilon()) {
+        if (running.replanned() || running.metric() < bestMetric - action.progressEpsilon()) {
             bestMetric = running.metric();
             windowStart = tick;
         } else if (tick - windowStart >= action.progressWindow()) {
