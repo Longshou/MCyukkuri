@@ -197,6 +197,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private String hurtCryCause;
     private final ShellRetraction shellRetraction = new ShellRetraction(this);
     private int reactionTicks;
+    /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
+    private boolean reactionHeld;
     private final SpeechTiming speechTiming = new SpeechTiming();
     private final RandomSource speechRandom = RandomSource.create();
     private String reactionExpression = "neutral";
@@ -688,15 +690,15 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A parent whose newborn was lost at birth: a blank stare, then crying and calling out (bereaved clip). */
     public void bereave() {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(EmotionEvent.BIRTH_LOSS);
+        reactionTicks = 100; reactionHeld = false; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(EmotionEvent.BIRTH_LOSS);
         pendingSpeech = "family_died"; pendingSpeechTicks = 32;
     }
 
     /** A reaction whose line is spoken after a delay, when the clip reaches its face (the newborn's first
      *  greeting waits for the first_wake clip to open its eyes and smile; project original timing). */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks) {
-        if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = event == null ? "" : event;
+        if (level().isClientSide || held()) return;
+        reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = event == null ? "" : event;
         pendingSpeech = reactionEvent; pendingSpeechTicks = Math.max(1, speechDelayTicks);
     }
 
@@ -704,10 +706,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     public void showReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide) return;
-        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
+        if (level().isClientSide || held()) return;
+        reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         speak(dialogue);
     }
+    /** The same reaction, held for all its ticks: any other reaction shown meanwhile is dropped, so the face cannot flip back and forth. */
+    public void holdReaction(String expression, String dialogue, int ticks) {
+        if (level().isClientSide || held()) return;
+        showReaction(expression, dialogue, ticks);
+        reactionHeld = true;
+    }
+    private boolean held() { return reactionHeld && reactionTicks > 0; }
 
     /** Dialogue tier from the life stage: baby, juvenile and adult; an adult kept childish by voice flags stays "young". */
     public String speechTier() {

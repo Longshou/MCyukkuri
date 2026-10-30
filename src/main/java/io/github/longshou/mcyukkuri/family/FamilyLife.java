@@ -101,6 +101,8 @@ public final class FamilyLife {
     private int bumpTicks, comfortTicks, comfortNear;
     private UUID comfortBaby;
     private static final int COMFORT=200;
+    /** Ticks a relative's startle at a newborn's hard landing is held before anything else shows (project design). */
+    private static final int MISS_SHOCK=50;
     private PlacedHatEntity choreHat;
     private IntentRunner chore;
     /** A failed hat errand waits this long before the same body tries again (bounded retries, never a busy loop). */
@@ -259,7 +261,8 @@ public final class FamilyLife {
     public String activity() {
         var action=entity.motor().current();
         if(action instanceof PlaceProp||action instanceof TakeProp)return action.pose().clip();
-        if(task==Task.COMFORT&&comfortTicks>0&&comfortNear>=10)return Behaviors.NUZZLE;
+        // Comforting comes before a birth role's clip, so the cheering hat_hold faces never show over a hurt newborn.
+        if(task==Task.COMFORT&&comfortTicks>0)return comfortNear>=10?Behaviors.NUZZLE:Behaviors.IDLE;
         if(laboring())return Behaviors.LABOR;
         var role=Conductor.roleOf(entity);
         if(role!=null&&role.engaged(entity)){
@@ -511,16 +514,18 @@ public final class FamilyLife {
     /** The newborn this relative greets with its small hop (answering, and the body can hop), or null. */
     LiveBirth.Welcome greetHop(){return Gesture.smallHopImpulse(entity)>0?answering():null;}
     /** The father and the older siblings turn to a landed newborn and answer its first greeting with the classic one (L36: a
-     *  heard ゆっくりしていってね is echoed); a hurt one frightens them and the mate comes to comfort it. */
+     *  heard ゆっくりしていってね is echoed). A hurt one startles them first, the startle held whole (MISS_SHOCK, nothing else
+     *  shown over it); only then does the mate go to comfort it. */
     private void greet(){
         if(!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
         long since=level().getGameTime()-hello.tick();boolean hurt=baby.family().bumped(),mate=partner()!=null&&partner().equals(baby.family().mother());
         entity.getLookControl().setLookAt(baby,20,20);
         if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",LiveBirthGeometry.REST);
-        if(since==6&&mate&&hurt&&entity.distanceToSqr(baby)<256)comfort(baby);
-        if(since!=30)return;
-        if(hurt&&entity.onGround()&&!entity.isPassenger()&&!flying()){entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);}
-        else if(answering()!=null){entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
+        if(hurt&&since==6&&entity.onGround()&&!entity.isPassenger()&&!flying()){
+            entity.mind().felt(EmotionEvent.FRIGHTENED);entity.holdReaction("surprise","afraid",MISS_SHOCK);BirthStaging.sweat(entity);
+        }
+        if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
+        if(since==30&&!hurt&&answering()!=null){entity.showReaction("happy","",40);entity.speak("newborn");BirthStaging.affection(entity);}
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {
@@ -585,11 +590,11 @@ public final class FamilyLife {
         if(motor.current() instanceof Face&&motor.owner()!=null&&beats.ownerId().equals(motor.owner().ownerId())||Math.abs(Mth.wrapDegrees(yaw-entity.getYRot()))<=Face.FACE_ARRIVED)return;
         motor.run(beats,new Face(yaw));
     }
-    /** A parent hurries to a newborn that fell hard, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
+    /** A parent hurries to a newborn that fell hard, worried, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
     public void comfort(YukkuriEntity baby){
         if(entity.level().isClientSide||baby==null||baby==entity||!adult()||entity.isNoAi()||!entity.isAlive())return;
         comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
-        entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40);
+        entity.showReaction("teary","",40);
     }
     /** Only the COMFORT task may advance contact or steer. */
     private void tickComfort(){
