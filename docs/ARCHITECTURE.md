@@ -73,8 +73,8 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 | `WaterDistress` / `EscapeWater`（`life/`） | 落水阶段、浸水、呼救与离水喘息归 `WaterDistress`，它不写身体：水中身体的浮力由 `BodyDriver.tickTravel` 在交给原版积分前施加（`motor/geom/Buoyancy.bodyLift`），脱困是优先级 0 的 `EscapeWaterGoal` 经 `IntentRunner` 运行的 `EscapeWater` 意图，手段只调用 `Swim`／`Climb`／`Right`，够得着只问 `ContactGeometry.canGrip`；这个 Goal 也是落水事件的所有者：落水冲击过去、开始自救时在 `AskLedger` 开事件，出水后关闭；规则见[基础生活](CORE_GAMEPLAY.md)与[落水自救](AQUATIC_MARISA_IMPLEMENTATION.md#落水救助与靠岸) |
 | `HatCustody`（`headwear/`，挂在 `LifeAccessory`） | 帽子在哪的唯一记录：`WORN`／`DEPLOYED`／`HELD_BY_PARENT`／`LOST`；读取是纯函数，转换只有命名的几种并各记一条日志；放下的帽子的托管由 `PlacedHatEntity` 以同一令牌匹配；重载从真实托管重建。戴着时还保管夹在帽里的木棍（存档 `HatCustody.Kit`），帽子放下时木棍随帽交给 `PlacedHatEntity`（存档 `Kit`），收回时回到托管，任何时刻只有一处 |
 | `ParentCarry`（`FamilyLife.carry()`） | 陆上亲代承托的唯一所有者：承托方式（嘴、帽檐、尾巴、辫梢）的容量判定、何时抬与放下的原因和保留时间；接起是共享 `Grab`（按 `ParentCarry.holdsFor` 选承托方式，够及只问 `ContactGeometry.inMouthReach`／`inBraidReach`），带回是共享 `Walk`，放下由优先级 2 的放下 Goal（家庭组件登记）运行共享 `Release`（帽檐、尾巴先放到地面；受阻时挪一个身位重试，最多 4 次）；被动时钟只观察，落水、着火、惊慌、手术、死亡与受击等经 MOTOR 打断桥（`Release.interrupted`）在实际位置松开，每次松开都由 `ParentCarry.released` 清掉记录。孩子是亲油实体的真实乘客（`YukkuriEntity.canAddPassenger`／`positionRider` 委托 `ParentCarry.seat`，位置由该承托方式的亲油几何算出）；唯一记录是同步并随家庭存档的 `ParentCarry.HOLDS`（每只孩子的承托方式、帽檐位置与放下进度）；客户端经 `YukkuriView.passengerViews()`／`carryHolds()`／`motorAction()` 与静态 `rawSeat`／`mouthLane`／`brimSeat` 读取，不读服务端组件 |
-| `Drive`／`DriveWeights`／`Desire`（`intent/`） | 一个领域的欲望竞争（技术规格 11.4）：领域 Goal 每 tick 调 `Drive.tick()`，它持有该领域唯一的 `IntentRunner`，每 10 tick（按实体 id 错开、意图结束后立即）按 `data/mcyukkuri/drive/<领域>.json` 的权重打分，承诺与持续 10 次评估的切换规则在纯函数 `DriveMath`；以 EXHAUSTED／LOST 结束的意图在其欲望所依据的稳定事实（`Desire.world`）或 200 tick 时段变化前不再参评；欲望的来由说明与日志参数只在实际写出时生成；不存档，读数登记弱引用不留住个体。读数 `aquatic.desire` 读 `Drive.status`；别的个体经 `Drive.running(body, domain)` 只读对方正在运行的意图 |
-| `Ask`／`AskLedger`（`intent/`） | 求助的唯一账本（技术规格 11.3）：事件由其所有者开启与关闭（落水者的 `EscapeWaterGoal`、请父船划近的母油），每个（事件，帮手）只抽一次并保存概率、抽值与结果，帮手的领域 Goal 读到接受就运行自己的意图，结束后标记不再接手；只淘汰已关闭的事件，所有者死亡或离开世界时在下次读取时关闭；不存档，服务器停止时清空 |
+| `Drive`／`DriveWeights`／`Desire`（`intent/`） | 一个领域的欲望竞争：领域 Goal 每 tick 调 `Drive.tick()`，它持有该领域唯一的 `IntentRunner`，每 10 tick（按实体 id 错开、意图结束后立即）按 `data/mcyukkuri/drive/<领域>.json` 的权重打分，承诺与持续 10 次评估的切换规则在纯函数 `DriveMath`；以 EXHAUSTED／LOST 结束的意图在其欲望所依据的稳定事实（`Desire.world`）或 200 tick 时段变化前不再参评；欲望的来由说明与日志参数只在实际写出时生成；不存档，读数登记弱引用不留住个体。读数 `aquatic.desire` 读 `Drive.status`；别的个体经 `Drive.running(body, domain)` 只读对方正在运行的意图 |
+| `Ask`／`AskLedger`（`intent/`） | 求助的唯一账本：事件由其所有者开启与关闭（落水者的 `EscapeWaterGoal`、请父船划近的母油），每个（事件，帮手）只抽一次并保存概率、抽值与结果，帮手的领域 Goal 读到接受就运行自己的意图，结束后标记不再接手；只淘汰已关闭的事件，所有者死亡或离开世界时在下次读取时关闭；不存档，服务器停止时清空 |
 | `aquatic/AquaticGoal`、`AquaticLife` | 水生的唯一领域 Goal（优先级 3）与共用读取：一个 `Drive` 运行出航 `SetOut`、上岸与找回帽子 `Ashore`、夜泊 `Moor`、水上 `Cruise`、孩子随行 `Follow`、帽内进食与捞食 `Provision`、帽内喂食与安抚 `Care`、救起落水的孩子 `Rescue`、送孩子到父船与划近 `Share`（WP6b）；帽内储粮经共享 `Pick` 的取物源（`HullLarder.portion`）被嘴取走，喂食的口中食物是家庭喂食同一份（`FamilyLife.holdCareFood`／`chewCareFood`／`handCareFood`）；手段由 `Plan` 按现场事实逐段给出（不存阶段），身体动作只调用共享动作（`Ferry` 汇集叼起、跳上跳下、放下），水面寻路在 `Waters`（`motor/geom/GridPath` 一格一单元）；自然生成钩子经 `DomainHooks.spawn`：尚未加入世界的个体在它自己的加入事件（最低优先级、未被取消）里放帽坐上，已加入的（聚落成员）立即坐上；`Waters` 的寻路、泊位、岸凹与木棍答案按同一问题缓存 20 tick（有界，不存实体） |
 | `LiveBirth`（`family/`，基于 `intent/Choreography`、`Conductor`） | 近产的胎生／茎生是母油 `FamilyLife` 指挥的一场编排：被动时钟只推进胎次账本与节拍数据（孕程、产程、出生、落地问候时刻），不写身体、不调 `run`、不停导航。母油与接生者由优先级 2 的 `BirthGoal` 用各自的 `IntentRunner` 执行当前节拍给自己的意图（`Rendezvous`／`GoTo` 会合、经 `headwear/HatProp` 的 `PlaceProp`／`TakeProp` 放帽收帽、`Face` 转向出口、`Unload` 清空）并把结果回报给编排；角色只登记在编排里，`Conductor.roleOf` 按距离查找。接收者为放下的帽、窝、地面或她乘着的自己的帽船（`OwnHull`：出口对准帽腔空处 `PlacedHatEntity.hollowPlaces`，没有会合、放帽、清空与收帽）；存档只有 `Birth` 的节拍、角色与接收者，其余重载后按真实世界重选。`GrowthSize.birth(kind, child)` 读取受孕时保存的个体基础体型，`physicalBirth` 按既有形态倍率派生实际尺寸，茎上、出生显示与碰撞共用该尺寸，客户端只读同步视图。已抽定的出生冲量与“已发射”标志存在新生儿身上；发射、首次接触与落定、窝沿滚动和落地弹跳都在它自己的 `travel` 决策 tick 里经 `Launch`／`Gesture` 执行，首次接触用 `HatGeometry.envelope`（魔理沙的身体盒与帽檐盒）。规则见[分娩与接生](CONSUMABLES_AND_BIRTH.md#分娩动作接生与水上分娩) |
 | `CareDecisionLedger`（`FamilyLife.careDecisions()`） | 亲代按孩子与需求保存照护决定；陆地喂养和首便共用接受／拒绝结果，执行路径只推进真实动作与物资交接，物理失败退让各自保存 |
@@ -88,6 +88,68 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 `headwear/PlacedHatEntity`（实体 ID `placed_hat`）保持放下的帽子的实体交接与同步时机：乘员的局部位置与朝向存于 `Riders` 并同步到 `RIDERS`，存档走同一路径；帽体几何由 `headwear/HatGeometry` 提供，四种形态的尺寸统一由 `headwear/HatScale`（成长 × 种类系数，戴帽渲染、帽实体与物品同读）给出。帽子怎么动由行为插槽 `headwear/PlacedHatBehavior` 决定：每 tick 取第一个适用的已登记提供者，否则用陆地行为（原版重力与方块碰撞、不可推、帽面水平）。行为只移动帽子本身，经 `pose` 写同步的 roll／pitch（`frame()`、乘员定位与渲染共用，存档键 `Roll`／`Pitch`），并回答 `pushable`／`push`、空手或非储存物右击 `shake`、手持物右击 `store`、帽底占位 `obstacles`、载重 `load`、帽子离开该行为／被收回／被销毁时掉出所持物的 `release`、`steady`、`catches`（不是接生帽时帽主可乘坐）、`shelters`，以及经 `SurfaceHost` 转来的扶正 `right`、划桨 `thrust` 与帽内物品 `holds`；行为要画的帽内物品写进同步槽 `CONTENTS`，客户端经 `PlacedHatView.contents()` 与 `PlacedHatRenderer.layer` 登记的图层绘制；翻覆甩出乘员只经 `Motor.dismount`。`SurfaceHost.room` 计入 `obstacles`，按脚圆与竖直范围（`motor/geom/Disc`：脚底到身顶、储粮堆高）判定，下落接触另带本 tick 下落经过的高度；`SurfaceHost.bears` 是唯一接纳谓词（帽主的幼体、在船上的帽主，刚被挤出的除外），接触落定只认它；陆地行为的接触段 `clearUnder` 把中心落在帽下的身体经 `Motor.move` 慢慢推出；`load()` 进入乘员能力的载重系数 L，`walkGrid` 给宿主上 `Walk` 的 `GridPath` 规划（按帽底与倾斜档缓存）；帽子每 tick 用 `motor/geom/Squeeze` 分开脚圆重叠的乘员，只写 `Riders`，挤出帽檐的经 `Motor.dismount`，短时间内不再接纳其接触落定。`SurfaceHost.shelters` 为真时 `YukkuriEntity` 的入水与溺水判定视该乘员为干燥。水生扩展的帽体在水里即生效：`aquatic/HullAfloat` 由 `CommonRegistration` 登记，客户端遮水 `client/aquatic/HullWaterMask` 由 `ClientRegistration` 接入，纯浮力与倾斜计算在 `motor/geom/Buoyancy`；储粮为 `aquatic/HullLarder`（存于帽子 `Motion` 的 `Portions`），绘制为 `client/aquatic/HullLarderRenderer`；其余底座包不 import `aquatic`。`Paddle` 动作已接 `thrust`；`HatProp` 的水面模式问行为插槽 `PlacedHatBehavior.carried`（提供者的 `carries`）决定能否把帽子放在水面上，`TakeProp` 嘴够到帽体即可收回，水上的帽子（`Prop.byBrim`）嘴或辫够到帽檐也可。没有动作、不在乘坐、自由下落且 3 格内有宿主的身体每 tick 用 `ContactResolver` 判定是否落进宿主（被放下的孩子落进帽腔）。水上日常意图见上表 `aquatic/AquaticGoal`。
 
 `MindLife` 接收 `EmotionEvent`，业务效果不依赖对白播放；五属性由实体性格组件保存，`Cognition` 只查询规则。饲主查询正规化与成功入场后的世界清理分开，回滚保留未知字段。掉落拾取先复制要转交的一份，进食接纳后才缩减并写回剩余堆叠，不能转交已清空的引用。
+
+## 身体、动作与意图层
+
+分层只向下依赖：行为层（`Drive` → `Intent` → `Method`，以及仪式 `Choreography`）只经 `BodyDriver` 请求动作；动作层只读身体层，只经 `Motor`／`Attach` 改身体；身体层是能力、依附、宿主与容器；之下是原版移动、碰撞、骑乘和 `YukkuriGroundNavigation`。横切的显示读动作姿态、依附与编排节拍，日志前缀 `[intent][method][action][body][choreo]`（见[玩法日志](GAMEPLAY_LOGGING.md)）。包布局：
+
+| 包 | 内容 |
+| --- | --- |
+| `motor/` | `Motor`、`BodyDriver`、`Attach`／`AttachState`、`BodyAbility`／`AbilityTable`／`AbilityModifier`、`Action`／`Outcome`／`Reason`／`Feasibility`、`ContactResolver`／`ContactGeometry`、`ClipMarkers` |
+| `motor/action/` | 共享动作：`Walk` `Face` `Hop` `Launch` `Gesture` `Await` `Grab` `Release` `Pick` `PlaceProp` `TakeProp`，水中 `Swim` `Climb` `Push` `Right` `Paddle` |
+| `motor/surface/` | `SurfaceHost` `HostFrame` `Riders` `Container` `Occupancy` `BedContainer` `HostContainer` |
+| `motor/geom/` | 纯 Java 几何与数学（弧线、弹道、足迹、高度场、网格寻路、浮力、挤开），单元测试在 `src/test/java` |
+| `intent/` | `Intent` `Method` `Step` `IntentRunner` `Attempts` `WorldSignature`；`Choreography` `Beat` `Conductor` `Rendezvous` `GoTo`；`Drive` `Desire` `Commitment` `Ask` `AskLedger` |
+| `headwear/` | 放下的帽子 `PlacedHatEntity`（`SurfaceHost`）、`HatGeometry`、`HatScale`、`HatCustody`、`HatProp` |
+| `aquatic/`、`client/aquatic/` | 水生魔理沙扩展：帽船行为、储粮、水上意图与渲染；`subspecies/` 只留通用亚种 |
+
+**设计原则**（评审时逐条对照）：能力决定动作，高度、距离、速度、时长只来自能力表、物理或片段标记；一个动作只实现一次；行为只说目标，不含坐标插值、冲量与曲线；任何限制都配至少一个能缩小它的手段；世界连续，空间与拥挤由几何现场判定，无座位表、冲突矩阵；物理是唯一真相，动作的每个结束路径都按实际位置落定；一个身体同一时刻只有一个驱动者，被动时钟只读；演出可以独有，动作不能独有（编排决定何时、什么顺序、谁、播什么，不决定身体怎么动、算不算成功）；底座不认识 DLC，DLC 只经 `AbilityModifier`、`SurfaceHost` 实现、领域 Goal、后果规则和帽子行为插槽接入，关掉 DLC 注册后陆地玩法照常；行为由真实欲望竞争驱动，演出靠调欲望权重而非写死（只有设定事实是硬规则：生殖只在岸上、水生只与水生配对、水伤数值、产程顺序）；领域之间沿用原版 Goal 优先级仲裁，不设顶层 Drive；真实失败有后果，手段用尽才失败；试玩场不用场景开关强制出生结果，有无接生帽、窝由真实初态决定。
+
+### Motor 与依附
+
+- `Motor` 是写身体的唯一门面：`velocity`、`move`（带碰撞）、`face`、`mount`、`dismount`（在实际脚点卸下，线程局部标志 `DISMOUNTING` 令 `getDismountLocationForPassenger` 返回乘客当前位置）、`nudge`（仅供落定推出碰撞，单次不超过 0.25 格）、`relocate`（系统有意安放身体：送货落位、手术台、取出关押、脚本仪式、入世界前生成；记 `[body] relocate`，绝不用来结束失败的行动）。`motor/` 之外对 `YukkuriEntity` 写位置、速度、朝向或骑乘由 `BODY_WRITE` 守卫拦截，`YukkuriEntity` 对原版方法的覆写只转调 `BodyDriver`，基线已清零、无许可条目。
+- `Attach.of(body)` 是纯读取，依附为 `Free(inWater)`、`Airborne(action)`、`OnHost(host, local, yaw)`、`Held(carrier)`，由原版载具关系与宿主 `Riders` 推导，不单独存档、不另存“在帽里”“在搬运”标记；`Attach.settle` 按事实推导并在必要时推出碰撞。转换只由动作发起：Hop／Launch 接触帽面为 Airborne → OnHost，Grab 为 → Held，Release／跳下／滑落／甩出经 `dismount` → Free。违反“载具唯一、`Riders` 键集等于宿主乘客集、卸下前后位移不超过 0.25 格”时记 `[body] invariant` WARN，不替代码“修正”。
+- 搬运者死亡、受击、受惊、命令、锁定经 MOTOR 打断桥落到当前动作的 `Release`，在实际位置落定；宿主移除、区块卸载、换维度由原版弹出乘客，身体成为 `Free` 并留在实际位置。
+
+### SurfaceHost、Container 与 Occupancy
+
+- `SurfaceHost`（`PlacedHatEntity` 实现）提供 `frame()`、`support`（局部高度场）、`room`（脚圆与其他乘员、储粮在竖直范围相交才算重叠，`motor/geom/Disc`）、`bears`（唯一接纳谓词）、`rim`、`container`、`spots`（地名，只作目标）、`riders`、`steady`、`unloadRequested`（由意图推导，不另存）。`HostFrame` 把局部（帽单位）与世界互转，矩阵顺序与帽的 roll／pitch 一致。`Riders`（UUID → 局部坐标、朝向）是乘员位置的唯一存储，存档与 `RIDERS` 同步槽同形；`positionRider` 只做 `frame().toWorld(local)`，`OnHost` 身体的位移只写局部坐标，不写世界位置。帽内寻路为局部 `HeightGrid` 上的 `GridPath`（相邻格高差不超过 `stepUp` 才连边）。
+- `Container`（`BedContainer` 窝、`HostContainer` 帽腔）给出内底形状、`floorY`、`rimY`；`Occupancy.of` 委托纯函数 `OccupancyMath.classify`（脚圆心加圆周 8 点共 9 个探针），结果 `INSIDE_SUPPORTED`／`ON_RIM`／`PARTIAL`／`OUTSIDE`。“到窝”“可入睡”“在帽里”“新生儿落进窝里”只认 `INSIDE_SUPPORTED`，其余由方法继续 Walk 到休息点。足迹、容差等数值只在代码维护。
+
+### 能力与动作
+
+- `BodyAbility` 由体型、体力、健康、疼痛与脚伤、宿主载重系数算出跳高／跳远、台阶、走速、转身、游速、攀升、抓握、够及与搬运；全部系数来自 `data/mcyukkuri/body/ability.json`，`AbilityTable` 随 `/reload` 热加载并给出日志指纹，缺失或解析失败用代码默认值并记 WARN。`AbilityModifier` 按物种在 `modifiers` 里乘入系数；非系数的键是能力开关（`AbilityModifier.FLAGS`，如 `hat_boat`：能把戴着的帽子放到水面当船）。物种差异只经修正器，不在动作里分支。
+- `Action`：`check`（纯函数）、`start`、`tick`（返回 `Running` 或 `Outcome`）、`interruptible`、`abort`（保持物理现状并 `Attach.settle`，禁止回退）、`pose`。`Running.travel` 为 `CONSUMED`（本 tick 已自行移动）或 `PASS`（交原版 travel 积分）。`Outcome` 为 `Done`／`Blocked`／`Incapable`／`Interrupted`／`Lost`，类别由 `Reason` 固定决定（`TOO_HIGH` `TOO_FAR` `NO_PATH` `NO_SUPPORT` `NO_ROOM` `NO_CONTACT` `SLIPPED` `DROPPED` `TARGET_MOVED` `NO_PROGRESS` 为 Blocked；`TOO_HEAVY` `NO_TOOL` `EXHAUSTED` 为 Incapable；`TARGET_GONE` 为 Lost），调用方不得改记；每个原因带差额，供方法选择能缩小它的手段。
+- `BodyDriver`（组件 `MOTOR`）在 `travel` 内每 tick 执行当前动作，决策（Goal）先于执行，同 tick 生效。`run` 接受规则：无当前动作则接受；同一所有者在当前动作可中断时 abort 后接受；不同所有者仅当当前动作可中断且旧所有者 `active()` 为 false；否则拒绝并记限频的 `[action] refused`。所有者失活则 abort；`metric` 在 `progressWindow` 内下降不足 `progressEpsilon` 以 `Blocked(NO_PROGRESS)` 结束；得到 Outcome 后 `settle`、保存 `last`、记 `[action] end`。打断桥登记 FRIGHT、HURT、COMMAND、PET_LOCK、BURNING、DEATH：可中断动作立即 abort，不可中断的空中段由物理完成后以 `Interrupted` 结束；溺水／浸水伤害不打断任何动作（游、爬、扶正、推、划正是对它的应对），真实攻击照常打断。动作与依附不存档，读档后由事实与 Goal 重新决策。
+- 被动时钟、交互回调与命令不得调用 `run`：`aiStep` 在 `super.aiStep()` 期间置位 `BodyDriver.DECIDING`，其外的 `run` 一律拒绝并记 WARN；它们只改自己组件的数据，身体由拥有该行为的 Goal 在下一次决策发起动作。
+- `Hop`／`Launch` 只用原版运动学（每 tick 位置加速度，竖直 `(v−0.08)·0.98`，空中水平 ×0.91），起跳后返回 `PASS`，禁止自写积分器；弧线由 `geom/ArcSolver.lowest` 求最低可行弧，用身体盒扫掠方块与帽面，越不过障碍按“需要更高”报告差额；起跳蓄力与冲量时刻读 `ClipMarkers`。`Launch` 的冲量由调用方在预算内抽定，动作不修正冲量或速度。
+- `ContactResolver` 落定规则（Hop、Launch 共用，每个空中 tick 在原版 move 之前）：在 `steady()` 的宿主中求位移段与 `support` 曲面的向下交点；身体中心在帽上且宿主 `bears` 时一律接触，落在交点（该处 `room` 不通过则至多偏一次到最近空处，近处没有仍落交点由挤开分开），`move`、`mount`、`riders.put`、速度清零、`Done`、记 `[body] contact`；中心不在帽上、只有侧面碰到帽檐外缘或宿主不承载时是擦边：朝帽心的水平速度乘 −0.3、竖直保留并记 `rim_bounce`；其余交给原版，`onGround` 或入水后由 `settle` 成为 `Free`。它不判后果，摔伤与溺水由各自规则按实际结果触发。没有动作、不在乘坐、自由下落且 3 格内有宿主的身体每 tick 用它判定是否落进宿主。
+- `ContactGeometry` 是够得着、咬得住、托得起的唯一来源（嘴尖、辫梢、`mouthGap`、`nearestRim`、`canGrip`）；`Walk` 在地面经 `SurfaceApproach`、在宿主上经 `GridPath` 并写 `Riders`；`Grab` 的够及方式（嘴、辫梢）决定 `Held` 的位置，搬运不单列动作，持有 `Held` 时 Walk／Swim 速度按双方体宽比下降；`Release` 在实际位置卸下，不通过时报 `NO_ROOM` 由方法转身或挪步，禁止 `moveTo` 落点；`PlaceProp`／`TakeProp` 放帽收帽，`release` 标记处才生成或移除实体；`Await` 必须有限期。
+- 同步槽 `MOTOR_ACTION`、`MOTOR_START`、`ATTACH_KIND` 与宿主 `RIDERS`；客户端只经 `YukkuriView.motorAction()`／`motorStart()`／`attachKind()` 与 `PlacedHatView` 读取。读数分组 `body`（`body.ability` `attach` `action` `last` `intent` `method` `attempts`）。
+
+### 意图、方法与编排
+
+- `Intent`：`satisfied()` 只读物理事实，`deadline()` 必须有限，`methods()` 为有序手段（顺序可来自数据），`commitment()`。`Method`：`applicable()` 只读、`reduces()` 声明能缩小的原因、`next()` 给出 `Step`（`Do` 动作、`Wait` 有限等待、`Sub` 子意图、`AskFor` 求助），返回 null 但意图未满足按 `NO_PROGRESS` 处理。
+- `IntentRunner` 每 tick：已满足则 `DONE`；超期或 `Attempts` 用尽则 `EXHAUSTED` 并带全部原因与差额；当前步 `Blocked` 记入 `Attempts` 后优先换能缩小该原因的方法，`Incapable` 排除该方法，`Lost`／`Interrupted` 结束（不自动恢复，需求仍在会重新产生意图）。`Attempts` 与 `WorldSignature`（目标与宿主位置量化、阻挡实体集合、时间桶）共同保证现场未变化前不原样重试同一方法，签名变化后被排除的方法才可重选；一个意图只用一个预算，失败不改记、不双计。结束后交给领域后果规则（哭、呼救、放弃、落水）。
+- `Drive`／`Desire`／`Commitment`：每个领域只注册一个 Goal，欲望强度 × 权重减代价打分，切换须超过当前意图一定幅度并持续一段时间（滞回），`Commitment` 为 `NONE`／`SOFT`／`HARD`，`HARD` 只让位于危险类欲望；权重在 `data/mcyukkuri/drive/<领域>.json`。持有者与评估节奏见上表 `Drive` 行，`Ask`／`AskLedger` 见其行。
+- `Choreography`／`Beat`／`Conductor`：节拍为 `Perform`（角色执行一个意图，带最长 tick 与超时分支）、`Present`（片段、表情、声音）、`Await`（带期限与超时分支）、`Branch`（按结果选下一节拍）。指挥者是拥有编排实例的组件，其被动时钟只推进时间型节拍并只改编排数据；每 tick 复核当前节拍的角色存活、同维度、距离 48 格内，失效进入声明的分支；`report` 只接受当前 Perform 所发意图实例的结果，旧意图迟到的回报丢弃；任何节拍都不能无限等待。存档只含节拍 id、角色 UUID 与领域要求的数据，读档后 Perform 节拍从头运行。LiveBirth 见上表。
+- 日志模板以代码为准，开始、结束、切换、挂载与卸下记 INFO，逐 tick 采样只在 `GameplayLog.detailEnabled()` 时记。
+
+### 评审红线
+
+命中任何一条退回：
+
+1. `motor/` 之外写位置、速度、朝向或骑乘。
+2. 新增预约、租约、席位、票据或 `pending` 桥接状态（尝试预算 `Attempts` 与等待动作的期限除外）。
+3. 失败后原样重试；改记失败分类；同一次失败计入两个预算；Blocked 后立刻再 `run` 同一动作。
+4. 为某个场景加条件分支；底座出现 `isAquatic`、`boatHome()!=null` 一类分支（经接收者、宿主、能力修正或数据表达）；`BASE_IMPORTS_DLC` 守卫：`aquatic/`、`client/aquatic/`、`registry/`、`CommonRegistration` 以外不 import `aquatic.`。
+5. 行为或编排里出现跳高、时长、曲线、冲量数值（冲量分布数据除外）；新动作的高度与距离来自 `BodyAbility`，时长来自物理或 `ClipMarkers`。
+6. 新的拒绝原因没有对应的手段。
+7. 失败时倒放、回座、瞬移，或直接改成功状态；为接住新生儿修正冲量或速度。
+8. 被动时钟移动身体、调用 `run` 或改其他实体的状态（可改本组件自己的数据，如产程进度与编排节拍）。
+9. 为同一事实新增第二份存储（如单独存档 `Attach`）；客户端自行推导乘员是否在帽里。
+10. `motor/geom/` 引用 `net.minecraft.*`（`GEOM_PURE` 守卫）。
+11. 保留旧路径“以防万一”。
 
 ## 世界查询与协调
 

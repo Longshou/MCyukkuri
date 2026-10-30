@@ -21,7 +21,7 @@
 | 种族注册、元数据、创造栏与行为差异 | [种族与行为](SPECIES.md) | `entity/YukkuriVariant`、`entity/SpeciesTraits`、`life/SpeciesLife`、`registry/` |
 | 不足形态、灵胖、螺壳 | [亚种与先天形态](SUBSPECIES_IMPLEMENTATION.md) | `subspecies/` |
 | 水生魔理沙（未实现，待 WP4–6 重建） | [水生魔理沙](AQUATIC_MARISA_IMPLEMENTATION.md) | `subspecies/SubspeciesLife`（物种数据）；放下的帽子见 `headwear/PlacedHatEntity` |
-| 身体能力重构：底座、出生链与水生 DLC 的整体设计与技术规格 | [整体设计](REFACTOR_DESIGN.md)、[技术规格](REFACTOR_TECH_SPEC.md) | 底座（`motor/`、`intent/`）、`family/` 出生链与 `subspecies/` |
+| 身体、动作与意图层（`motor/`、`intent/`）的契约、设计原则与评审红线 | [代码架构](ARCHITECTURE.md#身体动作与意图层) | 底座（`motor/`、`intent/`）、`family/` 出生链与 `aquatic/` |
 | 妖梦、被炉魔理沙等稀有变体 | [妖梦与稀有变体](RARE_FORMS.md) | `rare/` |
 | 蕾米莉亚、芙兰 | [捕食种](PREDATOR_IMPLEMENTATION.md) | `predator/` |
 | 对白、气泡、配音、声音注册 | [对白与配音](DIALOGUE_IMPLEMENTATION.md) | `dialogue/`、`registry/ModSounds` |
