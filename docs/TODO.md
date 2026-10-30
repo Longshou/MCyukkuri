@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 陆地接生收尾：父油全程守候、站位在帽外、按够及选嘴或辫子、赤油产后爬向父油、叼起越过帽檐、不原样重试、台词修正 | `.worktrees/fix-birth-cleanup` | `family/LiveBirth`、`Fetch`、`Unload`、`motor/action/Grab`／`TakeProp`、`headwear/`、宿主上的 `Walk`、对白选择 |
-| 重构 WP9：寻路认识实体障碍并会绕行 | `.worktrees/wp9-pathing` | `entity/YukkuriGroundNavigation`、`life/SurfaceApproach`、地面 `Walk`、`motor/geom/` 绕行纯函数 |
 
 ## 玩法待办
 
