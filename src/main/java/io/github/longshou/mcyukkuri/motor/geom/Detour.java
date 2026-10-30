@@ -45,8 +45,12 @@ public final class Detour {
         }
     }
 
-    /** The point to head for now, the footprint and side (+1, -1) it turns round (side 0 heads straight for the target), and the length of that way to the target. */
-    public record Turn(double x, double z, long id, int side, double way) {}
+    /** The point to head for now, the footprint and side (+1, -1) it turns round (side 0 heads straight for the target), the
+     *  length of that way to the target, and {@code shut}: no corner of the footprint in the way is in sight or open (neighbours
+     *  overlap it), so there is no way round to steer by and a planned route must find one. */
+    public record Turn(double x, double z, long id, int side, double way, boolean shut) {
+        static Turn straight(double fx, double fz, double tx, double tz) { return new Turn(tx, tz, 0, 0, Math.hypot(tx - fx, tz - fz), false); }
+    }
 
     /**
      * From (fx, fz) toward (tx, tz) with foot radius {@code clear}. A footprint is kept no clearer than the body and the target
@@ -64,7 +68,7 @@ public final class Detour {
             double c = room(b, fx, fz, tx, tz, clear), t = c < 0 ? Double.NaN : b.enter(fx, fz, tx, tz, c);
             if (t < first) { first = t; hit = b; }
         }
-        if (hit == null || depth == 0) return new Turn(tx, tz, 0, 0, Math.hypot(tx - fx, tz - fz));
+        if (hit == null || depth == 0) return Turn.straight(fx, fz, tx, tz);
         // corners (anticlockwise in its own axes) as far out as the body now is, up to its foot radius, and a little past
         double c = Math.max(room(hit, fx, fz, tx, tz, clear), Math.min(clear, hit.gap(fx, fz) - EPS)), dx = tx - fx, dz = tz - fz;
         double[][] k = new double[4][];
@@ -80,17 +84,18 @@ public final class Detour {
             if (angle > most) { most = angle; left = i; }
             if (angle < least) { least = angle; right = i; }
         }
-        if (left < 0) return new Turn(tx, tz, 0, 0, Math.hypot(tx - fx, tz - fz));
+        if (left < 0) return new Turn(tx, tz, hit.id(), 0, Math.hypot(tx - fx, tz - fz), true);
         double toTarget = room(hit, fx, fz, tx, tz, clear);
         double viaLeft = around(hit, k, seen, left, fx, fz, tx, tz, toTarget), viaRight = around(hit, k, seen, right, fx, fz, tx, tz, toTarget);
         int side = viaLeft <= viaRight ? 1 : -1;
         if (keepId == hit.id() && keepSide != 0 && (keepSide > 0 ? viaLeft : viaRight) <= Math.min(viaLeft, viaRight) + KEEP) side = keepSide;
-        // a corner inside a neighbour is closed while the other side is open
-        if (!open(k[side > 0 ? left : right], boxes, hit, fx, fz, tx, tz, clear) && open(k[side > 0 ? right : left], boxes, hit, fx, fz, tx, tz, clear))
-            side = -side;
+        // a corner inside a neighbour is closed; with both closed there is no way round in sight
+        boolean openLeft = open(k[left], boxes, hit, fx, fz, tx, tz, clear), openRight = open(k[right], boxes, hit, fx, fz, tx, tz, clear);
+        if (!openLeft && !openRight) return new Turn(tx, tz, hit.id(), 0, Math.hypot(tx - fx, tz - fz), true);
+        if (!(side > 0 ? openLeft : openRight)) side = -side;
         var aim = k[side > 0 ? left : right];
         var next = steer(fx, fz, aim[0], aim[1], clear, boxes, keepId, keepSide, depth - 1);
-        return new Turn(next.x(), next.z(), hit.id(), side, side > 0 ? viaLeft : viaRight);
+        return new Turn(next.x(), next.z(), hit.id(), side, side > 0 ? viaLeft : viaRight, next.shut());
     }
 
     /** The way round on one side: to its corner in sight, then corner to corner away from the body until the target shows. */
@@ -105,8 +110,9 @@ public final class Detour {
         return length + Math.hypot(tx - k[i][0], tz - k[i][1]);
     }
 
-    /** The clearance a footprint is kept by on this leg: the foot radius, or less where the body or the target is closer; -1 when either is inside. */
-    private static double room(Box b, double fx, double fz, double tx, double tz, double clear) {
+    /** The clearance a footprint is kept by on a leg from (fx, fz) to (tx, tz): the foot radius, or less where the body or the
+     *  target is closer (a body pressed close is never sealed in, a target beside it is reached); -1 when either is inside it. */
+    public static double room(Box b, double fx, double fz, double tx, double tz, double clear) {
         double from = b.gap(fx, fz), to = b.gap(tx, tz);
         return from <= 0 || to <= 0 ? -1 : Math.max(0, Math.min(clear, Math.min(from, to)) - EPS);
     }

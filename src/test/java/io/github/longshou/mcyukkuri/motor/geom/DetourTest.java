@@ -106,6 +106,19 @@ class DetourTest {
         assertTrue(Double.isFinite(walk(-2, 0, 2, 0, boxes)[0]));
     }
 
+    @Test void bodiesOverlappingBothNearCornersLeaveNoWayRoundInSight() {
+        // two bodies pressed against the hat's near corners (their boxes overlap the brim): neither corner is open
+        var boxes = List.of(hat(0, 0, 0), Detour.Box.aligned(6, -1.2, .55, -.35, 1.4), Detour.Box.aligned(7, -1.2, -1.4, -.35, -.55));
+        var turn = Detour.steer(-2, 0, 2, 0, FOOT, boxes, 0, 0);
+        assertTrue(turn.shut(), "no way round in sight: a planned route has to find one");
+        assertEquals(1, turn.id());
+        // with one of them gone the open side is taken
+        var pair = boxes.subList(0, 2);
+        var round = Detour.steer(-2, 0, 2, 0, FOOT, pair, 0, 0);
+        assertTrue(!round.shut() && round.z() < 0, "goes round the side the neighbour leaves open");
+        assertTrue(Double.isFinite(walk(-2, 0, 2, 0, pair)[0]));
+    }
+
     @Test void aTargetUnderTheBrimMovesToTheNearestClearPoint() {
         var exits = Detour.outside(.2, .1, FOOT, List.of(hat(0, 0, 0)));
         var p = exits.get(0);

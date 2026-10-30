@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
-    /** Ticks between two {@code walk.sample} detail lines. */
-    private static final int SAMPLE_TICKS = 20;
+    /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
+    private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -37,9 +36,11 @@ public final class SurfaceApproach {
         final AABB body;
         final Vec3 destination;
         BlockPos target;
-        /** Where it is walked to: the destination, or the nearest point clear of a hat's brim it lies under. */
+        /** Where it is walked to: the destination, or the nearest point just clear of a hat's brim it lies under. */
         Vec3 goal,lastStep;
-        long retryAt,touched;
+        /** The hats round the destination when the goal was found (signature, and when last compared). */
+        long retryAt,touched,hatsSig,hatsChecked;
+        String why;
         /** The straight approach stalled against a footprint, or its way round is no clear step: a planned route until it is walked. */
         boolean routed;
         Result result;
@@ -49,6 +50,9 @@ public final class SurfaceApproach {
         }
     }
     private Approach current;
+    /** The last destination found to have no stand clear of a hat, and until when that answer holds. */
+    private Vec3 noStand;
+    private long noStandUntil;
 
     private static SurfaceApproach controller(YukkuriEntity actor){return actor.life().approach();}
 
@@ -162,21 +166,56 @@ public final class SurfaceApproach {
 
     /** Where the latest request for {@code destination} is walked to (moved clear of a hat's brim), or null without a recent one. */
     public static Vec3 goal(YukkuriEntity actor,Vec3 destination){
-        var request=controller(actor).current;
-        return request!=null&&actor.level().getGameTime()-request.touched<200&&request.destination.distanceToSqr(destination)<.0025?request.goal:null;
+        var request=recent(actor,destination);
+        return request==null?null:request.goal;
     }
 
-    /** No body stands under a placed hat's brim (the hat eases it out): a destination whose foot lies over one moves to the nearest supported, reachable point clear of it; null when there is none. */
+    /** Why the latest request for {@code destination} is blocked, or null. */
+    public static String why(YukkuriEntity actor,Vec3 destination){
+        var request=recent(actor,destination);
+        return request==null||request.result!=Result.BLOCKED?null:request.why;
+    }
+
+    private static Approach recent(YukkuriEntity actor,Vec3 destination){
+        var request=controller(actor).current;
+        return request!=null&&actor.level().getGameTime()-request.touched<200&&request.destination.distanceToSqr(destination)<.0025?request:null;
+    }
+
+    /**
+     * Where a walk to {@code destination} ends: the destination itself, or, when its middle lies under a placed hat's brim (no
+     * body stands there: the hat eases it out), the nearest supported, reachable point just clear of the brim; it stays in
+     * contact range of that hat, never pushed off by the foot. Null when there is none, remembered until the retry time.
+     */
+    public static Vec3 stand(YukkuriEntity actor,Vec3 destination){return outside(actor,destination,null);}
+
     private static Vec3 outside(YukkuriEntity actor,Vec3 destination,AABB body){
-        double clear=Occupancy.foot(actor.getBbWidth());
-        var hats=YukkuriGroundNavigation.obstacles(actor,new AABB(destination,destination).inflate(clear+1),destination.y,true);
-        if(hats.isEmpty())return destination;
-        for(var p:Detour.outside(destination.x,destination.z,clear,hats.stream().map(YukkuriGroundNavigation.Obstacle::box).toList())){
-            if(p[0]==destination.x&&p[1]==destination.z)return destination;
+        var boxes=new ArrayList<Detour.Box>();
+        for(var hat:YukkuriGroundNavigation.obstacles(actor,new AABB(destination,destination).inflate(1),destination.y,true))boxes.add(hat.box());
+        if(boxes.isEmpty())return destination;
+        var exits=Detour.outside(destination.x,destination.z,0,boxes);
+        if(exits.size()==1&&exits.get(0)[0]==destination.x&&exits.get(0)[1]==destination.z)return destination;
+        var self=controller(actor);long now=actor.level().getGameTime();
+        if(self.noStand!=null&&now<self.noStandUntil&&self.noStand.distanceToSqr(destination)<.0025)return null;
+        // cheap support first, a full route only for the best two supported exits
+        int routed=0;
+        for(var p:exits){
             var at=floor(actor,new Vec3(p[0],destination.y,p[1]));
-            if(at!=null&&plan(actor,at,body,true)!=null)return at;
+            if(at==null)continue;
+            if(plan(actor,at,body,true)!=null)return at;
+            if(++routed>=2)break;
         }
+        self.noStand=destination;self.noStandUntil=now+RETRY;
         return null;
+    }
+
+    /** The hats round a destination as they lie now (which, where, how turned): a walk finds its stand again when they change. */
+    private static long hats(YukkuriEntity actor,Vec3 destination){
+        long signature=0;
+        for(var hat:YukkuriGroundNavigation.obstacles(actor,new AABB(destination,destination).inflate(1),destination.y,true)){
+            var e=hat.entity();
+            signature+=Objects.hash(e.getId(),Math.round(e.getX()*20),Math.round(e.getZ()*20),Math.round(e.getYRot()));
+        }
+        return signature;
     }
 
     /** Physical contact uses square body boxes. A point on the centre-to-centre diagonal can be inside both bodies. */
@@ -258,7 +297,7 @@ public final class SurfaceApproach {
         }
         if(targets.isEmpty())return null;
         var navigation=actor.getNavigation();
-        var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body):navigation.createPath(targets,0);
+        var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
         if(path==null||!path.canReach()||path.getNodeCount()==0)return null;
         var first=floor(actor,path.getEntityPosAtNode(actor,0));
         if(first!=null&&actor.onGround()&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
@@ -324,14 +363,25 @@ public final class SurfaceApproach {
                 ||current.destination.distanceToSqr(destination)>=.0025||now-current.touched>=200){
             stopInput(actor);current=new Approach(actor,other,destination);
         }
+        if(current.goal!=null&&now-current.hatsChecked>=HATS_CHECK){
+            current.hatsChecked=now;
+            long hats=hats(actor,destination);
+            if(hats!=current.hatsSig){
+                var was=current.goal;
+                current.hatsSig=hats;current.goal=outside(actor,destination,body);
+                if(current.goal==null||current.goal.distanceToSqr(was)>1e-6){current.target=null;current.lastStep=null;}
+            }
+        }
         if(current.goal==null){
             if(current.result==Result.BLOCKED&&now<current.retryAt){stopInput(actor);return observed(actor,Result.BLOCKED);}
+            current.hatsSig=hats(actor,destination);current.hatsChecked=now;
             current.goal=outside(actor,destination,body);
             if(current.goal==null)return blocked(actor,"under_hat");
             if(current.goal!=destination)GameplayLog.limited(actor,"approach","outside_hat",200,
                     "destination under a hat's brim moved clear peer={} destination={} goal={}",peer,GameplayLog.at(destination),GameplayLog.at(current.goal));
         }
         destination=current.goal;
+        if(navigation instanceof YukkuriGroundNavigation ground)ground.heading(destination);
         var target=BlockPos.containing(destination);
         if(TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,target))return blocked(actor,"outside_home");
         if(!Reactions.Weather.allowsStep(actor,target))return blocked(actor,"weather");
@@ -373,7 +423,8 @@ public final class SurfaceApproach {
                     "surface route started peer={} destination={} nodes={} length={}",peer,destination,route.path().getNodeCount(),route.length());
             return observed(actor,Result.MOVING);
         }
-        return blocked(actor,"no_complete_surface_route");
+        return blocked(actor,navigation instanceof YukkuriGroundNavigation ground&&ground.solidPlanned()>0
+                ?"no_complete_surface_route solid="+ground.solidPlanned():"no_complete_surface_route");
     }
 
     private Result observed(YukkuriEntity actor,Result result){
@@ -381,7 +432,7 @@ public final class SurfaceApproach {
     }
 
     private Result blocked(YukkuriEntity actor,String reason){
-        stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+20;
+        stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+RETRY;current.why=reason;
         GameplayLog.limited(actor,"approach","path_failed",200,
                 "surface path unavailable peer={} target={} reason={} retryAfter={}",current.peer,current.destination,reason,current.retryAt);
         return observed(actor,Result.BLOCKED);
@@ -399,13 +450,13 @@ public final class SurfaceApproach {
     /** The way round the first footprint on a clear last step is itself a clear step (or there is none to go round); a look, not a move. */
     private static boolean walkable(YukkuriEntity actor,Vec3 destination){
         var aim=aim(actor,destination,false);
-        return aim==destination||clearLastStep(actor,aim);
+        return aim==destination||aim!=null&&clearLastStep(actor,aim);
     }
 
     /** Heads for the destination, round the first footprint on the way; false when that way round is not a clear step. */
     private static boolean steer(YukkuriEntity actor,Vec3 destination,double speed){
         var aim=aim(actor,destination,true);
-        if(aim!=destination&&!clearLastStep(actor,aim))return false;
+        if(aim==null||aim!=destination&&!clearLastStep(actor,aim))return false;
         actor.getNavigation().stop();
         double remaining=actor.position().distanceTo(destination);
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.

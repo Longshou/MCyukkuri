@@ -47,10 +47,12 @@ public final class Walk implements Action {
     private final Entity avoid;
     private double pace;
     private Vec3 from;
-    /** Where the ground walk actually goes (the target, or moved clear of a hat's brim), and the navigation's replans seen so far. */
+    /** Replans that may restart the watchdog window in one walk; after them NO_PROGRESS fires as usual. */
+    private static final int REPLAN_RESETS = 3;
+    /** Where the ground walk actually goes (the target, or just clear of a hat's brim it lies under), the navigation's replans seen so far, and the window restarts used. */
     private Vec3 goal;
     private boolean navDone;
-    private int nodesLeft, replans;
+    private int nodesLeft, replans, resets;
     /** The host route's waypoints (hat units, the target last) and the one being walked to. */
     private List<double[]> route = List.of();
     private int leg;
@@ -108,14 +110,16 @@ public final class Walk implements Action {
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "no_surface");
             return plan(body, false);
         }
-        return SurfaceApproach.canApproach(body, target)
+        goal = SurfaceApproach.stand(body, target);
+        if (goal == null) return Feasibility.of(Reason.NO_PATH, 0, "under_hat");
+        return SurfaceApproach.canApproach(body, goal)
                 ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_route");
     }
 
     @Override public void start(YukkuriEntity body) {
         pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * BodyAbility.carrying(body);
         from = body.position();
-        goal = target;
+        if (goal == null) goal = target;
         replans = replans(body);
     }
 
@@ -155,10 +159,11 @@ public final class Walk implements Action {
             return new Outcome.Done(String.format(Locale.ROOT, "at=%s flat=%.2f", GameplayLog.at(body.position()), flat));
         }
         if (SurfaceApproach.lastResult(body, target) == SurfaceApproach.Result.BLOCKED)
-            return Outcome.of(Reason.NO_PATH, left, String.format(Locale.ROOT, "left=%.2f route=blocked", left));
-        // A route planned round what held the body up is a new way, measured from here (each blocker once).
+            return Outcome.of(Reason.NO_PATH, left, String.format(Locale.ROOT, "left=%.2f route=blocked why=%s", left, SurfaceApproach.why(body, target)));
+        // A route planned round what held the body up restarts the watchdog window (best metric kept), at most REPLAN_RESETS times.
         int seen = replans(body);
-        boolean fresh = seen != replans;
+        boolean fresh = seen != replans && resets < REPLAN_RESETS;
+        if (fresh) resets++;
         replans = seen;
         return new Running(left, TravelMode.PASS, fresh);
     }

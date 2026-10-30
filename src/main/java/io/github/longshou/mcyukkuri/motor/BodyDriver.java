@@ -157,8 +157,10 @@ public final class BodyDriver {
             return TravelMode.PASS;
         }
         long tick = now();
-        if (running.replanned() || running.metric() < bestMetric - action.progressEpsilon()) {
+        if (running.metric() < bestMetric - action.progressEpsilon()) {
             bestMetric = running.metric();
+            windowStart = tick;
+        } else if (running.replanned()) {
             windowStart = tick;
         } else if (tick - windowStart >= action.progressWindow()) {
             double moved = Double.isInfinite(bestMetric) ? 0 : Math.max(0, bestMetric - running.metric());
