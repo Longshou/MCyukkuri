@@ -1768,7 +1768,9 @@ pond('afloat_family', '带孩子出航', '亲子出航',
           '赤油 [body] mount cause=hop_contact（落进帽腔）；子油 [intent] start id=board_parent → [action] start id=hop；最后 [intent] end id=set_out result=DONE。'
           '亲油依恋低时先自己上船、再回岸接赤油（protect_young 对 water_life，数据在 drive/aquatic.json）。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
-            ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+            ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out [^\n]*left_ashore=[1-9]']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      '亲油、会跳的子油和赤油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；靠岸后子油自己跳上岸，赤油由亲油叼着跳上岸、放在干地上，等孩子都下了船，亲油从岸边把空帽子收回戴上',
@@ -1862,7 +1864,8 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
               'birth landed … outcome=HAT（落水为 outcome=WATER，随后 [incident] open）；父油 [intent] start id=attend_mate → [aquatic] route purpose=attend_mate。'
               '帽里没有粮，母油不会凭空喂食；可手持苹果右击母船补粮，之后看 [intent] start id=feed_young → [action] start id=pick → feed mash prepared → feed_young handed。' + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
-                                         r'\[family\][^\n]* birth landed [^\n]*outcome=(?:HAT|WATER)\b'],
+                                         r'\[family\][^\n]* birth landed [^\n]*outcome=HAT\b',
+                                         r'\[intent\][^\n]* start id=attend_mate\b'],
                       forbid=_BOAT_SMOKE_FORBID))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',

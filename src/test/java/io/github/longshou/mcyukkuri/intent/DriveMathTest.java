@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** The pure scoring and switching rule; no Minecraft type is touched here. */
 class DriveMathTest {
@@ -75,15 +77,33 @@ class DriveMathTest {
     }
 
     @Test
-    void evaluationIsStaggeredByEntityIdModuloTen() {
-        assertTrue(DriveMath.due(0, 0));
-        assertTrue(DriveMath.due(10, 0));
-        assertFalse(DriveMath.due(5, 0));
-        assertTrue(DriveMath.due(5, 5));
-        assertTrue(DriveMath.due(15, 5));
-        assertFalse(DriveMath.due(10, 5));
-        // Before tick 0 the modulo must still line up, not go negative.
-        assertTrue(DriveMath.due(-5, 5));
-        assertFalse(DriveMath.due(-5, 0));
+    void evaluationIsStaggeredAndStaysDueAfterAMissedPoll() {
+        for (int id = 0; id < DriveMath.EVALUATE_EVERY; id++) {
+            long deadline = id == 0 ? 110 : 100 + id;
+            assertFalse(DriveMath.due(deadline - 1, 100, id));
+            assertTrue(DriveMath.due(deadline, 100, id));
+            assertTrue(DriveMath.due(deadline + 1, 100, id));
+            assertTrue(DriveMath.due(deadline + 100, 100, id));
+            assertFalse(DriveMath.due(deadline, deadline, id));
+        }
+        assertFalse(DriveMath.due(-6, -10, 5));
+        assertTrue(DriveMath.due(-5, -10, 5));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {100, 101})
+    void idleGoalPollingEveryOtherTickCannotStarveEvaluation(long firstTick) {
+        for (int id : new int[] {5, 6}) {
+            long evaluatedAt = firstTick; // Initial urgent evaluation before scene setup.
+            int evaluations = 0;
+            for (int tickCount = 2; tickCount <= 1001; tickCount++) {
+                long now = firstTick + tickCount - 1;
+                if ((tickCount + id) % 2 == 0 && DriveMath.due(now, evaluatedAt, id)) {
+                    evaluatedAt = now;
+                    evaluations++;
+                }
+            }
+            assertEquals(100, evaluations, "firstTick=" + firstTick + " entityId=" + id);
+        }
     }
 }

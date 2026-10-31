@@ -17,9 +17,9 @@ public final class DriveMath {
         return desire(desire) * w - c;
     }
 
-    /** This entity's evaluation tick: {@code gameTime % 10 == entityId % 10}, before tick 0 as well. */
-    public static boolean due(long gameTime, int entityId) {
-        return Math.floorMod(gameTime, EVALUATE_EVERY) == Math.floorMod(entityId, EVALUATE_EVERY);
+    /** Due once the next body-staggered interval since the last evaluation has elapsed, even if its tick was not polled. */
+    public static boolean due(long gameTime, long evaluatedAt, int entityId) {
+        return gameTime - evaluatedAt >= EVALUATE_EVERY - Math.floorMod(evaluatedAt - entityId, EVALUATE_EVERY);
     }
 
     /** Whether {@code candidate} may take the body from an intent held with {@code commitment}: NONE needs {@code current * 1.15 + 5}, SOFT {@code * 2 + 5}, HARD a danger desire. */

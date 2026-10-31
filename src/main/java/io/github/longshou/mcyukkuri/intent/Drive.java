@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.intent;
 
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.lang.ref.WeakReference;
@@ -35,6 +34,7 @@ public final class Drive {
     private long rankedAt = Long.MIN_VALUE, decided = Long.MIN_VALUE;
     private IntentRunner runner;
     private Desire current;
+    private String topChoice;
     private boolean urgent = true;
 
     /** {@code target} keys the runner's own method exclusion; the drive's failure exclusion uses each desire's world. */
@@ -93,7 +93,7 @@ public final class Drive {
         start(best, list);
     }
 
-    /** The Goal's {@code stop()}: cancels the running action and ends the current intent INTERRUPTED. */
+    /** The Goal's {@code stop()}: the runner observes completion before cancelling the running action. */
     public void stop(String why) {
         IntentRunner r = runner;
         runner = null;
@@ -111,14 +111,10 @@ public final class Drive {
     /** The desires scored above zero, best first, without the failed ones whose facts still hold; recomputed when due. */
     private List<Scored> rank() {
         long now = now();
-        if (!urgent && (rankedAt == now || !DriveMath.due(now, body.getId())) && rankedAt != Long.MIN_VALUE) return ranked;
+        if (!urgent && !DriveMath.due(now, rankedAt, body.getId())) return ranked;
         urgent = false;
         rankedAt = now;
-        List<Desire> all;
-        try { all = desires.get(); } catch (RuntimeException broken) {
-            MCYukkuri.LOGGER.warn("[intent] drive desires unreadable domain={} error={}", domain, broken.toString());
-            all = List.of();
-        }
+        List<Desire> all = desires.get();
         long bucket = bucket();
         for (var d : all) {
             var f = failed.get(d.intentId());
@@ -132,9 +128,12 @@ public final class Drive {
         }
         out.sort(Comparator.comparingDouble(Scored::score).reversed());
         ranked = List.copyOf(out);
-        var shown = all;
-        GameplayLog.limited(body, domain, "drive", 200, "drive top={} current={} failed={} fp={}", lazy(() -> top(shown)),
-                current == null ? "none" : current.intentId(), failed.keySet(), DriveWeights.fingerprint());
+        String choice = ranked.isEmpty() ? "none" : ranked.getFirst().desire().intentId();
+        if (!choice.equals(topChoice)) {
+            GameplayLog.event(body, domain, "drive evaluated gameTime={} top={} current={} failed={} fp={}", now, describe(ranked),
+                    current == null ? "none" : current.intentId(), failed.keySet(), DriveWeights.fingerprint());
+            topChoice = choice;
+        }
         return ranked;
     }
 
@@ -142,17 +141,12 @@ public final class Drive {
     private void start(Scored chosen, List<Scored> list) {
         sustain.reset();
         Desire d = chosen.desire();
-        try {
-            Intent intent = d.intent().get();
-            if (intent == null) return;
-            var next = new IntentRunner(body, intent, "drive:" + domain).target(target);
-            next.start(String.format(Locale.ROOT, "source=drive:%s top=%s why=%s fp=%s", domain, describe(list), d.why().get(), DriveWeights.fingerprint()));
-            runner = next;
-            current = d;
-        } catch (RuntimeException broken) {
-            failed.put(d.intentId(), new Failure(d.world(), bucket()));
-            MCYukkuri.LOGGER.warn("[intent] drive intent unusable domain={} id={} error={}", domain, d.intentId(), broken.toString());
-        }
+        Intent intent = d.intent().get();
+        if (intent == null) return;
+        var next = new IntentRunner(body, intent, "drive:" + domain).target(target);
+        next.start(String.format(Locale.ROOT, "source=drive:%s top=%s why=%s fp=%s", domain, describe(list), d.why().get(), DriveWeights.fingerprint()));
+        runner = next;
+        current = d;
     }
 
     private void ended(IntentRunner r) {
@@ -181,7 +175,7 @@ public final class Drive {
         return out.append(']').toString();
     }
 
-    /** Every desire with its score and the facts it came from, for the rate-limited domain line and the readout. */
+    /** Every desire with its score and the facts it came from, for the readout. */
     private String top(List<Desire> all) {
         var out = new StringBuilder("[");
         for (var d : all) {
@@ -191,11 +185,6 @@ public final class Drive {
             if (!why.isEmpty()) out.append('(').append(why).append(')');
         }
         return out.append(']').toString();
-    }
-
-    /** A log argument built only if the line is written. */
-    private static Object lazy(Supplier<String> text) {
-        return new Object() { @Override public String toString() { return text.get(); } };
     }
 
     private static List<Drive> drives(YukkuriEntity body) {
@@ -215,10 +204,8 @@ public final class Drive {
         if (drives.isEmpty()) return "none";
         var out = new StringBuilder();
         for (var d : drives) {
-            List<Desire> all;
-            try { all = d.desires.get(); } catch (RuntimeException broken) { all = List.of(); }
             out.append(d.domain).append(" current=").append(d.current == null ? "none" : d.current.intentId()).append(" desires=")
-                    .append(d.top(all)).append(" failed=").append(d.failed.keySet()).append(' ');
+                    .append(d.top(d.desires.get())).append(" failed=").append(d.failed.keySet()).append(' ');
         }
         return out.toString().trim();
     }

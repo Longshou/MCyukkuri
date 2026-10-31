@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 /** A body thrown by someone else: the caller drew the impulse, so this only applies it once and lets vanilla travel integrate it, resolving host contact each airborne tick. */
 public final class Launch implements Action {
     public static final String ID = "launch";
-    /** Air ticks allowed past the previewed flight before the body settles where it actually is (same allowance as Hop). */
+    /** Ticks allowed past the previewed flight before a missing takeoff or contact fails (same allowance as Hop). */
     private static final int SETTLE = 10;
     /** How far down the preview looks for the first real surface under the launch point (blocks). */
     private static final double PREVIEW_DROP = 32;
@@ -39,6 +39,7 @@ public final class Launch implements Action {
     private String preview = "";
     private int air;
     private double peak;
+    private boolean airborne;
 
     public Launch(Vec3 velocity, String cause) {
         if (velocity == null) throw new IllegalArgumentException("Launch needs an impulse");
@@ -77,6 +78,7 @@ public final class Launch implements Action {
     @Override public void start(YukkuriEntity body) {
         air = 0;
         peak = 0;
+        airborne = false;
         // No wind-up: the already-drawn impulse is written at once; vanilla travel integrates it from here on.
         Motor.velocity(body, velocity, "launch_" + cause);
     }
@@ -84,13 +86,16 @@ public final class Launch implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         air++;
         peak = Math.max(peak, body.getY() - from.y);
+        airborne |= !body.onGround() && !body.isInWater();
+        if (!airborne) return air > horizon + SETTLE ? Outcome.of(Reason.NO_PROGRESS, 0, "no_takeoff")
+                : new Running(metric(), TravelMode.PASS);
         ContactResolver.Contact contact = ContactResolver.resolve(body, envelope);
         // A host that refuses the mount ends the flight where physics left the body; the landing rules judge the rest.
         if (contact != null && contact.refused()) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
         if (contact != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
         if (body.isInWater()) return new Outcome.Done("water at=" + GameplayLog.at(body.position()));
         if (body.onGround()) return new Outcome.Done("landed at=" + GameplayLog.at(body.position()));
-        if (air > horizon + SETTLE) return new Outcome.Done("settled at=" + GameplayLog.at(body.position()));
+        if (air > horizon + SETTLE) return Outcome.of(Reason.NO_CONTACT, 0, "flight_timeout");
         return new Running(metric(), TravelMode.PASS);
     }
 

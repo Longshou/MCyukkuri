@@ -292,8 +292,13 @@ final class Waters {
                 item -> item.isAlive() && item.getItem().is(Items.STICK) && !item.isInWater());
         sticks.sort(Comparator.comparingDouble(body::distanceToSqr));
         for (int i = 0; i < sticks.size() && i < 3; i++) {
-            var at = SurfaceApproach.floor(body, sticks.get(i).position());
-            if (at != null && (!walk || SurfaceApproach.canApproach(body, at))) return sticks.get(i);
+            var stick = sticks.get(i);
+            var at = SurfaceApproach.floor(body, stick.position());
+            String reason = at == null ? "no_dry_floor" : walk && !SurfaceApproach.canApproach(body, at) ? "unreachable" : "";
+            if (reason.isEmpty()) return stick;
+            GameplayLog.limited(body, "aquatic", "stick_" + reason, 200,
+                    "stick rejected id={} uuid={} at={} reason={} floor={} walk={} pickupDelayed={}", stick.getId(), stick.getUUID(),
+                    GameplayLog.at(stick.position()), reason, GameplayLog.at(at), walk, stick.hasPickUpDelay());
         }
         return null;
     }

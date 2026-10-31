@@ -97,13 +97,14 @@ public final class IntentRunner implements MotorOwner {
         else readStep(now);
     }
 
-    /** The Goal's {@code stop()}: cancels the action this runner started and ends INTERRUPTED, with no resume. */
+    /** The Goal's {@code stop()}: observe completion before cleanup, otherwise end INTERRUPTED, with no resume. */
     public void stop(String why) {
         if (!active) return;
+        Result outcome = intent.satisfied() ? Result.DONE : Result.INTERRUPTED;
         IntentRunner c = child;
         if (c != null) c.stop(why);
         driver().cancel(this, why);
-        end(Result.INTERRUPTED);
+        end(outcome);
     }
 
     @Override public String ownerId() { return ownerId; }
