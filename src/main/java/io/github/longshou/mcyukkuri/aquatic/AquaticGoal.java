@@ -71,7 +71,9 @@ final class AquaticGoal extends Goal {
      *  set on its father's boat (two keep it with her). Bounded, never saved. */
     private Map<String, Integer> rescueFailures;
     private Map<UUID, Integer> shareRefusals;
-    private String shareReadout;
+    /** Last emitted sharing facts and tick; unchanged or throttled evaluations build no readout text. */
+    private Object shareReadout;
+    private long shareReadoutAt;
     /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
     private long voyageAfter;
 
@@ -302,13 +304,14 @@ final class AquaticGoal extends Goal {
     private void share(List<Desire> out, PlacedHatEntity hat, List<YukkuriEntity> young, Object at) {
         var mate = mateAfloat();
         var his = mate == null ? null : AquaticLife.hat(mate);
-        if (his == null || his == hat) { shareReadout("mate_not_on_separate_boat"); return; }
+        if (his == null) { shareReadout("no_mate_afloat", () -> "no_mate_afloat"); return; }
+        if (his == hat) { shareReadout("mate_on_same_boat", () -> "mate_on_same_boat"); return; }
         long mine = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y)).count(), theirs = young.stream().filter(y -> y.getVehicle() == his).count();
         var child = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y) && shareRefusals(y) < 2)
                 .min(Comparator.comparingDouble(his::distanceToSqr)).orElse(null);
-        String why = "mine=" + mine + " his=" + theirs;
         if (child == null || mine - theirs < num("share_gap", 2)) {
-            shareReadout((child == null ? "no_transferable_child " : "balanced ") + why);
+            String reason = child == null ? "no_transferable_child" : "balanced";
+            shareReadout(List.of(reason, mine, theirs), () -> reason + " mine=" + mine + " his=" + theirs);
             return;
         }
         Runnable refused = () -> {
@@ -317,15 +320,18 @@ final class AquaticGoal extends Goal {
             while (shareRefusals.size() > LEFT_MAX) shareRefusals.remove(shareRefusals.keySet().iterator().next());
         };
         var desire = Desire.of("share_young", floor(num("share_want", 45)), List.of(at, cell(his), child.getUUID()),
-                () -> why + " child=" + child.getUUID(), () -> new Share(body, mate, child, shareRefusals(child), refused));
+                () -> "mine=" + mine + " his=" + theirs + " child=" + child.getUUID(), () -> new Share(body, mate, child, shareRefusals(child), refused));
         out.add(desire);
-        shareReadout("eligible score=" + Math.round(drive().scoreOf(desire)) + " " + desire.why().get());
+        shareReadout(List.of("eligible", mine, theirs, child.getUUID()),
+                () -> "eligible score=" + Math.round(drive().scoreOf(desire)) + " " + desire.why().get());
     }
 
-    private void shareReadout(String state) {
-        if (state.equals(shareReadout)) return;
+    private void shareReadout(Object state, Supplier<String> detail) {
+        long now = body.level().getGameTime();
+        if (state.equals(shareReadout) || shareReadout != null && now - shareReadoutAt < 100) return;
+        GameplayLog.event(body, DOMAIN, "share eligibility={}", detail.get());
         shareReadout = state;
-        GameplayLog.limited(body, DOMAIN, "share_eligibility:" + state.split(" ", 2)[0], 100, "share eligibility={}", state);
+        shareReadoutAt = now;
     }
 
     /** His mate near her time (or in labour) on her own boat, not yet beside his: he paddles over (his own desire). */

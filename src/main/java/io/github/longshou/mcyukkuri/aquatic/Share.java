@@ -162,7 +162,9 @@ final class Share implements Intent {
      * Paddling his hat up beside another: {@code come_alongside} when the mother asked it and he accepted, or
      * {@code attend_mate} on his own, his mate near her time on her boat (AQUATIC 有伴侣时，对方可自行划到船边陪护). Route legs over the
      * calm water to the point beside her hull, then in against it; with no stick he only drifts and waits. An accepted share
-     * request keeps him alongside until the mother closes it, within this intent's deadline and ordinary desire competition.
+     * request keeps him alongside until the mother closes it, within this intent's deadline. Inside the aquatic drive, NONE
+     * commitment requires an ordinary competitor to score at least 1.15 * his current score + 5 for ten evaluations;
+     * danger uses the immediate switching rule.
      */
     static final class Alongside implements Intent {
         private static final int DEADLINE = 900;
@@ -181,7 +183,7 @@ final class Share implements Intent {
 
         @Override public String id() { return incident == null ? "attend_mate" : "come_alongside"; }
         @Override public long deadline() { return started + DEADLINE; }
-        @Override public boolean satisfied() { return close(AquaticLife.hat(father), AquaticLife.hat(mother)) && !requested(); }
+        @Override public boolean satisfied() { return incident != null ? !requested() : close(AquaticLife.hat(father), AquaticLife.hat(mother)); }
         @Override public List<Method> methods() { return List.of(Plan.of("paddle_alongside", this::derive)); }
 
         private boolean requested() { return incident != null && incident.equals(AskLedger.server().openOf(mother.getUUID(), "share_young")); }
@@ -189,7 +191,7 @@ final class Share implements Intent {
         private List<Supplier<Step>> derive() {
             var mine = AquaticLife.riding(father);
             var hers = AquaticLife.hat(mother);
-            if (mine == null || !AquaticLife.afloat(hers) || incident != null && !requested()) return null;
+            if (mine == null || !AquaticLife.afloat(hers)) return null;
             if (close(mine, hers)) {
                 GameplayLog.limited(father, "aquatic", "alongside_transfer", 100, "alongside awaiting transfer incident={} deadline={}", incident, deadline());
                 return List.of(() -> new Step.Wait(() -> !close(mine, hers) || !requested(), DEADLINE, Behaviors.BOAT_CALL));
