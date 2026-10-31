@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 满载圆帽分娩静止判定 | `.worktrees/basin-missed` | `family/LiveBirth.java`、宿主移动所属层、相关纯函数测试 |
+| 家庭整队下水阻塞 | `.worktrees/set-out` | `aquatic/` 整队下水与登船、`scripts/museum_scenarios.py` 对应场景、相关纯函数测试 |
 
 ## 玩法待办
 
