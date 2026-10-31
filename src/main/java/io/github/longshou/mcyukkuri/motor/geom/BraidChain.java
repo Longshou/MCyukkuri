@@ -31,11 +31,12 @@ public final class BraidChain {
             for (int i = 0; i < n; i++) { s += seg[i]; set(out, i + 1, rx + ux * s, ry + uy * s, rz + uz * s); }
             return out;
         }
-        // Project model forward onto the chord's normal plane. The clip's previous curl cannot flip this bend behind.
-        double px = ux * uz, py = uy * uz, pz = -1 + uz * uz;
+        // A downward bias keeps the plane continuous as the target crosses straight ahead or behind.
+        double along = -.5 * uy - uz;
+        double px = -ux * along, py = -.5 - uy * along, pz = -1 - uz * along;
         double norm = Math.sqrt(px * px + py * py + pz * pz);
         if (norm < 1e-6) {
-            // A chord parallel to forward has no forward normal: use the downward normal instead.
+            // Only a chord parallel to the preferred diagonal needs a second plane.
             px = ux * uy; py = -1 + uy * uy; pz = uz * uy;
             norm = Math.sqrt(px * px + py * py + pz * pz);
         }

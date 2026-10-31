@@ -30,6 +30,7 @@ public final class Release implements Action {
     private YukkuriEntity carrier;
     private float facing;
     private Face turn;
+    private Feasibility planned;
 
     public Release(YukkuriEntity child) {
         if (child == null) throw new IllegalArgumentException("Release needs the carried body");
@@ -44,12 +45,17 @@ public final class Release implements Action {
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
-        facing = carrier.getYRot();
+        if (planned == null) planned = plan(carrier);
+        return planned;
+    }
+
+    private Feasibility plan(YukkuriEntity carrier) {
+        facing = carrier.bodyYaw();
         var room = room(carrier, facing);
         if (room.ok() || ParentCarry.hold(carrier, child) != Hold.MOUTH) return room;
         // The mouth keeps the child in view while the shared Face turns toward the nearest clear landing.
-        for (int i = 1; i <= 72; i++) {
-            float yaw = carrier.getYRot() + (i + 1) / 2 * (i % 2 == 0 ? 5 : -5);
+        for (int i = 1; i <= 24; i++) {
+            float yaw = carrier.bodyYaw() + (i + 1) / 2 * (i % 2 == 0 ? 15 : -15);
             if (room(carrier, yaw).ok() && clearTurn(carrier, yaw)) { facing = yaw; return Feasibility.pass(); }
         }
         return room;
@@ -64,16 +70,16 @@ public final class Release implements Action {
             if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
                 return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
             if (!carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at),
-                    other -> other != carrier && other != child).isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "occupied");
+                    other -> other != carrier && other != child && !carrier.hasPassenger(other)).isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "occupied");
         }
         if (!ground(child, at)) return Feasibility.of(Reason.NO_ROOM, 0, "no_support");
         return Feasibility.pass();
     }
 
     private boolean clearTurn(YukkuriEntity carrier, float yaw) {
-        float span = Mth.wrapDegrees(yaw - carrier.getYRot());
+        float span = Mth.wrapDegrees(yaw - carrier.bodyYaw());
         for (float step = 0; step <= Math.abs(span); step += 5) {
-            var at = ParentCarry.mouthAt(carrier, child, carrier.getYRot() + Math.copySign(step, span));
+            var at = ParentCarry.mouthAt(carrier, child, carrier.bodyYaw() + Math.copySign(step, span));
             if (child.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(at)).iterator().hasNext()) return false;
         }
         return true;
@@ -89,7 +95,7 @@ public final class Release implements Action {
         if (child.getVehicle() != carrier) return new Outcome.Done("already_free");
         if (turn != null) {
             if (turn.tick(carrier) instanceof Running running) return running;
-            var room = room(carrier, carrier.getYRot());
+            var room = room(carrier, carrier.bodyYaw());
             if (!room.ok()) return Outcome.of(room.reason(), room.shortfall(), room.detail());
             turn = null;
             ParentCarry.lower(carrier, child);
@@ -113,7 +119,7 @@ public final class Release implements Action {
 
     /** The same release at once, for an interruption, a death or an ended intent ({@code forced}: the room check is skipped and the body comes down where it is). Returns that check. */
     public static Feasibility now(YukkuriEntity carrier, YukkuriEntity child, boolean forced, String cause) {
-        var room = forced ? Feasibility.pass() : new Release(child).check(carrier);
+        var room = forced ? Feasibility.pass() : new Release(child).room(carrier, carrier.bodyYaw());
         if (room.ok() && child.getVehicle() == carrier) let(carrier, child, cause);
         return room;
     }

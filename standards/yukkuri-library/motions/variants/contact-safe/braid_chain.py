@@ -3,7 +3,7 @@
 The braid hangs from hand_right through hand_right_braid_1..5 to the tail bone hand_right_tip,
 one woven lobe per bone. `arc` bends it to a point as the game does (motor/geom/BraidChain.java):
 a smooth arc that keeps every segment's length, turns no joint more than MAX_TURN degrees and
-bulges to the given side; a point out of reach gets the straight braid. `follow` passes a clip's
+bulges forward/down; a point out of reach gets the straight braid. `follow` passes a clip's
 braid swing down the chain with a lag, the root leading, so strokes and sways bend along the
 length while a held pose keeps the braid the clip authored. Rotations are R = Rz Ry Rx in
 degrees, the game's rotateZYX.
@@ -72,7 +72,7 @@ def _central(k, seg):
 def arc(joints, target, max_turn=MAX_TURN):
     """Joints (root first) bent so the last lies on `target`: a circular arc through the joints, lengths kept.
 
-    The bulge goes to the joints' own side, plus a little sag below the chord and away from the body's axis. Nearer than
+    The bulge projects model forward plus half-strength down onto the chord's normal plane. Nearer than
     the tightest allowed curl, the curl folds further (FABRIK) until the end is on the target; farther than
     the braid's length, the braid points straight at it."""
     P = np.asarray(joints, float); root = P[0]; seg = np.linalg.norm(np.diff(P, axis=0), axis=1)
@@ -82,10 +82,9 @@ def arc(joints, target, max_turn=MAX_TURN):
     u = to/d; flat = lambda v: v-u*float(v@u); length = float(seg.sum())
     if d >= length:
         return np.vstack([root, root+np.outer(np.cumsum(seg), u)])
-    out = np.array([root[0], 0., root[2]]); out = .5*out/max(np.linalg.norm(out), 1e-9)  # away from the body's axis
-    p = flat(sum((q-root for q in P[1:-1]), np.zeros(3))+np.array([0., -.3, 0.])+out)
+    p = flat(np.array([0., -.5, -1.]))
     if np.linalg.norm(p) < 1e-6:
-        p = flat(np.array([1., 0., 0.] if abs(u[0]) < .9 else [0., 0., 1.]))
+        p = flat(np.array([0., -1., 0.]))
     p = p/np.linalg.norm(p)
     turn = lambda k: max(((a+b)/2 for a, b in zip(_central(k, seg)[:-1], _central(k, seg)[1:])), default=0.)
     total = lambda k: float(_central(k, seg).sum())
@@ -124,6 +123,33 @@ def rotations(rest, solved):
     for i in range(len(rest)-1):
         W = aim(above@(rest[i+1]-rest[i]), solved[i+1]-solved[i])@above; out.append(above.T@W); above = W
     return out
+
+
+def reach_clip(model, clip, palette):
+    """Bake the cradle's existing tip path with the runtime bend plane, easing on/off at its contact markers."""
+    bones = model['bones']; indices = chain({b['name']: i for i, b in enumerate(bones)})
+    vertices = np.array(model['vertices']).reshape(-1, 8)[:, :3]
+    tuft = np.concatenate([vertices[p['start']:p['start']+p['count']] for p in model['parts'] if p['name'].startswith('braid_lock_tuft')])
+    root = np.array(bones[indices[0]]['pivot'])
+    tip = tuft[np.argmax(np.linalg.norm(tuft-root, axis=1))]
+    rest = np.array([bones[i]['pivot'] for i in indices]+[tip.tolist()])
+    tracks = clip['tracks']; times = sorted({key[0] for tr in tracks for key in tr['keys']})
+    rows = {i: [] for i in indices}; previous = {}
+    for t in times:
+        world = palette(model, tracks, t)
+        parent = world[bones[indices[0]]['parent']]
+        target = (np.linalg.inv(parent)@world[indices[-1]]@np.r_[tip, 1])[:3]
+        solved = rotations(rest, arc(rest, target))
+        q = min(1., t/clip['markers']['contact_closed'])*(1-min(1., max(0., (t-clip['markers']['release'])/(clip['duration']-clip['markers']['release']))))
+        q = q*q*(3-2*q)
+        for i, rotation in zip(indices, solved):
+            local = np.linalg.inv(world[bones[i]['parent']])@world[i]
+            old = local[:3, :3]
+            blended = old@partial(old.T@rotation, q)
+            previous[i] = to_euler(blended, previous.get(i))
+            rows[i].append([round(t, 8), *[round(float(v), 5) for v in previous[i]]])
+    kept = [tr for tr in tracks if tr['bone'] not in indices or tr['channel'] != 'rotation']
+    return dict(clip, tracks=kept+[dict(bone=i, channel='rotation', keys=rows[i]) for i in indices])
 
 
 def _soft(R, limit):

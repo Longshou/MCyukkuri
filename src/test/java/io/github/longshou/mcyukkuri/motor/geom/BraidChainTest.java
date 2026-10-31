@@ -90,4 +90,19 @@ class BraidChainTest {
         assertEquals(0, endError(out, REST[0], REST[1], REST[2] - 8), 1e-5);
         for (int i = 1; i < out.length / 3 - 1; i++) assertTrue(out[3 * i + 1] < REST[1]);
     }
+
+    @Test void almostForwardAndBackwardTargetsKeepAContinuousDownwardPlane() {
+        for (double z : new double[]{-8, 8}) {
+            var left = BraidChain.reach(REST, REST[0] - .01, REST[1], REST[2] + z);
+            var right = BraidChain.reach(REST, REST[0] + .01, REST[1], REST[2] + z);
+            keepsShape(left); keepsShape(right);
+            for (int i = 1; i < REST.length / 3 - 1; i++) {
+                assertTrue(left[3 * i + 1] < REST[1]);
+                assertTrue(right[3 * i + 1] < REST[1]);
+                assertEquals(left[3 * i + 1], right[3 * i + 1], 1e-6);
+                assertEquals(left[3 * i + 2], right[3 * i + 2], 1e-6);
+                assertEquals(left[3 * i], right[3 * i], .05, "crossing the axis must not flip sideways");
+            }
+        }
+    }
 }

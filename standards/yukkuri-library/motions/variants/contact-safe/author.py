@@ -170,6 +170,8 @@ def compile_revision(model, cfg, face):
     chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
     if chain:  # the braid swing runs down the chain in every clip that moves it
         result = {k: braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in result.items()}
+        if 'braid_cradle_lift' in result:
+            result['braid_cradle_lift'] = braid_chain.reach_clip(model, result['braid_cradle_lift'], lore['TOOLS']['palette'])
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'expression_aliases': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}

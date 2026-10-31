@@ -73,7 +73,9 @@ def export():
             'source_model':path.relative_to(ROOT).as_posix(),'source_model_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
             'source_placement':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),'source_placement_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest(),
             'source_recipe':'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json',
-            'source_recipe_sha256':hashlib.sha256((HERE/'recipe.json').read_bytes()).hexdigest()}
+            'source_recipe_sha256':hashlib.sha256((HERE/'recipe.json').read_bytes()).hexdigest(),
+            'source_braid_solver':'standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py',
+            'source_braid_solver_sha256':hashlib.sha256((ROOT/'standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py').read_bytes()).hexdigest()}
     target=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json'
     target.write_text(json.dumps(output,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print(target,flush=True)

@@ -14,4 +14,6 @@
 
 辫子是骨链（`hand_right`、`hand_right_braid_1`～`_5`、发尾 `hand_right_tip`）。凡摆动辫根的动作，`braid_chain.py` 把辫根的摆动沿骨链逐节传下：每节比上一节晚 `braid_chain.lag_seconds`，相对上一节的弯曲按 `max_bend_degrees` 柔和封顶，辫根领先、发尾随后；静止和保持姿势不产生滞后，一次性动作在最后 `settle_seconds` 内收回滞后。动作自带的发尾转角叠加在最后一节上。取帽、戴帽、托帽与水生护帽由 `lore/hat.py` 直接解骨链：在辫长以内弯成圆弧把发尾关节放到帽檐抓握点，超出辫长时才沿辫身伸长；划桨类片段先传下摆动（`boat_paddle` 另按配方 `braid_drag_seconds` 让每节在发力时向后受力弯曲），再按弯曲后的发尾放平桨枝并核对桨枝与帽檐的间隙。解算与游戏共用同一圆弧算法（`motor/geom/BraidChain`）。
 
+圆弧解算把向前、向下的合向量投影到目标弦的法平面；目标在正前、正后附近时弯曲面连续。`braid_cradle_lift` 保留原发尾路径，用同一解算重新烘焙骨链，并在合拢前与松开后渐变回原动作；`braid_rescue.json` 保存接触几何及解算源指纹，实际动作在 `motion_corrections.json`。
+
 更新动作源或配方后，从仓库根目录运行 `python scripts/export_motion_corrections.py`；局部试验可用 `--only id,... --trial <目录>`，只核对现有输出用 `--check`。导出检查入口见 [脚本说明](../../../../../scripts/README.md)。

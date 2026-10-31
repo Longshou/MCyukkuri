@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,6 +17,48 @@ class CarryGeometryTest {
     @Test void equalBearingsPreferNearerEndpointsAndTreatBothSidesEqually() {
         assertTrue(CarryGeometry.compareEndpoints(1, -1, 2, -2) < 0);
         assertEquals(0, CarryGeometry.compareEndpoints(-1, -1, 1, -1));
+    }
+
+    @Test void nearbyBearingsUseDistanceWithinTheFacingBand() {
+        assertTrue(CarryGeometry.compareEndpoints(.15, -1, .1, -2) < 0);
+        assertTrue(CarryGeometry.compareEndpoints(.3, -1, .1, -2) > 0);
+    }
+
+    @Test void sameBearingNeverSweepsAFullCircle() {
+        for (double z : new double[]{-1, 1}) assertEquals(0, CarryGeometry.frontTurn(1, z, 2, z * 2));
+        var tried = new ArrayList<Double>();
+        assertFalse(CarryGeometry.chooseArc(0, turn -> { tried.add(turn); return false; }));
+        assertEquals(List.of(0.0), tried);
+    }
+
+    @Test void blockedFrontSweepUsesTheClearRearRouteWithTheSameEndpoints() {
+        double front = CarryGeometry.frontTurn(1, 1, -1, 1);
+        var tried = new ArrayList<Double>();
+        assertTrue(CarryGeometry.chooseArc(front, turn -> {
+            tried.add(turn);
+            for (int i = 0; i <= 20; i++) {
+                var point = CarryGeometry.swing(0, 0, 1, 1, -1, 1, turn, i / 20.0);
+                if (point.z() < -1) return false; // A wall across the front route.
+            }
+            var end = CarryGeometry.swing(0, 0, 1, 1, -1, 1, turn, 1);
+            assertEquals(-1, end.x(), 1e-9); assertEquals(1, end.z(), 1e-9);
+            return true;
+        }));
+        assertEquals(List.of(front, CarryGeometry.otherTurn(front)), tried);
+        tried.clear();
+        assertTrue(CarryGeometry.chooseArc(front, turn -> { tried.add(turn); return true; }));
+        assertEquals(List.of(front), tried, "a clear front route must not probe the rear");
+        assertFalse(CarryGeometry.chooseArc(front, turn -> false));
+    }
+
+    @Test void liveMouthBlendIsContinuousAtLiftEndAndLoweringStart() {
+        assertEquals(0, CarryGeometry.mouthBlend(0, 0));
+        assertEquals(1, CarryGeometry.mouthBlend(1, 0));
+        assertEquals(0, CarryGeometry.mouthBlend(1, 1));
+        // With a 0.25-block mismatch between static seat and live lip, neither handoff may snap.
+        double lipDelta = .25;
+        assertEquals(lipDelta, lipDelta * CarryGeometry.mouthBlend(1 - 1e-6, 0), 1e-9);
+        assertEquals(lipDelta, lipDelta * CarryGeometry.mouthBlend(1, 1e-6), 1e-9);
     }
 
     @Test void sweepTakesTheFrontEvenWhenTheRearArcIsShorter() {

@@ -270,7 +270,7 @@ public final class ParentCarry {
             }
             default -> model = mouthSeat(carrier, child);
         }
-        if (hold == Hold.MOUTH && mouthLifting(carrier, child, partial)) model = mouthPoint(entry(carrier, child.getUUID()), model,
+        if (hold == Hold.MOUTH && mouthLiftProgress(carrier, child, partial) < 1) model = mouthPoint(entry(carrier, child.getUUID()), model,
                 carrier.level().getGameTime() + partial);
         float down = lowering(carrier, child, partial);
         if (down >= 0) model.lerp(ground(carrier, child, hold), ease(down));
@@ -288,9 +288,9 @@ public final class ParentCarry {
     }
 
     /** Shared passenger/render path, timed by path length and the carrier's ability. */
-    public static boolean mouthLifting(YukkuriView carrier, YukkuriView child, float partial) {
+    public static float mouthLiftProgress(YukkuriView carrier, YukkuriView child, float partial) {
         var e = entry(carrier, child.getUUID());
-        return holdOf(e) == Hold.MOUTH && e.contains("T") && carrier.level().getGameTime() - e.getLong("T") + partial < e.getInt("U");
+        return e.contains("T") ? Math.clamp((carrier.level().getGameTime() - e.getLong("T") + partial) / e.getInt("U"), 0, 1) : 1;
     }
     private static Vec vector(Vector3f p) { return new Vec(p.x, p.y, p.z); }
     private static Vector3f mouthPoint(CompoundTag e, Vector3f to, double tick) {
@@ -300,7 +300,7 @@ public final class ParentCarry {
     }
     /** Records a checked mouth lift just before mounting; -1 means the real route is obstructed. */
     public static int mouthLift(YukkuriEntity carrier, YukkuriEntity child) {
-        float yaw = carrier.getYRot();
+        float yaw = carrier.bodyYaw();
         var from = modelAt(carrier, yaw, child.position());
         var to = mouthSeat(carrier, child);
         var host = carryHost(carrier, child);
@@ -346,7 +346,7 @@ public final class ParentCarry {
      * as much as the braid needs, and never turns away after.
      */
     public static float braidTurn(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
-        float from = carrier.getYRot(), span = Mth.wrapDegrees(ContactGeometry.braidYaw(carrier, child) - from);
+        float from = carrier.bodyYaw(), span = Mth.wrapDegrees(ContactGeometry.braidYaw(carrier, child) - from);
         boolean onHost = Attach.of(child) instanceof AttachState.OnHost;
         for (float turn = 0; turn < Math.abs(span); turn += TURN_STEP) {
             float yaw = from + Math.copySign(turn, span);
@@ -385,18 +385,17 @@ public final class ParentCarry {
         var from = modelAt(carrier, yaw, child.position());
         for (var seat : seats) {
             var at = worldAt(carrier, yaw, seat);
-            if (!clear(carrier, child, at) || !SurfaceApproach.supported(child, at)
-                    || !carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at),
-                    other -> other != carrier && other != child).isEmpty()) continue;
+            if (!clear(carrier, child, at) || !SurfaceApproach.supported(child, at,
+                    other -> other instanceof YukkuriEntity && other != carrier && !carrier.hasPassenger(other))) continue;
             var e = new CompoundTag();
             e.putFloat("X", seat.x); e.putFloat("Z", seat.z); e.putFloat("Y", yaw);
             e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
             if (lean) e.putBoolean("L", true);
             double turn = CarryGeometry.frontTurn(from.x - root.x, from.z - root.z, seat.x - root.x, seat.z - root.z);
-            for (int arc = 0; arc < 2; arc++) {
-                e.putFloat("A", (float) (arc == 0 ? turn : CarryGeometry.otherTurn(turn)));
-                if (clearWay(carrier, child, yaw, host, e, from, seat, body, s)) return e;
-            }
+            if (CarryGeometry.chooseArc(turn, arc -> {
+                e.putFloat("A", (float) arc);
+                return clearWay(carrier, child, yaw, host, e, from, seat, body, s);
+            })) return e;
         }
         return null;
     }
@@ -426,7 +425,7 @@ public final class ParentCarry {
      * the Grab then ends without lifting it.
      */
     public static boolean braided(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
-        var way = wayOut(carrier, child, carrier.getYRot(), lean);
+        var way = wayOut(carrier, child, carrier.bodyYaw(), lean);
         if (way == null) return false;
         var e = entry(carrier, child.getUUID()).copy().merge(way);
         e.putLong("T", carrier.level().getGameTime());
@@ -673,24 +672,23 @@ public final class ParentCarry {
             }
         }
     }
-    /** One preference order: tails, worn brim, braid before mouth off a host, otherwise mouth before braid. */
-    private static Hold[] order(YukkuriEntity carrier, YukkuriEntity child) {
+    /** Prefer the mouth whenever it can take the child; Chen uses her two tails. */
+    private static Hold[] order(YukkuriEntity carrier) {
         if (carrier.getVariant() == YukkuriVariant.CHEN) return new Hold[]{Hold.TAIL_LEFT, Hold.TAIL_RIGHT};
-        if (brimmed(carrier)) return new Hold[]{Hold.BRIM, Hold.MOUTH};
-        return Attach.of(child) instanceof AttachState.OnHost ? new Hold[]{Hold.BRAID, Hold.MOUTH} : new Hold[]{Hold.MOUTH, Hold.BRAID};
+        return new Hold[]{Hold.MOUTH, brimmed(carrier) ? Hold.BRIM : Hold.BRAID};
     }
     /**
      * All holds with capacity, in preference order; Grab takes the first with a reachable, clear route.
      */
     public static List<Hold> holdsFor(YukkuriEntity carrier, YukkuriEntity child) {
         var out = new ArrayList<Hold>(2);
-        for (var hold : order(carrier, child)) if (holdProblem(carrier, child, hold, false) == null) out.add(hold);
+        for (var hold : order(carrier)) if (holdProblem(carrier, child, hold, false) == null) out.add(hold);
         return out;
     }
     /** Why none of the carrier's holds could take this child now (the first hold's reason, the last one's beside it); null when one can. */
     public static String capacityProblem(YukkuriEntity carrier, YukkuriEntity child) {
         if (!holdsFor(carrier, child).isEmpty()) return null;
-        var order = order(carrier, child);
+        var order = order(carrier);
         String first = holdProblem(carrier, child, order[0], false), last = holdProblem(carrier, child, order[order.length - 1], false);
         return first.equals(last) || last.equals("no_braid") ? first : first + "/" + last;
     }
@@ -1169,7 +1167,7 @@ public final class ParentCarry {
         return worldAt(carrier, yaw, ground(carrier, child, hold(carrier, child)));
     }
     public static Vec3 letGoPoint(YukkuriEntity carrier, YukkuriEntity child) {
-        return letGoPoint(carrier, child, carrier.getYRot());
+        return letGoPoint(carrier, child, carrier.bodyYaw());
     }
 
     public static Vec3 mouthAt(YukkuriEntity carrier, YukkuriEntity child, float yaw) {
@@ -1202,9 +1200,9 @@ public final class ParentCarry {
     }
 
     private static String carryReadout(YukkuriEntity carrier, YukkuriEntity child, Vec3 endpoint, String rejected) {
-        double yaw = Math.toRadians(carrier.getYRot()), dx = endpoint.x - carrier.getX(), dz = endpoint.z - carrier.getZ();
-        return String.format(Locale.ROOT, "hold=%s parent=(%.3f,%.3f,%.3f) yaw=%.2f bodyYaw=%.2f endpoint=(%.3f,%.3f,%.3f) forward=%.3f right=%.3f rejected=%s",
-                hold(carrier, child).key(), carrier.getX(), carrier.getY(), carrier.getZ(), carrier.getYRot(), carrier.bodyYaw(),
+        double yaw = Math.toRadians(carrier.bodyYaw()), dx = endpoint.x - carrier.getX(), dz = endpoint.z - carrier.getZ();
+        return String.format(Locale.ROOT, "hold=%s parent=(%.3f,%.3f,%.3f) yaw=%.2f entityYaw=%.2f endpoint=(%.3f,%.3f,%.3f) forward=%.3f right=%.3f rejected=%s",
+                hold(carrier, child).key(), carrier.getX(), carrier.getY(), carrier.getZ(), carrier.bodyYaw(), carrier.getYRot(),
                 endpoint.x, endpoint.y, endpoint.z, -dx * Math.sin(yaw) + dz * Math.cos(yaw), -dx * Math.cos(yaw) - dz * Math.sin(yaw), rejected);
     }
 

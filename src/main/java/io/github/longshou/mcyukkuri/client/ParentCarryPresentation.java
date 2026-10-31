@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
+import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.HashMap;
@@ -181,8 +182,9 @@ final class ParentCarryPresentation {
         }
         var state = CARRIERS.get(carrier.getId());
         var hold = ParentCarry.hold(carrier, child);
-        boolean down = ParentCarry.lowering(carrier, child, partial) >= 0;
-        boolean live = state != null && now - state.capturedAt <= STALE && !down;
+        float lowering = ParentCarry.lowering(carrier, child, partial);
+        boolean down = lowering >= 0;
+        boolean live = state != null && now - state.capturedAt <= STALE && (!down || hold == Hold.MOUTH);
         float yaw = live ? state.yaw : yaw(carrier, partial);
         var origin = carrier.getPosition(partial);
 
@@ -249,7 +251,7 @@ final class ParentCarryPresentation {
                 var grip = new Vector3f((float) lane.gripX(), (float) lane.gripY(), (float) lane.gripZ()).mul(childUnit).rotate(turnTo);
                 feet = bite.sub(grip);
                 feet.y = Math.max(feet.y, (float) ParentCarry.MOUTH_FLOOR * unit);
-                if (down || ParentCarry.mouthLifting(carrier, child, partial)) feet = seated;
+                feet = new Vector3f(seated).lerp(feet, (float) CarryGeometry.mouthBlend(ParentCarry.mouthLiftProgress(carrier, child, partial), Math.max(0, lowering)));
                 pitch = roll = 0;
             }
         }

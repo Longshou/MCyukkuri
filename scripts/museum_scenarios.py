@@ -321,7 +321,12 @@ add('toilet', 'meadow', '厕所排便', '厕所排便', '橙有强烈便意：�
 NEWBORNS = '@e[type=#mcylab:yukkuri,distance=..48,nbt={YukkuriFamily:{Stage:"BABY"}}]'
 
 
-def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
+_LAND_BIRTH_SMOKE = dict(ticks=6000,
+    expect=[r'\[family\][^\n]* carry put down [^\n]*cause=release\b', r'catch cleanup completed\b'],
+    forbid=[r'\[body\][^\n]* invariant\b', r'\[family\][^\n]* carry put down [^\n]*\bforward=-[0-9]'])
+
+
+def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4, smoke=None):
     add(sid, 'family', title, hint, watch, '约 1–2 分钟临产，之后看照护', [
         *shed(8, 0),
         yk_on_nest('reimu', 8, 0, 'mother', yaw=-90, lead=True, **pair_ready()),
@@ -331,11 +336,11 @@ def land_birth(sid, title, hint, outcome, father_kind, watch, spot, father_x=4):
         f'yukkuri scenario birth {sel("mother")} {sel("father")} {outcome}'], spot=spot, vantage=(4, 12),
         late=[f'tp {sel("father")} ~{father_x} ~ ~1'] if father_x != 4 else [],
         reads=[('读母油产程', f'yukkuri status {sel("mother")} raw'), ('读父油托帽', f'yukkuri status {sel("father")} raw'),
-               ('读所有赤油', f'yukkuri status {NEWBORNS} raw')])
+               ('读所有赤油', f'yukkuri status {NEWBORNS} raw')], smoke=smoke)
 
 
 land_birth('birth_land_caught', '陆地接生·接住', '陆地接住', 'caught', 'marisa',
-           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后逐只取出幼体（嘴够得着就叼，够不着的转身伸辫卷起，日志 [action] start id=grab reach=mouth／braid）、放到帽外地面，再走回放帽站位戴回帽子（摘帽、戴帽时帽子挂在辫梢随动作移动，地上的帽在辫子托起时消失、放下时出现，不重复、不瞬移）', 'land_caught')
+           '父油（戴帽魔理沙）察觉临产，走来摘帽翻面放好；母油走到实际帽后方并转向，到位后生产，新生儿落进帽里；之后逐只取出幼体（嘴够得着就叼，够不着的转身伸辫卷起，日志 [action] start id=grab reach=mouth／braid）、放到帽外地面，再走回放帽站位戴回帽子（摘帽、戴帽时帽子挂在辫梢随动作移动，地上的帽在辫子托起时消失、放下时出现，不重复、不瞬移）', 'land_caught', smoke=_LAND_BIRTH_SMOKE)
 land_birth('birth_land_reunion', '陆地接生·远处会合', '接生会合', 'caught', 'marisa',
            '父油从母油十余格外出发，先寻母、双方走到共同选定的安全位置，再摘帽放好；观察途中不会被普通觅食或闲逛抢走，母油对准真实帽子后生产',
            'land_caught', father_x=-10)
@@ -343,7 +348,7 @@ land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'natural
            '灵梦父油没有帽子、不接生，单人软垫窝也接不住新生儿：母油临产先走出软垫窝，新生儿直接落地，摔伤哭泣，父母赶来安抚；伤口按普通规则处理。[choreo] 节拍为 site → term → exit → push → linger，没有 meet／place', 'land_missed')
 land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 'marisa',
            '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，落在帽上的都坐上帽子、不会穿过帽子掉到帽下地面：落在帽檐上的先坐上帽檐再滚进帽腔（日志 [body] contact … occupancy=ON_RIM、newborn on hat rim rolls inward、[action] start id=gesture … brim=into_hollow），帽腔挤满时从帽檐外侧滚落、落地摔伤；只有落到帽外（或只擦到帽檐外缘）的才受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
-           'land_caught')
+           'land_caught', smoke=_LAND_BIRTH_SMOKE)
 
 add('pet_birth', 'family', '宠物大窝内生产', '大窝内生产',
     '你的宠物母油与灵梦伴侣在棚下的大窝旁；没有戴帽接生者，母油应留在真实双亲大窝内分娩，之后观察赤油落点、照护与同窝数值', '约 1–2 分钟临产，之后看照护', [
