@@ -22,7 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. */
-public final class Climb implements Action {
+public final class Climb implements Action, LoadedContact {
     public static final String ID = "climb";
     private static final String CLIP = "water_hat_climb";
     /** Blocks a tick a held host may move; degrees of tilt a full grip holds; blocks of clearance over the edge; blocks a pull may lag its path before it has lost the edge. */
@@ -47,17 +47,15 @@ public final class Climb implements Action {
     public SurfaceHost host() { return host; }
 
     /** The grip bears the emerging body; as its centre crosses into the hull, the load moves onto that centre. */
-    public Vec3 loadPoint(YukkuriEntity body) {
+    @Override public Contact loadedContact(YukkuriEntity body) {
+        if (host == null) return null; // a bank carries its own climber, not a floating host
         var center = host.frame().toLocal(body.position().add(0, body.getBbHeight() / 2, 0));
         var inward = stand.subtract(edge).multiply(1, 0, 1);
-        double across = Math.clamp(center.subtract(edge).dot(inward) / inward.lengthSqr(), 0, 1);
-        return host.frame().toWorld(edge.lerp(center, across));
-    }
-
-    public double overHull(YukkuriEntity body) {
-        var inward = stand.subtract(edge).multiply(1, 0, 1).normalize();
-        double distance = host.frame().toLocal(body.position()).subtract(edge).dot(inward) * host.frame().unit();
-        return Buoyancy.overEdge(distance / (body.getBbWidth() / 2));
+        double length = inward.length();
+        if (length == 0) return new Contact(host, host.frame().toWorld(edge), 1);
+        double distance = center.subtract(edge).dot(inward) / length;
+        return new Contact(host, host.frame().toWorld(edge.lerp(center, Math.clamp(distance / length, 0, 1))),
+                Buoyancy.overEdge(distance * host.frame().unit() / (body.getBbWidth() / 2)));
     }
 
     @Override public String id() { return ID; }

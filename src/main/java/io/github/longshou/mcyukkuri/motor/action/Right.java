@@ -17,10 +17,9 @@ import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 
 /** Turn a capsized host back over: holding its brim it pushes through the clip's push window, turning the hull {@link Effort#righting} each tick; losing the brim is {@code SLIPPED}. */
-public final class Right implements Action {
+public final class Right implements Action, LoadedContact {
     public static final String ID = "right";
     private static final String CLIP = "water_hat_right";
     private static final double HOST_SPEED = .1;
@@ -39,9 +38,9 @@ public final class Right implements Action {
 
     @Override public String id() { return ID; }
 
-    public SurfaceHost host() { return host; }
-    /** The currently held rim bears only the part of the righter's weight that has emerged from the water. */
-    public Vec3 loadPoint(YukkuriEntity body) { return ContactGeometry.nearestRim(body, host).orElse(null); }
+    @Override public Contact loadedContact(YukkuriEntity body) {
+        return ContactGeometry.nearestRim(body, host).map(point -> new Contact(host, point, 0)).orElse(null);
+    }
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
@@ -72,8 +71,7 @@ public final class Right implements Action {
         double off = rim == null ? Double.POSITIVE_INFINITY : ContactGeometry.gripGap(body, rim);
         double speed = host.entity().getDeltaMovement().horizontalDistance();
         if (off > SLACK || speed > HOST_SPEED)
-            return Outcome.of(Reason.SLIPPED, Math.clamp(off, 0, 9), String.format(Locale.ROOT, "off=%.2f host_speed=%.3f rim=%s mouth=%s tilt=%.1f",
-                    off, speed, GameplayLog.at(rim), GameplayLog.at(ContactGeometry.mouth(body)), tilt));
+            return Outcome.of(Reason.SLIPPED, Math.clamp(off, 0, 9), String.format(Locale.ROOT, "off=%.2f host_speed=%.3f", off, speed));
         if (progress < 1 && !host.right(body, progress = Math.min(1, progress + step * Effort.stroke(t, pushStart, pushEnd, length)), cause))
             return Outcome.of(Reason.NO_SUPPORT, 0, "cannot_right");
         t++;

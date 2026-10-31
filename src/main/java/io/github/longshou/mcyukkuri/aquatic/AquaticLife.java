@@ -123,7 +123,7 @@ public final class AquaticLife {
     static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) { return spot(hat, body, true, Vec3.ZERO); }
 
     /** The supported spot (hat units) where this body has room nearest {@code near} (hat units), inside the hollow only or anywhere
-     *  on the hat (the brim too), where the hull stays upright with it there ({@link HullAfloat#keeps}) or that lies nearer the
+     *  on the hat (the brim too), where the hull stays upright with it there ({@link HullAfloat#heels}) or that lies nearer the
      *  middle than it stands now; with no such spot (an overloaded hull) the one where it heels least; null when there is none. */
     static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) { return spot(hat, body, inside, near, true); }
 
@@ -134,6 +134,7 @@ public final class AquaticLife {
         double foot = Occupancy.foot(body.getBbWidth()), least = Double.POSITIVE_INFINITY;
         var here = body.getVehicle() == hat ? hat.frame().toLocal(body.position()) : null;
         Vec3 best = null, calmest = null;
+        var heels = steady ? HullAfloat.heels(hat, body) : null;
         for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
             var local = new Vec3(grid.centreX(i), 0, grid.centreZ(j));
             var height = grid.supported(i, j) ? hat.support(local, body) : null;
@@ -141,8 +142,8 @@ public final class AquaticLife {
             var spot = new Vec3(local.x, height.getAsDouble(), local.z);
             if (inside && Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
                     || !hat.room(body, spot)) continue;
-            double heel = steady ? HullAfloat.heel(hat, body, spot) : 0;
-            if (heel < least) { least = heel; calmest = spot; }
+            double heel = steady ? heels.applyAsDouble(spot) : 0;
+            if (calmest == null || heel < least) { least = heel; calmest = spot; }
             if (heel > HullAfloat.STEADY && !(here != null && Math.hypot(spot.x, spot.z) < Math.hypot(here.x, here.z))) continue;
             if (best == null || Math.hypot(spot.x - near.x, spot.z - near.z) < Math.hypot(best.x - near.x, best.z - near.z)) best = spot;
         }

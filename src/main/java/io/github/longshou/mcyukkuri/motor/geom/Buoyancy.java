@@ -4,6 +4,8 @@ package io.github.longshou.mcyukkuri.motor.geom;
 public final class Buoyancy {
     /** A yukkuri body relative to water: a ball floats neutral with 56% of its height under ({@link #bodyLift}), d²(3-2d). */
     public static final double BODY_DENSITY=.56*.56*(3-2*.56);
+    /** One block is one metre; gravity times dt² at 20 ticks/second converts torque/inertia into radians/tick². */
+    private static final double ANGULAR_STEP=9.81/(20*20);
 
     private Buoyancy(){}
 
@@ -17,6 +19,11 @@ public final class Buoyancy {
             return new Load(mass+weight,moment.add(at.scale(weight)),rollInertia+weight*(at.x()*at.x()+at.y()*at.y()),
                     pitchInertia+weight*(at.z()*at.z()+at.y()*at.y()));
         }
+        public Load add(Load other) { return new Load(mass+other.mass,moment.add(other.moment),rollInertia+other.rollInertia,pitchInertia+other.pitchInertia); }
+        public Load shifted(Vec by) {
+            return new Load(mass,moment.add(by.scale(mass)),rollInertia+2*(by.x()*moment.x()+by.y()*moment.y())+mass*(by.x()*by.x()+by.y()*by.y()),
+                    pitchInertia+2*(by.z()*moment.z()+by.y()*moment.y())+mass*(by.z()*by.z()+by.y()*by.y()));
+        }
     }
 
     /** A body's lift per tick at this immersed share and vertical speed: neutral near 56% against water gravity, damped; effort and fatigue never take it away. */
@@ -28,12 +35,18 @@ public final class Buoyancy {
     public static double bodyMass(double width,double height,double density){return Math.PI/6*width*width*height*density;}
 
     /** Weight borne by a grip as a round body emerges: the surrounding water still supports its submerged volume. */
-    public static double supported(double immersed) {
-        return supported(immersed,0);
-    }
     public static double supported(double immersed,double overDryHull) {
         double d=Math.clamp(immersed,0,1);
         return Math.max(0,1-d*d*(3-2*d)*(1-overDryHull)/BODY_DENSITY);
+    }
+    /** Floodwater takes over support smoothly across the body's height as the rim submerges. */
+    public static double covered(double overHull,double clearance,double height) {
+        double wet=Math.clamp(-clearance/height,0,1);
+        return overHull*(1-wet*wet*(3-2*wet));
+    }
+    /** Implicit water damping, proportional to the local restoring stiffness; no angular-rate clamp. */
+    public static double angular(double moment,double inertia,double planeInertia,double velocity,double damping) {
+        return (velocity+Math.toDegrees(ANGULAR_STEP*moment/inertia))/(1+damping+2*Math.sqrt(ANGULAR_STEP*planeInertia/inertia));
     }
 
     /** Share of a round body's footprint inside the gripped edge's tangent, signed centre distance in radii. */

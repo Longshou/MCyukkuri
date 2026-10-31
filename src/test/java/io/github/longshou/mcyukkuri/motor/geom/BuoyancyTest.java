@@ -12,15 +12,15 @@ class BuoyancyTest {
     }
 
     @Test void climbingTransfersWeightContinuouslyAsWaterReleasesTheBody(){
-        assertEquals(0,Buoyancy.supported(.56),1e-12);
-        assertEquals(0,Buoyancy.supported(1),1e-12);
-        assertEquals(1,Buoyancy.supported(0),1e-12);
+        assertEquals(0,Buoyancy.supported(.56,0),1e-12);
+        assertEquals(0,Buoyancy.supported(1,0),1e-12);
+        assertEquals(1,Buoyancy.supported(0,0),1e-12);
         double previous=0;
         for(int i=0;i<=560;i++) {
-            double weight=Buoyancy.supported(.56-i*.001);
+            double weight=Buoyancy.supported(.56-i*.001,0);
             assertTrue(weight>=previous);assertTrue(weight-previous<.003);previous=weight;
         }
-        assertEquals(.5, Buoyancy.supported(.36), .01);
+        assertEquals(.5, Buoyancy.supported(.36,0), .01);
         assertEquals(0,Buoyancy.overEdge(-1));assertEquals(.5,Buoyancy.overEdge(0));assertEquals(1,Buoyancy.overEdge(1));
         assertEquals(1,Buoyancy.supported(.56,Buoyancy.overEdge(1)),1e-12,"dry hollow takes the full load before mounting");
         previous=0;
@@ -37,6 +37,17 @@ class BuoyancyTest {
         assertTrue(Buoyancy.up(0,0)>.999);
         assertTrue(Buoyancy.up(180,0)<-.999);
         assertTrue(Buoyancy.up(0,180)<-.999);
+    }
+
+    @Test void floodedRimTransfersCoveredSupportWithoutAJump(){
+        double previous=1;
+        for(int i=-100;i<=1000;i++){
+            double covered=Buoyancy.covered(1,-i*.0006,.6);
+            double load=Buoyancy.supported(.56,covered);
+            assertTrue(load<=previous+1e-12);assertTrue(previous-load<.002);previous=load;
+        }
+        assertEquals(0,previous,1e-12);
+        assertEquals(Buoyancy.covered(.7,1e-8,.6),Buoyancy.covered(.7,-1e-8,.6),1e-12);
     }
 
     @Test void dampedSpringSettlesOnItsRest(){

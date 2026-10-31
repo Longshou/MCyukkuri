@@ -192,6 +192,7 @@ final class Care implements Intent {
         var at = frame.toLocal(child.position());
         var here = frame.toLocal(parent.position());
         double d = FamilyFeedingContact.standingDistance(parent, child) / frame.unit();
+        var heels = HullAfloat.heels(hat, parent);
         Vec3 best = null;
         for (int i = 0; i < 8; i++) {
             double a = i * Math.PI / 4;
@@ -199,7 +200,7 @@ final class Care implements Intent {
             var height = hat.support(foot, parent);
             if (height.isEmpty()) continue;
             var spot = new Vec3(foot.x, height.getAsDouble(), foot.z);
-            if (hat.room(parent, spot) && HullAfloat.keeps(hat, parent, spot) && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;
+            if (hat.room(parent, spot) && heels.applyAsDouble(spot) <= HullAfloat.STEADY && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;
         }
         return best;
     }
