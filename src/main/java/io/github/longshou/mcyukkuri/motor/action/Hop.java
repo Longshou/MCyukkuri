@@ -119,7 +119,7 @@ public final class Hop implements Action {
             if (crouch < takeoff) return new Running(metric(), TravelMode.CONSUMED);
             // A body standing on a host leaves it at the take-off tick, then takes the impulse from where it stands.
             if (Attach.of(body) instanceof AttachState.OnHost) Motor.dismount(body, body.position(), Vec3.ZERO, "hop_takeoff");
-            Motor.velocity(body, new Vec3(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), "hop_takeoff");
+            Motor.takeoff(body, new Vec3(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), "hop_takeoff");
             launched = true;
             return new Running(metric(), TravelMode.PASS);
         }
@@ -128,6 +128,9 @@ public final class Hop implements Action {
         ContactResolver.Contact contact = ContactResolver.resolve(body);
         if (contact != null && contact.refused()) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
         if (contact != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
+        for (var host : hosts) if (!host.steady()) GameplayLog.limited(body, "body", "hop_unsteady", 100,
+                "hop contact unavailable host={} reason=unsteady at={} velocity={} airTicks={}", host.entity().getUUID(),
+                GameplayLog.at(body.position()), body.getDeltaMovement(), air);
         if (body.isInWater()) return new Outcome.Done("water at=" + GameplayLog.at(body.position()));
         if (body.onGround()) return new Outcome.Done("landed at=" + GameplayLog.at(body.position()));
         if (air > plan.ticks() + SETTLE) return new Outcome.Done("settled at=" + GameplayLog.at(body.position()));

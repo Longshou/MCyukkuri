@@ -135,6 +135,22 @@ class HullProfileTest {
         for(var id:List.of("reimu_bean","house_marisa","remilia"))
             assertFalse(BodyFootprint.of(id,.8,.6,0).columns().isEmpty());
     }
+    @Test void bankLaunchStandClearsBothBrimsEvenAtTheWalkingTolerance() {
+        for(var id:List.of(HullProfile.CURRENT,HullProfile.BASIN)) {
+            var form=HullProfile.of(id);double unit=form.measuredUnit();
+            double width=.8,foot=width/2+.02,arrival=.1,margin=arrival+.03;
+            double oldDistance=.47+width/2+.05;
+            assertTrue(form.clearance(oldDistance/unit,0)*unit<width/2,id+" old stand overlaps hull");
+            for(double side:new double[]{-1,1}) {
+                double distance=form.standDistance(side,0,(foot+margin)/unit,oldDistance/unit)*unit;
+                assertTrue(form.clearance(side*(distance-arrival)/unit,0)*unit>width/2,
+                        id+" crouching body must not shove the deployed hull");
+                double boarding=form.standDistance(side,0,foot/unit,oldDistance/unit)*unit;
+                assertTrue(form.clearance(side*(boarding-.02)/unit,0)*unit>=width/2-1e-6,
+                        id+" precise boarding walk still clears physical contact");
+            }
+        }
+    }
     @Test void malformedResourceReportsItsFileAndField() {
         var data=new com.google.gson.JsonObject();var source=new GeometryJson("fixture.json",data);
         var error=assertThrows(IllegalArgumentException.class,()->source.number("keel.y"));

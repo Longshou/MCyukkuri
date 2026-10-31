@@ -49,6 +49,19 @@ public final class Buoyancy {
         return (velocity+Math.toDegrees(ANGULAR_STEP*moment/inertia))/(1+damping+2*Math.sqrt(ANGULAR_STEP*planeInertia/inertia));
     }
 
+    /** Vertical speed and angular rates (degrees/tick) about the hull's keel. */
+    public record Motion(double vertical,double roll,double pitch) {}
+
+    /** Inelastic upward bank impulse at a supported local point; a separating point receives no impulse. */
+    public static Motion bank(Load load,Vec point,double roll,double pitch,Motion motion) {
+        var at=rotate(point,roll,pitch);
+        double r=at.x(),p=-at.z()*Math.cos(Math.toRadians(roll));
+        double speed=motion.vertical()+r*Math.toRadians(motion.roll())+p*Math.toRadians(motion.pitch());
+        double impulse=Math.max(0,-speed)/(1/load.mass()+r*r/load.rollInertia()+p*p/load.pitchInertia());
+        return new Motion(motion.vertical()+impulse/load.mass(),
+                motion.roll()+Math.toDegrees(impulse*r/load.rollInertia()),motion.pitch()+Math.toDegrees(impulse*p/load.pitchInertia()));
+    }
+
     /** Share of a round body's footprint inside the gripped edge's tangent, signed centre distance in radii. */
     public static double overEdge(double inward) {
         double d=Math.clamp(inward,-1,1);

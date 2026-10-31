@@ -71,7 +71,7 @@ final class SetOut implements Intent {
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
-        return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat) && AquaticLife.carried(owner) == null
+        return AquaticLife.afloat(hat) && Ferry.inHollow(owner, hat) && AquaticLife.carried(owner) == null
                 && AquaticLife.young(owner).stream().allMatch(y -> AquaticLife.aboard(y, hat) || staying(y) != null);
     }
 
@@ -93,7 +93,9 @@ final class SetOut implements Intent {
         if (result != IntentRunner.Result.DONE) return;
         var hat = AquaticLife.hat(owner);
         var stayed = new LinkedHashMap<UUID, String>();
-        for (var y : AquaticLife.young(owner)) if (!AquaticLife.aboard(y, hat)) stayed.put(y.getUUID(), String.valueOf(staying(y)));
+        var young = AquaticLife.young(owner);
+        for (var y : young) if (!AquaticLife.aboard(y, hat)) stayed.put(y.getUUID(), String.valueOf(staying(y)));
+        GameplayLog.event(owner, "aquatic", "set_out complete hat={} aboard={}/{}", hat.getUUID(), young.size() - stayed.size(), young.size());
         if (stayed.isEmpty()) return;
         GameplayLog.event(owner, "aquatic", "set_out left_ashore={}", stayed);
         left.accept(stayed);
@@ -105,6 +107,7 @@ final class SetOut implements Intent {
         if (!AquaticLife.afloat(hat)) return null;
         boolean aboard = AquaticLife.aboard(owner, hat);
         boarded |= aboard;
+        if (aboard && !Ferry.inHollow(owner, hat)) return Ferry.hopAboard(owner, hat, beckoning);
         var held = AquaticLife.carried(owner);
         if (held != null) return aboard ? Ferry.releaseAboard(owner, hat, held) : Ferry.hopAboard(owner, hat, beckoning);
         var dependent = dependentAshore(hat);
@@ -139,7 +142,7 @@ final class SetOut implements Intent {
             GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", berth.stand().toShortString(), berth.water().toShortString(), berth.yaw());
         }
         var edge = berth;
-        var stand = edge.stand(owner.getBbWidth());
+        var stand = Waters.launchStand(edge, owner);
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                 () -> new Step.Do(new Face(edge.yaw())),
                 // the hat's short axis toward the bank, its near brim over the edge

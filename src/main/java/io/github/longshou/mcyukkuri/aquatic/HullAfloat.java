@@ -182,7 +182,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (hat.horizontalCollision) bump(hat, free, hat.position().subtract(from));
         if (walled && !pressing) bump(hat, motion, free);
         pressing = walled;
-        rest(hat);
+        rest(hat, load);
         var actual = hydro.sample(unit, roll, pitch, water - hat.getY());
         double ratio = hat.upsideDown() || flip != 0 || righting ? 0 : actual.ratio();
         over = ratio >= 1 ? over + 1 : 0;
@@ -302,14 +302,19 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     /** Where the brim overhangs a bank lower than its plate is thick it lies on the bank's top instead of sinking into it (近帽檐搭到
      *  岸上): the hull is held up by the deepest such overlap, the bank bearing that much. */
-    private void rest(PlacedHatEntity hat) {
+    private void rest(PlacedHatEntity hat, Buoyancy.Load load) {
         double lift = 0, lip = BRIM_LIP * hat.unit();
+        Vec3 contact = null;
         if (!open(hat, 0)) {
             var frame = hat.frame();
             for (int i = 0; i < RIM_POINTS; i++) {
                 var at = rim(hat, frame, i);
                 double top = bank(hat.level(), at.x, at.y - lip, at.y, at.z);
-                if (top <= at.y + 1e-6) lift = Math.max(lift, top - (at.y - lip));
+                double overlap = top - (at.y - lip);
+                if (top <= at.y + 1e-6 && overlap > lift) {
+                    lift = overlap;
+                    contact = frame.toLocal(at.add(0, -lip, 0)).scale(hat.unit());
+                }
             }
         }
         boolean was = beached;
@@ -317,7 +322,11 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!beached) return;
         hat.setPos(hat.getX(), hat.getY() + lift, hat.getZ());
         var v = hat.getDeltaMovement();
-        if (v.y < 0) hat.setDeltaMovement(v.x, 0, v.z);
+        var supported = Buoyancy.bank(load, new Vec(contact.x, contact.y, contact.z), hat.roll(), hat.pitch(),
+                new Buoyancy.Motion(v.y, rollRate, pitchRate));
+        hat.setDeltaMovement(v.x, supported.vertical(), v.z);
+        rollRate = supported.roll();
+        pitchRate = supported.pitch();
         if (!was) GameplayLog.limited(hat, "hat", "beached", 100, "beached cause=brim_on_bank lift={} at={} riders={} owner={}",
                 fmt(lift), GameplayLog.at(hat.position()), hat.getPassengers().size(), hat.ownerYukkuri());
     }

@@ -69,6 +69,17 @@ class ArcSolverTest {
         assertEquals(.4,pts.get(pts.size()-1).x(),.02);
     }
 
+    @Test void shortBoardingHopNeedsAirDragFromItsTakeoffTick(){
+        // afloat_family: a child aims 0.38 blocks ahead and 0.24 up onto the brim.
+        var plan=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.38,.24,0),.51,.63,.4,OPEN));
+        var landing=sweep(plan).getLast();
+        assertEquals(.38,landing.x(),.005);
+        assertEquals(.24,landing.y(),TOL);
+        // Vanilla chooses friction before move: a stale onGround applies grass friction to every later horizontal step.
+        double grounded=plan.vh()+.6*(landing.x()-plan.vh());
+        assertTrue(grounded<.3,"the old grounded takeoff misses the supported brim");
+    }
+
     @Test void apexNeverExceedsTheBudget(){
         for(double dy:new double[]{0,.3,.75}){
             var plan=assertInstanceOf(ArcSolver.Plan.class,ArcSolver.lowest(Vec.ZERO,new Vec(.3,dy,0),HOP_HEIGHT,HOP_REACH,1,OPEN));

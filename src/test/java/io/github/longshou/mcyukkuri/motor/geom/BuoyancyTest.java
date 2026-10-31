@@ -62,4 +62,25 @@ class BuoyancyTest {
         assertEquals(180,Buoyancy.wrap(-180),1e-12);
         assertEquals(10,Buoyancy.wrap(370),1e-12);
     }
+
+    @Test void bankContactStopsTheDescendingBrimAndSuppliesItsSupportingMoment(){
+        var load=new Buoyancy.Load(.1,Vec.ZERO,.03,.04);
+        var point=new Vec(.6,.2,-.3);
+        double roll=-12,pitch=8;
+        var before=new Buoyancy.Motion(-.04,-3,-1);
+        var after=Buoyancy.bank(load,point,roll,pitch,before);
+        var posed=Buoyancy.rotate(point,roll,pitch);
+        double normal=after.vertical()+posed.x()*Math.toRadians(after.roll())
+                -posed.z()*Math.cos(Math.toRadians(roll))*Math.toRadians(after.pitch());
+        assertEquals(0,normal,1e-12,"the bank supports the moving brim, not just the keel");
+        assertTrue(after.roll()>before.roll(),"support lifts the descending +x brim");
+        assertTrue(energy(load,after)<energy(load,before),"inelastic support cannot add energy");
+        var leaving=new Buoyancy.Motion(.1,2,0);
+        assertEquals(leaving,Buoyancy.bank(load,point,roll,pitch,leaving),"the bank cannot pull a separating brim down");
+    }
+
+    private static double energy(Buoyancy.Load load,Buoyancy.Motion motion){
+        return .5*(load.mass()*motion.vertical()*motion.vertical()+load.rollInertia()*Math.pow(Math.toRadians(motion.roll()),2)
+                +load.pitchInertia()*Math.pow(Math.toRadians(motion.pitch()),2));
+    }
 }

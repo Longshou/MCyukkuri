@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -169,7 +170,7 @@ final class Waters {
         for (var e : edges(body, body.position(), 8, true)) {
             if (hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) continue;
             if (asked++ >= ASKED) break;
-            if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
+            if (SurfaceApproach.canApproach(body, launchStand(e, body))) return e;
         }
         return null;
     }
@@ -183,7 +184,7 @@ final class Waters {
         int asked = 0;
         for (var e : edges(body, hat.position(), 4, false)) {
             if (asked++ >= ASKED) break;
-            var stand = e.stand(body.getBbWidth());
+            var stand = boardingStand(e, hat, body);
             if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return e;
         }
         return null;
@@ -361,6 +362,22 @@ final class Waters {
      *  the edge (the old rule's near brim under the bank), so a hop aboard and a reach from the bank are short. */
     static Vec3 hatAt(Edge edge, YukkuriEntity owner) {
         return edge.onWater(ModEntities.PLACED_HAT.get().getWidth() * HatScale.of(owner) / 2 + .05);
+    }
+
+    /** Place from dry ground clear of the deployed brim, so crouching to board does not push the empty hull away. */
+    static Vec3 launchStand(Edge edge, YukkuriEntity owner) {
+        var at = hatAt(edge, owner);
+        var stand = edge.stand(owner.getBbWidth());
+        var pose = new HatGeometry.Pose(at, edge.yaw() + 90, HatGeometry.Role.SELF, HatGeometry.wornForm(owner));
+        var clear = HatGeometry.outside(pose, HatGeometry.unit(owner), owner, stand, stand.subtract(at).horizontalDistance());
+        return new Vec3(clear.x, stand.y, clear.z);
+    }
+
+    static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {
+        var stand = edge.edge().subtract(edge.normal().scale(Occupancy.foot(body.getBbWidth())));
+        var clear = HatGeometry.outside(HatGeometry.poseOf(hat), hat.unit(), body, stand,
+                stand.subtract(hat.position()).horizontalDistance(), Occupancy.foot(body.getBbWidth()));
+        return new Vec3(clear.x, stand.y, clear.z);
     }
 
     /** {@code [aquatic] route} once a leg is planned (limited) or refused. */

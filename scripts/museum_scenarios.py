@@ -1778,8 +1778,10 @@ pond('afloat_family', '带孩子出航', '亲子出航',
           '亲油依恋低时先自己上船、再回岸接赤油（protect_young 对 water_life，数据在 drive/aquatic.json）。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
             ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out [^\n]*left_ashore=[1-9]']))
+     smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
+                                   r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=2/2\b',
+                                   r'\[intent\][^\n]* end id=board_parent result=DONE\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      '亲油、会跳的子油和赤油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；靠岸后子油自己跳上岸，赤油由亲油叼着跳上岸、放在干地上，等孩子都下了船，亲油从岸边把空帽子收回戴上',

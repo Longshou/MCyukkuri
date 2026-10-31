@@ -27,6 +27,12 @@ public final class Motor {
         body.hasImpulse = true;
     }
 
+    /** Begin an airborne impulse before vanilla chooses this tick's friction; collision still determines actual contact. */
+    public static void takeoff(YukkuriEntity body, Vec3 v, String cause) {
+        body.setOnGround(false);
+        velocity(body, v, cause);
+    }
+
     /** A collision-resolved move (MoverType.SELF); returns the movement that actually happened. */
     public static Vec3 move(YukkuriEntity body, Vec3 delta, String cause) {
         if (body == null || delta == null) return Vec3.ZERO;

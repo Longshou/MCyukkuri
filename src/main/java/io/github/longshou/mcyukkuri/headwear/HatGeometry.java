@@ -141,10 +141,14 @@ public final class HatGeometry {
     /** Beside a hat lying at this pose: from its middle toward {@code toward}, at least {@code least} blocks out and far enough
      *  that the body's footprint clears the brim by {@link #STAND_MARGIN} (blocks, at the hat's base height). */
     public static Vec3 outside(Pose pose,double unit,YukkuriEntity body,Vec3 toward,double least){
+        return outside(pose,unit,body,toward,least,Occupancy.foot(body.getBbWidth())+STAND_MARGIN);
+    }
+    /** The caller's walking tolerance determines the needed footprint clearance. */
+    public static Vec3 outside(Pose pose,double unit,YukkuriEntity body,Vec3 toward,double least,double clearance){
         var away=toward.subtract(pose.at()).multiply(1,0,1);
         if(away.lengthSqr()<1e-8)away=body.position().subtract(pose.at()).multiply(1,0,1);
         var dir=away.lengthSqr()<1e-8?new Vec3(0,0,1):away.normalize();var local=dir.yRot((float)-Math.toRadians(180-pose.yaw()));
-        return pose.at().add(dir.scale(pose.profile().standDistance(local.x,local.z,(Occupancy.foot(body.getBbWidth())+STAND_MARGIN)/unit,least/unit)*unit));
+        return pose.at().add(dir.scale(pose.profile().standDistance(local.x,local.z,clearance/unit,least/unit)*unit));
     }
     public static Vec3 outside(PlacedHatEntity hat,YukkuriEntity body,Vec3 toward,double least){return outside(poseOf(hat),hat.unit(),body,toward,least);}
     /** A point (world) lies over the opening of a hat lying at this pose. */
