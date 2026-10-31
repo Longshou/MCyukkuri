@@ -122,7 +122,11 @@ final class Share implements Intent {
                 GameplayLog.event(mother, "aquatic", "share refused child={} reason=hold_not_over_his_hull count={}", child.getUUID(), ++refusals);
                 return null;
             }
-            return child.getVehicle() == hat ? Ferry.grabAboard(mother, hat, child) : null;
+            if (child.getVehicle() != hat) return null;
+            GameplayLog.limited(mother, "aquatic", "share_pickup", 100, "share pickup child={} at={} mother={} father_hat={} gap={}",
+                    child.getUUID(), GameplayLog.at(child.position()), GameplayLog.at(mother.position()), his.getUUID(),
+                    hat.position().subtract(his.position()).horizontalDistance() - touching(hat, his));
+            return Ferry.grabAboard(mother, hat, child);
         }
         // held: to her side nearest his hat, the hold turned over his hull, and let go there (or back into her own hollow)
         var spot = AquaticLife.spot(hat, mother, false, hat.frame().toLocal(his.position()));
@@ -140,7 +144,12 @@ final class Share implements Intent {
 
     /** The held young hangs over his hull's surface: let go, it comes down on his hat. */
     private boolean over(PlacedHatEntity his) {
-        return his.support(his.frame().toLocal(child.position()), Occupancy.foot(child.getBbWidth())).isPresent();
+        var local = his.frame().toLocal(child.position());
+        double foot = Occupancy.foot(child.getBbWidth());
+        boolean supported = his.support(local, foot).isPresent();
+        if (!supported) GameplayLog.event(mother, "aquatic", "share reach refused child={} at={} father_hat={} local={} foot={}",
+                child.getUUID(), GameplayLog.at(child.position()), his.getUUID(), local, foot);
+        return supported;
     }
 
     @Override public void ended(IntentRunner.Result result) {
@@ -152,7 +161,8 @@ final class Share implements Intent {
     /**
      * Paddling his hat up beside another: {@code come_alongside} when the mother asked it and he accepted, or
      * {@code attend_mate} on his own, his mate near her time on her boat (AQUATIC 有伴侣时，对方可自行划到船边陪护). Route legs over the
-     * calm water to the point beside her hull, then in against it; with no stick he only drifts and waits. Done once side by side.
+     * calm water to the point beside her hull, then in against it; with no stick he only drifts and waits. An accepted share
+     * request keeps him alongside until the mother closes it, within this intent's deadline and ordinary desire competition.
      */
     static final class Alongside implements Intent {
         private static final int DEADLINE = 900;
@@ -171,13 +181,19 @@ final class Share implements Intent {
 
         @Override public String id() { return incident == null ? "attend_mate" : "come_alongside"; }
         @Override public long deadline() { return started + DEADLINE; }
-        @Override public boolean satisfied() { return close(AquaticLife.hat(father), AquaticLife.hat(mother)); }
+        @Override public boolean satisfied() { return close(AquaticLife.hat(father), AquaticLife.hat(mother)) && !requested(); }
         @Override public List<Method> methods() { return List.of(Plan.of("paddle_alongside", this::derive)); }
+
+        private boolean requested() { return incident != null && incident.equals(AskLedger.server().openOf(mother.getUUID(), "share_young")); }
 
         private List<Supplier<Step>> derive() {
             var mine = AquaticLife.riding(father);
             var hers = AquaticLife.hat(mother);
-            if (mine == null || !AquaticLife.afloat(hers)) return null;
+            if (mine == null || !AquaticLife.afloat(hers) || incident != null && !requested()) return null;
+            if (close(mine, hers)) {
+                GameplayLog.limited(father, "aquatic", "alongside_transfer", 100, "alongside awaiting transfer incident={} deadline={}", incident, deadline());
+                return List.of(() -> new Step.Wait(() -> !close(mine, hers) || !requested(), DEADLINE, Behaviors.BOAT_CALL));
+            }
             if (!AquaticLife.stick(father)) return List.of(() -> new Step.Wait(this::satisfied, 200, Behaviors.BOAT_DRIFT));
             var away = mine.position().subtract(hers.position()).multiply(1, 0, 1);
             var dir = away.lengthSqr() < 1E-6 ? new Vec3(1, 0, 0) : away.normalize();
