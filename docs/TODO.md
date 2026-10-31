@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 双帽形共用剖面几何与身体支撑 | `.worktrees/hull-form` | `headwear/{HullProfile,HatGeometry,PlacedHatEntity}`、`motor/surface/Occupancy`、出生／帽檐／辫子几何调用方、纯函数测试 |
+| 双亲帽船分担幼体启动与交接排查 | `.worktrees/share-young` | `aquatic/{AquaticGoal,Share}`、`intent/Drive*`、竞争 Goal／场景初态、纯函数测试 |
 
 ## 玩法待办
 
