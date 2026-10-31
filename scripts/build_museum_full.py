@@ -20,8 +20,8 @@ earlier museum world). Other modes:
     python scripts/build_museum_full.py --seed-level <level.dat> --output .local/experimental-map/<new-dir>
 
 No Java compilation and no UI automation. An explicit output directory must be a new directory below
-``.local/experimental-map`` (or ``.local/smoke`` for ``--pack-only``). Fields are in museum_fields.py, scenarios in museum_scenarios.py, spawn vocabulary in
-museum_dsl.py, buttons and labels in museum_sites.py.
+``.local/experimental-map`` (or ``.local/smoke`` for ``--pack-only``). Fields are in museum_fields.py, scenarios in
+museum_scenarios.py, spawn vocabulary in museum_dsl.py, buttons and labels in museum_sites.py.
 """
 from pathlib import Path
 import argparse

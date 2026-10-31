@@ -52,7 +52,7 @@ class Scenario:
         self.sub = sub                 # name of the plot cleared before this scenario (default: the whole field)
         self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
-        self.smoke = smoke           # optional {ticks, expect, forbid}; runner only, never emitted into the pack
+        self.smoke = smoke             # optional {ticks, expect, forbid}; runner only, never emitted into the pack
         self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
 
     @property
@@ -1832,6 +1832,7 @@ pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 
+# Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
 _BOAT_SMOKE_START = (r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true'
                      r'[\s\S]*\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true')
 _BOAT_SMOKE_FORBID = [r'\[hat\][^\n]* capsized cause=overload\b',
@@ -1860,14 +1861,14 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
            0, '日志：[choreo] beat id=live_birth … receiver=OwnHull（site → sited → term → exit → turned → push → … → linger → end，没有 meet/place/unload/take_hat）、'
               'birth landed … outcome=HAT（落水为 outcome=WATER，随后 [incident] open）；父油 [intent] start id=attend_mate → [aquatic] route purpose=attend_mate。'
               '帽里没有粮，母油不会凭空喂食；可手持苹果右击母船补粮，之后看 [intent] start id=feed_young → [action] start id=pick → feed mash prepared → feed_young handed。' + _DESIRE_NOTE,
-           smoke=dict(ticks=3600, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
+           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:HAT|WATER)\b'],
                       forbid=_BOAT_SMOKE_FORBID))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
            16, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
-           smoke=dict(ticks=3600, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
+           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],
                       forbid=_BOAT_SMOKE_FORBID))
 
@@ -1890,7 +1891,7 @@ pond('family_skiffs', '把赤油送到父船', '送到父船',
           '够不到时 [aquatic] share refused … reason=hold_not_over_his_hull。' + _DESIRE_NOTE,
      reads=[('读母油', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
             ('读赤油', f'yukkuri status {sel_all("kids")} raw')],
-     smoke=dict(ticks=3600, expect=[_BOAT_SMOKE_START,
+     smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START,
                                    r'\[hat\][^\n]* boarded [^\n]*own=true[\s\S]*\[hat\][^\n]* boarded [^\n]*own=true',
                                    r'\[intent\][^\n]* start id=share_young\b',
                                    r'\[method\][^\n]* pick intent=share_young method=wait_close\b'],

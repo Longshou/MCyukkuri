@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 陆地接生搬运：嘴叼、前向落点与辫子弯曲 | `.worktrees/land-carry` | `family/ParentCarry`、`family/Fetch`、`motor/action/{Grab,Release}`、`motor/geom/`、`client/BraidPose`、相关纯函数测试 |
 | 欲望重排与动作／意图完成交接 | `.worktrees/aq-drive-handoff` | `intent/Drive*`、`intent/IntentRunner`、`motor/action/Launch`、`aquatic/Waters`、纯函数测试、`scripts/museum_scenarios.py` 冒烟预期 |
-| 无界面场景冒烟自查 | `.worktrees/smoke-run` | `scripts/headless_server.py`、`scripts/smoke_museum.py`、`scripts/museum_scenarios.py`、`scripts/build_museum_full.py`、工具文档 |
 | 水生帽圆冠盆形态（模型、帽面支撑、浮稳、粮层） | `.worktrees/w4-hat-form` | 水生帽制作源与导出、`headwear/HatGeometry`、`aquatic/HullAfloat`、`aquatic/HullLarder*`、帽子渲染 |
 
 ## 玩法待办

@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 """Headless NeoForge server launcher, adapted from .local/harness/harness.py; stdlib only, no compilation."""
-import argparse
 import csv
 import ctypes
 import json
+import os
 import re
 import secrets
 import shutil
 import socket
 import struct
 import subprocess
-import sys
 import time
 from pathlib import Path
 
@@ -23,7 +22,7 @@ INSTANCES = ROOT / '.local/smoke'
 def require_closed():
     rows = csv.reader(subprocess.check_output(['tasklist', '/FO', 'CSV', '/NH'], text=True).splitlines())
     running = [row[0] + ' PID=' + row[1] for row in rows
-               if row[0].lower() in ('java.exe', 'javaw.exe', 'minecraft.windows.exe')]
+               if row[0].lower() in ('java.exe', 'javaw.exe')]
     if running:
         raise RuntimeError('Close Minecraft/Java before running headless checks: ' + ', '.join(running))
 
@@ -58,26 +57,27 @@ def installed_runtime():
     return runtime, java
 
 
-def state_path(name):
-    if Path(name).name != name or name in ('.', '..'):
-        raise ValueError('Instance name must be a single directory name.')
-    return INSTANCES / name / 'state.json'
-
-
-def load_state(name):
-    return json.loads(state_path(name).read_text(encoding='utf-8'))
-
-
-def pid_alive(pid):
+def process_started(pid):
     k = ctypes.windll.kernel32
     k.OpenProcess.restype = ctypes.c_void_p
     handle = k.OpenProcess(0x1000, False, pid)
     if not handle:
-        return False
+        return None
     code = ctypes.c_ulong()
+    times = (ctypes.c_ulonglong * 4)()
     k.GetExitCodeProcess(ctypes.c_void_p(handle), ctypes.byref(code))
+    k.GetProcessTimes(ctypes.c_void_p(handle), *(ctypes.byref(times, i * 8) for i in range(4)))
     k.CloseHandle(ctypes.c_void_p(handle))
-    return code.value == 259
+    return times[0] if code.value == 259 else None
+
+
+def stop_stale():
+    for record in INSTANCES.glob('instance-*/server.json'):
+        st = json.loads(record.read_text(encoding='utf-8'))
+        if (process_started(st['pid']) == st['started']
+                and process_started(st['runner_pid']) != st['runner_started']):
+            print(f'Stopping stale instance {st["name"]}', flush=True)
+            stop(st)
 
 
 def free_port():
@@ -140,7 +140,7 @@ def run_cmd(st, cmd, timeout=30):
         try:
             rcon = Rcon(st['rcon_port'], st['rcon_password'], timeout)
             break
-        except (ConnectionError, OSError):
+        except OSError:
             if attempt == 5:
                 raise
             time.sleep(0.5)
@@ -150,7 +150,7 @@ def run_cmd(st, cmd, timeout=30):
         rcon.sock.close()
 
 
-def build_java_cmd(runtime, java, rundir, xmx):
+def build_java_cmd(runtime, java, rundir):
     vm = [a for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
     cp = read_args_file(runtime / 'clientRunClasspath.txt')[:2]
     prog = read_args_file(runtime / 'clientRunProgramArgs.txt')
@@ -163,7 +163,7 @@ def build_java_cmd(runtime, java, rundir, xmx):
             continue
         out.append(prog[i])
         i += 1
-    return ([str(java), f'-Xmx{xmx}', '-Xms512m'] + vm + cp
+    return ([str(java), '-Xmx2G', '-Xms512m'] + vm + cp
             + [f'-Dfml.modFolders=mcyukkuri%%{runtime / "mod"}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
 
@@ -186,25 +186,33 @@ def write_props(rundir, st):
     (rundir / 'server.properties').write_text(''.join(f'{k}={v}\n' for k, v in props.items()), encoding='utf-8')
 
 
-def log_text(st):
+def log_offset(st):
+    return (Path(st['rundir']) / 'logs/latest.log').stat().st_size
+
+
+def log_text(st, offset=0):
     path = Path(st['rundir']) / 'logs/latest.log'
-    return path.read_text(encoding='utf-8', errors='replace') if path.exists() else ''
+    if not path.exists():
+        return ''
+    with path.open('rb') as log:
+        log.seek(offset)
+        return log.read().decode('utf-8', errors='replace')
 
 
 def wait_log(st, pattern, offset=0, timeout=600):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if not pid_alive(st['pid']):
+        if process_started(st['pid']) != st['started']:
             raise RuntimeError(f'Server exited; see {Path(st["rundir"]).parent / "stdout.log"}')
-        window = log_text(st)[offset:]
+        window = log_text(st, offset)
         if re.search(pattern, window):
             return window
         time.sleep(0.2)
     raise TimeoutError(f'Timed out waiting for /{pattern}/; see {st["rundir"]}/logs/latest.log')
 
 
-def start(runtime, java, datapack, name, xmx='2G'):
-    record = state_path(name)
+def start(runtime, java, datapack, name):
+    record = INSTANCES / name / 'server.json'
     rundir = record.parent / 'run'
     rundir.mkdir(parents=True, exist_ok=False)
     (rundir / 'eula.txt').write_text('eula=true\n', encoding='utf-8')
@@ -214,11 +222,14 @@ def start(runtime, java, datapack, name, xmx='2G'):
     while st['rcon_port'] == st['game_port']:
         st['rcon_port'] = free_port()
     write_props(rundir, st)
-    cmd = build_java_cmd(runtime, java, rundir, xmx)
+    cmd = build_java_cmd(runtime, java, rundir)
     with (record.parent / 'stdout.log').open('wb') as out:
         proc = subprocess.Popen(cmd, cwd=rundir, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
                                 creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
-    st['pid'] = proc.pid
+    st.update(pid=proc.pid, started=process_started(proc.pid),
+              runner_pid=os.getpid(), runner_started=process_started(os.getpid()))
+    if st['started'] is None:
+        raise RuntimeError(f'Server exited during launch; see {record.parent / "stdout.log"}')
     try:
         record.write_text(json.dumps(st, indent=2), encoding='utf-8')
         print(f'Instance {name}: pid={proc.pid} run={rundir}', flush=True)
@@ -231,61 +242,22 @@ def start(runtime, java, datapack, name, xmx='2G'):
 
 
 def sprint(st, ticks):
-    offset = len(log_text(st))
-    reply = run_cmd(st, f'tick sprint {ticks}')
+    offset = log_offset(st)
+    run_cmd(st, f'tick sprint {ticks}')
     wait_log(st, r'Sprint completed|ticks per second, or', offset)
-    return reply
 
 
 def stop(st):
-    if pid_alive(st['pid']):
+    if process_started(st['pid']) == st['started']:
         try:
             run_cmd(st, 'stop', timeout=5)
-        except (ConnectionError, OSError):
+        except OSError:
             pass  # Startup failures can leave no RCON listener; the PID still needs reaping.
         deadline = time.monotonic() + 30
-        while pid_alive(st['pid']) and time.monotonic() < deadline:
+        while process_started(st['pid']) == st['started'] and time.monotonic() < deadline:
             time.sleep(0.2)
-        if pid_alive(st['pid']):
-            subprocess.run(['taskkill', '/PID', str(st['pid']), '/T', '/F'], check=True, capture_output=True)
-            while pid_alive(st['pid']):
+        if process_started(st['pid']) == st['started']:
+            subprocess.run(['taskkill', '/PID', str(st['pid']), '/T', '/F'], check=False, capture_output=True)
+            while process_started(st['pid']) == st['started']:
                 time.sleep(0.2)
     print(f'Stopped {st["name"]}', flush=True)
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--name', default='default', help='Instance under .local/smoke; put before the subcommand')
-    sub = parser.add_subparsers(dest='action', required=True)
-    launch = sub.add_parser('start', help='Start a new flat server with the installed CI runtime')
-    launch.add_argument('--datapack', required=True, type=Path)
-    launch.add_argument('--xmx', default='2G')
-    sub.add_parser('cmd').add_argument('command', nargs='+')
-    sub.add_parser('sprint').add_argument('ticks', type=int)
-    sub.add_parser('log')
-    sub.add_parser('stop')
-    sub.add_parser('status')
-    args = parser.parse_args()
-    if args.action == 'start':
-        require_closed()
-        runtime, java = installed_runtime()
-        start(runtime, java, args.datapack.resolve(), args.name, args.xmx)
-        return
-    st = load_state(args.name)
-    if args.action == 'cmd':
-        print(run_cmd(st, ' '.join(args.command)))
-    elif args.action == 'sprint':
-        print(sprint(st, args.ticks))
-    elif args.action == 'log':
-        print(log_text(st))
-    elif args.action == 'stop':
-        stop(st)
-    else:
-        print(f'{st["name"]}: pid={st["pid"]} alive={pid_alive(st["pid"])} run={st["rundir"]}')
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
-        raise SystemExit(str(error)) from error

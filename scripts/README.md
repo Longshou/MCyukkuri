@@ -6,9 +6,9 @@
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[开发指南](../docs/DEVELOPMENT.md#ci-运行包更新)，在实际游玩的机器执行。
 
-`python scripts/smoke_museum.py [场景ID ...]` 读取场景源码中的 `smoke` 期望，生成独立数据包、运行服务器并保存分场日志；用法、依赖与自查边界见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
+`scripts/smoke_museum.py`：用法与自查边界见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
 
-`python scripts/headless_server.py --name <实例名> start --datapack <数据包目录>` 是冒烟共用的 Windows／Python 标准库启动器：读取已安装 CI 运行包，在当前检出的 `.local/smoke/<实例名>/` 新建平坦服务器、状态记录与日志。同名 `cmd "<命令>"`、`sprint <ticks>`、`log`、`status`、`stop` 子命令通过 RCON／进程记录控制实例；单独 `start` 后须用 `stop` 关闭。不会编译或复制用户世界。
+`scripts/headless_server.py`：冒烟内部使用的服务器控制模块，无独立命令行入口；见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
 
 试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/DEVELOPMENT.md#试玩日志与事后排查)。
 

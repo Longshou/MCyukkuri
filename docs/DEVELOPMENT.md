@@ -93,9 +93,11 @@ PR 产物对应合并提交 SHA。失败用 `gh run view <id> --log-failed` 查�
 | `.local/mc-sources/` | 可用时查 Minecraft／NeoForge API |
 | `.local/smp/merge_lang.py` | 可用时按键三方合并语言 JSON |
 
-Windows 下运行 `python scripts/smoke_museum.py [场景ID ...]` 做无界面试玩前自查；省略 ID 时运行 `museum_scenarios.py` 中带 `smoke` 期望的场景。脚本仅用 Python 标准库，读取主检出已安装的 CI 运行包（`museum-runtime.json`）和现有 `build/moddev` 依赖，缺失就报错，不运行 Gradle；游戏运行时不跑，`tasklist` 检出 Minecraft、`java.exe` 或 `javaw.exe` 即拒绝启动。
+Windows 下运行 `python scripts/smoke_museum.py [场景ID ...]` 做无界面试玩前自查；省略 ID 时运行 `museum_scenarios.py` 中带 `smoke` 期望的场景。脚本仅用 Python 标准库，读取主检出已安装的 CI 运行包（`museum-runtime.json`）和现有 `build/moddev` 依赖，缺失就报错，不运行 Gradle；游戏运行时不跑，`tasklist` 检出 `java.exe` 或 `javaw.exe` 即保守拒绝启动（也包括其他 Java 工具）。
 
-每次在当前检出的 `.local/smoke/` 下生成独立数据包和专用服务器世界，建图后逐场清空、加载场地并推进指定 tick，按场景自己的日志期望输出 PASS／FAIL；缺失期望或命中禁止日志时退出码非零。结束、出错或 Ctrl-C 都关闭服务器，保留 `instance-*/run/logs/latest.log` 和 `instance-*/<场景ID>.log` 供排查，不改客户端、已安装运行包或用户试玩世界。只检查场景初态与声明的链路读数，不证明全部行为成功，不算验收；试玩仍由用户运行 `启动动作博物馆.cmd`。
+每次在当前检出的 `.local/smoke/` 下生成独立数据包和专用服务器世界，建图后逐场清空、加载场地并推进指定 tick，按场景自己的日志期望输出 PASS／FAIL；缺失期望或命中禁止日志时退出码非零。正常结束、出错或 Ctrl-C 都关闭服务器；服务器 PID 与创建时间写在 `instance-*/server.json`，运行器被强制终止时，下次启动先核对进程身份并关闭遗留实例，再检查其他 Java 进程。保留 `instance-*/run/logs/latest.log` 和 `instance-*/<场景ID>.log` 供排查，不改客户端、已安装运行包或用户试玩世界。只检查场景初态与声明的链路读数，不证明全部行为成功，不算验收；试玩仍由用户运行 `启动动作博物馆.cmd`。
+
+脚本不自动清理历史产物。确认冒烟服务器均已退出并保存所需日志后，可手工删除当前检出 `.local/smoke/` 下不再需要的 `pack-*` 与 `instance-*` 目录。
 
 `.local/` 下的本机依赖不入库，换机器须核对。资源 `--check` 仅检查导出一致性，不替代试玩；`打开素材检查.cmd` / `关闭素材检查.cmd` 查看动作表情，方法见[预览说明](../preview/README.md)。
 
