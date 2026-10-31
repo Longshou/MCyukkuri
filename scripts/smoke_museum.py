@@ -153,6 +153,10 @@ def run_scene(st, scene, builder):
     if 'commands' in scene.smoke:
         server.run_cmd(st, f'function mcylab:smoke/{scene.id}/start')
     server.sprint(st, scene.smoke['ticks'])
+    x, z = scene.anchor
+    readout = '\n'.join(server.run_cmd(st, f'execute positioned {x} {builder.FEET} {z} run {command}')
+                        for command in scene.smoke.get('readout', ()))
+    (Path(st['rundir']).parent / f'{scene.id}.readout.txt').write_text(readout, encoding='utf-8')
     window = server.log_text(st, offset)
     (Path(st['rundir']).parent / f'{scene.id}.log').write_text(window, encoding='utf-8')
     problem = failure(scene.smoke, window)

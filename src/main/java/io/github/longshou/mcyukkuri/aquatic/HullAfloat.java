@@ -57,9 +57,10 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** The authored brim plate's thickness (hat units; marisa.json's brim parts span 10.49..11.31): the brim rides up onto a bank
      *  no higher than this above its underside and lies on it; a higher one is a wall the brim stops at. */
     private static final double BRIM_LIP = .8;
-    /** Keep the water contact through the maximum damped upward coast after a turn; the posed shell can briefly clear the
-     *  surface. Contact displacement and thrown rider speed are bounded separately (blocks, blocks per tick). */
-    private static final double LEAVE_MARGIN = MAX_RISE / DAMPING, CONTACT_STEP = .25, MAX_THROW = .6;
+    /** Water sampling depth, contact displacement and thrown rider speed (blocks, blocks per tick). */
+    private static final double LEAVE_MARGIN = .2, CONTACT_STEP = .25, MAX_THROW = .6;
+    /** Leave hysteresis covers the maximum damped upward coast after a turn, independently of sampling depth. */
+    private static final double LEAVE_HYSTERESIS = MAX_RISE / DAMPING;
     /** An outside cause this recent (ticks) is the one a capsize is put down to. */
     private static final int CAUSE_TICKS = 40;
     /** The brim's reach from the centre (hat units) in 24 directions from local +x toward +z; the hull's outer outline. */
@@ -79,12 +80,15 @@ public final class HullAfloat implements PlacedHatBehavior {
     private String cause = "load";
     private long causeTick = Long.MIN_VALUE, sampled = Long.MIN_VALUE, dryTick = Long.MIN_VALUE;
     private boolean dry, wetRiders, beached, moored, pressing;
-    private double surface = Double.NaN;
+    private double surface;
     private final PlacedHatEntity hat;
     private final HullHydro hydro;
     private final HullLarder larder = new HullLarder();
 
-    private HullAfloat(PlacedHatEntity hat) { this.hat = hat; hydro = HullHydro.of(hat.profile()); }
+    private HullAfloat(PlacedHatEntity hat) {
+        this.hat = hat; hydro = HullHydro.of(hat.profile());
+        surface = surface(hat.level(), hat.getX(), lowest(hat) - LEAVE_MARGIN, hat.getZ());
+    }
 
     HullLarder larder() { return larder; }
 
@@ -102,9 +106,16 @@ public final class HullAfloat implements PlacedHatBehavior {
         PlacedHatBehavior.register(new Provider() {
             @Override public String id() { return "afloat"; }
             @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
-                double low = lowest(hat), water = surface(hat.level(), hat.getX(), low - LEAVE_MARGIN, hat.getZ());
+                double low = lowest(hat);
+                // Keep the sampling window on the observed water while the posed hull coasts above it.
+                double from = current instanceof HullAfloat afloat ? Math.min(low, afloat.surface) : low;
+                double water = surface(hat.level(), hat.getX(), from - LEAVE_MARGIN, hat.getZ());
+                if (current instanceof HullAfloat afloat) {
+                    afloat.surface = water;
+                    afloat.sampled = hat.level().getGameTime();
+                }
                 // At the hull's lowest point counts: a hat set down on the water's surface floats at once.
-                return water >= low - (current instanceof HullAfloat ? LEAVE_MARGIN : 0);
+                return water >= low - (current instanceof HullAfloat ? LEAVE_HYSTERESIS : 0);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
             /** A calm open water surface (Waters.calm): a hat set down there floats. */

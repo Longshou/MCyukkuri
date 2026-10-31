@@ -63,7 +63,6 @@ public final class Swim implements Action {
         double distance = to.length();
         if (maxTicks > 0 && ++ticks > maxTicks)
             return grip ? Outcome.of(Reason.TOO_FAR, distance, "swum=" + maxTicks) : new Outcome.Done("pressed ticks=" + maxTicks);
-        if (!body.isInWaterOrBubble()) return new Running(distance, TravelMode.PASS);
         boolean weak = body.waterDistress().phase() == WaterDistress.Phase.EXHAUSTED;
         if (--cycle < 0) {
             ability(body);

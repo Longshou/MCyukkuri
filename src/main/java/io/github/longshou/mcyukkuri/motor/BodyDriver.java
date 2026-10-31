@@ -75,7 +75,6 @@ public final class BodyDriver {
                 return false;
             }
             if (!sameOwner && owner.active()) {
-                refusedBusy = true;
                 refused(action, "owner_active");
                 return false;
             }
@@ -92,7 +91,7 @@ public final class BodyDriver {
         stop(why == null ? "cancelled" : why);
     }
 
-    /** The latest run waits for an uninterruptible action or another active owner to finish. */
+    /** The latest {@link #run} was refused only because the current action is in an uninterruptible stretch: try again after it. */
     public boolean refusedBusy() { return refusedBusy; }
 
     public Action current() { return current; }

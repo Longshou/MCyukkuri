@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
@@ -117,7 +118,7 @@ public final class EscapeWater implements Intent {
                     default -> null;
                 }),
                 new Way("struggle", near == null ? Feasibility.of(Reason.NO_PATH, 0, "no_bank") : Feasibility.pass(), PRESSING, i -> {
-                    BlockPos to = i == 0 ? near : better(hat) ? null : nearest();
+                    BlockPos to = i == 0 ? near : body.isInWaterOrBubble() && better(hat) ? null : nearest();
                     return to == null ? null : new Step.Do(Swim.toward(Vec3.atBottomCenterOf(to), PRESS));
                 }));
     }
@@ -141,8 +142,13 @@ public final class EscapeWater implements Intent {
         @Override public Feasibility applicable() { return applicable; }
         @Override public Set<Reason> reduces() { return reduces; }
         @Override public Step next() {
+            Step step = steps.apply(next);
+            // Swimming ends at water exit; keep the intent while the body falls back or reaches dry support.
+            if (step instanceof Step.Do action && action.action() instanceof Swim && !body.isInWaterOrBubble())
+                return new Step.Do(new Await(() -> body.isInWaterOrBubble() || satisfied(), 20, "", "water_contact"));
             if (next == 0 && !id.equals("bank")) tried.add(id);
-            return steps.apply(next++);
+            next++;
+            return step;
         }
     }
 
@@ -238,14 +244,16 @@ public final class EscapeWater implements Intent {
         return null;
     }
 
-    /** The nearest dry stand, an avoided one last: a weak struggle can press toward safety even when no full route exists. */
+    /** Prefer a routed stand, an avoided one last; only without a route does a weak struggle press toward an unrouted stand. */
     private BlockPos nearest() {
-        BlockPos fallback = null;
+        BlockPos routed = null, unrouted = null;
         for (var pos : stands()) {
-            if (!avoid.containsKey(pos)) return pos;
-            if (fallback == null) fallback = pos;
+            if (route(pos)) {
+                if (!avoid.containsKey(pos)) return pos;
+                if (routed == null) routed = pos;
+            } else if (unrouted == null || avoid.containsKey(unrouted) && !avoid.containsKey(pos)) unrouted = pos;
         }
-        return fallback;
+        return routed != null ? routed : unrouted;
     }
 
     private boolean route(BlockPos pos) { return routes.computeIfAbsent(pos, p -> body.life().reachable(p, true)); }

@@ -108,14 +108,13 @@ public final class WaterDistress {
      * carrier or host moves it). Updates the phases first.
      */
     public boolean struggles(){
-        if(entity.level().isClientSide||!escaping()||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
+        if(entity.level().isClientSide||!(escaping()||climbing())||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
                 ||entity.operations().active()||entity.predatorFlying()||entity.family().flying())return false;
         tick();
         return phase!=Phase.IMPACT;
     }
-    /** A bob above the water is still the same escape until the body reaches dry support. */
-    public boolean escaping(){return entity.isInWaterOrBubble()||climbing()
-            ||(phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED)&&!entity.onGround()&&!entity.isPassenger();}
+    /** Only actual water contact makes a body available to swimming or water rescue. */
+    public boolean escaping(){return entity.isInWaterOrBubble();}
     /** Mid-climb out of the water: lifting the body clear of it does not end the escape, the climb does. */
     public boolean climbing(){return entity.motor().current() instanceof Climb;}
     private boolean realThreat(){

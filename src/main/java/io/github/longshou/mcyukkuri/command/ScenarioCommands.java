@@ -194,7 +194,7 @@ public final class ScenarioCommands {
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))
-                .then(Commands.literal("shake").then(Commands.argument("hat", EntityArgument.entity()).executes(c -> {
+                .then(Commands.literal("shake").requires(s -> s.hasPermission(2)).then(Commands.argument("hat", EntityArgument.entity()).executes(c -> {
                     var entity = EntityArgument.getEntity(c, "hat");
                     if (!(entity instanceof PlacedHatEntity hat)) return refused(c.getSource(), entity, "摇帽", "not_a_hat");
                     var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());

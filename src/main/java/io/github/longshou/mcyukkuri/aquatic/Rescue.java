@@ -111,7 +111,7 @@ final class Rescue implements Intent {
         var hat = AquaticLife.riding(helper);
         if (hat == null) return null;
         if (faller.getVehicle() == helper) return Ferry.releaseAboard(helper, hat, faller);
-        if (!faller.waterDistress().escaping()) return null;
+        if (!faller.waterDistress().escaping()) return landing();
         var larder = HullLarder.of(hat);
         if (dumped < ROOM && AquaticLife.freeSpot(hat, faller) == null && larder != null && !larder.portions().isEmpty()) return room(hat, larder);
         var grab = Grab.outOfWater(faller);
@@ -135,6 +135,11 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> waiting(String why) {
         return List.of(() -> act(new Await(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.waterDistress().escaping(),
                 WAIT, Behaviors.BOAT_CALL, "rescue_" + why)));
+    }
+
+    private List<Supplier<Step>> landing() {
+        return List.of(() -> act(new Await(() -> faller.isInWaterOrBubble() || satisfied() || !faller.isAlive(),
+                WAIT, Behaviors.BOAT_CALL, "rescue_faller_airborne")));
     }
 
     private void progress() {
@@ -176,7 +181,7 @@ final class Rescue implements Intent {
             return List.of(() -> SurfaceApproach.arrived(helper, inland) ? null : act(Walk.stand(inland, 1)),
                     () -> act(new Face(at.yaw() + 180)), () -> act(new Release(faller)), Ferry.landed(faller));
         }
-        if (!faller.waterDistress().escaping()) return null;
+        if (!faller.waterDistress().escaping()) return landing();
         var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         if (edge == null || edge.edge().distanceTo(faller.position()) > 1.5) edge = Waters.edges(helper, faller.position(), 2, false).stream()
@@ -191,7 +196,13 @@ final class Rescue implements Intent {
     @Override public void ended(IntentRunner.Result result) {
         if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
         if (result == IntentRunner.Result.DONE || result == IntentRunner.Result.LOST) AskLedger.server().ended(incident, helper.getUUID(), result.name());
-        else if (result == IntentRunner.Result.EXHAUSTED && acted) failed.accept(incident);
+        else if (result == IntentRunner.Result.EXHAUSTED && acted) {
+            var owner = helper.motor().owner();
+            if (helper.motor().refusal() == null && owner != null && owner.active())
+                GameplayLog.limited(helper, "aquatic", "rescue.owner", WAIT,
+                        "rescue unavailable faller={} incident={} owner={} counted=false", faller.getUUID(), incident, owner.ownerId());
+            else failed.accept(incident);
+        }
         GameplayLog.limited(helper, "aquatic", "rescue.end." + incident, result == IntentRunner.Result.EXHAUSTED ? WAIT : 0,
                 "rescue end result={} faller={} incident={} faller_alive={} in_water={} at={} last={}", result, faller.getUUID(),
                 incident, faller.isAlive(), faller.isInWaterOrBubble(), GameplayLog.at(faller.position()), helper.motor().lastDetail());

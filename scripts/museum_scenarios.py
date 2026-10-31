@@ -1688,6 +1688,7 @@ def water_aftermath(window):
 
 
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
+_WATER_SMOKE_READOUT = ['execute as @e[type=mcyukkuri:marisa,distance=..64,nbt=!{Health:0.0f}] run data get entity @s UUID']
 _WATER_ESCAPE = [r'\[intent\][^\n]* start id=escape_water\b',
                  r'\[action\][^\n]* start id=swim owner=escape_water\b',
                  r'\[intent\][^\n]* end id=escape_water result=(?:DONE|EXHAUSTED|LOST)\b']
@@ -1703,7 +1704,7 @@ pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
                         r'\[hat\][^\n]* shake player=[^\n]*impulse=',
                         r'\[hat\][^\n]* capsized cause=(?:shake|load)[^\n]*thrown=[1-9]', *_WATER_ESCAPE],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      '水生魔理沙把帽子放在离岸 3 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
@@ -1713,7 +1714,7 @@ pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                                    *_WATER_ESCAPE, r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 pond('self_rescue_far', '落水自救·远处的帽子', '远处帽子',
      '帽子漂在离岸 12 格的水面，船主在岸边被推下水：岸就在身边，她仍先游向自己的帽子再爬进去；朝帽子游超过 600 tick 或打滑用尽办法才转向岸边爬上去',
@@ -1885,7 +1886,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
                                    r'\[aquatic\][^\n]* rescue (?:progress [^\n]*distance_before=\d+\.\d+ distance_after=\d+\.\d+ last='
                                    r'|end result=EXHAUSTED [^\n]*last=(?:BLOCKED|INCAPABLE) reason=[A-Z_]+ shortfall=[^\n]* detail=\S)'
                                    r'|\[incident\][^\n]* decide id=water#[^\n]*chance=[^\n]*roll=[^\n]*accepted=false'],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath,
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT,
                 forms={'turned_land_hat': dict(expect=[
                     r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                     r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=1', *_WATER_ESCAPE])}))
@@ -1939,7 +1940,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
                                          r'\[intent\][^\n]* start id=attend_mate\b'],
                       forbid=_BOAT_SMOKE_FORBID + _WATER_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b'],
-                      verify=water_aftermath, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
+                      verify=water_aftermath, readout=_WATER_SMOKE_READOUT, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
                           r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
