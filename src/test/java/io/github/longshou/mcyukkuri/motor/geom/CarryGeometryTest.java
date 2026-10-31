@@ -2,17 +2,59 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.ArrayList;
 import java.util.List;
+import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry.Rejection;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
     @Test void blockedFrontDoesNotEndTheTurnSearchAtAClearRearSpot() {
         // A hat occupies the forward braid workspace beside a parent; the rear is clear.
-        var seats = CarryGeometry.endpoints(6.9333333, -2.52, 3.85, new Vec(8.5098, .21227, -4.208));
         assertTrue(clearLanding(new Vec(7.9297866, 0, 1.1988144), 0));
-        assertTrue(seats.stream().allMatch(p -> p.z() <= 0));
-        assertTrue(seats.stream().noneMatch(p -> clearLanding(p, 0)), "blocked front must reject this facing even with a clear rear");
-        assertTrue(seats.stream().anyMatch(p -> clearLanding(p, 5)), "the next turn step frees a real front spot");
+        var blocked = CarryGeometry.wayOut(6.9333333, -2.52, 3.85, new Vec(8.5098, .21227, -4.208), new Vec(8, 2, -8), 8,
+                p -> clearLanding(p, 0) ? null : Rejection.HOST, (p, arc) -> fail("no landing clears the hat"));
+        assertNull(blocked.point(), "a clear rear spot must not satisfy wayOut");
+        assertTrue(blocked.rejected()[Rejection.CARRIER.ordinal()] > 0);
+        assertTrue(blocked.rejected()[Rejection.HOST.ordinal()] > 0);
+        var turned = CarryGeometry.wayOut(6.9333333, -2.52, 3.85, new Vec(8.5098, .21227, -4.208), new Vec(8, 2, -8), 8,
+                p -> clearLanding(p, 15) ? null : Rejection.HOST, (p, arc) -> true);
+        assertNotNull(turned.point(), "three turn steps free a real front spot");
+        assertTrue(clearLanding(turned.point(), 15));
+    }
+
+    @Test void wayOutCountsRejectionsAndChecksTheRouteOnlyAfterLandingClearance() {
+        var tip = new Vec(.2, 0, -2);
+        var points = CarryGeometry.endpoints(0, -2, 3, tip);
+        var landings = new ArrayList<Vec>();
+        var arcs = new ArrayList<Double>();
+        var way = CarryGeometry.wayOut(0, -2, 3, tip, new Vec(1, 0, 1), 0, p -> {
+            landings.add(p);
+            return switch (landings.size()) {
+                case 1 -> Rejection.HOST;
+                case 2 -> Rejection.TERRAIN;
+                case 3 -> Rejection.OCCUPIED;
+                case 4 -> Rejection.UNSUPPORTED;
+                default -> null;
+            };
+        }, (p, arc) -> {
+            assertTrue(landings.size() >= 5);
+            arcs.add(arc);
+            return !p.equals(points.get(4));
+        });
+        assertEquals(points.get(5), way.point());
+        assertEquals(points.subList(0, 6), landings);
+        assertArrayEquals(new int[]{0, 1, 1, 1, 1, 1}, way.rejected());
+        assertEquals(3, arcs.size(), "two blocked arcs, then the first clear arc of the next landing");
+    }
+
+    @Test void endpointsKeepReachableFrontTipRankFacingFirstAndExcludeSideMargin() {
+        var tip = new Vec(.2, .1, -2);
+        var seats = CarryGeometry.endpoints(0, -2, 3, tip);
+        assertTrue(seats.contains(tip));
+        assertTrue(Math.abs(Math.toDegrees(Math.atan2(seats.getFirst().x(), -seats.getFirst().z()))) < 10);
+        for (var excluded : List.of(new Vec(2, 0, 0), new Vec(2, 0, -.1), new Vec(0, 0, -5)))
+            assertFalse(CarryGeometry.endpoints(0, 0, 4, excluded).contains(excluded));
+        var visible = new Vec(2, 0, -.5);
+        assertTrue(CarryGeometry.endpoints(0, 0, 4, visible).contains(visible));
     }
 
     private static boolean clearLanding(Vec at, double turn) {

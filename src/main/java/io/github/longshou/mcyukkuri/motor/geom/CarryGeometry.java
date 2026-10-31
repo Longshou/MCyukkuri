@@ -2,21 +2,44 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.function.DoublePredicate;
+import java.util.function.Function;
 
 /** Carry geometry in the parent's model frame: -Z is forward, +X is right. */
 public final class CarryGeometry {
     private CarryGeometry() {}
+    /** Ten degrees inside the side plane keeps a set-down visibly ahead of the parent. */
+    private static final double FRONT_SLOPE = Math.tan(Math.toRadians(80));
+
+    public enum Rejection { CARRIER, HOST, TERRAIN, OCCUPIED, UNSUPPORTED, ROUTE }
+    public record Way(Vec point, int[] rejected) {}
+
+    /** The production set-down search; world queries supply landing and swept-route clearance without formatting diagnostics. */
+    public static Way wayOut(double rootX, double rootZ, double reach, Vec tip, Vec from, double apart,
+                             Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {
+        var rejected = new int[Rejection.values().length];
+        for (var point : endpoints(rootX, rootZ, reach, tip)) {
+            var why = point.hlen() < apart ? Rejection.CARRIER : landing.apply(point);
+            if (why == null) {
+                double turn = frontTurn(from.x() - rootX, from.z() - rootZ, point.x() - rootX, point.z() - rootZ);
+                if (!chooseArc(turn, arc -> route.test(point, arc))) why = Rejection.ROUTE;
+            }
+            if (why == null) return new Way(point, rejected);
+            rejected[why.ordinal()]++;
+        }
+        return new Way(null, rejected);
+    }
 
     /** Only visible set-downs: a blocked front must keep the pickup's turn search going, never accept a rear spot. */
     public static List<Vec> endpoints(double rootX, double rootZ, double reach, Vec tip) {
         var seats = new ArrayList<Vec>();
-        seats.add(tip);
+        if (Math.hypot(tip.x() - rootX, tip.z() - rootZ) <= reach) seats.add(tip);
         for (int ring = 1; ring <= 3; ring++) for (int k = 0; k < 24; k++) {
             double a = k * Math.PI / 12, r = reach * ring / 3;
             seats.add(new Vec(rootX + r * Math.cos(a), tip.y(), rootZ + r * Math.sin(a)));
         }
-        seats.removeIf(p -> p.z() > 0);
+        seats.removeIf(p -> p.z() >= 0 || Math.abs(p.x()) > -p.z() * FRONT_SLOPE);
         seats.sort((a, b) -> compareEndpoints(a.x(), a.z(), b.x(), b.z()));
         return seats;
     }

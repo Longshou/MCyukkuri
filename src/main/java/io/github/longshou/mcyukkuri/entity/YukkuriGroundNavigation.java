@@ -192,10 +192,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         long now=level.getGameTime();
         if(crawlCheckPos!=null&&now-crawlCheckTick<=CRAWL_WINDOW)return;
         if(walking&&crawlCheckPos!=null&&at.distanceTo(crawlCheckPos)<crawler.crawlSpeed()*(now-crawlCheckTick)*CRAWL_SHARE){
+            double moved=at.distanceTo(crawlCheckPos),expected=crawler.crawlSpeed()*(now-crawlCheckTick);
             stop();stalled=true;
             GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait=crawl target={} at={} moved={} expected={}",
-                    target,at,String.format(Locale.ROOT,"%.3f",at.distanceTo(crawlCheckPos)),
-                    String.format(Locale.ROOT,"%.3f",crawler.crawlSpeed()*(now-crawlCheckTick)));
+                    target,at,String.format(Locale.ROOT,"%.3f",moved),String.format(Locale.ROOT,"%.3f",expected));
         }
         crawlCheckTick=now;crawlCheckPos=at;
     }

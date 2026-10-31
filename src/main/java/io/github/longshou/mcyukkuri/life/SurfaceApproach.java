@@ -13,7 +13,6 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -91,10 +90,9 @@ public final class SurfaceApproach {
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,false);
     }
-    /** Carry endpoints choose their occupant blockers explicitly; the tested body itself is excluded by getEntities. */
-    public static boolean supported(YukkuriEntity actor, Vec3 feet, Predicate<Entity> blocks) {
-        return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))
-                && actor.level().getEntities(actor,actor.getDimensions(actor.getPose()).makeBoundingBox(feet),blocks).isEmpty();
+    /** Terrain and weather only; carry planning checks occupants separately to report the actual blocker. */
+    public static boolean supportedGround(YukkuriEntity actor, Vec3 feet) {
+        return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
     }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();

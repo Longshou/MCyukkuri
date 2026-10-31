@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
+import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry.Rejection;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -359,7 +360,7 @@ public final class ParentCarry {
     public static boolean braidCanSetDown(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
         return !(Attach.of(child) instanceof AttachState.OnHost) || wayOut(carrier, child, ContactGeometry.braidYaw(carrier, child), lean).path() != null;
     }
-    private record Way(CompoundTag path, String frontCandidates) {}
+    private record Way(CompoundTag path, int[] rejected) {}
     /**
      * The braid's way out for {@code child} at {@code yaw}, as hold-record keys (null if blocked), with bounded front-candidate reasons.
      * The set-down (carrier model units, feet at MOUTH_FLOOR) is, of the rest tip and points round the braid root within its reach
@@ -375,34 +376,24 @@ public final class ParentCarry {
         var host = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
         var hat = host instanceof PlacedHatEntity on ? on : null;
         var from = modelAt(carrier, yaw, child.position());
-        var fronts = new StringJoiner(";", "[", "]");
-        for (var point : CarryGeometry.endpoints(root.x, root.z, reach, vector(restTip()))) {
+        var e = new CompoundTag();
+        e.putFloat("Y", yaw);
+        e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
+        if (lean) e.putBoolean("L", true);
+        var choice = CarryGeometry.wayOut(root.x, root.z, reach, vector(restTip()), vector(from), apart, point -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             var at = worldAt(carrier, yaw, seat);
-            String why = Math.hypot(seat.x - root.x, seat.z - root.z) > reach + 1e-4 ? "unreachable:reach"
-                    : Math.hypot(seat.x, seat.z) < apart ? "blocked:carrier"
-                    : hat != null && HatGeometry.overlaps(HatGeometry.poseOf(hat), hat.unit(), at, Occupancy.foot(child.getBbWidth())) ? "blocked:host"
-                    : !clear(carrier, child, at) ? "blocked:terrain" : null;
-            if (why == null) {
-                var occupants = carrier.level().getEntities(child, child.getDimensions(child.getPose()).makeBoundingBox(at),
-                        other -> other instanceof YukkuriEntity && other != carrier && !carrier.hasPassenger(other));
-                why = !occupants.isEmpty() ? "occupied:" + occupants.getFirst().getUUID()
-                        : !SurfaceApproach.supported(child, at, other -> false) ? "unsupported" : null;
-            }
-            var e = new CompoundTag();
-            e.putFloat("X", seat.x); e.putFloat("Z", seat.z); e.putFloat("Y", yaw);
-            e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
-            if (lean) e.putBoolean("L", true);
-            double turn = CarryGeometry.frontTurn(from.x - root.x, from.z - root.z, seat.x - root.x, seat.z - root.z);
-            if (why == null && !CarryGeometry.chooseArc(turn, arc -> {
-                e.putFloat("A", (float) arc);
-                return clearWay(carrier, child, yaw, host, e, from, seat, body, s);
-            })) why = "blocked:route";
-            fronts.add(String.format(Locale.ROOT, "f=%.3f,r=%.3f:%s", -seat.z * s / 16, seat.x * s / 16,
-                    why == null ? "chosen" : why));
-            if (why == null) return new Way(e, fronts.toString());
-        }
-        return new Way(null, fronts.toString());
+            if (hat != null && HatGeometry.overlaps(HatGeometry.poseOf(hat), hat.unit(), at, Occupancy.foot(child.getBbWidth()))) return Rejection.HOST;
+            if (!clear(carrier, child, at)) return Rejection.TERRAIN;
+            if (!carrier.level().getEntities(child, child.getDimensions(child.getPose()).makeBoundingBox(at),
+                    other -> other instanceof YukkuriEntity && other != carrier && !carrier.hasPassenger(other)).isEmpty()) return Rejection.OCCUPIED;
+            return SurfaceApproach.supportedGround(child, at) ? null : Rejection.UNSUPPORTED;
+        }, (point, arc) -> {
+            var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
+            e.putFloat("X", seat.x); e.putFloat("Z", seat.z); e.putFloat("A", arc.floatValue());
+            return clearWay(carrier, child, yaw, host, e, from, seat, body, s);
+        });
+        return new Way(choice.point() == null ? null : e, choice.rejected());
     }
 
     private static boolean clearWay(YukkuriEntity carrier, YukkuriEntity child, float yaw, SurfaceHost host, CompoundTag e,
@@ -432,16 +423,15 @@ public final class ParentCarry {
     public static boolean braided(YukkuriEntity carrier, YukkuriEntity child, boolean lean) {
         var choice = wayOut(carrier, child, carrier.bodyYaw(), lean);
         var way = choice.path();
-        GameplayLog.event(carrier, "family", "braid candidates child={} yaw={} parent={} selected={} frontCandidates={}", child.getUUID(),
-                carrier.bodyYaw(), GameplayLog.at(carrier.position()), way == null ? "none" : GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), setDown(way))),
-                choice.frontCandidates());
+        var counts = new StringJoiner(",", "[", "]");
+        for (var reason : Rejection.values()) counts.add(reason + "=" + choice.rejected()[reason.ordinal()]);
+        GameplayLog.event(carrier, "family", "braid candidates child={} yaw={} selected={} rejected={}", child.getUUID(),
+                String.format(Locale.ROOT, "%.1f", carrier.bodyYaw()),
+                way == null ? "none" : GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), setDown(way))), counts);
         if (way == null) return false;
         var e = entry(carrier, child.getUUID()).copy().merge(way);
         e.putLong("T", carrier.level().getGameTime());
         write(carrier, child.getUUID(), e);
-        GameplayLog.event(carrier, "family", "braid way child={} from={} setDown={} yaw={} high={}", child.getUUID(), GameplayLog.at(child.position()),
-                GameplayLog.at(worldAt(carrier, way.getFloat("Y"), setDown(way))), String.format(Locale.ROOT, "%.1f", way.getFloat("Y")),
-                String.format(Locale.ROOT, "%.2f", way.getFloat("PH")));
         return true;
     }
     /** A braid-tip child's place on its way out (carrier model units, drawn at the recorded yaw {@code Y}), or null once it is
@@ -1219,6 +1209,10 @@ public final class ParentCarry {
     private void letGone(YukkuriEntity child, String cause) {
         var hold = hold(carrier, child);
         String readout = carryReadout(carrier, child, child.position(), holdChoices.remove(child.getUUID()));
+        if (hold == Hold.BRAID) {
+            float chosenYaw = entry(carrier, child.getUUID()).getFloat("Y"), delta = Mth.wrapDegrees(carrier.bodyYaw() - chosenYaw);
+            readout += Math.abs(delta) > 1 ? String.format(Locale.ROOT, " turned=true chosenYaw=%.2f yawDelta=%.2f", chosenYaw, delta) : " turned=false";
+        }
         write(carrier, child.getUUID(), null);
         boolean ours = child.getUUID().equals(settingDown);
         String reason = ours ? settingWhy : cause;
