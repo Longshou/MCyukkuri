@@ -20,7 +20,7 @@ earlier museum world). Other modes:
     python scripts/build_museum_full.py --seed-level <level.dat> --output .local/experimental-map/<new-dir>
 
 No Java compilation and no UI automation. An explicit output directory must be a new directory below
-``.local/experimental-map``. Fields are in museum_fields.py, scenarios in museum_scenarios.py, spawn vocabulary in
+``.local/experimental-map`` (or ``.local/smoke`` for ``--pack-only``). Fields are in museum_fields.py, scenarios in museum_scenarios.py, spawn vocabulary in
 museum_dsl.py, buttons and labels in museum_sites.py.
 """
 from pathlib import Path
@@ -647,9 +647,11 @@ def main():
         if not args.pack_only and not args.seed_level:
             parser.error('--seed-level is required unless --pack-only or --install is selected')
         out = args.output.resolve()
-        staging_root = STAGING.resolve()
-        if out == staging_root or not out.is_relative_to(staging_root):
-            raise ValueError('Output must be a new directory below a .local/experimental-map folder')
+        staging_roots = [STAGING.resolve()]
+        if args.pack_only:
+            staging_roots.append((ROOT / '.local/smoke').resolve())
+        if not any(out != root and out.is_relative_to(root) for root in staging_roots):
+            raise ValueError('Output must be below .local/experimental-map (or .local/smoke for --pack-only)')
     # Everything that can fail is done before the old world is touched: validation and the level metadata.
     CONTROLS.clear()
     museum_sites.TEXTS.clear()

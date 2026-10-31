@@ -87,13 +87,17 @@ PR 产物对应合并提交 SHA。失败用 `gh run view <id> --log-failed` 查�
 | Python | 优先配置里的 `python`，再试 `py`、`python`；世界生成需 Python 3.11+／nbtlib，美术按需使用 Pillow、numpy |
 | `scripts/check_museum_pack.py` | 只读核对命令、函数引用、场景／按钮、地形与文字容量 |
 | `scripts/render_museum_map.py` | 从生成器数据输出 `.local/previews/museum/map.png` |
-| `scripts/build_museum_full.py --pack-only --output <目录>` | 生成数据包；输出须为 `.local/experimental-map/` 下不存在的新目录 |
+| `scripts/build_museum_full.py --pack-only --output <目录>` | 生成数据包；输出须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录 |
 | `/function mcylab:selfcheck` | 检查已加载按钮；`MCYMUSEUM_BUILD_COMPLETE` 仅表示建图结束 |
 | `.local/smp/java_syntax.py` | 可用时用 tree-sitter 解析 Java 语法，不是编译 |
 | `.local/mc-sources/` | 可用时查 Minecraft／NeoForge API |
 | `.local/smp/merge_lang.py` | 可用时按键三方合并语言 JSON |
 
-本机工具不入库，换机器须核对。资源 `--check` 仅检查导出一致性，不替代试玩；`打开素材检查.cmd` / `关闭素材检查.cmd` 查看动作表情，方法见[预览说明](../preview/README.md)。
+Windows 下运行 `python scripts/smoke_museum.py [场景ID ...]` 做无界面试玩前自查；省略 ID 时运行 `museum_scenarios.py` 中带 `smoke` 期望的场景。脚本仅用 Python 标准库，读取主检出已安装的 CI 运行包（`museum-runtime.json`）和现有 `build/moddev` 依赖，缺失就报错，不运行 Gradle；游戏运行时不跑，`tasklist` 检出 Minecraft、`java.exe` 或 `javaw.exe` 即拒绝启动。
+
+每次在当前检出的 `.local/smoke/` 下生成独立数据包和专用服务器世界，建图后逐场清空、加载场地并推进指定 tick，按场景自己的日志期望输出 PASS／FAIL；缺失期望或命中禁止日志时退出码非零。结束、出错或 Ctrl-C 都关闭服务器，保留 `instance-*/run/logs/latest.log` 和 `instance-*/<场景ID>.log` 供排查，不改客户端、已安装运行包或用户试玩世界。只检查场景初态与声明的链路读数，不证明全部行为成功，不算验收；试玩仍由用户运行 `启动动作博物馆.cmd`。
+
+`.local/` 下的本机依赖不入库，换机器须核对。资源 `--check` 仅检查导出一致性，不替代试玩；`打开素材检查.cmd` / `关闭素材检查.cmd` 查看动作表情，方法见[预览说明](../preview/README.md)。
 
 ## 生成文件与资源
 

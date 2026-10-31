@@ -6,6 +6,10 @@
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[开发指南](../docs/DEVELOPMENT.md#ci-运行包更新)，在实际游玩的机器执行。
 
+`python scripts/smoke_museum.py [场景ID ...]` 读取场景源码中的 `smoke` 期望，生成独立数据包、运行服务器并保存分场日志；用法、依赖与自查边界见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
+
+`python scripts/headless_server.py --name <实例名> start --datapack <数据包目录>` 是冒烟共用的 Windows／Python 标准库启动器：读取已安装 CI 运行包，在当前检出的 `.local/smoke/<实例名>/` 新建平坦服务器、状态记录与日志。同名 `cmd "<命令>"`、`sprint <ticks>`、`log`、`status`、`stop` 子命令通过 RCON／进程记录控制实例；单独 `start` 后须用 `stop` 关闭。不会编译或复制用户世界。
+
 试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/DEVELOPMENT.md#试玩日志与事后排查)。
 
 ## 架构建议检查
@@ -40,7 +44,7 @@
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
-人工试玩当前使用[油库里试玩场](../docs/DEVELOPMENT.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录必须是 `.local/experimental-map` 下不存在的新目录。
+人工试玩当前使用[油库里试玩场](../docs/DEVELOPMENT.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录约束见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
 
 圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
