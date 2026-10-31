@@ -11,6 +11,7 @@
 | 帽船划桨辫子穿模与辫子动力学 | `.worktrees/aq-paddle-1031` | `standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py`、`motions/variants/lore/aquatic_tools.py`、`boat_paddle` 导出与运行时动作文件 |
 | 翻船后帽体状态、持续脱水与亲油施救 | `.worktrees/aq-capsize-1031` | `aquatic/HullAfloat.java`、`aquatic/Rescue.java`、`life/EscapeWater.java`、共享游泳／划船能力 |
 | 帽船分娩稳位与身体归属 | `.worktrees/aq-labour-1031` | `family/LiveBirth.java`、身体归属／欲望仲裁、纯函数测试、`docs/TODO.md` |
+| 帽船放置形态放大（盆腔容纳全家） | `.worktrees/aq-basin-size-1031` | `interactions/aquatic-marisa-hat/` 放置盆制作源与导出、`aquatic_basin_hat_turned` 模型与 `hull_profiles`、`art/runtime-sources.json` |
 
 ## 玩法待办
 
