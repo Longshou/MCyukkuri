@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -44,6 +45,20 @@ public final class Climb implements Action {
 
     /** The host it climbs onto, or null for a bank; the host's contact pass leaves its climber alone. */
     public SurfaceHost host() { return host; }
+
+    /** The grip bears the emerging body; as its centre crosses into the hull, the load moves onto that centre. */
+    public Vec3 loadPoint(YukkuriEntity body) {
+        var center = host.frame().toLocal(body.position().add(0, body.getBbHeight() / 2, 0));
+        var inward = stand.subtract(edge).multiply(1, 0, 1);
+        double across = Math.clamp(center.subtract(edge).dot(inward) / inward.lengthSqr(), 0, 1);
+        return host.frame().toWorld(edge.lerp(center, across));
+    }
+
+    public double overHull(YukkuriEntity body) {
+        var inward = stand.subtract(edge).multiply(1, 0, 1).normalize();
+        double distance = host.frame().toLocal(body.position()).subtract(edge).dot(inward) * host.frame().unit();
+        return Buoyancy.overEdge(distance / (body.getBbWidth() / 2));
+    }
 
     @Override public String id() { return ID; }
 

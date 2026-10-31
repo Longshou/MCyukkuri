@@ -7,10 +7,15 @@ public final class Buoyancy {
 
     private Buoyancy(){}
 
-    /** A rectangular waterplane, width across (x) and length along (z): area and its second moments for roll and pitch. */
-    public record Plane(double area,double rollInertia,double pitchInertia){
-        public static Plane rect(double width,double length){
-            return new Plane(width*length,length*width*width*width/12,width*length*length*length/12);
+    /** Waterplane area and central second moments in the yaw-free world frame. */
+    public record Plane(double area,double rollInertia,double pitchInertia,double cross) {}
+
+    /** Mass, first moments and inertias about the keel, in blocks and water-volume mass units. */
+    public record Load(double mass,Vec moment,double rollInertia,double pitchInertia) {
+        public static final Load ZERO=new Load(0,Vec.ZERO,0,0);
+        public Load add(double weight,Vec at) {
+            return new Load(mass+weight,moment.add(at.scale(weight)),rollInertia+weight*(at.x()*at.x()+at.y()*at.y()),
+                    pitchInertia+weight*(at.z()*at.z()+at.y()*at.y()));
         }
     }
 
@@ -22,22 +27,25 @@ public final class Buoyancy {
     /** The mass of a round body inscribed in its {@code width}² × {@code height} box. */
     public static double bodyMass(double width,double height,double density){return Math.PI/6*width*width*height*density;}
 
-    /** How deep the hull sinks: the water it displaces weighs as much as it carries. */
-    public static double draft(double mass,Plane plane){return plane.area()<=0?0:Math.max(0,mass)/plane.area();}
+    /** Weight borne by a grip as a round body emerges: the surrounding water still supports its submerged volume. */
+    public static double supported(double immersed) {
+        return supported(immersed,0);
+    }
+    public static double supported(double immersed,double overDryHull) {
+        double d=Math.clamp(immersed,0,1);
+        return Math.max(0,1-d*d*(3-2*d)*(1-overDryHull)/BODY_DENSITY);
+    }
 
-    /** The static heel of a load whose moment about the centre is {@code momentX} (mass·blocks toward +x): +x goes down. */
-    public static double rollHeel(double momentX,Plane plane){return -Math.toDegrees(Math.atan(momentX/plane.rollInertia()));}
+    /** Share of a round body's footprint inside the gripped edge's tangent, signed centre distance in radii. */
+    public static double overEdge(double inward) {
+        double d=Math.clamp(inward,-1,1);
+        return (Math.acos(-d)+d*Math.sqrt(1-d*d))/Math.PI;
+    }
 
-    /** The static heel of a load whose moment is {@code momentZ} toward +z: +z goes down. */
-    public static double pitchHeel(double momentZ,Plane plane){return Math.toDegrees(Math.atan(momentZ/plane.pitchInertia()));}
-
-    /** The tilt at which an edge {@code reach} out, {@code freeboard} above the water, goes under; 0 once swamped. */
-    public static double flooding(double freeboard,double reach){return freeboard<=0?0:Math.toDegrees(Math.atan2(freeboard,reach));}
-
-    /** How far toward flooding an upright tilt is: 1 when the lowest brim corner meets the water. */
-    public static double floodRatio(double roll,double pitch,double floodRoll,double floodPitch){
-        if(floodRoll<=0||floodPitch<=0)return Double.POSITIVE_INFINITY;
-        return Math.hypot(roll/floodRoll,pitch/floodPitch);
+    /** HostFrame's roll(Z) . pitch(X), without yaw. */
+    public static Vec rotate(Vec at,double roll,double pitch) {
+        double r=Math.toRadians(roll),p=Math.toRadians(pitch),y=at.y()*Math.cos(p)-at.z()*Math.sin(p);
+        return new Vec(at.x()*Math.cos(r)-y*Math.sin(r),at.x()*Math.sin(r)+y*Math.cos(r),at.y()*Math.sin(p)+at.z()*Math.cos(p));
     }
 
     /** The world-up part of the hull axis after roll and pitch; negative while it floats upside down. */
@@ -45,9 +53,6 @@ public final class Buoyancy {
 
     /** What a tilt springs back to: the load's heel while upright, flat upside down once past a quarter turn. */
     public static double rest(double angle,double heel){return Math.abs(angle)>90?Math.copySign(180,angle):heel;}
-
-    /** The hull bottom's height over the water surface that floats it: its axis sits {@code draft} deep, or upside down its brim {@code top} out does. */
-    public static double rise(double up,double draft,double top){return -(up>=0?draft:top-draft)*up;}
 
     /** One tick of a damped spring: the new velocity for an offset {@code toRest} from where it rests. */
     public static double spring(double toRest,double velocity,double stiffness,double damping){

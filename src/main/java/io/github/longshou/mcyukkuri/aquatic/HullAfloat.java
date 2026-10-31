@@ -10,11 +10,13 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
+import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
+import io.github.longshou.mcyukkuri.motor.geom.HullHydro;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +46,12 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class HullAfloat implements PlacedHatBehavior {
     private static final JsonObject DATA = HatGeometry.afloat();
-    private static final double HULL_MASS = num("hull_mass"), SPRING = num("spring"), DAMPING = num("damping"),
+    private static final double SPRING = num("spring"), DAMPING = num("damping"),
             MAX_RISE = num("max_rise"), DRAG = num("drag"), TILT_SPRING = num("tilt_spring"), TILT_DAMPING = num("tilt_damping"),
             SHAKE = num("shake"), PUSH_HEEL = num("push_heel"), BUMP_TILT = num("bump_tilt"), CAPSIZE_HARD = num("capsize_hard"),
             FLIP_RATE = num("flip_rate"), UNSTEADY_RATE = num("unsteady_rate");
     private static final int CAPSIZE_TICKS = (int) num("capsize_ticks");
-    /** The largest static heel (a share of the flooding angle) a rider may give the hull where it stands: a step there overshoots by
-     *  the tilt spring's own overshoot (damping ratio ζ = damping / 2√spring), which must stay short of flooding. */
+    /** Existing walking margin: the share of rim clearance a planned resting heel may consume. */
     static final double STEADY = steady();
     /** The authored brim plate's thickness (hat units; marisa.json's brim parts span 10.49..11.31): the brim rides up onto a bank
      *  no higher than this above its underside and lies on it; a higher one is a wall the brim stops at. */
@@ -79,9 +80,17 @@ public final class HullAfloat implements PlacedHatBehavior {
     private boolean dry, beached, moored, pressing;
     private double surface = Double.NaN;
     private final PlacedHatEntity hat;
+    private final HullHydro hydro;
+    private Buoyancy.Load cloth;
+    private double clothUnit;
     private final HullLarder larder = new HullLarder();
 
-    private HullAfloat(PlacedHatEntity hat) { this.hat = hat; }
+    private HullAfloat(PlacedHatEntity hat) { this.hat = hat; hydro = HullHydro.of(hat.profile()); }
+
+    private Buoyancy.Load cloth() {
+        if (clothUnit != hat.unit()) { clothUnit = hat.unit(); cloth = hydro.hull(clothUnit); }
+        return cloth;
+    }
 
     HullLarder larder() { return larder; }
 
@@ -109,9 +118,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         });
     }
 
-    /** The hull's lowest point: its bottom upright, its brim crown up. */
+    /** The lowest point of the posed outer shell, including during righting. */
     private static double lowest(PlacedHatEntity hat) {
-        return hat.getY() + Math.min(0, hat.profile().rimY() * hat.unit() * Buoyancy.up(hat.roll(), hat.pitch()));
+        return hat.getY() + HullHydro.of(hat.profile()).lowest(hat.unit(), hat.roll(), hat.pitch());
     }
 
     /** The top of the first water in the column at x, z from height {@code from} up (a few blocks), or NaN when there is none. */
@@ -136,21 +145,20 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public void tick(PlacedHatEntity hat) {
         double water = surface(hat), unit = hat.unit(), top = hat.profile().rimY() * unit;
         if (!Double.isFinite(water)) return;
-        var plane = plane(hat);
-        var load = load(hat, larder, null, null);
-        double moX = load.x(), moZ = load.z();
+        var load = load(null, null);
         mass = load.mass();
         larder.sync(hat);
-        draft = Buoyancy.draft(mass, plane);
-        double freeboard = top - draft, roll = hat.roll(), pitch = hat.pitch();
+        double roll = hat.roll(), pitch = hat.pitch();
         boolean down = hat.upsideDown(), righting = righting(hat);
         if (righting && !down) rightProgress = 1;  // past the quarter turn the held hull falls the rest of the way upright
-        // tilt: a damped spring back to the riders' heel (plus this tick's shoves), flat crown up once over
-        double restRoll = flip == 1 || flip == -1 ? 180 * flip : Buoyancy.rest(roll, down ? 0 : Buoyancy.rollHeel(moX, plane) + heelRoll);
-        double restPitch = flip == 2 || flip == -2 ? 90 * flip : Buoyancy.rest(pitch, down ? 0 : Buoyancy.pitchHeel(moZ, plane) + heelPitch);
+        // Gravity and the measured centre of buoyancy supply the moment; the old spring only settles a capsized hull.
+        var moment = hydro.sample(unit, roll, pitch, water - hat.getY()).moment(load, roll, pitch);
+        rollRate = down ? Buoyancy.spring(Buoyancy.wrap(Buoyancy.rest(roll, 0) - roll), rollRate, TILT_SPRING, TILT_DAMPING)
+                : rollRate * (1 - TILT_DAMPING) + Math.toDegrees(.04 * moment.x() / load.rollInertia());
+        pitchRate = down ? Buoyancy.spring(Buoyancy.wrap(Buoyancy.rest(pitch, 0) - pitch), pitchRate, TILT_SPRING, TILT_DAMPING)
+                : pitchRate * (1 - TILT_DAMPING) + Math.toDegrees(.04 * moment.z() / load.pitchInertia());
+        rollRate += heelRoll * TILT_SPRING; pitchRate += heelPitch * TILT_SPRING;
         heelRoll = heelPitch = 0;
-        rollRate = Buoyancy.spring(Buoyancy.wrap(restRoll - roll), rollRate, TILT_SPRING, TILT_DAMPING);
-        pitchRate = Buoyancy.spring(Buoyancy.wrap(restPitch - pitch), pitchRate, TILT_SPRING, TILT_DAMPING);
         // held by a righter: the hull turns back as far as it has pushed, no faster than a capsize turns it over
         if (righting) {
             double held = Math.signum(rightAxis) * 180 * (1 - rightProgress);
@@ -163,13 +171,10 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (flip != 0 && Math.abs(flip % 2 != 0 ? roll : pitch) > 90) flip = 0;
         hat.pose((float) roll, (float) pitch);
         if (righting && rightProgress >= 1 && Math.abs(roll) < .5 && Math.abs(pitch) < .5) righted(hat);
-        double floodRoll = Buoyancy.flooding(freeboard, hat.profile().brim()[0] * unit);
-        double floodPitch = Buoyancy.flooding(freeboard, hat.profile().brim()[1] * unit);
-        double ratio = down || flip != 0 || righting ? 0 : Buoyancy.floodRatio(roll, pitch, floodRoll, floodPitch);
-        over = ratio >= 1 ? over + 1 : 0;
-        if (ratio >= CAPSIZE_HARD || over >= CAPSIZE_TICKS) capsize(hat, roll, pitch, floodRoll, floodPitch, ratio, freeboard);
         // buoyancy: a spring and damper holds the hull at its draft; vanilla flow pushed it already this tick, drag slows it
-        double target = water + Buoyancy.rise(Buoyancy.up(roll, pitch), draft, top);
+        var balanced = hydro.balance(unit, mass, roll, pitch);
+        draft = balanced.draft();
+        double target = water - draft;
         var v = hat.getDeltaMovement();
         v = v.add(stroke(hat));
         var motion = new Vec3(v.x * DRAG, Mth.clamp(Buoyancy.spring(target - hat.getY(), v.y, SPRING, DAMPING), -MAX_RISE, MAX_RISE), v.z * DRAG);
@@ -183,6 +188,10 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (walled && !pressing) bump(hat, motion, free);
         pressing = walled;
         rest(hat);
+        var actual = hydro.sample(unit, roll, pitch, water - hat.getY());
+        double ratio = hat.upsideDown() || flip != 0 || righting ? 0 : actual.ratio();
+        over = ratio >= 1 ? over + 1 : 0;
+        if (ratio >= CAPSIZE_HARD || over >= CAPSIZE_TICKS) capsize(hat, roll, pitch, ratio, actual.freeboard());
         var reach = Math.hypot(hat.profile().brim()[0], hat.profile().brim()[1]) * unit + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach, top + .5, reach), e -> e instanceof LivingEntity))
             contact(hat, other);
@@ -192,38 +201,55 @@ public final class HullAfloat implements PlacedHatBehavior {
         moored = against;
     }
 
-    /** Everything aboard: its mass and moment (mass · blocks, hull frame): the hull, the riders where they stand ({@code moved}
-     *  at {@code at} instead, aboard or not yet), the food in the hollow. */
-    private record Load(double mass, double x, double z) {}
-
-    private static Load load(PlacedHatEntity hat, HullLarder larder, YukkuriEntity moved, Vec3 at) {
-        double unit = hat.unit(), m = HULL_MASS * hat.hullScale() * hat.hullScale(), mx = 0, mz = 0;
-        for (var p : hat.getPassengers()) if (p instanceof YukkuriEntity y && y != moved) {
-            double w = mass(y);
-            var local = hat.riders().local(y.getUUID());
-            m += w; mx += w * local.x * unit; mz += w * local.z * unit;
+    /** Actual rider centres, including children held by riders, and the portions where they lie. */
+    private Buoyancy.Load load(YukkuriEntity moved, Vec3 at) {
+        double unit = hat.unit();
+        var load = cloth();
+        for (var p : hat.getPassengers()) if (p != moved)
+            load = rider(load, p, hat.frame().toWorld(hat.riders().local(p.getUUID())).subtract(p.position()));
+        if (moved != null) load = rider(load, moved, hat.frame().toWorld(at).subtract(moved.position()));
+        for (var p : larder.portions()) load = load.add(HullLarder.MASS, new Vec(p.x() * unit, p.y() * unit + HullLarder.HEIGHT / 2, p.z() * unit));
+        for (var y : hat.level().getEntitiesOfClass(YukkuriEntity.class, hat.getBoundingBox().inflate(2))) {
+            if (y.isPassenger() || y == moved) continue;
+            Vec3 point; double covered = 0;
+            if (y.motor().current() instanceof Climb c && c.host() == hat) {
+                point = c.loadPoint(y);
+                if (hat.getY() + hydro.rimHeight(unit, hat.roll(), hat.pitch()) > surface(hat)) covered = c.overHull(y);
+            }
+            else if (y.motor().current() instanceof Right r && r.host() == hat) point = r.loadPoint(y);
+            else continue;
+            if (point == null) continue; // a righter can have lost its rim since the action last ticked
+            double fraction = Buoyancy.supported((surface(hat) - y.getY()) / y.getBbHeight(), covered);
+            double weight = carriedMass(y) * fraction;
+            load = load.add(weight, vector(hat.frame().toLocal(point).scale(unit)));
+            if (moved == null) GameplayLog.limited(hat, "hat", "grip_load", 100, "grip load body={} action={} fraction={} weight={} at={}",
+                    y.getUUID(), y.motor().current().id(), fmt(fraction), fmt(weight), GameplayLog.at(point));
         }
-        if (moved != null) { double w = mass(moved); m += w; mx += w * at.x * unit; mz += w * at.z * unit; }
-        for (var p : larder.portions()) { m += HullLarder.MASS; mx += HullLarder.MASS * p.x() * unit; mz += HullLarder.MASS * p.z() * unit; }
-        return new Load(m, mx, mz);
+        return load;
     }
+
+    private Buoyancy.Load rider(Buoyancy.Load load, Entity body, Vec3 offset) {
+        var at = hat.frame().toLocal(body.position().add(offset).add(0, body.getBbHeight() / 2, 0)).scale(hat.unit());
+        load = load.add(mass(body), vector(at));
+        for (var child : body.getPassengers()) load = rider(load, child, offset);
+        return load;
+    }
+
+    private static Vec vector(Vec3 v) { return new Vec(v.x, v.y, v.z); }
+    private static double carriedMass(Entity body) { return mass(body) + body.getPassengers().stream().mapToDouble(HullAfloat::carriedMass).sum(); }
 
     /**
      * Whether the hull stays upright with {@code body} standing at {@code local} (hat units) and every other load where it is: the
-     * static heel it would take there keeps within {@link #STEADY} of its flooding angle at that load. A hat not afloat bears it.
+     * static heel consumes no more than {@link #STEADY} of its rim clearance at that load. A hat not afloat bears it.
      * Where on her own hat a body may walk to without turning it over (AQUATIC 帽内走动: only a real outside cause capsizes it).
      */
     static boolean keeps(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) { return heel(hat, body, local) <= STEADY; }
 
-    /** The static heel the hull would take with {@code body} at {@code local}, as a share of its flooding angle (1 floods; 0 for a
+    /** The static heel the hull would take with {@code body} at {@code local}, as a share of its rim clearance (1 floods; 0 for a
      *  hat not afloat). */
     static double heel(PlacedHatEntity hat, YukkuriEntity body, Vec3 local) {
         if (!(hat.behavior() instanceof HullAfloat hull)) return 0;
-        var load = load(hat, hull.larder, body, local);
-        var plane = plane(hat);
-        double unit = hat.unit(), freeboard = hat.profile().rimY() * unit - Buoyancy.draft(load.mass(), plane);
-        return Buoyancy.floodRatio(Buoyancy.rollHeel(load.x(), plane), Buoyancy.pitchHeel(load.z(), plane),
-                Buoyancy.flooding(freeboard, hat.profile().brim()[0] * unit), Buoyancy.flooding(freeboard, hat.profile().brim()[1] * unit));
+        return hull.hydro.equilibrium(hat.unit(), hull.load(body, local)).ratio();
     }
 
     private static double steady() {
@@ -340,7 +366,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         var dir = local(hat, dx / distance, dz / distance);
         double depth = Math.min(CONTACT_STEP, hat.profile().reach(Math.atan2(dir[1], dir[0])) * unit + other.getBbWidth() / 2 - distance);
         if (depth <= 0) return;
-        double theirs = mass(other), mine = Math.max(mass, HULL_MASS);
+        double theirs = mass(other), mine = mass;
         double share = other instanceof YukkuriEntity ? theirs / (theirs + mine) : 1;
         double nx = dx / distance, nz = dz / distance, moved = depth * share;
         hat.move(MoverType.SELF, clear(hat, new Vec3(-nx * moved, 0, -nz * moved)));
@@ -380,13 +406,14 @@ public final class HullAfloat implements PlacedHatBehavior {
     // ---------------------------------------------------------------- turning over
     /** Past the flooding angle for good: it turns over about the axis that went furthest, toward its low side, and every rider
      *  leaves where it stands with the velocity the turning hull gives it there (thrown, then physics). */
-    private void capsize(PlacedHatEntity hat, double roll, double pitch, double floodRoll, double floodPitch, double ratio, double freeboard) {
-        boolean byRoll = Math.abs(roll) * Math.max(floodPitch, 1e-6) >= Math.abs(pitch) * Math.max(floodRoll, 1e-6);
+    private void capsize(PlacedHatEntity hat, double roll, double pitch, double ratio, double freeboard) {
+        boolean byRoll = Math.abs(roll) >= Math.abs(pitch);
         int side = (byRoll ? roll : pitch) < 0 ? -1 : 1;
         flip = byRoll ? side : 2 * side;
         if (byRoll) rollRate = side * FLIP_RATE; else pitchRate = side * FLIP_RATE;
         over = 0;
-        String why = freeboard <= 0 ? "overload" : hat.level().getGameTime() - causeTick <= CAUSE_TICKS ? cause : "load";
+        String why = hydro.balance(hat.unit(), mass, 0, 0).freeboard() <= 0 ? "overload"
+                : hat.level().getGameTime() - causeTick <= CAUSE_TICKS ? cause : "load";
         var thrown = new ArrayList<String>();
         for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y) {
             Motor.dismount(y, y.position(), carried(hat, y.position()), "thrown");
@@ -394,8 +421,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         }
         larder.spill(hat, why, at -> carried(hat, at));
         hat.dropKit(hat.position().add(0, hat.profile().rimY() * hat.unit(), 0), carried(hat, hat.position()), "capsized");
-        GameplayLog.event(hat, "hat", "capsized cause={} tilt={}/{} flood={}/{} ratio={} draft={} freeboard={} owner={} thrown={} riders={}",
-                why, fmt(roll), fmt(pitch), fmt(floodRoll), fmt(floodPitch), fmt(ratio), fmt(draft), fmt(freeboard),
+        GameplayLog.event(hat, "hat", "capsized cause={} tilt={}/{} ratio={} draft={} freeboard={} form={} load={} owner={} thrown={} riders={}",
+                why, fmt(roll), fmt(pitch), fmt(ratio), fmt(draft), fmt(freeboard), hat.formId(), fmt(mass),
                 hat.ownerYukkuri(), thrown.size(), thrown);
     }
 
@@ -492,28 +519,21 @@ public final class HullAfloat implements PlacedHatBehavior {
         long now = hat.level().getGameTime();
         if (dryTick != now) {
             dryTick = now;
-            double water = surface(hat), top = hat.profile().rimY();
-            var frame = hat.frame();
-            dry = Double.isFinite(water);
-            for (int i = 0; dry && i < RIM_POINTS; i++) {
-                double a = i * 2 * Math.PI / RIM_POINTS;
-                dry = rim(hat, frame, i).y > water;
-            }
+            double water = surface(hat), rim = hat.getY() + hydro.rimHeight(hat.unit(), hat.roll(), hat.pitch());
+            dry = !hat.upsideDown() && rim > water;
+            if (!dry) GameplayLog.limited(hat, "hat", "wet_riders", 20,
+                    "shelter lost water={} rim={} clearance={} tilt={}/{} draft={} riders={} form={}",
+                    fmt(water), fmt(rim), fmt(rim-water), fmt(hat.roll()), fmt(hat.pitch()), fmt(draft), hat.getPassengers().size(), hat.formId());
         }
         return dry && hat.support(hat.frame().toLocal(rider.position()), rider).isPresent();
     }
     @Override public String detail(PlacedHatEntity hat) {
-        double top = hat.profile().rimY() * hat.unit();
+        double freeboard = hat.getY() + hydro.rimHeight(hat.unit(), hat.roll(), hat.pitch()) - surface(hat);
         return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s portions=%d",
-                draft, top - draft, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size());
+                draft, freeboard, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size());
     }
 
     // ---------------------------------------------------------------- measures
-    /** The crown's waterplane: the opening's rectangle at this hat's size. */
-    private static Buoyancy.Plane plane(PlacedHatEntity hat) {
-        float[] o = hat.profile().opening();
-        return Buoyancy.Plane.rect((o[1] - o[0]) * hat.unit(), (o[3] - o[2]) * hat.unit());
-    }
     /** A yukkuri as a round body of the WaterDistress density, a mother as her own body and the young she carries (her swell is
      *  her belly stretched round them, not more of her); anything else as its box of water. */
     private static double mass(Entity e) {

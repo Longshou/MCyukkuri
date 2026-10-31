@@ -6,35 +6,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BuoyancyTest {
-    private static final Buoyancy.Plane HAT=Buoyancy.Plane.rect(.76,1.05);
-
     @Test void densityIsTheWaterDistressNeutralBall(){
         assertEquals(.5896,Buoyancy.BODY_DENSITY,1e-4);
         assertEquals(Math.PI/6*.75*.75*.53*Buoyancy.BODY_DENSITY,Buoyancy.bodyMass(.75,.53,Buoyancy.BODY_DENSITY),1e-12);
     }
 
-    @Test void draftGrowsWithLoad(){
-        assertEquals(0,Buoyancy.draft(0,HAT),1e-12);
-        double one=Buoyancy.draft(.05,HAT),two=Buoyancy.draft(.1,HAT);
-        assertEquals(2*one,two,1e-12);
-        assertEquals(.05/(.76*1.05),one,1e-12);
-    }
-
-    @Test void heelFollowsTheMomentSide(){
-        assertEquals(0,Buoyancy.rollHeel(0,HAT),1e-12);
-        assertTrue(Buoyancy.rollHeel(.002,HAT)<0,"a load on +x lowers +x: negative roll");
-        assertTrue(Buoyancy.pitchHeel(.002,HAT)>0,"a load on +z lowers +z: positive pitch");
-        // the long axis resists pitch more than the narrow one resists roll
-        assertTrue(Math.abs(Buoyancy.pitchHeel(.002,HAT))<Math.abs(Buoyancy.rollHeel(.002,HAT)));
-    }
-
-    @Test void floodingShrinksWithDraftAndVanishesWhenSwamped(){
-        double light=Buoyancy.flooding(.25,.63),loaded=Buoyancy.flooding(.15,.63);
-        assertTrue(loaded<light);
-        assertEquals(0,Buoyancy.flooding(0,.63),1e-12);
-        assertEquals(0,Buoyancy.flooding(-.1,.63),1e-12);
-        assertEquals(1,Buoyancy.floodRatio(10,0,10,8),1e-12);
-        assertEquals(Double.POSITIVE_INFINITY,Buoyancy.floodRatio(0,0,0,8));
+    @Test void climbingTransfersWeightContinuouslyAsWaterReleasesTheBody(){
+        assertEquals(0,Buoyancy.supported(.56),1e-12);
+        assertEquals(0,Buoyancy.supported(1),1e-12);
+        assertEquals(1,Buoyancy.supported(0),1e-12);
+        double previous=0;
+        for(int i=0;i<=560;i++) {
+            double weight=Buoyancy.supported(.56-i*.001);
+            assertTrue(weight>=previous);assertTrue(weight-previous<.003);previous=weight;
+        }
+        assertEquals(.5, Buoyancy.supported(.36), .01);
+        assertEquals(0,Buoyancy.overEdge(-1));assertEquals(.5,Buoyancy.overEdge(0));assertEquals(1,Buoyancy.overEdge(1));
+        assertEquals(1,Buoyancy.supported(.56,Buoyancy.overEdge(1)),1e-12,"dry hollow takes the full load before mounting");
+        previous=0;
+        for(int i=0;i<=200;i++) {
+            double weight=Buoyancy.supported(.56,Buoyancy.overEdge(-1+i*.01));
+            assertTrue(weight>=previous);assertTrue(weight-previous<.007);previous=weight;
+        }
     }
 
     @Test void restIsTheHeelUprightAndFlatCapsized(){
@@ -44,13 +37,6 @@ class BuoyancyTest {
         assertTrue(Buoyancy.up(0,0)>.999);
         assertTrue(Buoyancy.up(180,0)<-.999);
         assertTrue(Buoyancy.up(0,180)<-.999);
-    }
-
-    @Test void riseFloatsTheBottomUprightAndTheBrimCapsized(){
-        assertEquals(-.1,Buoyancy.rise(1,.1,.28),1e-12);
-        assertEquals(.18,Buoyancy.rise(-1,.1,.28),1e-12);
-        assertEquals(0,Buoyancy.rise(1e-9,.1,.28),1e-6);
-        assertEquals(0,Buoyancy.rise(-1e-9,.1,.28),1e-6);
     }
 
     @Test void dampedSpringSettlesOnItsRest(){
