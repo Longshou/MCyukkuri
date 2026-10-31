@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船划桨辫子穿模与辫子动力学 | `.worktrees/aq-paddle-1031` | `standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py`、`motions/variants/lore/aquatic_tools.py`、`boat_paddle` 导出与运行时动作文件 |
+| 翻船后帽体状态、持续脱水与亲油施救 | `.worktrees/aq-capsize-1031` | `aquatic/HullAfloat.java`、`aquatic/Rescue.java`、`life/EscapeWater.java`、共享游泳／划船能力 |
 
 ## 玩法待办
 
