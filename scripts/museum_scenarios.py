@@ -1773,7 +1773,9 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=set_out\b',
                                     r'\[hat\][^\n]* placed [^\n]*water=true kit=minecraft:stick\b',
                                     r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
-                                    r'MCYMUSEUM_SCENE sail hat_form=(?:turned_land_hat\b|cone_basin\b(?:(?!\[hat\][^\n]* capsized\b)[\s\S])*\[intent\][^\n]* start id=cruise\b)'],
+                                    r'\[intent\][^\n]* end id=set_out result=DONE\b',
+                                    # Cone capsize is allowed; basin must reach cruise afloat.
+                                    r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
 
 pond('afloat_family', '带孩子出航', '亲子出航',

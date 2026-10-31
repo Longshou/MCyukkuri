@@ -49,6 +49,7 @@ from museum_sites import button, display, deck, wrap, units, CONTROLS  # noqa: E
 
 NS = 'mcylab'
 WORLD = 'MCyukkuri-Museum'
+HAT_FORM_HINT = '在池塘观察台场景排第一颗“帽形”按钮切换，再重开场景。'
 SPAWN = (0, FEET, 36, 180)
 LOBBY = (-42, -36, 42, 42)            # x1, z1, x2, z2 of the lobby plaza
 STAGING = (ROOT / '.local/experimental-map')
@@ -269,7 +270,7 @@ def build_pack(world):
         if s.field == 'pond':
             for i, (form, _, caption) in enumerate(HAT_FORMS):
                 start += [f'execute if score #hat_form {OBJ} matches {i} run {command}' for command in (
-                    'tellraw @s ' + _text(f'本场帽形：{caption}。在池塘观察台场景排第一颗“帽形”按钮切换，再重开场景。', 'yellow'),
+                    'tellraw @s ' + _text(f'本场帽形：{caption}。{HAT_FORM_HINT}', 'yellow'),
                     f'say MCYMUSEUM_SCENE {s.id} hat_form={form}')]
         start.append(f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}')
         if s.vantage is not None:
@@ -295,7 +296,7 @@ def build_pack(world):
     for i, (form, _, caption) in enumerate(HAT_FORMS):
         fn(f'hat_form/{form}', [f'scoreboard players set #hat_form {OBJ} {i}',
            f'function {NS}:hat_form/label',
-           f'tellraw {near_field(BY_ID["pond"])} ' + _text(f'帽形：{caption}。在场景排第一颗“帽形”按钮切换；重开场景生效。', 'yellow'),
+           f'tellraw {near_field(BY_ID["pond"])} ' + _text(f'帽形：{caption}。{HAT_FORM_HINT}', 'yellow'),
            f'say MCYMUSEUM_HAT_FORM {form}'])
     fn('hat_form/show', [f'execute if score #hat_form {OBJ} matches {i} run function {NS}:hat_form/{form}' for i, (form, _, _) in enumerate(HAT_FORMS)])
     fn('hat_form/toggle', [f'scoreboard players add #hat_form {OBJ} 1',
@@ -370,7 +371,7 @@ def build_pack(world):
         fn(f'go/{f.id}', [f'tp @s {x} {y} {z} {yaw} 15',
                           'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True},
                                               {'text': f'：{f.blurb}。面前起依次是常用操作、倍速推进、时间天气、场景；红色清场在第一排最右侧。', 'color': 'aqua'}])]
-                          + ([f'function {NS}:hat_form/show'] if f.id == 'pond' else []))
+                          + ([f'function {NS}:hat_form/label'] if f.id == 'pond' else []))
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])

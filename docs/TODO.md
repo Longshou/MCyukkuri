@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船初态与帽形入口 | `.worktrees/aq-init-1031` | `scripts/build_museum_full.py`、`scripts/museum_scenarios.py`、`scripts/museum_dsl.py`、`command/ScenarioSetup.java`、`motor/Attach.java` |
 
 ## 玩法待办
 

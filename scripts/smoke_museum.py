@@ -148,8 +148,8 @@ def run_scene(st, scene, builder):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
-    parser.add_argument('--hat-form', choices=('turned_land_hat', 'cone_basin'), default='turned_land_hat',
-                        help='Pond hat-form switch applied before scenes (default: current cone hat)')
+    parser.add_argument('--hat-form', choices=('turned_land_hat', 'cone_basin'), default='cone_basin',
+                        help='Pond hat-form switch (cone_basin: museum default; turned_land_hat: comparison)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
