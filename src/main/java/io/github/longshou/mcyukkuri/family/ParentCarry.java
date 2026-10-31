@@ -361,9 +361,9 @@ public final class ParentCarry {
     }
     private record Way(CompoundTag path, String frontCandidates) {}
     /**
-     * The braid's way out for {@code child} with the carrier turned to {@code yaw}, as hold-record keys, or null when there is none.
+     * The braid's way out for {@code child} at {@code yaw}, as hold-record keys (null if blocked), with bounded front-candidate reasons.
      * The set-down (carrier model units, feet at MOUTH_FLOOR) is, of the rest tip and points round the braid root within its reach
-     * at the child's scruff, ranked by facing angle then distance, whose footprint clears the carrier's own, the brim of the hat it is lifted
+     * at the child's scruff, in front and ranked by facing angle then distance, whose footprint clears the carrier's own, the brim of the hat it is lifted
      * off (the stand rule, {@code HatGeometry.overlaps}) and every block. The way rises from the child clear of the host plus a
      * child's height, swings in front of the root and comes down; only a blocked front arc permits the other arc.
      */
@@ -374,17 +374,10 @@ public final class ParentCarry {
         double apart = (Occupancy.foot(carrier.getBbWidth()) + Occupancy.foot(child.getBbWidth())) * 16 / s, body = (carrier.getBbWidth() + child.getBbWidth()) * 8 / s;
         var host = Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
         var hat = host instanceof PlacedHatEntity on ? on : null;
-        var tip = restTip();
-        var seats = new ArrayList<Vector3f>();
-        seats.add(tip);
-        for (int ring = 1; ring <= 3; ring++) for (int k = 0; k < 24; k++) {
-            double a = k * Math.PI / 12, r = reach * ring / 3;
-            seats.add(new Vector3f((float) (root.x + r * Math.cos(a)), (float) MOUTH_FLOOR, (float) (root.z + r * Math.sin(a))));
-        }
-        seats.sort((a, b) -> CarryGeometry.compareEndpoints(a.x, a.z, b.x, b.z));
         var from = modelAt(carrier, yaw, child.position());
         var fronts = new StringJoiner(";", "[", "]");
-        for (var seat : seats) {
+        for (var point : CarryGeometry.endpoints(root.x, root.z, reach, vector(restTip()))) {
+            var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             var at = worldAt(carrier, yaw, seat);
             String why = Math.hypot(seat.x - root.x, seat.z - root.z) > reach + 1e-4 ? "unreachable:reach"
                     : Math.hypot(seat.x, seat.z) < apart ? "blocked:carrier"
@@ -405,7 +398,7 @@ public final class ParentCarry {
                 e.putFloat("A", (float) arc);
                 return clearWay(carrier, child, yaw, host, e, from, seat, body, s);
             })) why = "blocked:route";
-            if (seat.z <= 0) fronts.add(String.format(Locale.ROOT, "f=%.3f,r=%.3f:%s", -seat.z * s / 16, seat.x * s / 16,
+            fronts.add(String.format(Locale.ROOT, "f=%.3f,r=%.3f:%s", -seat.z * s / 16, seat.x * s / 16,
                     why == null ? "chosen" : why));
             if (why == null) return new Way(e, fronts.toString());
         }

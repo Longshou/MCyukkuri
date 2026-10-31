@@ -1,10 +1,25 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.DoublePredicate;
 
 /** Carry geometry in the parent's model frame: -Z is forward, +X is right. */
 public final class CarryGeometry {
     private CarryGeometry() {}
+
+    /** Only visible set-downs: a blocked front must keep the pickup's turn search going, never accept a rear spot. */
+    public static List<Vec> endpoints(double rootX, double rootZ, double reach, Vec tip) {
+        var seats = new ArrayList<Vec>();
+        seats.add(tip);
+        for (int ring = 1; ring <= 3; ring++) for (int k = 0; k < 24; k++) {
+            double a = k * Math.PI / 12, r = reach * ring / 3;
+            seats.add(new Vec(rootX + r * Math.cos(a), tip.y(), rootZ + r * Math.sin(a)));
+        }
+        seats.removeIf(p -> p.z() > 0);
+        seats.sort((a, b) -> compareEndpoints(a.x(), a.z(), b.x(), b.z()));
+        return seats;
+    }
 
     /** Ten-degree facing bands prefer visibility; distance decides within a band. */
     public static int compareEndpoints(double ax, double az, double bx, double bz) {

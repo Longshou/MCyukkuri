@@ -6,6 +6,21 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
+    @Test void blockedFrontDoesNotEndTheTurnSearchAtAClearRearSpot() {
+        // A hat occupies the forward braid workspace beside a parent; the rear is clear.
+        var seats = CarryGeometry.endpoints(6.9333333, -2.52, 3.85, new Vec(8.5098, .21227, -4.208));
+        assertTrue(clearLanding(new Vec(7.9297866, 0, 1.1988144), 0));
+        assertTrue(seats.stream().allMatch(p -> p.z() <= 0));
+        assertTrue(seats.stream().noneMatch(p -> clearLanding(p, 0)), "blocked front must reject this facing even with a clear rear");
+        assertTrue(seats.stream().anyMatch(p -> clearLanding(p, 5)), "the next turn step frees a real front spot");
+    }
+
+    private static boolean clearLanding(Vec at, double turn) {
+        double angle = Math.toRadians(turn), x = at.x() * Math.cos(angle) - at.z() * Math.sin(angle);
+        double z = at.x() * Math.sin(angle) + at.z() * Math.cos(angle);
+        return Math.hypot(x, z) >= 8 && Math.hypot(x - 8, z + 8) >= 8.5;
+    }
+
     @Test void endpointsPreferFacingBeforeDistance() {
         var front = new Vec(0, 0, -10);
         var side = new Vec(2, 0, 0);
