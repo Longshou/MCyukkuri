@@ -44,7 +44,7 @@ public final class Await implements Action {
         if (condition.getAsBoolean()) return new Outcome.Done("condition");
         ticks++;
         if (ticks >= maxTicks) {
-            return Outcome.of(Reason.NO_PROGRESS, 0, "timeout maxTicks=" + maxTicks);
+            return Outcome.of(Reason.NO_PROGRESS, 0, "timeout why=" + clip + " maxTicks=" + maxTicks);
         }
         return new Running(maxTicks - ticks, TravelMode.PASS);
     }

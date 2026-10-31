@@ -62,29 +62,43 @@ final class Ferry {
      *  hat floating out of a hop from there is drawn in to the bank first, by the run's {@code beckoning} (null: never). */
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
         if (AquaticLife.aboard(body, hat)) {
-            var spot = AquaticLife.freeSpot(hat, body);
-            return spot == null ? null : List.of(() -> act(new Walk(hat, spot)));
+            var step = walkInside(body, hat);
+            return step == null ? null : List.of(() -> step);
         }
+        // Skipped suppliers share one evaluation; after an action/wait, read the moving hull afresh.
+        Supplier<Vec3> landing = new Supplier<>() {
+            private long tick = Long.MIN_VALUE;
+            private Vec3 at;
+            @Override public Vec3 get() {
+                long now = body.level().getGameTime();
+                if (tick != now) { tick = now; at = landing(body, hat); }
+                return at;
+            }
+        };
         return List.of(() -> {
-                    if (landing(body, hat) != null) return null;
+                    if (landing.get() != null) return null;
                     var edge = Waters.beside(hat, body);
                     var stand = edge == null ? null : Waters.boardingStand(edge, hat, body);
                     return stand == null || SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
                 },
-                () -> landing(body, hat) != null ? null : act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> beckoning == null || landing(body, hat) != null || new Hop(hat.position()).check(body).ok() ? null : beckoning.step(body, hat),
+                () -> landing.get() != null ? null : act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
+                () -> beckoning == null || landing.get() != null || new Hop(hat.position()).check(body).ok() ? null : beckoning.step(body, hat),
                 () -> new Step.Wait(() -> hat.tickCount > 0 && hat.steady(), 60, "hat_settles"),
                 // No landing even now: the hop at the hat's middle is refused with its real shortfall (TOO_FAR, TOO_HIGH).
                 () -> {
-                    var at = landing(body, hat);
+                    var at = landing.get();
                     GameplayLog.limited(body, "aquatic", "boarding_hop", 100, "boarding hop hat={} target={} hull={} velocity={} steady={} tilt={}/{}",
                             hat.getUUID(), GameplayLog.at(at), GameplayLog.at(hat.position()), hat.getDeltaMovement(), hat.steady(), hat.roll(), hat.pitch());
                     return act(new Hop(at == null ? hat.position() : at));
                 },
-                () -> {
-                    var spot = AquaticLife.freeSpot(hat, body);
-                    return spot == null ? null : act(new Walk(hat, spot));
-                });
+                () -> walkInside(body, hat));
+    }
+
+    private static Step walkInside(YukkuriEntity body, PlacedHatEntity hat) {
+        var spot = AquaticLife.freeSpot(hat, body);
+        if (spot == null) GameplayLog.limited(body, "aquatic", "boarding_no_room", 100,
+                "boarding refused hat={} reason=no_room", hat.getUUID());
+        return spot == null ? null : act(new Walk(hat, spot));
     }
 
     /** A short hop may reach only the brim; the same boarding run then walks into the hollow. */

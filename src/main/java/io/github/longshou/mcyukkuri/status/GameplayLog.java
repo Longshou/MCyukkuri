@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -68,11 +69,16 @@ public final class GameplayLog {
 
     /** Repeated automatic refusals: stable per-entity keys, with suppressed count on the next emitted line. */
     public static void limited(Entity source, String category, String key, int minTicks, String message, Object... values) {
+        limited(source, category, key, minTicks, message, () -> values);
+    }
+
+    /** Builds observation values only after the entity's bounded window admits the line. */
+    public static void limited(Entity source, String category, String key, int minTicks, String message, Supplier<Object[]> values) {
         if (source == null || source.level().isClientSide) return;
         Map<String, Window> windows = WINDOWS.computeIfAbsent(source, ignored -> new HashMap<>());
         int suppressed = enter(windows, source.level().getGameTime(), category, key, minTicks);
         if (suppressed < 0) return;
-        event(source, category, message + suffix(suppressed), values);
+        event(source, category, message + suffix(suppressed), values.get());
     }
 
     /** Transactions without a live entity must include their stable token, group or block identity. */

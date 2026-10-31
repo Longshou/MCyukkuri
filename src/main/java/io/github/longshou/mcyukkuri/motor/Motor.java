@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
+import java.util.function.Consumer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
@@ -29,8 +30,16 @@ public final class Motor {
 
     /** Begin an airborne impulse before vanilla chooses this tick's friction; collision still determines actual contact. */
     public static void takeoff(YukkuriEntity body, Vec3 v, String cause) {
-        body.setOnGround(false);
-        velocity(body, v, cause);
+        Takeoff.apply(body::setOnGround, () -> velocity(body, v, cause));
+    }
+
+    /** The take-off write order, independent of Minecraft: clear ground contact before applying the airborne impulse. */
+    public static final class Takeoff {
+        private Takeoff() {}
+        public static void apply(Consumer<Boolean> ground, Runnable impulse) {
+            ground.accept(false);
+            impulse.run();
+        }
     }
 
     /** A collision-resolved move (MoverType.SELF); returns the movement that actually happened. */

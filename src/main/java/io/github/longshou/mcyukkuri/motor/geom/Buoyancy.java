@@ -52,7 +52,9 @@ public final class Buoyancy {
     /** Vertical speed and angular rates (degrees/tick) about the hull's keel. */
     public record Motion(double vertical,double roll,double pitch) {}
 
-    /** Inelastic upward bank impulse at a supported local point; a separating point receives no impulse. */
+    /** Inelastic upward bank impulse; {@code point} is keel-relative, unrotated hull-local BLOCKS (HostFrame hat units × unit).
+     *  Load mass is block³ of water, inertias mass × block², vertical speed blocks/tick, angles degrees;
+     *  a separating point receives no impulse. */
     public static Motion bank(Load load,Vec point,double roll,double pitch,Motion motion) {
         var at=rotate(point,roll,pitch);
         double r=at.x(),p=-at.z()*Math.cos(Math.toRadians(roll));

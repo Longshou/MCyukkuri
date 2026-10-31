@@ -127,8 +127,9 @@ public final class AquaticLife {
      *  middle than it stands now; with no such spot (an overloaded hull) the one where it heels least; null when there is none. */
     static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) { return spot(hat, body, inside, near, true); }
 
-    /** As {@link #spot(PlacedHatEntity, YukkuriEntity, boolean, Vec3)}; {@code steady} false takes no account of the heel (a step
-     *  off toward the bank to leave the hat is always allowed: nobody is held aboard). */
+    /** As {@link #spot(PlacedHatEntity, YukkuriEntity, boolean, Vec3)}; {@code steady} false takes no account of the heel:
+     *  leaving toward the bank, or a boarding hop's brim contact before walking inward. Neither promises stability;
+     *  actual contact and capsize still follow the hull's motion and load. */
     static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near, boolean steady) {
         var grid = hat.walkGrid(body, true);
         double foot = Occupancy.foot(body.getBbWidth()), least = Double.POSITIVE_INFINITY;

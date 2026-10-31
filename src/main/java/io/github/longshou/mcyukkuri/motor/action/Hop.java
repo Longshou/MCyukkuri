@@ -128,9 +128,9 @@ public final class Hop implements Action {
         ContactResolver.Contact contact = ContactResolver.resolve(body);
         if (contact != null && contact.refused()) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
         if (contact != null) return new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
-        for (var host : hosts) if (!host.steady()) GameplayLog.limited(body, "body", "hop_unsteady", 100,
-                "hop contact unavailable host={} reason=unsteady at={} velocity={} airTicks={}", host.entity().getUUID(),
-                GameplayLog.at(body.position()), body.getDeltaMovement(), air);
+        for (var host : hosts) if (!host.steady()) GameplayLog.limited(body, "body", "host_unsteady_at_landing", 100,
+                "hop host_unsteady_at_landing host={} at={} velocity={} airTicks={}", () -> new Object[]{host.entity().getUUID(),
+                        GameplayLog.at(body.position()), body.getDeltaMovement(), air});
         if (body.isInWater()) return new Outcome.Done("water at=" + GameplayLog.at(body.position()));
         if (body.onGround()) return new Outcome.Done("landed at=" + GameplayLog.at(body.position()));
         if (air > plan.ticks() + SETTLE) return new Outcome.Done("settled at=" + GameplayLog.at(body.position()));
