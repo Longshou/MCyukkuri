@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船划桨辫子穿模与辫子动力学 | `.worktrees/aq-paddle-1031` | `standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py`、`motions/variants/lore/aquatic_tools.py`、`boat_paddle` 导出与运行时动作文件 |
-| 翻船后帽体状态、持续脱水与亲油施救 | `.worktrees/aq-capsize-1031` | `aquatic/HullAfloat.java`、`aquatic/Rescue.java`、脱水 Goal 与共享动作交接、`scripts/smoke_museum.py`、`scripts/museum_scenarios.py`、`command/ScenarioCommands.java` |
 | 帽船分娩稳位与身体归属 | `.worktrees/aq-labour-1031` | `family/LiveBirth.java`、身体归属／欲望仲裁、纯函数测试、`docs/TODO.md` |
 | 帽船放置形态放大（盆腔容纳全家） | `.worktrees/aq-basin-size-1031` | `interactions/aquatic-marisa-hat/` 放置盆制作源与导出、`aquatic_basin_hat_turned` 模型与 `hull_profiles`、`art/runtime-sources.json` |
 
@@ -260,6 +259,7 @@
 - **P0-4 带幼体靠岸下船**：`shore_family` → 缺粮或天黑引发返岸；子油自己跳上岸，赤油被逐只辫兜放到干地，单只失败只换落点；船长最后上岸收帽。
 - **P0-5 帽冠粮袋与玩家交互**：`cargo` → 食物右击船体逐份入粮（潜行最多 8 份），粮只在帽腔里、帽檐不出现；放不下提示加 `cheek_puff`、日志给原因、不晃船；吃水随载重下降，读档一致；空手和非食物点船才晃；`hat_swap`、`shore_family` 核对岸上摘取与水上拒绝。
 - **P0-6 落水救助一次决策**：`rescue_child` → 子油被嘴咬后颈拉上船；`rescue_infant_full` → 先推一份粮下水再辫兜救赤油，被兜孩子随船晃不抽动；每事件每救助者一条 `incident decide`。修复待试玩：亲油向落水者实际接近，够不到或无路给具体原因；出生问候结束后接续施救，不空耗救援次数。
+  冒烟可见施救接近，但所有场景完成救助抓取均为 0，仍待修复。
 - **P0-7 自救有上限**：`self_rescue`（含远帽起点）→ 咬檐勾辫爬回；3 次打滑后朝岸弱漂；接近超过 600 tick 转岸；浸水伤害按 60 tick 真实累积；孩子不在两帽间反复改向，两亲不同时指挥。修复待试玩：歇力或短暂浮出水面不重开脱困，没有完整路径时仍朝岸弱挣扎。
 - **P0-8 真实翻船与扶正**：`shake_capsize` → 连续空手摇船至翻，乘员被甩出，粮与桨漂散；高友善者先推赤油向帽檐，低友善者先抢帽；嘴咬檐翻正，散落物可捞回；乘员先游到外侧再扶，浮起读数对应，不凭观感调浮力。修复待试玩：倒扣浮帽稳定，不反复切换地面／漂浮状态。
 - **P0-9 船上分娩与新生护理**：`birth_boat_caught` → 临产挪座、每推船晃、新生儿落帽腔初醒、嚼糜喂、首便在后帽檐朝水（`birth exit selected`、`birth berth reserved`、`outcome=HAT`，仍可真实漏接）；`birth_boat_missed` → 落水建事件，母亲伸辫或父船来救，没救起则溺亡并哀悼。

@@ -33,6 +33,9 @@ public final class BodyDriver {
     private Action current;
     private MotorOwner owner;
     private Outcome last, refusal;
+    /** The exact request, reason and body owner from the latest refused run call. */
+    public record StartRefusal(MotorOwner requester, Action action, String reason, String owner) {}
+    private StartRefusal startRefusal;
     private long lastTick;
     private long startTick;
     private double bestMetric = Double.POSITIVE_INFINITY;
@@ -54,6 +57,7 @@ public final class BodyDriver {
     /** Asks for {@code action} to become the body's action: true when accepted and started, refused while an uninterruptible action or an active owner's action holds it. */
     public boolean run(MotorOwner candidate, Action action) {
         refusal = null;
+        startRefusal = null;
         refusedBusy = false;
         if (action == null || candidate == null || body.level().isClientSide) return false;
         if (!deciding()) {
@@ -64,18 +68,18 @@ public final class BodyDriver {
         if (feasibility != null && !feasibility.ok()) {
             last = refusal = Outcome.of(feasibility.reason(), feasibility.shortfall(), feasibility.detail());
             lastTick = now();
-            refused(action, "infeasible:" + feasibility.reason());
+            refused(candidate, action, "infeasible:" + feasibility.reason());
             return false;
         }
         if (current != null) {
             boolean sameOwner = candidate.ownerId() != null && candidate.ownerId().equals(owner.ownerId());
             if (!current.interruptible()) {
                 refusedBusy = true;
-                refused(action, "not_interruptible");
+                refused(candidate, action, "not_interruptible");
                 return false;
             }
             if (!sameOwner && owner.active()) {
-                refused(action, "owner_active");
+                refused(candidate, action, "owner_active");
                 return false;
             }
             abortNow("replaced");
@@ -100,6 +104,8 @@ public final class BodyDriver {
 
     /** Why the latest {@link #run} call refused its action by the action's own check, or null (accepted, or refused by the acceptance rules, which name no reason of the action's). */
     public Outcome refusal() { return refusal; }
+
+    public StartRefusal startRefusal() { return startRefusal; }
 
     public long lastTick() { return lastTick; }
 
@@ -262,7 +268,8 @@ public final class BodyDriver {
         finish(new Outcome.Interrupted(why));
     }
 
-    private void refused(Action action, String reason) {
+    private void refused(MotorOwner requester, Action action, String reason) {
+        startRefusal = new StartRefusal(requester, action, reason, owner == null ? "none" : owner.ownerId());
         GameplayLog.limited(body, "action", "refused:" + reason, REFUSED_WINDOW,
                 "refused id={} owner={} current={} reason={}",
                 action.id(), owner == null ? "none" : owner.ownerId(),

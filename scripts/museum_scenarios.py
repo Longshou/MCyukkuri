@@ -1665,10 +1665,10 @@ pond('hat_push', '推动帽子', '推动帽子',
             ('读帽子', f'data get entity {_HAT}')])
 
 def water_aftermath(window):
-    """A dry landing is valid; a rapid hull reversal or another escape in the same incident is not."""
+    """A supported landing and re-entry are valid; a rapid hull reversal or a pause restart is not."""
     grounded, escapes = {}, {}
     for line in window.splitlines():
-        entity = re.search(r'\[(hat|intent|incident|action)\] .*?#(\d+) uuid=\S+ t=(\d+)', line)
+        entity = re.search(r'\[(hat|intent|incident|action|water)\] .*?#(\d+) uuid=\S+ t=(\d+)', line)
         if entity is None:
             continue
         kind, who, tick = entity[1], entity[2], int(entity[3])
@@ -1679,11 +1679,13 @@ def water_aftermath(window):
                 return f'hull #{who} returned afloat {tick - grounded[who]} ticks after entering ground'
         elif kind == 'incident' and ' close id=water#' in line:
             escapes.pop(who, None)
+        elif kind == 'water' and 'phase=RECOVER -> IMPACT ' in line:
+            escapes.pop(who, None)
         elif kind == 'action' and re.search(r'outcome=INTERRUPTED why=(?:hurt|fright|command)\b', line):
             escapes.pop(who, None)
         elif kind == 'intent' and ' start id=escape_water ' in line:
             if who in escapes and tick - escapes[who] <= 1200:
-                return f'escape #{who} restarted after {tick - escapes[who]} ticks without a new water incident'
+                return f'escape #{who} restarted after {tick - escapes[who]} ticks without a new water entry or interruption'
             escapes[who] = tick
 
 
@@ -1700,7 +1702,8 @@ pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
      note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb，其间没有 [action] end … why=hurt（溺水伤记 [action] kept … through damage=drown）。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1800, commands=[(tick, f'yukkuri scenario shake {_HAT}') for tick in range(100, 300)],
+     smoke=dict(ticks=1800, commands=[(100, f'yukkuri scenario shake {_HAT}')] + [
+                    (tick, f'execute if data entity {_HAT} Passengers[0] run yukkuri scenario shake {_HAT}') for tick in range(101, 300)],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
                         r'\[hat\][^\n]* shake player=[^\n]*impulse=',
                         r'\[hat\][^\n]* capsized cause=(?:shake|load)[^\n]*thrown=[1-9]', *_WATER_ESCAPE],

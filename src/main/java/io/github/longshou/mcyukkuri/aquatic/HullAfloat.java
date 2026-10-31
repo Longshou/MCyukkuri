@@ -80,15 +80,12 @@ public final class HullAfloat implements PlacedHatBehavior {
     private String cause = "load";
     private long causeTick = Long.MIN_VALUE, sampled = Long.MIN_VALUE, dryTick = Long.MIN_VALUE;
     private boolean dry, wetRiders, beached, moored, pressing;
-    private double surface;
+    private double surface = Double.NaN;
     private final PlacedHatEntity hat;
     private final HullHydro hydro;
     private final HullLarder larder = new HullLarder();
 
-    private HullAfloat(PlacedHatEntity hat) {
-        this.hat = hat; hydro = HullHydro.of(hat.profile());
-        surface = surface(hat.level(), hat.getX(), lowest(hat) - LEAVE_MARGIN, hat.getZ());
-    }
+    private HullAfloat(PlacedHatEntity hat) { this.hat = hat; hydro = HullHydro.of(hat.profile()); }
 
     HullLarder larder() { return larder; }
 
@@ -106,14 +103,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         PlacedHatBehavior.register(new Provider() {
             @Override public String id() { return "afloat"; }
             @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
-                double low = lowest(hat);
-                // Keep the sampling window on the observed water while the posed hull coasts above it.
-                double from = current instanceof HullAfloat afloat ? Math.min(low, afloat.surface) : low;
-                double water = surface(hat.level(), hat.getX(), from - LEAVE_MARGIN, hat.getZ());
-                if (current instanceof HullAfloat afloat) {
-                    afloat.surface = water;
-                    afloat.sampled = hat.level().getGameTime();
-                }
+                double low = lowest(hat), water = surface(hat.level(), hat.getX(), low - LEAVE_MARGIN, hat.getZ());
                 // At the hull's lowest point counts: a hat set down on the water's surface floats at once.
                 return water >= low - (current instanceof HullAfloat ? LEAVE_HYSTERESIS : 0);
             }

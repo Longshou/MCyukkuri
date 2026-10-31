@@ -197,10 +197,12 @@ final class Rescue implements Intent {
         if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
         if (result == IntentRunner.Result.DONE || result == IntentRunner.Result.LOST) AskLedger.server().ended(incident, helper.getUUID(), result.name());
         else if (result == IntentRunner.Result.EXHAUSTED && acted) {
-            var owner = helper.motor().owner();
-            if (helper.motor().refusal() == null && owner != null && owner.active())
+            var refusal = helper.motor().startRefusal();
+            if (refusal != null && refusal.requester() instanceof IntentRunner runner && runner.intent() == this
+                    && refusal.reason().equals("owner_active"))
                 GameplayLog.limited(helper, "aquatic", "rescue.owner", WAIT,
-                        "rescue unavailable faller={} incident={} owner={} counted=false", faller.getUUID(), incident, owner.ownerId());
+                        "rescue unavailable faller={} incident={} step={} reason={} owner={} counted=false",
+                        faller.getUUID(), incident, refusal.action().id(), refusal.reason(), refusal.owner());
             else failed.accept(incident);
         }
         GameplayLog.limited(helper, "aquatic", "rescue.end." + incident, result == IntentRunner.Result.EXHAUSTED ? WAIT : 0,
