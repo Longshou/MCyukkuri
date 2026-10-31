@@ -130,7 +130,8 @@ public final class Drive {
         ranked = List.copyOf(out);
         String choice = ranked.isEmpty() ? "none" : ranked.getFirst().desire().intentId();
         if (!choice.equals(topChoice)) {
-            GameplayLog.event(body, domain, "drive evaluated gameTime={} top={} current={} failed={} fp={}", now, describe(ranked),
+            GameplayLog.limited(body, domain, "drive_top:" + topChoice + "->" + choice, 100,
+                    "drive evaluated gameTime={} from={} to={} top={} current={} failed={} fp={}", now, topChoice, choice, describe(ranked),
                     current == null ? "none" : current.intentId(), failed.keySet(), DriveWeights.fingerprint());
             topChoice = choice;
         }

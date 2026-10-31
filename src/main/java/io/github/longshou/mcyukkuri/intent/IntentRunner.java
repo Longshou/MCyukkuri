@@ -97,12 +97,15 @@ public final class IntentRunner implements MotorOwner {
         else readStep(now);
     }
 
-    /** The Goal's {@code stop()}: observe completion before cleanup, otherwise end INTERRUPTED, with no resume. */
+    /** The Goal's {@code stop()}: only a live, present body can complete at this handoff; cleanup never tests satisfaction. */
     public void stop(String why) {
         if (!active) return;
-        Result outcome = intent.satisfied() ? Result.DONE : Result.INTERRUPTED;
+        stop(why, body.isAlive() && !body.isRemoved() && intent.satisfied() ? Result.DONE : Result.INTERRUPTED);
+    }
+
+    private void stop(String why, Result outcome) {
         IntentRunner c = child;
-        if (c != null) c.stop(why);
+        if (c != null && c.active()) c.stop(why, Result.INTERRUPTED);
         driver().cancel(this, why);
         end(outcome);
     }
@@ -310,7 +313,7 @@ public final class IntentRunner implements MotorOwner {
         result = outcome;
         active = false;
         IntentRunner c = child;
-        if (c != null && c.active()) c.stop("parent_" + outcome.name().toLowerCase(Locale.ROOT));
+        if (c != null && c.active()) c.stop("parent_" + outcome.name().toLowerCase(Locale.ROOT), Result.INTERRUPTED);
         clearStep();
         GameplayLog.event(body, "intent", "end id={} result={} reasons={}", intent.id(), outcome, attempts.describe());
         intent.ended(outcome);

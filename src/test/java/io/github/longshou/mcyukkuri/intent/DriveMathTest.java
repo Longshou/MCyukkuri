@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -105,5 +106,23 @@ class DriveMathTest {
             }
             assertEquals(100, evaluations, "firstTick=" + firstTick + " entityId=" + id);
         }
+    }
+
+    @Test
+    void everyTickPollingKeepsTenBodiesOnDistinctPhases() {
+        var phases = new HashSet<Long>();
+        for (int id = 0; id < 10; id++) {
+            long evaluatedAt = 100;
+            int evaluations = 0;
+            for (long now = 101; now <= 130; now++) {
+                if (!DriveMath.due(now, evaluatedAt, id)) continue;
+                if (evaluations == 0) assertTrue(phases.add(now % 10), "duplicate phase for entityId=" + id);
+                else assertEquals(10, now - evaluatedAt, "period for entityId=" + id);
+                evaluatedAt = now;
+                evaluations++;
+            }
+            assertEquals(3, evaluations, "entityId=" + id);
+        }
+        assertEquals(10, phases.size());
     }
 }

@@ -288,19 +288,29 @@ final class Waters {
     }
 
     private static ItemEntity findStick(YukkuriEntity body, double range, boolean walk) {
-        var sticks = body.level().getEntitiesOfClass(ItemEntity.class, new AABB(body.blockPosition()).inflate(range),
-                item -> item.isAlive() && item.getItem().is(Items.STICK) && !item.isInWater());
+        var search = new AABB(body.blockPosition()).inflate(range);
+        // Observe one extra search-width outside the pickup box, without admitting those sticks as candidates.
+        var sticks = body.level().getEntitiesOfClass(ItemEntity.class, search.inflate(range), item -> {
+            if (!item.isAlive() || !item.getItem().is(Items.STICK)) return false;
+            String reason = !search.intersects(item.getBoundingBox()) ? "out_of_range" : item.isInWater() ? "wet" : null;
+            if (reason == null) return true;
+            rejectStick(body, item, reason, null, range, walk);
+            return false;
+        });
         sticks.sort(Comparator.comparingDouble(body::distanceToSqr));
         for (int i = 0; i < sticks.size() && i < 3; i++) {
             var stick = sticks.get(i);
             var at = SurfaceApproach.floor(body, stick.position());
-            String reason = at == null ? "no_dry_floor" : walk && !SurfaceApproach.canApproach(body, at) ? "unreachable" : "";
-            if (reason.isEmpty()) return stick;
-            GameplayLog.limited(body, "aquatic", "stick_" + reason, 200,
-                    "stick rejected id={} uuid={} at={} reason={} floor={} walk={} pickupDelayed={}", stick.getId(), stick.getUUID(),
-                    GameplayLog.at(stick.position()), reason, GameplayLog.at(at), walk, stick.hasPickUpDelay());
+            if (at != null && (!walk || SurfaceApproach.canApproach(body, at))) return stick;
+            rejectStick(body, stick, at == null ? "no_dry_floor" : "unreachable", at, range, walk);
         }
         return null;
+    }
+
+    private static void rejectStick(YukkuriEntity body, ItemEntity stick, String reason, Vec3 floor, double range, boolean walk) {
+        GameplayLog.limited(body, "aquatic", "stick_" + reason + "_" + stick.getId(), 200,
+                "stick rejected id={} uuid={} at={} reason={} floor={} range={} walk={} pickupDelayed={}", stick.getId(), stick.getUUID(),
+                GameplayLog.at(stick.position()), reason, GameplayLog.at(floor), range, walk, stick.hasPickUpDelay());
     }
 
     /**

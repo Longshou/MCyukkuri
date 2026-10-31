@@ -130,7 +130,7 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 ### 意图、方法与编排
 
 - `Intent`：`satisfied()` 只读物理事实，`deadline()` 必须有限，`methods()` 为有序手段（顺序可来自数据），`commitment()`。`Method`：`applicable()` 只读、`reduces()` 声明能缩小的原因、`next()` 给出 `Step`（`Do` 动作、`Wait` 有限等待、`Sub` 子意图、`AskFor` 求助），返回 null 但意图未满足按 `NO_PROGRESS` 处理。
-- `IntentRunner` 每 tick 与 Goal 停止交接时先读真实满足条件，满足则 `DONE`；未满足的停止仍为 `INTERRUPTED`，已结束的失败不改记。每 tick 超期或 `Attempts` 用尽则 `EXHAUSTED` 并带全部原因与差额；当前步 `Blocked` 记入 `Attempts` 后优先换能缩小该原因的方法，`Incapable` 排除该方法，`Lost`／`Interrupted` 结束（不自动恢复，需求仍在会重新产生意图）。`Attempts` 与 `WorldSignature`（目标与宿主位置量化、阻挡实体集合、时间桶）共同保证现场未变化前不原样重试同一方法，签名变化后被排除的方法才可重选；一个意图只用一个预算，失败不改记、不双计。结束后交给领域后果规则（哭、呼救、放弃、落水）。
+- `IntentRunner` 每 tick 与存活且未移除个体的 Goal 停止交接时先读真实满足条件，满足则 `DONE`；死亡、移除、父意图结束后的子意图清理不读满足条件，停止仍为 `INTERRUPTED`；未满足的停止与已结束的失败不改记。每 tick 超期或 `Attempts` 用尽则 `EXHAUSTED` 并带全部原因与差额；当前步 `Blocked` 记入 `Attempts` 后优先换能缩小该原因的方法，`Incapable` 排除该方法，`Lost`／`Interrupted` 结束（不自动恢复，需求仍在会重新产生意图）。`Attempts` 与 `WorldSignature`（目标与宿主位置量化、阻挡实体集合、时间桶）共同保证现场未变化前不原样重试同一方法，签名变化后被排除的方法才可重选；一个意图只用一个预算，失败不改记、不双计。结束后交给领域后果规则（哭、呼救、放弃、落水）。
 - `Drive`／`Desire`／`Commitment`：每个领域只注册一个 Goal，欲望强度 × 权重减代价打分，切换须超过当前意图一定幅度并持续一段时间（滞回），`Commitment` 为 `NONE`／`SOFT`／`HARD`，`HARD` 只让位于危险类欲望；权重在 `data/mcyukkuri/drive/<领域>.json`。持有者与评估节奏见上表 `Drive` 行，`Ask`／`AskLedger` 见其行。
 - `Choreography`／`Beat`／`Conductor`：节拍为 `Perform`（角色执行一个意图，带最长 tick 与超时分支）、`Present`（首个角色播片段、表情、声音，其余角色执行各自意图）、`Await`（带期限与超时分支）、`Branch`（按结果选下一节拍）。指挥者是拥有编排实例的组件，其被动时钟只推进时间型节拍并只改编排数据；每 tick 复核当前节拍的角色存活、同维度、距离 48 格内，失效进入声明的分支；`report` 只接受当前 Perform 所发意图实例的结果，旧意图迟到的回报丢弃；任何节拍都不能无限等待。存档只含节拍 id、角色 UUID 与领域要求的数据，读档后 Perform 节拍从头运行。LiveBirth 见上表。
 - 日志模板以代码为准，开始、结束、切换、挂载与卸下记 INFO，逐 tick 采样只在 `GameplayLog.detailEnabled()` 时记。
