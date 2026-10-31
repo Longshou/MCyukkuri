@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,8 @@ import org.joml.Vector3f;
 public final class HatGeometry {
     private static final JsonObject DATA=GeometryJson.read("yukkuri_presentation/hat_vessel.json").data();
     /** Species integration hook: choose the form of the worn hat from the owner's synced identity. */
-    public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(owner.subspeciesKind().aquatic()
-            ?owner.subspeciesKind().hullForm():DATA.getAsJsonObject("forms").get(owner.assetId()).getAsString());}
-    public static HullProfile wornForm(String assetId){return HullProfile.of(DATA.getAsJsonObject("forms").get(assetId).getAsString());}
+    public static HullProfile wornForm(YukkuriView owner){return wornForm(owner.assetId(),owner.subspeciesKind());}
+    public static HullProfile wornForm(String assetId,Kind kind){return HullProfile.of(kind.aquatic()?kind.hullForm():DATA.getAsJsonObject("forms").get(assetId).getAsString());}
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     public enum Role { HELPER, SELF }
     private static final float[] ANCHOR=floats(DATA.getAsJsonArray("anchor_worn"));

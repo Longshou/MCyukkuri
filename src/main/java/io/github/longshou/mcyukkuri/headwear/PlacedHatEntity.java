@@ -392,32 +392,21 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         for (var p : getPassengers()) if (p.getUUID().equals(id)) return p.getId();
         return null;
     }
-    /** The supported, free spot near {@code prefer} for a body of this foot radius and height (hat units); nothing is kept
-     *  (no second store). */
-    private Vec3 nestPlace(BodyFootprint body, Vec3 prefer, Entity except) {
-        if (prefer == null) return null;
-        var height = support(prefer,body);
-        if(height.isEmpty())return null;
-        var spot = new Vec3(prefer.x,height.getAsDouble(),prefer.z);
-        return clear(body,spot,except,0) ? spot : null;
-    }
-    /** Every free supported place inside the hollow (world) for an unborn child of this size: where a birth into the boat its
-     *  mother rides may aim; asked for, never kept. */
-    public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child, Entity except) {
-        if (level().isClientSide) return List.of();
-        var size = LiveBirthGeometry.unbornDimensions(kind, child);
-        return hollow(Occupancy.foot(size.width()) / unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0), size.width(),except).stream().map(frame()::toWorld).toList();
-    }
-    /** The free places (hat units) inside the hollow, INSIDE_SUPPORTED and clear at their height, a foot apart. */
-    private List<Vec3> hollow(double foot, BodyFootprint body, double width, Entity except) {
-        float[] o = profile().opening();
-        double step = Math.max(.5, foot);
-        var out = new ArrayList<Vec3>();
-        for (double x = o[0] + foot; x <= o[1] - foot; x += step)
-            for (double z = o[2] + foot; z <= o[3] - foot; z += step) {
-                var place = nestPlace(body, new Vec3(x, 0, z),except);
-                if (place != null && Occupancy.at(container(), frame().toWorld(place), width, true) == Occupancy.INSIDE_SUPPORTED) out.add(place);
+    /** Supported receiver candidates, centre first then concentric rings; occupancy is checked by qualification. */
+    public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
+        var size=LiveBirthGeometry.unbornDimensions(kind,child);double foot=Occupancy.foot(size.width())/unit();
+        var body=BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0);
+        var centre=spots().get("centre");var out=new ArrayList<Vec3>();
+        for(double ring=0;ring<=Math.hypot(profile().brim()[0],profile().brim()[1]);ring+=foot){
+            int around=ring==0?1:Math.max(8,(int)Math.ceil(2*Math.PI*ring/foot));
+            for(int i=0;i<around;i++){
+                double angle=i*2*Math.PI/around;
+                var p=new Vec3(centre.x+Math.cos(angle)*ring,0,centre.z+Math.sin(angle)*ring);var h=support(p,body);
+                if(h.isEmpty())continue;
+                var world=frame().toWorld(new Vec3(p.x,h.getAsDouble(),p.z));
+                if(catches()||Occupancy.at(container(),world,size.width(),true)==Occupancy.INSIDE_SUPPORTED)out.add(world);
             }
+        }
         return out;
     }
     /** I2: the rider table's keys are this host's passengers. A mismatch is reported, never "fixed" by moving a body. */

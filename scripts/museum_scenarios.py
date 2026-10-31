@@ -1886,7 +1886,7 @@ boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏�
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
                                          r'\[family\][^\n]* birth delivery stage=exit_wait [^\n]*rejection=\w+ [^\n]*delivery=0 phase=before_emergence\b',
-                                         r'\[family\][^\n]* birth delivery stage=release reason=unprotected\b',
+                                         r'\[family\][^\n]* birth delivery stage=release [^\n]*unprotected=true\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))

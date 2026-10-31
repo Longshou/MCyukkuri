@@ -81,8 +81,11 @@ public final class ContactResolver {
 
     /** Same segment and envelope-height crossing for real flight and an unborn child's nominal preview. */
     public static FlightContact.Hit crossing(SurfaceHost host,Vec3 from,Vec3 to,ToDoubleFunction<Vec3> surface){
+        return crossing(host,from,to,TOUCH,surface);
+    }
+    public static FlightContact.Hit crossing(SurfaceHost host,Vec3 from,Vec3 to,double touch,ToDoubleFunction<Vec3> surface){
         var frame=host.frame();var a=frame.toLocal(from);var b=frame.toLocal(to);
-        return FlightContact.first(new Vec(a.x,a.y,a.z),new Vec(b.x,b.y,b.z),STEP/frame.unit(),TOUCH/frame.unit(),
+        return FlightContact.first(new Vec(a.x,a.y,a.z),new Vec(b.x,b.y,b.z),STEP/frame.unit(),touch/frame.unit(),
                 p->surface.applyAsDouble(frame.toWorld(new Vec3(p.x(),p.y(),p.z()))));
     }
 

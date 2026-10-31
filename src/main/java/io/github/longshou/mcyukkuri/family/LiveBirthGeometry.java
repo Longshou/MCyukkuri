@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityDimensions;
@@ -188,7 +189,7 @@ public final class LiveBirthGeometry {
         float growth=GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child);
         return HatGeometry.envelope(child.variant,feet,yaw,childDimensions(child,scale).makeBoundingBox(feet),growth*scale/16,
                 HatScale.of(growth,child.subspeciesFlags)*scale/16,
-                child.variant==YukkuriVariant.MARISA?HatGeometry.wornForm(SubspeciesLife.assetId(child.variant,child.subspeciesFlags)):null);
+                child.variant==YukkuriVariant.MARISA?HatGeometry.wornForm(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),Kind.values()[child.subspeciesFlags&15]):null);
     }
     /** The size of one unborn body at its own birth scale and form, before the mother's render scale. */
     public static EntityDimensions unbornDimensions(FamilyData.BirthKind kind,FamilyData.Child child){

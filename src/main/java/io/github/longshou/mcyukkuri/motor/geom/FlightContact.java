@@ -13,7 +13,7 @@ public final class FlightContact {
         Vec previous=from;double previousHeight=surface.applyAsDouble(from);
         for(int i=1;i<=steps;i++){
             double share=i/(double)steps;Vec point=from.add(delta.scale(share));double height=surface.applyAsDouble(point);
-            boolean under=Double.isFinite(height)&&point.y()<height;
+            boolean under=Double.isFinite(height)&&point.y()<height-touch;
             if(under&&Double.isFinite(previousHeight)&&previous.y()>=previousHeight-touch){
                 double drop=previous.y()-previousHeight,fall=height-point.y();
                 double inside=drop+fall<1e-9?1:Math.clamp(drop/(drop+fall),0,1),at=(i-1+inside)/steps;

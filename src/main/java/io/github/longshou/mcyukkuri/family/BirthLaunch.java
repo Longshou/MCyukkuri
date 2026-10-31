@@ -43,15 +43,16 @@ public final class BirthLaunch {
     private static final double HAT_RISE=3;
     /**
      * The fastest impulse the draw can produce (blocks per tick), used by {@code Launch.check} as its ceiling: either the live
-     * draw (longest aim at the lowest lift, strongest push) or the hat arc (the hull's top speed over its shortest flight with
-     * the air-drag compensation, strongest push, and the lift of its longest flight), whichever is larger.
+     * draw (longest aim at the lowest lift, strongest push) or the hat arc (bounded horizontal speed, strongest push, and the
+     * greatest lift over its allowed rise and flight times), whichever is larger.
      */
     public static final double MAX_SPEED;
     static {
         double low=LIFT*(1-LIFT_SPREAD),high=LIFT*(1+LIFT_SPREAD);
         double live=Math.hypot(speedFor(MAX_AIM,low)*PUSH_MAX,high);
-        double hatHorizontal=HatGeometry.MAX_SPEED/16*Ballistic.speedFor(1,HatGeometry.TMIN)*HatGeometry.TMIN*PUSH_MAX;
-        double hatLift=HAT_RISE/HatGeometry.TMAX+HatGeometry.GRAVITY/16/2*(HatGeometry.TMAX-1);
+        double hatHorizontal=HatGeometry.MAX_SPEED/16*PUSH_MAX,hatLift=0;
+        for(int ticks=LiveBirthGeometry.CATCH_ARC_TICKS;ticks<=HatGeometry.TMAX;ticks++)
+            hatLift=Math.max(hatLift,Ballistic.forward(new Vec(1,HAT_RISE,0),new Vec(1,0,0),ticks).y());
         MAX_SPEED=Math.max(live,Math.hypot(hatHorizontal,hatLift));
     }
 
@@ -152,6 +153,16 @@ public final class BirthLaunch {
         var v=Ballistic.forward(new Vec(d.x,d.y,d.z),new Vec(h.x,0,h.z),ticks);
         return v==null?null:new Nominal(aim,new Vec3(v.x(),v.y(),v.z()),ticks);
     }
+    static double ahead(Vec3 start,Vec3 aim,float yaw){return aim.subtract(start).dot(Vec3.directionFromRotation(0,yaw));}
+    /** An unprotected catch keeps its forward receiver aim and one draw, but no collision/room guarantee. */
+    static Nominal risky(Vec3 start,Vec3 aim,float yaw){
+        if(ahead(start,aim,yaw)<=0)return null;
+        var d=aim.subtract(start);var h=Vec3.directionFromRotation(0,yaw);int ticks=LiveBirthGeometry.CATCH_ARC_TICKS;
+        while(ticks<HatGeometry.TMAX&&Ballistic.speedFor(d.horizontalDistance(),ticks)>HatGeometry.MAX_SPEED/16)ticks++;
+        var v=Ballistic.forward(new Vec(d.x,Math.clamp(d.y,-HAT_RISE,HAT_RISE),d.z),new Vec(h.x,0,h.z),ticks);
+        double factor=Math.min(1,HatGeometry.MAX_SPEED/16/v.hlen());
+        return new Nominal(aim,new Vec3(v.x()*factor,v.y(),v.z()*factor),ticks);
+    }
     /** Real room at the predicted first contact, with the mother's proposed stand replacing her old spot. */
     static boolean room(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,float yaw,Vec3 at){
         var size=LiveBirthGeometry.childDimensions(child,mother.getScale());var local=hat.frame().toLocal(at);
@@ -160,18 +171,20 @@ public final class BirthLaunch {
     }
     /** Qualifies the same discrete forward arc and worn envelope that Launch will execute, without a random draw. */
     static Nominal qualify(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,Vec3 start,float yaw,Vec3 aim){
-        if(start.subtract(aim).horizontalDistance()>MAX_AIM||!room(mother,child,hat,stand,yaw,aim))return null;
+        if(Math.abs(aim.y-start.y)>HAT_RISE||start.subtract(aim).horizontalDistance()>MAX_AIM||!room(mother,child,hat,stand,yaw,aim))return null;
         for(int ticks=Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS);ticks<=HatGeometry.TMAX;ticks++){
             var plan=forward(start,aim,yaw,ticks);if(plan==null)return null;
+            if(plan.velocity().horizontalDistance()>HatGeometry.MAX_SPEED/16)continue;
             if(catches(mother,child,hat,stand,start,yaw,plan))return plan;
         }
         return null;
     }
     static boolean catches(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,Vec3 start,float yaw,Nominal plan){
+        if(Math.abs(plan.aim().y-start.y)>HAT_RISE||plan.velocity().horizontalDistance()>HatGeometry.MAX_SPEED/16)return false;
         var v=plan.velocity();var path=Ballistic.samples(new Vec(v.x,v.y,v.z),plan.ticks()+1);Vec3 previous=start;
         for(int i=1;i<path.size();i++){
             var p=path.get(i);var next=start.add(p.x(),p.y(),p.z());
-            var hit=ContactResolver.crossing(hat,previous,next,feet->ContactResolver.surface(hat,feet,LiveBirthGeometry.childEnvelope(child,mother.getScale(),feet,yaw)));
+            var hit=ContactResolver.crossing(hat,previous,next,0,feet->ContactResolver.surface(hat,feet,LiveBirthGeometry.childEnvelope(child,mother.getScale(),feet,yaw)));
             var contact=hit==null?next:hat.frame().toWorld(new Vec3(hit.point().x(),hit.point().y(),hit.point().z()));
             for(var box:LiveBirthGeometry.childEnvelope(child,mother.getScale(),previous,yaw))
                 if(mother.level().getBlockCollisions(mother,box.expandTowards(contact.subtract(previous))).iterator().hasNext())return false;

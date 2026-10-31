@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.intent.Choreography;
 import io.github.longshou.mcyukkuri.intent.GoTo;
 import io.github.longshou.mcyukkuri.intent.HostIntent;
 import io.github.longshou.mcyukkuri.intent.Intent;
+import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Rendezvous;
 import io.github.longshou.mcyukkuri.intent.Step;
@@ -19,6 +20,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
@@ -93,6 +95,11 @@ final class LiveBirth extends Choreography {
     /** One child's qualified stand/aim in the receiver's frame, and facing relative to its yaw; never a reserved seat. */
     private record Exit(int child,UUID hat,Vec3 stand,float yaw,Vec3 aim,int ticks) {}
     private Exit exit;
+    private List<Exit> choices;
+    private List<Vec3> receiverPoints;
+    private long exitUntil,qualificationTick=-1;
+    private boolean qualification;
+    private int qualificationMisses;
     private Vec3 last;
     private String hold="";
     private String rejection="";
@@ -142,12 +149,12 @@ final class LiveBirth extends Choreography {
         t.put("nocatch",new Beat.Branch(r->nocatch("placement_timeout")));
         if(live){
             t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"exit","term"));
-            t.put("exit",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(false),CATCHER,this::attend),()->NEST_GRACE,"turned","exit_any"));
+            t.put("exit",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(false),CATCHER,this::attend),()->(int)Math.max(1,exitUntil-now()),"turned","exit_any"));
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
-            t.put("turned",new Beat.Branch(r->r.done()?"push":interrupted(r)?"exit":"exit_any"));
+            t.put("turned",new Beat.Branch(r->r.done()?"push":now()<exitUntil?"exit":"exit_any"));
             t.put("turned_any",new Beat.Branch(r->r.done()?"push":interrupted(r)?"exit_any":"force"));
             // No clear outlet at all: the birth is forced; real collision still applies to the newborn (never a permanent wait).
-            t.put("force",new Beat.Branch(r->{forced=true;GameplayLog.event(o.entity(),"family","birth forced reason=no_safe_exit child={}",pushing);return "push";}));
+            t.put("force",new Beat.Branch(r->{forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";}));
             t.put("push",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().children.get(pushing).born,this::pushTicks,"pushed","pushed"));
             t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
@@ -178,8 +185,12 @@ final class LiveBirth extends Choreography {
             case "meet" -> BirthStaging.caption(c,"父油察觉母油临产，走向她面前的出口");
             case "place" -> BirthStaging.caption(c,self()?"母油自己摘下帽子（hat_off_self）":"接生者走到出口前方，用辫子摘下自己的帽子（hat_off）");
             case "exit","exit_any","push" -> {
+                boolean widening=beat.equals("exit_any")&&!unprotected;
                 unprotected|=beat.equals("exit_any");int next=firstUnborn();
-                if(exit!=null&&exit.child()!=next||unprotected)exit=null;
+                if(next!=pushing||exitUntil==0){choices=null;receiverPoints=null;exitUntil=now()+NEST_GRACE;qualificationTick=-1;qualificationMisses=0;}
+                if(exit!=null&&exit.child()!=next)exit=null;
+                if(widening){exit=null;choices=null;}
+                if(beat.equals("exit_any"))rejection="";
                 pushing=next;
                 // She went aboard her boat after the cast (no catch hat down): it is the receiver now.
                 if(placedHat()==null&&!(receiver instanceof OwnHull)&&ownHull(o.entity()) instanceof PlacedHatEntity hull){
@@ -247,12 +258,12 @@ final class LiveBirth extends Choreography {
         if(was!=null&&was.distanceToSqr(last)>.0004)return "mother_moving";
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
-        var hat=unprotected||forced?null:receiverHat();
+        var hat=receiverHat();
         if(!forced&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||receiver instanceof OwnHull))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
-        if(hat!=null&&!visible&&(exit==null||qualified(hat,m.position(),m.yBodyRot)==null)){
-            exit=null;jump("exit","nominal_exit_lost");return "nominal_exit_lost";
+        if(hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
+            discardExit("nominal_exit_lost");jump("exit","nominal_exit_lost");return "nominal_exit_lost";
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing)){
             b.elapsed++;if(b.elapsed%200==0)m.life().spendNutrition(1);FamilyData.get(o.level()).setDirty();
@@ -260,18 +271,22 @@ final class LiveBirth extends Choreography {
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
-        var nominal=hat!=null&&exit!=null?BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks()):null;
+        if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
+        var nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
+                :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
+        if(nominal==null&&(exit!=null||!unprotected&&!forced&&(receiver instanceof PlacedHat||receiver instanceof OwnHull)))GameplayLog.limited(m,"family","birth_lost_aim",200,
+                "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
         if(nominal==null)hat=null;
         // Failed entity insertion pauses at this child's release, never running into the next child's clock; inside her boat's
         // dry hollow the outlet's space is checked for blocks only.
         var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced||hat!=null&&receiver instanceof OwnHull);
         if(child==null&&forced&&"newborn_space_blocked".equals(data.birthBlock(b))){
             // A forced birth with no room at the outlet comes out where her own body stands: a spawn place, never a moved body.
-            child=data.birth(b,pushing,o.level(),m.position(),null,null,true);
-            if(child!=null)GameplayLog.event(m,"family","birth forced reason=no_safe_exit at=mother_feet child={}",child.getUUID());
+            hat=null;child=data.birth(b,pushing,o.level(),m.position(),null,null,true);
+            if(child!=null)GameplayLog.event(m,"family","birth forced reason=newborn_space_blocked at=mother_feet child={}",child.getUUID());
         }
         if(child==null)return data.birthBlock(b);
-        deliveryReadout("release",hat==null?"unprotected":BirthLaunch.room(m,b.children.get(pushing),hat,m.position(),m.yBodyRot,nominal.aim())?"qualified_aim":"aim_occupied");
+        deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
         m.showReaction(pushing>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST); // later children come easier but tire her more
         if(b.complete())o.delivered(b);
@@ -293,13 +308,16 @@ final class LiveBirth extends Choreography {
         if(cycle==strain+LiveBirthGeometry.EMERGENCE+10&&index>0)BirthStaging.sweat(m);
     }
     private void deliveryReadout(String stage,String reason){
+        deliveryReadout(stage,reason,null);
+    }
+    private void deliveryReadout(String stage,String reason,PlacedHatEntity launchHat){
         var b=brood();if(b==null||!live)return;
         int delivery=b.elapsed-b.duration;var hat=receiverHat();var out=LiveBirthGeometry.position(o.entity(),pushing);
         var planned=hat==null||exit==null?null:hat.frame().toLocal(LiveBirthGeometry.position(o.entity(),pushing,hat.frame().toWorld(exit.stand()),hat.getYRot()+exit.yaw()));
         GameplayLog.limited(o.entity(),"family","birth."+stage+"."+reason,200,
-                "birth delivery stage={} reason={} rejection={} beat={} child={} delivery={} phase={} host={} outlet={} aim={} stand={} plannedOutlet={}",
+                "birth delivery stage={} reason={} rejection={} beat={} child={} delivery={} phase={} host={} outlet={} aim={} stand={} plannedOutlet={} launchHat={} forced={} unprotected={}",
                 stage,reason,rejection,beat(),pushing,delivery,delivery<LiveBirthGeometry.emergenceStart(pushing)?"before_emergence":"emerging",
-                hat==null?null:hat.getUUID(),hat==null?out:hat.frame().toLocal(out),exit==null?null:exit.aim(),exit==null?null:exit.stand(),planned);
+                hat==null?null:hat.getUUID(),hat==null?out:hat.frame().toLocal(out),exit==null?null:exit.aim(),exit==null?null:exit.stand(),planned,launchHat==null?null:launchHat.getUUID(),forced,unprotected);
     }
 
     /** No hat this time (no site, no catcher, the window ran out, the hat would not go down): the nest she is in, or the ground. */
@@ -564,77 +582,122 @@ final class LiveBirth extends Choreography {
             }
         }
     }
-    /** Find one forward exit before pushing; the shared surface Walk/Face owns every change of maternal stand and facing. */
+    /** The attempt owns its bounded candidates; new Deliver instances never restart the search. */
+    private List<Vec3> points(PlacedHatEntity hat){
+        if(receiverPoints==null)receiverPoints=hat.hollowPlaces(FamilyData.BirthKind.LIVE,brood().children.get(pushing)).stream().map(hat.frame()::toLocal).toList();
+        return receiverPoints.stream().map(hat.frame()::toWorld).toList();
+    }
+    private double score(PlacedHatEntity hat,Vec3 out,Vec3 aim,float yaw){
+        var end=hat.catches()?hat.frame().toWorld(hat.spots().get("centre")):out.add(Vec3.directionFromRotation(0,yaw).scale(.2));
+        return aim.subtract(end).horizontalDistanceSqr();
+    }
+    private void riskyExit(PlacedHatEntity hat,float yaw){
+        if(choices==null){
+            choices=new ArrayList<>();var m=o.entity();var out=LiveBirthGeometry.position(m,pushing,yaw);
+            var aim=points(hat).stream().filter(p->BirthLaunch.ahead(out,p,yaw)>0)
+                    .min(Comparator.comparingDouble(p->score(hat,out,p,yaw))).orElse(null);
+            if(aim!=null)choices.add(new Exit(pushing,hat.getUUID(),hat.frame().toLocal(m.position()),yaw-hat.getYRot(),hat.frame().toLocal(aim),LiveBirthGeometry.CATCH_ARC_TICKS));
+        }
+        exit=choices.isEmpty()?null:choices.getFirst();
+    }
+    private void discardExit(String why){
+        if(exit!=null&&choices!=null){var stand=exit.stand();choices.removeIf(e->e.stand().equals(stand));}
+        exit=null;qualificationTick=-1;qualificationMisses=0;rejection=why;
+        deliveryReadout("discarded",why);
+    }
+    private record Aim(Vec3 at,Vec3 out,float yaw,double score) {}
+    private void search(PlacedHatEntity hat){
+        choices=new ArrayList<>();var m=o.entity();var child=brood().children.get(pushing);var places=points(hat);
+        var stands=new ArrayList<Vec3>();stands.add(m.position());
+        if(receiver instanceof OwnHull){
+            var grid=hat.walkGrid(m,true);var local=new ArrayList<Vec3>();
+            for(int j=0;j<grid.nz();j++)for(int i=0;i<grid.nx();i++)if(grid.supported(i,j)){
+                var p=new Vec3(grid.centreX(i),0,grid.centreZ(j));var support=hat.support(p,m);
+                if(support.isPresent())local.add(hat.frame().toWorld(new Vec3(p.x,support.getAsDouble(),p.z)));
+            }
+            local.sort(Comparator.comparingDouble(m::distanceToSqr));stands.addAll(local.subList(0,Math.min(11,local.size())));
+        }
+        int clear=0,forward=0,room=0;double ahead=Double.NEGATIVE_INFINITY;
+        for(var stand:stands){
+            var aims=new ArrayList<Aim>();
+            for(var aim:places){
+                float yaw=SurfaceApproach.yaw(stand,aim);var out=LiveBirthGeometry.position(m,pushing,stand,yaw);
+                double reach=BirthLaunch.ahead(out,aim,yaw);ahead=Math.max(ahead,reach);
+                if(reach<=0)continue;
+                yaw=SurfaceApproach.yaw(out,aim);out=LiveBirthGeometry.position(m,pushing,stand,yaw);
+                if(BirthLaunch.ahead(out,aim,yaw)<=0)continue;
+                forward++;aims.add(new Aim(aim,out,yaw,score(hat,out,aim,yaw)));
+            }
+            aims.sort(Comparator.comparingDouble(Aim::score));var facings=new HashMap<Float,Boolean>();
+            for(var aim:aims){
+                if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,stand,yaw,receiver instanceof OwnHull)))continue;
+                clear++;if(!BirthLaunch.room(m,child,hat,stand,aim.yaw(),aim.at()))continue;room++;
+                var plan=BirthLaunch.qualify(m,child,hat,stand,aim.out(),aim.yaw(),aim.at());
+                if(plan==null)continue;
+                choices.add(new Exit(pushing,hat.getUUID(),hat.frame().toLocal(stand),aim.yaw()-hat.getYRot(),hat.frame().toLocal(aim.at()),plan.ticks()));break;
+            }
+        }
+        String why=!choices.isEmpty()?"":places.isEmpty()?"no_cavity":forward==0?"cavity_behind_outlet":clear==0?"outlet_blocked":room==0?"cavity_occupied":"no_nominal_contact";
+        if(!why.equals(rejection)){
+            rejection=why;GameplayLog.limited(m,"family","birth_exit_geometry",200,
+                    "birth exit geometry stands={} places={} clear={} forward={} room={} furthestForward={} rejection={}",stands.size(),places.size(),clear,forward,room,ahead,rejection);
+        }
+    }
     private final class Deliver implements Intent, Method {
         private final boolean any;
         private final long deadline;
         private float yaw=Float.NaN;
-        private long nextRead;
-        private Deliver(boolean any){this.any=any;deadline=now()+(any?1200:NEST_GRACE);}
+        private long walkStarted=-1;
+        private Deliver(boolean any){this.any=any;deadline=any?now()+1200:exitUntil;}
         private float choose(){
-            var hat=any?null:receiverHat();var m=o.entity();
-            if(hat==null)return yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH,any);
-            if(exit!=null)return yaw=hat.getYRot()+exit.yaw();
-            if(now()<nextRead)return Float.NaN;
-            nextRead=now()+20;
-            var child=brood().children.get(pushing);var places=hat.hollowPlaces(FamilyData.BirthKind.LIVE,child,m);
-            rejection=places.isEmpty()?"no_free_cavity":"no_forward_contact";
-            var stands=new ArrayList<Vec3>();stands.add(m.position());
-            if(receiver instanceof OwnHull){
-                var grid=hat.walkGrid(m,true);var local=new ArrayList<Vec3>();
-                for(int j=0;j<grid.nz();j++)for(int i=0;i<grid.nx();i++)if(grid.supported(i,j)){
-                    var p=new Vec3(grid.centreX(i),0,grid.centreZ(j));var support=hat.support(p,m);
-                    if(support.isPresent())local.add(hat.frame().toWorld(new Vec3(p.x,support.getAsDouble(),p.z)));
-                }
-                local.sort(Comparator.comparingDouble(m::distanceToSqr));stands.addAll(local);
+            var hat=receiverHat();var m=o.entity();
+            if(any||hat==null){
+                yaw=LiveBirthGeometry.exitYaw(m,pushing,receiver instanceof Nest?FamilyNest.largeCentre(m):null,NEST_REACH,any);
+                if(hat!=null&&!Float.isNaN(yaw))riskyExit(hat,yaw);
+                return yaw;
             }
-            int clear=0,forward=0,room=0;double ahead=Double.NEGATIVE_INFINITY;
-            for(var stand:stands)for(var aim:places){
-                float facing=SurfaceApproach.yaw(stand,aim);
-                var out=LiveBirthGeometry.position(m,pushing,stand,facing);
-                if(!LiveBirthGeometry.clear(m,pushing,stand,facing,receiver instanceof OwnHull))continue;
-                clear++;double reach=aim.subtract(out).dot(Vec3.directionFromRotation(0,facing));ahead=Math.max(ahead,reach);
-                if(reach<=0)continue;
-                forward++;
-                if(!BirthLaunch.room(m,child,hat,stand,facing,aim))continue;
-                room++;
-                var plan=BirthLaunch.qualify(m,child,hat,stand,out,facing,aim);
-                if(plan==null)continue;
-                exit=new Exit(pushing,hat.getUUID(),hat.frame().toLocal(stand),facing-hat.getYRot(),hat.frame().toLocal(aim),plan.ticks());
-                rejection="";deliveryReadout("qualified",stand.distanceToSqr(m.position())>Walk.STAND_ARRIVED*Walk.STAND_ARRIVED?"reposition":"turn");
-                return yaw=facing;
+            if(choices==null)search(hat);
+            if(exit==null&&!choices.isEmpty()){
+                exit=choices.getFirst();qualificationTick=-1;qualificationMisses=0;rejection="";
+                deliveryReadout("qualified",atStand(hat)?"turn":"reposition");
             }
-            rejection=places.isEmpty()?"no_free_cavity":clear==0?"outlet_blocked":forward==0?"cavity_behind_outlet":room==0?"cavity_occupied":"no_nominal_contact";
-            if(!rejection.equals(hold))GameplayLog.limited(m,"family","birth_exit_geometry",200,
-                    "birth exit geometry stands={} places={} clear={} forward={} room={} furthestForward={} rejection={}",stands.size(),places.size(),clear,forward,room,ahead,rejection);
-            return Float.NaN;
+            return yaw=exit==null?Float.NaN:hat.getYRot()+exit.yaw();
         }
         @Override public String id(){return any?"turn_to_any_exit":"turn_to_exit";}
         @Override public boolean satisfied(){
-            var m=o.entity();var hat=any?null:receiverHat();
+            var m=o.entity();var hat=receiverHat();
             return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=Face.FACE_ARRIVED
                     &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot,any||receiver instanceof OwnHull)
-                    &&(hat==null||exit!=null&&atStand(hat)&&qualified(hat,m.position(),m.yBodyRot)!=null);
+                    &&(any||hat==null||exit!=null&&atStand(hat)&&qualified(hat));
         }
         @Override public long deadline(){return deadline;}
         @Override public List<Method> methods(){return List.of(this);}
         @Override public Feasibility applicable(){return brood()==null?Feasibility.of(Reason.TARGET_GONE,0,"brood_gone"):Feasibility.pass();}
-        @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PROGRESS,Reason.NO_PATH,Reason.NO_SUPPORT);}
+        @Override public Set<Reason> reduces(){return Set.of(Reason.NO_PROGRESS);}
         @Override public Step next(){
             int left=(int)Math.max(1,deadline-now());
-            if(Float.isNaN(choose()))return new Step.Wait(()->!Float.isNaN(choose()),left,"no_safe_exit");
+            if(Float.isNaN(choose()))return new Step.Wait(()->false,left,"no_safe_exit");
             var hat=receiverHat();
-            if(!any&&exit!=null&&receiver instanceof OwnHull&&!atStand(hat))return new Step.Do(new Walk(hat,exit.stand()));
+            if(!any&&exit!=null&&receiver instanceof OwnHull&&!atStand(hat)){walkStarted=now();return new Step.Do(new Walk(hat,exit.stand()));}
+            walkStarted=-1;
             return Math.abs(Mth.wrapDegrees(yaw-o.entity().yBodyRot))>Face.FACE_ARRIVED?new Step.Do(new Face(yaw)):new Step.Wait(this::satisfied,left,"outlet_clear");
+        }
+        @Override public void ended(IntentRunner.Result result){
+            if(result==IntentRunner.Result.EXHAUSTED&&walkStarted>=0&&o.entity().motor().lastTick()>=walkStarted&&o.entity().motor().last() instanceof Outcome.Blocked failure)
+                discardExit("walk_"+failure.reason().name().toLowerCase(Locale.ROOT));
         }
     }
     private boolean atStand(PlacedHatEntity hat){
         return !(receiver instanceof OwnHull)||hat.frame().toWorld(exit.stand()).subtract(o.entity().position()).horizontalDistance()<=Walk.STAND_ARRIVED;
     }
-    private BirthLaunch.Nominal qualified(PlacedHatEntity hat,Vec3 stand,float yaw){
-        var m=o.entity();var start=LiveBirthGeometry.position(m,pushing,stand,yaw);
-        var plan=BirthLaunch.forward(start,hat.frame().toWorld(exit.aim()),yaw,exit.ticks());
-        return plan!=null&&exit.hat().equals(hat.getUUID())&&BirthLaunch.catches(m,brood().children.get(pushing),hat,stand,start,yaw,plan)?plan:null;
+    private boolean qualified(PlacedHatEntity hat){
+        if(qualificationTick!=now()){
+            qualificationTick=now();var m=o.entity();var start=LiveBirthGeometry.position(m,pushing);
+            var plan=BirthLaunch.forward(start,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks());
+            qualification=plan!=null&&exit.hat().equals(hat.getUUID())&&BirthLaunch.catches(m,brood().children.get(pushing),hat,m.position(),start,m.yBodyRot,plan);
+            qualificationMisses=qualification?0:qualificationMisses+1;
+        }
+        return qualification;
     }
     /** The hat the outlet aims at now: the catch hat set down, or the boat she rides. */
     private PlacedHatEntity receiverHat(){
