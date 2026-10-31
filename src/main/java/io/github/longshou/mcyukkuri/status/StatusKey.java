@@ -396,6 +396,7 @@ public enum StatusKey {
     BODY_ATTEMPTS("body", "attempts", 0, y -> IntentRunner.attemptsStatus(y), null),
     /** Every desire of the body's drives with its score and the facts it came from, the current intent and the failed ones. */
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
+    /** Whether the server's current presentation grips a real stick at the braid tuft. */
     AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, YukkuriEntity::visiblePaddleStick, null),
     // ---- the set-down hat this body rides or has set down -----------------------------------------------------
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */

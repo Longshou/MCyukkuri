@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -25,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 /** Paddle the host one rides toward a point: in the {@code boat_paddle} power stroke it drives the water at its swim pace and turns the hull at its turn rate, paid in energy. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
-    private static final String CLIP = "boat_paddle";
+    private static final String CLIP = YukkuriAction.BOAT_PADDLE.id();
     /** A stroke's energy: the old helm's one point per 80 ticks over a 1.6 s stroke. */
     private static final float COST = .4f;
 
@@ -42,6 +44,16 @@ public final class Paddle implements Action {
     public Paddle(Supplier<Vec3> target, DoublePredicate arrived) { this.target = target; this.arrived = arrived; }
 
     @Override public String id() { return ID; }
+
+    /** A published stick-use pose grips a real available stick; beckoning uses the bare braid. */
+    public static boolean stickGrip(YukkuriEntity body) {
+        String clip = body.getAnimationId();
+        boolean grips = clip.equals(CLIP) || clip.equals(YukkuriAction.HAT_BRIM_OFFER.id())
+                || clip.equals(YukkuriAction.BOAT_NUDGE_YOUNG.id());
+        return grips && !(body.motor().current() instanceof Beckon) && (body.life().mouth().is(Items.STICK)
+                || body.life().custody().kit().is(Items.STICK)
+                || body.getVehicle() instanceof PlacedHatEntity hat && hat.kit().is(Items.STICK));
+    }
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");

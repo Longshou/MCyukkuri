@@ -9,8 +9,7 @@ import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
-import io.github.longshou.mcyukkuri.motor.action.Beckon;
+import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 /** Synchronized schema, values and decoded caches for exactly one entity. */
 final class YukkuriSync {
@@ -308,17 +306,12 @@ final class YukkuriSync {
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
     void syncPaddleStick() {
-        boolean usesStick = switch (getAnimationId()) {
-            case "boat_paddle", "hat_brim_offer", "boat_nudge_young" -> !owner.motorAction().equals(Beckon.ID);
-            default -> false;
-        };
-        owner.getEntityData().set(PADDLE_STICK, usesStick && (owner.life().mouth().is(Items.STICK)
-                || owner.life().custody().kit().is(Items.STICK)
-                || owner.getVehicle() instanceof PlacedHatEntity hat && hat.kit().is(Items.STICK)));
+        owner.getEntityData().set(PADDLE_STICK, Paddle.stickGrip(owner));
     }
     void resetDeathPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
+        owner.getEntityData().set(PADDLE_STICK, false);
     }
     void resetLoadedPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
