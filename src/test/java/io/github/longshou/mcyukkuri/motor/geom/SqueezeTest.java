@@ -45,6 +45,27 @@ class SqueezeTest {
         assertEquals((2 - SLACK - 1) / 4, moves[0][0], 1e-12);
     }
 
+    @Test void shallowShapedContactDoesNotShoveAcrossTheGapToTheOppositeObstacle() {
+        // A wide body's narrow underside is between two food portions. Its broad circles overlap deeply on both sides.
+        var food = List.of(new Disc(-.4, 0, .1), new Disc(.4, 0, .1));
+        double x = .025;
+        for (int tick = 0; tick < 100; tick++) {
+            var move = Squeeze.separate(List.of(new Squeeze.Body(x, 0, .8, 1, .1)), food, 0, 0, 0,
+                    (a,b,dx,dz) -> Math.hypot(a.x()+dx-b.x(),a.z()+dz-b.z()) < .38)[0];
+            assertTrue(move[0] <= 0, "no alternating shove from the opposite portion");
+            assertTrue(x + move[0] >= .019, "stop at the real contact, not the broad circle");
+            x += move[0];
+        }
+        assertEquals(.02, x, .001);
+    }
+
+    @Test void separationStopsAtAPreviouslyClearFixedObstacle() {
+        var move=Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1)),
+                List.of(new Disc(-1.5,0,1),new Disc(1.15,0,.1)),SLACK,0,0)[0];
+        assertEquals(.07,move[0],.0001,"the left obstacle pushes right only as far as the right obstacle permits");
+        assertEquals(0,move[1]);
+    }
+
     @Test void aCappedYielderKeepsThePairsMassRatio() {
         // the light body may move .1 a tick: the pair parts by .1/.75 and the heavy one moves a third of the light one's step
         var moves = Squeeze.separate(List.of(new Squeeze.Body(0, 0, 1, 3, 9), new Squeeze.Body(.2, 0, 1, 1, .1)), List.of(), SLACK, 0, 0);

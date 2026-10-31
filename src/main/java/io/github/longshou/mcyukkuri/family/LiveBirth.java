@@ -235,8 +235,8 @@ final class LiveBirth extends Choreography {
                 ?b.elapsed-b.duration>LiveBirthGeometry.emergenceStart(pushing)?"mid_push_hold":"push_hold":"preparation_wait",hold);
     }
     private String advance(FamilyData.Brood b){
-        // On a host she drifts with it: only her own move on its surface counts as moving (blocks, in its frame).
-        var m=o.entity();Vec3 was=last;last=m.getVehicle() instanceof SurfaceHost host?host.frame().toLocal(m.position()).scale(host.frame().unit()):m.position();
+        // Read the host's authoritative spot in blocks: vanilla refreshes her world position after her own tick.
+        var m=o.entity();Vec3 was=last;last=m.getVehicle() instanceof SurfaceHost host?host.riders().local(m.getUUID()).scale(host.frame().unit()):m.position();
         boolean sited=!"site".equals(beat());
         if(!live){
             if(b.elapsed>=b.duration-200&&BEFORE_HAT.contains(beat())&&sited)return "waiting_for_catcher";

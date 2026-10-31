@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 满载圆帽分娩静止判定 | `.worktrees/basin-missed` | `family/LiveBirth.java`、宿主移动所属层、相关纯函数测试 |
 | 家庭整队下水阻塞 | `.worktrees/set-out` | `aquatic/` 整队下水与登船、`scripts/museum_scenarios.py` 对应场景、相关纯函数测试 |
 
 ## 玩法待办
@@ -221,7 +220,7 @@
 
 **本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
 
-- **`birth_boat_caught`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 用户见船上生产卡住、赤油悬空后掉水；日志赤油推出方向背离帽腔目标并 `WATER`，父油未开始 `attend_mate`，落水事件无救援决定，赤油死亡。已接入分娩／产后片段优先级、受支撑亲属回应与统一前向出口／弹道；盆帽自查已出现落腔，满载产程与旧帽倾覆仍失败，待修复与试玩。完成：母油片段与陆地一致、出生真实落帽、父油开始照看并回应；真实落水时出现救援决定，拒绝与危险保留后果。
+- **`birth_boat_caught`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 用户见船上生产卡住、赤油悬空后掉水；日志赤油推出方向背离帽腔目标并 `WATER`，父油未开始 `attend_mate`，落水事件无救援决定，赤油死亡。已接入分娩／产后片段优先级、受支撑亲属回应与统一前向出口／弹道；盆帽自查已出现落腔，满载挤动与静止读数已修待试玩，旧帽倾覆仍待修复。完成：母油片段与陆地一致、出生真实落帽、父油开始照看并回应；真实落水时出现救援决定，拒绝与危险保留后果。
 - **`family_skiffs`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 两轮初态成功后均未开始 `share_young` 或划近／请求；第二轮仅约 262 活跃 tick。无界面自查（headless）：[c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480) 与 913b56da0（实现见 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）各 3/3 启动，拾取时 `mouth_lift_blocked`；913b56da0 搬运中 `capsized cause=load`、ratio 约 1.23–1.26，均未完成转移。完成：母油开始送幼，请求与真实划近后转移；观察抓取／放下及父船乘员，拒绝有原因，初态坐船不算成功。
 - **`afloat_family`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 约 25 秒活跃观察内无找棍、放帽或 `set_out`，赤油约 6 秒后学会跳；练跳 `Launch` 同 tick 起止。完成：欲望重排、找棍有结果／拒绝原因，全家真实上船；练跳离地后接触才结束。
 - **`hat_crowd`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 初态后 10 tick 整船翻覆，先于挤落；五只孩子登自帽、船主爬岸均已脱水却 `escape_water INTERRUPTED`，船主扶帽中途打滑。完成：正常挤落与真实倾覆分别可观察，离水后意图 `DONE`，真实打滑仍失败；浮稳与帽形由新帽包处理。

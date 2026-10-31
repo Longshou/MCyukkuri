@@ -60,7 +60,6 @@ import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.function.BiPredicate;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 
@@ -679,10 +678,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         }
         var footprints = new HashMap<Disc,BodyFootprint>();
         for(int i=0;i<feet.size();i++)footprints.put(Squeeze.disc(feet.get(i)),shape(bodies.get(i)));
-        BiPredicate<Disc,Disc> contact = (a,b) -> {
+        Squeeze.Contact contact = (a,b,dx,dz) -> {
             var body=footprints.get(a); var other=footprints.get(b);
-            return other==null ? body.overlaps(a.x(),a.bottom(),a.z(),b,ROOM_SLACK)
-                    : body.overlaps(a.x(),a.bottom(),a.z(),other,b.x(),b.bottom(),b.z(),ROOM_SLACK);
+            double y=dx==0&&dz==0?a.bottom():support(new Vec3(a.x()+dx,a.bottom(),a.z()+dz),body).orElse(a.bottom());
+            return other==null ? body.overlaps(a.x()+dx,y,a.z()+dz,b,ROOM_SLACK)
+                    : body.overlaps(a.x()+dx,y,a.z()+dz,other,b.x(),b.bottom(),b.z(),ROOM_SLACK);
         };
         var pose = frame();
         var down = pose.toLocal(position().add(0, -1, 0)).scale(unit);

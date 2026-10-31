@@ -1,10 +1,11 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.List;
-import java.util.function.BiPredicate;
 
 /** Bodies whose foot circles overlap on a host part: each pair moves apart along their centres, the lighter yielding more and, on a tilt, the lower one; fixed circles push alone. */
 public final class Squeeze {
+    /** Contact after moving the first footprint by (dx,dz), keeping its identity; the host supplies its supported height. */
+    @FunctionalInterface public interface Contact { boolean test(Disc a, Disc b, double dx, double dz); }
     /** Stacked centres part along a distinct axis per pair (the golden angle, radians). */
     private static final double GOLDEN = 2.399963;
     /** An overlap this small (plane units) is a touch, not a press: nothing moves for it. */
@@ -30,11 +31,12 @@ public final class Squeeze {
     /** How far each body moves to part from the others, {@code {x, z, deepest}}: the move and the deepest overlap before moving; {@code downX, downZ}
      *  is the floor's downhill direction, so its lower body yields more. */
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ) {
-        return separate(bodies, fixed, slack, downX, downZ, (a,b) -> true);
+        return separate(bodies, fixed, slack, downX, downZ, (a,b,dx,dz) -> Disc.level(a.bottom(),a.top(),b.bottom(),b.top())
+                && Math.hypot(a.x()+dx-b.x(),a.z()+dz-b.z()) < a.r()+b.r()-slack);
     }
-    /** A shaped host supplies the narrow-phase body contact; circles still bound the displacement and its speed. */
+    /** A shaped host supplies contact along the separation direction; circles bound the overlap search, abilities the speed. */
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ,
-                                      BiPredicate<Disc,Disc> contact) {
+                                      Contact contact) {
         int n = bodies.size();
         double[][] out = new double[n][3];
         for (int i = 0; i < n; i++) {
@@ -44,10 +46,11 @@ public final class Squeeze {
                 if (!Disc.level(a.bottom(), a.top(), b.bottom(), b.top())) continue;
                 double dx = b.x() - a.x(), dz = b.z() - a.z(), d = Math.hypot(dx, dz), depth = a.r() + b.r() - slack - d;
                 if (depth <= TOUCH) continue;
-                if (!contact.test(disc(a), disc(b))) continue;
+                if (!contact.test(disc(a), disc(b), 0, 0)) continue;
+                double angle = (i * n + j) * GOLDEN, nx = d > 1e-6 ? dx / d : Math.cos(angle), nz = d > 1e-6 ? dz / d : Math.sin(angle);
+                depth = depth(disc(a), disc(b), depth, -nx, -nz, contact);
                 out[i][2] = Math.max(out[i][2], depth);
                 out[j][2] = Math.max(out[j][2], depth);
-                double angle = (i * n + j) * GOLDEN, nx = d > 1e-6 ? dx / d : Math.cos(angle), nz = d > 1e-6 ? dz / d : Math.sin(angle);
                 // b lies downhill of a when the normal points down the slope: a presses on it from above
                 double down = nx * downX + nz * downZ, ma = a.mass() * (1 + down), mb = b.mass() * (1 - down), total = ma + mb;
                 double yieldA = total <= 0 ? .5 : mb / total, apart = depth * GENTLE;
@@ -62,19 +65,39 @@ public final class Squeeze {
                 if (!Disc.level(a.bottom(), a.top(), c.bottom(), c.top())) continue;
                 double dx = a.x() - c.x(), dz = a.z() - c.z(), d = Math.hypot(dx, dz), depth = a.r() + c.r() - slack - d;
                 if (depth <= TOUCH) continue;
-                if (!contact.test(disc(a), c)) continue;
-                out[i][2] = Math.max(out[i][2], depth);
+                if (!contact.test(disc(a), c, 0, 0)) continue;
                 double down = Math.hypot(downX, downZ);
                 double nx = d > 1e-6 ? dx / d : down > 1e-6 ? downX / down : 1, nz = d > 1e-6 ? dz / d : down > 1e-6 ? downZ / down : 0;
+                depth = depth(disc(a), c, depth, nx, nz, contact);
+                out[i][2] = Math.max(out[i][2], depth);
                 out[i][0] += nx * Math.min(depth * GENTLE, a.step());
                 out[i][1] += nz * Math.min(depth * GENTLE, a.step());
             }
         }
         for (int i = 0; i < n; i++) {
+            // The summed shove cannot pass into a fixed obstacle that was clear before the move.
+            var a = disc(bodies.get(i));
+            for (var c : fixed) if (!contact.test(a,c,0,0) && contact.test(a,c,out[i][0],out[i][1])) {
+                double inside=0,outside=1;
+                for (int k=0;k<12;k++) {
+                    double mid=(inside+outside)/2;
+                    if (contact.test(a,c,out[i][0]*mid,out[i][1]*mid)) outside=mid; else inside=mid;
+                }
+                out[i][0]*=inside;out[i][1]*=inside;
+            }
             double length = Math.hypot(out[i][0], out[i][1]), step = bodies.get(i).step();
             if (length > step) { out[i][0] *= step / length; out[i][1] *= step / length; }
         }
         return out;
+    }
+    /** The broad circle bounds the search, not the shove: shallow shaped contact must produce a shallow displacement. */
+    private static double depth(Disc a, Disc b, double outside, double nx, double nz, Contact contact) {
+        double inside = 0;
+        for (int k = 0; k < 12; k++) {
+            double mid = (inside + outside) / 2;
+            if (contact.test(a, b, nx * mid, nz * mid)) inside = mid; else outside = mid;
+        }
+        return outside;
     }
     public static Disc disc(Body body) { return new Disc(body.x(),body.z(),body.r(),body.bottom(),body.top()); }
 }

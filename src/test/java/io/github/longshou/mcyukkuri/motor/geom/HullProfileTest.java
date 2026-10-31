@@ -149,7 +149,39 @@ class HullProfileTest {
         assertFalse(adult.overlaps(0,0,0,baby,0,1,0,.002));
         assertTrue(adult.overlaps(0,0,0,baby,0,1,0,.002,1));
         var moves=Squeeze.separate(List.of(new Squeeze.Body(0,0,.42,1,.1),new Squeeze.Body(0,-.4,.078,.1,.1)),
-                List.of(),0,0,0,(a,b)->adult.overlaps(a.x(),0,a.z(),baby,b.x(),0,b.z(),.002));
+                List.of(),0,0,0,(a,b,dx,dz)->adult.overlaps(a.x()+dx,0,a.z()+dz,baby,b.x(),0,b.z(),.002));
         assertEquals(0,moves[0][2]);assertEquals(0,moves[1][2]);
+    }
+
+    @Test void fullBasinFoodContactSettlesInsteadOfOscillating() {
+        var hull=HullProfile.of(HullProfile.BASIN);
+        double unit=.08749999850988388,r=.09/unit;
+        var food=new ArrayList<Disc>();
+        // The finite larder layout and mother's dimensions from the full-basin smoke readout.
+        for(double[] p:new double[][]{{5.278571446,-3.221428554},{-3.221428554,5.278571446},{3.278571446,-5.221428554},
+                {-5.221428554,3.278571446},{3.778571446,4.778571446},{-5.721428554,-2.221428554},{1.778571446,5.778571446},
+                {-2.221428554,-5.721428554},{5.778571446,1.778571446},{-1.721428554,5.778571446},{5.778571446,-1.721428554},
+                {-5.721428554,-1.721428554},{2.778571446,-5.221428554},{-1.721428554,-5.721428554},{.778571446,-5.721428554},
+                {-4.221428554,-4.221428554}}){
+            double floor=hull.footprint(p[0],p[1],r);
+            food.add(new Disc(p[0],p[1],r,floor,floor+.06/unit));
+        }
+        double max=0;
+        for(int yaw:new int[]{10,30,145,155}){
+            double x=0,z=0,y=1.7988122548867118;
+            for(double belly:new double[]{1,.74,.48}){
+                var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
+                for(int tick=0;tick<400;tick++){
+                    var move=Squeeze.separate(List.of(new Squeeze.Body(x,z,body.radius(),1,.06/unit,y,y+body.height())),food,.02,0,0,
+                            (a,b,dx,dz)->body.overlaps(a.x()+dx,dx==0&&dz==0?a.bottom():hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,.02))[0];
+                    double nextY=Math.hypot(move[0],move[1])<1e-6?y:hull.support(x+move[0],z+move[1],body);
+                    double moved=unit*Math.sqrt(move[0]*move[0]+move[1]*move[1]+(nextY-y)*(nextY-y));
+                    max=Math.max(max,moved);
+                    if(tick>=350)assertTrue(moved<.001,"stationary after real separation yaw="+yaw+" belly="+belly+": "+moved);
+                    x+=move[0];z+=move[1];y=nextY;
+                }
+            }
+        }
+        assertTrue(max>.02,"initial real displacement still exceeds the delivery hold threshold");
     }
 }
