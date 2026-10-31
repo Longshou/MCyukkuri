@@ -22,7 +22,7 @@ import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
-VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
+HULLS = ASSETS/'yukkuri_presentation/hull_profiles'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
@@ -106,11 +106,12 @@ def state(action, t, c, height):
     if action in AUTHORED: t, d = t*AUTHORED[action]/d, AUTHORED[action]
     if action == 'boat_paddle':
         # Seated low in the hull: lean into the catch, drive back through the power half with a small squash and a
-        # shoulder twist toward the braid side; the recovery straightens. Pitch -5..+2, roll <= 2.5.
-        u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
+        # shoulder twist toward the braid side, the body leading the braid by `body_lead_seconds`; the recovery
+        # straightens. Pitch -5..+1.5, roll <= 1 (more would dip the held-out braid onto the gunwale).
+        u = paddle_phase(t+c['body_lead_seconds'], c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         drive = bump(u/.5) if power else 0.
         s = [c['width']+.02*drive, c['height']-.03*drive, c['width']+.015*drive]
-        r = [lerp(-5, 1.5, q) if power else lerp(1.5, -5, q), lerp(-7, 6, q) if power else lerp(6, -7, q), -1-1.5*drive]
+        r = [lerp(-5, 1.5, q) if power else lerp(1.5, -5, q), lerp(-7, 6, q) if power else lerp(6, -7, q), -.5-.5*drive]
         shift[1] = .25*drive
     elif action == 'braid_cradle_lift':
         # Reach toward the young beside the hull (lean and look to the braid side), scoop, lift it in front of her and set it
@@ -209,9 +210,6 @@ def braid_rotation(action, t, c, side):
         u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         sweep = lerp(c['braid_sweep'][0], c['braid_sweep'][1], q) if power else lerp(c['braid_sweep'][1], c['braid_sweep'][0], q)
         return [sweep, 0, c['braid_out']+(c['braid_raise']*bump((u-.5)/.5) if not power else 0)]
-    if action in ('hat_brim_offer', 'boat_nudge_young'):
-        if side > 0: return [4, 0, 31+2*math.sin(2*math.pi*t/d)]
-        return [0, 0, -(8+3*math.sin(2*math.pi*t/d))]
     if action == 'braid_cradle_lift':
         if side < 0: return [0, 0, -(8+4*bump(t/d))]
         # Out and down to the young in the water beside the hull, then forward-up so the scooped tuft clears the rim, and in
@@ -297,18 +295,49 @@ def bone_index(model, name):
     return next(i for i, b in enumerate(model['bones']) if b['name'] == name)
 
 
-def hull_frame():
-    """The captain's model space around her seat in the floating aquatic hull (water plane, brim top, outer side edge)."""
-    V = json.loads(VESSEL.read_text(encoding='utf-8')); k = V['scale']['aquatic_marisa']; bowl = V['bowl']
-    seat_z = V['opening'][3]*k-5.9
-    outer = max(r[1] for r in V['brim_rects'])
-    return dict(water=-bowl['owner_y']*k, brim_top=(bowl['freeboard']-bowl['owner_y'])*k, brim_x=outer*k,
-                hull_z=(-seat_z-max(abs(r[3]) for r in V['brim_rects'])*k, -seat_z+max(abs(r[3]) for r in V['brim_rects'])*k))
+_FORMS = {}
 
 
-def paddle_targets(action, t, c, env):
+def hull_forms(mass):
+    """Every hull form the captain rides (hull_profiles/*.json), seen from her seat (model units, origin on the seat,
+    her axes the hull's): per profile ray the hull's cross-section in (r, y) as a closed polygon, and the waterline that
+    the hull and her `mass` float at (the displacement of the outer hull, level)."""
+    if mass in _FORMS: return _FORMS[mass]
+    forms = []
+    for path in sorted(HULLS.glob('*.json')):
+        H = json.loads(path.read_text(encoding='utf-8')); seat = H['anchors']['owner_y']
+        az = np.radians(H['azimuths']); gap = (np.r_[az[1:], az[0]+2*math.pi]-np.r_[az[-1]-2*math.pi, az[:-1]])/2
+        outer = [np.array(o) for o in H['outer']]
+        rings = [np.r_[o[:, :2], o[o[:, 0] >= mouth][::-1][:, [0, 2]], np.array(i)[::-1]]
+                 for o, i, mouth in zip(outer, H['inner'], H['opening']['radius'])]
+        displaced = lambda y: sum(g*np.sum(o[:, 0]*np.maximum(0, y-o[:, 1])*np.gradient(o[:, 0])) for g, o in zip(gap, outer))
+        lo, hi = H['keel']['y'], H['rim']['y']
+        for _ in range(40):
+            mid = (lo+hi)/2; lo, hi = (mid, hi) if displaced(mid) < mass+H['volume']['hull_mass'] else (lo, mid)
+        forms.append(dict(name=path.stem, azimuths=az, rings=[(r-[0, seat])*16 for r in rings], water=(lo-seat)*16))
+    _FORMS[mass] = forms
+    return forms
+
+
+def clearance(form, P, yaw):
+    """Signed distance (model units) of the points P from the hull solid with the captain turned `yaw` degrees on her
+    seat; negative inside."""
+    a = math.radians(yaw); x, z = P[:, 0]*math.cos(a)-P[:, 2]*math.sin(a), P[:, 0]*math.sin(a)+P[:, 2]*math.cos(a)
+    ray = np.argmin(np.abs((np.arctan2(z, x)[:, None]-form['azimuths'][None]+math.pi) % (2*math.pi)-math.pi), axis=1)
+    Q = np.c_[np.hypot(x, z), P[:, 1]]; out = np.empty(len(P))
+    for k in np.unique(ray):
+        sel = ray == k; q = Q[sel][:, None]; A = form['rings'][k]; B = np.roll(A, -1, 0); AB = B-A
+        s = np.clip(((q-A)*AB).sum(-1)/np.maximum((AB*AB).sum(-1), 1e-12), 0, 1)
+        gap = np.linalg.norm(q-(A+s[..., None]*AB), axis=-1).min(1)
+        rise = np.where(AB[:, 1] == 0, 1e-12, AB[:, 1])
+        crosses = ((A[:, 1] > q[..., 1]) != (B[:, 1] > q[..., 1])) & (q[..., 0] < A[:, 0]+(q[..., 1]-A[:, 1])*AB[:, 0]/rise)
+        out[sel] = np.where(crosses.sum(1) % 2 == 1, -gap, gap)
+    return out
+
+
+def paddle_targets(action, t, c, water):
     """Blade-end target (y, z) in the captain's model space and the twig's feather angle about its own axis."""
-    p = c['paddle']; water = env['water']
+    p = c['paddle']
     if action != 'boat_paddle':
         return water+p['rest_height'], p['rest_z'], p['rest_feather']
     u = paddle_phase(t, c)
@@ -322,52 +351,97 @@ def paddle_targets(action, t, c, env):
 
 
 def paddle_tracks(model, action, samples, tracks, c):
-    """Aim the tuft along the twig and key the twig in the tuft's frame. Returns (tip track, prop block, clearance report,
-    inner chain tracks): the braid stroke runs down its chain first (braid_chain.follow), so the tuft and twig are laid
-    from where the bent braid really carries them."""
-    p = c['paddle']; env = hull_frame()
-    braid, tip = bone_index(model, 'hand_right'), bone_index(model, 'hand_right_tip')
-    chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])}); inner = []
-    if chain:
-        spec = dict(FOLLOW, drag_seconds=p.get('braid_drag_seconds', 0.))  # the twig loads the braid in the water
-        followed = braid_chain.follow(chain, {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks}, spec)
-        inner = [t for t in followed['tracks'] if t['bone'] in chain[1:-1]]; tracks = tracks+inner; braid = chain[-2]
-    geometry = json.loads(BRAID.read_text(encoding='utf-8'))
-    joint_rest = np.array(model['bones'][tip]['pivot'], float); tip_rest = np.array(geometry['braid_tip'], float)
-    reach = p['grip_offset']+p['blade_length']
-    tip_rows, prop_rows, worst, where = [], [], 1e9, None
-    for t in samples:
-        M = palette(model, tracks, t)
-        J = (M[braid]@np.r_[joint_rest, 1])[:3]
-        y, z, feather = paddle_targets(action, t, c, env)
-        dy, dz = y-J[1], z-J[2]
+    """Lay the twig where the braid really carries it. The braid stroke runs down its chain first (braid_chain.follow,
+    loaded through the power half by `paddle.braid_load`); then the last joints (`paddle.aim.bones`) share the turn that
+    heads the tuft (in the sweep plane, about the vertical) toward the twig's blade target (`shares`, tail last), each
+    `lag_seconds` after the joint above and none turning faster than `degrees_per_second`. The twig hangs from the wrap at the tuft's grip at its own pitch, so the
+    braid stays held out over the gunwale. The blade aims under the lowest waterline of the hull forms.
+    Returns (rotation tracks of every chain joint below the root, prop block, per-sample twig (grip, direction))."""
+    p = c['paddle']; water = min(f['water'] for f in hull_forms(p['captain_mass']))
+    names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']; chain = braid_chain.chain(names)
+    m = c.get('markers', {}); load = p.get('braid_load')
+    spec = dict(FOLLOW, load=dict(load, start=m['power_start'], end=m['power_end'])) if load else FOLLOW
+    followed = braid_chain.follow(chain, {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks}, spec)
+    own = {t['bone']: t for t in followed['tracks'] if t['bone'] in chain[1:]}
+    tip = chain[-1]; aim = [names[n] for n in p['aim']['bones']]; share = p['aim']['shares']
+    base = tracks+[own[b] for b in chain[1:] if b not in aim]
+    joint_rest = np.array(bones[tip]['pivot'], float)
+    tuft = np.array(json.loads(BRAID.read_text(encoding='utf-8'))['braid_tip'], float)-joint_rest; tuft /= np.linalg.norm(tuft)
+    flat = lambda v: np.array([v[0], 0., v[2]])
+    held = lambda local: [{'bone': b, 'channel': 'rotation', 'keys': [[0., *braid_chain.to_euler(local[b])]]} for b in aim]
+
+    def twig(M, y, z):
+        """Tuft direction, grip and twig direction (blade end on the target) for the bone matrices M."""
+        u = polar(M[tip][:3, :3])@tuft; G = (M[bones[tip]['parent']]@np.r_[joint_rest, 1])[:3]+u*p['grip_offset']
+        dy, dz, reach = y-G[1], z-G[2], p['blade_length']
         if dy*dy+dz*dz > (reach*.97)**2:
             scale = reach*.97/math.hypot(dy, dz); dy *= scale; dz *= scale
-        dx = math.sqrt(max(0., reach*reach-dy*dy-dz*dz))
-        d = np.array([dx, dy, dz])/reach
-        # Tuft: the rotation (about its own pivot, in the braid's frame) that lays it along the twig.
-        Rb = polar(M[braid][:3, :3]); Rt = aim(tip_rest-joint_rest, Rb.T@d)
-        tip_euler = to_euler(Rt); tip_rows.append(tip_euler)
-        local = np.eye(4); local[:3, :3] = euler(tip_euler); local[:3, 3] = joint_rest-local[:3, :3]@joint_rest
-        Mt = M[braid]@local
-        G = J+d*p['grip_offset']
+        return u, G, np.array([math.sqrt(max(0., reach*reach-dy*dy-dz*dz)), dy, dz])/reach
+    rows = []
+    for t in samples:
+        local = {b: braid_chain.euler(sample(own[b]['keys'], t)) for b in aim}
+        y, z, _ = paddle_targets(action, t, c, water)
+        for _ in range(4):  # the grip moves as the joints above it turn
+            M = palette(model, base+held(local), t); u, _, d = twig(M, y, z)
+            Q = braid_chain.aim(flat(u), flat(d))
+            for b, s in zip(aim, share):
+                Rp = polar(M[bones[b]['parent']][:3, :3]); local[b] = Rp.T@braid_chain.partial(Q, s)@Rp@local[b]
+        rows.append(local)
+    # Each aimed joint takes its share `lag_seconds` after the one above it, so the turn also runs down the tail.
+    dt = samples[1]-samples[0]; lag, n = round(p['aim']['lag_seconds']/dt), len(samples)
+    for j, b in enumerate(aim):
+        rest = [braid_chain.euler(sample(own[b]['keys'], t)) for t in samples]; turn = [r[b]@q.T for r, q in zip(rows, rest)]
+        at = (lambda i: (i-j*lag) % (n-1)) if c['loop'] else (lambda i: max(0, i-j*lag))
+        for i in range(n): rows[i][b] = turn[at(i)]@rest[i]
+    limited = {b: braid_chain.rate_limited([r[b] for r in rows], p['aim']['degrees_per_second']*dt, c['loop']) for b in aim}
+    keys, prop_rows, sticks, last = {b: [] for b in aim}, [], [], {}
+    for n, t in enumerate(samples):
+        local = {b: limited[b][n] for b in aim}
+        y, z, feather = paddle_targets(action, t, c, water)
+        M = palette(model, base+held(local), t); _, G, d = twig(M, y, z)
+        for b in aim:
+            last[b] = braid_chain.to_euler(local[b], last.get(b)); keys[b].append([round(t, 8), *[round(v, 5) for v in last[b]]])
+        sticks.append((G, d))
         # Twig frame: +Y toward its cut top (away from the blade), Z the blade normal facing the stroke, then feathered.
         y_axis = -d; z_axis = np.array([0., 0., 1.])-y_axis*y_axis[2]; z_axis /= np.linalg.norm(z_axis)
         x_axis = np.cross(y_axis, z_axis); Rw = np.c_[x_axis, y_axis, z_axis]@euler([0, feather, 0])
-        A = Mt@np.r_[np.c_[np.eye(3), joint_rest], [[0, 0, 0, 1]]]
-        local = np.linalg.inv(A)@np.r_[np.c_[Rw, G], [[0, 0, 0, 1]]]
-        prop_rows.append([*local[:3, 3], *to_euler(polar(local[:3, :3]))])
-        # Clearance of the stick axis from the hull's outer brim edge (only where it is beside the hull).
-        for q in np.linspace(-p['top_length'], p['blade_length'], 24):
-            P = G+d*q
-            if env['hull_z'][0] < P[2] < env['hull_z'][1]:
-                gap = max(P[0]-env['brim_x'], P[1]-env['brim_top'])
-                if gap < worst: worst = gap; where = (round(t, 2), round(float(q), 1), P.round(2), J.round(2))
-    tip_rows, prop_rows = unwrap(tip_rows), [r[:3]+e for r, e in zip(prop_rows, unwrap([r[3:] for r in prop_rows]))]
-    track = {'bone': tip, 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in row]] for t, row in zip(samples, tip_rows)]}
+        A = M[tip]@np.r_[np.c_[np.eye(3), joint_rest], [[0, 0, 0, 1]]]
+        key = np.linalg.inv(A)@np.r_[np.c_[Rw, G], [[0, 0, 0, 1]]]
+        prop_rows.append([*key[:3, 3], *to_euler(polar(key[:3, :3]))])
+    prop_rows = [r[:3]+e for r, e in zip(prop_rows, unwrap([r[3:] for r in prop_rows]))]
     prop = {'prop': 'paddle_stick', 'bone': 'hand_right_tip',
             'keys': [[round(t, 8), *[round(float(v), 5) for v in row]] for t, row in zip(samples, prop_rows)]}
-    return track, prop, (worst, where), inner
+    out = [own[b] for b in chain[1:] if b not in aim]+[{'bone': b, 'channel': 'rotation', 'keys': keys[b]} for b in aim]
+    return out, prop, sticks
+
+
+def hull_gate(model, action, samples, tracks, sticks, c):
+    """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
+    the captain on its seat at any yaw (every `captain_yaw_step` degrees); boat_paddle's blade must also be under every
+    form's waterline by half its `depth` through the middle of the pull. Prints per form the worst braid and twig clearance."""
+    p = c['paddle']; forms = hull_forms(p['captain_mass']); yaws = range(0, 360, p['captain_yaw_step'])
+    V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
+    braid = sorted({i for q in model['parts'] if q['name'].startswith('braid_lock_') for i in range(q['start'], q['start']+q['count'])})
+    braid = np.unique(np.c_[V[braid], W[braid]].round(5), axis=0)
+    hv = np.c_[braid[:, :3], np.ones(len(braid))]; a, b, w = braid[:, 3].astype(int), braid[:, 4].astype(int), braid[:, 5:6]
+    along = np.linspace(-p['top_length'], p['blade_length'], 25)
+    worst = {f['name']: [0, 1e9, 1e9, 1e9] for f in forms}  # penetrating samples, braid, twig, blade under water
+    for t, (G, d) in zip(samples, sticks):
+        M = palette(model, tracks, t)
+        P = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]; S = G+np.outer(along, d)
+        pull = action == 'boat_paddle' and .1 <= paddle_phase(t, c) <= .4
+        for f in forms:
+            r = worst[f['name']]
+            hair = min(clearance(f, P, yaw).min() for yaw in yaws); twig = min(clearance(f, S, yaw).min() for yaw in yaws)-p['twig_radius']
+            r[0] += hair < 0 or twig < 0; r[1] = min(r[1], hair); r[2] = min(r[2], twig)
+            if pull: r[3] = min(r[3], f['water']-S[-1, 1])
+    failed = [name for name, (bad, _, _, wet) in worst.items() if bad or (wet < 1e9 and wet < p['depth']/2)]
+    for name, (bad, hair, twig, wet) in worst.items():
+        print(f'  {action} in {name}: {bad}/{len(samples)} samples penetrate; braid clears by {hair:.2f}, twig by {twig:.2f} model units'
+              + (f'; blade {wet:.2f} under water' if wet < 1e9 else ''), flush=True)
+    if failed:
+        raise ValueError(f'{model["id"]} {action}: the braid or twig enters, or the blade misses the water of, {failed}')
+    return worst
 
 
 def extras(model, action, samples, tracks, c):
@@ -378,12 +452,10 @@ def extras(model, action, samples, tracks, c):
     if 'base_pose' in c: fields['base_pose'] = c['base_pose']  # where the presentation watchdog falls back to
     if 'contacts' in c: fields['contacts'] = json.loads(json.dumps(c['contacts']))
     if action in PADDLE_CLIPS and 'hand_right_tip' in names and 'paddle' in c:
-        track, prop, (worst, where), inner = paddle_tracks(model, action, samples, tracks, c)
-        more += [track]+inner; fields['props'] = {'paddle': prop}
+        braid, prop, sticks = paddle_tracks(model, action, samples, tracks, c)
+        more += braid; fields['props'] = {'paddle': prop}
         fields.setdefault('markers', {})
-        if worst < c['paddle']['min_clearance']:
-            raise ValueError(f'{model["id"]} {action}: the stick passes {-worst:.2f} units inside the brim (t, along, point, joint) {where}')
-        print(f'  {action}: stick clears the brim edge by {worst:.2f} model units', flush=True)
+        hull_gate(model, action, samples, tracks+braid, sticks, c)
     if action == 'boat_nest_curl' and 'hat_follow' in names:
         # Its own little hat knocked askew against the wall and the mother's chest, lifted a touch so the tilted brim
         # stays on the hair.

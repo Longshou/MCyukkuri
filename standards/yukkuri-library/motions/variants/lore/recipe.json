@@ -740,7 +740,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 2.5, a shoulder yaw twist and a drive squash. The stick keys (props.paddle) are solved against hat_vessel.json so the stick passes outside the brim; game and previews read the exported keys.",
+      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 1, a shoulder yaw twist and a drive squash leading the braid by body_lead_seconds. The braid is held out (braid_out) over the gunwale of every hull form and straightens under the pull (paddle.braid_load); its last joints head the tuft toward the blade (paddle.aim) and the stick hangs from the wrap at its own pitch. The skinned braid and the stick are checked against every hull_profiles form (aquatic_tools.hull_gate); game and previews read the exported keys.",
       "triggers": [
         "server surface route has a real stick and a waypoint"
       ],
@@ -749,28 +749,48 @@
         "power_end": 1.0
       },
       "braid_sweep": [
-        16,
-        -12
+        15,
+        -9
       ],
-      "braid_out": 42,
-      "braid_raise": 12,
+      "braid_out": 74,
+      "braid_raise": 4,
       "paddle": {
-        "braid_drag_seconds": 0.3,
+        "braid_load": {
+          "tension": 0.6,
+          "ramp": 0.12
+        },
         "grip_offset": 1.6,
-        "top_length": 1.6,
-        "blade_length": 10.4,
-        "min_clearance": 0.3,
+        "top_length": 1.0,
+        "blade_length": 11.0,
+        "twig_radius": 0.3,
+        "captain_mass": 0.149,
+        "captain_yaw_step": 30,
         "catch_z": -8.0,
         "finish_z": 4.0,
-        "depth": 2.2,
+        "depth": 1.6,
         "air": 2.0,
         "arc": 1.0,
         "feather": 0,
         "rest_height": 2.6,
         "rest_z": 2.0,
-        "rest_feather": 0
+        "rest_feather": 0,
+        "aim": {
+          "bones": [
+            "hand_right_braid_4",
+            "hand_right_braid_5",
+            "hand_right_tip"
+          ],
+          "shares": [
+            0.2,
+            0.25,
+            0.3
+          ],
+          "degrees_per_second": 300,
+          "lag_seconds": 0.04
+        }
       },
-      "base_pose": "boat_steady"
+      "base_pose": "boat_steady",
+      "body_lead_seconds": 0.1
     },
     "boat_gather": {
       "label": "收食入帽",
@@ -3902,7 +3922,9 @@
         "grip_offset": 1.6,
         "top_length": 1.6,
         "blade_length": 10.4,
-        "min_clearance": 0.3,
+        "twig_radius": 0.3,
+        "captain_mass": 0.149,
+        "captain_yaw_step": 30,
         "catch_z": -8.0,
         "finish_z": 4.0,
         "depth": 2.2,
@@ -3911,9 +3933,24 @@
         "feather": 0,
         "rest_height": 2.6,
         "rest_z": 2.0,
-        "rest_feather": 0
+        "rest_feather": 0,
+        "aim": {
+          "bones": [
+            "hand_right_braid_4",
+            "hand_right_braid_5",
+            "hand_right_tip"
+          ],
+          "shares": [
+            0.3,
+            0.3,
+            0.4
+          ],
+          "degrees_per_second": 300,
+          "lag_seconds": 0.04
+        }
       },
-      "base_pose": "boat_steady"
+      "base_pose": "boat_steady",
+      "braid_out": 80
     },
     "hat_hop_up": {
       "label": "小步急跳上帽檐",
@@ -4097,7 +4134,9 @@
         "grip_offset": 1.6,
         "top_length": 1.6,
         "blade_length": 10.4,
-        "min_clearance": 0.3,
+        "twig_radius": 0.3,
+        "captain_mass": 0.149,
+        "captain_yaw_step": 30,
         "catch_z": -8.0,
         "finish_z": 4.0,
         "depth": 2.2,
@@ -4106,8 +4145,23 @@
         "feather": 0,
         "rest_height": 2.6,
         "rest_z": 2.0,
-        "rest_feather": 0
-      }
+        "rest_feather": 0,
+        "aim": {
+          "bones": [
+            "hand_right_braid_4",
+            "hand_right_braid_5",
+            "hand_right_tip"
+          ],
+          "shares": [
+            0.3,
+            0.3,
+            0.4
+          ],
+          "degrees_per_second": 300,
+          "lag_seconds": 0.04
+        }
+      },
+      "braid_out": 74
     },
     "water_held_breath": {
       "label": "被辫梢托住时喘息与小幅回应",

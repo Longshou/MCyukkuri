@@ -19,6 +19,6 @@ python standards/yukkuri-library/motions/variants/lore/author.py --export-badge
 python standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic
 ```
 
-水生帽船的木棍、辫兜、嘴咬、翻覆、自救与船上日常片段由 `aquatic_tools.py` 编排（`--export-aquatic`）：除骨骼轨道外，片段还导出 `markers`（如 `power_start`／`power_end`）、`contacts`（骨骼与静止坐标点，或 `mouth`）与循环片段的 `base_pose`；游戏与 `aquatic_tools_preview.py` 读同一份导出数据。片段里的 `props.paddle` 键仍在，但 `paddle_stick` 道具不在导出中（无人绘制），重新设计划桨外观时再接。
+水生帽船的木棍、辫兜、嘴咬、翻覆、自救与船上日常片段由 `aquatic_tools.py` 编排（`--export-aquatic`）：除骨骼轨道外，片段还导出 `markers`（如 `power_start`／`power_end`）、`contacts`（骨骼与静止坐标点，或 `mouth`）与循环片段的 `base_pose`；游戏与 `aquatic_tools_preview.py` 读同一份导出数据。片段里的 `props.paddle` 键仍在，但 `paddle_stick` 道具不在导出中（无人绘制），重新设计划桨外观时再接。`aquatic_paddle_preview.py` 画 `boat_paddle` 在帽船形态中的关键姿势（侧视、正视）与辫节前后弯曲带，`--form` 选形态，`--against <git 版本>` 叠加该版本的运行片段对照。
 
 预览场景由同目录 `births.py` 与 `hat_motion_preview.py` 生成；它们只展示动作与接触编排，不运行游戏碰撞、AI 或成功率判定。

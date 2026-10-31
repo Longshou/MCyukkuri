@@ -642,8 +642,8 @@ def flourish_tracks(model, action, samples, cfg, c):
             hand,braid=braid_carried(model,bone)
             if not braid:continue
             def gesture(t):
-                if paddle:  # the right braid keeps holding the paddle out over the brim (aquatic hull 1.75); the other rests
-                    return [4,0,43+2*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]
+                if paddle:  # the right braid keeps holding the paddle out over every hull form's gunwale (aquatic_tools.hull_gate); the other rests
+                    return [4,0,c['braid_out']+2*math.sin(2*math.pi*t/d)] if side>0 else [0,0,side*(8+3*math.sin(2*math.pi*t/d))]
                 if action=='water_mouth_grip':
                     q=.5+.5*math.sin(2*math.pi*t/d);return [2-3*q,0,side*(8+5*q)]
                 if action=='water_bob_lunge':

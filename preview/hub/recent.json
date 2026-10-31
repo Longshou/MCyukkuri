@@ -33,6 +33,10 @@
       "steps": [],
       "gallery": [
         {
+          "src": "aquatic-paddle/paddle.png",
+          "label": "划桨：辫子伸出越过圆帽帽檐、木棍入水，新旧对照与辫节弯曲带"
+        },
+        {
           "src": "aquatic-tools/paddle.png",
           "label": "划桨：辫梢缠住捡来的木棍"
         },
