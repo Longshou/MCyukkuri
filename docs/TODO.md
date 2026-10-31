@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 无界面冒烟运行分支代码 | `.worktrees/smoke-run` | `scripts/smoke_museum.py`、`scripts/headless_server.py`、`docs/DEVELOPMENT.md` |
 | 陆地接生搬运：嘴叼、前向落点与辫子弯曲 | `.worktrees/land-carry` | `family/ParentCarry`、`family/Fetch`、`motor/action/{Grab,Release}`、`motor/geom/`、`client/BraidPose`、相关纯函数测试 |
-| 水生帽圆冠盆形态（模型、帽面支撑、浮稳、粮层） | `.worktrees/w4-hat-form` | 水生帽制作源与导出、`headwear/HatGeometry`、`aquatic/HullAfloat`、`aquatic/HullLarder*`、帽子渲染 |
 
 ## 玩法待办
 

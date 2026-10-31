@@ -162,17 +162,18 @@ class Shape:
 
 # ------------------------------------------------------------------ the set-down hat
 class Hull:
-    def __init__(self):
-        self.placed = B.world(B.placed_mesh())
+    """A set-down hull as drawn (world units): this make-source's by default, or another hull's triangles (placed), the
+    height of its rim (dam: water over it floods the hollow) and its opening (inside(x, z))."""
+    def __init__(self, placed=None, dam=None, inside=None):
+        self.placed = B.world(B.placed_mesh()) if placed is None else placed
         self.field = B.raster(self.placed, GRID, True)          # what a body stands on
         self.low = B.raster(self.placed, GRID, False)           # the outer bottom
-        r = np.hypot(GRID.x, GRID.z)
-        self.opening = B.IN['opening']*K
-        self.dam = B.BRIM['droop']*K                           # the turned-up rim: water over it floods the hollow
-        self.cavity = np.isfinite(self.field) & (r < self.opening) & (self.field < -1e-3)
+        self.dam = B.BRIM['droop']*K if dam is None else dam   # the turned-up rim
+        self.inside = inside or (lambda x, z: np.hypot(x, z) < B.IN['opening']*K)
+        self.cavity = np.isfinite(self.field) & self.inside(GRID.x, GRID.z) & (self.field < -1e-3)
         # the dry hull's top: the brim where there is cloth, up to the rim's top over the hollow until it floods
-        self.top = np.where(r < self.opening, self.dam, self.field)
-        self.rim_r = B.BRIM['radius']*K
+        self.top = np.where(self.inside(GRID.x, GRID.z), self.dam, self.field)
+        self.rim_r = float(np.hypot(self.placed[:, :, 0], self.placed[:, :, 2]).max())
 
     def stores(self, portions):
         """The layer's level (y) for this many portions, or None."""

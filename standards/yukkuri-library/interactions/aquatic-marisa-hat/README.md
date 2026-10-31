@@ -1,19 +1,21 @@
 # 水生魔理沙的帽子
 
-水生魔理沙专用帽子的制作源：戴在头上，放下时帽檐朝上浮在水面当帽船。陆生魔理沙的帽子与接生帽保持[现形](../marisa-hat-vessel/README.md)，两种魔理沙不共用帽子模型、物品外观或几何。本目录现在只生成预览与读数，尚未导出到运行资源。
+水生魔理沙帽的第二形态（外观尖锥圆台阶，帽腔圆冠盆）的制作源：戴在头上，放下时帽檐朝上浮在水面当帽船。现行水生帽（陆生帽翻过来，[marisa-hat-vessel](../marisa-hat-vessel/README.md)）保持不变；两种形态并存，由一个新测试物种使用新形态，在试玩场直接对比（用户决定）。陆生魔理沙的帽子与接生帽不受影响，两种魔理沙不共用帽子模型、物品外观或几何。`export.py` 导出运行资源；尚未接入游戏，接入见[待办](../../../../docs/TODO.md#进行中)。
 
 | 文件 | 用途 |
 | --- | --- |
 | `recipe.json` | 尺寸（1.4 倍）、帽檐、外侧圆台阶、内侧圆盆、储粮每份体积 |
 | `build.py` | 生成戴着与放下的网格，检查圆盆是否在外壳之内，写 `geometry.json`、`food_layer.png` |
+| `export.py` | 导出运行网格、储粮贴图与两种形态的帽船剖面，写 `art/source/aquatic-basin-hat/` 快照与指纹 |
 | `geometry.json` | 帽口、平底、深度、龙骨、翘边、圆盆剖面，以及三档储粮的层面高度 |
 | `food_layer.png` | 储粮层 16×16 贴图（谷粒、干草、浆果、草籽） |
 | `scene.py` | 身体、脚圆、支撑、储粮层、外壳静水力、辫子托兜范围 |
-| `layout.py` | 按载重规则逐一摆放乘员，写 `<MCY_LOCAL 或 .local>/previews/aquatic-hat/layouts.json` |
-| `preview.py` | 预览图 `sheet.png` 与带布局表的 `index.html`（同一预览目录） |
+| `layout.py` | 按载重规则逐一摆放乘员，写 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-round/layouts.json` |
+| `preview.py` | 预览图 `sheet.png`（两种形态对照与新形态布局）与带布局表的 `index.html`（同一预览目录） |
 
 ```sh
 python standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py [--check]
+python standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py [--check]
 MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py
 MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquatic-marisa-hat/preview.py
 ```
@@ -115,8 +117,44 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 - 从水里攀上空帽时，成体只要四分之一体重挂在帽檐上就会进水。0.45 子油挂一半体重时横倾约 23°，不进水；挂四分之三就进水。
 - 要让成体能攀上来，需要在实现时按她出水的程度计入体重，并考虑帽子倾斜跟上的时间。
 
+## 运行资源
+
+`export.py` 写入下列文件；现行水生帽的网格、`hat_vessel.json` 和物品外观只读不改。
+
+| ID / 文件 | 内容 |
+| --- | --- |
+| `yukkuri_props/aquatic_basin_hat.json` | 戴着的帽子，也是物品外观：魔理沙模型坐标、帽子单位，与 `accessory_marisa` 同一坐标，按同一 `HatScale` 放大；部件 `crown`、`tip`、`bow` |
+| `yukkuri_props/aquatic_basin_hat_turned.json` | 放下的帽船：坐标同 `marisa_hat_turned`（原点在帽檐面中心，+Y 出帽腔，+X 为戴着时的前方）；龙骨已压好，绘制时不再按 `HatGeometry.squash()` 压扁；部件 `hull`、`bow` |
+| `textures/props/aquatic_basin_hat_stores.png` | 储粮层 16×16 贴图（即 `food_layer.png`） |
+| `yukkuri_presentation/hull_profiles/<帽船 ID>.json` | 帽船剖面，见下节；`aquatic_basin_hat_turned`、`marisa_hat_turned` 各一份 |
+
+两个网格登记在 `yukkuri_props/subspecies-index.json`，贴图用魔理沙图集与陆生帽相同的格子。
+
+## 帽船剖面（hull_profiles）
+
+两种形态用同一格式，各自从游戏实际绘制的三角面量出：新形态取本目录的放下网格乘 `scale`；现行形态取 `marisa_hat_turned` 乘 `hat_vessel.json` 的水生倍率，竖向再乘 `PlacedHatRenderer` 实际用的 `HatGeometry.squash()`（`squash.nest`）。
+
+坐标与单位：格；帽船坐标，原点在帽檐面中心（戴着时贴头的那面），+Y 出帽腔，+X 为戴着时的前方，船首朝 -Z。高度都是带符号的 `y`（帽檐面为 0，向下为负）。换用别的帽船倍率时，半径和高度按倍率之比缩放。
+
+| 字段 | 含义 |
+| --- | --- |
+| `form`、`hull`、`scale`、`squash` | 形态（`cone_basin` / `turned_land_hat`）、帽船网格 ID、量取时的倍率与竖向压扁 |
+| `azimuths` | 量取方向（度，从 +X 转向 +Z，每 45°）；下列按方位的数组与之一一对应 |
+| `sample_step`、`level_tolerance` | 径向采样间距；判定平底与龙骨底的高度容差（都是 1/64 格） |
+| `rim.y` | 帽口外一圈最低的檐顶：水面高过它就灌进帽腔（新形态是翘边顶，现行形态是平帽檐面） |
+| `brim.radius`、`opening.radius` | 各方位帽檐外缘、帽口边缘的半径 |
+| `floor.radius`、`floor.y` | 帽腔内面不高出最深点 `level_tolerance` 的范围（从中心连续量起）；`floor.y` 为该范围内按面积平均的内面高度 |
+| `hollow.y` | 帽腔最深点 |
+| `keel.y`、`keel.radius` | 外壳最低点；各方位外壳底不高出最低点 `level_tolerance` 的最远半径 |
+| `inner` | 各方位帽腔内面 `[半径, y]`，从中心到帽口，末点为帽口边缘的帽檐面 |
+| `outer` | 各方位外壳 `[半径, 底面 y, 干舷顶 y]`，从中心到帽檐外缘；帽口以内的干舷顶取 `rim.y`（灌水前帽腔是干的），以外取布面顶。排水柱高 = min(水面, 干舷顶) − 底面 |
+| `volume` | `hollow` 帽檐面以下的帽腔容积、`to_rim` 水面齐 `rim.y` 时的排水量（立方格，网格积分）；`hull_mass` 空帽重量（`hat_vessel.json` `afloat.hull_mass` × 倍率²）；`empty_waterline_y` 空帽直立时的水线 |
+| `anchors.owner_y` | 成体帽主（生长 1，`boat_drift`）坐在空帽正中时身底的高度，按“身体底面贴帽面”的建议规则 |
+| `anchors.stores` | 每份储粮体积（立方格）与 1～24 份铺成水平层时的层面高度 `level_y`；乘员坐在层面上 |
+| `sources` | 量取所用文件的 SHA-256 |
+
 ## 采用时
 
-只是造型、尺寸与布局候选，尚未接入。导出、支撑、浮力、储粮层与文档的接入范围以负责人确认为准。
+造型、尺寸、导出网格与剖面都是项目设计，尚未接入游戏；支撑、浮力、储粮层、渲染和新测试物种的接入范围以负责人确认为准。
 
-试玩前这些都是项目设计，不算行为验收。
+试玩前这些都不算行为验收。

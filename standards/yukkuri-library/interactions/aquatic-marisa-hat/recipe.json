@@ -1,7 +1,7 @@
 {
   "version": 2,
   "status": "pending_user_review",
-  "note": "The aquatic Marisa's own hat (not shared with the land Marisa): worn on the head, set down brim up as her boat. Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a round basin. Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
+  "note": "The second aquatic Marisa hat form, beside the current aquatic hat (the land hat turned over), so a test species can show both (user choice); not shared with the land Marisa: worn on the head, set down brim up as her boat; inside and outside need not match (user choice). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a round basin. Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
   "scale": 1.4,
   "anchor_worn": [0.0, 10.3774, 0.2307],
   "segments": 24,

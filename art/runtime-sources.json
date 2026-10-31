@@ -4075,6 +4075,31 @@
     "scope": "Marisa's own worn hat copied box for box, opened into a well and turned upside down with its crown pressed flat (user 2026-10-15: just turn the hat over and squash its bottom): on land, where her braid presses it down to catch young, and afloat (the aquatic hat boat, larger, and the hat floated at a bank to catch); braid placements read by the lore hat clips and the game",
     "references": "wiki/art-references/ehentai/works/EH22.md"
   },
+  "aquatic_basin_hat": {
+    "source": "standards/yukkuri-library/interactions/aquatic-marisa-hat",
+    "recipe": "standards/yukkuri-library/interactions/aquatic-marisa-hat/recipe.json",
+    "builder": "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py",
+    "exporter": "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py",
+    "preview_builder": "standards/yukkuri-library/interactions/aquatic-marisa-hat/preview.py",
+    "layout_study": "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py",
+    "snapshot": "art/source/aquatic-basin-hat",
+    "manifest": "art/source/aquatic-basin-hat/manifest.json",
+    "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
+    "runtime": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat_turned.json",
+      "src/main/resources/assets/mcyukkuri/textures/props/aquatic_basin_hat_stores.png",
+      "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json"
+    ],
+    "hull_profiles": [
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json"
+    ],
+    "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
+    "status": "pending_user_review",
+    "scope": "Second aquatic Marisa hat form beside the current one (the land hat turned over, hat_vessel), kept unchanged so a new test species can show both (user choice). Outside the land hat's cone tiers turned round under its own bent tip, band and bow; set down, the lower tiers pressed into a keel and a separate round basin inside (lip, quarter-ellipse wall, level floor, shallow dimple) holding the owner, newborns or babies and a level stores layer per the layout study. aquatic_basin_hat is the worn and item mesh (accessory_marisa frame), aquatic_basin_hat_turned the set-down hull (marisa_hat_turned frame, already pressed). Hull profiles of both forms in one schema, each measured on the triangles the game draws. Project design; not yet integrated in Java.",
+    "references": "wiki/art-references/ehentai/works/EH22.md"
+  },
   "food_mash_serving": {
     "source_exporter": "standards/yukkuri-library/drafts/consumables/build.py",
     "editable_source": "standards/yukkuri-library/drafts/consumables/assembled/food_mash_serving/food_mash_serving.bbmodel",

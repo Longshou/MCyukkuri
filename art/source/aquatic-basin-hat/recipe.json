@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "status": "pending_user_review",
+  "note": "The second aquatic Marisa hat form, beside the current aquatic hat (the land hat turned over), so a test species can show both (user choice); not shared with the land Marisa: worn on the head, set down brim up as her boat; inside and outside need not match (user choice). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a round basin. Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
+  "scale": 1.4,
+  "anchor_worn": [0.0, 10.3774, 0.2307],
+  "segments": 24,
+  "brim": {
+    "radius": 10.13, "bottom": 10.5, "top": 11.3, "droop": 0.9, "droop_from": 8.2,
+    "note": "round; its diameter is the land brim's side-to-side width (20.26), so the hat reads the same 1.4x width from the front. Worn, the outer brim droops; set down the same cloth turns up into a raised rim round the owner (EH22-001)"
+  },
+  "wall": 0.55,
+  "band": [0.35, 1.34],
+  "outside": {
+    "tiers": [
+      {"r": 7.6, "h": 2.6, "cell": "light", "lean": [0.0, 0.0], "squash": 1.0},
+      {"r": 5.9, "h": 2.3, "cell": "cloth", "lean": [0.0, 0.3], "squash": 0.2},
+      {"r": 4.4, "h": 2.2, "cell": "cloth", "lean": [0.15, 0.55], "squash": 0.2},
+      {"r": 3.0, "h": 1.9, "cell": "light", "lean": [0.4, 0.8], "squash": 0.2}
+    ],
+    "tip": ["hat_tip_bend", "hat_tip", "hat_tip_end"],
+    "tip_base": "hat_taper_3",
+    "note": "worn: the base tier carries the band and bow, the land hat's tip_bend, tip and tip_end cuboids sit on the top tier as they sit on hat_taper_3. Set down: the base tier stays upright round the basin, the tiers under it are pressed by squash into the keel (small enough that the waterline stays on the wide base tier at every load); the tip is pressed into the keel and not drawn"
+  },
+  "inside": {
+    "opening": 7.25,
+    "lip": 0.8,
+    "floor_radius": 5.9,
+    "floor_depth": 2.85,
+    "dimple": 0.15,
+    "wall_rings": 7,
+    "floor_rings": 5,
+    "note": "hat units under the brim face: the opening's edge goes straight down the brim's thickness (lip), then a quarter ellipse curves in to the level floor; the pressed tip leaves a shallow dimple in the middle. Must stay inside the base tier with at least min_wall of cloth",
+    "min_wall": 0.3
+  },
+  "newborn_scale": 0.145,
+  "portion": {
+    "radius_blocks": 0.09,
+    "height_blocks": 0.06,
+    "note": "a stored portion keeps the room it takes now (a floor circle of radius 0.09 and 0.06 high, AQUATIC_MARISA_IMPLEMENTATION storage); the layer is that volume spread level over the hollow",
+    "fills": {"low": 6, "half": 12, "full": 24}
+  }
+}

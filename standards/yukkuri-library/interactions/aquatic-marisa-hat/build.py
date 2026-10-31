@@ -1,4 +1,4 @@
-"""The aquatic Marisa's own hat: worn on her head, set down brim up as her boat (make-source; not yet exported).
+"""The aquatic Marisa's second hat form: worn on her head, set down brim up as her boat (make-source; export.py exports it).
 
 Outside it is round stepped tiers (the land hat's tiers turned round) under the land hat's own bent tip, a band and the
 land bow at the front; set down, the base tier stands upright round a round basin and the tiers under it are pressed into
@@ -140,12 +140,16 @@ def tip_and_bow():
     return tip, bow
 
 
-def worn_mesh():
-    """The worn hat (Marisa model frame, hat units)."""
+def worn_parts():
+    """The worn hat's named parts (Marisa model frame, hat units): crown rings, the land hat's tip, its bow."""
     tip, bow = tip_and_bow()
     rings = worn_rings()
     for q in rings: q['cz'] += Z_AXIS
-    return normals(np.concatenate([orient(loop_mesh(rings, False)), tip, bow]))
+    return [('crown', normals(orient(loop_mesh(rings, False)))), ('tip', normals(tip)), ('bow', normals(bow))]
+
+
+def worn_mesh():
+    return np.concatenate([t for _, t in worn_parts()])
 
 
 # ------------------------------------------------------------------ set down
@@ -190,14 +194,19 @@ def placed_rings():
     return out
 
 
-def placed_mesh():
-    """The set-down hat (hat units, origin the brim face's middle); its bow lies on the upright base tier."""
+def placed_parts():
+    """The set-down hat's named parts (hat units, origin the brim face's middle): the hull, and its bow lying on the
+    upright base tier."""
     _, bow = tip_and_bow()
     b = bow.copy(); x, y, z = b[:, :, 0].copy(), b[:, :, 1].copy(), b[:, :, 2]-Z_AXIS
     b[:, :, 0], b[:, :, 2] = -z, -x
     centre = (YB1+R['band'][0]+YB1+R['band'][1])/2
     b[:, :, 1] = -(LIP+R['band'][0]+(centre-YB1-R['band'][0])+(y-centre)*.6)
-    return normals(np.concatenate([orient(loop_mesh(placed_rings(), True)), b]))
+    return [('hull', normals(orient(loop_mesh(placed_rings(), True)))), ('bow', normals(b))]
+
+
+def placed_mesh():
+    return np.concatenate([t for _, t in placed_parts()])
 
 
 def check_inside():
@@ -297,13 +306,13 @@ def summary():
 
 
 # What the layout study and its preview read: this make-source and the runtime data its bodies and clips come from.
-SOURCES = ('recipe.json', 'build.py', 'scene.py', 'layout.py', 'preview.py', 'food_layer.png', 'geometry.json')
-RUNTIME = ('yukkuri/marisa.json', 'yukkuri_presentation/motion_corrections.json', 'yukkuri_presentation/hat_vessel.json',
+SOURCES = ('recipe.json', 'build.py', 'scene.py', 'layout.py', 'preview.py', 'food_layer.png', 'geometry.json', 'export.py')
+RUNTIME = ('yukkuri/marisa.json', 'yukkuri_props/accessory_marisa.json', 'yukkuri_props/marisa_hat_turned.json', 'yukkuri_presentation/motion_corrections.json', 'yukkuri_presentation/hat_vessel.json',
            'yukkuri_presentation/braid_rescue.json', 'yukkuri_presentation/living.json', 'yukkuri_presentation/placement_fit.json')
 
 
 def source_digest():
-    """Fingerprint of the study's inputs: previews/aquatic-hat/source.sha256 holds it after preview.py; the preview hub
+    """Fingerprint of the study's inputs: previews/aquatic-hat-round/source.sha256 holds it after preview.py; the preview hub
     reuses that preview only while it still matches."""
     import hashlib
     digest = hashlib.sha256()
