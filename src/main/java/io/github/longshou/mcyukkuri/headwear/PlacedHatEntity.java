@@ -116,6 +116,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Riders pressed on by others, and for how many ticks running; bodies squeezed off, and the tick from which contact may
      *  seat them here again. Transient: not saved, bounded by the riders and the cooldown. */
     private final Map<UUID, Integer> crowding = new HashMap<>();
+    private int clampedShoves;
     private final Map<UUID, Long> reseat = new HashMap<>();
     /** The stick this hat keeps for its owner (HatCustody's kit while worn); one place at a time. */
     private ItemStack kit = ItemStack.EMPTY;
@@ -662,7 +663,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      */
     private void squeeze() {
         var held = behavior().obstacles(this);
-        if (upsideDown() || !crowded(held)) { if (!crowding.isEmpty()) crowding.clear(); return; }
+        if (upsideDown() || !crowded(held)) { crowding.clear(); clampedShoves = 0; return; }
         var lifted = new HashSet<YukkuriEntity>();
         for (var carrier : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(2)))
             if (carrier.motor().current() instanceof Grab grab) lifted.add(grab.target());
@@ -680,13 +681,15 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         for(int i=0;i<feet.size();i++)footprints.put(Squeeze.disc(feet.get(i)),shape(bodies.get(i)));
         Squeeze.Contact contact = (a,b,dx,dz) -> {
             var body=footprints.get(a); var other=footprints.get(b);
-            double y=dx==0&&dz==0?a.bottom():support(new Vec3(a.x()+dx,a.bottom(),a.z()+dz),body).orElse(a.bottom());
+            double y=support(new Vec3(a.x()+dx,a.bottom(),a.z()+dz),body).orElse(a.bottom());
             return other==null ? body.overlaps(a.x()+dx,y,a.z()+dz,b,ROOM_SLACK)
                     : body.overlaps(a.x()+dx,y,a.z()+dz,other,b.x(),b.bottom(),b.z(),ROOM_SLACK);
         };
         var pose = frame();
         var down = pose.toLocal(position().add(0, -1, 0)).scale(unit);
         var moves = Squeeze.separate(feet, held, ROOM_SLACK, down.x, down.z, contact);
+        int clamped = 0;
+        for (var move : moves) clamped += (int) move[3];
         boolean[] atRim = new boolean[bodies.size()];
         var walls = new ArrayList<>(held);
         for (int i = 0; i < bodies.size(); i++) if (toRim(feet.get(i), moves[i], bodies.get(i))) {
@@ -699,6 +702,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             var free = new ArrayList<Squeeze.Body>();
             for (int i = 0; i < bodies.size(); i++) if (!atRim[i]) free.add(feet.get(i));
             var again = Squeeze.separate(free, walls, ROOM_SLACK, down.x, down.z, contact);
+            for (var move : again) clamped += (int) move[3];
             for (int i = 0, k = 0; i < bodies.size(); i++) if (!atRim[i]) {
                 moves[i][0] = again[k][0];
                 moves[i][1] = again[k++][1];
@@ -724,9 +728,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             riders.put(y.getUUID(), snapped(new Vec3(from.x + moves[i][0], from.y, from.z + moves[i][1]), y), spot.yaw());
         }
         crowding.keySet().retainAll(pressed);
+        if (clamped != clampedShoves) GameplayLog.limited(this, "hat", "squeeze_clamp", 100,
+                "squeeze clamp zeroed={} previous={} riders={} held={}", clamped, clampedShoves, bodies.size(), held.size());
+        clampedShoves = clamped;
         if (most != null || !pressed.isEmpty()) GameplayLog.limited(this, "hat", "squeeze", 100,
-                "squeeze pressed={} most={} step={} riders={} held={} tilt={}/{}", pressed.size(), most == null ? "none" : most.getUUID(),
-                String.format(Locale.ROOT, "%.3f", mostStep), bodies.size(), held.size(), roll(), pitch());
+                "squeeze pressed={} most={} step={} riders={} held={} tilt={}/{} clamped={}", pressed.size(), most == null ? "none" : most.getUUID(),
+                String.format(Locale.ROOT, "%.3f", mostStep), bodies.size(), held.size(), roll(), pitch(), clamped);
     }
     /** A move that would take this foot off the hat: shortened to the farthest point its foot still touches it (false), or, with
      *  no way left toward it, the body is at the rim (true). Moves that stay on the hat are left alone (false). */

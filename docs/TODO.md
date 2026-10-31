@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 满盆挤压复查修复 | `.worktrees/squeeze-followup` | `motor/geom/Squeeze.java`、`headwear/PlacedHatEntity.java`、`family/LiveBirth.java`、`SqueezeTest` |
 | 家庭整队下水阻塞 | `.worktrees/set-out` | `aquatic/` 整队下水与登船、`scripts/museum_scenarios.py` 对应场景、相关纯函数测试 |
 
 ## 玩法待办

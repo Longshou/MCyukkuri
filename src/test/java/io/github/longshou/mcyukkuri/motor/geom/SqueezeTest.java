@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import io.github.longshou.mcyukkuri.family.BirthMotion;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +65,72 @@ class SqueezeTest {
                 List.of(new Disc(-1.5,0,1),new Disc(1.15,0,.1)),SLACK,0,0)[0];
         assertEquals(.07,move[0],.0001,"the left obstacle pushes right only as far as the right obstacle permits");
         assertEquals(0,move[1]);
+    }
+
+    @Test void shallowContactKeepsPreBasinFixPressureAndTwentyTickSqueezeOff() {
+        var rider = new Squeeze.Body(0,0,.8,1,.1);
+        var neighbour = new Squeeze.Body(1,0,.8,1,.1);
+        var food = new Disc(.4,0,.1);
+        int fixedTicks = 0, pairTicks = 0;
+        // A rider held at the rim cannot move: before b6b517061 the pressure depth was the circle overlap.
+        for (int tick=1; tick<=20; tick++) {
+            var fixed = Squeeze.separate(List.of(rider),List.of(food),0,0,0,
+                    (a,b,dx,dz)->Math.hypot(a.x()+dx-b.x(),a.z()+dz-b.z())<.405)[0];
+            var pair = Squeeze.separate(List.of(rider,neighbour),List.of(),0,0,0,
+                    (a,b,dx,dz)->Math.hypot(a.x()+dx-b.x(),a.z()+dz-b.z())<1.005);
+            assertEquals(rider.r()+food.r()-.4,fixed[2],1e-12);
+            assertEquals(rider.r()+neighbour.r()-1,pair[0][2],1e-12);
+            assertEquals(pair[0][2],pair[1][2]);
+            assertTrue(Math.abs(fixed[0])<.002 && Math.abs(pair[0][0])<.001);
+            if (fixed[2]>.1*rider.r()) fixedTicks++;
+            if (pair[0][2]>.1*rider.r()) pairTicks++;
+            assertEquals(tick==20,fixedTicks>=20);
+            assertEquals(tick==20,pairTicks>=20);
+        }
+    }
+
+    @Test void supportedZeroBaselineDoesNotInventANewObstacleFromStaleHeight() {
+        var fixed = List.of(new Disc(-1.5,0,1,0,2),new Disc(1,0,.1,0,2));
+        Squeeze.Contact supported = (a,b,dx,dz) -> {
+            double y = 0; // Current support, including dx=dz=0; the stored bottom is .8.
+            return b.x()<0 ? a.x()+dx<.48 : y<.5 && a.x()+dx>-.01;
+        };
+        var move = Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1,.8,1.8)),fixed,SLACK,0,0,supported)[0];
+        assertTrue(move[0]>.1,"the already touching right obstacle must not zero the left shove");
+        assertEquals(0,move[3]);
+    }
+
+    @Test void clampSkipsUnreachableDiscsAndZeroShoves() {
+        Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1,0,1)),
+                List.of(new Disc(20,0,1,0,1),new Disc(0,0,1,3,4)),0,0,0,
+                (a,b,dx,dz)->{throw new AssertionError("broad phase must reject this disc");});
+        int[] calls = {0};
+        Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,0)),List.of(new Disc(1,0,1)),0,0,0,
+                (a,b,dx,dz)->{calls[0]++;return Math.abs(a.x()+dx-b.x())<2;});
+        assertEquals(13,calls[0],"one baseline and twelve depth tests; no clamp work for zero displacement");
+    }
+
+    @Test void zeroedShoveIsReportedWithoutChangingPressure() {
+        var move = Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1)),
+                List.of(new Disc(-1.5,0,1),new Disc(1.08000001,0,.1)),SLACK,0,0)[0];
+        assertEquals(0,move[0]);
+        assertEquals(.48,move[2],1e-12);
+        assertEquals(1,move[3]);
+    }
+
+    @Test void firstSeenRiderInitializesMotionAndRealSlidesStillHoldLabor() {
+        var motion = new BirthMotion();
+        var host = new Object();
+        var at = new Vec(2,.5,-3);
+        assertEquals(0,motion.sample(host,null));
+        assertEquals(0,motion.sample(host,at));
+        assertEquals(0,motion.sample(host,at));
+        assertTrue(motion.sample(host,at.add(new Vec(.03,0,0)))>.0004);
+        assertEquals(0,motion.sample(host,null));
+        assertEquals(0,motion.sample(host,at));
+        assertEquals(0,motion.sample(null,new Vec(100,60,100)),"dismount changes the coordinate frame");
+        assertTrue(motion.sample(null,new Vec(100,60.03,100))>.0004);
+        assertEquals(0,motion.sample(new Object(),at));
     }
 
     @Test void aCappedYielderKeepsThePairsMassRatio() {

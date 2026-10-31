@@ -28,7 +28,7 @@ public final class Squeeze {
         return ar + br - slack - Math.hypot(bx - ax, bz - az) > TOUCH;
     }
 
-    /** How far each body moves to part from the others, {@code {x, z, deepest}}: the move and the deepest overlap before moving; {@code downX, downZ}
+    /** How far each body moves to part from the others, {@code {x, z, deepest, clamped}}: move, deepest circle overlap, and 1 when a fixed obstacle zeroed the shove; {@code downX, downZ}
      *  is the floor's downhill direction, so its lower body yields more. */
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ) {
         return separate(bodies, fixed, slack, downX, downZ, (a,b,dx,dz) -> Disc.level(a.bottom(),a.top(),b.bottom(),b.top())
@@ -38,7 +38,7 @@ public final class Squeeze {
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ,
                                       Contact contact) {
         int n = bodies.size();
-        double[][] out = new double[n][3];
+        double[][] out = new double[n][4];
         for (int i = 0; i < n; i++) {
             var a = bodies.get(i);
             for (int j = i + 1; j < n; j++) {
@@ -48,9 +48,9 @@ public final class Squeeze {
                 if (depth <= TOUCH) continue;
                 if (!contact.test(disc(a), disc(b), 0, 0)) continue;
                 double angle = (i * n + j) * GOLDEN, nx = d > 1e-6 ? dx / d : Math.cos(angle), nz = d > 1e-6 ? dz / d : Math.sin(angle);
-                depth = depth(disc(a), disc(b), depth, -nx, -nz, contact);
                 out[i][2] = Math.max(out[i][2], depth);
                 out[j][2] = Math.max(out[j][2], depth);
+                depth = depth(disc(a), disc(b), depth, -nx, -nz, contact);
                 // b lies downhill of a when the normal points down the slope: a presses on it from above
                 double down = nx * downX + nz * downZ, ma = a.mass() * (1 + down), mb = b.mass() * (1 - down), total = ma + mb;
                 double yieldA = total <= 0 ? .5 : mb / total, apart = depth * GENTLE;
@@ -68,8 +68,8 @@ public final class Squeeze {
                 if (!contact.test(disc(a), c, 0, 0)) continue;
                 double down = Math.hypot(downX, downZ);
                 double nx = d > 1e-6 ? dx / d : down > 1e-6 ? downX / down : 1, nz = d > 1e-6 ? dz / d : down > 1e-6 ? downZ / down : 0;
-                depth = depth(disc(a), c, depth, nx, nz, contact);
                 out[i][2] = Math.max(out[i][2], depth);
+                depth = depth(disc(a), c, depth, nx, nz, contact);
                 out[i][0] += nx * Math.min(depth * GENTLE, a.step());
                 out[i][1] += nz * Math.min(depth * GENTLE, a.step());
             }
@@ -77,13 +77,18 @@ public final class Squeeze {
         for (int i = 0; i < n; i++) {
             // The summed shove cannot pass into a fixed obstacle that was clear before the move.
             var a = disc(bodies.get(i));
-            for (var c : fixed) if (!contact.test(a,c,0,0) && contact.test(a,c,out[i][0],out[i][1])) {
+            for (var c : fixed) {
+                double shove = Math.hypot(out[i][0], out[i][1]);
+                if (shove == 0) break;
+                if (!Disc.level(a.bottom(),a.top(),c.bottom(),c.top()) || Math.hypot(a.x()-c.x(),a.z()-c.z()) >= a.r()+c.r()+shove) continue;
+                if (contact.test(a,c,0,0) || !contact.test(a,c,out[i][0],out[i][1])) continue;
                 double inside=0,outside=1;
                 for (int k=0;k<12;k++) {
                     double mid=(inside+outside)/2;
                     if (contact.test(a,c,out[i][0]*mid,out[i][1]*mid)) outside=mid; else inside=mid;
                 }
                 out[i][0]*=inside;out[i][1]*=inside;
+                if (inside == 0) out[i][3] = 1;
             }
             double length = Math.hypot(out[i][0], out[i][1]), step = bodies.get(i).step();
             if (length > step) { out[i][0] *= step / length; out[i][1] *= step / length; }

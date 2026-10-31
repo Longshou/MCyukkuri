@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -100,7 +101,7 @@ final class LiveBirth extends Choreography {
     private long exitUntil,qualificationTick=-1;
     private boolean qualification;
     private int qualificationMisses;
-    private Vec3 last;
+    private final BirthMotion motion = new BirthMotion();
     private String hold="";
     private String rejection="";
     LiveBirth(FamilyLife o,UUID broodId,boolean live){super(live?"live_birth":"stem_birth","site");this.o=o;this.broodId=broodId;this.live=live;}
@@ -236,7 +237,10 @@ final class LiveBirth extends Choreography {
     }
     private String advance(FamilyData.Brood b){
         // Read the host's authoritative spot in blocks: vanilla refreshes her world position after her own tick.
-        var m=o.entity();Vec3 was=last;last=m.getVehicle() instanceof SurfaceHost host?host.riders().local(m.getUUID()).scale(host.frame().unit()):m.position();
+        var m=o.entity();Vec3 sample=m.position();
+        if(m.getVehicle() instanceof SurfaceHost host)
+            sample=host.riders().contains(m.getUUID())?host.riders().local(m.getUUID()).scale(host.frame().unit()):null;
+        double moved=motion.sample(m.getVehicle(),sample==null?null:new Vec(sample.x,sample.y,sample.z));
         boolean sited=!"site".equals(beat());
         if(!live){
             if(b.elapsed>=b.duration-200&&BEFORE_HAT.contains(beat())&&sited)return "waiting_for_catcher";
@@ -255,7 +259,7 @@ final class LiveBirth extends Choreography {
         if(b.elapsed<b.duration)return o.gestate(b,sited);
         if(!"push".equals(beat()))return BEFORE_HAT.contains(beat())?"waiting_for_catcher":beat().startsWith("exit")?rejection.isEmpty()?"turning_to_exit":rejection:"";
         if(!o.readyForDelivery())return "mother_not_ready";
-        if(was!=null&&was.distanceToSqr(last)>.0004)return "mother_moving";
+        if(moved>.0004)return "mother_moving";
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
         var hat=receiverHat();

@@ -173,7 +173,7 @@ class HullProfileTest {
                 var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
                 for(int tick=0;tick<400;tick++){
                     var move=Squeeze.separate(List.of(new Squeeze.Body(x,z,body.radius(),1,.06/unit,y,y+body.height())),food,.02,0,0,
-                            (a,b,dx,dz)->body.overlaps(a.x()+dx,dx==0&&dz==0?a.bottom():hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,.02))[0];
+                            (a,b,dx,dz)->body.overlaps(a.x()+dx,hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,.02))[0];
                     double nextY=Math.hypot(move[0],move[1])<1e-6?y:hull.support(x+move[0],z+move[1],body);
                     double moved=unit*Math.sqrt(move[0]*move[0]+move[1]*move[1]+(nextY-y)*(nextY-y));
                     max=Math.max(max,moved);
