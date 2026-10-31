@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 家庭登船评审修复 | `.worktrees/set-out-followup` | `Hop`、`Ferry`、`Motor`、`Buoyancy`、纯函数测试、`museum_scenarios.py`、本待办 |
 
 ## 玩法待办
 
