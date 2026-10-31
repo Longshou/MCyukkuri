@@ -51,7 +51,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -198,7 +197,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public float tiltRate() { return Math.max(Math.abs(Mth.wrapDegrees(roll() - rollO)), Math.abs(Mth.wrapDegrees(pitch() - pitchO))); }
     /** All support, room and movement use the same body-only columns in hat units. */
     private BodyFootprint shape(YukkuriEntity body) {
-        return BodyFootprint.of(body.assetId(),body.getBbWidth()/unit(),tallOf(body),Math.toRadians(body.yBodyRot-getYRot()));
+        return shape(body,body.yBodyRot);
+    }
+    private BodyFootprint shape(YukkuriEntity body,float yaw) {
+        return BodyFootprint.of(body.assetId(),body.getBbWidth()/unit(),tallOf(body),Math.toRadians(yaw-getYRot()));
     }
     @Override public OptionalDouble support(Vec3 local, double r) {
         double y=upsideDown()?Double.NaN:profile().footprint(local.x,local.z,r/unit());
@@ -213,6 +215,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
         var shape = shape(body);
         return clear(shape, local, body, Math.max(0, top-local.y-tallOf(body)));
+    }
+    /** Room after one body reaches a proposed stand; uses the same shaped overlap as actual riders. */
+    public boolean room(BodyFootprint body,Vec3 at,YukkuriEntity mover,Vec3 stand,float yaw){
+        var p=frame().toLocal(stand);
+        return clear(body,at,mover,0)&&!body.overlaps(at.x,at.y,at.z,shape(mover,yaw),p.x,p.y,p.z,ROOM_SLACK);
     }
     private boolean clear(BodyFootprint body, Vec3 at, Entity except, double rise) {
         for (var other : getPassengers()) if (other != except && other instanceof YukkuriEntity y) {
@@ -387,58 +394,28 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** The supported, free spot near {@code prefer} for a body of this foot radius and height (hat units); nothing is kept
      *  (no second store). */
-    private Vec3 nestPlace(BodyFootprint body, Vec3 prefer) {
+    private Vec3 nestPlace(BodyFootprint body, Vec3 prefer, Entity except) {
         if (prefer == null) return null;
         var height = support(prefer,body);
         if(height.isEmpty())return null;
         var spot = new Vec3(prefer.x,height.getAsDouble(),prefer.z);
-        return clear(body,spot,null,0) ? spot : null;
-    }
-    /** The first free supported place on the hat, or null; a place is asked for, never kept (no seats, no leases). */
-    private Vec3 nestSpace(double footRadius, BodyFootprint body) {
-        var centre = spots().get("centre");
-        if (centre == null) return null;
-        var middle = nestPlace(body, centre);
-        if (middle != null) return middle;
-        // Rings out from the middle, a foot radius apart: a body standing over the middle leaves the nearest free floor or brim spot.
-        double reach = Math.hypot(profile().brim()[0], profile().brim()[1]);
-        for (double ring = footRadius; ring <= reach; ring += footRadius) {
-            int around = Math.max(8, (int) Math.ceil(2 * Math.PI * ring / footRadius));
-            for (int i = 0; i < around; i++) {
-                double angle = i * 2 * Math.PI / around;
-                var place = nestPlace(body, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
-                if (place != null) return place;
-            }
-        }
-        return null;
-    }
-    /** How far ahead of the outlet (blocks, along the push) a birth into a boat aims its hollow place, so the drawn push carries
-     *  a newborn short of it, onto it, or past the brim (project design). */
-    public static final double BIRTH_LEAD = .2;
-    /** The place this young would get next, without keeping it: the aim of its drawn launch. A cradle fills from its middle; a
-     *  boat its mother rides takes it at the free hollow place nearest {@link #BIRTH_LEAD} ahead of where it comes out. */
-    public Vec3 birthPlace(YukkuriEntity child) {
-        if (child == null) return null;
-        if (catches()) return nestSpace(footOf(child), shape(child));
-        var near = toLocal(child.position().add(Vec3.directionFromRotation(0, child.getYRot()).multiply(1, 0, 1).normalize().scale(BIRTH_LEAD)));
-        return hollow(footOf(child), shape(child), child.getBbWidth()).stream()
-                .min(Comparator.comparingDouble(p -> Math.hypot(p.x - near.x, p.z - near.z))).orElse(null);
+        return clear(body,spot,except,0) ? spot : null;
     }
     /** Every free supported place inside the hollow (world) for an unborn child of this size: where a birth into the boat its
      *  mother rides may aim; asked for, never kept. */
-    public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
+    public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child, Entity except) {
         if (level().isClientSide) return List.of();
         var size = LiveBirthGeometry.unbornDimensions(kind, child);
-        return hollow(Occupancy.foot(size.width()) / unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0), size.width()).stream().map(this::toWorld).toList();
+        return hollow(Occupancy.foot(size.width()) / unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0), size.width(),except).stream().map(frame()::toWorld).toList();
     }
     /** The free places (hat units) inside the hollow, INSIDE_SUPPORTED and clear at their height, a foot apart. */
-    private List<Vec3> hollow(double foot, BodyFootprint body, double width) {
+    private List<Vec3> hollow(double foot, BodyFootprint body, double width, Entity except) {
         float[] o = profile().opening();
         double step = Math.max(.5, foot);
         var out = new ArrayList<Vec3>();
         for (double x = o[0] + foot; x <= o[1] - foot; x += step)
             for (double z = o[2] + foot; z <= o[3] - foot; z += step) {
-                var place = nestPlace(body, new Vec3(x, 0, z));
+                var place = nestPlace(body, new Vec3(x, 0, z),except);
                 if (place != null && Occupancy.at(container(), frame().toWorld(place), width, true) == Occupancy.INSIDE_SUPPORTED) out.add(place);
             }
         return out;
@@ -465,13 +442,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Physical boarding authority: the birth family of the owner. A cradle grants no other relation. */
     public boolean admits(YukkuriEntity child) { return child != null && !child.family().adult() && young(child); }
     public int youngAboard() { return (int) getPassengers().stream().filter(p -> !p.getUUID().equals(ownerYukkuri())).count(); }
-    /** The supported free place an unborn child of this size (foot radius and height) would get now (world), or null: an aim,
-     *  never kept. */
-    public Vec3 birthPlace(FamilyData.BirthKind kind,FamilyData.Child child) {
-        var size = LiveBirthGeometry.unbornDimensions(kind,child);
-        var place = catches() && !level().isClientSide ? nestSpace(Occupancy.foot(size.width())/unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0)) : null;
-        return place == null ? null : toWorld(place);
-    }
     @Override protected void addPassenger(Entity passenger) {
         super.addPassenger(passenger);
         if (level().isClientSide || !(passenger instanceof YukkuriEntity y)) return;

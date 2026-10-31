@@ -31,6 +31,14 @@ public final class Ballistic {
         return dx*(1-AIR_DRAG)/(1-Math.pow(AIR_DRAG,n));
     }
 
+    /** A nominal push along a unit horizontal heading, reaching the aim's height/distance in ticks; no backward target. */
+    public static Vec forward(Vec delta,Vec heading,int ticks){
+        if(delta.x()*heading.x()+delta.z()*heading.z()<=0)return null;
+        double sum=(1-Math.pow(VERTICAL_DRAG,ticks))/(1-VERTICAL_DRAG),fall=GRAVITY*VERTICAL_DRAG/(1-VERTICAL_DRAG);
+        double lift=(delta.y()+fall*(ticks-sum))/sum,speed=speedFor(delta.hlen(),ticks);
+        return new Vec(heading.x()*speed,lift,heading.z()*speed);
+    }
+
     /** Per-tick positions from the origin for launch velocity {@code v0} over {@code n} ticks, start included, landing interpolated. */
     public static List<Vec> samples(Vec v0,double n){
         var out=new ArrayList<Vec>();

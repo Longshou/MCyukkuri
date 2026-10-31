@@ -3,6 +3,10 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
+import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.ContactResolver;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import java.util.UUID;
@@ -33,8 +37,6 @@ public final class BirthLaunch {
     static final double GROUND_REACH=.35;
     /** Stem fruit toss: horizontal speed = clamp(STEM_MEDIAN * exp(N(0, STEM_SIGMA)), 0, STEM_MAX) in a random direction, then a gentle fall. 项目设计 */
     static final double STEM_MEDIAN=.012, STEM_SIGMA=.9, STEM_MAX=.06, STEM_DROP=-.015;
-    /** Vanilla gravity and drag the launch is solved against (LivingEntity: y = (y - .08) * .98, horizontal * .91 in the air). */
-    private static final double GRAVITY=.08, VERTICAL_DRAG=.98, AIR_DRAG=.91;
     /** The longest aim any birth launch is given: a catching hat's catchment reach, the same 1.25 blocks a hat zone is chosen within. */
     private static final double MAX_AIM=1.25;
     /** Highest hat target above the launch point the arc lift is bounded for (blocks). */
@@ -97,15 +99,9 @@ public final class BirthLaunch {
     }
     static double push(RandomSource random){return Mth.clamp(Math.exp(PUSH_LOG_MEAN+random.nextGaussian()*PUSH_LOG_SIGMA),PUSH_MIN,PUSH_MAX);}
     static double yaw(RandomSource random){return Mth.clamp(random.nextGaussian()*YAW_SIGMA,-YAW_MAX,YAW_MAX);}
-    /** Ticks a body launched upward at {@code vy} spends in the air before it is back at its launch height. */
-    static int airTicks(double vy){
-        double y=0,v=vy;int n=0;
-        do{y+=v;v=(v-GRAVITY)*VERTICAL_DRAG;n++;}while(y>0&&n<80);
-        return n;
-    }
     /** Horizontal launch speed that covers {@code distance} in the air against vanilla air drag. */
     static double speedFor(double distance,double vy){
-        return distance*(1-AIR_DRAG)/(1-Math.pow(AIR_DRAG,airTicks(vy)));
+        return Ballistic.speedFor(distance,Math.ceil(Ballistic.airTicks(vy,0)));
     }
     /** The first impulse of a push out of the outlet toward {@code direction} (unit, horizontal) for a planned reach. */
     private static Vec3 impulse(RandomSource random,Vec3 direction,double distance,double push,double yawDeg){
@@ -149,25 +145,48 @@ public final class BirthLaunch {
         var velocity=new Vec3(Math.cos(angle)*speed,STEM_DROP,Math.sin(angle)*speed);
         return new Plan(target,null,start,start,Double.NaN,speed,1,0,velocity);
     }
-    /**
-     * A live kit pushed out toward a hat: the authored nominal arc keeps its own lift (its first impulse over the tick count the
-     * hull's clearance solve asks for), and the horizontal speed is what vanilla air drag needs to cover the aim in the same air
-     * time (an aim never crossed while falling keeps the arc's own duration). It leaves along the mother's real facing
-     * ({@code facing}, her outlet's direction), never bent toward the aim: an outlet that points past the hat sends it past.
-     * The drawn push scales and the drawn yaw turns only the horizontal part; nothing here moves the body.
-     */
-    static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Vec3 aim,float facing,double push,double yawDeg){
-        var start=kit.position();
-        int nominalTicks=HatGeometry.solve(start,aim,hat,HatGeometry.radius(kit.getBbWidth()),Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS));
-        double lift=HatGeometry.arc(start,aim,nominalTicks,1).y-start.y,dx=Math.hypot(aim.x-start.x,aim.z-start.z);
-        double air=Ballistic.airTicks(lift,aim.y-start.y);
-        // The scan limit is what airTicks reports when the fall never passes the aim; the nominal arc's duration is then honest.
-        if(air<=0||air>=Ballistic.airTicks(lift,-Double.MAX_VALUE))air=nominalTicks;
-        air=Math.max(1,air);
-        double nominal=Ballistic.speedFor(dx,air);
-        var heading=Vec3.directionFromRotation(0,facing).multiply(1,0,1).normalize().yRot((float)Math.toRadians(yawDeg));
-        double vh=nominal*push;
-        return new Plan(Target.HAT,hat.getUUID(),start,aim,Double.NaN,nominal,push,yawDeg,new Vec3(heading.x*vh,lift,heading.z*vh));
+    /** The deterministic arc selected before pushing; only its horizontal impulse is randomized at release. */
+    record Nominal(Vec3 aim,Vec3 velocity,int ticks) {}
+    static Nominal forward(Vec3 start,Vec3 aim,float yaw,int ticks){
+        var d=aim.subtract(start);var h=Vec3.directionFromRotation(0,yaw);
+        var v=Ballistic.forward(new Vec(d.x,d.y,d.z),new Vec(h.x,0,h.z),ticks);
+        return v==null?null:new Nominal(aim,new Vec3(v.x(),v.y(),v.z()),ticks);
+    }
+    /** Real room at the predicted first contact, with the mother's proposed stand replacing her old spot. */
+    static boolean room(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,float yaw,Vec3 at){
+        var size=LiveBirthGeometry.childDimensions(child,mother.getScale());var local=hat.frame().toLocal(at);
+        var body=BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/hat.unit(),size.height()/hat.unit(),Math.toRadians(yaw-hat.getYRot()));
+        return hat.room(body,local,mother,stand,yaw);
+    }
+    /** Qualifies the same discrete forward arc and worn envelope that Launch will execute, without a random draw. */
+    static Nominal qualify(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,Vec3 start,float yaw,Vec3 aim){
+        if(start.subtract(aim).horizontalDistance()>MAX_AIM||!room(mother,child,hat,stand,yaw,aim))return null;
+        for(int ticks=Math.max(HatGeometry.TMIN,LiveBirthGeometry.CATCH_ARC_TICKS);ticks<=HatGeometry.TMAX;ticks++){
+            var plan=forward(start,aim,yaw,ticks);if(plan==null)return null;
+            if(catches(mother,child,hat,stand,start,yaw,plan))return plan;
+        }
+        return null;
+    }
+    static boolean catches(YukkuriEntity mother,FamilyData.Child child,PlacedHatEntity hat,Vec3 stand,Vec3 start,float yaw,Nominal plan){
+        var v=plan.velocity();var path=Ballistic.samples(new Vec(v.x,v.y,v.z),plan.ticks()+1);Vec3 previous=start;
+        for(int i=1;i<path.size();i++){
+            var p=path.get(i);var next=start.add(p.x(),p.y(),p.z());
+            var hit=ContactResolver.crossing(hat,previous,next,feet->ContactResolver.surface(hat,feet,LiveBirthGeometry.childEnvelope(child,mother.getScale(),feet,yaw)));
+            var contact=hit==null?next:hat.frame().toWorld(new Vec3(hit.point().x(),hit.point().y(),hit.point().z()));
+            for(var box:LiveBirthGeometry.childEnvelope(child,mother.getScale(),previous,yaw))
+                if(mother.level().getBlockCollisions(mother,box.expandTowards(contact.subtract(previous))).iterator().hasNext())return false;
+            if(hit!=null){
+                var q=hit.point();
+                return !hit.wall()&&hat.profile().inOpening(q.x(),q.z())&&hat.support(new Vec3(q.x(),q.y(),q.z()),0).isPresent()
+                        &&room(mother,child,hat,stand,yaw,contact);
+            }
+            previous=next;
+        }
+        return false;
+    }
+    static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Nominal plan,double push,double yawDeg){
+        var v=plan.velocity();var drawn=v.multiply(push,1,push).yRot((float)Math.toRadians(yawDeg));
+        return new Plan(Target.HAT,hat.getUUID(),kit.position(),plan.aim(),Double.NaN,v.horizontalDistance(),push,yawDeg,drawn);
     }
     /** Distance from {@code from} to the inner wall of the square nest along a horizontal unit direction. */
     static double roomAlong(Vec3 from,Vec3 centre,double half,Vec3 direction){

@@ -1874,15 +1874,22 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
               '帽里没有粮，母油不会凭空喂食；可手持苹果右击母船补粮，之后看 [intent] start id=feed_young → [action] start id=pick → feed mash prepared → feed_young handed。' + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=HAT\b',
+                                         r'\[family\][^\n]* birth delivery stage=qualified [^\n]*phase=before_emergence\b',
+                                         r'\[family\][^\n]* birth delivery stage=transition reason=push\b',
+                                         r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b',
                                          r'\[intent\][^\n]* start id=attend_mate\b'],
-                      forbid=_BOAT_SMOKE_FORBID))
+                      forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
+                                                  r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
            16, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
+                                         r'\[family\][^\n]* birth delivery stage=exit_wait [^\n]*rejection=\w+ [^\n]*delivery=0 phase=before_emergence\b',
+                                         r'\[family\][^\n]* birth delivery stage=release reason=unprotected\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],
-                      forbid=_BOAT_SMOKE_FORBID))
+                      forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
+                                                  r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))
 
 # Parents of a brood just born are in their recovery after it (FamilyLife Recovery, reproductionRecoveryTicks): not ready to breed.
 _JUST_BORN = 'Recovery:12000'

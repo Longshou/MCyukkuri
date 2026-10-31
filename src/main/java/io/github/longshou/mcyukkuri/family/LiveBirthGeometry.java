@@ -16,6 +16,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
+import java.util.List;
+import net.minecraft.world.phys.AABB;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -180,6 +184,12 @@ public final class LiveBirthGeometry {
     public static EntityDimensions childDimensions(FamilyData.Child child,float globalScale){
         return unbornDimensions(FamilyData.BirthKind.LIVE,child).scale(globalScale);
     }
+    public static List<AABB> childEnvelope(FamilyData.Child child,float scale,Vec3 feet,float yaw){
+        float growth=GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child);
+        return HatGeometry.envelope(child.variant,feet,yaw,childDimensions(child,scale).makeBoundingBox(feet),growth*scale/16,
+                HatScale.of(growth,child.subspeciesFlags)*scale/16,
+                child.variant==YukkuriVariant.MARISA?HatGeometry.wornForm(SubspeciesLife.assetId(child.variant,child.subspeciesFlags)):null);
+    }
     /** The size of one unborn body at its own birth scale and form, before the mother's render scale. */
     public static EntityDimensions unbornDimensions(FamilyData.BirthKind kind,FamilyData.Child child){
         return selectedDimensions(child.variant,child.subspeciesFlags).scale(GrowthSize.physicalBirth(kind,child));
@@ -212,13 +222,16 @@ public final class LiveBirthGeometry {
     }
     public static Vec3 position(YukkuriEntity mother,int index){return position(mother,index,mother.yBodyRot);}
     public static Vec3 position(YukkuriEntity mother,int index,float yaw){
+        return position(mother,index,mother.position(),yaw);
+    }
+    public static Vec3 position(YukkuriEntity mother,int index,Vec3 at,float yaw){
         var offset=releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
         // Match the rendered rider: hull tilt in the host's yaw frame, about the mother's feet.
         if(mother.getVehicle() instanceof PlacedHatEntity hat){
             var frame=hat.frame();
             offset=frame.toWorld(offset.yRot(-frame.yawRad()).scale(1/frame.unit())).subtract(frame.origin());
         }
-        return mother.position().add(offset);
+        return at.add(offset);
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
@@ -227,15 +240,20 @@ public final class LiveBirthGeometry {
      * an unprotected one (the safety wait ran out) gives birth onto whatever is there, never through a wall.
      */
     public static boolean clear(YukkuriEntity mother,int index,float yaw,boolean unprotected){
+        return clear(mother,index,mother.position(),yaw,unprotected);
+    }
+    public static boolean clear(YukkuriEntity mother,int index,Vec3 at,float yaw,boolean unprotected){
         var brood=mother.family().brood();
         if(!(mother.level() instanceof ServerLevel level)||brood==null||index<0||index>=brood.children.size())return false;
-        var position=position(mother,index,yaw);
+        var position=position(mother,index,at,yaw);
         var dimensions=childDimensions(brood.children.get(index),mother.getScale());
         var box=dimensions.makeBoundingBox(position);
-        var origin=mother.position().add(0,Math.max(.05,position.y-mother.getY()),0);
+        var origin=at.add(0,Math.max(.05,position.y-at.y),0);
         if(!level.hasChunkAt(BlockPos.containing(position))||!level.getWorldBorder().isWithinBounds(box)
                 ||level.getBlockCollisions(mother,box).iterator().hasNext()
                 ||level.clip(new ClipContext(origin,position,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()!=HitResult.Type.MISS)return false;
+        for(var part:childEnvelope(brood.children.get(index),mother.getScale(),position,yaw))
+            if(level.getBlockCollisions(mother,part).iterator().hasNext())return false;
         if(unprotected)return true;
         if(!level.noCollision(mother,box)||level.containsAnyLiquid(box)||!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),
                 other->other!=mother&&other.isAlive()&&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;

@@ -28,15 +28,14 @@ public final class HatGeometry {
     /** Species integration hook: choose the form of the worn hat from the owner's synced identity. */
     public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(owner.subspeciesKind().aquatic()
             ?owner.subspeciesKind().hullForm():DATA.getAsJsonObject("forms").get(owner.assetId()).getAsString());}
+    public static HullProfile wornForm(String assetId){return HullProfile.of(DATA.getAsJsonObject("forms").get(assetId).getAsString());}
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     public enum Role { HELPER, SELF }
     private static final float[] ANCHOR=floats(DATA.getAsJsonArray("anchor_worn"));
     private static final JsonObject DELIVERY=DATA.getAsJsonObject("delivery");
-    /** Minecraft's gravity in model units per tick squared; the fewest and most ticks of a flight; clearance over the brim. */
-    public static final double GRAVITY=num("gravity"), CLEAR=num("clear"), MAX_SPEED=num("max_speed");
+    /** Authored gravity and speed bound in model units; the fewest and most ticks of a flight. */
+    public static final double GRAVITY=num("gravity"), MAX_SPEED=num("max_speed");
     public static final int TMIN=(int)num("tmin"), TMAX=(int)num("tmax");
-    /** A young's round body (radius, part of its collision width); how close a landing must be to its place to settle. */
-    private static final double YOUNG_RADIUS=num("young_radius");
     private static double num(String key){return DELIVERY.get(key).getAsDouble();}
     private static float[] floats(JsonArray a){float[] out=new float[a.size()];for(int i=0;i<out.length;i++)out[i]=a.get(i).getAsFloat();return out;}
     /** The worn hat's seat on the head: the larger aquatic hat scales about it. */
@@ -77,31 +76,6 @@ public final class HatGeometry {
         return new Placement(offset,yaw,p.getAsJsonObject("hat_in_mother").get("yaw").getAsFloat(),p.get("gap").getAsDouble());
     }
 
-    public static double radius(double width){return YOUNG_RADIUS*width;}
-    // ---------------------------------------------------------------- flights (world, blocks)
-    /** Minecraft gravity between two points reached in T ticks: straight across, a parabola up and down. */
-    public static Vec3 arc(Vec3 a,Vec3 b,double T,double t){return a.lerp(b,Math.clamp(t/T,0,1)).add(0,GRAVITY/16/2*t*Math.max(0,T-t),0);}
-    /** The fewest ticks (from tmin, and no faster across than MAX_SPEED) for which a body of radius r (blocks) flying
-     *  from a to b keeps clear above the hat: over the brim and the ledge by CLEAR, never below the surface it takes off
-     *  from or lands on: the whole body over any part higher than both ends, its centre over the rest. */
-    public static int solve(Vec3 a,Vec3 b,PlacedHatEntity hat,double r,int tmin){
-        var profile=hat.profile();double rr=r/hat.unit();var la=hat.toLocal(a);var lb=hat.toLocal(b);
-        tmin=Math.max(tmin,(int)Math.ceil(Math.hypot(b.x-a.x,b.z-a.z)/(MAX_SPEED/16)));
-        double ea=profile.footprint(la.x,la.z,rr),eb=profile.footprint(lb.x,lb.z,rr);
-        double top=Double.isNaN(ea)?eb:Double.isNaN(eb)?ea:Math.max(ea,eb);
-        for(int T=tmin;T<=TMAX;T++){
-            boolean ok=true;
-            for(int i=1;i<4*T&&ok;i++){
-                var p=hat.toLocal(arc(a,b,T,i/4.0));double h=profile.footprint(p.x,p.z,rr),need;
-                if(Double.isNaN(h))continue;
-                if(Double.isNaN(top)||h>top+1e-6)need=h+CLEAR;  // a brim or ledge higher than both ends: the whole body over it
-                else{need=profile.surface(p.x,p.z);if(Double.isNaN(need))continue;}  // stepping off the ledge, or onto it: what is under it
-                if(p.y<need-1e-6)ok=false;
-            }
-            if(ok)return T;
-        }
-        return TMAX;
-    }
     // ---------------------------------------------------------------- the catch (world, blocks)
     /** A hat set down to catch: where, facing (entity yaw), and who set it. */
     public record Pose(Vec3 at,float yaw,Role role,HullProfile profile){}
@@ -130,7 +104,7 @@ public final class HatGeometry {
             return stand(ahead,catcher).at().distanceToSqr(at)>=stand(behind,catcher).at().distanceToSqr(at)?ahead:behind;
         }
         int next=0;while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
-        double r=radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
+        double r=num("young_radius")*LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width();
         var outlet=LiveBirthGeometry.position(mother,next,yaw).subtract(mother.position()).add(at);
         return new Pose(flat(outlet.add(forward.scale(r+place.gap()*body+form.reach(0)*k)),at),hatYaw,role,form);
     }
@@ -192,14 +166,18 @@ public final class HatGeometry {
     /** A body's real envelope (braid_rescue.json): a Marisa's model body bounds turned to her yaw and, while she wears it, her
      *  hat's brim box; anyone else's collision box. The birth launch's first contact and its preview sweep use it. */
     public static List<AABB> envelope(YukkuriEntity y,Vec3 feet){
-        var own=y.getBoundingBox().move(feet.subtract(y.position()));
-        if(y.getVariant()!=YukkuriVariant.MARISA)return List.of(own);
-        double unit=y.growthScale()*y.getScale()/16;
+        return envelope(y.getVariant(),feet,y.yBodyRot,y.getBoundingBox().move(feet.subtract(y.position())),
+                y.growthScale()*y.getScale()/16,hatScale(y)*y.getScale()/16,
+                y.getVariant()==YukkuriVariant.MARISA&&y.life().hasAccessory()?wornForm(y):null);
+    }
+    /** Same boxes for a living body and its unborn description; previewing never creates an entity. */
+    public static List<AABB> envelope(YukkuriVariant variant,Vec3 feet,float yaw,AABB own,double unit,double hatUnit,HullProfile worn){
+        if(variant!=YukkuriVariant.MARISA)return List.of(own);
         var out=new ArrayList<AABB>(2);
-        out.add(box(feet,y.yBodyRot,vector("body_min").scale(unit),vector("body_max").scale(unit)));
-        if(y.life().hasAccessory()){
-            double k=hatScale(y)*y.getScale()/16,base=ANCHOR[1]*unit,height=BODY.get("hat_height_model_units").getAsDouble()*k;
-            out.add(box(feet,y.yBodyRot,new Vec3(-wornForm(y).brim()[0]*k,base,-wornForm(y).brim()[1]*k),new Vec3(wornForm(y).brim()[0]*k,base+height,wornForm(y).brim()[1]*k)));
+        out.add(box(feet,yaw,vector("body_min").scale(unit),vector("body_max").scale(unit)));
+        if(worn!=null){
+            double base=ANCHOR[1]*unit,height=BODY.get("hat_height_model_units").getAsDouble()*hatUnit;
+            out.add(box(feet,yaw,new Vec3(-worn.brim()[0]*hatUnit,base,-worn.brim()[1]*hatUnit),new Vec3(worn.brim()[0]*hatUnit,base+height,worn.brim()[1]*hatUnit)));
         }
         return out;
     }

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.geom.FlightContact;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
@@ -8,6 +10,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.function.ToDoubleFunction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -20,7 +23,7 @@ public final class ContactResolver {
 
     /** How far from the segment a host may be looked for (blocks). */
     private static final double SEARCH = 3;
-    /** Sample step along the segment (blocks) and how far feet may sit under a surface before it counts as inside it. */
+    /** Sample step and tolerated initial penetration when detecting a surface crossing (blocks). */
     private static final double STEP = .05, TOUCH = .05;
     /** Share of the horizontal speed left, negated, after the body hits the brim wall moving in. */
     private static final double RIM_BOUNCE = -.3;
@@ -63,37 +66,24 @@ public final class ContactResolver {
     /** Walks the segment in host-local units: a downward crossing is a contact when the middle is over the hat and the host bears it,
      *  an edge otherwise; a sideways entry below the surface is the wall. */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
-        HostFrame frame = host.frame();
-        // The height field is in hat units, so the tolerance in blocks goes in the same units.
-        double touch = TOUCH / Math.max(1E-6, frame.unit());
-        int steps = Math.max(2, (int) Math.ceil(feet.distanceTo(next) / STEP));
-        Vec3 previous = frame.toLocal(feet);
-        double previousHeight = surface(body, host, feet, envelope);
-        for (int i = 1; i <= steps; i++) {
-            double share = i / (double) steps;
-            Vec3 world = feet.lerp(next, share);
-            Vec3 local = frame.toLocal(world);
-            double height = surface(body, host, world, envelope);
-            boolean above = Double.isFinite(previousHeight) && previous.y >= previousHeight - touch;
-            boolean under = Double.isFinite(height) && local.y < height - touch;
-            if (under && above) {
-                // Interpolate the crossing inside this step, so the contact point is where the feet actually meet the hat.
-                double drop = previous.y - previousHeight, fall = height - local.y;
-                double inside = drop + fall < 1E-9 ? 1 : Math.clamp(drop / (drop + fall), 0, 1);
-                double at = (i - 1 + inside) / steps;
-                Vec3 spot = frame.toLocal(feet.lerp(next, at));
-                boolean stands = host.support(spot, 0).isPresent() && host.bears(body);
-                return new Hit(host, at, stands ? spot : null);
-            }
-            // Only coming in from beside the hat under its surface is the wall; a body already under it is left to the host.
-            if (under && !Double.isFinite(previousHeight)) return new Hit(host, share, null);
-            previous = local;
-            previousHeight = height;
+        var frame=host.frame();
+        var hit=crossing(host,feet,next,p->envelope==null?host.support(frame.toLocal(p),body).orElse(Double.NaN):surface(host,p,envelope.at(body,p)));
+        if(hit!=null){
+            var p=hit.point();var spot=new Vec3(p.x(),p.y(),p.z());
+            boolean stands=!hit.wall()&&host.support(spot,0).isPresent()&&host.bears(body);
+            return new Hit(host,hit.fraction(),stands?spot:null);
         }
         if(envelope!=null&&body.isInWater())GameplayLog.limited(body,"body","wet_host_contact",200,
                 "wet flight missed host={} from={} to={} surface={} velocity={}",host.entity().getUUID(),
-                frame.toLocal(feet),previous,previousHeight,body.getDeltaMovement());
+                frame.toLocal(feet),frame.toLocal(next),surface(host,next,envelope.at(body,next)),body.getDeltaMovement());
         return null;
+    }
+
+    /** Same segment and envelope-height crossing for real flight and an unborn child's nominal preview. */
+    public static FlightContact.Hit crossing(SurfaceHost host,Vec3 from,Vec3 to,ToDoubleFunction<Vec3> surface){
+        var frame=host.frame();var a=frame.toLocal(from);var b=frame.toLocal(to);
+        return FlightContact.first(new Vec(a.x,a.y,a.z),new Vec(b.x,b.y,b.z),STEP/frame.unit(),TOUCH/frame.unit(),
+                p->surface.applyAsDouble(frame.toWorld(new Vec3(p.x(),p.y(),p.z()))));
     }
 
     /** A body's collision boxes at a feet position: its own body and what it wears (the birth launch passes one). */
@@ -101,11 +91,10 @@ public final class ContactResolver {
     public interface Envelope { List<AABB> at(YukkuriEntity body, Vec3 feet); }
 
     /** The feet height (hat units) at which the body meets the host at {@code feet}, or NaN off it: with an envelope every box is sampled 3x3 and lifted, so a worn brim decides. */
-    private static double surface(YukkuriEntity body, SurfaceHost host, Vec3 feet, Envelope envelope) {
+    public static double surface(SurfaceHost host, Vec3 feet, List<AABB> envelope) {
         HostFrame frame = host.frame();
-        if (envelope == null) return host.support(frame.toLocal(feet), body).orElse(Double.NaN);
         double need = Double.NaN;
-        for (AABB box : envelope.at(body, feet)) for (int x = 0; x <= 2; x++) for (int z = 0; z <= 2; z++) {
+        for (AABB box : envelope) for (int x = 0; x <= 2; x++) for (int z = 0; z <= 2; z++) {
             Vec3 under = new Vec3(Mth.lerp(x / 2.0, box.minX, box.maxX), feet.y, Mth.lerp(z / 2.0, box.minZ, box.maxZ));
             double h = height(host, frame.toLocal(under), 0) - (box.minY - feet.y) / frame.unit();
             if (Double.isFinite(h) && !(h <= need)) need = h;
