@@ -21,6 +21,7 @@ public final class PresentationArbiter {
     private String lastSource;
     private int lastEntityTick;
     private long lastGameTick;
+    private String lastBirthBehavior;
     private String lastBirthClip;
 
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
@@ -41,13 +42,15 @@ public final class PresentationArbiter {
         result.publish();
         state.expression(expression());
         var e = state.owner();
-        String birthClip = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM)
-                ? e.getBehaviorId() + "/" + e.getAnimationId() : null;
-        if (birthClip != null && !birthClip.equals(lastBirthClip))
+        if (e.level().isClientSide) return;
+        String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
+        String clip = e.getAnimationId();
+        if (behavior != null && (!behavior.equals(lastBirthBehavior) || !clip.equals(lastBirthClip)))
             GameplayLog.event(e, "family", "birth presentation source={} behavior={} clip={} delivery={} animationStart={} host={}",
-                    id, e.getBehaviorId(), e.getAnimationId(), e.liveDeliveryTicks(), e.getAnimationStartTick(),
+                    id, behavior, clip, e.liveDeliveryTicks(), e.getAnimationStartTick(),
                     e.getVehicle() == null ? null : e.getVehicle().getUUID());
-        lastBirthClip = birthClip;
+        lastBirthBehavior = behavior;
+        lastBirthClip = clip;
         if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
             lastSource = id;
             lastEntityTick = state.owner().tickCount;
@@ -257,7 +260,7 @@ public final class PresentationArbiter {
                 if(start>=0&&e.getAnimationStartTick()!=start)state.animationStart(start);
             }
             // Partners sample the authoritative contraction, rescaling the shorter hat clips.
-            int phase = action == YukkuriAction.LABOR || action == YukkuriAction.BOAT_LABOR ? e.liveDeliveryTicks()
+            int phase = action == YukkuriAction.LABOR ? e.liveDeliveryTicks()
                     : (action == YukkuriAction.MIDWIFE || action == YukkuriAction.HAT_HOLD || action == YukkuriAction.HAT_HOLD_AQ)
                     && e.family().midwifeTarget() != null ? e.family().midwifeTarget().liveDeliveryTicks() : -1;
             if (phase >= 0) {

@@ -21,7 +21,7 @@ CATEGORIES = [
         ('hat_off_self','独自摘帽'),('hat_on_self','独自戴回帽子'),('hat_off_aq','水生接生摘帽'),
         ('hat_hold_aq','水生扶帽接生'),('hat_on_aq','水生接生后戴帽'),('hat_off_self_aq','水生独自摘帽'),
         ('hat_on_self_aq','水生独自戴帽'),('boat_drift','帽船漂流'),('boat_steady','帽船保持平衡'),
-        ('boat_call','船上呼喊'),('boat_brood','船上安胎'),('boat_labor','船上分娩')]),
+        ('boat_call','船上呼喊'),('boat_brood','船上安胎')]),
     ('宠物店与表情', [('think','思考'),('nervous','紧张'),('proud','得意'),('joy_jump','欢呼跳'),('sulk','闹别扭'),
         ('hide_face','躲猫猫'),('beg','贴地抬眼'),('bow','鞠躬'),('shy','害羞'),('ignore','不理会'),('restrain','忍住'),
         ('snatch_pull','咬住拽走'),('stand_ground','扎稳不退'),('offer_bite','递出一口')]),

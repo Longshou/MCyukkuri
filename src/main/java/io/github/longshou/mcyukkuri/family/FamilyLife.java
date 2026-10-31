@@ -525,13 +525,13 @@ public final class FamilyLife {
     /** Whom this body turns to for a birth greeting, or null: a waking newborn its nearest awake parent or sibling (once, before
      *  its first words), an awake supported relative with no birth role the unhurt newborn it is about to answer. */
     private YukkuriEntity greetee(){
-        if(!greetingSupported()||entity.life().isSleeping())return null;
         if(entity.firstWaking()){
             if(greetFaced)return null;
             greetFaced=true;return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity
                 &&other.isAlive()&&!other.life().isSleeping()&&(other.getUUID().equals(mother)||other.getUUID().equals(father)||mother!=null&&mother.equals(other.family().mother())))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         }
+        if(!greetingSupported()||entity.life().isSleeping())return null;
         var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
         return since>0&&since<30&&birthRole()==null
                 &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?baby:null;
@@ -547,11 +547,11 @@ public final class FamilyLife {
      *  heard ゆっくりしていってね is echoed). A hurt one startles them first, the startle held whole (MISS_SHOCK, nothing else
      *  shown over it); only then does the mate go to comfort it. */
     private void greet(){
-        if(!greetingSupported()||!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
+        if(!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
         long since=level().getGameTime()-hello.tick();boolean hurt=baby.family().bumped(),mate=partner()!=null&&partner().equals(baby.family().mother());
-        entity.getLookControl().setLookAt(baby,20,20);
+        if(greetingSupported())entity.getLookControl().setLookAt(baby,20,20);
         if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",LiveBirthGeometry.REST);
-        if(hurt&&since==6){
+        if(hurt&&since==6&&greetingSupported()){
             entity.mind().felt(EmotionEvent.FRIGHTENED);entity.holdReaction("surprise","afraid",MISS_SHOCK);BirthStaging.sweat(entity);
         }
         if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
