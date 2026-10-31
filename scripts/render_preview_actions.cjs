@@ -13,7 +13,7 @@ const presentations=JSON.parse(fs.readFileSync(path.join(root,'src/main/resource
 const adultStates=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/adult_states.json'),'utf8'));
 const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
 const poses=new Map(),models=new Map(),textures=new Map();
-const vessel=readJson('src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json');
+const vessel=readJson('standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json');
 function readJson(relative){return JSON.parse(fs.readFileSync(path.join(root,relative),'utf8'));}
 function poseFor(id){
  if(poses.has(id))return poses.get(id);

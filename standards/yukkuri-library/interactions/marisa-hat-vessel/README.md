@@ -29,14 +29,14 @@
 
 陆地上帽檐离地 3.2 格，幼体从出口沿短弧越过近侧帽檐。
 
-前部浅台阶低于帽檐 0.6 单位（水上高 0.87），范围 Z=-6.01…-4.00（深 2.01）；内腔分段由浅至深记录在 `hat_vessel.json` 的 `cavity_sections`。
+前部浅台阶低于帽檐 0.6 单位（水上高 0.87），范围 Z=-6.01…-4.00（深 2.01）；内腔分段由浅至深记录在 制作源 `geometry.json` 的 `cavity_sections`。
 
 **坐位**：
 
 - 每只幼体有自己的位置，按身体大小（碰撞宽度的 0.42 倍作半径）排开，彼此留出约一成空隙；内腔底坐不下时才坐到台阶上。
 - 位置由服务端给出并同步：茎生实子落在帽里空着的地方就坐在原处，胎生的孩子从帽子正中往外依次排；选位置时避开要从别的幼体身上越过去的地方。
 
-当前帽面几何与坐位由 `recipe.json`、`delivery.py` 与 `hat_vessel.json` 共用。
+制作侧帽面几何与坐位由 `recipe.json`、`delivery.py` 与生成的 `geometry.json` 共用；运行支撑只读取 `hull_profiles/`，由水生帽导出器从实际网格量取。
 
 ## 摘帽与戴回
 
@@ -88,7 +88,8 @@
 **运行资源**：
 
 - `yukkuri_props/marisa_hat_turned.json`，登记在 `subspecies-index.json`。
-- `yukkuri_presentation/hat_vessel.json`：开口、内腔、帽檐各块、压扁比例、帽檐高度、水面遮罩、站位和 `delivery` 参数，由 `HatGeometry` 读取。
+- `geometry.json`：完整制作测量与动作配适数据，供制作、预览和剖面导出使用。
+- `yukkuri_presentation/hat_vessel.json`：仅保留 Java 读取的倍率、戴帽锚点、形态映射、放帽／握点、`delivery` 与浮稳参数；几何由 `hull_profiles/` 唯一提供。
 
 `cavity_sections` 由浅至深记录四段矩形/未压扁深度；包含前部浅台阶与三层帽冠。`surface` 取覆盖该 XZ 的最深段；`cabinClear` 按物体所在高度检查内腔。旧字段 `opening`、`well`、`ledge`、`floor` 仍可读取，`floor` 现在表示最深底，`well` 前界为 -4.00。旧资源没有新数组时使用原两层读取逻辑。外轮廓、船主高度、干舷、压扁、放帽站位均未变。
 

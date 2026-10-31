@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import com.google.gson.JsonArray;
+import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -23,9 +24,9 @@ import org.joml.Vector3f;
  *  on the ground until it stands on the squashed crown, and how a newborn gets in (delivery.py): on a parabola under
  *  gravity over the brim, each young in its own place. Hat units are the prop's, unscaled (PlacedHatEntity.unit() blocks each). */
 public final class HatGeometry {
-    private static final JsonObject DATA=HullProfile.read("yukkuri_presentation/hat_vessel.json");
+    private static final JsonObject DATA=GeometryJson.read("yukkuri_presentation/hat_vessel.json").data();
     /** Species integration hook: choose the form of the worn hat from the owner's synced identity. */
-    public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(HullProfile.CURRENT);}
+    public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(DATA.getAsJsonObject("forms").get(owner.assetId()).getAsString());}
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     public enum Role { HELPER, SELF }
     private static final float[] ANCHOR=floats(DATA.getAsJsonArray("anchor_worn"));
@@ -39,17 +40,16 @@ public final class HatGeometry {
     private static float[] floats(JsonArray a){float[] out=new float[a.size()];for(int i=0;i<out.length;i++)out[i]=a.get(i).getAsFloat();return out;}
     /** The worn hat's seat on the head: the larger aquatic hat scales about it. */
     public static Vector3f anchor(){return new Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
-    public static float[] opening(){return HullProfile.of(HullProfile.CURRENT).opening();}
     /** The authored hat data (hat_vessel.json): its scale table and the afloat physics. */
-    public static JsonObject data(){return DATA;}
-    /** The braid's grip on the profile rim; the role selects a bearing, never a second hull shape. */
-    public static Vector3f gripWorn(boolean aquatic,boolean self){return gripWorn(HullProfile.of(HullProfile.CURRENT),self);}
-    public static Vector3f gripWorn(HullProfile profile,boolean self){
-        double a=Math.toRadians(self?-45:-60),r=profile.reach(a);
-        return new Vector3f((float)(Math.cos(a)*r),ANCHOR[1],(float)(Math.sin(a)*r));
+    public static JsonObject scales(){return DATA.getAsJsonObject("scale");}
+    public static JsonObject afloat(){return DATA.getAsJsonObject("afloat");}
+    /** Worn-hat clips keep their authored grip, including the larger aquatic hat. */
+    public static Vector3f gripWorn(boolean aquatic,boolean self){
+        var p=DATA.getAsJsonObject("placements").getAsJsonObject(aquatic?"aquatic":"land").getAsJsonObject(self?"self":"helper").getAsJsonArray("grip_worn");
+        return new Vector3f(p.get(0).getAsFloat(),p.get(1).getAsFloat(),p.get(2).getAsFloat());
     }
     /** The worn hat and the forms that sit near it (hat_interactions.json): take-off motion per hatted form, boxes per form. */
-    private static final JsonObject WORN=HullProfile.read("yukkuri_presentation/hat_interactions.json");
+    private static final JsonObject WORN=GeometryJson.read("yukkuri_presentation/hat_interactions.json").data();
     /** The worn hat of a hatted form (bone, lift and forward of its take-off motion), or null for a form without one. */
     public static JsonObject worn(String assetId){return WORN.getAsJsonObject("variants").getAsJsonObject(assetId);}
     private static final Map<String,Double> HALF_WIDTHS=new ConcurrentHashMap<>();
@@ -71,16 +71,11 @@ public final class HatGeometry {
         var p=DATA.getAsJsonObject("placements").getAsJsonObject("land").getAsJsonObject(role==Role.HELPER?"helper":"self");
         var o=p.getAsJsonArray("offset");float yaw=p.get("yaw").getAsFloat();
         var offset=new Vec3(o.get(0).getAsDouble(),o.get(1).getAsDouble(),o.get(2).getAsDouble());
-        var bearing=offset.multiply(-1,0,-1).normalize().yRot((float)-Math.toRadians(180-yaw));
-        double a=Math.atan2(bearing.z,bearing.x),delta=profile.reach(a)-HullProfile.of(HullProfile.CURRENT).reach(a);
-        // The clips define the hand's reach for the reference hull; changing the rim moves the hull centre by that difference.
-        offset=offset.add(offset.multiply(1,0,1).normalize().scale(delta));
+        var adjusted=profile.placementOffset(offset.x,offset.z,yaw);
+        offset=new Vec3(adjusted.x(),offset.y,adjusted.z());
         return new Placement(offset,yaw,p.getAsJsonObject("hat_in_mother").get("yaw").getAsFloat(),p.get("gap").getAsDouble());
     }
 
-    /** Current-form accessors retained for the rendering and larder packages; geometry is owned by HullProfile. */
-    public static double top(){return HullProfile.of(HullProfile.CURRENT).top();}
-    public static double squash(){return HullProfile.of(HullProfile.CURRENT).squash();}
     public static double radius(double width){return YOUNG_RADIUS*width;}
     // ---------------------------------------------------------------- flights (world, blocks)
     /** Minecraft gravity between two points reached in T ticks: straight across, a parabola up and down. */
@@ -108,9 +103,7 @@ public final class HatGeometry {
     }
     // ---------------------------------------------------------------- the catch (world, blocks)
     /** A hat set down to catch: where, facing (entity yaw), and who set it. */
-    public record Pose(Vec3 at,float yaw,Role role,HullProfile profile){
-        public Pose(Vec3 at,float yaw,Role role){this(at,yaw,role,HullProfile.of(HullProfile.CURRENT));}
-    }
+    public record Pose(Vec3 at,float yaw,Role role,HullProfile profile){}
     /** Where a catcher stands, and her yaw, to set down or take back a hat at a pose. */
     public record Stand(Vec3 at,float yaw){}
     /** Where the hat goes for a mother standing at {@code at} turned to {@code yaw} (hat_vessel.json, the end pose of the braid
@@ -138,7 +131,7 @@ public final class HatGeometry {
         int next=0;while(next<brood.children.size()-1&&brood.children.get(next).born)next++;
         double r=radius(LiveBirthGeometry.childDimensions(brood.children.get(next),mother.getScale()).width());
         var outlet=LiveBirthGeometry.position(mother,next,yaw).subtract(mother.position()).add(at);
-        return new Pose(flat(outlet.add(forward.scale(r+place.gap()*body+form.reach(0)*k)),at),hatYaw,role);
+        return new Pose(flat(outlet.add(forward.scale(r+place.gap()*body+form.reach(0)*k)),at),hatYaw,role,form);
     }
     /** Least distance from the mother's centre to a stem catch hat's centre: the front of her visible body (its model bound is
      *  4.83 of 16 units, 0.4 of her collision width; the rim stays below her widest section) and the opening's near half length
@@ -176,7 +169,7 @@ public final class HatGeometry {
         var away=toward.subtract(pose.at()).multiply(1,0,1);
         if(away.lengthSqr()<1e-8)away=body.position().subtract(pose.at()).multiply(1,0,1);
         var dir=away.lengthSqr()<1e-8?new Vec3(0,0,1):away.normalize();var local=dir.yRot((float)-Math.toRadians(180-pose.yaw()));
-        return pose.at().add(dir.scale(Math.max(least,pose.profile().clear(local.x,local.z,(Occupancy.foot(body.getBbWidth())+STAND_MARGIN)/unit)*unit)));
+        return pose.at().add(dir.scale(pose.profile().standDistance(local.x,local.z,(Occupancy.foot(body.getBbWidth())+STAND_MARGIN)/unit,least/unit)*unit));
     }
     public static Vec3 outside(PlacedHatEntity hat,YukkuriEntity body,Vec3 toward,double least){return outside(poseOf(hat),hat.unit(),body,toward,least);}
     /** A point (world) lies over the opening of a hat lying at this pose. */
@@ -209,7 +202,7 @@ public final class HatGeometry {
         }
         return out;
     }
-    private static final JsonObject BODY=HullProfile.read("yukkuri_presentation/braid_rescue.json");
+    private static final JsonObject BODY=GeometryJson.read("yukkuri_presentation/braid_rescue.json").data();
     private static Vec3 vector(String key){var p=BODY.getAsJsonArray(key);return new Vec3(p.get(0).getAsDouble(),p.get(1).getAsDouble(),p.get(2).getAsDouble());}
     private static AABB box(Vec3 feet,float yaw,Vec3 min,Vec3 max){
         AABB out=null;

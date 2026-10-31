@@ -132,20 +132,21 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 
 ## 帽船剖面（hull_profiles）
 
-两种形态用同一格式，各自从游戏实际绘制的三角面量出：新形态取本目录的放下网格乘 `scale`；现行形态取 `marisa_hat_turned` 乘 `hat_vessel.json` 的水生倍率，竖向再乘 `PlacedHatRenderer` 实际用的 `HatGeometry.squash()`（`squash.nest`）。
+两种形态用同一格式，各自从游戏实际绘制的三角面量出：新形态取本目录的放下网格乘 `scale`；现行形态取 `marisa_hat_turned` 乘 `hat_vessel.json` 的水生倍率，竖向再乘制作源 `marisa-hat-vessel/geometry.json` 的 `squash.nest`；渲染读取剖面 `squash`。
 
 坐标与单位：格；帽船坐标，原点在帽檐面中心（戴着时贴头的那面），+Y 出帽腔，+X 为戴着时的前方，船首朝 -Z。高度都是带符号的 `y`（帽檐面为 0，向下为负）。换用别的帽船倍率时，半径和高度按倍率之比缩放。
 
 | 字段 | 含义 |
 | --- | --- |
 | `form`、`hull`、`scale`、`squash` | 形态（`cone_basin` / `turned_land_hat`）、帽船网格 ID、量取时的倍率与竖向压扁 |
-| `azimuths` | 量取方向（度，从 +X 转向 +Z，每 45°）；下列按方位的数组与之一一对应 |
+| `azimuths` | 量取方向（度，从 +X 转向 +Z，含每 45° 与所有网格顶点投影的方向，保留台阶与矩形转角）；下列按方位的数组与之一一对应 |
 | `sample_step`、`level_tolerance` | 径向采样间距；判定平底与龙骨底的高度容差（都是 1/64 格） |
 | `rim.y` | 帽口外一圈最低的檐顶：水面高过它就灌进帽腔（新形态是翘边顶，现行形态是平帽檐面） |
 | `brim.radius`、`opening.radius` | 各方位帽檐外缘、帽口边缘的半径 |
 | `floor.radius`、`floor.y` | 帽腔内面不高出最深点 `level_tolerance` 的范围（从中心连续量起）；`floor.y` 为该范围内按面积平均的内面高度 |
 | `hollow.y` | 帽腔最深点 |
 | `keel.y`、`keel.radius` | 外壳最低点；各方位外壳底不高出最低点 `level_tolerance` 的最远半径 |
+| `surface_triangles` | 朝上的实际帽面三角形，每面三个 `[x,y,z]`；Java 在加载时建立空间索引，精确查询台阶与弧壁支撑 |
 | `inner` | 各方位帽腔内面 `[半径, y]`，从中心到帽口，末点为帽口边缘的帽檐面 |
 | `outer` | 各方位外壳 `[半径, 底面 y, 干舷顶 y]`，从中心到帽檐外缘；帽口以内的干舷顶取 `rim.y`（灌水前帽腔是干的），以外取布面顶。排水柱高 = min(水面, 干舷顶) − 底面 |
 | `volume` | `hollow` 帽檐面以下的帽腔容积、`to_rim` 水面齐 `rim.y` 时的排水量（立方格，网格积分）；`hull_mass` 空帽重量（`hat_vessel.json` `afloat.hull_mass` × 倍率²）；`empty_waterline_y` 空帽直立时的水线 |

@@ -327,8 +327,7 @@ def place(variant, kind, turned, k, origins, hat, anchor, root, bowed, length, h
     return helper, mine
 
 
-def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--check', action='store_true'); args = ap.parse_args()
+def outputs():
     model = json.loads(MODEL.read_text(encoding='utf-8')); body = json.loads(BODY.read_text(encoding='utf-8'))['variants']['marisa']
     worn = worn_boxes(model); boxes, cavity, levels = hollow(worn)
     anchor = np.array([0, levels['rim'], (worn['hat_base']['lo'][2]+worn['hat_base']['hi'][2])/2])
@@ -384,7 +383,16 @@ def main():
         'brim_rects': t.brim_rects, 'braid': {'root': rnd(model_root), 'length': round(length, 4)},
         'delivery': {k: v for k, v in D.items() if k not in ('gap', 'gap_lore', 'self_reach')},
         'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy'], 'afloat': R['afloat']}
-    texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n', METRICS: json.dumps(metrics, ensure_ascii=False, indent=2)+'\n'}
+    runtime = {k: metrics[k] for k in ('scale', 'anchor_worn', 'delivery', 'placements', 'afloat')}
+    runtime['delivery'] = {k: D[k] for k in ('gravity', 'tmin', 'tmax', 'max_speed', 'clear', 'young_radius')}
+    runtime['afloat'] = {k: v for k, v in R['afloat'].items() if k != 'lore'}
+    runtime['placements'] = {kind: {role: {**{k: p[k] for k in ('offset', 'yaw', 'grip_worn', 'gap') if k in p},
+        'hat_in_mother': {'yaw': p['hat_in_mother']['yaw']}} for role, p in rows.items() if role in ('helper', 'self')}
+        for kind, rows in placements.items()}
+    runtime['forms'] = {p.stem: 'turned_land_hat' for p in sorted((ASSETS/'yukkuri').glob('*marisa*.json'))}
+    texts = {PROP: json.dumps(prop, separators=(',', ':'))+'\n',
+             HERE/'geometry.json': json.dumps(metrics, ensure_ascii=False, indent=2)+'\n',
+             METRICS: json.dumps(runtime, ensure_ascii=False, indent=2)+'\n'}
     index = json.loads(INDEX.read_text(encoding='utf-8'))
     for name in ('marisa_hat_vessel', 'marisa_hat_nest', 'hat_boat'): index.pop(name, None)  # earlier props, deleted
     index.setdefault('marisa_hat_turned', {}); texts[INDEX] = json.dumps(index, separators=(',', ':'))
@@ -392,6 +400,12 @@ def main():
                 'growth_sha256': sha(json.dumps(GROWTH, sort_keys=True).encode()),
                 'outputs': {p.relative_to(ROOT).as_posix(): sha(t.encode()) for p, t in texts.items()}}
     texts[HERE/'manifest.json'] = json.dumps(manifest, ensure_ascii=False, indent=2)+'\n'
+    return texts, metrics, body
+
+
+def main():
+    ap = argparse.ArgumentParser(); ap.add_argument('--check', action='store_true'); args = ap.parse_args()
+    texts, metrics, body = outputs()
     for path, text in texts.items():
         if args.check:
             assert path.read_text(encoding='utf-8') == text, f'stale {path}'
@@ -400,8 +414,8 @@ def main():
     if args.check: assert not any(p.exists() for p in OLD_PROPS), 'old soft hat props left behind'
     else:
         for p in OLD_PROPS: p.unlink(missing_ok=True)
-    print('turned hat', 'checked' if args.check else 'written', len(flat)//8, 'vertices; squash', metrics['squash'], 'nest height', metrics['nest']['height'])
-    for variant, p in placements.items():
+    print('turned hat', 'checked' if args.check else 'written', len(json.loads(texts[PROP])['vertices'])//8, 'vertices; squash', metrics['squash'], 'nest height', metrics['nest']['height'])
+    for variant, p in metrics['placements'].items():
         print(variant, {r: {k: p[r][k] for k in ('at_mother', 'angle', 'yaw', 'reach', 'look', 'grip_worn', 'gap') if k in p[r]} for r in ('helper', 'self')})
     report(metrics, body)
 

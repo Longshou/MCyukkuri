@@ -348,7 +348,9 @@ land_birth('birth_land_missed', '陆地接生·漏接', '陆地漏接', 'natural
            '灵梦父油没有帽子、不接生，单人软垫窝也接不住新生儿：母油临产先走出软垫窝，新生儿直接落地，摔伤哭泣，父母赶来安抚；伤口按普通规则处理。[choreo] 节拍为 site → term → exit → push → linger，没有 meet／place', 'land_missed')
 land_birth('birth_stem_caught', '茎生接生·帽下', '茎生接住', 'stem', 'marisa',
            '魔理沙父油把帽子放到茎下（帽口对准实子，近侧帽檐可伸到母油身前）：实子带一点随机横向力脱落，落在帽上的都坐上帽子、不会穿过帽子掉到帽下地面：落在帽檐上的先坐上帽檐再滚进帽腔（日志 [body] contact … occupancy=ON_RIM、newborn on hat rim rolls inward、[action] start id=gesture … brim=into_hollow），帽腔挤满时从帽檐外侧滚落、落地摔伤；只有落到帽外（或只擦到帽檐外缘）的才受摔伤（日志 birth landed outcome=HAT/GROUND，birth impact injury；没接住看 falling newborn not caught reason=）；母油静止时花梗竖直不摆；多重复几次看比例',
-           'land_caught', smoke=_LAND_BIRTH_SMOKE)
+           'land_caught', smoke=dict(ticks=6000,
+               expect=[r'birth landed [^\n]*outcome=HAT\b'],
+               forbid=[r'birth landed [^\n]*outcome=WATER\b', r'\[body\][^\n]* invariant\b']))
 
 add('pet_birth', 'family', '宠物大窝内生产', '大窝内生产',
     '你的宠物母油与灵梦伴侣在棚下的大窝旁；没有戴帽接生者，母油应留在真实双亲大窝内分娩，之后观察赤油落点、照护与同窝数值', '约 1–2 分钟临产，之后看照护', [

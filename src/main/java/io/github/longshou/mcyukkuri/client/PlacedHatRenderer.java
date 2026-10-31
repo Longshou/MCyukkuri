@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
-    private static final String HULL="marisa_hat_turned";
     /** Something an add-on draws with the hat (its stores in the hollow), in the hull's frame: blocks, origin at its bottom. */
     @FunctionalInterface public interface Layer { void render(PlacedHatView hat,float partial,PoseStack pose,MultiBufferSource buffers,int light); }
     private static final List<Layer> LAYERS=new CopyOnWriteArrayList<>();
@@ -50,12 +48,12 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
                 .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
         for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
-        pose.translate(0,HatGeometry.top()*unit,0);
-        pose.scale(scale,scale*(float)HatGeometry.squash(),scale);
+        pose.translate(0,hat.profile().top()*unit,0);
+        pose.scale(scale,scale*(float)hat.profile().squash(),scale);
         // The hull is the owner's own hat: its wear shows as the same square-cell damage as when worn.
         int damage=hat.hullDamage();
-        if(damage>0)PropModels.renderHat(HULL,damage,-1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
-        else PropModels.render(HULL,1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        if(damage>0)PropModels.renderHat(hat.profile().hull(),damage,-1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
+        else PropModels.render(hat.profile().hull(),1,pose,buffers,light,OverlayTexture.NO_OVERLAY);
         pose.popPose();
         super.render(source,yaw,partial,pose,buffers,light);
     }

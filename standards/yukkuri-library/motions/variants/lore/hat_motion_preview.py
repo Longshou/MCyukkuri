@@ -42,7 +42,7 @@ class SelectedPosed(P.Posed):
         if self.self_hat_transfer is not None:
             destination,q,spec=self.self_hat_transfer;old=self.last_matrices.copy();M=old.copy()
             bones=self.model['bones'];hat=next(i for i,b in enumerate(bones) if b['name']=='hat_follow')
-            anchor=np.array(json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))['anchor_worn'])
+            anchor=np.array(json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))['anchor_worn'])
             start=M[hat].copy();from_at=(start@np.r_[anchor,1])[:3];to_at=(destination@np.r_[anchor,1])[:3]
             smooth=lambda x:(lambda u:u*u*(3-2*u))(min(1,max(0,x)))
             slide=smooth((q-spec['slide_begin'])/(spec['lower_begin']-spec['slide_begin']));lower=smooth((q-spec['lower_begin'])/(1-spec['lower_begin']))
@@ -132,7 +132,7 @@ def motion(kind,age,side=-1,amplitude=12):
 class Scene:
     def __init__(self):
         data=json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
-        self.vessel=V=json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+        self.vessel=V=json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
         # One hull transform contract (marisa-hat-vessel/build.py -> hat_frames.json), shared with the game.
         self.frames=FRAMES
         F=self.hull_frame=self.frames['modes']['aquatic']

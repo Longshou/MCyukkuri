@@ -22,7 +22,7 @@ import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
-VESSEL = ASSETS/'yukkuri_presentation/hat_vessel.json'
+VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 

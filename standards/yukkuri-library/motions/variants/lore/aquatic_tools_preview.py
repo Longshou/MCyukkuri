@@ -21,7 +21,7 @@ OUT = Path(os.environ.get('MCYUKKURI_PREVIEWS', ROOT/'.local/previews'))/'aquati
 MEDIA = ('paddle', 'cradle', 'boat-life', 'bite', 'capsize', 'self-rescue', 'hull', 'faces')
 BG = HM.BG
 DATA = json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
-VESSEL = json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+VESSEL = json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
 K = VESSEL['scale']['aquatic_marisa']; SQ = VESSEL['squash']['bowl']; FREE = VESSEL['bowl']['freeboard']
 WATER = -VESSEL['bowl']['owner_y']*K  # the captain's model space: water plane height above her seat
 

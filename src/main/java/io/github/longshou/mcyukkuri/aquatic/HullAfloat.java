@@ -43,7 +43,7 @@ import net.minecraft.world.phys.Vec3;
  * food in its hollow ({@link HullLarder}), which spills when it turns over.
  */
 public final class HullAfloat implements PlacedHatBehavior {
-    private static final JsonObject DATA = HatGeometry.data().getAsJsonObject("afloat");
+    private static final JsonObject DATA = HatGeometry.afloat();
     private static final double HULL_MASS = num("hull_mass"), SPRING = num("spring"), DAMPING = num("damping"),
             MAX_RISE = num("max_rise"), DRAG = num("drag"), TILT_SPRING = num("tilt_spring"), TILT_DAMPING = num("tilt_damping"),
             SHAKE = num("shake"), PUSH_HEEL = num("push_heel"), BUMP_TILT = num("bump_tilt"), CAPSIZE_HARD = num("capsize_hard"),
@@ -234,9 +234,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     // ---------------------------------------------------------------- the brim against the bank
     /** The brim's top edge, sample {@code i} of the profile rim, for a pose. */
     private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
-        double a = i * 2 * Math.PI / RIM_POINTS;
-        double r = hat.profile().reach(a);
-        return frame.toWorld(new Vec3(Math.cos(a) * r, hat.profile().surface(Math.cos(a)*r*.999999, Math.sin(a)*r*.999999), Math.sin(a) * r));
+        return hat.rim(frame).get(i);
     }
 
     /** The highest top at x, z of the block collision boxes reaching into heights {@code low}..{@code high}, or NaN. */

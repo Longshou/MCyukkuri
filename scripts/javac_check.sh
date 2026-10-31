@@ -11,7 +11,7 @@ mkdir -p "$R/.local/tmp"
 JAVAC=$(find "$R/.local/tools/java" -name javac.exe -o -name javac -type f 2>/dev/null | head -1)
 JAVA=$(dirname "$JAVAC")/java
 JUNIT=$(find "$R/.local/tools/junit" -name 'junit-platform-console-standalone-*.jar' | head -1)
-GSON=$(find "$R/.local/gradle-home" -name 'gson-*.jar' | head -1)
+GSON=$(find "$R/.local/gradle-home" -name 'gson-2.10.1.jar' | head -1)
 M=$(cygpath -m "$R" 2>/dev/null || echo "$R")
 CP="$M/build/moddev/artifacts/neoforge-21.1.250-merged.jar"
 for j in $(find "$R/.local/gradle-home" -name '*.jar' 2>/dev/null); do CP="$CP;$(cygpath -m "$j" 2>/dev/null || echo "$j")"; done

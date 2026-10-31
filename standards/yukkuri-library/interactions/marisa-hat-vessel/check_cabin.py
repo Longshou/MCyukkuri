@@ -10,7 +10,7 @@ ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri'
 
 
 def main():
-    data = json.loads((ASSETS / 'yukkuri_presentation/hat_vessel.json').read_text())
+    data = json.loads((ASSETS.parents[4] / 'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text())
     mesh = json.loads((ASSETS / 'yukkuri_props/marisa_hat_turned.json').read_text())
     triangles = np.array(mesh['vertices']).reshape(-1, 3, 8)
     # Exact vertical ray intersection against the exported horizontal triangles, not its metadata bounds.

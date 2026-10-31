@@ -18,7 +18,7 @@ public final class HatScale {
 
     private static Map<SubspeciesLife.Kind, Float> read() {
         var out = new EnumMap<SubspeciesLife.Kind, Float>(SubspeciesLife.Kind.class);
-        var table = HatGeometry.data().getAsJsonObject("scale");
+        var table = HatGeometry.scales();
         for (var kind : SubspeciesLife.Kind.values()) {
             var key = kind.name().toLowerCase(Locale.ROOT);
             if (table != null && table.has(key)) out.put(kind, table.get(key).getAsFloat());

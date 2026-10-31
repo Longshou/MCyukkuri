@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.surface;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
@@ -32,16 +31,12 @@ public enum Occupancy {
 
     public static Occupancy of(YukkuriEntity body, Container c) {
         if (body == null || c == null) return OUTSIDE;
-        if (c instanceof HostContainer host && host.host() instanceof PlacedHatEntity hat)
-            return hat.occupancy(hat.frame().toLocal(body.position()), body, c.supports(body));
         return at(c, body.position(), body.getBbWidth(), c.supports(body));
     }
 
     /** Where a body of width {@code bbWidth} with feet at {@code feet} would be: the pure probe an airborne contact evaluates before moving it. {@code supported}: it is held. */
     public static Occupancy at(Container c, Vec3 feet, double bbWidth, boolean supported) {
         if (c == null || feet == null) return OUTSIDE;
-        if (c instanceof HostContainer host && host.host() instanceof PlacedHatEntity hat)
-            return hat.occupancy(hat.frame().toLocal(feet), bbWidth, supported);
         Vec3 p = c.toPlane(feet);
         return switch (OccupancyMath.classify(p.x, p.z, p.y, foot(bbWidth), c.floor(), c.floorY(), c.rimY(), supported)) {
             case INSIDE_SUPPORTED -> INSIDE_SUPPORTED;

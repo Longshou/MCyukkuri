@@ -64,17 +64,16 @@ public final class ContactResolver {
      *  an edge otherwise; a sideways entry below the surface is the wall. */
     private static Hit hit(YukkuriEntity body, SurfaceHost host, Vec3 feet, Vec3 next, Envelope envelope) {
         HostFrame frame = host.frame();
-        double footRadius = Occupancy.foot(body.getBbWidth());
         // The height field is in hat units, so the tolerance in blocks goes in the same units.
         double touch = TOUCH / Math.max(1E-6, frame.unit());
         int steps = Math.max(2, (int) Math.ceil(feet.distanceTo(next) / STEP));
         Vec3 previous = frame.toLocal(feet);
-        double previousHeight = surface(body, host, feet, footRadius, envelope);
+        double previousHeight = surface(body, host, feet, envelope);
         for (int i = 1; i <= steps; i++) {
             double share = i / (double) steps;
             Vec3 world = feet.lerp(next, share);
             Vec3 local = frame.toLocal(world);
-            double height = surface(body, host, world, footRadius, envelope);
+            double height = surface(body, host, world, envelope);
             boolean above = Double.isFinite(previousHeight) && previous.y >= previousHeight - touch;
             boolean under = Double.isFinite(height) && local.y < height - touch;
             if (under && above) {
@@ -91,6 +90,9 @@ public final class ContactResolver {
             previous = local;
             previousHeight = height;
         }
+        if(envelope!=null&&body.isInWater())GameplayLog.limited(body,"body","wet_host_contact",200,
+                "wet flight missed host={} from={} to={} surface={} velocity={}",host.entity().getUUID(),
+                frame.toLocal(feet),previous,previousHeight,body.getDeltaMovement());
         return null;
     }
 
@@ -99,7 +101,7 @@ public final class ContactResolver {
     public interface Envelope { List<AABB> at(YukkuriEntity body, Vec3 feet); }
 
     /** The feet height (hat units) at which the body meets the host at {@code feet}, or NaN off it: with an envelope every box is sampled 3x3 and lifted, so a worn brim decides. */
-    private static double surface(YukkuriEntity body, SurfaceHost host, Vec3 feet, double footRadius, Envelope envelope) {
+    private static double surface(YukkuriEntity body, SurfaceHost host, Vec3 feet, Envelope envelope) {
         HostFrame frame = host.frame();
         if (envelope == null) return host.support(frame.toLocal(feet), body).orElse(Double.NaN);
         double need = Double.NaN;

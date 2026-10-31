@@ -13,7 +13,7 @@ import placement_fit
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
 LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
-VESSEL = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
+VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'
 MANIFEST = ROOT/'art/source/motion-corrections/manifest.json'

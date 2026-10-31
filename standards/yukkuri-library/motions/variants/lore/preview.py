@@ -69,11 +69,11 @@ class Posed:
         self.a, self.b, self.q = W[keep, 0].astype(int), W[keep, 1].astype(int), W[keep, 2:3]
         self.ident, self.aquatic, self.boat = ident, aquatic, 0
         self.worn_hat_scale = worn_hat_scale
-        self.hat_anchor = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))['anchor_worn']
+        self.hat_anchor = json.loads((ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))['anchor_worn']
         if aquatic:
             # Her own hat as the boat (marisa_hat_turned at the aquatic size, its crown pressed as afloat, hat_vessel.json): static,
             # its brim a freeboard over the water line, the rider on the ledge at the stern as HatBoatEntity seats her. Same atlas.
-            vessel = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8')); k = vessel['scale']['aquatic_marisa']
+            vessel = json.loads((ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8')); k = vessel['scale']['aquatic_marisa']
             prop = json.loads((ASSETS/'yukkuri_props/marisa_hat_turned.json').read_text(encoding='utf-8'))
             B = np.array(prop['vertices']).reshape(-1, 8); bowl = vessel['bowl']; sq = vessel['squash']['bowl']
             seat = np.array([0, bowl['owner_y']*k, vessel['opening'][3]*k-5.9])

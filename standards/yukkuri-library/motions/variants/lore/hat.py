@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'contact-safe'))
 import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
-METRICS = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json'
+METRICS = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 
 
 def smooth(x):

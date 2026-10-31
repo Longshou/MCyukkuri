@@ -3,13 +3,13 @@
   "status": "pending_user_review",
   "inputs": {
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/recipe.json": "aa69c8e4480689e936bd1c72a78104a3abb866fa182266e81c926bb7109e2bb4",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "9a5d5498d0c7c35d8e7c5c0a533969d2f1fde13fcb7d0f163ebd0375b71f568e",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "e93a05b4698cdf28ec3fec145400301f61401d98e1004196f94a4545a80af16c",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "cee371a3653c5b32b8421cd557350a480a1d417690aec2b8816e09eae8509922",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "aa544ec36e32c64deb970db730cfbdf22617d99854c90e11ba6ee1bf398cb8fd",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "4175e87fd6ab48eef01668f95700b371d8b99b9e63294271ae0d2a4a6c69228f",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "48c1bc38df118cefb018b1752e6c48f7dd2884a0d87b7b4a53732466e76dd12b",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/marisa_hat_turned.json": "83145279a480a7986e9f45d417fc00ea33b8dbae7aa7814e08fdf5484e3d8918",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json": "a9cee77486d4ce03169b9c50865782b561afd7fd233da03a3ce81c13a7de8d0f",
+    "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json": "8cae993aab65d86d731473e1f3960a194a99bfd4b3146019e1c02d79b2a85762",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "9f8318a4eef0ab048cbc33ddc3d92f7e8206fc7691ff6bf8cbd03225975b198a",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "5e4ff6eec882044f24fe0dbca8a8c402b8db1f92dbd5724c296ce8093b734448",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a"
   },
   "outputs": {
@@ -17,8 +17,8 @@
     "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat_turned.json": "07f644962833939deb9e535c48933e192febfc4479848253e30d976b081b5916",
     "src/main/resources/assets/mcyukkuri/textures/props/aquatic_basin_hat_stores.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "ff9c80a527071b9f5e7d57ca1629d4948e5b0e6ef63384947dc23648d0f4101b",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "fa120e7eb549525c20d0f21f4b13683f16920f27a8f7930d43c0a4a167287ed7",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "71824e29a26944c285824b578ae0ffbd8f8fa2148f179b2f71f39f1858faed07",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "b1a3c96c451133a907efce238eab681a2da4d2c93ccfd273b804e0b354280836",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "2c2fd5805b3b6bd140b88ba02b070fb6625b9666d1ea5eed64cab9e26a11c6bc",
     "art/source/aquatic-basin-hat/recipe.json": "aa69c8e4480689e936bd1c72a78104a3abb866fa182266e81c926bb7109e2bb4",
     "art/source/aquatic-basin-hat/aquatic_basin_hat_stores.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b"
   }

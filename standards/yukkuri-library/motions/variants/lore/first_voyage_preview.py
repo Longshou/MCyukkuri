@@ -26,7 +26,7 @@ def main():
                     help='Render a compact 24-frame GIF while retaining all six voyage phases.')
     args = ap.parse_args(); out=P.ROOT/'.local/previews/first-voyage'; out.mkdir(parents=True, exist_ok=True)
     data=json.loads((P.ASSETS/'yukkuri_presentation/motion_corrections.json').read_text(encoding='utf-8'))
-    V=json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+    V=json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
     dl=runpy.run_path(str(P.ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/delivery.py'))
     hat=dl['Hat'](V,'bowl'); k=V['scale']['aquatic_marisa']; D=V['delivery']
     body=json.loads((P.ASSETS/'yukkuri_presentation/body_geometry.json').read_text(encoding='utf-8'))['variants']['marisa']

@@ -74,7 +74,7 @@ def make():
                   np.array([old_front, levels['depths'][-1], levels['holes'][-1][1][2]])))
     levels['holes'][-1][1][0] = cutoff
     cavity[-1][1][0] = cutoff
-    metrics = read(ASSETS / 'yukkuri_presentation/hat_vessel.json')
+    metrics = read(ASSETS.parents[4] / 'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json')
     flat, parts = B.triangles(boxes, worn, cavity, np.array(metrics['anchor_worn']))
     boat = dict(vertices=flat, parts=parts)
     turned = B.Turned(np.array(flat).reshape(-1, 8)[:, :3], levels, np.array(metrics['anchor_worn']), worn)
@@ -97,7 +97,7 @@ def make():
     floor_rect = metrics['cavity_sections'][-1]['rect']
     cargo_x = (floor_rect[0]+floor_rect[1])/2
     cargo_delta = np.array([cargo_x-layout['tiers'][1][0]['x'],
-                            read(ASSETS / 'yukkuri_presentation/hat_vessel.json')['floor']-metrics['floor'], RECIPE['cargo_z']-layout['tiers'][1][0]['z']])
+                            read(ASSETS.parents[4] / 'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json')['floor']-metrics['floor'], RECIPE['cargo_z']-layout['tiers'][1][0]['z']])
     for tier in layout['tiers'][1:]:
         for zone in tier:
             zone['x'] += cargo_delta[0]
@@ -199,7 +199,7 @@ def verify_geometry(B, boxes, boat, metrics, layout):
             assert abs(surface(metrics, dx*(child_half+.025), child_z+dz*(child_half+.025))-child_support) < 1e-4
     # A 0.20 child keeps its own enlarged hat; reserve the hat, not only the body, before the mother.
     assert child_z+metrics['brim'][1]*.20+.025 < rear-half
-    old = read(ASSETS / 'yukkuri_presentation/hat_vessel.json')
+    old = read(ASSETS.parents[4] / 'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json')
     area = lambda data: (lambda r: (r[1]-r[0])*(r[3]-r[2]))(data['cavity_sections'][-1]['rect'])
     print(f'Support samples={checked}; all three cargo meshes and conservative cylinders clear the candidate floor.')
     print(f'Floor area {area(old):.4f} -> {area(metrics):.4f}; cargo clears captain; 0.20 child fully supported with its hat clear of captain.')
@@ -208,7 +208,7 @@ def verify_geometry(B, boxes, boat, metrics, layout):
 def dimension_sheet(metrics, out):
     from PIL import Image, ImageDraw
     import preview as P
-    old = read(ASSETS / 'yukkuri_presentation/hat_vessel.json')
+    old = read(ASSETS.parents[4] / 'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json')
     old_layout = read(ASSETS / 'yukkuri_presentation/hat_cargo_layout.json')
     picture = Image.new('RGB', (1520, 1160), '#f2f4ee')
     draw = ImageDraw.Draw(picture)

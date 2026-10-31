@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
  * to eat it, to feed it to a young, or to tip it overboard for room.
  */
 public final class HullLarder {
-    private static final JsonObject DATA = HatGeometry.data().getAsJsonObject("afloat");
+    private static final JsonObject DATA = HatGeometry.afloat();
     /** At most this many kinds of food; the portions themselves are limited only by the free floor. One portion's floor circle
      *  (blocks) and its ability load. */
     public static final int KINDS = DATA.get("kinds").getAsInt();
@@ -247,8 +247,8 @@ public final class HullLarder {
      * (against the hat's wall), the two sides in turn.
      */
     private Vec3 spot(PlacedHatEntity hat) {
-        double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit(), top = HatGeometry.top(), best = -1;
-        float[] o = HatGeometry.opening();
+        double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit(), top = hat.profile().top(), best = -1;
+        float[] o = hat.profile().opening();
         int side = portions.size() % 2 == 0 ? 1 : -1;
         Vec3 out = null;
         for (double x = o[0] + r; x <= o[1] - r; x += LATTICE)

@@ -1,8 +1,4 @@
 {
-  "note": "Marisa's own hat turned upside down, its crown pressed flat: the cradle on land and the boat afloat.",
-  "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-  "source_model_sha256": "d3bdf932b1aee14674f1c23c6aa358855d763d0fb30a33fe4968df40f8796eb5",
-  "prop": "marisa_hat_turned",
   "scale": {
     "aquatic_marisa": 1.4
   },
@@ -11,350 +7,87 @@
     10.3774,
     0.2307
   ],
-  "keel": 10.9021,
-  "squash": {
-    "nest": 0.2935,
-    "bowl": 0.55
-  },
-  "opening": [
-    -4.3683,
-    4.3683,
-    -6.01,
-    6.01
-  ],
-  "well": [
-    -3.7223,
-    3.1586,
-    -4.0,
-    4.7833
-  ],
-  "brim": [
-    7.2132,
-    10.1333
-  ],
-  "floor": 7.029,
-  "ledge": 2.2484,
-  "cavity_sections": [
-    {
-      "rect": [
-        -4.3683,
-        4.3683,
-        -6.01,
-        6.01
-      ],
-      "depth": 0.6
-    },
-    {
-      "rect": [
-        -4.3683,
-        4.3683,
-        -4.0,
-        6.01
-      ],
-      "depth": 2.2484
-    },
-    {
-      "rect": [
-        -3.7223,
-        3.1586,
-        -4.0,
-        4.7833
-      ],
-      "depth": 4.8136
-    },
-    {
-      "rect": [
-        -3.0763,
-        1.9488,
-        -3.7167,
-        3.5033
-      ],
-      "depth": 7.029
-    }
-  ],
-  "nest": {
-    "height": 3.2
-  },
-  "bowl": {
-    "freeboard": 1.2,
-    "owner_y": -0.0366,
-    "mask": [
-      [
-        -4.3683379,
-        -6.01
-      ],
-      [
-        4.3683379,
-        -6.01
-      ],
-      [
-        4.3683379,
-        6.01
-      ],
-      [
-        -4.3683379,
-        6.01
-      ]
-    ]
-  },
-  "brim_rects": [
-    [
-      -6.0583,
-      6.5307,
-      -9.1733,
-      9.1733
-    ],
-    [
-      -5.0703,
-      5.1657,
-      -10.1333,
-      10.1333
-    ],
-    [
-      6.5307,
-      7.2132,
-      -7.7867,
-      7.7867
-    ],
-    [
-      -6.5143,
-      -6.0583,
-      -7.7867,
-      7.7867
-    ]
-  ],
-  "braid": {
-    "root": [
-      6.9333,
-      9.328,
-      -2.52
-    ],
-    "length": 7.1735
-  },
   "delivery": {
-    "brim_standing": {
-      "margin": 0.15,
-      "lore": "User 2026-10-16: small juveniles stand on their floating parent's brim. The whole body footprint must fit the front and forward-side brim, with space for each worn hat; eating, sleeping and danger send them inside. The first voyage starts in small childhood at scale 0.20 (project balance), after solid feeding, jumping and learning are available, from a parent's hat and back to a reserved berth. After the lesson, young live and sleep in their own hats near the parent, observe and practise, and return inside the parent hat for protection. Leaving the family remains a separate subadult transition. Preview siblings use actual early-juvenile scales 0.20-0.25."
-    },
     "gravity": 1.28,
-    "gravity_lore": "Minecraft's 0.08 blocks per tick squared, in model units",
     "tmin": 5,
     "tmax": 16,
     "max_speed": 4.0,
-    "hop_tmin": 4,
     "clear": 0.35,
-    "overshoot": 3.0,
-    "young_radius": 0.42,
-    "overlap": 1.1,
-    "ledge_cost": 4.0,
-    "path_cost": 30.0,
-    "step": 0.25,
-    "regions": {
-      "catch": {
-        "prefer": [
-          -0.28,
-          0.0
-        ]
-      },
-      "day": {
-        "prefer": [
-          0.0,
-          -3.4
-        ],
-        "z_max": 0.5
-      },
-      "night": {
-        "prefer": [
-          0.0,
-          2.4
-        ],
-        "z_min": -1.0
-      }
-    },
-    "settle": 0.6,
-    "out_gap": 0.8,
-    "out_spread": 1.15,
-    "fall_speed": 0.24,
-    "lore": "user 2026-10-15: the young clipped into the hat on land, the stem young's fall swerved and the bank arc was wrong; newborns now fly true arcs under gravity over the brim, stem fruit drop straight and bounce in from the brim or the ground, and each young sits apart (round body, radius young_radius of its collision width)"
+    "young_radius": 0.42
   },
   "placements": {
     "land": {
-      "scale": 1.0,
       "helper": {
-        "mode": "nest",
         "offset": [
           15.9844,
           0.0,
           -10.2109
         ],
         "yaw": 195,
-        "hat_in_mother": {
-          "origin": [
-            0.0,
-            0.0,
-            -25.797
-          ],
-          "yaw": 90
-        },
-        "at_mother": [
-          14.0,
-          0.0,
-          -13.0
-        ],
-        "angle": 105,
-        "rim": [
-          4.0699,
-          0.0,
-          -7.0492
-        ],
         "grip_worn": [
           6.0,
           10.85,
           -6.9
         ],
-        "reach": {
-          "hold": 1.007,
-          "set_down": 1.021,
-          "above": 0.698
-        },
-        "look": 0.4,
         "gap": 6.05,
-        "near_brim": 7.2132
+        "hat_in_mother": {
+          "yaw": 90
+        }
       },
       "self": {
-        "mode": "nest",
         "offset": [
           0.0,
           0.0,
           -21.247
         ],
         "yaw": 90,
-        "hat_in_mother": {
-          "origin": [
-            0.0,
-            0.0,
-            -21.247
-          ],
-          "yaw": 90
-        },
-        "rim": [
-          7.1307,
-          -0.1387,
-          -7.5
-        ],
         "grip_worn": [
           7.5,
           10.85,
           -6.9
         ],
-        "bow": -14,
-        "reach": {
-          "set_down": 1.498,
-          "above": 1.426
-        },
         "gap": 1.5,
-        "near_brim": 7.2132
-      },
-      "mother_half": 9.3542,
-      "exit_front": 11.7542
+        "hat_in_mother": {
+          "yaw": 90
+        }
+      }
     },
     "aquatic": {
-      "scale": 1.4,
       "helper": {
-        "mode": "bowl",
         "offset": [
           15.7212,
           -1.8,
           -14.4225
         ],
         "yaw": 195,
-        "hat_in_mother": {
-          "origin": [
-            0.0,
-            -1.8,
-            -17.4527
-          ],
-          "yaw": 90
-        },
-        "at_mother": [
-          18.0,
-          0.0,
-          -6.0
-        ],
-        "angle": 105,
-        "rim": [
-          4.0699,
-          0.0,
-          -7.0492
-        ],
         "grip_worn": [
           10.0,
           10.85,
           -3.4
         ],
-        "reach": {
-          "hold": 1.426,
-          "set_down": 1.369,
-          "above": 0.951
-        },
-        "look": 25.56,
-        "near_brim": 7.2132
+        "hat_in_mother": {
+          "yaw": 90
+        }
       },
       "self": {
-        "mode": "bowl",
         "offset": [
           0.0,
           -1.8,
           -17.4527
         ],
         "yaw": 90,
-        "hat_in_mother": {
-          "origin": [
-            0.0,
-            -1.8,
-            -17.4527
-          ],
-          "yaw": 90
-        },
-        "rim": [
-          7.1307,
-          -0.2599,
-          -5.5
-        ],
         "grip_worn": [
           5.5,
           10.85,
           -6.9
         ],
-        "bow": -14,
-        "reach": {
-          "set_down": 1.269,
-          "above": 1.112
-        },
-        "near_brim": 7.2132
-      },
-      "mother_half": 9.3542,
-      "exit_front": 11.7542
+        "hat_in_mother": {
+          "yaw": 90
+        }
+      }
     }
   },
-  "float": {
-    "bank_drop": 1.8,
-    "under_bank": 2.0,
-    "helper_back": 3.0,
-    "lore": "at a bank the aquatic Marisa catches in her hat floated at the water's edge before the outlet, its near brim slipped under the bank; a newborn pushed too hard flies past it into the river (user, 2026-10-14). bank_drop: the water surface below the bank top"
-  },
-  "pregnancy": {
-    "swell": 0.26,
-    "low_wide": 0.16,
-    "low_front": 0.28,
-    "low_back": 0.06,
-    "low_peak": 1.5,
-    "low_fade": 4.5,
-    "front_ramp": 4.0,
-    "lore": "LiveBirthGeometry.deform; used for the live exit (the body's half width at a full belly)"
-  },
   "afloat": {
-    "lore": "Project design (refactor WP4a): the set-down hat floats on any water. Buoyancy holds its axis at the draft the load sinks it to (riders as round bodies of the WaterDistress density, a cloth hull of hull_mass per scale squared), with a spring and damper (spring, damping, max_rise); the old hull rode the surface with gain 0.35 clamped to 0.12. Horizontally vanilla water flow pushes it and drag keeps that much speed per tick (the old drift's 0.88). Tilt springs back toward the riders' heel (tilt_spring, tilt_damping); an empty-hand click rocks it by shake deg/tick, pumping a swing already going; a shove heels it push_heel deg per block/tick it is moved; a block it runs into tips it bump_tilt deg/tick per block/tick lost. Past the angle where the brim edge meets the water it capsizes when it stays there capsize_ticks or goes capsize_hard times past it, turning over at flip_rate deg/tick and throwing its riders. Above unsteady_rate deg/tick it is not steady. Food lies in the hollow as portions (refactor WP4b): at most kinds of food, any number of portions the free floor holds (no fixed count), each a real item drawn as a small prop on its own floor circle of portion_radius blocks, weighing as a round lump of the body density on the draft and heel and portion_load on its riders' pace (the old larder's 0.5 a portion, ability load_ref 12).",
     "hull_mass": 0.004,
     "spring": 0.12,
     "damping": 0.3,
@@ -372,5 +105,14 @@
     "kinds": 4,
     "portion_radius": 0.09,
     "portion_load": 0.5
+  },
+  "forms": {
+    "house_marisa": "turned_land_hat",
+    "marisa": "turned_land_hat",
+    "marisa_bean": "turned_land_hat",
+    "marisa_face": "turned_land_hat",
+    "marisa_kotatsu": "turned_land_hat",
+    "marisa_sparse": "turned_land_hat",
+    "marisa_tsumuri": "turned_land_hat"
   }
 }

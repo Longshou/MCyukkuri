@@ -38,7 +38,7 @@ def main():
     args = parser.parse_args()
     out = P.ROOT/'.local/previews/aquatic-family'; out.mkdir(parents=True, exist_ok=True)
     resource = json.loads(args.motions.read_text(encoding='utf-8'))
-    vessel = json.loads((P.ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+    vessel = json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
     dl = runpy.run_path(str(P.ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/delivery.py'))
     parent = P.Posed('marisa', resource, True)
     shore = P.Posed('marisa', resource, worn_hat_scale=vessel['scale']['aquatic_marisa'])

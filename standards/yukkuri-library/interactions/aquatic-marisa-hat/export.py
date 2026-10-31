@@ -25,7 +25,7 @@ WORN_ID, HULL_ID, OLD_HULL_ID = 'aquatic_basin_hat', 'aquatic_basin_hat_turned',
 STORES_PNG = ASSETS/'textures/props/aquatic_basin_hat_stores.png'
 INDEX = ASSETS/'yukkuri_props/subspecies-index.json'
 PROFILES = ASSETS/'yukkuri_presentation/hull_profiles'
-VESSEL_PATH = ASSETS/'yukkuri_presentation/hat_vessel.json'
+VESSEL_PATH = HERE.parent/'marisa-hat-vessel/geometry.json'
 SNAPSHOT = ROOT/'art/source/aquatic-basin-hat'
 AZIMUTHS = list(range(0, 360, 45))   # degrees in the hull frame, from +X toward +Z
 STEP = .25                           # radial sample spacing, adult model units (1/64 block)
@@ -111,7 +111,10 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
     reach = float(np.hypot(tris[:, :, 0], tris[:, :, 2]).max())+1
     rs = np.arange(0, reach+STEP, STEP)
     rows = dict(brim=[], opening=[], floor=[], keel=[], inner=[], outer=[]); crest, level, weight = [], 0., 0.
-    for az in AZIMUTHS:   # the opening, the brim's edge and the lowest crest water must pass to flood the hollow
+    # Every projected mesh corner is a ray: chords retain rectangular steps and the authored brim exactly.
+    azimuths = sorted(set(AZIMUTHS + [round(math.degrees(math.atan2(z, x)) % 360, 5)
+                                    for x, _, z in tris[:, :, :3].reshape(-1, 3) if x or z]))
+    for az in azimuths:   # the opening, the brim's edge and the lowest crest water must pass to flood the hollow
         c, s = math.cos(math.radians(az)), math.sin(math.radians(az))
         rows['opening'].append(edge_inside(inside, c, s, reach))
         rows['brim'].append(ray(tris, az, lambda t, b: not (math.isnan(t) and math.isnan(b)), rs))
@@ -121,7 +124,7 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
     hull = S.Hull(tris, dam, inside)
     keel = float(np.nanmin(np.where(np.isfinite(hull.low), hull.low, np.nan)))
     hollow = float(np.nanmin(np.where(hull.cavity, hull.field, np.nan)))
-    for az, opening, brim in zip(AZIMUTHS, rows['opening'], rows['brim']):
+    for az, opening, brim in zip(azimuths, rows['opening'], rows['brim']):
         c, s = math.cos(math.radians(az)), math.sin(math.radians(az))
         floor = ray(tris, az, lambda t, b: t <= hollow+TOL, rs)
         keel_r = outermost(tris, az, lambda t, b: b <= keel+TOL, rs)
@@ -134,7 +137,7 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
         dry = np.where(outer_r < opening, dam, top)
         outer = [[blk(r), blk(b), blk(t)] for r, b, t in zip(outer_r, bottom, dry)]
         for k, v in (('floor', floor), ('keel', keel_r), ('inner', inner), ('outer', outer)): rows[k].append(v)
-    for k in ('brim', 'opening', 'floor', 'keel'): rows[k] = [blk(v) for v in rows[k]]
+    for k in ('brim', 'opening', 'floor', 'keel'): rows[k] = [round(float(v)/16, 6) for v in rows[k]]
     # the empty hull upright on calm water: its cloth's weight (hat_vessel.json afloat.hull_mass per scale²) displaced
     mass = S.VESSEL['afloat']['hull_mass']*scale*scale; cell = (S.GRID.step/16)**2
     ok = np.isfinite(hull.low) & np.isfinite(hull.top); bot, top = hull.low[ok]/16, hull.top[ok]/16
@@ -150,7 +153,8 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
         units='blocks; hull frame: origin at the middle of the brim face (the face that sat on the head), +Y out of the '
               'hollow, +X the worn front (where the bow is), the boat\'s bow toward -Z; as the game draws the hull at '
               'scale, the mesh\'s y pressed by squash',
-        scale=scale, squash=squash, azimuths=AZIMUTHS, sample_step=blk(STEP), level_tolerance=blk(TOL),
+        scale=scale, squash=squash, azimuths=azimuths, sample_step=blk(STEP), level_tolerance=blk(TOL),
+        surface_triangles=np.round(tris[tris[:, 0, 6] > 1e-4, :, :3] / 16, 6).tolist(),
         rim=dict(y=blk(dam), note='the lowest crest round the opening: water over it floods the hollow'),
         brim=dict(radius=rows['brim']), opening=dict(radius=rows['opening']),
         floor=dict(y=blk(level/weight), radius=rows['floor']), hollow=dict(y=blk(hollow)),
@@ -206,7 +210,7 @@ def outputs():
                   'Current aquatic form: the land hat turned over (interactions/marisa-hat-vessel), drawn at the aquatic '
                   'scale with the crown pressed by HatGeometry.squash(); flat brim, stepped rectangular well.')
     for p in (new, old):
-        texts[PROFILES/f"{p['hull']}.json"] = (json.dumps(p, ensure_ascii=False, indent=1)+'\n').encode()
+        texts[PROFILES/f"{p['hull']}.json"] = (json.dumps(p, ensure_ascii=False, separators=(',', ':'))+'\n').encode()
     texts[SNAPSHOT/'recipe.json'] = (HERE/'recipe.json').read_bytes()
     texts[SNAPSHOT/'aquatic_basin_hat_stores.png'] = stores
     manifest = dict(note='Runtime outputs of interactions/aquatic-marisa-hat/export.py', status=B.R['status'],

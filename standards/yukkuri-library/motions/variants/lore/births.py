@@ -30,7 +30,7 @@ import page as viewer
 import delivery as DL
 
 PRESENT = P.ASSETS/'yukkuri_presentation'
-VESSEL = json.loads((PRESENT/'hat_vessel.json').read_text(encoding='utf-8'))
+VESSEL = json.loads((P.ASSETS.parents[4]/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
 CLIPS = ['idle', 'waddle', 'hop', 'brood', 'labor', 'postpartum', 'first_wake', 'hat_cradle', 'sleep', 'wake', 'bereaved', 'midwife',
          'boat_drift', 'boat_brood', 'boat_labor'] + [f'{c}{s}' for c in ('hat_off', 'hat_hold', 'hat_on', 'hat_off_self', 'hat_on_self') for s in ('', '_aq')]
 

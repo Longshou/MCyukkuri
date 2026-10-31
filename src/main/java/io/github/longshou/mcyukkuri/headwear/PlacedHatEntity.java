@@ -9,7 +9,7 @@ import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
-import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.motor.geom.Squeeze;
 import io.github.longshou.mcyukkuri.motor.surface.Container;
@@ -133,8 +133,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (SCALE.equals(data) || FORM.equals(data)) { container = null; refreshDimensions(); }
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
-        // Only the solid floor occupies an engine box; rim contact is sampled separately and the hollow stays clickable.
-        return EntityDimensions.scalable((float)(2 * profile().floorRadius() * unit()), (float)(profile().floor() * unit()));
+        return super.getDimensions(pose).scale(hullScale());
     }
 
     @Override public String formId() { return entityData.get(FORM); }
@@ -149,7 +148,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public float previousYaw() { return yRotO; }
 
     // ---------------------------------------------------------------- the host (SurfaceHost)
-    private static final int RIM_POINTS = 24;
     /** How much two foot circles must overlap before they conflict. */
     private static final double ROOM_SLACK = .02;
 
@@ -199,17 +197,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The steepest change of tilt over the last tick (degrees), from the synced pose alone: both sides read the same. */
     public float tiltRate() { return Math.max(Math.abs(Mth.wrapDegrees(roll() - rollO)), Math.abs(Mth.wrapDegrees(pitch() - pitchO))); }
     /** All support, room and movement use the same body-only columns in hat units. */
-    private final Map<List<Double>, BodyFootprint> shapes = new HashMap<>();
-    private BodyFootprint shape(double width, double tall, double yaw) {
-        if (shapes.size() > 64) shapes.clear();
-        return shapes.computeIfAbsent(List.of(width, tall, yaw), key -> BodyFootprint.of(width, tall, yaw));
-    }
     private BodyFootprint shape(YukkuriEntity body) {
-        return shape(body.getBbWidth()/unit(), tallOf(body), Math.toRadians(body.yBodyRot-getYRot()));
+        return BodyFootprint.of(body.assetId(),body.getBbWidth()/unit(),tallOf(body),Math.toRadians(body.yBodyRot-getYRot()));
     }
     @Override public OptionalDouble support(Vec3 local, double r) {
-        double width = 2*(r-Occupancy.MARGIN)/unit();
-        return support(local, r == 0 ? BodyFootprint.point() : shape(width, width*.75, 0));
+        double y=upsideDown()?Double.NaN:profile().footprint(local.x,local.z,r/unit());
+        return Double.isFinite(y)?OptionalDouble.of(y):OptionalDouble.empty();
     }
     @Override public OptionalDouble support(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
     private OptionalDouble support(Vec3 local, BodyFootprint body) {
@@ -256,17 +249,17 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double foot = Occupancy.foot(walker.getBbWidth()), tall = tallOf(walker);
         var held = behavior().obstacles(this);
         float roll = Math.round(roll() / GRID_TILT) * GRID_TILT, pitch = Math.round(pitch() / GRID_TILT) * GRID_TILT;
-        if (aroundRiders) return sampleGrid(foot, tall, held, roll, pitch, walker, true);
-        List<Object> floor = List.of(formId(), unit(), upsideDown(), held, roll, pitch, walker.yBodyRot-getYRot());
+        if (aroundRiders) return sampleGrid(foot, held, roll, pitch, walker, true);
+        List<Object> floor = List.of(formId(), unit(), upsideDown(), held, roll, pitch, walker.assetId(), BodyFootprint.yawBucket(Math.toRadians(walker.yBodyRot-getYRot())));
         if (!floor.equals(gridFloor) || grids.size() > 8) { grids.clear(); gridFloor = floor; }
         return grids.computeIfAbsent(List.of(Math.round(foot * 1000) / 1000.0, Math.round(tall * 100) / 100.0),
-                key -> sampleGrid(key.get(0), key.get(1), held, roll, pitch, walker, false));
+                key -> sampleGrid(key.get(0), held, roll, pitch, walker, false));
     }
     /** Cells of min(GRID_CELL, the foot radius) in hat units and at least 8 across the opening; each cell's height is the floor
      *  under that foot raised to world-up at this tilt, so a slope counts toward the step a walker can take. Cells where the
      *  walker's footprint (its {@code tall} height up from that floor) would overlap what the floor holds (or, around riders,
      *  another rider than the walker) are unsupported. */
-    private HeightGrid sampleGrid(double foot, double tall, List<Disc> held, float roll, float pitch, YukkuriEntity walker, boolean aroundRiders) {
+    private HeightGrid sampleGrid(double foot, List<Disc> held, float roll, float pitch, YukkuriEntity walker, boolean aroundRiders) {
         float[] o = profile().opening(), brim = profile().brim();
         double feet = foot / unit(), cell = Math.min(Math.min(GRID_CELL / unit(), feet), Math.min(o[1] - o[0], o[3] - o[2]) / 8);
         var tilt = new HostFrame(Vec3.ZERO, 1, 0, roll, pitch);
@@ -281,15 +274,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         });
     }
     /** The brim's top edge in 24 directions, through the current frame so a placed yaw is included. */
-    @Override public List<Vec3> rim() {
-        var pose = frame();
-        var out = new ArrayList<Vec3>(RIM_POINTS);
-        for (int i = 0; i < RIM_POINTS; i++) {
-            double angle = i * 2 * Math.PI / RIM_POINTS, dx = Math.cos(angle), dz = Math.sin(angle);
-            double reach = profile().reach(Math.atan2(dz, dx));
-            out.add(pose.toWorld(new Vec3(dx * reach, profile().surface(dx * reach * .999999, dz * reach * .999999), dz * reach)));
-        }
-        return List.copyOf(out);
+    private HullProfile rimForm;
+    private final Map<HostFrame,List<Vec3>> rims=new LinkedHashMap<>(4,.75f,true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<HostFrame,List<Vec3>> entry){return size()>4;}
+    };
+    @Override public List<Vec3> rim() { return rim(frame()); }
+    public List<Vec3> rim(HostFrame pose) {
+        if(rimForm!=profile()){rims.clear();rimForm=profile();}
+        return rims.computeIfAbsent(pose,p->profile().rimPoints().stream().map(v->p.toWorld(new Vec3(v.x(),v.y(),v.z()))).toList());
     }
     /** Named places, hat units: the middle of the cavity, and the brim edge on the owner's side. Targets only. */
     @Override public Map<String, Vec3> spots() {
@@ -309,24 +301,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The cavity's own floor and brim heights (hat units) and, as its radius, the authored brim extent. */
     @Override public Container container() {
         if (container == null || containerUnit != unit()) {
-            var outline = new ArrayList<Vec>();
-            for(int i=0;i<64;i++){double a=i*Math.PI/32,r=profile().mouth(a)*unit();outline.add(new Vec(Math.cos(a)*r,0,Math.sin(a)*r));}
-            container = new HostContainer(this, new FloorShape.Polygon(outline), profile().floor(), profile().rimY());
+            double radius=Math.min(profile().reach(0),profile().reach(Math.PI/2))*unit();
+            container = new HostContainer(this, new FloorShape.Circle(radius), profile().floor(), profile().rimY());
             containerUnit = unit();
         }
         return container;
     }
     @Override public Riders riders() { return riders; }
-    public Occupancy occupancy(Vec3 local, double width, boolean supported) {
-        return occupancy(local, shape(width/unit(), width*.75/unit(), 0), supported);
-    }
-    public Occupancy occupancy(Vec3 local, YukkuriEntity body, boolean supported) { return occupancy(local, shape(body), supported); }
-    private Occupancy occupancy(Vec3 local, BodyFootprint body, boolean supported) {
-        if (upsideDown() || !Double.isFinite(profile().surface(local.x,local.z))) return Occupancy.OUTSIDE;
-        boolean inside = body.columns().stream().allMatch(p -> profile().inOpening(local.x+p.x(),local.z+p.z()));
-        if (inside && local.y < profile().rimY()) return supported ? Occupancy.INSIDE_SUPPORTED : Occupancy.PARTIAL;
-        return supported ? Occupancy.ON_RIM : Occupancy.PARTIAL;
-    }
     @Override public boolean steady() { return state() != State.RESCUED && behavior().steady(this); }
     /** A rider the hull keeps dry (the behaviour decides: afloat, upright, its brim above the water). */
     @Override public boolean shelters(YukkuriEntity body) { return hasPassenger(body) && !upsideDown() && behavior().shelters(this, body); }
@@ -406,19 +387,18 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** The supported, free spot near {@code prefer} for a body of this foot radius and height (hat units); nothing is kept
      *  (no second store). */
-    private Vec3 nestPlace(double footRadius, double tall, Vec3 prefer) {
+    private Vec3 nestPlace(BodyFootprint body, Vec3 prefer) {
         if (prefer == null) return null;
-        var body = shape(2*(footRadius-Occupancy.MARGIN/unit()),tall,0);
         var height = support(prefer,body);
         if(height.isEmpty())return null;
         var spot = new Vec3(prefer.x,height.getAsDouble(),prefer.z);
         return clear(body,spot,null,0) ? spot : null;
     }
     /** The first free supported place on the hat, or null; a place is asked for, never kept (no seats, no leases). */
-    private Vec3 nestSpace(double footRadius, double tall) {
+    private Vec3 nestSpace(double footRadius, BodyFootprint body) {
         var centre = spots().get("centre");
         if (centre == null) return null;
-        var middle = nestPlace(footRadius, tall, centre);
+        var middle = nestPlace(body, centre);
         if (middle != null) return middle;
         // Rings out from the middle, a foot radius apart: a body standing over the middle leaves the nearest free floor or brim spot.
         double reach = Math.hypot(profile().brim()[0], profile().brim()[1]);
@@ -426,7 +406,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             int around = Math.max(8, (int) Math.ceil(2 * Math.PI * ring / footRadius));
             for (int i = 0; i < around; i++) {
                 double angle = i * 2 * Math.PI / around;
-                var place = nestPlace(footRadius, tall, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
+                var place = nestPlace(body, new Vec3(centre.x + Math.cos(angle) * ring, centre.y, centre.z + Math.sin(angle) * ring));
                 if (place != null) return place;
             }
         }
@@ -439,9 +419,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      *  boat its mother rides takes it at the free hollow place nearest {@link #BIRTH_LEAD} ahead of where it comes out. */
     public Vec3 birthPlace(YukkuriEntity child) {
         if (child == null) return null;
-        if (catches()) return nestSpace(footOf(child), tallOf(child));
+        if (catches()) return nestSpace(footOf(child), shape(child));
         var near = toLocal(child.position().add(Vec3.directionFromRotation(0, child.getYRot()).multiply(1, 0, 1).normalize().scale(BIRTH_LEAD)));
-        return hollow(footOf(child), tallOf(child), child.getBbWidth()).stream()
+        return hollow(footOf(child), shape(child), child.getBbWidth()).stream()
                 .min(Comparator.comparingDouble(p -> Math.hypot(p.x - near.x, p.z - near.z))).orElse(null);
     }
     /** Every free supported place inside the hollow (world) for an unborn child of this size: where a birth into the boat its
@@ -449,16 +429,16 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
         if (level().isClientSide) return List.of();
         var size = LiveBirthGeometry.unbornDimensions(kind, child);
-        return hollow(Occupancy.foot(size.width()) / unit(), size.height() / unit(), size.width()).stream().map(this::toWorld).toList();
+        return hollow(Occupancy.foot(size.width()) / unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0), size.width()).stream().map(this::toWorld).toList();
     }
     /** The free places (hat units) inside the hollow, INSIDE_SUPPORTED and clear at their height, a foot apart. */
-    private List<Vec3> hollow(double foot, double tall, double width) {
+    private List<Vec3> hollow(double foot, BodyFootprint body, double width) {
         float[] o = profile().opening();
         double step = Math.max(.5, foot);
         var out = new ArrayList<Vec3>();
         for (double x = o[0] + foot; x <= o[1] - foot; x += step)
             for (double z = o[2] + foot; z <= o[3] - foot; z += step) {
-                var place = nestPlace(foot, tall, new Vec3(x, 0, z));
+                var place = nestPlace(body, new Vec3(x, 0, z));
                 if (place != null && Occupancy.at(container(), frame().toWorld(place), width, true) == Occupancy.INSIDE_SUPPORTED) out.add(place);
             }
         return out;
@@ -489,7 +469,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      *  never kept. */
     public Vec3 birthPlace(FamilyData.BirthKind kind,FamilyData.Child child) {
         var size = LiveBirthGeometry.unbornDimensions(kind,child);
-        var place = catches() && !level().isClientSide ? nestSpace(Occupancy.foot(size.width())/unit(), size.height()/unit()) : null;
+        var place = catches() && !level().isClientSide ? nestSpace(Occupancy.foot(size.width())/unit(), BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0)) : null;
         return place == null ? null : toWorld(place);
     }
     @Override protected void addPassenger(Entity passenger) {
@@ -889,7 +869,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         try{state(State.valueOf(tag.getString("State")));}catch(IllegalArgumentException invalid){state(State.CRADLE);}
         entityData.set(SCALE,Math.clamp(tag.getFloat("HullScale"),.1f,2.5f));
         role="SELF".equals(tag.getString("Role"))?HatGeometry.Role.SELF:HatGeometry.Role.HELPER;
-        formId(tag.contains("HullForm",Tag.TAG_STRING)?tag.getString("HullForm"):HullProfile.CURRENT);
+        String form=tag.contains("HullForm",Tag.TAG_STRING)?tag.getString("HullForm"):HullProfile.CURRENT;
+        if(!HullProfile.known(form))GameplayLog.event(this,"hat","unknown saved form={} uuid={}",form,getUUID());
+        formId(form);
         riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
         pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
         rollO=roll();pitchO=pitch();

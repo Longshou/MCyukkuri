@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.client.aquatic;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -31,12 +30,12 @@ public final class HullWaterMask {
         float partial = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         var buffers = minecraft.renderBuffers().bufferSource();
         var pose = event.getPoseStack().last().pose();
-        float[] o = HatGeometry.opening();
-        float[][] ring = {{o[1], o[2]}, {o[1], o[3]}, {o[0], o[3]}, {o[0], o[2]}};
         VertexConsumer mask = null;
         for (var entity : level.entitiesForRendering()) {
             if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved() || hat.upsideDown()
                     || hat.state() == PlacedHatEntity.State.RESCUED || hat.distanceToSqr(camera) > RANGE * RANGE) continue;
+            float[] o = hat.profile().opening();
+            float[][] ring = {{o[1], o[2]}, {o[1], o[3]}, {o[0], o[3]}, {o[0], o[2]}};
             var at = hat.getPosition(partial);
             double water = HullAfloat.surface(level, at.x, at.y - .5, at.z);
             if (!Double.isFinite(water) || water <= at.y) continue;  // its hollow is not below the waterline

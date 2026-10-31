@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 双帽形共用剖面几何与身体支撑 | `.worktrees/hull-form` | `headwear/{HullProfile,HatGeometry,PlacedHatEntity}`、`motor/surface/Occupancy`、出生／帽檐／辫子几何调用方、纯函数测试 |
 | 帽船分娩表现与亲缘回应 | `.worktrees/boat-birth` | `entity/presentation/PresentationArbiter`（不改 `onBrim`）、`family/FamilyLife`；出生出口与弹道留待帽形合入后处理 |
 
 ## 玩法待办

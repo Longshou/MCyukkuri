@@ -1,6 +1,6 @@
 """Offline sheet for the aquatic hat boat as a home (ecology design D 3): the larder and the crew as seen from the bank.
 
-Reads only exported runtime data, as the game does: hat_vessel.json (size), hat_deck_layout.json (seats, conflicts,
+Reads the authored marisa-hat-vessel/geometry.json and exported runtime data: hat_deck_layout.json (seats, conflicts,
 larder exclusions, the crew pose table), hat_cargo_layout.json and hat_provisions.json (the larder), hat_frames.json
 (freeboard by load), marisa_hat_turned / marisa_hat_wetline / paddle_stick and the exported clips. Seats are chosen
 from the deck table with the same rules the runtime uses (classes, night, larder and stick exclusions, conflicts,
@@ -48,8 +48,9 @@ class Resources:
         self.rev = rev
 
     def read(self, rel):
-        if self.rev is None: return (P.ASSETS/rel).read_bytes()
-        return subprocess.run(['git', '-C', str(ROOT), 'show', f'{self.rev}:src/main/resources/assets/mcyukkuri/{rel}'],
+        path = (P.ASSETS/rel).resolve().relative_to(ROOT)
+        if self.rev is None: return (ROOT/path).read_bytes()
+        return subprocess.run(['git', '-C', str(ROOT), 'show', f'{self.rev}:{path.as_posix()}'],
                               capture_output=True, check=True).stdout
 
     def json(self, rel): return json.loads(self.read(rel).decode('utf-8'))
@@ -57,7 +58,7 @@ class Resources:
 
 class Home:
     def __init__(self, res):
-        self.res = res; self.V = res.json('yukkuri_presentation/hat_vessel.json'); self.k = self.V['scale']['aquatic_marisa']
+        self.res = res; self.V = res.json(os.path.relpath(ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json', P.ASSETS)); self.k = self.V['scale']['aquatic_marisa']
         self.deck = res.json('yukkuri_presentation/hat_deck_layout.json'); self.mode = self.deck['modes']['AQUATIC_FLOAT']
         self.frames = res.json('yukkuri_presentation/hat_frames.json')['modes']['aquatic']
         self.cargo = res.json('yukkuri_presentation/hat_cargo_layout.json')

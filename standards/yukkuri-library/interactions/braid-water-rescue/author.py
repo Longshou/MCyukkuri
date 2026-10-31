@@ -59,7 +59,7 @@ def export():
         # The leaning body would sink its low side into the deck: it is raised so its lowest body point stays on the floor.
         lean_lift=float(body[:,1].min()-pose(body)[:,1].min())
         lean_out={'reach_lean_lift':round(lean_lift,5),'reach_lean_root':[round(float(v),5) for v in pose(base)+np.array([0,round(lean_lift,5),0])]}
-    vessel=json.loads((ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
+    vessel=json.loads((ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json').read_text(encoding='utf-8'))
     output={**recipe,'units_per_block':16,'bone':recipe['braid_bone'],'root_rotation':[recipe['root_pitch_degrees'],0,0],
             'grip_height':recipe['grip_height_ratio'],'mouth_root':mouth_root,'mouth_reach':recipe['mouth_reach_blocks'],'root_pivot':pivot.tolist(),'braid_root':base.tolist(),'braid_tip':tip.tolist(),'tip_joint':joint.tolist(),
             'braid_length':float(np.linalg.norm(tip-base)),'root_lift':lift,
