@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import net.minecraft.nbt.CompoundTag;
 
@@ -286,8 +285,8 @@ public final class PresentationArbiter {
     }
     /** The rider's feet are supported at the brim's top edge rather than down in the cavity. */
     private static boolean onBrim(PlacedHatEntity hat, YukkuriEntity e) {
-        var support = hat.support(hat.frame().toLocal(e.position()), Occupancy.foot(e.getBbWidth()));
-        return support.isPresent() && support.getAsDouble() >= HatGeometry.top() - 1e-6;
+        var support = hat.support(hat.frame().toLocal(e.position()), e);
+        return support.isPresent() && support.getAsDouble() >= hat.profile().rimY() - 1e-6;
     }
 
     /** The running motor action's own clip as a known action; the single source of action clips and phases. */

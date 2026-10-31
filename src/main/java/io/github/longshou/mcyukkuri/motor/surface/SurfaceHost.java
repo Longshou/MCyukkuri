@@ -22,7 +22,10 @@ public interface SurfaceHost {
     /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);
 
-    /** The foot circle at {@code local} overlaps no other rider nor anything the host holds on its floor at the same height: footprints conflict only where their heights overlap. */
+    /** The body's own underside, where the host has shaped support. */
+    default OptionalDouble support(Vec3 local, YukkuriEntity body) { return support(local, Occupancy.foot(body.getBbWidth())); }
+
+    /** The body's footprint at {@code local} overlaps no rider or stored object; shaped hosts compare body columns. */
     default boolean room(YukkuriEntity body, Vec3 local) {
         return body != null && local != null && room(body, local, local.y + body.getBbHeight() / frame().unit());
     }

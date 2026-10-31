@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.entity;
 
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
@@ -302,7 +301,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** The footprint of a placed hat (its brim on its yaw, solid) or a free body (its box). */
     private static Obstacle footprint(Entity e) {
         if (e instanceof PlacedHatEntity hat) {
-            float[] brim = HatGeometry.brim();
+            float[] brim = hat.profile().brim();
             double unit = hat.unit(), turn = hat.turn();
             return new Obstacle(e, new Detour.Box(e.getId(), e.getX(), e.getZ(), brim[0] * unit, brim[1] * unit, Math.cos(turn), -Math.sin(turn)), e.getY(), true);
         }

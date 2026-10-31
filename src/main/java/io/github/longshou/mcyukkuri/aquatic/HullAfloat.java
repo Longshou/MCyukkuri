@@ -61,17 +61,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** An outside cause this recent (ticks) is the one a capsize is put down to. */
     private static final int CAUSE_TICKS = 40;
     /** The brim's reach from the centre (hat units) in 24 directions from local +x toward +z; the hull's outer outline. */
-    private static final double[] REACH = new double[24];
-    private static final double MAX_REACH;
-    static {
-        double max = 0;
-        for (int i = 0; i < REACH.length; i++) {
-            double a = i * 2 * Math.PI / REACH.length;
-            REACH[i] = HatGeometry.extent(0, 0, Math.cos(a), Math.sin(a), 0);
-            max = Math.max(max, REACH[i]);
-        }
-        MAX_REACH = max;
-    }
+    private static final int RIM_POINTS = 24;
 
     private double rollRate, pitchRate, heelRoll, heelPitch, mass, draft;
     private int over, flip;
@@ -98,7 +88,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** How far (blocks) this hull's brim reaches from its middle toward a world point, at its yaw: where another hull meets it. */
     static double brimToward(PlacedHatEntity hat, Vec3 at) {
         var d = local(hat, at.x - hat.getX(), at.z - hat.getZ());
-        return reach(Math.atan2(d[1], d[0])) * hat.unit();
+        return hat.profile().reach(Math.atan2(d[1], d[0])) * hat.unit();
     }
 
     private static double num(String key) { return DATA.get(key).getAsDouble(); }
@@ -121,7 +111,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     /** The hull's lowest point: its bottom upright, its brim crown up. */
     private static double lowest(PlacedHatEntity hat) {
-        return hat.getY() + Math.min(0, HatGeometry.top() * hat.unit() * Buoyancy.up(hat.roll(), hat.pitch()));
+        return hat.getY() + Math.min(0, hat.profile().rimY() * hat.unit() * Buoyancy.up(hat.roll(), hat.pitch()));
     }
 
     /** The top of the first water in the column at x, z from height {@code from} up (a few blocks), or NaN when there is none. */
@@ -144,7 +134,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     // ---------------------------------------------------------------- the tick
     @Override public void tick(PlacedHatEntity hat) {
-        double water = surface(hat), unit = hat.unit(), top = HatGeometry.top() * unit;
+        double water = surface(hat), unit = hat.unit(), top = hat.profile().rimY() * unit;
         if (!Double.isFinite(water)) return;
         var plane = plane(hat);
         var load = load(hat, larder, null, null);
@@ -173,8 +163,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (flip != 0 && Math.abs(flip % 2 != 0 ? roll : pitch) > 90) flip = 0;
         hat.pose((float) roll, (float) pitch);
         if (righting && rightProgress >= 1 && Math.abs(roll) < .5 && Math.abs(pitch) < .5) righted(hat);
-        double floodRoll = Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit);
-        double floodPitch = Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit);
+        double floodRoll = Buoyancy.flooding(freeboard, hat.profile().brim()[0] * unit);
+        double floodPitch = Buoyancy.flooding(freeboard, hat.profile().brim()[1] * unit);
         double ratio = down || flip != 0 || righting ? 0 : Buoyancy.floodRatio(roll, pitch, floodRoll, floodPitch);
         over = ratio >= 1 ? over + 1 : 0;
         if (ratio >= CAPSIZE_HARD || over >= CAPSIZE_TICKS) capsize(hat, roll, pitch, floodRoll, floodPitch, ratio, freeboard);
@@ -193,7 +183,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (walled && !pressing) bump(hat, motion, free);
         pressing = walled;
         rest(hat);
-        var reach = MAX_REACH * unit + 1;
+        var reach = Math.hypot(hat.profile().brim()[0], hat.profile().brim()[1]) * unit + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach, top + .5, reach), e -> e instanceof LivingEntity))
             contact(hat, other);
         boolean against = hat.level().getBlockCollisions(hat, hat.getBoundingBox().inflate(.05, 0, .05)).iterator().hasNext();
@@ -231,9 +221,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!(hat.behavior() instanceof HullAfloat hull)) return 0;
         var load = load(hat, hull.larder, body, local);
         var plane = plane(hat);
-        double unit = hat.unit(), freeboard = HatGeometry.top() * unit - Buoyancy.draft(load.mass(), plane);
+        double unit = hat.unit(), freeboard = hat.profile().rimY() * unit - Buoyancy.draft(load.mass(), plane);
         return Buoyancy.floodRatio(Buoyancy.rollHeel(load.x(), plane), Buoyancy.pitchHeel(load.z(), plane),
-                Buoyancy.flooding(freeboard, HatGeometry.brim()[0] * unit), Buoyancy.flooding(freeboard, HatGeometry.brim()[1] * unit));
+                Buoyancy.flooding(freeboard, hat.profile().brim()[0] * unit), Buoyancy.flooding(freeboard, hat.profile().brim()[1] * unit));
     }
 
     private static double steady() {
@@ -242,10 +232,11 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     // ---------------------------------------------------------------- the brim against the bank
-    /** The brim's top edge, sample {@code i} of {@link #REACH}, for a pose. */
-    private static Vec3 rim(HostFrame frame, int i) {
-        double a = i * 2 * Math.PI / REACH.length;
-        return frame.toWorld(new Vec3(Math.cos(a) * REACH[i], HatGeometry.top(), Math.sin(a) * REACH[i]));
+    /** The brim's top edge, sample {@code i} of the profile rim, for a pose. */
+    private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
+        double a = i * 2 * Math.PI / RIM_POINTS;
+        double r = hat.profile().reach(a);
+        return frame.toWorld(new Vec3(Math.cos(a) * r, hat.profile().surface(Math.cos(a)*r*.999999, Math.sin(a)*r*.999999), Math.sin(a) * r));
     }
 
     /** The highest top at x, z of the block collision boxes reaching into heights {@code low}..{@code high}, or NaN. */
@@ -269,7 +260,7 @@ public final class HullAfloat implements PlacedHatBehavior {
      *  nothing for the brim to meet. */
     private static boolean open(PlacedHatEntity hat, double more) {
         if (hat.upsideDown()) return true;
-        double r = MAX_REACH * hat.unit() + more, top = HatGeometry.top() * hat.unit();
+        double r = Math.hypot(hat.profile().brim()[0], hat.profile().brim()[1]) * hat.unit() + more, top = hat.profile().rimY() * hat.unit();
         return !hat.level().getBlockCollisions(hat, new AABB(hat.getX() - r, hat.getY() - top, hat.getZ() - r, hat.getX() + r, hat.getY() + 2 * top, hat.getZ() + r))
                 .iterator().hasNext();
     }
@@ -278,12 +269,12 @@ public final class HullAfloat implements PlacedHatBehavior {
      *  ride onto); {@code leading} counts only the points on the side it moves toward (it may always back out of a bank). */
     private static boolean walled(PlacedHatEntity hat, HostFrame frame, double dx, double dz, boolean leading, HostFrame before) {
         double lip = BRIM_LIP * hat.unit();
-        for (int i = 0; i < REACH.length; i++) {
-            var at = rim(frame, i);
+        for (int i = 0; i < RIM_POINTS; i++) {
+            var at = rim(hat, frame, i);
             if (leading && (at.x - hat.getX()) * dx + (at.z - hat.getZ()) * dz <= 0) continue;
             if (!(bank(hat.level(), at.x + dx, at.y - lip, at.y, at.z + dz) > at.y)) continue;
             if (before == null) return true;
-            var was = rim(before, i);
+            var was = rim(hat, before, i);
             if (!(bank(hat.level(), was.x, was.y - lip, was.y, was.z) > was.y)) return true;
         }
         return false;
@@ -307,8 +298,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         double lift = 0, lip = BRIM_LIP * hat.unit();
         if (!open(hat, 0)) {
             var frame = hat.frame();
-            for (int i = 0; i < REACH.length; i++) {
-                var at = rim(frame, i);
+            for (int i = 0; i < RIM_POINTS; i++) {
+                var at = rim(hat, frame, i);
                 double top = bank(hat.level(), at.x, at.y - lip, at.y, at.z);
                 if (top <= at.y + 1e-6) lift = Math.max(lift, top - (at.y - lip));
             }
@@ -343,13 +334,13 @@ public final class HullAfloat implements PlacedHatBehavior {
         // a jump lands by contact; a climber pulls itself over the brim
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
                 || y.motor().current() instanceof Climb climb && climb.host() == hat)) return;
-        double unit = hat.unit(), up = HatGeometry.top() * unit * Buoyancy.up(hat.roll(), hat.pitch());
+        double unit = hat.unit(), up = hat.profile().rimY() * unit * Buoyancy.up(hat.roll(), hat.pitch());
         var box = other.getBoundingBox();
         if (box.minY >= hat.getY() + Math.max(0, up) || box.maxY <= hat.getY() + Math.min(0, up)) return;
         double dx = other.getX() - hat.getX(), dz = other.getZ() - hat.getZ(), distance = Math.hypot(dx, dz);
         if (distance < 1e-4) { dx = 1; dz = 0; distance = 1; }
         var dir = local(hat, dx / distance, dz / distance);
-        double depth = Math.min(CONTACT_STEP, reach(Math.atan2(dir[1], dir[0])) * unit + other.getBbWidth() / 2 - distance);
+        double depth = Math.min(CONTACT_STEP, hat.profile().reach(Math.atan2(dir[1], dir[0])) * unit + other.getBbWidth() / 2 - distance);
         if (depth <= 0) return;
         double theirs = mass(other), mine = Math.max(mass, HULL_MASS);
         double share = other instanceof YukkuriEntity ? theirs / (theirs + mine) : 1;
@@ -404,7 +395,7 @@ public final class HullAfloat implements PlacedHatBehavior {
             thrown.add(y.getUUID().toString());
         }
         larder.spill(hat, why, at -> carried(hat, at));
-        hat.dropKit(hat.position().add(0, HatGeometry.top() * hat.unit(), 0), carried(hat, hat.position()), "capsized");
+        hat.dropKit(hat.position().add(0, hat.profile().rimY() * hat.unit(), 0), carried(hat, hat.position()), "capsized");
         GameplayLog.event(hat, "hat", "capsized cause={} tilt={}/{} flood={}/{} ratio={} draft={} freeboard={} owner={} thrown={} riders={}",
                 why, fmt(roll), fmt(pitch), fmt(floodRoll), fmt(floodPitch), fmt(ratio), fmt(draft), fmt(freeboard),
                 hat.ownerYukkuri(), thrown.size(), thrown);
@@ -503,18 +494,18 @@ public final class HullAfloat implements PlacedHatBehavior {
         long now = hat.level().getGameTime();
         if (dryTick != now) {
             dryTick = now;
-            double water = surface(hat), top = HatGeometry.top();
+            double water = surface(hat), top = hat.profile().rimY();
             var frame = hat.frame();
             dry = Double.isFinite(water);
-            for (int i = 0; dry && i < REACH.length; i++) {
-                double a = i * 2 * Math.PI / REACH.length;
-                dry = frame.toWorld(new Vec3(Math.cos(a) * REACH[i], top, Math.sin(a) * REACH[i])).y > water;
+            for (int i = 0; dry && i < RIM_POINTS; i++) {
+                double a = i * 2 * Math.PI / RIM_POINTS;
+                dry = rim(hat, frame, i).y > water;
             }
         }
-        return dry && hat.support(hat.frame().toLocal(rider.position()), Occupancy.foot(rider.getBbWidth())).isPresent();
+        return dry && hat.support(hat.frame().toLocal(rider.position()), rider).isPresent();
     }
     @Override public String detail(PlacedHatEntity hat) {
-        double top = HatGeometry.top() * hat.unit();
+        double top = hat.profile().rimY() * hat.unit();
         return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s portions=%d",
                 draft, top - draft, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size());
     }
@@ -522,7 +513,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     // ---------------------------------------------------------------- measures
     /** The crown's waterplane: the opening's rectangle at this hat's size. */
     private static Buoyancy.Plane plane(PlacedHatEntity hat) {
-        float[] o = HatGeometry.opening();
+        float[] o = hat.profile().opening();
         return Buoyancy.Plane.rect((o[1] - o[0]) * hat.unit(), (o[3] - o[2]) * hat.unit());
     }
     /** A yukkuri as a round body of the WaterDistress density, a mother as her own body and the young she carries (her swell is
@@ -543,12 +534,6 @@ public final class HullAfloat implements PlacedHatBehavior {
     private static double[] local(PlacedHatEntity hat, double x, double z) {
         double yaw = hat.turn(), c = Math.cos(yaw), s = Math.sin(yaw);
         return new double[]{x * c - z * s, x * s + z * c};
-    }
-    /** The brim's reach (hat units) toward a local angle, between the two nearest samples. */
-    private static double reach(double angle) {
-        double at = (angle < 0 ? angle + 2 * Math.PI : angle) / (2 * Math.PI) * REACH.length;
-        int i = (int) Math.floor(at) % REACH.length;
-        return Mth.lerp(at - Math.floor(at), REACH[i], REACH[(i + 1) % REACH.length]);
     }
     private void cause(PlacedHatEntity hat, String why) { cause = why; causeTick = hat.level().getGameTime(); }
     private static String fmt(double v) { return String.format(Locale.ROOT, "%.3f", v); }

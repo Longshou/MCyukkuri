@@ -196,7 +196,7 @@ final class Care implements Intent {
         for (int i = 0; i < 8; i++) {
             double a = i * Math.PI / 4;
             var foot = new Vec3(at.x + Math.cos(a) * d, 0, at.z + Math.sin(a) * d);
-            var height = hat.support(foot, Occupancy.foot(parent.getBbWidth()));
+            var height = hat.support(foot, parent);
             if (height.isEmpty()) continue;
             var spot = new Vec3(foot.x, height.getAsDouble(), foot.z);
             if (hat.room(parent, spot) && HullAfloat.keeps(hat, parent, spot) && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;

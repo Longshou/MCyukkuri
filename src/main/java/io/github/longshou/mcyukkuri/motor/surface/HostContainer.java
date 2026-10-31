@@ -16,6 +16,6 @@ public record HostContainer(SurfaceHost host, FloorShape floor, double floorLoca
     /** Only a rider of this host stands on its surface (a catch hat has no block collision). */
     @Override public boolean supports(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return false;
-        return host.support(on.local(), Occupancy.foot(body.getBbWidth())).isPresent();
+        return host.support(on.local(), body).isPresent();
     }
 }

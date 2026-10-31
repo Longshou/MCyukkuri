@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.surface;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
@@ -13,7 +14,7 @@ public enum Occupancy {
     /** Footprint radius per block of body width (the visible body is that wide: half of it each side), and a small margin (blocks). */
     public static final double FOOT=.5, MARGIN=.02;
 
-    /** The one footprint definition: the visible body's half width plus the margin (blocks); room, landing, the walk grid and squeeze all use it, over each own height range. */
+    /** Broad-phase radius and walk-grid spacing; shaped hosts resolve support and collision with body-only columns. */
     public static double foot(double bbWidth) { return FOOT * bbWidth + MARGIN; }
 
     /** The middle of the hollow (world) of the host this body rides, while it lies on the brim or rim rather than inside: where a body that fell onto the brim tumbles toward. */
@@ -31,12 +32,16 @@ public enum Occupancy {
 
     public static Occupancy of(YukkuriEntity body, Container c) {
         if (body == null || c == null) return OUTSIDE;
+        if (c instanceof HostContainer host && host.host() instanceof PlacedHatEntity hat)
+            return hat.occupancy(hat.frame().toLocal(body.position()), body, c.supports(body));
         return at(c, body.position(), body.getBbWidth(), c.supports(body));
     }
 
     /** Where a body of width {@code bbWidth} with feet at {@code feet} would be: the pure probe an airborne contact evaluates before moving it. {@code supported}: it is held. */
     public static Occupancy at(Container c, Vec3 feet, double bbWidth, boolean supported) {
         if (c == null || feet == null) return OUTSIDE;
+        if (c instanceof HostContainer host && host.host() instanceof PlacedHatEntity hat)
+            return hat.occupancy(hat.frame().toLocal(feet), bbWidth, supported);
         Vec3 p = c.toPlane(feet);
         return switch (OccupancyMath.classify(p.x, p.z, p.y, foot(bbWidth), c.floor(), c.floorY(), c.rimY(), supported)) {
             case INSIDE_SUPPORTED -> INSIDE_SUPPORTED;

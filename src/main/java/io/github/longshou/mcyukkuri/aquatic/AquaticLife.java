@@ -136,7 +136,7 @@ public final class AquaticLife {
         Vec3 best = null, calmest = null;
         for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
             var local = new Vec3(grid.centreX(i), 0, grid.centreZ(j));
-            var height = grid.supported(i, j) ? hat.support(local, foot) : null;
+            var height = grid.supported(i, j) ? hat.support(local, body) : null;
             if (height == null || height.isEmpty()) continue;
             var spot = new Vec3(local.x, height.getAsDouble(), local.z);
             if (inside && Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
@@ -202,7 +202,7 @@ public final class AquaticLife {
         if (water == null) return "no_water";
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
-        var middle = hat.support(Vec3.ZERO, Occupancy.foot(body.getBbWidth()));
+        var middle = hat.support(Vec3.ZERO, body);
         return middle.isEmpty() ? "no_floor" : board(body, hat, new Vec3(0, middle.getAsDouble(), 0), cause, true);
     }
 

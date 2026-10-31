@@ -152,7 +152,7 @@ public final class GetTo implements Intent {
                 var local = frame.toLocal(rim);
                 for (double share : EDGE_FRACTIONS) {
                     var inside = new Vec3(local.x * share, 0, local.z * share);
-                    var height = host.support(inside, Occupancy.foot(child.getBbWidth()));
+                    var height = host.support(inside, child);
                     if (height.isEmpty() || !edge(child, host, inside, exit.get())) continue;
                     var at = new Vec3(inside.x, height.getAsDouble(), inside.z);
                     if (host.room(child, at)) { edge = at; return Feasibility.pass(); }

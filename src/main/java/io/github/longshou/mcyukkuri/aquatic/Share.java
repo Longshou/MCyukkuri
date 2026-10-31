@@ -146,7 +146,7 @@ final class Share implements Intent {
     private boolean over(PlacedHatEntity his) {
         var local = his.frame().toLocal(child.position());
         double foot = Occupancy.foot(child.getBbWidth());
-        boolean supported = his.support(local, foot).isPresent();
+        boolean supported = his.support(local, child).isPresent();
         if (!supported) GameplayLog.event(mother, "aquatic", "share reach refused child={} at={} father_hat={} local={} foot={}",
                 child.getUUID(), GameplayLog.at(child.position()), his.getUUID(), local, foot);
         return supported;

@@ -167,7 +167,7 @@ final class Waters {
     private static Edge findBerth(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 8, true)) {
-            if (hatOver(body, hatAt(e, body), HatGeometry.brim()[1] * HatScale.of(body) / 16)) continue;
+            if (hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) continue;
             if (asked++ >= ASKED) break;
             if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
         }

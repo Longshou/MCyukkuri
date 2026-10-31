@@ -179,7 +179,7 @@ public final class Gesture implements Action {
         for (double s = 0; s <= d + 1E-9; s += foot / unit) {
             double f = d < 1E-6 ? 0 : s / d;
             Vec3 place = new Vec3(spot.x + dx * f, 0, spot.z + dz * f);
-            var height = host.support(place, foot);
+            var height = host.support(place, body);
             if (height.isEmpty()) continue;
             Vec3 candidate = new Vec3(place.x, height.getAsDouble(), place.z);
             if (Occupancy.at(host.container(), frame.toWorld(candidate), body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED
@@ -197,7 +197,7 @@ public final class Gesture implements Action {
         if (d < 1E-6) { dx = 1; dz = 0; d = 1; }
         double step = outward ? budget / unit : Math.min(budget / unit, d), sign = outward ? -1 : 1;
         Vec3 next = new Vec3(spot.x + sign * dx / d * step, 0, spot.z + sign * dz / d * step);
-        var height = host.support(next, foot);
+        var height = host.support(next, body);
         if (height.isEmpty()) {
             Vec3 from = frame.toWorld(spot), at = frame.toWorld(new Vec3(next.x, spot.y, next.z));
             Motor.dismount(body, at, at.subtract(from).add(host.entity().getDeltaMovement()), "rolled_off");

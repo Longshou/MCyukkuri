@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.List;
+import java.util.function.BiPredicate;
 
 /** Bodies whose foot circles overlap on a host part: each pair moves apart along their centres, the lighter yielding more and, on a tilt, the lower one; fixed circles push alone. */
 public final class Squeeze {
@@ -29,6 +30,11 @@ public final class Squeeze {
     /** How far each body moves to part from the others, {@code {x, z, deepest}}: the move and the deepest overlap before moving; {@code downX, downZ}
      *  is the floor's downhill direction, so its lower body yields more. */
     public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ) {
+        return separate(bodies, fixed, slack, downX, downZ, (a,b) -> true);
+    }
+    /** A shaped host supplies the narrow-phase body contact; circles still bound the displacement and its speed. */
+    public static double[][] separate(List<Body> bodies, List<Disc> fixed, double slack, double downX, double downZ,
+                                      BiPredicate<Disc,Disc> contact) {
         int n = bodies.size();
         double[][] out = new double[n][3];
         for (int i = 0; i < n; i++) {
@@ -38,6 +44,7 @@ public final class Squeeze {
                 if (!Disc.level(a.bottom(), a.top(), b.bottom(), b.top())) continue;
                 double dx = b.x() - a.x(), dz = b.z() - a.z(), d = Math.hypot(dx, dz), depth = a.r() + b.r() - slack - d;
                 if (depth <= TOUCH) continue;
+                if (!contact.test(disc(a), disc(b))) continue;
                 out[i][2] = Math.max(out[i][2], depth);
                 out[j][2] = Math.max(out[j][2], depth);
                 double angle = (i * n + j) * GOLDEN, nx = d > 1e-6 ? dx / d : Math.cos(angle), nz = d > 1e-6 ? dz / d : Math.sin(angle);
@@ -55,6 +62,7 @@ public final class Squeeze {
                 if (!Disc.level(a.bottom(), a.top(), c.bottom(), c.top())) continue;
                 double dx = a.x() - c.x(), dz = a.z() - c.z(), d = Math.hypot(dx, dz), depth = a.r() + c.r() - slack - d;
                 if (depth <= TOUCH) continue;
+                if (!contact.test(disc(a), c)) continue;
                 out[i][2] = Math.max(out[i][2], depth);
                 double down = Math.hypot(downX, downZ);
                 double nx = d > 1e-6 ? dx / d : down > 1e-6 ? downX / down : 1, nz = d > 1e-6 ? dz / d : down > 1e-6 ? downZ / down : 0;
@@ -68,4 +76,5 @@ public final class Squeeze {
         }
         return out;
     }
+    public static Disc disc(Body body) { return new Disc(body.x(),body.z(),body.r(),body.bottom(),body.top()); }
 }

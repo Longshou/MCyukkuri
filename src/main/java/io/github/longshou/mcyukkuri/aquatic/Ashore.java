@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -139,7 +138,7 @@ final class Ashore implements Intent {
 
     /** Its brim reaches the bank edge or nearly: a body at the edge holds it with mouth or braid. */
     private static boolean near(PlacedHatEntity hat, Waters.Edge edge) {
-        return hat.position().subtract(edge.edge()).horizontalDistance() <= HatGeometry.brim()[1] * hat.unit() + OUT_OF_REACH;
+        return hat.position().subtract(edge.edge()).horizontalDistance() <= hat.profile().brim()[1] * hat.unit() + OUT_OF_REACH;
     }
 
     /** A hat on dry ground: walk up beside it (the family pickup's stand) and the closing steps. */

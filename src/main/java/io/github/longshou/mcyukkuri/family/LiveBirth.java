@@ -412,7 +412,7 @@ final class LiveBirth extends Choreography {
         if(!SurfaceApproach.supported(m,at))return "mother_support";
         if(!new HatProp(c,false).fits(pose.at(),pose.yaw()).ok())return "hat_support";
         if(!SurfaceApproach.supported(c,stand.at()))return "helper_support";
-        double width=Math.max(HatGeometry.brim()[0],HatGeometry.brim()[1])*HatGeometry.unit(c);
+        double width=Math.max(pose.profile().brim()[0],pose.profile().brim()[1])*HatGeometry.unit(c);
         float belly=live?LiveBirthGeometry.belly(1,b.children.size()-b.unborn(),b.children.size()):0;
         var body=live?LiveBirthGeometry.bodyDimensions(m,m.growthScale(),belly).scale(m.getScale()).makeBoundingBox(at):m.getBoundingBox().move(at.subtract(m.position()));
         if(!m.level().noCollision(m,body))return "mother_belly_room";

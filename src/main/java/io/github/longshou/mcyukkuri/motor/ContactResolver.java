@@ -101,7 +101,7 @@ public final class ContactResolver {
     /** The feet height (hat units) at which the body meets the host at {@code feet}, or NaN off it: with an envelope every box is sampled 3x3 and lifted, so a worn brim decides. */
     private static double surface(YukkuriEntity body, SurfaceHost host, Vec3 feet, double footRadius, Envelope envelope) {
         HostFrame frame = host.frame();
-        if (envelope == null) return height(host, frame.toLocal(feet), footRadius);
+        if (envelope == null) return host.support(frame.toLocal(feet), body).orElse(Double.NaN);
         double need = Double.NaN;
         for (AABB box : envelope.at(body, feet)) for (int x = 0; x <= 2; x++) for (int z = 0; z <= 2; z++) {
             Vec3 under = new Vec3(Mth.lerp(x / 2.0, box.minX, box.maxX), feet.y, Mth.lerp(z / 2.0, box.minZ, box.maxZ));
@@ -148,7 +148,7 @@ public final class ContactResolver {
         for (int ring = 1; ring <= RINGS; ring++) for (int i = 0; i < AROUND; i++) {
             double d = reach * ring / RINGS, angle = i * 2 * Math.PI / AROUND;
             Vec3 place = new Vec3(spot.x + Math.cos(angle) * d, 0, spot.z + Math.sin(angle) * d);
-            OptionalDouble height = host.support(place, foot);
+            OptionalDouble height = host.support(place, body);
             if (height.isEmpty() || host.support(place, 0).isEmpty()) continue;
             Vec3 candidate = new Vec3(place.x, height.getAsDouble(), place.z);
             if (host.room(body, candidate, top)) return candidate;

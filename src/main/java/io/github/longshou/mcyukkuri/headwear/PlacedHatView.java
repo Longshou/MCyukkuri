@@ -20,6 +20,8 @@ public interface PlacedHatView {
     boolean catches();
     /** The hat's size, the same in every form (HatScale). */
     float hullScale();
+    String formId();
+    default HullProfile profile() { return HullProfile.of(formId()); }
     /** The hull's tilt (degrees, HostFrame roll and pitch) between the last two ticks. */
     float roll(float partial);
     float pitch(float partial);

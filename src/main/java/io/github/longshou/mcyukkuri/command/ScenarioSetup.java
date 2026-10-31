@@ -246,13 +246,13 @@ final class ScenarioSetup {
         var taken = new ArrayList<Disc>(hat.behavior().obstacles(hat));
         for (var body : riders) {
             double foot = Occupancy.foot(body.getBbWidth()) / hat.unit();
-            var spot = freeSpot(hat, foot, middle ? 0 : HatGeometry.opening()[3] * .75, taken);
+            var spot = freeSpot(hat, body, foot, middle ? 0 : hat.profile().opening()[3] * .75, taken);
             if (spot == null) return takeBack(owner, hat, body.getName().getString() + " 在帽子上没有放得下的位置，帽子已收回。");
             spots.add(spot);
             taken.add(new Disc(spot.x, spot.z, foot));
         }
         if (aboard) {
-            var middleHeight = hat.support(Vec3.ZERO, Occupancy.foot(owner.getBbWidth()));
+            var middleHeight = hat.support(Vec3.ZERO, owner);
             if (middleHeight.isEmpty()) return takeBack(owner, hat, "帽子中央没有支撑，帽子已收回。");
             riders.add(owner);
             spots.add(new Vec3(0, middleHeight.getAsDouble(), 0));
@@ -308,8 +308,8 @@ final class ScenarioSetup {
 
     /** The supported spot (hat units, surface height) nearest {@code z} along the hat's axis whose foot circle of radius
      *  {@code foot} (hat units) overlaps none already {@code taken}; null when there is none. */
-    private static Vec3 freeSpot(PlacedHatEntity hat, double foot, double z, List<Disc> taken) {
-        float[] brim = HatGeometry.brim();
+    private static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body, double foot, double z, List<Disc> taken) {
+        float[] brim = hat.profile().brim();
         Vec3 best = null;
         double bestDistance = Double.MAX_VALUE;
         for (double x = -brim[0]; x <= brim[0]; x += .5)
@@ -318,7 +318,7 @@ final class ScenarioSetup {
                 if (distance >= bestDistance) continue;
                 var disc = new Disc(x, lz, foot);
                 if (taken.stream().anyMatch(other -> disc.overlaps(other, .02))) continue;
-                var height = hat.support(new Vec3(x, 0, lz), foot * hat.unit());
+                var height = hat.support(new Vec3(x, 0, lz), body);
                 if (height.isEmpty()) continue;
                 best = new Vec3(x, height.getAsDouble(), lz);
                 bestDistance = distance;

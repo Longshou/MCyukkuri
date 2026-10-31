@@ -178,7 +178,7 @@ public final class EscapeWater implements Intent {
     private Vec3 boatSpot() {
         if (!AbilityModifier.flag(body, AbilityModifier.HAT_BOAT) || !body.childhood().canSail() || !body.life().custody().worn()
                 || BodyAbility.of(body).climbRise() <= 0) return null;
-        float[] brim = HatGeometry.brim();
+        float[] brim = HatGeometry.wornForm(body).brim();
         double apart = body.getBbWidth() / 2 + Math.max(brim[0], brim[1]) * HatScale.of(body) / 16 + CLEAR;
         var hat = new Afloat(body);
         for (int i = 0; i < 8; i++) {

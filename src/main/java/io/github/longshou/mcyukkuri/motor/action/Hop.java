@@ -69,7 +69,7 @@ public final class Hop implements Action {
         double foot = Occupancy.foot(body.getBbWidth());
         var spots = new ArrayList<Vec3>();
         for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
-            var height = grid.supported(i, j) ? host.support(new Vec3(grid.centreX(i), 0, grid.centreZ(j)), foot) : null;
+            var height = grid.supported(i, j) ? host.support(new Vec3(grid.centreX(i), 0, grid.centreZ(j)), body) : null;
             if (height == null || height.isEmpty()) continue;
             var at = frame.toWorld(new Vec3(grid.centreX(i), height.getAsDouble(), grid.centreZ(j)));
             if (Occupancy.at(host.container(), at, body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED) spots.add(at);
