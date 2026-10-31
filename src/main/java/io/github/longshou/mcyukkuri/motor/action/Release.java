@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
@@ -13,12 +14,13 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Put a carried body down: a child is first lowered with the braid or the tail ({@code ParentCarry.lower}; a braid-tip child, already on the ground, is let go as the braid opens), then the dismount keeps the measured feet and hands the rest to physics. */
+/** Turn a mouth hold to clear ground if needed, lower the child, then dismount at its measured feet. */
 public final class Release implements Action {
     public static final String ID = "release";
     /** How far below the let-go feet support or water has to exist (blocks). */
@@ -26,6 +28,8 @@ public final class Release implements Action {
 
     private final YukkuriEntity child;
     private YukkuriEntity carrier;
+    private float facing;
+    private Face turn;
 
     public Release(YukkuriEntity child) {
         if (child == null) throw new IllegalArgumentException("Release needs the carried body");
@@ -40,22 +44,59 @@ public final class Release implements Action {
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
-        Vec3 at = ParentCarry.letGoPoint(carrier, child);
+        facing = carrier.getYRot();
+        var room = room(carrier, facing);
+        if (room.ok() || ParentCarry.hold(carrier, child) != Hold.MOUTH) return room;
+        // The mouth keeps the child in view while the shared Face turns toward the nearest clear landing.
+        for (int i = 1; i <= 72; i++) {
+            float yaw = carrier.getYRot() + (i + 1) / 2 * (i % 2 == 0 ? 5 : -5);
+            if (room(carrier, yaw).ok() && clearTurn(carrier, yaw)) { facing = yaw; return Feasibility.pass(); }
+        }
+        return room;
+    }
+
+    private Feasibility room(YukkuriEntity carrier, float yaw) {
+        Vec3 at = ParentCarry.letGoPoint(carrier, child, yaw);
         if (child.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(at)).iterator().hasNext())
             return Feasibility.of(Reason.NO_ROOM, 0, "blocks");
+        if (ParentCarry.hold(carrier, child) == Hold.MOUTH) {
+            var host = ParentCarry.carryHost(carrier, child);
+            if (host != null && carrier.getVehicle() != host.entity() && ParentCarry.pinned(carrier, child, at) > at.y)
+                return Feasibility.of(Reason.NO_ROOM, 0, "carry_host");
+            if (!carrier.level().getEntitiesOfClass(YukkuriEntity.class, child.getDimensions(child.getPose()).makeBoundingBox(at),
+                    other -> other != carrier && other != child).isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "occupied");
+        }
         if (!ground(child, at)) return Feasibility.of(Reason.NO_ROOM, 0, "no_support");
         return Feasibility.pass();
     }
 
+    private boolean clearTurn(YukkuriEntity carrier, float yaw) {
+        float span = Mth.wrapDegrees(yaw - carrier.getYRot());
+        for (float step = 0; step <= Math.abs(span); step += 5) {
+            var at = ParentCarry.mouthAt(carrier, child, carrier.getYRot() + Math.copySign(step, span));
+            if (child.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(at)).iterator().hasNext()) return false;
+        }
+        return true;
+    }
+
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
-        ParentCarry.lower(carrier, child);
+        if (ParentCarry.hold(carrier, child) == Hold.MOUTH) { turn = new Face(facing); turn.start(carrier); }
+        else ParentCarry.lower(carrier, child);
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
         if (child.getVehicle() != carrier) return new Outcome.Done("already_free");
+        if (turn != null) {
+            if (turn.tick(carrier) instanceof Running running) return running;
+            var room = room(carrier, carrier.getYRot());
+            if (!room.ok()) return Outcome.of(room.reason(), room.shortfall(), room.detail());
+            turn = null;
+            ParentCarry.lower(carrier, child);
+        }
         float down = ParentCarry.lowering(carrier, child, 0);
-        if (down >= 0 && down < 1) return new Running(1 - down, TravelMode.CONSUMED);
+        double remaining = child.position().distanceTo(ParentCarry.letGoPoint(carrier, child));
+        if (down < 1 || remaining > .02) return new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED);
         let(carrier, child, "release");
         return new Outcome.Done("released");
     }

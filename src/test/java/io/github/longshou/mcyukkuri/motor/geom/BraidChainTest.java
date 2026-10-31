@@ -70,13 +70,24 @@ class BraidChainTest {
         assertEquals(0, endError(out, REST[REST.length - 3], REST[REST.length - 2], REST[REST.length - 1]), 1e-5);
     }
 
-    @Test void theBulgeKeepsTheBraidsOwnSide() {
-        // A braid already swung outward (+x) bends on that side when its end is drawn in.
-        var bent = REST.clone();
-        for (int i = 1; i < bent.length / 3; i++) bent[3 * i] += .4 * Math.sin(Math.PI * i / (bent.length / 3 - 1));
-        var out = BraidChain.reach(bent, 8, 3, -4);
-        double ux = 8 - out[0], uy = 3 - out[1], uz = -4 - out[2], u = Math.sqrt(ux * ux + uy * uy + uz * uz);
-        double vx = out[9] - out[0], vy = out[10] - out[1], vz = out[11] - out[2], along = (vx * ux + vy * uy + vz * uz) / (u * u);
-        assertTrue(vx - ux * along > 0, "the middle stays outward of the chord");
+    @Test void frontSideAndLowTargetsBendForwardOfTheirChord() {
+        for (var t : new double[][]{{7, 6, -8}, {14, 6, -2.52}, {8, 1, -4}}) {
+            var out = BraidChain.reach(REST, t[0], t[1], t[2]);
+            keepsShape(out);
+            assertEquals(0, endError(out, t[0], t[1], t[2]), 1e-5);
+            double ux = t[0] - out[0], uy = t[1] - out[1], uz = t[2] - out[2];
+            for (int i = 1; i < out.length / 3 - 1; i++) {
+                double vx = out[3 * i] - out[0], vy = out[3 * i + 1] - out[1], vz = out[3 * i + 2] - out[2];
+                double along = (vx * ux + vy * uy + vz * uz) / (ux * ux + uy * uy + uz * uz);
+                assertTrue(vz - uz * along < 0, "joint " + i + " bends forward of the chord");
+            }
+        }
+    }
+
+    @Test void targetStraightInFrontSagsDown() {
+        var out = BraidChain.reach(REST, REST[0], REST[1], REST[2] - 8);
+        keepsShape(out);
+        assertEquals(0, endError(out, REST[0], REST[1], REST[2] - 8), 1e-5);
+        for (int i = 1; i < out.length / 3 - 1; i++) assertTrue(out[3 * i + 1] < REST[1]);
     }
 }

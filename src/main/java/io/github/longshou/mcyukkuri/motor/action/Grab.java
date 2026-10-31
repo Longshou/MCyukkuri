@@ -17,7 +17,6 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import java.util.Comparator;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
@@ -25,8 +24,8 @@ import net.minecraft.world.phys.Vec3;
  * Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach
  * gets it, then seats it as a real passenger. The carrier first turns at its turn rate only as far as the hold needs (the mouth
  * to the target, the braid side by {@code ParentCarry.braidTurn}). A braid-tip child is mounted once the braid has closed on it
- * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it, swings it aside and sets it down beside
- * the carrier ({@code ParentCarry.braided}); the carrier never turns away with it.
+ * (lift_start) and the Grab runs on to the clip's place marker while the braid lifts it and swings it to clear ground in view
+ * ({@code ParentCarry.braided}). A mouth hold stays mounted through its real lift to the lips before the next action begins.
  */
 public final class Grab implements Action {
     public static final String ID = "grab";
@@ -44,6 +43,7 @@ public final class Grab implements Action {
     /** The yaw the carrier turns to before the lift (worked out at start). */
     private float facing;
     private double gap;
+    private String rejected;
     private Face turn;
     private Vec3 at;
     /** A lift out of the water (a rescue): a target in the water is taken; any other grab ends when the target is in the water. */
@@ -83,24 +83,27 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
         var holds = ParentCarry.holdsFor(carrier, target);
         if (holds.isEmpty()) return refusal(ParentCarry.capacityProblem(carrier, target));
-        // A body lifted off a host is taken by the braid when it reaches: it comes up over the brim from above.
-        if (attach instanceof AttachState.OnHost) holds = holds.stream().sorted(Comparator.comparing(h -> h.reach() != Reach.BRAID)).toList();
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
-        double low = ContactGeometry.braidGap(carrier, target, true), shortfall = Double.POSITIVE_INFINITY;
-        boolean noWay = false;
-        // The hold that reaches first, in the carrier's order (a hatless Marisa's mouth before her braid tip).
+        double low = ContactGeometry.braidGap(carrier, target, true);
+        boolean mouth = ContactGeometry.inMouthReach(carrier, target), braid = Math.min(upright, low) <= 0;
+        boolean noWay = holds.contains(Hold.BRAID) && braid && !ParentCarry.braidCanSetDown(carrier, target, upright > 0);
+        String mouthWhy = holds.stream().noneMatch(h -> h.reach() == Reach.MOUTH) ? "no_capacity" : mouth ? "lower_preference" : "out_of_reach_or_sight";
+        String braidWhy = holds.stream().noneMatch(h -> h.reach() == Reach.BRAID) ? "no_capacity" : !braid ? "out_of_reach_or_sight" : noWay ? "no_set_down" : "lower_preference";
+        // Capacity and preference come from holdsFor; take the first hold whose reach and route work.
         for (var candidate : holds) {
-            if (candidate.reach() == Reach.MOUTH) {
-                if (ContactGeometry.inMouthReach(carrier, target)) return chosen(candidate, false, mouthGap);
-                shortfall = Math.min(shortfall, Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN));
-            } else if (Math.min(upright, low) <= 0) {
-                // A braid-tip child off a host needs a way out to the ground beside the carrier; else the next hold.
-                if (candidate != Hold.BRAID || ParentCarry.braidCanSetDown(carrier, target, upright > 0))
-                    return chosen(candidate, upright > 0, Math.min(upright, low));
-                noWay = true;
-            } else shortfall = Math.min(shortfall, Math.min(upright, low));
+            if (candidate.reach() == Reach.MOUTH && mouth) {
+                rejected = "braid:" + braidWhy;
+                return chosen(candidate, false, mouthGap);
+            }
+            if (candidate.reach() == Reach.BRAID && braid && (candidate != Hold.BRAID || !noWay)) {
+                rejected = "mouth:" + mouthWhy;
+                return chosen(candidate, upright > 0, Math.min(upright, low));
+            }
         }
         if (noWay) return Feasibility.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
+        double shortfall = Math.min(holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH)
+                ? Math.max(0, mouthGap - ContactGeometry.GRAB_MARGIN) : Double.POSITIVE_INFINITY,
+                holds.stream().anyMatch(h -> h.reach() == Reach.BRAID) ? Math.min(upright, low) : Double.POSITIVE_INFINITY);
         return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(shortfall) ? shortfall : 0,
                 String.format(Locale.ROOT, "holds=%s mouth_gap=%.2f braid_gap=%.2f", holds, mouthGap, Math.min(upright, low)));
     }
@@ -131,9 +134,11 @@ public final class Grab implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
-        // Held, a braid-tip child is on its way out with the braid: the Grab ends once it is set down beside the carrier.
-        if (mounted) return target.getVehicle() != carrier ? Outcome.of(Reason.DROPPED, 0, "let_go")
-                : ++held < way ? new Running(way - held, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
+        if (mounted) {
+            if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
+            double remaining = Math.max(way - ++held, target.position().distanceTo(ParentCarry.rawSeat(carrier, target, 0)));
+            return remaining > .02 ? new Running(remaining, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
+        }
         double moved = target.position().distanceTo(at);
         if (moved > DRIFT) return Outcome.of(Reason.TARGET_MOVED, moved, String.format(Locale.ROOT, "moved=%.2f", moved));
         ticks++;
@@ -145,9 +150,11 @@ public final class Grab implements Action {
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
         if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
+        if (hold == Hold.MOUTH && (way = ParentCarry.mouthLift(carrier, target)) < 0) return Outcome.of(Reason.NO_ROOM, 0, "mouth_lift_blocked");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
         mounted = true;
+        ParentCarry.gripped(carrier, target, rejected, way);
         return way > 0 ? new Running(way, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
     }
 

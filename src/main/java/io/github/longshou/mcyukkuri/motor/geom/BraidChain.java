@@ -1,11 +1,10 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 /**
- * Marisa's braid as a chain of rigid segments bent so its end lies on a point; pure maths, the authored clips use the
- * same solve (standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py). Joints are flat x, y, z triples,
+ * Marisa's braid as a chain of rigid segments bent so its end lies on a point; pure maths using the authored segment lengths.
+ * Joints are flat x, y, z triples,
  * root first. The braid takes a circular arc that keeps every segment's length, turns no joint more than
- * {@link #MAX_TURN} and bulges to its own side, a little below the chord and away from the body's vertical axis
- * (model x = z = 0); nearer than that curl allows,
+ * {@link #MAX_TURN} and bends toward model forward (-Z), sagging down when the target lies along that axis; nearer than that curl allows,
  * the curl folds further until the end is on the point; out of reach it points straight at it, never stretched.
  */
 public final class BraidChain {
@@ -32,15 +31,12 @@ public final class BraidChain {
             for (int i = 0; i < n; i++) { s += seg[i]; set(out, i + 1, rx + ux * s, ry + uy * s, rz + uz * s); }
             return out;
         }
-        // Bend plane: the joints' own bulge off the chord, plus a little sag and a lean away from the body's axis, so a
-        // straight braid droops and curves round the head and brim rather than into them.
-        double axis = Math.max(1e-9, Math.sqrt(rx * rx + rz * rz)), px = .5 * rx / axis, py = -.3, pz = .5 * rz / axis;
-        for (int i = 1; i < n; i++) { px += joints[3 * i] - rx; py += joints[3 * i + 1] - ry; pz += joints[3 * i + 2] - rz; }
-        double along = px * ux + py * uy + pz * uz; px -= ux * along; py -= uy * along; pz -= uz * along;
+        // Project model forward onto the chord's normal plane. The clip's previous curl cannot flip this bend behind.
+        double px = ux * uz, py = uy * uz, pz = -1 + uz * uz;
         double norm = Math.sqrt(px * px + py * py + pz * pz);
         if (norm < 1e-6) {
-            px = Math.abs(ux) < .9 ? 1 : 0; py = 0; pz = Math.abs(ux) < .9 ? 0 : 1;
-            along = px * ux + pz * uz; px -= ux * along; py -= uy * along; pz -= uz * along;
+            // A chord parallel to forward has no forward normal: use the downward normal instead.
+            px = ux * uy; py = -1 + uy * uy; pz = uz * uy;
             norm = Math.sqrt(px * px + py * py + pz * pz);
         }
         px /= norm; py /= norm; pz /= norm;

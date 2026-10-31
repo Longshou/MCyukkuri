@@ -55,7 +55,7 @@ final class BraidPose {
         for(int i=0;i<bones.length;i++)if(o.descends(i,hat))world[i].set(new Matrix4f(move).mul(world[i]));
     }
 
-    /** Bend the posed chain toward the tip point: each segment turns about its posed joint, shared out by the weight. */
+    /** BraidChain constrains the bend toward model forward/down; each posed segment turns about its joint, weighted over the clip. */
     void pose(){
         if(!resolve())return;
         var bones=o.bones();var world=o.world();var pose=o.pose();int n=chain.length;

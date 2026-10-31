@@ -140,6 +140,8 @@ final class ParentCarryPresentation {
         state.riders.addAll(riders);
         for (int side = 0; side < 2; side++) state.curl[side] = Mth.approach(state.curl[side], tails[side], dt / CURL_TICKS);
         float bow = lifting ? ease((now - carrier.motorStart()) / BOW_IN_TICKS) : 0;
+        for (var rider : carrier.passengerViews()) if (ParentCarry.hold(carrier, rider) == Hold.MOUTH)
+            bow = Math.max(bow, Math.max(0, ParentCarry.lowering(carrier, rider, partial)));
         if (now - state.boardAt < BOW_OUT_TICKS) bow = Math.max(bow, 1 - ease((now - state.boardAt) / BOW_OUT_TICKS));
         if (now - state.dropAt < DIP_TICKS) bow = Math.max(bow, Mth.sin((now - state.dropAt) / DIP_TICKS * Mth.PI));
         model.setCarryPose(riders.isEmpty() ? 0 : 1, bow, state.curl[0], state.curl[1]);
@@ -247,6 +249,7 @@ final class ParentCarryPresentation {
                 var grip = new Vector3f((float) lane.gripX(), (float) lane.gripY(), (float) lane.gripZ()).mul(childUnit).rotate(turnTo);
                 feet = bite.sub(grip);
                 feet.y = Math.max(feet.y, (float) ParentCarry.MOUTH_FLOOR * unit);
+                if (down || ParentCarry.mouthLifting(carrier, child, partial)) feet = seated;
                 pitch = roll = 0;
             }
         }
@@ -256,21 +259,15 @@ final class ParentCarryPresentation {
         }
         // Held over a host (the hat it came from) the feet stay on or above its surface, as the server seat does.
         feet.y = (float) (ParentCarry.pinned(carrier, child, origin.add(feet.x, feet.y, feet.z)) - origin.y);
-        // Taken up: from where the child stood. Off a host it first rises clear of the brim, crosses above it and comes down to
-        // the seat; otherwise the mouth draws it in along the ground and then lifts it to the lips, a brim child is swung round
-        // the brim edge and down onto its spot, and a tail child is scooped up in a small arc.
-        // A braid-tip child already follows the braid's own way out (ParentCarry.rawSeat), the same on the server.
+        // Brim and tail lifts keep their presentation arcs. Mouth and braid-tip children use the shared physical route above.
         float q = (now - me.boardAt) / LIFT_TICKS;
-        if (q < 1 && me.liftFrom != null && hold != Hold.BRAID) {
+        if (q < 1 && me.liftFrom != null && hold != Hold.BRAID && hold != Hold.MOUTH) {
             var from = me.liftFrom.subtract(origin);
             var start = new Vector3f((float) from.x, (float) from.y, (float) from.z);
             float over = over(ParentCarry.carryHost(carrier, child), child, origin, start, feet);
             if (over > Math.max(start.y, feet.y)) {
                 float rise = ease(q / .35f), across = ease((q - .35f) / .4f), drop = ease((q - .75f) / .25f);
                 feet.set(Mth.lerp(across, start.x, feet.x), Mth.lerp(drop, Mth.lerp(rise, start.y, over), feet.y), Mth.lerp(across, start.z, feet.z));
-            } else if (hold == Hold.MOUTH) {
-                float across = ease(q / .7f), up = ease((q - .45f) / .55f);
-                feet.set(Mth.lerp(across, start.x, feet.x), Mth.lerp(up, start.y, feet.y), Mth.lerp(across, start.z, feet.z));
             } else if (hold == Hold.BRIM) {
                 // Round the carrier outside the brim edge while rising to above the spot, then in and down onto it.
                 float seatR = (float) Math.hypot(feet.x, feet.z), fromR = (float) Math.hypot(start.x, start.z);
