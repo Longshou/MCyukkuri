@@ -72,12 +72,13 @@ def process_started(pid):
 
 
 def stop_stale():
-    for record in INSTANCES.glob('instance-*/server.json'):
-        st = json.loads(record.read_text(encoding='utf-8'))
-        if (process_started(st['pid']) == st['started']
-                and process_started(st['runner_pid']) != st['runner_started']):
-            print(f'Stopping stale instance {st["name"]}', flush=True)
-            stop(st)
+    for root in {INSTANCES, ROOT / '.local/smoke', COMMON / '.local/smoke'}:
+        for record in root.glob('instance-*/server.json'):
+            st = json.loads(record.read_text(encoding='utf-8'))
+            if (process_started(st['pid']) == st['started']
+                    and process_started(st['runner_pid']) != st['runner_started']):
+                print(f'Stopping stale instance {st["name"]}', flush=True)
+                stop(st)
 
 
 def free_port():
@@ -150,9 +151,10 @@ def run_cmd(st, cmd, timeout=30):
         rcon.sock.close()
 
 
-def build_java_cmd(runtime, java, rundir):
+def build_java_cmd(runtime, java, rundir, mod):
     vm = [a for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
     cp = read_args_file(runtime / 'clientRunClasspath.txt')[:2]
+    cp[1] = ';'.join(str(mod) if Path(entry) == runtime / 'mod' else entry for entry in cp[1].split(';'))
     prog = read_args_file(runtime / 'clientRunProgramArgs.txt')
     main = prog.pop(0)
     out, i = [], 0
@@ -164,7 +166,7 @@ def build_java_cmd(runtime, java, rundir):
         out.append(prog[i])
         i += 1
     return ([str(java), '-Xmx2G', '-Xms512m'] + vm + cp
-            + [f'-Dfml.modFolders=mcyukkuri%%{runtime / "mod"}', 'net.neoforged.devlaunch.Main', main,
+            + [f'-Dfml.modFolders=mcyukkuri%%{mod}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
 
 
@@ -211,18 +213,18 @@ def wait_log(st, pattern, offset=0, timeout=600):
     raise TimeoutError(f'Timed out waiting for /{pattern}/; see {st["rundir"]}/logs/latest.log')
 
 
-def start(runtime, java, datapack, name):
+def start(runtime, java, datapack, name, mod):
     record = INSTANCES / name / 'server.json'
     rundir = record.parent / 'run'
     rundir.mkdir(parents=True, exist_ok=False)
     (rundir / 'eula.txt').write_text('eula=true\n', encoding='utf-8')
     shutil.copytree(datapack, rundir / 'world/datapacks' / datapack.name)
-    st = {'name': name, 'runtime': str(runtime), 'rundir': str(rundir),
+    st = {'name': name, 'runtime': str(runtime), 'mod': str(mod), 'rundir': str(rundir),
           'game_port': free_port(), 'rcon_port': free_port(), 'rcon_password': secrets.token_hex(8)}
     while st['rcon_port'] == st['game_port']:
         st['rcon_port'] = free_port()
     write_props(rundir, st)
-    cmd = build_java_cmd(runtime, java, rundir)
+    cmd = build_java_cmd(runtime, java, rundir, mod)
     with (record.parent / 'stdout.log').open('wb') as out:
         proc = subprocess.Popen(cmd, cwd=rundir, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
                                 creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)

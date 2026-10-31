@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 双帽形共用剖面几何与身体支撑 | `.worktrees/hull-form` | `headwear/{HullProfile,HatGeometry,PlacedHatEntity}`、`motor/surface/Occupancy`、出生／帽檐／辫子几何调用方、纯函数测试 |
-| 无界面冒烟运行分支代码 | `.worktrees/smoke-run` | `scripts/smoke_museum.py`、`scripts/headless_server.py`、`docs/DEVELOPMENT.md` |
 
 ## 玩法待办
 
