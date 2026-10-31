@@ -212,7 +212,13 @@ public final class LiveBirthGeometry {
     }
     public static Vec3 position(YukkuriEntity mother,int index){return position(mother,index,mother.yBodyRot);}
     public static Vec3 position(YukkuriEntity mother,int index,float yaw){
-        return mother.position().add(releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale()));
+        var offset=releasePose(mother,localExit(mother,index)).yRot((float)Math.toRadians(180-yaw)).scale(mother.getScale());
+        // Match the rendered rider: hull tilt in the host's yaw frame, about the mother's feet.
+        if(mother.getVehicle() instanceof PlacedHatEntity hat){
+            var frame=hat.frame();
+            offset=frame.toWorld(offset.yRot(-frame.yawRad()).scale(1/frame.unit())).subtract(frame.origin());
+        }
+        return mother.position().add(offset);
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box

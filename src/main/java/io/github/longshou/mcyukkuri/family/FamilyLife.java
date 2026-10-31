@@ -514,16 +514,18 @@ public final class FamilyLife {
                 &&!hello.baby().equals(entity.getUUID()))return hello;
         return null;
     }
-    /** The newborn this relative answers, from 30 ticks after its landing for 10 ticks: alive and unhurt, this body awake on its own
-     *  feet; null otherwise. The answering line and the greeting hop both read it, so a hurt newborn gets neither. */
+    /** A greeting needs real ground or host support; being carried or airborne does not qualify. */
+    private boolean greetingSupported(){return !flying()&&(entity.onGround()&&!entity.isPassenger()||onHost());}
+    /** The newborn this awake, supported relative answers, from 30 ticks after an unhurt landing for 10 ticks. */
     private LiveBirth.Welcome answering(){
         var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
-        return since>=30&&since<40&&entity.onGround()&&!entity.isPassenger()&&!flying()&&!entity.life().isSleeping()
+        return since>=30&&since<40&&greetingSupported()&&!entity.life().isSleeping()
                 &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?hello:null;
     }
     /** Whom this body turns to for a birth greeting, or null: a waking newborn its nearest awake parent or sibling (once, before
-     *  its first words), an awake relative on its own feet with no birth role the unhurt newborn it is about to answer. */
+     *  its first words), an awake supported relative with no birth role the unhurt newborn it is about to answer. */
     private YukkuriEntity greetee(){
+        if(!greetingSupported()||entity.life().isSleeping())return null;
         if(entity.firstWaking()){
             if(greetFaced)return null;
             greetFaced=true;return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(6),other->other!=entity
@@ -531,7 +533,7 @@ public final class FamilyLife {
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         }
         var hello=greeting();long since=hello==null?-1:level().getGameTime()-hello.tick();
-        return since>0&&since<30&&!entity.life().isSleeping()&&entity.onGround()&&!entity.isPassenger()&&birthRole()==null
+        return since>0&&since<30&&birthRole()==null
                 &&level().getEntity(hello.baby()) instanceof YukkuriEntity baby&&baby.isAlive()&&!baby.family().bumped()?baby:null;
     }
     /** A newborn's first words: its kind's hello in the childish (young) tier when that tier has one, else its newborn line.
@@ -540,20 +542,23 @@ public final class FamilyLife {
         return NativeDialogue.has(entity.getVariant().dialogueSpecies(),"young",entity.myon().quirk(),"hello")?"hello":"newborn";
     }
     /** The newborn this relative greets with its small hop (answering, and the body can hop), or null. */
-    LiveBirth.Welcome greetHop(){return Gesture.smallHopImpulse(entity)>0?answering():null;}
+    LiveBirth.Welcome greetHop(){return entity.onGround()&&!entity.isPassenger()&&Gesture.smallHopImpulse(entity)>0?answering():null;}
     /** The father and the older siblings turn to a landed newborn and answer its first greeting with the classic one (L36: a
      *  heard ゆっくりしていってね is echoed). A hurt one startles them first, the startle held whole (MISS_SHOCK, nothing else
      *  shown over it); only then does the mate go to comfort it. */
     private void greet(){
-        if(!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
+        if(!greetingSupported()||!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
         long since=level().getGameTime()-hello.tick();boolean hurt=baby.family().bumped(),mate=partner()!=null&&partner().equals(baby.family().mother());
         entity.getLookControl().setLookAt(baby,20,20);
         if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",LiveBirthGeometry.REST);
-        if(hurt&&since==6&&entity.onGround()&&!entity.isPassenger()&&!flying()){
+        if(hurt&&since==6){
             entity.mind().felt(EmotionEvent.FRIGHTENED);entity.holdReaction("surprise","afraid",MISS_SHOCK);BirthStaging.sweat(entity);
         }
         if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
-        if(since==30&&!hurt&&answering()!=null){entity.showReaction("happy","",40);entity.speak(baby.family().firstWords());BirthStaging.affection(entity);}
+        if(since==30&&!hurt&&answering()!=null){
+            entity.showReaction("happy","",40);boolean spoken=entity.speak(baby.family().firstWords());BirthStaging.affection(entity);
+            GameplayLog.event(entity,"family","birth greeting child={} spoken={} host={}",baby.getUUID(),spoken,entity.getVehicle()==null?null:entity.getVehicle().getUUID());
+        }
     }
     /** The first real contact decides: the hat it rides, the water, a nest's supported floor, its soft rim, or the bare ground. */
     private void land() {

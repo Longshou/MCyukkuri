@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import net.minecraft.nbt.CompoundTag;
 
@@ -20,6 +21,7 @@ public final class PresentationArbiter {
     private String lastSource;
     private int lastEntityTick;
     private long lastGameTick;
+    private String lastBirthClip;
 
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
 
@@ -38,6 +40,14 @@ public final class PresentationArbiter {
     private void publish(String id, Presentation result) {
         result.publish();
         state.expression(expression());
+        var e = state.owner();
+        String birthClip = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM)
+                ? e.getBehaviorId() + "/" + e.getAnimationId() : null;
+        if (birthClip != null && !birthClip.equals(lastBirthClip))
+            GameplayLog.event(e, "family", "birth presentation source={} behavior={} clip={} delivery={} animationStart={} host={}",
+                    id, e.getBehaviorId(), e.getAnimationId(), e.liveDeliveryTicks(), e.getAnimationStartTick(),
+                    e.getVehicle() == null ? null : e.getVehicle().getUUID());
+        lastBirthClip = birthClip;
         if (YukkuriConfig.SPEC.isLoaded() && YukkuriConfig.DEBUG_ENTITY_SAVE_VIEWS.get()) {
             lastSource = id;
             lastEntityTick = state.owner().tickCount;
@@ -272,6 +282,8 @@ public final class PresentationArbiter {
      */
     private static YukkuriAction hatRiderAction(PresentationAccess state, PlacedHatEntity hat, String behavior) {
         var e = state.owner();
+        // A supported mother's delivery keeps the same clip and phase as on land; riding only supplies the hull tilt.
+        if (behavior.equals(Behaviors.LABOR) || behavior.equals(Behaviors.POSTPARTUM)) return EcologyPresentation.action(behavior);
         if (behavior.equals(Behaviors.HAT_WALK)) return EcologyPresentation.action(behavior);
         if (e.life().isSleeping()) return YukkuriAction.SLEEP;
         if (e.life().mealTicks() > 0) return EcologyPresentation.action(behavior);
