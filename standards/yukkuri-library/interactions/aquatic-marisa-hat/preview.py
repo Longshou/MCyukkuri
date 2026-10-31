@@ -1,10 +1,12 @@
-"""Preview of the aquatic hat: its look worn and set down, and who sits where inside it (offline CPU renders, not the game).
+"""Preview of the second aquatic hat form beside the current one, and who sits where inside it (offline CPU renders, not
+the game).
 
-Rows: worn (front, 3/4); set down on water (side, 3/4), its hollow from above with the opening and the level floor marked,
-a cut through its middle; then layouts solved by layout.py (body-outline room, the proposed rule) as a top view with each
-body's foot circle and a cut from the side, by day and by night (the owner leaning over the young), with stores.
+Rows: the current aquatic hat (the land hat turned over, as the game draws it) and this form, worn and set down on water;
+cuts through both empty hulls, the new hollow from above and the owner aboard; then layouts solved by layout.py
+(body-outline room, the proposed rule) as a top view with each body's outline and a cut from the side, by day and by night
+(the owner leaning over the young), with stores.
 
-    MCY_LOCAL=<main checkout>/.local python layout.py    # first: previews/aquatic-hat/layouts.json
+    MCY_LOCAL=<main checkout>/.local python layout.py    # first: previews/aquatic-hat-round/layouts.json
     MCY_LOCAL=<main checkout>/.local python preview.py   # sheet.png and index.html (with 'page': index.html only)
 """
 from pathlib import Path
@@ -16,6 +18,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import scene as S
 import layout as L
+import export as E
 P = S.P
 OUT = L.OUT
 
@@ -170,23 +173,24 @@ def food_tris(atlas, level, cut=None):
     return tris
 
 
-def dry(x, z, line):
+def dry(x, z, line, hull=None):
+    hull = hull or HULL
     i = np.floor((x+S.GRID.half)/S.GRID.step).astype(int); j = np.floor((z+S.GRID.half)/S.GRID.step).astype(int)
     ok = (i >= 0) & (i < S.GRID.n) & (j >= 0) & (j < S.GRID.n); out = np.zeros(x.shape, bool)
     ii, jj = np.clip(i, 0, S.GRID.n-1), np.clip(j, 0, S.GRID.n-1)
-    out[ok] = (HULL.low[ii, jj] < line)[ok]
+    out[ok] = (hull.low[ii, jj] < line)[ok]
     return out
 
 
-def render(meshes, flags, atlas, view, water_at=None, cut=False, night=False):
-    """One cell; water_at is the waterline (y, world units) the hat floats at, or None for no water."""
+def render(meshes, flags, atlas, view, water_at=None, cut=False, night=False, hull=None):
+    """One cell; water_at is the waterline (y, world units) the hull (default this form's) floats at, or None."""
     az, el, span, center = view
     tris = np.concatenate(meshes); fl = np.concatenate(flags)
     tris = tris.copy(); fl = fl.copy()
     c = np.array(center, float)
     if water_at is not None: tris[:, :, 1] -= water_at; c = c-[0, water_at, 0]  # the water plane is y 0
     px, depth, cam = rasterize(tris, fl, np.array(atlas.image), az, el, span, c)
-    if water_at is not None: px = water(px, depth, cam, lambda x, z: dry(x, z, water_at), cut=cut)
+    if water_at is not None: px = water(px, depth, cam, lambda x, z: dry(x, z, water_at, hull), cut=cut)
     img = Image.fromarray(px)
     if night:
         img = Image.fromarray(np.clip(np.array(img).astype(float)*[.55, .6, .84]+[6, 8, 22], 0, 255).astype(np.uint8))
@@ -208,42 +212,64 @@ def cellify(img, sub=None, title=None):
     return out
 
 
-# water: where the empty hat floats (its own weight only), for the look rows
+# water: where each empty hull floats (its own weight only), for the look rows
 WATER = S.hydro(HULL, [])['waterline']
+OLD_TRIS, _, _, (OX0, OX1, OZ0, OZ1) = E.old_hull()
+OLD_PROFILE = json.loads((E.PROFILES/f'{E.OLD_HULL_ID}.json').read_text(encoding='utf-8'))
+OLD = S.Hull(OLD_TRIS, OLD_PROFILE['rim']['y']*16, lambda x, z: (OX0 < x) & (x < OX1) & (OZ0 < z) & (z < OZ1))
+OLD_WATER = S.hydro(OLD, [])['waterline']
+OLD_WORN = np.array(json.loads((S.ASSETS/'yukkuri_props/accessory_marisa.json').read_text(encoding='utf-8'))['vertices'],
+                    float).reshape(-1, 3, 8)
 
 
-def look_cells():
-    cells = []
-    for view, title in (((0., .06, 15.5, (0, 13.5, 0)), '戴着 · 正面'), ((.62, .32, 15.5, (0, 13., 0)), '戴着 · 3/4')):
-        atlas = Atlas(); tris, _ = MARISA.mesh('idle', 0, atlas, 'neutral', hat=S.WORN)
-        img, _ = render([tris], [np.zeros(len(tris), int)], atlas, view)
-        cells.append(cellify(img, title=title))
+def old_tris(atlas, cut=None):
+    m = OLD_TRIS.copy()
+    m[:, :, 3:5] = atlas.uv('marisa/neutral', Image.fromarray(MARISA.texture('neutral')), m[:, :, 3:5])
+    return clip(m, cut) if cut else m
+
+
+def waterline(img, cam):
+    y0 = project(cam, (0, 0, -20))[1]; ImageDraw.Draw(img).line([(0, y0), (RW, y0)], fill=(30, 90, 210), width=4)
+
+
+def compare_cells():
+    """Both forms side by side (current first): worn, afloat, cut empty; the new hollow from above and its owner aboard."""
     g = json.loads((HERE/'geometry.json').read_text(encoding='utf-8'))
+    cells = []
+    for hat, title in ((OLD_WORN, '现行水生帽 · 戴着 3/4'), (S.WORN, '新形态 · 戴着 3/4')):
+        atlas = Atlas(); tris, _ = MARISA.mesh('idle', 0, atlas, 'neutral', hat=hat)
+        img, _ = render([tris], [np.zeros(len(tris), int)], atlas, (.62, .32, 15.5, (0, 13., 0)))
+        cells.append(cellify(img, title=title))
+    for make, hull, line, title, sub in (
+            (old_tris, OLD, OLD_WATER, '现行帽船 · 水上 3/4（空帽）', '陆生帽翻过来压扁：平帽檐，方形阶梯帽腔'),
+            (hull_tris, HULL, WATER, '新帽船 · 水上 3/4（空帽）', '外：圆台阶帽冠，下层压成水下龙骨；内：圆盆')):
+        atlas = Atlas(); h = make(atlas)
+        img, _ = render([h], [np.zeros(len(h), int)], atlas, (.6, .5, 14.5, (0, -.5, 0)), water_at=line, hull=hull)
+        cells.append(cellify(img, sub, title))
+    for make, hull, line, title, prof in ((old_tris, OLD, OLD_WATER, '现行帽船 · 剖面（空帽）', OLD_PROFILE),
+                                          (hull_tris, HULL, WATER, '新帽船 · 剖面（空帽）', None)):
+        atlas = Atlas(); h = make(atlas, 'x')
+        img, cam = render([h], [np.ones(len(h), int)], atlas, (math.pi/2, .02, 10.5, (0, -1.5, 0)), water_at=line, cut=True, hull=hull)
+        waterline(img, cam)
+        if prof: sub = f"帽腔底在帽檐面下 {-prof['floor']['y']*16:.1f}，龙骨底 {-prof['keel']['y']*16:.1f}（蓝线为水线）"
+        else: sub = f"平底在帽檐面下 {g['floor_depth']:.1f}，龙骨底 {g['keel_depth']:.1f}（蓝线为水线）"
+        cells.append(cellify(img, sub, title))
     atlas = Atlas(); h = hull_tris(atlas)
-    img, _ = render([h], [np.zeros(len(h), int)], atlas, (math.pi/2, .08, 12., (0, 1.5, 0)), water_at=WATER)
-    cells.append(cellify(img, f"空帽：帽檐面高出水面 {-WATER:.1f}，吃水 {g['keel_depth']+WATER:.1f}，翘边再高 {HULL.dam:.1f}", '放下 · 侧视（空帽，水上）'))
-    img, _ = render([h], [np.zeros(len(h), int)], atlas, (.6, .5, 13., (0, -.5, 0)), water_at=WATER)
-    cells.append(cellify(img, '外：圆台阶帽冠，下层压成水下龙骨；内：圆盆', '放下 · 3/4（空帽，水上）'))
     img, cam = render([h], [np.zeros(len(h), int)], atlas, (math.pi, math.pi/2-.001, 13., (0, 0, 0)))
     d = ImageDraw.Draw(img)
     for r, col in ((g['opening_radius'], (40, 120, 200)), (g['floor_radius'], (230, 140, 40))):
         d.line([project(cam, (r*math.cos(a), 0, r*math.sin(a))) for a in np.linspace(0, 2*math.pi, 73)], fill=col, width=3)
-    cells.append(cellify(img, f"帽口半径 {g['opening_radius']:.1f}（蓝）· 平底半径 {g['floor_radius']:.1f}（橙）· 深 {g['floor_depth']:.1f}", '放下 · 俯视帽腔（船首↑）'))
-    # the owner aboard: the keel goes under, the hollow stays dry
-    r = L.solve(next(c for c in L.COMBOS if c[0] == 'owner_1n'), 'day', 0, 'body')
-    line = r['hydro']['waterline']
-    for kind in ('side', 'cut'):
-        atlas = Atlas(); cut = 'x' if kind == 'cut' else None; hm = hull_tris(atlas, cut)
-        owner = body_tris(atlas, *r['_draw'][0][:8])
-        view = (math.pi/2, .06 if cut else .08, 10.5 if cut else 12., (0, 1.5, 0))
-        img, cam = render([hm, owner], [np.full(len(hm), 1 if cut else 0), np.zeros(len(owner), int)], atlas, view, water_at=line, cut=bool(cut))
-        if cut:
-            y0 = project(cam, (0, 0, -20))[1]; ImageDraw.Draw(img).line([(0, y0), (RW, y0)], fill=(40, 120, 220), width=2)
-        cells.append(cellify(img, f"帽主在船上：帽檐面高出水面 {-line:.1f}，帽主身底在帽檐面下 {r['owner']['bottom']:.1f}" + ('（蓝线为水线）' if cut else ''),
-                             '放下 · 剖面（帽主在船上）' if cut else '放下 · 侧视（帽主在船上）'))
-    img, cam = render([hull_tris(atlas, 'x')], [np.ones(len(hull_tris(atlas, 'x')), int)], atlas, (math.pi/2, .02, 10.5, (0, -1.5, 0)), water_at=WATER, cut=True)
-    y0 = project(cam, (0, 0, -20))[1]; ImageDraw.Draw(img).line([(0, y0), (RW, y0)], fill=(40, 120, 220), width=2)
-    cells.insert(5, cellify(img, f"平底在帽檐面下 {g['floor_depth']:.1f}，龙骨底 {g['keel_depth']:.1f}（蓝线为水线）", '放下 · 剖面（空帽）'))
+    cells.append(cellify(img, f"帽口半径 {g['opening_radius']:.1f}（蓝）· 平底半径 {g['floor_radius']:.1f}（橙）· 深 {g['floor_depth']:.1f}",
+                         '新帽船 · 俯视帽腔（船首↑）'))
+    # the crew aboard, seen into the open hollow from the bow quarter: owner, six newborns before her, twelve portions
+    r = L.solve(next(c for c in L.COMBOS if c[0] == 'owner_6n'), 'day', 12, 'body')
+    atlas = Atlas(); hm = hull_tris(atlas); bodies = [body_tris(atlas, *d[:8]) for d in r['_draw']]
+    food = food_tris(atlas, HULL.stores(12))
+    meshes = [hm, food]+bodies
+    img, _ = render(meshes, [np.zeros(len(m), int) for m in meshes], atlas, (.55, .8, 13.5, (0, 0., -1.)),
+                    water_at=r['hydro']['waterline'])
+    cells.append(cellify(img, f"帽主身底 {r['owner']['bottom']:.1f} · 粮层面 {r['level']:.1f} · 帽檐面高出水面 {-r['hydro']['waterline']:.1f}",
+                         '新帽船 · 3/4（帽主＋6 新生＋储粮 12）'))
     return cells
 
 
@@ -344,7 +370,7 @@ def layout_cells(combo_key, period, stores, rule='body'):
         else:
             # the waterline across the cut
             y0 = project(cam, (0, 0, -20))[1]
-            dr.line([(0, y0), (RW, y0)], fill=(40, 120, 220), width=2)
+            dr.line([(0, y0), (RW, y0)], fill=(30, 90, 210), width=4)
             placed = r['placed']
             braid = '辫托够' if all(p.get('braid') in (True, None) for p in placed if p.get('placed')) else '辫托不够：'+','.join(p['kind'] for p in placed if p.get('braid') is False)
             def depth(p):
@@ -378,15 +404,13 @@ def layout_cells(combo_key, period, stores, rule='body'):
     return out, r
 
 
-PANELS = [('owner_2n', 'day', 0), ('owner_2n', 'night', 0), ('owner_6n', 'day', 24), ('owner_6n', 'night', 24),
-          ('owner_6b', 'day', 0), ('owner_s', 'day', 12), ('owner_c', 'day', 0), ('owner_c2n', 'day', 24),
-          ('owner_cs2n', 'day', 0), ('owner_c', 'night', 24), ('pregnant_2n', 'day', 0), ('pregnant_2n', 'night', 12)]
+PANELS = [('owner_6n', 'day', 12), ('owner_6n', 'night', 12), ('owner_6b', 'day', 24), ('owner_c', 'day', 0)]
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     cols = 4
-    look = look_cells()
+    look = compare_cells()
     rows = [look[:4], look[4:8]]
     for i in range(0, len(PANELS), 2):
         row = []
@@ -396,7 +420,7 @@ def main():
         rows.append(row)
     head = 60
     sheet = Image.new('RGB', (cols*CELL[0], head+len(rows)*CELL[1]), BG); d = ImageDraw.Draw(sheet)
-    d.text((10, 8), '水生魔理沙帽：外圆台阶帽冠＋陆生帽弯尖，内圆盆 — 乘员布局（建议规则：身体轮廓占位）', font=P.preview_font(22), fill='#203e48')
+    d.text((10, 8), '水生魔理沙帽两种形态对照：现行（陆生帽翻过来）与新形态（外圆台阶尖锥＋陆生帽弯尖，内圆盆）；下两行为新形态乘员布局（建议规则：身体轮廓占位）', font=P.preview_font(22), fill='#203e48')
     d.text((10, 36), '离线 CPU 渲染；俯视：帽主半透明，轮廓为身体本身的平面范围（橙＝帽主，蓝＝幼体），白底数字为幼体身底深度，船首在上；轮廓相叠处两只身体上下错开（身体是圆的，靠弧壁的那只更高），逐格高度不相交；剖面左上为幼体放大；数值为成体模型单位（16＝1 格），深度从帽檐面往下量', font=P.preview_font(13), fill='#4b6b74')
     for i, row in enumerate(rows):
         for j, cell in enumerate(row):
@@ -443,8 +467,8 @@ def page():
     g = extra['geometry']
     html = ('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>水生魔理沙帽：乘员布局</title>'
             '<body style="margin:16px;background:#ecf5f6;font-family:\'Microsoft YaHei\',sans-serif;color:#203e48">'
-            '<p><a href="../index.html">预览总入口</a></p><h2>水生魔理沙帽：外圆台阶帽冠＋陆生帽弯尖，内圆盆；乘员能否放下、坐在哪里</h2>'
-            f"<p>离线 CPU 渲染与离线计算，非游戏画面，未导出运行资源。尺寸（成体模型单位，16 = 1 格）：帽檐半径 {g['brim_radius']}，"
+            '<p><a href="../index.html">预览总入口</a></p><h2>水生魔理沙帽第二形态：外圆台阶帽冠＋陆生帽弯尖，内圆盆；与现行帽对照，乘员能否放下、坐在哪里</h2>'
+            f"<p>离线 CPU 渲染与离线计算，非游戏画面；新形态已导出运行网格与帽船剖面，尚未接入游戏。尺寸（成体模型单位，16 = 1 格）：帽檐半径 {g['brim_radius']}，"
             f"帽冠底半径 {g['crown_radius']}，帽口半径 {g['opening_radius']}，平底半径 {g['floor_radius']}、深 {g['floor_depth']}，"
             f"龙骨底 {g['keel_depth']}，翘边高 {g['rim_height']}。载重规则见 AQUATIC_MARISA_IMPLEMENTATION 帽内空间与载重。"
             '支撑按身体真实底面；占位规则对比现行的脚圆（半身宽＋0.02 格的圆，高度重叠即冲突）与建议的身体轮廓（只算身体，不算帽子、头发和辫子）。'

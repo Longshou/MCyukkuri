@@ -301,19 +301,19 @@
       "gallery": []
     },
     {
-      "id": "aquatic-hat",
-      "label": "水生魔理沙帽：造型与乘员布局",
-      "title": "水生魔理沙帽：外圆台阶帽冠、内圆盆，谁坐在哪里",
+      "id": "aquatic-hat-round",
+      "label": "水生魔理沙帽：两种形态对照与乘员布局",
+      "title": "水生魔理沙帽：现行帽与第二形态（外尖锥圆台阶、内圆盆）对照，谁坐在哪里",
       "tag": "待确认",
-      "summary": "制作源离线预览与计算：戴着、放下浮在水上、帽腔，以及按载重规则摆放新生、赤油、子油和临产帽主（白天、夜里俯身，储粮 0/12/24），附辫托与横倾读数；未导出运行资源。",
+      "summary": "离线预览与计算：现行水生帽与第二形态戴着、放下浮在水上、空帽剖面并排对照；第二形态的帽腔与按载重规则摆放的新生、赤油、子油（白天、夜里俯身，带储粮层），附横倾读数。第二形态已导出运行网格与帽船剖面，尚未接入游戏。",
       "model": "marisa",
       "points": [],
       "steps": [],
       "category": "water",
       "gallery": [
         {
-          "src": "aquatic-hat/sheet.png",
-          "label": "造型与布局对照"
+          "src": "aquatic-hat-round/sheet.png",
+          "label": "两种形态对照与布局"
         }
       ],
       "source": "standards/yukkuri-library/interactions/aquatic-marisa-hat/README.md"

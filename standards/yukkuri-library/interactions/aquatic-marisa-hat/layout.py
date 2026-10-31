@@ -15,14 +15,14 @@ Rules used, all from the runtime unless noted:
 - upright: the static heel from the riders' and stores' real masses and centres on the outer hull (scene.hydro) against
   the heel at which the turned-up rim meets the water; steady when it stays within HullAfloat.STEADY (0.6) of it.
 
-    MCY_LOCAL=<main checkout>/.local python layout.py [combo,...]   # writes previews/aquatic-hat/layouts.json, prints rows
+    MCY_LOCAL=<main checkout>/.local python layout.py [combo,...]   # writes previews/aquatic-hat-round/layouts.json, prints rows
 """
 from pathlib import Path
 import json, math, os, sys
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-OUT = Path(os.environ.get('MCY_LOCAL', HERE.parents[3]/'.local'))/'previews/aquatic-hat'
+OUT = Path(os.environ.get('MCY_LOCAL', HERE.parents[3]/'.local'))/'previews/aquatic-hat-round'
 sys.path.insert(0, str(HERE))
 import scene as S
 
