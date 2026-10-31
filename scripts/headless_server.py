@@ -13,9 +13,14 @@ import subprocess
 import time
 from pathlib import Path
 
+
+def git_common_root(worktree):
+    return Path(subprocess.check_output(
+        ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=worktree, text=True).strip()).parent
+
+
 ROOT = Path(__file__).resolve().parent.parent
-COMMON = Path(subprocess.check_output(
-    ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT, text=True).strip()).parent
+COMMON = git_common_root(ROOT)
 INSTANCES = ROOT / '.local/smoke'
 
 
@@ -71,8 +76,8 @@ def process_started(pid):
     return times[0] if code.value == 259 else None
 
 
-def stop_stale():
-    for root in {INSTANCES, ROOT / '.local/smoke', COMMON / '.local/smoke'}:
+def stop_stale(instances):
+    for root in {instances, INSTANCES, COMMON / '.local/smoke'}:
         for record in root.glob('instance-*/server.json'):
             st = json.loads(record.read_text(encoding='utf-8'))
             if (process_started(st['pid']) == st['started']
@@ -213,8 +218,8 @@ def wait_log(st, pattern, offset=0, timeout=600):
     raise TimeoutError(f'Timed out waiting for /{pattern}/; see {st["rundir"]}/logs/latest.log')
 
 
-def start(runtime, java, datapack, name, mod):
-    record = INSTANCES / name / 'server.json'
+def start(runtime, java, datapack, name, mod, instances):
+    record = instances / name / 'server.json'
     rundir = record.parent / 'run'
     rundir.mkdir(parents=True, exist_ok=False)
     (rundir / 'eula.txt').write_text('eula=true\n', encoding='utf-8')

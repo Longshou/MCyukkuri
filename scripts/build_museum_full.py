@@ -30,7 +30,6 @@ import json
 import math
 import re
 import shutil
-import subprocess
 import sys
 import time
 
@@ -650,10 +649,9 @@ def main():
         out = args.output.resolve()
         staging_roots = [STAGING.resolve()]
         if args.pack_only:
+            from headless_server import git_common_root
             staging_roots.append((ROOT / '.local/smoke').resolve())
-            common = Path(subprocess.check_output(
-                ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT, text=True).strip()).parent
-            staging_roots.append((common / '.local/smoke').resolve())
+            staging_roots.append((git_common_root(ROOT) / '.local/smoke').resolve())
         if not any(out != root and out.is_relative_to(root) for root in staging_roots):
             raise ValueError('Output must be below .local/experimental-map (or .local/smoke for --pack-only)')
     # Everything that can fail is done before the old world is touched: validation and the level metadata.
