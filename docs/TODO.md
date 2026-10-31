@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船真实外壳浮力、稳性与攀爬渐进载荷 | `.worktrees/hull-float` | `aquatic/HullAfloat`、`motor/geom/Buoyancy` 及纯几何辅助、`motor/action/Climb`／`Right`、`client/aquatic/HullWaterMask` |
+| 水生魔理沙圆帽测试种与帽形切换 | `.worktrees/round-species` | 种族／亚种登记、帽饰渲染与损伤覆盖、`command/ScenarioSetup`、`scripts/museum_*.py`、`scripts/smoke_museum.py` |
 | 帽船分娩表现与亲缘回应 | `.worktrees/boat-birth` | `entity/presentation/PresentationArbiter`（不改 `onBrim`）、`family/FamilyLife`；出生出口与弹道留待帽形合入后处理 |
 
 ## 玩法待办
