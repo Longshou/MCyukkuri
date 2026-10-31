@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 无界面场景冒烟自查 | `.worktrees/smoke-run` | `scripts/headless_server.py`、`scripts/smoke_museum.py`、`scripts/museum_{dsl,scenarios}.py`、工具文档 |
 | 水生帽圆冠盆形态（模型、帽面支撑、浮稳、粮层） | `.worktrees/w4-hat-form` | 水生帽制作源与导出、`headwear/HatGeometry`、`aquatic/HullAfloat`、`aquatic/HullLarder*`、帽子渲染 |
 
 ## 玩法待办
