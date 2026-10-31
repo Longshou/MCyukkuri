@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Headless NeoForge server launcher, adapted from .local/harness/harness.py; stdlib only, no compilation."""
-import csv
+from contextlib import contextmanager
 import ctypes
 import json
 import os
@@ -24,12 +24,24 @@ COMMON = git_common_root(ROOT)
 INSTANCES = ROOT / '.local/smoke'
 
 
+def is_client(command):
+    # The museum launcher passes the client launch target through a Java argument file.
+    return re.search(r'--launchTarget["\s=]+\w*client\w*\b'
+                     r'|(?:^|["\s])@[^"\r\n]*clientRunProgramArgs\.txt(?:["\s]|$)'
+                     r'|\bnet\.minecraft\.client\.main\.Main\b', command or '', re.IGNORECASE) is not None
+
+
 def require_closed():
-    rows = csv.reader(subprocess.check_output(['tasklist', '/FO', 'CSV', '/NH'], text=True).splitlines())
-    running = [row[0] + ' PID=' + row[1] for row in rows
-               if row[0].lower() in ('java.exe', 'javaw.exe')]
+    query = ('$ErrorActionPreference = "Stop"; '
+             '[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); '
+             'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
+             '-Filter "Name = \'java.exe\' OR Name = \'javaw.exe\'" '
+             '| Select-Object Name,ProcessId,CommandLine)')
+    rows = json.loads(subprocess.check_output(
+        ['powershell.exe', '-NoProfile', '-Command', query], encoding='utf-8'))
+    running = [f'{row["Name"]} PID={row["ProcessId"]}' for row in rows if is_client(row['CommandLine'])]
     if running:
-        raise RuntimeError('Close Minecraft/Java before running headless checks: ' + ', '.join(running))
+        raise RuntimeError('Close Minecraft client before running headless checks: ' + ', '.join(running))
 
 
 def read_args_file(path):
@@ -76,6 +88,27 @@ def process_started(pid):
     return times[0] if code.value == 259 else None
 
 
+@contextmanager
+def instance_lock():
+    # Share port handoff and stale recovery across worktrees; Windows releases abandoned mutexes.
+    k = ctypes.windll.kernel32
+    k.CreateMutexW.restype = ctypes.c_void_p
+    handle = k.CreateMutexW(None, False, 'Local\\MCyukkuriSmokeLaunch')
+    if not handle:
+        raise ctypes.WinError()
+    try:
+        result = k.WaitForSingleObject(ctypes.c_void_p(handle), 0xFFFFFFFF)
+        if result not in (0, 0x80):  # Acquired normally, or inherited from a terminated runner.
+            raise ctypes.WinError()
+        try:
+            yield
+        finally:
+            k.ReleaseMutex(ctypes.c_void_p(handle))
+    finally:
+        k.CloseHandle(ctypes.c_void_p(handle))
+
+
+@instance_lock()
 def stop_stale(instances):
     for root in {instances, INSTANCES, COMMON / '.local/smoke'}:
         for record in root.glob('instance-*/server.json'):
@@ -218,6 +251,7 @@ def wait_log(st, pattern, offset=0, timeout=600):
     raise TimeoutError(f'Timed out waiting for /{pattern}/; see {st["rundir"]}/logs/latest.log')
 
 
+@instance_lock()
 def start(runtime, java, datapack, name, mod, instances):
     record = instances / name / 'server.json'
     rundir = record.parent / 'run'
@@ -230,6 +264,7 @@ def start(runtime, java, datapack, name, mod, instances):
         st['rcon_port'] = free_port()
     write_props(rundir, st)
     cmd = build_java_cmd(runtime, java, rundir, mod)
+    require_closed()
     with (record.parent / 'stdout.log').open('wb') as out:
         proc = subprocess.Popen(cmd, cwd=rundir, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
                                 creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
@@ -238,7 +273,9 @@ def start(runtime, java, datapack, name, mod, instances):
     if st['started'] is None:
         raise RuntimeError(f'Server exited during launch; see {record.parent / "stdout.log"}')
     try:
-        record.write_text(json.dumps(st, indent=2), encoding='utf-8')
+        pending = record.with_suffix('.tmp')
+        pending.write_text(json.dumps(st, indent=2), encoding='utf-8')
+        pending.replace(record)
         print(f'Instance {name}: pid={proc.pid} run={rundir}', flush=True)
         wait_log(st, r'Done \([\d.,]+s\)!')
         wait_log(st, r'RCON running on')

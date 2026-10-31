@@ -171,8 +171,6 @@ def main():
     server.require_closed()
     mod = (runtime / 'mod' if args.worktree is None else
            assemble_mod(source, runtime, java, instances / name))
-    # Recheck after compilation, immediately before launch.
-    server.require_closed()
     st = server.start(runtime, java, datapack, name, mod, instances)
     try:
         server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
