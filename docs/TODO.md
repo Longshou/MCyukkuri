@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 满载圆帽分娩静止判定 | `.worktrees/basin-missed` | `family/LiveBirth.java`、宿主移动所属层、相关纯函数测试 |
 
 ## 玩法待办
 
