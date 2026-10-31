@@ -1808,12 +1808,14 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
       item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
-          '[action] end id=take_prop outcome=DONE。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
+          '[action] end id=take_prop outcome=DONE。划水时原版木棍随辫梢移动，读 aquatic.stick_in_braid=true；停划时消失、读数为 false，岸边招帽仍空辫拨水。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=set_out\b',
+     smoke=dict(ticks=1200, commands=[(1, 'yukkuri status trace true'), (1199, 'yukkuri status trace false')],
+                expect=[r'\[intent\][^\n]* start id=set_out\b',
                                     r'\[hat\][^\n]* placed [^\n]*water=true kit=minecraft:stick\b',
                                     r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
                                     r'\[intent\][^\n]* end id=set_out result=DONE\b',
+                                    r'\[status\][^\n]* aquatic\.stick_in_braid: false -> true\b',
                                     # Cone capsize is allowed; basin must reach cruise afloat.
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))

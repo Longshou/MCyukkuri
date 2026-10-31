@@ -207,8 +207,8 @@ public final class YukkuriModel {
     private final Map<String, Set<String>> expressionYields = new HashMap<>();
     private final Map<String, float[]> puffEnvelopes = new HashMap<>();
     /** Clip-authored prop keys (clip props.<slot>): [t, px, py, pz, rx, ry, rz] in the bone frame at its pivot (aquatic_tools.py). */
-    private record PropTrack(int bone, float[][] keys) {}
-    private final Map<String, Map<String, PropTrack>> clipProps = new HashMap<>();
+    private final Map<String, Map<String, Track>> clipProps = new HashMap<>();
+    private Matrix4f paddleAttachment;
     /** Named clip seconds (clip markers), such as the paddle's power_start and power_end. */
     private final Map<String, Map<String, Float>> clipMarkers = new HashMap<>();
     /** One rest-space morph target: refined skin, blush carriers and swung side locks. */
@@ -389,6 +389,8 @@ public final class YukkuriModel {
     public Matrix4f rootPose() { return new Matrix4f(world[rootBone()]); }
     /** Captured from the rendered lip surface before its expression patch is restored. */
     public Matrix4f mouthAttachmentPose() { return new Matrix4f(mouthAttachment); }
+    /** Current clip's grip at the posed braid tuft, in blocks; absent outside the stick clips. */
+    public Matrix4f paddleAttachmentPose() { return paddleAttachment; }
     private void captureMouthAttachment() {
         Vector3f low=new Vector3f(Float.POSITIVE_INFINITY),high=new Vector3f(Float.NEGATIVE_INFINITY),point=new Vector3f();
         int mouthBone=rootBone();boolean found=false;
@@ -423,12 +425,13 @@ public final class YukkuriModel {
             }
             float[] a = keys[low], b = keys[Math.min(low + 1, keys.length - 1)];
             float q = b[0] == a[0] ? 0 : Math.clamp((time - a[0]) / (b[0] - a[0]), 0f, 1f);
-            for (int i = 0; i < 3; i++) target[offset + i] = a[i + 1] + (b[i + 1] - a[i + 1]) * q;
+            for (int i = 0; i < a.length - 1; i++) target[offset + i] = a[i + 1] + (b[i + 1] - a[i + 1]) * q;
         }
     }
     private record Clip(float duration, boolean loop, List<Track> tracks) {
+        float time(float elapsed) { return loop ? Math.max(0, elapsed) % duration : Math.clamp(elapsed, 0f, duration); }
         void sample(float elapsed, float[][] pose) {
-            float time = loop ? Math.max(0, elapsed) % duration : Math.clamp(elapsed, 0f, duration);
+            float time = time(elapsed);
             for (Track track : tracks) track.sample(time, pose[track.bone]);
         }
     }
@@ -610,14 +613,14 @@ public final class YukkuriModel {
             }
             if (clip.has("puff_envelope")) puffEnvelopes.put(entry.getKey(),floats(clip.getAsJsonArray("puff_envelope")));
             if (clip.has("props")) {
-                Map<String, PropTrack> slots = new HashMap<>();
+                Map<String, Track> slots = new HashMap<>();
                 for (var slot : clip.getAsJsonObject("props").entrySet()) {
                     var prop = slot.getValue().getAsJsonObject();String boneName = prop.get("bone").getAsString();int bone = -1;
                     for (int i = 0; i < bones.length; i++) if (bones[i].name().equals(boneName)) { bone = i; break; }
                     var keys = prop.getAsJsonArray("keys");float[][] samples = new float[keys.size()][];
                     for (int i = 0; i < samples.length; i++) { samples[i] = floats(keys.get(i).getAsJsonArray()); if (samples[i].length != 7) throw new IllegalArgumentException("Invalid prop key"); }
                     if (bone < 0 || samples.length == 0) throw new IllegalArgumentException("Invalid clip prop: " + entry.getKey());
-                    slots.put(slot.getKey(), new PropTrack(bone, samples));
+                    slots.put(slot.getKey(), new Track(bone, 0, samples));
                 }
                 clipProps.put(entry.getKey(), Map.copyOf(slots));
             }
@@ -880,6 +883,15 @@ public final class YukkuriModel {
         if(braidPose.active())braidPose.pose();
         if(hatInBraid>0&&hatGrip!=null)braidPose.holdHat(hatFollowBone(),hatInBraid,hatGrip);
         if(pregnancyBelly>.001f)rigidLifts();
+        paddleAttachment=null;
+        var props=clipProps.get(selected);
+        if(props!=null&&props.containsKey("paddle")){
+            var prop=props.get("paddle");var bone=bones[prop.bone];float[] v=new float[6];
+            prop.sample(clips.get(selected).time(adultTime),v);
+            paddleAttachment=new Matrix4f().scaling(1/16f).mul(world[prop.bone])
+                    .translate(bone.x+v[0],bone.y+v[1],bone.z+v[2])
+                    .rotateZYX(v[5]*DEGREES,v[4]*DEGREES,v[3]*DEGREES).scale(16);
+        }
         if (delivery != null) delivery.follow(world[rootBone()]);
         featureTransforms.forEach((bone,matrix)->{matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(featureParentInverse.set(world[bones[bone].parent]).invert());});
         // Contact solvers above change the bones repeatedly. Cache only after the final pose.

@@ -9,6 +9,8 @@ import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** Synchronized schema, values and decoded caches for exactly one entity. */
 final class YukkuriSync {
@@ -75,6 +78,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> HAIR_LOSS=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WEAR=YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> KANROKEN=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> PADDLE_STICK=YukkuriEntity.defineSyncedValue(EntityDataSerializers.BOOLEAN);
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
     private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
@@ -153,6 +157,7 @@ final class YukkuriSync {
     int visibleMedal() { return owner.getEntityData().get(MEDAL); }
     boolean hasVisibleAccessory() { return owner.getEntityData().get(ACCESSORY); }
     boolean visibleKanroken() { return owner.getEntityData().get(KANROKEN); }
+    boolean visiblePaddleStick() { return owner.getEntityData().get(PADDLE_STICK); }
     int subspeciesFlags() { return owner.getEntityData().get(SUBSPECIES); }
     void syncSubspecies(int flags) { if (!owner.level().isClientSide) owner.getEntityData().set(SUBSPECIES, flags); }
     ItemStack getCarriedItem(){return owner.getEntityData().get(CARRYING);}
@@ -302,6 +307,15 @@ final class YukkuriSync {
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id()); owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
+    void syncPaddleStick() {
+        boolean usesStick = switch (getAnimationId()) {
+            case "boat_paddle", "hat_brim_offer", "boat_nudge_young" -> !owner.motorAction().equals(Beckon.ID);
+            default -> false;
+        };
+        owner.getEntityData().set(PADDLE_STICK, usesStick && (owner.life().mouth().is(Items.STICK)
+                || owner.life().custody().kit().is(Items.STICK)
+                || owner.getVehicle() instanceof PlacedHatEntity hat && hat.kit().is(Items.STICK)));
+    }
     void resetDeathPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
@@ -338,6 +352,7 @@ final class YukkuriSync {
         builder.define(AGITATION,new CompoundTag());
         builder.define(COURTSHIP,new CompoundTag());
         builder.define(WEAR,0);builder.define(MARKS,new CompoundTag());builder.define(HEADWEAR,100<<4);builder.define(KANROKEN,false);
+        builder.define(PADDLE_STICK,false);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         // set() calls this on the server too. Replace only this accessor's decoded value.

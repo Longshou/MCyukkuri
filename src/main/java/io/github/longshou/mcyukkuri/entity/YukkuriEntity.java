@@ -500,6 +500,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Myon traits (saved tic, stick sword, bravery); inert for other species except the saved tic slot. */
     public MyonLife myon() { return myon; }
     public boolean visibleKanroken() { return sync().visibleKanroken(); }
+    public boolean visiblePaddleStick() { return sync().visiblePaddleStick(); }
     public int subspeciesFlags() { return sync().subspeciesFlags(); }
     public void syncSubspecies(int flags) { sync().syncSubspecies(flags); }
     public SettlementLife settlement() { return settlement; }
@@ -693,6 +694,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!isAlive()) return;
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
         presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ);
+        sync().syncPaddleStick();
     }
 
     /** Shell Marisa withdraws where it is instead of fleeing (development plan 4.4). */

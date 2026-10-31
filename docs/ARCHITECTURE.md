@@ -56,6 +56,8 @@ Java 路径相对 `src/main/java/io/github/longshou/mcyukkuri/`。玩法规则�
 
 客户端经 `YukkuriView`／`PlacedHatView` 读取同步值和只读派生结果，不读取服务端组件。`componentData(SyncSlot)` 是同步槽，`component(ComponentKey)` 是服务端实例；视图 tag 只读，乘员快照返回副本。
 
+`YukkuriView.visiblePaddleStick()` 由服务端在发布当前片段后按真实木棍归属同步；客户端沿该片段的 `props.paddle` 及最终辫梢骨骼变换绘制原版木棍，空辫招帽不持棍，不新增物品账本或存档字段。
+
 - `WoundKind` 表示治疗与漏馅类别，`WoundShape` 表示真实伤因及热损范围，`SkinDecal` 表示展示覆盖；`WoundSurface` 提供共享皮面锚点及按局部包围盒裁剪的只读三角查询，帽面接触复用现有空间索引。伤口使用实际受击位置，接受帽发遮挡，不另算可见位置。
 - 人工体表展示的 `YukkuriBody.FaceMarks` 由 `BodyLife` 保存，`BodySigns.FACE_MARKS` 经既有整数同步字段传给客户端；只约束预置脏污、疤痕和油霉位置，不移动真实受击伤口或其愈合疤痕。
 - `YukkuriModelLoader` 解析模型；渲染缓存默认姿态与骨骼局部变换，每次绘制仍重算实体世界矩阵。只有共面、同绑定及同纹理边界的相邻三角形可合为四边形，曲面、表情、孕肚和受损帽饰保留三角形路径。

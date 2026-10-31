@@ -112,6 +112,8 @@ public interface YukkuriView {
     boolean predatorFlying();
     boolean hasVisibleAccessory();
     boolean visibleKanroken();
+    /** Server-selected stick grip for the current clip; false for the bare-braid stroke. */
+    boolean visiblePaddleStick();
     int visibleMedal();
     int visibleHeadwear();
     int visibleWear();

@@ -1,9 +1,15 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** Presentation of a real synchronized stack; never creates an item or grants inventory. */
 final class HeldItemPresentation {
@@ -23,6 +29,17 @@ final class HeldItemPresentation {
 
     static void mouth(PoseStack pose,YukkuriModel model) {
         pose.mulPose(model.mouthAttachmentPose());
+    }
+
+    static void paddle(YukkuriView entity,YukkuriModel model,PoseStack pose,MultiBufferSource buffers,int light,int overlay) {
+        if(!entity.visiblePaddleStick()||model.paddleAttachmentPose()==null)return;
+        pose.pushPose();pose.mulPose(model.paddleAttachmentPose());
+        // The vanilla sprite runs diagonally: align it with the track's +Y shaft and grip near its top.
+        pose.translate(0,-5/16f,0);pose.mulPose(Axis.ZP.rotationDegrees(45));
+        float scale=(float)Math.sqrt(.5);pose.scale(scale,scale,scale);
+        Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(Items.STICK),ItemDisplayContext.NONE,
+                light,overlay,pose,buffers,entity.level(),entity.getId());
+        pose.popPose();
     }
 
     static void bedding(PoseStack pose) {

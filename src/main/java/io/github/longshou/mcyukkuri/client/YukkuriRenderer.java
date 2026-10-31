@@ -176,6 +176,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 // places that same stack in the child's mouth; food never travels as an independent projectile.
                 var held=heldIndex==0?entity.getMouthItem():entity.getCarriedItem();
                 if(held.isEmpty())continue;
+                if(heldIndex==0&&held.is(Items.STICK)&&entity.visiblePaddleStick())continue;
                 boolean mash=InfantFood.isMash(held);
                 // The parent's real pending twig is mouth-held until the server hands that same item to the child.
                 var grip=heldIndex==1&&!behavior.equals(Behaviors.FAMILY_CHEW)&&!mash?model.gripPoint():null;
@@ -213,6 +214,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                         pose,buffers,entity.level(),entity.getId());
                 pose.popPose();
             }
+            HeldItemPresentation.paddle(entity,model,pose,buffers,packedLight,overlay);
             if(!operated&&HeldItemPresentation.kanroken(entity,behavior)){
                 // A Myon's stick sword rides crosswise in the free mouth, on the same mouth pose as food (rare/MyonLife).
                 pose.pushPose();HeldItemPresentation.mouth(pose,model);
