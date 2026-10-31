@@ -13,6 +13,9 @@ import placement_fit
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
 LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
+# What the paddle clips are authored and gated against (aquatic_tools: hull_forms, hull_gate, paddle_tracks, captain_mass).
+PRESENTATION = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation'
+AQUATIC_INPUTS = [*sorted((PRESENTATION/'hull_profiles').glob('*.json')), PRESENTATION/'braid_rescue.json', PRESENTATION/'body_geometry.json']
 VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'
@@ -137,7 +140,7 @@ def main():
     parser.add_argument('--trial', help='write a trial resource and textures to this directory, never the runtime')
     parser.add_argument('--fit', help='placement fit resource to author against (default: the runtime one)')
     args = parser.parse_args()
-    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', SOURCE/'braid_chain.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__)]
+    source_files = [SOURCE/'recipe.json', SOURCE/'author.py', SOURCE/'braid_chain.py', LORE/'recipe.json', LORE/'author.py', LORE/'aquatic_tools.py', LORE/'hat.py', VESSEL, Path(__file__), *AQUATIC_INPUTS]
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
@@ -195,6 +198,7 @@ def main():
                 'lore_author': rel(LORE/'author.py'), 'lore_author_sha256': sha(LORE/'author.py'),
                 'lore_hat': rel(LORE/'hat.py'), 'lore_hat_sha256': sha(LORE/'hat.py'),
                 'hat_vessel': rel(VESSEL), 'hat_vessel_sha256': sha(VESSEL),
+                'aquatic_inputs': {rel(path): sha(path) for path in AQUATIC_INPUTS},
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}

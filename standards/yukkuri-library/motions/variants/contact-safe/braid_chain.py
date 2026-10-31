@@ -231,7 +231,7 @@ def follow(bones, clip, spec):
         above, local = W[0], []
         for k in range(1, len(bones)):
             R = partial(_soft(W[k-1].T@W[k], caps[k-1]), slack)
-            world = _sag(above@R, down, spec.get('sag_degrees', 0.)*slack)
+            world = _sag(above@R, down, spec['sag_degrees']*slack)
             local.append(above.T@world); above = world
         if own:
             local[-1] = local[-1]@euler(_sample(own['keys'], t))

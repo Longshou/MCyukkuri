@@ -24,6 +24,10 @@ ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 HULLS = ASSETS/'yukkuri_presentation/hull_profiles'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
+BODY = ASSETS/'yukkuri_presentation/body_geometry.json'
+SHARED = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))['paddle_shared']
+BODY_DENSITY = .56*.56*(3-2*.56)  # Buoyancy.BODY_DENSITY
+PULL = (.2, .8)  # the middle of the power half, as fractions of power_start..power_end, where the blade must be under water
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
 PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
@@ -93,6 +97,17 @@ def unwrap(rows):
 
 
 # ---- whole-body root poses -------------------------------------------------------------------------------------------
+
+def paddle_spec(c):
+    """The clip's paddle block over the shared one (`aim` merges one level)."""
+    p = dict(SHARED, **c['paddle']); p['aim'] = dict(SHARED['aim'], **c['paddle']['aim']); return p
+
+
+def captain_mass():
+    """The adult Marisa's body mass (block^3 of water): Buoyancy.bodyMass over her body_geometry.json bounds and height."""
+    m = json.loads(BODY.read_text(encoding='utf-8'))['variants']['marisa']; w, h = (m['bounds'][0][1]-m['bounds'][0][0])/16, m['height']/16
+    return math.pi/6*w*w*h*BODY_DENSITY
+
 
 def paddle_phase(t, c):
     """Stroke phase u in [0, 1): the power half is u < .5, from power_start to power_end."""
@@ -298,11 +313,11 @@ def bone_index(model, name):
 _FORMS = {}
 
 
-def hull_forms(mass):
+def hull_forms(mass, units):
     """Every hull form the captain rides (hull_profiles/*.json), seen from her seat (model units, origin on the seat,
     her axes the hull's): per profile ray the hull's cross-section in (r, y) as a closed polygon, and the waterline that
-    the hull and her `mass` float at (the displacement of the outer hull, level)."""
-    if mass in _FORMS: return _FORMS[mass]
+    the hull and her `mass` float at (the displacement of the outer hull, level); `units` is the models' units per block."""
+    if (mass, units) in _FORMS: return _FORMS[mass, units]
     forms = []
     for path in sorted(HULLS.glob('*.json')):
         H = json.loads(path.read_text(encoding='utf-8')); seat = H['anchors']['owner_y']
@@ -314,8 +329,8 @@ def hull_forms(mass):
         lo, hi = H['keel']['y'], H['rim']['y']
         for _ in range(40):
             mid = (lo+hi)/2; lo, hi = (mid, hi) if displaced(mid) < mass+H['volume']['hull_mass'] else (lo, mid)
-        forms.append(dict(name=path.stem, azimuths=az, rings=[(r-[0, seat])*16 for r in rings], water=(lo-seat)*16))
-    _FORMS[mass] = forms
+        forms.append(dict(name=path.stem, azimuths=az, rings=[(r-[0, seat])*units for r in rings], water=(lo-seat)*units))
+    _FORMS[mass, units] = forms
     return forms
 
 
@@ -337,7 +352,7 @@ def clearance(form, P, yaw):
 
 def paddle_targets(action, t, c, water):
     """Blade-end target (y, z) in the captain's model space and the twig's feather angle about its own axis."""
-    p = c['paddle']
+    p = paddle_spec(c)
     if action != 'boat_paddle':
         return water+p['rest_height'], p['rest_z'], p['rest_feather']
     u = paddle_phase(t, c)
@@ -357,10 +372,10 @@ def paddle_tracks(model, action, samples, tracks, c):
     `lag_seconds` after the joint above and none turning faster than `degrees_per_second`. The twig hangs from the wrap at the tuft's grip at its own pitch, so the
     braid stays held out over the gunwale. The blade aims under the lowest waterline of the hull forms.
     Returns (rotation tracks of every chain joint below the root, prop block, per-sample twig (grip, direction))."""
-    p = c['paddle']; water = min(f['water'] for f in hull_forms(p['captain_mass']))
+    p = paddle_spec(c); water = min(f['water'] for f in hull_forms(captain_mass(), model['units_per_block']))
     names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']; chain = braid_chain.chain(names)
-    m = c.get('markers', {}); load = p.get('braid_load')
-    spec = dict(FOLLOW, load=dict(load, start=m['power_start'], end=m['power_end'])) if load else FOLLOW
+    load = p.get('braid_load')  # only boat_paddle pulls against the water; the held-out clips have no load window
+    spec = dict(FOLLOW, load=dict(load, start=c['markers']['power_start'], end=c['markers']['power_end'])) if load else FOLLOW
     followed = braid_chain.follow(chain, {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks}, spec)
     own = {t['bone']: t for t in followed['tracks'] if t['bone'] in chain[1:]}
     tip = chain[-1]; aim = [names[n] for n in p['aim']['bones']]; share = p['aim']['shares']
@@ -419,26 +434,27 @@ def hull_gate(model, action, samples, tracks, sticks, c):
     """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
     the captain on its seat at any yaw (every `captain_yaw_step` degrees); boat_paddle's blade must also be under every
     form's waterline by half its `depth` through the middle of the pull. Prints per form the worst braid and twig clearance."""
-    p = c['paddle']; forms = hull_forms(p['captain_mass']); yaws = range(0, 360, p['captain_yaw_step'])
+    p = paddle_spec(c); forms = hull_forms(captain_mass(), model['units_per_block']); yaws = range(0, 360, p['captain_yaw_step'])
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
     braid = sorted({i for q in model['parts'] if q['name'].startswith('braid_lock_') for i in range(q['start'], q['start']+q['count'])})
     braid = np.unique(np.c_[V[braid], W[braid]].round(5), axis=0)
     hv = np.c_[braid[:, :3], np.ones(len(braid))]; a, b, w = braid[:, 3].astype(int), braid[:, 4].astype(int), braid[:, 5:6]
     along = np.linspace(-p['top_length'], p['blade_length'], 25)
-    worst = {f['name']: [0, 1e9, 1e9, 1e9] for f in forms}  # penetrating samples, braid, twig, blade under water
+    worst = {f['name']: [0, math.inf, math.inf, -math.inf] for f in forms}  # penetrating samples, braid, twig, blade under water
+    if action == 'boat_paddle': m = c['markers']; core = [m['power_start']+q*(m['power_end']-m['power_start']) for q in PULL]
     for t, (G, d) in zip(samples, sticks):
         M = palette(model, tracks, t)
         P = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]; S = G+np.outer(along, d)
-        pull = action == 'boat_paddle' and .1 <= paddle_phase(t, c) <= .4
+        pull = action == 'boat_paddle' and core[0] <= t <= core[1]
         for f in forms:
             r = worst[f['name']]
             hair = min(clearance(f, P, yaw).min() for yaw in yaws); twig = min(clearance(f, S, yaw).min() for yaw in yaws)-p['twig_radius']
             r[0] += hair < 0 or twig < 0; r[1] = min(r[1], hair); r[2] = min(r[2], twig)
-            if pull: r[3] = min(r[3], f['water']-S[-1, 1])
-    failed = [name for name, (bad, _, _, wet) in worst.items() if bad or (wet < 1e9 and wet < p['depth']/2)]
+            if pull: r[3] = f['water']-S[-1, 1] if r[3] == -math.inf else min(r[3], f['water']-S[-1, 1])
+    failed = [name for name, (bad, _, _, wet) in worst.items() if bad or (action == 'boat_paddle' and not wet >= p['depth']/2)]
     for name, (bad, hair, twig, wet) in worst.items():
         print(f'  {action} in {name}: {bad}/{len(samples)} samples penetrate; braid clears by {hair:.2f}, twig by {twig:.2f} model units'
-              + (f'; blade {wet:.2f} under water' if wet < 1e9 else ''), flush=True)
+              + (f'; blade {wet:.2f} under water' if action == 'boat_paddle' else ''), flush=True)
     if failed:
         raise ValueError(f'{model["id"]} {action}: the braid or twig enters, or the blade misses the water of, {failed}')
     return worst

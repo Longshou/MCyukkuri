@@ -12,7 +12,9 @@
 
 `braid_follow` 只作用于 `hand_right` 及其下整条骨链带动的辫子。跟随身体扭转曲线后，再求最小外摆角，使辫子不比静止基线多进入皮肤 0.02 以上，并让辫梢离地至少 0.03；外摆上限 30°、搜索步长 1°。峰值保持（时长另加骨链滞后，让下段经过同一扭转时仍保持外摆）后平滑回落，循环动作首尾衔接。适用动作在原曲线上叠加此跟随；稀毛辫子贴在头皮上随皮肤变形，不应用该修正。螺壳缩入使用后仰、外张的头发姿势。
 
-辫子是骨链（`hand_right`、`hand_right_braid_1`～`_5`、发尾 `hand_right_tip`）。凡摆动辫根的动作，`braid_chain.py` 把辫根的摆动作为行波沿骨链逐节传下：每节比上一节晚 `braid_chain.lag_seconds`，相对上一节的弯曲按 `max_bend_degrees` 柔和封顶，两者都按 [辫根, 发尾] 沿骨链渐变（辫根滞后短、硬，发尾滞后长、软，发尾共晚约 0.32 秒），摆动由根部传向发尾，而不是整根弯成一段弧；辫子偏离竖直伸出时每节按 `sag_degrees`（水平时的值）略微下垂。片段可给受力窗口（`boat_paddle` 的推水段，配方 `paddle.braid_load`）：受力时弯曲与下垂按 `tension` 收直，出水时放开积存的弯曲。静止和保持姿势不产生滞后，一次性动作在最后 `settle_seconds` 内收回滞后。动作自带的发尾转角叠加在最后一节上。取帽、戴帽、托帽与水生护帽由 `lore/hat.py` 直接解骨链：在辫长以内弯成圆弧把发尾关节放到帽檐抓握点，超出辫长时才沿辫身伸长；划桨类片段先传下摆动，再由最后几节（配方 `paddle.aim`）按份额、限速把辫梢在前后扫动面内转向桨叶目标，木棍在辫梢缠握处按自身倾角垂向水面；`lore/aquatic_tools.py` 的 `hull_gate` 用蒙皮后的辫子（`braid_lock_*`）和木棍轴核对 `hull_profiles/` 下每种帽船形态（船长坐在座位上、按 `captain_yaw_step` 转遍朝向），任一采样穿入船体或划水时桨叶未入水即导出失败。解算与游戏共用同一圆弧算法（`motor/geom/BraidChain`）。
+辫子是骨链（`hand_right`、`hand_right_braid_1`～`_5`、发尾 `hand_right_tip`）。凡摆动辫根的动作，`braid_chain.py` 把辫根的摆动作为行波沿骨链逐节传下：每节比上一节晚 `lag_seconds`、相对上一节的弯曲按 `max_bend_degrees` 封顶，两者都按 [辫根, 发尾] 渐变（根硬而滞后短，尾软而滞后长，发尾共晚约 0.32 秒）；辫子偏离竖直时每节按 `sag_degrees` 下垂。片段可给受力窗口 `load`（`start`／`end`／`ramp`／`tension`），受力时弯曲与下垂收直，出水时放开。静止和保持姿势不产生滞后，一次性动作在最后 `settle_seconds` 内收回滞后；动作自带的发尾转角叠加在最后一节上。取帽、戴帽、托帽与水生护帽由 `lore/hat.py` 解骨链，与游戏共用圆弧算法（`motor/geom/BraidChain`）。
+
+划桨类片段（`lore/aquatic_tools.py`）先传下摆动，再由 `paddle.aim` 的最后几节按份额、限速把辫梢转向桨叶目标，木棍按自身倾角垂在辫梢缠握处；`paddle` 的共用参数在 `lore/recipe.json` 的 `paddle_shared`，各片段只覆盖差异。`hull_gate` 用蒙皮后的辫子和木棍轴核对 `hull_profiles/` 每种帽船形态（船长坐在座位上，按 `captain_yaw_step` 转遍朝向）；任一采样穿入船体，或 `boat_paddle` 拉水段中段桨叶未入水到 `depth` 一半，导出即失败。
 
 圆弧解算把向前、向下的合向量投影到目标弦的法平面；目标在正前、正后附近时弯曲面连续。`braid_cradle_lift` 保留原发尾路径，用同一解算重新烘焙骨链，并在合拢前与松开后渐变回原动作；`braid_rescue.json` 保存接触几何及解算源指纹，实际动作在 `motion_corrections.json`。
 

@@ -169,8 +169,6 @@ def cam(az, el, span, target):
 
 def marker_text(clip, t):
     c = CAP.posed.clips[clip]; m = c.get('markers', {})
-    if clip == 'boat_paddle':
-        u = ((t-m['power_start'])/c['duration']) % 1; return '推水段' if u < .5 else '回桨段'
     names = [k for k, v in m.items() if isinstance(v, (int, float)) and v <= t+1e-6]
     return max(names, key=lambda k: m[k]) if names else ''
 
@@ -189,15 +187,15 @@ def captain_scene(clip, t, views, extra=None):
 def paddle_sheet():
     views = [(1.0, .22, 15, (5, 2, -3)), (math.pi/2, .1, 15, (6, 1.5, -3))]
     rows = []
-    for clip, times in (('boat_paddle', [.2, .4, .6, .8, 1.0, 1.2, 1.4, 1.55]), ('hat_brim_offer', [0, .4, .8]), ('boat_nudge_young', [0, .34, .6])):
+    for clip, times in (('hat_brim_offer', [0, .4, .8]), ('boat_nudge_young', [0, .34, .6])):
         side, rear = [], []
         for t in times:
             a, b = captain_scene(clip, t, views)
             side.append(label(a, f'{t:.2f}s {marker_text(clip, t)}', '前侧视（辫子一侧）'))
             rear.append(label(b, f'{t:.2f}s', '侧视（看入水）'))
         rows += [(clip, side), (clip+'（侧）', rear)]
-    sheet(OUT/'paddle.png', '划桨：辫梢缠住捡来的木棍上端；推水段木棍下端入水向后扫，回桨段抬出水面向前',
-          '运行片段 boat_paddle 的 props.paddle 关键帧与 power_start/power_end（游戏同读）；船体按 hat_vessel.json 漂浮；离线渲染，非游戏实录', rows)
+    sheet(OUT/'paddle.png', '辫梢缠住木棍伸出帽檐：递帽檐与托幼体时辫子保持举出（boat_paddle 的划桨见 aquatic_paddle_preview.py）',
+          '运行片段的 props.paddle 关键帧（游戏同读）；船体按 marisa-hat-vessel/geometry.json 漂浮；离线渲染，非游戏实录', rows)
 
 
 def cradle_sheet():

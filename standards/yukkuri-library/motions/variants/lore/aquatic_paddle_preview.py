@@ -24,7 +24,6 @@ import placement_fit
 OUT = Path(os.environ.get('MCYUKKURI_PREVIEWS', P.ROOT/'.local/previews'))/'aquatic-paddle'
 RUNTIME = 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
 TOOLS = runpy.run_path(str(HERE/'aquatic_tools.py'))
-POSES = ((.2, '入水'), (.6, '拉水'), (1.0, '出水'), (1.4, '回桨'))
 FORWARD, AFT, ZERO = np.array((42, 120, 214)), np.array((227, 73, 72)), np.array((240, 239, 236))
 BG, INK, MUTED = (236, 245, 246), '#203e48', '#4b6b74'
 COLOURS = {'braid': (236, 150, 40), 'hair': (226, 196, 92), 'face': (70, 60, 60), 'body': (240, 226, 204), 'hull': (58, 56, 66), 'twig': (122, 84, 46)}
@@ -36,6 +35,7 @@ class Captain:
         self.model = m = placement_fit.fitted(P.ASSETS/'yukkuri/marisa.json', placement_fit.load()); self.label = label
         rev = data['models']['marisa']; index = {b['name']: i for i, b in enumerate(m['bones'])}
         clip = rev['clips']['boat_paddle']
+        self.duration, self.markers = clip['duration'], clip['markers']
         self.clip = dict(clip, tracks=[dict(tr, bone=index[rev['bone_names'][tr['bone']]]) for tr in clip['tracks']])
         hidden = tuple(json.loads((P.ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']['marisa']['accessory_prefixes'])
         V = np.array(m['vertices']).reshape(-1, 8)[:, :3]; W = np.array(m['weights']); self.parts = []
@@ -61,6 +61,11 @@ class Captain:
         for i in range(4):
             q = [top+ring[i], end+ring[i], end+ring[(i+1) % 4], top+ring[(i+1) % 4]]; out += [('twig', np.array(q[:3])), ('twig', np.array([q[0], q[2], q[3]]))]
         return out
+
+    def poses(self):
+        """Key pose times from the clip's markers: catch, mid pull, finish, mid recovery."""
+        a, b = self.markers['power_start'], self.markers['power_end']; back = b+(self.duration-(b-a))/2
+        return [(t % self.duration, beat) for t, beat in ((a, '入水'), ((a+b)/2, '拉水'), (b, '出水'), (back, '回桨'))]
 
     def bends(self, times):
         """Fore-aft bend (degrees, + forward) at braid_1..tip for each time, less each joint's mean over the times (the rest shape)."""
@@ -117,28 +122,30 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__); ap.add_argument('--form', default='aquatic_basin_hat_turned')
     ap.add_argument('--against', help='git revision whose runtime boat_paddle is drawn above the current one')
     args = ap.parse_args(); OUT.mkdir(parents=True, exist_ok=True)
-    recipe = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['clips']['boat_paddle']['paddle']
+    recipe = TOOLS['paddle_spec'](json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))['clips']['boat_paddle'])
     captains = [(Captain(json.loads((P.ROOT/RUNTIME).read_text(encoding='utf-8')), '当前'), (recipe['top_length'], recipe['blade_length']))]
     if args.against:
         old = json.loads(subprocess.run(['git', 'show', f'{args.against}:{RUNTIME}'], cwd=P.ROOT, capture_output=True, check=True).stdout)
-        captains.insert(0, (Captain(old, f'旧 {args.against}'), (1.6, 10.4)))
-    form = next(f for f in TOOLS['hull_forms'](recipe['captain_mass']) if f['name'] == args.form); hull = hull_triangles(args.form)
+        was = subprocess.run(['git', 'show', f'{args.against}:{(HERE/"recipe.json").relative_to(P.ROOT).as_posix()}'], cwd=P.ROOT, capture_output=True, check=True).stdout
+        was = json.loads(was)['clips']['boat_paddle']['paddle']  # that revision's own stick lengths
+        captains.insert(0, (Captain(old, f'旧 {args.against}'), (was['top_length'], was['blade_length'])))
+    form = next(f for f in TOOLS['hull_forms'](TOOLS['captain_mass'](), captains[-1][0].model['units_per_block']) if f['name'] == args.form); hull = hull_triangles(args.form)
     cell = (360, 264); rows = []
     for captain, length in captains:
         for view, name in (('side', '侧视：辫子一侧，船头在左'), ('front', '正视：自船头，辫子在右')):
             cells = [labelled(draw(captain.triangles(t, length)+hull, view, form['water']).resize(cell, Image.Resampling.LANCZOS), f'{t:.1f}s {beat}', name)
-                     for t, beat in POSES]
+                     for t, beat in captain.poses()]
             rows.append((f'{captain.label}·{name[:2]}', cells))
-    times = np.linspace(0, 1.6, 161); width = 4*cell[0]-60
+    now = captains[-1][0]; times = np.linspace(0, now.duration, round(now.duration*100)+1); width = 4*cell[0]-60
     board = Image.new('RGB', (4*cell[0], 20+len(captains)*176), BG); d = ImageDraw.Draw(board)
     for i, (captain, _) in enumerate(captains):
         b = captain.bends(times); y = 10+i*176; board.paste(strip(b, width), (30, y+24))
-        d.text((30, y), f'{captain.label}：辫节前后弯曲，上 braid_1 → 下发尾；横轴一次划桨 0–1.6 s；减去各节平均弯曲；蓝向前、红向后（±12° 封顶）；白点为各节向前弯曲峰值',
+        d.text((30, y), f'{captain.label}：辫节前后弯曲，上 braid_1 → 下发尾；横轴一次划桨 0–{now.duration:g} s；减去各节平均弯曲；蓝向前、红向后（±12° 封顶）；白点为各节向前弯曲峰值',
                font=P.preview_font(14), fill=INK)
         for j in range(b.shape[1]):
-            x = 30+int(times[int(np.argmax(b[:, j]))]/1.6*width); d.ellipse((x-4, y+24+j*20+6, x+4, y+24+j*20+14), fill='white', outline=INK)
-        for t0, beat in ((.2, '入水'), (1.0, '出水')):
-            x = 30+int(t0/1.6*width); d.line((x, y+20, x, y+24+6*20), fill=INK, width=2); d.text((x+4, y+26+6*20), beat, font=P.preview_font(13), fill=MUTED)
+            x = 30+int(times[int(np.argmax(b[:, j]))]/now.duration*width); d.ellipse((x-4, y+24+j*20+6, x+4, y+24+j*20+14), fill='white', outline=INK)
+        for t0, beat in ((now.markers['power_start'], '入水'), (now.markers['power_end'], '出水')):
+            x = 30+int(t0/now.duration*width); d.line((x, y+20, x, y+24+6*20), fill=INK, width=2); d.text((x+4, y+26+6*20), beat, font=P.preview_font(13), fill=MUTED)
     out = Image.new('RGB', (190+4*cell[0], 70+len(rows)*cell[1]+board.height), BG); d = ImageDraw.Draw(out)
     d.text((10, 6), f'划桨：辫子伸出越过帽檐、木棍入水（{args.form}，水线 {form["water"]:.2f}，离线渲染，非游戏实录）', font=P.preview_font(22), fill=INK)
     d.text((10, 40), '运行片段 boat_paddle 的骨骼轨道与 props.paddle 关键帧（游戏同读）；运行船体道具按 hull_profiles 缩放，船长坐在座位上；浅蓝为水线以下', font=P.preview_font(14), fill=MUTED)

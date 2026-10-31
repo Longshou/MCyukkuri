@@ -3,6 +3,23 @@
   "status": "pending_user_review",
   "note": "World-setting motions for everyday, birth and aquatic behaviors. Whole-body root transforms (scale, rotation, lift, shift) landed on the lowest visible point every sample, small hand-bone flourishes where hand bones carry hair, and per-clip expression timelines. Amplitudes are degrees, fractions of the body height or scale ratios. Times are seconds. A face timeline entry is [start, end, expression]; a missing texture falls back along `face_fallback`, and the server's injury face wins over the timeline (`expression_yield`). `applies` lists the models a clip is compiled into (fnmatch patterns; `except` removes).",
   "sample_seconds": 0.04,
+  "paddle_shared": {
+    "grip_offset": 1.6,
+    "twig_radius": 0.3,
+    "captain_yaw_step": 30,
+    "catch_z": -8.0,
+    "finish_z": 4.0,
+    "air": 2.0,
+    "arc": 1.0,
+    "feather": 0,
+    "rest_height": 2.6,
+    "rest_z": 2.0,
+    "rest_feather": 0,
+    "note": "Project design: the paddle stick's gate and target parameters shared by boat_paddle, hat_brim_offer and boat_nudge_young; a clip's own paddle block overrides keys (aim keys merge one level). The captain's mass is not stored: aquatic_tools derives it from body_geometry.json (marisa bounds) and Buoyancy.BODY_DENSITY.",
+    "aim": {
+      "degrees_per_second": 300
+    }
+  },
   "expression_yield": [
     "cry"
   ],
@@ -740,7 +757,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 1, a shoulder yaw twist and a drive squash leading the braid by body_lead_seconds. The braid is held out (braid_out) over the gunwale of every hull form and straightens under the pull (paddle.braid_load); its last joints head the tuft toward the blade (paddle.aim) and the stick hangs from the wrap at its own pitch. The skinned braid and the stick are checked against every hull_profiles form (aquatic_tools.hull_gate); game and previews read the exported keys.",
+      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 1, a shoulder yaw twist and a drive squash leading the braid by body_lead_seconds. Braid bend and the hull gate: contact-safe/README.md.",
       "triggers": [
         "server surface route has a real stick and a waypoint"
       ],
@@ -759,21 +776,9 @@
           "tension": 0.6,
           "ramp": 0.12
         },
-        "grip_offset": 1.6,
         "top_length": 1.0,
         "blade_length": 11.0,
-        "twig_radius": 0.3,
-        "captain_mass": 0.149,
-        "captain_yaw_step": 30,
-        "catch_z": -8.0,
-        "finish_z": 4.0,
         "depth": 1.6,
-        "air": 2.0,
-        "arc": 1.0,
-        "feather": 0,
-        "rest_height": 2.6,
-        "rest_z": 2.0,
-        "rest_feather": 0,
         "aim": {
           "bones": [
             "hand_right_braid_1",
@@ -791,7 +796,6 @@
             0.19,
             0.22
           ],
-          "degrees_per_second": 300,
           "lag_seconds": 0.06
         }
       },
@@ -3925,21 +3929,9 @@
         "BraidRescue OFFER, BITE, SLIDE (parent)"
       ],
       "paddle": {
-        "grip_offset": 1.6,
         "top_length": 1.6,
         "blade_length": 10.4,
-        "twig_radius": 0.3,
-        "captain_mass": 0.149,
-        "captain_yaw_step": 30,
-        "catch_z": -8.0,
-        "finish_z": 4.0,
         "depth": 2.2,
-        "air": 2.0,
-        "arc": 1.0,
-        "feather": 0,
-        "rest_height": 2.6,
-        "rest_z": 2.0,
-        "rest_feather": 0,
         "aim": {
           "bones": [
             "hand_right_braid_4",
@@ -3951,7 +3943,6 @@
             0.3,
             0.4
           ],
-          "degrees_per_second": 300,
           "lag_seconds": 0.04
         }
       },
@@ -4137,21 +4128,9 @@
         "BraidRescue PUSH (parent)"
       ],
       "paddle": {
-        "grip_offset": 1.6,
         "top_length": 1.6,
         "blade_length": 10.4,
-        "twig_radius": 0.3,
-        "captain_mass": 0.149,
-        "captain_yaw_step": 30,
-        "catch_z": -8.0,
-        "finish_z": 4.0,
         "depth": 2.2,
-        "air": 2.0,
-        "arc": 1.0,
-        "feather": 0,
-        "rest_height": 2.6,
-        "rest_z": 2.0,
-        "rest_feather": 0,
         "aim": {
           "bones": [
             "hand_right_braid_4",
@@ -4163,7 +4142,6 @@
             0.3,
             0.4
           ],
-          "degrees_per_second": 300,
           "lag_seconds": 0.04
         }
       },
