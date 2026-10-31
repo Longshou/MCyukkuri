@@ -19,7 +19,6 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
-import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
@@ -1089,7 +1088,7 @@ public final class YukkuriModel {
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
             hatScale=HatScale.factor(entity.subspeciesFlags());
-            hatProp=replacementHat(entity.subspeciesKind());
+            hatProp=entity.subspeciesKind().hatProp();
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
@@ -1149,7 +1148,7 @@ public final class YukkuriModel {
         drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
         hatScale=HatScale.factor(in.subspeciesFlags());
-        hatProp=replacementHat(SubspeciesLife.Kind.values()[in.subspeciesFlags()&15]);
+        hatProp=SubspeciesLife.Kind.values()[in.subspeciesFlags()&15].hatProp();
         boolean accessory=in.accessory();
         int headwear=in.headwear();hatDamageDraw.visual(headwear);
         try{
@@ -1169,9 +1168,6 @@ public final class YukkuriModel {
             if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);
             if(accessory)renderReplacementHat(stack,buffers,light,overlay);
         }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatProp=null;hatDamageDraw.reset();setExpression("");}
-    }
-    private static String replacementHat(SubspeciesLife.Kind kind){
-        return kind.aquatic()&&!kind.hullForm().equals(HullProfile.CURRENT)?kind.wornHat():null;
     }
     /** The prop uses the same authored hat frame, final braid pose and pregnancy lift as the original accessory. */
     private void renderReplacementHat(PoseStack stack,MultiBufferSource buffers,int light,int overlay){

@@ -33,7 +33,7 @@
 
 ### 水生魔理沙·圆帽（测试种）
 
-项目设计。沿用水生魔理沙的亚种登记：在 `SubspeciesLife.Kind` 末尾追加 `AQUATIC_MARISA_ROUND`（ordinal 8），实体仍为 `mcyukkuri:marisa`，不增加或重排 `YukkuriVariant`。`Kind.aquatic()` 统一决定水生生态与配对，`behaviorKind()` 共用原水生种的能力系数和帽子缩放；身体、对白和动作仍用魔理沙。自然生成与野外聚落只选原水生种，不随机生成测试种；遗传仍沿用水生判定，命中时保留水生亲本的帽形（双水生亲本以母方为先）。
+项目设计。沿用水生魔理沙的亚种登记：在 `SubspeciesLife.Kind` 末尾追加 `AQUATIC_MARISA_ROUND`（ordinal 8），实体仍为 `mcyukkuri:marisa`，不增加或重排 `YukkuriVariant`。`Kind.aquatic()` 统一决定水生生态与配对，`behaviorKind()` 共用原水生种的能力系数和帽子缩放；身体、对白和动作仍用魔理沙。自然生成与野外聚落不随机选测试种；从已有水生种子个体生成家庭时，配偶沿用种子个体的亚种。两种帽形可互相配对，遗传仍沿用水生判定，命中时保留水生亲本的帽形（双水生亲本以母方为先）。
 
 `ModItems.roundAquaticSpawnEgg()` 在自有创造栏和原版刷怪蛋栏提供“水生魔理沙·圆帽刷怪蛋（测试）”：复用魔理沙蛋，`ENTITY_DATA` 保存该亚种，无重复实体类型或蛋物品注册。饰品 `aquatic_basin_hat` 单独注册；戴帽／物品共用同名制作源，放下时用 `aquatic_basin_hat_turned`，保存的 `HullForm=cone_basin`，已压好的船体不再压扁。资源来源见 [runtime-sources.json](../art/runtime-sources.json) 的 `aquatic_basin_hat`。
 

@@ -5,8 +5,6 @@ import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.aquatic.HullLarder;
 import io.github.longshou.mcyukkuri.client.PropModels;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
-import io.github.longshou.mcyukkuri.headwear.HullProfile;
-import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +52,7 @@ public final class HullLarderRenderer {
             pose.mulPose(Axis.YP.rotationDegrees(i * 137.5f));
             pose.scale(scale, lift, scale);
             PropModels.center(prop, pose, true);
-            if(hat.formId().equals(HullProfile.BASIN))
-                PropModels.renderTextured(prop,units,MCYukkuri.id("textures/props/aquatic_basin_hat_stores.png"),pose,buffers,light,OverlayTexture.NO_OVERLAY);
-            else PropModels.render(prop, units, pose, buffers, light, OverlayTexture.NO_OVERLAY);
+            PropModels.render(prop, units, pose, buffers, light, OverlayTexture.NO_OVERLAY);
             pose.popPose();
         }
     }

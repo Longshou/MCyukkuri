@@ -16,6 +16,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 SCN = 'scn'                 # tag carried by every scenario individual, item and prop entity
+OBJ = 'museum'
 MATURITY = 336000            # default loaded ticks from birth to maturity (family/GrowthTiming)
 LIFESPAN = 1056000
 # life stage -> (saved family stage, first age, next age, body scale)
@@ -25,7 +26,7 @@ HAT_FORMS = (('turned_land_hat', 'AQUATIC_MARISA', '锥帽'), ('cone_basin', 'AQ
 
 def hat_choice(commands):
     """One pond setting selects the starting ancestry before the individual enters the world."""
-    return '\n'.join(f'execute if score #hat_form museum matches {i} run {command}' for i, command in enumerate(commands))
+    return '\n'.join(f'execute if score #hat_form {OBJ} matches {i} run {command}' for i, command in enumerate(commands))
 
 
 def aquatic_spawn(dx, dz, count=1):
@@ -93,6 +94,7 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
        childhood=None, also=(), extra='', uuid=None, kin='', fam=None, form=None, congenital="NORMAL",
        intelligence=55, friendliness=70, attachment=60, self_control=70, kit=None):
     """``summon`` for one real yukkuri. ``name`` is its selector tag (scn_<name>); ``label`` an optional visible custom name.
+    Aquatic actors return multiple conditional commands; prefix or inspect each line from ``splitlines()`` separately.
     grade: pet badge grade (1 bronze, 2 silver) written the way the shop writes a freshly issued badge.
     form: a subspecies kind (``SubspeciesLife.Kind``, e.g. LONGTAIL_CHEN) instead of NORMAL / AQUATIC_MARISA.
     kit: an item id tucked into the worn hat (a Marisa's stick, ``HatCustody`` Kit), as one picked up earlier would be."""

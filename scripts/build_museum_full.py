@@ -40,7 +40,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
 sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
-from museum_dsl import _text, _q, yk, HAT_FORMS  # noqa: E402
+from museum_dsl import _text, _q, yk, HAT_FORMS, OBJ  # noqa: E402
 import museum_fields  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
 import museum_scenarios  # noqa: E402
@@ -48,7 +48,6 @@ import museum_sites  # noqa: E402
 from museum_sites import button, display, deck, wrap, units, CONTROLS  # noqa: E402
 
 NS = 'mcylab'
-OBJ = 'museum'
 WORLD = 'MCyukkuri-Museum'
 SPAWN = (0, FEET, 36, 180)
 LOBBY = (-42, -36, 42, 42)            # x1, z1, x2, z2 of the lobby plaza

@@ -22,6 +22,7 @@
 
 | 前缀 | 覆盖边界 | 关联与规则入口 |
 | --- | --- | --- |
+| `[species]` | 亚种与先天形态实际写入、刷怪蛋／存档读取结果（按实体与来源限频）；不代表实体已加入世界 | 实体 UUID；[种族登记](SPECIES.md#注册结构)、[亚种](SUBSPECIES_IMPLEMENTATION.md) |
 | `[body]` / `[remains]` / `[comfort]` | 真实受击、伤口／疤痕／疾病变化、治疗与耗材、死亡／遗体（死因类别、水中阶段）、舔伤接触和结束 | 实体、伤口、治疗者 UUID；[受伤与遗体](INJURIES_AND_REMAINS.md) |
 | `[predator]` / `[myon]` | 目标与追击阶段、因洞口结界拒绝目标（限频）、攻击是否接受、生命变化、战斗停止、拾取／失去武器 | 双方 UUID；[捕食种](PREDATOR_IMPLEMENTATION.md)、[妖梦](RARE_FORMS.md) |
 | `[family]` / `[childhood]` / `[growth]` / `[independence]` | 配对受孕、出生、取粮与喂食交接、首餐首便、运动学习、成长、离家与新家；树叶襁褓的采叶、折叠、包裹、解开、辅助排便、清理、包回、积便／溢出、脱落和限频等待；亲代运输的开始抬起、接起、放下（附原因与实际位置）、重载续接和拒绝（限频） | brood、亲子 UUID、物资来源；[生命周期](CHILDHOOD_LIFECYCLE.md)、[成长](BEHAVIOR.md) |

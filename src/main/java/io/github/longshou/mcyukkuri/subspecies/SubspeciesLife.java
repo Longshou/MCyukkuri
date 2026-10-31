@@ -26,19 +26,22 @@ public final class SubspeciesLife {
      *  The round aquatic hat is a project test form. Ordinals are saved and synced in four bits: append only. */
     public enum Kind {
         NORMAL(null), SHELL_MARISA(YukkuriVariant.MARISA), WASA_REIMU(YukkuriVariant.REIMU),
-        AQUATIC_MARISA(YukkuriVariant.MARISA, HullProfile.CURRENT, "accessory_marisa", "marisa_aquatic_hat"),
+        AQUATIC_MARISA(YukkuriVariant.MARISA, HullProfile.CURRENT, "accessory_marisa", "marisa_aquatic_hat", false),
         KOTATSU_MARISA(YukkuriVariant.MARISA), LONGTAIL_CHEN(YukkuriVariant.CHEN), ROUNDTAIL_CHEN(YukkuriVariant.CHEN), REDEYE_MYON(YukkuriVariant.MYON),
-        AQUATIC_MARISA_ROUND(YukkuriVariant.MARISA, HullProfile.BASIN, "aquatic_basin_hat", "aquatic_basin_hat");
+        AQUATIC_MARISA_ROUND(YukkuriVariant.MARISA, HullProfile.BASIN, "aquatic_basin_hat", "aquatic_basin_hat", true);
         private final YukkuriVariant variant;
         private final String hullForm, wornHat, hatItem;
-        Kind(YukkuriVariant variant) { this(variant, null, null, null); }
-        Kind(YukkuriVariant variant, String hullForm, String wornHat, String hatItem) {
+        private final boolean propHat;
+        Kind(YukkuriVariant variant) { this(variant, null, null, null, false); }
+        Kind(YukkuriVariant variant, String hullForm, String wornHat, String hatItem, boolean propHat) {
             this.variant = variant; this.hullForm = hullForm; this.wornHat = wornHat; this.hatItem = hatItem;
+            this.propHat = propHat;
         }
         public boolean aquatic() { return hullForm != null; }
         public Kind behaviorKind() { return aquatic() ? AQUATIC_MARISA : this; }
         public String hullForm() { return hullForm; }
         public String wornHat() { return wornHat; }
+        public String hatProp() { return propHat ? wornHat : null; }
         public String hatItem() { return hatItem; }
         /** Whether this kind can belong to an individual of that species. */
         public boolean fits(YukkuriVariant species) { return variant == null || variant == species; }
@@ -100,6 +103,7 @@ public final class SubspeciesLife {
         if (value != Kind.NORMAL && shape != Congenital.NORMAL) return false;
         String previous=assetId();kind = value; congenital = shape; if(shape!=Congenital.NORMAL)deibu=false;initialized = true; sync();entity.body().remapSurface(previous);
         if(entity.life()!=null)entity.life().personality().constrainToForm();
+        GameplayLog.limited(entity,"species","ancestry.set",200,"ancestry set kind={} congenital={}",kind,congenital);
         return true;
     }
     private void sync() { entity.syncSubspecies(kind.ordinal() | congenital.ordinal() << 4 | (deibu?DEIBU_FLAG:0)); }
@@ -128,19 +132,19 @@ public final class SubspeciesLife {
         if (initialized) return;
         initializeBirth(birthFlags(entity.getUUID(),entity.getVariant(),a==null?null:a.subspecies().kind(),b==null?null:b.subspecies().kind()));
     }
-    /** Pure UUID selection; family records should save this once while parent ancestry is known. */
-    public static int birthFlags(UUID child,YukkuriVariant variant,Kind parentA,Kind parentB) {
+    /** Pure UUID selection, mother first; family records save this once while parent ancestry is known. */
+    public static int birthFlags(UUID child,YukkuriVariant variant,Kind mother,Kind father) {
         var random=new Random(child.getMostSignificantBits() ^ child.getLeastSignificantBits() ^ 0x53484150454CL);
         var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;
         Kind selected=Kind.NORMAL;int shape=0;
         int inheritedOdds=candidate==Kind.WASA_REIMU?50:4;
-        if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?inheritedOdds:160)==0)selected=candidate;
+        if(candidate!=Kind.NORMAL&&random.nextInt(mother==candidate||father==candidate?inheritedOdds:160)==0)selected=candidate;
         // The aquatic kind passes to half of a Marisa's young when a parent is aquatic [original rate]; shell is decided first.
-        if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&((parentA!=null&&parentA.aquatic())||(parentB!=null&&parentB.aquatic()))&&random.nextInt(2)==0)
-            selected=parentA!=null&&parentA.aquatic()?parentA:parentB;
+        if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&((mother!=null&&mother.aquatic())||(father!=null&&father.aquatic()))&&random.nextInt(2)==0)
+            selected=mother!=null&&mother.aquatic()?mother:father;
         if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU||variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);
         // Rare forms of komicolle 40720 No.11518905, drawn after every older roll so those outcomes stay as they were [project rates].
-        if(selected==Kind.NORMAL&&shape==0)selected=rareForm(random,variant,parentA,parentB);
+        if(selected==Kind.NORMAL&&shape==0)selected=rareForm(random,variant,mother,father);
         return selected.ordinal() | shape<<4;
     }
     private static Kind rareForm(Random random,YukkuriVariant variant,Kind parentA,Kind parentB) {
@@ -218,6 +222,7 @@ public final class SubspeciesLife {
         deibuRetryAt=Math.max(0,tag.getLong("DeibuRetryAt"));deibuSpaceSignature=tag.getLong("DeibuSpaceSignature");
         deibuCheckedAt=tag.contains("DeibuCheckedAt")?BlockPos.of(tag.getLong("DeibuCheckedAt")):null;
         sync();
+        GameplayLog.limited(entity,"species","ancestry.load",200,"ancestry loaded kind={} congenital={}",kind,congenital);
     }
     /** The adult result is already locked; this only waits for a safe post-action place to expand the body. */
     private void tickPendingDeibu() {

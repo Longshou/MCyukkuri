@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 陆地接生搬运偶发后放排查与修复 | `.worktrees/land-carry-back` | `family/ParentCarry`、`motor/geom/CarryGeometry`、`motor/action/{Grab,Release}`、`family/Fetch` 及纯函数测试 |
 | 帽船真实外壳浮力、稳性与攀爬渐进载荷 | `.worktrees/hull-float` | `aquatic/HullAfloat`、`motor/geom/Buoyancy` 及纯几何辅助、`motor/action/Climb`／`Right`、`client/aquatic/HullWaterMask` |
-| 水生魔理沙圆帽测试种与帽形切换 | `.worktrees/round-species` | 种族／亚种登记、帽饰渲染与损伤覆盖、`command/ScenarioSetup`、`scripts/museum_*.py`、`scripts/smoke_museum.py` |
 | 帽船分娩出口、弹道与连续表现 | `.worktrees/boat-birth` | `family/{LiveBirth,LiveBirthGeometry,BirthLaunch,FamilyData,FamilyLife}`、`entity/presentation/PresentationArbiter`（不改 `onBrim`）、`headwear/HatGeometry` 出生包络、`motor/ContactResolver` 与纯几何测试；`museum_scenarios.py` 仅出生 `smoke=` |
 
 ## 玩法待办

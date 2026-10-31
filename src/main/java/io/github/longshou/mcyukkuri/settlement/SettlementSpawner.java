@@ -123,7 +123,7 @@ public final class SettlementSpawner {
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
                 if (aquaticFamily && member != seed && i < household.parents())
-                    member.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
+                    member.subspecies().set(seed.subspecies().kind(), SubspeciesLife.Congenital.NORMAL);
                 family.add(member); members.add(member);
             }
             households.add(family);
