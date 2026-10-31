@@ -18,15 +18,21 @@ public final class Await implements Action {
     private final BooleanSupplier condition;
     private final int maxTicks;
     private final String clip;
+    private final String why;
     private long startTick;
     private int ticks;
 
     public Await(BooleanSupplier condition, int maxTicks, String clip) {
+        this(condition, maxTicks, clip, clip);
+    }
+
+    public Await(BooleanSupplier condition, int maxTicks, String clip, String why) {
         if (condition == null) throw new IllegalArgumentException("Await needs a condition");
         if (maxTicks <= 0) throw new IllegalArgumentException("Await needs a positive maxTicks");
         this.condition = condition;
         this.maxTicks = maxTicks;
         this.clip = clip == null ? "" : clip;
+        this.why = why;
     }
 
     @Override public String id() { return ID; }
@@ -44,7 +50,7 @@ public final class Await implements Action {
         if (condition.getAsBoolean()) return new Outcome.Done("condition");
         ticks++;
         if (ticks >= maxTicks) {
-            return Outcome.of(Reason.NO_PROGRESS, 0, "timeout why=" + clip + " maxTicks=" + maxTicks);
+            return Outcome.of(Reason.NO_PROGRESS, 0, "timeout why=" + why + " maxTicks=" + maxTicks);
         }
         return new Running(maxTicks - ticks, TravelMode.PASS);
     }

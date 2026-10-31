@@ -76,12 +76,26 @@ def build_pack(builder, pack_root):
     world = pack_root / 'saves' / builder.WORLD
     world.mkdir(parents=True, exist_ok=False)
     checks, shown, _ = builder.build_pack(world)
+    pack = world / 'datapacks' / builder.NS
+    for scene in builder.museum_scenarios.S:
+        commands = scene.smoke.get('commands', ()) if scene.smoke is not None else ()
+        if not commands:
+            continue
+        directory = pack / 'data' / builder.NS / 'function' / 'smoke' / scene.id
+        directory.mkdir(parents=True)
+        x, z = scene.anchor
+        for i, (tick, command) in enumerate(commands):
+            (directory / f'{i}.mcfunction').write_text(
+                f'execute positioned {x} {builder.FEET} {z} run {command}\n', encoding='utf-8')
+        (directory / 'start.mcfunction').write_text(''.join(
+            f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick}t\n'
+            for i, (tick, _) in enumerate(commands)), encoding='utf-8')
     if builder.museum_sites.VIOLATIONS:
         raise ValueError(f'Text displays do not fit: {builder.museum_sites.VIOLATIONS}')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
                       'scenarios': len(builder.museum_scenarios.S), 'clip_actions': len(shown),
                       **{key: value for key, value in checks.items() if key != 'shown'}}, ensure_ascii=False), flush=True)
-    return world / 'datapacks' / builder.NS
+    return pack
 
 
 def wait_command(st, command, marker, timeout=120):
@@ -126,6 +140,8 @@ def failure(smoke, window):
     for pattern in smoke['expect']:
         if not re.search(pattern, window):
             return f'missing /{pattern}/'
+    if 'verify' in smoke:
+        return smoke['verify'](window)
     return None
 
 
@@ -134,6 +150,8 @@ def run_scene(st, scene, builder):
     load_field(st, builder.BY_ID[scene.field], builder.FEET)
     offset = server.log_offset(st)
     server.run_cmd(st, f'function mcylab:start/{scene.id}')
+    if 'commands' in scene.smoke:
+        server.run_cmd(st, f'function mcylab:smoke/{scene.id}/start')
     server.sprint(st, scene.smoke['ticks'])
     window = server.log_text(st, offset)
     (Path(st['rundir']).parent / f'{scene.id}.log').write_text(window, encoding='utf-8')
@@ -166,6 +184,8 @@ def main():
     if unknown:
         parser.error('No smoke expectations for: ' + ', '.join(sorted(unknown)))
     selected = [scenes[sid] for sid in (args.scenes or scenes)]
+    for scene in selected:
+        scene.smoke = scene.smoke | scene.smoke.get('forms', {}).get(args.hat_form, {})
     run_id = secrets.token_hex(6)
     name = f'instance-{run_id}'
     print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; hat_form={args.hat_form}; scenes={", ".join(s.id for s in selected)}', flush=True)

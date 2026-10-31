@@ -57,9 +57,9 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** The authored brim plate's thickness (hat units; marisa.json's brim parts span 10.49..11.31): the brim rides up onto a bank
      *  no higher than this above its underside and lies on it; a higher one is a wall the brim stops at. */
     private static final double BRIM_LIP = .8;
-    /** Afloat it stays afloat until the water is this far below its lowest point; one contact moves a body at most this far a
-     *  tick; a thrown rider leaves no faster than this (blocks, blocks per tick). */
-    private static final double LEAVE_MARGIN = .2, CONTACT_STEP = .25, MAX_THROW = .6;
+    /** Keep the water contact through the maximum damped upward coast after a turn; the posed shell can briefly clear the
+     *  surface. Contact displacement and thrown rider speed are bounded separately (blocks, blocks per tick). */
+    private static final double LEAVE_MARGIN = MAX_RISE / DAMPING, CONTACT_STEP = .25, MAX_THROW = .6;
     /** An outside cause this recent (ticks) is the one a capsize is put down to. */
     private static final int CAUSE_TICKS = 40;
     /** The brim's reach from the centre (hat units) in 24 directions from local +x toward +z; the hull's outer outline. */

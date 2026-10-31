@@ -9,6 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -22,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import net.minecraft.commands.CommandSource;
 import java.util.ArrayList;
@@ -192,6 +194,13 @@ public final class ScenarioCommands {
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))
+                .then(Commands.literal("shake").then(Commands.argument("hat", EntityArgument.entity()).executes(c -> {
+                    var entity = EntityArgument.getEntity(c, "hat");
+                    if (!(entity instanceof PlacedHatEntity hat)) return refused(c.getSource(), entity, "摇帽", "not_a_hat");
+                    var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
+                    player.setPos(hat.getX() + hat.getBbWidth() / 2 + 1, hat.getY(), hat.getZ());
+                    return hat.behavior().shake(hat, player) ? 1 : 0;
+                })))
                 .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
                         .then(Commands.argument("water", BlockPosArgument.blockPos())
                                 .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false, false))

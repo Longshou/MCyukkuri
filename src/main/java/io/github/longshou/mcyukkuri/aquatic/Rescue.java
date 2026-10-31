@@ -11,8 +11,10 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
@@ -22,6 +24,7 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -57,6 +60,7 @@ final class Rescue implements Intent {
     private Waters.Edge edge;
     /** Portions tipped over the side for its room in this rescue (at most {@link #ROOM}: more food is not what fills the hollow). */
     private int dumped;
+    private double distance;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident, Consumer<String> failed) {
         this.helper = helper;
@@ -64,6 +68,7 @@ final class Rescue implements Intent {
         this.incident = incident;
         this.failed = failed;
         this.started = helper.level().getGameTime();
+        this.distance = helper.distanceTo(faller);
     }
 
     String incident() { return incident; }
@@ -101,28 +106,43 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> lost() { return List.of(() -> act(new Grab(faller))); }
 
     private List<Supplier<Step>> lift() {
+        progress();
         if (!faller.isAlive()) return lost();
         var hat = AquaticLife.riding(helper);
         if (hat == null) return null;
         if (faller.getVehicle() == helper) return Ferry.releaseAboard(helper, hat, faller);
-        if (!faller.isInWaterOrBubble()) return null;
+        if (!faller.waterDistress().escaping()) return null;
         var larder = HullLarder.of(hat);
         if (dumped < ROOM && AquaticLife.freeSpot(hat, faller) == null && larder != null && !larder.portions().isEmpty()) return room(hat, larder);
         var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         var spot = AquaticLife.spot(hat, helper, false, hat.frame().toLocal(faller.position()));
-        var here = hat.frame().toLocal(helper.position());
-        if (spot != null && spot.subtract(here).horizontalDistance() >= .1)
+        BooleanSupplier walk = () -> spot != null && ContactGeometry.reachesFrom(helper, hat.frame().toWorld(spot), faller)
+                && spot.subtract(hat.frame().toLocal(helper.position())).horizontalDistance() >= .1;
+        if (walk.getAsBoolean())
             return List.of(() -> act(new Walk(hat, spot)), () -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))));
-        // near: the faller just off the brim at its widest, where a walk to that side brings it within the mouth's reach
-        double near = HullAfloat.brimToward(hat, faller.position()) + faller.getBbWidth() / 2 + .05;
         var water = Waters.cell(faller.level(), faller.position());
-        if (water != null && AquaticLife.stick(helper) && hat.position().subtract(faller.position()).horizontalDistance() > near) {
-            var route = Waters.route(hat, water);
-            Waters.log(hat, helper, water, route, id());
-            if (!route.isEmpty()) return List.of(() -> act(new Paddle(route.size() > 1 ? Waters.leg(route) : faller.position(), near)));
-        }
-        return List.of(() -> new Step.Wait(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
+        if (water == null) return waiting("no_calm_water");
+        if (!AquaticLife.stick(helper)) return waiting("no_stick");
+        var route = Waters.route(hat, water);
+        Waters.log(hat, helper, water, route, id());
+        if (route.isEmpty()) return waiting("no_water_route");
+        // Intermediate cells need a small arrival radius; the final leg ends at real reach, not at the brim's radius.
+        return List.of(() -> act(route.size() > 3 ? new Paddle(Waters.leg(route), .35)
+                : new Paddle(faller::position, remaining -> grab.check(helper).ok() || walk.getAsBoolean())));
+    }
+
+    private List<Supplier<Step>> waiting(String why) {
+        return List.of(() -> act(new Await(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.waterDistress().escaping(),
+                WAIT, Behaviors.BOAT_CALL, "rescue_" + why)));
+    }
+
+    private void progress() {
+        double now = helper.distanceTo(faller);
+        if (distance - now >= .05) GameplayLog.limited(helper, "aquatic", "rescue.progress", 20,
+                "rescue progress faller={} incident={} distance_before={} distance_after={} last={}",
+                faller.getUUID(), incident, distance, now, helper.motor().lastDetail());
+        distance = now;
     }
 
     /** No floor in the hollow for it: the portion that feeds least is tipped over the side first (a real, floating loss). */
@@ -146,6 +166,7 @@ final class Rescue implements Intent {
     }
 
     private List<Supplier<Step>> fromBank() {
+        progress();
         if (!faller.isAlive()) return lost();
         if (faller.getVehicle() == helper) {
             var at = edge;
@@ -155,24 +176,24 @@ final class Rescue implements Intent {
             return List.of(() -> SurfaceApproach.arrived(helper, inland) ? null : act(Walk.stand(inland, 1)),
                     () -> act(new Face(at.yaw() + 180)), () -> act(new Release(faller)), Ferry.landed(faller));
         }
-        if (!faller.isInWaterOrBubble()) return null;
+        if (!faller.waterDistress().escaping()) return null;
         var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         if (edge == null || edge.edge().distanceTo(faller.position()) > 1.5) edge = Waters.edges(helper, faller.position(), 2, false).stream()
                 .filter(e -> SurfaceApproach.arrived(helper, e.stand(helper.getBbWidth())) || SurfaceApproach.canApproach(helper, e.stand(helper.getBbWidth())))
                 .findFirst().orElse(null);
-        if (edge == null) return null;
+        if (edge == null) return waiting("no_bank_edge");
         var stand = edge.stand(helper.getBbWidth());
         if (!SurfaceApproach.arrived(helper, stand)) return List.of(() -> act(Walk.stand(stand, 1.1)));
-        return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))),
-                () -> new Step.Wait(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.isInWaterOrBubble(), WAIT, Behaviors.BOAT_CALL));
+        return List.of(() -> act(grab));
     }
 
     @Override public void ended(IntentRunner.Result result) {
         if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
         if (result == IntentRunner.Result.DONE || result == IntentRunner.Result.LOST) AskLedger.server().ended(incident, helper.getUUID(), result.name());
         else if (result == IntentRunner.Result.EXHAUSTED && acted) failed.accept(incident);
-        GameplayLog.event(helper, "aquatic", "rescue end result={} faller={} incident={} faller_alive={} in_water={} at={}", result, faller.getUUID(),
-                incident, faller.isAlive(), faller.isInWaterOrBubble(), GameplayLog.at(faller.position()));
+        GameplayLog.limited(helper, "aquatic", "rescue.end." + incident, result == IntentRunner.Result.EXHAUSTED ? WAIT : 0,
+                "rescue end result={} faller={} incident={} faller_alive={} in_water={} at={} last={}", result, faller.getUUID(),
+                incident, faller.isAlive(), faller.isInWaterOrBubble(), GameplayLog.at(faller.position()), helper.motor().lastDetail());
     }
 }

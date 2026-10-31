@@ -49,7 +49,7 @@ public final class Swim implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         if (target.get() == null) return Feasibility.of(Reason.TARGET_GONE, 0, "no_target");
         ability(body);
-        return body.isInWaterOrBubble() ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_in_water");
+        return body.waterDistress().escaping() ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_in_water");
     }
 
     @Override public void start(YukkuriEntity body) {}
@@ -57,12 +57,13 @@ public final class Swim implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         Vec3 at = target.get();
         if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
-        if (!body.isInWaterOrBubble()) return new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()));
+        if (!body.waterDistress().escaping()) return new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()));
         if (grip && ContactGeometry.canGrip(body, at)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
         Vec3 to = at.subtract(body.position()).multiply(1, 0, 1);
         double distance = to.length();
         if (maxTicks > 0 && ++ticks > maxTicks)
             return grip ? Outcome.of(Reason.TOO_FAR, distance, "swum=" + maxTicks) : new Outcome.Done("pressed ticks=" + maxTicks);
+        if (!body.isInWaterOrBubble()) return new Running(distance, TravelMode.PASS);
         boolean weak = body.waterDistress().phase() == WaterDistress.Phase.EXHAUSTED;
         if (--cycle < 0) {
             ability(body);

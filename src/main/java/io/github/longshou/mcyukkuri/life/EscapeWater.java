@@ -238,11 +238,10 @@ public final class EscapeWater implements Intent {
         return null;
     }
 
-    /** The nearest stand reached through the water, climbable or not, an avoided one last: where a struggle presses toward. */
+    /** The nearest dry stand, an avoided one last: a weak struggle can press toward safety even when no full route exists. */
     private BlockPos nearest() {
         BlockPos fallback = null;
         for (var pos : stands()) {
-            if (!route(pos)) continue;
             if (!avoid.containsKey(pos)) return pos;
             if (fallback == null) fallback = pos;
         }

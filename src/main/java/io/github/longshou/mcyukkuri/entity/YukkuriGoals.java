@@ -343,7 +343,7 @@ final class YukkuriGoals {
         private WorldSignature ended;
         private String incident;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
-        @Override public boolean canUse() { return (owner.isInWaterOrBubble() || owner.waterDistress().restingBreath() || owner.waterDistress().climbing())
+        @Override public boolean canUse() { return (owner.waterDistress().escaping() || owner.waterDistress().restingBreath())
                 && !owner.predatorFlying(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
@@ -353,7 +353,7 @@ final class YukkuriGoals {
             // past the plunge's impact (a wade through a puddle opens none)
             if (incident == null && struggles) incident = AskLedger.server().open(owner, "water",
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
-            if (!struggles) { halt("water_pause"); owner.getNavigation().stop(); return; }
+            if (!struggles) { halt(out() ? "escape_safe" : "escape_unavailable"); owner.getNavigation().stop(); return; }
             if (runner != null && runner.result() != IntentRunner.Result.RUNNING) {
                 boolean outOfWays = runner.result() == IntentRunner.Result.EXHAUSTED && owner.level().getGameTime() <= runner.intent().deadline();
                 ended = outOfWays ? signature() : null;
@@ -371,7 +371,7 @@ final class YukkuriGoals {
         }
         private void halt(String why) { if (runner != null) runner.stop(why); runner = null; }
         @Override public void stop() {
-            halt("escape_stop");
+            halt(out() ? "escape_safe" : "escape_stop");
             owner.directNavigation().stop();
             if (incident != null && out()) settle();
         }

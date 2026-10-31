@@ -1664,20 +1664,56 @@ pond('hat_push', '推动帽子', '推动帽子',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读水中灵梦', f'yukkuri status {sel("swimmer")} raw'),
             ('读帽子', f'data get entity {_HAT}')])
 
+def water_aftermath(window):
+    """A dry landing is valid; a rapid hull reversal or another escape in the same incident is not."""
+    grounded, escapes = {}, {}
+    for line in window.splitlines():
+        entity = re.search(r'\[(hat|intent|incident|action)\] .*?#(\d+) uuid=\S+ t=(\d+)', line)
+        if entity is None:
+            continue
+        kind, who, tick = entity[1], entity[2], int(entity[3])
+        if kind == 'hat':
+            if ' entered ground from afloat ' in line:
+                grounded[who] = tick
+            elif ' entered afloat from ground ' in line and who in grounded and tick - grounded[who] <= 20:
+                return f'hull #{who} returned afloat {tick - grounded[who]} ticks after entering ground'
+        elif kind == 'incident' and ' close id=water#' in line:
+            escapes.pop(who, None)
+        elif kind == 'action' and re.search(r'outcome=INTERRUPTED why=(?:hurt|fright|command)\b', line):
+            escapes.pop(who, None)
+        elif kind == 'intent' and ' start id=escape_water ' in line:
+            if who in escapes and tick - escapes[who] <= 1200:
+                return f'escape #{who} restarted after {tick - escapes[who]} ticks without a new water incident'
+            escapes[who] = tick
+
+
+_WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
+_WATER_ESCAPE = [r'\[intent\][^\n]* start id=escape_water\b',
+                 r'\[action\][^\n]* start id=swim owner=escape_water\b',
+                 r'\[intent\][^\n]* end id=escape_water result=(?:DONE|EXHAUSTED|LOST)\b']
+
 pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
      '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主慢慢游回帽边（很弱的挣扎前进），咬住帽檐分几次推正帽子（播咬檐推帽的扶正动作，不是挣扎），再爬回帽里；泡水伤照常扣血但不打断游、扶正与爬；两只赤油不会攀爬，只能朝岸挣扎',
      '约 1 分钟',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
      note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb，其间没有 [action] end … why=hurt（溺水伤记 [action] kept … through damage=drown）。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
-            ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')])
+            ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, commands=[(tick, f'yukkuri scenario shake {_HAT}') for tick in range(100, 300)],
+                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
+                        r'\[hat\][^\n]* shake player=[^\n]*impulse=',
+                        r'\[hat\][^\n]* capsized cause=(?:shake|load)[^\n]*thrown=[1-9]', *_WATER_ESCAPE],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath))
 
 pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      '水生魔理沙把帽子放在离岸 3 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
      '约 30 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)], late=[shoved('a')],
      note='日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读帽子看吃水。',
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
+                                   *_WATER_ESCAPE, r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath))
 
 pond('self_rescue_far', '落水自救·远处的帽子', '远处帽子',
      '帽子漂在离岸 12 格的水面，船主在岸边被推下水：岸就在身边，她仍先游向自己的帽子再爬进去；朝帽子游超过 600 tick 或打滑用尽办法才转向岸边爬上去',
@@ -1843,7 +1879,16 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
      late=[shoved('c1')],
      note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=paddle（离得远时）→ [action] start id=walk → [action] start id=grab reach=mouth → '
           '[action] start id=release → 子油 [body] mount … → [aquatic] rescue end result=DONE → [intent] start id=comfort_young。' + _DESIRE_NOTE,
-     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
+                                   *_WATER_ESCAPE,
+                                   r'\[aquatic\][^\n]* rescue (?:progress [^\n]*distance_before=\d+\.\d+ distance_after=\d+\.\d+ last='
+                                   r'|end result=EXHAUSTED [^\n]*last=(?:BLOCKED|INCAPABLE) reason=[A-Z_]+ shortfall=[^\n]* detail=\S)'
+                                   r'|\[incident\][^\n]* decide id=water#[^\n]*chance=[^\n]*roll=[^\n]*accepted=false'],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath,
+                forms={'turned_land_hat': dict(expect=[
+                    r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
+                    r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=1', *_WATER_ESCAPE])}))
 
 pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
      '亲油的帽腔里堆满了粮（粮在她坐进帽子之后才放进去，避开她的脚下，开场不挤动、不翻船），帽底没有空位，帽里有木棍；岸边的赤油被推下水（只有它落水）。亲油接受救援后先划近，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），再用嘴或辫梢把赤油提出水面放进帽腔。被提着的赤油随帽子晃动，不抽动',
@@ -1892,8 +1937,10 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
                                          r'\[family\][^\n]* birth delivery stage=transition reason=push\b',
                                          r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b',
                                          r'\[intent\][^\n]* start id=attend_mate\b'],
-                      forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
-                                                  r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))
+                      forbid=_BOAT_SMOKE_FORBID + _WATER_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
+                                                  r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b'],
+                      verify=water_aftermath, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
+                          r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
            16, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '

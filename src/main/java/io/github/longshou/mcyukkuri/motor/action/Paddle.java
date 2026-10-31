@@ -16,6 +16,8 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.Locale;
+import java.util.function.DoublePredicate;
+import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -27,14 +29,17 @@ public final class Paddle implements Action {
     /** A stroke's energy: the old helm's one point per 80 ticks over a 1.6 s stroke. */
     private static final float COST = .4f;
 
-    private final Vec3 target;
-    private final double arrive;
+    private final Supplier<Vec3> target;
+    private final DoublePredicate arrived;
     private SurfaceHost host;
-    private double pace, turnRate;
+    private double pace, turnRate, from, distance;
     private int t, start, end, length;
     private long startTick;
 
-    public Paddle(Vec3 target, double arrive) { this.target = target; this.arrive = arrive; }
+    public Paddle(Vec3 target, double arrive) { this(() -> target, distance -> distance <= arrive); }
+
+    /** A moving destination, reached when the caller's actual contact condition holds. */
+    public Paddle(Supplier<Vec3> target, DoublePredicate arrived) { this.target = target; this.arrived = arrived; }
 
     @Override public String id() { return ID; }
 
@@ -49,6 +54,7 @@ public final class Paddle implements Action {
 
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
+        from = distance = target.get().subtract(host.entity().position()).horizontalDistance();
         var ability = BodyAbility.of(body, host.load());
         pace = ability.swimSpeed();
         turnRate = ability.turnRate();
@@ -60,9 +66,11 @@ public final class Paddle implements Action {
 
     @Override public Progress tick(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return Outcome.of(Reason.NO_SUPPORT, 0, "left_host");
-        Vec3 to = target.subtract(host.entity().position()).multiply(1, 0, 1);
-        double distance = to.length(), power = Effort.stroke(t, start, end, length);
-        if (distance <= arrive) return new Outcome.Done(String.format(Locale.ROOT, "arrived strokes=%d", t / length));
+        Vec3 to = target.get().subtract(host.entity().position()).multiply(1, 0, 1);
+        distance = to.length();
+        double power = Effort.stroke(t, start, end, length);
+        if (arrived.test(distance)) return new Outcome.Done(String.format(Locale.ROOT, "arrived strokes=%d ticks=%d", t / length, t));
+        if (distance < .05) return Outcome.of(Reason.NO_CONTACT, 0, "destination_reached_without_contact");
         if (t++ % length == 0 && !body.life().spendEnergy(COST)) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
         double turn = Effort.turn(host.entity().getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate * power);
         if (!host.thrust(body, to.scale(pace * power / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
@@ -70,6 +78,11 @@ public final class Paddle implements Action {
     }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f stroke=%d..%d/%d", target.x, target.z, pace, turnRate, start, end, length);
+        var at = target.get();
+        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f stroke=%d..%d/%d", at.x, at.z, pace, turnRate, start, end, length);
+    }
+
+    @Override public String endDetail(Outcome outcome) {
+        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f", from, distance);
     }
 }

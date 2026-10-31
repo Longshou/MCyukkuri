@@ -197,8 +197,8 @@ public final class IntentRunner implements MotorOwner {
 
     private void readStep(long now) {
         if (deferred) {
-            // Refused only while the body was in an uninterruptible stretch (a flight, a hat in the braid): run it once that ends.
-            if (driver().current() != null && !driver().current().interruptible()) return;
+            // A live owner or an uninterruptible stretch still has the body; this step runs after it releases it.
+            if (driver().current() != null) return;
             deferred = false;
             stepStartTick = now;
             if (!driver().run(this, currentAction)) refused(now);
@@ -293,7 +293,7 @@ public final class IntentRunner implements MotorOwner {
         begin(to, now);
     }
 
-    /** The driver refused the action: the refusal that very run() stored, else NO_PROGRESS; a body busy with an uninterruptible stretch is no failure, and the step runs then. */
+    /** A busy body defers the step within the intent's deadline; other refusals retain the driver's actual reason. */
     private void refused(long now) {
         if (driver().refusedBusy()) { deferred = true; return; }
         Outcome refusal = driver().refusal();
