@@ -276,8 +276,9 @@ final class ScenarioSetup {
             }
         }
         for (var child : young) kin(owner, child, false);
-        GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={}",
-                hat.getUUID(), water.toShortString(), aboard, young.size(), middle ? "middle" : "front", food);
+        GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={} owner_local_hat_units={}",
+                hat.getUUID(), water.toShortString(), aboard, young.size(), middle ? "middle" : "front", food,
+                aboard ? GameplayLog.at(hat.riders().local(owner.getUUID())) : "ashore");
         return null;
     }
 

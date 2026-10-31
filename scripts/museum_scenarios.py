@@ -1600,6 +1600,8 @@ def captain(name='a', *, dx=0, dz=0, **kw):
 
 def pond(sid, title, hint, watch, wait, lines, note='', **kw):
     # Restore the entire shared field before actors spawn; specialised scenes may override it below.
+    if 'smoke' in kw:
+        kw['smoke']['expect'].insert(0, rf'MCYMUSEUM_SCENE {sid} hat_form=(?:turned_land_hat|cone_basin)\b')
     add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
         env=DAY, note=note, vantage=(-6, 6, -90), **kw)
 
@@ -1754,7 +1756,10 @@ pond('water_colony', '自然生成·坐在自己的帽子上', '自然生成',
      note='日志：[aquatic] spawn afloat hat=… own=true cause=natural，[hat] placed … water=true，[hat] boarded … own=true；第四只 [aquatic] spawn refused reason=no_water。'
           '自然生成只放帽并坐上，不另生成聚落；场景按自然生成路径调用同一钩子。' + _DESIRE_NOTE,
      reads=[('读最近的水生魔理沙', 'yukkuri status @e[type=mcyukkuri:marisa,distance=..24,limit=1,sort=nearest] raw'),
-            ('读最近的帽子', f'data get entity {_HAT}')])
+            ('读最近的帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=200, expect=[r'(?:\[aquatic\][^\n]* spawn afloat [^\n]*own=true[^\n]*cause=natural[\s\S]*?){3}',
+                                   r'\[aquatic\][^\n]* spawn refused reason=no_water\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized [^\n]*form=cone_basin\b']))
 
 pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      '成体水生魔理沙在岸上，几格外有一根木棍，没有粮：她捡起木棍收进帽里，走到有静水和船位的岸边把帽子放到水面上，跳进帽里；之后在已加载的静水上划桨（每划一下花体力）、漂着歇息。饿到一定程度、帽里又没粮，就划回最近能靠的岸边跳上岸，再从岸边把空帽子收回戴上，木棍跟着帽子回来',
@@ -1764,7 +1769,12 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
           '[action] end id=take_prop outcome=DONE。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1200, expect=[r'\[intent\][^\n]* start id=set_out\b',
+                                    r'\[hat\][^\n]* placed [^\n]*water=true kit=minecraft:stick\b',
+                                    r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
+                                    r'MCYMUSEUM_SCENE sail hat_form=(?:turned_land_hat\b|cone_basin\b(?:(?!\[hat\][^\n]* capsized\b)[\s\S])*\[intent\][^\n]* start id=cruise\b)'],
+                forbid=[r'\[body\][^\n]* invariant\b']))
 
 pond('afloat_family', '带孩子出航', '亲子出航',
      '亲油在岸上，身边有会跳的子油和还不会跳的赤油，岸上有一根木棍：她取棍、走到岸边放帽；先后由欲望决定——护幼高时先把赤油叼在嘴里跳上帽子、放进帽腔，再在帽里等全家；子油看见亲油在岸边放帽出航就自己跳进去；全家都在帽上才算出航成功。赤油睡着时她不出航，等不来就整次失败、按欲望返岸',

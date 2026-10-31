@@ -8,7 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船初态与帽形入口 | `.worktrees/aq-init-1031` | `scripts/build_museum_full.py`、`scripts/museum_scenarios.py`、`scripts/museum_dsl.py`、`command/ScenarioSetup.java` |
+| 水生帽船初态与帽形入口 | `.worktrees/aq-init-1031` | `scripts/build_museum_full.py`、`scripts/museum_scenarios.py`、`scripts/museum_dsl.py`、`command/ScenarioSetup.java`、`motor/Attach.java` |
 
 ## 玩法待办
 
@@ -17,7 +17,7 @@
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈（版本待核实）；E8 陆地接生射线命中帽实体返回 `cradle_status`，赤油被遮住。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮与推晃；`[hat-input]`、`hat use received/result` 显示物资只扣一次。
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 幼油饿停、住所仍指旧窝、重复献身与批量死亡。版本、现象与完成标准见[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)；运输演出并入演出包。
 - **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；见[水生魔理沙模块（重构）](#水生魔理沙模块重构)。
-- **水生魔理沙·圆帽对照**：复测失败。[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）用户见水生帽船开场全部翻覆，未找到圆帽入口。完成：池塘帽形切换入口清晰、开场显示所用帽形，能承载初态乘员的帽船稳定开场；真实超载仍翻覆并记录读数；重开 `hat_swap`、`cargo`、`birth_boat_caught`、`family_skiffs`、`hat_crowd` 对照帽形与储粮／损伤，陆地接生不受影响。测试种见[种族注册](SPECIES.md#水生魔理沙圆帽测试种)。
+- **水生魔理沙·圆帽对照**：复测失败。[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）用户见水生帽船开场全部翻覆，未找到圆帽入口。完成：池塘场景排首位显示当前帽形，开场说明帽形；默认圆帽在被测行为开始前不翻覆，锥帽真实载重／倾斜翻覆保留读数；重开 `water_colony`、`sail`、`hat_swap`、`cargo`、`birth_boat_caught`、`family_skiffs`、`hat_crowd` 对照初态、帽形与储粮／损伤，陆地接生不受影响。测试种见[种族注册](SPECIES.md#水生魔理沙圆帽测试种)。
 - **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。契约见[代码架构](ARCHITECTURE.md#身体动作与意图层)。
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`。
   2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。

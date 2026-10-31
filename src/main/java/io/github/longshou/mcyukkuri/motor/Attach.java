@@ -42,7 +42,7 @@ public final class Attach {
         String text = describe(state);
         if (!text.equals(driver.settled())) {
             String before = driver.settled();
-            if (!before.isEmpty()) GameplayLog.event(body, "body", "attach {} -> {} cause={}", before, text, cause);
+            if (!before.isEmpty()) GameplayLog.event(body, "body", "attach last_settle={} current={} cause={}", before, text, cause);
             driver.settled(text);
         }
         driver.syncAttach(state.kind());
@@ -55,7 +55,7 @@ public final class Attach {
         if (state instanceof AttachState.Free free) return free.inWater() ? "free(water)" : "free";
         if (state instanceof AttachState.Airborne air) return "airborne:" + air.action();
         if (state instanceof AttachState.OnHost host) {
-            return String.format(Locale.ROOT, "on_host:%s@%.2f,%.2f,%.2f/yaw=%.1f",
+            return String.format(Locale.ROOT, "on_host:%s/local_hat_units=%.2f,%.2f,%.2f/yaw=%.1f",
                     host.host().entity().getUUID(), host.local().x, host.local().y, host.local().z, host.localYaw());
         }
         AttachState.Held held = (AttachState.Held) state;

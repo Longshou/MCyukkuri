@@ -22,6 +22,7 @@ LIFESPAN = 1056000
 # life stage -> (saved family stage, first age, next age, body scale)
 STAGES = {'baby': ('BABY', 0, 72000, .18), 'child': ('JUVENILE', 72000, 216000, .40), 'teen': ('JUVENILE', 216000, 336000, .72)}
 HAT_FORMS = (('turned_land_hat', 'AQUATIC_MARISA', '锥帽'), ('cone_basin', 'AQUATIC_MARISA_ROUND', '圆帽'))
+DEFAULT_HAT_FORM = 1
 
 
 def hat_choice(commands):

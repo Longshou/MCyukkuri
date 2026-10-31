@@ -40,7 +40,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
 sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
-from museum_dsl import _text, _q, yk, HAT_FORMS, OBJ  # noqa: E402
+from museum_dsl import _text, _q, yk, HAT_FORMS, DEFAULT_HAT_FORM, OBJ  # noqa: E402
 import museum_fields  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
 import museum_scenarios  # noqa: E402
@@ -265,7 +265,13 @@ def build_pack(world):
             body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
-        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env) + ['yukkuri observe on', f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}']
+        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env) + ['yukkuri observe on']
+        if s.field == 'pond':
+            for i, (form, _, caption) in enumerate(HAT_FORMS):
+                start += [f'execute if score #hat_form {OBJ} matches {i} run {command}' for command in (
+                    'tellraw @s ' + _text(f'本场帽形：{caption}。在池塘观察台场景排第一颗“帽形”按钮切换，再重开场景。', 'yellow'),
+                    f'say MCYMUSEUM_SCENE {s.id} hat_form={form}')]
+        start.append(f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}')
         if s.vantage is not None:
             vdx, vdz = s.vantage[0], s.vantage[1]
             # The common two-value view is the north observation line, looking south. Explicit three-value views
@@ -284,10 +290,12 @@ def build_pack(world):
             # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
 
+    fn('hat_form/label', [f'execute if score #hat_form {OBJ} matches {i} run data modify entity @e[type=minecraft:text_display,tag=pm_hat_form,limit=1] text set value '
+                        + _q(_text(f'帽形：{caption}\n切换后重开', 'yellow')) for i, (_, _, caption) in enumerate(HAT_FORMS)])
     for i, (form, _, caption) in enumerate(HAT_FORMS):
         fn(f'hat_form/{form}', [f'scoreboard players set #hat_form {OBJ} {i}',
-           'data modify entity @e[type=minecraft:text_display,tag=pm_hat_form,limit=1] text set value ' + _q(_text(f'帽形：{caption}\n切换后重开', 'yellow')),
-           f'tellraw {near_field(BY_ID["pond"])} ' + _text(f'帽形：{caption}。重新点击场景按钮后生效。', 'yellow'),
+           f'function {NS}:hat_form/label',
+           f'tellraw {near_field(BY_ID["pond"])} ' + _text(f'帽形：{caption}。在场景排第一颗“帽形”按钮切换；重开场景生效。', 'yellow'),
            f'say MCYMUSEUM_HAT_FORM {form}'])
     fn('hat_form/show', [f'execute if score #hat_form {OBJ} matches {i} run function {NS}:hat_form/{form}' for i, (form, _, _) in enumerate(HAT_FORMS)])
     fn('hat_form/toggle', [f'scoreboard players add #hat_form {OBJ} 1',
@@ -361,7 +369,8 @@ def build_pack(world):
         x, y, z, yaw = deck_info[f.id][1]
         fn(f'go/{f.id}', [f'tp @s {x} {y} {z} {yaw} 15',
                           'tellraw @s ' + js([{'text': f'{f.title}', 'color': 'gold', 'bold': True},
-                                              {'text': f'：{f.blurb}。面前起依次是常用操作、倍速推进、时间天气、场景；红色清场在第一排最右侧。', 'color': 'aqua'}])])
+                                              {'text': f'：{f.blurb}。面前起依次是常用操作、倍速推进、时间天气、场景；红色清场在第一排最右侧。', 'color': 'aqua'}])]
+                          + ([f'function {NS}:hat_form/show'] if f.id == 'pond' else []))
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
@@ -387,7 +396,7 @@ def build_pack(world):
 
     # ---------------------------------------------------------------- load / tick / prepare / build
     fn('load', [f'scoreboard objectives add {OBJ} dummy',
-                f'execute unless score #hat_form {OBJ} matches 0..1 run scoreboard players set #hat_form {OBJ} 0',
+                f'execute unless score #hat_form {OBJ} matches 0..1 run scoreboard players set #hat_form {OBJ} {DEFAULT_HAT_FORM}',
                 f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',
@@ -463,9 +472,9 @@ def field_deck_controls(f, land):
     rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
                 + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
                    (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
-    if f.id == 'pond':
-        rows[-1].append((f'function {NS}:hat_form/toggle', '帽形：锥帽', '切换后重开', False))
     start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
+    if f.id == 'pond':
+        start.insert(0, (f'function {NS}:hat_form/toggle', f'帽形：{HAT_FORMS[DEFAULT_HAT_FORM][2]}', '切换后重开', False))
     start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
     for i in range(0, len(start), 9):
         rows.append(start[i:i + 9])
@@ -487,6 +496,8 @@ def field_deck_controls(f, land):
                                      .42, 'button', 'pond hat form', tags=('pm_hat_form',)))
     for px in (x1 + 1, x2 - 1):
         lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4} minecraft:sea_lantern')
+    if f.id == 'pond':
+        lines.append(f'function {NS}:hat_form/label')
     return lines
 
 
