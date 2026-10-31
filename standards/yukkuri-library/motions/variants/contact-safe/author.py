@@ -277,7 +277,7 @@ def braid_follow(model, cfg, corrected=None):
         if max(zs) < 1 and max(abs(v) for v in ys) < 1:
             continue
         # The splay is held while the lagging braid chain (braid_chain.follow) passes the same twist.
-        chain = braid_chain.chain(names); lag = cfg['braid_chain']['lag_seconds']*(len(chain)-1) if chain else 0
+        chain = braid_chain.chain(names); lag = braid_chain.phase(cfg['braid_chain'], len(chain)-1) if chain else 0
         k = max(1, round((spec['smooth_seconds']+lag)/spec['sample_seconds']))
         def held(values):
             v = np.array(values); m = len(v)
