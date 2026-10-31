@@ -4084,6 +4084,7 @@
     "layout_study": "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py",
     "snapshot": "art/source/aquatic-basin-hat",
     "manifest": "art/source/aquatic-basin-hat/manifest.json",
+    "selection": {"subspecies": "AQUATIC_MARISA_ROUND", "base_model": "marisa", "hull_form": "cone_basin", "item_model": "src/main/resources/assets/mcyukkuri/models/item/aquatic_basin_hat.json"},
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [
       "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat.json",
@@ -4097,7 +4098,7 @@
     ],
     "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
     "status": "pending_user_review",
-    "scope": "Second aquatic Marisa hat form beside the current one (the land hat turned over, hat_vessel), kept unchanged so a new test species can show both (user choice). Outside the land hat's cone tiers turned round under its own bent tip, band and bow; set down, the lower tiers pressed into a keel and a separate round basin inside (lip, quarter-ellipse wall, level floor, shallow dimple) holding the owner, newborns or babies and a level stores layer per the layout study. aquatic_basin_hat is the worn and item mesh (accessory_marisa frame), aquatic_basin_hat_turned the set-down hull (marisa_hat_turned frame, already pressed). Hull profiles of both forms in one schema, each measured on the triangles the game draws. Project design; not yet integrated in Java.",
+    "scope": "Second aquatic Marisa hat form beside the current one (the land hat turned over, hat_vessel), kept unchanged so a new test species can show both (user choice). Outside the land hat's cone tiers turned round under its own bent tip, band and bow; set down, the lower tiers pressed into a keel and a separate round basin inside (lip, quarter-ellipse wall, level floor, shallow dimple) holding the owner, newborns or babies and a level stores layer per the layout study. aquatic_basin_hat is the worn and item mesh (accessory_marisa frame), aquatic_basin_hat_turned the set-down hull (marisa_hat_turned frame, already pressed). Hull profiles of both forms in one schema, each measured on the triangles the game draws. Java selects these meshes for AQUATIC_MARISA_ROUND and applies the stores texture to the existing discrete stored portions; the study's level stores layer is not implemented. Project design; visual review remains pending.",
     "references": "wiki/art-references/ehentai/works/EH22.md"
   },
   "food_mash_serving": {

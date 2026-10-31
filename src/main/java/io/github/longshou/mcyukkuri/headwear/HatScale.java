@@ -26,7 +26,7 @@ public final class HatScale {
         return out;
     }
 
-    public static float factor(SubspeciesLife.Kind kind) { return FACTORS.getOrDefault(kind, 1f); }
+    public static float factor(SubspeciesLife.Kind kind) { return FACTORS.getOrDefault(kind.behaviorKind(), 1f); }
 
     /** The factor for synced or saved subspecies flags (the kind is their low four bits). */
     public static float factor(int subspeciesFlags) {

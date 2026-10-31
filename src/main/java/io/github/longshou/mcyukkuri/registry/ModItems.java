@@ -30,11 +30,21 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.EnumMap;
 import java.util.Map;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MCYukkuri.MOD_ID);
     private static final Map<YukkuriVariant.Accessory, DeferredItem<AccessoryItem>> ACCESSORIES = new EnumMap<>(YukkuriVariant.Accessory.class);
     private static final Map<YukkuriVariant, DeferredItem<DeferredSpawnEggItem>> SPAWN_EGGS = new EnumMap<>(YukkuriVariant.class);
+    private static final Map<SubspeciesLife.Kind, DeferredItem<AccessoryItem>> AQUATIC_HATS = new EnumMap<>(SubspeciesLife.Kind.class);
+    static {
+        for(var kind:SubspeciesLife.Kind.values())if(kind.aquatic())
+            AQUATIC_HATS.put(kind,ITEMS.register(kind.hatItem(),()->new AccessoryItem(new Item.Properties())));
+    }
     public static final Map<OperationToolItem.Tool,DeferredItem<OperationToolItem>> OPERATION_TOOLS=new EnumMap<>(OperationToolItem.Tool.class);
     static {
         for(var tool:OperationToolItem.Tool.values())OPERATION_TOOLS.put(tool,ITEMS.register(tool.id,()->new OperationToolItem(tool,
@@ -50,7 +60,8 @@ public final class ModItems {
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     /** The aquatic Marisa's larger hat uses the shared shape with a separate accessory item. */
-    public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = ITEMS.register("marisa_aquatic_hat", () -> new AccessoryItem(new Item.Properties()));
+    public static final DeferredItem<AccessoryItem> AQUATIC_MARISA_HAT = AQUATIC_HATS.get(SubspeciesLife.Kind.AQUATIC_MARISA);
+    public static final DeferredItem<AccessoryItem> AQUATIC_BASIN_HAT = AQUATIC_HATS.get(SubspeciesLife.Kind.AQUATIC_MARISA_ROUND);
     /** Stackable repair material accepted by a shattered individual of the same accessory kind. */
     public static final DeferredItem<AccessoryShardItem> ACCESSORY_SHARD = ITEMS.register("accessory_shard", () -> new AccessoryShardItem(new Item.Properties()));
     public static final DeferredItem<AccessoryItem> MARISA_SHELL = ITEMS.register("marisa_shell", () -> new AccessoryItem(new Item.Properties()));
@@ -130,10 +141,24 @@ public final class ModItems {
     public static Item accessoryFor(YukkuriVariant variant) { return ACCESSORIES.get(variant.accessory()).get(); }
     public static Item accessoryFor(YukkuriEntity entity) {
         var kind = entity.subspecies().kind();
-        return kind == SubspeciesLife.Kind.AQUATIC_MARISA ? AQUATIC_MARISA_HAT.get()
+        return kind.aquatic() ? AQUATIC_HATS.get(kind).get()
                 : kind == SubspeciesLife.Kind.SHELL_MARISA ? MARISA_SHELL.get()
                 : kind == SubspeciesLife.Kind.KOTATSU_MARISA ? MARISA_KOTATSU.get()
                 : accessoryFor(entity.getVariant());
+    }
+    public static SubspeciesLife.Kind aquaticHatKind(ItemStack stack) {
+        for(var entry:AQUATIC_HATS.entrySet())if(stack.is(entry.getValue().get()))return entry.getKey();
+        return SubspeciesLife.Kind.NORMAL;
+    }
+    /** A data-bearing Marisa egg preserves the base species registration and its saved family ordinal. */
+    public static ItemStack roundAquaticSpawnEgg() {
+        var egg=MARISA_SPAWN_EGG.get().getDefaultInstance();
+        var ancestry=new CompoundTag();ancestry.putBoolean("Initialized",true);
+        ancestry.putString("Kind",SubspeciesLife.Kind.AQUATIC_MARISA_ROUND.name());ancestry.putString("Congenital","NORMAL");
+        var entity=new CompoundTag();entity.putString("id","mcyukkuri:marisa");entity.put("YukkuriSubspecies",ancestry);
+        egg.set(DataComponents.ENTITY_DATA,CustomData.of(entity));
+        egg.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.aquatic_marisa_round_spawn_egg"));
+        return egg;
     }
     /** Canonical loose accessory shape per kind; age, congenital body shape and obesity do not create item variants. */
     public static String accessoryModelFor(YukkuriEntity entity) {

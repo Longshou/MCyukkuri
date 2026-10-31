@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.headwear.HullProfile;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -21,13 +22,24 @@ import net.minecraft.world.phys.Vec3;
 /** Biological ancestry, congenital shape and acquired transport are separate saved axes. */
 public final class SubspeciesLife {
     /** AQUATIC_MARISA looks like an ordinary Marisa and sails her hat as a boat (wiki aquatic_marisa; Hakkei U sprite 7899 水上まりさ用).
-     *  The last four are the rare forms of komicolle 40720 No.11518905 (rare/RareForms, docs/RARE_FORMS.md): kotatsu Marisa,
-     *  long- and round-tailed Chen and the red-eyed Myon. Ordinals are saved and synced in four bits: append only. */
+     *  Kotatsu Marisa, long- and round-tailed Chen and red-eyed Myon are the rare forms of komicolle 40720 No.11518905.
+     *  The round aquatic hat is a project test form. Ordinals are saved and synced in four bits: append only. */
     public enum Kind {
-        NORMAL(null), SHELL_MARISA(YukkuriVariant.MARISA), WASA_REIMU(YukkuriVariant.REIMU), AQUATIC_MARISA(YukkuriVariant.MARISA),
-        KOTATSU_MARISA(YukkuriVariant.MARISA), LONGTAIL_CHEN(YukkuriVariant.CHEN), ROUNDTAIL_CHEN(YukkuriVariant.CHEN), REDEYE_MYON(YukkuriVariant.MYON);
+        NORMAL(null), SHELL_MARISA(YukkuriVariant.MARISA), WASA_REIMU(YukkuriVariant.REIMU),
+        AQUATIC_MARISA(YukkuriVariant.MARISA, HullProfile.CURRENT, "accessory_marisa", "marisa_aquatic_hat"),
+        KOTATSU_MARISA(YukkuriVariant.MARISA), LONGTAIL_CHEN(YukkuriVariant.CHEN), ROUNDTAIL_CHEN(YukkuriVariant.CHEN), REDEYE_MYON(YukkuriVariant.MYON),
+        AQUATIC_MARISA_ROUND(YukkuriVariant.MARISA, HullProfile.BASIN, "aquatic_basin_hat", "aquatic_basin_hat");
         private final YukkuriVariant variant;
-        Kind(YukkuriVariant variant) { this.variant = variant; }
+        private final String hullForm, wornHat, hatItem;
+        Kind(YukkuriVariant variant) { this(variant, null, null, null); }
+        Kind(YukkuriVariant variant, String hullForm, String wornHat, String hatItem) {
+            this.variant = variant; this.hullForm = hullForm; this.wornHat = wornHat; this.hatItem = hatItem;
+        }
+        public boolean aquatic() { return hullForm != null; }
+        public Kind behaviorKind() { return aquatic() ? AQUATIC_MARISA : this; }
+        public String hullForm() { return hullForm; }
+        public String wornHat() { return wornHat; }
+        public String hatItem() { return hatItem; }
         /** Whether this kind can belong to an individual of that species. */
         public boolean fits(YukkuriVariant species) { return variant == null || variant == species; }
     }
@@ -124,7 +136,8 @@ public final class SubspeciesLife {
         int inheritedOdds=candidate==Kind.WASA_REIMU?50:4;
         if(candidate!=Kind.NORMAL&&random.nextInt(parentA==candidate||parentB==candidate?inheritedOdds:160)==0)selected=candidate;
         // The aquatic kind passes to half of a Marisa's young when a parent is aquatic [original rate]; shell is decided first.
-        if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&(parentA==Kind.AQUATIC_MARISA||parentB==Kind.AQUATIC_MARISA)&&random.nextInt(2)==0)selected=Kind.AQUATIC_MARISA;
+        if(selected==Kind.NORMAL&&variant==YukkuriVariant.MARISA&&((parentA!=null&&parentA.aquatic())||(parentB!=null&&parentB.aquatic()))&&random.nextInt(2)==0)
+            selected=parentA!=null&&parentA.aquatic()?parentA:parentB;
         if(selected==Kind.NORMAL&&(variant==YukkuriVariant.REIMU||variant==YukkuriVariant.MARISA)&&random.nextInt(200)==0)shape=1+random.nextInt(3);
         // Rare forms of komicolle 40720 No.11518905, drawn after every older roll so those outcomes stay as they were [project rates].
         if(selected==Kind.NORMAL&&shape==0)selected=rareForm(random,variant,parentA,parentB);

@@ -40,7 +40,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / '.local/setup/python'))
 sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
 from museum_actions import CATEGORIES, NAMES, MODELS, ACTION_META, load_clips  # noqa: E402
-from museum_dsl import _text, _q, yk  # noqa: E402
+from museum_dsl import _text, _q, yk, HAT_FORMS  # noqa: E402
 import museum_fields  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, SKY, DECK_TOP, big_fill, fillbiome_boxes  # noqa: E402
 import museum_scenarios  # noqa: E402
@@ -285,6 +285,15 @@ def build_pack(world):
             # Manual /function diagnostics keep the original anchor and executing player.
             fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
 
+    for i, (form, _, caption) in enumerate(HAT_FORMS):
+        fn(f'hat_form/{form}', [f'scoreboard players set #hat_form {OBJ} {i}',
+           'data modify entity @e[type=minecraft:text_display,tag=pm_hat_form,limit=1] text set value ' + _q(_text(f'帽形：{caption}\n切换后重开', 'yellow')),
+           f'tellraw {near_field(BY_ID["pond"])} ' + _text(f'帽形：{caption}。重新点击场景按钮后生效。', 'yellow'),
+           f'say MCYMUSEUM_HAT_FORM {form}'])
+    fn('hat_form/show', [f'execute if score #hat_form {OBJ} matches {i} run function {NS}:hat_form/{form}' for i, (form, _, _) in enumerate(HAT_FORMS)])
+    fn('hat_form/toggle', [f'scoreboard players add #hat_form {OBJ} 1',
+       f'execute if score #hat_form {OBJ} matches 2 run scoreboard players set #hat_form {OBJ} 0', f'function {NS}:hat_form/show'])
+
     # extras: the house activity buttons and clips
     house = BY_ID['house']
     hx, hz = house.anchor
@@ -378,7 +387,9 @@ def build_pack(world):
        ['tellraw @s ' + _text('更新 .local/experimental-map/museum-runtime.json 指向的运行产物（用含 command/Scenario*.java 的 CI 构建）。', 'yellow')])
 
     # ---------------------------------------------------------------- load / tick / prepare / build
-    fn('load', [f'scoreboard objectives add {OBJ} dummy', f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
+    fn('load', [f'scoreboard objectives add {OBJ} dummy',
+                f'execute unless score #hat_form {OBJ} matches 0..1 run scoreboard players set #hat_form {OBJ} 0',
+                f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',
                 f'execute if score #probe {OBJ} matches 1 if score #built {OBJ} matches 1 run scoreboard players set #ready {OBJ} 1',
@@ -412,7 +423,7 @@ def build_pack(world):
             lines.append(f'function {NS}:clip/cast')
         lines += [f'forceload remove {x} {z}' for x, z in chunks]
         fn(f'build/field_{f.id}_do', guarded(f'build/field_{f.id}_do', set(chunks), lines + [f'schedule function {NS}:{following} 1s replace']))
-    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:util/tag_fields', 'say MCYMUSEUM_BUILD_COMPLETE',
+    fn('complete', [f'scoreboard players set #built {OBJ} 1', f'scoreboard players set #ready {OBJ} 1', f'function {NS}:util/tag_fields', f'function {NS}:hat_form/show', 'say MCYMUSEUM_BUILD_COMPLETE',
                     f'schedule function {NS}:release_load 60s replace'])
     fn('release_load', [f'forceload remove {x} {z}' for x, z in sorted(initial)])
 
@@ -453,6 +464,8 @@ def field_deck_controls(f, land):
     rows.append([(f'function {NS}:util/time_{t}', c, '', False) for t, c in (('dawn', '清晨'), ('noon', '正午'), ('dusk', '黄昏'), ('night', '夜晚'))]
                 + [(f'function {NS}:util/weather_clear', '放晴', '', False), (f'function {NS}:util/weather_rain', '下雨', '', False),
                    (f'function {NS}:util/weather_thunder', '雷暴', '', False)])
+    if f.id == 'pond':
+        rows[-1].append((f'function {NS}:hat_form/toggle', '帽形：锥帽', '切换后重开', False))
     start = [(f'function {NS}:start/{s.id}', s.hint, s.tag, True) for s in f.scenarios]
     start += [(f'function {NS}:{name}', caption, hint, True) for name, caption, hint in f.extras]
     for i in range(0, len(start), 9):
@@ -469,7 +482,10 @@ def field_deck_controls(f, land):
             command, caption, hint, nav = entry
             clearing = command == f'function {NS}:field/{f.id}/clear'
             lines += button(ax + 3 * i, DECK_TOP, z, command, caption, hint, nav=nav, context=f'{f.id} {caption}',
-                            color='red' if clearing else color)
+                            color='red' if clearing else color, label=command != f'function {NS}:hat_form/toggle')
+            if command == f'function {NS}:hat_form/toggle':
+                lines.append(display(ax + 3 * i + .5, DECK_TOP + .95, z + .5, [(caption + '\n' + hint, 'yellow')],
+                                     .42, 'button', 'pond hat form', tags=('pm_hat_form',)))
     for px in (x1 + 1, x2 - 1):
         lines.append(f'setblock {px} {DECK_TOP - 1} {z1 + 4} minecraft:sea_lantern')
     return lines

@@ -19,6 +19,8 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.headwear.HullProfile;
+import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.status.Marks;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +96,7 @@ public final class YukkuriModel {
     private float pregnancyBelly,pregnancyContraction;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
+    private String hatProp;
     private final HatDamageDraw hatDamageDraw=new HatDamageDraw(this);
     /** Per vertex: 1 accessory, 2 Marisa's braid. On a swollen body they ride rigidly instead of stretching (lazy). */
     private byte[] rigidGroups;
@@ -939,7 +942,7 @@ public final class YukkuriModel {
             Part part=puffAmount>0?(puffPartIndex==partIndex?puffSurface:puffAttachments.getOrDefault(partIndex,parts.get(partIndex))):parts.get(partIndex);
             if(drawingWoundedBody&&WoundSurface.get(id).replaced.contains(part.name))continue;
             if(hairHidden(part,hairLoss))continue;
-            if (!accessory && accessoryPart(part)) continue;
+            if ((!accessory || hatProp!=null) && accessoryPart(part)) continue;
             boolean hatPart=(hatDamageDraw.level()>0||hatDamageDraw.fit()<.999f)&&accessoryPart(part);
             // Delivery draws and opens the same authored mamu itself; do not draw it twice here.
             // Explicit visibility also covers interruption, idle and resource reload.
@@ -1086,6 +1089,7 @@ public final class YukkuriModel {
             hatMotion=entity.contactPose().equals("HAT_REMOVE")||entity.contactPose().equals("HAT_RETURN")?entity.contactPose():"";
             hatPhase=entity.contactTurn();
             hatScale=HatScale.factor(entity.subspeciesFlags());
+            hatProp=replacementHat(entity.subspeciesKind());
             int headwear=entity.visibleHeadwear();
             hatDamageDraw.visual(headwear);
             // Pieces licked together sit on the head as a cracked hat before they knit, though the owner is not yet recognised.
@@ -1093,7 +1097,7 @@ public final class YukkuriModel {
             long perfStart=WoundLod.start();
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(entity.visibleSigns()&BodySigns.FOOT_BURNED)!=0))
                 woundDisplay=HairWoundRenderer.prepare(entity,this,id,expression,wounds,entity.visibleSigns(),health,hairLoss,
-                        accessory||pieces||hatMotion.equals("HAT_REMOVE"),headwear,true,cameraDistanceSquared(stack));
+                        hatProp==null&&(accessory||pieces||hatMotion.equals("HAT_REMOVE")),headwear,true,cameraDistanceSquared(stack));
             if(woundDisplay!=null)WoundLod.time(WoundLod.PREPARE,perfStart);
             // Taking the cap buffer here would end the body's buffer before any body vertices are written.
             hatDamageDraw.deferCaps();
@@ -1109,7 +1113,8 @@ public final class YukkuriModel {
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
-        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=hatInBraid=0;hatMotion="";hatScale=1;hatDamageDraw.reset();setCareContact(0,
+            if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
+        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }
@@ -1144,12 +1149,13 @@ public final class YukkuriModel {
         drawingWoundedBody=false;
         setCarrying(false);setPregnancy(0,0);setDelivery(null);setExpression(face);
         hatScale=HatScale.factor(in.subspeciesFlags());
+        hatProp=replacementHat(SubspeciesLife.Kind.values()[in.subspeciesFlags()&15]);
         boolean accessory=in.accessory();
         int headwear=in.headwear();hatDamageDraw.visual(headwear);
         try{
             long perfStart=WoundLod.start();
             if(woundGeometryCompatible()&&HairWoundAssets.model(id)!=null&&(!wounds.isEmpty()||(packedSigns&BodySigns.FOOT_BURNED)!=0))
-                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,in.hairLoss(),accessory,headwear,in.coreKept(),cameraDistanceSquared(stack));
+                woundDisplay=HairWoundRenderer.prepare(key,this,id,face,wounds,packedSigns,0,in.hairLoss(),accessory&&hatProp==null,headwear,in.coreKept(),cameraDistanceSquared(stack));
             if(woundDisplay!=null)WoundLod.time(WoundLod.PREPARE,perfStart);
             long bodyStart=woundDisplay==null?0:WoundLod.start();
             render("idle",0,stack,buffer,light,overlay,accessory,Behaviors.IDLE,0,in.hairLoss());
@@ -1161,7 +1167,22 @@ public final class YukkuriModel {
             // Taken last: the body and wound passes above still write into their own buffers.
             if(look.overlay()!=null)renderRemainsSkin(stack,buffers.getBuffer(RenderType.entityCutoutNoCullZOffset(look.overlay())),light,overlay);
             if(accessory)renderBadge(in.medal(),stack,buffers,light,overlay);
-        }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatDamageDraw.reset();setExpression("");}
+            if(accessory)renderReplacementHat(stack,buffers,light,overlay);
+        }finally{woundDisplay=null;drawingWoundedBody=false;drawingSurfaceMarks=false;hatScale=1;hatProp=null;hatDamageDraw.reset();setExpression("");}
+    }
+    private static String replacementHat(SubspeciesLife.Kind kind){
+        return kind.aquatic()&&!kind.hullForm().equals(HullProfile.CURRENT)?kind.wornHat():null;
+    }
+    /** The prop uses the same authored hat frame, final braid pose and pregnancy lift as the original accessory. */
+    private void renderReplacementHat(PoseStack stack,MultiBufferSource buffers,int light,int overlay){
+        if(hatProp==null)return;
+        stack.pushPose();
+        if(pregnancyBelly>0)stack.translate(crownLift.x/16,crownLift.y/16,crownLift.z/16);
+        stack.scale(1/16f,1/16f,1/16f);stack.mulPose(world[hatFollowBone()]);stack.scale(16,16,16);
+        var seat=HatGeometry.anchor().div(16);float fit=hatDamageDraw.fit();
+        stack.translate(seat.x,seat.y,seat.z);stack.scale(fit,fit,fit);stack.translate(-seat.x,-seat.y,-seat.z);
+        PropModels.renderHat(hatProp,hatDamageDraw.level(),-1,stack,buffers,light,overlay);
+        stack.popPose();
     }
     private float[] remainsSkinFrame;
     /**
@@ -1323,7 +1344,7 @@ public final class YukkuriModel {
     }
     float[] woundVertices(){return vertices;}
     List<Part> woundParts(){return parts;}
-    boolean woundVisible(Part part,int hairLoss,boolean accessory){return !hairHidden(part,hairLoss)&&(accessory||!accessoryPart(part));}
+    boolean woundVisible(Part part,int hairLoss,boolean accessory){return !hairHidden(part,hairLoss)&&((accessory&&hatProp==null)||!accessoryPart(part));}
     /** Reprojected fragment retains the original triangle's exact blended bone binding. */
     void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target){
         woundSkin(triangle,a,b,c,rest,target,true);

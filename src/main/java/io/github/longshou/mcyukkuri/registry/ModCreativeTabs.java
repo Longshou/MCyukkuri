@@ -27,6 +27,8 @@ public final class ModCreativeTabs {
                         output.accept(ModItems.FIELD_NOTEBOOK.get());
                         output.accept(ModItems.REIMU_SPAWN_EGG.get());
                         output.accept(ModItems.MARISA_SPAWN_EGG.get());
+                        output.accept(ModItems.roundAquaticSpawnEgg());
+                        output.accept(ModItems.AQUATIC_BASIN_HAT.get());
                         output.accept(ModItems.CHEN_SPAWN_EGG.get());
                         output.accept(ModItems.ALICE_SPAWN_EGG.get());
                         output.accept(ModItems.PATCHOULI_SPAWN_EGG.get());
@@ -63,6 +65,7 @@ public final class ModCreativeTabs {
         if (!event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)) return;
         event.accept(ModItems.REIMU_SPAWN_EGG.get());
         event.accept(ModItems.MARISA_SPAWN_EGG.get());
+        event.accept(ModItems.roundAquaticSpawnEgg());
         event.accept(ModItems.CHEN_SPAWN_EGG.get());
         event.accept(ModItems.ALICE_SPAWN_EGG.get());
         event.accept(ModItems.PATCHOULI_SPAWN_EGG.get());

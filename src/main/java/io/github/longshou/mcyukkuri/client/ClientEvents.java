@@ -64,7 +64,7 @@ public final class ClientEvents {
             @Override public BlockEntityWithoutLevelRenderer getCustomRenderer(){if(renderer==null)renderer=new PropItemRenderer();return renderer;}
         };
         for(String name:new String[]{"food_bowl","yukkuri_nest","large_yukkuri_nest","large_wild_nest","yukkuri_toilet","yukkuri_carrier","wash_cloth","teaching_whistle","yarn_ball",
-                "companion_cord","food_scrap","yukkuri_waste","leaked_filling","core_filling","reimu_ribbon","marisa_hat","marisa_aquatic_hat","chen_hat","alice_headband",
+                "companion_cord","food_scrap","yukkuri_waste","leaked_filling","core_filling","reimu_ribbon","marisa_hat","marisa_aquatic_hat","aquatic_basin_hat","chen_hat","alice_headband",
                 "myon_hairband","marisa_kotatsu","patchouli_bonnet","remilia_bonnet","flandre_bonnet","predator_nest",
                 "mold_remover","forage_pile"})
             event.registerItem(extension,BuiltInRegistries.ITEM.get(MCYukkuri.id(name)));

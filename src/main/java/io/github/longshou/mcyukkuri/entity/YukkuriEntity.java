@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import java.util.Locale;
+import net.minecraft.network.chat.Component;
+
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
@@ -267,6 +270,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public CompoundTag carryHolds() { return componentData(ParentCarry.HOLDS); }
 
     public YukkuriVariant getVariant() { return variant; }
+    @Override protected Component getTypeName() {
+        var kind=subspeciesKind();
+        return kind!=kind.behaviorKind()?Component.translatable("subspecies.mcyukkuri.kind."+kind.name().toLowerCase(Locale.ROOT)):super.getTypeName();
+    }
     public SpeciesProfile profile() { return SpeciesProfile.of(variant, subspeciesKind()); }
     public float bodyYaw() { return yBodyRot; }
     public float previousBodyYaw() { return yBodyRotO; }

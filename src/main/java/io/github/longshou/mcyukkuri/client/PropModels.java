@@ -67,7 +67,7 @@ public final class PropModels {
         } catch(IOException error){throw new UncheckedIOException(error);}
         models=Map.copyOf(loaded);
         Map<ResourceLocation,HatDamageFaces.Sampler> samplers=new HashMap<>();
-        for(var entry:loaded.entrySet())if(entry.getKey().startsWith("accessory_"))for(var part:entry.getValue().parts){
+        for(var entry:loaded.entrySet())if(entry.getKey().startsWith("accessory_")||entry.getKey().startsWith("aquatic_basin_hat"))for(var part:entry.getValue().parts){
             if(samplers.containsKey(part.texture))continue;
             try{samplers.put(part.texture,HatDamageFaces.load(resources,part.texture));}catch(Exception ignored){}
         }
@@ -114,6 +114,9 @@ public final class PropModels {
         pose.translate(-(b[0][0]+b[0][1])/32, floor?-b[1][0]/16:-(b[1][0]+b[1][1])/32, -(b[2][0]+b[2][1])/32);}
     public static void render(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         renderPiece(name,units,pose,buffers,light,overlay,0);
+    }
+    public static void renderTextured(String name,int units,ResourceLocation texture,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
+        renderPiece(name,units,pose,buffers,light,overlay,0,-1,texture);
     }
     public static void renderLayers(String name,int mask,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,mask);
@@ -245,11 +248,15 @@ public final class PropModels {
         renderPiece(name,units,pose,buffers,light,overlay,side,-1);
     }
     private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers){
+        renderPiece(name,units,pose,buffers,light,overlay,side,layers,null);
+    }
+    private static void renderPiece(String name,int units,PoseStack pose,MultiBufferSource buffers,int light,int overlay,int side,int layers,ResourceLocation texture){
         Model model=models.get(name);if(model==null)throw new IllegalStateException("Missing prop: "+name);
         var transform=pose.last();var v=model.vertices;
         for(var part:model.parts){
             if(part.unit>units || part.unit>0 && (layers & (1 << (part.unit-1)))==0)continue;
-            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(part.texture):RenderType.entityCutoutNoCull(part.texture));
+            var selected=texture==null?part.texture:texture;
+            var consumer=buffers.getBuffer(part.translucent?RenderType.entityTranslucent(selected):RenderType.entityCutoutNoCull(selected));
             for(int first=part.start;first<part.start+part.count;first+=3){
                 if(side!=0){
                     float center=(v[first*8]+v[(first+1)*8]+v[(first+2)*8])/3;

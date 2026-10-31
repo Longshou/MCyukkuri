@@ -20,6 +20,16 @@ MATURITY = 336000            # default loaded ticks from birth to maturity (fami
 LIFESPAN = 1056000
 # life stage -> (saved family stage, first age, next age, body scale)
 STAGES = {'baby': ('BABY', 0, 72000, .18), 'child': ('JUVENILE', 72000, 216000, .40), 'teen': ('JUVENILE', 216000, 336000, .72)}
+HAT_FORMS = (('turned_land_hat', 'AQUATIC_MARISA', '锥帽'), ('cone_basin', 'AQUATIC_MARISA_ROUND', '圆帽'))
+
+
+def hat_choice(commands):
+    """One pond setting selects the starting ancestry before the individual enters the world."""
+    return '\n'.join(f'execute if score #hat_form museum matches {i} run {command}' for i, command in enumerate(commands))
+
+
+def aquatic_spawn(dx, dz, count=1):
+    return hat_choice(f'yukkuri scenario spawn ~{dx} ~ ~{dz} {count} {form}' for form, _, _ in HAT_FORMS)
 
 
 def _text(value, color='white'):
@@ -106,7 +116,8 @@ def yk(kind, dx, dz, name, *, dy=0, stage='adult', share=None, yaw=180, label=No
                      'Cooldown:0,History:[],Permits:[]}')
     if extra:
         parts.append(extra)
-    return f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
+    command = f'summon mcyukkuri:{kind} ~{dx + .5} ~{dy} ~{dz + .5} {{' + ','.join(parts) + '}'
+    return hat_choice(command.replace('Kind:"AQUATIC_MARISA"', f'Kind:"{ancestry}"') for _, ancestry, _ in HAT_FORMS) if aquatic else command
 
 
 def remains(dx, dz, name, *, variant='reimu', food=6, capacity=6, rot=0, ident=None, partner=None, offered_to=None, kept=False,
@@ -159,7 +170,7 @@ def yk_on_nest(kind, dx, dz, name, *, large=False, **kwargs):
     shape = json.loads(source.read_text(encoding='utf-8'))['large_yukkuri_nest' if large else 'yukkuri_nest']
     height = max(b[4] for b in shape['boxes'] if b[0] <= 0 <= b[2] and b[1] <= 0 <= b[3]) / 16
     offset = .5 if large else 0
-    return 'execute align xz run ' + yk(kind, dx + offset, dz + offset, name, dy=height, **kwargs)
+    return '\n'.join('execute align xz run ' + line for line in yk(kind, dx + offset, dz + offset, name, dy=height, **kwargs).splitlines())
 
 
 def large_nest(dx, dz, block):

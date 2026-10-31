@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
@@ -45,6 +46,17 @@ public final class ScenarioCommands {
         tell(source.getLevel(), at.position(), "[试玩场] " + prefix + "没有成功：" + reason, ChatFormatting.RED);
         source.sendFailure(Component.literal(reason));
         return 0;
+    }
+
+    private static int spawn(CommandContext<CommandSourceStack> c,String form) throws CommandSyntaxException {
+        var at=BlockPosArgument.getLoadedBlockPos(c,"at");
+        String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"),form);
+        if(reason!=null){
+            tell(c.getSource().getLevel(),Vec3.atCenterOf(at),"[试玩场] 自然生成没有成功："+reason,ChatFormatting.RED);
+            return 0;
+        }
+        tell(c.getSource().getLevel(),Vec3.atCenterOf(at),"[试玩场] 水生魔理沙按自然生成的方式加入世界：水边的坐在自己放在水面的帽子上，没有水面的留在岸上（日志 [aquatic] spawn）。",ChatFormatting.GOLD);
+        return 1;
     }
 
     private static int done(CommandSourceStack source, String text) {
@@ -192,17 +204,10 @@ public final class ScenarioCommands {
                                                         .then(Commands.literal("stick").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
                                                                 IntegerArgumentType.getInteger(c, "food"), false, true)))))))))
                 .then(Commands.literal("spawn").then(Commands.argument("at", BlockPosArgument.blockPos())
-                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 8)).executes(c -> {
-                            var at = BlockPosArgument.getLoadedBlockPos(c, "at");
-                            String reason = ScenarioSetup.spawn(c.getSource().getLevel(), at, IntegerArgumentType.getInteger(c, "count"));
-                            if (reason != null) {
-                                tell(c.getSource().getLevel(), Vec3.atCenterOf(at), "[试玩场] 自然生成没有成功：" + reason, ChatFormatting.RED);
-                                return 0;
-                            }
-                            tell(c.getSource().getLevel(), Vec3.atCenterOf(at), "[试玩场] 水生魔理沙按自然生成的方式加入世界：水边的坐在自己放在水面的帽子上，没有水面的留在岸上（日志 [aquatic] spawn）。",
-                                    ChatFormatting.GOLD);
-                            return 1;
-                        }))))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 8)).executes(c -> spawn(c,HullProfile.CURRENT))
+                                .then(Commands.argument("form",StringArgumentType.word())
+                                        .suggests((c,b)->SharedSuggestionProvider.suggest(List.of(HullProfile.CURRENT,HullProfile.BASIN),b))
+                                        .executes(c->spawn(c,StringArgumentType.getString(c,"form")))))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {

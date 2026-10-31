@@ -148,12 +148,12 @@ def run_scene(st, scene, builder):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
+    parser.add_argument('--hat-form', choices=('turned_land_hat', 'cone_basin'), default='turned_land_hat',
+                        help='Pond hat-form switch applied before scenes (default: current cone hat)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
-    instances = server.INSTANCES if args.worktree is None else server.COMMON / '.local/smoke'
-    if args.worktree is not None and instances.resolve().is_relative_to(source):
-        parser.error('--worktree must not contain the main checkout smoke output directory; use a linked worktree')
+    instances = server.ROOT / '.local/tmp/smoke'
     server.stop_stale(instances)
     server.require_closed()
     runtime, java = server.installed_runtime()
@@ -166,7 +166,7 @@ def main():
     selected = [scenes[sid] for sid in (args.scenes or scenes)]
     run_id = secrets.token_hex(6)
     name = f'instance-{run_id}'
-    print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; scenes={", ".join(s.id for s in selected)}', flush=True)
+    print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; hat_form={args.hat_form}; scenes={", ".join(s.id for s in selected)}', flush=True)
     datapack = build_pack(builder, instances / f'pack-{run_id}')
     server.require_closed()
     mod = (runtime / 'mod' if args.worktree is None else
@@ -174,6 +174,7 @@ def main():
     st = server.start(runtime, java, datapack, name, mod, instances)
     try:
         server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
+        wait_command(st, f'function mcylab:hat_form/{args.hat_form}', f'MCYMUSEUM_HAT_FORM {args.hat_form}')
         results = [run_scene(st, scene, builder) for scene in selected]
         return 0 if all(results) else 1
     finally:

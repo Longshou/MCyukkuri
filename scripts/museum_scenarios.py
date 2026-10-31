@@ -14,7 +14,7 @@ import json
 import sys
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, _text)  # noqa: E402
+from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
 from museum_fields import BY_ID, FEET  # noqa: E402
 
 CHILDHOOD_CAN_JUMP_SOON = 'Version:1,Newborn:1b,Landed:1b,FirstToiletDone:1b,Crawled:1b,Jumped:0b,CrawlDistance:1.0d'
@@ -71,7 +71,7 @@ def surface_demo_lines(sid, lines):
     """Preset skin demonstrations face the observer; explicit body-region comparisons retain their regions."""
     result = []
     comparisons = {'wound_parts', 'wound_materials', 'thermal_body', 'wound_sources', 'hatless_monster', 'hatless_boundary', 'core_exposed'}
-    for line in lines:
+    for line in (part for entry in lines for part in (entry.splitlines() if isinstance(entry, str) else [entry])):
         if not isinstance(line,str):
             result.append(line)
             continue
@@ -1720,7 +1720,9 @@ pond('hat_crowd', '帽内挤动', '帽内挤动',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_children((1, -1, 2, -2, 3)), afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, middle=True)],
      note='日志 [hat] squeeze（限频）记被挤动的个体与步长，[hat] squeezed off 与 [body] dismount cause=squeezed 记落水；读 hat.tilt 看挤动后的倾斜。也可再空手摇晃帽子看倾斜时谁让得多。',
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读子油一', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读子油一', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1200, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=5\b[^\n]*food=4\b', r'\[hat\][^\n]* squeeze\b'],
+                forbid=[r'\[body\][^\n]* invariant\b']))
 
 pond('hat_swap', '帽子大小对照', '帽子大小',
      '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；摇晃空帽翻覆后倒扣的形态大小不变',
@@ -1748,7 +1750,7 @@ def _aquatic_young(sid, slot, dx, dz, stage, parent, **kw):
 pond('water_colony', '自然生成·坐在自己的帽子上', '自然生成',
      '四只成体水生魔理沙按自然生成的方式加入世界：水边的三只第 0 tick 就坐在自己放在身旁静水上的帽子里漂着（不先站在岸上、没有延迟的上船）；离水 5 格以外的第四只没有水面可放帽，留在岸上并在日志里说明原因。帽里没有木棍和粮，她们之后在水上漂着歇息',
      '约 30 秒',
-     [*[f'yukkuri scenario spawn ~{bank_dx(dz)} ~ ~{dz} 1' for dz in (-4, 0, 4)], 'yukkuri scenario spawn ~-6 ~ ~0 1'],
+     [*[aquatic_spawn(bank_dx(dz), dz) for dz in (-4, 0, 4)], aquatic_spawn(-6, 0)],
      note='日志：[aquatic] spawn afloat hat=… own=true cause=natural，[hat] placed … water=true，[hat] boarded … own=true；第四只 [aquatic] spawn refused reason=no_water。'
           '自然生成只放帽并坐上，不另生成聚落；场景按自然生成路径调用同一钩子。' + _DESIRE_NOTE,
      reads=[('读最近的水生魔理沙', 'yukkuri status @e[type=mcyukkuri:marisa,distance=..24,limit=1,sort=nearest] raw'),

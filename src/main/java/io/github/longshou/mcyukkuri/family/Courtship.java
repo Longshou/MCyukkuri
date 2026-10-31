@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
@@ -119,8 +118,7 @@ final class Courtship {
         if(other==o.entity()||o.entity().level()!=other.level()||!o.adult()||!other.family().adult()||o.sterile()||other.family().sterile()||o.elder()||other.family().elder()
                 ||o.entity().profile().houseBody()!=other.profile().houseBody()||o.entity().profile().dangerToYukkuri()!=other.profile().dangerToYukkuri()
                         ||o.entity().profile().aquatic()!=other.profile().aquatic())return false;
-        var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
-        return (o.entity().subspecies().kind()==aquatic)==(other.subspecies().kind()==aquatic)&&!Bonds.biological(o.entity(), other);
+        return !Bonds.biological(o.entity(), other);
     }
 
     /** Rolled once per courtship attempt for owned pets; the unauthorized partner is remembered so that conception can count it. */
@@ -141,8 +139,7 @@ final class Courtship {
                         &&(!o.entity().life().canRecognize(other)||!other.life().canRecognize(o.entity())))return false;
         if(!FamilyData.get(o.level()).canPair(o.entity(),other,true))return false;
         // The aquatic kind only pairs within itself: aquatic couples are two aquatic Marisa.
-        var aquatic=SubspeciesLife.Kind.AQUATIC_MARISA;
-        if((o.entity().subspecies().kind()==aquatic)!=(other.subspecies().kind()==aquatic))return false;
+        if(o.entity().profile().aquatic()!=other.profile().aquatic())return false;
         var data=FamilyData.get(o.level());var relations=YukkuriWorldData.get(o.level());
         if(Bonds.biological(o.entity(),
                 other)||!arr&&(relations.affinity(o.entity().getUUID(),other.getUUID())<BondLevels.AFFINITY_COOPERATIVE||relations.affinity(other.getUUID(),

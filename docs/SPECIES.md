@@ -31,6 +31,16 @@
 
 ## 注册结构
 
+### 水生魔理沙·圆帽（测试种）
+
+项目设计。沿用水生魔理沙的亚种登记：在 `SubspeciesLife.Kind` 末尾追加 `AQUATIC_MARISA_ROUND`（ordinal 8），实体仍为 `mcyukkuri:marisa`，不增加或重排 `YukkuriVariant`。`Kind.aquatic()` 统一决定水生生态与配对，`behaviorKind()` 共用原水生种的能力系数和帽子缩放；身体、对白和动作仍用魔理沙。自然生成与野外聚落只选原水生种，不随机生成测试种；遗传仍沿用水生判定，命中时保留水生亲本的帽形（双水生亲本以母方为先）。
+
+`ModItems.roundAquaticSpawnEgg()` 在自有创造栏和原版刷怪蛋栏提供“水生魔理沙·圆帽刷怪蛋（测试）”：复用魔理沙蛋，`ENTITY_DATA` 保存该亚种，无重复实体类型或蛋物品注册。饰品 `aquatic_basin_hat` 单独注册；戴帽／物品共用同名制作源，放下时用 `aquatic_basin_hat_turned`，保存的 `HullForm=cone_basin`，已压好的船体不再压扁。资源来源见 [runtime-sources.json](../art/runtime-sources.json) 的 `aquatic_basin_hat`。
+
+试玩场池塘观察台的“帽形”按钮切换锥帽／圆帽，默认锥帽；重开同一场景后，DSL 中所有水生个体及自然生成演示使用选定亚种，陆地场景不受影响。试玩边界见[待办](TODO.md)。
+
+### 共用登记入口
+
 - `ModEntities` 以 `register(YukkuriVariant)` 为每个种族注册实体类型，句柄放入私有 `EnumMap`；`holderFor` 只返回句柄，`forVariant` 才解析实体类型。属性注册遍历全部种族。
 - `ModItems` 为每个 `Accessory` 注册饰品物品、为每个种族注册 `DeferredSpawnEggItem`，同样放入私有 `EnumMap`；刷怪蛋工厂只接收延迟实体 holder，注册前不调用 `.get()`。
 - 元数据不依赖 `ModEntities` / `ModItems`：纯值 enum → 私有 map → 别名注册 → 注册事件解析工厂，不存在从元数据反向初始化注册类的环。

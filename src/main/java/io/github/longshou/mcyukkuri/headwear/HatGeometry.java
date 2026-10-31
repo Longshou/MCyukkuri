@@ -26,7 +26,8 @@ import org.joml.Vector3f;
 public final class HatGeometry {
     private static final JsonObject DATA=GeometryJson.read("yukkuri_presentation/hat_vessel.json").data();
     /** Species integration hook: choose the form of the worn hat from the owner's synced identity. */
-    public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(DATA.getAsJsonObject("forms").get(owner.assetId()).getAsString());}
+    public static HullProfile wornForm(YukkuriView owner){return HullProfile.of(owner.subspeciesKind().aquatic()
+            ?owner.subspeciesKind().hullForm():DATA.getAsJsonObject("forms").get(owner.assetId()).getAsString());}
     /** Who set the hat down to catch: a helper beside it, or the mother before her own outlet. */
     public enum Role { HELPER, SELF }
     private static final float[] ANCHOR=floats(DATA.getAsJsonArray("anchor_worn"));

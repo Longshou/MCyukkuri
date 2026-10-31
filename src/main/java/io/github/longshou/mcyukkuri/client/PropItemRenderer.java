@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.headwear.HatScale;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -37,8 +36,8 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
         if(stack.is(ModItems.ACCESSORY_SHARD.get())){renderShard(stack,context,pose,buffers,light,overlay);return;}
         if(stack.getItem() instanceof AccessoryItem){
             String selected="accessory_"+stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getString("SourceModel");
-            // The aquatic item keeps its type and source scale, but uses the same hat mesh.
-            if(stack.is(ModItems.AQUATIC_MARISA_HAT.get()))name="accessory_marisa";
+            var kind=ModItems.aquaticHatKind(stack);
+            if(kind.aquatic())name=kind.wornHat();
             else if(PropModels.has(selected))name=selected;
         }
         if(!PropModels.has(name))return;
@@ -52,7 +51,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             float size=tag.contains("SourceScale")?tag.getFloat("SourceScale"):1;
             // A held or dropped hat is drawn at the one hat size of its kind (HatScale), like the worn and set-down hat.
             if(stack.getItem() instanceof AccessoryItem)
-                size=HatScale.of(size,(stack.is(ModItems.AQUATIC_MARISA_HAT.get())?SubspeciesLife.Kind.AQUATIC_MARISA:SubspeciesLife.Kind.NORMAL).ordinal());
+                size=HatScale.of(size,ModItems.aquaticHatKind(stack).ordinal());
             if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);

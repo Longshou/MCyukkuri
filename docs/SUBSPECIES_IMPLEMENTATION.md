@@ -11,6 +11,7 @@
 `entity/YukkuriVariant` 是基础种（灵梦、魔理沙、橙、爱丽丝、帕秋莉、蕾米莉亚、芙兰朵露、妖梦，以及灵梦／魔理沙的家油形态）。`SubspeciesLife.Kind` 为：`NORMAL`、`SHELL_MARISA`（螺壳魔理沙）、`WASA_REIMU`（多毛灵梦）、`AQUATIC_MARISA`（水生魔理沙）、`KOTATSU_MARISA`（被炉魔理沙）、`LONGTAIL_CHEN`／`ROUNDTAIL_CHEN`（长尾／圆尾橙）、`REDEYE_MYON`（红眼妖梦）；每种只适用于对应基础种。`Congenital` 为 `NORMAL`、`SPARSE_HAIR`（稀疏毛发）、`FACE_ASYMMETRY`（面部不足）、`BEAN_BODY`（豆形细长身体），只适用于灵梦与魔理沙；亚种与先天不足不叠加（`set` 拒绝同时非 `NORMAL`）。
 
 - 本页覆盖螺壳、多毛灵梦、水生魔理沙与灵梦／魔理沙各自的三种先天不足；被炉魔理沙、橙的长／圆尾、红眼妖梦见[妖梦与稀有变体](RARE_FORMS.md)。
+- 圆帽对照测试种 `AQUATIC_MARISA_ROUND` 的登记、资源选用与取得方式见[种族注册](SPECIES.md#水生魔理沙圆帽测试种)，水生行为共用本页及水生专题的约定。
 - 灵胖（后天）是单独的成年结果，机制与数值见下文“灵胖成年判定”；灵梦与多毛灵梦各有一套灵胖模型。
 - 模型：螺壳 `marisa_tsumuri`、多毛灵梦 `reimu_wasa`、六种先天不足（配方 [recipes.json](../standards/yukkuri-library/subspecies/deficient/recipes.json)）共八套；水生魔理沙外观与普通魔理沙相同，沿用 `marisa` 模型。灵胖另有两套（`reimu_deibu`、`reimu_wasa_deibu`），圆润体型的运行选用见[运行包](../art/source/rounded-runtime/README.md)。
 

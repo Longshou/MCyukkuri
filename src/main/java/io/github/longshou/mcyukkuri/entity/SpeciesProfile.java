@@ -27,7 +27,7 @@ public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.Birt
             var forms = new EnumMap<SubspeciesLife.Kind, SpeciesProfile>(SubspeciesLife.Kind.class);
             for (var kind : SubspeciesLife.Kind.values()) {
                 boolean house = variant.isHouse(), predator = variant.isPredator();
-                boolean aquatic = kind == SubspeciesLife.Kind.AQUATIC_MARISA;
+                boolean aquatic = kind.aquatic();
                 Ecology ecology = house ? Ecology.HOUSE : predator ? Ecology.PREDATOR : aquatic ? Ecology.AQUATIC : Ecology.WILD;
                 BreedingPool pool = house ? BreedingPool.HOUSE : predator ? BreedingPool.PREDATOR : aquatic ? BreedingPool.AQUATIC : BreedingPool.LAND;
                 forms.put(kind, new SpeciesProfile(ecology, pool,

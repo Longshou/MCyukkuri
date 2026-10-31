@@ -14,7 +14,7 @@ public final class AbilityModifier {
 
     /** The data-file key of this body's species, e.g. {@code aquatic_marisa}. */
     public static String speciesKey(YukkuriEntity body) {
-        String kind = body.subspecies().kind().name().toLowerCase(Locale.ROOT);
+        String kind = body.subspecies().kind().behaviorKind().name().toLowerCase(Locale.ROOT);
         return "normal".equals(kind) ? body.getVariant().assetId() : kind;
     }
 
