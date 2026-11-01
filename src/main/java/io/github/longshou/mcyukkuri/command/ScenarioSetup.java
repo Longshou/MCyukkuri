@@ -287,15 +287,13 @@ final class ScenarioSetup {
      * so one by calm water rides her own hat from her first tick and one with no water near stays ashore and logs why. The
      * settlement discovery a vanilla natural spawn can also start is not part of it.
      */
-    static String spawn(ServerLevel level, BlockPos at, int count, String form) {
-        var kind=Arrays.stream(SubspeciesLife.Kind.values()).filter(k->k.aquatic()&&k.hullForm().equals(form)).findFirst();
-        if(kind.isEmpty())return "未知帽形："+form;
+    static String spawn(ServerLevel level, BlockPos at, int count) {
         for (int i = 0; i < count; i++) {
             var pos = at.offset(0, 0, 2 * i);
             // vanilla's creation places and initialises it (as /summon does); the kind is set the way a settlement sets an aquatic family's
             if (!(ModEntities.forVariant(YukkuriVariant.MARISA).create(level, null, pos, MobSpawnType.COMMAND, false, false) instanceof YukkuriEntity body))
                 return "实体没能创建。";
-            body.subspecies().set(kind.get(), SubspeciesLife.Congenital.NORMAL);
+            body.subspecies().set(SubspeciesLife.Kind.AQUATIC_MARISA, SubspeciesLife.Congenital.NORMAL);
             body.addTag("scn");
             DomainHooks.spawned(body, "natural");
             level.addFreshEntityWithPassengers(body);

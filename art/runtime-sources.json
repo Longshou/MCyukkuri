@@ -4085,10 +4085,10 @@
     "snapshot": "art/source/aquatic-basin-hat",
     "manifest": "art/source/aquatic-basin-hat/manifest.json",
     "selection": {
-      "subspecies": "AQUATIC_MARISA_ROUND",
+      "subspecies": "AQUATIC_MARISA",
       "base_model": "marisa",
       "hull_form": "cone_basin",
-      "item_model": "src/main/resources/assets/mcyukkuri/models/item/aquatic_basin_hat.json"
+      "item_model": "src/main/resources/assets/mcyukkuri/models/item/marisa_aquatic_hat.json"
     },
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
     "runtime": [

@@ -1600,8 +1600,6 @@ def captain(name='a', *, dx=0, dz=0, **kw):
 
 def pond(sid, title, hint, watch, wait, lines, note='', **kw):
     # Restore the entire shared field before actors spawn; specialised scenes may override it below.
-    if 'smoke' in kw:
-        kw['smoke']['expect'].insert(0, rf'MCYMUSEUM_SCENE {sid} hat_form=(?:turned_land_hat|cone_basin)\b')
     add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
         env=DAY, note=note, vantage=(-6, 6, -90), **kw)
 
@@ -1943,10 +1941,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
                                    r'\[aquatic\][^\n]* rescue (?:progress [^\n]*distance_before=\d+\.\d+ distance_after=\d+\.\d+ last='
                                    r'|end result=EXHAUSTED [^\n]*last=(?:BLOCKED|INCAPABLE) reason=[A-Z_]+ shortfall=[^\n]* detail=\S)'
                                    r'|\[incident\][^\n]* decide id=water#[^\n]*chance=[^\n]*roll=[^\n]*accepted=false'],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT,
-                forms={'turned_land_hat': dict(expect=[
-                    r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
-                    r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=1', *_WATER_ESCAPE])}))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
      '亲油坐在自己的帽里，帽里有木棍，岸边的赤油被推下水（只有它落水）。亲油对这次落水决定一次救不救；接受后划近，用嘴或辫梢把赤油提出水面放进帽腔。食物不占空间，不再先丢粮；够不到或能力不足仍有真实失败',
@@ -1998,8 +1993,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
                                          r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b'],
                       forbid=_BOAT_SMOKE_FORBID + _WATER_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b'],
-                      verify=water_aftermath, readout=_WATER_SMOKE_READOUT, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
-                          r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
+                      verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 boat_birth('birth_boat_missed', '帽船分娩·自然漏接观察', '漏接观察',
            '双亲各自在空帽船上，观察分娩是否自然漏接；若新生儿落水，则亲油各自决定一次救不救，没救起会溺亡。此场不再用满粮挤掉新生儿；真正的乘员容量边界待第六工作包重建，当前不保证漏接',
            0, '日志：birth landed … outcome=HAT|WATER；落水时 [incident] open → decide → [intent] start id=rescue → '

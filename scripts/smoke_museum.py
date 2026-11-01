@@ -170,8 +170,6 @@ def run_scene(st, scene, builder):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
-    parser.add_argument('--hat-form', choices=('turned_land_hat', 'cone_basin'), default='cone_basin',
-                        help='Pond hat-form switch (cone_basin: museum default; turned_land_hat: comparison)')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
@@ -188,11 +186,9 @@ def main():
     if unknown:
         parser.error('No smoke expectations for: ' + ', '.join(sorted(unknown)))
     selected = [scenes[sid] for sid in (args.scenes or scenes)]
-    for scene in selected:
-        scene.smoke = scene.smoke | scene.smoke.get('forms', {}).get(args.hat_form, {})
     run_id = secrets.token_hex(6)
     name = f'instance-{run_id}'
-    print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; hat_form={args.hat_form}; scenes={", ".join(s.id for s in selected)}', flush=True)
+    print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; scenes={", ".join(s.id for s in selected)}', flush=True)
     datapack = build_pack(builder, instances / f'pack-{run_id}')
     server.require_closed()
     mod = (runtime / 'mod' if args.worktree is None else
@@ -200,7 +196,6 @@ def main():
     st = server.start(runtime, java, datapack, name, mod, instances)
     try:
         server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
-        wait_command(st, f'function mcylab:hat_form/{args.hat_form}', f'MCYMUSEUM_HAT_FORM {args.hat_form}')
         results = [run_scene(st, scene, builder) for scene in selected]
         return 0 if all(results) else 1
     finally:

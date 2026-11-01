@@ -16,7 +16,7 @@
 - 试玩场：根目录 `启动动作博物馆.cmd`（`-Fresh` 全新世界、`-Resume` 保留世界、`-Menu` 主菜单）。场景、读数和按钮源在 `scripts/museum_*.py`。清场与场景边界见[功能说明](docs/FEATURES.md#试玩场与动作博物馆)。
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留，副本放 `.local/reports/<主题>/`。`/yukkuri status trace true` 开启细密采样。
 - SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
-- 场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`smoke_museum.py --hat-form turned_land_hat|cone_basin` 切换池塘帽形；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录；清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
+- 场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录；清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
 
 ## 协作与范围
 

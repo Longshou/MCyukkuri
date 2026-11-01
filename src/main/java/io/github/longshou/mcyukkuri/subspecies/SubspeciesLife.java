@@ -23,12 +23,12 @@ import net.minecraft.world.phys.Vec3;
 public final class SubspeciesLife {
     /** AQUATIC_MARISA looks like an ordinary Marisa and sails her hat as a boat (wiki aquatic_marisa; Hakkei U sprite 7899 水上まりさ用).
      *  Kotatsu Marisa, long- and round-tailed Chen and red-eyed Myon are the rare forms of komicolle 40720 No.11518905.
-     *  The round aquatic hat is a project test form. Ordinals are saved and synced in four bits: append only. */
+     *  Slot 8 is retired; it cannot be assigned to an individual. Ordinals are saved and synced in four bits: append only. */
     public enum Kind {
         NORMAL(null), SHELL_MARISA(YukkuriVariant.MARISA), WASA_REIMU(YukkuriVariant.REIMU),
-        AQUATIC_MARISA(YukkuriVariant.MARISA, HullProfile.CURRENT, "accessory_marisa", "marisa_aquatic_hat", false),
+        AQUATIC_MARISA(YukkuriVariant.MARISA, HullProfile.BASIN, "aquatic_basin_hat", "marisa_aquatic_hat", true),
         KOTATSU_MARISA(YukkuriVariant.MARISA), LONGTAIL_CHEN(YukkuriVariant.CHEN), ROUNDTAIL_CHEN(YukkuriVariant.CHEN), REDEYE_MYON(YukkuriVariant.MYON),
-        AQUATIC_MARISA_ROUND(YukkuriVariant.MARISA, HullProfile.BASIN, "aquatic_basin_hat", "aquatic_basin_hat", true);
+        RETIRED_8(null);
         private final YukkuriVariant variant;
         private final String hullForm, wornHat, hatItem;
         private final boolean propHat;
@@ -44,7 +44,7 @@ public final class SubspeciesLife {
         public String hatProp() { return propHat ? wornHat : null; }
         public String hatItem() { return hatItem; }
         /** Whether this kind can belong to an individual of that species. */
-        public boolean fits(YukkuriVariant species) { return variant == null || variant == species; }
+        public boolean fits(YukkuriVariant species) { return this != RETIRED_8 && (variant == null || variant == species); }
     }
     public enum Congenital { NORMAL, SPARSE_HAIR, FACE_ASYMMETRY, BEAN_BODY }
     private final YukkuriEntity entity;

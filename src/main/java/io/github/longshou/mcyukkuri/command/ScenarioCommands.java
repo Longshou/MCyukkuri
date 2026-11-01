@@ -50,9 +50,9 @@ public final class ScenarioCommands {
         return 0;
     }
 
-    private static int spawn(CommandContext<CommandSourceStack> c,String form) throws CommandSyntaxException {
+    private static int spawn(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var at=BlockPosArgument.getLoadedBlockPos(c,"at");
-        String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"),form);
+        String reason=ScenarioSetup.spawn(c.getSource().getLevel(),at,IntegerArgumentType.getInteger(c,"count"));
         if(reason!=null){
             tell(c.getSource().getLevel(),Vec3.atCenterOf(at),"[试玩场] 自然生成没有成功："+reason,ChatFormatting.RED);
             return 0;
@@ -213,10 +213,7 @@ public final class ScenarioCommands {
                                                         .then(Commands.literal("stick").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
                                                                 IntegerArgumentType.getInteger(c, "food"), false, true)))))))))
                 .then(Commands.literal("spawn").then(Commands.argument("at", BlockPosArgument.blockPos())
-                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 8)).executes(c -> spawn(c,HullProfile.CURRENT))
-                                .then(Commands.argument("form",StringArgumentType.word())
-                                        .suggests((c,b)->SharedSuggestionProvider.suggest(List.of(HullProfile.CURRENT,HullProfile.BASIN),b))
-                                        .executes(c->spawn(c,StringArgumentType.getString(c,"form")))))))
+                        .then(Commands.argument("count", IntegerArgumentType.integer(1, 8)).executes(ScenarioCommands::spawn))))
                 .then(Commands.literal("independence").then(Commands.argument("parent", EntityArgument.entity())
                         .then(Commands.argument("teen", EntityArgument.entity())
                                 .then(Commands.argument("home", BlockPosArgument.blockPos()).executes(c -> {
