@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 美术素材目录 | `.worktrees/art-catalog` | `art/catalog.json`、`art/CATALOG.md`、`scripts/build_art_catalog.py` |
 | 水生帽船重做（WP2 储粮计数与帽底贴图） | `.worktrees/aq-wp2-food` | HullLarder/渲染、Provision/Care 取粮、Rescue 腾位、`cargo`/`rescue_infant_full` 场景 |
 | 水生帽船睡莲叶帽型与粮食贴图（美术） | `.worktrees/aq-lilypad-art` | aquatic-marisa-hat 制作源与导出、粮食分档贴图、hull gate 工具 |
 
