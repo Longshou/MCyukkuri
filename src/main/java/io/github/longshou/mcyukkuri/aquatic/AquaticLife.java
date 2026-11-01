@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,23 +118,10 @@ public final class AquaticLife {
 
     static boolean rain(YukkuriEntity y) { return y.level().isRainingAt(y.blockPosition().above()) || y.level().isThundering(); }
 
-    /** The supported spot (hat units) inside the hollow nearest its middle where this body has room, or null. */
-    static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body) { return spot(hat, body, true, Vec3.ZERO); }
-
-    /** The nearest supported spot with room, inside the hollow or on the brim. */
+    /** Unreserved seat destination; retained for the rescue caller until WP5 adopts SeatTarget. */
     static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) {
-        var grid = hat.walkGrid(body, true);
-        Vec3 best = null;
-        for (int j = 0; j < grid.nz(); j++) for (int i = 0; i < grid.nx(); i++) {
-            var local = new Vec3(grid.centreX(i), 0, grid.centreZ(j));
-            var height = grid.supported(i, j) ? hat.support(local, body) : null;
-            if (height == null || height.isEmpty()) continue;
-            var spot = new Vec3(local.x, height.getAsDouble(), local.z);
-            if (inside && Occupancy.at(hat.container(), hat.frame().toWorld(spot), body.getBbWidth(), true) != Occupancy.INSIDE_SUPPORTED
-                    || !hat.room(body, spot)) continue;
-            if (best == null || Math.hypot(spot.x - near.x, spot.z - near.z) < Math.hypot(best.x - near.x, best.z - near.z)) best = spot;
-        }
-        return best;
+        var seat = hat.seatDestination(body);
+        return seat == null ? null : seat.local();
     }
 
     /** The hat this body rides while it floats upright (its own, or its parent's), or null. */
@@ -183,19 +169,19 @@ public final class AquaticLife {
             var parent = parent(body);
             var hat = parent == null ? null : hat(parent);
             if (!afloat(hat)) return "no_parent_hat";
-            var spot = freeSpot(hat, body);
-            return spot == null ? "no_room_aboard" : board(body, hat, spot, cause, false);
+            var seat = hat.seatDestination(body);
+            return seat == null ? "no_seat" : board(body, hat, seat.local(), cause, false);
         }
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
         var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().findFirst().orElse(null);
         if (water == null) return "no_water";
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";
-        var middle = hat.support(Vec3.ZERO, body);
-        return middle.isEmpty() ? "no_floor" : board(body, hat, new Vec3(0, middle.getAsDouble(), 0), cause, true);
+        return board(body, hat, hat.seatDestination(body).local(), cause, true);
     }
 
     private static String board(YukkuriEntity body, PlacedHatEntity hat, Vec3 spot, String cause, boolean own) {
+        Motor.relocate(body, hat.frame().toWorld(spot), hat.getYRot(), "spawn_initial_seat");
         if (!Motor.mount(body, hat, "spawn")) {
             if (own) { body.life().returnAccessory(body.getUUID(), hat.launchToken(), null); hat.state(PlacedHatEntity.State.RESCUED); }
             return "mount_refused";

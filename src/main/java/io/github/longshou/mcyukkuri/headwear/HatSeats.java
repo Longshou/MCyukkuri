@@ -19,10 +19,12 @@ public final class HatSeats {
 
     /** Existing riders retain their coordinates; only an arriving body gets a target. Null means no seat. */
     public static Vec admit(double scale, Body body, boolean captain, List<Occupant> riders) {
-        if (captain) return riders.stream().anyMatch(Occupant::captain) ? null : scaled(CAPTAIN, scale);
-        double size = body.size() / scale;
+        if (captain) {
+            var at = scaled(CAPTAIN, scale);
+            return riders.stream().anyMatch(Occupant::captain) || !clear(body, at, riders) ? null : at;
+        }
         var young = riders.stream().filter(r -> !r.captain()).toList();
-        if (body.size() <= INFANT * scale && young.stream().allMatch(r -> r.body().size() <= INFANT * scale)) {
+        if ((float) body.size() <= (float) (INFANT * scale) && young.stream().allMatch(r -> (float) r.body().size() <= (float) (INFANT * scale))) {
             for (var point : INFANTS) {
                 var at = scaled(point, scale);
                 if (young.stream().noneMatch(r -> distance(r.at(), at) < scale * INFANT)
@@ -30,20 +32,17 @@ public final class HatSeats {
             }
             return null;
         }
-        if (!young.isEmpty() || body.size() > YOUNG * scale) return null;
-        var heights = HullBounds.DATA.field("brim_ring.underside_y").getAsJsonArray();
-        var low = heights.get(0).getAsJsonArray(); var high = heights.get(1).getAsJsonArray();
-        double t = (size - low.get(0).getAsDouble()) / (high.get(0).getAsDouble() - low.get(0).getAsDouble());
-        double y = low.get(1).getAsDouble() + t * (high.get(1).getAsDouble() - low.get(1).getAsDouble());
-        var at = scaled(new Vec(HullBounds.DATA.number("brim_ring.radius"), y, 0), scale);
+        if (!young.isEmpty() || (float) body.size() > (float) (YOUNG * scale)) return null;
+        var point = HullBounds.DATA.field("seating.young").getAsJsonArray();
+        var at = scaled(new Vec(point.get(0).getAsDouble(), point.get(1).getAsDouble(), point.get(2).getAsDouble()), scale);
         return clear(body, at, riders) ? at : null;
     }
 
     /** Growth changes eligibility, never the saved local coordinates. */
     public static boolean fits(double scale, Occupant rider, List<Occupant> others) {
         if (rider.captain()) return true;
-        double limit = Math.hypot(rider.at().x(), rider.at().z()) / scale < HullBounds.MOUTH ? INFANT : YOUNG;
-        return rider.body().size() <= limit * scale && clear(rider.body(), rider.at(), others);
+        double limit = INFANTS.stream().anyMatch(p -> distance(scaled(p, scale), rider.at()) < scale * INFANT / 2) ? INFANT : YOUNG;
+        return (float) rider.body().size() <= (float) (limit * scale) && clear(rider.body(), rider.at(), others);
     }
 
     private static boolean clear(Body body, Vec at, List<Occupant> riders) {

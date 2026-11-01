@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
@@ -327,7 +328,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         larder.load(hat, tag.getCompound("Stores"));
     }
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
-        return phase == Phase.UPRIGHT && hat.support(hat.frame().toLocal(rider.position()), rider).isPresent();
+        return phase == Phase.UPRIGHT && (hat.hasPassenger(rider)
+                || Occupancy.at(hat.container(), rider.position(), rider.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED);
     }
     @Override public String detail(PlacedHatEntity hat) {
         return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s",

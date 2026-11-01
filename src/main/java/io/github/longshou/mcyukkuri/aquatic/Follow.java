@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -48,6 +49,9 @@ final class Follow implements Intent {
 
     private List<Supplier<Step>> derive() {
         if (hat.isRemoved()) return null;
+        if (kind == Kind.ASHORE && !hat.seatFits(young))
+            GameplayLog.limited(young, "hat", "seat_outgrown", 200,
+                    "leaving reason=seat_outgrown size={} hull={}", young.growthScale() * young.getScale(), hat.hullScale());
         return switch (kind) {
             case BOARD -> Ferry.hopAboard(young, hat, null);
             case ASHORE -> List.of(Ferry.hopAshore(young));

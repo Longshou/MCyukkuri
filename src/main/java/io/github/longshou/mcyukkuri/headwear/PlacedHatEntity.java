@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -25,6 +27,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
+import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
@@ -66,7 +69,7 @@ import net.minecraft.util.Mth;
 
 /** One real hat (her own hat turned upside down, its soft crown pressed down: HatGeometry) set down by its Marisa owner: on
  *  the ground to catch her young, or on water where it floats ({@link PlacedHatBehavior}). Every body aboard keeps its own
- *  supported spot in the {@link Riders} table; there are no seats and no leases. A cradle taken back leaves the world. */
+ *  supported place in the {@link Riders} table; admission creates no reservations. A cradle taken back leaves the world. */
 public final class PlacedHatEntity extends Entity implements PlacedHatView, SurfaceHost {
     /** CRADLE: a Marisa's hat turned over on dry ground, its soft crown pressed flat under it, to catch young.
      *  RESCUED: taken back onto its owner's head. Ordinals are synced: append only. */
@@ -210,13 +213,52 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         double y=upsideDown()?Double.NaN:profile().footprint(local.x,local.z,r/unit());
         return Double.isFinite(y)?OptionalDouble.of(y):OptionalDouble.empty();
     }
-    @Override public OptionalDouble support(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
+    @Override public OptionalDouble support(Vec3 local, YukkuriEntity body) {
+        if (!fixedSeats()) return support(local, shape(body));
+        var seat = seatDestination(body);
+        return seat != null && local.subtract(seat.local()).horizontalDistance() * unit() < .05
+                ? OptionalDouble.of(seat.local().y) : OptionalDouble.empty();
+    }
+
+    @Override public boolean fixedSeats() { return profile().seated(); }
+    private HatSeats.Body seatBody(YukkuriEntity body) {
+        return new HatSeats.Body(body.assetId(), body.growthScale() * body.getScale(), body.getBbWidth(), body.getBbHeight());
+    }
+    private List<HatSeats.Occupant> seatedExcept(YukkuriEntity except) {
+        return getPassengers().stream().filter(p -> p != except).map(p -> (YukkuriEntity) p)
+                .map(y -> occupant(y)).toList();
+    }
+    private HatSeats.Occupant occupant(YukkuriEntity body) {
+        var at = riders.local(body.getUUID()).scale(unit());
+        return new HatSeats.Occupant(seatBody(body), new Vec(at.x, at.y, at.z), body.getUUID().equals(ownerYukkuri()));
+    }
+    /** Current seat or an unreserved destination admitted against the real passengers and their saved coordinates. */
+    @Override public SeatTarget seatDestination(YukkuriEntity body) {
+        if (riders.contains(body.getUUID())) return new SeatTarget(this, riders.local(body.getUUID()));
+        var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, seatBody(body),
+                body.getUUID().equals(ownerYukkuri()), seatedExcept(body));
+        if (at == null) {
+            GameplayLog.limited(this, "hat", "no_seat", 100, "boarding refused reason=no_seat body={} size={} hull={} riders={}",
+                    body.getUUID(), seatBody(body).size(), hullScale(), seatedExcept(body));
+            return null;
+        }
+        return new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));
+    }
+    /** Receiver planning for an unborn body; no entity, rider or slot is created here. */
+    public SeatTarget seatDestination(HatSeats.Body body) {
+        var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, body, false, seatedExcept(null));
+        return at == null ? null : new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));
+    }
+    public boolean seatFits(YukkuriEntity body) {
+        return HatSeats.fits(hullScale() / (float) HullBounds.SCALE, occupant(body), seatedExcept(body));
+    }
     private OptionalDouble support(Vec3 local, BodyFootprint body) {
         if (upsideDown()) return OptionalDouble.empty();
         double height = profile().support(local.x, local.z, body);
         return Double.isFinite(height) ? OptionalDouble.of(height) : OptionalDouble.empty();
     }
     @Override public boolean room(YukkuriEntity body, Vec3 local, double top) {
+        if (fixedSeats()) return support(local, body).isPresent();
         var shape = shape(body);
         return clear(shape, local, body, Math.max(0, top-local.y-tallOf(body)));
     }
@@ -254,6 +296,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Spec 6's walk grid, centred on the hat over its brim's reach; the floor-only grid is kept per foot radius until the floor
      *  it was sampled from changed (size, turned over, tilt step). */
     @Override public HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders) {
+        if (fixedSeats()) throw new IllegalStateException("Fixed seats have no walk grid");
         double foot = Occupancy.foot(walker.getBbWidth()), tall = tallOf(walker);
         float roll = Math.round(roll() / GRID_TILT) * GRID_TILT, pitch = Math.round(pitch() / GRID_TILT) * GRID_TILT;
         if (aroundRiders) return sampleGrid(foot, roll, pitch, walker, true);
@@ -314,7 +357,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public Riders riders() { return riders; }
     @Override public boolean steady() { return state() != State.RESCUED && behavior().steady(this); }
     /** A rider the hull keeps dry (the behaviour decides: afloat, upright, its brim above the water). */
-    @Override public boolean shelters(YukkuriEntity body) { return hasPassenger(body) && !upsideDown() && behavior().shelters(this, body); }
+    @Override public boolean shelters(YukkuriEntity body) { return !upsideDown() && behavior().shelters(this, body); }
     @Override public boolean capsized() { return upsideDown(); }
     @Override public boolean right(YukkuriEntity by, double progress, String cause) { return behavior().right(this, by, progress, cause); }
     @Override public void stopRight(YukkuriEntity by) { behavior().stopRight(this, by); }
@@ -392,7 +435,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** Supported receiver candidates, centre first then concentric rings; occupancy is checked by qualification. */
     public List<Vec3> hollowPlaces(FamilyData.BirthKind kind, FamilyData.Child child) {
-        var size=LiveBirthGeometry.unbornDimensions(kind,child);double foot=Occupancy.foot(size.width())/unit();
+        var size=LiveBirthGeometry.unbornDimensions(kind,child);
+        if (fixedSeats()) {
+            var seat = seatDestination(new HatSeats.Body(SubspeciesLife.assetId(child.variant, child.subspeciesFlags),
+                    GrowthSize.physicalBirth(kind, child), size.width(), size.height()));
+            return seat == null ? List.of() : List.of(seat.world());
+        }
+        double foot=Occupancy.foot(size.width())/unit();
         var body=BodyFootprint.of(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),size.width()/unit(),size.height()/unit(),0);
         var centre=spots().get("centre");var out=new ArrayList<Vec3>();
         for(double ring=0;ring<=Math.hypot(profile().brim()[0],profile().brim()[1]);ring+=foot){
@@ -436,7 +485,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         // A spot already in the table is a rider read back from the save, not one that just boarded.
         boolean boarded = !riders.contains(y.getUUID());
         if (boarded)
-            riders.put(y.getUUID(), snapped(frame().toLocal(y.position()), y), Mth.wrapDegrees(y.getYRot() - getYRot()));
+            riders.put(y.getUUID(), fixedSeats() ? seatDestination(y).local() : snapped(frame().toLocal(y.position()), y), Mth.wrapDegrees(y.getYRot() - getYRot()));
         checkRiders(y);
         if (boarded) GameplayLog.event(this, "hat", "boarded rider={} own={} riders={} owner={}", y.getUUID(), y.getUUID().equals(ownerYukkuri()),
                 getPassengers().size(), ownerYukkuri());
@@ -469,15 +518,17 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      *  while it lies crown up), none squeezed off it a moment ago. Where it stands and whether that spot is free is the
      *  contact's, the climb's or the squeeze's. */
     @Override public boolean bears(YukkuriEntity y) {
-        if (state() == State.RESCUED || y == null || cooling(y) || !profile().seated() && isInWaterOrBubble()) return false;
-        return y.getUUID().equals(ownerYukkuri()) ? !catches() && !upsideDown() : admits(y);
+        if (state() == State.RESCUED || y == null || upsideDown()) return false;
+        if (fixedSeats()) return (y.getUUID().equals(ownerYukkuri()) || admits(y)) && seatDestination(y) != null;
+        if (cooling(y) || isInWaterOrBubble()) return false;
+        return y.getUUID().equals(ownerYukkuri()) ? !catches() : admits(y);
     }
     @Override public LivingEntity getControllingPassenger() {
         for (var p : getPassengers()) if (p instanceof YukkuriEntity y && y.getUUID().equals(ownerYukkuri())) return y;
         return null;
     }
     @Override protected void positionRider(Entity passenger, MoveFunction move) {
-        // The riders table is the only place. No seat, no walk, no curve; a missing spot does not move the body.
+        // Server and client use the same saved/synced rider coordinates.
         if (!hasPassenger(passenger)) return;
         var place = riderPlace(passenger);
         if (place == null) return;
@@ -667,7 +718,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         ranId = provider == null ? "ground" : provider.id();
         now.tick(this);
         for (var p : getPassengers()) if (p instanceof YukkuriEntity rider) { rider.getNavigation().stop(); rider.fallDistance = 0; }
-        squeeze();
+        if (!fixedSeats()) squeeze();
     }
     /** Ticks a rider must have been pressed on, already at the rim, before the press pushes it off; ticks before contact may
      *  seat a body squeezed off here again; the least speed (blocks a tick) it leaves with, so it clears the brim's edge; how
@@ -675,7 +726,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final int SQUEEZE_OFF_TICKS = 20, RESEAT_TICKS = 40;
     private static final double CLEAR_SPEED = .1, PRESSED = .1;
     /**
-     * Q6: riders whose footprints overlap at a shared height (one landed among the others, they grew; a newborn low in the hollow
+     * Land cradle riders whose footprints overlap at a shared height (one landed among the others, they grew; a newborn low in the hollow
      * under the owner standing over it does not) ease apart in the hat's own plane through
      * {@link Squeeze}: a quarter of the overlap a tick at most, the lighter one, and on a tilted floor the lower one, yielding
      * more (the owner too); each moves at most its walk pace, its height the floor under it.

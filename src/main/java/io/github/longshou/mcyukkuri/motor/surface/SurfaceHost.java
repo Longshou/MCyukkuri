@@ -50,6 +50,10 @@ public interface SurfaceHost {
     /** UUID to local spot and yaw; the persisted and synchronized rider table. */
     Riders riders();
 
+    /** Fixed riders board a destination; they do not walk or get repacked on the host. */
+    default boolean fixedSeats() { return false; }
+    default SeatTarget seatDestination(YukkuriEntity body) { return null; }
+
     /** False while the host shakes; no jump landing may be planned onto it then. */
     boolean steady();
 

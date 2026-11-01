@@ -152,6 +152,8 @@ def bounds(hull=None):
     return dict(captain_seat=dict(growth=1., x=round(ox/16, 4), y=round((oy+osh.bottom)/16, 4), z=round(oz/16, 4)),
                 brim_ring=dict(radius=round(brim_ring()/16, 4), underside_y=ring),
                 seating=dict(infant_max_growth=BABY, young_max_growth=round(largest_young(hull, cap), 2),
+                             young=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
+                                    for sh, x, z, y in seat_young(hull, [round(largest_young(hull, cap), 2)], cap)][0],
                              infants=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
                                       for sh, x, z, y in seat_young(hull, [BABY, BABY], cap)]))
 

@@ -107,6 +107,7 @@ public final class Walk implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         from = body.position();
         if (host != null) {
+            if (host.fixedSeats()) return Feasibility.of(Reason.NO_SUPPORT, 0, "fixed_seat_requires_transfer");
             if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host)
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
             if (host.support(local, body).isEmpty())

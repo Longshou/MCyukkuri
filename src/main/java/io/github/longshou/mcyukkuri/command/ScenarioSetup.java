@@ -27,12 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.geom.Disc;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.tags.FluidTags;
 
@@ -243,28 +240,15 @@ final class ScenarioSetup {
         var hat = PlacedHatEntity.setDown(owner, Vec3.atBottomCenterOf(water), owner.getYRot(), HatGeometry.Role.HELPER);
         if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
-        var riders = new ArrayList<YukkuriEntity>(young);
-        var spots = new ArrayList<Vec3>();
+        for (var child : young) kin(owner, child, false);
+        var riders = new ArrayList<YukkuriEntity>();
+        if (aboard) riders.add(owner);
+        riders.addAll(young);
         for (var body : riders) {
-            double foot = Occupancy.foot(body.getBbWidth()) / hat.unit();
-            var spot = freeSpot(hat, body, foot, middle ? 0 : hat.profile().opening()[3] * .75, spots, riders);
-            if (spot == null) return takeBack(owner, hat, body.getName().getString() + " 在帽子上没有放得下的位置，帽子已收回。");
-            spots.add(spot);
-        }
-        if (aboard) {
-            var middleHeight = hat.support(Vec3.ZERO, owner);
-            if (middleHeight.isEmpty()) return takeBack(owner, hat, "帽子中央没有支撑，帽子已收回。");
-            riders.add(owner);
-            spots.add(new Vec3(0, middleHeight.getAsDouble(), 0));
-        }
-        for (int i = 0; i < riders.size(); i++) {
-            var body = riders.get(i);
-            if (!Motor.mount(body, hat, "scenario_afloat")) {
-                for (var aboardNow : List.copyOf(hat.getPassengers()))
-                    if (aboardNow instanceof YukkuriEntity y) Motor.dismount(y, y.position(), Vec3.ZERO, "scenario_undo");
-                return takeBack(owner, hat, body.getName().getString() + " 没能坐上帽子，帽子已收回。");
-            }
-            hat.riders().put(body.getUUID(), spots.get(i), 0);
+            var seat = hat.seatDestination(body);
+            if (seat == null) return body.getName().getString() + " 没有合适座位（no_seat），已入座者保留原位。";
+            Motor.relocate(body, seat.world(), hat.getYRot(), "scenario_initial_seat");
+            if (!Motor.mount(body, hat, "scenario_afloat")) return body.getName().getString() + " 没能坐上帽子。";
         }
         if (food != 0) {
             food = hat.behavior().stock(hat, new ItemStack(Items.APPLE), food);
@@ -274,7 +258,6 @@ final class ScenarioSetup {
                 return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] stores refused），帽子已收回。");
             }
         }
-        for (var child : young) kin(owner, child, false);
         GameplayLog.event(owner, "hat", "scenario afloat prepared hat={} water={} owner_aboard={} young={} young_at={} food={} owner_local_hat_units={}",
                 hat.getUUID(), water.toShortString(), aboard, young.size(), middle ? "middle" : "front", food,
                 aboard ? GameplayLog.at(hat.riders().local(owner.getUUID())) : "ashore");
@@ -305,27 +288,6 @@ final class ScenarioSetup {
         owner.life().returnAccessory(owner.getUUID(), hat.launchToken(), null);
         hat.state(PlacedHatEntity.State.RESCUED);
         return reason;
-    }
-
-    /** The supported spot (hat units, surface height) nearest {@code z} along the hat's axis whose foot circle of radius
-     *  {@code foot} (hat units) overlaps no rider's selected spot; null when there is none. */
-    private static Vec3 freeSpot(PlacedHatEntity hat, YukkuriEntity body, double foot, double z, List<Vec3> spots, List<YukkuriEntity> riders) {
-        float[] brim = hat.profile().brim();
-        Vec3 best = null;
-        double bestDistance = Double.MAX_VALUE;
-        for (double x = -brim[0]; x <= brim[0]; x += .5)
-            for (double lz = -brim[1]; lz <= brim[1]; lz += .5) {
-                double distance = Math.hypot(x, lz - z);
-                if (distance >= bestDistance) continue;
-                var disc = new Disc(x, lz, foot);
-                if (IntStream.range(0, spots.size()).anyMatch(i -> disc.overlaps(new Disc(spots.get(i).x, spots.get(i).z,
-                        Occupancy.foot(riders.get(i).getBbWidth()) / hat.unit()), .02))) continue;
-                var height = hat.support(new Vec3(x, 0, lz), body);
-                if (height.isEmpty()) continue;
-                best = new Vec3(x, height.getAsDouble(), lz);
-                bestDistance = distance;
-            }
-        return best;
     }
 
     private ScenarioSetup() {}

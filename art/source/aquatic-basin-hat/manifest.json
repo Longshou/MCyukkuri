@@ -6,7 +6,7 @@
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/food_layer.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "36d100fa88103d82ac2ca4420895483cf0f6243b83b3c8fb1949f6bf6bb3da36",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "90f85467dedc93778b05efaf8d066eab9e2d3f1f76fabb0fd7e98da042cdd0b5",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "a356d42ca55e3f96f43a6bfaa0dbcb8bdb1196078c78c88ade20606757693a7e",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "123b8bd12469b30bf9070fc21fc71b7a9de1fd04ae9da5b17d6e1ea81a3f93e8",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "5f795a45561672a4565bab7ad6543828ce804c06893b45b7f0fa599f96e753e7",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "81a45ac7030cf87bfa5ed5420c8594e29ff39d626d112d580424577021a14b91",
@@ -17,7 +17,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat.json": "62ead988639dffe81ef4fa20cc529bc4b23bff4c015f3bf0f0387efa065b03fa",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat_turned.json": "2da81c1d28eaf2cc8ceef944a76809093f7f7812627234edc3838cf87ab2c707",
     "src/main/resources/assets/mcyukkuri/textures/props/aquatic_basin_hat_stores.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "2c375999b20e08cab43b4ecc76930624f552a82c637a77b2aa2357290bea81b6",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "832604729b525b0ff0f85a6310b08f3aafee01bd0bf8f318ba1c8e7b999d8d70",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "ff9c80a527071b9f5e7d57ca1629d4948e5b0e6ef63384947dc23648d0f4101b",
     "art/source/aquatic-basin-hat/recipe.json": "a90ded5640b9cda38a375d9fb52f05b1858eace35bce87d61198abd6612d0fdf",
     "art/source/aquatic-basin-hat/aquatic_basin_hat_stores.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b"

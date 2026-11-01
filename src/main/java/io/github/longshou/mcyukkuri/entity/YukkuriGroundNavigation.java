@@ -311,6 +311,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** A hat or body a walker can meet: on the ground (not carried, not aboard), not what it rides, within a block of height {@code y} (NaN: any). */
     private static boolean meets(YukkuriEntity walker, Entity e, double y) {
+        if (e instanceof PlacedHatEntity hat && hat.rim().stream().allMatch(p -> p.y <= y)) return false;
         return (e instanceof PlacedHatEntity || e instanceof YukkuriEntity) && e != walker && e.isAlive() && !e.isPassenger()
                 && walker.getVehicle() != e && !(Math.abs(e.getY() - y) >= 1);
     }

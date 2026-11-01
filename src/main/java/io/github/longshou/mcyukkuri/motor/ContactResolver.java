@@ -115,6 +115,12 @@ public final class ContactResolver {
         SurfaceHost host = hit.host();
         HostFrame frame = host.frame();
         Vec3 spot = hit.spot();
+        if (host.fixedSeats()) {
+            var seat = host.seatDestination(body);
+            if (seat == null || seat.local().distanceTo(spot) * frame.unit() > TOUCH) return new Contact(host, spot, true);
+            Motor.move(body, seat.world().subtract(body.position()), "seat_contact");
+            return new Contact(host, seat.local(), !seat.land(body, "seat_contact"));
+        }
         double top = frame.toLocal(feet).y + body.getBbHeight() / Math.max(1E-6, frame.unit());
         boolean free = host.room(body, spot, top);
         Vec3 aside = free ? null : deflect(body, host, spot, top);

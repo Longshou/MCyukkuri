@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -86,9 +87,11 @@ final class AquaticGoal extends Goal {
 
     /** An aquatic body, or the young of a parent whose hat is out; awake, not in the water (the escape owns it), not carried. */
     private boolean eligible() {
-        return body.isAlive() && !body.level().isClientSide && !body.isInWaterOrBubble() && !body.life().isSleeping()
+        return body.isAlive() && !body.level().isClientSide && (!body.isInWaterOrBubble() || landing()) && !body.life().isSleeping()
                 && !(body.getVehicle() instanceof YukkuriEntity) && (body.profile().aquatic() || AquaticLife.parent(body) != null);
     }
+
+    private boolean landing() { return body.motor().current() instanceof Hop hop && !hop.interruptible(); }
 
     @Override public boolean canUse() { return eligible() && drive().wants(); }
     @Override public boolean canContinueToUse() { return eligible() && (drive().running() || drive().wants()); }
@@ -98,6 +101,7 @@ final class AquaticGoal extends Goal {
     @Override public void stop() { drive().stop("aquatic_goal_stop"); }
 
     @Override public boolean isInterruptable() {
+        if (landing()) return false;
         var runner = drive == null ? null : drive.runner();
         if (runner == null || BehaviorContinuity.emergency(body) || body.family().birthRole() != null) return true;
         return !(body.getVehicle() instanceof PlacedHatEntity) && runner.intent().commitment() == Commitment.NONE;
@@ -188,7 +192,9 @@ final class AquaticGoal extends Goal {
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
         double pull = Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0),
                 Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)));
-        var world = List.of(at, stick, young.size());
+        boolean outgrown = young.stream().anyMatch(y -> AquaticLife.aboard(y, hat) && !hat.seatFits(y));
+        if (outgrown) pull = Math.max(pull, num("young_ashore_need", 60));
+        var world = List.of(at, stick, young.size(), outgrown);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f young_ashore=%d dusk=%b rain=%b",
                 hunger, food, stick, toHave, weather, breed, ashore, dusk, rain);
         out.add(Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body)));
@@ -298,7 +304,7 @@ final class AquaticGoal extends Goal {
                 && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut))
             out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
-                || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
+                || running != null && running.intent() instanceof Ashore || !hat.seatFits(body)) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }
 

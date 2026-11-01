@@ -15,14 +15,11 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
-import io.github.longshou.mcyukkuri.motor.action.Walk;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * A parent's care aboard (照料; docs/FEATURES.md 子代生命周期与离家的新生受喂, 帽船采用自身的移动、口部接触条件相同): on her
@@ -143,14 +140,9 @@ final class Care implements Intent {
         return parent.position().subtract(child.position()).horizontalDistance() <= FamilyFeedingContact.mouthDistance(parent, child) + .1;
     }
 
-    /** Walk to stand mouth to mouth with the young (the nearest of eight stands round it where her foot has room), face it, and wait. */
+    /** Turn from the seat and wait for the shared contact test. */
     private List<Supplier<Step>> mouthToMouth(PlacedHatEntity hat, String clip, int ticks, BooleanSupplier until) {
-        return List.of(() -> {
-                    var stand = stand(hat);
-                    var here = hat.frame().toLocal(parent.position());
-                    return stand == null || stand.subtract(here).horizontalDistance() < .1 ? null : new Step.Do(new Walk(hat, stand));
-                },
-                () -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
+        return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
                 () -> new Step.Wait(until, ticks, clip));
     }
 
@@ -185,21 +177,5 @@ final class Care implements Intent {
         }
     }
 
-    /** The supported spot with room for her (hat units) at the feeding's standing distance from the young, nearest where she is. */
-    private Vec3 stand(PlacedHatEntity hat) {
-        var frame = hat.frame();
-        var at = frame.toLocal(child.position());
-        var here = frame.toLocal(parent.position());
-        double d = FamilyFeedingContact.standingDistance(parent, child) / frame.unit();
-        Vec3 best = null;
-        for (int i = 0; i < 8; i++) {
-            double a = i * Math.PI / 4;
-            var foot = new Vec3(at.x + Math.cos(a) * d, 0, at.z + Math.sin(a) * d);
-            var height = hat.support(foot, parent);
-            if (height.isEmpty()) continue;
-            var spot = new Vec3(foot.x, height.getAsDouble(), foot.z);
-            if (hat.room(parent, spot) && (best == null || spot.distanceToSqr(here) < best.distanceToSqr(here))) best = spot;
-        }
-        return best;
-    }
+
 }

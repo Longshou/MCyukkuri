@@ -94,13 +94,15 @@ public final class SurfaceApproach {
     public static boolean supportedGround(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
     }
+    /** Distance from the centre to the sole samples required by walking, including a bank-edge stand. */
+    public static double supportRadius(YukkuriEntity actor) { return actor.getBbWidth() * .42; }
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();
         if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
         if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;
-        double radius = actor.getBbWidth() * .42;
+        double radius = supportRadius(actor);
         for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
             double px = feet.x + x * radius, pz = feet.z + z * radius;
             var foot = new AABB(px-.015, feet.y-.08, pz-.015, px+.015, feet.y+.005, pz+.015);

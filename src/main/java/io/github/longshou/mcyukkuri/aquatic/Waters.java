@@ -3,13 +3,12 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -332,8 +331,7 @@ final class Waters {
         return null;
     }
 
-    /** Where a hat of {@code owner}'s set down at this edge floats: its hull's box just clear of the bank, the brim reaching over
-     *  the edge (the old rule's near brim under the bank), so a hop aboard and a reach from the bank are short. */
+    /** The hull's collision box clears the bank while its brim reaches over the edge. */
     static Vec3 hatAt(Edge edge, YukkuriEntity owner) {
         return edge.onWater(ModEntities.PLACED_HAT.get().getWidth() * HatScale.of(owner) / 2 + .05);
     }
@@ -348,10 +346,7 @@ final class Waters {
     }
 
     static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {
-        var stand = edge.edge().subtract(edge.normal().scale(Occupancy.foot(body.getBbWidth())));
-        var clear = HatGeometry.outside(HatGeometry.poseOf(hat), hat.unit(), body, stand,
-                stand.subtract(hat.position()).horizontalDistance(), Occupancy.foot(body.getBbWidth()));
-        return new Vec3(clear.x, stand.y, clear.z);
+        return edge.edge().subtract(edge.normal().scale(SurfaceApproach.supportRadius(body)));
     }
 
     /** {@code [aquatic] route} once a leg is planned (limited) or refused. */

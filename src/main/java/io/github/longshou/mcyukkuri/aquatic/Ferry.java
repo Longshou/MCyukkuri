@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -13,11 +14,8 @@ import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
-import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions the aquatic intents put a body through to get itself, or a young it carries, on and off a hat
@@ -43,79 +41,24 @@ final class Ferry {
                 () -> act(new Grab(child)));
     }
 
-    /** Aboard: walk on the hat to a free spot just short of the young, face it, take it. */
+    /** The two seats are within the shared pickup's reach; turning does not move either rider. */
     static List<Supplier<Step>> grabAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        return List.of(() -> {
-                    if (new Grab(child).check(carrier).ok()) return null;
-                    var frame = hat.frame();
-                    var mine = frame.toLocal(carrier.position()); var theirs = frame.toLocal(child.position());
-                    var away = mine.subtract(theirs).multiply(1, 0, 1);
-                    double gap = (Occupancy.foot(carrier.getBbWidth()) + Occupancy.foot(child.getBbWidth())) / hat.unit() + .5;
-                    var to = AquaticLife.spot(hat, carrier, false, away.lengthSqr() < 1e-6 ? theirs : theirs.add(away.normalize().scale(gap)));
-                    return to == null || to.subtract(mine).horizontalDistance() < .1 ? null : act(new Walk(hat, to));
-                },
-                () -> act(new Face(SurfaceApproach.yaw(carrier.position(), child.position()))),
+        return List.of(() -> act(new Face(SurfaceApproach.yaw(carrier.position(), child.position()))),
                 () -> act(new Grab(child)));
     }
 
-    /** Onto the hat's hollow by a hop from here, walking first to the bank edge nearest it when no landing is in reach now; its own
-     *  hat floating out of a hop from there is drawn in to the bank first, by the run's {@code beckoning} (null: never). */
+    /** Approach the bank, then land at the host's current admitted seat. */
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
-        if (AquaticLife.aboard(body, hat)) {
-            var step = walkInside(body, hat);
-            return step == null ? null : List.of(() -> step);
-        }
-        // Skipped suppliers share one evaluation; after an action/wait, read the moving hull afresh.
-        Supplier<Vec3> landing = new Supplier<>() {
-            private long tick = Long.MIN_VALUE;
-            private Vec3 at;
-            @Override public Vec3 get() {
-                long now = body.level().getGameTime();
-                if (tick != now) { tick = now; at = landing(body, hat); }
-                return at;
-            }
-        };
-        return List.of(() -> {
-                    if (landing.get() != null) return null;
+        if (AquaticLife.aboard(body, hat)) return null;
+        return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
+                    if (new Hop(hat).check(body).ok()) return null;
                     var edge = Waters.beside(hat, body);
                     var stand = edge == null ? null : Waters.boardingStand(edge, hat, body);
                     return stand == null || SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
                 },
-                () -> landing.get() != null ? null : act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> beckoning == null || landing.get() != null || new Hop(hat.position()).check(body).ok() ? null : beckoning.step(body, hat),
-                () -> new Step.Wait(() -> hat.tickCount > 0 && hat.steady(), 60, "hat_settles"),
-                // No landing even now: the hop at the hat's middle is refused with its real shortfall (TOO_FAR, TOO_HIGH).
-                () -> {
-                    var at = landing.get();
-                    GameplayLog.limited(body, "aquatic", "boarding_hop", 100, "boarding hop hat={} target={} hull={} velocity={} steady={} tilt={}/{}",
-                            hat.getUUID(), GameplayLog.at(at), GameplayLog.at(hat.position()), hat.getDeltaMovement(), hat.steady(), hat.roll(), hat.pitch());
-                    return act(new Hop(at == null ? hat.position() : at));
-                },
-                () -> walkInside(body, hat));
-    }
-
-    private static Step walkInside(YukkuriEntity body, PlacedHatEntity hat) {
-        var spot = AquaticLife.freeSpot(hat, body);
-        if (spot == null) GameplayLog.limited(body, "aquatic", "boarding_no_room", 100,
-                "boarding refused hat={} reason=no_room", hat.getUUID());
-        return spot == null ? null : act(new Walk(hat, spot));
-    }
-
-    /** A short hop may reach only the brim; the same boarding run then walks into the hollow. */
-    private static Vec3 landing(YukkuriEntity body, PlacedHatEntity hat) {
-        var inside = Hop.onto(body, hat);
-        if (inside != null) return inside;
-        var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(body.position()));
-        var at = spot == null ? null : hat.frame().toWorld(spot);
-        if (at == null) return null;
-        var hop = new Hop(at).check(body);
-        if (!hop.ok()) GameplayLog.limited(body, "aquatic", "boarding_landing", 100,
-                "boarding landing refused hat={} target={} reason={}", hat.getUUID(), GameplayLog.at(at), hop);
-        return hop.ok() ? at : null;
-    }
-
-    static boolean inHollow(YukkuriEntity body, PlacedHatEntity hat) {
-        return AquaticLife.aboard(body, hat) && Occupancy.of(body, hat.container()) == Occupancy.INSIDE_SUPPORTED;
+                () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
+                () -> beckoning == null || new Hop(hat).check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
+                () -> act(new Hop(hat)));
     }
 
     /** One intent run's beckoning: its own hat afloat within a braid stroke of the bank where it stands is stroked in (Beckon), and
@@ -134,16 +77,11 @@ final class Ferry {
         boolean failed() { return tried != null && !tried.drawn(); }
     }
 
-    /** Off the hat onto the nearest dry stand a hop from here lands on; with none, aboard by a bank, first a walk on the hat to its
-     *  side nearest the bank (the next step hops from there); else no way on. */
+    /** Hop from the actual seat to a dry stand in the body's reach. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
             var at = Waters.ashore(body);
-            if (at != null) return act(new Hop(at));
-            var hat = AquaticLife.riding(body);
-            var edge = hat == null ? null : Waters.edges(body, body.position(), 2, false).stream().findFirst().orElse(null);
-            var spot = edge == null ? null : AquaticLife.spot(hat, body, false, hat.frame().toLocal(edge.edge()));
-            return spot == null || spot.subtract(hat.frame().toLocal(body.position())).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
+            return at == null ? null : act(new Hop(at));
         };
     }
 

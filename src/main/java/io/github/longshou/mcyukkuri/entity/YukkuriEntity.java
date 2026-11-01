@@ -52,6 +52,7 @@ import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.neoforged.neoforge.fluids.FluidType;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -441,7 +442,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 && family != null && family.boardingThrough(hat));
     }
     /** A host that keeps this rider dry (SurfaceHost.shelters): every water check, drowning included, sees it out of the water. */
-    private boolean sheltered() { return getVehicle() instanceof SurfaceHost host && host.shelters(this); }
+    private boolean sheltered() {
+        var host = getVehicle() instanceof SurfaceHost surface ? surface
+                : motor != null && motor.current() instanceof Hop hop ? hop.host() : null;
+        return host != null && host.shelters(this);
+    }
     @Override public boolean isInWater() { return super.isInWater() && !sheltered(); }
     @Override public boolean canDrownInFluidType(FluidType type) { return !sheltered() && super.canDrownInFluidType(type); }
     public ChildhoodLife childhood() { return childhood; }

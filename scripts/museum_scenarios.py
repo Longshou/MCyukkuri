@@ -1884,22 +1884,20 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
 
-pond('afloat_family', '带孩子出航', '亲子出航',
-     '亲油在岸上，身边有会跳的子油和还不会跳的赤油，岸上有一根木棍：她取棍、走到岸边放帽；先后由欲望决定——护幼高时先把赤油叼在嘴里跳上帽子、放进帽腔，再在帽里等全家；子油看见亲油在岸边放帽出航就自己跳进去；全家都在帽上才算出航成功。赤油睡着时她不出航，等不来就整次失败、按欲望返岸',
+pond('afloat_family', '带子油出航', '亲子出航',
+     '亲油与一只 0.40 体型、会跳的子油在岸上，岸边有木棍：亲油取棍、放帽，分别跳到船尾和前座；两只实际入座后出航',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
       _aquatic_young('afloat_family', 'c1', bank_dx(0) - 4, 1, 'child', 'a'),
-      _aquatic_young('afloat_family', 'k1', bank_dx(0) - 4, -1, 'baby', 'a'),
       item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
-     note='日志：[intent] start id=set_out → [action] start id=grab（赤油）→ [action] start id=hop … → [body] mount cause=hop_contact → [action] start id=release → '
-          '赤油 [body] mount cause=hop_contact（落进帽腔）；子油 [intent] start id=board_parent → [action] start id=hop；最后 [intent] end id=set_out result=DONE。'
-          '亲油依恋低时先自己上船、再回岸接赤油（protect_young 对 water_life，数据在 drive/aquatic.json）。' + _DESIRE_NOTE,
+     note='日志：[intent] start id=set_out → [hat] placed → 亲油、子油各自 [body] mount cause=hop_contact → '
+          '[aquatic] set_out complete aboard=1/1。观察落座前有完整跳跃，落座后不在帽内走动。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
-            ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+            ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
-                                   r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=2/2\b',
+                                   r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
                                    r'\[intent\][^\n]* end id=board_parent result=DONE\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=\{[^}\n]*=(?:asleep|in_water|unreachable|not_fetched|did_not_board)(?:,|\})']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      '亲油、会跳的子油和赤油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；靠岸后子油自己跳上岸，赤油由亲油叼着跳上岸、放在干地上，等孩子都下了船，亲油从岸边把空帽子收回戴上',

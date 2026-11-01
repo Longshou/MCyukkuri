@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
-import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -79,13 +78,7 @@ final class Provision implements Intent {
 
     /** Approach a loose item on the hat's surface before the mouth takes it. */
     private List<Supplier<Step>> reachLoose(PlacedHatEntity hat, Pick pick) {
-        return List.of(() -> {
-                    if (pick.check(body).ok()) return null;
-                    var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(food.position()));
-                    var here = hat.frame().toLocal(body.position());
-                    return spot == null || spot.subtract(here).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
-                },
-                () -> act(new Face(SurfaceApproach.yaw(body.position(), food.position()))),
+        return List.of(() -> act(new Face(SurfaceApproach.yaw(body.position(), food.position()))),
                 () -> act(pick));
     }
 

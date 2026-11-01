@@ -71,17 +71,18 @@ final class SetOut implements Intent {
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
-        return AquaticLife.afloat(hat) && Ferry.inHollow(owner, hat) && AquaticLife.carried(owner) == null
+        return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat) && AquaticLife.carried(owner) == null
                 && AquaticLife.young(owner).stream().allMatch(y -> AquaticLife.aboard(y, hat) || staying(y) != null);
     }
 
     /** Why this young stays ashore now, or null: asleep, in the water, or a carry or call that failed twice. */
     private String staying(YukkuriEntity y) {
+        var hat = AquaticLife.hat(owner);
+        if (hat != null && !AquaticLife.aboard(y, hat) && hat.seatDestination(y) == null) return "no_seat";
         return y.life().isSleeping() ? "asleep" : y.isInWaterOrBubble() ? "in_water" : excused.get(y.getUUID());
     }
 
-    /** The same way twice: a failed step leaves the first, and the second goes on without the young it failed for. */
-    @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive), Plan.of("launch_leaving", this::derive)); }
+    @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
 
     @Override public void ended(IntentRunner.Result result) {
         var held = AquaticLife.carried(owner);
@@ -107,7 +108,6 @@ final class SetOut implements Intent {
         if (!AquaticLife.afloat(hat)) return null;
         boolean aboard = AquaticLife.aboard(owner, hat);
         boarded |= aboard;
-        if (aboard && !Ferry.inHollow(owner, hat)) return Ferry.hopAboard(owner, hat, beckoning);
         var held = AquaticLife.carried(owner);
         if (held != null) return aboard ? Ferry.releaseAboard(owner, hat, held) : Ferry.hopAboard(owner, hat, beckoning);
         var dependent = dependentAshore(hat);
@@ -145,8 +145,8 @@ final class SetOut implements Intent {
         var stand = Waters.launchStand(edge, owner);
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                 () -> new Step.Do(new Face(edge.yaw())),
-                // the hat's short axis toward the bank, its near brim over the edge
-                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + 90)));
+                // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
+                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + 120)));
     }
 
     /** Walk beside the stick, face it, pick it up into her hat. */
