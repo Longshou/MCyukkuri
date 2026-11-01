@@ -402,7 +402,8 @@ final class YukkuriGoals {
         @Override public void stop(){owner.house().stop();}
     }
     private final class FamilyGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.family().active() && !owner.family().yieldsToComfort()); }
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.family().carry().setDownDue()
+                || !(owner.family().active() && !owner.family().yieldsToComfort()); }
         FamilyGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
         @Override public boolean canUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canUse(); }
         @Override public boolean canContinueToUse() { return !owner.family().prioritizesBirth()&&(!WildEvents.reserved(owner)||owner.life().hasUrgentNeed())&&owner.family().canContinue(); }

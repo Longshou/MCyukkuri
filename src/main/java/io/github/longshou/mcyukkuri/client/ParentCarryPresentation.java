@@ -111,7 +111,7 @@ final class ParentCarryPresentation {
             // The braid holds its own child all the way out and opens off it as it lets go, and lowers a brim child.
             var hold = ParentCarry.hold(carrier, rider);
             float down = ParentCarry.lowering(carrier, rider, partial);
-            if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0)) continue;
+            if (hold != Hold.BRAID && (hold != Hold.BRIM || down < 0 && !ParentCarry.placing(carrier, rider, partial))) continue;
             model.setBraidReach(modelPoint(carrier, scruff(rider, ParentCarry.rawSeat(carrier, rider, partial), yaw(carrier, partial)), partial),
                     hold == Hold.BRAID && down >= 0 ? 1 - ease(down) : 1);
             break;
@@ -217,7 +217,8 @@ final class ParentCarryPresentation {
                 var seat = ParentCarry.brimSeat(carrier, child);
                 float out = seat == null ? 0 : seat[3];
                 if (live && state.hat != null && seat != null) {
-                    feet = state.hat.transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
+                    // While the braid is still setting it there, the server's sweep is the position.
+                    feet = ParentCarry.placing(carrier, child, partial) ? seated : state.hat.transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
                     state.hat.getNormalizedRotation(turnTo).rotateY(out * Mth.DEG_TO_RAD);
                 } else {
                     feet = seated;
@@ -265,33 +266,15 @@ final class ParentCarryPresentation {
         }
         // Held over a host (the hat it came from) the feet stay on or above its surface, as the server seat does.
         feet.y = (float) (ParentCarry.pinned(carrier, child, origin.add(feet.x, feet.y, feet.z)) - origin.y);
-        // Brim and tail lifts keep their presentation arcs. Mouth and braid-tip children use the shared physical route above.
+        // Tail lifts keep their presentation arc. Mouth, brim and braid-tip children use the shared physical route above.
         float q = (now - me.boardAt) / LIFT_TICKS;
-        if (q < 1 && me.liftFrom != null && hold != Hold.BRAID && hold != Hold.MOUTH) {
+        if (q < 1 && me.liftFrom != null && hold.tail()) {
             var from = me.liftFrom.subtract(origin);
             var start = new Vector3f((float) from.x, (float) from.y, (float) from.z);
             float over = over(ParentCarry.carryHost(carrier, child), child, origin, start, feet);
             if (over > Math.max(start.y, feet.y)) {
                 float rise = ease(q / .35f), across = ease((q - .35f) / .4f), drop = ease((q - .75f) / .25f);
                 feet.set(Mth.lerp(across, start.x, feet.x), Mth.lerp(drop, Mth.lerp(rise, start.y, over), feet.y), Mth.lerp(across, start.z, feet.z));
-            } else if (hold == Hold.BRIM) {
-                // Round the carrier outside the brim edge while rising to above the spot, then in and down onto it.
-                float seatR = (float) Math.hypot(feet.x, feet.z), fromR = (float) Math.hypot(start.x, start.z);
-                float wide = seatR + 2.6f * (float) size(carrier) / 16 + child.getBbWidth() * .6f;
-                float seatA = (float) Math.atan2(feet.z, feet.x), fromA = (float) Math.atan2(start.z, start.x);
-                float above = feet.y + child.getBbHeight() * .5f, ring = Math.max(wide, Math.min(fromR, wide * 1.5f)), r, angle, y;
-                if (q < .6f) {
-                    float u = ease(q / .6f);
-                    r = Mth.lerp(u, fromR, ring);
-                    angle = fromA + Mth.wrapDegrees((seatA - fromA) * Mth.RAD_TO_DEG) * Mth.DEG_TO_RAD * u;
-                    y = Mth.lerp(ease(q / .45f), start.y, above);
-                } else {
-                    float u = ease((q - .6f) / .4f);
-                    r = Mth.lerp(u, ring, seatR);
-                    angle = seatA;
-                    y = Mth.lerp(u, above, feet.y);
-                }
-                feet.set(r * Mth.cos(angle), y, r * Mth.sin(angle));
             } else {
                 float p = Math.min(1, q / .45f), e = ease(p);
                 feet.set(Mth.lerp(e, start.x, feet.x), Mth.lerp(e, start.y, feet.y) + 4 * p * (1 - p) * child.getBbHeight(),

@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -215,8 +216,17 @@ public final class ParentCarry {
         for (var rider : carrier.passengerViews()) { var hold = hold(carrier, rider); if (hold == Hold.BRIM || hold == Hold.BRAID) return true; }
         return false;
     }
-    /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on. */
-    public static boolean brimCarrying(YukkuriView carrier) { return carrier.isVehicle() && !riders(carrier, Hold.BRIM).isEmpty(); }
+    /** A child sits on the brim: the carrier keeps a steady idle or walk, the brim pose the server places it on (not while the braid is still setting one there). */
+    public static boolean brimCarrying(YukkuriView carrier) {
+        if (!carrier.isVehicle()) return false;
+        for (var rider : riders(carrier, Hold.BRIM)) if (!placing(carrier, rider, 0)) return true;
+        return false;
+    }
+    /** The braid is still carrying this brim child over to its spot (the clip's lift and swing): it is drawn on that way, not yet on the brim. */
+    public static boolean placing(YukkuriView carrier, YukkuriView child, float partial) {
+        var e = entry(carrier, child.getUUID());
+        return holdOf(e) == Hold.BRIM && e.contains("T") && timing(carrier, e, partial).active();
+    }
     /** The steady pose a brim carrier is drawn and measured in. */
     public static String carryAction(YukkuriView carrier) { return carrier.getAnimationId().equals("waddle") ? "waddle" : "idle"; }
     /** Ticks a brim or tail child takes to come down to the ground: the braid clip's set-down, its place to release markers. */
@@ -263,13 +273,20 @@ public final class ParentCarry {
         switch (hold) {
             case BRIM -> {
                 var seat = brimSeat(carrier, child);
-                model = seat == null ? ground(carrier, child, hold) : hatPose(carrier, partial).transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
+                if (seat == null) model = ground(carrier, child, hold);
+                else {
+                    // On its way over the braid carries it along the recorded sweep, to the live brim spot.
+                    model = brimPoint(carrier, child, partial);
+                    var e = entry(carrier, child.getUUID());
+                    var way = e.contains("T") ? wayPoint(carrier, e, partial, model) : null;
+                    if (way != null) return pinnedAt(carrier, child, world(carrier, partial, way, e.getFloat("Y")));
+                }
             }
             case TAIL_LEFT, TAIL_RIGHT -> model = tail(carrier, hold);
             case BRAID -> {
                 // On its way out it is drawn at the yaw the way was recorded with, the same on server and client.
                 var e = entry(carrier, child.getUUID());
-                var way = wayPoint(carrier, e, partial);
+                var way = wayPoint(carrier, e, partial, setDown(e));
                 if (way != null) return pinnedAt(carrier, child, world(carrier, partial, way, e.getFloat("Y")));
                 model = setDown(e);
             }
@@ -385,6 +402,8 @@ public final class ParentCarry {
         var host = destination != null ? destination.host() : Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
         var hat = host instanceof PlacedHatEntity on ? on : null;
         var from = modelAt(carrier, yaw, child.position());
+        boolean brim = hold(carrier, child) == Hold.BRIM;
+        var end = brim ? brimPoint(carrier, child, 0) : null;
         var e = new CompoundTag();
         e.putFloat("Y", yaw);
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
@@ -394,10 +413,11 @@ public final class ParentCarry {
             e.putFloat("DX", (float) destination.local().x); e.putFloat("DY", (float) destination.local().y); e.putFloat("DZ", (float) destination.local().z);
         }
         var choice = CarryGeometry.wayOut(root.x, root.z, reach, vector(restTip()), vector(from), apart,
-                destination == null ? null : vector(modelAt(carrier, yaw, destination.world())), point -> {
+                destination != null ? vector(modelAt(carrier, yaw, destination.world())) : brim ? vector(end) : null, point -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             var at = worldAt(carrier, yaw, seat);
             if (!clear(carrier, child, at, target)) return Rejection.TERRAIN;
+            if (brim) return null;
             if (destination != null) return destination.available(child) ? null : Rejection.OCCUPIED;
             if (hat != null && HatGeometry.overlaps(HatGeometry.poseOf(hat), hat.unit(), at, Occupancy.foot(child.getBbWidth()))) return Rejection.HOST;
             if (!carrier.level().getEntities(child, child.getDimensions(child.getPose()).makeBoundingBox(at),
@@ -405,8 +425,9 @@ public final class ParentCarry {
             return SurfaceApproach.supportedGround(child, at) ? null : Rejection.UNSUPPORTED;
         }, (point, arc) -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
-            e.putFloat("X", seat.x); e.putFloat("Z", seat.z); e.putFloat("A", arc.floatValue());
-            return clearWay(carrier, child, yaw, host, e, from, seat, destination == null ? body : 0, s, target);
+            if (!brim) { e.putFloat("X", seat.x); e.putFloat("Z", seat.z); }
+            e.putFloat("A", arc.floatValue());
+            return clearWay(carrier, child, yaw, host, e, from, seat, destination == null && !brim ? body : 0, s, target);
         });
         return new Way(choice.point() == null ? null : e, choice.rejected());
     }
@@ -415,7 +436,7 @@ public final class ParentCarry {
                                     Vector3f from, Vector3f seat, double body, double s, SurfaceHost destination) {
         float high = Math.max(from.y, seat.y);
         for (int i = 0; host != null && i <= 8; i++) {
-            double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, yaw, swing(e, i / 8f, high)).add(0, 1, 0));
+            double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, yaw, swing(e, i / 8f, high, seat)).add(0, 1, 0));
             if (top > carrier.getY()) high = Math.max(high, (float) ((top - carrier.getY()) * 16 / s));
         }
         high += (float) (child.getBbHeight() * 16 / s);
@@ -423,7 +444,8 @@ public final class ParentCarry {
         boolean free = clear(carrier, child, worldAt(carrier, yaw, new Vector3f(from.x, high, from.z)), destination);
         for (int i = 1; free && i <= WAY_SAMPLES; i++) {
             float t = i / (float) WAY_SAMPLES;
-            var q = sweepPoint(e, t);
+            var end = hold(carrier, child) == Hold.BRIM ? seat : setDown(e);
+            var q = sweepPoint(e, t, end);
             free = Math.hypot(q.x, q.z) >= body && clear(carrier, child, worldAt(carrier, yaw, q), destination)
                     && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(from.x, Mth.lerp(t, from.y, high), from.z)), destination)
                     && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(seat.x, Mth.lerp(t, high, seat.y), seat.z)), destination);
@@ -445,34 +467,41 @@ public final class ParentCarry {
         for (var reason : Rejection.values()) counts.add(reason + "=" + choice.rejected()[reason.ordinal()]);
         GameplayLog.event(carrier, "family", "braid candidates child={} yaw={} selected={} rejected={}", child.getUUID(),
                 String.format(Locale.ROOT, "%.1f", carrier.bodyYaw()),
-                way == null ? "none" : GameplayLog.at(worldAt(carrier, carrier.bodyYaw(), setDown(way))), counts);
+                way == null ? "none" : GameplayLog.at(worldAt(carrier, carrier.bodyYaw(),
+                        hold(carrier, child) == Hold.BRIM ? brimPoint(carrier, child, 0) : setDown(way))), counts);
         if (way == null) return false;
         var e = entry(carrier, child.getUUID()).copy().merge(way);
-        e.putLong("T", carrier.level().getGameTime() + (destination == null ? 0 : BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip")));
+        boolean fetch = destination != null || hold(carrier, child) == Hold.BRIM;
+        e.putLong("T", carrier.level().getGameTime() + (fetch ? BraidFetch.marker(BraidFetch.HOLD, "lift_start") - BraidFetch.marker(BraidFetch.HOLD, "grip") : 0));
         write(carrier, child.getUUID(), e);
         return true;
     }
-    /** A braid-tip child's place on its way out (carrier model units, drawn at the recorded yaw {@code Y}), or null once it is
-     *  done or there is none: then it is at its set-down, beside the carrier as it is now. */
-    private static Vector3f wayPoint(YukkuriView carrier, CompoundTag e, float partial) {
-        if (!e.contains("T")) return null;
-        var clip = ClipMarkers.of(e.contains("DX") ? BraidFetch.HOLD : Grab.BRAID_LIFT);
+    /** Where a braid lift stands in its clip: ticks since it began, and the clip's lift (up) and swing (over) lengths. */
+    private record Timing(float t, int up, int over) { boolean active() { return t < up + over; } }
+    private static Timing timing(YukkuriView carrier, CompoundTag e, float partial) {
+        var clip = ClipMarkers.of(holdOf(e) == Hold.BRIM || e.contains("DX") ? BraidFetch.HOLD : Grab.BRAID_LIFT);
         int start = clip.ticks("lift_start", 21), span = clip.ticks("place", 38) - start;
-        int up = clip.ticks("lift_end", 30) - start, over = span - up;
-        float t = Math.max(0, carrier.level().getGameTime() - e.getLong("T") + partial), high = e.getFloat("PH");
-        if (t >= up + over) return null;
-        if (t < up) return new Vector3f(e.getFloat("PX"), Mth.lerp(ease(t / up), e.getFloat("PY"), high), e.getFloat("PZ"));
-        return sweepPoint(e, (t - up) / over);
+        int up = clip.ticks("lift_end", 30) - start;
+        return new Timing(Math.max(0, carrier.level().getGameTime() - e.getLong("T") + partial), up, span - up);
     }
-    private static Vector3f sweepPoint(CompoundTag e, float u) {
-        var at = swing(e, ease(u / .7f), e.getFloat("PH"));
-        at.y = Mth.lerp(ease((u - .6f) / .4f), e.getFloat("PH"), setDown(e).y);
+    /** A braid-held child's place on its way to {@code end} (carrier model units, drawn at the recorded yaw {@code Y}), or null once it is
+     *  done or there is none: then it is at its set-down or brim spot, as the carrier is now. */
+    private static Vector3f wayPoint(YukkuriView carrier, CompoundTag e, float partial, Vector3f end) {
+        if (!e.contains("T")) return null;
+        var time = timing(carrier, e, partial);
+        if (!time.active()) return null;
+        if (time.t() < time.up()) return new Vector3f(e.getFloat("PX"), Mth.lerp(ease(time.t() / time.up()), e.getFloat("PY"), e.getFloat("PH")), e.getFloat("PZ"));
+        return sweepPoint(e, (time.t() - time.up()) / time.over(), end);
+    }
+    private static Vector3f sweepPoint(CompoundTag e, float u, Vector3f end) {
+        var at = swing(e, ease(u / .7f), e.getFloat("PH"), end);
+        at.y = Mth.lerp(ease((u - .6f) / .4f), e.getFloat("PH"), end.y);
         return at;
     }
     /** The checked arc stored with the hold, shared by the passenger and the rendered braid. */
-    private static Vector3f swing(CompoundTag e, float q, float high) {
+    private static Vector3f swing(CompoundTag e, float q, float high, Vector3f end) {
         var root = ContactGeometry.braidRootModel(e.getBoolean("L"));
-        var p = CarryGeometry.swing(root.x, root.z, e.getFloat("PX"), e.getFloat("PZ"), e.getFloat("X"), e.getFloat("Z"), e.getFloat("A"), q);
+        var p = CarryGeometry.swing(root.x, root.z, e.getFloat("PX"), e.getFloat("PZ"), end.x, end.z, e.getFloat("A"), q);
         return new Vector3f((float) p.x(), high, (float) p.z());
     }
     private static Vector3f tail(YukkuriView carrier, Hold hold) {
@@ -510,7 +539,14 @@ public final class ParentCarry {
     /** The hat bone of the carrier's steady carry pose (idle or walk), model units. */
     public static Matrix4f hatPose(YukkuriView carrier, float partial) {
         float elapsed = Math.max(0, (carrier.level().getGameTime() - carrier.getAnimationStartTick() + partial) / 20f);
-        return WoundSurface.get(carrier.assetId()).pose(carryAction(carrier), elapsed)[brim(carrier).get("bone").getAsInt()];
+        var pose = new Matrix4f(WoundSurface.get(carrier.assetId()).pose(carryAction(carrier), elapsed)[brim(carrier).get("bone").getAsInt()]);
+        var anchor = HatGeometry.anchor();
+        return pose.translate(anchor).scale(HatScale.factor(carrier.subspeciesFlags())).translate(anchor.negate());
+    }
+    /** The child's fixed brim-local seat in carrier model space. */
+    private static Vector3f brimPoint(YukkuriView carrier, YukkuriView child, float partial) {
+        var seat = brimSeat(carrier, child);
+        return hatPose(carrier, partial).transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
     }
     /** The orientation of a brim child: the carrier, its hat bone, then the child's own outward facing (degrees). */
     public static Matrix4f brimRotation(YukkuriView carrier, float partial, float facing) {
@@ -561,13 +597,16 @@ public final class ParentCarry {
         return spots;
     }
     /** A child's footprint on the brim: the shared footprint radius ({@link Occupancy#foot}), in the carrier's model units. */
-    private static float radius(YukkuriView carrier, YukkuriView child) { return (float) (Occupancy.foot(child.getBbWidth()) * 16 / size(carrier)); }
+    private static float radius(YukkuriView carrier, YukkuriView child) {
+        return (float) (Occupancy.foot(child.getBbWidth()) * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags())));
+    }
     /** The first brim spot this child fits beside the given discs (x, z, radius), or null when the brim has no room for it. */
     private static float[] freeBrimSpot(YukkuriView carrier, YukkuriView child, List<float[]> taken) {
         var hat = brim(carrier);
         if (hat == null) return null;
         float r = radius(carrier, child);
-        for (var p : brimSpots(hat, carrier.assetId(), r, (float) (child.getBbHeight() * 16 / size(carrier)))) {
+        for (var p : brimSpots(hat, carrier.assetId(), r,
+                (float) (child.getBbHeight() * 16 / (size(carrier) * HatScale.factor(carrier.subspeciesFlags()))))) {
             boolean free = true;
             for (var t : taken) if ((p[0] - t[0]) * (p[0] - t[0]) + (p[1] - t[1]) * (p[1] - t[1]) < (r + t[2]) * (r + t[2])) { free = false; break; }
             if (free) return p;
@@ -700,10 +739,10 @@ public final class ParentCarry {
             }
         }
     }
-    /** Prefer the mouth whenever it can take the child; Chen uses her two tails. */
+    /** A worn brim takes the child first while it has room, then the mouth; the others prefer the mouth; Chen uses her two tails. */
     private static Hold[] order(YukkuriEntity carrier) {
         if (carrier.getVariant() == YukkuriVariant.CHEN) return new Hold[]{Hold.TAIL_LEFT, Hold.TAIL_RIGHT};
-        return new Hold[]{Hold.MOUTH, brimmed(carrier) ? Hold.BRIM : Hold.BRAID};
+        return brimmed(carrier) ? new Hold[]{Hold.BRIM, Hold.MOUTH} : new Hold[]{Hold.MOUTH, Hold.BRAID};
     }
     /**
      * All holds with capacity, in preference order; Grab takes the first with a reachable, clear route.
@@ -735,14 +774,17 @@ public final class ParentCarry {
     /** Structural ability only (size, form, a free hold); the child waits for such a carrier instead of walking off. */
     public boolean capable(YukkuriEntity child) { return capacityProblem(carrier, child) == null; }
 
-    /** A dependent baby waits for a parent who can carry it while the family travels, instead of crawling after it. */
+    /** A dependent baby waits for a parent who is marching or coming to carry it, instead of crawling after that parent. */
     public static boolean awaitsCarrier(YukkuriEntity child) {
-        if (!needsCarry(child) || !child.family().familyTravelling() || !(child.level() instanceof ServerLevel level)) return false;
+        if (!needsCarry(child) || !(child.level() instanceof ServerLevel level)) return false;
+        boolean travelling = child.family().familyTravelling();
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
-            if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()
-                    && parent.settlement().familyMarching() && child.life().canRecognize(parent) && parent.life().canRecognize(child)
-                    && (parent.family().carry().capable(child) || parent.hasPassenger(child)))
-                return true;
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
+                boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH || parent.family().task() == FamilyLife.Task.CARRY;
+                if ((incoming || travelling && parent.settlement().familyMarching()) && child.life().canRecognize(parent)
+                        && parent.life().canRecognize(child) && (parent.family().carry().capable(child) || parent.hasPassenger(child)))
+                    return true;
+            }
         return false;
     }
     /** Migration escorts must be able to carry a child that cannot walk with them. */
@@ -930,12 +972,12 @@ public final class ParentCarry {
         rimNest = rim == null ? null : rim.getBlockPos();
     }
 
-    /** The outcome of this carrier's own Grab: a moved or slipped target is approached again, anything else ends the task. */
+    /** The outcome of this carrier's own Grab: lost contact is approached again, anything else ends the task. */
     private Step grabOutcome(YukkuriEntity child) {
         var outcome = carrier.motor().last();
         if (outcome instanceof Outcome.Done && carrier.hasPassenger(child)) return aboard(child) ? Step.DONE : Step.FAILED;
         var reason = outcome == null ? null : outcome.reason();
-        if (reason == Reason.NO_CONTACT || reason == Reason.TARGET_MOVED) {
+        if (reason == Reason.NO_CONTACT) {
             GameplayLog.limited(carrier, "family", "carry.grab.retry", 40, "carry grab retry child={} reason={} shortfall={}",
                     child.getUUID(), reason, outcome.shortfall());
             return Step.WORKING;
@@ -1062,7 +1104,7 @@ public final class ParentCarry {
         var hold = hold(carrier, child);
         var problem = holdProblem(carrier, child, hold, true);
         if (problem != null) return problem;
-        if (now % 5 == 0 && (hold == Hold.BRIM ? !clear(carrier, child, rawSeat(carrier, child, 0)) : seat(carrier, child) == null)) return "seat_blocked";
+        if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
         var home = purpose == Purpose.RETRIEVE ? child.family().carryHome() : null;
@@ -1090,6 +1132,9 @@ public final class ParentCarry {
         return null;
     }
 
+    /** The family goal must yield to its own ordinary put-down goal when this reason becomes due. */
+    public boolean setDownDue() { return due() != null; }
+
     /** The set-down goal (priority 2, above daily life): whenever the carry has an ordinary reason, it runs the shared Release. */
     public Goal setDownGoal() {
         return new Goal() {
@@ -1097,7 +1142,11 @@ public final class ParentCarry {
             @Override public boolean canUse() { return due() != null; }
             @Override public boolean canContinueToUse() { return due() != null; }
             @Override public boolean requiresUpdateEveryTick() { return true; }
-            @Override public void start() { setting = true; }
+            @Override public void start() {
+                setting = true;
+                var next = due();
+                GameplayLog.event(carrier, "family", "carry set down started reason={} child={}", next.getValue(), next.getKey().getUUID());
+            }
             @Override public void tick() { var next = due(); if (next != null) tickSetDown(next.getKey(), next.getValue()); }
             @Override public void stop() {
                 if (carrier.motor().current() instanceof Release || carrier.motor().current() instanceof Walk) carrier.motor().cancel(owner, "set_down_stopped");
@@ -1143,8 +1192,10 @@ public final class ParentCarry {
         if (home == null) { giveUp = "no_home"; return false; }
         var centre = Vec3.atBottomCenterOf(home);
         if (carrier.distanceToSqr(centre) <= 2.5 * 2.5) return true;
-        var floor = SurfaceApproach.restingFloor(carrier, centre.add(0, .1, 0));
-        return walk(floor == null ? centre : floor, taskTicks, "home_unreachable");
+        var entrance = carrier.life().entrance(home);
+        var approach = entrance == null ? centre : Vec3.atBottomCenterOf(entrance);
+        var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
+        return walk(floor == null ? approach : floor, taskTicks, "home_unreachable");
     }
 
     /** Carry a baby that lay on the nest rim onto the cushion, to a free spot by the nest's own placement (never moved by teleport). */
@@ -1232,9 +1283,16 @@ public final class ParentCarry {
 
     private static String carryReadout(YukkuriEntity carrier, YukkuriEntity child, Vec3 endpoint, String rejected) {
         double yaw = Math.toRadians(carrier.bodyYaw()), dx = endpoint.x - carrier.getX(), dz = endpoint.z - carrier.getZ();
-        return String.format(Locale.ROOT, "hold=%s parent=(%.3f,%.3f,%.3f) yaw=%.2f entityYaw=%.2f endpoint=(%.3f,%.3f,%.3f) forward=%.3f right=%.3f rejected=%s",
+        return String.format(Locale.ROOT, "hold=%s parent=(%.3f,%.3f,%.3f) yaw=%.2f entityYaw=%.2f endpoint=(%.3f,%.3f,%.3f) forward=%.3f right=%.3f rejected=%s%s",
                 hold(carrier, child).key(), carrier.getX(), carrier.getY(), carrier.getZ(), carrier.bodyYaw(), carrier.getYRot(),
-                endpoint.x, endpoint.y, endpoint.z, -dx * Math.sin(yaw) + dz * Math.cos(yaw), -dx * Math.cos(yaw) - dz * Math.sin(yaw), rejected);
+                endpoint.x, endpoint.y, endpoint.z, -dx * Math.sin(yaw) + dz * Math.cos(yaw), -dx * Math.cos(yaw) - dz * Math.sin(yaw), rejected,
+                brimLocal(carrier, child));
+    }
+
+    private static String brimLocal(YukkuriEntity carrier, YukkuriEntity child) {
+        if (hold(carrier, child) != Hold.BRIM) return "";
+        var seat = brimSeat(carrier, child);
+        return String.format(Locale.ROOT, " brimLocal=(%.3f,%.3f,%.3f)", seat[0], seat[1], seat[2]);
     }
 
     /** The bookkeeping of one let-go: the hold record, the re-lift pause, the log, and the end of the carry when it was the last. */
@@ -1276,10 +1334,12 @@ public final class ParentCarry {
     String describe() {
         var all = riders();
         if (!all.isEmpty()) {
+            var next = due();
             var ids = new StringBuilder();
             for (var child : all) ids.append(ids.length() == 0 ? "" : ",").append(child.getUUID()).append('/').append(hold(carrier, child).key());
             return "carrying count=" + all.size() + " children=" + ids + " purpose=" + purpose + " ticks="
                     + (carrier.level().getGameTime() - since) + " landed=" + carrier.settlement().migrationLanded()
+                    + (next == null ? "" : " due=" + next.getValue() + "/" + next.getKey().getUUID())
                     + (settingDown == null ? "" : " setting_down=" + settingDown + "(" + settingWhy + ") tries=" + setTries);
         }
         if (carrier.getVehicle() instanceof YukkuriEntity parent && riding(parent, carrier))

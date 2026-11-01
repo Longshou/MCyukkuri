@@ -1442,7 +1442,7 @@ def colony_loss_prompt(sid, members_read, rules_read):
     return 'tellraw @s ' + json.dumps(controls, ensure_ascii=False, separators=(',', ':'))
 
 
-def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False):
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False, smoke=None):
     reads = list(reads)
     controls = []
     if leader_loss:
@@ -1458,7 +1458,7 @@ def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', read
     add(sid, 'biomes', title, hint, watch, wait,
         [*BIOMES.plains_site(*BIOMES.spots['plains']), *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
          'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead', *controls],
-        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次')
+        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke)
 
 
 colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
@@ -1511,7 +1511,12 @@ colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
        reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
-              ('读迁徙完成条件', 'yukkuri settlement rules')])
+              ('读迁徙完成条件', 'yukkuri settlement rules')],
+       smoke=dict(ticks=7200,
+                  forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b'],
+                  expect=[r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
+                          r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
+                          r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b']))
 
 # Three real households with their nest, the babies ~8 blocks out: the RETRIEVE carry (ParentCarry.purposeFor), no march needed.
 _carry_families = [('marisa', -10, 4, 1.2), ('reimu', 0, 3, 1.0), ('chen', 10, 2, 1.0)]
@@ -1519,18 +1524,42 @@ _carry_lines = []
 for _kind, _fx, _n, _size in _carry_families:
     _par = uid('carry_home', _kind)
     _fam = f'Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,Maturity:336000L,Lifespan:1056000L,AdultScale:{_size}f,Scale:{_size}f'
-    _carry_lines += [*shed(_fx, 0), yk_on_nest(_kind, _fx, 0, f'{_kind}_parent', fam=_fam, yaw=0, uuid=_par, lead=_kind == 'reimu', nutrition=95),
+    _carry_lines += [*shed(_fx, 0), *large_nest(_fx, 0, 'mcyukkuri:large_yukkuri_nest'),
+                     yk_on_nest(_kind, _fx, 0, f'{_kind}_parent', large=True, fam=_fam, yaw=0, uuid=_par, lead=_kind == 'reimu', nutrition=95),
                      home(f'{_kind}_parent', _fx, 0)]
     for _i in range(_n):
         _carry_lines += [yk(_kind, _fx - (_n - 1) / 2 * 1.2 + _i * 1.2, 8, f'{_kind}_baby', stage='baby', uuid=uid('carry_home', f'{_kind}_{_i}'),
                             yaw=180, nutrition=95, kin=f'Mother:{uuid_nbt(_par)}'),
                          home(f'{_kind}_baby', _fx, 0)]
+
+def _carry_verify(log):
+    grips = {}
+    for child, seat in re.findall(r'carry grip child=\d+ uuid=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
+        grips.setdefault(child, set()).add(seat)
+    checked = 0
+    for child, seat in re.findall(r'carry put down [^\n]*child=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
+        if child not in grips:
+            continue
+        checked += 1
+        if seat not in grips[child]:
+            return f'brim-local seat changed for {child}: {grips[child]} -> {seat}'
+    return None if checked else 'expected a brim grip/release pair with a constant brim-local seat'
+
+
 add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代运输',
     '三家各有自己的窝，赤油在约 8 格外：魔理沙（1.2 倍）、灵梦、橙各自走去把孩子接回窝边，不需要迁徙。魔理沙帽檐坐满后再叼，灵梦口含多只，橙两条尾巴各托一只',
-    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(0, 16),
+    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(0, 6),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
-    smoke=dict(ticks=1800, expect=[r'\[family\][^\n]* carry lift started\b', r'\[family\][^\n]* carry pickup hold=', r'\[family\][^\n]* carry put down\b']))
+    smoke=dict(ticks=1800,
+               expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
+                       r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
+                       r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b',
+                       r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
+                       *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home\b' for kind, _, _, _ in _carry_families)],
+               forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b'],
+               readout=[f'yukkuri status {sel(kind + "_parent")} raw' for kind, _, _, _ in _carry_families],
+               verify=_carry_verify))
 
 # ---- commodification
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
