@@ -12,6 +12,8 @@ public final class Squeeze {
     private static final double TOUCH = 1e-3;
     /** The share of an overlap undone in one tick. */
     private static final double GENTLE = .25;
+    /** Jacobi relaxation balances packed contacts without amplifying a single contact's correction. */
+    static final double SQUEEZE_RELAX = 1.75;
 
     /** One body: centre, foot radius, mass, the most it moves in one tick, and the heights it takes (feet to top). */
     public record Body(double x, double z, double r, double mass, double step, double bottom, double top) {
@@ -81,7 +83,10 @@ public final class Squeeze {
         for (int i = 0; i < n; i++) {
             // Resolve simultaneous pressures together before limiting speed. Clipping each obstacle's push first destroys
             // their balance; summing a full correction per contact overshoots in a packed floor.
-            if (contacts[i] > 1) { out[i][0] /= contacts[i]; out[i][1] /= contacts[i]; }
+            if (contacts[i] > 1) {
+                double relax = Math.min(1, SQUEEZE_RELAX / contacts[i]);
+                out[i][0] *= relax; out[i][1] *= relax;
+            }
             double length = Math.hypot(out[i][0], out[i][1]), step = bodies.get(i).step();
             if (length > step) { out[i][0] *= step / length; out[i][1] *= step / length; }
             // The summed shove cannot pass into a fixed obstacle that was clear before the move.

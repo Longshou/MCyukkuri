@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import io.github.longshou.mcyukkuri.family.BirthMotion;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -97,7 +98,7 @@ class SqueezeTest {
             return b.x()<0 ? a.x()+dx<.48 : y<.5 && a.x()+dx>-.01;
         };
         var move = Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1,.8,1.8)),fixed,SLACK,0,0,supported)[0];
-        assertEquals((.48-.01)/4/2,move[0],.0001,"both existing contacts balance; the right one must not clamp the shove to zero");
+        assertEquals((.48-.01)/4/2*Squeeze.SQUEEZE_RELAX,move[0],.0001,"both existing contacts balance; the right one must not clamp the shove to zero");
         assertEquals(0,move[3]);
     }
 
@@ -146,5 +147,28 @@ class SqueezeTest {
                 List.of(), SLACK, 0, 0);
         for (var m : moves) assertTrue(Math.hypot(m[0], m[1]) > 0);
         assertTrue(Math.abs(moves[0][0]*moves[1][1]-moves[0][1]*moves[1][0]) > .001,"distinct separation axes after averaging contacts");
+    }
+
+    @Test void fiveBodyLandCrowdKeepsTheMeasuredRelaxedSeparationRate() {
+        var bodies=new ArrayList<Squeeze.Body>();
+        for(var at:new double[][]{{0,0},{.1,0},{-.1,0},{0,.1},{0,-.1}})
+            bodies.add(new Squeeze.Body(at[0],at[1],.4,1,.06));
+        int settled=0;
+        for(int tick=1;tick<=51;tick++) {
+            var moves=Squeeze.separate(bodies,List.of(),SLACK,0,0);
+            for(int i=0;i<bodies.size();i++) {
+                var b=bodies.get(i);var m=moves[i];
+                bodies.set(i,new Squeeze.Body(b.x()+m[0],b.z()+m[1],b.r(),b.mass(),b.step()));
+            }
+            double overlap=0;
+            for(int i=0;i<bodies.size();i++)for(int j=i+1;j<bodies.size();j++) {
+                var a=bodies.get(i);var b=bodies.get(j);
+                overlap=Math.max(overlap,a.r()+b.r()-SLACK-Math.hypot(a.x()-b.x(),a.z()-b.z()));
+            }
+            if(tick==20)assertEquals(0.05806242506653325,overlap,1e-9);
+            if(tick==40)assertEquals(0.0040184283702592305,overlap,1e-9);
+            if(settled==0&&overlap<=.001)settled=tick;
+        }
+        assertEquals(51,settled,"first tick within contact tolerance; pre-branch was 49");
     }
 }
