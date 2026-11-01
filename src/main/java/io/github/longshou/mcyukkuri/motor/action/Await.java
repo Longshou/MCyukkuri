@@ -21,6 +21,14 @@ public final class Await implements Action {
     private final String why;
     private long startTick;
     private int ticks;
+    private int holdTick = Integer.MAX_VALUE;
+
+    /** Hold an authored pose frame while the same bounded wait continues. */
+    public static Await holding(BooleanSupplier condition, int maxTicks, String clip, int holdTick) {
+        var wait = new Await(condition, maxTicks, clip);
+        wait.holdTick = holdTick;
+        return wait;
+    }
 
     public Await(BooleanSupplier condition, int maxTicks, String clip) {
         this(condition, maxTicks, clip, clip);
@@ -55,7 +63,7 @@ public final class Await implements Action {
         return new Running(maxTicks - ticks, TravelMode.PASS);
     }
 
-    @Override public MotionPose pose() { return new MotionPose(clip, startTick, true); }
+    @Override public MotionPose pose() { return new MotionPose(clip, startTick + Math.max(0, ticks - holdTick), true); }
 
     @Override public int progressWindow() { return Integer.MAX_VALUE; }
 }

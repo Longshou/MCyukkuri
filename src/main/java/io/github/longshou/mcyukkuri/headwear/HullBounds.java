@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 
 /** The round hull's authored dimensions, in blocks at its exported scale; origin at the brim. */
 public final class HullBounds {
@@ -12,6 +13,17 @@ public final class HullBounds {
             RADIUS = DATA.number("brim.outer_radius"), EDGE = DATA.number("brim.edge_y");
 
     private HullBounds() {}
+
+    /** A young's underside on the authored brim ring, in blocks at captain growth one. */
+    public static Vec brim(double growth, double bearing) {
+        var heights = DATA.field("brim_ring.underside_y").getAsJsonArray();
+        var a = heights.get(0).getAsJsonArray();
+        var b = heights.get(1).getAsJsonArray();
+        double t = (growth - a.get(0).getAsDouble()) / (b.get(0).getAsDouble() - a.get(0).getAsDouble());
+        double y = a.get(1).getAsDouble() + t * (b.get(1).getAsDouble() - a.get(1).getAsDouble());
+        double r = DATA.number("brim_ring.radius");
+        return new Vec(r * Math.cos(bearing), y, r * Math.sin(bearing));
+    }
 
     /** Basin floor, inner wall and the level-to-drooping brim, all from the bounds contract. */
     public static double surface(double radius) {

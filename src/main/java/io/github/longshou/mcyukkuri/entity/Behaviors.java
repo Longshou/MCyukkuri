@@ -31,6 +31,10 @@ public final class Behaviors {
     public static final String BOAT_ROCK_STARTLE = "boat_rock_startle";
     public static final String BOAT_STEADY = "boat_steady";
     public static final String BOAT_TOILET = "boat_toilet";
+    public static final String KID_BRIM_SPLASH = "kid_brim_splash";
+    public static final String KID_MIMIC_PADDLE = "kid_mimic_paddle";
+    public static final String KID_POKE_STORES = "kid_poke_stores";
+    public static final String KID_HIDE_BEHIND = "kid_hide_behind";
     public static final String BREEDING_PERIOD = "breeding_period";
     public static final String BULLY_PEER = "bully_peer";
     public static final String SELF_DEFENSE = "self_defense";

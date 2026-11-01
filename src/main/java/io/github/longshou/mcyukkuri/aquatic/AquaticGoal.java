@@ -48,7 +48,8 @@ final class AquaticGoal extends Goal {
     static final String DOMAIN = "aquatic";
     /** The clips of the boat life the presentation may show while this goal drives the body. */
     private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
-            Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW);
+            Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW,
+            Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.KID_POKE_STORES, Behaviors.KID_HIDE_BEHIND);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
 
@@ -286,6 +287,7 @@ final class AquaticGoal extends Goal {
         Supplier<String> why = () -> "parent=" + parent.getUUID() + " parent_aboard=" + parentOn
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
+        if (on && parentOn) play(out, parent, hat, world);
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && !(running != null && running.intent() instanceof Ashore)
@@ -294,6 +296,22 @@ final class AquaticGoal extends Goal {
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore || !hat.seatFits(body)) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
+    }
+
+    private void play(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat, Object world) {
+        String fear = PlayAboard.fear(body, hat);
+        if (!fear.equals("none")) {
+            out.add(new Desire("hide_aboard", PlayAboard.number("hide_want"), 0, true, List.of(world, fear),
+                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND, () -> {})));
+            return;
+        }
+        int stores = HullLarder.of(hat).count();
+        boolean jumper = AquaticLife.jumper(body);
+        if (!jumper && stores == 0) return;
+        out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
+                () -> "stores=" + stores, () -> new PlayAboard(body, hat,
+                        KidPlayRule.pick(jumper, parent.motor().current() instanceof Paddle || parent.motor().current() instanceof Beckon,
+                                HullLarder.of(hat).count(), body.getRandom().nextDouble(), PlayAboard.number("play_poke_chance")), () -> {})));
     }
 
     /**
