@@ -1651,9 +1651,9 @@ _HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
 _DESIRE_NOTE_EARLY = '读 aquatic.desire 看每个欲望的得分与来由。'
 
 
-def shoved(name):
+def shoved(name, push=.35):
     """A late shove off the bank into the pond (vanilla Motion, east): the body really falls in."""
-    return f'data merge entity {sel(name)} {{Motion:[0.35d,0.3d,0.0d]}}'
+    return f'data merge entity {sel(name)} {{Motion:[{push}d,0.3d,0.0d]}}'
 
 
 def _seat_family(size=.35, nourishment=147000, age=144000):
@@ -1879,8 +1879,9 @@ _DESIRE_NOTE = '读 aquatic.desire 看每个欲望的得分与来由、正在做
 def _aquatic_young(sid, slot, dx, dz, stage, parent, **kw):
     """A young of ``parent`` (kin written into NBT): a child that hops, or a crawling newborn (baby) that has to be carried."""
     extra = dict(childhood=CHILDHOOD_CRAWLING_READY) if stage == 'baby' else {}
+    extra.update(kw)
     return yk('marisa', dx, dz, slot, stage=stage, aquatic=True, yaw=-90, uuid=uid(sid, slot),
-              kin=f'Mother:{uuid_nbt(uid(sid, parent))}', **extra, **pair_ready(), **kw)
+              kin=f'Mother:{uuid_nbt(uid(sid, parent))}', **extra, **pair_ready())
 
 
 pond('water_colony', '自然生成·坐在自己的帽子上', '自然生成',
@@ -1914,19 +1915,19 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
 
-pond('afloat_family', '带子油出航', '亲子出航',
-     '亲油与一只 0.35 体型、会跳的子油在岸上，岸边有木棍：亲油取棍、放帽，分别跳到船尾和前座；两只实际入座后出航',
+pond('afloat_family', '辫子接赤油上船', '亲子出航',
+     '亲油与一只赤油在岸边，附近有木棍：亲油取棍、放帽，自己先跳到船尾座位，再从船上用辫子抓起岸边赤油，提过帽檐并降低到前座；两只实际入座后出航',
      '约 1–2 分钟',
-     [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family', 'c1', bank_dx(0) - 4, 1, 'child', 'a', fam=_seat_family()),
-      item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
-     note='日志：[intent] start id=set_out → [hat] placed → 亲油、子油各自 [body] mount cause=hop_contact → '
-          '[aquatic] set_out complete aboard=1/1。观察落座前有完整跳跃，落座后不在帽内走动。' + _DESIRE_NOTE,
-     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
+     [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
+      _aquatic_young('afloat_family', 'c1', bank_dx(1), 1, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:0b,FirstToiletDone:0b,Crawled:0b,Jumped:0b'),
+      item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
+     note='日志：set_out → placed → 亲油 mount cause=hop_contact → grab reach=braid → carry grip → carry lowering → 赤油 seat landed → set_out complete aboard=1/1。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
             ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
                                    r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
-                                   r'\[intent\][^\n]* end id=board_parent result=DONE\b'],
+                                   r'\[family\][^\n]* carry grip [^\n]*hold=braid',
+                                   r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
@@ -1965,36 +1966,47 @@ def _rescue_smoke(sid, slot):
             rf'[\s\S]*\[action\][^\n]* start id=grab [^\n]*target={child}'
             rf'[\s\S]*\[family\][^\n]* carry grip [^\n]*uuid={child}'
             rf'[\s\S]*\[action\][^\n]* start id=release [^\n]*child={child}'
+            rf'[\s\S]*\[body\][^\n]* uuid={child} [^\n]* seat landed '
             rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true)']
 
 
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
-     '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳、也没初航过的子油在岸边被推下水（只有它落水）：它爬不上帽也爬不上岸，只能挣扎。孩子在岸上时亲油会想上岸接它、先往岸边划；救人时她在帽里找有支撑且够得到孩子的位置，用嘴或辫梢够。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
+     '亲油坐在近岸的自己的帽船里，帽里有木棍；一只 0.35 体型、未学会跳的小子油从岸边落水。亲油只决定一次救不救：接受后连续划近，从座位转身伸辫，抓住孩子提出水面，提过帽檐再降低到前座。拒绝时孩子继续自行游泳脱险；真实阻挡仍会失败',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_child', 'a'), **pair_ready()),
-      _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', childhood=CHILDHOOD_CRAWLING_READY),
+      _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('c1')],
-     note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=paddle（离得远时）→ [action] start id=walk → [action] start id=grab reach=mouth → '
-          '[action] start id=release → 子油 [body] mount … → [aquatic] rescue end result=DONE → [intent] start id=comfort_young。' + _DESIRE_NOTE,
+     late=[shoved('c1', .5)],
+     note=_INCIDENT_NOTE + '同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                                    *_rescue_smoke('rescue_child', 'c1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
-     '亲油坐在自己的帽里，帽里有木棍，岸边的赤油被推下水（只有它落水）。亲油对这次落水决定一次救不救；接受后划近，用嘴或辫梢把赤油提出水面放进帽腔。食物不占空间，不再先丢粮；够不到或能力不足仍有真实失败',
+     '亲油坐在自己的帽船里，帽里有木棍，岸边的赤油被推下水。亲油对这次落水决定一次救不救；接受后划近，从座位用辫子抓起赤油，提过帽檐再降低到前座；与岸边接赤油上船使用同一段演出',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
       _aquatic_young('rescue_infant_full', 'k1', bank_dx(1), 1, 'baby', 'a'),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('k1')],
-     note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=grab reach=mouth|braid → [action] start id=release → '
-          '赤油 [body] mount … → [aquatic] rescue end result=DONE。' + _DESIRE_NOTE,
+     late=[shoved('k1', .5)],
+     note=_INCIDENT_NOTE + '同一赤油 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                                    *_rescue_smoke('rescue_infant_full', 'k1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+
+
+pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
+     '亲油坐在自己的帽船里，0.5 体型的子油从岸边落水；孩子超过座位上限，亲油记录 no_seat 拒绝，孩子继续自行游泳脱险',
+     '约 30–90 秒',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
+      _aquatic_young('rescue_no_seat', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.5, 211000)),
+      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
+     late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '观察 rescue refused reason=no_seat，拒绝不算救援成功。',
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
+     smoke=dict(ticks=1800, expect=[*_rescue_smoke('rescue_no_seat', 'c1'), r'rescue refused [^\n]*reason=no_seat'],
+                forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
@@ -2087,7 +2099,7 @@ TOPICS = {
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6',
-    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
+    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',
