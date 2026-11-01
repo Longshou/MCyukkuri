@@ -402,8 +402,8 @@ public enum StatusKey {
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */
     HAT_TILT("hat", "tilt", 0, y -> hat(y, h -> String.format(Locale.ROOT, "roll=%.1f pitch=%.1f upside_down=%s steady=%s",
             h.roll(), h.pitch(), h.upsideDown(), h.steady())), null),
-    /** What carries it: the ground, or the water with its draft, freeboard, load and rocking. */
-    HAT_DRAFT("hat", "draft", 0, y -> hat(y, h -> h.behavior().detail(h)), null),
+    /** What carries it and its floating presentation. */
+    HAT_FLOAT("hat", "float", 0, y -> hat(y, h -> h.behavior().detail(h)), null),
     // ---- five behavior axes and recognition -------------------------------------------------------------------
     INTELLIGENCE("personality", "intelligence", 5, y -> y.life().personality().intelligence(), trait(Trait.INTELLIGENCE)),
     FRIENDLINESS("personality", "friendliness", 5, y -> y.life().personality().friendliness(), trait(Trait.FRIENDLINESS)),

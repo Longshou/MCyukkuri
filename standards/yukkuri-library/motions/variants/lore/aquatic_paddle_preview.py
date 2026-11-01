@@ -3,7 +3,7 @@
 Reads the exported runtime clip (motion_corrections.json) and, with --against REV, the same clip from that git revision
 for comparison. The captain is the placement-fitted marisa skinned the way the game composes bones
 (aquatic_tools.palette), her hat hidden as aboard; the hull is the runtime prop at its hull_profiles scale with her on
-its seat, the stick the props.paddle keys, the tinted band the hull's loaded waterline (aquatic_tools.hull_forms). The
+its seat, the stick the props.paddle keys, the tinted band the hull's fixed waterline (aquatic_tools.hull_forms). The
 strip shows each braid joint's fore-aft bend over one stroke (blue forward, red aft): a wave running down the braid reads
 as diagonal bands. Flat-shaded orthographic Pillow render; nothing launches the game. Writes
 .local/previews/aquatic-paddle/paddle.png (MCYUKKURI_PREVIEWS overrides the previews root).
@@ -129,7 +129,7 @@ def main():
         was = subprocess.run(['git', 'show', f'{args.against}:{(HERE/"recipe.json").relative_to(P.ROOT).as_posix()}'], cwd=P.ROOT, capture_output=True, check=True).stdout
         was = json.loads(was)['clips']['boat_paddle']['paddle']  # that revision's own stick lengths
         captains.insert(0, (Captain(old, f'旧 {args.against}'), (was['top_length'], was['blade_length'])))
-    form = next(f for f in TOOLS['hull_forms'](TOOLS['captain_mass'](), captains[-1][0].model['units_per_block']) if f['name'] == args.form); hull = hull_triangles(args.form)
+    form = next(f for f in TOOLS['hull_forms'](captains[-1][0].model['units_per_block']) if f['name'] == args.form); hull = hull_triangles(args.form)
     cell = (360, 264); rows = []
     for captain, length in captains:
         for view, name in (('side', '侧视：辫子一侧，船头在左'), ('front', '正视：自船头，辫子在右')):

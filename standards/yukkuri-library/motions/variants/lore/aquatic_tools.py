@@ -24,9 +24,8 @@ ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 HULLS = ASSETS/'yukkuri_presentation/hull_profiles'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
-BODY = ASSETS/'yukkuri_presentation/body_geometry.json'
+BOUNDS = json.loads((ASSETS/'yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json').read_text(encoding='utf-8'))
 SHARED = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))['paddle_shared']
-BODY_DENSITY = .56*.56*(3-2*.56)  # Buoyancy.BODY_DENSITY
 PULL = (.2, .8)  # the middle of the power half, as fractions of power_start..power_end, where the blade must be under water
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
@@ -100,12 +99,6 @@ def unwrap(rows):
 def paddle_spec(c):
     """The clip's paddle block over the shared one (`aim` merges one level)."""
     p = dict(SHARED, **c['paddle']); p['aim'] = dict(SHARED['aim'], **c['paddle']['aim']); return p
-
-
-def captain_mass():
-    """The adult Marisa's body mass (block^3 of water): Buoyancy.bodyMass over her body_geometry.json bounds and height."""
-    m = json.loads(BODY.read_text(encoding='utf-8'))['variants']['marisa']; w, h = (m['bounds'][0][1]-m['bounds'][0][0])/16, m['height']/16
-    return math.pi/6*w*w*h*BODY_DENSITY
 
 
 def paddle_phase(t, c):
@@ -279,15 +272,9 @@ def bone_index(model, name):
 _FORMS = {}
 
 
-def hull_forms(mass, units, profiles=None):
-    """Every hull form the captain rides, seen from her seat (model units, origin on the seat, her axes the hull's): per
-    profile ray the hull's cross-section in (r, y) as a closed polygon, the waterline, and the seat's (x, z) offset from the
-    hull's middle; `units` is the models' units per block. By default the exported hull_profiles/*.json, the captain seated
-    in the middle at anchors.owner_y and the waterline that the hull and her `mass` float at (the displacement of the outer
-    hull, level). `profiles` passes hull dicts in memory instead (nothing re-read or re-authored): that schema, or a round
-    hull given as its cut `section` ([r, y] loop, the same on every bearing) with a fixed `waterline_y` and the captain's
-    `seat` ([x, y, z], her underside), all in blocks (interactions/aquatic-marisa-hat export.gate_profile)."""
-    if profiles is None and (mass, units) in _FORMS: return _FORMS[mass, units]
+def hull_forms(units, profiles=None):
+    """Hull sections and fixed presentation waterline, viewed from the captain's seat (model units)."""
+    if profiles is None and units in _FORMS: return _FORMS[units]
     forms = []
     for H in profiles if profiles is not None else [json.loads(p.read_text(encoding='utf-8')) for p in sorted(HULLS.glob('*.json'))]:
         name = H.get('name', H.get('hull'))
@@ -297,16 +284,13 @@ def hull_forms(mass, units, profiles=None):
                               water=(H['waterline_y']-seat)*units, seat=(sx*units, sz*units)))
             continue
         seat = H['anchors']['owner_y']
-        az = np.radians(H['azimuths']); gap = (np.r_[az[1:], az[0]+2*math.pi]-np.r_[az[-1]-2*math.pi, az[:-1]])/2
+        az = np.radians(H['azimuths'])
         outer = [np.array(o) for o in H['outer']]
         rings = [np.r_[o[:, :2], o[o[:, 0] >= mouth][::-1][:, [0, 2]], np.array(i)[::-1]]
                  for o, i, mouth in zip(outer, H['inner'], H['opening']['radius'])]
-        displaced = lambda y: sum(g*np.sum(o[:, 0]*np.maximum(0, y-o[:, 1])*np.gradient(o[:, 0])) for g, o in zip(gap, outer))
-        lo, hi = H['keel']['y'], H['rim']['y']
-        for _ in range(40):
-            mid = (lo+hi)/2; lo, hi = (mid, hi) if displaced(mid) < mass+H['volume']['hull_mass'] else (lo, mid)
-        forms.append(dict(name=name, azimuths=az, rings=[(r-[0, seat])*units for r in rings], water=(lo-seat)*units, seat=(0., 0.)))
-    if profiles is None: _FORMS[mass, units] = forms
+        forms.append(dict(name=name, azimuths=az, rings=[(r-[0, seat])*units for r in rings],
+                          water=(BOUNDS['waterline_y']-seat)*units, seat=(0., 0.)))
+    if profiles is None: _FORMS[units] = forms
     return forms
 
 
@@ -354,7 +338,7 @@ def paddle_tracks(model, action, samples, tracks, c):
     `lag_seconds` after the joint above and none turning faster than `degrees_per_second`. The twig hangs from the wrap at the tuft's grip at its own pitch, so the
     braid stays held out over the gunwale. The blade aims under the lowest waterline of the hull forms.
     Returns (rotation tracks of every chain joint below the root, prop block, per-sample twig (grip, direction))."""
-    p = paddle_spec(c); water = min(f['water'] for f in hull_forms(captain_mass(), model['units_per_block']))
+    p = paddle_spec(c); water = min(f['water'] for f in hull_forms(model['units_per_block']))
     names = {b['name']: i for i, b in enumerate(model['bones'])}; bones = model['bones']; chain = braid_chain.chain(names)
     load = p.get('braid_load')  # only boat_paddle pulls against the water; the held-out clips have no load window
     spec = dict(FOLLOW, load=dict(load, start=c['markers']['power_start'], end=c['markers']['power_end'])) if load else FOLLOW
@@ -417,7 +401,7 @@ def hull_gate(model, action, samples, tracks, sticks, c, profiles=None):
     the captain on its seat facing its bow within `captain_yaw` degrees (Paddle.FACING; every `captain_yaw_step`); boat_paddle's blade must also be under every
     form's waterline by half its `depth` through the middle of the pull. Prints per form the worst braid and twig clearance.
     `profiles`: hull dicts in memory instead of the exported files (hull_forms)."""
-    p = paddle_spec(c); forms = hull_forms(captain_mass(), model['units_per_block'], profiles); yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, p['captain_yaw_step'])
+    p = paddle_spec(c); forms = hull_forms(model['units_per_block'], profiles); yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, p['captain_yaw_step'])
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
     braid = sorted({i for q in model['parts'] if q['name'].startswith('braid_lock_') for i in range(q['start'], q['start']+q['count'])})
     braid = np.unique(np.c_[V[braid], W[braid]].round(5), axis=0)
@@ -527,7 +511,7 @@ def body_clearance(action, profiles=None, yaws=None):
         rows = np.unique(np.c_[V[keep], Wt[keep]].round(3), axis=0)
         sets[part] = (np.c_[rows[:, :3], np.ones(len(rows))], rows[:, 3].astype(int), rows[:, 4].astype(int), rows[:, 5:6])
     yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, SHARED['captain_yaw_step']) if yaws is None else yaws
-    forms = hull_forms(captain_mass(), model['units_per_block'], profiles)
+    forms = hull_forms(model['units_per_block'], profiles)
     out = {f['name']: {part: [0, math.inf] for part in sets} for f in forms}
     for t in samples:
         M = palette(model, tracks, t)

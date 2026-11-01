@@ -105,7 +105,7 @@ final class Ferry {
     private static Vec3 landing(YukkuriEntity body, PlacedHatEntity hat) {
         var inside = Hop.onto(body, hat);
         if (inside != null) return inside;
-        var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(body.position()), false);
+        var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(body.position()));
         var at = spot == null ? null : hat.frame().toWorld(spot);
         if (at == null) return null;
         var hop = new Hop(at).check(body);
@@ -135,14 +135,14 @@ final class Ferry {
     }
 
     /** Off the hat onto the nearest dry stand a hop from here lands on; with none, aboard by a bank, first a walk on the hat to its
-     *  side nearest the bank (a step off is always allowed, heel or not; the next step hops from there); else no way on. */
+     *  side nearest the bank (the next step hops from there); else no way on. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
             var at = Waters.ashore(body);
             if (at != null) return act(new Hop(at));
             var hat = AquaticLife.riding(body);
             var edge = hat == null ? null : Waters.edges(body, body.position(), 2, false).stream().findFirst().orElse(null);
-            var spot = edge == null ? null : AquaticLife.spot(hat, body, false, hat.frame().toLocal(edge.edge()), false);
+            var spot = edge == null ? null : AquaticLife.spot(hat, body, false, hat.frame().toLocal(edge.edge()));
             return spot == null || spot.subtract(hat.frame().toLocal(body.position())).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
         };
     }

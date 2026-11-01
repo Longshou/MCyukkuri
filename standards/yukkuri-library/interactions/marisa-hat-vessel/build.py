@@ -382,10 +382,9 @@ def outputs():
         'bowl': {'freeboard': fb, 'owner_y': round(fb-t.ledge*sw, 4), 'mask': [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]},
         'brim_rects': t.brim_rects, 'braid': {'root': rnd(model_root), 'length': round(length, 4)},
         'delivery': {k: v for k, v in D.items() if k not in ('gap', 'gap_lore', 'self_reach')},
-        'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy'], 'afloat': R['afloat']}
-    runtime = {k: metrics[k] for k in ('scale', 'anchor_worn', 'delivery', 'placements', 'afloat')}
+        'placements': placements, 'float': R['float'], 'pregnancy': R['pregnancy']}
+    runtime = {k: metrics[k] for k in ('scale', 'anchor_worn', 'delivery', 'placements')}
     runtime['delivery'] = {k: D[k] for k in ('gravity', 'tmin', 'tmax', 'max_speed', 'clear', 'young_radius')}
-    runtime['afloat'] = {k: v for k, v in R['afloat'].items() if k != 'lore'}
     runtime['placements'] = {kind: {role: {**{k: p[k] for k in ('offset', 'yaw', 'grip_worn', 'gap') if k in p},
         'hat_in_mother': {'yaw': p['hat_in_mother']['yaw']}} for role, p in rows.items() if role in ('helper', 'self')}
         for kind, rows in placements.items()}

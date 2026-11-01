@@ -35,36 +35,6 @@ class HullProfileTest {
                     p.tolerance()*u,id+" owner underside");
         }
     }
-    @Test void basinHoldsTheStudysOwnerAndSixNewborns() {
-        var p=HullProfile.of(HullProfile.BASIN);double u=p.measuredUnit();
-        // layout.py: owner_6n / day / body / zero stores, model units; yaw is body-to-hull.
-        double[][] positions={{0,0,0,1,4.07},{2.5,-6.5,20,.145,4.06},{-2.5,-6.5,-20,.145,4.04},
-                {5,-6.5,20,.145,4.02},{-5,-6.5,-20,.145,4},{7.5,-6.5,20,.145,3.94},{-7.5,-6.5,-20,.145,3.89}};
-        var bodies=new ArrayList<BodyFootprint>();var spots=new ArrayList<double[]>();
-        for(var row:positions){
-            // The study uses model rotation; entity yaw runs in the opposite direction in the host frame.
-            var body=BodyFootprint.of("marisa",.8*row[3]/u,.6*row[3]/u,Math.toRadians(-row[2]));
-            double[] seat=null;
-            for(double dx:new double[]{0,-.25,.25})for(double dz:new double[]{0,-.25,.25}){
-                double x=(row[0]+dx)/16/u,z=(row[1]+dz)/16/u,y=p.support(x,z,body);
-                boolean clear=Double.isFinite(y);
-                for(int i=0;clear&&i<bodies.size();i++){var q=spots.get(i);clear=!body.overlaps(x,y,z,bodies.get(i),q[0],q[1],q[2],.03/16/u);}
-                if(clear&&(seat==null||Math.abs((y-p.top())*u+row[4]/16)<Math.abs((seat[1]-p.top())*u+row[4]/16)))seat=new double[]{x,y,z};
-            }
-            assertNotNull(seat,"no body room within one profile sample at "+row[0]+","+row[1]);
-            double x=seat[0],y=seat[1],z=seat[2];
-            assertTrue(Double.isFinite(y));
-            assertTrue(body.columns().stream().allMatch(c->p.inOpening(x+c.x(),z+c.z())));
-            // Combine the exported surface tolerance with one body-column sample at this child's scale.
-            assertEquals(-row[4]/16,(y-p.top())*u,p.tolerance()*u+.8*row[3]/24,"study underside at "+row[0]+","+row[1]);
-            for(int i=0;i<bodies.size();i++){
-                var q=spots.get(i);
-                assertFalse(body.overlaps(x,y,z,bodies.get(i),q[0],q[1],q[2],.03/16/u),"body collision at "+row[0]+","+row[1]);
-            }
-            bodies.add(body);spots.add(new double[]{x,y,z});
-        }
-        assertEquals(7,bodies.size());
-    }
     @Test void currentLandCatchKeepsTheExistingFloorLedgesOpeningAndBrim() {
         var p=HullProfile.of(HullProfile.CURRENT);double u=1.0/16,tolerance=p.tolerance()*u;
         // Existing hat_vessel.json floor/ledge depths and catch lip, at land scale 1.

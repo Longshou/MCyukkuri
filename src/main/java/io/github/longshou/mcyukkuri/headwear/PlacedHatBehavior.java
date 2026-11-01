@@ -4,7 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.MoverType;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -57,7 +57,7 @@ public interface PlacedHatBehavior {
     /** This rider is kept out of the water by the hull ({@code SurfaceHost.shelters}). */
     default boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) { return false; }
 
-    /** The hull's physical readout ({@code hat.draft}). */
+    /** The hull's travel and presentation readout. */
     default String detail(PlacedHatEntity hat) { return "on_ground"; }
 
     /** The motion state to resume after a reload (the hat's NBT {@code Motion}); empty when there is none. */
@@ -88,9 +88,9 @@ public interface PlacedHatBehavior {
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */
     PlacedHatBehavior LAND = hat -> {
         var fall = new Vec3(0, Math.max(-.2, hat.getDeltaMovement().y - .04), 0);
-        hat.setDeltaMovement(fall);
-        hat.move(MoverType.SELF, fall);
-        hat.pose(hat.upsideDown() ? 180 : 0, 0);
+        Motor.velocity(hat, fall, "hat_gravity");
+        Motor.move(hat, fall, "hat_gravity");
+        Motor.hostPose(hat, hat.getYRot(), hat.upsideDown() ? 180 : 0, 0);
         // its one contact pass: nobody stays under it
         hat.clearUnder();
     };

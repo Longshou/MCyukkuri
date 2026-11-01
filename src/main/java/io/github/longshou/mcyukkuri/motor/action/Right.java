@@ -19,7 +19,7 @@ import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 
 /** Turn a capsized host back over: holding its brim it pushes through the clip's push window, turning the hull {@link Effort#righting} each tick; losing the brim is {@code SLIPPED}. */
-public final class Right implements Action, LoadedContact {
+public final class Right implements Action {
     public static final String ID = "right";
     private static final String CLIP = "water_hat_right";
     private static final double HOST_SPEED = .1;
@@ -37,10 +37,6 @@ public final class Right implements Action, LoadedContact {
     public Right(SurfaceHost host, String cause) { this.host = host; this.cause = cause; }
 
     @Override public String id() { return ID; }
-
-    @Override public Contact loadedContact(YukkuriEntity body) {
-        return ContactGeometry.nearestRim(body, host).map(point -> new Contact(host, point, 0)).orElse(null);
-    }
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");

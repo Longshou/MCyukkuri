@@ -58,7 +58,7 @@ public final class HullProfile {
     public List<Vec> rimPoints() { return rim; }
     public String id() { return data.get("form").getAsString(); }
     public String hull() { return data.get("hull").getAsString(); }
-    /** Original signed, block-unit measurements for the shell buoyancy and stores consumers. */
+    /** Original signed block measurements for support geometry consumers. */
     public JsonObject data() { return data; }
     public double measuredUnit() { return unit; }
     public double top() { return -keel / unit; }

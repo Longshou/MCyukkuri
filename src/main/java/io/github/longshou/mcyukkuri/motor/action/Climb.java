@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -22,7 +21,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. */
-public final class Climb implements Action, LoadedContact {
+public final class Climb implements Action {
     public static final String ID = "climb";
     private static final String CLIP = "water_hat_climb";
     /** Blocks a tick a held host may move; degrees of tilt a full grip holds; blocks of clearance over the edge; blocks a pull may lag its path before it has lost the edge. */
@@ -45,18 +44,6 @@ public final class Climb implements Action, LoadedContact {
 
     /** The host it climbs onto, or null for a bank; the host's contact pass leaves its climber alone. */
     public SurfaceHost host() { return host; }
-
-    /** The grip bears the emerging body; as its centre crosses into the hull, the load moves onto that centre. */
-    @Override public Contact loadedContact(YukkuriEntity body) {
-        if (host == null) return null; // a bank carries its own climber, not a floating host
-        var center = host.frame().toLocal(body.position().add(0, body.getBbHeight() / 2, 0));
-        var inward = stand.subtract(edge).multiply(1, 0, 1);
-        double length = inward.length();
-        if (length == 0) return new Contact(host, host.frame().toWorld(edge), 1);
-        double distance = center.subtract(edge).dot(inward) / length;
-        return new Contact(host, host.frame().toWorld(edge.lerp(center, Math.clamp(distance / length, 0, 1))),
-                Buoyancy.overEdge(distance * host.frame().unit() / (body.getBbWidth() / 2)));
-    }
 
     @Override public String id() { return ID; }
 

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -22,7 +23,7 @@ public final class Motor {
     private Motor() {}
 
     /** Sets the velocity and marks the impulse; only for take-off, launch, push and swim propulsion. */
-    public static void velocity(YukkuriEntity body, Vec3 v, String cause) {
+    public static void velocity(Entity body, Vec3 v, String cause) {
         if (body == null || v == null) return;
         body.setDeltaMovement(v);
         body.hasImpulse = true;
@@ -43,7 +44,7 @@ public final class Motor {
     }
 
     /** A collision-resolved move (MoverType.SELF); returns the movement that actually happened. */
-    public static Vec3 move(YukkuriEntity body, Vec3 delta, String cause) {
+    public static Vec3 move(Entity body, Vec3 delta, String cause) {
         if (body == null || delta == null) return Vec3.ZERO;
         Vec3 from = body.position();
         body.move(MoverType.SELF, delta);
@@ -56,6 +57,12 @@ public final class Motor {
         body.setYRot(yaw);
         body.setYBodyRot(yaw);
         body.setYHeadRot(yaw);
+    }
+
+    /** A moving host's facing and synchronized tilt; riders follow its shared frame. */
+    public static void hostPose(PlacedHatEntity host, float yaw, float roll, float pitch) {
+        host.setYRot(yaw);
+        host.pose(roll, pitch);
     }
 
     /** Places a body the system itself moves: a delivery, a ceremony, a released captive, a new body. Never a way to finish a movement that failed. */

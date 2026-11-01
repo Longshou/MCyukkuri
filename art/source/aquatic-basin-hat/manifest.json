@@ -4,12 +4,12 @@
   "inputs": {
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/recipe.json": "a90ded5640b9cda38a375d9fb52f05b1858eace35bce87d61198abd6612d0fdf",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/food_layer.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "15ba616691e5dfa98525cb72ac9778e18c9e5ccccaf2b404a35d8207860412ea",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "3d500724fb4c683f999b81aed099f363f65ae4d17f0ea91cd360dce8a3de8d56",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "529264f23c92945db8b70f3fc353be97ff81d5d794d27f61bb8d5d7b0fa260c8",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "b97fda7b2301440a5312727515b18099f71180298f8491f086debd9a7a67a813",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "36d100fa88103d82ac2ca4420895483cf0f6243b83b3c8fb1949f6bf6bb3da36",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "90f85467dedc93778b05efaf8d066eab9e2d3f1f76fabb0fd7e98da042cdd0b5",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "255689fd4451d9f1ca6556cfa17208feb1af5fd83f78fcb24a36234469a4ad0a",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "a0e73364ec63d29ab4e8daf726fee81ea6ef7b146ec3a21100e822d739f4e92b",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "a5d4dba36401f8f5c71934d4c1a557ff469a0f6d40e518a692c5d158d5213772",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "d7671b9970c623a9a3f44db71dbe4b8a3ce3c5473c29a066a590675ade9250c7",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785"
   },

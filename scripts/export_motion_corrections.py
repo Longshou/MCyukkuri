@@ -13,9 +13,9 @@ import placement_fit
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
 LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
-# What the paddle clips are authored and gated against (aquatic_tools: hull_forms, hull_gate, paddle_tracks, captain_mass).
+# What the paddle clips are authored and gated against (aquatic_tools: hull_forms, hull_gate, paddle_tracks).
 PRESENTATION = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation'
-AQUATIC_INPUTS = [*sorted((PRESENTATION/'hull_profiles').glob('*.json')), PRESENTATION/'braid_rescue.json', PRESENTATION/'body_geometry.json']
+AQUATIC_INPUTS = [*sorted((PRESENTATION/'hull_profiles').glob('*.json')), PRESENTATION/'braid_rescue.json', PRESENTATION/'hull_bounds/aquatic_basin_hat_turned.json']
 VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'

@@ -40,9 +40,8 @@ public final class HatGeometry {
     private static float[] floats(JsonArray a){float[] out=new float[a.size()];for(int i=0;i<out.length;i++)out[i]=a.get(i).getAsFloat();return out;}
     /** The worn hat's seat on the head: the larger aquatic hat scales about it. */
     public static Vector3f anchor(){return new Vector3f(ANCHOR[0],ANCHOR[1],ANCHOR[2]);}
-    /** The authored hat data (hat_vessel.json): its scale table and the afloat physics. */
+    /** The authored hat data (hat_vessel.json): its scale table. */
     public static JsonObject scales(){return DATA.getAsJsonObject("scale");}
-    public static JsonObject afloat(){return DATA.getAsJsonObject("afloat");}
     /** Worn-hat clips keep their authored grip, including the larger aquatic hat. */
     public static Vector3f gripWorn(boolean aquatic,boolean self){
         var p=DATA.getAsJsonObject("placements").getAsJsonObject(aquatic?"aquatic":"land").getAsJsonObject(self?"self":"helper").getAsJsonArray("grip_worn");

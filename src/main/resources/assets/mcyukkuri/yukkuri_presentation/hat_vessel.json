@@ -87,22 +87,6 @@
       }
     }
   },
-  "afloat": {
-    "hull_mass": 0.004,
-    "spring": 0.12,
-    "damping": 0.3,
-    "max_rise": 0.12,
-    "drag": 0.88,
-    "tilt_spring": 0.1,
-    "tilt_damping": 0.08,
-    "shake": 2.5,
-    "push_heel": 20.0,
-    "bump_tilt": 25.0,
-    "capsize_ticks": 4,
-    "capsize_hard": 1.5,
-    "flip_rate": 15.0,
-    "unsteady_rate": 1.0
-  },
   "forms": {
     "house_marisa": "turned_land_hat",
     "marisa": "turned_land_hat",

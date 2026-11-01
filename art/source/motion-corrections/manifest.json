@@ -24,11 +24,11 @@
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_geometry.json": "7d8a902b47bb88425792d8b0193e274870c4bcaa7c4721b98dd711c7b1fad201"
   },
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "d49bf2196e9f4de0e4ab88d243e3d0821824ea68217ab439b5db9982b510b55e",
+  "exporter_sha256": "7f5bf41ecd507ff07f7b938c818ad63153f4466ed826e6a5f6e6094385c48998",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "0e2d0d77268ae009460f36b686385b275e79595cb7d02e12eafb67bb6ff51976",
+  "runtime_sha256": "d7671b9970c623a9a3f44db71dbe4b8a3ce3c5473c29a066a590675ade9250c7",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
