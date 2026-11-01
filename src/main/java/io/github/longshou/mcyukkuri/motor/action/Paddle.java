@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Progress;
@@ -24,17 +25,20 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/** Paddle the host one rides toward a point: in the {@code boat_paddle} power stroke it drives the water at its swim pace and turns the hull at its turn rate, paid in energy. */
+/** Paddle the host one rides toward a point: facing its bow, in the {@code boat_paddle} power stroke it drives the water at its swim pace and turns the hull at its turn rate, paid in energy. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
     private static final String CLIP = YukkuriAction.BOAT_PADDLE.id();
     /** A stroke's energy: the old helm's one point per 80 ticks over a 1.6 s stroke. */
     private static final float COST = .4f;
+    /** The widest angle (degrees) between the rower and her hull's bow at which a stroke reaches the water: the stick goes over the
+     *  beam, as lore/recipe.json paddle_shared.captain_yaw gates the paddle clips against every hull form. 项目设计 */
+    public static final double FACING = 15;
 
     private final Supplier<Vec3> target;
     private final DoublePredicate arrived;
     private SurfaceHost host;
-    private double pace, turnRate, from, distance;
+    private double pace, turnRate, from, distance, facing;
     private int t, start, end, length;
     private long startTick;
 
@@ -70,6 +74,7 @@ public final class Paddle implements Action {
         var ability = BodyAbility.of(body, host.load());
         pace = ability.swimSpeed();
         turnRate = ability.turnRate();
+        facing = bowOff(body);
         var clip = ClipMarkers.of(CLIP);
         length = clip.length();
         start = clip.ticks("power_start", 4);
@@ -83,15 +88,22 @@ public final class Paddle implements Action {
         double power = Effort.stroke(t, start, end, length);
         if (arrived.test(distance)) return new Outcome.Done(String.format(Locale.ROOT, "arrived strokes=%d ticks=%d", t / length, t));
         if (distance < .05) return Outcome.of(Reason.NO_CONTACT, 0, "destination_reached_without_contact");
+        // She keeps facing the bow at her turn rate, so the stick reaches the water over the beam; turned away, no stroke lands.
+        double off = bowOff(body);
+        if (Math.abs(off) > Face.FACE_ARRIVED) Motor.face(body, body.getYRot() + (float) Math.copySign(Math.min(Math.abs(off), turnRate), off));
         if (t++ % length == 0 && !body.life().spendEnergy(COST)) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
+        if (Math.abs(off) > FACING) return new Running(distance, TravelMode.CONSUMED);
         double turn = Effort.turn(host.entity().getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate * power);
         if (!host.thrust(body, to.scale(pace * power / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
         return new Running(distance, TravelMode.CONSUMED);
     }
 
+    /** Degrees from the rower's facing to her hull's bow (its yaw: the hull travels toward its -Z). */
+    private double bowOff(YukkuriEntity body) { return Mth.wrapDegrees(host.entity().getYRot() - body.getYRot()); }
+
     @Override public String startDetail() {
         var at = target.get();
-        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f stroke=%d..%d/%d", at.x, at.z, pace, turnRate, start, end, length);
+        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f stroke=%d..%d/%d bow_off=%.0f", at.x, at.z, pace, turnRate, start, end, length, facing);
     }
 
     @Override public String endDetail(Outcome outcome) {

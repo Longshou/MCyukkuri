@@ -15,7 +15,9 @@ class HullHydroTest {
             assertEquals(p.data().getAsJsonObject("volume").get("empty_waterline_y").getAsDouble(),empty.draft()-p.top()*u,.003,id);
             assertEquals(mass,empty.volume(),1e-8);assertEquals(mass+ADULT,loaded.volume(),1e-8);
             var capacity=h.sample(u,0,0,p.rimY()*u);
-            assertEquals(p.data().getAsJsonObject("volume").get("to_rim").getAsDouble(),capacity.volume(),.004,id+" capacity");
+            // The export integrates on a 1/128-block grid: its error grows with the hull, so 0.4% with a 0.004 floor.
+            double toRim=p.data().getAsJsonObject("volume").get("to_rim").getAsDouble();
+            assertEquals(toRim,capacity.volume(),Math.max(.004,.004*toRim),id+" capacity");
             assertTrue(loaded.draft()>empty.draft());assertTrue(loaded.clearance()>0);
             assertTrue(loaded.plane().area()>empty.plane().area());
             // A central finite difference is an independent check on the measured waterplane area.
@@ -48,7 +50,7 @@ class HullHydroTest {
 
     @Test void studyOwnerAndSixNewbornsStayBelowFiveDegreesInTheBasin() {
         // layout.py owner_6n / body / day, zero and twelve stores: total mass and mesh-derived G, in model units.
-        double[][] fixtures={{.1285,-.07,.52,.91,3.86,23.5},{.1502,-.06,.13,.78,3.99,21.75}};
+        double[][] fixtures={{.1348,-.06,.39,.86,.45,21.5},{.1564,-.06,-.08,.75,.35,21}};
         for(var id:FORMS)for(var row:fixtures) {
             var p=HullProfile.of(id);var h=HullHydro.of(p);double u=p.measuredUnit();
             var load=Buoyancy.Load.ZERO.add(row[0],new Vec(row[1]/16,p.top()*u+row[2]/16,row[3]/16));
@@ -64,8 +66,9 @@ class HullHydroTest {
     @Test void rampedRimLoadingStillFloodsAndMovingLoadsRemainContinuous() {
         for(var id:FORMS) {
             var p=HullProfile.of(id);var h=HullHydro.of(p);double u=p.measuredUnit();
-            var hanging=h.hull(u).add(ADULT*.25,new Vec(0,p.rimY()*u,-p.reach(-Math.PI/2)*u));
-            assertFalse(equilibrium(h,u,hanging).stable(),id+" adult hanging 25% on the rim");
+            // From the water at the beam, the side a hull lies to the bank with.
+            var hanging=h.hull(u).add(ADULT*.5,new Vec(-p.reach(Math.PI)*u,p.rimY()*u,0));
+            assertFalse(equilibrium(h,u,hanging).stable(),id+" adult hanging half her weight on the beam rim");
             var owner=h.hull(u).add(ADULT,new Vec(0,p.floor()*u+.3,0));
             double baby=ADULT*Math.pow(.145,3);
             double previous=h.balance(u,owner.mass(),0,0).draft();

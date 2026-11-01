@@ -1,10 +1,10 @@
 """The aquatic Marisa's second hat form: worn on her head, set down brim up as her boat (make-source; export.py exports it).
 
 Outside it is round stepped tiers (the land hat's tiers turned round) under the land hat's own bent tip, a band and the
-land bow at the front; set down, the base tier stands upright round a round basin and the tiers under it are pressed into
-a keel below the water. The basin inside (a straight lip the brim's thickness, a quarter-ellipse wall, a level floor with
-a shallow dimple) is its own shape; the cloth between basin and tiers is as thick as the two leave. Faces take the Marisa
-atlas cells the land hat uses.
+land bow at the front; set down, the base tier stands upright round a basin and the tiers under it are pressed into a keel
+below the water, all stretched into an oval along the boat (recipe set_down). The basin inside (a straight lip the
+brim's thickness, a quarter-ellipse wall, a level floor with a shallow dimple) is its own shape; the cloth between basin
+and tiers is as thick as the two leave. Faces take the Marisa atlas cells the land hat uses.
 
 Frames. Worn: the Marisa model frame in hat units, the hat's axis through anchor_worn. Set down: hat units, origin at the
 middle of the brim face that sat on the head, +Y out of the hollow, the worn front (bow) toward +X and the worn +X (the
@@ -33,6 +33,27 @@ SEG = R['segments']
 YB0, YB1 = BRIM['bottom'], BRIM['top']
 LIP = YB1-YB0
 R0 = OUT['tiers'][0]['r']
+BEAM, LENGTH = R['set_down']['beam'], R['set_down']['length']   # set-down spreads across (x: toward the bank) and along (z: bow to stern)
+
+
+def spread(r, k):
+    """Set-down radius (hat units) along an axis spread k: the base tier and all inside it widened by k, the brim beyond
+    it moved out with the tier's edge so the brim ring keeps its own width; depths unchanged. Worn radii are never spread."""
+    return r*k if r <= R0 else r+(k-1)*R0
+
+
+def splay(t, kx=None, kz=None):
+    """Set the round hat down as an oval, in place on t[..., 0] and t[..., 2] (hat units): inside the base tier x and z
+    scale by the beam (x) and length (z) spreads; beyond it every point moves out with the tier's edge on its own bearing."""
+    kx, kz = (BEAM if kx is None else kx), (LENGTH if kz is None else kz)
+    x, z = t[..., 0].copy(), t[..., 2].copy(); r = np.hypot(x, z); out = r > R0; r = np.maximum(r, 1e-12)
+    t[..., 0] = np.where(out, x+(kx-1)*R0*x/r, x*kx); t[..., 2] = np.where(out, z+(kz-1)*R0*z/r, z*kz)
+    return t
+
+
+OPENING = (spread(IN['opening'], BEAM), spread(IN['opening'], LENGTH))       # set-down semi-axes along x and z
+BRIM_RADIUS = (spread(BRIM['radius'], BEAM), spread(BRIM['radius'], LENGTH))
+HALF = max(16., math.ceil(max(BRIM_RADIUS)*K)+2.)   # study grids reach past the set-down brim (world units, whole numbers)
 # Marisa atlas cells (pixels, 16 x 16) the land hat draws with; the hollow's walls take the dark cell, its floors the lighter.
 CELLS = {'cloth': (64, 48), 'light': (80, 48), 'edge': (96, 48), 'band': (112, 48), 'lining': (96, 48), 'floor': (80, 48)}
 
@@ -180,7 +201,7 @@ def basin_curve():
 
 def placed_rings():
     """Set down (hat units, brim face at y 0): brim with its turned-up rim, the base tier upright, the pressed tiers as a
-    keel, then up through the middle and out along the basin to the opening's edge."""
+    keel, then up through the middle and out along the basin to the opening's edge; round (placed_parts splays it)."""
     t, tops, starts = tiers(); b0, b1 = R['band']
     out = brim(False)
     out += [ring(R0, -LIP, cell='light'), ring(R0, -(LIP+b0), cell='band'), ring(R0+.07, -(LIP+b0), cell='band'),
@@ -194,19 +215,28 @@ def placed_rings():
     return out
 
 
-def placed_parts():
+def placed_parts(kx=None, kz=None):
     """The set-down hat's named parts (hat units, origin the brim face's middle): the hull, and its bow lying on the
-    upright base tier."""
+    upright base tier, both splayed into the oval (splay())."""
     _, bow = tip_and_bow()
     b = bow.copy(); x, y, z = b[:, :, 0].copy(), b[:, :, 1].copy(), b[:, :, 2]-Z_AXIS
     b[:, :, 0], b[:, :, 2] = -z, -x
     centre = (YB1+R['band'][0]+YB1+R['band'][1])/2
     b[:, :, 1] = -(LIP+R['band'][0]+(centre-YB1-R['band'][0])+(y-centre)*.6)
-    return [('hull', normals(orient(loop_mesh(placed_rings(), True)))), ('bow', normals(b))]
+    hull = splay(loop_mesh(placed_rings(), True), kx, kz)
+    return [('hull', normals(orient(hull))), ('bow', normals(splay(b, kx, kz)))]
 
 
-def placed_mesh():
-    return np.concatenate([t for _, t in placed_parts()])
+def placed_mesh(kx=None, kz=None):
+    return np.concatenate([t for _, t in placed_parts(kx, kz)])
+
+
+def area(tris): return float(np.linalg.norm(np.cross(tris[:, 1, :3]-tris[:, 0, :3], tris[:, 2, :3]-tris[:, 0, :3]), axis=1).sum()/2)
+
+
+def cloth():
+    """The set-down hull's cloth area over the unspread one's: its weight follows the cloth."""
+    return area(placed_mesh())/area(placed_mesh(1., 1.))
 
 
 def check_inside():
@@ -214,15 +244,16 @@ def check_inside():
     base_bottom = depth_of_tier(tiers()[1][0])
     problems = []
     for r, d in basin_curve():
-        if d <= base_bottom and r > R0-IN['min_wall']+1e-9: problems.append(f'wall r={r:.2f} at depth {d:.2f}')
+        for k in (BEAM, LENGTH):
+            if d <= base_bottom and spread(r, k) > spread(R0, k)-IN['min_wall']+1e-9: problems.append(f'wall r={spread(r, k):.2f} at depth {d:.2f}')
     if IN['floor_depth']+IN['dimple'] > base_bottom-IN['min_wall']: problems.append('floor below the base tier')
-    if IN['opening'] >= BRIM['droop_from']: problems.append('opening reaches the turned-up rim')
+    if any(o >= spread(BRIM['droop_from'], k) for o, k in zip(OPENING, (BEAM, LENGTH))): problems.append('opening reaches the turned-up rim')
     return problems
 
 
 # ------------------------------------------------------------------ height fields (world units)
 class Grid:
-    def __init__(self, half=16., step=.125):
+    def __init__(self, half=HALF, step=.125):
         self.step = step; self.n = int(round(2*half/step)); self.half = half
         c = (np.arange(self.n)+.5)*step-half
         self.x, self.z = np.meshgrid(c, c, indexing='ij')
@@ -249,6 +280,11 @@ def raster(tris, grid, up=True):
         if up: view[inside] = np.maximum(view[inside], y[inside])
         else: view[inside] = np.minimum(view[inside], y[inside])
     return out
+
+
+def in_opening(x, z):
+    """Within the set-down oval opening (world units)."""
+    return (x/(OPENING[0]*K))**2+(z/(OPENING[1]*K))**2 < 1
 
 
 def world(tris):
@@ -287,6 +323,9 @@ def food_texture(path):
     Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).convert('RGBA').save(path)
 
 
+def axes(r): return [round(spread(r, BEAM)*K, 3), round(spread(r, LENGTH)*K, 3)]
+
+
 def summary():
     placed = world(placed_mesh()); grid = Grid()
     field = raster(placed, grid, True); low = raster(placed, grid, False)
@@ -295,13 +334,13 @@ def summary():
     v = portion_volume()
     fills = {k: round(-fill_level(field, grid, n*v), 3) for k, n in R['portion']['fills'].items()}
     return dict(
-        units='world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale)',
-        scale=K, brim_radius=round(BRIM['radius']*K, 3), crown_radius=round(R0*K, 3), opening_radius=round(IN['opening']*K, 3),
-        floor_radius=round(IN['floor_radius']*K, 3), floor_depth=round(IN['floor_depth']*K, 3),
+        units='world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale); set-down radii [along x, along z]',
+        scale=K, spread=[BEAM, LENGTH], brim_radius=axes(BRIM['radius']), crown_radius=axes(R0),
+        opening_radius=axes(IN['opening']), floor_radius=axes(IN['floor_radius']), floor_depth=round(IN['floor_depth']*K, 3),
         hollow_depth=round(-float(np.nanmin(np.where(np.isfinite(field), field, np.nan))), 3),
         keel_depth=round(-float(np.nanmin(np.where(np.isfinite(low), low, np.nan))), 3),
         rim_height=round(BRIM['droop']*K, 3), worn_height=round((tops[-1]-YB0)*K, 3),
-        basin_profile=[(round(r*K, 3), round(d*K, 3)) for r, d in curve],
+        basin_profile=[(*axes(r), round(d*K, 3)) for r, d in curve],
         stores_level_below_brim=fills, portion_volume=round(v, 3), inside_problems=check_inside())
 
 

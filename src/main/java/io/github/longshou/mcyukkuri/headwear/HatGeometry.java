@@ -181,7 +181,8 @@ public final class HatGeometry {
         out.add(box(feet,yaw,vector("body_min").scale(unit),vector("body_max").scale(unit)));
         if(worn!=null){
             double base=ANCHOR[1]*unit,height=BODY.get("hat_height_model_units").getAsDouble()*hatUnit;
-            out.add(box(feet,yaw,new Vec3(-worn.brim()[0]*hatUnit,base,-worn.brim()[1]*hatUnit),new Vec3(worn.brim()[0]*hatUnit,base+height,worn.brim()[1]*hatUnit)));
+            var brim=worn.wornBrim();
+            out.add(box(feet,yaw,new Vec3(-brim[0]*hatUnit,base,-brim[1]*hatUnit),new Vec3(brim[0]*hatUnit,base+height,brim[1]*hatUnit)));
         }
         return out;
     }

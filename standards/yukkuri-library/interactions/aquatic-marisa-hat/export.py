@@ -104,9 +104,10 @@ def outermost(tris, az, test, rs):
     return edge(tris, az, test, rs[n], rs[n+1]) if n+1 < len(rs) else float(rs[n])
 
 
-def profile(form, hull_id, tris, scale, squash, inside, sources, note):
+def profile(form, hull_id, tris, scale, squash, inside, sources, note, cloth=1., worn=None):
     """tris: the set-down hull as drawn (adult model units: hat units x scale, y also x squash), origin at the brim face;
-    inside(x, z): within its opening."""
+    inside(x, z): within its opening; cloth: its cloth area over the unspread hull's (the hull's weight follows it);
+    worn: the worn hat's brim half extents along x and z (model units), the set-down brim's when it is the same cloth."""
     blk = lambda v: round(float(v)/16, 4)
     reach = float(np.hypot(tris[:, :, 0], tris[:, :, 2]).max())+1
     rs = np.arange(0, reach+STEP, STEP)
@@ -137,9 +138,12 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
         dry = np.where(outer_r < opening, dam, top)
         outer = [[blk(r), blk(b), blk(t)] for r, b, t in zip(outer_r, bottom, dry)]
         for k, v in (('floor', floor), ('keel', keel_r), ('inner', inner), ('outer', outer)): rows[k].append(v)
+    if worn is None:
+        at = lambda deg: rows['brim'][azimuths.index(deg)]
+        worn = (max(at(0), at(180)), max(at(90), at(270)))
     for k in ('brim', 'opening', 'floor', 'keel'): rows[k] = [round(float(v)/16, 6) for v in rows[k]]
-    # the empty hull upright on calm water: its cloth's weight (hat_vessel.json afloat.hull_mass per scale²) displaced
-    mass = S.VESSEL['afloat']['hull_mass']*scale*scale; cell = (S.GRID.step/16)**2
+    # the empty hull upright on calm water: its cloth's weight (hat_vessel.json afloat.hull_mass per scale², per cloth area) displaced
+    mass = S.VESSEL['afloat']['hull_mass']*scale*scale*cloth; cell = (S.GRID.step/16)**2
     ok = np.isfinite(hull.low) & np.isfinite(hull.top); bot, top = hull.low[ok]/16, hull.top[ok]/16
     lo, hi = float(bot.min()), float(top.max())
     for _ in range(60):
@@ -157,6 +161,7 @@ def profile(form, hull_id, tris, scale, squash, inside, sources, note):
         surface_triangles=np.round(tris[tris[:, 0, 6] > 1e-4, :, :3] / 16, 6).tolist(),
         rim=dict(y=blk(dam), note='the lowest crest round the opening: water over it floods the hollow'),
         brim=dict(radius=rows['brim']), opening=dict(radius=rows['opening']),
+        worn=dict(brim=[round(float(v)/16, 6) for v in worn], note='half extents (x, z) of the worn hat brim: its box on a wearer'),
         floor=dict(y=blk(level/weight), radius=rows['floor']), hollow=dict(y=blk(hollow)),
         keel=dict(y=blk(keel), radius=rows['keel']),
         inner=rows['inner'], outer=rows['outer'],
@@ -198,11 +203,12 @@ def outputs():
     # the owner anchor rests the posed runtime Marisa on each hull: her model, clips and placement fit
     body = {rel(p): sha(p.read_bytes()) for p in (model, ASSETS/'yukkuri_presentation/motion_corrections.json',
                                                   ASSETS/'yukkuri_presentation/placement_fit.json')}
-    new = profile('cone_basin', HULL_ID, B.world(B.placed_mesh()), B.K, 1., lambda x, z: np.hypot(x, z) < B.IN['opening']*B.K,
+    new = profile('cone_basin', HULL_ID, B.world(B.placed_mesh()), B.K, 1., B.in_opening,
                   {rel(HERE/'recipe.json'): sha((HERE/'recipe.json').read_bytes()),
                    rel(ASSETS/f'yukkuri_props/{HULL_ID}.json'): sha(texts[ASSETS/f'yukkuri_props/{HULL_ID}.json']), **body},
                   'Second aquatic form: the land hat\'s cone tiers and bent tip outside, the lower tiers pressed into a keel; '
-                  'a round basin inside (this make-source). Mesh already pressed: draw with squash 1.')
+                  'a round basin inside (this make-source), set down splayed into an oval. Mesh already pressed: draw with squash 1.',
+                  B.cloth(), (B.BRIM['radius']*B.K,)*2)
     old_tris, scale, squash, (x0, x1, z0, z1) = old_hull()
     old_prop = ASSETS/f'yukkuri_props/{OLD_HULL_ID}.json'
     old = profile('turned_land_hat', OLD_HULL_ID, old_tris, scale, squash, lambda x, z: (x0 < x) & (x < x1) & (z0 < z) & (z < z1),

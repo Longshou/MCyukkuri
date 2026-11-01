@@ -1,7 +1,7 @@
 {
   "version": 2,
   "status": "pending_user_review",
-  "note": "The second aquatic Marisa hat form, beside the current aquatic hat (the land hat turned over), so a test species can show both (user choice); not shared with the land Marisa: worn on the head, set down brim up as her boat; inside and outside need not match (user choice). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a round basin. Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
+  "note": "The second aquatic Marisa hat form, beside the current aquatic hat (the land hat turned over), so a test species can show both (user choice); not shared with the land Marisa: worn on the head, set down brim up as her boat; inside and outside need not match (user choice). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a basin; set down, all stretched into an oval along the boat (set_down). Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
   "scale": 1.4,
   "anchor_worn": [0.0, 10.3774, 0.2307],
   "segments": 24,
@@ -32,6 +32,11 @@
     "floor_rings": 5,
     "note": "hat units under the brim face: the opening's edge goes straight down the brim's thickness (lip), then a quarter ellipse curves in to the level floor; the pressed tip leaves a shallow dimple in the middle. Must stay inside the base tier with at least min_wall of cloth",
     "min_wall": 0.3
+  },
+  "set_down": {
+    "beam": 1.0,
+    "length": 2.2,
+    "note": "set down only: an oval. The base tier and everything inside it (basin, keel tiers) stretched along the boat (z, bow to stern) by length and across it (x, toward the bank) by beam; the brim ring beyond the tier moves out with it at its own width; depths unchanged, the worn hat and item untouched (inside and outside need not match, user choice). Beam 1 keeps the brim across the boat at the worn width so the rower's braid and stick reach the water over the side; length gives a centred labouring adult her births on free floor ahead (project design)"
   },
   "newborn_scale": 0.145,
   "portion": {

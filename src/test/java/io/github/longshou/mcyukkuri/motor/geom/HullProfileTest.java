@@ -13,7 +13,7 @@ class HullProfileTest {
         assertEquals(.28,current.top()*current.measuredUnit(),1e-6);
         assertEquals(.4095,basin.top()*basin.measuredUnit(),1e-6);
         assertEquals(.0787,(basin.rimY()-basin.top())*basin.measuredUnit(),1e-6);
-        assertEquals(.6344,basin.mouth(.37)*basin.measuredUnit(),.002);
+        assertEquals(.670,basin.mouth(.37)*basin.measuredUnit(),.002);
         assertThrows(IllegalArgumentException.class,()->HullProfile.of("missing"));
     }
     @Test void supportRestsOnTheUndersideAtEveryRadius() {
@@ -38,8 +38,8 @@ class HullProfileTest {
     @Test void basinHoldsTheStudysOwnerAndSixNewborns() {
         var p=HullProfile.of(HullProfile.BASIN);double u=p.measuredUnit();
         // layout.py: owner_6n / day / body / zero stores, model units; yaw is body-to-hull.
-        double[][] positions={{0,0,0,1,4.03},{2.5,-6.5,20,.145,4},{-2.5,-6.5,20,.145,3.99},
-                {5,-6.5,-20,.145,3.82},{-5,-6.5,20,.145,3.78},{7,-5.5,20,.145,2.73},{-6.5,-6,20,.145,2.76}};
+        double[][] positions={{0,0,0,1,4.07},{2.5,-6.5,20,.145,4.06},{-2.5,-6.5,-20,.145,4.04},
+                {5,-6.5,20,.145,4.02},{-5,-6.5,-20,.145,4},{7.5,-6.5,20,.145,3.94},{-7.5,-6.5,-20,.145,3.89}};
         var bodies=new ArrayList<BodyFootprint>();var spots=new ArrayList<double[]>();
         for(var row:positions){
             // The study uses model rotation; entity yaw runs in the opposite direction in the host frame.
@@ -173,18 +173,27 @@ class HullProfileTest {
         var hull=HullProfile.of(HullProfile.BASIN);
         double unit=.08749999850988388,r=.09/unit;
         var food=new ArrayList<Disc>();
-        // The finite larder layout and mother's dimensions from the full-basin smoke readout.
-        for(double[] p:new double[][]{{5.278571446,-3.221428554},{-3.221428554,5.278571446},{3.278571446,-5.221428554},
-                {-5.221428554,3.278571446},{3.778571446,4.778571446},{-5.721428554,-2.221428554},{1.778571446,5.778571446},
-                {-2.221428554,-5.721428554},{5.778571446,1.778571446},{-1.721428554,5.778571446},{5.778571446,-1.721428554},
-                {-5.721428554,-1.721428554},{2.778571446,-5.221428554},{-1.721428554,-5.721428554},{.778571446,-5.721428554},
-                {-4.221428554,-4.221428554}}){
-            double floor=hull.footprint(p[0],p[1],r);
-            food.add(new Disc(p[0],p[1],r,floor,floor+.06/unit));
+        // The recipe's full larder (24 portions) by its spot rule (HullLarder.spot) round the mother sitting in the middle
+        // before her belly grew: lattice points over the opening, the whole circle on floor below the brim, clear of her and
+        // the others, the farthest from the middle, the two sides in turn. In labour she stands half a block toward one end,
+        // against the portions there; her dimensions from the full-basin smoke readout.
+        float[] o=hull.opening();
+        var slim=BodyFootprint.of("marisa",.8/unit,.6/unit,0);double slimY=hull.support(0,0,slim);
+        for(int n=0;n<24;n++){
+            int side=n%2==0?1:-1;double best=-1;Disc pick=null;
+            for(double x=o[0]+r;x<=o[1]-r;x+=.5)for(double z=o[2]+r;z<=o[3]-r;z+=.5){
+                double floor=hull.footprint(x,z,r);
+                if(!Double.isFinite(floor)||floor>=hull.top()-1e-6)continue;
+                var disc=new Disc(x,z,r,floor,floor+.06/unit);
+                if(slim.overlaps(0,slimY,0,disc,.02)||food.stream().anyMatch(f->f.overlaps(disc,.02)))continue;
+                double score=(x*side>0?1000:0)+Math.hypot(x,z);
+                if(score>best){best=score;pick=disc;}
+            }
+            assertNotNull(pick,"floor for portion "+n);food.add(pick);
         }
         double max=0;
         for(int yaw:new int[]{10,30,145,155}){
-            double x=0,z=0,y=1.7988122548867118;
+            double x=0,z=.5/unit,y=hull.support(x,z,BodyFootprint.of("marisa",.8*1.26*1.16/unit,.6*1.26/unit,Math.toRadians(yaw)));
             for(double belly:new double[]{1,.74,.48}){
                 var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
                 for(int tick=0;tick<400;tick++){

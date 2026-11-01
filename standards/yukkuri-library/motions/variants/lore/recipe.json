@@ -6,7 +6,8 @@
   "paddle_shared": {
     "grip_offset": 1.6,
     "twig_radius": 0.3,
-    "captain_yaw_step": 30,
+    "captain_yaw": 15,
+    "captain_yaw_step": 5,
     "catch_z": -8.0,
     "finish_z": 4.0,
     "air": 2.0,
@@ -15,7 +16,7 @@
     "rest_height": 2.6,
     "rest_z": 2.0,
     "rest_feather": 0,
-    "note": "Project design: the paddle stick's gate and target parameters shared by boat_paddle, hat_brim_offer and boat_nudge_young; a clip's own paddle block overrides keys (aim keys merge one level). The captain's mass is not stored: aquatic_tools derives it from body_geometry.json (marisa bounds) and Buoyancy.BODY_DENSITY.",
+    "note": "Project design: the paddle stick's gate and target parameters shared by boat_paddle, hat_brim_offer and boat_nudge_young; the captain rows facing her hull's bow (Paddle.FACING: within captain_yaw degrees), the stick over the beam; a clip's own paddle block overrides keys (aim keys merge one level). The captain's mass is not stored: aquatic_tools derives it from body_geometry.json (marisa bounds) and Buoyancy.BODY_DENSITY.",
     "aim": {
       "degrees_per_second": 300
     }

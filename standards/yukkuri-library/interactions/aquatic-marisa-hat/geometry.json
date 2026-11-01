@@ -1,77 +1,107 @@
 {
- "units": "world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale)",
+ "units": "world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale); set-down radii [along x, along z]",
  "scale": 1.4,
- "brim_radius": 14.182,
- "crown_radius": 10.64,
- "opening_radius": 10.15,
- "floor_radius": 8.26,
+ "spread": [
+  1.0,
+  2.2
+ ],
+ "brim_radius": [
+  14.182,
+  26.95
+ ],
+ "crown_radius": [
+  10.64,
+  23.408
+ ],
+ "opening_radius": [
+  10.15,
+  22.33
+ ],
+ "floor_radius": [
+  8.26,
+  18.172
+ ],
  "floor_depth": 3.99,
- "hollow_depth": 4.196,
+ "hollow_depth": 4.197,
  "keel_depth": 6.552,
  "rim_height": 1.26,
  "worn_height": 13.72,
  "basin_profile": [
   [
    10.15,
+   22.33,
    0.0
   ],
   [
    10.15,
+   22.33,
    1.12
   ],
   [
    10.103,
+   22.226,
    1.759
   ],
   [
    9.963,
+   21.918,
    2.365
   ],
   [
    9.738,
+   21.423,
    2.909
   ],
   [
    9.438,
+   20.764,
    3.364
   ],
   [
    9.08,
+   19.976,
    3.706
   ],
   [
    8.681,
+   19.097,
    3.918
   ],
   [
    8.26,
+   18.172,
    3.99
   ],
   [
    6.608,
+   14.538,
    3.998
   ],
   [
    4.956,
+   10.903,
    4.024
   ],
   [
    3.304,
+   7.269,
    4.066
   ],
   [
    1.652,
+   3.634,
    4.124
   ],
   [
+   0.0,
    0.0,
    4.2
   ]
  ],
  "stores_level_below_brim": {
-  "low": 3.86,
-  "half": 3.709,
-  "full": 3.425
+  "low": 3.947,
+  "half": 3.874,
+  "full": 3.735
  },
  "portion_volume": 6.254,
  "inside_problems": []

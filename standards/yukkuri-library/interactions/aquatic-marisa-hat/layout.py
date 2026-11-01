@@ -184,9 +184,9 @@ FLOOR = float(HULL.field[HULL.cavity].min())   # the hollow's lowest point (worl
 
 
 def climb(scale=1., share=1.):
-    """A body hanging on the rim from the water, {@code share} of its weight on the brim's edge (the rest still borne by
-    the water it is half in): the heel and the least freeboard."""
-    loads = [(S.mass(scale)*share, 0., S.B.BRIM['droop']*S.K, -S.B.BRIM['radius']*S.K)]
+    """A body hanging on the rim from the water at the beam (the bank side), {@code share} of its weight on the brim's edge
+    (the rest still borne by the water it is half in): the heel and the least freeboard."""
+    loads = [(S.mass(scale)*share, -S.B.BRIM_RADIUS[0]*S.K, S.B.BRIM['droop']*S.K, 0.)]
     h = S.hydro(HULL, loads)
     return dict(scale=scale, share=share, heel=h['heel'], freeboard=h['freeboard'], floods=bool(h['floods']))
 

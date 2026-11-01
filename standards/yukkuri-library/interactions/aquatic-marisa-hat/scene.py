@@ -4,7 +4,7 @@ World units are adult model units at growth 1 (16 a block); the set-down hat's f
 brim face (y 0), +Y out of the hollow, the boat's bow toward -Z. Bodies are the selected runtime Marisa posed with the
 exported clips (placement fitted). A body rests on the hat by its real underside: the highest (surface - underside) over
 the cells under it. Masses are block³ of water: a body as the round ball of the WaterDistress density, a stored portion as
-a lump of the same density, the cloth hull as hat_vessel.json afloat.hull_mass per scale².
+a lump of the same density, the cloth hull as hat_vessel.json afloat.hull_mass per scale² and per its cloth area.
 """
 from pathlib import Path
 import importlib.util, json, math, os, sys
@@ -24,9 +24,9 @@ LIVING = json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encodi
 VESSEL = json.loads((ASSETS/'yukkuri_presentation/hat_vessel.json').read_text(encoding='utf-8'))
 BRAID = json.loads((ASSETS/'yukkuri_presentation/braid_rescue.json').read_text(encoding='utf-8'))
 K = B.K
-GRID = B.Grid(half=16., step=.125)
+GRID = B.Grid(step=.125)
 DENSITY = .56*.56*(3-2*.56)                      # Buoyancy.BODY_DENSITY
-HULL_MASS = VESSEL['afloat']['hull_mass']*K*K     # block³
+HULL_MASS = VESSEL['afloat']['hull_mass']*K*K     # block³, an unspread hull; this make-source's weighs as its cloth
 FOOT, MARGIN = .5, .02                           # Occupancy.foot = FOOT * bbWidth + MARGIN (blocks)
 ADULT_W, ADULT_H = 12.8, 9.6                     # body_geometry.json marisa bounds (model units at growth 1)
 SWELL, LOW_WIDE, LOW_DEEP, LOW_FRONT = .26, .16, .06, .28   # LiveBirthGeometry
@@ -161,19 +161,39 @@ class Shape:
 
 
 # ------------------------------------------------------------------ the set-down hat
+def outline(points, n):
+    """The convex outline of horizontal points (x, z) met by n rays from the middle, evenly round: [(x, z)]."""
+    pts = sorted(set(map(tuple, np.round(points, 6).tolist())))
+    def half(seq):
+        out = []
+        for p in seq:
+            while len(out) > 1 and (out[-1][0]-out[-2][0])*(p[1]-out[-2][1])-(out[-1][1]-out[-2][1])*(p[0]-out[-2][0]) <= 0: out.pop()
+            out.append(p)
+        return out[:-1]
+    ring = np.array(half(pts)+half(pts[::-1])); nxt = np.roll(ring, -1, 0); out = []
+    for i in range(n):
+        d = np.array([math.cos(i*2*math.pi/n), math.sin(i*2*math.pi/n)]); e = nxt-ring
+        den = d[0]*e[:, 1]-d[1]*e[:, 0]; ok = np.abs(den) > 1e-12
+        t = np.where(ok, (ring[:, 0]*e[:, 1]-ring[:, 1]*e[:, 0])/np.where(ok, den, 1), -1)
+        u = np.where(ok, (ring[:, 0]*d[1]-ring[:, 1]*d[0])/np.where(ok, den, 1), -1)
+        r = float(t[ok & (t > 0) & (u >= -1e-9) & (u <= 1+1e-9)].max()); out.append((r*d[0], r*d[1]))
+    return out
+
+
 class Hull:
     """A set-down hull as drawn (world units): this make-source's by default, or another hull's triangles (placed), the
     height of its rim (dam: water over it floods the hollow) and its opening (inside(x, z))."""
     def __init__(self, placed=None, dam=None, inside=None):
         self.placed = B.world(B.placed_mesh()) if placed is None else placed
+        self.mass = HULL_MASS*(B.cloth() if placed is None else 1.)
         self.field = B.raster(self.placed, GRID, True)          # what a body stands on
         self.low = B.raster(self.placed, GRID, False)           # the outer bottom
         self.dam = B.BRIM['droop']*K if dam is None else dam   # the turned-up rim
-        self.inside = inside or (lambda x, z: np.hypot(x, z) < B.IN['opening']*K)
+        self.inside = inside or B.in_opening
         self.cavity = np.isfinite(self.field) & self.inside(GRID.x, GRID.z) & (self.field < -1e-3)
         # the dry hull's top: the brim where there is cloth, up to the rim's top over the hollow until it floods
         self.top = np.where(self.inside(GRID.x, GRID.z), self.dam, self.field)
-        self.rim_r = float(np.hypot(self.placed[:, :, 0], self.placed[:, :, 2]).max())
+        self.rim = outline(self.placed[:, :, [0, 2]].reshape(-1, 2), 48)   # the crest round the hull's outer edge (x, z)
 
     def stores(self, portions):
         """The layer's level (y) for this many portions, or None."""
@@ -201,8 +221,8 @@ def hydro(hull, loads, max_iter=80):
     bot = np.where(np.isfinite(hull.low), hull.low*s, np.nan); top = np.where(np.isfinite(hull.top), hull.top*s, np.nan)
     ok = np.isfinite(bot) & np.isfinite(top)
     X, Z, Bt, Tp = GRID.x[ok]*s, GRID.z[ok]*s, bot[ok], top[ok]
-    m = HULL_MASS+sum(w for w, *_ in loads)
-    G = (sum(w*np.array(p) for w, *p in loads)*s+HULL_MASS*np.array([0, -1.5*s, 0]))/m
+    m = hull.mass+sum(w for w, *_ in loads)
+    G = (sum(w*np.array(p) for w, *p in loads)*s+hull.mass*np.array([0, -1.5*s, 0]))/m
 
     def disp(h, a, b):
         w = h+a*X+b*Z; col = np.clip(np.minimum(w, Tp)-Bt, 0, None); v = col.sum()*cell
@@ -218,19 +238,23 @@ def hydro(hull, loads, max_iter=80):
             else: hi = mid
         return (lo+hi)/2
 
-    a = b = 0.
-    for _ in range(max_iter):
-        h = level(a, b); v, Bc = disp(h, a, b)
+    def error(a, b):
         # in the hull frame the world vertical is the plane's normal (-a, 1, -b): B - G must lie along it
-        ex = (Bc[0]-G[0])+a*(Bc[1]-G[1]); ez = (Bc[2]-G[2])+b*(Bc[1]-G[1])
-        if abs(ex) < 1e-6 and abs(ez) < 1e-6: break
-        a -= .8*ex; b -= .8*ez
+        v, Bc = disp(level(a, b), a, b)
+        return np.array([(Bc[0]-G[0])+a*(Bc[1]-G[1]), (Bc[2]-G[2])+b*(Bc[1]-G[1])])
+
+    a = b = 0.; d = 1e-3
+    for _ in range(max_iter):
+        e = error(a, b)
+        if abs(e[0]) < 1e-6 and abs(e[1]) < 1e-6: break
+        # Newton step on the measured slopes: a fixed gain overshoots once the waterplane is wide (spread basin)
+        J = np.c_[(error(a+d, b)-e)/d, (error(a, b+d)-e)/d]
+        try: step = np.linalg.solve(J, e)
+        except np.linalg.LinAlgError: step = .8*e
+        k = min(1., .2/max(1e-9, float(np.hypot(*step)))); a -= k*step[0]; b -= k*step[1]
         if abs(a) > 1.2 or abs(b) > 1.2: break
     h = level(a, b)
-    rim = []
-    for i in range(48):
-        ang = i*2*math.pi/48; x, z = math.cos(ang)*hull.rim_r*s, math.sin(ang)*hull.rim_r*s
-        rim.append((hull.dam*s-(h+a*x+b*z), ang))
+    rim = [(hull.dam*s-(h+a*x*s+b*z*s), math.atan2(z, x) % (2*math.pi)) for x, z in hull.rim]
     least, at = min(rim)
     heel = math.degrees(math.atan(math.hypot(a, b)))
     return dict(heel=round(heel, 2), roll=round(math.degrees(math.atan(a)), 2), pitch=round(math.degrees(math.atan(b)), 2),
@@ -245,7 +269,7 @@ def flood_angle(hull, loads, direction):
     bot = np.where(np.isfinite(hull.low), hull.low*s, np.nan); top = np.where(np.isfinite(hull.top), hull.top*s, np.nan)
     ok = np.isfinite(bot) & np.isfinite(top)
     X, Z, Bt, Tp = GRID.x[ok]*s, GRID.z[ok]*s, bot[ok], top[ok]
-    m = HULL_MASS+sum(w for w, *_ in loads)
+    m = hull.mass+sum(w for w, *_ in loads)
     cx, cz = math.cos(direction), math.sin(direction)
     for deg in np.arange(0, 60, .25):
         t = math.tan(math.radians(deg)); a, b = t*cx, t*cz
@@ -254,8 +278,8 @@ def flood_angle(hull, loads, direction):
             mid = (lo+hi)/2; w = mid+a*X+b*Z
             if np.clip(np.minimum(w, Tp)-Bt, 0, None).sum()*cell < m: lo = mid
             else: hi = mid
-        h = (lo+hi)/2; r = hull.rim_r*s
-        if hull.dam*s-(h+a*r*cx+b*r*cz) <= 0: return float(deg)
+        h = (lo+hi)/2
+        if min(hull.dam*s-(h+a*x*s+b*z*s) for x, z in hull.rim) <= 0: return float(deg)
     return 60.
 
 

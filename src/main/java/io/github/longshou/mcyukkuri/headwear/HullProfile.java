@@ -18,6 +18,7 @@ public final class HullProfile {
     private static final Map<String, HullProfile> FORMS = new ConcurrentHashMap<>();
     private final JsonObject data;
     private final double[] angles, brim, opening;
+    private final float[] worn;
     private final SurfaceTable surface;
     private final List<Vec> outline, rim;
     private final double unit, keel;
@@ -41,6 +42,9 @@ public final class HullProfile {
             double a=Math.toRadians(angles[i]);points.add(new Vec(Math.cos(a)*brim[i]/unit,0,Math.sin(a)*brim[i]/unit));
         }
         outline=List.copyOf(points);
+        var wornBrim=numbers(source,"worn.brim");
+        source.check(wornBrim.length==2&&wornBrim[0]>0&&wornBrim[1]>0,"worn.brim","expected two positive half extents");
+        worn=new float[]{(float)(wornBrim[0]/unit),(float)(wornBrim[1]/unit)};
         surface=new SurfaceTable(source, "surface_triangles", unit, keel);
         points.clear();
         for(int i=0;i<24;i++)points.add(surface.rim(i*Math.PI/12));
@@ -65,6 +69,8 @@ public final class HullProfile {
     public double reach(double angle) { return radial(brim, angle) / unit; }
     public double mouth(double angle) { return radial(opening, angle) / unit; }
     public float[] brim() { return new float[]{(float)Math.max(reach(0), reach(Math.PI)), (float)Math.max(reach(Math.PI/2), reach(-Math.PI/2))}; }
+    /** The worn hat's brim half extents along x and z (hat units); the set-down form need not match it. */
+    public float[] wornBrim() { return worn.clone(); }
     public float[] opening() { return new float[]{(float)-mouth(Math.PI), (float)mouth(0), (float)-mouth(-Math.PI/2), (float)mouth(Math.PI/2)}; }
     public boolean inOpening(double x, double z) { return Math.hypot(x, z) <= mouth(Math.atan2(z, x)); }
 
