@@ -8,7 +8,7 @@
 | `build.py` | 生成戴着与放下的网格，检查圆盆是否在外壳之内，写 `geometry.json`、`food_layer.png` |
 | `export.py` | 导出运行网格、储粮贴图与两种形态的帽船剖面，写 `art/source/aquatic-basin-hat/` 快照与指纹 |
 | `geometry.json` | 帽口、平底、深度、龙骨、翘边、圆盆剖面，以及三档储粮的层面高度 |
-| `food_layer.png` | 储粮层 16×16 贴图（谷粒、干草、浆果、草籽） |
+| `food_layer.png` | 储粮贴图：一张 128×32，四格 32×32 依次为空、1–2、3–5、6–8 份（`recipe.json` `stores`）；每格覆盖帽底平底圆面（从上往下看，+x 向右、船首朝上），小档堆在船首一侧；手绘像素（干草垫上的浆果、葡萄、叶子、三叶草、橡果、胡萝卜、苹果与草籽，项目设计） |
 | `scene.py` | 身体、脚圆、支撑、储粮层、外壳静水力、辫子托兜范围 |
 | `layout.py` | 按载重规则逐一摆放乘员，写 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-round/layouts.json` |
 | `preview.py` | 预览图 `sheet.png`（两种形态对照与新形态布局）与带布局表的 `index.html`（同一预览目录） |
@@ -127,7 +127,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 | --- | --- |
 | `yukkuri_props/aquatic_basin_hat.json` | 戴着的帽子，也是物品外观：魔理沙模型坐标、帽子单位，与 `accessory_marisa` 同一坐标，按同一 `HatScale` 放大；部件 `crown`、`tip`、`bow` |
 | `yukkuri_props/aquatic_basin_hat_turned.json` | 放下的帽船：坐标同 `marisa_hat_turned`（原点在帽檐面中心，+Y 出帽腔，+X 为戴着时的前方）；龙骨已压好，绘制时不再按 `HatGeometry.squash()` 压扁；部件 `hull`、`bow` |
-| `textures/props/aquatic_basin_hat_stores.png` | 储粮层 16×16 贴图（即 `food_layer.png`） |
+| `textures/props/aquatic_basin_hat_stores.png` | 储粮贴图（即 `food_layer.png`） |
 | `yukkuri_presentation/hull_profiles/<帽船 ID>.json` | 帽船剖面，见下节；`aquatic_basin_hat_turned`、`marisa_hat_turned` 各一份 |
 
 两个网格登记在 `yukkuri_props/subspecies-index.json`，贴图用魔理沙图集与陆生帽相同的格子。

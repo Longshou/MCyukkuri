@@ -44,5 +44,10 @@
     "height_blocks": 0.06,
     "note": "a stored portion keeps the room it takes now (a floor circle of radius 0.09 and 0.06 high, AQUATIC_MARISA_IMPLEMENTATION storage); the layer is that volume spread level over the hollow",
     "fills": {"low": 6, "half": 12, "full": 24}
+  },
+  "stores": {
+    "tiers": [[0, 0], [1, 2], [3, 5], [6, 8]],
+    "frame": 32,
+    "note": "the stored food is one texture on the basin floor (user: 储粮应为一张覆盖帽底、随数量变化的贴图): one 32 px frame per tier side by side (portions from..to; tier 0 empty), each frame covering the floor disc (floor_radius) seen from above, +x right and the bow (-z) up"
   }
 }
