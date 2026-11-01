@@ -15,7 +15,6 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -36,8 +35,6 @@ public final class Walk implements Action {
     public static final double STAND_ARRIVED = .1;
     /** Ticks between two {@code walk.sample} detail lines. */
     private static final int SAMPLE_TICKS = 20;
-    /** What entering a cell beside the brim costs on a host route, in cells (the rim penalty). */
-    private static final double RIM_WEIGHT = 1;
 
     private final Vec3 target;
     private final SurfaceHost host;
@@ -107,7 +104,6 @@ public final class Walk implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         from = body.position();
         if (host != null) {
-            if (host.fixedSeats()) return Feasibility.of(Reason.NO_SUPPORT, 0, "fixed_seat_requires_transfer");
             if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host)
                 return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
             if (host.support(local, body).isEmpty())
@@ -185,16 +181,10 @@ public final class Walk implements Action {
     /** Plans the host route on its walk grid, both ends snapped to a supported cell: no route is {@code NO_PATH} with the straight distance; a replan keeps off other riders. */
     private Feasibility plan(YukkuriEntity body, boolean aroundRiders) {
         var spot = host.riders().local(body.getUUID());
-        double unit = Math.max(1E-6, host.frame().unit());
-        var grid = host.walkGrid(body, aroundRiders);
-        int[] start = grid.nearest(spot.x, spot.z), goal = grid.nearest(local.x, local.z);
-        var path = start == null || goal == null ? List.<double[]>of()
-                : GridPath.find(grid, grid.centreX(start[0]), grid.centreZ(start[1]), grid.centreX(goal[0]), grid.centreZ(goal[1]),
-                        BodyAbility.of(body).stepUp() / unit, RIM_WEIGHT);
+        var path = host.walkRoute(body, local, aroundRiders);
         if (path.isEmpty()) {
-            double distance = Math.hypot(local.x - spot.x, local.z - spot.z) * unit;
-            String detail = String.format(Locale.ROOT, "no_grid_path distance=%.2f from=%s to=%s grid=%dx%d", distance, spot, local,
-                    grid.nx(), grid.nz());
+            double distance = Math.hypot(local.x - spot.x, local.z - spot.z) * host.frame().unit();
+            String detail = String.format(Locale.ROOT, "no_host_path distance=%.2f from=%s to=%s", distance, spot, local);
             // Observation only: the refusal line of the driver carries no distance.
             GameplayLog.limited(body, "action", "walk.no_path", 100, "walk refused host={} {}", host.entity().getUUID(), detail);
             return Feasibility.of(Reason.NO_PATH, distance, detail);

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
@@ -146,7 +147,7 @@ final class SetOut implements Intent {
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                 () -> new Step.Do(new Face(edge.yaw())),
                 // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
-                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + 120)));
+                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
     }
 
     /** Walk beside the stick, face it, pick it up into her hat. */

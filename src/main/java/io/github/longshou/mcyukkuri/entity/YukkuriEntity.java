@@ -50,9 +50,9 @@ import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.motor.BodyDriver;
+import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import net.neoforged.neoforge.fluids.FluidType;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -442,13 +442,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 && family != null && family.boardingThrough(hat));
     }
     /** A host that keeps this rider dry (SurfaceHost.shelters): every water check, drowning included, sees it out of the water. */
-    private boolean sheltered() {
-        var host = getVehicle() instanceof SurfaceHost surface ? surface
-                : motor != null && motor.current() instanceof Hop hop ? hop.host() : null;
-        return host != null && host.shelters(this);
-    }
-    @Override public boolean isInWater() { return super.isInWater() && !sheltered(); }
-    @Override public boolean canDrownInFluidType(FluidType type) { return !sheltered() && super.canDrownInFluidType(type); }
+    @Override public boolean isInWater() { return super.isInWater() && !Attach.sheltered(this); }
+    @Override public boolean canDrownInFluidType(FluidType type) { return !Attach.sheltered(this) && super.canDrownInFluidType(type); }
     public ChildhoodLife childhood() { return childhood; }
     public CareApproach careApproach() { return careApproach; }
     /** A newborn crossing from its mother's outlet to the hat is not shoved off its arc by the body it overlaps. */

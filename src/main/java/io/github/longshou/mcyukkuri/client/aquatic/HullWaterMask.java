@@ -1,8 +1,8 @@
 package io.github.longshou.mcyukkuri.client.aquatic;
 
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
-import io.github.longshou.mcyukkuri.aquatic.HullPresentation;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,7 @@ public final class HullWaterMask {
             var at = view.getPosition(partial);
             double water = HullAfloat.surface(level, at.x, at.y - 2, at.z);
             if (!Double.isFinite(water)) continue;
-            double radius = HullPresentation.MOUTH * view.hullScale() / HullPresentation.SCALE;
+            double radius = HullBounds.MOUTH * view.hullScale() / HullBounds.SCALE;
             if (mask == null) { buffers.endBatch(); mask = buffers.getBuffer(RenderType.waterMask()); }
             float y = (float) (water - camera.y) + LIFT;
             for (int face = 0; face < 2; face++)

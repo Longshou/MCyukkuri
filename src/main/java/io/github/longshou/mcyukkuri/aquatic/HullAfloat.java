@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -67,7 +68,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         var d = local(hat, at.x - hat.getX(), at.z - hat.getZ());
         return hat.profile().reach(Math.atan2(d[1], d[0])) * hat.unit();
     }
-    private static double scale(PlacedHatEntity hat) { return hat.hullScale() / HullPresentation.SCALE; }
+    private static double scale(PlacedHatEntity hat) { return hat.hullScale() / HullBounds.SCALE; }
 
     public static void register() {
         PlacedHatBehavior.register(new Provider() {
@@ -76,7 +77,7 @@ public final class HullAfloat implements PlacedHatBehavior {
                 if (!hat.profile().seated()) return false;
                 double water = surface(hat.level(), hat.getX(), hat.getY() - 2, hat.getZ());
                 double brim = hat.position().y;
-                return water >= brim + HullPresentation.KEEL * scale(hat);
+                return water >= brim + HullBounds.KEEL * scale(hat);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
             @Override public boolean carries(Level level, Vec3 at) { return Waters.calm(level, BlockPos.containing(at)); }
@@ -142,7 +143,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         var blocked = motion.subtract(actual).multiply(1, 0, 1);
         if (blocked.lengthSqr() > 0) impact = Math.max(impact, motion.dot(blocked.normalize()));
         paddling = false; drive = Vec3.ZERO; turnBy = 0;
-        double reach = HullPresentation.RADIUS * scale(hat) + 1;
+        double reach = HullBounds.RADIUS * scale(hat) + 1;
         var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity);
         contactPositions.keySet().retainAll(nearby);
@@ -225,7 +226,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
 
     private static boolean open(PlacedHatEntity hat, double more) {
-        double r = HullPresentation.RADIUS * scale(hat) + more;
+        double r = HullBounds.RADIUS * scale(hat) + more;
         double y = hat.position().y;
         return !hat.level().getBlockCollisions(hat, new AABB(hat.getX() - r, y - hat.unit(), hat.getZ() - r,
                 hat.getX() + r, y + hat.unit(), hat.getZ() + r)).iterator().hasNext();
@@ -266,11 +267,11 @@ public final class HullAfloat implements PlacedHatBehavior {
         double brim = hat.position().y;
         var box = other.getBoundingBox();
         double tilt = Math.abs(Math.sin(Math.toRadians(hat.roll()))) + Math.abs(Math.sin(Math.toRadians(hat.pitch())));
-        if (box.minY >= brim + HullPresentation.RADIUS * scale(hat) * tilt
-                || box.maxY <= brim + HullPresentation.KEEL * scale(hat)) return;
+        if (box.minY >= brim + HullBounds.RADIUS * scale(hat) * tilt
+                || box.maxY <= brim + HullBounds.KEEL * scale(hat)) return;
         double dx = other.getX() - hat.getX(), dz = other.getZ() - hat.getZ(), distance = Math.hypot(dx, dz);
         if (distance < 1e-4) { dx = 1; dz = 0; distance = 1; }
-        double depth = Math.min(CONTACT_STEP, HullPresentation.RADIUS * scale(hat) + other.getBbWidth() / 2 - distance);
+        double depth = Math.min(CONTACT_STEP, HullBounds.RADIUS * scale(hat) + other.getBbWidth() / 2 - distance);
         if (depth <= 0) return;
         double nx = dx / distance, nz = dz / distance;
         Motor.move(hat, clear(hat, new Vec3(-nx * depth, 0, -nz * depth)), "hull_contact");
@@ -336,7 +337,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     @Override public String detail(PlacedHatEntity hat) {
         return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s",
-                HullPresentation.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
+                HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
                 phase == Phase.INVERTED, rightProgress, larder.detail());
     }
     private static double[] local(PlacedHatEntity hat, double x, double z) {

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 
 /** One body execution. Only {@link Motor} writes a body, and only {@link BodyDriver} starts an action. */
 public interface Action {
@@ -11,6 +12,9 @@ public interface Action {
     Feasibility check(YukkuriEntity body);
 
     void start(YukkuriEntity body);
+
+    /** Physical host crossed by this action, including an arrival or departure in flight. */
+    default SurfaceHost host() { return null; }
 
     /** Called from {@link BodyDriver#tickTravel}; every tick until it returns an {@link Outcome}. */
     Progress tick(YukkuriEntity body);

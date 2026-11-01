@@ -106,7 +106,7 @@ final class Rescue implements Intent {
         if (!faller.waterDistress().escaping()) return landing();
         var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
-        var spot = AquaticLife.spot(hat, helper, false, hat.frame().toLocal(faller.position()));
+        var spot = AquaticLife.spot(hat, helper);
         BooleanSupplier walk = () -> spot != null && ContactGeometry.reachesFrom(helper, hat.frame().toWorld(spot), faller)
                 && spot.subtract(hat.frame().toLocal(helper.position())).horizontalDistance() >= .1;
         if (walk.getAsBoolean())

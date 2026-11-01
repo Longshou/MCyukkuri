@@ -7,6 +7,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HullProfileTest {
+    private static double landTolerance(HullProfile p) { return p.data().get("level_tolerance").getAsDouble() / p.measuredUnit(); }
+    @Test void landHatWalkingKeepsItsObstacleAtEveryHeight() {
+        var land = HullProfile.of(HullProfile.CURRENT); var boat = HullProfile.of(HullProfile.BASIN);
+        for (double feet : new double[]{62, 63.9, 64, 64.1, 65, Double.NaN})
+            assertTrue(land.blocksWalking(feet, 64.1), "land outline remains an obstacle at " + feet);
+        assertFalse(boat.blocksWalking(64, 63.9));
+        assertTrue(boat.blocksWalking(63.8, 63.9));
+        assertTrue(boat.blocksWalking(Double.NaN, 63.9));
+    }
     @Test void loadsBothExportedProfilesInTheirOwnFrame() {
         var current=HullProfile.of(HullProfile.CURRENT);var basin=HullProfile.of(HullProfile.BASIN);
         assertEquals("marisa_hat_turned",current.hull());assertEquals("aquatic_basin_hat_turned",basin.hull());
@@ -33,11 +42,11 @@ class HullProfileTest {
             assertTrue(Double.isNaN(p.support(2/u,0,BodyFootprint.of("marisa",.8/u,.6/u,0))));
             double owner=p.support(0,0,BodyFootprint.of("marisa",.8/u,.6/u,0));
             assertEquals(p.data().getAsJsonObject("anchors").get("owner_y").getAsDouble(),(owner-p.top())*u,
-                    p.tolerance()*u,id+" owner underside");
+                    landTolerance(p)*u,id+" owner underside");
         }
     }
     @Test void currentLandCatchKeepsTheExistingFloorLedgesOpeningAndBrim() {
-        var p=HullProfile.of(HullProfile.CURRENT);double u=1.0/16,tolerance=p.tolerance()*u;
+        var p=HullProfile.of(HullProfile.CURRENT);double u=1.0/16,tolerance=landTolerance(p)*u;
         // Existing hat_vessel.json floor/ledge depths and catch lip, at land scale 1.
         double[][] sections={{0,0,7.029},{1,0,7.029},{2.5,0,4.8136},{3.5,0,2.2484},{5,0,0},{0,4,4.8136},{0,-5.5,.6}};
         for(var s:sections)assertEquals((3.2-s[2]*.2935)*u,p.surface(s[0],s[1])*u,tolerance,"land surface "+s[0]+","+s[1]);

@@ -82,10 +82,7 @@ public final class Motor {
     /** Rides the host; records {@code [body] mount} only after vanilla accepted it, then settles the moved body. */
     public static boolean mount(YukkuriEntity body, Entity host, String cause) {
         if (body == null || host == null || host == body) return false;
-        if (host instanceof SurfaceHost surface && surface.fixedSeats()) {
-            if (!surface.bears(body)) return false;
-            if (body.position().distanceTo(surface.seatDestination(body).world()) > .05) return false;
-        }
+        if (host instanceof SurfaceHost surface && !surface.mountable(body)) return false;
         // Moving from one vehicle to another (a grab off the placed hat) leaves the old one where the body stands.
         boolean previous = DISMOUNTING.get();
         DISMOUNTING.set(true);

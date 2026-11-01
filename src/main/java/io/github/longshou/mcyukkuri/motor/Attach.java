@@ -16,6 +16,13 @@ public final class Attach {
 
     private Attach() {}
 
+    /** The host alone decides whether its dry cavity shelters the body's actual position. */
+    public static boolean sheltered(YukkuriEntity body) {
+        var action = body.motor() == null ? null : body.motor().current();
+        var host = body.getVehicle() instanceof SurfaceHost surface ? surface : action == null ? null : action.host();
+        return host != null && host.shelters(body);
+    }
+
     /** Pure read: the attachment of {@code body} right now. */
     public static AttachState of(YukkuriEntity body) {
         if (body == null) return new AttachState.Free(false);

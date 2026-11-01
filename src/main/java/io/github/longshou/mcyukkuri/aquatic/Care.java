@@ -176,6 +176,4 @@ final class Care implements Intent {
             }, DEADLINE, Behaviors.BOAT_FEED_YOUNG));
         }
     }
-
-
 }

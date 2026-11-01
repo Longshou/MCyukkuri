@@ -3,18 +3,16 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 
-/** Authored hull dimensions (blocks at the exported scale) and presentation, shared by server and renderer. */
+/** Authored hull motion and presentation, shared by server and renderer. */
 public final class HullPresentation {
     private static final GeometryJson MOTION = GeometryJson.read("yukkuri_presentation/aquatic_hull.json");
-    public static final double SCALE = HullBounds.SCALE, WATERLINE = HullBounds.WATERLINE,
-            BRIM = HullBounds.BRIM, RADIUS = HullBounds.RADIUS, MOUTH = HullBounds.MOUTH, KEEL = HullBounds.KEEL;
 
     private HullPresentation() {}
     public static double number(String key) { return MOTION.number(key); }
     public static double wave(long tick, String period) { return Math.sin(tick * 2 * Math.PI / number(period)); }
     public static double bob(long tick) { return number("bob_height") * wave(tick, "bob_period"); }
     public static double waterHeight(double scale, float roll, float pitch) {
-        return (WATERLINE * scale) * Math.cos(Math.toRadians(roll)) * Math.cos(Math.toRadians(pitch));
+        return (HullBounds.WATERLINE * scale) * Math.cos(Math.toRadians(roll)) * Math.cos(Math.toRadians(pitch));
     }
     public static float roll(long tick) { return (float) (number("roll_degrees") * wave(tick, "roll_period")); }
     public static float pitch(long tick) { return (float) (number("pitch_degrees") * wave(tick, "pitch_period")); }

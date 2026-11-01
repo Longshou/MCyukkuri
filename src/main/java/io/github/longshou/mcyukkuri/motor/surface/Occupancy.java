@@ -19,7 +19,6 @@ public enum Occupancy {
     /** The middle of the hollow (world) of the host this body rides, while it lies on the brim or rim rather than inside: where a body that fell onto the brim tumbles toward. */
     public static Vec3 hollow(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return null;
-        if (on.host().fixedSeats()) return null;
         return of(body, on.host().container()) == INSIDE_SUPPORTED ? null : on.host().frame().toWorld(Vec3.ZERO);
     }
 

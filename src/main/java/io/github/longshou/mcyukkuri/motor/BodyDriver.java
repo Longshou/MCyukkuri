@@ -271,9 +271,9 @@ public final class BodyDriver {
     private void refused(MotorOwner requester, Action action, String reason) {
         startRefusal = new StartRefusal(requester, action, reason, owner == null ? "none" : owner.ownerId());
         GameplayLog.limited(body, "action", "refused:" + reason, REFUSED_WINDOW,
-                "refused id={} owner={} current={} reason={}",
+                "refused id={} owner={} current={} reason={} detail={}",
                 action.id(), owner == null ? "none" : owner.ownerId(),
-                current == null ? "idle" : current.id(), reason);
+                current == null ? "idle" : current.id(), reason, refusal == null ? "" : detailOf(refusal));
     }
 
     private long now() { return body.level().getGameTime(); }

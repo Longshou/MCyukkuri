@@ -19,6 +19,7 @@
   "edge_y": -0.0359
  },
  "keel_y": -0.4095,
+ "boarding_yaw": 120.0,
  "captain_seat": {
   "growth": 1.0,
   "x": 0.0,

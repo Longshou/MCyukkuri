@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 public final class HullBounds {
     public static final GeometryJson DATA = GeometryJson.read("yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json");
     public static final double SCALE = DATA.number("scale"), UNIT = SCALE / 16,
-            WATERLINE = DATA.number("waterline_y"), KEEL = DATA.number("keel_y"),
+            BOARDING_YAW = DATA.number("boarding_yaw"), WATERLINE = DATA.number("waterline_y"), KEEL = DATA.number("keel_y"),
             MOUTH = DATA.number("mouth.radius"), FLOOR_RADIUS = DATA.number("floor.radius"), FLOOR = DATA.number("floor.y"),
             BRIM = DATA.number("brim.y"), LEVEL_RADIUS = DATA.number("brim.level_radius"),
             RADIUS = DATA.number("brim.outer_radius"), EDGE = DATA.number("brim.edge_y");

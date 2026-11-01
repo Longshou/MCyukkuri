@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.surface;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.ContactResolver;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
@@ -50,8 +50,9 @@ public interface SurfaceHost {
     /** UUID to local spot and yaw; the persisted and synchronized rider table. */
     Riders riders();
 
-    /** Fixed riders board a destination; they do not walk or get repacked on the host. */
-    default boolean fixedSeats() { return false; }
+    boolean mountable(YukkuriEntity body);
+    Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
+    ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
     default SeatTarget seatDestination(YukkuriEntity body) { return null; }
 
     /** False while the host shakes; no jump landing may be planned onto it then. */
@@ -80,6 +81,6 @@ public interface SurfaceHost {
     /** It keeps such an item where a rider can use it (a stick to paddle with). */
     default boolean holds(Item item) { return false; }
 
-    /** The height field {@code walker} plans a walk on: cells of at most {@link #GRID_CELL} hat units and no wider than its foot, unsupported where a store or a rider is in the way. */
-    HeightGrid walkGrid(YukkuriEntity walker, boolean aroundRiders);
+    /** Supported walking route, or empty when this surface offers no route. */
+    List<double[]> walkRoute(YukkuriEntity walker, Vec3 target, boolean aroundRiders);
 }

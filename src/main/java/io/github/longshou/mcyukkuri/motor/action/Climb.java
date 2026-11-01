@@ -13,12 +13,10 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. */
@@ -63,7 +61,7 @@ public final class Climb implements Action {
             return Feasibility.of(Reason.TOO_HIGH, rise - ability.climbRise(), String.format(Locale.ROOT, "rise=%.2f climbRise=%.2f", rise, ability.climbRise()));
         if (host != null) {
             edge = host.frame().toLocal(grip);
-            stand = inside(body);
+            stand = host.landingSpot(body, edge);
             return stand == null ? Feasibility.of(Reason.NO_ROOM, 0, "no_room_inside") : Feasibility.pass();
         }
         return body.level().noCollision(body, body.getBoundingBox().move(stand.subtract(body.position()).add(0, CLEAR, 0)))
@@ -96,11 +94,8 @@ public final class Climb implements Action {
             Motor.move(body, new Vec3(0, -2 * CLEAR, 0), "climb_settle");
             return new Outcome.Done("on_bank at=" + GameplayLog.at(body.position()));
         }
-        if (host.fixedSeats()) return new SeatTarget(host, stand).land(body, "climb")
-                ? new Outcome.Done("seated local=" + stand) : Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
-        if (!Motor.mount(body, host.entity(), "climb")) return Outcome.of(Reason.NO_ROOM, 0, "mount_refused");
-        host.riders().put(body.getUUID(), stand, Mth.wrapDegrees(body.getYRot() - (float) Math.toDegrees(host.frame().yawRad())));
-        return new Outcome.Done("aboard local=" + stand);
+        return new SeatTarget(host, stand).land(body, "climb")
+                ? new Outcome.Done("aboard local=" + stand) : Outcome.of(Reason.NO_ROOM, 0, "landing_refused");
     }
 
     @Override public String startDetail() {
@@ -115,21 +110,6 @@ public final class Climb implements Action {
         double speed = host.entity().getDeltaMovement().horizontalDistance();
         return host.capsized() ? "capsized" : tilt > holds ? String.format(Locale.ROOT, "tilt=%.1f holds=%.1f", tilt, holds)
                 : speed > HOST_SPEED ? String.format(Locale.ROOT, "host_speed=%.3f", speed) : null;
-    }
-
-    /** The supported spot with room nearest the middle on the line in from the gripped brim (hat units), or null. */
-    private Vec3 inside(YukkuriEntity body) {
-        if (host.fixedSeats()) {
-            var seat = host.seatDestination(body);
-            return seat == null ? null : seat.local();
-        }
-        double reach = Math.hypot(edge.x, edge.z), foot = Occupancy.foot(body.getBbWidth());
-        for (double r = 0; r <= reach - foot / host.frame().unit(); r += .5) {
-            var height = host.support(new Vec3(edge.x / reach * r, 0, edge.z / reach * r), body);
-            if (height.isPresent() && host.room(body, new Vec3(edge.x / reach * r, height.getAsDouble(), edge.z / reach * r)))
-                return new Vec3(edge.x / reach * r, height.getAsDouble(), edge.z / reach * r);
-        }
-        return null;
     }
 
     /** A share {@code f} along the pull: straight up from where it gripped, across at the edge's height, down onto the stand. */

@@ -12,6 +12,11 @@ public final class HatSeats {
     private static final double YOUNG = HullBounds.DATA.number("seating.young_max_growth");
     private static final Vec CAPTAIN = new Vec(HullBounds.DATA.number("captain_seat.x"),
             HullBounds.DATA.number("captain_seat.y"), HullBounds.DATA.number("captain_seat.z"));
+    private static final Vec YOUNG_SEAT = youngSeat();
+    private static Vec youngSeat() {
+        var point = HullBounds.DATA.field("seating.young").getAsJsonArray();
+        return new Vec(point.get(0).getAsDouble(), point.get(1).getAsDouble(), point.get(2).getAsDouble());
+    }
     private static final List<Vec> INFANTS = HullBounds.DATA.field("seating.infants").getAsJsonArray().asList().stream()
             .map(v -> v.getAsJsonArray()).map(v -> new Vec(v.get(0).getAsDouble(), v.get(1).getAsDouble(), v.get(2).getAsDouble())).toList();
 
@@ -33,8 +38,7 @@ public final class HatSeats {
             return null;
         }
         if (!young.isEmpty() || (float) body.size() > (float) (YOUNG * scale)) return null;
-        var point = HullBounds.DATA.field("seating.young").getAsJsonArray();
-        var at = scaled(new Vec(point.get(0).getAsDouble(), point.get(1).getAsDouble(), point.get(2).getAsDouble()), scale);
+        var at = scaled(YOUNG_SEAT, scale);
         return clear(body, at, riders) ? at : null;
     }
 

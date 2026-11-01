@@ -119,7 +119,7 @@ public final class AquaticLife {
     static boolean rain(YukkuriEntity y) { return y.level().isRainingAt(y.blockPosition().above()) || y.level().isThundering(); }
 
     /** Unreserved seat destination; retained for the rescue caller until WP5 adopts SeatTarget. */
-    static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body, boolean inside, Vec3 near) {
+    static Vec3 spot(PlacedHatEntity hat, YukkuriEntity body) {
         var seat = hat.seatDestination(body);
         return seat == null ? null : seat.local();
     }
