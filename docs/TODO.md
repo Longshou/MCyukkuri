@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水生帽船重做（WP1 下线舍弃功能） | `.worktrees/aq-wp1-retire` | Share/Moor 及调用、水生欲望配置、`family_skiffs`/`water_night` 场景、FEATURES/TODO 水生段 |
+| 水生帽船睡莲叶帽型与粮食贴图（美术） | `.worktrees/aq-lilypad-art` | aquatic-marisa-hat 制作源与导出、粮食分档贴图、hull gate 工具 |
 
 ## 玩法待办
 
