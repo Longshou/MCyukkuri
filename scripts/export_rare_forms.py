@@ -7,6 +7,7 @@
 Reads standards/yukkuri-library/subspecies/rare-forms/assembled/<form>/ and the packaged data of each form's base.
 A derived form keeps its base's vertex count and part order, so every base entry keyed by asset id is carried
 over under the form's id with the form's own model hash; only data of parts the recipe changed is rebuilt.
+Per-model motion corrections belong to scripts/export_motion_corrections.py, which fits every form's own mesh.
 Run it after any exporter that rewrites the shared presentation files (it only touches its own keys).
 Writes the snapshot art/source/rare-forms-runtime/, yukkuri_presentation/hat_seat.json and the 'rare_forms' record in
 art/runtime-sources.json.
@@ -24,6 +25,8 @@ import sys
 from pathlib import Path
 
 from PIL import Image
+
+from asset_export_checks import preserve_equivalent_png
 
 ROOT = Path(__file__).resolve().parents[1]
 LIB = ROOT / 'standards/yukkuri-library/subspecies/rare-forms'
@@ -205,8 +208,8 @@ def outputs():
     recipe = read(LIB / 'recipe.json')
     files = {}
     staged = {name: read(PRESENTATION / (name + '.json')) for name in
-              ('body_geometry', 'family', 'hat_interactions', 'live_birth_pose', 'living', 'motion_corrections',
-               'placement_fit', 'subspecies', 'toilet_contact')}
+              ('body_geometry', 'family', 'hat_interactions', 'live_birth_pose', 'living', 'placement_fit',
+               'subspecies', 'toilet_contact')}
     badges = read(ASSETS / 'yukkuri/badge_mounts.json')
     operations_index = read(PROPS / 'operations-index.json')
     rounded_index = read(PROPS / 'rounded-index.json')
@@ -242,7 +245,7 @@ def outputs():
         files[ASSETS / 'yukkuri_wounds' / (form + '.json.gz')] = gz(wounds)
         # Presentation entries keyed by asset id.
         for name, path in (('body_geometry', 'variants'), ('hat_interactions', 'children'), ('live_birth_pose', 'variants'),
-                           ('motion_corrections', 'models'), ('toilet_contact', 'models')):
+                           ('toilet_contact', 'models')):
             source = staged[name][path].get(base)
             if source is not None:
                 staged[name][path][form] = copy.deepcopy(source)
@@ -310,11 +313,11 @@ def outputs():
             'runtime': f'src/main/resources/assets/mcyukkuri/yukkuri/{form}.json', 'runtime_sha256': digest,
             'snapshot': (SNAPSHOT / form).relative_to(ROOT).as_posix(), 'textures': sorted(derived['textures']),
             'carried_from_base': ['wounds (body skin)', 'body_geometry', 'hat_interactions.children', 'live_birth_pose',
-                                  'motion_corrections', 'toilet_contact', 'placement_fit (unchanged parts)', 'badge mount', 'operation props'],
+                                  'toilet_contact', 'placement_fit (unchanged parts)', 'badge mount', 'operation props'],
             'rebuilt': sorted(changed | moved), 'shape_status': 'pending_confirmation', 'game_acceptance': 'not_executed'}
     containers = {'body_geometry': ('variants',), 'family': ('variants',), 'hat_interactions': ('children',),
-                  'live_birth_pose': ('variants',), 'living': ('variants',), 'motion_corrections': ('models',),
-                  'placement_fit': ('models',), 'subspecies': (), 'toilet_contact': ('models',)}
+                  'live_birth_pose': ('variants',), 'living': ('variants',), 'placement_fit': ('models',),
+                  'subspecies': (), 'toilet_contact': ('models',)}
     forms = list(recipe['forms'])
     # Seat parts of accessories that reach the ground: a small (regrowing) one is scaled about them (headwear.HatSeat).
     files[PRESENTATION / 'hat_seat.json'] = text({'format': 1, 'source': (LIB / 'recipe.json').relative_to(ROOT).as_posix(), 'models': {
@@ -343,6 +346,8 @@ def outputs():
 def same(path, data):
     if not path.is_file():
         return False
+    # export_motion_corrections.py draws every model's cheek face from the same pixels; keep its encoding.
+    data = preserve_equivalent_png(path, data)
     old = path.read_bytes()
     if old == data:
         return True
