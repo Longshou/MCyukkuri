@@ -149,7 +149,7 @@ final class LiveBirth extends Choreography {
         t.put("nocatch",new Beat.Branch(r->nocatch("placement_timeout")));
         if(live){
             t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"termed","term"));
-            // Aboard her boat she stays at her seat: no outlet to search, no turning or walking, straight to the pushes.
+            // On her boat she stays at her seat and goes straight to the pushes.
             t.put("termed",new Beat.Branch(r->receiver instanceof OwnHull?"push":"exit"));
             t.put("exit",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(false),CATCHER,this::attend),()->(int)Math.max(1,exitUntil-now()),"turned","exit_any"));
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
@@ -278,8 +278,7 @@ final class LiveBirth extends Choreography {
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
         BirthLaunch.Nominal nominal=null;PlacedHatEntity boatHat=null;
         if(boat){
-            // Aboard her boat the newborn comes out at the free seat in front of her and sits down there (a seat moves with the boat,
-            // so it is taken at once, not by a fall); with no admissible seat it comes out at the outlet and is pushed into the water.
+            // The newborn comes out at the free seat in front of her and sits down at once (a seat moves with the boat); no seat: into the water.
             boatHat=hat;hat=null;
             var seat=boatHat.hollowPlaces(b.kind,b.children.get(pushing)).stream().findFirst().orElse(null);
             if(seat!=null)at=seat;
@@ -625,31 +624,29 @@ final class LiveBirth extends Choreography {
     private record Aim(Vec3 at,Vec3 out,float yaw,double score) {}
     private void search(PlacedHatEntity hat){
         choices=new ArrayList<>();var m=o.entity();var child=brood().children.get(pushing);var places=points(hat);
-        var stands=new ArrayList<Vec3>();stands.add(m.position());
+        var stand=m.position();
         int clear=0,forward=0,room=0;double ahead=Double.NEGATIVE_INFINITY;
-        for(var stand:stands){
-            var aims=new ArrayList<Aim>();
-            for(var aim:places){
-                float yaw=SurfaceApproach.yaw(stand,aim);var out=LiveBirthGeometry.position(m,pushing,stand,yaw);
-                double reach=BirthLaunch.ahead(out,aim,yaw);ahead=Math.max(ahead,reach);
-                if(reach<=0)continue;
-                yaw=SurfaceApproach.yaw(out,aim);out=LiveBirthGeometry.position(m,pushing,stand,yaw);
-                if(BirthLaunch.ahead(out,aim,yaw)<=0)continue;
-                forward++;aims.add(new Aim(aim,out,yaw,score(hat,out,aim,yaw)));
-            }
-            aims.sort(Comparator.comparingDouble(Aim::score));var facings=new HashMap<Float,Boolean>();
-            for(var aim:aims){
-                if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,stand,yaw,false)))continue;
-                clear++;if(!BirthLaunch.room(m,child,hat,stand,aim.yaw(),aim.at()))continue;room++;
-                var plan=BirthLaunch.qualify(m,child,hat,stand,aim.out(),aim.yaw(),aim.at());
-                if(plan==null)continue;
-                choices.add(new Exit(pushing,hat.getUUID(),hat.frame().toLocal(stand),aim.yaw()-hat.getYRot(),hat.frame().toLocal(aim.at()),plan.ticks()));break;
-            }
+        var aims=new ArrayList<Aim>();
+        for(var aim:places){
+            float yaw=SurfaceApproach.yaw(stand,aim);var out=LiveBirthGeometry.position(m,pushing,stand,yaw);
+            double reach=BirthLaunch.ahead(out,aim,yaw);ahead=Math.max(ahead,reach);
+            if(reach<=0)continue;
+            yaw=SurfaceApproach.yaw(out,aim);out=LiveBirthGeometry.position(m,pushing,stand,yaw);
+            if(BirthLaunch.ahead(out,aim,yaw)<=0)continue;
+            forward++;aims.add(new Aim(aim,out,yaw,score(hat,out,aim,yaw)));
+        }
+        aims.sort(Comparator.comparingDouble(Aim::score));var facings=new HashMap<Float,Boolean>();
+        for(var aim:aims){
+            if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,stand,yaw,false)))continue;
+            clear++;if(!BirthLaunch.room(m,child,hat,stand,aim.yaw(),aim.at()))continue;room++;
+            var plan=BirthLaunch.qualify(m,child,hat,stand,aim.out(),aim.yaw(),aim.at());
+            if(plan==null)continue;
+            choices.add(new Exit(pushing,hat.getUUID(),hat.frame().toLocal(stand),aim.yaw()-hat.getYRot(),hat.frame().toLocal(aim.at()),plan.ticks()));break;
         }
         String why=!choices.isEmpty()?"":places.isEmpty()?"no_cavity":forward==0?"cavity_behind_outlet":clear==0?"outlet_blocked":room==0?"cavity_occupied":"no_nominal_contact";
         if(!why.equals(rejection)){
             rejection=why;GameplayLog.limited(m,"family","birth_exit_geometry",200,
-                    "birth exit geometry stands={} places={} clear={} forward={} room={} furthestForward={} rejection={}",stands.size(),places.size(),clear,forward,room,ahead,rejection);
+                    "birth exit geometry places={} clear={} forward={} room={} furthestForward={} rejection={}",places.size(),clear,forward,room,ahead,rejection);
         }
     }
     private final class Deliver implements Intent, Method {
