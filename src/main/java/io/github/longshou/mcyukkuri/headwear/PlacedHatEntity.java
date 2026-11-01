@@ -215,6 +215,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public OptionalDouble support(Vec3 local, YukkuriEntity body) {
         return profile().surface().support(this, local, body);
     }
+    @Override public List<Vec3> hopStops(YukkuriEntity body) { return profile().surface().hopStops(this, body); }
     @Override public boolean mountable(YukkuriEntity body) { return profile().surface().mountable(this, body); }
     @Override public Vec3 landingSpot(YukkuriEntity body, Vec3 edge) { return profile().surface().landingSpot(this, body, edge); }
     @Override public List<double[]> walkRoute(YukkuriEntity body, Vec3 target, boolean aroundRiders) {
@@ -240,7 +241,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     /** Current seat or an unreserved destination admitted against the real passengers and their saved coordinates. */
     @Override public SeatTarget seatDestination(YukkuriEntity body) {
-        if (riders.contains(body.getUUID())) return new SeatTarget(this, riders.local(body.getUUID()));
+        if (riders.contains(body.getUUID()) && HatSeats.seated(hullScale() / (float) HullBounds.SCALE, occupant(body)))
+            return new SeatTarget(this, riders.local(body.getUUID()));
         var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, seatBody(body),
                 body.getUUID().equals(ownerYukkuri()), seatedExcept(body));
         return at == null ? null : new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));

@@ -9,6 +9,7 @@ public final class HullPresentation {
 
     private HullPresentation() {}
     public static double number(String key) { return MOTION.number(key); }
+    public static boolean brimFall(String phase) { return MOTION.field("brim_fall_phase").getAsString().equals(phase); }
     public static double wave(long tick, String period) { return Math.sin(tick * 2 * Math.PI / number(period)); }
     public static double bob(long tick) { return number("bob_height") * wave(tick, "bob_period"); }
     public static double waterHeight(double scale, float roll, float pitch) {

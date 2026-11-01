@@ -21,6 +21,7 @@ public interface HatSurface {
     default boolean mountable(PlacedHatEntity hat, YukkuriEntity body) { return true; }
     default Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.snapped(hat.toLocal(body.position()), body); }
     default void tickRiders(PlacedHatEntity hat) { hat.squeeze(); }
+    default List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) { return List.of(); }
     default List<Vec3> hollowPlaces(PlacedHatEntity hat, FamilyData.BirthKind kind, FamilyData.Child child) { return hat.cavityPlaces(kind, child); }
     default ContactResolver.Contact contact(PlacedHatEntity hat, YukkuriEntity body, Vec3 spot, Vec3 feet) {
         return ContactResolver.landFree(body, hat, spot, feet);

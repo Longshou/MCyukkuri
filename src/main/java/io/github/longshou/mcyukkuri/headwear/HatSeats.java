@@ -28,7 +28,7 @@ public final class HatSeats {
             var at = scaled(CAPTAIN, scale);
             return riders.stream().anyMatch(Occupant::captain) || !clear(body, at, riders) ? null : at;
         }
-        var young = riders.stream().filter(r -> !r.captain()).toList();
+        var young = riders.stream().filter(r -> !r.captain() && seated(scale, r)).toList();
         if ((float) body.size() <= (float) (INFANT * scale) && young.stream().allMatch(r -> (float) r.body().size() <= (float) (INFANT * scale))) {
             for (var point : INFANTS) {
                 var at = scaled(point, scale);
@@ -40,6 +40,15 @@ public final class HatSeats {
         if (!young.isEmpty() || (float) body.size() > (float) (YOUNG * scale)) return null;
         var at = scaled(YOUNG_SEAT, scale);
         return clear(body, at, riders) ? at : null;
+    }
+
+    /** A brim rider or a hopping body does not reserve the seat it left. */
+    public static boolean seated(double scale, Occupant rider) {
+        return (rider.captain() ? List.of(CAPTAIN) : List.of(YOUNG_SEAT, INFANTS.get(0), INFANTS.get(1))).stream()
+                .anyMatch(p -> {
+                    var d = scaled(p, scale).sub(rider.at());
+                    return Math.sqrt(d.x() * d.x() + d.y() * d.y() + d.z() * d.z()) < .05 * scale;
+                });
     }
 
     /** Growth changes eligibility, never the saved local coordinates. */

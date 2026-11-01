@@ -6,6 +6,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class KidPlayTest {
+    @Test void fallingUsesTheAuthoredHardRockPhase() {
+        assertTrue(HullPresentation.brimFall("ROCKING"));
+        assertFalse(HullPresentation.brimFall("UPRIGHT"));
+        assertFalse(HullPresentation.brimFall("FLIPPING"));
+    }
     @Test void paddlingWinsOverFoodForAJumper() {
         assertEquals(Behaviors.KID_MIMIC_PADDLE, KidPlayRule.pick(true, true, 4, 0, .5));
     }

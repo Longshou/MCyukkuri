@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -44,6 +45,20 @@ public final class YukkuriSocial {
     private record ContactWait(int until, long lastInteraction) {}
     private final Map<UUID, ContactWait> contactWaits = new HashMap<>();
     private int toyContact, toyTouches;
+    private int greetClicks;
+    private long greetUntil;
+    public int greetClicks() { return greetClicks; }
+    public boolean greeting() { return entity.level().getGameTime() < greetUntil; }
+    public long greetStart() { return greetUntil - ClipMarkers.of("greet").length(); }
+
+    /** The existing empty-hand greeting, counted once at its actual player entry. */
+    public boolean clickedTalk(Player player) {
+        boolean accepted = talk(player, true);
+        greetClicks++;
+        if (accepted) greetUntil = entity.level().getGameTime() + ClipMarkers.of("greet").length();
+        GameplayLog.event(entity, "interaction", "greet click player={} accepted={} clicks={}", player.getUUID(), accepted, greetClicks);
+        return accepted;
+    }
     /** Greeting memory (runtime only): last contact per peer, the pending morning greeting and the answer a greeted peer owes. Project design. */
     private static final int REUNION_GAP = 6000, ANSWER_BASE = 20, ANSWER_SPREAD = 11, ANSWER_HOLD = 40, ANSWER_EXPIRY = 200;
     private final Map<UUID, Long> lastContact = new HashMap<>();
@@ -83,8 +98,11 @@ public final class YukkuriSocial {
             entity.showReaction("neutral", "heard", 40); return false;
         }
         if(gentle)entity.dailyLife().comfort(5);
-        stop(); task = Task.PLAYER; target = player; elapsed = 0; duration = 60;
-        chooseApproach(player);
+        stop();
+        if (!entity.isPassenger()) {
+            task = Task.PLAYER; target = player; elapsed = 0; duration = 60;
+            chooseApproach(player);
+        }
         if (!gentle) retreat = true;
         entity.getLookControl().setLookAt(player, 30, 30);
         entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);

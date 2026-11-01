@@ -9,19 +9,25 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.stream.IntStream;
 import net.minecraft.world.phys.Vec3;
 
 /** The bounds-defined round surface: fixed seats, with no walking or repacking. */
 final class SeatSurface implements HatSurface {
     static final HatSurface INSTANCE = new SeatSurface();
     @Override public OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) {
+        var brim = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.atan2(local.z, local.x));
+        if (Math.abs(local.horizontalDistance() * HullBounds.UNIT - Math.hypot(brim.x(), brim.z())) < .05)
+            return OptionalDouble.of(brim.y() / HullBounds.UNIT);
         var seat = hat.seatDestination(body);
         return seat != null && local.subtract(seat.local()).horizontalDistance() * hat.unit() < .05
                 ? OptionalDouble.of(seat.local().y) : OptionalDouble.empty();
     }
-    @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) { return support(hat, local, body).isPresent(); }
+    @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) {
+        return hat.shapedRoom(body, local, top);
+    }
     @Override public boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
-        return (body.getUUID().equals(hat.ownerYukkuri()) || hat.admits(body)) && hat.seatDestination(body) != null;
+        return hat.hasPassenger(body) || (body.getUUID().equals(hat.ownerYukkuri()) || hat.admits(body)) && hat.seatDestination(body) != null;
     }
     @Override public boolean mountable(PlacedHatEntity hat, YukkuriEntity body) {
         var seat = hat.seatDestination(body);
@@ -29,6 +35,11 @@ final class SeatSurface implements HatSurface {
     }
     @Override public Vec3 boarded(PlacedHatEntity hat, YukkuriEntity body) { return hat.seatDestination(body).local(); }
     @Override public void tickRiders(PlacedHatEntity hat) {}
+    @Override public List<Vec3> hopStops(PlacedHatEntity hat, YukkuriEntity body) {
+        double growth = body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale();
+        return IntStream.range(0, 24).mapToObj(i -> HullBounds.brim(growth, i * Math.PI / 12))
+                .map(p -> new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT)).toList();
+    }
     @Override public List<double[]> walkRoute(PlacedHatEntity hat, YukkuriEntity body, Vec3 target, boolean aroundRiders) { return List.of(); }
     @Override public Vec3 landingSpot(PlacedHatEntity hat, YukkuriEntity body, Vec3 edge) {
         var seat = hat.seatDestination(body);

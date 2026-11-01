@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
@@ -40,6 +41,10 @@ public final class HullAfloat implements PlacedHatBehavior {
     private static final int RIM_POINTS = 24;
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
+    /** Observed play events only; no decisions read these counters and they are not saved. */
+    private final Map<String, Integer> playCounts = new TreeMap<>();
+    void playEvent(String kind) { playCounts.merge(kind, 1, Integer::sum); }
+    boolean brimFall() { return HullPresentation.brimFall(phase.name()); }
     private enum Phase { UPRIGHT, ROCKING, FLIPPING, INVERTED }
     private Phase phase;
     private final HullTriggers triggers = new HullTriggers();
@@ -331,14 +336,14 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
         // A rising hop is above the dry cloth even after it leaves standing occupancy at the floor.
         var local = hat.frame().toLocal(rider.position());
-        return phase == Phase.UPRIGHT && (hat.hasPassenger(rider)
+        return (phase == Phase.UPRIGHT || phase == Phase.ROCKING) && (hat.hasPassenger(rider)
                 || hat.profile().inOpening(local.x, local.z)
                 && local.y >= hat.profile().surface(local.x, local.z) - Occupancy.MARGIN / hat.unit());
     }
     @Override public String detail(PlacedHatEntity hat) {
-        return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s",
+        return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s play=%s",
                 HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
-                phase == Phase.INVERTED, rightProgress, larder.detail());
+                phase == Phase.INVERTED, rightProgress, larder.detail(), playCounts);
     }
     private static double[] local(PlacedHatEntity hat, double x, double z) {
         double yaw = hat.turn(), c = Math.cos(yaw), s = Math.sin(yaw);

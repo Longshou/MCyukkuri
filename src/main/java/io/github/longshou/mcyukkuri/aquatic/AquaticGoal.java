@@ -95,7 +95,10 @@ final class AquaticGoal extends Goal {
     @Override public boolean canContinueToUse() { return eligible() && (drive().running() || drive().wants()); }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { drive().urgent(); }
-    @Override public void tick() { drive().tick(); }
+    @Override public void tick() {
+        if (PlayAboard.fall(body)) { drive().stop("brim_hard_rock"); return; }
+        if (!body.social().greeting()) drive().tick();
+    }
     @Override public void stop() { drive().stop("aquatic_goal_stop"); }
 
     @Override public boolean isInterruptable() {
@@ -302,7 +305,7 @@ final class AquaticGoal extends Goal {
         String fear = PlayAboard.fear(body, hat);
         if (!fear.equals("none")) {
             out.add(new Desire("hide_aboard", PlayAboard.number("hide_want"), 0, true, List.of(world, fear),
-                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND, () -> {})));
+                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND)));
             return;
         }
         int stores = HullLarder.of(hat).count();
@@ -311,7 +314,7 @@ final class AquaticGoal extends Goal {
         out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
                 () -> "stores=" + stores, () -> new PlayAboard(body, hat,
                         KidPlayRule.pick(jumper, parent.motor().current() instanceof Paddle || parent.motor().current() instanceof Beckon,
-                                HullLarder.of(hat).count(), body.getRandom().nextDouble(), PlayAboard.number("play_poke_chance")), () -> {})));
+                                stores, body.getRandom().nextDouble(), PlayAboard.number("play_poke_chance")))));
     }
 
     /**

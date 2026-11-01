@@ -22,6 +22,8 @@
   "hide_loops": 12,
   "play_deadline": 1200,
   "play_fear_range": 4,
+  "play_splash_bearing": 270,
+  "play_hide_bearing": 0,
   "floor": 20,
   "water_life": 60,
   "night_pull": 60,

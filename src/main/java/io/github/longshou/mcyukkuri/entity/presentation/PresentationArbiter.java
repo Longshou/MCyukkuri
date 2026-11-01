@@ -239,6 +239,9 @@ public final class PresentationArbiter {
         if (behavior.equals(Behaviors.BOAT_TOILET)) behavior = Behaviors.SEEK_TOILET;
         // Priority: command clip, then the running motor action's pose, then the behavior-derived clips.
         var pose = state.requestedAction() == null ? actionPose(e) : null;
+        if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()
+                && (e.motor().current() == null || e.motor().current().interruptible()))
+            pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
                 : pose != null ? pose.action()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)

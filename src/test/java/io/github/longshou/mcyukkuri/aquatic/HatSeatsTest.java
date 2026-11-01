@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HatSeats;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,15 @@ class HatSeatsTest {
     @Test void juvenilesCannotJoinInfants() {
         var riders = captain(1); board(riders, 1, .15);
         assertNull(HatSeats.admit(1, body(.3), false, riders));
+    }
+    @Test void brimPlayLeavesTheSeatUnreservedAndReturnRechecksAdmission() {
+        var riders = captain(1);
+        var playing = new HatSeats.Occupant(body(.3), HullBounds.brim(.3, -Math.PI / 2), false);
+        assertFalse(HatSeats.seated(1, playing));
+        riders.add(playing);
+        var newcomer = HatSeats.admit(1, body(.3), false, riders);
+        assertNotNull(newcomer);
+        assertNull(HatSeats.admit(1, body(.3), false, List.of(riders.getFirst(), new HatSeats.Occupant(body(.3), newcomer, false))));
     }
     @Test void captainRangeAndHullScaleKeepProportionalCapacity() {
         for (double size : new double[]{.8, 1, 1.2}) {

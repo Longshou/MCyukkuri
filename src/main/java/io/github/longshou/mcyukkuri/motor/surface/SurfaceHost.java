@@ -54,6 +54,8 @@ public interface SurfaceHost {
     Vec3 landingSpot(YukkuriEntity body, Vec3 edge);
     ContactResolver.Contact contact(YukkuriEntity body, Vec3 spot, Vec3 feet);
     default SeatTarget seatDestination(YukkuriEntity body) { return null; }
+    /** Supported intermediate destinations for a body's hops aboard this host, in local units. */
+    default List<Vec3> hopStops(YukkuriEntity body) { return List.of(); }
 
     /** False while the host shakes; no jump landing may be planned onto it then. */
     boolean steady();

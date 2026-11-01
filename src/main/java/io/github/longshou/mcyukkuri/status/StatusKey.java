@@ -398,6 +398,7 @@ public enum StatusKey {
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
     /** Whether the server's current presentation grips a real stick at the braid tuft. */
     AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, YukkuriEntity::visiblePaddleStick, null),
+    GREET_CLICKS("social", "greet_clicks", 0, y -> y.social().greetClicks(), null),
     // ---- the set-down hat this body rides or has set down -----------------------------------------------------
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */
     HAT_TILT("hat", "tilt", 0, y -> hat(y, h -> String.format(Locale.ROOT, "roll=%.1f pitch=%.1f upside_down=%s steady=%s",

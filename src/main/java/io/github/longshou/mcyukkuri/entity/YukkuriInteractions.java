@@ -27,7 +27,7 @@ final class YukkuriInteractions {
         if (stack.isEmpty()) {
             if (!owner.level().isClientSide) {
                 if(player.isSecondaryUseActive())InteractionDispatch.openCare(player,owner);
-                else if(!ShopMenu.clickStock(player,owner)&&owner.social().talk(player,true))owner.pet().care().feedback(player,CareAction.GENTLE);
+                else if(!ShopMenu.clickStock(player,owner)&&owner.social().clickedTalk(player))owner.pet().care().feedback(player,CareAction.GENTLE);
             }
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
         }
