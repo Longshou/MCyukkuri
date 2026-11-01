@@ -26,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * A parent's care aboard (照料; docs/FEATURES.md 子代生命周期与离家的新生受喂, 帽船采用自身的移动、口部接触条件相同): on her
- * hat afloat she feeds in place, or walks beside a young for comfort, using the same transactions as care on land:
+ * hat afloat she takes stored food in place, then approaches a young for feeding or comfort, using the same transactions as care on land:
  * <ul>
  *   <li>{@code feed_young}: a hungry young that cannot eat by itself, her care decision accepted: she takes a stored portion with her
  *       mouth as her care food (the feeding's own held portion: kept, saved and shown), chews it into mash for a young that needs
@@ -93,8 +93,7 @@ final class Care implements Intent {
             if (chewEnd == 0) chewEnd = parent.level().getGameTime() + FamilyLife.CHEW_TICKS;
             return List.of(() -> new Step.Wait(this::chewed, FamilyLife.CHEW_TICKS + 5, Behaviors.FAMILY_CHEW));
         }
-        return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
-                () -> new Step.Wait(this::handed, CONTACT, Behaviors.BOAT_FEED_YOUNG));
+        return mouthToMouth(hat, Behaviors.BOAT_FEED_YOUNG, CONTACT, this::handed);
     }
 
     /** A feeding that did not hand the food over puts the portion she took back into her hold, if the stores have capacity. */

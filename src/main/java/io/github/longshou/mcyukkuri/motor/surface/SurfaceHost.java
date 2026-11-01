@@ -60,9 +60,6 @@ public interface SurfaceHost {
     /** This rider is kept out of the water by the host (a dry hull above the waterline): its water checks treat it as dry. */
     default boolean shelters(YukkuriEntity body) { return false; }
 
-    /** What the host carries besides its riders, in the load units of the ability factor L: its riders' pace. */
-    default double load() { return 0; }
-
     /** Turned over: no surface and no container until righted. */
     default boolean capsized() { return false; }
 

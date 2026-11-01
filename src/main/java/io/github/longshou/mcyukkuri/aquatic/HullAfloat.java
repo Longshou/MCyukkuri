@@ -140,7 +140,6 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!Double.isFinite(water)) return;
         var load = configuration(null);
         mass = load.mass();
-        larder.sync(hat);
         double roll = hat.roll(), pitch = hat.pitch();
         boolean down = hat.upsideDown(), righting = righting(hat);
         if (righting && !down) rightProgress = 1;  // past the quarter turn the held hull falls the rest of the way upright
@@ -502,7 +501,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         over = Math.max(0, tag.getInt("Over"));
         cause = tag.contains("Cause") ? tag.getString("Cause") : cause;
         causeTick = tag.contains("CauseAt") ? tag.getLong("CauseAt") : Long.MIN_VALUE;
-        larder.load(tag.getCompound("Stores"));
+        larder.load(hat, tag.getCompound("Stores"));
     }
     /** Dry while the whole brim stands above the water and the rider's feet are supported in the hat. */
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {

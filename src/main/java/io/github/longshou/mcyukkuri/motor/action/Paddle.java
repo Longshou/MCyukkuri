@@ -75,7 +75,7 @@ public final class Paddle implements Action {
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
         from = distance = target.get().subtract(host.entity().position()).horizontalDistance();
-        var ability = BodyAbility.of(body, host.load());
+        var ability = BodyAbility.of(body);
         pace = ability.swimSpeed();
         turnRate = ability.turnRate();
         facing = bowOff(body);

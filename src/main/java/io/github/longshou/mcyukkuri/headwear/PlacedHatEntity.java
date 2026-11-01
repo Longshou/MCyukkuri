@@ -661,13 +661,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             if (carrier.motor().current() instanceof Grab grab) lifted.add(grab.target());
         var bodies = new ArrayList<YukkuriEntity>();
         var feet = new ArrayList<Squeeze.Body>();
-        double load = load(), unit = unit();
+        double unit = unit();
         for (var p : getPassengers()) if (p instanceof YukkuriEntity y && !lifted.contains(y) && riders.contains(y.getUUID())
                 && Attach.of(y) instanceof AttachState.OnHost on && on.host() == this) {
             var at = riders.local(y.getUUID());
             bodies.add(y);
             feet.add(new Squeeze.Body(at.x, at.z, Math.max(footOf(y),shape(y).radius()), y.getBbWidth() * y.getBbWidth() * y.getBbHeight(),
-                    BodyAbility.of(y, load).walkSpeed() / unit, at.y, at.y + tallOf(y)));
+                    BodyAbility.of(y).walkSpeed() / unit, at.y, at.y + tallOf(y)));
         }
         var footprints = new HashMap<Disc,BodyFootprint>();
         for(int i=0;i<feet.size();i++)footprints.put(Squeeze.disc(feet.get(i)),shape(bodies.get(i)));

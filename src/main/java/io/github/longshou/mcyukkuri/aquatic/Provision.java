@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
  *       with the mouth ({@code Pick} from the hat's hold) into its own meal and chews it where it stands ({@code boat_eat}). Done
  *       once it has swallowed.</li>
  *   <li>{@code forage}: an owner aboard with her stick paddles over the loaded calm water to a food item afloat or lying at the
- *       water's edge, reaches from her place and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
+ *       water's edge, walks within reach and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
  *       store, which refuses with its real reason, and then the item stays where it lay). Done once taken.</li>
  * </ul>
  */
@@ -69,14 +70,26 @@ final class Provision implements Intent {
     private List<Supplier<Step>> fetch(PlacedHatEntity hat) {
         var pick = new Pick(food, this::keep);
         var water = food.isAlive() ? Waters.foodCell(body.level(), food) : null;
-        if (water == null || pick.check(body).ok()) return reach(body, food.position(), pick);
-        if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reach(body, food.position(), pick);
+        if (water == null || pick.check(body).ok()) return reachLoose(hat, pick);
+        if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reachLoose(hat, pick);
         var route = AquaticLife.stick(body) ? Waters.route(hat, water) : List.<Vec3>of();
         Waters.log(hat, body, water, route, "forage");
         return route.isEmpty() ? null : List.of(() -> act(new Paddle(Waters.leg(route), ARRIVE)));
     }
 
-    /** Face the food and use the existing contact clip without changing the rider's place. */
+    /** Approach a loose item on the hat's surface before the mouth takes it. */
+    private List<Supplier<Step>> reachLoose(PlacedHatEntity hat, Pick pick) {
+        return List.of(() -> {
+                    if (pick.check(body).ok()) return null;
+                    var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(food.position()));
+                    var here = hat.frame().toLocal(body.position());
+                    return spot == null || spot.subtract(here).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
+                },
+                () -> act(new Face(SurfaceApproach.yaw(body.position(), food.position()))),
+                () -> act(pick));
+    }
+
+    /** Face stored food and use the existing contact clip without changing the rider's place. */
     static List<Supplier<Step>> reach(YukkuriEntity body, Vec3 at, Action action) {
         return List.of(() -> act(new Face(SurfaceApproach.yaw(body.position(), at))), () -> act(action));
     }

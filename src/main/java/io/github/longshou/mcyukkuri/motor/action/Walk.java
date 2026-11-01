@@ -120,7 +120,7 @@ public final class Walk implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
-        pace = (host == null ? BodyAbility.of(body) : BodyAbility.of(body, host.load())).walkSpeed() * BodyAbility.carrying(body);
+        pace = BodyAbility.of(body).walkSpeed() * BodyAbility.carrying(body);
         from = body.position();
         if (goal == null) goal = target;
         replans = replans(body);
@@ -189,7 +189,7 @@ public final class Walk implements Action {
         int[] start = grid.nearest(spot.x, spot.z), goal = grid.nearest(local.x, local.z);
         var path = start == null || goal == null ? List.<double[]>of()
                 : GridPath.find(grid, grid.centreX(start[0]), grid.centreZ(start[1]), grid.centreX(goal[0]), grid.centreZ(goal[1]),
-                        BodyAbility.of(body, host.load()).stepUp() / unit, RIM_WEIGHT);
+                        BodyAbility.of(body).stepUp() / unit, RIM_WEIGHT);
         if (path.isEmpty()) {
             double distance = Math.hypot(local.x - spot.x, local.z - spot.z) * unit;
             String detail = String.format(Locale.ROOT, "no_grid_path distance=%.2f from=%s to=%s grid=%dx%d", distance, spot, local,

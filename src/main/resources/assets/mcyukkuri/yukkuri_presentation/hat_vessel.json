@@ -101,10 +101,7 @@
     "capsize_ticks": 4,
     "capsize_hard": 1.5,
     "flip_rate": 15.0,
-    "unsteady_rate": 1.0,
-    "kinds": 4,
-    "portion_radius": 0.09,
-    "portion_load": 0.5
+    "unsteady_rate": 1.0
   },
   "forms": {
     "house_marisa": "turned_land_hat",

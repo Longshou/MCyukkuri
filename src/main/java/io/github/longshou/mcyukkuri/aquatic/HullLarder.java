@@ -23,7 +23,7 @@ public final class HullLarder {
     public static final class Counts {
         public static final int CAPACITY = 8;
         private record Tier(int through, double radius) {}
-        private static final Tier[] TIERS = {new Tier(0, 0), new Tier(2, .45), new Tier(5, .70), new Tier(8, 1)};
+        private static final Tier[] TIERS = {new Tier(0, 0), new Tier(2, .45), new Tier(5, .70), new Tier(CAPACITY, 1)};
         private final Map<String, Integer> kinds = new LinkedHashMap<>();
 
         public int total() { return kinds.values().stream().mapToInt(Integer::intValue).sum(); }
@@ -85,8 +85,8 @@ public final class HullLarder {
         int asked = Math.min(stack.getCount(), by.isSecondaryUseActive() ? Counts.CAPACITY : 1);
         int accepted = put(hat, stack, asked, by.getUUID().toString());
         if (!by.getAbilities().instabuild) stack.shrink(accepted);
-        by.displayClientMessage(Component.literal(accepted > 0 ? "帽内储粮 " + count() + "/8 份"
-                : hat.upsideDown() ? "帽子倒扣着，放不进粮" : "帽内储粮已满（8/8）"), true);
+        by.displayClientMessage(Component.literal(accepted > 0 ? "帽内储粮 " + count() + "/" + Counts.CAPACITY + " 份"
+                : hat.upsideDown() ? "帽子倒扣着，放不进粮" : "帽内储粮已满（" + count() + "/" + Counts.CAPACITY + "）"), true);
         return true;
     }
 
@@ -135,8 +135,7 @@ public final class HullLarder {
                 hat.ownerYukkuri(), cause, spilled, stores.kinds, spilled.values().stream().mapToInt(Integer::intValue).sum());
     }
 
-    void sync(PlacedHatEntity hat) {
-        if (hat.contents().getInt("FoodCount") == count()) return;
+    private void sync(PlacedHatEntity hat) {
         var tag = new CompoundTag();
         tag.putInt("FoodCount", count());
         hat.contents(tag);
@@ -148,19 +147,12 @@ public final class HullLarder {
         return tag;
     }
 
-    void load(CompoundTag tag) {
+    void load(PlacedHatEntity hat, CompoundTag tag) {
         var saved = new LinkedHashMap<String, Integer>();
-        for (var kind : tag.getAllKeys()) {
-            var id = ResourceLocation.parse(kind);
-            int count = tag.getInt(kind);
-            if (!BuiltInRegistries.ITEM.containsKey(id) || item(kind).isEmpty() || count <= 0)
-                throw new IllegalArgumentException("Invalid hat stores: " + kind + "=" + count);
-            saved.put(kind, count);
-        }
-        if (saved.values().stream().mapToInt(Integer::intValue).sum() > Counts.CAPACITY)
-            throw new IllegalArgumentException("Hat stores exceed capacity");
+        for (var kind : tag.getAllKeys()) saved.put(kind, tag.getInt(kind));
         stores.load(saved);
+        sync(hat);
     }
 
-    String detail() { return "stores=" + count() + "/8 tier=" + Counts.tier(count()) + " eats=" + eats + " refusals=" + refusals; }
+    String detail() { return "stores=" + count() + "/" + Counts.CAPACITY + " tier=" + Counts.tier(count()) + " eats=" + eats + " refusals=" + refusals; }
 }
