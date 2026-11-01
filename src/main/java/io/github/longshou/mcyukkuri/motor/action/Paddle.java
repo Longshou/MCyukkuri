@@ -99,8 +99,6 @@ public final class Paddle implements Action {
             skipped++;
             GameplayLog.limited(body, "action", "paddle.turning", 200, "paddle turning bow_off={} turn_rate={} stroke_tick={}", off, turnRate, t);
             if (turnRate == 0 || ++turnTicks >= Math.min(progressWindow() - 1, Math.ceil(180 / turnRate))) {
-                GameplayLog.limited(body, "action", "paddle.facing_stalled", 200,
-                        "paddle stopped reason=facing_stalled bow_off={} turn_ticks={}", off, turnTicks);
                 return Outcome.of(Reason.NO_PROGRESS, 0, "facing_stalled bow_off=" + off);
             }
         }

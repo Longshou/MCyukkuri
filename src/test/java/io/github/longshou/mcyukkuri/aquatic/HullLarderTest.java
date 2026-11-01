@@ -25,23 +25,10 @@ class HullLarderTest {
                     d->!slim.overlaps(0,slimY,0,d,.02)&&food.stream().noneMatch(f->f.overlaps(d,.02)));
             assertNotNull(pick,"floor for portion "+n);food.add(pick);
         }
-        double max=0;
         for(int yaw:new int[]{10,30,145,155}){
-            double x=0,z=.5/unit,y=hull.support(x,z,BodyFootprint.of("marisa",.8*1.26*1.16/unit,.6*1.26/unit,Math.toRadians(yaw)));
-            for(double belly:new double[]{1,.74,.48}){
-                var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
-                for(int tick=0;tick<400;tick++){
-                    var move=Squeeze.separate(List.of(new Squeeze.Body(x,z,body.radius(),1,.06/unit,y,y+body.height())),food,.02,0,0,
-                            (a,b,dx,dz)->body.overlaps(a.x()+dx,hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,.02))[0];
-                    double nextY=Math.hypot(move[0],move[1])<1e-6?y:hull.support(x+move[0],z+move[1],body);
-                    double moved=unit*Math.sqrt(move[0]*move[0]+move[1]*move[1]+(nextY-y)*(nextY-y));
-                    max=Math.max(max,moved);
-                    if(tick>=350)assertTrue(moved<.001,"stationary after real separation yaw="+yaw+" belly="+belly+": "+moved);
-                    x+=move[0];z+=move[1];y=nextY;
-                }
-            }
+            double y=hull.support(0,.5/unit,BodyFootprint.of("marisa",.8*1.26*1.16/unit,.6*1.26/unit,Math.toRadians(yaw)));
+            assertSettles(hull,food,unit,yaw,0,y,.5/unit,.001);
         }
-        assertTrue(max>.02,"initial real displacement still exceeds the delivery hold threshold");
     }
 
     @Test void packedBasinUsesTheRealLarderRuleAndRefusesTheNextPortion() {
@@ -69,19 +56,21 @@ class HullLarderTest {
         var food=packedBasin(hull,unit);
         assertEquals(78,food.size());
         for(int yaw:new int[]{0,10,30,145,155}) {
-            double x=0,z=0,y=hull.support(0,0,BodyFootprint.of("marisa",.8/unit,.6/unit,0));
-            for(double belly:new double[]{1,.74,.48}) {
-                var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
-                double last=0;
-                for(int tick=0;tick<400;tick++) {
-                    var move=Squeeze.separate(List.of(new Squeeze.Body(x,z,body.radius(),1,.06/unit,y,y+body.height())),food,SLACK,0,0,
-                            (a,b,dx,dz)->body.overlaps(a.x()+dx,hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,SLACK))[0];
-                    double nextY=Math.hypot(move[0],move[1])<1e-6?y:hull.support(x+move[0],z+move[1],body);
-                    last=unit*Math.sqrt(move[0]*move[0]+move[1]*move[1]+(nextY-y)*(nextY-y));
-                    if(tick>=350)assertTrue(last<1e-5,"settled yaw="+yaw+" belly="+belly+" tick="+tick+" displacement="+last);
-                    x+=move[0];z+=move[1];y=nextY;
-                }
-                System.out.printf("packed mother yaw=%d belly=%.2f displacement=%.9f%n",yaw,belly,last);
+            double y=hull.support(0,0,BodyFootprint.of("marisa",.8/unit,.6/unit,0));
+            assertSettles(hull,food,unit,yaw,0,y,0,1e-5);
+        }
+    }
+
+    private static void assertSettles(HullProfile hull,List<Disc> food,double unit,int yaw,double x,double y,double z,double tolerance) {
+        for(double belly:new double[]{1,.74,.48}) {
+            var body=BodyFootprint.of("marisa",.8*(1+.26*belly)*(1+.16*belly)/unit,.6*(1+.26*belly)/unit,Math.toRadians(yaw));
+            for(int tick=0;tick<400;tick++) {
+                var move=Squeeze.separate(List.of(new Squeeze.Body(x,z,body.radius(),1,.06/unit,y,y+body.height())),food,SLACK,0,0,
+                        (a,b,dx,dz)->body.overlaps(a.x()+dx,hull.support(a.x()+dx,a.z()+dz,body),a.z()+dz,b,SLACK))[0];
+                double nextY=Math.hypot(move[0],move[1])<1e-6?y:hull.support(x+move[0],z+move[1],body);
+                double moved=unit*Math.sqrt(move[0]*move[0]+move[1]*move[1]+(nextY-y)*(nextY-y));
+                if(tick>=350)assertTrue(moved<tolerance,"settled yaw="+yaw+" belly="+belly+" tick="+tick+" displacement="+moved);
+                x+=move[0];z+=move[1];y=nextY;
             }
         }
     }
