@@ -43,9 +43,7 @@ final class SetOut implements Intent {
     private final YukkuriEntity owner;
     private final long started;
     private final Set<UUID> sticks = new HashSet<>();
-    private Waters.Edge berth;
     private int calls;
-    private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
     private final Consumer<Map<UUID, String>> left;
@@ -95,9 +93,12 @@ final class SetOut implements Intent {
 
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(owner);
-        if (hat == null) return launch();
+        if (hat == null && !AquaticLife.stick(owner)) {
+            var stick = Waters.stick(owner, 10, true);
+            if (stick != null && sticks.add(stick.getUUID())) return fetch(stick);
+        }
+        if (!AquaticLife.aboard(owner, hat)) return List.of(() -> new Step.Sub(new Launch(owner, deadline())));
         if (!AquaticLife.afloat(hat)) return null;
-        if (!AquaticLife.aboard(owner, hat)) return Ferry.hopAboard(owner, hat, beckoning);
         var dependent = dependentAshore(hat);
         if (dependent != null) return Ferry.fetchAboard(owner, hat, dependent);
         // a second call means the first went unanswered: those not aboard by now stay
@@ -106,26 +107,30 @@ final class SetOut implements Intent {
         return List.of(() -> new Step.Wait(this::satisfied, WAIT_YOUNG, Behaviors.BOAT_CALL));
     }
 
-    /** Still wearing the hat: a stick first when she has none and one lies near, then the berth and the hat onto the water. */
-    private List<Supplier<Step>> launch() {
-        if (!AquaticLife.stick(owner)) {
-            var stick = Waters.stick(owner, 10, true);
-            if (stick != null && sticks.add(stick.getUUID())) return fetch(stick);
+    /** Launch and sit only; the parent runner consumes this result before rescue or family boarding continues. */
+    record Launch(YukkuriEntity owner, long deadline) implements Intent {
+        @Override public String id() { return "launch"; }
+        @Override public Commitment commitment() { return Commitment.HARD; }
+        @Override public boolean satisfied() {
+            var hat = AquaticLife.hat(owner);
+            return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat);
         }
-        if (berth == null) {
-            berth = Waters.berth(owner);
-            if (berth == null) {
+        @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
+        private List<Supplier<Step>> derive() {
+            var hat = AquaticLife.hat(owner);
+            if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, new Ferry.Beckoning()) : null;
+            var edge = Waters.berth(owner);
+            if (edge == null) {
                 GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_roomy_bank_edge at={}", GameplayLog.at(owner.position()));
                 return null;
             }
-            GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", berth.stand().toShortString(), berth.water().toShortString(), berth.yaw());
+            GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
+            var stand = Waters.launchStand(edge, owner);
+            return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
+                    () -> new Step.Do(new Face(edge.yaw())),
+                    // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
+                    () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
         }
-        var edge = berth;
-        var stand = Waters.launchStand(edge, owner);
-        return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
-                () -> new Step.Do(new Face(edge.yaw())),
-                // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
-                () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
     }
 
     /** Walk beside the stick, face it, pick it up into her hat. */

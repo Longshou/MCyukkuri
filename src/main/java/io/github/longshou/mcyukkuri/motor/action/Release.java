@@ -108,7 +108,8 @@ public final class Release implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
-        if (child.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "already_free");
+        if (child.getVehicle() != carrier) return destination == null ? new Outcome.Done("already_free")
+                : Outcome.of(Reason.DROPPED, 0, "already_free");
         if (destination != null && !seat.available(child)) return Outcome.of(Reason.NO_ROOM, 0, "seat_unavailable");
         if (turn != null) {
             if (turn.tick(carrier) instanceof Running running) return running;

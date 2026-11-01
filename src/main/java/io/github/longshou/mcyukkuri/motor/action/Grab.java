@@ -80,7 +80,7 @@ public final class Grab implements Action {
         if (destination != null) {
             var seat = destination.seatDestination(target);
             if (seat == null || !seat.available(target)) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
-            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false);
+            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false, destination);
             if (problem != null) return refusal(problem);
             chosen(Hold.BRAID, false, Double.NaN);
             lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");

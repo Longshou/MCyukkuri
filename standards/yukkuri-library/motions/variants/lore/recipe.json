@@ -3499,6 +3499,7 @@
       "markers": {
         "grip": 0.35,
         "lift_start": 0.4,
+        "lift_end": 0.7,
         "place": 1.2
       }
     },

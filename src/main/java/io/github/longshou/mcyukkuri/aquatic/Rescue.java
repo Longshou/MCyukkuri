@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
+import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
@@ -38,7 +39,7 @@ final class Rescue implements Intent {
     String incident() { return incident; }
     YukkuriEntity faller() { return faller; }
     @Override public String id() { return "rescue"; }
-    @Override public long deadline() { return started + 2400; }
+    @Override public long deadline() { return started + (long) DriveWeights.of(AquaticGoal.DOMAIN, "rescue_ticks"); }
     @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public boolean satisfied() {
         return faller.isAlive() && (AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
@@ -48,7 +49,7 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);
         if (!AquaticLife.aboard(helper, hat)) return hat == null && !helper.life().custody().worn() ? null
-                : List.of(() -> new Step.Sub(new SetOut(helper, stayed -> {})));
+                : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         return Ferry.fetchAboard(helper, hat, faller);
     }
 

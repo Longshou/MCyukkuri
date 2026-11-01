@@ -35,6 +35,7 @@
   "feed_want": 55,
   "comfort_want": 45,
   "rescue_want": 95,
+  "rescue_ticks": 2400,
   "be_fed_want": 75,
   "comfort_again": 600,
   "first_voyage_want": 40,

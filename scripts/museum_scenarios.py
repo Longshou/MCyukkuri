@@ -1962,19 +1962,19 @@ def _rescue_smoke(sid, slot):
     child, parent = text(slot), text('a')
     return [rf'\[incident\][^\n]* open id=water#[^\n]*subject={child}',
             rf'\A(?=[\s\S]*?\[incident\][^\n]* open id=(?P<incident>water#\S+) [^\n]*subject={child})'
-            rf'[\s\S]*\[incident\][^\n]* decide id=(?P=incident) helper={parent} requester={child} [^\n]*accepted=(?:false'
-            rf'|true[\s\S]*rescue start faller={child} incident=(?P=incident)\b'
+            rf'[\s\S]*\[incident\][^\n]* decide id=(?P=incident) helper={parent} requester={child} [^\n]*accepted=true'
+            rf'[\s\S]*rescue start faller={child} incident=(?P=incident)\b'
             rf'[\s\S]*\[action\][^\n]* start id=grab [^\n]*target={child}'
             rf'[\s\S]*\[family\][^\n]* carry grip [^\n]*uuid={child}'
             rf'[\s\S]*\[action\][^\n]* start id=release [^\n]*child={child}'
             rf'[\s\S]*\[body\][^\n]* uuid={child} [^\n]* seat landed '
-            rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true)']
+            rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true']
 
 
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
      '亲油坐在近岸的自己的帽船里，帽里有木棍；一只 0.35 体型、未学会跳的小子油从岸边落水。亲油只决定一次救不救：接受后连续划近，从座位转身伸辫，抓住孩子提出水面，提过帽檐再降低到前座。拒绝时孩子继续自行游泳脱险；真实阻挡仍会失败',
      '约 30–90 秒',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_child', 'a'), **pair_ready()),
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('c1', .5)],
@@ -1987,7 +1987,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
 pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
      '亲油坐在自己的帽船里，帽里有木棍，岸边的赤油被推下水。亲油对这次落水决定一次救不救；接受后划近，从座位用辫子抓起赤油，提过帽檐再降低到前座；与岸边接赤油上船使用同一段演出',
      '约 30–90 秒',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
       _aquatic_young('rescue_infant_full', 'k1', bank_dx(1), 1, 'baby', 'a'),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('k1', .5)],
@@ -2006,7 +2006,7 @@ pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '观察 rescue refused reason=no_seat，拒绝不算救援成功。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=1800, expect=[*_rescue_smoke('rescue_no_seat', 'c1'), r'rescue refused [^\n]*reason=no_seat'],
+     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=0.00 [^\n]*accepted=false', r'rescue refused [^\n]*reason=no_seat'],
                 forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 

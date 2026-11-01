@@ -29,8 +29,8 @@ final class Ferry {
     /** A continuous chase from the captain seat, then the shared braid pickup and set-down. */
     static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
-                distance -> !child.isAlive() || child.isPassenger() || BraidFetch.withinReach(carrier, child))));
+        steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
+                distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
         steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }

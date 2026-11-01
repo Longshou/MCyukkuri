@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
@@ -78,7 +79,7 @@ final class ParentCarryPresentation {
     /** The clip a carrier plays while its braid reaches (the lift, or the low lean), or null. */
     static String liftClip(YukkuriView carrier) {
         var target = braidTarget(carrier);
-        if (carrier.getAnimationId().startsWith("braid_rescue_")) return null;
+        if (BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())) return null;
         return target == null ? null : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
     }
 
@@ -101,10 +102,10 @@ final class ParentCarryPresentation {
         var reaching = braidTarget(carrier);
         if (reaching != null) {
             // The braid closes on the child's scruff over the clip's reach, then keeps it while the lift runs.
-            boolean fetch = carrier.getAnimationId().startsWith("braid_rescue_");
+            boolean fetch = BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId());
             var clip = ClipMarkers.of(fetch ? carrier.getAnimationId() : liftClip(carrier));
             model.setBraidReach(modelPoint(carrier, scruff(reaching, reaching.getPosition(partial), yaw(reaching, partial)), partial),
-                    fetch && carrier.getAnimationId().equals("braid_rescue_hold") ? 1
+                    BraidFetch.HOLD.equals(carrier.getAnimationId()) ? 1
                             : ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact", clip.ticks("contact_closed", clip.length())))));
         } else if (carrier.isVehicle()) for (var rider : carrier.passengerViews()) {
             // The braid holds its own child all the way out and opens off it as it lets go, and lowers a brim child.
