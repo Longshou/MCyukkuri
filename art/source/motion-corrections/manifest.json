@@ -28,7 +28,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "042754f730cd36fc7ecba26d10c70cf6cca2aeb3283b5cd270e0b9a7baa878c4",
+  "runtime_sha256": "a5d4dba36401f8f5c71934d4c1a557ff469a0f6d40e518a692c5d158d5213772",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

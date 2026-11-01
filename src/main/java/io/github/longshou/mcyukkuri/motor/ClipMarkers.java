@@ -12,7 +12,7 @@ import java.util.Map;
 /** Authored clip timing: a clip's own markers are the server clock, so an action and the drawn clip agree. Durations and markers are read once and kept per clip name. */
 public final class ClipMarkers {
     /** One clip: its authored length in seconds and its named markers in seconds. */
-    public record Clip(float seconds, Map<String, Float> markers) {
+    public record Clip(float seconds, Map<String, Float> markers, Map<String, Float> parameters) {
         /** A marker in game ticks, or {@code fallback} when the clip does not author it. */
         public int ticks(String marker, int fallback) {
             Float at = markers.get(marker);
@@ -24,7 +24,7 @@ public final class ClipMarkers {
 
     private static final String DATA = "/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json";
     /** A clip the file does not author: one second and no markers, so every {@link Clip#ticks} call uses its fallback. */
-    private static final Clip MISSING = new Clip(1f, Map.of());
+    private static final Clip MISSING = new Clip(1f, Map.of(), Map.of());
     private static volatile Map<String, Clip> clips;
 
     /** The clip authored under {@code clip}, or the {@link #MISSING} default when the data has no such clip. */
@@ -68,6 +68,7 @@ public final class ClipMarkers {
     private static Clip clip(JsonReader reader) throws IOException {
         float seconds = 1f;
         var markers = new HashMap<String, Float>();
+        var parameters = new HashMap<String, Float>();
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
@@ -80,11 +81,16 @@ public final class ClipMarkers {
                     }
                     reader.endObject();
                 }
+                case "parameters" -> {
+                    reader.beginObject();
+                    while (reader.hasNext()) parameters.put(reader.nextName(), (float) reader.nextDouble());
+                    reader.endObject();
+                }
                 default -> reader.skipValue();
             }
         }
         reader.endObject();
-        return new Clip(seconds, Map.copyOf(markers));
+        return new Clip(seconds, Map.copyOf(markers), Map.copyOf(parameters));
     }
 
     private ClipMarkers() {}

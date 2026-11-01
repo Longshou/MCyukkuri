@@ -434,7 +434,7 @@ def hull_gate(model, action, samples, tracks, sticks, c):
     """Fail the clip if the skinned braid (braid_lock_*) or the twig axis (less `twig_radius`) enters any hull form with
     the captain on its seat facing its bow within `captain_yaw` degrees (Paddle.FACING; every `captain_yaw_step`); boat_paddle's blade must also be under every
     form's waterline by half its `depth` through the middle of the pull. Prints per form the worst braid and twig clearance."""
-    p = paddle_spec(c); forms = hull_forms(captain_mass(), model['units_per_block']); yaws = range(-p['captain_yaw'], p['captain_yaw']+1, p['captain_yaw_step'])
+    p = paddle_spec(c); forms = hull_forms(captain_mass(), model['units_per_block']); yaws = range(-SHARED['captain_yaw'], SHARED['captain_yaw']+1, p['captain_yaw_step'])
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
     braid = sorted({i for q in model['parts'] if q['name'].startswith('braid_lock_') for i in range(q['start'], q['start']+q['count'])})
     braid = np.unique(np.c_[V[braid], W[braid]].round(5), axis=0)
@@ -465,6 +465,7 @@ def extras(model, action, samples, tracks, c):
     names = {b['name']: i for i, b in enumerate(model['bones'])}
     more, fields = [], {}
     if 'markers' in c: fields['markers'] = dict(c['markers'])
+    if action == 'boat_paddle': fields['parameters'] = {'captain_yaw': SHARED['captain_yaw']}
     if 'base_pose' in c: fields['base_pose'] = c['base_pose']  # where the presentation watchdog falls back to
     if 'contacts' in c: fields['contacts'] = json.loads(json.dumps(c['contacts']))
     if action in PADDLE_CLIPS and 'hand_right_tip' in names and 'paddle' in c:
