@@ -173,10 +173,10 @@ final class AquaticGoal extends Goal {
         var larder = HullLarder.of(hat);
         boolean food = larder != null && larder.has(life::acceptsFood);
         double eat = eat(body);
-        if (food && eat > 0) out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(at, larder.portions().size()),
-                () -> "nutrition=" + Math.round(life.nutrition()) + " portions=" + larder.portions().size(), () -> Provision.eat(body)));
+        if (food && eat > 0) out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(at, larder.count()),
+                () -> "nutrition=" + Math.round(life.nutrition()) + " stores=" + larder.count(), () -> Provision.eat(body)));
         // food to fish up: when hungry, or the hold runs low and has floor for it
-        var catchable = stick && (eat > 0 || larder != null && larder.portions().size() < num("stock_portions", 2) && larder.room(hat))
+        var catchable = stick && (eat > 0 || larder != null && larder.count() < num("stock_portions", 2) && larder.room(hat))
                 ? Waters.food(hat, body, 12) : null;
         if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
@@ -278,7 +278,7 @@ final class AquaticGoal extends Goal {
         var larder = HullLarder.of(ride);
         double eat = eat(body);
         if (eat > 0 && larder != null && larder.has(body.life()::acceptsFood))
-            out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(cell(ride), larder.portions().size()),
+            out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(cell(ride), larder.count()),
                     () -> "nutrition=" + Math.round(body.life().nutrition()), () -> Provision.eat(body)));
         // a parent offering it food aboard: it turns to her and keeps still
         for (var p : AquaticLife.parents(body)) if (ride != null && p.getVehicle() == ride && Care.feeding(p, body)) {

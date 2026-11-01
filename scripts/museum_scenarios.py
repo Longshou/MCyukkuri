@@ -1622,7 +1622,7 @@ def water_at(dz, out):
 
 
 def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False):
-    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples (-1: fill the free floor)
+    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples (0..8)
     (and, with ``stick``, one real stick to paddle with); the crew sit at its front (or, with ``middle``, its middle) and, with
     ``aboard``, she climbs in last into its middle. A stick needs a crew argument (the owner's own selector when she is alone)."""
     tail = f' {food}' + (' middle' if middle else ' stick' if stick else '') if food or middle or stick else ''
@@ -1748,17 +1748,28 @@ pond('worn_hat_boat', '戴着的帽子当船·落水自救', '帽子当船',
      note='谁会这样做由能力数据 hat_boat 决定（只有水生魔理沙），还要戴着帽子、会攀爬、已会操帽（成体，或初航回来的子油；没初航过的只会挣扎，own_hat 与 hat_boat 记 cannot_sail）。日志：[intent] start id=escape_water → [method] pick method=hat_boat → [action] start id=place_prop … prop=hat → [hat] placed … water=true → [action] start id=climb → [body] mount cause=climb → [intent] end result=DONE；其间没有 [action] end … why=hurt。身旁没有开阔水面时看 [method] 的 no_open_water_beside，转向岸边。',
      reads=[('读子油', f'yukkuri status {sel("c")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
-pond('cargo', '帽内储粮·船主取粮吃', '帽内储粮',
-     '船主坐在水面的帽里，跨在帽口上方的帽檐高处，有点饿。手持食物右击帽子放进一份，潜行右击一次最多八份：每份粮是立在帽腔里的小件实物（草料堆、食屑或油粮小袋，高约 0.06 格），各占一块帽底，只在帽腔、不上帽檐，可以放在船主身下的帽底（空帽载着船主约能放 8 份），hat.draft 的吃水随之加深；超过四种，或帽底没有空位时拒绝：动作栏说明原因，船主鼓腮，帽子不晃。帽里有了粮，饿着的船主就在帽里走到一份粮边，用嘴取起吃掉（boat_eat），粮少一份、吃水变浅；她不再因为饿而返岸。空手或拿非食物右击才摇晃，摇到翻覆时粮散成水面上可捡的物品',
+pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
+     '近岸的饱腹船主帽里已有八份苹果，用手中食物右击它应提示已满，手中不扣、帽子不晃。另一只饿船主有三份苹果，会原地低头取粮吃，数量下降时帽底贴图缩小。手持食物右击放一份、潜行最多八份，只扣实际收下的数量；不同食物合计最多八份。贴图贴在帽底、少量靠船头，食物不占位也不增重。空手摇到翻覆后，余粮按种类散成水上物品，可捡起核对数量',
      '约 1 分钟',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=48, energy=100, hygiene=100), afloat('a', water_at(0, 3))],
-     give=['minecraft:apple 8', 'minecraft:bread 4', 'minecraft:carrot 4', 'minecraft:sweet_berries 4', 'minecraft:cookie 2'],
-     note='第五种（曲奇）用来看“种类已满”。读 hat.draft 的 portions 与 draft 对照放粮前后，读帽子数据看 Motion.Portions 存档；翻覆散落是真实损失。'
-          '吃粮日志：[intent] start id=eat_aboard → [action] start id=pick … item= → [hat] portion taken → [aquatic] eat_aboard item= → [meal] swallowed。' + _DESIRE_NOTE_EARLY,
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=48, energy=100, hygiene=100, label='饿船主'),
+      yk('marisa', bank_dx(5), 5, 'full', aquatic=True, yaw=0, label='满粮船主', **pair_ready()),
+      afloat('a', water_at(0, 3), True, sel('a'), food=3),
+      afloat('full', water_at(5, 3), True, sel('full'), food=8)],
+     give=['minecraft:apple 8', 'minecraft:bread 4'],
+     note='先给近岸满粮帽放一份，看拒绝与手中余量；再给饿船主补粮，看帽底贴图换档、原地取食。读 hat.draft 的 stores、tier、eats、refusals；读 Motion.Stores 核对按种类保存，重载后余量一致。'
+          '日志：[hat] stores put / stores refused reason=full / stores taken use=eat → [meal] swallowed；翻覆只有一条 stores spilled，逐种核对余量。' + _DESIRE_NOTE_EARLY,
+     reads=[('读饿船主储粮', f'yukkuri status {sel("a")} raw'), ('读满粮船主', f'yukkuri status {sel("full")} raw'),
+            ('读帽子存档', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1200, commands=[(tick, f'execute as {sel("full")} on vehicle run yukkuri scenario shake @s') for tick in range(600, 700)],
+                expect=[r'\[hat\][^\n]* stores put by=scenario [^\n]*accepted=3[^\n]*total=0 -> 3 tier=2',
+                        r'\[hat\][^\n]* stores put by=scenario [^\n]*accepted=8[^\n]*total=0 -> 8 tier=3',
+                        r'\[hat\][^\n]* stores taken [^\n]*use=eat [^\n]*total=3 -> 2 tier=1',
+                        r'\[hat\][^\n]* stores spilled [^\n]*kinds=\{minecraft:apple=8\} -> \{\} total=8 -> 0'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'no_grid_path'],
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '帽内挤动', '帽内挤动',
-     '帽腔四角已有四份粮，五只已经初航过、会操帽的子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多，粮不动；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水后按落水自救（戴着自己帽子的子油先把帽子放到水面再爬上去）；帽腔底的粮和船主不同高度，不互相挤',
+     '帽里有四份计数储粮，只显示帽底贴图，不参加挤动。五只已经初航过、会操帽的子油坐在帽腔中间，船主最后坐进帽中央：她占去的地方原本坐着子油。脚圆重叠的身体沿帽面慢慢被挤开（每 tick 至多重叠的四分之一），轻的让得多，帽子倾斜时低处的让得多；被挤上帽檐的改用帽檐姿态，停在帽檐又连续被挤约 1 秒的才被挤出，向外落水后按落水自救（戴着自己帽子的子油先把帽子放到水面再爬上去）',
      '约 30 秒',
      [captain(dx=bank_dx(0)), *_children((1, -1, 2, -2, 3)), afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, middle=True)],
      note='日志 [hat] squeeze（限频）记被挤动的个体与步长，[hat] squeezed off 与 [body] dismount cause=squeezed 记落水；读 hat.tilt 看挤动后的倾斜。也可再空手摇晃帽子看倾斜时谁让得多。',
@@ -1882,20 +1893,19 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
                     r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                     r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=1', *_WATER_ESCAPE])}))
 
-pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
-     '亲油坐进帽子后，粮按实际帽底空位铺满，放不下的停止补入（日志记录份数与 no_room）；粮和乘员照常碰撞、挤动，帽里有木棍。岸边的赤油被推下水（只有它落水）。亲油接受救援后，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），划近并用嘴或辫梢把赤油提出水面放进帽腔；够不到或能力不足仍会失败',
+pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
+     '亲油坐在自己的帽里，帽里有木棍，岸边的赤油被推下水（只有它落水）。亲油对这次落水决定一次救不救；接受后划近，用嘴或辫梢把赤油提出水面放进帽腔。食物不占空间，不再先丢粮；够不到或能力不足仍有真实失败',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
       _aquatic_young('rescue_infant_full', 'k1', bank_dx(1), 1, 'baby', 'a'),
-      afloat('a', water_at(0, 3), True, sel('a'), food=-1, stick=True)],
+      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('k1')],
-     note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=pick（一份粮）→ [aquatic] rescue made_room item= dropped= → [hat] portion taken → '
-          '[action] start id=grab reach=mouth|braid → [action] start id=release → 赤油 [body] mount … → [aquatic] rescue end result=DONE。读 hat.draft 的 portions 对照前后。' + _DESIRE_NOTE,
+     note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=grab reach=mouth|braid → [action] start id=release → '
+          '赤油 [body] mount … → [aquatic] rescue end result=DONE。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* stored by=scenario [^\n]*taken=[1-9]\d* asked=-1[^\n]*stop=no_room\b',
-                                   r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                                    r'\[incident\][^\n]* open id=water#',
-                                   r'\[aquatic\][^\n]* rescue made_room item=|\[aquatic\][^\n]* rescue end result=EXHAUSTED [^\n]*reason=[A-Z_]+[^\n]*detail=\S'
+                                   r'\[aquatic\][^\n]* rescue (?:progress |end result=EXHAUSTED [^\n]*reason=[A-Z_]+[^\n]*detail=\S)'
                                    r'|\[incident\][^\n]* decide id=water#[^\n]*accepted=false'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
@@ -1904,8 +1914,6 @@ pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
 _BOAT_SMOKE_START = (r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true'
                      r'[\s\S]*\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true')
 _BOAT_SMOKE_FORBID = [r'\[hat\][^\n]* capsized cause=overload\b',
-                      r'\[hat\][^\n]* refused [^\n]*reason=no_room portions=0 kinds=0/4\b',
-                      r'\[hat\][^\n]* stored [^\n]*taken=0[^\n]*portions=0 -> 0[^\n]*stop=no_room\b',
                       r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                       r'\[aquatic\][^\n]* spawn refused reason=(?:no_hat|no_water|no_floor)\b']
 
@@ -1938,20 +1946,11 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b'],
                       verify=water_aftermath, readout=_WATER_SMOKE_READOUT, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
                           r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
-boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
-           '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
-           -1, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
-               '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
-           smoke=dict(ticks=5400,
-                      commands=[(1, 'data modify storage mcylab:smoke packed_mother set value []'),
-                                *[(tick, f'execute as {sel("mother")} on vehicle run data modify storage mcylab:smoke packed_mother append from entity @s Riders[0]')
-                                  for tick in (50, 51, 100, 101, 200, 201, 350, 351, 400, 401)]],
-                      readout=['data get storage mcylab:smoke packed_mother'],
-                      expect=[_BOAT_SMOKE_START,
-                                         r'\[hat\][^\n]* stored by=scenario [^\n]*taken=[1-9]\d* asked=-1[^\n]*stop=no_room\b',
-                                         r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
-                                         r'\[family\][^\n]* birth delivery stage=exit_wait [^\n]*rejection=\w+ [^\n]*delivery=0 phase=before_emergence\b',
-                                         r'\[family\][^\n]* birth delivery stage=release [^\n]*unprotected=true\b',
+boat_birth('birth_boat_missed', '帽船分娩·自然漏接观察', '漏接观察',
+           '双亲各自在空帽船上，观察分娩是否自然漏接；若新生儿落水，则亲油各自决定一次救不救，没救起会溺亡。此场不再用满粮挤掉新生儿；真正的乘员容量边界待第六工作包重建，当前不保证漏接',
+           0, '日志：birth landed … outcome=HAT|WATER；落水时 [incident] open → decide → [intent] start id=rescue → '
+              '[action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
+           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))

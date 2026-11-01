@@ -1,66 +1,43 @@
 package io.github.longshou.mcyukkuri.client.aquatic;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.aquatic.HullLarder;
-import io.github.longshou.mcyukkuri.client.PropModels;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
-/**
- * The food in a floating hat's hollow: each synced portion drawn as a small 3D prop standing on the floor where it
- * really is (its spot in the hat's frame), as wide as its floor circle and with its own height, turned a little each so a heap
- * reads as separate pieces: a crumb for food scraps, a pouch for the grain pouches, a small forage heap for any other food.
- * Never on the brim, since the server only puts portions in the hollow. It reads the hat's synced contents and nothing of the server.
- */
+/** One flat floor texture, cropped at a tier's boundary; UVs stay at 16 pixels per block. */
 public final class HullLarderRenderer {
-    /** The forage heap's stage drawn for plain food (its smallest heap). */
-    private static final int HEAP = 1;
-    /** The parsed contents per hat, kept while its synced tag stays the same object. */
-    private static final Map<Integer, Parsed> PARSED = new HashMap<>();
-    private record Parsed(CompoundTag tag, List<HullLarder.Shown> portions) {}
-
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("mcyukkuri", "textures/props/aquatic_basin_hat_stores.png");
     private HullLarderRenderer() {}
 
     public static void render(PlacedHatView hat, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
-        var tag = hat.contents();
-        if (tag.isEmpty()) return;
-        var parsed = PARSED.get(hat.getId());
-        if (parsed == null || parsed.tag() != tag) {
-            if (PARSED.size() > 64) PARSED.clear();
-            parsed = new Parsed(tag, HullLarder.shown(tag, hat.level().registryAccess()));
-            PARSED.put(hat.getId(), parsed);
+        int count = hat.contents().getInt("FoodCount");
+        if (count == 0) return;
+        double f = HullLarder.Counts.radius(count), unit = hat.hullScale() / 16;
+        var profile = hat.profile();
+        var radii = profile.data().getAsJsonObject("floor").getAsJsonArray("radius");
+        var angles = profile.data().getAsJsonArray("azimuths");
+        // Current profiles are centred at local (0, 0); -Z is the bow. WP4 replaces this measured oval boundary.
+        double bow = 0;
+        for (int i = 0; i < radii.size(); i++)
+            bow = Math.max(bow, -Math.sin(Math.toRadians(angles.get(i).getAsDouble())) * radii.get(i).getAsDouble());
+        double scale = unit / profile.measuredUnit(), centreZ = -(1 - f) * bow * scale;
+        float y = (float) (profile.floor() * unit + .002);
+        var vertices = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+        var matrix = pose.last();
+        for (int i = 0; i < radii.size(); i++) {
+            // Degenerate quads form the disc; the same texture repeats without changing its texel size.
+            for (int corner = 0; corner < 4; corner++) {
+                int index = (i + (corner == 2 ? 1 : 0)) % radii.size();
+                double a = Math.toRadians(angles.get(index).getAsDouble());
+                double r = corner == 0 || corner == 3 ? 0 : f * radii.get(index).getAsDouble() * scale;
+                float x = (float) (Math.cos(a) * r), z = (float) (centreZ + Math.sin(a) * r);
+                vertices.addVertex(matrix, x, y, z).setColor(255, 255, 255, 255).setUv(x + .5f, z + .5f)
+                        .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(matrix, 0, 1, 0);
+            }
         }
-        float unit = hat.hullScale() / 16;
-        for (int i = 0; i < parsed.portions().size(); i++) {
-            var portion = parsed.portions().get(i);
-            String prop = prop(portion.item());
-            int units = prop.equals("forage_pile") ? HEAP : 8;
-            var box = PropModels.bounds(prop, units);
-            float scale = (float) (2 * HullLarder.RADIUS / Math.max(box.getXsize(), box.getZsize()));
-            // no taller than the height its footprint takes on the server (a tall pouch is drawn squat)
-            float lift = (float) Math.min(scale, HullLarder.HEIGHT / Math.max(1E-6, box.getYsize()));
-            pose.pushPose();
-            pose.translate(portion.at().x * unit, portion.at().y * unit, portion.at().z * unit);
-            pose.mulPose(Axis.YP.rotationDegrees(i * 137.5f));
-            pose.scale(scale, lift, scale);
-            PropModels.center(prop, pose, true);
-            PropModels.render(prop, units, pose, buffers, light, OverlayTexture.NO_OVERLAY);
-            pose.popPose();
-        }
-    }
-
-    /** The prop one stored food is drawn as, by its kind. */
-    private static String prop(ItemStack item) {
-        String path = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-        String own = path.equals("food_scrap") || path.startsWith("oil_grain_") || path.equals("spicy_grain") ? path : "forage_pile";
-        return PropModels.has(own) ? own : "forage_pile";
     }
 }

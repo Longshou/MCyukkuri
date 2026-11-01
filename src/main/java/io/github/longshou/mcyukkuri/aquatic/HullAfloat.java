@@ -15,7 +15,6 @@ import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.HullHydro;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
-import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -24,7 +23,6 @@ import java.util.Locale;
 import java.util.function.ToDoubleFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -198,13 +196,12 @@ public final class HullAfloat implements PlacedHatBehavior {
         shelter(hat);
     }
 
-    /** Actual rider centres, including children held by riders, and the portions where they lie. */
+    /** Actual rider centres, including children held by riders. */
     private Buoyancy.Load configuration(YukkuriEntity moved) {
         double unit = hat.unit();
         var load = hydro.hull(unit);
         for (var p : hat.getPassengers()) if (p != moved)
             load = load.add(tree(p, hat.frame().toWorld(hat.riders().local(p.getUUID())).subtract(p.position())));
-        for (var p : larder.portions()) load = load.add(HullLarder.MASS, new Vec(p.x() * unit, p.y() * unit + HullLarder.HEIGHT / 2, p.z() * unit));
         double clearance = hat.getY() + hydro.rimHeight(unit, hat.roll(), hat.pitch()) - surface(hat);
         for (var y : hat.level().getEntitiesOfClass(YukkuriEntity.class, hat.getBoundingBox().inflate(2))) {
             if (y.isPassenger() || y == moved || !(y.motor().current() instanceof LoadedContact grip)) continue;
@@ -474,15 +471,13 @@ public final class HullAfloat implements PlacedHatBehavior {
         return pace < 1e-9 ? Vec3.ZERO : drive.scale(Effort.drive(pace, share, DRAG) / pace);
     }
 
-    @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.portions().stream().anyMatch(p -> p.item().is(item)); }
+    @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.has(one -> one.is(item)); }
 
     // ---------------------------------------------------------------- what the base asks
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }
     @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
-    @Override public List<Disc> obstacles(PlacedHatEntity hat) { return larder.discs(hat); }
-    @Override public double load(PlacedHatEntity hat) { return larder.load(); }
-    /** Taken back, beached or destroyed: the food falls out where it lies, moving with the hull. */
+    /** Taken back, beached or destroyed: the counted stores spill as items, moving with the hull. */
     @Override public void release(PlacedHatEntity hat, String cause) { larder.spill(hat, cause, at -> hat.getDeltaMovement()); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
     /** From the synced pose only, so the client agrees: upright and its tilt barely changing (a turn over moves it fast). */
@@ -497,7 +492,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         tag.putDouble("RollRate", rollRate); tag.putDouble("PitchRate", pitchRate); tag.putInt("Flip", flip); tag.putInt("Over", over);
         tag.putString("Cause", cause);
         if (causeTick != Long.MIN_VALUE) tag.putLong("CauseAt", causeTick);
-        tag.put("Portions", larder.save(hat));
+        tag.put("Stores", larder.save());
         return tag;
     }
     @Override public void load(CompoundTag tag) {
@@ -507,7 +502,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         over = Math.max(0, tag.getInt("Over"));
         cause = tag.contains("Cause") ? tag.getString("Cause") : cause;
         causeTick = tag.contains("CauseAt") ? tag.getLong("CauseAt") : Long.MIN_VALUE;
-        larder.load(hat, tag.getList("Portions", Tag.TAG_COMPOUND));
+        larder.load(tag.getCompound("Stores"));
     }
     /** Dry while the whole brim stands above the water and the rider's feet are supported in the hat. */
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
@@ -528,8 +523,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     @Override public String detail(PlacedHatEntity hat) {
         double freeboard = hat.getY() + hydro.rimHeight(hat.unit(), hat.roll(), hat.pitch()) - surface(hat);
-        return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s portions=%d",
-                draft, freeboard, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.portions().size());
+        return String.format(Locale.ROOT, "afloat draft=%.3f freeboard=%.3f load=%.4f surface=%.2f rate=%.2f/%.2f over=%d flip=%d cause=%s %s",
+                draft, freeboard, mass, surface(hat), rollRate, pitchRate, over, flip, cause, larder.detail());
     }
 
     // ---------------------------------------------------------------- measures

@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Intent;
@@ -18,7 +17,6 @@ import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
-import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -27,9 +25,6 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * Lifting a young of hers out of the water (落水他救; AQUATIC 落水、救助与靠岸), the intent of a helper who
@@ -38,8 +33,7 @@ import net.minecraft.world.phys.Vec3;
  * <ul>
  *   <li>from her own hat afloat ({@code lift}): paddle near (with her stick; without one she waits for it to drift or swim near), walk
  *       on the hat to the side nearest it, take it with the mouth or the braid tip (Grab picks the hold that reaches), and put it
- *       down over her hollow, where it drops in. A hollow without floor for it gets room first: the portion that feeds least goes
- *       over the side, a real loss that floats and may be fished up again.</li>
+ *       down over her hollow, where it drops in.</li>
  *   <li>from the bank ({@code from_bank}, ashore): only a faller within reach of an edge she can stand at: walk there, take it, step
  *       back from the water and put it down on the dry ground; she does not go into the water.</li>
  * </ul>
@@ -48,8 +42,8 @@ import net.minecraft.world.phys.Vec3;
  * keeps her decision open, so she takes the incident up again once she has a way (boards her hat, reaches a bank edge).
  */
 final class Rescue implements Intent {
-    /** The longest rescue (ticks), the longest wait for the faller to come within reach, the portions tipped out for room. */
-    private static final int DEADLINE = 1200, WAIT = 60, ROOM = 2;
+    /** The longest rescue (ticks), the longest wait for the faller to come within reach. */
+    private static final int DEADLINE = 1200, WAIT = 60;
 
     private final YukkuriEntity helper, faller;
     private final String incident;
@@ -58,8 +52,6 @@ final class Rescue implements Intent {
     /** Some way gave a step to take in this run (so an exhausted run is a real failure, not a run with no way). */
     private boolean acted;
     private Waters.Edge edge;
-    /** Portions tipped over the side for its room in this rescue (at most {@link #ROOM}: more food is not what fills the hollow). */
-    private int dumped;
     private double distance;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident, Consumer<String> failed) {
@@ -112,8 +104,6 @@ final class Rescue implements Intent {
         if (hat == null) return null;
         if (faller.getVehicle() == helper) return Ferry.releaseAboard(helper, hat, faller);
         if (!faller.waterDistress().escaping()) return landing();
-        var larder = HullLarder.of(hat);
-        if (dumped < ROOM && AquaticLife.freeSpot(hat, faller) == null && larder != null && !larder.portions().isEmpty()) return room(hat, larder);
         var grab = Grab.outOfWater(faller);
         if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
         var spot = AquaticLife.spot(hat, helper, false, hat.frame().toLocal(faller.position()));
@@ -148,26 +138,6 @@ final class Rescue implements Intent {
                 "rescue progress faller={} incident={} distance_before={} distance_after={} last={}",
                 faller.getUUID(), incident, distance, now, helper.motor().lastDetail());
         distance = now;
-    }
-
-    /** No floor in the hollow for it: the portion that feeds least is tipped over the side first (a real, floating loss). */
-    private List<Supplier<Step>> room(PlacedHatEntity hat, HullLarder larder) {
-        var portion = larder.portion(hat, one -> true, helper.position(), true);
-        return portion == null ? null : Provision.reach(helper, hat, portion.at(), new Pick(portion, one -> overboard(hat, one)));
-    }
-
-    /** The portion falls beyond the brim on the faller's side as a real floating item. */
-    private boolean overboard(PlacedHatEntity hat, ItemStack one) {
-        var out = faller.position().subtract(hat.position()).multiply(1, 0, 1);
-        var dir = out.lengthSqr() < 1E-6 ? new Vec3(1, 0, 0) : out.normalize();
-        var at = hat.position().add(dir.scale(HullAfloat.brimToward(hat, faller.position()) + .15)).add(0, .3, 0);
-        var item = new ItemEntity(hat.level(), at.x, at.y, at.z, one.copy());
-        item.setDeltaMovement(dir.scale(.08));
-        item.setDefaultPickUpDelay();
-        if (!hat.level().addFreshEntity(item)) return false;
-        dumped++;
-        GameplayLog.event(helper, "aquatic", "rescue made_room item={} dropped={} faller={} incident={}", one.getItem(), item.getUUID(), faller.getUUID(), incident);
-        return true;
     }
 
     private List<Supplier<Step>> fromBank() {

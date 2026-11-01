@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
@@ -30,18 +29,12 @@ public interface PlacedHatBehavior {
      *  only the server moves it). */
     default boolean shake(PlacedHatEntity hat, Player by) { return false; }
 
-    /** Puts {@code stack} into the hollow for {@code by} (a player's click; null: a scenario's starting stock): true when it is
+    /** Puts {@code stack} into the hollow for {@code by} (a player's click): true when it is
      *  something this hat stores, taken from the stack or refused with its real reason; false leaves the click to the shake. */
     default boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return false; }
 
-    /** Scene starting stock, returning the real count placed: -1 fills the free floor until refused. */
+    /** Scene starting stock, returning the accepted count. */
     default int stock(PlacedHatEntity hat, ItemStack food, int count) { return 0; }
-
-    /** What lies on the hollow's floor besides riders, as circles (hat units) no foot may overlap; they never move. */
-    default List<Disc> obstacles(PlacedHatEntity hat) { return List.of(); }
-
-    /** What it carries besides riders, in the ability's load units: its riders' pace. */
-    default double load(PlacedHatEntity hat) { return 0; }
 
     /** What it keeps belongs to the hat: when the hat leaves this behaviour, is taken back or is destroyed, it falls out where
      *  it lies as real items ({@code cause} says which). A chunk unload saves it instead. */

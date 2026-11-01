@@ -1,295 +1,166 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
-import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
-import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
-import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
-import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The food a floating hat holds. Every portion is one real item lying on its own floor circle in
- * the hollow (no fixed count: the free floor decides, so food and newborns compete for it), never on the brim: it weighs on the hull (draft and heel) and on its riders' pace (ability load L), no foot at
- * its height may share its floor (a body standing higher over the hollow may stand over it), and it spills as floating items when the hat turns over. It is the hull's own state, saved in its Motion
- * and drawn from the hat's synced contents. A body aboard takes a portion with its mouth ({@link #portion}, the shared Pick):
- * to eat it, to feed it to a young, or to tip it overboard for room.
- */
+/** Counted food by item kind. Stores have neither a position nor a load; only their floor texture has bounds. */
 public final class HullLarder {
-    private static final JsonObject DATA = HatGeometry.afloat();
-    /** At most this many kinds of food; the portions themselves are limited only by the free floor. One portion's floor circle
-     *  (blocks) and its ability load. */
-    public static final int KINDS = DATA.get("kinds").getAsInt();
-    public static final double RADIUS = DATA.get("portion_radius").getAsDouble(), LOAD = DATA.get("portion_load").getAsDouble();
-    /** How high one portion stands on the floor (blocks): its footprint takes the floor up to here, so it can lie under a body
-     *  standing higher over the hollow; its drawn prop is no taller. */
-    public static final double HEIGHT = .06;
-    /** A portion weighs on the hull as a round lump of a yukkuri body's density. */
-    static final double MASS = Buoyancy.bodyMass(2 * RADIUS, 2 * RADIUS, Buoyancy.BODY_DENSITY);
-    /** A sneaking click hands over up to this many portions (docs/FEATURES.md 水生魔理沙); the floor is searched on this
-     *  lattice (hat units). */
-    private static final int HANDFUL = 8;
-    private static final double LATTICE = .5;
+    /** Pure count transactions and the single presentation tier table (project design). */
+    public static final class Counts {
+        public static final int CAPACITY = 8;
+        private record Tier(int through, double radius) {}
+        private static final Tier[] TIERS = {new Tier(0, 0), new Tier(2, .45), new Tier(5, .70), new Tier(8, 1)};
+        private final Map<String, Integer> kinds = new LinkedHashMap<>();
 
-    /** One portion: the item and where it lies (hat units, on the floor). */
-    record Portion(ItemStack item, double x, double y, double z) {}
-
-    private final List<Portion> portions = new ArrayList<>();
-    private boolean dirty = true;
-    /** The floor circles, kept until the portions or the hat's size change. */
-    private List<Disc> discs = List.of();
-    private double discUnit = -1;
-    private int changes, discChanges = -1;
-
-    List<Portion> portions() { return portions; }
-
-    /** The hold of a hat afloat, or null. */
-    static HullLarder of(PlacedHatEntity hat) { return hat != null && hat.behavior() instanceof HullAfloat afloat ? afloat.larder() : null; }
-
-    boolean has(Predicate<ItemStack> wanted) { return portions.stream().anyMatch(p -> wanted.test(p.item())); }
-
-    /**
-     * A stored portion as the mouth's pick (Pick.Source): of those {@code wanted} accepts, the one nearest {@code from} (world),
-     * or with {@code cheapest} the one that feeds least (the first to go overboard); null when none is wanted. Its reach is the
-     * shared mouth rule against the portion's own floor circle; taking it frees its floor.
-     */
-    Pick.Source portion(PlacedHatEntity hat, Predicate<ItemStack> wanted, Vec3 from, boolean cheapest) {
-        Portion best = null;
-        double score = Double.MAX_VALUE;
-        for (var p : portions) {
-            if (!wanted.test(p.item())) continue;
-            double s = cheapest ? nutrition(p.item()) : hat.frame().toWorld(new Vec3(p.x(), p.y(), p.z())).distanceToSqr(from);
-            if (s < score) { score = s; best = p; }
+        public int total() { return kinds.values().stream().mapToInt(Integer::intValue).sum(); }
+        int count(String kind) { return kinds.getOrDefault(kind, 0); }
+        int add(String kind, int asked) {
+            int accepted = Math.min(asked, CAPACITY - total());
+            if (accepted > 0) kinds.merge(kind, accepted, Integer::sum);
+            return accepted;
         }
-        if (best == null) return null;
-        var p = best;
+        void take(String kind) {
+            int remaining = kinds.get(kind) - 1;
+            if (remaining == 0) kinds.remove(kind); else kinds.put(kind, remaining);
+        }
+        Map<String, Integer> save() { return new LinkedHashMap<>(kinds); }
+        void load(Map<String, Integer> saved) { kinds.clear(); kinds.putAll(saved); }
+        Map<String, Integer> spill() { var out = save(); kinds.clear(); return out; }
+        public static int tier(int count) {
+            int tier = 0;
+            while (count > TIERS[tier].through()) tier++;
+            return tier;
+        }
+        public static double radius(int count) { return TIERS[tier(count)].radius(); }
+    }
+
+    private final Counts stores = new Counts();
+    private int eats, refusals;
+
+    static HullLarder of(PlacedHatEntity hat) { return hat != null && hat.behavior() instanceof HullAfloat afloat ? afloat.larder() : null; }
+    int count() { return stores.total(); }
+    boolean has(Predicate<ItemStack> wanted) { return stores.kinds.keySet().stream().anyMatch(kind -> wanted.test(item(kind))); }
+    boolean room(PlacedHatEntity hat) { return !hat.upsideDown() && count() < Counts.CAPACITY; }
+    private static ItemStack item(String kind) { return new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(kind))); }
+
+    /** Reach down in place: membership of the upright host is the contact contract, not a path to an individual item. */
+    Pick.Source source(PlacedHatEntity hat, YukkuriEntity actor, Predicate<ItemStack> wanted, String use) {
+        var kind = stores.kinds.keySet().stream().filter(key -> wanted.test(item(key))).findFirst().orElse(null);
+        if (kind == null) return null;
         return new Pick.Source() {
-            @Override public ItemStack item() { return portions.contains(p) ? p.item() : ItemStack.EMPTY; }
-            @Override public Vec3 at() { return hat.frame().toWorld(new Vec3(p.x(), p.y(), p.z())); }
-            @Override public double gap(YukkuriEntity body) {
-                var d = at().subtract(body.position());
-                return Math.abs(d.y) >= ContactGeometry.GRAB_HEIGHT ? Double.MAX_VALUE
-                        : Math.hypot(d.x, d.z) - body.getBbWidth() / 2 - RADIUS - ContactGeometry.GRAB_MARGIN;
-            }
+            @Override public ItemStack item() { return stores.count(kind) > 0 ? HullLarder.item(kind) : ItemStack.EMPTY; }
+            @Override public Vec3 at() { return hat.frame().toWorld(new Vec3(0, hat.profile().floor(), 0)); }
+            @Override public double gap(YukkuriEntity body) { return body.getVehicle() == hat && !hat.upsideDown() ? 0 : Double.MAX_VALUE; }
             @Override public void take() {
-                if (!portions.remove(p)) return;
-                dirty = true;
-                changes++;
-                GameplayLog.event(hat, "hat", "portion taken item={} portions={} load={}", p.item().getItem(), portions.size(), fmt(load()));
+                int before = stores.count(kind), total = count();
+                stores.take(kind);
+                if (use.equals("eat")) eats++;
+                sync(hat);
+                GameplayLog.event(hat, "hat", "stores taken by={} use={} kind={} count={} -> {} total={} -> {} tier={}",
+                        actor.getUUID(), use, kind, before, stores.count(kind), total, count(), Counts.tier(count()));
             }
         };
     }
 
-    /** What a portion feeds (its food value; 0 when it has none). */
-    static int nutrition(ItemStack stack) {
-        var food = stack.get(DataComponents.FOOD);
-        return food == null ? 0 : food.nutrition();
-    }
-    boolean empty() { return portions.isEmpty(); }
-    double load() { return portions.size() * LOAD; }
-
-    /** Each portion's footprint in hat units at this hat's size: its floor circle, from the floor it lies on up its height. */
-    List<Disc> discs(PlacedHatEntity hat) {
-        if (discUnit != hat.unit() || discChanges != changes) {
-            double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit();
-            discs = portions.stream().map(p -> new Disc(p.x(), p.z(), r, p.y(), p.y() + tall)).toList();
-            discUnit = hat.unit();
-            discChanges = changes;
-        }
-        return discs;
-    }
-
-    /**
-     * Food from a player's click (one portion, a sneaking click a handful) or a scenario's starting stock ({@code by} null, the
-     * whole stack): each portion takes its own free floor spot. Anything that is not food is left to the click (false). A
-     * refusal keeps the item, logs the real reason and puffs the owner's cheeks; the hat is not rocked.
-     */
     boolean store(PlacedHatEntity hat, ItemStack stack, Player by) {
-        if (!stack.is(YukkuriEntity.FOOD)) return false;
-        if (hat.level().isClientSide) return true;
-        int want = by == null ? stack.getCount() : Math.min(stack.getCount(), by.isSecondaryUseActive() ? HANDFUL : 1);
-        int taken = store(hat, stack, want, by);
-        if (by == null || !by.getAbilities().instabuild) stack.shrink(taken);
-        return true;
-    }
-
-    /** Initial scene stock: -1 fills the actual free floor; only accepted portions become real items. */
-    int stock(PlacedHatEntity hat, ItemStack food, int count) { return store(hat, food, count, null); }
-
-    private int store(PlacedHatEntity hat, ItemStack stack, int want, Player by) {
-        int before = portions.size(), taken = 0;
-        var item = stack.getItem();
-        String stop = null;
-        while ((want == -1 || taken < want) && stop == null) {
-            stop = hat.upsideDown() ? "upside_down" : newKind(stack) && kinds() >= KINDS ? "kinds" : null;
-            var spot = stop == null ? spot(hat) : null;
-            if (stop == null && spot == null) stop = "no_room";
-            if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x(), spot.bottom(), spot.z())); taken++; changes++; }
-        }
-        if (taken > 0) {
-            dirty = true;
-            GameplayLog.event(hat, "hat", "stored by={} item={} taken={} asked={} portions={} -> {} kinds={} load={} stop={}",
-                    by == null ? "scenario" : by.getUUID(), item, taken, want, before, portions.size(), kinds(), fmt(load()),
-                    stop == null ? "none" : stop);
-        } else {
-            GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={} kinds={}/{} owner={}",
-                    by == null ? "scenario" : by.getUUID(), item, stop, portions.size(), kinds(), KINDS, hat.ownerYukkuri());
-            var owner = hat.owner();
-            if (owner != null) owner.showReaction("cheek_puff", "refuse", 40);
-        }
-        if (by != null) by.displayClientMessage(Component.literal(taken > 0 ? "帽内储粮 " + portions.size() + " 份"
-                : switch (stop) {
-                    case "kinds" -> "帽里的粮已有 " + KINDS + " 种，放不下新的种类";
-                    case "upside_down" -> "帽子倒扣着，放不进粮";
-                    default -> "帽底没有空位放这份粮";
-                }), true);
-        return taken;
-    }
-
-    /** One portion a body aboard brings in (forage): the same floor and kinds rules as a click, the refusal logged with its reason. */
-    boolean keep(PlacedHatEntity hat, ItemStack one, YukkuriEntity by) {
-        String stop = hat.upsideDown() ? "upside_down" : newKind(one) && kinds() >= KINDS ? "kinds" : null;
-        var spot = stop == null ? spot(hat) : null;
-        if (stop == null && spot == null) stop = "no_room";
-        if (stop != null) {
-            GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={}", by.getUUID(), one.getItem(), stop, portions.size());
+        if (!stack.is(YukkuriEntity.FOOD)) {
+            if (!hat.level().isClientSide) refuse(hat, stack, by.getUUID().toString(), "not_food");
             return false;
         }
-        portions.add(new Portion(one.copyWithCount(1), spot.x(), spot.bottom(), spot.z()));
-        dirty = true;
-        changes++;
-        GameplayLog.event(hat, "hat", "stored by={} item={} taken=1 portions={} kinds={} load={}", by.getUUID(), one.getItem(), portions.size(), kinds(), fmt(load()));
+        if (hat.level().isClientSide) return true;
+        int asked = Math.min(stack.getCount(), by.isSecondaryUseActive() ? Counts.CAPACITY : 1);
+        int accepted = put(hat, stack, asked, by.getUUID().toString());
+        if (!by.getAbilities().instabuild) stack.shrink(accepted);
+        by.displayClientMessage(Component.literal(accepted > 0 ? "帽内储粮 " + count() + "/8 份"
+                : hat.upsideDown() ? "帽子倒扣着，放不进粮" : "帽内储粮已满（8/8）"), true);
         return true;
     }
 
-    /** There is floor for one more portion. */
-    boolean room(PlacedHatEntity hat) { return !hat.upsideDown() && spot(hat) != null; }
+    int stock(PlacedHatEntity hat, ItemStack food, int count) { return put(hat, food, count, "scenario"); }
+    boolean keep(PlacedHatEntity hat, ItemStack one, YukkuriEntity by) { return put(hat, one, 1, by.getUUID().toString()) == 1; }
 
-    /** Turned over, taken back, beached or destroyed: every portion falls out where it lies as a real item, moving as the hull
-     *  carried it there. */
-    void spill(PlacedHatEntity hat, String cause, Function<Vec3, Vec3> carried) {
-        if (portions.isEmpty()) return;
-        var frame = hat.frame();
-        var items = new ArrayList<String>();
-        int count = portions.size(), spawned = 0;
-        for (var p : portions) {
-            var at = frame.toWorld(new Vec3(p.x(), p.y(), p.z()));
-            var drop = new ItemEntity(hat.level(), at.x, at.y, at.z, p.item().copy());
-            drop.setDeltaMovement(carried.apply(at));
-            drop.setDefaultPickUpDelay();
-            if (hat.level().addFreshEntity(drop)) spawned++;
-            items.add(p.item().getItem().toString());
+    private int put(PlacedHatEntity hat, ItemStack food, int asked, String actor) {
+        String kind = BuiltInRegistries.ITEM.getKey(food.getItem()).toString();
+        int before = stores.count(kind), total = count();
+        int accepted = hat.upsideDown() ? 0 : stores.add(kind, asked);
+        if (accepted == 0) refuse(hat, food, actor, hat.upsideDown() ? "upside_down" : "full");
+        else {
+            sync(hat);
+            GameplayLog.event(hat, "hat", "stores put by={} kind={} accepted={} asked={} count={} -> {} total={} -> {} tier={}",
+                    actor, kind, accepted, asked, before, stores.count(kind), total, count(), Counts.tier(count()));
         }
-        portions.clear();
-        dirty = true;
-        changes++;
-        GameplayLog.event(hat, "hat", "spilled cause={} portions={} spawned={} items={}", cause, count, spawned, items);
+        return accepted;
     }
 
-    /** The contents slot, written when the portions changed: each one's item and spot, for drawing only. */
+    private void refuse(PlacedHatEntity hat, ItemStack food, String actor, String reason) {
+        refusals++;
+        GameplayLog.limited(hat, "hat", "stores." + reason, 20, "stores refused by={} kind={} reason={} total={}",
+                actor, food.getItem(), reason, count());
+        var owner = hat.owner();
+        if (owner != null) owner.showReaction("cheek_puff", "refuse", 40);
+    }
+
+    /** A stack per kind, split only at the vanilla stack limit; vanilla items float after the spill. */
+    void spill(PlacedHatEntity hat, String cause, Function<Vec3, Vec3> carried) {
+        if (count() == 0) return;
+        var spilled = stores.spill();
+        var at = hat.frame().toWorld(new Vec3(0, hat.profile().floor(), 0));
+        for (var entry : spilled.entrySet()) {
+            var food = item(entry.getKey());
+            for (int left = entry.getValue(); left > 0;) {
+                int count = Math.min(left, food.getMaxStackSize());
+                var drop = new ItemEntity(hat.level(), at.x, at.y, at.z, food.copyWithCount(count));
+                drop.setDeltaMovement(carried.apply(at));
+                drop.setDefaultPickUpDelay();
+                hat.level().addFreshEntity(drop);
+                left -= count;
+            }
+        }
+        sync(hat);
+        GameplayLog.event(hat, "hat", "stores spilled by={} cause={} kinds={} -> {} total={} -> 0",
+                hat.ownerYukkuri(), cause, spilled, stores.kinds, spilled.values().stream().mapToInt(Integer::intValue).sum());
+    }
+
     void sync(PlacedHatEntity hat) {
-        if (!dirty) return;
-        dirty = false;
+        if (hat.contents().getInt("FoodCount") == count()) return;
         var tag = new CompoundTag();
-        tag.put("Portions", save(hat));
+        tag.putInt("FoodCount", count());
         hat.contents(tag);
     }
 
-    ListTag save(PlacedHatEntity hat) {
-        var list = new ListTag();
-        for (var p : portions) {
-            var tag = new CompoundTag();
-            tag.put("Item", p.item().save(hat.registryAccess()));
-            tag.putDouble("X", p.x()); tag.putDouble("Y", p.y()); tag.putDouble("Z", p.z());
-            list.add(tag);
+    CompoundTag save() {
+        var tag = new CompoundTag();
+        stores.save().forEach(tag::putInt);
+        return tag;
+    }
+
+    void load(CompoundTag tag) {
+        var saved = new LinkedHashMap<String, Integer>();
+        for (var kind : tag.getAllKeys()) {
+            var id = ResourceLocation.parse(kind);
+            int count = tag.getInt(kind);
+            if (!BuiltInRegistries.ITEM.containsKey(id) || item(kind).isEmpty() || count <= 0)
+                throw new IllegalArgumentException("Invalid hat stores: " + kind + "=" + count);
+            saved.put(kind, count);
         }
-        return list;
+        if (saved.values().stream().mapToInt(Integer::intValue).sum() > Counts.CAPACITY)
+            throw new IllegalArgumentException("Hat stores exceed capacity");
+        stores.load(saved);
     }
 
-    void load(PlacedHatEntity hat, ListTag list) {
-        portions.clear();
-        for (int i = 0; i < list.size(); i++) {
-            var tag = list.getCompound(i);
-            var item = ItemStack.parseOptional(hat.registryAccess(), tag.getCompound("Item"));
-            if (!item.isEmpty()) portions.add(new Portion(item.copyWithCount(1), tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z")));
-        }
-        dirty = true;
-        changes++;
-    }
-
-    /** A portion as synced: its item and spot (hat units). */
-    public record Shown(ItemStack item, Vec3 at) {}
-
-    /** The portions of a synced contents tag, for the client to draw. */
-    public static List<Shown> shown(CompoundTag contents, HolderLookup.Provider registries) {
-        var out = new ArrayList<Shown>();
-        var list = contents.getList("Portions", Tag.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++) {
-            var tag = list.getCompound(i);
-            var item = ItemStack.parseOptional(registries, tag.getCompound("Item"));
-            if (!item.isEmpty()) out.add(new Shown(item, new Vec3(tag.getDouble("X"), tag.getDouble("Y"), tag.getDouble("Z"))));
-        }
-        return out;
-    }
-
-    /**
-     * The free floor spot for one more portion, or null: in the hollow (its whole circle below the brim), clear of every foot
-     * and portion at its height (under a body standing higher over the hollow is free), as far from the middle as it goes
-     * (against the hat's wall), the two sides in turn.
-     */
-    private Disc spot(PlacedHatEntity hat) {
-        return Floor.spot(hat.profile(), RADIUS / hat.unit(), HEIGHT / hat.unit(), portions.size(), d -> hat.clear(d, null));
-    }
-
-    /** Pure spot selection on an upright hull; the caller supplies the actual occupants, in hat units. */
-    static final class Floor {
-        private Floor() {}
-
-        static Disc spot(HullProfile hull, double r, double tall, int count, Predicate<Disc> clear) {
-            double best = -1;
-            float[] o = hull.opening();
-            int side = count % 2 == 0 ? 1 : -1;
-            Disc out = null;
-            for (double x = o[0] + r; x <= o[1] - r; x += LATTICE)
-                for (double z = o[2] + r; z <= o[3] - r; z += LATTICE) {
-                    double floor = hull.footprint(x, z, r);
-                    if (!Double.isFinite(floor) || floor >= hull.top() - 1e-6) continue;
-                    var disc = new Disc(x, z, r, floor, floor + tall);
-                    if (!clear.test(disc)) continue;
-                    double score = (x * side > 0 ? 1000 : 0) + Math.hypot(x, z);
-                    if (score > best) { best = score; out = disc; }
-                }
-            return out;
-        }
-    }
-
-    private boolean newKind(ItemStack stack) {
-        return portions.stream().noneMatch(p -> ItemStack.isSameItemSameComponents(p.item(), stack));
-    }
-
-    private int kinds() {
-        var seen = new ArrayList<ItemStack>();
-        for (var p : portions) if (seen.stream().noneMatch(s -> ItemStack.isSameItemSameComponents(s, p.item()))) seen.add(p.item());
-        return seen.size();
-    }
-
-    private static String fmt(double v) { return String.format(Locale.ROOT, "%.2f", v); }
+    String detail() { return "stores=" + count() + "/8 tier=" + Counts.tier(count()) + " eats=" + eats + " refusals=" + refusals; }
 }

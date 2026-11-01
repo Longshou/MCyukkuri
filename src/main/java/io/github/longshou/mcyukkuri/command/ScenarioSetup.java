@@ -226,7 +226,7 @@ final class ScenarioSetup {
      * The owner's real hat set down on the surface of {@code water} through the one placement path, every young on its own free
      * supported spot nearest the hat's front (or its middle), then, when asked, the owner climbing in last into the middle of her
      * own hat whether or not her young already sit there (a crowd the hat then squeezes apart), and last {@code food} apples
-     * stored in it (-1 fills its free floor) through the same storing a player's click uses. Kinship is written once every
+     * stored in it up to its count capacity through the same storing a player's click uses. Kinship is written once every
      * one sits aboard: a setup that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards
      * is physics.
      */
@@ -244,7 +244,7 @@ final class ScenarioSetup {
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
         var riders = new ArrayList<YukkuriEntity>(young);
         var spots = new ArrayList<Vec3>();
-        var taken = new ArrayList<Disc>(hat.behavior().obstacles(hat));
+        var taken = new ArrayList<Disc>();
         for (var body : riders) {
             double foot = Occupancy.foot(body.getBbWidth()) / hat.unit();
             var spot = freeSpot(hat, body, foot, middle ? 0 : hat.profile().opening()[3] * .75, taken);
@@ -272,7 +272,7 @@ final class ScenarioSetup {
             if (food == 0) {
                 for (var aboardNow : List.copyOf(hat.getPassengers()))
                     if (aboardNow instanceof YukkuriEntity y) Motor.dismount(y, y.position(), Vec3.ZERO, "scenario_undo");
-                return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] refused），帽子已收回。");
+                return takeBack(owner, hat, "帽子没能装粮（原因见日志 [hat] stores refused），帽子已收回。");
             }
         }
         for (var child : young) kin(owner, child, false);

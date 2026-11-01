@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
-import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -22,11 +21,11 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Food on the water (补给; AQUATIC: 帽内家庭按正常进食结算，缺粮时先寻找可达漂浮食物和岸缘食源):
  * <ul>
- *   <li>{@code eat_aboard}: a hungry body riding a hat afloat walks on it within mouth reach of a stored portion it would eat, takes
- *       it with the mouth ({@code Pick} from the hat's hold) into its own meal and chews it where it stands ({@code boat_eat}). Done
+ *   <li>{@code eat_aboard}: a hungry body riding a hat afloat reaches down in place to take stored food
+ *       with the mouth ({@code Pick} from the hat's hold) into its own meal and chews it where it stands ({@code boat_eat}). Done
  *       once it has swallowed.</li>
  *   <li>{@code forage}: an owner aboard with her stick paddles over the loaded calm water to a food item afloat or lying at the
- *       water's edge, walks on the hat within reach and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
+ *       water's edge, reaches from her place and picks it up: hungry she eats it, else it goes into the hollow (the hold's own
  *       store, which refuses with its real reason, and then the item stays where it lay). Done once taken.</li>
  * </ul>
  */
@@ -62,31 +61,24 @@ final class Provision implements Intent {
         if (food != null) return fetch(hat);
         if (taken) return List.of(() -> new Step.Wait(() -> body.life().mealTicks() == 0, CHEW, Behaviors.BOAT_EAT));
         var larder = HullLarder.of(hat);
-        var portion = larder == null ? null : larder.portion(hat, body.life()::acceptsFood, body.position(), false);
-        return portion == null ? null : reach(body, hat, portion.at(), new Pick(portion, this::eatIt));
+        var portion = larder == null ? null : larder.source(hat, body, body.life()::acceptsFood, "eat");
+        return portion == null ? null : reach(body, portion.at(), new Pick(portion, this::eatIt));
     }
 
     /** Paddle the hat to the food's water, then reach for it from the hat. Gone, the pick ends the intent ({@code TARGET_GONE}). */
     private List<Supplier<Step>> fetch(PlacedHatEntity hat) {
         var pick = new Pick(food, this::keep);
         var water = food.isAlive() ? Waters.foodCell(body.level(), food) : null;
-        if (water == null || pick.check(body).ok()) return reach(body, hat, food.position(), pick);
-        if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reach(body, hat, food.position(), pick);
+        if (water == null || pick.check(body).ok()) return reach(body, food.position(), pick);
+        if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reach(body, food.position(), pick);
         var route = AquaticLife.stick(body) ? Waters.route(hat, water) : List.<Vec3>of();
         Waters.log(hat, body, water, route, "forage");
         return route.isEmpty() ? null : List.of(() -> act(new Paddle(Waters.leg(route), ARRIVE)));
     }
 
-    /** Walk on the hat to the spot nearest {@code at} (unless already in reach), face it, then {@code action}. */
-    static List<Supplier<Step>> reach(YukkuriEntity body, PlacedHatEntity hat, Vec3 at, Action action) {
-        return List.of(() -> {
-                    if (action.check(body).ok()) return null;
-                    var spot = AquaticLife.spot(hat, body, false, hat.frame().toLocal(at));
-                    var here = hat.frame().toLocal(body.position());
-                    return spot == null || spot.subtract(here).horizontalDistance() < .1 ? null : act(new Walk(hat, spot));
-                },
-                () -> act(new Face(SurfaceApproach.yaw(body.position(), at))),
-                () -> act(action));
+    /** Face the food and use the existing contact clip without changing the rider's place. */
+    static List<Supplier<Step>> reach(YukkuriEntity body, Vec3 at, Action action) {
+        return List.of(() -> act(new Face(SurfaceApproach.yaw(body.position(), at))), () -> act(action));
     }
 
     private boolean eatIt(ItemStack one) {

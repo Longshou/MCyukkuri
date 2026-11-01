@@ -62,6 +62,8 @@ public final class Pick implements Action {
     @Override public void start(YukkuriEntity body) { startTick = body.level().getGameTime(); }
 
     @Override public Progress tick(YukkuriEntity body) {
+        var at = source.at();
+        body.getLookControl().setLookAt(at.x, at.y, at.z);
         int bite = ClipMarkers.of(CLIP).ticks("bite", 10);
         long elapsed = body.level().getGameTime() - startTick;
         if (elapsed < bite) return new Running(bite - elapsed, TravelMode.PASS);
