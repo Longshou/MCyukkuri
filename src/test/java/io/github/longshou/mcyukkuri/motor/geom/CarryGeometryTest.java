@@ -7,6 +7,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
+    @Test void releaseConvergesAtPinnedAndUnpinnedFeetWithoutAcceptingHorizontalError() {
+        var endpoint = new Vec(1, 0, 2);
+        for (double support : new double[]{0, .04}) {
+            double previous = Double.POSITIVE_INFINITY;
+            for (int tick = 0; tick <= 10; tick++) {
+                var feet = new Vec(1, support + (1 - tick / 10.0), 2);
+                double remaining = CarryGeometry.releaseRemaining(feet, endpoint, support);
+                assertTrue(remaining < previous);
+                previous = remaining;
+            }
+            assertEquals(0, previous);
+            assertEquals(.1, CarryGeometry.releaseRemaining(new Vec(1.1, support, 2), endpoint, support), 1e-9);
+        }
+        assertEquals(.04, CarryGeometry.releaseRemaining(new Vec(1, .04, 2), endpoint, 0), 1e-9,
+                "the old unpinned endpoint never reached the .02 release tolerance");
+    }
+
     @Test void blockedFrontDoesNotEndTheTurnSearchAtAClearRearSpot() {
         // A hat occupies the forward braid workspace beside a parent; the rear is clear.
         assertTrue(clearLanding(new Vec(7.9297866, 0, 1.1988144), 0));

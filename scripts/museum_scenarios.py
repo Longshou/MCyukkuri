@@ -12,6 +12,7 @@ Scenario definitions and readouts live here; AGENTS.md covers navigation and sha
 import re
 import json
 import sys
+import uuid
 
 sys.dont_write_bytecode = True
 from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, home, sel, sel_all, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
@@ -1954,6 +1955,19 @@ def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):
               kin=f'Mother:{uuid_nbt(uid(sid, mother))},Father:{uuid_nbt(uid(sid, father))}', **extra, **pair_ready(), **kw)
 
 
+def _rescue_smoke(sid, slot):
+    def text(slot):
+        return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
+    child, parent = text(slot), text('a')
+    return [rf'\[incident\][^\n]* open id=water#[^\n]*subject={child}',
+            rf'\[incident\][^\n]* decide id=(?P<incident>water#\S+) helper={parent} requester={child} [^\n]*accepted=(?:false'
+            rf'|true[\s\S]*rescue start faller={child} incident=(?P=incident)\b'
+            rf'[\s\S]*\[action\][^\n]* start id=grab [^\n]*target={child}'
+            rf'[\s\S]*\[family\][^\n]* carry grip [^\n]*uuid={child}'
+            rf'[\s\S]*\[action\][^\n]* start id=release [^\n]*child={child}'
+            rf'[\s\S]*rescue end result=DONE outcome=rescued faller={child} incident=(?P=incident) aboard=true)']
+
+
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
      '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳、也没初航过的子油在岸边被推下水（只有它落水）：它爬不上帽也爬不上岸，只能挣扎。孩子在岸上时亲油会想上岸接它、先往岸边划；救人时她在帽里找有支撑且够得到孩子的位置，用嘴或辫梢够。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
      '约 30–90 秒',
@@ -1965,10 +1979,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
           '[action] start id=release → 子油 [body] mount … → [aquatic] rescue end result=DONE → [intent] start id=comfort_young。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
-                                   *_WATER_ESCAPE,
-                                   r'\[aquatic\][^\n]* rescue (?:progress [^\n]*distance_before=\d+\.\d+ distance_after=\d+\.\d+ last='
-                                   r'|end result=EXHAUSTED [^\n]*last=(?:BLOCKED|INCAPABLE) reason=[A-Z_]+ shortfall=[^\n]* detail=\S)'
-                                   r'|\[incident\][^\n]* decide id=water#[^\n]*chance=[^\n]*roll=[^\n]*accepted=false'],
+                                   *_rescue_smoke('rescue_child', 'c1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
@@ -1982,9 +1993,7 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
           '赤油 [body] mount … → [aquatic] rescue end result=DONE。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
-                                   r'\[incident\][^\n]* open id=water#',
-                                   r'\[aquatic\][^\n]* rescue (?:progress |end result=EXHAUSTED [^\n]*reason=[A-Z_]+[^\n]*detail=\S)'
-                                   r'|\[incident\][^\n]* decide id=water#[^\n]*accepted=false'],
+                                   *_rescue_smoke('rescue_infant_full', 'k1')],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 

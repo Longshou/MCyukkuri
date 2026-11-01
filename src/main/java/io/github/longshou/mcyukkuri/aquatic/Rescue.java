@@ -61,6 +61,7 @@ final class Rescue implements Intent {
         this.failed = failed;
         this.started = helper.level().getGameTime();
         this.distance = helper.distanceTo(faller);
+        GameplayLog.event(helper, "aquatic", "rescue start faller={} incident={}", faller.getUUID(), incident);
     }
 
     String incident() { return incident; }
@@ -164,19 +165,11 @@ final class Rescue implements Intent {
     }
 
     @Override public void ended(IntentRunner.Result result) {
+        boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
+        String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : "self_climbed" : result.name();
         if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
-        if (result == IntentRunner.Result.DONE || result == IntentRunner.Result.LOST) AskLedger.server().ended(incident, helper.getUUID(), result.name());
-        else if (result == IntentRunner.Result.EXHAUSTED && acted) {
-            var refusal = helper.motor().startRefusal();
-            if (refusal != null && refusal.requester() instanceof IntentRunner runner && runner.intent() == this
-                    && refusal.reason().equals("owner_active"))
-                GameplayLog.limited(helper, "aquatic", "rescue.owner", WAIT,
-                        "rescue unavailable faller={} incident={} step={} reason={} owner={} counted=false",
-                        faller.getUUID(), incident, refusal.action().id(), refusal.reason(), refusal.owner());
-            else failed.accept(incident);
-        }
-        GameplayLog.limited(helper, "aquatic", "rescue.end." + incident, result == IntentRunner.Result.EXHAUSTED ? WAIT : 0,
-                "rescue end result={} faller={} incident={} faller_alive={} in_water={} at={} last={}", result, faller.getUUID(),
-                incident, faller.isAlive(), faller.isInWaterOrBubble(), GameplayLog.at(faller.position()), helper.motor().lastDetail());
+        AskLedger.server().ended(incident, helper.getUUID(), outcome);
+        GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
+                result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());
     }
 }

@@ -215,7 +215,11 @@ final class AquaticGoal extends Goal {
             String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
             if (id == null) continue;
             var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id, this::rescueFailed), id);
-            ledger.decide(ask, body.life().personality().helpProbability(true, true), body.getRandom()::nextDouble, body);
+            var hat = AquaticLife.hat(body);
+            String refusal = hat == null ? "no_hat" : hat.seatDestination(y) == null ? "no_seat" : null;
+            var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0, body.getRandom()::nextDouble, body);
+            if (decision != null && !decision.accepted()) GameplayLog.limited(body, "aquatic", "rescue_refused", 200,
+                    "rescue refused faller={} incident={} reason={}", y.getUUID(), id, refusal == null ? "declined" : refusal);
             if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
         }
     }

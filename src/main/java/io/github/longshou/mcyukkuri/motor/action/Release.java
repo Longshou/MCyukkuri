@@ -14,6 +14,8 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -38,6 +40,7 @@ public final class Release implements Action {
     }
 
     @Override public String id() { return ID; }
+    @Override public String startDetail() { return "child=" + child.getUUID(); }
 
     /** The body being set down. */
     public YukkuriEntity child() { return child; }
@@ -101,7 +104,9 @@ public final class Release implements Action {
             ParentCarry.lower(carrier, child);
         }
         float down = ParentCarry.lowering(carrier, child, 0);
-        double remaining = child.position().distanceTo(ParentCarry.letGoPoint(carrier, child));
+        var at = ParentCarry.letGoPoint(carrier, child);
+        double remaining = CarryGeometry.releaseRemaining(new Vec(child.getX(), child.getY(), child.getZ()), new Vec(at.x, at.y, at.z),
+                ParentCarry.pinned(carrier, child, at));
         if (down < 1 || remaining > .02) return new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED);
         let(carrier, child, "release");
         return new Outcome.Done("released");

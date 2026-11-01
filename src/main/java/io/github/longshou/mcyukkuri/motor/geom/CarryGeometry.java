@@ -15,6 +15,11 @@ public final class CarryGeometry {
     public enum Rejection { CARRIER, HOST, TERRAIN, OCCUPIED, UNSUPPORTED, ROUTE }
     public record Way(Vec point, int[] rejected) {}
 
+    /** Release converges on the supported feet, even when the host pins them above the unpinned endpoint. */
+    public static double releaseRemaining(Vec feet, Vec endpoint, double supportedY) {
+        return Math.sqrt(Math.pow(feet.x() - endpoint.x(), 2) + Math.pow(feet.y() - supportedY, 2) + Math.pow(feet.z() - endpoint.z(), 2));
+    }
+
     /** The production set-down search; world queries supply landing and swept-route clearance without formatting diagnostics. */
     public static Way wayOut(double rootX, double rootZ, double reach, Vec tip, Vec from, double apart,
                              Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {
