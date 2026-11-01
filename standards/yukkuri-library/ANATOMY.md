@@ -1,6 +1,6 @@
 # 标准伸缩部件
 
-圆润标准角色使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与其生成的合并组件和骨架。麻姆麻姆和佩尼佩尼位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。原作部件与位置依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
+圆润标准角色使用 [body-standard/anatomy.json](body-standard/anatomy.json) 与其生成的合并组件和骨架。佩尼佩尼由五段逐级收细的方柱组成，整体上翘 25°（共用组件 `components/common/anatomy.json`）。麻姆麻姆和佩尼佩尼位于同一前下方表面挂点，油菊在后方；胎生使用该前方出口。原作部件与位置依据见[位置与轮廓记录](../yukkuri-v1/references/contact-position.md)。
 
 螺壳魔理沙 `marisa_tsumuri` 也使用同一控制接口；两部位随身体缩入壳内。见[螺壳标准模型](TSUMURI.md)。前方根部使用独立皮肤挂点，随身体动作移动。
 
