@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 帽船缓流与碰撞连续性（反馈 6、12） | `.worktrees/fb-hull-motion` | `aquatic/HullAfloat`、`headwear/HatSurface`／`SeatSurface`／`PlacedHatEntity`、`hat_current`／`hat_push` |
 | 自救上岸与亲子出航（反馈 7、11） | `.worktrees/fb-shore` | `aquatic/Ashore`／`SetOut`／`Waters`／`Ferry`／`Beckon`、`motor/ContactGeometry` |
-| 嗯嗯奴隶与佩妮佩妮回退（反馈 1、2） | `.worktrees/fb-pit-peni` | 聚落嗯嗯坑、`settle_pit_slave`、佩妮佩妮制作源与导出 |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
 | 稀有形态导出 `--check` 过期 | `.worktrees/fb-rare-forms` | 稀有形态制作源导出（`export_rare_forms.py`、rare-forms `build.py`） |
