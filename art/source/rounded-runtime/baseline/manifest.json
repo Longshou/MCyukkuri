@@ -1,7 +1,6 @@
 {
   "purpose": "Pre-rounded runtime and wound topology; immutable migration input",
   "files": {
-    "art/runtime-sources.json": "7d5515dbc7da08578d4d44f84648fe7b28f0dbb505c62cad1eb2cfd9cfbb74c6",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json": "61ebb103a3233d7931c4e2b8003b510d1c7b0c26b55b650b4fb683f786a0b99f",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/subspecies.json": "26f4880effc6c4213f9e88e60d9511e876adbc306f5a1151b6813f055d44e5e3",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/family.json": "56aef2d698abfe9e36e191586550d407328eb44fb8e0bf37038311c6878b9804",

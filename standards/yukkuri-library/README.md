@@ -23,6 +23,6 @@ python standards/yukkuri-library/body-standard/render_preview.py
 python standards/yukkuri-library/body-standard/verify_sources.py
 ```
 
-茎生、胎生动作包分别由包内 `build_lifecycle.py`、`build_viviparous.py` 重建；动作包登记由 `python standards/yukkuri-library/build_procedural_catalog.py` 更新。它们有独立程序状态，不进入单骨架关键帧编译器。
+茎生、胎生动作包分别由包内 `build_lifecycle.py`、`build_viviparous.py` 重建；动作包登记手工维护于 `motions/procedural/index.json`。它们有独立程序状态，不进入单骨架关键帧编译器。
 
 标准表情、角色登记和选用快照的认可范围分别引用其 canonical provenance JSON；本页不另存审批流水或替代指纹记录。

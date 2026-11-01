@@ -12,7 +12,7 @@
       "snapshot": "art/source/standard-runtime/remilia/remilia.bbmodel",
       "rig": "art/source/standard-runtime/remilia/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "runtime_sha256": "21fa24a0bb0b7e89713da089e2df4fd648ff7aa48ec9781bad8a064a1180dc60",
+      "runtime_sha256": "35351c4a99d887d1848a99bc3f35b0f531d4944dfbb9ea5551915d392f524bc0",
       "geometry_identifier": "remilia",
       "bone_count": 266,
       "clips": [
@@ -121,7 +121,7 @@
       "snapshot": "art/source/standard-runtime/flandre/flandre.bbmodel",
       "rig": "art/source/standard-runtime/flandre/animation-rig.json",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "runtime_sha256": "39750152e2c3bf7810d24e3d32711f6f0816c3c42253b1ff43cd4790737cbcce",
+      "runtime_sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
       "geometry_identifier": "flandre",
       "bone_count": 274,
       "clips": [
