@@ -79,6 +79,7 @@
 - **嗯嗯方块分档外观**：`yukkuri_poop` `tier` 1–4 对应 1–2／3–4／5–6／7–8 份（[规则](FEATURES.md#日常生态)）；制作源 `drafts/care-props/poop_block.py`，快照 `art/source/poop-block/`；离线预览远处 1、2 档较小。看 `settle_pit` 随份数换档、`settle_pit_slave` 取食后降档，远处、坑底与平地各看；四档远处一眼可分、读作排泄物。
 - **洞口结界屏障外观**：`mcyukkuri:den_barrier`（[规则](FEATURES.md#野外住所)）细枝插靠成堆、格心落叶、有缝；制作源 `ecology/wild-shelters/den_barrier.py`，快照 `art/source/den-barrier/`。看 `den_barrier` 左洞灵梦封口后洞外近处与约 8 格外、洞内背面；不穿洞壁洞顶，缝里能看到灵梦。
 - **水生表情与帽冠外观**（`sad`／`afraid` 表情、破损帽外观；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合。看 `afloat_family` 孩子探头与幼体小帽；`sail` 翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。完成：表情写入标准登记，破损外观登记认可。
+- **伤口材质贴图画风**：未做。`textures/props/body_wounds/` 13 张（擦伤、凹陷、撕裂、焦痕、疤、脏污 1–3、霉斑 1–4、焦底）是羽化半透明渐变，与其余 16 像素硬边素材不一致（2026-11-01 画风复查）；用户：在用的不删。完成：按 16 像素硬边重画、路径不变，`marks` 等伤病场景远近看伤口，用户确认。
 - **水中游泳动作**：未做。水中移动已接限速与碰撞扫掠，动作仍暂用 `WATER_STRUGGLE`；落水自救、返岸、救援拖行需专用游动片段。先在 `interactions/braid-water-rescue`、`aquatic-tools` 核对已有动作，有则接入，无则按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 水里个体有可见划行动作，速度与节奏一致，用户确认。
 
 ## 低优先级
