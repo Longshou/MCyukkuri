@@ -23,8 +23,6 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 依赖 NumPy 和 Pillow。身体取当前运行的魔理沙模型（按 placement_fit 拟合），姿态取导出动作：
 
 - 白天：`boat_drift`
-- 夜里帽主俯身：`boat_cover_young`
-- 夜里幼体：`boat_nest_curl`
 - 早上辫托：`braid_cradle_lift`
 
 帽子用魔理沙图集里陆生帽的同一批格子。脚本只读运行资源，不启动游戏。

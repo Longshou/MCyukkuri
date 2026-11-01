@@ -32,11 +32,10 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The water a hat lives on (AQUATIC rules "沿已加载的平静水面航行，不穿岸、不走急流"): calm loaded surface cells,
- * the route a paddled hat takes over them, the bank edges beside them (where a hat is set down from or landed at, a sheltered
- * notch to moor in), a dry stand in hop reach, and a loose stick near a body. World reads only; nothing is kept.
+ * the route a paddled hat takes over them, the bank edges beside them (where a hat is set down from or landed at), a dry stand in hop reach, and a loose stick near a body. World reads only; nothing is kept.
  */
 final class Waters {
-    /** How far (blocks) a route, a landing or a notch is looked for around the hat; how many candidates get a route or path asked. */
+    /** How far (blocks) a route or a landing is looked for around the hat; how many candidates get a route or path asked. */
     static final int RANGE = 24, ASKED = 8;
     /** What a route step beside the bank costs extra (GridPath's rim weight, in cells): the hull keeps off the shore. */
     private static final double SHORE_COST = 2;
@@ -231,31 +230,6 @@ final class Waters {
     private static boolean hatOver(YukkuriEntity body, Vec3 at, double margin) {
         return !body.level().getEntitiesOfClass(PlacedHatEntity.class, new AABB(at, at).inflate(2 + margin), h -> h != body.getVehicle()
                 && h.position().subtract(at).horizontalDistance() < HullAfloat.brimToward(h, at) + margin).isEmpty();
-    }
-
-    /**
-     * A sheltered calm cell to moor in near the hat, reached over the water (AQUATIC 无绳夜泊: a bank notch or a covered spot): the
-     * one with the most land around it (at least two of four sides) or a roof, nearest first; null when there is none.
-     */
-    static BlockPos notch(PlacedHatEntity hat) {
-        var level = hat.level();
-        var from = cell(hat);
-        if (from == null) return null;
-        return kept(level, key(level, "notch", from), () -> findNotch(hat, from));
-    }
-
-    private static BlockPos findNotch(PlacedHatEntity hat, BlockPos from) {
-        var level = hat.level();
-        var found = new ArrayList<BlockPos>();
-        for (var p : BlockPos.betweenClosed(from.offset(-16, 0, -16), from.offset(16, 0, 16)))
-            if (calm(level, p) && shelter(level, p) >= 2) found.add(p.immutable());
-        found.sort(Comparator.comparingDouble(p -> -shelter(level, p) * 64 + p.distSqr(from)));
-        int asked = 0;
-        for (var p : found) {
-            if (asked++ >= ASKED) break;
-            if (p.equals(from) || !route(hat, p).isEmpty()) return p;
-        }
-        return null;
     }
 
     /** Land around a calm cell (sides that are not calm water) plus two for a roof over it. */

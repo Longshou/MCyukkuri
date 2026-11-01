@@ -22,8 +22,7 @@ def main():
     with zipfile.ZipFile(args.minecraft_resources) as jar:
         stick = Image.open(io.BytesIO(jar.read('assets/minecraft/textures/item/stick.png'))).convert('RGBA')
     panels = [('boat_paddle', .8, '划桨：推水'), ('boat_paddle', 0, '划桨：抬桨回收'),
-              ('boat_gather', .75, '收食入帽'), ('boat_eat', .35, '帽内进食'),
-              ('boat_sleep', 1.4, '帽内安睡'), ('boat_wake', .6, '请求返岸姿态')]
+              ('boat_gather', .75, '收食入帽'), ('boat_eat', .35, '帽内进食')]
     frames = []
     for index, (clip, time, label) in enumerate(panels):
         triangles, uv, normal = model.frame(clip, time)
@@ -52,7 +51,7 @@ def main():
     renderer = P.ROOT/'standards/yukkuri-library/runtime/render.js'
     code = "const fs=require('fs');\n"+renderer.read_text(encoding='utf-8')+'\n'
     code += 'const dir='+json.dumps(str(out))+';\n'
-    code += '''for(let i=0;i<6;i++){
+    code += '''for(let i=0;i<4;i++){
       const v=JSON.parse(fs.readFileSync(dir+'/'+i+'.json'));
       const image=renderModel(v,fs.readFileSync(dir+'/'+i+'.rgba'),460,360,.55,.38,16,{centerY:3,textureSize:512});
       fs.writeFileSync(dir+'/'+i+'-render.rgba',image);

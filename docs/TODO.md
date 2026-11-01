@@ -18,7 +18,7 @@
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈（版本待核实）；E8 陆地接生射线命中帽实体返回 `cradle_status`，赤油被遮住。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮与推晃；`[hat-input]`、`hat use received/result` 显示物资只扣一次。
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 幼油饿停、住所仍指旧窝、重复献身与批量死亡。版本、现象与完成标准见[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)；运输演出并入演出包。
 - **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；见[水生魔理沙模块（重构）](#水生魔理沙模块重构)。
-- **水生魔理沙·圆帽对照**：复测失败。[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）用户见水生帽船开场全部翻覆，未找到圆帽入口。完成：池塘场景排首位显示当前帽形，开场说明帽形；默认圆帽在被测行为开始前不翻覆，锥帽真实载重／倾斜翻覆保留读数；重开 `water_colony`、`sail`、`hat_swap`、`cargo`、`birth_boat_caught`、`family_skiffs`、`hat_crowd` 对照初态、帽形与储粮／损伤，陆地接生不受影响。测试种见[种族注册](FEATURES.md#种族与亚种)。
+- **水生魔理沙·圆帽对照**：复测失败。[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）用户见水生帽船开场全部翻覆，未找到圆帽入口。完成：池塘场景排首位显示当前帽形，开场说明帽形；默认圆帽在被测行为开始前不翻覆，锥帽真实载重／倾斜翻覆保留读数；重开 `water_colony`、`sail`、`hat_swap`、`cargo`、`birth_boat_caught`、`hat_crowd` 对照初态、帽形与储粮／损伤，陆地接生不受影响。测试种见[种族注册](FEATURES.md#种族与亚种)。
 - **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。契约见[AGENTS.md](../AGENTS.md)。
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`。
   2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。
@@ -78,7 +78,7 @@
 - **面粉糊、橙汁与饲料颗粒重做**：五件改 16×16 物品图标（[图标](../art/props/supply-icons/README.md)），“饲料颗粒”按三档油粮。看 `treatment_care`、`treatment_severe`、`treatment_scars`、`marks` 的发放物品与 NPC 持药，商店陈列，手持与展示框。
 - **嗯嗯方块分档外观**：`yukkuri_poop` `tier` 1–4 对应 1–2／3–4／5–6／7–8 份（[规则](FEATURES.md#日常生态)）；制作源 `drafts/care-props/poop_block.py`，快照 `art/source/poop-block/`；离线预览远处 1、2 档较小。看 `settle_pit` 随份数换档、`settle_pit_slave` 取食后降档，远处、坑底与平地各看；四档远处一眼可分、读作排泄物。
 - **洞口结界屏障外观**：`mcyukkuri:den_barrier`（[规则](FEATURES.md#野外住所)）细枝插靠成堆、格心落叶、有缝；制作源 `ecology/wild-shelters/den_barrier.py`，快照 `art/source/den-barrier/`。看 `den_barrier` 左洞灵梦封口后洞外近处与约 8 格外、洞内背面；不穿洞壁洞顶，缝里能看到灵梦。
-- **水生表情与帽冠外观**（`sad`／`afraid` 表情、破损帽外观；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合。看 `afloat_family` 孩子探头与夜里船长盖窝、幼体小帽；`sail` 翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。完成：表情写入标准登记，破损外观登记认可。
+- **水生表情与帽冠外观**（`sad`／`afraid` 表情、破损帽外观；观察并入水生模块 P0-11）：表情由 `expressions/derived/faces.py` 从已认可贴图派生，是项目设计候选，未进标准表情集合。看 `afloat_family` 孩子探头与幼体小帽；`sail` 翻船后漂浮帽、破损帽放成船；自救成功与警报安抚的沮丧脸、受惊的害怕脸。完成：表情写入标准登记，破损外观登记认可。
 - **水中游泳动作**：未做。水中移动已接限速与碰撞扫掠，动作仍暂用 `WATER_STRUGGLE`；落水自救、返岸、救援拖行需专用游动片段。先在 `interactions/braid-water-rescue`、`aquatic-tools` 核对已有动作，有则接入，无则按[制作约定](../standards/yukkuri-library/AGENTS.md)新做。完成：`self_rescue`、`water_dock` 水里个体有可见划行动作，速度与节奏一致，用户确认。
 
 ## 低优先级
@@ -209,7 +209,11 @@
 
 ### 水生魔理沙模块（重构）
 
-`aq-labour-1031` 分支暂存，供后续分娩工作包择取。
+- **水生帽船重做（用户裁决 2026-11-01）**：**未做**。用户：“以演出为核心”“储粮就用贴图”“赤油能在亲油船之间转移的能力……不需要”。目标见[水生魔理沙](FEATURES.md#水生魔理沙)，后续工作包逐项替换现行规则。
+  顺序：1 下线舍弃行为 → 2 计数储粮与贴图 → 3 规则驱动船体 → 4 睡莲叶帽体与按体型排座、退役旧帽形 → 5 接受后的救援完整演出 → 6 座位分娩、阵痛交接与水生少胎 → 7 子油船上玩耍 → 8 清理残留。
+  容量目标为船长加至多两只赤油或一只小子油；水生每胎 1–2、偶尔 3，超出座位的新生儿落水由另一亲油决定救援。
+  复测反例：[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58) 椭圆船被用户否决：船形夸张、戴帽与放船差异过大、仍显示粮堆，实际未发生救援（CI 待核实）。
+  `aq-labour-1031` 分支暂存，供第 6 包择取；夜泊附加流程暂缓，保持未做。
 
 **状态：复测失败。** 帽船、船长阶段机、席位、乘员转移、落水救助与试玩场已按[水生魔理沙](FEATURES.md#水生魔理沙)重做，首轮运行包试玩主链多处阻塞。该实现已冻结，将由 WP3a 下线、WP4–6 重建（用户裁决 2026-10-28），不再在旧代码上补丁；下列现象作为重建反例与三级复测对照，代码、CI 与助手检查不算验收。旧水 11、水 14（辫子抽动）演出缺口按 P0-6／P0-8／P0-11 复看；无桨手划暂用不握木棍的辫子划桨片段，专用片段待补。水 16 异种饰品见上节。
 
@@ -224,8 +228,8 @@
   - 帽内挤不下时，孩子可以被挤落水。
 - 契约与设计原则见[AGENTS.md](../AGENTS.md)；各工作包的复测现象只登记在本条。
 - 进度：WP1–WP8 全部已接入待试玩，运行 [8ceba8a8](https://github.com/Longshou/MCyukkuri/commit/8ceba8a8) 起（身体层：依附、能力表、走／转身／跳／抛／小动作、抓取与放下、游／爬／推／扶正／划；意图、欲望竞争、请求与编排；陆地胎生与茎生编排；放下的帽子在陆地当接生帽、在水上当船；搬运统一为嘴叼、辫子、帽檐、尾托与多只口含；`motor/` 之外不再直接写身体）。帽子统一尺寸按 1.4 倍代定（R6），试玩时可改。
-- 重建后的复测记录：[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813，10-30 22:35–23:02） 复测失败（用户反馈）：`birth_boat_caught`／`birth_boat_missed` 初态失败（帽船翻覆、母油在岸上）；`rescue_child` 生成时亲油也落水；`family_skiffs` 两只亲油都上岸，没有送赤油的动作，上岸时帽檐与岸穿模、上岸后帽船不在岸边无法交互；落水自救仍很难成功，扶正帽子再爬上去做不到（已改：日志中 47 次爬帽全部在把身体抬出水面时被脱困目标提前结束，现保持到爬完；水中伤害只扣血不打断；扶正力度按漂浮减半质量计，[88627705](https://github.com/Longshou/MCyukkuri/commit/88627705)）；魔理沙辫子只有上段会弯、中段到末端僵直（已改待试玩：辫子改为每节编织段一根骨的骨链，抓取、托举、取戴帽、划桨、拨水、挣扎沿全长弯曲，[a1b06cf6](https://github.com/Longshou/MCyukkuri/commit/a1b06cf6) 前三提交；越檐托举时辫根头发仍略露出帽檐，划桨末段发尾转折较快，试玩时看）；亲子出航与“赤油长成子油后用自己的帽船试航、成功后才具备航行与自救能力、途中由亲油救援”的设计无关；储粮应为一张覆盖帽底、随数量变化的贴图；帽船上的油库里像浮着；空帽船摇几下应变成可拾取物品并掉出食物。已接入待试玩（W1 [a7cebede](https://github.com/Longshou/MCyukkuri/commit/a7cebede) 前三提交）：场景初态、上岸帽檐搭岸、辫子拨水引帽（`family_skiffs`）、可航行技能与首航（`first_voyage`，失败到次日早晨才再试）；已知 1.4 倍帽船在成体偏离中心约 5 厘米即翻覆，待新帽形态（W4）解决；试玩场里已有的亚成体没有可航行标记，落水只能等救。用户决定：陆地魔理沙与水生魔理沙是两个物种，帽子不混用；水生帽形态：负责人比较尖锥帽、圆冠盆、筒帽兜三个候选后用户定：外观用尖锥帽形（帽尖参考陆生种，方块风格），放下后的帽腔用圆冠盆，内外不必一致；帽腔重点核对赤油、子油能否装下与怎么摆，先出排布预览再实现。以下为更早一轮（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）`cargo` 空帽也提示帽底无空间；落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
-- 完成（用户全量复测）：陆地出生 `birth_land_caught`／`birth_land_reunion`／`birth_land_missed`／`birth_stem_caught`／`birth_nest_safe`／`birth_nest_stem`／`pet_birth`；赤油 `infant_starvation`、`colony_migrate_babies`；帽子 `hat_float`／`hat_push`／`shake_capsize`／`cargo`／`hat_crowd`／`hat_swap`；落水 `self_rescue`／`self_rescue_far`／`shore_capsized`／`fall_in_pond`／`worn_hat_boat`；水上生活 `water_colony`／`sail`／`afloat_family`／`shore_family`／`water_night`；家庭 `rescue_child`／`rescue_infant_full`／`birth_boat_caught`／`birth_boat_missed`／`family_skiffs`。各场景的看点在场景说明里，下列 P0 观察点为水上部分的验收标准。
+- 重建后的复测记录：[b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813，10-30 22:35–23:02） 复测失败（用户反馈）：`birth_boat_caught`／`birth_boat_missed` 初态失败（帽船翻覆、母油在岸上）；`rescue_child` 生成时亲油也落水；落水自救仍很难成功，扶正帽子再爬上去做不到（已改：日志中 47 次爬帽全部在把身体抬出水面时被脱困目标提前结束，现保持到爬完；水中伤害只扣血不打断；扶正力度按漂浮减半质量计，[88627705](https://github.com/Longshou/MCyukkuri/commit/88627705)）；魔理沙辫子只有上段会弯、中段到末端僵直（已改待试玩：辫子改为每节编织段一根骨的骨链，抓取、托举、取戴帽、划桨、拨水、挣扎沿全长弯曲，[a1b06cf6](https://github.com/Longshou/MCyukkuri/commit/a1b06cf6) 前三提交；越檐托举时辫根头发仍略露出帽檐，划桨末段发尾转折较快，试玩时看）；亲子出航与“赤油长成子油后用自己的帽船试航、成功后才具备航行与自救能力、途中由亲油救援”的设计无关；储粮应为一张覆盖帽底、随数量变化的贴图；帽船上的油库里像浮着；空帽船摇几下应变成可拾取物品并掉出食物。已接入待试玩（W1 [a7cebede](https://github.com/Longshou/MCyukkuri/commit/a7cebede) 前三提交）：场景初态、上岸帽檐搭岸、辫子拨水引帽、可航行技能与首航（`first_voyage`，失败到次日早晨才再试）；已知 1.4 倍帽船在成体偏离中心约 5 厘米即翻覆，待新帽形态（W4）解决；试玩场里已有的亚成体没有可航行标记，落水只能等救。用户决定：陆地魔理沙与水生魔理沙是两个物种，帽子不混用；水生帽形态：负责人比较尖锥帽、圆冠盆、筒帽兜三个候选后用户定：外观用尖锥帽形（帽尖参考陆生种，方块风格），放下后的帽腔用圆冠盆，内外不必一致；帽腔重点核对赤油、子油能否装下与怎么摆，先出排布预览再实现。以下为更早一轮（均已改，待复测）：[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00)（CI 40928640596，10-30 02:32–02:46）`cargo` 空帽也提示帽底无空间；落水游得太快，扶正被泡水伤反复打断、一卡一卡未成功，扶正时播挣扎动作；魔理沙无辫一侧鬓发被当成手摆动；子油不会把戴着的帽子放成船、直接游回岸。[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290)（CI 40908737713，10-30 01:09–01:34）`hat_float` 父油与子油穿模；`hat_crowd` 挤动因穿模看不出效果；`cargo` 储粮只是平面贴图；落水后不先扶正自己的帽子、直接游岸，上岸常失败卡在岸边（旧落水逻辑）。
+- 完成（用户全量复测）：陆地出生 `birth_land_caught`／`birth_land_reunion`／`birth_land_missed`／`birth_stem_caught`／`birth_nest_safe`／`birth_nest_stem`／`pet_birth`；赤油 `infant_starvation`、`colony_migrate_babies`；帽子 `hat_float`／`hat_push`／`shake_capsize`／`cargo`／`hat_crowd`／`hat_swap`；落水 `self_rescue`／`self_rescue_far`／`shore_capsized`／`fall_in_pond`／`worn_hat_boat`；水上生活 `water_colony`／`sail`／`afloat_family`／`shore_family`；家庭 `rescue_child`／`rescue_infant_full`／`birth_boat_caught`／`birth_boat_missed`。各场景的看点在场景说明里，下列 P0 观察点为水上部分的验收标准。
 
 **本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
 
@@ -233,8 +237,10 @@
 - **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现观察：场景 `sail`／`shore_family` 圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲。椭圆帽船的预期演出尚未试玩确认：船长先转向船首再出桨，辫子与木棍越过横向帽檐（版本待合入）；离线伸展用量约 71%，略超 70% 目标。完成：看清转向时不划水、出桨确实越过短轴帽檐，核对真实航行；不以船体门通过代替演出认可。
   `hat_brim_offer`／`boat_nudge_young` 仅在船长面朝船首时通过船体门；以后播放它们的运行时动作须先转向船首，否则须重做片段。
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩运行记录）。完成：`sail` 持有真实木棍时随辫梢划水，停划或失去木棍后消失，空辫招帽不出现木棍（读数见场景说明）。
-- **`family_skiffs`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 两轮初态成功后均未开始 `share_young` 或划近／请求；第二轮仅约 262 活跃 tick。无界面自查（headless）：[c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480) 与 913b56da0（实现见 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）各 3/3 启动，拾取时 `mouth_lift_blocked`；913b56da0 搬运中 `capsized cause=load`、ratio 约 1.23–1.26，均未完成转移。完成：母油开始送幼，请求与真实划近后转移；观察抓取／放下及父船乘员，拒绝有原因，初态坐船不算成功。
+- `family_skiffs`／`share_young`（已下线反例）— 两轮未启动送幼／请求；无界面自查虽启动却拾取受阻或载重翻覆，均未完成转移 — [55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54)（E12）；自查 [c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480)、[913b56da0](https://github.com/Longshou/MCyukkuri/commit/913b56da0)（实现 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）。
+- `family_skiffs`（已下线反例）— 双亲上岸而不送赤油，帽檐穿岸、上岸后帽船远离岸边 — [b333bfc0](https://github.com/Longshou/MCyukkuri/commit/b333bfc0)（CI 41070657813）。
 - **`afloat_family`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 约 25 秒活跃观察内无找棍、放帽或 `set_out`，赤油约 6 秒后学会跳；练跳 `Launch` 同 tick 起止。[80f198366](https://github.com/Longshou/MCyukkuri/commit/80f198366)（[CI 41195062942](https://github.com/Longshou/MCyukkuri/actions/runs/41195062942)）两帽自查缺 `end id=set_out result=DONE`。[a7c31b3d4](https://github.com/Longshou/MCyukkuri/commit/a7c31b3d4)（[CI 41198863260](https://github.com/Longshou/MCyukkuri/actions/runs/41198863260)）盆帽自查全员登船，旧帽成体入船后仍倾覆，待修复与试玩。完成：找棍有结果／拒绝原因，全家真实上船、欲望重排；练跳离地后接触才结束。
+  无界面自查（运行包 [2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58)，WP1／基线源码）：`afloat_family` 通过 2/5／4/5（孩子 `unreachable`／`in_water` 留岸或出航未完成），`rescue_child` 均 2/5（落地后 6 tick 再浮）；先前 `release NO_PROGRESS` 本轮双方未复现；按既有波动记录，不算试玩通过。
 - **`hat_crowd`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 初态后 10 tick 整船翻覆，先于挤落；五只孩子登自帽、船主爬岸均已脱水却 `escape_water INTERRUPTED`，船主扶帽中途打滑。完成：正常挤落与真实倾覆分别可观察，离水后意图 `DONE`，真实打滑仍失败；浮稳与帽形由新帽包处理。
 
 **旧实现反例（重建对照）**：场景 — 现象 — 版本。池塘场景日志默认开逐阶段细节（[AGENTS.md](../AGENTS.md)）；旧实现不再单独复测，重建后按本列表与 P0 复看。状态在行末。
@@ -247,13 +253,13 @@
 - `water_dock`、`shore_capsized`、`birth_boat_*` — 上岸后找不回帽：`ASHORE→RECOVER own_hull_in_reach` 与 `RECOVER→ASHORE recover_hull_gone` 每秒互切数十秒，帽子最终 `sunk` — 1325c6bd；E8 `rescue_child` 外部救援中断自救脱帽后留倾覆原帽；E10 03:06–03:39 子油已跳回亲帽，原小帽仍因 `hat_recovery_timeout` 与亲油 `no_reachable_contact` 留水面（复测失败）。
 - `water_dock`、`self_rescue`、`shore_capsized`、`water_neighbours`、`shake_capsize` — 扶帽受阻：1.75 帽扶到一半 `righting_pose_refused`、三次打滑转岸（0.4、0.72 帽曾能扶正爬回）；`shore_capsized` 扶正后持续 `rim_out_of_reach` 至溺亡 — 1325c6bd；E9 满体力小帽自救仍 `righting_swept_collision`；E10 00:05–00:11 满体力子油摘帽被 `swept_hat_vertex_crosses_skin` 拒绝，两次 `righting_swept_collision`、三次滑落放弃（复测失败）。
 - 翻船后落在自己帽下几乎扶不正 — 释放仅偏移 0.035、船长留在倒扣帽檐下，帽内“外侧”算反、从帽底咬檐，4 次咬上 1 tick 后 `grip_moved`（用户反馈）；E8 `shake_capsize`、`self_rescue` 倾覆穿模与水中平移（已接入待试玩）。
-- `land_hop`、`return_to_parent`、`land_lift`、`water_life`、`water_neighbours`、`family_skiffs` — 换船、跳出与托幼下岸：`land_hop` 34 次、`return_to_parent` 19 次 `no_departure_seat`，`land_lift` 38 次 `no_reach`／`known_impossible`，赤油被留船 `no_way_found`，`family_skiffs` 召集超时且亲帽先扔粮腾位 — 1325c6bd；E8 `water_dock`、`shore_family` 跳弧过高过快，`self_rescue` 攀爬和 `rescue_infant_full` 满载托举偏快，`shore_family` 同座位 `carry_within` 循环；E9 `family_skiffs` 换船途中提前成为亲船乘员、亲船驶离后 `revert_blocked_or_body_limit` 落水，`water_life` 靠岸后走到与预检不同的出发座位反复 `hop_exceeds_body`；E10 01:47–02:14 赤油 `no_reach`、七次换落点后 `no_way_found` 留船，03:49／04:04 岸上登船 HOP 直接跨约 1.44／1.39 格到船长位（MOVE 25／24 tick，像放慢的长跳）（复测失败）。
-- `family_skiffs` — 落水孩子在自帽与亲船间摇摆：自救与亲船指引争抢移动、每 20 tick 重选，0.4 帽子油 `#55102` 03:29:05 落水、03:29:26 溺亡，离亲船不到 2 格 — 1325c6bd（用户反馈）。
-- 全场亲油施救 — `incident close attempts=0`、亲船长期 `SAFETY HOLD`，会跳的孩子反复 `rim_out_of_reach` 未转辫托 — 1325c6bd；E9 `family_skiffs`、`water_neighbours`、`rescue_child` 有实际 CLIMB 完成，`rescue_infant_full` 按概率 0.8600001、抽值 0.937279 拒绝救援（真实拒绝，不能判事件未触发）；E10 04:20 第一只新生儿落水后父亲停在 `no_contact:hull_boat`、母亲 `stand_unreachable`，直到清场未救起（复测失败）。
+- `land_hop`、`return_to_parent`、`land_lift`、`water_life`、`water_neighbours` — 换船、跳出与托幼下岸：`land_hop` 34 次、`return_to_parent` 19 次 `no_departure_seat`，`land_lift` 38 次 `no_reach`／`known_impossible`，赤油被留船 `no_way_found` — 1325c6bd；E8 `water_dock`、`shore_family` 跳弧过高过快，`self_rescue` 攀爬和 `rescue_infant_full` 满载托举偏快，`shore_family` 同座位 `carry_within` 循环；E9 `water_life` 靠岸后走到与预检不同的出发座位反复 `hop_exceeds_body`；E10 01:47–02:14 赤油 `no_reach`、七次换落点后 `no_way_found` 留船，03:49／04:04 岸上登船 HOP 直接跨约 1.44／1.39 格到船长位（MOVE 25／24 tick，像放慢的长跳）（复测失败）。
+- `family_skiffs`（已下线反例）— 召集超时、先扔粮腾位，孩子在两帽间反复改向而溺亡；换船提前挂到亲船，亲船驶离后落水 — [1325c6bd](https://github.com/Longshou/MCyukkuri/commit/1325c6bd)、E9（版本见运行证据索引）。
+- 全场亲油施救 — `incident close attempts=0`、亲船长期 `SAFETY HOLD`，会跳的孩子反复 `rim_out_of_reach` 未转辫托 — 1325c6bd；E9 `water_neighbours`、`rescue_child` 有实际 CLIMB 完成，`rescue_infant_full` 按概率 0.8600001、抽值 0.937279 拒绝救援（真实拒绝，不能判事件未触发）；E10 04:20 第一只新生儿落水后父亲停在 `no_contact:hull_boat`、母亲 `stand_unreachable`，直到清场未救起（复测失败）。
 - 救助角色误判 — 兄弟姐妹按亲属计，赤油判 `CAPTAIN_SELF`、兄姐船判 `SAME_BOAT_PARENT`，名额挤出后重抽；E8 `rescue_child` APPROACH 船舵与辫子托举抢朝向反复摆头（已接入待试玩）。
 - `shake_capsize` 只跑约 27 秒；`self_rescue` 3 点体力船主漂上岸入睡、翻船再落水溺亡 — 未单独判断。
 - `birth_boat_caught` — 船上分娩出口：E8 三只新生儿全部 `outcome=WATER`，本帽预约随即取消、父帽 `outside_footprint`；E10 04:20 第一只出口预检 `safe` 且席位已预留，实际推出被帽体净空拒绝，继而 `seat_beyond_settle_reach`、`outcome=WATER`，04:27 第二只实际 `HAT`；E9 未复测出生链（复测失败）。
-- `family_skiffs` — 亲子帽船动作反复中断：E8 idle/passenger 反复 `lapsed` 重启，子船被 `hull_boat` 挡住时周期重发航路（已接入待试玩）。
+- `family_skiffs`（已下线反例）— 亲子动作反复 `lapsed`、受帽体阻挡周期重发航路 — E8；E9 曾有实际 CLIMB 完成，不能代表送幼完成（版本见运行证据索引）。
 - `water_threat` — 水上捕食后的落地：E8 捕食种 `no_dry_stand` 后关闭飞行而落水受伤；E10 02:24 俯冲入水，返岸被 `not_ready` 取消，02:39 上岸血量 10→7，再次俯冲入水降至 6；落水期间被 `water_struggle` 覆盖，鬓发曾由 `hand` 骨带动而翼骨不动，侧发现只随身体、翼仍无动作（复测失败）。
 - `afloat_family`、`first_voyage` — 亲子出航与初航交接：E10 00:45 亲油放船后赤油 BOARD `no_reach`，约两秒后 `young_unloadable` 取消并戴帽；01:09 初航子油挪到帽檐即 `voyage_berth_lost`（复测失败）。
 - `water_neighbours`、`first_voyage` — 池塘场景初态：E8 邻船先缺粮上岸、母油被低温打断；孩子尚在岸上反复 `first_voyage_ineligible`；两场受前一冬季群系影响；已改温和场景、清场恢复群系、删水上烧帽演示（[头饰](FEATURES.md#头饰)）（已接入待试玩）。
@@ -272,7 +278,7 @@
 - **P0-7 自救有上限**：`self_rescue`（含远帽起点）→ 咬檐勾辫爬回；3 次打滑后朝岸弱漂；接近超过 600 tick 转岸；浸水伤害按 60 tick 真实累积；孩子不在两帽间反复改向，两亲不同时指挥。修复待试玩：歇力或短暂浮出水面不重开脱困，没有完整路径时仍朝岸弱挣扎。
 - **P0-8 真实翻船与扶正**：`shake_capsize` → 连续空手摇船至翻，乘员被甩出，粮与桨漂散；高友善者先推赤油向帽檐，低友善者先抢帽；嘴咬檐翻正，散落物可捞回；乘员先游到外侧再扶，浮起读数对应，不凭观感调浮力。修复待试玩：倒扣浮帽稳定，不反复切换地面／漂浮状态。
 - **P0-9 船上分娩与新生护理**：`birth_boat_caught` → 临产挪座、每推船晃、新生儿落帽腔初醒、嚼糜喂、首便在后帽檐朝水（`birth exit selected`、`birth berth reserved`、`outcome=HAT`，仍可真实漏接）；`birth_boat_missed` → 落水建事件，母亲伸辫或父船来救，没救起则溺亡并哀悼。
-- **P0-10 夜宿（无绳夜泊）**：`water_night` → 黄昏船头楔进岸凹，孩子进帽腔，船长俯身盖住并哼歌；漂离超过 3 格会醒来复泊；天亮 `boat_wake`。
+- **P0-10 夜宿（无绳夜泊）**：未做，附加夜泊流程暂缓；旧 `water_night` 已下线，没有可核实的独立试玩失败记录（版本待核实）。
 - **P0-11 帽船即家的基础演出**：`hat_swap`（帽型一致、水生帽更大）与任一池塘 → 吃水线湿色带、闲置起伏、乘员按站位与帽面倾斜取姿态、桨在左侧帽檐或辫梢不消失不穿模，表情无缺图（`sad`／`afraid`）；托管实船 `shore_capsized` 暂放不失帽，水上不累计火焰烧伤，漂远、沉没各结算一次，帽与库存不复制不丢失。
 - **P0-12 不卡死**：任一水上场景跑满 10 分钟 → `/yukkuri aqdiag on` 下无持续同一阶段超时的个体；超时有 `ended reason=timeout/stalled` 与真实结果；辫子不会一直伸着。
 - 另：帽子可被推开、扶正，个体不与帽体重叠；帽子大小戴着与展开一致；带木棍个体会划船；任何动作结束后主人找回或明确放弃自己的帽子（`reclaim done` 或带原因的 `expired`）；陆上摘帽放帽不闪退。

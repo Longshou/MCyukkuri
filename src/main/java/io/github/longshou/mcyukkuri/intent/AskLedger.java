@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.intent;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +24,6 @@ public final class AskLedger {
         final UUID owner;
         final long opened;
         Entity body;
-        final Map<UUID, Ask> offered = new LinkedHashMap<>();
         final Map<UUID, Decision> decided = new LinkedHashMap<>();
         final Map<UUID, String> ended = new HashMap<>();
         Incident(String id, String cause, Entity body, UUID owner, long opened) { this.id = id; this.cause = cause; this.body = body; this.owner = owner; this.opened = opened; }
@@ -38,7 +36,7 @@ public final class AskLedger {
 
     public static AskLedger server() { return SERVER; }
 
-    /** Opens an incident {@code owner} owns ({@code cause}: water, share_young ...) and logs {@code [incident] open}; its id. */
+    /** Opens an incident {@code owner} owns ({@code cause}: water ...) and logs {@code [incident] open}; its id. */
     public String open(Entity owner, String cause, String detail) {
         long now = owner.level().getGameTime();
         String id = cause + "#" + owner.getId() + "@" + now;
@@ -62,24 +60,6 @@ public final class AskLedger {
         return found;
     }
 
-    /** Puts an ask before its helper (a directed request); an incident that is not open takes none. */
-    public void offer(Ask ask) {
-        var i = open.get(ask.incidentId());
-        if (i != null) i.offered.put(ask.helper(), ask);
-    }
-
-    /** The asks offered to {@code helper} in open incidents that it has not refused nor finished. */
-    public List<Ask> offered(UUID helper) {
-        prune();
-        var out = new ArrayList<Ask>();
-        for (var i : open.values()) {
-            var ask = i.offered.get(helper);
-            var d = i.decided.get(helper);
-            if (ask != null && (d == null || d.accepted()) && !i.ended.containsKey(helper)) out.add(ask);
-        }
-        return out;
-    }
-
     /** The one decision of {@code ask.helper()} for its incident: drawn now when there is none ({@code roll} uniform 0..1, accepted below {@code chance}), else the kept one. */
     public Decision decide(Ask ask, double chance, DoubleSupplier roll, Entity at) {
         prune();
@@ -100,11 +80,6 @@ public final class AskLedger {
 
     /** {@link #decide(Ask, double, DoubleSupplier, Entity)} with nothing to log against (tests). */
     Decision decide(Ask ask, double chance, DoubleSupplier roll) { return decide(ask, chance, roll, null); }
-
-    public Decision decision(String incident, UUID helper) {
-        var i = find(incident);
-        return i == null ? null : i.decided.get(helper);
-    }
 
     /** It accepted and its run is not over (the incident may be settled already: a carried faller is out of the water). */
     public boolean helping(String incident, UUID helper) {
@@ -127,12 +102,11 @@ public final class AskLedger {
             var helpers = new StringBuilder("[");
             i.decided.values().forEach(d -> helpers.append(helpers.length() > 1 ? ", " : "").append(d.helper()).append(':')
                     .append(d.accepted() ? "accepted" : "refused").append('/').append(i.ended.getOrDefault(d.helper(), "-")));
-            GameplayLog.event(i.body, "incident", "close id={} reason={} ticks={} offered={} decided={}", i.id, reason,
-                    i.body.level().getGameTime() - i.opened, i.offered.size(), helpers.append(']'));
+            GameplayLog.event(i.body, "incident", "close id={} reason={} ticks={} decided={}", i.id, reason,
+                    i.body.level().getGameTime() - i.opened, helpers.append(']'));
         }
-        // a settled incident keeps only its decisions: no body, no ask (their factories hold bodies)
+        // a settled incident keeps only its decisions, no body
         i.body = null;
-        i.offered.clear();
         settled.put(i.id, i);
     }
 

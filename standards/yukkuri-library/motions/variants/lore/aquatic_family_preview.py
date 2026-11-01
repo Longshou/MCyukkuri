@@ -47,15 +47,13 @@ def main():
     owner_seat = np.array([0, vessel['bowl']['owner_y']*k, vessel['opening'][3]*k-5.9])
     radius = dl['radius'](vessel['delivery'], .8*16*size)/k
     hat = dl['Hat'](vessel, 'bowl')
-    seats = {r: np.array(dl['pack'](hat, vessel['delivery'], [radius], r)[0])*k-owner_seat for r in ('day', 'night')}
+    seats = {r: np.array(dl['pack'](hat, vessel['delivery'], [radius], r)[0])*k-owner_seat for r in ('day',)}
     with zipfile.ZipFile(args.minecraft_resources) as jar:
         apple = Image.open(io.BytesIO(jar.read('assets/minecraft/textures/item/apple.png'))).convert('RGBA')
     panels = [
         ('boat_feed_young', .16, 'hat_cradle', 'day', '取食：从帽粮取出真实的一份'),
         ('boat_feed_young', 1.35, 'eat', 'day', '接食：子油开始咀嚼'),
         ('boat_nuzzle', 1.15, 'nuzzle', 'day', '亲昵：停桨安抚，子油回应'),
-        ('boat_lullaby', .35, 'sway', 'night', '睡前：亲油哼唱，子油听歌'),
-        ('boat_sleep', 1.4, 'sleep', 'night', '夜宿：幼体在下，亲油在上'),
         ('aquatic_hat_care', 1.3, None, None, '返岸：甩水理帽，保持大帽尺寸'),
     ]
     for index, (clip, time, child_clip, region, _) in enumerate(panels):
@@ -96,9 +94,9 @@ def main():
         (out/f'{index}.json').write_text(json.dumps(mesh.flatten().tolist()), encoding='utf-8')
     renderer = P.ROOT/'standards/yukkuri-library/runtime/render.js'
     code = "const fs=require('fs');\n"+renderer.read_text(encoding='utf-8')+'\nconst dir='+json.dumps(str(out))+';\n'
-    code += '''for(let i=0;i<6;i++){
+    code += '''for(let i=0;i<4;i++){
       const v=JSON.parse(fs.readFileSync(dir+'/'+i+'.json'));
-      const image=renderModel(v,fs.readFileSync(dir+'/'+i+'.rgba'),540,400,.85,.5,i===5?19:16,{centerY:i===5?8:3,textureSize:512});
+      const image=renderModel(v,fs.readFileSync(dir+'/'+i+'.rgba'),540,400,.85,.5,i===3?19:16,{centerY:i===3?8:3,textureSize:512});
       fs.writeFileSync(dir+'/'+i+'-render.rgba',image);
     }'''
     runner = out/'render.cjs'; runner.write_text(code, encoding='utf-8'); subprocess.run([args.node, str(runner)], check=True)

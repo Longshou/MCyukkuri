@@ -190,8 +190,8 @@ def state(action, t, c, height):
     elif action == 'boat_reassure':
         offer=keyed(t,[(0,0),(.4,.7),(.7,1),(1.25,.65),(1.7,.15),(2,0)])
         s=[1.025,.95-.025*offer,1.025];r=[-6*offer,3*offer,1.5*offer]
-    elif action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_sleep', 'boat_wake', 'boat_board', 'boat_toilet',
-                  'boat_feed_young', 'boat_nuzzle', 'boat_lullaby', 'boat_first_balance'):
+    elif action in ('boat_paddle', 'boat_gather', 'boat_eat', 'boat_drink', 'boat_board', 'boat_toilet',
+                  'boat_feed_young', 'boat_nuzzle', 'boat_first_balance'):
         s = curled(c)
         phase = 2*math.pi*t/d
         if action == 'boat_first_balance':
@@ -209,8 +209,6 @@ def state(action, t, c, height):
         elif action == 'boat_nuzzle':
             lean = smooth(t/.5)*(1-smooth((t-1.9)/.5))
             r = [-9*lean, 0, 3*math.sin(phase*2)*lean]; s[1] -= .025*lean
-        elif action == 'boat_lullaby':
-            r = [2, 0, 2.5*math.sin(phase*2)]; s[1] += .008*(1-math.cos(phase*4))
         elif action == 'boat_gather':
             reach = bump(t/d); r = [-7*reach, -9*reach, -3*reach]
             s[1] -= .025*reach
@@ -218,10 +216,6 @@ def state(action, t, c, height):
             chew = bump((t % .4)/.4); r[0] = -5-2*chew; s[1] -= .025*chew
         elif action == 'boat_drink':
             sip = bump(t/d); r[0] = -9*sip; r[2] = -2*sip
-        elif action == 'boat_sleep':
-            s[1] += .012*(1-math.cos(phase))/2; r = [-3, 0, 2]
-        elif action == 'boat_wake':
-            a = bump(t/d); s[1] = .91+.09*a+.04*smooth(t/d); r[0] = 4*a
         else:
             s = [1.03, .94, 1.03]  # physical flight supplies lift; never double the arc
     elif action == 'eat':
@@ -795,7 +789,7 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
@@ -804,7 +798,8 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
     cfg=json.loads((here/'recipe.json').read_text(encoding='utf-8'))
-    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8')) if include_pet or include_birth or include_badge or include_comfort else None
+    contact_cfg=json.loads((here.parent/'contact-safe/recipe.json').read_text(encoding='utf-8'))
+    authored_names=set(cfg['clips']) | set(contact_cfg['actions']) | set(contact_cfg['braid_follow']['actions'])
     contact_author=runpy.run_path(str(here.parent/'contact-safe/author.py')) if include_pet or include_birth or include_badge or include_comfort else None
     names=TOOLS['EXPORT_CLIPS'] if include_aquatic else COMFORT_CLIPS if include_comfort else ('boat_carry_young','boat_be_carried','boat_prepare_carry','boat_release_carry') if include_carry else BIRTH_CLIPS if include_birth else BADGE_CLIPS+TILT_FIX_CLIPS if include_badge else DISTRESS_CLIPS
     if include_pet:
@@ -813,6 +808,8 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     payload=json.loads(resource.read_text(encoding='utf-8'));fits=placement_fit.load()
     birth_poses={'format':1,'units':'model_pixels','ticks_per_second':20,'variants':{}}
     for ident,revision in payload['models'].items():
+        revision['clips']={name:clip for name,clip in revision['clips'].items() if name in authored_names}
+        if prune_only: continue
         model=placement_fit.fitted(ROOT/f'src/main/resources/assets/mcyukkuri/yukkuri/{ident}.json',fits)
         root=next(i for i,bone in enumerate(model['bones']) if bone['name']=='root')
         pivot=np.array(model['bones'][root]['pivot']);raw=np.array(model['vertices']).reshape(-1,8)
@@ -845,7 +842,8 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
         (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    payload['revision']='aquatic-home-20261026-v32' if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
+    if not prune_only:
+        payload['revision']='aquatic-home-20261026-v32' if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('lore_aquatic_tools',here/'aquatic_tools.py'),('runtime',resource),
@@ -865,6 +863,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
+    parser.add_argument('--prune',action='store_true',help='Remove clips absent from both authoring recipes, preserving every retained clip.')
     parser.add_argument('--export-distress',action='store_true')
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
     parser.add_argument('--export-birth',action='store_true',help='Export the birth clips (BIRTH_CLIPS) and live_birth_pose.json only, preserving other runtime clips.')
@@ -873,6 +872,7 @@ if __name__=='__main__':
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
     parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
     args=parser.parse_args()
+    if args.prune:export_distress_clips(prune_only=True)
     if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
     if args.export_birth:export_distress_clips(include_birth=True)
     if args.export_carry:export_distress_clips(include_carry=True)

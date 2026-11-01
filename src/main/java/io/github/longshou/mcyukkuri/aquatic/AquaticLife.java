@@ -111,7 +111,7 @@ public final class AquaticLife {
         return out;
     }
 
-    /** From dusk to the end of the night (vanilla's sleep window): the hours a hat moors. */
+    /** From dusk to the end of the night (vanilla's sleep window): the hours the family returns ashore to rest. */
     static boolean dusk(Level level) {
         long t = Math.floorMod(level.getDayTime(), 24000L);
         return t >= 12000 && t < 23460;

@@ -10,9 +10,9 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "b9433e786596fb714cd93aefad2aec672bbf4aec754949f51a967b0bc74fea4a",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "30166c1e2e771a829da2a15a3ef562d101af74e0133ed795aa382ec01200f60d",
+  "lore_recipe_sha256": "41503a97357ca3e2221aa7fb855816ec39d1879aa6526e012651f89f35158f0b",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "45e5ce204c2aa72b3d69cf872491f5b9171948972d8a8b1e9eb4f2d0b18bfeed",
+  "lore_author_sha256": "4c7200929f36f689649b2b0999625c1f64182d10eb943792f55834b66370237b",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "9e8332c1db621a2d189df216a36ccd3c51f180912e3f9bdf991f1884db59abc0",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
@@ -28,7 +28,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "a5d4dba36401f8f5c71934d4c1a557ff469a0f6d40e518a692c5d158d5213772",
+  "runtime_sha256": "0e2d0d77268ae009460f36b686385b275e79595cb7d02e12eafb67bb6ff51976",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -408,5 +408,13 @@
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cheek_puff.png",
       "texture_sha256": "243b404b06c36670796b1811b88c52e1dfaabe0b1ec904f36f246f75578e0e4f"
     }
-  }
+  },
+  "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
+  "lore_aquatic_tools_sha256": "96cdcf45ad82fab44b629c32e63348e44b1a4daabe0e950b8c803cd542cb980d",
+  "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
+  "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
+  "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
+  "braid_rescue_author_sha256": "8af9532913049c0534d6d512b38f4ff9c98cf79d6c0a26ae2484a3420dda6848",
+  "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
+  "braid_rescue_geometry_sha256": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785"
 }

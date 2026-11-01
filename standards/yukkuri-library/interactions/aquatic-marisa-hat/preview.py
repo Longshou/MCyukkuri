@@ -3,7 +3,7 @@ the game).
 
 Rows: the current aquatic hat (the land hat turned over, as the game draws it) and this form, worn and set down on water;
 cuts through both empty hulls, the new hollow from above and the owner aboard; then layouts solved by layout.py
-(body-outline room, the proposed rule) as a top view with each body's outline and a cut from the side, by day and by night
+(body-outline room, the proposed rule) as a top view with each body's outline and a cut from the side, by day
 (the owner leaning over the young), with stores.
 
     MCY_LOCAL=<main checkout>/.local python layout.py    # first: previews/aquatic-hat-round/layouts.json
@@ -135,8 +135,7 @@ MARISA = S.BODY
 
 
 def body_tris(atlas, scale, day, belly, young, yaw, x, z, y):
-    clip, t, face = (('boat_drift', 1.2, 'closed_smile') if day else ('boat_nest_curl', .5, 'sleep')) if young else \
-        (('boat_drift', .3, 'closed_smile') if day else ('boat_cover_young', .9, 'sleep'))
+    face = 'closed_smile'
     sh = L.shape(scale, day, belly, young, yaw)
     m = sh.mesh(x, z, y)
     m[:, :, 3:5] = atlas.uv(f'marisa/{face}', Image.fromarray(MARISA.texture(face)), m[:, :, 3:5])
@@ -404,7 +403,7 @@ def layout_cells(combo_key, period, stores, rule='body'):
     return out, r
 
 
-PANELS = [('owner_6n', 'day', 12), ('owner_6n', 'night', 12), ('owner_6b', 'day', 24), ('owner_c', 'day', 0)]
+PANELS = [('owner_6n', 'day', 12), ('owner_6b', 'day', 24), ('owner_c', 'day', 0)]
 
 
 def main():
@@ -432,7 +431,7 @@ def main():
 
 
 def table():
-    """Rows of the layout study (layouts.json): per combination, both room rules, day and night over stores 0/12/24."""
+    """Rows of the layout study (layouts.json): per combination, both room rules, by day over stores 0/12/24."""
     data = json.loads((OUT/'layouts.json').read_text(encoding='utf-8'))
     by = {}
     for r in data['results']: by.setdefault((r['combo'], r['rule']), []).append(r)
@@ -443,7 +442,7 @@ def table():
             rs = by.get((key, rule), [])
             def mark(period):
                 return ''.join('✓' if r['fits'] else '✗' for r in sorted((r for r in rs if r['period'] == period), key=lambda r: r['stores']))
-            cells.append(f"昼 {mark('day')} / 夜 {mark('night')}")
+            cells.append(f"昼 {mark('day')}")
         rs = [r for r in by.get((key, 'body'), []) if r['fits']]
         if rs:
             heel = max(rs, key=lambda r: r['ratio'])
@@ -472,7 +471,7 @@ def page():
             f"帽冠底半径 {g['crown_radius']}，帽口半径 {g['opening_radius']}，平底半径 {g['floor_radius']}、深 {g['floor_depth']}，"
             f"龙骨底 {g['keel_depth']}，翘边高 {g['rim_height']}。载重规则见 docs/FEATURES.md 水生魔理沙。"
             '支撑按身体真实底面；占位规则对比现行的脚圆（半身宽＋0.02 格的圆，高度重叠即冲突）与建议的身体轮廓（只算身体，不算帽子、头发和辫子）。'
-            '白天帽主坐中间或尽量少往船尾挪，幼体在她身前；夜里她用 boat_cover_young 俯身，幼体在她身前或俯身下。'
+            '白天帽主坐中间或尽量少往船尾挪，幼体在她身前。'
             '辫托按 braid_cradle_lift 实际托兜范围，帽主原地转身。稳：静横倾不超过进水角的 0.6（HullAfloat.STEADY）。</p>'
             '<table border="1" cellpadding="4" style="border-collapse:collapse;background:#fff;font-size:13px"><tr>'
             +''.join(f'<th>{h}</th>' for h in head)+'</tr>'

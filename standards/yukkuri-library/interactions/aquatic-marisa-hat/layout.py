@@ -2,15 +2,14 @@
 
 The riders are the capacity rule of docs/FEATURES.md 水生魔理沙的载重规则 (newborn and baby 2, small child up to 0.30
 3, child up to 0.45 4, a pregnant owner +2, at most 12; bigger young are no regular riders; from 0.8 of her term the owner
-takes the high seat and leaves the cavity before her for the birth). Each layout is solved by day and by night (the owner
-leaning over the young: boat_cover_young) with 0, 12 and 24 stored portions (one level layer the riders sit on).
+takes the high seat and leaves the cavity before her for the birth). Each layout is solved by day with 0, 12 and 24 stored portions (one level layer the riders sit on).
 
 Rules used, all from the runtime unless noted:
 - support: a body rests by its real underside on the hat's surface (the stores layer included): the proposed rule;
 - room: foot circles (Occupancy.foot = half the body width + 0.02 block) may not overlap where the two bodies' heights
   overlap (PlacedHatEntity.room);
-- the owner sits as far toward the stern as she can without rising (her seat), by night in the same seat leaning forward;
-- the young sit in the hollow (never on the brim face): by day before her, by night just before her, under her lean;
+- the owner sits as far toward the stern as she can without rising (her seat);
+- the young sit in the hollow (never on the brim face): before her;
 - braid: from her seat, turning in place, braid_cradle_lift's own scoop envelope reaches the young (morning lift);
 - upright: the static heel from the riders' and stores' real masses and centres on the outer hull (scene.hydro) against
   the heel at which the turned-up rim meets the water; steady when it stays within HullAfloat.STEADY (0.6) of it.
@@ -54,8 +53,7 @@ PORTION_MASS = math.pi/6*(2*.09)**3*S.DENSITY      # HullLarder.MASS
 
 
 def shapes(scale, day, belly=0., young=False):
-    clip, t, face = (('boat_drift', 1.2, 'closed_smile') if day else ('boat_nest_curl', .5, 'sleep')) if young else \
-        (('boat_drift', .3, 'closed_smile') if day else ('boat_cover_young', .9, 'sleep'))
+    clip, t, face = 'boat_drift', 1.2 if young else .3, 'closed_smile'
     tris, mask = S.BODY.mesh(clip, t, face=face, hat=S.WORN if young else None, belly=belly)
     return tris, mask
 
@@ -125,10 +123,9 @@ def place_all(combo, period, stores, at, rule='circle'):
     for i, ys in enumerate(sorted(young, reverse=True)):
         name, load = KIND[ys]
         side = (-1 if i % 2 else 1)*(1+i//2)
-        if day: prefer = (ox+2.6*side, z_front-.5-S.foot(ys))
-        else: prefer = (ox+2.2*side, z_front-.2-S.foot(ys)*.5)
+        prefer = (ox+2.6*side, z_front-.5-S.foot(ys))
         best = None
-        for yaw in ((-20, 20) if day else (-35, 35)):
+        for yaw in (-20, 20):
             sh = shape(ys, day, young=True, yaw=yaw)
             fy = S.foot(ys)
             for x in np.arange(-11, 11.01, .5):
@@ -196,7 +193,7 @@ def main():
     for rule in RULES:
         for combo in COMBOS:
             if only and combo[0] not in only: continue
-            for period in ('day', 'night'):
+            for period in ('day',):
                 for stores in STORES:
                     r = solve(combo, period, stores, rule); results.append(r)
     extra = dict(climb=[climb(s, f) for s in (1., CHILD) for f in (.25, .5, .75, 1.)], braid_reach=round(S.REACH, 2),

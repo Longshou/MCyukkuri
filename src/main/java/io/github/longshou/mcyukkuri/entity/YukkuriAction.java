@@ -55,12 +55,9 @@ public enum YukkuriAction {
     BOAT_GATHER("boat_gather", 1.6, false),
     BOAT_EAT("boat_eat", 1.2, true),
     BOAT_DRINK("boat_drink", 1.6, true),
-    BOAT_SLEEP("boat_sleep", 4.0, true),
-    BOAT_WAKE("boat_wake", 1.6, false),
     BOAT_BOARD("boat_board", .8, true),
     BOAT_FEED_YOUNG("boat_feed_young", 2.4, false),
     BOAT_NUZZLE("boat_nuzzle", 2.4, false),
-    BOAT_LULLABY("boat_lullaby", 4.0, true),
     AQUATIC_HAT_CARE("aquatic_hat_care", 2.4, false),
     HAT_CRADLE("hat_cradle", 3.0, true),
     // Marisa's braid takes off, sets down, holds and puts back her own hat (lore hat.py); _AQ: the aquatic Marisa's larger hat floated at a bank.
@@ -111,15 +108,11 @@ public enum YukkuriAction {
     MOUTH_BITE_HOLD("mouth_bite_hold", 1.0, true),
     BOAT_THROWN("boat_thrown", .6, false),
     WATER_HAT_RIGHT("water_hat_right", 1.6, false),
-    BOAT_COVER_YOUNG("boat_cover_young", 2.4, true),
-    BOAT_WEDGE_BERTH("boat_wedge_berth", 1.6, false),
-    BOAT_PUSH_OFF("boat_push_off", .8, false),
     BOAT_CARGO_STOW("boat_cargo_stow", 1.0, false),
     BOAT_CARGO_FETCH("boat_cargo_fetch", 1.0, false),
     BOAT_JETTISON("boat_jettison", 1.0, false),
     // Resting crew of the hat home (hat_deck_layout.json crew, ecology design D 3.4; project original).
     BOAT_RIM_PEEK("boat_rim_peek", 4.8, true),
-    BOAT_NEST_CURL("boat_nest_curl", 4.0, true),
     // Pet shop, exam and raising performances (lore recipe v13, all standard forms).
     THINK("think", 2.0, true),
     NERVOUS("nervous", 1.5, true),

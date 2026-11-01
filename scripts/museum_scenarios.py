@@ -1850,20 +1850,6 @@ pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'),
             ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
-add('water_night', 'pond', '夜泊·岸凹里过夜', '夜泊',
-    '黄昏，亲油和两只赤油在离岸 3 格的帽子上，帽里有木棍：她划进南边有树叶遮顶的岸凹，让岸卡住帽子；赤油自己挪进帽腔，亲油俯身盖住它们睡下。约每 10 秒看一眼，漂离泊位就醒来用桨划回去（最多两次），之后就地漂睡；天亮醒来',
-    '约 9 分钟（请倍速）',
-    [*BY_ID['pond'].biome_commands(),
-     yk('marisa', bank_dx(4), 4, 'a', aquatic=True, yaw=-90, lead=True, **pair_ready()),
-     yk('marisa', bank_dx(5), 5, 'k1', stage='baby', aquatic=True, yaw=-90, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready()),
-     yk('marisa', bank_dx(3), 3, 'k2', stage='baby', aquatic=True, yaw=-90, childhood=CHILDHOOD_CRAWLING_READY, also=('crew',), **pair_ready()),
-     afloat('a', water_at(4, 3), True, sel_all('crew'), stick=True)],
-    env={'time': 'dusk'}, vantage=(-6, 6, -90),
-    note='日志：[intent] start id=moor → [aquatic] moor berth=… sheltered=4 → [aquatic] route purpose=moor → [action] start id=paddle；赤油 [intent] start id=nestle；'
-         '漂离时 [aquatic] moor restation；天亮 [aquatic] boat_wake。没有岸凹或木棍时 drift_sleep=true，就地漂睡。' + _DESIRE_NOTE,
-    reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
-
-
 # ---- food, care, rescue and birth on the hat boat (refactor WP6b): real starting states only; who helps and when is the helpers' own decision.
 _INCIDENT_NOTE = ('每次落水由落水者自己开一个事件（[incident] open id=water#…），近旁的亲油各自只决定一次救不救（[incident] decide … chance= roll= accepted=，'
                   '按友善的帮助概率；拒绝是真实的，之后不再改口），落水者上船、被叼出水、上岸或死亡时关闭（[incident] close … reason= decided=[…]）。')
@@ -1939,22 +1925,21 @@ def boat_birth(sid, title, hint, watch, food, note, smoke):
 
 
 boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
-           '水生母油坐在自己浮在水上的帽子里临产，父油在几格外自己的帽子里，两船都有木棍：不靠岸、不放帽、不会合，母油在帽里转身把出口对准帽腔里的空处，孩子推出后落进帽腔初醒；父油临产时自己划到她船边。之后母油从帽里的粮（没有就无粮可喂）给孩子嚼糜喂食，母船孩子多出父船两只以上时把一只送到父船。用力过猛的推力仍可能越过帽檐落水，那就进入落水救援',
+           '水生母油坐在自己浮在水上的帽子里临产，父油在几格外自己的帽子里，两船都有木棍：不靠岸、不放帽、不会合，母油在帽里转身把出口对准帽腔里的空处，孩子推出后落进帽腔初醒。之后母油从帽里的粮（没有就无粮可喂）给孩子嚼糜喂食。用力过猛的推力仍可能越过帽檐落水，那就进入落水救援',
            0, '日志：[choreo] beat id=live_birth … receiver=OwnHull（site → sited → term → exit → turned → push → … → linger → end，没有 meet/place/unload/take_hat）、'
-              'birth landed … outcome=HAT（落水为 outcome=WATER，随后 [incident] open）；父油 [intent] start id=attend_mate → [aquatic] route purpose=attend_mate。'
+              'birth landed … outcome=HAT（落水为 outcome=WATER，随后 [incident] open）。'
               '帽里没有粮，母油不会凭空喂食；可手持苹果右击母船补粮，之后看 [intent] start id=feed_young → [action] start id=pick → feed mash prepared → feed_young handed。' + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=HAT\b',
                                          r'\[family\][^\n]* birth delivery stage=qualified [^\n]*phase=before_emergence\b',
                                          r'\[family\][^\n]* birth delivery stage=transition reason=push\b',
-                                         r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b',
-                                         r'\[intent\][^\n]* start id=attend_mate\b'],
+                                         r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b'],
                       forbid=_BOAT_SMOKE_FORBID + _WATER_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b'],
                       verify=water_aftermath, readout=_WATER_SMOKE_READOUT, forms={'turned_land_hat': dict(expect=[_BOAT_SMOKE_START,
                           r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
-           '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
+           '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
            -1, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
            smoke=dict(ticks=5400,
@@ -1970,32 +1955,6 @@ boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏�
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=exit_wait [^\n]*phase=emerging\b',
                                                   r'birth delivery stage=mid_push_hold reason=nominal_exit_lost\b']))
-
-# Parents of a brood just born are in their recovery after it (FamilyLife Recovery, reproductionRecoveryTicks): not ready to breed.
-_JUST_BORN = 'Recovery:12000'
-
-pond('family_skiffs', '把赤油送到父船', '送到父船',
-     '母油的帽子里有三只刚出生不久的赤油，父油在五格外自己的帽子里，两船都有木棍，两只是伴侣、都还在产后恢复期（不想繁殖，不会为此上岸）；赤油都在母船上，不算留在岸上：母船明显更重，母油先等两船漂近，等不来就请父油划过来（父油对这次请求只决定一次，拒绝是真实的）；两船并舷后母油在帽里叼起或用辫梢卷起一只赤油，走到靠父船的一侧，转身把它放到父船上。够不到父船就放回自己的帽腔，同一只两次够不到就留在母船；两边差得不多时不再送',
-     '约 1–3 分钟',
-     [yk('marisa', bank_dx(0), 0, 'mother', aquatic=True, yaw=-90, lead=True, uuid=uid('family_skiffs', 'mother'), kin=_JUST_BORN, **pair_ready()),
-      yk('marisa', bank_dx(5), 5, 'father', aquatic=True, yaw=-90, uuid=uid('family_skiffs', 'father'), kin=_JUST_BORN, **pair_ready()),
-      *[_kin_young('family_skiffs', k, bank_dx(dz), dz, 'baby', 'mother', 'father') for k, dz in (('k1', 1), ('k2', -1), ('k3', 2))],
-      f'yukkuri scenario mate {sel("mother")} {sel("father")}',
-      afloat('mother', water_at(0, 3), True, sel_all('kids'), stick=True),
-      afloat('father', water_at(5, 4), True, sel('father'), stick=True)],
-     note='开场两只都留在自己船上：母油 aquatic.desire 里 share_young 领先、come_ashore 为 0；父油没有 young_ashore 与 breed 的上岸拉力。'
-          '日志：[intent] start id=share_young → [method] pick method=wait_close → （等不来）[method] switch … to=ask_father → [incident] open id=share_young#… → '
-          '父油 [incident] decide … accepted= → [intent] start id=come_alongside → [aquatic] route purpose=come_alongside → 母油 [method] pick method=carry_across → '
-          '[action] start id=grab → [action] start id=release → 赤油 [body] mount … → [aquatic] share_young end result=DONE → [incident] close。'
-          '够不到时 [aquatic] share refused … reason=hold_not_over_his_hull。' + _DESIRE_NOTE,
-     reads=[('读母油', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
-            ('读赤油', f'yukkuri status {sel_all("kids")} raw')],
-     smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START,
-                                   r'\[hat\][^\n]* boarded [^\n]*own=true[\s\S]*\[hat\][^\n]* boarded [^\n]*own=true',
-                                   r'\[intent\][^\n]* start id=share_young\b',
-                                   r'\[method\][^\n]* pick intent=share_young method=wait_close\b'],
-                forbid=_BOAT_SMOKE_FORBID + [r'\[aquatic\][^\n]* set_out [^\n]*left_ashore=[1-9]']))
-
 
 pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      '亲油坐在紧靠岸边的自己的帽子里（帽里没有木棍，她在岸边漂着歇），帽前坐着她的子油：能自己吃、会跳，戴着自己的帽子，帽里夹着一根木棍，'
@@ -2034,8 +1993,8 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'water_night': 'A6',
-    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'family_skiffs': 'A6', 'first_voyage': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6',
+    'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2',

@@ -17,10 +17,8 @@ import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,7 +29,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /**
@@ -39,15 +36,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
  * above the daily life, it runs one {@link Drive} over the desires read from this body's real state. An owner ashore wants the
  * water (a constant preference less what pulls her ashore, dusk and rain: {@code set_out}) or her hat back
  * ({@code resolve_own_hat}); afloat she wants the bank (hunger with nothing aboard or afloat to eat, no stick, wet weather, a mate,
- * young left ashore: {@code come_ashore}), a sheltered mooring at dusk or in rain ({@code moor}) or just to be out on the water
- * ({@code cruise}); hungry she eats from the hollow ({@code eat_aboard}) or fishes food up ({@code forage}); she feeds and
- * comforts her young aboard ({@code feed_young}, {@code comfort_young}), lifts a young of hers out of the water once she accepted
- * its incident ({@code rescue}, a danger desire) and sends a young over to its father's boat when hers holds far more
- * ({@code share_young}); a father paddles over to his mate's boat when she asks it ({@code come_alongside}) or when she is near
- * her time ({@code attend_mate}). A young follows its parent's hat on or off ({@code board_parent}, {@code follow_ashore}), eats
- * from the hollow it rides ({@code eat_aboard}), creeps into the hollow toward its parent at night ({@code nestle}), once able
- * tries its own hat as a boat by its parent's on a calm day ({@code first_voyage}), and back from its own hat comes ashore and
- * takes it back ({@code come_ashore}, {@code resolve_own_hat}). Who goes
+ * young left ashore, dusk: {@code come_ashore}) or cruises in daylight ({@code cruise}). She eats, feeds and comforts her young,
+ * and rescues a young in the water once she accepts its incident. A young boards or follows its parent ashore, eats aboard,
+ * and once able tries its own hat ({@code first_voyage}), then comes ashore and takes it back. Who goes
  * first between bodies follows only from these desires (P11, Q4). Every number is in
  * {@code data/mcyukkuri/drive/aquatic.json}. While an intent runs afloat, or a committed one ashore, only an emergency takes the
  * body (the land goals cannot steer a body on the water); with no intent running any goal may.
@@ -56,7 +47,7 @@ final class AquaticGoal extends Goal {
     static final int PRIORITY = 3;
     static final String DOMAIN = "aquatic";
     /** The clips of the boat life the presentation may show while this goal drives the body. */
-    private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_SLEEP, Behaviors.BOAT_COVER_YOUNG, Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
+    private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
             Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
@@ -67,13 +58,8 @@ final class AquaticGoal extends Goal {
     private Map<UUID, Long> left;
     /** Young she comforted, until when (ticks): a young still cold or gasping is comforted again only after a while. */
     private Map<UUID, Long> comforted;
-    /** Rescue runs that tried a way and failed, by incident (three and she is done with it); refusals of each young she tried to
-     *  set on its father's boat (two keep it with her). Bounded, never saved. */
+    /** Rescue runs that tried a way and failed, by incident (three and she is done with it). Bounded, never saved. */
     private Map<String, Integer> rescueFailures;
-    private Map<UUID, Integer> shareRefusals;
-    /** Last emitted sharing facts and tick; unchanged or throttled evaluations build no readout text. */
-    private Object shareReadout;
-    private long shareReadoutAt;
     /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
     private long voyageAfter;
 
@@ -117,7 +103,7 @@ final class AquaticGoal extends Goal {
         return !(body.getVehicle() instanceof PlacedHatEntity) && runner.intent().commitment() == Commitment.NONE;
     }
 
-    /** What the presentation shows: the paddle stroke, or the boat clip a wait plays (sleep, covering the young, calling, drifting). */
+    /** What the presentation shows: the paddle stroke, or the boat clip a wait plays (calling, drifting, eating, caring). */
     private String activity() {
         var action = body.motor().current();
         if (action instanceof Paddle || action instanceof Beckon) return Behaviors.BOAT_PADDLE;
@@ -148,7 +134,7 @@ final class AquaticGoal extends Goal {
 
     private static double floor(double desire) { return desire >= num("floor", 20) ? desire : 0; }
 
-    /** The hat's calm cell, or its block: what a route, a landing or a notch is chosen from (a stable fact while it drifts). */
+    /** The hat's calm cell, or its block: what a route or a landing is chosen from (a stable fact while it drifts). */
     private static BlockPos cell(PlacedHatEntity hat) {
         var c = Waters.cell(hat);
         return c != null ? c : hat.blockPosition();
@@ -195,20 +181,17 @@ final class AquaticGoal extends Goal {
         if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
         care(out, hat, young, at);
-        share(out, hat, young, at);
-        attend(out, hat, at);
         // a young on dry ground that is not off on its own first voyage (one on its father's boat, in the water or in a mouth is not ashore)
         long ashore = young.stream().filter(y -> AquaticLife.ashore(y) && !leftBehind(y) && !(Drive.running(y, DOMAIN) instanceof FirstVoyage)).count();
         // no stick aboard pulls her ashore only when one lies there to be had; hunger only with nothing aboard or afloat she can eat
         boolean toHave = !stick && Waters.stick(body, 12, false) != null;
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
         double pull = Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0),
-                Math.max(Math.max(weather, breed), ashore > 0 ? num("young_ashore_need", 60) : 0));
+                Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)));
         var world = List.of(at, stick, young.size());
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f young_ashore=%d dusk=%b rain=%b",
                 hunger, food, stick, toHave, weather, breed, ashore, dusk, rain);
         out.add(Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body)));
-        out.add(Desire.of("moor", floor((dusk ? num("moor_night", 65) : 0) + (rain ? num("moor_rain", 40) : 0)), world, why, () -> new Moor(body)));
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
     }
 
@@ -218,7 +201,7 @@ final class AquaticGoal extends Goal {
     }
 
     /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
-     *  keeps its desire), and her mate's ask to paddle over that she accepted. */
+     *  keeps its desire). */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
@@ -228,13 +211,6 @@ final class AquaticGoal extends Goal {
             var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id, this::rescueFailed), id);
             ledger.decide(ask, body.life().personality().helpProbability(true, true), body.getRandom()::nextDouble, body);
             if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
-        }
-        for (var ask : AquaticLife.riding(body) == AquaticLife.hat(body) && AquaticLife.riding(body) != null ? ledger.offered(body.getUUID()) : List.<Ask>of()) {
-            ledger.decide(ask, body.life().personality().helpProbability(true, false), body.getRandom()::nextDouble, body);
-            if (!ledger.helping(ask.incidentId(), body.getUUID())) continue;
-            out.add(Desire.of("come_alongside", floor(num("alongside_want", 70)), List.of(ask.incidentId()), () -> "incident=" + ask.incidentId(),
-                    () -> ask.intent(body)));
-            break;
         }
     }
 
@@ -255,8 +231,6 @@ final class AquaticGoal extends Goal {
         }
         while (rescueFailures.size() > LEFT_MAX) rescueFailures.remove(rescueFailures.keySet().iterator().next());
     }
-
-    private int shareRefusals(YukkuriEntity young) { return shareRefusals == null ? 0 : shareRefusals.getOrDefault(young.getUUID(), 0); }
 
     /** Care for her young aboard: the hungriest that cannot eat by itself and has food aboard for it, her decision accepted (the
      *  care ledger's one draw, kept 1200 ticks); one gasping after the water or cold. */
@@ -290,59 +264,6 @@ final class AquaticGoal extends Goal {
     private void comforted(YukkuriEntity young) {
         if (comforted == null) comforted = new HashMap<>();
         if (comforted.size() < LEFT_MAX) comforted.put(young.getUUID(), body.level().getGameTime() + (long) num("comfort_again", 600));
-    }
-
-    /** Her mate riding his own hat afloat near, or null. */
-    private YukkuriEntity mateAfloat() {
-        var id = body.family().partner();
-        if (id == null || !(body.level() instanceof ServerLevel level) || !(level.getEntity(id) instanceof YukkuriEntity mate) || !mate.isAlive()) return null;
-        var his = AquaticLife.hat(mate);
-        return AquaticLife.afloat(his) && AquaticLife.aboard(mate, his) && his.distanceTo(body) <= AquaticLife.FAMILY_RANGE ? mate : null;
-    }
-
-    /** Her hat holds far more of their young that cannot hop than his: the one nearest his hat goes over. */
-    private void share(List<Desire> out, PlacedHatEntity hat, List<YukkuriEntity> young, Object at) {
-        var mate = mateAfloat();
-        var his = mate == null ? null : AquaticLife.hat(mate);
-        if (his == null) { shareReadout("no_mate_afloat", () -> "no_mate_afloat"); return; }
-        if (his == hat) { shareReadout("mate_on_same_boat", () -> "mate_on_same_boat"); return; }
-        long mine = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y)).count(), theirs = young.stream().filter(y -> y.getVehicle() == his).count();
-        var child = young.stream().filter(y -> y.getVehicle() == hat && !AquaticLife.jumper(y) && shareRefusals(y) < 2)
-                .min(Comparator.comparingDouble(his::distanceToSqr)).orElse(null);
-        if (child == null || mine - theirs < num("share_gap", 2)) {
-            String reason = child == null ? "no_transferable_child" : "balanced";
-            shareReadout(List.of(reason, mine, theirs), () -> reason + " mine=" + mine + " his=" + theirs);
-            return;
-        }
-        Runnable refused = () -> {
-            if (shareRefusals == null) shareRefusals = new LinkedHashMap<>();
-            shareRefusals.merge(child.getUUID(), 1, Integer::sum);
-            while (shareRefusals.size() > LEFT_MAX) shareRefusals.remove(shareRefusals.keySet().iterator().next());
-        };
-        var desire = Desire.of("share_young", floor(num("share_want", 45)), List.of(at, cell(his), child.getUUID()),
-                () -> "mine=" + mine + " his=" + theirs + " child=" + child.getUUID(), () -> new Share(body, mate, child, shareRefusals(child), refused));
-        out.add(desire);
-        shareReadout(List.of("eligible", mine, theirs, child.getUUID()),
-                () -> "eligible score=" + Math.round(drive().scoreOf(desire)) + " " + desire.why().get());
-    }
-
-    private void shareReadout(Object state, Supplier<String> detail) {
-        long now = body.level().getGameTime();
-        if (state.equals(shareReadout) || shareReadout != null && now - shareReadoutAt < 100) return;
-        GameplayLog.event(body, DOMAIN, "share eligibility={}", detail.get());
-        shareReadout = state;
-        shareReadoutAt = now;
-    }
-
-    /** His mate near her time (or in labour) on her own boat, not yet beside his: he paddles over (his own desire). */
-    private void attend(List<Desire> out, PlacedHatEntity hat, Object at) {
-        var mate = mateAfloat();
-        var hers = mate == null ? null : AquaticLife.hat(mate);
-        var brood = mate == null ? null : mate.family().brood();
-        if (hers == null || hers == hat || brood == null || brood.cancelled || brood.complete()
-                || brood.elapsed < brood.duration - num("attend_lead", 1200) || Share.close(hat, hers)) return;
-        out.add(Desire.of("attend_mate", floor(num("attend_want", 55)), List.of(at, cell(hers)),
-                () -> "mate=" + mate.getUUID() + " elapsed=" + brood.elapsed + "/" + brood.duration, () -> new Share.Alongside(body, mate, null)));
     }
 
     private void young(List<Desire> out) {
@@ -379,9 +300,6 @@ final class AquaticGoal extends Goal {
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
-        if (on && (AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || body.life().temperature().cold())
-                && Occupancy.of(body, hat.container()) != Occupancy.INSIDE_SUPPORTED && AquaticLife.freeSpot(hat, body) != null)
-            out.add(Desire.of("nestle", num("nestle_want", 40), world, why, () -> Follow.nestle(body, hat)));
     }
 
     /**

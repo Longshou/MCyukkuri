@@ -653,60 +653,6 @@
         "safe dry parent and child need companionship"
       ]
     },
-    "boat_lullaby": {
-      "label": "帽中轻哼哄睡",
-      "duration": 4,
-      "loop": true,
-      "applies": "aquatic_marisa",
-      "height": 0.95,
-      "width": 1.025,
-      "faces": [
-        [
-          0,
-          0.65,
-          "open_smile"
-        ],
-        [
-          0.65,
-          1,
-          "closed_smile"
-        ],
-        [
-          1,
-          1.65,
-          "open_smile"
-        ],
-        [
-          1.65,
-          2,
-          "closed_smile"
-        ],
-        [
-          2,
-          2.65,
-          "open_smile"
-        ],
-        [
-          2.65,
-          3,
-          "closed_smile"
-        ],
-        [
-          3,
-          3.65,
-          "open_smile"
-        ],
-        [
-          3.65,
-          4,
-          "closed_smile"
-        ]
-      ],
-      "lore": "Original bedtime context for wiki songs and listening (N3/W3); no fixed canonical song or copied lyrics. Actual sleep follows the song.",
-      "triggers": [
-        "family arrives at quiet water before night sleep"
-      ]
-    },
     "aquatic_hat_care": {
       "label": "返岸甩水理帽",
       "duration": 2.4,
@@ -903,54 +849,6 @@
       "lore": "project shoreward drinking pose; body stays in the dry hat, N09 forbids treating the body as waterproof",
       "triggers": [
         "dryness while afloat"
-      ]
-    },
-    "boat_sleep": {
-      "label": "护着幼体帽中睡",
-      "duration": 4,
-      "loop": true,
-      "applies": "aquatic_marisa",
-      "height": 0.91,
-      "width": 1.04,
-      "faces": [
-        [
-          0,
-          4,
-          "sleep"
-        ]
-      ],
-      "lore": "user-adopted night nesting: young below, parent above, hat still afloat; real server sleep",
-      "triggers": [
-        "hat sleep"
-      ]
-    },
-    "boat_wake": {
-      "label": "帽中醒来",
-      "duration": 1.6,
-      "loop": false,
-      "applies": "aquatic_marisa",
-      "height": 0.95,
-      "width": 1.025,
-      "faces": [
-        [
-          0,
-          0.3,
-          "sleepy"
-        ],
-        [
-          0.3,
-          0.9,
-          "yawn"
-        ],
-        [
-          0.9,
-          61.6,
-          "neutral"
-        ]
-      ],
-      "lore": "project seated wake after a completed physiological sleep",
-      "triggers": [
-        "reaction awake aboard"
       ]
     },
     "boat_board": {
@@ -4505,109 +4403,6 @@
         }
       }
     },
-    "boat_cover_young": {
-      "label": "俯身护住孩子",
-      "duration": 2.4,
-      "loop": true,
-      "applies": "aquatic_marisa",
-      "height": 0.95,
-      "width": 1.025,
-      "faces": [
-        [
-          0,
-          2.4,
-          "teary"
-        ]
-      ],
-      "lore": "Project original: bent 9 degrees over the young in the hollow before her (night, rain, a shadow overhead), pressed low and breathing slowly; the braid drapes over them and its tuft curls round.",
-      "triggers": [
-        "AfloatAgenda cover (rain, threat, night)"
-      ],
-      "base_pose": "boat_steady"
-    },
-    "boat_wedge_berth": {
-      "label": "楔岸夜泊",
-      "duration": 1.6,
-      "loop": false,
-      "applies": "aquatic_marisa",
-      "height": 0.95,
-      "width": 1.025,
-      "faces": [
-        [
-          0,
-          1.05,
-          "chewing_closed"
-        ],
-        [
-          1.05,
-          1.6,
-          "closed_smile"
-        ]
-      ],
-      "lore": "Project original (no rope or knot): nose into a bank notch, two braid shoves at the bank, then sit back on the stern brim so the bow lifts and catches. Pitch -4..+5.",
-      "triggers": [
-        "VoyageController DOCK (night berth)"
-      ],
-      "markers": {
-        "push_1": 0.35,
-        "push_2": 0.9,
-        "press": 1.2
-      },
-      "contacts": {
-        "braid_push": {
-          "bone": "hand_right_tip",
-          "point": [
-            8.5098,
-            0.21227,
-            -4.208
-          ],
-          "kind": "PUSH"
-        }
-      }
-    },
-    "boat_push_off": {
-      "label": "辫子推岸离岸",
-      "duration": 0.8,
-      "loop": false,
-      "applies": "aquatic_marisa",
-      "height": 0.95,
-      "width": 1.025,
-      "faces": [
-        [
-          0,
-          0.25,
-          "neutral"
-        ],
-        [
-          0.25,
-          0.55,
-          "chewing_closed"
-        ],
-        [
-          0.55,
-          0.8,
-          "open_smile"
-        ]
-      ],
-      "lore": "Project original: gather, shove the bank with the braid, ride the glide out.",
-      "triggers": [
-        "VoyageController EMBARK -> AFLOAT"
-      ],
-      "markers": {
-        "push": 0.35
-      },
-      "contacts": {
-        "braid_push": {
-          "bone": "hand_right_tip",
-          "point": [
-            8.5098,
-            0.21227,
-            -4.208
-          ],
-          "kind": "PUSH"
-        }
-      }
-    },
     "boat_cargo_stow": {
       "label": "把粮放进帽冠袋底",
       "duration": 1.0,
@@ -4744,24 +4539,6 @@
         "look_back": 3.8
       },
       "base_pose": "hat_cradle"
-    },
-    "boat_nest_curl": {
-      "label": "帽窝里挤着睡",
-      "duration": 4.0,
-      "loop": true,
-      "applies": "all",
-      "faces": [
-        [
-          0,
-          4.0,
-          "sleep"
-        ]
-      ],
-      "lore": "Project design (ecology design D 3.4): asleep at night in the nest hollow under the mother's chest, pressed low and wide against the hat wall and its siblings with a soft list, breathing slowly; its own little hat knocked a little askew (hat_follow tipped 4 degrees forward and 5 sideways, lifted 0.35 so the brim stays on the hair) and both locks tucked back. Pitch + roll <= 9.",
-      "triggers": [
-        "young in NEST_HOLLOW at night (hat_deck_layout crew)"
-      ],
-      "base_pose": "sleep"
     }
   },
   "flourishes": {

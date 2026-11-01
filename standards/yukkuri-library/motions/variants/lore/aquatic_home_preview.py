@@ -11,8 +11,7 @@ broadside on the braid (right) and the left bank, framed as a 70-degree view at 
 
     python standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py
 
-Writes <MCYUKKURI_PREVIEWS or .local/previews>/aquatic-home/shore.png and index.html, and prints two checks: the young under
-the captain by night, and the larder under her own posed mesh (every resting clip she shows aboard).
+Writes <MCYUKKURI_PREVIEWS or .local/previews>/aquatic-home/shore.png and index.html, and checks the larder under her own posed mesh (every resting clip she shows aboard).
 """
 from pathlib import Path
 import argparse, io, json, math, os, subprocess, sys, zipfile
@@ -170,10 +169,8 @@ class Home:
         load = self.load(crew[:len(crew)-len(dropped)], food, owner); M = T.affine(t=(0, -self.sink(load), 0))
         hull, wet = self.hull(atlas, M); meshes = [hull]+self.larder(atlas, M, food_stock)
         cap = seats[0]; poses = self.deck.get('crew', {})
-        young_in_nest = any(s['kind'] in ('NEST_HOLLOW', 'WELL_FRONT') for s in seats[1:])
         if captain_clip is None:
-            key = 'night_with_young' if night and young_in_nest else 'night' if night else 'day'
-            row = poses.get('captain', {}).get(key) or {'clip': 'boat_cover_young' if night else 'boat_drift'}
+            row = poses.get('captain', {}).get('day') or {'clip': 'boat_drift'}
             captain_clip, captain_face = row['clip'], captain_face or row.get('face')
         x, y, z = cap['pos']
         meshes.append(CAPTAIN.mesh(captain_clip, t, atlas, M@T.world((x*self.k, y*self.k, z*self.k), -cap['yaw']), face=captain_face))
@@ -187,8 +184,8 @@ class Home:
 
 def young_pose(poses, kind, c, night):
     for row in poses.get('young', []):
-        if row['slot'] == kind and c in row['classes']: return row['night' if night else 'day']
-    return {'clip': 'boat_nest_curl' if night else 'hat_cradle', 'face': 'sleep' if night else None}
+        if row['slot'] == kind and c in row['classes']: return row['day']
+    return {'clip': 'hat_cradle'}
 
 
 def rot_x(a):
@@ -305,7 +302,7 @@ def shore_view(az, el, d):
 def shore_sheet(now):
     rows = []
     shots = [(f'粮 {t} 档（{sum(n for _, n in STOCK[t])} 份）\n昼 · 赤油 ×2 在前台阶', ['baby', 'baby'], t, False) for t in (0, 1, 2, 3)]
-    shots += [('粮 3 档\n昼 · 子油 + 赤油', ['child', 'baby'], 3, False), ('粮 3 档\n夜 · 赤油 ×2\n船长俯身盖窝', ['baby', 'baby'], 3, True)]
+    shots += [('粮 3 档\n昼 · 子油 + 赤油', ['child', 'baby'], 3, False)]
     for name, crew, tier, night in shots:
         cells = []
         for vname, az, el, d in SHORE:
@@ -320,39 +317,10 @@ def shore_sheet(now):
           rows, cell=CELL)
 
 
-def under_check(now):
-    """By night the young in the nest hollow stay below the captain bent over them (boat_cover_young): compare the
-    captain's underside with the young's tops column by column from straight below and above."""
-    report = []
-    for crew in (['baby', 'baby', 'baby'], ['newborn']*4, ['small_child'], ['baby', 'baby']):
-        seats, dropped = now.fit(crew, 0, True); M = T.affine(t=(0, -now.sink(now.load(crew, 0)), 0))
-        cap = seats[0]; x, y, z = cap['pos']
-        row = now.deck.get('crew', {}).get('captain', {}).get('night_with_young', {'clip': 'boat_cover_young'})
-        worst = -1e9
-        for t in np.linspace(0, CAPTAIN.posed.clips[row['clip']]['duration'], 7):
-            atlas = HM.Atlas()
-            capm = CAPTAIN.mesh(row['clip'], t, atlas, M@T.world((x*now.k, y*now.k, z*now.k), -cap['yaw']))
-            young = []
-            for c, s in zip(crew, seats[1:]):
-                if s['kind'] not in ('NEST_HOLLOW', 'WELL_FRONT'): continue
-                yr = young_pose(now.deck.get('crew', {}), s['kind'], c, True); sx, sy, sz = s['pos']
-                young.append(now.young_actor().mesh(yr['clip'], t, atlas, M@T.world((sx*now.k, sy*now.k, sz*now.k), -s['yaw'], now.deck['classes'][c])))
-            if not young: continue
-            tex = np.array(atlas.image); view = dict(span=14, center_y=0, center_x=0, center_z=0)
-            _, below, _ = HM.rasterize(capm.reshape(-1, 3, 8), tex, az=0, el=-math.pi/2+1e-4, **view)
-            _, above, _ = HM.rasterize(np.concatenate(young).reshape(-1, 3, 8), tex, az=0, el=math.pi/2-1e-4, **view)
-            # seen from below the picture is flipped top to bottom; depth is -y from below and y from above
-            under, top = np.flipud(-below), above
-            both = np.isfinite(under) & np.isfinite(top)
-            if both.any(): worst = max(worst, float((top-under)[both].max()))
-        report.append((crew, worst))
-    return report
-
-
 def larder_check(now):
     """The larder items against the captain's own posed mesh in every resting clip she shows aboard (crew pose table and the
     agenda's base clips): from straight below her underside, from straight above the items' tops, column by column."""
-    clips = ['boat_drift', 'boat_sleep', 'boat_cover_young', 'boat_steady', 'boat_eat', 'boat_paddle', 'boat_feed_young']
+    clips = ['boat_drift', 'boat_steady', 'boat_eat', 'boat_paddle', 'boat_feed_young']
     report = []
     for tier in (1, 2, 3):
         cap = next(s for s in now.mode['slots'] if s['kind'] == 'CAPTAIN'); x, y, z = cap['pos']
@@ -381,7 +349,6 @@ if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     CAPTAIN = T.Actor('marisa', aquatic=True)
     now = Home(Resources())
-    for crew, worst in under_check(now): print('under-captain check', crew, 'young top minus captain underside, worst column (model units, < 0 is clear):', round(worst, 3))
     for tier, (worst, where) in larder_check(now): print('larder check tier', tier, 'item top minus captain underside, worst column (model units, < 0 is clear):', round(worst, 3), where)
     shore_sheet(now)
     for old in ('home', 'larder', 'crew'):

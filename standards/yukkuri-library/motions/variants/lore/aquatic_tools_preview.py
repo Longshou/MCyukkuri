@@ -278,14 +278,7 @@ def hull_sheet():
 
 def life_sheet():
     rows = []
-    young = Actor('marisa', hat_scale=K)
     seat_z = -(VESSEL['opening'][3]*K-5.9)
-    def cover(atlas, M, t):
-        return [young.mesh('hat_cradle', t, atlas, world((x, VESSEL['bowl']['freeboard']*K-VESSEL['ledge']*SQ*K, seat_z-4.5), 180+20*x, .16)) for x in (-1.6, 1.6)]
-    def bank(atlas, M, t):
-        return [block(atlas, world((-10, -12, -34))), block(atlas, world((-10, -12, -50))), block(atlas, world((6, -12, -34)))]
-    def side_bank(atlas, M, t):
-        return [block(atlas, world((14, -12, -14))), block(atlas, world((14, -12, 2)))]
     def mouthful(clip):
         def place(atlas, M, t):
             m = CAP.posed.clips[clip]['markers']; inside = (0, -VESSEL['ledge']*SQ*K, seat_z-2.0)
@@ -299,13 +292,12 @@ def life_sheet():
         start = np.array([7.5, VESSEL['bowl']['freeboard']*K+.8, seat_z-1])
         p = start if t < m['push'] else tip+[1.2, 0, 0] if t < m['over'] else tip+[3.5, -2.2-6*(t-m['over']), 0]
         return [item(atlas, world(), p)]
-    for clip, times, extra in (('boat_cover_young', (0, .8, 1.6), cover), ('boat_wedge_berth', (0, .35, .9, 1.2, 1.6), bank),
-                               ('boat_push_off', (0, .25, .35, .5, .8), side_bank), ('boat_cargo_stow', (0, .35, .55, 1.0), mouthful('boat_cargo_stow')),
+    for clip, times, extra in (('boat_cargo_stow', (0, .35, .55, 1.0), mouthful('boat_cargo_stow')),
                                ('boat_cargo_fetch', (0, .5, .7, 1.0), mouthful('boat_cargo_fetch')), ('boat_jettison', (0, .3, .45, .7, 1.0), pushed)):
         cells = [label(captain_scene(clip, t, [(1.0, .3, 17, (4, 3, -5))], extra)[0], f'{t:.2f}s {marker_text(clip, t)}') for t in times]
         rows.append((clip, cells))
-    sheet(OUT/'boat-life.png', '船上日常：俯身护子、楔岸夜泊、辫推离岸、帽冠袋放粮／取粮、推出帽檐',
-          '只用辫子、嘴和身体（无绳无结）；岸块、粮与幼油为示意摆放，位置由服务端决定；markers 与 contacts 随片段导出', rows)
+    sheet(OUT/'boat-life.png', '船上日常：帽冠袋放粮／取粮、推出帽檐',
+          '只用辫子、嘴和身体（无绳无结）；粮为示意摆放，位置由服务端决定；markers 与 contacts 随片段导出', rows)
 
 
 def face_sheet():
