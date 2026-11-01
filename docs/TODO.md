@@ -8,7 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船重做（WP5 救援完成） | `.worktrees/aq-wp5-rescue` | Rescue、AquaticGoal 救援段、Grab/Swim/Release、ParentCarry 水中搬运、救援场景 |
+| 水生帽船重做（WP5 救援重做：辫子从船上捞进座位） | `.worktrees/aq-wp5c-rescue` | Rescue、ParentCarry 放下目标、Release、Ferry/SetOut 赤油上船、救援场景 |
 | 水生帽船重做（WP6 船上分娩落座与胎数） | `.worktrees/aq-wp6-birth` | LiveBirth/BirthLaunch 船上分支、水生胎数、AquaticGoal 分娩占用、`birth_boat_*` 场景 |
 
 ## 玩法待办
