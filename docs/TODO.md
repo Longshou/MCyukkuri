@@ -21,7 +21,7 @@
 
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 复测失败·处理中：缓流不漂、不响应水流（`hat_current`）；碰撞后动作一卡一卡；岸上不处理水中帽子（正放或倒扣）、原地哭着 boat call、推近也不动（`self_rescue`、`shore_capsized`）；亲子出航亲油反复放帽、跳上跳下、收帽（`afloat_family`）；魔理沙帽檐托赤油比例过小、只该按大小判放不放得下（不判生长阶段）、易掉落、缺辫子放上动作（`carry_home`）。
-  - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回；嗯嗯奴隶演示失效（`settle_pit_slave`）。
+  - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回。
   - 复测失败·处理中：`carry_home`（出生与成长场地北侧，按钮“亲代运输”）跳转点把玩家卡进墙里；三家都认窝失败、没有接孩子：赤油 `[home] assignment refused … reachable=true occupied=true`（窝被亲油占着）、`child separation lost=true sameNest=false`，`family search started target=null` 一刻即停，无 `carry lift started`；母魔理沙营养 9。日志副本 `.local/reports/carry_home/session-2026-11-02-0221.log`（运行 4064a9234，02:21–02:22）。
   - 美术·排队：佩妮佩妮还原到圆润化之前的版本（撤回“圆润外形”要求）；茎生消耗个体的美术表现接入现有营养／体力消耗；魔理沙辫子划船呈倒 U、根部单薄，改为自然下垂、末梢向外发力。
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈（版本待核实）；E8 陆地接生射线命中帽实体返回 `cradle_status`，赤油被遮住。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮与推晃；`[hat-input]`、`hat use received/result` 显示物资只扣一次。
@@ -310,7 +310,7 @@
   - **族长空缺后的交接**：已接入待试玩（[族规与继任](FEATURES.md#聚落族规与迁徙)）。完成：`colony_hunt`、`colony_ration`、`colony_migrate` 手动杀死原族长后，公仓实物仍可取、救急盘点不重复份额、召集中断不算空猎、已出发猎手返程交粮、迁徙继续、候选会合在吃饭／照护中暂停后累计完成；无合格成体时保持空缺、真实缺粮仍有后果。水上接力须在实际水上聚落迁徙中杀死引导船主，确认接力者驾驶自有帽船、未搬走死者船货且抵达后才换公仓；陆地场景不作这项通过证据。
   - `colony_judge` 族规·审判：陆 32（45）逐案走近、相向听审再裁决。
   - **野外嗯嗯坑与山脚穴居聚落**：已接入待试玩（[聚落场地](FEATURES.md#聚落族规与迁徙)、[群系适居](FEATURES.md#聚落族规与迁徙)）。首版 [98b93c71](https://github.com/Longshou/MCyukkuri/commit/98b93c71) 美术复审不通过（缓坡家洞像土屋、土柱），已改后复审通过；收尾项：补土约每两格降一格、门前只一格砾石、倒木两三格长、坑约 4×3／6×3。完成：`settle_forest`（村）、`settle_taiga`、`settle_cherry`、`settle_hills`、`settle_savanna` 家洞挖进北侧坡、洞口朝南，补土处顺坡无露土竖墙，坑是低一格凹地，只有可饮水群系有塘；`settle_plains` 洞岸补起；`settle_pit` 去不了时 `toilet pit refused reason=…` 并改用离家 4 格外地面；新开世界聚落只在适居群系坡脚；用户认可外观与如厕行为。
-  - **嗯嗯落块、坑边排泄与嗯嗯奴隶坑中生活**：已接入待试玩（[落块](FEATURES.md#日常生态)、[奴隶](FEATURES.md#聚落族规与迁徙)）。ac4ba87b（CI `40196337976`）`settle_pit`（21:58）：成员走进坑底排泄、排泄物是掉落物、奴隶只分四分之一口粮；用户据此要求落成有容量分档的方块、奴隶留坑吃排泄物并受羞辱、成员只站坑沿排泄。完成：`settle_pit` 便意升到 90 后成员站坑沿背对坑口排泄，坑格出“嗯嗯”方块、份数档位增加，满 8 份溢到相邻格（`toilet pit edge reached` → `poop placed … overflow`）；`settle_pit_slave` 一只成体成奴隶：留坑，营养≤50 时到份数最多的格吃一份（`pit slave eats droppings`，份数减一、营养 +12、卫生下降），坑空则 `pit slave hungry reason=no_droppings` 且营养继续下降；他人排泄后 `pit mockery`。已知边界：摆脱奴隶身份后的社会处境变化未做（现仅归还原饰物可恢复）；不提供玩家强迫食糞；玩家放下的废物仍落“地面零碎”、奴隶不吃；`alley-sniff` 仍只找掉落的废物；住所内部排泄仍是掉落物。
+  - **嗯嗯落块、坑边排泄与嗯嗯奴隶坑中生活**：已接入待试玩（[落块](FEATURES.md#日常生态)、[奴隶](FEATURES.md#聚落族规与迁徙)）。ac4ba87b（CI `40196337976`）`settle_pit`（21:58）：成员走进坑底排泄、排泄物是掉落物、奴隶只分四分之一口粮；用户据此要求落成有容量分档的方块、奴隶留坑吃排泄物并受羞辱、成员只站坑沿排泄。完成：`settle_pit` 便意升到 90 后成员站坑沿背对坑口排泄，坑格出“嗯嗯”方块、份数档位增加，满 8 份溢到相邻格（`toilet pit edge reached` → `poop placed … overflow`）；`settle_pit_slave` 一只成体成奴隶：留坑，营养≤50 时到份数最多的格吃一份（`pit slave eats droppings`，份数减一、营养 +12、卫生下降），坑空则 `pit slave hungry reason=no_droppings` 且营养继续下降；他人排泄后 `pit mockery`。已知边界：摆脱奴隶身份后的社会处境变化未做（现仅归还原饰物可恢复）；不提供玩家强迫食糞；玩家放下的废物仍落“地面零碎”、奴隶不吃；`alley-sniff` 仍只找掉落的废物；住所内部排泄仍是掉落物。2026-11-02 反馈的“演示失效”是 634e32879 把两个坑场景的 `spot` 丢了，锚点落到群系地块中缝、坑被规划到邻块山顶（`pit slave return failed reason=no_path pit=(-766,72,507)`）；已改回森林地块锚点，两场景补了 smoke 核对。
 - **日常草地**：`meet` 已建立关系的两只个体普通问候与蹭蹭。
 - **出生与成长**
   - `birth_land_caught`、`birth_land_reunion`、`birth_land_missed` 陆地接生：陆 25（41）复测失败，按“出生与成长”反馈 3 复测，不能以真实入帽算整链通过；临产出窝与大窝生产见反馈 4。
