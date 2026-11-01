@@ -281,6 +281,9 @@
 - **P0-8 规则翻船与扶正（WP3）**：已接入待试玩；[规则](FEATURES.md#水生魔理沙)。
   `shake_capsize`（两只不同体型赤油）、`hat_push`、`hat_turbulence`：三类触发、先摇后翻、乘员落水及物品守恒；`hat_current` 只漂。
 - **P0-9 船上分娩与新生护理**：已接入待试玩（WP6）。`birth_boat_caught` → 母油留座、新生儿坐进空座、嚼糜喂、首便在后帽檐朝水；`birth_boat_missed` 为座位已满的容量边界（落水须建事件，亲油自己决定救不救，没救起则溺亡并哀悼）；水生胎数 1–2、偶尔 3。
+- **P0-10 子油船上互动（WP7）**：已接入待试玩；规则见[水生魔理沙](FEATURES.md#水生魔理沙)。
+  `kid_boat_play`：观察拍水、学划、拨粮、受惊躲辫与回座，短跳随船且不穿模；核对 `hat.float` 的 play／fear／fall_ins、`social.greet_clicks`，拨粮不耗粮、点击回应、帽檐落水后接真实事件与救援。
+  冒烟待跑（smoke pending）：`kid_boat_play` ×3、`afloat_family`、`sail`、`rescue_child`、`shake_capsize`；客户端试玩期间暂跳过冒烟。
 - **P0-11 帽船即家的基础演出（WP3）**：已接入待试玩。
   `hat_float` 静水不翻、轻摆跟船，`hat_swap` 戴帽／放帽同大，`shore_capsized` 倒扣稳定；排座复看 P0-3，陆地帽落水下沉且陆地接生不受影响。
 - **P0-12 不卡死**：任一水上场景跑满 10 分钟 → `/yukkuri aqdiag on` 下无持续同一阶段超时的个体；超时有 `ended reason=timeout/stalled` 与真实结果；辫子不会一直伸着。
