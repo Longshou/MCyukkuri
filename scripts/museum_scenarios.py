@@ -1475,6 +1475,25 @@ colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读迁徙完成条件', 'yukkuri settlement rules')])
 
+# Three real households with their nest, the babies ~8 blocks out: the RETRIEVE carry (ParentCarry.purposeFor), no march needed.
+_carry_families = [('marisa', -10, 4, 1.2), ('reimu', 0, 3, 1.0), ('chen', 10, 2, 1.0)]
+_carry_lines = []
+for _kind, _fx, _n, _size in _carry_families:
+    _par = uid('carry_home', _kind)
+    _fam = f'Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,Maturity:336000L,Lifespan:1056000L,AdultScale:{_size}f,Scale:{_size}f'
+    _carry_lines += [*shed(_fx, 0), yk_on_nest(_kind, _fx, 0, f'{_kind}_parent', fam=_fam, yaw=0, uuid=_par, lead=_kind == 'reimu', nutrition=95),
+                     home(f'{_kind}_parent', _fx, 0)]
+    for _i in range(_n):
+        _carry_lines += [yk(_kind, _fx - (_n - 1) / 2 * 1.2 + _i * 1.2, 8, f'{_kind}_baby', stage='baby', uuid=uid('carry_home', f'{_kind}_{_i}'),
+                            yaw=180, nutrition=95, kin=f'Mother:{uuid_nbt(_par)}'),
+                         home(f'{_kind}_baby', _fx, 0)]
+add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代运输',
+    '三家各有自己的窝，赤油在约 8 格外：魔理沙（1.2 倍）、灵梦、橙各自走去把孩子接回窝边，不需要迁徙。魔理沙帽檐坐满后再叼，灵梦口含多只，橙两条尾巴各托一只',
+    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(0, 16),
+    note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
+    reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
+    smoke=dict(ticks=1800, expect=[r'\[family\][^\n]* carry lift started\b', r'\[family\][^\n]* carry pickup hold=', r'\[family\][^\n]* carry put down\b']))
+
 # ---- commodification
 STOCK = '@e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"stock"}}}]'
 CORE_FILLING = 'mcyukkuri:core_filling[minecraft:custom_data={FillingVersion:1,Composition:"core",Method:"core",Nutrition:10,Sweetness:90,Odor:0,Variant:"reimu"}] 2'
@@ -2049,7 +2068,7 @@ TOPICS = {
     'den_family': 'W1', 'widow_family': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'indep_far': 'W3', 'den_move': 'W4', 'forage': 'W5', 'graze': 'W6', 'pet_birth': 'W7', 'den_barrier': 'W8',
     'sleep': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'meal': 'D1', 'toilet': 'F5', 'hurt': 'F3', 'hurt_kin': 'F3',
     'birth_land_caught': 'F1', 'birth_land_reunion': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'hop': 'F2', 'growth': 'F4',
-    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'infant_starvation': 'F2',
+    'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
     'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'swaddle_styles': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',

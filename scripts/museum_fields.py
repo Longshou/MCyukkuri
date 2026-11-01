@@ -338,7 +338,7 @@ class Family(Field):
         cx, cz = self.cx, self.cz
         self.spots = {'land_caught': (cx - 24, cz - 8), 'land_missed': (cx - 8, cz - 8), 'pet_birth': (cx + 8, cz - 8), 'feed': (cx + 24, cz - 8),
                       'first_toilet': (cx - 24, cz + 8), 'hop': (cx - 8, cz + 8), 'hurt_kin': (cx + 8, cz + 8), 'growth': (cx + 24, cz + 8),
-                      'leaf_swaddle': (cx - 10, cz + 18)}
+                      'leaf_swaddle': (cx - 10, cz + 18), 'carry_home': (cx, cz - 17)}
         self.anchor = self.spots['land_caught']
 
     def features(self):
@@ -348,7 +348,7 @@ class Family(Field):
             x, z = rng.randint(self.x1 + 2, self.x2 - 2), rng.randint(self.z1 + 2, self.z2 - 2)
             if all(abs(x - sx) > 5 or abs(z - sz) > 5 for sx, sz in self.spots.values()):
                 out.append(f'setblock {x} {FEET} {z} ' + rng.choice(['minecraft:dandelion', 'minecraft:poppy', 'minecraft:short_grass', 'minecraft:short_grass']))
-        return out + scatter_trees(self, 8, 13, keep_out=0, margin=3, avoid=[(sx - 5, sz - 5, sx + 5, sz + 5) for sx, sz in self.spots.values()])
+        return out + scatter_trees(self, 8, 13, keep_out=0, margin=3, avoid=[(sx - 5, sz - 5, sx + 5, sz + 5) for sx, sz in self.spots.values()] + [(self.spots['carry_home'][0] - 14, self.spots['carry_home'][1] - 5, self.spots['carry_home'][0] + 14, self.spots['carry_home'][1] + 11)])
 
 
 class Weather(Field):
