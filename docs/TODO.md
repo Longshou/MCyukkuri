@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 水生帽船重做（WP2 储粮计数与帽底贴图） | `.worktrees/aq-wp2-food` | HullLarder/渲染、Provision/Care 取粮、Rescue 腾位、`cargo`/`rescue_infant_full` 场景 |
 | 水生帽船睡莲叶帽型与粮食贴图（美术） | `.worktrees/aq-lilypad-art` | aquatic-marisa-hat 制作源与导出、粮食分档贴图、hull gate 工具 |
+| 美术素材整理（删除未用旧素材） | `.worktrees/art-cleanup` | `standards/yukkuri-library/drafts/block-hat-boat`、predator/wild-shelters 旧导出、预览目录 |
 
 ## 玩法待办
 
