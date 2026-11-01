@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 水生帽船重做（WP7 子油船上互动） | `.worktrees/aq-wp7-play` | AquaticGoal 幼体在船欲望、Behaviors/YukkuriAction 子油片段、玩家点击问候、`kid_boat_play` 场景 |
 
 ## 玩法待办
 
