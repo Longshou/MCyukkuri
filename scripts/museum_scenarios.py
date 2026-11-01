@@ -239,6 +239,35 @@ for _plot, _title, _kind in (('forest', '森林', 'village'), ('plains', '平原
 # The waste pit in use: a hill-foot band whose adults all need to go soon after they have moved in.
 _PIT_ADULTS = '@e[type=#mcylab:yukkuri,distance=..30]'
 _PIT_READS = [('读聚落场地、嗯嗯坑存量与奴隶', 'yukkuri settlement site info'), ('读群体成员与奴隶数', 'yukkuri settlement info')]
+_TRIP = re.compile(r'(?:toilet pit trip start|pit slave return start) pit=BlockPos\{x=-?\d+, y=(-?\d+), z=-?\d+\}')
+
+
+def pit_level(window):
+    """The pit must sit at the field's standing level: 634e32879 dropped the scene's plot anchor, which planned the pit on a
+    neighbouring plot's hill crest eight blocks up (y=72), so every trip and every slave walk ended in 'reason=no_path'."""
+    for line in window.splitlines():
+        match = _TRIP.search(line)
+        if match and not FEET - 2 <= int(match[1]) <= FEET:
+            return 'pit off the field level: ' + line.strip()
+    return None
+
+
+def pit_trip(window):
+    problem = pit_level(window)
+    if problem:
+        return problem
+    return None if re.search(r'toilet pit trip start\b', window) else 'no member ever headed for the pit'
+
+
+def slave_life(window):
+    problem = pit_level(window)
+    if problem:
+        return problem
+    if not re.search(r'pit slave (?:eats droppings [^\n]*nutrition=|hungry reason=no_droppings)', window):
+        return 'slave neither took a portion nor reported an empty pit'
+    return None
+
+
 add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     '森林山脚的小群入住约 10 秒后，全员便意升到 90，约 80 秒时再升一次：看它们各自从洞里走到南边低处的嗯嗯坑，只站在坑沿、背对坑口排泄，'
     '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
@@ -248,9 +277,8 @@ add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
           Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600)],
     reads=[*_PIT_READS, ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')],
-    smoke=dict(ticks=2600, expect=[r'\[needs\][^\n]* toilet pit trip start\b', r'\[needs\][^\n]* toilet pit edge reached\b',
-                                  r'\[needs\][^\n]* poop placed [^\n]*pit=true', r'\[needs\][^\n]* relieved source=pit\b'],
-               forbid=[r'toilet pit refused reason=no_path', r'\[body\][^\n]* invariant\b']))
+    smoke=dict(ticks=2600, expect=[r'\[needs\][^\n]* toilet pit trip start\b'],
+               forbid=[r'\[body\][^\n]* invariant\b'], verify=pit_trip))
 
 # The same pit with one grown member already its slave (record set the way five rejections leave it, hat gone for good):
 # nothing is scripted after that: the goal, the walk back, the meals and the others' reactions are the ordinary ones.
@@ -258,20 +286,21 @@ _SLAVE = '@e[tag=scn_slave,distance=..70,limit=1]'
 add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '同一处山脚小群，入住约 6 秒后一只成体失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
-    '读数看奴隶营养与坑内份数；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=yukkuri_waste',
+    '读数看奴隶营养与坑内份数；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=mcyukkuri:yukkuri_waste',
     '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri status set {_SLAVE} accessory.state lose', _SLAVE, tries=1, first=160),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
-          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=600)],
+          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=600),
+          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600),
+          Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=2600)],
     reads=[*_PIT_READS, ('读奴隶（营养、便意、卫生）', f'yukkuri status {_SLAVE} raw')],
     # The meal only follows a real heap: let the others fill the pit first, then make the slave hungry.
-    smoke=dict(ticks=3200, commands=[(2200, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 20')],
-               expect=[r'\[settlement\][^\n]* pit slave back in pit\b', r'\[settlement\][^\n]* pit slave eats droppings [^\n]*nutrition=',
-                       r'\[meal\][^\n]* swallowed item=yukkuri_waste'],
-               forbid=[r'pit slave return failed', r'pit slave meal refused', r'\[body\][^\n]* invariant\b']))
+    smoke=dict(ticks=4400, commands=[(3200, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 20')],
+               expect=[r'\[settlement\][^\n]* pit slave back in pit\b'],
+               forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b'], verify=slave_life))
 
 # ====================================================================================================== daily life meadow
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [

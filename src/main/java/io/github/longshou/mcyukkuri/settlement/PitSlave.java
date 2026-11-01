@@ -107,10 +107,11 @@ public final class PitSlave {
             return false;
         }
         var cell = heap.getBlockPos();
-        if (entity.position().subtract(Vec3.atBottomCenterOf(cell)).horizontalDistanceSqr() > .36) {
+        var heapCentre = Vec3.atBottomCenterOf(cell);
+        if (entity.position().subtract(heapCentre).horizontalDistanceSqr() > .36) {
+            // Both stand in the same dip: a short surface step, no path search out of and back into the hollow.
             phase = Phase.EAT;
-            if (ticks % 10 == 1 && !entity.life().travel(cell, 1.0))
-                GameplayLog.limited(entity, "settlement", "pit_eat_path", 600, "pit slave meal refused reason=no_path heap={}", cell);
+            SurfaceApproach.walk(entity, heapCentre, 1.0);
             return true;
         }
         SurfaceApproach.halt(entity);
