@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船救援评审修正（WP5c） | `.worktrees/aq-wp5c-rescue` | ParentCarry/Grab/Release 陆地契约、SetOut/Rescue、救援场景与文档 |
 
 ## 玩法待办
 
