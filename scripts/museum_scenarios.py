@@ -1961,7 +1961,8 @@ def _rescue_smoke(sid, slot):
         return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
     child, parent = text(slot), text('a')
     return [rf'\[incident\][^\n]* open id=water#[^\n]*subject={child}',
-            rf'\[incident\][^\n]* decide id=(?P<incident>water#\S+) helper={parent} requester={child} [^\n]*accepted=(?:false'
+            rf'\A(?=[\s\S]*?\[incident\][^\n]* open id=(?P<incident>water#\S+) [^\n]*subject={child})'
+            rf'[\s\S]*\[incident\][^\n]* decide id=(?P=incident) helper={parent} requester={child} [^\n]*accepted=(?:false'
             rf'|true[\s\S]*rescue start faller={child} incident=(?P=incident)\b'
             rf'[\s\S]*\[action\][^\n]* start id=grab [^\n]*target={child}'
             rf'[\s\S]*\[family\][^\n]* carry grip [^\n]*uuid={child}'

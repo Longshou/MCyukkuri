@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
@@ -30,8 +29,8 @@ final class Ferry {
     /** A continuous chase from the captain seat, then the shared braid pickup and set-down. */
     static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> ContactGeometry.inBraidReach(carrier, child) ? null : act(new Paddle(child::position,
-                distance -> !child.isAlive() || child.isPassenger() || ContactGeometry.inBraidReach(carrier, child))));
+        steps.add(() -> BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
+                distance -> !child.isAlive() || child.isPassenger() || BraidFetch.withinReach(carrier, child))));
         steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }

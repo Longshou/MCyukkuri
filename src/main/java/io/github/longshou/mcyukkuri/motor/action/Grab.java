@@ -82,7 +82,7 @@ public final class Grab implements Action {
             if (seat == null || !seat.available(target)) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
             String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false);
             if (problem != null) return refusal(problem);
-            chosen(Hold.BRAID, false, 0);
+            chosen(Hold.BRAID, false, Double.NaN);
             lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
             way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
             rejected = "destination_braid";
@@ -150,14 +150,14 @@ public final class Grab implements Action {
         if (destination == null && moved > DRIFT) return Outcome.of(Reason.TARGET_MOVED, moved, String.format(Locale.ROOT, "moved=%.2f", moved));
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
-        if (destination != null && ticks == BraidFetch.marker(BraidFetch.REACH, "contact") && !ContactGeometry.inBraidReach(carrier, target))
-            return Outcome.of(Reason.NO_CONTACT, 0, "braid_contact_out_of_reach");
+        if (destination != null && ticks == BraidFetch.marker(BraidFetch.REACH, "contact")) {
+            gap = Math.min(ContactGeometry.braidGap(carrier, target, false), ContactGeometry.braidGap(carrier, target, true));
+            if (gap > 0) return Outcome.of(Reason.NO_CONTACT, gap, "braid_contact_out_of_reach");
+        }
         // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
-        // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
-        if (destination == null && target.isInWaterOrBubble() || target.operations().active())
-            return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
+        if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
         var seat = destination == null ? null : destination.seatDestination(target);
         if (destination != null && seat == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat");
@@ -191,7 +191,7 @@ public final class Grab implements Action {
     private static Feasibility refusal(String problem) {
         Reason reason = switch (problem.split("/")[0]) {
             case "dead", "level" -> Reason.TARGET_GONE;
-            case "too_big", "stage", "carrier_kind", "pregnant", "not_baby" -> Reason.TOO_HEAVY;
+            case "too_big", "stage", "carrier_kind", "pregnant" -> Reason.TOO_HEAVY;
             default -> Reason.NO_ROOM;
         };
         return Feasibility.of(reason, 0, problem);

@@ -81,6 +81,7 @@ public final class ParentCarry {
      * {@code R} and re-lift pause {@code P}), and for a Grab's target still being lifted its entity id {@code I} and low lean
      * {@code L}; a braid-tip child's way out ({@link #braided}) adds {@code T}, {@code Y}, {@code A}, {@code PX}/{@code PY}/{@code PZ} and {@code PH}.
      * A mouth lift shares the start and height keys, with duration {@code U}; a lowering's duration is {@code N}.
+     * An admitted set-down destination uses host {@code S} and local {@code DX}/{@code DY}/{@code DZ}.
      * Synced, and saved with the family.
      */
     public static final SyncSlot<CompoundTag> HOLDS = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
@@ -179,6 +180,7 @@ public final class ParentCarry {
     public static double pinned(YukkuriView carrier, YukkuriView child, Vec3 feet) {
         var e = entry(carrier, child.getUUID());
         if (!e.contains("S") || !(carrier.level().getEntity(e.getInt("S")) instanceof SurfaceHost host)) return feet.y;
+        if (e.contains("DX") && e.contains("D")) return Math.max(feet.y, letGoPoint(carrier, child, carrier.bodyYaw()).y);
         double top = Occupancy.surfaceUnder(host, child.getBbWidth(), feet);
         return top > feet.y && (e.getBoolean("SO") || top - feet.y <= PIN) ? top : feet.y;
     }
