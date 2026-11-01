@@ -1930,6 +1930,27 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=']))
 
+pond('kid_boat_play', '子油在亲船上玩耍', '拍水·学划·拨粮·躲辫',
+     '亲油与一只小子油已坐在静水帽船里，帽里有一根木棍、四份苹果。玩家从岸边看子油学亲油划水、拨弄储粮，或跳上帽檐拍水后回座；空手右击孩子看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得孩子躲到亲油辫子旁，平静后回座；孩子在帽檐上时把船摇到剧烈摇摆，会真实落水',
+     '约 2–3 分钟；可用本场天气按钮观察受惊',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
+         uuid=uid('kid_boat_play', 'a'), **pair_ready()),
+      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family()),
+      afloat('a', water_at(0, 3), True, sel('c1'), food=4, stick=True)],
+     note='读 hat.float 的 play：四种动作开始次数、fear_* 原因次数、fall_ins；读 social.greet_clicks 看点击次数，body.attach 看实际帽内坐标。'
+          '拍水与躲辫经可见短跳，始终随船移动；返回时重新检查座位，座被占就留在帽檐。拨粮不扣粮，饿后才走原地进食。'
+          '点击孩子与点击空帽檐不同：前者问候，后者摇船。落水看 [aquatic] play fall_in cause=hard_rock，随后由真实落水事件与亲油救援接手；准备入座不算行为成功。' + _DESIRE_NOTE,
+     reads=[('读子油动作与点击', f'yukkuri status {sel("c1")} raw'),
+            ('读四种玩法与落水计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
+     smoke=dict(ticks=2400, commands=[(1800, 'weather thunder'), (1860, 'weather clear')],
+                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
+                        r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle|poke_stores) start\b',
+                        r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle|poke_stores) end result=DONE\b',
+                        r'\[aquatic\][^\n]* play kind=kid_hide_behind start fear=thunder\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* play fall_in\b',
+                        r'\[aquatic\][^\n]* play kind=[^\n]* end result=(?:EXHAUSTED|LOST)\b'],
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
+
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',
      '亲油和一只小子油在离岸 3 格的帽子上，帽里有木棍、没有粮，亲油已经饿了：她划回岸边；孩子先跳到干地，亲油随后上岸，把空帽子收回戴上',
      '约 1 分钟',
@@ -2099,7 +2120,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
     'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
     'hatless_monster': 'C2', 'hatless_sanction': 'C2', 'puff_response': 'C2',

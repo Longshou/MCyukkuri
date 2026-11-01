@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -42,7 +43,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
     /** Observed play events only; no decisions read these counters and they are not saved. */
-    private final Map<String, Integer> playCounts = new TreeMap<>();
+    private final Map<String, Integer> playCounts = new TreeMap<>(Map.of(Behaviors.KID_BRIM_SPLASH, 0,
+            Behaviors.KID_MIMIC_PADDLE, 0, Behaviors.KID_POKE_STORES, 0, Behaviors.KID_HIDE_BEHIND, 0, "fall_ins", 0));
     void playEvent(String kind) { playCounts.merge(kind, 1, Integer::sum); }
     boolean brimFall() { return HullPresentation.brimFall(phase.name()); }
     private enum Phase { UPRIGHT, ROCKING, FLIPPING, INVERTED }
