@@ -249,8 +249,7 @@ def hydro(hull, loads, max_iter=80):
         if abs(e[0]) < 1e-6 and abs(e[1]) < 1e-6: break
         # Newton step on the measured slopes: a fixed gain overshoots once the waterplane is wide (spread basin)
         J = np.c_[(error(a+d, b)-e)/d, (error(a, b+d)-e)/d]
-        try: step = np.linalg.solve(J, e)
-        except np.linalg.LinAlgError: step = .8*e
+        step = np.linalg.solve(J, e)
         k = min(1., .2/max(1e-9, float(np.hypot(*step)))); a -= k*step[0]; b -= k*step[1]
         if abs(a) > 1.2 or abs(b) > 1.2: break
     h = level(a, b)
@@ -262,9 +261,11 @@ def hydro(hull, loads, max_iter=80):
                 floods=least <= 0 or abs(a) > 1.2 or abs(b) > 1.2, G=(G*16).round(2).tolist())
 
 
-def flood_angle(hull, loads, direction):
-    """The heel (degrees) toward a horizontal direction (radians, hull frame) at which the rim first meets the water, the
+def flood_angle(hull, loads):
+    """The heel (degrees) toward the load's static heel at which the rim first meets the water, the
     hat holding the same displaced volume: how far a load's static heel is from turning it over."""
+    settled = hydro(hull, loads)
+    direction = math.atan2(math.tan(math.radians(settled['pitch'])), math.tan(math.radians(settled['roll']))) if settled['heel'] > .05 else 0.
     s = 1/16; cell = (GRID.step*s)**2
     bot = np.where(np.isfinite(hull.low), hull.low*s, np.nan); top = np.where(np.isfinite(hull.top), hull.top*s, np.nan)
     ok = np.isfinite(bot) & np.isfinite(top)

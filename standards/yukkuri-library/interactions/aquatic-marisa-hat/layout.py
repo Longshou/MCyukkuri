@@ -169,8 +169,7 @@ def place_all(combo, period, stores, at, rule='circle'):
                                   braid=reaches, braid_dist=None if dist is None else round(dist, 2),
                                   covered=covered, clearance=None if clearance is None else round(clearance, 2)))
     h = S.hydro(hull, loads)
-    direction = math.atan2(math.tan(math.radians(h['pitch'])), math.tan(math.radians(h['roll']))) if h['heel'] > .05 else 0.
-    flood = S.flood_angle(hull, loads, direction)
+    flood = S.flood_angle(hull, loads)
     load = sum(p['load'] for p in out['placed'])+(2 if pregnant else 0)+.5*stores
     out.update(fits=fits, load=load, hydro=h, flood=flood, ratio=round(h['heel']/max(flood, 1e-6), 3),
                upright=not h['floods'] and h['heel'] < STEADY*flood)

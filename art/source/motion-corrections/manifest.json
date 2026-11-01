@@ -18,8 +18,8 @@
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
   "hat_vessel_sha256": "8cae993aab65d86d731473e1f3960a194a99bfd4b3146019e1c02d79b2a85762",
   "aquatic_inputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "761331b326fbdab7d21bafd26d4343c3308d85c0e60b714b09139f23cb91aa63",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "c8940979d4435810207aa2b81dd963b69d4e1a0f2a275249880194ce67991306",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "68e565c6f7897b6412c621766f93e0bc5afbb62ed32fb69b7b4fb38fe45dd485",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "a77345eb147aa9c6863aeb8debc2c90e259f2a0538741f6c67539829bfd5c8ce",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_geometry.json": "7d8a902b47bb88425792d8b0193e274870c4bcaa7c4721b98dd711c7b1fad201"
   },
