@@ -1,7 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -12,33 +12,28 @@ import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
-import io.github.longshou.mcyukkuri.motor.action.Release;
+import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 /**
- * The short runs of shared actions the aquatic intents put a body through to get itself, or a young it carries, on and off a hat
- * (Grab, Walk, Hop, Release; the young is carried in the mouth as {@code Fetch} carries it): every target
+ * The short runs of shared actions for boarding, leaving and fetching a young from the captain seat: every target
  * is read when its step is due. A step that cannot be done ends blocked and the intent's runner counts it; nothing here retries.
  */
 final class Ferry {
-    /** The family pickup's walking pace (Fetch's). */
-    private static final double PACE = 1.1;
-
     private Ferry() {}
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** Ashore: walk to the stand beside the young the family pickup uses, face it, take it in the mouth. */
-    static List<Supplier<Step>> grabAshore(YukkuriEntity carrier, YukkuriEntity child) {
-        return List.of(() -> {
-                    if (new Grab(child).check(carrier).ok()) return null;
-                    var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) * .5 + .15, 1.2);
-                    return stand == null ? null : act(Walk.stand(stand, PACE));
-                },
-                () -> act(new Face(SurfaceApproach.yaw(carrier.position(), child.position()))),
-                () -> act(new Grab(child)));
+    /** A continuous chase from the captain seat, then the shared braid pickup and set-down. */
+    static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
+        var steps = new ArrayList<Supplier<Step>>();
+        steps.add(() -> ContactGeometry.inBraidReach(carrier, child) ? null : act(new Paddle(child::position,
+                distance -> !child.isAlive() || child.isPassenger() || ContactGeometry.inBraidReach(carrier, child))));
+        steps.addAll(BraidFetch.steps(carrier, child, hat));
+        return steps;
     }
 
     /** The two seats are within the shared pickup's reach; turning does not move either rider. */
@@ -85,18 +80,4 @@ final class Ferry {
         };
     }
 
-    /** Aboard with the young held: turn the hold (the mouth, or the braid side) to the hollow's middle, let the hat settle, put it
-     *  down where it hangs (it drops in). */
-    static List<Supplier<Step>> releaseAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        return List.of(() -> act(new Face(ParentCarry.hold(carrier, child).reach() == ContactGeometry.Reach.BRAID
-                        ? ContactGeometry.braidYaw(carrier, hat) : SurfaceApproach.yaw(carrier.position(), hat.position()))),
-                () -> hat.steady() ? null : new Step.Wait(hat::steady, 60, "hat_settles"),
-                () -> act(new Release(child)), landed(child));
-    }
-
-    /** After a let-go: until the released body has come down somewhere (a hat, the ground, the water), so the next step reads
-     *  where it is rather than where it falls through. */
-    static Supplier<Step> landed(YukkuriEntity child) {
-        return () -> new Step.Wait(() -> !child.isAlive() || child.isPassenger() || child.onGround() || child.isInWaterOrBubble(), 40, "landing");
-    }
 }

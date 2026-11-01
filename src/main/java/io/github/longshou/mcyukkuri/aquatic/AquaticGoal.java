@@ -22,7 +22,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,8 +58,6 @@ final class AquaticGoal extends Goal {
     private Map<UUID, Long> left;
     /** Young she comforted, until when (ticks): a young still cold or gasping is comforted again only after a while. */
     private Map<UUID, Long> comforted;
-    /** Rescue runs that tried a way and failed, by incident (three and she is done with it). Bounded, never saved. */
-    private Map<String, Integer> rescueFailures;
     /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
     private long voyageAfter;
 
@@ -131,7 +128,7 @@ final class AquaticGoal extends Goal {
     // ---------------------------------------------------------------- desires (one evaluation reads the world once)
     private List<Desire> desires() {
         var out = new ArrayList<Desire>();
-        if (body.family().adult()) { if (HatProp.usable(body) && !body.life().custody().lost()) owner(out); }
+        if (body.family().adult()) { help(out); if (HatProp.usable(body) && !body.life().custody().lost()) owner(out); }
         else young(out);
         return out;
     }
@@ -154,7 +151,6 @@ final class AquaticGoal extends Goal {
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
         var young = AquaticLife.young(body);
-        help(out);
         if (!aboard) {
             boolean nearStick = !stick && Waters.stick(body, 10, true) != null;
             double noStick = stick || nearStick ? 0 : num("stick_need", 50);
@@ -214,9 +210,8 @@ final class AquaticGoal extends Goal {
         else for (var y : AquaticLife.young(body)) {
             String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
             if (id == null) continue;
-            var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id, this::rescueFailed), id);
-            var hat = AquaticLife.hat(body);
-            String refusal = hat == null ? "no_hat" : hat.seatDestination(y) == null ? "no_seat" : null;
+            var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
+            String refusal = Rescue.refusal(body, y);
             var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0, body.getRandom()::nextDouble, body);
             if (decision != null && !decision.accepted()) GameplayLog.limited(body, "aquatic", "rescue_refused", 200,
                     "rescue refused faller={} incident={} reason={}", y.getUUID(), id, refusal == null ? "declined" : refusal);
@@ -224,22 +219,10 @@ final class AquaticGoal extends Goal {
         }
     }
 
-    /** The world a failed rescue waits on: the incident, whether she rides her hat, where the faller is. */
+    /** One desire for the accepted incident, kept until its performance ends. */
     private Desire rescue(YukkuriEntity faller, String incident, Ask ask) {
         return new Desire("rescue", num("rescue_want", 95), 0, true, List.of(incident, AquaticLife.riding(body) != null, faller.blockPosition()),
                 () -> "faller=" + faller.getUUID() + " incident=" + incident, () -> ask == null ? null : ask.intent(body));
-    }
-
-    /** A rescue run that tried and failed: after {@code rescue_tries} of them she is done with this incident. */
-    private void rescueFailed(String incident) {
-        if (rescueFailures == null) rescueFailures = new LinkedHashMap<>();
-        int failures = rescueFailures.merge(incident, 1, Integer::sum);
-        GameplayLog.event(body, "aquatic", "rescue failed incident={} failures={}", incident, failures);
-        if (failures >= num("rescue_tries", 3)) {
-            rescueFailures.remove(incident);
-            AskLedger.server().ended(incident, body.getUUID(), "EXHAUSTED");
-        }
-        while (rescueFailures.size() > LEFT_MAX) rescueFailures.remove(rescueFailures.keySet().iterator().next());
     }
 
     /** Care for her young aboard: the hungriest that cannot eat by itself and has food aboard for it, her decision accepted (the

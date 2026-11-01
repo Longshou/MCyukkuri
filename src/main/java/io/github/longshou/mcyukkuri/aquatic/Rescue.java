@@ -1,173 +1,61 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
-import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
-import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.motor.Action;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry;
-import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.action.Await;
-import io.github.longshou.mcyukkuri.motor.action.Face;
-import io.github.longshou.mcyukkuri.motor.action.Grab;
-import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
-import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
-import java.util.Set;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-/**
- * Lifting a young of hers out of the water (落水他救; AQUATIC 落水、救助与靠岸), the intent of a helper who
- * accepted the young's incident (one decision per helper and incident, SOFT). The faller keeps working its own way out
- * until it is held; only the one who holds it moves it (a held body takes no second grab). Her ways:
- * <ul>
- *   <li>from her own hat afloat ({@code lift}): paddle near (with her stick; without one she waits for it to drift or swim near), walk
- *       on the hat to the side nearest it, take it with the mouth or the braid tip (Grab picks the hold that reaches), and put it
- *       down over her hollow, where it drops in.</li>
- *   <li>from the bank ({@code from_bank}, ashore): only a faller within reach of an edge she can stand at: walk there, take it, step
- *       back from the water and put it down on the dry ground; she does not go into the water.</li>
- * </ul>
- * A run that tried its way and still ended without the faller out lets go where it holds it and counts one failure for this
- * helper on this incident (the goal ends her part after three, AQUATIC 同一救助者三次后不再尝试); a run that found no way to try
- * keeps her decision open, so she takes the incident up again once she has a way (boards her hat, reaches a bank edge).
- */
+/** One accepted incident: set out if needed, chase from the captain seat, braid-fetch into the child's seat. */
 final class Rescue implements Intent {
-    /** The longest rescue (ticks), the longest wait for the faller to come within reach. */
-    private static final int DEADLINE = 1200, WAIT = 60;
-
     private final YukkuriEntity helper, faller;
     private final String incident;
-    private final Consumer<String> failed;
     private final long started;
-    /** Some way gave a step to take in this run (so an exhausted run is a real failure, not a run with no way). */
-    private boolean acted;
-    private Waters.Edge edge;
-    private double distance;
 
-    Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident, Consumer<String> failed) {
+    Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
         this.helper = helper;
         this.faller = faller;
         this.incident = incident;
-        this.failed = failed;
-        this.started = helper.level().getGameTime();
-        this.distance = helper.distanceTo(faller);
+        started = helper.level().getGameTime();
         GameplayLog.event(helper, "aquatic", "rescue start faller={} incident={}", faller.getUUID(), incident);
+    }
+
+    static String refusal(YukkuriEntity parent, YukkuriEntity child) {
+        var hat = AquaticLife.hat(parent);
+        if (hat != null) return hat.seatDestination(child) == null ? "no_seat" : null;
+        if (!parent.life().custody().worn()) return "no_hat";
+        var size = new HatSeats.Body(child.assetId(), child.growthScale() * child.getScale(), child.getBbWidth(), child.getBbHeight());
+        return HatSeats.admit(parent.growthScale() * parent.getScale(), size, false, List.of()) == null ? "no_seat" : null;
     }
 
     String incident() { return incident; }
     YukkuriEntity faller() { return faller; }
-
     @Override public String id() { return "rescue"; }
-    @Override public long deadline() { return started + DEADLINE; }
-    @Override public Commitment commitment() { return Commitment.SOFT; }
-
-    /** Out of the water and let go of: standing, or aboard (its own feet on a hat, not hanging from her). */
+    @Override public long deadline() { return started + 2400; }
+    @Override public Commitment commitment() { return Commitment.HARD; }
     @Override public boolean satisfied() {
-        return faller.isAlive() && !faller.isInWaterOrBubble() && faller.getVehicle() != helper && (faller.onGround() || faller.isPassenger());
+        return faller.isAlive() && (AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
     }
+    @Override public List<Method> methods() { return List.of(Plan.of("braid_fetch", this::derive)); }
 
-    @Override public List<Method> methods() {
-        return List.of(new Plan("lift", this::aboard, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR, Reason.TARGET_MOVED), () -> acting(lift())),
-                new Plan("from_bank", this::ashore, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TARGET_MOVED), () -> acting(fromBank())));
-    }
-
-    private List<Supplier<Step>> acting(List<Supplier<Step>> steps) {
-        acted |= steps != null && !steps.isEmpty();
-        return steps;
-    }
-
-    private Feasibility aboard() {
-        return AquaticLife.riding(helper) != null ? Feasibility.pass()
-                : Feasibility.of(Reason.NO_SUPPORT, 0, "not_aboard_own_hat");
-    }
-
-    private Feasibility ashore() { return AquaticLife.ashore(helper) ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_ashore"); }
-
-    private static Step act(Action action) { return new Step.Do(action); }
-
-    /** Gone or dead: the grab says so ({@code TARGET_GONE}) and the intent ends lost. */
-    private List<Supplier<Step>> lost() { return List.of(() -> act(new Grab(faller))); }
-
-    private List<Supplier<Step>> lift() {
-        progress();
-        if (!faller.isAlive()) return lost();
-        var hat = AquaticLife.riding(helper);
-        if (hat == null) return null;
-        if (faller.getVehicle() == helper) return Ferry.releaseAboard(helper, hat, faller);
-        if (!faller.waterDistress().escaping()) return landing();
-        var grab = Grab.outOfWater(faller);
-        if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
-        var spot = AquaticLife.spot(hat, helper);
-        BooleanSupplier walk = () -> spot != null && ContactGeometry.reachesFrom(helper, hat.frame().toWorld(spot), faller)
-                && spot.subtract(hat.frame().toLocal(helper.position())).horizontalDistance() >= .1;
-        if (walk.getAsBoolean())
-            return List.of(() -> act(new Walk(hat, spot)), () -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))));
-        var water = Waters.cell(faller.level(), faller.position());
-        if (water == null) return waiting("no_calm_water");
-        if (!AquaticLife.stick(helper)) return waiting("no_stick");
-        var route = Waters.route(hat, water);
-        Waters.log(hat, helper, water, route, id());
-        if (route.isEmpty()) return waiting("no_water_route");
-        // Intermediate cells need a small arrival radius; the final leg ends at real reach, not at the brim's radius.
-        return List.of(() -> act(route.size() > 3 ? new Paddle(Waters.leg(route), .35)
-                : new Paddle(faller::position, remaining -> grab.check(helper).ok() || walk.getAsBoolean())));
-    }
-
-    private List<Supplier<Step>> waiting(String why) {
-        return List.of(() -> act(new Await(() -> Grab.outOfWater(faller).check(helper).ok() || !faller.waterDistress().escaping(),
-                WAIT, Behaviors.BOAT_CALL, "rescue_" + why)));
-    }
-
-    private List<Supplier<Step>> landing() {
-        return List.of(() -> act(new Await(() -> faller.isInWaterOrBubble() || satisfied() || !faller.isAlive(),
-                WAIT, Behaviors.BOAT_CALL, "rescue_faller_airborne")));
-    }
-
-    private void progress() {
-        double now = helper.distanceTo(faller);
-        if (distance - now >= .05) GameplayLog.limited(helper, "aquatic", "rescue.progress", 20,
-                "rescue progress faller={} incident={} distance_before={} distance_after={} last={}",
-                faller.getUUID(), incident, distance, now, helper.motor().lastDetail());
-        distance = now;
-    }
-
-    private List<Supplier<Step>> fromBank() {
-        progress();
-        if (!faller.isAlive()) return lost();
-        if (faller.getVehicle() == helper) {
-            var at = edge;
-            if (at == null) return List.of(() -> act(new Release(faller)));
-            // step back from the water before letting go, so it comes down on the dry ground
-            var inland = at.stand(helper.getBbWidth()).subtract(at.normal().scale(helper.getBbWidth()));
-            return List.of(() -> SurfaceApproach.arrived(helper, inland) ? null : act(Walk.stand(inland, 1)),
-                    () -> act(new Face(at.yaw() + 180)), () -> act(new Release(faller)), Ferry.landed(faller));
-        }
-        if (!faller.waterDistress().escaping()) return landing();
-        var grab = Grab.outOfWater(faller);
-        if (grab.check(helper).ok()) return List.of(() -> act(new Face(SurfaceApproach.yaw(helper.position(), faller.position()))), () -> act(grab));
-        if (edge == null || edge.edge().distanceTo(faller.position()) > 1.5) edge = Waters.edges(helper, faller.position(), 2, false).stream()
-                .filter(e -> SurfaceApproach.arrived(helper, e.stand(helper.getBbWidth())) || SurfaceApproach.canApproach(helper, e.stand(helper.getBbWidth())))
-                .findFirst().orElse(null);
-        if (edge == null) return waiting("no_bank_edge");
-        var stand = edge.stand(helper.getBbWidth());
-        if (!SurfaceApproach.arrived(helper, stand)) return List.of(() -> act(Walk.stand(stand, 1.1)));
-        return List.of(() -> act(grab));
+    private List<Supplier<Step>> derive() {
+        var hat = AquaticLife.hat(helper);
+        if (!AquaticLife.aboard(helper, hat)) return hat == null && !helper.life().custody().worn() ? null
+                : List.of(() -> new Step.Sub(new SetOut(helper, stayed -> {})));
+        return Ferry.fetchAboard(helper, hat, faller);
     }
 
     @Override public void ended(IntentRunner.Result result) {
         boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
         String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : "self_climbed" : result.name();
-        if (faller.getVehicle() == helper && result != IntentRunner.Result.DONE) Release.now(helper, faller, true, "rescue_ended");
+        if (faller.getVehicle() == helper) Release.now(helper, faller, true, "rescue_ended");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
         GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
                 result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());

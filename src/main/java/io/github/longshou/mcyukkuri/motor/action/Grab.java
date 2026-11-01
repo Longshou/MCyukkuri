@@ -48,33 +48,23 @@ public final class Grab implements Action {
     private String rejected;
     private Face turn;
     private Vec3 at;
-    /** A lift out of the water (a rescue): a target in the water is taken; any other grab ends when the target is in the water. */
-    private final boolean outOfWater;
     private final SurfaceHost destination;
     private int ticks, lift, way, held;
     private boolean mounted;
     private long startTick;
 
-    public Grab(YukkuriEntity target) { this(target, false, null); }
-    public Grab(YukkuriEntity target, SurfaceHost destination) { this(target, false, destination); }
-
-    private Grab(YukkuriEntity target, boolean outOfWater, SurfaceHost destination) {
+    public Grab(YukkuriEntity target) { this(target, null); }
+    public Grab(YukkuriEntity target, SurfaceHost destination) {
         if (target == null) throw new IllegalArgumentException("Grab needs a target");
         this.target = target;
-        this.outOfWater = outOfWater;
         this.destination = destination;
     }
-
-    /** The same grab of a body in the water, lifting it out (the caller has decided to rescue it). */
-    public static Grab outOfWater(YukkuriEntity target) { return new Grab(target, true, null); }
 
     @Override public String id() { return ID; }
 
     /** The body being lifted: until it is mounted, a host leaves it where it is. */
     public YukkuriEntity target() { return target; }
 
-    /** It lifts its target out of the water (a rescue). */
-    public boolean outOfWater() { return outOfWater; }
     @Override public SurfaceHost host() { return destination; }
 
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
@@ -166,7 +156,7 @@ public final class Grab implements Action {
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
-        if (destination == null && !outOfWater && target.isInWaterOrBubble() || target.operations().active())
+        if (destination == null && target.isInWaterOrBubble() || target.operations().active())
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
         var seat = destination == null ? null : destination.seatDestination(target);
