@@ -96,7 +96,7 @@ public enum YukkuriAction {
     BRAID_RESCUE_REACH("braid_rescue_reach", 1.1, false),
     BRAID_RESCUE_HOLD("braid_rescue_hold", 1.2, false),
     BRAID_RESCUE_SETTLE("braid_rescue_settle", .9, false),
-    // Brim-dip, mouth-bite redesign (project original, not canon): see docs/AQUATIC_MARISA_IMPLEMENTATION.md.
+    // Brim-dip, mouth-bite redesign (project original, not canon): see docs/FEATURES.md.
     HAT_BRIM_OFFER("hat_brim_offer", 1.2, true),
     HAT_HOP_UP("hat_hop_up", .8, false),
     WATER_BOB_LUNGE("water_bob_lunge", .7, false),

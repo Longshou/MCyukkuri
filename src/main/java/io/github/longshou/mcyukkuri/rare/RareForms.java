@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
 
 /**
- * Behaviour of the appearance forms of komicolle 40720 No.11518905 that need no species of their own (docs/RARE_FORMS.md).
+ * Behaviour of the appearance forms of komicolle 40720 No.11518905 that need no species of their own (docs/FEATURES.md).
  * The forms themselves are {@link Kind} values (saved, synced, inherited through SubspeciesLife.birthFlags).
  *
  * <ul>

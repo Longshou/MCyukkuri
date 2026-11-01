@@ -9,7 +9,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
 /**
- * Pixel-like accessory damage (docs/HEADWEAR.md).
+ * Pixel-like accessory damage (docs/FEATURES.md).
  *
  * <p>The complete accessory mesh stays.  Each front/back/top/bottom box face is split into
  * square cells and a few cells are omitted; side faces stay whole.  The holes get a close-colour

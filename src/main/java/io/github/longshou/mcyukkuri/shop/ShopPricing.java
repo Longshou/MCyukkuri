@@ -6,7 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 
-/** Single quote formula for the shop, buyback and consultation (PET_SHOP.md section 6.2). */
+/** Single quote formula for the shop, buyback and consultation (docs/FEATURES.md section 6.2). */
 public final class ShopPricing {
     public static int price(YukkuriEntity y) {
         var v = y.getVariant();

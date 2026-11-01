@@ -7,7 +7,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 
-/** Per-player time of the last abandonment (game time), kept so the examiner can judge whether the owner can be expected to manage a pet (docs/PET_SHOP.md 3, simple exam). */
+/** Per-player time of the last abandonment (game time), kept so the examiner can judge whether the owner can be expected to manage a pet (docs/FEATURES.md 3, simple exam). */
 public final class AbandonLog extends SavedData {
     /** Three game days. */
     public static final long WINDOW = 72000;

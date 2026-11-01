@@ -26,7 +26,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Factory to shop logistics (docs/HUMAN_WORLD.md): known shopkeeper positions plus pending deliveries. A delivery only holds a custody token; the
+ * Factory to shop logistics (docs/FEATURES.md): known shopkeeper positions plus pending deliveries. A delivery only holds a custody token; the
  * individual stays captive until released exactly once at the shop.
  */
 public final class ShopDeliveries extends SavedData {
@@ -38,7 +38,7 @@ public final class ShopDeliveries extends SavedData {
     private final Map<UUID, GlobalPos> shops = new HashMap<>();
     private final Map<UUID, Long> seen = new HashMap<>();
     private final List<Delivery> pending = new ArrayList<>();
-    /** Unsold stock sent back to a factory: the token waits until the factory worker collects it (docs/PET_SHOP.md section 6.3). */
+    /** Unsold stock sent back to a factory: the token waits until the factory worker collects it (docs/FEATURES.md section 6.3). */
     public record Recall(UUID token, UUID shopkeeper, UUID factory, long shipped) {}
     private final Map<UUID, GlobalPos> factories = new HashMap<>();
     private final Map<UUID, Long> factorySeen = new HashMap<>();

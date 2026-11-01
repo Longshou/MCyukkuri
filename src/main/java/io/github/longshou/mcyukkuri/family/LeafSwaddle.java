@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The leaf swaddle and the swaddled child's bowel care (docs/CHILDHOOD_LIFECYCLE.md, 树叶襁褓与幼体排便照护; project design).
+ * The leaf swaddle and the swaddled child's bowel care (docs/FEATURES.md, 树叶襁褓与幼体排便照护; project design).
  *
  * <p>One component plays both roles. On the child it owns the wrap: whether it is worn and closed, the real leaves inside and
  * the stool loads it holds. On a parent it owns the leaves actually harvested from leaf blocks, the folded wrap and the
@@ -35,7 +35,7 @@ import net.minecraft.world.phys.Vec3;
 public final class LeafSwaddle {
     /** Parents who make and put on a wrap: friendliness and intelligence at least these (project design). */
     public static final int MAKER_FRIENDLINESS = 60, MAKER_INTELLIGENCE = 50;
-    /** Leaf blocks harvested for one wrap: the swaddle is a single leaf worn like a diaper (user ruling, docs/CHILDHOOD_LIFECYCLE.md). */
+    /** Leaf blocks harvested for one wrap: the swaddle is a single leaf worn like a diaper (user ruling, docs/FEATURES.md). */
     public static final int LEAVES_PER_WRAP = 1;
     /** A closed wrap asks for care from this bowel load (the ordinary toilet minimum); at the urgent load it soils the wrap. */
     public static final int CARE_URGE = 40, SOIL_URGE = 90;

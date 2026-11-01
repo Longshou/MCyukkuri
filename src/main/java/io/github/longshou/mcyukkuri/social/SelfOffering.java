@@ -135,7 +135,7 @@ public final class SelfOffering extends Goal {
         return near.stream().min(Comparator.comparingInt((YukkuriEntity y) -> mine(y) ? 0 : 1).thenComparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
-    /** Percent chance of offering, from character, bond, own state and the children's need (see docs/INJURIES_AND_REMAINS.md). */
+    /** Percent chance of offering, from character, bond, own state and the children's need (see docs/FEATURES.md). */
     private int offerChance(YukkuriEntity target) {
         var per = entity.life().personality();
         int affinity = YukkuriWorldData.get(level()).affinity(entity.getUUID(), target.getUUID());

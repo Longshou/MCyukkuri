@@ -36,7 +36,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * "Cannot take it easy" (ゆっくりできない): the one unease value every individual carries, wild, stray, settler, house
- * yukkuri and pet alike (docs/EMOTION_CHAIN.md).
+ * yukkuri and pet alike (docs/FEATURES.md).
  *
  * <p>Lecture basis (komicolle 40720 No.11518890): whenever a yukkuri feels it cannot take it easy its filling turns
  * sweeter; when that goes too far it goes mad, can only scream "yukkuri", and its filling becomes foul. No.11518802

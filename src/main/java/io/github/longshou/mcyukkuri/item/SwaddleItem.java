@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 /**
- * A soft warming cloth for a baby or young yukkuri (docs/PET_SHOP.md). The warming and calming rules are project design; the styles of
+ * A soft warming cloth for a baby or young yukkuri (docs/FEATURES.md). The warming and calming rules are project design; the styles of
  * {@link SwaddleStyle} follow the wiki's swaddle table (wiki/pet-life.md) and change only the look. The cloth is open at the face, never
  * limits movement, growth or learning, and comes off by itself once the young one can live independently. Right-click the owner's own
  * young pet to wrap it up; the care menu takes it off.

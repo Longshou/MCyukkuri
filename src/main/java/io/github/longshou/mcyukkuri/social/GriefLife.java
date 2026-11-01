@@ -15,7 +15,7 @@ import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * The living side of death (docs/INJURIES_AND_REMAINS.md, "临终遗言与献身"). Komicolle's overview ends on the dying wish "还想继续慢慢来……"
+ * The living side of death (docs/FEATURES.md, "临终遗言与献身"). Komicolle's overview ends on the dying wish "还想继续慢慢来……"
  * and the 'dying words' of a yukkuri; the rest below is project design. There is no grave visiting: nobody walks to a body or a grave to mourn
  * (user ruling 2026-10-18); the dead only reek (body/RemainsRot).
  * <ul>

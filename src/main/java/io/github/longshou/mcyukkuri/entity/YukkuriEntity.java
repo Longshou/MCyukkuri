@@ -146,7 +146,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Created in registerGoals (it runs inside the Mob constructor, before field initialisers); deliberately no initialiser. */
     private TreasureLife treasure;
     public TreasureLife treasure() { return treasure; }
-    /** The accessory as a second life and the community sanction (docs/HEADWEAR.md); created in registerGoals like treasure. */
+    /** The accessory as a second life and the community sanction (docs/FEATURES.md); created in registerGoals like treasure. */
     private Headwear headwear;
     private Sanction sanction;
     public Headwear headwear() { return headwear; }
@@ -178,7 +178,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private final HouseLife house;
     private final BodyLife body;
     private final StatusLife status = new StatusLife(this);
-    /** Unease, sweetening and the non-yukkuri syndrome (docs/EMOTION_CHAIN.md); PetLife.stress is a view of it. */
+    /** Unease, sweetening and the non-yukkuri syndrome (docs/FEATURES.md); PetLife.stress is a view of it. */
     private final MindLife mind = new MindLife(this);
 
     private final OperationLife operations;
@@ -505,7 +505,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncSubspecies(int flags) { sync().syncSubspecies(flags); }
     public SettlementLife settlement() { return settlement; }
     public Judgement judgement() { return component(YukkuriComponents.JUDGEMENT); }
-    /** The leaf swaddle on a child and its parents' care for it (docs/CHILDHOOD_LIFECYCLE.md). */
+    /** The leaf swaddle on a child and its parents' care for it (docs/FEATURES.md). */
     public LeafSwaddle leafSwaddle() { return component(YukkuriComponents.LEAF_SWADDLE); }
     public HabitatLife habitat() { return habitat; }
     private ForageTrip forageTrip;
@@ -831,7 +831,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) { return interactions().mobInteract(player, hand); }
 
-    // pet harness and lead (docs/PET_SHOP.md): the lead is tied to the harness ring on the back, never to the accessory
+    // pet harness and lead (docs/FEATURES.md): the lead is tied to the harness ring on the back, never to the accessory
     public int visibleWear() { return sync().visibleWear(); }
     /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle). */
     public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits(); }

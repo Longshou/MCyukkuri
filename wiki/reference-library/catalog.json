@@ -187,52 +187,52 @@
     {
       "id": "DOS魔理沙",
       "status": "采用方向（未做）",
-      "basis": "docs/RARE_FORMS.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "通用油库里",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "人类",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "帽船",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "茎果",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "徽章",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "草窝",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "软窝",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "筒窝",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "纸箱",
       "status": "共通对象与道具",
-      "basis": "docs/README.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "水上魔理沙",
@@ -242,7 +242,7 @@
     {
       "id": "襁褓",
       "status": "已接入的宠物穿戴道具",
-      "basis": "docs/PET_SHOP.md"
+      "basis": "docs/FEATURES.md"
     },
     {
       "id": "树叶襁褓",

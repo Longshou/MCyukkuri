@@ -31,7 +31,7 @@ import io.github.longshou.mcyukkuri.body.InjuryModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 /**
- * The accessory as a second life (docs/HEADWEAR.md; komicolle 40720 No.11518829): it grows with the body, mends itself while
+ * The accessory as a second life (docs/FEATURES.md; komicolle 40720 No.11518829): it grows with the body, mends itself while
  * its owner can take it easy, can be torn and finally shatter, and its pieces are licked together and kept until they knit.
  * Without it the owner is not recognised as a yukkuri by anyone not clever enough ({@link Recognition}), and is scorned for it
  * ({@link Contempt}): that contempt is the root of every social consequence, the sanction (bullying) included.

@@ -363,7 +363,7 @@ public final class ShopMenu extends AbstractContainerMenu {
         if(!room(p))return refused(p,"buy_good","inventory_full");
         int stockBefore=stocks.stock(level,shopId(),good), delivered=stack.getCount();
         var item=stack.getItem();
-        // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/PET_SHOP.md).
+        // The shelf shows the plain knit; each swaddle cloth handed over is one of the styles at random (docs/FEATURES.md).
         var style=stack.is(ModItems.SWADDLE_CLOTH.get())?SwaddleStyle.random(level.random):null;
         if(style!=null)style.apply(stack);
         if(!stocks.take(level, shopId(), good))return refused(p,"buy_good","stock_changed");

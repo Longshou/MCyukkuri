@@ -114,10 +114,10 @@ BABY = {
     'leak': ('{c}……あ……でちゃった……', '{c}……啊……漏出来了……', '{c}... oh... it came out...'),
     'sole_burned': ('{c}ーっ！ あんよ、あちゅい、あちゅい！', '{c}——！脚脚，烫烫，烫烫！', '{c}! My foot, hot, hot!'),
     'craving': ('{c}……こなこな……ほちい……', '{c}……粉粉……想要……', '{c}... powder... want...'),
-    # the centre filling is hurt: a short dying state (docs/INJURIES_AND_REMAINS.md, 受伤模型); the classic last words
+    # the centre filling is hurt: a short dying state (docs/FEATURES.md, 受伤模型); the classic last words
     'dying': ('{c}……もっちょ……ゆっくち……ちたかった……', '{c}……还想……再慢慢来……', '{c}... wanted... to take it easy... more...'),
 }
-# death and the dead (docs/INJURIES_AND_REMAINS.md; social/GriefLife, social/Cannibalism, social/SelfOffering): last words to kin, the kin's grief, the stench, the child's side of "please eat me"
+# death and the dead (docs/FEATURES.md; social/GriefLife, social/Cannibalism, social/SelfOffering): last words to kin, the kin's grief, the stench, the child's side of "please eat me"
 BABY.update({
     'dying_kin': ('{c}……おやしゃ……ゆっくち……ちてね……', '{c}……亲亲……要慢慢来……哦……', '{c}... mama... papa... take it easy...'),
     'kin_dying': ('{c}ーっ！ いかにゃいで、いかにゃいで！', '{c}——！别走，别走！', "{c}! Don't go, don't go!"),
@@ -236,7 +236,7 @@ COUNT_FRAMES = {
     'count_children': ('{p}こどもは……{S}！', '{p}孩子有……{S}！', '{p}The children are... {S}!'),
     'count_peers': ('{p}なかまは……{S}！', '{p}伙伴有……{S}！', '{p}Friends: {S}!'),
 }
-# --- emotion chain and naming (docs/EMOTION_CHAIN.md; mind/MindLife, mind/Naming) ----------------------------
+# --- emotion chain and naming (docs/FEATURES.md; mind/MindLife, mind/Naming) ----------------------------
 # komicolle 40720 11518890: unable to take it easy the filling sweetens; past the limit it goes mad and can only
 # scream "yukkuchi" (油庫己); 11518829: a given name denies "Reimu is Reimu". tier -> event -> (jp, zh, en)
 EMOTION_BASIS = 'komicolle 40720 11518890 (sweetening, non-yukkuri) / 11518829 (naming denies identity); project-original wording, unvoiced'

@@ -15,7 +15,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $taskRoot = Join-Path $projectRoot '.local/experimental-map'
 $manifestFile = Join-Path $taskRoot 'museum-runtime.json'
-if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See docs/DEVELOPMENT.md.' }
+if (-not (Test-Path -LiteralPath $manifestFile)) { throw 'Playground runtime is missing (.local/experimental-map/museum-runtime.json). See AGENTS.md.' }
 $runtimeConfig = Get-Content -LiteralPath $manifestFile -Raw | ConvertFrom-Json
 $runtimeCommit = [string]$runtimeConfig.commit
 if ($runtimeCommit -notmatch '^[0-9a-f]{40}$') { throw 'The playground runtime has no valid CI commit. Update it with scripts/update_museum_runtime.py.' }

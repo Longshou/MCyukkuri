@@ -6,7 +6,7 @@
     "selection": "art/source/ecology/expressions.json",
     "exporter": "scripts/export_ecology_expressions.py",
     "scope": "Five approved expression atlases for seven existing rigs; geometry and animation bindings are unchanged",
-    "validation": "docs/ECOLOGY_DAILY_LIFE.md"
+    "validation": "docs/FEATURES.md"
   },
   "standard_authoring_library": "standards/yukkuri-library",
   "purpose": "Seven selected entity models and retargeted numeric animation rigs",
@@ -1114,7 +1114,7 @@
     "exporter": "scripts/export_subspecies.py",
     "wound_exporter": "scripts/export_subspecies_wounds.cjs",
     "preview": "art/source/subspecies-runtime/preview.html",
-    "validation": "docs/SUBSPECIES_IMPLEMENTATION.md",
+    "validation": "docs/FEATURES.md",
     "scope": "Two named subspecies, six congenital forms, one actual hat boat and the matching detachable shell; confirmation status belongs to each selected record"
   }
 }

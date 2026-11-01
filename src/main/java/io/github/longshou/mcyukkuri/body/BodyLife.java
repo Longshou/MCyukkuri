@@ -574,7 +574,7 @@ public final class BodyLife {
         tag.putInt("Mold",mold);tag.putInt("MoldExposure",moldExposure);tag.putBoolean("CoreHurt",coreHurt);
                 tag.putBoolean("FootBurned",footBurned);tag.putInt("FootScorch",footScorch);tag.putInt("Toxin",toxin);tag.putInt("MoldSpread",moldSpread);tag.putInt("HairLoss",hairLoss);
         tag.putInt("Dying",dying);tag.putString("DyingCause",dyingCause);
-        // The centre filling is the sweetest part; unease before death sweetens it further (docs/EMOTION_CHAIN.md).
+        // The centre filling is the sweetest part; unease before death sweetens it further (docs/FEATURES.md).
         if(!coreHurt)tag.putInt("CoreSweetness",Math.min(100,entity.mind().fillingSweetness()+25));return tag;}
     public void remapSurface(String previous){
         if(wounds.isEmpty()||previous.equals(entity.subspecies().assetId()))return;

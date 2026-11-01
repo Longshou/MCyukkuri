@@ -226,14 +226,14 @@ BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (No
     ('cherry', 'minecraft:cherry_grove', 'minecraft:grass_block', 'minecraft:cherry_log', 'minecraft:cherry_leaves', '樱花林', 'minecraft:dirt'),
     ('hills', 'minecraft:windswept_hills', 'minecraft:grass_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '风袭丘陵', 'minecraft:stone'),
     ('savanna', 'minecraft:savanna', 'minecraft:grass_block', 'minecraft:acacia_log', 'minecraft:acacia_leaves', '热带草原', 'minecraft:coarse_dirt'),
-    # no settlement generates in these two (docs/SETTLEMENTS.md, 群系适居裁定): flat plots for the cold / hot season scenes
+    # no settlement generates in these two (docs/FEATURES.md, 群系适居裁定): flat plots for the cold / hot season scenes
     ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原', None),
     ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠', None),
 ]
 
 
 class Biomes(Field):
-    """Eight 44x44 plots in a 4x2 grid, one biome each. The six where settlements generate (docs/SETTLEMENTS.md) all but plains
+    """Eight 44x44 plots in a 4x2 grid, one biome each. The six where settlements generate (docs/FEATURES.md) all but plains
     have a slope rising in their north part, its foot five blocks north of the plot centre, so a settlement spawned at the centre
     digs its burrows into the bank; snow and desert stay flat for the cold and hot season scenes. A plot's scenario sets its biome again, then spawns a settlement. Every clear puts
     the plots' ground, hill, trees and biomes back."""

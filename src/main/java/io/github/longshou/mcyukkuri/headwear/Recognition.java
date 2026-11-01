@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 
 /**
- * The one recognition test (docs/HEADWEAR.md). A yukkuri knows another by its accessory (komicolle 40720 No.11518847).
+ * The one recognition test (docs/FEATURES.md). A yukkuri knows another by its accessory (komicolle 40720 No.11518847).
  * Without it, a clever observer still sees who it is; aquatic Marisa is the one innate exception. Neither route depends on
  * the observer's badge, kinship or friendship (user correction 2026-10-18). A parent that cannot see past the missing hat
  * treats its own child as a hatless stranger: no feeding, no defending, the same contempt.

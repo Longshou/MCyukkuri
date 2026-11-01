@@ -324,7 +324,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 5, (c, ctx) -> c.hurt(ctx.source()))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 5, (c, ctx) -> c.interrupt("death"))
                 .build(),
-        // Leaf swaddle and swaddled-child bowel care (docs/CHILDHOOD_LIFECYCLE.md): the parent's Goal sits with the other priority-3 care goals.
+        // Leaf swaddle and swaddled-child bowel care (docs/FEATURES.md): the parent's Goal sits with the other priority-3 care goals.
         ComponentSpec.ready(LEAF_SWADDLE, LeafSwaddle::new)
                 .goal(3, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (swaddle, entity) -> new Goal() {
                     { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }

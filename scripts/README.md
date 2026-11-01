@@ -4,13 +4,13 @@
 
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行 `motor.geom`、`intent` 包的纯 Java 单元测试，约 20 秒；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
 
-`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[开发指南](../docs/FEATURES.md#试玩场与动作博物馆)，在实际游玩的机器执行。
+`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[AGENTS.md](../AGENTS.md#ci-运行包更新)，在实际游玩的机器执行。
 
-`scripts/smoke_museum.py`：用法与自查边界见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
+`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。
 
-`scripts/headless_server.py`：冒烟内部使用的服务器控制模块，无独立命令行入口；见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
+`scripts/headless_server.py`：冒烟内部使用的服务器控制模块，无独立命令行入口；见[开发命令](../AGENTS.md#开发命令)。
 
-试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/FEATURES.md#试玩场与动作博物馆)。
+试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[开发命令](../AGENTS.md#开发命令)。
 
 ## 架构建议检查
 
@@ -44,7 +44,7 @@
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
-人工试玩当前使用[油库里试玩场](../docs/FEATURES.md#试玩场与动作博物馆)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录约束见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
+人工试玩当前使用[油库里试玩场](../docs/FEATURES.md#试玩场与动作博物馆)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录约束见[开发命令](../AGENTS.md#开发命令)。
 
 圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 

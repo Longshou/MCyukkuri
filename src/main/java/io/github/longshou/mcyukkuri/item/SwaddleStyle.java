@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 /**
- * Styles of the one cloth swaddle item (docs/PET_SHOP.md, 布襁褓款式). The style lives in the stack's custom data under {@link #TAG}; a stack
+ * Styles of the one cloth swaddle item (docs/FEATURES.md, 布襁褓款式). The style lives in the stack's custom data under {@link #TAG}; a stack
  * without it is the plain cream knit. Styles only change the look (item icon, CareWearRenderer); warmth, calming and age limits are the
  * same for all. The order is the wear-bit index shared with the client and must not be reordered.
  */

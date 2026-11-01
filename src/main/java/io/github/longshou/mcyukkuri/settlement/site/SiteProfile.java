@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
  * whatever hollows the land offers, burrows in banks and under roots first). The ordinal is saved as the site "palette".
  * <p>
  * Only the countries listed in {@code #mcyukkuri:settlement_sites} generate sites. SNOW, SWAMP, DESERT and BADLANDS stay
- * for the admin command in such a biome: they are no country to live in (see docs/SETTLEMENTS.md, 群系适居裁定).
+ * for the admin command in such a biome: they are no country to live in (see docs/FEATURES.md, 群系适居裁定).
  * <p>
  * Every wall block must still pass {@code NaturalShelter.earth} (dirt tag, base stone or logs): the burrow survey is the
  * same in every biome.

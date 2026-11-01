@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * A resident out walking its own pet on the lead (docs/HUMAN_WORLD.md "Walking the pet"). The pet is an ordinary companion owned by the resident
+ * A resident out walking its own pet on the lead (docs/FEATURES.md "Walking the pet"). The pet is an ordinary companion owned by the resident
  * (custody Owner = the resident, Use = companion, harness on), so the pet systems treat it as any owner's pet: the lead needs the harness, and the walk
  * counts blocks in {@code PetWalk} exactly as it does for a player (boredom, affection, stress, energy; the pet follows through the vanilla lead).
  *

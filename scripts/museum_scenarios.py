@@ -7,7 +7,7 @@ clock up, flies to the lead, or clears the field and starts again.
 
 Fields hold the terrain (museum_fields.py); each scenario names its field and the spot of that field it stands around.
 The ``TOPICS`` mapping at the end connects user concerns to scenarios; docs/TODO.md owns progress and completion criteria.
-Scenario definitions and readouts live here; docs/DEVELOPMENT.md covers navigation and shared operations.
+Scenario definitions and readouts live here; AGENTS.md covers navigation and shared operations.
 """
 import re
 import json
@@ -414,7 +414,7 @@ add('growth', 'family', '一路长大', '一路长大', '右侧亚成从335999 t
         item('minecraft:apple', 6, 0, 4)], env=DAY, spot='growth', vantage=(0, 10),
     reads=[('读成长与阶段', f'yukkuri status {sel("teen")}')])
 
-# Leaf swaddle (docs/CHILDHOOD_LIFECYCLE.md#树叶襁褓与幼体排便照护): leaf bushes are the real material; a worn wrap is a starting state only.
+# Leaf swaddle (docs/FEATURES.md): leaf bushes are the real material; a worn wrap is a starting state only.
 LEAF_BUSH = 'minecraft:oak_leaves[persistent=true]'
 
 

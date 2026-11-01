@@ -114,7 +114,7 @@ public final class Reactions {
     public static final class Threat {
         public enum Stage { NONE, WATCH, RETREAT, HIDE }
         private final YukkuriEntity y;
-        /** A clever wild Reimu's den-mouth sealing (project design, see WILD_SHELTERS.md); idle for everyone else. */
+        /** A clever wild Reimu's den-mouth sealing (project design, see docs/FEATURES.md); idle for everyone else. */
         private final DenSeal seal;
         private Stage stage = Stage.NONE;
         private LivingEntity seen;

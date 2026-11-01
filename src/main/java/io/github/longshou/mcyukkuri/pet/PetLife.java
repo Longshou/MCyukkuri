@@ -51,7 +51,7 @@ public final class PetLife {
     public PetLessons lessons() { return lessons; }
     /** What this individual remembers of the badge-holders it has noticed (pet/social). */
     public BadgeLedger badgeLedger() { return ledger; }
-    /** Sweets, habits, requests, walks and worn gear (docs/PET_SHOP.md). */
+    /** Sweets, habits, requests, walks and worn gear (docs/FEATURES.md). */
     public PetCare care() { return care; }
 
     // ownership
@@ -166,14 +166,14 @@ public final class PetLife {
         if (skill != null) lessons.complete(skill);
         care.habit(kind);
     }
-    /** A view of the individual's unease (mind/MindLife, docs/EMOTION_CHAIN.md): the pet line reads and writes the one shared value. */
+    /** A view of the individual's unease (mind/MindLife, docs/FEATURES.md): the pet line reads and writes the one shared value. */
     public int stress() { return animal.mind().stressView(); }
     public void addStress(int d) { animal.mind().add(d, "pet"); }
 
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
     public void record(ExamRecord r) { history.add(r); while (history.size() > 16) history.remove(0); }
-    /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/PET_SHOP.md 2. */
+    /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md 2. */
     public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
     public int title() { return title(history, grade); }
     public static int title(List<ExamRecord> records, BadgeGrade now) {
@@ -223,7 +223,7 @@ public final class PetLife {
     public int unauthorizedBirths() { return unauthorized; }
     public void noteUnauthorizedBirth() { unauthorized = Math.min(99, unauthorized + 1); }
 
-    // owner line: neglect and abandonment (docs/PET_SHOP.md 5.5)
+    // owner line: neglect and abandonment (docs/FEATURES.md 5.5)
     public int neglect() { return neglect; }
     public boolean voidBadge() { return voidBadge; }
     /** Former owner while the abandonment record stands; cleared by the next owner. */
