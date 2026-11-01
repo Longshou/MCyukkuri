@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船重做（美术 B：帽船接触动作重做与子油船上动作） | `.worktrees/aq-clips-b` | lore 动作配方与导出、帽船接触片段、子油船上新片段 |
 | 水生帽船重做（WP5 救援完成） | `.worktrees/aq-wp5-rescue` | Rescue、AquaticGoal 救援段、Grab/Swim/Release、ParentCarry 水中搬运、救援场景 |
 | 水生帽船重做（WP6 船上分娩落座与胎数） | `.worktrees/aq-wp6-birth` | LiveBirth/BirthLaunch 船上分支、水生胎数、AquaticGoal 分娩占用、`birth_boat_*` 场景 |
 
