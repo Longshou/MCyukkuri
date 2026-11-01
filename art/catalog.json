@@ -1,0 +1,99 @@
+{
+  "categories": [
+    {"id": "bodies", "label": "油库里身体与种族", "families": [
+      {"id": "standard-bodies", "prefixes": ["standards/yukkuri-library/assembled/", "standards/yukkuri-library/body-standard/", "standards/yukkuri-library/characters/", "standards/yukkuri-library/components/", "standards/yukkuri-library/rigs/", "standards/yukkuri-library/bindings/", "standards/yukkuri-library/profiles/", "standards/yukkuri-library/textures/", "standards/yukkuri-library/drafts/rounded-standard-body/", "art/source/rounded-runtime/", "art/source/standard-runtime/", "src/main/resources/assets/mcyukkuri/yukkuri/", "src/main/resources/assets/mcyukkuri/textures/entity/"], "registry": ["models", "rounded_runtime"], "library": ["models", "standardComponents.roundedBody"]},
+      {"id": "anatomy", "label": "身体伸缩结构", "prefixes": ["standards/yukkuri-library/anatomy_", "standards/yukkuri-library/ANATOMY.md", "standards/yukkuri-library/behaviors/anatomy.json", "standards/yukkuri-library/components/common/anatomy.json"], "registry": ["anatomy_revision"], "library": ["standardComponents.anatomy"]},
+      {"id": "deficient-forms", "prefixes": ["standards/yukkuri-library/subspecies/deficient/", "art/source/subspecies-runtime/"], "registry": ["subspecies"], "ids": ["reimu_bean", "reimu_face", "reimu_sparse", "marisa_bean", "marisa_face", "marisa_sparse", "marisa_shell"]},
+      {"id": "rare-forms", "prefixes": ["standards/yukkuri-library/subspecies/rare-forms/", "art/source/rare-forms-runtime/", "standards/yukkuri-library/TSUMURI.md"], "registry": ["rare_forms"], "ids": ["myon", "myon_redeye", "chen_longtail", "chen_roundtail", "marisa_kotatsu"]},
+      {"id": "dos", "prefixes": ["standards/yukkuri-library/subspecies/reimu-dos/"]},
+      {"id": "house-bodies", "prefixes": ["standards/yukkuri-library/ecology/house-yukkuri/", "art/source/standard-runtime/house_"], "ids": ["house_reimu", "house_marisa"]}
+    ]},
+    {"id": "expressions", "label": "表情", "families": [
+      {"id": "standard-expressions", "label": "标准表情、部件与叠加效果", "prefixes": ["standards/yukkuri-library/expressions/", "standards/yukkuri-library/STANDARD-EXPRESSIONS.md"], "library": ["expressions", "effects"]},
+      {"id": "derived-faces", "label": "派生表情（沮丧、害怕）", "prefixes": ["standards/yukkuri-library/expressions/derived/"], "registry": ["derived_faces"], "ids": ["sad", "afraid"]},
+      {"id": "ecology-expressions", "prefixes": ["art/source/ecology/"], "registry": ["ecology_expressions"]},
+      {"id": "adult-states", "prefixes": ["art/source/adult-states/", "standards/yukkuri-library/drafts/rapem-alice/"], "registry": ["adult_states", "alice_appearance"]}
+    ]},
+    {"id": "headwear", "label": "头发与头饰", "families": [
+      {"id": "hat-damage", "prefixes": ["art/props/hat-damage/", "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_damage.json"], "ids": ["accessory_*", "hat-damage-index", "hat_damage_inner", "trimmed_hair"]},
+      {"id": "headwear-props", "label": "脱落头饰与佩戴附件", "ids": ["alice_headband", "chen_hat", "marisa_hat", "myon_hairband", "patchouli_bonnet", "reimu_ribbon"]},
+      {"id": "marisa-braids", "prefixes": ["standards/yukkuri-library/interactions/marisa-braids/"]}
+    ]},
+    {"id": "aquatic", "label": "帽船（水生）", "families": [
+      {"id": "aquatic-basin-hat", "prefixes": ["standards/yukkuri-library/interactions/aquatic-marisa-hat/", "art/source/aquatic-basin-hat/"], "registry": ["aquatic_basin_hat"], "ids": ["aquatic_*", "lilypad_*"]},
+      {"id": "hat-vessel", "prefixes": ["standards/yukkuri-library/interactions/marisa-hat-vessel/"], "registry": ["hat_vessel"], "ids": ["marisa_hat_turned", "marisa_aquatic_hat"]},
+      {"id": "aquatic-tools", "label": "划行、游泳与水上工具动作", "prefixes": ["standards/yukkuri-library/interactions/aquatic-tools/"], "registry": ["aquatic_tools"]},
+      {"id": "braid-water-rescue", "prefixes": ["standards/yukkuri-library/interactions/braid-water-rescue/"], "registry": ["braid_water_rescue"]}
+    ]},
+    {"id": "wounds", "label": "伤口、遗体与身体状态", "families": [
+      {"id": "body-wounds", "prefixes": ["art/props/body-wounds/", "standards/yukkuri-library/ecology/body-wounds/", "src/main/resources/assets/mcyukkuri/yukkuri_wounds/"], "registry": ["body_wounds"], "ids": ["body_wounds"]},
+      {"id": "wound-materials", "label": "伤口材质（擦伤、凹陷、撕裂、焦痕、疤、脏污与霉斑）", "prefixes": ["standards/yukkuri-library/drafts/body-marks/", "art/source/body-wound-materials/"], "registry": ["body_marks"]},
+      {"id": "hair-wounds", "label": "头发与身体伤口网格、分级图集", "prefixes": ["standards/yukkuri-library/drafts/body-marks/hair-wounds/", "art/source/hair-wounds/", "src/main/resources/assets/mcyukkuri/yukkuri_wounds/hair/"], "registry": ["hair_wounds"]},
+      {"id": "body-core-cavity", "label": "中枢与体腔", "prefixes": ["art/source/body-core-cavity/"], "registry": ["body_core_cavity"]},
+      {"id": "core-filling", "label": "中枢馅与漏馅", "prefixes": ["art/props/body-marks/"], "registry": ["core_filling"], "ids": ["leaked_filling", "body_marks"]},
+      {"id": "remains", "prefixes": ["standards/yukkuri-library/drafts/remains/", "art/source/remains/", "src/main/resources/assets/mcyukkuri/textures/entity/remains/"], "registry": ["remains_art"], "ids": ["burial_mound", "yukkuri_remains"]}
+    ]},
+    {"id": "family", "label": "家庭、出生与成长", "families": [
+      {"id": "family-life", "prefixes": ["art/props/family-life/", "standards/yukkuri-library/motions/procedural/", "standards/yukkuri-library/ecology/house-egg/"], "registry": ["family_stem", "shed_stem"], "ids": ["house_egg*", "live_birth_pose", "reproductive_filling", "family-index"]},
+      {"id": "swaddles", "label": "布与树叶襁褓、花纹与穿戴", "prefixes": ["art/props/pet-goods/swaddle", "src/main/resources/assets/mcyukkuri/textures/misc/swaddle"], "ids": ["swaddle*"]}
+    ]},
+    {"id": "shelters", "label": "野外住所与巢", "families": [
+      {"id": "wild-shelters", "prefixes": ["art/props/wild-shelters/", "standards/yukkuri-library/ecology/wild-shelters/"], "registry": ["wild_shelters"], "ids": ["cardboard_shelter", "nest_boundary", "nest_lining", "shelters-index"]},
+      {"id": "den-barrier", "label": "洞口结界屏障", "prefixes": ["art/source/den-barrier/"], "registry": ["den_barrier"]},
+      {"id": "large-wild-nest", "label": "野生大窝", "prefixes": ["art/props/large-nests/large_wild_nest/"], "ids": ["large_wild_nest"]},
+      {"id": "house-ecology", "prefixes": ["art/source/house-ecology/", "art/source/house-ecology-presentation/", "standards/yukkuri-library/ecology/house-nest/"], "registry": ["house_ecology", "house_ecology_presentation"]},
+      {"id": "house-care", "prefixes": ["art/props/house-care/"], "ids": ["house_supplies"]}
+    ]},
+    {"id": "care", "label": "照料用品与宠物用品", "families": [
+      {"id": "care-props", "prefixes": ["standards/yukkuri-library/drafts/care-props/", "art/props/runtime-peripheral/"], "registry": ["care_props"]},
+      {"id": "care-facilities", "prefixes": ["art/props/care-facilities/"], "ids": ["facilities-index", "care_collision", "living"]},
+      {"id": "care-expansion", "prefixes": ["standards/yukkuri-library/drafts/care-expansion/", "art/props/care-expansion/"]},
+      {"id": "food-bowl", "prefixes": ["art/props/food-bowl/"]},
+      {"id": "large-pet-nests", "label": "宠物编织大窝与款式", "prefixes": ["art/props/large-nests/"], "registry": ["large_nests"], "ids": ["large_yukkuri_nest*"]},
+      {"id": "pet-goods", "prefixes": ["art/props/pet-goods/"], "registry": ["pet_goods"], "ids": ["care_wear", "pet_harness"]},
+      {"id": "playgrounds", "prefixes": ["art/props/playgrounds/", "standards/yukkuri-library/drafts/playgrounds/"], "ids": ["playgrounds-index"]},
+      {"id": "poop-block", "label": "嗯嗯方块与分档堆形", "prefixes": ["art/source/poop-block/"], "registry": ["poop_block"]},
+      {"id": "toilet-contact", "prefixes": ["standards/yukkuri-library/interactions/toilet-contact/", "art/source/toilet-contact/"], "registry": ["toilet_contact"]}
+    ]},
+    {"id": "medical", "label": "医疗与操作道具", "families": [
+      {"id": "operation-tools", "prefixes": ["art/props/operation-tools/", "standards/yukkuri-library/drafts/operation-tools/"], "ids": ["operations-index", "iron_enclosure*", "restraint_frame*", "wrap_sling*", "kanroken"]},
+      {"id": "supply-icons", "prefixes": ["art/props/supply-icons/"], "registry": ["supply_icons"]},
+      {"id": "cold-storage", "prefixes": ["art/props/cold-storage/", "standards/yukkuri-library/drafts/cold-storage/"]},
+      {"id": "house-repellent", "prefixes": ["art/source/house-repellent/", "standards/yukkuri-library/ecology/house-repellent/"], "registry": ["house_repellent"]}
+    ]},
+    {"id": "food", "label": "食物与消耗品", "families": [
+      {"id": "consumables", "prefixes": ["art/props/consumables/", "standards/yukkuri-library/drafts/consumables/"], "registry": ["food_mash_serving"], "ids": ["consumables-index"]},
+      {"id": "food-stores", "label": "陆上储粮堆、油粮与食物碎屑", "ids": ["forage_pile", "oil_grain_*", "food_scrap", "spicy_grain", "wheat_flour", "custard_pudding", "sweet_candy"]}
+    ]},
+    {"id": "human-world", "label": "聚落与人类世界建筑", "families": [
+      {"id": "human-world", "prefixes": ["art/structures/human-world/", "art/source/human-runtime/", "standards/yukkuri-library/assembled/humans/", "standards/yukkuri-library/characters/humans.json", "standards/yukkuri-library/textures/humans/", "src/main/resources/assets/mcyukkuri/textures/entity/human/"]}
+    ]},
+    {"id": "predators", "label": "捕食种", "families": [
+      {"id": "predator-bodies", "prefixes": ["standards/yukkuri-library/subspecies/predator/", "art/source/predator-runtime/", "art/source/standard-runtime/flandre/", "art/source/standard-runtime/remilia/"], "ids": ["flandre", "remilia"]},
+      {"id": "predator-props", "prefixes": ["art/props/predators/"], "ids": ["predator_nest", "flandre_bonnet", "remilia_bonnet", "predators-index"]}
+    ]},
+    {"id": "ui", "label": "界面与图标", "families": [
+      {"id": "shop-ui", "prefixes": ["art/props/ui/", "src/main/resources/assets/mcyukkuri/textures/gui/"]},
+      {"id": "badges", "prefixes": ["art/props/badges/"], "registry": ["badge_attachments"], "ids": ["badge_handbook", "*_yukkuri_badge"]},
+      {"id": "spawn-eggs", "label": "实体生成蛋与野外笔记图标", "ids": ["*_spawn_egg", "field_notebook"]}
+    ]},
+    {"id": "audio", "label": "音频与语音", "families": [
+      {"id": "aquestalk", "prefixes": ["art/audio/aquestalk/", "src/main/resources/assets/mcyukkuri/sounds/voice/"]},
+      {"id": "ecology-audio", "prefixes": ["art/audio/ecology/", "src/main/resources/assets/mcyukkuri/sounds/ecology/"]},
+      {"id": "dialogue", "prefixes": ["art/dialogue/"]},
+      {"id": "audio-reference", "label": "声音来源边界与声音事件登记", "prefixes": ["art/audio/reference/", "art/audio/DIARY_AUDIO_RESEARCH.md", "art/audio/README.md", "art/audio/requirements.txt", "src/main/resources/assets/mcyukkuri/sounds.json"]}
+    ]},
+    {"id": "motions", "label": "动作与姿势", "families": [
+      {"id": "standard-motions", "label": "基础与复合动作、设定动作配方", "prefixes": ["standards/yukkuri-library/motions/", "standards/yukkuri-library/motion_library.py"], "library": ["motions"]},
+      {"id": "motion-corrections", "prefixes": ["art/source/motion-corrections/"], "registry": ["motion_corrections"], "ids": ["motion_corrections"]},
+      {"id": "placement-fit", "prefixes": ["art/source/placement-fit/", "standards/yukkuri-library/presentation/"], "registry": ["placement_fit"]},
+      {"id": "hat-interactions", "prefixes": ["art/source/hat-interactions/"], "registry": ["hat_interactions", "hat_care_contact"], "ids": ["hat_seat"]},
+      {"id": "carry-motion", "label": "口含与搬运姿势", "prefixes": ["art/source/standard-runtime/carry-motion/"]},
+      {"id": "face-motion", "prefixes": ["art/source/standard-runtime/face-motion/"]}
+    ]},
+    {"id": "shared", "label": "共用制作基础与登记", "families": [
+      {"id": "library-tools", "label": "素材库构建、校验与来源登记", "prefixes": ["standards/yukkuri-library/tools/", "standards/yukkuri-library/provenance/", "standards/yukkuri-library/runtime/", "standards/yukkuri-library/tests/", "standards/yukkuri-library/AGENTS.md", "standards/yukkuri-library/README.md", "standards/yukkuri-library/author_standard_species.py", "standards/yukkuri-library/build.py", "standards/yukkuri-library/catalog-data.", "standards/yukkuri-library/character_appearance.py", "standards/yukkuri-library/geometry.py", "standards/yukkuri-library/validate.py", "standards/yukkuri-library/drafts/README.md"]},
+      {"id": "shared-palette", "label": "共用色板与选用登记", "prefixes": ["art/README.md", "art/props/README.md", "art/props/palette.json", "art/runtime-sources.json"], "ids": ["index", "rounded-index", "subspecies-index", "body_geometry", "subspecies"]}
+    ]}
+  ]
+}

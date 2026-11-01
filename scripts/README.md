@@ -22,6 +22,8 @@
 
 ## 预览与导出
 
+`python scripts/build_art_catalog.py` 从 Git 跟踪文件、`art/runtime-sources.json`、标准库目录及包内登记生成[素材目录](../art/CATALOG.md)；分类树、路径前缀、运行资源 ID 模式及登记键维护在 `art/catalog.json`。运行 ID 优先，路径前缀取最长匹配，登记输出补齐未指定文件，共用资源另列；伤口目录按路径归类，不随种族 ID 分散。不扫描 Wiki。`--check` 只读检查未归类文件／登记族及目录过期，任一存在返回 1。新增文件先 `git add` 再生成；游戏使用只统计 Java／运行 JSON 的静态资源引用，动态加载不作否定结论，预览只链接工作树内已有文件。
+
 所有新预览统一写到 `.local/previews/<主题>/`，总入口为 `.local/previews/index.html`。同主题只保留当前版本；截图和检查报告分别写到 `.local/screenshots/`、`.local/reports/`，不入库。
 
 `python scripts/build_preview_hub.py` 生成纯预览入口、当前模型／物品缩略图、声音索引与连续场景 GIF／可拖动帧序列；`--render` 另行生成专项图（部分依赖现有原版资源 jar）。需要 Pillow、numpy 和 Node.js。`build_preview_props.py` 复用制作源的软件渲染器，只读当前打包网格和贴图，不导出游戏资源。`python scripts/serve_review.py --port 8766` 只启动本机 HTTP 服务，再手动打开它输出的地址。页面模板在 `preview/hub/`，模型查看器源码在 `preview/review/`；收录与专项图片更新边界见[预览说明](../preview/README.md#内容与边界)。生成流程不启动浏览器、游戏或 Java 编译。

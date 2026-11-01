@@ -4,12 +4,7 @@
 
 当前素材检查入口为项目根目录 `打开素材检查.cmd`，集中预览入口见[预览说明](../preview/README.md)。
 
-| 目录 | 内容 |
-| --- | --- |
-| [source/](source/) | 角色模型与动作快照、位置适配、交互及生态展示 |
-| [props/](props/README.md) | 道具、伤口、徽章与设施快照 |
-| [structures/](structures/human-world/README.md) | 商店、工厂与人类世界布局 |
-| [audio/](audio/README.md)、[dialogue/](dialogue/README.md) | 游戏配音、哼唱与原版对白来源 |
+按游戏主题查找制作源、选用快照、运行资源及登记状态，统一见[素材目录](CATALOG.md)。分类源为 [`catalog.json`](catalog.json)，使用 `python scripts/build_art_catalog.py` 重建。
 
 ## 运行资源
 
