@@ -708,9 +708,9 @@ public final class ParentCarry {
         String first = holdProblem(carrier, child, order[0], false), last = holdProblem(carrier, child, order[order.length - 1], false);
         return first.equals(last) || last.equals("no_braid") ? first : first + "/" + last;
     }
-    /** A held child can be lifted from liquid; a carrier must itself stand on dry support. */
+    /** Vanilla passenger acceptance uses the same carry capacity and operation rules. */
     public static boolean canSeat(YukkuriEntity carrier, Entity passenger) {
-        return passenger instanceof YukkuriEntity child && capacityProblem(carrier, child) == null && !carrier.isInWaterOrBubble()
+        return passenger instanceof YukkuriEntity child && capacityProblem(carrier, child) == null
                 && !carrier.operations().active() && !child.operations().active();
     }
 
@@ -963,7 +963,7 @@ public final class ParentCarry {
     // ------------------------------------------------------------------------------------------ carrying (server)
 
     /**
-     * Per tick on the carrier (a passive clock): it only watches. A hard reason (water, fire, panic, an operation, death) goes
+     * Per tick on the carrier (a passive clock): it only watches. A hard reason (fire, panic, an operation, death) goes
      * through the MOTOR interrupt bridge, which lets the children go where they are; every ordinary put-down is the set-down
      * goal's Release ({@link #setDownGoal}).
      */
@@ -978,7 +978,7 @@ public final class ParentCarry {
         long now = carrier.level().getGameTime();
         var ours = ours();
         if (purpose == null && !ours.isEmpty()) adopt(ours.get(0), now);
-        String hard = !carrier.isAlive() ? "carrier_died" : carrier.isInWaterOrBubble() ? "water" : carrier.isOnFire() ? "carrier_burning"
+        String hard = !carrier.isAlive() ? "carrier_died" : carrier.isOnFire() ? "carrier_burning"
                 : carrier.isPanicking() ? "carrier_panic" : carrier.operations().active() ? "operation" : null;
         if (hard != null) { carrier.motor().interrupt(hard); return; }
         for (var child : all) {
