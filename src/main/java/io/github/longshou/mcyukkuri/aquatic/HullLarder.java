@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -115,7 +114,7 @@ public final class HullLarder {
     }
 
     /** A stack per kind, split only at the vanilla stack limit; vanilla items float after the spill. */
-    void spill(PlacedHatEntity hat, String cause, Function<Vec3, Vec3> carried) {
+    void spill(PlacedHatEntity hat, String cause) {
         if (count() == 0) return;
         var spilled = stores.spill();
         var at = hat.frame().toWorld(new Vec3(0, hat.profile().floor(), 0));
@@ -124,7 +123,6 @@ public final class HullLarder {
             for (int left = entry.getValue(); left > 0;) {
                 int count = Math.min(left, food.getMaxStackSize());
                 var drop = new ItemEntity(hat.level(), at.x, at.y, at.z, food.copyWithCount(count));
-                drop.setDeltaMovement(carried.apply(at));
                 drop.setDefaultPickUpDelay();
                 hat.level().addFreshEntity(drop);
                 left -= count;

@@ -2,7 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -22,7 +22,7 @@ public final class Motor {
 
     private Motor() {}
 
-    /** Sets the velocity and marks the impulse; only for take-off, launch, push and swim propulsion. */
+    /** Sets an entity's velocity and marks the impulse: body propulsion, host drift or a released item. */
     public static void velocity(Entity body, Vec3 v, String cause) {
         if (body == null || v == null) return;
         body.setDeltaMovement(v);
@@ -60,8 +60,8 @@ public final class Motor {
     }
 
     /** A moving host's facing and synchronized tilt; riders follow its shared frame. */
-    public static void hostPose(PlacedHatEntity host, float yaw, float roll, float pitch) {
-        host.setYRot(yaw);
+    public static void hostPose(SurfaceHost host, float yaw, float roll, float pitch) {
+        host.entity().setYRot(yaw);
         host.pose(roll, pitch);
     }
 

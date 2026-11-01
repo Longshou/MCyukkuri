@@ -18,6 +18,8 @@ public interface SurfaceHost {
 
     /** The host's pose for this tick: origin, hat unit, yaw and tilt. */
     HostFrame frame();
+    /** Motor-owned tilt write; riders observe the resulting shared frame. */
+    void pose(float roll, float pitch);
 
     /** Hat-surface height (hat units) at {@code local} for a foot radius {@code r} in blocks; empty when nothing supports it. */
     OptionalDouble support(Vec3 local, double r);

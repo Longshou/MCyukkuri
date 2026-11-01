@@ -62,4 +62,9 @@ class HullTriggersTest {
             assertFalse(rules.impact(0));
         }
     }
+    @Test void waterlineMirrorsWithTheHullInsteadOfStayingAboveTheSurface() {
+        double upright = HullPresentation.waterHeight(-HullPresentation.KEEL, 1, 0, 0);
+        assertEquals(-upright, HullPresentation.waterHeight(-HullPresentation.KEEL, 1, 180, 0), 1e-9);
+        assertEquals(0, HullPresentation.waterHeight(-HullPresentation.KEEL, 1, 90, 0), 1e-9);
+    }
 }

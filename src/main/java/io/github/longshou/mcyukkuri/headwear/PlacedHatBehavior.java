@@ -21,6 +21,8 @@ import net.minecraft.world.phys.Vec3;
 public interface PlacedHatBehavior {
     /** Server tick: move the hull, separate what overlaps it (its one contact pass) and write its pose. */
     void tick(PlacedHatEntity hat);
+    /** A real dry-to-water entry; vanilla excludes the first tick after creation or reload. */
+    default void waterEntered(PlacedHatEntity hat, double speed) {}
 
     /** Whether bodies and players may push it (vanilla {@code isPushable}). */
     default boolean pushable(PlacedHatEntity hat) { return false; }
@@ -88,7 +90,7 @@ public interface PlacedHatBehavior {
 
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */
     PlacedHatBehavior LAND = hat -> {
-        var fall = new Vec3(0, Math.max(-.2, hat.getDeltaMovement().y - .04), 0);
+        var fall = new Vec3(0, hat.getDeltaMovement().y - .04, 0);
         Motor.velocity(hat, fall, "hat_gravity");
         Motor.move(hat, fall, "hat_gravity");
         Motor.hostPose(hat, hat.getYRot(), hat.upsideDown() ? 180 : 0, 0);

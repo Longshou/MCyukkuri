@@ -166,7 +166,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public float roll(float partial) { return Mth.rotLerp(partial, rollO, roll()); }
     @Override public float pitch(float partial) { return Mth.rotLerp(partial, pitchO, pitch()); }
     /** The behaviour's pose for this tick (degrees); written only when it changed. */
-    public void pose(float roll, float pitch) {
+    @Override public void pose(float roll, float pitch) {
         if (roll != roll()) entityData.set(ROLL, roll);
         if (pitch != pitch()) entityData.set(PITCH, pitch);
     }
@@ -636,6 +636,11 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return result;
     }
 
+    @Override protected void doWaterSplashEffect() {
+        super.doWaterSplashEffect();
+        if (!level().isClientSide) behavior().waterEntered(this, -getDeltaMovement().y);
+    }
+
     @Override public void tick() {
         rollO = roll(); pitchO = pitch();
         super.tick();
@@ -862,6 +867,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         rollO=roll();pitchO=pitch();
         kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;
+        // The recreated provider consumes savedMotion once; reading never releases the replaced in-memory state.
         instances.clear(); provider=lastProvider=null; behaviorPicked=false; behaviorTick=-1; ran=null;
     }
 }

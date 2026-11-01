@@ -11,8 +11,10 @@ import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
@@ -40,7 +42,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private Phase phase;
     private final HullTriggers triggers = new HullTriggers();
     private int phaseTicks, shakes, capsizes, thrown;
-    private long shakeTick, lastTick = Long.MIN_VALUE;
+    private long shakeTick;
+    private final Map<Entity, Vec3> contactPositions = new HashMap<>();
     private String cause = "none";
     private double triggerValue;
     private boolean falling;
@@ -71,7 +74,7 @@ public final class HullAfloat implements PlacedHatBehavior {
             @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
                 double water = surface(hat.level(), hat.getX(), hat.getY() - 2, hat.getZ());
                 double brim = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
-                return water >= Math.min(hat.getY(), brim + HullPresentation.KEEL * scale(hat)) - .2;
+                return water >= brim + HullPresentation.KEEL * scale(hat);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
             @Override public boolean carries(Level level, Vec3 at) { return Waters.calm(level, BlockPos.containing(at)); }
@@ -91,12 +94,15 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     private double water() { return surface(hat.level(), hat.getX(), hat.getY() - 2, hat.getZ()); }
 
+    @Override public void waterEntered(PlacedHatEntity hat, double speed) {
+        if (speed >= HullPresentation.number("drop_speed")) trigger("impact", speed, false);
+    }
+
     @Override public void tick(PlacedHatEntity hat) {
         double water = water();
         if (!Double.isFinite(water)) return;
         long now = hat.level().getGameTime();
-        impact = lastTick == now - 1 ? 0 : Math.max(0, -hat.getDeltaMovement().y);
-        lastTick = now;
+        impact = 0;
         var sample = turbulence(water);
         if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
         if (phase == Phase.ROCKING && phaseTicks++ >= HullPresentation.number("rock_ticks")) {
@@ -122,8 +128,8 @@ public final class HullAfloat implements PlacedHatBehavior {
                 new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), roll, pitch), 0, 0, false, hat.frame()))
             yaw = hat.getYRot();
         Motor.hostPose(hat, yaw, roll, pitch);
-        double brim = hat.profile().top() * hat.unit() * Math.cos(Math.toRadians(roll)) * Math.cos(Math.toRadians(pitch));
-        double target = water - brim - HullPresentation.WATERLINE * scale(hat) + HullPresentation.bob(now) * scale(hat);
+        double target = water - HullPresentation.waterHeight(hat.profile().top() * hat.unit(), scale(hat), roll, pitch)
+                + HullPresentation.bob(now) * scale(hat);
         var v = hat.getDeltaMovement();
         var horizontal = paddling ? new Vec3(v.x * DRAG, 0, v.z * DRAG).add(drive.scale(1 - DRAG))
                 : new Vec3(v.x * DRAG, 0, v.z * DRAG);
@@ -135,8 +141,10 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (blocked.lengthSqr() > 0) impact = Math.max(impact, motion.dot(blocked.normalize()));
         paddling = false; drive = Vec3.ZERO; turnBy = 0;
         double reach = HullPresentation.RADIUS * scale(hat) + 1;
-        for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
-                e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity)) contact(hat, other);
+        var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
+                e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity);
+        contactPositions.keySet().retainAll(nearby);
+        for (var other : nearby) contact(hat, other, actual, contactPositions.put(other, other.position()));
         if (triggers.impact(impact)) trigger("impact", impact, false);
     }
 
@@ -182,13 +190,13 @@ public final class HullAfloat implements PlacedHatBehavior {
         thrown = hat.getPassengers().size();
         for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y)
             Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
-        larder.spill(hat, cause, this::thrownVelocity);
+        larder.spill(hat, cause);
         hat.dropKit(hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)), hat.getDeltaMovement(), "capsized");
         capsizes++;
         GameplayLog.event(hat, "hat",
-                "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} count={} form={} thrown={} owner={}",
+                "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} drop_limit={} count={} form={} thrown={} owner={}",
                 cause, triggerValue, falling, HullTriggers.WINDOW, HullTriggers.WET_TICKS, HullTriggers.ANGLE,
-                HullTriggers.IMPACT, capsizes, hat.formId(), thrown, hat.ownerYukkuri());
+                HullTriggers.IMPACT, HullPresentation.number("drop_speed"), capsizes, hat.formId(), thrown, hat.ownerYukkuri());
     }
 
     private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
@@ -248,7 +256,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
 
     /** A contact separates the hull and carries the approaching normal velocity; there is no mass sharing. */
-    private void contact(PlacedHatEntity hat, Entity other) {
+    private void contact(PlacedHatEntity hat, Entity other, Vec3 moved, Vec3 previous) {
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return;
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
@@ -264,8 +272,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (depth <= 0) return;
         double nx = dx / distance, nz = dz / distance;
         Motor.move(hat, clear(hat, new Vec3(-nx * depth, 0, -nz * depth)), "hull_contact");
+        if (previous == null) return; // A new neighbour has no observed tick of travel yet.
         var v = hat.getDeltaMovement();
-        double approach = v.subtract(other.getDeltaMovement()).dot(new Vec3(nx, 0, nz));
+        double approach = moved.subtract(other.position().subtract(previous)).dot(new Vec3(nx, 0, nz));
         impact = Math.max(impact, approach);
         if (approach > 0) Motor.velocity(hat, v.add(-nx * approach, 0, -nz * approach), "hull_contact");
     }
@@ -296,7 +305,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.has(one -> one.is(item)); }
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }
     @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
-    @Override public void release(PlacedHatEntity hat, String cause) { larder.spill(hat, cause, at -> hat.getDeltaMovement()); }
+    @Override public void release(PlacedHatEntity hat, String cause) { contactPositions.clear(); larder.spill(hat, cause); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
     @Override public boolean steady(PlacedHatEntity hat) { return phase == Phase.UPRIGHT && rightProgress < 0; }
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {

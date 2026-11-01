@@ -75,7 +75,15 @@ public final class Hop implements Action {
             if (Occupancy.at(host.container(), at, body.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED) spots.add(at);
         }
         spots.sort(Comparator.comparingDouble(p -> p.distanceToSqr(body.position())));
-        for (int k = 0; k < spots.size() && k < ONTO_TRIES; k++) if (new Hop(spots.get(k)).check(body).ok()) return spots.get(k);
+        Feasibility first = null;
+        for (int k = 0; k < spots.size() && k < ONTO_TRIES; k++) {
+            var result = new Hop(spots.get(k)).check(body);
+            if (result.ok()) return spots.get(k);
+            if (k == 0) first = result;
+        }
+        GameplayLog.limited(body, "action", "hop.no_target", 100,
+                "hop no_target host={} candidates={} reason={} hull_y={} target_y={}", host.entity().getUUID(), spots.size(),
+                first == null ? "no_supported_interior" : first, host.entity().getY(), spots.isEmpty() ? "none" : spots.getFirst().y);
         return null;
     }
 

@@ -16,5 +16,6 @@
   "shake_window": 60,
   "turbulence_angle": 60,
   "turbulence_ticks": 12,
-  "impact_speed": 0.16
+  "impact_speed": 0.16,
+  "drop_speed": 0.45
 }

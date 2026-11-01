@@ -275,10 +275,13 @@
   已下线反例：[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290) 曾否定平面粮图、[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00) 空帽也拒绝“无空间”、[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58) 仍显示粮堆；现按用户裁决撤去实物占位与重量（运行证据见 E8–E10 及重构记录）。
 - **P0-6 落水救助一次决策**：`rescue_child` → 子油被嘴咬后颈拉上船；`rescue_infant_full` 保留为普通赤油救援边界，取消丢粮腾位已接入待试玩；被兜孩子随船晃不抽动，每事件每救助者一条 `incident decide`。修复待试玩：亲油向落水者实际接近，够不到或无路给具体原因；出生问候结束后接续施救，不空耗救援次数。
   冒烟可见施救接近，但所有场景完成救助抓取均为 0，仍待修复。
-- **P0-7 自救与扶正交接（WP3）**：已接入待试玩。`self_rescue`、`shore_capsized` 观察游到帽檐、扶正片段、爬回顺序；扶正不因轻摆或泡水伤中断，爬回后停止落水状态。无路、接触前能力不足及浸水伤仍有真实后果；远帽接近期限不变。
-- **P0-8 规则翻船与扶正（WP3）**：已接入待试玩。规则见[水生魔理沙](FEATURES.md#水生魔理沙)。`shake_capsize` 看先摇后翻、原位甩出、空帽拾取和粮／桨守恒；`hat_push` 对照轻推与猛撞；`hat_turbulence` 急流翻一次、`hat_current` 同向流只漂。读 trigger／value、capsizes、inverted 与 righting；倒扣浮帽不反复切换地面／漂浮。
+- **P0-7 自救与扶正交接（WP3）**：已接入待试玩。
+  `self_rescue`、`shore_capsized`：游到帽檐、单次扶正后爬回，落水状态结束；真实中断保留姿态。
+- **P0-8 规则翻船与扶正（WP3）**：已接入待试玩；[规则](FEATURES.md#水生魔理沙)。
+  `shake_capsize`、`hat_push`、`hat_turbulence`：三类触发、先摇后翻、乘员落水及物品守恒；`hat_current` 只漂。
 - **P0-9 船上分娩与新生护理**：`birth_boat_caught` → 临产挪座、每推船晃、新生儿落帽腔初醒、嚼糜喂、首便在后帽檐朝水（`birth exit selected`、`birth berth reserved`、`outcome=HAT`，仍可真实漏接）；`birth_boat_missed` 已去掉满粮初态，当前仅观察自然漏接，乘员容量边界未做、由 WP6 重建；落水须建事件，母亲伸辫或父船来救，没救起则溺亡并哀悼。
-- **P0-11 帽船即家的基础演出（WP3）**：已接入待试玩。`hat_float` 长时看固定水线、轻摆与乘员跟随，capsizes 保持 0；`hat_swap` 对照戴帽与放帽尺寸，`shore_capsized` 倒扣稳定。乘员贴合与排座仍由 WP4 处理；桨、表情与磨损外观沿用原待试玩边界，帽与库存不复制不丢失。
+- **P0-11 帽船即家的基础演出（WP3）**：已接入待试玩。
+  `hat_float` 静水不翻、轻摆跟船，`hat_swap` 戴帽／放帽同大，`shore_capsized` 倒扣稳定；贴合排座由 WP4 接续。
 - **P0-12 不卡死**：任一水上场景跑满 10 分钟 → `/yukkuri aqdiag on` 下无持续同一阶段超时的个体；超时有 `ended reason=timeout/stalled` 与真实结果；辫子不会一直伸着。
 - 另：帽子可被推开、扶正，个体不与帽体重叠；帽子大小戴着与展开一致；带木棍个体会划船；任何动作结束后主人找回或明确放弃自己的帽子（`reclaim done` 或带原因的 `expired`）；陆上摘帽放帽不闪退。
 
