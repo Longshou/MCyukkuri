@@ -39,6 +39,7 @@ public final class Squeeze {
                                       Contact contact) {
         int n = bodies.size();
         double[][] out = new double[n][4];
+        int[] contacts = new int[n];
         for (int i = 0; i < n; i++) {
             var a = bodies.get(i);
             for (int j = i + 1; j < n; j++) {
@@ -47,6 +48,8 @@ public final class Squeeze {
                 double dx = b.x() - a.x(), dz = b.z() - a.z(), d = Math.hypot(dx, dz), depth = a.r() + b.r() - slack - d;
                 if (depth <= TOUCH) continue;
                 if (!contact.test(disc(a), disc(b), 0, 0)) continue;
+                contacts[i]++;
+                contacts[j]++;
                 double angle = (i * n + j) * GOLDEN, nx = d > 1e-6 ? dx / d : Math.cos(angle), nz = d > 1e-6 ? dz / d : Math.sin(angle);
                 out[i][2] = Math.max(out[i][2], depth);
                 out[j][2] = Math.max(out[j][2], depth);
@@ -66,15 +69,21 @@ public final class Squeeze {
                 double dx = a.x() - c.x(), dz = a.z() - c.z(), d = Math.hypot(dx, dz), depth = a.r() + c.r() - slack - d;
                 if (depth <= TOUCH) continue;
                 if (!contact.test(disc(a), c, 0, 0)) continue;
+                contacts[i]++;
                 double down = Math.hypot(downX, downZ);
                 double nx = d > 1e-6 ? dx / d : down > 1e-6 ? downX / down : 1, nz = d > 1e-6 ? dz / d : down > 1e-6 ? downZ / down : 0;
                 out[i][2] = Math.max(out[i][2], depth);
                 depth = depth(disc(a), c, depth, nx, nz, contact);
-                out[i][0] += nx * Math.min(depth * GENTLE, a.step());
-                out[i][1] += nz * Math.min(depth * GENTLE, a.step());
+                out[i][0] += nx * depth * GENTLE;
+                out[i][1] += nz * depth * GENTLE;
             }
         }
         for (int i = 0; i < n; i++) {
+            // Resolve simultaneous pressures together before limiting speed. Clipping each obstacle's push first destroys
+            // their balance; summing a full correction per contact overshoots in a packed floor.
+            if (contacts[i] > 1) { out[i][0] /= contacts[i]; out[i][1] /= contacts[i]; }
+            double length = Math.hypot(out[i][0], out[i][1]), step = bodies.get(i).step();
+            if (length > step) { out[i][0] *= step / length; out[i][1] *= step / length; }
             // The summed shove cannot pass into a fixed obstacle that was clear before the move.
             var a = disc(bodies.get(i));
             for (var c : fixed) {
@@ -90,8 +99,6 @@ public final class Squeeze {
                 out[i][0]*=inside;out[i][1]*=inside;
                 if (inside == 0) out[i][3] = 1;
             }
-            double length = Math.hypot(out[i][0], out[i][1]), step = bodies.get(i).step();
-            if (length > step) { out[i][0] *= step / length; out[i][1] *= step / length; }
         }
         return out;
     }

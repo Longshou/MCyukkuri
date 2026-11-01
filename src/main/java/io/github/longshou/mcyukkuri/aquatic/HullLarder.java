@@ -260,10 +260,10 @@ public final class HullLarder {
     }
 
     /** Pure spot selection on an upright hull; the caller supplies the actual occupants, in hat units. */
-    public static final class Floor {
+    static final class Floor {
         private Floor() {}
 
-        public static Disc spot(HullProfile hull, double r, double tall, int count, Predicate<Disc> clear) {
+        static Disc spot(HullProfile hull, double r, double tall, int count, Predicate<Disc> clear) {
             double best = -1;
             float[] o = hull.opening();
             int side = count % 2 == 0 ? 1 : -1;

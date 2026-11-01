@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SqueezeTest {
     private static final double SLACK = .02;
 
+
     @Test void apartBodiesStayPut() {
         var bodies = List.of(new Squeeze.Body(0, 0, 1, 1, 9), new Squeeze.Body(3, 0, 1, 1, 9));
         assertTrue(!Squeeze.presses(0, 0, 1, 3, 0, 1, SLACK));
@@ -96,7 +97,7 @@ class SqueezeTest {
             return b.x()<0 ? a.x()+dx<.48 : y<.5 && a.x()+dx>-.01;
         };
         var move = Squeeze.separate(List.of(new Squeeze.Body(0,0,1,1,1,.8,1.8)),fixed,SLACK,0,0,supported)[0];
-        assertTrue(move[0]>.1,"the already touching right obstacle must not zero the left shove");
+        assertEquals((.48-.01)/4/2,move[0],.0001,"both existing contacts balance; the right one must not clamp the shove to zero");
         assertEquals(0,move[3]);
     }
 
@@ -143,7 +144,7 @@ class SqueezeTest {
     @Test void stackedBodiesPartAlongDistinctAxes() {
         var moves = Squeeze.separate(List.of(new Squeeze.Body(0, 0, 1, 1, 9), new Squeeze.Body(0, 0, 1, 1, 9), new Squeeze.Body(0, 0, 1, 1, 9)),
                 List.of(), SLACK, 0, 0);
-        for (var m : moves) assertTrue(Math.hypot(m[0], m[1]) > .1);
-        assertTrue(Math.abs(moves[0][0] - moves[1][0]) + Math.abs(moves[0][1] - moves[1][1]) > .1);
+        for (var m : moves) assertTrue(Math.hypot(m[0], m[1]) > 0);
+        assertTrue(Math.abs(moves[0][0]*moves[1][1]-moves[0][1]*moves[1][0]) > .001,"distinct separation axes after averaging contacts");
     }
 }
