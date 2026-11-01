@@ -789,11 +789,16 @@ def compile_clips(model, cfg, root, ground, height):
     return out
 
 
-def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False):
+def export_distress_clips(include_pet=False, include_birth=False, include_carry=False, include_badge=False, include_comfort=False, include_aquatic=False, prune_only=False, check=False):
     """Export only this new clip family, preserving unrelated selected meshes, cheek morphs and existing clips."""
     import hashlib,sys
     sys.path.insert(0,str(ROOT/'scripts'))
     import placement_fit
+    def write(path, text):
+        if check:
+            assert path.read_text(encoding='utf-8') == text, f'Stale export: {path.relative_to(ROOT)}'
+        else:
+            path.write_text(text,encoding='utf-8',newline='\n')
     here=Path(__file__).resolve().parent
     resource=ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json'
     manifest=ROOT/'art/source/motion-corrections/manifest.json'
@@ -841,10 +846,10 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         revision['clips'].update(authored)
         print('Exported selected lore clips:',ident,flush=True)
     if include_birth:
-        (resource.parent/'live_birth_pose.json').write_text(json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
+        write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
     if not prune_only:
         payload['revision']='aquatic-home-20261026-v32' if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
-    resource.write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
+    write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('lore_aquatic_tools',here/'aquatic_tools.py'),('runtime',resource),
                        ('braid_rescue_recipe',ROOT/'standards/yukkuri-library/interactions/braid-water-rescue/recipe.json'),
@@ -857,12 +862,13 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
         entry['birth_pose_sha256']=hashlib.sha256(pose_path.read_bytes()).hexdigest()
     if include_pet:
         entry['exporter_sha256']=hashlib.sha256((ROOT/entry['exporter']).read_bytes()).hexdigest()
-    manifest.write_text(json.dumps(entry,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
+    write(manifest,json.dumps(entry,ensure_ascii=False,indent=2)+'\n')
 
 
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser(description='Generate the new water-distress and hat-balance runtime clip family.')
+    parser.add_argument('--check',action='store_true',help='Compare selected exports without writing files.')
     parser.add_argument('--prune',action='store_true',help='Remove clips absent from both authoring recipes, preserving every retained clip.')
     parser.add_argument('--export-distress',action='store_true')
     parser.add_argument('--export-pet-and-distress',action='store_true',help='Re-export both merged clip families without rebuilding unrelated cheek morphs.')
@@ -872,10 +878,10 @@ if __name__=='__main__':
     parser.add_argument('--export-comfort',action='store_true',help='Export the comfort_lick clip only, preserving other runtime clips.')
     parser.add_argument('--export-aquatic',action='store_true',help='Export the paddle, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py) only.')
     args=parser.parse_args()
-    if args.prune:export_distress_clips(prune_only=True)
-    if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress)
-    if args.export_birth:export_distress_clips(include_birth=True)
-    if args.export_carry:export_distress_clips(include_carry=True)
-    if args.export_badge:export_distress_clips(include_badge=True)
-    if args.export_comfort:export_distress_clips(include_comfort=True)
-    if args.export_aquatic:export_distress_clips(include_aquatic=True)
+    if args.prune:export_distress_clips(prune_only=True,check=args.check)
+    if args.export_distress or args.export_pet_and_distress:export_distress_clips(args.export_pet_and_distress,check=args.check)
+    if args.export_birth:export_distress_clips(include_birth=True,check=args.check)
+    if args.export_carry:export_distress_clips(include_carry=True,check=args.check)
+    if args.export_badge:export_distress_clips(include_badge=True,check=args.check)
+    if args.export_comfort:export_distress_clips(include_comfort=True,check=args.check)
+    if args.export_aquatic:export_distress_clips(include_aquatic=True,check=args.check)

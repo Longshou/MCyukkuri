@@ -12,7 +12,7 @@
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
   "lore_recipe_sha256": "41503a97357ca3e2221aa7fb855816ec39d1879aa6526e012651f89f35158f0b",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "4c7200929f36f689649b2b0999625c1f64182d10eb943792f55834b66370237b",
+  "lore_author_sha256": "1190e0378f11c8a1d8fecd075016762ab0dd0b2af7ccf017acd81f766e59dda6",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "9e8332c1db621a2d189df216a36ccd3c51f180912e3f9bdf991f1884db59abc0",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
