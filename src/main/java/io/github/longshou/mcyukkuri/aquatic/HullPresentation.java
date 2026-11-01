@@ -16,4 +16,9 @@ public final class HullPresentation {
     public static double bob(long tick) { return number("bob_height") * wave(tick, "bob_period"); }
     public static float roll(long tick) { return (float) (number("roll_degrees") * wave(tick, "roll_period")); }
     public static float pitch(long tick) { return (float) (number("pitch_degrees") * wave(tick, "pitch_period")); }
+    public static float rock(long tick, double strength) { return (float) (strength * number("shake_degrees") * wave(tick, "rock_period")); }
+    public static float turn(float from, float to, double progress) {
+        double q = Math.clamp(progress, 0, 1);
+        return (float) (from + (to - from) * q * q * (3 - 2 * q));
+    }
 }

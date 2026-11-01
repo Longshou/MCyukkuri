@@ -8,6 +8,9 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +23,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,12 +35,25 @@ public final class HullAfloat implements PlacedHatBehavior {
     private static final int RIM_POINTS = 24;
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
+    private enum Phase { UPRIGHT, ROCKING, FLIPPING, INVERTED }
+    private Phase phase;
+    private final HullTriggers triggers = new HullTriggers();
+    private int phaseTicks, shakes, capsizes, thrown;
+    private long shakeTick, lastTick = Long.MIN_VALUE;
+    private String cause = "none";
+    private double triggerValue;
+    private boolean falling;
+    private float flipFrom;
+    private double impact;
     private Vec3 drive = Vec3.ZERO;
     private float turnBy;
     private boolean paddling;
     private double rightProgress = -1;
 
-    private HullAfloat(PlacedHatEntity hat) { this.hat = hat; }
+    private HullAfloat(PlacedHatEntity hat) {
+        this.hat = hat;
+        phase = hat.upsideDown() ? Phase.INVERTED : Phase.UPRIGHT;
+    }
     HullLarder larder() { return larder; }
 
     static double brimToward(PlacedHatEntity hat, Vec3 at) {
@@ -74,9 +92,26 @@ public final class HullAfloat implements PlacedHatBehavior {
         double water = water();
         if (!Double.isFinite(water)) return;
         long now = hat.level().getGameTime();
-        float roll = rightProgress >= 0 ? (float) (180 * (1 - rightProgress))
-                : hat.upsideDown() ? 180 : HullPresentation.roll(now);
-        float pitch = hat.upsideDown() || rightProgress >= 0 ? 0 : HullPresentation.pitch(now);
+        impact = lastTick == now - 1 ? 0 : Math.max(0, -hat.getDeltaMovement().y);
+        lastTick = now;
+        var sample = turbulence(water);
+        if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
+        if (phase == Phase.ROCKING && phaseTicks++ >= HullPresentation.number("rock_ticks")) {
+            capsize();
+            phase = Phase.FLIPPING; phaseTicks = 0; flipFrom = hat.roll();
+        } else if (phase == Phase.FLIPPING && phaseTicks++ >= HullPresentation.number("flip_ticks")) {
+            phase = Phase.INVERTED; phaseTicks = 0;
+            if (cause.equals("shake") && thrown == 0) hat.dropAsItem("shaken_empty");
+        }
+        if (hat.isRemoved()) return;
+        float roll = rightProgress >= 0 ? HullPresentation.turn(180, 0, rightProgress) : switch (phase) {
+            case UPRIGHT -> HullPresentation.roll(now) + HullPresentation.rock(now,
+                    shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW));
+            case ROCKING -> HullPresentation.rock(now, HullTriggers.SHAKES + 1);
+            case FLIPPING -> HullPresentation.turn(flipFrom, 180, phaseTicks / HullPresentation.number("flip_ticks"));
+            case INVERTED -> 180;
+        };
+        float pitch = phase == Phase.UPRIGHT && rightProgress < 0 ? HullPresentation.pitch(now) : 0;
         float yaw = hat.getYRot() + turnBy;
         if (turnBy != 0 && !open(hat, 0) && walled(hat,
                 new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), roll, pitch), 0, 0, false, hat.frame()))
@@ -90,12 +125,61 @@ public final class HullAfloat implements PlacedHatBehavior {
         var motion = new Vec3(horizontal.x, target - hat.getY(), horizontal.z);
         var free = clear(hat, motion);
         Motor.velocity(hat, free, "hull_drift");
-        Motor.move(hat, free, "hull_drift");
+        var actual = Motor.move(hat, free, "hull_drift");
+        var blocked = motion.subtract(actual).multiply(1, 0, 1);
+        if (blocked.lengthSqr() > 0) impact = Math.max(impact, motion.dot(blocked.normalize()));
         paddling = false; drive = Vec3.ZERO; turnBy = 0;
-        if (rightProgress >= 1) rightProgress = -1;
+        if (rightProgress >= 1) { rightProgress = -1; phase = Phase.UPRIGHT; }
         double reach = HullPresentation.RADIUS * scale(hat) + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity)) contact(hat, other);
+        if (triggers.impact(impact)) trigger("impact", impact, false);
+    }
+
+    private static boolean falling(FluidState fluid) {
+        return fluid.is(FluidTags.WATER) && fluid.hasProperty(FlowingFluid.FALLING) && fluid.getValue(FlowingFluid.FALLING);
+    }
+    private HullTriggers.Water turbulence(double water) {
+        var cell = BlockPos.containing(hat.getX(), water - .01, hat.getZ());
+        var flows = new ArrayList<HullTriggers.Flow>();
+        for (var neighbour : List.of(cell.north(), cell.south(), cell.east(), cell.west())) {
+            var fluid = hat.level().getFluidState(neighbour);
+            if (!fluid.is(FluidTags.WATER)) continue;
+            var flow = fluid.getFlow(hat.level(), neighbour);
+            flows.add(new HullTriggers.Flow(flow.x, flow.z, falling(fluid)));
+        }
+        return HullTriggers.classify(falling(hat.level().getFluidState(cell)), flows);
+    }
+    private void trigger(String kind, double value, boolean falling) {
+        if (phase != Phase.UPRIGHT || rightProgress >= 0) return;
+        cause = kind; triggerValue = value; this.falling = falling;
+        phase = Phase.ROCKING; phaseTicks = 0; shakes = 0;
+    }
+    @Override public boolean shake(PlacedHatEntity hat, Player by) {
+        if (hat.level().isClientSide) return true;
+        if (phase != Phase.UPRIGHT) return true;
+        shakeTick = hat.level().getGameTime();
+        shakes = triggers.shake(shakeTick);
+        GameplayLog.event(hat, "hat", "shake player={} count={} window={}", by.getUUID(), shakes, HullTriggers.WINDOW);
+        if (shakes == HullTriggers.SHAKES) trigger("shake", shakes, false);
+        return true;
+    }
+    private Vec3 thrownVelocity(Vec3 at) {
+        double a = Math.atan2(at.z - hat.getZ(), at.x - hat.getX());
+        double speed = HullPresentation.number("throw_horizontal");
+        return hat.getDeltaMovement().add(Math.cos(a) * speed, HullPresentation.number("throw_vertical"), Math.sin(a) * speed);
+    }
+    private void capsize() {
+        thrown = hat.getPassengers().size();
+        for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y)
+            Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
+        larder.spill(hat, cause, this::thrownVelocity);
+        hat.dropKit(hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)), hat.getDeltaMovement(), "capsized");
+        capsizes++;
+        GameplayLog.event(hat, "hat",
+                "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} count={} form={} thrown={} owner={}",
+                cause, triggerValue, falling, HullTriggers.WINDOW, HullTriggers.WET_TICKS, HullTriggers.ANGLE,
+                HullTriggers.IMPACT, capsizes, hat.formId(), thrown, hat.ownerYukkuri());
     }
 
     private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
@@ -170,16 +254,17 @@ public final class HullAfloat implements PlacedHatBehavior {
         Motor.move(hat, clear(hat, new Vec3(-nx * depth, 0, -nz * depth)), "hull_contact");
         var v = hat.getDeltaMovement();
         double approach = v.subtract(other.getDeltaMovement()).dot(new Vec3(nx, 0, nz));
+        impact = Math.max(impact, approach);
         if (approach > 0) Motor.velocity(hat, v.add(-nx * approach, 0, -nz * approach), "hull_contact");
     }
 
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
-        if (rightProgress < 0 && !hat.upsideDown()) return false;
+        if (phase != Phase.INVERTED) return false;
         rightProgress = progress;
         return true;
     }
     @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
-        if (hat.upsideDown() || rightProgress >= 0) return false;
+        if (phase != Phase.UPRIGHT || rightProgress >= 0) return false;
         drive = water; turnBy = turn; paddling = true;
         return true;
     }
@@ -189,22 +274,31 @@ public final class HullAfloat implements PlacedHatBehavior {
     @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
     @Override public void release(PlacedHatEntity hat, String cause) { larder.spill(hat, cause, at -> hat.getDeltaMovement()); }
     @Override public boolean catches(PlacedHatEntity hat) { return false; }
-    @Override public boolean steady(PlacedHatEntity hat) { return !hat.upsideDown() && rightProgress < 0; }
+    @Override public boolean steady(PlacedHatEntity hat) { return phase == Phase.UPRIGHT && rightProgress < 0; }
     @Override public boolean retrievable(PlacedHatEntity hat, YukkuriEntity owner) {
         return steady(hat) && hat.getPassengers().isEmpty();
     }
     @Override public CompoundTag save() {
         var tag = new CompoundTag();
+        tag.putString("Phase", phase.name()); tag.putInt("PhaseTicks", phaseTicks); tag.putFloat("FlipFrom", flipFrom);
+        tag.putInt("Capsizes", capsizes); tag.putInt("Thrown", thrown); tag.putString("Trigger", cause);
+        tag.putDouble("TriggerValue", triggerValue); tag.putBoolean("Falling", falling);
         tag.put("Stores", larder.save());
         return tag;
     }
-    @Override public void load(CompoundTag tag) { larder.load(hat, tag.getCompound("Stores")); }
+    @Override public void load(CompoundTag tag) {
+        phase = Phase.valueOf(tag.getString("Phase")); phaseTicks = tag.getInt("PhaseTicks"); flipFrom = tag.getFloat("FlipFrom");
+        capsizes = tag.getInt("Capsizes"); thrown = tag.getInt("Thrown"); cause = tag.getString("Trigger");
+        triggerValue = tag.getDouble("TriggerValue"); falling = tag.getBoolean("Falling");
+        larder.load(hat, tag.getCompound("Stores"));
+    }
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
-        return !hat.upsideDown() && hat.support(hat.frame().toLocal(rider.position()), rider).isPresent();
+        return phase == Phase.UPRIGHT && hat.support(hat.frame().toLocal(rider.position()), rider).isPresent();
     }
     @Override public String detail(PlacedHatEntity hat) {
-        return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f inverted=%s righting=%.2f %s",
-                HullPresentation.WATERLINE * scale(hat), water(), hat.upsideDown(), rightProgress, larder.detail());
+        return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s",
+                HullPresentation.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
+                phase == Phase.INVERTED, rightProgress, larder.detail());
     }
     private static double[] local(PlacedHatEntity hat, double x, double z) {
         double yaw = hat.turn(), c = Math.cos(yaw), s = Math.sin(yaw);

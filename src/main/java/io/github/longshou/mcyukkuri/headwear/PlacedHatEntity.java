@@ -27,6 +27,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -328,7 +330,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public void dropKit(Vec3 at, Vec3 v, String cause) {
         if (kit.isEmpty() || level().isClientSide) return;
         var drop = new ItemEntity(level(), at.x, at.y, at.z, kit);
-        drop.setDeltaMovement(v);
+        Motor.velocity(drop, v, cause);
         drop.setDefaultPickUpDelay();
         kit = ItemStack.EMPTY;
         GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned={}", cause, GameplayLog.at(at), level().addFreshEntity(drop));
@@ -510,6 +512,26 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** What every behaviour keeps for this hat falls out where it lies, as real items (taken back, or destroyed). */
     private void release(String cause) {
         for (var held : instances.values()) held.release(this, cause);
+    }
+    /** An empty shaken hull becomes its one physical accessory item, retaining its type and wear. */
+    public void dropAsItem(String cause) {
+        var owner = owner();
+        if (owner == null) {
+            GameplayLog.event(this, "hat", "pickup refused reason=owner_unloaded owner={}", ownerYukkuri());
+            return;
+        }
+        var stack = new ItemStack(ModItems.accessoryFor(owner));
+        AccessoryItem.markSource(stack, owner);
+        var drop = new ItemEntity(level(), getX(), getY(), getZ(), stack);
+        Motor.velocity(drop, getDeltaMovement(), cause);
+        drop.setDefaultPickUpDelay();
+        if (!level().addFreshEntity(drop)) {
+            GameplayLog.event(this, "hat", "pickup refused reason=item_spawn_failed owner={}", ownerYukkuri());
+            return;
+        }
+        if (ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);
+        GameplayLog.event(this, "hat", "pickup cause={} item={} count=1 owner={}", cause, stack.getItem(), ownerYukkuri());
+        discard();
     }
     /** Destroyed (killed or discarded, a taken-back hat included) it drops what it held; unloaded to its chunk it keeps it saved. */
     @Override public void remove(RemovalReason reason) {
@@ -835,5 +857,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         rollO=roll();pitchO=pitch();
         kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;
+        instances.clear(); behaviorPicked=false; behaviorTick=-1; ran=null;
     }
 }
