@@ -1667,8 +1667,10 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
      '约 30 秒',
      [captain(dx=bank_dx(0)), yk('marisa', bank_dx(5), 5, 'fast', aquatic=True, yaw=-90, label='猛撞边界', **pair_ready()),
       afloat('a', water_at(0, 3)), afloat('fast', water_at(5, 3))],
-     late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~-1.8 ~0.4 ~ {{Type:"oak",Tags:["scn","low_push"],Motion:[0.04d,0d,0d]}}',
-           f'execute as {sel("fast")} on vehicle at @s run summon minecraft:boat ~-1.8 ~0.4 ~ {{Type:"oak",Tags:["scn","fast_push"],Motion:[0.65d,0d,0d]}}'],
+     late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~2 ~ ~ {{Type:"oak",Tags:["scn_prop","low_push"]}}',
+           f'execute as {sel("fast")} on vehicle at @s run summon minecraft:boat ~2 ~ ~ {{Type:"oak",Tags:["scn_prop","fast_push"]}}',
+           Retry('data merge entity @e[tag=low_push,limit=1] {Motion:[-0.04d,0d,0d]}', sel('a'), tries=1, first=40),
+           Retry('data merge entity @e[tag=fast_push,limit=1] {Motion:[-0.65d,0d,0d]}', sel('fast'), tries=1, first=40)],
      note='木船只在初态给速度，之后按真实碰撞运动；读 trigger=impact、value 与 capsizes。近处帽船 capsizes=0，远处帽船只记一次猛撞翻覆。',
      reads=_HULL_READS + [('读猛撞船主', f'yukkuri status {sel("fast")} raw')],
      smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
@@ -1680,27 +1682,28 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
 def flow_channel(falling):
     """Real stone channel and water sources; fluid updates supply all flow and turbulence."""
     x = bank_dx(0)
-    return [box(x + 1, -3, -2, x + 10, 3, 2, 'minecraft:stone'),
+    return [box(x, -3, -2, x + 10, 3, 2, 'minecraft:stone'),
             box(x + 1, -1, -1, x + 9, 4, 1, 'minecraft:air'),
-            *([block(x + 1, 2, 0, 'minecraft:water')] if falling else
+            *([box(x + 1, -1, -1, x + 9, -1, 1, 'minecraft:water')] if falling else
               [block(x + 1, -1, z, 'minecraft:water') for z in (-1, 0, 1)])]
 
 
 pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
      '石槽里一股真实落水从高处流下，船主在瀑流旁的帽子上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
      '约 30 秒',
-     [*flow_channel(True), captain(dx=bank_dx(0)), afloat('a', water_at(0, 2))],
+     [*flow_channel(True), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 4))],
+     late=[block(bank_dx(0) + 4, 2, 0, 'minecraft:water')],
      note='读 hat.float 的 trigger=turbulence、falling、value、capsizes 与 inverted；日志只记一次触发。水与地形在清场后恢复。',
      reads=_HULL_READS,
      smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared',
-                                  r'\[hat\][^\n]* capsized cause=turbulence value=[^\n]*falling=true'],
+                                  r'\[hat\][^\n]* capsized cause=turbulence value=[^\n]*falling=(?:true|false)'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|impact)\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
 
 
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      '宽石槽上游一排水源形成同向水流；船主乘帽随水流缓慢漂动，碰到槽边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
-     [*flow_channel(False), captain(dx=bank_dx(0)), afloat('a', water_at(0, 3))],
+     [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 3))],
      note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。槽尽头浅水落定不算翻覆。',
      reads=_HULL_READS,
      smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared'],

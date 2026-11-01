@@ -255,7 +255,9 @@ public final class HullAfloat implements PlacedHatBehavior {
                 || y.motor().current() instanceof Right right && right.host() == hat)) return;
         double brim = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
         var box = other.getBoundingBox();
-        if (box.minY >= brim + hat.unit() || box.maxY <= brim + HullPresentation.KEEL * scale(hat)) return;
+        double tilt = Math.abs(Math.sin(Math.toRadians(hat.roll()))) + Math.abs(Math.sin(Math.toRadians(hat.pitch())));
+        if (box.minY >= brim + HullPresentation.RADIUS * scale(hat) * tilt
+                || box.maxY <= brim + HullPresentation.KEEL * scale(hat)) return;
         double dx = other.getX() - hat.getX(), dz = other.getZ() - hat.getZ(), distance = Math.hypot(dx, dz);
         if (distance < 1e-4) { dx = 1; dz = 0; distance = 1; }
         double depth = Math.min(CONTACT_STEP, HullPresentation.RADIUS * scale(hat) + other.getBbWidth() / 2 - distance);

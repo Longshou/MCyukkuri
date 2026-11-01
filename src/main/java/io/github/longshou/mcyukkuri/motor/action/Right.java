@@ -59,7 +59,7 @@ public final class Right implements Action {
             }
         }
         if (++t >= length) return new Outcome.Done("upright");
-        return new Running(length - t, TravelMode.CONSUMED);
+        return new Running(length - t, TravelMode.PASS);
     }
     @Override public void abort(YukkuriEntity body, String why) { host.stopRight(body); }
     @Override public int progressWindow() { return length; }
