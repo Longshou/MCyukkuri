@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 帽船分娩稳位与身体归属 | `.worktrees/aq-labour-1031` | `family/LiveBirth.java`、身体归属／欲望仲裁、纯函数测试、`docs/TODO.md` |
 | 帽船放置形态放大（盆腔容纳全家） | `.worktrees/aq-basin-size-1031` | `interactions/aquatic-marisa-hat/` 放置盆制作源与导出、`aquatic_basin_hat_turned` 模型与 `hull_profiles`、`art/runtime-sources.json` |
-| 文档精简为 FEATURES.md | `.worktrees/docs-prune-1101` | `docs/**`、`AGENTS.md`、各 README、代码注释中的文档链接 |
 
 ## 玩法待办
 
@@ -30,6 +29,7 @@
 
 - **新生儿一律赤油、体型各异**：已接入待试玩。E8 茎生 `STEM JUVENILE scale=0.2` 大于胎生 `LIVE BABY scale=0.14`；E9 未复测出生链。完成：`birth_stem_caught`、`birth_land_caught` 每只新生儿 `stage=BABY`，同胎基础 `scale` 各异且在赤体区间；特殊形态成熟实子落地不变大，重载不重抽（[体型规范](FEATURES.md#行为性格与成长)）。
 - **陆 27 繁衍剩余缺口核对**（43）：未做。对照 Wiki 列清求偶到育儿真正未实现的环节；迁徙照护、宠物许可、树叶襁褓按已有条目处理。
+- **分娩阵痛与大哭触发情绪失禁**：未做。受惊／压力≥80 失禁已有，分娩阵痛与大哭尚未接入（规则见[伤口、遗体与身体状态](FEATURES.md#伤口遗体与身体状态)）。
 
 ### 宠物、商店与人类关系
 
@@ -84,6 +84,7 @@
 
 - **陆 35 鬼威惨商店**（10）：未做。售卖虐油用具、劣质虐用个体和特殊处理过的个体，后续再做。
 - **陆 36 工厂重做**（6）：未做。重点是加工厂里的遭遇演出，不重机械，后续再做。
+- **工厂与商店补缺**：未做。工厂轮换工位、分选、整茎采收、批次育成、多体袋装未接入；商店后场库存定时补货的间隔与库存目标未定（见[人类世界](FEATURES.md#人类世界)）。
 
 ## 暂缓/不重要
 
@@ -91,6 +92,7 @@
 
 - 用户不提不开工（未做）：[DOS](FEATURES.md#妖梦与稀有变体)、[捕食种误判危险](FEATURES.md#野外事件)、[村边纠纷](FEATURES.md#人类世界)、[饲主威胁线](FEATURES.md#宠物店徽章与宠物培育)、[网络包同步和可选兼容](../AGENTS.md)。部分接入、现状待核对：[工厂流水线与 NPC 态度关系](FEATURES.md#人类世界)。
 - 未做：[认屋成员脱离聚落、解除伴侣与强盗团离开消散](FEATURES.md#野外事件)；[运行资源瘦身](../AGENTS.md)（先测完整 Jar 大小与加载耗时）。
+- 未做：饥荒断粮献身（`HabitatLife.quarrel` 处衔接，目前粮尽只有争吵与外出觅食）；迁徙行军觅食阈值未定；亲代拒绝分食目前只降低好感；Patchouli／Jade 等可选兼容未接入（见[季节](FEATURES.md#季节体感温度与储粮)、[聚落](FEATURES.md#聚落族规与迁徙)、[基础生活](FEATURES.md#基础生活与饲养操作)）。
 
 ## 运行证据索引（2026-10-21–31）
 
