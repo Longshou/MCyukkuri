@@ -8,6 +8,12 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽船缓流与碰撞连续性（反馈 6、12） | `.worktrees/fb-hull-motion` | `aquatic/HullAfloat`、`headwear/HatSurface`／`SeatSurface`／`PlacedHatEntity`、`hat_current`／`hat_push` |
+| 自救上岸与亲子出航（反馈 7、11） | `.worktrees/fb-shore` | `aquatic/Ashore`／`SetOut`／`Waters`／`Ferry`／`Beckon`、`motor/ContactGeometry` |
+| 帽檐托赤油与亲代运输（反馈 4、`carry_home`） | `.worktrees/fb-brim-carry` | `family/ParentCarry`、`motor/action/Grab`、`client/ParentCarryPresentation`、认窝、`carry_home` |
+| 嗯嗯奴隶与佩妮佩妮回退（反馈 1、2） | `.worktrees/fb-pit-peni` | 聚落嗯嗯坑、`settle_pit_slave`、佩妮佩妮制作源与导出 |
+| 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
+| 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
 
 ## 玩法待办
 
