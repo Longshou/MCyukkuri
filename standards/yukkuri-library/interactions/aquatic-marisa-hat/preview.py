@@ -470,7 +470,7 @@ def page():
             '<p><a href="../index.html">预览总入口</a></p><h2>水生魔理沙帽第二形态：外圆台阶帽冠＋陆生帽弯尖，内圆盆；与现行帽对照，乘员能否放下、坐在哪里</h2>'
             f"<p>离线 CPU 渲染与离线计算，非游戏画面；新形态已导出运行网格与帽船剖面，尚未接入游戏。尺寸（成体模型单位，16 = 1 格）：帽檐半径 {g['brim_radius']}，"
             f"帽冠底半径 {g['crown_radius']}，帽口半径 {g['opening_radius']}，平底半径 {g['floor_radius']}、深 {g['floor_depth']}，"
-            f"龙骨底 {g['keel_depth']}，翘边高 {g['rim_height']}。载重规则见 AQUATIC_MARISA_IMPLEMENTATION 帽内空间与载重。"
+            f"龙骨底 {g['keel_depth']}，翘边高 {g['rim_height']}。载重规则见 docs/FEATURES.md 水生魔理沙。"
             '支撑按身体真实底面；占位规则对比现行的脚圆（半身宽＋0.02 格的圆，高度重叠即冲突）与建议的身体轮廓（只算身体，不算帽子、头发和辫子）。'
             '白天帽主坐中间或尽量少往船尾挪，幼体在她身前；夜里她用 boat_cover_young 俯身，幼体在她身前或俯身下。'
             '辫托按 braid_cradle_lift 实际托兜范围，帽主原地转身。稳：静横倾不超过进水角的 0.6（HullAfloat.STEADY）。</p>'

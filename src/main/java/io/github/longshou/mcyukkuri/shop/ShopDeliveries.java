@@ -38,7 +38,7 @@ public final class ShopDeliveries extends SavedData {
     private final Map<UUID, GlobalPos> shops = new HashMap<>();
     private final Map<UUID, Long> seen = new HashMap<>();
     private final List<Delivery> pending = new ArrayList<>();
-    /** Unsold stock sent back to a factory: the token waits until the factory worker collects it (docs/FEATURES.md section 6.3). */
+    /** Unsold stock sent back to a factory: the token waits until the factory worker collects it (docs/FEATURES.md). */
     public record Recall(UUID token, UUID shopkeeper, UUID factory, long shipped) {}
     private final Map<UUID, GlobalPos> factories = new HashMap<>();
     private final Map<UUID, Long> factorySeen = new HashMap<>();

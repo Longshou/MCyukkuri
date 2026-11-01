@@ -20,7 +20,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 
 /**
- * Register of the pet shops (docs/FEATURES.md "Shop register"): which shopkeeper runs a shop, where it stands, and which individuals are on its shelves.
+ * Register of the pet shops (docs/FEATURES.md): which shopkeeper runs a shop, where it stands, and which individuals are on its shelves.
  * The shopkeeper's UUID is the shop's identity (it already keys the goods shelves and the daily trades in {@link ShopStock}); the individuals' own custody
  * data (Owner = shopkeeper, Use = stock) is what the sale checks, and this register is the shop-side record of the same binding, so a shop can be listed,
  * audited and cleaned up. A shopkeeper enters the register when it first ticks (world generation, template or egg) and leaves it when it dies.

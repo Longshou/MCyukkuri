@@ -43,7 +43,7 @@ public final class HullLarder {
     public static final double HEIGHT = .06;
     /** A portion weighs on the hull as a round lump of a yukkuri body's density. */
     static final double MASS = Buoyancy.bodyMass(2 * RADIUS, 2 * RADIUS, Buoyancy.BODY_DENSITY);
-    /** A sneaking click hands over up to this many portions (AQUATIC_MARISA_IMPLEMENTATION); the floor is searched on this
+    /** A sneaking click hands over up to this many portions (docs/FEATURES.md 水生魔理沙); the floor is searched on this
      *  lattice (hat units). */
     private static final int HANDFUL = 8;
     private static final double LATTICE = .5;

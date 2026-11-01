@@ -11,7 +11,7 @@ import org.joml.Vector3f;
 
 /**
  * Pet harness, cloth swaddle and leaf swaddle as shells derived procedurally from the posed body surface (no per-species authored
- * attachments, docs/FEATURES.md, docs/FEATURES.md). The body's skinned vertices are reduced to a radius profile (largest
+ * attachments, docs/FEATURES.md). The body's skinned vertices are reduced to a radius profile (largest
  * horizontal radius per angle bin and height cell); a shell at any height is read from that profile by interpolating between the nearest
  * samples below and above, so sparse meshes (the rounded bodies have only eight vertex rings) and dense ones alike give a closed shell, and
  * all follow squash, stretch and growth of whatever model and clip is being drawn.

@@ -114,7 +114,7 @@ BABY = {
     'leak': ('{c}……あ……でちゃった……', '{c}……啊……漏出来了……', '{c}... oh... it came out...'),
     'sole_burned': ('{c}ーっ！ あんよ、あちゅい、あちゅい！', '{c}——！脚脚，烫烫，烫烫！', '{c}! My foot, hot, hot!'),
     'craving': ('{c}……こなこな……ほちい……', '{c}……粉粉……想要……', '{c}... powder... want...'),
-    # the centre filling is hurt: a short dying state (docs/FEATURES.md, 受伤模型); the classic last words
+    # the centre filling is hurt: a short dying state (docs/FEATURES.md); the classic last words
     'dying': ('{c}……もっちょ……ゆっくち……ちたかった……', '{c}……还想……再慢慢来……', '{c}... wanted... to take it easy... more...'),
 }
 # death and the dead (docs/FEATURES.md; social/GriefLife, social/Cannibalism, social/SelfOffering): last words to kin, the kin's grief, the stench, the child's side of "please eat me"

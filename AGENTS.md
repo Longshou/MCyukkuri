@@ -15,6 +15,8 @@
 - 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试）；`python scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟（读主检出已装 CI 运行包，缺失即报错，不跑 Gradle，客户端或 Minecraft 运行时拒绝启动；产物在主检出 `.local/smoke/`，只查场景初态与链路读数）。资源导出脚本多支持 `--check`；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
 - 试玩场：根目录 `启动动作博物馆.cmd`（`-Fresh` 全新世界、`-Resume` 保留世界、`-Menu` 主菜单）。场景、读数和按钮源在 `scripts/museum_*.py`。清场与场景边界见[功能说明](docs/FEATURES.md#试玩场与动作博物馆)。
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留，副本放 `.local/reports/<主题>/`。`/yukkuri status trace true` 开启细密采样。
+- SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
+- 场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`smoke_museum.py --hat-form turned_land_hat|cone_basin` 切换池塘帽形；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录；清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
 
 ## 协作与范围
 
@@ -47,6 +49,7 @@
 - 专用道具使用符合含义的美术，需替换的占位登记在[待办](docs/TODO.md#美术opus)。用户说“保存 xx”即认可当前版本，直接写入制作源登记，不重复确认。
 - 预览统一输出 `.local/previews/<主题>/`，总入口 `.local/previews/index.html`；更新后重建总入口，同主题只留当前预览，不删制作输入、当前模型或原始参考图。改模型后出一张当前预览并贴在回复中。
 - 生成脚本和模板留在原制作目录。预览、截图、报告、验收或确认记录不入库；截图、报告分别放 `.local/screenshots/`、`.local/reports/`。认可集合和文件指纹由制作源登记保存。
+- 生成文件冲突先合并制作源（动作源 motions／variants／lore／recipe.json、author.py、motion_corrections.json；语言按键、台词按行 ID 合并）再重建受影响输出。目录与文件用稳定英文 ID 命名，不用“最终版／新版2”；当前导出放 `assembled/`，待确认方案放 `drafts/<主题>/`，被替代方案直接删除、不设 `archive/`；同包脚本留包内，跨目录脚本放 `scripts/` 并登记其 README；`standards/yukkuri-v1/` 仍被读取。
 
 ## 架构红线
 
@@ -84,5 +87,6 @@
 - 使用 `[body]`、`[family]` 等稳定前缀。通过统一入口记录品种／类型、实体 ID、UUID、tick、维度和位置；涉及目标、资源、概率时记录身份、前后值、失败条件或已算出的概率，不把尝试写成成功。客户端不重复记服务端业务。
 - 关键事件默认 INFO；扫描无候选、持续寻路、每 tick 数值和几何采样不逐次 INFO。重复等待／拒绝按实体与原因限频，连续消耗记阈值、阶段或汇总；详尽采样需显式开关。缓存有界、不进存档，不转储完整 NBT、背包或长路径。
 - 排查结合实际运行版本和现场读数；没有日志不等于行为未发生。实时日志问题统一登记到待办的对应模块。
+- 调试开关默认关闭：`/yukkuri status trace true|false`（细密状态日志）、`debug.entitySaveViews`（完整实体保存视图）、客户端 `render.woundPerfLog`（`[render]` 伤口渲染耗时）、客户端参数 `-Dmcyukkuri.aqdiag=true`（`[hat-input]` 右键输入候选）；用完关闭。
 - 公共入口 `status/GameplayLog`：`event(entity, category, message, values...)`（附品种、实体 ID、UUID、tick、维度、位置）、`world(level, ...)`（无存活实体的事务）、`limited`／`worldLimited`（按主体、类别、稳定原因键限频，缓存每桶最多 64 键、不入存档；下次输出带 `suppressed=N`，键不含动态坐标或时间）。跨重载关联用 UUID。
 - 稳定前缀按领域划分，如 `[species]` `[body]` `[remains]` `[family]` `[childhood]` `[choreo]` `[approach]` `[care]` `[offering]` `[incident]` `[water]` `[settlement]` `[habitat]` `[meal]` `[needs]` `[interaction]` `[shop]` `[exam]` `[custody]` `[badge]` `[intent]` `[method]` `[action]` `[aquatic]` `[hat]` `[headwear]` `[winter]` `[move]` `[social]` `[wild-event]` `[mind]` `[predator]`；新增前缀沿用此命名。默认省略每 tick 的移动、朝向、几何、动画、台词、代谢和寻路节点；接近、预留、获准路线不代表业务完成，初态准备成功不是玩法成功；读档与场景直接写初态不重放历史事务。限频后的沉默或缺日志不能单独证明行为没有发生。

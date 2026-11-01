@@ -31,7 +31,7 @@ import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.AbandonLog;
 import io.github.longshou.mcyukkuri.shop.CommodityLife;
 
-/** One running exam (docs/FEATURES.md section 3): gather, then every question in turn, then the result ceremony. One session per examiner.
+/** One running exam (docs/FEATURES.md): gather, then every question in turn, then the result ceremony. One session per examiner.
  *  Types follow ExamRecord: 3 simple, 4 judgment, 5 promotion, 6 renewal. Everything here runs on the server thread. Transient: a restart mid-exam drops it (locks are not saved). */
 public final class ExamSession implements ExamContext {
     public static final int SIMPLE = 3, JUDGMENT = 4, PROMOTION = 5, RENEWAL = 6, COOLDOWN = 1200, REISSUE = 7;
@@ -65,7 +65,7 @@ public final class ExamSession implements ExamContext {
         return switch (type) { case JUDGMENT -> BadgeGrade.GOLD; case PROMOTION -> current.higher(); case RENEWAL -> current; default -> BadgeGrade.BRONZE; };
     }
 
-    /** M02 refusal 3 (docs/FEATURES.md 3): the owner cannot be expected to manage a pet. True if the player abandoned one within the last
+    /** M02 refusal 3 (docs/FEATURES.md): the owner cannot be expected to manage a pet. True if the player abandoned one within the last
      * 3 game days, or one of their pets within 32 blocks has neglect >= 60. */
     public static boolean unmanaged(Player p) {
         if (!(p.level() instanceof ServerLevel level)) return false;

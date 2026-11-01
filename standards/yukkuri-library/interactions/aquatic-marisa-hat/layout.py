@@ -1,6 +1,6 @@
 """Who fits in the set-down aquatic hat, where each sits, and whether it stays upright (offline study; no game).
 
-The riders are the capacity rule of AQUATIC_MARISA_IMPLEMENTATION 帽内空间与载重 (newborn and baby 2, small child up to 0.30
+The riders are the capacity rule of docs/FEATURES.md 水生魔理沙的载重规则 (newborn and baby 2, small child up to 0.30
 3, child up to 0.45 4, a pregnant owner +2, at most 12; bigger young are no regular riders; from 0.8 of her term the owner
 takes the high seat and leaves the cavity before her for the birth). Each layout is solved by day and by night (the owner
 leaning over the young: boat_cover_young) with 0, 12 and 24 stored portions (one level layer the riders sit on).

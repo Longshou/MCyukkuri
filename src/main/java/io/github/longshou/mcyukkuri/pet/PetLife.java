@@ -173,7 +173,7 @@ public final class PetLife {
     // records
     public List<ExamRecord> history() { return Collections.unmodifiableList(history); }
     public void record(ExamRecord r) { history.add(r); while (history.size() > 16) history.remove(0); }
-    /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md 2. */
+    /** Flavour title derived from the history (nothing saved): 0 none, 1 eternal silver, 2 hidden gold. M02 basis: docs/FEATURES.md. */
     public static final int TITLE_ETERNAL_SILVER = 1, TITLE_HIDDEN_GOLD = 2;
     public int title() { return title(history, grade); }
     public static int title(List<ExamRecord> records, BadgeGrade now) {
@@ -223,7 +223,7 @@ public final class PetLife {
     public int unauthorizedBirths() { return unauthorized; }
     public void noteUnauthorizedBirth() { unauthorized = Math.min(99, unauthorized + 1); }
 
-    // owner line: neglect and abandonment (docs/FEATURES.md 5.5)
+    // owner line: neglect and abandonment (docs/FEATURES.md)
     public int neglect() { return neglect; }
     public boolean voidBadge() { return voidBadge; }
     /** Former owner while the abandonment record stands; cleared by the next owner. */

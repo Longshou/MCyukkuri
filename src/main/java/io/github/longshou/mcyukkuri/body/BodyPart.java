@@ -5,7 +5,7 @@ import java.util.Random;
 import org.joml.Vector3f;
 
 /**
- * The five coarse regions of a round body (docs/FEATURES.md, "受伤模型"). A wound belongs to the region of its
+ * The five coarse regions of a round body (docs/FEATURES.md). A wound belongs to the region of its
  * rest-surface site; the core can only be reached through a region that already has a deep wound (or by a blow strong enough
  * to go straight through). Regions come from the selected skin mesh: the face looks along -z.
  */
