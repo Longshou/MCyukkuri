@@ -1648,21 +1648,64 @@ def _children(rows):
             for n, dz in enumerate(rows, 1)]
 
 
-pond('hat_float', '帽子漂浮·吃水与倾斜', '漂浮吃水',
-     '初态已摆好：成体水生魔理沙的帽子放在静水上，她坐在帽中央，两只新生赤油坐在帽前。帽子浮在水线上，吃水由载员决定，并向赤油所坐的前方略微前倾；乘员不湿身、不陷进帽体，岸边与水中的身体不与帽体重叠',
-     '约 30 秒',
-     [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='读 hat.tilt 与 hat.draft；与 hat_swap 的空帽对照吃水。帽里没有木棍，船主只在水上漂着歇（aquatic.desire 的 cruise），乘员不会自己换位置。场景准备失败时聊天栏给出原因。',
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+_HULL_READS = [('读漂浮、触发与扶正', f'yukkuri status {sel("a")} raw'), ('读帽子状态', f'data get entity {_HAT}')]
+_HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
 
-pond('hat_push', '推动帽子', '推动帽子',
-     '船主坐在水面的帽里；帽子另一侧的水里有一只灵梦（真实落水，会受水伤），它游回岸边的普通路线要经过帽子。你也可以下水走向帽子。推动按质量比移动帽子：越重的身体推得越远，载员多的帽子动得少；帽子被推时略向前方倾斜后回弹，谁都不与帽体重叠',
-     '约 30–60 秒',
-     [captain(dx=bank_dx(0)), yk('reimu', bank_dx(0) + 6, 0, 'swimmer', dy=-1, yaw=-90, **pair_ready()),
-      afloat('a', water_at(0, 3))],
-     note='灵梦不会游泳，在水里是真实的危险（会受水伤害）；本场不保证它得救。水深约 2 格，下水的玩家同样会推动帽子。',
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读水中灵梦', f'yukkuri status {sel("swimmer")} raw'),
-            ('读帽子', f'data get entity {_HAT}')])
+
+pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
+     '船主和两只赤油乘帽漂在静水上；帽檐贴近固定水线，船和乘员一起轻轻起伏倾斜。静水轻摆、乘员位置与储粮数都不会触发翻船；长时观察仍应保持正放',
+     '约 3 分钟',
+     [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'), food=8)],
+     note='读 hat.float 的 capsizes=0、inverted=false；与 hat.tilt 对照轻摆。八份粮只显示帽底贴图。乘员排布由后续工作包替换，本场仍须观察穿模。',
+     reads=_HULL_READS,
+     smoke=dict(ticks=3600, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2'],
+                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
+
+
+pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
+     '两顶载人的帽船旁各有一艘真实木船：近处木船低速碰帽，只推开或碰停；远处木船快速撞帽，帽子先猛烈摇摆再翻覆。正常划船撞岸或碰另一顶帽不会翻覆',
+     '约 30 秒',
+     [captain(dx=bank_dx(0)), yk('marisa', bank_dx(5), 5, 'fast', aquatic=True, yaw=-90, label='猛撞边界', **pair_ready()),
+      afloat('a', water_at(0, 3)), afloat('fast', water_at(5, 3))],
+     late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~-1.8 ~0.4 ~ {{Type:"oak",Tags:["scn","low_push"],Motion:[0.04d,0d,0d]}}',
+           f'execute as {sel("fast")} on vehicle at @s run summon minecraft:boat ~-1.8 ~0.4 ~ {{Type:"oak",Tags:["scn","fast_push"],Motion:[0.65d,0d,0d]}}'],
+     note='木船只在初态给速度，之后按真实碰撞运动；读 trigger=impact、value 与 capsizes。近处帽船 capsizes=0，远处帽船只记一次猛撞翻覆。',
+     reads=_HULL_READS + [('读猛撞船主', f'yukkuri status {sel("fast")} raw')],
+     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
+                forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],
+                verify=lambda log: None if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) == 1 else 'expected only the fast impact to capsize',
+                readout=_HULL_READOUT + [f'yukkuri status {sel("fast")} raw']))
+
+
+def flow_channel(falling):
+    """Real stone channel and water sources; fluid updates supply all flow and turbulence."""
+    x = bank_dx(0)
+    return [box(x + 1, -3, -2, x + 10, 3, 2, 'minecraft:stone'),
+            box(x + 1, -1, -1, x + 9, 4, 1, 'minecraft:air'),
+            *([block(x + 1, 2, 0, 'minecraft:water')] if falling else
+              [block(x + 1, -1, z, 'minecraft:water') for z in (-1, 0, 1)])]
+
+
+pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
+     '石槽里一股真实落水从高处流下，船主在瀑流旁的帽子上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
+     '约 30 秒',
+     [*flow_channel(True), captain(dx=bank_dx(0)), afloat('a', water_at(0, 2))],
+     note='读 hat.float 的 trigger=turbulence、falling、value、capsizes 与 inverted；日志只记一次触发。水与地形在清场后恢复。',
+     reads=_HULL_READS,
+     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared',
+                                  r'\[hat\][^\n]* capsized cause=turbulence value=[^\n]*falling=true'],
+                forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|impact)\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
+
+
+pond('hat_current', '单向缓流·只漂移', '缓流漂移',
+     '宽石槽上游一排水源形成同向水流；船主乘帽随水流缓慢漂动，碰到槽边只停住。没有落水、流向冲突或猛撞时不会翻船',
+     '约 30 秒',
+     [*flow_channel(False), captain(dx=bank_dx(0)), afloat('a', water_at(0, 3))],
+     note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。槽尽头浅水落定不算翻覆。',
+     reads=_HULL_READS,
+     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared'],
+                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
+
 
 def water_aftermath(window):
     """A supported landing and re-entry are valid; a rapid hull reversal or a pause restart is not."""
@@ -1696,24 +1739,30 @@ _WATER_ESCAPE = [r'\[intent\][^\n]* start id=escape_water\b',
                  r'\[intent\][^\n]* end id=escape_water result=(?:DONE|EXHAUSTED|LOST)\b']
 
 pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
-     '空手反复右击水面的帽子：单击只会摇一下，持续摇晃超过阈值就翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主慢慢游回帽边（很弱的挣扎前进），咬住帽檐分几次推正帽子（播咬檐推帽的扶正动作，不是挣扎），再爬回帽里；泡水伤照常扣血但不打断游、扶正与爬；两只赤油不会攀爬，只能朝岸挣扎',
+     '空手反复右击水面的帽子：单击只会摇一下，三秒内三次摇晃后先剧烈摇摆再翻覆，所有乘员沿倾斜方向被甩进水里，帽子倒扣浮着（不再是容器）。随后船主慢慢游回帽边（很弱的挣扎前进），咬住帽檐按一段动作推正帽子（播咬檐推帽的扶正动作，不是挣扎），再爬回帽里；泡水伤照常扣血但不打断游、扶正与爬；两只赤油不会攀爬，只能朝岸挣扎',
      '约 1 分钟',
-     [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'))],
-     note='日志：[hat] capsized → 船主 [method] pick method=right_own_hat → [action] start id=right（step、reach）→ [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb，其间没有 [action] end … why=hurt（溺水伤记 [action] kept … through damage=drown）。赤油被水推上低岸是物理结果，否则溺水是真实后果。读 hat.tilt 看摇晃累积与扶正。',
+     [captain(dx=bank_dx(0)), *_babies(),
+      yk('marisa', bank_dx(6) - 5, 6, 'empty', aquatic=True, label='空帽船主', **pair_ready()),
+      afloat('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True),
+      afloat('empty', water_at(6, 3), False, sel('empty'), food=8)],
+     late=[f'execute at {sel("empty")} run tag {_HAT} add empty_hull'],
+     note='另一侧空帽有八份苹果：摇翻后变成一顶可拾取帽子，八份粮全掉出。载人帽有四份粮与木棍；日志 capsized → righted → mount cause=climb，粮与木棍各漂出一次。扶正是一段咬檐推帽动作，水伤照常扣血。读 hat.float 的 trigger、value、capsizes、inverted 与 righting。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'),
             ('读赤油二', f'yukkuri status {sel("k2")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1800, commands=[(100, f'yukkuri scenario shake {_HAT}')] + [
-                    (tick, f'execute if data entity {_HAT} Passengers[0] run yukkuri scenario shake {_HAT}') for tick in range(101, 300)],
+     smoke=dict(ticks=1800, commands=[(tick, f'yukkuri scenario shake {_HAT}') for tick in (100, 110, 120)] + [
+                    (tick, 'yukkuri scenario shake @e[tag=empty_hull,limit=1]') for tick in (70, 80, 90)],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
-                        r'\[hat\][^\n]* shake player=[^\n]*impulse=',
-                        r'\[hat\][^\n]* capsized cause=(?:shake|load)[^\n]*thrown=[1-9]', *_WATER_ESCAPE],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                        r'\[hat\][^\n]* shake player=[^\n]*count=',
+                        r'\[hat\][^\n]* capsized cause=shake value=3.0[^\n]*thrown=[1-9]',
+                        r'\[hat\][^\n]* pickup cause=shaken_empty[^\n]*count=1',
+                        r'\[hat\][^\n]* kit dropped cause=capsized', *_WATER_ESCAPE],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_HULL_READOUT))
 
 pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      '水生魔理沙把帽子放在离岸 3 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
      '约 30 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)], late=[shoved('a')],
-     note='日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读帽子看吃水。',
+     note='日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读 hat.float 看固定水线与翻覆状态。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                                    *_WATER_ESCAPE, r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
@@ -1727,12 +1776,15 @@ pond('self_rescue_far', '落水自救·远处的帽子', '远处帽子',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
 
 pond('shore_capsized', '岸边翻覆的帽子·扶正爬回', '扶正帽子',
-     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按片段节拍分几次把帽子推正（每次推的进度来自她的游速与两者的体积比），帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
+     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)],
-     late=[f'data merge entity {_HAT} {{Roll:180f}}', shoved('a')],
-     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[method] pick method=right_own_hat → [action] start id=right … step= reach= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；扶不动或打滑会转去岸边（method=bank）。',
-     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}', shoved('a')],
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[method] pick method=right_own_hat → [action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, expect=[r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=self_rescue',
+                                   r'\[body\][^\n]* mount [^\n]*cause=climb'],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_HULL_READOUT))
 
 pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
      '岸边的普通灵梦被推进池塘：落水冲击后挣扎着游向最近的岸边，嘴够到岸沿就咬住，按片段节拍把自己拉上岸；浸水伤害照常',
@@ -1756,7 +1808,7 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
       afloat('a', water_at(0, 3), True, sel('a'), food=3),
       afloat('full', water_at(5, 3), True, sel('full'), food=8)],
      give=['minecraft:apple 8', 'minecraft:bread 4'],
-     note='先给近岸满粮帽放一份，看拒绝与手中余量；再给饿船主补粮，看帽底贴图换档、原地取食。读 hat.draft 的 stores、tier、eats、refusals；读 Motion.Stores 核对按种类保存，重载后余量一致。'
+     note='先给近岸满粮帽放一份，看拒绝与手中余量；再给饿船主补粮，看帽底贴图换档、原地取食。读 hat.float 的 stores、tier、eats、refusals；读 Motion.Stores 核对按种类保存，重载后余量一致。'
           '日志：[hat] stores put / stores refused reason=full / stores taken use=eat → [meal] swallowed；翻覆只有一条 stores spilled，逐种核对余量。' + _DESIRE_NOTE_EARLY,
      reads=[('读饿船主储粮', f'yukkuri status {sel("a")} raw'), ('读满粮船主', f'yukkuri status {sel("full")} raw'),
             ('读帽子存档', f'data get entity {_HAT}')],
@@ -1827,7 +1879,7 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                                     r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
                                     r'\[intent\][^\n]* end id=set_out result=DONE\b',
                                     r'\[status\][^\n]* aquatic\.stick_in_braid: false -> true\b',
-                                    # Cone capsize is allowed; basin must reach cruise afloat.
+                                    # Ordinary paddling in calm water must reach cruise without capsizing.
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
 
@@ -1874,7 +1926,7 @@ def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):
 
 
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
-     '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳、也没初航过的子油在岸边被推下水（只有它落水）：它爬不上帽也爬不上岸，只能挣扎。孩子在岸上时亲油会想上岸接它、先往岸边划；救人时她只在帽子中央附近走动（走到帽檐会把帽子压翻），用嘴或辫梢够。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
+     '亲油坐在离岸 3 格水面的自己的帽子里，帽里有木棍；还没学会跳、也没初航过的子油在岸边被推下水（只有它落水）：它爬不上帽也爬不上岸，只能挣扎。孩子在岸上时亲油会想上岸接它、先往岸边划；救人时她在帽里找有支撑且够得到孩子的位置，用嘴或辫梢够。亲油对这次落水只决定一次救不救；接受就划近，在帽里走到靠它的一侧，用嘴叼住它提出水面，转身放进帽腔，随后蹭脸安抚喘气的孩子。拒绝时不救，孩子按落水规则挣扎或溺亡',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', childhood=CHILDHOOD_CRAWLING_READY),
@@ -1926,8 +1978,7 @@ def boat_birth(sid, title, hint, watch, food, note, smoke):
           afloat('mother', water_at(0, 3), True, sel('mother'), food=food, stick=True),
           afloat('father', water_at(4, 3), True, sel('father'), stick=True),
           f'yukkuri scenario birth {sel("mother")} {sel("father")} natural'],
-         note='开场：母油坐在自己正放、浮着的帽子里临产（不翻船、不在岸上；临产孕体按她自己的身子加腹中胎儿计重，读帽子 hat.draft 的 load 与普通成体相近，'
-              '不应有 [hat] capsized cause=overload），父油在自己的船上。' + note,
+         note='开场：母油坐在自己正放、浮着的帽子里临产（不翻船、不在岸上；读帽子 hat.float 的 capsizes=0、inverted=false，静水乘员与储粮不触发翻覆），父油在自己的船上。' + note,
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读所有赤油', f'yukkuri status {NEWBORNS} raw')], smoke=smoke)
 
@@ -1991,7 +2042,7 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_float': 'A1', 'hat_push': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
+    'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'self_rescue_far': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
