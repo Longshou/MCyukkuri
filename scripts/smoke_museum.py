@@ -188,6 +188,16 @@ def run_scene(st, scene, builder):
     return problem is None
 
 
+def require_runtime_commit(runtime):
+    """Without --worktree the mod is the installed runtime, so it must be this checkout: an older package would run
+    this tree's scenes against code that lacks their intents, and that reads as a scene failure."""
+    installed = json.loads((runtime / 'mcyukkuri-runtime.json').read_text(encoding='utf-8-sig'))['commit']
+    current = subprocess.check_output(['git', '-C', str(server.ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+    if installed != current:
+        raise RuntimeError(f'Installed runtime is {installed[:9]} but this checkout is {current[:9]}: update it with '
+                           f'scripts/update_museum_runtime.py --run <build run id>, or pass --worktree to compile this tree')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
@@ -200,6 +210,8 @@ def main():
     server.stop_stale(instances)
     server.require_closed()
     runtime, java = server.installed_runtime()
+    if args.worktree is None:
+        require_runtime_commit(runtime)
     sys.path[0] = str(source / 'scripts')
     builder = importlib.import_module('build_museum_full')
     scenes = {scene.id: scene for scene in builder.museum_scenarios.S if scene.smoke is not None}

@@ -12,17 +12,23 @@ class KidPlayTest {
         assertFalse(HullPresentation.brimFall("FLIPPING"));
     }
     @Test void paddlingWinsOverFoodForAJumper() {
-        assertEquals(Behaviors.KID_MIMIC_PADDLE, KidPlayRule.pick(true, true, 4, 0, .5));
+        assertEquals(Behaviors.KID_MIMIC_PADDLE, KidPlayRule.pick(true, true, 4, true, 0, .5));
+    }
+    @Test void anUnreachableBrimVetoesOnlyTheSplash() {
+        assertEquals(Behaviors.KID_MIMIC_PADDLE, KidPlayRule.pick(true, true, 4, false, 0, .5));
+        assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(true, false, 4, false, .1, .5));
+        assertNull(KidPlayRule.pick(true, false, 4, false, .9, .5));
+        assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 4, true, .9, .5));
     }
     @Test void foodDrawChangesOnlyPlayAndNeverPermitsInfantSplashing() {
         assertFalse(KidPlayRule.available(false, 0));
         assertTrue(KidPlayRule.available(false, 1));
         assertTrue(KidPlayRule.available(true, 0));
-        assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(true, false, 4, .49, .5));
-        assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 4, .5, .5));
-        assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 0, 0, .5));
-        assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(false, true, 4, .99, .5));
-        assertNull(KidPlayRule.pick(false, false, 0, 0, .5));
+        assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(true, false, 4, true, .49, .5));
+        assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 4, true, .5, .5));
+        assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 0, true, 0, .5));
+        assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(false, true, 4, true, .99, .5));
+        assertNull(KidPlayRule.pick(false, false, 0, true, 0, .5));
     }
     @Test void brimAndHideUseTheSameAuthoredRingAndInterpolatedUnderside() {
         var splash = HullBounds.brim(.3, -Math.PI / 2);

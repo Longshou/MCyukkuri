@@ -98,11 +98,6 @@ final class AquaticGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { drive().urgent(); }
     @Override public void tick() {
-        if (BrimPerformance.aboard(body) && !landing()
-                && (drive().runner() == null || !(drive().runner().intent() instanceof PlayAboard))) {
-            drive().stop("return_from_brim");
-            return;
-        }
         if (drive().runner() != null && drive().runner().intent() instanceof PlayAboard play) play.tick();
         if (!body.social().greeting()) drive().tick();
     }
@@ -138,7 +133,6 @@ final class AquaticGoal extends Goal {
 
     // ---------------------------------------------------------------- desires (one evaluation reads the world once)
     private List<Desire> desires() {
-        if (BrimPerformance.aboard(body) && (drive().runner() == null || !(drive().runner().intent() instanceof PlayAboard))) return List.of();
         var out = new ArrayList<Desire>();
         if (body.family().adult()) { help(out); if (HatProp.usable(body) && !body.life().custody().lost()) owner(out); }
         else young(out);
@@ -299,6 +293,11 @@ final class AquaticGoal extends Goal {
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
         if (on && parentOn) play(out, parent, hat, world);
+        // a brim is a legal place to be: back into a seat the hat admits it into and has the room for, whenever one is free
+        var seat = PlayAboard.onBrim(body, hat) ? hat.seatDestination(body) : null;
+        if (seat != null && seat.available(body))
+            out.add(Desire.of("take_seat", num("take_seat_want", 70), List.of(seat.local(), body.blockPosition(), parentOn),
+                    () -> "seat=" + GameplayLog.at(seat.world()), () -> new TakeSeat(body, hat)));
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && !(running != null && running.intent() instanceof Ashore)

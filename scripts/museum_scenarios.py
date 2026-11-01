@@ -1942,13 +1942,14 @@ pond('kid_boat_play', '子油在亲船上玩耍', '拍水·学划·拨粮·躲�
           '点击孩子与点击空帽檐不同：前者问候，后者摇船。落水看 [aquatic] play fall_in cause=hard_rock，随后由真实落水事件与亲油救援接手；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('读子油动作与点击', f'yukkuri status {sel("c1")} raw'),
             ('读四种玩法与落水计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
-     smoke=dict(ticks=2400, commands=[(1800, 'weather thunder'), (1860, 'weather clear')],
+     smoke=dict(ticks=2400, commands=[(1800, 'weather thunder'), (1960, 'weather clear')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
                         r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle|poke_stores) start\b',
                         r'\[aquatic\][^\n]* play kind=kid_(?:brim_splash|mimic_paddle|poke_stores) end result=DONE\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start fear=thunder\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* play fall_in\b',
-                        r'\[aquatic\][^\n]* play kind=[^\n]* end result=(?:EXHAUSTED|LOST)\b'],
+                        r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b',
+                        r'\[intent\][^\n]* end id=take_seat result=(?:EXHAUSTED|LOST)\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw', f'data get entity {_HAT} Riders']))
 
 pond('shore_family', '饿了带孩子返岸', '亲子返岸',

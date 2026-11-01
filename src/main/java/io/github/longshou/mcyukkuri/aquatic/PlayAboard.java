@@ -27,7 +27,6 @@ final class PlayAboard implements Intent {
     private final Supplier<String> fear;
     private final String cause;
     private int ticks, restEnd;
-    private Runnable returnToSeat;
 
     PlayAboard(YukkuriEntity body, PlacedHatEntity hat, String kind, Supplier<String> fear) {
         this.body = body;
@@ -41,12 +40,23 @@ final class PlayAboard implements Intent {
         var larder = HullLarder.of(hat);
         if (larder == null || body.getVehicle() != hat) return null;
         String kind = KidPlayRule.pick(AquaticLife.jumper(body), parent.motor().current() instanceof Paddle,
-                larder.count(), body.getRandom().nextDouble(), number("play_poke_chance"));
+                larder.count(), reachesBrim(body, hat), body.getRandom().nextDouble(), number("play_poke_chance"));
         return kind == null ? null : new PlayAboard(body, hat, kind, fear);
     }
 
+    /** A young that can hop to its brim place now: a tilted hull puts it out of a hop's reach and a splash would only end at once. */
+    private static boolean reachesBrim(YukkuriEntity body, PlacedHatEntity hat) {
+        return AquaticLife.jumper(body) && hat.steady()
+                && new Hop(hat, brimSpot(body, hat, number("play_splash_bearing"))).check(body).ok();
+    }
+
+    /** The local brim place at {@code bearing} (degrees) for this body's growth. */
+    private static Vec3 brimSpot(YukkuriEntity body, PlacedHatEntity hat, double bearing) {
+        var p = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.toRadians(bearing));
+        return new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT);
+    }
+
     void tick() { if (!body.social().greeting()) ticks++; }
-    void returnOnEnd(Runnable returnToSeat) { this.returnToSeat = returnToSeat; }
 
     static double number(String key) { return DriveWeights.of(AquaticGoal.DOMAIN, key); }
     private boolean hiding() { return kind.equals(Behaviors.KID_HIDE_BEHIND); }
@@ -64,12 +74,11 @@ final class PlayAboard implements Intent {
     private boolean brimPlay() { return hiding() || kind.equals(Behaviors.KID_BRIM_SPLASH); }
     private double bearing() { return brimPlay() ? number(hiding() ? "play_hide_bearing" : "play_splash_bearing") : 0; }
 
+    /** Already on the brim, any bearing does. Cowering needs no hop: when the hide spot is out of reach it plays in place. */
     private Step outbound() {
-        if (!brimPlay()) return null;
-        if (!AquaticLife.jumper(body) || !hat.steady()) return null;
-        var p = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.toRadians(bearing()));
-        var local = new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT);
-        return hat.riders().local(body.getUUID()).distanceTo(local) * hat.unit() < .05 ? null : new Step.Do(new Hop(hat, local));
+        if (!brimPlay() || onBrim(body, hat) || !AquaticLife.jumper(body) || !hat.steady()) return null;
+        var hop = new Hop(hat, brimSpot(body, hat, bearing()));
+        return hiding() && !hop.check(body).ok() ? null : new Step.Do(hop);
     }
 
     private Step perform() {
@@ -107,7 +116,6 @@ final class PlayAboard implements Intent {
     @Override public void ended(IntentRunner.Result result) {
         GameplayLog.limited(body, "aquatic", "play_end:" + kind, 100,
                 "play kind={} end result={} fear={}", kind, result, cause);
-        if (returnToSeat != null) returnToSeat.run();
     }
 
     static boolean onBrim(YukkuriEntity body, PlacedHatEntity hat) {

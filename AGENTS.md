@@ -12,7 +12,7 @@
 ## 开发命令
 
 - 版本以 `gradle.properties` 为准（Minecraft 1.21.1、JDK 21、NeoForge 21.1.250）。`.github/workflows/build.yml` 在 `main` 推送、PR 和手动触发时执行 `./gradlew build`，产物 `mcyukkuri-<sha>`（开发 Jar）与 `mcyukkuri-runtime-<sha>`（运行包）；失败用 `gh run view <id> --log-failed`。
-- 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试）；`python scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟（读主检出已装 CI 运行包，缺失即报错，不跑 Gradle，客户端或 Minecraft 运行时拒绝启动；产物在主检出 `.local/smoke/`，只查场景初态与链路读数）。资源导出脚本多支持 `--check`；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
+- 自查：`bash scripts/javac_check.sh <工作树>`（javac 与纯函数测试）；`python scripts/smoke_museum.py [--worktree F:/yukkuri/.worktrees/<分支>] [场景ID ...]` 无界面冒烟（读主检出已装 CI 运行包，缺失即报错，不跑 Gradle，客户端或 Minecraft 运行时拒绝启动；不带 `--worktree` 时运行包提交须与当前检出提交一致，否则报错改走 `--worktree` 或先更新运行包；产物在主检出 `.local/smoke/`，只查场景初态与链路读数）。资源导出脚本多支持 `--check`；`scripts/check_museum_pack.py` 只读核对试玩场数据包。
 - 试玩场：根目录 `启动动作博物馆.cmd`（`-Fresh` 全新世界、`-Resume` 保留世界、`-Menu` 主菜单）。场景、读数和按钮源在 `scripts/museum_*.py`。清场与场景边界见[功能说明](docs/FEATURES.md#试玩场与动作博物馆)。
 - 日志与排查：读 `.local/experimental-map/play-museum/process.json` 与同场 `.session.json` 得启动时间、PID、世界；原生日志 `.local/experimental-map/museum/logs/latest.log`、`debug.log`（旧场次查日期归档 `.log.gz`）。版本取 `.session.json` 的 `runtimeConfig.commit/run`，无证据写“版本待核实”；原日志保留，副本放 `.local/reports/<主题>/`。`/yukkuri status trace true` 开启细密采样。
 - SERVER 配置在世界 `serverconfig/`：`mcyukkuri-server.toml`（生活、生态、聚落）、`mcyukkuri-family.toml`（家庭繁殖）、`mcyukkuri-human-world.toml`（人类、商贸、工厂）；分组是键路径的一部分，如 `seasons.biomeSeasons`。
