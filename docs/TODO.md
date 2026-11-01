@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 水生帽船重做（美术 B：帽船接触动作重做与子油船上动作） | `.worktrees/aq-clips-b` | lore 动作配方与导出、帽船接触片段、子油船上新片段 |
 | 水生帽船重做（WP5 救援完成） | `.worktrees/aq-wp5-rescue` | Rescue、AquaticGoal 救援段、Grab/Swim/Release、ParentCarry 水中搬运、救援场景 |
+| 水生帽船重做（WP4 按体型排座与旧帽形下线） | `.worktrees/aq-wp4-seats` | PlacedHatEntity 座位／支撑、HullProfile/HatGeometry/HatScale 水生部分、SetOut/Ferry/Follow/Ashore 上下船、Hop 座位落点、圆帽测试种与帽形开关、`hat_crowd` 等场景 |
 
 ## 玩法待办
 
