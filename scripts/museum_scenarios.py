@@ -2006,7 +2006,7 @@ pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
      late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '观察 rescue refused reason=no_seat，拒绝不算救援成功。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=0.00 [^\n]*accepted=false', r'rescue refused [^\n]*reason=no_seat'],
+     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=0 [^\n]*accepted=false', r'rescue refused [^\n]*reason=no_seat'],
                 forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 
