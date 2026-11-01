@@ -69,14 +69,12 @@ def hull_bounds(seats):
                   y=0., edge_y=f(-(B.WATER+B.DIP))),
         keel_y=f(-B.depth_of_tier(B.tiers()[1][-1])),
         **seats,
-        stores=dict(texture='mcyukkuri:textures/props/aquatic_basin_hat_stores.png', frame_px=B.R['stores']['frame'],
-                    tiers=B.R['stores']['tiers']),
+        stores=B.R['stores'],
         note='waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor '
              '(a shallow dimple in the middle); brim: level from inner_radius to level_radius at y, then falling to its '
              'edge at outer_radius with its top at edge_y; keel_y: the hull\'s lowest point. captain_seat: an adult '
              '(growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid '
-             'side out, and its underside height by growth. stores: one frame per tier side by side (portions from..to, '
-             'tier 0 empty), each covering the floor disc seen from above, +x right and the bow up.')
+             'side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note.')
 
 
 def gate_profile(bounds):
@@ -102,11 +100,17 @@ def outputs():
     seat_inputs = [ASSETS/n for n in ('yukkuri/marisa.json', 'yukkuri_presentation/motion_corrections.json',
                                       'yukkuri_presentation/placement_fit.json', 'yukkuri_presentation/braid_rescue.json')]
     manifest = dict(note='Runtime outputs of interactions/aquatic-marisa-hat/export.py', status=B.R['status'],
-                    inputs={rel(p): sha(p.read_bytes()) for p in [HERE/n for n in ('recipe.json', 'build.py', 'scene.py', 'layout.py', 'export.py')]+seat_inputs},
+                    inputs={rel(p): sha(p.read_bytes()) for p in [HERE/n for n in ('recipe.json', 'food_layer.png', 'build.py', 'scene.py', 'layout.py', 'export.py')]+seat_inputs},
                     outputs={rel(p): sha(d) for p, d in texts.items()},
                     retained={'note': 'old hull profiles, not written any more: kept as the current Java reads them until '
                                       'the code packages read hull_bounds', **{rel(p): sha(p.read_bytes()) for p in RETAINED}})
     texts[SNAPSHOT/'manifest.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2)+'\n').encode()
+    registration = ROOT/'art/runtime-sources.json'; text = registration.read_text(encoding='utf-8')
+    scope = json.loads(text)[WORN_ID]['scope']
+    before, stores_scope = scope.split(' The stores texture ', 1)
+    _, after = stores_scope.split(' The old hull profiles ', 1)
+    updated = before+' The stores texture '+B.R['stores']['note']+' The old hull profiles '+after
+    texts[registration] = text.replace(json.dumps(scope, ensure_ascii=False), json.dumps(updated, ensure_ascii=False)).encode()
     return texts, bounds
 
 

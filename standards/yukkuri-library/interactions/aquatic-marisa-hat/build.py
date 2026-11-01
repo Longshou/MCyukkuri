@@ -13,7 +13,7 @@ middle of the brim face that sat on the head, +Y out of the hollow, the worn fro
 bent tip's side) toward -Z (the bow of the boat, where the owner faces). World: model units of an adult at growth 1 (16 a
 block), set-down hat units times scale.
 
-    python build.py [--set key.path=value ...]   # writes geometry.json and food_layer.png; with --set prints only
+    python build.py [--set key.path=value ...]   # writes geometry.json; with --set prints only
     python build.py --check                      # compares without writing
 
 override() (and --set) merges recipe changes in memory for a block, so export.py, layout.py and the gates can try sizes
@@ -22,7 +22,6 @@ without writing any file.
 from pathlib import Path
 import argparse, contextlib, copy, json, math, sys
 import numpy as np
-from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
@@ -300,61 +299,6 @@ def world(tris):
     out = tris.copy(); out[:, :, :3] *= K; return out
 
 
-# ------------------------------------------------------------------ stores: one floor texture, a frame per tier
-STRAW = {'s': (196, 168, 98), 'S': (166, 136, 70), 't': (222, 200, 128), 'u': (140, 108, 52)}
-FOOD = {'g': (112, 160, 62), 'G': (70, 116, 42), 'v': (150, 190, 84), 'r': (200, 46, 56), 'R': (132, 26, 40),
-        'h': (246, 150, 150), 'n': (152, 98, 48), 'N': (112, 70, 34), 'c': (94, 64, 36), 'k': (236, 216, 150),
-        'K': (200, 176, 104), 'o': (226, 120, 54), 'O': (176, 78, 34), 'p': (110, 52, 96), 'P': (70, 30, 64)}
-SPRITES = {   # hand-drawn stamps ('.' leaves the pixel below)
-    'berry': ['.r.', 'rhr', 'rRR'], 'grape': ['.p.', 'php', 'pPP'],
-    'leaf': ['...gG', '..gGg', '.gGg.', 'gGg..', 'G....'], 'leaf2': ['Gg...', 'gGg..', '.gGg.', '..gGg', '...Gv'],
-    'clover': ['.v.v.', 'vgvgv', '.vGv.', '..G..'],
-    'acorn': ['.cc.', 'cNNc', 'nnnn', 'nnnN', '.nN.'], 'seed': ['kK'], 'seed2': ['k', 'K'],
-    'carrot': ['g...', '.oo.', '.ooO', '..oO', '...O'],
-    'apple': ['..G..', '.rrr.', 'rhrrr', 'rrrrR', '.rRR.'],
-}
-# (sprite, x, y) by tier, each tier adding to the ones before: a small straw nest with a few bites before the captain's
-# seat (toward the bow, where the young sit and the player looks in), a wider spread, the whole floor heaped (frame
-# pixels, +x right, the bow up); STORE_SHIFT moves a tier's own stamps toward the bow, STRAW_BED is each bed's middle
-# and radius.
-STORE_ITEMS = [
-    [],
-    [('leaf', 11, 12), ('berry', 16, 13), ('seed', 13, 18), ('acorn', 17, 17), ('berry', 13, 15), ('seed2', 20, 14)],
-    [('leaf2', 7, 15), ('clover', 18, 9), ('grape', 10, 9), ('berry', 21, 17), ('carrot', 9, 20), ('seed', 16, 22),
-     ('acorn', 21, 21), ('seed', 22, 12), ('berry', 13, 21)],
-    [('leaf', 4, 10), ('leaf2', 21, 4), ('apple', 22, 23), ('leaf', 25, 14), ('clover', 4, 19), ('grape', 15, 4),
-     ('berry', 8, 6), ('carrot', 14, 25), ('acorn', 26, 9), ('seed', 5, 15), ('seed2', 10, 26), ('berry', 18, 27),
-     ('seed', 27, 19), ('grape', 5, 24), ('acorn', 10, 3)],
-]
-STORE_SHIFT = (0, -7, -4, 0)
-STRAW_BED = (None, (15.5, 8.5, 6.5), (15.5, 11.5, 10.5), (15.5, 15.5, 15.2))   # px; the floor disc fills the frame at 15.5
-
-
-def food_frame(tier):
-    """One frame: a straw bed of the tier's radius with its food stamped on it, transparent around."""
-    n = R['stores']['frame']; img = np.zeros((n, n, 4), np.uint8)
-    if not tier: return img
-    yy, xx = np.mgrid[:n, :n]; cx, cy, radius = STRAW_BED[tier]; th = np.arctan2(yy-cy, xx-cx)
-    rr = np.hypot(xx-cx, (yy-cy)*1.05)-.6*np.sin(5*th+tier)-.45*np.sin(9*th+2*tier)-.3*np.sin(13*th)   # a clumpy, uneven heap edge
-    bed = rr < radius; img[bed] = (*STRAW['s'], 255)
-    for i, j in zip(*np.nonzero(bed)):   # short straw strokes: the dark and light pixels of a woven bed
-        h = (i*7+j*13+(i*j) % 5) % 11
-        if h in (0, 1): img[i, j, :3] = STRAW['S']
-        elif h == 2: img[i, j, :3] = STRAW['t']
-    img[bed & (rr > radius-1.2) & ((xx-cx)+(yy-cy) > 2), :3] = STRAW['u']   # its shadowed lower right rim
-    for t in range(1, tier+1):
-        for name, x0, y0 in STORE_ITEMS[t]:
-            y0 += STORE_SHIFT[t]
-            for dy, row in enumerate(SPRITES[name]):
-                for dx, ch in enumerate(row):
-                    if ch != '.' and 0 <= y0+dy < n and 0 <= x0+dx < n: img[y0+dy, x0+dx] = (*FOOD[ch], 255)
-    return img
-
-
-def food_frames():
-    return np.concatenate([food_frame(t) for t in range(len(R['stores']['tiers']))], axis=1)
-
-
 def summary():
     placed = world(placed_mesh()); grid = Grid()
     field = raster(placed, grid, True); low = raster(placed, grid, False)
@@ -397,11 +341,9 @@ def main():
     if args.set: print(text); return 0
     if args.check:
         same = path.is_file() and path.read_text(encoding='utf-8') == text
-        png = HERE/'food_layer.png'
-        fresh = png.is_file() and np.array_equal(np.array(Image.open(png).convert('RGBA')), food_frames())
-        print('geometry.json', 'ok' if same else 'differs', '| food_layer.png', 'ok' if fresh else 'differs')
-        return 0 if same and fresh else 1
-    path.write_text(text, encoding='utf-8', newline='\n'); Image.fromarray(food_frames()).save(HERE/'food_layer.png')
+        print('geometry.json', 'ok' if same else 'differs')
+        return 0 if same else 1
+    path.write_text(text, encoding='utf-8', newline='\n')
     print(path, {k: data[k] for k in ('opening_radius', 'floor_radius', 'floor_depth', 'waterline', 'keel_depth', 'inside_problems')})
     return 0
 

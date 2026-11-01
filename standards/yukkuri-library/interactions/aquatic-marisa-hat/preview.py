@@ -1,7 +1,7 @@
 """Preview of the lily-pad hat boat (offline CPU render of the real meshes, not the game): the set-down hull at its fixed
 waterline with the captain paddling at the stern seat (braid and stick over the brim, the exported boat_paddle clip), two
 赤油 in the basin, a 子油 on the brim edge leaning out to splash, the stores texture on the floor; a cut through the axis;
-the four stores frames.
+the four stores coverage tiers, all cropping the existing texture at the same texel size.
 
     MCY_LOCAL=<main checkout>/.local python preview.py   # previews/aquatic-hat-seats/current.png
 """
@@ -149,12 +149,13 @@ def blob(c, r, n=8):
     return np.array(out)
 
 
-def disc(radius, y, frame, frames, n=40):
-    """The stores texture on the floor: a disc whose uvs cover one tier frame (+x right, the bow up)."""
-    out = []
+def disc(radius, y, fraction, n=40):
+    """Bow-tangent coverage; hull-space UVs on a 2x2 repeat of the existing texture, at 16 px/block."""
+    out = []; r = radius*fraction; z0 = -(1-fraction)*radius
+    uv_scale = B.R['stores']['pixels_per_block']/(16*2*B.R['stores']['texture_px'])
     for j in range(n):
-        pts = [(0., 0.)]+[(radius*math.cos(2*math.pi*k/n), radius*math.sin(2*math.pi*k/n)) for k in (j+1, j)]
-        out.append([[x, y, z, (frame+(x/radius+1)/2)/frames, (z/radius+1)/2, 0, 1, 0] for x, z in pts])
+        pts = [(0., z0)]+[(r*math.cos(2*math.pi*k/n), z0+r*math.sin(2*math.pi*k/n)) for k in (j+1, j)]
+        out.append([[x, y, z, .5+x*uv_scale, .5+z*uv_scale, 0, 1, 0] for x, z in pts])
     return np.array(out)
 
 
@@ -201,9 +202,9 @@ def scene(atlas, tier=2):
         bl = blob((x, y, z), rr); bl[:, :, 3:5] = swatch(atlas, 'splash', bl[:, :, 3:5]); add(bl)
     food = None
     if tier:
-        frames = np.array(Image.open(HERE/'food_layer.png').convert('RGBA')); n = B.R['stores']['frame']
-        food = disc(B.IN['floor_radius']*B.K, -B.IN['floor_depth']*B.K+.06, 0, 1)
-        food[:, :, 3:5] = atlas.uv(f'food{tier}', Image.fromarray(frames[:, tier*n:(tier+1)*n]), food[:, :, 3:5])
+        texture = np.tile(np.array(Image.open(HERE/'food_layer.png').convert('RGBA')), (2, 2, 1))
+        food = disc(B.IN['floor_radius']*B.K, -B.IN['floor_depth']*B.K+.06, B.R['stores']['radius_fractions'][tier])
+        food[:, :, 3:5] = atlas.uv('food', Image.fromarray(texture), food[:, :, 3:5])
     return hull, hull_tris, meshes, flags, food
 
 
@@ -232,14 +233,18 @@ def side_water(img, cam):
 
 
 def strip(scale=7):
-    """The four stores frames, upscaled, labelled by portions."""
-    frames = Image.open(HERE/'food_layer.png').convert('RGBA'); n = B.R['stores']['frame']; f = P.preview_font(22)
-    out = Image.new('RGB', (4*(n*scale+40)+20, n*scale+70), (250, 251, 252)); d = ImageDraw.Draw(out)
+    """The same floor and texel size at every tier; the bow is up and each food disc touches that wall."""
+    texture = np.array(Image.open(HERE/'food_layer.png').convert('RGBA')); n = 32*scale; f = P.preview_font(22)
+    radius = B.IN['floor_radius']*B.K; axis = ((np.arange(n)+.5)/n*2-1)*radius; x, z = np.meshgrid(axis, axis)
+    uv = np.floor(axis*B.R['stores']['pixels_per_block']/16).astype(int) % B.R['stores']['texture_px']
+    pixels = texture[uv[:, None], uv[None, :], :3]
+    out = Image.new('RGB', (4*(n+40)+20, n+70), (250, 251, 252)); d = ImageDraw.Draw(out)
     for i, (lo, hi) in enumerate(B.R['stores']['tiers']):
-        x0 = 20+i*(n*scale+40); bg = Image.new('RGBA', (n*scale, n*scale), (74, 78, 108, 255))
-        bg.alpha_composite(frames.crop((i*n, 0, (i+1)*n, n)).resize((n*scale, n*scale), Image.Resampling.NEAREST))
-        out.paste(bg.convert('RGB'), (x0, 10))
-        d.text((x0, n*scale+20), '空（0 份）' if not hi else f'{lo}–{hi} 份', font=f, fill=(40, 60, 70))
+        x0 = 20+i*(n+40); bg = np.full((n, n, 3), (250, 251, 252), np.uint8)
+        bg[x*x+z*z <= radius*radius] = (74, 78, 108)
+        fraction = B.R['stores']['radius_fractions'][i]; covered = x*x+(z+(1-fraction)*radius)**2 < (fraction*radius)**2
+        bg[covered] = pixels[covered]; out.paste(Image.fromarray(bg), (x0, 10))
+        d.text((x0, n+20), '空（0 份）' if not hi else f'{lo}–{hi} 份', font=f, fill=(40, 60, 70))
     return out
 
 
@@ -269,7 +274,7 @@ def main():
     d.text((20, 702), '空帽从上方看（帽底储粮 3–5 份，不画乘员）', font=P.preview_font(22), fill=(32, 52, 64))
     for i, (t, u) in enumerate(notes):
         d.text((520, 745+i*56), '· '+t, font=g, fill=(40, 60, 70)); d.text((536, 771+i*56), u, font=g, fill=(40, 60, 70))
-    d.text((940, 700), '储粮贴图分档（帽底，一张贴图四格）', font=P.preview_font(22), fill=(32, 52, 64))
+    d.text((940, 700), '储粮覆盖分档（复用 16×16 贴图，固定 16 像素/格）', font=P.preview_font(22), fill=(32, 52, 64))
     s = strip(6); img.paste(s.resize((880, int(880*s.height/s.width)), Image.Resampling.LANCZOS), (940, 740))
     OUT.mkdir(parents=True, exist_ok=True)
     img.save(OUT/'current.png'); (OUT/'source.sha256').write_text(B.source_digest(), encoding='utf-8')

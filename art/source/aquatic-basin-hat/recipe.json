@@ -49,7 +49,10 @@
       [3, 5],
       [6, 8]
     ],
-    "frame": 32,
-    "note": "the stored food is one texture on the basin floor (user: 储粮应为一张覆盖帽底、随数量变化的贴图): one 32 px frame per tier side by side (portions from..to; tier 0 empty), each frame covering the floor disc (floor_radius) seen from above, +x right and the bow (-z) up"
+    "texture": "mcyukkuri:textures/props/aquatic_basin_hat_stores.png",
+    "texture_px": 16,
+    "radius_fractions": [0.0, 0.45, 0.70, 1.0],
+    "pixels_per_block": 16,
+    "note": "reuses the existing 16x16 food_layer.png unchanged. Project design: tiers are total stored portions [from, to]; tier 0 draws nothing. For each other tier, f = radius_fractions[tier], R = basin floor radius: disc radius f*R, centre (x=0, z=-(1-f)*R), tangent to the bow-side wall (-Z), before the captain. Fixed hull-space UVs (+X right, +Z down), repeating at 16 pixels per block; smaller discs crop the same texture without stretching."
   }
 }

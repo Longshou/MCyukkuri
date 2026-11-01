@@ -5,10 +5,10 @@
 | 文件 | 用途 |
 | --- | --- |
 | `recipe.json` | 尺寸（1.4 倍）、帽檐、外侧圆台阶、内侧圆盆、放下时的固定水线与帽檐外缘（`set_down`）、储粮分档（`stores`） |
-| `build.py` | 生成戴着与放下的网格、剖面与储粮贴图，检查圆盆是否在外壳之内，写 `geometry.json`、`food_layer.png` |
+| `build.py` | 生成戴着与放下的网格、剖面，检查圆盆是否在外壳之内，写 `geometry.json` |
 | `export.py` | 导出运行网格、储粮贴图与帽船边界，写 `art/source/aquatic-basin-hat/` 快照与指纹 |
 | `geometry.json` | 帽檐、帽口、平底、深度、龙骨、水线与圆盆剖面 |
-| `food_layer.png` | 储粮贴图源：四格 32×32（空、1–2、3–5、6–8 份） |
+| `food_layer.png` | 复用既有 16×16 储粮贴图，按覆盖面积显示份数 |
 | `scene.py` | 摆姿的身体、身体底面贴帽面的支撑、帽船网格、辫兜够距；姿态缓存在 `<MCY_LOCAL 或 .local>/cache/aquatic-marisa-hat/` |
 | `layout.py` | 船长座位、帽盆容量、帽檐边子油、救援够距与贴帽动作检查 |
 | `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png` |
@@ -68,7 +68,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 
 ## 储粮贴图
 
-`food_layer.png` 是一张 128×32 贴图，四格从左到右为空（0 份）、1–2 份、3–5 份、6–8 份（`recipe.json` `stores.tiers`）。每格 32×32 覆盖帽底平底圆面（从上往下看，+x 向右、船首朝上），透明处露出帽底；小档草垫和食物堆在船长身前（船首一侧），满档铺满帽底。手绘像素：干草垫上放浆果、葡萄、叶子、三叶草、橡果、胡萝卜、苹果与草籽（项目设计，风格参照 `forage_pile` 等饵食道具）。
+`food_layer.png` 复用既有的 16×16 储粮贴图，不重新绘制。覆盖规则（项目设计）由 `recipe.json` 的 `stores` 导出到帽船边界：总份数为 0 时不绘制，1–2、3–5、6–8 份分别覆盖半径为平底半径 R 的 0.45、0.70、1.0 倍的圆面。每档半径比例为 f，圆心在 `(x=0, z=-(1-f)·R)`，与船首侧壁相切，小档在船长身前。贴图固定为每格方块 16 像素，UV 随帽船坐标平铺（+X 向右、+Z 向下），小圆只裁切同一贴图，不拉伸。
 
 ## 运行资源
 
@@ -95,7 +95,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 | `keel_y` | 帽船最低点 |
 | `captain_seat` | 成体船长（`growth` 1）坐在船尾、面朝船首时身底的位置 `x`、`y`、`z` |
 | `brim_ring.radius`、`brim_ring.underside_y` | 帽檐边子油的中心半径（辫子一侧朝外），以及各体型 `[生长, 身底高度]` |
-| `stores.texture`、`frame_px`、`tiers` | 储粮贴图、每格边长、各档份数 `[起, 止]` |
+| `stores.texture`、`texture_px`、`tiers`、`radius_fractions`、`pixels_per_block`、`note` | 复用贴图与边长、各档份数 `[起, 止]`、半径比例、像素密度及船首相切的覆盖规则（见上节） |
 
 ## 采用时
 
