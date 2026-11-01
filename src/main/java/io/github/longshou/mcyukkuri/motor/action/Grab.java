@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -17,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
@@ -48,20 +50,23 @@ public final class Grab implements Action {
     private Vec3 at;
     /** A lift out of the water (a rescue): a target in the water is taken; any other grab ends when the target is in the water. */
     private final boolean outOfWater;
+    private final SurfaceHost destination;
     private int ticks, lift, way, held;
     private boolean mounted;
     private long startTick;
 
-    public Grab(YukkuriEntity target) { this(target, false); }
+    public Grab(YukkuriEntity target) { this(target, false, null); }
+    public Grab(YukkuriEntity target, SurfaceHost destination) { this(target, false, destination); }
 
-    private Grab(YukkuriEntity target, boolean outOfWater) {
+    private Grab(YukkuriEntity target, boolean outOfWater, SurfaceHost destination) {
         if (target == null) throw new IllegalArgumentException("Grab needs a target");
         this.target = target;
         this.outOfWater = outOfWater;
+        this.destination = destination;
     }
 
     /** The same grab of a body in the water, lifting it out (the caller has decided to rescue it). */
-    public static Grab outOfWater(YukkuriEntity target) { return new Grab(target, true); }
+    public static Grab outOfWater(YukkuriEntity target) { return new Grab(target, true, null); }
 
     @Override public String id() { return ID; }
 
@@ -70,6 +75,7 @@ public final class Grab implements Action {
 
     /** It lifts its target out of the water (a rescue). */
     public boolean outOfWater() { return outOfWater; }
+    @Override public SurfaceHost host() { return destination; }
 
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
     public Hold hold() { return hold; }
@@ -81,6 +87,17 @@ public final class Grab implements Action {
         if (attach instanceof AttachState.Held held)
             return Feasibility.of(Reason.NO_ROOM, 0, held.carrier() == carrier ? "already_held" : "target_held");
         if (attach instanceof AttachState.Airborne) return Feasibility.of(Reason.NO_CONTACT, 0, "target_airborne");
+        if (destination != null) {
+            var seat = destination.seatDestination(target);
+            if (seat == null || !seat.available(target)) return Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
+            String problem = ParentCarry.holdProblem(carrier, target, Hold.BRAID, false);
+            if (problem != null) return refusal(problem);
+            chosen(Hold.BRAID, false, 0);
+            lift = BraidFetch.marker(BraidFetch.REACH, "contact") + BraidFetch.marker(BraidFetch.HOLD, "grip");
+            way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
+            rejected = "destination_braid";
+            return Feasibility.pass();
+        }
         var holds = ParentCarry.holdsFor(carrier, target);
         if (holds.isEmpty()) return refusal(ParentCarry.capacityProblem(carrier, target));
         double mouthGap = ContactGeometry.mouthGap(carrier, target), upright = ContactGeometry.braidGap(carrier, target, false);
@@ -140,16 +157,21 @@ public final class Grab implements Action {
             return remaining > .02 ? new Running(remaining, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
         }
         double moved = target.position().distanceTo(at);
-        if (moved > DRIFT) return Outcome.of(Reason.TARGET_MOVED, moved, String.format(Locale.ROOT, "moved=%.2f", moved));
+        if (destination == null && moved > DRIFT) return Outcome.of(Reason.TARGET_MOVED, moved, String.format(Locale.ROOT, "moved=%.2f", moved));
         ticks++;
+        if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (destination != null && ticks == BraidFetch.marker(BraidFetch.REACH, "contact") && !ContactGeometry.inBraidReach(carrier, target))
+            return Outcome.of(Reason.NO_CONTACT, 0, "braid_contact_out_of_reach");
         // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
         if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         // A child that went into water or under an operation meanwhile is not there to take: no retry of the same grab.
-        if (!outOfWater && target.isInWaterOrBubble() || target.operations().active())
+        if (destination == null && !outOfWater && target.isInWaterOrBubble() || target.operations().active())
             return Outcome.of(Reason.TARGET_GONE, 0, target.isInWaterOrBubble() ? "target_in_water" : "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
-        if (way > 0 && !ParentCarry.braided(carrier, target, lean)) return Outcome.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
+        var seat = destination == null ? null : destination.seatDestination(target);
+        if (destination != null && seat == null) return Outcome.of(Reason.NO_ROOM, 0, "no_seat");
+        if (way > 0 && !ParentCarry.braided(carrier, target, lean, seat)) return Outcome.of(Reason.NO_SUPPORT, 0, "no_braid_set_down");
         if (hold == Hold.MOUTH && (way = ParentCarry.mouthLift(carrier, target)) < 0) return Outcome.of(Reason.NO_ROOM, 0, "mouth_lift_blocked");
         if (!Motor.mount(target, carrier, "grab")) return Outcome.of(Reason.NO_CONTACT, 0, "mount_refused");
         target.fallDistance = 0;
@@ -159,6 +181,10 @@ public final class Grab implements Action {
     }
 
     @Override public MotionPose pose() {
+        if (destination != null) {
+            int contact = BraidFetch.marker(BraidFetch.REACH, "contact");
+            return new MotionPose(ticks < contact ? BraidFetch.REACH : BraidFetch.HOLD, startTick + (ticks < contact ? 0 : contact), false);
+        }
         return new MotionPose(hold.reach() == Reach.MOUTH ? "" : lean ? BRAID_LEAN : BRAID_LIFT, startTick, false);
     }
 

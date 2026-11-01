@@ -15,6 +15,12 @@ public final class CarryGeometry {
     public enum Rejection { CARRIER, HOST, TERRAIN, OCCUPIED, UNSUPPORTED, ROUTE }
     public record Way(Vec point, int[] rejected) {}
 
+    public static double reachGap(Vec root, Vec low, Vec high, double length) {
+        var gap = root.sub(new Vec(Math.clamp(root.x(), low.x(), high.x()), Math.clamp(root.y(), low.y(), high.y()),
+                Math.clamp(root.z(), low.z(), high.z())));
+        return Math.sqrt(gap.x() * gap.x() + gap.y() * gap.y() + gap.z() * gap.z()) - length;
+    }
+
     /** Release converges on the supported feet, even when the host pins them above the unpinned endpoint. */
     public static double releaseRemaining(Vec feet, Vec endpoint, double supportedY) {
         return Math.sqrt(Math.pow(feet.x() - endpoint.x(), 2) + Math.pow(feet.y() - supportedY, 2) + Math.pow(feet.z() - endpoint.z(), 2));
@@ -23,9 +29,15 @@ public final class CarryGeometry {
     /** The production set-down search; world queries supply landing and swept-route clearance without formatting diagnostics. */
     public static Way wayOut(double rootX, double rootZ, double reach, Vec tip, Vec from, double apart,
                              Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {
+        return wayOut(rootX, rootZ, reach, tip, from, apart, null, landing, route);
+    }
+
+    /** An admitted destination replaces the dry-ground search; it still needs a clear route. */
+    public static Way wayOut(double rootX, double rootZ, double reach, Vec tip, Vec from, double apart, Vec destination,
+                             Function<Vec, Rejection> landing, BiPredicate<Vec, Double> route) {
         var rejected = new int[Rejection.values().length];
-        for (var point : endpoints(rootX, rootZ, reach, tip)) {
-            var why = point.hlen() < apart ? Rejection.CARRIER : landing.apply(point);
+        for (var point : destination == null ? endpoints(rootX, rootZ, reach, tip) : List.of(destination)) {
+            var why = destination == null && point.hlen() < apart ? Rejection.CARRIER : landing.apply(point);
             if (why == null) {
                 double turn = frontTurn(from.x() - rootX, from.z() - rootZ, point.x() - rootX, point.z() - rootZ);
                 if (!chooseArc(turn, arc -> route.test(point, arc))) why = Rejection.ROUTE;

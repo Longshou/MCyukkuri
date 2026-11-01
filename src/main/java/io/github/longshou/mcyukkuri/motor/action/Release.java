@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -16,6 +17,9 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -33,13 +37,18 @@ public final class Release implements Action {
     private float facing;
     private Face turn;
     private Feasibility planned;
+    private final SurfaceHost destination;
+    private SeatTarget seat;
 
-    public Release(YukkuriEntity child) {
+    public Release(YukkuriEntity child) { this(child, null); }
+    public Release(YukkuriEntity child, SurfaceHost destination) {
         if (child == null) throw new IllegalArgumentException("Release needs the carried body");
         this.child = child;
+        this.destination = destination;
     }
 
     @Override public String id() { return ID; }
+    @Override public SurfaceHost host() { return destination; }
     @Override public String startDetail() { return "child=" + child.getUUID(); }
 
     /** The body being set down. */
@@ -48,6 +57,10 @@ public final class Release implements Action {
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
+        if (destination != null) {
+            seat = destination.seatDestination(child);
+            return seat != null && seat.available(child) ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "no_seat");
+        }
         if (planned == null) planned = plan(carrier);
         return planned;
     }
@@ -91,11 +104,12 @@ public final class Release implements Action {
     @Override public void start(YukkuriEntity carrier) {
         this.carrier = carrier;
         if (ParentCarry.hold(carrier, child) == Hold.MOUTH) { turn = new Face(facing); turn.start(carrier); }
-        else ParentCarry.lower(carrier, child);
+        else ParentCarry.lower(carrier, child, seat);
     }
 
     @Override public Progress tick(YukkuriEntity carrier) {
-        if (child.getVehicle() != carrier) return new Outcome.Done("already_free");
+        if (child.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "already_free");
+        if (destination != null && !seat.available(child)) return Outcome.of(Reason.NO_ROOM, 0, "seat_unavailable");
         if (turn != null) {
             if (turn.tick(carrier) instanceof Running running) return running;
             var room = room(carrier, carrier.bodyYaw());
@@ -109,12 +123,17 @@ public final class Release implements Action {
                 ParentCarry.pinned(carrier, child, at));
         if (down < 1 || remaining > .02) return new Running(Math.max(1 - down, remaining), TravelMode.CONSUMED);
         let(carrier, child, "release");
+        if (destination != null) {
+            if (!seat.land(child, "braid_set_down")) return Outcome.of(Reason.NO_CONTACT, 0, "seat_contact_lost");
+            GameplayLog.event(child, "body", "seat landed host={} cause=braid_set_down", destination.entity().getUUID());
+        }
         return new Outcome.Done("released");
     }
 
     /** A child set down with the braid plays the braid clip's own set-down (place to release): the braid lowers it, opens and comes back. */
     @Override public MotionPose pose() {
         long since = carrier == null ? -1 : ParentCarry.setDownTick(carrier, child);
+        if (destination != null && since >= 0) return new MotionPose(BraidFetch.SETTLE, since, false);
         return since < 0 || ParentCarry.hold(carrier, child).reach() != Reach.BRAID ? MotionPose.NONE
                 : new MotionPose(Grab.BRAID_LIFT, since - ClipMarkers.of(Grab.BRAID_LIFT).ticks("place", 38), false);
     }

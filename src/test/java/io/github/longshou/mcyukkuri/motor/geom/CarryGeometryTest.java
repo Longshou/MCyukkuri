@@ -7,6 +7,21 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
+    @Test void braidReachUsesTheNearestBodyPointAndTheActualChainLength() {
+        var root = new Vec(0, 1, 0);
+        var low = new Vec(1, 0, -.1); var high = new Vec(1.2, .3, .1);
+        assertEquals(Math.hypot(1, .7) - 1.3, CarryGeometry.reachGap(root, low, high, 1.3), 1e-9);
+        assertTrue(CarryGeometry.reachGap(root, low, high, 1.3) < 0);
+        assertTrue(CarryGeometry.reachGap(root, low, high, 1.2) > 0);
+    }
+
+    @Test void admittedSeatReplacesGroundSearchButNeverBypassesObstruction() {
+        var seat = new Vec(.2, -.3, -.4); var from = new Vec(2, 0, -2);
+        assertEquals(seat, CarryGeometry.wayOut(0, 0, 1, Vec.ZERO, from, 1, seat, p -> null, (p, a) -> true).point());
+        assertNull(CarryGeometry.wayOut(0, 0, 1, Vec.ZERO, from, 1, seat, p -> Rejection.TERRAIN, (p, a) -> fail()).point());
+        assertNull(CarryGeometry.wayOut(0, 0, 1, Vec.ZERO, from, 1, seat, p -> null, (p, a) -> false).point());
+    }
+
     @Test void releaseConvergesAtPinnedAndUnpinnedFeetWithoutAcceptingHorizontalError() {
         var endpoint = new Vec(1, 0, 2);
         for (double support : new double[]{0, .04}) {

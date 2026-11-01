@@ -78,6 +78,7 @@ final class ParentCarryPresentation {
     /** The clip a carrier plays while its braid reaches (the lift, or the low lean), or null. */
     static String liftClip(YukkuriView carrier) {
         var target = braidTarget(carrier);
+        if (target != null && carrier.getAnimationId().startsWith("braid_rescue_")) return carrier.getAnimationId();
         return target == null ? null : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
     }
 
@@ -102,7 +103,7 @@ final class ParentCarryPresentation {
             // The braid closes on the child's scruff over the clip's reach, then keeps it while the lift runs.
             var clip = ClipMarkers.of(liftClip(carrier));
             model.setBraidReach(modelPoint(carrier, scruff(reaching, reaching.getPosition(partial), yaw(reaching, partial)), partial),
-                    ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact_closed", clip.length()))));
+                    ease((now - carrier.motorStart()) / Math.max(1, clip.ticks("contact", clip.ticks("contact_closed", clip.length())))));
         } else if (carrier.isVehicle()) for (var rider : carrier.passengerViews()) {
             // The braid holds its own child all the way out and opens off it as it lets go, and lowers a brim child.
             var hold = ParentCarry.hold(carrier, rider);

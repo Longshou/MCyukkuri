@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.motor.geom.CarryGeometry;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -104,7 +106,8 @@ public final class ContactGeometry {
     private static double gap(YukkuriEntity body, Vec3 root, Entity target, boolean sighted) {
         var box = target.getBoundingBox();
         Vec3 near = new Vec3(Mth.clamp(root.x, box.minX, box.maxX), Mth.clamp(root.y, box.minY, box.maxY), Mth.clamp(root.z, box.minZ, box.maxZ));
-        return !sighted || sight(body, root, near) ? root.distanceTo(near) - braidLength(body) : Double.POSITIVE_INFINITY;
+        return !sighted || sight(body, root, near) ? CarryGeometry.reachGap(new Vec(root.x, root.y, root.z),
+                new Vec(box.minX, box.minY, box.minZ), new Vec(box.maxX, box.maxY, box.maxZ), braidLength(body)) : Double.POSITIVE_INFINITY;
     }
 
     /** How much farther {@code point} (a water surface, a brim) lies than the braid holds from where the body stands, upright or
