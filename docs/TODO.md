@@ -8,7 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船睡莲叶帽型与粮食贴图（美术） | `.worktrees/aq-lilypad-art` | aquatic-marisa-hat 制作源与导出、粮食分档贴图、hull gate 工具 |
+| 水生帽船重做（WP3 规则化帽船） | `.worktrees/aq-wp3-hull` | HullAfloat/Right/HullHydro/HullShell/LoadedContact、HullWaterMask、帽船场景、FEATURES 翻船规则 |
 
 ## 玩法待办
 
