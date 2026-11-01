@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 栖所与材料 | 树洞、横穴、树根、草叶铺层；住所需要兼顾入口、干燥、休息和储粮 | [住所与季节](hakkei-reference/lore/habitat-seasonal-life.md) · [资源与生活生态](hakkei-reference/world/resources-ecology.md#住所与环境) |
 | 采集与分享 | 亲代带幼体识别食源，群体共同采集、搬运、储藏和分配食物 | [群落与家庭分工](yukkuri-communities.md) · [采集与储粮](hakkei-reference/world/resources-ecology.md#采集辨认处理和储粮) |
-| 家庭与成长 | 幼体跟随亲代活动、练习取食、在安全地点休息；长成后逐渐离巢独立 | [子代生命周期](../docs/CHILDHOOD_LIFECYCLE.md) · [搬迁与离巢](hakkei-reference/lore/habitat-seasonal-life.md#搬迁与离巢) |
+| 家庭与成长 | 幼体跟随亲代活动、练习取食、在安全地点休息；长成后逐渐离巢独立 | [子代生命周期](../docs/FEATURES.md#子代生命周期与离家) · [搬迁与离巢](hakkei-reference/lore/habitat-seasonal-life.md#搬迁与离巢) |
 | 天气与季节 | 暴雨、炎热、寒冷和季节变化会影响食源、住所、活动时段与休息安排 | [住所与季节](hakkei-reference/lore/habitat-seasonal-life.md#四季生活怎样记录) · [越冬母题](hakkei-reference/events/traditional-motifs.md#tm04) |
 | 群体协作 | 共同狩猎、设置族规、分配收获、安排守护与照看弱小成员 | [群落与家庭分工](yukkuri-communities.md) · [群体生活母题](hakkei-reference/events/traditional-motifs.md) |
 | 人类接触 | 野外个体会接近人类寻求食物、庇护或饲养机会；住户与人类也会协商共处方式 | [城市边缘生活](city-life.md) · [宠物生活](pet-life.md#进入家庭与身份) |

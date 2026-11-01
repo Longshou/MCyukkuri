@@ -11,4 +11,4 @@ WAV 为本目录母带，OGG 位于 `src/main/resources/assets/mcyukkuri/sounds/
 .local/audio-env/Scripts/python.exe scripts/build_ecology_audio.py --check
 ```
 
-客户端以同步的 `sing` 开始时刻播放一次；离开唱歌状态、死亡、静音、卸载或退出世界即停止。后进入跟踪范围不补播一段已经开始的歌。具体实机核对见[日常生态验收](../../../docs/ECOLOGY_DAILY_LIFE.md)。
+客户端以同步的 `sing` 开始时刻播放一次；离开唱歌状态、死亡、静音、卸载或退出世界即停止。后进入跟踪范围不补播一段已经开始的歌。具体实机核对见[日常生态验收](../../../docs/FEATURES.md#日常生态)。

@@ -2,7 +2,7 @@
 
 [Wiki 入口](README.md) · [世界背景](hakkei-reference/world/README.md)
 
-本页以大讲堂的人类关系与产业母题为主线，整理商店、加工所、鬼威惨和爱派人物的常见作用。宠物店与徽章的现行玩法见 [宠物店实现](../docs/PET_SHOP.md)，人类建筑和 NPC 的范围见 [人类世界实现](../docs/HUMAN_WORLD.md)。
+本页以大讲堂的人类关系与产业母题为主线，整理商店、加工所、鬼威惨和爱派人物的常见作用。宠物店与徽章的现行玩法见 [宠物店实现](../docs/FEATURES.md#宠物店徽章与宠物培育)，人类建筑和 NPC 的范围见 [人类世界实现](../docs/FEATURES.md#人类世界)。
 
 油虐用与捕食种饲料用活体的生产专项核读见[工厂子油生产流程与缺口](factory-production-review.md)，包含亲代生产、批次转运、育成分选和出货规格的代码对照。
 
@@ -100,4 +100,4 @@ NPC 应有住处／工作点、日间活动、休息、有限交易和持久身�
 | [R5：楽園](https://w.atwiki.jp/yukkuri_gyakutai/pages/345.html) | 农田纠纷、群落交涉与照顾者 |
 | [R6：職業見学 加工所のふらんちゃん 中編](https://w.atwiki.jp/futabayukkuriss/pages/2119.html) | 工厂空间分层与个体分流 |
 
-[宠物商店、徽章与考试实现](../docs/PET_SHOP.md) · [建筑、工厂与人类 NPC 实现](../docs/HUMAN_WORLD.md)
+[宠物商店、徽章与考试实现](../docs/FEATURES.md#宠物店徽章与宠物培育) · [建筑、工厂与人类 NPC 实现](../docs/FEATURES.md#人类世界)

@@ -13,16 +13,16 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 - **野外生态**：天然住所、森林聚落与族长、季节与越冬、野外事件、捕食种、水生魔理沙帽船。
 - **饲养与人类世界**：设施与照料工具、冷冻收容，宠物店与铜银金徽章考核、三类工厂和人类 NPC。
 
-各系统的现状与入口见[文档索引](docs/README.md)，待试玩项和后续顺序见[待办](docs/TODO.md)。
+各系统的现状与入口见[文档索引](docs/FEATURES.md)，待试玩项和后续顺序见[待办](docs/TODO.md)。
 
 ## 获取与试玩
 
 - **开发版**：在 [GitHub Actions](https://github.com/Longshou/MCyukkuri/actions/workflows/build.yml) 选 `main` 上成功的运行，下载 `mcyukkuri-<提交号>`，把 Jar 放进匹配版本 NeoForge 实例的 `mods/`。
-- **试玩场**：双击根目录 `启动动作博物馆.cmd`，进入[油库里试玩场](docs/DEVELOPMENT.md)。这是唯一的试玩与测试入口，CI 只编译。
+- **试玩场**：双击根目录 `启动动作博物馆.cmd`，进入[油库里试玩场](docs/FEATURES.md#试玩场与动作博物馆)。这是唯一的试玩与测试入口，CI 只编译。
 - **素材检查**：双击 `打开素材检查.cmd` 查看各形态的动作与表情。
 
 ## 参与开发
 
-开发规则见 [AGENTS.md](AGENTS.md)，目录、素材流向和系统专题统一从[文档索引](docs/README.md)进入，后续工作见[待办](docs/TODO.md)。第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+开发规则见 [AGENTS.md](AGENTS.md)，目录、素材流向和系统专题统一从[文档索引](docs/FEATURES.md)进入，后续工作见[待办](docs/TODO.md)。第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
 项目暂按 **All Rights Reserved** 管理。不是 Mojang 或 Microsoft 官方产品。

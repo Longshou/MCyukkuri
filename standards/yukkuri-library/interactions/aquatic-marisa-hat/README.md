@@ -88,7 +88,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 
 **规则**
 
-- 载重规则见[水上生活·帽内空间与载重](../../../../docs/AQUATIC_MARISA_IMPLEMENTATION.md)。
+- 载重规则见[水上生活·帽内空间与载重](../../../../docs/FEATURES.md#水生魔理沙)。
 - 白天：帽主坐在中间；只有为了让幼体放得下，才最少地往船尾挪。幼体在她身前，尽量低。
 - 夜里：帽主俯身，幼体在她身前或俯身的身体下。
 - 每种情况都按储粮 0、12、24 份各算一次。

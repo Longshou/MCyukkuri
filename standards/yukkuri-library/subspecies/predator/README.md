@@ -15,4 +15,4 @@ python scripts/export_motion_corrections.py --update-only remilia,flandre
 python standards/yukkuri-library/subspecies/predator/preview_body.py
 ```
 
-模型和参考页保留可编辑源、导出与依据；本说明不重复旧原型的参数、检查报告或返工过程。玩法规则见[捕食种实现](../../../../docs/PREDATOR_IMPLEMENTATION.md)。
+模型和参考页保留可编辑源、导出与依据；本说明不重复旧原型的参数、检查报告或返工过程。玩法规则见[捕食种实现](../../../../docs/FEATURES.md#捕食种)。

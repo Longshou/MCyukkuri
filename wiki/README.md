@@ -4,7 +4,7 @@
 
 | 内容 | 阅读入口 |
 | --- | --- |
-| 名称、同名异义与游戏规则入口 | [术语表](glossary.md) · [游戏文档索引](../docs/README.md) |
+| 名称、同名异义与游戏规则入口 | [术语表](glossary.md) · [游戏文档索引](../docs/FEATURES.md) |
 | 游戏参考：按实体、情景、情绪组合查找；当前数量见参考库 | [游戏参考库](reference-library/README.md) · [组合筛选](reference-library/gallery.html) · [造型与动作参考](reference-library/production-briefs.md) |
 | 野外环境、经典事件、交互过程和叶材育幼 | [野外与交互](wild-life.md) · [树叶襁褓资源](leaf-swaddle.md) |
 | 城市边缘的食源、栖所、设施与同伴关系 | [城市边缘生活](city-life.md) |
@@ -37,7 +37,7 @@
 
 ## 来源与记录边界
 
-- [L36《饅饅來大講堂》](hakkei-reference/sources-lore.md)是常用设定的高优先级综述；与其他社区资料冲突时优先采用其明示内容。项目需要取舍时，以用户最新明确修改为准；游戏当前规则见[游戏文档索引](../docs/README.md)。
+- [L36《饅饅來大講堂》](hakkei-reference/sources-lore.md)是常用设定的高优先级综述；与其他社区资料冲突时优先采用其明示内容。项目需要取舍时，以用户最新明确修改为准；游戏当前规则见[游戏文档索引](../docs/FEATURES.md)。
 - 讲堂的台湾圈名词在使用前按[术语表](glossary.md)换成项目名词。讲堂楼层、作品编号、同源别名和各来源范围只在[世界观与生态来源](hakkei-reference/sources-lore.md)、[对白与情节来源](hakkei-reference/sources-events.md)登记。
 - 八景原作来自用户提供的本机 `油库里八景ver1.12/`（不入库），可读 `start.utf8.hsp` 与 `text/<角色>/` 台词还原行为骨架；它与社区 Wiki、小说和漫画的异说并列，不改写作品原文。
 - **A** 为具体作品，**W** 为社区整理，**I** 为整理推断，**P** 为项目改编或原创；A 只证明该作品，W 必须保留版本范围，I、P 不冒充原文。转载、译版和改编关系不重复计作独立见证。

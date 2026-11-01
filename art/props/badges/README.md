@@ -8,4 +8,4 @@
 
 从仓库根目录运行 `python scripts/export_badges.py`；捕食种专用挂点更新可使用 `--mounts-only`。制作参数以 `mounts.json` 和 `author_badges.py` 为准，来源标准见[徽章来源](../../../wiki/badges.md)。
 
-玩法规则见[宠物店](../../../docs/PET_SHOP.md)。
+玩法规则见[宠物店](../../../docs/FEATURES.md#宠物店徽章与宠物培育)。

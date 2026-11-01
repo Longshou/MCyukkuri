@@ -16,6 +16,6 @@
 
 小麦粉糊在本包只保留合成配方，物品外观是 [16×16 图标](../supply-icons/README.md)，不使用网格。
 
-原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/CONSUMABLES_AND_BIRTH.md)。清水仍使用原版真实清水药水瓶；其他六件物品没有借用不相符的原版图标。
+原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/FEATURES.md#消耗品与胎生)。清水仍使用原版真实清水药水瓶；其他六件物品没有借用不相符的原版图标。
 
 重新导出使用 `python standards/yukkuri-library/drafts/consumables/build.py`；多人协作时先协调语言文件，或加 `--skip-language`。`--check --skip-language` 只核对制作源与导出一致性。

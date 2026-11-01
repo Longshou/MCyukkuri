@@ -4,13 +4,13 @@
 
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行 `motor.geom`、`intent` 包的纯 Java 单元测试，约 20 秒；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
 
-`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[开发指南](../docs/DEVELOPMENT.md#ci-运行包更新)，在实际游玩的机器执行。
+`python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[开发指南](../docs/FEATURES.md#试玩场与动作博物馆)，在实际游玩的机器执行。
 
-`scripts/smoke_museum.py`：用法与自查边界见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
+`scripts/smoke_museum.py`：用法与自查边界见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
 
-`scripts/headless_server.py`：冒烟内部使用的服务器控制模块，无独立命令行入口；见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
+`scripts/headless_server.py`：冒烟内部使用的服务器控制模块，无独立命令行入口；见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
 
-试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/DEVELOPMENT.md#试玩日志与事后排查)。
+试玩日志由游戏和启动器自动保存；用户直接告诉 AI 场景与大概时间，无需导出工具。AI 的查找入口、版本核实与来源选择见[试玩日志](../docs/FEATURES.md#试玩场与动作博物馆)。
 
 ## 架构建议检查
 
@@ -44,7 +44,7 @@
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
-人工试玩当前使用[油库里试玩场](../docs/DEVELOPMENT.md)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录约束见[本机工具](../docs/DEVELOPMENT.md#本机工具)。
+人工试玩当前使用[油库里试玩场](../docs/FEATURES.md#试玩场与动作博物馆)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，按钮与观察台在 `museum_sites.py`，动作目录在 `museum_actions.py`；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、按钮与场景的对应，`render_museum_map.py` 画俯视布局图。其他输出目录约束见[本机工具](../docs/FEATURES.md#试玩场与动作博物馆)。
 
 圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
@@ -81,7 +81,7 @@ Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）�
 
 E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#来源登记)。
 
-亚种与先天形态入口，详见[实现说明](../docs/SUBSPECIES_IMPLEMENTATION.md)：
+亚种与先天形态入口，详见[实现说明](../docs/FEATURES.md#种族与亚种)：
 
 | 脚本 | 用途与写入边界 |
 | --- | --- |
@@ -89,7 +89,7 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 | `export_subspecies_wounds.cjs` | 读取八套实际运行几何与既有受伤表面算法，仅重建对应受伤表面和指纹；需 Node.js |
 | `preview_subspecies.py` | 从当前运行三角面和贴图生成离线交互页、六角度拼图与40幅生态表情图；需 Python/Pillow 和现有 Node.js，不启动游戏 |
 
-日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。说明见[日常生态](../docs/ECOLOGY_DAILY_LIFE.md)。
+日常生态入口：`export_ecology_expressions.py` 选择已确认表情，`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。说明见[日常生态](../docs/FEATURES.md#日常生态)。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；`--check` 只核对，`--only id,... --out 文件` 写试验结果；`--update-only id,...` 只更新这些模型并保留其他适配。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配](../art/source/placement-fit/README.md)。
 
