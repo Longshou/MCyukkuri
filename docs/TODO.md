@@ -13,6 +13,7 @@
 | 帽檐托赤油与亲代运输（反馈 4、`carry_home`） | `.worktrees/fb-brim-carry` | `family/ParentCarry`、`motor/action/Grab`、`client/ParentCarryPresentation`、认窝、`carry_home` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
+| 稀有形态导出 `--check` 过期 | `.worktrees/fb-rare-forms` | 稀有形态制作源导出（`export_rare_forms.py`、rare-forms `build.py`） |
 
 ## 玩法待办
 
