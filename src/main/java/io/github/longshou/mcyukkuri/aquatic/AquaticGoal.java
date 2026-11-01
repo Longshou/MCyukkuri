@@ -61,6 +61,8 @@ final class AquaticGoal extends Goal {
     private Map<UUID, Long> comforted;
     /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
     private long voyageAfter;
+    private long fearTick = Long.MIN_VALUE;
+    private String fear;
 
     private AquaticGoal(YukkuriEntity body) {
         this.body = body;
@@ -96,7 +98,12 @@ final class AquaticGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { drive().urgent(); }
     @Override public void tick() {
-        if (PlayAboard.fall(body)) { drive().stop("brim_hard_rock"); return; }
+        if (BrimPerformance.aboard(body) && !landing()
+                && (drive().runner() == null || !(drive().runner().intent() instanceof PlayAboard))) {
+            drive().stop("return_from_brim");
+            return;
+        }
+        if (drive().runner() != null && drive().runner().intent() instanceof PlayAboard play) play.tick();
         if (!body.social().greeting()) drive().tick();
     }
     @Override public void stop() { drive().stop("aquatic_goal_stop"); }
@@ -131,6 +138,7 @@ final class AquaticGoal extends Goal {
 
     // ---------------------------------------------------------------- desires (one evaluation reads the world once)
     private List<Desire> desires() {
+        if (BrimPerformance.aboard(body) && (drive().runner() == null || !(drive().runner().intent() instanceof PlayAboard))) return List.of();
         var out = new ArrayList<Desire>();
         if (body.family().adult()) { help(out); if (HatProp.usable(body) && !body.life().custody().lost()) owner(out); }
         else young(out);
@@ -302,19 +310,23 @@ final class AquaticGoal extends Goal {
     }
 
     private void play(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat, Object world) {
-        String fear = PlayAboard.fear(body, hat);
+        String fear = fear(hat);
         if (!fear.equals("none")) {
             out.add(new Desire("hide_aboard", PlayAboard.number("hide_want"), 0, true, List.of(world, fear),
-                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND)));
+                    () -> "fear=" + fear, () -> new PlayAboard(body, hat, Behaviors.KID_HIDE_BEHIND, () -> fear(hat))));
             return;
         }
         int stores = HullLarder.of(hat).count();
         boolean jumper = AquaticLife.jumper(body);
-        if (!jumper && stores == 0) return;
+        if (!KidPlayRule.available(jumper, stores)) return;
         out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
-                () -> "stores=" + stores, () -> new PlayAboard(body, hat,
-                        KidPlayRule.pick(jumper, parent.motor().current() instanceof Paddle || parent.motor().current() instanceof Beckon,
-                                stores, body.getRandom().nextDouble(), PlayAboard.number("play_poke_chance")))));
+                () -> "stores=" + stores, () -> PlayAboard.create(body, parent, hat, () -> fear(hat))));
+    }
+
+    private String fear(PlacedHatEntity hat) {
+        long now = body.level().getGameTime();
+        if (fearTick != now) { fear = PlayAboard.fear(body, hat); fearTick = now; }
+        return fear;
     }
 
     /**

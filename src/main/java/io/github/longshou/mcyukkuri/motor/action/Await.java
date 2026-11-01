@@ -22,11 +22,13 @@ public final class Await implements Action {
     private long startTick;
     private int ticks;
     private int holdTick = Integer.MAX_VALUE;
+    private BooleanSupplier paused = () -> false;
 
     /** Hold an authored pose frame while the same bounded wait continues. */
-    public static Await holding(BooleanSupplier condition, int maxTicks, String clip, int holdTick) {
+    public static Await holding(BooleanSupplier condition, int maxTicks, String clip, int holdTick, BooleanSupplier paused) {
         var wait = new Await(condition, maxTicks, clip);
         wait.holdTick = holdTick;
+        wait.paused = paused;
         return wait;
     }
 
@@ -55,6 +57,7 @@ public final class Await implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        if (paused.getAsBoolean()) { startTick++; return new Running(maxTicks - ticks, TravelMode.PASS); }
         if (condition.getAsBoolean()) return new Outcome.Done("condition");
         ticks++;
         if (ticks >= maxTicks) {

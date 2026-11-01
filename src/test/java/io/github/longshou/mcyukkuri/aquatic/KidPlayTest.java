@@ -15,6 +15,9 @@ class KidPlayTest {
         assertEquals(Behaviors.KID_MIMIC_PADDLE, KidPlayRule.pick(true, true, 4, 0, .5));
     }
     @Test void foodDrawChangesOnlyPlayAndNeverPermitsInfantSplashing() {
+        assertFalse(KidPlayRule.available(false, 0));
+        assertTrue(KidPlayRule.available(false, 1));
+        assertTrue(KidPlayRule.available(true, 0));
         assertEquals(Behaviors.KID_POKE_STORES, KidPlayRule.pick(true, false, 4, .49, .5));
         assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 4, .5, .5));
         assertEquals(Behaviors.KID_BRIM_SPLASH, KidPlayRule.pick(true, false, 0, 0, .5));

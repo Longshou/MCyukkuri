@@ -39,6 +39,8 @@ public final class Hop implements Action {
     private SurfaceHost departure;
     private SeatTarget seat;
     private List<Vec> flight;
+    private List<HopPath.Leg> path;
+    private int leg;
     private Vec3 from;
     private int takeoff, crouch, air;
     private double peak;
@@ -59,7 +61,7 @@ public final class Hop implements Action {
     }
     @Override public Feasibility check(YukkuriEntity body) { return solve(body).ready(); }
 
-    /** Pure probe: neither the action nor the host keeps a candidate seat or plan. */
+    /** Keeps only the solved local route; admission and clearance are checked again at every takeoff. */
     private Flight solve(YukkuriEntity body) {
         SeatTarget candidate = null;
         Vec3 to = target;
@@ -77,17 +79,32 @@ public final class Hop implements Action {
         var destination = anchor == null ? to : candidate.local().scale(anchor.frame().unit());
         var hosts = body.level().getEntities(body, new AABB(body.position(), to).inflate(ability.hopHeight() + body.getBbHeight() + 1),
                 e -> e instanceof SurfaceHost host && host.steady()).stream().map(e -> (SurfaceHost)e).toList();
+        if (anchor != null && path != null) {
+            var next = path.get(leg);
+            var landing = new SeatTarget(anchor, new Vec3(next.at().x(), next.at().y(), next.at().z()).scale(1 / anchor.frame().unit()));
+            if (!landing.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
+            var plan = next.flight();
+            if (!clear(body, origin, anchor, hosts, Ballistic.samples(new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), plan.ticks())))
+                return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "route_obstructed"), null, null);
+            return new Flight(Feasibility.pass(), landing, plan, leg + 1 < path.size());
+        }
         var result = ArcSolver.lowest(vec(origin), vec(destination), ability.hopHeight(), ability.hopReach(), ability.scale(),
                 points -> clear(body, origin, anchor, hosts, points));
-        if (result instanceof ArcSolver.Plan plan) return new Flight(Feasibility.pass(), candidate, plan);
+        if (result instanceof ArcSolver.Plan plan) {
+            if (anchor != null) path = List.of(new HopPath.Leg(vec(destination), plan));
+            return new Flight(Feasibility.pass(), candidate, plan);
+        }
         if (anchor != null) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
                     .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
-            var leg = HopPath.first(vec(origin), vec(destination), stops, (a, b) -> ArcSolver.lowest(a, b,
+            path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> ArcSolver.lowest(a, b,
                     ability.hopHeight(), ability.hopReach(), ability.scale(),
                     points -> clear(body, new Vec3(a.x(), a.y(), a.z()), anchor, hosts, points)));
-            if (leg != null) return new Flight(Feasibility.pass(), new SeatTarget(anchor,
-                    new Vec3(leg.at().x(), leg.at().y(), leg.at().z()).scale(1 / anchor.frame().unit())), leg.flight(), true);
+            if (path != null) {
+                var next = path.getFirst();
+                return new Flight(Feasibility.pass(), new SeatTarget(anchor,
+                        new Vec3(next.at().x(), next.at().y(), next.at().z()).scale(1 / anchor.frame().unit())), next.flight(), path.size() > 1);
+            }
         }
         var blocked = (ArcSolver.Blocked) result;
         var reason = blocked.kind() == ArcSolver.Kind.TOO_FAR ? Reason.TOO_FAR : Reason.TOO_HIGH;
@@ -138,12 +155,13 @@ public final class Hop implements Action {
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
         if (aboard) seatHost.riders().put(body.getUUID(), seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()));
-        peak = Math.max(peak, p.y());
+        peak = Math.max(peak, aboard ? p.y() : body.getY() - from.y);
         double blocked = body.position().distanceTo(aim);
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
         if (air == flight.size() - 1) {
             if (seat != null && !seat.land(body, "hop_contact")) return Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
             if (more) {
+                leg++;
                 launched = false;
                 crouch = air = 0;
                 startTick = body.level().getGameTime();
