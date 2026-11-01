@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船重做（WP3 规则化帽船） | `.worktrees/aq-wp3-hull` | HullAfloat/Right/HullHydro/HullShell/LoadedContact、HullWaterMask、帽船场景、FEATURES 翻船规则 |
 | 水生帽船重做（美术 B：帽船接触动作重做与子油船上动作） | `.worktrees/aq-clips-b` | lore 动作配方与导出、帽船接触片段、子油船上新片段 |
 | 水生帽船重做（WP5 救援完成） | `.worktrees/aq-wp5-rescue` | Rescue、AquaticGoal 救援段、Grab/Swim/Release、ParentCarry 水中搬运、救援场景 |
 
@@ -268,8 +267,10 @@
 **行为场景观察点（原 P0；重建合入后复测，场景 → 应观察）**
 
 - **P0-1 自然生成即在船上**：`water_colony` → 成员第 0 tick 已坐船漂，无延迟 `moveTo`／`launchAfloat`；无水面则留岸并记 `spawn refused reason=`。
-- **P0-2 单体完整航程**：`sail` → 找棍、备粮、走到岸位、放帽（`hat_off_self_aq` 终帧与船体重合）、登船、划、捞漂浮物、返岸、下船、收帽；无原地转圈或“上岸—再上船”循环，每阶段一条日志。
-- **P0-3 带赤油出航**：`afloat_family` → 系泊帽稳在岸边，子油自己跳入，赤油被辫兜放进帽腔；登船先后由欲望竞争产生；赤油睡着时出航等待或取消并记原因，无人独自留岸。
+- **P0-2 单体完整航程**：复测失败（冒烟，[3ab0e4871](https://github.com/Longshou/MCyukkuri/commit/3ab0e4871)）。`sail` 登船无可达目标；支撑几何仍是旧圆锥剖面，由 WP4 切换。
+  完成：找棍、备粮、到岸放帽（终帧与船体重合）、登船、划行捞物、返岸收帽；无转圈／反复上下船，各阶段有日志。
+- **P0-3 带赤油出航**：复测失败（同版本冒烟）。`afloat_family` 未完成登船；旧圆锥支撑几何由 WP4 切换。
+  完成：帽稳在岸边，子油跳入、赤油辫兜入帽；欲望决定登船先后，赤油睡着则等或取消并记原因，无人独留岸。
 - **P0-4 带幼体靠岸下船**：`shore_family` → 缺粮或天黑引发返岸；子油自己跳上岸，赤油被逐只辫兜放到干地，单只失败只换落点；船长最后上岸收帽。
 - **P0-5 帽底计数储粮与玩家交互（WP2）**：已接入待试玩。规则见[水生魔理沙](FEATURES.md#水生魔理沙)。完成：`cargo` 对照 stores／tier／eats／refusals、手中实际扣数、原地取食和重载余量，满帽拒收不晃，翻覆按种类守恒；`birth_boat_caught` 补粮后原地取粮嚼糜、靠近孩子喂食；`hat_swap`、`shore_family` 保留摘取／拒绝边界。
   已下线反例：[405bf290](https://github.com/Longshou/MCyukkuri/commit/405bf290) 曾否定平面粮图、[a9b60f00](https://github.com/Longshou/MCyukkuri/commit/a9b60f00) 空帽也拒绝“无空间”、[2ac6d5f58](https://github.com/Longshou/MCyukkuri/commit/2ac6d5f58) 仍显示粮堆；现按用户裁决撤去实物占位与重量（运行证据见 E8–E10 及重构记录）。
