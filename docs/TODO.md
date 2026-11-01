@@ -9,7 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船分娩稳位与身体归属 | `.worktrees/aq-labour-1031` | `family/LiveBirth.java`、身体归属／欲望仲裁、纯函数测试、`docs/TODO.md` |
-| 帽船放置形态放大（盆腔容纳全家） | `.worktrees/aq-basin-size-1031` | `interactions/aquatic-marisa-hat/` 放置盆制作源与导出、`aquatic_basin_hat_turned` 模型与 `hull_profiles`、`art/runtime-sources.json` |
+| 帽船放置形态改椭圆（盆腔容纳全家） | `.worktrees/aq-basin-size-1031` | `interactions/aquatic-marisa-hat/` 放置盆制作源与导出、`aquatic_basin_hat_turned` 模型与 `hull_profiles`、`art/runtime-sources.json`、`motor/action/Paddle.java`、`lore/aquatic_tools.py` 船体门 |
 
 ## 玩法待办
 
@@ -227,8 +227,8 @@
 
 **本轮复测（E12）**：运行版本与 CI 见[运行证据索引](#运行证据索引2026-10-2131)，未完成链路保持复测失败。
 
-- **`birth_boat_caught`／`birth_boat_missed`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 船上生产卡住、赤油悬空掉水，父油未照看或决定救援；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:51）圆帽 `cone_basin` 的 caught 场分娩全程倾斜在灌水边缘、产毕翻覆，新生儿脱困反复重启、父油救援无进展，两只赤油溺亡。完成：母油就稳位分娩且身体不被划桨占用，出生真实落腔；漏接有救援决定与真实后果，两种帽形均记录站位倾角／余量及拒绝原因。
-- **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现观察：场景 `sail`／`shore_family` 圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲。不以演出替代真实航行。
+- **`birth_boat_caught`／`birth_boat_missed`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 船上生产卡住、赤油悬空掉水，父油未照看或决定救援；[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:51）圆帽 `cone_basin` 的 caught 场分娩全程倾斜在灌水边缘、产毕翻覆，新生儿脱困反复重启、父油救援无进展，两只赤油溺亡。完成：母油就稳位分娩且身体不被划桨占用，出生真实落腔；漏接有救援决定与真实后果，两种帽形均记录站位倾角／余量及拒绝原因。进展：圆帽放置盆改为椭圆（横 1.0、纵 2.2，[制作源](../standards/yukkuri-library/interactions/aquatic-marisa-hat/README.md)），离线核算居中临产三胎都落在空帽底、倾覆比 ≤ 0.24（版本待合入）。
+- **`sail`／`shore_family` 划桨演出**：已接入待试玩（[091899217](https://github.com/Longshou/MCyukkuri/commit/091899217)，CI 待核对）。原现象（录像 22:52，圆帽 `cone_basin` 辫子穿船体、上下两节铰链、无力感）；现观察：场景 `sail`／`shore_family` 圆帽下辫子留在帽檐上方不穿模，自根部到梢呈波形弯曲；椭圆帽船上船长先转向船首再出桨，辫子与木棍越过横向帽檐（版本待合入）。不以演出替代真实航行。
 - **辫梢划水木棍显示**：已接入待试玩。实现 [009ec0f2d](https://github.com/Longshou/MCyukkuri/commit/009ec0f2d)（CI pending，尚无试玩运行记录）。完成：`sail` 持有真实木棍时随辫梢划水，停划或失去木棍后消失，空辫招帽不出现木棍（读数见场景说明）。
 - **`family_skiffs`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 两轮初态成功后均未开始 `share_young` 或划近／请求；第二轮仅约 262 活跃 tick。无界面自查（headless）：[c0595c480](https://github.com/Longshou/MCyukkuri/commit/c0595c480) 与 913b56da0（实现见 [12cb38d16](https://github.com/Longshou/MCyukkuri/commit/12cb38d16)）各 3/3 启动，拾取时 `mouth_lift_blocked`；913b56da0 搬运中 `capsized cause=load`、ratio 约 1.23–1.26，均未完成转移。完成：母油开始送幼，请求与真实划近后转移；观察抓取／放下及父船乘员，拒绝有原因，初态坐船不算成功。
 - **`afloat_family`**：复测失败。[55449fd63](https://github.com/Longshou/MCyukkuri/commit/55449fd6381619dec7d211af4748778c5ac76e54) 约 25 秒活跃观察内无找棍、放帽或 `set_out`，赤油约 6 秒后学会跳；练跳 `Launch` 同 tick 起止。[80f198366](https://github.com/Longshou/MCyukkuri/commit/80f198366)（[CI 41195062942](https://github.com/Longshou/MCyukkuri/actions/runs/41195062942)）两帽自查缺 `end id=set_out result=DONE`。[a7c31b3d4](https://github.com/Longshou/MCyukkuri/commit/a7c31b3d4)（[CI 41198863260](https://github.com/Longshou/MCyukkuri/actions/runs/41198863260)）盆帽自查全员登船，旧帽成体入船后仍倾覆，待修复与试玩。完成：找棍有结果／拒绝原因，全家真实上船、欲望重排；练跳离地后接触才结束。
