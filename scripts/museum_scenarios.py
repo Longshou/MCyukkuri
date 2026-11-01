@@ -1735,7 +1735,29 @@ def _babies():
 
 
 _HULL_READS = [('读漂浮、触发与扶正', f'yukkuri status {sel("a")} raw'), ('读帽子状态', f'data get entity {_HAT}')]
-_HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
+_HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Pos', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
+
+
+def push_smooth(log):
+    if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) != 1:
+        return 'expected only the fast impact to capsize'
+    travel = re.compile(r'\[hat\][^\n]* uuid=(\S+) t=\d+[^\n]* travel at=\([^)]*\) delta=\(([-\d.E]+),[^)]*\)[^\n]* impact=([-\d.E]+)')
+    by_hat = {}
+    for hat, dx, impact in travel.findall(log):
+        by_hat.setdefault(hat, []).append((float(dx), float(impact)))
+    smooth = any(0 < impact < .16 and len(rows[i + 1:i + 13]) == 12
+                 and all(next_dx < -1e-6 for next_dx, _ in rows[i + 1:i + 13])
+                 for rows in by_hat.values() for i, (_, impact) in enumerate(rows))
+    if not smooth:
+        return 'light contact must be followed by 12 non-zero steps in one direction'
+    banked = False
+    for rows in by_hat.values():
+        for i in range(1, len(rows)):
+            if rows[i - 1][0] < 0 and rows[i][1] > .16:
+                if any(abs(dx) > 1e-9 for dx, _ in rows[i + 1:i + 6]):
+                    return 'bank contact rebounded instead of staying stopped'
+                banked = True
+    return None if banked else 'no bank-stop displacement series'
 
 
 pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
@@ -1753,15 +1775,16 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
      '约 30 秒',
      [captain(dx=bank_dx(0)), yk('marisa', bank_dx(5), 5, 'fast', aquatic=True, yaw=-90, label='猛撞边界', **pair_ready()),
       afloat('a', water_at(0, 3)), afloat('fast', water_at(5, 3))],
-     late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~2 ~ ~ {{Type:"oak",Tags:["scn_prop","low_push"]}}',
+     late=[f'execute as {sel("a")} on vehicle at @s run summon minecraft:boat ~1.8 ~ ~ {{Type:"oak",Tags:["scn_prop","low_push"]}}',
            f'execute as {sel("fast")} on vehicle at @s run summon minecraft:boat ~2 ~ ~ {{Type:"oak",Tags:["scn_prop","fast_push"]}}',
-           Retry('data merge entity @e[tag=low_push,limit=1] {Motion:[-0.04d,0d,0d]}', sel('a'), tries=1, first=40),
+           Retry('data merge entity @e[tag=low_push,limit=1] {Motion:[-0.08d,0d,0d]}', sel('a'), tries=1, first=40),
            Retry('data merge entity @e[tag=fast_push,limit=1] {Motion:[-0.65d,0d,0d]}', sel('fast'), tries=1, first=40)],
      note='木船只在初态给速度，之后按真实碰撞运动；读 trigger=impact、value 与 capsizes。近处帽船 capsizes=0，远处帽船只记一次猛撞翻覆。',
      reads=_HULL_READS + [('读猛撞船主', f'yukkuri status {sel("fast")} raw')],
-     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
+     smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
+                expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],
-                verify=lambda log: None if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) == 1 else 'expected only the fast impact to capsize',
+                verify=push_smooth,
                 readout=_HULL_READOUT + [f'yukkuri status {sel("fast")} raw']))
 
 
@@ -1786,13 +1809,19 @@ pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|impact)\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
 
 
+def current_drift(log):
+    points = [float(x) for x in re.findall(r'\[hat\][^\n]* travel at=\(([-\d.]+),', log)]
+    return None if len(points) >= 2 and max(points[:200]) - points[0] >= 3 else 'hat must drift at least 3 blocks downstream in 200 ticks'
+
+
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      '宽石槽上游一排水源形成同向水流；船主乘帽随水流缓慢漂动，碰到槽边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
      [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 3))],
      note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。槽尽头浅水落定不算翻覆。',
      reads=_HULL_READS,
-     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared'],
+     smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
+                expect=[r'\[hat\][^\n]* scenario afloat prepared'], verify=current_drift,
                 forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
 
 

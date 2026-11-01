@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 帽船缓流与碰撞连续性（反馈 6、12） | `.worktrees/fb-hull-motion` | `aquatic/HullAfloat`、`headwear/HatSurface`／`SeatSurface`／`PlacedHatEntity`、`hat_current`／`hat_push` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
 | 稀有形态导出 `--check` 过期 | `.worktrees/fb-rare-forms` | 稀有形态制作源导出（`export_rare_forms.py`、rare-forms `build.py`） |
@@ -18,7 +17,6 @@
 ### 复测失败/待修复
 
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
-  - 复测失败·处理中：缓流不漂、不响应水流（`hat_current`）；碰撞后动作一卡一卡。
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），无原地哭脸循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
   - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回。
@@ -284,8 +282,8 @@
   未合入反例：`aq-wp5-rescue` [0ed97198b](https://github.com/Longshou/MCyukkuri/commit/0ed97198b) 冒烟全链 3–4/8；同分支 WP5b [5e2c7ad62](https://github.com/Longshou/MCyukkuri/commit/5e2c7ad62) 救援 0/10、赤油登船 0/3；游泳拖行与帽檐释放后自跳的旧方案不再沿用。
 - **P0-7 自救与扶正交接（WP3）**：已接入待试玩。
   `self_rescue`（远帽长泳）、`shore_capsized`：游到帽檐、单次扶正后爬回，落水状态结束；真实中断保留姿态。
-- **P0-8 规则翻船与扶正（WP3）**：已接入待试玩；[规则](FEATURES.md#水生魔理沙)。
-  `shake_capsize`（两只不同体型赤油）、`hat_push`、`hat_turbulence`：三类触发、先摇后翻、乘员落水及物品守恒；`hat_current` 只漂。
+- **P0-8 规则翻船与扶正（WP3）**：已接入待试玩；[规则](FEATURES.md#水生魔理沙)。[4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724）反馈 12：缓流不漂、似乎不响应水力；反馈 6：碰撞后动作一卡一卡。现修帽船碰撞路径，原反馈是否另含陆上身体碰撞仍待用户复看。
+  完成：池塘与河湾 `hat_current`（缓流漂移）顺流至少 3 格、乘员随帽，靠岸停稳不抖；`hat_push`（轻推／猛撞）轻推后连续滑动、猛撞翻覆；`shake_capsize`、`hat_turbulence` 保留三类触发、先摇后翻、乘员落水及物品守恒。`status trace` 的 `[hat] travel` 读取逐 tick 位置、位移、速度和乘员数。
 - **P0-9 船上分娩与新生护理**：已接入待试玩（WP6）。`birth_boat_caught` → 母油留座、新生儿坐进空座、嚼糜喂、首便在后帽檐朝水；`birth_boat_missed` 为座位已满的容量边界（落水须建事件，亲油自己决定救不救，没救起则溺亡并哀悼）；水生胎数 1–2、偶尔 3。
 - **P0-10 子油船上互动（WP7）**：已接入待试玩；规则见[水生魔理沙](FEATURES.md#水生魔理沙)。
   `kid_boat_play`：观察拍水、学划、拨粮、受惊躲辫与回座，短跳随船且不穿模；核对 `hat.float` 的 play／fear／fall_ins、`social.greet_clicks`，拨粮不耗粮、点击回应、帽檐落水后接真实事件与救援。

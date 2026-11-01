@@ -10,11 +10,18 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.stream.IntStream;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** The bounds-defined round surface: fixed seats, with no walking or repacking. */
 final class SeatSurface implements HatSurface {
     static final HatSurface INSTANCE = new SeatSurface();
+    @Override public AABB bounds(PlacedHatEntity hat, AABB box) {
+        double scale = hat.hullScale() / HullBounds.SCALE, r = HullBounds.RADIUS * scale;
+        // The physical hull is stable through presentation tilt; its origin is the brim, not the keel.
+        return new AABB(hat.getX() - r, hat.getY() + HullBounds.KEEL * scale, hat.getZ() - r,
+                hat.getX() + r, hat.getY() + HullBounds.BRIM * scale, hat.getZ() + r);
+    }
     @Override public OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) {
         var brim = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.atan2(local.z, local.x));
         if (Math.abs(local.horizontalDistance() * HullBounds.UNIT - Math.hypot(brim.x(), brim.z())) < .05)

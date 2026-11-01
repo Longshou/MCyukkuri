@@ -52,6 +52,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,6 +139,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
         return super.getDimensions(pose).scale(hullScale());
+    }
+    @Override protected AABB makeBoundingBox() {
+        return profile().surface().bounds(this, super.makeBoundingBox());
     }
 
     @Override public String formId() { return entityData.get(FORM); }

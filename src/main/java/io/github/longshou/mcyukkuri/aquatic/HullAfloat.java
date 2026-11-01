@@ -11,8 +11,8 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Right;
-import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,6 @@ import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -32,14 +31,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Fixed-waterline travel and authored rocking. Passenger positions and food never change flotation. */
 public final class HullAfloat implements PlacedHatBehavior {
-    private static final double DRAG = HullPresentation.number("drag");
-    private static final double BRIM_LIP = .8, CONTACT_STEP = .25;
-    private static final int RIM_POINTS = 24;
+    private static final double DRAG = HullPresentation.number("drag"), CONTACT_STEP = .25;
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
     /** Observed play events only; no decisions read these counters and they are not saved. */
@@ -60,7 +56,6 @@ public final class HullAfloat implements PlacedHatBehavior {
     private double impact;
     private Vec3 drive = Vec3.ZERO;
     private float turnBy;
-    private boolean paddling;
     private double rightProgress = -1;
     private YukkuriEntity righter;
     private float rightStartRoll, rightStartPitch;
@@ -133,28 +128,25 @@ public final class HullAfloat implements PlacedHatBehavior {
             case INVERTED -> hat.roll();
         };
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
-        float yaw = hat.getYRot() + turnBy;
-        if (turnBy != 0 && !open(hat, 0) && walled(hat,
-                new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), roll, pitch), 0, 0, false, hat.frame()))
-            yaw = hat.getYRot();
-        Motor.hostPose(hat, yaw, roll, pitch);
+        Motor.hostPose(hat, hat.getYRot() + turnBy, roll, pitch);
         double target = water - HullPresentation.waterHeight(scale(hat), roll, pitch)
                 + HullPresentation.bob(now) * scale(hat);
         var v = hat.getDeltaMovement();
-        var horizontal = paddling ? new Vec3(v.x * DRAG, 0, v.z * DRAG).add(drive.scale(1 - DRAG))
-                : new Vec3(v.x * DRAG, 0, v.z * DRAG);
-        var motion = new Vec3(horizontal.x, target - hat.getY(), horizontal.z);
-        var free = clear(hat, motion);
-        Motor.velocity(hat, free, "hull_drift");
-        var actual = Motor.move(hat, free, "hull_drift");
-        var blocked = motion.subtract(actual).multiply(1, 0, 1);
-        if (blocked.lengthSqr() > 0) impact = Math.max(impact, motion.dot(blocked.normalize()));
-        paddling = false; drive = Vec3.ZERO; turnBy = 0;
+        var motion = new Vec3(v.x * DRAG + drive.x * (1 - DRAG), target - hat.getY(), v.z * DRAG + drive.z * (1 - DRAG));
+        var travel = new Contact(motion, motion);
         double reach = HullBounds.RADIUS * scale(hat) + 1;
         var nearby = hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity);
         contactPositions.keySet().retainAll(nearby);
-        for (var other : nearby) contact(hat, other, actual, contactPositions.put(other, other.position()));
+        for (var other : nearby) travel = contact(other, travel, contactPositions.put(other, other.position()));
+        Motor.velocity(hat, travel.velocity, "hull_drift");
+        var actual = Motor.move(hat, travel.move, "hull_drift");
+        var blocked = travel.move.subtract(actual).multiply(1, 0, 1);
+        if (blocked.lengthSqr() > 0) impact = Math.max(impact, travel.move.dot(blocked.normalize()));
+        if (StatusEvents.trace()) GameplayLog.event(hat, "hat",
+                "travel at={} delta={} velocity={} drive={} impact={} riders={}", hat.position(), actual,
+                hat.getDeltaMovement(), drive, impact, hat.getPassengers().size());
+        drive = Vec3.ZERO; turnBy = 0;
         if (triggers.impact(impact)) trigger("impact", impact, false);
     }
 
@@ -209,84 +201,30 @@ public final class HullAfloat implements PlacedHatBehavior {
                 HullTriggers.IMPACT, HullPresentation.number("drop_speed"), capsizes, hat.formId(), thrown, hat.ownerYukkuri());
     }
 
-    private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
-        var p = hat.profile().rimPoints().get(i);
-        return frame.toWorld(new Vec3(p.x(), p.y(), p.z()));
-    }
+    private record Contact(Vec3 move, Vec3 velocity) {}
 
-    /** The highest top at x, z of the block collision boxes reaching into heights {@code low}..{@code high}, or NaN. */
-    private static double bank(Level level, double x, double low, double high, double z) {
-        double best = Double.NaN;
-        for (int y = Mth.floor(low); y <= Mth.floor(high); y++) {
-            var p = BlockPos.containing(x, y, z);
-            var shape = level.getBlockState(p).getCollisionShape(level, p);
-            if (shape.isEmpty()) continue;
-            for (var box : shape.toAabbs()) {
-                double top = p.getY() + box.maxY;
-                if (x < p.getX() + box.minX || x > p.getX() + box.maxX || z < p.getZ() + box.minZ || z > p.getZ() + box.maxZ
-                        || top <= low || p.getY() + box.minY >= high) continue;
-                if (Double.isNaN(best) || top > best) best = top;
-            }
-        }
-        return best;
-    }
-
-
-    private static boolean open(PlacedHatEntity hat, double more) {
-        double r = HullBounds.RADIUS * scale(hat) + more;
-        double y = hat.position().y;
-        return !hat.level().getBlockCollisions(hat, new AABB(hat.getX() - r, y - hat.unit(), hat.getZ() - r,
-                hat.getX() + r, y + hat.unit(), hat.getZ() + r)).iterator().hasNext();
-    }
-
-    private static boolean walled(PlacedHatEntity hat, HostFrame frame, double dx, double dz, boolean leading, HostFrame before) {
-        double lip = BRIM_LIP * hat.unit();
-        for (int i = 0; i < RIM_POINTS; i++) {
-            var at = rim(hat, frame, i);
-            if (leading && (at.x - hat.getX()) * dx + (at.z - hat.getZ()) * dz <= 0) continue;
-            if (!(bank(hat.level(), at.x + dx, at.y - lip, at.y, at.z + dz) > at.y)) continue;
-            if (before == null) return true;
-            var was = rim(hat, before, i);
-            if (!(bank(hat.level(), was.x, was.y - lip, was.y, was.z) > was.y)) return true;
-        }
-        return false;
-    }
-
-    /** The horizontal part of {@code motion} the brim can make: a way into a bank it cannot ride onto stops, the other slides on
-     *  (the hull's box itself is vanilla's). */
-    private static Vec3 clear(PlacedHatEntity hat, Vec3 motion) {
-        double dx = motion.x, dz = motion.z;
-        if (dx * dx + dz * dz < 1e-10 || open(hat, Math.hypot(dx, dz))) return motion;
-        var frame = hat.frame();
-        if (!walled(hat, frame, dx, dz, true, null)) return motion;
-        boolean x = !walled(hat, frame, dx, 0, true, null), z = !walled(hat, frame, 0, dz, true, null);
-        if (x && z) { if (Math.abs(dx) >= Math.abs(dz)) z = false; else x = false; }
-        return new Vec3(x ? dx : 0, motion.y, z ? dz : 0);
-    }
-
-
-    /** A contact separates the hull and carries the approaching normal velocity; there is no mass sharing. */
-    private void contact(PlacedHatEntity hat, Entity other, Vec3 moved, Vec3 previous) {
-        if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return;
+    /** Resolve entity contact before the single collision-aware move; only the approaching normal is removed. */
+    private Contact contact(Entity other, Contact travel, Vec3 previous) {
+        if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return travel;
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
-                || y.motor().current() instanceof Right right && right.host() == hat)) return;
-        double brim = hat.position().y;
+                || y.motor().current() instanceof Right right && right.host() == hat)) return travel;
+        var hull = hat.getBoundingBox();
         var box = other.getBoundingBox();
-        double tilt = Math.abs(Math.sin(Math.toRadians(hat.roll()))) + Math.abs(Math.sin(Math.toRadians(hat.pitch())));
-        if (box.minY >= brim + HullBounds.RADIUS * scale(hat) * tilt
-                || box.maxY <= brim + HullBounds.KEEL * scale(hat)) return;
+        if (box.minY >= hull.maxY || box.maxY <= hull.minY) return travel;
         double dx = other.getX() - hat.getX(), dz = other.getZ() - hat.getZ(), distance = Math.hypot(dx, dz);
-        if (distance < 1e-4) { dx = 1; dz = 0; distance = 1; }
-        double depth = Math.min(CONTACT_STEP, HullBounds.RADIUS * scale(hat) + other.getBbWidth() / 2 - distance);
-        if (depth <= 0) return;
-        double nx = dx / distance, nz = dz / distance;
-        Motor.move(hat, clear(hat, new Vec3(-nx * depth, 0, -nz * depth)), "hull_contact");
-        if (previous == null) return; // A new neighbour has no observed tick of travel yet.
-        var v = hat.getDeltaMovement();
-        double approach = moved.subtract(other.position().subtract(previous)).dot(new Vec3(nx, 0, nz));
-        impact = Math.max(impact, approach);
-        if (approach > 0) Motor.velocity(hat, v.add(-nx * approach, 0, -nz * approach), "hull_contact");
+        if (distance < 1e-4) { dx = hat.getId() < other.getId() ? 1 : -1; dz = 0; distance = 1; }
+        double gap = distance - (hull.getXsize() + Math.max(box.getXsize(), box.getZsize())) / 2;
+        var normal = new Vec3(dx / distance, 0, dz / distance);
+        var observed = previous == null ? Vec3.ZERO : other.position().subtract(previous).multiply(1, 0, 1);
+        double approach = travel.velocity.subtract(observed).dot(normal);
+        double normalMove = travel.move.dot(normal);
+        // Vanilla boats start their soft push at this margin; observe the same contact instead of letting it hide a slow approach.
+        double margin = other instanceof Boat ? .2 : 0;
+        if (gap > margin + Math.max(0, normalMove) + 1e-7) return travel;
+        double correction = Math.min(CONTACT_STEP, Math.max(0, normalMove - gap)), lost = Math.max(0, approach);
+        if (previous != null) impact = Math.max(impact, lost);
+        return new Contact(travel.move.subtract(normal.scale(correction)), travel.velocity.subtract(normal.scale(lost)));
     }
 
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
@@ -308,7 +246,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
         if (phase != Phase.UPRIGHT && phase != Phase.INVERTED || rightProgress >= 0) return false;
-        drive = water; turnBy = turn; paddling = true;
+        drive = water; turnBy = turn;
         return true;
     }
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
