@@ -17,7 +17,7 @@ import java.util.Locale;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-/** Push a body, or a hat afloat, away for one {@code push} clip: each tick it gains the pusher's pace times its share of the two box volumes, else {@code TOO_HEAVY}. */
+/** Push for one {@code push} clip: a hat gains the pusher's pace; another body uses their box-volume share. */
 public final class Push implements Action {
     public static final String ID = "push";
 

@@ -43,7 +43,7 @@ final class Ferry {
                 () -> act(new Grab(child)));
     }
 
-    /** Aboard: walk on the hat toward just short of the young (as near as the hull stays upright with her), face it, take it. */
+    /** Aboard: walk on the hat to a free spot just short of the young, face it, take it. */
     static List<Supplier<Step>> grabAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
         return List.of(() -> {
                     if (new Grab(child).check(carrier).ok()) return null;

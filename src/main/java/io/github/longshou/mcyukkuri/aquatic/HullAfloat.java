@@ -271,6 +271,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
+        if (phase == Phase.FLIPPING) { phase = Phase.INVERTED; phaseTicks = 0; }
         if (phase != Phase.INVERTED) return false;
         if (righter == null) { righter = by; rightStartRoll = hat.roll(); rightStartPitch = hat.pitch(); }
         if (righter != by) return false;
