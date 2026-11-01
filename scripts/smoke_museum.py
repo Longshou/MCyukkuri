@@ -129,8 +129,14 @@ def load_field(st, field, feet):
     chunks = sorted(field.chunks())
     for x, z in chunks:
         server.run_cmd(st, f'forceload add {x} {z}')
-    loaded = ' '.join(f'if loaded {x} {feet} {z}' for x, z in chunks)
-    wait_command(st, f'execute {loaded} run say MCYSMOKE_FIELD_READY', 'MCYSMOKE_FIELD_READY')
+    # Vanilla RCON reads at most 1460 bytes per packet and drops the connection on a longer command,
+    # so the readiness questions go out in bounded batches, one marker each.
+    batch = 40
+    for start in range(0, len(chunks), batch):
+        group = chunks[start:start + batch]
+        marker = f'MCYSMOKE_FIELD_READY_{start // batch}'
+        loaded = ' '.join(f'if loaded {x} {feet} {z}' for x, z in group)
+        wait_command(st, f'execute {loaded} run say {marker}', marker)
 
 
 def failure(smoke, window):
