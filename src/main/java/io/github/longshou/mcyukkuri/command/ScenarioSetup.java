@@ -220,14 +220,8 @@ final class ScenarioSetup {
         return null;
     }
 
-    /**
-     * The owner's real hat set down on the surface of {@code water} through the one placement path, every young on its own free
-     * supported spot nearest the hat's front (or its middle), then, when asked, the owner climbing in last into the middle of her
-     * own hat whether or not her young already sit there (a crowd the hat then squeezes apart), and last {@code food} apples
-     * stored in it up to its count capacity through the same storing a player's click uses. Kinship is written once every
-     * one sits aboard: a setup that fails takes the hat back with the reason and leaves nothing half built. Everything afterwards
-     * is physics.
-     */
+    /** Real initial seats: captain first, then admitted young. A refusal leaves already seated riders in place.
+     *  Food uses the same counted store as a player's click. Everything afterwards is ordinary physics and AI. */
     static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())

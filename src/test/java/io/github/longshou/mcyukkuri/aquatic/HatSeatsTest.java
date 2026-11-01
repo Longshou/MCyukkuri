@@ -27,9 +27,10 @@ class HatSeatsTest {
     }
     @Test void oneSmallJuvenileFitsAndLargeJuvenileIsRefused() {
         var riders = captain(1);
-        assertNotNull(HatSeats.admit(1, body(.47), false, riders));
-        assertNull(HatSeats.admit(1, body(.6), false, riders));
-        board(riders, 1, .4);
+        assertNotNull(HatSeats.admit(1, body(.38), false, riders));
+        assertNull(HatSeats.admit(1, body(.39), false, riders));
+        assertNull(HatSeats.admit(1, body(.42), false, riders));
+        board(riders, 1, .35);
         assertNull(HatSeats.admit(1, body(.1), false, riders));
     }
     @Test void juvenilesCannotJoinInfants() {
@@ -48,7 +49,7 @@ class HatSeatsTest {
         var infant = riders.get(1);
         assertTrue(HatSeats.fits(1, infant, List.of(riders.getFirst())));
         assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(.21), infant.at(), false), List.of(riders.getFirst())));
-        var young = HatSeats.admit(1, body(.4), false, captain(1));
-        assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(.5), young, false), captain(1)));
+        var young = HatSeats.admit(1, body(.38), false, captain(1));
+        assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(.39), young, false), captain(1)));
     }
 }

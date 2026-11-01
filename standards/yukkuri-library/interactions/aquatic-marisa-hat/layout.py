@@ -20,6 +20,7 @@ B = S.B
 
 GAP = .03                 # model units between two bodies' columns
 BABY, SMALL, CHILD = .20, .30, .45
+BASIN_YOUNG = .38         # rest-pose bangs and braid tuft clear the mouth lip (aq-clips-b)
 CHAIN = S.BRAID['braid_chain_length']                  # the braid's joints end to end (adult model units)
 ROOT_AT = np.array(S.BRAID['braid_root'], float)       # its root on the body (adult rest pose)
 MOUTH_AT = np.array(S.BRAID['mouth_root'], float)
@@ -151,9 +152,9 @@ def bounds(hull=None):
         sh = young_shape(s); ring.append([s, round((sh.rest(hull.field, brim_ring(), 0, overhang=True)+sh.bottom)/16, 4)])
     return dict(captain_seat=dict(growth=1., x=round(ox/16, 4), y=round((oy+osh.bottom)/16, 4), z=round(oz/16, 4)),
                 brim_ring=dict(radius=round(brim_ring()/16, 4), underside_y=ring),
-                seating=dict(infant_max_growth=BABY, young_max_growth=round(largest_young(hull, cap), 2),
+                seating=dict(infant_max_growth=BABY, young_max_growth=BASIN_YOUNG,
                              young=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
-                                    for sh, x, z, y in seat_young(hull, [round(largest_young(hull, cap), 2)], cap)][0],
+                                    for sh, x, z, y in seat_young(hull, [BASIN_YOUNG], cap)][0],
                              infants=[[round(x/16, 4), round((y+sh.bottom)/16, 4), round(z/16, 4)]
                                       for sh, x, z, y in seat_young(hull, [BABY, BABY], cap)]))
 
@@ -172,7 +173,8 @@ def checks(gates=True):
         babies[s] = None if placed is None else [dict(x=x, z=z, underside=round(y+sh.bottom, 2), top=round(y+sh.bottom+sh.height, 2),
                                                       body_top=round(y+sh.bottom+sh.tall, 2)) for sh, x, z, y in placed]
     out['babies_below_mouth'] = babies
-    out['largest_young'] = largest_young(hull, cap)
+    out['body_column_limit'] = largest_young(hull, cap)
+    out['basin_young_limit'] = BASIN_YOUNG
     out['brim_young'] = [splash(hull, s) for s in (SMALL, CHILD)]
     out['rescue'] = rescue_reach(cap)
     if gates:
