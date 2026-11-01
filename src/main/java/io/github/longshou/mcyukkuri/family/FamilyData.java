@@ -556,7 +556,7 @@ public final class FamilyData extends SavedData {
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,null,false); }
 
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
-     *  at it (first real contact decides); a hat with no nominal arc is the mother's own boat, the kit simply dropping from {@code position}. {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
+     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal, boolean unprotected) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
@@ -601,9 +601,9 @@ public final class FamilyData extends SavedData {
         finally { spawning.remove(child.id); }
         if(!added)return refuse(brood,level,"entity_rejected");
         // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
-        if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat==null?BirthLaunch.live(level.random,mother,entity,entity.position())
-                :nominal==null?BirthLaunch.drop(entity,hat)
-                :BirthLaunch.intoHat(entity,hat,nominal,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random)),brood,index,hat);
+        if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
+                ?BirthLaunch.intoHat(entity,hat,nominal,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
+                :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();
             entity.family().launch(BirthLaunch.stem(level.random,position,hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(position.x-centre.x)<half

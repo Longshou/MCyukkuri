@@ -197,10 +197,6 @@ public final class BirthLaunch {
         }
         return false;
     }
-    /** A newborn let go above its boat seat: no impulse, so the seat's own contact catches it, or it falls through into the water. */
-    static Plan drop(YukkuriEntity kit,PlacedHatEntity hat){
-        return new Plan(Target.HAT,hat.getUUID(),kit.position(),kit.position(),Double.NaN,0,1,0,Vec3.ZERO);
-    }
     static Plan intoHat(YukkuriEntity kit,PlacedHatEntity hat,Nominal plan,double push,double yawDeg){
         var v=plan.velocity();var drawn=v.multiply(push,1,push).yRot((float)Math.toRadians(yawDeg));
         return new Plan(Target.HAT,hat.getUUID(),kit.position(),plan.aim(),Double.NaN,v.horizontalDistance(),push,yawDeg,drawn);

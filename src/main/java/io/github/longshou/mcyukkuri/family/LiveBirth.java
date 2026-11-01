@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.motor.action.TakeProp;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ import net.minecraft.world.phys.Vec3;
  * {@value #APPROACH_LEAD} ticks of a LIVE or STEM gestation. Roles: the mother, and the catcher (a Marisa father nearby,
  * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest, the ground,
  * or the boat she rides ({@link OwnHull}: her own hat afloat, no catcher, no hat to set down or take back; she stays at her
- * seat, each newborn drops onto a free seat in front of her, and one with no seat falls into the water). Both tables share the
+ * seat, each newborn comes out onto a free seat in front of her, and one with no seat falls into the water). Both tables share the
  * site, meeting, hat and cleanup beats; LIVE adds the labour beats, STEM one drop beat. The labour clock ({@link #conductData})
  * only advances the brood ledger; the bodies move through their own BirthGoal.
  */
@@ -64,8 +65,6 @@ final class LiveBirth extends Choreography {
     /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
      *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
-    /** How far above its seat a boat newborn is let go (blocks, 项目设计). */
-    private static final double SEAT_DROP=.3;
     private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Nest, Ground, OwnHull { default String kind(){return getClass().getSimpleName();} }
@@ -277,14 +276,15 @@ final class LiveBirth extends Choreography {
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
-        BirthLaunch.Nominal nominal=null;
+        BirthLaunch.Nominal nominal=null;PlacedHatEntity boatHat=null;
         if(boat){
-            // Aboard her boat the newborn is let go just above the free seat in front of her (a short, visible drop that the seat
-            // catches); with no admissible seat it comes out at the outlet and falls through into the water.
-            var seat=hat.hollowPlaces(b.kind,b.children.get(pushing)).stream().findFirst().orElse(null);
-            if(seat!=null)at=seat.add(0,SEAT_DROP,0);
-            else GameplayLog.limited(m,"family","birth_no_seat",200,"birth no_seat child={} host={} seated={} size={}",pushing,hat.getUUID(),hat.youngPassengers().size(),
-                    String.format(Locale.ROOT,"%.3f",GrowthSize.physicalBirth(b.kind,b.children.get(pushing))));
+            // Aboard her boat the newborn comes out at the free seat in front of her and sits down there (a seat moves with the boat,
+            // so it is taken at once, not by a fall); with no admissible seat it comes out at the outlet and is pushed into the water.
+            boatHat=hat;hat=null;
+            var seat=boatHat.hollowPlaces(b.kind,b.children.get(pushing)).stream().findFirst().orElse(null);
+            if(seat!=null)at=seat;
+            else GameplayLog.limited(m,"family","birth_no_seat",200,"birth no_seat child={} host={} seated={} size={}",pushing,boatHat.getUUID(),
+                    boatHat.youngPassengers().size(),String.format(Locale.ROOT,"%.3f",GrowthSize.physicalBirth(b.kind,b.children.get(pushing))));
         }else{
             if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
             nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
@@ -302,6 +302,7 @@ final class LiveBirth extends Choreography {
             if(child!=null)GameplayLog.event(m,"family","birth forced reason=newborn_space_blocked at=mother_feet child={}",child.getUUID());
         }
         if(child==null)return data.birthBlock(b);
+        if(boatHat!=null&&boatHat.seatDestination(child) instanceof SeatTarget seat)seat.land(child,"birth");
         deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
         m.showReaction(pushing>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST); // later children come easier but tire her more
