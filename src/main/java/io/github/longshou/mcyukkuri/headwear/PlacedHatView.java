@@ -25,6 +25,7 @@ public interface PlacedHatView {
     /** The hull's tilt (degrees, HostFrame roll and pitch) between the last two ticks. */
     float roll(float partial);
     float pitch(float partial);
+    boolean upsideDown();
     /** Synchronized headwear damage of the deployed hat (0..2), drawn as on a worn hat. */
     int hullDamage();
     /** What its behaviour keeps in the hollow besides riders (an add-on's stores), as that behaviour synced it. */

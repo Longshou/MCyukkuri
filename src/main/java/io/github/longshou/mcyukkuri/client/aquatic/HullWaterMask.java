@@ -32,9 +32,9 @@ public final class HullWaterMask {
         var pose = event.getPoseStack().last().pose();
         VertexConsumer mask = null;
         for (var entity : level.entitiesForRendering()) {
-            if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved() || hat.upsideDown()
-                    || hat.state() == PlacedHatEntity.State.RESCUED || hat.distanceToSqr(camera) > RANGE * RANGE) continue;
+            if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved() || hat.distanceToSqr(camera) > RANGE * RANGE) continue;
             PlacedHatView view = hat;
+            if (view.upsideDown() || view.state() == PlacedHatEntity.State.RESCUED) continue;
             var at = view.getPosition(partial);
             double water = HullAfloat.surface(level, at.x, at.y - 2, at.z);
             if (!Double.isFinite(water)) continue;

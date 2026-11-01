@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** The water actions' effort maths: push shares, paddle strokes and turns, righting. No Minecraft types. */
+/** The shared actions' effort maths: body push shares, paddle strokes and turns. No Minecraft types. */
 public final class Effort {
     private Effort() {}
 
@@ -13,12 +13,7 @@ public final class Effort {
         return t >= start && t < end ? 1 : 0;
     }
 
-    /** What a stroke tick adds to a hull keeping {@code drag} of its speed a tick: steady strokes settle at pace · share. */
-    public static double drive(double pace, double share, double drag) { return drag <= 0 ? 0 : pace * share * (1 - drag) / drag; }
-
     /** The yaw step (degrees) toward {@code heading}, the short way round, at most {@code rate}. */
     public static double turn(double yaw, double heading, double rate) { return Math.clamp(((heading - yaw) % 360 + 540) % 360 - 180, -rate, rate); }
 
-    /** One push tick's share of turning a hull over: its brim travels half a round of {@code reach} at pace · share. */
-    public static double righting(double pace, double share, double reach) { return reach <= 0 ? 0 : pace * share / (Math.PI * reach); }
 }

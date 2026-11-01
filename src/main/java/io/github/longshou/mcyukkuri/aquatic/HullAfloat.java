@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
+import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private float turnBy;
     private boolean paddling;
     private double rightProgress = -1;
+    private YukkuriEntity righter;
+    private float rightStartRoll, rightStartPitch;
 
     private HullAfloat(PlacedHatEntity hat) {
         this.hat = hat;
@@ -101,17 +104,19 @@ public final class HullAfloat implements PlacedHatBehavior {
             phase = Phase.FLIPPING; phaseTicks = 0; flipFrom = hat.roll();
         } else if (phase == Phase.FLIPPING && phaseTicks++ >= HullPresentation.number("flip_ticks")) {
             phase = Phase.INVERTED; phaseTicks = 0;
+            Motor.hostPose(hat, hat.getYRot(), 180, 0);
             if (cause.equals("shake") && thrown == 0) hat.dropAsItem("shaken_empty");
         }
         if (hat.isRemoved()) return;
-        float roll = rightProgress >= 0 ? HullPresentation.turn(180, 0, rightProgress) : switch (phase) {
+        hat.inverted(phase == Phase.INVERTED || phase == Phase.FLIPPING);
+        float roll = switch (phase) {
             case UPRIGHT -> HullPresentation.roll(now) + HullPresentation.rock(now,
                     shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW));
             case ROCKING -> HullPresentation.rock(now, HullTriggers.SHAKES + 1);
             case FLIPPING -> HullPresentation.turn(flipFrom, 180, phaseTicks / HullPresentation.number("flip_ticks"));
-            case INVERTED -> 180;
+            case INVERTED -> hat.roll();
         };
-        float pitch = phase == Phase.UPRIGHT && rightProgress < 0 ? HullPresentation.pitch(now) : 0;
+        float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
         float yaw = hat.getYRot() + turnBy;
         if (turnBy != 0 && !open(hat, 0) && walled(hat,
                 new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), roll, pitch), 0, 0, false, hat.frame()))
@@ -129,7 +134,6 @@ public final class HullAfloat implements PlacedHatBehavior {
         var blocked = motion.subtract(actual).multiply(1, 0, 1);
         if (blocked.lengthSqr() > 0) impact = Math.max(impact, motion.dot(blocked.normalize()));
         paddling = false; drive = Vec3.ZERO; turnBy = 0;
-        if (rightProgress >= 1) { rightProgress = -1; phase = Phase.UPRIGHT; }
         double reach = HullPresentation.RADIUS * scale(hat) + 1;
         for (var other : hat.level().getEntities(hat, hat.getBoundingBox().inflate(reach),
                 e -> e instanceof LivingEntity || e instanceof Boat || e instanceof PlacedHatEntity)) contact(hat, other);
@@ -157,6 +161,11 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
     @Override public boolean shake(PlacedHatEntity hat, Player by) {
         if (hat.level().isClientSide) return true;
+        if (righter != null) {
+            double progress = rightProgress;
+            righter.motor().interrupt("player_shake");
+            GameplayLog.event(hat, "hat", "righting interrupted player={} progress={}", by.getUUID(), progress);
+        }
         if (phase != Phase.UPRIGHT) return true;
         shakeTick = hat.level().getGameTime();
         shakes = triggers.shake(shakeTick);
@@ -242,7 +251,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private void contact(PlacedHatEntity hat, Entity other) {
         if (other.isSpectator() || other.noPhysics || other.isPassenger() || other.isPassengerOfSameVehicle(hat)) return;
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
-                || y.motor().current() instanceof Climb climb && climb.host() == hat)) return;
+                || y.motor().current() instanceof Climb climb && climb.host() == hat
+                || y.motor().current() instanceof Right right && right.host() == hat)) return;
         double brim = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
         var box = other.getBoundingBox();
         if (box.minY >= brim + hat.unit() || box.maxY <= brim + HullPresentation.KEEL * scale(hat)) return;
@@ -260,8 +270,19 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     @Override public boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) {
         if (phase != Phase.INVERTED) return false;
+        if (righter == null) { righter = by; rightStartRoll = hat.roll(); rightStartPitch = hat.pitch(); }
+        if (righter != by) return false;
         rightProgress = progress;
+        Motor.hostPose(hat, hat.getYRot(), HullPresentation.turn(rightStartRoll, 0, progress), HullPresentation.turn(rightStartPitch, 0, progress));
+        if (progress >= 1) {
+            phase = Phase.UPRIGHT; rightProgress = -1; righter = null;
+            hat.inverted(false);
+            GameplayLog.event(hat, "hat", "righted cause={} by={} owner={} count={}", cause, by.getUUID(), hat.ownerYukkuri(), capsizes);
+        }
         return true;
+    }
+    @Override public void stopRight(PlacedHatEntity hat, YukkuriEntity by) {
+        if (righter == by) { righter = null; rightProgress = -1; }
     }
     @Override public boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 water, float turn) {
         if (phase != Phase.UPRIGHT || rightProgress >= 0) return false;

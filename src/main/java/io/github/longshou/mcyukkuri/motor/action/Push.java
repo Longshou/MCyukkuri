@@ -34,7 +34,10 @@ public final class Push implements Action {
         if (!(target instanceof YukkuriEntity) && !target.isPushable()) return Feasibility.of(Reason.TOO_HEAVY, 0, "not_pushable");
         double gap = ContactGeometry.mouthGap(body, target) - ContactGeometry.GRAB_MARGIN;
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, String.format(Locale.ROOT, "gap=%.2f", gap));
-        gain = BodyAbility.of(body).pace(body.isInWaterOrBubble()) * Effort.share(Right.mass(body), Right.mass(target));
+        gain = BodyAbility.of(body).pace(body.isInWaterOrBubble());
+        if (target instanceof YukkuriEntity other)
+            gain *= Effort.share(body.getBbWidth() * body.getBbWidth() * body.getBbHeight(),
+                    other.getBbWidth() * other.getBbWidth() * other.getBbHeight());
         return Feasibility.pass();
     }
 

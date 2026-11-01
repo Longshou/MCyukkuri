@@ -65,6 +65,8 @@ public interface SurfaceHost {
 
     /** {@code by} holding the brim has turned it {@code progress} (0..1) back upright (Right); false when it cannot be righted. */
     default boolean right(YukkuriEntity by, double progress, String cause) { return false; }
+    /** Release an interrupted grip at its actual pose. */
+    default void stopRight(YukkuriEntity by) {}
 
     /** A rider's paddle stroke: the water velocity it drives and the yaw it turns (Paddle); false when it cannot be paddled. */
     default boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return false; }

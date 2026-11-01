@@ -42,6 +42,7 @@ public interface PlacedHatBehavior {
 
     /** {@code SurfaceHost.right}, {@code thrust} and {@code holds}: a hat lying here cannot be righted or paddled. */
     default boolean right(PlacedHatEntity hat, YukkuriEntity by, double progress, String cause) { return false; }
+    default void stopRight(PlacedHatEntity hat, YukkuriEntity by) {}
     default boolean thrust(PlacedHatEntity hat, YukkuriEntity by, Vec3 drive, float turn) { return false; }
     default boolean holds(PlacedHatEntity hat, Item item) { return false; }
 

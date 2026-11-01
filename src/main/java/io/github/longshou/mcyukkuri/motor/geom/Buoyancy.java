@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
-/** The body's water lift and the shared host's orientation. No Minecraft types. */
+/** The body's water lift. No Minecraft types. */
 public final class Buoyancy {
     private Buoyancy() {}
 
@@ -9,7 +9,4 @@ public final class Buoyancy {
         return Math.clamp(.005 + .045 * (fraction - .56) - .08 * verticalVelocity, -.018, .032);
     }
 
-    public static double up(double roll, double pitch) {
-        return Math.cos(Math.toRadians(roll)) * Math.cos(Math.toRadians(pitch));
-    }
 }

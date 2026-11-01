@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
-import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.geom.Disc;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
@@ -83,6 +82,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** The hull's tilt in degrees (HostFrame roll and pitch), written by its behaviour: riders and the drawn hull share it. */
     private static final EntityDataAccessor<Float> ROLL = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> INVERTED = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.BOOLEAN);
     /** What its behaviour keeps in the hollow besides riders (an add-on's stores), written by that behaviour, for drawing only. */
     private static final EntityDataAccessor<CompoundTag> CONTENTS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The one rider table of this host: local spot and yaw per body. */
@@ -128,6 +128,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
         builder.define(CONTENTS, new CompoundTag()); builder.define(FORM, HullProfile.CURRENT);
+        builder.define(INVERTED, false);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
@@ -173,7 +174,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public CompoundTag contents() { return entityData.get(CONTENTS); }
     public void contents(CompoundTag tag) { entityData.set(CONTENTS, tag); }
     /** Turned crown up: the hollow faces the water and nothing stands in it. */
-    public boolean upsideDown() { return Buoyancy.up(roll(), pitch()) < 0; }
+    @Override public boolean upsideDown() { return entityData.get(INVERTED); }
+    public void inverted(boolean inverted) { entityData.set(INVERTED, inverted); }
     /** The behaviour running this hat now: the first registered provider that applies, else the land one (once a tick). */
     public PlacedHatBehavior behavior() {
         if (behaviorTick == tickCount) return behavior;
@@ -315,6 +317,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean shelters(YukkuriEntity body) { return hasPassenger(body) && !upsideDown() && behavior().shelters(this, body); }
     @Override public boolean capsized() { return upsideDown(); }
     @Override public boolean right(YukkuriEntity by, double progress, String cause) { return behavior().right(this, by, progress, cause); }
+    @Override public void stopRight(YukkuriEntity by) { behavior().stopRight(this, by); }
     @Override public boolean thrust(YukkuriEntity by, Vec3 drive, float turn) { return behavior().thrust(this, by, drive, turn); }
     @Override public boolean holds(Item item) { return kit.is(item) || behavior().holds(this, item); }
     /** The stick it keeps, or empty. */
@@ -838,6 +841,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.putString("Role",role.name());tag.putString("HullForm",formId());
         tag.put("Riders",riders.save());
         tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
+        tag.putBoolean("Inverted",upsideDown());
         if(!kit.isEmpty())tag.put("Kit",kit.save(registryAccess()));
         // The behaviour it last floated with keeps its state (stores included) while it lies on the ground.
         if(lastProvider!=null){var motion=instances.get(lastProvider).save();motion.putString("Kind",lastProvider.id());tag.put("Motion",motion);}
@@ -854,9 +858,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         formId(form);
         riders.load(tag.getList("Riders",Tag.TAG_COMPOUND));
         pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
+        inverted(tag.getBoolean("Inverted"));
         rollO=roll();pitchO=pitch();
         kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;
-        instances.clear(); behaviorPicked=false; behaviorTick=-1; ran=null;
+        instances.clear(); provider=lastProvider=null; behaviorPicked=false; behaviorTick=-1; ran=null;
     }
 }
