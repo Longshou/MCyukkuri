@@ -4090,15 +4090,16 @@
       "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat.json",
       "src/main/resources/assets/mcyukkuri/yukkuri_props/aquatic_basin_hat_turned.json",
       "src/main/resources/assets/mcyukkuri/textures/props/aquatic_basin_hat_stores.png",
+      "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json",
       "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json"
     ],
-    "hull_profiles": [
+    "retained_hull_profiles": [
       "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json",
       "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json"
     ],
     "texture": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/neutral.png",
     "status": "pending_user_review",
-    "scope": "Second aquatic Marisa hat form beside the current one (the land hat turned over, hat_vessel), kept unchanged so a new test species can show both (user choice). Outside the land hat's cone tiers turned round under its own bent tip, band and bow; set down, stretched into an oval inside the base tier, 2.2 along the boat and 1 across it (the brim ring keeps its width, depths unchanged; recipe set_down): the beam keeps the brim within the rower's braid and stick over the side and a short hop from the bank, the length gives a centred labouring adult free floor ahead for three newborns with their worn hats; the lower tiers pressed into a keel and a separate basin inside (lip, quarter-ellipse wall, level floor, shallow dimple) holding the owner, newborns or babies and a level stores layer per the layout study. aquatic_basin_hat is the worn and item mesh (accessory_marisa frame), aquatic_basin_hat_turned the set-down hull (marisa_hat_turned frame, already pressed). Hull profiles of both forms in one schema, each measured on the triangles the game draws, the hull's weight following its cloth area and worn.brim keeping the wearer's hat box at the worn brim. Java selects these meshes for AQUATIC_MARISA_ROUND; stored portions retain their own prop textures. The stores texture is one hand-drawn 128x32 sheet, four 32 px frames (empty, 1-2, 3-5, 6-8 portions) covering the basin floor seen from above (+x right, the bow up). Project design; visual review remains pending.",
+    "scope": "The aquatic Marisa hat: outside the land hat's cone tiers turned round under its own bent tip, band and bow; set down it is the worn hat flipped at the same size (round, 1.0x; user 2026-11-01), a lily pad on the water: a fixed presentation waterline 0.5 model units under the brim face, the brim level from the opening then falling to the water with its edge just under it (no raised rim), the base tier upright round a dry basin below the water, the lower tiers pressed into a keel. aquatic_basin_hat is the worn and item mesh (accessory_marisa frame), aquatic_basin_hat_turned the set-down hull (marisa_hat_turned frame, already pressed). hull_bounds holds the plain sizes the game places and draws by (waterline, mouth, floor, brim, keel, the captain's stern seat, the brim ring for a sitting child, the stores texture tiers). The stores texture is one hand-drawn 128x32 sheet, four 32 px frames (empty, 1-2, 3-5, 6-8 portions) covering the basin floor. The old hull profiles (oval form and turned land hat) are no longer exported and stay as the current Java reads them until the code packages read hull_bounds. Project design; visual review remains pending.",
     "references": "wiki/art-references/ehentai/works/EH22.md"
   },
   "food_mash_serving": {

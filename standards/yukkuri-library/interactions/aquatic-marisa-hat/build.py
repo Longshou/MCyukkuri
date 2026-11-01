@@ -1,59 +1,69 @@
-"""The aquatic Marisa's second hat form: worn on her head, set down brim up as her boat (make-source; export.py exports it).
+"""The aquatic Marisa's hat: worn on her head, set down brim up as her boat, a lily pad on the water (make-source;
+export.py exports it).
 
 Outside it is round stepped tiers (the land hat's tiers turned round) under the land hat's own bent tip, a band and the
-land bow at the front; set down, the base tier stands upright round a basin and the tiers under it are pressed into a keel
-below the water, all stretched into an oval along the boat (recipe set_down). The basin inside (a straight lip the
-brim's thickness, a quarter-ellipse wall, a level floor with a shallow dimple) is its own shape; the cloth between basin
-and tiers is as thick as the two leave. Faces take the Marisa atlas cells the land hat uses.
+land bow at the front. Set down it is the worn hat flipped at the same size: the base tier stands upright round a dry basin
+below the water, the tiers under it are pressed into a keel, and the brim lies on the water (recipe set_down: the brim
+level from the opening to droop_from, its outer part falling to a fixed presentation waterline). The basin inside (a
+straight lip the brim's thickness, a quarter-ellipse wall, a level floor with a shallow dimple) is its own shape; the
+cloth between basin and tiers is as thick as the two leave. Faces take the Marisa atlas cells the land hat uses.
 
 Frames. Worn: the Marisa model frame in hat units, the hat's axis through anchor_worn. Set down: hat units, origin at the
 middle of the brim face that sat on the head, +Y out of the hollow, the worn front (bow) toward +X and the worn +X (the
 bent tip's side) toward -Z (the bow of the boat, where the owner faces). World: model units of an adult at growth 1 (16 a
 block), set-down hat units times scale.
 
-    python build.py           # writes geometry.json (profile, sizes) and food_layer.png
-    python build.py --check   # compares without writing
+    python build.py [--set key.path=value ...]   # writes geometry.json and food_layer.png; with --set prints only
+    python build.py --check                      # compares without writing
+
+override() (and --set) merges recipe changes in memory for a block, so export.py, layout.py and the gates can try sizes
+without writing any file.
 """
 from pathlib import Path
-import argparse, json, math, sys
+import argparse, contextlib, copy, json, math, sys
 import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
-R = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
-K = R['scale']
-W = R['wall']
-BRIM = R['brim']
-OUT = R['outside']
-IN = R['inside']
-Z_AXIS = R['anchor_worn'][2]
-SEG = R['segments']
-YB0, YB1 = BRIM['bottom'], BRIM['top']
-LIP = YB1-YB0
-R0 = OUT['tiers'][0]['r']
-BEAM, LENGTH = R['set_down']['beam'], R['set_down']['length']   # set-down spreads across (x: toward the bank) and along (z: bow to stern)
+RECIPE = json.loads((HERE/'recipe.json').read_text(encoding='utf-8'))
 
 
-def spread(r, k):
-    """Set-down radius (hat units) along an axis spread k: the base tier and all inside it widened by k, the brim beyond
-    it moved out with the tier's edge so the brim ring keeps its own width; depths unchanged. Worn radii are never spread."""
-    return r*k if r <= R0 else r+(k-1)*R0
+def use(recipe):
+    """Derive the module's sizes from a recipe (hat units)."""
+    global R, K, W, BRIM, OUT, IN, Z_AXIS, SEG, YB0, YB1, LIP, R0, WATER, DIP, HALF
+    R = recipe; K = R['scale']; W = R['wall']; BRIM = R['brim']; OUT = R['outside']; IN = R['inside']
+    Z_AXIS = R['anchor_worn'][2]; SEG = R['segments']; YB0, YB1 = BRIM['bottom'], BRIM['top']; LIP = YB1-YB0
+    R0 = OUT['tiers'][0]['r']; WATER, DIP = R['set_down']['waterline'], R['set_down']['edge_dip']
+    HALF = math.ceil(BRIM['radius']*K)+4.   # study grids reach past the brim (world units, whole numbers)
 
 
-def splay(t, kx=None, kz=None):
-    """Set the round hat down as an oval, in place on t[..., 0] and t[..., 2] (hat units): inside the base tier x and z
-    scale by the beam (x) and length (z) spreads; beyond it every point moves out with the tier's edge on its own bearing."""
-    kx, kz = (BEAM if kx is None else kx), (LENGTH if kz is None else kz)
-    x, z = t[..., 0].copy(), t[..., 2].copy(); r = np.hypot(x, z); out = r > R0; r = np.maximum(r, 1e-12)
-    t[..., 0] = np.where(out, x+(kx-1)*R0*x/r, x*kx); t[..., 2] = np.where(out, z+(kz-1)*R0*z/r, z*kz)
-    return t
+def merged(base, changes):
+    out = copy.deepcopy(base)
+    for k, v in changes.items(): out[k] = merged(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
 
 
-OPENING = (spread(IN['opening'], BEAM), spread(IN['opening'], LENGTH))       # set-down semi-axes along x and z
-BRIM_RADIUS = (spread(BRIM['radius'], BEAM), spread(BRIM['radius'], LENGTH))
-HALF = max(16., math.ceil(max(BRIM_RADIUS)*K)+2.)   # study grids reach past the set-down brim (world units, whole numbers)
+@contextlib.contextmanager
+def override(changes):
+    """Recipe changes (nested dicts merge) for the block, nothing written: `with override({'brim': {'radius': 9.5}}): ...`."""
+    old = R; use(merged(R, changes))
+    try: yield R
+    finally: use(old)
+
+
+def parse_sets(items):
+    """['set_down.waterline=0.4', ...] -> nested changes (values parsed as JSON)."""
+    out = {}
+    for item in items or ():
+        path, value = item.split('=', 1); keys = path.split('.'); d = out
+        for k in keys[:-1]: d = d.setdefault(k, {})
+        d[keys[-1]] = json.loads(value)
+    return out
+
+
+use(RECIPE)
 # Marisa atlas cells (pixels, 16 x 16) the land hat draws with; the hollow's walls take the dark cell, its floors the lighter.
 CELLS = {'cloth': (64, 48), 'light': (80, 48), 'edge': (96, 48), 'band': (112, 48), 'lining': (96, 48), 'floor': (80, 48)}
 
@@ -121,14 +131,15 @@ def tiers():
 
 
 def brim(worn):
-    """The brim ring: flat from the crown out to droop_from, then drooping to its edge worn, turned up set down."""
+    """The brim ring: flat from the crown out to droop_from, then drooping to its edge worn; set down the same cloth lies
+    on the water, its outer part falling to the waterline with its edge just under it (no raised rim)."""
     Rb, dr, r1 = BRIM['radius'], BRIM['droop'], BRIM['droop_from']
-    inner = (R0-W) if worn else IN['opening']
     if worn:
-        return [ring(inner, YB0, cell='cloth'), ring(r1, YB0, cell='cloth'), ring(Rb, YB0-dr, cell='edge'),
+        return [ring(R0-W, YB0, cell='cloth'), ring(r1, YB0, cell='cloth'), ring(Rb, YB0-dr, cell='edge'),
                 ring(Rb, YB1-dr, cell='cloth'), ring(r1, YB1, cell='cloth')]
-    return [ring(inner, 0, cell='cloth'), ring(r1, 0, cell='cloth'), ring(Rb, dr, cell='edge'),
-            ring(Rb, dr-LIP, cell='cloth'), ring(r1, -LIP, cell='cloth')]
+    edge = -(WATER+DIP)
+    return [ring(IN['opening'], 0, cell='cloth'), ring(r1, 0, cell='cloth'), ring(Rb, edge, cell='edge'),
+            ring(Rb, edge-LIP, cell='cloth'), ring(r1, -LIP, cell='cloth')]
 
 
 def worn_rings():
@@ -200,8 +211,8 @@ def basin_curve():
 
 
 def placed_rings():
-    """Set down (hat units, brim face at y 0): brim with its turned-up rim, the base tier upright, the pressed tiers as a
-    keel, then up through the middle and out along the basin to the opening's edge; round (placed_parts splays it)."""
+    """Set down (hat units, brim face at y 0): brim lying on the water, the base tier upright, the pressed tiers as a
+    keel, then up through the middle and out along the basin to the opening's edge."""
     t, tops, starts = tiers(); b0, b1 = R['band']
     out = brim(False)
     out += [ring(R0, -LIP, cell='light'), ring(R0, -(LIP+b0), cell='band'), ring(R0+.07, -(LIP+b0), cell='band'),
@@ -215,45 +226,43 @@ def placed_rings():
     return out
 
 
-def placed_parts(kx=None, kz=None):
+def placed_parts():
     """The set-down hat's named parts (hat units, origin the brim face's middle): the hull, and its bow lying on the
-    upright base tier, both splayed into the oval (splay())."""
+    upright base tier."""
     _, bow = tip_and_bow()
     b = bow.copy(); x, y, z = b[:, :, 0].copy(), b[:, :, 1].copy(), b[:, :, 2]-Z_AXIS
     b[:, :, 0], b[:, :, 2] = -z, -x
     centre = (YB1+R['band'][0]+YB1+R['band'][1])/2
     b[:, :, 1] = -(LIP+R['band'][0]+(centre-YB1-R['band'][0])+(y-centre)*.6)
-    hull = splay(loop_mesh(placed_rings(), True), kx, kz)
-    return [('hull', normals(orient(hull))), ('bow', normals(splay(b, kx, kz)))]
+    return [('hull', normals(orient(loop_mesh(placed_rings(), True)))), ('bow', normals(b))]
 
 
-def placed_mesh(kx=None, kz=None):
-    return np.concatenate([t for _, t in placed_parts(kx, kz)])
+def placed_mesh():
+    return np.concatenate([t for _, t in placed_parts()])
 
 
-def area(tris): return float(np.linalg.norm(np.cross(tris[:, 1, :3]-tris[:, 0, :3], tris[:, 2, :3]-tris[:, 0, :3]), axis=1).sum()/2)
-
-
-def cloth():
-    """The set-down hull's cloth area over the unspread one's: its weight follows the cloth."""
-    return area(placed_mesh())/area(placed_mesh(1., 1.))
+def section():
+    """The set-down hull's cut (world units): a closed loop of [r, y] through the brim, tiers, keel and basin, the same at
+    every bearing (round; the bow is a patch on the base tier under the brim)."""
+    return np.array([[q['r']*K, q['y']*K] for q in placed_rings()])
 
 
 def check_inside():
-    """The basin stays inside the upright base tier with at least min_wall of cloth; its floor above that tier's bottom."""
-    base_bottom = depth_of_tier(tiers()[1][0])
-    problems = []
+    """The basin stays inside the upright base tier with at least min_wall of cloth, its floor above that tier's bottom
+    and its opening short of where the brim starts to fall; the waterline within the brim's thickness."""
+    base_bottom = depth_of_tier(tiers()[1][0]); problems = []
     for r, d in basin_curve():
-        for k in (BEAM, LENGTH):
-            if d <= base_bottom and spread(r, k) > spread(R0, k)-IN['min_wall']+1e-9: problems.append(f'wall r={spread(r, k):.2f} at depth {d:.2f}')
+        if d <= base_bottom and r > R0-IN['min_wall']+1e-9: problems.append(f'wall r={r:.2f} at depth {d:.2f}')
     if IN['floor_depth']+IN['dimple'] > base_bottom-IN['min_wall']: problems.append('floor below the base tier')
-    if any(o >= spread(BRIM['droop_from'], k) for o, k in zip(OPENING, (BEAM, LENGTH))): problems.append('opening reaches the turned-up rim')
+    if IN['opening'] >= BRIM['droop_from']: problems.append('opening reaches the falling brim')
+    if WATER >= LIP: problems.append('waterline under the brim cloth')
     return problems
 
 
 # ------------------------------------------------------------------ height fields (world units)
 class Grid:
-    def __init__(self, half=HALF, step=.125):
+    def __init__(self, half=None, step=.125):
+        half = HALF if half is None else half
         self.step = step; self.n = int(round(2*half/step)); self.half = half
         c = (np.arange(self.n)+.5)*step-half
         self.x, self.z = np.meshgrid(c, c, indexing='ij')
@@ -283,29 +292,12 @@ def raster(tris, grid, up=True):
 
 
 def in_opening(x, z):
-    """Within the set-down oval opening (world units)."""
-    return (x/(OPENING[0]*K))**2+(z/(OPENING[1]*K))**2 < 1
+    """Within the opening (world units)."""
+    return x*x+z*z < (IN['opening']*K)**2
 
 
 def world(tris):
     out = tris.copy(); out[:, :, :3] *= K; return out
-
-
-def portion_volume():
-    p = R['portion']; r = p['radius_blocks']*16
-    return math.pi*r*r*p['height_blocks']*16
-
-
-def fill_level(field, grid, volume, top=0.):
-    """The level a layer of this volume reaches in the hollow (cells below the brim face only)."""
-    cav = np.isfinite(field) & (field < top-1e-3)
-    h = field[cav]; area = grid.step**2
-    lo, hi = h.min(), top
-    for _ in range(60):
-        mid = .5*(lo+hi)
-        if np.clip(mid-h, 0, None).sum()*area < volume: lo = mid
-        else: hi = mid
-    return .5*(lo+hi)
 
 
 # ------------------------------------------------------------------ stores: one floor texture, a frame per tier
@@ -363,41 +355,30 @@ def food_frames():
     return np.concatenate([food_frame(t) for t in range(len(R['stores']['tiers']))], axis=1)
 
 
-def food_texture(path):
-    """The stores floor texture: the tiers' frames side by side (tier 0 empty)."""
-    Image.fromarray(food_frames()).save(path)
-
-
-def axes(r): return [round(spread(r, BEAM)*K, 3), round(spread(r, LENGTH)*K, 3)]
-
-
 def summary():
     placed = world(placed_mesh()); grid = Grid()
     field = raster(placed, grid, True); low = raster(placed, grid, False)
-    curve = basin_curve()
     t, tops, _ = tiers()
-    v = portion_volume()
-    fills = {k: round(-fill_level(field, grid, n*v), 3) for k, n in R['portion']['fills'].items()}
+    r = lambda v: round(v*K, 3)
     return dict(
-        units='world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale); set-down radii [along x, along z]',
-        scale=K, spread=[BEAM, LENGTH], brim_radius=axes(BRIM['radius']), crown_radius=axes(R0),
-        opening_radius=axes(IN['opening']), floor_radius=axes(IN['floor_radius']), floor_depth=round(IN['floor_depth']*K, 3),
+        units='world: adult model units at growth 1 (16 a block); hat: land-hat units (world = hat x scale); set down round',
+        scale=K, brim_radius=r(BRIM['radius']), brim_level_to=r(BRIM['droop_from']), crown_radius=r(R0),
+        opening_radius=r(IN['opening']), floor_radius=r(IN['floor_radius']), floor_depth=r(IN['floor_depth']),
         hollow_depth=round(-float(np.nanmin(np.where(np.isfinite(field), field, np.nan))), 3),
         keel_depth=round(-float(np.nanmin(np.where(np.isfinite(low), low, np.nan))), 3),
-        rim_height=round(BRIM['droop']*K, 3), worn_height=round((tops[-1]-YB0)*K, 3),
-        basin_profile=[(*axes(r), round(d*K, 3)) for r, d in curve],
-        stores_level_below_brim=fills, portion_volume=round(v, 3), inside_problems=check_inside())
+        waterline=r(-WATER), brim_edge_top=r(-(WATER+DIP)), worn_height=r(tops[-1]-YB0),
+        basin_profile=[(r(a), r(d)) for a, d in basin_curve()], inside_problems=check_inside())
 
 
-# What the layout study and its preview read: this make-source and the runtime data its bodies and clips come from.
+# What the preview reads: this make-source and the runtime data its bodies and clips come from.
 SOURCES = ('recipe.json', 'build.py', 'scene.py', 'layout.py', 'preview.py', 'food_layer.png', 'geometry.json', 'export.py')
-RUNTIME = ('yukkuri/marisa.json', 'yukkuri_props/accessory_marisa.json', 'yukkuri_props/marisa_hat_turned.json', 'yukkuri_presentation/motion_corrections.json', 'yukkuri_presentation/hat_vessel.json',
-           'yukkuri_presentation/braid_rescue.json', 'yukkuri_presentation/living.json', 'yukkuri_presentation/placement_fit.json')
+RUNTIME = ('yukkuri/marisa.json', 'yukkuri_presentation/motion_corrections.json', 'yukkuri_presentation/braid_rescue.json',
+           'yukkuri_presentation/living.json', 'yukkuri_presentation/placement_fit.json')
 
 
 def source_digest():
-    """Fingerprint of the study's inputs: previews/aquatic-hat-round/source.sha256 holds it after preview.py; the preview hub
-    reuses that preview only while it still matches."""
+    """Fingerprint of the preview's inputs: previews/aquatic-hat-seats/source.sha256 holds it after preview.py; the
+    preview hub publishes that preview only while it still matches."""
     import hashlib
     digest = hashlib.sha256()
     for path in [HERE/n for n in SOURCES]+[ASSETS/n for n in RUNTIME]+[ROOT/'standards/yukkuri-library/motions/variants/lore/preview.py']:
@@ -406,14 +387,22 @@ def source_digest():
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--check', action='store_true'); args = ap.parse_args()
-    data = summary(); text = json.dumps(data, ensure_ascii=False, indent=1)+'\n'
+    ap = argparse.ArgumentParser(); ap.add_argument('--check', action='store_true')
+    ap.add_argument('--set', action='append', metavar='KEY=VALUE', help='recipe change in memory (prints, writes nothing)')
+    args = ap.parse_args()
+    with override(parse_sets(args.set)):
+        data = summary()
+    text = json.dumps(data, ensure_ascii=False, indent=1)+'\n'
     path = HERE/'geometry.json'
+    if args.set: print(text); return 0
     if args.check:
         same = path.is_file() and path.read_text(encoding='utf-8') == text
-        print('geometry.json', 'ok' if same else 'differs'); return 0 if same else 1
-    path.write_text(text, encoding='utf-8'); food_texture(HERE/'food_layer.png')
-    print(path, {k: data[k] for k in ('opening_radius', 'floor_radius', 'floor_depth', 'hollow_depth', 'keel_depth', 'inside_problems')})
+        png = HERE/'food_layer.png'
+        fresh = png.is_file() and np.array_equal(np.array(Image.open(png).convert('RGBA')), food_frames())
+        print('geometry.json', 'ok' if same else 'differs', '| food_layer.png', 'ok' if fresh else 'differs')
+        return 0 if same and fresh else 1
+    path.write_text(text, encoding='utf-8', newline='\n'); Image.fromarray(food_frames()).save(HERE/'food_layer.png')
+    print(path, {k: data[k] for k in ('opening_radius', 'floor_radius', 'floor_depth', 'waterline', 'keel_depth', 'inside_problems')})
     return 0
 
 

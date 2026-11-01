@@ -1,214 +1,192 @@
-"""Who fits in the set-down aquatic hat, where each sits, and whether it stays upright (offline study; no game).
+"""Where the riders of the lily-pad hat boat sit and what they reach (offline study; no game).
 
-The riders are the capacity rule of docs/FEATURES.md 水生魔理沙的载重规则 (newborn and baby 2, small child up to 0.30
-3, child up to 0.45 4, a pregnant owner +2, at most 12; bigger young are no regular riders; from 0.8 of her term the owner
-takes the high seat and leaves the cavity before her for the birth). Each layout is solved by day and by night (the owner
-leaning over the young: boat_cover_young) with 0, 12 and 24 stored portions (one level layer the riders sit on).
+Rules (user 2026-11-01, docs/FEATURES.md 水生魔理沙): the captain sits at the stern wall facing the bow; before her in the
+basin up to two 赤油, or one small 子油; a 子油 may sit on the brim edge and splash the water with its braid. Who does not
+fit cannot board. Every body is the runtime Marisa posed by an exported clip at its growth (scene.Shape) and rests by its
+real underside; two bodies may not share a cell where their bodies' own columns overlap (hats, hair and braid are soft).
 
-Rules used, all from the runtime unless noted:
-- support: a body rests by its real underside on the hat's surface (the stores layer included): the proposed rule;
-- room: foot circles (Occupancy.foot = half the body width + 0.02 block) may not overlap where the two bodies' heights
-  overlap (PlacedHatEntity.room);
-- the owner sits as far toward the stern as she can without rising (her seat), by night in the same seat leaning forward;
-- the young sit in the hollow (never on the brim face): by day before her, by night just before her, under her lean;
-- braid: from her seat, turning in place, braid_cradle_lift's own scoop envelope reaches the young (morning lift);
-- upright: the static heel from the riders' and stores' real masses and centres on the outer hull (scene.hydro) against
-  the heel at which the turned-up rim meets the water; steady when it stays within HullAfloat.STEADY (0.6) of it.
+    python layout.py [--set key.path=value ...]   # prints the seat, capacity, reach and clip gate numbers
 
-    MCY_LOCAL=<main checkout>/.local python layout.py [combo,...]   # writes previews/aquatic-hat-round/layouts.json, prints rows
+bounds() is the seat part of the runtime bounds contract (export.py writes it); checks() the numbers above.
 """
 from pathlib import Path
-import json, math, os, sys
+import argparse, importlib.util, json, math, sys, time
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-OUT = Path(os.environ.get('MCY_LOCAL', HERE.parents[3]/'.local'))/'previews/aquatic-hat-round'
 sys.path.insert(0, str(HERE))
 import scene as S
+B = S.B
 
-STEADY = .6
-NEWBORN, BABY, SMALL, CHILD = .145, .20, .30, .45
-KIND = {NEWBORN: ('新生', 2), BABY: ('赤油', 2), SMALL: ('小子油', 3), CHILD: ('子油', 4)}
-BELLY = S.smooth(math.sqrt(.8))                  # LiveBirthGeometry.belly at 0.8 of her term, nothing born yet
-COMBOS = [
-    ('owner_1n', '帽主 + 1 新生', 1., [NEWBORN]),
-    ('owner_2n', '帽主 + 2 新生', 1., [NEWBORN]*2),
-    ('owner_3n', '帽主 + 3 新生', 1., [NEWBORN]*3),
-    ('owner_4n', '帽主 + 4 新生', 1., [NEWBORN]*4),
-    ('owner_5n', '帽主 + 5 新生', 1., [NEWBORN]*5),
-    ('owner_6n', '帽主 + 6 新生（满 12）', 1., [NEWBORN]*6),
-    ('owner_6b', '帽主 + 6 赤油 0.20（满 12）', 1., [BABY]*6),
-    ('owner_s', '帽主 + 小子油 0.30', 1., [SMALL]),
-    ('owner_c', '帽主 + 子油 0.45', 1., [CHILD]),
-    ('owner_c2n', '帽主 + 子油 0.45 + 2 新生', 1., [CHILD, NEWBORN, NEWBORN]),
-    ('owner_cs2n', '帽主 + 子油 + 小子油 + 2 新生（11）', 1., [CHILD, SMALL, NEWBORN, NEWBORN]),
-    ('big_6n', '1.2 倍帽主 + 6 新生', 1.2, [NEWBORN]*6),
-    ('big_c', '1.2 倍帽主 + 子油 0.45', 1.2, [CHILD]),
-    ('pregnant', '临产帽主（孕程 0.8）坐高座', 1., []),
-    ('pregnant_2n', '临产帽主 + 2 新生', 1., [NEWBORN]*2),
-]
-STORES = (0, 12, 24)
-RULES = ('circle', 'body')   # room by foot circles (runtime), or by the bodies' own columns (proposed)
-GAP = .03
-PORTION_MASS = math.pi/6*(2*.09)**3*S.DENSITY      # HullLarder.MASS
+GAP = .03                 # model units between two bodies' columns
+BABY, SMALL, CHILD = .20, .30, .45
+CHAIN = S.BRAID['braid_chain_length']                  # the braid's joints end to end (adult model units)
+ROOT_AT = np.array(S.BRAID['braid_root'], float)       # its root on the body (adult rest pose)
+MOUTH_AT = np.array(S.BRAID['mouth_root'], float)
+YAW = 15.                                              # the paddle's captain_yaw (aquatic_tools SHARED)
+LEAN = 10.                                             # degrees: a whole-body lean toward the water (limit about 12)
+GATE_CLIPS = ('boat_rim_peek', 'boat_paddle', 'braid_rescue_reach', 'braid_rescue_hold', 'braid_rescue_settle',
+              'braid_cradle_lift', 'hat_brim_offer', 'boat_nudge_young', 'boat_board', 'hat_hop_up', 'boat_thrown',
+              'boat_cover_young', 'boat_feed_young')
 
 
-def shapes(scale, day, belly=0., young=False):
-    clip, t, face = (('boat_drift', 1.2, 'closed_smile') if day else ('boat_nest_curl', .5, 'sleep')) if young else \
-        (('boat_drift', .3, 'closed_smile') if day else ('boat_cover_young', .9, 'sleep'))
-    tris, mask = S.BODY.mesh(clip, t, face=face, hat=S.WORN if young else None, belly=belly)
-    return tris, mask
+def captain_shape(scale=1., yaw=0.): return S.Shape.posed('boat_drift', .3, 'closed_smile', scale, yaw)
+def young_shape(scale, yaw=0.): return S.Shape.posed('boat_drift', 1.2, 'closed_smile', scale, yaw, hat=True)
 
 
-_cache = {}
+def captain(hull, scale=1.):
+    """Her seat (x, z, lift): from the middle toward the stern (+z) as far as she goes without rising off the floor, her
+    hair clear of the hull, turned within the paddle's captain_yaw."""
+    sh = captain_shape(scale); base = sh.rest(hull.field, 0, 0); seat = (0., 0., base)
+    turns = [captain_shape(scale, yaw) for yaw in (-YAW, YAW)]
+    for z in np.arange(.25, 8.01, .25):
+        y = sh.rest(hull.field, 0, z)
+        if y is None or y > base+.08 or not all(clear(t, hull.field, 0, z, y) for t in [sh]+turns): break
+        seat = (0., float(z), y)
+    return sh, seat
 
 
-def shape(scale, day, belly=0., young=False, yaw=0.):
-    key = (scale, day, belly, young, yaw)
-    if key not in _cache:
-        tris, mask = shapes(scale, day, belly, young); _cache[key] = S.Shape(tris, mask, yaw, scale)
-    return _cache[key]
+def clear(sh, field, x, z, y):
+    """The firm underside (body and hair; the braid drapes) stays on or over the hull's top."""
+    si, sj, _ = sh.window(x, z); f = field[si, sj]; u = sh.firm+y; both = np.isfinite(f) & np.isfinite(u)
+    return not (both & (u < f-.05)).any()
 
 
-def seats(field, sh):
-    """The owner's seats from the middle toward the stern (+z), as long as she does not rise above her middle seat."""
-    base = sh.rest(field, 0, 0)
-    if base is None: return []
-    out = [(0., 0., base)]
-    for e in np.arange(.5, 5.01, .5):
-        y = sh.rest(field, 0, e)
-        if y is None or y > base+.08: break
-        out.append((0., float(e), y))
-    return out
+def column(sh, x, z, y): return sh.full('low', x, z, y), sh.full('btop', x, z, y)
 
 
-def solve(combo, period, stores, rule='circle'):
-    """The owner sits in the middle, or the least way toward the stern that lets every young fit."""
-    key, title, oscale, young = combo
-    hull = HULL; day = period == 'day'
-    level = hull.stores(stores); field = hull.surface(level)
-    pregnant = key.startswith('pregnant')
-    osh = shape(oscale, day, BELLY if pregnant else 0.)
-    options = [(0., 0., osh.rest(field, 0, 0))] if pregnant else seats(field, osh)
-    best = None
-    for at in options:
-        r = place_all(combo, period, stores, at, rule)
-        if r['fits'] or best is None: best = r
-        if r['fits']: break
-    return best
+def free(sh, x, z, y, columns):
+    si, sj, _ = sh.window(x, z); lo, hi = sh.low+y, sh.btop+y
+    for cu, ct in columns:
+        cw, tw = cu[si, sj], ct[si, sj]; both = np.isfinite(lo) & np.isfinite(cw)
+        if (both & (lo < tw+GAP) & (hi > cw-GAP)).any(): return False
+    return True
 
 
-def place_all(combo, period, stores, at, rule='circle'):
-    key, title, oscale, young = combo
-    hull = HULL; day = period == 'day'
-    level = hull.stores(stores); field = hull.surface(level)
-    pregnant = key.startswith('pregnant')
-    belly = BELLY if pregnant else 0.
-    osh = shape(oscale, day, belly)
-    out = dict(combo=key, title=title, period=period, stores=stores, rule=rule, level=None if level is None else round(-level, 2), placed=[])
-    if at is None or at[2] is None:
-        out.update(fits=False, why='owner_unsupported'); return out
-    ox, oz, oy = at
-    o_bottom = oy+osh.bottom
-    o_under = osh.full('under', ox, oz, oy)
-    o_low = osh.full('low', ox, oz, oy)
-    discs = [(ox, oz, S.foot(oscale, belly), o_bottom, o_bottom+osh.tall, 'owner')]
-    columns = [(o_low, osh.full('btop', ox, oz, oy))]   # each placed body's own column (body cloth: no hat, hair or braid)
-    rows = np.isfinite(o_low) & (np.abs(S.GRID.x-ox) < 3)
-    z_front = float(S.GRID.z[rows].min())
-    out['owner'] = dict(x=ox, z=oz, bottom=round(-o_bottom, 2), foot=round(S.foot(oscale, belly), 2), front=round(z_front, 2))
-    out['_draw'] = [(oscale, day, belly, False, 0., ox, oz, oy, S.foot(oscale, belly))]
-    loads = [(S.mass(oscale, belly)+(3*S.mass(NEWBORN) if pregnant else 0), ox+osh.cg[0], oy+osh.cg[1], oz+osh.cg[2])]
-    if level is not None:
-        loads.append((stores*PORTION_MASS, 0., (level+float(hull.field[hull.cavity].min()))/2, 0.))
-    fits = True
-    for i, ys in enumerate(sorted(young, reverse=True)):
-        name, load = KIND[ys]
-        side = (-1 if i % 2 else 1)*(1+i//2)
-        if day: prefer = (ox+2.6*side, z_front-.5-S.foot(ys))
-        else: prefer = (ox+2.2*side, z_front-.2-S.foot(ys)*.5)
-        best = None
-        for yaw in ((-20, 20) if day else (-35, 35)):
-            sh = shape(ys, day, young=True, yaw=yaw)
-            fy = S.foot(ys)
-            for x in np.arange(-11, 11.01, .5):
-                for z in np.arange(-11, 11.01, .5):
-                    y = sh.rest(field, x, z)
+def seat_young(hull, scales, cap, ahead=0.):
+    """Young in the basin before the captain, largest first, each at the free spot nearest her front (`ahead` further
+    toward the bow) and lowest:
+    [(shape, x, z, lift)], or None when one does not fit."""
+    osh, (ox, oz, oy) = cap; columns = [column(osh, ox, oz, oy)]
+    front = oz+float(S.GRID.z[np.isfinite(osh.full('low', ox, oz, oy))].min())
+    floor = float(hull.field[hull.cavity].min()); out = []
+    for i, s in enumerate(sorted(scales, reverse=True)):
+        side = (-1 if i % 2 else 1)*(i > 0 or len(scales) > 1); best = None
+        for yaw in (-20., 0., 20.):
+            sh = young_shape(s, yaw)
+            for x in np.arange(-9, 9.01, .5):
+                for z in np.arange(-9, oz+.01, .5):
+                    y = sh.rest(hull.field, x, z)
                     if y is None: continue
                     si, sj, _ = sh.window(x, z)
-                    if not hull.cavity[si, sj][np.isfinite(sh.low)].all(): continue  # in the hollow
-                    bottom, topy = y+sh.bottom, y+sh.bottom+sh.tall
-                    clash = False
-                    if rule == 'circle':
-                        for dx, dz, r, b0, b1, who in discs:
-                            if math.hypot(x-dx, z-dz) < fy+r-GAP and bottom < b1 and topy > b0: clash = True; break
-                    else:
-                        lo, hi = sh.low+y, sh.btop+y
-                        for cu, ct in columns:
-                            cu_w, ct_w = cu[si, sj], ct[si, sj]
-                            both = np.isfinite(lo) & np.isfinite(cu_w)
-                            if (both & (lo < ct_w+GAP) & (hi > cu_w-GAP)).any(): clash = True; break
-                    if clash: continue
-                    score = math.hypot(x-prefer[0], z-prefer[1])+.4*(bottom-FLOOR)
-                    if best is None or score < best[0]: best = (score, x, z, y, sh, yaw)
-        if best is None:
-            fits = False; out['placed'].append(dict(kind=name, scale=ys, load=load, placed=False)); continue
-        _, x, z, y, sh, yaw = best
-        bottom = y+sh.bottom
-        out['_draw'].append((ys, day, 0., True, yaw, x, z, y, S.foot(ys)))
-        top = sh.full('top', x, z, y); over = np.isfinite(o_under) & np.isfinite(top)
-        covered = bool(over.any()); clearance = float((o_under-top)[over].min()) if covered else None
-        centre = np.array([x, bottom+sh.height/2, z])
-        reaches, dist = S.braid_reaches((ox, oz), oscale, o_bottom, centre) if not pregnant else (None, None)
-        gaps = [math.hypot(x-dx, z-dz)-(S.foot(ys)+r) for dx, dz, r, b0, b1, who in discs if bottom < b1 and bottom+sh.tall > b0]
-        discs.append((x, z, S.foot(ys), bottom, bottom+sh.tall, name))
-        columns.append((sh.full('low', x, z, y), sh.full('btop', x, z, y)))
-        loads.append((S.mass(ys), x+sh.cg[0], y+sh.cg[1], z+sh.cg[2]))
-        out['placed'].append(dict(kind=name, scale=ys, load=load, placed=True, x=round(x, 2), z=round(z, 2), yaw=yaw,
-                                  bottom=round(-bottom, 2), gap=round(min(gaps), 2) if gaps else None,
-                                  braid=reaches, braid_dist=None if dist is None else round(dist, 2),
-                                  covered=covered, clearance=None if clearance is None else round(clearance, 2)))
-    h = S.hydro(hull, loads)
-    flood = S.flood_angle(hull, loads)
-    load = sum(p['load'] for p in out['placed'])+(2 if pregnant else 0)+.5*stores
-    out.update(fits=fits, load=load, hydro=h, flood=flood, ratio=round(h['heel']/max(flood, 1e-6), 3),
-               upright=not h['floods'] and h['heel'] < STEADY*flood)
-    if pregnant:
-        out['owner']['high'] = round(-o_bottom, 2)
+                    if not hull.cavity[si, sj][np.isfinite(sh.low)].all() or not free(sh, x, z, y, columns): continue
+                    score = math.hypot(x-2.6*side*s/BABY, z-(front-6.4*s-ahead))+.4*(y+sh.bottom-floor)
+                    if best is None or score < best[0]: best = (score, sh, x, z, y)
+        if best is None: return None
+        _, sh, x, z, y = best; out.append((sh, x, z, y)); columns.append(column(sh, x, z, y))
     return out
 
 
-HULL = S.Hull()
-FLOOR = float(HULL.field[HULL.cavity].min())   # the hollow's lowest point (world y)
+def largest_young(hull, cap, lo=SMALL, hi=.7):
+    """The largest single young that still fits in the basin with the captain (bisection on growth)."""
+    if seat_young(hull, [lo], cap) is None: return None
+    for _ in range(7):
+        mid = round((lo+hi)/2, 4)
+        if seat_young(hull, [mid], cap) is None: hi = mid
+        else: lo = mid
+    return lo
 
 
-def climb(scale=1., share=1.):
-    """A body hanging on the rim from the water at the beam (the bank side), {@code share} of its weight on the brim's edge
-    (the rest still borne by the water it is half in): the heel and the least freeboard."""
-    loads = [(S.mass(scale)*share, -S.B.BRIM_RADIUS[0]*S.K, S.B.BRIM['droop']*S.K, 0.)]
-    h = S.hydro(HULL, loads)
-    return dict(scale=scale, share=share, heel=h['heel'], freeboard=h['freeboard'], floods=bool(h['floods']))
+def brim_ring():
+    """The brim-edge seat for a 子油: its middle half a 0.30 young's half width inside the brim's edge (the rest over the water), its braid
+    side (+x) toward the water."""
+    return B.BRIM["radius"]*B.K-6.4*SMALL*.5
+
+
+def turned(p, yaw):
+    a = math.radians(yaw); return np.array([p[0]*math.cos(a)-p[2]*math.sin(a), p[1], p[0]*math.sin(a)+p[2]*math.cos(a)])
+
+
+def lean_out(p, scale, deg, forward=False):
+    """A body point at this growth after leaning `deg` about its bottom toward +x (roll), or forward toward -z (pitch)."""
+    a = math.radians(deg); x, y, z = np.asarray(p, float)*scale
+    if forward: return np.array([x, y*math.cos(a)+z*math.sin(a), z*math.cos(a)-y*math.sin(a)])
+    return np.array([x*math.cos(a)+y*math.sin(a), y*math.cos(a)-x*math.sin(a), z])
+
+
+def splash(hull, scale):
+    """A young on the brim ring: its rest height, and how far below the water its braid (hanging from the root at its
+    full length toward the nearest water past the edge) and its mouth reach, upright and leaning LEAN toward the water."""
+    r, edge, water = brim_ring(), B.BRIM['radius']*B.K, -B.WATER*B.K
+    sh = young_shape(scale); y = sh.rest(hull.field, r, 0, overhang=True); bottom = y+sh.bottom
+    out = dict(scale=scale, ring=round(r, 2), underside=round(bottom, 2))
+    for deg in (0., LEAN):
+        root = np.array([r, bottom, 0])+lean_out(ROOT_AT, scale, deg)
+        reach = CHAIN*scale-math.hypot(max(0., edge+.1-root[0]), root[1]-water)
+        mouth = np.array([r, bottom, 0])+turned(lean_out(MOUTH_AT, scale, deg, True), 90)   # turned to face the water
+        out['lean' if deg else 'upright'] = dict(braid_below_water=round(reach, 2), mouth_over_water=round(mouth[1]-water, 2),
+                                                 mouth_past_edge=round(mouth[0]-edge, 2))
+    return out
+
+
+def rescue_reach(cap):
+    """From the captain's seat, turning in place, her braid root to the water just outside the brim: the distance as a
+    share of the braid's length (best bearing, and over the beam)."""
+    osh, (ox, oz, oy) = cap; water, ring = -B.WATER*B.K, B.BRIM['radius']*B.K+.5; best, beam = 9e9, 9e9
+    for yaw in range(0, 360, 5):
+        root = np.array([ox, oy, oz])+turned(ROOT_AT, yaw)
+        for bearing in range(0, 360, 5):
+            a = math.radians(bearing); d = float(np.linalg.norm(root-[ring*math.cos(a), water, ring*math.sin(a)]))
+            best = min(best, d)
+            if bearing in (0, 180) and abs(((yaw+90) % 360)-180) <= 90: beam = min(beam, d)
+    return dict(best=round(best, 2), best_share=round(best/CHAIN, 3), beam=round(beam, 2), beam_share=round(beam/CHAIN, 3),
+                chain=round(CHAIN, 2), cradle_reach=round(S.braid_envelope()[0], 2))
+
+
+def bounds(hull=None):
+    """The captain's stern seat and the brim ring (blocks, hull frame) for the runtime bounds contract."""
+    hull = hull or S.Hull(); osh, (ox, oz, oy) = captain(hull)
+    ring = []
+    for s in (SMALL, CHILD):
+        sh = young_shape(s); ring.append([s, round((sh.rest(hull.field, brim_ring(), 0, overhang=True)+sh.bottom)/16, 4)])
+    return dict(captain_seat=dict(growth=1., x=round(ox/16, 4), y=round((oy+osh.bottom)/16, 4), z=round(oz/16, 4)),
+                brim_ring=dict(radius=round(brim_ring()/16, 4), underside_y=ring))
+
+
+def tools():
+    spec = importlib.util.spec_from_file_location('aquatic_tools', S.LORE/'aquatic_tools.py')
+    T = importlib.util.module_from_spec(spec); spec.loader.exec_module(T); return T
+
+
+def checks(gates=True):
+    hull = S.Hull(); cap = captain(hull); osh, (ox, oz, oy) = cap; out = {}
+    out['captain'] = dict(z=oz, underside=round(oy+osh.bottom, 2), top=round(oy+osh.bottom+osh.height, 2))
+    babies = {}
+    for s in (.15, BABY):
+        placed = seat_young(hull, [s, s], cap)
+        babies[s] = None if placed is None else [dict(x=x, z=z, underside=round(y+sh.bottom, 2), top=round(y+sh.bottom+sh.height, 2),
+                                                      body_top=round(y+sh.bottom+sh.tall, 2)) for sh, x, z, y in placed]
+    out['babies_below_mouth'] = babies
+    out['largest_young'] = largest_young(hull, cap)
+    out['brim_young'] = [splash(hull, s) for s in (SMALL, CHILD)]
+    out['rescue'] = rescue_reach(cap)
+    if gates:
+        import export as E
+        T = tools(); lily = [E.gate_profile(bounds(hull))]; start = time.time()
+        out['paddle'] = {n: {k: [v[0], round(float(v[1]), 2), round(float(v[2]), 2), round(float(v[3]), 2)] for k, v in T.gate_exported(n, lily).items()}
+                         for n in ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')}
+        out['clips'] = {n: T.body_clearance(n, lily, (-YAW, 0., YAW))[E.HULL_ID] for n in GATE_CLIPS}
+        out['gate_seconds'] = round(time.time()-start, 1)
+    return out
 
 
 def main():
-    results = []
-    only = sys.argv[1].split(',') if len(sys.argv) > 1 else None
-    for rule in RULES:
-        for combo in COMBOS:
-            if only and combo[0] not in only: continue
-            for period in ('day', 'night'):
-                for stores in STORES:
-                    r = solve(combo, period, stores, rule); results.append(r)
-    extra = dict(climb=[climb(s, f) for s in (1., CHILD) for f in (.25, .5, .75, 1.)], braid_reach=round(S.REACH, 2),
-                 braid_low=round(S.REACH_LOW, 2), geometry=json.loads((HERE/'geometry.json').read_text(encoding='utf-8')))
-    OUT.mkdir(parents=True, exist_ok=True)
-    clean = [{k: v for k, v in r.items() if not k.startswith('_')} for r in results]
-    (OUT/'layouts.json').write_text(json.dumps(dict(results=clean, extra=extra), ensure_ascii=False, indent=1, default=lambda o: bool(o) if isinstance(o, np.bool_) else float(o)), encoding='utf-8')
-    for r in results:
-        young = ' '.join(f"{p['kind']}{'@'+str(p['bottom']) if p['placed'] else '✗'}{'' if p.get('braid') in (None, True) else '(辫✗)'}" for p in r['placed'])
-        print(f"{r['rule']:6s} {r['combo']:12s} {r['period']:5s} s{r['stores']:2d} fits={r['fits']} owner={r['owner'].get('bottom') if 'owner' in r else '-'} "
-              f"heel={r['hydro']['heel']}/{r['flood']} fb={r['hydro']['freeboard']} upright={r['upright']} {young}")
-    print(extra)
+    ap = argparse.ArgumentParser(); ap.add_argument('--set', action='append', metavar='KEY=VALUE')
+    ap.add_argument('--no-gates', action='store_true'); args = ap.parse_args(); start = time.time()
+    with B.override(B.parse_sets(args.set)):
+        data = checks(not args.no_gates)
+    for k, v in data.items(): print(k, json.dumps(v, ensure_ascii=False, separators=(',', ':'), default=float))
+    print(f'{time.time()-start:.1f}s')
 
 
 if __name__ == '__main__':

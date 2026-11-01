@@ -1,13 +1,17 @@
 {
-  "version": 2,
+  "version": 3,
   "status": "pending_user_review",
-  "note": "The second aquatic Marisa hat form, beside the current aquatic hat (the land hat turned over), so a test species can show both (user choice); not shared with the land Marisa: worn on the head, set down brim up as her boat; inside and outside need not match (user choice). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form. Outside: round stepped tiers under the land hat's own bent tip. Set down: the same tiers, the lower ones pressed into a keel under the water; inside them a basin; set down, all stretched into an oval along the boat (set_down). Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
+  "note": "The aquatic Marisa's hat: worn on the head, set down brim up as her boat (a lily pad on the water). Hat units are the land hat's model units; the game draws the hat at scale (hat_vessel.json scale.aquatic_marisa) in every form, so the set-down hat is the worn hat flipped at the same size (round, 1.0x; user 2026-11-01). Outside: round stepped tiers under the land hat's own bent tip. Set down: the base tier upright, the lower tiers pressed into a keel under the water, a dry basin inside, the brim lying on the water. Inside and outside are separate shapes: the cloth between them is as thick as the two leave.",
   "scale": 1.4,
   "anchor_worn": [0.0, 10.3774, 0.2307],
   "segments": 24,
   "brim": {
-    "radius": 10.13, "bottom": 10.5, "top": 11.3, "droop": 0.9, "droop_from": 8.2,
-    "note": "round; its diameter is the land brim's side-to-side width (20.26), so the hat reads the same 1.4x width from the front. Worn, the outer brim droops; set down the same cloth turns up into a raised rim round the owner (EH22-001)"
+    "radius": 10.13,
+    "bottom": 10.5,
+    "top": 11.3,
+    "droop": 0.9,
+    "droop_from": 8.2,
+    "note": "round; its diameter is the land brim's side-to-side width (20.26), so the hat reads the same 1.4x width from the front. Worn, the outer brim droops; set down it lies on the water (set_down), no raised rim"
   },
   "wall": 0.55,
   "band": [0.35, 1.34],
@@ -20,7 +24,7 @@
     ],
     "tip": ["hat_tip_bend", "hat_tip", "hat_tip_end"],
     "tip_base": "hat_taper_3",
-    "note": "worn: the base tier carries the band and bow, the land hat's tip_bend, tip and tip_end cuboids sit on the top tier as they sit on hat_taper_3. Set down: the base tier stays upright round the basin, the tiers under it are pressed by squash into the keel (small enough that the waterline stays on the wide base tier at every load); the tip is pressed into the keel and not drawn"
+    "note": "worn: the base tier carries the band and bow, the land hat's tip_bend, tip and tip_end cuboids sit on the top tier as they sit on hat_taper_3. Set down: the base tier stays upright round the basin, the tiers under it are pressed by squash into the keel; the tip is pressed into the keel and not drawn"
   },
   "inside": {
     "opening": 7.25,
@@ -34,19 +38,17 @@
     "min_wall": 0.3
   },
   "set_down": {
-    "beam": 1.0,
-    "length": 2.2,
-    "note": "set down only: an oval. The base tier and everything inside it (basin, keel tiers) stretched along the boat (z, bow to stern) by length and across it (x, toward the bank) by beam; the brim ring beyond the tier moves out with it at its own width; depths unchanged, the worn hat and item untouched (inside and outside need not match, user choice). Beam 1 keeps the brim across the boat at the worn width so the rower's braid and stick reach the water over the side; length gives a centred labouring adult her births on free floor ahead (project design)"
-  },
-  "newborn_scale": 0.145,
-  "portion": {
-    "radius_blocks": 0.09,
-    "height_blocks": 0.06,
-    "note": "a stored portion keeps the room it takes now (a floor circle of radius 0.09 and 0.06 high, AQUATIC_MARISA_IMPLEMENTATION storage); the layer is that volume spread level over the hollow",
-    "fills": {"low": 6, "half": 12, "full": 24}
+    "waterline": 0.36,
+    "edge_dip": 0.05,
+    "note": "set down only (user 2026-11-01: the brim lies flat on the water like a lily pad, the basin below the water but dry): the hat rides at a fixed presentation waterline, waterline hat units under the brim face (0.5 model units at scale 1.4); the brim stays level from the opening to droop_from, then its outer part falls to the water, its edge's top edge_dip under the waterline so the edge lies on the water. Depths of the basin and keel as worn"
   },
   "stores": {
-    "tiers": [[0, 0], [1, 2], [3, 5], [6, 8]],
+    "tiers": [
+      [0, 0],
+      [1, 2],
+      [3, 5],
+      [6, 8]
+    ],
     "frame": 32,
     "note": "the stored food is one texture on the basin floor (user: 储粮应为一张覆盖帽底、随数量变化的贴图): one 32 px frame per tier side by side (portions from..to; tier 0 empty), each frame covering the floor disc (floor_radius) seen from above, +x right and the bow (-z) up"
   }
