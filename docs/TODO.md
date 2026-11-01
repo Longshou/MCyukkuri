@@ -14,6 +14,7 @@
 | 嗯嗯奴隶与佩妮佩妮回退（反馈 1、2） | `.worktrees/fb-pit-peni` | 聚落嗯嗯坑、`settle_pit_slave`、佩妮佩妮制作源与导出 |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
+| 幼油帽上玩耍不启动（`kid_boat_play` 冒烟） | `.worktrees/fb-kid-play` | 水生幼油玩耍驱动与数据 |
 
 ## 玩法待办
 
