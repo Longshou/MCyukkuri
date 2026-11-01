@@ -28,7 +28,7 @@ YAW = 15.                                              # the paddle's captain_ya
 LEAN = 10.                                             # degrees: a whole-body lean toward the water (limit about 12)
 GATE_CLIPS = ('boat_rim_peek', 'boat_paddle', 'braid_rescue_reach', 'braid_rescue_hold', 'braid_rescue_settle',
               'braid_cradle_lift', 'hat_brim_offer', 'boat_nudge_young', 'boat_board', 'hat_hop_up', 'boat_thrown',
-              'boat_cover_young', 'boat_feed_young')
+              'boat_feed_young', 'boat_drift', 'boat_steady')
 
 
 def captain_shape(scale=1., yaw=0.): return S.Shape.posed('boat_drift', .3, 'closed_smile', scale, yaw)

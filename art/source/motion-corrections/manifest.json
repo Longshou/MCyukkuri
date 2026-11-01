@@ -10,23 +10,23 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "b9433e786596fb714cd93aefad2aec672bbf4aec754949f51a967b0bc74fea4a",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "41503a97357ca3e2221aa7fb855816ec39d1879aa6526e012651f89f35158f0b",
+  "lore_recipe_sha256": "156892350415f74254764797125631e45f91a0b0dafb07889f35cb40d5bb624a",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "1190e0378f11c8a1d8fecd075016762ab0dd0b2af7ccf017acd81f766e59dda6",
+  "lore_author_sha256": "6a527d19920bb9a4647145c95a58e1323689425813218a6ee9ed6a0da2090e2d",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "9e8332c1db621a2d189df216a36ccd3c51f180912e3f9bdf991f1884db59abc0",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
   "hat_vessel_sha256": "e675f69b2b62ce637865db2c51d82660db8386a3bbfcffa1277f3e8b97706a80",
   "aquatic_inputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "03347eb239f56c67eebac5cc72fabc4c37f41b1fd8b2efb21a779b79afbd64ae"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "7ca5b8975105f0ab65db9b3bd0efc387858e5000e434aaccb595da48ac139373"
   },
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "3c0f7cd09ba0d9a442028359f9a9f8f8d554e2332329bdc94bf86b072d965c08",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "81a45ac7030cf87bfa5ed5420c8594e29ff39d626d112d580424577021a14b91",
+  "runtime_sha256": "5dd634b1ea956287a6b9aad52325eca4dc1f7a85aba02be441655ffa85b1b1a2",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

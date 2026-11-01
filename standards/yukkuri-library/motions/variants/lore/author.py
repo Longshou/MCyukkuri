@@ -159,8 +159,8 @@ def state(action, t, c, height):
         # Project original: a short chest-first nudge at the child's back, never a lift.
         a=keyed(t,[(0,.2),(.18,.8),(.34,-.7),(.5,-.3),(.8,.2)])
         s=squash(a,.05,.1,.04)
-        r=[keyed(t,[(0,0),(.18,3),(.34,-8),(.55,-3),(.8,-1)]),0,0]
-        shift[1]=keyed(t,[(0,0),(.18,.3),(.34,-.9),(.6,-.3),(.8,0)])
+        r=[keyed(t,[(0,0),(.18,1),(.34,-8),(.55,-3),(.8,-1)]),0,0]  # a small wind-up: at the stern seat her rear hair is at the lip
+        shift[1]=keyed(t,[(0,0),(.18,0),(.34,-.9),(.6,-.3),(.8,0)])
     elif action == 'hat_stumble':
         press=keyed(t,[(0,.15),(.10,1),(.25,.45),(.40,.85),(.65,.35),(.83,.65),(1.2,.15)])
         s=[1+.065*press,1-.16*press,1+.07*press]
@@ -628,7 +628,7 @@ def flourish_tracks(model, action, samples, cfg, c):
                 q=keyed(t,[(0,.3),(.15,1),(.35,.5),(.58,.9),(c['duration'],.3)])
                 return [10*q,side*5*q,side*(12+19*q)]
             tracks.append({'bone':hand,'channel':'rotation','keys':[[round(t,8),*[round(v,5) for v in gesture(t)]] for t in samples]})
-    if action in NEW_BRAID_CLIPS:
+    if action in NEW_BRAID_CLIPS and 'braid_path' not in c:  # a braid_path (aquatic_tools) lays the braid itself
         d=c['duration'];paddle=action in ('hat_brim_offer','boat_nudge_young')
         def lunge(t):return bump((t-.22)/.3)
         def shaker(t):return smooth(t/.15)*(1-smooth((t-1.0)/.2))*math.sin(2*math.pi*2.5*t)

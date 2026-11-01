@@ -21,6 +21,14 @@
       "degrees_per_second": 300
     }
   },
+  "boat_braid": {
+    "rest": [
+      15.8,
+      5.0,
+      -1.0
+    ],
+    "note": "Project design (lily-pad hull, 2026-11-01): in the boat the seated captain lays her braid out over the brim on her braid side, its tuft just past the brim edge over the water (the basin floor beside her is too narrow for the tuft; the floor stays for the young and the stores). Seat-frame model units of the tuft end (braid_path key rest)."
+  },
   "expression_yield": [
     "cry"
   ],
@@ -603,6 +611,16 @@
       "lore": "User 2026-10-16: feeding uses a slight forward inclination, calm expressions and care speech, with stable weight. The composed pose including contact tracking must stay within ten degrees. The real serving remains at its current owner's mouth until handoff; the braid never carries food.",
       "triggers": [
         "server parent reserves a meal for its own hungry child and reaches sustained mouth contact"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          2.4,
+          "rest"
+        ]
       ]
     },
     "boat_toilet": {
@@ -873,6 +891,16 @@
       "lore": "N13 fixed hat before boarding; translation follows the server gravity arc, this clip only tucks the body",
       "triggers": [
         "owner boarding flight"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.8,
+          "rest"
+        ]
       ]
     },
     "eat": {
@@ -2573,7 +2601,7 @@
       "bob": 0.24,
       "roll": 2,
       "pitch": 1.5,
-      "glance": 14,
+      "glance": 10,
       "faces": [
         [
           0,
@@ -2594,6 +2622,16 @@
       "lore": "aquatic Marisa drifts curled up in her hat boat (special-events), bob and rock after the v1 aquatic clips",
       "triggers": [
         "aquatic Marisa afloat"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          4.0,
+          "rest"
+        ]
       ]
     },
     "boat_steady": {
@@ -2602,9 +2640,9 @@
       "loop": true,
       "applies": "aquatic_marisa",
       "height": 0.92,
-      "width": 1.04,
+      "width": 1.03,
       "roll": 2.5,
-      "pitch": 1.5,
+      "pitch": 0.8,
       "faces": [
         [
           0,
@@ -2620,6 +2658,16 @@
       "lore": "the drifter tightens her body to steady the boat, water can still get in (events, lake-steady)",
       "triggers": [
         "boat taking water, towed or hit, lake card"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          1.5,
+          "rest"
+        ]
       ]
     },
     "boat_call": {
@@ -3365,11 +3413,32 @@
           "teary"
         ]
       ],
-      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. The single current braid follows the server's natural-length tip. Its fixed root pitch and support correction come from shared braid_rescue.json; the child remains in real water until sustained actual contact.",
+      "lore": "Project design (lily-pad hull 2026-11-01): the body stays level (root rotation 0, braid_rescue.json); the braid goes from its rest over the brim down to the water just past the brim edge, where a floating child is touched (marker contact).",
       "triggers": [
         "braid rescue REACH",
         "braid rescue CONTACT"
-      ]
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.55,
+          16.6,
+          4.0,
+          -3.0
+        ],
+        [
+          1.1,
+          16.6,
+          4.0,
+          -3.0
+        ]
+      ],
+      "markers": {
+        "contact": 0.6
+      }
     },
     "braid_rescue_hold": {
       "label": "同梢贴水抓托沿帽缘回护",
@@ -3389,12 +3458,49 @@
           "teary"
         ]
       ],
-      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. The actual existing tuft contact follows the server low edge-support curve. The child grip remains at that same natural-length tip; no high hoist, root translation, extra hand or scaling is added by the pose.",
+      "lore": "Project design (lily-pad hull 2026-11-01): the tuft holds at the water (marker grip), lifts high over the brim (lift_start) and sets the child on the front-right brim (place), the farthest the braid reaches; the seat is the server's.",
       "triggers": [
         "braid rescue GRIP",
         "braid rescue LIFT",
         "braid rescue PLACE"
-      ]
+      ],
+      "braid_path": [
+        [
+          0,
+          16.6,
+          4.0,
+          -3.0
+        ],
+        [
+          0.35,
+          16.6,
+          4.0,
+          -3.0
+        ],
+        [
+          0.7,
+          14.5,
+          9.0,
+          -6.0
+        ],
+        [
+          0.95,
+          13.0,
+          7.5,
+          -9.0
+        ],
+        [
+          1.2,
+          9.5,
+          5.2,
+          -10.5
+        ]
+      ],
+      "markers": {
+        "grip": 0.35,
+        "lift_start": 0.4,
+        "place": 1.2
+      }
     },
     "braid_rescue_settle": {
       "label": "辫梢放回真帽面松开",
@@ -3414,11 +3520,38 @@
           "neutral"
         ]
       ],
-      "lore": "v14: re-exported with no whole-body tilt (root rotation 0), kept for compatibility; the client plays hat_brim_offer, boat_nudge_young and boat_calm. Place on the reserved real support before release. Recovery belongs to actual dry support; this pose does not manufacture a platform or free flight.",
+      "lore": "Project design (lily-pad hull 2026-11-01): the tuft rests on the front-right brim until release (marker release), then lifts and lays back out over the brim (boat_braid rest).",
       "triggers": [
         "braid rescue SETTLE",
         "braid rescue RELEASE"
-      ]
+      ],
+      "braid_path": [
+        [
+          0,
+          9.5,
+          5.2,
+          -10.5
+        ],
+        [
+          0.45,
+          9.5,
+          5.2,
+          -10.5
+        ],
+        [
+          0.65,
+          13.0,
+          7.5,
+          -9.0
+        ],
+        [
+          0.9,
+          "rest"
+        ]
+      ],
+      "markers": {
+        "release": 0.45
+      }
     },
     "water_hat_flip": {
       "label": "落水脱帽翻船",
@@ -3809,7 +3942,6 @@
       "duration": 1.2,
       "loop": true,
       "applies": "aquatic_marisa",
-      "root_support": "free_water",
       "faces": [
         [
           0,
@@ -3853,7 +3985,6 @@
       "duration": 0.8,
       "loop": false,
       "applies": "all",
-      "root_support": "free_water",
       "faces": [
         [
           0,
@@ -3874,6 +4005,30 @@
       "lore": "Crouch (h .88, w 1.065, pitch -4), spring (stretch, pitch -6 to +3) and a compressed landing. HatBoarding supplies the arc, limited to .08 of the body size; no lift here. EH07-006 and EH10-008 for the small quick hop.",
       "triggers": [
         "HatBoarding HOP"
+      ],
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.25,
+          "rest"
+        ],
+        [
+          0.42,
+          15.4,
+          6.6,
+          -1.5
+        ],
+        [
+          0.62,
+          "rest"
+        ],
+        [
+          0.8,
+          "rest"
+        ]
       ]
     },
     "water_bob_lunge": {
@@ -4014,7 +4169,6 @@
       "duration": 0.8,
       "loop": false,
       "applies": "aquatic_marisa",
-      "root_support": "free_water",
       "faces": [
         [
           0,
@@ -4255,7 +4409,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project original (water 11 ruling): the braid reaches out beside the hull, its tuft rolls up into a scoop under the young, lifts it over the rim and sets it on the front-right inner rim (as far as the braid reaches; the transfer moves it on to its seat), then unrolls. Body lean <= 6 with yaw toward the braid side; the young is moved by the server transfer, the pose only shows the scoop.",
+      "lore": "Project original (water 11 ruling; lily-pad hull 2026-11-01): the braid reaches out over the brim beside the hull to the young in the water, scoops it, lifts it over the brim and sets it on the front-right brim (as far as the braid reaches; the transfer moves it on to its seat), then lays back out over the brim (braid_path, boat_braid rest). Body lean <= 6 with yaw toward the braid side, edging forward off the stern wall; the young is moved by the server transfer, the pose only shows the scoop.",
       "triggers": [
         "CrewTransfer LIFT(braid) (parent)"
       ],
@@ -4276,7 +4430,59 @@
           ],
           "kind": "BRAID_CRADLE"
         }
-      }
+      },
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          0.5,
+          16.6,
+          3.9,
+          -3.0
+        ],
+        [
+          1.05,
+          16.6,
+          3.8,
+          -3.0
+        ],
+        [
+          1.45,
+          14.5,
+          9.0,
+          -6.0
+        ],
+        [
+          1.7,
+          14.5,
+          8.0,
+          -7.5
+        ],
+        [
+          1.9,
+          12.5,
+          5.6,
+          -8.0
+        ],
+        [
+          2.0,
+          12.5,
+          5.6,
+          -8.0
+        ],
+        [
+          2.2,
+          14.5,
+          8.0,
+          -7.5
+        ],
+        [
+          2.4,
+          "rest"
+        ]
+      ]
     },
     "be_cradled": {
       "label": "被辫梢兜着",
@@ -4332,7 +4538,6 @@
       "duration": 0.6,
       "loop": false,
       "applies": "aquatic_marisa",
-      "root_support": "free_water",
       "faces": [
         [
           0,
@@ -4531,14 +4736,373 @@
           "happy"
         ]
       ],
-      "lore": "Project design (ecology design D 3.4, boat_rim_peek): a baby or small child on the bow perch by day leans out over the front rim to watch the water, stretched 4 % and tipped 7 degrees toward it, scanning left and right with two excited little hops, then turns to glance back at its mother and returns to the water. Pitch + roll <= 8.5.",
+      "lore": "Project design (ecology design D 3.4, boat_rim_peek): a baby or small child on the bow perch by day leans out over the front rim to watch the water, stretched 4 % and tipped 7 degrees toward it, scanning left and right with two excited little hops, then turns 60 degrees to glance back over its shoulder at its mother and returns to the water; it stays forward off the wall and its braid lies out over the brim (boat_braid rest). Pitch + roll <= 8.5.",
       "triggers": [
         "young on BOW_PERCH by day (hat_deck_layout crew)"
       ],
       "markers": {
         "look_back": 3.8
       },
-      "base_pose": "hat_cradle"
+      "base_pose": "hat_cradle",
+      "braid_path": [
+        [
+          0,
+          "rest"
+        ],
+        [
+          4.8,
+          "rest"
+        ]
+      ]
+    },
+    "kid_brim_splash": {
+      "label": "帽檐边辫子拍水",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.5,
+          "open_smile"
+        ],
+        [
+          0.5,
+          1.0,
+          "happy"
+        ],
+        [
+          1.0,
+          1.3,
+          "open_smile"
+        ],
+        [
+          1.3,
+          2.4,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-01: lively, cute 子油 play on the parent's boat; derived from boat_rim_peek and water_struggle): a 子油 on the brim ring, braid side to the water, leans about 10 degrees out and slaps the water twice with its braid; the tuft dips under the waterline at the slaps, the body stays over the brim.",
+      "triggers": [
+        "子油 on the brim ring afloat (WP7)"
+      ],
+      "markers": {
+        "slap_1": 0.62,
+        "slap_2": 1.42
+      },
+      "contacts": {
+        "braid_splash": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "BRAID_SPLASH"
+        }
+      },
+      "braid_path": [
+        [
+          0,
+          8.6,
+          0.6,
+          -3.6
+        ],
+        [
+          0.3,
+          13.5,
+          12.0,
+          -3.0
+        ],
+        [
+          0.62,
+          11.0,
+          -3.0,
+          -3.0
+        ],
+        [
+          0.8,
+          10.5,
+          -2.5,
+          -3.0
+        ],
+        [
+          1.15,
+          13.5,
+          11.0,
+          -3.0
+        ],
+        [
+          1.42,
+          11.0,
+          -3.0,
+          -3.0
+        ],
+        [
+          1.6,
+          10.5,
+          -2.5,
+          -3.0
+        ],
+        [
+          2.0,
+          10.0,
+          1.0,
+          -3.0
+        ],
+        [
+          2.4,
+          8.6,
+          0.6,
+          -3.6
+        ]
+      ]
+    },
+    "kid_mimic_paddle": {
+      "label": "学着亲油用辫子划水",
+      "duration": 1.8,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "root_support": "free_water",
+      "faces": [
+        [
+          0,
+          0.3,
+          "open_smile"
+        ],
+        [
+          0.3,
+          1.1,
+          "chewing_closed"
+        ],
+        [
+          1.1,
+          1.8,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-01; derived from boat_paddle): a 子油 on the brim copies its mother's stroke with its own braid and no stick, small and a little clumsy: the tuft sweeps fore and aft over the water and skims it mid-pull (marker dip).",
+      "triggers": [
+        "子油 on the brim ring while the captain paddles (WP7)"
+      ],
+      "markers": {
+        "power_start": 0.2,
+        "dip": 0.65,
+        "power_end": 1.1
+      },
+      "contacts": {
+        "braid_tip": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "BRAID_SPLASH"
+        }
+      },
+      "braid_path": [
+        [
+          0,
+          13.0,
+          4.0,
+          -8.0
+        ],
+        [
+          0.2,
+          12.5,
+          1.0,
+          -8.5
+        ],
+        [
+          0.65,
+          11.0,
+          -3.0,
+          -3.0
+        ],
+        [
+          1.1,
+          12.5,
+          1.0,
+          3.5
+        ],
+        [
+          1.45,
+          13.0,
+          6.5,
+          -2.0
+        ],
+        [
+          1.8,
+          13.0,
+          4.0,
+          -8.0
+        ]
+      ]
+    },
+    "kid_poke_stores": {
+      "label": "啄啄帽底的储粮",
+      "duration": 2.0,
+      "loop": true,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.3,
+          "open_smile"
+        ],
+        [
+          0.3,
+          1.4,
+          "chewing_closed"
+        ],
+        [
+          1.4,
+          2.0,
+          "happy"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-01; derived from boat_cargo_fetch and eat): a young in the basin pokes at the stores texture on the floor, three mouth pecks (markers peck_1..3) with braid taps on the floor between (tap_1, tap_2), then a pleased wiggle. It does not eat; the count is the server's.",
+      "triggers": [
+        "young in the basin with stores (WP7)"
+      ],
+      "markers": {
+        "peck_1": 0.35,
+        "tap_1": 0.58,
+        "peck_2": 0.8,
+        "tap_2": 1.03,
+        "peck_3": 1.25
+      },
+      "contacts": {
+        "mouth": {
+          "anchor": "mouth",
+          "kind": "MOUTH_POKE"
+        },
+        "braid_tap": {
+          "bone": "hand_right_tip",
+          "point": [
+            8.5098,
+            0.21227,
+            -4.208
+          ],
+          "kind": "BRAID_TAP"
+        }
+      },
+      "braid_path": [
+        [
+          0,
+          9.4,
+          1.4,
+          -1.5
+        ],
+        [
+          0.45,
+          9.4,
+          1.4,
+          -1.5
+        ],
+        [
+          0.58,
+          9.4,
+          0.2,
+          -3.0
+        ],
+        [
+          0.7,
+          9.4,
+          1.4,
+          -1.5
+        ],
+        [
+          0.9,
+          9.4,
+          1.4,
+          -1.5
+        ],
+        [
+          1.03,
+          9.4,
+          0.2,
+          -3.0
+        ],
+        [
+          1.15,
+          9.4,
+          1.4,
+          -1.5
+        ],
+        [
+          2.0,
+          9.4,
+          1.4,
+          -1.5
+        ]
+      ]
+    },
+    "kid_hide_behind": {
+      "label": "受惊躲到亲油辫子下",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "aquatic_marisa",
+      "faces": [
+        [
+          0,
+          0.6,
+          "surprise"
+        ],
+        [
+          0.6,
+          1.5,
+          "teary"
+        ],
+        [
+          1.5,
+          1.95,
+          "nervous"
+        ],
+        [
+          1.95,
+          62.4,
+          "teary"
+        ]
+      ],
+      "lore": "Project design (user 2026-11-01; derived from boat_alarm_wait and boat_flee): scared, a 子油 scoots to its mother with a crouch-spring hop (the server moves it; markers scoot_start..scoot_land) and cowers low under her braid, trembling, peeking out once (peek); held cowering from tucked.",
+      "triggers": [
+        "子油 afloat scared: threat, hit, thunder (WP7)"
+      ],
+      "markers": {
+        "scoot_start": 0.12,
+        "scoot_land": 0.42,
+        "tucked": 0.6,
+        "peek": 1.75
+      },
+      "braid_path": [
+        [
+          0,
+          8.6,
+          0.6,
+          -3.6
+        ],
+        [
+          0.2,
+          9.8,
+          2.0,
+          -1.0
+        ],
+        [
+          0.6,
+          10.0,
+          1.5,
+          0.5
+        ],
+        [
+          2.4,
+          10.0,
+          1.5,
+          0.5
+        ]
+      ]
     }
   },
   "flourishes": {
@@ -4615,8 +5179,7 @@
     "snatch_pull",
     "stand_ground",
     "offer_bite",
-    "comfort_lick",
-    "boat_rim_peek"
+    "comfort_lick"
   ],
   "revision": 17
 }

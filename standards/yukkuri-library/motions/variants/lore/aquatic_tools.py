@@ -24,13 +24,16 @@ ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 BOUNDS = json.loads((ASSETS/'yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json').read_text(encoding='utf-8'))
-SHARED = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))['paddle_shared']
+RECIPE = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))
+SHARED, BOAT_BRAID = RECIPE['paddle_shared'], RECIPE['boat_braid']
 PULL = (.2, .8)  # the middle of the power half, as fractions of power_start..power_end, where the blade must be under water
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
 PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
 NEW_CLIPS = ('braid_cradle_lift', 'be_cradled', 'mouth_bite_hold', 'boat_thrown', 'water_hat_climb', 'water_hat_right',
-             'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek')
+             'boat_cargo_stow', 'boat_cargo_fetch', 'boat_jettison', 'boat_rim_peek', 'braid_rescue_reach', 'braid_rescue_hold',
+             'braid_rescue_settle', 'boat_board', 'boat_feed_young', 'hat_hop_up', 'boat_drift', 'boat_steady', 'kid_brim_splash',
+             'kid_mimic_paddle', 'kid_poke_stores', 'kid_hide_behind')
 # Beats were authored on these lengths; the recipe duration rescales them (boat_thrown 0.6 s, water_hat_right 1.6 s).
 AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS
@@ -113,20 +116,21 @@ def state(action, t, c, height):
     if action == 'boat_paddle':
         # Seated low in the hull: lean into the catch, drive back through the power half with a small squash and a
         # shoulder twist toward the braid side, the body leading the braid by `body_lead_seconds`; the recovery
-        # straightens. Pitch -5..+1.5, roll <= 1 (more would dip the held-out braid onto the gunwale).
+        # straightens. Pitch -5..+.5, roll <= 1 (more would dip the held-out braid onto the gunwale). No aft shift and
+        # little lean back: at the stern seat her rear hair is at the lily-pad hull's lip when she turns.
         u = paddle_phase(t+c['body_lead_seconds'], c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         drive = bump(u/.5) if power else 0.
         s = [c['width']+.02*drive, c['height']-.03*drive, c['width']+.015*drive]
-        r = [lerp(-5, 1.5, q) if power else lerp(1.5, -5, q), lerp(-7, 6, q) if power else lerp(6, -7, q), -.5-.5*drive]
-        shift[1] = .25*drive
+        r = [lerp(-5, .5, q) if power else lerp(.5, -5, q), lerp(-7, 6, q) if power else lerp(6, -7, q), -.5-.5*drive]
     elif action == 'braid_cradle_lift':
         # Reach toward the young beside the hull (lean and look to the braid side), scoop, lift it in front of her and set it
-        # down, watching it the whole way. Lean <= 6; the yaw follows the braid round to the front.
+        # down, watching it the whole way. Lean <= 6; the yaw follows the braid round to the front, the body edging forward
+        # off the stern wall while she turns so her rear hair stays clear of the lip.
         lean = keyed(t, [(0, 0), (.5, 1), (.8, 1), (1.5, .4), (2.0, .6), (2.4, 0)])
         effort = bump((t-.8)/.7)
         s = [1+.03*lean+.03*effort, 1-.05*lean-.05*effort, 1+.02*lean+.03*effort]
-        r = [-4*lean, keyed(t, [(0, 0), (.5, -18), (.8, -18), (1.3, -8), (1.8, -6), (2.4, 0)]), -5*lean*(1-smooth((t-.8)/.6))]
-        shift[0] = .25*lean
+        r = [-4*lean, keyed(t, [(0, 0), (.5, -14), (.8, -14), (1.3, -8), (1.8, -6), (2.4, 0)]), -5*lean*(1-smooth((t-.8)/.6))]
+        shift[0] = .25*lean; shift[1] = -.6*lean
     elif action == 'be_cradled':
         # A young held in the curled tuft: sags into the scoop (wider, lower), a little limp, swaying with the carrier.
         w = 2*math.pi*t/d
@@ -143,6 +147,7 @@ def state(action, t, c, height):
         spin = smooth(t/.8); splash = bump((t-.82)/.38)
         s = [.94+.13*splash, 1.1-.08*smooth(t/.8)-.2*splash, .94+.11*splash]
         r = [-4*math.sin(math.pi*min(1, t/.8))+3*splash, 200*spin, 7*math.sin(2*math.pi*t/.55)*(1-smooth((t-.7)/.3))]
+        shift[1] = -.71*(1-math.cos(math.radians(r[1])))  # the spin turns about the root pivot, .71 behind the body's middle
     elif action == 'water_hat_climb':
         # Self-rescue: bite the brim, hook the braid over it, then pull up in two efforts and hold for the slide in.
         bite = smooth(t/.35); pull = keyed(t, [(0, 0), (.85, 0), (1.05, -1), (1.25, .7), (1.4, -.6), (1.55, .9), (1.8, .8)])
@@ -160,14 +165,14 @@ def state(action, t, c, height):
     elif action == 'boat_rim_peek':
         # A baby on the bow perch by day leaning out over the front rim to look at the water: stretched 4 % toward it,
         # tipped 7 degrees forward, scanning left and right, an excited little bob, then one glance back at its mother
-        # (the body turns, the lean relaxes) and back to the water.
+        # over its shoulder (the body turns 60 degrees, the lean relaxes, it stays forward off the wall) and back to the water.
         look_back = keyed(t, [(0, 0), (3.5, 0), (3.8, 1), (4.3, 1), (4.7, 0)])
         lean = 1-look_back; bob = bump((t-1.0)/.35)+bump((t-1.45)/.35)
         s = [1-.01*lean+.03*bob, 1+.04*lean-.06*bob, 1-.01*lean+.02*bob]
-        r = [-7*lean, keyed(t, [(0, 0), (.8, -14), (1.6, -14), (2.3, 12), (3.1, 12), (3.5, 0)])+160*look_back,
+        r = [-7*lean, keyed(t, [(0, 0), (.8, -14), (1.6, -14), (2.3, 12), (3.1, 12), (3.5, 0)])+60*look_back,
              1.5*math.sin(2*math.pi*t/d)*lean]
         lift = .04*height*(bump((t-1.1)/.3)+bump((t-1.55)/.3))  # two little hops of excitement
-        shift[1] = -.35*lean
+        shift[1] = -.35
     elif action in ('boat_cargo_stow', 'boat_cargo_fetch'):
         # Head down into the opening before her to the crown larder: stow lets the mouthful go at the bottom, fetch bites one
         # there and brings it up. Pitch to -10, a squash and a small forward reach.
@@ -178,6 +183,41 @@ def state(action, t, c, height):
         # Shove spoiled food or dirt over the brim: twist to the braid side, the braid sweeps it over, a short look after it.
         sweep = keyed(t, [(0, 0), (.3, 1), (.6, 1), (1.0, 0)])
         s = [c['width']+.02*sweep, c['height']-.03*sweep, c['width']]; r = [-5*sweep, -14*sweep, -4*sweep]; shift[0] = .3*sweep
+    elif action == 'kid_brim_splash':
+        # A child on the brim edge, braid side to the water (boat_rim_peek's lean and bob): it rolls out up to 10 degrees
+        # (pitch -2, so <= 12) and turns a little toward the water while the braid (braid_path) rises and slaps down twice,
+        # a delighted bounce after each slap, then it sits back up. Free of floor support: it leans about its bottom.
+        lean = keyed(t, [(0, 0), (.35, 1), (1.85, 1), (2.3, 0)])
+        bob = bump((t-.62)/.3)+.7*bump((t-1.42)/.28)
+        s = [1+.04*bob, 1-.07*bob+.02*lean, 1+.03*bob]
+        r = [-2*lean, -8*lean+3*math.sin(2*math.pi*t/d), -10*lean]
+    elif action == 'kid_mimic_paddle':
+        # boat_paddle's stroke copied by a child without a stick: lean into the catch, an overdone shoulder twist through
+        # the power half, a clumsy wobble mid-stroke, then the recovery; it rolls out 7 degrees in the pull so its braid
+        # tip skims the water. Pitch -2.5..+.5, roll <= 8.
+        u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
+        drive = bump(u/.5) if power else 0.; wobble = bump((u-.28)/.16)
+        s = [1+.03*drive, 1-.05*drive, 1+.02*drive]
+        r = [lerp(-2.5, .5, q) if power else lerp(.5, -2.5, q), lerp(-10, 9, q) if power else lerp(9, -10, q),
+             -7*drive+2.5*wobble*math.sin(2*math.pi*u*6)]
+    elif action == 'kid_poke_stores':
+        # A young pokes at the stores on the basin floor (boat_cargo_fetch's head-down dip, eat's peck): three pecks with the
+        # mouth (markers peck_1..3), the braid tapping the floor between, then a pleased wiggle. Pitch to -9, roll <= 2.
+        pecks = [.35, .8, 1.25]
+        dip = max(bump((t-at+.18)/.36) for at in pecks)
+        s = [1+.04*dip, 1-.09*dip, 1+.05*dip]
+        r = [-9*dip, keyed(t, [(0, 0), (.6, -6), (1.05, 5), (1.5, 0), (d, 0)])+6*math.sin(2*math.pi*(t-1.5)/.25)*bump((t-1.5)/.5),
+             2*math.sin(2*math.pi*t/.45)*bump((t-1.5)/.5)]
+        shift[1] = -.3*dip  # mostly down: a large young sits with its front at the basin wall
+    elif action == 'kid_hide_behind':
+        # Scared: a quick crouch-spring scoot toward its mother (the server moves it; boat_alarm_wait / boat_flee), then it
+        # cowers low and wide under her braid, trembling, peeking out once. Pitch <= 5, roll <= 3.
+        crouch = keyed(t, [(0, 0), (.12, 1), (.2, -.4), (.42, .8), (.6, 1.2), (d, 1.2)])
+        tremble = math.sin(2*math.pi*7*t)*smooth((t-.6)/.2)*(1-.6*bump((t-1.5)/.5))
+        s = [1+.06*max(0, crouch), 1-.13*max(0, crouch)+.08*max(0, -crouch)+.008*tremble, 1+.05*max(0, crouch)]
+        r = [-4*max(0, crouch)+3*bump((t-1.5)/.5), keyed(t, [(0, 0), (.2, -14), (.6, -10), (1.5, -10), (1.75, 6), (2.05, -10), (d, -10)]),
+             2*tremble]
+        lift = .05*height*bump((t-.2)/.22)  # the little scoot hop; the server owns the move across
     else:
         return None
     return s, r, lift, shift
@@ -194,19 +234,15 @@ def braid_rotation(action, t, c, side):
         u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         sweep = lerp(c['braid_sweep'][0], c['braid_sweep'][1], q) if power else lerp(c['braid_sweep'][1], c['braid_sweep'][0], q)
         return [sweep, 0, c['braid_out']+(c['braid_raise']*bump((u-.5)/.5) if not power else 0)]
-    if action == 'braid_cradle_lift':
-        if side < 0: return [0, 0, -(8+4*bump(t/d))]
-        # Out and down to the young in the water beside the hull, then forward-up so the scooped tuft clears the rim, and in
-        # to set it on the front-right inner rim (the braid reaches no further; the transfer walks it on to its seat).
-        # A plain swing inward would drag it through the brim.
-        return [keyed(t, [(0, 0), (.5, 10), (.8, 12), (1.3, 44), (1.8, 52), (2.0, 52), (2.4, 0)]), 0,
-                keyed(t, [(0, 0), (.5, 14), (.8, 14), (1.3, 16), (1.8, -32), (2.0, -32), (2.4, 0)])]
+    if action == 'braid_cradle_lift' and side < 0:
+        return [0, 0, -(8+4*bump(t/d))]  # the braid itself follows the clip's braid_path
     if action == 'be_cradled':
         return [0, 0, side*(14+3*math.sin(2*math.pi*t/d))]  # limp locks hanging off the scoop
     if action == 'mouth_bite_hold':
         u = (t % (d/2))/(d/2); tug = smooth(u/.3) if u < .3 else 1-smooth((u-.3)/.7); return [-5*tug, 0, side*(8+10*tug)]
     if action == 'boat_thrown':
-        flail = math.sin(2*math.pi*t/.42)*(1-smooth((t-.8)/.3)); return [-20*flail*side, side*6, side*(30+22*abs(flail))]
+        # flung up and out, high over the brim while she spins
+        flail = math.sin(2*math.pi*t/.42)*(1-smooth((t-.8)/.3)); return [-20*flail*side, side*6, side*(64+14*abs(flail))]
     if action == 'water_hat_climb':
         if side < 0: return [0, 0, -(10+6*bump((t-.85)/.9))]
         # Forward and up over the brim, then hold the hook while the body pulls.
@@ -226,9 +262,6 @@ def braid_rotation(action, t, c, side):
 def tip_rotation(action, t, c):
     """Rotation of the braid tuft (hand_right_tip) for the curl, hook and push; paddle clips aim it along the stick instead."""
     if action in AUTHORED: t = t*AUTHORED[action]/c['duration']
-    if action == 'braid_cradle_lift':
-        curl = keyed(t, [(0, 0), (.5, .3), (.8, .5), (1.05, 1), (2.0, 1), (2.3, 0)])
-        return [-48*curl, 0, 62*curl]  # rolls up toward the body into a scoop
     if action == 'boat_jettison':
         flat = keyed(t, [(0, 0), (.3, 1), (.6, 1), (1.0, 0)]); return [-30*flat, 0, 0]
     if action == 'water_hat_climb':
@@ -236,6 +269,42 @@ def tip_rotation(action, t, c):
     if action == 'water_hat_right':
         flat = keyed(t, [(0, 0), (.9, 0), (1.1, 1), (1.6, 1), (2.0, 0)]); return [-35*flat, 0, 0]  # open tuft pressing like a palm
     return None
+
+
+# ---- braid tip paths ---------------------------------------------------------------------------------------------------
+
+def path_target(t, c):
+    """The braid_path tuft-end target at t (model units in the clip's seat frame): keys [t, x, y, z], or [t, 'rest'] for
+    the shared boat_braid rest tuck, eased between."""
+    keys = [(k[0], np.array(BOAT_BRAID['rest'] if k[1] == 'rest' else k[1:4], float)) for k in c['braid_path']]
+    return keyed(t, keys)
+
+
+def path_tracks(model, action, samples, tracks, c):
+    """Rotation tracks of every braid chain bone that lay the tuft's end (its farthest vertex from the root, as the
+    cradle's reach_clip) on the clip's braid_path, bent as the game bends it (braid_chain.arc). The target turns with the
+    body's yaw about the root pivot and moves with its x/z shift, so a tuck stays where she sits; height is the seat's.
+    The tuft keeps the clip's own tip_rotation (curl, hook) on top."""
+    bones = model['bones']; names = {b['name']: i for i, b in enumerate(bones)}; chain = braid_chain.chain(names)
+    V = np.array(model['vertices']).reshape(-1, 8)[:, :3]
+    tuft = np.concatenate([V[p['start']:p['start']+p['count']] for p in model['parts'] if p['name'].startswith('braid_lock_tuft')])
+    top = np.array(bones[chain[0]]['pivot'], float); end = tuft[np.argmax(np.linalg.norm(tuft-top, axis=1))]
+    rest = np.array([bones[i]['pivot'] for i in chain]+[end.tolist()], float)
+    body = names['root']; pivot = np.array(bones[body]['pivot'], float)
+    own = {tr['channel']: tr['keys'] for tr in tracks if tr['bone'] == body}
+    rows, last = {i: [] for i in chain}, {}
+    for t in samples:
+        yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
+        shift = sample(own['position'], t) if 'position' in own else [0., 0., 0.]
+        x, y, z = path_target(t, c); flat = euler([0, yaw, 0])@(np.array([x, 0., z])-[pivot[0], 0., pivot[2]])
+        world = np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
+        M = palette(model, tracks, t); local = (np.linalg.inv(M[bones[chain[0]]['parent']])@np.r_[world, 1])[:3]
+        solved = braid_chain.rotations(rest, braid_chain.arc(rest, local))
+        curl = tip_rotation(action, t, c)
+        if curl is not None: solved[-1] = solved[-1]@euler(curl)
+        for i, R in zip(chain, solved):
+            last[i] = braid_chain.to_euler(R, last.get(i)); rows[i].append([round(t, 8), *[round(v, 5) for v in last[i]]])
+    return [{'bone': i, 'channel': 'rotation', 'keys': rows[i]} for i in chain]
 
 
 # ---- skeleton -----------------------------------------------------------------------------------------------------------
@@ -434,7 +503,9 @@ def extras(model, action, samples, tracks, c):
         more += braid; fields['props'] = {'paddle': prop}
         fields.setdefault('markers', {})
         hull_gate(model, action, samples, tracks+braid, sticks, c)
-    rotation = None if action in PADDLE_CLIPS else [tip_rotation(action, t, c) for t in samples]
+    if 'braid_path' in c and braid_chain.chain(names):
+        more += path_tracks(model, action, samples, tracks, c)
+    rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:
         more.append({'bone': names['hand_right_tip'], 'channel': 'rotation',
                      'keys': [[round(t, 8), *[round(v, 5) for v in row]] for t, row in zip(samples, rotation)]})
@@ -444,7 +515,7 @@ def extras(model, action, samples, tracks, c):
 def braid_tracks(model, action, samples, c):
     names = {b['name']: i for i, b in enumerate(model['bones'])}; out = []
     for bone, side in (('hand_right', 1), ('hand_left', -1)):
-        if bone not in names: continue
+        if bone not in names or (side > 0 and 'braid_path' in c and braid_chain.chain(names)): continue
         rows = [braid_rotation(action, t, c, side) for t in samples]
         if rows[0] is None: continue
         out.append({'bone': names[bone], 'channel': 'rotation', 'keys': [[round(t, 8), *[round(v, 5) for v in row]] for t, row in zip(samples, rows)]})
