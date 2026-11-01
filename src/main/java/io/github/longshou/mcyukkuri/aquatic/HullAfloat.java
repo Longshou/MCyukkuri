@@ -479,6 +479,7 @@ public final class HullAfloat implements PlacedHatBehavior {
     // ---------------------------------------------------------------- what the base asks
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }
+    @Override public int stock(PlacedHatEntity hat, ItemStack food, int count) { return larder.stock(hat, food, count); }
     @Override public List<Disc> obstacles(PlacedHatEntity hat) { return larder.discs(hat); }
     @Override public double load(PlacedHatEntity hat) { return larder.load(); }
     /** Taken back, beached or destroyed: the food falls out where it lies, moving with the hull. */

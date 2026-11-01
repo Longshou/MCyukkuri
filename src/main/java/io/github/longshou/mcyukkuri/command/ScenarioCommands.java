@@ -206,7 +206,7 @@ public final class ScenarioCommands {
                                 .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false, false))
                                         .then(Commands.argument("crew", EntityArgument.entities())
                                                 .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), 0, false, false))
-                                                .then(Commands.argument("food", IntegerArgumentType.integer(0, 96))
+                                                .then(Commands.argument("food", IntegerArgumentType.integer(-1, 64))
                                                         .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), IntegerArgumentType.getInteger(c, "food"), false, false))
                                                         .then(Commands.literal("middle").executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"),
                                                                 IntegerArgumentType.getInteger(c, "food"), true, false)))

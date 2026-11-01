@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
@@ -125,17 +126,25 @@ public final class HullLarder {
         if (!stack.is(YukkuriEntity.FOOD)) return false;
         if (hat.level().isClientSide) return true;
         int want = by == null ? stack.getCount() : Math.min(stack.getCount(), by.isSecondaryUseActive() ? HANDFUL : 1);
+        int taken = store(hat, stack, want, by);
+        if (by == null || !by.getAbilities().instabuild) stack.shrink(taken);
+        return true;
+    }
+
+    /** Initial scene stock: -1 fills the actual free floor; only accepted portions become real items. */
+    int stock(PlacedHatEntity hat, ItemStack food, int count) { return store(hat, food, count, null); }
+
+    private int store(PlacedHatEntity hat, ItemStack stack, int want, Player by) {
         int before = portions.size(), taken = 0;
         var item = stack.getItem();
         String stop = null;
-        while (taken < want && stop == null) {
+        while ((want == -1 || taken < want) && stop == null) {
             stop = hat.upsideDown() ? "upside_down" : newKind(stack) && kinds() >= KINDS ? "kinds" : null;
             var spot = stop == null ? spot(hat) : null;
             if (stop == null && spot == null) stop = "no_room";
-            if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x, spot.y, spot.z)); taken++; changes++; }
+            if (stop == null) { portions.add(new Portion(stack.copyWithCount(1), spot.x(), spot.bottom(), spot.z())); taken++; changes++; }
         }
         if (taken > 0) {
-            if (by == null || !by.getAbilities().instabuild) stack.shrink(taken);
             dirty = true;
             GameplayLog.event(hat, "hat", "stored by={} item={} taken={} asked={} portions={} -> {} kinds={} load={} stop={}",
                     by == null ? "scenario" : by.getUUID(), item, taken, want, before, portions.size(), kinds(), fmt(load()),
@@ -152,7 +161,7 @@ public final class HullLarder {
                     case "upside_down" -> "帽子倒扣着，放不进粮";
                     default -> "帽底没有空位放这份粮";
                 }), true);
-        return true;
+        return taken;
     }
 
     /** One portion a body aboard brings in (forage): the same floor and kinds rules as a click, the refusal logged with its reason. */
@@ -164,7 +173,7 @@ public final class HullLarder {
             GameplayLog.limited(hat, "hat", "refused." + stop, 20, "refused by={} item={} reason={} portions={}", by.getUUID(), one.getItem(), stop, portions.size());
             return false;
         }
-        portions.add(new Portion(one.copyWithCount(1), spot.x, spot.y, spot.z));
+        portions.add(new Portion(one.copyWithCount(1), spot.x(), spot.bottom(), spot.z()));
         dirty = true;
         changes++;
         GameplayLog.event(hat, "hat", "stored by={} item={} taken=1 portions={} kinds={} load={}", by.getUUID(), one.getItem(), portions.size(), kinds(), fmt(load()));
@@ -246,20 +255,30 @@ public final class HullLarder {
      * and portion at its height (under a body standing higher over the hollow is free), as far from the middle as it goes
      * (against the hat's wall), the two sides in turn.
      */
-    private Vec3 spot(PlacedHatEntity hat) {
-        double r = RADIUS / hat.unit(), tall = HEIGHT / hat.unit(), top = hat.profile().top(), best = -1;
-        float[] o = hat.profile().opening();
-        int side = portions.size() % 2 == 0 ? 1 : -1;
-        Vec3 out = null;
-        for (double x = o[0] + r; x <= o[1] - r; x += LATTICE)
-            for (double z = o[2] + r; z <= o[3] - r; z += LATTICE) {
-                var floor = hat.support(new Vec3(x, 0, z), RADIUS);
-                if (floor.isEmpty() || floor.getAsDouble() >= top - 1e-6
-                        || !hat.clear(new Disc(x, z, r, floor.getAsDouble(), floor.getAsDouble() + tall), null)) continue;
-                double score = (x * side > 0 ? 1000 : 0) + Math.hypot(x, z);
-                if (score > best) { best = score; out = new Vec3(x, floor.getAsDouble(), z); }
-            }
-        return out;
+    private Disc spot(PlacedHatEntity hat) {
+        return Floor.spot(hat.profile(), RADIUS / hat.unit(), HEIGHT / hat.unit(), portions.size(), d -> hat.clear(d, null));
+    }
+
+    /** Pure spot selection on an upright hull; the caller supplies the actual occupants, in hat units. */
+    public static final class Floor {
+        private Floor() {}
+
+        public static Disc spot(HullProfile hull, double r, double tall, int count, Predicate<Disc> clear) {
+            double best = -1;
+            float[] o = hull.opening();
+            int side = count % 2 == 0 ? 1 : -1;
+            Disc out = null;
+            for (double x = o[0] + r; x <= o[1] - r; x += LATTICE)
+                for (double z = o[2] + r; z <= o[3] - r; z += LATTICE) {
+                    double floor = hull.footprint(x, z, r);
+                    if (!Double.isFinite(floor) || floor >= hull.top() - 1e-6) continue;
+                    var disc = new Disc(x, z, r, floor, floor + tall);
+                    if (!clear.test(disc)) continue;
+                    double score = (x * side > 0 ? 1000 : 0) + Math.hypot(x, z);
+                    if (score > best) { best = score; out = disc; }
+                }
+            return out;
+        }
     }
 
     private boolean newKind(ItemStack stack) {

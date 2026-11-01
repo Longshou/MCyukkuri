@@ -1622,7 +1622,7 @@ def water_at(dz, out):
 
 
 def afloat(owner, water, aboard=True, crew=None, food=0, middle=False, stick=False):
-    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples stored in it
+    """`scenario afloat`: the owner sets her real hat down on the surface of that water block with ``food`` apples (-1: fill the free floor)
     (and, with ``stick``, one real stick to paddle with); the crew sit at its front (or, with ``middle``, its middle) and, with
     ``aboard``, she climbs in last into its middle. A stick needs a crew argument (the owner's own selector when she is alone)."""
     tail = f' {food}' + (' middle' if middle else ' stick' if stick else '') if food or middle or stick else ''
@@ -1897,15 +1897,21 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
                     r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=1', *_WATER_ESCAPE])}))
 
 pond('rescue_infant_full', '满粮帽子·腾位救赤油', '满粮救援',
-     '亲油的帽腔里堆满了粮（粮在她坐进帽子之后才放进去，避开她的脚下，开场不挤动、不翻船），帽底没有空位，帽里有木棍；岸边的赤油被推下水（只有它落水）。亲油接受救援后先划近，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），再用嘴或辫梢把赤油提出水面放进帽腔。被提着的赤油随帽子晃动，不抽动',
+     '亲油坐进帽子后，粮按实际帽底空位铺满，放不下的停止补入（日志记录份数与 no_room）；粮和乘员照常碰撞、挤动，帽里有木棍。岸边的赤油被推下水（只有它落水）。亲油接受救援后，把最不值钱的一份粮从帽边推下水腾出位置（真实损失，粮漂在水上，之后还可能被捞回），划近并用嘴或辫梢把赤油提出水面放进帽腔；够不到或能力不足仍会失败',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_infant_full', 'a'), **pair_ready()),
       _aquatic_young('rescue_infant_full', 'k1', bank_dx(1), 1, 'baby', 'a'),
-      afloat('a', water_at(0, 3), True, sel('a'), food=96, stick=True)],
+      afloat('a', water_at(0, 3), True, sel('a'), food=-1, stick=True)],
      late=[shoved('k1')],
      note=_INCIDENT_NOTE + '接受后：[intent] start id=rescue → [action] start id=pick（一份粮）→ [aquatic] rescue made_room item= dropped= → [hat] portion taken → '
           '[action] start id=grab reach=mouth|braid → [action] start id=release → 赤油 [body] mount … → [aquatic] rescue end result=DONE。读 hat.draft 的 portions 对照前后。' + _DESIRE_NOTE,
-     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')])
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* stored by=scenario [^\n]*taken=[1-9]\d* asked=-1[^\n]*stop=no_room\b',
+                                   r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
+                                   r'\[incident\][^\n]* open id=water#',
+                                   r'\[aquatic\][^\n]* rescue made_room item=|\[aquatic\][^\n]* rescue end result=EXHAUSTED [^\n]*reason=[A-Z_]+[^\n]*detail=\S'
+                                   r'|\[incident\][^\n]* decide id=water#[^\n]*accepted=false'],
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
@@ -1949,9 +1955,11 @@ boat_birth('birth_boat_caught', '帽船分娩·落进帽腔', '船上分娩',
                           r'\[hat\][^\n]* capsized cause=load[^\n]*form=turned_land_hat[^\n]*thrown=[1-9]', *_WATER_ESCAPE])}))
 boat_birth('birth_boat_missed', '帽船分娩·帽腔满了落水', '船上漏接',
            '同一对双亲，但母油的帽腔已经堆满了粮，帽底没有给新生儿的空处：她等过安全出口的期限后从任意通畅的出口生产，孩子被推过帽檐多半落进水里，建立落水事件；父油（临产时已划到她船边）或产后的母油各自决定一次救不救，救起放进自己的帽腔，没救起就溺亡、父母哀悼。孩子也可能刚好落在帽檐上',
-           96, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
+           -1, '日志：birth delivery waiting reason=turning_to_exit → [choreo] … next=exit_any → birth landed … outcome=WATER → 新生儿 [incident] open → '
                '父油 [incident] decide … → [intent] start id=rescue → [action] start id=grab → [aquatic] rescue end。' + _INCIDENT_NOTE + _DESIRE_NOTE,
-           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
+           smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START,
+                                         r'\[hat\][^\n]* stored by=scenario [^\n]*taken=[1-9]\d* asked=-1[^\n]*stop=no_room\b',
+                                         r'\[choreo\][^\n]* beat id=live_birth[^\n]*next=exit_any\b',
                                          r'\[family\][^\n]* birth delivery stage=exit_wait [^\n]*rejection=\w+ [^\n]*delivery=0 phase=before_emergence\b',
                                          r'\[family\][^\n]* birth delivery stage=release [^\n]*unprotected=true\b',
                                          r'\[family\][^\n]* birth landed [^\n]*outcome=(?:WATER|HAT)\b'],

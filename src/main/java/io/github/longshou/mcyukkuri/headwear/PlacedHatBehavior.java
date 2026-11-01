@@ -34,6 +34,9 @@ public interface PlacedHatBehavior {
      *  something this hat stores, taken from the stack or refused with its real reason; false leaves the click to the shake. */
     default boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return false; }
 
+    /** Scene starting stock, returning the real count placed: -1 fills the free floor until refused. */
+    default int stock(PlacedHatEntity hat, ItemStack food, int count) { return 0; }
+
     /** What lies on the hollow's floor besides riders, as circles (hat units) no foot may overlap; they never move. */
     default List<Disc> obstacles(PlacedHatEntity hat) { return List.of(); }
 

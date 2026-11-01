@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import io.github.longshou.mcyukkuri.aquatic.HullLarder;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import java.util.ArrayList;
 import java.util.List;
@@ -173,22 +174,12 @@ class HullProfileTest {
         var hull=HullProfile.of(HullProfile.BASIN);
         double unit=.08749999850988388,r=.09/unit;
         var food=new ArrayList<Disc>();
-        // The recipe's full larder (24 portions) by its spot rule (HullLarder.spot) round the mother sitting in the middle
-        // before her belly grew: lattice points over the opening, the whole circle on floor below the brim, clear of her and
-        // the others, the farthest from the middle, the two sides in turn. In labour she stands half a block toward one end,
+        // The recipe's 24 portions through the real larder spot selector, round the slim mother. In labour she stands half a block toward one end,
         // against the portions there; her dimensions from the full-basin smoke readout.
-        float[] o=hull.opening();
         var slim=BodyFootprint.of("marisa",.8/unit,.6/unit,0);double slimY=hull.support(0,0,slim);
         for(int n=0;n<24;n++){
-            int side=n%2==0?1:-1;double best=-1;Disc pick=null;
-            for(double x=o[0]+r;x<=o[1]-r;x+=.5)for(double z=o[2]+r;z<=o[3]-r;z+=.5){
-                double floor=hull.footprint(x,z,r);
-                if(!Double.isFinite(floor)||floor>=hull.top()-1e-6)continue;
-                var disc=new Disc(x,z,r,floor,floor+.06/unit);
-                if(slim.overlaps(0,slimY,0,disc,.02)||food.stream().anyMatch(f->f.overlaps(disc,.02)))continue;
-                double score=(x*side>0?1000:0)+Math.hypot(x,z);
-                if(score>best){best=score;pick=disc;}
-            }
+            var pick=HullLarder.Floor.spot(hull,r,.06/unit,n,
+                    d->!slim.overlaps(0,slimY,0,d,.02)&&food.stream().noneMatch(f->f.overlaps(d,.02)));
             assertNotNull(pick,"floor for portion "+n);food.add(pick);
         }
         double max=0;
@@ -208,5 +199,25 @@ class HullProfileTest {
             }
         }
         assertTrue(max>.02,"initial real displacement still exceeds the delivery hold threshold");
+    }
+
+    @Test void packedBasinUsesTheRealLarderRuleAndRefusesTheNextPortion() {
+        var hull=HullProfile.of(HullProfile.BASIN);double unit=.08749999850988388;
+        var food=packedBasin(hull,unit);
+        assertEquals(78,food.size(),"the full-hold scenes require the measured oval capacity");
+        assertNull(larderSpot(hull,unit,food),"no_room after the last real portion");
+    }
+
+    static List<Disc> packedBasin(HullProfile hull,double unit) {
+        var food=new ArrayList<Disc>();
+        for(Disc next;(next=larderSpot(hull,unit,food))!=null;)food.add(next);
+        return food;
+    }
+
+    private static Disc larderSpot(HullProfile hull,double unit,List<Disc> food) {
+        var slim=BodyFootprint.of("marisa",.8/unit,.6/unit,0);double y=hull.support(0,0,slim);
+        double radius=GeometryJson.read("yukkuri_presentation/hat_vessel.json").number("afloat.portion_radius")/unit;
+        return HullLarder.Floor.spot(hull,radius,HullLarder.HEIGHT/unit,food.size(),
+                d->!slim.overlaps(0,y,0,d,.02)&&food.stream().noneMatch(f->f.overlaps(d,.02)));
     }
 }
