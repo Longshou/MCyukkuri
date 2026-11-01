@@ -12,7 +12,9 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
@@ -34,7 +36,8 @@ import net.minecraft.world.phys.Vec3;
  * one picked up nearby) she walks to a bank edge beside calm water with room for the hull, sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
  * {@code board_parent} desire. She boards first, then braid-fetches dependent young from beside the boat into their seats.
- * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out.
+ * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. The hat is set
+ * down at a dry stand with her own hop reach to the planned captain seat and braid reach from there to every dependent young.
  */
 final class SetOut implements Intent {
     /** The whole setting out (ticks), and the longest call for the young to come aboard. */
@@ -97,10 +100,13 @@ final class SetOut implements Intent {
             var stick = Waters.stick(owner, 10, true);
             if (stick != null && sticks.add(stick.getUUID())) return fetch(stick);
         }
-        if (!AquaticLife.aboard(owner, hat)) return List.of(() -> new Step.Sub(new Launch(owner, deadline())));
+        if (!AquaticLife.aboard(owner, hat)) {
+            var fetch = dependentAshore(hat);
+            return List.of(() -> new Step.Sub(new Launch(owner, deadline(), fetch)));
+        }
         if (!AquaticLife.afloat(hat)) return null;
         var dependent = dependentAshore(hat);
-        if (dependent != null) return Ferry.fetchAboard(owner, hat, dependent);
+        if (!dependent.isEmpty()) return Ferry.fetchAboard(owner, hat, dependent.getFirst());
         // a second call means the first went unanswered: those not aboard by now stay
         if (calls++ > 0) for (var y : AquaticLife.young(owner))
             if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");
@@ -108,7 +114,7 @@ final class SetOut implements Intent {
     }
 
     /** Launch and sit only; the parent runner consumes this result before rescue or family boarding continues. */
-    record Launch(YukkuriEntity owner, long deadline) implements Intent {
+    record Launch(YukkuriEntity owner, long deadline, List<YukkuriEntity> fetch) implements Intent {
         @Override public String id() { return "launch"; }
         @Override public Commitment commitment() { return Commitment.HARD; }
         @Override public boolean satisfied() {
@@ -118,15 +124,16 @@ final class SetOut implements Intent {
         @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
         private List<Supplier<Step>> derive() {
             var hat = AquaticLife.hat(owner);
-            if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, new Ferry.Beckoning()) : null;
-            var edge = Waters.berth(owner);
+            if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, null) : null;
+            var edge = Waters.berth(owner, fetch);
             if (edge == null) {
-                GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_roomy_bank_edge at={}", GameplayLog.at(owner.position()));
-                return null;
+                GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_and_braid_reach wards={} at={}",
+                        fetch.size(), GameplayLog.at(owner.position()));
+                return List.of(() -> new Step.Do(new Await(() -> false, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL)));
             }
             GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
-            var stand = Waters.launchStand(edge, owner);
-            return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
+            var stand = edge.stand(owner.getBbWidth());
+            return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
                     () -> new Step.Do(new Face(edge.yaw())),
                     // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
                     () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
@@ -144,11 +151,9 @@ final class SetOut implements Intent {
     }
 
     /** Her nearest young ashore that cannot get aboard by itself: it cannot hop, or its own hop aboard just failed. */
-    private YukkuriEntity dependentAshore(PlacedHatEntity hat) {
-        for (var y : AquaticLife.young(owner))
-            if ((!AquaticLife.jumper(y) || Drive.failed(y, "board_parent")) && AquaticLife.ashore(y) && staying(y) == null
-                    && !AquaticLife.aboard(y, hat)) return y;
-        return null;
+    private List<YukkuriEntity> dependentAshore(PlacedHatEntity hat) {
+        return AquaticLife.young(owner).stream().filter(y -> (!AquaticLife.jumper(y) || Drive.failed(y, "board_parent"))
+                && AquaticLife.ashore(y) && staying(y) == null && !AquaticLife.aboard(y, hat)).toList();
     }
 
 }

@@ -2,7 +2,9 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import java.util.List;
+import net.minecraft.world.phys.Vec3;
 
 /** Stateless admission into actual rider coordinates. Bounds are measured at captain growth one. */
 public final class HatSeats {
@@ -21,6 +23,13 @@ public final class HatSeats {
             .map(v -> v.getAsJsonArray()).map(v -> new Vec(v.get(0).getAsDouble(), v.get(1).getAsDouble(), v.get(2).getAsDouble())).toList();
 
     private HatSeats() {}
+
+    /** The captain seat's world position on a planned hull at {@code origin}, with its blocks-per-unit and placement yaw. */
+    public static Vec3 captain(Vec3 origin, double unit, float yaw) {
+        var at = scaled(CAPTAIN, unit * 16 / HullBounds.SCALE);
+        var frame = new HostFrame(origin, unit, (float) Math.toRadians(180 - yaw), 0, 0);
+        return frame.toWorld(new Vec3(at.x(), at.y(), at.z()).scale(1 / unit));
+    }
 
     /** Existing riders retain their coordinates; only an arriving body gets a target. Null means no seat. */
     public static Vec admit(double scale, Body body, boolean captain, List<Occupant> riders) {

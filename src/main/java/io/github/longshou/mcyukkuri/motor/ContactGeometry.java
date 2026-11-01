@@ -128,6 +128,11 @@ public final class ContactGeometry {
 
     private static double braidLength(YukkuriEntity body) { return braidLength() * body.growthScale() * body.getScale() / 16; }
 
+    /** The braid gap from a planned body position to the target's actual envelope, upright or in the low lean. */
+    public static double braidGap(YukkuriEntity body, Vec3 at, Entity target) {
+        return Math.min(braidGap(body, at, target, false, true), braidGap(body, at, target, true, true));
+    }
+
     /** Whether the mouth or the braid would reach {@code target} from a planned stand {@code at} (the grab checks sight itself). */
     public static boolean reachesFrom(YukkuriEntity body, Vec3 at, Entity target) {
         double gap = Math.hypot(target.getX() - at.x, target.getZ() - at.z) - (body.getBbWidth() + target.getBbWidth()) / 2;

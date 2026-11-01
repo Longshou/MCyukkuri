@@ -49,7 +49,7 @@ final class Rescue implements Intent {
     private List<Supplier<Step>> derive() {
         var hat = AquaticLife.hat(helper);
         if (!AquaticLife.aboard(helper, hat)) return hat == null && !helper.life().custody().worn() ? null
-                : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
+                : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline(), List.of())));
         return Ferry.fetchAboard(helper, hat, faller);
     }
 

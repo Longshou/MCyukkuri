@@ -61,12 +61,15 @@ final class Ferry {
     static final class Beckoning {
         private Beckon tried;
 
-        /** The beckon step, or null when it does not apply or this run's last one failed. */
-        Step step(YukkuriEntity body, PlacedHatEntity hat) {
-            if (failed() || PlacedHatEntity.find(body) != hat || !AquaticLife.afloat(hat) || !AquaticLife.ashore(body)
-                    || hat.position().subtract(body.position()).horizontalDistance() > Beckon.REACH) return null;
-            return act(tried = new Beckon(hat));
+        /** Whether a beckoning applies now: not failed this run, her own hat afloat within a stroke's reach and not already moored. */
+        boolean applies(YukkuriEntity body, PlacedHatEntity hat) {
+            return !failed() && PlacedHatEntity.find(body) == hat && AquaticLife.afloat(hat) && AquaticLife.ashore(body)
+                    && hat.position().subtract(body.position()).horizontalDistance() <= Beckon.REACH
+                    && new Beckon(hat).check(body).reason() != Reason.NO_PROGRESS;
         }
+
+        /** The beckon step, or null when it does not apply or this run's last one failed. */
+        Step step(YukkuriEntity body, PlacedHatEntity hat) { return applies(body, hat) ? act(tried = new Beckon(hat)) : null; }
 
         boolean failed() { return tried != null && !tried.drawn(); }
     }

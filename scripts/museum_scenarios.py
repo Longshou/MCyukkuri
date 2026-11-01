@@ -1936,7 +1936,10 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
       yk('marisa', bank_dx(3), 3, 'aqua_owner', aquatic=True, yaw=-90, label='水生·放下', **pair_ready()),
       afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False)],
      note='两顶空帽相距 6 格，各在岸边 3 格外。可空手右击水生空帽摇晃至翻覆，对照倒扣后的大小。水生放帽者想找回漂在外面的帽子（resolve_own_hat）：够不着就等它漂近，仍不行就下水游过去爬进去；陆地魔理沙没有这个欲望。',
-     reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')])
+     reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=1800, expect=[r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
+                                   r'\[action\][^\n]* start id=(?:right|take_prop)\b[\s\S]*\[headwear\][^\n]* reclaim done\b'],
+                forbid=[r'\[body\][^\n]* invariant\b']))
 
 
 # ---- daily life on the water (refactor WP6a): one aquatic goal runs one drive over real desires; no scene names a goal or an intent.
@@ -1995,7 +1998,9 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                                    r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
                                    r'\[family\][^\n]* carry grip [^\n]*hold=braid',
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
+                        r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
+                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
 
 pond('kid_boat_play', '子油在亲船上玩耍', '拍水·学划·拨粮·躲辫',
      '亲油与一只小子油已坐在静水帽船里，帽里有一根木棍、四份苹果。玩家从岸边看子油学亲油划水、拨弄储粮，或跳上帽檐拍水后回座；空手右击孩子看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得孩子躲到亲油辫子旁，平静后回座；孩子在帽檐上时把船摇到剧烈摇摆，会真实落水',

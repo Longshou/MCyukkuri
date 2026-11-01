@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -61,7 +62,6 @@ public final class Beckon implements Action {
         if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
         if (!(Attach.of(body) instanceof AttachState.Free free) || free.inWater() || !body.onGround()) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_ashore");
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
-        if (host.capsized()) return Feasibility.of(Reason.NO_SUPPORT, 0, "capsized");
         double far = host.entity().position().subtract(body.position()).horizontalDistance() - REACH;
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
         water = water(body);
@@ -73,7 +73,7 @@ public final class Beckon implements Action {
 
     /** The water's surface just past the body's front, where the braid strokes; null when no water lies there. */
     private static Vec3 water(YukkuriEntity body) {
-        double yaw = Math.toRadians(body.getYRot()), out = body.getBbWidth() / 2 + AHEAD;
+        double yaw = Math.toRadians(body.getYRot()), out = body.getBbWidth() * Mth.SQRT_OF_TWO / 2 + AHEAD;
         double x = body.getX() - Math.sin(yaw) * out, z = body.getZ() + Math.cos(yaw) * out;
         var level = body.level();
         for (int dy = 0; dy >= -1; dy--) {

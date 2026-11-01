@@ -3,9 +3,12 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.headwear.HatSeats;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
@@ -163,18 +166,23 @@ final class Waters {
         return out;
     }
 
-    /** The nearest roomy bank edge {@code body} can walk to, to set a hat down from (SetOut), where no other hat already floats on
-     *  the water the hat would take, or null. */
-    static Edge berth(YukkuriEntity body) {
-        return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth()), () -> findBerth(body));
+    /** The nearest roomy bank edge {@code body} can walk to, place a hat from and hop to its planned captain seat, with every
+     *  fetched ward within that seat's braid reach and no other hat over the hull, or null. */
+    static Edge berth(YukkuriEntity body, List<YukkuriEntity> wards) {
+        var cells = wards.stream().map(y -> List.of(y.getUUID(), y.blockPosition())).toList();
+        return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth(), cells), () -> findBerth(body, wards));
     }
 
-    private static Edge findBerth(YukkuriEntity body) {
+    private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards) {
         int asked = 0;
         for (var e : edges(body, body.position(), 8, true)) {
-            if (hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) continue;
+            var at = hatAt(e, body);
+            if (hatOver(body, at, HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) continue;
             if (asked++ >= ASKED) break;
-            if (SurfaceApproach.canApproach(body, launchStand(e, body))) return e;
+            var stand = e.stand(body.getBbWidth());
+            if (!SurfaceApproach.canApproach(body, stand)) continue;
+            var captain = HatSeats.captain(at, HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
+            if (Hop.reaches(body, stand, captain) && wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0)) return e;
         }
         return null;
     }
@@ -340,15 +348,6 @@ final class Waters {
     /** The hull's collision box clears the bank while its brim reaches over the edge. */
     static Vec3 hatAt(Edge edge, YukkuriEntity owner) {
         return edge.onWater(ModEntities.PLACED_HAT.get().getWidth() * HatScale.of(owner) / 2 + .05);
-    }
-
-    /** Place from dry ground clear of the deployed brim, so crouching to board does not push the empty hull away. */
-    static Vec3 launchStand(Edge edge, YukkuriEntity owner) {
-        var at = hatAt(edge, owner);
-        var stand = edge.stand(owner.getBbWidth());
-        var pose = new HatGeometry.Pose(at, edge.yaw() + 90, HatGeometry.Role.SELF, HatGeometry.wornForm(owner));
-        var clear = HatGeometry.outside(pose, HatGeometry.unit(owner), owner, stand, stand.subtract(at).horizontalDistance());
-        return new Vec3(clear.x, stand.y, clear.z);
     }
 
     static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {

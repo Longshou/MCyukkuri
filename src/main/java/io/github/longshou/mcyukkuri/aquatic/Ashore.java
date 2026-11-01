@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -48,8 +49,8 @@ import net.minecraft.world.phys.Vec3;
 final class Ashore implements Intent {
     /** The whole landing; the whole reclaim; the longest wait for young to hop off or for the hat to drift into reach (ticks). */
     private static final int COME = 2400, RECLAIM = 1600, WAIT = 300;
-    /** Route-leg arrival distance; extra reach beyond the brim when reclaiming from the bank. */
-    private static final double ARRIVE = .6, OUT_OF_REACH = .6;
+    /** Route-leg arrival distance. */
+    private static final double ARRIVE = .6;
 
     private final YukkuriEntity owner;
     private final boolean reclaim;
@@ -104,10 +105,10 @@ final class Ashore implements Intent {
         }
         if (!AquaticLife.ashore(owner)) return null;
         if (held != null) return List.of(() -> new Step.Do(new Release(held)));
-        if (hat.upsideDown()) return fromBank(hat, () -> new Step.Do(new Right(hat, "reclaim")), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
+        if (hat.upsideDown()) return fromBank(hat, () -> new Right(hat, "reclaim"), () -> new Step.Wait(hat::steady, 60, "hat_settles"));
         if (AquaticLife.afloat(hat) && dependentAboard(hat) != null) return Ferry.hopAboard(owner, hat, beckoning);
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
-        return fromBank(hat, () -> new Step.Do(new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat)))));
+        return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
     }
 
     /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water; with no stick, drift until one is. */
@@ -125,38 +126,40 @@ final class Ashore implements Intent {
         return List.of(() -> new Step.Do(new Paddle(edge::edge, distance -> Waters.ashore(owner) != null)));
     }
 
-    /** From the bank edge nearest the hat: walk there, face the hat, then the closing steps; afloat out of reach from there, it is
-     *  drawn in to the bank with the braid first (Beckon); too far for that, or with no edge near it, she waits for drift. */
+    /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).
+     *  Afloat and not yet in its grip, the hat is drawn in to the bank with the braid first (Beckon); too far for that, or with no
+     *  edge near it, she waits for it to drift in (the player's nudge too) and says why once. */
     @SafeVarargs
-    private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Step>... then) {
+    private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Action> close, Supplier<Step>... after) {
         var edge = Waters.beside(hat, owner);
-        if (edge == null && !AquaticLife.afloat(hat) && !hat.upsideDown()) return beached(hat, then);
-        Supplier<Step> drift = () -> new Step.Wait(() -> { var e = Waters.beside(hat, owner); return e != null && near(hat, e); }, WAIT, Behaviors.BOAT_CALL);
-        if (edge == null || !near(hat, edge) && !AquaticLife.afloat(hat)) return List.of(drift);
+        if (edge == null && !AquaticLife.afloat(hat)) return beached(hat, close, after);
+        Supplier<Step> drift = () -> {
+            GameplayLog.limited(owner, "headwear", "reclaim.wait", WAIT, "reclaim waiting reason={} hat={} form={} distance={}", edge == null ? "no_bank_edge" : "out_of_reach",
+                    hat.getUUID(), AquaticGoal.form(hat), Math.round(hat.distanceTo(owner) * 10) / 10.0);
+            return new Step.Wait(() -> close.get().check(owner).ok() || beckoning.applies(owner, hat), WAIT, Behaviors.BOAT_CALL);
+        };
+        if (edge == null) return List.of(drift);
         var stand = edge.stand(owner.getBbWidth());
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)));
         steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
-        if (!near(hat, edge)) steps.add(() -> { var in = beckoning.step(owner, hat); return in != null ? in : drift.get(); });
-        else steps.addAll(List.of(then));
+        if (AquaticLife.afloat(hat)) steps.add(() -> close.get().check(owner).ok() ? null : beckoning.step(owner, hat));
+        steps.add(() -> close.get().check(owner).ok() || !AquaticLife.afloat(hat) ? new Step.Do(close.get()) : drift.get());
+        steps.addAll(List.of(after));
         return steps;
     }
 
-    /** Its brim reaches the bank edge or nearly: a body at the edge holds it with mouth or braid. */
-    private static boolean near(PlacedHatEntity hat, Waters.Edge edge) {
-        return hat.position().subtract(edge.edge()).horizontalDistance() <= hat.profile().brim()[1] * hat.unit() + OUT_OF_REACH;
-    }
-
-    /** A hat on dry ground: walk up beside it (the family pickup's stand) and the closing steps. */
+    /** A hat on dry ground: walk up beside it (the family pickup's stand), then the closing action. */
     @SafeVarargs
-    private List<Supplier<Step>> beached(PlacedHatEntity hat, Supplier<Step>... then) {
+    private List<Supplier<Step>> beached(PlacedHatEntity hat, Supplier<Action> close, Supplier<Step>... after) {
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> {
             var at = SurfaceApproach.beside(owner, hat, owner.getBbWidth() / 2 + .3, 1.2);
             return at == null ? null : new Step.Do(Walk.stand(at, 1));
         });
         steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
-        steps.addAll(List.of(then));
+        steps.add(() -> new Step.Do(close.get()));
+        steps.addAll(List.of(after));
         return steps;
     }
 
@@ -166,7 +169,7 @@ final class Ashore implements Intent {
         var hat = AquaticLife.hat(owner);
         if (!owner.childhood().canSail()) return Feasibility.of(Reason.NO_TOOL, 0, "cannot_sail");
         if (hat == null || hat.distanceTo(owner) > 16 || !AquaticLife.ashore(owner)) return Feasibility.of(Reason.TOO_FAR, 0, "hat_out_of_range");
-        return Waters.beside(hat, owner) != null || Waters.berth(owner) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
+        return Waters.beside(hat, owner) != null || Waters.berth(owner, List.of()) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
     }
 
     /** Walk to the bank edge toward the hat and hop out over the water at it: in the water the escape swims to her own hat. */
@@ -174,7 +177,7 @@ final class Ashore implements Intent {
         var hat = AquaticLife.hat(owner);
         if (hat == null || !AquaticLife.ashore(owner)) return null;
         var edge = Waters.beside(hat, owner);
-        if (edge == null) edge = Waters.berth(owner);
+        if (edge == null) edge = Waters.berth(owner, List.of());
         if (edge == null) return null;
         var e = edge;
         return List.of(() -> SurfaceApproach.arrived(owner, e.stand(owner.getBbWidth())) ? null : new Step.Do(Walk.stand(e.stand(owner.getBbWidth()), 1)),

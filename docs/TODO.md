@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽船缓流与碰撞连续性（反馈 6、12） | `.worktrees/fb-hull-motion` | `aquatic/HullAfloat`、`headwear/HatSurface`／`SeatSurface`／`PlacedHatEntity`、`hat_current`／`hat_push` |
-| 自救上岸与亲子出航（反馈 7、11） | `.worktrees/fb-shore` | `aquatic/Ashore`／`SetOut`／`Waters`／`Ferry`／`Beckon`、`motor/ContactGeometry` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
 | 稀有形态导出 `--check` 过期 | `.worktrees/fb-rare-forms` | 稀有形态制作源导出（`export_rare_forms.py`、rare-forms `build.py`） |
@@ -19,8 +18,9 @@
 ### 复测失败/待修复
 
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
-  - 复测失败·处理中：缓流不漂、不响应水流（`hat_current`）；碰撞后动作一卡一卡；岸上不处理水中帽子（正放或倒扣）、原地哭着 boat call、推近也不动（`self_rescue`、`shore_capsized`）；亲子出航亲油反复放帽、跳上跳下、收帽（`afloat_family`）。
+  - 复测失败·处理中：缓流不漂、不响应水流（`hat_current`）；碰撞后动作一卡一卡。
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
+  - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），无原地哭脸循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
   - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回。
   - 已接入待试玩：`carry_home`（出生与成长场地北侧，按钮“亲代运输”）。完成：跳转点露天；三家从真实大窝认窝到接起、抵达、窝内放下，无 `assignment refused` 或 `target=null` 停搜；母油营养 95。
   - 美术·排队：茎生消耗个体的美术表现接入现有营养／体力消耗；魔理沙辫子划船呈倒 U、根部单薄，改为自然下垂、末梢向外发力。

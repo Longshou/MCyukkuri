@@ -61,6 +61,13 @@ public final class Hop implements Action {
     }
     @Override public Feasibility check(YukkuriEntity body) { return solve(body).ready(); }
 
+    /** Whether the body's own ability makes one collision-clear hop from a planned stand to {@code target}. */
+    public static boolean reaches(YukkuriEntity body, Vec3 from, Vec3 target) {
+        var ability = BodyAbility.of(body);
+        return ArcSolver.lowest(vec(from), vec(target), ability.hopHeight(), ability.hopReach(), ability.scale(),
+                points -> clear(body, from, null, List.of(), points)) instanceof ArcSolver.Plan;
+    }
+
     /** Keeps only the solved local route; admission and clearance are checked again at every takeoff. */
     private Flight solve(YukkuriEntity body) {
         SeatTarget candidate = null;

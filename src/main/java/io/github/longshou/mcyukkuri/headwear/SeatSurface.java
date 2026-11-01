@@ -24,6 +24,9 @@ final class SeatSurface implements HatSurface {
                 ? OptionalDouble.of(seat.local().y) : OptionalDouble.empty();
     }
     @Override public boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) {
+        var seat = hat.seatDestination(body);
+        // HatSeats already admits fixed seats against the captain and other riders; shapedRoom is for a brim hop.
+        if (seat != null && local.subtract(seat.local()).horizontalDistance() * hat.unit() < .05) return true;
         return hat.shapedRoom(body, local, top);
     }
     @Override public boolean bears(PlacedHatEntity hat, YukkuriEntity body) {
