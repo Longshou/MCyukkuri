@@ -82,7 +82,7 @@ public final class ParentCarry {
      * {@code R} and re-lift pause {@code P}), and for a Grab's target still being lifted its entity id {@code I} and low lean
      * {@code L}; a braid-tip child's way out ({@link #braided}) adds {@code T}, {@code Y}, {@code A}, {@code PX}/{@code PY}/{@code PZ} and {@code PH}.
      * A mouth lift shares the start and height keys, with duration {@code U}; a lowering's duration is {@code N}.
-     * An admitted set-down destination uses host {@code S} and local {@code DX}/{@code DY}/{@code DZ}.
+     * An admitted set-down destination uses host {@code S} and local {@code DX}/{@code DY}/{@code DZ}; a nest's world cushion target uses {@code NX}/{@code NY}/{@code NZ}.
      * Synced, and saved with the family.
      */
     public static final SyncSlot<CompoundTag> HOLDS = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
@@ -128,10 +128,10 @@ public final class ParentCarry {
     private final Map<UUID, String> holdChoices = new HashMap<>();
     private Purpose purpose;
     private long since, arrivedAt;
-    private int homeFailures, walkFailures, setTries;
+    private int homeFailures, setTries;
     private UUID lifting, settingDown;
-    /** Where the carry's own Walk was last sent; why the retrieval gave up; why the child being set down comes down. */
-    private Vec3 walkTo;
+    /** Where the carry's own Walk was last sent and started; why the retrieval gave up; why the child being set down comes down. */
+    private Vec3 walkTo, walkFrom;
     private String giveUp, settingWhy;
     /** The set-down goal is running. */
     private boolean setting;
@@ -142,9 +142,8 @@ public final class ParentCarry {
         @Override public String ownerId() { return "family_carry"; }
         @Override public boolean active() { return lifting != null || setting || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
     };
-    /** NEST_RIM: the nest whose rim the child lay on, and the free cushion spot being walked to. */
+    /** NEST_RIM: the nest whose rim the child lay on; its baby cushion target is synced in the hold record. */
     private BlockPos rimNest;
-    private Vec3 rimSpot;
 
     ParentCarry(YukkuriEntity carrier) { this.carrier = carrier; }
 
@@ -158,6 +157,16 @@ public final class ParentCarry {
         var all = carrier.carryHolds().copy();
         if (e == null) all.remove(child.toString()); else all.put(child.toString(), e);
         carrier.syncComponentData(HOLDS, all);
+    }
+    private static Vec3 nestSpot(YukkuriView carrier, YukkuriView child) {
+        var e = entry(carrier, child.getUUID());
+        return e.contains("NX") ? new Vec3(e.getFloat("NX"), e.getFloat("NY"), e.getFloat("NZ")) : null;
+    }
+    public static Vec3 nestDestination(YukkuriView carrier, YukkuriView child) { return nestSpot(carrier, child); }
+    private static void nestSpot(YukkuriEntity carrier, YukkuriEntity child, Vec3 spot) {
+        var e = entry(carrier, child.getUUID()).copy();
+        e.putFloat("NX", (float) spot.x); e.putFloat("NY", (float) spot.y); e.putFloat("NZ", (float) spot.z);
+        write(carrier, child.getUUID(), e);
     }
     /** A Grab of this carrier starts lifting {@code child} into {@code hold}: its brim spot is chosen now, among the brim's children. */
     public static void plan(YukkuriEntity carrier, YukkuriEntity child, Hold hold, boolean lean) {
@@ -402,8 +411,7 @@ public final class ParentCarry {
         var host = destination != null ? destination.host() : Attach.of(child) instanceof AttachState.OnHost ride ? ride.host() : carryHost(carrier, child);
         var hat = host instanceof PlacedHatEntity on ? on : null;
         var from = modelAt(carrier, yaw, child.position());
-        boolean brim = hold(carrier, child) == Hold.BRIM;
-        var end = brim ? brimPoint(carrier, child, 0) : null;
+        var ontoCarrier = hold(carrier, child) == Hold.BRIM ? brimPoint(carrier, child, 0) : null;
         var e = new CompoundTag();
         e.putFloat("Y", yaw);
         e.putFloat("PX", from.x); e.putFloat("PY", from.y); e.putFloat("PZ", from.z);
@@ -413,11 +421,11 @@ public final class ParentCarry {
             e.putFloat("DX", (float) destination.local().x); e.putFloat("DY", (float) destination.local().y); e.putFloat("DZ", (float) destination.local().z);
         }
         var choice = CarryGeometry.wayOut(root.x, root.z, reach, vector(restTip()), vector(from), apart,
-                destination != null ? vector(modelAt(carrier, yaw, destination.world())) : brim ? vector(end) : null, point -> {
+                destination != null ? vector(modelAt(carrier, yaw, destination.world())) : ontoCarrier == null ? null : vector(ontoCarrier), point -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
             var at = worldAt(carrier, yaw, seat);
             if (!clear(carrier, child, at, target)) return Rejection.TERRAIN;
-            if (brim) return null;
+            if (ontoCarrier != null) return null;
             if (destination != null) return destination.available(child) ? null : Rejection.OCCUPIED;
             if (hat != null && HatGeometry.overlaps(HatGeometry.poseOf(hat), hat.unit(), at, Occupancy.foot(child.getBbWidth()))) return Rejection.HOST;
             if (!carrier.level().getEntities(child, child.getDimensions(child.getPose()).makeBoundingBox(at),
@@ -425,15 +433,16 @@ public final class ParentCarry {
             return SurfaceApproach.supportedGround(child, at) ? null : Rejection.UNSUPPORTED;
         }, (point, arc) -> {
             var seat = new Vector3f((float) point.x(), (float) point.y(), (float) point.z());
-            if (!brim) { e.putFloat("X", seat.x); e.putFloat("Z", seat.z); }
+            if (ontoCarrier == null) { e.putFloat("X", seat.x); e.putFloat("Z", seat.z); }
             e.putFloat("A", arc.floatValue());
-            return clearWay(carrier, child, yaw, host, e, from, seat, destination == null && !brim ? body : 0, s, target);
+            return clearWay(carrier, child, yaw, host, e, from, seat, ontoCarrier != null ? seat : setDown(e),
+                    destination == null && ontoCarrier == null ? body : 0, s, target);
         });
         return new Way(choice.point() == null ? null : e, choice.rejected());
     }
 
     private static boolean clearWay(YukkuriEntity carrier, YukkuriEntity child, float yaw, SurfaceHost host, CompoundTag e,
-                                    Vector3f from, Vector3f seat, double body, double s, SurfaceHost destination) {
+                                    Vector3f from, Vector3f seat, Vector3f arcEnd, double body, double s, SurfaceHost destination) {
         float high = Math.max(from.y, seat.y);
         for (int i = 0; host != null && i <= 8; i++) {
             double top = Occupancy.surfaceUnder(host, child.getBbWidth(), worldAt(carrier, yaw, swing(e, i / 8f, high, seat)).add(0, 1, 0));
@@ -444,8 +453,7 @@ public final class ParentCarry {
         boolean free = clear(carrier, child, worldAt(carrier, yaw, new Vector3f(from.x, high, from.z)), destination);
         for (int i = 1; free && i <= WAY_SAMPLES; i++) {
             float t = i / (float) WAY_SAMPLES;
-            var end = hold(carrier, child) == Hold.BRIM ? seat : setDown(e);
-            var q = sweepPoint(e, t, end);
+            var q = sweepPoint(e, t, arcEnd);
             free = Math.hypot(q.x, q.z) >= body && clear(carrier, child, worldAt(carrier, yaw, q), destination)
                     && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(from.x, Mth.lerp(t, from.y, high), from.z)), destination)
                     && clear(carrier, child, worldAt(carrier, yaw, new Vector3f(seat.x, Mth.lerp(t, high, seat.y), seat.z)), destination);
@@ -780,7 +788,7 @@ public final class ParentCarry {
         boolean travelling = child.family().familyTravelling();
         for (var id : new UUID[]{child.family().mother(), child.family().father()})
             if (id != null && level.getEntity(id) instanceof YukkuriEntity parent && parent.isAlive() && parent.family().adult()) {
-                boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH || parent.family().task() == FamilyLife.Task.CARRY;
+                boolean incoming = parent.family().task() == FamilyLife.Task.SEARCH;
                 if ((incoming || travelling && parent.settlement().familyMarching()) && child.life().canRecognize(parent)
                         && parent.life().canRecognize(child) && (parent.family().carry().capable(child) || parent.hasPassenger(child)))
                     return true;
@@ -965,8 +973,8 @@ public final class ParentCarry {
         purpose = intent == null ? Purpose.RETRIEVE : intent;
         since = carrier.level().getGameTime();
         arrivedAt = 0;
-        homeFailures = walkFailures = 0;
-        walkTo = rimSpot = null;
+        homeFailures = 0;
+        walkTo = null;
         giveUp = null;
         var rim = purpose == Purpose.NEST_RIM ? FamilyNest.rimNest(child) : null;
         rimNest = rim == null ? null : rim.getBlockPos();
@@ -1032,6 +1040,10 @@ public final class ParentCarry {
         long now = carrier.level().getGameTime();
         var ours = ours();
         if (purpose == null && !ours.isEmpty()) adopt(ours.get(0), now);
+        if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && arrivedAt == 0) {
+            arrivedAt = now;
+            GameplayLog.event(carrier, "family", "carry destination reached aboard={}", carrier.getPassengers().size());
+        }
         String hard = !carrier.isAlive() ? "carrier_died" : carrier.isOnFire() ? "carrier_burning"
                 : carrier.isPanicking() ? "carrier_panic" : carrier.operations().active() ? "operation" : null;
         if (hard != null) { carrier.motor().interrupt(hard); return; }
@@ -1065,7 +1077,7 @@ public final class ParentCarry {
         purpose = carrier.settlement().familyMarching() ? Purpose.MIGRATE : Purpose.RETRIEVE;
         since = now;
         arrivedAt = 0;
-        homeFailures = walkFailures = 0;
+        homeFailures = 0;
         walkTo = null;
         giveUp = null;
         GameplayLog.event(carrier, "family", "carry resumed hold={} purpose={} child={}", hold(carrier, child).key(), purpose, child.getUUID());
@@ -1082,10 +1094,6 @@ public final class ParentCarry {
         if (giveUp != null) return giveUp;
         if (purpose == Purpose.MIGRATE) {
             boolean landed = carrier.settlement().migrationLanded();
-            if (landed && arrivedAt == 0) {
-                arrivedAt = now;
-                GameplayLog.event(carrier, "family", "carry destination reached aboard={}", carrier.getPassengers().size());
-            }
             if (landed) {
                 // The baby inherits the home only beside the parent who holds it: put them down once the parent stands at her
                 // own bed (the census then finds them together), or the wait has run out. A child that already has the home
@@ -1104,16 +1112,18 @@ public final class ParentCarry {
         var hold = hold(carrier, child);
         var problem = holdProblem(carrier, child, hold, true);
         if (problem != null) return problem;
-        if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
+        if (now % 5 == 0 && (hold == Hold.BRIM ? !clear(carrier, child, rawSeat(carrier, child, 0)) : seat(carrier, child) == null)) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
         var home = purpose == Purpose.RETRIEVE ? child.family().carryHome() : null;
         if (home != null && carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 2.5 * 2.5) return "arrived_home";
-        if (purpose == Purpose.NEST_RIM && rimSpot != null) {
-            var floor = SurfaceApproach.restingFloor(carrier, rimSpot.add(0, .1, 0));
-            var at = floor == null ? rimSpot : floor;
-            double dx = at.x - carrier.getX(), dz = at.z - carrier.getZ(), near = dx * dx + dz * dz;
-            if (near <= .45 * .45 || near <= .9 * .9 && FamilyNest.cushions(carrier)) return "nest_rim_to_cushion";
+        if (purpose == Purpose.NEST_RIM && nestSpot(carrier, child) != null) {
+            var entrance = carrier.life().entrance(rimNest);
+            if (entrance != null) {
+                var at = Vec3.atBottomCenterOf(entrance);
+                double dx = at.x - carrier.getX(), dz = at.z - carrier.getZ(), near = dx * dx + dz * dz;
+                if (near <= .45 * .45 || near <= .9 * .9 && FamilyNest.cushions(carrier)) return "nest_rim_to_cushion";
+            }
         }
         return null;
     }
@@ -1168,6 +1178,16 @@ public final class ParentCarry {
         if (motor.current() instanceof Walk && motor.owner() == owner) return;
         settingDown = child.getUUID();
         settingWhy = reason;
+        if (purpose == Purpose.RETRIEVE && reason.equals("arrived_home")) {
+            var home = child.family().carryHome();
+            if (home != null && carrier.level().getBlockEntity(home) instanceof CareBlockEntity nest) {
+                var spot = nest.freeSpot(child);
+                if (spot == null) { giveUp = "nest_full"; return; }
+                var floor = SurfaceApproach.restingFloor(child, spot.add(0, .1, 0));
+                if (floor == null) { giveUp = "nest_full"; return; }
+                nestSpot(carrier, child, floor);
+            }
+        }
         if (motor.run(owner, new Release(child)) || motor.refusedBusy() || motor.refusal() == null) return;
         var refusal = motor.refusal();
         if (++setTries > SET_DOWN_TRIES) {
@@ -1202,7 +1222,8 @@ public final class ParentCarry {
     private boolean tickRim(YukkuriEntity child, int taskTicks) {
         var nest = rimNest != null && carrier.level().getBlockEntity(rimNest) instanceof CareBlockEntity c ? c : null;
         if (nest == null) { giveUp = "no_nest"; return false; }
-        if (rimSpot == null || taskTicks % 20 == 1) {
+        var current = nestSpot(carrier, child);
+        if (current == null || taskTicks % 20 == 1) {
             var spot = nest.freeSpot(child);
             if (spot == null) {
                 if (++homeFailures >= 3) {
@@ -1211,27 +1232,31 @@ public final class ParentCarry {
                     return false;
                 }
             } else {
-                if (rimSpot == null) GameplayLog.event(carrier, "family", "carry nest_rim target child={} nest={} spot={}", child.getUUID(), rimNest.toShortString(), spot);
-                rimSpot = spot;
+                if (current == null) GameplayLog.event(carrier, "family", "carry nest_rim target child={} nest={} spot={}", child.getUUID(), rimNest.toShortString(), spot);
+                var floor = SurfaceApproach.restingFloor(child, spot.add(0, .1, 0));
+                if (floor == null) { giveUp = "nest_full"; return false; }
+                nestSpot(carrier, child, floor);
+                current = floor;
                 homeFailures = 0;
             }
         }
         if (taskTicks > 600) { giveUp = "nest_unreachable"; return false; }
-        if (rimSpot == null) return true;
-        var floor = SurfaceApproach.restingFloor(carrier, rimSpot.add(0, .1, 0));
-        return walk(floor == null ? rimSpot : floor, taskTicks, "nest_unreachable");
+        if (current == null) return true;
+        var entrance = carrier.life().entrance(rimNest);
+        if (entrance == null) { giveUp = "nest_unreachable"; return false; }
+        var approach = Vec3.atBottomCenterOf(entrance);
+        var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
+        return walk(floor == null ? approach : floor, taskTicks, "nest_unreachable");
     }
 
-    /**
-     * The carry's Walk to {@code at} (Carry: the shared Walk, slowed by the load). A walk that ended short of the
-     * same spot, or would not start, is tried again every ten ticks; the third such try ends the carry where the child is.
-     */
+    /** The shared Walk to {@code at}; a stationary failed route is not retried unchanged, and actual movement starts a fresh attempt. */
     private boolean walk(Vec3 at, int taskTicks, String failure) {
         var motor = carrier.motor();
         boolean same = walkTo != null && at.distanceToSqr(walkTo) < .0625;
         if (same && motor.current() instanceof Walk && motor.owner() == owner) return true;
+        if (same && walkFrom != null && carrier.position().distanceToSqr(walkFrom) < .0001) { giveUp = failure; return false; }
         if (same && taskTicks % 10 != 1) return true;
-        if (same && ++walkFailures >= 3) { giveUp = failure; return false; }
+        walkFrom = carrier.position();
         walkTo = at;
         motor.run(owner, new Walk(at));
         return true;
@@ -1240,6 +1265,7 @@ public final class ParentCarry {
     /** Where this child would be let go, with its carrier facing the given yaw. */
     public static Vec3 letGoPoint(YukkuriView carrier, YukkuriView child, float yaw) {
         var e = entry(carrier, child.getUUID());
+        if (e.contains("NX")) return nestSpot(carrier, child);
         if (e.contains("DX")) return carryHost(carrier, child).frame().toWorld(new Vec3(e.getFloat("DX"), e.getFloat("DY"), e.getFloat("DZ")));
         return world(carrier, 1, ground(carrier, child, hold(carrier, child)), yaw);
     }
@@ -1311,9 +1337,9 @@ public final class ParentCarry {
         child.fallDistance = 0;
         long now = carrier.level().getGameTime();
         pauses.put(child.getUUID(), new Pause(now + (reason.equals("feeding") ? FEED_HOLD_TICKS : HOLD_TICKS), reason));
-        GameplayLog.event(carrier, "family", "carry put down reason={} hold={} cause={} purpose={} child={} at={} carriedTicks={} nutrition={} remaining={} {}",
+        GameplayLog.event(carrier, "family", "carry put down reason={} hold={} cause={} purpose={} child={} at={} carriedTicks={} nutrition={} remaining={} nest={} {}",
                 reason, hold.key(), cause, purpose, child.getUUID(), GameplayLog.at(child.position()), now - since, child.life().nutrition(),
-                carrier.getPassengers().size(), readout);
+                carrier.getPassengers().size(), FamilyNest.bedOccupancy(child, child.family().carryHome()), readout);
         if (!carrying()) {
             purpose = null;
             giveUp = null;

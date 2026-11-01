@@ -875,11 +875,14 @@ public final class FamilyLife {
             if(exploring()&&!familyTravelling()&&!entity.life().hasUrgentNeed())return false;
             if(!entity.childhood().shouldStayWithParents())return false;
             if(entity.getVehicle() instanceof YukkuriEntity)return false;
-            // A baby that cannot keep up waits for a parent who can carry it instead of crawling after the march.
-            if(ParentCarry.awaitsCarrier(entity))return false;
             var home=earlyHomeStand();
             if(home!=null) {
                 if(entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
+                return false;
+            }
+            // Only a child's follow/search waits for the incoming pickup; a child already returning to its nest keeps walking.
+            if(ParentCarry.awaitsCarrier(entity)) {
+                GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
                 return false;
             }
             target=closestParent();
@@ -890,10 +893,6 @@ public final class FamilyLife {
                 if(known!=null&&known.status==FamilyData.Status.ALIVE&&known.position!=null&&known.position.dimension().equals(level().dimension())
                         &&level().hasChunkAt(known.position.pos())&&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))>4
                         &&entity.distanceToSqr(Vec3.atBottomCenterOf(known.position.pos()))<48*48) {
-                    // A carry-dependent baby whose real parent is nearby waits for that parent's search; it cannot path to the parent's nest cell.
-                    if(ParentCarry.needsCarry(entity)&&level().getEntity(known.id) instanceof YukkuriEntity parent
-                            &&entity.distanceToSqr(parent)<12*12&&entity.life().canRecognize(parent)&&parent.life().canRecognize(entity)
-                            &&parent.family().carry().capable(entity))return false;
                     searchAt=Vec3.atBottomCenterOf(known.position.pos());task=Task.SEARCH;taskTicks=0;entity.showReaction("surprise",
                             "lost_parent",100);return true;
                 }
@@ -936,7 +935,7 @@ public final class FamilyLife {
         if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
-                .stream().filter(other->entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                .stream().filter(other->ParentCarry.needsCarry(entity)||entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
     private YukkuriEntity migrationEscort() {
@@ -1050,14 +1049,17 @@ public final class FamilyLife {
         if(task==Task.FETCH_HAT)return choreHat!=null&&!choreHat.isRemoved()&&choreHat.catches()&&taskTicks<2400&&Conductor.roleOf(entity)==null;
         if(task==Task.COMFORT)return comfortTicks>0;
         if(task==Task.BROOD)return taskTicks<240&&!birth.active();
-        if((task==Task.STAY_HOME||task==Task.FOLLOW||task==Task.SEARCH)&&ParentCarry.awaitsCarrier(entity))return false;
+        if((task==Task.FOLLOW||task==Task.SEARCH)&&ParentCarry.awaitsCarrier(entity)) {
+            GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
+            return false;
+        }
         if(task==Task.STAY_HOME) {
             var home=earlyHomeStand();return home!=null&&entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4;
         }
         if(task==Task.FOLLOW&&earlyHomeStand()!=null)return false;
         if(task==Task.CARRY)return carry.carrying()&&taskTicks<2400;
         if(task==Task.SEARCH&&target!=null)return ordinaryLandFree(entity)&&(ordinaryLandFree(target)||target.getVehicle()==entity&&carry.lifting())&&caresFor(target)
-                &&escortsMigratingChild(target)&&!safeInSharedHome(target)
+                &&escortsMigratingChild(target)&&(carry.lifting()||!safeInSharedHome(target))
                 &&target.childhood().shouldStayWithParents()&&entity.life().canRecognize(target)&&taskTicks<1200&&target.level()==entity.level()
                 &&entity.distanceToSqr(target)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE;
         return taskTicks<240

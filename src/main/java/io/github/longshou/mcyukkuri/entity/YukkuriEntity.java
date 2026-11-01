@@ -34,7 +34,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.family.IndependenceLife;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.house.HouseCrawlControl;
@@ -538,10 +537,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return ParentCarry.canSeat(this,passenger);
     }
     @Override public LivingEntity getControllingPassenger(){return null;}
-    /** A brim rider keeps its fixed seat beside the carrier's collision box; ordinary wall overlap is not a carry release. */
-    @Override public boolean isInWall(){
-        return getVehicle() instanceof YukkuriEntity carrier&&ParentCarry.hold(carrier,this)==Hold.BRIM?false:super.isInWall();
-    }
+    /** A rider's seat belongs to the carrier's route, including seats outside its collision box; a real hit still releases it. */
+    @Override public boolean isInWall(){return !(getVehicle() instanceof YukkuriEntity)&&super.isInWall();}
     @Override protected void positionRider(Entity passenger,MoveFunction move){
         if(passenger instanceof YukkuriEntity child&&ParentCarry.riding(this,child)){
             var point=ParentCarry.seat(this,child);

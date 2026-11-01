@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
+import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry.Reach;
@@ -20,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -79,7 +81,10 @@ public final class Release implements Action {
 
     private Feasibility room(YukkuriEntity carrier, float yaw) {
         Vec3 at = ParentCarry.letGoPoint(carrier, child, yaw);
-        if (child.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(at)).iterator().hasNext())
+        var nestAt = ParentCarry.nestDestination(carrier, child);
+        if (nestAt != null && child.level().getBlockEntity(BlockPos.containing(nestAt)) instanceof CareBlockEntity nest) {
+            if (nest.freeSpot(child) == null) return Feasibility.of(Reason.NO_ROOM, 0, "no_supported_body_space");
+        } else if (child.level().getBlockCollisions(child, child.getDimensions(child.getPose()).makeBoundingBox(at)).iterator().hasNext())
             return Feasibility.of(Reason.NO_ROOM, 0, "blocks");
         if (ParentCarry.hold(carrier, child) == Hold.MOUTH) {
             var host = ParentCarry.carryHost(carrier, child);
