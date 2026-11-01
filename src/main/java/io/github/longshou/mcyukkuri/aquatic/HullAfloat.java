@@ -72,8 +72,9 @@ public final class HullAfloat implements PlacedHatBehavior {
         PlacedHatBehavior.register(new Provider() {
             @Override public String id() { return "afloat"; }
             @Override public boolean applies(PlacedHatEntity hat, PlacedHatBehavior current) {
+                if (!hat.profile().seated()) return false;
                 double water = surface(hat.level(), hat.getX(), hat.getY() - 2, hat.getZ());
-                double brim = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
+                double brim = hat.position().y;
                 return water >= brim + HullPresentation.KEEL * scale(hat);
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
@@ -128,7 +129,7 @@ public final class HullAfloat implements PlacedHatBehavior {
                 new HostFrame(hat.position(), hat.unit(), (float) Math.toRadians(180 - yaw), roll, pitch), 0, 0, false, hat.frame()))
             yaw = hat.getYRot();
         Motor.hostPose(hat, yaw, roll, pitch);
-        double target = water - HullPresentation.waterHeight(hat.profile().top() * hat.unit(), scale(hat), roll, pitch)
+        double target = water - HullPresentation.waterHeight(scale(hat), roll, pitch)
                 + HullPresentation.bob(now) * scale(hat);
         var v = hat.getDeltaMovement();
         var horizontal = paddling ? new Vec3(v.x * DRAG, 0, v.z * DRAG).add(drive.scale(1 - DRAG))
@@ -191,7 +192,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         for (var p : List.copyOf(hat.getPassengers())) if (p instanceof YukkuriEntity y)
             Motor.dismount(y, y.position(), thrownVelocity(y.position()), "thrown");
         larder.spill(hat, cause);
-        hat.dropKit(hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)), hat.getDeltaMovement(), "capsized");
+        hat.dropKit(hat.position(), hat.getDeltaMovement(), "capsized");
         capsizes++;
         GameplayLog.event(hat, "hat",
                 "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} drop_limit={} count={} form={} thrown={} owner={}",
@@ -200,8 +201,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     }
 
     private static Vec3 rim(PlacedHatEntity hat, HostFrame frame, int i) {
-        double r = HullPresentation.RADIUS * scale(hat) / hat.unit(), a = i * 2 * Math.PI / RIM_POINTS;
-        return frame.toWorld(new Vec3(r * Math.cos(a), hat.profile().top() + HullPresentation.BRIM * scale(hat) / hat.unit(), r * Math.sin(a)));
+        var p = hat.profile().rimPoints().get(i);
+        return frame.toWorld(new Vec3(p.x(), p.y(), p.z()));
     }
 
     /** The highest top at x, z of the block collision boxes reaching into heights {@code low}..{@code high}, or NaN. */
@@ -224,7 +225,7 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     private static boolean open(PlacedHatEntity hat, double more) {
         double r = HullPresentation.RADIUS * scale(hat) + more;
-        double y = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
+        double y = hat.position().y;
         return !hat.level().getBlockCollisions(hat, new AABB(hat.getX() - r, y - hat.unit(), hat.getZ() - r,
                 hat.getX() + r, y + hat.unit(), hat.getZ() + r)).iterator().hasNext();
     }
@@ -261,7 +262,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (other instanceof YukkuriEntity y && (Attach.of(y) instanceof AttachState.Airborne
                 || y.motor().current() instanceof Climb climb && climb.host() == hat
                 || y.motor().current() instanceof Right right && right.host() == hat)) return;
-        double brim = hat.frame().toWorld(new Vec3(0, hat.profile().top(), 0)).y;
+        double brim = hat.position().y;
         var box = other.getBoundingBox();
         double tilt = Math.abs(Math.sin(Math.toRadians(hat.roll()))) + Math.abs(Math.sin(Math.toRadians(hat.pitch())));
         if (box.minY >= brim + HullPresentation.RADIUS * scale(hat) * tilt

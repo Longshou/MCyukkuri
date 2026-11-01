@@ -2,7 +2,7 @@
 
 Reads the exported runtime clip (motion_corrections.json) and, with --against REV, the same clip from that git revision
 for comparison. The captain is the placement-fitted marisa skinned the way the game composes bones
-(aquatic_tools.palette), her hat hidden as aboard; the hull is the runtime prop at its hull_profiles scale with her on
+(aquatic_tools.palette), her hat hidden as aboard; the hull is the runtime prop at its hull_bounds scale with her on
 its seat, the stick the props.paddle keys, the tinted band the hull's fixed waterline (aquatic_tools.hull_forms). The
 strip shows each braid joint's fore-aft bend over one stroke (blue forward, red aft): a wave running down the braid reads
 as diagonal bands. Flat-shaded orthographic Pillow render; nothing launches the game. Writes
@@ -79,9 +79,10 @@ class Captain:
 
 
 def hull_triangles(form):
-    H = json.loads((P.ASSETS/f'yukkuri_presentation/hull_profiles/{form}.json').read_text(encoding='utf-8'))
+    H = json.loads((P.ASSETS/f'yukkuri_presentation/hull_bounds/{form}.json').read_text(encoding='utf-8'))
     V = np.array(json.loads((P.ASSETS/f'yukkuri_props/{H["hull"]}.json').read_text(encoding='utf-8'))['vertices']).reshape(-1, 8)[:, :3]
-    V = V*[H['scale'], H['scale']*H['squash'], H['scale']]+[0, -H['anchors']['owner_y']*16, 0]
+    c = H['captain_seat']
+    V = V*H['scale']-np.array([c['x'], c['y'], c['z']])*16
     return [('hull', V[k:k+3]) for k in range(0, len(V)-2, 3)]
 
 
@@ -148,7 +149,7 @@ def main():
             x = 30+int(t0/now.duration*width); d.line((x, y+20, x, y+24+6*20), fill=INK, width=2); d.text((x+4, y+26+6*20), beat, font=P.preview_font(13), fill=MUTED)
     out = Image.new('RGB', (190+4*cell[0], 70+len(rows)*cell[1]+board.height), BG); d = ImageDraw.Draw(out)
     d.text((10, 6), f'划桨：辫子伸出越过帽檐、木棍入水（{args.form}，水线 {form["water"]:.2f}，离线渲染，非游戏实录）', font=P.preview_font(22), fill=INK)
-    d.text((10, 40), '运行片段 boat_paddle 的骨骼轨道与 props.paddle 关键帧（游戏同读）；运行船体道具按 hull_profiles 缩放，船长坐在座位上；浅蓝为水线以下', font=P.preview_font(14), fill=MUTED)
+    d.text((10, 40), '运行片段 boat_paddle 的骨骼轨道与 props.paddle 关键帧（游戏同读）；运行船体道具按 hull_bounds 缩放，船长坐在座位上；浅蓝为水线以下', font=P.preview_font(14), fill=MUTED)
     y = 70
     for name, cells in rows:
         d.text((8, y+cell[1]//2-10), name, font=P.preview_font(16), fill=INK)

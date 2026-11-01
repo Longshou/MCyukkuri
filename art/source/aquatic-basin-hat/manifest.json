@@ -7,9 +7,9 @@
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py": "36d100fa88103d82ac2ca4420895483cf0f6243b83b3c8fb1949f6bf6bb3da36",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/scene.py": "90f85467dedc93778b05efaf8d066eab9e2d3f1f76fabb0fd7e98da042cdd0b5",
     "standards/yukkuri-library/interactions/aquatic-marisa-hat/layout.py": "255689fd4451d9f1ca6556cfa17208feb1af5fd83f78fcb24a36234469a4ad0a",
-    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "a0e73364ec63d29ab4e8daf726fee81ea6ef7b146ec3a21100e822d739f4e92b",
+    "standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py": "5f795a45561672a4565bab7ad6543828ce804c06893b45b7f0fa599f96e753e7",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "d7671b9970c623a9a3f44db71dbe4b8a3ce3c5473c29a066a590675ade9250c7",
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json": "81a45ac7030cf87bfa5ed5420c8594e29ff39d626d112d580424577021a14b91",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785"
   },
@@ -21,10 +21,5 @@
     "src/main/resources/assets/mcyukkuri/yukkuri_props/subspecies-index.json": "ff9c80a527071b9f5e7d57ca1629d4948e5b0e6ef63384947dc23648d0f4101b",
     "art/source/aquatic-basin-hat/recipe.json": "a90ded5640b9cda38a375d9fb52f05b1858eace35bce87d61198abd6612d0fdf",
     "art/source/aquatic-basin-hat/aquatic_basin_hat_stores.png": "4911f365477c15e4cbc937d5ca3b1b0e9ec32328c75b92fad98567cc963d154b"
-  },
-  "retained": {
-    "note": "old hull profiles, not written any more: kept as the current Java reads them until the code packages read hull_bounds",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "d4d621ae2c9132e0c5de0e2fe44efd06f4acb7eea2a9034ab9558812be33a6cd",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "a77345eb147aa9c6863aeb8debc2c90e259f2a0538741f6c67539829bfd5c8ce"
   }
 }

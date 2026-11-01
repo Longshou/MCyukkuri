@@ -79,7 +79,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 | `textures/props/aquatic_basin_hat_stores.png` | 储粮贴图（即 `food_layer.png`） |
 | `yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json` | 帽船边界，见下节 |
 
-两个网格登记在 `yukkuri_props/subspecies-index.json`。`yukkuri_presentation/hull_profiles/` 的两份旧剖面（椭圆形态与翻过来的陆生帽，静水力用）不再导出，保持现状供现行 Java 读取，直到代码改读边界；指纹记在快照 `manifest.json` 的 `retained`。
+两个网格登记在 `yukkuri_props/subspecies-index.json`。水生帽的支撑、接触与储粮贴图读取帽船边界；陆地接生帽仍读取自己的 `yukkuri_presentation/hull_profiles/marisa_hat_turned.json`。
 
 ## 帽船边界（hull_bounds）
 

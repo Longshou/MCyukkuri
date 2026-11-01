@@ -34,7 +34,7 @@ public final class HullWaterMask {
         for (var entity : level.entitiesForRendering()) {
             if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved() || hat.distanceToSqr(camera) > RANGE * RANGE) continue;
             PlacedHatView view = hat;
-            if (view.upsideDown() || view.state() == PlacedHatEntity.State.RESCUED) continue;
+            if (!view.profile().seated() || view.upsideDown() || view.state() == PlacedHatEntity.State.RESCUED) continue;
             var at = view.getPosition(partial);
             double water = HullAfloat.surface(level, at.x, at.y - 2, at.z);
             if (!Double.isFinite(water)) continue;

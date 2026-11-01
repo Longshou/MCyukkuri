@@ -11,13 +11,14 @@ class HullProfileTest {
         var current=HullProfile.of(HullProfile.CURRENT);var basin=HullProfile.of(HullProfile.BASIN);
         assertEquals("marisa_hat_turned",current.hull());assertEquals("aquatic_basin_hat_turned",basin.hull());
         assertEquals(.28,current.top()*current.measuredUnit(),1e-6);
-        assertEquals(.4095,basin.top()*basin.measuredUnit(),1e-6);
-        assertEquals(.0787,(basin.rimY()-basin.top())*basin.measuredUnit(),1e-6);
-        assertEquals(.670,basin.mouth(.37)*basin.measuredUnit(),.002);
+        assertEquals(0,basin.top(),1e-6);
+        assertEquals(0,basin.rimY(),1e-6);
+        assertEquals(.6344,basin.mouth(.37)*basin.measuredUnit(),1e-6);
+        assertEquals(-.2494,basin.surface(0,0)*basin.measuredUnit(),1e-6);
         assertThrows(IllegalArgumentException.class,()->HullProfile.of("missing"));
     }
     @Test void supportRestsOnTheUndersideAtEveryRadius() {
-        for(var id:new String[]{HullProfile.CURRENT,HullProfile.BASIN}){
+        for(var id:new String[]{HullProfile.CURRENT}){
             var p=HullProfile.of(id);double u=p.measuredUnit();
             for(double scale:new double[]{.145,.2,.45,1,1.2}){
                 var body=BodyFootprint.of("marisa",.8*scale/u,.6*scale/u,0);

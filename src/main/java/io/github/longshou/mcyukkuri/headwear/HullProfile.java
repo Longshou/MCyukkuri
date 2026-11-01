@@ -11,12 +11,14 @@ import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import java.util.Map;
 import java.util.Arrays;
 
-/** Measured hull profiles, converted from blocks at the exported scale to unscaled hat units, keel at zero. */
+/** Land catch profiles use a keel origin; the round hull reads brim-origin bounds. All coordinates are hat units. */
 public final class HullProfile {
     public static final String CURRENT = "turned_land_hat", BASIN = "cone_basin";
     private static final Map<String, String> FILES = Map.of(CURRENT, "marisa_hat_turned", BASIN, "aquatic_basin_hat_turned");
     private static final Map<String, HullProfile> FORMS = new ConcurrentHashMap<>();
     private final JsonObject data;
+    private final String id;
+    private final boolean seats;
     private final double[] angles, brim, opening;
     private final float[] worn;
     private final SurfaceTable surface;
@@ -24,13 +26,28 @@ public final class HullProfile {
     private final double unit, keel;
 
     private HullProfile(String id) {
-        var source = GeometryJson.read("yukkuri_presentation/hull_profiles/" + FILES.get(id) + ".json");
+        this.id = id;
+        seats = id.equals(BASIN);
+        var source = seats ? HullBounds.DATA : GeometryJson.read("yukkuri_presentation/hull_profiles/" + FILES.get(id) + ".json");
         data = source.data();
         source.check(source.number("version") == 1, "version", "expected 1");
-        source.check(source.string("form").equals(id), "form", "expected " + id);
+        if (!seats) source.check(source.string("form").equals(id), "form", "expected " + id);
         source.check(source.string("hull").equals(FILES.get(id)), "hull", "does not match file");
-        unit = source.number("scale") / 16; keel = source.number("keel.y");
+        unit = source.number("scale") / 16; keel = seats ? 0 : source.number("keel.y");
         source.check(unit > 0, "scale", "must be positive");
+        if (seats) {
+            angles = new double[24]; brim = new double[24]; opening = new double[24];
+            var points = new ArrayList<Vec>();
+            for (int i = 0; i < angles.length; i++) {
+                angles[i] = i * 15; brim[i] = HullBounds.RADIUS; opening[i] = HullBounds.MOUTH;
+                double a = Math.toRadians(angles[i]);
+                points.add(new Vec(Math.cos(a) * brim[i] / unit, HullBounds.EDGE / unit, Math.sin(a) * brim[i] / unit));
+            }
+            outline = rim = List.copyOf(points);
+            worn = new float[]{(float) (HullBounds.RADIUS / unit), (float) (HullBounds.RADIUS / unit)};
+            surface = null;
+            return;
+        }
         for (var key : List.of("squash", "level_tolerance", "rim.y", "floor.y")) source.number(key);
         angles = numbers(source, "azimuths"); brim = numbers(source, "brim.radius"); opening = numbers(source, "opening.radius");
         source.check(angles.length >= 8 && angles[0] == 0, "azimuths", "must start at zero with at least eight rays");
@@ -55,27 +72,28 @@ public final class HullProfile {
         if (!known(id)) throw new IllegalArgumentException("Unknown hull form " + id);
         return FORMS.computeIfAbsent(id, HullProfile::new);
     }
+    public boolean seated() { return seats; }
     public List<Vec> rimPoints() { return rim; }
-    public String id() { return data.get("form").getAsString(); }
+    public String id() { return id; }
     public String hull() { return data.get("hull").getAsString(); }
     /** Original signed block measurements for support geometry consumers. */
     public JsonObject data() { return data; }
     public double measuredUnit() { return unit; }
     public double top() { return -keel / unit; }
-    public double rimY() { return (data.getAsJsonObject("rim").get("y").getAsDouble() - keel) / unit; }
+    public double rimY() { return seats ? HullBounds.BRIM / unit : (data.getAsJsonObject("rim").get("y").getAsDouble() - keel) / unit; }
     public double floor() { return (data.getAsJsonObject("floor").get("y").getAsDouble() - keel) / unit; }
-    public double squash() { return data.get("squash").getAsDouble(); }
+    public double squash() { return seats ? 1 : data.get("squash").getAsDouble(); }
     public double tolerance() { return data.get("level_tolerance").getAsDouble() / unit; }
-    public double reach(double angle) { return radial(brim, angle) / unit; }
-    public double mouth(double angle) { return radial(opening, angle) / unit; }
+    public double reach(double angle) { return (seats ? HullBounds.RADIUS : radial(brim, angle)) / unit; }
+    public double mouth(double angle) { return (seats ? HullBounds.MOUTH : radial(opening, angle)) / unit; }
     public float[] brim() { return new float[]{(float)Math.max(reach(0), reach(Math.PI)), (float)Math.max(reach(Math.PI/2), reach(-Math.PI/2))}; }
     /** The worn hat's brim half extents along x and z (hat units); the set-down form need not match it. */
     public float[] wornBrim() { return worn.clone(); }
     public float[] opening() { return new float[]{(float)-mouth(Math.PI), (float)mouth(0), (float)-mouth(-Math.PI/2), (float)mouth(Math.PI/2)}; }
     public boolean inOpening(double x, double z) { return Math.hypot(x, z) <= mouth(Math.atan2(z, x)); }
 
-    /** Exact exported triangles indexed once into a spatial support table. */
-    public double surface(double x, double z) { return surface.height(x,z); }
+    /** Land triangles or the round hull's bounds-driven basin and brim. */
+    public double surface(double x, double z) { return seats ? HullBounds.surface(Math.hypot(x, z) * unit) / unit : surface.height(x,z); }
     /** Whole body underside must lie over cloth; the highest surface-minus-underside fixes its resting height. */
     public double support(double x, double z, BodyFootprint body) {
         double height = Double.NEGATIVE_INFINITY;
@@ -96,6 +114,7 @@ public final class HullProfile {
         return height;
     }
     public double clearance(double x, double z) {
+        if (seats) return Math.max(0, Math.hypot(x, z) - HullBounds.RADIUS / unit);
         double best=Double.POSITIVE_INFINITY;boolean inside=false;
         for(int i=0,j=outline.size()-1;i<outline.size();j=i++){
             var a=outline.get(i);var b=outline.get(j);

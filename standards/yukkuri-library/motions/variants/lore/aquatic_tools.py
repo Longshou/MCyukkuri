@@ -22,7 +22,6 @@ import braid_chain
 
 ROOT = Path(__file__).resolve().parents[5]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
-HULLS = ASSETS/'yukkuri_presentation/hull_profiles'
 BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 BOUNDS = json.loads((ASSETS/'yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json').read_text(encoding='utf-8'))
 SHARED = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))['paddle_shared']
@@ -276,20 +275,15 @@ def hull_forms(units, profiles=None):
     """Hull sections and fixed presentation waterline, viewed from the captain's seat (model units)."""
     if profiles is None and units in _FORMS: return _FORMS[units]
     forms = []
-    for H in profiles if profiles is not None else [json.loads(p.read_text(encoding='utf-8')) for p in sorted(HULLS.glob('*.json'))]:
-        name = H.get('name', H.get('hull'))
-        if 'section' in H:
-            sx, seat, sz = H['seat']; ring = (np.array(H['section'], float)-[0, seat])*units
-            forms.append(dict(name=name, azimuths=np.radians(np.arange(0., 360., 45.)), rings=[ring]*8,
-                              water=(H['waterline_y']-seat)*units, seat=(sx*units, sz*units)))
-            continue
-        seat = H['anchors']['owner_y']
-        az = np.radians(H['azimuths'])
-        outer = [np.array(o) for o in H['outer']]
-        rings = [np.r_[o[:, :2], o[o[:, 0] >= mouth][::-1][:, [0, 2]], np.array(i)[::-1]]
-                 for o, i, mouth in zip(outer, H['inner'], H['opening']['radius'])]
-        forms.append(dict(name=name, azimuths=az, rings=[(r-[0, seat])*units for r in rings],
-                          water=(BOUNDS['waterline_y']-seat)*units, seat=(0., 0.)))
+    if profiles is None:
+        b = BOUNDS; f = b['floor']; m = b['mouth']['radius']; r = b['brim']; c = b['captain_seat']
+        profiles = [dict(name=b['hull'], waterline_y=b['waterline_y'], seat=[c['x'], c['y'], c['z']],
+                         section=[[0, b['keel_y']], [f['radius'], b['keel_y']], [r['outer_radius'], r['edge_y']],
+                                  [r['level_radius'], r['y']], [m, r['y']], [f['radius'], f['y']], [0, f['y']]])]
+    for h in profiles:
+        sx, seat, sz = h['seat']; ring = (np.array(h['section'], float)-[0, seat])*units
+        forms.append(dict(name=h['name'], azimuths=np.radians(np.arange(0., 360., 45.)), rings=[ring]*8,
+                          water=(h['waterline_y']-seat)*units, seat=(sx*units, sz*units)))
     if profiles is None: _FORMS[units] = forms
     return forms
 

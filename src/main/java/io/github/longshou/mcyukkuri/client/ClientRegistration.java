@@ -30,8 +30,6 @@ public final class ClientRegistration {
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, HumanRenderer.Events::renderers);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientReloadListenersEvent.class, ClientEvents::registerReloadListeners);
-        modBus.addListener(EventPriority.NORMAL, false, RegisterClientReloadListenersEvent.class,
-                event -> event.registerReloadListener(HullLarderRenderer.RELOAD));
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, ClientEvents::registerItemExtensions);
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientExtensionsEvent.class, PlacedHatRenderer::items);

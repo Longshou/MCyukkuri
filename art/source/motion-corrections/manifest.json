@@ -16,19 +16,17 @@
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "9e8332c1db621a2d189df216a36ccd3c51f180912e3f9bdf991f1884db59abc0",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
-  "hat_vessel_sha256": "8cae993aab65d86d731473e1f3960a194a99bfd4b3146019e1c02d79b2a85762",
+  "hat_vessel_sha256": "e675f69b2b62ce637865db2c51d82660db8386a3bbfcffa1277f3e8b97706a80",
   "aquatic_inputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/aquatic_basin_hat_turned.json": "68e565c6f7897b6412c621766f93e0bc5afbb62ed32fb69b7b4fb38fe45dd485",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_profiles/marisa_hat_turned.json": "a77345eb147aa9c6863aeb8debc2c90e259f2a0538741f6c67539829bfd5c8ce",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/body_geometry.json": "7d8a902b47bb88425792d8b0193e274870c4bcaa7c4721b98dd711c7b1fad201"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "03347eb239f56c67eebac5cc72fabc4c37f41b1fd8b2efb21a779b79afbd64ae"
   },
   "exporter": "scripts/export_motion_corrections.py",
-  "exporter_sha256": "7f5bf41ecd507ff07f7b938c818ad63153f4466ed826e6a5f6e6094385c48998",
+  "exporter_sha256": "3c0f7cd09ba0d9a442028359f9a9f8f8d554e2332329bdc94bf86b072d965c08",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "d84e8cb95b9496fe8efc2b8e27feef38b464045f1a86b8bb0a2864ce0497757a",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "d7671b9970c623a9a3f44db71dbe4b8a3ce3c5473c29a066a590675ade9250c7",
+  "runtime_sha256": "81a45ac7030cf87bfa5ed5420c8594e29ff39d626d112d580424577021a14b91",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -96,7 +94,7 @@
     },
     "flandre": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "sha256": "39750152e2c3bf7810d24e3d32711f6f0816c3c42253b1ff43cd4790737cbcce",
+      "sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/angry.png",
@@ -395,7 +393,7 @@
     },
     "remilia": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "sha256": "21fa24a0bb0b7e89713da089e2df4fd648ff7aa48ec9781bad8a064a1180dc60",
+      "sha256": "35351c4a99d887d1848a99bc3f35b0f531d4944dfbb9ea5551915d392f524bc0",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/angry.png",
@@ -408,13 +406,5 @@
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cheek_puff.png",
       "texture_sha256": "243b404b06c36670796b1811b88c52e1dfaabe0b1ec904f36f246f75578e0e4f"
     }
-  },
-  "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
-  "lore_aquatic_tools_sha256": "96cdcf45ad82fab44b629c32e63348e44b1a4daabe0e950b8c803cd542cb980d",
-  "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
-  "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
-  "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
-  "braid_rescue_author_sha256": "8af9532913049c0534d6d512b38f4ff9c98cf79d6c0a26ae2484a3420dda6848",
-  "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785"
+  }
 }

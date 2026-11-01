@@ -469,7 +469,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
      *  while it lies crown up), none squeezed off it a moment ago. Where it stands and whether that spot is free is the
      *  contact's, the climb's or the squeeze's. */
     @Override public boolean bears(YukkuriEntity y) {
-        if (state() == State.RESCUED || y == null || cooling(y)) return false;
+        if (state() == State.RESCUED || y == null || cooling(y) || !profile().seated() && isInWaterOrBubble()) return false;
         return y.getUUID().equals(ownerYukkuri()) ? !catches() && !upsideDown() : admits(y);
     }
     @Override public LivingEntity getControllingPassenger() {

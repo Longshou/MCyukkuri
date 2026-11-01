@@ -24,7 +24,6 @@ WORN_ID, HULL_ID = 'aquatic_basin_hat', 'aquatic_basin_hat_turned'
 STORES_PNG = ASSETS/'textures/props/aquatic_basin_hat_stores.png'
 INDEX = ASSETS/'yukkuri_props/subspecies-index.json'
 BOUNDS = ASSETS/f'yukkuri_presentation/hull_bounds/{HULL_ID}.json'
-RETAINED = [ASSETS/f'yukkuri_presentation/hull_profiles/{n}.json' for n in (HULL_ID, 'marisa_hat_turned')]
 SNAPSHOT = ROOT/'art/source/aquatic-basin-hat'
 
 
@@ -101,15 +100,12 @@ def outputs():
                                       'yukkuri_presentation/placement_fit.json', 'yukkuri_presentation/braid_rescue.json')]
     manifest = dict(note='Runtime outputs of interactions/aquatic-marisa-hat/export.py', status=B.R['status'],
                     inputs={rel(p): sha(p.read_bytes()) for p in [HERE/n for n in ('recipe.json', 'food_layer.png', 'build.py', 'scene.py', 'layout.py', 'export.py')]+seat_inputs},
-                    outputs={rel(p): sha(d) for p, d in texts.items()},
-                    retained={'note': 'old hull profiles, not written any more: kept as the current Java reads them until '
-                                      'the code packages read hull_bounds', **{rel(p): sha(p.read_bytes()) for p in RETAINED}})
+                    outputs={rel(p): sha(d) for p, d in texts.items()})
     texts[SNAPSHOT/'manifest.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2)+'\n').encode()
     registration = ROOT/'art/runtime-sources.json'; text = registration.read_text(encoding='utf-8')
     scope = json.loads(text)[WORN_ID]['scope']
     before, stores_scope = scope.split(' The stores texture ', 1)
-    _, after = stores_scope.split(' The old hull profiles ', 1)
-    updated = before+' The stores texture '+B.R['stores']['note']+' The old hull profiles '+after
+    updated = before+' The stores texture '+B.R['stores']['note']+' Project design; visual review remains pending.'
     texts[registration] = text.replace(json.dumps(scope, ensure_ascii=False), json.dumps(updated, ensure_ascii=False)).encode()
     return texts, bounds
 
