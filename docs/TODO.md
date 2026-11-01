@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水生帽船重做（WP3 规则化帽船） | `.worktrees/aq-wp3-hull` | HullAfloat/Right/HullHydro/HullShell/LoadedContact、HullWaterMask、帽船场景、FEATURES 翻船规则 |
+| 水生帽船重做（美术 B：帽船接触动作重做与子油船上动作） | `.worktrees/aq-clips-b` | lore 动作配方与导出、帽船接触片段、子油船上新片段 |
 
 ## 玩法待办
 
