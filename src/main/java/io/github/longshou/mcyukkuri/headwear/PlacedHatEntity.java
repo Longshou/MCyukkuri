@@ -225,8 +225,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     OptionalDouble shapedSupport(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
     private HatSeats.Body seatBody(YukkuriEntity body) {
-        // A belly takes no seat: seats are planned against the unswollen footprint.
-        var size = LiveBirthGeometry.bodyDimensions(body, body.growthScale(), 0).scale(body.getScale());
+        // A pregnant captain's belly takes no seat: she is planned against her unswollen footprint.
+        var size = body.getUUID().equals(ownerYukkuri())
+                ? LiveBirthGeometry.bodyDimensions(body, body.growthScale(), 0).scale(body.getScale()) : body.getDimensions(body.getPose());
         return new HatSeats.Body(body.assetId(), body.growthScale() * body.getScale(), size.width(), size.height());
     }
     private List<HatSeats.Occupant> seatedExcept(YukkuriEntity except) {
