@@ -11,7 +11,7 @@
 | `food_layer.png` | 复用既有 16×16 储粮贴图，按覆盖面积显示份数 |
 | `scene.py` | 摆姿的身体、身体底面贴帽面的支撑、帽船网格、辫兜够距；姿态缓存在 `<MCY_LOCAL 或 .local>/cache/aquatic-marisa-hat/` |
 | `layout.py` | 船长座位、帽盆容量、帽檐边子油、救援够距与贴帽动作检查 |
-| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png` |
+| `preview.py` | 当前预览 `<MCY_LOCAL 或 .local>/previews/aquatic-hat-seats/current.png`；`--clips` 出帽船动作关键帧 `previews/aquatic-clips/current.png` |
 
 ```sh
 python standards/yukkuri-library/interactions/aquatic-marisa-hat/build.py [--check] [--set key.path=值 ...]

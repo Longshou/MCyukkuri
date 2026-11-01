@@ -3,7 +3,9 @@ waterline with the captain paddling at the stern seat (braid and stick over the 
 赤油 in the basin, a 子油 on the brim edge leaning out to splash, the stores texture on the floor; a cut through the axis;
 the four stores coverage tiers, all cropping the existing texture at the same texel size.
 
-    MCY_LOCAL=<main checkout>/.local python preview.py   # previews/aquatic-hat-seats/current.png
+    MCY_LOCAL=<main checkout>/.local python preview.py          # previews/aquatic-hat-seats/current.png
+    MCY_LOCAL=<main checkout>/.local python preview.py --clips  # previews/aquatic-clips/current.png: key frames of the
+                                                                # boat clips (paddling, rescue reach, a 子油 splashing, hiding)
 """
 from pathlib import Path
 import math, os, sys
@@ -281,5 +283,49 @@ def main():
     print(OUT/'current.png')
 
 
+def lowest(tris, outside=0.):
+    """The lowest vertex of a mesh farther than `outside` from the hull's axis (a braid tip over the water)."""
+    v = tris[:, :, :3].reshape(-1, 3); v = v[np.hypot(v[:, 0], v[:, 2]) >= outside]; return v[np.argmin(v[:, 1])]
+
+
+def splash(atlas, at, size=1.):
+    out = []
+    for dx, dy, dz, r in ((.5, .45, -.3, .24), (-.3, .85, .2, .2), (.7, .7, .45, .17), (-.5, .4, -.5, .15)):
+        bl = blob((at[0]+dx*size, -B.WATER*B.K+dy*size, at[2]+dz*size), r*size); bl[:, :, 3:5] = swatch(atlas, 'splash', bl[:, :, 3:5])
+        out.append(bl)
+    return np.concatenate(out)
+
+
+def clips_main():
+    """Key frames of the boat performances as the player sees them: <MCY_LOCAL or .local>/previews/aquatic-clips/current.png."""
+    atlas = Atlas(); hull, hull_tris, meshes, flags, food = scene(atlas)
+    bounds = L.bounds(hull); seat = bounds['captain_seat']; cy, cz = seat['y']*16, seat['z']*16
+    ring, under = bounds['brim_ring']['radius']*16, dict(bounds['brim_ring']['underside_y'])[L.SMALL]*16
+    edge = B.BRIM['radius']*B.K; base = [hull_tris]+([food] if food is not None else [])
+    sit = L.young_shape(L.SMALL).bottom   # the clip leans about where it sits, so place it by its upright underside
+    def kid(clip, t, face, bear):
+        sh = S.Shape.posed(clip, t, face, L.SMALL, 0., hat=True)
+        return posed(sh, atlas, ring*math.cos(math.radians(bear)), ring*math.sin(math.radians(bear)), under-sit, 0., bear)
+    rest = posed(S.Shape.posed('boat_feed_young', 0., 'closed_smile'), atlas, 0, cz, cy)
+    babies = meshes[2:4]
+    reach = posed(S.Shape.posed('braid_rescue_reach', 1.0, 'teary'), atlas, 0, cz, cy); tip = lowest(reach, edge)
+    child = S.Shape.posed('water_struggle', .3, 'cry', L.BABY, 0., hat=True); out = tip/np.hypot(tip[0], tip[2])
+    swim = posed(child, atlas, tip[0]+out[0]*2.2, tip[2]+out[2]*2.2, -B.WATER*B.K-.25*child.height, 0., 0.)
+    splasher = kid('kid_brim_splash', .62, 'happy', -50.)
+    hider = kid('kid_hide_behind', 1.2, 'teary', -3.)
+    panels = [('船长坐在船尾，用辫子握着木枝划水', meshes[:4]+meshes[5:9], (.3, .5, 14., (2., -1., -2.))),
+              ('辫子越过帽檐伸到水面，接住落水的孩子', [reach, swim]+babies, (1.05, .55, 15.5, (5., -1., -1.))),
+              ('子油坐在帽檐边，探出身子用辫子拍水', [rest, splasher, splash(atlas, lowest(splasher, edge), 1.6)]+babies, (-.87, .22, 13.5, (4., 0., -5.))),
+              ('受惊的子油缩到妈妈的辫子下面', [rest, hider]+babies, (.08, .16, 13., (6., 2., 0.)))]
+    W, H = 1840, 1400; img = Image.new('RGB', (W, H), (250, 251, 252)); d = ImageDraw.Draw(img); f = P.preview_font(28)
+    for i, (caption, bodies, view) in enumerate(panels):
+        shot, _ = render(base+bodies, [np.zeros(len(m), int) for m in base+bodies], atlas, view, hull)
+        x, y = 20+(i % 2)*910, 20+(i//2)*690
+        img.paste(shot.resize((890, 619), Image.Resampling.LANCZOS), (x, y+50)); d.text((x, y+8), caption, font=f, fill=(32, 52, 64))
+    out = OUT.parent/'aquatic-clips'; out.mkdir(parents=True, exist_ok=True)
+    img.save(out/'current.png'); (out/'source.sha256').write_text(B.source_digest(), encoding='utf-8')
+    print(out/'current.png')
+
+
 if __name__ == '__main__':
-    main()
+    clips_main() if '--clips' in sys.argv else main()

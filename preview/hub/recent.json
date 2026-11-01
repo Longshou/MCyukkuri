@@ -321,6 +321,24 @@
         }
       ],
       "source": "standards/yukkuri-library/interactions/aquatic-marisa-hat/README.md"
+    },
+    {
+      "id": "aquatic-clips",
+      "label": "水生魔理沙帽船：船上的动作",
+      "title": "水生魔理沙帽船：划桨、伸辫救援、子油拍水与躲到辫子下",
+      "tag": "待确认",
+      "summary": "离线渲染当前导出的帽船动作（不是游戏画面）：船长坐在船尾用辫子握木枝划水；辫子越过帽檐伸到水面接住落水的孩子；子油坐在帽檐边探身用辫子拍水；受惊的子油缩到妈妈的辫子下面。动作已导出，子油的新动作尚未接入游戏。",
+      "model": "marisa",
+      "points": [],
+      "steps": [],
+      "category": "water",
+      "gallery": [
+        {
+          "src": "aquatic-clips/current.png",
+          "label": "帽船上的动作关键帧"
+        }
+      ],
+      "source": "standards/yukkuri-library/motions/variants/lore/README.md"
     }
   ]
 }
