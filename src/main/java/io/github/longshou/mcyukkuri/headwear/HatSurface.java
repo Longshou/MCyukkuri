@@ -8,13 +8,11 @@ import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import java.util.List;
 import java.util.OptionalDouble;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** The model owns support, boarding and rider movement; the defaults are the land cradle. */
 public interface HatSurface {
     HatSurface LAND = new HatSurface() {};
-    default AABB bounds(PlacedHatEntity hat, AABB box) { return box; }
     default OptionalDouble support(PlacedHatEntity hat, Vec3 local, YukkuriEntity body) { return hat.shapedSupport(local, body); }
     default boolean room(PlacedHatEntity hat, YukkuriEntity body, Vec3 local, double top) { return hat.shapedRoom(body, local, top); }
     default boolean bears(PlacedHatEntity hat, YukkuriEntity body) {

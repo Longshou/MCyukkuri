@@ -249,6 +249,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         drive = water; turnBy = turn;
         return true;
     }
+    @Override public boolean afloat(PlacedHatEntity hat) { return true; }
     @Override public boolean pushable(PlacedHatEntity hat) { return true; }
     @Override public boolean holds(PlacedHatEntity hat, Item item) { return larder.has(one -> one.is(item)); }
     @Override public boolean store(PlacedHatEntity hat, ItemStack stack, Player by) { return larder.store(hat, stack, by); }

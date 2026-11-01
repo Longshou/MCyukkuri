@@ -24,6 +24,9 @@ public interface PlacedHatBehavior {
     /** A real dry-to-water entry; vanilla excludes the first tick after creation or reload. */
     default void waterEntered(PlacedHatEntity hat, double speed) {}
 
+    /** Whether this behaviour carries the real hull through water rather than lying with the land bounds. */
+    default boolean afloat(PlacedHatEntity hat) { return false; }
+
     /** Whether bodies and players may push it (vanilla {@code isPushable}). */
     default boolean pushable(PlacedHatEntity hat) { return false; }
 

@@ -86,6 +86,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final EntityDataAccessor<Float> ROLL = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> INVERTED = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.BOOLEAN);
+    /** Current behaviour needs the immersed hull dimensions; synced so both sides rebuild the same vanilla box. */
+    private static final EntityDataAccessor<Boolean> AFLOAT = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.BOOLEAN);
     /** What its behaviour keeps in the hollow besides riders (an add-on's stores), written by that behaviour, for drawing only. */
     private static final EntityDataAccessor<CompoundTag> CONTENTS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The one rider table of this host: local spot and yaw per body. */
@@ -131,17 +133,25 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
         builder.define(CONTENTS, new CompoundTag()); builder.define(FORM, HullProfile.CURRENT);
-        builder.define(INVERTED, false);
+        builder.define(INVERTED, false); builder.define(AFLOAT, false);
     }
     @Override public void onSyncedDataUpdated(EntityDataAccessor<?> data) {
         super.onSyncedDataUpdated(data);
-        if (SCALE.equals(data) || FORM.equals(data)) { container = null; refreshDimensions(); }
+        if (SCALE.equals(data) || FORM.equals(data)) container = null;
+        if (SCALE.equals(data) || FORM.equals(data) || AFLOAT.equals(data)) refreshDimensions();
     }
     @Override public EntityDimensions getDimensions(Pose pose) {
+        if (entityData.get(AFLOAT) && profile().seated()) {
+            double scale = hullScale() / HullBounds.SCALE;
+            return EntityDimensions.scalable((float) (2 * HullBounds.RADIUS * scale),
+                    (float) ((HullBounds.BRIM - HullBounds.KEEL) * scale));
+        }
         return super.getDimensions(pose).scale(hullScale());
     }
     @Override protected AABB makeBoundingBox() {
-        return profile().surface().bounds(this, super.makeBoundingBox());
+        var box = super.makeBoundingBox();
+        if (!entityData.get(AFLOAT) || !profile().seated()) return box;
+        return box.move(0, HullBounds.KEEL * hullScale() / HullBounds.SCALE, 0);
     }
 
     @Override public String formId() { return entityData.get(FORM); }
@@ -198,6 +208,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
                 return made;
             });
             provider = next;
+            entityData.set(AFLOAT, behavior.afloat(this));
             if (next != null) lastProvider = next;
             behaviorPicked = true;
         }
