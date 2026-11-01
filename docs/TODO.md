@@ -16,6 +16,7 @@
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 复测失败·处理中：缓流不漂、不响应水流（`hat_current`）；碰撞后动作一卡一卡；岸上不处理水中帽子（正放或倒扣）、原地哭着 boat call、推近也不动（`self_rescue`、`shore_capsized`）；亲子出航亲油反复放帽、跳上跳下、收帽（`afloat_family`）；魔理沙帽檐托赤油比例过小、只该按大小判放不放得下（不判生长阶段）、易掉落、缺辫子放上动作（`carry_home`）。
   - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回；嗯嗯奴隶演示失效（`settle_pit_slave`）。
+  - 复测失败·处理中：`carry_home`（出生与成长场地北侧，按钮“亲代运输”）跳转点把玩家卡进墙里；三家都认窝失败、没有接孩子：赤油 `[home] assignment refused … reachable=true occupied=true`（窝被亲油占着）、`child separation lost=true sameNest=false`，`family search started target=null` 一刻即停，无 `carry lift started`；母魔理沙营养 9。日志副本 `.local/reports/carry_home/session-2026-11-02-0221.log`（运行 4064a9234，02:21–02:22）。
   - 美术·排队：佩妮佩妮还原到圆润化之前的版本（撤回“圆润外形”要求）；茎生消耗个体的美术表现接入现有营养／体力消耗；魔理沙辫子划船呈倒 U、根部单薄，改为自然下垂、末梢向外发力。
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈（版本待核实）；E8 陆地接生射线命中帽实体返回 `cradle_status`，赤油被遮住。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮与推晃；`[hat-input]`、`hat use received/result` 显示物资只扣一次。
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 幼油饿停、住所仍指旧窝、重复献身与批量死亡。版本、现象与完成标准见[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)；运输演出并入演出包。
