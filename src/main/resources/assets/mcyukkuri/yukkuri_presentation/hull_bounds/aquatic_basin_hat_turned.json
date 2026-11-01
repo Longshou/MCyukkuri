@@ -1,0 +1,41 @@
+{
+ "version": 1,
+ "hull": "aquatic_basin_hat_turned",
+ "scale": 1.4,
+ "units": "blocks at the drawn size (hat units x scale / 16); hull frame: origin the middle of the brim face, +Y out of the hollow, +X the worn front, the boat's bow toward -Z; round (radii from the middle)",
+ "waterline_y": -0.0315,
+ "mouth": {
+  "radius": 0.6344
+ },
+ "floor": {
+  "radius": 0.5162,
+  "y": -0.2494
+ },
+ "brim": {
+  "inner_radius": 0.6344,
+  "level_radius": 0.7175,
+  "outer_radius": 0.8864,
+  "y": 0.0,
+  "edge_y": -0.0359
+ },
+ "keel_y": -0.4095,
+ "captain_seat": {
+  "growth": 1.0,
+  "x": 0.0,
+  "y": -0.2511,
+  "z": 0.0469
+ },
+ "brim_ring": {
+  "radius": 0.8264,
+  "underside_y": [[0.3, -0.0095], [0.45, -0.0033]]
+ },
+ "stores": {
+  "tiers": [[0, 0], [1, 2], [3, 5], [6, 8]],
+  "texture": "mcyukkuri:textures/props/aquatic_basin_hat_stores.png",
+  "texture_px": 16,
+  "radius_fractions": [0.0, 0.45, 0.7, 1.0],
+  "pixels_per_block": 16,
+  "note": "reuses the existing 16x16 food_layer.png unchanged. Project design: tiers are total stored portions [from, to]; tier 0 draws nothing. For each other tier, f = radius_fractions[tier], R = basin floor radius: disc radius f*R, centre (x=0, z=-(1-f)*R), tangent to the bow-side wall (-Z), before the captain. Fixed hull-space UVs (+X right, +Z down), repeating at 16 pixels per block; smaller discs crop the same texture without stretching."
+ },
+ "note": "waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor (a shallow dimple in the middle); brim: level from inner_radius to level_radius at y, then falling to its edge at outer_radius with its top at edge_y; keel_y: the hull's lowest point. captain_seat: an adult (growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note."
+}
