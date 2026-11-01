@@ -139,7 +139,7 @@ def build(manifest, catalog, out):
         add(dict(id='model:'+model['id'], category=category, kind='model', title=model['name'],
                  summary=f"{model['group']} · {len(model['actions'])} 个有运行引用的片段 · {len(model['textures'])} 套贴图；仅基础模型，不含状态附加渲染",
                  model=model['id'], image=f"models/thumbs/{model['id']}.png",
-                 source='docs/SPECIES.md', visual='可旋转模型'))
+                 source='docs/FEATURES.md', visual='可旋转模型'))
 
     import museum_actions
     action_categories = {action:config['actionGroups'][group]
@@ -156,7 +156,7 @@ def build(manifest, catalog, out):
         add(dict(id='motion:'+action, category=category, kind='motion', title=action_names.get(action, action),
                  summary=f"{model['name']}演示 · 仅播放模型片段，不含目标、道具、环境和身体状态，不代表该形态具备对应玩法能力。",
                  model=model['id'], action=action, image=f"models/thumbs/{model['id']}.png",
-                 source='docs/MOTION_MUSEUM_ACTIONS.md', visual='可播放动作'))
+                 source='docs/FEATURES.md', visual='可播放动作'))
 
     lang = read(ASSETS/'lang/zh_cn.json')
     registered = current_items()
@@ -193,14 +193,14 @@ def build(manifest, catalog, out):
         add(dict(id='scenario:'+scenario.id, category=category, kind='scenario', title=scenario.title,
                  summary=scenario.watch, field=BY_ID[scenario.field].title, wait=scenario.wait,
                  note=scenario.note, retry=scenario.retry, sceneId=scenario.id,
-                 source='docs/DEVELOPMENT.md', visual='游戏试玩入口'))
+                 source='docs/FEATURES.md', visual='游戏试玩入口'))
 
     for species in dict.fromkeys(a['species'] for a in catalog['audio']):
         name = lang.get('entity.mcyukkuri.'+species, species)
         count = sum(a['species']==species for a in catalog['audio'])
         add(dict(id='audio:'+species, category='social', kind='audio', title=name+' · 声音试听',
                  summary=f'{count} 条已有打包音频，可按场景和台词筛选。', species=species,
-                 source='docs/DIALOGUE_IMPLEMENTATION.md', visual='声音'))
+                 source='docs/FEATURES.md', visual='声音'))
     ids = [e['id'] for e in entries]
     if len(ids) != len(set(ids)):
         raise ValueError('Duplicate preview entry id')

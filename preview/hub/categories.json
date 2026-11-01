@@ -1,17 +1,17 @@
 {
   "categories": [
-    {"id":"life","label":"日常生活","description":"吃饭、饮水、睡眠、如厕与日常活动。","source":"docs/CORE_GAMEPLAY.md","topics":["D1","F5"],"items":"^(food_|oil_grain_|wheat_flour$|yogurt_drink$|yukkuri_(nest|toilet|waste)$|ceramic_toilet$|covered_toilet$|wash_cloth$|cold_storage$|newspaper_mat$|soil_mat$)"},
-    {"id":"family","label":"繁殖与成长","description":"求偶、孕育、分娩、接生、亲代照料与离巢。","source":"docs/CHILDHOOD_LIFECYCLE.md","topics":["D2","F1","F2","F4","F6","F7","F8","R4"],"items":"^(swaddle_|yukkuri_stem$|large_yukkuri_nest$|reproductive_filling$|stimulant$|sitataran$|stem_shears$|sterilizing_shears$|bottle_stem_shears$)"},
-    {"id":"health","label":"身体、伤病与治疗","description":"伤口、身体印记、中枢、治疗、遗体与接触工具。","source":"docs/INJURIES_AND_REMAINS.md","topics":["F3","R3","R5","R6","R7","R8","R9"],"items":"^(core_filling$|orange_juice$|flour_paste$|mold_remover$|herbal_medicine$|yukkuri_remains$|care_|cutting_knife$|hair_clippers$|hanging_hook$|heated_awl$|iron_enclosure$|pin_tool$|restraint_frame$|wrap_sling$|sandpaper_mat$|trimmed_hair$|sleep_spray$|spicy_grain$)"},
-    {"id":"headwear","label":"头饰与身份","description":"头饰佩戴、损坏、修复、识别与失饰后的反应。","source":"docs/HEADWEAR.md","topics":["C1","C2"],"items":"^(accessory_shard$|reimu_ribbon$|marisa_hat$|chen_hat$|alice_headband$|patchouli_bonnet$|remilia_bonnet$|flandre_bonnet$|myon_hairband$)"},
-    {"id":"water","label":"水上生活与帽船","description":"航行、帽内储粮、亲子生活、上下岸与落水救援。","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","topics":["A1","A2","A3","A4","A5","A6","A7","A8"],"items":"^marisa_aquatic_hat$"},
-    {"id":"wild","label":"野外、聚落与季节","description":"野外住所、储粮、天气、聚落秩序与迁徙。","source":"docs/SETTLEMENTS.md","topics":["W1","W2","W3","W4","W5","W6","W7","B1","B2","R1"],"items":"^(forest_burrow$|cardboard_shelter$|forage_pile$|large_wild_nest$)"},
-    {"id":"house","label":"家油生态","description":"室内寄居、棉絮、巢与卵，以及清扫和驱离。","source":"docs/HOUSE_ECOLOGY.md","topics":["H1","H2","H3"],"items":"^(house_egg$|household_guard$|nest_lint$)"},
-    {"id":"pets","label":"宠物、商店与徽章","description":"宠物照料、牵引运输、玩具、学习、交易与徽章考试。","source":"docs/PET_SHOP.md","topics":["M1","M5","M6"],"items":"^(.*yukkuri_badge$|badge_handbook$|exam_|pet_harness$|yukkuri_carrier$|companion_cord$|teaching_whistle$|sweet_candy$|custard_pudding$|yarn_ball$|rubber_ball$|glass_marble$|pretty_stone$|clear_dice$|reimu_doll$|marisa_doll$|paper_tunnel$|ceramic_tunnel$|yukkuri_(pool|slide|trampoline)$)"},
-    {"id":"human","label":"人类与工厂","description":"人类交互、工厂设施、加工与出货。","source":"docs/HUMAN_WORLD.md","topics":["M2","M3","M4"],"items":"^(factory_|labor_bench$|live_packing_table$|live_yukkuri_bag$|manju_steamer$|nursery_station$|yukkuri_manju$)"},
-    {"id":"species","label":"种族与特殊形态","description":"普通种、亚种、不足形态、妖梦、被炉魔理沙与捕食种。","source":"docs/SPECIES.md","topics":["S1","S2","S3","R2"],"items":"^(marisa_kotatsu$|marisa_shell$|predator_nest$)"},
-    {"id":"social","label":"情绪、交流与声音","description":"性格、关系、情绪反应、对白和已有声音。","source":"docs/BEHAVIOR.md","topics":["N1"],"items":"^field_notebook$"},
-    {"id":"other","label":"其他内容","description":"新增且尚未指定游戏分类的内容，保留可见以便整理。","source":"docs/README.md","topics":[],"items":"(?!)"}
+    {"id":"life","label":"日常生活","description":"吃饭、饮水、睡眠、如厕与日常活动。","source":"docs/FEATURES.md","topics":["D1","F5"],"items":"^(food_|oil_grain_|wheat_flour$|yogurt_drink$|yukkuri_(nest|toilet|waste)$|ceramic_toilet$|covered_toilet$|wash_cloth$|cold_storage$|newspaper_mat$|soil_mat$)"},
+    {"id":"family","label":"繁殖与成长","description":"求偶、孕育、分娩、接生、亲代照料与离巢。","source":"docs/FEATURES.md","topics":["D2","F1","F2","F4","F6","F7","F8","R4"],"items":"^(swaddle_|yukkuri_stem$|large_yukkuri_nest$|reproductive_filling$|stimulant$|sitataran$|stem_shears$|sterilizing_shears$|bottle_stem_shears$)"},
+    {"id":"health","label":"身体、伤病与治疗","description":"伤口、身体印记、中枢、治疗、遗体与接触工具。","source":"docs/FEATURES.md","topics":["F3","R3","R5","R6","R7","R8","R9"],"items":"^(core_filling$|orange_juice$|flour_paste$|mold_remover$|herbal_medicine$|yukkuri_remains$|care_|cutting_knife$|hair_clippers$|hanging_hook$|heated_awl$|iron_enclosure$|pin_tool$|restraint_frame$|wrap_sling$|sandpaper_mat$|trimmed_hair$|sleep_spray$|spicy_grain$)"},
+    {"id":"headwear","label":"头饰与身份","description":"头饰佩戴、损坏、修复、识别与失饰后的反应。","source":"docs/FEATURES.md","topics":["C1","C2"],"items":"^(accessory_shard$|reimu_ribbon$|marisa_hat$|chen_hat$|alice_headband$|patchouli_bonnet$|remilia_bonnet$|flandre_bonnet$|myon_hairband$)"},
+    {"id":"water","label":"水上生活与帽船","description":"航行、帽内储粮、亲子生活、上下岸与落水救援。","source":"docs/FEATURES.md","topics":["A1","A2","A3","A4","A5","A6","A7","A8"],"items":"^marisa_aquatic_hat$"},
+    {"id":"wild","label":"野外、聚落与季节","description":"野外住所、储粮、天气、聚落秩序与迁徙。","source":"docs/FEATURES.md","topics":["W1","W2","W3","W4","W5","W6","W7","B1","B2","R1"],"items":"^(forest_burrow$|cardboard_shelter$|forage_pile$|large_wild_nest$)"},
+    {"id":"house","label":"家油生态","description":"室内寄居、棉絮、巢与卵，以及清扫和驱离。","source":"docs/FEATURES.md","topics":["H1","H2","H3"],"items":"^(house_egg$|household_guard$|nest_lint$)"},
+    {"id":"pets","label":"宠物、商店与徽章","description":"宠物照料、牵引运输、玩具、学习、交易与徽章考试。","source":"docs/FEATURES.md","topics":["M1","M5","M6"],"items":"^(.*yukkuri_badge$|badge_handbook$|exam_|pet_harness$|yukkuri_carrier$|companion_cord$|teaching_whistle$|sweet_candy$|custard_pudding$|yarn_ball$|rubber_ball$|glass_marble$|pretty_stone$|clear_dice$|reimu_doll$|marisa_doll$|paper_tunnel$|ceramic_tunnel$|yukkuri_(pool|slide|trampoline)$)"},
+    {"id":"human","label":"人类与工厂","description":"人类交互、工厂设施、加工与出货。","source":"docs/FEATURES.md","topics":["M2","M3","M4"],"items":"^(factory_|labor_bench$|live_packing_table$|live_yukkuri_bag$|manju_steamer$|nursery_station$|yukkuri_manju$)"},
+    {"id":"species","label":"种族与特殊形态","description":"普通种、亚种、不足形态、妖梦、被炉魔理沙与捕食种。","source":"docs/FEATURES.md","topics":["S1","S2","S3","R2"],"items":"^(marisa_kotatsu$|marisa_shell$|predator_nest$)"},
+    {"id":"social","label":"情绪、交流与声音","description":"性格、关系、情绪反应、对白和已有声音。","source":"docs/FEATURES.md","topics":["N1"],"items":"^field_notebook$"},
+    {"id":"other","label":"其他内容","description":"新增且尚未指定游戏分类的内容，保留可见以便整理。","source":"docs/FEATURES.md","topics":[],"items":"(?!)"}
   ],
   "actionGroups": {"身体与移动":"life","日常生活":"life","交流与情绪":"social","家庭与照料":"family","帽子与水边":"headwear","宠物店与表情":"pets","运输与篮子":"pets","水上日常与亲子":"water","初航与帽檐":"water","落水与救援":"water","特殊身体":"species"},
   "actionRules": [
@@ -39,17 +39,17 @@
     {"id":"hair-wounds-art","title":"头发覆盖区的伤口","category":"health","source":"standards/yukkuri-library/drafts/body-marks/hair-wounds/README.md","reason":"需按当前毛发损伤、伤口遮罩和各品种馅料重新生成，旧图不能证明当前外观。"},
     {"id":"body-marks-art","title":"身体纹样","category":"health","source":"standards/yukkuri-library/drafts/body-marks/README.md","reason":"身体印记和中枢由运行状态驱动，旧分镜缺少与当前渲染代码的对应校验。"},
     {"id":"alice-appearance","title":"爱丽丝造型与蓝眼","category":"species","source":"standards/yukkuri-library/body-standard/features/alice-hakkei/README.md","reason":"旧外观对比包含历史方案；当前基础模型与表情可在角色目录查看，专项对照需重建。"},
-    {"id":"hat-motion","title":"真实抓握、翻帽与攀檐","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"旧独立网页内嵌场景数据，重建总入口不会刷新；完整帽船过程请在对应试玩入口观察。"},
+    {"id":"hat-motion","title":"真实抓握、翻帽与攀檐","category":"water","source":"docs/FEATURES.md","reason":"旧独立网页内嵌场景数据，重建总入口不会刷新；完整帽船过程请在对应试玩入口观察。"},
     {"id":"house-ecology","title":"家油的一家","category":"house","source":"standards/yukkuri-library/ecology/house-nest/README.md","reason":"旧图的搬絮、护卵与孵化过程未随当前代码重建；当前家油模型和物品另列。"},
-    {"id":"water","title":"帽船一家","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"出航与救援已有连续场景；帽内生活、储粮与天气互动尚未整合为连续演示。"},
-    {"id":"climate","title":"地方与季节","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧季节图混用通用动作与手写状态，未对应实际环境效果；请使用季节试玩场。"},
-    {"id":"stores","title":"储粮与越冬","category":"wild","source":"docs/SEASONAL_LIFE.md","reason":"旧储粮分镜由人工安排动作和道具，不能代表当前储粮阶段；存取请在试玩场观察。"},
-    {"id":"family","title":"从出生到离家","category":"family","source":"docs/CHILDHOOD_LIFECYCLE.md","reason":"旧分镜含用通用撑地动作代演筑巢的内容；需按当前照料与筑巢阶段重做。"},
-    {"id":"community","title":"聚落记忆","category":"wild","source":"docs/SETTLEMENTS.md","reason":"旧聚落分镜与手写状态未对应当前行为链；迁徙、继任等以实际试玩场为入口。"},
-    {"id":"shell","title":"螺壳与饰物","category":"species","source":"docs/SUBSPECIES_IMPLEMENTATION.md","reason":"旧缩壳徽章拼图没有当前输入校验；基础壳形与缩壳片段另列，徽章佩戴需专项重建。"},
-    {"id":"headwear-damage","title":"头饰损坏与修复外观","category":"headwear","source":"docs/HEADWEAR.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
-    {"id":"birth-performance","title":"分娩与接生分镜","category":"family","source":"docs/CONSUMABLES_AND_BIRTH.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"water","title":"帽船一家","category":"water","source":"docs/FEATURES.md","reason":"出航与救援已有连续场景；帽内生活、储粮与天气互动尚未整合为连续演示。"},
+    {"id":"climate","title":"地方与季节","category":"wild","source":"docs/FEATURES.md","reason":"旧季节图混用通用动作与手写状态，未对应实际环境效果；请使用季节试玩场。"},
+    {"id":"stores","title":"储粮与越冬","category":"wild","source":"docs/FEATURES.md","reason":"旧储粮分镜由人工安排动作和道具，不能代表当前储粮阶段；存取请在试玩场观察。"},
+    {"id":"family","title":"从出生到离家","category":"family","source":"docs/FEATURES.md","reason":"旧分镜含用通用撑地动作代演筑巢的内容；需按当前照料与筑巢阶段重做。"},
+    {"id":"community","title":"聚落记忆","category":"wild","source":"docs/FEATURES.md","reason":"旧聚落分镜与手写状态未对应当前行为链；迁徙、继任等以实际试玩场为入口。"},
+    {"id":"shell","title":"螺壳与饰物","category":"species","source":"docs/FEATURES.md","reason":"旧缩壳徽章拼图没有当前输入校验；基础壳形与缩壳片段另列，徽章佩戴需专项重建。"},
+    {"id":"headwear-damage","title":"头饰损坏与修复外观","category":"headwear","source":"docs/FEATURES.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
+    {"id":"birth-performance","title":"分娩与接生分镜","category":"family","source":"docs/FEATURES.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
     {"id":"badge-mounts","title":"徽章与佩戴位置","category":"pets","source":"art/props/badges/README.md","reason":"旧专项图片没有当前输入校验；需按现用资源及佩戴、堆放或身体状态重新生成。"},
-    {"id":"boat-cargo","title":"帽内空间与乘员","category":"water","source":"docs/AQUATIC_MARISA_IMPLEMENTATION.md","reason":"当前连续演示使用舱位布局；多乘员与储粮负载、身体状态的组合仍未覆盖。"}
+    {"id":"boat-cargo","title":"帽内空间与乘员","category":"water","source":"docs/FEATURES.md","reason":"当前连续演示使用舱位布局；多乘员与储粮负载、身体状态的组合仍未覆盖。"}
   ]
 }

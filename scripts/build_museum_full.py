@@ -59,9 +59,6 @@ SPRINTS = (('1分钟', 1200), ('5分钟', 6000), ('20分钟', 24000))
 CLIP_ACTORS = ('reimu', 'marisa', 'chen', 'alice', 'patchouli', 'remilia', 'flandre', 'house_reimu', 'house_marisa')
 # categories played by the motion-clip corner; family and hat actions are driven by real behaviour in the scenarios
 CLIP_CATEGORIES = ('身体与移动', '日常生活', '交流与情绪', '宠物店与表情', '运输与篮子')
-BEHAVIOUR_PLACES = {'家庭与照料': '接生帽、窝与地面的接生场景、嚼糜与首便、学起跳',
-                    '帽子与头饰': '放下的帽子、帽子损坏与拼回',
-                    '特殊身体': '仅目录'}
 
 
 def js(value):
@@ -544,38 +541,6 @@ def build_lobby():
     return s
 
 
-# ============================================================================== catalogue
-def write_catalogue(path, shown):
-    clips, internal = load_clips()
-    lines = ['# 试玩场动作清单', '',
-             '本页由 `scripts/build_museum_full.py` 的 `write_catalogue` 生成，不手工维护；修改动作注册、分类或适配资源后再重建。操作命令见文末。', '',
-             f'当前 `YukkuriAction` 注册 {len(ACTION_META)} 个动作。此表从注册表、19 套基础模型和动作修订联合生成；“资源适配”指确实存在动画片段，不等于每个年龄、亚种都适配。'
-             '水生魔理沙与普通魔理沙共用模型，场景按生态身份分开。', '',
-             f'试玩场的“动作片段”场地用 9 位固定演员播放 {len(shown)} 个纯动作片段（含待机），分五类：身体与移动、日常生活、交流与情绪、宠物店与表情、运输与篮子，另有全体合唱和全体体操。'
-             '家庭、照护、帽子与水边、落水与救援类动作由真实行为触发，在对应场景里自然出现，不放假按钮。', '',
-             '缩壳命令只接受有壳且不在水中、不着火的个体；自然受惊时也可触发。动作片段场地没有缩壳按钮，适配资源仍列在下表。'
-             '身体结构四段、失去幼体后的悲伤（`bereaved`）和家油内部片段不放按钮，但仍在下表列全。', '']
-    for group, entries in CATEGORIES:
-        lines += ['## ' + group, '', '| 动作 | ID | 资源适配 | 试玩位置 |', '| --- | --- | --- | --- |']
-        for action, name in entries:
-            supported = [MODELS[m] for m in MODELS if action in clips[m]]
-            scope = '全部 19 套模型' if len(supported) == 19 else '、'.join(supported)
-            if action.startswith('boat_') or action.endswith('_aq'):
-                scope += '；水生情景'
-            if action == 'hat_cradle':
-                scope += '；只用于帽托幼体'
-            if action == 'first_wake':
-                scope += '；只用于初生幼体'
-            place = '动作片段场地' if action in shown else BEHAVIOUR_PLACES.get(group, '仅目录')
-            lines += [f'| {name} | `{action}` | {scope} | {place} |']
-        lines.append('')
-    lines += ['## 注册表之外的内部片段', '', '这些名称不属于 `/yukkuri action` 的可选动作，不放置假按钮。', '', '| 模型 | 内部片段 |', '| --- | --- |']
-    for model, extra in internal.items():
-        if extra:
-            lines += [f'| {MODELS[model]} | ' + '、'.join('`' + x + '`' for x in sorted(extra)) + ' |']
-    lines += ['', '家油夹取、搬运、放下、蠕动由相应行为状态调用；试玩场的家油场景让一对家油真实拾絮、筑巢、产卵，不播放这些内部片段。', '',
-              '重建清单：`python scripts/build_museum_full.py --catalog docs/MOTION_MUSEUM_ACTIONS.md --pack-only --output .local/experimental-map/<新目录>`。该命令同时生成临时数据包，输出目录必须不存在；核对后删除本次临时目录。无需为更新清单使用会替换试玩世界的 `--install`。', '']
-    path.write_text('\n'.join(lines), encoding='utf-8')
 
 
 # ============================================================================== world
@@ -654,7 +619,6 @@ def main():
     parser.add_argument('--seed-level', type=Path)
     parser.add_argument('--pack-only', action='store_true', help='Generate a staged data pack only, without level.dat or options.txt')
     parser.add_argument('--output', type=Path)
-    parser.add_argument('--catalog', type=Path)
     parser.add_argument('--install', action='store_true', help='Replace .local/experimental-map/museum with a freshly generated world')
     parser.add_argument('--stale', action='store_true', help='Exit with status 1 when the installed world does not match the generator inputs')
     args = parser.parse_args()
@@ -714,8 +678,6 @@ def main():
     if not args.pack_only:
         (out / 'options.txt').write_text('lang:zh_cn\nguiScale:0\nrenderDistance:10\nsimulationDistance:8\nmaxFps:120\nonboardAccessibility:false\nautoJump:false\n'
                                          'pauseOnLostFocus:false\ntutorialStep:none\nnarrator:0\nsoundCategory_music:0.0\n', encoding='utf-8')
-    if args.catalog:
-        write_catalogue(args.catalog, shown)
     if args.install:
         if final.exists():
             shutil.rmtree(final)
