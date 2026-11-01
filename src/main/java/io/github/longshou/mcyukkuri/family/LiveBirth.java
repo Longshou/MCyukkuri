@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.intent.Choreography;
 import io.github.longshou.mcyukkuri.intent.GoTo;
 import io.github.longshou.mcyukkuri.intent.HostIntent;
 import io.github.longshou.mcyukkuri.intent.Intent;
-import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Rendezvous;
 import io.github.longshou.mcyukkuri.intent.Step;
@@ -20,7 +19,6 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
@@ -52,8 +50,8 @@ import net.minecraft.world.phys.Vec3;
  * The birth as one choreography, conducted by the mother's {@link FamilyLife} over the last
  * {@value #APPROACH_LEAD} ticks of a LIVE or STEM gestation. Roles: the mother, and the catcher (a Marisa father nearby,
  * hatted or not, else a hatted Marisa mother herself). The receiver is a hat the catcher sets down, a large nest, the ground,
- * or the boat she rides ({@link OwnHull}: her own hat afloat, no catcher, no hat to set down or take back; the outlet turns to
- * a free place in its hollow and the drawn push may still carry the child over the brim into the water). Both tables share the
+ * or the boat she rides ({@link OwnHull}: her own hat afloat, no catcher, no hat to set down or take back; she stays at her
+ * seat, each newborn drops onto a free seat in front of her, and one with no seat falls into the water). Both tables share the
  * site, meeting, hat and cleanup beats; LIVE adds the labour beats, STEM one drop beat. The labour clock ({@link #conductData})
  * only advances the brood ledger; the bodies move through their own BirthGoal.
  */
@@ -66,6 +64,8 @@ final class LiveBirth extends Choreography {
     /** Her turns from facing the catcher a meeting site tries, in sixteenths, the least first (her stand and the catcher's
      *  outside the brim may need more room than one eighth leaves beside a wall or a tree). */
     private static final float[] TURNS={0,22.5f,-22.5f,45,-45,67.5f,-67.5f,90,-90,112.5f,-112.5f,135,-135,157.5f,-157.5f,180};
+    /** How far above its seat a boat newborn is let go (blocks, 项目设计). */
+    private static final double SEAT_DROP=.3;
     private static final Set<String> BEFORE_HAT=Set.of("site","meet","regroup","self_wait","place"),LABOUR=Set.of("term","exit","exit_any","push","drop");
     /** Where the newborns are meant to come down ({@code Receiver}); a placed hat's host is set once it is down. */
     sealed interface Receiver permits PlacedHat, Nest, Ground, OwnHull { default String kind(){return getClass().getSimpleName();} }
@@ -149,7 +149,9 @@ final class LiveBirth extends Choreography {
         t.put("placed",new Beat.Branch(this::placed));
         t.put("nocatch",new Beat.Branch(r->nocatch("placement_timeout")));
         if(live){
-            t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"exit","term"));
+            t.put("term",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||toTerm()<=0,()->toTerm()+1200,"termed","term"));
+            // Aboard her boat she stays at her seat: no outlet to search, no turning or walking, straight to the pushes.
+            t.put("termed",new Beat.Branch(r->receiver instanceof OwnHull?"push":"exit"));
             t.put("exit",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(false),CATCHER,this::attend),()->(int)Math.max(1,exitUntil-now()),"turned","exit_any"));
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
             t.put("turned",new Beat.Branch(r->r.done()?"push":now()<exitUntil?"exit":"exit_any"));
@@ -157,7 +159,7 @@ final class LiveBirth extends Choreography {
             // No clear outlet at all: the birth is forced; real collision still applies to the newborn (never a permanent wait).
             t.put("force",new Beat.Branch(r->{forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";}));
             t.put("push",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().children.get(pushing).born,this::pushTicks,"pushed","pushed"));
-            t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
+            t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":receiver instanceof OwnHull?"push":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
         }else{
             t.put("drop",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().complete(),()->toTerm()+1240,"linger","drop"));
@@ -262,11 +264,11 @@ final class LiveBirth extends Choreography {
         if(moved>.0004)return "mother_moving";
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
-        var hat=receiverHat();
-        if(!forced&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||receiver instanceof OwnHull))return "outlet_blocked";
+        var hat=receiverHat();boolean boat=hat!=null&&receiver instanceof OwnHull;
+        if(!boat&&!forced&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
-        if(hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
+        if(hat!=null&&!boat&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
             discardExit("nominal_exit_lost");jump("exit","nominal_exit_lost");return "nominal_exit_lost";
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing)){
@@ -275,15 +277,25 @@ final class LiveBirth extends Choreography {
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
-        if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
-        var nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
-                :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
-        if(nominal==null&&(exit!=null||!unprotected&&!forced&&(receiver instanceof PlacedHat||receiver instanceof OwnHull)))GameplayLog.limited(m,"family","birth_lost_aim",200,
-                "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
-        if(nominal==null)hat=null;
+        BirthLaunch.Nominal nominal=null;
+        if(boat){
+            // Aboard her boat the newborn is let go just above the free seat in front of her (a short, visible drop that the seat
+            // catches); with no admissible seat it comes out at the outlet and falls through into the water.
+            var seat=hat.hollowPlaces(b.kind,b.children.get(pushing)).stream().findFirst().orElse(null);
+            if(seat!=null)at=seat.add(0,SEAT_DROP,0);
+            else GameplayLog.limited(m,"family","birth_no_seat",200,"birth no_seat child={} host={} seated={} size={}",pushing,hat.getUUID(),hat.youngPassengers().size(),
+                    String.format(Locale.ROOT,"%.3f",GrowthSize.physicalBirth(b.kind,b.children.get(pushing))));
+        }else{
+            if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
+            nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
+                    :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
+            if(nominal==null&&(exit!=null||!unprotected&&!forced&&receiver instanceof PlacedHat))GameplayLog.limited(m,"family","birth_lost_aim",200,
+                    "birth lost aim reason={} delivery={} phase=emerging host={}",hat==null?"host_missing":exit==null?"exit_missing":"behind",delivery,hat==null?null:hat.getUUID());
+            if(nominal==null)hat=null;
+        }
         // Failed entity insertion pauses at this child's release, never running into the next child's clock; inside her boat's
         // dry hollow the outlet's space is checked for blocks only.
-        var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced||hat!=null&&receiver instanceof OwnHull);
+        var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced||boat);
         if(child==null&&forced&&"newborn_space_blocked".equals(data.birthBlock(b))){
             // A forced birth with no room at the outlet comes out where her own body stands: a spawn place, never a moved body.
             hat=null;child=data.birth(b,pushing,o.level(),m.position(),null,null,true);
@@ -613,14 +625,6 @@ final class LiveBirth extends Choreography {
     private void search(PlacedHatEntity hat){
         choices=new ArrayList<>();var m=o.entity();var child=brood().children.get(pushing);var places=points(hat);
         var stands=new ArrayList<Vec3>();stands.add(m.position());
-        if(receiver instanceof OwnHull){
-            var grid=hat.walkGrid(m,true);var local=new ArrayList<Vec3>();
-            for(int j=0;j<grid.nz();j++)for(int i=0;i<grid.nx();i++)if(grid.supported(i,j)){
-                var p=new Vec3(grid.centreX(i),0,grid.centreZ(j));var support=hat.support(p,m);
-                if(support.isPresent())local.add(hat.frame().toWorld(new Vec3(p.x,support.getAsDouble(),p.z)));
-            }
-            local.sort(Comparator.comparingDouble(m::distanceToSqr));stands.addAll(local.subList(0,Math.min(11,local.size())));
-        }
         int clear=0,forward=0,room=0;double ahead=Double.NEGATIVE_INFINITY;
         for(var stand:stands){
             var aims=new ArrayList<Aim>();
@@ -634,7 +638,7 @@ final class LiveBirth extends Choreography {
             }
             aims.sort(Comparator.comparingDouble(Aim::score));var facings=new HashMap<Float,Boolean>();
             for(var aim:aims){
-                if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,stand,yaw,receiver instanceof OwnHull)))continue;
+                if(!facings.computeIfAbsent(aim.yaw(),yaw->LiveBirthGeometry.clear(m,pushing,stand,yaw,false)))continue;
                 clear++;if(!BirthLaunch.room(m,child,hat,stand,aim.yaw(),aim.at()))continue;room++;
                 var plan=BirthLaunch.qualify(m,child,hat,stand,aim.out(),aim.yaw(),aim.at());
                 if(plan==null)continue;
@@ -651,7 +655,6 @@ final class LiveBirth extends Choreography {
         private final boolean any;
         private final long deadline;
         private float yaw=Float.NaN;
-        private long walkStarted=-1;
         private Deliver(boolean any){this.any=any;deadline=any?now()+1200:exitUntil;}
         private float choose(){
             var hat=receiverHat();var m=o.entity();
@@ -663,7 +666,7 @@ final class LiveBirth extends Choreography {
             if(choices==null)search(hat);
             if(exit==null&&!choices.isEmpty()){
                 exit=choices.getFirst();qualificationTick=-1;qualificationMisses=0;rejection="";
-                deliveryReadout("qualified",atStand(hat)?"turn":"reposition");
+                deliveryReadout("qualified","turn");
             }
             return yaw=exit==null?Float.NaN:hat.getYRot()+exit.yaw();
         }
@@ -671,8 +674,8 @@ final class LiveBirth extends Choreography {
         @Override public boolean satisfied(){
             var m=o.entity();var hat=receiverHat();
             return !Float.isNaN(yaw)&&Math.abs(Mth.wrapDegrees((exit!=null&&hat!=null?hat.getYRot()+exit.yaw():yaw)-m.yBodyRot))<=Face.FACE_ARRIVED
-                    &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot,any||receiver instanceof OwnHull)
-                    &&(any||hat==null||exit!=null&&atStand(hat)&&qualified(hat));
+                    &&LiveBirthGeometry.clear(m,pushing,m.yBodyRot,any)
+                    &&(any||hat==null||exit!=null&&qualified(hat));
         }
         @Override public long deadline(){return deadline;}
         @Override public List<Method> methods(){return List.of(this);}
@@ -681,18 +684,8 @@ final class LiveBirth extends Choreography {
         @Override public Step next(){
             int left=(int)Math.max(1,deadline-now());
             if(Float.isNaN(choose()))return new Step.Wait(()->false,left,"no_safe_exit");
-            var hat=receiverHat();
-            if(!any&&exit!=null&&receiver instanceof OwnHull&&!atStand(hat)){walkStarted=now();return new Step.Do(new Walk(hat,exit.stand()));}
-            walkStarted=-1;
             return Math.abs(Mth.wrapDegrees(yaw-o.entity().yBodyRot))>Face.FACE_ARRIVED?new Step.Do(new Face(yaw)):new Step.Wait(this::satisfied,left,"outlet_clear");
         }
-        @Override public void ended(IntentRunner.Result result){
-            if(result==IntentRunner.Result.EXHAUSTED&&walkStarted>=0&&o.entity().motor().lastTick()>=walkStarted&&o.entity().motor().last() instanceof Outcome.Blocked failure)
-                discardExit("walk_"+failure.reason().name().toLowerCase(Locale.ROOT));
-        }
-    }
-    private boolean atStand(PlacedHatEntity hat){
-        return !(receiver instanceof OwnHull)||hat.frame().toWorld(exit.stand()).subtract(o.entity().position()).horizontalDistance()<=Walk.STAND_ARRIVED;
     }
     private boolean qualified(PlacedHatEntity hat){
         if(qualificationTick!=now()){

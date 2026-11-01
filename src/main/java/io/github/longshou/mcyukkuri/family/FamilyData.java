@@ -354,14 +354,13 @@ public final class FamilyData extends SavedData {
         return (int)people.values().stream().filter(p->p.status==Status.UNBORN&&p.mother!=null&&resident.test(p.mother)).count();
     }
     /** A size-dependent distribution. The random seed is fixed until a conception actually commits. */
-    public static int offspringCount(float maternalScale, long seed) {
+    public static int offspringCount(float maternalScale, long seed, boolean aquatic) {
         Random random=new Random(seed);
         double influence=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
         double size=Math.clamp((maternalScale-.8)/.4,0,1);
         // Keep the old default arithmetic exact; center other settings on p=.5 (mean three).
         double probability=Math.clamp(.15+influence*size+(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE-influence)*.5,0,1);
-        int count=1; for(int i=0;i<4;i++)if(random.nextDouble()<probability)count++;
-        return count;
+        return Litter.size(probability,aquatic,random);
     }
     private record PopulationBudget(BlockPos center, int limit) {}
     private PopulationBudget birthBudget(ServerLevel level, BlockPos position, UUID parentId) {
@@ -388,7 +387,7 @@ public final class FamilyData extends SavedData {
         if(kind==BirthKind.EGG != mother.profile().houseBody())return refused("kind");
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
-        int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed):2+new Random(seed).nextInt(3);
+        int count=kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic()):2+new Random(seed).nextInt(3);
         if(!FactoryProduction.reproductionAllowed(mother,father,count))return refused("factory");
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
@@ -459,7 +458,7 @@ public final class FamilyData extends SavedData {
         if(!victim.family().canReceiveAftermath())return "受影响者必须是存活成体，不能处于濒死、核心损伤、已有胎次、恢复期、未落定或不育状态";
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
-        int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source));
+        int count=offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().aquatic());
         if(!FactoryProduction.reproductionAllowed(victim,source,count))return "当前收容或工厂身份不允许建立这个事件";
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
@@ -475,7 +474,7 @@ public final class FamilyData extends SavedData {
     public Brood createAftermath(YukkuriEntity victim,YukkuriEntity source) {
         if(aftermathRefusal(victim,source)!=null)return null;
         var level=(ServerLevel)victim.level();
-        long seed=aftermathSeed(victim,source);int count=offspringCount(victim.family().adultScale(),seed);
+        long seed=aftermathSeed(victim,source);int count=offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic());
         var brood=new Brood();brood.id=UUID.randomUUID();brood.mother=victim.getUUID();brood.incidentSource=source.getUUID();
         brood.kind=BirthKind.STEM;brood.anchor=GlobalPos.of(level.dimension(),victim.blockPosition());
         brood.duration=FamilyConfig.GESTATION.get();
@@ -510,7 +509,7 @@ public final class FamilyData extends SavedData {
                 Custody.Role.LABOR,Custody.Role.RESERVE,Custody.Role.STOCK,Custody.Role.LOST).contains(custody.role())
                 ||custody.ownerKind()==Custody.OwnerKind.NPC
                 ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof HumanNpc))return false;
-        int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions());
+        int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions(),mother.profile().aquatic());
         var shelter=mother.habitat().shelter();if(shelter!=null&&!shelter.suitableForYoung(count))return false;
         var budget=birthBudget(level,mother.life().homeStand(),mother.getUUID());
         return mother.life().nutrition()>=55+count*2&&population(level,budget.center())+count<=budget.limit();
@@ -519,7 +518,7 @@ public final class FamilyData extends SavedData {
         if(!canAssist(mother))return null;
         var level=(ServerLevel)mother.level();register(mother);
         long seed=mother.getUUID().getMostSignificantBits()^mother.family().conceptions();var random=new Random(seed);
-        int count=offspringCount(mother.family().adultScale(),seed);
+        int count=offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic());
         var brood=new Brood();brood.id=UUID.randomUUID();brood.mother=mother.getUUID();brood.father=null;brood.kind=BirthKind.LIVE;
         brood.anchor=GlobalPos.of(level.dimension(),mother.life().homeStand());brood.duration=FamilyConfig.GESTATION.get();brood.variation=1;
         for(int i=0;i<count;i++){
@@ -557,7 +556,7 @@ public final class FamilyData extends SavedData {
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position) { return birth(brood,index,level,position,null,null,false); }
 
     /** One child into the world; a mother's LIVE or STEM child also draws its one launch, into {@code hat} when the outlet is aimed
-     *  at it (first real contact decides). {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
+     *  at it (first real contact decides); a hat with no nominal arc is the mother's own boat, the kit simply dropping from {@code position}. {@code unprotected}: the safety wait ran out, so the outlet may hold liquid. */
     public YukkuriEntity birth(Brood brood, int index, ServerLevel level, Vec3 position, PlacedHatEntity hat, BirthLaunch.Nominal nominal, boolean unprotected) {
         if(brood.cancelled||index<0||index>=brood.children.size())return null;
         var mother=brood.detachedHolder==null&&brood.kind!=BirthKind.EGG&&level.getEntity(brood.mother) instanceof YukkuriEntity m?m:null;
@@ -602,9 +601,9 @@ public final class FamilyData extends SavedData {
         finally { spawning.remove(child.id); }
         if(!added)return refuse(brood,level,"entity_rejected");
         // One drawn impulse, then physics; on land the push is random, so a strong or crooked one carries the kit past the hat.
-        if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat!=null
-                ?BirthLaunch.intoHat(entity,hat,nominal,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random))
-                :BirthLaunch.live(level.random,mother,entity,entity.position()),brood,index,hat);
+        if(mother!=null&&brood.kind==BirthKind.LIVE)entity.family().launch(hat==null?BirthLaunch.live(level.random,mother,entity,entity.position())
+                :nominal==null?BirthLaunch.drop(entity,hat)
+                :BirthLaunch.intoHat(entity,hat,nominal,BirthLaunch.push(level.random),BirthLaunch.yaw(level.random)),brood,index,hat);
         else if(mother!=null&&brood.kind==BirthKind.STEM){
             var centre=FamilyNest.largeCentre(mother);double half=NestResting.LARGE.half();
             entity.family().launch(BirthLaunch.stem(level.random,position,hat!=null?BirthLaunch.Target.HAT:centre!=null&&Math.abs(position.x-centre.x)<half

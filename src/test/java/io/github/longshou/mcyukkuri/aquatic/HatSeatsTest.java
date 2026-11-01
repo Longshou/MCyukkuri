@@ -25,6 +25,11 @@ class HatSeatsTest {
         assertEquals(original, riders.getFirst().at());
         assertNotEquals(riders.get(1).at(), riders.get(2).at());
     }
+    @Test void thirdNewbornHasNoSeatWhenTwoInfantSeatsAreTaken() {
+        var riders = captain(1);
+        board(riders, 1, .08); board(riders, 1, .08);
+        assertNull(HatSeats.admit(1, body(.08), false, riders));
+    }
     @Test void oneSmallJuvenileFitsAndLargeJuvenileIsRefused() {
         var riders = captain(1);
         assertNotNull(HatSeats.admit(1, body(.38), false, riders));
