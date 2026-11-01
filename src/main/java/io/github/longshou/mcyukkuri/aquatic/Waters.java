@@ -128,6 +128,12 @@ final class Waters {
      */
     record Edge(BlockPos stand, Vec3 edge, Vec3 normal, BlockPos water) {
         Vec3 stand(double width) { return edge.subtract(normal.scale(width / 2 + .05)); }
+        /** Land with half the sole on the bank, then ordinary walking can bring the whole body onto it. */
+        Vec3 landing(YukkuriEntity body) {
+            double span = .5 - SurfaceApproach.supportRadius(body);
+            var along = body.position().subtract(edge).multiply(1 - Math.abs(normal.x), 0, 1 - Math.abs(normal.z));
+            return edge.add(Mth.clamp(along.x, -span, span), 0, Mth.clamp(along.z, -span, span));
+        }
         Vec3 out(double d) { return edge.add(normal.scale(d)); }
         /** {@code d} blocks out over the water, inside the water cell: where a hat is set down. */
         Vec3 onWater(double d) { var at = out(d); return new Vec3(at.x, water.getY() + .5, at.z); }
@@ -216,7 +222,7 @@ final class Waters {
     private static Vec3 findAshore(YukkuriEntity body) {
         int asked = 0;
         for (var e : edges(body, body.position(), 2, false)) {
-            var at = e.stand(body.getBbWidth());
+            var at = e.landing(body);
             if (hatOver(body, at, 0)) continue;
             if (asked++ >= ASKED) break;
             if (new Hop(at).check(body).ok()) return at;

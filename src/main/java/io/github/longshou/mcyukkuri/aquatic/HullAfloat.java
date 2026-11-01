@@ -328,8 +328,11 @@ public final class HullAfloat implements PlacedHatBehavior {
         larder.load(hat, tag.getCompound("Stores"));
     }
     @Override public boolean shelters(PlacedHatEntity hat, YukkuriEntity rider) {
+        // A rising hop is above the dry cloth even after it leaves standing occupancy at the floor.
+        var local = hat.frame().toLocal(rider.position());
         return phase == Phase.UPRIGHT && (hat.hasPassenger(rider)
-                || Occupancy.at(hat.container(), rider.position(), rider.getBbWidth(), true) == Occupancy.INSIDE_SUPPORTED);
+                || hat.profile().inOpening(local.x, local.z)
+                && local.y >= hat.profile().surface(local.x, local.z) - Occupancy.MARGIN / hat.unit());
     }
     @Override public String detail(PlacedHatEntity hat) {
         return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s",

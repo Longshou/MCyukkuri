@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HatSeatsTest {
-    private static HatSeats.Body body(double size) { return new HatSeats.Body("marisa", size, .75 * size, .53 * size); }
+    private static HatSeats.Body body(double size) { return new HatSeats.Body("marisa", size, .8 * size, .6 * size); }
     private static List<HatSeats.Occupant> captain(double scale) {
         var body = body(scale);
         return new ArrayList<>(List.of(new HatSeats.Occupant(body, HatSeats.admit(scale, body, true, List.of()), true)));
@@ -40,6 +40,7 @@ class HatSeatsTest {
     @Test void captainRangeAndHullScaleKeepProportionalCapacity() {
         for (double size : new double[]{.8, 1, 1.2}) {
             var riders = captain(size);
+            assertNotNull(HatSeats.admit(size, body(.38 * size), false, riders));
             board(riders, size, .15 * size); board(riders, size, .2 * size);
             assertNull(HatSeats.admit(size, body(size), true, riders));
         }

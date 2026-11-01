@@ -486,7 +486,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         boolean boarded = !riders.contains(y.getUUID());
         if (boarded)
             riders.put(y.getUUID(), fixedSeats() ? seatDestination(y).local() : snapped(frame().toLocal(y.position()), y), Mth.wrapDegrees(y.getYRot() - getYRot()));
-        checkRiders(y);
         if (boarded) GameplayLog.event(this, "hat", "boarded rider={} own={} riders={} owner={}", y.getUUID(), y.getUUID().equals(ownerYukkuri()),
                 getPassengers().size(), ownerYukkuri());
     }
@@ -708,6 +707,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private void tickServer() {
         if (isRemoved()) return;
         var accessoryOwner=owner();
+        // Vanilla restores passengers one at a time; validate only after the host enters the world tick.
+        checkRiders(accessoryOwner);
         if(accessoryOwner!=null)syncAccessoryIdentity(accessoryOwner);
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
         syncRiders();

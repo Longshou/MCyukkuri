@@ -48,9 +48,8 @@ import net.minecraft.world.phys.Vec3;
 final class Ashore implements Intent {
     /** The whole landing; the whole reclaim; the longest wait for young to hop off or for the hat to drift into reach (ticks). */
     private static final int COME = 2400, RECLAIM = 1600, WAIT = 300;
-    /** Blocks from a route leg a paddled hat counts as arrived there; from the bank edge once it is paddled in against it; past
-     *  its brim's reach a hat lies out of reach from the bank. */
-    private static final double ARRIVE = .6, AGAINST = .5, OUT_OF_REACH = .6;
+    /** Route-leg arrival distance; extra reach beyond the brim when reclaiming from the bank. */
+    private static final double ARRIVE = .6, OUT_OF_REACH = .6;
 
     private final YukkuriEntity owner;
     private final boolean reclaim;
@@ -123,7 +122,7 @@ final class Ashore implements Intent {
         if (route.size() > 1) return List.of(() -> new Step.Do(new Paddle(Waters.leg(route), ARRIVE)));
         // at the landing water: paddle in against the bank, once; no hop in reach even then, and the next derive takes another
         if (!tried.add(edge.stand())) { landing = null; return paddle(hat); }
-        return List.of(() -> new Step.Do(new Paddle(edge.edge(), AGAINST)));
+        return List.of(() -> new Step.Do(new Paddle(edge::edge, distance -> Waters.ashore(owner) != null)));
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing steps; afloat out of reach from there, it is

@@ -301,6 +301,7 @@ final class AquaticGoal extends Goal {
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
+                && !(running != null && running.intent() instanceof Ashore)
                 && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut))
             out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)

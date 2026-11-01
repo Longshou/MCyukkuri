@@ -42,6 +42,7 @@ public final class Hop implements Action {
 
     private Vec3 target;
     private final SurfaceHost seatHost;
+    private SurfaceHost departure;
     private SeatTarget seat;
     private List<Vec> flight;
     private final List<SurfaceHost> hosts = new ArrayList<>();
@@ -64,13 +65,14 @@ public final class Hop implements Action {
     /** Boarding a moving host follows the solved arc to its current seat, then attaches at that landing. */
     public Hop(SurfaceHost host) { seatHost = host; }
 
-    /** The physical receiver while this hop crosses its rim, before passenger attachment. */
-    public SurfaceHost host() { return seatHost; }
+    /** The physical hull whose dry cavity the hop crosses on arrival or departure. */
+    public SurfaceHost host() { return seatHost != null ? seatHost : departure; }
 
     @Override public String id() { return ID; }
 
     /** Pure: solves the arc over the block and host sweep. The plan is kept for {@link #start}. */
     @Override public Feasibility check(YukkuriEntity body) {
+        departure = body.getVehicle() instanceof SurfaceHost host ? host : null;
         if (seatHost != null) {
             if (seatHost.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
             seat = seatHost.seatDestination(body);
@@ -134,9 +136,13 @@ public final class Hop implements Action {
             var p = flight.get(index);
             double share = Math.min(air / plan.ticks(), 1);
             var aim = from.add(p.x(), p.y(), p.z()).add(seat.world().subtract(target).scale(share));
-            Motor.move(body, aim.subtract(body.position()), "hop_seat");
+            var before = body.position();
+            var delta = aim.subtract(before);
+            if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_seat");
+            Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_seat");
             double blocked = body.position().distanceTo(aim);
-            if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "seat_arc_blocked");
+            if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked,
+                    "seat_arc_blocked from=" + GameplayLog.at(before) + " aim=" + GameplayLog.at(aim) + " at=" + GameplayLog.at(body.position()));
             if (index == flight.size() - 1)
                 return seat.land(body, "hop_contact") ? new Outcome.Done("seat at=" + GameplayLog.at(body.position()))
                         : Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
@@ -185,14 +191,17 @@ public final class Hop implements Action {
 
     /** The clearance sweep: every tick sample's body box must be free of blocks and must not pass under a host surface; the footprint is tested once, at the contact. */
     private boolean clear(YukkuriEntity body, List<Vec> points) {
-        AABB base = body.getBoundingBox();
+        // A moving landing uses its contact tolerance as bank clearance while the hull bobs and drifts.
+        double margin = seatHost == null ? 0 : TOUCH;
+        AABB base = body.getBoundingBox().inflate(margin, 0, margin);
         Vec3 origin = body.position();
         Vec3 previous = from;
         for (Vec point : points) {
             Vec3 at = from.add(point.x(), point.y(), point.z());
-            // Minecraft resolves vertical collision before the horizontal part of this tick's move.
-            Vec3 vertical = new Vec3(previous.x, at.y, previous.z);
-            if (!body.level().noCollision(body, base.move(vertical.subtract(origin)).deflate(.002))) return false;
+            // Seat descents cross the bank edge before lowering; ascent and vanilla flight resolve vertical first.
+            Vec3 corner = seatHost != null && at.y < previous.y
+                    ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
+            if (!body.level().noCollision(body, base.move(corner.subtract(origin)).deflate(.002))) return false;
             if (!body.level().noCollision(body, base.move(at.subtract(origin)).deflate(.002))) return false;
             for (SurfaceHost host : hosts) {
                 double unit = Math.max(1E-6, host.frame().unit());

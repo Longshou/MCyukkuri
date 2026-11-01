@@ -2032,7 +2032,8 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                                    r'\[aquatic\][^\n]* first_voyage start [^\n]*from=parent_hat\b',
-                                   r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b'],
+                                   r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
+                                   r'\[aquatic\][^\n]* first_voyage success\b'],
                 forbid=[r'\[body\][^\n]* invariant\b'], readout=[f'yukkuri status {sel("c1")} raw']))
 
 
