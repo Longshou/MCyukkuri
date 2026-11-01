@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 水生帽船重做（WP5 救援重做：辫子从船上捞进座位） | `.worktrees/aq-wp5c-rescue` | Rescue、ParentCarry 放下目标、Release、Ferry/SetOut 赤油上船、救援场景 |
+| 亲代运输演示场景 | `.worktrees/transport-demo` | `scripts/museum_scenarios.py` 新场景 |
 
 ## 玩法待办
 
