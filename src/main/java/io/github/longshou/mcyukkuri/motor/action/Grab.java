@@ -30,7 +30,7 @@ import java.util.Locale;
  */
 public final class Grab implements Action {
     public static final String ID = "grab";
-    /** Fallback braid grip marker; a mouth grips as soon as its real contact check passes. */
+    /** The mouth lift (ticks): the parent stands over the child and closes on it. */
     public static final int LIFT_TICKS = 14;
     /** The braid's clips: it reaches, closes on the child by {@code lift_start}, lifts it by {@code lift_end} and sets it down by
      *  {@code place}; the low lean reaches lower and farther. */
@@ -121,7 +121,7 @@ public final class Grab implements Action {
             way = BraidFetch.marker(BraidFetch.HOLD, "place") - BraidFetch.marker(BraidFetch.HOLD, "grip");
         } else {
             boolean braid = hold.reach() == Reach.BRAID;
-            lift = braid ? clip.ticks("lift_start", LIFT_TICKS) : 0;
+            lift = braid ? clip.ticks("lift_start", LIFT_TICKS) : LIFT_TICKS;
             way = braid ? Math.max(0, clip.ticks("place", lift) - lift) : 0;
         }
         return Feasibility.pass();
@@ -133,7 +133,8 @@ public final class Grab implements Action {
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean);
-        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean) : mouthFacing(carrier);
+        facing = hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target, lean)
+                : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         turn = new Face(facing);
         turn.check(carrier);
         turn.start(carrier);
@@ -151,9 +152,9 @@ public final class Grab implements Action {
             gap = Math.min(ContactGeometry.braidGap(carrier, target, false), ContactGeometry.braidGap(carrier, target, true));
             if (gap > 0) return Outcome.of(Reason.NO_CONTACT, gap, "braid_contact_out_of_reach");
         }
-        // The braid finishes its turn before its clip's grip point; a mouth grips as soon as its contact check passes.
+        // The carrier turns while the braid (or the mouth) reaches out; the lift ends once both are done.
         double angle = turn.tick(carrier) instanceof Running turning ? turning.metric() : 0;
-        if (angle > 0 && hold.reach() == Reach.BRAID || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
+        if (angle > 0 || ticks < lift) return new Running(Math.max(0, lift - ticks) + angle + way, TravelMode.CONSUMED);
         if (target.operations().active()) return Outcome.of(Reason.TARGET_GONE, 0, "target_operated");
         // The world may have changed since check: with no way out left the braid lets go of it before lifting.
         var seat = destination == null ? null : destination.seatDestination(target);
@@ -169,10 +170,6 @@ public final class Grab implements Action {
         mounted = true;
         ParentCarry.gripped(carrier, target, rejected, way);
         return way > 0 ? new Running(way, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
-    }
-
-    private float mouthFacing(YukkuriEntity carrier) {
-        return (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
     }
 
     @Override public MotionPose pose() {

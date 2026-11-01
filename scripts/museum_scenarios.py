@@ -1512,7 +1512,8 @@ colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读迁徙完成条件', 'yukkuri settlement rules')],
-       smoke=dict(ticks=7200, forbid=[],
+       smoke=dict(ticks=7200,
+                  forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b'],
                   expect=[r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
                           r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
                           r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b']))
@@ -1556,7 +1557,7 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                        r'\[family\] reimu #[^\n]* carry pickup hold=mouth\b',
                        r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
                        *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families),
-                       r'\[family\] chen #[^\n]* carry put down reason=nest_rim_to_cushion [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b'],
+                       r'\[family\] (?:marisa|reimu|chen) #[^\n]* carry put down reason=nest_rim_to_cushion [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b'],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b'],
                readout=[f'yukkuri status {sel(kind + "_parent")} raw' for kind, _, _, _ in _carry_families],
                verify=_carry_verify))

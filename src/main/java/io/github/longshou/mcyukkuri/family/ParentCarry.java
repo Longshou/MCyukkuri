@@ -1112,7 +1112,8 @@ public final class ParentCarry {
         var hold = hold(carrier, child);
         var problem = holdProblem(carrier, child, hold, true);
         if (problem != null) return problem;
-        if (now % 5 == 0 && (hold == Hold.BRIM ? !clear(carrier, child, rawSeat(carrier, child, 0)) : seat(carrier, child) == null)) return "seat_blocked";
+        // A brim seat is fixed to the carrier's own hat and follows its route: a wall beside it is a clip, not a reason to let go.
+        if (now % 5 == 0 && hold != Hold.BRIM && seat(carrier, child) == null) return "seat_blocked";
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
         var home = purpose == Purpose.RETRIEVE ? child.family().carryHome() : null;
@@ -1249,9 +1250,10 @@ public final class ParentCarry {
         return walk(floor == null ? approach : floor, taskTicks, "nest_unreachable");
     }
 
-    /** The shared Walk to {@code at}; a stationary failed route is not retried unchanged, and actual movement starts a fresh attempt. */
+    /** The shared Walk to {@code at}: being there is arrival, and a route that moved the carrier nowhere is not tried again unchanged. */
     private boolean walk(Vec3 at, int taskTicks, String failure) {
         var motor = carrier.motor();
+        if (carrier.position().distanceToSqr(at) < .0625) return true;
         boolean same = walkTo != null && at.distanceToSqr(walkTo) < .0625;
         if (same && motor.current() instanceof Walk && motor.owner() == owner) return true;
         if (same && walkFrom != null && carrier.position().distanceToSqr(walkFrom) < .0001) { giveUp = failure; return false; }

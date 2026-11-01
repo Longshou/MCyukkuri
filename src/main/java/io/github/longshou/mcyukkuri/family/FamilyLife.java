@@ -882,7 +882,7 @@ public final class FamilyLife {
             }
             // Only a child's follow/search waits for the incoming pickup; a child already returning to its nest keeps walking.
             if(ParentCarry.awaitsCarrier(entity)) {
-                GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry task={} ticks={}",task,taskTicks);
+                GameplayLog.limited(entity,"family","wait.carrier",1200,"baby waits for parent carry");
                 return false;
             }
             target=closestParent();
