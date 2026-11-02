@@ -431,7 +431,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         for (var wall : nestWalls) if (wall.gap(to.x, to.z) < clear) { to = end; break; }
         var retreat = nestWalls.isEmpty() ? null : NestDoorway.retreat(walker);
         if (retreat != null) {
-            to = retreat;
+            // A post may occupy the nearest point clear of the rim. Use the existing free-point search,
+            // retaining the retreat direction on each axis so it cannot become a crossing of that rim.
+            var direction = retreat.subtract(at);
+            var free = Detour.outside(retreat.x, retreat.z, clear, boxes).stream()
+                    .filter(p -> (p[0] - at.x) * direction.x >= 0 && (p[1] - at.z) * direction.z >= 0).findFirst();
+            if (free.isEmpty()) return null;
+            to = new Vec3(free.get()[0], retreat.y, free.get()[1]);
             boxes.removeIf(box -> box.gap(at.x, at.z) < clear);
         }
         var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
