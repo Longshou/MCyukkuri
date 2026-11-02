@@ -183,7 +183,6 @@ final class Waters {
 
     private static Edge findBerth(YukkuriEntity body) {
         for (var e : freeEdges(body, body.position())) {
-            if (!floats(e, body)) continue;
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)
                     || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
