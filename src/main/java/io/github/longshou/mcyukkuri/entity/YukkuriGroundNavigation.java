@@ -225,7 +225,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 if(mob instanceof YukkuriEntity actor){
                     var bed=NestDoorway.at(actor,actor.position());
                     var door=bed==null?null:NestDoorway.stand(actor,bed);
-                    if(door!=null)return getStartNode(new BlockPos(Mth.floor(door.x-entityWidth*.5+.5),Mth.floor(door.y+.5),Mth.floor(door.z-entityDepth*.5+.5)));
+                    if(door!=null)return getStartNode(new BlockPos(Mth.floor(door.x-entityWidth*.5+.5),Mth.floor(door.y+.5),
+                            NestDoorway.shape(bed).side()>0?Mth.ceil(door.z-entityDepth*.5):Mth.floor(door.z-entityDepth*.5)));
                 }
                 var start=super.getStart();
                 if(!forceSearch||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
