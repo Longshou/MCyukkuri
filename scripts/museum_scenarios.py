@@ -2043,7 +2043,7 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      '约 2–3 分钟（可倍速）',
      [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=56, energy=100, hygiene=100),
       item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
-     vantage=(-3, -6, -15, 15),
+     vantage=(-7, 5, -130, 15),
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
           '[action] end id=take_prop outcome=DONE。划水时原版木棍随辫梢移动，读 aquatic.stick_in_braid=true；停划时消失、读数为 false，岸边招帽仍空辫拨水。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
