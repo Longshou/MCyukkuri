@@ -2588,7 +2588,7 @@ pond('rescue_no_seat', '满座落水·抱到岸上', '满座送岸',
      [_aquatic_young('rescue_no_seat', 'c1', bank_dx(1) + 1.6, 1, 'baby', 'a', dy=-.5,
                      fam=_seat_family(.08, 0, 0), childhood='Version:2,Newborn:1b,Landed:1b')],
      late=[yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
-           *_babies(), afloat('a', water_at(0, 1), True, sel_all('crew'), stick=True)],
+           *_babies(), afloat('a', water_at(0, 1.5), True, sel_all('crew'), stick=True)],
      note=_INCIDENT_NOTE + '满座由两只真实乘员占据；新生赤油以近岸落水为真实初态，船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
@@ -2656,7 +2656,7 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), kit='minecraft:stick',
          **{**pair_ready(), 'energy': 20}),
       _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
-      afloat('a', water_at(0, 1), True, sel('c1'))],
+      afloat('a', water_at(0, 1.5), True, sel('c1'))],
      note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油近岸低体力歇泊，子油从亲帽的真实座位开始初航。'
           '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=parent_hat → [action] end id=hop outcome=DONE（离亲帽）→ [action] start id=walk（找船位）→ '
           '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '

@@ -898,7 +898,7 @@ public final class FamilyLife {
                 return false;
             }
             target=closestParent();
-            if(target!=null&&entity.distanceToSqr(target)>familyRadiusSqr()) { task=Task.FOLLOW;taskTicks=0;return true; }
+            if(target!=null&&!withinFollowDistance(target)) { task=Task.FOLLOW;taskTicks=0;return true; }
             if(target==null) {
                 var data=FamilyData.get(level());var known=data.person(mother);
                 if(known==null||known.status==FamilyData.Status.DEAD)known=data.person(father);
@@ -947,7 +947,7 @@ public final class FamilyLife {
         if(familyTravelling())return migrationEscort();
         return level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
                 &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other))
-                .stream().filter(other->ParentCarry.needsCarry(entity)||entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
+                .stream().filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
     YukkuriEntity migrationEscort() {
@@ -986,7 +986,14 @@ public final class FamilyLife {
      */
     private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
     /** The same arrival distance that ends this child's ordinary land follow. */
-    public boolean withinFollowDistance(YukkuriEntity parent) { return entity.distanceToSqr(parent) < familyRadiusSqr(); }
+    public boolean withinFollowDistance(YukkuriEntity parent) {
+        var at = gatherAt(parent);
+        return at == null ? entity.distanceToSqr(parent) < familyRadiusSqr() : SurfaceApproach.arrived(entity, at);
+    }
+    private Vec3 gatherAt(YukkuriEntity parent) {
+        var run = IntentRunner.running(parent);
+        return run != null && run.intent() instanceof FamilyRendezvous meeting ? meeting.gatherAt(entity) : null;
+    }
     private double familyRadiusSqr() {
         if(exploring()&&!familyTravelling())return Math.pow(entity.roaming().radius()+2,2);
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
@@ -1103,7 +1110,9 @@ public final class FamilyLife {
             case FOLLOW -> {
                 if(!entity.life().canRecognize(target)||withinFollowDistance(target)){stop();return;}
                 entity.getLookControl().setLookAt(target,20,20);
-                if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
+                var at = gatherAt(target);
+                if(at!=null)SurfaceApproach.walk(entity,at,1.15);
+                else if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
             }
             case STAY_HOME -> {
                 var home=earlyHomeStand();

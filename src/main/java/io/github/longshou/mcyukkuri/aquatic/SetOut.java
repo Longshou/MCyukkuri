@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
+import io.github.longshou.mcyukkuri.family.FamilyRendezvous;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -41,7 +42,7 @@ import net.minecraft.world.phys.Vec3;
  * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to its brim,
  * and she approaches a wandering child on foot before lifting it.
  */
-final class SetOut implements Intent {
+final class SetOut implements Intent, FamilyRendezvous {
     /** The whole setting out, the post-launch boarding call, and the longer bank gather (ticks). */
     private static final int DEADLINE = 2400, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
 
@@ -65,6 +66,11 @@ final class SetOut implements Intent {
     @Override public String id() { return "set_out"; }
     @Override public long deadline() { return started + DEADLINE; }
     @Override public Commitment commitment() { return Commitment.HARD; }
+    @Override public Vec3 gatherAt(YukkuriEntity child) {
+        var hat = AquaticLife.hat(owner);
+        return hat == null ? SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2)
+                : SurfaceApproach.beside(child, hat, (child.getBbWidth() + hat.getBoundingBox().getXsize()) / 2 + .05, 1.2);
+    }
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
@@ -193,7 +199,7 @@ final class SetOut implements Intent {
     /** Whether the current responsive wards have reached her braid on the bank. */
     private boolean gathered() {
         var fetch = dependentAshore(AquaticLife.hat(owner));
-        return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner) || BraidFetch.withinReach(owner, y));
+        return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner));
     }
 
     /** A narrow horizon scan for an own young on land too far away for the ordinary aquatic family list. */

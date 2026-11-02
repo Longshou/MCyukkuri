@@ -38,8 +38,8 @@ final class Ferry {
         var stand = brim == null ? bank : Waters.ashore(carrier, hat.toWorld(brim));
         if (stand == null) return null;
         var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> act(new Grab(child)));
         if (brim != null) steps.add(() -> act(new Hop(hat, brim)));
+        steps.add(() -> act(new Grab(child)));
         steps.add(() -> act(new Hop(stand)));
         steps.add(() -> act(release));
         return steps;
