@@ -245,6 +245,8 @@ public enum StatusKey {
         var b = y.family().brood();
         return b == null ? 0 : b.burdenTicks;
     }, null),
+    /** Synced stem drain look: 0 none, 1 carrying, 2 thinning, 3 weak; 2 and 3 linger after the brood until she recovers. */
+    DRAIN_STAGE("reproduction", "drain_stage", 0, YukkuriEntity::aftermathDrain, null),
     STERILE("reproduction", "sterile", 0, y -> y.family().sterile(), null),
     BIRTH_BLOCK("reproduction", "birth_block", 20, y -> y.family().birthBlock(), null),
     /** How this newborn's birth ended: outcome (HAT, CUSHION, GROUND, WATER), push strength and distance from the planned landing point. */

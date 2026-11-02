@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Marks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
@@ -224,7 +225,7 @@ final class YukkuriSync {
         setChanged(GROWTH_SCALE,owner.family().scale());setChanged(LIFE_STAGE,owner.family().stage().ordinal());
         var brood=owner.isAlive()?owner.family().brood():null;int count=owner.isAlive()?owner.family().spentStemCount():0,born=(1<<count)-1,
                 types=0;float progress=1,variation=owner.family().spentStemVariation();
-        setChanged(AFTERMATH_STATE,owner.isAlive()?owner.family().drainStage():0);
+        syncDrain();
         if(brood!=null&&!brood.cancelled&&brood.kind==FamilyData.BirthKind.STEM) {
             count=brood.children.size();born=0;progress=brood.progress();variation=brood.variation;
             for(int i=0;i<count;i++){var child=brood.children.get(i);if(child.born)born|=1<<i;types|=child.variant.ordinal()<<(i*4);}
@@ -259,6 +260,16 @@ final class YukkuriSync {
             sentLiveChildren=live;
         }
         setChanged(LIVE_DELIVERY,delivery);setChanged(LIVE_PROGRESS,owner.isAlive()?owner.family().liveBelly():0f);
+    }
+    /** The stem drain stage: its one transition log sits where the synced value changes, so eating and sleeping back are seen too. */
+    private void syncDrain() {
+        int was=owner.getEntityData().get(AFTERMATH_STATE);
+        int now=owner.isAlive()?owner.family().drainStage():0;
+        if(was==now)return;
+        owner.getEntityData().set(AFTERMATH_STATE,now);
+        var brood=owner.family().brood();
+        GameplayLog.event(owner,"family","stem drain stage {}->{} brood={} unborn={} nutrition={} energy={}",
+                was,now,brood==null?null:brood.id,brood==null?0:brood.unborn(),owner.life().nutrition(),owner.life().energy());
     }
     void setAnimation(YukkuriAction action, boolean restart) {
         if (restart || !getAnimationId().equals(action.id())) {

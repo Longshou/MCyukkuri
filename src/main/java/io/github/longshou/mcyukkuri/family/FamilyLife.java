@@ -73,6 +73,8 @@ public final class FamilyLife {
     private UUID partner;
     private float birthScale;
     private int conceptions, recovery, wait, taskTicks, spentStemCount;
+    /** She was drained by a stem and has not yet fed or slept back above the thinning thresholds (saved with her). */
+    private boolean stemDrained;
     private float spentStemVariation=1;
     private boolean initialized, awaitingLanding, juvenileVoice;
     private boolean sterile;
@@ -402,6 +404,8 @@ public final class FamilyLife {
         if(!entity.isAlive()){if(entity.isVehicle())entity.motor().interrupt("carrier_dead");return;}
         carry.tick();
         if(!entity.isNoAi())tickAftermathBurden();
+        // The drain look fades with her recovery, not with the brood.
+        if(stemDrained&&drainStage()==0)stemDrained=false;
         var finished=brood();
         if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.STEM&&finished.complete())finishStem(finished);
         else if(finished!=null&&!finished.cancelled&&finished.kind==FamilyData.BirthKind.LIVE&&finished.complete())delivered(finished);
@@ -767,15 +771,14 @@ public final class FamilyLife {
     /** Called only after a checked STEM reservation; the source gains no partner or care role. */
     void receiveAftermath(UUID brood) {
         endBreedingPeriod();gestation=brood;conceptions++;recovery=FamilyConfig.RECOVERY.get();
-        spentStemCount=0;
+        spentStemCount=0;stemDrained=true;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
-    /** Visible drain of an attack-conceived brood: 0 none, 1 carrying, 2 thinning (nutrition or stamina below 50), 3 weak (below 30 / 25). */
+    /** Visible drain of an attack-conceived brood: 0 none, 1 carrying, 2 thinning, 3 weak (rule and thresholds: {@link StemDrain}). */
     public int drainStage() {
         var b=brood();
-        if(b==null||b.incidentSource==null||b.cancelled||b.complete())return 0;
-        float nutrition=entity.life().nutrition(),energy=entity.life().energy();
-        return nutrition<30||energy<25?3:nutrition<50||energy<50?2:1;
+        boolean carrying=b!=null&&b.incidentSource!=null&&!b.cancelled&&!b.complete();
+        return StemDrain.stage(carrying,stemDrained,entity.life().nutrition(),entity.life().energy());
     }
     private void tickAftermathBurden() {
         var pregnancy=brood();
@@ -785,12 +788,11 @@ public final class FamilyLife {
         // Hunger at zero uses YukkuriLife's ordinary starvation damage; there is no instant-death branch.
         if(++pregnancy.burdenTicks>=200) {
             pregnancy.burdenTicks=0;
-            int before=drainStage();
             float cost=1f+.2f*pregnancy.unborn();
             entity.life().spendNutrition(Math.min(cost,entity.life().nutrition()));
             entity.life().applyEnvironment(0,0,entity.life().nutrition()<30?2:1);
-            if(drainStage()!=before)GameplayLog.event(entity,"family","stem drain stage {}->{} brood={} unborn={} cost={} nutrition={} energy={}",
-                    before,drainStage(),pregnancy.id,pregnancy.unborn(),cost,entity.life().nutrition(),entity.life().energy());
+            // The drained look follows each charge; the sync layer logs the transition it writes.
+            entity.syncFamily();
         }
         FamilyData.get(level()).setDirty();
     }
@@ -1167,7 +1169,7 @@ public final class FamilyLife {
         tag.putLong("Lifespan",GrowthTiming.LIFESPAN);tag.putFloat("AdultScale",adultScale);tag.putFloat("Scale",scale);tag.putFloat("BirthScale",birthScale);tag.putInt("Conceptions",conceptions);tag.putInt("Recovery",recovery);
         tag.putBoolean("Initialized",initialized);tag.putBoolean("AwaitingLanding",awaitingLanding);tag.putBoolean("JuvenileVoice",juvenileVoice);
         tag.putBoolean("Sterile",sterile);tag.putInt("Stimulation",stimulation);
-        tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);
+        tag.putBoolean("BabyTalk",babyTalk);tag.putInt("SexDrive",sexDrive);tag.putBoolean("StemDrained",stemDrained);
         if(awaitingLanding&&launch!=null)tag.put("BirthLaunch",BirthLaunch.save(launch));
         if(awaitingLanding&&launch!=null&&launched)tag.putBoolean("BirthLaunched",true);
         birth.save(tag);
@@ -1189,6 +1191,7 @@ public final class FamilyLife {
         awaitingLanding=tag.getBoolean("AwaitingLanding");juvenileVoice=tag.getBoolean("JuvenileVoice");
         sterile=tag.getBoolean("Sterile");stimulation=Math.clamp(tag.getInt("Stimulation"),0,1200);
         babyTalk=tag.getBoolean("BabyTalk");sexDrive=Math.clamp(tag.getInt("SexDrive"),0,BREEDING_PERIOD_TICKS);
+        stemDrained=tag.getBoolean("StemDrained");
         launch=awaitingLanding&&tag.contains("BirthLaunch",Tag.TAG_COMPOUND)
                 ?BirthLaunch.load(tag.getCompound("BirthLaunch")):null;
         launched=launch!=null&&tag.getBoolean("BirthLaunched");
