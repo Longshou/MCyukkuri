@@ -22,7 +22,7 @@
     {"id": "aquatic", "label": "帽船（水生）", "families": [
       {"id": "aquatic-basin-hat", "prefixes": ["standards/yukkuri-library/interactions/aquatic-marisa-hat/", "art/source/aquatic-basin-hat/"], "registry": ["aquatic_basin_hat"], "ids": ["aquatic_*", "lilypad_*"]},
       {"id": "hat-vessel", "prefixes": ["standards/yukkuri-library/interactions/marisa-hat-vessel/"], "registry": ["hat_vessel"], "ids": ["marisa_hat_turned", "marisa_aquatic_hat"]},
-      {"id": "aquatic-tools", "label": "划行、游泳与水上工具动作", "prefixes": ["standards/yukkuri-library/interactions/aquatic-tools/"], "registry": ["aquatic_tools"]},
+      {"id": "aquatic-tools", "label": "划行、游泳与水上工具动作", "prefixes": ["standards/yukkuri-library/motions/variants/lore/aquatic"], "registry": ["aquatic_tools"]},
       {"id": "braid-water-rescue", "prefixes": ["standards/yukkuri-library/interactions/braid-water-rescue/"], "registry": ["braid_water_rescue"]}
     ]},
     {"id": "wounds", "label": "伤口、遗体与身体状态", "families": [

@@ -91,7 +91,7 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 | `waterline_y` | 固定演出水线（帽船停在这里，帽盆是干的） |
 | `mouth.radius` | 帽口半径 |
 | `floor.radius`、`floor.y` | 平底半径与高度（中央另有浅窝） |
-| `brim.inner_radius`、`level_radius`、`outer_radius`、`y`、`edge_y` | 帽檐从帽口（inner）到 level 保持在 `y`，再落到外缘（outer），外缘顶面高 `edge_y` |
+| `brim.level_radius`、`outer_radius`、`y`、`edge_y` | 帽檐从帽口到 level 保持在 `y`，再落到外缘（outer），外缘顶面高 `edge_y` |
 | `keel_y` | 帽船最低点 |
 | `captain_seat` | 成体船长（`growth` 1）坐在船尾、面朝船首时身底的位置 `x`、`y`、`z` |
 | `brim_ring.radius`、`brim_ring.underside_y` | 帽檐边子油的中心半径（辫子一侧朝外），以及各体型 `[生长, 身底高度]` |
@@ -99,4 +99,4 @@ MCY_LOCAL=<主检出>/.local python standards/yukkuri-library/interactions/aquat
 
 ## 采用时
 
-造型、尺寸、边界与贴图都是项目设计，尚未接入游戏；试玩前都不算行为验收。
+造型、尺寸、边界与贴图都是项目设计。游戏按这份边界读座位、支撑与储粮，不再读旧的帽船剖面；试玩前都不算行为验收。

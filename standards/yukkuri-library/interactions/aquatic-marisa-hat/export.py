@@ -2,9 +2,8 @@
 texture and the hull's bounds contract (README: 帽船边界), with the art/source/aquatic-basin-hat snapshot (recipe, texture,
 fingerprints of inputs and outputs).
 
-The old hull profiles (hull_profiles/*.json, measured on the oval form and the turned land hat) are no longer written:
-they stay byte for byte as the current Java reads them until the code packages move to the bounds; the manifest keeps
-their fingerprints under `retained`.
+The runtime hull is the bounds contract alone: the old oval and turned-land-hat hull profiles (hull_profiles/*.json) are gone,
+and every seat, support and stores read uses the bounds.
 
     python export.py [--set key.path=value ...]   # writes the runtime files and the snapshot; with --set prints the
                                                   # bounds of the changed recipe and writes nothing
@@ -64,13 +63,13 @@ def hull_bounds(seats):
         waterline_y=f(-B.WATER),
         mouth=dict(radius=f(B.IN['opening'])),
         floor=dict(radius=f(B.IN['floor_radius']), y=f(-B.IN['floor_depth'])),
-        brim=dict(inner_radius=f(B.IN['opening']), level_radius=f(B.BRIM['droop_from']), outer_radius=f(B.BRIM['radius']),
+        brim=dict(level_radius=f(B.BRIM['droop_from']), outer_radius=f(B.BRIM['radius']),
                   y=0., edge_y=f(-(B.WATER+B.DIP))),
         keel_y=f(-B.depth_of_tier(B.tiers()[1][-1])),
         **seats,
         stores=B.R['stores'],
         note='waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor '
-             '(a shallow dimple in the middle); brim: level from inner_radius to level_radius at y, then falling to its '
+             '(a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its '
              'edge at outer_radius with its top at edge_y; keel_y: the hull\'s lowest point. captain_seat: an adult '
              '(growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid '
              'side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note.')

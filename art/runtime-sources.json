@@ -4321,10 +4321,9 @@
       "exporter": "standards/yukkuri-library/motions/variants/lore/author.py --export-aquatic",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json"
     },
-    "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_tools_preview.py",
-    "home_preview": "standards/yukkuri-library/motions/variants/lore/aquatic_home_preview.py",
+    "preview": "standards/yukkuri-library/motions/variants/lore/aquatic_paddle_preview.py",
     "status": "pending_user_review",
-    "scope": "Braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips (project original / ecology design D 3.4). The `paddle_stick` and `marisa_hat_wetline` props are withdrawn from the export: no code draws them, so their runtime meshes, textures and index rows are gone until a paddle or waterline look the game uses is authored; `build.py` only guards that they stay out."
+    "scope": "Braid cradle, mouth bite (two hard yanks per loop), capsize, self-rescue and hull-life clips (project original / ecology design D 3.4). The game draws the real vanilla stick the braid holds; the withdrawn `paddle_stick` and `marisa_hat_wetline` props stay out of the export."
   },
   "derived_faces": {
     "exporter": "standards/yukkuri-library/expressions/derived/faces.py",

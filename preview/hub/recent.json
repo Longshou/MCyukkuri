@@ -20,53 +20,20 @@
     },
     {
       "id": "aquatic-tools",
-      "label": "水生辫子与嘴的动作",
-      "title": "水生魔理沙：木棍划桨、辫兜、嘴咬、翻覆与自救",
+      "label": "水生辫子与木棍划桨",
+      "title": "水生魔理沙：辫子握木棍划桨",
       "tag": "水生演出（待试玩）",
-      "summary": "只用辫子、嘴和身体完成的帽船动作：辫梢缠住捡来的木棍划水，辫梢卷兜托幼油，嘴咬帽檐或头饰，翻船甩出、咬檐勾辫爬回与咬檐翻正；帽船的吃水湿色带、左侧帽檐存放的木棍与翻覆后帽冠朝上；新表情沮丧与害怕。片段关键帧、接触点与木棍位置均读自运行资源，离线渲染，非游戏实录。",
+      "summary": "帽船划桨的一刻：船长先转向船首，辫子越过圆帽檐、辫梢握住的木棍入水向后扫；船体按当前 hull_bounds 的固定水线浮着，船长坐在船尾座位。离线渲染，非游戏实录。",
       "model": "marisa",
       "points": [
         "推水段木棍下端入水向后扫，回桨段抬出水面，木棍不穿帽檐。",
-        "辫兜、嘴咬与自救片段带 markers 与 contacts，接线后由服务端驱动。",
-        "sad、afraid 为派生候选表情，待用户确认。"
+        "辫节沿全长弯曲，不再只有上段弯、末端僵直。"
       ],
       "steps": [],
       "gallery": [
         {
           "src": "aquatic-paddle/paddle.png",
-          "label": "划桨：辫子伸出越过圆帽帽檐、木棍入水，新旧对照与辫节弯曲带"
-        },
-        {
-          "src": "aquatic-tools/paddle.png",
-          "label": "划桨：辫梢缠住捡来的木棍"
-        },
-        {
-          "src": "aquatic-tools/cradle.png",
-          "label": "辫梢卷兜托起幼油"
-        },
-        {
-          "src": "aquatic-tools/boat-life.png",
-          "label": "护子、楔岸、推岸、放粮取粮、推出帽檐"
-        },
-        {
-          "src": "aquatic-tools/bite.png",
-          "label": "嘴咬并拖拽"
-        },
-        {
-          "src": "aquatic-tools/capsize.png",
-          "label": "翻船甩出与帽冠朝上"
-        },
-        {
-          "src": "aquatic-tools/self-rescue.png",
-          "label": "咬檐勾辫爬回与咬檐翻正"
-        },
-        {
-          "src": "aquatic-tools/hull.png",
-          "label": "湿色带、左檐存放木棍、翻覆终态"
-        },
-        {
-          "src": "aquatic-tools/faces.png",
-          "label": "新表情 sad 与 afraid"
+          "label": "划桨：辫子伸出越过圆帽帽檐、木棍入水与辫节弯曲带"
         }
       ],
       "source": "standards/yukkuri-library/motions/variants/lore/README.md"
@@ -229,27 +196,6 @@
         }
       ],
       "source": "standards/yukkuri-library/drafts/care-props/README.md"
-    },
-    {
-      "id": "aquatic-home",
-      "label": "帽船即家",
-      "title": "帽船即家：从岸上看粮与孩子（粮在船长肩前两侧侧窝，左右交替）",
-      "tag": "美术与玩法·待试玩",
-      "summary": "玩家站在试玩场池塘岸上（3 格俯角约 30°、6 格约 16°，左右两岸）看帽船：前台阶上有两只赤油时，粮在船长肩前两侧帽壁边的二段台阶上，左右交替放入、靠帽壁斜立、图面朝帽腔中间；近岸一侧被帽壁挡住，对岸一侧越过帽口看得见，粮越多立得越高；帽檐上不放粮、不高出帽口。离线渲染，非游戏截图。",
-      "model": "marisa",
-      "points": [
-        "两岸都能看到对岸侧窝里的粮；1 档零星、2 档一排、3 档更满更高。",
-        "右侧窝在船长肩前一段让给垂下的辫子，粮少于左侧。",
-        "席位表各档容量与文档载荷全部通过；粮不再占船长身前深窝。"
-      ],
-      "steps": [],
-      "gallery": [
-        {
-          "src": "aquatic-home/shore.png",
-          "label": "岸上 3 格 / 6 格 × 左右两岸 × 粮四档与夜晚"
-        }
-      ],
-      "source": "standards/yukkuri-library/interactions/marisa-hat-vessel/README.md"
     },
     {
       "id": "care-props-vanilla",
