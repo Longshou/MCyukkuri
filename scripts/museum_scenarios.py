@@ -2465,7 +2465,7 @@ pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出�
      '亲油在南岸，赤油沿岸边几格外、跟随感知内但辫子够不到：亲油先走到计划泊位，面向孩子呼叫，等它跟到身边，再放帽、上船；若还差一段辫子距离，帽船沿岸追近后把它接进前座',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_gather', 'a'), **pair_ready()),
-      _aquatic_young('afloat_family_gather', 'c1', bank_dx(-8), -8, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:0b,FirstToiletDone:0b,Crawled:0b,Jumped:0b'),
+      _aquatic_young('afloat_family_gather', 'c1', bank_dx(-6), -6, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:0b,FirstToiletDone:0b,Crawled:0b,Jumped:0b'),
       item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
      note='日志先有 set_out gather start / gathered，再有 placed、亲油 mount、carry grip、seat landed 与 set_out complete aboard=1/1；集合期间不放弃孩子。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
