@@ -108,13 +108,13 @@ class HatSeatsTest {
     @Test void cubicWeightCapacityAndStandardLoadRatioComeFromHullData() {
         assertEquals(1, HatSeats.weight(1));
         assertEquals(.008, HatSeats.weight(.2), 1E-12);
-        assertEquals(.46 * Math.pow(HullBounds.SCALE, 3), HatSeats.capacity(1), 1E-12);
-        assertEquals(.46 * Math.pow(1.2 * HullBounds.SCALE, 3), HatSeats.capacity(1.2), 1E-12);
+        assertEquals(.41 * Math.pow(HullBounds.SCALE, 3), HatSeats.capacity(1), 1E-12);
+        assertEquals(.41 * Math.pow(1.2 * HullBounds.SCALE, 3), HatSeats.capacity(1.2), 1E-12);
         var riders = captain(1);
         board(riders, 1, HatSeats.youngLimit(1));
         double ratio = HatSeats.loadRatio(1, riders);
         assertEquals((1 + Math.pow(.38, 3)) / HatSeats.capacity(1), ratio, 1E-12);
-        assertEquals(.8356, ratio, .0002);
+        assertEquals(.9376, ratio, .0002);
         assertTrue(ratio < HullPresentation.number("load_warning"));
     }
     @Test void capacityIsInclusiveAndOverloadMakesAnExistingCaptainUnfit() {
