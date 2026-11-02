@@ -410,6 +410,7 @@ final class Waters {
     static BlockPos foodCell(Level level, ItemEntity item) {
         var p = item.blockPosition();
         if (calm(level, p)) return p;
+        if (calm(level, p.above())) return p.above();
         if (calm(level, p.below())) return p.below();
         for (var d : Direction.Plane.HORIZONTAL) {
             var q = p.relative(d);
