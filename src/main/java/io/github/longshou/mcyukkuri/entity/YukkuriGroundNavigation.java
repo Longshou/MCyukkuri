@@ -280,8 +280,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     @Override public void tick() {
         if (mob instanceof YukkuriEntity actor) {
-            if (observedGround != null && actor.onGround()) NestDoorway.observe(actor, observedGround, actor.position());
-            observedGround = actor.onGround() ? actor.position() : null;
+            boolean onFoot = actor.onGround() && !actor.isPassenger() && walking();
+            if (observedGround != null && onFoot) NestDoorway.observe(actor, observedGround, actor.position());
+            observedGround = onFoot ? actor.position() : null;
         }
         // Path nodes change their centre offset at whole-block body widths. Never follow an old-width route after growth.
         if(path!=null&&!path.isDone()&&!fits(walkingQuery)){
@@ -428,7 +429,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         var corner = new Vec3(turn.x(), to.y, turn.z());
         double length = at.distanceTo(corner);
-        return SurfaceApproach.floor(walker, at.lerp(corner, Math.min(1, 1 / length)));
+        var step = at.lerp(corner, Math.min(1, 1 / length));
+        var floor = SurfaceApproach.floor(walker, step);
+        if (moving && floor == null) GameplayLog.limited(walker, "move", "turn_unsupported", 200,
+                "route turn unsupported from={} to={} corner={} step={}", GameplayLog.at(at), GameplayLog.at(to),
+                GameplayLog.at(corner), GameplayLog.at(step));
+        return floor;
     }
 
     /** A direct steer stalled against a footprint just now: the surface approach then plans a route round it. */
