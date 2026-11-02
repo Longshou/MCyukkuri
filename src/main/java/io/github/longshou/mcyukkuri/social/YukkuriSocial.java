@@ -170,9 +170,14 @@ public final class YukkuriSocial implements MotorOwner {
         var level = entity.level();
         // A hatless owner looks for the pieces of its own accessory first; a hat on the head or in custody has none.
         if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
-            target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
-                    &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item)
-                    &&(ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null))
+            target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
+                if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
+                boolean sight=entity.hasLineOfSight(item);
+                boolean reachable=sight&&(ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null);
+                if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
+                        "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),sight,item.isInWater());
+                return reachable;
+            })
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }

@@ -43,6 +43,6 @@ public final class ItemApproach {
                 best = distance; stand = at; entry = water;
             }
         }
-        return stand == null ? null : SurfaceApproach.arrived(body, stand) ? new StepIn(entry) : Walk.stand(stand, 1);
+        return stand == null ? null : SurfaceApproach.arrived(body, stand) ? new StepIn(entry) : new Walk(stand);
     }
 }
