@@ -8,6 +8,9 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 座位已满时的船上出生（反馈 8） | `.worktrees/fb-boat-birth` | `family/LiveBirth`、座位接口、`birth_boat_*` 场景 |
+| 水上演出钩子补回（反馈 10） | `.worktrees/fb-aq-presentation` | 水上表情／反应／台词钩子、`PresentationArbiter` 接线 |
+| 岸上收帽与出航余项 | `.worktrees/fb-shore-low` | `motor/action/Hop`、`aquatic/Waters`／`Ashore`／`SetOut`、`hat_swap` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
 | 稀有形态导出 `--check` 过期 | `.worktrees/fb-rare-forms` | 稀有形态制作源导出（`export_rare_forms.py`、rare-forms `build.py`） |
