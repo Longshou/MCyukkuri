@@ -9,5 +9,5 @@
   python standards/yukkuri-library/subspecies/rare-forms/build.py
   python scripts/export_rare_forms.py
   ```
-  两个命令都可以加 `--check` 只做核对。基底的选定运行模型更新后，也要重新跑这两步。
+  两个命令都可以加 `--check` 只做核对。基底选定的运行模型或贴图更新后，还要重跑按运行模型逐一出数据的 `scripts/export_placement_fit.cjs`、`scripts/export_hat_interactions.py`、`scripts/export_motion_corrections.py` 和 `scripts/export_badges.py`；五种形态的适配、帽交互、鼓腮和徽章挂点由这些导出器按各自模型生成。
 - 本机预览：`.local/previews/youmu/`（不入库）。

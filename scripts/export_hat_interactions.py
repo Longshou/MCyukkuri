@@ -47,7 +47,7 @@ def main():
             'runtime_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
         fingerprints[path.relative_to(ROOT).as_posix()]=hashlib.sha256(path.read_bytes()).hexdigest()
     target=ASSETS/'yukkuri_presentation/hat_interactions.json'
-    target.write_text(json.dumps(result,separators=(',',':'))+'\n',encoding='utf-8')
+    target.write_text(json.dumps(result,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
     OUT.mkdir(parents=True,exist_ok=True)
     (OUT/'recipe.json').write_text(json.dumps({'status':'pending_user_confirmation','scope':IDS,
         'motion':'Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.',
@@ -55,6 +55,6 @@ def main():
         'exporter':'scripts/export_hat_interactions.py','exporter_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'runtime':target.relative_to(ROOT).as_posix(),'runtime_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
         'sources':fingerprints,'placement_fit':placement_fit.RESOURCE.relative_to(ROOT).as_posix(),
-        'placement_fit_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        'placement_fit_sha256':hashlib.sha256(placement_fit.RESOURCE.read_bytes()).hexdigest()},ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('Exported five hat roots, motion scales and supported seats;',len(result['children']),'child footprints.')
 if __name__=='__main__':main()

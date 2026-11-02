@@ -6316,5 +6316,7 @@
   "item.mcyukkuri.large_yukkuri_nest": "Large Woven Yukkuri Nest",
   "block.mcyukkuri.large_wild_nest": "Large Wild Grass Nest",
   "item.mcyukkuri.large_wild_nest": "Large Wild Grass Nest",
-  "entity.mcyukkuri.placed_hat": "Placed hat"
+  "entity.mcyukkuri.placed_hat": "Placed hat",
+  "badge.mcyukkuri.shop": "Exams / Badge reissue",
+  "human.mcyukkuri.help.16": "Bring your pet to the Examiner for exams, records or a badge reissue."
 }

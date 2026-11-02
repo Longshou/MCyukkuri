@@ -24,9 +24,9 @@
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "3c0f7cd09ba0d9a442028359f9a9f8f8d554e2332329bdc94bf86b072d965c08",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "8cc5b207e086f67f68513bc84a80ed528b80901ac4db6f83873846d21e93acb9",
+  "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "756419a52badd40707c43ac35583dabdda17f9133ba840b2afbe1aee936d218a",
+  "runtime_sha256": "26aaa09c6dfebec485482fb6e31dba2ec14217fa966c0b9219c8f11c2e9befe9",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

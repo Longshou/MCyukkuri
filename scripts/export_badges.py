@@ -1,4 +1,8 @@
-"""Export posed accessory attachment coordinates, owned badge UI strings and handbook recipe."""
+"""Export posed accessory attachment coordinates, owned badge UI strings and handbook recipe.
+
+Mounts cover every runtime model: the base species of the badge recipe plus the rare forms, which reuse their
+base's accessory or their own authored part (standards/yukkuri-library/subspecies/rare-forms/recipe.json).
+"""
 from pathlib import Path
 import argparse, json, math
 from PIL import Image, ImageDraw
@@ -44,6 +48,14 @@ def mounts(only=None):
     rounded=ROOT/'art/source/rounded-runtime/attachments.json'
     if rounded.exists():
         for group,entries in json.loads(rounded.read_text(encoding='utf-8'))['badge_mounts'].items():recipe[group].update(entries)
+    # Rare forms are runtime species: the base's mount, or the form's own authored accessory part.
+    forms=json.loads((ROOT/'standards/yukkuri-library/subspecies/rare-forms/recipe.json').read_text(encoding='utf-8'))['forms']
+    for form,spec in forms.items():
+        base=spec
+        while 'base_form' in base:base=forms[base['base_form']]
+        mount=dict(recipe['variants'][base['base']])
+        if 'badge' in spec:mount.update(part=spec['badge']['part'],point=spec['badge']['point'],normal=(0,0,-1))
+        recipe['variants'][form]=mount
     previous=provenance(ASSETS/'yukkuri/badge_mounts.json')
     if only:
         if only not in recipe['variants']:raise ValueError('Unknown badge variant: '+only)
@@ -145,7 +157,7 @@ def main(check=False, mounts_only=False, only=None):
     if mounts_only:
         path=ASSETS/'yukkuri/badge_mounts.json'; data=mounts(only)
         if check: assert json.loads(path.read_text(encoding='utf-8'))==data,str(path)
-        else: path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        else: path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
         print('Badge mounts '+('match.' if check else 'exported.')); return
     png=handbook_png()
     for path in [ART/'badge_handbook.png', ASSETS/'textures/item/badge_handbook.png']:
@@ -157,11 +169,11 @@ def main(check=False, mounts_only=False, only=None):
     for path,data in paths.items():
         if check:
             assert path.exists() and json.loads(path.read_text(encoding='utf-8'))==data,str(path)
-        else:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        else:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     for lang in ['zh_cn','en_us']:
         path=ASSETS/'lang'/f'{lang}.json';data=json.loads(path.read_text(encoding='utf-8'));keys=language(lang=='zh_cn')
         if check:assert all(data.get(k)==v for k,v in keys.items()),lang
-        else:data.update(keys);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        else:data.update(keys);path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8',newline='\n')
     print('Badge mounts, handbook and language '+('match.' if check else 'exported.'))
 
 if __name__=='__main__':

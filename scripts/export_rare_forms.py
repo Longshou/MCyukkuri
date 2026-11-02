@@ -7,7 +7,8 @@
 Reads standards/yukkuri-library/subspecies/rare-forms/assembled/<form>/ and the packaged data of each form's base.
 A derived form keeps its base's vertex count and part order, so every base entry keyed by asset id is carried
 over under the form's id with the form's own model hash; only data of parts the recipe changed is rebuilt.
-Per-model motion corrections belong to scripts/export_motion_corrections.py, which fits every form's own mesh.
+Per-model motion corrections, placement fit, hat interactions and badge mounts belong to their own exporters,
+which cover every runtime model including these forms.
 Run it after any exporter that rewrites the shared presentation files (it only touches its own keys).
 Writes the snapshot art/source/rare-forms-runtime/, yukkuri_presentation/hat_seat.json and the 'rare_forms' record in
 art/runtime-sources.json.
@@ -135,27 +136,6 @@ def gz(value):
     return buffer.getvalue()
 
 
-def badge_on_face(model, part_name, point):
-    """Badge mount on the first triangle of the part that contains the authored point (barycentric weights)."""
-    p = next(p for p in model['parts'] if p['name'] == part_name)
-    v = model['vertices']
-    for t in range(p['start'], p['start'] + p['count'], 3):
-        a, b, c = ([v[(t + k) * 8 + i] for i in range(3)] for k in range(3))
-        n = [v[t * 8 + 5 + i] for i in range(3)]
-        if n != [0, 0, -1] and n != [0.0, 0.0, -1.0]:
-            continue
-        # 2D barycentric in the XY plane of a north face
-        det = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
-        if abs(det) < 1e-9:
-            continue
-        w0 = ((b[1] - c[1]) * (point[0] - c[0]) + (c[0] - b[0]) * (point[1] - c[1])) / det
-        w1 = ((c[1] - a[1]) * (point[0] - c[0]) + (a[0] - c[0]) * (point[1] - c[1])) / det
-        w2 = 1 - w0 - w1
-        if min(w0, w1, w2) >= 0:
-            return t, [w0, w1, w2], [a[0] * w0 + b[0] * w1 + c[0] * w2, a[1] * w0 + b[1] * w1 + c[1] * w2, a[2]]
-    raise SystemExit(f'No north triangle of {part_name} contains {point}')
-
-
 def accessory_mesh(model, prefixes, texture):
     """Detached accessory prop from the form's own accessory parts (rest pose, no collapsed parts)."""
     vertices, parts = [], []
@@ -208,9 +188,7 @@ def outputs():
     recipe = read(LIB / 'recipe.json')
     files = {}
     staged = {name: read(PRESENTATION / (name + '.json')) for name in
-              ('body_geometry', 'family', 'hat_interactions', 'live_birth_pose', 'living', 'placement_fit',
-               'subspecies', 'toilet_contact')}
-    badges = read(ASSETS / 'yukkuri/badge_mounts.json')
+              ('body_geometry', 'family', 'live_birth_pose', 'living', 'subspecies', 'toilet_contact')}
     operations_index = read(PROPS / 'operations-index.json')
     rounded_index = read(PROPS / 'rounded-index.json')
     item_index = read(PROPS / 'index.json')
@@ -244,22 +222,10 @@ def outputs():
                                      and not any(n.startswith(c) for c in derived['operations'].get('collapsed_parts', []))]
         files[ASSETS / 'yukkuri_wounds' / (form + '.json.gz')] = gz(wounds)
         # Presentation entries keyed by asset id.
-        for name, path in (('body_geometry', 'variants'), ('hat_interactions', 'children'), ('live_birth_pose', 'variants'),
-                           ('toilet_contact', 'models')):
+        for name, path in (('body_geometry', 'variants'), ('live_birth_pose', 'variants'), ('toilet_contact', 'models')):
             source = staged[name][path].get(base)
             if source is not None:
                 staged[name][path][form] = copy.deepcopy(source)
-        fit = staged['placement_fit']['models'].get(base)
-        if fit is not None:
-            fit = copy.deepcopy(fit)
-            fit['base_sha256'] = digest
-            part_indices = {p['name']: i for i, p in enumerate(model['parts'])}
-            fit['parts'] = [p for p in fit['parts'] if p['name'] not in changed and p['name'] in part_indices]
-            for part in fit['parts']:
-                part['part_index'] = part_indices[part['name']]
-                if len(part['indices']) != model['parts'][part['part_index']]['count']:
-                    part['inplace'] = False
-            staged['placement_fit']['models'][form] = fit
         living = staged['living']['variants'][base] if base in staged['living']['variants'] else staged['subspecies'][base]
         living = dict(copy.deepcopy(living), selected_runtime=f'yukkuri/{form}.json')
         if form in SPECIES_FORMS:
@@ -267,15 +233,6 @@ def outputs():
             staged['family']['variants'][form] = copy.deepcopy(staged['family']['variants'][base])
         else:
             staged['subspecies'][form] = living
-        # Badge: same mount as the base unless the recipe moved the accessory; always this model's hash.
-        mount = copy.deepcopy(badges['variants'][base])
-        mount['model_sha256'] = digest
-        badge = recipe['forms'][form].get('badge')
-        if badge:
-            triangle, weights, point = badge_on_face(model, badge['part'], badge['point'])
-            mount.update({'part': badge['part'], 'triangle': triangle, 'weights': weights,
-                          'rest_point': point, 'rest_normal': [0.0, 0.0, -1.0]})
-        badges['variants'][form] = mount
         # Restraint / sling / enclosure props share the base silhouette.
         for pattern in OPERATION_PROPS:
             source, target = pattern.format(base), pattern.format(form)
@@ -312,12 +269,10 @@ def outputs():
             'source': (folder / 'runtime.model.json').relative_to(ROOT).as_posix(), 'recipe': (LIB / 'recipe.json').relative_to(ROOT).as_posix(),
             'runtime': f'src/main/resources/assets/mcyukkuri/yukkuri/{form}.json', 'runtime_sha256': digest,
             'snapshot': (SNAPSHOT / form).relative_to(ROOT).as_posix(), 'textures': sorted(derived['textures']),
-            'carried_from_base': ['wounds (body skin)', 'body_geometry', 'hat_interactions.children', 'live_birth_pose',
-                                  'toilet_contact', 'placement_fit (unchanged parts)', 'badge mount', 'operation props'],
+            'carried_from_base': ['wounds (body skin)', 'body_geometry', 'live_birth_pose', 'toilet_contact', 'operation props'],
             'rebuilt': sorted(changed | moved), 'shape_status': 'pending_confirmation', 'game_acceptance': 'not_executed'}
-    containers = {'body_geometry': ('variants',), 'family': ('variants',), 'hat_interactions': ('children',),
-                  'live_birth_pose': ('variants',), 'living': ('variants',), 'placement_fit': ('models',),
-                  'subspecies': (), 'toilet_contact': ('models',)}
+    containers = {'body_geometry': ('variants',), 'family': ('variants',),
+                  'live_birth_pose': ('variants',), 'living': ('variants',), 'subspecies': (), 'toilet_contact': ('models',)}
     forms = list(recipe['forms'])
     # Seat parts of accessories that reach the ground: a small (regrowing) one is scaled about them (headwear.HatSeat).
     files[PRESENTATION / 'hat_seat.json'] = text({'format': 1, 'source': (LIB / 'recipe.json').relative_to(ROOT).as_posix(), 'models': {
@@ -331,7 +286,6 @@ def outputs():
         for key in containers[name]:
             node = node[key]
         files[PRESENTATION / (name + '.json')] = styled(PRESENTATION / (name + '.json'), value, containers[name], [f for f in forms if f in node])
-    files[ASSETS / 'yukkuri/badge_mounts.json'] = styled(ASSETS / 'yukkuri/badge_mounts.json', badges)
     for name, value, keys in (('operations-index', operations_index, [k for k in operations_index if any(k.endswith('_' + f) or k.endswith('_' + f + '_bare') for f in forms)]),
                               ('rounded-index', rounded_index, [f'accessory_{f}' for f in forms]),
                               ('index', item_index, list(ACCESSORY_ITEMS.values()) + ['kanroken'])):

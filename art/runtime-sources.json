@@ -3901,11 +3901,8 @@
         "carried_from_base": [
           "wounds (body skin)",
           "body_geometry",
-          "hat_interactions.children",
           "live_birth_pose",
           "toilet_contact",
-          "placement_fit (unchanged parts)",
-          "badge mount",
           "operation props"
         ],
         "rebuilt": [
@@ -4006,11 +4003,8 @@
         "carried_from_base": [
           "wounds (body skin)",
           "body_geometry",
-          "hat_interactions.children",
           "live_birth_pose",
           "toilet_contact",
-          "placement_fit (unchanged parts)",
-          "badge mount",
           "operation props"
         ],
         "rebuilt": [
@@ -4108,11 +4102,8 @@
         "carried_from_base": [
           "wounds (body skin)",
           "body_geometry",
-          "hat_interactions.children",
           "live_birth_pose",
           "toilet_contact",
-          "placement_fit (unchanged parts)",
-          "badge mount",
           "operation props"
         ],
         "rebuilt": [
@@ -4173,11 +4164,8 @@
         "carried_from_base": [
           "wounds (body skin)",
           "body_geometry",
-          "hat_interactions.children",
           "live_birth_pose",
           "toilet_contact",
-          "placement_fit (unchanged parts)",
-          "badge mount",
           "operation props"
         ],
         "rebuilt": [
@@ -4238,11 +4226,8 @@
         "carried_from_base": [
           "wounds (body skin)",
           "body_geometry",
-          "hat_interactions.children",
           "live_birth_pose",
           "toilet_contact",
-          "placement_fit (unchanged parts)",
-          "badge mount",
           "operation props"
         ],
         "rebuilt": [

@@ -6314,5 +6314,7 @@
   "item.mcyukkuri.large_yukkuri_nest": "油库里大编织软窝",
   "block.mcyukkuri.large_wild_nest": "野生大草窝",
   "item.mcyukkuri.large_wild_nest": "野生大草窝",
-  "entity.mcyukkuri.placed_hat": "放下的帽子"
+  "entity.mcyukkuri.placed_hat": "放下的帽子",
+  "badge.mcyukkuri.shop": "考试 / 补发徽章",
+  "human.mcyukkuri.help.16": "带上你的宠物去考官那里参加考试、查看记录或补发徽章。"
 }

@@ -23,7 +23,7 @@
       "diameter": 0.11875
     },
     "marisa": {
-      "model_sha256": "dadff8a769e7a3c244a0a1f0206c63d4c9541fa69bb88f6c43345287b4e44917",
+      "model_sha256": "5031923ebbe12b881e9371d24060c36bec5c4a527ec7904ea7333b807787f202",
       "part": "hat_band",
       "triangle": 14085,
       "weights": [
@@ -107,7 +107,7 @@
       "diameter": 0.11875
     },
     "house_reimu": {
-      "model_sha256": "62d853e57e226b75687bc607cebf351e3e9094245ed2b5511598da2882624d0d",
+      "model_sha256": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
       "part": "bow_outer_1",
       "triangle": 11760,
       "weights": [
@@ -128,7 +128,7 @@
       "diameter": 0.040625
     },
     "house_marisa": {
-      "model_sha256": "7afbbcb3cbae21dfa9565a5a8c5a5aee762cc83cd81fcd5ff98ac911e7005e92",
+      "model_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
       "part": "hat_band",
       "triangle": 8844,
       "weights": [
@@ -149,9 +149,9 @@
       "diameter": 0.040625
     },
     "remilia": {
-      "model_sha256": "29768440abf885363f2922ffb3a6799d5f7af05cd2d9434d7064726197482023",
+      "model_sha256": "35351c4a99d887d1848a99bc3f35b0f531d4944dfbb9ea5551915d392f524bc0",
       "part": "predator_cap_crown",
-      "triangle": 6342,
+      "triangle": 6522,
       "weights": [
         0.28942912411419647,
         0.2705426420773947,
@@ -170,9 +170,9 @@
       "diameter": 0.1
     },
     "flandre": {
-      "model_sha256": "1d2ba4371d119315a6906f603fe7c20b934e22c7293ac835c611aaebf7477ea4",
+      "model_sha256": "de6dd48e2785399b5e72365d1d666a9a4089e6f0c275d880155a278038196ec4",
       "part": "predator_cap_crown",
-      "triangle": 6714,
+      "triangle": 6894,
       "weights": [
         0.28942912411419647,
         0.2705426420773947,
@@ -191,9 +191,9 @@
       "diameter": 0.1
     },
     "marisa_tsumuri": {
-      "model_sha256": "054d49f96492c35530076912fde8056e5808f3b0b529bae34d56255fef799388",
+      "model_sha256": "f230d7168748249e419145f1fa73dda119ebdc54d13c3c349b4fb734d22dd15a",
       "part": "shell_coil_0_3_0_1",
-      "triangle": 21726,
+      "triangle": 21438,
       "weights": [
         0.7849096993231605,
         0,
@@ -212,7 +212,7 @@
       "diameter": 0.08125
     },
     "reimu_bean": {
-      "model_sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
+      "model_sha256": "801b806781f5db7796c56c68e7fe313d593b88b4d254aee4b46978dacabae18d",
       "part": "bow_outer_1",
       "triangle": 4143,
       "weights": [
@@ -233,7 +233,7 @@
       "diameter": 0.078125
     },
     "marisa_bean": {
-      "model_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
+      "model_sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
       "part": "hat_band",
       "triangle": 3639,
       "weights": [
@@ -359,7 +359,7 @@
       "diameter": 0.11875
     },
     "reimu_sparse": {
-      "model_sha256": "5838de370072eefb3005c3f76f821fe302deb469ac03995d57fe7e5b10d612de",
+      "model_sha256": "2bd247f55800c5a8d74ae0933482bb1d983fc7e9e26f6d0e793c0d8eac019931",
       "part": "bow_outer_1",
       "triangle": 10554,
       "weights": [
@@ -380,7 +380,7 @@
       "diameter": 0.11875
     },
     "reimu_face": {
-      "model_sha256": "40aefcfec6f6f483e01192bf076c6ed5407644e0c028bb5e54c4dfe79c946e88",
+      "model_sha256": "5c3f88fa504e11fe6172b4739722063220f68dd0bb40db874f70609e56c46886",
       "part": "bow_outer_1",
       "triangle": 17658,
       "weights": [
@@ -489,13 +489,13 @@
       "part": "brim_front",
       "triangle": 13977,
       "weights": [
-        0.22571428571428573,
+        0.22571428571428576,
         0.6923076923076923,
-        0.08197802197802195
+        0.08197802197802197
       ],
       "rest_point": [
         4.799999999999999,
-        9.999999999999998,
+        10.0,
         -7.3
       ],
       "rest_normal": [
