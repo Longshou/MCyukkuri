@@ -2660,7 +2660,7 @@ def boat_birth(sid, title, hint, watch, riders, note, smoke):
          reads=[('读母油与产程', f'yukkuri status {sel("mother")} raw'), ('读父油', f'yukkuri status {sel("father")} raw'),
                 ('读本胎新生儿', f'yukkuri status {NEWBORNS[:-1]},tag=!crew] raw'),
                 *([('读初始乘员', f'yukkuri status {sel_all("crew")} raw')] if riders else [])], smoke=smoke,
-         capture=dict(shots=(1, 40, 600, 1800, 3000, 4200), sequences=((3100, 3800, 5),) if riders else ((120, 520, 3),), follow=sel('mother')))
+         capture=dict(shots=(1, 40, 600, 1800, 3000, 4200), sequences=((3100, 3800, 5),) if riders else ((120, 520, 3),), follow='@e[tag=scn_mother,limit=1]'))
 
 
 boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
