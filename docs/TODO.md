@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 预览数据超 50MB 与水生动作导出过期 | `.worktrees/fb-preview-size` | `art/source/*-runtime/preview-data.js` 生成位置、`author.py --export-aquatic` |
 
 ## 玩法待办
 
