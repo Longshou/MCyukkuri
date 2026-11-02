@@ -127,7 +127,10 @@ final class SetOut implements Intent {
             if (edge != null && gatherUntil != 0) {
                 boolean ready = gathered(edge);
                 if (!ready && owner.level().getGameTime() >= gatherUntil)
-                    for (var y : fetch) if (!Waters.berthBraidReach(owner, edge, List.of(y))) excused.put(y.getUUID(), "did_not_gather");
+                    for (var y : fetch) if (!Waters.berthBraidReach(owner, edge, List.of(y))) {
+                        excused.put(y.getUUID(), "did_not_gather");
+                        GameplayLog.event(owner, "aquatic", "set_out gather missed child={} at={} reason=did_not_gather", y.getUUID(), GameplayLog.at(y.position()));
+                    }
                 gatherUntil = 0;
                 if (ready) GameplayLog.event(owner, "aquatic", "set_out gathered children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
