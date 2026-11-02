@@ -131,12 +131,6 @@ final class Waters {
      */
     record Edge(BlockPos stand, Vec3 edge, Vec3 normal, BlockPos water) {
         Vec3 stand(double width) { return edge.subtract(normal.scale(width / 2 + .05)); }
-        /** Land with half the sole on the bank, then ordinary walking can bring the whole body onto it. */
-        Vec3 landing(YukkuriEntity body) {
-            double span = .5 - SurfaceApproach.supportRadius(body);
-            var along = body.position().subtract(edge).multiply(1 - Math.abs(normal.x), 0, 1 - Math.abs(normal.z));
-            return edge.add(Mth.clamp(along.x, -span, span), 0, Mth.clamp(along.z, -span, span));
-        }
         Vec3 out(double d) { return edge.add(normal.scale(d)); }
         /** {@code d} blocks out over the water, inside the water cell: where a hat is set down. */
         Vec3 onWater(double d) { var at = out(d); return new Vec3(at.x, water.getY() + .5, at.z); }
@@ -239,19 +233,21 @@ final class Waters {
     }
 
     /** A dry stand by the edges near {@code body}, under no other hat's brim, that a hop from where it is lands on (world), or null. */
-    static Vec3 ashore(YukkuriEntity body) {
-        var at = body.position();
-        return kept(body.level(), key(body.level(), "ashore", Math.round(at.x * 4), Math.round(at.y * 4), Math.round(at.z * 4), body.getBbWidth()),
-                () -> findAshore(body));
+    static Vec3 ashore(YukkuriEntity body) { return ashore(body, body.position()); }
+
+    /** A dry stand within a hop of {@code from} (the body's actual position, or a supported spot it can hop to first). */
+    static Vec3 ashore(YukkuriEntity body, Vec3 from) {
+        return kept(body.level(), key(body.level(), "ashore", Math.round(from.x * 4), Math.round(from.y * 4), Math.round(from.z * 4), body.getBbWidth()),
+                () -> findAshore(body, from));
     }
 
-    private static Vec3 findAshore(YukkuriEntity body) {
+    private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
         int asked = 0;
-        for (var e : edges(body, body.position(), 2, false)) {
-            var at = e.landing(body);
+        for (var e : edges(body, from, 2, false)) {
+            var at = e.stand(body.getBbWidth());
             if (hatOver(body, at, 0)) continue;
             if (asked++ >= ASKED) break;
-            if (new Hop(at).check(body).ok()) return at;
+            if (Hop.reaches(body, from, at)) return at;
         }
         return null;
     }
