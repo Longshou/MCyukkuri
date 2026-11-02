@@ -61,7 +61,7 @@ public final class Beckon implements Action {
         water = water(body, stand, yaw);
         double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, stand, water, true);
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(gap) ? gap : 0, water == null ? "no_water_ahead" : "water_out_of_reach");
-        if (gap() <= AT) return Feasibility.of(Reason.NO_PROGRESS, 0, "at_bank_already");
+        if (gap() <= AT) return Feasibility.pass();
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 

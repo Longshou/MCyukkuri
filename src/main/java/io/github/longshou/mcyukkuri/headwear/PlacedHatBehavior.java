@@ -12,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 
 /**
  * How a set-down hat behaves where it lies. Each tick the hat runs the behaviour of the first registered
@@ -97,7 +98,13 @@ public interface PlacedHatBehavior {
         if (!level.hasChunkAt(spot) || !level.getFluidState(spot).is(FluidTags.WATER)
                 || !level.getFluidState(spot.above()).isEmpty()
                 || !level.getBlockState(spot.above()).getCollisionShape(level, spot.above()).isEmpty()) return false;
-        return !form.seated() || CARRIERS.stream().allMatch(carrier -> carrier.floats(level, at, hullScale));
+        if (!form.seated()) return true;
+        double scale = hullScale / HullBounds.SCALE, radius = HullBounds.RADIUS * scale;
+        double top = spot.getY() + level.getFluidState(spot).getHeight(level, spot);
+        var box = new AABB(at.x - radius, top + HullBounds.KEEL * scale, at.z - radius,
+                at.x + radius, top + HullBounds.BRIM * scale, at.z + radius);
+        return !level.getBlockCollisions(null, box).iterator().hasNext()
+                && CARRIERS.stream().allMatch(carrier -> carrier.floats(level, at, hullScale));
     }
 
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */

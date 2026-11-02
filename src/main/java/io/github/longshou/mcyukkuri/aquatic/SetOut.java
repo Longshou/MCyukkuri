@@ -123,7 +123,7 @@ final class SetOut implements Intent {
             if (edge != null && gatherUntil != 0) {
                 boolean ready = gathered();
                 if (!ready && owner.level().getGameTime() >= gatherUntil)
-                    for (var y : fetch) if (!BraidFetch.withinReach(owner, y)) {
+                    for (var y : fetch) if (!y.family().withinFollowDistance(owner) && !BraidFetch.withinReach(owner, y)) {
                         excused.put(y.getUUID(), "did_not_gather");
                         GameplayLog.event(owner, "aquatic", "set_out gather missed child={} at={} reason=did_not_gather", y.getUUID(), GameplayLog.at(y.position()));
                     }
@@ -193,7 +193,7 @@ final class SetOut implements Intent {
     /** Whether the current responsive wards have reached her braid on the bank. */
     private boolean gathered() {
         var fetch = dependentAshore(AquaticLife.hat(owner));
-        return fetch.stream().allMatch(y -> BraidFetch.withinReach(owner, y));
+        return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner) || BraidFetch.withinReach(owner, y));
     }
 
     /** A narrow horizon scan for an own young on land too far away for the ordinary aquatic family list. */

@@ -2,10 +2,10 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
-import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
@@ -185,7 +185,8 @@ final class Waters {
         for (var e : freeEdges(body, body.position())) {
             if (!floats(e, body)) continue;
             var stand = e.stand(body.getBbWidth());
-            if (!SurfaceApproach.canApproach(body, stand)) continue;
+            if (!SurfaceApproach.canApproach(body, stand)
+                    || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
             var captain = HatSeats.captain(hatAt(e, body), HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
             if (Hop.reaches(body, stand, captain)) return e;
         }
@@ -417,7 +418,7 @@ final class Waters {
 
     /** The hull's collision box clears the bank while its brim reaches over the edge. */
     static Vec3 hatAt(Edge edge, YukkuriEntity owner) {
-        return edge.onWater(ModEntities.PLACED_HAT.get().getWidth() * HatScale.of(owner) / 2 + .05);
+        return edge.onWater(HullBounds.RADIUS * HatScale.of(owner) / HullBounds.SCALE + .05);
     }
 
     static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {
