@@ -330,9 +330,11 @@ final class AquaticGoal extends Goal {
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && !(running != null && running.intent() instanceof Ashore)
-                && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut)
-                && hat.seatDestination(body) != null)
-            out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+                && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut)) {
+            if (hat.seatDestination(body) != null) out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
+            else GameplayLog.limited(body, "aquatic", "board refused hat=" + hat.getUUID(), 1200,
+                    "board refused hat={} reason=no_seat size={}", hat.getUUID(), body.growthScale() * body.getScale());
+        }
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
