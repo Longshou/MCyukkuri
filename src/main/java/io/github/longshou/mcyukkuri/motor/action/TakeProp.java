@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.entity.Entity;
@@ -43,9 +42,7 @@ public final class TakeProp implements Action {
         if (ParentCarry.braidBusy(body)) return Feasibility.of(Reason.NO_ROOM, 0, "carrying");
         Entity deployed = prop.entity();
         if (deployed == null) return Feasibility.of(Reason.TARGET_GONE, 0, "prop_gone");
-        boolean brim = prop.byBrim() && deployed instanceof SurfaceHost host && ContactGeometry.nearestRim(body, host).filter(rim -> ContactGeometry.canGrip(body, rim)).isPresent();
-        // Otherwise the mouth or the braid has to reach it, the braid upright or in its low lean.
-        if (!brim && !ContactGeometry.inMouthReach(body, deployed) && !ContactGeometry.inBraidReach(body, deployed)) {
+        if (!ContactGeometry.reachesHull(body, deployed, prop.byBrim(), true)) {
             double gap = Math.min(Math.max(0, ContactGeometry.mouthGap(body, deployed) - ContactGeometry.GRAB_MARGIN),
                     Math.max(0, ContactGeometry.braidGap(body, deployed, true)));
             return Feasibility.of(Reason.NO_CONTACT, gap, "prop_out_of_reach");

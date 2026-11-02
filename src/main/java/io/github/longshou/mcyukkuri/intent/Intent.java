@@ -18,6 +18,9 @@ public interface Intent {
 
     default Commitment commitment() { return Commitment.NONE; }
 
+    /** Whether this intent, rather than the general water-escape goal, currently owns the body's movement in water. */
+    default boolean ownsBodyInWater() { return false; }
+
     /** Called once by the {@link IntentRunner} when this intent ends, whatever the result: the one place a domain rule can leave the world consistent again, e.g. a held carry. */
     default void ended(IntentRunner.Result result) {}
 }

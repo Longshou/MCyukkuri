@@ -85,10 +85,17 @@ final class AquaticGoal extends Goal {
         return drive;
     }
 
-    /** An aquatic body, or the young of a parent whose hat is out; awake, not in the water (the escape owns it), not carried. */
+    /** An aquatic body, or the young of a parent whose hat is out; awake, not carried. Water belongs to the escape goal except
+     *  while this drive's own reclaim owns the water way. */
     private boolean eligible() {
-        return body.isAlive() && !body.level().isClientSide && (!body.isInWaterOrBubble() || landing()) && !body.life().isSleeping()
-                && !(body.getVehicle() instanceof YukkuriEntity) && (body.profile().aquatic() || AquaticLife.parent(body) != null);
+        return body.isAlive() && !body.level().isClientSide && (!body.isInWaterOrBubble() || landing() || ownsWaterWay())
+                && !body.life().isSleeping() && !(body.getVehicle() instanceof YukkuriEntity)
+                && (body.profile().aquatic() || AquaticLife.parent(body) != null);
+    }
+
+    private boolean ownsWaterWay() {
+        var intent = Drive.running(body, DOMAIN);
+        return intent != null && intent.ownsBodyInWater();
     }
 
     private boolean landing() { return body.motor().current() instanceof Hop hop && !hop.interruptible(); }

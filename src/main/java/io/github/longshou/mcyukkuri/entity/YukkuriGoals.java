@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
+import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.human.FactoryWorkGoal;
@@ -345,7 +346,11 @@ final class YukkuriGoals {
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
         @Override public boolean canUse() { return (owner.waterDistress().escaping() || owner.waterDistress().climbing() || owner.waterDistress().restingBreath()
                 || runner != null && runner.result() == IntentRunner.Result.RUNNING)
-                && !owner.predatorFlying(); }
+                && !bodyOwnedInWater() && !owner.predatorFlying(); }
+        private boolean bodyOwnedInWater() {
+            var intent = Drive.running(owner, "aquatic");
+            return intent != null && intent.ownsBodyInWater();
+        }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             boolean struggles = owner.waterDistress().struggles();

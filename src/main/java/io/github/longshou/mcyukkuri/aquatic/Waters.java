@@ -174,17 +174,35 @@ final class Waters {
     }
 
     private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards) {
-        int asked = 0;
-        for (var e : edges(body, body.position(), 8, true)) {
+        for (var e : freeEdges(body)) {
             var at = hatAt(e, body);
-            if (hatOver(body, at, HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) continue;
-            if (asked++ >= ASKED) break;
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)) continue;
             var captain = HatSeats.captain(at, HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
             if (Hop.reaches(body, stand, captain) && wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0)) return e;
         }
         return null;
+    }
+
+    /** The nearest roomy bank edge {@code body} can walk to and hop out from over the water, nothing placed there, or null (the
+     *  swim fallback of a reclaim, which needs no hop to a seat). */
+    static Edge shore(YukkuriEntity body) {
+        return kept(body.level(), key(body.level(), "shore", body.blockPosition(), body.getBbWidth()), () -> findShore(body));
+    }
+
+    private static Edge findShore(YukkuriEntity body) {
+        for (var e : freeEdges(body)) if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
+        return null;
+    }
+
+    /** The roomy edges round {@code body} with no other hat over the water they front, nearest first, up to {@link #ASKED}. */
+    private static List<Edge> freeEdges(YukkuriEntity body) {
+        var out = new ArrayList<Edge>();
+        for (var e : edges(body, body.position(), 8, true)) {
+            if (out.size() >= ASKED) break;
+            if (!hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) out.add(e);
+        }
+        return out;
     }
 
     /** The bank edge nearest the hat a body ashore can walk to (to reach over to it from the bank), or null. */

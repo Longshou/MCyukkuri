@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
@@ -129,7 +128,7 @@ final class SetOut implements Intent {
             if (edge == null) {
                 GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_and_braid_reach wards={} at={}",
                         fetch.size(), GameplayLog.at(owner.position()));
-                return List.of(() -> new Step.Do(new Await(() -> false, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL)));
+                return List.of(() -> new Step.Wait(() -> false, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
             }
             GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
             var stand = edge.stand(owner.getBbWidth());

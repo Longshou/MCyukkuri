@@ -155,11 +155,29 @@ public final class ContactGeometry {
     public static boolean canGrip(YukkuriEntity body, Vec3 point) { return gripGap(body, point) <= 0; }
 
     /** How much farther {@code point} lies than mouth or braid holds (blocks, 0 or less in grip): the mouth within {@link #GRAB_MARGIN} or the braid within its length, sight free. */
-    public static double gripGap(YukkuriEntity body, Vec3 point) {
+    public static double gripGap(YukkuriEntity body, Vec3 point) { return gripGap(body, point, true); }
+
+    /** The same gap with {@code sighted} false for a read cheap enough for every tick: distances only, no sight ray. */
+    public static double gripGap(YukkuriEntity body, Vec3 point, boolean sighted) {
         if (body == null || point == null) return Double.POSITIVE_INFINITY;
         Vec3 mouth = mouth(body), root = braid(body, BRAID[0]);
-        double gap = sight(body, mouth, point) ? mouth.distanceTo(point) - GRAB_MARGIN : Double.POSITIVE_INFINITY;
-        return root != null && sight(body, root, point) ? Math.min(gap, root.distanceTo(point) - root.distanceTo(braidTip(body))) : gap;
+        double gap = !sighted || sight(body, mouth, point) ? mouth.distanceTo(point) - GRAB_MARGIN : Double.POSITIVE_INFINITY;
+        return root != null && (!sighted || sight(body, root, point)) ? Math.min(gap, root.distanceTo(point) - root.distanceTo(braidTip(body))) : gap;
+    }
+
+    /** Whether the body holds {@code hull} by mouth or braid, on the hull's own envelope and on its brim ring where it has one
+     *  ({@code brim}): the one contact rule the water actions and their per-tick waits share. {@code sighted} asks the full rule an
+     *  action starts with; a wait asks the cheap geometry only and leaves the last word to that check. */
+    public static boolean reachesHull(YukkuriEntity body, Entity hull, boolean brim, boolean sighted) {
+        if (body == null || hull == null) return false;
+        if (brim && hull instanceof SurfaceHost host) {
+            var rim = nearestRim(body, host).orElse(null);
+            if (rim != null && gripGap(body, rim, sighted) <= 0) return true;
+        }
+        if (mouthGap(body, hull) <= GRAB_MARGIN && Math.abs(hull.getY() - body.getY()) < GRAB_HEIGHT
+                && (!sighted || body.hasLineOfSight(hull))) return true;
+        return braidGap(body, body.position(), hull, false, sighted) <= 0
+                || braidGap(body, body.position(), hull, true, sighted) <= 0;
     }
 
     private static boolean sight(YukkuriEntity body, Vec3 from, Vec3 to) {

@@ -49,7 +49,6 @@ public final class Beckon implements Action {
     private double pace;
     private int t, start, end, length;
     private long startTick;
-    private boolean drawn;
 
     public Beckon(SurfaceHost host) {
         if (host == null) throw new IllegalArgumentException("Beckon needs a host");
@@ -101,7 +100,6 @@ public final class Beckon implements Action {
         double gap = gap();
         if (gap <= AT) {
             if (t == 0) return Outcome.of(Reason.NO_PROGRESS, 0, "at_bank_before_a_stroke");
-            drawn = true;
             return new Outcome.Done(String.format(Locale.ROOT, "at_bank strokes=%d at=%s", 1 + (t - 1) / Math.max(1, length), GameplayLog.at(hull.position())));
         }
         if (t % Math.max(1, length) == 0) {
@@ -120,9 +118,6 @@ public final class Beckon implements Action {
         for (var p : host.rim()) best = Math.min(best, Math.hypot(p.x - water.x, p.z - water.z));
         return best;
     }
-
-    /** It ended with the host at the bank on her side after at least one stroke (the caller's one try at beckoning succeeded). */
-    public boolean drawn() { return drawn; }
 
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
 

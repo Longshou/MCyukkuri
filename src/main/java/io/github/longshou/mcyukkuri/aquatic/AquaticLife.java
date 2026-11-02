@@ -43,10 +43,13 @@ public final class AquaticLife {
     /** Her own hat while it is set down (ridden or not), else null. */
     static PlacedHatEntity hat(YukkuriEntity y) { return PlacedHatEntity.find(y); }
 
-    /** Floating upright on the water (its afloat behaviour, not turned over). */
-    static boolean afloat(PlacedHatEntity hat) {
-        return hat != null && !hat.isRemoved() && hat.behavior() instanceof HullAfloat && !hat.upsideDown();
+    /** On the water: its afloat behaviour carries it, upright or turned over. */
+    static boolean onWater(PlacedHatEntity hat) {
+        return hat != null && !hat.isRemoved() && hat.behavior() instanceof HullAfloat;
     }
+
+    /** Floating upright on the water (its afloat behaviour, not turned over). */
+    static boolean afloat(PlacedHatEntity hat) { return onWater(hat) && !hat.upsideDown(); }
 
     static boolean aboard(YukkuriEntity y, PlacedHatEntity hat) { return hat != null && y.getVehicle() == hat; }
 

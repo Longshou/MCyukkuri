@@ -1892,14 +1892,19 @@ pond('self_rescue', '落水自救·游回帽子', '游回帽子',
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
-pond('shore_capsized', '岸边翻覆的帽子·扶正爬回', '扶正帽子',
-     '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
+pond('shore_capsized', '岸边翻覆的帽子·走进水里扶正', '扶正帽子',
+     '离岸 8 格的水面上，船主的帽子倒扣漂着，岸上招帽够不着：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
-     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 3), False)],
-     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}', shoved('a')],
-     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[method] pick method=right_own_hat → [action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
+     [captain(dx=bank_dx(0)), afloat('a', water_at(0, 8), False)],
+     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：岸上先等漂近（招帽够不着）→ [action] start id=step_in（普通走路跨过岸沿落水）→ '
+          '[intent] start id=escape_water（同一 reclaim 的子意图）→ [method] pick method=right_own_hat → [action] start id=swim … grip → '
+          '[action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1800, expect=[r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=self_rescue',
+     smoke=dict(ticks=2400, expect=[r'\[action\][^\n]* start id=step_in\b',
+                                   r'\[intent\][^\n]* start id=escape_water\b',
+                                   r'\[action\][^\n]* start id=swim owner=drive:aquatic\b',
+                                   r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=self_rescue',
                                    r'\[body\][^\n]* mount [^\n]*cause=climb'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_HULL_READOUT))
 
@@ -1963,17 +1968,21 @@ pond('hat_crowd', '按体型入座·满座与成长', '帽船容量',
                 readout=[f'yukkuri status {sel("g1")} raw', f'yukkuri status {sel("excess")} raw']))
 
 pond('hat_swap', '帽子大小对照', '帽子大小',
-     '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；水生空帽摇翻后倒扣仍同大，陆地帽落水会下沉，不作帽船',
+     '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；水生空帽倒扣漂着时仍同大，陆地帽落水会下沉，不作帽船',
      '约 30 秒',
      [yk('marisa', -4, -1, 'land_worn', yaw=-90, lead=True, label='陆地·戴着', **pair_ready()),
       yk('marisa', -4, 1, 'aqua_worn', aquatic=True, yaw=-90, label='水生·戴着', **pair_ready()),
       yk('marisa', bank_dx(-3), -3, 'land_owner', yaw=-90, label='陆地·放下', **pair_ready()),
       yk('marisa', bank_dx(3), 3, 'aqua_owner', aquatic=True, yaw=-90, label='水生·放下', **pair_ready()),
       afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False)],
-     note='两顶空帽相距 6 格，各在岸边 3 格外。可空手右击水生空帽摇晃至翻覆，对照倒扣后的大小。水生放帽者想找回漂在外面的帽子（resolve_own_hat）：够不着就等它漂近，仍不行就下水游过去爬进去；陆地魔理沙没有这个欲望。',
+     late=[f'execute at {sel("aqua_owner")} run data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
+     note='两顶空帽相距 6 格，各在岸边 3 格外；水生空帽倒扣漂着（倒扣是它真实的漂浮姿态，不是被测环节）。'
+          '水生放帽者从岸上先招帽靠岸、再咬檐推正、最后收回戴上（日志 [action] start id=beckon → end … at_bank → start id=right … push= → [hat] righted cause=reclaim → [headwear] reclaim done）；'
+          '够不着就等它漂近，仍不行就下水游过去爬进去。陆地魔理沙没有这个欲望，陆地帽落水会下沉。',
      reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
-                                   r'\[action\][^\n]* start id=(?:right|take_prop)\b[\s\S]*\[headwear\][^\n]* reclaim done\b'],
+                                   r'\[action\][^\n]* start id=right\b[^\n]*push=[\s\S]*\[hat\][^\n]* righted cause=reclaim\b[\s\S]*'
+                                   r'\[headwear\][^\n]* reclaim done\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
 
 

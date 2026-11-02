@@ -31,10 +31,10 @@ public final class Right implements Action {
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
+        if (ContactGeometry.reachesHull(body, host.entity(), true, true)) return Feasibility.pass();
         var rim = ContactGeometry.nearestRim(body, host).orElse(null);
-        if (rim == null) return Feasibility.of(Reason.NO_CONTACT, 0, "no_rim");
-        double gap = ContactGeometry.gripGap(body, rim);
-        return gap > 0 ? Feasibility.of(Reason.NO_CONTACT, gap, "rim=" + GameplayLog.at(rim)) : Feasibility.pass();
+        return rim == null ? Feasibility.of(Reason.NO_CONTACT, 0, "no_rim")
+                : Feasibility.of(Reason.NO_CONTACT, ContactGeometry.gripGap(body, rim), "rim=" + GameplayLog.at(rim));
     }
 
     @Override public void start(YukkuriEntity body) {

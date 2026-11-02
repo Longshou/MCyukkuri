@@ -47,6 +47,7 @@ public final class Hop implements Action {
     private boolean launched;
     private boolean aboard;
     private boolean more;
+    private boolean bodyBlocked;
     private long startTick;
 
     public Hop(Vec3 target) { this.target = target; seatHost = null; }
@@ -61,11 +62,32 @@ public final class Hop implements Action {
     }
     @Override public Feasibility check(YukkuriEntity body) { return solve(body).ready(); }
 
-    /** Whether the body's own ability makes one collision-clear hop from a planned stand to {@code target}. */
+    /** Whether the body's own ability makes one collision-clear hop from a planned stand to {@code target}, judged by the same
+     *  arc the takeoff judges. */
     public static boolean reaches(YukkuriEntity body, Vec3 from, Vec3 target) {
+        return new Hop(target).arc(body, vec(from), null, hosts(body, from, target), vec(target)) instanceof ArcSolver.Plan;
+    }
+
+    /** Whether no takeoff arc passes the shared sweep and another body is in a swept arc. The action's own check still has
+     *  the last word after any wait; a body entering after takeoff is an ordinary flight failure. */
+    public boolean blockedByBody(YukkuriEntity body) {
+        bodyBlocked = false;
+        return !check(body).ok() && bodyBlocked;
+    }
+
+    /** The steady hosts a hop from {@code from} to {@code to} sweeps: those it may come down on or clip. */
+    private static List<SurfaceHost> hosts(YukkuriEntity body, Vec3 from, Vec3 to) {
         var ability = BodyAbility.of(body);
-        return ArcSolver.lowest(vec(from), vec(target), ability.hopHeight(), ability.hopReach(), ability.scale(),
-                points -> clear(body, from, null, List.of(), points)) instanceof ArcSolver.Plan;
+        return body.level().getEntities(body, new AABB(from, to).inflate(ability.hopHeight() + body.getBbHeight() + 1),
+                e -> e instanceof SurfaceHost host && host.steady()).stream().map(e -> (SurfaceHost) e).toList();
+    }
+
+    /** The one arc answer: the lowest collision-clear hop from {@code from} to {@code to} past {@code hosts}. */
+    private ArcSolver.Result arc(YukkuriEntity body, Vec from, SurfaceHost anchor, List<SurfaceHost> hosts, Vec to) {
+        var ability = BodyAbility.of(body);
+        var start = new Vec3(from.x(), from.y(), from.z());
+        return ArcSolver.lowest(from, to, ability.hopHeight(), ability.hopReach(), ability.scale(),
+                points -> clear(body, start, anchor, hosts, points));
     }
 
     /** Keeps only the solved local route; admission and clearance are checked again at every takeoff. */
@@ -84,19 +106,17 @@ public final class Hop implements Action {
         SurfaceHost anchor = seatHost != null && body.getVehicle() == seatHost.entity() ? seatHost : null;
         var origin = anchor == null ? body.position() : anchor.riders().local(body.getUUID()).scale(anchor.frame().unit());
         var destination = anchor == null ? to : candidate.local().scale(anchor.frame().unit());
-        var hosts = body.level().getEntities(body, new AABB(body.position(), to).inflate(ability.hopHeight() + body.getBbHeight() + 1),
-                e -> e instanceof SurfaceHost host && host.steady()).stream().map(e -> (SurfaceHost)e).toList();
+        var swept = hosts(body, body.position(), to);
         if (anchor != null && path != null) {
             var next = path.get(leg);
             var landing = new SeatTarget(anchor, new Vec3(next.at().x(), next.at().y(), next.at().z()).scale(1 / anchor.frame().unit()));
             if (!landing.available(body)) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied"), null, null);
             var plan = next.flight();
-            if (!clear(body, origin, anchor, hosts, Ballistic.samples(new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), plan.ticks())))
+            if (!clear(body, origin, anchor, swept, Ballistic.samples(new Vec(plan.vh() * plan.dir().x(), plan.vy(), plan.vh() * plan.dir().z()), plan.ticks())))
                 return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "route_obstructed"), null, null);
             return new Flight(Feasibility.pass(), landing, plan, leg + 1 < path.size());
         }
-        var result = ArcSolver.lowest(vec(origin), vec(destination), ability.hopHeight(), ability.hopReach(), ability.scale(),
-                points -> clear(body, origin, anchor, hosts, points));
+        var result = arc(body, vec(origin), anchor, swept, vec(destination));
         if (result instanceof ArcSolver.Plan plan) {
             if (anchor != null) path = List.of(new HopPath.Leg(vec(destination), plan));
             return new Flight(Feasibility.pass(), candidate, plan);
@@ -104,9 +124,7 @@ public final class Hop implements Action {
         if (anchor != null) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
                     .map(p -> vec(p.scale(anchor.frame().unit()))).toList();
-            path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> ArcSolver.lowest(a, b,
-                    ability.hopHeight(), ability.hopReach(), ability.scale(),
-                    points -> clear(body, new Vec3(a.x(), a.y(), a.z()), anchor, hosts, points)));
+            path = HopPath.solve(vec(origin), vec(destination), stops, (a, b) -> arc(body, a, anchor, swept, b));
             if (path != null) {
                 var next = path.getFirst();
                 return new Flight(Feasibility.pass(), new SeatTarget(anchor,
@@ -184,7 +202,7 @@ public final class Hop implements Action {
     @Override public String startDetail() { return "from=" + GameplayLog.at(from) + " to=" + (seatHost == null ? GameplayLog.at(target) : seatHost.entity().getUUID()); }
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "peak=%.2f airTicks=%d", peak, air); }
 
-    private static boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points) {
+    private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points) {
         AABB base = body.getBoundingBox();
         Vec3 previous = anchor == null ? from : anchor.frame().toWorld(from.scale(1 / anchor.frame().unit()));
         for (Vec point : points) {
@@ -192,8 +210,12 @@ public final class Hop implements Action {
             if (anchor != null) at = anchor.frame().toWorld(at.scale(1 / anchor.frame().unit()));
             if (anchor != null && !anchor.room(body, anchor.frame().toLocal(at))) return false;
             Vec3 corner = at.y < previous.y ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
-            if (!body.level().noCollision(body, base.move(corner.subtract(body.position())).deflate(.002))
-                    || !body.level().noCollision(body, base.move(at.subtract(body.position())).deflate(.002))) return false;
+            AABB cornerBox = base.move(corner.subtract(body.position())).deflate(.002);
+            AABB atBox = base.move(at.subtract(body.position())).deflate(.002);
+            if (!body.level().noCollision(body, cornerBox) || !body.level().noCollision(body, atBox)) {
+                bodyBlocked |= bodyCollision(body, cornerBox, atBox);
+                return false;
+            }
             for (SurfaceHost host : hosts) {
                 Vec3 local = host.frame().toLocal(at);
                 var height = host.support(local, 0);
@@ -203,5 +225,11 @@ public final class Hop implements Action {
         }
         return true;
     }
+
+    private static boolean bodyCollision(YukkuriEntity body, AABB corner, AABB at) {
+        return !body.level().getEntitiesOfClass(YukkuriEntity.class, corner.minmax(at), other -> other != body && other.isAlive()
+                && (other.getBoundingBox().intersects(corner) || other.getBoundingBox().intersects(at))).isEmpty();
+    }
+
     private static Vec vec(Vec3 at) { return new Vec(at.x, at.y, at.z); }
 }
