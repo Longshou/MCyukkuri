@@ -151,7 +151,7 @@ def independence(sid, title, hint, watch, parent_stays):
                 extra='YukkuriIndependence:{Force:1b}'),
              f'yukkuri scenario kin {sel("parent")} {sel("teen")} false']
     if not parent_stays:
-        lines.append(f'tp {sel("parent")} ~ ~ ~40')
+        lines.append(f'tp {sel("parent")} ~ ~ ~28')
     add(sid, 'den', title, hint, watch, '约 3 分钟内离开（可倍速）', lines, env=DAY, spot='indep', retry='先“清空本场地”（洞口格要空）', vantage=(0, 12),
         reads=[('读独立状态', f'data get entity {sel("teen")} YukkuriIndependence')])
 
@@ -221,14 +221,12 @@ BIOMES = BY_ID['biomes']
 def settlement(plot, title, kind, wait):
     from museum_fields import BIOME_PLOTS
     entry = next(p for p in BIOME_PLOTS if p[0] == plot)
-    # A plains village reaches into the plots next door: its whole footprint becomes plains ground first.
-    ground = BIOMES.plains_site(*BIOMES.spots[plot]) if plot == 'plains' else [f'fillbiome ~-22 56 ~-22 ~22 100 ~22 {entry[1]}']
     where = ('洞穴挖进北侧山坡：洞口朝南对着空地，洞顶是山坡本身的土石' if entry[6]
              else '该群系不自然生成聚落（群系适居裁定），此处用管理员命令放在平地上，只用来看寒冷／炎热季节生活，洞岸由土堆补起'
              if plot in ('snow', 'desert') else '平地上没有山坡，洞口两侧和洞顶由土堆补起（对照）')
     add(f'settle_{plot}', 'biomes', f'{title}聚落', title,
         f'{title}的{"村落" if kind == "village" else "小群"}：{where}；南边低处有一处浅浅的嗯嗯坑（裸土凹地，无厕所方块）。成员、住所、仓堆随群系特色而不同',
-        wait, [*ground, f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
+        wait, [f'yukkuri settlement spawn {kind} ~ ~ ~', LEAD_ANY], env=DAY, spot=plot,
         vantage=(0, 26), retry='先“清空本场地”再按一次',
         reads=[('读聚落场地与嗯嗯坑', 'yukkuri settlement site info'), ('读场地勘测', 'yukkuri settlement site check')])
 
@@ -272,7 +270,7 @@ add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     '森林山脚的小群入住约 10 秒后，全员便意升到 90，约 80 秒时再升一次：看它们各自从洞里走到南边低处的嗯嗯坑，只站在坑沿、背对坑口排泄，'
     '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
     '不在洞口或空地上排。读数看坑内各格份数与档位；日志 [needs] toilet pit trip start → toilet pit edge reached → poop placed → relieved source=pit',
-    '约 1–3 分钟', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    '约 1–3 分钟', ['yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
           Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600)],
@@ -288,7 +286,7 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '同一处山脚小群，入住约 6 秒后一只成体失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
     '读数看奴隶营养与坑内份数；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=mcyukkuri:yukkuri_waste',
-    '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    '约 2–5 分钟（可倍速）', ['yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
@@ -546,7 +544,7 @@ _lost_m=uid('family_search_blocked','mother');_lost_c=uid('family_search_blocked
 add('family_search_blocked', 'family', '走失无法抵达', '走失与放弃',
     '母子相距30格，子油被真实玻璃围住；观察搜寻受阻、母油计时与单向放弃。低胆量孩子不安可越过非油症阈值；可手动拆玻璃对照重逢，不能把放弃误认成寻回',
     '母油约2分钟以上；孩子不安需更久', [
-    box(13,0,-2,17,3,2,'minecraft:glass','hollow'),
+    box(13,-1,-2,17,3,2,'minecraft:glass','hollow'),
     yk('reimu',-15,0,'lost_mother',uuid=_lost_m,friendliness=0,self_control=0,boldness=0,lead=True),
     yk('reimu',15,0,'lost_child',uuid=_lost_c,stage='child',boldness=0,kin=f'Mother:{uuid_nbt(_lost_m)}')],
     spot='hurt_kin',reads=[('读搜索时长与断亲',f'yukkuri status {sel("lost_mother")} raw'),('读子油不安',f'yukkuri status {sel("lost_child")} raw')])
@@ -1119,19 +1117,19 @@ add('remains_rot', 'body', '遗体腐败与死臭', '遗体腐败',
 OLD_AGE_FAMILY = f'Version:2,Initialized:1b,Stage:"ADULT",Age:{1056000 - 200}L,Nourishment:{1056000 - 200}L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:1f'
 _forms = [('old', -20, '寿终'), ('starve', -14, '饿死'), ('fire', -8, '烧死'), ('anvil', -2, '压死'), ('struck', 4, '打死'),
           ('frozen', 10, '冻死'), ('mold', 16, '油霉病死')]
-_form_lines = [box(-8, -2, -13, 8, -1, -7, 'minecraft:water')]
+_form_lines = [box(-8, -1, 7, 8, -1, 13, 'minecraft:water')]
 for _name, _x, _label in _forms:
     _form_lines.append(yk('reimu', _x, 0, _name, label=_label, lead=_name == 'old', fam=OLD_AGE_FAMILY if _name == 'old' else None, **pair_ready()))
 _form_lines += [
     f'damage {sel("starve")} 100 minecraft:starve', f'damage {sel("fire")} 100 minecraft:in_fire',
     f'damage {sel("anvil")} 100 minecraft:falling_anvil', f'damage {sel("struck")} 100 minecraft:mob_attack',
     f'damage {sel("frozen")} 100 minecraft:freeze', set_status('mold', 'health.mold', 8),
-    yk('reimu', 0, -10, 'drowned', dy=-1, label='溺死', **pair_ready()), f'damage {sel("drowned")} 100 minecraft:drown',
-    remains(-5, -10, 'soaking', dy=-1, soak=5400, cause='minecraft:drown', category='drowned', food=0),
-    remains(5, -10, 'melting', dy=-1, soak=23400, cause='minecraft:mob_attack', category='violent'),
+    yk('reimu', 0, 10, 'drowned', dy=-1, label='溺死', **pair_ready()), f'damage {sel("drowned")} 100 minecraft:drown',
+    remains(-5, 10, 'soaking', dy=-1, soak=5400, cause='minecraft:drown', category='drowned', food=0),
+    remains(5, 10, 'melting', dy=-1, soak=23400, cause='minecraft:mob_attack', category='violent'),
     remains(12, -10, 'dry_control', soak=23400, cause='minecraft:mob_attack', category='violent')]
 add('remains_forms', 'body', '死因遗体与水中溶化', '死因遗体',
-    '七只灵梦各死于真实死因：寿命（约10秒）、饥饿、着火、落砧、近战击打、冻伤、终末油霉（约25秒内）；北边水池里一只溺死。'
+    '七只灵梦各死于真实死因：寿命（约10秒）、饥饿、着火、落砧、近战击打、冻伤、终末油霉（约25秒内）；南边水池里一只溺死。'
     '遗体按存下的死因类别换死亡脸、姿态和表层：寿终凹缝眼灰白、饿死干瘪、烧死焦黑带灰、压死压扁带馅渍、打死歪倒垂舌且身下渗馅、冻死挺圆结霜、病死发黄起霉点、溺死白眼泡胀冷白滴水。'
     '水池另有两具已泡水的遗体：左边溺死遗体约30–60秒后泡软（更胀、发白斑）；右边被打死后落水、尚有6份余量，约30–60秒后溶化成沉底残渣，余量6→0、不能取核。'
     '浮在水面时只有实际浸水的 tick 计入水钟，漂起的瞬间不计，所以时间会比 30 秒长。'
@@ -1423,8 +1421,8 @@ COLONY_LEAD = '@e[tag=scn_lead,distance=..70]'
 
 def colony_loss_prompt(sid, members_read, rules_read):
     """A player-chosen, real death after the colony has reached the phase being observed."""
-    x, z = BIOMES.spots['plains']
-    kill = f'/execute positioned {x} {FEET} {z} run kill @e[tag=scn_lead,distance=..140,limit=1,sort=nearest]'
+    x, z = BIOMES.spots['colony']
+    kill = f'/execute positioned {x}.0 {FEET} {z}.0 run kill @e[tag=scn_lead,distance=..140,limit=1,sort=nearest]'
     controls = [
         {'text': '要核验族长死亡后的交接，请先观察当前组织或行军阶段，再点 ', 'color': 'gray'},
         {'text': '[杀死族长]', 'color': 'red', 'bold': True,
@@ -1457,9 +1455,9 @@ def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', read
             indexes.append(index)
         controls.append(colony_loss_prompt(sid, *indexes))
     add(sid, 'biomes', title, hint, watch, wait,
-        [*BIOMES.plains_site(*BIOMES.spots['plains']), *lines, 'yukkuri settlement spawn village_led ~ ~ ~',
+        [*lines, 'yukkuri settlement spawn village_led ~ ~ ~',
          'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead', *controls],
-        env=env, spot='plains', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke)
+        env=env, spot='colony', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke)
 
 
 colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
@@ -1480,10 +1478,8 @@ colony('colony_judge', '族规·审判', '族规审判',
        '约 30–90 秒', _judge + ['yukkuri settlement rules judge'],
        note='每案经过真实移动与短暂停留，不固定四只个体分别受哪一档处罚。欺负需要附近有凶悍成员，没有时只驱逐。',
        reads=[('读待审阶段与判决', 'yukkuri settlement rules')])
-# The empty village 64 blocks east lies across the snow, taiga, desert and badlands plots: plains ground and biome for its whole
-# footprint first (the field clear restores the plots), otherwise its homes and meadow ring stand on snow block and sand.
-_mx, _mz = BIOMES.spots['plains']
-_migration_site = [*BIOMES.plains_site(_mx + 64, _mz), 'yukkuri settlement site vacant village ~64 ~ ~']
+# The empty village 64 blocks east stands on the colony_dest plot.
+_migration_site = ['yukkuri settlement site vacant village ~64 ~ ~']
 colony('colony_migrate', '族规·迁徙', '族群迁徙',
        '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就自己挖；掉队者继续赶往新址',
        '约 2–5 分钟', [Retry('yukkuri settlement migrate', COLONY_LEAD)],

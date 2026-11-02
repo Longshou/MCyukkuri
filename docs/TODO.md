@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 拨水与持棍划水贴水（反馈 12、15 美术） | `.worktrees/fb-water-strokes` | 魔理沙拨水／持棍划水动作源与导出 |
 | 宠物窝只从入口进出 | `.worktrees/fb-bed-entrance` | 宠物窝入口、入窝／离窝接近路线 |
-| 场景布置校验与群系化重排（反馈 1、3、6、9） | `.worktrees/fb-scene-layout` | `scripts/museum_*.py`、场景校验脚本 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
@@ -24,6 +23,7 @@
 - **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave`（`fb-pit-slave` 分支，版本待核实）中成员在同一岸边反复 `climb DONE on_bank`／`escape_water DONE` 却仍在水中，t=51208 溺亡。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡；`池塘与河湾`“急流翻船”落水者爬上岸后站稳不再反复浮沉；`[water] escape done` 的 `support=` 为真实站位或 `aboard=`。
 - **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拍水·学划·拨粮·躲辫）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
+  - 已接入待试玩：试玩场布置（反馈 1、3、6、9，运行 bbd16394b 复测失败：每次生成场景都开头顶标签；`settle_pit`／`settle_pit_slave` 玩家出生在山坡土里；茎生各场景灵梦卡在木柱里；`hat_current`／`hat_turbulence` 魔理沙卡在石槽墙里）。原因：场景锚点整数坐标被 `execute positioned` 取方块中心，所有 `~dx+.5` 起点实际偏了半格（站在方块交界线上），玩家则固定落在锚点上空 2 格。现锚点取方块角、玩家落在地表，`smoke_museum.py --layout` 校验全部场景。完成：各场景生成后实体与玩家都在空位实地上；群系聚落 `settle_*`、`colony_*` 各在自己的 63×63 地块（按钮不变，族群场景改用新增的“族群”“迁徙新址”两块平原）；头顶标签默认关闭。
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），招不到时走进水里游去扶正再爬回（`shore_capsized`：`step_in` → 游泳 → `right` → 上帽），无原地哭脸或岸边来回循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
   - 已接入待试玩：座位已满时凭空多出两只在船内、新生儿卡在船沿（4064a9234，`birth_boat_missed`）。完成：两只初始赤油从开场就在船内，无座新生儿从船沿外真实落水，无中途加员或卡沿。

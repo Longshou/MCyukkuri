@@ -3,6 +3,7 @@
 import argparse
 import importlib
 import json
+import math
 import re
 import secrets
 import shutil
@@ -68,6 +69,12 @@ def assemble_mod(worktree, runtime, java, instance):
     return mod
 
 
+# Blocks a body may occupy (air, plants, the cushion of a nest); anything else is a wall.
+STAND = ['minecraft:air', 'minecraft:cave_air', 'minecraft:void_air', 'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern',
+         'minecraft:large_fern', 'minecraft:dead_bush', 'minecraft:snow', 'minecraft:water', '#minecraft:flowers', '#minecraft:wool_carpets',
+         'mcyukkuri:yukkuri_nest', 'mcyukkuri:large_yukkuri_nest']
+
+
 def build_pack(builder, pack_root):
     # Use the selected tree's generator API: older trees restrict CLI outputs to their own checkout.
     builder.CONTROLS.clear()
@@ -86,10 +93,13 @@ def build_pack(builder, pack_root):
         x, z = scene.anchor
         for i, (tick, command) in enumerate(commands):
             (directory / f'{i}.mcfunction').write_text(
-                f'execute positioned {x} {builder.FEET} {z} run {command}\n', encoding='utf-8')
+                f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}\n', encoding='utf-8')
         (directory / 'start.mcfunction').write_text(''.join(
             f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick}t\n'
             for i, (tick, _) in enumerate(commands)), encoding='utf-8')
+    tags = pack / 'data' / builder.NS / 'tags/block'
+    tags.mkdir(parents=True)
+    (tags / 'stand.json').write_text(json.dumps({'values': STAND}), encoding='utf-8')
     if builder.museum_sites.VIOLATIONS:
         raise ValueError(f'Text displays do not fit: {builder.museum_sites.VIOLATIONS}')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
@@ -163,7 +173,7 @@ def run_scene(st, scene, builder):
     if 'reload' in scene.smoke:
         elapsed, selector = scene.smoke['reload']
         server.sprint(st, elapsed)
-        command = f'execute positioned {x} {builder.FEET} {z} run data get entity {selector}'
+        command = f'execute positioned {x}.0 {builder.FEET} {z}.0 run data get entity {selector}'
         paths = ('Riders', 'Passengers[0].UUID', 'Passengers[1].UUID')
         before = [server.run_cmd(st, f'{command} {path}') for path in paths]
         server.run_cmd(st, 'save-all flush')
@@ -181,7 +191,7 @@ def run_scene(st, scene, builder):
             raise RuntimeError(f'{scene.id}: saved rider coordinates or passenger identities changed on reload')
         print(f'PASS {scene.id}: rider coordinates and passenger identities survived chunk reload', flush=True)
     server.sprint(st, scene.smoke['ticks'] - elapsed)
-    readout = '\n'.join(server.run_cmd(st, f'execute positioned {x} {builder.FEET} {z} run {command}')
+    readout = '\n'.join(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
                         for command in scene.smoke.get('readout', ()))
     (Path(st['rundir']).parent / f'{scene.id}.readout.txt').write_text(readout, encoding='utf-8')
     window = server.log_text(st, offset)
@@ -192,6 +202,52 @@ def run_scene(st, scene, builder):
     else:
         print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines', flush=True)
     return problem is None
+
+
+def numbers(text):
+    return [float(v) for v in re.findall(r'(-?\d+(?:\.\d+)?(?:E-?\d+)?)[df]', text)]
+
+
+def standing(st, builder, x, y, z, reach=.3):
+    """Two open cells under every corner of the body (``reach`` each way), over a solid floor unless the body floats in water."""
+    stand = f'#{builder.NS}:stand'
+    cells = {(math.floor(x + dx), math.floor(z + dz)) for dx in (-reach, reach) for dz in (-reach, reach)}
+    y = math.floor(y)
+    open_cells = lambda cx, cz: f'execute if block {cx} {y} {cz} {stand} if block {cx} {y + 1} {cz} {stand}'
+    return all('passed' in server.run_cmd(st, f'{open_cells(cx, cz)} unless block {cx} {y - 1} {cz} {stand} unless block {cx} {y - 1} {cz} #minecraft:leaves')
+               or 'passed' in server.run_cmd(st, f'{open_cells(cx, cz)} if block {cx} {y} {cz} minecraft:water') for cx, cz in cells)
+
+
+def check_layout(st, builder, scene):
+    """Start the scene the way its button does and read the generated world: every scenario body and the player's vantage must
+    stand in open air (or shallow water) on a solid floor, and the bodies must lie inside the scene's field. Time is frozen so nothing has moved."""
+    problems = []
+    server.run_cmd(st, 'tick freeze')
+    server.run_cmd(st, f'function {builder.NS}:start/{scene.id}', timeout=180)
+    read = lambda path: server.run_cmd(st, f'execute as @e[tag=scn] run data get entity @s {path}')
+    positions = [numbers(row) for row in re.findall(r'\[[^\]]*\]', read('Pos'))]
+    names = re.findall(r'\[[^\]]*\]', read('Tags'))
+    assert len(positions) == len(names), (scene.id, len(positions), len(names))
+    field = builder.BY_ID[scene.field]
+    for (x, y, z), who in zip(positions, names):
+        if not standing(st, builder, x, y, z):
+            problems.append(f'{who} at ({x:.1f}, {y:.1f}, {z:.1f}) is not in open air on a solid floor')
+        if not (field.x1 <= x <= field.x2 + 1 and field.z1 <= z <= field.z2 + 1):
+            problems.append(f'{who} at ({x:.1f}, {z:.1f}) lies outside field {field.id}')
+    if scene.vantage is not None:
+        server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
+        server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function {builder.NS}:view/{scene.id}')
+        x, y, z = numbers(server.run_cmd(st, 'data get entity @e[tag=mcyv,limit=1] Pos'))
+        server.run_cmd(st, 'kill @e[tag=mcyv]')
+        if not standing(st, builder, x, y, z):
+            problems.append(f'player vantage ({x:.1f}, {y:.1f}, {z:.1f}) is not in open air on a solid floor')
+    server.run_cmd(st, f'function {builder.NS}:field/{scene.field}/clear', timeout=180)
+    server.run_cmd(st, 'tick unfreeze')
+    for problem in problems:
+        print(f'FAIL {scene.id}: {problem}', flush=True)
+    if not problems:
+        print(f'PASS {scene.id}: {len(positions)} bodies and the vantage stand free inside the field', flush=True)
+    return not problems
 
 
 def require_runtime_commit(runtime):
@@ -207,6 +263,7 @@ def require_runtime_commit(runtime):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
+    parser.add_argument('--layout', action='store_true', help='Check the generated world of every scene (default: all scenes) instead of the smoke expectations')
     parser.add_argument('scenes', nargs='*', help='Scene IDs (default: all scenes with smoke metadata)')
     args = parser.parse_args()
     source = server.ROOT if args.worktree is None else args.worktree.resolve(strict=True)
@@ -220,7 +277,7 @@ def main():
         require_runtime_commit(runtime)
     sys.path[0] = str(source / 'scripts')
     builder = importlib.import_module('build_museum_full')
-    scenes = {scene.id: scene for scene in builder.museum_scenarios.S if scene.smoke is not None}
+    scenes = {scene.id: scene for scene in builder.museum_scenarios.S if args.layout or scene.smoke is not None}
     unknown = set(args.scenes) - scenes.keys()
     if unknown:
         parser.error('No smoke expectations for: ' + ', '.join(sorted(unknown)))
@@ -235,7 +292,12 @@ def main():
     st = server.start(runtime, java, datapack, name, mod, instances)
     try:
         server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
-        results = [run_scene(st, scene, builder) for scene in selected]
+        if args.layout:
+            for field in {builder.BY_ID[scene.field] for scene in selected}:
+                load_field(st, field, builder.FEET)
+            results = [check_layout(st, builder, scene) for scene in selected]
+        else:
+            results = [run_scene(st, scene, builder) for scene in selected]
         return 0 if all(results) else 1
     finally:
         server.stop(st)

@@ -130,7 +130,7 @@ def book_command(shown):
                 lines.append(f'· {s.title}' + (f'（{s.tag}）' if s.tag else ''))
             pages.append('\n'.join(lines))
     pages.append('说明\n\n场景只写真实的起始状态（饥饿、困倦、年龄、亲子、怀孕、伤、放下的帽子……），之后全由普通 AI 接手。\n'
-                 '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
+                 '倍速与“推进”：观察台入口第二排；推进是快进若干分钟再恢复原速。第一排可恢复正常速度。\n观察标签（默认关闭，用观察台按钮开启）：头顶显示行为、饥饿、困倦、年龄、成长、伤。\n'
                  '场景也可在任意平地用 /function 执行 mcylab 的 scn/场景id 生成（洞穴场景需要对应地形）；它不清场，要从同一初始状态重来请按观察台的场景按钮。')
     for group, entries in CATEGORIES:
         for start in range(0, len(entries), 7):
@@ -247,7 +247,7 @@ def build_pack(world):
         ax, az = s.anchor
         body = s.body()
         if s.late:
-            late_lines = [f'execute positioned {ax} {FEET} {az} run {line}' for line in s.late if isinstance(line, str)]
+            late_lines = [f'execute positioned {ax}.0 {FEET} {az}.0 run {line}' for line in s.late if isinstance(line, str)]
             for ri, retry in enumerate(r for r in s.late if not isinstance(r, str)):
                 # a command the game may refuse for a while: attempt it every few ticks, only once its guard matches, a bounded number of times
                 base = f'scn/{s.id}_retry{ri}'
@@ -255,15 +255,15 @@ def build_pack(world):
                 fn(f'{base}_try', [f'return run {retry.command}'])
                 for k in range(retry.tries):
                     nxt = f'schedule function {NS}:{base}_{k + 1} %dt replace' if k + 1 < retry.tries else ''
-                    fn(f'{base}_{k}', ([f'execute positioned {ax} {FEET} {az} unless entity {retry.guard} run ' + nxt % 20,
-                                        f'execute positioned {ax} {FEET} {az} if entity {retry.guard} unless function {NS}:{base}_try run ' + nxt % retry.every]
-                                       if nxt else [f'execute positioned {ax} {FEET} {az} if entity {retry.guard} run function {NS}:{base}_try']))
+                    fn(f'{base}_{k}', ([f'execute positioned {ax}.0 {FEET} {az}.0 unless entity {retry.guard} run ' + nxt % 20,
+                                        f'execute positioned {ax}.0 {FEET} {az}.0 if entity {retry.guard} unless function {NS}:{base}_try run ' + nxt % retry.every]
+                                       if nxt else [f'execute positioned {ax}.0 {FEET} {az}.0 if entity {retry.guard} run function {NS}:{base}_try']))
             fn(f'scn/{s.id}_late', late_lines)
             body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
-        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env) + ['yukkuri observe on']
-        start.append(f'execute positioned {ax} {FEET} {az} run function {NS}:scn/{s.id}')
+        start = [f'function {NS}:{clear_fn}'] + env_commands(s.env)
+        start.append(f'execute positioned {ax}.0 {FEET} {az}.0 run function {NS}:scn/{s.id}')
         if s.vantage is not None:
             vdx, vdz = s.vantage[0], s.vantage[1]
             # The common two-value view is the north observation line, looking south. Explicit three-value views
@@ -273,14 +273,16 @@ def build_pack(world):
             else:
                 vdz = -abs(vdz)
                 yaw = 0
-            start += [f'tp @s {ax + vdx + .5} {FEET + 2} {az + vdz + .5} {yaw} 20',
+            # The player stands on whatever the column holds (hill, bank), never inside it.
+            fn(f'view/{s.id}', [f'execute positioned {ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves run tp @s ~ ~ ~ {yaw} 20'])
+            start += [f'function {NS}:view/{s.id}',
                       'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
                                           {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},
                                           {'text': ' [回大厅]', 'color': 'gold', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/lobby'}}])]
         fn(f'start/{s.id}', start)
         for i, (caption, command) in enumerate(s.reads):
             # Manual /function diagnostics keep the original anchor and executing player.
-            fn(f'read/{s.id}_{i}', [f'execute positioned {ax} {FEET} {az} run yukkuri readout {command}'])
+            fn(f'read/{s.id}_{i}', [f'execute positioned {ax}.0 {FEET} {az}.0 run yukkuri readout {command}'])
 
     # extras: the house activity buttons and clips
     house = BY_ID['house']
@@ -354,7 +356,7 @@ def build_pack(world):
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
     fn('waiting', ['tag @s add museum_waiting', 'tellraw @s ' + _text('正在布置试玩场（约 1 分钟），请稍候……完成后自动传送到大厅。', 'yellow')])
-    fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', 'yukkuri observe on', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
+    fn('welcome', ['tag @s add museum_visitor', 'gamemode creative @s', f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0', f'function {NS}:guide',
                    'tellraw @s ' + _text('欢迎来到试玩场！大厅按主题列出各区，每个按钮传送到一个区的观察台；在台上生成场景、清场、调时间天气、倍速和推进。', 'aqua')])
     shapes, blocks, items, entities = probe_lines([line for lines in texts.values() for line in lines])
     probes = {'commands': [PROBE_COMMANDS[s] for s in sorted(shapes) if s in PROBE_COMMANDS],

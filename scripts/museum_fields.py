@@ -229,18 +229,22 @@ BIOME_PLOTS = [  # id, biome, ground block, trunk, leaves, title, hill block (No
     # no settlement generates in these two (docs/FEATURES.md): flat plots for the cold / hot season scenes
     ('snow', 'minecraft:snowy_plains', 'minecraft:snow_block', 'minecraft:spruce_log', 'minecraft:spruce_leaves', '雪原', None),
     ('desert', 'minecraft:desert', 'minecraft:sand', None, None, '沙漠', None),
+    # the plains village of the colony scenes and, 64 blocks east, the empty village it migrates to
+    ('colony', 'minecraft:plains', 'minecraft:grass_block', None, None, '族群', None),
+    ('colony_dest', 'minecraft:plains', 'minecraft:grass_block', None, None, '迁徙新址', None),
 ]
 
 
 class Biomes(Field):
-    """Eight 44x44 plots in a 4x2 grid, one biome each. The six where settlements generate (docs/FEATURES.md) all but plains
-    have a slope rising in their north part, its foot five blocks north of the plot centre, so a settlement spawned at the centre
-    digs its burrows into the bank; snow and desert stay flat for the cold and hot season scenes. A plot's scenario sets its biome again, then spawns a settlement. Every clear puts
-    the plots' ground, hill, trees and biomes back."""
+    """Ten 63x63 plots in a 4x3 grid, one biome each; a plot holds a whole village (SiteTier.VILLAGE.bound 29), so neighbours never
+    share ground. The six where settlements generate (docs/FEATURES.md) all but plains have a slope rising in their north part, its
+    foot five blocks north of the plot centre, so a settlement spawned at the centre digs its burrows into the bank; snow and desert
+    stay flat for the cold and hot season scenes; the two colony plots are plain plains. Every clear puts the plots' ground, hill,
+    trees and biomes back."""
     HILL_FOOT = 5          # blocks north of the plot centre where the slope begins
     HILL_TOP = 9           # height of the hill crest above the ground
-    PITCH = 48
-    VILLAGE_REACH = 30     # SiteTier.VILLAGE.bound (29, hedge plus meadow ring) and one more
+    HALF = 31              # SiteTier.VILLAGE.bound (29, hedge plus meadow ring) and two more
+    PITCH = 2 * HALF + 2
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -248,12 +252,14 @@ class Biomes(Field):
         for i, plot in enumerate(BIOME_PLOTS):
             col, row = i % 4, i // 4
             px = self.cx - 3 * self.PITCH // 2 + col * self.PITCH
-            pz = self.cz - self.PITCH // 2 + row * self.PITCH
+            pz = self.cz + (row - 1) * self.PITCH
             self.plots.append((plot, px, pz))
         self.spots = {plot[0]: (px, pz) for plot, px, pz in self.plots}
+        assert self.PITCH > 2 * self.HALF and all(self.x1 <= x1 and x2 <= self.x2 and self.z1 <= z1 and z2 <= self.z2
+                                                  for x1, z1, x2, z2 in (self.plot_rect(px, pz) for _, px, pz in self.plots))
 
     def plot_rect(self, px, pz):
-        return px - 22, pz - 22, px + 22, pz + 22
+        return px - self.HALF, pz - self.HALF, px + self.HALF, pz + self.HALF
 
     def hill_height(self, plot, px, pz, x, z):
         """Blocks of hill above the ground at (x, z): a wavy foot line, 0.8 block up per block (rock 0.9), a flat crest."""
@@ -267,7 +273,6 @@ class Biomes(Field):
         x1, z1, x2, z2 = self.plot_rect(px, pz)
         out = big_fill(x1, GROUND - 3, z1, x2, GROUND - 1, z2, 'minecraft:sandstone' if 'sand' in plot[2] else 'minecraft:dirt')
         out += big_fill(x1, GROUND, z1, x2, GROUND, z2, plot[2])
-        out += big_fill(x1, GROUND + 1, z1, x2, SKY, z2, 'minecraft:air')
         if plot[6]:
             # layer by layer in five-block strips; every layer is the hill block with turf on its exposed edge
             for xa in range(x1, x2 + 1, 5):
@@ -285,8 +290,8 @@ class Biomes(Field):
 
     def plot_ground(self, plot, px, pz):
         """Standing level of the plot's own ground (the hill included) at a column."""
-        strip = lambda x: (x - (px - 22)) // 5 * 5 + (px - 22) + 2
-        return lambda x, z: FEET + self.hill_height(plot, px, pz, min(px + 22, strip(x)), z)
+        strip = lambda x: (x - (px - self.HALF)) // 5 * 5 + (px - self.HALF) + 2
+        return lambda x, z: FEET + self.hill_height(plot, px, pz, min(px + self.HALF, strip(x)), z)
 
     def plot_features(self, plot, px, pz):
         trunk, leaves = plot[3], plot[4]
@@ -295,11 +300,7 @@ class Biomes(Field):
         return scatter_trees(self, 7, 91 + px + pz, margin=3, keep_out=20, trunk=trunk, leaves=leaves, rect=self.plot_rect(px, pz),
                              ground=self.plot_ground(plot, px, pz))
 
-    def plot_terrain(self, plot, px, pz):
-        return self.plot_base(plot, px, pz) + self.plot_features(plot, px, pz)
-
     def base(self):
-        # Planned villages extend beyond the coloured plots; clearing must include those homes and connecting lanes.
         return super().base() + [c for plot, px, pz in self.plots for c in self.plot_base(plot, px, pz)]
 
     def features(self):
@@ -312,16 +313,6 @@ class Biomes(Field):
             x1, z1, x2, z2 = self.plot_rect(px, pz)
             out += fillbiome_boxes(x1, z1, x2, z2, plot[1])
         return out
-
-    def plains_site(self, x, z, half=VILLAGE_REACH):
-        """Plains ground for a whole planned village around (x, z): dirt under grass, nothing above, plains biome. A village reaches
-        past its 44-block plot into the neighbours (snow block, sand, spruce); scenes run this right after the field clear, and the
-        next clear puts the plots back."""
-        x1, z1, x2, z2 = x - half, z - half, x + half, z + half
-        out = big_fill(x1, GROUND - 3, z1, x2, GROUND - 1, z2, 'minecraft:dirt')
-        out += big_fill(x1, GROUND, z1, x2, GROUND, z2, 'minecraft:grass_block')
-        out += big_fill(x1, GROUND + 1, z1, x2, SKY, z2, 'minecraft:air')
-        return out + fillbiome_boxes(x1, z1, x2, z2, 'minecraft:plains')
 
 
 # ----------------------------------------------------------------------------------------------- day life, family, weather
@@ -528,10 +519,10 @@ class Clips(Field):
 
 
 FIELDS = [
-    Dens('den', '野外住所', 'wild', -900, 300, 44, 30, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
+    Dens('den', '野外住所', 'wild', -900, 300, 44, 36, 'minecraft:plains', blurb='山坡洞穴一家三口、独立、搬往大洞'),
     # 72 deep, not more: its far edge must stay loaded while a visitor presses "clear" on the deck (render distance 10).
     Forage('forage', '流浪与觅食', 'wild', -750, 300, 96, 72, 'minecraft:plains', blurb='流浪油挖穴、家旁稀疏与远处草场、吃草'),
-    Biomes('biomes', '群系聚落', 'biome', -760, 500, 104, 56, 'minecraft:plains', blurb='八个群系聚落地块，迁徙场景提供真实空聚落'),
+    Biomes('biomes', '群系聚落', 'biome', -760, 500, 128, 96, 'minecraft:plains', blurb='八个群系聚落地块和族群迁徙的两块平原，迁徙场景提供真实空聚落'),
     Meadow('meadow', '日常草地', 'family', -600, 300, 28, 28, 'minecraft:plains', blurb='回窝、相遇、受伤照料、饿了取食、厕所'),
     Family('family', '出生与成长', 'family', -450, 300, 36, 24, 'minecraft:plains', deck_depth=19, blurb='陆地接生、育儿、亲子舔舐、成长、宠物生产窝'),
     Weather('weather', '天气与捕食种', 'react', -300, 300, 44, 28, 'minecraft:plains', blurb='雨天躲雨、捕食种反应、挡捕食种、妖梦拔刀、脏污伤痕、橙汁'),
