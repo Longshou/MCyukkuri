@@ -268,17 +268,50 @@ def slave_life(window):
     return None
 
 
+def slave_token(window):
+    found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*pit slave ', window)
+    return None if found is None else f'{found[1]} #{found[2]} '
+
+
 def slave_survives(window):
-    """Three real days: the slave itself (named by its first pit line) must not sweeten, break or die, while any other
-    individual of the colony is free to have its own troubles."""
+    """Three real days with a supplied pit: the slave itself (named by its first pit line) must not sweeten, break, starve
+    or die and must still be taking portions late in the run, while any other individual is free to have its own troubles."""
     problem = slave_life(window)
     if problem: return problem
-    found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*pit slave ', window)
-    if not found: return 'no slave line to identify the slave'
-    token = f'{found[1]} #{found[2]} '
+    token = slave_token(window)
+    if token is None: return 'no slave line to identify the slave'
+    end = max((int(tick) for tick in re.findall(r' t=(\d+) ', window)), default=0)
+    meals = [int(tick) for tick in re.findall(token.replace('#', r'\#') + r'uuid=\S+ t=(\d+)[^\n]*pit slave eats droppings', window)]
     for line in window.splitlines():
-        if token in line and re.search(r'non-yukkuri onset|died of non-yukkuri|stage uneasy -> sweetened', line):
-            return 'the slave fell ill: ' + line.strip()
+        if token in line and re.search(r'non-yukkuri onset|died of non-yukkuri|stage uneasy -> sweetened|starvation damage|death settled', line):
+            return 'the slave fell: ' + line.strip()
+    if not meals: return 'the slave never took a portion'
+    if meals[-1] < end * 2 // 3: return f'the slave stopped eating at t={meals[-1]} of {end}'
+    return None
+
+
+def starves_without_pit_food(window):
+    """No droppings in the pit: the slave must really go hungry and take real starvation damage (no conjured food)."""
+    token = slave_token(window)
+    if token is None: return 'no slave line to identify the slave'
+    if not re.search(token.replace('#', r'\#') + r'uuid=\S+ t=\d+[^\n]*pit slave hungry reason=no_droppings', window):
+        return 'the slave did not report an empty pit'
+    if not re.search(token.replace('#', r'\#') + r'uuid=\S+ t=\d+[^\n]*starvation damage', window):
+        return 'an empty pit cost the slave nothing'
+    return None
+
+
+def release_holds(window):
+    """After the five acts of kindness the same individual must stay a member: no fresh hatless rejection, no pit life and
+    no death for the rest of the run."""
+    found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*hatless outcome role=MEMBER cause=gentle_treatment', window)
+    if found is None: return 'the slave never became a member again'
+    token = f'{found[1]} #{found[2]} '
+    lines = window.splitlines()
+    start = next(i for i, line in enumerate(lines) if token in line and 'cause=gentle_treatment' in line)
+    for line in lines[start + 1:]:
+        if token in line and re.search(r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |non-yukkuri onset|starvation damage|death settled', line):
+            return 'the release was undone: ' + line.strip()
     return None
 
 
@@ -325,6 +358,25 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
                expect=[r'\[settlement\][^\n]* pit slave back in pit\b', r'\[mind\][^\n]* stage calm -> uneasy \(unease 3'],
                forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b', r'hatless outcome role=MEMBER'],
                verify=slave_survives))
+
+# The honest other half: a pit nobody has used yet holds nothing, and the slave set to an empty stomach really starves.
+add('settle_pit_famine', 'biomes', '聚落嗯嗯奴隶坑·坑空挨饿', '坑空挨饿',
+    '同一处山脚小群刚入场：坑里还没有任何排泄物，奴隶的营养为 0（就像它已把最后一份吃完）。'
+    '看它在坑里找不到食物（pit slave hungry reason=no_droppings）、营养停在 0，约一分钟后开始真实饿伤（starvation damage，生命逐点下降）；'
+    '没有人给它补食，也没有凭空生成的一份。',
+    '约 1–2 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
+    env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
+          Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
+          Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
+          Retry(f'execute as {_HARSH} run yukkuri status set @s personality.friendliness 20', _PIT_ADULTS, tries=1, first=200),
+          Retry(f'execute as {_HARSH} run yukkuri status set @s personality.intelligence 30', _PIT_ADULTS, tries=1, first=210)],
+    reads=[*_PIT_READS, ('读奴隶（营养、生命、坑内份数）', f'yukkuri status {_SLAVE} raw')],
+    smoke=dict(ticks=6000,
+               commands=[(300, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 0')],
+               expect=[r'pit slave hungry reason=no_droppings', r'starvation damage'],
+               forbid=[r'pit slave eats droppings', r'\[body\][^\n]* invariant\b'],
+               verify=lambda window: pit_trip(window) or starves_without_pit_food(window)))
 
 # The origin loop with no scene special case: one grown member loses its accessory for good and the colony's own harsh
 # members reject it, the fifth rejection makes it the colony's 嗯嗯奴隶. Nothing is scripted after the hat is gone.
@@ -386,7 +438,7 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
                commands=[(tick, _COLONY_RELIEVES) for tick in range(600, 16000, 600)],
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=MEMBER cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
-               verify=pit_trip))
+               verify=lambda window: pit_trip(window) or release_holds(window)))
 
 # ====================================================================================================== daily life meadow
 def _bed_walk_verify(log, crossing_limit=4):

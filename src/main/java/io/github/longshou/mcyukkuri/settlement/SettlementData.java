@@ -35,6 +35,8 @@ public final class SettlementData extends SavedData {
     public enum Role { FREE, MEMBER, LEADER, SHUNNED, OUTCAST, UNUN_SLAVE }
     /** Real acts of kindness a slave in the pit needs from members before it is a member again (project design). */
     public static final int GENTLE_TREATMENTS = 5;
+    /** How long the colony keeps a restored individual as a member before the hatless question is raised again (one day). */
+    public static final long MEMBER_MEMORY = 24000;
 
     /** Social standing never replaces membership, ancestry, or the previous office. */
     public static final class Member {
@@ -426,7 +428,7 @@ public final class SettlementData extends SavedData {
         member.rejections = 0;
         member.gentleness = 0;
         member.nextObservation = now + 200;
-        member.rememberedUntil = now + 2400;
+        member.rememberedUntil = now + MEMBER_MEMORY;
         assign(group,member,null,0);
         setDirty();
     }

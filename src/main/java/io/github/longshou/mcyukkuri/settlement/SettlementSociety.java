@@ -78,6 +78,9 @@ public final class SettlementSociety {
             if (kind != null) treat(kind, record);
             return;
         }
+        // The colony remembers a restored individual as a member, so the hatless question is not raised again until that
+        // memory fades; without it a released slave was despised again within a minute and the recovery meant nothing.
+        if (now < record.rememberedUntil) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
