@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
