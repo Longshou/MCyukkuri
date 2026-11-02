@@ -303,7 +303,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
             var aim = aim(wanted, true);
-            if (aim == null || aim != wanted && !SurfaceApproach.supported(walker, aim))
+            if (aim == null || aim != wanted && !SurfaceApproach.clearWalkingStep(walker, aim))
                 control.setWantedPosition(mob.getX(), mob.getY(), mob.getZ(), 0);
             else if (aim != wanted) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
         }
@@ -438,7 +438,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var corner = new Vec3(turn.x(), to.y, turn.z());
         double length = at.distanceTo(corner);
         var step = at.lerp(corner, Math.min(1, SurfaceApproach.stepReach(walker) / length));
-        var floor = SurfaceApproach.floor(walker, step);
+        var floor = SurfaceApproach.surface(walker, step);
         if (moving && floor == null) GameplayLog.limited(walker, "move", "turn_unsupported", 200,
                 "route turn unsupported from={} to={} corner={} step={}", GameplayLog.at(at), GameplayLog.at(to),
                 GameplayLog.at(corner), GameplayLog.at(step));

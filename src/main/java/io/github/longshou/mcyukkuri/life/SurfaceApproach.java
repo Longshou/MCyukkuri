@@ -122,9 +122,18 @@ public final class SurfaceApproach {
     public static double stepReach(YukkuriEntity actor) { return Math.max(1.5, actor.getBbWidth() + .5); }
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
+        return clearStep(actor,start,destination,true);
+    }
+
+    /** A transient walking point may straddle a lip; only the final stand needs support under every sole sample. */
+    public static boolean clearWalkingStep(YukkuriEntity actor,Vec3 destination){
+        return actor.onGround()&&clearStep(actor,actor.position(),destination,false);
+    }
+
+    private static boolean clearStep(YukkuriEntity actor,Vec3 start,Vec3 destination,boolean stopping){
         double reach=stepReach(actor),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
-        if (!supported(actor, destination)) return false;
+        if (stopping ? !supported(actor,destination) : !supportedStep(actor,destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double previous=start.y;
         for (int i=0; i<=samples; i++) {
@@ -453,7 +462,8 @@ public final class SurfaceApproach {
     /** The straight last step to {@code destination} is clear of blocks and of the partner. */
     private static boolean direct(YukkuriEntity actor,Vec3 destination,AABB body){
         var step=aim(actor,destination,false);
-        return step!=null&&clearOf(actor,actor.position(),step,body)&&clearLastStep(actor,step);
+        return step!=null&&clearOf(actor,actor.position(),step,body)
+                &&(step==destination?clearLastStep(actor,step):clearWalkingStep(actor,step));
     }
 
     private static Vec3 aim(YukkuriEntity actor,Vec3 destination,boolean moving){
@@ -463,13 +473,13 @@ public final class SurfaceApproach {
     /** The way round the first footprint on a clear last step is itself a clear step (or there is none to go round); a look, not a move. */
     private static boolean walkable(YukkuriEntity actor,Vec3 destination){
         var aim=aim(actor,destination,false);
-        return aim==destination||aim!=null&&clearLastStep(actor,aim);
+        return aim==destination||aim!=null&&clearWalkingStep(actor,aim);
     }
 
     /** Heads for the destination, round the first footprint on the way; false when that way round is not a clear step. */
     private static boolean steer(YukkuriEntity actor,Vec3 destination,double speed){
         var aim=aim(actor,destination,true);
-        if(aim==null||aim!=destination&&!clearLastStep(actor,aim))return false;
+        if(aim==null||aim!=destination&&!clearWalkingStep(actor,aim))return false;
         actor.getNavigation().stop();
         double remaining=actor.position().distanceTo(destination);
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.
