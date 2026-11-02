@@ -2386,8 +2386,9 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      '约 2–4 分钟（可倍速）',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), kit='minecraft:stick',
          **{**pair_ready(), 'energy': 20}),
-      _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75)],
-     note='初态：子油实际体型 0.34，位于初航欲望带内，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油先真实放帽上船；子油的初航欲望强于跟亲上船，随后留岸初航。'
+      _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
+      afloat('a', water_at(0, 1), True, sel('a'))],
+     note='初态：子油实际体型 0.34，位于初航欲望带内，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油帽船已由同一放帽路径置于近岸水面，低体力歇泊；子油的初航欲望强于跟亲上船，随后留岸初航。'
           '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=bank → [action] start id=walk（找船位）→ '
           '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '
           '[action] start id=paddle → [aquatic] first_voyage rounded → [intent] start id=come_ashore → [action] start id=hop → [action] start id=take_prop → '
