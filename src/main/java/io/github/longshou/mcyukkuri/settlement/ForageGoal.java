@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.entity.ai.goal.Goal;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -35,7 +36,7 @@ public final class ForageGoal extends Goal {
     private BlockPos searchSpot;
     private boolean running;
     private ForageClaims.Claim claim;
-    private int elapsed, walkTicks;
+    private int elapsed;
     private long scanAfter;
     public ForageGoal(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -56,7 +57,7 @@ public final class ForageGoal extends Goal {
         if (SettlementSeasons.forageBlocked(entity)) return false;
         scanFood();
         if (target == null && entity.life().nutrition() >= 30) return false;
-        elapsed = walkTicks = 0; searchSpot = null;
+        elapsed = 0; searchSpot = null;
         return true;
     }
     private void scanFood() {
@@ -83,7 +84,7 @@ public final class ForageGoal extends Goal {
             entity.getLookControl().setLookAt(holder, 20, 20);
             if (entity.distanceToSqr(holder) > 2.25) entity.getNavigation().moveTo(holder, 1.15);
             else entity.getNavigation().stop();
-            searchSpot = null; walkTicks = 0;
+            searchSpot = null;
             GameplayLog.limited(entity, "forage", "player_food", 400, "search met player holding food player={} distance={} nutrition={}",
                     holder.getGameProfile().getName(), Math.round(entity.distanceTo(holder) * 10) / 10.0, entity.life().nutrition());
             return true;
@@ -101,8 +102,18 @@ public final class ForageGoal extends Goal {
     private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
     private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();
-        for (BlockPos pos : BlockPos.betweenClosed(entity.blockPosition().offset(-reach,-2,-reach), entity.blockPosition().offset(reach,2,reach)))
-            if (edible(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos.immutable());
+        var centre = entity.blockPosition();
+        // Food within reach is a plant on that column's own ground, whatever its height: a member standing on the burrow
+        // hill top sees the meadow below it (a few layers around its own feet never showed it anything down there).
+        for (int dx = -reach; dx <= reach; dx++) for (int dz = -reach; dz <= reach; dz++) {
+            var column = centre.offset(dx, 0, dz);
+            if (!level().hasChunkAt(column)) continue;
+            int top = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+            for (int y = top; y <= top + 1; y++) {
+                var pos = new BlockPos(column.getX(), y, column.getZ());
+                if (edible(pos) && !ForageClaims.taken(level(), pos, entity.getUUID())) found.add(pos);
+            }
+        }
         found.sort(Comparator.comparingDouble(pos -> entity.distanceToSqr(Vec3.atCenterOf(pos))));
         // A claim from an earlier offer that the goal selector never started would otherwise linger.
         ForageClaims.release(claim);
@@ -146,11 +157,13 @@ public final class ForageGoal extends Goal {
                 searchSpot = null; return;
             }
             if (elapsed % 10 == 3 && attendFood()) return;
-            if (++walkTicks >= 120 || searchSpot == null || entity.getNavigation().isDone()) {
+            // A sweep walk is walked to its end, not re-aimed every few blocks: a destination down the slope is then really
+            // reached (re-aiming six blocks into every leg left a member circling a bare hill top until it starved).
+            if (searchSpot == null || entity.getNavigation().isDone()) {
                 if (elapsed % 10 != 1) return;
-                searchSpot = null; walkTicks = 0;
-                // A sweep reaches as far down as sideways. A member standing above its food (a hill top, a burrow roof) can
-                // then walk down to the meadow instead of re-sweeping the bare plateau until it starves.
+                searchSpot = null;
+                // A sweep reaches as far down as sideways: the walk itself is what carries a member above its food down
+                // to the meadow.
                 int reach = TravelRange.search(entity, 12);
                 for (int attempt = 0; attempt < 3; attempt++) {
                     var point = LandRandomPos.getPos(entity,reach,reach);
