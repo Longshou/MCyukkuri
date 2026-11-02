@@ -173,7 +173,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     @Override protected void doStuckDetection(Vec3 at){
         // This hook runs after vanilla advances, but before it samples node progress and timeout.
         if(path!=null&&!path.isDone()&&followingNode>=0&&path.getNextNodeIndex()>followingNode&&walkingQuery!=null
-                &&crossesObstacle(mob.position(),path.getNextEntityPos(mob),walkingQuery.obstacle()))
+                &&(crossesObstacle(mob.position(),path.getNextEntityPos(mob),walkingQuery.obstacle())
+                ||mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,mob.position(),path.getNextEntityPos(mob))))
             path.setNextNodeIndex(followingNode);
         boolean walking=!isDone();
         var target=walkingTarget;
