@@ -112,7 +112,7 @@ final class SetOut implements Intent {
         if (!AquaticLife.aboard(owner, hat)) {
             var fetch = dependentAshore(hat);
             var edge = Waters.berth(owner, List.of());
-            if (edge != null && gatherUntil == 0 && !Waters.berthBraidReach(owner, edge, fetch)) {
+            if (edge != null && gatherUntil == 0 && Waters.berth(owner, fetch) == null) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
                 var stand = edge.stand(owner.getBbWidth());
@@ -121,7 +121,7 @@ final class SetOut implements Intent {
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
                             gatherUntil = owner.level().getGameTime() + WAIT_YOUNG;
-                            return new Step.Wait(() -> gathered(edge) || owner.level().getGameTime() >= gatherUntil, WAIT_YOUNG, Behaviors.BOAT_CALL);
+                            return new Step.Wait(() -> gathered(edge) || owner.level().getGameTime() >= gatherUntil, WAIT_YOUNG + 1, Behaviors.BOAT_CALL);
                         });
             }
             if (edge != null && gatherUntil != 0) {
@@ -189,7 +189,8 @@ final class SetOut implements Intent {
 
     /** Whether the current responsive wards have all gathered within this berth's planned captain-seat braid reach. */
     private boolean gathered(Waters.Edge edge) {
-        return Waters.berthBraidReach(owner, edge, dependentAshore(AquaticLife.hat(owner)));
+        var fetch = dependentAshore(AquaticLife.hat(owner));
+        return Waters.berthBraidReach(owner, edge, fetch) || Waters.berth(owner, fetch) != null;
     }
 
     /** A narrow horizon scan for an own young on land too far away for the ordinary aquatic family list. */
