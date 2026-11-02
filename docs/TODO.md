@@ -11,13 +11,12 @@
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
-| 与水面齐平的岸边不再反复落水溺亡 | `.worktrees/fb-pond-edge` | `life/EscapeWater`、地面行走贴水边 |
 
 ## 玩法待办
 
 ### 复测失败/待修复
 
-- **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave`（`fb-pit-slave` 分支，版本待核实）中成员在同一岸边反复 `climb DONE on_bank`／`escape_water DONE` 却仍在水中，t=51208 溺亡。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡；`池塘与河湾`“急流翻船”落水者爬上岸后站稳不再反复浮沉；`[water] escape done` 的 `support=` 为真实站位或 `aboard=`。
+- **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave` 长跑（`fb-pit-slave` 分支，版本待核实）中成员 marisa #1236 在同一岸边反复 `climb INTERRUPTED why=owner_inactive`／`escape_water DONE` 却仍在水中，t=51315 溺亡；原因是出水在攀爬跑到一半就结束、停在和水面齐平的岸沿上，之后走路又踩回水里。现出水要等自己的攀爬跑完、身体整个足迹都压不到水面，地面行走的路线与最后一段直走也保持足迹在水面外。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡（`池塘与河湾`“落水爬岸”看 `climb DONE on_bank` 之后 `escape done support=stand=` 或 `aboard=`）；被推或摔进水仍要挣扎。
 - **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拨粮·受惊缩身）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：试玩场布置（反馈 1、3、6、9，运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败）：重置强开标签、嗯嗯坑玩家埋土、茎生与水流演示实体卡墙。完成：标签保留手动开关；全部场景的实体和玩家起点无穿模、有真实支撑、在所属场地内且互不挤占，观察点看得到被测行为。
