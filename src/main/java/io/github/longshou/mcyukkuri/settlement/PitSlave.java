@@ -32,6 +32,8 @@ public final class PitSlave {
     private long cellsAt = Long.MIN_VALUE, retryAt;
     private BlockPos destination;
     private int ticks;
+    /** Whether the last look found it inside the pit: the arrival is a real fact, not a phase of the walk. */
+    private boolean inside;
 
     public PitSlave(YukkuriEntity entity) { this.entity = entity; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
@@ -71,10 +73,11 @@ public final class PitSlave {
 
     public void tick() {
         ticks++;
-        if (!inPit(entity.blockPosition())) { returnToPit(); return; }
-        if (phase == Phase.RETURN) {
+        if (!inPit(entity.blockPosition())) { inside = false; returnToPit(); return; }
+        if (!inside) {
+            // A real arrival, whether the walk was still under way or an interruption had already put it down in the pit.
+            inside = true; phase = Phase.NONE; destination = null;
             GameplayLog.event(entity, "settlement", "pit slave back in pit at={} cells={}", entity.blockPosition(), cells.size());
-            phase = Phase.NONE; destination = null;
         }
         if (entity.life().nutrition() <= HUNGRY_AT && entity.life().canEat() && eat()) return;
         stay();

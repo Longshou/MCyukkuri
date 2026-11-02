@@ -153,6 +153,8 @@ public final class Sanction extends Goal {
                 || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.body().healthRatio() < .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;
+        // A slave kept by the group is no stranger to it: the group's own harshness toward it is the pit mockery, not a beating.
+        if (reason.equals("hatless") && target.settlement().society().slave() && SettlementSociety.sameGroup(e, target)) return false;
         boolean knows = Recognition.recognizes(e, target);
         if (reason.equals("hatless") || reason.equals("monster")) return !knows;
         if (reason.equals("non_yukkuri")) return target.settlement().groupId() == null || SettlementSociety.sameGroup(e, target);

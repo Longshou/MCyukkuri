@@ -22,6 +22,16 @@ public final class SettlementSociety {
     }
     /** Stands in the group as an 嗯嗯奴隶 (settlement/PitSlave owns what that life is). */
     public boolean slave() { return role() == SettlementData.Role.UNUN_SLAVE; }
+    /**
+     * The colony keeps it as one of its own: the slave in the pit, or a member it has taken back and still remembers
+     * (SettlementData.MEMBER_MEMORY after sustained kindness). Either way its missing accessory shows as unease and tears
+     * but cannot pile up into sweetening and the death that follows (feedback 4; wiki: sustained gentle treatment).
+     */
+    public boolean upheld() {
+        var record = record();
+        return record != null && (record.role == SettlementData.Role.UNUN_SLAVE
+                || record.role != SettlementData.Role.FREE && record.rememberedUntil > level().getGameTime());
+    }
     public SettlementData.Member record() {
         if (entity.level().isClientSide) return null;
         var group = entity.settlement().group();
@@ -160,7 +170,7 @@ public final class SettlementSociety {
      * for it recovers. Sustained kindness of this kind ends the role (wiki: 摆脱强迫并获得持续温和对待可以恢复).
      */
     private void treat(YukkuriEntity member, SettlementData.Member record) {
-        record.nextObservation = level().getGameTime() + 200;
+        record.nextObservation = level().getGameTime() + 100;
         record.gentleness++;
         member.getLookControl().setLookAt(entity, 25, 25);
         member.showReaction("closed_smile", "gentle", 80);
