@@ -319,7 +319,7 @@ add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
-    capture=dict(shots=(1, 40, 200, 600, 1200, 2600), sequences=((200, 500, 5), (650, 1100, 5))),
+    capture=dict(shots=(1, 40, 200, 600, 1200, 2600), sequences=((200, 500, 5), (650, 1100, 5)), observe=False),
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
                                   r'\[home\][^\n]*bed crossing[^\n]*opening=false'],
                expect=[r'\[sleep\] [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
@@ -1589,7 +1589,7 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
     '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(.5, 4.5, 180, 1, 30),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
-    capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((100, 600, 5), (2500, 3300, 10))),
+    capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((100, 600, 5), (2500, 3300, 10)), observe=False),
     smoke=dict(ticks=3600,
                expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
