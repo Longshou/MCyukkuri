@@ -84,7 +84,7 @@ final class LifeAccessory {
         return null;
     }
 
-    /** Drop only the old capability after another individual accepted its whole accessory. */
+    /** Retire custody after the physical accessory passed to another entity, including a loose item. */
     boolean retireTransferredAccessory(UUID token,UUID recipient) {
         if(custody.worn()||custody.token()==null||!custody.token().equals(token))return false;
         custody.lose("transferred", false);
@@ -109,7 +109,7 @@ final class LifeAccessory {
         custody.lose(cause, true); o.personality().accessoryTaken(player);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return true;
     }
-    /** Only positive evidence ends custody: a recorded confiscation. */
+    /** Only a recorded transfer or loss ends custody while the owner was unloaded. */
     void tick() {
         if (custody.worn() || custody.token() == null || !(o.entity().level() instanceof ServerLevel level)) return;
         var recipient=YukkuriWorldData.get(level).consumeAccessoryTransfer(o.entity().getUUID(),custody.token());

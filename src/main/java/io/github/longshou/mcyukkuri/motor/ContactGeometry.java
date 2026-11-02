@@ -140,9 +140,14 @@ public final class ContactGeometry {
 
     /** Whether the mouth or the braid would reach {@code target} from a planned stand {@code at} (the grab checks sight itself). */
     public static boolean reachesFrom(YukkuriEntity body, Vec3 at, Entity target) {
+        return reachesFrom(body, at, target, false);
+    }
+
+    public static boolean reachesFrom(YukkuriEntity body, Vec3 at, Entity target, boolean sighted) {
         double gap = Math.hypot(target.getX() - at.x, target.getZ() - at.z) - (body.getBbWidth() + target.getBbWidth()) / 2;
         return gap <= GRAB_MARGIN && Math.abs(target.getY() - at.y) < GRAB_HEIGHT
-                || braidGap(body, at, target, false, false) <= 0 || braidGap(body, at, target, true, false) <= 0;
+                && (!sighted || sight(body, at.add(0, body.getEyeHeight(), 0), target.getEyePosition()))
+                || braidGap(body, at, target, false, sighted) <= 0 || braidGap(body, at, target, true, sighted) <= 0;
     }
 
     /** Whether the braid reaches the target from where the body stands, upright or in the low lean. */

@@ -73,7 +73,7 @@ final class Ashore implements Intent {
         int asked = 0;
         for (var edge : Waters.edges(body, hat.position(), 4, false)) {
             var stand = edge.stand(body.getBbWidth());
-            if (!ContactGeometry.reachesFrom(body, stand, hat)
+            if (!ContactGeometry.reachesFrom(body, stand, hat, true)
                     && !new Beckon(hat).checkFrom(body, stand, SurfaceApproach.yaw(stand, hat.position())).ok()) continue;
             if (asked++ >= Waters.ASKED) break;
             if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return edge;
