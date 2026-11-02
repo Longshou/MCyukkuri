@@ -221,8 +221,8 @@ final class AquaticGoal extends Goal {
     }
 
     /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
-     *  keeps its desire). A young that cannot sail is never left in the water: she always takes it up. A young that can
-     *  sail is left to itself, and the one she cannot lift is watched, tears included. */
+     *  keeps its desire). A young that cannot sail is always accepted for rescue; a protecting parent watches an
+     *  independent young with tears. Rescue is offered before retaining a running watch. */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));

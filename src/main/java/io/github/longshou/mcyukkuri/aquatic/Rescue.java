@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 
-/** One accepted incident: set out if needed, chase from the captain seat, braid-fetch into the child's seat. */
+/** One accepted incident: close distance from the captain seat, then carry to an admitted seat or reachable bank. */
 final class Rescue implements Intent {
     private final YukkuriEntity helper, faller;
     private final String incident;
@@ -66,8 +66,8 @@ final class Rescue implements Intent {
         }
         if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
         if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);
-        var bank = Waters.ashore(helper);
-        if (bank != null) return Ferry.fetchAshore(helper, faller, bank, shoreRelease);
+        var ashore = Ferry.fetchAshore(helper, faller, shoreRelease);
+        if (ashore != null) return ashore;
         GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());
         return null;
     }

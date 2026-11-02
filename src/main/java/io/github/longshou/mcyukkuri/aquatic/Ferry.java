@@ -20,7 +20,6 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions for boarding, leaving and fetching a young from the captain seat: every target
@@ -38,9 +37,19 @@ final class Ferry {
         return steps;
     }
 
-    /** From pickup reach, carry the child to the measured bank stand and release it there. */
-    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, YukkuriEntity child, Vec3 bank, Release release) {
-        return List.of(() -> act(new Grab(child)), () -> act(new Hop(bank)), () -> act(release));
+    /** From pickup reach, carry to a reachable bank, using the shared brim route if the seat cannot clear it directly. */
+    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, YukkuriEntity child, Release release) {
+        var hat = AquaticLife.hat(carrier);
+        var bank = Waters.ashore(carrier);
+        var brim = bank == null ? Waters.brimAshore(hat, carrier) : null;
+        var stand = brim == null ? bank : Waters.ashore(carrier, hat.toWorld(brim));
+        if (stand == null) return null;
+        var steps = new ArrayList<Supplier<Step>>();
+        steps.add(() -> act(new Grab(child)));
+        if (brim != null) steps.add(() -> act(new Hop(hat, brim)));
+        steps.add(() -> act(new Hop(stand)));
+        steps.add(() -> act(release));
+        return steps;
     }
 
     /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
