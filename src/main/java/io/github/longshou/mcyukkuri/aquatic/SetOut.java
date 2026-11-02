@@ -116,7 +116,7 @@ final class SetOut implements Intent {
             if (edge != null && gatherUntil == 0 && Waters.berth(owner, fetch) == null) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
-                var stand = edge.stand(owner.getBbWidth());
+                var stand = edge.edge();
                 return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)), () -> {
                             var current = dependentAshore(AquaticLife.hat(owner));
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
