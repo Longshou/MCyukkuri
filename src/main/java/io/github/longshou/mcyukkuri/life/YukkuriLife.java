@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.family.ParentCarry;
+
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
@@ -508,6 +510,7 @@ public final class YukkuriLife {
 
     public boolean plan() {
         if (entity.family().awaitingLanding()) return false;
+        if (task == Task.HOME && ParentCarry.awaitsCarrier(entity)) { stopGoal(); return false; }
         if (entity.predator().active()) return false;
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) return false;
         if (mealTicks() > 0) return true;
@@ -538,7 +541,7 @@ public final class YukkuriLife {
         planWait = 20;
         if(dryness>=40||spicyTicks()>0){targetBlock=nearestDrink();if(targetBlock!=null){task=Task.DRINK;drinkTicks=pursuitTicks=0;return true;}}
         // Getting out of the rain is the status module's weather reaction (Reactions.WeatherGoal); here only the walk back to the own nest.
-        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30 && !entity.settlement().underway()) {
+        if (rainOutside() && !covered(entity.blockPosition()) && nutrition >= 30 && !entity.settlement().underway() && !ParentCarry.awaitsCarrier(entity)) {
             targetBlock = homeStand();
             if (targetBlock != null && covered(targetBlock)) { task = Task.HOME; pursuitTicks = 0; return true; }
         }
@@ -584,7 +587,7 @@ public final class YukkuriLife {
                 return false;
             }
             // A slave kept in the waste pit has no bed to go to: it sleeps where it is once it cannot go on (energy 10 or less).
-            targetBlock = penned ? null : homeStand();
+            targetBlock = penned || ParentCarry.awaitsCarrier(entity) ? null : homeStand();
             if (targetBlock == null && !penned && entity.habitat().vagrant() && homeProvider().temporaryCoverAllowed()) targetBlock = nearestDryCover();
             // A nest bed is slept in only from inside it: a footprint on the rim walks to its own place first.
             var nestOccupancy = targetBlock == null ? null : FamilyNest.bedOccupancy(entity, targetBlock);

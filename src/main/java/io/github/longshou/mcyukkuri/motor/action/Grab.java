@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -20,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.Locale;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Take a body into one of the carrier's holds: {@code ParentCarry.holdsFor} gives them and the Grab takes the first whose reach
@@ -64,6 +66,17 @@ public final class Grab implements Action {
 
     /** The hold the last {@link #check} chose (its reach is {@code hold().reach()}). */
     public Hold hold() { return hold; }
+
+    /** Approach a stand that can actually see and reach this body with an available hold. */
+    public Vec3 contactStand(YukkuriEntity carrier) {
+        var holds = ParentCarry.holdsFor(carrier, target);
+        boolean mouth = holds.stream().anyMatch(h -> h.reach() == Reach.MOUTH);
+        boolean braid = holds.stream().anyMatch(h -> h.reach() == Reach.BRAID);
+        return SurfaceApproach.beside(carrier, target, (carrier.getBbWidth() + target.getBbWidth()) * .5 + .15,
+                ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
+                at -> mouth && ContactGeometry.inMouthReach(carrier, at, target)
+                        || braid && ContactGeometry.braidGap(carrier, at, target) <= 0);
+    }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!target.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
@@ -144,7 +157,7 @@ public final class Grab implements Action {
         if (mounted) {
             if (target.getVehicle() != carrier) return Outcome.of(Reason.DROPPED, 0, "let_go");
             double remaining = Math.max(way - ++held, target.position().distanceTo(ParentCarry.rawSeat(carrier, target, 0)));
-            return remaining > .02 ? new Running(remaining, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
+            return remaining > .02 ? new Running(remaining, TravelMode.CONSUMED) : completed(carrier);
         }
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
@@ -169,7 +182,12 @@ public final class Grab implements Action {
         target.fallDistance = 0;
         mounted = true;
         ParentCarry.gripped(carrier, target, rejected, way);
-        return way > 0 ? new Running(way, TravelMode.CONSUMED) : new Outcome.Done("mounted target=" + target.getUUID());
+        return way > 0 ? new Running(way, TravelMode.CONSUMED) : completed(carrier);
+    }
+
+    private Outcome completed(YukkuriEntity carrier) {
+        ParentCarry.pickupCompleted(carrier, target);
+        return new Outcome.Done("mounted target=" + target.getUUID());
     }
 
     @Override public MotionPose pose() {

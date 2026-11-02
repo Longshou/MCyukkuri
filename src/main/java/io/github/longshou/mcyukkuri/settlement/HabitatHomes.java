@@ -208,6 +208,7 @@ final class HabitatHomes {
             var site=SiteLife.of(o.entity());
             var settlement=o.entity().settlement();var group=settlement.group();
             boolean arrived=group==null||group.migrateTo==null||settlement.settledAt(group.migrateTo)
+                    ||settlement.settlingAt(group.migrateTo)
                     ||group.migrateTo.distSqr(o.entity().blockPosition())<=8*8;
             if(site!=null&&arrived) {
                 var result=SiteLife.settle(o.entity(),o,site);

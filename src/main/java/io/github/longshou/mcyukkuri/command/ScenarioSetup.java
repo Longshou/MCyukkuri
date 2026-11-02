@@ -39,6 +39,17 @@ import net.minecraft.tags.FluidTags;
  * returns a refusal text (or null on success); nothing here controls an entity afterwards.
  */
 final class ScenarioSetup {
+    /** Initial community identity for explicitly summoned households; movement and settlement remain ordinary AI. */
+    static int community(YukkuriEntity leader, List<YukkuriEntity> members, BlockPos centre) {
+        if (!leader.family().adult() || !members.contains(leader) || members.stream().anyMatch(e -> e.settlement().group() != null)) return 0;
+        var level = (ServerLevel) leader.level();
+        var group = new SettlementData.Group(UUID.randomUUID(), SettlementData.Kind.FOREST, centre, leader.getUUID());
+        SettlementData.get(level).add(group);
+        members.forEach(e -> e.settlement().join(group));
+        GameplayLog.event(leader, "settlement", "scenario community initialized group={} centre={} members={}", group.id, centre, members.stream().map(YukkuriEntity::getUUID).toList());
+        return members.size();
+    }
+
     /** Parent and child become real kin. With {@code newborn} the baby also keeps its first-stool and movement care. */
     static String kin(YukkuriEntity parent, YukkuriEntity child, boolean newborn) {
         String refusal = kinRefusal(parent, child, newborn);

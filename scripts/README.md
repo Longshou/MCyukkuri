@@ -6,13 +6,15 @@
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[AGENTS.md](../AGENTS.md#ci-运行包更新)，在实际游玩的机器执行。
 
-`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。与截图共用 `headless_server.require_closed`：仅拦截游戏目录在 `.local/experimental-map/museum/` 内的客户端，或 `play-museum/process.json` 记录且启动时间吻合的 PID；独立截图客户端与冒烟服务器可并行。
+`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。与截图共用 `headless_server.require_closed`：仅拦截游戏目录在 `.local/experimental-map/museum/` 内的客户端，或 `play-museum/process.json` 记录且启动时间吻合的 PID；独立截图客户端与冒烟服务器可并行。重复场景的日志与最终读数按本次参数顺序编号保存，保留每轮结果。
 
 `--layout` 读取生成初态、40 tick 初始化及场景延迟召唤后的实体包围盒、方块碰撞形状和水面。初始无支撑者须在初始化内落稳；已落稳者随后正常跳跃不算坏起点。覆盖命令生成的聚落、人员、帽船、场景道具及玩家，排除地形施工掉落物；同场地互斥按钮共用地块，群系各用所属地块。生成失败、延迟演员缺失、函数加载失败、穿模或越界均返回非零；每场 `*.layout.json` 保留读数。
 
 `python scripts/capture_museum.py [--worktree <工作树>] [--smoke-commands] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。`--smoke-commands` 按场景 `smoke.commands` 的 tick 执行真实交互（如摇帽），不改行为结果；捕获窗口仍由 `capture` 决定，须覆盖待测事件。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
 
 场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
+
+`capture.follow` 可指定跟随的实体选择器；多个观察角度用 `capture.views={名字: {follow: 选择器, offset: (左右, 高度, 前后)}}`，偏移按被观察实体的本地朝向计算。每个角度重新运行真实场景，只移动旁观者；清场会取消跟随。跟随截图关闭观察标签与聊天覆盖，PNG 与联系表按角度名字分目录。
 
 截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。
 

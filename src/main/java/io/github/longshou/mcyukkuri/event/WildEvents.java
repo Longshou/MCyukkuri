@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
@@ -52,7 +53,7 @@ public final class WildEvents {
     }
     public static boolean safe(YukkuriEntity e) {
         return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
-                && e.family().brood()==null && !e.family().awaitingLanding()
+                && e.family().brood()==null && !e.family().awaitingLanding() && !ParentCarry.awaitsCarrier(e)
                 && !e.operations().active() && !e.pet().busy() && !e.social().holdingStill() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10
                 && e.body().condition().readyForWildEvent() && e.life().wetness()<50;

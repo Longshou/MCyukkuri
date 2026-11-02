@@ -188,8 +188,9 @@ public final class YukkuriModel {
     void setSelfHatPose(Matrix4f matrix){selfHatPose=matrix==null?null:new Matrix4f(matrix);}
     public void setCarrying(boolean value){carrying=value;}
     public void setMouthHolding(boolean value){mouthHolding=value;}
-    /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails. */
-    private float carryLoad,carryLean,carryCurlLeft,carryCurlRight;
+    /** Parent carry (ParentCarryPresentation): load damps the walk sway, lean bows the body (0..1), curls bend the two tails;
+     *  a mouth that takes babies in opens (0..1) and the body fills out with the babies inside (0..1, as the puff clip swells). */
+    private float carryLoad,carryLean,carryCurlLeft,carryCurlRight,carryMouth,carryCheeks;
     private CarryTailCurl tailCurl;private boolean tailCurlChecked;
     /** Walking under a load keeps this share less of the authored sway (project design). */
     private static final float CARRY_GAIT_DAMP=.3f;
@@ -198,6 +199,7 @@ public final class YukkuriModel {
     void setCarryPose(float load,float lean,float curlLeft,float curlRight){
         carryLoad=Math.clamp(load,0,1);carryLean=Math.clamp(lean,0,1);carryCurlLeft=Math.clamp(curlLeft,0,1);carryCurlRight=Math.clamp(curlRight,0,1);
     }
+    void setMouthLoad(float open,float cheeks){carryMouth=Math.clamp(open,0,1);carryCheeks=Math.clamp(cheeks,0,1);}
     /** The posed hat bone of the last render (model units), or null for a hatless form. */
     Matrix4f hatFollowPose(){int bone=hatFollowBone();return bone<0?null:new Matrix4f(world[bone]);}
     /** The seat on one curled tail in the last render (model units), or null. */
@@ -814,6 +816,10 @@ public final class YukkuriModel {
             time=clip.loop?time%clip.duration:Math.min(time,clip.duration);
             puffAmount=puffEnvelope(envelope,time);
         }
+        if(carryCheeks>0){
+            // Babies in the mouth fill her out like the puff clip's held root swell, more with each one (up to 1.2 wide at three).
+            var root=pose[rootBone()];float wide=1+.2f*carryCheeks,tall=1+.14f*carryCheeks;root[6]*=wide;root[7]*=tall;root[8]*=wide;
+        }
         // The gripping locks and the wound renderer own different contact
         // geometry. Keep their original mesh until those combined poses have
         // their own morph bindings; never detach a held item or move wound ink.
@@ -831,6 +837,9 @@ public final class YukkuriModel {
             float wave = (float)(.5 + .5 * Math.sin(behaviorTicks * Math.PI * 2 / LivingPresentation.chewPeriod));
             for (int i=0; i<bones.length; i++) if (bones[i].name.equals(LivingPresentation.mouthBone))
                 pose[i][7] *= LivingPresentation.mouthMinimum + (LivingPresentation.mouthMaximum - LivingPresentation.mouthMinimum) * wave;
+        }
+        else if(carryMouth>0){
+            for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=1+.3f*carryMouth;
         }
         else if(mouthHolding){
             for(int i=0;i<bones.length;i++)if(bones[i].name.equals(LivingPresentation.mouthBone))pose[i][7]*=.45f;
@@ -1097,7 +1106,7 @@ public final class YukkuriModel {
                         LoggerFactory.getLogger(YukkuriModel.class).warn("Wound attachment disabled for incompatible resource-pack geometry: {}",id);warnedWoundMismatch=true;}
             }
             drawingWoundedBody=false;
-            String expression=entity.getExpressionId();
+            String expression=ParentCarryPresentation.expression(entity,entity.getExpressionId());
             setExpression(expression);
             drain=entity.aftermathDrain();
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
@@ -1132,7 +1141,7 @@ public final class YukkuriModel {
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
-        }finally{wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }

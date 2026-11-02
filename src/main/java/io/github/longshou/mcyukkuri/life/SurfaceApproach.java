@@ -14,9 +14,11 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
@@ -276,6 +278,23 @@ public final class SurfaceApproach {
         return signature;
     }
 
+    /** A supported, reachable stand around a fixed contact point, admitted by the caller's shared contact ability. */
+    public static Vec3 beside(YukkuriEntity actor, Vec3 point, double distance, Predicate<Vec3> contact) {
+        var directions = new ArrayList<Vec3>();
+        var toward = actor.position().subtract(point).multiply(1, 0, 1);
+        if (toward.horizontalDistanceSqr() > .0001) directions.add(toward.normalize());
+        for (int i = 0; i < 16; i++) {
+            double angle = i * Math.PI / 8;
+            directions.add(new Vec3(Math.cos(angle), 0, Math.sin(angle)));
+        }
+        var candidates = new ArrayList<Vec3>();
+        for (var direction : directions) {
+            var at = floor(actor, point.add(direction.scale(distance)));
+            if (at != null && contact.test(at)) candidates.add(at);
+        }
+        return nearestReachable(actor, candidates, null);
+    }
+
     /** Physical contact uses square body boxes. A point on the centre-to-centre diagonal can be inside both bodies. */
     public static Vec3 beside(YukkuriEntity actor, Entity other, double distance, double maxHeight) {
         return beside(actor,other,distance,maxHeight,Double.POSITIVE_INFINITY);
@@ -283,6 +302,11 @@ public final class SurfaceApproach {
 
     /** Some callers use a spherical reach. A step-height difference must leave room inside that same envelope. */
     public static Vec3 beside(YukkuriEntity actor,Entity other,double distance,double maxHeight,double maxDistance){
+        return beside(actor, other, distance, maxHeight, maxDistance, at -> true);
+    }
+
+    /** A contact ability may narrow the ordinary cached stand search with its actual reach/sight test. */
+    public static Vec3 beside(YukkuriEntity actor,Entity other,double distance,double maxHeight,double maxDistance,Predicate<Vec3> contact){
         var route=controller(actor).current;
         if(route!=null&&route.navigation==actor.getNavigation()&&Objects.equals(route.peer,other.getUUID())&&sameBody(route.body,other.getBoundingBox())
                 &&actor.level().getGameTime()-route.touched<200
@@ -292,7 +316,7 @@ public final class SurfaceApproach {
             double desired=Math.min(distance,Math.sqrt(Math.max(0,maxDistance*maxDistance-Math.pow(at.y-other.getY(),2)))-.025);
             if(Math.abs(flat-desired)<.01&&Math.abs(at.y-other.getY())<=maxHeight
                     &&!actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.005).intersects(other.getBoundingBox())
-                    &&supported(actor,at))return at;
+                    &&supported(actor,at)&&contact.test(at))return at;
         }
         var directions=new ArrayList<Vec3>();
         var toward=actor.position().subtract(other.position()).multiply(1,0,1);
@@ -311,11 +335,11 @@ public final class SurfaceApproach {
                 if(at==null||Math.abs(at.y-other.getY())>maxHeight||at.distanceTo(other.position())>maxDistance)continue;
             }
             var body=actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.005);
-            if(body.intersects(other.getBoundingBox()))continue;
+            if(body.intersects(other.getBoundingBox())||!contact.test(at))continue;
             candidates.add(at);
         }
-        candidates.sort(Comparator.comparingDouble(at->actor.position().distanceToSqr(at)));
-        for(var at:candidates)if(Double.isFinite(routeLength(actor,at,other.getBoundingBox())))return at;
+        var stand=nearestReachable(actor,candidates,other.getBoundingBox());
+        if(stand!=null)return stand;
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} distance={} maxHeight={}",other.getUUID(),distance,maxHeight);
         return null;
     }
@@ -348,6 +372,12 @@ public final class SurfaceApproach {
             }
         }
         return stand == null ? null : arrived(actor, stand) ? new StepIn(entry) : new Walk(stand);
+    }
+
+    private static Vec3 nearestReachable(YukkuriEntity actor,List<Vec3> candidates,AABB obstacle){
+        candidates.sort(Comparator.comparingDouble(actor::distanceToSqr));
+        for(var at:candidates)if(Double.isFinite(routeLength(actor,at,obstacle)))return at;
+        return null;
     }
 
     public static boolean crossesBody(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){

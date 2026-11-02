@@ -100,6 +100,7 @@ public final class RoamingGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public boolean canContinueToUse() {
         if (!active || !available() || elapsed >= (expedition ? 1600 : 600) || failures >= 4) return false;
+        if (!expedition && !animal.family().allowsIdleWalk(Vec3.atBottomCenterOf(destination))) return false;
         return expedition || !animal.getNavigation().isDone();
     }
     @Override public void tick() {

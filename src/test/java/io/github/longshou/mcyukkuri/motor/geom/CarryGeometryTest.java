@@ -7,6 +7,21 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CarryGeometryTest {
+    @Test void brimReleaseGoesAroundTheHeadBeforeDescendingAtTheCushion() {
+        var from = new Vec(-.8, .8, 0);
+        var to = new Vec(.9, .1, 0);
+        for (int i = 0; i <= 100; i++) {
+            var p = CarryGeometry.brimRelease(from, to, .2, 1, i / 100.0);
+            assertTrue(p.hlen() >= .8 - 1e-9, "opposite-side cushion must not cut through the head");
+            if (p.y() < .8) {
+                assertEquals(to.x(), p.x(), 1e-9);
+                assertEquals(to.z(), p.z(), 1e-9);
+            }
+        }
+        assertEquals(from, CarryGeometry.brimRelease(from, to, .2, 1, 0));
+        assertEquals(to.x(), CarryGeometry.brimRelease(from, to, .2, 1, 1).x(), 1e-9);
+        assertEquals(to.y(), CarryGeometry.brimRelease(from, to, .2, 1, 1).y(), 1e-9);
+    }
     @Test void braidReachUsesTheNearestBodyPointAndTheActualChainLength() {
         var root = new Vec(0, 1, 0);
         var low = new Vec(1, 0, -.1); var high = new Vec(1.2, .3, .1);

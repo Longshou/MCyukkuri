@@ -96,16 +96,6 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         int stage=NestOccupancy.stage(entity);
         Integer previous=residents.put(id,stage);if(previous==null||previous!=stage)changed();return true;
     }
-    /** Where this body would lie on the bed now without moving anyone (its kept place, else a free one); null when no free supported spot exists. */
-    public Vec3 freeSpot(YukkuriEntity baby){
-        if(!(level instanceof ServerLevel server)||kind()!=CareBlock.Kind.NEST)return null;
-        var trial=new LinkedHashMap<>(resting);
-        var container=BedContainer.of(baby,worldPosition);
-        var place=NestResting.choose(baby,bed(),trial,standingInside(container),false);
-        if(place==null)return null;
-        for(var entry:resting.entrySet())if(!entry.getKey().equals(baby.getUUID())&&!entry.getValue().equals(trial.get(entry.getKey())))return null;
-        return centre().add(place.x(),0,place.z());
-    }
     /** A place is supported only where that body's whole footprint would stand inside the bed, not merely on a top. */
     private static BiPredicate<UUID,NestResting.Place> standingInside(BedContainer container){
         return (id,p)->container!=null&&container.standsInside(p.x(),p.z(),p.width());

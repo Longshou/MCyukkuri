@@ -439,7 +439,7 @@ public final class ChildhoodLife {
     private boolean safePracticeState() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.life().isSleeping()
-                && entity.life().mealTicks() == 0 && !entity.life().hasUrgentNeed();
+                && entity.life().mealTicks() == 0 && !entity.life().hasUrgentNeed() && !ParentCarry.awaitsCarrier(entity);
     }
 
     static boolean childAvailable(YukkuriEntity child) {

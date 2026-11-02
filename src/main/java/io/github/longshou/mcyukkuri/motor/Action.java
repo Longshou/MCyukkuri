@@ -25,6 +25,9 @@ public interface Action {
     /** Keep the physical state ({@link BodyDriver} then settles it); never roll back, re-seat or teleport. */
     default void abort(YukkuriEntity body, String why) {}
 
+    /** The driver's final outcome, including watchdog stops and interruptions, for this execution only. */
+    default void finished(YukkuriEntity body, Outcome outcome) {}
+
     /** The clip it plays; nothing for an action that animates nothing. */
     default MotionPose pose() { return MotionPose.NONE; }
 

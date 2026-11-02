@@ -27,7 +27,7 @@ import org.joml.Vector3f;
 
 /**
  * Parent carry as drawn (ParentCarry owns who rides, in which hold, and where the entity is): a mouth child hangs from the
- * carrier's live lips, a brim child sits on the live brim, a tail child on the curled tail of the carrier's last rendered
+ * carrier's live lips (Reimu opens her mouth, takes it in and carries it there unseen, her cheeks swollen), a brim child sits on the live brim, a tail child on the curled tail of the carrier's last rendered
  * pose, a braid-tip child at its seat with the braid bent to its scruff; all sway a little behind the carrier's turns and
  * steps and ease on and off. The carrier walks steadier under a load, bows to lift with the mouth or tail (its synced Grab),
  * plays the braid clip while its Grab reaches with the braid (the braid bent to the target), lowers a brim child with the
@@ -38,17 +38,20 @@ import org.joml.Vector3f;
 final class ParentCarryPresentation {
     /** Child eases from the ground to its seat / from its seat to where it was set down (ticks). */
     private static final float LIFT_TICKS = 8, SET_DOWN_TICKS = 8;
-    /** Carrier bows in before a lift, straightens after it, dips once after setting a child down; tails curl (ticks). */
+    /** Carrier bows in for a mouth or tail lift, straightens after it, dips once after setting a child down; tails curl (ticks). */
     private static final float BOW_IN_TICKS = 6, BOW_OUT_TICKS = 8, DIP_TICKS = 10, CURL_TICKS = 8;
     /** A hanging child tips nose-down about its grip; tilt budget for every child (degrees, pitch plus roll). */
     private static final float HANG = 5, TILT_BUDGET = 12;
     /** A captured carrier pose older than this is not used (ticks); the static seat is drawn instead. */
     private static final float STALE = 3;
+    /** Reimu's mouth (rule 灵梦口含多只): ticks a baby takes to slip in from the lips and for the mouth to close after it; the
+     *  share of a set-down it takes to come out; swell for the first baby inside and each further one (share of the puff swell). */
+    private static final float ENTER_TICKS = 6, CLOSE_TICKS = 5, EXIT_SHARE = .35f, CHEEK_FIRST = .5f, CHEEK_MORE = .3f;
 
     private static final class Carrier {
         float time;
         final Set<UUID> riders = new HashSet<>();
-        float boardAt = -1000, dropAt = -1000;
+        float liftedAt = -1000, dropAt = -1000;
         final float[] curl = new float[2];
         float capturedAt = -1000, yaw;
         Matrix4f mouth, hat;
@@ -81,6 +84,37 @@ final class ParentCarryPresentation {
         var target = braidTarget(carrier);
         if (BraidFetch.REACH.equals(carrier.getAnimationId()) || BraidFetch.HOLD.equals(carrier.getAnimationId())) return null;
         return target == null ? null : ParentCarry.braidLean(carrier, target) ? Grab.BRAID_LEAN : Grab.BRAID_LIFT;
+    }
+
+    /** How far a Reimu's mouth child is in her mouth (0 at the lips .. 1 inside, unseen); 0 for every other hold. */
+    private static float inside(YukkuriView carrier, YukkuriView child, float partial) {
+        if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
+        float down = ParentCarry.lowering(carrier, child, partial);
+        return down >= 0 ? 1 - ease(down / EXIT_SHARE) : ease(ParentCarry.sinceMouthLift(carrier, child, partial) / ENTER_TICKS);
+    }
+    /** How wide Reimu's mouth is open for this child (0..1): from late in the lift until it is in, and until it is out again. */
+    private static float opening(YukkuriView carrier, YukkuriView child, float partial) {
+        if (!ParentCarry.multi(carrier) || ParentCarry.hold(carrier, child) != Hold.MOUTH) return 0;
+        float down = ParentCarry.lowering(carrier, child, partial), since = ParentCarry.sinceMouthLift(carrier, child, partial);
+        if (down >= 0) return 1 - ease((down - EXIT_SHARE) / .2f);
+        return since < 0 ? ease((ParentCarry.mouthLiftProgress(carrier, child, partial) - .5f) / .4f) : 1 - ease((since - ENTER_TICKS) / CLOSE_TICKS);
+    }
+    /** Carrier's mouth over its children: how far open, and how many babies are inside (fractions while one goes in or out). */
+    private static float[] mouth(YukkuriView carrier, float partial) {
+        float open = 0, in = 0;
+        for (var rider : carrier.passengerViews()) { open = Math.max(open, opening(carrier, rider, partial)); in += inside(carrier, rider, partial); }
+        return new float[]{open, in};
+    }
+    /** A baby wholly inside its carrier's closed mouth: not drawn at all. */
+    static boolean swallowed(YukkuriView child, YukkuriView carrier, float partial) {
+        return carrier.hasPassengerId(child.getUUID()) && inside(carrier, child, partial) >= 1;
+    }
+    /** The face a carrier shows (texture and face geometry, at the tick): wide open while a baby goes in or out, cheeks puffed
+     *  while babies are inside, else its own. */
+    static String expression(YukkuriView carrier, String own) {
+        if (!carrier.isVehicle() || !ParentCarry.multi(carrier)) return own;
+        var m = mouth(carrier, 0);
+        return m[0] > .3f ? "yawn" : m[1] > 0 ? "cheek_puff" : own;
     }
 
     /** A child's scruff (where the mouth or the braid takes it) above its feet, the child turned to {@code yaw}. */
@@ -125,7 +159,8 @@ final class ParentCarryPresentation {
             float q = (now - carrier.motorStart() - grip) / Math.max(1, release - grip);
             model.setHatInBraid(ease(q * 4) * ease((1 - q) * 4), HatGeometry.gripWorn(id.endsWith("_aq"), id.contains("_self")));
         }
-        boolean lifting = reaching == null && action.equals(Grab.ID);
+        // The braid sets a brim child on its own; the other lifts are bowed to.
+        boolean lifting = reaching == null && action.equals(Grab.ID) && carrier.passengerViews().stream().noneMatch(r -> ParentCarry.placing(carrier, r, partial));
         var state = CARRIERS.get(carrier.getId());
         if (state == null && !carrier.isVehicle() && !lifting) return;
         if (state == null) { prune(CARRIERS, now); CARRIERS.put(carrier.getId(), state = new Carrier()); }
@@ -139,18 +174,20 @@ final class ParentCarryPresentation {
             // A tail holds its child curled, and uncurls as it lowers it.
             if (hold.tail()) tails[hold == Hold.TAIL_LEFT ? 0 : 1] = 1 - Math.max(0, ParentCarry.lowering(carrier, rider, partial));
         }
-        if (!state.riders.containsAll(riders)) state.boardAt = now;
         if (!riders.containsAll(state.riders)) state.dropAt = now;
         state.riders.clear();
         state.riders.addAll(riders);
         for (int side = 0; side < 2; side++) state.curl[side] = Mth.approach(state.curl[side], tails[side], dt / CURL_TICKS);
+        if (lifting) state.liftedAt = now;
         float bow = lifting ? ease((now - carrier.motorStart()) / BOW_IN_TICKS) : 0;
         for (var rider : carrier.passengerViews()) if (ParentCarry.hold(carrier, rider) == Hold.MOUTH)
             bow = Math.max(bow, Math.max(0, ParentCarry.lowering(carrier, rider, partial)));
-        if (now - state.boardAt < BOW_OUT_TICKS) bow = Math.max(bow, 1 - ease((now - state.boardAt) / BOW_OUT_TICKS));
+        if (!lifting && now - state.liftedAt < BOW_OUT_TICKS) bow = Math.max(bow, 1 - ease((now - state.liftedAt) / BOW_OUT_TICKS));
         if (now - state.dropAt < DIP_TICKS) bow = Math.max(bow, Mth.sin((now - state.dropAt) / DIP_TICKS * Mth.PI));
         model.setCarryPose(riders.isEmpty() ? 0 : 1, bow, state.curl[0], state.curl[1]);
-        if (riders.isEmpty() && !lifting && state.curl[0] == 0 && state.curl[1] == 0 && now - state.dropAt > DIP_TICKS && now - state.boardAt > BOW_OUT_TICKS)
+        var m = mouth(carrier, partial);
+        model.setMouthLoad(m[0], m[1] <= 1 ? CHEEK_FIRST * m[1] : CHEEK_FIRST + CHEEK_MORE * (m[1] - 1));
+        if (riders.isEmpty() && !lifting && state.curl[0] == 0 && state.curl[1] == 0 && now - state.dropAt > DIP_TICKS && now - state.liftedAt > BOW_OUT_TICKS)
             CARRIERS.remove(carrier.getId());
     }
 
@@ -173,7 +210,7 @@ final class ParentCarryPresentation {
 
     /**
      * Pose a carried child on its carrier, from the child's own render origin. Returns the body yaw it is drawn with.
-     * Falls back to the plain seat when the carrier has not been drawn lately, and while the child is being set down.
+     * Falls back to the plain seat when the carrier has not been drawn lately, and while a brim or braid-tip child is being set down.
      */
     static float place(YukkuriView child, YukkuriView carrier, PoseStack pose, float partial) {
         float now = now(child, partial);
@@ -188,7 +225,7 @@ final class ParentCarryPresentation {
         var hold = ParentCarry.hold(carrier, child);
         float lowering = ParentCarry.lowering(carrier, child, partial);
         boolean down = lowering >= 0;
-        boolean live = state != null && now - state.capturedAt <= STALE && (!down || hold == Hold.MOUTH);
+        boolean live = state != null && now - state.capturedAt <= STALE && (!down || hold == Hold.MOUTH || hold.tail());
         float yaw = live ? state.yaw : yaw(carrier, partial);
         var origin = carrier.getPosition(partial);
 
@@ -216,10 +253,11 @@ final class ParentCarryPresentation {
                 roll = Math.clamp(me.roll * .4f + .8f * me.gait * Mth.sin(phase - .7f), -1.2f, 1.2f);
                 var seat = ParentCarry.brimSeat(carrier, child);
                 float out = seat == null ? 0 : seat[3];
-                if (live && state.hat != null && seat != null) {
-                    // While the braid is still setting it there, the server's sweep is the position.
-                    feet = ParentCarry.placing(carrier, child, partial) ? seated : state.hat.transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
-                    state.hat.getNormalizedRotation(turnTo).rotateY(out * Mth.DEG_TO_RAD);
+                // While the braid is still setting it there, the server's sweep is the position and it faces as the braid holds it.
+                if (ParentCarry.placing(carrier, child, partial)) feet = seated;
+                else if (live && state.hat != null && seat != null) {
+                    feet = state.hat.transformPosition(new Vector3f(seat[0], seat[1], seat[2]));
+                    state.hat.getUnnormalizedRotation(turnTo).rotateY(out * Mth.DEG_TO_RAD);
                 } else {
                     feet = seated;
                     ParentCarry.brimRotation(carrier, partial, out).getNormalizedRotation(turnTo);
@@ -230,8 +268,9 @@ final class ParentCarryPresentation {
                 roll = me.roll + 2 * me.gait * Mth.sin(phase - .6f);
                 var cradle = live ? state.cradle[hold == Hold.TAIL_LEFT ? 0 : 1] : null;
                 if (cradle != null) {
+                    // Set down, it rides the uncurling tail down; once let go it eases to where the server put it (settle).
                     feet = cradle.getTranslation(new Vector3f());
-                    cradle.getNormalizedRotation(turnTo);
+                    cradle.getUnnormalizedRotation(turnTo);
                 } else feet = seated;
             }
             case BRAID -> {
@@ -257,6 +296,9 @@ final class ParentCarryPresentation {
                 feet = bite.sub(grip);
                 feet.y = Math.max(feet.y, (float) ParentCarry.MOUTH_FLOOR * unit);
                 feet = new Vector3f(seated).lerp(feet, (float) CarryGeometry.mouthBlend(ParentCarry.mouthLiftProgress(carrier, child, partial), Math.max(0, lowering)));
+                // Reimu's open lips take it in: from the bite back into her mouth, where her face hides it, and out the same way.
+                float in = inside(carrier, child, partial);
+                if (in > 0) feet.lerp(new Vector3f(0, -child.getBbHeight() / 2, child.getBbWidth() * .6f).rotate(facing).add(lip), in);
                 pitch = roll = 0;
             }
         }

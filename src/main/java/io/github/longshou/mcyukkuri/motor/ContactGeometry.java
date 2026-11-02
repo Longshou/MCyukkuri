@@ -41,8 +41,14 @@ public final class ContactGeometry {
 
     /** Whether the mouth can reach the target now. */
     public static boolean inMouthReach(YukkuriEntity body, Entity target) {
-        return body != null && target != null && mouthGap(body, target) <= GRAB_MARGIN
-                && Math.abs(target.getY() - body.getY()) < GRAB_HEIGHT && body.hasLineOfSight(target);
+        return body != null && target != null && inMouthReach(body, body.position(), target);
+    }
+
+    /** The same mouth contact and eye ray from a proposed approach stand. */
+    public static boolean inMouthReach(YukkuriEntity body, Vec3 at, Entity target) {
+        double gap = Math.hypot(target.getX() - at.x, target.getZ() - at.z) - (body.getBbWidth() + target.getBbWidth()) / 2;
+        return gap <= GRAB_MARGIN && Math.abs(target.getY() - at.y) < GRAB_HEIGHT
+                && sight(body, at.add(0, body.getEyeHeight(), 0), target.getEyePosition());
     }
 
     /** The brim sample of {@code host} nearest the mouth tip, already tilted into world coordinates. */
@@ -121,6 +127,11 @@ public final class ContactGeometry {
         if (!braided(body) || point == null) return Double.POSITIVE_INFINITY;
         Vec3 root = root(body, at, point, lean);
         return sight(body, root, point) ? root.distanceTo(point) - braidLength(body) : Double.POSITIVE_INFINITY;
+    }
+
+    /** Planned stand to a fixed contact point; the approach checks terrain, this checks the real braid length. */
+    public static double braidGapFrom(YukkuriEntity body, Vec3 at, Vec3 point, boolean lean) {
+        return root(body, at, point, lean).distanceTo(point) - braidLength(body);
     }
 
     /** The braid's root swung toward {@code toward} for a body standing at {@code at}, upright or in the low lean. */

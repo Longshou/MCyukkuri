@@ -51,7 +51,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
     }
 
     private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
-        String expression=entity.getExpressionId();
+        String expression=ParentCarryPresentation.expression(entity,entity.getExpressionId());
         int dry=Math.max(entity.aftermathDrain(),HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
         return HairWoundAssets.texture(entity.assetId(),expression,dry);
     }
@@ -62,6 +62,9 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         YukkuriView entity=source;
         if(entity.isDeadOrDying())return;
         shadowRadius = (entity.profile().shadowRadius())*entity.growthScale();
+        // A baby inside its parent's closed mouth is not seen.
+        var holder=entity.vehicleYukkuri();
+        if(holder!=null&&ParentCarryPresentation.swallowed(entity,holder,partialTick)){shadowRadius=0;return;}
         if (!entity.isInvisible()) {
             var start=new Matrix4f(pose.last().pose());
             pose.pushPose();

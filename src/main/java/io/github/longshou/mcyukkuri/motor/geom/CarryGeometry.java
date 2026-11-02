@@ -9,6 +9,22 @@ import java.util.function.Function;
 /** Carry geometry in the parent's model frame: -Z is forward, +X is right. */
 public final class CarryGeometry {
     private CarryGeometry() {}
+    /** Leave the brim radially, swing outside its edge at height, then lower vertically beside the body. */
+    public static Vec brimRelease(Vec from, Vec to, double clearance, double height, double progress) {
+        double radius = Math.max(from.hlen() + clearance, to.hlen());
+        double start = Math.atan2(from.z(), from.x());
+        var edge = new Vec(Math.cos(start) * radius, height, Math.sin(start) * radius);
+        if (progress < .35) return mix(from, edge, smooth(progress / .35));
+        double end = Math.atan2(to.z(), to.x());
+        double turn = Math.atan2(Math.sin(end - start), Math.cos(end - start));
+        if (progress < .7) {
+            double q = smooth((progress - .35) / .35), angle = start + turn * q;
+            double r = radius + (to.hlen() - radius) * q;
+            return new Vec(Math.cos(angle) * r, height, Math.sin(angle) * r);
+        }
+        return mix(new Vec(to.x(), height, to.z()), to, smooth((progress - .7) / .3));
+    }
+    private static Vec mix(Vec a, Vec b, double q) { return new Vec(a.x() + (b.x() - a.x()) * q, a.y() + (b.y() - a.y()) * q, a.z() + (b.z() - a.z()) * q); }
     /** Ten degrees inside the side plane keeps a set-down visibly ahead of the parent. */
     private static final double FRONT_SLOPE = Math.tan(Math.toRadians(80));
 

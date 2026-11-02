@@ -459,12 +459,14 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
                verify=release_holds))
 
 # ====================================================================================================== daily life meadow
-def _bed_walk_verify(log, crossing_limit=4):
+def _bed_walk_verify(log, crossing_limit=4, crossing_window=None):
     crossings = {}
-    for actor in re.findall(r'\[home\] \w+ #\d+ uuid=(\S+)[^\n]*bed crossing[^\n]*source=walk', log):
-        crossings[actor] = crossings.get(actor, 0) + 1
-        if crossings[actor] > crossing_limit:
-            return f'walker {actor} exceeded {crossing_limit} pad crossings'
+    for actor, tick in re.findall(r'\[home\] \w+ #\d+ uuid=(\S+) t=(\d+)[^\n]*bed crossing[^\n]*source=walk', log):
+        recent = crossings.setdefault(actor, [])
+        recent[:] = [at for at in recent if crossing_window is None or int(tick) - at <= crossing_window]
+        recent.append(int(tick))
+        if len(recent) > crossing_limit:
+            return f'walker {actor} exceeded {crossing_limit} pad crossings' + (f' within {crossing_window} ticks' if crossing_window is not None else '')
     stalls = {}
     for actor, tick, point in re.findall(r'\[move\] \w+ #\d+ uuid=(\S+) t=(\d+)[^\n]*ground path stopped reason=no_progress[^\n]* at=\(([^)]+)\)', log):
         at = tuple(float(value.strip()) for value in point.split(','))
@@ -1660,7 +1662,7 @@ def colony_loss_prompt(sid, members_read, rules_read):
     return 'tellraw @s ' + json.dumps(controls, ensure_ascii=False, separators=(',', ':'))
 
 
-def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False, smoke=None):
+def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', reads=(), leader_loss=False, smoke=None, capture=None, residents=()):
     reads = list(reads)
     controls = []
     if leader_loss:
@@ -1673,10 +1675,11 @@ def colony(sid, title, hint, watch, wait, late, env=DAY, lines=(), note='', read
                 reads.append((caption, command))
             indexes.append(index)
         controls.append(colony_loss_prompt(sid, *indexes))
+    population = list(residents) if residents else ['yukkuri settlement spawn village_led ~ ~ ~',
+                  'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead']
     add(sid, 'biomes', title, hint, watch, wait,
-        [*lines, 'yukkuri settlement spawn village_led ~ ~ ~',
-         'tag @e[type=mcyukkuri:patchouli,distance=..40,limit=1,sort=nearest] add scn_lead', *controls],
-        env=env, spot='colony', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke)
+        [*lines, *population, *controls],
+        env=env, spot='colony', vantage=(0, 26), late=late, note=NEW + note, reads=reads, retry='先“清空本场地”再按一次', smoke=smoke, capture=capture)
 
 
 colony('colony_hunt', '族规·公共狩猎与上缴', '公共狩猎',
@@ -1697,6 +1700,7 @@ colony('colony_judge', '族规·审判', '族规审判',
        note='每案经过真实移动与短暂停留，不固定四只个体分别受哪一档处罚。欺负需要附近有凶悍成员，没有时只驱逐。',
        reads=[('读待审阶段与判决', 'yukkuri settlement rules')])
 # The empty village 64 blocks east stands on the colony_dest plot.
+_mx, _mz = BIOMES.spots['colony']
 _migration_site = ['yukkuri settlement site vacant village ~64 ~ ~']
 colony('colony_migrate', '族规·迁徙', '族群迁徙',
        '族长决定迁徙：讨论 30 秒→准备 30 秒→先锋（有魔理沙时由魔理沙担任，体弱的帕琪不领队）先行，其余稍后跟上，前往东侧 64 格外的真实空聚落；抵达者认领新窝、存放携粮，窝不够就自己挖；掉队者继续赶往新址',
@@ -1709,29 +1713,83 @@ colony('colony_migrate', '族规·迁徙', '族群迁徙',
               ('读新聚落状态', 'execute positioned ~64 ~ ~ run yukkuri settlement site info')],
        leader_loss=True)
 
-# The same real households and stores, with dependent crawling infants as an explicit initial condition.
+def _carry_outcome_verify(log, home=False):
+    # A physical refusal may recover after replanning; count each finished Release once, by its child.
+    refusals, carried, released = {}, {}, {}
+    for tick, event, child in re.findall(r'\[family\][^\n]*? t=(\d+)[^\n]* (carry (?:pickup hold=|put down reason=|put down refused )[^\n]*?)child=([0-9a-f-]{36})', log):
+        if event.startswith('carry put down refused '):
+            refusals[child] = refusals.get(child, 0) + 1
+            if refusals[child] > 2:
+                return f'child {child} exceeded 2 release refusals'
+        elif event.startswith('carry pickup '):
+            carried[child] = int(tick)
+        else:
+            carried.pop(child, None)
+            released[child] = event
+    if carried:
+        if home:
+            return f'children without a completed release: {sorted(carried)}'
+        # A later family retrieval can still be under way; measure this child's current hold, not the carrier's first pickup.
+        end_tick = int(re.search(r'MCYSMOKE_END_TICK (\d+)', log)[1])
+        stuck = {child: end_tick - tick for child, tick in carried.items() if end_tick - tick > 600}
+        if stuck:
+            return f'children held more than 600 ticks at end: {stuck}'
+    if home:
+        for child, event in released.items():
+            if not re.search(r'reason=(?:arrived_home|nest_rim_to_cushion)\b', event):
+                return f'child {child} last released without returning home: {event}'
+    return None
+
+
+# Three fixed real households and their leader fit the destination village without random extra households.
+_migrant_families = [*shed(0, -8), yk_on_nest('patchouli', 0, -8, 'migrant_leader', lead=True,
+                      uuid=uid('colony_migrate_babies', 'leader'), also=('migrant_family',)), home('migrant_leader', 0, -8)]
+for _kind, _x in [('marisa', -10), ('reimu', 0), ('chen', 10)]:
+    _parent = uid('colony_migrate_babies', _kind)
+    _migrant_families += [*shed(_x, 4), *large_nest(_x, 4, 'mcyukkuri:large_yukkuri_nest'),
+                         yk_on_nest(_kind, _x, 4, f'migrant_{_kind}', large=True, uuid=_parent, nutrition=80,
+                                    friendliness=90, also=('migrant_family',)), home(f'migrant_{_kind}', _x, 4),
+                         item('minecraft:apple', 12, _x + 1, 7)]
+    for _i in range(2):
+        _migrant_families += [yk(_kind, _x + 2, 4 + _i - .5, f'migrant_{_kind}_{_i}', stage='baby',
+                                uuid=uid('colony_migrate_babies', f'{_kind}_{_i}'), kin=f'Mother:{uuid_nbt(_parent)}',
+                                childhood=CHILDHOOD_CRAWLING_READY, nutrition=40, friendliness=90,
+                                also=('migrant_baby', 'migrant_family')), home(f'migrant_{_kind}_{_i}', _x, 4)]
 _migrant_babies = '@e[type=#mcylab:yukkuri,tag=scn_migrant_baby,distance=..110]'
 colony('colony_migrate_babies', '迁徙·赤油跟亲', '赤油随迁',
        '村中孩子从赤油阶段开始：行军开始后亲油走到孩子身边停下、抬起（魔理沙用辫子托上帽檐，放得下几只托几只；橙两条尾巴各托一只；灵梦口含多只；其余叼在嘴里一只），带着走向新址；赤油不再自己爬着跟随。途中孩子饿了会被放下、喂过再抬起，到新址认家庭新窝后放下',
        '约3–6分钟', [
-           'tag @e[type=#mcylab:yukkuri,nbt={YukkuriFamily:{Stage:"JUVENILE"}},distance=..45] add scn_migrant_baby',
-           f'yukkuri status set {_migrant_babies} growth.age_ticks 36000',
-           f'execute as {_migrant_babies} run data modify entity @s YukkuriChildhood set value {{{CHILDHOOD_CRAWLING_READY}}}',
+           'yukkuri scenario community @e[tag=scn_lead,limit=1] @e[tag=scn_migrant_family,distance=..45]',
            'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] personality.friendliness 90',
            'yukkuri status set @e[type=#mcylab:yukkuri,distance=..45] needs.nutrition 80',
            f'yukkuri status set {_migrant_babies} needs.nutrition 40',
            Retry('yukkuri settlement migrate', COLONY_LEAD)],
-       lines=_migration_site,
-       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，帽檐和尾巴上的先 carry lowering 放到身旁地面，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦口含多只沿嘴前横排、离地悬挂，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
+       lines=_migration_site, residents=_migrant_families,
+       note='初始亲油营养80、赤油40；高友善不保证照护必定成功。看孩子是被抬起而不是自己移动（日志 [family] carry lift started／pickup hold=brim／tail_left／mouth purpose=MIGRATE，[action] start id=grab reach= hold=），行军中赤油乘在亲油帽檐／尾上／口中、朝向随亲油，魔理沙按帽檐真实面积托几只、放不下再口含一只，橙两尾各托一只，灵梦口含多只，其他种类一只，每只的承托方式随亲油存档，多出的孩子等另一位亲油（行军时优先分给余量大的亲油），没有亲油能抬时才退回原来的爬行跟随；母亲口含孩子时不备口粮（settlement 日志 packing skipped reason=mouth_reserved_for_child），父亲或戴帽魔理沙照常备粮；孩子营养低于30且有真实食物时会被放下喂养（carry put down reason=feeding）再抬起；亲油到新址认屋后，孩子继承新窝或亲油走到床位边才放下（reason=arrived_destination／arrived_home，帽檐和尾巴上的先 carry lowering 放到身旁地面，位置为放下时的实际位置）。检查同一孩子、食物减少与营养回升、住所切换；不能以中心改变代替亲子抵达。演出：口含与尾托接起前俯身再直起，托上帽檐时魔理沙转身伸辫卷起孩子放上帽檐；灵梦张嘴含入幼体后闭嘴，腮部随口中孩子数鼓起，到窝再张嘴放出，魔理沙帽檐沿帽冠一圈坐多只、面朝外（满后再叼一只），橙两尾抬起各卷托一只；走动转身时孩子轻晃、不穿进亲油，放下时亲油俯身、孩子缓落，帽檐上的由辫子、尾巴上的由尾巴放到地面。',
        reads=[('读赤油随迁', f'yukkuri status {_migrant_babies} raw'),
               ('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110,nbt={Passengers:[{}]}] raw'),
               ('读全体亲子', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw'),
               ('读迁徙完成条件', 'yukkuri settlement rules')],
+       capture=dict(shots=(1, 40, 600, 1200), sequences=((1200, 2400, 2), (2400, 7200, 20)), follow='@e[tag=scn_migrant_marisa,limit=1]'),
        smoke=dict(ticks=7200,
-                  forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b'],
+                  readout=['yukkuri status @e[type=#mcylab:yukkuri,distance=..110] raw',
+                           'execute as @e[tag=scn_migrant_baby,distance=..110] on vehicle run say MCYSMOKE_CHILD_STILL_HELD',
+                           'execute as @e[tag=scn_migrant_baby,distance=..24] run say MCYSMOKE_CHILD_AT_OLD_SITE'],
+                  forbid=[r'\[family\][^\n]* carry put down reason=seat_blocked\b', r'\[family\][^\n]* carry put down forced\b',
+                          r'hurt cry start cause=(?:inWall|starve)',
+                          r'MCYSMOKE_CHILD_AT_OLD_SITE'],
+                  verify=_carry_outcome_verify,
                   expect=[r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
                           r'\[family\] marisa #[^\n]* carry grip [^\n]*brimLocal=',
-                          r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b']))
+                          r'\[action\] marisa #[^\n]* end id=grab outcome=DONE\b',
+                          *(rf'\[family\] {kind} #[^\n]* carry pickup hold={hold}\b[^\n]*purpose=MIGRATE'
+                            for kind, hold in [('reimu', 'mouth'), ('chen', 'tail_right')]),
+                          *(rf'\[family\][^\n]* carry pickup [^\n]*purpose=MIGRATE child={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))}\b'
+                            for kind in ('marisa', 'reimu', 'chen') for i in range(2)),
+                          *(rf'\[family\][^\n]* carry put down [^\n]*purpose=MIGRATE child={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))}\b'
+                            for kind in ('marisa', 'reimu', 'chen') for i in range(2)),
+                          *(rf'\[settlement\] {kind} #[^\n]*uuid={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", f"{kind}_{i}")))} [^\n]* dependent settled with parent={uuid.UUID(bytes=b"".join(v.to_bytes(4, "big", signed=True) for v in uid("colony_migrate_babies", kind)))} destination=BlockPos\{{x={_mx + 64}, y=64, z={_mz + 1}\}}'
+                            for kind in ('marisa', 'reimu', 'chen') for i in range(2))]))
 
 # Three real households with their nest, the babies ~8 blocks out: the RETRIEVE carry (ParentCarry.purposeFor), no march needed.
 _carry_families = [('marisa', -10, 4, 1.2), ('reimu', 0, 3, 1.0), ('chen', 10, 2, 1.0)]
@@ -1748,7 +1806,8 @@ for _kind, _fx, _n, _size in _carry_families:
                          home(f'{_kind}_baby', _fx, 0)]
 
 def _carry_verify(log):
-    stalled = _bed_walk_verify(log)
+    # Detect doorway ping-pong, not a later real retrieval with another entry/exit.
+    stalled = _bed_walk_verify(log, crossing_window=300) or _carry_outcome_verify(log, home=True)
     if stalled:
         return stalled
     grips = {}
@@ -1769,7 +1828,9 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
     '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(.5, 4.5, 180, 1, 30),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
-    capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((40, 600, 5), (2500, 3300, 10)), observe=False),
+    capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((2, 1000, 4), (2500, 3300, 10)), observe=False,
+                 views={kind: dict(follow=f'@e[tag=scn_{kind}_parent,limit=1]',
+                                   offset=(-1.4, .65, -.8 if kind == 'chen' else .8)) for kind, _, _, _ in _carry_families}),
     smoke=dict(ticks=3600,
                expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
@@ -1778,8 +1839,11 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                        *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families)],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
                        r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk', r'\[home\][^\n]*nest_not_inside\b',
-                       r'\[home\][^\n]*reason=doorway_unreachable\b'],
-               readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw'],
+                       r'\[home\][^\n]*reason=doorway_unreachable\b',
+                       r'\[family\][^\n]* carry put down forced\b', r'\[family\][^\n]* cause=carry_release_blocked\b',
+                       r'MCYSMOKE_CHILD_STILL_HELD'],
+               readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn] raw',
+                        'execute as @e[type=#mcylab:yukkuri,tag=scn,distance=..48] on vehicle run say MCYSMOKE_CHILD_STILL_HELD'],
                verify=_carry_verify))
 
 # ---- commodification

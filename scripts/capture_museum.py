@@ -98,6 +98,9 @@ def main():
     if unknown:
         parser.error('Unknown scenes: ' + ', '.join(sorted(unknown)))
     selected = [scenes[sid] for sid in dict.fromkeys(args.scenes)]
+    views = [(scene, f'{scene.id}_{name}' if name else scene.id, view)
+             for scene in selected
+             for name, view in scene.capture.get('views', {'': dict(follow=scene.capture.get('follow'))}).items()]
     output = server.COMMON / '.local/captures' / (time.strftime('%Y%m%d-%H%M%S') + '-' + secrets.token_hex(3))
     instance = output / 'instance'
     pack = smoke.build_pack(builder, instance)
@@ -107,21 +110,32 @@ def main():
     (instance / 'options.txt').write_text(
         'lang:zh_cn\nguiScale:2\nrenderDistance:10\nsimulationDistance:8\nmaxFps:60\nenableVsync:false\n'
         'onboardAccessibility:false\nautoJump:false\npauseOnLostFocus:false\ntutorialStep:none\n'
-        'narrator:0\nsoundCategory_master:0.0\n', encoding='utf-8')
+        'narrator:0\nsoundCategory_master:0.0\nchatVisibility:2\n', encoding='utf-8')
     (instance / 'config').mkdir()
     (instance / 'config/fml.toml').write_text('earlyWindowControl=false\n', encoding='utf-8')
     plan = []
     functions = pack / 'data/mcylab/function'
     (functions / 'capture').mkdir()
-    for scene in selected:
+    for scene, view_id, settings in views:
         start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
         view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
         interactions = (f'function mcylab:smoke/{scene.id}/start\n'
                         if args.smoke_commands and scene.smoke and scene.smoke.get('commands') else '')
-        (functions / f'capture/{scene.id}.mcfunction').write_text(
-            f'execute as @a at @s run function mcylab:start/{scene.id}\n' + interactions
+        camera = ''
+        follow = settings.get('follow')
+        if follow:
+            offset = ' '.join(f'^{v}' for v in settings.get('offset', (-1.4, .65, .8)))
+            camera = f'execute as @a run yukkuri observe off\nfunction mcylab:capture/{view_id}_camera\n'
+            (functions / f'capture/{view_id}_camera.mcfunction').write_text(
+                f'gamemode spectator @a\nexecute at {follow} rotated as {follow} positioned {offset} anchored eyes run tp @a ~ ~-1.62 ~ facing entity {follow} eyes\n'
+                f'schedule function mcylab:capture/{view_id}_camera 1t replace\n', encoding='utf-8')
+            clear = functions / f'field/{scene.field}/clear.mcfunction'
+            with clear.open('a', encoding='utf-8') as output_file:
+                output_file.write(f'\nschedule clear mcylab:capture/{view_id}_camera\n')
+        (functions / f'capture/{view_id}.mcfunction').write_text(
+            f'execute as @a at @s run function mcylab:start/{scene.id}\n{camera}' + interactions
             + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')
-        plan.append(dict(id=scene.id, field=scene.field, ticks=capture_ticks(scene.capture),
+        plan.append(dict(id=view_id, field=scene.field, ticks=capture_ticks(scene.capture),
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
                          reads=[f'execute positioned {scene.anchor[0]}.0 {builder.FEET} {scene.anchor[1]}.0 run {command}'
                                 for _, command in scene.reads]))
@@ -157,11 +171,11 @@ def main():
                 proc.wait()
     if proc.returncode or not (output / 'complete.json').is_file():
         raise RuntimeError(f'Capture failed (exit {proc.returncode}); see {output / "stdout.log"}')
-    for scene in selected:
-        frames, sheet = contact_sheet(output / scene.id)
+    for scene, view_id, follow in views:
+        frames, sheet = contact_sheet(output / view_id)
         if any(frame['visible'] or frame['focused'] for frame in frames):
-            raise RuntimeError(f'{scene.id}: capture window was visible or focused')
-        print(f'{scene.id}: {len(frames)} frames, {frames[-1]["seconds"]:.2f}s; hidden/unfocused; {sheet}', flush=True)
+            raise RuntimeError(f'{view_id}: capture window was visible or focused')
+        print(f'{view_id}: {len(frames)} frames, {frames[-1]["seconds"]:.2f}s; hidden/unfocused; {sheet}', flush=True)
     return 0
 
 

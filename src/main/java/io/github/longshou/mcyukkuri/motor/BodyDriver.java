@@ -257,6 +257,7 @@ public final class BodyDriver {
         interruptedWhy = "";
         last = outcome;
         lastTick = now();
+        action.finished(body, outcome);
         Attach.settle(body, "action_end:" + outcome.label());
         String detail = action.endDetail(outcome);
         GameplayLog.event(body, "action", detail.isEmpty() ? "end id={} outcome={} {}" : "end id={} outcome={} {} {}",

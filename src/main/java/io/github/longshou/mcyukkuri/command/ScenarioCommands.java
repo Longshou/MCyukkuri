@@ -19,6 +19,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -83,6 +84,13 @@ public final class ScenarioCommands {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("geometry").executes(c -> SceneGeometry.read(c.getSource()))
                         .then(Commands.literal("record").executes(c -> SceneGeometry.record(c.getSource()))))
+                .then(Commands.literal("community").then(Commands.argument("leader", EntityArgument.entity())
+                        .then(Commands.argument("members", EntityArgument.entities()).executes(c -> {
+                            var leader = yukkuri(c, "leader");
+                            if (leader == null) return 0;
+                            var members = EntityArgument.getEntities(c, "members").stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast).toList();
+                            return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()));
+                        }))))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     // A real, small injury through the ordinary wound path.
                     int count = 0;

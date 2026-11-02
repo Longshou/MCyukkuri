@@ -341,7 +341,7 @@ public final class SettlementLife {
 
     /** A parent yields MOVE to the existing family feeding/search action while its dependent catches up. */
     private boolean yieldsToMigrationCare(boolean settlingAtTarget) {
-        return !settlingAtTarget && familyMarching()
+        return ParentCarry.awaitsCarrier(entity) || !settlingAtTarget && familyMarching()
                 && (entity.family().migrationCareActive() || entity.family().prepareMigrationCare());
     }
 
@@ -390,6 +390,7 @@ public final class SettlementLife {
     }
 
     boolean settledAt(BlockPos center) { return origin != null && origin.pos().equals(center) && settlingAt == null; }
+    boolean settlingAt(BlockPos center) { return settlingAt != null && settlingAt.pos().equals(center); }
 
     private boolean departedFrom(SettlementData.Group group) {
         return migrationDeparture != null && migrationDeparture.dimension().equals(entity.level().dimension()) && migrationDeparture.pos().equals(group.center);

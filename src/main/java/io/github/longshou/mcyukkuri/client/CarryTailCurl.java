@@ -19,7 +19,7 @@ final class CarryTailCurl {
      *  the child sits on (or one lift for a puff, with the seat shift out and back on it). */
     private record Spec(float yaw, float[] pitch, int shelf, float lift, float shiftOut, float shiftBack) {}
     private static final Map<String, Spec> SPECS = Map.of(
-            "chen", new Spec(40, new float[]{58, 36, 4, -6, 24, 56, 84}, 2, 0, 0, 0),
+            "chen", new Spec(52, new float[]{58, 36, 4, -6, 70, 140, 210}, 2, 0, 0, 0),
             "chen_longtail", new Spec(36, new float[]{62, 6, -6, 40, 95, 140, 175}, 1, 0, 0, 0),
             "chen_roundtail", new Spec(25, null, 0, 35, 1, 1.8f));
     /** The child sits this far above the shelf's top face (model units). */

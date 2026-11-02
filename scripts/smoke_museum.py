@@ -167,7 +167,7 @@ def failure(smoke, window):
     return None
 
 
-def run_scene(st, scene, builder):
+def run_scene(st, scene, builder, run_index=1):
     clear_all(st, builder.FIELDS)
     load_field(st, builder.BY_ID[scene.field], builder.FEET)
     offset = server.log_offset(st)
@@ -199,9 +199,10 @@ def run_scene(st, scene, builder):
     server.sprint(st, scene.smoke['ticks'] - elapsed)
     readout = '\n'.join(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
                         for command in scene.smoke.get('readout', ()))
-    (Path(st['rundir']).parent / f'{scene.id}.readout.txt').write_text(readout, encoding='utf-8')
-    window = server.log_text(st, offset)
-    (Path(st['rundir']).parent / f'{scene.id}.log').write_text(window, encoding='utf-8')
+    (Path(st['rundir']).parent / f'{scene.id}-{run_index}.readout.txt').write_text(readout, encoding='utf-8')
+    end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
+    window = server.log_text(st, offset) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
+    (Path(st['rundir']).parent / f'{scene.id}-{run_index}.log').write_text(window, encoding='utf-8')
     problem = failure(scene.smoke, window)
     if problem:
         print(f'FAIL {scene.id}: {problem}', flush=True)
@@ -344,7 +345,7 @@ def main():
                 load_field(st, field, builder.FEET)
             results = [check_layout(st, builder, scene) for scene in selected]
         else:
-            results = [run_scene(st, scene, builder) for scene in selected]
+            results = [run_scene(st, scene, builder, index) for index, scene in enumerate(selected, 1)]
         return 0 if all(results) else 1
     finally:
         server.stop(st)
