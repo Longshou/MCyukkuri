@@ -740,6 +740,26 @@ add('swaddle_styles', 'town', '布襁褓八款', '布襁褓款式',
           *[f'minecraft:{dye}_dye 1' for dye in ('white', 'pink', 'red', 'orange', 'light_blue', 'brown', 'blue', 'green')]],
     reads=[(f"读{label}襁褓", f"data get entity {sel(name)} YukkuriPet.Care") for label, name in (("赤油", "wrap_baby"), ("子油", "wrap_kid"), ("爱丽丝", "wrap_alice"))], vantage=(2, 8))
 
+# Eight pet young already wrapped, one style each (the cream knit is the plain cloth), side by side; the ninth, unwrapped, takes a cloth from the chest by hand.
+_SWADDLE_LOOKS = (('knit', '奶油针织'), ('frill', '荷叶边蝴蝶结'), ('letter', '首字母'), ('tiger', '虎纹'),
+                  ('outing', '外出'), ('fleece', '厚绒'), ('gingham', '格纹'), ('floral', '碎花'))
+_swaddle_chest = ','.join(f'{{Slot:{i}b,id:"mcyukkuri:swaddle_cloth",count:1,components:{{"minecraft:custom_data":{{SwaddleStyle:"{style}"}}}}}}'
+                          for i, (style, _) in enumerate(_SWADDLE_LOOKS))
+_swaddle_pets, _swaddle_wear = [], []
+for _i, (_style, _label) in enumerate(_SWADDLE_LOOKS):
+    _pet = f'swaddle_{_style}'
+    _swaddle_pets += [yk(('reimu', 'marisa', 'alice')[_i % 3], -14 + 4 * _i, 0, _pet, stage='baby' if _i % 2 == 0 else 'child', grade=1, label=_label,
+                         lead=_i == 0, nutrition=90, energy=100, hygiene=100), *own(_pet)]
+    _swaddle_wear += [f'data modify entity {sel(_pet)} YukkuriPet.Care merge value {{Swaddle:1b,SwaddleStyle:"{_style}"}}',
+                      f'data modify entity {sel(_pet)} YukkuriPet.Care.WearOwner set from entity @s UUID']
+add('swaddle_worn', 'town', '襁褓上身·八款并排', '襁褓已穿',
+    '八只自家宠物赤油／子油（灵梦、魔理沙、爱丽丝轮流）已穿着八款襁褓并排站开，头顶名字是款式；最右一只赤油没包，右边木箱里有八款襁褓布，'
+    '手持右键它包上，护理菜单“解开”取回同款。看各款外观与图标同款、首字母款背后是本物种首字母、发辫尾巴在布外不穿模',
+    '随意', [*_swaddle_pets, *_swaddle_wear,
+             yk('reimu', 18, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
+             block(22, 0, 0, f'minecraft:chest[facing=west]{{Items:[{_swaddle_chest}]}}')],
+    reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 12))
+
 add('harness_walk', 'town', '亲手牵引与照料', '亲手牵引',
     '先用胴带右键宠物，再用拴绳牵引；戴上后短暂回应即恢复活动。走动、停下喂食，再解绳观察它恢复日常', '随意', [
         yk('reimu', 0, 0, 'harness_pet', grade=1, lead=True, nutrition=60, energy=100, hygiene=100), *own('harness_pet')],
@@ -2235,7 +2255,7 @@ TOPICS = {
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_blocked': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'rain_damage': 'R1', 'forage_empty': 'R1', 'rain_life': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'thunder': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_hunt': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'marks': 'R3', 'shared_body': 'R3',
     'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
-    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'swaddle_styles': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
+    'shop_build': 'M1', 'factory_labor': 'M2', 'factory_manju': 'M2', 'factory_bag': 'M2', 'walker': 'M3', 'harness_walk': 'M3', 'swaddle_styles': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan': 'M4', 'oniisan_prey': 'M4', 'attack_witness': 'M4',
     'wild': 'M5', 'badge': 'M5', 'exam': 'M5', 'date': 'M5', 'transport': 'M5', 'custody_death': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
