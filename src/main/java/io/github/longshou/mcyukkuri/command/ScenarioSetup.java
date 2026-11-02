@@ -233,8 +233,9 @@ final class ScenarioSetup {
 
     /** Real initial seats: captain first, then admitted young. A refusal leaves already seated riders in place.
      *  Food uses the same counted store as a player's click. Everything afterwards is ordinary physics and AI. */
-    static String afloat(YukkuriEntity owner, BlockPos water, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
+    static String afloat(YukkuriEntity owner, Vec3 at, boolean aboard, List<YukkuriEntity> young, int food, boolean middle, boolean stick) {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
+        var water = BlockPos.containing(at);
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
             return "目标格 " + water.toShortString() + " 不是水面（要是水，且上方不是水）。";
         for (var child : young) {
@@ -242,7 +243,7 @@ final class ScenarioSetup {
             String refusal = kinRefusal(owner, child, false);
             if (refusal != null) return refusal;
         }
-        var hat = PlacedHatEntity.setDown(owner, Vec3.atBottomCenterOf(water), owner.getYRot(), HatGeometry.Role.HELPER);
+        var hat = PlacedHatEntity.setDown(owner, at, owner.getYRot(), HatGeometry.Role.HELPER);
         if (hat == null) return "帽子没能放下：帽主要戴着自己的帽子、没有乘坐别的东西（原因见日志 hat refused）。";
         if (stick && !hat.stow(new ItemStack(Items.STICK))) return takeBack(owner, hat, "帽子没能收下木棍，帽子已收回。");
         for (var child : young) kin(owner, child, false);

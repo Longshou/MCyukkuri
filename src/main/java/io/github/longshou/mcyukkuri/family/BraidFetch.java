@@ -15,9 +15,9 @@ public final class BraidFetch {
     public static final String REACH = "braid_rescue_reach", HOLD = "braid_rescue_hold", SETTLE = "braid_rescue_settle";
     private BraidFetch() {}
     public static int marker(String clip, String marker) { return Math.round(ClipMarkers.of(clip).markers().get(marker) * 20); }
-    /** Approach until the braid reaches the child's centre; contact then tests its actual body envelope. */
+    /** Close on where the moving child will be when the reach clip makes contact; Grab still checks the real envelope. */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
-        var point = child.getBoundingBox().getCenter();
+        var point = child.getBoundingBox().getCenter().add(child.getDeltaMovement().multiply(1, 0, 1).scale(marker(REACH, "contact")));
         return ContactGeometry.braidGap(carrier, point, false) <= 0 || ContactGeometry.braidGap(carrier, point, true) <= 0;
     }
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {

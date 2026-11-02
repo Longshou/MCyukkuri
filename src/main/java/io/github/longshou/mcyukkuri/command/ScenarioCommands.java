@@ -19,6 +19,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -212,7 +213,7 @@ public final class ScenarioCommands {
                     return hat.behavior().shake(hat, player) ? 1 : 0;
                 })))
                 .then(Commands.literal("afloat").then(Commands.argument("owner", EntityArgument.entity())
-                        .then(Commands.argument("water", BlockPosArgument.blockPos())
+                        .then(Commands.argument("water", Vec3Argument.vec3())
                                 .then(Commands.argument("aboard", BoolArgumentType.bool()).executes(c -> afloat(c, List.of(), 0, false, false))
                                         .then(Commands.argument("crew", EntityArgument.entities())
                                                 .executes(c -> afloat(c, EntityArgument.getEntities(c, "crew"), 0, false, false))
@@ -246,7 +247,8 @@ public final class ScenarioCommands {
         if (owner == null) return 0;
         var young = new ArrayList<YukkuriEntity>();
         for (var entity : crew) if (entity instanceof YukkuriEntity y && y != owner) young.add(y);
-        String reason = ScenarioSetup.afloat(owner, BlockPosArgument.getLoadedBlockPos(c, "water"), BoolArgumentType.getBool(c, "aboard"), young,
+        BlockPosArgument.getLoadedBlockPos(c, "water");
+        String reason = ScenarioSetup.afloat(owner, Vec3Argument.getVec3(c, "water"), BoolArgumentType.getBool(c, "aboard"), young,
                 food, middle, stick);
         if (reason != null) return refused(c.getSource(), owner, "帽子入水场景", reason);
         tell(c.getSource().getLevel(), owner.position(), "[试玩场] 帽主的真实帽子已放在水面上" + (food > 0 ? "，帽里有粮" : "") + (stick ? "，帽里有一根木棍" : "")
