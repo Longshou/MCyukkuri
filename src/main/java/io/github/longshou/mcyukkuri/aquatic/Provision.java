@@ -71,7 +71,7 @@ final class Provision implements Intent {
         var water = food.isAlive() ? Waters.foodCell(body.level(), food) : null;
         if (water == null || pick.check(body).ok()) return reachLoose(hat, pick);
         if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reachLoose(hat, pick);
-        var route = AquaticLife.stick(body) ? Waters.route(hat, water) : List.<Vec3>of();
+        var route = Waters.route(hat, water);
         Waters.log(hat, body, water, route, "forage");
         return route.isEmpty() ? null : List.of(() -> act(new Paddle(Waters.leg(route), ARRIVE)));
     }

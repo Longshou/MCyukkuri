@@ -28,6 +28,8 @@ public interface PlacedHatView {
     boolean upsideDown();
     /** Synchronized headwear damage of the deployed hat (0..2), drawn as on a worn hat. */
     int hullDamage();
+    /** Whether the placed hat owns its paddle stick; the stack itself stays server-owned. */
+    boolean kitPresent();
     /** What its behaviour keeps in the hollow besides riders (an add-on's stores), as that behaviour synced it. */
     CompoundTag contents();
 }

@@ -83,6 +83,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.FLOAT);
     /** The deployed hat's own wear (headwear damage 0 intact, 1 frayed, 2 torn), drawn on the hull like a worn hat. */
     private static final EntityDataAccessor<Integer> HULL_DAMAGE = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.INT);
+    /** Presence only: the server-side {@link #kit} remains the stick's sole ownership. */
+    private static final EntityDataAccessor<Boolean> KIT_PRESENT = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.BOOLEAN);
     /** Every rider's local spot (hat units) keyed by rider entity id: the client's {@code positionRider} input, written once a tick when it changed. */
     private static final EntityDataAccessor<CompoundTag> RIDERS = SynchedEntityData.defineId(PlacedHatEntity.class, EntityDataSerializers.COMPOUND_TAG);
     /** The hull's tilt in degrees (HostFrame roll and pitch), written by its behaviour: riders and the drawn hull share it. */
@@ -137,6 +139,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(STATE, State.CRADLE.ordinal()); builder.define(OWNER, Optional.empty()); builder.define(SCALE, 1f);
         builder.define(RIDERS, new CompoundTag()); builder.define(HULL_DAMAGE, 0); builder.define(ROLL, 0f); builder.define(PITCH, 0f);
+        builder.define(KIT_PRESENT, false);
         builder.define(CONTENTS, new CompoundTag()); builder.define(FORM, HullProfile.CURRENT);
         builder.define(INVERTED, false); builder.define(AFLOAT, false);
     }
@@ -388,10 +391,12 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public boolean holds(Item item) { return kit.is(item) || behavior().holds(this, item); }
     /** The stick it keeps, or empty. */
     public ItemStack kit() { return kit; }
+    @Override public boolean kitPresent() { return entityData.get(KIT_PRESENT); }
+    private void kit(ItemStack next) { kit = next; entityData.set(KIT_PRESENT, !next.isEmpty()); }
     /** Keeps one stick (picked up by its owner): true when it had none. */
     public boolean stow(ItemStack one) {
         if (!kit.isEmpty() || one.isEmpty() || level().isClientSide) return false;
-        kit = one.copyWithCount(1);
+        kit(one.copyWithCount(1));
         GameplayLog.event(this, "hat", "kit stowed item={} owner={}", kit.getItem(), ownerYukkuri());
         return true;
     }
@@ -401,7 +406,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var drop = new ItemEntity(level(), at.x, at.y, at.z, kit);
         Motor.velocity(drop, v, cause);
         drop.setDefaultPickUpDelay();
-        kit = ItemStack.EMPTY;
+        kit(ItemStack.EMPTY);
         GameplayLog.event(this, "hat", "kit dropped cause={} at={} spawned={}", cause, GameplayLog.at(at), level().addFreshEntity(drop));
     }
     @Override public boolean isPushable() { return !isRemoved() && behavior().pushable(this); }
@@ -578,7 +583,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         owner.headwear().receiveAccessoryState(accessory.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag());
         // the stick goes back into the worn hat; a hat already keeping one drops this one at her feet
         if (!kit.isEmpty() && !owner.life().custody().stow(kit)) dropKit(owner.position(), Vec3.ZERO, "retrieve_full");
-        kit = ItemStack.EMPTY;
+        kit(ItemStack.EMPTY);
         release("retrieved");
         state(State.RESCUED); return true;
     }
@@ -648,7 +653,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             hat.discard();
             return refusePlacement(owner, at, "accessory_transfer_failed", "");
         }
-        hat.kit = kit;
+        hat.kit(kit);
         GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} hullBox={} form={} role={} water={} kit={}",
                 owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit.getItem());
         return hat;
@@ -941,7 +946,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         pose(Mth.wrapDegrees(tag.getFloat("Roll")),Mth.wrapDegrees(tag.getFloat("Pitch")));
         inverted(tag.getBoolean("Inverted"));
         rollO=roll();pitchO=pitch();
-        kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
+        kit(ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit")));
         accessory=ItemStack.parseOptional(registryAccess(),tag.getCompound("Accessory"));
         syncAccessoryDamage();
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;

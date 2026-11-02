@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatSeats;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -9,10 +11,13 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
+import net.minecraft.util.Mth;
 
 /** One accepted incident: set out if needed, chase from the captain seat, braid-fetch into the child's seat. */
 final class Rescue implements Intent {
@@ -31,11 +36,12 @@ final class Rescue implements Intent {
     }
 
     static String refusal(YukkuriEntity parent, YukkuriEntity child) {
+        if (child.childhood().canSail()) return "can_sail";
         var hat = AquaticLife.hat(parent);
         if (hat != null) return hat.seatDestination(child) == null ? "no_seat" : null;
         if (!parent.life().custody().worn()) return "no_hat";
         var size = new HatSeats.Body(child.assetId(), child.growthScale() * child.getScale(), child.getBbWidth(), child.getBbHeight());
-        return HatSeats.admit(parent.growthScale() * parent.getScale(), size, false, List.of()) == null ? "no_seat" : null;
+        return HatSeats.admit(HatScale.of(parent) / HullBounds.SCALE, size, false, List.of()) == null ? "no_seat" : null;
     }
 
     String incident() { return incident; }
@@ -62,5 +68,39 @@ final class Rescue implements Intent {
         AskLedger.server().ended(incident, helper.getUUID(), outcome);
         GameplayLog.event(helper, "aquatic", "rescue end result={} outcome={} faller={} incident={} aboard={} last={}",
                 result, outcome, faller.getUUID(), incident, aboard, helper.motor().lastDetail());
+    }
+
+    /** A protecting parent stays facing an independent child and cries; she never accepts its rescue. */
+    static final class Watch implements Intent {
+        private static final int REFACE = 20, TEARS = 40;
+        private final YukkuriEntity parent, faller;
+        private final String incident;
+        private final long started;
+
+        Watch(YukkuriEntity parent, YukkuriEntity faller, String incident) {
+            this.parent = parent; this.faller = faller; this.incident = incident;
+            started = parent.level().getGameTime();
+            parent.showReaction("teary", null, TEARS);
+            GameplayLog.event(parent, "aquatic", "watch start faller={} incident={} reason=can_sail", faller.getUUID(), incident);
+        }
+        YukkuriEntity faller() { return faller; }
+        String incident() { return incident; }
+        @Override public String id() { return "watch_water"; }
+        @Override public long deadline() { return started + (long) DriveWeights.of(AquaticGoal.DOMAIN, "rescue_ticks"); }
+        @Override public boolean satisfied() {
+            return !faller.isInWaterOrBubble() || !incident.equals(AskLedger.server().openOf(faller.getUUID(), "water"));
+        }
+        @Override public List<Method> methods() { return List.of(Plan.of("tearful_watch", this::derive)); }
+        private float yaw() { return SurfaceApproach.yaw(parent.position(), faller.position()); }
+        private List<Supplier<Step>> derive() {
+            return List.of(() -> new Step.Do(new Face(yaw())), () -> new Step.Wait(() -> {
+                if ((parent.level().getGameTime() - started) % TEARS == 0) parent.showReaction("teary", null, TEARS);
+                return satisfied() || Math.abs(Mth.wrapDegrees(yaw() - parent.yBodyRot)) > REFACE;
+            }, (int) Math.max(1, deadline() - parent.level().getGameTime()), ""));
+        }
+        @Override public void ended(IntentRunner.Result result) {
+            AskLedger.server().ended(incident, parent.getUUID(), result == IntentRunner.Result.DONE ? "watched" : result.name());
+            GameplayLog.event(parent, "aquatic", "watch end result={} faller={} incident={}", result, faller.getUUID(), incident);
+        }
     }
 }

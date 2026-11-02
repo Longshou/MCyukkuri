@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotionPose;
@@ -26,12 +27,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/** Drive the ridden host continuously at the body's swim pace, facing its bow and paying energy each tick. */
+/** Drive the ridden host continuously with a stick or bare braid, facing its bow and paying energy each tick. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
     private static final String CLIP = YukkuriAction.BOAT_PADDLE.id();
-    /** Energy per tick, preserving the original one point per 80 ticks. */
-    private static final float COST = 1f / 80;
+    /** Energy per tick, preserving the original one point per 80 ticks; a bare braid costs twice as much. */
+    private static final float COST = 1f / 80, BRAID_COST = 1f / 40;
+    private static final double BRAID_PACE = .35;
     /** The widest angle (degrees) between the rower and her hull's bow at which a stroke reaches the water: the stick goes over the
      *  beam, as lore/recipe.json paddle_shared.captain_yaw gates the paddle clips against every hull form. 项目设计 */
     public static final double FACING = ClipMarkers.of(CLIP).parameters().get("captain_yaw");
@@ -42,7 +44,7 @@ public final class Paddle implements Action {
     private double pace, turnRate, from, distance, facing;
     private int t, turnTicks, skipped;
     private long startTick;
-    private boolean turning;
+    private boolean turning, stick;
 
     public Paddle(Vec3 target, double arrive) { this(() -> target, distance -> distance <= arrive); }
 
@@ -64,8 +66,10 @@ public final class Paddle implements Action {
     @Override public Feasibility check(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_on_host");
         host = on.host();
-        if (!body.getMouthItem().is(Items.STICK) && !host.holds(Items.STICK)) return Feasibility.of(Reason.NO_TOOL, 0, "no_stick");
-        return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
+        stick = body.getMouthItem().is(Items.STICK) || host.holds(Items.STICK);
+        if (!stick && !ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
+        float cost = stick ? COST : BRAID_COST;
+        return body.life().energy() < cost ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
     @Override public MotionPose pose() {
@@ -76,7 +80,7 @@ public final class Paddle implements Action {
         startTick = body.level().getGameTime();
         from = distance = target.get().subtract(host.entity().position()).horizontalDistance();
         var ability = BodyAbility.of(body);
-        pace = ability.swimSpeed();
+        pace = ability.swimSpeed() * (stick ? 1 : BRAID_PACE);
         turnRate = ability.turnRate();
         facing = bowOff(body);
         turning = Math.abs(facing) > FACING;
@@ -88,7 +92,7 @@ public final class Paddle implements Action {
         distance = to.length();
         if (arrived.test(distance)) return new Outcome.Done("arrived ticks=" + t);
         if (distance < .05) return Outcome.of(Reason.NO_CONTACT, 0, "destination_reached_without_contact");
-        // She keeps facing the bow at her turn rate, so the stick reaches the water over the beam; turned away, no stroke lands.
+        // She keeps facing the bow at her turn rate, so the stroke reaches the water over the beam; turned away, no stroke lands.
         double off = bowOff(body);
         if (Math.abs(off) > FACING) {
             turning = true;
@@ -107,11 +111,12 @@ public final class Paddle implements Action {
                     "paddle facing ready bow_off={} turn_ticks={} stroke_tick={}", bowOff(body), turnTicks, t);
             turnTicks = 0;
         }
-        if (body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
-        pace = BodyAbility.of(body).swimSpeed();
+        float cost = stick ? COST : BRAID_COST;
+        if (body.life().energy() < cost) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
+        pace = BodyAbility.of(body).swimSpeed() * (stick ? 1 : BRAID_PACE);
         double turn = Effort.turn(host.entity().getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate);
         if (!host.thrust(body, to.scale(Math.min(pace, distance) / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
-        body.life().spendEnergy(COST);
+        body.life().spendEnergy(cost);
         t++;
         return new Running(distance, TravelMode.CONSUMED);
     }
@@ -121,10 +126,10 @@ public final class Paddle implements Action {
 
     @Override public String startDetail() {
         var at = target.get();
-        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f bow_off=%.0f", at.x, at.z, pace, turnRate, facing);
+        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f bow_off=%.0f tool=%s", at.x, at.z, pace, turnRate, facing, stick ? "stick" : "braid");
     }
 
     @Override public String endDetail(Outcome outcome) {
-        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f paid=%.3f skipped_ticks=%d", from, distance, t * COST, skipped);
+        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f paid=%.3f skipped_ticks=%d", from, distance, t * (stick ? COST : BRAID_COST), skipped);
     }
 }

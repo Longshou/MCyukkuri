@@ -17,12 +17,12 @@ import net.minecraft.core.BlockPos;
 
 /**
  * A young's first voyage on its own hat (初航; AQUATIC 家庭、照护与初航, CHILDHOOD 水生幼体): old enough and able (solid food, hopping,
- * learning, a fifth of an adult's size), wearing its own hat with a stick for it, its parent aboard her boat near it on a calm day,
+ * learning, the shared young-seat limit), wearing its own hat with a stick for it, its parent aboard her boat near it on a calm day,
  * it tries its own hat as a boat. Off its parent's hat onto the bank, it sets its hat down on the water and boards it (its own
  * {@code set_out}), paddles out round a point of open water by its parent's boat, comes back to the bank and takes its hat back
  * (its own {@code come_ashore}). Back ashore wearing it, it sails from then on ({@code ChildhoodLife.learnSailing}). A fall into the
- * water on the way is real: it cannot climb its own hat yet, so it struggles until its parent lifts it out, and the voyage has
- * failed. HARD, a short commitment only danger breaks; whether it is tried at all is the young's desire (P11). Its one way is
+ * water on the way is real: it cannot climb its own hat yet, so it struggles toward the bank and the voyage has failed. HARD, a short
+ * commitment only danger breaks; whether it is tried at all is the young's desire (P11). Its one way is
  * tried once: a step that fails, or no way on from where things are, ends the voyage (no re-entry), and the goal lets the young
  * try again only the next day.
  */

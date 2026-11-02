@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
+import io.github.longshou.mcyukkuri.headwear.HatSeats;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
 import io.github.longshou.mcyukkuri.intent.Ask;
@@ -193,7 +195,7 @@ final class AquaticGoal extends Goal {
         if (food && eat > 0) out.add(Desire.of("eat_aboard", floor(eat + num("eat_bonus", 15)), List.of(at, larder.count()),
                 () -> "nutrition=" + Math.round(life.nutrition()) + " stores=" + larder.count(), () -> Provision.eat(body)));
         // food to fish up: when hungry, or the hold runs low and has floor for it
-        var catchable = stick && (eat > 0 || larder != null && larder.count() < num("stock_portions", 2) && larder.room(hat))
+        var catchable = (eat > 0 || larder != null && larder.count() < num("stock_portions", 2) && larder.room(hat))
                 ? Waters.food(hat, body, 12) : null;
         if (catchable != null) out.add(Desire.of("forage", floor(Math.max(eat, num("forage_want", 35))), List.of(at, catchable.getUUID()),
                 () -> "item=" + catchable.getItem().getItem() + " at=" + GameplayLog.at(catchable.position()), () -> Provision.forage(body, catchable)));
@@ -205,9 +207,7 @@ final class AquaticGoal extends Goal {
         boolean fed = food && !drive().failed("eat_aboard") || catchable != null && !drive().failed("forage");
         double pull = Math.max(Math.max(fed ? 0 : hunger, toHave ? num("stick_need", 50) : 0),
                 Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)));
-        boolean outgrown = young.stream().anyMatch(y -> AquaticLife.aboard(y, hat) && !hat.seatFits(y));
-        if (outgrown) pull = Math.max(pull, num("young_ashore_need", 60));
-        var world = List.of(at, stick, young.size(), outgrown);
+        var world = List.of(at, stick, young.size());
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f young_ashore=%d dusk=%b rain=%b",
                 hunger, food, stick, toHave, weather, breed, ashore, dusk, rain);
         out.add(Desire.of("come_ashore", floor(pull), world, why, () -> Ashore.come(body)));
@@ -224,14 +224,20 @@ final class AquaticGoal extends Goal {
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
+        else if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
         else for (var y : AquaticLife.young(body)) {
             String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
             if (id == null) continue;
             var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
             String refusal = Rescue.refusal(body, y);
-            var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0, body.getRandom()::nextDouble, body);
-            if (decision != null && !decision.accepted()) GameplayLog.limited(body, "aquatic", "rescue_refused", 200,
-                    "rescue refused faller={} incident={} reason={}", y.getUUID(), id, refusal == null ? "declined" : refusal);
+            boolean[] fresh = {false};
+            var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0,
+                    () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
+            if (fresh[0] && decision != null && !decision.accepted()) {
+                GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
+                        y.getUUID(), id, refusal == null ? "declined" : refusal, body.life().personality().protects());
+            }
+            if ("can_sail".equals(refusal) && body.life().personality().protects()) { out.add(watch(y, id)); break; }
             if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
         }
     }
@@ -240,6 +246,11 @@ final class AquaticGoal extends Goal {
     private Desire rescue(YukkuriEntity faller, String incident, Ask ask) {
         return new Desire("rescue", num("rescue_want", 95), 0, true, List.of(incident, AquaticLife.riding(body) != null, faller.blockPosition()),
                 () -> "faller=" + faller.getUUID() + " incident=" + incident, () -> ask == null ? null : ask.intent(body));
+    }
+
+    private Desire watch(YukkuriEntity faller, String incident) {
+        return new Desire("watch_water", num("rescue_want", 95), 0, true, List.of(incident, faller.blockPosition()),
+                () -> "faller=" + faller.getUUID() + " incident=" + incident, () -> new Rescue.Watch(body, faller, incident));
     }
 
     /** Care for her young aboard: the hungriest that cannot eat by itself and has food aboard for it, her decision accepted (the
@@ -277,6 +288,8 @@ final class AquaticGoal extends Goal {
     }
 
     private void young(List<Desire> out) {
+        // A graduated young lives the same owner life on its own hat, not on its parent's boat.
+        if (body.childhood().canSail()) { owner(out); return; }
         // back from its own hat: ashore with it, or the hat taken back
         var own = AquaticLife.hat(body);
         if (own != null && AquaticLife.aboard(body, own) && AquaticLife.afloat(own))
@@ -340,7 +353,7 @@ final class AquaticGoal extends Goal {
     }
 
     /**
-     * A young able to handle its own hat that has not yet (solid food, hopping, learning, a fifth of an adult's size), wearing it
+     * A young able to handle its own hat that has not yet (solid food, hopping, learning, the shared young-seat limit), wearing it
      * with a stick for it (tucked in it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the
      * bank or aboard her hat by one: it wants to try (first_voyage), the bolder the more. Kept while it runs.
      */
@@ -349,13 +362,14 @@ final class AquaticGoal extends Goal {
         var child = body.childhood();
         boolean running = drive().runner() != null && drive().runner().intent() instanceof FirstVoyage;
         if (!running && (child.canSail() || body.level().getGameTime() < voyageAfter || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
-                || body.family().scale() < num("voyage_scale", .2) || !HatProp.usable(body) || !life.custody().worn()
+                || (float) (body.growthScale() * body.getScale()) < (float) HatSeats.youngLimit(hat.hullScale() / HullBounds.SCALE)
+                || !HatProp.usable(body) || !life.custody().worn()
                 || life.energy() < num("voyage_energy", 30) || AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || !AquaticLife.aboard(parent, hat)
                 || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat) && !Waters.edges(body, body.position(), 2, false).isEmpty())
                 || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
         out.add(Desire.of("first_voyage", floor(num("first_voyage_want", 40) + life.personality().boldness() * num("first_voyage_bold", .4)),
                 List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
-                () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " scale=" + body.family().scale(),
+                () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " size=" + body.growthScale() * body.getScale(),
                 () -> new FirstVoyage(body, parent, () -> drive().runner(), this::voyageFailed)));
     }
 

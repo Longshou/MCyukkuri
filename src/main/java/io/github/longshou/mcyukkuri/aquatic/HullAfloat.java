@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -35,7 +36,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
-/** Fixed-waterline travel and authored rocking. Passenger positions and food never change flotation. */
+/** Fixed-waterline travel and authored rocking. Passenger positions and food never change flotation; an oversized young is real overweight. */
 public final class HullAfloat implements PlacedHatBehavior {
     private static final double DRAG = HullPresentation.number("drag"), CONTACT_STEP = .25;
     private final PlacedHatEntity hat;
@@ -141,6 +142,12 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!floats(hat.level(), hat.position(), hat.hullScale())) { ground(); return; }
         long now = hat.level().getGameTime();
         impact = 0;
+        double youngLimit = HatSeats.youngLimit(scale(hat));
+        for (var passenger : hat.getPassengers()) if (passenger instanceof YukkuriEntity y && !y.family().adult()
+                && !y.getUUID().equals(hat.ownerYukkuri())) {
+            double size = y.growthScale() * y.getScale();
+            if ((float) size >= (float) youngLimit) { trigger("too_heavy", size, false); break; }
+        }
         var sample = turbulence(water);
         if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
         if (phase == Phase.ROCKING && phaseTicks++ >= HullPresentation.number("rock_ticks")) {

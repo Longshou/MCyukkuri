@@ -11,9 +11,9 @@ import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 
 /**
- * Out on the water (水上生活): one stretch of the afloat routine. With her stick and the energy for it
+ * Out on the water (水上生活): one stretch of the afloat routine. With a stick or braid and the energy for it
  * she paddles ({@code Paddle}, paying energy each stroke) to calm open water a few blocks off over the loaded calm surface, then
- * drifts and rests ({@code boat_drift}); without them she only drifts. Done when the rest is over; the drive then weighs her
+ * drifts and rests ({@code boat_drift}); without the energy she only drifts. Done when the rest is over; the drive then weighs her
  * wants again.
  */
 final class Cruise implements Intent {
@@ -42,7 +42,7 @@ final class Cruise implements Intent {
         if (!AquaticLife.aboard(owner, hat) || !AquaticLife.afloat(hat)) return null;
         if (!planned) {
             planned = true;
-            if (AquaticLife.stick(owner) && owner.life().energy() >= ENERGY) goal = Waters.wander(hat, MIN, MAX);
+            if (owner.life().energy() >= ENERGY) goal = Waters.wander(hat, MIN, MAX);
         }
         if (goal != null && Waters.surface(owner.level(), goal).subtract(hat.position()).horizontalDistance() > ARRIVE) {
             var route = Waters.route(hat, goal);

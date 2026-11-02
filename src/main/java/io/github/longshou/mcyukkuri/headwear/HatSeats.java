@@ -24,6 +24,9 @@ public final class HatSeats {
 
     private HatSeats() {}
 
+    /** Physical body size at which a young must sail its own hat, scaled with the parent's authored seats. */
+    public static double youngLimit(double scale) { return YOUNG * scale; }
+
     /** The captain seat's world position on a planned hull at {@code origin}, with its blocks-per-unit and placement yaw. */
     public static Vec3 captain(Vec3 origin, double unit, float yaw) {
         var at = scaled(CAPTAIN, unit * 16 / HullBounds.SCALE);
@@ -46,7 +49,7 @@ public final class HatSeats {
             }
             return null;
         }
-        if (!young.isEmpty() || (float) body.size() > (float) (YOUNG * scale)) return null;
+        if (!young.isEmpty() || (float) body.size() >= (float) youngLimit(scale)) return null;
         var at = scaled(YOUNG_SEAT, scale);
         return clear(body, at, riders) ? at : null;
     }
@@ -63,8 +66,9 @@ public final class HatSeats {
     /** Growth changes eligibility, never the saved local coordinates. */
     public static boolean fits(double scale, Occupant rider, List<Occupant> others) {
         if (rider.captain()) return true;
-        double limit = INFANTS.stream().anyMatch(p -> distance(scaled(p, scale), rider.at()) < scale * INFANT / 2) ? INFANT : YOUNG;
-        return (float) rider.body().size() <= (float) (limit * scale) && clear(rider.body(), rider.at(), others);
+        boolean infant = INFANTS.stream().anyMatch(p -> distance(scaled(p, scale), rider.at()) < scale * INFANT / 2);
+        return (infant ? (float) rider.body().size() <= (float) (INFANT * scale)
+                : (float) rider.body().size() < (float) youngLimit(scale)) && clear(rider.body(), rider.at(), others);
     }
 
     private static boolean clear(Body body, Vec at, List<Occupant> riders) {

@@ -119,9 +119,8 @@ final class Ashore implements Intent {
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
     }
 
-    /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water; with no stick, drift until one is. */
+    /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water. */
     private List<Supplier<Step>> paddle(PlacedHatEntity hat) {
-        if (!AquaticLife.stick(owner)) return List.of(() -> new Step.Wait(() -> Waters.ashore(owner) != null, WAIT, Behaviors.BOAT_DRIFT));
         if (landing == null && tried.size() >= LANDINGS) return null;
         if (landing == null) landing = Waters.landing(hat, owner, tried);
         var route = landing == null ? List.<Vec3>of() : Waters.route(hat, landing.water());
