@@ -15,10 +15,10 @@ public final class BraidFetch {
     public static final String REACH = "braid_rescue_reach", HOLD = "braid_rescue_hold", SETTLE = "braid_rescue_settle";
     private BraidFetch() {}
     public static int marker(String clip, String marker) { return Math.round(ClipMarkers.of(clip).markers().get(marker) * 20); }
-    /** Approach until the braid reaches the child's centre; contact then tests its actual body envelope. */
+    /** Approach until the braid reaches the child's centre after the carrier's actual pickup turn; contact then tests its envelope. */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
-        var point = child.getBoundingBox().getCenter();
-        return ContactGeometry.braidGap(carrier, point, false) <= 0 || ContactGeometry.braidGap(carrier, point, true) <= 0;
+        float yaw = ParentCarry.braidTurn(carrier, child, false);
+        return ContactGeometry.braidGap(carrier, yaw, child, false) <= 0;
     }
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {
         return List.of(() -> new Step.Do(new Grab(child, destination)), () -> new Step.Do(new Release(child, destination)));
