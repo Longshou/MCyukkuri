@@ -394,6 +394,10 @@ final class Waters {
     private static ItemEntity findFood(PlacedHatEntity hat, YukkuriEntity body, int range) {
         var level = hat.level();
         var from = cell(hat);
+        if (StatusEvents.trace()) level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range)).forEach(
+                item -> GameplayLog.event(hat, "aquatic", "food scan item={} stack={} at={} delay={} tag={} accepted={}",
+                        item.getUUID(), item.getItem(), GameplayLog.at(item.position()), item.hasPickUpDelay(),
+                        item.getItem().is(YukkuriEntity.FOOD), body.life().acceptsFood(item.getItem())));
         var items = level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range),
                 item -> item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD) && body.life().acceptsFood(item.getItem()));
         items.sort(Comparator.comparingDouble(hat::distanceToSqr));
