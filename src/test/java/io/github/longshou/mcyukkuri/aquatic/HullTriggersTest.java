@@ -62,6 +62,17 @@ class HullTriggersTest {
             assertFalse(rules.impact(0));
         }
     }
+    @Test void loadWarningRampsToSinkAndExtraRockOnlyAboveItsThreshold() {
+        assertEquals(0, HullPresentation.loadWarning(.84));
+        assertEquals(0, HullPresentation.loadWarning(.85));
+        assertEquals(.5, HullPresentation.loadWarning(.925), 1E-12);
+        assertEquals(1, HullPresentation.loadWarning(1));
+        assertEquals(1, HullPresentation.loadWarning(1.2));
+        assertEquals(0, HullPresentation.loadSink(.85));
+        assertEquals(.04, HullPresentation.loadSink(1), 1E-12);
+        assertEquals(3, HullPresentation.loadRock(3, 1), 1E-6);
+        assertEquals(0, HullPresentation.loadRock(3, .85), 1E-6);
+    }
     @Test void waterlineMirrorsWithTheHullInsteadOfStayingAboveTheSurface() {
         double upright = HullPresentation.waterHeight(1, 0, 0);
         assertEquals(-upright, HullPresentation.waterHeight(1, 180, 0), 1e-9);

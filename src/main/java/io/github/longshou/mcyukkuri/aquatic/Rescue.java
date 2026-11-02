@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Release;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -40,8 +41,13 @@ final class Rescue implements Intent {
         var hat = AquaticLife.hat(parent);
         if (hat != null) return hat.seatDestination(child) == null ? "no_seat" : null;
         if (!parent.life().custody().worn()) return "no_hat";
+        double scale = HatScale.of(parent) / HullBounds.SCALE;
+        var parentSize = new HatSeats.Body(parent.assetId(), parent.growthScale() * parent.getScale(), parent.getBbWidth(), parent.getBbHeight());
+        var captainAt = HatSeats.admit(scale, parentSize, true, List.of());
+        if (captainAt == null) return "no_seat";
+        var captain = new HatSeats.Occupant(parentSize, new Vec(captainAt.x(), captainAt.y(), captainAt.z()), true);
         var size = new HatSeats.Body(child.assetId(), child.growthScale() * child.getScale(), child.getBbWidth(), child.getBbHeight());
-        return HatSeats.admit(HatScale.of(parent) / HullBounds.SCALE, size, false, List.of()) == null ? "no_seat" : null;
+        return HatSeats.admit(scale, size, false, List.of(captain)) == null ? "no_seat" : null;
     }
 
     String incident() { return incident; }

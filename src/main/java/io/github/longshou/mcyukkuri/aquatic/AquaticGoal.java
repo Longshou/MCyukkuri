@@ -328,7 +328,7 @@ final class AquaticGoal extends Goal {
                 && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut))
             out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
-                || running != null && running.intent() instanceof Ashore || !hat.seatFits(body)) && Waters.ashore(body) != null)
+                || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }
 
@@ -353,23 +353,26 @@ final class AquaticGoal extends Goal {
     }
 
     /**
-     * A young able to handle its own hat that has not yet (solid food, hopping, learning, the shared young-seat limit), wearing it
-     * with a stick for it (tucked in it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the
-     * bank or aboard her hat by one: it wants to try (first_voyage), the bolder the more. Kept while it runs.
+     * A young able to handle its own hat that has not yet (solid food, hopping, learning), wearing it with a stick for it (tucked in
+     * it, or loose near), not tired, its parent aboard her own hat afloat on a calm day, and it on the bank or aboard her hat by one:
+     * its readiness grows with size relative to the shared young-seat limit, shifted earlier by boldness. Kept while it runs.
      */
     private void voyage(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat) {
         var life = body.life();
         var child = body.childhood();
         boolean running = drive().runner() != null && drive().runner().intent() instanceof FirstVoyage;
         if (!running && (child.canSail() || body.level().getGameTime() < voyageAfter || !child.canEatSolid() || !child.canLearn() || !AquaticLife.jumper(body)
-                || (float) (body.growthScale() * body.getScale()) < (float) HatSeats.youngLimit(hat.hullScale() / HullBounds.SCALE)
                 || !HatProp.usable(body) || !life.custody().worn()
                 || life.energy() < num("voyage_energy", 30) || AquaticLife.dusk(body.level()) || AquaticLife.rain(body) || !AquaticLife.aboard(parent, hat)
                 || !(AquaticLife.ashore(body) || AquaticLife.aboard(body, hat) && !Waters.edges(body, body.position(), 2, false).isEmpty())
                 || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
-        out.add(Desire.of("first_voyage", floor(num("first_voyage_want", 40) + life.personality().boldness() * num("first_voyage_bold", .4)),
-                List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
-                () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " size=" + body.growthScale() * body.getScale(),
+        double size = body.growthScale() * body.getScale();
+        double ratio = size / HatSeats.youngLimit(hat.hullScale() / HullBounds.SCALE);
+        double want = VoyageReadiness.desire(ratio, life.personality().boldness(), num("first_voyage_from", .80),
+                num("first_voyage_to", .95), num("first_voyage_bold_shift", .05), num("first_voyage_want", 95));
+        if (want <= 0) return;
+        out.add(Desire.of("first_voyage", want, List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
+                () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " size=" + size + " ratio=" + ratio,
                 () -> new FirstVoyage(body, parent, () -> drive().runner(), this::voyageFailed)));
     }
 

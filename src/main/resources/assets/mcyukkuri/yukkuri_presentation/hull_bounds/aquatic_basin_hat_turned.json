@@ -19,6 +19,10 @@
  },
  "keel_y": -0.4095,
  "boarding_yaw": 120.0,
+ "load": {
+  "weight_coefficient": 1.0,
+  "capacity_coefficient": 0.46
+ },
  "captain_seat": {
   "growth": 1.0,
   "x": 0.0,

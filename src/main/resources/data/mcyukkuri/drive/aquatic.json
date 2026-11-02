@@ -51,8 +51,10 @@
   "rescue_ticks": 2400,
   "be_fed_want": 75,
   "comfort_again": 600,
-  "first_voyage_want": 40,
-  "first_voyage_bold": 0.4,
+  "first_voyage_want": 95,
+  "first_voyage_from": 0.80,
+  "first_voyage_to": 0.95,
+  "first_voyage_bold_shift": 0.05,
   "voyage_energy": 30,
   "young_return": 60
 }

@@ -263,7 +263,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     /** Current seat or an unreserved destination admitted against the real passengers and their saved coordinates. */
     @Override public SeatTarget seatDestination(YukkuriEntity body) {
         if (riders.contains(body.getUUID()) && HatSeats.seated(hullScale() / (float) HullBounds.SCALE, occupant(body)))
-            return new SeatTarget(this, riders.local(body.getUUID()));
+            return seatFits(body) ? new SeatTarget(this, riders.local(body.getUUID())) : null;
         var at = HatSeats.admit(hullScale() / (float) HullBounds.SCALE, seatBody(body),
                 body.getUUID().equals(ownerYukkuri()), seatedExcept(body));
         return at == null ? null : new SeatTarget(this, new Vec3(at.x(), at.y(), at.z()).scale(1 / unit()));
@@ -275,6 +275,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
     public boolean seatFits(YukkuriEntity body) {
         return HatSeats.fits(hullScale() / (float) HullBounds.SCALE, occupant(body), seatedExcept(body));
+    }
+    /** Current load from every real passenger; food and other hull contents are not rider weight. */
+    public double loadRatio() {
+        return HatSeats.loadRatio(hullScale() / (float) HullBounds.SCALE, seatedExcept(null));
     }
     private OptionalDouble support(Vec3 local, BodyFootprint body) {
         if (upsideDown()) return OptionalDouble.empty();

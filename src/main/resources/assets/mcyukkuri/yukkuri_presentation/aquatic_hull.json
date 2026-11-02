@@ -18,5 +18,8 @@
   "turbulence_angle": 60,
   "turbulence_ticks": 12,
   "impact_speed": 0.16,
-  "drop_speed": 0.45
+  "drop_speed": 0.45,
+  "load_warning": 0.85,
+  "load_sink": 0.04,
+  "load_rock_degrees": 3.0
 }

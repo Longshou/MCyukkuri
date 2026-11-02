@@ -18,6 +18,14 @@ public final class HullPresentation {
     public static float roll(long tick) { return (float) (number("roll_degrees") * wave(tick, "roll_period")); }
     public static float pitch(long tick) { return (float) (number("pitch_degrees") * wave(tick, "pitch_period")); }
     public static float rock(long tick, double strength) { return (float) (strength * number("shake_degrees") * wave(tick, "rock_period")); }
+    public static double loadWarning(double ratio) {
+        double threshold = number("load_warning");
+        return Math.clamp((ratio - threshold) / (1 - threshold), 0, 1);
+    }
+    public static double loadSink(double ratio) { return number("load_sink") * loadWarning(ratio); }
+    public static float loadRock(long tick, double ratio) {
+        return (float) (number("load_rock_degrees") * loadWarning(ratio) * wave(tick, "rock_period"));
+    }
     public static float turn(float from, float to, double progress) {
         double q = Math.clamp(progress, 0, 1);
         return (float) (from + (to - from) * q * q * (3 - 2 * q));

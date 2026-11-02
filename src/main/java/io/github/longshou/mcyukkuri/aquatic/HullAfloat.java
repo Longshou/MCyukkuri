@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -36,7 +35,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 
-/** Fixed-waterline travel and authored rocking. Passenger positions and food never change flotation; an oversized young is real overweight. */
+/** Authored waterline travel and rocking. Passenger positions and food never change flotation; shared rider load warns and capsizes. */
 public final class HullAfloat implements PlacedHatBehavior {
     private static final double DRAG = HullPresentation.number("drag"), CONTACT_STEP = .25;
     private final PlacedHatEntity hat;
@@ -142,12 +141,8 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!floats(hat.level(), hat.position(), hat.hullScale())) { ground(); return; }
         long now = hat.level().getGameTime();
         impact = 0;
-        double youngLimit = HatSeats.youngLimit(scale(hat));
-        for (var passenger : hat.getPassengers()) if (passenger instanceof YukkuriEntity y && !y.family().adult()
-                && !y.getUUID().equals(hat.ownerYukkuri())) {
-            double size = y.growthScale() * y.getScale();
-            if ((float) size >= (float) youngLimit) { trigger("too_heavy", size, false); break; }
-        }
+        double loadRatio = hat.loadRatio();
+        if (loadRatio > 1) trigger("too_heavy", loadRatio, false);
         var sample = turbulence(water);
         if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
         if (phase == Phase.ROCKING && phaseTicks++ >= HullPresentation.number("rock_ticks")) {
@@ -159,10 +154,15 @@ public final class HullAfloat implements PlacedHatBehavior {
             if (cause.equals("shake") && thrown == 0) hat.dropAsItem("shaken_empty");
         }
         if (hat.isRemoved()) return;
+        double warning = phase == Phase.UPRIGHT ? HullPresentation.loadWarning(loadRatio) : 0;
+        double sink = phase == Phase.UPRIGHT ? HullPresentation.loadSink(loadRatio) * scale(hat) : 0;
+        if (warning > 0) GameplayLog.limited(hat, "hat", "load_warning", 1200,
+                "load warning ratio={} strength={} sink={}", loadRatio, warning, sink);
         hat.inverted(phase == Phase.INVERTED || phase == Phase.FLIPPING);
         float roll = switch (phase) {
             case UPRIGHT -> HullPresentation.roll(now) + HullPresentation.rock(now,
-                    shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW));
+                    shakes * Math.max(0, 1 - (now - shakeTick) / (double) HullTriggers.WINDOW))
+                    + HullPresentation.loadRock(now, loadRatio);
             case ROCKING -> HullPresentation.rock(now, HullTriggers.SHAKES + 1);
             case FLIPPING -> HullPresentation.turn(flipFrom, 180, phaseTicks / HullPresentation.number("flip_ticks"));
             case INVERTED -> hat.roll();
@@ -170,7 +170,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         float pitch = phase == Phase.INVERTED ? hat.pitch() : phase == Phase.UPRIGHT ? HullPresentation.pitch(now) : 0;
         Motor.hostPose(hat, hat.getYRot() + turnBy, roll, pitch);
         double target = water - HullPresentation.waterHeight(scale(hat), roll, pitch)
-                + HullPresentation.bob(now) * scale(hat);
+                + HullPresentation.bob(now) * scale(hat) - sink;
         var v = hat.getDeltaMovement();
         var motion = new Vec3(v.x * DRAG + drive.x * (1 - DRAG), target - hat.getY(), v.z * DRAG + drive.z * (1 - DRAG));
         var travel = new Contact(motion, motion);
@@ -336,8 +336,9 @@ public final class HullAfloat implements PlacedHatBehavior {
                 && local.y >= hat.profile().surface(local.x, local.z) - Occupancy.MARGIN / hat.unit());
     }
     @Override public String detail(PlacedHatEntity hat) {
-        return String.format(Locale.ROOT, "afloat waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s play=%s",
-                HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
+        double load = hat.loadRatio();
+        return String.format(Locale.ROOT, "afloat load=%.3f warning=%.3f waterline=%.3f surface=%.2f phase=%s trigger=%s value=%.3f falling=%s capsizes=%d inverted=%s righting=%.2f %s play=%s",
+                load, HullPresentation.loadWarning(load), HullBounds.WATERLINE * scale(hat), water(), phase, cause, triggerValue, falling, capsizes,
                 phase == Phase.INVERTED, rightProgress, larder.detail(), playCounts);
     }
     private static double[] local(PlacedHatEntity hat, double x, double z) {

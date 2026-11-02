@@ -32,12 +32,13 @@ class HatSeatsTest {
         board(riders, 1, .08); board(riders, 1, .08);
         assertNull(HatSeats.admit(1, body(.08), false, riders));
     }
-    @Test void youngBelowSharedLimitFitsAndLimitIsRefused() {
+    @Test void youngThroughSharedLimitFitsAndOnlyLargerBodiesAreRefused() {
         var riders = captain(1);
         double limit = HatSeats.youngLimit(1);
         assertEquals(.38, limit);
         assertNotNull(HatSeats.admit(1, body(Math.nextDown((float) limit)), false, riders));
-        assertNull(HatSeats.admit(1, body(limit), false, riders));
+        assertNotNull(HatSeats.admit(1, body(limit), false, riders));
+        assertNull(HatSeats.admit(1, body(Math.nextUp((float) limit)), false, riders));
         assertNull(HatSeats.admit(1, body(.39), false, riders));
         assertNull(HatSeats.admit(1, body(.42), false, riders));
         board(riders, 1, .35);
@@ -59,7 +60,7 @@ class HatSeatsTest {
     @Test void captainRangeAndHullScaleKeepProportionalCapacity() {
         for (double size : new double[]{.8, 1, 1.2}) {
             var riders = captain(size);
-            assertNotNull(HatSeats.admit(size, body(Math.nextDown((float) HatSeats.youngLimit(size))), false, riders));
+            assertNotNull(HatSeats.admit(size, body(HatSeats.youngLimit(size)), false, riders));
             board(riders, size, .15 * size); board(riders, size, .2 * size);
             assertNull(HatSeats.admit(size, body(size), true, riders));
         }
@@ -70,27 +71,25 @@ class HatSeatsTest {
         assertTrue(HatSeats.fits(1, infant, List.of(riders.getFirst())));
         assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(.21), infant.at(), false), List.of(riders.getFirst())));
         var young = HatSeats.admit(1, body(.37), false, captain(1));
-        assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(HatSeats.youngLimit(1)), young, false), captain(1)));
+        assertTrue(HatSeats.fits(1, new HatSeats.Occupant(body(HatSeats.youngLimit(1)), young, false), captain(1)));
+        assertFalse(HatSeats.fits(1, new HatSeats.Occupant(body(Math.nextUp((float) HatSeats.youngLimit(1))), young, false), captain(1)));
     }
-    @Test void sharedLimitMatchesTheRealAuthoredCaptainAndYoungFootprints() {
+    @Test void geometricLimitMatchesTheRealAuthoredCaptainAndYoungFootprints() {
         var riders = captain(1);
         var parent = riders.getFirst();
         double limit = HatSeats.youngLimit(1);
-        var below = body(Math.nextDown((float) limit));
-        var at = HatSeats.admit(1, below, false, riders);
-        assertNotNull(at);
-        assertTrue(HatSeats.fits(1, new HatSeats.Occupant(below, at, false), List.of(parent)));
         var exact = body(limit);
+        var at = HatSeats.admit(1, exact, false, riders);
+        assertNotNull(at);
+        assertTrue(HatSeats.fits(1, new HatSeats.Occupant(exact, at, false), List.of(parent)));
         var youngShape = BodyFootprint.of(exact.asset(), exact.width(), exact.height(), 0);
         var parentBody = parent.body();
         var parentShape = BodyFootprint.of(parentBody.asset(), parentBody.width(), parentBody.height(), 0);
         assertFalse(youngShape.overlaps(at.x(), at.y(), at.z(), parentShape,
                 parent.at().x(), parent.at().y(), parent.at().z(), 0));
-        assertNull(HatSeats.admit(1, exact, false, riders));
-        assertFalse(HatSeats.fits(1, new HatSeats.Occupant(exact, at, false), List.of(parent)));
         assertEquals(.38 * 1.2, HatSeats.youngLimit(1.2));
     }
-    @Test void sharedLimitLeavesClearanceBeforeActualSeatContact() {
+    @Test void geometricLimitLeavesClearanceBeforeActualSeatContact() {
         var parent = captain(1).getFirst();
         var parentBody = parent.body();
         var parentShape = BodyFootprint.of(parentBody.asset(), parentBody.width(), parentBody.height(), 0);
@@ -105,5 +104,30 @@ class HatSeatsTest {
         }
         assertEquals(.41, first);
         assertEquals(.03, first - HatSeats.youngLimit(1), 1E-9);
+    }
+    @Test void cubicWeightCapacityAndStandardLoadRatioComeFromHullData() {
+        assertEquals(1, HatSeats.weight(1));
+        assertEquals(.008, HatSeats.weight(.2), 1E-12);
+        assertEquals(.46 * Math.pow(HullBounds.SCALE, 3), HatSeats.capacity(1), 1E-12);
+        assertEquals(.46 * Math.pow(1.2 * HullBounds.SCALE, 3), HatSeats.capacity(1.2), 1E-12);
+        var riders = captain(1);
+        board(riders, 1, HatSeats.youngLimit(1));
+        double ratio = HatSeats.loadRatio(1, riders);
+        assertEquals((1 + Math.pow(.38, 3)) / HatSeats.capacity(1), ratio, 1E-12);
+        assertEquals(.8356, ratio, .0002);
+        assertTrue(ratio < HullPresentation.number("load_warning"));
+    }
+    @Test void capacityIsInclusiveAndOverloadMakesAnExistingCaptainUnfit() {
+        double capacity = HatSeats.capacity(1);
+        double atCapacity = Math.cbrt(capacity);
+        var at = HatSeats.admit(1, body(atCapacity), true, List.of());
+        assertNotNull(at);
+        var captain = new HatSeats.Occupant(body(atCapacity), at, true);
+        assertTrue(HatSeats.fits(1, captain, List.of()));
+        assertEquals(1, HatSeats.loadRatio(1, List.of(captain)), 1E-12);
+        var overloaded = new HatSeats.Occupant(body(atCapacity + .001), at, true);
+        assertFalse(HatSeats.fits(1, overloaded, List.of()));
+        assertTrue(HatSeats.loadRatio(1, List.of(overloaded)) > 1);
+        assertNull(HatSeats.admit(1, overloaded.body(), true, List.of()));
     }
 }
