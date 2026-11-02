@@ -8,10 +8,10 @@ public record Doorway(double inner, double outer, double opening, int side) {
     public double[] retreat(double x, double z, double radius) {
         if (walls(0, 0, 0).stream().noneMatch(wall -> wall.gap(x, z) < radius)) return null;
         if (Math.max(Math.abs(x), Math.abs(z)) < inner) {
-            double room = Math.max(0, inner - radius);
+            double room = Math.max(0, inner - radius - Detour.PAST);
             return new double[]{Math.clamp(x, -room, room), Math.clamp(z, -room, room)};
         }
-        double beyond = outer + radius;
+        double beyond = outer + radius + Detour.PAST;
         return Math.abs(x) > Math.abs(z) ? new double[]{Math.copySign(beyond, x), z}
                 : new double[]{x, Math.copySign(beyond, z)};
     }

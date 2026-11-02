@@ -39,9 +39,9 @@ class DoorwayTest {
         assertNull(door.retreat(0, .95, .09));
         var outside = door.retreat(.6, .95, .09);
         assertEquals(.6, outside[0]);
-        assertEquals(1.09, outside[1]);
+        assertEquals(1.14, outside[1], 1e-6);
         var inside = door.retreat(.89, .3, .09);
-        assertEquals(.8225, inside[0], 1e-6);
+        assertEquals(.7725, inside[0], 1e-6);
         assertEquals(.3, inside[1]);
     }
 
