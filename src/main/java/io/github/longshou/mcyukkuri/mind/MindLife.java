@@ -120,7 +120,7 @@ public final class MindLife {
     }
     /** The pit role's own dirt/contempt/waste pressure stays visible without sweetening on its own; other causes still add normally. */
     public void addSlavePressure(float delta, String cause) {
-        if (entity.settlement().society().slave() && delta > 0) delta = Math.min(delta, Math.max(0, UNEASY - unease));
+        if (entity.settlement().society().pitPressureProtected() && delta > 0) delta = Math.min(delta, Math.max(0, UNEASY - unease));
         add(delta, cause);
     }
     public boolean set(float value) { unease = Math.clamp(value, 0f, 100f); if (unease < BREAKING) breakingTicks = 0; return true; }
@@ -233,7 +233,7 @@ public final class MindLife {
         if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
-        if (hat > 0 && !entity.settlement().society().slave()) put(entity.headwear().uneaseCause(), hat);
+        if (hat > 0 && !entity.settlement().society().pitPressureProtected()) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
         if (threat != Reactions.Threat.Stage.NONE) put("threat", 1.5f);
@@ -245,7 +245,7 @@ public final class MindLife {
             put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
         if (identity == Identity.STRAY) put("homeless", .3f);
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
-                && !entity.settlement().society().slave()) put("shunned", 1);
+                && !entity.settlement().society().pitPressureProtected()) put("shunned", 1);
         surroundings(identity);
         // reliefs
         put("ease", -1);
@@ -293,7 +293,7 @@ public final class MindLife {
         if (stench > 0) put("stench", stench);
         // Droppings lying on the ground (life/Poops) smell like loose ones within three blocks.
         if (!waste && !Poops.near(level, entity.blockPosition(), 3, 2).isEmpty()) waste = true;
-        if (waste && !entity.settlement().society().slave()) put("waste", .5f);
+        if (waste && !entity.settlement().society().pitPressureProtected()) put("waste", .5f);
     }
 
     private boolean atHome(Identity identity) {

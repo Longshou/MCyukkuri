@@ -309,8 +309,7 @@ def starves_without_pit_food(window):
 
 def release_holds(window):
     """Gentle restoration keeps the previous MEMBER/LEADER role past a day and another rejection window, without any
-    rejection, sanction, wound or death of the released individual; no colony member may die anywhere in the scene.
-    Other real pressures may still sweeten this individual; social acceptance, not an unease clamp, is asserted here."""
+    rejection, madness, sanction, wound or death of the released individual; no colony member may die in the scene."""
     problem = colony_death(window)
     if problem: return problem
     found = re.search(r'\[settlement\] (\w+) #(\d+) uuid=(\S+)[^\n]*hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment', window)
@@ -321,7 +320,7 @@ def release_holds(window):
     released = int(re.search(r' t=(\d+) ', lines[start])[1])
     for line in lines[start + 1:]:
         if token in line and re.search(
-                r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |'
+                r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |non-yukkuri onset|'
                 r'starvation damage|death settled|wound placed|case opened reason=hatless', line):
             return 'the release was undone: ' + line.strip()
         if uuid in line and re.search(r'\[sanction\][^\n]* act=|\[social\][^\n]* bully strike peer=\S+ accepted=true', line):
@@ -412,7 +411,8 @@ add('settle_pit_drive', 'biomes', '聚落嗯嗯奴隶的产生', '失饰入坑',
           Retry(f'yukkuri status set {_TARGET} personality.friendliness 70', _TARGET, tries=1, first=130),
           Retry(f'yukkuri status set {_TARGET} personality.self_control 60', _TARGET, tries=1, first=135),
           Retry(f'yukkuri status set {_TARGET} personality.attachment 60', _TARGET, tries=1, first=140),
-          Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.friendliness 20', _PIT_ADULTS, tries=1, first=145),
+          Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.friendliness 44', _PIT_ADULTS, tries=1, first=145),
+          Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.self_control 100', _PIT_ADULTS, tries=1, first=146),
           Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.intelligence 30', _PIT_ADULTS, tries=1, first=150),
           Retry(f'yukkuri status set {_TARGET} accessory.state burn', _TARGET, tries=1, first=160),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=400),

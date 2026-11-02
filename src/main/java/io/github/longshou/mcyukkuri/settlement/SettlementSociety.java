@@ -22,6 +22,11 @@ public final class SettlementSociety {
     }
     /** Stands in the group as an 嗯嗯奴隶 (settlement/PitSlave owns what that life is). */
     public boolean slave() { return role() == SettlementData.Role.UNUN_SLAVE; }
+    /** Current pit slave, or a former slave whose colony accepted it gently: only their own pit/social pressures are bounded. */
+    public boolean pitPressureProtected() {
+        var record = record();
+        return record != null && (record.role == SettlementData.Role.UNUN_SLAVE || record.hatlessAccepted);
+    }
     public SettlementData.Member record() {
         if (entity.level().isClientSide) return null;
         var group = entity.settlement().group();
