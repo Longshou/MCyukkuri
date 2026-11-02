@@ -1893,7 +1893,7 @@ def current_drift(log):
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      '浅溪上游一排水源形成同向水流，两侧低草岸可爬上；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
-     [*flow_channel(False), captain(dx=bank_dx(0) - 1, social_wait=0),
+     [*flow_channel(False), captain(dx=bank_dx(0) - 1, social_wait=100),
       yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
