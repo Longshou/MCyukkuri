@@ -2,7 +2,9 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -405,8 +407,9 @@ public final class SurfaceApproach {
                 if(door==null)return blocked(actor,"doorway_unreachable");
                 if(here==bed||at(actor,door)){
                     navigation.stop();current.target=null;current.lastStep=null;
-                    boolean arrived=ground.step(here==bed?destination:NestDoorway.inner(actor,bed,door),speed);
-                    return observed(actor,here==bed&&arrived?Result.ARRIVED:Result.MOVING);
+                    boolean inside=FamilyNest.bedOccupancy(actor,bed.getBlockPos())==Occupancy.INSIDE_SUPPORTED;
+                    boolean arrived=ground.step(inside?destination:NestDoorway.inner(actor,bed,door),speed);
+                    return observed(actor,inside&&arrived?Result.ARRIVED:Result.MOVING);
                 }
                 destination=door;
             }
