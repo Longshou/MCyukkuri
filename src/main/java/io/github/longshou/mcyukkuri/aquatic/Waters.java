@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -394,18 +393,12 @@ final class Waters {
     private static ItemEntity findFood(PlacedHatEntity hat, YukkuriEntity body, int range) {
         var level = hat.level();
         var from = cell(hat);
-        if (StatusEvents.trace()) level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range)).forEach(
-                item -> GameplayLog.event(hat, "aquatic", "food scan item={} stack={} at={} delay={} tag={} accepted={}",
-                        item.getUUID(), item.getItem(), GameplayLog.at(item.position()), item.hasPickUpDelay(),
-                        item.getItem().is(YukkuriEntity.FOOD), body.life().acceptsFood(item.getItem())));
         var items = level.getEntitiesOfClass(ItemEntity.class, hat.getBoundingBox().inflate(range, 3, range),
                 item -> item.isAlive() && !item.hasPickUpDelay() && item.getItem().is(YukkuriEntity.FOOD) && body.life().acceptsFood(item.getItem()));
         items.sort(Comparator.comparingDouble(hat::distanceToSqr));
         int asked = 0;
         for (var item : items) {
             var water = foodCell(level, item);
-            if (StatusEvents.trace()) GameplayLog.event(hat, "aquatic", "food candidate item={} at={} water={} from={}",
-                    item.getUUID(), GameplayLog.at(item.position()), water, from);
             if (water == null) continue;
             if (asked++ >= ASKED) break;
             if (water.equals(from) || !route(hat, water).isEmpty()) return item;
