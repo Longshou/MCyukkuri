@@ -8,10 +8,18 @@ class DoorwayTest {
         for (int side : new int[]{-1, 1}) for (double foot : new double[]{.09, .395, .47}) {
             var door = new Doorway(.9125, 1, .625, side);
             for (double[] outside : new double[][]{{-3, 0}, {3, 0}, {0, -3}, {0, 3}}) {
-                walk(door, foot, outside[0], outside[1], 0, 0);
-                walk(door, foot, 0, 0, outside[0], outside[1]);
+                for (double rest : new double[]{-.2, 0, .2}) {
+                    walk(door, foot, outside[0], outside[1], rest, 0);
+                    walk(door, foot, rest, 0, outside[0], outside[1]);
+                }
             }
         }
+    }
+
+    @Test void anOpeningTooNarrowForTheBodyIsNotCrossed() {
+        var walls = new Doorway(.9125, 1, .2, 1).walls(100, 0, 0);
+        assertTrue(Detour.route(0, 3, 0, 0, .395, walls).shut());
+        assertTrue(Detour.route(0, 0, 0, 3, .395, walls).shut());
     }
 
     private static void walk(Doorway door, double foot, double x, double z, double tx, double tz) {

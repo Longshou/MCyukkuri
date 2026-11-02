@@ -772,7 +772,7 @@ public final class YukkuriLife {
                 }
                 if (sleepTicks == 20) {
                     entity.speak("sleep");
-                    var doorway = nestOccupancy == null ? null : entrance(site);
+                    var doorway = nestOccupancy == null ? null : home.entrance(site);
                     GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} doorway={} energy={} nutrition={} drugTicks={}",
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
                             doorway == null ? "none" : GameplayLog.at(doorway), energy,nutrition,drugSleep());
@@ -793,7 +793,7 @@ public final class YukkuriLife {
             }
             case LEAVE_NEST -> {
                 // Out through the nest's own doorway to the stand outside it; a body that cannot get there gives up with the reason.
-                var stand = entrance(targetBlock);
+                var stand = home.entrance(targetBlock);
                 if (stand == null) {
                     GameplayLog.limited(entity, "home", "nest_exit_stuck", 200,
                             "nest exit stopped reason=doorway_unreachable nest={} at={}", targetBlock, GameplayLog.at(entity.position()));
@@ -910,7 +910,7 @@ public final class YukkuriLife {
     private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
-    public Vec3 entrance(BlockPos nest){ return home.entrance(nest); }
+    public BlockPos entrance(BlockPos nest){ var at=home.entrance(nest); return at==null?null:BlockPos.containing(at); }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
