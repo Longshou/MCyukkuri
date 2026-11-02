@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import java.util.List;
 import java.util.function.Supplier;
+import net.minecraft.world.phys.Vec3;
 
 /** The same braid pickup and lowering for a child beside a seated carrier, on a bank or in water. */
 public final class BraidFetch {
@@ -17,8 +18,11 @@ public final class BraidFetch {
     public static int marker(String clip, String marker) { return Math.round(ClipMarkers.of(clip).markers().get(marker) * 20); }
     /** Approach the child's centre; Grab checks the actual body envelope at contact. */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
+        return withinReach(carrier, carrier.position(), child);
+    }
+    public static boolean withinReach(YukkuriEntity carrier, Vec3 from, YukkuriEntity child) {
         var point = child.getBoundingBox().getCenter();
-        return ContactGeometry.braidGap(carrier, point, false) <= 0 || ContactGeometry.braidGap(carrier, point, true) <= 0;
+        return ContactGeometry.braidGap(carrier, from, point, false) <= 0 || ContactGeometry.braidGap(carrier, from, point, true) <= 0;
     }
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {
         return List.of(() -> new Step.Do(new Grab(child, destination)), () -> new Step.Do(new Release(child, destination)));

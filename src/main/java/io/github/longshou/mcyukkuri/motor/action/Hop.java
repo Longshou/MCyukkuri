@@ -84,7 +84,7 @@ public final class Hop implements Action {
     private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
         return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(entryNear == null ? from : entryNear)))
                 .filter(p -> !body.level().getBlockCollisions(body,
-                        body.getBoundingBox().move(frame.toWorld(p).subtract(body.position())).deflate(.002)).iterator().hasNext())
+                        body.getBoundingBox().move(frame.toWorld(p).subtract(body.position()))).iterator().hasNext())
                 .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p))) instanceof ArcSolver.Plan)
                 .findFirst().orElse(null);
     }
@@ -241,8 +241,8 @@ public final class Hop implements Action {
             if (anchor != null) at = anchor.frame().toWorld(at.scale(1 / anchor.frame().unit()));
             if (anchor != null && !anchor.room(body, anchor.frame().toLocal(at))) return false;
             Vec3 corner = at.y < previous.y ? new Vec3(at.x, previous.y, at.z) : new Vec3(previous.x, at.y, previous.z);
-            AABB cornerBox = base.move(corner.subtract(body.position())).deflate(.002);
-            AABB atBox = base.move(at.subtract(body.position())).deflate(.002);
+            AABB cornerBox = base.move(corner.subtract(body.position()));
+            AABB atBox = base.move(at.subtract(body.position()));
             if (!body.level().noCollision(body, cornerBox) || !body.level().noCollision(body, atBox)) {
                 bodyBlocked |= bodyCollision(body, cornerBox, atBox);
                 return false;

@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.function.Supplier;
 
 /**
@@ -48,6 +49,13 @@ final class Ferry {
     /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
     static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
+        steps.add(() -> {
+            var hat = AquaticLife.hat(carrier);
+            if (BraidFetch.withinReach(carrier, child)) return null;
+            return hat.hopStops(carrier).stream().sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(child.position())))
+                    .filter(p -> BraidFetch.withinReach(carrier, hat.toWorld(p), child))
+                    .map(p -> new Hop(hat, p)).filter(hop -> hop.check(carrier).ok()).findFirst().map(Ferry::act).orElse(null);
+        });
         steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
                 distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
         return steps;
