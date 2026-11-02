@@ -2099,7 +2099,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
          kin=f'Mother:{uuid_nbt(uid("hat_crowd", "grow"))}', label='将到初航体型', **pair_ready()),
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=4),
       afloat('grow', water_at(6, 2), True, sel('g1'), food=8, stick=True),
-      item('minecraft:apple', 64, bank_dx(6) + 2, 6, 'grow_food', dy=-.95),
+      item('minecraft:apple', 64, bank_dx(6), 6, 'grow_food', dy=-.95),
       'execute as @e[tag=scn_grow_food] run data merge entity @s {Age:-120000}'],
      late=[f'execute as {sel("grow")} on vehicle run tag @s add seat_reload'],
      note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
