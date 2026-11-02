@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Launch;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.TakeProp;
@@ -985,8 +986,12 @@ public final class FamilyLife {
      * independent subadults never enter this follow/search path.
      */
     private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
-    /** The same arrival distance that ends this child's ordinary land follow. */
-    public boolean withinFollowDistance(YukkuriEntity parent) { return entity.distanceToSqr(parent) < familyRadiusSqr(); }
+    /** Ordinary following keeps its personality distance; a real boat call asks a dependent into actual pickup contact. */
+    public boolean withinFollowDistance(YukkuriEntity parent) {
+        if (parent == target && ParentCarry.needsCarry(entity) && parent.getAnimationId().equals(Behaviors.BOAT_CALL))
+            return ContactGeometry.inBraidReach(parent, entity) || ContactGeometry.inMouthReach(parent, entity);
+        return entity.distanceToSqr(parent) < familyRadiusSqr();
+    }
     private double familyRadiusSqr() {
         if(exploring()&&!familyTravelling())return Math.pow(entity.roaming().radius()+2,2);
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
