@@ -201,7 +201,7 @@ public final class BirthLaunch {
         var v=plan.velocity();var drawn=v.multiply(push,1,push).yRot((float)Math.toRadians(yawDeg));
         return new Plan(Target.HAT,hat.getUUID(),kit.position(),plan.aim(),Double.NaN,v.horizontalDistance(),push,yawDeg,drawn);
     }
-    /** Distance from {@code from} to the inner wall of the square nest along a horizontal unit direction. */
+    /** Distance from {@code from} to the edge of square bounds along a horizontal unit direction. */
     static double roomAlong(Vec3 from,Vec3 centre,double half,Vec3 direction){
         double best=Double.MAX_VALUE;
         if(Math.abs(direction.x)>1e-6)best=Math.min(best,((direction.x>0?centre.x+half:centre.x-half)-from.x)/direction.x);

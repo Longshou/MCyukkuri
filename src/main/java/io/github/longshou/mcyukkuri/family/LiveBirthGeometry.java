@@ -234,6 +234,12 @@ public final class LiveBirthGeometry {
         }
         return at.add(offset);
     }
+    /** A no-seat release starts with the whole newborn outside the real hull, then ordinary physics takes over. */
+    static Vec3 outsideHull(Vec3 at,AABB hull,EntityDimensions body){
+        var centre=hull.getCenter();var out=new Vec3(at.x-centre.x,0,at.z-centre.z).normalize();
+        double half=(hull.getXsize()+body.width())*.5;
+        return at.add(out.scale(Math.nextUp(BirthLaunch.roomAlong(at,centre,half,out))));
+    }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
      * free of blocks, and no wall between her and it. A protected outlet also keeps out liquid, other bodies (siblings

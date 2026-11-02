@@ -278,8 +278,10 @@ final class LiveBirth extends Choreography {
         }
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
-        var seat=receiver instanceof OwnHull?boatSeat(m,b.children.get(pushing)):null;
+        var unborn=b.children.get(pushing);var seat=receiver instanceof OwnHull?boatSeat(m,unborn):null;
         if(seat!=null)at=seat.world();
+        else if(receiver instanceof OwnHull&&ownHull(m) instanceof PlacedHatEntity hull)
+            at=LiveBirthGeometry.outsideHull(at,hull.getBoundingBox(),LiveBirthGeometry.childDimensions(unborn,m.getScale()));
         if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
         var nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
                 :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
