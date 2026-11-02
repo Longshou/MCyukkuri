@@ -1897,7 +1897,7 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
       yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界见“倒扣帽搁浅”。',
+     note='观察两名乘员离帽并上岸，四份苹果和一根木棍各掉出，帽主接触头饰即戴回；帽船搁浅不算翻覆。倒扣边界见“倒扣搁浅”。',
      reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
      capture=dict(shots=(1, 40, 300, 600, 900), sequences=((60, 200, 2), (220, 900, 20))),
      smoke=dict(ticks=900, commands=[(1, 'yukkuri status trace true'), (899, 'yukkuri status trace false'),
@@ -1914,17 +1914,33 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
                     'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
 
 
-pond('hat_grounded_inverted', '倒扣空帽随流搁浅', '倒扣帽搁浅',
-     '已倒扣的空帽从浅溪上游漂向水浅处；帽主在干岸上，水不再托住帽体时，它变成一件真实头饰。倒扣是初态，搁浅由水深与碰撞决定',
-     '约 30 秒',
-     [*flow_channel(False), captain(dx=bank_dx(0) - 5, social_wait=0), afloat('a', water_at(0, 1), False)],
+def capsized_crew(log):
+    thrown = set(re.findall(r'\[body\][^\n]*uuid=(\S+)[^\n]* dismount [^\n]*cause=thrown', log))
+    if len(thrown) != 2:
+        return f'both crew must be thrown at capsize, saw {len(thrown)}'
+
+
+pond('hat_grounded_capsized', '载人载粮帽船被落水掀翻后搁浅', '倒扣搁浅',
+     '浅溪上游一排水源形成同向水流；船主带着一只子油、四份苹果和一根木棍坐在帽上漂下，一处落水把帽子掀翻：两名乘员被甩进水里，余粮与木棍漂散；倒扣的帽体继续漂到水浅处落底，变成帽主的头饰，她游过去碰到就戴上',
+     '约 1 分钟',
+     [*flow_channel(False), captain(dx=bank_dx(0) - 5, social_wait=100),
+      yk('marisa', bank_dx(1) - 5, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
+      afloat('a', water_at(0, 2), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
-     reads=_HULL_READS,
-     smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*owner_aboard=false',
-                                  r'\[hat\][^\n]* pickup cause=grounded[^\n]*inverted=true'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains'],
-                readout=_HULL_READOUT + ['execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
+     late=[block(bank_dx(0) + 2, 2, 0, 'minecraft:water')],
+     note='翻覆来自场景里真实落下的一格水，不是脚本改帽子状态；被甩出的两名乘员都应在日志里各记一次 dismount cause=thrown，之后倒扣帽体才搁浅成物品。',
+     reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
+     smoke=dict(ticks=1800, commands=[(1, 'yukkuri status trace true'), (1799, 'yukkuri status trace false')],
+                expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*owner_aboard=true[^\n]*young=1[^\n]*food=4',
+                        r'\[hat\][^\n]* capsized cause=turbulence[^\n]*thrown=2',
+                        r'\[body\][^\n]* dismount [^\n]*cause=thrown',
+                        r'\[hat\][^\n]* stores spilled [^\n]*cause=turbulence', r'\[hat\][^\n]* kit dropped cause=capsized',
+                        r'\[hat\][^\n]* pickup cause=grounded[^\n]*inverted=true',
+                        r'\[headwear\][^\n]* received loose accessory'], verify=capsized_crew,
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains',
+                        r'\[body\][^\n]* cause=drown'],
+                readout=_HULL_READOUT + [f'yukkuri status {sel("child")} raw',
+                    'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
 
 
 def water_aftermath(window):
@@ -2354,7 +2370,7 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_parts': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7', 'sacrifice_reluctant': 'R7',
-    'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_inverted': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
+    'hat_float': 'A1', 'hat_push': 'A1', 'hat_turbulence': 'A4', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_family': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6',
     'rescue_child': 'A5', 'rescue_infant_full': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_caught': 'A6', 'birth_boat_missed': 'A6', 'first_voyage': 'A6',
     'self_rescue': 'A5', 'shore_capsized': 'A5', 'fall_in_pond': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2', 'hatless_boundary': 'C2',
