@@ -13,7 +13,6 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
-import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
@@ -36,18 +35,8 @@ final class PlayAboard implements Intent {
         cause = hiding() ? fear.get() : "none";
     }
 
-    static PlayAboard create(YukkuriEntity body, YukkuriEntity parent, PlacedHatEntity hat, Supplier<String> fear) {
-        var larder = HullLarder.of(hat);
-        if (larder == null || body.getVehicle() != hat) return null;
-        String kind = KidPlayRule.pick(AquaticLife.jumper(body), parent.motor().current() instanceof Paddle,
-                larder.count(), reachesBrim(body, hat), body.getRandom().nextDouble(), number("play_poke_chance"));
-        return kind == null ? null : new PlayAboard(body, hat, kind, fear);
-    }
-
-    /** A young that can hop to its brim place now: a tilted hull puts it out of a hop's reach and a splash would only end at once. */
-    private static boolean reachesBrim(YukkuriEntity body, PlacedHatEntity hat) {
-        return AquaticLife.jumper(body) && hat.steady()
-                && new Hop(hat, brimSpot(body, hat, number("play_splash_bearing"))).check(body).ok();
+    static PlayAboard create(YukkuriEntity body, PlacedHatEntity hat, Supplier<String> fear) {
+        return body.getVehicle() == hat ? new PlayAboard(body, hat, Behaviors.KID_POKE_STORES, fear) : null;
     }
 
     /** The local brim place at {@code bearing} (degrees) for this body's growth. */
@@ -71,21 +60,19 @@ final class PlayAboard implements Intent {
                 this::perform, this::finish);
     }
 
-    private boolean brimPlay() { return hiding() || kind.equals(Behaviors.KID_BRIM_SPLASH); }
-    private double bearing() { return brimPlay() ? number(hiding() ? "play_hide_bearing" : "play_splash_bearing") : 0; }
+    private boolean brimPlay() { return hiding(); }
+    private double bearing() { return brimPlay() ? number("play_hide_bearing") : 0; }
 
-    /** Already on the brim, any bearing does. Cowering needs no hop: when the hide spot is out of reach it plays in place. */
+    /** Cowering needs no hop: when the hide spot is out of reach it plays in place. */
     private Step outbound() {
         if (!brimPlay() || onBrim(body, hat) || !AquaticLife.jumper(body) || !hat.steady()) return null;
         var hop = new Hop(hat, brimSpot(body, hat, bearing()));
-        return hiding() && !hop.check(body).ok() ? null : new Step.Do(hop);
+        return hop.check(body).ok() ? new Step.Do(hop) : null;
     }
 
     private Step perform() {
         if (!(hat.behavior() instanceof HullAfloat hull) || body.getVehicle() != hat
-                || kind.equals(Behaviors.KID_BRIM_SPLASH) && !onBrim(body, hat)
-                || !brimPlay() && onBrim(body, hat)
-                || kind.equals(Behaviors.KID_MIMIC_PADDLE) && !paddling()) return finish();
+                || !brimPlay() && onBrim(body, hat)) return finish();
         int duration = hiding() ? (int) number("play_deadline") - ticks
                 : ClipMarkers.of(kind).length() * (int) number("play_loops");
         int until = ticks + duration;
@@ -94,12 +81,9 @@ final class PlayAboard implements Intent {
         GameplayLog.limited(body, "aquatic", "play_start:" + kind, 100,
                 "play kind={} start fear={} hat={}", kind, cause, hat.getUUID());
         return new Step.Do(Await.holding(() -> (hiding() ? fear.get().equals("none") : ticks >= until)
-                || kind.equals(Behaviors.KID_MIMIC_PADDLE) && !paddling()
                 || kind.equals(Behaviors.KID_POKE_STORES) && HullLarder.of(hat).count() == 0, duration + 1, kind,
                 hiding() ? Math.round(ClipMarkers.of(kind).markers().get("tucked") * 20) : duration, body.social()::greeting));
     }
-
-    private boolean paddling() { return hat.owner() != null && hat.owner().motor().current() instanceof Paddle; }
 
     private Step pause() {
         if (hiding() || onBrim(body, hat)) return null;

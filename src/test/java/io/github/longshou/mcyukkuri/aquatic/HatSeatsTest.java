@@ -105,30 +105,28 @@ class HatSeatsTest {
         assertEquals(.41, first);
         assertEquals(.03, first - HatSeats.youngLimit(1), 1E-9);
     }
-    @Test void cubicWeightCapacityAndStandardLoadRatioComeFromHullData() {
-        assertEquals(1, HatSeats.weight(1));
-        assertEquals(.008, HatSeats.weight(.2), 1E-12);
-        assertEquals(.40 * Math.pow(HullBounds.SCALE, 3), HatSeats.capacity(1), 1E-12);
-        assertEquals(.40 * Math.pow(1.2 * HullBounds.SCALE, 3), HatSeats.capacity(1.2), 1E-12);
+    @Test void oneYoungAtTheSeatLimitNearlyFillsTheBoatAndTheCaptainNeverWeighs() {
+        double limit = HatSeats.youngLimit(1);
+        assertEquals(HatSeats.weight(1.05 * limit), HatSeats.capacity(1), 1E-12);
+        assertEquals(HatSeats.weight(1.05 * HatSeats.youngLimit(1.2)), HatSeats.capacity(1.2), 1E-12);
         var riders = captain(1);
-        board(riders, 1, HatSeats.youngLimit(1));
-        double ratio = HatSeats.loadRatio(1, riders);
-        assertEquals((1 + Math.pow(.38, 3)) / HatSeats.capacity(1), ratio, 1E-12);
-        assertEquals(.9611, ratio, .0002);
-        assertTrue(ratio > HullPresentation.number("load_warning"));
-        assertTrue(ratio < 1);
+        assertEquals(0, HatSeats.loadRatio(1, riders), 1E-12);
+        assertEquals(0, HullPresentation.loadWarning(HatSeats.loadRatio(1, riders)), 1E-12);
+        board(riders, 1, limit);
+        assertEquals(Math.pow(1 / 1.05, 3), HatSeats.loadRatio(1, riders), 1E-12);
+        assertTrue(HatSeats.loadRatio(1, riders) > HullPresentation.number("load_warning"));
+        assertTrue(HatSeats.loadRatio(1, riders) < 1);
+        var brim = new HatSeats.Occupant(body(limit), HullBounds.brim(limit, 0), false);
+        assertTrue(HatSeats.loadRatio(1, List.of(riders.getFirst(), brim, riders.get(1))) > 1);
+        assertTrue(HatSeats.fits(1, riders.getFirst(), List.of(brim, riders.get(1))));
     }
-    @Test void capacityIsInclusiveAndOverloadMakesAnExistingCaptainUnfit() {
-        double capacity = HatSeats.capacity(1);
-        double atCapacity = Math.cbrt(capacity);
-        var at = HatSeats.admit(1, body(atCapacity), true, List.of());
-        assertNotNull(at);
-        var captain = new HatSeats.Occupant(body(atCapacity), at, true);
-        assertTrue(HatSeats.fits(1, captain, List.of()));
-        assertEquals(1, HatSeats.loadRatio(1, List.of(captain)), 1E-12);
-        var overloaded = new HatSeats.Occupant(body(atCapacity + .001), at, true);
-        assertFalse(HatSeats.fits(1, overloaded, List.of()));
-        assertTrue(HatSeats.loadRatio(1, List.of(overloaded)) > 1);
-        assertNull(HatSeats.admit(1, overloaded.body(), true, List.of()));
+    @Test void theCaptainKeepsHerSeatWhileTwoBrimRidersOverloadTheHull() {
+        double limit = HatSeats.youngLimit(1);
+        var riders = captain(1);
+        var first = new HatSeats.Occupant(body(limit), HullBounds.brim(limit, 0), false);
+        var second = new HatSeats.Occupant(body(limit), HullBounds.brim(limit, Math.PI), false);
+        assertNull(HatSeats.admit(1, body(limit), false, List.of(riders.getFirst(), first)));
+        assertFalse(HatSeats.fits(1, second, List.of(riders.getFirst(), first)));
+        assertTrue(HatSeats.fits(1, riders.getFirst(), List.of(first, second)));
     }
 }

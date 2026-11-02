@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
+| 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、`headwear/HatSeats`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
 | 与水面齐平的岸边不再反复落水溺亡 | `.worktrees/fb-pond-edge` | `life/EscapeWater`、地面行走贴水边 |
@@ -18,7 +19,7 @@
 ### 复测失败/待修复
 
 - **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave`（`fb-pit-slave` 分支，版本待核实）中成员在同一岸边反复 `climb DONE on_bank`／`escape_water DONE` 却仍在水中，t=51208 溺亡。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡；`池塘与河湾`“急流翻船”落水者爬上岸后站稳不再反复浮沉；`[water] escape done` 的 `support=` 为真实站位或 `aboard=`。
-- **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拍水·学划·拨粮·躲辫）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
+- **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拨粮·受惊缩身）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：试玩场布置（反馈 1、3、6、9，运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败）：重置强开标签、嗯嗯坑玩家埋土、茎生与水流演示实体卡墙。完成：标签保留手动开关；全部场景的实体和玩家起点无穿模、有真实支撑、在所属场地内且互不挤占，观察点看得到被测行为。
   - 已接入待试玩：水上成长周期（反馈 14、16、17；复测失败版本 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)）：亲油救起过大孩子穿模、玩耍场景误用子油、救援木棍消失。
@@ -278,7 +279,7 @@
 - **P0-7 自救与扶正交接（WP3）**：已接入待试玩。`self_rescue`（远帽长泳）、`shore_capsized`：游到帽檐、单次扶正后爬回，落水状态结束；真实中断保留姿态。
 - **P0-8 规则翻船与扶正（WP3）**：已接入待试玩。[4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724）反馈 12：缓流不漂、似乎不响应水力；反馈 6：碰撞后动作一卡一卡。现修帽船碰撞路径，原反馈是否另含陆上身体碰撞仍待用户复看。完成：池塘与河湾 `hat_current`（缓流漂移）顺流至少 3 格、乘员随帽，靠岸停稳不抖；`hat_push`（轻推／猛撞）轻推后连续滑动、猛撞翻覆；`shake_capsize`、`hat_turbulence` 保留摇晃／水力／碰撞触发，`hat_crowd` 增加载重警戒与 `too_heavy` 超载触发，均先摇后翻、乘员落水及物品守恒。`status trace` 的 `[hat] travel` 读取逐 tick 位置、位移、速度和乘员数。
 - **P0-9 船上分娩与新生护理**：已接入待试玩（WP6）。`birth_boat_caught` → 母油留座不划桨、1–2 只新生儿各 `birth landed … outcome=HAT` 坐进赤油座位、嚼糜喂、首便在后帽檐朝水；`birth_boat_missed` 为座位已满的容量边界：每只 `birth no_seat` → `outcome=WATER`，父油或母油各自决定救不救，没救起则溺亡并哀悼；水生胎数 1–2、偶尔 3。
-- **P0-10 赤油亲帽互动（WP7）**：已接入待试玩。`kid_boat_play`（池塘与河湾，按钮“拨粮·受惊缩身”）：观察赤油在亲帽座位拨粮、问候与受惊原地缩身，不再用子油演示帽檐拍水、学划与回座；核对 `hat.float` 的 play／fear、`social.greet_clicks`，拨粮不耗粮、点击回应，无帽檐落水。
+- **P0-10 赤油亲帽互动（WP7）**：已接入待试玩。`kid_boat_play`（池塘与河湾，按钮“拨粮·受惊缩身”）：观察赤油在亲帽座位拨粮、问候与受惊原地缩身；子油阶段都在自己帽船上，亲帽上不再有帽檐拍水或学划（用户裁决 2026-11-03）。核对 `hat.float` 的 play／fear、`social.greet_clicks`，拨粮不耗粮、点击回应，无帽檐落水。
 - **P0-11 帽船即家的基础演出（WP3）**：已接入待试玩。`hat_float` 静水不翻、轻摆跟船，`hat_swap` 戴帽／放帽同大，`first_voyage` 子油自帽沿用戴着时尺寸，`[hat] placed` 的 `scale/hullBox` 与体型一致，座位、储粮圈、浮态和帽檐点随同一尺寸；`shore_capsized` 倒扣稳定；排座复看 P0-3，陆地帽落水下沉且陆地接生不受影响。
 - **P0-12 不卡死**：任一水上场景跑满 10 分钟 → `/yukkuri aqdiag on` 下无持续同一阶段超时的个体；超时有 `ended reason=timeout/stalled` 与真实结果；辫子不会一直伸着。
 - 另：帽子可被推开、扶正，个体不与帽体重叠；帽子大小戴着与展开一致；带木棍个体会划船；任何动作结束后主人找回或明确放弃自己的帽子（`reclaim done` 或带原因的 `expired`）；陆上摘帽放帽不闪退。

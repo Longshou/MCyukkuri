@@ -41,8 +41,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private final PlacedHatEntity hat;
     private final HullLarder larder = new HullLarder();
     /** Observed play events only; no decisions read these counters and they are not saved. */
-    private final Map<String, Integer> playCounts = new TreeMap<>(Map.of(Behaviors.KID_BRIM_SPLASH, 0,
-            Behaviors.KID_MIMIC_PADDLE, 0, Behaviors.KID_POKE_STORES, 0, Behaviors.KID_HIDE_BEHIND, 0, "fall_ins", 0));
+    private final Map<String, Integer> playCounts = new TreeMap<>(Map.of(Behaviors.KID_POKE_STORES, 0,
+            Behaviors.KID_HIDE_BEHIND, 0, "fall_ins", 0));
     void playEvent(String kind) { playCounts.merge(kind, 1, Integer::sum); }
     boolean brimFall() { return HullPresentation.brimFall(phase.name()); }
     private enum Phase { UPRIGHT, ROCKING, FLIPPING, INVERTED }

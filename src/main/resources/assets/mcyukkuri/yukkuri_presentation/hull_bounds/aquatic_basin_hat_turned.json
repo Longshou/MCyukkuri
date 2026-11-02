@@ -21,7 +21,7 @@
  "boarding_yaw": 120.0,
  "load": {
   "weight_coefficient": 1.0,
-  "capacity_coefficient": 0.40
+  "capacity_over_seat": 1.05
  },
  "captain_seat": {
   "growth": 1.0,
@@ -47,5 +47,5 @@
   "pixels_per_block": 16,
   "note": "reuses the existing 16x16 food_layer.png unchanged. Project design: tiers are total stored portions [from, to]; tier 0 draws nothing. For each other tier, f = radius_fractions[tier], R = basin floor radius: disc radius f*R, centre (x=0, z=-(1-f)*R), tangent to the bow-side wall (-Z), before the captain. Fixed hull-space UVs (+X right, +Z down), repeating at 16 pixels per block; smaller discs crop the same texture without stretching."
  },
- "note": "waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor (a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its edge at outer_radius with its top at edge_y; keel_y: the hull's lowest point. captain_seat: an adult (growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note."
+ "note": "waterline_y: the fixed presentation waterline (the hull rides there, the basin dry); floor: the level floor (a shallow dimple in the middle); brim: level from the mouth to level_radius at y, then falling to its edge at outer_radius with its top at edge_y; keel_y: the hull's lowest point. captain_seat: an adult (growth 1) underside at the stern wall facing the bow. brim_ring: where a sitting 子油 has its middle, braid side out, and its underside height by growth. stores: reused texture and coverage rule in stores.note. load: a rider weighs weight_coefficient x 体型^3, the captain (the owner) excluded because the hull is made for her at every stage; capacity is the weight of one young at capacity_over_seat x the seat clip, so one young slightly past the seat limit fills the boat."
 }

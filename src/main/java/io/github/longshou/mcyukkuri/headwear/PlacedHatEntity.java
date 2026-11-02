@@ -246,16 +246,19 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         return profile().surface().contact(this, body, spot, feet);
     }
     OptionalDouble shapedSupport(Vec3 local, YukkuriEntity body) { return support(local, shape(body)); }
-    private HatSeats.Body seatBody(YukkuriEntity body) {
-        // A pregnant captain's belly takes no seat: she is planned against her unswollen footprint.
-        var size = body.getUUID().equals(ownerYukkuri())
-                ? LiveBirthGeometry.bodyDimensions(body, body.growthScale(), 0).scale(body.getScale()) : body.getDimensions(body.getPose());
+    /** How the shared admission measures a body: the captain's unswollen footprint (a pregnant belly takes no seat). */
+    public static HatSeats.Body seatBody(YukkuriEntity body, boolean captain) {
+        var size = captain ? LiveBirthGeometry.bodyDimensions(body, body.growthScale(), 0).scale(body.getScale())
+                : body.getDimensions(body.getPose());
         return new HatSeats.Body(body.assetId(), body.growthScale() * body.getScale(), size.width(), size.height());
     }
+    private HatSeats.Body seatBody(YukkuriEntity body) { return seatBody(body, body.getUUID().equals(ownerYukkuri())); }
     private List<HatSeats.Occupant> seatedExcept(YukkuriEntity except) {
         return getPassengers().stream().filter(p -> p != except).map(p -> (YukkuriEntity) p)
                 .map(y -> occupant(y)).toList();
     }
+    /** Every actual passenger as the shared admission sees them (stores and the stick are not riders). */
+    public List<HatSeats.Occupant> seatOccupants() { return seatedExcept(null); }
     private HatSeats.Occupant occupant(YukkuriEntity body) {
         var at = riders.local(body.getUUID()).scale(unit());
         return new HatSeats.Occupant(seatBody(body), new Vec(at.x, at.y, at.z), body.getUUID().equals(ownerYukkuri()));
@@ -276,7 +279,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public boolean seatFits(YukkuriEntity body) {
         return HatSeats.fits(hullScale() / (float) HullBounds.SCALE, occupant(body), seatedExcept(body));
     }
-    /** Current load from every real passenger; food and other hull contents are not rider weight. */
+    /** Current load from the riders other than the captain; food and other hull contents are not rider weight. */
     public double loadRatio() {
         return HatSeats.loadRatio(hullScale() / (float) HullBounds.SCALE, seatedExcept(null));
     }

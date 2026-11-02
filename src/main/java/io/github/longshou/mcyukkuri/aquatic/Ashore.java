@@ -101,11 +101,7 @@ final class Ashore implements Intent {
             if (held != null) return List.of(Ferry.hopAshore(owner));
             var dependent = dependentAboard(hat);
             if (Waters.ashore(owner) != null) {
-                if (dependent != null) {
-                    if (!hat.seatFits(dependent)) GameplayLog.limited(dependent, "hat", "seat_outgrown", WAIT,
-                            "leaving reason=seat_outgrown size={} hull={}", dependent.growthScale() * dependent.getScale(), hat.hullScale());
-                    return Ferry.grabAboard(owner, hat, dependent);
-                }
+                if (dependent != null) return Ferry.grabAboard(owner, hat, dependent);
                 if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
                 return List.of(Ferry.hopAshore(owner));
             }

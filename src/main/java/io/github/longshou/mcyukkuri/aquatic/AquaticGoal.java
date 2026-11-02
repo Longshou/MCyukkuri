@@ -51,7 +51,7 @@ final class AquaticGoal extends Goal {
     /** The clips of the boat life the presentation may show while this goal drives the body. */
     private static final Set<String> SHOWN = Set.of(Behaviors.BOAT_CALL, Behaviors.BOAT_DRIFT,
             Behaviors.BOAT_EAT, Behaviors.BOAT_FEED_YOUNG, Behaviors.BOAT_NUZZLE, Behaviors.FAMILY_CHEW,
-            Behaviors.KID_BRIM_SPLASH, Behaviors.KID_MIMIC_PADDLE, Behaviors.KID_POKE_STORES, Behaviors.KID_HIDE_BEHIND);
+            Behaviors.KID_POKE_STORES, Behaviors.KID_HIDE_BEHIND);
     /** How long (ticks) a young she knowingly left ashore when setting out does not pull her back; how many she remembers. */
     private static final int LEFT_TICKS = 1200, LEFT_MAX = 16;
 
@@ -220,25 +220,30 @@ final class AquaticGoal extends Goal {
     }
 
     /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
-     *  keeps its desire). */
+     *  keeps its desire). Otherwise the first child she cannot lift is watched, tears included. */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
         else if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
-        else for (var y : AquaticLife.young(body)) {
-            String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
-            if (id == null) continue;
-            var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
-            String refusal = Rescue.refusal(body, y);
-            boolean[] fresh = {false};
-            var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0,
-                    () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
-            if (fresh[0] && decision != null && !decision.accepted()) {
-                GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
-                        y.getUUID(), id, refusal == null ? "declined" : refusal, body.life().personality().protects());
+        else {
+            YukkuriEntity watching = null;
+            String watched = null;
+            for (var y : AquaticLife.young(body)) {
+                String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
+                if (id == null) continue;
+                var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
+                String refusal = Rescue.refusal(body, y);
+                boolean[] fresh = {false};
+                var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0,
+                        () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
+                if (fresh[0] && decision != null && !decision.accepted()) {
+                    GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
+                            y.getUUID(), id, refusal == null ? "declined" : refusal, body.life().personality().protects());
+                }
+                if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); return; }
+                if (refusal != null && watching == null && body.life().personality().protects()) { watching = y; watched = id; }
             }
-            if ("can_sail".equals(refusal) && body.life().personality().protects()) { out.add(watch(y, id)); break; }
-            if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); break; }
+            if (watching != null) out.add(watch(watching, watched));
         }
     }
 
@@ -316,7 +321,7 @@ final class AquaticGoal extends Goal {
         Supplier<String> why = () -> "parent=" + parent.getUUID() + " parent_aboard=" + parentOn
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
-        if (on && parentOn) play(out, parent, hat, world);
+        if (on && parentOn) play(out, hat, world);
         // a brim is a legal place to be: back into a seat the hat admits it into and has the room for, whenever one is free
         var seat = PlayAboard.onBrim(body, hat) ? hat.seatDestination(body) : null;
         if (seat != null && seat.available(body))
@@ -325,14 +330,15 @@ final class AquaticGoal extends Goal {
         voyage(out, parent, hat);
         if (!on && AquaticLife.ashore(body) && AquaticLife.jumper(body) && body.distanceTo(hat) < AquaticLife.FAMILY_RANGE
                 && !(running != null && running.intent() instanceof Ashore)
-                && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut))
+                && (parentOn || parent.distanceTo(hat) < 4 && running != null && running.intent() instanceof SetOut)
+                && hat.seatDestination(body) != null)
             out.add(Desire.of("board_parent", num("follow", 65), world, why, () -> Follow.board(body, hat)));
         if (on && AquaticLife.jumper(body) && (AquaticLife.ashore(parent) && !(running != null && running.intent() instanceof SetOut)
                 || running != null && running.intent() instanceof Ashore) && Waters.ashore(body) != null)
             out.add(Desire.of("follow_ashore", num("follow", 65), world, why, () -> Follow.ashore(body, hat)));
     }
 
-    private void play(List<Desire> out, YukkuriEntity parent, PlacedHatEntity hat, Object world) {
+    private void play(List<Desire> out, PlacedHatEntity hat, Object world) {
         String fear = fear(hat);
         if (!fear.equals("none")) {
             out.add(new Desire("hide_aboard", PlayAboard.number("hide_want"), 0, true, List.of(world, fear),
@@ -340,10 +346,9 @@ final class AquaticGoal extends Goal {
             return;
         }
         int stores = HullLarder.of(hat).count();
-        boolean jumper = AquaticLife.jumper(body);
-        if (!KidPlayRule.available(jumper, stores)) return;
+        if (stores == 0) return;
         out.add(Desire.of("play_aboard", PlayAboard.number("play_want"), world,
-                () -> "stores=" + stores, () -> PlayAboard.create(body, parent, hat, () -> fear(hat))));
+                () -> "stores=" + stores, () -> PlayAboard.create(body, hat, () -> fear(hat))));
     }
 
     private String fear(PlacedHatEntity hat) {
@@ -368,8 +373,9 @@ final class AquaticGoal extends Goal {
                 || !AquaticLife.stick(body) && Waters.stick(body, 10, true) == null)) return;
         double size = body.growthScale() * body.getScale();
         double ratio = size / HatSeats.youngLimit(hat.hullScale() / HullBounds.SCALE);
-        double want = VoyageReadiness.desire(ratio, life.personality().boldness(), num("first_voyage_from", .80),
-                num("first_voyage_to", .95), num("first_voyage_bold_shift", .05), num("first_voyage_want", 95));
+        double want = VoyageReadiness.desire(ratio, life.personality().boldness(), DriveWeights.of(DOMAIN, "first_voyage_from"),
+                DriveWeights.of(DOMAIN, "first_voyage_to"), DriveWeights.of(DOMAIN, "first_voyage_bold_shift"),
+                DriveWeights.of(DOMAIN, "first_voyage_want"));
         if (want <= 0) return;
         out.add(Desire.of("first_voyage", want, List.of(body.blockPosition(), cell(hat), AquaticLife.stick(body)),
                 () -> "parent=" + parent.getUUID() + " boldness=" + life.personality().boldness() + " size=" + size + " ratio=" + ratio,

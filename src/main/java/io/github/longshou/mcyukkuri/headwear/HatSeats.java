@@ -13,7 +13,7 @@ public final class HatSeats {
     private static final double INFANT = HullBounds.DATA.number("seating.infant_max_growth");
     private static final double YOUNG = HullBounds.DATA.number("seating.young_max_growth");
     private static final double WEIGHT = HullBounds.DATA.number("load.weight_coefficient");
-    private static final double CAPACITY = HullBounds.DATA.number("load.capacity_coefficient");
+    private static final double FILL = HullBounds.DATA.number("load.capacity_over_seat");
     private static final Vec CAPTAIN = new Vec(HullBounds.DATA.number("captain_seat.x"),
             HullBounds.DATA.number("captain_seat.y"), HullBounds.DATA.number("captain_seat.z"));
     private static final Vec YOUNG_SEAT = youngSeat();
@@ -29,14 +29,14 @@ public final class HatSeats {
     /** Geometric clip limit for a shared young seat, scaled with the parent's authored seats. */
     public static double youngLimit(double scale) { return YOUNG * scale; }
     public static double weight(double size) { return WEIGHT * size * size * size; }
-    public static double capacity(double scale) {
-        double hull = scale * HullBounds.SCALE;
-        return CAPACITY * hull * hull * hull;
-    }
-    /** Every actual occupant contributes, including the captain and riders temporarily on the brim. */
+    /** One young just past the seat clip fills the hull; the captain is the owner and her own weight never counts. */
+    public static double capacity(double scale) { return weight(FILL * youngLimit(scale)); }
+    /** Load from every rider except the captain: the owner is the hull's own body, so a solo boat carries nothing. */
     public static double loadRatio(double scale, List<Occupant> riders) { return load(riders) / capacity(scale); }
     private static double load(List<Occupant> riders) {
-        return riders.stream().mapToDouble(r -> weight(r.body().size())).sum();
+        double total = 0;
+        for (var rider : riders) if (!rider.captain()) total += weight(rider.body().size());
+        return total;
     }
     private static boolean carries(double scale, Body arriving, List<Occupant> riders) {
         return weight(arriving.size()) + load(riders) <= capacity(scale);
@@ -53,7 +53,7 @@ public final class HatSeats {
     public static Vec admit(double scale, Body body, boolean captain, List<Occupant> riders) {
         if (captain) {
             var at = scaled(CAPTAIN, scale);
-            return riders.stream().anyMatch(Occupant::captain) || !carries(scale, body, riders) || !clear(body, at, riders) ? null : at;
+            return riders.stream().anyMatch(Occupant::captain) || !clear(body, at, riders) ? null : at;
         }
         if ((float) body.size() > (float) youngLimit(scale) || !carries(scale, body, riders)) return null;
         var young = riders.stream().filter(r -> !r.captain() && seated(scale, r)).toList();
@@ -79,10 +79,10 @@ public final class HatSeats {
                 });
     }
 
-    /** Growth changes eligibility, never the saved local coordinates. */
+    /** Growth changes eligibility, never the saved local coordinates. The captain keeps her own seat at any load. */
     public static boolean fits(double scale, Occupant rider, List<Occupant> others) {
-        if (!carries(scale, rider.body(), others)) return false;
         if (rider.captain()) return true;
+        if (!carries(scale, rider.body(), others)) return false;
         boolean infant = INFANTS.stream().anyMatch(p -> distance(scaled(p, scale), rider.at()) < scale * INFANT / 2);
         return (infant ? (float) rider.body().size() <= (float) (INFANT * scale)
                 : (float) rider.body().size() <= (float) youngLimit(scale)) && clear(rider.body(), rider.at(), others);
