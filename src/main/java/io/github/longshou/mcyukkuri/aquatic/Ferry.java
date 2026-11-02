@@ -15,7 +15,6 @@ import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
-import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
@@ -88,19 +87,15 @@ final class Ferry {
         Step step(YukkuriEntity body, PlacedHatEntity hat) { return near(body, hat) ? act(tried = new Beckon(hat)) : null; }
     }
 
-    /** Hop from the actual seat to a dry stand in the body's reach. A small body may first hop to a supported brim spot
-     *  from which that same stand is reachable; the next derivation performs the ordinary hop off the host. */
+    /** Hop from the actual seat to a dry stand in the body's reach. A small body may first hop to a brim spot from which that
+     *  same stand is reachable; the next derivation performs the ordinary hop off the host. */
     static Supplier<Step> hopAshore(YukkuriEntity body) {
         return () -> {
             var at = Waters.ashore(body);
             if (at != null) return act(new Hop(at));
-            if (!(body.getVehicle() instanceof SurfaceHost host)) return null;
-            for (var local : host.hopStops(body)) {
-                if (Waters.ashore(body, host.frame().toWorld(local)) == null) continue;
-                var hop = new Hop(host, local);
-                if (hop.check(body).ok()) return act(hop);
-            }
-            return null;
+            if (!(body.getVehicle() instanceof PlacedHatEntity hat)) return null;
+            var local = Waters.brimAshore(hat, body);
+            return local == null ? null : act(new Hop(hat, local));
         };
     }
 

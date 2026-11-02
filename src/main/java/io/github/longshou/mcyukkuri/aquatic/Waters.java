@@ -99,26 +99,42 @@ final class Waters {
 
     /**
      * The route from the hat's cell to {@code goal} over calm cells of the same water level only (GridPath on a one-block grid,
-     * cells beside the bank cost more), as surface points without the start cell; empty when there is none. Callers ask again for
-     * each leg, so a way that got blocked is planned around.
+     * cells beside the bank cost more, another set-down hull's brim is no water at all), as surface points without the start
+     * cell; empty when there is none. Callers ask again for each leg, so a way that got blocked is planned around.
      */
     static List<Vec3> route(PlacedHatEntity hat, BlockPos goal) {
         var level = hat.level();
         var from = cell(hat);
         if (from == null || goal == null || goal.getY() != from.getY() || !calm(level, goal)) return List.of();
-        return kept(level, key(level, "route", from, goal.immutable()), () -> plan(level, from, goal));
+        return kept(level, key(level, "route", from, goal.immutable()), () -> plan(hat, from, goal));
     }
 
-    private static List<Vec3> plan(Level level, BlockPos from, BlockPos goal) {
-        if (from.equals(goal)) return List.of(surface(level, goal));
+    private static List<Vec3> plan(PlacedHatEntity hat, BlockPos from, BlockPos goal) {
+        if (from.equals(goal)) return List.of(surface(hat.level(), goal));
+        var level = hat.level();
         int y = from.getY();
+        var taken = hulls(hat, from, RANGE);
         double x0 = from.getX() - RANGE, z0 = from.getZ() - RANGE;
-        var grid = new HeightGrid(x0, z0, x0 + 2 * RANGE + 1, z0 + 2 * RANGE + 1, 1,
-                (x, z) -> calm(level, BlockPos.containing(x, y, z)) ? 0 : Double.NaN);
+        var grid = new HeightGrid(x0, z0, x0 + 2 * RANGE + 1, z0 + 2 * RANGE + 1, 1, (x, z) -> {
+            var p = BlockPos.containing(x, y, z);
+            return calm(level, p) && (p.getX() == from.getX() && p.getZ() == from.getZ() || !hullIn(taken, p)) ? 0 : Double.NaN;
+        });
         var path = GridPath.find(grid, from.getX() + .5, from.getZ() + .5, goal.getX() + .5, goal.getZ() + .5, .5, SHORE_COST);
         var out = new ArrayList<Vec3>();
         for (int i = 1; i < path.size(); i++) out.add(surface(level, BlockPos.containing(path.get(i)[0], y, path.get(i)[1])));
         return List.copyOf(out);
+    }
+
+    /** The brims of the other set-down hulls near {@code at}, widened by {@code hat}'s own brim: the water its hull cannot paddle through. */
+    private static List<AABB> hulls(PlacedHatEntity hat, BlockPos at, int range) {
+        double room = HullBounds.RADIUS * hat.hullScale() / HullBounds.SCALE;
+        var centre = Vec3.atCenterOf(at);
+        return hat.level().getEntitiesOfClass(PlacedHatEntity.class, new AABB(centre, centre).inflate(range + 2), other -> other != hat)
+                .stream().map(other -> other.getBoundingBox().inflate(room, 0, room)).toList();
+    }
+
+    private static boolean hullIn(List<AABB> hulls, BlockPos p) {
+        return hulls.stream().anyMatch(box -> box.minX <= p.getX() + 1 && box.maxX >= p.getX() && box.minZ <= p.getZ() + 1 && box.maxZ >= p.getZ());
     }
 
     /** The next leg a paddler aims at: a few cells along the route (a straight stretch), the last one at the end. */
@@ -235,6 +251,26 @@ final class Waters {
     /** A dry stand by the edges near {@code body}, under no other hat's brim, that a hop from where it is lands on (world), or null. */
     static Vec3 ashore(YukkuriEntity body) { return ashore(body, body.position()); }
 
+    /** The local brim spot of {@code hat} from which a dry stand is one hop away for {@code body}, or null: the ring spot nearest
+     *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off (kept for a few ticks). */
+    static Vec3 brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+        return kept(hat.level(), key(hat.level(), "brim", hat.blockPosition(), body.getBbWidth()), () -> findBrimAshore(hat, body));
+    }
+
+    private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+        var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
+        if (edge == null) return null;
+        var toBank = hat.frame().toLocal(edge.edge());
+        double bank = Math.atan2(toBank.z, toBank.x), growth = body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale();
+        for (int i = 0; i < 24; i++) {
+            var p = HullBounds.brim(growth, bank + (i % 2 == 1 ? -1 : 1) * ((i + 1) / 2) * Math.PI / 12);
+            var local = new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT);
+            if (!new Hop(hat, local).check(body).ok()) continue;
+            if (ashore(body, hat.toWorld(local)) != null) return local;
+        }
+        return null;
+    }
+
     /** A dry stand within a hop of {@code from} (the body's actual position, or a supported spot it can hop to first). */
     static Vec3 ashore(YukkuriEntity body, Vec3 from) {
         return kept(body.level(), key(body.level(), "ashore", Math.round(from.x * 4), Math.round(from.y * 4), Math.round(from.z * 4), body.getBbWidth()),
@@ -266,15 +302,22 @@ final class Waters {
         return sides + (level.canSeeSky(p.above()) ? 0 : 2);
     }
 
-    /** A calm cell {@code min}..{@code max} blocks from the hat that it can be paddled to, picked at random, or null. */
+    /** A calm cell {@code min}..{@code max} blocks from the hat that it can be paddled to, picked at random among the open water
+     *  on that ring, or null. */
     static BlockPos wander(PlacedHatEntity hat, int min, int max) {
         var from = cell(hat);
         if (from == null) return null;
+        var level = hat.level();
         var random = hat.getRandom();
-        for (int i = 0; i < 4; i++) {
-            double a = random.nextDouble() * Math.PI * 2, r = min + random.nextDouble() * (max - min);
+        var open = new ArrayList<BlockPos>();
+        for (int i = 0; i < 16; i++) {
+            double a = i * Math.PI / 8, r = min + random.nextDouble() * (max - min);
             var p = BlockPos.containing(from.getX() + .5 + Math.cos(a) * r, from.getY(), from.getZ() + .5 + Math.sin(a) * r);
-            if (calm(hat.level(), p) && shelter(hat.level(), p) == 0 && !route(hat, p).isEmpty()) return p;
+            if (!open.contains(p) && calm(level, p) && shelter(level, p) == 0) open.add(p);
+        }
+        while (!open.isEmpty()) {
+            var p = open.remove(random.nextInt(open.size()));
+            if (!route(hat, p).isEmpty()) return p;
         }
         return null;
     }

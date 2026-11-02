@@ -75,8 +75,7 @@ final class FirstVoyage implements Intent {
             return AquaticLife.ashore(young) ? List.of(() -> new Step.Sub(rounded ? Ashore.come(young) : new SetOut(young, stayed -> {}))) : null;
         if (!AquaticLife.afloat(own)) return null;
         if (!rounded) {
-            var home = AquaticLife.hat(parent);
-            if (turn == null) turn = Waters.wander(AquaticLife.afloat(home) ? home : own, MIN, MAX);
+            if (turn == null) turn = Waters.wander(own, MIN, MAX);
             if (turn == null) return null;
             if (Waters.surface(own.level(), turn).subtract(own.position()).horizontalDistance() > ARRIVE) {
                 var route = Waters.route(own, turn);
