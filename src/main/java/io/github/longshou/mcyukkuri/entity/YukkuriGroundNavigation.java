@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.NestDoorway;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,6 +62,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
     private List<Footing> planning = List.of();
     private List<Entity> scan = List.of();
+    private List<Detour.Box> nestWalls = List.of();
+    /** Previous observed ground position, only for crossing logs; never a movement target. */
+    private Vec3 observedGround;
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
     private PathFinder planner;
     private record Query(int accuracy, int width, int height, AABB obstacle) {}
@@ -275,6 +279,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override public void tick() {
+        if (mob instanceof YukkuriEntity actor) {
+            if (observedGround != null && actor.onGround()) NestDoorway.observe(actor, observedGround, actor.position());
+            observedGround = actor.onGround() ? actor.position() : null;
+        }
         // Path nodes change their centre offset at whole-block body widths. Never follow an old-width route after growth.
         if(path!=null&&!path.isDone()&&!fits(walkingQuery)){
             recomputePath();
@@ -294,7 +302,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
             var aim = aim(wanted, true);
-            if (aim != null && aim != wanted && SurfaceApproach.supported(walker, aim)) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
+            if (aim == null || aim != wanted && !SurfaceApproach.supported(walker, aim))
+                control.setWantedPosition(mob.getX(), mob.getY(), mob.getZ(), 0);
+            else if (aim != wanted) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
         }
     }
 
@@ -330,6 +340,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (now - scanTick >= SCAN_TICKS) {
             scanTick = now;
             scan = level.getEntities(mob, mob.getBoundingBox().inflate(SCAN), x -> x instanceof PlacedHatEntity || x instanceof YukkuriEntity);
+            nestWalls = NestDoorway.walls((YukkuriEntity) mob, mob.getBoundingBox().inflate(SCAN));
         }
         return scan;
     }
@@ -402,8 +413,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var o = footprint(e);
             if (o.solid() || !moving(e) && !partner(o, end, clear)) boxes.add(o.box());
         }
+        boxes.addAll(nestWalls);
         if (boxes.isEmpty()) return to;
-        var turn = Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0);
+        var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
+                : Detour.route(at.x, at.z, to.x, to.z, clear, boxes);
         if (turn.shut()) return null;
         if (turn.side() == 0) return to;
         if (moving) {

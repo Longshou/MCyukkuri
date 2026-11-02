@@ -35,9 +35,12 @@ final class LifeHome {
         if(!o.level().hasChunkAt(pos))return false;
         if(o.level().getBlockEntity(pos) instanceof CareBlockEntity care&&care.kind()==CareBlock.Kind.NEST){
             var at=FamilyNest.restPosition(o.entity(),care);
-            // A bed is only reached through its own doorway: a walled bed whose doorway side has no stand cannot be slept in.
-            return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at)&&entrance(pos)!=null;
+            return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at);
         }
+        return groundStand(pos);
+    }
+
+    private boolean groundStand(BlockPos pos) {
         return o.level().getFluidState(pos).isEmpty() && o.level().getFluidState(pos.below()).isEmpty()
                 && o.level().noCollision(o.entity(), new AABB(pos.getX()+.5-o.entity().getBbWidth()/2,
                         pos.getY(),pos.getZ()+.5-o.entity().getBbWidth()/2,pos.getX()+.5+o.entity().getBbWidth()/2,
@@ -74,17 +77,13 @@ final class LifeHome {
         return o.level().isRaining() && o.level().isRainingAt(o.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING,o.entity().blockPosition()));
     }
 
-    BlockPos entrance(BlockPos nest) {
-        // A cared nest has one doorway (the low open side of its own mesh): the stand outside it is the only way in.
-        var stands = FamilyNest.doorwayStands(o.entity(), nest);
-        if (!stands.isEmpty()) {
-            for (var stand : stands) if (dryStand(stand) && covered(stand)) return stand;
-            return null;
-        }
+    Vec3 entrance(BlockPos nest) {
+        var bed = NestDoorway.bed(o.entity(), nest);
+        if (bed != null) return NestDoorway.stand(o.entity(), bed);
         // Wide soft burrow bedding: find a real covered approach beyond that edge; never ignore its collision.
         for (int radius = 1; radius <= 2; radius++) for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos pos = nest.relative(direction, radius);
-            if (dryStand(pos) && covered(pos)) return pos;
+            if (o.level().hasChunkAt(pos) && groundStand(pos) && covered(pos)) return Vec3.atBottomCenterOf(pos);
         }
         return null;
     }
@@ -96,14 +95,14 @@ final class LifeHome {
         if(wild!=null&&!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity))return o.entity().habitat().choose(wild);
         if (!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity care) || care.kind() != CareBlock.Kind.NEST) return false;
         if (o.level().getBlockState(selected.pos()).is(ModBlocks.PREDATOR_NEST.get()) && !o.homeProvider().acceptsPredatorNest()) return false;
-        BlockPos stand = entrance(selected.pos());
+        Vec3 stand = entrance(selected.pos());
         if (stand == null) {
             GameplayLog.limited(o.entity(),"home","no_nest_approach",200,
                     "assignment refused reason=no_covered_collision_free_approach nest={} bodyWidth={}",selected.pos(),o.entity().getBbWidth());
             return false;
         }
         SearchBudget.path(o.entity());
-        boolean reachable = o.reachable(stand, false) || o.homeProvider().canFlyTo(o.entity(), stand);
+        boolean reachable = SurfaceApproach.canApproach(o.entity(), stand) || o.homeProvider().canFlyTo(o.entity(), BlockPos.containing(stand));
         boolean occupied = !care.canClaim(o.entity());
         if (!reachable || occupied) {
             GameplayLog.limited(o.entity(),"home","nest_access_refused",200,
@@ -199,7 +198,7 @@ final class LifeHome {
                 if (kind == CareBlock.Kind.TOILET) {
                     access = ToiletContact.facilitySeat(o.entity(), scan) != null && o.reachable(scan.above(), false);
                 } else if (kind == CareBlock.Kind.NEST) {
-                    BlockPos stand = entrance(scan); access = stand != null && o.reachable(stand,false);
+                    Vec3 stand = entrance(scan); access = stand != null && SurfaceApproach.canApproach(o.entity(), stand);
                 } else for (Direction direction : Direction.Plane.HORIZONTAL) {
                     BlockPos stand = scan.relative(direction);
                     if (dryStand(stand) && o.reachable(stand,false)) { access=true; break; }

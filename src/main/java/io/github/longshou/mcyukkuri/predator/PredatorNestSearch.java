@@ -81,7 +81,7 @@ final class PredatorNestSearch {
                 }
                 if (left < WEAVE_PATHS) return Result.DEFERRED;
                 pending = null; left -= WEAVE_PATHS;
-                if (!animal.predator().canFlyTo(entrance)) continue;
+                if (!animal.predator().canFlyTo(BlockPos.containing(entrance))) continue;
                 if (!level.setBlock(pos, ModBlocks.PREDATOR_NEST.get().defaultBlockState(), 3)) continue;
                 // Claim or undo within this lease: no partially woven nest survives a deferral.
                 if (animal.life().assignHome(GlobalPos.of(level.dimension(), pos))) return Result.FOUND;

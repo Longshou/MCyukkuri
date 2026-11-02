@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 宠物窝共享入口复修 | `.worktrees/fb-bed-entrance` | `life/SurfaceApproach`、窝口几何、`YukkuriGroundNavigation`、亲代入窝交接；仅调整 `sleep`／`carry_home` 视角与检查 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
@@ -35,7 +36,7 @@
 - **陆 33 迁徙、安家与途中断粮**（46）：复测失败。2026-10-20 多轮 `colony_migrate` 幼油饿停、住所仍指旧窝、重复献身与批量死亡。版本、现象与完成标准见[日志问题 1](#日志问题-1群体迁徙断粮与连锁死亡陆-33)；运输演出并入演出包。
 - **水生魔理沙模块**：复测失败。1325c6bd 首轮试玩下水、找回帽子、扶正、跳出帽船与亲油施救均阻塞；见[水生魔理沙模块（重构）](#水生魔理沙模块重构)。
 - 旧圆帽 A/B 对照已结束（下线反例）：[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）开场全翻、未找到入口；只保留圆盆帽，复看水生模块排座与翻覆条目。
-- **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。契约见[AGENTS.md](../AGENTS.md)。
+- **接生收尾、入窝与赤油取食（E11）**：1 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；2 复测失败；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。契约见[AGENTS.md](../AGENTS.md)。
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`。
   2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。复测失败（bbd16394b）：不再卡进窝，但入窝、离窝都从任意一侧翻过窝沿，不走入口。
   3. 赤油极饿取食一卡一卡：`04-infant-feed` 03:28:13–03:28:46 每 100 tick 一次 `ground path stopped reason=no_progress`，每次约 0.1 格；`food found` 在 elapsed=601、1201 重复。

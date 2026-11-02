@@ -1123,14 +1123,13 @@ public final class ParentCarry {
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.MIGRATE && carrier.settlement().migrationLanded() && child.settlement().migrationLanded()) return "arrived_destination";
         var home = purpose == Purpose.RETRIEVE ? child.family().carryHome() : null;
-        if (home != null && carrier.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 2.5 * 2.5) return "arrived_home";
+        if (home != null) {
+            var entrance = carrier.life().entrance(home);
+            if (entrance != null && SurfaceApproach.arrived(carrier, entrance)) return "arrived_home";
+        }
         if (purpose == Purpose.NEST_RIM && nestSpot(carrier, child) != null) {
             var entrance = carrier.life().entrance(rimNest);
-            if (entrance != null) {
-                var at = Vec3.atBottomCenterOf(entrance);
-                double dx = at.x - carrier.getX(), dz = at.z - carrier.getZ(), near = dx * dx + dz * dz;
-                if (near <= .45 * .45 || near <= .9 * .9 && FamilyNest.cushions(carrier)) return "nest_rim_to_cushion";
-            }
+            if (entrance != null && SurfaceApproach.arrived(carrier, entrance)) return "nest_rim_to_cushion";
         }
         return null;
     }
@@ -1217,12 +1216,9 @@ public final class ParentCarry {
         if (purpose == Purpose.NEST_RIM) return tickRim(child, taskTicks);
         var home = child.family().carryHome();
         if (home == null) { giveUp = "no_home"; return false; }
-        var centre = Vec3.atBottomCenterOf(home);
-        if (carrier.distanceToSqr(centre) <= 2.5 * 2.5) return true;
         var entrance = carrier.life().entrance(home);
-        var approach = entrance == null ? centre : Vec3.atBottomCenterOf(entrance);
-        var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
-        return walk(floor == null ? approach : floor, taskTicks, "home_unreachable");
+        if (entrance == null) { giveUp = "home_unreachable"; return false; }
+        return walk(entrance, taskTicks, "home_unreachable");
     }
 
     /** Carry a baby that lay on the nest rim onto the cushion, to a free spot by the nest's own placement (never moved by teleport). */
@@ -1251,9 +1247,7 @@ public final class ParentCarry {
         if (current == null) return true;
         var entrance = carrier.life().entrance(rimNest);
         if (entrance == null) { giveUp = "nest_unreachable"; return false; }
-        var approach = Vec3.atBottomCenterOf(entrance);
-        var floor = SurfaceApproach.restingFloor(carrier, approach.add(0, .1, 0));
-        return walk(floor == null ? approach : floor, taskTicks, "nest_unreachable");
+        return walk(entrance, taskTicks, "nest_unreachable");
     }
 
     /** The shared Walk to {@code at}: being there is arrival, and a route that moved the carrier nowhere is not tried again unchanged. */

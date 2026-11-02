@@ -304,15 +304,28 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
                forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b'], verify=slave_life))
 
 # ====================================================================================================== daily life meadow
+def _sleep_doorway_verify(log):
+    sleepers = re.findall(r'\[sleep\] \w+ #\d+ uuid=(\S+)[^\n]*begin source=life occupancy=INSIDE_SUPPORTED', log)
+    for actor in sleepers:
+        directions = set(re.findall(rf'\[home\] \w+ #\d+ uuid={re.escape(actor)}[^\n]*bed crossing[^\n]*direction=(in|out) side=north opening=true', log))
+        if directions != {'in', 'out'}:
+            return f'sleeper {actor} lacks its own observed north doorway entry/exit: {directions}'
+    return None if sleepers else 'no sleeper inside its bed'
+
+
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
-    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=None, env=DAY,
+    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(4, -4, -35), env=DAY,
     # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
-    smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]* nest_not_inside\b', r'\[home\][^\n]* nest_exit_stuck\b'],
+    capture=dict(shots=(1, 40, 200, 600, 1200, 2600), sequences=((200, 500, 5), (650, 1100, 5))),
+    smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
+                                  r'\[home\][^\n]*bed crossing[^\n]*opening=false'],
                expect=[r'\[sleep\] [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
-                       r'\[home\] [^\n]* nest left [^\n]*doorway=\(']))
+                       r'\[home\] [^\n]* nest left [^\n]*doorway=\(',
+                       r'\[home\][^\n]*bed crossing[^\n]*direction=in side=north opening=true',
+                       r'\[home\][^\n]*bed crossing[^\n]*direction=out side=north opening=true'], verify=_sleep_doorway_verify))
 
 add('fatigue', 'weather', '困倦、原地打盹与惊醒', '困倦惊醒',
     '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并打盹1–3秒，两次间隔至少15秒、平均约32秒（“读短打盹”的 gap 为剩余间隔）。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
@@ -1573,10 +1586,10 @@ def _carry_verify(log):
 
 add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代运输',
     '三家各有自己的大窝，赤油在约 8 格外：魔理沙（1.2 倍）、灵梦、橙各自走去，每次把一个孩子接回窝内；魔理沙用辫子托上帽檐，灵梦口含，橙用尾巴',
-    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(0, 6),
+    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(3, 6, 155),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
-    capture=dict(shots=(1, 40, 600, 1200), sequences=((100, 300, 2), (600, 700, 2))),
+    capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((100, 600, 5), (2500, 3300, 10))),
     smoke=dict(ticks=3600,
                expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
@@ -1584,7 +1597,9 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                        r'\[family\] chen #[^\n]* carry pickup hold=tail_(?:left|right)\b',
                        *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] (?:marisa|reimu|chen) #[^\n]* carry put down reason=nest_rim_to_cushion [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b'],
-               forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b'],
+               forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
+                       r'\[home\][^\n]*bed crossing[^\n]*opening=false', r'\[home\][^\n]*nest_not_inside\b',
+                       r'\[home\][^\n]*reason=doorway_unreachable\b'],
                readout=[f'yukkuri status {sel(kind + "_parent")} raw' for kind, _, _, _ in _carry_families],
                verify=_carry_verify))
 

@@ -650,11 +650,6 @@ public final class YukkuriLife {
         if (targetBlock == null) return false;
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
-    /** A walled bed is entered through its own doorway: the body walks to the stand outside it first, then in to its place. */
-    private Vec3 wayIn(BlockPos bed,Vec3 place){
-        var doorway=FamilyNest.doorwayStands(entity,bed).isEmpty()?null:entrance(bed);
-        return doorway==null||FamilyNest.inDoorway(entity,Vec3.atBottomCenterOf(doorway),place)?place:Vec3.atBottomCenterOf(doorway);
-    }
     public void tickGoal() {
         if (mealTicks() > 0) { entity.getNavigation().stop(); return; }
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
@@ -706,7 +701,7 @@ public final class YukkuriLife {
                             "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
                     stopGoal();return;
                 }
-                if (entity.distanceToSqr(bedCentre) >= .16 || !inside) SurfaceApproach.walk(entity, wayIn(targetBlock, bedCentre), 1.15);
+                if (entity.distanceToSqr(bedCentre) >= .16 || !inside) SurfaceApproach.walk(entity, bedCentre, 1.15);
                 if (entity.distanceToSqr(bedCentre) < .16 && restable(entity.blockPosition()) && inside) {
                     SurfaceApproach.halt(entity);
                     if (restWait == 0 && (energy <= restThreshold() || restTime())) { task = Task.SLEEP; sleepTicks = 0; }
@@ -780,7 +775,7 @@ public final class YukkuriLife {
                     var doorway = nestOccupancy == null ? null : entrance(site);
                     GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} doorway={} energy={} nutrition={} drugTicks={}",
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
-                            doorway == null ? "none" : GameplayLog.at(Vec3.atBottomCenterOf(doorway)), energy,nutrition,drugSleep());
+                            doorway == null ? "none" : GameplayLog.at(doorway), energy,nutrition,drugSleep());
                 }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep()==0 && sleepTicks >= sleepDuration() && (energy >= 95 || nutrition < 15
@@ -799,8 +794,12 @@ public final class YukkuriLife {
             case LEAVE_NEST -> {
                 // Out through the nest's own doorway to the stand outside it; a body that cannot get there gives up with the reason.
                 var stand = entrance(targetBlock);
-                if (stand == null) { stopGoal(); break; }
-                var outside = Vec3.atBottomCenterOf(stand);
+                if (stand == null) {
+                    GameplayLog.limited(entity, "home", "nest_exit_stuck", 200,
+                            "nest exit stopped reason=doorway_unreachable nest={} at={}", targetBlock, GameplayLog.at(entity.position()));
+                    stopGoal(); break;
+                }
+                var outside = stand;
                 if (SurfaceApproach.arrived(entity, outside)) {
                     GameplayLog.event(entity, "home", "nest left nest={} doorway={} at={}", targetBlock, GameplayLog.at(outside), GameplayLog.at(entity.position()));
                     stopGoal(); break;
@@ -911,7 +910,7 @@ public final class YukkuriLife {
     private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
-    public BlockPos entrance(BlockPos nest){ return home.entrance(nest); }
+    public Vec3 entrance(BlockPos nest){ return home.entrance(nest); }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
