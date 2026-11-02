@@ -319,7 +319,7 @@ add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
-    capture=dict(shots=(1, 40, 200, 600, 1200, 2600), sequences=((200, 500, 5), (650, 1100, 5)), observe=False),
+    capture=dict(shots=(1, 40, 2600), sequences=((200, 1500, 5),), observe=False),
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
                                   r'\[home\][^\n]*bed crossing[^\n]*opening=false'],
                expect=[r'\[sleep\] [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
