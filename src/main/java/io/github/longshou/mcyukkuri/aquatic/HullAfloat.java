@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -168,6 +169,20 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (phase != Phase.UPRIGHT || rightProgress >= 0) return;
         cause = kind; triggerValue = value; this.falling = falling;
         phase = Phase.ROCKING; phaseTicks = 0; shakes = 0;
+        startle();
+    }
+
+    /** Everyone aboard feels the hull go over: a young one is frightened, an adult merely startled, for as long as the
+     *  hard rock and the roll take. Nobody is told what the hull does next. */
+    private void startle() {
+        int ticks = (int) (HullPresentation.number("rock_ticks") + HullPresentation.number("flip_ticks"));
+        for (var passenger : hat.getPassengers()) if (passenger instanceof YukkuriEntity y) {
+            boolean adult = y.family().adult();
+            if (!adult) y.mind().felt(EmotionEvent.FRIGHTENED);
+            y.showReaction(adult ? "surprise" : "teary", adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", ticks);
+            GameplayLog.event(y, "aquatic", "rocked hat={} cause={} phase={} adult={} line={} ticks={}",
+                    hat.getUUID(), cause, phase, adult, adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", ticks);
+        }
     }
     @Override public boolean shake(PlacedHatEntity hat, Player by) {
         if (hat.level().isClientSide) return true;

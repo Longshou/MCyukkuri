@@ -94,6 +94,8 @@ final class FirstVoyage implements Intent {
         var own = AquaticLife.hat(young);
         if (result == IntentRunner.Result.DONE) {
             young.childhood().learnSailing(id());
+            // Back ashore with its own hat on, its first voyage behind it (初航成功的雀跃).
+            young.showReaction("happy", "hello", 60);
             GameplayLog.event(young, "aquatic", "first_voyage success parent={} ticks={}", parent.getUUID(), young.level().getGameTime() - started);
             return;
         }

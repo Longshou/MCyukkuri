@@ -54,6 +54,8 @@ public final class EscapeWater implements Intent {
     private static final double HAT_RANGE = 16, CLEAR = .05;
     private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
             Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM), PRESSING = Set.of(Reason.TOO_HIGH);
+    /** The ways that go for the body's own hat: it stops panicking and starts for it (自救援). */
+    private static final Set<String> OWN_HAT = Set.of("own_hat", "right_own_hat", "hat_boat");
 
     /** A bank edge: its stand, the middle of the stand's face toward open water, the water point in front of it, the landing. */
     private record Edge(BlockPos stand, Vec3 edge, Vec3 front, Vec3 land) {}
@@ -146,7 +148,10 @@ public final class EscapeWater implements Intent {
             // Swimming ends at water exit; keep the intent while the body falls back or reaches dry support.
             if (step instanceof Step.Do action && action.action() instanceof Swim && !body.isInWaterOrBubble())
                 return new Step.Do(new Await(() -> body.isInWaterOrBubble() || satisfied(), 20, "", "water_contact"));
-            if (next == 0 && !id.equals("bank")) tried.add(id);
+            if (next == 0) {
+                if (!id.equals("bank")) tried.add(id);
+                if (OWN_HAT.contains(id)) body.showReaction("teary", "self_rescue_hat", 36);
+            }
             next++;
             return step;
         }

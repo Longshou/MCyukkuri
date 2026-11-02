@@ -25,6 +25,8 @@ final class Rescue implements Intent {
         this.faller = faller;
         this.incident = incident;
         started = helper.level().getGameTime();
+        // The one going for the faller says so before it moves (辫子救援：招呼落水的孩子).
+        helper.showReaction("teary", "braid_rescue_offer", 40);
         GameplayLog.event(helper, "aquatic", "rescue start faller={} incident={}", faller.getUUID(), incident);
     }
 

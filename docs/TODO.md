@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 座位已满时的船上出生（反馈 8） | `.worktrees/fb-boat-birth` | `family/LiveBirth`、座位接口、`birth_boat_*` 场景 |
-| 水上演出钩子补回（反馈 10） | `.worktrees/fb-aq-presentation` | 水上表情／反应／台词钩子、`PresentationArbiter` 接线 |
 | 岸上收帽与出航余项 | `.worktrees/fb-shore-low` | `motor/action/Hop`、`aquatic/Waters`／`Ashore`／`SetOut`、`hat_swap` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 | 茎生消耗表现（反馈 3） | `.worktrees/fb-stem-drain` | 茎生美术与导出、`client/` 表现、同步字段 |
@@ -22,7 +21,8 @@
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），无原地哭脸循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
-  - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）；船晃动时害怕表情消失，重做后丢失的表情／反应须逐项补回。
+  - 复测失败·排队：座位已满时凭空多出两只在船内、新生儿卡在船沿（`birth_boat_missed`）。
+  - 已接入待试玩：重做后丢失的水上表情与反应按新实现补回（`shake_capsize`“摇晃翻覆”、`self_rescue`“游回帽子”、`rescue_child`“亲油救援”）。完成：摇晃时帽内子油害怕发抖、成体惊起，被甩进水的孩子入水惊慌、出水后松一口气；接受救助的亲油先招呼落水孩子，自救者动身时也出声，初航成功返岸雀跃。完成标准只到演出与台词时机（三语、年龄声线最后统一听审）；家族呼救问答、帽子漂走／够不到、摇篮哼唱台词未接，归[配音与台词](#最后统一补配音台词与表情)。
   - 已接入待试玩：`carry_home`（出生与成长场地北侧，按钮“亲代运输”）。完成：跳转点露天；三家从真实大窝认窝到接起、抵达、窝内放下，无 `assignment refused` 或 `target=null` 停搜；母油营养 95。
   - 美术·排队：茎生消耗个体的美术表现接入现有营养／体力消耗；魔理沙辫子划船呈倒 U、根部单薄，改为自然下垂、末梢向外发力。
 - **帽子与帽上乘员交互**：已接入待试玩。此前主手空手点击无反馈（版本待核实）；E8 陆地接生射线命中帽实体返回 `cradle_status`，赤油被遮住。完成：`birth_land_caught`、`birth_stem_caught` 可直接照护帽中赤油，点空白帽檐仍有状态反馈；`cargo`、`shake_capsize` 保留储粮与推晃；`[hat-input]`、`hat use received/result` 显示物资只扣一次。

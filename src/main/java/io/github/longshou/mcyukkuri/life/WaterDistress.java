@@ -89,6 +89,8 @@ public final class WaterDistress {
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);
             if(!entity.isNoAi())entity.getNavigation().stop();
+            // Out of the water for real, by its own climb or a rescuer's lift: the breath it held lets go.
+            entity.showReaction("teary", null, 40);
         }
         if(phase==Phase.RECOVER&&realThreat()){set(Phase.IDLE);return;}
         if(fatigue>0&&now%4==0)fatigue--;

@@ -297,8 +297,13 @@ public final class PresentationArbiter {
         if (behavior.equals(Behaviors.NEWBORN_CRAWL) || behavior.equals(Behaviors.LEARN_JUMP) || behavior.equals(Behaviors.BOAT_TOILET)
                 || behavior.equals(Behaviors.FIRST_TOILET_WAIT) || behavior.equals(Behaviors.FIRST_TOILET_STIMULATED))
             return EcologyPresentation.action(behavior);
+        // Its own reaction keeps its own clip aboard: startled by the rocking hull, afraid, relieved after a rescue, a
+        // newborn's first wake. Only a reaction with a real clip replaces the seated pose.
+        if (state.reactionTicks() > 0) {
+            YukkuriAction reaction = EcologyPresentation.reaction(state.reactionEvent());
+            if (reaction != YukkuriAction.IDLE) return reaction;
+        }
         if (onBrim(hat, e)) return YukkuriAction.HAT_BRIM;
-        if (state.reactionTicks() > 0 && state.reactionEvent().equals("newborn")) return YukkuriAction.FIRST_WAKE;
         return YukkuriAction.HAT_CRADLE;
     }
     /** The rider's feet are supported at the brim's top edge rather than down in the cavity. */
