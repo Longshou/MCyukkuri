@@ -304,7 +304,23 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
                forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b'], verify=slave_life))
 
 # ====================================================================================================== daily life meadow
+def _stalled_bed_walk(log):
+    stalls = {}
+    for actor, tick, point in re.findall(r'\[move\] \w+ #\d+ uuid=(\S+) t=(\d+)[^\n]*ground path stopped reason=no_progress[^\n]* at=\(([^)]+)\)', log):
+        at = tuple(float(value.strip()) for value in point.split(','))
+        previous = stalls.get(actor)
+        if previous and sum((a-b)**2 for a, b in zip(at, previous[1])) < .03**2:
+            if int(tick) - previous[0] >= 600:
+                return f'walker {actor} repeatedly stalled at {at} for at least 600 ticks'
+        else:
+            stalls[actor] = (int(tick), at)
+    return None
+
+
 def _sleep_doorway_verify(log):
+    stalled = _stalled_bed_walk(log)
+    if stalled:
+        return stalled
     sleepers = re.findall(r'\[sleep\] \w+ #\d+ uuid=(\S+)[^\n]*begin source=life occupancy=INSIDE_SUPPORTED', log)
     for actor in sleepers:
         directions = set(re.findall(rf'\[home\] \w+ #\d+ uuid={re.escape(actor)}[^\n]*bed crossing[^\n]*direction=(in|out) side=north opening=true', log))
@@ -1572,6 +1588,9 @@ for _kind, _fx, _n, _size in _carry_families:
                          home(f'{_kind}_baby', _fx, 0)]
 
 def _carry_verify(log):
+    stalled = _stalled_bed_walk(log)
+    if stalled:
+        return stalled
     grips = {}
     for child, seat in re.findall(r'carry grip child=\d+ uuid=([0-9a-f-]{36})\b[^\n]*brimLocal=\(([^)]+)\)', log):
         grips.setdefault(child, set()).add(seat)
