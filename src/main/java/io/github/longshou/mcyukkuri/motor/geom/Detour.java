@@ -70,7 +70,7 @@ public final class Detour {
             var b = boxes.get(i);
             room[i] = Math.max(0, Math.min(clear, b.gap(fx, fz)) - EPS);
             for (int u : new int[]{-1, 1}) for (int v : new int[]{-1, 1})
-                points.add(b.at(u * (b.a + room[i] + PAST), v * (b.b + room[i] + PAST)));
+                points.add(b.at(u * (b.a + room[i] + EPS), v * (b.b + room[i] + EPS)));
         }
         double[] distance = new double[points.size()];
         java.util.Arrays.fill(distance, Double.POSITIVE_INFINITY); distance[0] = 0;
