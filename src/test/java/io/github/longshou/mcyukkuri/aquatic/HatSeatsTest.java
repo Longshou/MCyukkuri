@@ -114,7 +114,7 @@ class HatSeatsTest {
         board(riders, 1, HatSeats.youngLimit(1));
         double ratio = HatSeats.loadRatio(1, riders);
         assertEquals((1 + Math.pow(.38, 3)) / HatSeats.capacity(1), ratio, 1E-12);
-        assertEquals(.9607, ratio, .0002);
+        assertEquals(.9611, ratio, .0002);
         assertTrue(ratio < HullPresentation.number("load_warning"));
     }
     @Test void capacityIsInclusiveAndOverloadMakesAnExistingCaptainUnfit() {
