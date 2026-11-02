@@ -38,9 +38,9 @@
 - 旧圆帽 A/B 对照已结束（下线反例）：[5d930b5c4](https://github.com/Longshou/MCyukkuri/commit/5d930b5c4)（[CI 41200146048](https://github.com/Longshou/MCyukkuri/actions/runs/41200146048)，2026-10-31 22:31–22:42）开场全翻、未找到入口；只保留圆盆帽，复看水生模块排座与翻覆条目。
 - **接生收尾、入窝与赤油取食（E11）**：1、2 已接入待试玩（WP1，[12774ca1](https://github.com/Longshou/MCyukkuri/commit/12774ca1)）；3 已接入待试玩（WP2，[9822228e](https://github.com/Longshou/MCyukkuri/commit/9822228e)）。契约见[AGENTS.md](../AGENTS.md)。
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`。
-  2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。
+  2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。复测失败（bbd16394b）：不再卡进窝，但入窝、离窝都从任意一侧翻过窝沿，不走入口。
   3. 赤油极饿取食一卡一卡：`04-infant-feed` 03:28:13–03:28:46 每 100 tick 一次 `ground path stopped reason=no_progress`，每次约 0.1 格；`food found` 在 elapsed=601、1201 重复。
-  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或 `[action] start id=hop … owner=leave_host`），之后不再 `mount host=<接生帽>`，全部离帽后才收帽；宠物窝入睡 `[sleep] begin … occupancy=INSIDE_SUPPORTED`，窝沿个体先走进去再睡；`infant_feed` 极饿赤油连续走到食物、无 `no_progress`、`food found` 不重复。
+  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或 `[action] start id=hop … owner=leave_host`），之后不再 `mount host=<接生帽>`，全部离帽后才收帽；宠物窝入睡 `[sleep] begin … occupancy=INSIDE_SUPPORTED … doorway=<入口外站位>`，睡醒后 `[home] nest left … doorway=<同一站位>`，进出都经入口、不从其他侧翻越；`infant_feed` 极饿赤油连续走到食物、无 `no_progress`、`food found` 不重复。
 
 ### 家庭、繁殖与照护
 

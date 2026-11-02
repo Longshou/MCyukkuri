@@ -35,7 +35,8 @@ final class LifeHome {
         if(!o.level().hasChunkAt(pos))return false;
         if(o.level().getBlockEntity(pos) instanceof CareBlockEntity care&&care.kind()==CareBlock.Kind.NEST){
             var at=FamilyNest.restPosition(o.entity(),care);
-            return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at);
+            // A bed is only reached through its own doorway: a walled bed whose doorway side has no stand cannot be slept in.
+            return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at)&&entrance(pos)!=null;
         }
         return o.level().getFluidState(pos).isEmpty() && o.level().getFluidState(pos.below()).isEmpty()
                 && o.level().noCollision(o.entity(), new AABB(pos.getX()+.5-o.entity().getBbWidth()/2,
@@ -74,8 +75,13 @@ final class LifeHome {
     }
 
     BlockPos entrance(BlockPos nest) {
-        // Wide soft nest edges overlap the first adjacent cell for an adult body.
-        // Find a real covered approach beyond that edge; never ignore its collision.
+        // A cared nest has one doorway (the low open side of its own mesh): the stand outside it is the only way in.
+        var stands = FamilyNest.doorwayStands(o.entity(), nest);
+        if (!stands.isEmpty()) {
+            for (var stand : stands) if (dryStand(stand) && covered(stand)) return stand;
+            return null;
+        }
+        // Wide soft burrow bedding: find a real covered approach beyond that edge; never ignore its collision.
         for (int radius = 1; radius <= 2; radius++) for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos pos = nest.relative(direction, radius);
             if (dryStand(pos) && covered(pos)) return pos;

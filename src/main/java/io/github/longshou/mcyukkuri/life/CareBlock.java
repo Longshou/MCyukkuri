@@ -30,6 +30,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -104,6 +106,12 @@ public class CareBlock extends Block implements EntityBlock {
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) {
         // A toilet is a low step with a standing surface, not an open cell at ground height.
         return kind != Kind.TOILET && super.isPathfindable(state, type);
+    }
+    /** A nest's bolster or wall is real to a walker: a route prefers to go round the bed and enter by its own doorway, and only
+     *  crosses the rim when there is no other way (the vanilla cost of a dangerous step, never damage). */
+    @Override public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, Mob mob) {
+        var type = super.getBlockPathType(state, level, pos, mob);
+        return type != null ? type : kind == Kind.NEST && height == 0 ? PathType.DANGER_OTHER : null;
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if(height>0)return box(0,0,0,16,height,16);

@@ -305,7 +305,14 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
 
 # ====================================================================================================== daily life meadow
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
-    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=18, yaw=-90, lead=True), home('a', 7, 0)], vantage=None)
+    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=None, env=DAY,
+    # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
+    # threshold, above the in-place nap's 25).
+    late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
+    # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
+    smoke=dict(ticks=1600, forbid=[r'\[home\][^\n]* nest_not_inside\b', r'\[home\][^\n]* nest_exit_stuck\b'],
+               expect=[r'\[sleep\] begin [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
+                       r'\[home\] nest left[^\n]*doorway=\(']))
 
 add('fatigue', 'weather', '困倦、原地打盹与惊醒', '困倦惊醒',
     '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并打盹1–3秒，两次间隔至少15秒、平均约32秒（“读短打盹”的 gap 为剩余间隔）。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',

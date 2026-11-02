@@ -12,7 +12,11 @@ import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.HashSet;
 import net.minecraft.server.level.ServerLevel;
@@ -48,6 +52,36 @@ public final class FamilyNest {
     }
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
         return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
+    }
+    /** The nest model's own doorway: the low, open side of its mesh (drafts/care-props: the pet cushion opens to the north,
+     *  the 2x2 nests to the south). Null for a rimless ledge, whose flat floor is walked onto from any side. */
+    public static Direction doorway(CareBlockEntity nest){
+        var bed=nest.bed();
+        return bed==NestResting.CUSHION?Direction.NORTH:bed==NestResting.LARGE?Direction.SOUTH:null;
+    }
+    /** The cells a body stands in to walk into that doorway, the nearer ones to the body first: the two rows outside it (the
+     *  soft bolster overhangs the first, so only a narrow body can stand there); empty for a rimless bed or another bed. */
+    public static List<BlockPos> doorwayStands(YukkuriEntity e,BlockPos bed){
+        var nest=care(e);
+        if(nest==null||!nest.getBlockPos().equals(bed))return List.of();
+        var side=doorway(nest);
+        if(side==null)return List.of();
+        var cells=new ArrayList<BlockPos>();
+        for(int distance=1;distance<=2;distance++){
+            var row=nest.getBlockPos().relative(side,distance);
+            cells.add(row);
+            if(nest.largeNest())cells.add(row.relative(side.getAxis()==Direction.Axis.Z?Direction.EAST:Direction.SOUTH));
+        }
+        cells.sort(Comparator.comparingDouble(cell->e.distanceToSqr(Vec3.atCenterOf(cell))));
+        return cells;
+    }
+    /** Whether the body is still in the doorway's own corridor: between the stand outside it and its place in the bed, or just
+     *  past either end. Walking in and out goes through it instead of over the bolster. */
+    public static boolean inDoorway(YukkuriEntity e,Vec3 stand,Vec3 place){
+        var along=place.subtract(stand).multiply(1,0,1);
+        var from=e.position().subtract(stand).multiply(1,0,1);
+        double length=along.length(),t=from.dot(along)/length,side=Math.abs(from.x*along.z-from.z*along.x)/length;
+        return t>=-.35&&t<=length+.35&&side<=e.getBbWidth()*.5;
     }
     /** The floor in the middle of this bed (its 2x2 corner or its block centre), even where the body would not fully stand. */
     public static Vec3 bedMiddle(YukkuriEntity e,BlockPos bed){
