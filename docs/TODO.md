@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 嗯嗯坑长场景聚落饿死（丘顶下不来、物资不够） | `.worktrees/fb-colony-food` | 觅食下坡、`settle_pit*` 场景物资与地形 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
 
