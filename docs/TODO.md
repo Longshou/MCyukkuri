@@ -16,6 +16,7 @@
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
 | 浅水搁浅帽船变物品、近招远游取帽（反馈 7、12） | `.worktrees/fb-shallow-hat` | `aquatic/Ashore`、`HullAfloat` 搁浅判定、`social/YukkuriSocial` 取饰 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
+| 出水在真实干地上结束（聚落成员溺亡、岸边反复浮沉） | `.worktrees/fb-bank-escape` | `life/EscapeWater`、`motor/action/Climb` |
 
 ## 玩法待办
 
