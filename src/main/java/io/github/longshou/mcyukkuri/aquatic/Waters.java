@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
@@ -214,6 +215,21 @@ final class Waters {
             if (!hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) out.add(e);
         }
         return out;
+    }
+
+    /** The bank edge nearest {@code hat} from which {@code body} could really reach it: a stand it can walk to and either touch the
+     *  hat from (mouth or braid, sight free) or stroke its water (the action's own check, facing it). One scan for admission and for
+     *  the steps that run from the stand. */
+    static Edge bankEdge(YukkuriEntity body, PlacedHatEntity hat) {
+        int asked = 0;
+        for (var e : edges(body, hat.position(), 4, false)) {
+            var stand = e.stand(body.getBbWidth());
+            if (!ContactGeometry.reachesFrom(body, stand, hat, true)
+                    && !new Beckon(hat).checkFrom(body, stand, SurfaceApproach.yaw(stand, hat.position())).ok()) continue;
+            if (asked++ >= ASKED) break;
+            if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return e;
+        }
+        return null;
     }
 
     /** The bank edge nearest the hat a body ashore can walk to (to reach over to it from the bank), or null. */

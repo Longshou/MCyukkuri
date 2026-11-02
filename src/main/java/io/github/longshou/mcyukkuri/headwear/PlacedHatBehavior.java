@@ -79,22 +79,25 @@ public interface PlacedHatBehavior {
         String id();
         boolean applies(PlacedHatEntity hat, PlacedHatBehavior current);
         PlacedHatBehavior create(PlacedHatEntity hat);
-        /** Placement constraints of this provider's hull forms; other forms retain their own behaviour. */
-        default boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) { return true; }
     }
 
+    /** Whether water can carry a hull of this size; registered by the hull behaviour, which owns the draft rule. */
+    interface Carrier { boolean floats(Level level, Vec3 at, float hullScale); }
+
     List<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
+    List<Carrier> CARRIERS = new CopyOnWriteArrayList<>();
 
     static void register(Provider provider) { PROVIDERS.add(provider); }
 
-    /** Every water placement, including flowing-water self rescue, uses the same surface and provider admission. */
+    static void carrier(Carrier rule) { CARRIERS.add(rule); }
+
+    /** Every water placement, including flowing-water self rescue, asks the same surface check and the hull's own draft rule. */
     static boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) {
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot) || !level.getFluidState(spot).is(FluidTags.WATER)
                 || !level.getFluidState(spot.above()).isEmpty()
                 || !level.getBlockState(spot.above()).getCollisionShape(level, spot.above()).isEmpty()) return false;
-        for (var provider : PROVIDERS) if (!provider.waterFits(level, at, form, hullScale)) return false;
-        return true;
+        return !form.seated() || CARRIERS.stream().allMatch(carrier -> carrier.floats(level, at, hullScale));
     }
 
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */

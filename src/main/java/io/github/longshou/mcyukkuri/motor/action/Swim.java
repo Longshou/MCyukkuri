@@ -16,8 +16,6 @@ import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import java.util.function.Supplier;
-import java.util.function.Predicate;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,26 +28,14 @@ public final class Swim implements Action {
     private final Supplier<Vec3> target;
     private final boolean grip;
     private final int maxTicks;
-    private final Predicate<YukkuriEntity> arrived;
     private double speed, turnRate, paid;
     private int ticks;
     private boolean unpaid;
 
-    private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) {
-        this(target, grip, maxTicks, body -> grip && ContactGeometry.canGrip(body, target.get()));
-    }
-    private Swim(Supplier<Vec3> target, boolean grip, int maxTicks, Predicate<YukkuriEntity> arrived) {
-        this.target = target; this.grip = grip; this.maxTicks = maxTicks; this.arrived = arrived;
-    }
+    private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
 
     /** Until the (moving) target is in grip reach; past {@code maxTicks} (0: never) it is {@code TOO_FAR}. */
     public static Swim to(Supplier<Vec3> target, int maxTicks) { return new Swim(target, true, maxTicks); }
-
-    /** A loose target is reached by the mouth, not by a braid grip on a hull. The owner bounds the whole approach. */
-    public static Swim contact(Entity target) {
-        return new Swim(() -> target.isAlive() ? target.position() : null, true, 0,
-                body -> ContactGeometry.inMouthReach(body, target));
-    }
 
     /** Pressing toward a point for {@code ticks}, then done (the caller may aim again). */
     public static Swim toward(Vec3 point, int ticks) { return new Swim(() -> point, false, ticks); }
@@ -71,7 +57,7 @@ public final class Swim implements Action {
         Vec3 at = target.get();
         if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
         if (!body.isInWaterOrBubble()) return new Outcome.Done("out_of_water at=" + GameplayLog.at(body.position()));
-        if (arrived.test(body)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
+        if (grip && ContactGeometry.canGrip(body, at)) return new Outcome.Done("grip at=" + GameplayLog.at(at));
         Vec3 to = at.subtract(body.position()).multiply(1, 0, 1);
         double distance = to.length();
         if (maxTicks > 0 && ++ticks > maxTicks)

@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
-import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
@@ -22,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
@@ -87,10 +87,8 @@ public final class HullAfloat implements PlacedHatBehavior {
                 return current instanceof HullAfloat;
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
-            @Override public boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) {
-                return !form.seated() || floats(level, at, hullScale);
-            }
         });
+        PlacedHatBehavior.carrier(HullAfloat::floats);
     }
 
     /** Actual water lookup; no fluid is a legitimate boundary at the shore. */
@@ -109,13 +107,16 @@ public final class HullAfloat implements PlacedHatBehavior {
     /** How deep (blocks) the water under the hull must be for it to float: shallower, its box rests on the floor. */
     static double draft(double scale) { return (HullBounds.WATERLINE - HullBounds.KEEL) * scale; }
 
-    /** Whether the water under {@code at} has room for a hull of {@code hullScale}: its top at least a draft above its floor. */
+    /** Whether the water under {@code at} has room for a hull of {@code hullScale}: its top at least a draft above the floor
+     *  (the lowest flooded block's own collision top, so water lying half over a slab is no deeper than it looks). */
     public static boolean floats(Level level, Vec3 at, float hullScale) {
         double water = surface(level, at.x, at.y - 2, at.z);
         if (!Double.isFinite(water)) return false;
         var bottom = BlockPos.containing(at.x, water - .01, at.z);
         for (var below = bottom.below(); level.getFluidState(below).is(FluidTags.WATER); below = below.below()) bottom = below;
-        return water - bottom.getY() >= draft(hullScale / HullBounds.SCALE);
+        var floor = level.getBlockState(bottom).getCollisionShape(level, bottom);
+        double bed = bottom.getY() + (floor.isEmpty() ? 0 : floor.max(Direction.Axis.Y));
+        return water - bed >= draft(hullScale / HullBounds.SCALE);
     }
 
     /** The water under her has no room for the hull: it rests on the floor and becomes its owner's one accessory item at once,

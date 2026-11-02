@@ -2,7 +2,11 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Motor;
+import io.github.longshou.mcyukkuri.motor.action.StepIn;
+import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -14,12 +18,17 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
@@ -278,6 +287,36 @@ public final class SurfaceApproach {
         for(var at:candidates)if(Double.isFinite(routeLength(actor,at,other.getBoundingBox())))return at;
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} distance={} maxHeight={}",other.getUUID(),distance,maxHeight);
         return null;
+    }
+
+    /** The next shared movement to a loose item: a supported walk to a stand beside it on dry ground, or, by species ability, from
+     *  the bank stand nearest it a step into the water and a swim to it. Null when this body has no way there. */
+    public static Action approach(YukkuriEntity actor, ItemEntity item) {
+        if (actor.isInWaterOrBubble()) return actor.profile().aquatic() ? Swim.to(item::position, 0) : null;
+        if (!item.isInWater()) {
+            var stand = beside(actor, item, actor.getBbWidth() / 2 + .2, ContactGeometry.GRAB_HEIGHT);
+            if (stand != null) return Walk.stand(stand, 1);
+        }
+        if (!actor.profile().aquatic()) return null;
+        var level = actor.level();
+        var centre = item.blockPosition();
+        Vec3 stand = null, entry = null;
+        double best = Double.POSITIVE_INFINITY;
+        for (var p : BlockPos.betweenClosed(centre.offset(-8, -1, -8), centre.offset(8, 2, 8))) {
+            if (!level.hasChunkAt(p) || !actor.life().dryStand(p)) continue;
+            var at = Vec3.atBottomCenterOf(p);
+            for (var direction : Direction.Plane.HORIZONTAL) {
+                var wet = p.relative(direction).below();
+                var fluid = level.getFluidState(wet);
+                if (!fluid.is(FluidTags.WATER) || !level.getBlockState(wet.above()).getCollisionShape(level, wet.above()).isEmpty()) continue;
+                var water = new Vec3(wet.getX() + .5, wet.getY() + fluid.getHeight(level, wet), wet.getZ() + .5);
+                double distance = at.distanceToSqr(item.position());
+                if (distance >= best || !canApproach(actor, at)
+                        || level.clip(new ClipContext(water, item.position(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, actor)).getType() != HitResult.Type.MISS) continue;
+                best = distance; stand = at; entry = water;
+            }
+        }
+        return stand == null ? null : arrived(actor, stand) ? new StepIn(entry) : new Walk(stand);
     }
 
     public static boolean crossesBody(YukkuriEntity actor,Vec3 from,Vec3 to,AABB body){

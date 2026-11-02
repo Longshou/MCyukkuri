@@ -10,13 +10,11 @@ import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
-import io.github.longshou.mcyukkuri.motor.Action;
-import io.github.longshou.mcyukkuri.motor.AbilityModifier;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
-import io.github.longshou.mcyukkuri.motor.ItemApproach;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -41,7 +39,6 @@ public final class YukkuriSocial implements MotorOwner {
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
     private Entity target;
-    private Action accessoryMove;
     private UUID protectedContact;
     private int elapsed, duration, teachingWait;
     private boolean greeted;
@@ -81,7 +78,7 @@ public final class YukkuriSocial implements MotorOwner {
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
     @Override public String ownerId() { return "social:accessory"; }
-    public boolean ownsBodyInWater() { return task == Task.ACCESSORY && AbilityModifier.flag(entity, AbilityModifier.SWIM); }
+    public boolean ownsBodyInWater() { return task == Task.ACCESSORY && entity.profile().aquatic(); }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
         if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
@@ -173,7 +170,7 @@ public final class YukkuriSocial implements MotorOwner {
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
                 if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
                 boolean sight=entity.hasLineOfSight(item);
-                boolean reachable=ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null;
+                boolean reachable=ContactGeometry.inMouthReach(entity,item)||SurfaceApproach.approach(entity,item)!=null;
                 if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
                         "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),sight,item.isInWater());
                 return reachable;
@@ -271,10 +268,13 @@ public final class YukkuriSocial implements MotorOwner {
                 }
                 stop();return;
             }
-            if(entity.motor().current()==accessoryMove&&accessoryMove!=null)return;
-            if(accessoryMove!=null&&!(entity.motor().last() instanceof Outcome.Done)){stop();return;}
-            accessoryMove=ItemApproach.next(entity,item);
-            if(accessoryMove==null||!entity.motor().run(this,accessoryMove))stop();
+            var motor=entity.motor();
+            if(motor.owner()==this){
+                if(motor.current()!=null)return;
+                if(!(motor.last() instanceof Outcome.Done)){stop();return;}
+            }
+            var move=SurfaceApproach.approach(entity,item);
+            if(move==null||!motor.run(this,move))stop();
             return;
         }
         if (task == Task.TEACH || task == Task.WAIT) {
@@ -395,7 +395,6 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void stop() {
         entity.motor().cancel(this,"social_stop");
-        accessoryMove=null;
         if(task==Task.PLAYER||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
                 "social contact ended target={} greeted={} retreat={} elapsed={}/{}",
                 target==null?null:target.getUUID(),greeted,retreat,elapsed,duration);

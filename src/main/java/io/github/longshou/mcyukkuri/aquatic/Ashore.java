@@ -16,7 +16,6 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
@@ -66,19 +65,7 @@ final class Ashore implements Intent {
     /** An unsailed young only asks for its hat when it can do something from a reachable stand. */
     static boolean canReclaim(YukkuriEntity body, PlacedHatEntity hat) {
         return body.childhood().canSail() || (!AquaticLife.onWater(hat)
-                ? SurfaceApproach.beside(body, hat, body.getBbWidth() / 2 + .3, 1.2) != null : bank(body, hat) != null);
-    }
-
-    private static Waters.Edge bank(YukkuriEntity body, PlacedHatEntity hat) {
-        int asked = 0;
-        for (var edge : Waters.edges(body, hat.position(), 4, false)) {
-            var stand = edge.stand(body.getBbWidth());
-            if (!ContactGeometry.reachesFrom(body, stand, hat, true)
-                    && !new Beckon(hat).checkFrom(body, stand, SurfaceApproach.yaw(stand, hat.position())).ok()) continue;
-            if (asked++ >= Waters.ASKED) break;
-            if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return edge;
-        }
-        return null;
+                ? SurfaceApproach.beside(body, hat, body.getBbWidth() / 2 + .3, 1.2) != null : Waters.bankEdge(body, hat) != null);
     }
 
     @Override public String id() { return reclaim ? "resolve_own_hat" : "come_ashore"; }
@@ -103,7 +90,7 @@ final class Ashore implements Intent {
         var hat = AquaticLife.hat(owner);
         if (hat == null || hat.isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "hat_gone");
         if (!AquaticLife.onWater(hat)) return Feasibility.pass();
-        return bank(owner, hat) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_action");
+        return Waters.bankEdge(owner, hat) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_action");
     }
 
     private List<Supplier<Step>> derive() {
@@ -153,7 +140,7 @@ final class Ashore implements Intent {
      *  and waits for it to drift in (the player's nudge too), saying why once. */
     @SafeVarargs
     private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Action> close, Supplier<Step>... after) {
-        var edge = reclaim ? bank(owner, hat) : Waters.beside(hat, owner);
+        var edge = reclaim ? Waters.bankEdge(owner, hat) : Waters.beside(hat, owner);
         if (edge == null) {
             if (!AquaticLife.onWater(hat)) return beached(hat, close, after);
             return reclaim ? null : List.of(() -> waiting(hat, null));

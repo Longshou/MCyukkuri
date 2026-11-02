@@ -21,7 +21,6 @@
   "modifiers": {
     "aquatic_marisa": {
       "swim_speed": 1.5,
-      "swim": 1,
       "hat_boat": 1
     }
   }

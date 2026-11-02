@@ -594,7 +594,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         Motor.velocity(drop, getDeltaMovement(), cause);
         drop.setDefaultPickUpDelay();
         if (!level().addFreshEntity(drop)) {
-            GameplayLog.event(this, "hat", "pickup refused reason=item_spawn_failed owner={}", ownerYukkuri());
+            GameplayLog.limited(this, "hat", "refused.item_spawn", 200, "pickup refused reason=item_spawn_failed owner={}", ownerYukkuri());
             return;
         }
         if (owner != null && ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);

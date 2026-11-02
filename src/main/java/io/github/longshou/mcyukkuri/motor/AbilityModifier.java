@@ -9,10 +9,8 @@ import java.util.Set;
 public final class AbilityModifier {
     /** It can set its own worn hat down on the water and use it as a boat. */
     public static final String HAT_BOAT = "hat_boat";
-    /** It can deliberately enter water to approach a target, rather than only struggle to escape. */
-    public static final String SWIM = "swim";
     /** The capability keys a species modifier may carry next to the coefficient factors. */
-    public static final Set<String> FLAGS = Set.of(HAT_BOAT, SWIM);
+    public static final Set<String> FLAGS = Set.of(HAT_BOAT);
 
     /** The data-file key of this body's species, e.g. {@code aquatic_marisa}. */
     public static String speciesKey(YukkuriEntity body) {
