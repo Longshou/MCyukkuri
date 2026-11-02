@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -399,6 +400,8 @@ final class Waters {
         int asked = 0;
         for (var item : items) {
             var water = foodCell(level, item);
+            if (StatusEvents.trace()) GameplayLog.event(hat, "aquatic", "food candidate item={} at={} water={} from={}",
+                    item.getUUID(), GameplayLog.at(item.position()), water, from);
             if (water == null) continue;
             if (asked++ >= ASKED) break;
             if (water.equals(from) || !route(hat, water).isEmpty()) return item;
