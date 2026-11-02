@@ -1735,14 +1735,14 @@ def _babies():
 
 
 _HULL_READS = [('读漂浮、触发与扶正', f'yukkuri status {sel("a")} raw'), ('读帽子状态', f'data get entity {_HAT}')]
-_HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Pos', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
+_HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Riders', f'data get entity {_HAT} Pos', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
 
 
 pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
      '船主和两只赤油乘帽漂在静水上；帽檐贴近固定水线，船和乘员一起轻轻起伏倾斜。静水轻摆、乘员位置与储粮数都不会触发翻船；长时观察仍应保持正放',
      '约 3 分钟',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'), food=8)],
-     note='读 hat.float 的 capsizes=0、inverted=false；与 hat.tilt 对照轻摆。八份粮只显示帽底贴图；座位与乘员见 hat.float 的 seats 与帽子 Riders，不看穿模。',
+     note='读 hat.float 的 capsizes=0、inverted=false，帽子 Riders 看乘员与座位；与 hat.tilt 对照轻摆。八份粮只显示帽底贴图。',
      reads=_HULL_READS,
      smoke=dict(ticks=3600, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2'],
                 forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
