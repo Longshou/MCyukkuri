@@ -14,6 +14,8 @@
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
+| 浅水搁浅帽船变物品、近招远游取帽（反馈 7、12） | `.worktrees/fb-shallow-hat` | `aquatic/Ashore`、`HullAfloat` 搁浅判定、`social/YukkuriSocial` 取饰 |
+| 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
 
 ## 玩法待办
 
