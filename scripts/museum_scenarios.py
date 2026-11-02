@@ -2326,12 +2326,14 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
 
 
 pond('rescue_no_seat', '满座落水·抱到岸上', '满座送岸',
-     '亲帽已有两只赤油，第三只赤油从岸边落水；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己游上岸不算救起',
+     '亲帽已有两只赤油，第三只尚未学爬的新生赤油在近岸水里；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己上岸不算救起',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
-      *_babies(), _aquatic_young('rescue_no_seat', 'c1', bank_dx(1), 1, 'baby', 'a')],
-     late=[afloat('a', water_at(0, 1), True, sel_all('crew'), stick=True), shoved('c1', .12)],
-     note=_INCIDENT_NOTE + '满座由两只真实乘员占据；亲油落座与孩子跌入近岸水面同时准备，船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
+      *_babies()],
+     late=[afloat('a', water_at(0, 1), True, sel_all('crew'), stick=True),
+           _aquatic_young('rescue_no_seat', 'c1', bank_dx(1) + .9, 1, 'baby', 'a', dy=-.5,
+                          fam=_seat_family(.08, 0, 0), childhood='Version:2,Newborn:1b,Landed:1b')],
+     note=_INCIDENT_NOTE + '满座由两只真实乘员占据；新生赤油以近岸落水为真实初态，船长座位朝岸。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
                                     rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
