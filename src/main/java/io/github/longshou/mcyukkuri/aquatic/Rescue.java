@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Face;
-import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -37,8 +36,8 @@ final class Rescue implements Intent {
         GameplayLog.event(helper, "aquatic", "rescue start faller={} incident={}", faller.getUUID(), incident);
     }
 
-    /** Why she cannot lift this child, or null. A young that cannot sail is always lifted out: into a seat, or set down
-     *  on a bank stand within reach, so a missing seat is no reason to leave it in the water. */
+    /** Why she cannot accept this rescue, or null. A missing seat does not refuse a dependent child;
+     *  the accepted rescue still needs a reachable destination and physically feasible actions. */
     static String refusal(YukkuriEntity parent, YukkuriEntity child) {
         if (child.childhood().canSail()) return "can_sail";
         if (AquaticLife.hat(parent) == null && !parent.life().custody().worn()) return "no_hat";
@@ -69,9 +68,7 @@ final class Rescue implements Intent {
         if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);
         var ashore = Ferry.fetchAshore(helper, faller, shoreRelease);
         if (ashore != null) return ashore;
-        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank from={} banks={}", faller.getUUID(), helper.position(),
-                Waters.edges(helper, helper.position(), 2, false).stream().limit(4)
-                        .map(e -> e.stand(helper.getBbWidth()) + ":" + new Hop(e.stand(helper.getBbWidth())).check(helper)).toList());
+        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());
         return null;
     }
 
