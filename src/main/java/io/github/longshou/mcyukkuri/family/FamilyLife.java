@@ -770,6 +770,13 @@ public final class FamilyLife {
         spentStemCount=0;
         stop();entity.setPersistenceRequired();entity.syncFamily();
     }
+    /** Visible drain of an attack-conceived brood: 0 none, 1 carrying, 2 thinning (nutrition or stamina below 50), 3 weak (below 30 / 25). */
+    public int drainStage() {
+        var b=brood();
+        if(b==null||b.incidentSource==null||b.cancelled||b.complete())return 0;
+        float nutrition=entity.life().nutrition(),energy=entity.life().energy();
+        return nutrition<30||energy<25?3:nutrition<50||energy<50?2:1;
+    }
     private void tickAftermathBurden() {
         var pregnancy=brood();
         if(pregnancy==null||pregnancy.incidentSource==null||pregnancy.cancelled||pregnancy.complete()
@@ -778,9 +785,12 @@ public final class FamilyLife {
         // Hunger at zero uses YukkuriLife's ordinary starvation damage; there is no instant-death branch.
         if(++pregnancy.burdenTicks>=200) {
             pregnancy.burdenTicks=0;
+            int before=drainStage();
             float cost=1f+.2f*pregnancy.unborn();
             entity.life().spendNutrition(Math.min(cost,entity.life().nutrition()));
             entity.life().applyEnvironment(0,0,entity.life().nutrition()<30?2:1);
+            if(drainStage()!=before)GameplayLog.event(entity,"family","stem drain stage {}->{} brood={} unborn={} cost={} nutrition={} energy={}",
+                    before,drainStage(),pregnancy.id,pregnancy.unborn(),cost,entity.life().nutrition(),entity.life().energy());
         }
         FamilyData.get(level()).setDirty();
     }

@@ -126,8 +126,8 @@ public interface YukkuriView {
     String contactPose();
     float contactTurn();
     BlockPos contactAnchor();
-    boolean aftermathBurden();
-    boolean aftermathWeak();
+    /** Synced {@code FamilyLife.drainStage()}: 0 none, 1 carrying, 2 thinning, 3 weak. */
+    int aftermathDrain();
     CompoundTag agitationState();
     CompoundTag courtshipState();
     String waterDistressPhase();

@@ -170,13 +170,6 @@ final class AgitationPresentation {
             String id = entity.assetId();
             return VICTIM_FACE_IDS.contains(id) ? VICTIM_FACE : "cry";
         }
-        // Aftermath is visible during quiet rest and brooding. Urgent reactions and ordinary
-        // eating, sleep, handling and family interactions keep their own expressions.
-        String behavior = entity.getBehaviorId(), action = entity.getAnimationId();
-        if (entity.aftermathBurden() && (behavior.equals(Behaviors.IDLE) || behavior.equals(Behaviors.TEND_BROOD))
-                && (action.equals("idle") || action.equals("brood") || entity.aftermathWeak() && action.equals("droop"))
-                && !Set.of("cry", "blank_cry", "surprise").contains(entity.getExpressionId()))
-            return "teary";
         return otherwise;
     }
 

@@ -96,8 +96,7 @@ final class YukkuriSync {
     }
     CompoundTag agitationState() { return owner.getEntityData().get(AGITATION); }
     CompoundTag courtshipState() { return owner.getEntityData().get(COURTSHIP); }
-    boolean aftermathBurden() { return owner.getEntityData().get(AFTERMATH_STATE) > 0; }
-    boolean aftermathWeak() { return owner.getEntityData().get(AFTERMATH_STATE) == 2; }
+    int aftermathDrain() { return owner.getEntityData().get(AFTERMATH_STATE); }
     String waterDistressPhase() { return waterDistressSync().phase().orElse("IDLE"); }
     long waterDistressStartTick() { return waterDistressSync().start().value(); }
     boolean waterDistressEffort() { return waterDistressSync().effort().value(); }
@@ -225,8 +224,7 @@ final class YukkuriSync {
         setChanged(GROWTH_SCALE,owner.family().scale());setChanged(LIFE_STAGE,owner.family().stage().ordinal());
         var brood=owner.isAlive()?owner.family().brood():null;int count=owner.isAlive()?owner.family().spentStemCount():0,born=(1<<count)-1,
                 types=0;float progress=1,variation=owner.family().spentStemVariation();
-        setChanged(AFTERMATH_STATE,brood!=null&&!brood.cancelled&&!brood.complete()&&brood.incidentSource!=null
-                ?owner.life().nutrition()<30||owner.life().energy()<25?2:1:0);
+        setChanged(AFTERMATH_STATE,owner.isAlive()?owner.family().drainStage():0);
         if(brood!=null&&!brood.cancelled&&brood.kind==FamilyData.BirthKind.STEM) {
             count=brood.children.size();born=0;progress=brood.progress();variation=brood.variation;
             for(int i=0;i<count;i++){var child=brood.children.get(i);if(child.born)born|=1<<i;types|=child.variant.ordinal()<<(i*4);}

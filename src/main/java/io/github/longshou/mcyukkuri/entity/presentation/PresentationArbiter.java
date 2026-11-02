@@ -76,7 +76,9 @@ public final class PresentationArbiter {
         var court=e.family().courtshipState();
         if(court.getString("Phase").equals("CONTACT")&&e.getBehaviorId().equals(Behaviors.PAIRING))
             return court.getString("Role").equals("PENI")?"flushed_tongue":"satisfied";
-        if(e.aftermathBurden()&&(e.getBehaviorId().equals(Behaviors.IDLE)||e.getBehaviorId().equals(Behaviors.TEND_BROOD)))return "teary";
+        // Stem drain: tears first, then the dry face's own tired (2) and closed (3) lids on a plain face.
+        if(e.aftermathDrain()>0&&(e.getBehaviorId().equals(Behaviors.IDLE)||e.getBehaviorId().equals(Behaviors.TEND_BROOD)))
+            return e.aftermathDrain()==1?"teary":"neutral";
         String clip=e.getAnimationId();long start=e.getAnimationStartTick();
         switch(e.getBehaviorId()){
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
@@ -331,7 +333,7 @@ public final class PresentationArbiter {
     private static YukkuriAction stationaryAction(PresentationAccess state, String behavior, Actions actions) {
         var e = state.owner();
         if (state.reactionTicks() > 0 && state.reactionEvent().equals("birth_lost")) return YukkuriAction.BEREAVED;
-        if(e.aftermathWeak()&&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.DROOP;
+        if(e.aftermathDrain()==3&&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.DROOP;
         // A real successful conception gets a brief response before ordinary brooding resumes.
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")

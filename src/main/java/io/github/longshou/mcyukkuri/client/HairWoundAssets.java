@@ -23,6 +23,8 @@ final class HairWoundAssets {
                    float[][] outline,float[][] hairOutline) {}
     /** Whole-body burn vertex tint per grade (browned, smoked dark brown, near-black char), the former thermal-N swatches' mean colour over skin. */
     static final int[][] WHOLE_TINT={{196,150,112},{110,90,78},{52,44,40}};
+    /** Stem drain skin tint per stage: a cool grey dulling (not a tan or burn) that deepens as the stem drains the bearer (project design). */
+    static final int[] DRAIN_TINT={0xF0EEF0,0xDEDCE0,0xCCCAD2};
     static final class Palette {
         final Vector3f core;
         final float[][] cavityColours,coreColours;
@@ -109,6 +111,8 @@ final class HairWoundAssets {
         return profiles==null?null:profiles[wound.severity()];}
     static int wholeBurn(Iterable<BodyWound> wounds,boolean house){int result=0;for(var wound:wounds)
         if(wound.kind()==WoundKind.SCORCH&&wound.shape()==WoundShape.WHOLE_BURN)result=Math.max(result,house?3:wound.severity());return result;}
+    /** Stem drain thins the whole body sideways by the dry shape's cheek loss of the same grade as its dry face (project design). */
+    static float drainWidth(int drain){return drain==0?1:1-widthLoss[drain-1];}
     static ResourceLocation texture(String id,String expression,int grade){
         var model=MODELS.get(id);
         if(grade>0&&model!=null&&model.dryFaces.getOrDefault(grade,Set.of()).contains(expression))

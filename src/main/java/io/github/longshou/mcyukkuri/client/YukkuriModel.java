@@ -93,6 +93,7 @@ public final class YukkuriModel {
     private boolean[] woundAccessoryVertices;
     private boolean adultStatePose;
     private float pregnancyBelly,pregnancyContraction;
+    private int drain;
     /** The aquatic Marisa's larger hat: the hat bone scaled about its seat on the head. */
     private float hatScale=1;
     private String hatProp;
@@ -106,6 +107,11 @@ public final class YukkuriModel {
     private float reproductiveAmount;
     /** An independent visible anatomy layer; it never selects or advances a business action. */
     void setReproductiveAnatomy(String part,float amount){reproductiveAnatomy=part;reproductiveAmount=Math.clamp(amount,0,1);}
+    /** Stem drain dulls the skin surface only; a whole-body burn's own tint takes precedence. */
+    private int drainTint(String part){
+        var skin=HairWoundAssets.model(id);
+        return drain==0||skin==null||!skin.body.equals(part)?0xFFFFFF:HairWoundAssets.DRAIN_TINT[drain-1];
+    }
     public void setPregnancy(float belly,float contraction){pregnancyBelly=belly;pregnancyContraction=contraction;}
     public void setDelivery(LiveBirthRenderer.Delivery value){delivery=value;}
     /** Current selected mesh, retaining the visible parts and UVs for the unborn child's emergence. */
@@ -968,7 +974,7 @@ public final class YukkuriModel {
                     continue;
                 }
             }
-            int tint=woundDisplay==null?0xFFFFFF:woundDisplay.tint(part.name);
+            int tint=woundDisplay!=null?woundDisplay.tint(part.name):drainTint(part.name);
             var curled=tailCurl==null?null:tailCurl.part(partIndex);
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
@@ -1093,6 +1099,7 @@ public final class YukkuriModel {
             drawingWoundedBody=false;
             String expression=entity.getExpressionId();
             setExpression(expression);
+            drain=entity.aftermathDrain();
             float health=entity.getMaxHealth()<=0?1:Math.clamp(entity.getHealth()/entity.getMaxHealth(),0,1);
             var wounds=new ArrayList<>(entity.visibleWounds());
             for(var mark:entity.visibleMarks())if(mark.kind()==WoundKind.SCAR)wounds.add(mark);
@@ -1125,7 +1132,7 @@ public final class YukkuriModel {
                 woundDisplay.render(world,pregnancyBelly,stack,buffers,light,overlay);WoundLod.time(WoundLod.DISPLAY,displayStart);WoundLod.drawn(!woundDisplay.simple);}
             hatDamageDraw.drawCaps(buffers);
             if(accessory||pieces||hatMotion.equals("HAT_REMOVE"))renderReplacementHat(stack,buffers,light,overlay);
-        }finally{wear=0;wearClear=false;woundDisplay=null;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{wear=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0);setBraidReach(null,0);
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null,0);}
     }

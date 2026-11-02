@@ -52,7 +52,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     private ResourceLocation textureAt(YukkuriView entity, float partialTick) {
         String expression=entity.getExpressionId();
-        return HairWoundAssets.texture(entity.assetId(),expression,HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
+        int dry=Math.max(entity.aftermathDrain(),HairWoundAssets.wholeBurn(entity.visibleWounds(),entity.profile().houseBody()));
+        return HairWoundAssets.texture(entity.assetId(),expression,dry);
     }
 
     @Override
@@ -113,6 +114,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             boolean open=!entity.profile().houseBody()&&entity.visibleWounds().stream().anyMatch(BodySigns::open);
             float health=entity.getMaxHealth()<=0?1:entity.getHealth()/entity.getMaxHealth();
             pose.scale(BodySigns.sagWidth(health,open),BodySigns.sagHeight(health,open),BodySigns.sagWidth(health,open));
+            pose.scale(HairWoundAssets.drainWidth(entity.aftermathDrain()),1,1);
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
