@@ -73,7 +73,7 @@ final class Provision implements Intent {
         if (Waters.surface(body.level(), water).subtract(hat.position()).horizontalDistance() <= ARRIVE) return reachLoose(hat, pick);
         var route = Waters.route(hat, water);
         Waters.log(hat, body, water, route, "forage");
-        return route.isEmpty() ? null : List.of(() -> act(new Paddle(Waters.leg(route), ARRIVE)));
+        return route.isEmpty() ? null : List.of(() -> act(new Paddle(food::position, distance -> pick.check(body).ok())));
     }
 
     /** Approach a loose item on the hat's surface before the mouth takes it. */
