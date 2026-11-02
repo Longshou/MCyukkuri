@@ -18,7 +18,9 @@ public final class BraidFetch {
     /** Approach until the braid reaches the child's centre after the carrier's actual pickup turn; contact then tests its envelope. */
     public static boolean withinReach(YukkuriEntity carrier, YukkuriEntity child) {
         float yaw = ParentCarry.braidTurn(carrier, child, false);
-        return ContactGeometry.braidGap(carrier, yaw, child, false) <= 0;
+        if (ContactGeometry.braidGap(carrier, yaw, child, false) <= 0) return true;
+        yaw = ParentCarry.braidTurn(carrier, child, true);
+        return ContactGeometry.braidGap(carrier, yaw, child, true) <= 0;
     }
     public static List<Supplier<Step>> steps(YukkuriEntity carrier, YukkuriEntity child, SurfaceHost destination) {
         return List.of(() -> new Step.Do(new Grab(child, destination)), () -> new Step.Do(new Release(child, destination)));
