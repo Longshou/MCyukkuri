@@ -1738,6 +1738,29 @@ _HULL_READS = [('读漂浮、触发与扶正', f'yukkuri status {sel("a")} raw')
 _HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Riders', f'data get entity {_HAT} Pos', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
 
 
+def push_smooth(log):
+    """The light contact slides and then stops at the bank; no other contact may capsize."""
+    if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) != 1:
+        return 'expected only the fast impact to capsize'
+    travel = re.compile(r'\[hat\][^\n]* uuid=(\S+) t=\d+[^\n]* travel at=\([^)]*\) delta=\(([-\d.E]+),[^)]*\)[^\n]* impact=([-\d.E]+)')
+    by_hat = {}
+    for hat, dx, impact in travel.findall(log):
+        by_hat.setdefault(hat, []).append((float(dx), float(impact)))
+    smooth = any(0 < impact < .16 and len(rows[i + 1:i + 13]) == 12
+                 and all(next_dx < -1e-6 for next_dx, _ in rows[i + 1:i + 13])
+                 for rows in by_hat.values() for i, (_, impact) in enumerate(rows))
+    if not smooth:
+        return 'light contact must be followed by 12 non-zero steps in one direction'
+    banked = False
+    for rows in by_hat.values():
+        for i in range(1, len(rows)):
+            if rows[i - 1][0] < 0 and rows[i][1] > .16:
+                if any(abs(dx) > 1e-9 for dx, _ in rows[i + 1:i + 6]):
+                    return 'bank contact rebounded instead of staying stopped'
+                banked = True
+    return None if banked else 'no bank-stop displacement series'
+
+
 pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
      '船主和两只赤油乘帽漂在静水上；帽檐贴近固定水线，船和乘员一起轻轻起伏倾斜。静水轻摆、乘员位置与储粮数都不会触发翻船；长时观察仍应保持正放',
      '约 3 分钟',
@@ -1762,6 +1785,7 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],
+                verify=push_smooth,
                 readout=_HULL_READOUT + [f'yukkuri status {sel("fast")} raw']))
 
 
@@ -1829,7 +1853,7 @@ def water_aftermath(window):
 
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
 def _water_readouts(*bodies):
-    """Each named body's own status (its water distress phase, aims and its hat's float detail), then the hat's riders."""
+    """Each named body's own status (water distress phase, aims, its hat's float detail and its incident's outcome), then the hat's riders."""
     return [f'yukkuri status {sel(b)} raw' for b in bodies] + [f'data get entity {_HAT} Riders']
 _WATER_ESCAPE = [r'\[intent\][^\n]* start id=escape_water\b',
                  r'\[action\][^\n]* start id=swim owner=escape_water\b',
@@ -2051,7 +2075,8 @@ pond('shore_family', '饿了带孩子返岸', '亲子返岸',
 
 # ---- food, care, rescue and birth on the hat boat (refactor WP6b): real starting states only; who helps and when is the helpers' own decision.
 _INCIDENT_NOTE = ('每次落水由落水者自己开一个事件（[incident] open id=water#…），近旁的亲油各自只决定一次救不救（[incident] decide … chance= roll= accepted=，'
-                  '按友善的帮助概率；拒绝是真实的，之后不再改口），落水者上船、被叼出水、上岸或死亡时关闭（[incident] close … reason= decided=[…]）。')
+                  '按友善的帮助概率；拒绝是真实的，之后不再改口），落水者上船、被叼出水、上岸或死亡时关闭（[incident] close … reason= decided=[…]）。'
+                  '读 aquatic.rescue 看这件事与每个救助者的回答、那一次运行的结果（如 accepted/DONE rescued）。')
 
 
 def _kin_young(sid, slot, dx, dz, stage, mother, father, **kw):

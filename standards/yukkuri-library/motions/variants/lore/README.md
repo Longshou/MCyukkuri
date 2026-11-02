@@ -21,4 +21,4 @@ python standards/yukkuri-library/motions/variants/lore/author.py --export-aquati
 
 水生帽船的木棍、辫兜、嘴咬、翻覆、自救与船上日常片段由 `aquatic_tools.py` 编排（`--export-aquatic`）：除骨骼轨道外，片段还导出 `markers`（如 `power_start`／`power_end`）、`contacts`（骨骼与静止坐标点，或 `mouth`）与循环片段的 `base_pose`；游戏与 `aquatic_paddle_preview.py` 读同一份导出数据，后者画 `boat_paddle` 在帽船形态中的关键姿势（侧视、正视）与辫节前后弯曲带，`--form` 选形态。片段可在配方里写 `braid_path`：按时间给出辫梢末端在座位坐标里的目标点（模型单位，随身体偏航与平移转动），由 `braid_chain.arc` 按游戏同样的弯法解出整条辫子；`[t, "rest"]` 取共享的 `boat_braid.rest`（项目设计：睡莲叶帽船里船长把辫子搭出帽檐、辫梢在帽檐外的水面上方，帽底留给孩子和储粮）。贴帽动作按 `interactions/aquatic-marisa-hat/layout.py` 的船尾座位检查（船长左右转 15°，容差 0.1）。片段里的 `props.paddle` 键仍在（游戏不读，`aquatic_paddle_preview.py` 用它画木棍），划桨时游戏画的是辫子握住的真实原版木棍，`paddle_stick` 道具不在导出中。
 
-预览场景由同目录 `births.py` 与 `hat_motion_preview.py` 生成；它们只展示动作与接触编排，不运行游戏碰撞、AI 或成功率判定。
+预览场景由同目录 `births.py` 生成；它们只展示动作与接触编排，不运行游戏碰撞、AI 或成功率判定。

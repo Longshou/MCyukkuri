@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.headwear.Sanction;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.rare.RareForms;
@@ -398,6 +399,8 @@ public enum StatusKey {
     AQUATIC_DESIRE("aquatic", "desire", 0, y -> Drive.status(y), null),
     /** Whether the server's current presentation grips a real stick at the braid tuft. */
     AQUATIC_STICK_IN_BRAID("aquatic", "stick_in_braid", 0, YukkuriEntity::visiblePaddleStick, null),
+    /** Its newest water incident from the shared ledger: the one answer of each helper and how that run ended (read only). */
+    AQUATIC_RESCUE("aquatic", "rescue", 0, y -> AskLedger.server().outcome(y.getUUID()), null),
     GREET_CLICKS("social", "greet_clicks", 0, y -> y.social().greetClicks(), null),
     // ---- the set-down hat this body rides or has set down -----------------------------------------------------
     /** Its tilt in degrees, whether it lies crown up and whether a jump may land on it now. */

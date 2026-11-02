@@ -113,6 +113,26 @@ public final class AskLedger {
     /** Forgets everything (server stop), so a new world never inherits an old incident's decisions. */
     public void clear() { open.clear(); settled.clear(); }
 
+    /** The newest incident this body owns or is decided in, read off the kept decisions: who answered and how that run ended, or empty. */
+    public String outcome(UUID body) {
+        prune();
+        Incident found = null;
+        for (var i : open.values()) if (mine(i, body)) found = i;
+        for (var i : settled.values()) if (mine(i, body)) found = i;
+        if (found == null) return "";
+        var line = new StringBuilder(found.id).append(found.body == null ? " settled" : " open");
+        for (var d : found.decided.values())
+            line.append(' ').append(d.helper()).append(':').append(d.accepted() ? "accepted" : "refused").append('/')
+                    .append(found.ended.getOrDefault(d.helper(), "-"));
+        return line.toString();
+    }
+
+    private static boolean mine(Incident i, UUID body) {
+        if (i.owner.equals(body)) return true;
+        for (var d : i.decided.values()) if (d.helper().equals(body) || d.requester().equals(body)) return true;
+        return false;
+    }
+
     private Incident find(String id) {
         var i = open.get(id);
         return i != null ? i : settled.get(id);

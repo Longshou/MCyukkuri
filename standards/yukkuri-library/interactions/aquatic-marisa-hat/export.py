@@ -2,8 +2,9 @@
 texture and the hull's bounds contract (README: 帽船边界), with the art/source/aquatic-basin-hat snapshot (recipe, texture,
 fingerprints of inputs and outputs).
 
-The runtime hull is the bounds contract alone: the old oval and turned-land-hat hull profiles (hull_profiles/*.json) are gone,
-and every seat, support and stores read uses the bounds.
+The aquatic runtime hull is the bounds contract alone: the old oval and cone-basin profiles of this hat are gone, and every seat,
+support and stores read on it uses the bounds. The land birth cradle keeps its own turned-land-hat profile
+(`yukkuri_presentation/hull_profiles/marisa_hat_turned.json`), which this exporter does not write.
 
     python export.py [--set key.path=value ...]   # writes the runtime files and the snapshot; with --set prints the
                                                   # bounds of the changed recipe and writes nothing

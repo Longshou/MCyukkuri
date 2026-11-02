@@ -19,4 +19,4 @@ python -B standards/yukkuri-library/interactions/braid-water-rescue/author.py
 python -B standards/yukkuri-library/motions/variants/lore/author.py --export-distress
 ```
 
-以上仅导出资源。当前离线预览位于 `.local/previews/hat-motion/index.html`，生成源码为 `motions/variants/lore/hat_motion_preview.py` 与对应 HTML 模板，产物不入库。
+以上仅导出资源。离线预览：划桨姿势看 `motions/variants/lore/aquatic_paddle_preview.py`（`.local/previews/aquatic-paddle/paddle.png`），帽船与乘员看 `interactions/aquatic-marisa-hat/preview.py`；产物不入库。

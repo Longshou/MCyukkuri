@@ -132,6 +132,10 @@ def main():
         fit = ROOT / 'standards/yukkuri-library/drafts/care-props/preview_fit.py'
         subprocess.run([sys.executable, str(fit)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
         current_media |= {'pet-goods/fit.png', 'pet-goods/lineup.png', 'wild-nests/fit.png'}
+        # the paddle clip on the current hull (side, front and the braid's bend strip): lore/aquatic_paddle_preview.py
+        paddle = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_paddle_preview.py'
+        subprocess.run([sys.executable, str(paddle)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {'aquatic-paddle/paddle.png'}
         # Site previews may be reused only after their authoring inputs were checked.
         # The preview room never invokes the Java-based site renderer.
         import settlement_site_preview as sites
