@@ -281,8 +281,7 @@ def path_target(t, c):
 
 
 def path_tracks(model, action, samples, tracks, c):
-    """Rotation tracks of every braid chain bone that lay the tuft's end (its farthest vertex from the root, as the
-    cradle's reach_clip) on the clip's braid_path, bent as the game bends it (braid_chain.arc). The target turns with the
+    """Rotation tracks of every braid chain bone that lay the tuft's end (its farthest vertex from the root) on the clip's braid_path, bent as the game bends it (braid_chain.arc). The target turns with the
     body's yaw about the root pivot and moves with its x/z shift, so a tuck stays where she sits; height is the seat's.
     The tuft keeps the clip's own tip_rotation (curl, hook) on top."""
     bones = model['bones']; names = {b['name']: i for i, b in enumerate(bones)}; chain = braid_chain.chain(names)

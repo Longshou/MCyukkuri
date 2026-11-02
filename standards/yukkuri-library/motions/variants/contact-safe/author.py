@@ -161,17 +161,17 @@ def compile_revision(model, cfg, face):
             clip['expression_yield'] = cfg['puff']['expression_yield']
         result[action] = clip
     # World-setting motions (v9): new clip names the game selects from everyday behaviors.
+    owned = set()
     if cfg.get('lore'):
         lore_cfg = json.loads((LIBRARY/cfg['lore']).read_text(encoding='utf-8'))
         lore = runpy.run_path(str((LIBRARY/cfg['lore']).parent/'author.py'))
         result.update(lore['compile_clips'](model, lore_cfg, root, ground, height))
-        cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=cfg['braid_follow']['actions']+lore_cfg['braid_follow']))
+        owned = set(lore['TOOLS']['EXPORT_CLIPS'])  # aquatic_tools lays the braid itself in these clips
+        cfg = dict(cfg, braid_follow=dict(cfg['braid_follow'], actions=[a for a in cfg['braid_follow']['actions']+lore_cfg['braid_follow'] if a not in owned]))
     result.update(braid_follow(model, cfg, result))
     chain = braid_chain.chain({b['name']: i for i, b in enumerate(model['bones'])})
     if chain:  # the braid swing runs down the chain in every clip that moves it
-        result = {k: braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in result.items()}
-        if 'braid_cradle_lift' in result:
-            result['braid_cradle_lift'] = braid_chain.reach_clip(model, result['braid_cradle_lift'], lore['TOOLS']['palette'])
+        result = {k: clip if k in owned else braid_chain.follow(chain, clip, cfg['braid_chain']) for k, clip in result.items()}
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
                 'expression_aliases': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}

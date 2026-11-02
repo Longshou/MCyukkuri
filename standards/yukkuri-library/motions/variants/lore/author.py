@@ -34,6 +34,8 @@ TILT_FIX_CLIPS=('eat','drink','first_toilet_assist','newborn_crawl','nest_harves
                 'hat_off_aq','hat_on_aq','water_plunge','water_recover','water_hat_pull','water_hat_over')
 # Body pitch -8..+6, roll <= 6 (hard cap 12): effort is squash, stretch, shift, yaw and the face, never a whole-body flip.
 NEW_BRAID_CLIPS=('hat_brim_offer','hat_hop_up','water_bob_lunge','hat_slide_over','water_mouth_grip','water_hat_shake','water_hat_push','boat_nudge_young')
+# The composed resource names its newest family; aquatic_tools' paddle braid is the current one (author.py and the full exporter share it).
+AQUATIC_REVISION='aquatic-home-20261026-v32'
 _BRAID_RESCUE=None
 # Paddle stick, braid cradle, mouth bite, capsize and self-rescue clips (aquatic_tools.py), exported by --export-aquatic.
 TOOLS=runpy.run_path(str(Path(__file__).resolve().parent/'aquatic_tools.py'))
@@ -848,7 +850,7 @@ def export_distress_clips(include_pet=False, include_birth=False, include_carry=
     if include_birth:
         write(resource.parent/'live_birth_pose.json',json.dumps(birth_poses,ensure_ascii=False,separators=(',',':'))+'\n')
     if not prune_only:
-        payload['revision']='aquatic-home-20261026-v32' if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
+        payload['revision']=AQUATIC_REVISION if include_aquatic else 'comfort-lick-20261017-v29' if include_comfort else 'hat-care-contact-20261017-v26' if include_carry else 'birth-staging-20261017-v27' if include_birth else 'badge-motion-20261017-v28' if include_badge else 'braid-reach-low-20261018-v30'
     write(resource,json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
     entry=json.loads(manifest.read_text(encoding='utf-8'))
     for field,path in (('lore_recipe',here/'recipe.json'),('lore_author',here/'author.py'),('lore_aquatic_tools',here/'aquatic_tools.py'),('runtime',resource),

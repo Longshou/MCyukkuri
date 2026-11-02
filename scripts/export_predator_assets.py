@@ -1,9 +1,12 @@
-"""Export the two selected predator models without re-exporting other species."""
+"""Export the two selected predator models without re-exporting other species.
+
+    python export_predator_assets.py            # writes snapshots, runtime models, textures, provenance and the ledger
+    python export_predator_assets.py --check    # compares the same computed outputs with the existing files, writes nothing
+"""
 from pathlib import Path
 import base64
 import copy
 import json
-import shutil
 import sys
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -14,11 +17,26 @@ OUT=ROOT/'art/source/standard-runtime'
 PREVIEW=ROOT/'art/source/predator-runtime'
 PREVIEW_DATA=ROOT/'.local/previews/predator-runtime'
 sys.path[:0]=[str(SOURCE),str(LIB/'ecology/house-yukkuri'),str(LIB)]
-from author_species import read,save,sha,weights_for
+from author_species import read,sha,weights_for
 from mesh_geometry import vertices
 
 
 def relative(path):return path.relative_to(ROOT).as_posix()
+
+
+CHECK=False
+
+
+def put(path,data):
+    """Copy bytes into an export, or in --check mode assert the existing file already holds them."""
+    if CHECK:assert path.read_bytes()==data,'Outdated predator export: '+relative(path)
+    else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+
+
+def put_json(path,value,pretty=False):
+    text=json.dumps(value,ensure_ascii=False,indent=2 if pretty else None,separators=None if pretty else (',',':'),allow_nan=False)
+    if CHECK:assert path.read_text(encoding='utf-8')==text,'Outdated predator export: '+relative(path)
+    else:path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
 
 
 def export(ident):
@@ -46,16 +64,16 @@ def export(ident):
                vertices=flat,weights=weights,parts=parts,bones=[dict(name=b['name'],parent=-1 if b['parent'] is None else names[b['parent']],pivot=b['pivot']) for b in rig['bones']],
                clips=clips,behavior_clips=behavior)
     target=OUT/ident;target.mkdir(parents=True,exist_ok=True)
-    shutil.copyfile(bbpath,target/(ident+'.bbmodel'))
+    put(target/(ident+'.bbmodel'),bbpath.read_bytes())
     rig['vertex_weights']=weights;rig['binding_mode']='two_bone_linear_skinning'
-    save(target/'animation-rig.json',rig);save(target/'runtime.model.json',model)
-    runtime=ASSETS/'yukkuri'/(ident+'.json');save(runtime,model)
+    put_json(target/'animation-rig.json',rig);put_json(target/'runtime.model.json',model)
+    runtime=ASSETS/'yukkuri'/(ident+'.json');put_json(runtime,model)
     textures={};records={}
     expressions=read(LIB/'ecology/house-yukkuri/config.json')['expressions']+['biting']
     for expression in expressions:
         original=source/'textures'/(expression+'.png');output=ASSETS/'textures/entity'/ident/(expression+'.png')
-        output.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(original,output)
-        (target/'textures').mkdir(exist_ok=True);shutil.copyfile(original,target/'textures'/(expression+'.png'))
+        put(output,original.read_bytes())
+        put(target/'textures'/(expression+'.png'),original.read_bytes())
         textures[expression]='data:image/png;base64,'+base64.b64encode(original.read_bytes()).decode()
         records[expression]=dict(source=relative(original),runtime=relative(output),sha256=sha(output))
     record=dict(selected_model=relative(bbpath),selected_model_sha256=sha(bbpath),selected_rig=relative(rigpath),selected_rig_sha256=sha(rigpath),
@@ -67,16 +85,18 @@ def export(ident):
 
 
 def main():
+    global CHECK
+    CHECK='--check' in sys.argv
     catalog={};records={}
     for ident in ('remilia','flandre'):
         model,textures,record=export(ident);catalog[ident]=dict(model=model,textures=textures);records[ident]=record
         print(ident,len(model['weights']),'vertices',len(model['clips']),'base clips',len(model['behavior_clips']),'flight clips')
-    PREVIEW.mkdir(parents=True,exist_ok=True);PREVIEW_DATA.mkdir(parents=True,exist_ok=True)
-    save(PREVIEW_DATA/'preview-data.json',catalog)
-    save(PREVIEW/'provenance.json',dict(exporter=relative(Path(__file__)),exporter_sha256=sha(Path(__file__)),entities=records),True)
+    if not CHECK:put_json(PREVIEW_DATA/'preview-data.json',catalog)
+    put_json(PREVIEW/'provenance.json',dict(exporter=relative(Path(__file__)),exporter_sha256=sha(Path(__file__)),entities=records),True)
     ledger=ROOT/'art/runtime-sources.json';data=read(ledger)
     data['models']={**data.get('models',{}),**records};data['predator_preview']=relative(PREVIEW/'preview.html')
-    save(ledger,data,True)
+    put_json(ledger,data,True)
+    print('verified' if CHECK else 'exported',len(records),'predator models')
 
 
 if __name__=='__main__':main()

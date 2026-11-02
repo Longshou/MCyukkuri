@@ -1,14 +1,14 @@
 {
   "author": "scripts/runtime_house_interactions.py",
-  "author_sha256": "8106add0fdd9e15c2986d69d4a1d324a4760988c964aeda60fd7ed191b47f954",
+  "author_sha256": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
   "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
   "exporter": "scripts/export_house_carry_motion.py",
-  "exporter_sha256": "dd4151a9e4a6afb0ec6a2817817de8b4a4d572dc71ea5326bb5c8e6d20d137e2",
+  "exporter_sha256": "5e93a496681cdebff169181c1445d79765a451e0e11f313f4cc2330b804c8388",
   "models": {
     "house_reimu": {
-      "input_runtime_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
-      "runtime_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
-      "rig_sha256": "330995d3cd22cf1f80a79aba66f581258e3e0b8021d4563578e1429016d88a94",
+      "input_runtime_sha256": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
+      "runtime_sha256": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
+      "rig_sha256": "77b6af3a19043c61063f53caedaf77699809ef293d1bf7b7b5ed5be60e6ac8dc",
       "unchanged": [
         "rest_geometry",
         "UV",
@@ -22,9 +22,9 @@
       "idempotence": "passed"
     },
     "house_marisa": {
-      "input_runtime_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
-      "runtime_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
-      "rig_sha256": "f802324c520d1b543270adb83f7339ad656075877b0dca6896e794b9aa1e7d58",
+      "input_runtime_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
+      "runtime_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
+      "rig_sha256": "8c13ad570085c6f3493826f52dd227143b3bb231e090c70afb6cb491fbad3ea7",
       "unchanged": [
         "rest_geometry",
         "UV",

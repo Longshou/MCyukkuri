@@ -951,7 +951,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "not_executed",
+      "game_acceptance": "current_face_motion_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -1025,108 +1025,60 @@
           "shape_changed": false,
           "status": "pending_visual_confirmation"
         },
-        "face_motion": [
-          {
-            "part": "face_eye_left",
-            "anchor": "face_eye_left_skin_anchor",
-            "surface_height": 2.4136499999999996,
-            "skin_rows": [
-              19,
-              20
-            ],
-            "weight": 0.7190575916230344
-          },
-          {
-            "part": "face_eye_right",
-            "anchor": "face_eye_right_skin_anchor",
-            "surface_height": 2.4136499999999996,
-            "skin_rows": [
-              19,
-              20
-            ],
-            "weight": 0.7190575916230344
-          },
-          {
-            "part": "face_brow_left",
-            "anchor": "face_brow_left_skin_anchor",
-            "surface_height": 3.11325,
-            "skin_rows": [
-              25,
-              26
-            ],
-            "weight": 0.5795811518324605
-          },
-          {
-            "part": "face_brow_right",
-            "anchor": "face_brow_right_skin_anchor",
-            "surface_height": 3.11325,
-            "skin_rows": [
-              25,
-              26
-            ],
-            "weight": 0.5795811518324605
-          },
-          {
-            "part": "face_mouth",
-            "anchor": "face_mouth_skin_anchor",
-            "surface_height": 1.53915,
-            "skin_rows": [
-              12,
-              13
-            ],
-            "weight": 0.393403141361258
-          },
-          {
-            "part": "face_blush_left",
-            "anchor": "face_blush_left_skin_anchor",
-            "surface_height": 1.7140499999999999,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136118
-          },
-          {
-            "part": "face_blush_right",
-            "anchor": "face_blush_right_skin_anchor",
-            "surface_height": 1.7140499999999999,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136118
-          },
-          {
-            "part": "face_tear_left",
-            "anchor": "face_tear_left_skin_anchor",
-            "surface_height": 1.71405,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136136
-          },
-          {
-            "part": "face_tear_right",
-            "anchor": "face_tear_right_skin_anchor",
-            "surface_height": 1.71405,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136136
-          },
-          {
-            "part": "face_effect_mouth",
-            "anchor": "face_effect_mouth_skin_anchor",
-            "surface_height": 1.407975,
-            "skin_rows": [
-              11,
-              12
-            ],
-            "weight": 0.2945549738219899
+        "face_motion": {
+          "recipe": "art/source/standard-runtime/face-motion/recipe.json",
+          "recipe_sha256": "330b3309d426db531cfc4548583eb9e485747fd8af7801b188b9633532ac90d1",
+          "author": "scripts/runtime_house_face.py",
+          "author_sha256": "ab0f78dc51ebdb74df1391fc48a0b503f201e8defebe735dc3471f4353b101f9",
+          "manifest": "art/source/standard-runtime/face-motion/manifest.json",
+          "shape_changed": false,
+          "affected_clip": "waddle",
+          "affected_bones": [
+            "face_blush_left_skin_anchor",
+            "face_blush_right_skin_anchor",
+            "face_brow_left_skin_anchor",
+            "face_brow_right_skin_anchor",
+            "face_effect_mouth_skin_anchor",
+            "face_eye_left_skin_anchor",
+            "face_eye_right_skin_anchor",
+            "face_mouth_skin_anchor",
+            "face_tear_left_skin_anchor",
+            "face_tear_right_skin_anchor"
+          ]
+        },
+        "carry_motion": {
+          "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
+          "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+          "author": "scripts/runtime_house_interactions.py",
+          "author_sha256": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
+          "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
+          "shape_changed": false,
+          "affected_bones": [
+            "hand_left",
+            "hand_right"
+          ],
+          "affected_clips": [
+            "house_pickup",
+            "house_carry",
+            "house_deposit"
+          ],
+          "carry_pose": {
+            "status": "runtime_motion_adaptation",
+            "method": "rigid_short_locks_hold_above_forehead",
+            "half_grip_width": 0.28,
+            "contact_height": 0.45,
+            "lift_height": 4.6,
+            "vertical_reach_share": 0.92,
+            "units": "model_units_16_per_block",
+            "preserves": [
+              "rest_shape",
+              "lock_length",
+              "floor_contact",
+              "pickup_and_deposit_timing",
+              "waddle_face_anchors"
+            ]
           }
-        ]
+        }
       }
     },
     "house_marisa": {
@@ -1221,7 +1173,7 @@
         }
       },
       "shape_status": "pending_confirmation",
-      "game_acceptance": "not_executed",
+      "game_acceptance": "current_face_motion_recheck_pending",
       "retargeting": {
         "method": "house_lower_body_bow_and_short_lock_grip",
         "behavior_clips": [
@@ -1295,108 +1247,60 @@
           "shape_changed": false,
           "status": "pending_visual_confirmation"
         },
-        "face_motion": [
-          {
-            "part": "face_eye_left",
-            "anchor": "face_eye_left_skin_anchor",
-            "surface_height": 2.4136499999999996,
-            "skin_rows": [
-              19,
-              20
-            ],
-            "weight": 0.7190575916230344
-          },
-          {
-            "part": "face_eye_right",
-            "anchor": "face_eye_right_skin_anchor",
-            "surface_height": 2.4136499999999996,
-            "skin_rows": [
-              19,
-              20
-            ],
-            "weight": 0.7190575916230344
-          },
-          {
-            "part": "face_brow_left",
-            "anchor": "face_brow_left_skin_anchor",
-            "surface_height": 3.11325,
-            "skin_rows": [
-              25,
-              26
-            ],
-            "weight": 0.5795811518324605
-          },
-          {
-            "part": "face_brow_right",
-            "anchor": "face_brow_right_skin_anchor",
-            "surface_height": 3.11325,
-            "skin_rows": [
-              25,
-              26
-            ],
-            "weight": 0.5795811518324605
-          },
-          {
-            "part": "face_mouth",
-            "anchor": "face_mouth_skin_anchor",
-            "surface_height": 1.53915,
-            "skin_rows": [
-              12,
-              13
-            ],
-            "weight": 0.393403141361258
-          },
-          {
-            "part": "face_blush_left",
-            "anchor": "face_blush_left_skin_anchor",
-            "surface_height": 1.7140499999999999,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136118
-          },
-          {
-            "part": "face_blush_right",
-            "anchor": "face_blush_right_skin_anchor",
-            "surface_height": 1.7140499999999999,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136118
-          },
-          {
-            "part": "face_tear_left",
-            "anchor": "face_tear_left_skin_anchor",
-            "surface_height": 1.71405,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136136
-          },
-          {
-            "part": "face_tear_right",
-            "anchor": "face_tear_right_skin_anchor",
-            "surface_height": 1.71405,
-            "skin_rows": [
-              13,
-              14
-            ],
-            "weight": 0.8585340314136136
-          },
-          {
-            "part": "face_effect_mouth",
-            "anchor": "face_effect_mouth_skin_anchor",
-            "surface_height": 1.407975,
-            "skin_rows": [
-              11,
-              12
-            ],
-            "weight": 0.2945549738219899
+        "face_motion": {
+          "recipe": "art/source/standard-runtime/face-motion/recipe.json",
+          "recipe_sha256": "330b3309d426db531cfc4548583eb9e485747fd8af7801b188b9633532ac90d1",
+          "author": "scripts/runtime_house_face.py",
+          "author_sha256": "ab0f78dc51ebdb74df1391fc48a0b503f201e8defebe735dc3471f4353b101f9",
+          "manifest": "art/source/standard-runtime/face-motion/manifest.json",
+          "shape_changed": false,
+          "affected_clip": "waddle",
+          "affected_bones": [
+            "face_blush_left_skin_anchor",
+            "face_blush_right_skin_anchor",
+            "face_brow_left_skin_anchor",
+            "face_brow_right_skin_anchor",
+            "face_effect_mouth_skin_anchor",
+            "face_eye_left_skin_anchor",
+            "face_eye_right_skin_anchor",
+            "face_mouth_skin_anchor",
+            "face_tear_left_skin_anchor",
+            "face_tear_right_skin_anchor"
+          ]
+        },
+        "carry_motion": {
+          "recipe": "art/source/standard-runtime/carry-motion/recipe.json",
+          "recipe_sha256": "20446cfbeacf071018022e8805bd988163b1c6eeef51d8aa101597c860ff477a",
+          "author": "scripts/runtime_house_interactions.py",
+          "author_sha256": "fc04cba6c4a25b90e092058afa2420b4aeb768fbe37bd44a74f83472c9d1afe2",
+          "manifest": "art/source/standard-runtime/carry-motion/manifest.json",
+          "shape_changed": false,
+          "affected_bones": [
+            "hand_left",
+            "hand_right"
+          ],
+          "affected_clips": [
+            "house_pickup",
+            "house_carry",
+            "house_deposit"
+          ],
+          "carry_pose": {
+            "status": "runtime_motion_adaptation",
+            "method": "rigid_short_locks_hold_above_forehead",
+            "half_grip_width": 0.28,
+            "contact_height": 0.45,
+            "lift_height": 4.6,
+            "vertical_reach_share": 0.92,
+            "units": "model_units_16_per_block",
+            "preserves": [
+              "rest_shape",
+              "lock_length",
+              "floor_contact",
+              "pickup_and_deposit_timing",
+              "waddle_face_anchors"
+            ]
           }
-        ]
+        }
       }
     },
     "remilia": {

@@ -15,7 +15,9 @@ SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
 LORE = ROOT/'standards/yukkuri-library/motions/variants/lore'
 # What the paddle clips are authored and gated against (aquatic_tools: hull_forms, hull_gate, paddle_tracks).
 PRESENTATION = ROOT/'src/main/resources/assets/mcyukkuri/yukkuri_presentation'
-AQUATIC_INPUTS = [PRESENTATION/'braid_rescue.json', PRESENTATION/'hull_bounds/aquatic_basin_hat_turned.json']
+BRAID_RESCUE = ROOT/'standards/yukkuri-library/interactions/braid-water-rescue'
+HULL_BOUNDS = PRESENTATION/'hull_bounds/aquatic_basin_hat_turned.json'
+AQUATIC_INPUTS = [PRESENTATION/'braid_rescue.json', HULL_BOUNDS]
 VESSEL = ROOT/'standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json'
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 OUTPUT = ASSETS/'yukkuri_presentation/motion_corrections.json'
@@ -144,6 +146,7 @@ def main():
     source_hashes = {path: sha(path) for path in source_files}
     cfg = json.loads((SOURCE/'recipe.json').read_text(encoding='utf-8'))
     compile_revision = runpy.run_path(str(SOURCE/'author.py'))['compile_revision']
+    resource_revision = runpy.run_path(str(LORE/'author.py'))['AQUATIC_REVISION']
     reference = json.loads((ASSETS/'yukkuri'/(cfg['derived_mouth_from']+'.json')).read_text(encoding='utf-8'))
     transform = mouth_transform(reference)
     ref_patch, _ = mouth_patch(reference, transform)
@@ -180,7 +183,7 @@ def main():
                          'texture': rel(tex/'cheek_puff.png'), 'texture_sha256': hashlib.sha256(png).hexdigest()}
         print(ident, 'puff', models[ident]['clips']['puff']['expression_spans'], flush=True)
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
-    payload = json.dumps({'format': 2, 'revision': 'puff-body-20261017-v26', 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
+    payload = json.dumps({'format': 2, 'revision': resource_revision, 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:
         trial = Path(args.trial); (trial/'textures').mkdir(parents=True, exist_ok=True)
         (trial/'motion_corrections.json').write_text(payload, encoding='utf-8', newline='\n')
@@ -198,7 +201,11 @@ def main():
                 'lore_author': rel(LORE/'author.py'), 'lore_author_sha256': sha(LORE/'author.py'),
                 'lore_hat': rel(LORE/'hat.py'), 'lore_hat_sha256': sha(LORE/'hat.py'),
                 'hat_vessel': rel(VESSEL), 'hat_vessel_sha256': sha(VESSEL),
-                'aquatic_inputs': {rel(path): sha(path) for path in AQUATIC_INPUTS},
+                'aquatic_hull_bounds': rel(HULL_BOUNDS), 'aquatic_hull_bounds_sha256': sha(HULL_BOUNDS),
+                'lore_aquatic_tools': rel(LORE/'aquatic_tools.py'), 'lore_aquatic_tools_sha256': sha(LORE/'aquatic_tools.py'),
+                'braid_rescue_recipe': rel(BRAID_RESCUE/'recipe.json'), 'braid_rescue_recipe_sha256': sha(BRAID_RESCUE/'recipe.json'),
+                'braid_rescue_author': rel(BRAID_RESCUE/'author.py'), 'braid_rescue_author_sha256': sha(BRAID_RESCUE/'author.py'),
+                'braid_rescue_geometry': rel(AQUATIC_INPUTS[0]), 'braid_rescue_geometry_sha256': sha(AQUATIC_INPUTS[0]),
                 'exporter': rel(Path(__file__)), 'exporter_sha256': sha(Path(__file__)),
                 'placement_fit': rel(fit_path), 'placement_fit_sha256': sha(fit_path),
                 'runtime': rel(OUTPUT), 'runtime_sha256': hashlib.sha256(payload.encode()).hexdigest(), 'models': inputs}

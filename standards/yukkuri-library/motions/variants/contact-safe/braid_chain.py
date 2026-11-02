@@ -125,33 +125,6 @@ def rotations(rest, solved):
     return out
 
 
-def reach_clip(model, clip, palette):
-    """Bake the cradle's existing tip path with the runtime bend plane, easing on/off at its contact markers."""
-    bones = model['bones']; indices = chain({b['name']: i for i, b in enumerate(bones)})
-    vertices = np.array(model['vertices']).reshape(-1, 8)[:, :3]
-    tuft = np.concatenate([vertices[p['start']:p['start']+p['count']] for p in model['parts'] if p['name'].startswith('braid_lock_tuft')])
-    root = np.array(bones[indices[0]]['pivot'])
-    tip = tuft[np.argmax(np.linalg.norm(tuft-root, axis=1))]
-    rest = np.array([bones[i]['pivot'] for i in indices]+[tip.tolist()])
-    tracks = clip['tracks']; times = sorted({key[0] for tr in tracks for key in tr['keys']})
-    rows = {i: [] for i in indices}; previous = {}
-    for t in times:
-        world = palette(model, tracks, t)
-        parent = world[bones[indices[0]]['parent']]
-        target = (np.linalg.inv(parent)@world[indices[-1]]@np.r_[tip, 1])[:3]
-        solved = rotations(rest, arc(rest, target))
-        q = min(1., t/clip['markers']['contact_closed'])*(1-min(1., max(0., (t-clip['markers']['release'])/(clip['duration']-clip['markers']['release']))))
-        q = q*q*(3-2*q)
-        for i, rotation in zip(indices, solved):
-            local = np.linalg.inv(world[bones[i]['parent']])@world[i]
-            old = local[:3, :3]
-            blended = old@partial(old.T@rotation, q)
-            previous[i] = to_euler(blended, previous.get(i))
-            rows[i].append([round(t, 8), *[round(float(v), 5) for v in previous[i]]])
-    kept = [tr for tr in tracks if tr['bone'] not in indices or tr['channel'] != 'rotation']
-    return dict(clip, tracks=kept+[dict(bone=i, channel='rotation', keys=rows[i]) for i in indices])
-
-
 def _soft(R, limit):
     """R with its angle eased under `limit` degrees (limit*tanh(angle/limit)), so a fast swing whips but never kinks."""
     angle = math.degrees(math.acos(max(-1., min(1., (np.trace(R)-1)/2))))
