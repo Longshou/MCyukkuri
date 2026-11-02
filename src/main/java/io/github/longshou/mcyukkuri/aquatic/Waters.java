@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
@@ -280,11 +281,16 @@ final class Waters {
     private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
+        int reachable = 0;
         for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             if (!new Hop(hat, local).check(body).ok()) continue;
+            reachable++;
             if (ashore(body, hat.toWorld(local)) != null) return local;
         }
+        GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
+                "hop ashore unavailable hat={} at={} edge={} reachable_stops={} ability={}",
+                hat.getUUID(), GameplayLog.at(hat.position()), GameplayLog.at(edge.edge()), reachable, BodyAbility.of(body).detail());
         return null;
     }
 
