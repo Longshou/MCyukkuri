@@ -8,6 +8,11 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 迁徙途中亲代抬起反复被拒 | `.worktrees/fb-march-carry` | 迁徙行进与 `family/ParentCarry` 的身体归属、`colony_migrate_babies` |
+| 山洞成员走不到嗯嗯坑 | `.worktrees/fb-burrow-pit` | 寻路／聚落洞穴开口、`settle_pit` |
+| 茎生消瘦外观随恢复消退 | `.worktrees/fb-drain-recovery` | `family/FamilyLife` 消耗阶段、同步值 |
+| 子油小帽下水仍按成体船体尺寸 | `.worktrees/fb-kid-hat-scale` | `headwear/PlacedHatEntity` 帽尺寸、船体读者、`first_voyage` |
+| 预览数据超 50MB 与水生动作导出过期 | `.worktrees/fb-preview-size` | `art/source/*-runtime/preview-data.js` 生成位置、`author.py --export-aquatic` |
 
 ## 玩法待办
 
