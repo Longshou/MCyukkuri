@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -20,21 +21,17 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions for boarding, leaving and fetching a young from the captain seat: every target
  * is read when its step is due. A step that cannot be done ends blocked and the intent's runner counts it; nothing here retries.
  */
 final class Ferry {
-    /** Longest bank call for a child still following into pickup reach. */
-    private static final int FETCH_WAIT = 300;
-
     private Ferry() {}
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** A continuous chase from the captain seat, then the shared braid pickup and set-down. */
+    /** A water rescue from the captain seat, then the shared braid pickup and set-down. */
     static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
         var steps = chase(carrier, child);
         steps.addAll(BraidFetch.steps(carrier, child, hat));
@@ -61,6 +58,23 @@ final class Ferry {
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
                 distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
+        return steps;
+    }
+
+    /** The carrier stays on the bank: approach the child on foot, draw a drifting hull in, then lift into its admitted seat. */
+    static List<Supplier<Step>> loadFromBank(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {
+        var steps = new ArrayList<Supplier<Step>>();
+        steps.add(() -> {
+            if (BraidFetch.withinReach(carrier, child)) return null;
+            var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) / 2 + .15, 1.2);
+            return stand == null ? null : act(Walk.around(stand, child));
+        });
+        steps.add(() -> act(new Face(SurfaceApproach.yaw(carrier.position(), hat.position()))));
+        steps.add(() -> {
+            var seat = hat.seatDestination(child);
+            return seat == null || ContactGeometry.braidGap(carrier, seat.world(), true) <= 0 ? null : beckoning.step(carrier, hat);
+        });
+        steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }
 

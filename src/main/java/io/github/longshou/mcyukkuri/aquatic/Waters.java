@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
@@ -177,32 +176,18 @@ final class Waters {
         return out;
     }
 
-    /** The nearest roomy bank edge {@code body} can walk to, place a hat from and hop to its planned captain seat, with every
-     *  fetched ward within that seat's braid reach and no other hat over the hull, or null. */
-    static Edge berth(YukkuriEntity body, List<YukkuriEntity> wards) {
-        return berthNear(body, wards, body.position());
+    /** The nearest free berth the parent can approach and hop aboard from; children are loaded from the bank. */
+    static Edge berth(YukkuriEntity body) {
+        return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth()), () -> findBerth(body));
     }
 
-    /** A berth planned around a ward's bank rather than the parent's current one. */
-    static Edge berthNear(YukkuriEntity body, List<YukkuriEntity> wards, Vec3 at) {
-        var cells = wards.stream().map(y -> List.of(y.getUUID(), y.blockPosition())).toList();
-        return kept(body.level(), key(body.level(), "berth", BlockPos.containing(at), body.getBbWidth(), cells), () -> findBerth(body, wards, at));
-    }
-
-    /** Whether every ward is within braid reach of the captain seat planned at this berth. */
-    static boolean berthBraidReach(YukkuriEntity body, Edge edge, List<YukkuriEntity> wards) {
-        var at = hatAt(edge, body);
-        var captain = HatSeats.captain(at, HatScale.of(body) / 16.0, edge.yaw() + (float) HullBounds.BOARDING_YAW);
-        return wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0);
-    }
-
-    private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards, Vec3 at) {
-        for (var e : freeEdges(body, at)) {
+    private static Edge findBerth(YukkuriEntity body) {
+        for (var e : freeEdges(body, body.position())) {
             if (!floats(e, body)) continue;
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)) continue;
             var captain = HatSeats.captain(hatAt(e, body), HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
-            if (Hop.reaches(body, stand, captain) && berthBraidReach(body, e, wards)) return e;
+            if (Hop.reaches(body, stand, captain)) return e;
         }
         return null;
     }
@@ -426,17 +411,6 @@ final class Waters {
             var q = p.relative(d);
             if (calm(level, q)) return q;
             if (calm(level, q.below())) return q.below();
-        }
-        return null;
-    }
-
-    /** A calm-water leg toward a bank berth whose planned captain seat reaches this ashore child, or null when no such
-     *  water route exists. The caller waits rather than driving the hull onto land. */
-    static Vec3 fetchTarget(PlacedHatEntity hat, YukkuriEntity body, YukkuriEntity child) {
-        for (var edge : edges(body, child.position(), 4, false)) {
-            if (!berthBraidReach(body, edge, List.of(child))) continue;
-            var route = route(hat, edge.water());
-            if (!route.isEmpty()) return leg(route);
         }
         return null;
     }

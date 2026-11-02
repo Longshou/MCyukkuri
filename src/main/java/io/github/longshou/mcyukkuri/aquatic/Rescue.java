@@ -62,7 +62,7 @@ final class Rescue implements Intent {
             // An upside-down hull is righted first, then she boards and lifts from it.
             if (hat != null && hat.upsideDown()) return List.of(() -> new Step.Do(new Right(hat, "rescue")));
             return hat == null && !helper.life().custody().worn() ? null
-                    : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline(), List.of())));
+                    : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
         if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
         if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);

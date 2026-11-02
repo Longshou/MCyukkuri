@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.intent;
 
 import java.util.List;
-import net.minecraft.world.phys.Vec3;
 
 /** The result a behaviour wants to be true. Read-only in every method: satisfaction is a physical fact, the deadline is absolute and finite, and the method order may come from data. */
 public interface Intent {
@@ -18,9 +17,6 @@ public interface Intent {
     List<Method> methods();
 
     default Commitment commitment() { return Commitment.NONE; }
-
-    /** A moving target to prefer for attempt signatures, or null to use the runner's supplied target. */
-    default Vec3 movingTarget() { return null; }
 
     /** Whether this intent, rather than the general water-escape goal, currently owns the body's movement in water. */
     default boolean ownsBodyInWater() { return false; }
