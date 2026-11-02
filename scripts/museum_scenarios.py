@@ -2084,8 +2084,9 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
      late=[f'execute at {sel("aqua_owner")} run data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='两顶成体空帽相距 6 格，各在岸边 3 格外；子油空帽在两者之间，读 [hat] placed 的 scale 与 hullBox 核对实际帽体。水生空帽倒扣漂着（倒扣是它真实的漂浮姿态，不是被测环节）。'
           '水生放帽者从岸上先招帽靠岸、再咬檐推正、最后收回戴上（日志 [action] start id=beckon → end … at_bank → start id=right … push= → [hat] righted cause=reclaim → [headwear] reclaim done）；'
-          '够不着就等它漂近，仍不行就下水游过去爬进去。陆地魔理沙没有这个欲望，陆地帽落水会下沉。',
-     reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
+          '成体招不到就直接下水游去；尚不会出航的子油只在岸边真能够到时处理帽子，否则继续日常。陆地魔理沙没有这个欲望，陆地帽落水会下沉。',
+     reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读子油放帽者', f'yukkuri status {sel("kid_owner")} raw'),
+            ('读陆地放帽者', f'yukkuri status {sel("land_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* placed [^\n]* scale=0\.48999998[^\n]* hullBox=AABB',
                                    r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
                                    r'\[action\][^\n]* start id=right\b[^\n]*push=[\s\S]*\[hat\][^\n]* righted cause=reclaim\b[\s\S]*'
@@ -2093,7 +2094,7 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[action\][^\n]* refused id=beckon\b',
                         r'\[headwear\][^\n]* reclaim expired reason=(?:unreachable|no_way)\b',
                         r'\[headwear\][^\n]* reclaim waiting', r'\[body\][^\n]* death settled into remains'],
-                readout=[f'yukkuri status {sel(who)} raw' for who in ('aqua_owner', 'kid_owner', 'land_owner')]))
+                readout=[f'yukkuri status {sel(who)} raw' for who in ('aqua_owner', 'kid_owner', 'land_owner', 'aqua_worn', 'land_worn')]))
 
 
 # ---- daily life on the water (refactor WP6a): one aquatic goal runs one drive over real desires; no scene names a goal or an intent.
