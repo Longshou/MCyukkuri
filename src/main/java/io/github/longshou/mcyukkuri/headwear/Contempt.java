@@ -99,7 +99,8 @@ public final class Contempt {
         }
         observer.showReaction("angry", "hatless_scorn", 80);
         if (mobile(observer)) keepAway(observer, target, 5);
-        suffer(target, "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned", true);
+        suffer(target, "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned",
+                SettlementSociety.sameGroup(observer, target));
         GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
                 target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
         return AFTER_SCORN + observer.getRandom().nextInt(200);
@@ -128,9 +129,9 @@ public final class Contempt {
      * The face and line of the one being scorned or bullied, with exactly {@code unease} added: the line is only spoken, so
      * the reaction event's own unease (MindLife.felt) is not added on top.
      */
-    static void suffer(YukkuriEntity target, String face, String line, int ticks, float unease, String cause, boolean slavePressure) {
+    static void suffer(YukkuriEntity target, String face, String line, int ticks, float unease, String cause, boolean pitPressure) {
         if (!target.isAlive()) return;
-        if (slavePressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
+        if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
         target.showReaction(face, "", ticks);
         if (!line.isEmpty()) target.speak(line);
     }

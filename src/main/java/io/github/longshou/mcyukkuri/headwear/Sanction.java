@@ -154,8 +154,7 @@ public final class Sanction extends Goal {
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;
         // A slave kept by the group is no stranger to it: the group's own harshness toward it is the pit mockery, not a beating.
-        if (reason.equals("hatless") && SettlementSociety.sameGroup(e, target)
-                && (target.settlement().society().slave() || SettlementSociety.acceptsHatless(e, target))) return false;
+        if (reason.equals("hatless") && SettlementSociety.sparesHatlessBlame(e, target)) return false;
         boolean knows = Recognition.recognizes(e, target);
         if (reason.equals("hatless") || reason.equals("monster")) return !knows;
         if (reason.equals("non_yukkuri")) return target.settlement().groupId() == null || SettlementSociety.sameGroup(e, target);
@@ -185,7 +184,7 @@ public final class Sanction extends Goal {
         return target != null && target.isAlive() && !target.isRemoved() && target.level() == entity.level() && entity.isAlive()
                 && !entity.isPanicking() && !entity.body().dying() && entity.body().healthRatio() >= .3f
                 && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target)
-                && !(reason.equals("hatless") && SettlementSociety.acceptsHatless(entity, target)) && enabled();
+                && !(reason.equals("hatless") && SettlementSociety.sparesHatlessBlame(entity, target)) && enabled();
     }
     @Override public boolean canUse() {
         if (target != null) return valid() || finish(false);

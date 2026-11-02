@@ -43,6 +43,11 @@ public final class SettlementSociety {
         var record = target.settlement().society().record();
         return record != null && record.hatlessAccepted;
     }
+    /** The group's own 嗯嗯奴隶, or a hatless member the colony has accepted: never beaten for being hatless. */
+    public static boolean sparesHatlessBlame(YukkuriEntity observer, YukkuriEntity target) {
+        return sameGroup(observer, target)
+                && (target.settlement().society().slave() || acceptsHatless(observer, target));
+    }
     public static boolean accepted(YukkuriEntity member) {
         var role = member.settlement().society().role();
         return role == SettlementData.Role.MEMBER || role == SettlementData.Role.LEADER;
@@ -91,8 +96,8 @@ public final class SettlementSociety {
             if (kind != null) treat(kind, record);
             return;
         }
-        // Sustained kindness is durable colony acceptance, not a timer before the same member is rejected again.
-        if (record.hatlessAccepted || now < record.rememberedUntil) return;
+        // Sustained kindness is durable colony acceptance itself (`Member.hatlessAccepted`): there is no second timer for it.
+        if (record.hatlessAccepted) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);

@@ -121,7 +121,10 @@ public final class YukkuriLife {
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
                 && !level().isRainingAt(entity.blockPosition()) && !temperature.unsafeSleep();
     }
-    public boolean wantsFatigueRest() { return !isSleeping() && (energy <= 0 || napReady && energy <= 25) && canFatigueRest(); }
+    /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts. */
+    public boolean wantsFatigueRest() {
+        return !isSleeping() && (energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest();
+    }
     public void startFatigueRest() {
         interrupt();
         fullFatigueSleep = energy <= 0;

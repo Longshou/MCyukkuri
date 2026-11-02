@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
@@ -212,7 +213,9 @@ public final class MindLife {
         if (entity.tickCount % 24000 == 23999) namings = Math.max(0, namings - 1); // one naming forgiven per game day
         Stage now = stage();
         if (now != reported) {
-            MCYukkuri.LOGGER.info("[mind] {} #{} stage {} -> {} (unease {}, sweetness {})", entity.getVariant().assetId(), entity.getId(),
+            // A value held at a threshold (a slave's capped unease at 35) flips the stage back and forth every sample; the
+            // transition still matters, so it is reported at a bounded rate instead of once per flip.
+            GameplayLog.limited(entity, "mind", "stage", 600, "stage {} -> {} (unease {}, sweetness {})",
                     reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness));
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
                 entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);

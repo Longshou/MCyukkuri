@@ -149,8 +149,11 @@ public final class ForageGoal extends Goal {
             if (++walkTicks >= 120 || searchSpot == null || entity.getNavigation().isDone()) {
                 if (elapsed % 10 != 1) return;
                 searchSpot = null; walkTicks = 0;
+                // A sweep reaches as far down as sideways. A member standing above its food (a hill top, a burrow roof) can
+                // then walk down to the meadow instead of re-sweeping the bare plateau until it starves.
+                int reach = TravelRange.search(entity, 12);
                 for (int attempt = 0; attempt < 3; attempt++) {
-                    var point = LandRandomPos.getPos(entity,TravelRange.search(entity,12),3);
+                    var point = LandRandomPos.getPos(entity,reach,reach);
                     if (point == null || !TravelRange.babyDestination(entity,BlockPos.containing(point))
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))
                             || !entity.family().allowsIdleWalk(point)) continue;
