@@ -776,7 +776,7 @@ def compile_clips(model, cfg, root, ground, height):
         keys = {'position': [], 'rotation': [], 'scale': []}
         for t in samples:
             s, r, lift, shift = state(name, t, c, height)
-            support=0 if c.get('root_support') in ('free_water','shared_braid') else ground(s,r)-carry_floor
+            support=0 if c.get('root_support') in ('free_water','shared_braid') else TOOLS['bank_support'](model,s,r,shift,c['bank']['edge']) if c.get('root_support')=='bank' else ground(s,r)-carry_floor
             for channel, value in (('position', [shift[0], support+lift, shift[1]]), ('rotation', r), ('scale', s)):
                 keys[channel].append([round(t, 8), *[round(x, 7) for x in value]])
         tracks = [{'bone': root, 'channel': ch, 'keys': k} for ch, k in keys.items()]

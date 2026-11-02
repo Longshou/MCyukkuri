@@ -26,7 +26,7 @@ BRAID = ASSETS/'yukkuri_presentation/braid_rescue.json'
 BOUNDS = json.loads((ASSETS/'yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json').read_text(encoding='utf-8'))
 RECIPE = json.loads((Path(__file__).resolve().parent/'recipe.json').read_text(encoding='utf-8'))
 SHARED, BOAT_BRAID = RECIPE['paddle_shared'], RECIPE['boat_braid']
-PULL = (.05, .95)  # the power half, as fractions of power_start..power_end, where the blade and the tuft must be under water
+PULL = (0., 1.)  # the whole power half, as fractions of power_start..power_end, where the blade and the tuft must be under water
 FOLLOW = json.loads((Path(__file__).resolve().parents[1]/'contact-safe/recipe.json').read_text(encoding='utf-8'))['braid_chain']
 
 PADDLE_CLIPS = ('boat_paddle', 'hat_brim_offer', 'boat_nudge_young')
@@ -512,6 +512,23 @@ def hull_gate(model, action, samples, tracks, sticks, c, profiles=None):
     return worst
 
 
+def body_part(model):
+    """Her own body for standing ashore: no braid, cheek puffs or worn accessories (the hat is afloat while she beckons)."""
+    hidden = tuple(json.loads((ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants'][model['id']]['accessory_prefixes'])
+    return lambda n: not n.startswith(('braid_lock_', 'puff_')+hidden)
+
+
+def bank_support(model, s, r, shift, edge):
+    """Root lift (model units) that sets her lowest body point over the bank (no farther than `edge` toward the water, -z)
+    on its top (y 0) under the root scale `s`, rotation `r` and [x, z] `shift`: she stands on the bank, leaning out over its
+    edge, while the braid hanging below is laid into the water afterwards (path_tracks)."""
+    pick = body_part(model); V = np.array(model['vertices']).reshape(-1, 8)[:, :3]
+    P = np.unique(np.concatenate([V[p['start']:p['start']+p['count']] for p in model['parts'] if not p.get('anatomy') and pick(p['name'])]), axis=0)
+    pivot = np.array(model['bones'][bone_index(model, 'root')]['pivot'], float)
+    Q = (P-pivot)@(euler(r)*np.array(s)).T+pivot+[shift[0], 0, shift[1]]
+    return -float(Q[-Q[:, 2] <= edge, 1].min())
+
+
 def skinned(model, pick):
     """Unique skinned vertices of the non-anatomy parts whose names `pick` accepts: (homogeneous rest points, bone a, bone b, weight)."""
     V = np.array(model['vertices']).reshape(-1, 8)[:, :3]; W = np.array(model['weights'])
@@ -524,34 +541,52 @@ def posed(M, points):
     hv, a, b, w = points; return (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]
 
 
-def stroke_gate(model, action, samples, tracks, c):
-    """Fail a water stroke (boat_paddle, bank_beckon) whose loop does not close (every track's last key on its first) or whose
-    braid below its root lock sinks more than TOUCH deeper into her body than at rest, where its upper lobes already lie into
-    the body surface (along the outward normal at the nearest body point); bank_beckon also fails when the braid enters the
-    bank (below its top short of `edge` ahead) or its deepest point is not under the water by half the stroke's `depth`
-    through the pull (PULL). Prints the worst values."""
-    for tr in tracks:
+def prop_sticks(model, tracks, prop):
+    """The twig as the game places it from the props.paddle keys: per key its grip and unit axis toward the blade."""
+    tip = bone_index(model, prop['bone']); rest = np.array(model['bones'][tip]['pivot'], float); out = []
+    for k in prop['keys']:   # the tuft joint's frame times the key
+        M = palette(model, tracks, k[0]); A = M[tip]@np.r_[np.c_[np.eye(3), rest], [[0, 0, 0, 1]]]
+        G = (A@np.r_[k[1:4], 1])[:3]; d = -(polar(A[:3, :3])@euler(k[4:7]))[:, 1]; out.append((G, d/np.linalg.norm(d)))
+    return out
+
+
+def stroke_gate(model, action, samples, tracks, c, prop=None):
+    """Fail a water stroke (boat_paddle, bank_beckon) whose loop does not close (every track's and the props.paddle keys' last
+    key on its first), whose braid below its root lock sinks more than TOUCH deeper into her body than at rest (its upper
+    lobes already lie into the body surface there; along the outward normal at the nearest body point) or whose rendered
+    twig (prop keys, less `twig_radius`) enters her body. bank_beckon also fails unless her lowest body point over the bank
+    rests on its top (within TOUCH), no body point sinks into the bank or reaches the water, the braid stays out of the
+    bank (below its top short of `edge` ahead) and its deepest point is under the water by half the stroke's `depth`
+    through the whole power phase (PULL). Prints the worst values."""
+    for tr in tracks+([dict(prop, bone=prop['bone'], channel='prop')] if prop else []):
         a, z = np.array(tr['keys'][0][1:]), np.array(tr['keys'][-1][1:])
-        gap = abs((z-a+180) % 360-180) if tr['channel'] == 'rotation' else abs(z-a)
-        if gap.max() > 1e-3: raise ValueError(f'{model["id"]} {action}: the loop does not close on bone {tr["bone"]} {tr["channel"]}')
+        gap = abs(z-a) if tr['channel'] in ('position', 'scale') else np.r_[abs(z-a)[:3], abs((z-a+180) % 360-180)[3:]] if tr['channel'] == 'prop' else abs((z-a+180) % 360-180)
+        if gap.max() > 1e-3: raise ValueError(f'{model["id"]} {action}: the loop does not close on {tr["bone"]} {tr["channel"]}')
     names = {b['name']: i for i, b in enumerate(model['bones'])}; lock = names['hand_right']
     braid = skinned(model, lambda n: n.startswith('braid_lock_')); hanging = ~((braid[1] == lock) & (braid[2] == lock))
-    body = skinned(model, lambda n: 'body_surface' in n)
+    body = skinned(model, lambda n: 'body_surface' in n); whole = skinned(model, body_part(model))
     m = c['markers']; core = [m['power_start']+q*(m['power_end']-m['power_start']) for q in PULL]
+    p = paddle_spec(c) if prop else None; along = np.linspace(-p['top_length'], p['blade_length'], 25) if prop else None
+    sticks = prop_sticks(model, tracks, prop) if prop else [None]*len(samples)
 
-    def sunk(M):
-        P = posed(M, braid); B = posed(M, body); H = P[hanging]; near = B[np.argmin(((H[:, None]-B[None])**2).sum(-1), axis=1)]
-        out = (near-B.mean(0))/np.linalg.norm(near-B.mean(0), axis=1, keepdims=True); return P, float(((H-near)*out).sum(1).min())
-    rest = sunk(palette(model, [], 0))[1]; inside, bank, wet = math.inf, math.inf, math.inf
-    for t in samples:
-        P, gap = sunk(palette(model, tracks, t)); inside = min(inside, gap-rest)
+    def outside(points, B):   # least signed distance of points out of the body B along its outward normal
+        near = B[np.argmin(((points[:, None]-B[None])**2).sum(-1), axis=1)]
+        out = (near-B.mean(0))/np.linalg.norm(near-B.mean(0), axis=1, keepdims=True); return float(((points-near)*out).sum(1).min())
+    M = palette(model, [], 0); rest = outside(posed(M, braid)[hanging], posed(M, body))
+    inside, twig, bank, wet, rests, sinks = math.inf, math.inf, math.inf, math.inf, [], math.inf
+    for t, stick in zip(samples, sticks):
+        M = palette(model, tracks, t); P = posed(M, braid); B = posed(M, body); inside = min(inside, outside(P[hanging], B)-rest)
+        if stick: twig = min(twig, outside(stick[0]+np.outer(along, stick[1]), B)-p['twig_radius'])
         if 'bank' in c:
-            b = c['bank']; below = P[:, 1] < 0
+            b = c['bank']; W = posed(M, whole); over = -W[:, 2] <= b['edge']; rests.append(float(W[over, 1].min()))
+            sinks = min(sinks, float(W[over, 1].min()), float(W[:, 1].min()-b['water']))
+            below = P[:, 1] < 0
             if below.any(): bank = min(bank, float((-P[below, 2]).min()-b['edge']))
             if core[0] <= t <= core[1]: wet = min(wet, float(b['water']-P[:, 1].min()))
-    print(f'  {action}: loop closes; braid clears her body by {inside:.2f} beyond rest'+(f', the bank by {bank:.2f}; tuft {wet:.2f} under water' if 'bank' in c else ''), flush=True)
-    if inside < -TOUCH or 'bank' in c and (bank < 0 or wet < c['bank']['depth']/2):
-        raise ValueError(f'{model["id"]} {action}: the braid enters her body or the bank, or the tuft misses the water')
+    print(f'  {action}: loop closes; braid clears her body by {inside:.2f} beyond rest'+(f', twig by {twig:.2f}' if prop else '')
+          + (f'; body on the bank {min(rests):.2f}..{max(rests):.2f}, the braid clears the bank by {bank:.2f}; tuft {wet:.2f} under water' if 'bank' in c else ''), flush=True)
+    if inside < -TOUCH or twig < -TOUCH or 'bank' in c and (max(abs(r) for r in rests) > TOUCH or sinks < -TOUCH or bank < 0 or wet < c['bank']['depth']/2):
+        raise ValueError(f'{model["id"]} {action}: the braid or twig enters her body, she does not stand on the bank, or the braid enters the bank or misses the water')
 
 
 def extras(model, action, samples, tracks, c):
@@ -569,7 +604,8 @@ def extras(model, action, samples, tracks, c):
         hull_gate(model, action, samples, tracks+braid, sticks, c)
     if 'braid_path' in c and braid_chain.chain(names):
         more += path_tracks(model, action, samples, tracks, c)
-    if action in ('boat_paddle', 'bank_beckon') and 'hand_right_tip' in names: stroke_gate(model, action, samples, tracks+more, c)
+    if action in ('boat_paddle', 'bank_beckon') and 'hand_right_tip' in names:
+        stroke_gate(model, action, samples, tracks+more, c, fields.get('props', {}).get('paddle'))
     rotation = None if action in PADDLE_CLIPS or 'braid_path' in c else [tip_rotation(action, t, c) for t in samples]
     if rotation and rotation[0] is not None and 'hand_right_tip' in names:
         more.append({'bone': names['hand_right_tip'], 'channel': 'rotation',
@@ -611,12 +647,7 @@ def exported(action):
     tracks = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
     prop = clip.get('props', {}).get('paddle'); sticks = None
     if prop:
-        samples = [k[0] for k in prop['keys']]; tip = names[prop['bone']]; rest = np.array(model['bones'][tip]['pivot'], float)
-        sticks = []
-        for k in prop['keys']:   # the twig as the game places it: the tuft joint's frame times the key
-            M = palette(model, tracks, k[0]); A = M[tip]@np.r_[np.c_[np.eye(3), rest], [[0, 0, 0, 1]]]
-            G = (A@np.r_[k[1:4], 1])[:3]; d = -(polar(A[:3, :3])@euler(k[4:7]))[:, 1]   # the authored grip and twig axis
-            sticks.append((G, d/np.linalg.norm(d)))
+        samples = [k[0] for k in prop['keys']]; sticks = prop_sticks(model, tracks, prop)
     else:
         n = math.ceil(clip['duration']/cfg['sample_seconds']); samples = [clip['duration']*i/n for i in range(n+1)]
     return model, tracks, samples, sticks, cfg['clips'][action]

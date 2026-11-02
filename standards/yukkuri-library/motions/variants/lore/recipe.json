@@ -781,6 +781,7 @@
       "duration": 1.6,
       "loop": true,
       "applies": "aquatic_marisa",
+      "root_support": "bank",
       "faces": [
         [
           0,
@@ -798,7 +799,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "Project design (user 2026-11-02: near the bank the hat is stroked in, the braid really in the water): Beckon ashore with the bare braid. She turns her braid side to the water before her, flattens on the bank edge and sinks toward that side; the tuft end follows `bank`'s stroke (aquatic_tools.stroke, shared with the stick blade): in at the catch, drawn toward the bank under the surface through the power half (power_start..power_end), lifted just over the water and swung back out in the recovery. `bank` is in model units from her feet in the bank's frame (-z toward the water): `water` the flush bank's surface (a vanilla source block 8/9 high), `edge` the farthest the bank can reach before her (Beckon's stroke point: half her width's diagonal and .05 block), `turn` her yaw, `lean_out` her shift toward the water. Gate: aquatic_tools.stroke_gate.",
+      "lore": "Project design (user 2026-11-02: near the bank the hat is stroked in, the braid really in the water): Beckon ashore with the bare braid. She turns her braid side to the water before her, flattens on the bank edge and sinks toward that side; the tuft end follows `bank`'s stroke (aquatic_tools.stroke, shared with the stick blade): in at the catch, drawn toward the bank under the surface through the power half (power_start..power_end), lifted just over the water and swung back out in the recovery. `bank` is in model units from her feet in the bank's frame (-z toward the water): `water` the flush bank's surface (a vanilla source block 8/9 high), `edge` the farthest the bank can reach before her (Beckon's stroke point: half her width's diagonal and .05 block), `turn` her yaw, `lean_out` her shift toward the water; `root_support` bank: her lowest body point (no braid) stands on the bank top. Gate: aquatic_tools.stroke_gate.",
       "triggers": [
         "Beckon: her own hat afloat within a braid stroke of the bank where she stands"
       ],
