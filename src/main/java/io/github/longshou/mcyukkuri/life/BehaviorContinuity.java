@@ -8,7 +8,7 @@ public final class BehaviorContinuity {
 
     public static boolean emergency(YukkuriEntity entity) {
         if (!entity.isAlive() || entity.isRemoved() || entity.isPanicking() || entity.isOnFire()
-                || entity.isInWaterOrBubble() || entity.waterDistress().active()
+                || entity.isInWaterOrBubble() || entity.waterDistress().active() && entity.waterDistress().phase() != WaterDistress.Phase.RECOVER
                 || entity.isCommandPlaying() || entity.operations().controlling()
                 || entity.body().dying() || entity.mind().nonYukkuri()
                 || entity.life().hotFloor().active() || entity.life().nutrition() < 15 || entity.life().energy() < 15) return true;

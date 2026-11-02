@@ -10,6 +10,8 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
@@ -52,7 +54,13 @@ final class Rescue implements Intent {
     @Override public boolean satisfied() {
         return faller.isAlive() && (AquaticLife.aboard(faller, AquaticLife.hat(helper)) || AquaticLife.ashore(faller));
     }
-    @Override public List<Method> methods() { return List.of(Plan.of("braid_fetch", this::derive)); }
+    @Override public List<Method> methods() {
+        return List.of(Plan.of("braid_fetch", this::derive),
+                // A faller can swim out during the reach clip: this way must physically close the gap first.
+                Plan.of("approach_faller", () -> AquaticLife.aboard(helper, AquaticLife.hat(helper))
+                        && !BraidFetch.withinReach(helper, faller) ? Feasibility.pass()
+                        : Feasibility.of(Reason.NO_CONTACT, 0, "no_approach_needed"), this::derive));
+    }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
     @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
 
