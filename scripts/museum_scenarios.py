@@ -260,14 +260,6 @@ def pit_trip(window):
     return None if re.search(r'toilet pit edge reached\b', window) else 'no member reached the pit edge'
 
 
-def slave_life(window):
-    problem = pit_trip(window)
-    if problem: return problem
-    if not re.search(r'pit slave (?:eats droppings [^\n]*nutrition=|hungry reason=no_droppings)', window):
-        return 'slave neither took a portion nor reported an empty pit'
-    return None
-
-
 def slave_token(window):
     found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*pit slave ', window)
     return None if found is None else f'{found[1]} #{found[2]} '
@@ -280,8 +272,10 @@ def colony_death(window):
 
 def slave_survives(window):
     """Three real days with a supplied pit: the slave itself must not sweeten, break, starve or die, and no colony member dies."""
-    problem = slave_life(window)
+    problem = pit_level(window)
     if problem: return problem
+    if not re.search(r'pit slave (?:eats droppings [^\n]*nutrition=|hungry reason=no_droppings)', window):
+        return 'the slave neither took a portion nor reported an empty pit'
     token = slave_token(window)
     if token is None: return 'no slave line to identify the slave'
     end = max((int(tick) for tick in re.findall(r' t=(\d+) ', window)), default=0)
@@ -308,6 +302,8 @@ def starves_without_pit_food(window):
 def release_holds(window):
     """Gentle restoration keeps the previous MEMBER/LEADER role past a day and another rejection window, without any
     rejection, madness, sanction, wound or death of the released individual; no colony member may die in the scene."""
+    problem = pit_level(window)
+    if problem: return problem
     found = re.search(r'\[settlement\] (\w+) #(\d+) uuid=(\S+)[^\n]*hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment', window)
     if found is None: return 'the slave never recovered its former member or leader role'
     token, uuid = f'{found[1]} #{found[2]} ', found[3]
@@ -460,7 +456,7 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
                readout=[f'yukkuri status {_SLAVE} raw', f'yukkuri status {_KIND} raw'],
-               verify=lambda window: pit_trip(window) or release_holds(window)))
+               verify=release_holds))
 
 # ====================================================================================================== daily life meadow
 def _bed_walk_verify(log, crossing_limit=4):
