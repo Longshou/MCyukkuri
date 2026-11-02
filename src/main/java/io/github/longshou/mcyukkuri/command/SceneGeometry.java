@@ -61,7 +61,9 @@ final class SceneGeometry {
         var foot = new AABB(box.minX + 1e-5, box.minY - .06251, box.minZ + 1e-5,
                 box.maxX - 1e-5, box.minY + 1e-5, box.maxZ - 1e-5);
         if (level.getBlockCollisions(entity, foot).iterator().hasNext() || entity.isPassenger()) return true;
-        for (var pos : BlockPos.betweenClosedStream(box.expandTowards(0, -.0625, 0)).toList()) {
+        // BlockPos's stream reuses a mutable cursor; consume each cell before advancing it.
+        for (var cells = BlockPos.betweenClosedStream(box.expandTowards(0, -.0625, 0)).iterator(); cells.hasNext();) {
+            var pos = cells.next();
             var fluid = level.getFluidState(pos);
             if (fluid.is(FluidTags.WATER) && pos.getY() + fluid.getHeight(level, pos) >= box.minY - .0625) return true;
         }
