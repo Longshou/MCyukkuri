@@ -353,7 +353,8 @@ _COLONY_RELIEVES = 'execute as @e[type=#mcylab:yukkuri,distance=..30,limit=1,sor
 _PIT_FOOD = [item('minecraft:apple', 32, -4, 4), item('minecraft:apple', 32, 4, 4),
              item('minecraft:apple', 32, -4, -4), item('minecraft:apple', 32, 4, -4)]
 # These exhibits isolate the adult pit/social loop from the separate child-care pressure system.
-_PIT_GROWN = [Retry('execute as @e[type=#mcylab:yukkuri,distance=..70] run data merge entity @s {YukkuriFamily:{Age:336000L,Nourishment:336000L,Stage:"ADULT",Sterile:1b}}', _PIT_ADULTS, tries=1, first=100)]
+_PIT_GROWN = [Retry('execute as @e[type=#mcylab:yukkuri,distance=..70] run yukkuri status set @s growth.age_ticks 336000', _PIT_ADULTS, tries=1, first=100),
+              Retry('execute as @e[type=#mcylab:yukkuri,distance=..70] run yukkuri status set @s reproduction.sterile true', _PIT_ADULTS, tries=1, first=101)]
 add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '同一处山脚小群（固定成员：首领、一家三口、一家两口），入住约 6 秒后无子女的族长失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
@@ -462,8 +463,7 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
     reads=[*_PIT_READS, ('读奴隶的角色与身份', f'yukkuri status {_SLAVE} raw'), ('读温和成员的性格', f'yukkuri status {_KIND} raw')],
     # Opening relief rounds supply real acts of kindness; the following days leave the colony to ordinary life.
     smoke=dict(ticks=84000,
-               commands=[(160, 'yukkuri readout yukkuri status @e[type=#mcylab:yukkuri,distance=..70,limit=1] raw')]
-                        + [(tick, _KIND_RELIEVES) for tick in range(600, 6000, 400)],
+               commands=[(tick, _KIND_RELIEVES) for tick in range(600, 6000, 400)],
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
                readout=[f'yukkuri status {_SLAVE} raw', f'yukkuri status {_KIND} raw'],
