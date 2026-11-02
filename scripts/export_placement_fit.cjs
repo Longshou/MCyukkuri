@@ -62,8 +62,8 @@ for(const [form,spec] of Object.entries(formsRecipe.forms)){
 }
 if(updateOnly){
  const previous=JSON.parse(fs.readFileSync(runtime,'utf8')),old=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
- for(const id of updateOnly){if(result.models[id])previous.models[id]=result.models[id];else delete previous.models[id];}
- Object.assign(old.models,manifest.models);
+ const updated=new Set([...updateOnly,...Object.keys(result.models)]); // requested ids plus the forms they rebuilt
+ for(const id of updated){if(result.models[id]){previous.models[id]=result.models[id];old.models[id]=manifest.models[id];}else{delete previous.models[id];delete old.models[id];}}
  old.exporter_sha256=manifest.exporter_sha256;result=previous;manifest=old;
 }
 const text=JSON.stringify(result)+'\n';

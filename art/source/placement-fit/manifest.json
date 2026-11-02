@@ -6,7 +6,7 @@
   "author": "standards/yukkuri-library/presentation/placement-fit/author.cjs",
   "author_sha256": "20cc50b18336ec00aecb0eb79946245deedc52f92731104702b4f261c5dddacd",
   "exporter": "scripts/export_placement_fit.cjs",
-  "exporter_sha256": "2477af2c9b76980b2ff5a62b6197c8e635033b2942832e0fdf24a589fdd7592a",
+  "exporter_sha256": "fbdf6ed6893ba4768e969b46dc7b52e4d67d0008a0bb6f023715896f404fc9aa",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "models": {
     "reimu": {

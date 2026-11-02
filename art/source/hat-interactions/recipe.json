@@ -10,7 +10,7 @@
   "motion": "Raise the hat independently, then move forward; return reverses the same motion. Hair stays on the body.",
   "carry": "Young entities around the brim ring (front, then sides, then back), facing outward; feet on the real brim top, whole bodies apart and clear of the hat and bow.",
   "exporter": "scripts/export_hat_interactions.py",
-  "exporter_sha256": "aaf18ff802629f78483f380eab63709cb3169c4f19d1ab1e6d68245c34fc48ad",
+  "exporter_sha256": "42154c22d528c3d3947587afc07bca13fcc33cc72e8d614db343b1c47a3c80bb",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
   "runtime_sha256": "d7399528a3189297f4ad014e6a5fbe3496566ac7127ccd5ca599ef2398e00aa7",
   "sources": {

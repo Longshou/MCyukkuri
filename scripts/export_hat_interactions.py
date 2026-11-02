@@ -16,7 +16,7 @@ def bounds(m,p):
 def main():
     result={'version':1,'variants':{},'children':{}}
     fingerprints={};fits=placement_fit.load()
-    for path in (ASSETS/'yukkuri').glob('*.json'):
+    for path in sorted((ASSETS/'yukkuri').glob('*.json')):
         m=read(path)
         if 'vertices' not in m:continue
         m=placement_fit.fitted(path,fits)
