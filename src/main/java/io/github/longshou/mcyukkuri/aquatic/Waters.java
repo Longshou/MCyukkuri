@@ -184,10 +184,13 @@ final class Waters {
 
     private static Edge findBerth(YukkuriEntity body) {
         for (var e : freeEdges(body, body.position())) {
-            var stand = e.stand(body.getBbWidth());
+            var stand = boardingStand(e, body);
             if (!SurfaceApproach.canApproach(body, stand)
                     || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
-            var frame = new HostFrame(hatAt(e, body), HatScale.of(body) / 16.0,
+            var at = hatAt(e, body);
+            var floating = new Vec3(at.x, HullAfloat.surface(body.level(), at.x, at.y - 2, at.z)
+                    - HullPresentation.waterHeight(HatScale.of(body) / HullBounds.SCALE, 0, 0), at.z);
+            var frame = new HostFrame(floating, HatScale.of(body) / 16.0,
                     (float) Math.toRadians(180 - e.yaw() - HullBounds.BOARDING_YAW), 0, 0);
             var stops = HullBounds.brimStops(body.growthScale() * body.getScale() * HullBounds.SCALE / HatScale.of(body)).stream()
                     .map(p -> new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT)).toList();
@@ -241,7 +244,7 @@ final class Waters {
         int asked = 0;
         for (var e : edges(body, hat.position(), 4, false)) {
             if (asked++ >= ASKED) break;
-            var stand = boardingStand(e, hat, body);
+            var stand = boardingStand(e, body);
             if (SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand)) return e;
         }
         return null;
@@ -297,7 +300,7 @@ final class Waters {
     private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
-            var at = e.stand(body.getBbWidth());
+            var at = boardingStand(e, body);
             if (hatOver(body, at, 0)) continue;
             if (asked++ >= ASKED) break;
             if (Hop.reaches(body, from, at)) return at;
@@ -424,7 +427,7 @@ final class Waters {
         return edge.onWater(HullBounds.RADIUS * HatScale.of(owner) / HullBounds.SCALE + .05);
     }
 
-    static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {
+    static Vec3 boardingStand(Edge edge, YukkuriEntity body) {
         return edge.edge().subtract(edge.normal().scale(SurfaceApproach.supportRadius(body)));
     }
 

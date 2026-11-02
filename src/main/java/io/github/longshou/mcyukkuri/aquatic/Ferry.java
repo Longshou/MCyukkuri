@@ -92,7 +92,7 @@ final class Ferry {
         return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
                     if (hop.get().check(body).ok()) return null;
                     var edge = Waters.beside(hat, body);
-                    var stand = edge == null ? null : Waters.boardingStand(edge, hat, body);
+                    var stand = edge == null ? null : Waters.boardingStand(edge, body);
                     return stand == null || SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
                 },
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),

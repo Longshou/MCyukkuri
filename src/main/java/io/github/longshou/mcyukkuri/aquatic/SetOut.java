@@ -111,7 +111,7 @@ final class SetOut implements Intent {
             if (edge != null && gatherUntil == 0 && !fetch.isEmpty()) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
-                var stand = edge.stand(owner.getBbWidth());
+                var stand = Waters.boardingStand(edge, owner);
                 return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)), () -> {
                             var current = dependentAshore(AquaticLife.hat(owner));
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
@@ -167,7 +167,7 @@ final class SetOut implements Intent {
             return List.of(() -> new Step.Wait(() -> false, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
         }
         GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
-        var stand = edge.stand(owner.getBbWidth());
+        var stand = Waters.boardingStand(edge, owner);
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
                 () -> new Step.Do(new Face(edge.yaw())),
                 // Keep the whole hull clear of the bank; boarding reaches its supported brim first.
