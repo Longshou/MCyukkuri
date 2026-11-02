@@ -50,12 +50,14 @@ class Scenario:
         self.lines = [line for i, line in enumerate(self.lines) if i not in deferred]
         f = BY_ID[field]
         self.anchor = f.spots[spot] if spot else f.anchor
+        self.plot = f.plot_rect(*self.anchor)
         self.sub = sub                 # name of the plot cleared before this scenario (default: the whole field)
         self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
         self.smoke = smoke             # optional {ticks, expect, forbid}; runner only, never emitted into the pack
         self.capture = capture if capture is not None else dict(shots=(1, 40, 200, 600), sequences=((60, 160, 2),))
         self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
+        self.layout_ticks = max([40] + [40 + r.first for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
 
     @property
     def tag(self):
@@ -127,7 +129,7 @@ def adult_pair(sid, mother_kind='reimu', father_kind='marisa', dz=3, baby=True, 
 
 _o, _ = adult_pair('den_family')
 add('den_family', 'den', '家庭洞·一家三口', '家庭洞', '父母和赤油住进土丘洞：识别为同一个家（status 的 home.kind 是 burrow），夜里回洞、储粮、外出',
-    '数分钟（可倍速）', _o, env=DAY, spot='family', vantage=(0, 12),
+    '数分钟（可倍速）', _o, env=DAY, spot='family', vantage=(0, 9, 180),
     reads=[('读家的识别', 'yukkuri status @e[tag=scn_mother,limit=1,sort=nearest,distance=..60]')])
 
 _wm, _wf, _wc = (uid('widow_family', name) for name in ('mother', 'father', 'child'))
@@ -195,7 +197,7 @@ add('den_barrier', 'den', '洞口结界', '灵梦结界',
 add('dig', 'forage', '流浪油挖穴', '流浪挖穴', '没有家的成年流浪油走到土丘边：先挖通地面，再向上挖内部第二层；入口保留一格高、内部两格高，每块约 6 秒，挖完自成一个家',
     '约 3–6 分钟（可倍速）', [
         yk('marisa', 0, 0, 'vagrant', yaw=180, lead=True, **pair_ready()),
-        'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 12),
+        'gamerule mobGriefing true'], env=DAY, spot='dig', vantage=(0, 6, 180),
     reads=[('读挖穴阶段', f'yukkuri status {sel("vagrant")} raw')])
 
 _fm, _ff, _fc = uid('forage', 'mother'), uid('forage', 'father'), uid('forage', 'child')
@@ -271,7 +273,7 @@ add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
     '不在洞口或空地上排。读数看坑内各格份数与档位；日志 [needs] toilet pit trip start → toilet pit edge reached → poop placed → relieved source=pit',
     '约 1–3 分钟', ['yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
-    env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    env=DAY, spot='forest', vantage=(0, 16, 180), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
           Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600)],
     reads=[*_PIT_READS, ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')],
@@ -287,7 +289,7 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
     '读数看奴隶营养与坑内份数；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=mcyukkuri:yukkuri_waste',
     '约 2–5 分钟（可倍速）', ['yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
-    env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
+    env=DAY, spot='forest', vantage=(0, 16, 180), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri status set {_SLAVE} accessory.state lose', _SLAVE, tries=1, first=160),
@@ -407,17 +409,17 @@ add('feed', 'family', '嚼糜喂食', '嚼糜喂食',
     '约 1–3 分钟；读双方与实际粮源', [
     block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
     yk('chen', 0, 0, 'mom', yaw=-90, friendliness=95, **pair_ready()),
-    yk('reimu', 3, 0, 'baby', dy=.2, stage='baby', nutrition=25, yaw=90, lead=True),
+    yk_on_nest('reimu', 3, 0, 'baby', stage='baby', nutrition=25, yaw=90, lead=True),
     f'yukkuri scenario kin {sel("mom")} {sel("baby")} false',
     block(0, 0, 7, 'mcyukkuri:yukkuri_nest'),
-    yk('chen', 0, 7, 'mom_in', dy=.2, friendliness=95, **pair_ready()),
+    yk_on_nest('chen', 0, 7, 'mom_in', friendliness=95, **pair_ready()),
     yk('reimu', 3, 7, 'baby_out', stage='baby', nutrition=25),
     f'yukkuri scenario kin {sel("mom_in")} {sel("baby_out")} false',
     yk('chen', -5, 12, 'reluctant', friendliness=0, self_control=0, **pair_ready()),
     yk('reimu', -2, 12, 'requester', stage='baby', nutrition=25),
     f'yukkuri scenario kin {sel("reluctant")} {sel("requester")} false',
     item('minecraft:apple', 2, -16, 0), block(-10, 0, 7, 'minecraft:short_grass')],
-    spot='feed', vantage=(0, 17), give=['minecraft:apple 4'],
+    spot='feed', vantage=(0, 12), give=['minecraft:apple 4'],
     reads=[(label, f'yukkuri status {sel(name)} raw') for label,name in
            [('读窝外亲油','mom'),('读窝内赤油','baby'),('读窝内亲油','mom_in'),('读窝外赤油','baby_out'),
             ('读低友善亲油','reluctant'),('读低友善子代','requester')]])
@@ -532,7 +534,7 @@ add('family_nests', 'family', '窝容量与成长分窝', '大小窝同居',
     '先看认窝，再观察成长', [*shed(0, 0, half=5), *large_nest(0, 0, 'mcyukkuri:large_yukkuri_nest'),
     block(-3, 0, 0, 'mcyukkuri:yukkuri_nest'), block(3, 0, 0, 'mcyukkuri:yukkuri_nest'),
     yk('reimu', -1, -.5, 'mother', uuid=_nest_ids['mother'], energy=35, rest_wait=0, lead=True),
-    yk('marisa', 2.2, .1, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
+    yk('marisa', 2, 2, 'father', uuid=_nest_ids['father'], energy=35, rest_wait=0),
     f'yukkuri scenario bond {sel("mother")} {sel("father")}',
     *[yk('reimu', x, z, f'b{i}', stage='baby', uuid=_nest_ids[f'b{i}'], energy=35, rest_wait=0,
          kin=f'Mother:{uuid_nbt(_nest_ids["mother"])},Father:{uuid_nbt(_nest_ids["father"])}') for i,(x,z) in enumerate([(-.9,2.1),(.2,2.6),(1.2,2),(2.2,2.8)])],
@@ -661,7 +663,7 @@ def house_pair():
 
 HOUSE_ACTIVITY = 'yukkuri household activity 24000 false true'
 add('house_empty', 'house', '空屋·模拟人类活动', '空屋待搬入', '屋里没有家油：按“模拟人类活动”相当于住了一天（落下絮尘和食屑），随后有一只家油搬进来、选墙角、筑巢',
-    '搬入几十秒，筑巢数分钟', [say('按观察台第一排右边的“模拟人类活动”，再用“推进”快进。', 'gold')], env=DAY, vantage=None,
+    '搬入几十秒，筑巢数分钟', [say('按观察台第一排右边的“模拟人类活动”，再用“推进”快进。', 'gold')], env=DAY, vantage=(0, 8, 180, 10),
     reads=[('读家油现状', 'yukkuri household status')])
 add('house_pair', 'house', '一对家油入住', '一对家油', '从夜晚开始，屋内已有真实人类活动留下的絮尘和食屑：家油挑墙角、叼絮铺窝、储食；按“正午”对照白天躲窝休息',
     '数分钟（可倍速）', [*house_pair(), HOUSE_ACTIVITY], env={'time': 'night'}, vantage=None,
@@ -748,7 +750,7 @@ _swaddle_chest = ','.join(f'{{Slot:{i}b,id:"mcyukkuri:swaddle_cloth",count:1,com
 _swaddle_pets, _swaddle_wear = [], []
 for _i, (_style, _label) in enumerate(_SWADDLE_LOOKS):
     _pet = f'swaddle_{_style}'
-    _swaddle_pets += [yk(('reimu', 'marisa', 'alice')[_i % 3], -14 + 4 * _i, 0, _pet, stage='baby' if _i % 2 == 0 else 'child', grade=1, label=_label,
+    _swaddle_pets += [yk(('reimu', 'marisa', 'alice')[_i % 3], -3 + 2 * (_i % 4), 2 * (_i // 4), _pet, stage='baby' if _i % 2 == 0 else 'child', grade=1, label=_label,
                          lead=_i == 0, nutrition=90, energy=100, hygiene=100), *own(_pet)]
     _swaddle_wear += [f'data modify entity {sel(_pet)} YukkuriPet.Care merge value {{Swaddle:1b,SwaddleStyle:"{_style}"}}',
                       f'data modify entity {sel(_pet)} YukkuriPet.Care.WearOwner set from entity @s UUID']
@@ -756,9 +758,9 @@ add('swaddle_worn', 'town', '襁褓上身·八款并排', '襁褓已穿',
     '八只自家宠物赤油／子油（灵梦、魔理沙、爱丽丝轮流）已穿着八款襁褓并排站开，头顶名字是款式；最右一只赤油没包，右边木箱里有八款襁褓布，'
     '手持右键它包上，护理菜单“解开”取回同款。看各款外观与图标同款、首字母款背后是本物种首字母、发辫尾巴在布外不穿模',
     '随意', [*_swaddle_pets, *_swaddle_wear,
-             yk('reimu', 18, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
-             block(22, 0, 0, f'minecraft:chest[facing=west]{{Items:[{_swaddle_chest}]}}')],
-    reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 12))
+             yk('reimu', 5, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
+             block(7, 0, 0, f'minecraft:chest[facing=west]{{Items:[{_swaddle_chest}]}}')],
+    reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
 add('harness_walk', 'town', '亲手牵引与照料', '亲手牵引',
     '先用胴带右键宠物，再用拴绳牵引；戴上后短暂回应即恢复活动。走动、停下喂食，再解绳观察它恢复日常', '随意', [
@@ -790,13 +792,13 @@ add('attack_witness', 'town', '目击玩家攻击', '目击攻击',
 
 # ---- shop and factories: the whole building is placed by `human build`, which levels the lot and fills the shop itself
 add('shop_build', 'shop', '整座商店', '整座商店', '商店整体放下：展舱有银章与金章个体，后场有无章库存；右键店主开店。读档案确认受训库存六项技能、徽章编号和有效期，购买放出后保持',
-    '建筑几秒', ['yukkuri human build shop ~8 ~ ~17 south'], give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook'], vantage=(0, 30, 180),
+    '建筑几秒', ['yukkuri human build shop ~8 ~ ~17 south'], give=['minecraft:emerald 128', 'mcyukkuri:badge_handbook'], vantage=(8, 21, 180, 0),
     reads=[('店铺登记（shop list）', 'yukkuri human shop list'),
            ('读店内个体档案', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..80] raw'),
            ('读徽章与技能存档', 'execute as @e[type=#mcylab:yukkuri,distance=..80] run data get entity @s YukkuriPet')])
 for _kind, _caption, _pad in (('labor', '劳动工厂', -44), ('manju', '馒头工厂', 0), ('bag', '袋子工厂', 44)):
     add(f'factory_{_kind}', 'factory', _caption, _caption, f'{_caption}整体放下：监工、流水线工位和流水线上的个体', '建筑几秒',
-        [f'yukkuri human build {_kind} ~{_pad} ~ ~17 south'], vantage=(_pad, 40, 180), spot=None)
+        [f'yukkuri human build {_kind} ~{_pad} ~ ~17 south'], vantage=(_pad, 21, 180, 0), spot=None)
 
 # ====================================================================================================== clips (buttons are built in build_museum_full.py)
 
@@ -903,7 +905,7 @@ for _sid, _title, _nutrition, _energy in (
             yk('alice', 10, 0, 'source', extra=agitation_start('IDLE'), **pair_ready()),
             *own('affected'), *own('source'), home('affected', 3, 2),
             *([item('minecraft:apple', 16, 0, 3)] if _growth else [])],
-        env=DAY, give=['minecraft:apple 16'],
+        env=DAY, give=['minecraft:apple 16'], vantage=(0, 4),
         note='通过场景入口建立事后胎次；来源仅作血缘登记。生长组观察发育，消耗组观察茎生负担逐步耗尽营养，末期组观察已有耗竭的结算。',
         late=[f'yukkuri scenario aftermath {sel("affected")} {sel("source")}'],
         reads=[('读事后负担', f'yukkuri status {sel("affected")}')])
@@ -1335,7 +1337,7 @@ for _i, (_x, _z, _label, _stage, _friend, _bold) in enumerate((
 add('puff_response', 'headwear', '被噗咕的数值反应', '噗咕反应',
     '四组真实失饰初态，由凶悍者自行识别并发起制裁宣告。对照小体型胆小、友善、普通与凶悍大胆目标的逃跑／无视／噗咕回应／激怒攻击；自然升级有概率，不直接指定行为。受伤、恐惧及当时任务会改变决定；日志 social puff 记录当前体型比、友善、胆量、任务重要程度和选择',
     '约1–3分钟；读实际制裁与反应，不将未发生宣告算作无视', _puff_pairs,
-    env=DAY, vantage=(0, 26), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
+    env=DAY, vantage=(0, 22), reads=[(f'读回应{i+1}',f'yukkuri status {sel(f"puff_target{i}")} raw') for i in range(4)])
 
 # ---- species traits and rare forms
 add('species_fatigue', 'species', '物种体力消耗对照', '体力消耗',
@@ -1491,7 +1493,6 @@ _judge = []
 for _i, _off in enumerate(('theft', 'hatless', 'returned_exile', 'cannibal'), 1):
     _judge += [f'tag @e[type=#mcylab:yukkuri,tag=!scn_lead,tag=!scn_picked,nbt={{YukkuriFamily:{{Stage:"ADULT"}}}},distance=..45,limit=1,sort=random] add scn_off{_i}',
                f'tag @e[tag=scn_off{_i},limit=1] add scn_picked',
-               f'execute as @e[tag=scn_off{_i},limit=1] at @e[tag=scn_lead,limit=1] run tp @s ~{_i} ~ ~1',
                f'execute as @e[tag=scn_off{_i},limit=1] run yukkuri settlement rules offend @s {_off}']
 colony('colony_judge', '族规·审判', '族规审判',
        '四只成员被记录不同罪名，族长逐案走近、停步相向、听取与训斥，再按罪重、前科和族长性格执行处罚；附近目击者作出反应',
@@ -1590,14 +1591,14 @@ add('shop_stale', 'shop', '滞销库存照料', '滞销库存照料',
           'scoreboard players remove #now scn_t 264000',
           f'execute as {STOCK} store result entity @s NeoForgeData.HumanCommerce.ForSaleSince long 1 run scoreboard players get #now scn_t',
           f'yukkuri status set {STOCK} needs.nutrition 24'],
-    give=['minecraft:emerald 16', CORE_FILLING], env=DAY, vantage=(0, 30, 180), note=NEW,
+    give=['minecraft:emerald 16', CORE_FILLING], env=DAY, vantage=(8, 21, 180, 0), note=NEW,
     reads=[('读滞销个体', f'yukkuri status {STOCK[:-1]},limit=1,sort=nearest]')])
 add('factory_wear', 'factory', '种油损耗', '种油损耗',
     '馒头工厂的种油已生产 5 轮：每 5 秒压力把不安推向 32、卫生拉向 60；再生一窝（不安 +5、哭）满 6 轮就退役进流水线',
     '约 1–3 分钟（人要待在附近）', ['yukkuri human build manju ~0 ~ ~17 south'],
     late=['execute as @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}}] '
           'run data modify entity @s NeoForgeData.HumanCommerce.FactoryCycles set value 5'],
-    env=DAY, vantage=(0, 40, 180), note=NEW,
+    env=DAY, vantage=(0, 21, 180, 0), note=NEW,
     reads=[('读种油', 'yukkuri status @e[type=#mcylab:yukkuri,distance=..60,nbt={NeoForgeData:{HumanCommerce:{Use:"breeder"}}},limit=1,sort=nearest]')])
 add('exam_fail', 'town', '考试不及格', '考试不及格',
     '和“考场”一样，但宠物灵梦饿得只剩营养 4：考试必然不及格，之后被管教（不安 +10、营养清零），比原来的压力更重',
@@ -1703,10 +1704,10 @@ def captain(name='a', *, dx=0, dz=0, **kw):
     return yk('marisa', dx, dz, name, aquatic=True, yaw=-90, lead=True, **pair_ready(), **kw)
 
 
-def pond(sid, title, hint, watch, wait, lines, note='', **kw):
+def pond(sid, title, hint, watch, wait, lines, note='', vantage=(-6, 6, -90), **kw):
     # Restore the entire shared field before actors spawn; specialised scenes may override it below.
     add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
-        env=DAY, note=note, vantage=(-6, 6, -90), **kw)
+        env=DAY, note=note, vantage=vantage, **kw)
 
 
 def bank_dx(dz):
@@ -1821,6 +1822,7 @@ pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
      '石槽里一股真实落水从高处流下，船主在瀑流旁的帽子上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
      '约 30 秒',
      [*flow_channel(True), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 4))],
+     vantage=(bank_dx(0) + 5, -2, 0, 65),
      late=[block(bank_dx(0) + 4, 2, 0, 'minecraft:water')],
      note='读 hat.float 的 trigger=turbulence、falling、value、capsizes 与 inverted；日志只记一次触发。水与地形在清场后恢复。',
      reads=_HULL_READS,
@@ -1838,6 +1840,7 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      '宽石槽上游一排水源形成同向水流；船主乘帽随水流缓慢漂动，碰到槽边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
      [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 3))],
+     vantage=(bank_dx(0) + 5, -2, 0, 65),
      note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。槽尽头浅水落定不算翻覆。',
      reads=_HULL_READS,
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],

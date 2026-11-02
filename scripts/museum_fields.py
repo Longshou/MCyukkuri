@@ -67,6 +67,9 @@ class Field:
     def rect(self):
         return (self.x1 - 2, self.z1 - 2, self.x2 + 2, self.z2 + 2)
 
+    def plot_rect(self, x, z):
+        return self.x1, self.z1, self.x2, self.z2
+
     def deck_rect(self):
         x1, z1, x2, z2 = self.deck
         return (x1 - 1, z1 - 1, x2 + 1, z2 + 1)

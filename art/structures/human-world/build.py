@@ -289,7 +289,7 @@ def shop():
     # Oral area: podium faces the examiner desk; hide corner; two promise seats.
     b.block(34,3,5,'mcyukkuri:exam_podium',{'facing':'south'})
     b.box((33,3,7),(35,3,7),'dark_oak_planks'); b.block(34,4,7,'oak_pressure_plate',{'powered':'false'})
-    b.human(34.5,8.5,'caretaker_brother',3,1,'shop_examiner')
+    b.human(34.5,10.5,'caretaker_brother',3,1,'shop_examiner')
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     for z in (5,6): stairs(b,24,3,z,'birch','east')
@@ -317,7 +317,7 @@ def shop():
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); stairs(b,26,3,28,'birch','east'); stairs(b,27,3,28,'birch','west')
     # Regular customer in the consultation corner and the lost-companion nook (hedge behind the shop, open to the east).
-    b.human(20.5,14.5,'caretaker_sister',0,1,'shop_sister')
+    b.human(18.5,12.5,'caretaker_sister',0,1,'shop_sister')
     b.box((4,3,32),(10,4,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.box((4,3,31),(4,4,31),'oak_leaves',{'persistent':'true','distance':'1'})
     b.box((4,5,31),(10,5,32),'oak_leaves',{'persistent':'true','distance':'1'}); b.block(10,4,31,'lantern',{'hanging':'true','waterlogged':'false'})
     b.pet_lost(7.5,31.5,'marisa','shop_sister')

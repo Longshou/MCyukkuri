@@ -3,7 +3,6 @@
 import argparse
 import importlib
 import json
-import math
 import re
 import secrets
 import shutil
@@ -69,13 +68,7 @@ def assemble_mod(worktree, runtime, java, instance):
     return mod
 
 
-# Blocks a body may occupy (air, plants, the cushion of a nest); anything else is a wall.
-STAND = ['minecraft:air', 'minecraft:cave_air', 'minecraft:void_air', 'minecraft:short_grass', 'minecraft:tall_grass', 'minecraft:fern',
-         'minecraft:large_fern', 'minecraft:dead_bush', 'minecraft:snow', 'minecraft:water', '#minecraft:flowers', '#minecraft:wool_carpets',
-         'mcyukkuri:yukkuri_nest', 'mcyukkuri:large_yukkuri_nest']
-
-
-def build_pack(builder, pack_root):
+def build_pack(builder, pack_root, layout=False):
     # Use the selected tree's generator API: older trees restrict CLI outputs to their own checkout.
     builder.CONTROLS.clear()
     builder.museum_sites.TEXTS.clear()
@@ -84,6 +77,21 @@ def build_pack(builder, pack_root):
     world.mkdir(parents=True, exist_ok=False)
     checks, shown, _ = builder.build_pack(world)
     pack = world / 'datapacks' / builder.NS
+    if layout:
+        (pack / 'data' / builder.NS / 'function/layout_ready.mcfunction').write_text('say MCYLAYOUT_READY\n', encoding='utf-8')
+        # Observe creation results at the point they occur, before death/consumption can remove an actor.
+        for path in (pack / 'data' / builder.NS / 'function/scn').glob('*.mcfunction'):
+            lines = []
+            for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
+                if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|afloat) |yukkuri human build |yukkuri human walker )', line):
+                    command = line.removeprefix('return run ')
+                    lines += [f'execute store result score #layout_created museum run {command}',
+                              f'execute if score #layout_created museum matches 0 run say MCYLAYOUT_MISSING {path.stem}:{number}']
+                    if line.startswith('return run '):
+                        lines.append('return run scoreboard players get #layout_created museum')
+                else:
+                    lines.append(line)
+            path.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     for scene in builder.museum_scenarios.S:
         commands = scene.smoke.get('commands', ()) if scene.smoke is not None else ()
         if not commands:
@@ -97,9 +105,6 @@ def build_pack(builder, pack_root):
         (directory / 'start.mcfunction').write_text(''.join(
             f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick}t\n'
             for i, (tick, _) in enumerate(commands)), encoding='utf-8')
-    tags = pack / 'data' / builder.NS / 'tags/block'
-    tags.mkdir(parents=True)
-    (tags / 'stand.json').write_text(json.dumps({'values': STAND}), encoding='utf-8')
     if builder.museum_sites.VIOLATIONS:
         raise ValueError(f'Text displays do not fit: {builder.museum_sites.VIOLATIONS}')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
@@ -204,49 +209,79 @@ def run_scene(st, scene, builder):
     return problem is None
 
 
-def numbers(text):
-    return [float(v) for v in re.findall(r'(-?\d+(?:\.\d+)?(?:E-?\d+)?)[df]', text)]
-
-
-def standing(st, builder, x, y, z, reach=.3):
-    """Two open cells under every corner of the body (``reach`` each way), over a solid floor unless the body floats in water."""
-    stand = f'#{builder.NS}:stand'
-    cells = {(math.floor(x + dx), math.floor(z + dz)) for dx in (-reach, reach) for dz in (-reach, reach)}
-    y = math.floor(y)
-    open_cells = lambda cx, cz: f'execute if block {cx} {y} {cz} {stand} if block {cx} {y + 1} {cz} {stand}'
-    return all('passed' in server.run_cmd(st, f'{open_cells(cx, cz)} unless block {cx} {y - 1} {cz} {stand} unless block {cx} {y - 1} {cz} #minecraft:leaves')
-               or 'passed' in server.run_cmd(st, f'{open_cells(cx, cz)} if block {cx} {y} {cz} minecraft:water') for cx, cz in cells)
+def geometry(st):
+    reply = server.run_cmd(st, 'yukkuri scenario geometry')
+    if 'MCYGEOMETRY_END' not in reply:
+        raise RuntimeError('Incomplete geometry response: ' + reply)
+    rows = [json.loads(row) for row in re.findall(r'MCYGEOMETRY (\{[^\n]*?\})(?=MCY|\r?\n|$)', reply)]
+    if sum(row['player'] for row in rows) != 1:
+        raise RuntimeError('Missing player geometry: ' + reply)
+    return rows
 
 
 def check_layout(st, builder, scene):
-    """Start the scene the way its button does and read the generated world: every scenario body and the player's vantage must
-    stand in open air (or shallow water) on a solid floor, and the bodies must lie inside the scene's field. Time is frozen so nothing has moved."""
+    """Inspect actual actors, command-created props, and the player's body after initialization."""
     problems = []
-    server.run_cmd(st, 'tick freeze')
-    server.run_cmd(st, f'function {builder.NS}:start/{scene.id}', timeout=180)
-    read = lambda path: server.run_cmd(st, f'execute as @e[tag=scn] run data get entity @s {path}')
-    positions = [numbers(row) for row in re.findall(r'\[[^\]]*\]', read('Pos'))]
-    names = re.findall(r'\[[^\]]*\]', read('Tags'))
-    assert len(positions) == len(names), (scene.id, len(positions), len(names))
     field = builder.BY_ID[scene.field]
-    for (x, y, z), who in zip(positions, names):
-        if not standing(st, builder, x, y, z):
-            problems.append(f'{who} at ({x:.1f}, {y:.1f}, {z:.1f}) is not in open air on a solid floor')
-        if not (field.x1 <= x <= field.x2 + 1 and field.z1 <= z <= field.z2 + 1):
-            problems.append(f'{who} at ({x:.1f}, {z:.1f}) lies outside field {field.id}')
-    if scene.vantage is not None:
-        server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
-        server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function {builder.NS}:view/{scene.id}')
-        x, y, z = numbers(server.run_cmd(st, 'data get entity @e[tag=mcyv,limit=1] Pos'))
-        server.run_cmd(st, 'kill @e[tag=mcyv]')
-        if not standing(st, builder, x, y, z):
-            problems.append(f'player vantage ({x:.1f}, {y:.1f}, {z:.1f}) is not in open air on a solid floor')
+    rect = scene.plot
+    server.run_cmd(st, 'tick freeze')
+    offset = server.log_offset(st)
+    server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
+    existing = {row['uuid'] for row in geometry(st)}
+    server.run_cmd(st, f'function {builder.NS}:start/{scene.id}', timeout=180)
+    view = f'view/{scene.id}' if scene.vantage is not None else f'go/{scene.field}'
+    server.run_cmd(st, f'execute as @e[tag=mcyv,limit=1] run function {builder.NS}:{view}')
+    snapshots = []
+    inspected = set()
+    unsupported = {}
+    previous_tick = 0
+    for tick in sorted({0, 40, scene.layout_ticks}):
+        if tick:
+            ready_offset = server.log_offset(st)
+            server.run_cmd(st, f'schedule function {builder.NS}:layout_ready {tick - previous_tick}t replace')
+            server.run_cmd(st, f'tick step {tick - previous_tick}')
+            server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=30)
+        previous_tick = tick
+        rows = [row for row in geometry(st) if row['player'] or row['uuid'] not in existing
+                or (field.x1 <= row['box'][0] <= field.x2 and field.z1 <= row['box'][2] <= field.z2)]
+        snapshots.append(dict(tick=tick, entities=rows))
+        for row in rows:
+            box = row['box']
+            who = 'player' if row['player'] else f'{row["type"]} {row["tags"]} {row["uuid"]}'
+            if not row['clear']:
+                problems.append(f't={tick} {who} intersects blocks box={box}')
+            # Allow ordinary settling during initialization; a supported actor's later jump is not a bad spawn.
+            if row['supported']:
+                unsupported.pop(row['uuid'], None)
+            elif row['uuid'] not in inspected:
+                unsupported[row['uuid']] = f'{who} has no support through initialization; first box={box}'
+            # Scenes which keep the player on the observation deck assign that deck as its viewing area.
+            area = field.deck if row['player'] and scene.vantage is None else rect
+            if not (area[0] <= box[0] and box[3] <= area[2] + 1 and area[1] <= box[2] and box[5] <= area[3] + 1):
+                problems.append(f't={tick} {who} outside assigned plot {area} box={box}')
+        # Fields can run concurrently. Their actual footprints must never enter another scene's field.
+        for row in rows:
+            b = row['box']
+            for other in builder.FIELDS:
+                if other.id != scene.field and b[0] < other.x2 + 1 and b[3] > other.x1 and b[2] < other.z2 + 1 and b[5] > other.z1:
+                    problems.append(f't={tick} {row["uuid"]} overlaps field {other.id}')
+        inspected.update(row['uuid'] for row in rows)
+    problems += unsupported.values()
+    for setup in scene.late:
+        if isinstance(setup, builder.museum_scenarios.Retry) and setup.command.startswith('summon '):
+            expected = re.search(r'Tags:\["scn","([^"]+)"', setup.command)[1]
+            if not any(expected in row['tags'] for sample in snapshots for row in sample['entities']):
+                problems.append('missing expected delayed actor ' + expected)
+    problems += re.findall(r'MCYLAYOUT_MISSING[^\n]*', server.log_text(st, offset))
+    report = Path(st['rundir']).parent / f'{scene.id}.layout.json'
+    report.write_text(json.dumps(dict(scene=scene.id, plot=rect, snapshots=snapshots, problems=problems), indent=2), encoding='utf-8')
+    server.run_cmd(st, 'kill @e[tag=mcyv]')
     server.run_cmd(st, f'function {builder.NS}:field/{scene.field}/clear', timeout=180)
     server.run_cmd(st, 'tick unfreeze')
     for problem in problems:
         print(f'FAIL {scene.id}: {problem}', flush=True)
     if not problems:
-        print(f'PASS {scene.id}: {len(positions)} bodies and the vantage stand free inside the field', flush=True)
+        print(f'PASS {scene.id}: {len(rows) - 1} actors/props and player; initialized t={scene.layout_ticks}', flush=True)
     return not problems
 
 
@@ -285,13 +320,15 @@ def main():
     run_id = secrets.token_hex(6)
     name = f'instance-{run_id}'
     print(f'Self-check only; runtime={runtime.name}; scripts={source / "scripts"}; scenes={", ".join(s.id for s in selected)}', flush=True)
-    datapack = build_pack(builder, instances / f'pack-{run_id}')
+    datapack = build_pack(builder, instances / f'pack-{run_id}', args.layout)
     server.require_closed()
     mod = (runtime / 'mod' if args.worktree is None else
            assemble_mod(source, runtime, java, instances / name))
     st = server.start(runtime, java, datapack, name, mod, instances)
     try:
         server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
+        if 'Failed to load function' in server.log_text(st):
+            raise RuntimeError('Generated functions failed to load; see ' + st['rundir'] + '/logs/latest.log')
         if args.layout:
             for field in {builder.BY_ID[scene.field] for scene in selected}:
                 load_field(st, field, builder.FEET)
