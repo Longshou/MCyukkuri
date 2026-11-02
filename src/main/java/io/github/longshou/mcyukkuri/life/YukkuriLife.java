@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import java.util.Comparator;
 import java.util.UUID;
@@ -920,11 +921,10 @@ public final class YukkuriLife {
     private boolean trustRoutes;
     public void trustRoutes(boolean value) { trustRoutes = value; }
     public boolean reachable(BlockPos target, boolean escapeWater) { return trustRoutes || path(target, escapeWater) != null; }
-    /**
-     * Walk to a dry target on land. Within the pathfinder's range the path must reach it; farther away (a waste pit across
-     * the site) the mob follows the partial path towards it and the full check is made once it is near.
-     */
+    /** Walk to a dry target on land: full paths within range, partial paths farther away until the full check comes near.
+     * A step or short fall continues on landing; a genuinely unreachable destination still fails. */
     public boolean travel(BlockPos target, double speed) {
+        if (entity.getNavigation() instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return true;
         if (target.distSqr(entity.blockPosition()) <= GroupPits.NEAR * GroupPits.NEAR) return navigate(target, speed, false);
         return entity.getNavigation().moveTo(target.getX() + .5, target.getY(), target.getZ() + .5, speed);
     }

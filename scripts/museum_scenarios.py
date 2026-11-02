@@ -254,15 +254,14 @@ def pit_level(window):
 
 def pit_trip(window):
     problem = pit_level(window)
-    if problem:
-        return problem
-    return None if re.search(r'toilet pit trip start\b', window) else 'no member ever headed for the pit'
+    if problem: return problem
+    if re.search(r'toilet pit refused reason=no_path', window): return 'a member could not walk from its burrow or the slope to the pit'
+    return None if re.search(r'toilet pit edge reached\b', window) else 'no member reached the pit edge'
 
 
 def slave_life(window):
-    problem = pit_level(window)
-    if problem:
-        return problem
+    problem = pit_trip(window)
+    if problem: return problem
     if not re.search(r'pit slave (?:eats droppings [^\n]*nutrition=|hungry reason=no_droppings)', window):
         return 'slave neither took a portion nor reported an empty pit'
     return None
