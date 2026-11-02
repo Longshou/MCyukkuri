@@ -1797,6 +1797,21 @@ def _uuid_text(sid, slot):
     return str(uuid.UUID(bytes=b''.join((n & 0xffffffff).to_bytes(4, 'big') for n in uid(sid, slot))))
 
 
+def _overload_no_reboard(window):
+    owner = _uuid_text('hat_crowd', 'grow')
+    placed = re.search(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
+    if placed is None:
+        return 'overload fixture hat was not placed'
+    boat = placed.group(1)
+    capsized = re.search(r'\[hat\][^\n]*uuid=' + re.escape(boat) + r'[^\n]* capsized cause=too_heavy\b', window)
+    if capsized is None:
+        return 'overload capsize missing'
+    child = _uuid_text('hat_crowd', 'g1')
+    if re.search(r'\[body\][^\n]*uuid=' + child + r'[^\n]* mount host=' + re.escape(boat) + r'\b', window[capsized.end():]):
+        return 'overloaded young re-boarded the parent hat'
+    return None
+
+
 def _babies():
     return [yk('marisa', bank_dx(dz), dz, name, stage='baby', aquatic=True, childhood=CHILDHOOD_CRAWLING_READY,
                fam=_seat_family(size, nourishment, 36000), also=('crew',), **pair_ready())
@@ -2111,11 +2126,11 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_seat size=',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=1\b',
                         rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "grow")}[^\n]* rescue refused [^\n]*reason=no_seat\b',
-                        rf'\[hat\][^\n]* capsized cause=too_heavy\b[\s\S]*\[action\][^\n]*uuid={_uuid_text("hat_crowd", "g1")}[^\n]* refused id=hop [^\n]*detail=no_seat\b',
                         rf'\[water\][^\n]*uuid={_uuid_text("hat_crowd", "g1")}[^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|impact|turbulence)\b',
                         r'\[hat\][^\n]* leaving reason=seat_outgrown\b',
                         r'\[intent\][^\n]* end id=follow_ashore result=DONE\b'],
+                verify=_overload_no_reboard,
                 readout=[f'yukkuri status {sel("g1")} raw', f'yukkuri status {sel("excess")} raw',
                          'data get entity @e[tag=seat_reload,limit=1] Riders',
                          'data get entity @e[tag=seat_reload,limit=1] Motion',
