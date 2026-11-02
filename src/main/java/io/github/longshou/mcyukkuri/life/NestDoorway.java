@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.motor.geom.Detour;
-import io.github.longshou.mcyukkuri.motor.geom.Doorway;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
@@ -15,9 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-/** Physical nest openings, independent of residency. Navigation and exact approaches share these rim footprints. */
+/** Physical nest openings, independent of residency. Routes end outside; a straight step crosses the low lip. */
 public final class NestDoorway {
     private NestDoorway() {}
+    public record Doorway(double inner, double outer, double opening, int side) {}
     private static final Map<Block, Doorway> SHAPES = new HashMap<>();
 
     public static CareBlockEntity bed(YukkuriEntity actor, BlockPos pos) {
@@ -63,21 +62,31 @@ public final class NestDoorway {
                 .mapToDouble(b -> b.maxY).max().orElseThrow();
     }
 
-    public static List<Detour.Box> walls(YukkuriEntity actor, AABB area) {
-        var result = new ArrayList<Detour.Box>();
-        var seen = new HashSet<BlockPos>();
-        for (var at : BlockPos.betweenClosed(BlockPos.containing(area.minX - 1, actor.getY() - .5, area.minZ - 1),
-                BlockPos.containing(area.maxX + 1, actor.getY(), area.maxZ + 1))) {
-            var bed = bed(actor, at);
-            if (bed == null || !seen.add(bed.getBlockPos())) continue;
-            var centre = bed.centre();
-            result.addAll(shape(bed).walls(bed.getBlockPos().asLong() * 8, centre.x, centre.z));
+    public static CareBlockEntity at(YukkuriEntity actor, Vec3 point) {
+        for (var pos : BlockPos.betweenClosed(BlockPos.containing(point).offset(-1,-1,-1), BlockPos.containing(point).offset(1,0,1))) {
+            var bed=bed(actor,pos); if(bed==null)continue;
+            var d=shape(bed);var p=point.subtract(bed.centre());
+            if(Math.abs(p.x)<d.inner()&&Math.abs(p.z)<d.inner()
+                    ||Math.abs(p.x)+Occupancy.foot(actor.getBbWidth())<=d.opening()
+                    &&p.z*d.side()>=d.inner()&&p.z*d.side()<d.outer()+actor.getBbWidth()*.5+.03)return bed;
         }
-        return result;
+        return null;
+    }
+
+    /** Ordinary last steps obey the same exclusion as the block pathfinder. */
+    public static boolean blocksLine(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        var area=new AABB(from,to).inflate(actor.getBbWidth()*.5+1,0,actor.getBbWidth()*.5+1);
+        for(var pos:BlockPos.betweenClosed(BlockPos.containing(area.minX,area.minY-1,area.minZ),BlockPos.containing(area.maxX,area.maxY,area.maxZ))){
+            var bed=bed(actor,pos);if(bed==null)continue;
+            var c=bed.centre();double r=shape(bed).outer()+actor.getBbWidth()*.5;
+            var box=new AABB(c.x-r,c.y-1,c.z-r,c.x+r,c.y+1,c.z+r);
+            if(box.contains(from)||box.contains(to)||box.clip(from,to).isPresent())return true;
+        }
+        return false;
     }
 
     /** Observe a real ground crossing; planning never emits a crossing event. */
-    public static void observe(YukkuriEntity actor, Vec3 from, Vec3 to) {
+    public static void observe(YukkuriEntity actor, Vec3 from, Vec3 to, Vec3 drive) {
         if (from.distanceToSqr(to) < 1e-8) return;
         var seen = new HashSet<BlockPos>();
         for (var pos : BlockPos.betweenClosed(actor.blockPosition().offset(-1, -1, -1), actor.blockPosition().offset(1, 0, 1))) {
@@ -90,31 +99,28 @@ public final class NestDoorway {
             if (was == now) continue;
             double t = (door.side() * door.inner() - z0) / (z1 - z0), x = x0 + t * (x1 - x0);
             boolean opening = t >= 0 && t <= 1 && Math.abs(x) + Occupancy.foot(actor.getBbWidth()) <= door.opening() + .02;
-            GameplayLog.event(actor, "home", "bed crossing nest={} direction={} side={} opening={} from={} at={}", bed.getBlockPos(),
-                    now ? "in" : "out", door.side() < 0 ? "north" : "south", opening, GameplayLog.at(from), GameplayLog.at(to));
+            boolean driven=drive!=null && (Math.max(Math.abs(drive.x-centre.x),Math.abs(drive.z-centre.z))<door.inner())==now;
+            GameplayLog.event(actor, "home", "bed crossing nest={} direction={} side={} opening={} source={} from={} at={} drive={}", bed.getBlockPos(),
+                    now ? "in" : "out", door.side() < 0 ? "north" : "south", opening, driven?"walk":"physics",
+                    GameplayLog.at(from), GameplayLog.at(to), drive==null?"none":GameplayLog.at(drive));
         }
     }
 
-    /** Real overlap after a push or placement is left on the same side; it never licenses a high-rim crossing. */
-    public static Vec3 retreat(YukkuriEntity actor) {
-        var seen = new HashSet<BlockPos>();
-        for (var pos : BlockPos.betweenClosed(actor.blockPosition().offset(-1, -1, -1), actor.blockPosition().offset(1, 0, 1))) {
-            var bed = bed(actor, pos);
-            if (bed == null || !seen.add(bed.getBlockPos())) continue;
-            var centre = bed.centre();
-            var point = shape(bed).retreat(actor.getX() - centre.x, actor.getZ() - centre.z, actor.getBbWidth() * .5);
-            if (point != null) return new Vec3(centre.x + point[0], actor.getY(), centre.z + point[1]);
-        }
-        return null;
+    /** Align inside the hollow before the one straight crossing. */
+    public static Vec3 inner(YukkuriEntity actor, CareBlockEntity bed, Vec3 stand) {
+        return SurfaceApproach.surface(actor,new Vec3(stand.x,bed.centre().y,bed.centre().z));
     }
 
     /** The closest body-sized point outside the actual opening, with no occupant or ownership reservation. */
     public static Vec3 stand(YukkuriEntity actor, CareBlockEntity bed) {
+        return stand(actor,bed,actor.position());
+    }
+    public static Vec3 stand(YukkuriEntity actor, CareBlockEntity bed, Vec3 destination) {
         var shape = shape(bed);
         double room = shape.opening() - Occupancy.foot(actor.getBbWidth());
         if (room < 0) return null;
         var centre = bed.centre();
-        double preferred = Math.clamp(actor.getX() - centre.x, -room, room);
+        double preferred = Math.clamp(destination.x - centre.x, -room, room);
         for (double x : new double[]{preferred, -room, room, 0}) {
             var at = SurfaceApproach.floor(actor, centre.add(x, 0, shape.side() * (shape.outer() + actor.getBbWidth() * .5 + .05)));
             if (at != null && actor.life().covered(BlockPos.containing(at))) return at;

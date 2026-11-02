@@ -120,18 +120,10 @@ public final class SurfaceApproach {
     }
 
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
-        return clearStep(actor,start,destination,true);
-    }
-
-    /** A transient walking point may straddle a lip; only the final stand needs support under every sole sample. */
-    public static boolean clearWalkingStep(YukkuriEntity actor,Vec3 destination){
-        return actor.onGround()&&clearStep(actor,actor.position(),destination,false);
-    }
-
-    private static boolean clearStep(YukkuriEntity actor,Vec3 start,Vec3 destination,boolean stopping){
+        if(NestDoorway.blocksLine(actor,start,destination))return false;
         double reach=Math.max(1.5,actor.getBbWidth()+.5),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
-        if (stopping ? !supported(actor,destination) : !supportedStep(actor,destination)) return false;
+        if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double previous=start.y;
         for (int i=0; i<=samples; i++) {
@@ -179,6 +171,11 @@ public final class SurfaceApproach {
     /** Read-only planning, including the last step from a vanilla node to the exact physical stand. */
     public static double routeLength(YukkuriEntity actor,Vec3 destination,AABB obstacle){
         var goal=outside(actor,destination,obstacle);
+        var bed=goal==null?null:NestDoorway.at(actor,goal);
+        if(bed!=null){
+            if(NestDoorway.at(actor,actor.position())==bed)return actor.position().distanceTo(goal);
+            goal=NestDoorway.stand(actor,bed,goal);
+        }
         var route=goal==null?null:plan(actor,goal,obstacle,true);
         return route==null?Double.POSITIVE_INFINITY:route.length();
     }
@@ -319,7 +316,7 @@ public final class SurfaceApproach {
         var path=navigation instanceof YukkuriGroundNavigation ground?ground.createApproachPath(targets,body,destination):navigation.createPath(targets,0);
         if(path==null||!path.canReach()||path.getNodeCount()==0)return null;
         var first=floor(actor,path.getEntityPosAtNode(actor,0));
-        if(first!=null&&actor.onGround()&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
+        if(first!=null&&actor.onGround()&&NestDoorway.at(actor,actor.position())==null&&Math.abs(first.y-actor.getY())<=.25&&!clearLastStep(actor,first))return null;
         Vec3 before=actor.position();double length=0;
         for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
@@ -400,6 +397,20 @@ public final class SurfaceApproach {
                     "destination under a hat's brim moved clear peer={} destination={} goal={}",peer,GameplayLog.at(destination),GameplayLog.at(current.goal));
         }
         destination=current.goal;
+        if(navigation instanceof YukkuriGroundNavigation ground){
+            var bed=NestDoorway.at(actor,destination);var here=NestDoorway.at(actor,actor.position());
+            if(here!=null&&here!=bed&&ground.exitBed(speed))return observed(actor,Result.MOVING);
+            if(bed!=null){
+                var door=NestDoorway.stand(actor,bed,destination);
+                if(door==null)return blocked(actor,"doorway_unreachable");
+                if(here==bed||at(actor,door)){
+                    navigation.stop();current.target=null;current.lastStep=null;
+                    boolean arrived=ground.step(here==bed?destination:NestDoorway.inner(actor,bed,door),speed);
+                    return observed(actor,here==bed&&arrived?Result.ARRIVED:Result.MOVING);
+                }
+                destination=door;
+            }
+        }
         if(navigation instanceof YukkuriGroundNavigation ground)ground.heading(destination);
         var target=BlockPos.containing(destination);
         if(TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,target))return blocked(actor,"outside_home");
@@ -459,9 +470,7 @@ public final class SurfaceApproach {
 
     /** The straight last step to {@code destination} is clear of blocks and of the partner. */
     private static boolean direct(YukkuriEntity actor,Vec3 destination,AABB body){
-        var step=aim(actor,destination,false);
-        return step!=null&&clearOf(actor,actor.position(),step,body)
-                &&(step==destination?clearLastStep(actor,step):clearWalkingStep(actor,step));
+        return clearOf(actor,actor.position(),destination,body)&&clearLastStep(actor,destination);
     }
 
     private static Vec3 aim(YukkuriEntity actor,Vec3 destination,boolean moving){
@@ -471,13 +480,13 @@ public final class SurfaceApproach {
     /** The way round the first footprint on a clear last step is itself a clear step (or there is none to go round); a look, not a move. */
     private static boolean walkable(YukkuriEntity actor,Vec3 destination){
         var aim=aim(actor,destination,false);
-        return aim==destination||aim!=null&&clearWalkingStep(actor,aim);
+        return aim==destination||aim!=null&&clearLastStep(actor,aim);
     }
 
     /** Heads for the destination, round the first footprint on the way; false when that way round is not a clear step. */
     private static boolean steer(YukkuriEntity actor,Vec3 destination,double speed){
         var aim=aim(actor,destination,true);
-        if(aim==null||aim!=destination&&!clearWalkingStep(actor,aim))return false;
+        if(aim==null||aim!=destination&&!clearLastStep(actor,aim))return false;
         actor.getNavigation().stop();
         double remaining=actor.position().distanceTo(destination);
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.

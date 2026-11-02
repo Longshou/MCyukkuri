@@ -323,7 +323,7 @@ def _sleep_doorway_verify(log):
         return stalled
     sleepers = re.findall(r'\[sleep\] \w+ #\d+ uuid=(\S+)[^\n]*begin source=life occupancy=INSIDE_SUPPORTED', log)
     for actor in sleepers:
-        directions = set(re.findall(rf'\[home\] \w+ #\d+ uuid={re.escape(actor)}[^\n]*bed crossing[^\n]*direction=(in|out) side=north opening=true', log))
+        directions = set(re.findall(rf'\[home\] \w+ #\d+ uuid={re.escape(actor)}[^\n]*bed crossing[^\n]*direction=(in|out) side=north opening=true source=walk', log))
         if directions != {'in', 'out'}:
             return f'sleeper {actor} lacks its own observed north doorway entry/exit: {directions}'
     return None if sleepers else 'no sleeper inside its bed'
@@ -337,9 +337,9 @@ add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走
     # The bed's own doorway is its north side: the body walks round to it, steps in, sleeps, then steps out through it again.
     capture=dict(shots=(1, 40, 2600), sequences=((200, 1500, 5),), observe=False),
     smoke=dict(ticks=2600, forbid=[r'\[home\][^\n]*nest_not_inside\b', r'\[home\][^\n]*reason=doorway_unreachable\b',
-                                  r'\[home\][^\n]*bed crossing[^\n]*opening=false'],
-               expect=[r'\[sleep\] [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
-                       r'\[home\] [^\n]* nest left [^\n]*doorway=\(',
+                                  r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk'],
+               expect=[r'\[sleep\] [^\n]*begin source=life occupancy=INSIDE_SUPPORTED',
+                       r'\[sleep\] [^\n]*end source=life',
                        r'\[home\][^\n]*bed crossing[^\n]*direction=in side=north opening=true',
                        r'\[home\][^\n]*bed crossing[^\n]*direction=out side=north opening=true'],
                readout=[f'yukkuri status {sel("a")} raw'], verify=_sleep_doorway_verify))
@@ -1618,7 +1618,7 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                        *(rf'\[family\] {kind} #[^\n]* carry put down reason=arrived_home [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] (?:marisa|reimu|chen) #[^\n]* carry put down reason=nest_rim_to_cushion [^\n]*nest=(?:INSIDE_SUPPORTED|PARTIAL)\b'],
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
-                       r'\[home\][^\n]*bed crossing[^\n]*opening=false', r'\[home\][^\n]*nest_not_inside\b',
+                       r'\[home\][^\n]*bed crossing[^\n]*opening=false source=walk', r'\[home\][^\n]*nest_not_inside\b',
                        r'\[home\][^\n]*reason=doorway_unreachable\b'],
                readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw'],
                verify=_carry_verify))

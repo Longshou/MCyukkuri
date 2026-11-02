@@ -54,7 +54,7 @@ import net.minecraft.world.effect.MobEffects;
 
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
-    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, LEAVE_NEST, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
+    private enum Task { NONE, FOOD, WINTER_FOOD, HOME, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
@@ -679,12 +679,7 @@ public final class YukkuriLife {
             case FOOD -> seekFood();
             case WINTER_FOOD -> { if (!entity.wintering().tickMeal()) stopGoal(); }
             case HOME -> {
-                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || nutrition < 30) {
-                    GameplayLog.limited(entity, "home", "nest_trip_refused", 200,
-                            "home walk stopped reason=unusable_bed nest={} dry={} restable={} nutrition={}", targetBlock,
-                            targetBlock != null && dryStand(targetBlock), targetBlock != null && restable(targetBlock), nutrition);
-                    stopGoal(); homeWait = 0; return;
-                }
+                if (targetBlock == null || !dryStand(targetBlock) || !restable(targetBlock) || nutrition < 30) { stopGoal(); homeWait = 0; return; }
                 var nestOccupancy = FamilyNest.bedOccupancy(entity, targetBlock);
                 boolean inside = nestOccupancy == null || nestOccupancy == Occupancy.INSIDE_SUPPORTED;
                 // The same pursuit budget ends a walk that never gets the whole footprint into the bed (no new wait).
@@ -772,10 +767,9 @@ public final class YukkuriLife {
                 }
                 if (sleepTicks == 20) {
                     entity.speak("sleep");
-                    var doorway = nestOccupancy == null ? null : home.entrance(site);
-                    GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} doorway={} energy={} nutrition={} drugTicks={}",
+                    GameplayLog.event(entity,"sleep","begin source=life occupancy={} bed={} energy={} nutrition={} drugTicks={}",
                             nestOccupancy == null ? "none" : nestOccupancy.name(), nestOccupancy == null ? "none" : site,
-                            doorway == null ? "none" : GameplayLog.at(doorway), energy,nutrition,drugSleep());
+                            energy,nutrition,drugSleep());
                 }
                 if (sleepTicks >= 20 && sleepTicks < 620) energy = Math.min(100, energy + .5f);
                 if (drugSleep()==0 && sleepTicks >= sleepDuration() && (energy >= 95 || nutrition < 15
@@ -784,32 +778,9 @@ public final class YukkuriLife {
                     GameplayLog.event(entity,"sleep","end source=life ticks={} energy={} nutrition={}",sleepTicks,energy,nutrition);
                     entity.pet().routineCompleted(2);
                     temperature.stop();
-                    // Waking in a nest: out through its own doorway before ordinary life goes on.
-                    boolean inNest = targetBlock != null && FamilyNest.bedOccupancy(entity, targetBlock) == Occupancy.INSIDE_SUPPORTED;
-                    restWait = restInterval(); sleepTicks = 0; task = inNest ? Task.LEAVE_NEST : Task.NONE; pursuitTicks = 0;
-                    if (!inNest) targetBlock = null;
+                    task = Task.NONE; restWait = restInterval(); sleepTicks = 0;
                     if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
                 }
-            }
-            case LEAVE_NEST -> {
-                // Out through the nest's own doorway to the stand outside it; a body that cannot get there gives up with the reason.
-                var stand = home.entrance(targetBlock);
-                if (stand == null) {
-                    GameplayLog.limited(entity, "home", "nest_exit_stuck", 200,
-                            "nest exit stopped reason=doorway_unreachable nest={} at={}", targetBlock, GameplayLog.at(entity.position()));
-                    stopGoal(); break;
-                }
-                var outside = stand;
-                if (SurfaceApproach.arrived(entity, outside)) {
-                    GameplayLog.event(entity, "home", "nest left nest={} doorway={} at={}", targetBlock, GameplayLog.at(outside), GameplayLog.at(entity.position()));
-                    stopGoal(); break;
-                }
-                if (pursuitTicks > 200) {
-                    GameplayLog.limited(entity, "home", "nest_exit_stuck", 200,
-                            "nest exit stopped reason=doorway_unreachable nest={} doorway={} at={}", targetBlock, GameplayLog.at(outside), GameplayLog.at(entity.position()));
-                    stopGoal(); break;
-                }
-                SurfaceApproach.walk(entity, outside, 1.15);
             }
             default -> { }
         }
@@ -910,7 +881,7 @@ public final class YukkuriLife {
     private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
-    public BlockPos entrance(BlockPos nest){ var at=home.entrance(nest); return at==null?null:BlockPos.containing(at); }
+    public BlockPos entrance(BlockPos nest){ return home.entrance(nest); }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }

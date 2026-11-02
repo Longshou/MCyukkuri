@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -21,6 +22,17 @@ public final class Motor {
     public static final ThreadLocal<Boolean> DISMOUNTING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private Motor() {}
+
+    /** A short straight ground step; vanilla still resolves collision, step-up and gravity, as for StepIn. */
+    public static boolean step(YukkuriEntity body, Vec3 to, double speed) {
+        var delta=to.subtract(body.position()).multiply(1,0,1);double distance=delta.length();
+        body.getMoveControl().setWantedPosition(to.x,to.y,to.z,0);body.setSpeed(0);
+        double pace=BodyAbility.of(body).walkSpeed()*BodyAbility.carrying(body)*speed;
+        var v=distance>.001?delta.scale(Math.min(pace,distance)/distance):Vec3.ZERO;
+        if(distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
+        velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");
+        return distance<.02&&Math.abs(body.getY()-to.y)<.08;
+    }
 
     /** Sets an entity's velocity and marks the impulse: body propulsion, host drift or a released item. */
     public static void velocity(Entity body, Vec3 v, String cause) {

@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -60,46 +59,6 @@ public final class Detour {
      */
     public static Turn steer(double fx, double fz, double tx, double tz, double clear, List<Box> boxes, long keepId, int keepSide) {
         return steer(fx, fz, tx, tz, clear, boxes, keepId, keepSide, DEPTH);
-    }
-
-    /** A complete visibility route through a concave enclosure. Corners are body-sized; no seat, queue or remembered leg. */
-    public static Turn route(double fx, double fz, double tx, double tz, double clear, List<Box> boxes) {
-        var points = new ArrayList<double[]>();
-        points.add(new double[]{fx, fz}); points.add(new double[]{tx, tz});
-        double[] room = new double[boxes.size()];
-        for (int i = 0; i < boxes.size(); i++) {
-            var b = boxes.get(i);
-            room[i] = Math.max(0, Math.min(clear, b.gap(fx, fz)) - EPS);
-            for (int u : new int[]{-1, 1}) for (int v : new int[]{-1, 1})
-                points.add(b.at(u * (b.a + room[i] + EPS), v * (b.b + room[i] + EPS)));
-        }
-        double[] distance = new double[points.size()];
-        Arrays.fill(distance, Double.POSITIVE_INFINITY); distance[0] = 0;
-        int[] first = new int[points.size()]; boolean[] visited = new boolean[points.size()];
-        for (int step = 0; step < points.size(); step++) {
-            int at = -1;
-            for (int i = 0; i < points.size(); i++) if (!visited[i] && Double.isFinite(distance[i])
-                    && (at < 0 || distance[i] < distance[at])) at = i;
-            if (at < 0) break;
-            if (at == 1) {
-                var next = points.get(first[1]);
-                return new Turn(next[0], next[1], 0, first[1] == 1 ? 0 : 1, distance[1], false);
-            }
-            visited[at] = true;
-            var from = points.get(at);
-            for (int j = 1; j < points.size(); j++) {
-                if (visited[j]) continue;
-                var to = points.get(j);
-                double length = distance[at] + Math.hypot(to[0] - from[0], to[1] - from[1]);
-                if (length >= distance[j]) continue;
-                boolean open = true;
-                for (int k = 0; k < boxes.size(); k++) if (!Double.isNaN(boxes.get(k).enter(from[0], from[1], to[0], to[1], room[k]))) {
-                    open = false; break;
-                }
-                if (open) { distance[j] = length; first[j] = at == 0 ? j : first[at]; }
-            }
-        }
-        return new Turn(tx, tz, 0, 0, Double.POSITIVE_INFINITY, true);
     }
 
     private static Turn steer(double fx, double fz, double tx, double tz, double clear, List<Box> boxes, long keepId, int keepSide, int depth) {

@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,6 +56,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private record Blocker(Obstacle obstacle, long until, boolean asked) {}
     /** The last stall sample, where the last step was aimed, the surface approach's exact goal, and the goal of a search running. */
     private Vec3 sample, aimed, goal, planGoal;
+    private Vec3 observedGround; // Crossing observation only; never drives movement.
     /** The length of the way round to where the last step was aimed. */
     private double way;
     private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000, goalTick = -1000, scanTick = -1000, yieldUntil;
@@ -62,9 +64,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
     private List<Footing> planning = List.of();
     private List<Entity> scan = List.of();
-    private List<Detour.Box> nestWalls = List.of();
-    /** Previous observed ground position, only for crossing logs; never a movement target. */
-    private Vec3 observedGround;
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
     private PathFinder planner;
     private record Query(int accuracy, int width, int height, AABB obstacle) {}
@@ -222,6 +221,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 keepHome = mob instanceof YukkuriEntity animal && TravelRange.keepBabyHome(animal);
             }
             @Override public Node getStart(){
+                if(mob instanceof YukkuriEntity actor){
+                    var bed=NestDoorway.at(actor,actor.position());
+                    var door=bed==null?null:NestDoorway.stand(actor,bed);
+                    if(door!=null)return getStartNode(new BlockPos(Mth.floor(door.x-entityWidth*.5+.5),Mth.floor(door.y+.5),Mth.floor(door.z-entityDepth*.5+.5)));
+                }
                 var start=super.getStart();
                 if(!forceSearch||!(mob instanceof YukkuriEntity animal)||!animal.onGround())return start;
                 var nativeFeet=SurfaceApproach.floor(animal,new Vec3(start.x+entityWidth*.5,start.y,start.z+entityDepth*.5));
@@ -279,10 +283,15 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override public void tick() {
-        if (mob instanceof YukkuriEntity actor) {
-            boolean onFoot = actor.onGround() && !actor.isPassenger() && walking();
-            if (observedGround != null && onFoot) NestDoorway.observe(actor, observedGround, actor.position());
-            observedGround = onFoot ? actor.position() : null;
+        if(mob instanceof YukkuriEntity actor){
+            if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
+                NestDoorway.observe(actor,observedGround,actor.position(),level.getGameTime()-steerTick<=1?aimed:null);
+            observedGround=actor.onGround()&&!actor.isPassenger()?actor.position():null;
+            if(!isDone()&&NestDoorway.at(actor,actor.position())!=null){
+                ++tick;doStuckDetection(actor.position());
+                if(!isDone())exitBed(speedModifier);
+                return;
+            }
         }
         // Path nodes change their centre offset at whole-block body widths. Never follow an old-width route after growth.
         if(path!=null&&!path.isDone()&&!fits(walkingQuery)){
@@ -300,15 +309,28 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // The route knew the footprints as they were when it was planned: each step to the next node heads round them now,
         // where the way round stands on supported, open ground (never off a ledge or into a wall).
         var control = mob.getMoveControl();
-        // Vanilla may finish its coarse route this tick while leaving its last movement request active.
-        // That final step, and a direct approach's step, still have to respect the physical rim.
-        if (control.hasWanted() && mob instanceof YukkuriEntity walker && !walker.isPassenger()) {
+        if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
             var aim = aim(wanted, true);
-            if (aim == null || aim != wanted && !SurfaceApproach.clearWalkingStep(walker, aim))
-                control.setWantedPosition(mob.getX(), mob.getY(), mob.getZ(), 0);
-            else if (aim != wanted) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
+            if (aim != null && aim != wanted && !NestDoorway.blocksLine(walker,walker.position(),aim)
+                    && SurfaceApproach.supported(walker, aim)) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
         }
+    }
+
+    /** Every route leaves the bed before vanilla follows its first outside node. Direct goal walks use the same exit. */
+    public boolean exitBed(double speed) {
+        var actor=(YukkuriEntity)mob;var bed=NestDoorway.at(actor,actor.position());
+        if(bed==null)return false;
+        var door=NestDoorway.stand(actor,bed);
+        if(door==null){stop();GameplayLog.limited(actor,"home","exit_blocked",200,"nest exit stopped reason=doorway_unreachable nest={}",bed.getBlockPos());return true;}
+        step(Math.abs(actor.getX()-door.x)>.02?NestDoorway.inner(actor,bed,door):door,speed);
+        return true;
+    }
+
+    /** A fixed straight step, outside the block route; retains the same walk's progress/watchdog. */
+    public boolean step(Vec3 to,double speed) {
+        steerTick=level.getGameTime();aimed=to;way=mob.position().distanceTo(to);
+        return Motor.step((YukkuriEntity)mob,to,speed);
     }
 
     /** The footprint of a placed hat (its brim on its yaw, solid) or a free body (its box). */
@@ -343,14 +365,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (now - scanTick >= SCAN_TICKS) {
             scanTick = now;
             scan = level.getEntities(mob, mob.getBoundingBox().inflate(SCAN), x -> x instanceof PlacedHatEntity || x instanceof YukkuriEntity);
-            nestWalls = NestDoorway.walls((YukkuriEntity) mob, mob.getBoundingBox().inflate(SCAN));
-            if (!nestWalls.isEmpty()) {
-                long id = Long.MIN_VALUE;
-                var area = mob.getBoundingBox().inflate(SCAN, 0, SCAN).expandTowards(0, mob.maxUpStep(), 0);
-                for (var shape : level.getBlockCollisions(mob, area))
-                    for (var box : shape.toAabbs()) if (box.maxY > mob.getY() + mob.maxUpStep())
-                        nestWalls.add(Detour.Box.aligned(id++, box.minX, box.minZ, box.maxX, box.maxZ));
-            }
         }
         return scan;
     }
@@ -409,7 +423,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
      *  holds still while giving way and counts for the stall watch); otherwise only a look, with {@code to} as the goal. */
     public Vec3 aim(Vec3 to, boolean moving) {
         if (!(mob instanceof YukkuriEntity walker)) return to;
-        var requested = to;
         var at = mob.position();
         long now = level.getGameTime();
         if (moving) {
@@ -424,26 +437,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var o = footprint(e);
             if (o.solid() || !moving(e) && !partner(o, end, clear)) boxes.add(o.box());
         }
-        boxes.addAll(nestWalls);
         if (boxes.isEmpty()) return to;
-        // A coarse vanilla node can lie on a rim that the exact destination does not. Continue the same walk to its
-        // physical goal through the opening; the block grid cannot represent a narrow, off-centre aperture.
-        for (var wall : nestWalls) if (wall.gap(to.x, to.z) < clear) { to = end; break; }
-        var retreat = nestWalls.isEmpty() ? null : NestDoorway.retreat(walker);
-        if (retreat != null) {
-            // A post may occupy the nearest point clear of the rim. Use the existing free-point search,
-            // retaining the retreat direction on each axis so it cannot become a crossing of that rim.
-            var direction = retreat.subtract(at);
-            var free = Detour.outside(retreat.x, retreat.z, clear, boxes).stream()
-                    .filter(p -> (p[0] - at.x) * direction.x >= 0 && (p[1] - at.z) * direction.z >= 0).findFirst();
-            if (free.isEmpty()) return null;
-            to = new Vec3(free.get()[0], retreat.y, free.get()[1]);
-            boxes.removeIf(box -> box.gap(at.x, at.z) < clear);
-        }
-        var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
-                : Detour.route(at.x, at.z, to.x, to.z, clear, boxes);
+        var turn = Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0);
         if (turn.shut()) return null;
-        if (turn.side() == 0 && to == requested) return to;
+        if (turn.side() == 0) return to;
         if (moving) {
             way = turn.way();
             if ((turn.id() != turnId || turn.side() != turnSide) && level.getEntity((int) turn.id()) instanceof Entity e)
@@ -451,15 +448,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                         e.getUUID(), e.getId(), turn.side(), GameplayLog.at(at), GameplayLog.at(to));
             turnId = turn.id(); turnSide = turn.side(); turnTick = now;
         }
-        var corner = new Vec3(turn.x(), to.y, turn.z());
-        double length = at.distanceTo(corner);
-        // One grid length leaves room for the real floor height inside the last-step reach.
-        var step = at.lerp(corner, Math.min(1, 1 / length));
-        var floor = SurfaceApproach.surface(walker, step);
-        if (moving && floor == null) GameplayLog.limited(walker, "move", "turn_unsupported", 200,
-                "route turn unsupported from={} to={} corner={} step={}", GameplayLog.at(at), GameplayLog.at(to),
-                GameplayLog.at(corner), GameplayLog.at(step));
-        return floor;
+        return new Vec3(turn.x(), to.y, turn.z());
     }
 
     /** A direct steer stalled against a footprint just now: the surface approach then plans a route round it. */
