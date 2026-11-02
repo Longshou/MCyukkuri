@@ -344,8 +344,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             nestWalls = NestDoorway.walls((YukkuriEntity) mob, mob.getBoundingBox().inflate(SCAN));
             if (!nestWalls.isEmpty()) {
                 long id = Long.MIN_VALUE;
-                for (var shape : level.getBlockCollisions(mob, mob.getBoundingBox().inflate(SCAN, .5, SCAN)))
-                    for (var box : shape.toAabbs()) if (box.maxY > mob.getY() + mob.maxUpStep() && box.minY < mob.getY() + mob.getBbHeight())
+                var area = mob.getBoundingBox().inflate(SCAN, 0, SCAN).expandTowards(0, mob.maxUpStep(), 0);
+                for (var shape : level.getBlockCollisions(mob, area))
+                    for (var box : shape.toAabbs()) if (box.maxY > mob.getY() + mob.maxUpStep())
                         nestWalls.add(Detour.Box.aligned(id++, box.minX, box.minZ, box.maxX, box.maxZ));
             }
         }
@@ -436,7 +437,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         var corner = new Vec3(turn.x(), to.y, turn.z());
         double length = at.distanceTo(corner);
-        var step = at.lerp(corner, Math.min(1, 1 / length));
+        var step = at.lerp(corner, Math.min(1, SurfaceApproach.stepReach(walker) / length));
         var floor = SurfaceApproach.floor(walker, step);
         if (moving && floor == null) GameplayLog.limited(walker, "move", "turn_unsupported", 200,
                 "route turn unsupported from={} to={} corner={} step={}", GameplayLog.at(at), GameplayLog.at(to),

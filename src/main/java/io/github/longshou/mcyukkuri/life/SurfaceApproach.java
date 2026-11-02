@@ -119,8 +119,10 @@ public final class SurfaceApproach {
         return actor.onGround()&&clearLastStep(actor,actor.position(),destination);
     }
 
+    public static double stepReach(YukkuriEntity actor) { return Math.max(1.5, actor.getBbWidth() + .5); }
+
     private static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
-        double reach=Math.max(1.5,actor.getBbWidth()+.5),step=actor.maxUpStep();
+        double reach=stepReach(actor),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
