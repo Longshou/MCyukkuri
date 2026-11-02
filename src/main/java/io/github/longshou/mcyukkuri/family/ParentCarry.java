@@ -937,6 +937,9 @@ public final class ParentCarry {
                     problem == null ? "carrier_busy" : problem, ready);
             return Step.FAILED;
         }
+        // The body belongs to another action this tick (a feeding refusal turn, a step aside): the lift waits for it to end
+        // instead of re-running the same Grab every tick.
+        if (carrier.motor().current() != null) return Step.WORKING;
         var grab = new Grab(child);
         var feasibility = grab.check(carrier);
         if (feasibility.reason() == Reason.NO_CONTACT) {
@@ -958,13 +961,16 @@ public final class ParentCarry {
             return Step.WORKING;
         }
         lifting = child.getUUID();
-        // The lift commits the carry: the purpose and its clock start with the Grab, so the passive tick cannot re-adopt it.
+        // Only an accepted Grab lifts the child: a refusal here is this pickup's real failure, never an unchanged retry.
+        if (!carrier.motor().run(owner, grab)) {
+            lifting = null;
+            return Step.FAILED;
+        }
+        // The accepted lift commits the carry: the purpose and its clock start with the Grab, so the passive tick cannot re-adopt it.
         if (purpose == null) begin(intent, child);
         GameplayLog.event(carrier, "family", "carry lift started hold={} reach={} purpose={} child={} childPos={} carrierPos={} nutrition={}",
                 grab.hold().key(), grab.hold().reach().name().toLowerCase(Locale.ROOT), intent, child.getUUID(), child.blockPosition().toShortString(),
                 carrier.blockPosition().toShortString(), child.life().nutrition());
-        // A lift another owner's action refuses this tick is retried on the next one; the task budget bounds it.
-        if (!carrier.motor().run(owner, grab)) { lifting = null; }
         return Step.WORKING;
     }
 
