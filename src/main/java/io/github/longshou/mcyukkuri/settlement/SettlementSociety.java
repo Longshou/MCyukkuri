@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-import io.github.longshou.mcyukkuri.mind.MindLife;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.AABB;
 
 /** Actual nearby witnesses create social consequences; a missing hat alone creates none. */
 public final class SettlementSociety {
@@ -80,20 +78,14 @@ public final class SettlementSociety {
         // A slave already lives at the bottom of the pit: from here only real kindness by members that still see who it is changes
         // its standing (wiki: sustained gentle treatment); the harsh witnesses below are what put a member there.
         if (record.role == SettlementData.Role.UNUN_SLAVE) {
-            var kind = kindMember(group, box);
+            var kind = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
+                    peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
+                            && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
             if (kind != null) treat(kind, record);
             return;
         }
         // Sustained kindness is durable colony acceptance, not a timer before the same member is rejected again.
-        if (record.hatlessAccepted) {
-            // Acceptance does not suppress unease: the same real member keeps comforting the recovered individual when needed.
-            if (entity.mind().unease() >= MindLife.UNEASY) {
-                var kind = kindMember(group, box);
-                if (kind != null) comfort(kind);
-            }
-            return;
-        }
-        if (now < record.rememberedUntil) return;
+        if (record.hatlessAccepted || now < record.rememberedUntil) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
@@ -169,30 +161,14 @@ public final class SettlementSociety {
         }
     }
 
-    /** A nearby member who can still recognise the recovered individual and actually give gentle care. */
-    private YukkuriEntity kindMember(SettlementData.Group group, AABB box) {
-        return LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
-                peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
-                        && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
-    }
-
-    /** Real gentle contact and its ordinary emotional relief; no role or unease value is assigned. */
-    private void comfort(YukkuriEntity member) {
-        member.getLookControl().setLookAt(entity, 25, 25);
-        member.showReaction("closed_smile", "gentle", 80);
-        entity.mind().felt(EmotionEvent.COMFORTED);
-        entity.showReaction("teary", "gentle", 100);
-    }
-
-    /**
-     * One real act of kindness at the pit: a member that still sees who the slave is comes over, greets it gently and its regard
-     * for it recovers. Sustained kindness of this kind ends the role (wiki: 摆脱强迫并获得持续温和对待可以恢复).
-     */
     private void treat(YukkuriEntity member, SettlementData.Member record) {
         record.nextObservation = level().getGameTime() + 100;
         record.gentleness++;
-        comfort(member);
+        member.getLookControl().setLookAt(entity, 25, 25);
+        member.showReaction("closed_smile", "gentle", 80);
         YukkuriWorldData.get(level()).relate(member.getUUID(), entity.getUUID(), 2);
+        entity.mind().felt(EmotionEvent.COMFORTED);
+        entity.showReaction("teary", "gentle", 100);
         GameplayLog.event(entity, "settlement", "pit slave treated by={} gentleness={}/{}", member.getUUID(), record.gentleness,
                 SettlementData.GENTLE_TREATMENTS);
         if (record.gentleness >= SettlementData.GENTLE_TREATMENTS) restored("gentle_treatment");

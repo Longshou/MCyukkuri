@@ -309,7 +309,8 @@ def starves_without_pit_food(window):
 
 def release_holds(window):
     """Gentle restoration keeps the previous MEMBER/LEADER role past a day and another rejection window, without any
-    rejection, sanction, wound or death of the released individual; no colony member may die anywhere in the scene."""
+    rejection, sanction, wound or death of the released individual; no colony member may die anywhere in the scene.
+    Other real pressures may still sweeten this individual; social acceptance, not an unease clamp, is asserted here."""
     problem = colony_death(window)
     if problem: return problem
     found = re.search(r'\[settlement\] (\w+) #(\d+) uuid=(\S+)[^\n]*hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment', window)
@@ -320,7 +321,7 @@ def release_holds(window):
     released = int(re.search(r' t=(\d+) ', lines[start])[1])
     for line in lines[start + 1:]:
         if token in line and re.search(
-                r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |non-yukkuri onset|'
+                r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |'
                 r'starvation damage|death settled|wound placed|case opened reason=hatless', line):
             return 'the release was undone: ' + line.strip()
         if uuid in line and re.search(r'\[sanction\][^\n]* act=|\[social\][^\n]* bully strike peer=\S+ accepted=true', line):
@@ -348,7 +349,7 @@ add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
 # nothing is scripted after that: the goal, the walk back, the meals and the others' reactions are the ordinary ones.
 _SLAVE = '@e[tag=scn_slave,distance=..70,limit=1]'
 _HARSH = '@e[type=#mcylab:yukkuri,tag=!scn_slave,distance=..70]'
-_COLONY_RELIEVES = f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90'
+_COLONY_RELIEVES = 'execute as @e[type=#mcylab:yukkuri,distance=..30,limit=1,sort=random] run yukkuri status set @s needs.bladder 90'
 # A finite, reachable opening stock for the whole exhibit colony; nothing is replenished during the run.
 _PIT_FOOD = [item('minecraft:apple', 32, -4, 4), item('minecraft:apple', 32, 4, 4)]
 add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
@@ -372,7 +373,7 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     # of real days follow, with the colony relieving at the pit as it does by itself; the slave must still be alive and sane.
     smoke=dict(ticks=72000,
                commands=[(300, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 20')]
-                        + [(tick, _COLONY_RELIEVES) for tick in range(1200, 72000, 4800)],
+                        + [(tick, _COLONY_RELIEVES) for tick in range(1200, 72000, 2400)],
                expect=[r'\[settlement\][^\n]* pit slave back in pit\b', r'\[mind\][^\n]* stage calm -> uneasy \(unease 3'],
                forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b', r'hatless outcome role=MEMBER'],
                verify=slave_survives))
@@ -430,6 +431,7 @@ add('settle_pit_drive', 'biomes', '聚落嗯嗯奴隶的产生', '失饰入坑',
 # (self-control 70, friendliness 70) treats it every time it comes to the pit bank; after five real acts it is a member again.
 _KIND = '@e[tag=scn_kind,distance=..70,limit=1]'
 _PLAIN_ALL = '@e[type=#mcylab:yukkuri,tag=!scn_slave,distance=..70]'
+_KIND_RELIEVES = f'execute as {_KIND} run yukkuri status set @s needs.bladder 90'
 add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待',
     '固定成员的小群（首领、一家三口、一家两口）里无子女的族长已在坑里做嗯嗯奴隶，有一只聪明（智力 90，认得出无头饰者）又温和的成员，其余成员认不出它但不算严厉。'
     '看那只成员每次到坑边都望向奴隶、露出温和反应，奴隶含泪（日志 pit slave treated … gentleness=n/5）；'
@@ -457,7 +459,7 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
     reads=[*_PIT_READS, ('读奴隶的角色与身份', f'yukkuri status {_SLAVE} raw'), ('读温和成员的性格', f'yukkuri status {_KIND} raw')],
     # Opening relief rounds supply real acts of kindness; the following days leave the colony to ordinary life.
     smoke=dict(ticks=60000,
-               commands=[(tick, _COLONY_RELIEVES) for tick in range(600, 6000, 400)],
+               commands=[(tick, _KIND_RELIEVES) for tick in range(600, 6000, 400)],
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
                readout=[f'yukkuri status {_SLAVE} raw', f'yukkuri status {_KIND} raw'],
