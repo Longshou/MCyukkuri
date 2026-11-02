@@ -750,7 +750,7 @@ _swaddle_chest = ','.join(f'{{Slot:{i}b,id:"mcyukkuri:swaddle_cloth",count:1,com
 _swaddle_pets, _swaddle_wear = [], []
 for _i, (_style, _label) in enumerate(_SWADDLE_LOOKS):
     _pet = f'swaddle_{_style}'
-    _swaddle_pets += [yk(('reimu', 'marisa', 'alice')[_i % 3], -3 + 2 * (_i % 4), 2 * (_i // 4), _pet, stage='baby' if _i % 2 == 0 else 'child', grade=1, label=_label,
+    _swaddle_pets += [yk(('reimu', 'marisa', 'alice')[_i % 3], -3 + 2 * (_i % 4), 3 * (_i // 4), _pet, stage='baby' if _i % 2 == 0 else 'child', grade=1, label=_label,
                          lead=_i == 0, nutrition=90, energy=100, hygiene=100), *own(_pet)]
     _swaddle_wear += [f'data modify entity {sel(_pet)} YukkuriPet.Care merge value {{Swaddle:1b,SwaddleStyle:"{_style}"}}',
                       f'data modify entity {sel(_pet)} YukkuriPet.Care.WearOwner set from entity @s UUID']
@@ -758,8 +758,8 @@ add('swaddle_worn', 'town', '襁褓上身·八款并排', '襁褓已穿',
     '八只自家宠物赤油／子油（灵梦、魔理沙、爱丽丝轮流）已穿着八款襁褓并排站开，头顶名字是款式；最右一只赤油没包，右边木箱里有八款襁褓布，'
     '手持右键它包上，护理菜单“解开”取回同款。看各款外观与图标同款、首字母款背后是本物种首字母、发辫尾巴在布外不穿模',
     '随意', [*_swaddle_pets, *_swaddle_wear,
-             yk('reimu', 5, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
-             block(7, 0, 0, f'minecraft:chest[facing=west]{{Items:[{_swaddle_chest}]}}')],
+             yk('reimu', -5, 0, 'swaddle_bare', stage='baby', grade=1, label='未包', nutrition=90, energy=100, hygiene=100), *own('swaddle_bare'),
+             block(-7, 0, 0, f'minecraft:chest[facing=east]{{Items:[{_swaddle_chest}]}}')],
     reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
 add('harness_walk', 'town', '亲手牵引与照料', '亲手牵引',
@@ -1810,19 +1810,22 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
 
 
 def flow_channel(falling):
-    """Real stone channel and water sources; fluid updates supply all flow and turbulence."""
+    """Gravel stream bed and low grassy banks; fluid updates supply all flow and turbulence."""
     x = bank_dx(0)
-    return [box(x, -3, -2, x + 10, 3, 2, 'minecraft:stone'),
+    return [box(x, -3, -4, x + 13, -1, 4, 'minecraft:dirt'),
+            box(x, -1, -4, x + 13, -1, 4, 'minecraft:grass_block'),
+            box(x, 0, -4, x + 13, 4, 4, 'minecraft:air'),
+            box(x + 1, -2, -1, x + 9, -2, 1, 'minecraft:gravel'),
             box(x + 1, -1, -1, x + 9, 4, 1, 'minecraft:air'),
             *([box(x + 1, -1, -1, x + 9, -1, 1, 'minecraft:water')] if falling else
               [block(x + 1, -1, z, 'minecraft:water') for z in (-1, 0, 1)])]
 
 
 pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
-     '石槽里一股真实落水从高处流下，船主在瀑流旁的帽子上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
+     '浅溪里一股真实落水从高处流下，船主在瀑流旁的帽子上，两侧低草岸可爬上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
      '约 30 秒',
      [*flow_channel(True), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 4))],
-     vantage=(bank_dx(0) + 5, -2, 0, 65),
+     vantage=(bank_dx(0) + 13, -3, 65, 20),
      late=[block(bank_dx(0) + 4, 2, 0, 'minecraft:water')],
      note='读 hat.float 的 trigger=turbulence、falling、value、capsizes 与 inverted；日志只记一次触发。水与地形在清场后恢复。',
      reads=_HULL_READS,
@@ -1837,11 +1840,11 @@ def current_drift(log):
 
 
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
-     '宽石槽上游一排水源形成同向水流；船主乘帽随水流缓慢漂动，碰到槽边只停住。没有落水、流向冲突或猛撞时不会翻船',
+     '浅溪上游一排水源形成同向水流，两侧低草岸可爬上；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
      [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 3))],
-     vantage=(bank_dx(0) + 5, -2, 0, 65),
-     note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。槽尽头浅水落定不算翻覆。',
+     vantage=(bank_dx(0) + 13, -3, 65, 20),
+     note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。溪流尽头浅水落定不算翻覆。',
      reads=_HULL_READS,
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared'], verify=current_drift,

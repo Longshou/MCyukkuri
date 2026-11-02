@@ -282,6 +282,7 @@ def check_layout(st, builder, scene):
             if not any(expected in row['tags'] for sample in snapshots for row in sample['entities']):
                 problems.append('missing expected delayed actor ' + expected)
     problems += re.findall(r'MCYLAYOUT_MISSING[^\n]*', server.log_text(st, offset))
+    problems = list(dict.fromkeys(problems))
     report = Path(st['rundir']).parent / f'{scene.id}.layout.json'
     report.write_text(json.dumps(dict(scene=scene.id, plot=rect, snapshots=snapshots, problems=problems), indent=2), encoding='utf-8')
     server.run_cmd(st, 'kill @e[tag=mcyv]')

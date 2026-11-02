@@ -307,7 +307,7 @@ class Biomes(Field):
         return super().base() + [c for plot, px, pz in self.plots for c in self.plot_base(plot, px, pz)]
 
     def features(self):
-        # Scenes widen a plot's biome or turn neighbouring ground into plains (plains_site), so the clear restores every plot's biome.
+        # Clearing restores each plot's assigned vegetation and biome.
         return [c for plot, px, pz in self.plots for c in self.plot_features(plot, px, pz)] + self.biome_commands()
 
     def biome_commands(self):

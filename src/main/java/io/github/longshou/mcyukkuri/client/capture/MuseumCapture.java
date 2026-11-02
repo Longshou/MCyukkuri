@@ -84,6 +84,25 @@ public final class MuseumCapture {
         }
     }
 
+    private static void readScene(Scene completed, Minecraft mc) {
+        var server = mc.getSingleplayerServer();
+        var observer = mc.player.getUUID();
+        // Direct commands retain their output; scheduled functions suppress it. Never open the readout GUI here.
+        server.submit(() -> {
+            var source = server.getPlayerList().getPlayer(observer).createCommandSourceStack().withPermission(4)
+                    .withSource(new CommandSource() {
+                        public void sendSystemMessage(Component message) {
+                            LogUtils.getLogger().info("[capture-read] scene={} observer={} tick={} {}",
+                                    completed.id, observer, server.overworld().getGameTime(), message.getString());
+                        }
+                        public boolean acceptsSuccess() { return true; }
+                        public boolean acceptsFailure() { return true; }
+                        public boolean shouldInformAdmins() { return false; }
+                    });
+            for (String command : completed.reads) server.getCommands().performPrefixedCommand(source, command);
+        }).join();
+    }
+
     public static void frame(RenderFrameEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         // Loading screens and remote worlds have no integrated museum to drive.
@@ -139,6 +158,7 @@ public final class MuseumCapture {
                     GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) != 0));
             Path output = ROOT.resolve(current.id).resolve(file);
             NativeImage pixels = Screenshot.takeScreenshot(mc.getMainRenderTarget());
+            if (nextFrame == current.ticks.length) readScene(current, mc);
             WRITES.add(CompletableFuture.runAsync(() -> {
                 try (pixels) {
                     pixels.writeToFile(output);
@@ -149,23 +169,6 @@ public final class MuseumCapture {
         }
         if (nextFrame != current.ticks.length || WRITES.stream().anyMatch(write -> !write.isDone())) return;
         WRITES.forEach(CompletableFuture::join);
-        Scene completed = current;
-        var server = mc.getSingleplayerServer();
-        var observer = mc.player.getUUID();
-        // Direct commands retain their output; scheduled functions suppress it. Never open the readout GUI here.
-        server.submit(() -> {
-            var source = server.getPlayerList().getPlayer(observer).createCommandSourceStack().withPermission(4)
-                    .withSource(new CommandSource() {
-                        public void sendSystemMessage(Component message) {
-                            LogUtils.getLogger().info("[capture-read] scene={} observer={} tick={} {}",
-                                    completed.id, observer, server.overworld().getGameTime(), message.getString());
-                        }
-                        public boolean acceptsSuccess() { return true; }
-                        public boolean acceptsFailure() { return true; }
-                        public boolean shouldInformAdmins() { return false; }
-                    });
-            for (String command : completed.reads) server.getCommands().performPrefixedCommand(source, command);
-        }).join();
         try {
             Files.writeString(ROOT.resolve(current.id).resolve("frames.json"), JSON.toJson(FRAMES));
             LogUtils.getLogger().info("[capture] scene={} frames={} seconds={}", current.id, FRAMES.size(), (System.nanoTime() - began) / 1e9);
