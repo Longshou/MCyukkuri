@@ -147,11 +147,12 @@ final class ScenarioSetup {
      * catches, and whether there is a hat, a nest or her own boat, comes from the real pair and their home (decision R5), never
      * from here.
      * {@code stem}: a real STEM conception brought to 400 ticks before term (a hatted Marisa father sets the hat under it).
+     * {@code pregnant}: a live conception at half term, leaving the mother time to prepare her birth site.
      */
     static String birth(YukkuriEntity mother, YukkuriEntity father, String outcome) {
         if (!(mother.level() instanceof ServerLevel level) || father.level() != level || mother == father
                 || !mother.family().adult() || !father.family().adult()) return "接生场景要在同一维度放两只成年个体。";
-        if (!Set.of("natural", "caught", "stem").contains(outcome)) return "结果必须为 natural、caught 或 stem。";
+        if (!Set.of("natural", "caught", "stem", "pregnant").contains(outcome)) return "结果必须为 natural、caught、stem 或 pregnant。";
         boolean stem = outcome.equals("stem");
         if (mother.distanceToSqr(father) > 64) return "父油要在母油八格内。";
         if (mother.family().brood() != null) return "母油已经有胎次，不会覆盖。";
@@ -180,7 +181,7 @@ final class ScenarioSetup {
             data.setDirty();
         } else {
             var helper = FamilyLife.catcher(mother, brood);
-            int lead = helper != null && helper != mother ? 150 : 2;
+            int lead = outcome.equals("pregnant") ? brood.duration / 2 : helper != null && helper != mother ? 150 : 2;
             brood.elapsed = Math.max(0, brood.duration - lead);
             data.setDirty();
             if (outcome.equals("caught") && helper == null)

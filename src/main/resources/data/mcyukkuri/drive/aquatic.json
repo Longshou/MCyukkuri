@@ -33,6 +33,7 @@
   "wet_need": 70,
   "thunder_need": 60,
   "breed_need": 35,
+  "birth_ashore_want": 100,
   "young_ashore_need": 60,
   "reclaim": 85,
   "cruise_want": 30,

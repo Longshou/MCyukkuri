@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import java.util.List;
+import java.util.ArrayList;
 import net.minecraft.world.phys.AABB;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,6 +32,8 @@ import net.minecraft.core.Direction;
 import org.joml.Quaternionf;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.headwear.HatSeats;
+import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import net.minecraft.util.Mth;
 
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
@@ -234,11 +237,22 @@ public final class LiveBirthGeometry {
         }
         return at.add(offset);
     }
-    /** A no-seat release starts with the whole newborn outside the real hull, then ordinary physics takes over. */
-    static Vec3 outsideHull(Vec3 at,AABB hull,EntityDimensions body){
-        var centre=hull.getCenter();var out=new Vec3(at.x-centre.x,0,at.z-centre.z).normalize();
-        double half=(hull.getXsize()+body.width())*.5;
-        return at.add(out.scale(Math.nextUp(BirthLaunch.roomAlong(at,centre,half,out))));
+    public static HatSeats.Body seatBody(FamilyData.Child child){
+        var size=unbornDimensions(FamilyData.BirthKind.LIVE,child);
+        return new HatSeats.Body(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),
+                GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child),size.width(),size.height());
+    }
+    /** Read-only whole-brood admission, using precisely the same rule as a real arriving rider. */
+    public static boolean admitsBrood(YukkuriEntity mother,PlacedHatEntity hull){
+        var occupants=new ArrayList<>(hull.seatOccupants());
+        for(var child:mother.family().brood().children){
+            if(child.born)continue;
+            var body=seatBody(child);
+            var at=HatSeats.admit(hull.hullScale()/(float)HullBounds.SCALE,body,false,occupants);
+            if(at==null)return false;
+            occupants.add(new HatSeats.Occupant(body,at,false));
+        }
+        return true;
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
@@ -261,9 +275,9 @@ public final class LiveBirthGeometry {
                 ||level.clip(new ClipContext(origin,position,ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother)).getType()!=HitResult.Type.MISS)return false;
         for(var part:childEnvelope(brood.children.get(index),mother.getScale(),position,yaw))
             if(level.getBlockCollisions(mother,part).iterator().hasNext())return false;
+        if(!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),YukkuriEntity::isAlive).isEmpty())return false;
         if(unprotected)return true;
-        if(!level.noCollision(mother,box)||level.containsAnyLiquid(box)||!level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.015),
-                other->other!=mother&&other.isAlive()&&!(other.getVehicle() instanceof PlacedHatEntity)).isEmpty())return false;
+        if(!level.noCollision(mother,box)||level.containsAnyLiquid(box))return false;
         var ground=level.clip(new ClipContext(position.add(0,.01,0),position.add(0,-.55,0),ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,mother));
         if(ground.getType()!=HitResult.Type.BLOCK||ground.getDirection()!=Direction.UP)return false;
         double y=ground.getLocation().y;

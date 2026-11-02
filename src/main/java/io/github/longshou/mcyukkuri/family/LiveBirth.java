@@ -5,7 +5,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Beat;
 import io.github.longshou.mcyukkuri.intent.Choreography;
@@ -30,7 +29,6 @@ import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -116,11 +114,12 @@ final class LiveBirth extends Choreography {
      *  down; one whose hat is out as a boat catches nothing and is not cast), else the large nest or the ground. */
     private void recast(YukkuriEntity catcher){
         var mother=o.entity();var hull=ownHull(mother);
-        if(hull!=null){bind(CATCHER,null);receiver=new OwnHull(hull.getUUID());return;}
+        if(hull!=null&&LiveBirthGeometry.admitsBrood(mother,hull)){bind(CATCHER,null);receiver=new OwnHull(hull.getUUID());return;}
         var hat=catcher==null?null:PlacedHatEntity.find(catcher);boolean boat=hat!=null&&!hat.catches();
         bind(CATCHER,catcher==null||boat?null:catcher.getUUID());
         if(catcher!=null&&!boat&&HatProp.usable(catcher)&&!(catcher==mother&&FamilyNest.large(mother)))receiver=new PlacedHat(hat==null?null:hat.getUUID());
         else receiver=FamilyNest.large(mother)?new Nest():new Ground();
+        if(hull!=null)GameplayLog.event(mother,"family","birth receiver={} reason=whole_brood_not_admitted aboard=true unborn={}",receiver.kind(),brood().unborn());
     }
     /** Her own hat she rides (a hat bears its owner only as her boat, never as a cradle), upright. */
     static PlacedHatEntity ownHull(YukkuriEntity m){var hat=PlacedHatEntity.find(m);return hat!=null&&m.getVehicle()==hat&&!hat.upsideDown()?hat:null;}
@@ -157,8 +156,13 @@ final class LiveBirth extends Choreography {
             t.put("exit_any",new Beat.Perform(Beat.roles(MOTHER,()->new Deliver(true),CATCHER,this::attend),()->1200,"turned_any","force"));
             t.put("turned",new Beat.Branch(r->r.done()?"push":now()<exitUntil?"exit":"exit_any"));
             t.put("turned_any",new Beat.Branch(r->r.done()?"push":interrupted(r)?"exit_any":"force"));
-            // No clear outlet at all: the birth is forced; real collision still applies to the newborn (never a permanent wait).
-            t.put("force",new Beat.Branch(r->{forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";}));
+            // The safety window expired: real exposure is allowed, spawning inside another body is not.
+            t.put("force",new Beat.Branch(r->{
+                if(!LiveBirthGeometry.clear(o.entity(),pushing,o.entity().yBodyRot,true)){
+                    FamilyData.get(o.level()).cancel(brood(),o.entity(),"no_clear_birth_exit");return null;
+                }
+                forced=true;GameplayLog.event(o.entity(),"family","birth forced reason={} child={}",hold.isEmpty()?"no_safe_exit":hold,pushing);return "push";
+            }));
             t.put("push",new Beat.Await(Beat.roles(MOTHER,null,CATCHER,this::attend),()->brood()==null||brood().children.get(pushing).born,this::pushTicks,"pushed","pushed"));
             t.put("pushed",new Beat.Branch(r->brood()==null||brood().unborn()==0?"linger":receiver instanceof OwnHull?"push":!brood().children.get(pushing).born?"force":forced?"push":unprotected?"exit_any":"exit"));
             t.put("linger",new Beat.Present(Beat.roles(MOTHER,null,CATCHER,this::attend),Behaviors.POSTPARTUM,LiveBirthGeometry.RECOVERY,"lingered"));
@@ -196,9 +200,10 @@ final class LiveBirth extends Choreography {
                 if(widening){exit=null;choices=null;}
                 if(beat.equals("exit_any"))rejection="";
                 pushing=next;
-                // She went aboard her boat after the cast (no catch hat down): it is the receiver now.
-                if(placedHat()==null&&!(receiver instanceof OwnHull)&&ownHull(o.entity()) instanceof PlacedHatEntity hull){
-                    receiver=new OwnHull(hull.getUUID());bind(CATCHER,null);GameplayLog.event(o.entity(),"family","birth receiver own_hull hat={} beat={}",hull.getUUID(),beat);
+                // Re-read actual admission if the hull or its occupants changed after the cast.
+                if(receiver instanceof OwnHull&&(ownHull(o.entity())==null||!LiveBirthGeometry.admitsBrood(o.entity(),ownHull(o.entity())))){
+                    recast(catcher(o.entity(),brood()));
+                    if(beat.equals("push")){jump("exit","hull_admission_changed");return;}
                 }
                 deliveryReadout("transition",beat);
             }
@@ -266,7 +271,7 @@ final class LiveBirth extends Choreography {
         int delivery=b.elapsed-b.duration;
         boolean visible=delivery>LiveBirthGeometry.emergenceStart(pushing);
         var hat=placedHat();
-        if(!forced&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||receiver instanceof OwnHull))return "outlet_blocked";
+        if(!(receiver instanceof OwnHull)&&!LiveBirthGeometry.clear(m,pushing,m.yBodyRot,unprotected||forced))return "outlet_blocked";
         if(!o.bellyRoom(b))return "no_room_for_belly";
         // Replanning is permitted before the child is visible. Once emerging, retain this aim and the real risk of lost room.
         if(hat!=null&&!unprotected&&!forced&&!visible&&(exit==null||!qualified(hat)&&qualificationMisses>=3)){
@@ -279,9 +284,8 @@ final class LiveBirth extends Choreography {
         if(delivery<LiveBirthGeometry.birthTick(pushing))return "";
         var data=FamilyData.get(o.level());var at=LiveBirthGeometry.position(m,pushing);
         var unborn=b.children.get(pushing);var seat=receiver instanceof OwnHull?boatSeat(m,unborn):null;
+        if(receiver instanceof OwnHull&&seat==null){recast(catcher(m,b));jump("exit","seat_lost");return "seat_lost";}
         if(seat!=null)at=seat.world();
-        else if(receiver instanceof OwnHull&&ownHull(m) instanceof PlacedHatEntity hull)
-            at=LiveBirthGeometry.outsideHull(at,hull.getBoundingBox(),LiveBirthGeometry.childDimensions(unborn,m.getScale()));
         if(hat!=null&&(unprotected||forced)&&exit==null)riskyExit(hat,m.yBodyRot);
         var nominal=hat!=null&&exit!=null?(unprotected||forced?BirthLaunch.risky(at,hat.frame().toWorld(exit.aim()),m.yBodyRot)
                 :BirthLaunch.forward(at,hat.frame().toWorld(exit.aim()),m.yBodyRot,exit.ticks())):null;
@@ -291,11 +295,6 @@ final class LiveBirth extends Choreography {
         // Failed entity insertion pauses at this child's release, never running into the next child's clock; inside her boat's
         // dry hollow the outlet's space is checked for blocks only.
         var child=data.birth(b,pushing,o.level(),at,hat,nominal,unprotected||forced||receiver instanceof OwnHull);
-        if(child==null&&forced&&"newborn_space_blocked".equals(data.birthBlock(b))){
-            // A forced birth with no room at the outlet comes out where her own body stands: a spawn place, never a moved body.
-            hat=null;child=data.birth(b,pushing,o.level(),m.position(),null,null,true);
-            if(child!=null)GameplayLog.event(m,"family","birth forced reason=newborn_space_blocked at=mother_feet child={}",child.getUUID());
-        }
         if(child==null)return data.birthBlock(b);
         if(seat!=null){
             if(seat.land(child,"birth"))child.showReaction("happy",Behaviors.NEWBORN,100); // wakes in its seat
@@ -307,11 +306,10 @@ final class LiveBirth extends Choreography {
         if(b.complete())o.delivered(b);
         return "";
     }
-    /** The free seat the planned newborn takes on her boat (one plan, from its unborn size); none: it falls into the water. */
+    /** The free seat the admitted newborn takes on her boat, measured at its unborn size. */
     private SeatTarget boatSeat(YukkuriEntity m,FamilyData.Child child){
-        var hull=ownHull(m);var size=LiveBirthGeometry.unbornDimensions(FamilyData.BirthKind.LIVE,child);
-        var seat=hull==null?null:hull.seatDestination(new HatSeats.Body(SubspeciesLife.assetId(child.variant,child.subspeciesFlags),
-                GrowthSize.physicalBirth(FamilyData.BirthKind.LIVE,child),size.width(),size.height()));
+        var hull=ownHull(m);
+        var seat=hull==null?null:hull.seatDestination(LiveBirthGeometry.seatBody(child));
         if(seat==null)noSeat(hull==null?"no_hull":"full",hull,child);
         return seat;
     }

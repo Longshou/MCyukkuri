@@ -194,14 +194,14 @@ public final class ScenarioCommands {
                 .then(Commands.literal("birth").then(Commands.argument("mother", EntityArgument.entity())
                         .then(Commands.argument("father", EntityArgument.entity())
                                 .then(Commands.argument("outcome", StringArgumentType.word())
-                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "stem"}, b))
+                                        .suggests((c, b) -> SharedSuggestionProvider.suggest(new String[]{"natural", "caught", "stem", "pregnant"}, b))
                                         .executes(c -> {
                                             var mother = yukkuri(c, "mother"); var father = yukkuri(c, "father");
                                             if (mother == null || father == null) return 0;
                                             String outcome = StringArgumentType.getString(c, "outcome");
                                             String reason = ScenarioSetup.birth(mother, father, outcome);
                                             if (reason != null) return refused(c.getSource(), mother, "接生场景", reason);
-                                            tell(c.getSource().getLevel(), mother.position(), "[试玩场] 母油已怀上真实胎次并进入临产（" + outcome
+                                            tell(c.getSource().getLevel(), mother.position(), "[试玩场] 母油已怀上真实胎次（" + outcome
                                                     + "）；接下来的出生、接生和照护由普通规则发生。", ChatFormatting.GOLD);
                                             return 1;
                                         })))))

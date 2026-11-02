@@ -134,6 +134,8 @@ public final class SubspeciesLife {
     }
     /** Pure UUID selection, mother first; family records save this once while parent ancestry is known. */
     public static int birthFlags(UUID child,YukkuriVariant variant,Kind mother,Kind father) {
+        // User feedback 2026-11-02: two aquatic parents always have aquatic young, before other form rolls.
+        if(variant==YukkuriVariant.MARISA&&mother!=null&&mother.aquatic()&&father!=null&&father.aquatic())return mother.ordinal();
         var random=new Random(child.getMostSignificantBits() ^ child.getLeastSignificantBits() ^ 0x53484150454CL);
         var candidate=variant==YukkuriVariant.MARISA?Kind.SHELL_MARISA:variant==YukkuriVariant.REIMU?Kind.WASA_REIMU:Kind.NORMAL;
         Kind selected=Kind.NORMAL;int shape=0;
