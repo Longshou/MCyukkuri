@@ -59,8 +59,8 @@ public final class FamilyNest {
         var bed=nest.bed();
         return bed==NestResting.CUSHION?Direction.NORTH:bed==NestResting.LARGE?Direction.SOUTH:null;
     }
-    /** The cells a body stands in to walk into that doorway, the nearer ones to the body first: the two rows outside it (the
-     *  soft bolster overhangs the first, so only a narrow body can stand there); empty for a rimless bed or another bed. */
+    /** The cells a body stands in to walk into that doorway: the row right outside it first (one step in), then the next row
+     *  (the soft bolster overhangs the first, so a wide body only stands in the second); empty for a rimless bed or another bed. */
     public static List<BlockPos> doorwayStands(YukkuriEntity e,BlockPos bed){
         var nest=care(e);
         if(nest==null||!nest.getBlockPos().equals(bed))return List.of();
@@ -68,11 +68,12 @@ public final class FamilyNest {
         if(side==null)return List.of();
         var cells=new ArrayList<BlockPos>();
         for(int distance=1;distance<=2;distance++){
-            var row=nest.getBlockPos().relative(side,distance);
-            cells.add(row);
-            if(nest.largeNest())cells.add(row.relative(side.getAxis()==Direction.Axis.Z?Direction.EAST:Direction.SOUTH));
+            var row=new ArrayList<BlockPos>();
+            row.add(nest.getBlockPos().relative(side,distance));
+            if(nest.largeNest())row.add(row.getFirst().relative(side.getAxis()==Direction.Axis.Z?Direction.EAST:Direction.SOUTH));
+            row.sort(Comparator.comparingDouble(cell->e.distanceToSqr(Vec3.atCenterOf(cell))));
+            cells.addAll(row);
         }
-        cells.sort(Comparator.comparingDouble(cell->e.distanceToSqr(Vec3.atCenterOf(cell))));
         return cells;
     }
     /** Whether the body is still in the doorway's own corridor: between the stand outside it and its place in the bed, or just
