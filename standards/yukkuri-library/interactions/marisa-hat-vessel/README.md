@@ -82,7 +82,6 @@
 | `build.py` | 生成道具和数据，并打印典型弧线；`--check` 只读核对 |
 | `delivery.py` | 帽面高度、坐位、抛物线、跳出位置；`build.py` 与出生场景预览共用，游戏中有对应实现 |
 | `manifest.json` | 配方、脚本与输出的 SHA-256 |
-| `preview_cabin.py` | 兼容的离线预览入口，转到 `motions/variants/lore/aquatic_home_preview.py` |
 | `check_cabin.py` | 检查帽面三角网格的支撑与内腔分段连续性 |
 
 **运行资源**：

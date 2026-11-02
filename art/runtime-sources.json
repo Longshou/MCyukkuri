@@ -3730,7 +3730,6 @@
     "source": "standards/yukkuri-library/interactions/marisa-hat-vessel",
     "recipe": "standards/yukkuri-library/interactions/marisa-hat-vessel/recipe.json",
     "builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/build.py",
-    "preview_builder": "standards/yukkuri-library/interactions/marisa-hat-vessel/preview_cabin.py",
     "geometry_check": "standards/yukkuri-library/interactions/marisa-hat-vessel/check_cabin.py",
     "cabin_revision": "Aquatic hat 1.4x the land hat (project design: 1.5 filled the opening with an adult captain and 1.4 was chosen from the preview). Afloat the crown is pressed to 0.55 and the front tread is 0.6 deep so the young read from the bank. Three crown tiers hollowed with a wall-connected front tread 2.01 hat units deep; four shared cavity sections. Offline preview only, awaiting game verification.",
     "input_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
