@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 宠物窝入口简化复修 | `.worktrees/fb-bed-entrance` | 窝格寻路阻挡、共享入出窝直行、`sleep`／`carry_home` 检查与视角；不改亲代放置 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
@@ -40,7 +39,7 @@
   1. 父油把赤油从接生帽放到地上后又放回帽里：`01-land-catch` 03:25:20.158 `transfer failed … why=land_lift reason=contact_lost class=SLIP`。
   2. 宠物窝入睡判定太宽：身体边缘蹭到窝沿即入睡，像浮在窝上。复测失败（bbd16394b）：不再卡进窝，但入窝、离窝都从任意一侧翻过窝沿，不走入口。
   3. 赤油极饿取食一卡一卡：`04-infant-feed` 03:28:13–03:28:46 每 100 tick 一次 `ground path stopped reason=no_progress`，每次约 0.1 格；`food found` 在 elapsed=601、1201 重复。
-  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或 `[action] start id=hop … owner=leave_host`），之后不再 `mount host=<接生帽>`，全部离帽后才收帽；`sleep`／`carry_home` 身体步行从低沿进出，同一个体有 `[home] bed crossing … direction=in|out … opening=true`，入睡 `occupancy=INSIDE_SUPPORTED`，无侧沿进入或长期卡住；亲代从沿上方放幼不算步行；`infant_feed` 极饿赤油连续走到食物、无 `no_progress`、`food found` 不重复。
+  完成：`birth_land_caught` 每只赤油各有一条 `[body] dismount cause=release`（或 `[action] start id=hop … owner=leave_host`），之后不再 `mount host=<接生帽>`，全部离帽后才收帽；`sleep`／`carry_home` 身体步行从低沿进出，同一个体有 `[home] bed crossing … direction=in|out … opening=true source=walk`，入睡 `occupancy=INSIDE_SUPPORTED`，无步行翻侧沿或长期卡住；亲代从沿上方放幼、身体挤碰不算步行；`infant_feed` 极饿赤油连续走到食物、无 `no_progress`、`food found` 不重复。
 
 ### 家庭、繁殖与照护
 
