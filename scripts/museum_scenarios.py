@@ -1870,32 +1870,49 @@ def flow_channel(falling):
 pond('hat_turbulence', '落水急流中的帽船', '急流翻船',
      '浅溪里一股真实落水从高处流下，船主在瀑流旁的帽子上，两侧低草岸可爬上。落水或邻格流向明显冲突持续一段时间后，帽子先猛烈摇摆再翻覆，乘员落水；不改帽子成功状态',
      '约 30 秒',
-     [*flow_channel(True), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 4))],
+     [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 1), True, sel('a'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     late=[block(bank_dx(0) + 4, 2, 0, 'minecraft:water')],
+     late=[block(bank_dx(0) + 1, 2, 0, 'minecraft:water')],
      note='读 hat.float 的 trigger=turbulence、falling、value、capsizes 与 inverted；日志只记一次触发。水与地形在清场后恢复。',
      reads=_HULL_READS,
      smoke=dict(ticks=600, expect=[r'\[hat\][^\n]* scenario afloat prepared',
-                                  r'\[hat\][^\n]* capsized cause=turbulence value=[^\n]*falling=(?:true|false)'],
-                forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|impact)\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
+                                  r'\[hat\][^\n]* capsized cause=turbulence value=[^\n]*falling=(?:true|false)',
+                                  r'\[hat\][^\n]* pickup cause=grounded'],
+                forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|impact)\b', r'\[body\][^\n]* invariant\b',
+                        r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
 
 def current_drift(log):
     points = [float(x) for x in re.findall(r'\[hat\][^\n]* travel at=\(([-\d.]+),', log)]
-    return None if len(points) >= 2 and max(points[:200]) - points[0] >= 3 else 'hat must drift at least 3 blocks downstream in 200 ticks'
+    if len(points) < 2 or max(points[:200]) - points[0] < 3:
+        return 'hat must drift at least 3 blocks downstream in 200 ticks'
+    riders = set(re.findall(r'\[body\][^\n]*uuid=(\S+)[^\n]* dismount [^\n]*cause=grounded', log))
+    if len(riders) != 2:
+        return f'both admitted riders must dismount at grounding, saw {len(riders)}'
 
 
 pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      '浅溪上游一排水源形成同向水流，两侧低草岸可爬上；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
-     [*flow_channel(False), captain(dx=bank_dx(0) - 1), afloat('a', water_at(0, 3))],
+     [*flow_channel(False), captain(dx=bank_dx(0) - 1),
+      yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), **pair_ready()),
+      afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
      vantage=(bank_dx(0) + 11, -3, 40, 18),
-     note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。溪流尽头浅水落定不算翻覆。',
-     reads=_HULL_READS,
-     smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
-                expect=[r'\[hat\][^\n]* scenario afloat prepared'], verify=current_drift,
-                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b',
-                        r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
+     note='读 hat.float 的 capsizes=0、inverted=false；对照位置前后值确认漂移，帽檐保持固定水线与轻摆。溪流尽头的浅水托不住船体时整顶帽船落底、乘员下船、船体变回帽主的头饰（日志 [hat] pickup cause=grounded），帽主脱水后用嘴取回戴上（[headwear] received loose accessory）；不算翻覆。',
+     reads=_HULL_READS + [('读子油', f'yukkuri status {sel("child")} raw')],
+     capture=dict(shots=(1, 40, 300, 600, 900), sequences=((100, 200, 2),)),
+     smoke=dict(ticks=900, commands=[(1, 'yukkuri status trace true'), (899, 'yukkuri status trace false'),
+                    *[(899, f'execute as {sel(who)} at @s if data entity @s {{OnGround:1b}} unless block ~ ~ ~ minecraft:water if block ~ ~-1 ~ minecraft:grass_block run say MCYSMOKE_GROUNDED_BANK_{who}')
+                      for who in ('a', 'child')]],
+                expect=[r'\[hat\][^\n]* scenario afloat prepared[^\n]*young=1[^\n]*food=4',
+                        r'\[body\][^\n]* dismount [^\n]*cause=grounded',
+                        r'\[hat\][^\n]* stores spilled [^\n]*cause=grounded', r'\[hat\][^\n]* kit dropped cause=grounded',
+                        r'\[hat\][^\n]* pickup cause=grounded',
+                        r'\[headwear\][^\n]* received loose accessory', r'MCYSMOKE_GROUNDED_BANK_a', r'MCYSMOKE_GROUNDED_BANK_child'], verify=current_drift,
+                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* cause=drown',
+                        r'\[body\][^\n]* death settled into remains', r'\[action\][^\n]* start id=pick\b'],
+                readout=_HULL_READOUT + [f'yukkuri status {sel("child")} raw',
+                    'execute as @e[type=minecraft:item,distance=..48] run data get entity @s Item']))
 
 
 def water_aftermath(window):
@@ -1969,7 +1986,7 @@ pond('shore_capsized', '岸边翻覆的帽子·走进水里扶正', '扶正帽�
      '约 30–60 秒',
      [captain(dx=bank_dx(0)), afloat('a', water_at(0, 8), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
-     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：岸上先等漂近（招帽够不着）→ [action] start id=step_in（普通走路跨过岸沿落水）→ '
+     note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：招帽够不着就 [action] start id=step_in（普通走路跨过岸沿落水）→ '
           '[intent] start id=escape_water（同一 reclaim 的子意图）→ [method] pick method=right_own_hat → [action] start id=swim … grip → '
           '[action] start id=right … push= → [hat] righted cause=self_rescue → [action] start id=climb → [body] mount cause=climb；接触后轻摆与水伤不中断；死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
@@ -1978,7 +1995,8 @@ pond('shore_capsized', '岸边翻覆的帽子·走进水里扶正', '扶正帽�
                                    r'\[action\][^\n]* start id=swim owner=drive:aquatic\b',
                                    r'\[action\][^\n]* start id=right[^\n]*push=', r'\[hat\][^\n]* righted cause=self_rescue',
                                    r'\[body\][^\n]* mount [^\n]*cause=climb'],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_HULL_READOUT))
+                forbid=[*_WATER_SMOKE_FORBID, r'\[headwear\][^\n]* reclaim waiting',
+                        r'\[body\][^\n]* death settled into remains'], verify=water_aftermath, readout=_HULL_READOUT))
 
 pond('fall_in_pond', '普通灵梦落水·爬回岸上', '落水爬岸',
      '岸边的普通灵梦被推进池塘：落水冲击后挣扎着游向最近的岸边，嘴够到岸沿就咬住，按片段节拍把自己拉上岸；浸水伤害照常',
@@ -2060,7 +2078,10 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
                                    r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
                                    r'\[action\][^\n]* start id=right\b[^\n]*push=[\s\S]*\[hat\][^\n]* righted cause=reclaim\b[\s\S]*'
                                    r'\[headwear\][^\n]* reclaim done\b'],
-                forbid=[r'\[body\][^\n]* invariant\b']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[action\][^\n]* refused id=beckon\b',
+                        r'\[headwear\][^\n]* reclaim expired reason=(?:unreachable|no_way)\b',
+                        r'\[headwear\][^\n]* reclaim waiting', r'\[body\][^\n]* death settled into remains'],
+                readout=[f'yukkuri status {sel(who)} raw' for who in ('aqua_owner', 'kid_owner', 'land_owner')]))
 
 
 # ---- daily life on the water (refactor WP6a): one aquatic goal runs one drive over real desires; no scene names a goal or an intent.
@@ -2107,7 +2128,8 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
                                     r'\[status\][^\n]* aquatic\.stick_in_braid: false -> true\b',
                                     # Ordinary paddling in calm water must reach cruise without capsizing.
                                     r'\A(?:(?!\[hat\][^\n]* capsized [^\n]*form=cone_basin\b)[\s\S])*\[intent\][^\n]* start id=cruise\b'],
-                forbid=[r'\[body\][^\n]* invariant\b']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* pickup cause=grounded',
+                        r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
 pond('afloat_family', '辫子接赤油上船', '亲子出航',
      '亲油与一只赤油在岸边，附近有木棍：亲油取棍、放帽，自己先跳到船尾座位，再从船上用辫子抓起岸边赤油，提过帽檐并降低到前座；两只实际入座后出航',
@@ -2124,7 +2146,9 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[aquatic\][^\n]* set_out left_ashore=',
                         r'\[intent\][^\n]* start id=set_out\b[\s\S]*\[intent\][^\n]* start id=set_out\b',
-                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b']))
+                        r'\[action\][^\n]* start id=take_prop\b', r'\[intent\][^\n]* end id=set_out result=EXHAUSTED\b',
+                        r'\[hat\][^\n]* pickup cause=grounded', r'\[body\][^\n]* death settled into remains'],
+                readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
 
 pond('kid_boat_play', '子油在亲船上玩耍', '拍水·学划·拨粮·躲辫',
      '亲油与一只小子油已坐在静水帽船里，帽里有一根木棍、四份苹果。玩家从岸边看子油学亲油划水、拨弄储粮，或跳上帽檐拍水后回座；空手右击孩子看问候。雷雨、附近捕食种或冲向帽船的玩家会吓得孩子躲到亲油辫子旁，平静后回座；孩子在帽檐上时把船摇到剧烈摇摆，会真实落水',
