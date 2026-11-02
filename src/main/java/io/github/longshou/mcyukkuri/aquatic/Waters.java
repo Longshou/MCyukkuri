@@ -425,6 +425,17 @@ final class Waters {
         return null;
     }
 
+    /** A calm-water leg toward a bank berth whose planned captain seat reaches this ashore child; the current hull position when
+     *  no such water route exists, so an unreachable child never becomes a drive-onto-land destination. */
+    static Vec3 fetchTarget(PlacedHatEntity hat, YukkuriEntity body, YukkuriEntity child) {
+        for (var edge : edges(body, child.position(), 4, false)) {
+            if (!berthBraidReach(body, edge, List.of(child))) continue;
+            var route = route(hat, edge.water());
+            if (!route.isEmpty()) return leg(route);
+        }
+        return hat.position();
+    }
+
     /** The hull's collision box clears the bank while its brim reaches over the edge. */
     static Vec3 hatAt(Edge edge, YukkuriEntity owner) {
         return edge.onWater(ModEntities.PLACED_HAT.get().getWidth() * HatScale.of(owner) / 2 + .05);

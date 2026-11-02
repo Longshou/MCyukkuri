@@ -160,7 +160,8 @@ final class SetOut implements Intent {
         private List<Supplier<Step>> derive() {
             var hat = AquaticLife.hat(owner);
             if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, null) : null;
-            var edge = Waters.berth(owner, List.of());
+            var reachable = Waters.berth(owner, fetch);
+            var edge = reachable == null ? Waters.berth(owner, List.of()) : reachable;
             if (edge == null) {
                 GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_and_braid_reach wards={} at={}",
                         fetch.size(), GameplayLog.at(owner.position()));
