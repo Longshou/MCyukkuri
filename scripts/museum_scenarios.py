@@ -2384,7 +2384,8 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      '跳进去，用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；回到岸上戴好帽子才算学会操帽，之后只乘自己的帽子，落水能自己爬回、'
      '扶正帽子。路上翻帽或滑落是真实的：没学会的子油爬不上自己的帽子，只能在水里挣扎；已会操帽或亲船无法接纳时不再由亲油救上亲船，这次初航失败',
      '约 2–4 分钟（可倍速）',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), kit='minecraft:stick', **pair_ready()),
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), kit='minecraft:stick',
+         **{**pair_ready(), 'energy': 20}),
       _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75)],
      note='初态：子油实际体型 0.34，位于初航欲望带内，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油先真实放帽上船；子油的初航欲望强于跟亲上船，随后留岸初航。'
           '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=bank → [action] start id=walk（找船位）→ '
@@ -2398,7 +2399,7 @@ pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
      smoke=dict(ticks=4800, expect=[r'\[aquatic\][^\n]* first_voyage start [^\n]*from=bank\b',
                                    r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
                                    r'\[aquatic\][^\n]* first_voyage success\b'],
-                forbid=[r'\[body\][^\n]* invariant\b'], readout=[f'yukkuri status {sel("c1")} raw']))
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b'], readout=[f'yukkuri status {sel("c1")} raw']))
 
 
 # Topic codes are shared by the scene buttons, signs, and readouts.
