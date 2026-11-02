@@ -2369,7 +2369,7 @@ def boat_birth(sid, title, hint, watch, riders, note, smoke):
 
 boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
            '水生母油坐在自己浮在水上的帽子里临产，父油在几格外自己的船上：不靠岸、不放帽、不会合。母油全程留在船尾座位不划桨、不转身；每只新生儿从出口出来，直接坐进帽前空着的赤油座位。'
-           '一胎 1–2 只刚好坐满两个赤油座位；偶尔第三只没有座位，会直接落水，父油自己决定救不救。之后母油从帽里的粮（没有就无粮可喂）给孩子嚼糜喂食',
+           '一胎 1–2 只刚好坐满两个赤油座位；偶尔第三只没有座位，会直接落水，父油按落水救援规则接手。之后母油从帽里的粮（没有就无粮可喂）给孩子嚼糜喂食',
            False, '日志：[choreo] beat id=live_birth … receiver=OwnHull（site → sited → term → push → … → linger → end，没有 exit/turned/meet/place/unload/take_hat，母油全程无 [action] start id=paddle）、'
               'birth landed … outcome=HAT；没有座位时 [family] birth no_seat reason=full child=… 后 birth landed … outcome=WATER，随后 [incident] open。'
               '帽里没有粮，母油不会凭空喂食；可手持苹果右击母船补粮，之后看 [intent] start id=feed_young。' + _DESIRE_NOTE,

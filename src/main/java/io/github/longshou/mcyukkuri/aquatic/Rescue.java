@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -68,7 +69,9 @@ final class Rescue implements Intent {
         if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);
         var ashore = Ferry.fetchAshore(helper, faller, shoreRelease);
         if (ashore != null) return ashore;
-        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());
+        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank from={} banks={}", faller.getUUID(), helper.position(),
+                Waters.edges(helper, helper.position(), 2, false).stream().limit(4)
+                        .map(e -> e.stand(helper.getBbWidth()) + ":" + new Hop(e.stand(helper.getBbWidth())).check(helper)).toList());
         return null;
     }
 
