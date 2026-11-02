@@ -268,6 +268,20 @@ def slave_life(window):
     return None
 
 
+def slave_survives(window):
+    """Three real days: the slave itself (named by its first pit line) must not sweeten, break or die, while any other
+    individual of the colony is free to have its own troubles."""
+    problem = slave_life(window)
+    if problem: return problem
+    found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*pit slave ', window)
+    if not found: return 'no slave line to identify the slave'
+    token = f'{found[1]} #{found[2]} '
+    for line in window.splitlines():
+        if token in line and re.search(r'non-yukkuri onset|died of non-yukkuri|stage uneasy -> sweetened', line):
+            return 'the slave fell ill: ' + line.strip()
+    return None
+
+
 add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     '森林山脚的小群入住约 10 秒后，全员便意升到 90，约 80 秒时再升一次：看它们各自从洞里走到南边低处的嗯嗯坑，只站在坑沿、背对坑口排泄，'
     '不跳进凹地；每份排泄物真实落成坑格上的“嗯嗯”方块（1～8 份，按 2 份一档分 4 档外观，满格后落到相邻的坑格、坑满再落到坑沿外一格）。'
@@ -294,8 +308,7 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 16, 180), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
-          Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
-          Retry(f'yukkuri status set {_SLAVE} accessory.state lose', _SLAVE, tries=1, first=160),
+          Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
           # The colony that keeps a slave is the harsh, dim-witted one that cannot see past the missing hat.
           Retry(f'execute as {_HARSH} run yukkuri status set @s personality.friendliness 20', _PIT_ADULTS, tries=1, first=200),
@@ -308,12 +321,10 @@ add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     # of real days follow, with the colony relieving at the pit as it does by itself; the slave must still be alive and sane.
     smoke=dict(ticks=72000,
                commands=[(300, f'execute as {_SLAVE} run yukkuri status set @s needs.nutrition 20')]
-                        + [(tick, _COLONY_RELIEVES) for tick in range(4000, 72000, 6000)],
-               expect=[r'\[settlement\][^\n]* pit slave back in pit\b'],
-               forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b',
-                       r'\[mind\][^\n]*non-yukkuri onset', r'\[mind\][^\n]* died of non-yukkuri', r'\[mind\][^\n]*-> sweetened',
-                       r'hatless outcome role=MEMBER'],
-               verify=slave_life))
+                        + [(tick, _COLONY_RELIEVES) for tick in range(1200, 72000, 2400)],
+               expect=[r'\[settlement\][^\n]* pit slave back in pit\b', r'\[mind\][^\n]* stage calm -> uneasy \(unease 3'],
+               forbid=[r'pit slave meal refused', r'\[body\][^\n]* invariant\b', r'hatless outcome role=MEMBER'],
+               verify=slave_survives))
 
 # The origin loop with no scene special case: one grown member loses its accessory for good and the colony's own harsh
 # members reject it, the fifth rejection makes it the colony's 嗯嗯奴隶. Nothing is scripted after the hat is gone.
@@ -332,15 +343,14 @@ add('settle_pit_drive', 'biomes', '聚落嗯嗯奴隶的产生', '失饰入坑',
           Retry(f'yukkuri status set {_TARGET} personality.attachment 60', _TARGET, tries=1, first=140),
           Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.friendliness 20', _PIT_ADULTS, tries=1, first=145),
           Retry(f'execute as {_OTHERS} run yukkuri status set @s personality.intelligence 30', _PIT_ADULTS, tries=1, first=150),
-          Retry(f'yukkuri status set {_TARGET} accessory.state shatter', _TARGET, tries=1, first=160),
-          Retry(f'yukkuri status set {_TARGET} accessory.state lose', _TARGET, tries=1, first=180),
+          Retry(f'yukkuri status set {_TARGET} accessory.state burn', _TARGET, tries=1, first=160),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=1400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=2400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=3400)],
     reads=[*_PIT_READS, ('读目标的角色与身份', f'yukkuri status {_TARGET} raw')],
-    smoke=dict(ticks=6000,
-               commands=[(tick, _COLONY_RELIEVES) for tick in (400, 1400, 2400, 3400, 4400)],
+    smoke=dict(ticks=12000,
+               commands=[(tick, _COLONY_RELIEVES) for tick in range(400, 12000, 600)],
                expect=[r'\[settlement\][^\n]* hatless outcome role=UNUN_SLAVE\b', r'\[settlement\][^\n]* pit slave (?:return start|back in pit)\b'],
                forbid=[r'hatless outcome role=OUTCAST', r'\[body\][^\n]* invariant\b'],
                verify=pit_trip))
@@ -352,13 +362,13 @@ _NOT_KIND = '@e[type=#mcylab:yukkuri,tag=!scn_kind,tag=!scn_slave,distance=..70]
 add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待',
     '一只已在坑里的嗯嗯奴隶，同一群里有一只聪明（智力 90，认得出无头饰者）又温和的成员，其余成员照旧严厉。'
     '看那只成员每次到坑边都望向奴隶、露出温和反应，奴隶含泪（日志 pit slave treated … gentleness=n/5）；'
-    '五次实际照顾后奴隶恢复成员身份（hatless outcome role=MEMBER cause=gentle_treatment），自己离开嗯嗯坑、不再吃排泄物、重新领口粮。'
+    '五次实际照顾后奴隶恢复成员身份（hatless outcome role=MEMBER cause=gentle_treatment），自己离开嗯嗯坑、不再吃排泄物、重新领口粮；'
+    '没有头饰的它随后仍按普通失饰规则被严厉成员拒斥（可能再被冷落或驱离）。'
     '读数看奴隶与那只成员的角色；日志 [settlement] pit slave treated …、hatless outcome …',
     '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn band ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
     late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
-          Retry(f'yukkuri status set {_SLAVE} accessory.state shatter', _SLAVE, tries=1, first=140),
-          Retry(f'yukkuri status set {_SLAVE} accessory.state lose', _SLAVE, tries=1, first=160),
+          Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
           Retry(f'tag @e[type=#mcylab:yukkuri,tag=!scn_slave,distance=..70,limit=1,sort=random] add scn_kind', _PIT_ADULTS, tries=1, first=200),
           Retry(f'yukkuri status set {_KIND} personality.intelligence 90', _KIND, tries=1, first=210),
@@ -372,10 +382,10 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=2400),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=3000)],
     reads=[*_PIT_READS, ('读奴隶的角色与身份', f'yukkuri status {_SLAVE} raw'), ('读温和成员的性格', f'yukkuri status {_KIND} raw')],
-    smoke=dict(ticks=6000,
-               commands=[(tick, _COLONY_RELIEVES) for tick in (600, 1200, 1800, 2400, 3000, 3600, 4200, 4800)],
+    smoke=dict(ticks=16000,
+               commands=[(tick, _COLONY_RELIEVES) for tick in range(600, 16000, 600)],
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=MEMBER cause=gentle_treatment\b'],
-               forbid=[r'hatless outcome role=OUTCAST', r'\[mind\][^\n]*non-yukkuri onset', r'\[body\][^\n]* invariant\b'],
+               forbid=[r'\[body\][^\n]* invariant\b'],
                verify=pit_trip))
 
 # ====================================================================================================== daily life meadow

@@ -69,13 +69,14 @@ public final class SettlementSociety {
         if (entity.life().hasAccessory() && record.rejections > 0) { restored("accessory"); return; }
         if (now < record.nextObservation) return;
         var box = entity.getBoundingBox().inflate(6);
-        // Sustained kindness from members that still see who it is lifts a slave out of the pit (wiki); the harsh witnesses
-        // below are what keeps it there.
+        // A slave already lives at the bottom of the pit: from here only real kindness by members that still see who it is changes
+        // its standing (wiki: sustained gentle treatment); the harsh witnesses below are what put a member there.
         if (record.role == SettlementData.Role.UNUN_SLAVE) {
             var kind = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
                     peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
                             && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
-            if (kind != null) { treat(kind, record); return; }
+            if (kind != null) treat(kind, record);
+            return;
         }
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
@@ -87,6 +88,8 @@ public final class SettlementSociety {
         if (before < 5) {
             YukkuriWorldData.get(level()).relate(observer.getUUID(), entity.getUUID(), -2);
             entity.life().personality().decided("settlement_rejected");
+            GameplayLog.event(entity, "settlement", "hatless rejected rejections={} observer={} role={}", record.rejections,
+                    observer.getUUID(), record.role);
         }
         if (record.rejections >= 2 && accepted(entity)) record.role = SettlementData.Role.SHUNNED;
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {

@@ -30,7 +30,7 @@ final class LifeMeal {
     LifeMeal(YukkuriLife o) { this.o = o; }
 
     /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
-    static final float PIT_MEAL_NUTRITION = 12, PIT_MEAL_DIRT = 8;
+    static final float PIT_MEAL_NUTRITION = 20, PIT_MEAL_DIRT = 8;
     private ItemStack mouth = ItemStack.EMPTY;
     /** A real bite of a living body or remains. It is food state, never an ItemStack. */
     private BodyFood.Bite bodyFood = BodyFood.Bite.EMPTY;
