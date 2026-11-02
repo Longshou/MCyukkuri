@@ -136,6 +136,10 @@ def main():
         paddle = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_paddle_preview.py'
         subprocess.run([sys.executable, str(paddle)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
         current_media |= {'aquatic-paddle/paddle.png'}
+        # both water strokes against their contact geometry (bank and hull waterline): lore/aquatic_strokes_preview.py
+        strokes = ROOT / 'standards/yukkuri-library/motions/variants/lore/aquatic_strokes_preview.py'
+        subprocess.run([sys.executable, str(strokes)], check=True, cwd=ROOT, env={**os.environ, 'MCYUKKURI_PREVIEWS': str(OUT)})
+        current_media |= {'water-strokes/current.png'}
         # Site previews may be reused only after their authoring inputs were checked.
         # The preview room never invokes the Java-based site renderer.
         import settlement_site_preview as sites

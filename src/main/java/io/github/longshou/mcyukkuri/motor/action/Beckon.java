@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -25,7 +26,7 @@ import net.minecraft.world.phys.Vec3;
 /** Draw a floating host to reachable water at the bank with continuous braid effort: 35% of stick pace, twice its energy. */
 public final class Beckon implements Action {
     public static final String ID = "beckon";
-    private static final String CLIP = "boat_paddle";
+    private static final String CLIP = YukkuriAction.BANK_BECKON.id();
     /** Reach in blocks; a bounded attempt lasting twelve authored cycles. */
     public static final double REACH = 3;
     private static final int MAX_TICKS = 12 * ClipMarkers.of(CLIP).length();

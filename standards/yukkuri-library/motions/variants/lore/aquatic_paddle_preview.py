@@ -26,15 +26,15 @@ RUNTIME = 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corre
 TOOLS = runpy.run_path(str(HERE/'aquatic_tools.py'))
 FORWARD, AFT, ZERO = np.array((42, 120, 214)), np.array((227, 73, 72)), np.array((240, 239, 236))
 BG, INK, MUTED = (236, 245, 246), '#203e48', '#4b6b74'
-COLOURS = {'braid': (236, 150, 40), 'hair': (226, 196, 92), 'face': (70, 60, 60), 'body': (240, 226, 204), 'hull': (58, 56, 66), 'twig': (122, 84, 46)}
+COLOURS = {'bank': (112, 132, 84), 'braid': (236, 150, 40), 'hair': (226, 196, 92), 'face': (70, 60, 60), 'body': (240, 226, 204), 'hull': (58, 56, 66), 'twig': (122, 84, 46)}
 LIGHT = np.array([.35, .8, -.45])/np.linalg.norm([.35, .8, -.45])
 
 
 class Captain:
-    def __init__(self, data, label):
+    def __init__(self, data, label, name='boat_paddle'):
         self.model = m = placement_fit.fitted(P.ASSETS/'yukkuri/marisa.json', placement_fit.load()); self.label = label
         rev = data['models']['marisa']; index = {b['name']: i for i, b in enumerate(m['bones'])}
-        clip = rev['clips']['boat_paddle']
+        clip = rev['clips'][name]
         self.duration, self.markers = clip['duration'], clip['markers']
         self.clip = dict(clip, tracks=[dict(tr, bone=index[rev['bone_names'][tr['bone']]]) for tr in clip['tracks']])
         hidden = tuple(json.loads((P.ASSETS/'yukkuri_presentation/living.json').read_text(encoding='utf-8'))['variants']['marisa']['accessory_prefixes'])
@@ -53,6 +53,7 @@ class Captain:
         for kind, hv, a, b, w in self.parts:
             pts = (np.einsum('nij,nj->ni', M[a], hv)*(1-w)+np.einsum('nij,nj->ni', M[b], hv)*w)[:, :3]
             out += [(kind, pts[k:k+3]) for k in range(0, len(pts)-2, 3)]
+        if 'props' not in self.clip: return out
         k = TOOLS['sample'](self.clip['props']['paddle']['keys'], t); A = np.eye(4); A[:3, 3] = np.array(self.model['bones'][self.tip]['pivot'])+k[:3]
         R = np.eye(4); R[:3, :3] = TOOLS['euler'](k[3:]); G = M[self.tip]@A@R
         top, end = (G@np.r_[0, length[0], 0, 1])[:3], (G@np.r_[0, -length[1], 0, 1])[:3]
@@ -86,9 +87,9 @@ def hull_triangles(form):
     return [('hull', V[k:k+3]) for k in range(0, len(V)-2, 3)]
 
 
-def draw(tris, view, water, size=(600, 440), span=34.):
+def draw(tris, view, water, size=(600, 440), span=34., centre=None):
     """Orthographic flat-shaded painter's render; side looks from the braid side (+X, bow left), front from the bow."""
-    centre = (-2., 2.5) if view == 'side' else (9., 2.5)
+    centre = centre or ((-2., 2.5) if view == 'side' else (9., 2.5))
     s = 2; img = Image.new('RGB', (size[0]*s, size[1]*s), BG); d = ImageDraw.Draw(img); k = size[0]*s/span
     axes = (2, 0) if view == 'side' else (0, 2)  # screen x axis, depth axis (larger nearer)
     sign = (1, 1) if view == 'side' else (1, -1)

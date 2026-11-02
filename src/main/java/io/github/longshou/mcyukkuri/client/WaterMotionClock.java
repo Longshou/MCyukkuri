@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
@@ -16,7 +17,9 @@ final class WaterMotionClock {
 
     static float seconds(YukkuriView body, float partial, float ordinary) {
         String action = body.motorAction();
-        if (!action.equals(Swim.ID) && !((action.equals(Paddle.ID) || action.equals(Beckon.ID)) && body.getAnimationId().equals("boat_paddle"))) {
+        String clip = body.getAnimationId();
+        if (!action.equals(Swim.ID) && !(action.equals(Paddle.ID) && clip.equals(Behaviors.BOAT_PADDLE))
+                && !(action.equals(Beckon.ID) && clip.equals(Behaviors.BANK_BECKON))) {
             samples.remove(body);
             return ordinary;
         }

@@ -120,7 +120,8 @@ final class AquaticGoal extends Goal {
     /** What the presentation shows: the paddle stroke, or the boat clip a wait plays (calling, drifting, eating, caring). */
     private String activity() {
         var action = body.motor().current();
-        if (action instanceof Paddle || action instanceof Beckon) return Behaviors.BOAT_PADDLE;
+        if (action instanceof Paddle) return Behaviors.BOAT_PADDLE;
+        if (action instanceof Beckon) return Behaviors.BANK_BECKON;
         return action instanceof Await && SHOWN.contains(action.pose().clip()) ? action.pose().clip() : null;
     }
 

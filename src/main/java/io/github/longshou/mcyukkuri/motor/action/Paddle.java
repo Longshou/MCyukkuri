@@ -51,12 +51,12 @@ public final class Paddle implements Action {
 
     @Override public String id() { return ID; }
 
-    /** A published stick-use pose grips a real available stick; beckoning uses the bare braid. */
+    /** A published stick-use pose grips a real available stick. */
     public static boolean stickGrip(YukkuriEntity body) {
         String clip = body.getAnimationId();
         boolean grips = clip.equals(CLIP) || clip.equals(YukkuriAction.HAT_BRIM_OFFER.id())
                 || clip.equals(YukkuriAction.BOAT_NUDGE_YOUNG.id());
-        return grips && !(body.motor().current() instanceof Beckon) && (body.life().mouth().is(Items.STICK)
+        return grips && (body.life().mouth().is(Items.STICK)
                 || body.life().custody().kit().is(Items.STICK)
                 || body.getVehicle() instanceof PlacedHatEntity hat && hat.kit().is(Items.STICK));
     }

@@ -25,6 +25,7 @@ public final class Behaviors {
     public static final String BOAT_GATHER = "boat_gather";
     public static final String BOAT_NUZZLE = "boat_nuzzle";
     public static final String BOAT_PADDLE = "boat_paddle";
+    public static final String BANK_BECKON = "bank_beckon";
     public static final String BOAT_PREPARE_CARRY = "boat_prepare_carry";
     public static final String BOAT_REASSURE = "boat_reassure";
     public static final String BOAT_RELEASE_CARRY = "boat_release_carry";
