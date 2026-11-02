@@ -1,7 +1,8 @@
 """Export posed accessory attachment coordinates, owned badge UI strings and handbook recipe.
 
 Mounts cover every runtime model: the base species of the badge recipe plus the rare forms, which reuse their
-base's accessory or their own authored part (standards/yukkuri-library/subspecies/rare-forms/recipe.json).
+base's accessory or their own authored part (standards/yukkuri-library/subspecies/rare-forms/recipe.json) for both
+the worn and the detached accessory.
 """
 from pathlib import Path
 import argparse, json, math
@@ -56,6 +57,7 @@ def mounts(only=None):
         mount=dict(recipe['variants'][base['base']])
         if 'badge' in spec:mount.update(part=spec['badge']['part'],point=spec['badge']['point'],normal=(0,0,-1))
         recipe['variants'][form]=mount
+        recipe['detached']['accessory_'+form]=recipe['detached']['accessory_'+base['base']]
     previous=provenance(ASSETS/'yukkuri/badge_mounts.json')
     if only:
         if only not in recipe['variants']:raise ValueError('Unknown badge variant: '+only)

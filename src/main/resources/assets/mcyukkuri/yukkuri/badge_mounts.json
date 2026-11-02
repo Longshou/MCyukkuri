@@ -1010,6 +1010,111 @@
         -1.0
       ],
       "diameter": 0.11875
+    },
+    "accessory_myon": {
+      "model_sha256": "c797865b50c78a0e8d4bed0e130b0c1fb86aed72d01d034105768aec614b0d44",
+      "part": "alice_band_red_2",
+      "triangle": 147,
+      "weights": [
+        0.4545454545454536,
+        0.4508599508599519,
+        0.09459459459459453
+      ],
+      "rest_point": [
+        3.8054053783783788,
+        10.725999999999999,
+        -4.851
+      ],
+      "rest_normal": [
+        0.0,
+        -0.0,
+        -1.0
+      ],
+      "diameter": 0.1
+    },
+    "accessory_myon_redeye": {
+      "model_sha256": "494e9545a6488b19f0ec8e682438103e1820059dabefce330aa59b4d70d6139c",
+      "part": "alice_band_red_2",
+      "triangle": 147,
+      "weights": [
+        0.4545454545454536,
+        0.4508599508599519,
+        0.09459459459459453
+      ],
+      "rest_point": [
+        3.8054053783783788,
+        10.725999999999999,
+        -4.851
+      ],
+      "rest_normal": [
+        0.0,
+        -0.0,
+        -1.0
+      ],
+      "diameter": 0.1
+    },
+    "accessory_chen_longtail": {
+      "model_sha256": "d075ce5eeb0a9d4997f54af5b88f70e6ccaff1c25d7c0fa1c5ae981e61b205ca",
+      "part": "chen_hat_lower",
+      "triangle": 36,
+      "weights": [
+        0.7264150943396226,
+        0,
+        0.27358490566037735
+      ],
+      "rest_point": [
+        2.5599999849056605,
+        11.659999999999998,
+        -3.78
+      ],
+      "rest_normal": [
+        -0.0,
+        0.0,
+        -1.0
+      ],
+      "diameter": 0.09375
+    },
+    "accessory_chen_roundtail": {
+      "model_sha256": "5430b56c5edaea599b0962ff95048c6956eea2e0e5cff51462921525b09f6692",
+      "part": "chen_hat_lower",
+      "triangle": 36,
+      "weights": [
+        0.7264150943396226,
+        0,
+        0.27358490566037735
+      ],
+      "rest_point": [
+        2.5599999849056605,
+        11.659999999999998,
+        -3.78
+      ],
+      "rest_normal": [
+        -0.0,
+        0.0,
+        -1.0
+      ],
+      "diameter": 0.09375
+    },
+    "accessory_marisa_kotatsu": {
+      "model_sha256": "0598779d01184c6458aa5e6b069d35738fcc9f9478b3876bf5f63ec8b9f9af4c",
+      "part": "hat_band",
+      "triangle": 180,
+      "weights": [
+        0,
+        1,
+        0
+      ],
+      "rest_point": [
+        8.75,
+        10.7,
+        -1.2
+      ],
+      "rest_normal": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "diameter": 0.11875
     }
   }
 }
