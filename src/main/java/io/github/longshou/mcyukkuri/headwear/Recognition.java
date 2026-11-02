@@ -85,8 +85,4 @@ public final class Recognition {
         if (!target.isAlive() || target.life().hasAccessory()) return false;
         return faceWounds(target) >= MONSTER_FACE_WOUNDS || severeWounds(target) > 0;
     }
-    /** Not even taken for a yukkuri, and horribly hurt: a monster to this observer (feared and driven off, not eaten). */
-    public static boolean seenAsMonster(YukkuriEntity observer, YukkuriEntity target) {
-        return unrecognizedHatless(observer, target) && grotesque(target);
-    }
 }

@@ -157,7 +157,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     @Override public String formId() { return entityData.get(FORM); }
     public void formId(String id) { entityData.set(FORM, HullProfile.of(id).id()); }
 
-    public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
     public void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
     public UUID launchToken() { return accessoryToken; }
     public void launchToken(UUID token) { accessoryToken = token; }
@@ -214,8 +213,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         }
         return behavior;
     }
-    /** The steepest change of tilt over the last tick (degrees), from the synced pose alone: both sides read the same. */
-    public float tiltRate() { return Math.max(Math.abs(Mth.wrapDegrees(roll() - rollO)), Math.abs(Mth.wrapDegrees(pitch() - pitchO))); }
     /** All support, room and movement use the same body-only columns in hat units. */
     private BodyFootprint shape(YukkuriEntity body) {
         return shape(body,body.yBodyRot);

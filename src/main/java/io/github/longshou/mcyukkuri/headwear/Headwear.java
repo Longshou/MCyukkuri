@@ -196,8 +196,6 @@ public final class Headwear extends Goal {
     }
 
     // ---- recognition (package 7): Recognition owns the shared identity rule ---------------------------------------
-    /** The observer cannot tell that this hatless individual is a yukkuri, kin included (komicolle 11518847). */
-    public static boolean isUnrecognizedHatless(YukkuriEntity observer, YukkuriEntity target) { return Recognition.unrecognizedHatless(observer, target); }
     /** Unrecognised, and nobody's property: the test for driving off, bullying or treating as food (C11: pets and owned are safe). */
     public static boolean fairGame(YukkuriEntity observer, YukkuriEntity target) { return Recognition.fairGame(observer, target); }
     /** Remains count as a yukkuri (kin or same species) when the hat was on at death, or for an observer clever enough. */
