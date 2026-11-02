@@ -1,13 +1,13 @@
 {
   "version": 1,
   "source": "art/props/body-wounds/selected/wound-surface.js",
-  "source_sha256": "a45af04170da44c5a3f4e4c5dae0275e4153faa073116e5f7911746632ce08d9",
+  "source_sha256": "db9fdd67eff3afc47939b822f1a3c291163f25a8b9e48a0be6894dff121160d7",
   "models": {
     "house_reimu": {
       "geometry_identifier": "house_reimu",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
-      "source_sha256": "5a1328c5080eb60ef2273b025a624c7804166450fadb26b2971f2d0a7b51f8d1",
-      "bones": 197,
+      "source_sha256": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
+      "bones": 261,
       "animations": [
         "idle",
         "stretch_shape",
@@ -31,15 +31,15 @@
       ],
       "texture": "textures/entity/house_reimu/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_reimu.json.gz",
-      "output_sha256": "000eecbe1ffec200ca26defd931d461676ebe5b3876ba0266ae113e890a52c8a",
+      "output_sha256": "5d72003da5a99d0809d6dffe6e2b4d0596626994088e8668c8208e422d48a957",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
     "house_marisa": {
       "geometry_identifier": "house_marisa",
       "runtime_source": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "source_sha256": "62f08e56ae00b41bee9f8a0fe8b9c62483c64f19ceb9f78f78b2e524f07bf418",
-      "bones": 200,
+      "source_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
+      "bones": 268,
       "animations": [
         "idle",
         "stretch_shape",
@@ -63,7 +63,7 @@
       ],
       "texture": "textures/entity/house_marisa/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz",
-      "output_sha256": "6ebea75bc73b0eb00f8faf92234628009962da0a7a93d9c33f7fe5b83f9950f4",
+      "output_sha256": "fd4a7ecab1db44302a43c650b8830d29cbcaaac8d4aba2d9865b2b0be8cbd90c",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
@@ -140,6 +140,6 @@
   },
   "exporter": {
     "path": "scripts/export_wound_surfaces.cjs",
-    "sha256": "fa78a5947e04db0d5192e7e62274b46e9eecb6d5442e3f6ca386e7e1e6109fe7"
+    "sha256": "3c2647ddafff1e97be0aec45b074fe38b04964ad591e5922c800ee77f50b7f35"
   }
 }

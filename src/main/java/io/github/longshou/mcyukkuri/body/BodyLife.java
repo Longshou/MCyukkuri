@@ -125,8 +125,9 @@ public final class BodyLife {
     public int dyingTicks(){return dying;}
     public String dyingCause(){return dyingCause;}
     /** The visible core opening derives from the same health and skin state as rendering. */
-    public boolean coreExposed(){return BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,!coreIntact(),healthRatio())!=null;}
+    public boolean coreExposed(){return !wounds.isEmpty()&&BodySigns.coreWound(WoundSurface.get(entity.subspecies().assetId()),wounds,!coreIntact(),healthRatio())!=null;}
     public String coreSite(){
+        if(wounds.isEmpty())return "none";
         var mesh=WoundSurface.get(entity.subspecies().assetId());
         var core=BodySigns.coreWound(mesh,wounds,!coreIntact(),healthRatio());
         if(core==null)return "none";
@@ -137,7 +138,7 @@ public final class BodyLife {
                 +BodyCavity.profile().coreRadius()[0]*opening.span.x+","+BodyCavity.profile().coreRadius()[1]*opening.span.y+","+BodyCavity.profile().coreRadius()[2]*opening.span.z;
     }
     /** Regions that have a deep wound; precise core hits use the unobstructed source ray and central mesh. */
-    public List<BodyPart> deepParts(){var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
+    public List<BodyPart> deepParts(){if(wounds.isEmpty())return List.of();var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
     public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0) | (faceMarks ? BodySigns.FACE_MARKS : 0);}

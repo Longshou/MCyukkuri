@@ -32,11 +32,12 @@ final class LifeHome {
     boolean naturalHome() { return naturalHome; }
 
     boolean dryStand(BlockPos pos) {
+        if(!o.level().hasChunkAt(pos))return false;
         if(o.level().getBlockEntity(pos) instanceof CareBlockEntity care&&care.kind()==CareBlock.Kind.NEST){
             var at=FamilyNest.restPosition(o.entity(),care);
             return at!=null&&o.level().getFluidState(pos).isEmpty()&&SurfaceApproach.supported(o.entity(),at);
         }
-        return o.level().hasChunkAt(pos) && o.level().getFluidState(pos).isEmpty() && o.level().getFluidState(pos.below()).isEmpty()
+        return o.level().getFluidState(pos).isEmpty() && o.level().getFluidState(pos.below()).isEmpty()
                 && o.level().noCollision(o.entity(), new AABB(pos.getX()+.5-o.entity().getBbWidth()/2,
                         pos.getY(),pos.getZ()+.5-o.entity().getBbWidth()/2,pos.getX()+.5+o.entity().getBbWidth()/2,
                         pos.getY()+o.entity().getBbHeight(),pos.getZ()+.5+o.entity().getBbWidth()/2))
@@ -169,8 +170,7 @@ final class LifeHome {
         if (o.entity().habitat().wildLiver()) return false;
         BlockPos best = null; double distance = Double.MAX_VALUE;
         for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
-            if(ShelterBlock.shelter(o.level(),scan)!=null)continue;
-            if (!dryStand(scan) || !covered(scan)) continue;
+            if (!dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atBottomCenterOf(scan));
             if (candidate < distance && o.reachable(scan, false)) { best = scan.immutable(); distance = candidate; }
         }

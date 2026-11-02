@@ -165,6 +165,7 @@ public enum StatusKey {
     DEEP_PARTS("health", "deep_parts", 0, y -> String.join(",", y.body().deepParts().stream().map(BodyPart::id).toList()), null),
     /** Every wound as region:kind+severity:shape; the treatment category remains distinct from its mechanism. */
     WOUND_SITES("health", "wound_sites", 0, y -> {
+        if (y.body().wounds().isEmpty()) return "";
         var mesh = WoundSurface.get(y.subspecies().assetId());
         return String.join(" ", y.body().wounds().stream().filter(mesh::valid)
                 .map(w -> BodyPart.of(mesh, w).id() + ":" + w.kind().id() + w.severity() + ":" + w.shape().id()).toList());

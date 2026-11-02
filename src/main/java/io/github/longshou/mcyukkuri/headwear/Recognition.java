@@ -59,6 +59,7 @@ public final class Recognition {
 
     /** Count visibly damaged regions, rather than treating internal illness or low health as a torn appearance. */
     public static long damagedRegions(YukkuriEntity target) {
+        if (target.body().wounds().isEmpty()) return 0;
         var mesh = WoundSurface.get(target.subspecies().assetId());
         return target.body().wounds().stream().filter(w -> w.severity() >= 2 && mesh.valid(w))
                 .map(w -> BodyPart.of(mesh, w)).distinct().count();
@@ -71,12 +72,14 @@ public final class Recognition {
     }
     /** Count individual active facial wounds, including light wounds; scars and dirt do not count. */
     public static long faceWounds(YukkuriEntity target) {
+        if (target.body().wounds().isEmpty()) return 0;
         var mesh = WoundSurface.get(target.subspecies().assetId());
         return target.body().wounds().stream().filter(w -> injury(w) && mesh.valid(w))
                 .filter(w -> BodyPart.of(mesh, w) == BodyPart.FRONT).count();
     }
     /** A grade-three active injury qualifies on any body region. */
     public static long severeWounds(YukkuriEntity target) {
+        if (target.body().wounds().isEmpty()) return 0;
         var mesh = WoundSurface.get(target.subspecies().assetId());
         return target.body().wounds().stream().filter(w -> injury(w) && w.severity() >= 3 && mesh.valid(w)).count();
     }

@@ -1,16 +1,23 @@
 """Verify selected source, output fingerprints and finite shared skin data without modifying them."""
 from runtime_model_fingerprint import matches_model_fingerprint
-import gzip,hashlib,json,math
+import gzip,hashlib,json,math,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256((ROOT/p).read_bytes()).hexdigest()
 def main():
+    assets=ROOT/'src/main/resources/assets/mcyukkuri'
+    motions=json.loads((assets/'yukkuri_presentation/motion_corrections.json').read_text())['models']
+    for path in (assets/'yukkuri_wounds').glob('*.json.gz'):
+        with gzip.open(path,'rt') as f:surface=json.load(f)
+        if surface['id'] in motions:
+            assert [bone['name'] for bone in surface['bones']]==motions[surface['id']]['bone_names'], (surface['id'],'wound motion skeleton differs')
     manifest=json.loads((ROOT/'art/props/body-wounds/provenance.json').read_text())
     assert sha(manifest['source'])==manifest['source_sha256']
     assert sha(manifest['exporter']['path'])==manifest['exporter']['sha256']
     assert sha(manifest['palette']['source'])==manifest['palette']['source_sha256']==sha(manifest['palette']['output'])
     checks=[]
     for name,m in manifest['models'].items():
+        if len(sys.argv)>1 and name not in sys.argv[1:]:continue
         assert sha(m['runtime_source'])==m['source_sha256']
         assert sha(m['output'])==m['output_sha256']
         with gzip.open(ROOT/m['output'],'rt') as f:data=json.load(f)

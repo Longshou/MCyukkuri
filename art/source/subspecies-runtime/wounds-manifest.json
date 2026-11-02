@@ -2,39 +2,15 @@
   "exporter": "scripts/export_subspecies_wounds.cjs",
   "sha256": "e3a428cd43277f471343db30895bb25bb7fa8008b13f5ce18511e1b2c9430845",
   "models": {
-    "reimu_sparse": {
-      "runtime_sha256": "acca6142135eb4c7cfae63dc5b7c56a7d2a49ef4634dc463e2b3de41fe7b1bae",
-      "surface_sha256": "14c09a93a914938dea3dd35086b9e47345a9565118135b8d3104c041da57017b",
-      "skin_vertices": 73392,
-      "face_vertices": 11520
-    },
-    "reimu_face": {
-      "runtime_sha256": "e5af62034a95a799d813760556073e4e8178f604e439287c2ab438b3f35ff7ba",
-      "surface_sha256": "3229ee675c02fadea91539f457e30e126a58acdbab4cab0e4825b6c75b216db9",
-      "skin_vertices": 73392,
-      "face_vertices": 9342
-    },
     "reimu_bean": {
-      "runtime_sha256": "6fbdd26bbc8002b0dc554e969e928fdcde58aa75cb71bf4ac591c16e510c3069",
-      "surface_sha256": "0016bf1b303096b7b9d48d64dd7c4b18ebdc8233041bae83e169c58841d3ecb0",
+      "runtime_sha256": "801b806781f5db7796c56c68e7fe313d593b88b4d254aee4b46978dacabae18d",
+      "surface_sha256": "74a23408f9ff6c15c62c8a7b4f5135a81a9bb9cfa521c45d7ce928e02953a989",
       "skin_vertices": 96786,
       "face_vertices": 3306
     },
-    "marisa_sparse": {
-      "runtime_sha256": "226593bf3418f3e931dce4ea1cb17b8c1dd77ba4c9f01efbfa60b0b21b10f5d3",
-      "surface_sha256": "bbc57ef9d0c3c83a2d9502701c84ef01d6d63adebac185a43b08c597bb7a1f49",
-      "skin_vertices": 73392,
-      "face_vertices": 11520
-    },
-    "marisa_face": {
-      "runtime_sha256": "ab838d4f7e0e32606992a466537d16d7dea3376aa0112ecb1a6559dd93e560ca",
-      "surface_sha256": "33dc3a534c2bc7a7f014065bf976d88ea52989fd381a051f14238f14a921a6d1",
-      "skin_vertices": 73392,
-      "face_vertices": 9342
-    },
     "marisa_bean": {
-      "runtime_sha256": "abf44717a9dfbf9734c0ee5914814ee5bbdabd135ea191462b4dd9d3fce7b3fe",
-      "surface_sha256": "db60b4a0380c61fda9ec32f0aa25a0ca524f6d308ecc066ff7e78bae88a25a3d",
+      "runtime_sha256": "418e8625bacbfc15e96cbc8310bc4a10371965dd0b9cdafb7d575bcb65afc869",
+      "surface_sha256": "662c8abb4c846813269d13f5f89aca114421d5fe0538044600ba421393e18e81",
       "skin_vertices": 96786,
       "face_vertices": 3306
     }
