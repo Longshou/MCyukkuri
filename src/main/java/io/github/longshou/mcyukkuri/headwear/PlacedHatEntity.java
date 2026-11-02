@@ -158,6 +158,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     public void formId(String id) { entityData.set(FORM, HullProfile.of(id).id()); }
 
     public void syncOwner(Optional<UUID> owner) { entityData.set(OWNER, owner); }
+    public void syncHullScale(float scale) { entityData.set(SCALE, scale); }
     public UUID launchToken() { return accessoryToken; }
     public void launchToken(UUID token) { accessoryToken = token; }
     public void launchRole(HatGeometry.Role next) { role = next; }
@@ -629,6 +630,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         hat.setYRot(yaw);
         hat.launchRole(role);
         hat.formId(HatGeometry.wornForm(owner).id());
+        hat.syncHullScale(HatScale.of(owner));
         hat.syncOwner(Optional.of(owner.getUUID()));
         hat.syncAccessoryIdentity(owner);
         hat.state(State.CRADLE);
@@ -642,8 +644,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return refusePlacement(owner, at, "accessory_transfer_failed", "");
         }
         hat.kit = kit;
-        GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} form={} role={} water={} kit={}",
-                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.formId(), role, water, hat.kit.getItem());
+        GameplayLog.event(owner, "hat", "placed owner={} hat={} at={} yaw={} scale={} hullBox={} form={} role={} water={} kit={}",
+                owner.getUUID(), hat.getUUID(), hat.position(), yaw, hat.hullScale(), hat.getBoundingBox(), hat.formId(), role, water, hat.kit.getItem());
         return hat;
     }
     private static PlacedHatEntity refusePlacement(YukkuriEntity owner, Vec3 at, String reason, String detail) {
@@ -655,7 +657,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
 
     // ---------------------------------------------------------------- identity and wear
     public void syncAccessoryIdentity(YukkuriEntity owner) {
-        entityData.set(SCALE,HatScale.of(owner));
         entityData.set(HULL_DAMAGE,Math.clamp(owner.headwear().damage(),0,2));
     }
     public int hullDamage() { return entityData.get(HULL_DAMAGE); }

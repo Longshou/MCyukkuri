@@ -1967,19 +1967,23 @@ pond('hat_crowd', '按体型入座·满座与成长', '帽船容量',
                 readout=[f'yukkuri status {sel("g1")} raw', f'yukkuri status {sel("excess")} raw']))
 
 pond('hat_swap', '帽子大小对照', '帽子大小',
-     '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位把各自的空帽放在面前的水面上。水生帽是陆地帽的 1.4 倍；戴着的与放下的同样大小；水生空帽倒扣漂着时仍同大，陆地帽落水会下沉，不作帽船',
+     '岸上并排站着戴帽的陆地魔理沙和水生魔理沙，另有两位成体与一只子油把各自的空帽放在面前的水面上。成体水生帽是陆地帽的 1.4 倍；子油帽按自己的体型缩小；戴着的与放下的同样大小；水生空帽倒扣漂着时仍同大，陆地帽落水会下沉，不作帽船',
      '约 30 秒',
      [yk('marisa', -4, -1, 'land_worn', yaw=-90, lead=True, label='陆地·戴着', **pair_ready()),
       yk('marisa', -4, 1, 'aqua_worn', aquatic=True, yaw=-90, label='水生·戴着', **pair_ready()),
       yk('marisa', bank_dx(-3), -3, 'land_owner', yaw=-90, label='陆地·放下', **pair_ready()),
       yk('marisa', bank_dx(3), 3, 'aqua_owner', aquatic=True, yaw=-90, label='水生·放下', **pair_ready()),
-      afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False)],
+      yk('marisa', bank_dx(0), 0, 'kid_owner', stage='child', aquatic=True, fam=_seat_family(), yaw=-90,
+         uuid=uid('hat_swap', 'kid_owner'), label='子油·放下', **pair_ready()),
+      afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False),
+      afloat('kid_owner', water_at(0, 2), False)],
      late=[f'execute at {sel("aqua_owner")} run data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
-     note='两顶空帽相距 6 格，各在岸边 3 格外；水生空帽倒扣漂着（倒扣是它真实的漂浮姿态，不是被测环节）。'
+     note='两顶成体空帽相距 6 格，各在岸边 3 格外；子油空帽在两者之间，读 [hat] placed 的 scale 与 hullBox 核对实际帽体。水生空帽倒扣漂着（倒扣是它真实的漂浮姿态，不是被测环节）。'
           '水生放帽者从岸上先招帽靠岸、再咬檐推正、最后收回戴上（日志 [action] start id=beckon → end … at_bank → start id=right … push= → [hat] righted cause=reclaim → [headwear] reclaim done）；'
           '够不着就等它漂近，仍不行就下水游过去爬进去。陆地魔理沙没有这个欲望，陆地帽落水会下沉。',
      reads=[('读水生放帽者', f'yukkuri status {sel("aqua_owner")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=1800, expect=[r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
+     smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* placed [^\n]* scale=0\.48999998[^\n]* hullBox=AABB',
+                                   r'\[action\][^\n]* start id=beckon\b[\s\S]*\[action\][^\n]* end id=beckon\b[\s\S]*'
                                    r'\[action\][^\n]* start id=right\b[^\n]*push=[\s\S]*\[hat\][^\n]* righted cause=reclaim\b[\s\S]*'
                                    r'\[headwear\][^\n]* reclaim done\b'],
                 forbid=[r'\[body\][^\n]* invariant\b']))
