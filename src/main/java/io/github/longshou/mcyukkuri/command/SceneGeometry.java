@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.command;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.function.Consumer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -15,6 +17,14 @@ import net.minecraft.world.phys.AABB;
 /** Read-only generated-world geometry for the museum layout runner. */
 final class SceneGeometry {
     static int read(CommandSourceStack source) {
+        return read(source, message -> source.sendSuccess(() -> Component.literal(message), false));
+    }
+
+    static int record(CommandSourceStack source) {
+        return read(source, message -> GameplayLog.world(source.getLevel(), "layout", "{}", message));
+    }
+
+    private static int read(CommandSourceStack source, Consumer<String> output) {
         int count = 0;
         for (var entity : source.getLevel().getAllEntities()) {
             boolean player = entity.getTags().contains("mcyv");
@@ -38,10 +48,10 @@ final class SceneGeometry {
             row.addProperty("clear", !source.getLevel().getBlockCollisions(entity, box.deflate(1e-5)).iterator().hasNext());
             row.addProperty("supported", supported(entity, box));
             row.addProperty("vehicle", entity.isPassenger() ? entity.getRootVehicle().getUUID().toString() : "");
-            source.sendSuccess(() -> Component.literal("MCYGEOMETRY " + row), false);
+            output.accept("MCYGEOMETRY " + row);
             count++;
         }
-        source.sendSuccess(() -> Component.literal("MCYGEOMETRY_END"), false);
+        output.accept("MCYGEOMETRY_END");
         return count;
     }
 

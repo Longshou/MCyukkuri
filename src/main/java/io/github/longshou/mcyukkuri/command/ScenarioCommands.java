@@ -81,7 +81,8 @@ public final class ScenarioCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
         return Commands.literal("scenario").requires(s -> s.hasPermission(2))
-                .then(Commands.literal("geometry").executes(c -> SceneGeometry.read(c.getSource())))
+                .then(Commands.literal("geometry").executes(c -> SceneGeometry.read(c.getSource()))
+                        .then(Commands.literal("record").executes(c -> SceneGeometry.record(c.getSource()))))
                 .then(Commands.literal("wound").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     // A real, small injury through the ordinary wound path.
                     int count = 0;

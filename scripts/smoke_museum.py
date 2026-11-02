@@ -86,7 +86,8 @@ def build_pack(builder, pack_root, layout=False):
                 if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|afloat) |yukkuri human build |yukkuri human walker )', line):
                     command = line.removeprefix('return run ')
                     lines += [f'execute store result score #layout_created museum run {command}',
-                              f'execute if score #layout_created museum matches 0 run say MCYLAYOUT_MISSING {path.stem}:{number}']
+                              f'execute if score #layout_created museum matches 0 run say MCYLAYOUT_MISSING {path.stem}:{number}',
+                              'execute if score #layout_created museum matches 1.. run yukkuri scenario geometry record']
                     if line.startswith('return run '):
                         lines.append('return run scoreboard players get #layout_created museum')
                 else:
@@ -209,11 +210,15 @@ def run_scene(st, scene, builder):
     return problem is None
 
 
+def geometry_rows(reply):
+    return [json.loads(row) for row in re.findall(r'MCYGEOMETRY (\{[^\n]*?\})(?=MCY|\r?\n|$)', reply)]
+
+
 def geometry(st):
     reply = server.run_cmd(st, 'yukkuri scenario geometry')
     if 'MCYGEOMETRY_END' not in reply:
         raise RuntimeError('Incomplete geometry response: ' + reply)
-    rows = [json.loads(row) for row in re.findall(r'MCYGEOMETRY (\{[^\n]*?\})(?=MCY|\r?\n|$)', reply)]
+    rows = geometry_rows(reply)
     if sum(row['player'] for row in rows) != 1:
         raise RuntimeError('Missing player geometry: ' + reply)
     return rows
@@ -235,6 +240,7 @@ def check_layout(st, builder, scene):
     inspected = set()
     unsupported = {}
     previous_tick = 0
+    geometry_offset = offset
     for tick in sorted({0, 40, scene.layout_ticks}):
         if tick:
             ready_offset = server.log_offset(st)
@@ -242,7 +248,10 @@ def check_layout(st, builder, scene):
             server.run_cmd(st, f'tick step {tick - previous_tick}')
             server.wait_log(st, 'MCYLAYOUT_READY', ready_offset, timeout=30)
         previous_tick = tick
-        rows = [row for row in geometry(st) if row['player'] or row['uuid'] not in existing
+        # Creation records run synchronously before the actor's first physics tick (including delayed flying predators).
+        created = [row for row in geometry_rows(server.log_text(st, geometry_offset)) if not row['player']]
+        geometry_offset = server.log_offset(st)
+        rows = [row for row in created + geometry(st) if row['player'] or row['uuid'] not in existing
                 or (field.x1 <= row['box'][0] <= field.x2 and field.z1 <= row['box'][2] <= field.z2)]
         snapshots.append(dict(tick=tick, entities=rows))
         for row in rows:
@@ -255,6 +264,7 @@ def check_layout(st, builder, scene):
                 unsupported.pop(row['uuid'], None)
             elif row['uuid'] not in inspected:
                 unsupported[row['uuid']] = f'{who} has no support through initialization; first box={box}'
+            inspected.add(row['uuid'])
             # Scenes which keep the player on the observation deck assign that deck as its viewing area.
             area = field.deck if row['player'] and scene.vantage is None else rect
             if not (area[0] <= box[0] and box[3] <= area[2] + 1 and area[1] <= box[2] and box[5] <= area[3] + 1):
@@ -265,7 +275,6 @@ def check_layout(st, builder, scene):
             for other in builder.FIELDS:
                 if other.id != scene.field and b[0] < other.x2 + 1 and b[3] > other.x1 and b[2] < other.z2 + 1 and b[5] > other.z1:
                     problems.append(f't={tick} {row["uuid"]} overlaps field {other.id}')
-        inspected.update(row['uuid'] for row in rows)
     problems += unsupported.values()
     for setup in scene.late:
         if isinstance(setup, builder.museum_scenarios.Retry) and setup.command.startswith('summon '):
@@ -281,7 +290,7 @@ def check_layout(st, builder, scene):
     for problem in problems:
         print(f'FAIL {scene.id}: {problem}', flush=True)
     if not problems:
-        print(f'PASS {scene.id}: {len(rows) - 1} actors/props and player; initialized t={scene.layout_ticks}', flush=True)
+        print(f'PASS {scene.id}: {len(inspected) - 1} actors/props and player; initialized t={scene.layout_ticks}', flush=True)
     return not problems
 
 
