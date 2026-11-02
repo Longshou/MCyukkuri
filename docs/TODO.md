@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
-| 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、`headwear/HatSeats`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
 | 与水面齐平的岸边不再反复落水溺亡 | `.worktrees/fb-pond-edge` | `life/EscapeWater`、地面行走贴水边 |
