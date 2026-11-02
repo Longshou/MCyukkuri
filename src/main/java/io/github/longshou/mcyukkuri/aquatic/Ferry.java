@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions for boarding, leaving and fetching a young from the captain seat: every target
