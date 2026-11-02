@@ -439,7 +439,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         var corner = new Vec3(turn.x(), to.y, turn.z());
         double length = at.distanceTo(corner);
-        var step = at.lerp(corner, Math.min(1, SurfaceApproach.stepReach(walker) / length));
+        // One grid length leaves room for the real floor height inside the last-step reach.
+        var step = at.lerp(corner, Math.min(1, 1 / length));
         var floor = SurfaceApproach.surface(walker, step);
         if (moving && floor == null) GameplayLog.limited(walker, "move", "turn_unsupported", 200,
                 "route turn unsupported from={} to={} corner={} step={}", GameplayLog.at(at), GameplayLog.at(to),
