@@ -21,8 +21,8 @@ public final class ItemApproach {
         if (body.isInWaterOrBubble())
             return AbilityModifier.flag(body, AbilityModifier.SWIM) ? Swim.contact(item) : null;
         if (!item.isInWater()) {
-            var stand = SurfaceApproach.floor(body, item.position());
-            return stand != null && SurfaceApproach.canApproach(body, stand) ? Walk.stand(stand, 1) : null;
+            var stand = SurfaceApproach.beside(body, item, body.getBbWidth() / 2 + .2, ContactGeometry.GRAB_HEIGHT);
+            return stand == null ? null : Walk.stand(stand, 1);
         }
         if (!AbilityModifier.flag(body, AbilityModifier.SWIM)) return null;
         var level = body.level();

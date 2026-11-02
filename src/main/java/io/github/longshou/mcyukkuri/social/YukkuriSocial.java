@@ -173,7 +173,7 @@ public final class YukkuriSocial implements MotorOwner {
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->{
                 if(!item.isAlive()||!AccessoryItem.matches(entity,item.getItem()))return false;
                 boolean sight=entity.hasLineOfSight(item);
-                boolean reachable=sight&&(ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null);
+                boolean reachable=ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null;
                 if(!reachable)GameplayLog.limited(entity,"headwear","accessory_unreachable",200,
                         "loose accessory unreachable item={} at={} sight={} in_water={}",item.getUUID(),GameplayLog.at(item.position()),sight,item.isInWater());
                 return reachable;
@@ -220,7 +220,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public boolean canContinue() {
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
-                && entity.hasLineOfSight(target) && !entity.dailyLife().active() && !entity.life().isSleeping()
+                && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && elapsed < duration;
     }

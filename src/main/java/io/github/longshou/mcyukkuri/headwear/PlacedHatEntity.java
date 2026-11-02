@@ -600,7 +600,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (owner != null && ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);
         else if (owner == null) YukkuriWorldData.get((ServerLevel)level()).accessoryTransferred(ownerYukkuri(), accessoryToken, drop.getUUID());
         accessory = ItemStack.EMPTY;
-        GameplayLog.event(this, "hat", "pickup cause={} item={} count=1 owner={}", cause, stack.getItem(), ownerYukkuri());
+        GameplayLog.event(this, "hat", "pickup cause={} item={} count=1 owner={} inverted={}", cause, stack.getItem(), ownerYukkuri(), upsideDown());
         discard();
     }
     /** Destroyed (killed or discarded, a taken-back hat included) it drops what it held; unloaded to its chunk it keeps it saved. */
