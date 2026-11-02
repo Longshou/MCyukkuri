@@ -985,6 +985,8 @@ public final class FamilyLife {
      * independent subadults never enter this follow/search path.
      */
     private boolean exploring() { return entity.roaming()!=null&&entity.roaming().exploring(); }
+    /** The same arrival distance that ends this child's ordinary land follow. */
+    public boolean withinFollowDistance(YukkuriEntity parent) { return entity.distanceToSqr(parent) < familyRadiusSqr(); }
     private double familyRadiusSqr() {
         if(exploring()&&!familyTravelling())return Math.pow(entity.roaming().radius()+2,2);
         if(!ordinaryLandFree(entity))return FAMILY_FOLLOW_DISTANCE_SQR;
@@ -1099,7 +1101,7 @@ public final class FamilyLife {
             case COURT -> courtship.tickCourt();
             case RECEIVE_COURT -> courtship.tickReceiver();
             case FOLLOW -> {
-                if(!entity.life().canRecognize(target)||entity.distanceToSqr(target)<familyRadiusSqr()){stop();return;}
+                if(!entity.life().canRecognize(target)||withinFollowDistance(target)){stop();return;}
                 entity.getLookControl().setLookAt(target,20,20);
                 if(taskTicks%10==1&&!entity.life().navigate(target.blockPosition(),1.15,false))stop();
             }

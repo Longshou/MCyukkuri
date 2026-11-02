@@ -2462,7 +2462,7 @@ pond('afloat_family', '辫子接赤油上船', '亲子出航',
                 readout=_HULL_READOUT + [f'yukkuri status {sel("c1")} raw']))
 
 pond('afloat_family_gather', '先集合再出航·辫子接赤油', '集合出航',
-     '亲油在南岸，赤油在内陆跟随感知内但辫子够不到：亲油先走到计划泊位的岸边，面向孩子呼叫，等它进入计划船长座的辫子范围，再放帽、上船并把它接进前座',
+     '亲油在南岸，赤油在内陆跟随感知内但辫子够不到：亲油先走到计划泊位的岸边，面向孩子呼叫，等它跟到身边，再放帽、上船；若还差一段辫子距离，帽船沿岸追近后把它接进前座',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family_gather', 'a'), **pair_ready()),
       _aquatic_young('afloat_family_gather', 'c1', -3, -3, 'baby', 'a', childhood='Version:1,Newborn:1b,Landed:1b,FirstMealDone:0b,FirstToiletDone:0b,Crawled:0b,Jumped:0b'),
