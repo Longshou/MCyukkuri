@@ -180,8 +180,13 @@ final class Waters {
     /** The nearest roomy bank edge {@code body} can walk to, place a hat from and hop to its planned captain seat, with every
      *  fetched ward within that seat's braid reach and no other hat over the hull, or null. */
     static Edge berth(YukkuriEntity body, List<YukkuriEntity> wards) {
+        return berthNear(body, wards, body.position());
+    }
+
+    /** A berth planned around a ward's bank rather than the parent's current one. */
+    static Edge berthNear(YukkuriEntity body, List<YukkuriEntity> wards, Vec3 at) {
         var cells = wards.stream().map(y -> List.of(y.getUUID(), y.blockPosition())).toList();
-        return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth(), cells), () -> findBerth(body, wards));
+        return kept(body.level(), key(body.level(), "berth", BlockPos.containing(at), body.getBbWidth(), cells), () -> findBerth(body, wards, at));
     }
 
     /** Whether every ward is within braid reach of the captain seat planned at this berth. */
@@ -191,8 +196,8 @@ final class Waters {
         return wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0);
     }
 
-    private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards) {
-        for (var e : freeEdges(body)) {
+    private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards, Vec3 at) {
+        for (var e : freeEdges(body, at)) {
             if (!floats(e, body)) continue;
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)) continue;
@@ -209,14 +214,14 @@ final class Waters {
     }
 
     private static Edge findShore(YukkuriEntity body) {
-        for (var e : freeEdges(body)) if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
+        for (var e : freeEdges(body, body.position())) if (SurfaceApproach.canApproach(body, e.stand(body.getBbWidth()))) return e;
         return null;
     }
 
     /** The roomy edges round {@code body} with no other hat over the water they front, nearest first, up to {@link #ASKED}. */
-    private static List<Edge> freeEdges(YukkuriEntity body) {
+    private static List<Edge> freeEdges(YukkuriEntity body, Vec3 at) {
         var out = new ArrayList<Edge>();
-        for (var e : edges(body, body.position(), 8, true)) {
+        for (var e : edges(body, at, 8, true)) {
             if (out.size() >= ASKED) break;
             if (!hatOver(body, hatAt(e, body), HatGeometry.wornForm(body).brim()[1] * HatScale.of(body) / 16)) out.add(e);
         }

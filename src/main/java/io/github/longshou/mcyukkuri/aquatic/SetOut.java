@@ -112,7 +112,7 @@ final class SetOut implements Intent {
         }
         if (!AquaticLife.aboard(owner, hat)) {
             var fetch = dependentAshore(hat);
-            var edge = Waters.berth(owner, List.of());
+            var edge = gatherBerth(owner, fetch);
             if (edge != null && gatherUntil == 0 && Waters.berth(owner, fetch) == null) {
                 GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
                         .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
@@ -161,7 +161,7 @@ final class SetOut implements Intent {
             var hat = AquaticLife.hat(owner);
             if (hat != null) return AquaticLife.afloat(hat) ? Ferry.hopAboard(owner, hat, null) : null;
             var reachable = Waters.berth(owner, fetch);
-            var edge = reachable == null ? Waters.berth(owner, List.of()) : reachable;
+            var edge = reachable == null ? gatherBerth(owner, fetch) : reachable;
             if (edge == null) {
                 GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_and_braid_reach wards={} at={}",
                         fetch.size(), GameplayLog.at(owner.position()));
@@ -190,6 +190,11 @@ final class SetOut implements Intent {
     private List<YukkuriEntity> dependentAshore(PlacedHatEntity hat) {
         return AquaticLife.young(owner).stream().filter(y -> (!AquaticLife.jumper(y) || Drive.failed(y, "board_parent"))
                 && AquaticLife.ashore(y) && staying(y) == null && !AquaticLife.aboard(y, hat)).toList();
+    }
+
+    /** The parent's own launch berth when there are no wards, else one beside the first ward's bank. */
+    private static Waters.Edge gatherBerth(YukkuriEntity owner, List<YukkuriEntity> fetch) {
+        return fetch.isEmpty() ? Waters.berth(owner, List.of()) : Waters.berthNear(owner, List.of(), fetch.getFirst().position());
     }
 
     /** Whether the current responsive wards have gathered beside her, or are already within a planned seat's braid reach. */
