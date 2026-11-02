@@ -280,11 +280,8 @@ final class Waters {
     private static Vec3 findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
-        var toBank = hat.frame().toLocal(edge.edge());
-        double bank = Math.atan2(toBank.z, toBank.x), growth = body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale();
-        for (int i = 0; i < 24; i++) {
-            var p = HullBounds.brim(growth, bank + (i % 2 == 1 ? -1 : 1) * ((i + 1) / 2) * Math.PI / 12);
-            var local = new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT);
+        for (var local : hat.hopStops(body).stream()
+                .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             if (!new Hop(hat, local).check(body).ok()) continue;
             if (ashore(body, hat.toWorld(local)) != null) return local;
         }
