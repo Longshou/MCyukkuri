@@ -394,7 +394,6 @@ public final class FamilyLife {
         return result!=null&&result.detachedHolder==null?result:null;
     }
     public boolean sterile(){return sterile||!entity.subspecies().canReproduce();}
-    public void setSterile(boolean value) { sterile=value; entity.syncFamily(); }
     public int stimulation(){return stimulation;}
     public boolean stimulate(){if(!adult()||sterile())return false;stimulation=Math.min(1200,stimulation+240);return true;}
     public boolean sterilize(){if(!adult()||sterile()||stimulation==0)return false;sterile=true;stimulation=0;return true;}

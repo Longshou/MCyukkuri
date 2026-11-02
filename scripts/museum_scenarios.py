@@ -352,17 +352,14 @@ _COLONY_RELIEVES = 'execute as @e[type=#mcylab:yukkuri,distance=..30,limit=1,sor
 # A finite, reachable opening stock for the whole exhibit colony; nothing is replenished during the run.
 _PIT_FOOD = [item('minecraft:apple', 32, -4, 4), item('minecraft:apple', 32, 4, 4),
              item('minecraft:apple', 32, -4, -4), item('minecraft:apple', 32, 4, -4)]
-# These exhibits isolate the adult pit/social loop from the separate child-care pressure system.
-_PIT_GROWN = [Retry('execute as @e[type=#mcylab:yukkuri,distance=..70] run yukkuri status set @s growth.age_ticks 336000', _PIT_ADULTS, tries=1, first=400),
-              Retry('execute as @e[type=#mcylab:yukkuri,distance=..70] run yukkuri status set @s reproduction.sterile true', _PIT_ADULTS, tries=1, first=401)]
 add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '同一处山脚小群（固定成员：首领、一家三口、一家两口），入住约 6 秒后无子女的族长失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
     '这只奴隶长期不改身份：不安停在“不安”一档（含泪、脏），不会甜化、疯狂致死；没有排泄物时才真的挨饿。'
     '读数看奴隶营养、卫生与不安；日志 [settlement] pit slave …、pit mockery；[meal] swallowed item=mcyukkuri:yukkuri_waste',
-    '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
+    '约 2–5 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo_adults ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 16, 180), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
-    late=[*_PIT_GROWN, Retry('tag @e[type=mcyukkuri:patchouli,distance=..70,limit=1] add scn_slave', _PIT_ADULTS, tries=1, first=120),
+    late=[Retry('tag @e[type=mcyukkuri:patchouli,distance=..70,limit=1] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
           # The colony that keeps a slave is the harsh, dim-witted one that cannot see past the missing hat.
@@ -386,9 +383,9 @@ add('settle_pit_famine', 'biomes', '聚落嗯嗯奴隶坑·坑空挨饿', '坑�
     '同一处山脚小群（固定成员：首领、一家三口、一家两口）刚入场：坑里还没有任何排泄物，奴隶的营养为 0（就像它已把最后一份吃完）。'
     '看它在坑里找不到食物（pit slave hungry reason=no_droppings）、营养停在 0，约一分钟后开始真实饿伤（starvation damage，生命逐点下降）；'
     '没有人给它补食，也没有凭空生成的一份。',
-    '约 1–2 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
+    '约 1–2 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo_adults ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
-    late=[*_PIT_GROWN, Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
+    late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
           Retry(f'execute as {_HARSH} run yukkuri status set @s personality.friendliness 20', _PIT_ADULTS, tries=1, first=200),
@@ -409,9 +406,9 @@ add('settle_pit_drive', 'biomes', '聚落嗯嗯奴隶的产生', '失饰入坑',
     '看它被同群成员一次次拒斥（读数里 role 从 MEMBER 到 SHUNNED），第五次后成为嗯嗯奴隶并自己走进南边嗯嗯坑；'
     '每群至多一只：已有奴隶的聚落里再失饰的成员只会被驱离。'
     '读数看目标与群体的角色；日志 [settlement] hatless outcome role=UNUN_SLAVE …、pit slave …',
-    '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
+    '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo_adults ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
-    late=[*_PIT_GROWN, Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_target', _PIT_ADULTS, tries=1, first=120),
+    late=[Retry('tag @e[type=#mcylab:yukkuri,distance=..70,limit=1,sort=random,nbt={YukkuriFamily:{Stage:"ADULT"}}] add scn_target', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_TARGET} personality.friendliness 70', _TARGET, tries=1, first=130),
           Retry(f'yukkuri status set {_TARGET} personality.self_control 60', _TARGET, tries=1, first=135),
           Retry(f'yukkuri status set {_TARGET} personality.attachment 60', _TARGET, tries=1, first=140),
@@ -442,9 +439,9 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
     '五次实际照顾后奴隶恢复原来的成员或族长身份（hatless outcome cause=gentle_treatment），自己离开嗯嗯坑、不再吃排泄物、重新领口粮；'
     '恢复后聚落持续接纳这个个体，不再因失饰拒斥或制裁它。'
     '读数看奴隶与那只成员的角色；日志 [settlement] pit slave treated …、hatless outcome …',
-    '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
+    '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo_adults ~ ~ ~', *_PIT_FOOD, LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
-    late=[*_PIT_GROWN, Retry('tag @e[type=mcyukkuri:patchouli,distance=..70,limit=1] add scn_slave', _PIT_ADULTS, tries=1, first=120),
+    late=[Retry('tag @e[type=mcyukkuri:patchouli,distance=..70,limit=1] add scn_slave', _PIT_ADULTS, tries=1, first=120),
           Retry(f'yukkuri status set {_SLAVE} accessory.state burn', _SLAVE, tries=1, first=140),
           Retry(f'yukkuri settlement slave {_SLAVE}', _SLAVE, tries=1, first=180),
           Retry(f'execute as {_PLAIN_ALL} run yukkuri status set @s personality.friendliness 50', _PIT_ADULTS, tries=1, first=200),

@@ -28,7 +28,7 @@ public final class SettlementCommands {
         return Commands.literal("settlement").then(Commands.literal("spawn")
                 .then(Commands.argument("kind", StringArgumentType.word())
                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(new String[]{"wanderer", "family", "forest", "forest_led", "bandits",
-                                "band", "village", "village_led", "village_unled", "demo"}, builder))
+                                "band", "village", "village_led", "village_unled", "demo", "demo_adults"}, builder))
                         .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPos.containing(context.getSource().getPosition())))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(context -> spawn(context.getSource(), StringArgumentType.getString(context, "kind"), BlockPosArgument.getLoadedBlockPos(context, "pos"))))))
@@ -171,6 +171,9 @@ public final class SettlementCommands {
         return spawnSite(source, tier, pos, null, false);
     }
     private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate) {
+        return spawnSite(source, tier, pos, led, populate, null);
+    }
+    private static int spawnSite(CommandSourceStack source, SiteTier tier, BlockPos pos, Boolean led, boolean populate, SettlementComposition composition) {
         var level = source.getLevel();
         var terrain = new SiteBuilder.LevelTerrain(level);
         long seed = level.random.nextLong();
@@ -201,7 +204,7 @@ public final class SettlementCommands {
                     + " (" + result.blocks() + " blocks)"), true);
             return 1;
         }
-        var members = SettlementSpawner.spawnAtSite(level, site, SettlementComposition.forTier(tier, level.random, leader), true);
+        var members = SettlementSpawner.spawnAtSite(level, site, composition == null ? SettlementComposition.forTier(tier, level.random, leader) : composition, true);
         String name = tier.name().toLowerCase(Locale.ROOT);
         if (members.isEmpty()) { source.sendFailure(Component.translatable("commands.mcyukkuri.settlement.site.empty", name, result.blocks(), SettlementSpawner.lastFailure())); return 0; }
         source.sendSuccess(() -> Component.translatable("commands.mcyukkuri.settlement.site.built", name, result.blocks(), members.size()), true);
@@ -210,6 +213,7 @@ public final class SettlementCommands {
     private static int spawn(CommandSourceStack source, String kind, BlockPos pos) {
         var tier = SiteTier.byName(kind);
         if (tier != null) return spawnSite(source, tier, pos);
+        if ("demo_adults".equals(kind)) return spawnSite(source, SiteTier.DEMO, pos, null, true, SettlementComposition.demoAdults());
         if ("village_led".equals(kind) || "village_unled".equals(kind))
             return spawnSite(source, SiteTier.VILLAGE, pos, "village_led".equals(kind));
         SettlementSpawner.Preset preset;

@@ -17,6 +17,10 @@ public record SettlementComposition(List<Household> households, boolean leader) 
         return new SettlementComposition(List.of(new Household(2, 1), new Household(1, 1)), true);
     }
     /** A group sized for a planned site (band 4-8, village 10-20 including the leader); never more households than burrows. */
+    /** Adult-only exhibit group for the pit/social loop: the leader and three other adults, no juvenile errand or birth pressure. */
+    public static SettlementComposition demoAdults() {
+        return new SettlementComposition(List.of(new Household(2, 0), new Household(1, 0)), true);
+    }
     public static SettlementComposition forTier(SiteTier tier, RandomSource random, boolean leader) {
         if (tier == SiteTier.DEMO) return demo();
         boolean led = leader && tier.hall;
