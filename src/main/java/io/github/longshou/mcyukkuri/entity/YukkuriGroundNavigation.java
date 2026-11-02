@@ -385,7 +385,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 at = mob.position(), end = planGoal != null ? planGoal : Vec3.atBottomCenterOf(targets.iterator().next());
         double clear = Occupancy.foot(mob.getBbWidth());
         var out = new ArrayList<Footing>();
-        for (var wall : NestDoorway.walls(walker, area.inflate(2))) out.add(new Footing(wall, mob.getY(), true, clear));
         for (var o : obstacles(walker, area.inflate(2), Double.NaN, false))
             if (o.solid() || !moving(o.entity()) && !partner(o, end, clear)) footing(out, o, o.solid(), at, end, clear);
         long now = level.getGameTime();
@@ -424,6 +423,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         boxes.addAll(nestWalls);
         if (boxes.isEmpty()) return to;
+        // A coarse vanilla node can lie on a rim that the exact destination does not. Continue the same walk to its
+        // physical goal through the opening; the block grid cannot represent a narrow, off-centre aperture.
+        for (var wall : nestWalls) if (wall.gap(to.x, to.z) < clear) { to = end; break; }
         var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
                 : Detour.route(at.x, at.z, to.x, to.z, clear, boxes);
         if (turn.shut()) return null;
