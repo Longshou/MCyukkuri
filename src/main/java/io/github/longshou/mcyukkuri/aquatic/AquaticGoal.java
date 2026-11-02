@@ -142,9 +142,21 @@ final class AquaticGoal extends Goal {
     // ---------------------------------------------------------------- desires (one evaluation reads the world once)
     private List<Desire> desires() {
         var out = new ArrayList<Desire>();
-        if (body.family().adult()) { help(out); if (HatProp.usable(body) && !body.life().custody().lost()) owner(out); }
+        if (body.family().adult()) {
+            help(out);
+            if (HatProp.usable(body) && !body.life().custody().lost()) owner(out);
+            else recover(out);
+        }
         else young(out);
         return out;
+    }
+
+    /** Her own hat came down with a hull: its item lies near her and she wants it back, worn again (HEADWEAR). */
+    private void recover(List<Desire> out) {
+        var item = Recover.hat(body);
+        if (item == null) return;
+        out.add(Desire.of("recover_hat", num("reclaim", 85), List.of(item.getUUID(), body.blockPosition()),
+                () -> "item=" + item.getItem().getItem() + " at=" + GameplayLog.at(item.position()), () -> Recover.of(body)));
     }
 
     private static double floor(double desire) { return desire >= num("floor", 20) ? desire : 0; }

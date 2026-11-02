@@ -76,11 +76,12 @@ final class Ferry {
     static final class Beckoning {
         private Beckon tried;
 
-        /** Whether one stroke could help now: none tried yet this run, her own hat on the water within a stroke's reach of where she
-         *  stands ashore. The cheap read a wait can make every tick; the action's own check has the last word. */
+        /** Whether one stroke could help now: none tried yet this run, her own hat on the water, and the stroke itself applicable
+         *  where she stands facing it — the action's own check is the only reach test, so admitting a stroke and running it never
+         *  disagree. The cheap read a wait can make every tick. */
         boolean near(YukkuriEntity body, PlacedHatEntity hat) {
             return tried == null && PlacedHatEntity.find(body) == hat && AquaticLife.onWater(hat) && AquaticLife.ashore(body)
-                    && hat.position().subtract(body.position()).horizontalDistance() <= Beckon.REACH;
+                    && new Beckon(hat).check(body).ok();
         }
 
         /** The beckon step, or null when no stroke applies; one try per run, so a drawn-in or failed stroke is never paid over again. */

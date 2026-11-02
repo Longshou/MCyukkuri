@@ -93,16 +93,14 @@ final class Ashore implements Intent {
         return List.of(land, new Plan("swim_to_hat", this::swimmable, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR), this::swim));
     }
 
-    /** The bank way reaches her hat when it lies on dry ground or floats within a braid stroke of a bank stand she can walk to.
-     *  Farther out the intent goes into the water after it from the start: the distance decides, a wait would only time out. */
+    /** The bank way applies while her hat lies on dry ground (she walks up to it) or a bank stand near it can be walked to; whether
+     *  a braid stroke reaches the water from that stand is the stroke's own check, made where she stands, so a near hat is beckoned
+     *  and one out of reach is swum to at once. */
     private Feasibility beckonable() {
         var hat = AquaticLife.hat(owner);
         if (hat == null || hat.isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "hat_gone");
         if (!AquaticLife.onWater(hat)) return Feasibility.pass();
-        var edge = Waters.beside(hat, owner);
-        if (edge == null) return Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
-        double gap = edge.stand(owner.getBbWidth()).multiply(1, 0, 1).distanceTo(hat.position().multiply(1, 0, 1)) - Beckon.REACH;
-        return gap > 0 ? Feasibility.of(Reason.TOO_FAR, gap, "beckon_out_of_reach") : Feasibility.pass();
+        return Waters.beside(hat, owner) != null ? Feasibility.pass() : Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
     }
 
     private List<Supplier<Step>> derive() {
@@ -158,16 +156,27 @@ final class Ashore implements Intent {
             return reclaim ? null : List.of(() -> waiting(hat, null));
         }
         var stand = edge.stand(owner.getBbWidth());
-        var steps = new ArrayList<Supplier<Step>>();
-        steps.add(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)));
-        steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
-        if (AquaticLife.onWater(hat)) steps.add(() -> ContactGeometry.reachesHull(owner, hat, true, false) ? null : beckoning.step(owner, hat));
-        steps.add(() -> {
-            if (ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat)) return new Step.Do(close.get());
-            return reclaim ? null : waiting(hat, edge);
-        });
-        steps.addAll(List.of(after));
-        return steps;
+        // First the stand itself: the walk stops a few centimetres off, which no stroke or reach cares about, so it is not asked
+        // again once she is there (the next derivation decides what the bank offers).
+        if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
+            return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
+                    () -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
+        if (ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat)) {
+            var closing = new ArrayList<Supplier<Step>>();
+            closing.add(() -> new Step.Do(close.get()));
+            closing.addAll(List.of(after));
+            return closing;
+        }
+        // At the bank facing it: one stroke if the braid really reaches water from here (the action's own check, the same one that
+        // admits it); without a stroke a reclaim has no bank way and goes into the water after the hat from this same stand, and a
+        // coming-ashore owner calls for it to drift in.
+        Step stroke = beckoning.step(owner, hat);
+        if (stroke != null) return List.of(() -> stroke);
+        if (!reclaim) return List.of(() -> waiting(hat, edge));
+        // A body that sails goes into the water after her hat from this same stand. One that does not could only struggle there (the
+        // escape's own rule for a body that cannot use its hat), so it keeps the bank and calls for the hat to drift in — the only way
+        // left for it (the player's nudge too).
+        return owner.childhood().canSail() ? swim() : List.of(() -> waiting(hat, edge));
     }
 
     /** Waiting for a hat out of the braid's reach to drift in, said once with its real reason and the calling clip. */

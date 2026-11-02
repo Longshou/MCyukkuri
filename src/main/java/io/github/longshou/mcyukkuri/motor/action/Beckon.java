@@ -34,8 +34,8 @@ public final class Beckon implements Action {
     private static final double BRAID = .35;
     private static final float COST = 1f / 40;
     /** How near (blocks) the host's brim comes to the water she strokes to lie at the bank on her side; how far past the body's
-     *  front the braid strokes. */
-    private static final double AT = .1, AHEAD = .05;
+     *  front the braid strokes, and the farthest short of its length it looks for water there. */
+    private static final double AT = .1, AHEAD = .05, AHEAD_MOST = 1;
 
     private final SurfaceHost host;
     private Vec3 water;
@@ -60,15 +60,18 @@ public final class Beckon implements Action {
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
     }
 
-    /** The water's surface just past the body's front, where the braid strokes; null when no water lies there. */
+    /** The water's surface the braid can stroke ahead of the body: the nearest one within its own reach past the front (a stand at
+     *  the very edge has the water one step farther out), null when no water lies ahead. */
     private static Vec3 water(YukkuriEntity body) {
-        double yaw = Math.toRadians(body.getYRot()), out = body.getBbWidth() * Mth.SQRT_OF_TWO / 2 + AHEAD;
-        double x = body.getX() - Math.sin(yaw) * out, z = body.getZ() + Math.cos(yaw) * out;
+        double yaw = Math.toRadians(body.getYRot());
         var level = body.level();
-        for (int dy = 0; dy >= -1; dy--) {
-            var p = BlockPos.containing(x, body.getY() - .01 + dy, z);
-            var fluid = level.getFluidState(p);
-            if (fluid.is(FluidTags.WATER)) return new Vec3(x, p.getY() + fluid.getHeight(level, p), z);
+        for (double out = body.getBbWidth() * Mth.SQRT_OF_TWO / 2 + AHEAD; out <= AHEAD_MOST; out += .25) {
+            double x = body.getX() - Math.sin(yaw) * out, z = body.getZ() + Math.cos(yaw) * out;
+            for (int dy = 0; dy >= -1; dy--) {
+                var p = BlockPos.containing(x, body.getY() - .01 + dy, z);
+                var fluid = level.getFluidState(p);
+                if (fluid.is(FluidTags.WATER)) return new Vec3(x, p.getY() + fluid.getHeight(level, p), z);
+            }
         }
         return null;
     }

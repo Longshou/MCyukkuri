@@ -133,6 +133,9 @@ public final class HullAfloat implements PlacedHatBehavior {
 
     @Override public void tick(PlacedHatEntity hat) {
         double water = water();
+        // Out of the water in the air (a fall carried it off the column it rode): it falls as any hat lying there does, and the water
+        // below or the floor it lands on decides what it is.
+        if (!Double.isFinite(water) && !hat.onGround()) { PlacedHatBehavior.LAND.tick(hat); return; }
         if (!floats(hat.level(), hat.position(), hat.hullScale())) { ground(); return; }
         long now = hat.level().getGameTime();
         impact = 0;

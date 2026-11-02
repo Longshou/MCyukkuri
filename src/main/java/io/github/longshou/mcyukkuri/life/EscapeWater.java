@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.intent.Intent;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
-import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.motor.AbilityModifier;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -19,7 +18,6 @@ import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
-import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
@@ -37,7 +35,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -111,16 +108,11 @@ public final class EscapeWater implements Intent {
     @Override public List<Method> methods() {
         remember();
         var hat = PlacedHatEntity.find(body);
-        var loose = looseHat();
         Vec3 boat = boatSpot();
         Edge bank = climbable();
         BlockPos near = nearest();
         Step toRim = new Step.Do(Swim.to(() -> hat.isRemoved() ? null : ContactGeometry.nearestRim(body, hat).orElse(null), HAT_SWIM));
         return List.of(
-                // Her own hat's item where a hull came down on the floor lies right here: take it (worn on touch), then go on out.
-                new Way("hat_item", loose == null ? Feasibility.of(Reason.NO_SUPPORT, 0, "no_loose_hat_item") : Feasibility.pass(), AT_HAT,
-                        i -> i == 0 ? new Step.Do(Swim.to(loose::position, HAT_SWIM))
-                                : i == 1 ? new Step.Do(new Pick(loose, one -> AccessoryItem.receive(body, one, null))) : null),
                 new Way("own_hat", hat(hat, false), AT_HAT, i -> i == 0 ? toRim : i == 1 ? new Step.Do(Climb.onto(hat)) : null),
                 new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i) {
                     case 0 -> toRim;
@@ -186,13 +178,6 @@ public final class EscapeWater implements Intent {
                 || !tried.contains("hat_boat") && boatSpot() != null) return true;
         Edge edge = climbable();
         return edge != null && !tried.contains(edge.stand());
-    }
-
-    /** Her own hat's loose item floating near her (the one a hull that came down on the floor became), or null. */
-    private ItemEntity looseHat() {
-        return body.level().getEntitiesOfClass(ItemEntity.class, body.getBoundingBox().inflate(HAT_RANGE),
-                        item -> item.isAlive() && !item.getItem().isEmpty() && AccessoryItem.matches(body, item.getItem()))
-                .stream().min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
     }
 
     /** The edge of the last climb, avoided for a while when that climb slipped or found no room. */
