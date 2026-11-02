@@ -16,13 +16,12 @@
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
 | 浅水搁浅帽船变物品、近招远游取帽（反馈 7、12） | `.worktrees/fb-shallow-hat` | `aquatic/Ashore`、`HullAfloat` 搁浅判定、`social/YukkuriSocial` 取饰 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
-| 出水在真实干地上结束（聚落成员溺亡、岸边反复浮沉） | `.worktrees/fb-bank-escape` | `life/EscapeWater`、`motor/action/Climb` |
 
 ## 玩法待办
 
 ### 复测失败/待修复
 
-- **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave`（实例 `instance-557de1232b86`，运行包 bbd16394b，`fb-pit-slave` 分支）里 patchouli #1235 在同一处岸边反复 `climb DONE … on_bank`／`escape_water DONE` 却仍浸在水中，t=51208 溺亡，长局常见两名成员溺亡。完成：`settle_pit_slave` 连跑两次无成员死亡（查全员 `[body] death`），`hat_turbulence`／`shore_capsized`／`self_rescue`／`rescue_child` 仍通过；每次出水只一条 `[water] escape start/end … support=`，结束行 support 为真实站位。试玩：`聚落嗯嗯奴隶坑` 场地按钮“嗯嗯奴隶”、`池塘与河湾` 场地按钮“急流翻船”。
+- **出水与爬岸在真实干地上结束（聚落成员溺水）**：已接入待试玩。冒烟 `settle_pit_slave`（`fb-pit-slave` 分支，版本待核实）中成员在同一岸边反复 `climb DONE on_bank`／`escape_water DONE` 却仍在水中，t=51208 溺亡。完成：`聚落嗯嗯奴隶坑`“嗯嗯奴隶”长跑无成员溺亡；`池塘与河湾`“急流翻船”落水者爬上岸后站稳不再反复浮沉；`[water] escape done` 的 `support=` 为真实站位或 `aboard=`。
 - **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，[CI 41438818895](https://github.com/Longshou/MCyukkuri/actions/runs/41438818895)）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，连续推进与周期性存档停顿修复待同场复测。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拍水·学划·拨粮·躲辫）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行，无周期性服务端长停顿；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。

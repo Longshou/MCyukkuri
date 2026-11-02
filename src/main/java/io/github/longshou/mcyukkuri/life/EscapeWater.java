@@ -97,9 +97,10 @@ public final class EscapeWater implements Intent {
                 GameplayLog.at(body.position()), support());
     }
 
-    /** The stand the body rests on now, or {@code none}. */
+    /** The stand the body rests on now: aboard a host, on a stand of its own out of the water, or {@code none}. */
     private String support() {
-        return SurfaceApproach.stands(body, body.position()) ? "stand=" + GameplayLog.at(body.position()) : "none";
+        if (body.isPassenger()) return "aboard=" + body.getVehicle().getId();
+        return !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()) ? "stand=" + GameplayLog.at(body.position()) : "none";
     }
 
     @Override public long deadline() { return started + DEADLINE; }
