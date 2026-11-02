@@ -2001,6 +2001,7 @@ pond('hat_swap', '帽子大小对照', '帽子大小',
          uuid=uid('hat_swap', 'kid_owner'), label='子油·放下', **pair_ready()),
       afloat('land_owner', water_at(-3, 3), False), afloat('aqua_owner', water_at(3, 3), False),
       afloat('kid_owner', water_at(0, 2), False)],
+     vantage=(0, 8, 180, 15),
      late=[f'execute at {sel("aqua_owner")} run data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='两顶成体空帽相距 6 格，各在岸边 3 格外；子油空帽在两者之间，读 [hat] placed 的 scale 与 hullBox 核对实际帽体。水生空帽倒扣漂着（倒扣是它真实的漂浮姿态，不是被测环节）。'
           '水生放帽者从岸上先招帽靠岸、再咬檐推正、最后收回戴上（日志 [action] start id=beckon → end … at_bank → start id=right … push= → [hat] righted cause=reclaim → [headwear] reclaim done）；'
@@ -2042,6 +2043,7 @@ pond('sail', '单体出航·划船·饿了返岸', '单体航程',
      '约 2–3 分钟（可倍速）',
      [yk('marisa', bank_dx(0) - 5, 0, 'a', aquatic=True, yaw=-90, lead=True, nutrition=56, energy=100, hygiene=100),
       item('minecraft:stick', 1, bank_dx(0) - 3, 2, 'stick')],
+     vantage=(-3, -6, -15, 15),
      note='每阶段一条日志：[headwear] kit stowed → [aquatic] berth → [hat] placed … water=true kit=… → [hat] boarded → [intent] start id=cruise → '
           '[aquatic] route purpose=cruise → [intent] start id=come_ashore（why 中 hunger、food_aboard=false）→ [aquatic] route purpose=come_ashore → [hat] left → '
           '[action] end id=take_prop outcome=DONE。划水时原版木棍随辫梢移动，读 aquatic.stick_in_braid=true；停划时消失、读数为 false，岸边招帽仍空辫拨水。上岸后饥饿仍压住出航欲望，不会马上再上船。' + _DESIRE_NOTE,
