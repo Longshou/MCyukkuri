@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 浅水塘两只互相挡住困死（聚落长跑） | `.worktrees/fb-colony-food`（分支 `fb-pond-jam`） | 互挡绕行、浅水出水判定 |
 | 座位已满上岸分娩、水生亲本生水生子（反馈 10、18） | `.worktrees/fb-boat-birth-shore` | `family/LiveBirth`、`subspecies/SubspeciesLife`、水生上岸欲望、分娩场景 |
+| 救援回归二分定位与最小修复 | `.worktrees/fb-set-out-gather` | `aquatic/Rescue`、二分命中的共享几何；`.worktrees/fb-rescue-bisect` 只作历史自查 |
 
 ## 玩法待办
 
