@@ -114,7 +114,7 @@ def main():
     (functions / 'capture').mkdir()
     for scene in selected:
         start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
-        view = next((line for line in start_lines if line.startswith('tp @s ')), f'function mcylab:go/{scene.field}')
+        view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
         (functions / f'capture/{scene.id}.mcfunction').write_text(
             f'execute as @a at @s run function mcylab:start/{scene.id}\n'
             + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')

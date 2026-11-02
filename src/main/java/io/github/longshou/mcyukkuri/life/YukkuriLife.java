@@ -881,7 +881,7 @@ public final class YukkuriLife {
     private BlockPos nearestDryCover(){ return home.nearestDryCover(); }
     public boolean covered(BlockPos pos){ return home.covered(pos); }
     private boolean rainOutside(){ return home.rainOutside(); }
-    public BlockPos entrance(BlockPos nest){ return home.entrance(nest); }
+    public BlockPos entrance(BlockPos nest){ var at=home.entrance(nest); return at==null?null:BlockPos.containing(at); }
     public boolean assignHome(GlobalPos selected){ return home.assignHome(selected); }
     public boolean assignNaturalHome(BlockPos selected){ return home.assignNaturalHome(selected); }
     public void releaseHome(){ home.releaseHome(); }
