@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 座位已满上岸分娩、水生亲本生水生子（反馈 10、18） | `.worktrees/fb-boat-birth-shore` | `family/LiveBirth`、`subspecies/SubspeciesLife`、水生上岸欲望、分娩场景 |
 | 嗯嗯坑长场景聚落饿死（丘顶下不来、物资不够） | `.worktrees/fb-colony-food` | 觅食下坡、`settle_pit*` 场景物资与地形 |
 | 出航前召集幼油与温和辫子接取（反馈 11） | `.worktrees/fb-set-out-gather` | `aquatic/SetOut`／`Ferry`、辫子接取动作源 |
 
