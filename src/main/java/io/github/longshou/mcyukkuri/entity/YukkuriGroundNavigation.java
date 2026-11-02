@@ -300,7 +300,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // The route knew the footprints as they were when it was planned: each step to the next node heads round them now,
         // where the way round stands on supported, open ground (never off a ledge or into a wall).
         var control = mob.getMoveControl();
-        if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
+        // Vanilla may finish its coarse route this tick while leaving its last movement request active.
+        // That final step, and a direct approach's step, still have to respect the physical rim.
+        if (control.hasWanted() && mob instanceof YukkuriEntity walker && !walker.isPassenger()) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
             var aim = aim(wanted, true);
             if (aim == null || aim != wanted && !SurfaceApproach.clearWalkingStep(walker, aim))
