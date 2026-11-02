@@ -38,8 +38,7 @@ public final class PitSlave {
 
     /** A grown member of a group whose standing is 嗯嗯奴隶. */
     public boolean slave() {
-        return !entity.level().isClientSide && entity.settlement().group() != null
-                && entity.settlement().society().role() == SettlementData.Role.UNUN_SLAVE && entity.family().adult();
+        return entity.settlement().group() != null && entity.settlement().society().slave() && entity.family().adult();
     }
     /** A slave eats the droppings it is given or finds in its pit. */
     public boolean eatsWaste() { return slave(); }

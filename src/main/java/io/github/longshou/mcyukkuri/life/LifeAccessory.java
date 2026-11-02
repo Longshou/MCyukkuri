@@ -57,7 +57,7 @@ final class LifeAccessory {
             return false;
         }
         custody.reclaim(token, "returned"); clearConfiscation();
-        o.entity().settlement().society().restored();
+        o.entity().settlement().society().restored("accessory");
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
         // Taken back by its own braid (no player) the hat was never lost: the おかざり回収 line and relief are for one given back.
         if (player != null) { o.personality().accessoryReturned(player); o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); }
@@ -70,7 +70,7 @@ final class LifeAccessory {
         custody.wear("received");
         clearConfiscation();o.personality().accessoryReturned(player);
         o.entity().headwear().receiveAccessoryState(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag());
-        if (custody.worn()) o.entity().settlement().society().restored();
+        if (custody.worn()) o.entity().settlement().society().restored("accessory");
         GameplayLog.event(o.entity(),"headwear","received loose accessory item={} state={} damage={} player={}",
                 stack.getItem(),o.entity().headwear().stateId(),o.entity().headwear().damage(),player);
         o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED);o.entity().showReaction("happy","returned_accessory",100);
@@ -97,7 +97,7 @@ final class LifeAccessory {
         if (custody.worn()) return;
         custody.wear("worn");
         clearConfiscation();
-        o.entity().settlement().society().restored();
+        o.entity().settlement().society().restored("accessory");
     }
 
     boolean matchesAccessory(UUID owner,UUID token){return custody.matches(owner,token);}

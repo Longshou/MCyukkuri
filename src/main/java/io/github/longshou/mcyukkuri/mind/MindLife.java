@@ -247,6 +247,9 @@ public final class MindLife {
         float rate = 0;
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
         unease = Math.clamp(unease + rate * PER_SAMPLE, 0f, 100f);
+        // A slave kept in the waste pit (settlement/PitSlave) carries dirt, mockery and its lost accessory for good: they stay
+        // as visible unease and tears, but cannot pile up into sweetening and the death it leads to (feedback 4, project design).
+        if (entity.settlement().society().slave()) unease = Math.min(unease, UNEASY);
         // Lecture: the filling turns sweet while it cannot take it easy. Accumulates above 50, fades below 35.
         if (unease >= BondLevels.UNEASE_CARE_LIMIT) sweetness = Math.min(100, sweetness + (unease - 40) / 20f * PER_SAMPLE);
         else if (unease < UNEASY) sweetness = Math.max(0, sweetness - PER_SAMPLE);

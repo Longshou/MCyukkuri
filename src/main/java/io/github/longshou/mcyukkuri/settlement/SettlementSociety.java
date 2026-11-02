@@ -20,6 +20,8 @@ public final class SettlementSociety {
         return entity.level().isClientSide ? SettlementData.Role.FREE
                 : SettlementData.get(level()).role(entity.settlement().group(), entity.getUUID());
     }
+    /** Stands in the group as an 嗯嗯奴隶 (settlement/PitSlave owns what that life is). */
+    public boolean slave() { return role() == SettlementData.Role.UNUN_SLAVE; }
     public SettlementData.Member record() {
         if (entity.level().isClientSide) return null;
         var group = entity.settlement().group();
@@ -64,9 +66,17 @@ public final class SettlementSociety {
         var record = data.member(group, entity.getUUID());
         long now = level().getGameTime();
         // Handles the original accessory being returned while transported to another dimension.
-        if (entity.life().hasAccessory() && record.rejections > 0) { restored(); return; }
+        if (entity.life().hasAccessory() && record.rejections > 0) { restored("accessory"); return; }
         if (now < record.nextObservation) return;
         var box = entity.getBoundingBox().inflate(6);
+        // Sustained kindness from members that still see who it is lifts a slave out of the pit (wiki); the harsh witnesses
+        // below are what keeps it there.
+        if (record.role == SettlementData.Role.UNUN_SLAVE) {
+            var kind = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
+                    peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
+                            && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
+            if (kind != null) { treat(kind, record); return; }
+        }
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
@@ -82,10 +92,16 @@ public final class SettlementSociety {
         if (record.rejections >= 5 && record.role == SettlementData.Role.SHUNNED) {
             var p = entity.life().personality();
             // These thresholds are project design. Attachment alone is never equated with obedience.
-            boolean stays = entity.family().adult() && p.friendliness() >= 60 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
+            boolean docile = entity.family().adult() && p.friendliness() >= 60 && p.selfControl() >= Temperament.SELF_CONTROL_AT_50
                     && p.attachment() >= Temperament.ATTACHMENT_AT_55;
-            record.role = stays ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
-            if (before < 5) CommunityRules.hatlessOutcome(entity, group, record.role);
+            // A colony keeps one 嗯嗯奴隶 (project design, feedback 4): its place in the pit is single, the next one is driven off.
+            boolean taken = data.hasSlave(group, entity.getUUID());
+            record.role = docile && !taken ? SettlementData.Role.UNUN_SLAVE : SettlementData.Role.OUTCAST;
+            if (before < 5) {
+                CommunityRules.hatlessOutcome(entity, group, record.role);
+                GameplayLog.event(entity, "settlement", "hatless outcome role={} rejections={} observer={} docile={} slave_place_taken={}",
+                        record.role, record.rejections, observer.getUUID(), docile, taken);
+            }
         }
         String event = record.role == SettlementData.Role.OUTCAST ? "settlement_drive"
                 : record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_assign" : "settlement_shun";
@@ -133,14 +149,34 @@ public final class SettlementSociety {
         }
     }
 
-    public void restored() {
+    /**
+     * One real act of kindness at the pit: a member that still sees who the slave is comes over, greets it gently and its regard
+     * for it recovers. Sustained kindness of this kind ends the role (wiki: 摆脱强迫并获得持续温和对待可以恢复).
+     */
+    private void treat(YukkuriEntity member, SettlementData.Member record) {
+        record.nextObservation = level().getGameTime() + 200;
+        record.gentleness++;
+        member.getLookControl().setLookAt(entity, 25, 25);
+        member.showReaction("closed_smile", "gentle", 80);
+        YukkuriWorldData.get(level()).relate(member.getUUID(), entity.getUUID(), 2);
+        entity.mind().felt(EmotionEvent.COMFORTED);
+        entity.showReaction("teary", "gentle", 100);
+        GameplayLog.event(entity, "settlement", "pit slave treated by={} gentleness={}/{}", member.getUUID(), record.gentleness,
+                SettlementData.GENTLE_TREATMENTS);
+        if (record.gentleness >= SettlementData.GENTLE_TREATMENTS) restored("gentle_treatment");
+        SettlementData.get(level()).setDirty();
+    }
+
+    public void restored(String cause) {
         var group = entity.settlement().group();
         if (group == null) return;
         var record = record();
         if (record.rejections == 0) return;
+        int gentleness = record.gentleness;
         SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime());
         entity.settlement().duties().cancelAssignment();
         entity.life().personality().decided("settlement_restored");
+        GameplayLog.event(entity, "settlement", "hatless outcome role={} cause={} gentleness={}", role(), cause, gentleness);
         // No affinity reset: the actual prior interactions remain in YukkuriWorldData.
     }
     public boolean dejected() {
