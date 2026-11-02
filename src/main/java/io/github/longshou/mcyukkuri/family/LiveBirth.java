@@ -86,7 +86,7 @@ final class LiveBirth extends Choreography {
     private record Excluded(Vec3 mother,Vec3 helper,long until){}
     private final List<Excluded> excluded=new ArrayList<>();
     private long windowEnd,cleanupEnd;
-    /** Sticky once upgraded: any clear outlet (liquid allowed), and then (forced) no outlet check at all. */
+    /** Sticky once upgraded: exposure is allowed; a forced delivery still requires a clear outlet. */
     private boolean unprotected,forced;
     private int pushing,welcomed,unloads,takes;
     private Welcome welcome;

@@ -256,9 +256,9 @@ public final class LiveBirthGeometry {
     }
     /**
      * Whether child {@code index} can come out of the outlet with the mother turned to {@code yaw}: its real birth-size box
-     * free of blocks, and no wall between her and it. A protected outlet also keeps out liquid, other bodies (siblings
-     * already caught in a hat aside, never layered at the outlet) and needs the full newborn footprint on a floor below;
-     * an unprotected one (the safety wait ran out) gives birth onto whatever is there, never through a wall.
+     * free of blocks and every living body, and no wall between her and it. A protected outlet also keeps out liquid
+     * and needs the full newborn footprint on a floor below; an unprotected one (the safety wait ran out) allows
+     * exposure, never birth through a wall or inside another body.
      */
     public static boolean clear(YukkuriEntity mother,int index,float yaw,boolean unprotected){
         return clear(mother,index,mother.position(),yaw,unprotected);
