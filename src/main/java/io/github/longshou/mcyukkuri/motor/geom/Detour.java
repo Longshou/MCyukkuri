@@ -68,7 +68,7 @@ public final class Detour {
         double[] room = new double[boxes.size()];
         for (int i = 0; i < boxes.size(); i++) {
             var b = boxes.get(i);
-            room[i] = Math.max(0, Math.min(clear, Math.min(b.gap(fx, fz), b.gap(tx, tz))) - EPS);
+            room[i] = Math.max(0, Math.min(clear, b.gap(fx, fz)) - EPS);
             for (int u : new int[]{-1, 1}) for (int v : new int[]{-1, 1})
                 points.add(b.at(u * (b.a + room[i] + PAST), v * (b.b + room[i] + PAST)));
         }

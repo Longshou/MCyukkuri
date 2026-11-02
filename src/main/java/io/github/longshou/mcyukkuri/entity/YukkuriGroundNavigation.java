@@ -342,6 +342,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             scanTick = now;
             scan = level.getEntities(mob, mob.getBoundingBox().inflate(SCAN), x -> x instanceof PlacedHatEntity || x instanceof YukkuriEntity);
             nestWalls = NestDoorway.walls((YukkuriEntity) mob, mob.getBoundingBox().inflate(SCAN));
+            if (!nestWalls.isEmpty()) {
+                long id = Long.MIN_VALUE;
+                for (var shape : level.getBlockCollisions(mob, mob.getBoundingBox().inflate(SCAN, .5, SCAN)))
+                    for (var box : shape.toAabbs()) if (box.maxY > mob.getY() + mob.maxUpStep() && box.minY < mob.getY() + mob.getBbHeight())
+                        nestWalls.add(Detour.Box.aligned(id++, box.minX, box.minZ, box.maxX, box.maxZ));
+            }
         }
         return scan;
     }
@@ -378,6 +384,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 at = mob.position(), end = planGoal != null ? planGoal : Vec3.atBottomCenterOf(targets.iterator().next());
         double clear = Occupancy.foot(mob.getBbWidth());
         var out = new ArrayList<Footing>();
+        for (var wall : NestDoorway.walls(walker, area.inflate(2))) out.add(new Footing(wall, mob.getY(), true, clear));
         for (var o : obstacles(walker, area.inflate(2), Double.NaN, false))
             if (o.solid() || !moving(o.entity()) && !partner(o, end, clear)) footing(out, o, o.solid(), at, end, clear);
         long now = level.getGameTime();

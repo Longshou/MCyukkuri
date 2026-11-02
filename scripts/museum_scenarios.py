@@ -314,7 +314,7 @@ def _sleep_doorway_verify(log):
 
 
 add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走回有顶的窝里睡觉', '约 1 分钟', [
-    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(4, -4, -35), env=DAY,
+    *shed(7, 0), yk('reimu', 0, 0, 'a', energy=95, rest_wait=0, yaw=-90, lead=True), home('a', 7, 0)], vantage=(7, -3, 0, 1, 35), env=DAY,
     # The home is set two seconds after the summon, so the tiredness comes only once the nest is hers (energy below the rest
     # threshold, above the in-place nap's 25).
     late=[Retry(f'execute as {sel("a")} run yukkuri status set @s needs.energy 30', sel('a'), tries=1, first=160)],
@@ -1586,7 +1586,7 @@ def _carry_verify(log):
 
 add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代运输',
     '三家各有自己的大窝，赤油在约 8 格外：魔理沙（1.2 倍）、灵梦、橙各自走去，每次把一个孩子接回窝内；魔理沙用辫子托上帽檐，灵梦口含，橙用尾巴',
-    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(3, 6, 155),
+    '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(.5, 4.5, 180, 1, 30),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
     capture=dict(shots=(1, 40, 1200, 2400, 3600), sequences=((100, 600, 5), (2500, 3300, 10))),

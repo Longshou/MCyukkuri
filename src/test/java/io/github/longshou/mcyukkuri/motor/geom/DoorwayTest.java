@@ -22,6 +22,12 @@ class DoorwayTest {
         assertTrue(Detour.route(0, 0, 0, 3, .395, walls).shut());
     }
 
+    @Test void aBabyCanReachASleepingPlaceByTheSideWall() {
+        var door = new Doorway(.9125, 1, .5625, 1);
+        walk(door, .09, 1.3, -.4, .7915, -.366);
+        walk(door, .09, .7915, -.366, 1.3, -.4);
+    }
+
     private static void walk(Doorway door, double foot, double x, double z, double tx, double tz) {
         var walls = door.walls(100, 0, 0);
         for (int tick = 0; tick < 600; tick++) {
