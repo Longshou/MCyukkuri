@@ -989,7 +989,7 @@ public final class FamilyLife {
     /** Ordinary following keeps its personality distance; a real boat call asks a dependent into actual pickup contact. */
     public boolean withinFollowDistance(YukkuriEntity parent) {
         if (parent == target && ParentCarry.needsCarry(entity) && parent.getAnimationId().equals(Behaviors.BOAT_CALL))
-            return ContactGeometry.inBraidReach(parent, entity) || ContactGeometry.inMouthReach(parent, entity);
+            return ContactGeometry.inBraidReach(parent, entity);
         return entity.distanceToSqr(parent) < familyRadiusSqr();
     }
     private double familyRadiusSqr() {
