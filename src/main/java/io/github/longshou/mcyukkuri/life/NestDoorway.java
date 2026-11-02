@@ -99,7 +99,8 @@ public final class NestDoorway {
             if (was == now) continue;
             double t = (door.side() * door.inner() - z0) / (z1 - z0), x = x0 + t * (x1 - x0);
             boolean opening = t >= 0 && t <= 1 && Math.abs(x) + Occupancy.foot(actor.getBbWidth()) <= door.opening() + .02;
-            boolean driven=drive!=null && (Math.max(Math.abs(drive.x-centre.x),Math.abs(drive.z-centre.z))<door.inner())==now;
+            var hollow=new AABB(centre.x-door.inner(),centre.y-1,centre.z-door.inner(),centre.x+door.inner(),centre.y+1,centre.z+door.inner());
+            boolean driven=drive!=null && (was ? !hollow.contains(drive) : hollow.clip(from,drive).isPresent());
             GameplayLog.event(actor, "home", "bed crossing nest={} direction={} side={} opening={} source={} from={} at={} drive={}", bed.getBlockPos(),
                     now ? "in" : "out", door.side() < 0 ? "north" : "south", opening, driven?"walk":"physics",
                     GameplayLog.at(from), GameplayLog.at(to), drive==null?"none":GameplayLog.at(drive));
