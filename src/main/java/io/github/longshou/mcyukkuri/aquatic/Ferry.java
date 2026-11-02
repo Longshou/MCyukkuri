@@ -8,7 +8,6 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
-import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -61,20 +60,17 @@ final class Ferry {
         return steps;
     }
 
-    /** The carrier stays on the bank: approach the child on foot, draw a drifting hull in, then lift into its admitted seat. */
+    /** Load from the near brim; a wandering child is approached again on foot after a real hop ashore. */
     static List<Supplier<Step>> loadFromBank(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {
+        if (AquaticLife.aboard(carrier, hat))
+            return BraidFetch.withinReach(carrier, child) ? BraidFetch.steps(carrier, child, hat) : List.of(hopAshore(carrier));
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> {
             if (BraidFetch.withinReach(carrier, child)) return null;
             var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) / 2 + .15, 1.2);
             return stand == null ? null : act(Walk.around(stand, child));
         });
-        steps.add(() -> act(new Face(SurfaceApproach.yaw(carrier.position(), hat.position()))));
-        steps.add(() -> {
-            var seat = hat.seatDestination(child);
-            return seat == null || ContactGeometry.braidGap(carrier, seat.world(), true) <= 0 ? null : beckoning.step(carrier, hat);
-        });
-        steps.addAll(BraidFetch.steps(carrier, child, hat));
+        steps.addAll(hopAboard(carrier, hat, beckoning, true));
         return steps;
     }
 
@@ -87,20 +83,25 @@ final class Ferry {
     /** Approach the bank, then land at the host's current admitted seat. A body standing in the takeoff arc — one not riding the
      *  hull — is waited out with the boat call; a body entering after takeoff remains an honest flight failure. */
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
-        if (AquaticLife.aboard(body, hat)) return null;
+        return hopAboard(body, hat, beckoning, false);
+    }
+
+    private static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, boolean brim) {
+        if (AquaticLife.aboard(body, hat)) return brim || hat.seated(body) ? null : List.of(() -> act(new Hop(hat)));
+        Supplier<Hop> hop = () -> brim ? Hop.ontoBrim(hat) : new Hop(hat);
         return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
-                    if (new Hop(hat).check(body).ok()) return null;
+                    if (hop.get().check(body).ok()) return null;
                     var edge = Waters.beside(hat, body);
                     var stand = edge == null ? null : Waters.boardingStand(edge, hat, body);
                     return stand == null || SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
                 },
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> beckoning == null || new Hop(hat).check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
+                () -> beckoning == null || hop.get().check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
                 () -> {
-                    var hop = new Hop(hat);
-                    return hop.blockedByBody(body) ? bodyWait(body, hop) : null;
+                    var action = hop.get();
+                    return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },
-                () -> act(new Hop(hat)));
+                () -> act(hop.get()));
     }
 
     /** Wait for a body in the takeoff arc, bounded by three boat calls; the shared hop check is read again every tick. */

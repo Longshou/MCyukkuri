@@ -20,9 +20,11 @@ import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.HopPath;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
+import java.util.Comparator;
 import java.util.Locale;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +38,7 @@ public final class Hop implements Action {
     private static final double TOUCH = .05;
     private final Vec3 target;
     private final SurfaceHost seatHost;
+    private boolean brimOnly;
     private SurfaceHost departure;
     private SeatTarget seat;
     private List<Vec> flight;
@@ -54,6 +57,8 @@ public final class Hop implements Action {
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
     /** A destination on the host already carrying the body; the flight stays in its live frame. */
     public Hop(SurfaceHost host, Vec3 local) { seatHost = host; target = local; }
+    /** Stop at the supported entry instead of continuing to the admitted seat. */
+    public static Hop ontoBrim(SurfaceHost host) { var hop = new Hop(host); hop.brimOnly = true; return hop; }
     @Override public SurfaceHost host() { return seatHost != null ? seatHost : departure; }
     @Override public String id() { return ID; }
 
@@ -66,6 +71,17 @@ public final class Hop implements Action {
      *  arc the takeoff judges. */
     public static boolean reaches(YukkuriEntity body, Vec3 from, Vec3 target) {
         return new Hop(target).arc(body, vec(from), null, hosts(body, from, target), vec(target)) instanceof ArcSolver.Plan;
+    }
+
+    /** The same supported entry and arc admission for a planned host and an actual boarding hop. */
+    public static Vec3 entry(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
+        return new Hop(from).entryFrom(body, from, frame, stops);
+    }
+
+    private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
+        return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(from)))
+                .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p))) instanceof ArcSolver.Plan)
+                .findFirst().orElse(null);
     }
 
     /** Whether no takeoff arc passes the shared sweep and another body is in a swept arc. The action's own check still has
@@ -104,6 +120,14 @@ public final class Hop implements Action {
         }
         var ability = BodyAbility.of(body);
         SurfaceHost anchor = seatHost != null && body.getVehicle() == seatHost.entity() ? seatHost : null;
+        boolean entering = seatHost != null && anchor == null && target == null && !seatHost.hopStops(body).isEmpty();
+        if (entering) {
+            var stop = entryFrom(body, body.position(), seatHost.frame(), seatHost.hopStops(body).stream()
+                    .filter(p -> new SeatTarget(seatHost, p).available(body)).toList());
+            if (stop == null) return new Flight(Feasibility.of(Reason.TOO_FAR, 0, "no_reachable_brim"), null, null);
+            candidate = new SeatTarget(seatHost, stop);
+            to = candidate.world();
+        }
         var origin = anchor == null ? body.position() : anchor.riders().local(body.getUUID()).scale(anchor.frame().unit());
         var destination = anchor == null ? to : candidate.local().scale(anchor.frame().unit());
         var swept = hosts(body, body.position(), to);
@@ -119,7 +143,7 @@ public final class Hop implements Action {
         var result = arc(body, vec(origin), anchor, swept, vec(destination));
         if (result instanceof ArcSolver.Plan plan) {
             if (anchor != null) path = List.of(new HopPath.Leg(vec(destination), plan));
-            return new Flight(Feasibility.pass(), candidate, plan);
+            return new Flight(Feasibility.pass(), candidate, plan, entering && !brimOnly);
         }
         if (anchor != null) {
             var stops = anchor.hopStops(body).stream().filter(p -> new SeatTarget(anchor, p).available(body))
@@ -174,8 +198,7 @@ public final class Hop implements Action {
         var delta = aim.subtract(body.position());
         Motor.velocity(body, aboard ? Vec3.ZERO : delta, "hop_flight");
         var contact = aboard ? null : ContactResolver.resolve(body);
-        if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused")
-                : new Outcome.Done("contact at=" + GameplayLog.at(body.position()));
+        if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused") : landed(body);
         // Cross a bank horizontally before descending, matching the clearance sweep.
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
@@ -185,16 +208,19 @@ public final class Hop implements Action {
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));
         if (air == flight.size() - 1) {
             if (seat != null && !seat.land(body, "hop_contact")) return Outcome.of(Reason.NO_ROOM, 0, "seat_landing_refused");
-            if (more) {
-                leg++;
-                launched = false;
-                crouch = air = 0;
-                startTick = body.level().getGameTime();
-                return new Running(takeoff, TravelMode.CONSUMED, true);
-            }
-            return new Outcome.Done("at=" + GameplayLog.at(body.position()));
+            return landed(body);
         }
         return new Running(flight.size() - air, TravelMode.CONSUMED);
+    }
+
+    private Progress landed(YukkuriEntity body) {
+        if (!more) return new Outcome.Done("at=" + GameplayLog.at(body.position()));
+        if (!aboard) { aboard = true; path = null; leg = 0; }
+        else leg++;
+        launched = false;
+        crouch = air = 0;
+        startTick = body.level().getGameTime();
+        return new Running(takeoff, TravelMode.CONSUMED, true);
     }
 
     @Override public boolean interruptible() { return !launched; }

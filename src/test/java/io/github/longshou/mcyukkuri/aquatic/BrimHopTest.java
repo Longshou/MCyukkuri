@@ -13,6 +13,23 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BrimHopTest {
+    @Test void clearBankBoardsAndLeavesThroughTheBrimWithinUnchangedHopAbility() {
+        for (double size : List.of(1.0, .3)) {
+            var body = new HatSeats.Body("marisa", size, .8 * size, .6 * size);
+            var seat = HatSeats.admit(1, body, size == 1, List.of());
+            var bank = new Vec(-HullBounds.RADIUS - .05 - body.width() / 2 - .05, HullBounds.WATERLINE, 0);
+            var ability = AbilityMath.compute(new AbilityMath.Inputs(size, 100, 20, 20, 0, false, true, false, false, 0),
+                    AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
+            assertTrue(seat.sub(bank).hlen() > ability.hopReach());
+            for (var ends : List.of(List.of(bank, seat), List.of(seat, bank))) {
+                var path = HopPath.solve(ends.getFirst(), ends.getLast(), HullBounds.brimStops(size), (a, b) -> ArcSolver.lowest(a, b,
+                        ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)));
+                assertNotNull(path, "size=" + size + " from=" + ends.getFirst());
+                assertTrue(path.size() > 1);
+            }
+        }
+    }
+
     @Test void hideUsesOneShortArcOnTheBraidSide() {
         var child = new HatSeats.Body("marisa", .3, .24, .18);
         var parent = new HatSeats.Body("marisa", 1, .8, .6);
@@ -70,6 +87,7 @@ class BrimHopTest {
     }
 
     private static boolean clear(Vec from, List<Vec> points) {
-        return points.stream().map(from::add).allMatch(p -> p.y() >= HullBounds.surface(p.hlen()) - .05);
+        return points.stream().map(from::add).allMatch(p -> !Double.isFinite(HullBounds.surface(p.hlen()))
+                || p.y() >= HullBounds.surface(p.hlen()) - .05);
     }
 }

@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
+import java.util.List;
+import java.util.stream.IntStream;
 
 /** The round hull's authored dimensions, in blocks at its exported scale; origin at the brim. */
 public final class HullBounds {
@@ -13,6 +15,10 @@ public final class HullBounds {
             RADIUS = DATA.number("brim.outer_radius"), EDGE = DATA.number("brim.edge_y");
 
     private HullBounds() {}
+
+    public static List<Vec> brimStops(double growth) {
+        return IntStream.range(0, 24).mapToObj(i -> brim(growth, i * Math.PI / 12)).toList();
+    }
 
     /** A young's underside on the authored brim ring, in blocks at captain growth one. */
     public static Vec brim(double growth, double bearing) {

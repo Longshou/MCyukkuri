@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -13,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -187,8 +187,11 @@ final class Waters {
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)
                     || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
-            var captain = HatSeats.captain(hatAt(e, body), HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
-            if (Hop.reaches(body, stand, captain)) return e;
+            var frame = new HostFrame(hatAt(e, body), HatScale.of(body) / 16.0,
+                    (float) Math.toRadians(180 - e.yaw() - HullBounds.BOARDING_YAW), 0, 0);
+            var stops = HullBounds.brimStops(body.growthScale() * body.getScale() * HullBounds.SCALE / HatScale.of(body)).stream()
+                    .map(p -> new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT)).toList();
+            if (Hop.entry(body, stand, frame, stops) != null) return e;
         }
         return null;
     }

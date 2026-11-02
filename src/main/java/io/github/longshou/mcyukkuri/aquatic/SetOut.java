@@ -36,9 +36,9 @@ import net.minecraft.world.phys.Vec3;
  * Setting out (出航; HARD, a short commitment only danger breaks): with her stick (tucked in the hat, or
  * one picked up nearby) she walks to a bank edge beside calm water with room for the hull, sets her hat down on the water
  * ({@code PlaceProp} in water mode, {@code hat_off_self_aq}), and the family gets aboard: a young that hops boards by its own
- * {@code board_parent} desire. She loads dependent young from the bank into their seats, then boards last.
+ * {@code board_parent} desire. She loads dependent young from the near brim, then moves to her seat.
  * Sleeping young, those in the water and those without a seat stay behind; a failed fetch ends this setting out. She gathers
- * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to the planned captain seat,
+ * responsive young at the bank first; the hat is set down at a dry stand with her own hop reach to its brim,
  * and she approaches a wandering child on foot before lifting it.
  */
 final class SetOut implements Intent {
@@ -68,8 +68,8 @@ final class SetOut implements Intent {
 
     @Override public boolean satisfied() {
         var hat = AquaticLife.hat(owner);
-        return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat) && AquaticLife.carried(owner) == null
-                && AquaticLife.young(owner).stream().allMatch(y -> AquaticLife.aboard(y, hat) || staying(y) != null);
+        return AquaticLife.afloat(hat) && hat.seated(owner) && AquaticLife.carried(owner) == null
+                && AquaticLife.young(owner).stream().allMatch(y -> hat.seated(y) || staying(y) != null);
     }
 
     /** Why this young stays ashore now, or null. */
@@ -136,7 +136,7 @@ final class SetOut implements Intent {
         if (!AquaticLife.afloat(hat)) return null;
         var dependent = dependentAshore(hat);
         if (!dependent.isEmpty()) return Ferry.loadFromBank(owner, hat, dependent.getFirst(), beckoning);
-        if (!AquaticLife.aboard(owner, hat)) return Ferry.hopAboard(owner, hat, beckoning);
+        if (!hat.seated(owner)) return Ferry.hopAboard(owner, hat, beckoning);
         // a second call means the first went unanswered: those not aboard by now stay
         if (calls++ > 0) for (var y : AquaticLife.young(owner))
             if (!AquaticLife.aboard(y, hat) && staying(y) == null) excused.put(y.getUUID(), "did_not_board");
@@ -149,7 +149,7 @@ final class SetOut implements Intent {
         @Override public Commitment commitment() { return Commitment.HARD; }
         @Override public boolean satisfied() {
             var hat = AquaticLife.hat(owner);
-            return AquaticLife.afloat(hat) && AquaticLife.aboard(owner, hat);
+            return AquaticLife.afloat(hat) && hat.seated(owner);
         }
         @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
         private List<Supplier<Step>> derive() {
@@ -170,7 +170,7 @@ final class SetOut implements Intent {
         var stand = edge.stand(owner.getBbWidth());
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)),
                 () -> new Step.Do(new Face(edge.yaw())),
-                // Moor diagonally: both seats clear the bank and remain within their riders' hop reach.
+                // Keep the whole hull clear of the bank; boarding reaches its supported brim first.
                 () -> new Step.Do(new PlaceProp(new HatProp(owner, true, true), Waters.hatAt(edge, owner), edge.yaw() + (float) HullBounds.BOARDING_YAW)));
     }
 

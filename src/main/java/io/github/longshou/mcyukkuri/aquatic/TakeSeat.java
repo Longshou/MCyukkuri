@@ -26,8 +26,7 @@ final class TakeSeat implements Intent {
     /** Done only once the hop is over and it is at the hat's seat with that seat really available: the shared checks, combined. */
     @Override public boolean satisfied() {
         if (body.getVehicle() != hat || body.motor().current() instanceof Hop) return false;
-        var seat = hat.seatDestination(body);
-        return seat != null && seat.local().equals(hat.riders().local(body.getUUID())) && seat.available(body);
+        return hat.seated(body);
     }
     @Override public List<Method> methods() {
         return List.of(Plan.of(id(), () -> body.getVehicle() != hat ? null : List.of(() -> new Step.Do(new Hop(hat)))));

@@ -33,6 +33,7 @@ public final class Climb implements Action {
     private int t, pullStart, pullEnd;
     private long startTick;
     private double rise, top;
+    private Hop seating;
 
     private Climb(SurfaceHost host, Vec3 edge, Vec3 stand) { this.host = host; this.edge = edge; this.stand = stand; }
 
@@ -72,7 +73,8 @@ public final class Climb implements Action {
         return Feasibility.pass();
     }
 
-    @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
+    @Override public MotionPose pose() { return seating == null ? new MotionPose(CLIP, startTick, false) : seating.pose(); }
+    @Override public boolean interruptible() { return seating == null || seating.interruptible(); }
 
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
@@ -84,6 +86,7 @@ public final class Climb implements Action {
     }
 
     @Override public Progress tick(YukkuriEntity body) {
+        if (seating != null) return seating.tick(body);
         if (host != null && host.entity().isRemoved()) return Outcome.of(Reason.TARGET_GONE, 0, "host_gone");
         String slip = slip();
         if (slip != null) return Outcome.of(Reason.SLIPPED, 0, slip);
@@ -101,8 +104,11 @@ public final class Climb implements Action {
                 return Outcome.of(Reason.NO_SUPPORT, 0, "off_stand at=" + GameplayLog.at(body.position()) + " stand=" + GameplayLog.at(stand));
             return new Outcome.Done("on_bank at=" + GameplayLog.at(body.position()) + " support=" + GameplayLog.at(stand));
         }
-        return new SeatTarget(host, stand).land(body, "climb")
-                ? new Outcome.Done("aboard local=" + stand) : Outcome.of(Reason.NO_ROOM, 0, "landing_refused");
+        if (!new SeatTarget(host, stand).land(body, "climb")) return Outcome.of(Reason.NO_ROOM, 0, "landing_refused");
+        if (host.seatDestination(body) == null || host.seated(body)) return new Outcome.Done("aboard local=" + stand);
+        seating = new Hop(host);
+        seating.start(body);
+        return new Running(1, TravelMode.CONSUMED, true);
     }
 
     @Override public String startDetail() {

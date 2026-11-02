@@ -39,7 +39,7 @@ final class Follow implements Intent {
 
     @Override public boolean satisfied() {
         return switch (kind) {
-            case BOARD -> AquaticLife.aboard(young, hat);
+            case BOARD -> hat.seated(young);
             case ASHORE -> AquaticLife.ashore(young);
         };
     }

@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
+import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -88,6 +89,7 @@ public final class EscapeWater implements Intent {
     @Override public String id() { return "escape_water"; }
 
     @Override public boolean satisfied() {
+        if (body.getVehicle() instanceof SurfaceHost host && host.seatDestination(body) != null) return host.seated(body);
         return body.isPassenger() || !body.isInWaterOrBubble() && !(body.motor().current() instanceof Climb)
                 && SurfaceApproach.stands(body, body.position());
     }
