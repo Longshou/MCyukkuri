@@ -350,9 +350,11 @@ _SLAVE = '@e[tag=scn_slave,distance=..70,limit=1]'
 _HARSH = '@e[type=#mcylab:yukkuri,tag=!scn_slave,distance=..70]'
 _COLONY_RELIEVES = 'execute as @e[type=#mcylab:yukkuri,distance=..30,limit=1,sort=random] run yukkuri status set @s needs.bladder 90'
 # A finite, reachable opening stock for the whole exhibit colony; nothing is replenished during the run.
-_PIT_FOOD = [item('minecraft:apple', 32, -4, 4), item('minecraft:apple', 32, 4, 4)]
+_PIT_FOOD = [item('minecraft:apple', 32, -4, 4), item('minecraft:apple', 32, 4, 4),
+             item('minecraft:apple', 32, -4, -4), item('minecraft:apple', 32, 4, -4)]
 # These exhibits isolate the adult pit/social loop from the separate child-care pressure system.
-_PIT_GROWN = [Retry('execute as @e[type=#mcylab:yukkuri,distance=..70,nbt=!{YukkuriFamily:{Stage:"ADULT"}}] run yukkuri status set @s growth.age_ticks 336000', _PIT_ADULTS, tries=1, first=100)]
+_PIT_GROWN = [Retry('execute as @e[type=#mcylab:yukkuri,distance=..70,nbt={YukkuriFamily:{Stage:"BABY"}}] run yukkuri status set @s growth.age_ticks 336000', _PIT_ADULTS, tries=1, first=100),
+              Retry('execute as @e[type=#mcylab:yukkuri,distance=..70,nbt={YukkuriFamily:{Stage:"JUVENILE"}}] run yukkuri status set @s growth.age_ticks 336000', _PIT_ADULTS, tries=1, first=101)]
 add('settle_pit_slave', 'biomes', '聚落嗯嗯奴隶坑', '嗯嗯奴隶',
     '同一处山脚小群（固定成员：首领、一家三口、一家两口），入住约 6 秒后无子女的族长失去头饰并成为嗯嗯奴隶（只改群内身份，不指定行为）：看它被留在南边的嗯嗯坑里，被带出坑（如清扫指派）后自己走回；'
     '饿了（营养≤50）才从坑里的嗯嗯方块取走一份吃掉，没有排泄物就真的挨饿；其他成员去坑边排泄时，在场的严厉成员会露出嫌恶、奴隶含泪并弄脏。'
