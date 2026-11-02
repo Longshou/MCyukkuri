@@ -450,7 +450,8 @@ public final class SurfaceApproach {
 
     /** The straight last step to {@code destination} is clear of blocks and of the partner. */
     private static boolean direct(YukkuriEntity actor,Vec3 destination,AABB body){
-        return clearOf(actor,actor.position(),destination,body)&&clearLastStep(actor,destination);
+        var step=aim(actor,destination,false);
+        return step!=null&&clearOf(actor,actor.position(),step,body)&&clearLastStep(actor,step);
     }
 
     private static Vec3 aim(YukkuriEntity actor,Vec3 destination,boolean moving){

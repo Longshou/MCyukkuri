@@ -426,7 +426,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                         e.getUUID(), e.getId(), turn.side(), GameplayLog.at(at), GameplayLog.at(to));
             turnId = turn.id(); turnSide = turn.side(); turnTick = now;
         }
-        return SurfaceApproach.floor(walker, new Vec3(turn.x(), to.y, turn.z()));
+        var corner = new Vec3(turn.x(), to.y, turn.z());
+        double length = at.distanceTo(corner);
+        return SurfaceApproach.floor(walker, at.lerp(corner, Math.min(1, 1 / length)));
     }
 
     /** A direct steer stalled against a footprint just now: the surface approach then plans a route round it. */
