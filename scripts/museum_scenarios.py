@@ -325,7 +325,8 @@ add('sleep', 'meadow', '回窝睡觉', '困了回窝', '灵梦困了，自己走
                expect=[r'\[sleep\] [^\n]*occupancy=INSIDE_SUPPORTED[^\n]*doorway=\(',
                        r'\[home\] [^\n]* nest left [^\n]*doorway=\(',
                        r'\[home\][^\n]*bed crossing[^\n]*direction=in side=north opening=true',
-                       r'\[home\][^\n]*bed crossing[^\n]*direction=out side=north opening=true'], verify=_sleep_doorway_verify))
+                       r'\[home\][^\n]*bed crossing[^\n]*direction=out side=north opening=true'],
+               readout=[f'yukkuri status {sel("a")} raw'], verify=_sleep_doorway_verify))
 
 add('fatigue', 'weather', '困倦、原地打盹与惊醒', '困倦惊醒',
     '前排胆量10／90、精力0，原地睡约12／28秒；后排精力20，缓慢并打盹1–3秒，两次间隔至少15秒、平均约32秒（“读短打盹”的 gap 为剩余间隔）。用天气按钮下雨或手动轻击正在睡的个体，应立即醒来且困值最多50。睡着时捕食种靠近不会被感知，实际攻击仍唤醒',
@@ -1600,7 +1601,7 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
                forbid=[r'\[home\][^\n]* assignment refused\b', r'\[family\][^\n]* task stopped task=SEARCH target=null\b',
                        r'\[home\][^\n]*bed crossing[^\n]*opening=false', r'\[home\][^\n]*nest_not_inside\b',
                        r'\[home\][^\n]*reason=doorway_unreachable\b'],
-               readout=[f'yukkuri status {sel(kind + "_parent")} raw' for kind, _, _, _ in _carry_families],
+               readout=['yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw'],
                verify=_carry_verify))
 
 # ---- commodification
