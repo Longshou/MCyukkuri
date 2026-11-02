@@ -12,7 +12,7 @@
 
 `python scripts/capture_museum.py [--worktree <工作树>] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
 
-场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前增加离地高度偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
+场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
 
 截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。
 

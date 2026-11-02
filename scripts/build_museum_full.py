@@ -274,9 +274,11 @@ def build_pack(world):
                 vdz = -abs(vdz)
                 yaw = 0
             # The player stands on whatever the column holds (hill, bank), never inside it.
-            height = s.vantage[3] if len(s.vantage) > 4 else 0
             pitch = s.vantage[-1] if len(s.vantage) > 3 else 20
-            fn(f'view/{s.id}', [f'execute positioned {ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves run tp @s ~ ~{height} ~ {yaw} {pitch}'])
+            view = f'execute positioned {ax + vdx + .5} {FEET} {az + vdz + .5} positioned over motion_blocking_no_leaves run tp @s ~ ~ ~ {yaw} {pitch}'
+            if len(s.vantage) > 4:
+                view = f'tp @s {ax + vdx + .5} {FEET + s.vantage[3]} {az + vdz + .5} {yaw} {pitch}'
+            fn(f'view/{s.id}', [view])
             start += [f'function {NS}:view/{s.id}',
                       'tellraw @s ' + js([{'text': '到了。', 'color': 'gray'},
                                           {'text': ' [回观察台]', 'color': 'aqua', 'clickEvent': {'action': 'run_command', 'value': f'/function {NS}:go/{f.id}'}},
