@@ -66,7 +66,7 @@ public final class NestDoorway {
         for (var pos : BlockPos.betweenClosed(BlockPos.containing(point).offset(-1,-1,-1), BlockPos.containing(point).offset(1,0,1))) {
             var bed=bed(actor,pos); if(bed==null)continue;
             var d=shape(bed);var p=point.subtract(bed.centre());
-            if(Math.abs(p.x)<d.inner()&&Math.abs(p.z)<d.inner()
+            if(Math.abs(p.x)<d.outer()&&Math.abs(p.z)<d.outer()
                     ||Math.abs(p.x)+Occupancy.foot(actor.getBbWidth())<=d.opening()+.02
                     &&p.z*d.side()>=d.inner()&&p.z*d.side()<d.outer()+actor.getBbWidth()*.5+.03)return bed;
         }
@@ -94,13 +94,13 @@ public final class NestDoorway {
             if (bed == null || !seen.add(bed.getBlockPos())) continue;
             var centre = bed.centre(); var door = shape(bed);
             double x0 = from.x - centre.x, z0 = from.z - centre.z, x1 = to.x - centre.x, z1 = to.z - centre.z;
-            boolean was = Math.max(Math.abs(x0), Math.abs(z0)) < door.inner();
-            boolean now = Math.max(Math.abs(x1), Math.abs(z1)) < door.inner();
+            boolean was = Math.max(Math.abs(x0), Math.abs(z0)) < door.outer();
+            boolean now = Math.max(Math.abs(x1), Math.abs(z1)) < door.outer();
             if (was == now) continue;
-            double t = (door.side() * door.inner() - z0) / (z1 - z0), x = x0 + t * (x1 - x0);
+            double t = (door.side() * door.outer() - z0) / (z1 - z0), x = x0 + t * (x1 - x0);
             boolean opening = t >= 0 && t <= 1 && Math.abs(x) + Occupancy.foot(actor.getBbWidth()) <= door.opening() + .02;
-            var hollow=new AABB(centre.x-door.inner(),centre.y-1,centre.z-door.inner(),centre.x+door.inner(),centre.y+1,centre.z+door.inner());
-            boolean driven=drive!=null && (was ? !hollow.contains(drive) : hollow.clip(from,drive).isPresent());
+            var footprint=new AABB(centre.x-door.outer(),centre.y-1,centre.z-door.outer(),centre.x+door.outer(),centre.y+1,centre.z+door.outer());
+            boolean driven=drive!=null && (was ? !footprint.contains(drive) : footprint.clip(from,drive).isPresent());
             GameplayLog.event(actor, "home", "bed crossing nest={} direction={} side={} opening={} source={} from={} at={} drive={}", bed.getBlockPos(),
                     now ? "in" : "out", door.side() < 0 ? "north" : "south", opening, driven?"walk":"physics",
                     GameplayLog.at(from), GameplayLog.at(to), drive==null?"none":GameplayLog.at(drive));
