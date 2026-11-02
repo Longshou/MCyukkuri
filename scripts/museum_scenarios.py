@@ -40,7 +40,7 @@ class Retry:
 
 class Scenario:
     def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='先按“清空本场地”，再重新生成',
-                 asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), smoke=None):
+                 asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), smoke=None, capture=None):
         self.id, self.field, self.title, self.hint = sid, field, title, hint
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
         self.lines, self.give, self.env = surface_demo_lines(sid,lines), list(give), env or {}
@@ -54,6 +54,7 @@ class Scenario:
         self.vantage = vantage         # (dx, dz) from the anchor where the starting player is put (None: stay on the deck)
         self.reads = list(reads)       # (caption, command) readouts that belong to this scenario
         self.smoke = smoke             # optional {ticks, expect, forbid}; runner only, never emitted into the pack
+        self.capture = capture if capture is not None else dict(shots=(1, 40, 200, 600), sequences=((60, 160, 2),))
         self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
 
     @property
@@ -276,6 +277,7 @@ add('settle_pit', 'biomes', '聚落嗯嗯坑', '嗯嗯坑',
     late=[Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=200),
           Retry(f'execute as {_PIT_ADULTS} run yukkuri status set @s needs.bladder 90', _PIT_ADULTS, tries=1, first=1600)],
     reads=[*_PIT_READS, ('读一只成员的便意', 'yukkuri status @e[tag=scn_lead,limit=1,distance=..40] raw')],
+    capture=dict(shots=(1, 40, 200, 600, 1600, 2000), sequences=((240, 440, 2), (1640, 1740, 2))),
     smoke=dict(ticks=2600, expect=[r'\[needs\][^\n]* toilet pit trip start\b'],
                forbid=[r'\[body\][^\n]* invariant\b'], verify=pit_trip))
 
@@ -1550,6 +1552,7 @@ add('carry_home', 'family', '亲代运输·把走远的赤油带回家', '亲代
     '约 30 秒内开始抬起', _carry_lines, env=DAY, spot='carry_home', vantage=(0, 6),
     note='孩子离窝超过 4 格即触发找回（purpose=RETRIEVE）；是否接起由亲油自己的照护决定，不指定 Goal。日志 [family] carry lift started／carry pickup hold=brim／mouth／tail_left／tail_right／carry put down。',
     reads=[('读承托状态（home.family_state 的 carry=）', 'yukkuri status @e[type=#mcylab:yukkuri,tag=scn,distance=..48] raw')],
+    capture=dict(shots=(1, 40, 600, 1200), sequences=((100, 300, 2), (600, 700, 2))),
     smoke=dict(ticks=3600,
                expect=[*(rf'\[family\] {kind} #[^\n]* carry lift started\b' for kind, _, _, _ in _carry_families),
                        r'\[family\] marisa #[^\n]* carry pickup hold=brim\b',
@@ -1781,6 +1784,7 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
            Retry('data merge entity @e[tag=fast_push,limit=1] {Motion:[-0.65d,0d,0d]}', sel('fast'), tries=1, first=40)],
      note='木船只在初态给速度，之后按真实碰撞运动；读 trigger=impact、value 与 capsizes。近处帽船 capsizes=0，远处帽船只记一次猛撞翻覆。',
      reads=_HULL_READS + [('读猛撞船主', f'yukkuri status {sel("fast")} raw')],
+     capture=dict(shots=(1, 40, 300, 600), sequences=((60, 200, 2),)),
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],

@@ -6,7 +6,11 @@
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏；更新与旧包清理规则见[AGENTS.md](../AGENTS.md#ci-运行包更新)，在实际游玩的机器执行。
 
-`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。
+`scripts/smoke_museum.py`：用法与自查边界见[开发命令](../AGENTS.md#开发命令)。与截图共用 `headless_server.require_closed`：仅拦截游戏目录在 `.local/experimental-map/museum/` 内的客户端，或 `play-museum/process.json` 记录且启动时间吻合的 PID；独立截图客户端与冒烟服务器可并行。
+
+`python scripts/capture_museum.py [--worktree <工作树>] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
+
+截图运行独占主检出 `.local/captures/capture.lock` 的文件锁；后来的截图命令等待前一次结束后自动运行，冒烟不取此锁。
 
 
 

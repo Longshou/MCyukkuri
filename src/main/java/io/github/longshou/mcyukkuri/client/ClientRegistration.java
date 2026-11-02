@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.client.aquatic.HullLarderRenderer;
 import io.github.longshou.mcyukkuri.client.aquatic.HullWaterMask;
+import io.github.longshou.mcyukkuri.client.capture.MuseumCapture;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -16,6 +17,8 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
@@ -24,6 +27,10 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 @Mod(value = MCYukkuri.MOD_ID, dist = Dist.CLIENT)
 public final class ClientRegistration {
     public ClientRegistration(IEventBus modBus, ModContainer container) {
+        if (Boolean.getBoolean("mcyukkuri.capture")) {
+            NeoForge.EVENT_BUS.addListener(RegisterClientCommandsEvent.class, MuseumCapture::commands);
+            NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, MuseumCapture::frame);
+        }
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, "mcyukkuri-client.toml");
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, ClientEvents::registerRenderers);
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, PlacedHatRenderer::register);

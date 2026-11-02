@@ -31,7 +31,19 @@ def is_client(command):
                      r'|\bnet\.minecraft\.client\.main\.Main\b', command or '', re.IGNORECASE) is not None
 
 
+def is_museum_client(row, museum_pid):
+    if row['ProcessId'] == museum_pid:
+        return True
+    command = row['CommandLine'] or ''
+    game_dir = re.search(r'(?:^|\s)--gameDir(?:=|\s+)(?:"([^"]+)"|(\S+))', command, re.IGNORECASE)
+    if not is_client(command) or game_dir is None:
+        return False
+    path = Path(game_dir[1] or game_dir[2])
+    return path.is_absolute() and path.resolve().is_relative_to(COMMON / '.local/experimental-map/museum')
+
+
 def require_closed():
+    """Protect the user's museum; isolated capture clients and smoke servers may coexist."""
     query = ('$ErrorActionPreference = "Stop"; '
              '[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false); '
              'ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_Process '
@@ -39,9 +51,16 @@ def require_closed():
              '| Select-Object Name,ProcessId,CommandLine)')
     rows = json.loads(subprocess.check_output(
         ['powershell.exe', '-NoProfile', '-Command', query], encoding='utf-8'))
-    running = [f'{row["Name"]} PID={row["ProcessId"]}' for row in rows if is_client(row['CommandLine'])]
+    record = COMMON / '.local/experimental-map/play-museum/process.json'
+    museum_pid = None
+    if record.is_file():
+        session = json.loads(record.read_text(encoding='utf-8-sig'))
+        # Launcher timestamps are .NET ticks (year 1); Win32 FILETIME starts in 1601. Reject reused PIDs.
+        if process_started(session['pid']) == int(session['startedTicks']) - 504911232000000000:
+            museum_pid = session['pid']
+    running = [f'{row["Name"]} PID={row["ProcessId"]}' for row in rows if is_museum_client(row, museum_pid)]
     if running:
-        raise RuntimeError('Close Minecraft client before running headless checks: ' + ', '.join(running))
+        raise RuntimeError("Close the user's museum client before running checks: " + ', '.join(running))
 
 
 def read_args_file(path):

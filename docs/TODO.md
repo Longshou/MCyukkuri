@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 宠物窝只从入口进出 | `.worktrees/fb-bed-entrance` | 宠物窝入口、入窝／离窝接近路线 |
-| 试玩场自动截图（后台客户端） | `.worktrees/fb-capture` | `scripts/capture_museum.py`、客户端截图调试命令 |
 | 场景布置校验与群系化重排（反馈 1、3、6、9） | `.worktrees/fb-scene-layout` | `scripts/museum_*.py`、场景校验脚本 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
