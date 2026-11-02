@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public final class Detour {
                 points.add(b.at(u * (b.a + room[i] + EPS), v * (b.b + room[i] + EPS)));
         }
         double[] distance = new double[points.size()];
-        java.util.Arrays.fill(distance, Double.POSITIVE_INFINITY); distance[0] = 0;
+        Arrays.fill(distance, Double.POSITIVE_INFINITY); distance[0] = 0;
         int[] first = new int[points.size()]; boolean[] visited = new boolean[points.size()];
         for (int step = 0; step < points.size(); step++) {
             int at = -1;
