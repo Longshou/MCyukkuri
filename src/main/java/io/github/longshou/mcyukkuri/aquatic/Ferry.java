@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * The short runs of shared actions for boarding, leaving and fetching a young from the captain seat: every target
@@ -37,17 +38,13 @@ final class Ferry {
         return steps;
     }
 
-    /** The same chase and braid pickup, then the child is carried off the hull and set down on a supported stand: no seat admits it. */
-    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        var steps = chase(carrier, child);
-        steps.add(() -> act(new Grab(child)));
-        steps.add(hopAshore(carrier));
-        steps.add(() -> act(new Release(child)));
-        return steps;
+    /** From pickup reach, carry the child to the measured bank stand and release it there. */
+    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, YukkuriEntity child, Vec3 bank, Release release) {
+        return List.of(() -> act(new Grab(child)), () -> act(new Hop(bank)), () -> act(release));
     }
 
     /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
-    private static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
+    static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
                 distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));

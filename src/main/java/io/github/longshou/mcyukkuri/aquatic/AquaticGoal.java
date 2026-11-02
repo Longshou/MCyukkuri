@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.headwear.HatSeats;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.family.CareDecisionLedger;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.intent.Ask;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -225,7 +226,6 @@ final class AquaticGoal extends Goal {
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
-        else if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
         else {
             YukkuriEntity watching = null;
             String watched = null;
@@ -239,12 +239,13 @@ final class AquaticGoal extends Goal {
                         () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
                 if (fresh[0] && decision != null && !decision.accepted()) {
                     GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
-                            y.getUUID(), id, refusal == null ? "declined" : refusal, body.life().personality().protects());
+                            y.getUUID(), id, refusal, body.life().personality().protects());
                 }
                 if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); return; }
                 if ("can_sail".equals(refusal) && watching == null && body.life().personality().protects()) { watching = y; watched = id; }
             }
-            if (watching != null) out.add(watch(watching, watched));
+            if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
+            else if (watching != null) out.add(watch(watching, watched));
         }
     }
 
@@ -322,7 +323,7 @@ final class AquaticGoal extends Goal {
         Supplier<String> why = () -> "parent=" + parent.getUUID() + " parent_aboard=" + parentOn
                 + " doing=" + (running == null ? "none" : running.intent().id());
         var world = List.of(cell(hat), body.blockPosition(), parentOn);
-        if (on && parentOn) play(out, hat, world);
+        if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         // a brim is a legal place to be: back into a seat the hat admits it into and has the room for, whenever one is free
         var seat = PlayAboard.onBrim(body, hat) ? hat.seatDestination(body) : null;
         if (seat != null && seat.available(body))

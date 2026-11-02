@@ -72,6 +72,7 @@ public final class MuseumCapture {
     }
 
     private static void begin(Scene scene) {
+        Minecraft.getInstance().options.hideGui = true;
         current = scene;
         nextFrame = 0;
         FRAMES.clear();

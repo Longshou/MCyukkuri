@@ -41,6 +41,7 @@ public final class Release implements Action {
     private Feasibility planned;
     private final SurfaceHost destination;
     private SeatTarget seat;
+    private boolean released;
 
     public Release(YukkuriEntity child) { this(child, null); }
     public Release(YukkuriEntity child, SurfaceHost destination) {
@@ -55,6 +56,8 @@ public final class Release implements Action {
 
     /** The body being set down. */
     public YukkuriEntity child() { return child; }
+    /** Observed successful set-down, never merely a planned release or an already-free child. */
+    public boolean released() { return released; }
 
     @Override public Feasibility check(YukkuriEntity carrier) {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
@@ -133,6 +136,7 @@ public final class Release implements Action {
             if (!seat.land(child, "braid_set_down")) return Outcome.of(Reason.NO_CONTACT, 0, "seat_contact_lost");
             GameplayLog.event(child, "body", "seat landed host={} cause=braid_set_down", destination.entity().getUUID());
         }
+        released = true;
         return new Outcome.Done("released");
     }
 

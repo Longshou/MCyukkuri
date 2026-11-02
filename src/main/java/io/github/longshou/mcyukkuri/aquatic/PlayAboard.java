@@ -12,11 +12,9 @@ import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Face;
-import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.function.Supplier;
-import net.minecraft.world.phys.Vec3;
 
 /** A quiet seat pause then one bout of play, or cowering while danger lasts. No food transaction. */
 final class PlayAboard implements Intent {
@@ -39,12 +37,6 @@ final class PlayAboard implements Intent {
         return body.getVehicle() == hat ? new PlayAboard(body, hat, Behaviors.KID_POKE_STORES, fear) : null;
     }
 
-    /** The local brim place at {@code bearing} (degrees) for this body's growth. */
-    private static Vec3 brimSpot(YukkuriEntity body, PlacedHatEntity hat, double bearing) {
-        var p = HullBounds.brim(body.growthScale() * body.getScale() * HullBounds.SCALE / hat.hullScale(), Math.toRadians(bearing));
-        return new Vec3(p.x(), p.y(), p.z()).scale(1 / HullBounds.UNIT);
-    }
-
     void tick() { if (!body.social().greeting()) ticks++; }
 
     static double number(String key) { return DriveWeights.of(AquaticGoal.DOMAIN, key); }
@@ -56,23 +48,13 @@ final class PlayAboard implements Intent {
 
     private List<Supplier<Step>> derive() {
         if (body.getVehicle() != hat || hat.isRemoved()) return null;
-        return List.of(this::pause, this::outbound, () -> new Step.Do(new Face(hat.getYRot() - (float) bearing())),
+        return List.of(this::pause, () -> new Step.Do(new Face(hat.getYRot())),
                 this::perform, this::finish);
-    }
-
-    private boolean brimPlay() { return hiding(); }
-    private double bearing() { return brimPlay() ? number("play_hide_bearing") : 0; }
-
-    /** Cowering needs no hop: when the hide spot is out of reach it plays in place. */
-    private Step outbound() {
-        if (!brimPlay() || onBrim(body, hat) || !AquaticLife.jumper(body) || !hat.steady()) return null;
-        var hop = new Hop(hat, brimSpot(body, hat, bearing()));
-        return hop.check(body).ok() ? new Step.Do(hop) : null;
     }
 
     private Step perform() {
         if (!(hat.behavior() instanceof HullAfloat hull) || body.getVehicle() != hat
-                || !brimPlay() && onBrim(body, hat)) return finish();
+                || onBrim(body, hat)) return finish();
         int duration = hiding() ? (int) number("play_deadline") - ticks
                 : ClipMarkers.of(kind).length() * (int) number("play_loops");
         int until = ticks + duration;

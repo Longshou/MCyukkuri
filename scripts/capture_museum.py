@@ -83,6 +83,7 @@ def contact_sheet(directory):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Assemble this tree with javac against installed CI dependencies')
+    parser.add_argument('--smoke-commands', action='store_true', help='Run each scene\'s timed smoke interactions during capture')
     parser.add_argument('scenes', nargs='+', help='Museum scene IDs')
     args = parser.parse_args()
     server.require_closed()
@@ -115,8 +116,10 @@ def main():
     for scene in selected:
         start_lines = (functions / f'start/{scene.id}.mcfunction').read_text(encoding='utf-8').splitlines()
         view = next((line for line in start_lines if line.startswith(('tp @s ', 'function mcylab:view/'))), f'function mcylab:go/{scene.field}')
+        interactions = (f'function mcylab:smoke/{scene.id}/start\n'
+                        if args.smoke_commands and scene.smoke and scene.smoke.get('commands') else '')
         (functions / f'capture/{scene.id}.mcfunction').write_text(
-            f'execute as @a at @s run function mcylab:start/{scene.id}\n'
+            f'execute as @a at @s run function mcylab:start/{scene.id}\n' + interactions
             + ('execute as @a run yukkuri observe off\n' if scene.capture.get('observe') is False else ''), encoding='utf-8')
         plan.append(dict(id=scene.id, field=scene.field, ticks=capture_ticks(scene.capture),
                          chunks=sorted(builder.BY_ID[scene.field].chunks()), view=view,
@@ -127,7 +130,7 @@ def main():
     revision = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
     (output / 'run.json').write_text(json.dumps(dict(source=str(source), commit=revision, runtime=str(runtime),
         dirty=bool(subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain'])),
-        scenes=args.scenes, self_check=True), indent=2), encoding='utf-8')
+        scenes=args.scenes, smoke_commands=args.smoke_commands, self_check=True), indent=2), encoding='utf-8')
     command = client_command(runtime, java, instance, mod, output)
     server.require_closed()
     startup = subprocess.STARTUPINFO()

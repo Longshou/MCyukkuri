@@ -10,7 +10,7 @@
 
 `--layout` 读取生成初态、40 tick 初始化及场景延迟召唤后的实体包围盒、方块碰撞形状和水面。初始无支撑者须在初始化内落稳；已落稳者随后正常跳跃不算坏起点。覆盖命令生成的聚落、人员、帽船、场景道具及玩家，排除地形施工掉落物；同场地互斥按钮共用地块，群系各用所属地块。生成失败、延迟演员缺失、函数加载失败、穿模或越界均返回非零；每场 `*.layout.json` 保留读数。
 
-`python scripts/capture_museum.py [--worktree <工作树>] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
+`python scripts/capture_museum.py [--worktree <工作树>] [--smoke-commands] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按按钮入口和观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时拒绝启动。`--smoke-commands` 按场景 `smoke.commands` 的 tick 执行真实交互（如摇帽），不改行为结果；捕获窗口仍由 `capture` 决定，须覆盖待测事件。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
 
 场景 `vantage=(横向偏移,纵向偏移,朝向[,俯角])` 落在该列地面；五项形式在俯角前指定相对场地基准脚底高度的偏移，以避开屋顶与柱子。俯角默认 20 度。`capture` 的 `observe=False` 仅在截图时关闭头顶状态字，不影响普通场景读数。
 

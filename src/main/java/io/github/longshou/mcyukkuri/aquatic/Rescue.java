@@ -1,10 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.headwear.HatSeats;
-import io.github.longshou.mcyukkuri.headwear.HatScale;
-import io.github.longshou.mcyukkuri.headwear.HullBounds;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -16,9 +13,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
-import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
@@ -28,13 +23,13 @@ final class Rescue implements Intent {
     private final YukkuriEntity helper, faller;
     private final String incident;
     private final long started;
-    /** Whether this run carries the child ashore instead of lowering it into a seat. */
-    private boolean setDownAshore;
+    private final Release shoreRelease;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
         this.helper = helper;
         this.faller = faller;
         this.incident = incident;
+        shoreRelease = new Release(faller);
         started = helper.level().getGameTime();
         // The one going for the faller says so before it moves (辫子救援：招呼落水的孩子).
         helper.showReaction("teary", "braid_rescue_offer", 40);
@@ -47,22 +42,6 @@ final class Rescue implements Intent {
         if (child.childhood().canSail()) return "can_sail";
         if (AquaticLife.hat(parent) == null && !parent.life().custody().worn()) return "no_hat";
         return null;
-    }
-
-    /** Whether a seat on the hull as it is now admits the child (the lift-in way out). */
-    private static boolean seatAdmits(YukkuriEntity parent, YukkuriEntity child) {
-        var hat = AquaticLife.hat(parent);
-        double scale = (hat == null ? HatScale.of(parent) : hat.hullScale()) / HullBounds.SCALE;
-        var riders = hat == null ? new ArrayList<HatSeats.Occupant>() : new ArrayList<>(hat.seatOccupants());
-        if (hat == null || !AquaticLife.aboard(parent, hat)) riders.add(captain(parent, scale));
-        return HatSeats.admit(scale, PlacedHatEntity.seatBody(child, false), false, riders) != null;
-    }
-
-    /** The captain the rescue puts aboard before it lifts the child: the parent is the hat's owner. */
-    private static HatSeats.Occupant captain(YukkuriEntity parent, double scale) {
-        var body = PlacedHatEntity.seatBody(parent, true);
-        var at = HatSeats.admit(scale, body, true, List.of());
-        return new HatSeats.Occupant(body, new Vec(at.x(), at.y(), at.z()), true);
     }
 
     String incident() { return incident; }
@@ -85,15 +64,17 @@ final class Rescue implements Intent {
             return hat == null && !helper.life().custody().worn() ? null
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline(), List.of())));
         }
-        if (seatAdmits(helper, faller)) return Ferry.fetchAboard(helper, hat, faller);
-        // No seat admits it: carry it to the nearest bank stand within reach and set it down there (the ashore set-down).
-        if (Waters.ashore(helper) != null) { setDownAshore = true; return Ferry.fetchAshore(helper, hat, faller); }
-        return Ferry.fetchAboard(helper, hat, faller);
+        if (!BraidFetch.withinReach(helper, faller)) return Ferry.chase(helper, faller);
+        if (hat.seatDestination(faller) != null) return BraidFetch.steps(helper, faller, hat);
+        var bank = Waters.ashore(helper);
+        if (bank != null) return Ferry.fetchAshore(helper, faller, bank, shoreRelease);
+        GameplayLog.event(helper, "aquatic", "rescue blocked faller={} reason=no_seat_or_bank", faller.getUUID());
+        return null;
     }
 
     @Override public void ended(IntentRunner.Result result) {
         boolean aboard = AquaticLife.aboard(faller, AquaticLife.hat(helper));
-        String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : setDownAshore ? "set_down" : "self_climbed"
+        String outcome = result == IntentRunner.Result.DONE ? aboard ? "rescued" : shoreRelease.released() ? "set_down" : "self_climbed"
                 : result.name();
         if (faller.getVehicle() == helper) Release.now(helper, faller, true, "rescue_ended");
         AskLedger.server().ended(incident, helper.getUUID(), outcome);

@@ -2073,6 +2073,7 @@ pond('worn_hat_boat', '初航后落水·自帽自救', '帽子当船',
       yk('marisa', bank_dx(0), 0, 'c', stage='child', aquatic=True, yaw=-90, lead=True, childhood=CHILDHOOD_SAILED,
          uuid=uid('worn_hat_boat', 'c'), kin=f'Mother:{uuid_nbt(uid("worn_hat_boat", "p"))}', **pair_ready()),
       afloat('p', water_at(3, 4), True, sel('p'))], late=[shoved('c')],
+     vantage=(bank_dx(0) - 2, 1, -90, 18),
      note='谁会这样做由能力数据 hat_boat 决定（只有水生魔理沙），还要戴着帽子、会攀爬、已会操帽。日志：[intent] start id=escape_water → [method] pick method=hat_boat → [action] start id=place_prop … prop=hat → [hat] placed … water=true → [action] start id=climb → [body] mount cause=climb → [intent] end result=DONE；亲油记 rescue refused reason=can_sail protected=true 与 watch start，不能出现 rescue start。自帽上的后续 paddle 记 tool=braid。泡水伤照常扣血，但不打断摘帽、游与爬',
      reads=[('读子油', f'yukkuri status {sel("c")} raw'), ('读亲油', f'yukkuri status {sel("p")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=2400, expect=[r'\[aquatic\][^\n]* rescue refused [^\n]*reason=can_sail protected=true\b',
@@ -2116,9 +2117,10 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
       afloat('a', water_at(0, 3), True, sel_all('crew'), food=8),
       afloat('grow', water_at(6, 2), True, sel('g1'), food=8, stick=True)],
      late=[f'execute as {sel("grow")} on vehicle run tag @s add seat_reload'],
+     capture=dict(shots=(1, 40, 600, 15000), sequences=((600, 15000, 300), (8400, 9600, 4))),
      note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
           '满座留岸记 board refused hat=… reason=no_seat size=…（共享入座判定拒绝时欲望直接为 0，不再尝试跳船）；第二顶帽先记 load warning 并可见降低水线、加强轻摇，超载后才记 capsized cause=too_heavy，亲油与孩子真实落水。'
-          '孩子落水后亲油必定接手（不能再自救），但座位塞不下、岸边又不在托放范围内，托不起；孩子自己游上岸后不会再被接纳。'
+          '孩子落水后亲油接手救援；划近后按实际座位或岸边选择目的地，无可达目的地就如实中断，孩子自行上岸不算救起且不会再被接纳。'
           '0.36 子油没有自己的木棍，初航被推迟；两顶帽各八份苹果是真实有限的成长物资，成长窗覆盖 85% 警戒带到真实超载（其余乘员体重超过 (1.05×S)³），不以刚到 S 作为翻船时刻；整窗不得有人饿死。',
      reads=[('读赤油帽', f'execute as {sel("a")} on vehicle run data get entity @s Riders'),
             ('读初航体型子油', f'yukkuri status {sel("g1")} raw'), ('读超重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
@@ -2296,12 +2298,12 @@ def _rescue_smoke(sid, slot):
 
 
 pond('rescue_child', '落水·亲油救起子油', '亲油救援',
-     '亲油坐在近岸的自己的帽船里，帽里有木棍；一只 0.35 体型（低于座位穿模上限 S=0.38）、未学会跳的小子油从岸边落水。亲油只决定一次救不救：接受后连续划近，从座位转身伸辫，抓住孩子提出水面，提过帽檐再降低到前座。拒绝时孩子继续自行游泳脱险；真实阻挡仍会失败',
+     '亲油坐在近岸的自己的帽船里，帽里有木棍；一只 0.35 体型（低于座位穿模上限 S=0.38）、未学会跳的小子油从岸边落水。亲油接下救援后连续划近，从座位转身伸辫，抓住孩子提出水面，提过帽檐再降低到前座。真实阻挡仍会失败，孩子自行上岸不算救起',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, uuid=uid('rescue_child', 'a'), **pair_ready()),
       _aquatic_young('rescue_child', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('c1', .5)],
+     late=[shoved('c1', .5)], vantage=(bank_dx(0) - 2, 1, -90, 18),
      note=_INCIDENT_NOTE + '0.35 低于座位上限 S=0.38，救援落座有效。同一孩子 UUID：rescue start → grab reach=braid → carry grip → release → seat landed → rescue end result=DONE outcome=rescued aboard=true；self_climbed 只算自行脱险。' + _DESIRE_NOTE,
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
@@ -2323,15 +2325,19 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'k1')))
 
 
-pond('rescue_no_seat', '落水子油·体型超座·托不起', '超座托不起',
-     '亲油坐在自己的帽船里，0.5 体型的子油从岸边落水；孩子超过座位上限，亲油仍接下这次落水并划近，但座位塞不下、岸边又不在辫子托放范围内，只能看着它自己游回岸上',
+pond('rescue_no_seat', '满座落水·抱到岸上', '满座送岸',
+     '亲帽已有两只赤油，第三只赤油从岸边落水；亲油划近后发现座位已满，将它托起、带着跳到近岸干地，再放下。必须看见真实接起、离船和放下，孩子自己游上岸不算救起',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
-      _aquatic_young('rescue_no_seat', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.5, 211000)),
-      afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '亲油不应再拒绝不能自救的孩子（rescue refused 不得出现）；座位不接受且无岸可放时救援记 EXHAUSTED，孩子自行脱险，不算救起。',
+      *_babies(), _aquatic_young('rescue_no_seat', 'c1', bank_dx(1), 1, 'baby', 'a'),
+      afloat('a', water_at(0, 1), True, sel_all('crew'), stick=True)],
+     late=[shoved('c1', .35)], note=_INCIDENT_NOTE + '满座由两只真实乘员占据；岸边在亲油跳跃能力范围内。观察 grab → hop → release → rescue end outcome=set_down，随后孩子存活并站在干地。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*accepted=true', r'rescue start faller=',
+     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=1 [^\n]*accepted=true',
+                                    rf'carry grip [^\n]*uuid={_uuid_text("rescue_no_seat", "c1")}'
+                                    rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=hop outcome=DONE'
+                                    rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("rescue_no_seat", "a")}[^\n]* end id=release outcome=DONE detail=released'
+                                    rf'[\s\S]*rescue end result=DONE outcome=set_down faller={_uuid_text("rescue_no_seat", "c1")}',
                                     r'\[water\][^\n]* phase=\w+ -> RECOVER'],
                 forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b'],
                 verify=water_aftermath, readout=_water_readouts('a', 'c1')))
@@ -2384,25 +2390,27 @@ boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=(?:qualified|exit_wait)\b']))
 
 pond('first_voyage', '初航·子油第一次自己操帽', '子油初航',
-     '亲油先戴帽放船并坐进亲船；她处于初航欲望带的子油随后主动尝试自己的帽子：能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
-     '还没自己操过帽。晴天静水里，子油想试试自己的帽子（越大胆越想）：从岸边走到有静水和船位的地方把自己的帽子放到水面上、'
+     '亲油与处于初航欲望带的子油已坐在近岸亲帽里；子油能自己吃、会跳和学习，戴着夹有一根木棍的帽子，'
+     '还没自己操过帽。晴天静水里，子油想试试自己的帽子（越大胆越想）：先从亲帽跳上岸，再走到有静水和船位的地方把自己的帽子放到水面上、'
      '跳进去，用木棍划到亲船旁两三格外的开阔水面绕一下，再划回岸边跳上岸，从岸沿把帽子收回戴上；回到岸上戴好帽子才算学会操帽，之后只乘自己的帽子，落水能自己爬回、'
-     '扶正帽子。路上翻帽或滑落是真实的：没学会的子油爬不上自己的帽子，只能在水里挣扎；已会操帽或亲船无法接纳时不再由亲油救上亲船，这次初航失败',
+     '扶正帽子。路上翻帽或滑落是真实的，这次初航失败；落水救助按功能说明的水生规则执行',
      '约 2–4 分钟（可倍速）',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=0, lead=True, uuid=uid('first_voyage', 'a'), kit='minecraft:stick',
          **{**pair_ready(), 'energy': 20}),
       _aquatic_young('first_voyage', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.34), kit='minecraft:stick', boldness=75),
-      afloat('a', water_at(0, 1), True, sel('a'))],
-     note='初态：子油实际体型 0.34，位于初航欲望带内，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油帽船已由同一放帽路径置于近岸水面，低体力歇泊；子油的初航欲望强于跟亲上船，随后留岸初航。'
-          '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=bank → [action] start id=walk（找船位）→ '
+      afloat('a', water_at(0, 1), True, sel('c1'))],
+     note='初态：子油位于初航欲望带，childhood 无 Sailed（读子油 childhood 看 Sailed），固食、跳跃与学习条件已具备，自己的帽里有真实木棍。亲油近岸低体力歇泊，子油从亲帽的真实座位开始初航。'
+          '日志：子油 [intent] start id=first_voyage（why 中 boldness、size、ratio）→ [aquatic] first_voyage start … from=parent_hat → [action] end id=hop outcome=DONE（离亲帽）→ [action] start id=walk（找船位）→ '
           '[aquatic] berth → [hat] placed … water=true kit=minecraft:stick → [action] start id=hop → [body] mount … → [aquatic] route purpose=first_voyage → '
           '[action] start id=paddle → [aquatic] first_voyage rounded → [intent] start id=come_ashore → [action] start id=hop → [action] start id=take_prop → '
           '[aquatic] first_voyage success → [childhood] sailing learned how=first_voyage。帽子漂离岸沿时子油或亲油在岸边俯身用辫子划水把帽子招回：[action] start id=beckon … → '
           '[action] end id=beckon outcome=DONE detail=at_bank（招失败后同一次不再招，改等漂近）；帽子靠岸记 [hat] moored，帽檐搭上岸沿记 [hat] beached。'
-          '落水时：[incident] open → 子油 [method] pick method=struggle（own_hat 记 cannot_sail）；已会操帽或当前体型／总载重不能由亲船接纳时才拒绝亲油救援。'
           '初航记 [aquatic] first_voyage fail … in_water=true 与 first_voyage cooldown（第二天早上前不再试）。' + _DESIRE_NOTE,
      reads=[('读子油', f'yukkuri status {sel("c1")} raw'), ('读亲油', f'yukkuri status {sel("a")} raw'), ('读最近的帽子', f'data get entity {_HAT}')],
-     smoke=dict(ticks=4800, expect=[r'\[aquatic\][^\n]* first_voyage start [^\n]*from=bank\b',
+     smoke=dict(ticks=4800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
+                                   rf'\[aquatic\][^\n]*uuid={_uuid_text("first_voyage", "c1")}[^\n]* first_voyage start [^\n]*from=parent_hat\b'
+                                   rf'[\s\S]*\[action\][^\n]*uuid={_uuid_text("first_voyage", "c1")}[^\n]* end id=hop outcome=DONE'
+                                   rf'[\s\S]*\[hat\][^\n]* placed owner={_uuid_text("first_voyage", "c1")}\b',
                                    r'\[body\][^\n]* mount [^\n]*cause=hop_contact\b',
                                    r'\[aquatic\][^\n]* first_voyage success\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled\b'], readout=[f'yukkuri status {sel("c1")} raw']))
