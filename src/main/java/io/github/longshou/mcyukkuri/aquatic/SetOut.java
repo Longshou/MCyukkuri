@@ -41,8 +41,8 @@ import net.minecraft.world.phys.Vec3;
  * and the hull follows a child along the bank if a braid gap remains at its turn.
  */
 final class SetOut implements Intent {
-    /** The whole setting out (ticks), and the longest call for the young to come aboard. */
-    private static final int DEADLINE = 2400, WAIT_YOUNG = 300;
+    /** The whole setting out, the post-launch boarding call, and the longer bank gather (ticks). */
+    private static final int DEADLINE = 2400, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 3;
 
     private final YukkuriEntity owner;
     private final long started;
@@ -121,8 +121,8 @@ final class SetOut implements Intent {
                             var current = dependentAshore(AquaticLife.hat(owner));
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
-                            gatherUntil = owner.level().getGameTime() + WAIT_YOUNG;
-                            return new Step.Wait(() -> gathered(edge) || owner.level().getGameTime() >= gatherUntil, WAIT_YOUNG + 1, Behaviors.BOAT_CALL);
+                            gatherUntil = owner.level().getGameTime() + GATHER_YOUNG;
+                            return new Step.Wait(() -> gathered(edge) || owner.level().getGameTime() >= gatherUntil, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
                         });
             }
             if (edge != null && gatherUntil != 0) {
