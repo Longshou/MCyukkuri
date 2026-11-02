@@ -42,7 +42,7 @@ import net.minecraft.world.phys.Vec3;
  */
 final class SetOut implements Intent {
     /** The whole setting out, the post-launch boarding call, and the longer bank gather (ticks). */
-    private static final int DEADLINE = 2400, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 3;
+    private static final int DEADLINE = 2400, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
 
     private final YukkuriEntity owner;
     private final long started;
