@@ -1845,7 +1845,8 @@ pond('hat_current', '单向缓流·只漂移', '缓流漂移',
      reads=_HULL_READS,
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* scenario afloat prepared'], verify=current_drift,
-                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
+                forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b',
+                        r'\[body\][^\n]* death settled into remains'], readout=_HULL_READOUT))
 
 
 def water_aftermath(window):

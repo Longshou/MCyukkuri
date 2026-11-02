@@ -16,6 +16,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.scores.ScoreHolder;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
@@ -23,7 +25,7 @@ import org.lwjgl.glfw.GLFW;
 
 /** Opt-in render-target recorder. Scene actions still run through the museum's normal start functions. */
 public final class MuseumCapture {
-    private record Scene(String id, String field, int[] ticks, int[][] chunks, String view) {}
+    private record Scene(String id, String field, int[] ticks, int[][] chunks, String view, String[] reads) {}
     private record Frame(int requested, long tick, double seconds, String file, boolean visible, boolean focused) {}
     private static final Gson JSON = new Gson();
     private static final Path ROOT = Path.of(System.getProperty("mcyukkuri.capture.output"));
@@ -64,7 +66,7 @@ public final class MuseumCapture {
     private static int manual(int[] ticks) {
         if (current != null) throw new IllegalStateException("A capture is already running");
         Minecraft mc = Minecraft.getInstance();
-        begin(new Scene("manual-" + System.currentTimeMillis(), "", ticks, new int[0][], ""));
+        begin(new Scene("manual-" + System.currentTimeMillis(), "", ticks, new int[0][], "", new String[0]));
         start = CompletableFuture.completedFuture(mc.level.getGameTime());
         return 1;
     }
@@ -147,6 +149,23 @@ public final class MuseumCapture {
         }
         if (nextFrame != current.ticks.length || WRITES.stream().anyMatch(write -> !write.isDone())) return;
         WRITES.forEach(CompletableFuture::join);
+        Scene completed = current;
+        var server = mc.getSingleplayerServer();
+        var observer = mc.player.getUUID();
+        // Direct commands retain their output; scheduled functions suppress it. Never open the readout GUI here.
+        server.submit(() -> {
+            var source = server.getPlayerList().getPlayer(observer).createCommandSourceStack().withPermission(4)
+                    .withSource(new CommandSource() {
+                        public void sendSystemMessage(Component message) {
+                            LogUtils.getLogger().info("[capture-read] scene={} observer={} tick={} {}",
+                                    completed.id, observer, server.overworld().getGameTime(), message.getString());
+                        }
+                        public boolean acceptsSuccess() { return true; }
+                        public boolean acceptsFailure() { return true; }
+                        public boolean shouldInformAdmins() { return false; }
+                    });
+            for (String command : completed.reads) server.getCommands().performPrefixedCommand(source, command);
+        }).join();
         try {
             Files.writeString(ROOT.resolve(current.id).resolve("frames.json"), JSON.toJson(FRAMES));
             LogUtils.getLogger().info("[capture] scene={} frames={} seconds={}", current.id, FRAMES.size(), (System.nanoTime() - began) / 1e9);
