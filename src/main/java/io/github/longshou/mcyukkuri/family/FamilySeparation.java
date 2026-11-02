@@ -71,7 +71,8 @@ final class FamilySeparation {
                 continue;
             }
             int elapsed=searching.merge(id,20,Integer::sum);
-            pressure(.12f,MindLife.BREAKING-10,"missing_child");
+            // A slave is kept in the pit and cannot go to the child: that worry stays at 不安 with its other pit pressures.
+            pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
             if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
             if(elapsed>=searchLimit()){
                 data.dismissChild(e,id);searching.remove(id);
