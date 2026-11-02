@@ -39,6 +39,7 @@ public final class Hop implements Action {
     private final Vec3 target;
     private final SurfaceHost seatHost;
     private boolean brimOnly;
+    private Vec3 entryNear;
     private SurfaceHost departure;
     private SeatTarget seat;
     private List<Vec> flight;
@@ -57,8 +58,10 @@ public final class Hop implements Action {
     public Hop(SurfaceHost host) { seatHost = host; target = null; }
     /** A destination on the host already carrying the body; the flight stays in its live frame. */
     public Hop(SurfaceHost host, Vec3 local) { seatHost = host; target = local; }
-    /** Stop at the supported entry instead of continuing to the admitted seat. */
-    public static Hop ontoBrim(SurfaceHost host) { var hop = new Hop(host); hop.brimOnly = true; return hop; }
+    /** Stop at a reachable supported entry nearest the requested work point. */
+    public static Hop ontoBrim(SurfaceHost host, Vec3 near) {
+        var hop = new Hop(host); hop.brimOnly = true; hop.entryNear = near; return hop;
+    }
     @Override public SurfaceHost host() { return seatHost != null ? seatHost : departure; }
     @Override public String id() { return ID; }
 
@@ -79,7 +82,7 @@ public final class Hop implements Action {
     }
 
     private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
-        return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(from)))
+        return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(entryNear == null ? from : entryNear)))
                 .filter(p -> !body.level().getBlockCollisions(body,
                         body.getBoundingBox().move(frame.toWorld(p).subtract(body.position())).deflate(.002)).iterator().hasNext())
                 .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p))) instanceof ArcSolver.Plan)

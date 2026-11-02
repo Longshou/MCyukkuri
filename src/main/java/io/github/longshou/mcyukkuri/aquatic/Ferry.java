@@ -63,7 +63,7 @@ final class Ferry {
             var stand = SurfaceApproach.beside(carrier, child, (carrier.getBbWidth() + child.getBbWidth()) / 2 + .15, 1.2);
             return stand == null ? null : act(Walk.around(stand, child));
         });
-        steps.addAll(hopAboard(carrier, hat, beckoning, true));
+        steps.addAll(hopAboard(carrier, hat, beckoning, child));
         return steps;
     }
 
@@ -76,12 +76,12 @@ final class Ferry {
     /** Approach the bank, then land at the host's current admitted seat. A body standing in the takeoff arc — one not riding the
      *  hull — is waited out with the boat call; a body entering after takeoff remains an honest flight failure. */
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
-        return hopAboard(body, hat, beckoning, false);
+        return hopAboard(body, hat, beckoning, null);
     }
 
-    private static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, boolean brim) {
-        if (AquaticLife.aboard(body, hat)) return brim || hat.seated(body) ? null : List.of(() -> act(new Hop(hat)));
-        Supplier<Hop> hop = () -> brim ? Hop.ontoBrim(hat) : new Hop(hat);
+    private static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, YukkuriEntity ward) {
+        if (AquaticLife.aboard(body, hat)) return ward != null || hat.seated(body) ? null : List.of(() -> act(new Hop(hat)));
+        Supplier<Hop> hop = () -> ward == null ? new Hop(hat) : Hop.ontoBrim(hat, ward.position());
         return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
                     if (hop.get().check(body).ok()) return null;
                     var edge = Waters.beside(hat, body);
