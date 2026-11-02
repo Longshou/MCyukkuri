@@ -154,8 +154,9 @@ def main():
         sys.path.insert(0, str(hat))
         import build as hat_build
         if hat_stamp.read_text(encoding='utf-8') == hat_build.source_digest(): current_media.add('aquatic-hat-seats/current.png')
-        clips_stamp = OUT/'aquatic-clips/source.sha256'   # its boat clip key frames (preview.py --clips)
-        if clips_stamp.is_file() and clips_stamp.read_text(encoding='utf-8') == hat_build.source_digest(): current_media.add('aquatic-clips/current.png')
+        for page in ('aquatic-clips', 'braid-paddle'):   # its boat clip key frames (preview.py --clips, --paddle)
+            stamp = OUT/page/'source.sha256'
+            if stamp.is_file() and stamp.read_text(encoding='utf-8') == hat_build.source_digest(): current_media.add(f'{page}/current.png')
     subprocess.run([sys.executable, str(ROOT/'art/props/family-life/preview_stem.py'),
                     '--node', args.node, '--output', str(OUT/'stem-hanging')], check=True, cwd=ROOT)
     current_media.add('stem-hanging/current.png')

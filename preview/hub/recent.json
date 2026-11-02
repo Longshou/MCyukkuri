@@ -285,6 +285,24 @@
         }
       ],
       "source": "standards/yukkuri-library/motions/variants/lore/README.md"
+    },
+    {
+      "id": "braid-paddle",
+      "label": "水生魔理沙：辫子划船",
+      "title": "水生魔理沙：辫子自然垂下、末梢向外划船",
+      "tag": "待确认",
+      "summary": "离线渲染当前导出的划桨动作（不是游戏画面）：辫子从根部垂下，下段向外伸出帽檐握住木枝；拉水时辫梢带木枝向后划，辫根只微动；回桨时辫梢向外卷起把木枝送回前方。",
+      "model": "marisa",
+      "points": [],
+      "steps": [],
+      "category": "water",
+      "gallery": [
+        {
+          "src": "braid-paddle/current.png",
+          "label": "划桨四个关键帧：船尾看辫形、辫子一侧看前后摆动"
+        }
+      ],
+      "source": "standards/yukkuri-library/motions/variants/contact-safe/README.md"
     }
   ]
 }

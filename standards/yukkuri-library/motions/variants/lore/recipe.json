@@ -16,7 +16,8 @@
     "rest_height": 2.6,
     "rest_z": 2.0,
     "rest_feather": 0,
-    "note": "Project design: the paddle stick's gate and target parameters shared by boat_paddle, hat_brim_offer and boat_nudge_young; the captain rows facing her hull's bow (Paddle.FACING: within captain_yaw degrees), the stick over the beam; a clip's own paddle block overrides keys (aim keys merge one level). The captain's mass is not stored: aquatic_tools derives it from body_geometry.json (marisa bounds) and Buoyancy.BODY_DENSITY.",
+    "curl": [4, 7, 9, 11, 12, 10],
+    "note": "Project design: the paddle stick's gate and target parameters shared by boat_paddle, hat_brim_offer and boat_nudge_young; the captain rows facing her hull's bow (Paddle.FACING: within captain_yaw degrees), the stick over the beam; the braid hangs from its root (the clip's braid_out) and `curl` bends each joint below the root outboard (degrees, braid_1 to the tuft), so the tip reaches over the gunwale (user 2026-11-02: no stiff lift or inverted U); a clip's own paddle block overrides keys (aim keys merge one level). The captain's mass is not stored: aquatic_tools derives it from body_geometry.json (marisa bounds) and Buoyancy.BODY_DENSITY.",
     "aim": {
       "degrees_per_second": 300
     }
@@ -722,7 +723,7 @@
           "closed_smile"
         ]
       ],
-      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water, the recovery lifts it out and swings it forward. Body pitch -5..+1.5, roll <= 1, a shoulder yaw twist and a drive squash leading the braid by body_lead_seconds. Braid bend and the hull gate: contact-safe/README.md.",
+      "lore": "EH22-005 braid-held stick (the real vanilla stick she picked up; yukkuri make no tools); N09 mouth-held stick is a documented alternative. Project design: the braid tuft wraps the stick's top; the power half (markers power_start..power_end) draws the lower end aft through the water with a small root swing (braid_sweep) and the lower braid turning after the stick, the recovery curls the tail further out (braid_raise, a share of paddle_shared.curl), lifting the stick out and swinging it forward. Body pitch -5..+1.5, roll <= 1, a shoulder yaw twist and a drive squash leading the braid by body_lead_seconds. Braid bend and the hull gate: contact-safe/README.md.",
       "triggers": [
         "server surface route has a real stick and a waypoint"
       ],
@@ -731,11 +732,11 @@
         "power_end": 1.0
       },
       "braid_sweep": [
-        15,
-        -9
+        6,
+        -4
       ],
-      "braid_out": 74,
-      "braid_raise": 4,
+      "braid_out": 40,
+      "braid_raise": 0.3,
       "paddle": {
         "braid_load": {
           "tension": 0.6,
@@ -3979,7 +3980,7 @@
         }
       },
       "base_pose": "boat_steady",
-      "braid_out": 80
+      "braid_out": 42
     },
     "hat_hop_up": {
       "label": "小步急跳上帽檐",
@@ -4199,7 +4200,7 @@
           "lag_seconds": 0.04
         }
       },
-      "braid_out": 74
+      "braid_out": 42
     },
     "water_held_breath": {
       "label": "被辫梢托住时喘息与小幅回应",

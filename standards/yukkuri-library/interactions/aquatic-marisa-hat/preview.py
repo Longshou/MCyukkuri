@@ -6,6 +6,7 @@ the four stores coverage tiers, all cropping the existing texture at the same te
     MCY_LOCAL=<main checkout>/.local python preview.py          # previews/aquatic-hat-seats/current.png
     MCY_LOCAL=<main checkout>/.local python preview.py --clips  # previews/aquatic-clips/current.png: key frames of the
                                                                 # boat clips (paddling, rescue reach, a 子油 splashing, hiding)
+    MCY_LOCAL=<main checkout>/.local python preview.py --paddle # previews/braid-paddle/current.png: one boat_paddle stroke
 """
 from pathlib import Path
 import math, os, sys
@@ -327,5 +328,34 @@ def clips_main():
     print(out/'current.png')
 
 
+def paddle_main():
+    """One boat_paddle stroke from the stern and from her braid side: <MCY_LOCAL or .local>/previews/braid-paddle/current.png."""
+    atlas = Atlas(); hull = S.Hull(); bounds = L.bounds(hull); T = L.tools()
+    seat = bounds['captain_seat']; cy, cz = seat['y']*16, seat['z']*16
+    hull_tris = hull.placed.copy()
+    hull_tris[:, :, 3:5] = atlas.uv('marisa/neutral', Image.fromarray(S.body().texture('neutral')), hull_tris[:, :, 3:5])
+    _, _, samples, sticks, c = T.exported('boat_paddle'); m = c['markers']; spec = T.paddle_spec(c)
+    back = m['power_end']+(c['duration']-(m['power_end']-m['power_start']))/2
+    beats = [(m['power_start'], '入水：辫子从根部垂下，下段伸出帽檐'), ((m['power_start']+m['power_end'])/2, '拉水：辫梢带着木枝向后划'),
+             (m['power_end'], '出水：木枝到了身后，辫根只微动'), (back % c['duration'], '回桨：辫梢向外卷起，把木枝往前送')]
+    views = [('从船尾看辫子的形状', (math.pi, .15, 9., (7., 4.5, 2.))), ('从辫子一侧看划水的前后摆动', (math.pi/2, .35, 11., (9., 2., 0.)))]
+    W, H = 4*450+40, 2*(330+50)+70; img = Image.new('RGB', (W, H), (250, 251, 252)); d = ImageDraw.Draw(img)
+    d.text((20, 14), '魔理沙用辫子划船：辫子自然垂下，末梢向外（离线渲染，不是游戏画面）', font=P.preview_font(28), fill=(32, 52, 64))
+    for j, (t, caption) in enumerate(beats):
+        k = int(np.argmin([abs(s-t) for s in samples])); G, dv = sticks[k]
+        a, b = G-spec['top_length']*dv+[0, cy, cz], G+spec['blade_length']*dv+[0, cy, cz]
+        stick = tube(a, b, .32); stick[:, :, 3:5] = swatch(atlas, 'stick', stick[:, :, 3:5])
+        bodies = [hull_tris, posed(S.Shape.posed('boat_paddle', samples[k], 'closed_smile'), atlas, 0, cz, cy), stick]
+        for i, (label, view) in enumerate(views):
+            shot, _ = render(bodies, [np.zeros(len(q), int) for q in bodies], atlas, view, hull)
+            x, y = 20+j*450, 70+i*380
+            if j == 0: d.text((x, y), label, font=P.preview_font(22), fill=(70, 90, 100))
+            img.paste(shot.resize((440, 306), Image.Resampling.LANCZOS), (x, y+34))
+            if i == 0: d.text((x, y+344), caption, font=P.preview_font(19), fill=(32, 52, 64))
+    out = OUT.parent/'braid-paddle'; out.mkdir(parents=True, exist_ok=True)
+    img.save(out/'current.png'); (out/'source.sha256').write_text(B.source_digest(), encoding='utf-8')
+    print(out/'current.png')
+
+
 if __name__ == '__main__':
-    clips_main() if '--clips' in sys.argv else main()
+    clips_main() if '--clips' in sys.argv else paddle_main() if '--paddle' in sys.argv else main()

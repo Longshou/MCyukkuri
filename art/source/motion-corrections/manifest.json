@@ -10,7 +10,7 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "b9433e786596fb714cd93aefad2aec672bbf4aec754949f51a967b0bc74fea4a",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "7caf134d58e91ccbd36df96b98222978e284bbe51c341f5c03da4531b7a574a0",
+  "lore_recipe_sha256": "c80bbdd263ed83c18311d5e77008803460626ef71f71990fed1b52649d584eb3",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
   "lore_author_sha256": "6a527d19920bb9a4647145c95a58e1323689425813218a6ee9ed6a0da2090e2d",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
@@ -19,14 +19,14 @@
   "hat_vessel_sha256": "e675f69b2b62ce637865db2c51d82660db8386a3bbfcffa1277f3e8b97706a80",
   "aquatic_inputs": {
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785",
-    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "7ca5b8975105f0ab65db9b3bd0efc387858e5000e434aaccb595da48ac139373"
+    "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hull_bounds/aquatic_basin_hat_turned.json": "ae9da2842895e6fb98c80548c9d55cfc3f17c7df8cd6dc04b890915145f8d444"
   },
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "3c0f7cd09ba0d9a442028359f9a9f8f8d554e2332329bdc94bf86b072d965c08",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "26aaa09c6dfebec485482fb6e31dba2ec14217fa966c0b9219c8f11c2e9befe9",
+  "runtime_sha256": "c6409ca1076e76d68ad21b7f65b05bc9fe2eec0ef47d6160a8459e203ba9e708",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",

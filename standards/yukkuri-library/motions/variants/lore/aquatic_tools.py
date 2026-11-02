@@ -230,10 +230,10 @@ def braid_rotation(action, t, c, side):
     d = c['duration']
     if action in AUTHORED: t, d = t*AUTHORED[action]/d, AUTHORED[action]
     if action == 'boat_paddle' and side > 0:
-        # The braid swings the twig forward-out at the catch, draws it aft through the water, lifts and returns.
+        # The root swings a little forward at the catch and aft through the pull (the lower braid does the rest, paddle_tracks).
         u = paddle_phase(t, c); power = u < .5; q = smooth(u/.5) if power else smooth((u-.5)/.5)
         sweep = lerp(c['braid_sweep'][0], c['braid_sweep'][1], q) if power else lerp(c['braid_sweep'][1], c['braid_sweep'][0], q)
-        return [sweep, 0, c['braid_out']+(c['braid_raise']*bump((u-.5)/.5) if not power else 0)]
+        return [sweep, 0, c['braid_out']]
     if action == 'braid_cradle_lift' and side < 0:
         return [0, 0, -(8+4*bump(t/d))]  # the braid itself follows the clip's braid_path
     if action == 'be_cradled':
@@ -406,7 +406,12 @@ def paddle_tracks(model, action, samples, tracks, c):
     load = p.get('braid_load')  # only boat_paddle pulls against the water; the held-out clips have no load window
     spec = dict(FOLLOW, load=dict(load, start=c['markers']['power_start'], end=c['markers']['power_end'])) if load else FOLLOW
     followed = braid_chain.follow(chain, {'duration': c['duration'], 'loop': c['loop'], 'tracks': tracks}, spec)
-    own = {t['bone']: t for t in followed['tracks'] if t['bone'] in chain[1:]}
+    # The braid hangs from its root and its lower joints bend outboard (`curl`, degrees per joint below the root), so it
+    # reaches over the gunwale tip first instead of lifting stiff from the head; boat_paddle's recovery curls the tail
+    # further (`braid_raise`, a share of the curl), lifting the tip out of the water as the stick swings forward.
+    lift = lambda t: 1+c['braid_raise']*bump((paddle_phase(t, c)-.5)/.5) if action == 'boat_paddle' else 1.
+    own = {t['bone']: dict(t, keys=[[k[0], *braid_chain.to_euler(braid_chain.euler(k[1:])@braid_chain.euler([0, 0, a*lift(k[0])]))] for k in t['keys']])
+           for t, a in zip(sorted((t for t in followed['tracks'] if t['bone'] in chain[1:]), key=lambda t: chain.index(t['bone'])), p['curl'])}
     tip = chain[-1]; aim = [names[n] for n in p['aim']['bones']]; share = p['aim']['shares']
     base = tracks+[own[b] for b in chain[1:] if b not in aim]
     joint_rest = np.array(bones[tip]['pivot'], float)
