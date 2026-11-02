@@ -11,7 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.Vec3;
 
-/** The single doorway to writing a body: velocity, position, facing and riding are only written here. It decides nothing: it writes what an action decided, and records it. */
+/** Writes and records a body's velocity, position, facing and riding; a straight step follows the caller's target and speed. */
 public final class Motor {
     /** No nudge may move a body further than this in one call (blocks). */
     public static final double NUDGE_MAX = 0.25;
@@ -31,7 +31,7 @@ public final class Motor {
         var v=distance>.001?delta.scale(Math.min(pace,distance)/distance):Vec3.ZERO;
         if(distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
         velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");
-        return distance<.02&&Math.abs(body.getY()-to.y)<.08;
+        return SurfaceApproach.at(body,to);
     }
 
     /** Sets an entity's velocity and marks the impulse: body propulsion, host drift or a released item. */

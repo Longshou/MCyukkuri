@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +31,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.pathfinder.PathType;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -106,9 +104,6 @@ public class CareBlock extends Block implements EntityBlock {
     @Override protected boolean isPathfindable(BlockState state, PathComputationType type) {
         // A toilet is a low step with a standing surface, not an open cell at ground height.
         return kind != Kind.TOILET && super.isPathfindable(state, type);
-    }
-    @Override public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, Mob mob) {
-        return kind == Kind.NEST && height == 0 ? PathType.FENCE : super.getBlockPathType(state, level, pos, mob);
     }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if(height>0)return box(0,0,0,16,height,16);

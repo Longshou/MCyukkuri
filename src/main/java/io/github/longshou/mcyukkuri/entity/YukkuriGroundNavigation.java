@@ -224,6 +224,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             @Override public Node getStart(){
                 if(mob instanceof YukkuriEntity actor){
                     var bed=NestDoorway.at(actor,actor.position());
+                    if(bed==null)bed=NestDoorway.doorstep(actor);
                     var door=bed==null?null:NestDoorway.stand(actor,bed);
                     if(door!=null)return getStartNode(new BlockPos(Mth.floor(door.x-entityWidth*.5+.5),Mth.floor(door.y+.5),
                             NestDoorway.shape(bed).side()>0?Mth.ceil(door.z-entityDepth*.5):Mth.floor(door.z-entityDepth*.5)));
@@ -292,9 +293,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
                 NestDoorway.observe(actor,observedGround,actor.position(),level.getGameTime()-steerTick<=1?aimed:null);
             observedGround=actor.onGround()&&!actor.isPassenger()?actor.position():null;
-            if(!isDone()&&NestDoorway.at(actor,actor.position())!=null){
+            if(!isDone()&&exitBed(speedModifier)){
                 ++tick;doStuckDetection(actor.position());
-                if(!isDone())exitBed(speedModifier);
                 return;
             }
         }
@@ -325,10 +325,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Every route leaves the bed before vanilla follows its first outside node. Direct goal walks use the same exit. */
     public boolean exitBed(double speed) {
         var actor=(YukkuriEntity)mob;var bed=NestDoorway.at(actor,actor.position());
+        boolean inside=bed!=null;
+        if(bed==null)bed=NestDoorway.doorstep(actor);
         if(bed==null)return false;
         var door=NestDoorway.stand(actor,bed);
         if(door==null){stop();GameplayLog.limited(actor,"home","exit_blocked",200,"nest exit stopped reason=doorway_unreachable nest={}",bed.getBlockPos());return true;}
-        step(Math.abs(actor.getX()-door.x)>.02?NestDoorway.inner(actor,bed,door):door,speed);
+        if(SurfaceApproach.at(actor,door))return false;
+        step(inside&&Math.abs(actor.getX()-door.x)>SurfaceApproach.ARRIVAL?NestDoorway.inner(actor,bed,door):door,speed);
         return true;
     }
 

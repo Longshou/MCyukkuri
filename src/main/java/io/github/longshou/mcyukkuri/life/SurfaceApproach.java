@@ -2,9 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
-import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.Motor;
-import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.status.Reactions;
@@ -26,6 +24,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Per-entity approach requests and supported last-step steering; navigation owns the actual path. */
 public final class SurfaceApproach {
+    /** Shared horizontal arrival tolerance (blocks); vertical slack allows the physical surface's last small step. */
+    public static final double ARRIVAL = .02;
     /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
     SurfaceApproach() {}
@@ -160,10 +160,10 @@ public final class SurfaceApproach {
         return at(actor,destination)||goal!=null&&goal!=destination&&at(actor,goal);
     }
 
-    private static boolean at(YukkuriEntity actor, Vec3 destination) {
+    public static boolean at(YukkuriEntity actor, Vec3 destination) {
         // Two actors may stop on opposite edges of this tolerance. Keep their combined error
         // inside the shared mouth envelope, rather than accepting two individually "near" bodies.
-        return Math.abs(actor.getY()-destination.y)<.08 && actor.position().subtract(destination).horizontalDistanceSqr()<.0004;
+        return Math.abs(actor.getY()-destination.y)<.08 && actor.position().subtract(destination).horizontalDistanceSqr()<ARRIVAL*ARRIVAL;
     }
 
     public static boolean canApproach(YukkuriEntity actor, Vec3 destination) {
@@ -401,15 +401,16 @@ public final class SurfaceApproach {
         destination=current.goal;
         if(navigation instanceof YukkuriGroundNavigation ground){
             var bed=NestDoorway.at(actor,destination);var here=NestDoorway.at(actor,actor.position());
-            if(here!=null&&here!=bed&&ground.exitBed(speed))return observed(actor,Result.MOVING);
+            if((bed==null||here!=null&&here!=bed)&&ground.exitBed(speed))return observed(actor,Result.MOVING);
             if(bed!=null){
                 var door=NestDoorway.stand(actor,bed,destination);
                 if(door==null)return blocked(actor,"doorway_unreachable");
-                if(here==bed||at(actor,door)){
+                var inner=NestDoorway.inner(actor,bed,door);
+                // Finish the already-issued straight step; a rim position alone never starts entry.
+                if(here==bed||at(actor,door)||Double.isFinite(ground.way(inner))){
                     navigation.stop();current.target=null;current.lastStep=null;
-                    boolean inside=FamilyNest.bedOccupancy(actor,bed.getBlockPos())==Occupancy.INSIDE_SUPPORTED;
-                    boolean arrived=ground.step(inside?destination:NestDoorway.inner(actor,bed,door),speed);
-                    return observed(actor,inside&&arrived?Result.ARRIVED:Result.MOVING);
+                    boolean arrived=ground.step(here==bed?destination:inner,speed);
+                    return observed(actor,here==bed&&arrived?Result.ARRIVED:Result.MOVING);
                 }
                 destination=door;
             }

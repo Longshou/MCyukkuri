@@ -79,7 +79,10 @@ final class LifeHome {
 
     Vec3 entrance(BlockPos nest) {
         var bed = NestDoorway.bed(o.entity(), nest);
-        if (bed != null) return NestDoorway.stand(o.entity(), bed);
+        if (bed != null) {
+            var stand = NestDoorway.stand(o.entity(), bed);
+            return stand != null && covered(BlockPos.containing(stand)) ? stand : null;
+        }
         // Wide soft burrow bedding: find a real covered approach beyond that edge; never ignore its collision.
         for (int radius = 1; radius <= 2; radius++) for (Direction direction : Direction.Plane.HORIZONTAL) {
             BlockPos pos = nest.relative(direction, radius);

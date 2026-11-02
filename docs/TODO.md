@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 宠物窝垫面判定复修 | `.worktrees/fb-bed-entrance` | `NestDoorway`、共享接近与导航、`sleep`／`carry_home` 跨界检查 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
