@@ -11,7 +11,7 @@ def main():
     html=re.sub(r'<select id="subject">.*?</select>','<select id="subject">'+''.join(f'<option value="{i}">{n}</option>'for i,n in zip(ids,names))+'</select>',html)
     html=html.replace('灵梦、魔理沙、橙、爱丽丝、帕秋莉及两种家油。','当前选用的九种圆润游戏形态。灵胖和多毛灵胖按1.5倍实际尺寸展示。')
     html=re.sub(r'<p class="note">.*?</p>','<p class="note">读取本轮游戏运行网格、表情与动作；灵胖面容、蝴蝶结及后发修正版的美术确认状态见来源登记。本页不代替实机验收。<a href="../../../art/source/rounded-runtime/README.md">接入说明</a></p>',html)
-    html=html.replace('preview-data.js','models.js')
+    html=html.replace('../../../.local/previews/standard-runtime/preview-data.js','models.js')
     script=(base/'preview.js').read_text(encoding='utf-8')
     helpers='''function transformPoint(m,p){return [0,1,2].map(r=>m[r*4]*p[0]+m[r*4+1]*p[1]+m[r*4+2]*p[2]+m[r*4+3]);}
 function inversePoint(m,p){

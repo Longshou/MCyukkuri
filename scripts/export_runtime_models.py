@@ -25,6 +25,7 @@ from runtime_animation import fit_grounded_hair
 from runtime_house_interactions import add_house_interactions
 from runtime_waddle import fit_waddle
 from runtime_house_face import fit as fit_house_face
+from runtime_preview import write as write_preview
 
 
 def read(path):
@@ -224,15 +225,10 @@ def main():
     house_only = '--house-only' in sys.argv
     if (ROOT/'art/source/rounded-runtime/manifest.json').exists() and not house_only:
         raise SystemExit('Rounded selection is active. Use export_rounded_runtime.py; this legacy seven-model exporter would overwrite selected geometry and snapshots.')
-    catalog, records = {}, {}
-    if house_only:
-        previous = (OUT/'preview-data.js').read_text(encoding='utf-8').removeprefix('const MODELS=').rstrip(';\n')
-        catalog = json.loads(previous)
-        records = read(OUT/'provenance.json')['entities']
+    records = read(OUT/'provenance.json')['entities'] if house_only else {}
     for house in ((True,) if house_only else (False, True)):
         for species in (('reimu', 'marisa') if house else ('reimu', 'marisa', 'chen', 'alice', 'patchouli')):
-            ident, model, textures, record = export(species, house)
-            catalog[ident] = {'model': model, 'textures': textures}
+            ident, model, _, record = export(species, house)
             records[ident] = record
             print(ident, len(model['weights']), 'vertices;', len(model['clips']), 'clips')
     dependencies = [ROOT / 'scripts/runtime_animation.py', ROOT / 'scripts/runtime_house_interactions.py', OUT / 'carry-motion/recipe.json', ROOT / 'scripts/runtime_waddle.py', LIB / 'geometry.py', LIB / 'ecology/house-yukkuri/mesh_geometry.py', LIB / 'ecology/house-yukkuri/config.json']
@@ -249,7 +245,7 @@ def main():
         'purpose': 'Seven selected entity models and retargeted numeric animation rigs',
         'models': {**old.get('models', {}), **records},
         'preview': relative(OUT / 'preview.html'), 'exporter': relative(Path(__file__))}, pretty=True)
-    (OUT / 'preview-data.js').write_text('const MODELS=' + json.dumps(catalog, separators=(',', ':')) + ';', encoding='utf-8')
+    write_preview()
 
 
 if __name__ == '__main__':

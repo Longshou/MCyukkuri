@@ -11,3 +11,5 @@
 | [WALKING.md](WALKING.md) | 运行步态配方 |
 
 每个模型目录保存选定 `.bbmodel`、适配骨架与 `runtime.model.json`。标准源的原始编辑骨架与适配后数字骨架不同；两者的转换配方由 [`scripts/export_runtime_models.py`](../../../scripts/export_runtime_models.py) 维护。修改适配先改配方，再更新对应快照；改标准造型时从素材库制作源重新导出。家油交互由 [`runtime_house_interactions.py`](../../../scripts/runtime_house_interactions.py) 与 `scripts/export_house_carry_motion.py` 定向更新。
+
+[preview.html](preview.html) 与 `preview.js` 是[捕食种](../predator-runtime/preview.html)和[亚种](../subspecies-runtime/preview.html)预览页共用的模板。预览数据 `preview-data.js` 由 [`scripts/runtime_preview.py`](../../../scripts/runtime_preview.py) 从本目录快照与贴图生成到 `.local/previews/standard-runtime/`，不入库；各导出器更新快照后重新生成它。

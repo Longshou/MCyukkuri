@@ -2,6 +2,7 @@
 import copy, hashlib, json
 from pathlib import Path
 from runtime_house_interactions import add_house_interactions
+from runtime_preview import write as write_preview
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'art/source/standard-runtime'
@@ -19,7 +20,7 @@ def flatten(rig,names):
         for n,channels in c['tracks'].items()for ch,keys in channels.items()]}
         for key,c in rig['behavior_clips'].items()}
 def main():
-    ledger=read(ROOT/'art/runtime-sources.json');models={};records={};checks={}
+    ledger=read(ROOT/'art/runtime-sources.json');records={};checks={}
     for ident in IDS:
         record=copy.deepcopy(ledger['models'][ident]);runtime=ROOT/record['runtime'];selected=OUT/ident
         assert sha(runtime)==sha(selected/'runtime.model.json')==record['runtime_sha256']
@@ -55,12 +56,10 @@ def main():
         checks[ident]={'input_runtime_sha256':input_hash,'runtime_sha256':sha(runtime),'rig_sha256':sha(selected/'animation-rig.json'),
             'unchanged':['rest_geometry','UV','textures','weights','bones','grip_points','common_clips_including_waddle','non_hand_behavior_tracks_outside_house_crawl'],
             'idempotence':'passed'}
-        records[ident]=record;models[ident]=model
+        records[ident]=record
     ledger=read(ROOT/'art/runtime-sources.json');ledger['models'].update(records);save(ROOT/'art/runtime-sources.json',ledger,True)
     provenance=read(OUT/'provenance.json');provenance['entities'].update(records);save(OUT/'provenance.json',provenance,True)
-    preview=OUT/'preview-data.js';catalog=json.JSONDecoder().raw_decode(preview.read_text(encoding='utf-8').split('const MODELS=',1)[1])[0]
-    for ident,model in models.items():catalog[ident]['model']=model
-    preview.write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
+    write_preview()
     save(PACKAGE/'manifest.json',{'author':'scripts/runtime_house_interactions.py','author_sha256':sha(ROOT/'scripts/runtime_house_interactions.py'),
         'recipe_sha256':sha(PACKAGE/'recipe.json'),'exporter':rel(Path(__file__)),'exporter_sha256':sha(Path(__file__)),'models':checks},True)
     print(json.dumps(checks))

@@ -12,6 +12,7 @@ SOURCE=LIB/'subspecies/predator'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 OUT=ROOT/'art/source/standard-runtime'
 PREVIEW=ROOT/'art/source/predator-runtime'
+PREVIEW_DATA=ROOT/'.local/previews/predator-runtime'
 sys.path[:0]=[str(SOURCE),str(LIB/'ecology/house-yukkuri'),str(LIB)]
 from author_species import read,save,sha,weights_for
 from mesh_geometry import vertices
@@ -70,8 +71,8 @@ def main():
     for ident in ('remilia','flandre'):
         model,textures,record=export(ident);catalog[ident]=dict(model=model,textures=textures);records[ident]=record
         print(ident,len(model['weights']),'vertices',len(model['clips']),'base clips',len(model['behavior_clips']),'flight clips')
-    PREVIEW.mkdir(parents=True,exist_ok=True)
-    save(PREVIEW/'preview-data.json',catalog)
+    PREVIEW.mkdir(parents=True,exist_ok=True);PREVIEW_DATA.mkdir(parents=True,exist_ok=True)
+    save(PREVIEW_DATA/'preview-data.json',catalog)
     save(PREVIEW/'provenance.json',dict(exporter=relative(Path(__file__)),exporter_sha256=sha(Path(__file__)),entities=records),True)
     ledger=ROOT/'art/runtime-sources.json';data=read(ledger)
     data['models']={**data.get('models',{}),**records};data['predator_preview']=relative(PREVIEW/'preview.html')

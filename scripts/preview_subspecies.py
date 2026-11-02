@@ -7,6 +7,7 @@ from export_ecology_expressions import IDS as ECOLOGY_EXPRESSIONS
 
 ROOT=Path(__file__).resolve().parents[1]; OUT=ROOT/'art/source/subspecies-runtime'; TMP=ROOT/'.local/subspecies-port/render'
 TMP.mkdir(parents=True,exist_ok=True); SHEETS=OUT/'previews/current'; SHEETS.mkdir(parents=True,exist_ok=True)
+DATA=ROOT/'.local/previews/subspecies-runtime'; DATA.mkdir(parents=True,exist_ok=True)
 manifest=json.loads((OUT/'manifest.json').read_text(encoding='utf-8')); catalog={}
 for ident,record in manifest['models'].items():
     model=json.loads((OUT/ident/'runtime.model.json').read_text(encoding='utf-8'))
@@ -16,12 +17,13 @@ for ident,record in manifest['models'].items():
     (TMP/(ident+'.rgba')).write_bytes(Image.open(OUT/ident/'textures/neutral.png').convert('RGBA').tobytes())
     for expression in ECOLOGY_EXPRESSIONS:
         (TMP/(ident+'-'+expression+'.rgba')).write_bytes(Image.open(OUT/ident/'textures'/(expression+'.png')).convert('RGBA').tobytes())
-(OUT/'preview-data.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
+(DATA/'preview-data.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';',encoding='utf-8')
 (TMP/'catalog.json').write_text(json.dumps(catalog,separators=(',',':')),encoding='utf-8')
 js=(ROOT/'art/source/standard-runtime/preview.js').read_text(encoding='utf-8').replace('textureSize:128','textureSize:model.texture_size||128')
 js=js.replace("const labels={","const labels={still:'静止',shell_sway:'壳体轻摆',shell_retract:'缩壳探出',fur_sway:'鬓毛轻摆',")
 (OUT/'preview.js').write_text(js,encoding='utf-8')
 html=(ROOT/'art/source/standard-runtime/preview.html').read_text(encoding='utf-8')
+html=html.replace('../../../.local/previews/standard-runtime/preview-data.js','../../../.local/previews/subspecies-runtime/preview-data.js')
 labels={'marisa_tsumuri':'螺壳魔理沙','reimu_wasa':'多毛灵梦','reimu_sparse':'灵梦 · 稀疏毛发','reimu_face':'灵梦 · 面部不足','reimu_bean':'灵梦 · 豆形细长','marisa_sparse':'魔理沙 · 稀疏毛发','marisa_face':'魔理沙 · 面部不足','marisa_bean':'魔理沙 · 豆形细长'}
 start=html.index('<select id="subject">');end=html.index('</select>',start)
 html=html[:start]+'<select id="subject">'+''.join(f'<option value="{k}">{labels[k]}</option>' for k in catalog)+html[end:]

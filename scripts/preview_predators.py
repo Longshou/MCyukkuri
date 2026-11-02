@@ -6,16 +6,18 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'art/source/predator-runtime'
+DATA=ROOT/'.local/previews/predator-runtime'
 SHEETS=ROOT/'standards/yukkuri-library/subspecies/predator/previews/current'
 TMP=ROOT/'.local/predators/render'
-for p in (SHEETS,TMP):p.mkdir(parents=True,exist_ok=True)
-catalog=json.loads((OUT/'preview-data.json').read_text(encoding='utf-8'))
-(OUT/'preview-data.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';\n',encoding='utf-8')
+for p in (DATA,SHEETS,TMP):p.mkdir(parents=True,exist_ok=True)
+catalog=json.loads((DATA/'preview-data.json').read_text(encoding='utf-8'))
+(DATA/'preview-data.js').write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';\n',encoding='utf-8')
 js=(ROOT/'art/source/standard-runtime/preview.js').read_text(encoding='utf-8')
 js=js.replace('textureSize:128','textureSize:model.texture_size||128')
 js=js.replace("const labels={","const labels={predator_fly:'振翅飞行',predator_dive:'俯冲',predator_land:'降落收翅',predator_bite:'咬取',")
 (OUT/'preview.js').write_text(js,encoding='utf-8')
 html=(ROOT/'art/source/standard-runtime/preview.html').read_text(encoding='utf-8')
+html=html.replace('../../../.local/previews/standard-runtime/preview-data.js','../../../.local/previews/predator-runtime/preview-data.js')
 start=html.index('<select id="subject">');end=html.index('</select>',start)
 html=html[:start]+'<select id="subject"><option value="remilia">蕾米莉亚</option><option value="flandre">弗兰</option>'+html[end:]
 html=html.replace('MC 接入模型 · 动作预览','捕食种 · 模型与动作预览')
@@ -33,7 +35,7 @@ for ident,entry in catalog.items():
         Image.open(ROOT/f'src/main/resources/assets/mcyukkuri/textures/entity/{ident}/{expr}.png').convert('RGBA').save(TMP/f'{ident}-{expr}.png')
         (TMP/f'{ident}-{expr}.rgba').write_bytes(Image.open(TMP/f'{ident}-{expr}.png').tobytes())
 program="const fs=require('fs');\n"+renderer+'\n'+core+'\n'
-program+="const catalog=JSON.parse(fs.readFileSync("+json.dumps(str(OUT/'preview-data.json'))+"));const views="+json.dumps(views)+";\n"
+program+="const catalog=JSON.parse(fs.readFileSync("+json.dumps(str(DATA/'preview-data.json'))+"));const views="+json.dumps(views)+";\n"
 program+="const out="+json.dumps(str(TMP))+";for(const [id,e] of Object.entries(catalog)){Object.assign(e.model.clips,e.model.behavior_clips);for(const [name,action,t,az,el] of views){const texture=fs.readFileSync(out+'/'+id+'-'+(action==='predator_bite'?'biting':'neutral')+'.rgba');const pixels=renderModel(posed(e.model,action,t),texture,600,440,az,el,8.8,{centerY:5.8,textureSize:256});fs.writeFileSync(out+'/'+id+'-'+name+'.rgba',pixels);}}"
 (TMP/'render.cjs').write_text(program,encoding='utf-8')
 subprocess.run(['node',str(TMP/'render.cjs')],check=True)

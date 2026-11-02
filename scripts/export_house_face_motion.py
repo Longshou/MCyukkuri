@@ -2,7 +2,7 @@
 """Adapt only the two currently selected house walking rigs.
 
 Default stages under .local/house-face. --publish synchronizes both selected
-runtime snapshots, game models, provenance and their existing preview entries.
+runtime snapshots, game models, provenance and the preview data.
 Never rebuild the five ordinary species or replace house rest geometry/textures.
 """
 from pathlib import Path
@@ -11,6 +11,7 @@ import copy
 import hashlib
 import json
 from runtime_house_face import fit
+from runtime_preview import write as write_preview
 
 ROOT = Path(__file__).resolve().parents[1]
 SELECTED = ROOT/'art/source/standard-runtime'
@@ -56,7 +57,7 @@ def main():
     recipe = read(PACKAGE/'recipe.json')
     ledger_path = ROOT/'art/runtime-sources.json'
     ledger = read(ledger_path)
-    results, models, provenance = {}, {}, {}
+    results, provenance = {}, {}
     staged = ROOT/'.local/house-face/staged'
     for ident in IDS:
         record = copy.deepcopy(ledger['models'][ident])
@@ -92,7 +93,7 @@ def main():
             'author':'scripts/runtime_house_face.py', 'author_sha256':sha(ROOT/'scripts/runtime_house_face.py'),
             'manifest':relative(PACKAGE/'manifest.json'), 'shape_changed':False,
             'affected_clip':'waddle', 'affected_bones':sorted(names)}
-        models[ident], provenance[ident] = model, record
+        provenance[ident] = record
         if args.publish:
             for filename in ('runtime.model.json','animation-rig.json'):
                 (selected/filename).write_bytes((staged/ident/filename).read_bytes())
@@ -109,11 +110,7 @@ def main():
         old = read(SELECTED/'provenance.json')
         old['entities'].update(provenance)
         save(SELECTED/'provenance.json', old)
-        preview = SELECTED/'preview-data.js'
-        catalog = json.JSONDecoder().raw_decode(preview.read_text(encoding='utf-8').split('const MODELS=',1)[1])[0]
-        for ident, model in models.items():
-            catalog[ident]['model'] = model
-        preview.write_text('const MODELS='+json.dumps(catalog,separators=(',',':'))+';', encoding='utf-8')
+        write_preview()
         save(PACKAGE/'manifest.json', manifest)
     print(json.dumps({'published':args.publish,'models':{ident:record['runtime_sha256'] for ident,record in results.items()}}))
 
