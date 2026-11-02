@@ -34,6 +34,17 @@ class DoorwayTest {
         walk(door, .55, 0, 3, 0, 0);
     }
 
+    @Test void anOverlapRetreatsWithoutChangingSidesOfTheRim() {
+        var door = new Doorway(.9125, 1, .5625, 1);
+        assertNull(door.retreat(0, .95, .09));
+        var outside = door.retreat(.6, .95, .09);
+        assertEquals(.6, outside[0]);
+        assertEquals(1.09, outside[1]);
+        var inside = door.retreat(.89, .3, .09);
+        assertEquals(.8225, inside[0], 1e-6);
+        assertEquals(.3, inside[1]);
+    }
+
     private static void walk(Doorway door, double foot, double x, double z, double tx, double tz) {
         var walls = door.walls(100, 0, 0);
         for (int tick = 0; tick < 600; tick++) {

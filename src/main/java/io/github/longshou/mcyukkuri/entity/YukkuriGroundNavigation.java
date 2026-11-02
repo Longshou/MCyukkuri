@@ -426,6 +426,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // A coarse vanilla node can lie on a rim that the exact destination does not. Continue the same walk to its
         // physical goal through the opening; the block grid cannot represent a narrow, off-centre aperture.
         for (var wall : nestWalls) if (wall.gap(to.x, to.z) < clear) { to = end; break; }
+        var retreat = nestWalls.isEmpty() ? null : NestDoorway.retreat(walker);
+        if (retreat != null) {
+            to = retreat;
+            boxes.removeIf(box -> box.gap(at.x, at.z) < clear);
+        }
         var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
                 : Detour.route(at.x, at.z, to.x, to.z, clear, boxes);
         if (turn.shut()) return null;

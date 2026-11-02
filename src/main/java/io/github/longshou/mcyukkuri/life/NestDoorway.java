@@ -95,6 +95,19 @@ public final class NestDoorway {
         }
     }
 
+    /** Real overlap after a push or placement is left on the same side; it never licenses a high-rim crossing. */
+    public static Vec3 retreat(YukkuriEntity actor) {
+        var seen = new HashSet<BlockPos>();
+        for (var pos : BlockPos.betweenClosed(actor.blockPosition().offset(-1, -1, -1), actor.blockPosition().offset(1, 0, 1))) {
+            var bed = bed(actor, pos);
+            if (bed == null || !seen.add(bed.getBlockPos())) continue;
+            var centre = bed.centre();
+            var point = shape(bed).retreat(actor.getX() - centre.x, actor.getZ() - centre.z, actor.getBbWidth() * .5);
+            if (point != null) return new Vec3(centre.x + point[0], actor.getY(), centre.z + point[1]);
+        }
+        return null;
+    }
+
     /** The closest body-sized point outside the actual opening, with no occupant or ownership reservation. */
     public static Vec3 stand(YukkuriEntity actor, CareBlockEntity bed) {
         var shape = shape(bed);
