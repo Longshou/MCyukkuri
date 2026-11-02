@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -18,10 +19,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** The MOTOR component: exactly one action drives a body at a time and every request to move goes through it. Server only, never saved, never driven by a passive clock. */
 public final class BodyDriver {
-    /** Current action id, empty when idle. */
-    public static final SyncSlot<String> MOTOR_ACTION = new SyncSlot<>(EntityDataSerializers.STRING, () -> "");
-    /** The tick the current action started on (clip phase). */
-    public static final SyncSlot<Long> MOTOR_START = new SyncSlot<>(EntityDataSerializers.LONG, () -> 0L);
+    /** Current action's id, start tick and displacement source; one display snapshot, empty when idle. */
+    public static final SyncSlot<CompoundTag> MOTOR_ACTION = new SyncSlot<>(EntityDataSerializers.COMPOUND_TAG, CompoundTag::new);
     /** 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     public static final SyncSlot<Byte> ATTACH_KIND = new SyncSlot<>(EntityDataSerializers.BYTE, () -> (byte) 0);
 
@@ -38,7 +37,6 @@ public final class BodyDriver {
     public record StartRefusal(MotorOwner requester, Action action, String reason, String owner) {}
     private StartRefusal startRefusal;
     private long lastTick;
-    private long startTick;
     private double bestMetric = Double.POSITIVE_INFINITY;
     private long windowStart;
     private boolean interrupted, refusedBusy;
@@ -232,15 +230,17 @@ public final class BodyDriver {
         long tick = now();
         current = action;
         owner = candidate;
-        startTick = tick;
         lastTick = tick;
         bestMetric = Double.POSITIVE_INFINITY;
         windowStart = tick;
         interrupted = false;
         interruptedWhy = "";
-        if (!action.id().equals(body.componentData(MOTOR_ACTION))) body.syncComponentData(MOTOR_ACTION, action.id());
-        if (body.componentData(MOTOR_START) != startTick) body.syncComponentData(MOTOR_START, startTick);
         action.start(body);
+        var display = new CompoundTag();
+        display.putString("Id", action.id());
+        display.putLong("Start", tick);
+        display.putInt("Source", action.motionSource());
+        body.syncComponentData(MOTOR_ACTION, display);
         String detail = action.startDetail();
         GameplayLog.event(body, "action", detail.isEmpty() ? "start id={} owner={}" : "start id={} owner={} {}",
                 action.id(), candidate.ownerId(), detail);
@@ -261,7 +261,7 @@ public final class BodyDriver {
         String detail = action.endDetail(outcome);
         GameplayLog.event(body, "action", detail.isEmpty() ? "end id={} outcome={} {}" : "end id={} outcome={} {} {}",
                 action.id(), outcome.label(), fields(outcome), detail);
-        if (!body.componentData(MOTOR_ACTION).isEmpty()) body.syncComponentData(MOTOR_ACTION, "");
+        body.syncComponentData(MOTOR_ACTION, new CompoundTag());
     }
 
     private void abortNow(String why) {

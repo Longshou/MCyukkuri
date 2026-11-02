@@ -312,10 +312,9 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 40, (c, ctx) -> c.cancel()).build(),
         ComponentSpec.ready(WINTERING, YukkuriEntity::wintering).build(),
         // Body driver: no passive tick, no save; the interrupts stop the
-        // running action and the three sync slots feed YukkuriView.motorAction/motorStart/attachKind.
+        // running action; display slots expose its snapshot and attachment through YukkuriView.
         ComponentSpec.ready(MOTOR, YukkuriEntity::motor)
                 .sync(BodyDriver.MOTOR_ACTION)
-                .sync(BodyDriver.MOTOR_START)
                 .sync(BodyDriver.ATTACH_KIND)
                 .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("fright"))
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 5, (c, ctx) -> c.interrupt("command"))

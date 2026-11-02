@@ -28,6 +28,9 @@ public interface Action {
     /** The clip it plays; nothing for an action that animates nothing. */
     default MotionPose pose() { return MotionPose.NONE; }
 
+    /** Entity whose displacement paces the clip; 0 uses the body or its vehicle. Display only. */
+    default int motionSource() { return 0; }
+
     /** Extra fields for the {@code [action] start} line; empty when the action has none to add. */
     default String startDetail() { return ""; }
 

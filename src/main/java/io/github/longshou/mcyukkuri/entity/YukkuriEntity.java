@@ -262,9 +262,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public <T> void syncComponentData(SyncSlot<T> slot, T value) { sync().syncComponentData(slot, value); }
 
     /** Synchronized current action id ("" when idle); clients read it through YukkuriView. */
-    public String motorAction() { return componentData(BodyDriver.MOTOR_ACTION); }
+    public String motorAction() { return componentData(BodyDriver.MOTOR_ACTION).getString("Id"); }
     /** Synchronized start tick of the current action (clip phase). */
-    public long motorStart() { return componentData(BodyDriver.MOTOR_START); }
+    public long motorStart() { return componentData(BodyDriver.MOTOR_ACTION).getLong("Start"); }
+    public int motorMotionSource() { return componentData(BodyDriver.MOTOR_ACTION).getInt("Source"); }
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     public byte attachKind() { return componentData(BodyDriver.ATTACH_KIND); }
     /** Synchronized carry record: which hold each carried child is in ({@link ParentCarry#HOLDS}). */

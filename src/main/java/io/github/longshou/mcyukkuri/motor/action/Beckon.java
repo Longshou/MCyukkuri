@@ -101,6 +101,7 @@ public final class Beckon implements Action {
     }
 
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
+    @Override public int motionSource() { return host.entity().getId(); }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s pace=%.3f ticks<=%d", host.entity().getUUID(),

@@ -89,6 +89,8 @@ public interface YukkuriView {
     String motorAction();
     /** Synchronized start tick of the current action (clip phase). */
     long motorStart();
+    /** Entity whose displacement paces the current clip; 0 uses this body or its vehicle. */
+    int motorMotionSource();
     /** Synchronized attachment kind: 0 Free, 1 Airborne, 2 OnHost, 3 Held. */
     byte attachKind();
     /** Synchronized carry record: which hold each carried child is in (ParentCarry.HOLDS). */
