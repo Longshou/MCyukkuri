@@ -67,7 +67,7 @@ public final class NestDoorway {
             var bed=bed(actor,pos); if(bed==null)continue;
             var d=shape(bed);var p=point.subtract(bed.centre());
             if(Math.abs(p.x)<d.inner()&&Math.abs(p.z)<d.inner()
-                    ||Math.abs(p.x)+Occupancy.foot(actor.getBbWidth())<=d.opening()
+                    ||Math.abs(p.x)+Occupancy.foot(actor.getBbWidth())<=d.opening()+.02
                     &&p.z*d.side()>=d.inner()&&p.z*d.side()<d.outer()+actor.getBbWidth()*.5+.03)return bed;
         }
         return null;
@@ -118,7 +118,7 @@ public final class NestDoorway {
     }
     public static Vec3 stand(YukkuriEntity actor, CareBlockEntity bed, Vec3 destination) {
         var shape = shape(bed);
-        double room = shape.opening() - Occupancy.foot(actor.getBbWidth());
+        double room = shape.opening() - Occupancy.foot(actor.getBbWidth()) - .02;
         if (room < 0) return null;
         var centre = bed.centre();
         double preferred = Math.clamp(destination.x - centre.x, -room, room);
