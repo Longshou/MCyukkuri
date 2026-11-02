@@ -69,10 +69,11 @@ public final class SettlementSociety {
                 && record.rememberedUntil > observer.level().getGameTime();
     }
     public void tick() {
-        if (entity.tickCount % 100 != 0 || !available(entity)) return;
+        if (entity.tickCount % 100 != 0 || !entity.isAlive()) return;
         var group = entity.settlement().group();
         if (group == null) return;
-        LeaderSuccession.observe(entity, group);
+        // The target need not be free to act: nearby witnesses can reject a hatless member even while it eats, sleeps or panics.
+        if (available(entity)) LeaderSuccession.observe(entity, group);
         var data = SettlementData.get(level());
         var record = data.member(group, entity.getUUID());
         long now = level().getGameTime();
@@ -83,6 +84,7 @@ public final class SettlementSociety {
         // A slave already lives at the bottom of the pit: from here only real kindness by members that still see who it is changes
         // its standing (wiki: sustained gentle treatment); the harsh witnesses below are what put a member there.
         if (record.role == SettlementData.Role.UNUN_SLAVE) {
+            if (!available(entity)) return;
             var kind = LoadedGroupMembers.minimum(level(), box, LoadedGroupMembers.query(level(), group.id, box,
                     peer -> available(peer) && accepted(peer) && Temperament.lenient(peer.life().personality())
                             && peer.life().canRecognize(entity) && peer.hasLineOfSight(entity)), entity::distanceToSqr);
