@@ -160,7 +160,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (!entity.childhood().canLearn()) return false;
         if(task==Task.NONE && WildEvents.reserved(entity))return false;
-        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() ||
+        if (entity.isPanicking() || entity.dailyLife().active() || entity.life().isSleeping() || entity.life().hasUrgentNeed() || entity.waterDistress().active() ||
                 entity.life().mealTicks() > 0 || entity.isCommandPlaying()||entity.operations().active()||(entity.groupInteraction().active()||entity.playLife().active())) return false;
         if (entity.life().nutrition() < 40 || entity.life().energy() < 35 || entity.family().active()
                 || entity.habitat().active() || entity.settlement().active() || entity.settlement().duties().active()
