@@ -2028,7 +2028,8 @@ pond('shake_capsize', '摇晃翻覆', '摇晃翻覆',
                         r'\[hat\][^\n]* capsized cause=shake value=3.0[^\n]*thrown=[1-9]',
                         r'\[hat\][^\n]* pickup cause=shaken_empty[^\n]*count=1',
                         r'\[hat\][^\n]* kit dropped cause=capsized', *_WATER_ESCAPE],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_HULL_READOUT))
+                forbid=_WATER_SMOKE_FORBID + [r'\[body\][^\n]* death settled\b', r'\[needs\][^\n]* starvation damage accepted=true'],
+                verify=water_aftermath, readout=_HULL_READOUT))
 
 pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      '水生魔理沙把帽子放在离岸 12 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
@@ -2117,6 +2118,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
      late=[f'execute as {sel("grow")} on vehicle run tag @s add seat_reload'],
      note='先读第一顶帽 Riders 与 Passengers 的 UUID、坐标，保存退出后继续同一世界再读，位置不重排；冒烟会卸载再加载场地区块核对。'
           '满座留岸记 board refused hat=… reason=no_seat size=…（共享入座判定拒绝时欲望直接为 0，不再尝试跳船）；第二顶帽先记 load warning 并可见降低水线、加强轻摇，超载后才记 capsized cause=too_heavy，亲油与孩子真实落水。'
+          '孩子落水后亲油必定接手（不能再自救），但座位塞不下、岸边又不在托放范围内，托不起；孩子自己游上岸后不会再被接纳。'
           '0.36 子油没有自己的木棍，初航被推迟；两顶帽各八份苹果是真实有限的成长物资，成长窗覆盖 85% 警戒带到真实超载（其余乘员体重超过 (1.05×S)³），不以刚到 S 作为翻船时刻；整窗不得有人饿死。',
      reads=[('读赤油帽', f'execute as {sel("a")} on vehicle run data get entity @s Riders'),
             ('读初航体型子油', f'yukkuri status {sel("g1")} raw'), ('读超重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
@@ -2125,7 +2127,7 @@ pond('hat_crowd', '按体型入座·满座与超重', '满座与超重翻船',
                         r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=1\b',
                         rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "excess")}[^\n]* board refused [^\n]*reason=no_seat size=',
                         r'\[hat\][^\n]* load warning ratio=[\s\S]*\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
-                        rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "grow")}[^\n]* rescue refused [^\n]*reason=no_seat\b',
+                        rf'\[aquatic\][^\n]*uuid={_uuid_text("hat_crowd", "grow")}[^\n]* rescue start faller={_uuid_text("hat_crowd", "g1")}\b',
                         rf'\[water\][^\n]*uuid={_uuid_text("hat_crowd", "g1")}[^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|impact|turbulence)\b',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_seat',
@@ -2268,8 +2270,8 @@ pond('shore_family', '饿了带孩子返岸', '亲子返岸',
                 forbid=[r'\[body\][^\n]* invariant\b'], readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
 
 # ---- food, care, rescue and birth on the hat boat (refactor WP6b): real starting states only; who helps and when is the helpers' own decision.
-_INCIDENT_NOTE = ('每次落水由落水者自己开一个事件（[incident] open id=water#…），近旁的亲油各自只决定一次救不救（[incident] decide … chance= roll= accepted=，'
-                  '按友善的帮助概率；拒绝是真实的，之后不再改口），落水者上船、被叼出水、上岸或死亡时关闭（[incident] close … reason= decided=[…]）。'
+_INCIDENT_NOTE = ('每次落水由落水者自己开一个事件（[incident] open id=water#…），近旁的亲油各自只决定一次救不救（[incident] decide … chance= roll= accepted=）；'
+                  '不能自救的孩子亲油必定接下（chance=1），会操帽的孩子一律不救（chance=0，含泪围观），落水者上船、被叼出水、上岸或死亡时关闭（[incident] close … reason= decided=[…]）。'
                   '读 aquatic.rescue 看这件事与每个救助者的回答、那一次运行的结果（如 accepted/DONE rescued）。')
 
 
@@ -2321,16 +2323,18 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'k1')))
 
 
-pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
-     '亲油坐在自己的帽船里，0.5 体型的子油从岸边落水；孩子超过座位上限，亲油记录 no_seat 拒绝，孩子继续自行游泳脱险',
+pond('rescue_no_seat', '落水子油·体型超座·托不起', '超座托不起',
+     '亲油坐在自己的帽船里，0.5 体型的子油从岸边落水；孩子超过座位上限，亲油仍接下这次落水并划近，但座位塞不下、岸边又不在辫子托放范围内，只能看着它自己游回岸上',
      '约 30–90 秒',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('rescue_no_seat', 'a'), **pair_ready()),
       _aquatic_young('rescue_no_seat', 'c1', bank_dx(1), 1, 'child', 'a', fam=_seat_family(.5, 211000)),
       afloat('a', water_at(0, 3), True, sel('a'), stick=True)],
-     late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '观察 rescue refused reason=no_seat，拒绝不算救援成功。',
+     late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '亲油不应再拒绝不能自救的孩子（rescue refused 不得出现）；座位不接受且无岸可放时救援记 EXHAUSTED，孩子自行脱险，不算救起。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
-     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=0 [^\n]*accepted=false', r'rescue refused [^\n]*reason=no_seat'],
-                forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_water_readouts('a', 'c1')))
+     smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*accepted=true', r'rescue start faller=',
+                                    r'\[water\][^\n]* phase=\w+ -> RECOVER'],
+                forbid=[*_WATER_SMOKE_FORBID, r'rescue refused', r'\[body\][^\n]* death settled\b'],
+                verify=water_aftermath, readout=_water_readouts('a', 'c1')))
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
@@ -2370,7 +2374,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
                       verify=water_aftermath, readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
            '母油的帽里已经坐着两只赤油，帽前两个赤油座位都被占着，母油在船尾临产，父油在几格外自己的船上。每只新生儿都没有座位可落，从出口直接落进水里（真实落水，不是漏接特效）；'
-           '落水后父油自己决定救不救、救起后放进自己的船，母油在自己的船上不动。没救起会溺亡。看法：先数胎数，再数 no_seat 与落水',
+           '落水后父油必定接手（不能自救的新生儿不再抽签），救起后放进自己的船；他的船也满了就送到最近能站的岸上。母油在自己的船上不动。看法：先数胎数，再数 no_seat 与落水',
            True, '日志：每只新生儿 [family] birth no_seat reason=full child=… seated=2 → birth landed … outcome=WATER → [incident] open → decide（父油）→ 接受后 [intent] start id=rescue → '
               '[action] start id=grab → [aquatic] rescue end；两个已在船上的赤油位置不变（读帽子 Riders）。' + _INCIDENT_NOTE + _DESIRE_NOTE,
            smoke=dict(ticks=5400, expect=[_BOAT_SMOKE_START, r'\[choreo\][^\n]* beat id=live_birth\b',

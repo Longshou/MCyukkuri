@@ -220,7 +220,8 @@ final class AquaticGoal extends Goal {
     }
 
     /** Her decided help: a young of hers in the water whose incident she accepted (one decision each; a rescue under way
-     *  keeps its desire). Otherwise the first child she cannot lift is watched, tears included. */
+     *  keeps its desire). A young that cannot sail is never left in the water: she always takes it up. A young that can
+     *  sail is left to itself, and the one she cannot lift is watched, tears included. */
     private void help(List<Desire> out) {
         var ledger = AskLedger.server();
         if (drive().runner() != null && drive().runner().intent() instanceof Rescue r) out.add(rescue(r.faller(), r.incident(), null));
@@ -234,14 +235,14 @@ final class AquaticGoal extends Goal {
                 var ask = new Ask(y.getUUID(), body.getUUID(), h -> new Rescue(h, y, id), id);
                 String refusal = Rescue.refusal(body, y);
                 boolean[] fresh = {false};
-                var decision = ledger.decide(ask, refusal == null ? body.life().personality().helpProbability(true, true) : 0,
+                var decision = ledger.decide(ask, refusal == null ? 1 : 0,
                         () -> { fresh[0] = true; return body.getRandom().nextDouble(); }, body);
                 if (fresh[0] && decision != null && !decision.accepted()) {
                     GameplayLog.event(body, "aquatic", "rescue refused faller={} incident={} reason={} protected={}",
                             y.getUUID(), id, refusal == null ? "declined" : refusal, body.life().personality().protects());
                 }
                 if (ledger.helping(id, body.getUUID())) { out.add(rescue(y, id, ask)); return; }
-                if (refusal != null && watching == null && body.life().personality().protects()) { watching = y; watched = id; }
+                if ("can_sail".equals(refusal) && watching == null && body.life().personality().protects()) { watching = y; watched = id; }
             }
             if (watching != null) out.add(watch(watching, watched));
         }

@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
@@ -31,10 +32,25 @@ final class Ferry {
 
     /** A continuous chase from the captain seat, then the shared braid pickup and set-down. */
     static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
+        var steps = chase(carrier, child);
+        steps.addAll(BraidFetch.steps(carrier, child, hat));
+        return steps;
+    }
+
+    /** The same chase and braid pickup, then the child is carried off the hull and set down on a supported stand: no seat admits it. */
+    static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
+        var steps = chase(carrier, child);
+        steps.add(() -> act(new Grab(child)));
+        steps.add(hopAshore(carrier));
+        steps.add(() -> act(new Release(child)));
+        return steps;
+    }
+
+    /** Close the braid's reach on the faller (or wait for it to come ashore by itself) before the shared lift. */
+    private static ArrayList<Supplier<Step>> chase(YukkuriEntity carrier, YukkuriEntity child) {
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child) ? null : act(new Paddle(child::position,
                 distance -> !child.isAlive() || child.isPassenger() || AquaticLife.ashore(child) || BraidFetch.withinReach(carrier, child))));
-        steps.addAll(BraidFetch.steps(carrier, child, hat));
         return steps;
     }
 
