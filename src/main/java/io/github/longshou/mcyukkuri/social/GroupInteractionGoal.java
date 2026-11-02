@@ -147,7 +147,10 @@ public final class GroupInteractionGoal extends Goal {
                 entity.species().narrate("steal");
                 if (!hit) peer.respondToBullying(entity);
             }
-            if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){peer.mind().add(6,"bullied_hatless");peer.mind().felt(EmotionEvent.SOCIAL_HURT); peer.showReaction("teary","settlement_hurt",100);}
+            if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){
+                peer.mind().addSlavePressure(6,"bullied_hatless");peer.mind().feltSlavePressure(EmotionEvent.SOCIAL_HURT);
+                peer.showReaction("teary","settlement_hurt",100);
+            }
             return;
         }
         if(current.kind==Kind.PROTECT) {

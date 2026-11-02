@@ -91,11 +91,11 @@ public final class SpeciesLife {
     // ---- hooks called by the shared life code ---------------------------------------------------------------
 
     /** A meal was swallowed. Gulping one meal after another can bring the filling back up in a species that retches easily. */
-    public void ate(float nutritionBefore) {
+    public void ate(float nutritionBefore, boolean wasteMeal) {
         long now = entity.level().getGameTime();
         boolean fast = now - lastMeal < FAST_MEAL_TICKS || nutritionBefore < 15;
         lastMeal = now;
-        if (fast) vomit(.4f, "gulped");
+        if (fast) vomit(.4f, "gulped", wasteMeal);
     }
 
     /** One of the narrations the lecture describes ("they say aloud what they are doing"); about 30% of the time. */
@@ -113,14 +113,20 @@ public final class SpeciesLife {
     }
 
     /** Retch when frightened, gulping or strained; the body owns the visible event and energy cost. */
-    public boolean vomit(float chance, String cause) {
+    public boolean vomit(float chance, String cause, boolean slavePressure) {
         long now = entity.level().getGameTime();
         if (traits().vomit() <= 0 || entity.level().isClientSide || now < vomitReady || !entity.isAlive()
                 || entity.getRandom().nextFloat() >= chance * traits().vomit()) return false;
         if (!entity.body().vomit()) return false;
         vomitReady = now + VOMIT_COOLDOWN; vomits++;
-        entity.mind().add(3, "vomit_" + cause);
-        entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary", "bitter", 80);
+        if (slavePressure) {
+            entity.mind().addSlavePressure(3, "vomit_" + cause);
+            entity.mind().feltSlavePressure(EmotionEvent.BITTER_TASTE);
+        } else {
+            entity.mind().add(3, "vomit_" + cause);
+            entity.mind().felt(EmotionEvent.BITTER_TASTE);
+        }
+        entity.showReaction("teary", "bitter", 80);
         return true;
     }
 
@@ -132,7 +138,7 @@ public final class SpeciesLife {
         if (t == 1 || t % 400 == 3) speed();
         if (t % 10 == 4) urgencySpeed();
         boolean panic = entity.isPanicking();
-        if (panic && !wasPanicking) { vomit(.25f, "fright"); narrate("flee"); }
+        if (panic && !wasPanicking) { vomit(.25f, "fright", false); narrate("flee"); }
         wasPanicking = panic;
         var stage = entity.status().reactions().threat().stage();
         if (stage != lastStage) {
@@ -141,7 +147,7 @@ public final class SpeciesLife {
             else if (stage == Reactions.Threat.Stage.WATCH && lastStage == Reactions.Threat.Stage.NONE) greetPredator();
             lastStage = stage;
         }
-        if (t % 400 == 211 && entity.mind().unease() >= BondLevels.UNEASE_SWEETENED) vomit(.2f, "strain");
+        if (t % 400 == 211 && entity.mind().unease() >= BondLevels.UNEASE_SWEETENED) vomit(.2f, "strain", false);
         if (entity.life().isSleeping() || panic) return;
         if (t % 40 == 13) greetHuman();
         if (t % 100 == 37) greetKin();

@@ -217,7 +217,7 @@ final class LifeMeal {
                 if(filling)FillingResource.swallowed(o.entity(),mouth);
                 // The held item is retired at the same server step that grants nutrition.
                 mouth = ItemStack.EMPTY;
-                o.entity().species().ate(o.nutrition());
+                o.entity().species().ate(o.nutrition(), waste);
                 o.addNutrition(gain); o.addBladder(gain * .5f);
                 GameplayLog.event(o.entity(),"meal","swallowed item={} count={} nutrition={} -> {} feeder={} prepared={} shared={}",
                         swallowed.getItem(),swallowed.getCount(),nutritionBefore,o.nutrition(),feeder,preparedMeal,sharedMeal);
@@ -244,7 +244,7 @@ final class LifeMeal {
         bodyFood = BodyFood.Bite.EMPTY;
         syncBodyFood();
         float gain = swallowed.nutrition();
-        o.entity().species().ate(o.nutrition());
+        o.entity().species().ate(o.nutrition(), false);
         o.addNutrition(gain);
         o.addBladder(gain * .5f);
         GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());

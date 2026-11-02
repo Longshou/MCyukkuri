@@ -22,16 +22,6 @@ public final class SettlementSociety {
     }
     /** Stands in the group as an 嗯嗯奴隶 (settlement/PitSlave owns what that life is). */
     public boolean slave() { return role() == SettlementData.Role.UNUN_SLAVE; }
-    /**
-     * The colony keeps it as one of its own: the slave in the pit, or a member it has taken back and still remembers
-     * (SettlementData.MEMBER_MEMORY after sustained kindness). Either way its missing accessory shows as unease and tears
-     * but cannot pile up into sweetening and the death that follows (feedback 4; wiki: sustained gentle treatment).
-     */
-    public boolean upheld() {
-        var record = record();
-        return record != null && (record.role == SettlementData.Role.UNUN_SLAVE
-                || record.role != SettlementData.Role.FREE && record.rememberedUntil > level().getGameTime());
-    }
     public SettlementData.Member record() {
         if (entity.level().isClientSide) return null;
         var group = entity.settlement().group();
@@ -41,6 +31,12 @@ public final class SettlementSociety {
         var group = first.settlement().group();
         var other = second.settlement().group();
         return first != second && first.level() == second.level() && group != null && other != null && group.id.equals(other.id);
+    }
+    /** The colony's lasting acceptance of this hatless member, distinct from an observer's innate recognition. */
+    public static boolean acceptsHatless(YukkuriEntity observer, YukkuriEntity target) {
+        if (!sameGroup(observer, target)) return false;
+        var record = target.settlement().society().record();
+        return record != null && record.hatlessAccepted;
     }
     public static boolean accepted(YukkuriEntity member) {
         var role = member.settlement().society().role();
@@ -58,7 +54,7 @@ public final class SettlementSociety {
     /** Recognition past a missing hat is the observer's intellect (headwear.Recognition). */
     public static boolean rejects(YukkuriEntity observer, YukkuriEntity target) {
         return sameGroup(observer, target) && accepted(observer) && harsh(observer)
-                && !observer.life().canRecognize(target);
+                && !acceptsHatless(observer, target) && !observer.life().canRecognize(target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
         if (!sameGroup(observer, target)) return false;
@@ -88,9 +84,8 @@ public final class SettlementSociety {
             if (kind != null) treat(kind, record);
             return;
         }
-        // The colony remembers a restored individual as a member, so the hatless question is not raised again until that
-        // memory fades; without it a released slave was despised again within a minute and the recovery meant nothing.
-        if (now < record.rememberedUntil) return;
+        // Sustained kindness is durable colony acceptance, not a timer before the same member is rejected again.
+        if (record.hatlessAccepted || now < record.rememberedUntil) return;
         var observers = LoadedGroupMembers.query(level(), group.id, box,
                 peer -> available(peer) && rejects(peer, entity) && peer.hasLineOfSight(entity));
         var observer = LoadedGroupMembers.minimum(level(), box, observers, entity::distanceToSqr);
@@ -127,8 +122,9 @@ public final class SettlementSociety {
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
         observer.showReaction("angry", event, 80);
-        entity.mind().felt(record.role == SettlementData.Role.UNUN_SLAVE ? EmotionEvent.SUBMITTED : EmotionEvent.SOCIAL_HURT); entity.showReaction("teary",
-                record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
+        if (record.role == SettlementData.Role.UNUN_SLAVE) entity.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
+        else entity.mind().felt(EmotionEvent.SOCIAL_HURT);
+        entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
         data.setDirty();
     }
     /** After a member's own mockery of a slave kept in the pit: one per slave per 400 ticks. Transient. */
@@ -158,7 +154,7 @@ public final class SettlementSociety {
             }
             float before = slave.life().hygiene();
             slave.life().changeHygiene(-3);
-            slave.mind().felt(EmotionEvent.SUBMITTED);
+            slave.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
             slave.showReaction("teary", "settlement_submit", 100);
             GameplayLog.event(slave, "settlement", "pit mockery witnesses={} excretor={} hygiene={} -> {}", witnesses.size(), entity.getUUID(),
                     before, slave.life().hygiene());
@@ -189,7 +185,7 @@ public final class SettlementSociety {
         var record = record();
         if (record.rejections == 0) return;
         int gentleness = record.gentleness;
-        SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime());
+        SettlementData.get(level()).restore(group, entity.getUUID(), level().getGameTime(), cause.equals("gentle_treatment"));
         entity.settlement().duties().cancelAssignment();
         entity.life().personality().decided("settlement_restored");
         GameplayLog.event(entity, "settlement", "hatless outcome role={} cause={} gentleness={}", role(), cause, gentleness);

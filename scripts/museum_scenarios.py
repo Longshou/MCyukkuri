@@ -273,10 +273,14 @@ def slave_token(window):
     return None if found is None else f'{found[1]} #{found[2]} '
 
 
+def colony_death(window):
+    found = re.search(r'\[body\][^\n]* death settled[^\n]*', window)
+    return None if found is None else 'a colony member died: ' + found.group(0).strip()
+
+
 def slave_survives(window):
-    """Three real days with a supplied pit: the slave itself (named by its first pit line) must not sweeten, break, starve
-    or die and must still be taking portions late in the run, while any other individual is free to have its own troubles."""
-    problem = slave_life(window)
+    """Three real days with a supplied pit: no colony death, and the slave itself must not sweeten, break, starve or die."""
+    problem = colony_death(window) or slave_life(window)
     if problem: return problem
     token = slave_token(window)
     if token is None: return 'no slave line to identify the slave'
@@ -292,6 +296,8 @@ def slave_survives(window):
 
 def starves_without_pit_food(window):
     """No droppings in the pit: the slave must really go hungry and take real starvation damage (no conjured food)."""
+    problem = colony_death(window)
+    if problem: return problem
     token = slave_token(window)
     if token is None: return 'no slave line to identify the slave'
     if not re.search(token.replace('#', r'\#') + r'uuid=\S+ t=\d+[^\n]*pit slave hungry reason=no_droppings', window):
@@ -301,26 +307,27 @@ def starves_without_pit_food(window):
     return None
 
 
-# SettlementData.MEMBER_MEMORY: the colony keeps a restored member for one game day before the hatless question returns.
-MEMBER_MEMORY = 24000
-
-
 def release_holds(window):
-    """After the five acts of kindness the same individual must stay a member for the day the colony remembers it: no fresh
-    hatless rejection, no pit life, no fall back to a slave or outcast and no death anywhere in the run."""
-    found = re.search(r'\[settlement\] (\w+) #(\d+)[^\n]*hatless outcome role=MEMBER cause=gentle_treatment', window)
-    if found is None: return 'the slave never became a member again'
-    token = f'{found[1]} #{found[2]} '
+    """Gentle restoration keeps the previous MEMBER/LEADER role past a day and another rejection window, without any
+    rejection, sanction, wound or death of the released individual; no colony member may die anywhere in the scene."""
+    problem = colony_death(window)
+    if problem: return problem
+    found = re.search(r'\[settlement\] (\w+) #(\d+) uuid=(\S+)[^\n]*hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment', window)
+    if found is None: return 'the slave never recovered its former member or leader role'
+    token, uuid = f'{found[1]} #{found[2]} ', found[3]
     lines = window.splitlines()
     start = next(i for i, line in enumerate(lines) if token in line and 'cause=gentle_treatment' in line)
     released = int(re.search(r' t=(\d+) ', lines[start])[1])
     for line in lines[start + 1:]:
-        if token not in line: continue
-        tick = re.search(r' t=(\d+) ', line)
-        if re.search(r'hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |non-yukkuri onset|starvation damage|death settled', line):
+        if token in line and re.search(
+                r'hatless rejected|hatless outcome role=(?:SHUNNED|OUTCAST|UNUN_SLAVE)|pit slave |non-yukkuri onset|'
+                r'starvation damage|death settled|wound placed|case opened reason=hatless', line):
             return 'the release was undone: ' + line.strip()
-        if re.search(r'hatless rejected', line) and tick and int(tick[1]) < released + MEMBER_MEMORY:
-            return 'the colony raised the hatless question inside its memory of it: ' + line.strip()
+        if uuid in line and re.search(r'\[sanction\][^\n]* act=|\[social\][^\n]* bully strike peer=\S+ accepted=true', line):
+            return 'the released member was beaten: ' + line.strip()
+    end = max((int(tick) for tick in re.findall(r' t=(\d+) ', window)), default=0)
+    if end < released + 25000:
+        return f'release was not observed through a day and another rejection window: release t={released}, end t={end}'
     return None
 
 
@@ -414,9 +421,8 @@ add('settle_pit_drive', 'biomes', '聚落嗯嗯奴隶的产生', '失饰入坑',
                commands=[(tick, _COLONY_RELIEVES) for tick in range(400, 20000, 600)],
                expect=[r'\[settlement\][^\n]* hatless outcome role=UNUN_SLAVE\b', r'\[settlement\][^\n]* pit slave (?:return start|back in pit)\b'],
                forbid=[r'hatless outcome role=OUTCAST', r'\[body\][^\n]* invariant\b'],
-               # The drive's own subject is the role and the walk into the pit; how members reach the pit bank belongs to the
-               # pit scenes, so only the pit's placement is asserted here.
-               verify=pit_level))
+               # The drive's own subject is the role and the walk into the pit; any colony death still fails the scene.
+               verify=lambda window: colony_death(window) or pit_level(window)))
 
 # Sustained kindness ends the role (wiki): a member that still sees who the slave is (intellect 90) and is gentle
 # (self-control 70, friendliness 70) treats it every time it comes to the pit bank; after five real acts it is a member again.
@@ -425,8 +431,8 @@ _PLAIN_ALL = '@e[type=#mcylab:yukkuri,tag=!scn_slave,distance=..70]'
 add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待',
     '固定成员的小群（首领、一家三口、一家两口）里一只已在坑里的嗯嗯奴隶，有一只聪明（智力 90，认得出无头饰者）又温和的成员，其余成员认不出它但不算严厉。'
     '看那只成员每次到坑边都望向奴隶、露出温和反应，奴隶含泪（日志 pit slave treated … gentleness=n/5）；'
-    '五次实际照顾后奴隶恢复成员身份（hatless outcome role=MEMBER cause=gentle_treatment），自己离开嗯嗯坑、不再吃排泄物、重新领口粮；'
-    '恢复后聚落把它当成员记住一天（不再按失饰拒斥）；一整天后仍无头饰才重新按普通失饰处理。'
+    '五次实际照顾后奴隶恢复原来的成员或族长身份（hatless outcome cause=gentle_treatment），自己离开嗯嗯坑、不再吃排泄物、重新领口粮；'
+    '恢复后聚落持续接纳这个个体，不再因失饰拒斥或制裁它。'
     '读数看奴隶与那只成员的角色；日志 [settlement] pit slave treated …、hatless outcome …',
     '约 2–4 分钟（可倍速）', ['fillbiome ~-22 56 ~-22 ~22 100 ~22 minecraft:forest', 'yukkuri settlement spawn demo ~ ~ ~', LEAD_ANY],
     env=DAY, spot='forest', vantage=(0, 18), retry='先“清空本场地”再按一次', note='待验证：新场景，尚未在游戏里实测。',
@@ -447,10 +453,10 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=3600),
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=4200)],
     reads=[*_PIT_READS, ('读奴隶的角色与身份', f'yukkuri status {_SLAVE} raw'), ('读温和成员的性格', f'yukkuri status {_KIND} raw')],
-    # Five real acts need the kind member to be at the bank five times, so the colony relieves for four game hours.
-    smoke=dict(ticks=30000,
-               commands=[(tick, _COLONY_RELIEVES) for tick in range(600, 30000, 400)],
-               expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=MEMBER cause=gentle_treatment\b'],
+    # Opening relief rounds supply real acts of kindness; the following days leave the colony to ordinary life.
+    smoke=dict(ticks=60000,
+               commands=[(tick, _COLONY_RELIEVES) for tick in range(600, 6000, 400)],
+               expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
                readout=[f'yukkuri status {_SLAVE} raw', f'yukkuri status {_KIND} raw'],
                verify=lambda window: pit_trip(window) or release_holds(window)))

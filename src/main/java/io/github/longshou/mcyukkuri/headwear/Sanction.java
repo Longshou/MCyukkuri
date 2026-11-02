@@ -154,7 +154,8 @@ public final class Sanction extends Goal {
                 || e.sanction().target != null && e.sanction().target != target) return false;
         if (!Contempt.harsh(e)) return false;
         // A slave kept by the group is no stranger to it: the group's own harshness toward it is the pit mockery, not a beating.
-        if (reason.equals("hatless") && target.settlement().society().slave() && SettlementSociety.sameGroup(e, target)) return false;
+        if (reason.equals("hatless") && SettlementSociety.sameGroup(e, target)
+                && (target.settlement().society().slave() || SettlementSociety.acceptsHatless(e, target))) return false;
         boolean knows = Recognition.recognizes(e, target);
         if (reason.equals("hatless") || reason.equals("monster")) return !knows;
         if (reason.equals("non_yukkuri")) return target.settlement().groupId() == null || SettlementSociety.sameGroup(e, target);
@@ -183,7 +184,8 @@ public final class Sanction extends Goal {
     private boolean valid() {
         return target != null && target.isAlive() && !target.isRemoved() && target.level() == entity.level() && entity.isAlive()
                 && !entity.isPanicking() && !entity.body().dying() && entity.body().healthRatio() >= .3f
-                && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target) && enabled();
+                && entity.distanceToSqr(target) < CHASE_RANGE * CHASE_RANGE && ticks < GIVE_UP_TICKS && eligibleTarget(target)
+                && !(reason.equals("hatless") && SettlementSociety.acceptsHatless(entity, target)) && enabled();
     }
     @Override public boolean canUse() {
         if (target != null) return valid() || finish(false);
@@ -257,7 +259,7 @@ public final class Sanction extends Goal {
             target.hurtMarked = true;
             what = "push";
         }
-        Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied");
+        Contempt.suffer(target, entity.getRandom().nextBoolean() ? "cry" : "teary", "", 60, 1, "bullied", false);
         GameplayLog.event(entity, "sanction", "act={} target={} reason={} step={}/{} health={} -> {} transferred={}",
                 what, target.getUUID(), reason, acts, ACTS, healthBefore, target.getHealth(), transferred);
         // An accepted bite already decided through YukkuriDamage; pushes and real theft need the same handoff.
@@ -276,7 +278,7 @@ public final class Sanction extends Goal {
     private void driveOff() {
         entity.showReaction("angry", "settlement_drive", 80);
         boolean resisted = target.respondToBullying(entity);
-        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "drive_off_attempt");
+        Contempt.suffer(target, "teary", target.life().hasAccessory() ? "afraid" : "settlement_hurt", 100, 3, "drive_off_attempt", false);
         GameplayLog.event(entity, "sanction", "drive off attempted target={} response={}", target.getUUID(), resisted ? "counterattack" : "flee");
         finish(!resisted);
     }

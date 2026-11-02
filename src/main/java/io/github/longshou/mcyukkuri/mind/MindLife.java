@@ -118,6 +118,11 @@ public final class MindLife {
         unease = Math.clamp(unease + delta, 0f, 100f);
         if (cause != null && Math.abs(delta) >= 1) note(cause + (delta > 0 ? " +" : " ") + Math.round(delta * 10) / 10f);
     }
+    /** The pit role's own dirt/contempt/waste pressure stays visible without sweetening on its own; other causes still add normally. */
+    public void addSlavePressure(float delta, String cause) {
+        if (entity.settlement().society().slave() && delta > 0) delta = Math.min(delta, Math.max(0, UNEASY - unease));
+        add(delta, cause);
+    }
     public boolean set(float value) { unease = Math.clamp(value, 0f, 100f); if (unease < BREAKING) breakingTicks = 0; return true; }
     public boolean setSweetness(float value) { sweetness = Math.clamp(value, 0f, 100f); return true; }
     /** Testing door: start the sickness now (frenzy) or jump to the withering course. */
@@ -132,13 +137,16 @@ public final class MindLife {
     }
 
     /** A gameplay cause; dialogue playback never supplies or decodes this input. */
-    public void felt(EmotionEvent event) {
+    public void felt(EmotionEvent event) { felt(event, false); }
+    /** The same real event and cooldown, but as pressure intrinsic to the slave's pit conditions. */
+    public void feltSlavePressure(EmotionEvent event) { felt(event, true); }
+    private void felt(EmotionEvent event, boolean slavePressure) {
         if (event == null || entity.level().isClientSide) return;
         long now = entity.level().getGameTime();
         Long until = eventCooldown.get(event.bucket);
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
-        add(event.delta, event.bucket);
+        if (slavePressure) addSlavePressure(event.delta, event.bucket); else add(event.delta, event.bucket);
     }
 
     /** Called by YukkuriLife at the step a meal is swallowed. {@code petSweet}: Sweets.eaten already eased a pet. */
@@ -150,7 +158,7 @@ public final class MindLife {
         if (Consumables.kind(swallowed) == Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         if (FoodTaste.grass(swallowed)) { felt(EmotionEvent.BITTER_TASTE); return; }
-        if (swallowed.is(ModItems.WASTE.get())) { add(10, "waste_meal"); return; }
+        if (swallowed.is(ModItems.WASTE.get())) { addSlavePressure(10, "waste_meal"); return; }
         add(-3, "meal");
     }
 
@@ -225,7 +233,7 @@ public final class MindLife {
         if (entity.body().condition().hasSicknessPressure()) put("sickness", .5f);
         // Missing, broken, lost or merely torn accessory: the rate and its name come from headwear.Headwear (package 6).
         float hat = entity.headwear().uneasePerMinute();
-        if (hat > 0) put(entity.headwear().uneaseCause(), hat);
+        if (hat > 0 && !entity.settlement().society().slave()) put(entity.headwear().uneaseCause(), hat);
         if (entity.isPanicking()) put("panic", 2);
         var threat = entity.status().reactions().threat().stage();
         if (threat != Reactions.Threat.Stage.NONE) put("threat", 1.5f);
@@ -236,7 +244,8 @@ public final class MindLife {
                 .getPrecipitationAt(entity.blockPosition()) == Biome.Precipitation.RAIN)
             put(entity.level().isThundering() ? "thunder" : "rain", entity.level().isThundering() ? 5 : 2.5f);
         if (identity == Identity.STRAY) put("homeless", .3f);
-        if (entity.settlement().groupId() != null && entity.settlement().society().dejected()) put("shunned", 1);
+        if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
+                && !entity.settlement().society().slave()) put("shunned", 1);
         surroundings(identity);
         // reliefs
         put("ease", -1);
@@ -247,10 +256,6 @@ public final class MindLife {
         float rate = 0;
         for (var e : causes.entrySet()) rate += e.getValue() < 0 && nonYukkuri() ? e.getValue() * .5f : e.getValue();
         unease = Math.clamp(unease + rate * PER_SAMPLE, 0f, 100f);
-        // A slave kept in the waste pit (settlement/PitSlave), and a member the colony has taken back, carry dirt, mockery and
-        // a lost accessory for good: they stay as visible unease and tears, but cannot pile up into sweetening and the death it
-        // leads to (feedback 4, project design).
-        if (entity.settlement().society().upheld()) unease = Math.min(unease, UNEASY);
         // Lecture: the filling turns sweet while it cannot take it easy. Accumulates above 50, fades below 35.
         if (unease >= BondLevels.UNEASE_CARE_LIMIT) sweetness = Math.min(100, sweetness + (unease - 40) / 20f * PER_SAMPLE);
         else if (unease < UNEASY) sweetness = Math.max(0, sweetness - PER_SAMPLE);
@@ -288,7 +293,7 @@ public final class MindLife {
         if (stench > 0) put("stench", stench);
         // Droppings lying on the ground (life/Poops) smell like loose ones within three blocks.
         if (!waste && !Poops.near(level, entity.blockPosition(), 3, 2).isEmpty()) waste = true;
-        if (waste) put("waste", .5f);
+        if (waste && !entity.settlement().society().slave()) put("waste", .5f);
     }
 
     private boolean atHome(Identity identity) {
