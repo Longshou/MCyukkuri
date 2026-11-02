@@ -31,7 +31,9 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -50,6 +52,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.phys.AABB;
@@ -127,6 +130,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private final Map<UUID, Long> reseat = new HashMap<>();
     /** The stick this hat keeps for its owner (HatCustody's kit while worn); one place at a time. */
     private ItemStack kit = ItemStack.EMPTY;
+    /** The physical accessory while deployed; its type and wear survive independently of the owner's loaded entity. */
+    private ItemStack accessory = ItemStack.EMPTY;
 
     public PlacedHatEntity(EntityType<? extends PlacedHatEntity> type, Level level) { super(type, level); blocksBuilding = true; }
     @Override protected void defineSynchedData(SynchedEntityData.Builder builder) {
@@ -570,6 +575,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             return false;
         if (!getPassengers().isEmpty()) return false;
         if (!owner.life().returnAccessory(ownerYukkuri(), accessoryToken, null)) return false;
+        owner.headwear().receiveAccessoryState(accessory.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag());
         // the stick goes back into the worn hat; a hat already keeping one drops this one at her feet
         if (!kit.isEmpty() && !owner.life().custody().stow(kit)) dropKit(owner.position(), Vec3.ZERO, "retrieve_full");
         kit = ItemStack.EMPTY;
@@ -580,15 +586,10 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     private void release(String cause) {
         for (var held : instances.values()) held.release(this, cause);
     }
-    /** An empty shaken hull becomes its one physical accessory item, retaining its type and wear. */
+    /** An empty hull becomes its one physical accessory item, retaining its type and wear even while its owner is unloaded. */
     public void dropAsItem(String cause) {
         var owner = owner();
-        if (owner == null) {
-            GameplayLog.event(this, "hat", "pickup refused reason=owner_unloaded owner={}", ownerYukkuri());
-            return;
-        }
-        var stack = new ItemStack(ModItems.accessoryFor(owner));
-        AccessoryItem.markSource(stack, owner);
+        var stack = accessory;
         var drop = new ItemEntity(level(), getX(), getY(), getZ(), stack);
         Motor.velocity(drop, getDeltaMovement(), cause);
         drop.setDefaultPickUpDelay();
@@ -596,7 +597,9 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
             GameplayLog.event(this, "hat", "pickup refused reason=item_spawn_failed owner={}", ownerYukkuri());
             return;
         }
-        if (ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);
+        if (owner != null && ownsPhysicalHat(owner)) owner.life().removeAccessory(cause);
+        else if (owner == null) YukkuriWorldData.get((ServerLevel)level()).accessoryTransferred(ownerYukkuri(), accessoryToken, drop.getUUID());
+        accessory = ItemStack.EMPTY;
         GameplayLog.event(this, "hat", "pickup cause={} item={} count=1 owner={}", cause, stack.getItem(), ownerYukkuri());
         discard();
     }
@@ -621,6 +624,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (!level.hasChunkAt(spot)) return refusePlacement(owner, at, "spot_unloaded", spot.toShortString());
         // Open water carries a hat set down on it (it floats, PlacedHatBehavior); a catch on land asks HatProp.fits for dry ground.
         boolean water = level.getFluidState(spot).is(FluidTags.WATER) && level.getFluidState(spot.above()).isEmpty();
+        if (water && !PlacedHatBehavior.waterFits(level, at, HatGeometry.wornForm(owner), HatScale.of(owner)))
+            return refusePlacement(owner, at, "not_carried_water", spot.toShortString());
         if (!water && !level.getFluidState(spot).isEmpty()) return refusePlacement(owner, at, "spot_in_fluid", spot.toShortString());
         if (!water && !level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
             return refusePlacement(owner, at, "no_sturdy_floor", spot.below().toShortString() + " " + level.getBlockState(spot.below()).getBlock());
@@ -656,8 +661,13 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
 
     // ---------------------------------------------------------------- identity and wear
-    public void syncAccessoryIdentity(YukkuriEntity owner) {
-        entityData.set(HULL_DAMAGE,Math.clamp(owner.headwear().damage(),0,2));
+    private void syncAccessoryIdentity(YukkuriEntity owner) {
+        accessory = new ItemStack(ModItems.accessoryFor(owner));
+        AccessoryItem.markSource(accessory, owner);
+        syncAccessoryDamage();
+    }
+    private void syncAccessoryDamage() {
+        entityData.set(HULL_DAMAGE, accessory.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt("HatDamage"));
     }
     public int hullDamage() { return entityData.get(HULL_DAMAGE); }
     public State state() { return State.values()[Mth.clamp(entityData.get(STATE), 0, State.values().length-1)]; }
@@ -723,7 +733,6 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         var accessoryOwner=owner();
         // Vanilla restores passengers one at a time; validate only after the host enters the world tick.
         checkRiders(accessoryOwner);
-        if(accessoryOwner!=null)syncAccessoryIdentity(accessoryOwner);
         if (state() == State.RESCUED) { if (tickCount % 20 == 0) discard(); return; }
         syncRiders();
         var now = behavior();
@@ -914,6 +923,7 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         tag.putFloat("Roll",roll());tag.putFloat("Pitch",pitch());
         tag.putBoolean("Inverted",upsideDown());
         if(!kit.isEmpty())tag.put("Kit",kit.save(registryAccess()));
+        if(!accessory.isEmpty())tag.put("Accessory",accessory.save(registryAccess()));
         // The behaviour it last floated with keeps its state (stores included) while it lies on the ground.
         if(lastProvider!=null){var motion=instances.get(lastProvider).save();motion.putString("Kind",lastProvider.id());tag.put("Motion",motion);}
         else if(savedMotion!=null)tag.put("Motion",savedMotion.copy());
@@ -932,6 +942,8 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         inverted(tag.getBoolean("Inverted"));
         rollO=roll();pitchO=pitch();
         kit=ItemStack.parseOptional(registryAccess(),tag.getCompound("Kit"));
+        accessory=ItemStack.parseOptional(registryAccess(),tag.getCompound("Accessory"));
+        syncAccessoryDamage();
         savedMotion=tag.contains("Motion",Tag.TAG_COMPOUND)?tag.getCompound("Motion"):null;
         // The recreated provider consumes savedMotion once; reading never releases the replaced in-memory state.
         instances.clear(); provider=lastProvider=null; behaviorPicked=false; behaviorTick=-1; ran=null;

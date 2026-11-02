@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -77,20 +79,22 @@ public interface PlacedHatBehavior {
         String id();
         boolean applies(PlacedHatEntity hat, PlacedHatBehavior current);
         PlacedHatBehavior create(PlacedHatEntity hat);
-        /** A hat of {@code hullScale} set down at {@code at} would be carried by this behaviour (a water surface for one that
-         *  floats, deep enough for its own hull). */
-        default boolean carries(Level level, Vec3 at, float hullScale) { return false; }
+        /** Placement constraints of this provider's hull forms; other forms retain their own behaviour. */
+        default boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) { return true; }
     }
 
     List<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
 
     static void register(Provider provider) { PROVIDERS.add(provider); }
 
-    /** Some registered behaviour would carry a hat of {@code hullScale} set down at {@code at} (HatProp's water placement asks
-     *  this). */
-    static boolean carried(Level level, Vec3 at, float hullScale) {
-        for (var provider : PROVIDERS) if (provider.carries(level, at, hullScale)) return true;
-        return false;
+    /** Every water placement, including flowing-water self rescue, uses the same surface and provider admission. */
+    static boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) {
+        var spot = BlockPos.containing(at);
+        if (!level.hasChunkAt(spot) || !level.getFluidState(spot).is(FluidTags.WATER)
+                || !level.getFluidState(spot.above()).isEmpty()
+                || !level.getBlockState(spot.above()).getCollisionShape(level, spot.above()).isEmpty()) return false;
+        for (var provider : PROVIDERS) if (!provider.waterFits(level, at, form, hullScale)) return false;
+        return true;
     }
 
     /** Resting on the ground: vanilla gravity and block collision, never pushed, its pose flat (or flat upside down). */

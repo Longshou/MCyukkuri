@@ -113,8 +113,13 @@ public final class ContactGeometry {
     /** How much farther {@code point} (a water surface, a brim) lies than the braid holds from where the body stands, upright or
      *  in the low lean ({@code lean}), sight free (blocks, 0 or less in reach). */
     public static double braidGap(YukkuriEntity body, Vec3 point, boolean lean) {
+        return braidGap(body, body.position(), point, lean);
+    }
+
+    /** The same reach from a planned stand, without moving the body. */
+    public static double braidGap(YukkuriEntity body, Vec3 at, Vec3 point, boolean lean) {
         if (!braided(body) || point == null) return Double.POSITIVE_INFINITY;
-        Vec3 root = root(body, body.position(), point, lean);
+        Vec3 root = root(body, at, point, lean);
         return sight(body, root, point) ? root.distanceTo(point) - braidLength(body) : Double.POSITIVE_INFINITY;
     }
 

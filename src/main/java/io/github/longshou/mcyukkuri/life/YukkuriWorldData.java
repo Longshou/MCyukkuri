@@ -255,6 +255,11 @@ public final class YukkuriWorldData extends SavedData {
         if(transfer==null||!transfer.token.equals(token))return null;
         accessoryTransfers.remove(owner);setDirty();return transfer.recipient;
     }
+    /** A completed physical transfer; the existing token notice also reaches an owner whose chunk is unloaded. */
+    public void accessoryTransferred(UUID owner, UUID token, UUID recipient) {
+        accessoryTransfers.put(owner, new AccessoryTransfer(token, recipient));
+        setDirty();
+    }
     /**
      * Playground field clear only (command/PlaygroundTools): acquaintances and pending accessory losses of individuals the clear
      * removed. Custody records are kept: a carrier or freezer may still hold the token.

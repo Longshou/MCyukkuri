@@ -48,13 +48,18 @@ public final class Beckon implements Action {
     @Override public String id() { return ID; }
 
     @Override public Feasibility check(YukkuriEntity body) {
-        if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
         if (!(Attach.of(body) instanceof AttachState.Free free) || free.inWater() || !body.onGround()) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_ashore");
+        return checkFrom(body, body.position(), body.getYRot());
+    }
+
+    /** Admission at a reachable dry stand, facing the host; execution uses this same reach and water test. */
+    public Feasibility checkFrom(YukkuriEntity body, Vec3 stand, float yaw) {
+        if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
-        double far = host.entity().position().subtract(body.position()).horizontalDistance() - REACH;
+        double far = host.entity().position().subtract(stand).horizontalDistance() - REACH;
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
-        water = water(body);
-        double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, water, true);
+        water = water(body, stand, yaw);
+        double gap = water == null ? Double.POSITIVE_INFINITY : ContactGeometry.braidGap(body, stand, water, true);
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, Double.isFinite(gap) ? gap : 0, water == null ? "no_water_ahead" : "water_out_of_reach");
         if (gap() <= AT) return Feasibility.of(Reason.NO_PROGRESS, 0, "at_bank_already");
         return body.life().energy() < COST ? Feasibility.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy()) : Feasibility.pass();
@@ -62,13 +67,13 @@ public final class Beckon implements Action {
 
     /** The water's surface the braid can stroke ahead of the body: the nearest one within its own reach past the front (a stand at
      *  the very edge has the water one step farther out), null when no water lies ahead. */
-    private static Vec3 water(YukkuriEntity body) {
-        double yaw = Math.toRadians(body.getYRot());
+    private static Vec3 water(YukkuriEntity body, Vec3 stand, float facing) {
+        double yaw = Math.toRadians(facing);
         var level = body.level();
         for (double out = body.getBbWidth() * Mth.SQRT_OF_TWO / 2 + AHEAD; out <= AHEAD_MOST; out += .25) {
-            double x = body.getX() - Math.sin(yaw) * out, z = body.getZ() + Math.cos(yaw) * out;
+            double x = stand.x - Math.sin(yaw) * out, z = stand.z + Math.cos(yaw) * out;
             for (int dy = 0; dy >= -1; dy--) {
-                var p = BlockPos.containing(x, body.getY() - .01 + dy, z);
+                var p = BlockPos.containing(x, stand.y - .01 + dy, z);
                 var fluid = level.getFluidState(p);
                 if (fluid.is(FluidTags.WATER)) return new Vec3(x, p.getY() + fluid.getHeight(level, p), z);
             }

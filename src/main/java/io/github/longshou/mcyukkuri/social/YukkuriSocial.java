@@ -13,6 +13,12 @@ import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.AbilityModifier;
+import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.ItemApproach;
+import io.github.longshou.mcyukkuri.motor.MotorOwner;
+import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.pet.PetSkill;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -30,11 +36,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 /** Optional social goals yield to physiology, commands and danger. */
-public final class YukkuriSocial {
+public final class YukkuriSocial implements MotorOwner {
     private enum Task { NONE, PLAYER, PEER, TOY, TEACH, WAIT, ACCESSORY, ANSWER }
     private final YukkuriEntity entity;
     private Task task = Task.NONE;
     private Entity target;
+    private Action accessoryMove;
     private UUID protectedContact;
     private int elapsed, duration, teachingWait;
     private boolean greeted;
@@ -73,6 +80,8 @@ public final class YukkuriSocial {
             case TOY -> Behaviors.TOY; case TEACH -> Behaviors.TEACH; case WAIT -> Behaviors.WAIT; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; }; }
     public boolean holdingStill() { return task == Task.TEACH || task == Task.WAIT; }
     public boolean active() { return task != Task.NONE; }
+    @Override public String ownerId() { return "social:accessory"; }
+    public boolean ownsBodyInWater() { return task == Task.ACCESSORY && AbilityModifier.flag(entity, AbilityModifier.SWIM); }
     public int toyTouches() { return toyTouches; }
     public boolean beginPlay(ItemEntity toy) {
         if(!entity.childhood().canExercise()||entity.level().isClientSide||toy.level()!=entity.level()||!toy.isAlive()||!Facilities.toy(toy.getItem())
@@ -162,7 +171,8 @@ public final class YukkuriSocial {
         // A hatless owner looks for the pieces of its own accessory first; a hat on the head or in custody has none.
         if(!entity.life().hasAccessory()&&!entity.life().accessoryCustodied()){
             target=level.getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(8),item->item.isAlive()
-                    &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item))
+                    &&AccessoryItem.matches(entity,item.getItem())&&entity.hasLineOfSight(item)
+                    &&(ContactGeometry.inMouthReach(entity,item)||ItemApproach.next(entity,item)!=null))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if(target!=null){task=Task.ACCESSORY;duration=240;elapsed=0;return true;}
         }
@@ -249,20 +259,17 @@ public final class YukkuriSocial {
         }
         if(task==Task.ACCESSORY&&target instanceof ItemEntity item){
             if(!AccessoryItem.matches(entity,item.getItem())){stop();return;}
-            var flat=target.position().subtract(entity.position()).multiply(1,0,1);
-            if(entity.getBoundingBox().inflate(.2).intersects(item.getBoundingBox())&&!item.hasPickUpDelay()){
+            if(ContactGeometry.inMouthReach(entity,item)){
+                if(item.hasPickUpDelay())return;
                 if(AccessoryItem.receive(entity,item.getItem(),null)){
                     item.getItem().shrink(1);if(item.getItem().isEmpty())item.discard();else item.setItem(item.getItem().copy());
                 }
                 stop();return;
             }
-            // Over the last step, dry stand or not: a hat item grounded in shallow water is waded to with the body's own movement
-            // (no dry stand exists there) and worn on touch; anywhere farther the walk needs a real path.
-            boolean wade=item.isInWater();
-            if(wade||flat.lengthSqr()<1&&entity.life().dryStand(BlockPos.containing(item.getX(),entity.getY(),item.getZ()))){
-                entity.getNavigation().stop();entity.getMoveControl().setWantedPosition(item.getX(),entity.getY(),item.getZ(),.8);
-                if(entity.onGround()&&elapsed%20==0&&item.getY()>entity.getY()+entity.getBbHeight())entity.getJumpControl().jump();
-            }else if(elapsed%10==1&&!entity.life().navigate(BlockPos.containing(item.getX(),entity.getY(),item.getZ()),1,false))stop();
+            if(entity.motor().current()==accessoryMove&&accessoryMove!=null)return;
+            if(accessoryMove!=null&&!(entity.motor().last() instanceof Outcome.Done)){stop();return;}
+            accessoryMove=ItemApproach.next(entity,item);
+            if(accessoryMove==null||!entity.motor().run(this,accessoryMove))stop();
             return;
         }
         if (task == Task.TEACH || task == Task.WAIT) {
@@ -362,7 +369,7 @@ public final class YukkuriSocial {
         return true;
     }
     private boolean urgent() {
-        return entity.life().nutrition() < 15 || entity.life().energy() < 15 || entity.isInWaterOrBubble()
+        return entity.life().nutrition() < 15 || entity.life().energy() < 15 || entity.isInWaterOrBubble()&&!ownsBodyInWater()
                 || entity.isOnFire() || entity.mind().nonYukkuri();
     }
     private boolean contactReady(Entity other) {
@@ -382,6 +389,8 @@ public final class YukkuriSocial {
         observedDistance = entity.distanceTo(other);
     }
     public void stop() {
+        entity.motor().cancel(this,"social_stop");
+        accessoryMove=null;
         if(task==Task.PLAYER||task==Task.PEER)GameplayLog.limited(entity,"social","contact.ended",200,
                 "social contact ended target={} greeted={} retreat={} elapsed={}/{}",
                 target==null?null:target.getUUID(),greeted,retreat,elapsed,duration);

@@ -349,7 +349,7 @@ final class YukkuriGoals {
                 && !bodyOwnedInWater() && !owner.predatorFlying(); }
         private boolean bodyOwnedInWater() {
             var intent = Drive.running(owner, "aquatic");
-            return intent != null && intent.ownsBodyInWater();
+            return intent != null && intent.ownsBodyInWater() || owner.social().ownsBodyInWater();
         }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {

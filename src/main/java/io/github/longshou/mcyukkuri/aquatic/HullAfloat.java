@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
+import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatBehavior;
@@ -86,8 +87,8 @@ public final class HullAfloat implements PlacedHatBehavior {
                 return current instanceof HullAfloat;
             }
             @Override public PlacedHatBehavior create(PlacedHatEntity hat) { return new HullAfloat(hat); }
-            @Override public boolean carries(Level level, Vec3 at, float hullScale) {
-                return Waters.calm(level, BlockPos.containing(at)) && floats(level, at, hullScale);
+            @Override public boolean waterFits(Level level, Vec3 at, HullProfile form, float hullScale) {
+                return !form.seated() || floats(level, at, hullScale);
             }
         });
     }

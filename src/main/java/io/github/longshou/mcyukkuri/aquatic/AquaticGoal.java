@@ -145,18 +145,9 @@ final class AquaticGoal extends Goal {
         if (body.family().adult()) {
             help(out);
             if (HatProp.usable(body) && !body.life().custody().lost()) owner(out);
-            else recover(out);
         }
         else young(out);
         return out;
-    }
-
-    /** Her own hat came down with a hull: its item lies near her and she wants it back, worn again (HEADWEAR). */
-    private void recover(List<Desire> out) {
-        var item = Recover.hat(body);
-        if (item == null) return;
-        out.add(Desire.of("recover_hat", num("reclaim", 85), List.of(item.getUUID(), body.blockPosition()),
-                () -> "item=" + item.getItem().getItem() + " at=" + GameplayLog.at(item.position()), () -> Recover.of(body)));
     }
 
     private static double floor(double desire) { return desire >= num("floor", 20) ? desire : 0; }
@@ -290,7 +281,7 @@ final class AquaticGoal extends Goal {
         var own = AquaticLife.hat(body);
         if (own != null && AquaticLife.aboard(body, own) && AquaticLife.afloat(own))
             out.add(Desire.of("come_ashore", floor(num("young_return", 60)), List.of(cell(own)), () -> "own_hat=afloat", () -> Ashore.come(body)));
-        else if (own != null && AquaticLife.ashore(body))
+        else if (own != null && AquaticLife.ashore(body) && Ashore.canReclaim(body, own))
             out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(own), form(own), body.blockPosition()), () -> "hat=" + form(own),
                     () -> Ashore.reclaim(body)));
         var ride = AquaticLife.riding(body);

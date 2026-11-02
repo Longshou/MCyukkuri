@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.motor.AbilityModifier;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.Prop;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
@@ -34,7 +33,6 @@ import java.util.function.IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -123,7 +121,7 @@ public final class EscapeWater implements Intent {
                 }),
                 new Way("hat_boat", boat == null ? boatRefusal() : Feasibility.pass(), AT_HAT, i -> {
                     var placed = i == 0 ? null : PlacedHatEntity.find(body);
-                    return i == 0 ? new Step.Do(new PlaceProp(new Afloat(body), boat, body.getYRot()))
+                    return i == 0 ? new Step.Do(new PlaceProp(new HatProp(body, true, true), boat, body.getYRot()))
                             : placed == null ? null
                             : i == 1 ? new Step.Do(Swim.to(() -> placed.isRemoved() ? null : ContactGeometry.nearestRim(body, placed).orElse(null), HAT_SWIM))
                             : i == 2 ? new Step.Do(Climb.onto(placed)) : null;
@@ -207,7 +205,7 @@ public final class EscapeWater implements Intent {
                 || BodyAbility.of(body).climbRise() <= 0) return null;
         float[] brim = HatGeometry.wornForm(body).brim();
         double apart = body.getBbWidth() / 2 + Math.max(brim[0], brim[1]) * HatScale.of(body) / 16 + CLEAR;
-        var hat = new Afloat(body);
+        var hat = new HatProp(body, true, true);
         for (int i = 0; i < 8; i++) {
             double yaw = Math.toRadians(body.getYRot() + i * 45);
             double x = body.getX() - Math.sin(yaw) * apart, z = body.getZ() + Math.cos(yaw) * apart;
@@ -226,32 +224,6 @@ public final class EscapeWater implements Intent {
         if (!body.life().custody().worn()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
         if (BodyAbility.of(body).climbRise() <= 0) return Feasibility.of(Reason.TOO_HIGH, 0, "cannot_climb");
         return Feasibility.of(Reason.NO_ROOM, 0, "no_open_water_beside");
-    }
-
-    /** Its own worn hat set down on the open water beside it, where {@link PlacedHatEntity#setDown} floats it: the hat prop in
-     *  every read and in the transfer, its stand an open water surface, the aquatic set-down clip. */
-    private record Afloat(YukkuriEntity owner, HatProp hat) implements Prop {
-        Afloat(YukkuriEntity owner) { this(owner, new HatProp(owner, false)); }
-        @Override public String id() { return hat.id(); }
-        @Override public boolean worn() { return hat.worn(); }
-        @Override public boolean deployed() { return hat.deployed(); }
-        @Override public boolean riders() { return hat.riders(); }
-        @Override public boolean empty() { return hat.empty(); }
-        @Override public Entity entity() { return hat.entity(); }
-        @Override public Feasibility fits(Vec3 at, float yaw) {
-            if (!worn() || deployed()) return Feasibility.of(Reason.NO_TOOL, 0, "hat_not_worn");
-            if (owner.isPassenger()) return Feasibility.of(Reason.NO_ROOM, 0, "passenger");
-            var level = owner.level();
-            var spot = BlockPos.containing(at);
-            if (!level.hasChunkAt(spot)) return Feasibility.of(Reason.NO_ROOM, 0, "chunk_unloaded");
-            if (!level.getFluidState(spot).is(FluidTags.WATER) || !level.getFluidState(spot.above()).isEmpty()
-                    || !level.getBlockState(spot.above()).getCollisionShape(level, spot.above()).isEmpty())
-                return Feasibility.of(Reason.NO_SUPPORT, 0, "not_open_water " + spot.toShortString());
-            return Feasibility.pass();
-        }
-        @Override public Entity setDown(Vec3 at, float yaw) { return hat.setDown(at, yaw); }
-        @Override public boolean takeBack() { return hat.takeBack(); }
-        @Override public String clip(boolean on) { return on ? Behaviors.HAT_ON_SELF_AQ : Behaviors.HAT_OFF_SELF_AQ; }
     }
 
     /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */
