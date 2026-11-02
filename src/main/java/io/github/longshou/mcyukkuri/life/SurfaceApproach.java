@@ -114,7 +114,7 @@ public final class SurfaceApproach {
     private static boolean supported(YukkuriEntity actor, Vec3 feet, boolean planning) {
         var level = actor.level();
         if (!planning && !Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
+        if (!level.hasChunkAt(BlockPos.containing(feet)) || wet(actor, feet)) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (planning ? level.getBlockCollisions(actor,body).iterator().hasNext() : !level.noCollision(actor, body)) return false;
         double radius = supportRadius(actor);
@@ -124,6 +124,37 @@ public final class SurfaceApproach {
             if (!level.getBlockCollisions(actor, foot).iterator().hasNext()) return false;
         }
         return true;
+    }
+
+    /**
+     * Water under the body's own footprint: the water a land body cannot stand in, which the path finder refuses as a step
+     * ({@code PathType.WATER} is impassable, {@link YukkuriEntity} sets the malus to -1). The whole box counts, not only the
+     * cell under the feet: beside a bank level with the water the rim of a dry block is still water under half the body.
+     */
+    private static boolean wet(YukkuriEntity actor, Vec3 feet) {
+        var level = actor.level();
+        var box = actor.getBoundingBox().move(feet.subtract(actor.position()));
+        for (var cell : BlockPos.betweenClosed(BlockPos.containing(box.minX, feet.y, box.minZ),
+                BlockPos.containing(box.maxX - .005, feet.y, box.maxZ - .005)))
+            if (!level.getFluidState(cell).isEmpty()) return true;
+        return false;
+    }
+
+    /** The straight step to {@code to} keeps the body's own footprint out of water all the way (sampled every .1 blocks). */
+    public static boolean dryStep(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        return dryAim(actor, from, to).distanceToSqr(to) < 1.0E-8;
+    }
+
+    /** Where a walker may aim on its way to {@code to}: as far as the way there keeps its footprint on the land, its own place when the first step would be water. */
+    public static Vec3 dryAim(YukkuriEntity actor, Vec3 to) { return dryAim(actor, actor.position(), to); }
+
+    private static Vec3 dryAim(YukkuriEntity actor, Vec3 from, Vec3 to) {
+        int samples = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .1));
+        for (int i = 1; i <= samples; i++) {
+            if (!wet(actor, from.lerp(to, (double)i / samples))) continue;
+            return i == 1 ? from : from.lerp(to, (double)(i - 1) / samples);
+        }
+        return to;
     }
 
     public static boolean clearLastStep(YukkuriEntity actor, Vec3 destination) {
@@ -153,7 +184,7 @@ public final class SurfaceApproach {
     private static boolean supportedStep(YukkuriEntity actor, Vec3 feet) {
         var level = actor.level();
         if (!Reactions.Weather.allowsStep(actor,BlockPos.containing(feet))) return false;
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || !level.getFluidState(BlockPos.containing(feet)).isEmpty()) return false;
+        if (!level.hasChunkAt(BlockPos.containing(feet)) || wet(actor, feet)) return false;
         AABB body = actor.getBoundingBox().move(feet.subtract(actor.position())).deflate(.005);
         if (!level.noCollision(actor, body)) return false;
         // Match the physical feet: vanilla can land while only part of the bounding box touches
@@ -361,7 +392,7 @@ public final class SurfaceApproach {
         Vec3 before=actor.position();double length=0;
         for(int i=0;i<path.getNodeCount();i++){
             var next=path.getEntityPosAtNode(actor,i);
-            if(!actor.level().getFluidState(path.getNodePos(i)).isEmpty()||!clearOf(actor,before,next,body))return null;
+            if(!clearOf(actor,before,next,body)||!dryStep(actor,before,next))return null;
             length+=before.distanceTo(next);before=next;
         }
         // Recheck the chosen endpoint: vanilla may return a partial route, or a node at a different height.

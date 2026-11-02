@@ -43,7 +43,8 @@ import net.minecraft.world.phys.Vec3;
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
  * voyage came back); one that does not only struggles and waits for its parent to lift it out. Satisfied once the body stands on a stand it
- * really rests on out of the water, or is aboard; failing costs what the water costs.
+ * really rests on out of the water with its own footprint clear of it (a rim level with the water is no stand) and its own climb,
+ * if one is running, has finished; failing costs what the water costs.
  */
 public final class EscapeWater implements Intent {
     /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); how long one press lasts before it
@@ -86,7 +87,10 @@ public final class EscapeWater implements Intent {
 
     @Override public String id() { return "escape_water"; }
 
-    @Override public boolean satisfied() { return body.isPassenger() || !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()); }
+    @Override public boolean satisfied() {
+        return body.isPassenger() || !body.isInWaterOrBubble() && !(body.motor().current() instanceof Climb)
+                && SurfaceApproach.stands(body, body.position());
+    }
 
     /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
     @Override public void ended(IntentRunner.Result result) {

@@ -318,7 +318,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
             var aim = aim(wanted, true);
             if (aim != null && aim != wanted && !NestDoorway.blocksLine(walker,walker.position(),aim)
-                    && SurfaceApproach.supported(walker, aim)) control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
+                    && SurfaceApproach.supported(walker, aim)) {
+                control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
+                wanted = aim;
+            }
+            // A route's nodes are dry, but the straight step to one can still cross a corner of water: the step stops at the land.
+            var dry = SurfaceApproach.dryAim(walker, wanted);
+            if (dry.distanceToSqr(wanted) > 1.0E-8) control.setWantedPosition(dry.x, dry.y, dry.z, control.getSpeedModifier());
         }
     }
 
