@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
@@ -86,10 +87,22 @@ final class Ashore implements Intent {
     }
 
     @Override public List<Method> methods() {
-        var land = Plan.of(reclaim ? "take_back" : "land", this::derive);
+        var land = reclaim ? Plan.of("take_back", this::beckonable, this::derive) : Plan.of("land", this::derive);
         if (!reclaim) return List.of(land);
         if (waterTried) return List.of();
         return List.of(land, new Plan("swim_to_hat", this::swimmable, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR), this::swim));
+    }
+
+    /** The bank way reaches her hat when it lies on dry ground or floats within a braid stroke of a bank stand she can walk to.
+     *  Farther out the intent goes into the water after it from the start: the distance decides, a wait would only time out. */
+    private Feasibility beckonable() {
+        var hat = AquaticLife.hat(owner);
+        if (hat == null || hat.isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "hat_gone");
+        if (!AquaticLife.onWater(hat)) return Feasibility.pass();
+        var edge = Waters.beside(hat, owner);
+        if (edge == null) return Feasibility.of(Reason.NO_PATH, 0, "no_bank_edge");
+        double gap = edge.stand(owner.getBbWidth()).multiply(1, 0, 1).distanceTo(hat.position().multiply(1, 0, 1)) - Beckon.REACH;
+        return gap > 0 ? Feasibility.of(Reason.TOO_FAR, gap, "beckon_out_of_reach") : Feasibility.pass();
     }
 
     private List<Supplier<Step>> derive() {
@@ -134,26 +147,35 @@ final class Ashore implements Intent {
     }
 
     /** From the bank edge nearest the hat: walk there, face the hat, then the closing action ({@code close}, then {@code after}).
-     *  On the water and not yet in its grip, the hat is drawn in to the bank with the braid first (Beckon); too far for that, or with
-     *  no edge near it, she waits for it to drift in (the player's nudge too) and says why once. */
+     *  On the water and not yet in its grip, the hat is drawn in to the bank with the braid first (Beckon). A reclaim whose hat
+     *  drifted out of the braid's reach has no bank way then ({@code swim_to_hat} takes over); a coming-ashore owner calls for it
+     *  and waits for it to drift in (the player's nudge too), saying why once. */
     @SafeVarargs
     private List<Supplier<Step>> fromBank(PlacedHatEntity hat, Supplier<Action> close, Supplier<Step>... after) {
         var edge = Waters.beside(hat, owner);
-        if (edge == null && !AquaticLife.onWater(hat)) return beached(hat, close, after);
-        Supplier<Step> drift = () -> {
-            GameplayLog.limited(owner, "headwear", "reclaim.wait", WAIT, "reclaim waiting reason={} hat={} form={} distance={}", edge == null ? "no_bank_edge" : "out_of_reach",
-                    hat.getUUID(), AquaticGoal.form(hat), Math.round(hat.distanceTo(owner) * 10) / 10.0);
-            return new Step.Wait(() -> ContactGeometry.reachesHull(owner, hat, true, false) || beckoning.near(owner, hat), WAIT, Behaviors.BOAT_CALL);
-        };
-        if (edge == null) return List.of(drift);
+        if (edge == null) {
+            if (!AquaticLife.onWater(hat)) return beached(hat, close, after);
+            return reclaim ? null : List.of(() -> waiting(hat, null));
+        }
         var stand = edge.stand(owner.getBbWidth());
         var steps = new ArrayList<Supplier<Step>>();
         steps.add(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(Walk.stand(stand, 1)));
         steps.add(() -> new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), hat.position()))));
         if (AquaticLife.onWater(hat)) steps.add(() -> ContactGeometry.reachesHull(owner, hat, true, false) ? null : beckoning.step(owner, hat));
-        steps.add(() -> ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat) ? new Step.Do(close.get()) : drift.get());
+        steps.add(() -> {
+            if (ContactGeometry.reachesHull(owner, hat, true, false) || !AquaticLife.onWater(hat)) return new Step.Do(close.get());
+            return reclaim ? null : waiting(hat, edge);
+        });
         steps.addAll(List.of(after));
         return steps;
+    }
+
+    /** Waiting for a hat out of the braid's reach to drift in, said once with its real reason and the calling clip. */
+    private Step waiting(PlacedHatEntity hat, Waters.Edge edge) {
+        GameplayLog.limited(owner, "headwear", "reclaim.wait", WAIT, "reclaim waiting reason={} hat={} form={} distance={}",
+                edge == null ? "no_bank_edge" : "out_of_reach", hat.getUUID(), AquaticGoal.form(hat),
+                Math.round(hat.distanceTo(owner) * 10) / 10.0);
+        return new Step.Wait(() -> ContactGeometry.reachesHull(owner, hat, true, false) || beckoning.near(owner, hat), WAIT, Behaviors.BOAT_CALL);
     }
 
     /** A hat on dry ground: walk up beside it (the family pickup's stand), then the closing action. */

@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.tags.FluidTags;
@@ -226,6 +228,8 @@ final class ScenarioSetup {
         if (!(owner.level() instanceof ServerLevel level) || !owner.isAlive()) return "帽主要是活着的魔理沙。";
         if (!level.getFluidState(water).is(FluidTags.WATER) || !level.getFluidState(water.above()).isEmpty())
             return "目标格 " + water.toShortString() + " 不是水面（要是水，且上方不是水）。";
+        if (!HullAfloat.floats(level, Vec3.atBottomCenterOf(water), HatScale.of(owner)))
+            return "目标格 " + water.toShortString() + " 水太浅，帽子会落底变回物品。";
         for (var child : young) {
             if (child == owner || child.isPassenger() || child.isVehicle()) return child.getName().getString() + " 已经在乘坐或背着别的个体。";
             String refusal = kinRefusal(owner, child, false);

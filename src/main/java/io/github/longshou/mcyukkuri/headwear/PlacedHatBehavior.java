@@ -77,17 +77,19 @@ public interface PlacedHatBehavior {
         String id();
         boolean applies(PlacedHatEntity hat, PlacedHatBehavior current);
         PlacedHatBehavior create(PlacedHatEntity hat);
-        /** A hat set down at {@code at} would be carried by this behaviour (a water surface for one that floats). */
-        default boolean carries(Level level, Vec3 at) { return false; }
+        /** A hat of {@code hullScale} set down at {@code at} would be carried by this behaviour (a water surface for one that
+         *  floats, deep enough for its own hull). */
+        default boolean carries(Level level, Vec3 at, float hullScale) { return false; }
     }
 
     List<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
 
     static void register(Provider provider) { PROVIDERS.add(provider); }
 
-    /** Some registered behaviour would carry a hat set down at {@code at} (HatProp's water placement asks this). */
-    static boolean carried(Level level, Vec3 at) {
-        for (var provider : PROVIDERS) if (provider.carries(level, at)) return true;
+    /** Some registered behaviour would carry a hat of {@code hullScale} set down at {@code at} (HatProp's water placement asks
+     *  this). */
+    static boolean carried(Level level, Vec3 at, float hullScale) {
+        for (var provider : PROVIDERS) if (provider.carries(level, at, hullScale)) return true;
         return false;
     }
 

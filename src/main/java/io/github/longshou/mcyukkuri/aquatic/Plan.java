@@ -34,7 +34,13 @@ final class Plan implements Method {
     }
 
     static Plan of(String id, Supplier<List<Supplier<Step>>> derive) {
-        return new Plan(id, Feasibility::pass, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR, Reason.TARGET_MOVED), derive);
+        return of(id, Feasibility::pass, derive);
+    }
+
+    /** A way that only applies while {@code applicable} says it does (its facts are real now); otherwise the intent takes its
+     *  next way. */
+    static Plan of(String id, Supplier<Feasibility> applicable, Supplier<List<Supplier<Step>>> derive) {
+        return new Plan(id, applicable, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR, Reason.TARGET_MOVED), derive);
     }
 
     @Override public String id() { return id; }

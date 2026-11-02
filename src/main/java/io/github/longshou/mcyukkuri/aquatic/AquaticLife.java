@@ -171,7 +171,7 @@ public final class AquaticLife {
             return seat == null ? "no_seat" : board(body, hat, seat.local(), cause, false);
         }
         if (!HatProp.usable(body) || !body.life().custody().worn()) return "no_hat";
-        var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().findFirst().orElse(null);
+        var water = Waters.edges(body, body.position(), SPAWN_REACH, true).stream().filter(e -> Waters.floats(e, body)).findFirst().orElse(null);
         if (water == null) return "no_water";
         var hat = PlacedHatEntity.setDown(body, Waters.hatAt(water, body), water.yaw() + 90, HatGeometry.Role.SELF);
         if (hat == null) return "set_down_refused";

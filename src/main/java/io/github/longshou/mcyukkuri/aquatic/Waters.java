@@ -185,6 +185,7 @@ final class Waters {
 
     private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards) {
         for (var e : freeEdges(body)) {
+            if (!floats(e, body)) continue;
             var at = hatAt(e, body);
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)) continue;
@@ -409,6 +410,12 @@ final class Waters {
 
     static Vec3 boardingStand(Edge edge, PlacedHatEntity hat, YukkuriEntity body) {
         return edge.edge().subtract(edge.normal().scale(SurfaceApproach.supportRadius(body)));
+    }
+
+    /** Whether the water in front of {@code edge} is deep enough to carry a hull of {@code body}'s size (never set one down where it
+     *  would rest on the floor and become its item). */
+    static boolean floats(Edge edge, YukkuriEntity body) {
+        return HullAfloat.floats(body.level(), hatAt(edge, body), HatScale.of(body));
     }
 
     /** {@code [aquatic] route} once a leg is planned (limited) or refused. */

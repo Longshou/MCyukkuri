@@ -24,6 +24,7 @@
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：试玩场布置（反馈 1、3、6、9，运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b) 复测失败）：重置强开标签、嗯嗯坑玩家埋土、茎生与水流演示实体卡墙。完成：标签保留手动开关；全部场景的实体和玩家起点无穿模、有真实支撑、在所属场地内且互不挤占，观察点看得到被测行为。
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
+  - 复测失败（bbd16394b，反馈 7、12）：帽船漂进浅水仍按浮船滑行，水尽处落地成陆帽、乘员还在船上；扶正帽子远了先原地等 300 tick 才下水。现：搁浅即变回帽物品、乘员下船（`hat_current`）；远近由距离决定，岸缘招不到帽就直接下水（`shore_capsized`、`hat_swap`）。完成：`hat_current` 见 `[hat] pickup cause=grounded` 后 `[headwear] received loose accessory`；`shore_capsized` 无 `reclaim waiting`，起步即 `step_in`／swim；`afloat_family`、`sail` 放帽点从不落底。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），招不到时走进水里游去扶正再爬回（`shore_capsized`：`step_in` → 游泳 → `right` → 上帽），无原地哭脸或岸边来回循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。
   - 已接入待试玩：座位已满时凭空多出两只在船内、新生儿卡在船沿（4064a9234，`birth_boat_missed`）。完成：两只初始赤油从开场就在船内，无座新生儿从船沿外真实落水，无中途加员或卡沿。
   - 已接入待试玩：重做后丢失的水上表情与反应按新实现补回（`shake_capsize`“摇晃翻覆”、`self_rescue`“游回帽子”、`rescue_child`“亲油救援”）。完成：摇晃时帽内子油害怕发抖、成体惊起，被甩进水的孩子入水惊慌、出水后松一口气；接受救助的亲油先招呼落水孩子，自救者动身时也出声，初航成功返岸雀跃。完成标准只到演出与台词时机（三语、年龄声线最后统一听审）；家族呼救问答、帽子漂走／够不到、摇篮哼唱台词未接，归[配音与台词](#最后统一补配音台词与表情)。

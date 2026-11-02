@@ -59,7 +59,7 @@ public final class HatProp implements Prop {
         var level = owner.level();
         var spot = BlockPos.containing(at);
         if (!level.hasChunkAt(spot)) return Feasibility.of(Reason.NO_ROOM, 0, "chunk_unloaded");
-        if (water) return PlacedHatBehavior.carried(level, at) ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_carried_water");
+        if (water) return PlacedHatBehavior.carried(level, at, HatScale.of(owner)) ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "not_carried_water");
         if (!level.getFluidState(spot).isEmpty()) return Feasibility.of(Reason.NO_ROOM, 0, "spot_in_fluid");
         if (!level.getBlockState(spot.below()).isFaceSturdy(level, spot.below(), Direction.UP))
             return Feasibility.of(Reason.NO_ROOM, 0, "no_sturdy_floor");

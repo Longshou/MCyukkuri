@@ -256,7 +256,10 @@ public final class YukkuriSocial {
                 }
                 stop();return;
             }
-            if(flat.lengthSqr()<1&&entity.life().dryStand(BlockPos.containing(item.getX(),entity.getY(),item.getZ()))){
+            // Over the last step, dry stand or not: a hat item grounded in shallow water is waded to with the body's own movement
+            // (no dry stand exists there) and worn on touch; anywhere farther the walk needs a real path.
+            boolean wade=item.isInWater();
+            if(wade||flat.lengthSqr()<1&&entity.life().dryStand(BlockPos.containing(item.getX(),entity.getY(),item.getZ()))){
                 entity.getNavigation().stop();entity.getMoveControl().setWantedPosition(item.getX(),entity.getY(),item.getZ(),.8);
                 if(entity.onGround()&&elapsed%20==0&&item.getY()>entity.getY()+entity.getBbHeight())entity.getJumpControl().jump();
             }else if(elapsed%10==1&&!entity.life().navigate(BlockPos.containing(item.getX(),entity.getY(),item.getZ()),1,false))stop();
