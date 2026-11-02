@@ -407,6 +407,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
      *  holds still while giving way and counts for the stall watch); otherwise only a look, with {@code to} as the goal. */
     public Vec3 aim(Vec3 to, boolean moving) {
         if (!(mob instanceof YukkuriEntity walker)) return to;
+        var requested = to;
         var at = mob.position();
         long now = level.getGameTime();
         if (moving) {
@@ -434,7 +435,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var turn = nestWalls.isEmpty() ? Detour.steer(at.x, at.z, to.x, to.z, clear, boxes, turnId, now - turnTick <= KEEP_TICKS ? turnSide : 0)
                 : Detour.route(at.x, at.z, to.x, to.z, clear, boxes);
         if (turn.shut()) return null;
-        if (turn.side() == 0) return to;
+        if (turn.side() == 0 && to == requested) return to;
         if (moving) {
             way = turn.way();
             if ((turn.id() != turnId || turn.side() != turnSide) && level.getEntity((int) turn.id()) instanceof Entity e)
