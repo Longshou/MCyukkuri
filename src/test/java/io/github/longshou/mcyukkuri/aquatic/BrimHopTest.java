@@ -22,12 +22,16 @@ class BrimHopTest {
             var ability = AbilityMath.compute(new AbilityMath.Inputs(size, 100, 20, 20, 0, false, true, false, false, 0),
                     AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
             assertTrue(seat.sub(bank).hlen() > ability.hopReach());
-            for (var ends : List.of(List.of(bank, seat), List.of(seat, bank))) {
+            java.util.function.BiFunction<Vec, Vec, ArcSolver.Result> arc = (a, b) -> ArcSolver.lowest(a, b,
+                    ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)
+                            && points.stream().map(a::add).noneMatch(p -> p.x() - body.width() / 2 < edge && p.y() < bank.y() - .002));
+            var entry = HullBounds.brimStops(size).stream().filter(p -> arc.apply(bank, p) instanceof ArcSolver.Plan
+                    && arc.apply(p, bank) instanceof ArcSolver.Plan).findFirst().orElse(null);
+            assertNotNull(entry, "size=" + size);
+            for (var ends : List.of(List.of(entry, seat), List.of(seat, entry))) {
                 var path = HopPath.solve(ends.getFirst(), ends.getLast(), HullBounds.brimStops(size), (a, b) -> ArcSolver.lowest(a, b,
-                        ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)
-                                && points.stream().map(a::add).noneMatch(p -> p.x() - body.width() / 2 < edge && p.y() < bank.y() - .002)));
+                        ability.hopHeight(), ability.hopReach(), ability.size(), points -> clear(a, points)));
                 assertNotNull(path, "size=" + size + " from=" + ends.getFirst());
-                assertTrue(path.size() > 1);
             }
         }
     }

@@ -17,7 +17,7 @@ public final class HullBounds {
     private HullBounds() {}
 
     public static List<Vec> brimStops(double growth) {
-        return IntStream.range(0, 24).mapToObj(i -> brim(growth, i * Math.PI / 12)).toList();
+        return IntStream.range(0, 72).mapToObj(i -> brim(growth, i * Math.PI / 36)).toList();
     }
 
     /** A young's underside on the authored brim ring, in blocks at captain growth one. */

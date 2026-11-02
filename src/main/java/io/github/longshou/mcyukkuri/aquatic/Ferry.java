@@ -30,13 +30,6 @@ final class Ferry {
 
     private static Step act(Action action) { return new Step.Do(action); }
 
-    /** A water rescue from the captain seat, then the shared braid pickup and set-down. */
-    static List<Supplier<Step>> fetchAboard(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
-        var steps = chase(carrier, child);
-        steps.addAll(BraidFetch.steps(carrier, child, hat));
-        return steps;
-    }
-
     /** From pickup reach, carry to a reachable bank, using the shared brim route if the seat cannot clear it directly. */
     static List<Supplier<Step>> fetchAshore(YukkuriEntity carrier, YukkuriEntity child, Release release) {
         var hat = AquaticLife.hat(carrier);

@@ -80,6 +80,8 @@ public final class Hop implements Action {
 
     private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
         return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(from)))
+                .filter(p -> !body.level().getBlockCollisions(body,
+                        body.getBoundingBox().move(frame.toWorld(p).subtract(body.position())).deflate(.002)).iterator().hasNext())
                 .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p))) instanceof ArcSolver.Plan)
                 .findFirst().orElse(null);
     }
