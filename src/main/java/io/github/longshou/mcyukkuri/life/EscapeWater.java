@@ -21,11 +21,13 @@ import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.IntFunction;
@@ -43,8 +45,8 @@ import net.minecraft.world.phys.Vec3;
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
- * voyage came back); one that does not only struggles and waits for its parent to lift it out. Satisfied once the body is out of
- * the water, standing or aboard; failing costs what the water costs.
+ * voyage came back); one that does not only struggles and waits for its parent to lift it out. Satisfied once the body stands on a stand it
+ * really rests on out of the water, or is aboard; failing costs what the water costs.
  */
 public final class EscapeWater implements Intent {
     /** One run's ticks; a swim to the hat longer than this turns to the bank (AQUATIC rules); how long one press lasts before it
@@ -53,7 +55,7 @@ public final class EscapeWater implements Intent {
     /** How far (blocks) its own hat is swum to; clearance (blocks) of the landing box. */
     private static final double HAT_RANGE = 16, CLEAR = .05;
     private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
-            Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM), PRESSING = Set.of(Reason.TOO_HIGH);
+            Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM, Reason.NO_SUPPORT), PRESSING = Set.of(Reason.TOO_HIGH);
     /** The ways that go for the body's own hat: it stops panicking and starts for it (自救援). */
     private static final Set<String> OWN_HAT = Set.of("own_hat", "right_own_hat", "hat_boat");
 
@@ -76,6 +78,7 @@ public final class EscapeWater implements Intent {
         this.body = body;
         this.started = body.level().getGameTime();
         this.avoid = avoid;
+        GameplayLog.event(body, "water", "escape start at={} support={}", GameplayLog.at(body.position()), support());
     }
 
     /** The world its runs are keyed on: where the body and its own hat are. */
@@ -86,7 +89,18 @@ public final class EscapeWater implements Intent {
 
     @Override public String id() { return "escape_water"; }
 
-    @Override public boolean satisfied() { return !body.isInWaterOrBubble() && (body.onGround() || body.isPassenger()); }
+    @Override public boolean satisfied() { return body.isPassenger() || !body.isInWaterOrBubble() && SurfaceApproach.stands(body, body.position()); }
+
+    /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
+    @Override public void ended(IntentRunner.Result result) {
+        GameplayLog.event(body, "water", "escape {} at={} support={}", result.name().toLowerCase(Locale.ROOT),
+                GameplayLog.at(body.position()), support());
+    }
+
+    /** The stand the body rests on now, or {@code none}. */
+    private String support() {
+        return SurfaceApproach.stands(body, body.position()) ? "stand=" + GameplayLog.at(body.position()) : "none";
+    }
 
     @Override public long deadline() { return started + DEADLINE; }
 
@@ -171,7 +185,8 @@ public final class EscapeWater implements Intent {
         avoid.values().removeIf(until -> until <= now);
         var last = body.motor().last();
         if (climbing != null && body.motor().current() == null && last != null
-                && (last.reason() == Reason.SLIPPED || last.reason() == Reason.NO_ROOM) && avoid.size() < 16)
+                && (last.reason() == Reason.SLIPPED || last.reason() == Reason.NO_ROOM || last.reason() == Reason.NO_SUPPORT)
+                && avoid.size() < 16)
             avoid.put(climbing.stand(), now + AVOID_TICKS);
         climbing = null;
     }

@@ -90,6 +90,10 @@ public final class SurfaceApproach {
     public static boolean supported(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,false);
     }
+    /** The stand itself, terrain only: what the body rests on, whatever the weather and whoever stands beside it. */
+    public static boolean stands(YukkuriEntity actor, Vec3 feet) {
+        return supported(actor,feet,true);
+    }
     /** Terrain and weather only; carry planning checks occupants separately to report the actual blocker. */
     public static boolean supportedGround(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));

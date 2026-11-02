@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -19,7 +20,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
 import net.minecraft.world.phys.Vec3;
 
-/** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. */
+/** Climb out of the water over a brim or a bank's edge: the grip holds the edge, the clip pulls up, over and down onto the stand; a host tilting past the grip is {@code SLIPPED}. A bank climb ends only on a stand the body really rests on ({@link SurfaceApproach#stands}), never on a touch of the edge. */
 public final class Climb implements Action {
     public static final String ID = "climb";
     private static final String CLIP = "water_hat_climb";
@@ -64,8 +65,11 @@ public final class Climb implements Action {
             stand = host.landingSpot(body, edge);
             return stand == null ? Feasibility.of(Reason.NO_ROOM, 0, "no_room_inside") : Feasibility.pass();
         }
-        return body.level().noCollision(body, body.getBoundingBox().move(stand.subtract(body.position()).add(0, CLEAR, 0)))
-                ? Feasibility.pass() : Feasibility.of(Reason.NO_ROOM, 0, "stand=" + GameplayLog.at(stand));
+        // The landing is a stand a body really rests on, not just a point with room: its real sole height is what it aims at.
+        Vec3 floorAt = SurfaceApproach.floor(body, stand);
+        if (floorAt == null) return Feasibility.of(Reason.NO_SUPPORT, 0, "stand=" + GameplayLog.at(stand));
+        stand = floorAt;
+        return Feasibility.pass();
     }
 
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
@@ -92,7 +96,10 @@ public final class Climb implements Action {
         Motor.velocity(body, Vec3.ZERO, "climb");
         if (host == null) {
             Motor.move(body, new Vec3(0, -2 * CLEAR, 0), "climb_settle");
-            return new Outcome.Done("on_bank at=" + GameplayLog.at(body.position()));
+            // Out of the water only on the stand itself: a body that stops short stays in the water and the way failed.
+            if (!SurfaceApproach.stands(body, body.position()))
+                return Outcome.of(Reason.NO_SUPPORT, 0, "off_stand at=" + GameplayLog.at(body.position()) + " stand=" + GameplayLog.at(stand));
+            return new Outcome.Done("on_bank at=" + GameplayLog.at(body.position()) + " support=" + GameplayLog.at(stand));
         }
         return new SeatTarget(host, stand).land(body, "climb")
                 ? new Outcome.Done("aboard local=" + stand) : Outcome.of(Reason.NO_ROOM, 0, "landing_refused");
