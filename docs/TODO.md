@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 水生帽船重做（WP8 清理残留） | `.worktrees/aq-wp8-leftovers` | aquatic/headwear 残留、aquatic 制作工具、帽船场景读数、FEATURES/TODO 水生段 |
 | 岸上收帽与出航余项 | `.worktrees/fb-shore-low` | `motor/action/Hop`、`aquatic/Waters`／`Ashore`／`SetOut`、`hat_swap` |
 | 辫子划船动作（反馈 9） | `.worktrees/fb-braid-paddle` | 魔理沙辫子划船动作源与导出 |
 
