@@ -184,14 +184,20 @@ final class Waters {
         return kept(body.level(), key(body.level(), "berth", body.blockPosition(), body.getBbWidth(), cells), () -> findBerth(body, wards));
     }
 
+    /** Whether every ward is within braid reach of the captain seat planned at this berth. */
+    static boolean berthBraidReach(YukkuriEntity body, Edge edge, List<YukkuriEntity> wards) {
+        var at = hatAt(edge, body);
+        var captain = HatSeats.captain(at, HatScale.of(body) / 16.0, edge.yaw() + (float) HullBounds.BOARDING_YAW);
+        return wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0);
+    }
+
     private static Edge findBerth(YukkuriEntity body, List<YukkuriEntity> wards) {
         for (var e : freeEdges(body)) {
             if (!floats(e, body)) continue;
-            var at = hatAt(e, body);
             var stand = e.stand(body.getBbWidth());
             if (!SurfaceApproach.canApproach(body, stand)) continue;
-            var captain = HatSeats.captain(at, HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
-            if (Hop.reaches(body, stand, captain) && wards.stream().allMatch(y -> ContactGeometry.braidGap(body, captain, y) <= 0)) return e;
+            var captain = HatSeats.captain(hatAt(e, body), HatScale.of(body) / 16.0, e.yaw() + (float) HullBounds.BOARDING_YAW);
+            if (Hop.reaches(body, stand, captain) && berthBraidReach(body, e, wards)) return e;
         }
         return null;
     }

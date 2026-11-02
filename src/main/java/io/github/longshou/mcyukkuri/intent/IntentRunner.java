@@ -329,7 +329,8 @@ public final class IntentRunner implements MotorOwner {
         Supplier<Target> source = target;
         Target facts = source == null ? null : source.get();
         if (facts == null) return WorldSignature.of(now);
-        return WorldSignature.of(facts.at(), facts.host(), facts.blockers(), now);
+        Vec3 moving = intent.movingTarget();
+        return WorldSignature.of(moving == null ? facts.at() : moving, facts.host(), facts.blockers(), now);
     }
 
     private BodyDriver driver() { return body.motor(); }

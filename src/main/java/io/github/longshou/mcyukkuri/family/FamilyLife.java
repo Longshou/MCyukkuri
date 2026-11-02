@@ -59,8 +59,8 @@ public final class FamilyLife {
     /** Existing stimulant/normal breeding-period duration; a project parameter, not a source-game timer. */
     public static final int BREEDING_PERIOD_TICKS = 1200;
     /** The existing close-follow baseline for a dependent land child; boldness and attachment adjust it at the decision boundary. */
-    private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5,
-            FAMILY_SEARCH_RANGE = 48;
+    private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5;
+    public static final double FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
     enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT }
     private final YukkuriEntity entity;

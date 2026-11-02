@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -46,6 +47,8 @@ final class SetOut implements Intent {
     private final long started;
     private final Set<UUID> sticks = new HashSet<>();
     private int calls;
+    /** End of the one gather call, or zero when no gather wait is running. */
+    private long gatherUntil;
     /** Young she sets out without, with the reason. */
     private final Map<UUID, String> excused = new LinkedHashMap<>();
     private final Consumer<Map<UUID, String>> left;
@@ -75,6 +78,13 @@ final class SetOut implements Intent {
 
     @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
 
+    @Override public Vec3 movingTarget() {
+        var hat = AquaticLife.hat(owner);
+        if (!AquaticLife.aboard(owner, hat)) return null;
+        var dependent = dependentAshore(hat);
+        return dependent.isEmpty() ? null : dependent.getFirst().position();
+    }
+
     @Override public void ended(IntentRunner.Result result) {
         var held = AquaticLife.carried(owner);
         if (result != IntentRunner.Result.DONE && held != null) {
@@ -101,7 +111,29 @@ final class SetOut implements Intent {
         }
         if (!AquaticLife.aboard(owner, hat)) {
             var fetch = dependentAshore(hat);
-            return List.of(() -> new Step.Sub(new Launch(owner, deadline(), fetch)));
+            var edge = Waters.berth(owner, List.of());
+            if (edge != null && gatherUntil == 0 && !Waters.berthBraidReach(owner, edge, fetch)) {
+                GameplayLog.event(owner, "aquatic", "set_out gather start children={}", fetch.stream()
+                        .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
+                var stand = edge.stand(owner.getBbWidth());
+                return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stand)), () -> {
+                            var current = dependentAshore(AquaticLife.hat(owner));
+                            return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
+                        }, () -> {
+                            gatherUntil = owner.level().getGameTime() + WAIT_YOUNG;
+                            return new Step.Wait(() -> gathered(edge) || owner.level().getGameTime() >= gatherUntil, WAIT_YOUNG, Behaviors.BOAT_CALL);
+                        });
+            }
+            if (edge != null && gatherUntil != 0) {
+                boolean ready = gathered(edge);
+                if (!ready && owner.level().getGameTime() >= gatherUntil)
+                    for (var y : fetch) if (!Waters.berthBraidReach(owner, edge, List.of(y))) excused.put(y.getUUID(), "did_not_gather");
+                gatherUntil = 0;
+                if (ready) GameplayLog.event(owner, "aquatic", "set_out gathered children={}", fetch.stream()
+                        .map(y -> y.getUUID() + "@" + GameplayLog.at(y.position())).toList());
+            }
+            var wards = dependentAshore(hat);
+            return List.of(() -> new Step.Sub(new Launch(owner, deadline(), wards)));
         }
         if (!AquaticLife.afloat(hat)) return null;
         var dependent = dependentAshore(hat);
@@ -153,6 +185,20 @@ final class SetOut implements Intent {
     private List<YukkuriEntity> dependentAshore(PlacedHatEntity hat) {
         return AquaticLife.young(owner).stream().filter(y -> (!AquaticLife.jumper(y) || Drive.failed(y, "board_parent"))
                 && AquaticLife.ashore(y) && staying(y) == null && !AquaticLife.aboard(y, hat)).toList();
+    }
+
+    /** Whether the current responsive wards have all gathered within this berth's planned captain-seat braid reach. */
+    private boolean gathered(Waters.Edge edge) {
+        return Waters.berthBraidReach(owner, edge, dependentAshore(AquaticLife.hat(owner)));
+    }
+
+    /** A narrow horizon scan for an own young on land too far away for the ordinary aquatic family list. */
+    static boolean dependentBeyondGatherRange(YukkuriEntity parent) {
+        var id = parent.getUUID();
+        return !parent.level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(FamilyLife.FAMILY_SEARCH_RANGE),
+                y -> y.isAlive() && !y.family().adult() && (id.equals(y.family().mother()) || id.equals(y.family().father()))
+                        && y.childhood().shouldStayWithParents() && AquaticLife.ashore(y)
+                        && parent.distanceToSqr(y) > AquaticLife.FAMILY_RANGE * AquaticLife.FAMILY_RANGE).isEmpty();
     }
 
 }

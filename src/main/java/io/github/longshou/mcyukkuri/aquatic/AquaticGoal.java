@@ -176,12 +176,13 @@ final class AquaticGoal extends Goal {
             double noStick = stick || nearStick ? 0 : num("stick_need", 50);
             double pull = Math.max(Math.max(hunger, noStick), Math.max(weather, breed));
             boolean asleep = young.stream().anyMatch(y -> y.life().isSleeping() && !AquaticLife.aboard(y, hat));
-            double setOut = asleep ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size());
+            boolean beyondGather = SetOut.dependentBeyondGatherRange(body);
+            double setOut = asleep || beyondGather ? 0 : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
-                    "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b",
-                    pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep), () -> new SetOut(body, this::leftAshore)));
+                    "pull=%.0f hunger=%.0f no_stick=%.0f weather=%.0f breed=%.0f dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b",
+                    pull, hunger, noStick, weather, breed, dusk, rain, young.size(), asleep, beyondGather), () -> new SetOut(body, this::leftAshore)));
             // Her hat out and no wish (or no way) to sail on it now: she wants it back (HEADWEAR).
             if (hat != null && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
