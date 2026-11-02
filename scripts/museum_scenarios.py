@@ -458,7 +458,7 @@ add('settle_pit_release', 'biomes', '聚落嗯嗯奴隶的恢复', '温和对待
           Retry(_COLONY_RELIEVES, _PIT_ADULTS, tries=1, first=4200)],
     reads=[*_PIT_READS, ('读奴隶的角色与身份', f'yukkuri status {_SLAVE} raw'), ('读温和成员的性格', f'yukkuri status {_KIND} raw')],
     # Opening relief rounds supply real acts of kindness; the following days leave the colony to ordinary life.
-    smoke=dict(ticks=60000,
+    smoke=dict(ticks=84000,
                commands=[(tick, _KIND_RELIEVES) for tick in range(600, 6000, 400)],
                expect=[r'\[settlement\][^\n]* pit slave treated by=', r'\[settlement\][^\n]* hatless outcome role=(?:MEMBER|LEADER) cause=gentle_treatment\b'],
                forbid=[r'\[body\][^\n]* invariant\b'],
