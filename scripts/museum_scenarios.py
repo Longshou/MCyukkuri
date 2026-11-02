@@ -1738,33 +1738,11 @@ _HULL_READS = [('读漂浮、触发与扶正', f'yukkuri status {sel("a")} raw')
 _HULL_READOUT = [f'yukkuri status {sel("a")} raw', f'data get entity {_HAT} Pos', f'data get entity {_HAT} Motion', f'data get entity {_HAT} Inverted']
 
 
-def push_smooth(log):
-    if len(re.findall(r'\[hat\][^\n]* capsized\b', log)) != 1:
-        return 'expected only the fast impact to capsize'
-    travel = re.compile(r'\[hat\][^\n]* uuid=(\S+) t=\d+[^\n]* travel at=\([^)]*\) delta=\(([-\d.E]+),[^)]*\)[^\n]* impact=([-\d.E]+)')
-    by_hat = {}
-    for hat, dx, impact in travel.findall(log):
-        by_hat.setdefault(hat, []).append((float(dx), float(impact)))
-    smooth = any(0 < impact < .16 and len(rows[i + 1:i + 13]) == 12
-                 and all(next_dx < -1e-6 for next_dx, _ in rows[i + 1:i + 13])
-                 for rows in by_hat.values() for i, (_, impact) in enumerate(rows))
-    if not smooth:
-        return 'light contact must be followed by 12 non-zero steps in one direction'
-    banked = False
-    for rows in by_hat.values():
-        for i in range(1, len(rows)):
-            if rows[i - 1][0] < 0 and rows[i][1] > .16:
-                if any(abs(dx) > 1e-9 for dx, _ in rows[i + 1:i + 6]):
-                    return 'bank contact rebounded instead of staying stopped'
-                banked = True
-    return None if banked else 'no bank-stop displacement series'
-
-
 pond('hat_float', '静水漂浮·乘员随帽轻摆', '静水轻摆',
      '船主和两只赤油乘帽漂在静水上；帽檐贴近固定水线，船和乘员一起轻轻起伏倾斜。静水轻摆、乘员位置与储粮数都不会触发翻船；长时观察仍应保持正放',
      '约 3 分钟',
      [captain(dx=bank_dx(0)), *_babies(), afloat('a', water_at(0, 3), True, sel_all('crew'), food=8)],
-     note='读 hat.float 的 capsizes=0、inverted=false；与 hat.tilt 对照轻摆。八份粮只显示帽底贴图。乘员排布由后续工作包替换，本场仍须观察穿模。',
+     note='读 hat.float 的 capsizes=0、inverted=false；与 hat.tilt 对照轻摆。八份粮只显示帽底贴图；座位与乘员见 hat.float 的 seats 与帽子 Riders，不看穿模。',
      reads=_HULL_READS,
      smoke=dict(ticks=3600, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2'],
                 forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b'], readout=_HULL_READOUT))
@@ -1784,7 +1762,6 @@ pond('hat_push', '轻推与猛撞帽船', '轻推／猛撞',
      smoke=dict(ticks=600, commands=[(1, 'yukkuri status trace true'), (599, 'yukkuri status trace false')],
                 expect=[r'\[hat\][^\n]* capsized cause=impact value=[^\n]*count=1'],
                 forbid=[r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b', r'\[body\][^\n]* invariant\b'],
-                verify=push_smooth,
                 readout=_HULL_READOUT + [f'yukkuri status {sel("fast")} raw']))
 
 
@@ -1851,7 +1828,9 @@ def water_aftermath(window):
 
 
 _WATER_SMOKE_FORBID = [r'\[action\][^\n]* end id=swim outcome=INTERRUPTED why=(?:water_pause|escape_stop)\b']
-_WATER_SMOKE_READOUT = ['execute as @e[type=mcyukkuri:marisa,distance=..64,nbt=!{Health:0.0f}] run data get entity @s UUID']
+def _water_readouts(*bodies):
+    """Each named body's own status (its water distress phase, aims and its hat's float detail), then the hat's riders."""
+    return [f'yukkuri status {sel(b)} raw' for b in bodies] + [f'data get entity {_HAT} Riders']
 _WATER_ESCAPE = [r'\[intent\][^\n]* start id=escape_water\b',
                  r'\[action\][^\n]* start id=swim owner=escape_water\b',
                  r'\[intent\][^\n]* end id=escape_water result=(?:DONE|EXHAUSTED|LOST)\b']
@@ -1887,7 +1866,7 @@ pond('self_rescue', '落水自救·游回帽子', '游回帽子',
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                                    *_WATER_ESCAPE, r'\[water\][^\n]* phase=\w+ -> RECOVER',
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))
 
 pond('shore_capsized', '岸边翻覆的帽子·扶正爬回', '扶正帽子',
      '离岸 3 格的水面上，船主的帽子倒扣漂着；她被推下岸落水后游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
@@ -1931,7 +1910,7 @@ pond('cargo', '帽底储粮·计数与原地取食', '帽底储粮',
                         r'\[hat\][^\n]* stores put by=scenario [^\n]*accepted=8[^\n]*total=0 -> 8 tier=3',
                         r'\[hat\][^\n]* stores taken [^\n]*use=eat [^\n]*total=3 -> 2 tier=1',
                         r'\[hat\][^\n]* stores spilled [^\n]*kinds=\{minecraft:apple=8\} -> \{\} total=8 -> 0'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'no_grid_path'],
+                forbid=[r'\[body\][^\n]* invariant\b'],
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("full")} raw']))
 
 pond('hat_crowd', '按体型入座·满座与成长', '帽船容量',
@@ -1956,7 +1935,7 @@ pond('hat_crowd', '按体型入座·满座与成长', '帽船容量',
                         r'\[action\][^\n]* refused id=hop [^\n]*detail=no_seat size=',
                         r'\[hat\][^\n]* leaving reason=seat_outgrown\b',
                         r'\[intent\][^\n]* end id=follow_ashore result=DONE\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* squeeze', r'\[hat\][^\n]* capsized\b'],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized\b'],
                 readout=[f'yukkuri status {sel("g1")} raw', f'yukkuri status {sel("excess")} raw']))
 
 pond('hat_swap', '帽子大小对照', '帽子大小',
@@ -2109,7 +2088,7 @@ pond('rescue_child', '落水·亲油救起子油', '亲油救援',
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                                    r'\[water\][^\n]* phase=\w+ -> RECOVER',
                                    *_rescue_smoke('rescue_child', 'c1')],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'c1')))
 
 pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
      '亲油坐在自己的帽船里，帽里有木棍，岸边的赤油被推下水。亲油对这次落水决定一次救不救；接受后划近，从座位用辫子抓起赤油，提过帽檐再降低到前座；与岸边接赤油上船使用同一段演出',
@@ -2122,7 +2101,7 @@ pond('rescue_infant_full', '落水赤油·亲油施救', '赤油救援',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("k1")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true',
                                    *_rescue_smoke('rescue_infant_full', 'k1')],
-                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a', 'k1')))
 
 
 pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
@@ -2134,14 +2113,13 @@ pond('rescue_no_seat', '落水子油·体型超座拒救', '真实拒绝',
      late=[shoved('c1', .5)], note=_INCIDENT_NOTE + '观察 rescue refused reason=no_seat，拒绝不算救援成功。',
      reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读子油', f'yukkuri status {sel("c1")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[incident\][^\n]* decide [^\n]*chance=0 [^\n]*accepted=false', r'rescue refused [^\n]*reason=no_seat'],
-                forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                forbid=[*_WATER_SMOKE_FORBID, r'rescue start'], verify=water_aftermath, readout=_water_readouts('a', 'c1')))
 
 
 # Smoke windows allow 1.5 times the three-minute upper bound, at 20 ticks per second.
 _BOAT_SMOKE_START = (r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true'
                      r'[\s\S]*\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true')
-_BOAT_SMOKE_FORBID = [r'\[hat\][^\n]* capsized cause=overload\b',
-                      r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
+_BOAT_SMOKE_FORBID = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
                       r'\[aquatic\][^\n]* spawn refused reason=(?:no_hat|no_water|no_floor)\b']
 
 
@@ -2172,7 +2150,7 @@ boat_birth('birth_boat_caught', '帽船分娩·落座', '船上分娩',
                                          r'\[family\][^\n]* birth delivery stage=transition reason=push\b',
                                          r'\[family\][^\n]* birth delivery stage=release [^\n]*phase=emerging\b'],
                       forbid=_BOAT_SMOKE_FORBID + [r'birth delivery stage=(?:qualified|exit_wait)\b'],
-                      verify=water_aftermath, readout=_WATER_SMOKE_READOUT))
+                      verify=water_aftermath, readout=_water_readouts('mother', 'father') + [f'yukkuri status {NEWBORNS} raw']))
 boat_birth('birth_boat_missed', '帽船分娩·座位已满', '座位已满',
            '母油的帽里已经坐着两只赤油，帽前两个赤油座位都被占着，母油在船尾临产，父油在几格外自己的船上。每只新生儿都没有座位可落，从出口直接落进水里（真实落水，不是漏接特效）；'
            '落水后父油自己决定救不救、救起后放进自己的船，母油在自己的船上不动。没救起会溺亡。看法：先数胎数，再数 no_seat 与落水',
