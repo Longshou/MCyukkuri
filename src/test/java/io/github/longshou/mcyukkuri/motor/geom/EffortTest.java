@@ -5,20 +5,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Body push shares, paddle stroke and turn, and body lift. */
+/** Body push shares, turn, and body lift. */
 class EffortTest {
     @Test void theLighterOneMovesMore() {
         assertEquals(.75, Effort.share(.3, .1), 1e-12);
         assertEquals(.25, Effort.share(.1, .3), 1e-12);
         assertEquals(0, Effort.share(0, 0), 1e-12);
-    }
-
-    @Test void onlyThePowerStrokeDrives() {
-        assertEquals(0, Effort.stroke(3, 4, 20, 32), 0);
-        assertEquals(1, Effort.stroke(4, 4, 20, 32), 0);
-        assertEquals(1, Effort.stroke(19, 4, 20, 32), 0);
-        assertEquals(0, Effort.stroke(20, 4, 20, 32), 0);
-        assertEquals(1, Effort.stroke(32 + 10, 4, 20, 32), 0, "every cycle the same");
     }
 
     @Test void turnsTheShortWayAndNoFasterThanTheRate() {

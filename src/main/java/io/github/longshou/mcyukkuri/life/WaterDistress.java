@@ -31,7 +31,7 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean active(){return phase!=Phase.IDLE;}
-    /** In a paid swim burst (the presentation's effort flag): read from the body's running Swim. */
+    /** Paid swimming effort: read from the body's running Swim. */
     public boolean effort(){return entity.isInWaterOrBubble()&&!entity.predatorFlying()&&!entity.family().flying()
             &&entity.motor().current() instanceof Swim swim&&swim.pushing();}
     /** Server-side status readout; no target search or rescue state changes are performed here. */

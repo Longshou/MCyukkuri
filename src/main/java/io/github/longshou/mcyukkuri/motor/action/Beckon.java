@@ -14,7 +14,6 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
@@ -23,23 +22,16 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Draw a floating host in to the bank from the bank (招帽): standing on dry ground at the water's edge, facing it, the body leans
- * over and strokes the water with its braid toward itself ({@code boat_paddle}, its power stroke); each stroke drives the host
- * toward the stroke through {@link SurfaceHost#thrust} at the braid's share of its swim pace (AQUATIC 无桨手划: about 35% of a
- * stick's, twice its energy). Done once the host has come in to the bank on her side (its brim over, or within {@link #AT} of, the
- * water she strokes) after at least one stroke; a host there already, farther than {@link #REACH}, no water within the leaning
- * braid's reach in front, no braid, or no energy is refused; still out after {@link #STROKES} strokes it is {@code TOO_FAR}.
- */
+/** Draw a floating host to reachable water at the bank with continuous braid effort: 35% of stick pace, twice its energy. */
 public final class Beckon implements Action {
     public static final String ID = "beckon";
     private static final String CLIP = "boat_paddle";
-    /** The farthest host a stroke draws (blocks between the body and its middle); the most strokes one beckoning takes. */
+    /** Reach in blocks; a bounded attempt lasting twelve authored cycles. */
     public static final double REACH = 3;
-    private static final int STROKES = 12;
-    /** The braid's share of a stick's stroke; a stroke's energy (twice a stick's, Paddle's .4). */
+    private static final int MAX_TICKS = 12 * ClipMarkers.of(CLIP).length();
+    /** The braid's share of stick pace; twice the stick's energy per tick. */
     private static final double BRAID = .35;
-    private static final float COST = .8f;
+    private static final float COST = 1f / 40;
     /** How near (blocks) the host's brim comes to the water she strokes to lie at the bank on her side; how far past the body's
      *  front the braid strokes. */
     private static final double AT = .1, AHEAD = .05;
@@ -47,13 +39,10 @@ public final class Beckon implements Action {
     private final SurfaceHost host;
     private Vec3 water;
     private double pace;
-    private int t, start, end, length;
+    private int t;
     private long startTick;
 
-    public Beckon(SurfaceHost host) {
-        if (host == null) throw new IllegalArgumentException("Beckon needs a host");
-        this.host = host;
-    }
+    public Beckon(SurfaceHost host) { this.host = host; }
 
     @Override public String id() { return ID; }
 
@@ -86,10 +75,6 @@ public final class Beckon implements Action {
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
         pace = BodyAbility.of(body).swimSpeed() * BRAID;
-        var clip = ClipMarkers.of(CLIP);
-        length = clip.length();
-        start = clip.ticks("power_start", 4);
-        end = clip.ticks("power_end", 20);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -98,16 +83,12 @@ public final class Beckon implements Action {
         Vec3 to = water.subtract(hull.position()).multiply(1, 0, 1);
         double distance = to.length();
         double gap = gap();
-        if (gap <= AT) {
-            if (t == 0) return Outcome.of(Reason.NO_PROGRESS, 0, "at_bank_before_a_stroke");
-            return new Outcome.Done(String.format(Locale.ROOT, "at_bank strokes=%d at=%s", 1 + (t - 1) / Math.max(1, length), GameplayLog.at(hull.position())));
-        }
-        if (t % Math.max(1, length) == 0) {
-            if (t / Math.max(1, length) >= STROKES) return Outcome.of(Reason.TOO_FAR, gap, "strokes=" + STROKES);
-            if (!body.life().spendEnergy(COST)) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
-        }
-        double power = Effort.stroke(t++, start, end, length);
-        if (power > 0 && distance > 1E-4 && !host.thrust(body, to.scale(pace * power / distance), 0)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
+        if (gap <= AT) return new Outcome.Done("at_bank at=" + GameplayLog.at(hull.position()));
+        if (t >= MAX_TICKS) return Outcome.of(Reason.TOO_FAR, gap, "ticks=" + t);
+        if (body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
+        pace = BodyAbility.of(body).swimSpeed() * BRAID;
+        if (!host.thrust(body, to.scale(Math.min(pace, distance) / distance), 0)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
+        body.life().spendEnergy(COST); t++;
         return new Running(gap, TravelMode.CONSUMED);
     }
 
@@ -122,9 +103,9 @@ public final class Beckon implements Action {
     @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, true); }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s pace=%.3f strokes<=%d", host.entity().getUUID(),
-                host.entity().position().distanceTo(water), GameplayLog.at(water), pace, STROKES);
+        return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s pace=%.3f ticks<=%d", host.entity().getUUID(),
+                host.entity().position().distanceTo(water), GameplayLog.at(water), pace, MAX_TICKS);
     }
 
-    @Override public String endDetail(Outcome outcome) { return "strokes=" + (t == 0 ? 0 : 1 + (t - 1) / Math.max(1, length)); }
+    @Override public String endDetail(Outcome outcome) { return "ticks=" + t + " paid=" + t * COST; }
 }

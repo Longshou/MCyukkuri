@@ -26,12 +26,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
-/** Paddle the host one rides toward a point: facing its bow, in the {@code boat_paddle} power stroke it drives the water at its swim pace and turns the hull at its turn rate, paid in energy. */
+/** Drive the ridden host continuously at the body's swim pace, facing its bow and paying energy each tick. */
 public final class Paddle implements Action {
     public static final String ID = "paddle";
     private static final String CLIP = YukkuriAction.BOAT_PADDLE.id();
-    /** A stroke's energy: the old helm's one point per 80 ticks over a 1.6 s stroke. */
-    private static final float COST = .4f;
+    /** Energy per tick, preserving the original one point per 80 ticks. */
+    private static final float COST = 1f / 80;
     /** The widest angle (degrees) between the rower and her hull's bow at which a stroke reaches the water: the stick goes over the
      *  beam, as lore/recipe.json paddle_shared.captain_yaw gates the paddle clips against every hull form. 项目设计 */
     public static final double FACING = ClipMarkers.of(CLIP).parameters().get("captain_yaw");
@@ -40,7 +40,7 @@ public final class Paddle implements Action {
     private final DoublePredicate arrived;
     private SurfaceHost host;
     private double pace, turnRate, from, distance, facing;
-    private int t, start, end, length, turnTicks, skipped, strokes;
+    private int t, turnTicks, skipped;
     private long startTick;
     private boolean turning;
 
@@ -80,17 +80,13 @@ public final class Paddle implements Action {
         turnRate = ability.turnRate();
         facing = bowOff(body);
         turning = Math.abs(facing) > FACING;
-        var clip = ClipMarkers.of(CLIP);
-        length = clip.length();
-        start = clip.ticks("power_start", 4);
-        end = clip.ticks("power_end", 20);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
         if (!(Attach.of(body) instanceof AttachState.OnHost on) || on.host() != host) return Outcome.of(Reason.NO_SUPPORT, 0, "left_host");
         Vec3 to = target.get().subtract(host.entity().position()).multiply(1, 0, 1);
         distance = to.length();
-        if (arrived.test(distance)) return new Outcome.Done(String.format(Locale.ROOT, "arrived strokes=%d ticks=%d", strokes, t));
+        if (arrived.test(distance)) return new Outcome.Done("arrived ticks=" + t);
         if (distance < .05) return Outcome.of(Reason.NO_CONTACT, 0, "destination_reached_without_contact");
         // She keeps facing the bow at her turn rate, so the stick reaches the water over the beam; turned away, no stroke lands.
         double off = bowOff(body);
@@ -111,13 +107,11 @@ public final class Paddle implements Action {
                     "paddle facing ready bow_off={} turn_ticks={} stroke_tick={}", bowOff(body), turnTicks, t);
             turnTicks = 0;
         }
-        double power = Effort.stroke(t, start, end, length);
-        boolean charge = t % length == start;
-        if (charge && body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
-        // Effort.stroke is 0 or 1: hull steering never outruns the rower's turn rate.
-        double turn = Effort.turn(host.entity().getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate * power);
-        if (!host.thrust(body, to.scale(pace * power / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
-        if (charge) { body.life().spendEnergy(COST); strokes++; }
+        if (body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
+        pace = BodyAbility.of(body).swimSpeed();
+        double turn = Effort.turn(host.entity().getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate);
+        if (!host.thrust(body, to.scale(Math.min(pace, distance) / distance), (float) turn)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
+        body.life().spendEnergy(COST);
         t++;
         return new Running(distance, TravelMode.CONSUMED);
     }
@@ -127,10 +121,10 @@ public final class Paddle implements Action {
 
     @Override public String startDetail() {
         var at = target.get();
-        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f stroke=%d..%d/%d bow_off=%.0f", at.x, at.z, pace, turnRate, start, end, length, facing);
+        return String.format(Locale.ROOT, "to=(%.1f,%.1f) pace=%.3f turn=%.1f bow_off=%.0f", at.x, at.z, pace, turnRate, facing);
     }
 
     @Override public String endDetail(Outcome outcome) {
-        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f strokes=%d skipped_ticks=%d", from, distance, strokes, skipped);
+        return String.format(Locale.ROOT, "distance_before=%.3f distance_after=%.3f paid=%.3f skipped_ticks=%d", from, distance, t * COST, skipped);
     }
 }

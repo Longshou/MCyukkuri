@@ -19,18 +19,17 @@ import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-/** Swim toward a target: effort at the ability's swim speed, the vertical left to the water's lift, paid in bursts and rests; {@link #toward} has no progress watchdog. */
+/** Swim continuously at the body's current ability; vanilla resolves travel and the water supplies lift. */
 public final class Swim implements Action {
     public static final String ID = "swim";
-    /** The water_struggle rhythm (ticks; the cycle is its 1.6 s clip) and its energy, rested and exhausted. */
-    private static final int BURST = 8, REST = 24, WEAK_BURST = 3, WEAK_REST = 61;
-    private static final float COST = .65f, WEAK_COST = .3f;
+    /** Energy per tick, preserving the rested/exhausted effort cost over time. */
+    private static final float COST = .65f / 32, WEAK_COST = .3f / 64;
 
     private final Supplier<Vec3> target;
     private final boolean grip;
     private final int maxTicks;
     private double speed, turnRate, paid;
-    private int ticks, cycle, burst;
+    private int ticks;
     private boolean unpaid;
 
     private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
@@ -41,8 +40,8 @@ public final class Swim implements Action {
     /** Pressing toward a point for {@code ticks}, then done (the caller may aim again). */
     public static Swim toward(Vec3 point, int ticks) { return new Swim(() -> point, false, ticks); }
 
-    /** In a paid burst (the presentation's effort flag). */
-    public boolean pushing() { return burst > 0; }
+    /** Whether this tick's swimming effort was paid. */
+    public boolean pushing() { return !unpaid; }
 
     @Override public String id() { return ID; }
 
@@ -64,18 +63,14 @@ public final class Swim implements Action {
         if (maxTicks > 0 && ++ticks > maxTicks)
             return grip ? Outcome.of(Reason.TOO_FAR, distance, "swum=" + maxTicks) : new Outcome.Done("pressed ticks=" + maxTicks);
         boolean weak = body.waterDistress().phase() == WaterDistress.Phase.EXHAUSTED;
-        if (--cycle < 0) {
-            ability(body);
-            float cost = weak ? WEAK_COST : COST;
-            unpaid = !body.life().spendEnergy(cost);
-            if (!unpaid) paid += cost;
-            burst = unpaid ? 0 : weak ? WEAK_BURST : BURST;
-            cycle = (weak || unpaid ? WEAK_BURST + WEAK_REST : BURST + REST) - 1;
-        }
+        float cost = weak ? WEAK_COST : COST;
+        unpaid = !body.life().spendEnergy(cost);
+        if (!unpaid) paid += cost;
+        ability(body);
         if (distance > 1E-4) {
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(), Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, turnRate));
             Vec3 v = to.scale(Math.min(speed, distance) / distance);
-            if (burst-- > 0 || weak || unpaid) Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
+            Motor.velocity(body, new Vec3(v.x, body.getDeltaMovement().y, v.z), "swim");
         }
         return new Running(distance, TravelMode.PASS);
     }

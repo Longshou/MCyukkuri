@@ -117,6 +117,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             pose.scale(HairWoundAssets.drainWidth(entity.aftermathDrain()),1,1);
             if(contact.equals("VIBRATE"))pose.translate(Math.sin((entity.ageTicks()+partialTick)*2)*.008,0,0);
             float elapsed = Math.max(0, (entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick) / 20f);
+            elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             var buffer = buffers.getBuffer(RenderType.entityCutoutNoCull(textureAt(entity, partialTick)));
             String behavior = hatCarrier||carried?Behaviors.IDLE:entity.getBehaviorId();

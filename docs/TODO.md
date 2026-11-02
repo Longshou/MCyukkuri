@@ -11,7 +11,6 @@
 | 宠物窝只从入口进出 | `.worktrees/fb-bed-entrance` | 宠物窝入口、入窝／离窝接近路线 |
 | 试玩场自动截图（后台客户端） | `.worktrees/fb-capture` | `scripts/capture_museum.py`、客户端截图调试命令 |
 | 场景布置校验与群系化重排（反馈 1、3、6、9） | `.worktrees/fb-scene-layout` | `scripts/museum_*.py`、场景校验脚本 |
-| 连续移动表现（反馈 8、13、15、16 划速） | `.worktrees/fb-motion-flow` | `motor/` 划水／游泳／推动、客户端插值与片段播放 |
 | 三种亲代托运演出（反馈 2、5） | `.worktrees/fb-carry-species` | `family/ParentCarry`、`client/ParentCarryPresentation`、托运动作源 |
 | 水上成长周期（反馈 14、16、17） | `.worktrees/fb-water-life` | `aquatic/Rescue`／`FirstVoyage`／`AquaticGoal`／`HullAfloat`、救援木棍 |
 | 嗯嗯奴隶长期存在与产生闭环（反馈 4） | `.worktrees/fb-pit-slave` | `settlement/PitSlave`、失饰与蔑视 |
@@ -20,6 +19,7 @@
 
 ### 复测失败/待修复
 
+- **连续游泳与划船（反馈 8、13、15、16 划速）**：已接入待试玩。运行 [bbd16394b](https://github.com/Longshou/MCyukkuri/commit/bbd16394b)（2026-11-02 20:40–21:22，CI 待核实）：轻推／猛撞断续、游回帽子挣扎一下前进一下、持棍划水反复停顿、亲油船过慢看不到演出；同场 20:57:24 服务端落后 265 tick，整体卡顿原因仍待排查。完成：池塘与河湾 `hat_push`（轻推／猛撞）、`self_rescue`（游回帽子）、`sail`（单体航程）、`kid_boat_play`（拍水·学划·拨粮·躲辫）逐 tick 位移无片段节拍造成的停走，游泳与乘船划桨动作随实际速度连续循环，亲油在场景内可见划行；真实碰撞、耗竭和漂流仍保留。
 - **2026-11-02 试玩反馈**（运行 [4064a9234](https://github.com/Longshou/MCyukkuri/commit/4064a9234)（CI 41332517724，2026-11-02），用户原话摘要；修复后改各条状态）：
   - 已接入待试玩：魔理沙帽檐托赤油比例、阶段判定、易掉落与缺辫子动作（`carry_home`、`colony_migrate_babies`）。完成：核对真实体型与帽檐空间、帽满后叼嘴、辫子接放及行走／跳跃掉落原因。
   - 已接入待试玩：岸上不处理水中帽子与亲子出航反复放帽（`hat_swap`、`self_rescue`、`shore_capsized`、`afloat_family`）。完成：岸上对漂着或倒扣的自家帽先招帽靠岸再扶正收回（`beckon` → `right`／`take_prop` → `reclaim done`），招不到时走进水里游去扶正再爬回（`shore_capsized`：`step_in` → 游泳 → `right` → 上帽），无原地哭脸或岸边来回循环；亲子出航一次放帽、一次出航，待接赤油逐只辫子接上落座（`set_out complete aboard=…`），无收帽或重复出航。

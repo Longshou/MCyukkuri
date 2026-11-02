@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.geom.Buoyancy;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -116,6 +117,8 @@ public final class BodyDriver {
         if (body.level().isClientSide) return TravelMode.PASS;
         TravelMode mode = current == null ? fall() : drive();
         if (mode == TravelMode.PASS && body.isAlive() && body.isInWaterOrBubble() && !body.predatorFlying()) buoy();
+        if (StatusEvents.trace() && current != null) GameplayLog.event(body, "move",
+                "travel action={} at={} velocity={}", current.id(), body.position(), body.getDeltaMovement());
         return mode;
     }
 
