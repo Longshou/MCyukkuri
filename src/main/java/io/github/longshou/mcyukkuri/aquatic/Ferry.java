@@ -27,6 +27,9 @@ import net.minecraft.world.phys.Vec3;
  * is read when its step is due. A step that cannot be done ends blocked and the intent's runner counts it; nothing here retries.
  */
 final class Ferry {
+    /** Longest bank call for a child still following into pickup reach. */
+    private static final int FETCH_WAIT = 300;
+
     private Ferry() {}
 
     private static Step act(Action action) { return new Step.Do(action); }
