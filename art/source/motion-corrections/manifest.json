@@ -26,7 +26,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "55828ae8a042b7ad525fdf052ee727b7d132fc40f0eba520ff1a4b833bca61c8",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "c6409ca1076e76d68ad21b7f65b05bc9fe2eec0ef47d6160a8459e203ba9e708",
+  "runtime_sha256": "83d66410db65adc2419d40fc0dd880e43987e88a31cff36e916224a341ca85cc",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -406,5 +406,13 @@
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/cheek_puff.png",
       "texture_sha256": "243b404b06c36670796b1811b88c52e1dfaabe0b1ec904f36f246f75578e0e4f"
     }
-  }
+  },
+  "lore_aquatic_tools": "standards/yukkuri-library/motions/variants/lore/aquatic_tools.py",
+  "lore_aquatic_tools_sha256": "c0429a03ded17a1f119abd55a608c33677f7c7d765c0dbd35bb2bee84260788b",
+  "braid_rescue_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
+  "braid_rescue_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
+  "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
+  "braid_rescue_author_sha256": "8af9532913049c0534d6d512b38f4ff9c98cf79d6c0a26ae2484a3420dda6848",
+  "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
+  "braid_rescue_geometry_sha256": "c81ed9641c2d0ba496c4c591d2d901a3c2a712e4d0b0b84a4cf72202a97b8785"
 }
