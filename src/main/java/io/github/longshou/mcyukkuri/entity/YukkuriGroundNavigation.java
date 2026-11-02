@@ -247,6 +247,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             }
             @Override protected PathType getCachedPathType(int x, int y, int z) {
                 PathType type = super.getCachedPathType(x, y, z);
+                var feet=new Vec3(x+entityWidth*.5,y,z+entityDepth*.5);
+                if(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,feet,feet))return PathType.FENCE;
                 if(planningObstacle!=null&&mob.getDimensions(mob.getPose()).makeBoundingBox(
                         x+entityWidth*.5,y,z+entityDepth*.5).inflate(.02,0,.02).intersects(planningObstacle))return PathType.BLOCKED;
                 // A wide mob's node covers several cells, with its centre at node + width/2, not node + .5: a foot there over a
@@ -268,12 +270,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             }
             @Override public int getNeighbors(Node[] neighbors,Node node){
                 int count=super.getNeighbors(neighbors,node);
-                if(planningObstacle==null)return count;
                 var from=new Vec3(node.x+entityWidth*.5,node.y,node.z+entityDepth*.5);
                 int kept=0;
                 for(int i=0;i<count;i++){
                     var next=neighbors[i];
-                    if(!crossesObstacle(from,new Vec3(next.x+entityWidth*.5,next.y,next.z+entityDepth*.5),planningObstacle))
+                    var to=new Vec3(next.x+entityWidth*.5,next.y,next.z+entityDepth*.5);
+                    if(!crossesObstacle(from,to,planningObstacle)
+                            &&!(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,from,to)))
                         neighbors[kept++]=next;
                 }
                 return kept;
