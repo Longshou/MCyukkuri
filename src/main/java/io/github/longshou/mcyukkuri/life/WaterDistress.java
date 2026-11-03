@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -97,11 +98,18 @@ public final class WaterDistress {
             set(Phase.IDLE);immersionTicks=0;
         }
     }
-    /** A short recovery may interrupt leisure, but never an urgent need, threat escape or player command. */
+    /** A short recovery may interrupt leisure, but never an urgent need, threat escape, player command or a young of hers crying
+     *  for help in the water. */
     public boolean restingBreath(){
         return phase==Phase.RECOVER&&phaseTicks<32&&!entity.isNoAi()&&!entity.isCommandPlaying()
-                &&!entity.operations().active()&&!realThreat()
+                &&!entity.operations().active()&&!realThreat()&&!youngInWater()
                 &&!entity.life().hasUrgentNeed()&&!entity.family().flying()&&!entity.predatorFlying();
+    }
+    private boolean youngInWater(){
+        var ledger=AskLedger.server();
+        return !level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),
+                young->!young.family().adult()&&(entity.getUUID().equals(young.family().mother())||entity.getUUID().equals(young.family().father()))
+                        &&ledger.openOf(young.getUUID(),"water")!=null).isEmpty();
     }
     /**
      * The escape goal's question, asked once a tick in water: may the body work its way out now? Not while the plunge's
